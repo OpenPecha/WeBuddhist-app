@@ -1,3 +1,8 @@
+// This file contains the Tibetan material localization delegate for the app.
+// It provides Tibetan translations for Material widgets.
+// Tibetan material localization delegate for the app.
+// Provides Tibetan translations for Material widgets.
+
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/intl.dart' as intl;
@@ -560,8 +565,11 @@ class _MaterialLocalizationsBoDelegate
   Future<MaterialLocalizations> load(Locale locale) async {
     final String localeName = intl.Intl.canonicalizedLocale(locale.toString());
     // Fallback to 'en' for intl DateFormat/NumberFormat if 'bo' is not supported
-    final String formatLocale = ['bo', 'bo_CN', 'bo_IN'].contains(localeName) ? 'en' : localeName;
-    final en = await GlobalMaterialLocalizations.delegate.load(const Locale('en'));
+    final String formatLocale =
+        ['bo', 'bo_CN', 'bo_IN'].contains(localeName) ? 'en' : localeName;
+    final en = await GlobalMaterialLocalizations.delegate.load(
+      const Locale('en'),
+    );
     return SynchronousFuture<MaterialLocalizations>(
       MaterialLocalizationsBo(
         localeName: localeName,
