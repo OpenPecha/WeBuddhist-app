@@ -1,3 +1,8 @@
+// This file provides a shared theme utility for the application,
+// defining the light and dark themes and other styling elements.
+// Defines the application's light and dark themes and theme utilities.
+// Shared across all features for consistent styling.
+
 import 'package:flutter/material.dart';
 
 class AppTheme {
@@ -12,10 +17,9 @@ class AppTheme {
         foregroundColor: Colors.white,
         elevation: 0,
       ),
-      colorScheme: ColorScheme.fromSwatch(primarySwatch: Colors.blue).copyWith(
-        secondary: Colors.blueAccent,
-        brightness: Brightness.light,
-      ),
+      colorScheme: ColorScheme.fromSwatch(
+        primarySwatch: Colors.blue,
+      ).copyWith(secondary: Colors.blueAccent, brightness: Brightness.light),
     );
   }
 
@@ -30,10 +34,9 @@ class AppTheme {
         foregroundColor: Colors.white,
         elevation: 0,
       ),
-      colorScheme: ColorScheme.fromSwatch(primarySwatch: Colors.blue).copyWith(
-        secondary: Colors.blueAccent,
-        brightness: Brightness.dark,
-      ),
+      colorScheme: ColorScheme.fromSwatch(
+        primarySwatch: Colors.blue,
+      ).copyWith(secondary: Colors.blueAccent, brightness: Brightness.dark),
     );
   }
 
