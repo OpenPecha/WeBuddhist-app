@@ -3,32 +3,23 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_pecha/core/theme/theme_provider.dart';
+import 'package:flutter_pecha/core/config/locale_provider.dart';
 
-class MyHomePage extends StatefulWidget {
+class MyHomePage extends ConsumerStatefulWidget {
   const MyHomePage({super.key});
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  ConsumerState<MyHomePage> createState() => _MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _MyHomePageState extends ConsumerState<MyHomePage> {
   final _supportedLocales = const [Locale('en'), Locale('zh'), Locale('bo')];
-  ThemeMode _themeMode = ThemeMode.system;
-  Locale? _locale;
-
-  void _toggleTheme() {
-    setState(() {
-      if (_themeMode == ThemeMode.light) {
-        _themeMode = ThemeMode.dark;
-      } else {
-        _themeMode = ThemeMode.light;
-      }
-    });
-  }
 
   void _changeLocale(Locale? locale) {
     setState(() {
-      _locale = locale;
+      // _locale = locale;
     });
   }
 
@@ -48,9 +39,11 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     final localizations = AppLocalizations.of(context)!;
+    final themeMode = ref.watch(themeModeProvider);
+    final locale = ref.watch(localeProvider);
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
         title: Text(localizations.appTitle),
       ),
       body: Center(
@@ -73,37 +66,37 @@ class _MyHomePageState extends State<MyHomePage> {
               IconButton(
                 iconSize: 36,
                 icon: Icon(
-                  _themeMode == ThemeMode.dark
+                  themeMode == ThemeMode.dark
                       ? Icons.dark_mode
                       : Icons.light_mode,
                   color: Theme.of(context).colorScheme.primary,
                 ),
                 tooltip:
-                    _themeMode == ThemeMode.dark
+                    themeMode == ThemeMode.dark
                         ? localizations.switchToLight
                         : localizations.switchToDark,
                 onPressed: () {
-                  _toggleTheme();
+                  ref.read(themeModeProvider.notifier).toggleTheme();
                 },
               ),
               Text(
-                _themeMode == ThemeMode.dark
+                themeMode == ThemeMode.dark
                     ? localizations.themeDark
                     : localizations.themeLight,
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
               const SizedBox(height: 24),
               DropdownButton<Locale>(
-                value: _locale ?? Localizations.localeOf(context),
+                value: locale ?? Localizations.localeOf(context),
                 items:
-                    _supportedLocales.map((locale) {
+                    _supportedLocales.map((localeItem) {
                       return DropdownMenuItem<Locale>(
-                        value: locale,
-                        child: Text(_getLanguageName(locale)),
+                        value: localeItem,
+                        child: Text(_getLanguageName(localeItem)),
                       );
                     }).toList(),
                 onChanged: (Locale? newLocale) {
-                  _changeLocale(newLocale);
+                  ref.read(localeProvider.notifier).setLocale(newLocale);
                 },
                 underline: Container(
                   height: 2,
