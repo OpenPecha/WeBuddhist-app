@@ -2,6 +2,7 @@
 // It offers social login options and a guest login button.
 
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/widgets/logo_label.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../presentation/widgets/auth_buttons.dart';
 
@@ -20,17 +21,7 @@ class LoginPage extends ConsumerWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   // Logo
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 16.0, top: 32.0),
-                    child: Image.asset(
-                      'assets/images/favicon-pecha.png',
-                      height: 150,
-                    ),
-                  ),
-                  const Text(
-                    'Pecha',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 32),
-                  ),
+                  const LogoLabel(),
                   const SizedBox(height: 36),
                   // Auth Buttons (Riverpod aware)
                   const AuthButtons(),

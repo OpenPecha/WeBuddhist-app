@@ -2,6 +2,7 @@
 // It handles the UI for the splash screen shown at app startup.
 
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/widgets/logo_label.dart';
 import 'package:go_router/go_router.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -34,22 +35,7 @@ class _SplashScreenState extends State<SplashScreen> {
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // Logo or splash animation can go here
-            Padding(
-              padding: const EdgeInsets.only(bottom: 24.0),
-              child: Image.asset(
-                'assets/images/favicon-pecha.png',
-                height: 150,
-              ),
-            ),
-            const Text(
-              'Pecha',
-              style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 24),
-            const CircularProgressIndicator(),
-          ],
+          children: [const LogoLabel()],
         ),
       ),
     );
