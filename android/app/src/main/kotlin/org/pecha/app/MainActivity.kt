@@ -1,4 +1,4 @@
-package com.example.flutter_pecha
+package org.pecha.app
 
 import io.flutter.embedding.android.FlutterActivity
 
