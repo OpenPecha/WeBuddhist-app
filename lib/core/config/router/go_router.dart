@@ -11,30 +11,47 @@ final goRouterProvider = Provider<GoRouter>((ref) {
   final authState = ref.watch(authProvider);
   return GoRouter(
     initialLocation: '/splash',
-    refreshListenable: GoRouterRefreshStream(ref.watch(authProvider.notifier).stream),
+    refreshListenable: GoRouterRefreshStream(
+      ref.watch(authProvider.notifier).stream,
+    ),
     routes: [
       GoRoute(
         path: '/splash',
         builder: (context, state) => const SplashScreen(),
       ),
-      GoRoute(
-        path: '/login',
-        builder: (context, state) => const LoginPage(),
-      ),
+      GoRoute(path: '/login', builder: (context, state) => const LoginPage()),
       GoRoute(
         path: '/home',
         builder: (context, state) => const SkeletonScreen(),
       ),
     ],
     redirect: (context, state) {
-      final loggedIn = authState.isLoggedIn;
-      final loggingIn = state.fullPath == '/login';
-      if (!loggedIn && state.fullPath != '/login' && state.fullPath != '/splash') {
+      final isLoading = authState.isLoading;
+      final isLoggedIn = authState.isLoggedIn;
+      final onSplash = state.fullPath == '/splash';
+      final onLogin = state.fullPath == '/login';
+
+      // // 1. If loading, stay on splash screen
+      if (isLoading) {
         return '/login';
       }
-      if (loggedIn && (loggingIn || state.fullPath == '/splash')) {
+
+      // 2. If not loading and on splash, go to login or home
+      if (!isLoading && onSplash) {
+        return isLoggedIn ? '/home' : '/login';
+      }
+
+      // 3. If not logged in and not on login/splash, go to login
+      if (!isLoggedIn && !onLogin && !onSplash) {
+        return '/login';
+      }
+
+      // 4. If logged in and on login, go to home
+      if (isLoggedIn && onLogin) {
         return '/home';
       }
+
+      // 5. No redirect needed
       return null;
     },
   );

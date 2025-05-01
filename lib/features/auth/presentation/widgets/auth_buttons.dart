@@ -5,11 +5,12 @@ import '../../application/auth_provider.dart';
 import '../../auth_service.dart';
 
 class AuthButtons extends ConsumerWidget {
-  AuthButtons({super.key});
-  final authService = AuthService();
+  const AuthButtons({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final authNotifier = ref.read(authProvider.notifier);
+
     return Column(
       children: [
         SizedBox(
@@ -25,17 +26,7 @@ class AuthButtons extends ConsumerWidget {
               ),
             ),
             onPressed: () async {
-              final credentials = await authService.loginWithFacebook();
-              if (credentials?.user != null) {
-                ref.read(authProvider.notifier).login(userId: credentials!.user.sub ?? 'facebook');
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Facebook login successful!')),
-                );
-              } else {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Facebook login failed!')),
-                );
-              }
+              await authNotifier.login(connection: 'facebook');
             },
             label: const Text('Continue with Facebook'),
           ),
@@ -55,17 +46,7 @@ class AuthButtons extends ConsumerWidget {
               ),
             ),
             onPressed: () async {
-              final credentials = await authService.loginWithGoogle();
-              if (credentials != null) {
-                ref.read(authProvider.notifier).login(userId: credentials.user.sub ?? 'google');
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Google login successful!')),
-                );
-              } else {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Google login failed!')),
-                );
-              }
+              await authNotifier.login(connection: 'google');
             },
             label: const Text('Continue with Google'),
           ),
@@ -84,17 +65,7 @@ class AuthButtons extends ConsumerWidget {
               ),
             ),
             onPressed: () async {
-              final credentials = await authService.loginWithApple();
-              if (credentials != null) {
-                ref.read(authProvider.notifier).login(userId: credentials.user.sub ?? 'apple');
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Apple login successful!')),
-                );
-              } else {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Apple login failed!')),
-                );
-              }
+              await authNotifier.login(connection: 'apple');
             },
             label: const Text('Continue with Apple'),
           ),
@@ -111,8 +82,8 @@ class AuthButtons extends ConsumerWidget {
               foregroundColor: Colors.black,
               side: const BorderSide(color: Colors.black, width: 1),
             ),
-            onPressed: () {
-              ref.read(authProvider.notifier).login(userId: 'guest');
+            onPressed: () async {
+              await authNotifier.continueAsGuest();
             },
             child: const Text('Continue as Guest'),
           ),

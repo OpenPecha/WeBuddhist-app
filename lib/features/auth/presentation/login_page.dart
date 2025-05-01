@@ -13,11 +13,7 @@ class LoginPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final authState = ref.watch(authProvider);
-    // Redirect immediately if already logged in
-    if (authState.isLoggedIn) {
-      Future.microtask(() => Navigator.of(context).pushReplacementNamed('/home'));
-      return const SizedBox.shrink();
-    }
+
     return Scaffold(
       body: SafeArea(
         child: Center(
@@ -27,11 +23,12 @@ class LoginPage extends ConsumerWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  // Logo
                   const LogoLabel(),
                   const SizedBox(height: 36),
-                  // Auth Buttons (Riverpod aware)
-                  AuthButtons(),
+                  if (authState.isLoading)
+                    const CircularProgressIndicator()
+                  else
+                    AuthButtons(),
                 ],
               ),
             ),
