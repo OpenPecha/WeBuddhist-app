@@ -4,6 +4,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/widgets/logo_label.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_pecha/features/auth/application/auth_provider.dart';
 import '../presentation/widgets/auth_buttons.dart';
 
 class LoginPage extends ConsumerWidget {
@@ -11,6 +12,12 @@ class LoginPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final authState = ref.watch(authProvider);
+    // Redirect immediately if already logged in
+    if (authState.isLoggedIn) {
+      Future.microtask(() => Navigator.of(context).pushReplacementNamed('/home'));
+      return const SizedBox.shrink();
+    }
     return Scaffold(
       body: SafeArea(
         child: Center(
@@ -24,7 +31,7 @@ class LoginPage extends ConsumerWidget {
                   const LogoLabel(),
                   const SizedBox(height: 36),
                   // Auth Buttons (Riverpod aware)
-                  const AuthButtons(),
+                  AuthButtons(),
                 ],
               ),
             ),

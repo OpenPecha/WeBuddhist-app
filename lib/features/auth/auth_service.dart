@@ -1,0 +1,51 @@
+import 'package:auth0_flutter/auth0_flutter.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
+class AuthService {
+  late final Auth0 auth0;
+
+  AuthService() {
+    final domain = dotenv.env['AUTH0_DOMAIN'] ?? '';
+    final clientId = dotenv.env['AUTH0_CLIENT_ID'] ?? '';
+    auth0 = Auth0(domain, clientId);
+  }
+
+  // Common login method
+  Future<Credentials?> _loginWithConnection(String connection) async {
+    try {
+      final credentials = await auth0
+          .webAuthentication(scheme: 'com.pecha.app')
+          .login(
+            redirectUrl: dotenv.env['AUTH0_IOS_CALLBACK_URL_2'] ?? '',
+            parameters: {'connection': connection},
+          );
+      return credentials;
+    } catch (e) {
+      print('Login failed: $e');
+      return null;
+    }
+  }
+
+  // Login with Google
+  Future<Credentials?> loginWithGoogle() async {
+    return _loginWithConnection('google-oauth2');
+  }
+
+  // Login with Facebook
+  Future<Credentials?> loginWithFacebook() async {
+    return _loginWithConnection('facebook');
+  }
+
+  // Login with Apple
+  Future<Credentials?> loginWithApple() async {
+    return _loginWithConnection('apple');
+  }
+
+  Future<void> logout() async {
+    try {
+      await auth0.webAuthentication(scheme: 'com.pecha.app').logout();
+    } catch (e) {
+      print('Logout failed: $e');
+    }
+  }
+}

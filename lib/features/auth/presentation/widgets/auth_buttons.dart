@@ -2,9 +2,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../application/auth_provider.dart';
+import '../../auth_service.dart';
 
 class AuthButtons extends ConsumerWidget {
-  const AuthButtons({super.key});
+  AuthButtons({super.key});
+  final authService = AuthService();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -22,7 +24,19 @@ class AuthButtons extends ConsumerWidget {
                 borderRadius: BorderRadius.circular(8),
               ),
             ),
-            onPressed: () {},
+            onPressed: () async {
+              final credentials = await authService.loginWithFacebook();
+              if (credentials?.user != null) {
+                ref.read(authProvider.notifier).login(userId: credentials!.user.sub ?? 'facebook');
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Facebook login successful!')),
+                );
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Facebook login failed!')),
+                );
+              }
+            },
             label: const Text('Continue with Facebook'),
           ),
         ),
@@ -40,7 +54,19 @@ class AuthButtons extends ConsumerWidget {
                 borderRadius: BorderRadius.circular(8),
               ),
             ),
-            onPressed: () {},
+            onPressed: () async {
+              final credentials = await authService.loginWithGoogle();
+              if (credentials != null) {
+                ref.read(authProvider.notifier).login(userId: credentials.user.sub ?? 'google');
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Google login successful!')),
+                );
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Google login failed!')),
+                );
+              }
+            },
             label: const Text('Continue with Google'),
           ),
         ),
@@ -57,7 +83,19 @@ class AuthButtons extends ConsumerWidget {
                 borderRadius: BorderRadius.circular(8),
               ),
             ),
-            onPressed: () {},
+            onPressed: () async {
+              final credentials = await authService.loginWithApple();
+              if (credentials != null) {
+                ref.read(authProvider.notifier).login(userId: credentials.user.sub ?? 'apple');
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Apple login successful!')),
+                );
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Apple login failed!')),
+                );
+              }
+            },
             label: const Text('Continue with Apple'),
           ),
         ),

@@ -9,8 +9,11 @@ import 'package:flutter_pecha/core/config/locale_provider.dart';
 import 'core/theme/app_theme.dart';
 import 'core/localization/material_localizations_bo.dart';
 import 'core/localization/cupertino_localizations_bo.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await dotenv.load(fileName: ".env");
   runApp(const ProviderScope(child: MyApp()));
 }
 
