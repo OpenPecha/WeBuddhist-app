@@ -28,6 +28,10 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+        manifestPlaceholders = [
+    'auth0Domain': 'dev-56nxmlhj0amjwa88.us.auth0.com',
+    'auth0Scheme': 'com.pecha.app'
+]
     }
 
     buildTypes {
