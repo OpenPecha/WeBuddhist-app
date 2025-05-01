@@ -41,6 +41,15 @@ class AuthService {
     return _loginWithConnection('apple');
   }
 
+  // quick logout
+  Future<void> quickLogout() async {
+    try {
+      await auth0.credentialsManager.clearCredentials();
+    } catch (e) {
+      print('Logout failed: $e');
+    }
+  }
+
   Future<void> logout() async {
     try {
       await auth0.webAuthentication(scheme: 'com.pecha.app').logout();

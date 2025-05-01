@@ -3,30 +3,9 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/widgets/logo_label.dart';
-import 'package:go_router/go_router.dart';
 
-class SplashScreen extends StatefulWidget {
+class SplashScreen extends StatelessWidget {
   const SplashScreen({super.key});
-
-  @override
-  State<SplashScreen> createState() => _SplashScreenState();
-}
-
-class _SplashScreenState extends State<SplashScreen> {
-  // For now, use a boolean to determine login status
-  final bool _isLoggedIn = true; // Change to true to simulate logged-in user
-
-  @override
-  void initState() {
-    super.initState();
-    Future.delayed(const Duration(seconds: 2), () {
-      if (_isLoggedIn) {
-        context.go('/home');
-      } else {
-        context.go('/login');
-      }
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
