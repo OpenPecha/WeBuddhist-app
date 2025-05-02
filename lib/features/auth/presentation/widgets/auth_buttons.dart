@@ -2,7 +2,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../application/auth_provider.dart';
-import '../../auth_service.dart';
 
 class AuthButtons extends ConsumerWidget {
   const AuthButtons({super.key});

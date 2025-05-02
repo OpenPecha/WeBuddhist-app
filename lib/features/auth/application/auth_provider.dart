@@ -2,33 +2,41 @@
 import 'package:auth0_flutter/auth0_flutter.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../auth_service.dart';
+import 'package:flutter_pecha/features/auth/application/auth0_config.dart';
 
 class AuthState {
   final bool isLoggedIn;
   final bool isLoading;
+  final bool isGuest;
   final String? userId;
 
   const AuthState({
     required this.isLoggedIn,
+    this.isGuest = false,
     this.userId,
     this.isLoading = false,
   });
 
-  AuthState copyWith({bool? isLoggedIn, String? userId, bool? isLoading}) =>
-      AuthState(
-        isLoggedIn: isLoggedIn ?? this.isLoggedIn,
-        userId: userId ?? this.userId,
-        isLoading: isLoading ?? this.isLoading,
-      );
+  AuthState copyWith({
+    bool? isLoggedIn,
+    String? userId,
+    bool? isLoading,
+    bool? isGuest,
+  }) => AuthState(
+    isLoggedIn: isLoggedIn ?? this.isLoggedIn,
+    userId: userId ?? this.userId,
+    isLoading: isLoading ?? this.isLoading,
+    isGuest: isGuest ?? this.isGuest,
+  );
 }
 
 class AuthNotifier extends StateNotifier<AuthState> {
-  AuthNotifier() : super(const AuthState(isLoggedIn: false, isLoading: true)) {
+  final AuthService authService;
+  AuthNotifier({required this.authService}) : super(const AuthState(isLoggedIn: false, isLoading: true)) {
     _restoreLoginState();
   }
 
   Future<void> _restoreLoginState() async {
-    final authService = AuthService();
     try {
       final hasValid =
           await authService.auth0.credentialsManager.hasValidCredentials();
@@ -39,12 +47,14 @@ class AuthNotifier extends StateNotifier<AuthState> {
           isLoggedIn: true,
           userId: credentials.user.sub,
           isLoading: false,
+          isGuest: false,
         );
       } else {
         state = state.copyWith(
           isLoggedIn: false,
           userId: null,
           isLoading: false,
+          isGuest: false,
         );
       }
     } catch (e) {
@@ -54,7 +64,6 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
   Future<void> login({String? connection}) async {
     state = state.copyWith(isLoading: true);
-    final authService = AuthService();
     Credentials? credentials;
     if (connection == 'google') {
       credentials = await authService.loginWithGoogle();
@@ -68,6 +77,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
         isLoggedIn: true,
         userId: credentials.user.sub,
         isLoading: false,
+        isGuest: false,
       );
     } else {
       state = state.copyWith(isLoading: false);
@@ -76,16 +86,34 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
   // continue as guest
   Future<void> continueAsGuest() async {
-    state = state.copyWith(isLoading: false, isLoggedIn: true, userId: 'guest');
+    state = state.copyWith(
+      isLoading: false,
+      isLoggedIn: true,
+      userId: 'guest',
+      isGuest: true,
+    );
   }
 
   Future<void> logout() async {
-    final authService = AuthService();
     await authService.quickLogout();
-    state = state.copyWith(isLoggedIn: false, userId: null, isLoading: false);
+    state = state.copyWith(
+      isLoggedIn: false,
+      userId: null,
+      isLoading: false,
+      isGuest: false,
+    );
   }
 }
 
-final authProvider = StateNotifierProvider<AuthNotifier, AuthState>(
-  (ref) => AuthNotifier(),
-);
+final authProvider = StateNotifierProvider<AuthNotifier, AuthState>((ref) {
+  final configAsync = ref.watch(auth0ConfigProvider);
+  return configAsync.when(
+    data: (config) => AuthNotifier(authService: AuthService(domain: config.domain, clientId: config.clientId)),
+    loading: () => AuthNotifier(authService: AuthService(domain: '', clientId: '')),
+    error: (err, stack) => AuthNotifier(authService: AuthService(domain: '', clientId: '')),
+  );
+});
+
+final auth0ConfigProvider = FutureProvider<Auth0Config>((ref) async {
+  return await fetchAuth0Config();
+});

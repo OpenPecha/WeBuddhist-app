@@ -3,8 +3,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
-import 'package:flutter_pecha/features/auth/application/auth_provider.dart';
-import 'package:flutter_pecha/features/auth/auth_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_pecha/core/theme/theme_provider.dart';
 import 'package:flutter_pecha/core/config/locale_provider.dart';
@@ -18,12 +16,6 @@ class MyHomePage extends ConsumerStatefulWidget {
 
 class _MyHomePageState extends ConsumerState<MyHomePage> {
   final _supportedLocales = const [Locale('en'), Locale('zh'), Locale('bo')];
-
-  void _changeLocale(Locale? locale) {
-    setState(() {
-      // _locale = locale;
-    });
-  }
 
   String _getLanguageName(Locale locale) {
     switch (locale.languageCode) {
@@ -40,8 +32,6 @@ class _MyHomePageState extends ConsumerState<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final authService = AuthService();
-
     final localizations = AppLocalizations.of(context)!;
     final themeMode = ref.watch(themeModeProvider);
     final locale = ref.watch(localeProvider);
@@ -109,14 +99,6 @@ class _MyHomePageState extends ConsumerState<MyHomePage> {
               ),
               Text('Language', style: Theme.of(context).textTheme.bodyMedium),
               const SizedBox(height: 24),
-              // add a logout button
-              ElevatedButton(
-                onPressed: () {
-                  authService.quickLogout();
-                  ref.read(authProvider.notifier).logout();
-                },
-                child: const Text('Logout'),
-              ),
             ],
           ),
         ),
