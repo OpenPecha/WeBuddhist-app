@@ -4,7 +4,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_pecha/features/home/presentation/home_screen.dart';
-// TODO: Replace with actual widgets for each tab when available.
+import 'package:flutter_pecha/features/more/presentation/more_screen.dart';
 
 /// Riverpod provider for bottom navigation index
 final bottomNavIndexProvider = StateProvider<int>((ref) => 0);
@@ -16,7 +16,7 @@ class SkeletonScreen extends ConsumerWidget {
     MyHomePage(), // Home tab
     Center(child: Text('Texts')), // Texts tab placeholder
     Center(child: Text('Plans')), // Plans tab placeholder
-    Center(child: Text('Settings')), // Settings tab placeholder
+    const MoreScreen(), // Settings tab placeholder
   ];
 
   @override
@@ -34,10 +34,7 @@ class SkeletonScreen extends ConsumerWidget {
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
           BottomNavigationBarItem(icon: Icon(Icons.menu_book), label: 'Texts'),
           BottomNavigationBarItem(icon: Icon(Icons.event_note), label: 'Plans'),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
-            label: 'Settings',
-          ),
+          BottomNavigationBarItem(icon: Icon(Icons.menu), label: 'More'),
         ],
       ),
     );

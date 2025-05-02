@@ -1,12 +1,13 @@
 import 'package:auth0_flutter/auth0_flutter.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:logging/logging.dart';
 
 class AuthService {
   late final Auth0 auth0;
+  final Logger _logger = Logger('AuthService');
 
-  AuthService() {
-    final domain = dotenv.env['AUTH0_DOMAIN'] ?? '';
-    final clientId = dotenv.env['AUTH0_CLIENT_ID'] ?? '';
+  // Accept config as parameter
+  AuthService({required String domain, required String clientId}) {
     auth0 = Auth0(domain, clientId);
   }
 
@@ -21,7 +22,7 @@ class AuthService {
           );
       return credentials;
     } catch (e) {
-      print('Login failed: $e');
+      _logger.severe('Login failed: $e');
       return null;
     }
   }
@@ -46,7 +47,7 @@ class AuthService {
     try {
       await auth0.credentialsManager.clearCredentials();
     } catch (e) {
-      print('Logout failed: $e');
+      _logger.severe('Logout failed: $e');
     }
   }
 
@@ -54,7 +55,7 @@ class AuthService {
     try {
       await auth0.webAuthentication(scheme: 'com.pecha.app').logout();
     } catch (e) {
-      print('Logout failed: $e');
+      _logger.severe('Logout failed: $e');
     }
   }
 }
