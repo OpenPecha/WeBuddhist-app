@@ -13,10 +13,10 @@ class SkeletonScreen extends ConsumerWidget {
   const SkeletonScreen({super.key});
 
   static final List<Widget> _pages = <Widget>[
-    MyHomePage(), // Home tab
+    HomeScreen(), // Home tab
     Center(child: Text('Texts')), // Texts tab placeholder
     Center(child: Text('Plans')), // Plans tab placeholder
-    const MoreScreen(), // Settings tab placeholder
+    MoreScreen(), // Settings tab placeholder
   ];
 
   @override
@@ -27,13 +27,14 @@ class SkeletonScreen extends ConsumerWidget {
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         currentIndex: selectedIndex,
+        selectedItemColor: Colors.black87,
         showSelectedLabels: false,
         showUnselectedLabels: false,
         onTap: (idx) => ref.read(bottomNavIndexProvider.notifier).state = idx,
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
           BottomNavigationBarItem(icon: Icon(Icons.menu_book), label: 'Texts'),
-          BottomNavigationBarItem(icon: Icon(Icons.event_note), label: 'Plans'),
+          BottomNavigationBarItem(icon: Icon(Icons.check_box), label: 'Plans'),
           BottomNavigationBarItem(icon: Icon(Icons.menu), label: 'More'),
         ],
       ),
