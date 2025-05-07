@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/features/meditation_of_day/presentation/meditation_of_day_screen.dart';
 
 class ActionOfTheDayCard extends StatelessWidget {
   const ActionOfTheDayCard({
@@ -60,7 +61,18 @@ class ActionOfTheDayCard extends StatelessWidget {
                     ),
                     elevation: 0,
                   ),
-                  onPressed: () {},
+                  onPressed: () {
+                    if (title == 'Meditation of the Day') {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder:
+                              (context) => const MeditationOfTheDayScreen(),
+                        ),
+                      );
+                    }
+                  },
+
                   child: Text(
                     'Start now',
                     style: TextStyle(
