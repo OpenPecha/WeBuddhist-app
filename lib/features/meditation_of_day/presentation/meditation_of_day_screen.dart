@@ -21,7 +21,7 @@ class _MeditationOfTheDayScreenState extends State<MeditationOfTheDayScreen> {
   void initState() {
     super.initState();
     _audioPlayer = AudioPlayer();
-    _audioPlayer.setAsset('assets/audios/Tibetan_prayer.mp3').then((duration) {
+    _audioPlayer.setAsset('assets/audios/meditation.mp3').then((duration) {
       setState(() {
         _duration = duration ?? Duration.zero;
       });
