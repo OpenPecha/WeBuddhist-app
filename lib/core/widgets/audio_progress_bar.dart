@@ -22,8 +22,14 @@ class AudioProgressBar extends StatelessWidget {
             0,
             duration.inSeconds.toDouble(),
           ),
+          onChangeStart: (value) {
+            audioPlayer.pause();
+          },
           onChanged: (value) {
-            // TODO: Implement slider value change
+            audioPlayer.seek(Duration(seconds: value.toInt()));
+          },
+          onChangeEnd: (value) {
+            audioPlayer.play();
           },
           min: 0,
           max:
