@@ -16,3 +16,14 @@ final termListFutureProvider = FutureProvider((ref) {
   final languageCode = locale?.languageCode;
   return ref.watch(termRepositoryProvider).getTerms(language: languageCode);
 });
+
+final termCategoryFutureProvider = FutureProvider.family((
+  ref,
+  String parentId,
+) {
+  final locale = ref.watch(localeProvider);
+  final languageCode = locale?.languageCode;
+  return ref
+      .watch(termRepositoryProvider)
+      .getTerms(language: languageCode, parentId: parentId);
+});

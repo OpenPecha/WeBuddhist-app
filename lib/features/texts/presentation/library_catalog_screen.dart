@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/features/texts/data/providers/term_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_pecha/features/texts/presentation/category_screen.dart';
+import 'package:go_router/go_router.dart';
 
 class LibraryCatalogScreen extends ConsumerWidget {
   const LibraryCatalogScreen({super.key});
@@ -68,12 +68,7 @@ class LibraryCatalogScreen extends ConsumerWidget {
                         final term = terms[index];
                         return GestureDetector(
                           onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const CategoryScreen(),
-                              ),
-                            );
+                            context.push('/texts/category', extra: term);
                           },
                           child: _LibrarySection(
                             title: term.title,

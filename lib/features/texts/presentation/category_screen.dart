@@ -1,10 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/features/texts/data/providers/term_providers.dart';
+import 'package:flutter_pecha/features/texts/models/term.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class CategoryScreen extends StatelessWidget {
-  const CategoryScreen({super.key});
+class CategoryScreen extends ConsumerWidget {
+  const CategoryScreen({super.key, required this.term});
+  final Term term;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final termCategory = ref.watch(termCategoryFutureProvider(term.id));
+
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
@@ -23,7 +29,7 @@ class CategoryScreen extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.fromLTRB(24, 6, 24, 0),
             child: Text(
-              'MADHYAMAKA',
+              term.title,
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.w500,
@@ -34,7 +40,7 @@ class CategoryScreen extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.fromLTRB(24, 6, 24, 0),
             child: Text(
-              'PRASANGIKA',
+              term.description,
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w400,
@@ -44,21 +50,22 @@ class CategoryScreen extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           Expanded(
-            child: ListView(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              children: [
-                _CategoryBookItem(
-                  title: 'Bodhicaryavatara',
-                  subtitle:
-                      'Root text and commentaries of the work composed by Shantideva in the 8th century',
-                ),
-                _CategoryBookItem(
-                  title: 'Entering the Middle Way',
-                  subtitle:
-                      'Root text and commentaries of the work composed by Chandrakirti in the 7th century',
-                ),
-                // Add more items as needed
-              ],
+            child: termCategory.when(
+              data:
+                  (terms) => ListView.builder(
+                    itemCount: terms.length,
+                    itemBuilder: (context, index) {
+                      final term = terms[index];
+                      return _CategoryBookItem(
+                        title: term.title,
+                        subtitle: term.description,
+                      );
+                    },
+                  ),
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error:
+                  (error, stackTrace) =>
+                      const Center(child: Text('Failed to load terms')),
             ),
           ),
         ],
@@ -88,7 +95,7 @@ class _CategoryBookItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 20.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
