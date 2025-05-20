@@ -3,89 +3,111 @@ import 'package:flutter_pecha/features/texts/data/providers/term_providers.dart'
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-class LibraryCatalogScreen extends ConsumerWidget {
+class LibraryCatalogScreen extends ConsumerStatefulWidget {
   const LibraryCatalogScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<LibraryCatalogScreen> createState() => _LibraryCatalogScreenState();
+}
+
+class _LibraryCatalogScreenState extends ConsumerState<LibraryCatalogScreen> {
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
+
+  @override
+  void dispose() {
+    _searchController.dispose();p
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final termList = ref.watch(termListFutureProvider);
     return Scaffold(
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 16.0,
-                vertical: 8.0,
-              ),
-              child: Text(
-                'Browse The Library',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  fontFamily: 'Serif',
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 16.0,
-                vertical: 8.0,
-              ),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.grey[200],
-                  borderRadius: BorderRadius.circular(25),
-                ),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 4,
-                ),
-                child: Row(
-                  children: [
-                    Icon(Icons.search, color: Colors.grey[600]),
-                    const SizedBox(width: 8),
-                    Text(
-                      'Search',
-                      style: TextStyle(
-                        color: Colors.grey[500],
-                        fontSize: 22,
-                        fontFamily: 'Serif',
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
+            _buildHeader(context),
+            _buildSearchField(context),
             const SizedBox(height: 10),
             Expanded(
               child: termList.when(
-                data:
-                    (terms) => ListView.builder(
-                      itemCount: terms.length,
-                      itemBuilder: (context, index) {
-                        final term = terms[index];
-                        return GestureDetector(
-                          onTap: () {
-                            context.push('/texts/category', extra: term);
-                          },
-                          child: _LibrarySection(
-                            title: term.title,
-                            subtitle: term.description,
-                            dividerColor: Color(0xFF8B3A50),
-                            slug: term.slug,
-                          ),
-                        );
-                      },
-                    ),
+                data: (terms) {
+                  final filteredTerms = _searchQuery.isEmpty
+                      ? terms
+                      : terms.where((term) =>
+                          term.title.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+                          term.description.toLowerCase().contains(_searchQuery.toLowerCase())
+                        ).toList();
+                  return ListView.builder(
+                    itemCount: filteredTerms.length,
+                    itemBuilder: (context, index) {
+                      final term = filteredTerms[index];
+                      return GestureDetector(
+                        onTap: () {
+                          context.push('/texts/category', extra: term);
+                        },
+                        child: _LibrarySection(
+                          title: term.title,
+                          subtitle: term.description,
+                          dividerColor: Color(0xFF8B3A50),
+                          slug: term.slug,
+                        ),
+                      );
+                    },
+                  );
+                },
                 loading: () => const Center(child: CircularProgressIndicator()),
-                error:
-                    (error, stackTrace) =>
-                        const Center(child: Text('Failed to load terms')),
+                error: (error, stackTrace) =>
+                    const Center(child: Text('Failed to load terms')),
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHeader(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+      child: Text(
+        'Browse The Library',
+        style: TextStyle(
+          fontSize: 24,
+          fontWeight: FontWeight.bold,
+          fontFamily: 'Serif',
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSearchField(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+      child: TextField(
+        controller: _searchController,
+        onChanged: (value) {
+          setState(() {
+            _searchQuery = value;
+          });
+        },
+        decoration: InputDecoration(
+          hintText: 'Search',
+          prefixIcon: Icon(Icons.search, color: Colors.grey[600]),
+          filled: true,
+          fillColor: Colors.grey[200],
+          contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 16),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(25),
+            borderSide: BorderSide.none,
+          ),
+        ),
+        style: const TextStyle(
+          color: Colors.black,
+          fontSize: 20,
+          fontFamily: 'Serif',
         ),
       ),
     );
