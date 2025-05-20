@@ -9,10 +9,23 @@ class TermRemoteDatasource {
 
   TermRemoteDatasource({required this.client});
 
-  Future<List<Term>> fetchTerms() async {
-    final response = await client.get(
-      Uri.parse('${dotenv.env['BASE_API_URL']}/terms'),
+  Future<List<Term>> fetchTerms({
+    String? parentId,
+    String? language,
+    int skip = 0,
+    int limit = 10,
+  }) async {
+    final uri = Uri.parse('${dotenv.env['BASE_API_URL']}/terms').replace(
+      queryParameters: {
+        if (parentId != null) 'parent_id': parentId,
+        if (language != null) 'language': language,
+        'skip': skip.toString(),
+        'limit': limit.toString(),
+      },
     );
+
+    final response = await client.get(uri);
+
     if (response.statusCode == 200) {
       final Map<String, dynamic> jsonMap = json.decode(response.body);
       final List<dynamic> termsJson = jsonMap['terms'] ?? [];
