@@ -7,7 +7,17 @@ class TermRepository {
 
   TermRepository({required this.remoteDatasource});
 
-  Future<List<Term>> getTerms() {
-    return remoteDatasource.fetchTerms();
+  Future<List<Term>> getTerms({
+    String? parentId,
+    String? language,
+    int skip = 0,
+    int limit = 10,
+  }) {
+    return remoteDatasource.fetchTerms(
+      parentId: parentId,
+      language: language,
+      skip: skip,
+      limit: limit,
+    );
   }
 }
