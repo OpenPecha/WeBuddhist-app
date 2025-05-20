@@ -27,7 +27,8 @@ class TermRemoteDatasource {
     final response = await client.get(uri);
 
     if (response.statusCode == 200) {
-      final Map<String, dynamic> jsonMap = json.decode(response.body);
+      final decoded = utf8.decode(response.bodyBytes);
+      final Map<String, dynamic> jsonMap = json.decode(decoded);
       final List<dynamic> termsJson = jsonMap['terms'] ?? [];
       return termsJson
           .map((json) => Term.fromJson(json as Map<String, dynamic>))
