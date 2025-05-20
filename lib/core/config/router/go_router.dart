@@ -5,6 +5,9 @@ import 'package:flutter_pecha/features/app/presentation/skeleton_screen.dart';
 import 'package:flutter_pecha/features/meditation_of_day/presentation/meditation_of_day_screen.dart';
 import 'package:flutter_pecha/features/prayer_of_the_day/presentation/prayer_of_the_day_screen.dart';
 import 'package:flutter_pecha/features/splash/presentation/splash_screen.dart';
+import 'package:flutter_pecha/features/texts/models/term.dart';
+import 'package:flutter_pecha/features/texts/presentation/category_screen.dart';
+import 'package:flutter_pecha/features/texts/presentation/library_catalog_screen.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_pecha/features/auth/application/auth_provider.dart';
@@ -34,6 +37,14 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/home/prayer_of_the_day',
         builder: (context, state) => const PrayerOfTheDayScreen(),
+      ),
+      GoRoute(
+        path: '/texts',
+        builder: (context, state) => const LibraryCatalogScreen(),
+      ),
+      GoRoute(
+        path: '/texts/category',
+        builder: (context, state) => CategoryScreen(term: state.extra as Term),
       ),
     ],
     redirect: (context, state) {
