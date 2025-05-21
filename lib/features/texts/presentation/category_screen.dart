@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_pecha/features/texts/data/providers/term_providers.dart';
 import 'package:flutter_pecha/features/texts/models/term.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_pecha/features/app/presentation/pecha_bottom_nav_bar.dart';
 
 class CategoryScreen extends ConsumerWidget {
   const CategoryScreen({super.key, required this.term});
@@ -65,19 +66,7 @@ class CategoryScreen extends ConsumerWidget {
           ),
         ],
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: ''),
-          BottomNavigationBarItem(icon: Icon(Icons.menu_book), label: ''),
-          BottomNavigationBarItem(icon: Icon(Icons.check_box), label: ''),
-          BottomNavigationBarItem(icon: Icon(Icons.menu), label: ''),
-        ],
-        currentIndex: 1, // Book icon selected
-        onTap: (index) {},
-        type: BottomNavigationBarType.fixed,
-        showSelectedLabels: false,
-        showUnselectedLabels: false,
-      ),
+      bottomNavigationBar: const PechaBottomNavBar(),
     );
   }
 }
