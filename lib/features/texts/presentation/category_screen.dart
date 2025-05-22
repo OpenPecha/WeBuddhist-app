@@ -62,56 +62,6 @@ class CategoryScreen extends ConsumerWidget {
                       ),
                     ),
                   ),
-                  _CategoryBookItem(
-                    title: 'Bodhicaryavatara',
-                    subtitle:
-                        'Root text and commentaries of the work composed by Shantideva in the 8th century',
-                  ),
-                  _CategoryBookItem(
-                    title: 'Entering the Middle Way',
-                    subtitle:
-                        'Root text and commentaries of the work composed by Chandrakirti in the 7th century',
-                  ),
-                  _CategoryBookItem(
-                    title: 'Bodhicaryavatara',
-                    subtitle:
-                        'Root text and commentaries of the work composed by Shantideva in the 8th century',
-                  ),
-                  _CategoryBookItem(
-                    title: 'Entering the Middle Way',
-                    subtitle:
-                        'Root text and commentaries of the work composed by Chandrakirti in the 7th century',
-                  ),
-                  _CategoryBookItem(
-                    title: 'Bodhicaryavatara',
-                    subtitle:
-                        'Root text and commentaries of the work composed by Shantideva in the 8th century',
-                  ),
-                  _CategoryBookItem(
-                    title: 'Entering the Middle Way',
-                    subtitle:
-                        'Root text and commentaries of the work composed by Chandrakirti in the 7th century',
-                  ),
-                  _CategoryBookItem(
-                    title: 'Bodhicaryavatara',
-                    subtitle:
-                        'Root text and commentaries of the work composed by Shantideva in the 8th century',
-                  ),
-                  _CategoryBookItem(
-                    title: 'Entering the Middle Way',
-                    subtitle:
-                        'Root text and commentaries of the work composed by Chandrakirti in the 7th century',
-                  ),
-                  _CategoryBookItem(
-                    title: 'Bodhicaryavatara',
-                    subtitle:
-                        'Root text and commentaries of the work composed by Shantideva in the 8th century',
-                  ),
-                  _CategoryBookItem(
-                    title: 'Entering the Middle Way',
-                    subtitle:
-                        'Root text and commentaries of the work composed by Chandrakirti in the 7th century',
-                  ),
                 ],
               ),
             ),
