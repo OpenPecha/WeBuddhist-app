@@ -22,6 +22,9 @@ class AppTheme {
       colorScheme: ColorScheme.fromSwatch(
         primarySwatch: Colors.blue,
       ).copyWith(secondary: Colors.blueAccent, brightness: Brightness.light),
+      listTileTheme: const ListTileThemeData(
+        titleTextStyle: TextStyle(color: Colors.black),
+      ),
       bottomNavigationBarTheme: const BottomNavigationBarThemeData(
         backgroundColor: Colors.white,
         selectedItemColor: Colors.black87,
@@ -48,6 +51,9 @@ class AppTheme {
       colorScheme: ColorScheme.fromSwatch(
         primarySwatch: Colors.blue,
       ).copyWith(secondary: Colors.blueAccent, brightness: Brightness.dark),
+      listTileTheme: const ListTileThemeData(
+        titleTextStyle: TextStyle(color: Colors.white),
+      ),
       bottomNavigationBarTheme: const BottomNavigationBarThemeData(
         backgroundColor: Color(0xFF222222),
         selectedItemColor: Colors.white,

@@ -27,14 +27,22 @@
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
+
+        </activity>
+        <activity 
+            android:name="com.auth0.android.provider.RedirectActivity"
+            android:exported="true"
+            android:permission="android.permission.INTERNET"
+            >
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="${auth0Scheme}"
-                 android:host="${auth0Domain}"
-                 android:pathPrefix="/android/${auth0Scheme}/callback"
-                />
+                <data
+                    android:host="${auth0Domain}"
+                    android:scheme="${auth0Scheme}"
+                    android:pathPrefix="/android/${applicationId}/callback"
+                     />
             </intent-filter>
         </activity>
         <!-- Don't delete the meta-data below.
