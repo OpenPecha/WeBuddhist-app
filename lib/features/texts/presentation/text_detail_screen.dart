@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/features/app/presentation/pecha_bottom_nav_bar.dart';
 import 'package:flutter_pecha/features/texts/models/term.dart';
+import 'package:flutter_pecha/features/texts/data/providers/texts_provider.dart';
+import 'package:flutter_pecha/features/texts/models/texts.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class TextDetailScreen extends ConsumerWidget {
@@ -9,6 +11,7 @@ class TextDetailScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final texts = ref.watch(textsFutureProvider(term.id));
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
@@ -20,20 +23,97 @@ class TextDetailScreen extends ConsumerWidget {
         centerTitle: true,
         shape: Border(bottom: BorderSide(color: Color(0xFFB6D7D7), width: 3)),
       ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(24, 6, 24, 0),
-            child: Text(
-              term.title,
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
-            ),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(24, 6, 24, 24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                term.title,
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
+              ),
+              const SizedBox(height: 16),
+              texts.when(
+                data: (textList) {
+                  final rootTexts =
+                      textList
+                          .where((t) => t.type.toLowerCase() == 'root_text')
+                          .toList();
+                  final commentaries =
+                      textList
+                          .where((t) => t.type.toLowerCase() == 'commentary')
+                          .toList();
+                  if (rootTexts.isEmpty && commentaries.isEmpty) {
+                    return const Text(
+                      "No Texts Found",
+                      style: TextStyle(fontSize: 16),
+                    );
+                  } else {
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'ROOT TEXT',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.black54,
+                          ),
+                        ),
+                        ...rootTexts.map((t) => _buildTextList([t])),
+                        const SizedBox(height: 12),
+                        const Text(
+                          'COMMENTARY TEXT',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.black54,
+                          ),
+                        ),
+                        ...commentaries.map((t) => _buildTextList([t])),
+                      ],
+                    );
+                  }
+                },
+                loading:
+                    () => const Padding(
+                      padding: EdgeInsets.only(top: 40.0),
+                      child: Center(child: CircularProgressIndicator()),
+                    ),
+                error:
+                    (e, st) => Padding(
+                      padding: const EdgeInsets.only(top: 40.0),
+                      child: Center(child: Text('Failed to load texts')),
+                    ),
+              ),
+            ],
           ),
-          const SizedBox(height: 16),
-        ],
+        ),
       ),
       bottomNavigationBar: const PechaBottomNavBar(),
+    );
+  }
+
+  Widget _buildTextList(List<Texts> texts) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children:
+          texts.map((text) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Divider(thickness: 1, color: Color(0xFFB6D7D7)),
+                ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  title: Text(text.title, style: const TextStyle(fontSize: 16)),
+                  onTap: () {
+                    // TODO: handle text tap
+                  },
+                ),
+              ],
+            );
+          }).toList(),
     );
   }
 }
