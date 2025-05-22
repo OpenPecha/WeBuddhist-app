@@ -15,6 +15,7 @@ class TextDetailScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
+        scrolledUnderElevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios),
           onPressed: () => Navigator.pop(context),
@@ -53,22 +54,22 @@ class TextDetailScreen extends ConsumerWidget {
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
+                        Text(
                           'ROOT TEXT',
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.w500,
-                            color: Colors.black54,
+                            color: Colors.grey[700],
                           ),
                         ),
                         ...rootTexts.map((t) => _buildTextList([t])),
                         const SizedBox(height: 12),
-                        const Text(
+                        Text(
                           'COMMENTARY TEXT',
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.w500,
-                            color: Colors.black54,
+                            color: Colors.grey[700],
                           ),
                         ),
                         ...commentaries.map((t) => _buildTextList([t])),
@@ -105,8 +106,9 @@ class TextDetailScreen extends ConsumerWidget {
               children: [
                 const Divider(thickness: 1, color: Color(0xFFB6D7D7)),
                 ListTile(
+                  dense: true,
                   contentPadding: EdgeInsets.zero,
-                  title: Text(text.title, style: const TextStyle(fontSize: 16)),
+                  title: Text(text.title, style: const TextStyle(fontSize: 18)),
                   onTap: () {
                     // TODO: handle text tap
                   },

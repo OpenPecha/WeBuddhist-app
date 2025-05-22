@@ -17,7 +17,7 @@ class AuthService {
       final credentials = await auth0
           .webAuthentication(scheme: 'org.pecha.app')
           .login(
-            redirectUrl: dotenv.env['AUTH0_IOS_CALLBACK_URL_2'] ?? '',
+            // redirectUrl: dotenv.env['AUTH0_IOS_CALLBACK_URL_2'] ?? '',
             parameters: {'connection': connection},
           );
       return credentials;

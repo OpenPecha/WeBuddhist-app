@@ -8,14 +8,20 @@ plugins {
     id("dev.flutter.flutter-gradle-plugin")
 }
 
-val authDomain: String by project
-val scheme: String by project
-
 val keystoreProperties = Properties()
 val keystorePropertiesFile = rootProject.file("key.properties")
 if (keystorePropertiesFile.exists()) {
     keystoreProperties.load(FileInputStream(keystorePropertiesFile))
 }
+
+val localProperties = Properties()
+val localPropertiesFile = rootProject.file("local.properties")
+if (localPropertiesFile.exists()) {
+    localProperties.load(FileInputStream(localPropertiesFile))
+}
+
+val auth0Domain: String = localProperties.getProperty("auth0Domain") ?: "YOUR_DEFAULT_DOMAIN"
+val auth0Scheme: String = localProperties.getProperty("auth0Scheme") ?: "YOUR_DEFAULT_SCHEME"
     
 android {
     namespace = "org.pecha.app"
@@ -42,8 +48,8 @@ android {
         versionName = flutter.versionName
         manifestPlaceholders.putAll(
             mapOf(
-                "auth0Domain" to authDomain,
-                "auth0Scheme" to scheme
+                "auth0Domain" to auth0Domain,
+                "auth0Scheme" to auth0Scheme
             )
         )
     }
