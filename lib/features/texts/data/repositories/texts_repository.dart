@@ -1,4 +1,5 @@
 import 'package:flutter_pecha/features/texts/data/datasource/text_remote_datasource.dart';
+import 'package:flutter_pecha/features/texts/models/section.dart';
 import 'package:flutter_pecha/features/texts/models/texts.dart';
 
 class TextsRepository {
@@ -18,5 +19,9 @@ class TextsRepository {
       skip: skip,
       limit: limit,
     );
+  }
+
+  Future<List<Section>> fetchTextContent({required String textId}) async {
+    return remoteDatasource.fetchTextContent(textId: textId);
   }
 }

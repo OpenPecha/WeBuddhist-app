@@ -4,6 +4,7 @@ import 'package:flutter_pecha/features/texts/models/term.dart';
 import 'package:flutter_pecha/features/texts/data/providers/texts_provider.dart';
 import 'package:flutter_pecha/features/texts/models/texts.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 class TextDetailScreen extends ConsumerWidget {
   const TextDetailScreen({super.key, required this.term});
@@ -62,7 +63,7 @@ class TextDetailScreen extends ConsumerWidget {
                             color: Colors.grey[700],
                           ),
                         ),
-                        ...rootTexts.map((t) => _buildTextList([t])),
+                        ...rootTexts.map((t) => _buildTextList([t], context)),
                         const SizedBox(height: 12),
                         Text(
                           'COMMENTARY TEXT',
@@ -72,7 +73,9 @@ class TextDetailScreen extends ConsumerWidget {
                             color: Colors.grey[700],
                           ),
                         ),
-                        ...commentaries.map((t) => _buildTextList([t])),
+                        ...commentaries.map(
+                          (t) => _buildTextList([t], context),
+                        ),
                       ],
                     );
                   }
@@ -96,7 +99,7 @@ class TextDetailScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildTextList(List<Texts> texts) {
+  Widget _buildTextList(List<Texts> texts, BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children:
@@ -111,6 +114,7 @@ class TextDetailScreen extends ConsumerWidget {
                   title: Text(text.title, style: const TextStyle(fontSize: 18)),
                   onTap: () {
                     // TODO: handle text tap
+                    context.push('/texts/toc', extra: text);
                   },
                 ),
               ],
