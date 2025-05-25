@@ -17,3 +17,7 @@ final textsFutureProvider = FutureProvider.family((ref, String termId) {
       .watch(textsRepositoryProvider)
       .getTexts(termId: termId, language: languageCode);
 });
+
+final textContentFutureProvider = FutureProvider.family((ref, String textId) {
+  return ref.watch(textsRepositoryProvider).fetchTextContent(textId: textId);
+});
