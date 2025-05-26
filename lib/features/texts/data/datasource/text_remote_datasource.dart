@@ -54,7 +54,11 @@ class TextRemoteDatasource {
     if (response.statusCode == 200) {
       final decoded = utf8.decode(response.bodyBytes);
       final Map<String, dynamic> jsonMap = json.decode(decoded);
-      final sectionData = jsonMap["contents"][0]['sections'] as List<dynamic>;
+      final contents = jsonMap["contents"] as List<dynamic>;
+      if (contents.isEmpty) {
+        return [];
+      }
+      final sectionData = contents[0]['sections'] as List<dynamic>;
       return sectionData
           .map((json) => Section.fromJson(json as Map<String, dynamic>))
           .toList();
@@ -78,6 +82,9 @@ class TextRemoteDatasource {
       final decoded = utf8.decode(response.bodyBytes);
       final Map<String, dynamic> jsonMap = json.decode(decoded);
       final versionData = jsonMap['versions'] as List<dynamic>;
+      if (versionData.isEmpty) {
+        return [];
+      }
       return versionData
           .map((json) => Version.fromJson(json as Map<String, dynamic>))
           .toList();

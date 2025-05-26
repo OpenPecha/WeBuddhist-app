@@ -131,6 +131,9 @@ class TextTocScreen extends ConsumerWidget {
   }
 
   Widget _buildContentsTab(List<Section> sections) {
+    if (sections.isEmpty) {
+      return const Center(child: Text('No contents found'));
+    }
     return GridView.builder(
       padding: EdgeInsets.zero,
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -160,6 +163,9 @@ class TextTocScreen extends ConsumerWidget {
   }
 
   Widget _buildVersionsTab(List<Version> versions) {
+    if (versions.isEmpty) {
+      return const Center(child: Text('No versions found'));
+    }
     return ListView.separated(
       itemCount: versions.length,
       separatorBuilder:
@@ -205,11 +211,11 @@ class TextTocScreen extends ConsumerWidget {
               ],
             ),
             const SizedBox(height: 4),
-            const Text(
+            Text(
               'Revision History',
               style: TextStyle(
-                fontSize: 16,
-                color: Colors.grey,
+                fontSize: 14,
+                color: Colors.grey.shade800,
                 fontWeight: FontWeight.w400,
               ),
             ),
