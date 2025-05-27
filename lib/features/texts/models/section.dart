@@ -1,5 +1,6 @@
 class Section {
   final String id;
+  final String contentId;
   final String title;
   final int sectionNumber;
   final String? parentId;
@@ -11,6 +12,7 @@ class Section {
 
   const Section({
     required this.id,
+    required this.contentId,
     required this.title,
     required this.sectionNumber,
     required this.parentId,
@@ -24,13 +26,19 @@ class Section {
   factory Section.fromJson(Map<String, dynamic> json) {
     return Section(
       id: json['id'] as String,
+      contentId: json['content_id'] as String,
       title: json['title'] as String,
-      sectionNumber: json['section_number'] is int
-          ? json['section_number'] as int
-          : int.tryParse(json['section_number'].toString()) ?? 0,
+      sectionNumber:
+          json['section_number'] is int
+              ? json['section_number'] as int
+              : int.tryParse(json['section_number'].toString()) ?? 0,
       parentId: json['parent_id'] as String?,
       segments: json['segments'] ?? [],
-      sections: (json['sections'] as List<dynamic>?)?.map((e) => Section.fromJson(e as Map<String, dynamic>)).toList() ?? [],
+      sections:
+          (json['sections'] as List<dynamic>?)
+              ?.map((e) => Section.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          [],
       createdDate: json['created_date'] as String,
       updatedDate: json['updated_date'] as String,
       publishedDate: json['published_date'] as String,
@@ -40,6 +48,7 @@ class Section {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
+      'content_id': contentId,
       'title': title,
       'section_number': sectionNumber,
       'parent_id': parentId,

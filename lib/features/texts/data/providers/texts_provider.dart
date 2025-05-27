@@ -6,8 +6,9 @@ import 'package:flutter_pecha/core/config/locale_provider.dart';
 
 class TextDetailsParams {
   final String textId;
-  final String contentId;
-  TextDetailsParams({required this.textId, required this.contentId});
+  final String? contentId;
+  final String? versionId;
+  TextDetailsParams({required this.textId, this.contentId, this.versionId});
 }
 
 final textsRepositoryProvider = Provider<TextsRepository>(
@@ -38,5 +39,8 @@ final textDetailsFutureProvider = FutureProvider.family((
 ) {
   return ref
       .watch(textsRepositoryProvider)
-      .fetchTextDetails(textId: params.textId, contentId: params.contentId);
+      .fetchTextDetails(
+        textId: params.textId,
+        contentId: params.contentId!,
+      );
 });
