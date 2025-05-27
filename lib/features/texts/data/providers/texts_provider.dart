@@ -4,6 +4,12 @@ import 'package:http/http.dart' as http;
 import '../repositories/texts_repository.dart';
 import 'package:flutter_pecha/core/config/locale_provider.dart';
 
+class TextDetailsParams {
+  final String textId;
+  final String contentId;
+  TextDetailsParams({required this.textId, required this.contentId});
+}
+
 final textsRepositoryProvider = Provider<TextsRepository>(
   (ref) => TextsRepository(
     remoteDatasource: TextRemoteDatasource(client: http.Client()),
@@ -24,4 +30,13 @@ final textContentFutureProvider = FutureProvider.family((ref, String textId) {
 
 final textVersionFutureProvider = FutureProvider.family((ref, String textId) {
   return ref.watch(textsRepositoryProvider).fetchTextVersion(textId: textId);
+});
+
+final textDetailsFutureProvider = FutureProvider.family((
+  ref,
+  TextDetailsParams params,
+) {
+  return ref
+      .watch(textsRepositoryProvider)
+      .fetchTextDetails(textId: params.textId, contentId: params.contentId);
 });

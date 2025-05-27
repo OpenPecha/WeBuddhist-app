@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_pecha/features/texts/models/section.dart';
+import 'package:flutter_pecha/features/texts/models/segment.dart';
 import 'package:flutter_pecha/features/texts/models/texts.dart';
 import 'package:flutter_pecha/features/texts/models/version.dart';
 import 'package:http/http.dart' as http;
@@ -90,6 +91,32 @@ class TextRemoteDatasource {
           .toList();
     } else {
       throw Exception('Failed to load text version');
+    }
+  }
+
+  // post request to get the details of the text
+  Future<List<Segment>> fetchTextDetails({
+    required String textId,
+    required String contentId,
+  }) async {
+    final uri = Uri.parse(
+      '${dotenv.env['BASE_API_URL']}/texts/$textId/details',
+    );
+    final body = {'content_id': contentId};
+
+    final response = await client.post(uri, body: body);
+
+    if (response.statusCode == 200) {
+      final decoded = utf8.decode(response.bodyBytes);
+      final Map<String, dynamic> jsonMap = json.decode(decoded);
+      final sections = jsonMap["content"]["sections"] as List<dynamic>;
+      if (sections.isEmpty) {
+        return [];
+      }
+      final segments = sections[0]["segments"] as List<dynamic>;
+      return segments.map((e) => Segment.fromJson(e as Map<String, dynamic>)).toList();
+    } else {
+      throw Exception('Failed to load text details');
     }
   }
 }
