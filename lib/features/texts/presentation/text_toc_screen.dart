@@ -5,6 +5,7 @@ import 'package:flutter_pecha/features/texts/models/section.dart';
 import 'package:flutter_pecha/features/texts/models/texts.dart';
 import 'package:flutter_pecha/features/texts/models/version.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 class TextTocScreen extends ConsumerWidget {
   const TextTocScreen({super.key, required this.text});
@@ -20,9 +21,8 @@ class TextTocScreen extends ConsumerWidget {
       child: Scaffold(
         appBar: AppBar(
           elevation: 0,
-          backgroundColor: Colors.white,
           leading: IconButton(
-            icon: const Icon(Icons.arrow_back_ios, color: Colors.black),
+            icon: const Icon(Icons.arrow_back_ios),
             onPressed: () => Navigator.pop(context),
           ),
           toolbarHeight: 40,
@@ -87,8 +87,8 @@ class TextTocScreen extends ConsumerWidget {
                 ),
               ),
               const SizedBox(height: 22),
-              const TabBar(
-                labelColor: Colors.black,
+              TabBar(
+                labelColor: Theme.of(context).textTheme.bodyMedium?.color,
                 unselectedLabelColor: Colors.grey,
                 indicatorColor: Color(0xFFC6A04D),
                 indicatorWeight: 2.5,
@@ -107,7 +107,19 @@ class TextTocScreen extends ConsumerWidget {
                       error:
                           (error, stackTrace) =>
                               Center(child: Text(error.toString())),
-                      data: (sections) => _buildContentsTab(sections),
+                      data:
+                          (sections) => GestureDetector(
+                            onTap: () {
+                              context.push(
+                                '/texts/reader',
+                                extra: {
+                                  'textId': text.id,
+                                  'contentId': sections[0].contentId,
+                                },
+                              );
+                            },
+                            child: _buildContentsTab(sections),
+                          ),
                     ),
                     // Versions Tab
                     textVersion.when(
@@ -117,7 +129,19 @@ class TextTocScreen extends ConsumerWidget {
                       error:
                           (error, stackTrace) =>
                               Center(child: Text(error.toString())),
-                      data: (versions) => _buildVersionsTab(versions),
+                      data:
+                          (versions) => GestureDetector(
+                            onTap: () {
+                              context.push(
+                                '/texts/reader',
+                                extra: {
+                                  'textId': text.id,
+                                  'contentId': versions[0].id,
+                                },
+                              );
+                            },
+                            child: _buildVersionsTab(versions),
+                          ),
                     ),
                   ],
                 ),
@@ -147,7 +171,7 @@ class TextTocScreen extends ConsumerWidget {
         final section = sections[idx];
         return Container(
           decoration: BoxDecoration(
-            color: Colors.grey[100],
+            color: Theme.of(context).cardColor,
             borderRadius: BorderRadius.circular(8),
             border: Border.all(color: Colors.grey.shade300),
           ),

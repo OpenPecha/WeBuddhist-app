@@ -18,7 +18,7 @@ class AppTheme {
         elevation: 0,
       ),
       textTheme: TextTheme(bodyMedium: TextStyle(color: Colors.black)),
-      cardColor: Colors.white,
+      cardColor: Colors.grey.shade100,
       colorScheme: ColorScheme.fromSwatch(
         primarySwatch: Colors.blue,
       ).copyWith(secondary: Colors.blueAccent, brightness: Brightness.light),
@@ -43,7 +43,7 @@ class AppTheme {
       scaffoldBackgroundColor: const Color(0xFF121212),
       appBarTheme: const AppBarTheme(
         backgroundColor: Color(0xFF222222),
-        foregroundColor: Colors.white,
+        foregroundColor: Colors.white30,
         elevation: 0,
       ),
       textTheme: TextTheme(bodyMedium: TextStyle(color: Colors.white)),

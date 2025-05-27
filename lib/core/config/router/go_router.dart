@@ -10,9 +10,11 @@ import 'package:flutter_pecha/features/texts/models/texts.dart';
 import 'package:flutter_pecha/features/texts/presentation/category_screen.dart';
 import 'package:flutter_pecha/features/texts/presentation/library_catalog_screen.dart';
 import 'package:flutter_pecha/features/texts/presentation/text_detail_screen.dart';
+import 'package:flutter_pecha/features/texts/presentation/text_reader_screen.dart';
 import 'package:flutter_pecha/features/texts/presentation/text_toc_screen.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_pecha/features/auth/application/auth_provider.dart';
 
 final goRouterProvider = Provider<GoRouter>((ref) {
@@ -57,6 +59,21 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/texts/toc',
         builder: (context, state) => TextTocScreen(text: state.extra as Texts),
+      ),
+      GoRoute(
+        path: '/texts/reader',
+        builder: (context, state) {
+          final extra = state.extra;
+          if (extra == null || extra is! Map || !extra.containsKey('textId') || !extra.containsKey('contentId')) {
+            return const Scaffold(
+              body: Center(child: Text('Missing required parameters')),
+            );
+          }
+          return TextReaderScreen(
+            textId: extra['textId'] as String,
+            contentId: extra['contentId'] as String,
+          );
+        },
       ),
     ],
     redirect: (context, state) {

@@ -59,7 +59,12 @@ class TextRemoteDatasource {
       if (contents.isEmpty) {
         return [];
       }
+      final contentId = contents[0]['id'] as String;
       final sectionData = contents[0]['sections'] as List<dynamic>;
+      // update all the sections with contentId as "content_id"
+      for (var section in sectionData) {
+        section['content_id'] = contentId;
+      }
       return sectionData
           .map((json) => Section.fromJson(json as Map<String, dynamic>))
           .toList();
@@ -107,6 +112,7 @@ class TextRemoteDatasource {
     final response = await client.post(uri, body: body);
 
     if (response.statusCode == 200) {
+      print("Response: ${response.body}");
       final decoded = utf8.decode(response.bodyBytes);
       final Map<String, dynamic> jsonMap = json.decode(decoded);
       final sections = jsonMap["content"]["sections"] as List<dynamic>;
@@ -114,7 +120,10 @@ class TextRemoteDatasource {
         return [];
       }
       final segments = sections[0]["segments"] as List<dynamic>;
-      return segments.map((e) => Segment.fromJson(e as Map<String, dynamic>)).toList();
+      print("Segments: ${segments[0]}");
+      return segments
+          .map((e) => Segment.fromJson(e as Map<String, dynamic>))
+          .toList();
     } else {
       throw Exception('Failed to load text details');
     }
