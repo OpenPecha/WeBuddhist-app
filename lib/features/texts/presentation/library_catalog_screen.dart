@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/features/texts/data/providers/term_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -83,7 +84,7 @@ class _LibraryCatalogScreenState extends ConsumerState<LibraryCatalogScreen> {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
       child: Text(
-        'Browse The Library',
+        AppLocalizations.of(context)!.text_browseTheLibrary,
         style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
       ),
     );
@@ -100,7 +101,7 @@ class _LibraryCatalogScreenState extends ConsumerState<LibraryCatalogScreen> {
           });
         },
         decoration: InputDecoration(
-          hintText: 'Search',
+          hintText: AppLocalizations.of(context)!.text_search,
           prefixIcon: Icon(Icons.search, color: Colors.grey[600]),
           filled: true,
           fillColor: Colors.grey[200],

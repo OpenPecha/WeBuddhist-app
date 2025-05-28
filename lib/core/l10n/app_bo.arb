@@ -13,5 +13,16 @@
   "home_meditationSubtitle": "Awaken peace within.",
   "home_prayerTitle": "Prayer of the Day",
   "home_prayerSubtitle": "Begin your day with a sacred intention.",
-  "home_btnText": "Start now"
+  "home_btnText": "Start now",
+  "text_browseTheLibrary": "དཀར་ཆག",
+  "text_search": "འཚོལ་ས།",
+  "text_detail_rootText": "རྩ་བ།",
+  "text_detail_commentaryText": "འགྲེལ་བ།",
+  "text_toc_continueReading": "སྔར་གྱི་མཚམས་ནས་ཀློག།",
+  "text_toc_content": "ས་བཅད།",
+  "text_toc_versions": "འགྱུར་མ་དང་དཔེ་རྒྱུན།",
+  "text_toc_revisionHistory": "བཟོ་བཅོས་ཀྱི་ལོ་རྒྱུས།",
+  "tibetan": "བོད་སྐད།",
+  "sanskrit": "ལེགས་སྦྱར་སྐད།",
+  "english": "ཨིན་ཇི།"
 }

@@ -49,4 +49,37 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get home_btnText => 'Start now';
+
+  @override
+  String get text_browseTheLibrary => 'Browse The Library';
+
+  @override
+  String get text_search => 'Search';
+
+  @override
+  String get text_detail_rootText => 'Root Text';
+
+  @override
+  String get text_detail_commentaryText => 'Commentary Text';
+
+  @override
+  String get text_toc_continueReading => 'Continue Reading';
+
+  @override
+  String get text_toc_content => 'Contents';
+
+  @override
+  String get text_toc_versions => 'Versions';
+
+  @override
+  String get text_toc_revisionHistory => 'Revision History';
+
+  @override
+  String get tibetan => 'Tibetan';
+
+  @override
+  String get sanskrit => 'Sanskrit';
+
+  @override
+  String get english => 'English';
 }

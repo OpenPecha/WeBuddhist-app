@@ -49,4 +49,37 @@ class AppLocalizationsBo extends AppLocalizations {
 
   @override
   String get home_btnText => 'Start now';
+
+  @override
+  String get text_browseTheLibrary => 'དཀར་ཆག';
+
+  @override
+  String get text_search => 'འཚོལ་ས།';
+
+  @override
+  String get text_detail_rootText => 'རྩ་བ།';
+
+  @override
+  String get text_detail_commentaryText => 'འགྲེལ་བ།';
+
+  @override
+  String get text_toc_continueReading => 'སྔར་གྱི་མཚམས་ནས་ཀློག།';
+
+  @override
+  String get text_toc_content => 'ས་བཅད།';
+
+  @override
+  String get text_toc_versions => 'འགྱུར་མ་དང་དཔེ་རྒྱུན།';
+
+  @override
+  String get text_toc_revisionHistory => 'བཟོ་བཅོས་ཀྱི་ལོ་རྒྱུས།';
+
+  @override
+  String get tibetan => 'བོད་སྐད།';
+
+  @override
+  String get sanskrit => 'ལེགས་སྦྱར་སྐད།';
+
+  @override
+  String get english => 'ཨིན་ཇི།';
 }

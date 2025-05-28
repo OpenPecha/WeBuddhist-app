@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/features/app/presentation/pecha_bottom_nav_bar.dart';
 import 'package:flutter_pecha/features/texts/data/providers/texts_provider.dart';
 import 'package:flutter_pecha/features/texts/models/section.dart';
@@ -13,6 +14,7 @@ class TextTocScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final localizations = AppLocalizations.of(context)!;
     final textContent = ref.watch(textContentFutureProvider(text.id));
     final textVersion = ref.watch(textVersionFutureProvider(text.id));
 
@@ -42,7 +44,7 @@ class TextTocScreen extends ConsumerWidget {
                     child: Text(
                       text.title,
                       style: const TextStyle(
-                        fontSize: 20,
+                        fontSize: 18,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -53,10 +55,10 @@ class TextTocScreen extends ConsumerWidget {
               const SizedBox(height: 4),
               Text(
                 text.type.toLowerCase() == "root_text"
-                    ? "Root Text"
-                    : "Commentary Text",
+                    ? localizations.text_detail_rootText
+                    : localizations.text_detail_commentaryText,
                 style: TextStyle(
-                  fontSize: 18,
+                  fontSize: 16,
                   fontWeight: FontWeight.w500,
                   color: Colors.grey[600],
                   letterSpacing: 1.2,
@@ -64,7 +66,7 @@ class TextTocScreen extends ConsumerWidget {
               ),
               const SizedBox(height: 18),
               SizedBox(
-                width: 160,
+                width: 200,
                 height: 40,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
@@ -76,12 +78,13 @@ class TextTocScreen extends ConsumerWidget {
                   onPressed: () {
                     // TODO: handle start reading
                   },
-                  child: const Text(
-                    'Start Reading',
+                  child: Text(
+                    localizations.text_toc_continueReading,
+                    textAlign: TextAlign.center,
                     style: TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.w500,
-                      fontSize: 16,
+                      fontSize: 14,
                     ),
                   ),
                 ),
@@ -92,7 +95,10 @@ class TextTocScreen extends ConsumerWidget {
                 unselectedLabelColor: Colors.grey,
                 indicatorColor: Color(0xFFC6A04D),
                 indicatorWeight: 2.5,
-                tabs: [Tab(text: 'Contents'), Tab(text: 'Versions')],
+                tabs: [
+                  Tab(text: localizations.text_toc_content),
+                  Tab(text: localizations.text_toc_versions),
+                ],
                 dividerColor: Color(0xFFDEE2E6),
               ),
               const SizedBox(height: 16),
@@ -117,7 +123,7 @@ class TextTocScreen extends ConsumerWidget {
                       error:
                           (error, stackTrace) =>
                               Center(child: Text(error.toString())),
-                      data: (versions) => _buildVersionsTab(versions),
+                      data: (versions) => _buildVersionsTab(versions, context),
                     ),
                   ],
                 ),
@@ -177,7 +183,9 @@ class TextTocScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildVersionsTab(List<Version> versions) {
+  Widget _buildVersionsTab(List<Version> versions, BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
+
     if (versions.isEmpty) {
       return const Center(child: Text('No versions found'));
     }
@@ -214,12 +222,11 @@ class TextTocScreen extends ConsumerWidget {
                     borderRadius: BorderRadius.circular(18),
                   ),
                   child: Text(
-                    _getLanguageLabel(version.language),
+                    _getLanguageLabel(version.language, context),
                     style: const TextStyle(
-                      fontSize: 15,
+                      fontSize: 14,
                       color: Colors.black87,
                       fontWeight: FontWeight.w400,
-                      letterSpacing: 0.2,
                     ),
                   ),
                 ),
@@ -227,7 +234,7 @@ class TextTocScreen extends ConsumerWidget {
             ),
             const SizedBox(height: 4),
             Text(
-              'Revision History',
+              localizations.text_toc_revisionHistory,
               style: TextStyle(
                 fontSize: 14,
                 color: Colors.grey.shade800,
@@ -240,17 +247,18 @@ class TextTocScreen extends ConsumerWidget {
     );
   }
 
-  String _getLanguageLabel(String code) {
+  String _getLanguageLabel(String code, BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
     switch (code.toLowerCase()) {
       case 'bo':
       case 'tibetan':
-        return 'Tibetan';
+        return localizations.tibetan;
       case 'sa':
       case 'sanskrit':
-        return 'Sanskrit';
+        return localizations.sanskrit;
       case 'en':
       case 'english':
-        return 'English';
+        return localizations.english;
       default:
         return code;
     }
