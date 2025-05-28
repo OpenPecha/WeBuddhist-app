@@ -180,6 +180,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Start now'**
   String get home_btnText;
+
+  /// No description provided for @text_browseTheLibrary.
+  ///
+  /// In en, this message translates to:
+  /// **'Browse The Library'**
+  String get text_browseTheLibrary;
+
+  /// No description provided for @text_search.
+  ///
+  /// In en, this message translates to:
+  /// **'Search'**
+  String get text_search;
+
+  /// No description provided for @text_detail_rootText.
+  ///
+  /// In en, this message translates to:
+  /// **'Root Text'**
+  String get text_detail_rootText;
+
+  /// No description provided for @text_detail_commentaryText.
+  ///
+  /// In en, this message translates to:
+  /// **'Commentary Text'**
+  String get text_detail_commentaryText;
+
+  /// No description provided for @text_toc_continueReading.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue Reading'**
+  String get text_toc_continueReading;
+
+  /// No description provided for @text_toc_content.
+  ///
+  /// In en, this message translates to:
+  /// **'Contents'**
+  String get text_toc_content;
+
+  /// No description provided for @text_toc_versions.
+  ///
+  /// In en, this message translates to:
+  /// **'Versions'**
+  String get text_toc_versions;
+
+  /// No description provided for @text_toc_revisionHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'Revision History'**
+  String get text_toc_revisionHistory;
+
+  /// No description provided for @tibetan.
+  ///
+  /// In en, this message translates to:
+  /// **'Tibetan'**
+  String get tibetan;
+
+  /// No description provided for @sanskrit.
+  ///
+  /// In en, this message translates to:
+  /// **'Sanskrit'**
+  String get sanskrit;
+
+  /// No description provided for @english.
+  ///
+  /// In en, this message translates to:
+  /// **'English'**
+  String get english;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

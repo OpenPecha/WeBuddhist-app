@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/features/app/presentation/pecha_bottom_nav_bar.dart';
 import 'package:flutter_pecha/features/texts/models/term.dart';
 import 'package:flutter_pecha/features/texts/data/providers/texts_provider.dart';
@@ -13,6 +14,8 @@ class TextDetailScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final texts = ref.watch(textsFutureProvider(term.id));
+    final localizations = AppLocalizations.of(context)!;
+
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
@@ -56,7 +59,7 @@ class TextDetailScreen extends ConsumerWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'ROOT TEXT',
+                          localizations.text_detail_rootText,
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.w500,
@@ -66,7 +69,7 @@ class TextDetailScreen extends ConsumerWidget {
                         ...rootTexts.map((t) => _buildTextList([t], context)),
                         const SizedBox(height: 12),
                         Text(
-                          'COMMENTARY TEXT',
+                          localizations.text_detail_commentaryText,
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.w500,
