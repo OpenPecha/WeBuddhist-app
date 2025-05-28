@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
+import 'package:flutter_pecha/core/config/locale_provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class SegmentHtmlWidget extends StatefulWidget {
+class SegmentHtmlWidget extends ConsumerStatefulWidget {
   final String htmlContent;
   final int segmentIndex;
   const SegmentHtmlWidget({
@@ -11,15 +13,18 @@ class SegmentHtmlWidget extends StatefulWidget {
   });
 
   @override
-  State<SegmentHtmlWidget> createState() => _SegmentHtmlWidgetState();
+  ConsumerState<SegmentHtmlWidget> createState() => _SegmentHtmlWidgetState();
 }
 
-class _SegmentHtmlWidgetState extends State<SegmentHtmlWidget> {
+class _SegmentHtmlWidgetState extends ConsumerState<SegmentHtmlWidget> {
   // Set of visible footnote indices for this segment
   Set<int> visibleFootnotes = {};
 
   @override
   Widget build(BuildContext context) {
+    final locale = ref.watch(localeProvider);
+    final lineHeight = locale?.languageCode == 'bo' ? 2.0 : 1.5;
+
     int footnoteCounter = 0;
     return Html(
       data: widget.htmlContent,
@@ -38,7 +43,7 @@ class _SegmentHtmlWidgetState extends State<SegmentHtmlWidget> {
         ),
         "body": Style(
           fontSize: FontSize(16),
-          lineHeight: LineHeight(1.8),
+          lineHeight: LineHeight(lineHeight),
           margin: Margins.zero,
           padding: HtmlPaddings.zero,
         ),
@@ -60,18 +65,21 @@ class _SegmentHtmlWidgetState extends State<SegmentHtmlWidget> {
                     }
                   });
                 },
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 2, right: 2),
-                  child: DefaultTextStyle.merge(
-                    style: const TextStyle(
-                      color: Color(0xFF007bff),
-                      fontWeight: FontWeight.w700,
-                      fontSize: 16,
+                child: Transform.translate(
+                  offset: const Offset(0, -12),
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 2, right: 2),
+                    child: DefaultTextStyle.merge(
+                      style: const TextStyle(
+                        color: Color(0xFF007bff),
+                        fontWeight: FontWeight.w700,
+                        fontSize: 16,
+                      ),
+                      child:
+                          (context.element?.text ?? '').isNotEmpty
+                              ? Text(context.element?.text ?? '')
+                              : const Text('*'),
                     ),
-                    child:
-                        (context.element?.text ?? '').isNotEmpty
-                            ? Text(context.element?.text ?? '')
-                            : const Text('*'),
                   ),
                 ),
               );

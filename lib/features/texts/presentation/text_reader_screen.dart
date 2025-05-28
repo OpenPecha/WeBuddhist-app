@@ -114,7 +114,7 @@ class TextReaderScreen extends ConsumerWidget {
                     final segment = segments[index];
                     final segmentNumber = segment.segmentNumber
                         .toString()
-                        .padLeft(2, '0');
+                        .padLeft(2);
                     final content = segment.content;
                     return Padding(
                       padding: const EdgeInsets.symmetric(
