@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
+import 'package:go_router/go_router.dart';
 
 class VersionSelectionScreen extends StatelessWidget {
   const VersionSelectionScreen({super.key});
@@ -32,7 +33,7 @@ class VersionSelectionScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Language Card
-            _buildLanguageCard(),
+            _buildLanguageCard(context),
             // Versions Title
             const Text(
               'བཀོད་དབྱིབས། Versions (3)',
@@ -134,7 +135,7 @@ class VersionSelectionScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildLanguageCard() {
+  Widget _buildLanguageCard(BuildContext context) {
     return Container(
       margin: EdgeInsets.all(18),
       padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
@@ -151,25 +152,28 @@ class VersionSelectionScreen extends StatelessWidget {
             style: TextStyle(fontWeight: FontWeight.w500, fontSize: 16),
           ),
           const Spacer(),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Row(
-              children: [
-                const Text(
-                  'བོད་ཡིག',
-                  style: TextStyle(fontWeight: FontWeight.w500, fontSize: 14),
-                ),
-                const SizedBox(width: 8),
-                Icon(
-                  Icons.arrow_circle_right_outlined,
-                  color: Colors.grey.shade600,
-                  size: 18,
-                ),
-              ],
+          GestureDetector(
+            onTap: () => context.push('/texts/language_selection'),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Row(
+                children: [
+                  const Text(
+                    'བོད་ཡིག',
+                    style: TextStyle(fontWeight: FontWeight.w500, fontSize: 14),
+                  ),
+                  const SizedBox(width: 8),
+                  Icon(
+                    Icons.arrow_circle_right_outlined,
+                    color: Colors.grey.shade600,
+                    size: 18,
+                  ),
+                ],
+              ),
             ),
           ),
         ],

@@ -13,6 +13,7 @@ import 'package:flutter_pecha/features/texts/presentation/library_catalog_screen
 import 'package:flutter_pecha/features/texts/presentation/text_detail_screen.dart';
 import 'package:flutter_pecha/features/texts/presentation/text_reader_screen.dart';
 import 'package:flutter_pecha/features/texts/presentation/text_toc_screen.dart';
+import 'package:flutter_pecha/features/texts/presentation/version_selection/language_selection.dart';
 import 'package:flutter_pecha/features/texts/presentation/version_selection/version_selection_screen.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -118,6 +119,12 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         path: '/texts/version_selection',
         builder: (context, state) {
           return const VersionSelectionScreen();
+        },
+      ),
+      GoRoute(
+        path: '/texts/language_selection',
+        builder: (context, state) {
+          return const LanguageSelectionScreen();
         },
       ),
     ],
