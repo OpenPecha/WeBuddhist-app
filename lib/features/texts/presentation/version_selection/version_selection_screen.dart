@@ -6,27 +6,53 @@ import 'package:flutter_pecha/features/texts/models/version.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-class VersionSelectionScreen extends ConsumerWidget {
+class VersionSelectionScreen extends ConsumerStatefulWidget {
   const VersionSelectionScreen({
     super.key,
     required this.textId,
-    required this.language,
+    required this.selectedLanguage,
   });
 
   final String textId;
-  final String language;
+  final String selectedLanguage;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final textVersionResponse = ref.watch(textVersionFutureProvider(textId));
+  ConsumerState<VersionSelectionScreen> createState() =>
+      _VersionSelectionScreenState();
+}
+
+class _VersionSelectionScreenState
+    extends ConsumerState<VersionSelectionScreen> {
+  late String selectedLanguage;
+
+  @override
+  void initState() {
+    super.initState();
+    selectedLanguage = widget.selectedLanguage;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final textVersionResponse = ref.watch(
+      textVersionFutureProvider(widget.textId),
+    );
     final numberOfVersions = textVersionResponse.value?.versions
         .map((version) {
-          if (version.language == language) {
+          if (version.language == selectedLanguage) {
             return 1;
           }
           return 0;
         })
         .reduce((a, b) => a + b);
+    final filteredVersions =
+        textVersionResponse.value?.versions
+            .where((version) => version.language == selectedLanguage)
+            .toList();
+    final uniqueLanguages =
+        textVersionResponse.value?.versions
+            .map((version) => version.language)
+            .toSet()
+            .toList();
 
     return Scaffold(
       appBar: AppBar(
@@ -53,29 +79,24 @@ class VersionSelectionScreen extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Language Card
-            _buildLanguageCard(language, context),
+            _buildLanguageCard(uniqueLanguages ?? [], context),
             // Versions Title
             Text(
-              '${getLanguageLabel(language, context)} Versions ($numberOfVersions)',
+              '${getLanguageLabel(selectedLanguage, context)} Versions ($numberOfVersions)',
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 12),
-            // Versions List
-            textVersionResponse.when(
-              loading: () => const Center(child: CircularProgressIndicator()),
-              error:
-                  (error, stackTrace) => Center(child: Text(error.toString())),
-              data:
-                  (textVersion) =>
-                      Expanded(child: _buildVersionCard(textVersion.versions)),
-            ),
+            Expanded(child: _buildVersionCard(filteredVersions ?? [])),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildLanguageCard(String language, BuildContext context) {
+  Widget _buildLanguageCard(
+    List<String> uniqueLanguages,
+    BuildContext context,
+  ) {
     final localizations = AppLocalizations.of(context)!;
     return Container(
       margin: EdgeInsets.all(18),
@@ -94,7 +115,20 @@ class VersionSelectionScreen extends ConsumerWidget {
           ),
           const Spacer(),
           GestureDetector(
-            onTap: () => context.push('/texts/language_selection'),
+            onTap: () async {
+              final result = await context.push(
+                '/texts/language_selection',
+                extra: {
+                  "uniqueLanguages": uniqueLanguages,
+                  "selectedLanguage": selectedLanguage,
+                },
+              );
+              if (result != null && result is String) {
+                setState(() {
+                  selectedLanguage = result;
+                });
+              }
+            },
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
@@ -104,7 +138,7 @@ class VersionSelectionScreen extends ConsumerWidget {
               child: Row(
                 children: [
                   Text(
-                    getLanguageLabel(language, context),
+                    getLanguageLabel(selectedLanguage, context),
                     style: TextStyle(fontWeight: FontWeight.w500, fontSize: 14),
                   ),
                   const SizedBox(width: 8),

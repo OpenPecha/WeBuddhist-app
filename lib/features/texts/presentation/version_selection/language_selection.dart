@@ -1,22 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/utils/get_language.dart';
 
 class LanguageSelectionScreen extends StatelessWidget {
-  const LanguageSelectionScreen({super.key});
+  const LanguageSelectionScreen({
+    super.key,
+    required this.uniqueLanguages,
+    required this.selectedLanguage,
+  });
 
-  final List<Map<String, String>> languages = const [
-    {'name': 'English', 'count': '79', 'nativeName': 'English'},
-    {'name': 'తెలుగు', 'count': '6', 'nativeName': 'Telugu'},
-    {'name': 'हिन्दी', 'count': '7', 'nativeName': 'Hindi'},
-    {'name': 'मराठी', 'count': '3', 'nativeName': 'Marathi'},
-    {'name': 'தமிழ்', 'count': '2', 'nativeName': 'Tamil'},
-    {'name': 'Mizo ṭawng', 'count': '1', 'nativeName': 'Mizo'},
-    {'name': 'Khasi', 'count': '1', 'nativeName': 'Khasi'},
-    {'name': 'ಕನ್ನಡ', 'count': '1', 'nativeName': 'Kannada'},
-    {'name': 'മലയാളം', 'count': '1', 'nativeName': 'Malayalam'},
-    {'name': 'বাংলা', 'count': '1', 'nativeName': 'Bangla'},
-    {'name': 'Kokborok', 'count': '1', 'nativeName': 'Kokborok'},
-    {'name': 'ગુજરાતી', 'count': '1', 'nativeName': 'Gujarati'},
-  ];
+  final List<String> uniqueLanguages;
+  final String selectedLanguage;
 
   @override
   Widget build(BuildContext context) {
@@ -37,11 +30,12 @@ class LanguageSelectionScreen extends StatelessWidget {
         ),
       ),
       body: ListView.separated(
-        itemCount: languages.length,
+        itemCount: uniqueLanguages.length,
         separatorBuilder:
             (context, index) => const Divider(height: 1, thickness: 1),
         itemBuilder: (context, index) {
-          final language = languages[index];
+          final language = uniqueLanguages[index];
+          final isSelected = language == selectedLanguage;
           return ListTile(
             contentPadding: const EdgeInsets.symmetric(
               horizontal: 20,
@@ -50,17 +44,25 @@ class LanguageSelectionScreen extends StatelessWidget {
             title: Row(
               children: [
                 Text(
-                  '${language['name']} (${language['count']})',
+                  getLanguageLabel(language, context),
                   style: const TextStyle(fontSize: 16),
                 ),
               ],
             ),
-            trailing: Text(
-              language['nativeName']!,
-              style: const TextStyle(fontSize: 16, color: Colors.grey),
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  language,
+                  style: const TextStyle(fontSize: 16, color: Colors.grey),
+                ),
+                if (isSelected) ...[
+                  const SizedBox(width: 8),
+                  const Icon(Icons.check, color: Colors.green),
+                ],
+              ],
             ),
             onTap: () {
-              // Handle language selection
               Navigator.pop(context, language);
             },
           );

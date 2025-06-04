@@ -122,14 +122,26 @@ final goRouterProvider = Provider<GoRouter>((ref) {
           }
           return VersionSelectionScreen(
             textId: extra['textId'] as String,
-            language: extra['language'] as String,
+            selectedLanguage: extra['language'] as String,
           );
         },
       ),
       GoRoute(
         path: '/texts/language_selection',
         builder: (context, state) {
-          return const LanguageSelectionScreen();
+          final extra = state.extra;
+          if (extra == null ||
+              extra is! Map ||
+              !extra.containsKey('uniqueLanguages') ||
+              !extra.containsKey('selectedLanguage')) {
+            return const Scaffold(
+              body: Center(child: Text('Missing required parameters')),
+            );
+          }
+          return LanguageSelectionScreen(
+            uniqueLanguages: extra['uniqueLanguages'] as List<String>,
+            selectedLanguage: extra['selectedLanguage'] as String,
+          );
         },
       ),
     ],
