@@ -20,21 +20,38 @@ class _PrayerOfTheDayScreenState extends State<PrayerOfTheDayScreen> {
   @override
   void initState() {
     super.initState();
+    _initializeAudioPlayer();
+  }
+
+  Future<void> _initializeAudioPlayer() async {
     _audioPlayer = AudioPlayer();
-    _audioPlayer.setAsset('assets/audios/Tibetan_prayer.mp3').then((duration) {
-      setState(() {
-        _duration = duration ?? Duration.zero;
-      });
-    });
+    try {
+      final duration = await _audioPlayer.setAsset(
+        'assets/audios/Tibetan_prayer.mp3',
+      );
+      if (mounted) {
+        setState(() {
+          _duration = duration ?? Duration.zero;
+        });
+      }
+    } catch (e) {
+      debugPrint('Error initializing audio player: $e');
+    }
+
     _audioPlayer.positionStream.listen((pos) {
-      setState(() {
-        _position = pos;
-      });
+      if (mounted) {
+        setState(() {
+          _position = pos;
+        });
+      }
     });
+
     _audioPlayer.playerStateStream.listen((state) {
-      setState(() {
-        _isPlaying = state.playing;
-      });
+      if (mounted) {
+        setState(() {
+          _isPlaying = state.playing;
+        });
+      }
     });
   }
 
@@ -51,7 +68,10 @@ class _PrayerOfTheDayScreenState extends State<PrayerOfTheDayScreen> {
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios),
-          onPressed: () => context.pop(),
+          onPressed: () {
+            _audioPlayer.stop();
+            context.pop();
+          },
         ),
         title: Text(localizations.home_prayerTitle),
         centerTitle: true,

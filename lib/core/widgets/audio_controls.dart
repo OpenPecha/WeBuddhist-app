@@ -19,17 +19,17 @@ class AudioControls extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
-        IconButton(
-          color: Theme.of(context).appBarTheme.foregroundColor,
-          icon: const Icon(Icons.replay_10, size: 32),
-          onPressed: () async {
-            final newPosition = position - const Duration(seconds: 10);
-            await audioPlayer.seek(
-              newPosition > Duration.zero ? newPosition : Duration.zero,
-            );
-          },
-          padding: EdgeInsets.zero,
-        ),
+        // IconButton(
+        //   color: Theme.of(context).appBarTheme.foregroundColor,
+        //   icon: const Icon(Icons.replay_10, size: 32),
+        //   onPressed: () async {
+        //     final newPosition = position - const Duration(seconds: 10);
+        //     await audioPlayer.seek(
+        //       newPosition > Duration.zero ? newPosition : Duration.zero,
+        //     );
+        //   },
+        //   padding: EdgeInsets.zero,
+        // ),
         IconButton(
           color: Theme.of(context).appBarTheme.foregroundColor,
           icon: Icon(
@@ -47,17 +47,17 @@ class AudioControls extends StatelessWidget {
           },
           padding: EdgeInsets.zero,
         ),
-        IconButton(
-          color: Theme.of(context).appBarTheme.foregroundColor,
-          icon: const Icon(Icons.forward_10, size: 32),
-          onPressed: () async {
-            final newPosition = position + const Duration(seconds: 10);
-            await audioPlayer.seek(
-              newPosition < duration ? newPosition : duration,
-            );
-          },
-          padding: EdgeInsets.zero,
-        ),
+        // IconButton(
+        //   color: Theme.of(context).appBarTheme.foregroundColor,
+        //   icon: const Icon(Icons.forward_10, size: 32),
+        //   onPressed: () async {
+        //     final newPosition = position + const Duration(seconds: 10);
+        //     await audioPlayer.seek(
+        //       newPosition < duration ? newPosition : duration,
+        //     );
+        //   },
+        //   padding: EdgeInsets.zero,
+        // ),
       ],
     );
   }
