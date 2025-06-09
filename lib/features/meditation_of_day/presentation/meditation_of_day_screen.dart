@@ -47,7 +47,10 @@ class _MeditationOfTheDayScreenState extends State<MeditationOfTheDayScreen> {
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios),
-          onPressed: () => context.pop(),
+          onPressed: () {
+            _audioPlayer.stop();
+            context.pop();
+          },
         ),
         title: Text(localizations.home_meditationTitle),
         centerTitle: true,
@@ -89,50 +92,50 @@ class _MeditationOfTheDayScreenState extends State<MeditationOfTheDayScreen> {
                   position: _position,
                 ),
                 const SizedBox(height: 28),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    IconButton(
-                      color: Theme.of(context).appBarTheme.foregroundColor,
-                      icon: const Icon(Icons.close, size: 28),
-                      onPressed: () => context.pop(),
-                    ),
-                    IconButton(
-                      color: Theme.of(context).appBarTheme.foregroundColor,
-                      icon: const Icon(Icons.music_note, size: 28),
-                      onPressed: () {},
-                    ),
-                    StatefulBuilder(
-                      builder: (context, setState) {
-                        final List<double> speeds = [
-                          1.0,
-                          0.6,
-                          0.7,
-                          0.8,
-                          0.9,
-                          1.0,
-                        ];
-                        int currentSpeedIndex = speeds.indexOf(
-                          _audioPlayer.speed,
-                        );
-                        if (currentSpeedIndex == -1) currentSpeedIndex = 0;
-                        return IconButton(
-                          color: Theme.of(context).appBarTheme.foregroundColor,
-                          onPressed: () {
-                            int nextIndex =
-                                (currentSpeedIndex + 1) % speeds.length;
-                            _audioPlayer.setSpeed(speeds[nextIndex]);
-                            setState(() {});
-                          },
-                          icon: Text(
-                            'x${_audioPlayer.speed == 1.0 ? 1 : _audioPlayer.speed.toStringAsFixed(1)}',
-                            style: TextStyle(fontSize: 20),
-                          ),
-                        );
-                      },
-                    ),
-                  ],
-                ),
+                // Row(
+                //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                //   children: [
+                //     IconButton(
+                //       color: Theme.of(context).appBarTheme.foregroundColor,
+                //       icon: const Icon(Icons.close, size: 28),
+                //       onPressed: () => context.pop(),
+                //     ),
+                //     IconButton(
+                //       color: Theme.of(context).appBarTheme.foregroundColor,
+                //       icon: const Icon(Icons.music_note, size: 28),
+                //       onPressed: () {},
+                //     ),
+                //     StatefulBuilder(
+                //       builder: (context, setState) {
+                //         final List<double> speeds = [
+                //           1.0,
+                //           0.6,
+                //           0.7,
+                //           0.8,
+                //           0.9,
+                //           1.0,
+                //         ];
+                //         int currentSpeedIndex = speeds.indexOf(
+                //           _audioPlayer.speed,
+                //         );
+                //         if (currentSpeedIndex == -1) currentSpeedIndex = 0;
+                //         return IconButton(
+                //           color: Theme.of(context).appBarTheme.foregroundColor,
+                //           onPressed: () {
+                //             int nextIndex =
+                //                 (currentSpeedIndex + 1) % speeds.length;
+                //             _audioPlayer.setSpeed(speeds[nextIndex]);
+                //             setState(() {});
+                //           },
+                //           icon: Text(
+                //             'x${_audioPlayer.speed == 1.0 ? 1 : _audioPlayer.speed.toStringAsFixed(1)}',
+                //             style: TextStyle(fontSize: 20),
+                //           ),
+                //         );
+                //       },
+                //     ),
+                //   ],
+                // ),
                 const SizedBox(height: 16),
               ],
             ),
