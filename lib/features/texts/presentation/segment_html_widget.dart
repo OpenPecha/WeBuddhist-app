@@ -6,10 +6,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 class SegmentHtmlWidget extends ConsumerStatefulWidget {
   final String htmlContent;
   final int segmentIndex;
+  final double fontSize;
   const SegmentHtmlWidget({
     super.key,
     required this.htmlContent,
     required this.segmentIndex,
+    this.fontSize = 16,
   });
 
   @override
@@ -40,9 +42,10 @@ class _SegmentHtmlWidgetState extends ConsumerState<SegmentHtmlWidget> {
           margin: Margins.only(left: 4),
           backgroundColor: const Color(0xFFF0F0F0),
           padding: HtmlPaddings.symmetric(horizontal: 5, vertical: 2),
+          fontSize: FontSize(widget.fontSize),
         ),
         "body": Style(
-          fontSize: FontSize(16),
+          fontSize: FontSize(widget.fontSize),
           lineHeight: LineHeight(lineHeight),
           margin: Margins.zero,
           padding: HtmlPaddings.zero,
@@ -68,7 +71,7 @@ class _SegmentHtmlWidgetState extends ConsumerState<SegmentHtmlWidget> {
                 child: Transform.translate(
                   offset: const Offset(0, -12),
                   child: Padding(
-                    padding: const EdgeInsets.only(left: 2, right: 2),
+                    padding: const EdgeInsets.only(left: 4, right: 4),
                     child: DefaultTextStyle.merge(
                       style: const TextStyle(
                         color: Color(0xFF007bff),
@@ -110,10 +113,10 @@ class _SegmentHtmlWidgetState extends ConsumerState<SegmentHtmlWidget> {
                             borderRadius: BorderRadius.circular(3),
                           ),
                           child: DefaultTextStyle.merge(
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontStyle: FontStyle.italic,
                               color: Color(0xFF8a8a8a),
-                              fontSize: 16,
+                              fontSize: widget.fontSize,
                             ),
                             child:
                                 (context.element?.text ?? '').isNotEmpty

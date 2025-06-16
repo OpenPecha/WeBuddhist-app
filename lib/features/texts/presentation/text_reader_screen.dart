@@ -11,53 +11,116 @@ class TextReaderScreen extends ConsumerWidget {
   const TextReaderScreen({super.key});
 
   void _showFontSizeSelector(BuildContext context, WidgetRef ref) {
-    final readingParams = ref.watch(textReadingParamsProvider);
+    // showDialog(
+    //   context: context,
+    //   builder: (context) {
+    //     return AlertDialog(
+    //       content: Column(
+    //         mainAxisSize: MainAxisSize.min,
+    //         children: [
+    //           Row(
+    //             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    //             children: [
+    //               for (final size in [12.0, 16.0, 20.0, 24.0, 28.0])
+    //                 Text(
+    //                   'A',
+    //                   style: TextStyle(
+    //                     fontSize: size,
+    //                     fontWeight: FontWeight.bold,
+    //                   ),
+    //                 ),
+    //             ],
+    //           ),
+    //           Slider(
+    //             min: 10,
+    //             max: 40,
+    //             value: readingParams?.fontSize ?? 16,
+    //             divisions: 6,
+    //             label:
+    //                 '${(readingParams?.fontSize ?? 16 / 18.0 * 100).round()}%',
+    //             onChanged: (value) {
+    //               ref
+    //                   .read(textReadingParamsProvider.notifier)
+    //                   .setFontSize(value);
+    //             },
+    //           ),
+    //           Row(
+    //             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    //             children: const [
+    //               Text('50%'),
+    //               Text('110%'),
+    //               Text('175%'),
+    //               Text('235%'),
+    //               Text('300%'),
+    //             ],
+    //           ),
+    //         ],
+    //       ),
+    //     );
+    //   },
+    // );
+
     showModalBottomSheet(
       context: context,
       builder: (context) {
-        return Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        return Consumer(
+          builder: (context, ref, child) {
+            final readingParams = ref.watch(textReadingParamsProvider);
+            return Padding(
+              padding: const EdgeInsets.only(
+                left: 24,
+                right: 24,
+                top: 16,
+                bottom: 30,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  for (final size in [12.0, 16.0, 20.0, 24.0, 28.0])
-                    Text(
-                      'A',
-                      style: TextStyle(
-                        fontSize: size,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      for (final size in [12.0, 16.0, 20.0, 24.0, 28.0])
+                        Text(
+                          'A',
+                          style: TextStyle(
+                            fontSize: size,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Slider(
+                    padding: EdgeInsets.zero,
+                    activeColor: Theme.of(context).colorScheme.primary,
+                    inactiveColor: Theme.of(context).colorScheme.primary,
+                    min: 10,
+                    max: 40,
+                    value: readingParams?.fontSize ?? 16,
+                    divisions: 6,
+                    label:
+                        '${(readingParams?.fontSize ?? 16 / 18.0 * 100).round()}%',
+                    onChanged: (value) {
+                      ref
+                          .read(textReadingParamsProvider.notifier)
+                          .setFontSize(value);
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: const [
+                      Text('50%'),
+                      Text('110%'),
+                      Text('175%'),
+                      Text('235%'),
+                      Text('300%'),
+                    ],
+                  ),
                 ],
               ),
-              Slider(
-                min: 10,
-                max: 40,
-                value: readingParams?.fontSize ?? 16,
-                divisions: 6,
-                label:
-                    '${(readingParams?.fontSize ?? 16 / 18.0 * 100).round()}%',
-                onChanged: (value) {
-                  ref
-                      .read(textReadingParamsProvider.notifier)
-                      .setFontSize(value);
-                },
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: const [
-                  Text('50%'),
-                  Text('110%'),
-                  Text('175%'),
-                  Text('235%'),
-                  Text('300%'),
-                ],
-              ),
-            ],
-          ),
+            );
+          },
         );
       },
     );
@@ -92,11 +155,10 @@ class TextReaderScreen extends ConsumerWidget {
         ),
         toolbarHeight: 50,
         actions: [
-          // icon to resize font size
-          // IconButton(
-          //   onPressed: () => _showFontSizeSelector(context, ref),
-          //   icon: const Icon(Icons.text_increase),
-          // ),
+          IconButton(
+            onPressed: () => _showFontSizeSelector(context, ref),
+            icon: const Icon(Icons.text_increase),
+          ),
           GestureDetector(
             onTap: () async {
               final result = await context.push(
