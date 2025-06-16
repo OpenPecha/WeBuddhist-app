@@ -87,7 +87,6 @@ class _PrayerOfTheDayScreenState extends State<PrayerOfTheDayScreen> {
         final segmentHeight = renderBox.size.height;
         final viewportHeight = _scrollController.position.viewportDimension;
         final maxScroll = _scrollController.position.maxScrollExtent;
-
         final currentScroll = _scrollController.offset;
 
         // Calculate the target scroll position for centering
@@ -96,54 +95,32 @@ class _PrayerOfTheDayScreenState extends State<PrayerOfTheDayScreen> {
             segmentOffset -
             (viewportHeight / 2 - segmentHeight / 2);
 
-        // If segment is above the visible area, scroll up
-        if (segmentOffset < 0) {
-          _scrollController.animateTo(
-            currentScroll + segmentOffset,
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.easeInOut,
-          );
-        }
-        // If segment is below the visible area, scroll down
-        else if (segmentOffset + segmentHeight > viewportHeight) {
-          _scrollController.animateTo(
-            currentScroll + (segmentOffset + segmentHeight - viewportHeight),
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.easeInOut,
-          );
-        }
-        // For segments in the middle, center them if there's enough space
-        else {
-          // Check if we're near the top or bottom
-          final isNearTop = targetScroll < viewportHeight / 2;
-          final isNearBottom = targetScroll > maxScroll - viewportHeight / 2;
+        // Check if we're at the last segment
+        final isLastSegment = _currentSegmentIndex == _textSegments.length - 1;
 
-          if (isNearTop) {
-            // Keep segment at top with some padding
-            _scrollController.animateTo(
-              currentScroll + segmentOffset - 20, // 20 pixels padding from top
-              duration: const Duration(milliseconds: 300),
-              curve: Curves.easeInOut,
-            );
-          } else if (isNearBottom) {
-            // Keep segment at bottom with some padding
-            _scrollController.animateTo(
-              currentScroll +
-                  segmentOffset -
-                  (viewportHeight -
-                      segmentHeight -
-                      20), // 20 pixels padding from bottom
-              duration: const Duration(milliseconds: 300),
-              curve: Curves.easeInOut,
-            );
-          } else {
-            // Center the segment
-            _scrollController.animateTo(
-              targetScroll,
-              duration: const Duration(milliseconds: 300),
-              curve: Curves.easeInOut,
-            );
-          }
+        // Check if the segment is already fully visible
+        final isFullyVisible =
+            segmentOffset >= 0 &&
+            segmentOffset + segmentHeight <= viewportHeight;
+
+        // If it's the last segment and it's already fully visible, don't scroll
+        if (isLastSegment && isFullyVisible) {
+          return;
+        }
+
+        // If we're near the end of the text, adjust the scroll to keep the segment visible
+        if (targetScroll > maxScroll - viewportHeight / 2) {
+          _scrollController.animateTo(
+            maxScroll,
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeInOut,
+          );
+        } else if (segmentOffset + segmentHeight > viewportHeight / 2) {
+          _scrollController.animateTo(
+            targetScroll,
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeInOut,
+          );
         }
       }
     }
