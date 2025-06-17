@@ -7,11 +7,13 @@ class SegmentHtmlWidget extends ConsumerStatefulWidget {
   final String htmlContent;
   final int segmentIndex;
   final double fontSize;
+  final bool isSelected;
   const SegmentHtmlWidget({
     super.key,
     required this.htmlContent,
     required this.segmentIndex,
     required this.fontSize,
+    this.isSelected = false,
   });
 
   @override
@@ -50,6 +52,7 @@ class _SegmentHtmlWidgetState extends ConsumerState<SegmentHtmlWidget> {
           margin: Margins.zero,
           padding: HtmlPaddings.zero,
         ),
+        'p': Style(margin: Margins.zero, padding: HtmlPaddings.zero),
       },
       extensions: [
         TagExtension(

@@ -5,6 +5,7 @@ import 'package:flutter_pecha/features/texts/data/providers/version_provider.dar
 import 'package:flutter_pecha/features/texts/data/providers/text_reading_params_provider.dart';
 import 'package:flutter_pecha/features/texts/data/providers/text_version_language_provider.dart';
 import 'package:flutter_pecha/features/texts/data/providers/font_size_provider.dart';
+import 'package:flutter_pecha/features/texts/data/providers/selected_segment_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -12,131 +13,68 @@ class TextReaderScreen extends ConsumerWidget {
   const TextReaderScreen({super.key});
 
   void _showFontSizeSelector(BuildContext context, WidgetRef ref) {
-    // showDialog(
-    //   context: context,
-    //   builder: (context) {
-    //     return Consumer(
-    //       builder: (context, ref, child) {
-    //         final fontSize = ref.watch(fontSizeProvider);
-    //         return Dialog(
-    //           backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-    //           alignment: Alignment.topCenter,
-    //           insetPadding: const EdgeInsets.only(
-    //             top: 60.0,
-    //             left: 20.0,
-    //             right: 20.0,
-    //           ),
-    //           child: Container(
-    //             padding: const EdgeInsets.symmetric(
-    //               horizontal: 24,
-    //               vertical: 16,
-    //             ),
-    //             child: Column(
-    //               mainAxisSize: MainAxisSize.min,
-    //               children: [
-    //                 Row(
-    //                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-    //                   crossAxisAlignment: CrossAxisAlignment.end,
-    //                   children: [
-    //                     for (final size in [12.0, 18.0, 24.0, 30.0, 40.0])
-    //                       Text(
-    //                         'A',
-    //                         style: TextStyle(
-    //                           fontSize: size,
-    //                           fontWeight: FontWeight.bold,
-    //                         ),
-    //                       ),
-    //                   ],
-    //                 ),
-    //                 const SizedBox(height: 8),
-    //                 Slider(
-    //                   padding: EdgeInsets.zero,
-    //                   activeColor: Theme.of(context).colorScheme.primary,
-    //                   inactiveColor: Colors.grey.shade300,
-    //                   min: 10,
-    //                   max: 40,
-    //                   value: fontSize,
-    //                   label: '${fontSize.round()}',
-    //                   onChanged: (value) {
-    //                     ref.read(fontSizeProvider.notifier).setFontSize(value);
-    //                   },
-    //                 ),
-    //                 const SizedBox(height: 16),
-    //                 Row(
-    //                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-    //                   children: const [
-    //                     Text('50%'),
-    //                     Text('110%'),
-    //                     Text('175%'),
-    //                     Text('235%'),
-    //                     Text('300%'),
-    //                   ],
-    //                 ),
-    //               ],
-    //             ),
-    //           ),
-    //         );
-    //       },
-    //     );
-    //   },
-    // );
-
-    showModalBottomSheet(
+    showDialog(
       context: context,
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       builder: (context) {
         return Consumer(
           builder: (context, ref, child) {
             final fontSize = ref.watch(fontSizeProvider);
-            return Padding(
-              padding: const EdgeInsets.only(
-                left: 24,
-                right: 24,
-                top: 16,
-                bottom: 30,
+            return Dialog(
+              backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+              alignment: Alignment.topCenter,
+              insetPadding: const EdgeInsets.only(
+                top: 60.0,
+                left: 20.0,
+                right: 20.0,
               ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      for (final size in [12.0, 18.0, 24.0, 30.0, 40.0])
-                        Text(
-                          'A',
-                          style: TextStyle(
-                            fontSize: size,
-                            fontWeight: FontWeight.bold,
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 16,
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        for (final size in [12.0, 18.0, 24.0, 30.0, 40.0])
+                          Text(
+                            'A',
+                            style: TextStyle(
+                              fontSize: size,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
-                        ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  Slider(
-                    padding: EdgeInsets.zero,
-                    activeColor: Theme.of(context).colorScheme.primary,
-                    inactiveColor: Colors.grey.shade300,
-                    min: 12,
-                    max: 42,
-                    value: fontSize,
-                    label: '${fontSize.round()}',
-                    onChanged: (value) {
-                      ref.read(fontSizeProvider.notifier).setFontSize(value);
-                    },
-                  ),
-                  const SizedBox(height: 16),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: const [
-                      Text('50%'),
-                      Text('110%'),
-                      Text('175%'),
-                      Text('235%'),
-                      Text('300%'),
-                    ],
-                  ),
-                ],
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Slider(
+                      padding: EdgeInsets.zero,
+                      activeColor: Theme.of(context).colorScheme.primary,
+                      inactiveColor: Colors.grey.shade300,
+                      min: 10,
+                      max: 40,
+                      value: fontSize,
+                      label: '${fontSize.round()}',
+                      onChanged: (value) {
+                        ref.read(fontSizeProvider.notifier).setFontSize(value);
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: const [
+                        Text('50%'),
+                        Text('110%'),
+                        Text('175%'),
+                        Text('235%'),
+                        Text('300%'),
+                      ],
+                    ),
+                  ],
+                ),
               ),
             );
           },
@@ -276,37 +214,58 @@ class TextReaderScreen extends ConsumerWidget {
                       .toString()
                       .padLeft(2);
                   final content = segment.content;
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 8,
-                    ),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.only(top: 2),
-                          child: SizedBox(
-                            width: 30,
-                            child: Text(
-                              segmentNumber,
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 14,
+                  final isSelected =
+                      ref.watch(selectedSegmentProvider) == index;
+
+                  return GestureDetector(
+                    onTap: () {
+                      ref.read(selectedSegmentProvider.notifier).state =
+                          ref.read(selectedSegmentProvider) == index
+                              ? null
+                              : index;
+                    },
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color:
+                            isSelected
+                                ? Theme.of(
+                                  context,
+                                ).colorScheme.primary.withValues(alpha: 0.1)
+                                : null,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 8,
+                      ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(top: 2),
+                            child: SizedBox(
+                              width: 30,
+                              child: Text(
+                                segmentNumber,
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14,
+                                ),
+                                textAlign: TextAlign.left,
                               ),
-                              textAlign: TextAlign.left,
                             ),
                           ),
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: SegmentHtmlWidget(
-                            htmlContent: content,
-                            segmentIndex: index,
-                            fontSize: fontSize,
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: SegmentHtmlWidget(
+                              htmlContent: content,
+                              segmentIndex: index,
+                              fontSize: fontSize,
+                              isSelected: isSelected,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   );
                 }, childCount: firstSection.segments.length),
