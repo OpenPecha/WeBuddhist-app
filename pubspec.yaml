@@ -50,6 +50,7 @@ dependencies:
   font_awesome_flutter: ^10.8.0
   flutter_launcher_icons: ^0.14.3
   shared_preferences: ^2.5.3
+  share_plus: ^11.0.0
 
 dev_dependencies:
   flutter_test:
