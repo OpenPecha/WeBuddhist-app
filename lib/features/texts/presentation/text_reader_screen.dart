@@ -19,6 +19,7 @@ class TextReaderScreen extends ConsumerWidget {
     //       builder: (context, ref, child) {
     //         final fontSize = ref.watch(fontSizeProvider);
     //         return Dialog(
+    //           backgroundColor: Theme.of(context).scaffoldBackgroundColor,
     //           alignment: Alignment.topCenter,
     //           insetPadding: const EdgeInsets.only(
     //             top: 60.0,
@@ -82,6 +83,7 @@ class TextReaderScreen extends ConsumerWidget {
 
     showModalBottomSheet(
       context: context,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       builder: (context) {
         return Consumer(
           builder: (context, ref, child) {
@@ -114,7 +116,7 @@ class TextReaderScreen extends ConsumerWidget {
                   Slider(
                     padding: EdgeInsets.zero,
                     activeColor: Theme.of(context).colorScheme.primary,
-                    inactiveColor: Theme.of(context).colorScheme.primary,
+                    inactiveColor: Colors.grey.shade300,
                     min: 12,
                     max: 42,
                     value: fontSize,
