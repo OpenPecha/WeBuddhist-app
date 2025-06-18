@@ -2,6 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_pecha/features/texts/presentation/widgets/action_button.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:html/parser.dart' as html_parser;
+
+String htmlToPlainText(String htmlString) {
+  final document = html_parser.parse(htmlString);
+  return document.body?.text ?? '';
+}
 
 class SegmentActionBar extends StatelessWidget {
   final String text;
@@ -31,7 +37,9 @@ class SegmentActionBar extends StatelessWidget {
                 icon: Icons.copy,
                 label: 'Copy',
                 onTap: () {
-                  Clipboard.setData(ClipboardData(text: text));
+                  final textWithLineBreaks = text.replaceAll("<br>", "\n");
+                  final plainText = htmlToPlainText(textWithLineBreaks);
+                  Clipboard.setData(ClipboardData(text: plainText));
                   ScaffoldMessenger.of(
                     context,
                   ).showSnackBar(const SnackBar(content: Text('Copied!')));
@@ -42,8 +50,15 @@ class SegmentActionBar extends StatelessWidget {
                 icon: Icons.share,
                 label: 'Share',
                 onTap: () {
+                  final textWithLineBreaks = text.replaceAll("<br>", "\n");
+                  final plainText = htmlToPlainText(textWithLineBreaks);
+                  final webUrl =
+                      "https://pecha-frontend-12552055234-4f99e0e.onrender.com/";
                   SharePlus.instance.share(
-                    ShareParams(text: text, subject: 'Share this text'),
+                    ShareParams(
+                      text: "$plainText\n$webUrl",
+                      title: "The wisdom of the Buddha",
+                    ),
                   );
                   onClose();
                 },
