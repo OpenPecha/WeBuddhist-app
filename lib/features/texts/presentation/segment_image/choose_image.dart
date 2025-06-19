@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 class ChooseImage extends StatelessWidget {
-  const ChooseImage({super.key});
+  const ChooseImage({super.key, required this.text});
+  final String text;
 
   void showImageConfirmation(BuildContext context, String imagePath) {
     showModalBottomSheet(
@@ -45,7 +46,7 @@ class ChooseImage extends StatelessWidget {
                     Navigator.pop(context); // Close modal
                     context.push(
                       '/texts/segment_image/create_image',
-                      extra: imagePath,
+                      extra: {'text': text, 'imagePath': imagePath},
                     );
                   },
                   child: const Text(

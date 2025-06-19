@@ -88,7 +88,12 @@ class SegmentActionBar extends StatelessWidget {
                 icon: Icons.image,
                 label: 'Image',
                 onTap: () {
-                  context.push('/texts/segment_image/choose_image');
+                  final textWithLineBreaks = text.replaceAll("<br>", "\n");
+                  final plainText = htmlToPlainText(textWithLineBreaks);
+                  context.push(
+                    '/texts/segment_image/choose_image',
+                    extra: plainText,
+                  );
                   onClose();
                 },
               ),

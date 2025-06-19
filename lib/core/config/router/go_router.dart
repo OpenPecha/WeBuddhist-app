@@ -132,13 +132,31 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/texts/segment_image/choose_image',
         builder: (context, state) {
-          return const ChooseImage();
+          final extra = state.extra;
+          if (extra == null || extra is! String) {
+            return const Scaffold(
+              body: Center(child: Text('Missing required parameters')),
+            );
+          }
+          return ChooseImage(text: extra);
         },
       ),
       GoRoute(
         path: '/texts/segment_image/create_image',
         builder: (context, state) {
-          return const CreateImage();
+          final extra = state.extra;
+          if (extra == null ||
+              extra is! Map ||
+              !extra.containsKey('text') ||
+              !extra.containsKey('imagePath')) {
+            return const Scaffold(
+              body: Center(child: Text('Missing required parameters')),
+            );
+          }
+          return CreateImage(
+            imagePath: extra['imagePath'] as String,
+            text: extra['text'] as String,
+          );
         },
       ),
     ],
