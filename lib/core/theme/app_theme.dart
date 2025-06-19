@@ -153,9 +153,4 @@ class AppTheme {
     }
     return null; // Default font
   }
-
-  // change line height to 2.0 for all text when locale is "bo"
-  static TextStyle _changeLineHeight(TextStyle style) {
-    return style.copyWith(height: 2.0);
-  }
 }

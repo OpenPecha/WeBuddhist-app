@@ -4,7 +4,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/features/auth/application/auth_provider.dart';
-import 'package:flutter_pecha/features/home/presentation/widgets/stat_button.dart';
 import 'package:flutter_pecha/features/home/presentation/widgets/action_of_the_day_card.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';

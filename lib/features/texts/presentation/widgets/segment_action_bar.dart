@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_pecha/features/texts/presentation/widgets/action_button.dart';
+import 'package:go_router/go_router.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:html/parser.dart' as html_parser;
 
@@ -87,7 +88,7 @@ class SegmentActionBar extends StatelessWidget {
                 icon: Icons.image,
                 label: 'Image',
                 onTap: () {
-                  // TODO: Implement image export
+                  context.push('/texts/segment_image/choose_image');
                   onClose();
                 },
               ),
