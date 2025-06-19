@@ -8,6 +8,8 @@ import 'package:flutter_pecha/features/texts/models/term/term.dart';
 import 'package:flutter_pecha/features/texts/models/text/texts.dart';
 import 'package:flutter_pecha/features/texts/presentation/category_screen.dart';
 import 'package:flutter_pecha/features/texts/presentation/library_catalog_screen.dart';
+import 'package:flutter_pecha/features/texts/presentation/segment_image/choose_image.dart';
+import 'package:flutter_pecha/features/texts/presentation/segment_image/create_image.dart';
 import 'package:flutter_pecha/features/texts/presentation/text_detail_screen.dart';
 import 'package:flutter_pecha/features/texts/presentation/text_reader_screen.dart';
 import 'package:flutter_pecha/features/texts/presentation/text_toc_screen.dart';
@@ -125,6 +127,18 @@ final goRouterProvider = Provider<GoRouter>((ref) {
           return LanguageSelectionScreen(
             uniqueLanguages: extra['uniqueLanguages'] as List<String>,
           );
+        },
+      ),
+      GoRoute(
+        path: '/texts/segment_image/choose_image',
+        builder: (context, state) {
+          return const ChooseImage();
+        },
+      ),
+      GoRoute(
+        path: '/texts/segment_image/create_image',
+        builder: (context, state) {
+          return const CreateImage();
         },
       ),
     ],
