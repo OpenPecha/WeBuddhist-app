@@ -75,7 +75,14 @@ class ChooseImage extends StatelessWidget {
             topRight: Radius.circular(18),
           ),
         ),
-        title: const Text('Choose Image'),
+        title: Text(
+          'Choose Image',
+          style: TextStyle(
+            fontWeight: FontWeight.w600,
+            fontSize: 18,
+            color: Theme.of(context).textTheme.bodySmall?.color,
+          ),
+        ),
         centerTitle: false,
       ),
       body: Padding(
