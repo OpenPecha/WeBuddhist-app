@@ -113,24 +113,47 @@ class _CreateImageState extends State<CreateImage> {
           ),
         ),
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-        title: const Text('Create Image'),
+        title: Text(
+          "Create Image",
+          style: TextStyle(
+            fontWeight: FontWeight.w600,
+            fontSize: 18,
+            color: Theme.of(context).textTheme.bodyMedium?.color,
+          ),
+        ),
         centerTitle: false,
         scrolledUnderElevation: 0,
+        actionsPadding: const EdgeInsets.symmetric(horizontal: 14),
         actions: [
           if (!_isSaved)
-            TextButton(
+            ElevatedButton(
+              key: const Key('save_image_button'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Theme.of(context).cardColor,
+                foregroundColor: Theme.of(context).colorScheme.primary,
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(18),
+                ),
+              ),
               onPressed: _captureAndSetState,
-              child: const Text(
+              child: Text(
                 "Save",
-                style: TextStyle(fontWeight: FontWeight.bold),
+                style: TextStyle(
+                  fontWeight: FontWeight.w600,
+                  color: Theme.of(context).textTheme.bodyMedium?.color,
+                ),
               ),
             )
           else
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text(
+              child: Text(
                 "Done",
-                style: TextStyle(fontWeight: FontWeight.bold),
+                style: TextStyle(
+                  fontWeight: FontWeight.w600,
+                  color: Theme.of(context).textTheme.bodyMedium?.color,
+                ),
               ),
             ),
         ],
