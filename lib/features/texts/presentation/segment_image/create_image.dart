@@ -1,8 +1,10 @@
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:screenshot/screenshot.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:image_gallery_saver/image_gallery_saver.dart';
 
 class CreateImage extends StatefulWidget {
   const CreateImage({super.key, required this.imagePath, required this.text});
@@ -16,35 +18,87 @@ class CreateImage extends StatefulWidget {
 class _CreateImageState extends State<CreateImage> {
   final screenshotController = ScreenshotController();
   bool _isSaved = false;
-  String? _savedImagePath;
+  Uint8List? _capturedImageBytes;
 
-  Future<void> _saveImage() async {
-    final imageFile = await screenshotController.capture();
-    if (imageFile == null) return;
-
-    final directory = await getApplicationDocumentsDirectory();
-    final imagePath =
-        '${directory.path}/verse_image_${DateTime.now().millisecondsSinceEpoch}.png';
-    final File imageToSave = File(imagePath);
-    await imageToSave.writeAsBytes(imageFile);
+  Future<void> _captureAndSetState() async {
+    final imageBytes = await screenshotController.capture();
+    if (imageBytes == null) return;
 
     setState(() {
       _isSaved = true;
-      _savedImagePath = imagePath;
+      _capturedImageBytes = imageBytes;
     });
   }
 
   Future<void> _shareImage() async {
-    if (_savedImagePath == null) {
-      await _saveImage();
-    }
-    if (_savedImagePath != null) {
+    if (_capturedImageBytes == null) return;
+
+    final directory = await getTemporaryDirectory();
+    final imagePath = '${directory.path}/verse_image_for_sharing.png';
+    final file = File(imagePath);
+    await file.writeAsBytes(_capturedImageBytes!);
+
+    try {
       await SharePlus.instance.share(
         ShareParams(
           previewThumbnail: XFile(widget.imagePath),
-          files: [XFile(_savedImagePath!)],
+          files: [XFile(file.path)],
         ),
       );
+    } catch (e) {
+      debugPrint('Error sharing image: $e');
+    } finally {
+      if (await file.exists()) {
+        await file.delete();
+      }
+    }
+  }
+
+  Future<void> _downloadImage() async {
+    if (_capturedImageBytes == null) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Image not captured yet.')),
+        );
+      }
+      return;
+    }
+    try {
+      final result = await ImageGallerySaver.saveImage(
+        _capturedImageBytes!,
+        name: 'verse_image_${DateTime.now().millisecondsSinceEpoch}',
+        quality: 100,
+      );
+
+      if (result['isSuccess']) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Image saved to gallery'),
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        }
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Failed to save image'),
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        debugPrint('Error downloading image: $e');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: ${e.toString()}'),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
     }
   }
 
@@ -65,7 +119,7 @@ class _CreateImageState extends State<CreateImage> {
         actions: [
           if (!_isSaved)
             TextButton(
-              onPressed: _saveImage,
+              onPressed: _captureAndSetState,
               child: const Text(
                 "Save",
                 style: TextStyle(fontWeight: FontWeight.bold),
@@ -137,9 +191,7 @@ class _CreateImageState extends State<CreateImage> {
                             borderRadius: BorderRadius.circular(12),
                           ),
                         ),
-                        onPressed: () {
-                          // TODO: Implement download functionality
-                        },
+                        onPressed: _downloadImage,
                         child: const Text(
                           'Download Image',
                           style: TextStyle(fontWeight: FontWeight.bold),
