@@ -110,7 +110,7 @@ class ChooseImage extends StatelessWidget {
               GridView.builder(
                 physics: const NeverScrollableScrollPhysics(),
                 shrinkWrap: true,
-                itemCount: 21,
+                itemCount: 4,
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 3,
                   mainAxisSpacing: 10,
@@ -120,7 +120,10 @@ class ChooseImage extends StatelessWidget {
                 itemBuilder:
                     (context, index) => GestureDetector(
                       onTap: () {
-                        showImageConfirmation(context, 'assets/images/bg.jpg');
+                        showImageConfirmation(
+                          context,
+                          'assets/images/segment-bg/${index + 1}.jpg',
+                        );
                       },
                       child: Container(
                         decoration: BoxDecoration(
@@ -128,7 +131,7 @@ class ChooseImage extends StatelessWidget {
                         ),
                         clipBehavior: Clip.antiAlias,
                         child: Image.asset(
-                          'assets/images/bg.jpg',
+                          'assets/images/segment-bg/${index + 1}.jpg',
                           fit: BoxFit.cover,
                         ),
                       ),

@@ -83,6 +83,7 @@ flutter:
   generate: true
   assets:
     - assets/images/
+    - assets/images/segment-bg/
     - assets/fonts/
     - assets/audios/
     - .env

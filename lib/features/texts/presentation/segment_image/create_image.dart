@@ -187,6 +187,7 @@ class _CreateImageState extends State<CreateImage> {
                           color: Colors.white,
                           fontSize: 20,
                           height: 1.5,
+                          fontWeight: FontWeight.w600,
                         ),
                         textAlign: TextAlign.center,
                       ),
