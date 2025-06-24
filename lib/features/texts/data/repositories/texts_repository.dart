@@ -1,4 +1,5 @@
 import 'package:flutter_pecha/features/texts/data/datasource/text_remote_datasource.dart';
+import 'package:flutter_pecha/features/texts/models/search/search_response.dart';
 import 'package:flutter_pecha/features/texts/models/text/detail_response.dart';
 import 'package:flutter_pecha/features/texts/models/text/reader_response.dart';
 import 'package:flutter_pecha/features/texts/models/text/toc_response.dart';
@@ -42,6 +43,17 @@ class TextsRepository {
       contentId: contentId,
       versionId: versionId,
       skip: skip,
+    );
+    return result;
+  }
+
+  Future<SearchResponse> searchTextRepository({
+    required String query,
+    required String textId,
+  }) async {
+    final result = await remoteDatasource.searchText(
+      query: query,
+      textId: textId,
     );
     return result;
   }

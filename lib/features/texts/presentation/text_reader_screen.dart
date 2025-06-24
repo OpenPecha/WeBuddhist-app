@@ -9,6 +9,7 @@ import 'package:flutter_pecha/features/texts/presentation/widgets/segment_action
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_pecha/features/texts/models/text/reader_response.dart';
+import 'package:flutter_pecha/features/texts/models/search/segment_match.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 class TextReaderScreen extends ConsumerStatefulWidget {
@@ -316,6 +317,8 @@ class _TextReaderScreenState extends ConsumerState<TextReaderScreen> {
 class TextSearchDelegate extends SearchDelegate<int?> {
   final ReaderResponse textDetails;
   final WidgetRef ref;
+  String _submittedQuery = '';
+  bool _hasSubmitted = false;
 
   TextSearchDelegate({required this.textDetails, required this.ref});
 
@@ -343,6 +346,8 @@ class TextSearchDelegate extends SearchDelegate<int?> {
         icon: const Icon(Icons.clear),
         onPressed: () {
           query = '';
+          _submittedQuery = '';
+          _hasSubmitted = false;
           showSuggestions(context);
         },
       ),
@@ -361,56 +366,142 @@ class TextSearchDelegate extends SearchDelegate<int?> {
 
   @override
   Widget buildResults(BuildContext context) {
+    // Only make API call when user submits search (presses search button)
+    if (query.isNotEmpty && !_hasSubmitted) {
+      _submittedQuery = query;
+      _hasSubmitted = true;
+    }
+
     return _buildSearchResults(context);
   }
 
   @override
   Widget buildSuggestions(BuildContext context) {
-    return _buildSearchResults(context);
+    // Reset submitted state when user starts typing again
+    if (_hasSubmitted && query != _submittedQuery) {
+      _hasSubmitted = false;
+      _submittedQuery = '';
+    }
+
+    // Show local search suggestions without API call
+    return Container(
+      color: Theme.of(context).scaffoldBackgroundColor,
+      child: const Center(
+        child: Text(
+          'Type to search and press search button',
+          style: TextStyle(fontSize: 16, color: Colors.grey),
+        ),
+      ),
+    );
   }
 
   Widget _buildSearchResults(BuildContext context) {
     if (query.isEmpty) {
-      return Container(color: Theme.of(context).scaffoldBackgroundColor);
-    }
-    final segments = textDetails.content.sections.first.segments;
-    final results =
-        segments
-            .where(
-              (segment) =>
-                  segment.content.toLowerCase().contains(query.toLowerCase()),
-            )
-            .toList();
-
-    if (results.isEmpty) {
-      return Center(
-        child: Text(
-          'No results found for "$query"',
-          style: const TextStyle(fontSize: 16),
+      return Container(
+        color: Theme.of(context).scaffoldBackgroundColor,
+        child: const Center(
+          child: Text(
+            'Type to search and press search button',
+            style: TextStyle(fontSize: 16, color: Colors.grey),
+          ),
         ),
       );
     }
 
-    return Container(
-      color: Theme.of(context).scaffoldBackgroundColor,
-      child: ListView.builder(
-        itemCount: results.length,
-        itemBuilder: (context, index) {
-          final segment = results[index];
-          return ListTile(
-            title: Text(
-              segment.content.replaceAll(RegExp(r'<[^>]*>'), ''),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
-            subtitle: Text('Segment ${segment.segmentNumber}'),
-            onTap: () {
-              final originalIndex = segments.indexOf(segment);
-              close(context, originalIndex);
-            },
-          );
-        },
-      ),
+    // Use API search only when submitted
+    if (!_hasSubmitted || _submittedQuery.isEmpty) {
+      return Container(
+        color: Theme.of(context).scaffoldBackgroundColor,
+        child: const Center(
+          child: Text(
+            'Press search button to search',
+            style: TextStyle(fontSize: 16, color: Colors.grey),
+          ),
+        ),
+      );
+    }
+
+    final searchParams = SearchTextParams(
+      query: _submittedQuery,
+      textId: textDetails.textDetail.id,
+    );
+
+    // Use Consumer to ensure rebuilds when provider changes
+    return Consumer(
+      builder: (context, ref, child) {
+        final searchResults = ref.watch(searchTextFutureProvider(searchParams));
+
+        return searchResults.when(
+          loading: () {
+            return const Center(child: CircularProgressIndicator());
+          },
+          error: (error, stackTrace) {
+            return Center(
+              child: Text(
+                'Error searching: ${error.toString()}',
+                style: const TextStyle(fontSize: 16),
+              ),
+            );
+          },
+          data: (searchResponse) {
+            if (searchResponse.sources == null ||
+                searchResponse.sources!.isEmpty) {
+              return Center(
+                child: Text(
+                  'No results found for "$_submittedQuery"',
+                  style: const TextStyle(fontSize: 16),
+                ),
+              );
+            }
+
+            // Flatten all segment matches from all sources
+            final allSegmentMatches = <SegmentMatch>[];
+            for (final source in searchResponse.sources!) {
+              allSegmentMatches.addAll(source.segmentMatches);
+            }
+
+            if (allSegmentMatches.isEmpty) {
+              return Center(
+                child: Text(
+                  'No results found for "$_submittedQuery"',
+                  style: const TextStyle(fontSize: 16),
+                ),
+              );
+            }
+
+            return Container(
+              color: Theme.of(context).scaffoldBackgroundColor,
+              child: ListView.builder(
+                itemCount: allSegmentMatches.length,
+                itemBuilder: (context, index) {
+                  final segmentMatch = allSegmentMatches[index];
+                  return ListTile(
+                    title: Text(
+                      segmentMatch.content.replaceAll(RegExp(r'<[^>]*>'), ''),
+                    ),
+                    onTap: () {
+                      // Find the segment index in the local segments to scroll to
+                      final segments =
+                          textDetails.content.sections.first.segments;
+                      final segmentIndex = segments.indexWhere(
+                        (segment) =>
+                            segment.segmentId == segmentMatch.segmentId,
+                      );
+
+                      if (segmentIndex != -1) {
+                        close(context, segmentIndex);
+                      } else {
+                        // If segment not found locally, just close with null
+                        close(context, null);
+                      }
+                    },
+                  );
+                },
+              ),
+            );
+          },
+        );
+      },
     );
   }
 }
