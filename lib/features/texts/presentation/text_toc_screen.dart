@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/features/app/presentation/pecha_bottom_nav_bar.dart';
 import 'package:flutter_pecha/features/texts/data/providers/text_reading_params_provider.dart';
-import 'package:flutter_pecha/features/texts/data/providers/text_version_language_provider.dart';
 import 'package:flutter_pecha/features/texts/data/providers/texts_provider.dart';
 import 'package:flutter_pecha/features/texts/models/text/texts.dart';
 import 'package:flutter_pecha/features/texts/models/text/toc_response.dart';
@@ -154,7 +153,6 @@ class TextTocScreen extends ConsumerWidget {
 
   Widget _buildContentsTab(TocResponse tocResponse, WidgetRef ref) {
     final toc = tocResponse.contents[0];
-    final language = tocResponse.textDetail.language;
     if (toc.sections.isEmpty) {
       return const Center(child: Text('No contents found'));
     }
