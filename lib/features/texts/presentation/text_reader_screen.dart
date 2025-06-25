@@ -383,16 +383,7 @@ class TextSearchDelegate extends SearchDelegate<int?> {
       _submittedQuery = '';
     }
 
-    // Show local search suggestions without API call
-    return Container(
-      color: Theme.of(context).scaffoldBackgroundColor,
-      child: const Center(
-        child: Text(
-          'Type to search and press search button',
-          style: TextStyle(fontSize: 16, color: Colors.grey),
-        ),
-      ),
-    );
+    return _buildSearchResults(context);
   }
 
   Widget _buildSearchResults(BuildContext context) {
@@ -401,7 +392,7 @@ class TextSearchDelegate extends SearchDelegate<int?> {
         color: Theme.of(context).scaffoldBackgroundColor,
         child: const Center(
           child: Text(
-            'Type to search and press search button',
+            'Type to search',
             style: TextStyle(fontSize: 16, color: Colors.grey),
           ),
         ),
@@ -414,7 +405,7 @@ class TextSearchDelegate extends SearchDelegate<int?> {
         color: Theme.of(context).scaffoldBackgroundColor,
         child: const Center(
           child: Text(
-            'Press search button to search',
+            "Press search button to search",
             style: TextStyle(fontSize: 16, color: Colors.grey),
           ),
         ),
@@ -471,13 +462,24 @@ class TextSearchDelegate extends SearchDelegate<int?> {
 
             return Container(
               color: Theme.of(context).scaffoldBackgroundColor,
-              child: ListView.builder(
+              child: ListView.separated(
                 itemCount: allSegmentMatches.length,
+                separatorBuilder:
+                    (context, index) => const Divider(
+                      height: 1,
+                      color: Colors.grey,
+                      indent: 20,
+                      endIndent: 20,
+                    ),
                 itemBuilder: (context, index) {
                   final segmentMatch = allSegmentMatches[index];
                   return ListTile(
                     title: Text(
                       segmentMatch.content.replaceAll(RegExp(r'<[^>]*>'), ''),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 8,
                     ),
                     onTap: () {
                       // Find the segment index in the local segments to scroll to
