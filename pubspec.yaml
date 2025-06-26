@@ -56,6 +56,8 @@ dependencies:
   path_provider: ^2.1.5
   image_gallery_saver: ^2.0.3
   scrollable_positioned_list: ^0.3.8
+  video_player: ^2.10.0
+  youtube_player_flutter: ^9.1.1
 
 dev_dependencies:
   flutter_test:
