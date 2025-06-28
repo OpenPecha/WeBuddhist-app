@@ -1,6 +1,8 @@
 // This file contains the presentation layer for the home screen feature.
 // It handles the UI for the main home screen after splash.
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/features/auth/application/auth_provider.dart';
@@ -60,19 +62,54 @@ class HomeScreen extends ConsumerStatefulWidget {
   ConsumerState<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends ConsumerState<HomeScreen> {
+class _HomeScreenState extends ConsumerState<HomeScreen>
+    with WidgetsBindingObserver {
   late PlanItem planItem;
+  Timer? _dayCheckTimer;
+  String _currentDay = '';
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _getTodayPlan();
+    _startDayCheckTimer();
+  }
+
+  _startDayCheckTimer() {
+    _dayCheckTimer = Timer.periodic(const Duration(minutes: 5), (timer) {
+      _checkAndUpdateDay();
+    });
+  }
+
+  _checkAndUpdateDay() {
+    final today = DateTime.now();
+    final dayName = DateFormat('EEEE').format(today).toLowerCase();
+    if (dayName != _currentDay) {
+      _currentDay = dayName;
+      _getTodayPlan();
+    }
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _checkAndUpdateDay();
+    }
+  }
+
+  @override
+  void dispose() {
+    _dayCheckTimer?.cancel();
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
   }
 
   _getTodayPlan() {
     final today = DateTime.now();
     final dayName = DateFormat('EEEE').format(today).toLowerCase();
-    final plan = weekPlan[dayName];
+    _currentDay = dayName;
+    final plan = weekPlan[_currentDay];
     planItem = PlanItem.fromJson(plan);
   }
 
