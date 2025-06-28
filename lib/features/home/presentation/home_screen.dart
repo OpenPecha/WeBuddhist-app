@@ -72,22 +72,25 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    _getTodayPlan();
+    _initializeTodayPlan();
     _startDayCheckTimer();
   }
 
-  _startDayCheckTimer() {
-    _dayCheckTimer = Timer.periodic(const Duration(minutes: 5), (timer) {
+  void _startDayCheckTimer() {
+    _dayCheckTimer = Timer.periodic(const Duration(minutes: 15), (timer) {
       _checkAndUpdateDay();
     });
   }
 
-  _checkAndUpdateDay() {
+  void _checkAndUpdateDay() {
     final today = DateTime.now();
     final dayName = DateFormat('EEEE').format(today).toLowerCase();
     if (dayName != _currentDay) {
       _currentDay = dayName;
-      _getTodayPlan();
+      final plan = weekPlan[_currentDay];
+      setState(() {
+        planItem = PlanItem.fromJson(plan);
+      });
     }
   }
 
@@ -105,7 +108,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     super.dispose();
   }
 
-  _getTodayPlan() {
+  void _initializeTodayPlan() {
     final today = DateTime.now();
     final dayName = DateFormat('EEEE').format(today).toLowerCase();
     _currentDay = dayName;
