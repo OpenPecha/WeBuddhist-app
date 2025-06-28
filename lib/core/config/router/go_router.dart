@@ -3,6 +3,7 @@ import 'package:flutter_pecha/features/auth/presentation/login_page.dart';
 import 'package:flutter_pecha/features/app/presentation/skeleton_screen.dart';
 import 'package:flutter_pecha/features/home/models/prayer_data.dart';
 import 'package:flutter_pecha/features/home/presentation/widgets/guided_scripture.dart';
+import 'package:flutter_pecha/features/home/presentation/widgets/meditation_video.dart';
 import 'package:flutter_pecha/features/meditation_of_day/presentation/meditation_of_day_screen.dart';
 import 'package:flutter_pecha/features/prayer_of_the_day/presentation/prayer_of_the_day_screen.dart';
 import 'package:flutter_pecha/features/splash/presentation/splash_screen.dart';
@@ -67,6 +68,18 @@ final goRouterProvider = Provider<GoRouter>((ref) {
             audioUrl: extra['meditationAudioUrl'] as String,
             imageUrl: extra['meditationImageUrl'] as String,
           );
+        },
+      ),
+      GoRoute(
+        path: '/home/meditation_video',
+        builder: (context, state) {
+          final extra = state.extra;
+          if (extra == null || extra is! String) {
+            return const Scaffold(
+              body: Center(child: Text('Missing required parameters')),
+            );
+          }
+          return MeditationVideo(videoUrl: extra);
         },
       ),
       GoRoute(
