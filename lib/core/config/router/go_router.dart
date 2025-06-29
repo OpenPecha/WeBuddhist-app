@@ -1,6 +1,9 @@
 import 'dart:async';
 import 'package:flutter_pecha/features/auth/presentation/login_page.dart';
 import 'package:flutter_pecha/features/app/presentation/skeleton_screen.dart';
+import 'package:flutter_pecha/features/home/models/prayer_data.dart';
+import 'package:flutter_pecha/features/home/presentation/widgets/guided_scripture.dart';
+import 'package:flutter_pecha/features/home/presentation/widgets/meditation_video.dart';
 import 'package:flutter_pecha/features/meditation_of_day/presentation/meditation_of_day_screen.dart';
 import 'package:flutter_pecha/features/prayer_of_the_day/presentation/prayer_of_the_day_screen.dart';
 import 'package:flutter_pecha/features/splash/presentation/splash_screen.dart';
@@ -8,6 +11,8 @@ import 'package:flutter_pecha/features/texts/models/term/term.dart';
 import 'package:flutter_pecha/features/texts/models/text/texts.dart';
 import 'package:flutter_pecha/features/texts/presentation/category_screen.dart';
 import 'package:flutter_pecha/features/texts/presentation/library_catalog_screen.dart';
+import 'package:flutter_pecha/features/texts/presentation/segment_image/choose_image.dart';
+import 'package:flutter_pecha/features/texts/presentation/segment_image/create_image.dart';
 import 'package:flutter_pecha/features/texts/presentation/text_detail_screen.dart';
 import 'package:flutter_pecha/features/texts/presentation/text_reader_screen.dart';
 import 'package:flutter_pecha/features/texts/presentation/text_toc_screen.dart';
@@ -37,12 +42,63 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const SkeletonScreen(),
       ),
       GoRoute(
+        path: '/home/guided_scripture',
+        builder: (context, state) {
+          final extra = state.extra;
+          if (extra is String) {
+            return GuidedScripture(videoUrl: extra);
+          } else {
+            throw Exception('Invalid extra type for /home/guided_scripture');
+          }
+        },
+      ),
+      GoRoute(
         path: '/home/meditation_of_the_day',
-        builder: (context, state) => const MeditationOfTheDayScreen(),
+        builder: (context, state) {
+          final extra = state.extra;
+          if (extra == null ||
+              extra is! Map ||
+              !extra.containsKey('meditationAudioUrl') ||
+              !extra.containsKey('meditationImageUrl')) {
+            return const Scaffold(
+              body: Center(child: Text('Missing required parameters')),
+            );
+          }
+          return MeditationOfTheDayScreen(
+            audioUrl: extra['meditationAudioUrl'] as String,
+            imageUrl: extra['meditationImageUrl'] as String,
+          );
+        },
+      ),
+      GoRoute(
+        path: '/home/meditation_video',
+        builder: (context, state) {
+          final extra = state.extra;
+          if (extra == null || extra is! String) {
+            return const Scaffold(
+              body: Center(child: Text('Missing required parameters')),
+            );
+          }
+          return MeditationVideo(videoUrl: extra);
+        },
       ),
       GoRoute(
         path: '/home/prayer_of_the_day',
-        builder: (context, state) => const PrayerOfTheDayScreen(),
+        builder: (context, state) {
+          final extra = state.extra;
+          if (extra == null ||
+              extra is! Map ||
+              !extra.containsKey('prayerAudioUrl') ||
+              !extra.containsKey('prayerData')) {
+            return const Scaffold(
+              body: Center(child: Text('Missing required parameters')),
+            );
+          }
+          return PrayerOfTheDayScreen(
+            audioUrl: extra['prayerAudioUrl'] as String,
+            prayerData: extra['prayerData'] as List<PrayerData>,
+          );
+        },
       ),
       GoRoute(
         path: '/texts',
@@ -124,6 +180,36 @@ final goRouterProvider = Provider<GoRouter>((ref) {
           }
           return LanguageSelectionScreen(
             uniqueLanguages: extra['uniqueLanguages'] as List<String>,
+          );
+        },
+      ),
+      GoRoute(
+        path: '/texts/segment_image/choose_image',
+        builder: (context, state) {
+          final extra = state.extra;
+          if (extra == null || extra is! String) {
+            return const Scaffold(
+              body: Center(child: Text('Missing required parameters')),
+            );
+          }
+          return ChooseImage(text: extra);
+        },
+      ),
+      GoRoute(
+        path: '/texts/segment_image/create_image',
+        builder: (context, state) {
+          final extra = state.extra;
+          if (extra == null ||
+              extra is! Map ||
+              !extra.containsKey('text') ||
+              !extra.containsKey('imagePath')) {
+            return const Scaffold(
+              body: Center(child: Text('Missing required parameters')),
+            );
+          }
+          return CreateImage(
+            imagePath: extra['imagePath'] as String,
+            text: extra['text'] as String,
           );
         },
       ),
