@@ -1,72 +1,105 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/features/texts/presentation/segment_html_widget.dart';
 import 'package:flutter_pecha/features/texts/data/providers/texts_provider.dart';
-import 'package:flutter_pecha/features/texts/data/providers/version_provider.dart';
 import 'package:flutter_pecha/features/texts/data/providers/text_reading_params_provider.dart';
 import 'package:flutter_pecha/features/texts/data/providers/text_version_language_provider.dart';
+import 'package:flutter_pecha/features/texts/data/providers/font_size_provider.dart';
+import 'package:flutter_pecha/features/texts/data/providers/selected_segment_provider.dart';
+import 'package:flutter_pecha/features/texts/presentation/widgets/segment_action_bar.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_pecha/features/texts/models/text/reader_response.dart';
+import 'package:flutter_pecha/features/texts/models/search/segment_match.dart';
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
-class TextReaderScreen extends ConsumerWidget {
+class TextReaderScreen extends ConsumerStatefulWidget {
   const TextReaderScreen({super.key});
 
+  @override
+  ConsumerState<TextReaderScreen> createState() => _TextReaderScreenState();
+}
+
+class _TextReaderScreenState extends ConsumerState<TextReaderScreen> {
+  final ItemScrollController itemScrollController = ItemScrollController();
+  final ItemPositionsListener itemPositionsListener =
+      ItemPositionsListener.create();
+
   void _showFontSizeSelector(BuildContext context, WidgetRef ref) {
-    final readingParams = ref.watch(textReadingParamsProvider);
-    showModalBottomSheet(
+    showDialog(
       context: context,
       builder: (context) {
-        return Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  for (final size in [12.0, 16.0, 20.0, 24.0, 28.0])
-                    Text(
-                      'A',
-                      style: TextStyle(
-                        fontSize: size,
-                        fontWeight: FontWeight.bold,
-                      ),
+        return Consumer(
+          builder: (context, ref, child) {
+            final fontSize = ref.watch(fontSizeProvider);
+            return Dialog(
+              backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+              alignment: Alignment.topCenter,
+              insetPadding: const EdgeInsets.only(
+                top: 60.0,
+                left: 20.0,
+                right: 20.0,
+              ),
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 16,
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        for (final size in [12.0, 18.0, 24.0, 30.0, 40.0])
+                          Text(
+                            'A',
+                            style: TextStyle(
+                              fontSize: size,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                      ],
                     ),
-                ],
+                    const SizedBox(height: 8),
+                    Slider(
+                      padding: EdgeInsets.zero,
+                      activeColor: Theme.of(context).colorScheme.primary,
+                      inactiveColor: Colors.grey.shade300,
+                      min: 10,
+                      max: 40,
+                      value: fontSize,
+                      label: '${fontSize.round()}',
+                      onChanged: (value) {
+                        ref.read(fontSizeProvider.notifier).setFontSize(value);
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: const [
+                        Text('50%'),
+                        Text('110%'),
+                        Text('175%'),
+                        Text('235%'),
+                        Text('300%'),
+                      ],
+                    ),
+                  ],
+                ),
               ),
-              Slider(
-                min: 10,
-                max: 40,
-                value: readingParams?.fontSize ?? 16,
-                divisions: 6,
-                label:
-                    '${(readingParams?.fontSize ?? 16 / 18.0 * 100).round()}%',
-                onChanged: (value) {
-                  ref
-                      .read(textReadingParamsProvider.notifier)
-                      .setFontSize(value);
-                },
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: const [
-                  Text('50%'),
-                  Text('110%'),
-                  Text('175%'),
-                  Text('235%'),
-                  Text('300%'),
-                ],
-              ),
-            ],
-          ),
+            );
+          },
         );
       },
     );
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final readingParams = ref.watch(textReadingParamsProvider);
-    final currentLanguage = ref.watch(textVersionLanguageProvider);
+    final fontSize = ref.watch(fontSizeProvider);
+    final selectedIndex = ref.watch(selectedSegmentProvider);
 
     final params = TextDetailsParams(
       textId: readingParams?.textId ?? '',
@@ -85,32 +118,45 @@ class TextReaderScreen extends ConsumerWidget {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios),
           onPressed: () {
-            ref.read(versionProvider.notifier).clearVersion();
-            ref.read(textReadingParamsProvider.notifier).clearParams();
             Navigator.pop(context);
           },
         ),
         toolbarHeight: 50,
         actions: [
-          // icon to resize font size
-          // IconButton(
-          //   onPressed: () => _showFontSizeSelector(context, ref),
-          //   icon: const Icon(Icons.text_increase),
-          // ),
+          // search icon
+          IconButton(
+            onPressed: () async {
+              final details = textDetails.value;
+              if (details != null) {
+                final selectedIndex = await showSearch<int?>(
+                  context: context,
+                  delegate: TextSearchDelegate(textDetails: details, ref: ref),
+                );
+
+                if (selectedIndex != null && mounted) {
+                  itemScrollController.scrollTo(
+                    index: selectedIndex + 1, // +1 for the header
+                    duration: const Duration(milliseconds: 500),
+                    curve: Curves.easeInOut,
+                  );
+                }
+              }
+            },
+            icon: const Icon(Icons.search),
+          ),
+          IconButton(
+            onPressed: () => _showFontSizeSelector(context, ref),
+            icon: const Icon(Icons.text_increase),
+          ),
           GestureDetector(
-            onTap: () async {
-              final result = await context.push(
+            onTap: () {
+              ref
+                  .read(textVersionLanguageProvider.notifier)
+                  .setLanguage(textDetails.value?.textDetail.language ?? "en");
+              context.push(
                 '/texts/version_selection',
                 extra: {"textId": textDetails.value?.textDetail.id},
               );
-              if (result != null && result is Map<String, dynamic>) {
-                final newLanguage = result['language'] as String?;
-                if (newLanguage != null) {
-                  ref
-                      .read(textVersionLanguageProvider.notifier)
-                      .setLanguage(newLanguage);
-                }
-              }
             },
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
@@ -123,10 +169,10 @@ class TextReaderScreen extends ConsumerWidget {
                   const Icon(Icons.language, size: 18),
                   const SizedBox(width: 4),
                   Text(
-                    currentLanguage.toUpperCase(),
+                    textDetails.value?.textDetail.language.toUpperCase() ?? "",
                     style: const TextStyle(
                       fontSize: 15,
-                      fontWeight: FontWeight.w400,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                 ],
@@ -151,88 +197,313 @@ class TextReaderScreen extends ConsumerWidget {
           if (firstSection.segments.isEmpty) {
             return const Center(child: Text("No segments available"));
           }
-          return CustomScrollView(
-            physics: const BouncingScrollPhysics(),
-            slivers: [
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 20,
-                    vertical: 4,
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      const SizedBox(height: 16),
-                      Text(
-                        response.textDetail.title,
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w600,
-                          fontFamily: 'Jomolhari',
-                        ),
-                        textAlign: TextAlign.center,
+          return Stack(
+            children: [
+              ScrollablePositionedList.builder(
+                itemScrollController: itemScrollController,
+                itemPositionsListener: itemPositionsListener,
+                itemCount: firstSection.segments.length + 1,
+                itemBuilder: (context, index) {
+                  if (index == 0) {
+                    // This is the header
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 4,
                       ),
-                      const SizedBox(height: 8),
-                      Text(
-                        firstSection.title,
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'Jomolhari',
-                        ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          const SizedBox(height: 16),
+                          Text(
+                            response.textDetail.title,
+                            style: const TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.w600,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            firstSection.title ?? '',
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                        ],
                       ),
-                      const SizedBox(height: 8),
-                    ],
-                  ),
-                ),
-              ),
-              SliverList(
-                delegate: SliverChildBuilderDelegate((context, index) {
-                  final segment = firstSection.segments[index];
+                    );
+                  }
+
+                  final segmentIndex = index - 1;
+                  final segment = firstSection.segments[segmentIndex];
                   final segmentNumber = segment.segmentNumber
                       .toString()
                       .padLeft(2);
                   final content = segment.content;
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 8,
-                    ),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.only(top: 2),
-                          child: SizedBox(
-                            width: 30,
-                            child: Text(
-                              segmentNumber,
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 14,
+                  final isSelected = selectedIndex == segmentIndex;
+
+                  return GestureDetector(
+                    onTap: () {
+                      ref.read(selectedSegmentProvider.notifier).state =
+                          ref.read(selectedSegmentProvider) == segmentIndex
+                              ? null
+                              : segmentIndex;
+                    },
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color:
+                            isSelected
+                                ? Theme.of(
+                                  context,
+                                ).colorScheme.primary.withAlpha(25)
+                                : null,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 8,
+                      ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(top: 2),
+                            child: SizedBox(
+                              width: 30,
+                              child: Text(
+                                segmentNumber,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14,
+                                ),
+                                textAlign: TextAlign.left,
                               ),
-                              textAlign: TextAlign.left,
                             ),
                           ),
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: SegmentHtmlWidget(
-                            htmlContent: content,
-                            segmentIndex: index,
-                            fontSize: readingParams?.fontSize ?? 16,
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: SegmentHtmlWidget(
+                              htmlContent: content ?? '',
+                              segmentIndex: segmentIndex,
+                              fontSize: fontSize,
+                              isSelected: isSelected,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   );
-                }, childCount: firstSection.segments.length),
+                },
               ),
+              if (selectedIndex != null)
+                SegmentActionBar(
+                  text: firstSection.segments[selectedIndex].content ?? '',
+                  onClose:
+                      () =>
+                          ref.read(selectedSegmentProvider.notifier).state =
+                              null,
+                ),
             ],
           );
         },
       ),
+    );
+  }
+}
+
+class TextSearchDelegate extends SearchDelegate<int?> {
+  final ReaderResponse textDetails;
+  final WidgetRef ref;
+  String _submittedQuery = '';
+  bool _hasSubmitted = false;
+
+  TextSearchDelegate({required this.textDetails, required this.ref});
+
+  @override
+  ThemeData appBarTheme(BuildContext context) {
+    return Theme.of(context).copyWith(
+      appBarTheme: AppBarTheme(
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        iconTheme: IconThemeData(
+          color: Theme.of(context).textTheme.bodyLarge?.color,
+        ),
+      ),
+      inputDecorationTheme: const InputDecorationTheme(
+        border: InputBorder.none,
+      ),
+    );
+  }
+
+  @override
+  List<Widget> buildActions(BuildContext context) {
+    return [
+      IconButton(
+        icon: const Icon(Icons.clear),
+        onPressed: () {
+          query = '';
+          _submittedQuery = '';
+          _hasSubmitted = false;
+          showSuggestions(context);
+        },
+      ),
+    ];
+  }
+
+  @override
+  Widget buildLeading(BuildContext context) {
+    return IconButton(
+      icon: const Icon(Icons.arrow_back_ios),
+      onPressed: () {
+        close(context, null);
+      },
+    );
+  }
+
+  @override
+  Widget buildResults(BuildContext context) {
+    // Only make API call when user submits search (presses search button)
+    if (query.isNotEmpty && !_hasSubmitted) {
+      _submittedQuery = query;
+      _hasSubmitted = true;
+    }
+
+    return _buildSearchResults(context);
+  }
+
+  @override
+  Widget buildSuggestions(BuildContext context) {
+    // Reset submitted state when user starts typing again
+    if (_hasSubmitted && query != _submittedQuery) {
+      _hasSubmitted = false;
+      _submittedQuery = '';
+    }
+
+    return _buildSearchResults(context);
+  }
+
+  Widget _buildSearchResults(BuildContext context) {
+    if (query.isEmpty) {
+      return Container(
+        color: Theme.of(context).scaffoldBackgroundColor,
+        child: const Center(
+          child: Text(
+            'Type to search',
+            style: TextStyle(fontSize: 16, color: Colors.grey),
+          ),
+        ),
+      );
+    }
+
+    // Use API search only when submitted
+    if (!_hasSubmitted || _submittedQuery.isEmpty) {
+      return Container(
+        color: Theme.of(context).scaffoldBackgroundColor,
+        child: const Center(
+          child: Text(
+            "Press search button to search",
+            style: TextStyle(fontSize: 16, color: Colors.grey),
+          ),
+        ),
+      );
+    }
+
+    final searchParams = SearchTextParams(
+      query: _submittedQuery,
+      textId: textDetails.textDetail.id,
+    );
+
+    // Use Consumer to ensure rebuilds when provider changes
+    return Consumer(
+      builder: (context, ref, child) {
+        final searchResults = ref.watch(searchTextFutureProvider(searchParams));
+
+        return searchResults.when(
+          loading: () {
+            return const Center(child: CircularProgressIndicator());
+          },
+          error: (error, stackTrace) {
+            return Center(
+              child: Text(
+                'Error searching: ${error.toString()}',
+                style: const TextStyle(fontSize: 16),
+              ),
+            );
+          },
+          data: (searchResponse) {
+            if (searchResponse.sources == null ||
+                searchResponse.sources!.isEmpty) {
+              return Center(
+                child: Text(
+                  'No results found for "$_submittedQuery"',
+                  style: const TextStyle(fontSize: 16),
+                ),
+              );
+            }
+
+            // Flatten all segment matches from all sources
+            final allSegmentMatches = <SegmentMatch>[];
+            for (final source in searchResponse.sources!) {
+              allSegmentMatches.addAll(source.segmentMatches);
+            }
+
+            if (allSegmentMatches.isEmpty) {
+              return Center(
+                child: Text(
+                  'No results found for "$_submittedQuery"',
+                  style: const TextStyle(fontSize: 16),
+                ),
+              );
+            }
+
+            return Container(
+              color: Theme.of(context).scaffoldBackgroundColor,
+              child: ListView.separated(
+                itemCount: allSegmentMatches.length,
+                separatorBuilder:
+                    (context, index) => const Divider(
+                      height: 1,
+                      color: Colors.grey,
+                      indent: 20,
+                      endIndent: 20,
+                    ),
+                itemBuilder: (context, index) {
+                  final segmentMatch = allSegmentMatches[index];
+                  return ListTile(
+                    title: Text(
+                      segmentMatch.content.replaceAll(RegExp(r'<[^>]*>'), ''),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 8,
+                    ),
+                    onTap: () {
+                      // Find the segment index in the local segments to scroll to
+                      final segments =
+                          textDetails.content.sections.first.segments;
+                      final segmentIndex = segments.indexWhere(
+                        (segment) =>
+                            segment.segmentId == segmentMatch.segmentId,
+                      );
+
+                      if (segmentIndex != -1) {
+                        close(context, segmentIndex);
+                      } else {
+                        // If segment not found locally, just close with null
+                        close(context, null);
+                      }
+                    },
+                  );
+                },
+              ),
+            );
+          },
+        );
+      },
     );
   }
 }

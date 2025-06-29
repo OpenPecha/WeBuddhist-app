@@ -35,6 +35,7 @@ class AppTheme {
           borderSide: BorderSide.none,
         ),
       ),
+      iconTheme: const IconThemeData(color: Colors.black),
       bottomNavigationBarTheme: const BottomNavigationBarThemeData(
         backgroundColor: Colors.white,
         selectedItemColor: Colors.black87,
@@ -114,6 +115,7 @@ class AppTheme {
           borderSide: BorderSide.none,
         ),
       ),
+      iconTheme: const IconThemeData(color: Colors.white),
       bottomNavigationBarTheme: const BottomNavigationBarThemeData(
         backgroundColor: Color(0xFF121212),
         selectedItemColor: Colors.white,
@@ -152,10 +154,5 @@ class AppTheme {
       return 'MonlamTibetan';
     }
     return null; // Default font
-  }
-
-  // change line height to 2.0 for all text when locale is "bo"
-  static TextStyle _changeLineHeight(TextStyle style) {
-    return style.copyWith(height: 2.0);
   }
 }

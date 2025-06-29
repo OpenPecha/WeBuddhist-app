@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/config/locale_provider.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/widgets/audio_progress_bar.dart';
+import 'package:flutter_pecha/features/home/models/prayer_data.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:go_router/go_router.dart';
-import 'json_data.dart';
 
 class TextSegment {
   final String text;
@@ -37,20 +39,27 @@ class TextSegment {
   }
 }
 
-class PrayerOfTheDayScreen extends StatefulWidget {
-  const PrayerOfTheDayScreen({super.key});
+class PrayerOfTheDayScreen extends ConsumerStatefulWidget {
+  final String audioUrl;
+  final List<PrayerData> prayerData;
+  const PrayerOfTheDayScreen({
+    super.key,
+    required this.audioUrl,
+    required this.prayerData,
+  });
 
   @override
-  State<PrayerOfTheDayScreen> createState() => _PrayerOfTheDayScreenState();
+  ConsumerState<PrayerOfTheDayScreen> createState() =>
+      _PrayerOfTheDayScreenState();
 }
 
-class _PrayerOfTheDayScreenState extends State<PrayerOfTheDayScreen> {
+class _PrayerOfTheDayScreenState extends ConsumerState<PrayerOfTheDayScreen> {
   late AudioPlayer _audioPlayer;
   bool _isPlaying = false;
   Duration _duration = Duration.zero;
   Duration _position = Duration.zero;
   final ScrollController _scrollController = ScrollController();
-  List<TextSegment> _textSegments = [];
+  // List<TextSegment> _textSegments = [];
   int _currentSegmentIndex = 0;
   final Map<int, GlobalKey> _segmentKeys = {};
 
@@ -60,59 +69,77 @@ class _PrayerOfTheDayScreenState extends State<PrayerOfTheDayScreen> {
     _initializeAudioPlayer();
     // _initializeTextSegments();
     // Initialize keys for each segment
-    for (int i = 0; i < _textSegments.length; i++) {
+    for (int i = 0; i < widget.prayerData.length; i++) {
       _segmentKeys[i] = GlobalKey();
     }
   }
 
-  void _initializeTextSegments() {
-    _textSegments =
-        prayerOfTheDayJson.map((json) => TextSegment.fromJson(json)).toList();
-  }
+  // void _initializeTextSegments() {
+  //   _textSegments =
+  //       prayerOfTheDayJson.map((json) => TextSegment.fromJson(json)).toList();
+  // }
 
   void _scrollToCurrentSegment() {
     if (_currentSegmentIndex >= 0 &&
-        _currentSegmentIndex < _textSegments.length) {
-      final viewportHeight = _scrollController.position.viewportDimension;
-      final currentScroll = _scrollController.offset;
-
-      // Get the current segment's key
+        _currentSegmentIndex < widget.prayerData.length) {
       final currentKey = _segmentKeys[_currentSegmentIndex];
-      if (currentKey?.currentContext != null) {
-        final RenderBox? renderBox =
-            currentKey?.currentContext?.findRenderObject() as RenderBox?;
-        if (renderBox != null) {
-          // Get the position relative to the viewport
-          final segmentPosition = renderBox.localToGlobal(Offset.zero).dy;
-          final viewportTop = _scrollController.position.pixels;
-          final viewportBottom = viewportTop + viewportHeight;
+      if (currentKey?.currentContext != null && _scrollController.hasClients) {
+        final RenderBox renderBox =
+            currentKey!.currentContext!.findRenderObject() as RenderBox;
+        final RenderBox listViewBox =
+            _scrollController.position.context.storageContext.findRenderObject()
+                as RenderBox;
 
-          // Calculate if segment is in the upper half of the viewport
-          final isInUpperHalf =
-              segmentPosition >= viewportTop &&
-              segmentPosition <= (viewportTop + viewportHeight / 2);
+        // Position of the segment relative to the ListView
+        final segmentOffset =
+            renderBox.localToGlobal(Offset.zero, ancestor: listViewBox).dy;
+        final segmentHeight = renderBox.size.height;
+        final viewportHeight = _scrollController.position.viewportDimension;
+        final maxScroll = _scrollController.position.maxScrollExtent;
+        final currentScroll = _scrollController.offset;
 
-          // print('viewportTop: $viewportTop, viewportBottom: $viewportBottom');
-          // print(
-          //   'segmentPosition: $segmentPosition, isInUpperHalf: $isInUpperHalf',
-          // );
+        // Calculate the target scroll position for centering
+        final targetScroll =
+            currentScroll +
+            segmentOffset -
+            (viewportHeight / 2 - segmentHeight / 2);
 
-          if (!isInUpperHalf) {
-            _scrollController.animateTo(
-              segmentPosition - (viewportHeight / 4),
-              duration: const Duration(milliseconds: 300),
-              curve: Curves.easeInOut,
-            );
-          }
+        // Check if we're at the last segment
+        final isLastSegment =
+            _currentSegmentIndex == widget.prayerData.length - 1;
+
+        // Check if the segment is already fully visible
+        final isFullyVisible =
+            segmentOffset >= 0 &&
+            segmentOffset + segmentHeight <= viewportHeight;
+
+        // If it's the last segment and it's already fully visible, don't scroll
+        if (isLastSegment && isFullyVisible) {
+          return;
+        }
+
+        // If we're near the end of the text, adjust the scroll to keep the segment visible
+        if (targetScroll > maxScroll - viewportHeight / 2) {
+          _scrollController.animateTo(
+            maxScroll,
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeInOut,
+          );
+        } else if (segmentOffset + segmentHeight > viewportHeight / 2) {
+          _scrollController.animateTo(
+            targetScroll,
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeInOut,
+          );
         }
       }
     }
   }
 
   void _updateCurrentSegment(Duration position) {
-    for (int i = 0; i < _textSegments.length; i++) {
-      if (position >= _textSegments[i].startTime &&
-          position < _textSegments[i].endTime) {
+    for (int i = 0; i < widget.prayerData.length; i++) {
+      if (position >= widget.prayerData[i].startTime &&
+          position < widget.prayerData[i].endTime) {
         if (_currentSegmentIndex != i) {
           setState(() {
             _currentSegmentIndex = i;
@@ -124,13 +151,25 @@ class _PrayerOfTheDayScreenState extends State<PrayerOfTheDayScreen> {
     }
   }
 
+  String _getPrayerUrl(Locale? locale) {
+    switch (locale?.languageCode) {
+      case 'en':
+        return 'assets/audios/en_prayer.mp3';
+      case 'bo':
+        return 'assets/audios/bo_prayer.mp3';
+      case 'zh':
+        return 'assets/audios/zh_prayer.mp3';
+      default:
+        return 'assets/audios/en_prayer.mp3';
+    }
+  }
+
   Future<void> _initializeAudioPlayer() async {
     _audioPlayer = AudioPlayer();
     try {
-      final duration = await _audioPlayer.setAsset(
-        'assets/audios/Tibetan_prayer.mp3',
-        // 'assets/audios/replit_assistant.mp3',
-      );
+      final locale = ref.read(localeProvider);
+      final prayerUrl = _getPrayerUrl(locale);
+      final duration = await _audioPlayer.setAsset(prayerUrl);
       if (mounted) {
         setState(() {
           _duration = duration ?? Duration.zero;
@@ -145,7 +184,7 @@ class _PrayerOfTheDayScreenState extends State<PrayerOfTheDayScreen> {
         setState(() {
           _position = pos;
         });
-        // _updateCurrentSegment(pos);
+        _updateCurrentSegment(pos);
       }
     });
 
@@ -154,6 +193,20 @@ class _PrayerOfTheDayScreenState extends State<PrayerOfTheDayScreen> {
         setState(() {
           _isPlaying = state.playing;
         });
+      }
+    });
+
+    // Listen for when audio ends to reset to beginning
+    _audioPlayer.playerStateStream.listen((state) {
+      if (state.processingState == ProcessingState.completed) {
+        // Audio has finished, just update state without auto-seek
+        if (mounted) {
+          setState(() {
+            _isPlaying = false;
+            _currentSegmentIndex = 0;
+            _position = Duration.zero;
+          });
+        }
       }
     });
   }
@@ -185,56 +238,39 @@ class _PrayerOfTheDayScreenState extends State<PrayerOfTheDayScreen> {
       body: Column(
         children: [
           Expanded(
-            child: SingleChildScrollView(
+            child: ListView.builder(
+              controller: _scrollController,
               padding: const EdgeInsets.symmetric(
                 horizontal: 16.0,
                 vertical: 12.0,
               ),
-              child: Text(
-                prayerText,
-                style: const TextStyle(
-                  fontSize: 22,
-                  height: 1.5,
-                  fontFamily: 'Jomolhari', // Use your Tibetan font here
-                ),
-                textAlign: TextAlign.left,
-              ),
+              itemCount: widget.prayerData.length,
+              itemBuilder: (context, index) {
+                final segment = widget.prayerData[index];
+                final isCurrentSegment = index == _currentSegmentIndex;
+                return Container(
+                  key: _segmentKeys[index],
+                  child: Text(
+                    segment.text,
+                    style: TextStyle(
+                      fontSize: 20,
+                      height: 1.5,
+                      fontFamily: 'Jomolhari',
+                      color:
+                          isCurrentSegment
+                              ? Theme.of(context).primaryColor
+                              : null,
+                      fontWeight:
+                          isCurrentSegment
+                              ? FontWeight.w600
+                              : FontWeight.normal,
+                    ),
+                    textAlign: TextAlign.left,
+                  ),
+                );
+              },
             ),
           ),
-          // Expanded(
-          //   child: ListView.builder(
-          //     controller: _scrollController,
-          //     padding: const EdgeInsets.symmetric(
-          //       horizontal: 16.0,
-          //       vertical: 12.0,
-          //     ),
-          //     itemCount: _textSegments.length,
-          //     itemBuilder: (context, index) {
-          //       final segment = _textSegments[index];
-          //       final isCurrentSegment = index == _currentSegmentIndex;
-          //       return Container(
-          //         key: _segmentKeys[index],
-          //         child: Text(
-          //           segment.text,
-          //           style: TextStyle(
-          //             fontSize: 22,
-          //             height: 1.5,
-          //             fontFamily: 'Jomolhari',
-          //             color:
-          //                 isCurrentSegment
-          //                     ? Theme.of(context).primaryColor
-          //                     : null,
-          //             fontWeight:
-          //                 isCurrentSegment
-          //                     ? FontWeight.bold
-          //                     : FontWeight.normal,
-          //           ),
-          //           textAlign: TextAlign.left,
-          //         ),
-          //       );
-          //     },
-          //   ),
-          // ),
           Padding(
             padding: const EdgeInsets.only(left: 16, right: 16, bottom: 28),
             child: Column(

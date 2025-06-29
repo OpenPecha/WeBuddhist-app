@@ -63,3 +63,30 @@ final textDetailsFutureProvider = FutureProvider.family((
         skip: params.skip,
       );
 });
+
+class SearchTextParams {
+  final String query;
+  final String textId;
+  const SearchTextParams({required this.query, required this.textId});
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is SearchTextParams &&
+          runtimeType == other.runtimeType &&
+          query == other.query &&
+          textId == other.textId;
+
+  @override
+  int get hashCode => query.hashCode ^ textId.hashCode;
+}
+
+final searchTextFutureProvider = FutureProvider.family((
+  ref,
+  SearchTextParams params,
+) {
+  final result = ref
+      .watch(textsRepositoryProvider)
+      .searchTextRepository(query: params.query, textId: params.textId);
+  return result;
+});

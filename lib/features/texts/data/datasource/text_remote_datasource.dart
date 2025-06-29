@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_pecha/features/texts/models/search/search_response.dart';
 import 'package:flutter_pecha/features/texts/models/text/detail_response.dart';
 import 'package:flutter_pecha/features/texts/models/text/reader_response.dart';
 import 'package:flutter_pecha/features/texts/models/text/toc_response.dart';
@@ -114,6 +115,34 @@ class TextRemoteDatasource {
       }
     } catch (e) {
       throw Exception('Failed to load text details ????? $e');
+    }
+  }
+
+  // search the text by query
+  Future<SearchResponse> searchText({
+    required String query,
+    String? language,
+    String? textId,
+  }) async {
+    final uri = Uri.parse('${dotenv.env['BASE_API_URL']}/search').replace(
+      queryParameters: {
+        'query': query,
+        'search_type': 'SOURCE',
+        'text_id': textId,
+      },
+    );
+    final response = await client.get(uri);
+    if (response.statusCode == 200) {
+      try {
+        final decoded = utf8.decode(response.bodyBytes);
+        final Map<String, dynamic> jsonMap = json.decode(decoded);
+        final searchResponse = SearchResponse.fromJson(jsonMap);
+        return searchResponse;
+      } catch (e) {
+        throw Exception('Failed to search text');
+      }
+    } else {
+      throw Exception('Failed to search text');
     }
   }
 }

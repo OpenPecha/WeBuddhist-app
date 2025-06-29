@@ -60,5 +60,9 @@
 	<true/>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>This app requires access to the microphone to record audio for certain features.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Pecha needs access to photo library to save the image</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Pecha needs access to photo library to save the image</string>
 </dict>
 </plist>
