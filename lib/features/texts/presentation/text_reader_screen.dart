@@ -6,6 +6,7 @@ import 'package:flutter_pecha/features/texts/data/providers/text_version_languag
 import 'package:flutter_pecha/features/texts/data/providers/font_size_provider.dart';
 import 'package:flutter_pecha/features/texts/data/providers/selected_segment_provider.dart';
 import 'package:flutter_pecha/features/texts/presentation/widgets/segment_action_bar.dart';
+import 'package:flutter_pecha/shared/utils/helper_fucntions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_pecha/features/texts/models/text/reader_response.dart';
@@ -220,8 +221,13 @@ class _TextReaderScreenState extends ConsumerState<TextReaderScreen> {
                           const SizedBox(height: 16),
                           Text(
                             response.textDetail.title,
-                            style: const TextStyle(
-                              fontSize: 20,
+                            style: TextStyle(
+                              fontSize: getFontSize(
+                                response.textDetail.language,
+                              ),
+                              fontFamily: getFontFamily(
+                                response.textDetail.language,
+                              ),
                               fontWeight: FontWeight.w600,
                             ),
                             textAlign: TextAlign.center,
@@ -229,8 +235,11 @@ class _TextReaderScreenState extends ConsumerState<TextReaderScreen> {
                           const SizedBox(height: 8),
                           Text(
                             firstSection.title ?? '',
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 18,
+                              fontFamily: getFontFamily(
+                                response.textDetail.language,
+                              ),
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -293,6 +302,7 @@ class _TextReaderScreenState extends ConsumerState<TextReaderScreen> {
                               segmentIndex: segmentIndex,
                               fontSize: fontSize,
                               isSelected: isSelected,
+                              language: response.textDetail.language,
                             ),
                           ),
                         ],
