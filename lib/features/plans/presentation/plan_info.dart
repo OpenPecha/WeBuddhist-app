@@ -11,21 +11,31 @@ class PlanInfo extends StatelessWidget {
         padding: EdgeInsets.all(16),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Image.asset(
-              'assets/images/bg.jpg',
-              width: double.infinity,
-              height: MediaQuery.of(context).size.height * 0.3,
-              fit: BoxFit.cover,
+            ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: Image.asset(
+                'assets/images/bg.jpg',
+                width: double.infinity,
+                height: MediaQuery.of(context).size.height * 0.3,
+                fit: BoxFit.cover,
+              ),
             ),
             SizedBox(height: 20),
-            Text(
-              'Train Your Mind',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-            Text(
-              '10 Days',
-              style: TextStyle(fontSize: 14, fontWeight: FontWeight.normal),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Train Your Mind',
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                ),
+                SizedBox(width: 10),
+                Text(
+                  '10 Days',
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                ),
+              ],
             ),
             SizedBox(height: 20),
             SizedBox(
@@ -48,7 +58,7 @@ class PlanInfo extends StatelessWidget {
             ),
             SizedBox(height: 20),
             Text(
-              'Plan Description ',
+              'Plan Description\nThis is a plan description and for testing purposes.',
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.normal),
             ),
           ],
