@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class PlanInfo extends StatelessWidget {
   const PlanInfo({super.key});
@@ -13,13 +14,16 @@ class PlanInfo extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(12),
-              child: Image.asset(
-                'assets/images/bg.jpg',
-                width: double.infinity,
-                height: MediaQuery.of(context).size.height * 0.3,
-                fit: BoxFit.cover,
+            Hero(
+              tag: 'plan_image',
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: Image.asset(
+                  'assets/images/bg.jpg',
+                  width: double.infinity,
+                  height: MediaQuery.of(context).size.height * 0.3,
+                  fit: BoxFit.cover,
+                ),
               ),
             ),
             SizedBox(height: 20),
@@ -41,7 +45,9 @@ class PlanInfo extends StatelessWidget {
             SizedBox(
               width: double.infinity,
               child: FilledButton(
-                onPressed: () {},
+                onPressed: () {
+                  context.push('/plans/details');
+                },
                 style: FilledButton.styleFrom(
                   padding: EdgeInsets.symmetric(vertical: 12),
                   backgroundColor: Colors.black,
