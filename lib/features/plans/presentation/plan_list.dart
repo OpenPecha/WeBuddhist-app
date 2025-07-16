@@ -11,7 +11,6 @@ class PlanList extends ConsumerWidget {
       appBar: AppBar(
         title: const Text('Plans'),
         scrolledUnderElevation: 0,
-
         centerTitle: false,
         actions: [
           IconButton(
@@ -47,13 +46,16 @@ class PlanList extends ConsumerWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
-                    child: Image.asset(
-                      'assets/images/bg.jpg',
-                      width: 100,
-                      height: 100,
-                      fit: BoxFit.cover,
+                  Hero(
+                    tag: 'plan_image',
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(12),
+                      child: Image.asset(
+                        'assets/images/bg.jpg',
+                        width: 100,
+                        height: 100,
+                        fit: BoxFit.cover,
+                      ),
                     ),
                   ),
                   const SizedBox(width: 24),
@@ -69,10 +71,7 @@ class PlanList extends ConsumerWidget {
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        Text(
-                          'Plan Description',
-                          style: TextStyle(fontSize: 12),
-                        ),
+                        Text('No. days', style: TextStyle(fontSize: 12)),
                       ],
                     ),
                   ),
