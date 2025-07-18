@@ -19,7 +19,8 @@ class TextDetailsParams {
     this.segmentId,
     this.sectionId,
     this.direction,
-  }) : key = '${textId}_${contentId}_${versionId}_${segmentId}_${sectionId}_$direction';
+  }) : key =
+           '${textId}_${contentId}_${versionId}_${segmentId}_${sectionId}_$direction';
 
   @override
   bool operator ==(Object other) =>
@@ -47,7 +48,11 @@ final textsFutureProvider = FutureProvider.family((ref, String termId) {
 });
 
 final textContentFutureProvider = FutureProvider.family((ref, String textId) {
-  return ref.watch(textsRepositoryProvider).fetchTextContent(textId: textId);
+  final locale = ref.watch(localeProvider);
+  final languageCode = locale?.languageCode;
+  return ref
+      .watch(textsRepositoryProvider)
+      .fetchTextContent(textId: textId, language: languageCode);
 });
 
 final textVersionFutureProvider = FutureProvider.family((ref, String textId) {
@@ -60,14 +65,6 @@ final textDetailsFutureProvider = FutureProvider.family((
 ) {
   return ref
       .watch(textsRepositoryProvider)
-      // .fetchTextDetails(
-        // textId: params.textId,
-        // contentId: params.contentId!,
-        // versionId: params.versionId,
-        // skip: params.skip,
-      // );
-
-      // update pagination
       .fetchTextDetails(
         textId: params.textId,
         contentId: params.contentId,
