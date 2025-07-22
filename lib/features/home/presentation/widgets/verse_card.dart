@@ -18,7 +18,7 @@ class VerseCard extends ConsumerWidget {
     //     //       contentId: '29c9e4dd-90b1-4fac-a833-2673f80f65d6',
     //     //       skip: '0',
     //     //     );
-    //     // context.push('/texts/reader');
+    //     // context.push('/texts/chapter');
     //     showGeneralDialog(
     //       context: context,
     //       barrierDismissible: true,

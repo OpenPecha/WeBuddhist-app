@@ -153,9 +153,22 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         },
       ),
       GoRoute(
-        path: '/texts/reader',
+        path: '/texts/chapter',
         builder: (context, state) {
-          return const TextReaderScreen();
+          final extra = state.extra;
+          if (extra == null ||
+              extra is! Map ||
+              !extra.containsKey('textId') ||
+              !extra.containsKey('contentId')) {
+            return const Scaffold(
+              body: Center(child: Text('Missing required parameters')),
+            );
+          }
+          return TextReaderScreen(
+            textId: extra['textId'] as String,
+            contentId: extra['contentId'] as String,
+            segmentId: extra['segmentId'] as String?,
+          );
         },
       ),
       GoRoute(

@@ -85,7 +85,6 @@ class TextRemoteDatasource {
     required String contentId,
     String? versionId,
     String? segmentId,
-    String? sectionId,
     String? direction,
   }) async {
     final uri = Uri.parse(
@@ -94,7 +93,6 @@ class TextRemoteDatasource {
     final body = json.encode({
       'content_id': contentId,
       if (segmentId != null) 'segment_id': segmentId,
-      if (sectionId != null) 'section_id': sectionId,
       'direction': direction,
     });
     try {

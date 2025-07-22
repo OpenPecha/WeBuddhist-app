@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/features/app/presentation/pecha_bottom_nav_bar.dart';
-import 'package:flutter_pecha/features/texts/data/providers/text_reading_params_provider.dart';
 import 'package:flutter_pecha/features/texts/data/providers/texts_provider.dart';
 import 'package:flutter_pecha/features/texts/models/text/texts.dart';
 import 'package:flutter_pecha/features/texts/models/text/toc_response.dart';
@@ -79,14 +78,10 @@ class TextTocScreen extends ConsumerWidget {
                     ),
                   ),
                   onPressed: () {
-                    ref
-                        .read(textReadingParamsProvider.notifier)
-                        .setParams(
-                          textId: text.id,
-                          contentId: text.id,
-                          direction: 'next',
-                        );
-                    context.push('/texts/reader');
+                    context.push(
+                      '/texts/chapter',
+                      extra: {'textId': text.id, 'contentId': text.id},
+                    );
                   },
                   child: Text(
                     localizations.text_toc_continueReading,
@@ -179,16 +174,14 @@ class TextTocScreen extends ConsumerWidget {
         final section = sections[idx];
         return GestureDetector(
           onTap: () {
-            ref
-                .read(textReadingParamsProvider.notifier)
-                .setParams(
-                  textId: toc.textId,
-                  contentId: toc.id,
-                  sectionId: section.id,
-                  segmentId: section.segments[0].segmentId,
-                  direction: 'next',
-                );
-            context.push('/texts/reader');
+            context.push(
+              '/texts/chapter',
+              extra: {
+                'textId': toc.textId,
+                'contentId': toc.id,
+                'segmentId': section.segments[0].segmentId,
+              },
+            );
           },
           child: Container(
             decoration: BoxDecoration(
@@ -232,14 +225,13 @@ class TextTocScreen extends ConsumerWidget {
         final version = versions[idx];
         return GestureDetector(
           onTap: () {
-            ref
-                .read(textReadingParamsProvider.notifier)
-                .setParams(
-                  textId: version.id,
-                  contentId: version.tableOfContents[0],
-                  direction: "next",
-                );
-            context.push('/texts/reader');
+            context.push(
+              '/texts/chapter',
+              extra: {
+                'textId': version.id,
+                'contentId': version.tableOfContents[0],
+              },
+            );
           },
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
