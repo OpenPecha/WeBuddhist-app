@@ -1,20 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/features/texts/presentation/segment_html_widget.dart';
 import 'package:flutter_pecha/features/texts/data/providers/texts_provider.dart';
-import 'package:flutter_pecha/features/texts/data/providers/text_reading_params_provider.dart';
 import 'package:flutter_pecha/features/texts/data/providers/text_version_language_provider.dart';
 import 'package:flutter_pecha/features/texts/data/providers/font_size_provider.dart';
 import 'package:flutter_pecha/features/texts/data/providers/selected_segment_provider.dart';
+import 'package:flutter_pecha/features/texts/presentation/widgets/font_size_selector.dart';
 import 'package:flutter_pecha/features/texts/presentation/widgets/segment_action_bar.dart';
+import 'package:flutter_pecha/features/texts/presentation/widgets/text_search_delegate.dart';
 import 'package:flutter_pecha/shared/utils/helper_fucntions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:flutter_pecha/features/texts/models/text/reader_response.dart';
-import 'package:flutter_pecha/features/texts/models/search/segment_match.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 class TextReaderScreen extends ConsumerStatefulWidget {
-  const TextReaderScreen({super.key});
+  const TextReaderScreen({
+    super.key,
+    required this.textId,
+    required this.contentId,
+    this.segmentId,
+  });
+  final String textId;
+  final String contentId;
+  final String? segmentId;
 
   @override
   ConsumerState<TextReaderScreen> createState() => _TextReaderScreenState();
@@ -24,90 +31,18 @@ class _TextReaderScreenState extends ConsumerState<TextReaderScreen> {
   final ItemScrollController itemScrollController = ItemScrollController();
   final ItemPositionsListener itemPositionsListener =
       ItemPositionsListener.create();
-
-  void _showFontSizeSelector(BuildContext context, WidgetRef ref) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return Consumer(
-          builder: (context, ref, child) {
-            final fontSize = ref.watch(fontSizeProvider);
-            return Dialog(
-              backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-              alignment: Alignment.topCenter,
-              insetPadding: const EdgeInsets.only(
-                top: 60.0,
-                left: 20.0,
-                right: 20.0,
-              ),
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 24,
-                  vertical: 16,
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        for (final size in [12.0, 18.0, 24.0, 30.0, 40.0])
-                          Text(
-                            'A',
-                            style: TextStyle(
-                              fontSize: size,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    Slider(
-                      padding: EdgeInsets.zero,
-                      activeColor: Theme.of(context).colorScheme.primary,
-                      inactiveColor: Colors.grey.shade300,
-                      min: 10,
-                      max: 40,
-                      value: fontSize,
-                      label: '${fontSize.round()}',
-                      onChanged: (value) {
-                        ref.read(fontSizeProvider.notifier).setFontSize(value);
-                      },
-                    ),
-                    const SizedBox(height: 16),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: const [
-                        Text('50%'),
-                        Text('110%'),
-                        Text('175%'),
-                        Text('235%'),
-                        Text('300%'),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            );
-          },
-        );
-      },
-    );
-  }
+  final direction = 'next';
 
   @override
   Widget build(BuildContext context) {
-    final readingParams = ref.watch(textReadingParamsProvider);
     final fontSize = ref.watch(fontSizeProvider);
     final selectedIndex = ref.watch(selectedSegmentProvider);
 
     final params = TextDetailsParams(
-      textId: readingParams?.textId ?? '',
-      contentId: readingParams?.contentId ?? '',
-      segmentId: readingParams?.segmentId,
-      sectionId: readingParams?.sectionId,
-      direction: readingParams?.direction,
+      textId: widget.textId,
+      contentId: widget.contentId,
+      segmentId: widget.segmentId,
+      direction: direction,
     );
 
     final textDetails = ref.watch(textDetailsFutureProvider(params));
@@ -148,7 +83,7 @@ class _TextReaderScreenState extends ConsumerState<TextReaderScreen> {
             icon: const Icon(Icons.search),
           ),
           IconButton(
-            onPressed: () => _showFontSizeSelector(context, ref),
+            onPressed: () => showFontSizeSelector(context, ref),
             icon: const Icon(Icons.text_increase),
           ),
           GestureDetector(
@@ -332,196 +267,7 @@ class _TextReaderScreenState extends ConsumerState<TextReaderScreen> {
   }
 }
 
-class TextSearchDelegate extends SearchDelegate<int?> {
-  final ReaderResponse textDetails;
-  final WidgetRef ref;
-  String _submittedQuery = '';
-  bool _hasSubmitted = false;
-
-  TextSearchDelegate({required this.textDetails, required this.ref});
-
-  @override
-  ThemeData appBarTheme(BuildContext context) {
-    return Theme.of(context).copyWith(
-      appBarTheme: AppBarTheme(
-        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        iconTheme: IconThemeData(
-          color: Theme.of(context).textTheme.bodyLarge?.color,
-        ),
-      ),
-      inputDecorationTheme: const InputDecorationTheme(
-        border: InputBorder.none,
-      ),
-    );
-  }
-
-  @override
-  List<Widget> buildActions(BuildContext context) {
-    return [
-      IconButton(
-        icon: const Icon(Icons.clear),
-        onPressed: () {
-          query = '';
-          _submittedQuery = '';
-          _hasSubmitted = false;
-          showSuggestions(context);
-        },
-      ),
-    ];
-  }
-
-  @override
-  Widget buildLeading(BuildContext context) {
-    return IconButton(
-      icon: const Icon(Icons.arrow_back_ios),
-      onPressed: () {
-        close(context, null);
-      },
-    );
-  }
-
-  @override
-  Widget buildResults(BuildContext context) {
-    // Only make API call when user submits search (presses search button)
-    if (query.isNotEmpty && !_hasSubmitted) {
-      _submittedQuery = query;
-      _hasSubmitted = true;
-    }
-
-    return _buildSearchResults(context);
-  }
-
-  @override
-  Widget buildSuggestions(BuildContext context) {
-    // Reset submitted state when user starts typing again
-    if (_hasSubmitted && query != _submittedQuery) {
-      _hasSubmitted = false;
-      _submittedQuery = '';
-    }
-
-    return _buildSearchResults(context);
-  }
-
-  Widget _buildSearchResults(BuildContext context) {
-    if (query.isEmpty) {
-      return Container(
-        color: Theme.of(context).scaffoldBackgroundColor,
-        child: const Center(
-          child: Text(
-            'Type to search',
-            style: TextStyle(fontSize: 16, color: Colors.grey),
-          ),
-        ),
-      );
-    }
-
-    // Use API search only when submitted
-    if (!_hasSubmitted || _submittedQuery.isEmpty) {
-      return Container(
-        color: Theme.of(context).scaffoldBackgroundColor,
-        child: const Center(
-          child: Text(
-            "Press search button to search",
-            style: TextStyle(fontSize: 16, color: Colors.grey),
-          ),
-        ),
-      );
-    }
-
-    final searchParams = SearchTextParams(
-      query: _submittedQuery,
-      textId: textDetails.textDetail.id,
-    );
-
-    // Use Consumer to ensure rebuilds when provider changes
-    return Consumer(
-      builder: (context, ref, child) {
-        final searchResults = ref.watch(searchTextFutureProvider(searchParams));
-
-        return searchResults.when(
-          loading: () {
-            return const Center(child: CircularProgressIndicator());
-          },
-          error: (error, stackTrace) {
-            return Center(
-              child: Text(
-                'Error searching: ${error.toString()}',
-                style: const TextStyle(fontSize: 16),
-              ),
-            );
-          },
-          data: (searchResponse) {
-            if (searchResponse.sources == null ||
-                searchResponse.sources!.isEmpty) {
-              return Center(
-                child: Text(
-                  'No results found for "$_submittedQuery"',
-                  style: const TextStyle(fontSize: 16),
-                ),
-              );
-            }
-
-            // Flatten all segment matches from all sources
-            final allSegmentMatches = <SegmentMatch>[];
-            for (final source in searchResponse.sources!) {
-              allSegmentMatches.addAll(source.segmentMatches);
-            }
-
-            if (allSegmentMatches.isEmpty) {
-              return Center(
-                child: Text(
-                  'No results found for "$_submittedQuery"',
-                  style: const TextStyle(fontSize: 16),
-                ),
-              );
-            }
-
-            return Container(
-              color: Theme.of(context).scaffoldBackgroundColor,
-              child: ListView.separated(
-                itemCount: allSegmentMatches.length,
-                separatorBuilder:
-                    (context, index) => const Divider(
-                      height: 1,
-                      color: Colors.grey,
-                      indent: 20,
-                      endIndent: 20,
-                    ),
-                itemBuilder: (context, index) {
-                  final segmentMatch = allSegmentMatches[index];
-                  return ListTile(
-                    title: Text(
-                      segmentMatch.content.replaceAll(RegExp(r'<[^>]*>'), ''),
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 8,
-                    ),
-                    onTap: () {
-                      // Find the segment index in the local segments to scroll to
-                      final segments =
-                          textDetails.content.sections.first.segments;
-                      final segmentIndex = segments.indexWhere(
-                        (segment) =>
-                            segment.segmentId == segmentMatch.segmentId,
-                      );
-
-                      if (segmentIndex != -1) {
-                        close(context, segmentIndex);
-                      } else {
-                        // If segment not found locally, just close with null
-                        close(context, null);
-                      }
-                    },
-                  );
-                },
-              ),
-            );
-          },
-        );
-      },
-    );
-  }
+// Utility function to show font size selector
+void showFontSizeSelector(BuildContext context, WidgetRef ref) {
+  showDialog(context: context, builder: (context) => const FontSizeSelector());
 }
