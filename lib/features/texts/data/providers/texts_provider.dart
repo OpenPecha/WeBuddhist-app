@@ -9,7 +9,6 @@ class TextDetailsParams {
   final String contentId;
   final String? versionId;
   final String? segmentId;
-  final String? sectionId;
   final String? direction;
   final String key;
   const TextDetailsParams({
@@ -17,10 +16,8 @@ class TextDetailsParams {
     required this.contentId,
     this.versionId,
     this.segmentId,
-    this.sectionId,
     this.direction,
-  }) : key =
-           '${textId}_${contentId}_${versionId}_${segmentId}_${sectionId}_$direction';
+  }) : key = '${textId}_${contentId}_${versionId}_${segmentId}_$direction';
 
   @override
   bool operator ==(Object other) =>
@@ -70,7 +67,6 @@ final textDetailsFutureProvider = FutureProvider.family((
         contentId: params.contentId,
         versionId: params.versionId,
         segmentId: params.segmentId,
-        sectionId: params.sectionId,
         direction: params.direction,
       );
 });

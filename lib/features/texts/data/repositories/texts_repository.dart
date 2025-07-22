@@ -43,7 +43,6 @@ class TextsRepository {
     required String contentId,
     String? versionId,
     String? segmentId,
-    String? sectionId,
     String? direction,
   }) async {
     final result = await remoteDatasource.fetchTextDetails(
@@ -51,7 +50,6 @@ class TextsRepository {
       contentId: contentId,
       versionId: versionId,
       segmentId: segmentId,
-      sectionId: sectionId,
       direction: direction,
     );
     return result;
