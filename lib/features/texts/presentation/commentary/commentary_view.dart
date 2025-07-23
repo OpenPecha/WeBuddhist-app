@@ -69,7 +69,7 @@ class CommentaryView extends ConsumerWidget {
                           margin: const EdgeInsets.only(bottom: 16, top: 0),
                           padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
-                            color: Colors.grey.shade100,
+                            color: Theme.of(context).cardColor,
                             borderRadius: BorderRadius.circular(18),
                             boxShadow: [
                               BoxShadow(
