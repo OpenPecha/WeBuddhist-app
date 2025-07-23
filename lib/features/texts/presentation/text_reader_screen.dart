@@ -124,9 +124,7 @@ class _TextReaderScreenState extends ConsumerState<TextReaderScreen> {
           !_hasTriggeredPrevious &&
           sectionsData.isNotEmpty) {
         final sectionNumber = sectionsData.first.sectionNumber;
-        debugPrint("sectionNumber: $sectionNumber");
-        debugPrint("currentSegmentPosition: $currentSegmentPosition");
-        if (currentSegmentPosition >= 20) {
+        if (currentSegmentPosition >= 20 || sectionNumber > 1) {
           _hasTriggeredPrevious = true;
           loadPreviousSection();
         }
@@ -299,7 +297,7 @@ class _TextReaderScreenState extends ConsumerState<TextReaderScreen> {
 
   Widget _buildSectionTitle(Section section) {
     return Padding(
-      padding: const EdgeInsets.only(top: 80, bottom: 10),
+      padding: const EdgeInsets.only(top: 10, bottom: 10),
       child: Text(
         section.title ?? '',
         textAlign: TextAlign.center,
@@ -515,59 +513,61 @@ class _TextReaderScreenState extends ConsumerState<TextReaderScreen> {
       body:
           isLoading
               ? const Center(child: CircularProgressIndicator())
-              : Stack(
+              : Column(
                 children: [
-                  // Main content
-                  ScrollablePositionedList.builder(
-                    itemScrollController: itemScrollController,
-                    itemPositionsListener: itemPositionsListener,
-                    itemCount: _getTotalItemCount(),
-                    itemBuilder: (context, index) {
-                      return _buildSectionOrSegmentItem(index);
-                    },
-                  ),
                   // Fixed header
-                  Positioned(
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    child: Container(
-                      color: Theme.of(context).scaffoldBackgroundColor,
-                      width: double.infinity,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 10,
-                      ),
-                      child: Column(
-                        children: [
-                          Text(
-                            textDetailData?.title ?? '',
-                            style: TextStyle(
-                              fontSize: getFontSize(
-                                textDetailData?.language ?? 'en',
-                              ),
-                              fontFamily: getFontFamily(
-                                textDetailData?.language ?? 'en',
-                              ),
-                              fontWeight: FontWeight.w600,
+                  Container(
+                    color: Theme.of(context).scaffoldBackgroundColor,
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 10,
+                    ),
+                    child: Column(
+                      children: [
+                        Text(
+                          textDetailData?.title ?? '',
+                          style: TextStyle(
+                            fontSize: getFontSize(
+                              textDetailData?.language ?? 'en',
                             ),
-                            textAlign: TextAlign.center,
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            '$currentSegmentPosition / $totalSegments',
-                            style: const TextStyle(
-                              fontSize: 12,
-                              color: Colors.grey,
+                            fontFamily: getFontFamily(
+                              textDetailData?.language ?? 'en',
                             ),
+                            fontWeight: FontWeight.w600,
                           ),
-                        ],
-                      ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          '$currentSegmentPosition / $totalSegments',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  // Segment action bar
-                  if (selectedIndex != null)
-                    _buildSegmentActionBar(selectedIndex),
+                  // Main content with defined hei ght
+                  Expanded(
+                    child: Stack(
+                      children: [
+                        // Main content
+                        ScrollablePositionedList.builder(
+                          itemScrollController: itemScrollController,
+                          itemPositionsListener: itemPositionsListener,
+                          itemCount: _getTotalItemCount(),
+                          itemBuilder: (context, index) {
+                            return _buildSectionOrSegmentItem(index);
+                          },
+                        ),
+                        // Segment action bar
+                        if (selectedIndex != null)
+                          _buildSegmentActionBar(selectedIndex),
+                      ],
+                    ),
+                  ),
                 ],
               ),
     );
