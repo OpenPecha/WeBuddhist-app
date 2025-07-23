@@ -4,6 +4,7 @@ import 'package:flutter_pecha/features/app/presentation/pecha_bottom_nav_bar.dar
 import 'package:flutter_pecha/features/texts/data/providers/texts_provider.dart';
 import 'package:flutter_pecha/features/texts/models/text/texts.dart';
 import 'package:flutter_pecha/features/texts/models/text/toc_response.dart';
+import 'package:flutter_pecha/features/texts/models/text/version_response.dart';
 import 'package:flutter_pecha/features/texts/models/version.dart';
 import 'package:flutter_pecha/shared/utils/helper_fucntions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -12,6 +13,128 @@ import 'package:go_router/go_router.dart';
 class TextTocScreen extends ConsumerWidget {
   const TextTocScreen({super.key, required this.text});
   final Texts text;
+
+  Widget _buildTextHeader(Texts text) {
+    return Row(
+      children: [
+        Expanded(
+          child: Text(
+            text.title,
+            style: TextStyle(
+              fontSize: getFontSize(text.language),
+              fontWeight: FontWeight.w500,
+              fontFamily: getFontFamily(text.language),
+            ),
+          ),
+        ),
+        const Icon(Icons.menu_book_outlined, size: 22),
+      ],
+    );
+  }
+
+  Widget _buildTextType(Texts text, AppLocalizations localizations) {
+    return Text(
+      text.type.toLowerCase() == "root_text"
+          ? localizations.text_detail_rootText
+          : localizations.text_detail_commentaryText,
+      style: TextStyle(
+        fontSize: 16,
+        fontWeight: FontWeight.w500,
+        color: Colors.grey[600],
+      ),
+    );
+  }
+
+  Widget _buildContinueReadingButton(
+    Texts text,
+    AppLocalizations localizations,
+    BuildContext context,
+  ) {
+    return SizedBox(
+      width: 200,
+      height: 40,
+      child: ElevatedButton(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: const Color(0xFFC6A04D),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        ),
+        onPressed: () {
+          context.push(
+            '/texts/chapter',
+            extra: {'textId': text.id, 'contentId': text.id},
+          );
+        },
+        child: Text(
+          localizations.text_toc_continueReading,
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.w500,
+            fontSize: 14,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTabs(
+    AppLocalizations localizations,
+    BuildContext context,
+    AsyncValue<TocResponse> textContentResponse,
+    AsyncValue<VersionResponse> textVersionResponse,
+    WidgetRef ref,
+  ) {
+    return Expanded(
+      child: Column(
+        children: [
+          // Tab Bar
+          TabBar(
+            labelColor: Theme.of(context).textTheme.bodyMedium?.color,
+            unselectedLabelColor: Colors.grey,
+            indicatorColor: Color(0xFFC6A04D),
+            indicatorWeight: 2.5,
+            tabs: [
+              Tab(text: localizations.text_toc_content),
+              Tab(text: localizations.text_toc_versions),
+            ],
+            dividerColor: Color(0xFFDEE2E6),
+          ),
+          const SizedBox(height: 16),
+          Expanded(
+            child: TabBarView(
+              children: [
+                // Contents Tab
+                textContentResponse.when(
+                  loading:
+                      () => const Center(child: CircularProgressIndicator()),
+                  error:
+                      (error, stackTrace) =>
+                          Center(child: Text(error.toString())),
+                  data:
+                      (contentResponse) =>
+                          _buildContentsTab(contentResponse, ref),
+                ),
+                // Versions Tab
+                textVersionResponse.when(
+                  loading:
+                      () => const Center(child: CircularProgressIndicator()),
+                  error:
+                      (error, stackTrace) =>
+                          Center(child: Text(error.toString())),
+                  data:
+                      (versionResponse) => _buildVersionsTab(
+                        versionResponse.versions,
+                        context,
+                        ref,
+                      ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -40,111 +163,18 @@ class TextTocScreen extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      text.title,
-                      style: TextStyle(
-                        fontSize: getFontSize(text.language),
-                        fontWeight: FontWeight.w500,
-                        fontFamily: getFontFamily(text.language),
-                      ),
-                    ),
-                  ),
-                  const Icon(Icons.menu_book_outlined, size: 22),
-                ],
-              ),
+              _buildTextHeader(text),
               const SizedBox(height: 4),
-              Text(
-                text.type.toLowerCase() == "root_text"
-                    ? localizations.text_detail_rootText
-                    : localizations.text_detail_commentaryText,
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.grey[600],
-                ),
-              ),
+              _buildTextType(text, localizations),
               const SizedBox(height: 18),
-              SizedBox(
-                width: 200,
-                height: 40,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFC6A04D),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  onPressed: () {
-                    context.push(
-                      '/texts/chapter',
-                      extra: {'textId': text.id, 'contentId': text.id},
-                    );
-                  },
-                  child: Text(
-                    localizations.text_toc_continueReading,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w500,
-                      fontSize: 14,
-                    ),
-                  ),
-                ),
-              ),
+              _buildContinueReadingButton(text, localizations, context),
               const SizedBox(height: 22),
-              TabBar(
-                labelColor: Theme.of(context).textTheme.bodyMedium?.color,
-                unselectedLabelColor: Colors.grey,
-                indicatorColor: Color(0xFFC6A04D),
-                indicatorWeight: 2.5,
-                tabs: [
-                  Tab(text: localizations.text_toc_content),
-                  Tab(text: localizations.text_toc_versions),
-                ],
-                dividerColor: Color(0xFFDEE2E6),
-              ),
-              const SizedBox(height: 16),
-              Expanded(
-                child: TabBarView(
-                  children: [
-                    // Contents Tab
-                    (text.type == "root_text")
-                        ? textContentResponse.when(
-                          loading:
-                              () => const Center(
-                                child: CircularProgressIndicator(),
-                              ),
-                          error:
-                              (error, stackTrace) =>
-                                  Center(child: Text(error.toString())),
-                          data:
-                              (contentResponse) =>
-                                  _buildContentsTab(contentResponse, ref),
-                        )
-                        : const Center(child: Text('No contents found')),
-                    // Versions Tab
-                    (text.type == "root_text")
-                        ? textVersionResponse.when(
-                          loading:
-                              () => const Center(
-                                child: CircularProgressIndicator(),
-                              ),
-                          error:
-                              (error, stackTrace) =>
-                                  Center(child: Text(error.toString())),
-                          data:
-                              (versionResponse) => _buildVersionsTab(
-                                versionResponse.versions,
-                                context,
-                                ref,
-                              ),
-                        )
-                        : const Center(child: Text('No versions found')),
-                  ],
-                ),
+              _buildTabs(
+                localizations,
+                context,
+                textContentResponse,
+                textVersionResponse,
+                ref,
               ),
             ],
           ),
