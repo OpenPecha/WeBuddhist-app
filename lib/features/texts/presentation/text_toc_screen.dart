@@ -110,7 +110,9 @@ class TextTocScreen extends ConsumerWidget {
                   error:
                       (error, stackTrace) =>
                           Center(child: Text(error.toString())),
-                  data: (contentResponse) => _buildContentsTab(contentResponse),
+                  data:
+                      (contentResponse) =>
+                          TableOfContents(toc: contentResponse),
                 ),
                 // Versions Tab
                 textVersionResponse.when(

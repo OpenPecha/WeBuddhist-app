@@ -123,8 +123,7 @@ class _TextReaderScreenState extends ConsumerState<TextReaderScreen> {
           !isLoadingPreviousSection &&
           !_hasTriggeredPrevious &&
           sectionsData.isNotEmpty) {
-        final sectionNumber = sectionsData.first.sectionNumber;
-        if (currentSegmentPosition >= 20 || sectionNumber > 1) {
+        if (currentSegmentPosition >= 5) {
           _hasTriggeredPrevious = true;
           loadPreviousSection();
         }
@@ -134,7 +133,7 @@ class _TextReaderScreenState extends ConsumerState<TextReaderScreen> {
       if (lastVisibleIndex >= _getTotalItemCount() - 3 &&
           !isLoadingNextSection &&
           !_hasTriggeredNext &&
-          currentSegmentPosition < totalSegments - size) {
+          currentSegmentPosition <= totalSegments - size) {
         _hasTriggeredNext = true;
         loadNextSection();
       }
@@ -149,7 +148,6 @@ class _TextReaderScreenState extends ConsumerState<TextReaderScreen> {
     try {
       final firstSegmentId = getFirstSegmentId(sectionsData);
       if (firstSegmentId == null) {
-        debugPrint('No first segment ID found');
         return;
       }
 
@@ -206,7 +204,6 @@ class _TextReaderScreenState extends ConsumerState<TextReaderScreen> {
     try {
       final lastSegmentId = getLastSegmentId(sectionsData);
       if (lastSegmentId == null) {
-        debugPrint('No last segment ID found');
         return;
       }
 
@@ -241,11 +238,24 @@ class _TextReaderScreenState extends ConsumerState<TextReaderScreen> {
   int _getTotalItemCount() {
     int count = 0;
     for (final section in sectionsData) {
-      count += 1; // Section title
-      count += section.segments.length; // Segments
+      count += _calculateSectionItemCount(section);
     }
     if (isLoadingPreviousSection) count++;
     if (isLoadingNextSection) count++;
+    return count;
+  }
+
+  int _calculateSectionItemCount(Section section) {
+    int count = 1; // Section title
+    count += section.segments.length; // Direct segments
+
+    // Add nested sections
+    if (section.sections != null) {
+      for (final nestedSection in section.sections!) {
+        count += _calculateSectionItemCount(nestedSection);
+      }
+    }
+
     return count;
   }
 
@@ -261,37 +271,97 @@ class _TextReaderScreenState extends ConsumerState<TextReaderScreen> {
     // Calculate which section and segment this index corresponds to
     int currentIndex = 0;
 
+    // for (
+    //   int sectionIndex = 0;
+    //   sectionIndex < sectionsData.length;
+    //   sectionIndex++
+    // ) {
+    //   final section = sectionsData[sectionIndex];
+
+    //   // Section title
+    //   if (currentIndex == adjustedIndex) {
+    //     return _buildSectionTitle(section);
+    //   }
+    //   currentIndex++;
+
+    //   // Section segments
+    //   for (
+    //     int segmentIndex = 0;
+    //     segmentIndex < section.segments.length;
+    //     segmentIndex++
+    //   ) {
+    //     if (currentIndex == adjustedIndex) {
+    //       return _buildSegmentItem(section, segmentIndex, sectionIndex);
+    //     }
+    //     currentIndex++;
+    //   }
+    // }
     for (
       int sectionIndex = 0;
       sectionIndex < sectionsData.length;
       sectionIndex++
     ) {
       final section = sectionsData[sectionIndex];
-
-      // Section title
-      if (currentIndex == adjustedIndex) {
-        return _buildSectionTitle(section);
+      final sectionItemCount = _calculateSectionItemCount(section);
+      if (currentIndex <= adjustedIndex &&
+          adjustedIndex < currentIndex + sectionItemCount) {
+        return _buildSectionRecursive(
+          section,
+          adjustedIndex - currentIndex,
+          sectionIndex,
+        );
       }
-      currentIndex++;
-
-      // Section segments
-      for (
-        int segmentIndex = 0;
-        segmentIndex < section.segments.length;
-        segmentIndex++
-      ) {
-        if (currentIndex == adjustedIndex) {
-          return _buildSegmentItem(section, segmentIndex, sectionIndex);
-        }
-        currentIndex++;
-      }
+      currentIndex += sectionItemCount;
     }
-
     // Loading indicator at bottom
     if (index == _getTotalItemCount() - 1 && isLoadingNextSection) {
       return _buildLoadingIndicator('Loading next sections...');
     }
 
+    return const SizedBox.shrink();
+  }
+
+  Widget _buildSectionRecursive(
+    Section section,
+    int relativeIndex,
+    int sectionIndex,
+  ) {
+    int currentIndex = 0;
+    // Section title
+    if (currentIndex == relativeIndex) {
+      return _buildSectionTitle(section);
+    }
+    currentIndex++;
+
+    // direct segments
+    for (
+      int segmentIndex = 0;
+      segmentIndex < section.segments.length;
+      segmentIndex++
+    ) {
+      if (currentIndex == relativeIndex) {
+        return _buildSegmentItem(section, segmentIndex, sectionIndex);
+      }
+      currentIndex++;
+    }
+
+    // nested sections
+    if (section.sections != null) {
+      for (final nestedSection in section.sections!) {
+        final nestedSectionItemCount = _calculateSectionItemCount(
+          nestedSection,
+        );
+        if (currentIndex <= relativeIndex &&
+            relativeIndex < currentIndex + nestedSectionItemCount) {
+          return _buildSectionRecursive(
+            nestedSection,
+            relativeIndex - currentIndex,
+            sectionIndex,
+          );
+        }
+        currentIndex += nestedSectionItemCount;
+      }
+    }
     return const SizedBox.shrink();
   }
 
@@ -394,19 +464,56 @@ class _TextReaderScreenState extends ConsumerState<TextReaderScreen> {
   int _calculateGlobalSegmentIndex(int sectionIndex, int segmentIndex) {
     int globalIndex = 0;
     for (int i = 0; i < sectionIndex; i++) {
-      globalIndex += sectionsData[i].segments.length;
+      // globalIndex += sectionsData[i].segments.length;
+      globalIndex += _calculateTotalSegmentsInSection(sectionsData[i]);
     }
     return globalIndex + segmentIndex;
+  }
+
+  int _calculateTotalSegmentsInSection(Section section) {
+    int count = section.segments.length;
+    if (section.sections != null) {
+      for (final nestedSection in section.sections!) {
+        count += _calculateTotalSegmentsInSection(nestedSection);
+      }
+    }
+    return count;
   }
 
   Segment? _getSegmentByGlobalIndex(int globalIndex) {
     int currentIndex = 0;
     for (final section in sectionsData) {
-      for (final segment in section.segments) {
-        if (currentIndex == globalIndex) {
-          return segment;
+      final totalSegments = _calculateTotalSegmentsInSection(section);
+      if (currentIndex <= globalIndex &&
+          globalIndex < currentIndex + totalSegments) {
+        return _findSegmentInSection(section, globalIndex - currentIndex);
+      }
+      currentIndex += totalSegments;
+    }
+    return null;
+  }
+
+  Segment? _findSegmentInSection(Section section, int relativeIndex) {
+    int currentIndex = 0;
+
+    // Check direct segments
+    if (relativeIndex < section.segments.length) {
+      return section.segments[relativeIndex];
+    }
+    currentIndex += section.segments.length;
+
+    // Check nested sections
+    if (section.sections != null) {
+      for (final nestedSection in section.sections!) {
+        final nestedSegments = _calculateTotalSegmentsInSection(nestedSection);
+        if (currentIndex <= relativeIndex &&
+            relativeIndex < currentIndex + nestedSegments) {
+          return _findSegmentInSection(
+            nestedSection,
+            relativeIndex - currentIndex,
+          );
         }
-        currentIndex++;
+        currentIndex += nestedSegments;
       }
     }
     return null;
@@ -549,7 +656,7 @@ class _TextReaderScreenState extends ConsumerState<TextReaderScreen> {
                       ],
                     ),
                   ),
-                  // Main content with defined hei ght
+                  // Main content with defined height
                   Expanded(
                     child: Stack(
                       children: [
@@ -598,10 +705,11 @@ class _TextReaderScreenState extends ConsumerState<TextReaderScreen> {
       sectionIndex++
     ) {
       final section = sectionsData[sectionIndex];
+      final totalSegments = _calculateTotalSegmentsInSection(section);
 
       // Check if the search result is in this section
       if (searchResultIndex >= segmentCount &&
-          searchResultIndex < segmentCount + section.segments.length) {
+          searchResultIndex < segmentCount + totalSegments) {
         // Calculate the position: header + previous sections + section title + segment position
         return (isLoadingPreviousSection
                 ? 2
@@ -610,8 +718,10 @@ class _TextReaderScreenState extends ConsumerState<TextReaderScreen> {
             (searchResultIndex - segmentCount); // Position within this section
       }
 
-      currentIndex += 1 + section.segments.length; // Section title + segments
-      segmentCount += section.segments.length;
+      currentIndex += _calculateSectionItemCount(
+        section,
+      ); // Section title + segments + nested sections
+      segmentCount += totalSegments;
     }
 
     return searchResultIndex + (isLoadingPreviousSection ? 2 : 1);
