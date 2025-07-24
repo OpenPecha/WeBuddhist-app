@@ -6,6 +6,7 @@ import 'package:flutter_pecha/features/texts/models/text/texts.dart';
 import 'package:flutter_pecha/features/texts/models/text/toc_response.dart';
 import 'package:flutter_pecha/features/texts/models/text/version_response.dart';
 import 'package:flutter_pecha/features/texts/models/version.dart';
+import 'package:flutter_pecha/features/texts/presentation/widgets/table_of_contens.dart';
 import 'package:flutter_pecha/shared/utils/helper_fucntions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -82,7 +83,6 @@ class TextTocScreen extends ConsumerWidget {
     BuildContext context,
     AsyncValue<TocResponse> textContentResponse,
     AsyncValue<VersionResponse> textVersionResponse,
-    WidgetRef ref,
   ) {
     return Expanded(
       child: Column(
@@ -110,9 +110,7 @@ class TextTocScreen extends ConsumerWidget {
                   error:
                       (error, stackTrace) =>
                           Center(child: Text(error.toString())),
-                  data:
-                      (contentResponse) =>
-                          _buildContentsTab(contentResponse, ref),
+                  data: (contentResponse) => _buildContentsTab(contentResponse),
                 ),
                 // Versions Tab
                 textVersionResponse.when(
@@ -122,11 +120,8 @@ class TextTocScreen extends ConsumerWidget {
                       (error, stackTrace) =>
                           Center(child: Text(error.toString())),
                   data:
-                      (versionResponse) => _buildVersionsTab(
-                        versionResponse.versions,
-                        context,
-                        ref,
-                      ),
+                      (versionResponse) =>
+                          _buildVersionsTab(versionResponse.versions, context),
                 ),
               ],
             ),
@@ -174,7 +169,6 @@ class TextTocScreen extends ConsumerWidget {
                 context,
                 textContentResponse,
                 textVersionResponse,
-                ref,
               ),
             ],
           ),
@@ -184,7 +178,7 @@ class TextTocScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildContentsTab(TocResponse tocResponse, WidgetRef ref) {
+  Widget _buildContentsTab(TocResponse tocResponse) {
     final toc = tocResponse.contents[0];
     final textDetail = tocResponse.textDetail;
     if (toc.sections.isEmpty) {
@@ -235,11 +229,7 @@ class TextTocScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildVersionsTab(
-    List<Version> versions,
-    BuildContext context,
-    WidgetRef ref,
-  ) {
+  Widget _buildVersionsTab(List<Version> versions, BuildContext context) {
     final localizations = AppLocalizations.of(context)!;
 
     if (versions.isEmpty) {
