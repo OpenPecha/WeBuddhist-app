@@ -34,8 +34,14 @@ class TextsRepository {
     );
   }
 
-  Future<VersionResponse> fetchTextVersion({required String textId}) async {
-    return remoteDatasource.fetchTextVersion(textId: textId);
+  Future<VersionResponse> fetchTextVersion({
+    required String textId,
+    String? language,
+  }) async {
+    return remoteDatasource.fetchTextVersion(
+      textId: textId,
+      language: language,
+    );
   }
 
   Future<ReaderResponse> fetchTextDetails({
