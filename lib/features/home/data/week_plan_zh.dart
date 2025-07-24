@@ -1,75 +1,380 @@
+// plan item structure
+// {
+//  contentType: "text" | "image" | "video" | "audio"
+//  content:
+//    text: string
+//    imageUrl: string
+//    videoUrl: string
+//    audioUrl: string
+//    author: string
+// }
+
+// example
+// {
+//   "contentType": "text",
+//   "content": {
+//     "text": "string",
+//   }
+// }
+
 const Map<String, dynamic> weekPlanZh = {
   "monday": {
-    "verseText":
-        "嗡\n邊雜薩埵薩瑪雅 瑪努巴拉雅 邊雜薩埵\n喋諾巴 地札則卓美巴哇 蘇埵卡唷美巴\n哇 蘇波卡唷美巴哇 阿努惹多美巴哇\n薩哇悉地美札雅剎 薩哇嘎瑪速札美 積\n當希哩呀 咕嚕吽 哈哈哈哈 後 巴嘎溫\n薩哇達他嘎達 邊雜瑪美穆雜 邊雜巴哇\n瑪哈薩瑪雅 薩埵 阿",
-    "scriptureVideoUrl": "https://www.youtube.com/watch?v=kCezYqHug3o",
-    "meditationVideoUrl": "https://www.youtube.com/watch?v=slLmJEXG3VY",
-    "intentionImageUrl":
-        "https://drive.google.com/uc?export=view&id=1Ylo33Is9CW18Jc7j1b2J95hathTKCDZO",
-    "bringingImageUrl":
-        "https://drive.google.com/uc?export=view&id=1Hv2Lsh6UOyu7YFuxWJYhZ5SgwLm1Uj1F",
+    "plan": [
+      {
+        "label": "Verse",
+        "contentType": "text",
+        "content": "或見他人遭鬼魅\n或發熱病受諸苦\n彼諸苦惱悉蠲除\n若轉此讚二、三、 七",
+        "author": "—聖救母四曼達儀軌如理觀想觀法\n尊者 阿底峽 造\n堪仁波切 貢噶旺秋 整理",
+      },
+      {
+        "label": "Go Deeper",
+        "contentType": "video",
+        "content": "https://www.youtube.com/watch?v=qMQmBHMdeOw",
+      },
+      {
+        "label": "Meditation",
+        "contentType": "audio",
+        "content": "https://www.youtube.com/shorts/oA4PcFZrCJ0",
+      },
+      {
+        "label": "Recitation",
+        "contentType": "audio",
+        "content": "https://www.youtube.com/watch?v=r2KH8AvW2uk",
+      },
+      {
+        "label": "Bringing it to life",
+        "contentType": "image",
+        "content":
+            "https://drive.google.com/uc?export=view&id=13SCE09UaRtoLZQCUyRPMaGpCMF1b8kLy",
+      },
+    ],
   },
   "tuesday": {
-    "verseText":
-        "嗡\n邊雜薩埵薩瑪雅 瑪努巴拉雅 邊雜薩埵\n喋諾巴 地札則卓美巴哇 蘇埵卡唷美巴\n哇 蘇波卡唷美巴哇 阿努惹多美巴哇\n薩哇悉地美札雅剎 薩哇嘎瑪速札美 積\n當希哩呀 咕嚕吽 哈哈哈哈 後 巴嘎溫\n薩哇達他嘎達 邊雜瑪美穆雜 邊雜巴哇\n瑪哈薩瑪雅 薩埵 阿",
-    "scriptureVideoUrl": "https://www.youtube.com/watch?v=edHFRdGUZQ8",
-    "meditationVideoUrl": "https://www.youtube.com/watch?v=YOUvJi-4Y0I",
-    "intentionImageUrl":
-        "https://drive.google.com/uc?export=view&id=1H-vUm7IZGwO5ZGPpLe9iERuwx-RQQ3x7",
-    "bringingImageUrl":
-        "https://drive.google.com/uc?export=view&id=1X-i7fOzN5mMEWkpFfwKs-M7lcohKQf4b",
+    "plan": [
+      {
+        "label": "Verse",
+        "contentType": "text",
+        "content": "欲男女得男女\n求財寶位獲富饒\n善能圓滿隨意願\n一切障礙不能侵",
+        "author": "—聖救母四曼達儀軌如理觀想觀法\n尊者 阿底峽 造\n堪仁波切 貢噶旺秋 整理",
+      },
+      {
+        "label": "Go Deeper",
+        "contentType": "video",
+        "content": "https://www.youtube.com/watch?v=EWrMyke5QTM",
+      },
+      {
+        "label": "Meditation",
+        "contentType": "audio",
+        "content": "https://www.youtube.com/shorts/NgxVs6CvT4U",
+      },
+      {
+        "label": "Recitation",
+        "contentType": "audio",
+        "content": "https://www.youtube.com/watch?v=r2KH8AvW2uk",
+      },
+      {
+        "label": "Bringing it to life",
+        "contentType": "image",
+        "content":
+            "https://drive.google.com/uc?export=view&id=1JCYlNX_SLrf46PmgETGSoKFWojIdc0e7",
+      },
+    ],
   },
   "wednesday": {
-    "verseText":
-        "嗡\n邊雜薩埵薩瑪雅 瑪努巴拉雅 邊雜薩埵\n喋諾巴 地札則卓美巴哇 蘇埵卡唷美巴\n哇 蘇波卡唷美巴哇 阿努惹多美巴哇\n薩哇悉地美札雅剎 薩哇嘎瑪速札美 積\n當希哩呀 咕嚕吽 哈哈哈哈 後 巴嘎溫\n薩哇達他嘎達 邊雜瑪美穆雜 邊雜巴哇\n瑪哈薩瑪雅 薩埵 阿",
-    "scriptureVideoUrl": "https://www.youtube.com/watch?v=3e5HLbPLuZI",
-    "meditationVideoUrl": "https://www.youtube.com/watch?v=yzVmrpqqzSw",
-    "intentionImageUrl":
-        "https://drive.google.com/uc?export=view&id=10INJvKbpThjOhHoXgoYzZtaB8w46Zluw",
-    "bringingImageUrl":
-        "https://drive.google.com/uc?export=view&id=1KaQRMlk3P_k5U3Y5p8C-EKoNPE2PuEPs",
+    "plan": [
+      {
+        "label": "Verse",
+        "contentType": "text",
+        "content": "救度尊處誠信禮\n是故讚嘆根本咒\n每晨旦起夕時禮\n憶念施諸勝無畏\n一切罪業盡消除\n悉能超越諸惡趣",
+        "author": "—聖救母四曼達儀軌如理觀想觀法\n尊者 阿底峽 造\n堪仁波切 貢噶旺秋 整理",
+      },
+      {
+        "label": "Go Deeper",
+        "contentType": "video",
+        "content": "https://www.youtube.com/watch?v=anwpRupmk_0",
+      },
+      {
+        "label": "Meditation",
+        "contentType": "audio",
+        "content": "https://www.youtube.com/shorts/NgxVs6CvT4U",
+      },
+      {
+        "label": "Recitation",
+        "contentType": "audio",
+        "content": "https://www.youtube.com/watch?v=r2KH8AvW2uk",
+      },
+      {
+        "label": "Bringing it to life",
+        "contentType": "image",
+        "content":
+            "https://drive.google.com/uc?export=view&id=1i3qQ7EFbt0rKQU_2KGWeY3RAHrX2VcI3",
+      },
+    ],
   },
   "thursday": {
-    "verseText":
-        "嗡\n邊雜薩埵薩瑪雅 瑪努巴拉雅 邊雜薩埵\n喋諾巴 地札則卓美巴哇 蘇埵卡唷美巴\n哇 蘇波卡唷美巴哇 阿努惹多美巴哇\n薩哇悉地美札雅剎 薩哇嘎瑪速札美 積\n當希哩呀 咕嚕吽 哈哈哈哈 後 巴嘎溫\n薩哇達他嘎達 邊雜瑪美穆雜 邊雜巴哇\n瑪哈薩瑪雅 薩埵 阿",
-    "scriptureVideoUrl": "https://www.youtube.com/watch?v=kCezYqHug3o",
-    "meditationVideoUrl": "https://www.youtube.com/watch?v=slLmJEXG3VY",
-    "intentionImageUrl":
-        "https://drive.google.com/uc?export=view&id=1Ylo33Is9CW18Jc7j1b2J95hathTKCDZO",
-    "bringingImageUrl":
-        "https://drive.google.com/uc?export=view&id=1Hv2Lsh6UOyu7YFuxWJYhZ5SgwLm1Uj1F",
+    "plan": [
+      {
+        "label": "Verse",
+        "contentType": "text",
+        "content": "七俱胝佛所灌頂\n此等速能得聰慧\n現世富貴壽延安\n當來趣向諸佛位",
+        "author": "—聖救母四曼達儀軌如理觀想觀法\n尊者 阿底峽 造\n堪仁波切 貢噶旺秋 整理",
+      },
+      {
+        "label": "Go Deeper",
+        "contentType": "video",
+        "content": "https://www.youtube.com/watch?v=CfqoeyTn1xg",
+      },
+      {
+        "label": "Meditation",
+        "contentType": "audio",
+        "content": "https://www.youtube.com/shorts/oA4PcFZrCJ0",
+      },
+      {
+        "label": "Recitation",
+        "contentType": "audio",
+        "content": "https://www.youtube.com/watch?v=r2KH8AvW2uk",
+      },
+      {
+        "label": "Bringing it to life",
+        "contentType": "image",
+        "content":
+            "https://drive.google.com/uc?export=view&id=13SCE09UaRtoLZQCUyRPMaGpCMF1b8kLy",
+      },
+    ],
   },
   "friday": {
-    "verseText":
-        "嗡\n邊雜薩埵薩瑪雅 瑪努巴拉雅 邊雜薩埵\n喋諾巴 地札則卓美巴哇 蘇埵卡唷美巴\n哇 蘇波卡唷美巴哇 阿努惹多美巴哇\n薩哇悉地美札雅剎 薩哇嘎瑪速札美 積\n當希哩呀 咕嚕吽 哈哈哈哈 後 巴嘎溫\n薩哇達他嘎達 邊雜瑪美穆雜 邊雜巴哇\n瑪哈薩瑪雅 薩埵 阿",
-    "scriptureVideoUrl": "https://www.youtube.com/watch?v=edHFRdGUZQ8",
-    "meditationVideoUrl": "https://www.youtube.com/watch?v=YOUvJi-4Y0I",
-    "intentionImageUrl":
-        "https://drive.google.com/uc?export=view&id=1H-vUm7IZGwO5ZGPpLe9iERuwx-RQQ3x7",
-    "bringingImageUrl":
-        "https://drive.google.com/uc?export=view&id=1X-i7fOzN5mMEWkpFfwKs-M7lcohKQf4b",
+    "plan": [
+      {
+        "label": "Verse",
+        "contentType": "text",
+        "content": "救度尊處誠信禮\n是故讚嘆根本咒\n每晨旦起夕時禮\n憶念施諸勝無畏\n一切罪業盡消除\n悉能超越諸惡趣",
+        "author": "—聖救母四曼達儀軌如理觀想觀法\n尊者 阿底峽 造\n堪仁波切 貢噶旺秋 整理",
+      },
+      {
+        "label": "Go Deeper",
+        "contentType": "video",
+        "content": "https://www.youtube.com/watch?v=anwpRupmk_0",
+      },
+      {
+        "label": "Meditation",
+        "contentType": "audio",
+        "content": "https://www.youtube.com/shorts/NgxVs6CvT4U",
+      },
+      {
+        "label": "Recitation",
+        "contentType": "audio",
+        "content": "https://www.youtube.com/watch?v=r2KH8AvW2uk",
+      },
+      {
+        "label": "Bringing it to life",
+        "contentType": "image",
+        "content":
+            "https://drive.google.com/uc?export=view&id=1i3qQ7EFbt0rKQU_2KGWeY3RAHrX2VcI3",
+      },
+    ],
   },
   "saturday": {
-    "verseText":
-        "嗡\n邊雜薩埵薩瑪雅 瑪努巴拉雅 邊雜薩埵\n喋諾巴 地札則卓美巴哇 蘇埵卡唷美巴\n哇 蘇波卡唷美巴哇 阿努惹多美巴哇\n薩哇悉地美札雅剎 薩哇嘎瑪速札美 積\n當希哩呀 咕嚕吽 哈哈哈哈 後 巴嘎溫\n薩哇達他嘎達 邊雜瑪美穆雜 邊雜巴哇\n瑪哈薩瑪雅 薩埵 阿",
-    "scriptureVideoUrl": "https://www.youtube.com/watch?v=3e5HLbPLuZI",
-    "meditationVideoUrl": "https://www.youtube.com/watch?v=yzVmrpqqzSw",
-    "intentionImageUrl":
-        "https://drive.google.com/uc?export=view&id=10INJvKbpThjOhHoXgoYzZtaB8w46Zluw",
-    "bringingImageUrl":
-        "https://drive.google.com/uc?export=view&id=1KaQRMlk3P_k5U3Y5p8C-EKoNPE2PuEPs",
+    "plan": [
+      {
+        "label": "Verse",
+        "contentType": "text",
+        "content": "七俱胝佛所灌頂\n此等速能得聰慧\n現世富貴壽延安\n當來趣向諸佛位",
+        "author": "—聖救母四曼達儀軌如理觀想觀法\n尊者 阿底峽 造\n堪仁波切 貢噶旺秋 整理",
+      },
+      {
+        "label": "Go Deeper",
+        "contentType": "video",
+        "content": "https://www.youtube.com/watch?v=CfqoeyTn1xg",
+      },
+      {
+        "label": "Meditation",
+        "contentType": "audio",
+        "content": "https://www.youtube.com/shorts/oA4PcFZrCJ0",
+      },
+      {
+        "label": "Recitation",
+        "contentType": "audio",
+        "content": "https://www.youtube.com/watch?v=r2KH8AvW2uk",
+      },
+      {
+        "label": "Bringing it to life",
+        "contentType": "image",
+        "content":
+            "https://drive.google.com/uc?export=view&id=13SCE09UaRtoLZQCUyRPMaGpCMF1b8kLy",
+      },
+    ],
   },
   "sunday": {
-    "verseText":
-        "嗡\n邊雜薩埵薩瑪雅 瑪努巴拉雅 邊雜薩埵\n喋諾巴 地札則卓美巴哇 蘇埵卡唷美巴\n哇 蘇波卡唷美巴哇 阿努惹多美巴哇\n薩哇悉地美札雅剎 薩哇嘎瑪速札美 積\n當希哩呀 咕嚕吽 哈哈哈哈 後 巴嘎溫\n薩哇達他嘎達 邊雜瑪美穆雜 邊雜巴哇\n瑪哈薩瑪雅 薩埵 阿",
-    "scriptureVideoUrl": "https://www.youtube.com/watch?v=kCezYqHug3o",
-    "meditationVideoUrl": "https://www.youtube.com/watch?v=slLmJEXG3VY",
-    "intentionImageUrl":
-        "https://drive.google.com/uc?export=view&id=1Ylo33Is9CW18Jc7j1b2J95hathTKCDZO",
-    "bringingImageUrl":
-        "https://drive.google.com/uc?export=view&id=1Hv2Lsh6UOyu7YFuxWJYhZ5SgwLm1Uj1F",
+    "plan": [
+      {
+        "label": "Verse",
+        "contentType": "text",
+        "content": "有情誤服諸毒物\n或自然生或合成\n憶念聖尊真實力\n諸惡毒藥盡消滅",
+        "author": "—聖救母四曼達儀軌如理觀想觀法\n尊者 阿底峽 造\n堪仁波切 貢噶旺秋 整理",
+      },
+      {
+        "label": "Go Deeper",
+        "contentType": "video",
+        "content": "https://www.youtube.com/watch?v=PkbLmeou0Qw",
+      },
+      {
+        "label": "Meditation",
+        "contentType": "audio",
+        "content": "https://www.youtube.com/shorts/NgxVs6CvT4U",
+      },
+      {
+        "label": "Recitation",
+        "contentType": "audio",
+        "content": "https://www.youtube.com/watch?v=r2KH8AvW2uk",
+      },
+      {
+        "label": "Bringing it to life",
+        "contentType": "image",
+        "content":
+            "https://drive.google.com/uc?export=view&id=1i3qQ7EFbt0rKQU_2KGWeY3RAHrX2VcI3",
+      },
+    ],
   },
 };
+
+// const Map<String, dynamic> weekPlanZh = {
+//   "monday": {
+//     "verseText": "或見他人遭鬼魅\n或發熱病受諸苦\n彼諸苦惱悉蠲除\n若轉此讚二、三、 七",
+//     "author": "—聖救母四曼達儀軌如理觀想觀法\n尊者 阿底峽 造\n堪仁波切 貢噶旺秋 整理",
+//     "scriptureVideoUrl": "https://www.youtube.com/watch?v=qMQmBHMdeOw",
+//     "meditationVideoUrl": "https://www.youtube.com/shorts/oA4PcFZrCJ0",
+//     "recitation": "https://www.youtube.com/watch?v=r2KH8AvW2uk",
+//     "bringingImageUrl":
+//         "https://drive.google.com/uc?export=view&id=13SCE09UaRtoLZQCUyRPMaGpCMF1b8kLy",
+//   },
+//   "tuesday": {
+//     "verseText": "欲男女得男女\n求財寶位獲富饒\n善能圓滿隨意願\n一切障礙不能侵",
+//     "author": "—聖救母四曼達儀軌如理觀想觀法\n尊者 阿底峽 造\n堪仁波切 貢噶旺秋 整理",
+//     "scriptureVideoUrl": "https://www.youtube.com/watch?v=EWrMyke5QTM",
+//     "meditationVideoUrl": "https://www.youtube.com/shorts/NgxVs6CvT4U",
+//     "recitation": "https://www.youtube.com/watch?v=r2KH8AvW2uk",
+//     "bringingImageUrl":
+//         "https://drive.google.com/uc?export=view&id=1JCYlNX_SLrf46PmgETGSoKFWojIdc0e7",
+//   },
+//   "wednesday": {
+//     "verseText": "救度尊處誠信禮\n是故讚嘆根本咒\n每晨旦起夕時禮\n憶念施諸勝無畏\n一切罪業盡消除\n悉能超越諸惡趣",
+//     "author": "—聖救母四曼達儀軌如理觀想觀法\n尊者 阿底峽 造\n堪仁波切 貢噶旺秋 整理",
+//     "scriptureVideoUrl": "https://www.youtube.com/watch?v=anwpRupmk_0",
+//     "meditationVideoUrl": "https://www.youtube.com/shorts/NgxVs6CvT4U",
+//     "recitation": "https://www.youtube.com/watch?v=r2KH8AvW2uk",
+//     "bringingImageUrl":
+//         "https://drive.google.com/uc?export=view&id=1i3qQ7EFbt0rKQU_2KGWeY3RAHrX2VcI3",
+//   },
+//   "thursday": {
+//     "verseText": "七俱胝佛所灌頂\n此等速能得聰慧\n現世富貴壽延安\n當來趣向諸佛位",
+//     "author": "—聖救母四曼達儀軌如理觀想觀法\n尊者 阿底峽 造\n堪仁波切 貢噶旺秋 整理",
+//     "scriptureVideoUrl": "https://www.youtube.com/watch?v=CfqoeyTn1xg",
+//     "meditationVideoUrl": "https://www.youtube.com/shorts/oA4PcFZrCJ0",
+//     "recitation": "https://www.youtube.com/watch?v=r2KH8AvW2uk",
+//     "bringingImageUrl":
+//         "https://drive.google.com/uc?export=view&id=13SCE09UaRtoLZQCUyRPMaGpCMF1b8kLy",
+//   },
+//   "friday": {
+//     "verseText": "救度尊處誠信禮\n是故讚嘆根本咒\n每晨旦起夕時禮\n憶念施諸勝無畏\n一切罪業盡消除\n悉能超越諸惡趣",
+//     "author": "—聖救母四曼達儀軌如理觀想觀法\n尊者 阿底峽 造\n堪仁波切 貢噶旺秋 整理",
+//     "scriptureVideoUrl": "https://www.youtube.com/watch?v=anwpRupmk_0",
+//     "meditationVideoUrl": "https://www.youtube.com/shorts/NgxVs6CvT4U",
+//     "recitation": "https://www.youtube.com/watch?v=r2KH8AvW2uk",
+//     "bringingImageUrl":
+//         "https://drive.google.com/uc?export=view&id=1i3qQ7EFbt0rKQU_2KGWeY3RAHrX2VcI3",
+//   },
+//   "saturday": {
+//     "verseText": "七俱胝佛所灌頂\n此等速能得聰慧\n現世富貴壽延安\n當來趣向諸佛位",
+//     "author": "—聖救母四曼達儀軌如理觀想觀法\n尊者 阿底峽 造\n堪仁波切 貢噶旺秋 整理",
+//     "scriptureVideoUrl": "https://www.youtube.com/watch?v=CfqoeyTn1xg",
+//     "meditationVideoUrl": "https://www.youtube.com/shorts/oA4PcFZrCJ0",
+//     "recitation": "https://www.youtube.com/watch?v=r2KH8AvW2uk",
+//     "bringingImageUrl":
+//         "https://drive.google.com/uc?export=view&id=13SCE09UaRtoLZQCUyRPMaGpCMF1b8kLy",
+//   },
+//   "sunday": {
+//     "verseText": "有情誤服諸毒物\n或自然生或合成\n憶念聖尊真實力\n諸惡毒藥盡消滅",
+//     "author": "—聖救母四曼達儀軌如理觀想觀法\n尊者 阿底峽 造\n堪仁波切 貢噶旺秋 整理",
+//     "scriptureVideoUrl": "https://www.youtube.com/watch?v=PkbLmeou0Qw",
+//     "meditationVideoUrl": "https://www.youtube.com/shorts/NgxVs6CvT4U",
+//     "recitation": "https://www.youtube.com/watch?v=r2KH8AvW2uk",
+//     "bringingImageUrl":
+//         "https://drive.google.com/uc?export=view&id=1i3qQ7EFbt0rKQU_2KGWeY3RAHrX2VcI3",
+//   },
+// };
+
+// const Map<String, dynamic> weekPlanZh = {
+//   "monday": {
+//     "verseText":
+//         "嗡\n邊雜薩埵薩瑪雅 瑪努巴拉雅 邊雜薩埵\n喋諾巴 地札則卓美巴哇 蘇埵卡唷美巴\n哇 蘇波卡唷美巴哇 阿努惹多美巴哇\n薩哇悉地美札雅剎 薩哇嘎瑪速札美 積\n當希哩呀 咕嚕吽 哈哈哈哈 後 巴嘎溫\n薩哇達他嘎達 邊雜瑪美穆雜 邊雜巴哇\n瑪哈薩瑪雅 薩埵 阿",
+//     "scriptureVideoUrl": "https://www.youtube.com/watch?v=kCezYqHug3o",
+//     "meditationVideoUrl": "https://www.youtube.com/watch?v=slLmJEXG3VY",
+//     "intentionImageUrl":
+//         "https://drive.google.com/uc?export=view&id=1Ylo33Is9CW18Jc7j1b2J95hathTKCDZO",
+//     "bringingImageUrl":
+//         "https://drive.google.com/uc?export=view&id=1Hv2Lsh6UOyu7YFuxWJYhZ5SgwLm1Uj1F",
+//   },
+//   "tuesday": {
+//     "verseText":
+//         "嗡\n邊雜薩埵薩瑪雅 瑪努巴拉雅 邊雜薩埵\n喋諾巴 地札則卓美巴哇 蘇埵卡唷美巴\n哇 蘇波卡唷美巴哇 阿努惹多美巴哇\n薩哇悉地美札雅剎 薩哇嘎瑪速札美 積\n當希哩呀 咕嚕吽 哈哈哈哈 後 巴嘎溫\n薩哇達他嘎達 邊雜瑪美穆雜 邊雜巴哇\n瑪哈薩瑪雅 薩埵 阿",
+//     "scriptureVideoUrl": "https://www.youtube.com/watch?v=edHFRdGUZQ8",
+//     "meditationVideoUrl": "https://www.youtube.com/watch?v=YOUvJi-4Y0I",
+//     "intentionImageUrl":
+//         "https://drive.google.com/uc?export=view&id=1H-vUm7IZGwO5ZGPpLe9iERuwx-RQQ3x7",
+//     "bringingImageUrl":
+//         "https://drive.google.com/uc?export=view&id=1X-i7fOzN5mMEWkpFfwKs-M7lcohKQf4b",
+//   },
+//   "wednesday": {
+//     "verseText":
+//         "嗡\n邊雜薩埵薩瑪雅 瑪努巴拉雅 邊雜薩埵\n喋諾巴 地札則卓美巴哇 蘇埵卡唷美巴\n哇 蘇波卡唷美巴哇 阿努惹多美巴哇\n薩哇悉地美札雅剎 薩哇嘎瑪速札美 積\n當希哩呀 咕嚕吽 哈哈哈哈 後 巴嘎溫\n薩哇達他嘎達 邊雜瑪美穆雜 邊雜巴哇\n瑪哈薩瑪雅 薩埵 阿",
+//     "scriptureVideoUrl": "https://www.youtube.com/watch?v=3e5HLbPLuZI",
+//     "meditationVideoUrl": "https://www.youtube.com/watch?v=yzVmrpqqzSw",
+//     "intentionImageUrl":
+//         "https://drive.google.com/uc?export=view&id=10INJvKbpThjOhHoXgoYzZtaB8w46Zluw",
+//     "bringingImageUrl":
+//         "https://drive.google.com/uc?export=view&id=1KaQRMlk3P_k5U3Y5p8C-EKoNPE2PuEPs",
+//   },
+//   "thursday": {
+//     "verseText":
+//         "嗡\n邊雜薩埵薩瑪雅 瑪努巴拉雅 邊雜薩埵\n喋諾巴 地札則卓美巴哇 蘇埵卡唷美巴\n哇 蘇波卡唷美巴哇 阿努惹多美巴哇\n薩哇悉地美札雅剎 薩哇嘎瑪速札美 積\n當希哩呀 咕嚕吽 哈哈哈哈 後 巴嘎溫\n薩哇達他嘎達 邊雜瑪美穆雜 邊雜巴哇\n瑪哈薩瑪雅 薩埵 阿",
+//     "scriptureVideoUrl": "https://www.youtube.com/watch?v=kCezYqHug3o",
+//     "meditationVideoUrl": "https://www.youtube.com/watch?v=slLmJEXG3VY",
+//     "intentionImageUrl":
+//         "https://drive.google.com/uc?export=view&id=1Ylo33Is9CW18Jc7j1b2J95hathTKCDZO",
+//     "bringingImageUrl":
+//         "https://drive.google.com/uc?export=view&id=1Hv2Lsh6UOyu7YFuxWJYhZ5SgwLm1Uj1F",
+//   },
+//   "friday": {
+//     "verseText":
+//         "嗡\n邊雜薩埵薩瑪雅 瑪努巴拉雅 邊雜薩埵\n喋諾巴 地札則卓美巴哇 蘇埵卡唷美巴\n哇 蘇波卡唷美巴哇 阿努惹多美巴哇\n薩哇悉地美札雅剎 薩哇嘎瑪速札美 積\n當希哩呀 咕嚕吽 哈哈哈哈 後 巴嘎溫\n薩哇達他嘎達 邊雜瑪美穆雜 邊雜巴哇\n瑪哈薩瑪雅 薩埵 阿",
+//     "scriptureVideoUrl": "https://www.youtube.com/watch?v=edHFRdGUZQ8",
+//     "meditationVideoUrl": "https://www.youtube.com/watch?v=YOUvJi-4Y0I",
+//     "intentionImageUrl":
+//         "https://drive.google.com/uc?export=view&id=1H-vUm7IZGwO5ZGPpLe9iERuwx-RQQ3x7",
+//     "bringingImageUrl":
+//         "https://drive.google.com/uc?export=view&id=1X-i7fOzN5mMEWkpFfwKs-M7lcohKQf4b",
+//   },
+//   "saturday": {
+//     "verseText":
+//         "嗡\n邊雜薩埵薩瑪雅 瑪努巴拉雅 邊雜薩埵\n喋諾巴 地札則卓美巴哇 蘇埵卡唷美巴\n哇 蘇波卡唷美巴哇 阿努惹多美巴哇\n薩哇悉地美札雅剎 薩哇嘎瑪速札美 積\n當希哩呀 咕嚕吽 哈哈哈哈 後 巴嘎溫\n薩哇達他嘎達 邊雜瑪美穆雜 邊雜巴哇\n瑪哈薩瑪雅 薩埵 阿",
+//     "scriptureVideoUrl": "https://www.youtube.com/watch?v=3e5HLbPLuZI",
+//     "meditationVideoUrl": "https://www.youtube.com/watch?v=yzVmrpqqzSw",
+//     "intentionImageUrl":
+//         "https://drive.google.com/uc?export=view&id=10INJvKbpThjOhHoXgoYzZtaB8w46Zluw",
+//     "bringingImageUrl":
+//         "https://drive.google.com/uc?export=view&id=1KaQRMlk3P_k5U3Y5p8C-EKoNPE2PuEPs",
+//   },
+//   "sunday": {
+//     "verseText":
+//         "嗡\n邊雜薩埵薩瑪雅 瑪努巴拉雅 邊雜薩埵\n喋諾巴 地札則卓美巴哇 蘇埵卡唷美巴\n哇 蘇波卡唷美巴哇 阿努惹多美巴哇\n薩哇悉地美札雅剎 薩哇嘎瑪速札美 積\n當希哩呀 咕嚕吽 哈哈哈哈 後 巴嘎溫\n薩哇達他嘎達 邊雜瑪美穆雜 邊雜巴哇\n瑪哈薩瑪雅 薩埵 阿",
+//     "scriptureVideoUrl": "https://www.youtube.com/watch?v=kCezYqHug3o",
+//     "meditationVideoUrl": "https://www.youtube.com/watch?v=slLmJEXG3VY",
+//     "intentionImageUrl":
+//         "https://drive.google.com/uc?export=view&id=1Ylo33Is9CW18Jc7j1b2J95hathTKCDZO",
+//     "bringingImageUrl":
+//         "https://drive.google.com/uc?export=view&id=1Hv2Lsh6UOyu7YFuxWJYhZ5SgwLm1Uj1F",
+//   },
+// };
 
 // const Map<String, dynamic> weekPlanZh = {
 //   "monday": {

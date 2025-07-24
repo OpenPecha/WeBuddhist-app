@@ -1,73 +1,234 @@
 const Map<String, dynamic> weekPlanEn = {
   "monday": {
-    "verseText":
-        "Oṃ\nVajrasattva samaya manupālaya!\nVajrasattva, tvenopa tiṣṭḥa!\nDṛḍho me bhava!\nSutoṣyo me bhava!\nSupoṣyo me bhava!\nAnurakto me bhava!\nSarva siddhim me prayaccha!\nSarva karmasu ca.\nMe cittaṃ śrīyaṃ kuru hūṃ!\nHa ha ha ha hoḥ!\nBhagavān\nsarva tathāgata vajra mā me muñca!\nVajri bhava mahāsamaya sattva āḥ!",
-    "scriptureVideoUrl": "https://www.youtube.com/watch?v=o0qNBF_kOrI",
-    "meditationVideoUrl": "https://www.youtube.com/watch?v=sIQCExYppmA",
-    "intentionImageUrl":
-        "https://drive.google.com/uc?export=view&id=1MViIA62rSBOXvDN_KBfsa8TcH61la4GV",
-    "bringingImageUrl":
-        "https://drive.google.com/uc?export=view&id=12RMWs_J6EAEPMPyicYBtAcQN-04B3rpR",
+    "plan": [
+      {
+        "label": "Verse",
+        "contentType": "text",
+        "content":
+            "Oṃ\nVajrasattva samaya manupālaya!\nVajrasattva, tvenopa tiṣṭḥa!\nDṛḍho me bhava!\nSutoṣyo me bhava!\nSupoṣyo me bhava!\nAnurakto me bhava!\nSarva siddhim me prayaccha!\nSarva karmasu ca.\nMe cittaṃ śrīyaṃ kuru hūṃ!\nHa ha ha ha hoḥ!\nBhagavān\nsarva tathāgata vajra mā me muñca!\nVajri bhava mahāsamaya sattva āḥ!",
+        "author": "",
+      },
+      {
+        "label": "Go Deeper",
+        "contentType": "video",
+        "content": "https://www.youtube.com/watch?v=o0qNBF_kOrI",
+      },
+      {
+        "label": "Meditation",
+        "contentType": "audio",
+        "content": "https://www.youtube.com/watch?v=sIQCExYppmA",
+      },
+      {
+        "label": "My Intention for Today",
+        "contentType": "image",
+        "content":
+            "https://drive.google.com/uc?export=view&id=1MViIA62rSBOXvDN_KBfsa8TcH61la4GV",
+      },
+      {
+        "label": "Bringing it to life",
+        "contentType": "image",
+        "content":
+            "https://drive.google.com/uc?export=view&id=12RMWs_J6EAEPMPyicYBtAcQN-04B3rpR",
+      },
+    ],
   },
   "tuesday": {
-    "verseText":
-        "Oṃ\nVajrasattva samaya manupālaya!\nVajrasattva, tvenopa tiṣṭḥa!\nDṛḍho me bhava!\nSutoṣyo me bhava!\nSupoṣyo me bhava!\nAnurakto me bhava!\nSarva siddhim me prayaccha!\nSarva karmasu ca.\nMe cittaṃ śrīyaṃ kuru hūṃ!\nHa ha ha ha hoḥ!\nBhagavān\nsarva tathāgata vajra mā me muñca!\nVajri bhava mahāsamaya sattva āḥ!",
-    "scriptureVideoUrl": "https://www.youtube.com/watch?v=ewMWQo16BxY",
-    "meditationVideoUrl": "https://www.youtube.com/watch?v=JS63WAj_ssM",
-    "intentionImageUrl":
-        "https://drive.google.com/uc?export=view&id=1d0da3bt7bmephhgWYmmV9Ox-mv2lJw5s",
-    "bringingImageUrl":
-        "https://drive.google.com/uc?export=view&id=13jTu08U1edpghDFgfO9GrUq9jafuwR4j",
+    "plan": [
+      {
+        "label": "Verse",
+        "contentType": "text",
+        "content":
+            "Oṃ\nVajrasattva samaya manupālaya!\nVajrasattva, tvenopa tiṣṭḥa!\nDṛḍho me bhava!\nSutoṣyo me bhava!\nSupoṣyo me bhava!\nAnurakto me bhava!\nSarva siddhim me prayaccha!\nSarva karmasu ca.\nMe cittaṃ śrīyaṃ kuru hūṃ!\nHa ha ha ha hoḥ!\nBhagavān\nsarva tathāgata vajra mā me muñca!\nVajri bhava mahāsamaya sattva āḥ!",
+        "author": "",
+      },
+      {
+        "label": "Go Deeper",
+        "contentType": "video",
+        "content": "https://www.youtube.com/watch?v=ewMWQo16BxY",
+      },
+      {
+        "label": "Meditation",
+        "contentType": "audio",
+        "content": "https://www.youtube.com/watch?v=JS63WAj_ssM",
+      },
+      {
+        "label": "My Intention for Today",
+        "contentType": "image",
+        "content":
+            "https://drive.google.com/uc?export=view&id=1d0da3bt7bmephhgWYmmV9Ox-mv2lJw5s",
+      },
+      {
+        "label": "Bringing it to life",
+        "contentType": "image",
+        "content":
+            "https://drive.google.com/uc?export=view&id=13jTu08U1edpghDFgfO9GrUq9jafuwR4j",
+      },
+    ],
   },
   "wednesday": {
-    "verseText":
-        "Oṃ\nVajrasattva samaya manupālaya!\nVajrasattva, tvenopa tiṣṭḥa!\nDṛḍho me bhava!\nSutoṣyo me bhava!\nSupoṣyo me bhava!\nAnurakto me bhava!\nSarva siddhim me prayaccha!\nSarva karmasu ca.\nMe cittaṃ śrīyaṃ kuru hūṃ!\nHa ha ha ha hoḥ!\nBhagavān\nsarva tathāgata vajra mā me muñca!\nVajri bhava mahāsamaya sattva āḥ!",
-    "scriptureVideoUrl": "https://www.youtube.com/watch?v=zxMtKl6PWAc",
-    "meditationVideoUrl": "https://www.youtube.com/watch?v=VEAHQEX9WjU",
-    "intentionImageUrl":
-        "https://drive.google.com/uc?export=view&id=1Km12KDMMoONNT2GfAsjZm-VpsTfWKZF2",
-    "bringingImageUrl":
-        "https://drive.google.com/uc?export=view&id=1j4y9u2bF1CC4bkFqD0eec1UALGgeuF8Q",
+    "plan": [
+      {
+        "label": "Verse",
+        "contentType": "text",
+        "content":
+            "Oṃ\nVajrasattva samaya manupālaya!\nVajrasattva, tvenopa tiṣṭḥa!\nDṛḍho me bhava!\nSutoṣyo me bhava!\nSupoṣyo me bhava!\nAnurakto me bhava!\nSarva siddhim me prayaccha!\nSarva karmasu ca.\nMe cittaṃ śrīyaṃ kuru hūṃ!\nHa ha ha ha hoḥ!\nBhagavān\nsarva tathāgata vajra mā me muñca!\nVajri bhava mahāsamaya sattva āḥ!",
+        "author": "",
+      },
+      {
+        "label": "Go Deeper",
+        "contentType": "video",
+        "content": "https://www.youtube.com/watch?v=zxMtKl6PWAc",
+      },
+      {
+        "label": "Meditation",
+        "contentType": "audio",
+        "content": "https://www.youtube.com/watch?v=VEAHQEX9WjU",
+      },
+      {
+        "label": "My Intention for Today",
+        "contentType": "image",
+        "content":
+            "https://drive.google.com/uc?export=view&id=1Km12KDMMoONNT2GfAsjZm-VpsTfWKZF2",
+      },
+      {
+        "label": "Bringing it to life",
+        "contentType": "image",
+        "content":
+            "https://drive.google.com/uc?export=view&id=1j4y9u2bF1CC4bkFqD0eec1UALGgeuF8Q",
+      },
+    ],
   },
   "thursday": {
-    "verseText":
-        "Oṃ\nVajrasattva samaya manupālaya!\nVajrasattva, tvenopa tiṣṭḥa!\nDṛḍho me bhava!\nSutoṣyo me bhava!\nSupoṣyo me bhava!\nAnurakto me bhava!\nSarva siddhim me prayaccha!\nSarva karmasu ca.\nMe cittaṃ śrīyaṃ kuru hūṃ!\nHa ha ha ha hoḥ!\nBhagavān\nsarva tathāgata vajra mā me muñca!\nVajri bhava mahāsamaya sattva āḥ!",
-    "scriptureVideoUrl": "https://www.youtube.com/watch?v=o0qNBF_kOrI",
-    "meditationVideoUrl": "https://www.youtube.com/watch?v=sIQCExYppmA",
-    "intentionImageUrl":
-        "https://drive.google.com/uc?export=view&id=1MViIA62rSBOXvDN_KBfsa8TcH61la4GV",
-    "bringingImageUrl":
-        "https://drive.google.com/uc?export=view&id=12RMWs_J6EAEPMPyicYBtAcQN-04B3rpR",
+    "plan": [
+      {
+        "label": "Verse",
+        "contentType": "text",
+        "content":
+            "Oṃ\nVajrasattva samaya manupālaya!\nVajrasattva, tvenopa tiṣṭḥa!\nDṛḍho me bhava!\nSutoṣyo me bhava!\nSupoṣyo me bhava!\nAnurakto me bhava!\nSarva siddhim me prayaccha!\nSarva karmasu ca.\nMe cittaṃ śrīyaṃ kuru hūṃ!\nHa ha ha ha hoḥ!\nBhagavān\nsarva tathāgata vajra mā me muñca!\nVajri bhava mahāsamaya sattva āḥ!",
+        "author": "",
+      },
+      {
+        "label": "Go Deeper",
+        "contentType": "video",
+        "content": "https://www.youtube.com/watch?v=o0qNBF_kOrI",
+      },
+      {
+        "label": "Meditation",
+        "contentType": "audio",
+        "content": "https://www.youtube.com/watch?v=sIQCExYppmA",
+      },
+      {
+        "label": "My Intention for Today",
+        "contentType": "image",
+        "content":
+            "https://drive.google.com/uc?export=view&id=1MViIA62rSBOXvDN_KBfsa8TcH61la4GV",
+      },
+      {
+        "label": "Bringing it to life",
+        "contentType": "image",
+        "content":
+            "https://drive.google.com/uc?export=view&id=12RMWs_J6EAEPMPyicYBtAcQN-04B3rpR",
+      },
+    ],
   },
   "friday": {
-    "verseText":
-        "Oṃ\nVajrasattva samaya manupālaya!\nVajrasattva, tvenopa tiṣṭḥa!\nDṛḍho me bhava!\nSutoṣyo me bhava!\nSupoṣyo me bhava!\nAnurakto me bhava!\nSarva siddhim me prayaccha!\nSarva karmasu ca.\nMe cittaṃ śrīyaṃ kuru hūṃ!\nHa ha ha ha hoḥ!\nBhagavān\nsarva tathāgata vajra mā me muñca!\nVajri bhava mahāsamaya sattva āḥ!",
-    "scriptureVideoUrl": "https://www.youtube.com/watch?v=ewMWQo16BxY",
-    "meditationVideoUrl": "https://www.youtube.com/watch?v=JS63WAj_ssM",
-    "intentionImageUrl":
-        "https://drive.google.com/uc?export=view&id=1d0da3bt7bmephhgWYmmV9Ox-mv2lJw5s",
-    "bringingImageUrl":
-        "https://drive.google.com/uc?export=view&id=13jTu08U1edpghDFgfO9GrUq9jafuwR4j",
+    "plan": [
+      {
+        "label": "Verse",
+        "contentType": "text",
+        "content":
+            "Oṃ\nVajrasattva samaya manupālaya!\nVajrasattva, tvenopa tiṣṭḥa!\nDṛḍho me bhava!\nSutoṣyo me bhava!\nSupoṣyo me bhava!\nAnurakto me bhava!\nSarva siddhim me prayaccha!\nSarva karmasu ca.\nMe cittaṃ śrīyaṃ kuru hūṃ!\nHa ha ha ha hoḥ!\nBhagavān\nsarva tathāgata vajra mā me muñca!\nVajri bhava mahāsamaya sattva āḥ!",
+        "author": "",
+      },
+      {
+        "label": "Go Deeper",
+        "contentType": "video",
+        "content": "https://www.youtube.com/watch?v=ewMWQo16BxY",
+      },
+      {
+        "label": "Meditation",
+        "contentType": "audio",
+        "content": "https://www.youtube.com/watch?v=JS63WAj_ssM",
+      },
+      {
+        "label": "My Intention for Today",
+        "contentType": "image",
+        "content":
+            "https://drive.google.com/uc?export=view&id=1d0da3bt7bmephhgWYmmV9Ox-mv2lJw5s",
+      },
+      {
+        "label": "Bringing it to life",
+        "contentType": "image",
+        "content":
+            "https://drive.google.com/uc?export=view&id=13jTu08U1edpghDFgfO9GrUq9jafuwR4j",
+      },
+    ],
   },
   "saturday": {
-    "verseText":
-        "Oṃ\nVajrasattva samaya manupālaya!\nVajrasattva, tvenopa tiṣṭḥa!\nDṛḍho me bhava!\nSutoṣyo me bhava!\nSupoṣyo me bhava!\nAnurakto me bhava!\nSarva siddhim me prayaccha!\nSarva karmasu ca.\nMe cittaṃ śrīyaṃ kuru hūṃ!\nHa ha ha ha hoḥ!\nBhagavān\nsarva tathāgata vajra mā me muñca!\nVajri bhava mahāsamaya sattva āḥ!",
-    "scriptureVideoUrl": "https://www.youtube.com/watch?v=zxMtKl6PWAc",
-    "meditationVideoUrl": "https://www.youtube.com/watch?v=VEAHQEX9WjU",
-    "intentionImageUrl":
-        "https://drive.google.com/uc?export=view&id=1Km12KDMMoONNT2GfAsjZm-VpsTfWKZF2",
-    "bringingImageUrl":
-        "https://drive.google.com/uc?export=view&id=1j4y9u2bF1CC4bkFqD0eec1UALGgeuF8Q",
+    "plan": [
+      {
+        "label": "Verse",
+        "contentType": "text",
+        "content":
+            "Oṃ\nVajrasattva samaya manupālaya!\nVajrasattva, tvenopa tiṣṭḥa!\nDṛḍho me bhava!\nSutoṣyo me bhava!\nSupoṣyo me bhava!\nAnurakto me bhava!\nSarva siddhim me prayaccha!\nSarva karmasu ca.\nMe cittaṃ śrīyaṃ kuru hūṃ!\nHa ha ha ha hoḥ!\nBhagavān\nsarva tathāgata vajra mā me muñca!\nVajri bhava mahāsamaya sattva āḥ!",
+        "author": "",
+      },
+      {
+        "label": "Go Deeper",
+        "contentType": "video",
+        "content": "https://www.youtube.com/watch?v=zxMtKl6PWAc",
+      },
+      {
+        "label": "Meditation",
+        "contentType": "audio",
+        "content": "https://www.youtube.com/watch?v=VEAHQEX9WjU",
+      },
+      {
+        "label": "My Intention for Today",
+        "contentType": "image",
+        "content":
+            "https://drive.google.com/uc?export=view&id=1Km12KDMMoONNT2GfAsjZm-VpsTfWKZF2",
+      },
+      {
+        "label": "Bringing it to life",
+        "contentType": "image",
+        "content":
+            "https://drive.google.com/uc?export=view&id=1j4y9u2bF1CC4bkFqD0eec1UALGgeuF8Q",
+      },
+    ],
   },
   "sunday": {
-    "verseText":
-        "Oṃ\nVajrasattva samaya manupālaya!\nVajrasattva, tvenopa tiṣṭḥa!\nDṛḍho me bhava!\nSutoṣyo me bhava!\nSupoṣyo me bhava!\nAnurakto me bhava!\nSarva siddhim me prayaccha!\nSarva karmasu ca.\nMe cittaṃ śrīyaṃ kuru hūṃ!\nHa ha ha ha hoḥ!\nBhagavān\nsarva tathāgata vajra mā me muñca!\nVajri bhava mahāsamaya sattva āḥ!",
-    "scriptureVideoUrl": "https://www.youtube.com/watch?v=o0qNBF_kOrI",
-    "meditationVideoUrl": "https://www.youtube.com/watch?v=sIQCExYppmA",
-    "intentionImageUrl":
-        "https://drive.google.com/uc?export=view&id=1MViIA62rSBOXvDN_KBfsa8TcH61la4GV",
-    "bringingImageUrl":
-        "https://drive.google.com/uc?export=view&id=12RMWs_J6EAEPMPyicYBtAcQN-04B3rpR",
+    "plan": [
+      {
+        "label": "Verse",
+        "contentType": "text",
+        "content":
+            "Oṃ\nVajrasattva samaya manupālaya!\nVajrasattva, tvenopa tiṣṭḥa!\nDṛḍho me bhava!\nSutoṣyo me bhava!\nSupoṣyo me bhava!\nAnurakto me bhava!\nSarva siddhim me prayaccha!\nSarva karmasu ca.\nMe cittaṃ śrīyaṃ kuru hūṃ!\nHa ha ha ha hoḥ!\nBhagavān\nsarva tathāgata vajra mā me muñca!\nVajri bhava mahāsamaya sattva āḥ!",
+        "author": "",
+      },
+      {
+        "label": "Go Deeper",
+        "contentType": "video",
+        "content": "https://www.youtube.com/watch?v=o0qNBF_kOrI",
+      },
+      {
+        "label": "Meditation",
+        "contentType": "audio",
+        "content": "https://www.youtube.com/watch?v=sIQCExYppmA",
+      },
+      {
+        "label": "My Intention for Today",
+        "contentType": "image",
+        "content":
+            "https://drive.google.com/uc?export=view&id=1MViIA62rSBOXvDN_KBfsa8TcH61la4GV",
+      },
+      {
+        "label": "Bringing it to life",
+        "contentType": "image",
+        "content":
+            "https://drive.google.com/uc?export=view&id=12RMWs_J6EAEPMPyicYBtAcQN-04B3rpR",
+      },
+    ],
   },
 };
 

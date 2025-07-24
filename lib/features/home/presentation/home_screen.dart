@@ -25,7 +25,7 @@ class HomeScreen extends ConsumerStatefulWidget {
 
 class _HomeScreenState extends ConsumerState<HomeScreen>
     with WidgetsBindingObserver {
-  late PlanItem planItem;
+  late List<PlanItem> planItems;
   Timer? _dayCheckTimer;
   String _currentDay = '';
 
@@ -56,7 +56,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     final weekPlan = ref.read(weekPlanProvider);
     final plan = weekPlan[_currentDay];
     setState(() {
-      planItem = PlanItem.fromJson(plan);
+      planItems =
+          (plan["plan"] as List<dynamic>)
+              .map((item) => PlanItem.fromJson(item))
+              .toList();
     });
   }
 
@@ -82,7 +85,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     // Get the localized week plan
     final weekPlan = ref.read(weekPlanProvider);
     final plan = weekPlan[_currentDay];
-    planItem = PlanItem.fromJson(plan);
+    debugPrint(plan.toString());
+    planItems =
+        (plan["plan"] as List<dynamic>)
+            .map((item) => PlanItem.fromJson(item))
+            .toList();
   }
 
   @override
@@ -141,96 +148,102 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              localizations.home_dailyRefresh,
-              textAlign: TextAlign.left,
-              style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 8),
-            VerseCard(
-              // imageUrl: planItem.verseImageUrl,
-              verse: planItem.verseText,
-            ),
-            SizedBox(height: 16),
-            ActionOfTheDayCard(
-              title: localizations.home_goDeeper,
-              subtitle: "4-5 min",
-              iconWidget: Image.asset(
-                'assets/images/home/teaching.png',
-                color: Theme.of(context).iconTheme.color,
-                width: 80,
-                height: 80,
-              ),
-              onTap:
-                  () => context.push(
-                    '/home/guided_scripture',
-                    extra: planItem.scriptureVideoUrl,
-                  ),
-            ),
-            SizedBox(height: 16),
-            ActionOfTheDayCard(
-              title: localizations.home_meditationTitle,
-              subtitle: "3-4 min",
-              iconWidget: Icon(Icons.self_improvement, size: 80),
-              // Use: when audio url is available
-              //   onTap:
-              //       () => context.push(
-              //         '/home/meditation_of_the_day',
-              //         extra: {
-              //           "meditationAudioUrl": planItem.meditationAudioUrl,
-              //           "meditationImageUrl": planItem.meditationImageUrl,
-              //         },
-              //       ),
-              // ),
-
-              // when only video url is available
-              onTap:
-                  () => context.push(
-                    '/home/meditation_video',
-                    extra: planItem.meditationVideoUrl,
-                  ),
-            ),
-            SizedBox(height: 16),
-            ActionOfTheDayCard(
-              title: localizations.home_intention,
-              subtitle: "1 min",
-              iconWidget: FaIcon(FontAwesomeIcons.handsPraying, size: 60),
-              onTap:
-                  () => showGeneralDialog(
-                    context: context,
-                    barrierDismissible: true,
-                    barrierLabel: "Close",
-                    transitionDuration: const Duration(milliseconds: 200),
-                    pageBuilder: (context, animation, secondaryAnimation) {
-                      return ViewIllustration(
-                        imageUrl: planItem.intentionImageUrl,
-                      );
-                    },
-                  ),
-            ),
-            SizedBox(height: 16),
-            ActionOfTheDayCard(
-              title: localizations.home_bringing,
-              subtitle: "1 min",
-              iconWidget: Image.asset(
-                'assets/images/home/mind_free.png',
-                color: Theme.of(context).iconTheme.color,
-                width: 80,
-                height: 80,
-              ),
-              onTap:
-                  () => showGeneralDialog(
-                    context: context,
-                    barrierDismissible: true,
-                    barrierLabel: "Close",
-                    transitionDuration: const Duration(milliseconds: 200),
-                    pageBuilder: (context, animation, secondaryAnimation) {
-                      return ViewIllustration(
-                        imageUrl: planItem.bringingImageUrl,
-                      );
-                    },
-                  ),
-            ),
+            ...planItems.map((planItem) {
+              switch (planItem.contentType) {
+                case "text":
+                  return Column(
+                    children: [
+                      VerseCard(verse: planItem.content),
+                      SizedBox(height: 16),
+                    ],
+                  );
+                case "video":
+                  return Column(
+                    children: [
+                      ActionOfTheDayCard(
+                        title: localizations.home_goDeeper,
+                        subtitle: "4-5 min",
+                        iconWidget: Image.asset(
+                          'assets/images/home/teaching.png',
+                          color: Theme.of(context).iconTheme.color,
+                          width: 80,
+                          height: 80,
+                        ),
+                        onTap:
+                            () => context.push(
+                              '/home/guided_scripture',
+                              extra: planItem.content,
+                            ),
+                      ),
+                      SizedBox(height: 16),
+                    ],
+                  );
+                case "audio":
+                  return Column(
+                    children: [
+                      ActionOfTheDayCard(
+                        title:
+                            planItem.label == "Meditation"
+                                ? localizations.home_meditationTitle
+                                : planItem.label,
+                        subtitle: "3-4 min",
+                        iconWidget:
+                            planItem.label == "Meditation"
+                                ? Icon(Icons.self_improvement, size: 80)
+                                : FaIcon(
+                                  FontAwesomeIcons.handsPraying,
+                                  size: 60,
+                                ),
+                        onTap:
+                            () => context.push(
+                              '/home/meditation_video',
+                              extra: planItem.content,
+                            ),
+                      ),
+                      SizedBox(height: 16),
+                    ],
+                  );
+                case "image":
+                  return Column(
+                    children: [
+                      ActionOfTheDayCard(
+                        title:
+                            planItem.label == "My Intention for Today"
+                                ? localizations.home_intention
+                                : localizations.home_bringing,
+                        subtitle: "1 min",
+                        iconWidget: Image.asset(
+                          'assets/images/home/mind_free.png',
+                          color: Theme.of(context).iconTheme.color,
+                          width: 80,
+                          height: 80,
+                        ),
+                        onTap:
+                            () => showGeneralDialog(
+                              context: context,
+                              barrierDismissible: true,
+                              barrierLabel: "Close",
+                              transitionDuration: const Duration(
+                                milliseconds: 200,
+                              ),
+                              pageBuilder: (
+                                context,
+                                animation,
+                                secondaryAnimation,
+                              ) {
+                                return ViewIllustration(
+                                  imageUrl: planItem.content,
+                                );
+                              },
+                            ),
+                      ),
+                      SizedBox(height: 16),
+                    ],
+                  );
+                default:
+                  return SizedBox.shrink();
+              }
+            }),
             SizedBox(height: 10),
           ],
         ),
