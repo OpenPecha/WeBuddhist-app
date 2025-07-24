@@ -51,39 +51,40 @@ class TextDetailScreen extends ConsumerWidget {
                       response.texts
                           .where((t) => t.type.toLowerCase() == 'commentary')
                           .toList();
-                  if (rootTexts.isEmpty && commentaries.isEmpty) {
-                    return const Text(
-                      "No Text Found",
-                      style: TextStyle(fontSize: 16),
-                    );
-                  } else {
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          localizations.text_detail_rootText,
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w500,
-                            color: Colors.grey[700],
-                          ),
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        localizations.text_detail_rootText,
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.grey[700],
                         ),
-                        ...rootTexts.map((t) => _buildTextList([t], context)),
-                        const SizedBox(height: 12),
-                        Text(
-                          localizations.text_detail_commentaryText,
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w500,
-                            color: Colors.grey[700],
-                          ),
+                      ),
+                      if (rootTexts.isEmpty)
+                        const Text(
+                          "No root text found",
+                          style: TextStyle(fontSize: 16),
                         ),
-                        ...commentaries.map(
-                          (t) => _buildTextList([t], context),
+                      ...rootTexts.map((t) => _buildTextList([t], context)),
+                      const SizedBox(height: 12),
+                      Text(
+                        localizations.text_detail_commentaryText,
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.grey[700],
                         ),
-                      ],
-                    );
-                  }
+                      ),
+                      if (commentaries.isEmpty)
+                        const Text(
+                          "No commentary text found",
+                          style: TextStyle(fontSize: 16),
+                        ),
+                      ...commentaries.map((t) => _buildTextList([t], context)),
+                    ],
+                  );
                 },
                 loading:
                     () => const Padding(
