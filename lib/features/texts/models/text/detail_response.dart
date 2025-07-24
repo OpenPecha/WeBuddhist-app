@@ -18,7 +18,7 @@ class TextDetailResponse {
 
   factory TextDetailResponse.fromJson(Map<String, dynamic> json) {
     return TextDetailResponse(
-      term: Term.fromJson(json['term']),
+      term: Term.fromJson(json['collection']),
       texts: (json['texts'] as List).map((e) => Texts.fromJson(e)).toList(),
       total: json['total'],
       skip: json['skip'],
@@ -28,7 +28,7 @@ class TextDetailResponse {
 
   Map<String, dynamic> toJson() {
     return {
-      'term': term.toJson(),
+      'collection': term.toJson(),
       'texts': texts.map((e) => e.toJson()).toList(),
       'total': total,
       'skip': skip,
