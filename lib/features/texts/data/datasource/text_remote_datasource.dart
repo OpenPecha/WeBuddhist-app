@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_pecha/features/texts/models/search/search_response.dart';
 import 'package:flutter_pecha/features/texts/models/text/detail_response.dart';
@@ -21,7 +22,7 @@ class TextRemoteDatasource {
   }) async {
     final uri = Uri.parse('${dotenv.env['BASE_API_URL']}/texts').replace(
       queryParameters: {
-        'term_id': termId,
+        'collection_id': termId,
         if (language != null) 'language': language == 'zh' ? 'en' : language,
         'skip': skip.toString(),
         'limit': limit.toString(),
