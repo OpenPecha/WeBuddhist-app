@@ -580,14 +580,45 @@ class _TextReaderScreenState extends ConsumerState<TextReaderScreen> {
             icon: const Icon(Icons.text_increase),
           ),
           GestureDetector(
-            onTap: () {
+            onTap: () async {
               ref
                   .read(textVersionLanguageProvider.notifier)
                   .setLanguage(textDetailData?.language ?? "en");
-              context.push(
+              final result = await context.push(
                 '/texts/version_selection',
                 extra: {"textId": textDetailData?.id},
               );
+
+              if (result != null && result is Map<String, dynamic>) {
+                final newTextId = result['textId'] as String?;
+                final newContentId = result['contentId'] as String?;
+
+                if (newTextId != null && newContentId != null) {
+                  // Update the text with new parameters
+                  setState(() {
+                    isLoading = true;
+                  });
+
+                  try {
+                    final params = TextDetailsParams(
+                      textId: newTextId,
+                      contentId: newContentId,
+                      segmentId: null,
+                      direction: 'next',
+                    );
+                    final response = await ref.read(
+                      textDetailsFutureProvider(params).future,
+                    );
+                    initialSections(response);
+                  } catch (e) {
+                    debugPrint('error updating text: $e');
+                  } finally {
+                    setState(() {
+                      isLoading = false;
+                    });
+                  }
+                }
+              }
             },
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
@@ -665,6 +696,7 @@ class _TextReaderScreenState extends ConsumerState<TextReaderScreen> {
                           itemScrollController: itemScrollController,
                           itemPositionsListener: itemPositionsListener,
                           itemCount: _getTotalItemCount(),
+                          padding: const EdgeInsets.only(bottom: 40),
                           itemBuilder: (context, index) {
                             return _buildSectionOrSegmentItem(index);
                           },

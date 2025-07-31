@@ -152,17 +152,10 @@ class VersionSelectionScreen extends ConsumerWidget {
         final version = versions[index];
         return ListTile(
           onTap: () {
-            ref
-                .read(textReadingParamsProvider.notifier)
-                .setParams(
-                  textId: version.id,
-                  contentId: version.tableOfContents[0],
-                  versionId: version.id,
-                  segmentId: null,
-                  sectionId: null,
-                  direction: "next",
-                );
-            context.pop();
+            context.pop({
+              'textId': version.id,
+              'contentId': version.tableOfContents[0],
+            });
           },
           contentPadding: EdgeInsets.zero,
           title: Text(
