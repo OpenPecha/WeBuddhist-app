@@ -187,7 +187,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                         title:
                             planItem.label == "Meditation"
                                 ? localizations.home_meditationTitle
-                                : planItem.label,
+                                : localizations.home_recitation,
                         subtitle: "3-4 min",
                         iconWidget:
                             planItem.label == "Meditation"

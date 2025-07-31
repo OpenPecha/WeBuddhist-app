@@ -39,7 +39,7 @@ const Map<String, dynamic> weekPlanZh = {
       {
         "label": "Recitation",
         "contentType": "audio",
-        "content": "https://www.youtube.com/watch?v=r2KH8AvW2uk",
+        "content": "https://www.youtube.com/watch?v=ILhNZlSWeqU",
       },
       {
         "label": "Bringing it to life",
@@ -70,7 +70,7 @@ const Map<String, dynamic> weekPlanZh = {
       {
         "label": "Recitation",
         "contentType": "audio",
-        "content": "https://www.youtube.com/watch?v=r2KH8AvW2uk",
+        "content": "https://www.youtube.com/watch?v=ILhNZlSWeqU",
       },
       {
         "label": "Bringing it to life",
@@ -101,7 +101,7 @@ const Map<String, dynamic> weekPlanZh = {
       {
         "label": "Recitation",
         "contentType": "audio",
-        "content": "https://www.youtube.com/watch?v=r2KH8AvW2uk",
+        "content": "https://www.youtube.com/watch?v=ILhNZlSWeqU",
       },
       {
         "label": "Bringing it to life",
@@ -132,7 +132,7 @@ const Map<String, dynamic> weekPlanZh = {
       {
         "label": "Recitation",
         "contentType": "audio",
-        "content": "https://www.youtube.com/watch?v=r2KH8AvW2uk",
+        "content": "https://www.youtube.com/watch?v=ILhNZlSWeqU",
       },
       {
         "label": "Bringing it to life",
@@ -163,7 +163,7 @@ const Map<String, dynamic> weekPlanZh = {
       {
         "label": "Recitation",
         "contentType": "audio",
-        "content": "https://www.youtube.com/watch?v=r2KH8AvW2uk",
+        "content": "https://www.youtube.com/watch?v=ILhNZlSWeqU",
       },
       {
         "label": "Bringing it to life",
@@ -194,7 +194,7 @@ const Map<String, dynamic> weekPlanZh = {
       {
         "label": "Recitation",
         "contentType": "audio",
-        "content": "https://www.youtube.com/watch?v=r2KH8AvW2uk",
+        "content": "https://www.youtube.com/watch?v=ILhNZlSWeqU",
       },
       {
         "label": "Bringing it to life",
@@ -225,7 +225,7 @@ const Map<String, dynamic> weekPlanZh = {
       {
         "label": "Recitation",
         "contentType": "audio",
-        "content": "https://www.youtube.com/watch?v=r2KH8AvW2uk",
+        "content": "https://www.youtube.com/watch?v=ILhNZlSWeqU",
       },
       {
         "label": "Bringing it to life",
@@ -243,7 +243,7 @@ const Map<String, dynamic> weekPlanZh = {
 //     "author": "—聖救母四曼達儀軌如理觀想觀法\n尊者 阿底峽 造\n堪仁波切 貢噶旺秋 整理",
 //     "scriptureVideoUrl": "https://www.youtube.com/watch?v=qMQmBHMdeOw",
 //     "meditationVideoUrl": "https://www.youtube.com/shorts/oA4PcFZrCJ0",
-//     "recitation": "https://www.youtube.com/watch?v=r2KH8AvW2uk",
+//     "recitation": "https://www.youtube.com/watch?v=ILhNZlSWeqU",
 //     "bringingImageUrl":
 //         "https://drive.google.com/uc?export=view&id=13SCE09UaRtoLZQCUyRPMaGpCMF1b8kLy",
 //   },
@@ -252,7 +252,7 @@ const Map<String, dynamic> weekPlanZh = {
 //     "author": "—聖救母四曼達儀軌如理觀想觀法\n尊者 阿底峽 造\n堪仁波切 貢噶旺秋 整理",
 //     "scriptureVideoUrl": "https://www.youtube.com/watch?v=EWrMyke5QTM",
 //     "meditationVideoUrl": "https://www.youtube.com/shorts/NgxVs6CvT4U",
-//     "recitation": "https://www.youtube.com/watch?v=r2KH8AvW2uk",
+//     "recitation": "https://www.youtube.com/watch?v=ILhNZlSWeqU",
 //     "bringingImageUrl":
 //         "https://drive.google.com/uc?export=view&id=1JCYlNX_SLrf46PmgETGSoKFWojIdc0e7",
 //   },
@@ -261,7 +261,7 @@ const Map<String, dynamic> weekPlanZh = {
 //     "author": "—聖救母四曼達儀軌如理觀想觀法\n尊者 阿底峽 造\n堪仁波切 貢噶旺秋 整理",
 //     "scriptureVideoUrl": "https://www.youtube.com/watch?v=anwpRupmk_0",
 //     "meditationVideoUrl": "https://www.youtube.com/shorts/NgxVs6CvT4U",
-//     "recitation": "https://www.youtube.com/watch?v=r2KH8AvW2uk",
+//     "recitation": "https://www.youtube.com/watch?v=ILhNZlSWeqU",
 //     "bringingImageUrl":
 //         "https://drive.google.com/uc?export=view&id=1i3qQ7EFbt0rKQU_2KGWeY3RAHrX2VcI3",
 //   },
@@ -270,7 +270,7 @@ const Map<String, dynamic> weekPlanZh = {
 //     "author": "—聖救母四曼達儀軌如理觀想觀法\n尊者 阿底峽 造\n堪仁波切 貢噶旺秋 整理",
 //     "scriptureVideoUrl": "https://www.youtube.com/watch?v=CfqoeyTn1xg",
 //     "meditationVideoUrl": "https://www.youtube.com/shorts/oA4PcFZrCJ0",
-//     "recitation": "https://www.youtube.com/watch?v=r2KH8AvW2uk",
+//     "recitation": "https://www.youtube.com/watch?v=ILhNZlSWeqU",
 //     "bringingImageUrl":
 //         "https://drive.google.com/uc?export=view&id=13SCE09UaRtoLZQCUyRPMaGpCMF1b8kLy",
 //   },
@@ -279,7 +279,7 @@ const Map<String, dynamic> weekPlanZh = {
 //     "author": "—聖救母四曼達儀軌如理觀想觀法\n尊者 阿底峽 造\n堪仁波切 貢噶旺秋 整理",
 //     "scriptureVideoUrl": "https://www.youtube.com/watch?v=anwpRupmk_0",
 //     "meditationVideoUrl": "https://www.youtube.com/shorts/NgxVs6CvT4U",
-//     "recitation": "https://www.youtube.com/watch?v=r2KH8AvW2uk",
+//     "recitation": "https://www.youtube.com/watch?v=ILhNZlSWeqU",
 //     "bringingImageUrl":
 //         "https://drive.google.com/uc?export=view&id=1i3qQ7EFbt0rKQU_2KGWeY3RAHrX2VcI3",
 //   },
@@ -288,7 +288,7 @@ const Map<String, dynamic> weekPlanZh = {
 //     "author": "—聖救母四曼達儀軌如理觀想觀法\n尊者 阿底峽 造\n堪仁波切 貢噶旺秋 整理",
 //     "scriptureVideoUrl": "https://www.youtube.com/watch?v=CfqoeyTn1xg",
 //     "meditationVideoUrl": "https://www.youtube.com/shorts/oA4PcFZrCJ0",
-//     "recitation": "https://www.youtube.com/watch?v=r2KH8AvW2uk",
+//     "recitation": "https://www.youtube.com/watch?v=ILhNZlSWeqU",
 //     "bringingImageUrl":
 //         "https://drive.google.com/uc?export=view&id=13SCE09UaRtoLZQCUyRPMaGpCMF1b8kLy",
 //   },
@@ -297,7 +297,7 @@ const Map<String, dynamic> weekPlanZh = {
 //     "author": "—聖救母四曼達儀軌如理觀想觀法\n尊者 阿底峽 造\n堪仁波切 貢噶旺秋 整理",
 //     "scriptureVideoUrl": "https://www.youtube.com/watch?v=PkbLmeou0Qw",
 //     "meditationVideoUrl": "https://www.youtube.com/shorts/NgxVs6CvT4U",
-//     "recitation": "https://www.youtube.com/watch?v=r2KH8AvW2uk",
+//     "recitation": "https://www.youtube.com/watch?v=ILhNZlSWeqU",
 //     "bringingImageUrl":
 //         "https://drive.google.com/uc?export=view&id=1i3qQ7EFbt0rKQU_2KGWeY3RAHrX2VcI3",
 //   },
