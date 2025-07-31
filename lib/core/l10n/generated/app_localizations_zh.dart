@@ -57,6 +57,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get home_intention => '今日心願';
 
   @override
+  String get home_recitation => '持誦';
+
+  @override
   String get home_bringing => '融入生活';
 
   @override

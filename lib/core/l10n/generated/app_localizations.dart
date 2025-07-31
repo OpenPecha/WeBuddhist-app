@@ -193,6 +193,12 @@ abstract class AppLocalizations {
   /// **'My Intention for Today'**
   String get home_intention;
 
+  /// No description provided for @home_recitation.
+  ///
+  /// In en, this message translates to:
+  /// **'Recitation'**
+  String get home_recitation;
+
   /// No description provided for @home_bringing.
   ///
   /// In en, this message translates to:

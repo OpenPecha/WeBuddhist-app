@@ -57,6 +57,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get home_intention => 'My Intention for Today';
 
   @override
+  String get home_recitation => 'Recitation';
+
+  @override
   String get home_bringing => 'Bringing it to life';
 
   @override
