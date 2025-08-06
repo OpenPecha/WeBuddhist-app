@@ -435,7 +435,6 @@ class _TextReaderScreenState extends ConsumerState<TextReaderScreen> {
                 htmlContent: content ?? '',
                 segmentIndex: globalSegmentIndex,
                 fontSize: ref.watch(fontSizeProvider),
-                isSelected: isSelected,
                 language: textDetailData?.language ?? 'en',
               ),
             ),
