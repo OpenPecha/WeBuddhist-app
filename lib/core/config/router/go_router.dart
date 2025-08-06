@@ -16,6 +16,7 @@ import 'package:flutter_pecha/features/texts/presentation/commentary/commentary_
 import 'package:flutter_pecha/features/texts/presentation/library_catalog_screen.dart';
 import 'package:flutter_pecha/features/texts/presentation/segment_image/choose_image.dart';
 import 'package:flutter_pecha/features/texts/presentation/segment_image/create_image.dart';
+import 'package:flutter_pecha/features/texts/presentation/text_chapter.dart';
 import 'package:flutter_pecha/features/texts/presentation/text_detail_screen.dart';
 import 'package:flutter_pecha/features/texts/presentation/text_reader_screen.dart';
 import 'package:flutter_pecha/features/texts/presentation/text_toc_screen.dart';
@@ -164,11 +165,16 @@ final goRouterProvider = Provider<GoRouter>((ref) {
               body: Center(child: Text('Missing required parameters')),
             );
           }
-          return TextReaderScreen(
+          return TextChapter(
             textId: extra['textId'] as String,
             contentId: extra['contentId'] as String,
             segmentId: extra['segmentId'] as String?,
           );
+          // return TextReaderScreen(
+          //   textId: extra['textId'] as String,
+          //   contentId: extra['contentId'] as String,
+          //   segmentId: extra['segmentId'] as String?,
+          // );
         },
       ),
       GoRoute(

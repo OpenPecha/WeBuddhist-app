@@ -2,7 +2,6 @@
 // Tabs: Home, Texts, Plans, Settings.
 
 import 'package:flutter/material.dart';
-import 'package:flutter_pecha/features/plans/presentation/plan_list.dart';
 import 'package:flutter_pecha/features/texts/presentation/library_catalog_screen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_pecha/features/home/presentation/home_screen.dart';
