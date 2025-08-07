@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_pecha/features/texts/data/providers/selected_segment_provider.dart';
 import 'package:flutter_pecha/features/texts/data/providers/texts_provider.dart';
 import 'package:flutter_pecha/features/texts/models/section.dart';
@@ -28,71 +27,71 @@ class TextChapter extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final selectedIndex = ref.watch(selectedSegmentProvider);
+    final selectedSegmentId = ref.watch(selectedSegmentProvider);
+    final size = 20;
+    final newPageSections = useState<List<Section>>([]);
 
     // Initialize the infinite query
     final infiniteQuery = useInfiniteQuery<
       ReaderResponse,
       dynamic,
-      TextDetailsParams
+      Map<String, dynamic>
     >(
-      ['content', textId, contentId, segmentId!, 20],
-      // Initial page parameters
-      initialPageParam: TextDetailsParams(
-        textId: textId,
-        contentId: contentId,
-        segmentId: segmentId,
-        direction: 'next',
-      ),
-      // Function to fetch data for each page
-      (TextDetailsParams params) async =>
-          await ref.read(textDetailsFutureProvider(params).future),
+      ['content', textId, contentId, segmentId!, size],
 
+      (Map<String, dynamic> pageParam) async {
+        final segmentId = pageParam['segmentId'] ?? this.segmentId;
+        final direction = pageParam['direction'] ?? 'next';
+
+        final params = TextDetailsParams(
+          textId: textId,
+          contentId: contentId,
+          segmentId: segmentId,
+          direction: direction,
+        );
+
+        final response = await ref.read(
+          textDetailsFutureProvider(params).future,
+        );
+        newPageSections.value = response.content.sections;
+        return response;
+      },
+      initialPageParam: {'segmentId': segmentId, 'direction': 'next'},
+
+      // Function to fetch data for each page
+      // (TextDetailsParams params) async {
+      //   print("calling textDetailsFutureProvider $params");
+      //   final response = await ref.read(
+      //     textDetailsFutureProvider(params).future,
+      //   );
+      //   newPageSections.value = response.content.sections;
+      //   return response;
+      // },
       // Get the next page parameter
       getNextPageParam: (lastPage, allPages, lastPageParam, allParams) {
         if (lastPage.currentSegmentPosition == lastPage.totalSegments) {
           return null;
         }
         final lastSegmentId = getLastSegmentId(lastPage.content.sections);
-        return TextDetailsParams(
-          textId: textId,
-          contentId: contentId,
-          segmentId: lastSegmentId,
-          direction: 'next',
-        );
+        if (lastSegmentId == null) return null;
+        return {'segmentId': lastSegmentId, 'direction': 'next'};
       },
 
       // Get the previous page parameter
       getPreviousPageParam: (firstPage, allPages, firstPageParam, allParams) {
-        if (firstPage.currentSegmentPosition == 1) {
-          return null;
-        }
+        if (firstPage.currentSegmentPosition <= 1) return null;
         final firstSegmentId = getFirstSegmentId(firstPage.content.sections);
-        return TextDetailsParams(
-          textId: textId,
-          contentId: contentId,
-          segmentId: firstSegmentId,
-          direction: 'previous',
-        );
+        if (firstSegmentId == null) return null;
+        return {'segmentId': firstSegmentId, 'direction': 'previous'};
       },
       enabled: textId.isNotEmpty,
+      refetchOnMount: RefetchOnMount.never,
     );
-
-    // Debug prints to understand the state
-    print("Query state: ${infiniteQuery.status}");
-    print("Has data: ${infiniteQuery.data != null}");
-    print("Pages count: ${infiniteQuery.data?.pages.length ?? 0}");
-    if (infiniteQuery.data?.pages.isNotEmpty == true) {
-      print(
-        "First page title: ${infiniteQuery.data!.pages[0].textDetail.title}",
-      );
-    }
 
     // Merge all loaded sections for rendering
     final allContent = useMemoized(() {
       if (infiniteQuery.data?.pages == null ||
           infiniteQuery.data!.pages.isEmpty) {
-        print("No pages available in infiniteQuery.data");
         return null;
       }
       try {
@@ -119,15 +118,12 @@ class TextChapter extends HookConsumerWidget {
           sections: mergedSections,
         );
 
-        print("Successfully created merged content");
         return {'content': mergedToc, 'text_detail': textDetail};
       } catch (e) {
         print("Error creating merged content: $e");
         return null;
       }
     }, [infiniteQuery.data?.pages]);
-
-    print("allContent: ${allContent != null ? 'not null' : 'null'}");
 
     Widget chapter;
     if (infiniteQuery.isLoading) {
@@ -146,7 +142,8 @@ class TextChapter extends HookConsumerWidget {
             content,
             textDetail,
             infiniteQuery,
-            selectedIndex,
+            selectedSegmentId,
+            newPageSections.value,
           ),
         ],
       );
@@ -178,7 +175,7 @@ class TextChapter extends HookConsumerWidget {
     return Container(
       color: Theme.of(context).scaffoldBackgroundColor,
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
       child: Text(
         textDetail.title,
         style: TextStyle(
@@ -196,9 +193,10 @@ class TextChapter extends HookConsumerWidget {
     WidgetRef ref,
     Toc content,
     TextDetail textDetail,
-    UseInfiniteQueryResult<ReaderResponse, dynamic, TextDetailsParams>
+    UseInfiniteQueryResult<ReaderResponse, dynamic, Map<String, dynamic>>
     infiniteQuery,
-    int? selectedIndex,
+    String? selectedSegmentId,
+    List<Section> newPageSections,
   ) {
     return Expanded(
       child: Stack(
@@ -207,8 +205,9 @@ class TextChapter extends HookConsumerWidget {
           Chapter(
             textDetail: textDetail,
             content: content,
-            selectedIndex: selectedIndex,
+            selectedSegmentId: selectedSegmentId,
             infiniteQuery: infiniteQuery,
+            newPageSections: newPageSections,
           ),
           // Segment action bar
           // if (selectedIndex != null) _buildSegmentActionBar(selectedIndex),

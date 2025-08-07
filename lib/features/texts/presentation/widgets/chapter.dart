@@ -1,54 +1,319 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
-import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_pecha/features/texts/data/providers/font_size_provider.dart';
-import 'package:flutter_pecha/features/texts/data/providers/texts_provider.dart';
+import 'package:flutter_pecha/features/texts/data/providers/selected_segment_provider.dart';
 import 'package:flutter_pecha/features/texts/models/section.dart';
-import 'package:flutter_pecha/features/texts/models/segment.dart';
 import 'package:flutter_pecha/features/texts/models/text/reader_response.dart';
 import 'package:flutter_pecha/features/texts/models/text/toc.dart';
 import 'package:flutter_pecha/features/texts/models/text_detail.dart';
 import 'package:flutter_pecha/features/texts/presentation/segment_html_widget.dart';
-import 'package:flutter_pecha/shared/utils/helper_fucntions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fquery/fquery.dart';
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
-class Chapter extends ConsumerWidget {
+class Chapter extends ConsumerStatefulWidget {
   final Toc content;
-  final int? selectedIndex;
+  final String? selectedSegmentId;
   final TextDetail textDetail;
-  final UseInfiniteQueryResult<ReaderResponse, dynamic, TextDetailsParams>
+  final UseInfiniteQueryResult<ReaderResponse, dynamic, Map<String, dynamic>>
   infiniteQuery;
+  final Function(Section)? onCurrentSectionChange;
+  final String? currentSectionId;
+  final List<Section> newPageSections;
 
   const Chapter({
     super.key,
     required this.content,
-    this.selectedIndex,
+    this.selectedSegmentId,
     required this.textDetail,
     required this.infiniteQuery,
+    this.onCurrentSectionChange,
+    this.currentSectionId,
+    required this.newPageSections,
   });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    if (content.sections.isEmpty) {
+  ConsumerState<Chapter> createState() => _ChapterState();
+}
+
+class _ChapterState extends ConsumerState<Chapter> {
+  final ItemScrollController itemScrollController = ItemScrollController();
+  final ItemPositionsListener itemPositionsListener =
+      ItemPositionsListener.create();
+
+  // Scroll management (equivalent to React's scrollRef)
+  bool _hasTriggeredPrevious = false;
+  bool _hasTriggeredNext = false;
+  Timer? _debounceTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    itemPositionsListener.itemPositions.addListener(_onScrollPositionChanged);
+  }
+
+  @override
+  void dispose() {
+    itemPositionsListener.itemPositions.removeListener(
+      _onScrollPositionChanged,
+    );
+    _debounceTimer?.cancel();
+    super.dispose();
+  }
+
+  void _onScrollPositionChanged() {
+    _debounceTimer?.cancel();
+    _debounceTimer = Timer(const Duration(milliseconds: 100), () {
+      final positions = itemPositionsListener.itemPositions.value;
+      if (positions.isEmpty) return;
+
+      final firstVisibleIndex = positions.first.index;
+      final lastVisibleIndex = positions.last.index;
+
+      final currentSegmentPosition =
+          widget.infiniteQuery.data?.pages.first.currentSegmentPosition;
+
+      // Load previous sections when near the beginning
+      if (firstVisibleIndex <= 5 &&
+          !widget.infiniteQuery.isFetchingPreviousPage &&
+          !_hasTriggeredPrevious &&
+          currentSegmentPosition != 1) {
+        _hasTriggeredPrevious = true;
+        _loadPreviousPage();
+      }
+
+      // Load next sections when near the end
+      if (lastVisibleIndex >= _getTotalItemCount() - 3 &&
+          !widget.infiniteQuery.isFetchingNextPage &&
+          !_hasTriggeredNext &&
+          widget.infiniteQuery.hasNextPage) {
+        _hasTriggeredNext = true;
+        _loadNextPage();
+      }
+    });
+  }
+
+  void _loadPreviousPage() async {
+    widget.infiniteQuery.fetchPreviousPage();
+    _hasTriggeredPrevious = false;
+
+    //  Adjust scroll position to maintain current view
+    // final currentPosition =
+    //     itemPositionsListener.itemPositions.value.first.index;
+    // final newSegmentsCount = getTotalSegmentsCount(widget.newPageSections);
+    // final newPosition = currentPosition + newSegmentsCount;
+    // if (newPosition > 0) {
+    //   itemScrollController.scrollTo(
+    //     index: newPosition,
+    //     duration: const Duration(milliseconds: 1),
+    //   );
+    // }
+  }
+
+  int getTotalSegmentsCount(List<Section> sections) {
+    return sections.fold(0, (total, section) {
+      int sectionTotal = section.segments.length;
+
+      // Add segments from nested sections
+      if (section.sections != null) {
+        sectionTotal += getTotalSegmentsCount(section.sections!);
+      }
+
+      return total + sectionTotal;
+    });
+  }
+
+  void _loadNextPage() {
+    widget.infiniteQuery.fetchNextPage();
+    _hasTriggeredNext = false;
+  }
+
+  int _getTotalItemCount() {
+    int count = 0;
+    for (final section in widget.content.sections) {
+      count += _calculateSectionItemCount(section);
+    }
+    return count; // No loading indicators in the count!
+  }
+
+  int _calculateSectionItemCount(Section section) {
+    int count = 1; // Section title
+    count += section.segments.length; // Direct segments
+
+    // Add nested sections
+    if (section.sections != null) {
+      for (final nestedSection in section.sections!) {
+        count += _calculateSectionItemCount(nestedSection);
+      }
+    }
+    return count;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (widget.content.sections.isEmpty) {
       return const SizedBox.shrink();
     }
 
-    return SingleChildScrollView(
-      child: Column(
-        children: [
-          // Loading previous content indicator
-          if (infiniteQuery.isFetchingPreviousPage)
-            _buildLoadingIndicator("Loading previous content..."),
+    return Column(
+      children: [
+        // Loading previous content indicator
+        if (widget.infiniteQuery.isFetchingPreviousPage)
+          _buildLoadingIndicator("Loading previous content..."),
 
-          // Map through sections - equivalent to content.sections.map()
-          ...content.sections.map(
-            (section) => _buildRecursiveSection(section, ref),
+        // Main content with ScrollablePositionedList
+        Expanded(
+          child: ScrollablePositionedList.builder(
+            itemScrollController: itemScrollController,
+            itemPositionsListener: itemPositionsListener,
+            itemCount:
+                _getTotalItemCount(), // Clean count, no loading indicators
+            padding: const EdgeInsets.only(bottom: 40),
+            itemBuilder: (context, index) {
+              return _buildSectionOrSegmentItem(index);
+            },
           ),
+        ),
 
-          // Loading next content indicator
-          if (infiniteQuery.isFetchingNextPage)
-            _buildLoadingIndicator("Loading more content..."),
-        ],
+        // Loading next content indicator
+        if (widget.infiniteQuery.isFetchingNextPage)
+          _buildLoadingIndicator("Loading more content..."),
+      ],
+    );
+  }
+
+  Widget _buildSectionOrSegmentItem(int index) {
+    // Simple index calculation - no need to adjust for loading indicators!
+    int currentIndex = 0;
+
+    for (final section in widget.content.sections) {
+      final sectionItemCount = _calculateSectionItemCount(section);
+
+      if (currentIndex <= index && index < currentIndex + sectionItemCount) {
+        return _buildSectionRecursive(section, index - currentIndex);
+      }
+      currentIndex += sectionItemCount;
+    }
+
+    return const SizedBox.shrink();
+  }
+
+  Widget _buildSectionRecursive(Section section, int relativeIndex) {
+    int currentIndex = 0;
+
+    // Section title
+    if (currentIndex == relativeIndex) {
+      return _buildSectionTitle(section);
+    }
+    currentIndex++;
+
+    // Direct segments
+    for (
+      int segmentIndex = 0;
+      segmentIndex < section.segments.length;
+      segmentIndex++
+    ) {
+      if (currentIndex == relativeIndex) {
+        return _buildSegmentWidget(section, segmentIndex);
+      }
+      currentIndex++;
+    }
+
+    // Nested sections
+    if (section.sections != null) {
+      for (final nestedSection in section.sections!) {
+        final nestedSectionItemCount = _calculateSectionItemCount(
+          nestedSection,
+        );
+        if (currentIndex <= relativeIndex &&
+            relativeIndex < currentIndex + nestedSectionItemCount) {
+          return Padding(
+            padding: const EdgeInsets.only(left: 16.0),
+            child: _buildSectionRecursive(
+              nestedSection,
+              relativeIndex - currentIndex,
+            ),
+          );
+        }
+        currentIndex += nestedSectionItemCount;
+      }
+    }
+
+    return const SizedBox.shrink();
+  }
+
+  Widget _buildSectionTitle(Section section) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Text(
+        section.title ?? '',
+        textAlign: TextAlign.center,
+        style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+      ),
+    );
+  }
+
+  Widget _buildSegmentWidget(Section section, int segmentIndex) {
+    final segment = section.segments[segmentIndex];
+    final segmentNumber = segment.segmentNumber.toString().padLeft(2);
+    final content = segment.content;
+    final selectedSegmentId = ref.watch(selectedSegmentProvider);
+    final isSelected = selectedSegmentId == segment.segmentId;
+
+    return Container(
+      key: Key(segment.segmentId),
+      margin: const EdgeInsets.symmetric(vertical: 4.0),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () {
+            ref.read(selectedSegmentProvider.notifier).state =
+                selectedSegmentId == segment.segmentId
+                    ? null
+                    : segment.segmentId;
+          },
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+            decoration: BoxDecoration(
+              color:
+                  isSelected
+                      ? Theme.of(context).colorScheme.primary.withAlpha(25)
+                      : null,
+              borderRadius: BorderRadius.circular(8.0),
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Segment number
+                Padding(
+                  padding: const EdgeInsets.only(top: 4),
+                  child: SizedBox(
+                    width: 30,
+                    child: Text(
+                      segmentNumber,
+                      textAlign: TextAlign.left,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                // Segment content
+                Expanded(
+                  child: SegmentHtmlWidget(
+                    htmlContent: content ?? '',
+                    segmentIndex: segment.segmentNumber,
+                    fontSize: ref.watch(fontSizeProvider),
+                    language: widget.textDetail.language,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -68,129 +333,6 @@ class Chapter extends ConsumerWidget {
             const SizedBox(width: 8),
             Text(message),
           ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildRecursiveSection(Section section, WidgetRef ref) {
-    final sectionKey = GlobalKey();
-    return Container(
-      key: sectionKey,
-      margin: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Section title
-          if (section.title != null && section.title!.isNotEmpty)
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Text(
-                section.title!,
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-
-          // Outer container
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0),
-            child: Column(
-              children: [
-                // Segments mapping
-                ...section.segments.map(
-                  (segment) => _buildSegmentWidget(segment, ref),
-                ),
-
-                // Nested sections
-                if (section.sections != null && section.sections!.isNotEmpty)
-                  ...section.sections!.map(
-                    (nestedSection) => Padding(
-                      padding: const EdgeInsets.only(left: 16.0),
-                      child: _buildRecursiveSection(nestedSection, ref),
-                    ),
-                  ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSegmentWidget(Segment segment, WidgetRef ref) {
-    // final isSelected = selectedSegmentId == segment.segmentId;
-
-    return Container(
-      key: Key(segment.segmentId),
-      margin: const EdgeInsets.symmetric(vertical: 4.0),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          // onTap: () => onSegmentClick?.call(segment.segmentId),
-          onTap: () {},
-          child: Container(
-            padding: const EdgeInsets.all(12.0),
-            decoration: BoxDecoration(
-              // color:
-              //     isSelected
-              //         ? Theme.of(context).primaryColor.withOpacity(0.1)
-              //         : Colors.transparent,
-              // border: Border.all(
-              //   color:
-              //       isSelected
-              //           ? Theme.of(context).primaryColor
-              //           : Colors.grey.withOpacity(0.3),
-              // ),
-              borderRadius: BorderRadius.circular(8.0),
-            ),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Segment number
-                Padding(
-                  padding: const EdgeInsets.only(top: 2),
-                  child: SizedBox(
-                    width: 30,
-                    child: Text(
-                      segment.segmentNumber.toString(),
-                      textAlign: TextAlign.left,
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                // Segment content
-                Expanded(
-                  child: SegmentHtmlWidget(
-                    htmlContent: segment.content ?? '',
-                    segmentIndex: segment.segmentNumber,
-                    fontSize: ref.watch(fontSizeProvider),
-                    language: textDetail.language,
-                  ),
-                  // child: Html(
-                  //   data: segment.content ?? '',
-                  //   style: {
-                  //     "body": Style(
-                  //       fontFamily: getFontFamily(textDetail.language ?? 'en'),
-                  //       fontSize: FontSize(
-                  //         getFontSize(textDetail.language ?? 'en') ?? 14,
-                  //       ),
-                  //       margin: Margins.zero,
-                  //       padding: HtmlPaddings.zero,
-                  //     ),
-                  //   },
-                  // ),
-                ),
-              ],
-            ),
-          ),
         ),
       ),
     );
