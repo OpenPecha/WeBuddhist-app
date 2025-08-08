@@ -139,6 +139,20 @@ class TextChapter extends HookConsumerWidget {
       }
     }, [infiniteQuery.data?.pages]);
 
+    // useEffect(() {
+    //   if (segmentId != null && allContent != null) {
+    //     final idx = findSegmentIndex(allContent.content, segmentId!);
+    //     if (idx != -1 && itemScrollController.isAttached) {
+    //       // Jump without animation to avoid flicker and race with the listener
+    //       itemScrollController.scrollTo(
+    //         index: idx,
+    //         duration: const Duration(milliseconds: 1),
+    //       );
+    //     }
+    //   }
+    //   return null;
+    // }, [allContent?.content.id, segmentId]);
+
     Widget chapter;
     if (infiniteQuery.isLoading) {
       chapter = const Center(child: Text("Loading..."));

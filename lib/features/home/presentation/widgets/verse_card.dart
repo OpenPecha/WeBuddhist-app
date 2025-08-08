@@ -21,10 +21,10 @@ class VerseCard extends ConsumerWidget {
           context.push(
             '/texts/detail',
             extra: Term(
-              id: "687f0df34ac5cefce51678aa",
-              title: "卓玛祈祷",
+              id: "67dd22a8d9f06ab28feedc90",
+              title: "",
               description: "",
-              slug: "dolma",
+              slug: "",
               hasChild: false,
             ),
           );
@@ -45,7 +45,7 @@ class VerseCard extends ConsumerWidget {
                 verse,
                 style: TextStyle(
                   color: Colors.white,
-                  fontSize: 16,
+                  fontSize: 18,
                   fontWeight: FontWeight.w500,
                 ),
               ),
