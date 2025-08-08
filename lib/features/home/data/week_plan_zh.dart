@@ -26,7 +26,7 @@ const Map<String, dynamic> weekPlanZh = {
         "label": "融入生活",
         "contentType": "image",
         "content":
-            "https://drive.google.com/file/d/1WxGk9sV-QTVlGwuLSn_GSmNj5h2_PKt_/view?usp=drive_link",
+            "https://drive.google.com/uc?export=view&id=1WxGk9sV-QTVlGwuLSn_GSmNj5h2_PKt_",
       },
     ],
   },
@@ -57,7 +57,7 @@ const Map<String, dynamic> weekPlanZh = {
         "label": "融入生活",
         "contentType": "image",
         "content":
-            "https://drive.google.com/file/d/1WxGk9sV-QTVlGwuLSn_GSmNj5h2_PKt_/view?usp=drive_link",
+            "https://drive.google.com/uc?export=view&id=1WxGk9sV-QTVlGwuLSn_GSmNj5h2_PKt_",
       },
     ],
   },
@@ -88,7 +88,7 @@ const Map<String, dynamic> weekPlanZh = {
         "label": "融入生活",
         "contentType": "image",
         "content":
-            "https://drive.google.com/file/d/1WxGk9sV-QTVlGwuLSn_GSmNj5h2_PKt_/view?usp=drive_link",
+            "https://drive.google.com/uc?export=view&id=1WxGk9sV-QTVlGwuLSn_GSmNj5h2_PKt_",
       },
     ],
   },
@@ -119,7 +119,7 @@ const Map<String, dynamic> weekPlanZh = {
         "label": "融入生活",
         "contentType": "image",
         "content":
-            "https://drive.google.com/file/d/1WxGk9sV-QTVlGwuLSn_GSmNj5h2_PKt_/view?usp=drive_link",
+            "https://drive.google.com/uc?export=view&id=1WxGk9sV-QTVlGwuLSn_GSmNj5h2_PKt_",
       },
     ],
   },
@@ -150,7 +150,7 @@ const Map<String, dynamic> weekPlanZh = {
         "label": "融入生活",
         "contentType": "image",
         "content":
-            "https://drive.google.com/file/d/1WxGk9sV-QTVlGwuLSn_GSmNj5h2_PKt_/view?usp=drive_link",
+            "https://drive.google.com/uc?export=view&id=1WxGk9sV-QTVlGwuLSn_GSmNj5h2_PKt_",
       },
     ],
   },
@@ -181,7 +181,7 @@ const Map<String, dynamic> weekPlanZh = {
         "label": "融入生活",
         "contentType": "image",
         "content":
-            "https://drive.google.com/file/d/1WxGk9sV-QTVlGwuLSn_GSmNj5h2_PKt_/view?usp=drive_link",
+            "https://drive.google.com/uc?export=view&id=1WxGk9sV-QTVlGwuLSn_GSmNj5h2_PKt_",
       },
     ],
   },
@@ -212,7 +212,7 @@ const Map<String, dynamic> weekPlanZh = {
         "label": "融入生活",
         "contentType": "image",
         "content":
-            "https://drive.google.com/file/d/1WxGk9sV-QTVlGwuLSn_GSmNj5h2_PKt_/view?usp=drive_link",
+            "https://drive.google.com/uc?export=view&id=1WxGk9sV-QTVlGwuLSn_GSmNj5h2_PKt_",
       },
     ],
   },
