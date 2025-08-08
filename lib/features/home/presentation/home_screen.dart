@@ -4,6 +4,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/config/locale_provider.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/features/auth/application/auth_provider.dart';
 import 'package:flutter_pecha/features/home/data/week_plan.dart';
@@ -141,6 +142,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
 
   // Build the scrollable body
   Widget _buildBody(BuildContext context, AppLocalizations localizations) {
+    final language = ref.watch(localeProvider);
+    final isChinese = language?.languageCode == 'zh';
     return Expanded(
       child: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
@@ -163,7 +166,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                   return Column(
                     children: [
                       ActionOfTheDayCard(
-                        title: localizations.home_goDeeper,
+                        title:
+                            isChinese
+                                ? planItem.label
+                                : localizations.home_goDeeper,
                         subtitle: "4-5 min",
                         iconWidget: Image.asset(
                           'assets/images/home/teaching.png',

@@ -1,51 +1,32 @@
-// plan item structure
-// {
-//  contentType: "text" | "image" | "video" | "audio"
-//  content:
-//    text: string
-//    imageUrl: string
-//    videoUrl: string
-//    audioUrl: string
-//    author: string
-// }
-
-// example
-// {
-//   "contentType": "text",
-//   "content": {
-//     "text": "string",
-//   }
-// }
-
 const Map<String, dynamic> weekPlanZh = {
   "monday": {
     "plan": [
       {
         "label": "Verse",
         "contentType": "text",
-        "content": "或見他人遭鬼魅\n或發熱病受諸苦\n彼諸苦惱悉蠲除\n若轉此讚二、三、 七",
-        "author": "—聖救母四曼達儀軌如理觀想觀法\n尊者 阿底峽 造\n堪仁波切 貢噶旺秋 整理",
+        "content": "既得此閒暇\n若我不修善\n自欺莫勝此\n亦無過此愚",
+        "author": "⟪入菩薩行論⟫第四品不放逸品第23偈\n寂天菩薩造 如石法師譯\n講解者：格西羅桑堅贊",
       },
       {
-        "label": "Go Deeper",
+        "label": "深入了解",
         "contentType": "video",
-        "content": "https://www.youtube.com/watch?v=qMQmBHMdeOw",
+        "content": "https://www.youtube.com/watch?v=XhjsFEYQxOU",
       },
       {
-        "label": "Meditation",
-        "contentType": "audio",
-        "content": "https://www.youtube.com/shorts/oA4PcFZrCJ0",
+        "label": "晨間引導",
+        "contentType": "video",
+        "content": "https://www.youtube.com/watch?v=pIdpbDpsHtg",
       },
       {
-        "label": "Recitation",
-        "contentType": "audio",
-        "content": "https://www.youtube.com/watch?v=ILhNZlSWeqU",
+        "label": "睡前引導",
+        "contentType": "video",
+        "content": "https://www.youtube.com/watch?v=l9agDt0o6OA",
       },
       {
-        "label": "Bringing it to life",
+        "label": "融入生活",
         "contentType": "image",
         "content":
-            "https://drive.google.com/uc?export=view&id=13SCE09UaRtoLZQCUyRPMaGpCMF1b8kLy",
+            "https://drive.google.com/file/d/1WxGk9sV-QTVlGwuLSn_GSmNj5h2_PKt_/view?usp=drive_link",
       },
     ],
   },
@@ -54,29 +35,29 @@ const Map<String, dynamic> weekPlanZh = {
       {
         "label": "Verse",
         "contentType": "text",
-        "content": "欲男女得男女\n求財寶位獲富饒\n善能圓滿隨意願\n一切障礙不能侵",
-        "author": "—聖救母四曼達儀軌如理觀想觀法\n尊者 阿底峽 造\n堪仁波切 貢噶旺秋 整理",
+        "content": "若我已解此\n因癡復怠惰\n則於臨終時\n定生大憂苦",
+        "author": "⟪入菩薩行論⟫第四品不放逸品第24偈\n寂天菩薩造 如石法師譯\n講解者：格西羅桑堅贊",
       },
       {
-        "label": "Go Deeper",
+        "label": "深入了解",
         "contentType": "video",
-        "content": "https://www.youtube.com/watch?v=EWrMyke5QTM",
+        "content": "https://www.youtube.com/watch?v=J6qkykG8IVE",
       },
       {
-        "label": "Meditation",
-        "contentType": "audio",
-        "content": "https://www.youtube.com/shorts/NgxVs6CvT4U",
+        "label": "晨間引導",
+        "contentType": "video",
+        "content": "https://www.youtube.com/watch?v=pIdpbDpsHtg",
       },
       {
-        "label": "Recitation",
-        "contentType": "audio",
-        "content": "https://www.youtube.com/watch?v=ILhNZlSWeqU",
+        "label": "睡前引導",
+        "contentType": "video",
+        "content": "https://www.youtube.com/watch?v=l9agDt0o6OA",
       },
       {
-        "label": "Bringing it to life",
+        "label": "融入生活",
         "contentType": "image",
         "content":
-            "https://drive.google.com/uc?export=view&id=1JCYlNX_SLrf46PmgETGSoKFWojIdc0e7",
+            "https://drive.google.com/file/d/1WxGk9sV-QTVlGwuLSn_GSmNj5h2_PKt_/view?usp=drive_link",
       },
     ],
   },
@@ -85,29 +66,29 @@ const Map<String, dynamic> weekPlanZh = {
       {
         "label": "Verse",
         "contentType": "text",
-        "content": "救度尊處誠信禮\n是故讚嘆根本咒\n每晨旦起夕時禮\n憶念施諸勝無畏\n一切罪業盡消除\n悉能超越諸惡趣",
-        "author": "—聖救母四曼達儀軌如理觀想觀法\n尊者 阿底峽 造\n堪仁波切 貢噶旺秋 整理",
+        "content": "難忍地獄火\n長久燒身時\n悔火亦炙燃\n吾心必痛苦",
+        "author": "⟪入菩薩行論⟫第四品不放逸品第25偈\n寂天菩薩造 如石法師譯\n講解者：格西羅桑堅贊",
       },
       {
-        "label": "Go Deeper",
+        "label": "深入了解",
         "contentType": "video",
-        "content": "https://www.youtube.com/watch?v=anwpRupmk_0",
+        "content": "https://www.youtube.com/watch?v=vaTRDMp4oB0",
       },
       {
-        "label": "Meditation",
-        "contentType": "audio",
-        "content": "https://www.youtube.com/shorts/NgxVs6CvT4U",
+        "label": "晨間引導",
+        "contentType": "video",
+        "content": "https://www.youtube.com/watch?v=pIdpbDpsHtg",
       },
       {
-        "label": "Recitation",
-        "contentType": "audio",
-        "content": "https://www.youtube.com/watch?v=ILhNZlSWeqU",
+        "label": "睡前引導",
+        "contentType": "video",
+        "content": "https://www.youtube.com/watch?v=l9agDt0o6OA",
       },
       {
-        "label": "Bringing it to life",
+        "label": "融入生活",
         "contentType": "image",
         "content":
-            "https://drive.google.com/uc?export=view&id=1i3qQ7EFbt0rKQU_2KGWeY3RAHrX2VcI3",
+            "https://drive.google.com/file/d/1WxGk9sV-QTVlGwuLSn_GSmNj5h2_PKt_/view?usp=drive_link",
       },
     ],
   },
@@ -116,29 +97,29 @@ const Map<String, dynamic> weekPlanZh = {
       {
         "label": "Verse",
         "contentType": "text",
-        "content": "七俱胝佛所灌頂\n此等速能得聰慧\n現世富貴壽延安\n當來趣向諸佛位",
-        "author": "—聖救母四曼達儀軌如理觀想觀法\n尊者 阿底峽 造\n堪仁波切 貢噶旺秋 整理",
+        "content": "既得此閒暇\n若我不修善\n自欺莫勝此\n亦無過此愚",
+        "author": "⟪入菩薩行論⟫第四品不放逸品第23偈\n寂天菩薩造 如石法師譯\n講解者：格西羅桑堅贊",
       },
       {
-        "label": "Go Deeper",
+        "label": "深入了解",
         "contentType": "video",
-        "content": "https://www.youtube.com/watch?v=CfqoeyTn1xg",
+        "content": "https://www.youtube.com/watch?v=XhjsFEYQxOU",
       },
       {
-        "label": "Meditation",
-        "contentType": "audio",
-        "content": "https://www.youtube.com/shorts/oA4PcFZrCJ0",
+        "label": "晨間引導",
+        "contentType": "video",
+        "content": "https://www.youtube.com/watch?v=pIdpbDpsHtg",
       },
       {
-        "label": "Recitation",
-        "contentType": "audio",
-        "content": "https://www.youtube.com/watch?v=ILhNZlSWeqU",
+        "label": "睡前引導",
+        "contentType": "video",
+        "content": "https://www.youtube.com/watch?v=l9agDt0o6OA",
       },
       {
-        "label": "Bringing it to life",
+        "label": "融入生活",
         "contentType": "image",
         "content":
-            "https://drive.google.com/uc?export=view&id=13SCE09UaRtoLZQCUyRPMaGpCMF1b8kLy",
+            "https://drive.google.com/file/d/1WxGk9sV-QTVlGwuLSn_GSmNj5h2_PKt_/view?usp=drive_link",
       },
     ],
   },
@@ -147,29 +128,29 @@ const Map<String, dynamic> weekPlanZh = {
       {
         "label": "Verse",
         "contentType": "text",
-        "content": "救度尊處誠信禮\n是故讚嘆根本咒\n每晨旦起夕時禮\n憶念施諸勝無畏\n一切罪業盡消除\n悉能超越諸惡趣",
-        "author": "—聖救母四曼達儀軌如理觀想觀法\n尊者 阿底峽 造\n堪仁波切 貢噶旺秋 整理",
+        "content": "既得此閒暇\n若我不修善\n自欺莫勝此\n亦無過此愚",
+        "author": "⟪入菩薩行論⟫第四品不放逸品第23偈\n寂天菩薩造 如石法師譯\n講解者：格西羅桑堅贊",
       },
       {
-        "label": "Go Deeper",
+        "label": "深入了解",
         "contentType": "video",
-        "content": "https://www.youtube.com/watch?v=anwpRupmk_0",
+        "content": "https://www.youtube.com/watch?v=XhjsFEYQxOU",
       },
       {
-        "label": "Meditation",
-        "contentType": "audio",
-        "content": "https://www.youtube.com/shorts/NgxVs6CvT4U",
+        "label": "晨間引導",
+        "contentType": "video",
+        "content": "https://www.youtube.com/watch?v=pIdpbDpsHtg",
       },
       {
-        "label": "Recitation",
-        "contentType": "audio",
-        "content": "https://www.youtube.com/watch?v=ILhNZlSWeqU",
+        "label": "睡前引導",
+        "contentType": "video",
+        "content": "https://www.youtube.com/watch?v=l9agDt0o6OA",
       },
       {
-        "label": "Bringing it to life",
+        "label": "融入生活",
         "contentType": "image",
         "content":
-            "https://drive.google.com/uc?export=view&id=1i3qQ7EFbt0rKQU_2KGWeY3RAHrX2VcI3",
+            "https://drive.google.com/file/d/1WxGk9sV-QTVlGwuLSn_GSmNj5h2_PKt_/view?usp=drive_link",
       },
     ],
   },
@@ -178,29 +159,29 @@ const Map<String, dynamic> weekPlanZh = {
       {
         "label": "Verse",
         "contentType": "text",
-        "content": "七俱胝佛所灌頂\n此等速能得聰慧\n現世富貴壽延安\n當來趣向諸佛位",
-        "author": "—聖救母四曼達儀軌如理觀想觀法\n尊者 阿底峽 造\n堪仁波切 貢噶旺秋 整理",
+        "content": "若我已解此\n因癡復怠惰\n則於臨終時\n定生大憂苦",
+        "author": "⟪入菩薩行論⟫第四品不放逸品第24偈\n寂天菩薩造 如石法師譯\n講解者：格西羅桑堅贊",
       },
       {
-        "label": "Go Deeper",
+        "label": "深入了解",
         "contentType": "video",
-        "content": "https://www.youtube.com/watch?v=CfqoeyTn1xg",
+        "content": "https://www.youtube.com/watch?v=J6qkykG8IVE",
       },
       {
-        "label": "Meditation",
-        "contentType": "audio",
-        "content": "https://www.youtube.com/shorts/oA4PcFZrCJ0",
+        "label": "晨間引導",
+        "contentType": "video",
+        "content": "https://www.youtube.com/watch?v=pIdpbDpsHtg",
       },
       {
-        "label": "Recitation",
-        "contentType": "audio",
-        "content": "https://www.youtube.com/watch?v=ILhNZlSWeqU",
+        "label": "睡前引導",
+        "contentType": "video",
+        "content": "https://www.youtube.com/watch?v=l9agDt0o6OA",
       },
       {
-        "label": "Bringing it to life",
+        "label": "融入生活",
         "contentType": "image",
         "content":
-            "https://drive.google.com/uc?export=view&id=13SCE09UaRtoLZQCUyRPMaGpCMF1b8kLy",
+            "https://drive.google.com/file/d/1WxGk9sV-QTVlGwuLSn_GSmNj5h2_PKt_/view?usp=drive_link",
       },
     ],
   },
@@ -209,33 +190,253 @@ const Map<String, dynamic> weekPlanZh = {
       {
         "label": "Verse",
         "contentType": "text",
-        "content": "有情誤服諸毒物\n或自然生或合成\n憶念聖尊真實力\n諸惡毒藥盡消滅",
-        "author": "—聖救母四曼達儀軌如理觀想觀法\n尊者 阿底峽 造\n堪仁波切 貢噶旺秋 整理",
+        "content": "難忍地獄火\n長久燒身時\n悔火亦炙燃\n吾心必痛苦",
+        "author": "⟪入菩薩行論⟫第四品不放逸品第25偈\n寂天菩薩造 如石法師譯\n講解者：格西羅桑堅贊",
       },
       {
-        "label": "Go Deeper",
+        "label": "深入了解",
         "contentType": "video",
-        "content": "https://www.youtube.com/watch?v=PkbLmeou0Qw",
+        "content": "https://www.youtube.com/watch?v=vaTRDMp4oB0",
       },
       {
-        "label": "Meditation",
-        "contentType": "audio",
-        "content": "https://www.youtube.com/shorts/NgxVs6CvT4U",
+        "label": "晨間引導",
+        "contentType": "video",
+        "content": "https://www.youtube.com/watch?v=pIdpbDpsHtg",
       },
       {
-        "label": "Recitation",
-        "contentType": "audio",
-        "content": "https://www.youtube.com/watch?v=ILhNZlSWeqU",
+        "label": "睡前引導",
+        "contentType": "video",
+        "content": "https://www.youtube.com/watch?v=l9agDt0o6OA",
       },
       {
-        "label": "Bringing it to life",
+        "label": "融入生活",
         "contentType": "image",
         "content":
-            "https://drive.google.com/uc?export=view&id=1i3qQ7EFbt0rKQU_2KGWeY3RAHrX2VcI3",
+            "https://drive.google.com/file/d/1WxGk9sV-QTVlGwuLSn_GSmNj5h2_PKt_/view?usp=drive_link",
       },
     ],
   },
 };
+
+// const Map<String, dynamic> weekPlanZh = {
+//   "monday": {
+//     "plan": [
+//       {
+//         "label": "Verse",
+//         "contentType": "text",
+//         "content": "或見他人遭鬼魅\n或發熱病受諸苦\n彼諸苦惱悉蠲除\n若轉此讚二、三、 七",
+//         "author": "—聖救母四曼達儀軌如理觀想觀法\n尊者 阿底峽 造\n堪仁波切 貢噶旺秋 整理",
+//       },
+//       {
+//         "label": "Go Deeper",
+//         "contentType": "video",
+//         "content": "https://www.youtube.com/watch?v=qMQmBHMdeOw",
+//       },
+//       {
+//         "label": "Meditation",
+//         "contentType": "audio",
+//         "content": "https://www.youtube.com/shorts/oA4PcFZrCJ0",
+//       },
+//       {
+//         "label": "Recitation",
+//         "contentType": "audio",
+//         "content": "https://www.youtube.com/watch?v=ILhNZlSWeqU",
+//       },
+//       {
+//         "label": "Bringing it to life",
+//         "contentType": "image",
+//         "content":
+//             "https://drive.google.com/uc?export=view&id=13SCE09UaRtoLZQCUyRPMaGpCMF1b8kLy",
+//       },
+//     ],
+//   },
+//   "tuesday": {
+//     "plan": [
+//       {
+//         "label": "Verse",
+//         "contentType": "text",
+//         "content": "欲男女得男女\n求財寶位獲富饒\n善能圓滿隨意願\n一切障礙不能侵",
+//         "author": "—聖救母四曼達儀軌如理觀想觀法\n尊者 阿底峽 造\n堪仁波切 貢噶旺秋 整理",
+//       },
+//       {
+//         "label": "Go Deeper",
+//         "contentType": "video",
+//         "content": "https://www.youtube.com/watch?v=EWrMyke5QTM",
+//       },
+//       {
+//         "label": "Meditation",
+//         "contentType": "audio",
+//         "content": "https://www.youtube.com/shorts/NgxVs6CvT4U",
+//       },
+//       {
+//         "label": "Recitation",
+//         "contentType": "audio",
+//         "content": "https://www.youtube.com/watch?v=ILhNZlSWeqU",
+//       },
+//       {
+//         "label": "Bringing it to life",
+//         "contentType": "image",
+//         "content":
+//             "https://drive.google.com/uc?export=view&id=1JCYlNX_SLrf46PmgETGSoKFWojIdc0e7",
+//       },
+//     ],
+//   },
+//   "wednesday": {
+//     "plan": [
+//       {
+//         "label": "Verse",
+//         "contentType": "text",
+//         "content": "救度尊處誠信禮\n是故讚嘆根本咒\n每晨旦起夕時禮\n憶念施諸勝無畏\n一切罪業盡消除\n悉能超越諸惡趣",
+//         "author": "—聖救母四曼達儀軌如理觀想觀法\n尊者 阿底峽 造\n堪仁波切 貢噶旺秋 整理",
+//       },
+//       {
+//         "label": "Go Deeper",
+//         "contentType": "video",
+//         "content": "https://www.youtube.com/watch?v=anwpRupmk_0",
+//       },
+//       {
+//         "label": "Meditation",
+//         "contentType": "audio",
+//         "content": "https://www.youtube.com/shorts/NgxVs6CvT4U",
+//       },
+//       {
+//         "label": "Recitation",
+//         "contentType": "audio",
+//         "content": "https://www.youtube.com/watch?v=ILhNZlSWeqU",
+//       },
+//       {
+//         "label": "Bringing it to life",
+//         "contentType": "image",
+//         "content":
+//             "https://drive.google.com/uc?export=view&id=1i3qQ7EFbt0rKQU_2KGWeY3RAHrX2VcI3",
+//       },
+//     ],
+//   },
+//   "thursday": {
+//     "plan": [
+//       {
+//         "label": "Verse",
+//         "contentType": "text",
+//         "content": "七俱胝佛所灌頂\n此等速能得聰慧\n現世富貴壽延安\n當來趣向諸佛位",
+//         "author": "—聖救母四曼達儀軌如理觀想觀法\n尊者 阿底峽 造\n堪仁波切 貢噶旺秋 整理",
+//       },
+//       {
+//         "label": "Go Deeper",
+//         "contentType": "video",
+//         "content": "https://www.youtube.com/watch?v=CfqoeyTn1xg",
+//       },
+//       {
+//         "label": "Meditation",
+//         "contentType": "audio",
+//         "content": "https://www.youtube.com/shorts/oA4PcFZrCJ0",
+//       },
+//       {
+//         "label": "Recitation",
+//         "contentType": "audio",
+//         "content": "https://www.youtube.com/watch?v=ILhNZlSWeqU",
+//       },
+//       {
+//         "label": "Bringing it to life",
+//         "contentType": "image",
+//         "content":
+//             "https://drive.google.com/uc?export=view&id=13SCE09UaRtoLZQCUyRPMaGpCMF1b8kLy",
+//       },
+//     ],
+//   },
+//   "friday": {
+//     "plan": [
+//       {
+//         "label": "Verse",
+//         "contentType": "text",
+//         "content": "救度尊處誠信禮\n是故讚嘆根本咒\n每晨旦起夕時禮\n憶念施諸勝無畏\n一切罪業盡消除\n悉能超越諸惡趣",
+//         "author": "—聖救母四曼達儀軌如理觀想觀法\n尊者 阿底峽 造\n堪仁波切 貢噶旺秋 整理",
+//       },
+//       {
+//         "label": "Go Deeper",
+//         "contentType": "video",
+//         "content": "https://www.youtube.com/watch?v=anwpRupmk_0",
+//       },
+//       {
+//         "label": "Meditation",
+//         "contentType": "audio",
+//         "content": "https://www.youtube.com/shorts/NgxVs6CvT4U",
+//       },
+//       {
+//         "label": "Recitation",
+//         "contentType": "audio",
+//         "content": "https://www.youtube.com/watch?v=ILhNZlSWeqU",
+//       },
+//       {
+//         "label": "Bringing it to life",
+//         "contentType": "image",
+//         "content":
+//             "https://drive.google.com/uc?export=view&id=1i3qQ7EFbt0rKQU_2KGWeY3RAHrX2VcI3",
+//       },
+//     ],
+//   },
+//   "saturday": {
+//     "plan": [
+//       {
+//         "label": "Verse",
+//         "contentType": "text",
+//         "content": "七俱胝佛所灌頂\n此等速能得聰慧\n現世富貴壽延安\n當來趣向諸佛位",
+//         "author": "—聖救母四曼達儀軌如理觀想觀法\n尊者 阿底峽 造\n堪仁波切 貢噶旺秋 整理",
+//       },
+//       {
+//         "label": "Go Deeper",
+//         "contentType": "video",
+//         "content": "https://www.youtube.com/watch?v=CfqoeyTn1xg",
+//       },
+//       {
+//         "label": "Meditation",
+//         "contentType": "audio",
+//         "content": "https://www.youtube.com/shorts/oA4PcFZrCJ0",
+//       },
+//       {
+//         "label": "Recitation",
+//         "contentType": "audio",
+//         "content": "https://www.youtube.com/watch?v=ILhNZlSWeqU",
+//       },
+//       {
+//         "label": "Bringing it to life",
+//         "contentType": "image",
+//         "content":
+//             "https://drive.google.com/uc?export=view&id=13SCE09UaRtoLZQCUyRPMaGpCMF1b8kLy",
+//       },
+//     ],
+//   },
+//   "sunday": {
+//     "plan": [
+//       {
+//         "label": "Verse",
+//         "contentType": "text",
+//         "content": "有情誤服諸毒物\n或自然生或合成\n憶念聖尊真實力\n諸惡毒藥盡消滅",
+//         "author": "—聖救母四曼達儀軌如理觀想觀法\n尊者 阿底峽 造\n堪仁波切 貢噶旺秋 整理",
+//       },
+//       {
+//         "label": "Go Deeper",
+//         "contentType": "video",
+//         "content": "https://www.youtube.com/watch?v=PkbLmeou0Qw",
+//       },
+//       {
+//         "label": "Meditation",
+//         "contentType": "audio",
+//         "content": "https://www.youtube.com/shorts/NgxVs6CvT4U",
+//       },
+//       {
+//         "label": "Recitation",
+//         "contentType": "audio",
+//         "content": "https://www.youtube.com/watch?v=ILhNZlSWeqU",
+//       },
+//       {
+//         "label": "Bringing it to life",
+//         "contentType": "image",
+//         "content":
+//             "https://drive.google.com/uc?export=view&id=1i3qQ7EFbt0rKQU_2KGWeY3RAHrX2VcI3",
+//       },
+//     ],
+//   },
+// };
 
 // const Map<String, dynamic> weekPlanZh = {
 //   "monday": {

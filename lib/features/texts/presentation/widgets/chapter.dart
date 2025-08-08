@@ -63,50 +63,56 @@ class _ChapterState extends ConsumerState<Chapter> {
   void _onScrollPositionChanged() {
     _debounceTimer?.cancel();
     _debounceTimer = Timer(const Duration(milliseconds: 100), () {
-      final positions = itemPositionsListener.itemPositions.value;
-      if (positions.isEmpty) return;
+      final positionsSet = itemPositionsListener.itemPositions.value;
+      if (positionsSet.isEmpty) return;
 
+      final positions =
+          positionsSet.toList()..sort((a, b) => a.index.compareTo(b.index));
       final firstVisibleIndex = positions.first.index;
       final lastVisibleIndex = positions.last.index;
+      print("firstVisibleIndex: $firstVisibleIndex");
 
       final currentSegmentPosition =
-          widget.infiniteQuery.data?.pages.first.currentSegmentPosition;
+          widget.infiniteQuery.data?.pages.first.currentSegmentPosition ?? 1;
+      final hasPreviousPage = currentSegmentPosition > 1;
 
       // Load previous sections when near the beginning
       if (firstVisibleIndex <= 5 &&
+          hasPreviousPage &&
           !widget.infiniteQuery.isFetchingPreviousPage &&
-          !_hasTriggeredPrevious &&
-          currentSegmentPosition != 1) {
+          !_hasTriggeredPrevious) {
         _hasTriggeredPrevious = true;
-        _loadPreviousPage();
+        _loadPreviousPage(anchorIndex: firstVisibleIndex);
       }
 
       // Load next sections when near the end
       if (lastVisibleIndex >= _getTotalItemCount() - 3 &&
+          widget.infiniteQuery.hasNextPage &&
           !widget.infiniteQuery.isFetchingNextPage &&
-          !_hasTriggeredNext &&
-          widget.infiniteQuery.hasNextPage) {
+          !_hasTriggeredNext) {
         _hasTriggeredNext = true;
         _loadNextPage();
       }
     });
   }
 
-  void _loadPreviousPage() async {
-    widget.infiniteQuery.fetchPreviousPage();
-    _hasTriggeredPrevious = false;
+  Future<void> _loadPreviousPage({required int anchorIndex}) async {
+    try {
+      widget.infiniteQuery.fetchPreviousPage();
 
-    //  Adjust scroll position to maintain current view
-    // final currentPosition =
-    //     itemPositionsListener.itemPositions.value.first.index;
-    // final newSegmentsCount = getTotalSegmentsCount(widget.newPageSections);
-    // final newPosition = currentPosition + newSegmentsCount;
-    // if (newPosition > 0) {
-    //   itemScrollController.scrollTo(
-    //     index: newPosition,
-    //     duration: const Duration(milliseconds: 1),
-    //   );
-    // }
+      // How many new list items were prepended?
+      final newItemsCount = getTotalSegmentsCount(widget.newPageSections);
+
+      final targetIndex = anchorIndex + newItemsCount;
+      if (widget.itemScrollController.isAttached && targetIndex >= 0) {
+        widget.itemScrollController.scrollTo(
+          index: targetIndex,
+          duration: const Duration(milliseconds: 1),
+        );
+      }
+    } finally {
+      _hasTriggeredPrevious = false;
+    }
   }
 
   int getTotalSegmentsCount(List<Section> sections) {
@@ -211,12 +217,9 @@ class _ChapterState extends ConsumerState<Chapter> {
         final nestedSectionItemCount = calculateSectionItemCount(nestedSection);
         if (currentIndex <= relativeIndex &&
             relativeIndex < currentIndex + nestedSectionItemCount) {
-          return Padding(
-            padding: const EdgeInsets.only(left: 16.0),
-            child: _buildSectionRecursive(
-              nestedSection,
-              relativeIndex - currentIndex,
-            ),
+          return _buildSectionRecursive(
+            nestedSection,
+            relativeIndex - currentIndex,
           );
         }
         currentIndex += nestedSectionItemCount;
