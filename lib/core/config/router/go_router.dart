@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter_pecha/features/auth/presentation/login_page.dart';
 import 'package:flutter_pecha/features/auth/presentation/profile_page.dart';
 import 'package:flutter_pecha/features/app/presentation/skeleton_screen.dart';
+import 'package:flutter_pecha/features/creator_info/presentation/creator_info_screen.dart';
 import 'package:flutter_pecha/features/home/models/prayer_data.dart';
 import 'package:flutter_pecha/features/home/presentation/widgets/guided_scripture.dart';
 import 'package:flutter_pecha/features/home/presentation/widgets/meditation_video.dart';
@@ -51,6 +52,37 @@ final goRouterProvider = Provider<GoRouter>((ref) {
           return CustomTransitionPage(
             key: state.pageKey,
             child: const ProfilePage(),
+            transitionsBuilder: (
+              context,
+              animation,
+              secondaryAnimation,
+              child,
+            ) {
+              final fade = CurvedAnimation(
+                parent: animation,
+                curve: Curves.easeInOut,
+              );
+              final offsetTween = Tween<Offset>(
+                begin: const Offset(0.0, 0.03),
+                end: Offset.zero,
+              ).chain(CurveTween(curve: Curves.easeOutCubic));
+              return FadeTransition(
+                opacity: fade,
+                child: SlideTransition(
+                  position: animation.drive(offsetTween),
+                  child: child,
+                ),
+              );
+            },
+          );
+        },
+      ),
+      GoRoute(
+        path: '/creator_info',
+        pageBuilder: (context, state) {
+          return CustomTransitionPage(
+            key: state.pageKey,
+            child: const CreatorInfoScreen(),
             transitionsBuilder: (
               context,
               animation,
