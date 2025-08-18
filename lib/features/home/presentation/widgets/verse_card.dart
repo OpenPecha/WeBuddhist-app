@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/config/locale_provider.dart';
-import 'package:flutter_pecha/features/texts/models/term/term.dart';
+import 'package:flutter_pecha/features/texts/data/providers/selected_segment_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
 class VerseCard extends ConsumerWidget {
   final String verse;
@@ -18,16 +17,18 @@ class VerseCard extends ConsumerWidget {
     return GestureDetector(
       onTap: () {
         if (isZh) {
-          context.push(
-            '/texts/detail',
-            extra: Term(
-              id: "67dd22a8d9f06ab28feedc90",
-              title: "",
-              description: "",
-              slug: "",
-              hasChild: false,
-            ),
-          );
+          ref.read(bottomBarVisibleProvider.notifier).state =
+              !ref.read(bottomBarVisibleProvider.notifier).state;
+          // context.push(
+          //   '/texts/detail',
+          //   extra: Term(
+          //     id: "67dd22a8d9f06ab28feedc90",
+          //     title: "",
+          //     description: "",
+          //     slug: "",
+          //     hasChild: false,
+          //   ),
+          // );
         }
       },
       child: Container(

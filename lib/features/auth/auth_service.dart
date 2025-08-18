@@ -22,7 +22,7 @@ class AuthService {
       }
       final credentials = await auth0
           .webAuthentication(scheme: 'org.pecha.app')
-          .login(parameters: parameters);
+          .login(useHTTPS: true, parameters: parameters);
       return credentials;
     } catch (e) {
       _logger.severe('Login failed: $e');

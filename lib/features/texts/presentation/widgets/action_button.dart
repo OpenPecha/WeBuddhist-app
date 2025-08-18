@@ -21,9 +21,9 @@ class ActionButton extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 28),
+            Icon(icon, size: 24),
             const SizedBox(height: 4),
-            Text(label, style: const TextStyle(fontSize: 13)),
+            Text(label, style: const TextStyle(fontSize: 12)),
           ],
         ),
       ),

@@ -12,6 +12,8 @@ import 'package:flutter_pecha/features/home/models/plan_item.dart';
 import 'package:flutter_pecha/features/home/presentation/widgets/action_of_the_day_card.dart';
 import 'package:flutter_pecha/features/home/presentation/widgets/verse_card.dart';
 import 'package:flutter_pecha/features/home/presentation/widgets/view_illustration.dart';
+import 'package:flutter_pecha/features/texts/data/providers/selected_segment_provider.dart';
+import 'package:flutter_pecha/features/texts/presentation/widgets/action_button.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
@@ -97,12 +99,54 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     final localizations = AppLocalizations.of(context)!;
 
     final authState = ref.watch(authProvider);
+    final bottomBarVisible = ref.watch(bottomBarVisibleProvider);
     return Scaffold(
       body: SafeArea(
-        child: Column(
+        child: Stack(
           children: [
-            _buildTopBar(authState, localizations),
-            _buildBody(context, localizations),
+            Column(
+              children: [
+                _buildTopBar(authState, localizations),
+                _buildBody(context, localizations),
+              ],
+            ),
+            if (bottomBarVisible) _buildBottomBar(context, localizations),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBottomBar(BuildContext context, AppLocalizations localizations) {
+    return Positioned(
+      bottom: 16,
+      left: 0,
+      right: 0,
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 24.0),
+        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+        constraints: const BoxConstraints(minHeight: 60),
+        decoration: BoxDecoration(
+          color: Theme.of(context).cardColor,
+          borderRadius: BorderRadius.circular(18),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            ActionButton(
+              icon: Icons.library_books,
+              label: 'Library',
+              onTap: () {
+                context.push('/library');
+              },
+            ),
+            ActionButton(
+              icon: Icons.info_outline,
+              label: 'Creator Info',
+              onTap: () {
+                context.push('/creator_info');
+              },
+            ),
           ],
         ),
       ),
