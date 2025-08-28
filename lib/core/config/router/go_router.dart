@@ -7,6 +7,7 @@ import 'package:flutter_pecha/features/home/models/prayer_data.dart';
 import 'package:flutter_pecha/features/home/presentation/widgets/guided_scripture.dart';
 import 'package:flutter_pecha/features/home/presentation/widgets/meditation_video.dart';
 import 'package:flutter_pecha/features/meditation_of_day/presentation/meditation_of_day_screen.dart';
+import 'package:flutter_pecha/features/plans/models/plans_model.dart';
 import 'package:flutter_pecha/features/plans/presentation/plan_details.dart';
 import 'package:flutter_pecha/features/plans/presentation/plan_info.dart';
 import 'package:flutter_pecha/features/prayer_of_the_day/presentation/prayer_of_the_day_screen.dart';
@@ -315,7 +316,7 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         path: '/plans/info',
         builder: (context, state) {
           final extra = state.extra;
-          if (extra == null || extra is! Map<String, dynamic>) {
+          if (extra == null || extra is! PlansModel) {
             return const Scaffold(
               body: Center(child: Text('Missing required parameters')),
             );
