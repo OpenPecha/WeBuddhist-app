@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/l10n/l10n.dart';
 import 'package:flutter_pecha/core/theme/theme_provider.dart';
+import 'package:flutter_pecha/features/notifications/services/notification_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
@@ -15,6 +16,10 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load(fileName: ".env");
+
+  // Initialize notification service
+  final notificationService = NotificationService();
+  await notificationService.initialize();
   runApp(const ProviderScope(child: MyApp()));
 }
 
