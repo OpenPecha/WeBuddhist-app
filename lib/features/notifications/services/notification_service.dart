@@ -1,0 +1,146 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_timezone/flutter_timezone.dart';
+import 'package:timezone/timezone.dart' as tz;
+import 'package:timezone/data/latest.dart' as tz;
+
+class NotificationService {
+  static final NotificationService _instance = NotificationService._internal();
+  factory NotificationService() => _instance;
+  NotificationService._internal();
+
+  final FlutterLocalNotificationsPlugin notificationsPlugin =
+      FlutterLocalNotificationsPlugin();
+
+  bool _isInitialized = false;
+
+  bool get isInitialized => _isInitialized;
+
+  /// Initialize
+  Future<void> initialize() async {
+    if (_isInitialized) return; // prevent re-initialization
+
+    // initialize timezone
+    tz.initializeTimeZones();
+    final currentTimezone = await FlutterTimezone.getLocalTimezone();
+    tz.setLocalLocation(tz.getLocation(currentTimezone));
+
+    // Android initialization
+    const AndroidInitializationSettings androidSettings =
+        AndroidInitializationSettings('@mipmap/launcher_icon');
+
+    // iOS initialization
+    const DarwinInitializationSettings iosSettings =
+        DarwinInitializationSettings(
+          requestAlertPermission: true,
+          requestSoundPermission: true,
+          requestBadgePermission: true,
+        );
+
+    // initialization settings
+    final InitializationSettings initSettings = InitializationSettings(
+      android: androidSettings,
+      iOS: iosSettings,
+    );
+
+    // initialize the plugin
+    await notificationsPlugin.initialize(
+      initSettings,
+      onDidReceiveNotificationResponse: _onNotificationTapped,
+    );
+
+    _isInitialized = true;
+  }
+
+  // TODO: request permission for notifications
+
+  void _onNotificationTapped(NotificationResponse response) {
+    // TODO:Handle notification tap - navigate to home or practice screen
+    // You can use GoRouter here to navigate
+  }
+
+  // notitication detail setup
+  NotificationDetails notificationDetails = const NotificationDetails(
+    android: AndroidNotificationDetails(
+      "daily_practice_reminder",
+      "Daily Practice Reminderel",
+      channelDescription: 'Reminds you to practice daily',
+      importance: Importance.max,
+      priority: Priority.high,
+    ),
+    iOS: DarwinNotificationDetails(presentAlert: true, presentSound: true),
+  );
+
+  // schedule notification
+  Future<void> scheduledNotification({
+    int id = 1,
+    required String title,
+    required String body,
+    required TimeOfDay scheduledTime,
+  }) async {
+    final now = tz.TZDateTime.now(tz.local);
+    var scheduledDate = tz.TZDateTime(
+      tz.local,
+      now.year,
+      now.month,
+      now.day,
+      scheduledTime.hour,
+      scheduledTime.minute,
+    );
+
+    // schedule the notification
+    await notificationsPlugin.zonedSchedule(
+      id,
+      title,
+      body,
+      scheduledDate,
+      const NotificationDetails(
+        android: AndroidNotificationDetails(
+          'daily_practice_reminder',
+          'Daily Practice Reminder',
+          channelDescription: 'Reminds you to practice daily',
+          importance: Importance.high,
+          priority: Priority.high,
+        ),
+        iOS: DarwinNotificationDetails(
+          presentAlert: true,
+          presentBadge: true,
+          presentSound: true,
+        ),
+      ),
+      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+      matchDateTimeComponents: DateTimeComponents.time,
+    );
+  }
+
+  Future<void> cancelNotification({int id = 1}) async {
+    await notificationsPlugin.cancel(id);
+  }
+
+  // Method to show immediate notification (for testing)
+  Future<void> showTestNotification({
+    required String title,
+    required String body,
+  }) async {
+    await notificationsPlugin.show(
+      999, // Test notification ID
+      title,
+      body,
+      const NotificationDetails(
+        android: AndroidNotificationDetails(
+          'test_notification',
+          'Test Notifications',
+          channelDescription: 'For testing notifications',
+          importance: Importance.high,
+          priority: Priority.high,
+          icon: '@mipmap/launcher_icon',
+        ),
+        iOS: DarwinNotificationDetails(
+          presentAlert: true,
+          presentBadge: true,
+          presentSound: true,
+        ),
+      ),
+    );
+  }
+}
