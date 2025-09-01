@@ -74,7 +74,6 @@ class NotificationService {
 
   // schedule notification
   Future<void> scheduledNotification({
-    int id = 1,
     required String title,
     required String body,
     required TimeOfDay scheduledTime,
@@ -99,15 +98,15 @@ class NotificationService {
 
     // schedule the notification
     await notificationsPlugin.zonedSchedule(
-      id,
+      dailyNotificationId,
       title,
       body,
       scheduledDate,
       const NotificationDetails(
         android: AndroidNotificationDetails(
-          'daily_practice_reminder',
-          'Daily Practice Reminder',
-          channelDescription: 'Reminds you to practice daily',
+          androidNotificationChannelId,
+          androidNotificationChannelName,
+          channelDescription: androidNotificationChannelDescription,
           importance: Importance.high,
           priority: Priority.high,
         ),
@@ -122,8 +121,8 @@ class NotificationService {
     );
   }
 
-  Future<void> cancelNotification({int id = 1}) async {
-    await notificationsPlugin.cancel(id);
+  Future<void> cancelNotification() async {
+    await notificationsPlugin.cancel(dailyNotificationId);
 
     // Update preferences
     final prefs = await SharedPreferences.getInstance();
@@ -191,3 +190,10 @@ class NotificationService {
     );
   }
 }
+
+// Notification channel constants
+const androidNotificationChannelId = 'daily_practice_reminder';
+const androidNotificationChannelName = 'Daily Practice Reminder';
+const androidNotificationChannelDescription =
+    'Notification for daily practice reminders';
+const dailyNotificationId = 1;
