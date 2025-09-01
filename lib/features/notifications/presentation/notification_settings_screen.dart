@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_pecha/features/notifications/provider/notification_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
+import 'package:permission_handler/permission_handler.dart';
 // import 'package:flutter_pecha/features/notifications/application/notification_provider.dart';
 
 class NotificationSettingsScreen extends ConsumerStatefulWidget {
@@ -19,8 +20,8 @@ class _NotificationSettingsScreenState
       context: context,
       initialTime: selectedTime,
     );
-    if (selectedTime != pickedTime) {
-      _updateReminderTime(pickedTime!);
+    if (pickedTime != null && selectedTime != pickedTime) {
+      _updateReminderTime(pickedTime);
     }
   }
 
@@ -139,7 +140,8 @@ class _NotificationSettingsScreenState
                                 .read(notificationProvider.notifier)
                                 .checkPermissionStatus();
                           } else {
-                            _showPermissionDeniedDialog();
+                            // open app settings
+                            openNotificationSettings();
                           }
                         },
                         child: Text('Enable Notifications'),
@@ -244,31 +246,7 @@ class _NotificationSettingsScreenState
     );
   }
 
-  void _showPermissionDeniedDialog() {
-    showDialog(
-      context: context,
-      builder:
-          (context) => AlertDialog(
-            title: Text('Permission Denied'),
-            content: Text(
-              'Notifications are disabled. You can enable them in your device settings:\n\n'
-              'Settings > Apps > Pecha > Notifications',
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: Text('OK'),
-              ),
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                  // Open app settings (requires permission_handler package)
-                  // AppSettings.openAppSettings();
-                },
-                child: Text('Open Settings'),
-              ),
-            ],
-          ),
-    );
+  Future<void> openNotificationSettings() async {
+    await openAppSettings();
   }
 }
