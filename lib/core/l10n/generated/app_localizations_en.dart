@@ -102,10 +102,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get language => 'Language';
 
   @override
-  String get dailyPracticeReminder => 'Daily Practice Reminder';
+  String get dailyPracticeNotificationTitle => 'Daily Practice Reminder';
 
   @override
-  String get timeForDailyPractice => 'Time for your daily practice! 🙏';
+  String get timeForDailyPractice => 'It\'s time for your daily practice.';
 
   @override
   String get notificationSettings => 'Notification Settings';

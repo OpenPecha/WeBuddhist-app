@@ -89,7 +89,7 @@ class _LibraryCatalogScreenState extends ConsumerState<LibraryCatalogScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
       child: Text(
         AppLocalizations.of(context)!.text_browseTheLibrary,
-        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
       ),
     );
   }

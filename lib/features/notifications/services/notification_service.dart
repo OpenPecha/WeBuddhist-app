@@ -79,6 +79,7 @@ class NotificationService {
       scheduledTime.minute,
     );
 
+    // save the reminder time and enable the notification in shared preferences
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(
       _dailyReminderKey,
@@ -117,6 +118,21 @@ class NotificationService {
     // Update preferences
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_dailyReminderEnabledKey, false);
+  }
+
+  Future<TimeOfDay?> getDailyReminderTime() async {
+    final prefs = await SharedPreferences.getInstance();
+    final timeString = prefs.getString(_dailyReminderKey);
+    if (timeString != null) {
+      final parts = timeString.split(':');
+      if (parts.length == 2) {
+        return TimeOfDay(
+          hour: int.parse(parts[0]),
+          minute: int.parse(parts[1]),
+        );
+      }
+    }
+    return null;
   }
 
   Future<bool> isDailyReminderEnabled() async {
