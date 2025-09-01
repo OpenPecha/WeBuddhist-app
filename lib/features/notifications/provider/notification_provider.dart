@@ -39,10 +39,8 @@ class NotificationNotifier extends StateNotifier<NotificationState> {
     state = state.copyWith(isLoading: true);
 
     try {
-      // final isEnabled = await _notificationService.isDailyReminderEnabled();
-      // final reminderTime = await _notificationService.getDailyReminderTime();
-      final isEnabled = state.isEnabled;
-      final reminderTime = state.reminderTime;
+      final isEnabled = await _notificationService.isDailyReminderEnabled();
+      final reminderTime = await _notificationService.getDailyReminderTime();
 
       state = state.copyWith(
         isEnabled: isEnabled,
@@ -56,8 +54,8 @@ class NotificationNotifier extends StateNotifier<NotificationState> {
 
   Future<void> enableDailyReminder({
     required TimeOfDay time,
-    String title = 'Daily Practice',
-    String body = 'Time for your daily practice! 🙏',
+    String title = 'Daily Practice Reminder',
+    String body = 'It\'s time for your daily practice.',
   }) async {
     state = state.copyWith(isLoading: true);
 

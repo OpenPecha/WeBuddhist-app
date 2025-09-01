@@ -14,64 +14,40 @@ class NotificationSettingsScreen extends ConsumerStatefulWidget {
 
 class _NotificationSettingsScreenState
     extends ConsumerState<NotificationSettingsScreen> {
-  TimeOfDay? _selectedTime;
-  bool _isEnabled = false;
-
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _loadCurrentSettings();
-    });
-  }
-
-  void _loadCurrentSettings() {
-    final state = ref.read(notificationProvider);
-    setState(() {
-      _isEnabled = state.isEnabled;
-      _selectedTime = state.reminderTime ?? const TimeOfDay(hour: 8, minute: 0);
-    });
-  }
-
-  Future<void> _selectTime(BuildContext context) async {
-    final TimeOfDay? selectedTime = await showTimePicker(
+  Future<void> _selectTime(BuildContext context, TimeOfDay selectedTime) async {
+    final TimeOfDay? pickedTime = await showTimePicker(
       context: context,
-      initialTime: _selectedTime ?? const TimeOfDay(hour: 8, minute: 0),
+      initialTime: selectedTime,
     );
-    if (selectedTime != null && selectedTime != _selectedTime) {
-      _updateReminderTime(selectedTime);
+    if (selectedTime != pickedTime) {
+      _updateReminderTime(pickedTime!);
     }
   }
 
-  Future<void> _toggleNotifications(bool value) async {
+  Future<void> _toggleNotifications(bool value, TimeOfDay selectedTime) async {
     if (value) {
-      if (_selectedTime != null) {
-        try {
-          await ref
-              .read(notificationProvider.notifier)
-              .enableDailyReminder(
-                time: _selectedTime!,
-                title:
-                    AppLocalizations.of(context)?.dailyPracticeReminder ??
-                    'Daily Practice Reminder',
-                body:
-                    AppLocalizations.of(context)?.timeForDailyPractice ??
-                    'Time for your daily practice! 🙏',
-              );
-          setState(() {
-            _isEnabled = true;
-          });
-          _showSuccessMessage('Daily reminders enabled');
-        } catch (e) {
-          _showErrorMessage('Failed to enable notifications: $e');
-        }
+      try {
+        await ref
+            .read(notificationProvider.notifier)
+            .enableDailyReminder(
+              time: selectedTime,
+              title:
+                  AppLocalizations.of(
+                    context,
+                  )?.dailyPracticeNotificationTitle ??
+                  'Daily Practice Reminder',
+              body:
+                  AppLocalizations.of(context)?.timeForDailyPractice ??
+                  'It\'s time for your daily practice.',
+            );
+
+        _showSuccessMessage('Daily reminders enabled');
+      } catch (e) {
+        _showErrorMessage('Failed to enable notifications: $e');
       }
     } else {
       try {
         await ref.read(notificationProvider.notifier).disableDailyReminder();
-        setState(() {
-          _isEnabled = false;
-        });
         _showSuccessMessage('Daily reminders disabled');
       } catch (e) {
         _showErrorMessage('Failed to disable notifications: $e');
@@ -80,13 +56,11 @@ class _NotificationSettingsScreenState
   }
 
   Future<void> _updateReminderTime(TimeOfDay time) async {
-    if (_isEnabled) {
-      try {
-        await ref.read(notificationProvider.notifier).updateReminderTime(time);
-        _showSuccessMessage('Reminder time updated');
-      } catch (e) {
-        _showErrorMessage('Failed to update reminder time: $e');
-      }
+    try {
+      await ref.read(notificationProvider.notifier).updateReminderTime(time);
+      _showSuccessMessage('Reminder time updated');
+    } catch (e) {
+      _showErrorMessage('Failed to update reminder time: $e');
     }
   }
 
@@ -113,7 +87,13 @@ class _NotificationSettingsScreenState
 
   @override
   Widget build(BuildContext context) {
+    // Watch the provider to rebuild when data changes
     final state = ref.watch(notificationProvider);
+
+    // Use provider state directly
+    final isEnabled = state.isEnabled;
+    final selectedTime =
+        state.reminderTime ?? const TimeOfDay(hour: 8, minute: 0);
 
     return Scaffold(
       appBar: AppBar(
@@ -143,27 +123,27 @@ class _NotificationSettingsScreenState
                       ),
                       title: Text(
                         'Daily Practice',
-                        style: Theme.of(context).textTheme.bodyMedium,
+                        style: Theme.of(context).textTheme.titleSmall,
                       ),
                       subtitle: Text(
                         "Get notification of your daily to practices",
                         style: Theme.of(context).textTheme.bodySmall,
                       ),
-                      value: _isEnabled,
-                      onChanged: _toggleNotifications,
+                      value: isEnabled,
+                      onChanged: (v) => _toggleNotifications(v, selectedTime),
                     ),
-                    if (_isEnabled) ...[
+                    if (isEnabled) ...[
                       ListTile(
                         title: Text(
                           'Select Time',
-                          style: Theme.of(context).textTheme.bodySmall,
+                          style: Theme.of(context).textTheme.titleSmall,
                         ),
                         subtitle: Text(
-                          _selectedTime?.format(context) ?? 'No time selected',
+                          selectedTime.format(context),
                           style: Theme.of(context).textTheme.bodyMedium,
                         ),
                         trailing: const Icon(Icons.access_time),
-                        onTap: () => _selectTime(context),
+                        onTap: () => _selectTime(context, selectedTime),
                       ),
                     ],
                   ],

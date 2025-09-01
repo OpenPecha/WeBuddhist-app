@@ -177,7 +177,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
         children: [
           Text(
             localizations.home_today,
-            style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
           ),
           Row(
             children: [

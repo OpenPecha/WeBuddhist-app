@@ -35,7 +35,11 @@ class MoreScreen extends ConsumerWidget {
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        title: const Text('More'),
+        centerTitle: false,
+        title: const Text(
+          'More',
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
+        ),
         elevation: 0,
         backgroundColor: Colors.transparent,
         scrolledUnderElevation: 0,

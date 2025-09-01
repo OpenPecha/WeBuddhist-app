@@ -283,16 +283,16 @@ abstract class AppLocalizations {
   /// **'Language'**
   String get language;
 
-  /// No description provided for @dailyPracticeReminder.
+  /// No description provided for @dailyPracticeNotificationTitle.
   ///
   /// In en, this message translates to:
   /// **'Daily Practice Reminder'**
-  String get dailyPracticeReminder;
+  String get dailyPracticeNotificationTitle;
 
   /// No description provided for @timeForDailyPractice.
   ///
   /// In en, this message translates to:
-  /// **'Time for your daily practice! 🙏'**
+  /// **'It\'s time for your daily practice.'**
   String get timeForDailyPractice;
 
   /// No description provided for @notificationSettings.
