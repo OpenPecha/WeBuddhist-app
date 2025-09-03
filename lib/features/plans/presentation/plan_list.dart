@@ -22,42 +22,56 @@ class PlanList extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final plans = ref.watch(plansFutureProvider);
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          'Plans',
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
-        ),
-        scrolledUnderElevation: 0,
-        centerTitle: false,
-        actions: [
-          IconButton(
-            onPressed: () {
-              showSearch(
-                context: context,
-                delegate: PlanSearchDelegate(plans: [], ref: ref),
-              );
-            },
-            icon: const Icon(Icons.search),
+    return DefaultTabController(
+      length: 2,
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text(
+            'Plans',
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
           ),
-        ],
-      ),
-      // Use ListView.builder directly instead of SingleChildScrollView
-      body: plans.when(
-        data:
-            (plans) => ListView.builder(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 20.0,
-                vertical: 16.0,
-              ),
-              itemCount: plans.length,
-              itemBuilder: (context, index) {
-                final plan = plans[index];
-                return _buildPlanCard(plan, context);
+          scrolledUnderElevation: 0,
+          centerTitle: false,
+          actions: [
+            IconButton(
+              onPressed: () {
+                showSearch(
+                  context: context,
+                  delegate: PlanSearchDelegate(plans: [], ref: ref),
+                );
               },
+              icon: const Icon(Icons.search),
             ),
-        error: (error, stackTrace) => Center(child: Text('Error: $error')),
-        loading: () => const Center(child: CircularProgressIndicator()),
+          ],
+          bottom: TabBar(
+            tabs: [Tab(text: 'My Plans'), Tab(text: 'All Plans')],
+            labelStyle: TextStyle(fontWeight: FontWeight.bold),
+          ),
+        ),
+        // Use ListView.builder directly instead of SingleChildScrollView
+        body: Column(
+          children: [
+            Expanded(
+              child: plans.when(
+                data:
+                    (plans) => ListView.builder(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20.0,
+                        vertical: 16.0,
+                      ),
+                      itemCount: plans.length,
+                      itemBuilder: (context, index) {
+                        final plan = plans[index];
+                        return _buildPlanCard(plan, context);
+                      },
+                    ),
+                error:
+                    (error, stackTrace) => Center(child: Text('Error: $error')),
+                loading: () => const Center(child: CircularProgressIndicator()),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
