@@ -1,36 +1,18 @@
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../../models/author_model.dart';
 
 class AuthorRemoteDatasource {
   final http.Client client;
-  final String baseUrl =
-      'https://your-api-base-url.com'; // Replace with your actual API URL
+  final String baseUrl = dotenv.env['BASE_API_URL']!;
 
   AuthorRemoteDatasource({required this.client});
 
-  Future<List<AuthorModel>> getAuthors() async {
+  Future<AuthorModel> getAuthorById(String authorId) async {
     try {
       final response = await client.get(
-        Uri.parse('$baseUrl/authors'),
-        headers: {'Content-Type': 'application/json'},
-      );
-
-      if (response.statusCode == 200) {
-        final List<dynamic> jsonList = json.decode(response.body);
-        return jsonList.map((json) => AuthorModel.fromJson(json)).toList();
-      } else {
-        throw Exception('Failed to load authors: ${response.statusCode}');
-      }
-    } catch (e) {
-      throw Exception('Failed to load authors: $e');
-    }
-  }
-
-  Future<AuthorModel> getAuthorById(String id) async {
-    try {
-      final response = await client.get(
-        Uri.parse('$baseUrl/authors/$id'),
+        Uri.parse('$baseUrl/authors/$authorId'),
         headers: {'Content-Type': 'application/json'},
       );
 
