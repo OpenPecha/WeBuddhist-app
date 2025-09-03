@@ -11,11 +11,6 @@ final authorRepositoryProvider = Provider<AuthorRepository>((ref) {
   );
 });
 
-// Get all authors provider
-final authorsFutureProvider = FutureProvider<List<AuthorModel>>((ref) {
-  return ref.watch(authorRepositoryProvider).getAuthors();
-});
-
 // Get author by ID provider
 final authorByIdFutureProvider = FutureProvider.family<AuthorModel, String>((
   ref,
@@ -77,17 +72,6 @@ class AuthorNotifier extends StateNotifier<AuthorState> {
   final AuthorRepository _repository;
 
   AuthorNotifier(this._repository) : super(const AuthorState());
-
-  Future<void> loadAuthors() async {
-    state = state.copyWith(isLoading: true, errorMessage: null);
-
-    try {
-      final authors = await _repository.getAuthors();
-      state = state.copyWith(authors: authors, isLoading: false);
-    } catch (e) {
-      state = state.copyWith(isLoading: false, errorMessage: e.toString());
-    }
-  }
 
   Future<void> addAuthor(AuthorModel author) async {
     try {

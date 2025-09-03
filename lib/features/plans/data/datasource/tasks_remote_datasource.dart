@@ -1,11 +1,11 @@
 import 'dart:convert';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_pecha/features/plans/models/plan_tasks_model.dart';
 import 'package:http/http.dart' as http;
 
 class TasksRemoteDatasource {
   final http.Client client;
-  final String baseUrl =
-      'https://your-api-base-url.com'; // Replace with your actual API URL
+  final String baseUrl = dotenv.env['BASE_API_URL']!;
 
   TasksRemoteDatasource({required this.client});
 

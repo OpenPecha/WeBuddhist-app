@@ -19,8 +19,8 @@ final planItemsByPlanIdFutureProvider =
           .getPlanItemsByPlanId(planId);
     });
 
-// Get plan item by id provider
-final planItemByIdFutureProvider =
-    FutureProvider.family<PlanItemsModel, String>((ref, id) {
-      return ref.watch(planItemsRepositoryProvider).getPlanItemById(id);
-    });
+// // Get plan item by id provider
+// final planItemByIdFutureProvider =
+//     FutureProvider.family<PlanItemsModel, String>((ref, id) {
+//       return ref.watch(planItemsRepositoryProvider).getPlanItemById(id);
+//     });

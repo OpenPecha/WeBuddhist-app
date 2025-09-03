@@ -6,14 +6,6 @@ class AuthorRepository {
 
   AuthorRepository({required this.authorRemoteDatasource});
 
-  Future<List<AuthorModel>> getAuthors() async {
-    try {
-      return await authorRemoteDatasource.getAuthors();
-    } catch (e) {
-      throw Exception('Repository error: $e');
-    }
-  }
-
   Future<AuthorModel> getAuthorById(String id) async {
     try {
       return await authorRemoteDatasource.getAuthorById(id);

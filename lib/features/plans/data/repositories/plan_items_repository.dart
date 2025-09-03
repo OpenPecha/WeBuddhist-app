@@ -13,12 +13,4 @@ class PlanItemsRepository {
       throw Exception('Failed to load plan items: $e');
     }
   }
-
-  Future<PlanItemsModel> getPlanItemById(String id) async {
-    try {
-      return await planItemsRemoteDatasource.getPlanItemById(id);
-    } catch (e) {
-      throw Exception('Failed to load plan item: $e');
-    }
-  }
 }
