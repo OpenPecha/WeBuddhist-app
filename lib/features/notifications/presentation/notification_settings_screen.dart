@@ -7,6 +7,7 @@ import 'package:permission_handler/permission_handler.dart';
 
 class NotificationSettingsScreen extends ConsumerStatefulWidget {
   const NotificationSettingsScreen({super.key});
+  static const String routeName = '/notifications';
 
   @override
   ConsumerState<NotificationSettingsScreen> createState() =>
@@ -192,45 +193,6 @@ class _NotificationSettingsScreenState
                           onTap: () => _selectTime(context, selectedTime),
                         ),
                       ],
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
-              Card(
-                color: Theme.of(context).cardColor,
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        AppLocalizations.of(context)?.testNotifications ??
-                            'Test Notifications',
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        AppLocalizations.of(
-                              context,
-                            )?.testNotificationsDescription ??
-                            'Send a test notification to verify everything is working',
-                        style: Theme.of(context).textTheme.bodyMedium,
-                      ),
-                      const SizedBox(height: 16),
-                      SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton.icon(
-                          onPressed: _testNotification,
-                          icon: const Icon(Icons.notifications),
-                          label: Text(
-                            AppLocalizations.of(
-                                  context,
-                                )?.sendTestNotification ??
-                                'Send Test Notification',
-                          ),
-                        ),
-                      ),
                     ],
                   ),
                 ),
