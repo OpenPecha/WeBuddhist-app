@@ -7,6 +7,7 @@ import 'package:flutter_pecha/features/home/models/prayer_data.dart';
 import 'package:flutter_pecha/features/home/presentation/widgets/guided_scripture.dart';
 import 'package:flutter_pecha/features/home/presentation/widgets/meditation_video.dart';
 import 'package:flutter_pecha/features/meditation_of_day/presentation/meditation_of_day_screen.dart';
+import 'package:flutter_pecha/features/notifications/presentation/notification_settings_screen.dart';
 import 'package:flutter_pecha/features/plans/models/plans_model.dart';
 import 'package:flutter_pecha/features/plans/presentation/plan_details.dart';
 import 'package:flutter_pecha/features/plans/presentation/plan_info.dart';
@@ -331,6 +332,10 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/plans/details',
         builder: (context, state) => const PlanDetails(),
+      ),
+      GoRoute(
+        path: NotificationSettingsScreen.routeName,
+        builder: (context, state) => const NotificationSettingsScreen(),
       ),
     ],
     redirect: (context, state) {

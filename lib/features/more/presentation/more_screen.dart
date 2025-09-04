@@ -153,14 +153,7 @@ class MoreScreen extends ConsumerWidget {
                   AppLocalizations.of(context)?.manageDailyReminders ??
                       'Manage daily reminders',
                 ),
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const NotificationSettingsScreen(),
-                    ),
-                  );
-                },
+                onTap: () => context.push(NotificationSettingsScreen.routeName),
               ),
             ],
           ),

@@ -12,8 +12,8 @@ import 'package:flutter_pecha/features/home/models/plan_item.dart';
 import 'package:flutter_pecha/features/home/presentation/widgets/action_of_the_day_card.dart';
 import 'package:flutter_pecha/features/home/presentation/widgets/verse_card.dart';
 import 'package:flutter_pecha/features/home/presentation/widgets/view_illustration.dart';
+import 'package:flutter_pecha/features/notifications/presentation/notification_settings_screen.dart';
 import 'package:flutter_pecha/features/texts/data/providers/selected_segment_provider.dart';
-import 'package:flutter_pecha/features/texts/models/term/term.dart';
 import 'package:flutter_pecha/features/texts/presentation/widgets/action_button.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -172,7 +172,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
           ),
           Row(
             children: [
-              Icon(Icons.notifications_none, size: 28),
+              IconButton(
+                onPressed:
+                    () => context.push(NotificationSettingsScreen.routeName),
+                icon: Icon(Icons.notifications_none, size: 28),
+              ),
               SizedBox(width: 16),
               if (authState.isGuest) Icon(Icons.account_circle, size: 32),
               if (authState.isLoggedIn && !authState.isGuest)
