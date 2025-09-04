@@ -51,3 +51,4 @@ ios/Runner/Runner.entitlements
 # env
 .env
 
+*.todo
