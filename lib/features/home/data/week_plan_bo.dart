@@ -2,235 +2,462 @@ const Map<String, dynamic> weekPlanBo = {
   "monday": {
     "plan": [
       {
-        "label": "Verse",
+        "label": "ཉིན་རེའི་རྩ་ཚིགས།",
         "contentType": "text",
         "content":
-            "ༀ་བཛྲ་སཏྭ་ས་མ་ཡ། མ་ནུ་པཱ་ལ་ཡ། བཛྲ་སཏྭ་ཏྲྭེ་ནོ་པ། ཏིཥྛ་དྲཱྀ་ཌྷོ་མེ་བྷ་ཝ།\nསུ་ཏོ་ཥྱོ་མེ་བྷ་ཝ། སུ་པོ་ཥྱོ་མེ་བྷ་ཝ། ཨ་ནུ་རཀྟོ་མེ་བྷ་ཝ། སརྦ་སིདྡྷི་མྨེ་པྲ་ཡཙྪ།\nསརྦ་ཀརྨ་སུ་ཙ་མེ། ཙིཏྟཾ་ཤྲཱེ་ཡཾ་ཀུ་རུ་ཧཱུྃ། ཧ་ཧ་ཧ་ཧ་ཧོཿ བྷ་ག་ཝཱན།།\nསརྦ་ཏ་ཐཱ་ག་ཏ། བཛྲ་མཱ་མེ་མུཉྩ། བཛྲི་བྷ་ཝ་སརྦ་མ་ཧཱ་ས་མ་ཡ་སཏྭ་ཨཱཿ",
-        "author": "",
+            "ཏདྱཐཱ།   ཨོཾ་  བྷཻཥཛྱེ་  བྷཻཥཛྱེ་  མཧཱ་  བྷཻཥཛྱེ་  བྷཻཥཛྱེ་  རཱཇཱཡ་  སམུདྒཏེ་  སྭཱཧཱ། ",
+        "author": "སངས་རྒྱས་བཅོམ་ལྡན་འདས།",
       },
       {
-        "label": "Go Deeper",
+        "label": "ཞིབ་གཟིགས།",
         "contentType": "video",
-        "content": "https://www.youtube.com/watch?v=dAMb-R1iDVg",
+        "content": "https://www.youtube.com/watch?v=6F0ipKPUFCk",
       },
       {
-        "label": "Meditation",
-        "contentType": "audio",
-        "content": "https://youtu.be/RfwWPmPxMCI",
+        "label": "སྒོམ་སྒྲུབ།",
+        "contentType": "video",
+        "content": "https://www.youtube.com/watch?v=xq095RzdX-k",
       },
       {
-        "label": "My Intention for Today",
+        "label": "བཟླས་པ།",
+        "contentType": "video",
+        "content": "https://www.youtube.com/watch?v=xwHuaB4IAMc",
+      },
+      {
+        "label": "今日任務",
         "contentType": "image",
         "content":
-            "https://drive.google.com/uc?export=view&id=1uNzvVledk4o0HGXuAuoLCnymfc6dWcK4",
-      },
-      {
-        "label": "Bringing it to life",
-        "contentType": "image",
-        "content":
-            "https://drive.google.com/uc?export=view&id=1vo0bUKXw3q6GpKLt36zAEbnpe8A0cz04",
+            "https://drive.google.com/uc?export=view&id=1LX7smXG5sksg7r3RP0QNPPHlPPcdKXhF",
       },
     ],
   },
   "tuesday": {
     "plan": [
       {
-        "label": "Verse",
+        "label": "ཉིན་རེའི་རྩ་ཚིགས།",
         "contentType": "text",
         "content":
-            "ༀ་བཛྲ་སཏྭ་ས་མ་ཡ། མ་ནུ་པཱ་ལ་ཡ། བཛྲ་སཏྭ་ཏྲྭེ་ནོ་པ། ཏིཥྛ་དྲཱྀ་ཌྷོ་མེ་བྷ་ཝ།\nསུ་ཏོ་ཥྱོ་མེ་བྷ་ཝ། སུ་པོ་ཥྱོ་མེ་བྷ་ཝ། ཨ་ནུ་རཀྟོ་མེ་བྷ་ཝ། སརྦ་སིདྡྷི་མྨེ་པྲ་ཡཙྪ།\nསརྦ་ཀརྨ་སུ་ཙ་མེ། ཙིཏྟཾ་ཤྲཱེ་ཡཾ་ཀུ་རུ་ཧཱུྃ། ཧ་ཧ་ཧ་ཧ་ཧོཿ བྷ་ག་ཝཱན།།\nསརྦ་ཏ་ཐཱ་ག་ཏ། བཛྲ་མཱ་མེ་མུཉྩ། བཛྲི་བྷ་ཝ་སརྦ་མ་ཧཱ་ས་མ་ཡ་སཏྭ་ཨཱཿ",
+            "དགེ་བ་འདི་ཡིས་མྱུར་དུ་བདག །\nསངས་རྒྱས་སྨན་བླ་འགྲུབ་གྱུར་ནས།\nའགྲོ་བ་གཅིག་ཀྱང་མ་ལུས་པ།\nདེ་ཡི་ས་ལ་འགོད་པར་ཤོག\nསེམས་ཅན་ནད་པ་ཇི་སྙེད་པ།\nམྱུར་དུ་ནད་ལས་ཐར་གྱུར་ནས།\nའགྲོ་བའི་ནད་རྣམས་མ་ལུས་པ།\nརྟག་ཏུ་འབྱུང་བ་མེད་པར་ཤོག །",
         "author": "",
       },
       {
-        "label": "Go Deeper",
+        "label": "ཞིབ་གཟིགས།",
         "contentType": "video",
-        "content": "https://www.youtube.com/watch?v=AIqU8kQkM6s",
+        "content": "https://www.youtube.com/watch?v=MpoCYjeHfvI",
       },
       {
-        "label": "Meditation",
-        "contentType": "audio",
-        "content": "https://youtu.be/mbXbjToHsag",
+        "label": "སྒོམ་སྒྲུབ།",
+        "contentType": "video",
+        "content": "https://www.youtube.com/watch?v=ViJoFWcqSxk",
       },
       {
-        "label": "My Intention for Today",
+        "label": "བཟླས་པ།",
+        "contentType": "video",
+        "content": "https://www.youtube.com/watch?v=xwHuaB4IAMc",
+      },
+      {
+        "label": "今日任務",
         "contentType": "image",
         "content":
-            "https://drive.google.com/uc?export=view&id=1UpDsFFtZbDZsp8I2p1fjbhUTShVYHwFW",
-      },
-      {
-        "label": "Bringing it to life",
-        "contentType": "image",
-        "content":
-            "https://drive.google.com/uc?export=view&id=111WKKsUnP9X_kugAtNjvPMhbvhxeHC1M",
+            "https://drive.google.com/uc?export=view&id=1LX7smXG5sksg7r3RP0QNPPHlPPcdKXhF",
       },
     ],
   },
   "wednesday": {
     "plan": [
       {
-        "label": "Verse",
+        "label": "ཉིན་རེའི་རྩ་ཚིགས།",
         "contentType": "text",
         "content":
-            "ༀ་བཛྲ་སཏྭ་ས་མ་ཡ། མ་ནུ་པཱ་ལ་ཡ། བཛྲ་སཏྭ་ཏྲྭེ་ནོ་པ། ཏིཥྛ་དྲཱྀ་ཌྷོ་མེ་བྷ་ཝ།\nསུ་ཏོ་ཥྱོ་མེ་བྷ་ཝ། སུ་པོ་ཥྱོ་མེ་བྷ་ཝ། ཨ་ནུ་རཀྟོ་མེ་བྷ་ཝ། སརྦ་སིདྡྷི་མྨེ་པྲ་ཡཙྪ།\nསརྦ་ཀརྨ་སུ་ཙ་མེ། ཙིཏྟཾ་ཤྲཱེ་ཡཾ་ཀུ་རུ་ཧཱུྃ། ཧ་ཧ་ཧ་ཧ་ཧོཿ བྷ་ག་ཝཱན།།\nསརྦ་ཏ་ཐཱ་ག་ཏ། བཛྲ་མཱ་མེ་མུཉྩ། བཛྲི་བྷ་ཝ་སརྦ་མ་ཧཱ་ས་མ་ཡ་སཏྭ་ཨཱཿ",
-        "author": "",
+            "དགྲ་དང་གནོད་པ་ནད་རིམས་བཟློག་པ་དང་། །\nའཐབ་རྩོད་ཀུན་ཞི་ལུས་སེམས་བདེ་བ་རྒྱས། །\nལོངས་སྤྱོད་དབང་ཕྱུག་ནོར་འབྲུ་ཚེ་འཕེལ་ཞིང་། །\nབསམ་པའི་དོན་རྣམས་ཡིད་བཞིན་འགྲུབ་པ་དང་། །\nརྟག་ཏུ་བསྲུང་སྐྱོབ་གཡེལ་བ་མེད་པར་མཛོད། །",
+        "author": "ཀལྤ་བྷ་དྲ",
       },
       {
-        "label": "Go Deeper",
+        "label": "ཞིབ་གཟིགས།",
         "contentType": "video",
-        "content": "https://www.youtube.com/watch?v=lUt32nHKUHk",
+        "content": "https://www.youtube.com/watch?v=H-2scl-X1m4",
       },
       {
-        "label": "Meditation",
-        "contentType": "audio",
-        "content": "https://youtu.be/TTjV-hZ3_eQ",
+        "label": "སྒོམ་སྒྲུབ།",
+        "contentType": "video",
+        "content": "https://www.youtube.com/watch?v=y2CF0bZ2k-U",
       },
       {
-        "label": "My Intention for Today",
+        "label": "བཟླས་པ།",
+        "contentType": "video",
+        "content": "https://www.youtube.com/watch?v=xwHuaB4IAMc",
+      },
+      {
+        "label": "今日任務",
         "contentType": "image",
         "content":
-            "https://drive.google.com/uc?export=view&id=17mAFn_fPNwN7tnNspnKhL_sitqyqrmCh",
-      },
-      {
-        "label": "Bringing it to life",
-        "contentType": "image",
-        "content":
-            "https://drive.google.com/uc?export=view&id=1I56jMTr_kbnMv0sy7HoI_fyO6u9JM0ll",
+            "https://drive.google.com/uc?export=view&id=1LX7smXG5sksg7r3RP0QNPPHlPPcdKXhF",
       },
     ],
   },
   "thursday": {
     "plan": [
       {
-        "label": "Verse",
+        "label": "ཉིན་རེའི་རྩ་ཚིགས།",
         "contentType": "text",
         "content":
-            "ༀ་བཛྲ་སཏྭ་ས་མ་ཡ། མ་ནུ་པཱ་ལ་ཡ། བཛྲ་སཏྭ་ཏྲྭེ་ནོ་པ། ཏིཥྛ་དྲཱྀ་ཌྷོ་མེ་བྷ་ཝ།\nསུ་ཏོ་ཥྱོ་མེ་བྷ་ཝ། སུ་པོ་ཥྱོ་མེ་བྷ་ཝ། ཨ་ནུ་རཀྟོ་མེ་བྷ་ཝ། སརྦ་སིདྡྷི་མྨེ་པྲ་ཡཙྪ།\nསརྦ་ཀརྨ་སུ་ཙ་མེ། ཙིཏྟཾ་ཤྲཱེ་ཡཾ་ཀུ་རུ་ཧཱུྃ། ཧ་ཧ་ཧ་ཧ་ཧོཿ བྷ་ག་ཝཱན།།\nསརྦ་ཏ་ཐཱ་ག་ཏ། བཛྲ་མཱ་མེ་མུཉྩ། བཛྲི་བྷ་ཝ་སརྦ་མ་ཧཱ་ས་མ་ཡ་སཏྭ་ཨཱཿ",
-        "author": "",
+            "ཐུགས་རྗེ་ཀུན་ལ་སྙོམས་པའི་བཅོམ་ལྡན་འདས། །\nམཚན་ཙམ་ཐོས་པས་ངན་འགྲོའི་སྡུག་བསྔལ་སེལ། །\nདུག་གསུམ་ནད་སེལ་སངས་རྒྱས་སྨན་གྱི་བླ། །\nབཻཌཱུརྱ་ཡི་འོད་ལ་གསོལ་བ་འདེབས། །",
+        "author": "གཡུ་ཐོག་ཡོན་ཏན་མགོན་པོ།",
       },
       {
-        "label": "Go Deeper",
+        "label": "ཞིབ་གཟིགས།",
         "contentType": "video",
-        "content": "https://www.youtube.com/watch?v=dAMb-R1iDVg",
+        "content": "https://www.youtube.com/watch?v=OxLcJWbr3r0",
       },
       {
-        "label": "Meditation",
-        "contentType": "audio",
-        "content": "https://youtu.be/RfwWPmPxMCI",
+        "label": "སྒོམ་སྒྲུབ།",
+        "contentType": "video",
+        "content": "https://www.youtube.com/watch?v=b5QfI3pTREw",
       },
       {
-        "label": "My Intention for Today",
+        "label": "བཟླས་པ།",
+        "contentType": "video",
+        "content": "https://www.youtube.com/watch?v=xwHuaB4IAMc",
+      },
+      {
+        "label": "今日任務",
         "contentType": "image",
         "content":
-            "https://drive.google.com/uc?export=view&id=1uNzvVledk4o0HGXuAuoLCnymfc6dWcK4",
-      },
-      {
-        "label": "Bringing it to life",
-        "contentType": "image",
-        "content":
-            "https://drive.google.com/uc?export=view&id=1vo0bUKXw3q6GpKLt36zAEbnpe8A0cz04",
+            "https://drive.google.com/uc?export=view&id=1LX7smXG5sksg7r3RP0QNPPHlPPcdKXhF",
       },
     ],
   },
   "friday": {
     "plan": [
       {
-        "label": "Verse",
+        "label": "ཉིན་རེའི་རྩ་ཚིགས།",
         "contentType": "text",
         "content":
-            "ༀ་བཛྲ་སཏྭ་ས་མ་ཡ། མ་ནུ་པཱ་ལ་ཡ། བཛྲ་སཏྭ་ཏྲྭེ་ནོ་པ། ཏིཥྛ་དྲཱྀ་ཌྷོ་མེ་བྷ་ཝ།\nསུ་ཏོ་ཥྱོ་མེ་བྷ་ཝ། སུ་པོ་ཥྱོ་མེ་བྷ་ཝ། ཨ་ནུ་རཀྟོ་མེ་བྷ་ཝ། སརྦ་སིདྡྷི་མྨེ་པྲ་ཡཙྪ།\nསརྦ་ཀརྨ་སུ་ཙ་མེ། ཙིཏྟཾ་ཤྲཱེ་ཡཾ་ཀུ་རུ་ཧཱུྃ། ཧ་ཧ་ཧ་ཧ་ཧོཿ བྷ་ག་ཝཱན།།\nསརྦ་ཏ་ཐཱ་ག་ཏ། བཛྲ་མཱ་མེ་མུཉྩ། བཛྲི་བྷ་ཝ་སརྦ་མ་ཧཱ་ས་མ་ཡ་སཏྭ་ཨཱཿ",
-        "author": "",
+            "དགྲ་དང་གནོད་པ་ནད་རིམས་བཟློག་པ་དང་། །\nའཐབ་རྩོད་ཀུན་ཞི་ལུས་སེམས་བདེ་བ་རྒྱས། །\nལོངས་སྤྱོད་དབང་ཕྱུག་ནོར་འབྲུ་ཚེ་འཕེལ་ཞིང་། །\nབསམ་པའི་དོན་རྣམས་ཡིད་བཞིན་འགྲུབ་པ་དང་། །\nརྟག་ཏུ་བསྲུང་སྐྱོབ་གཡེལ་བ་མེད་པར་མཛོད། །",
+        "author": "ཀལྤ་བྷ་དྲ",
       },
       {
-        "label": "Go Deeper",
+        "label": "ཞིབ་གཟིགས།",
         "contentType": "video",
-        "content": "https://www.youtube.com/watch?v=AIqU8kQkM6s",
+        "content": "https://www.youtube.com/watch?v=H-2scl-X1m4",
       },
       {
-        "label": "Meditation",
-        "contentType": "audio",
-        "content": "https://youtu.be/mbXbjToHsag",
+        "label": "སྒོམ་སྒྲུབ།",
+        "contentType": "video",
+        "content": "https://www.youtube.com/watch?v=y2CF0bZ2k-U",
       },
       {
-        "label": "My Intention for Today",
+        "label": "བཟླས་པ།",
+        "contentType": "video",
+        "content": "https://www.youtube.com/watch?v=xwHuaB4IAMc",
+      },
+      {
+        "label": "今日任務",
         "contentType": "image",
         "content":
-            "https://drive.google.com/uc?export=view&id=1UpDsFFtZbDZsp8I2p1fjbhUTShVYHwFW",
-      },
-      {
-        "label": "Bringing it to life",
-        "contentType": "image",
-        "content":
-            "https://drive.google.com/uc?export=view&id=111WKKsUnP9X_kugAtNjvPMhbvhxeHC1M",
+            "https://drive.google.com/uc?export=view&id=1LX7smXG5sksg7r3RP0QNPPHlPPcdKXhF",
       },
     ],
   },
   "saturday": {
     "plan": [
       {
-        "label": "Verse",
+        "label": "ཉིན་རེའི་རྩ་ཚིགས།",
         "contentType": "text",
         "content":
-            "ༀ་བཛྲ་སཏྭ་ས་མ་ཡ། མ་ནུ་པཱ་ལ་ཡ། བཛྲ་སཏྭ་ཏྲྭེ་ནོ་པ། ཏིཥྛ་དྲཱྀ་ཌྷོ་མེ་བྷ་ཝ།\nསུ་ཏོ་ཥྱོ་མེ་བྷ་ཝ། སུ་པོ་ཥྱོ་མེ་བྷ་ཝ། ཨ་ནུ་རཀྟོ་མེ་བྷ་ཝ། སརྦ་སིདྡྷི་མྨེ་པྲ་ཡཙྪ།\nསརྦ་ཀརྨ་སུ་ཙ་མེ། ཙིཏྟཾ་ཤྲཱེ་ཡཾ་ཀུ་རུ་ཧཱུྃ། ཧ་ཧ་ཧ་ཧ་ཧོཿ བྷ་ག་ཝཱན།།\nསརྦ་ཏ་ཐཱ་ག་ཏ། བཛྲ་མཱ་མེ་མུཉྩ། བཛྲི་བྷ་ཝ་སརྦ་མ་ཧཱ་ས་མ་ཡ་སཏྭ་ཨཱཿ",
-        "author": "",
+            "ཐུགས་རྗེ་ཀུན་ལ་སྙོམས་པའི་བཅོམ་ལྡན་འདས། །\nམཚན་ཙམ་ཐོས་པས་ངན་འགྲོའི་སྡུག་བསྔལ་སེལ། །\nདུག་གསུམ་ནད་སེལ་སངས་རྒྱས་སྨན་གྱི་བླ། །\nབཻཌཱུརྱ་ཡི་འོད་ལ་གསོལ་བ་འདེབས། །",
+        "author": "གཡུ་ཐོག་ཡོན་ཏན་མགོན་པོ།",
       },
       {
-        "label": "Go Deeper",
+        "label": "ཞིབ་གཟིགས།",
         "contentType": "video",
-        "content": "https://www.youtube.com/watch?v=lUt32nHKUHk",
+        "content": "https://www.youtube.com/watch?v=OxLcJWbr3r0",
       },
       {
-        "label": "Meditation",
-        "contentType": "audio",
-        "content": "https://youtu.be/TTjV-hZ3_eQ",
+        "label": "སྒོམ་སྒྲུབ།",
+        "contentType": "video",
+        "content": "https://www.youtube.com/watch?v=b5QfI3pTREw",
       },
       {
-        "label": "My Intention for Today",
+        "label": "བཟླས་པ།",
+        "contentType": "video",
+        "content": "https://www.youtube.com/watch?v=xwHuaB4IAMc",
+      },
+      {
+        "label": "今日任務",
         "contentType": "image",
         "content":
-            "https://drive.google.com/uc?export=view&id=17mAFn_fPNwN7tnNspnKhL_sitqyqrmCh",
-      },
-      {
-        "label": "Bringing it to life",
-        "contentType": "image",
-        "content":
-            "https://drive.google.com/uc?export=view&id=1I56jMTr_kbnMv0sy7HoI_fyO6u9JM0ll",
+            "https://drive.google.com/uc?export=view&id=1LX7smXG5sksg7r3RP0QNPPHlPPcdKXhF",
       },
     ],
   },
   "sunday": {
     "plan": [
       {
-        "label": "Verse",
+        "label": "ཉིན་རེའི་རྩ་ཚིགས།",
         "contentType": "text",
         "content":
-            "ༀ་བཛྲ་སཏྭ་ས་མ་ཡ། མ་ནུ་པཱ་ལ་ཡ། བཛྲ་སཏྭ་ཏྲྭེ་ནོ་པ། ཏིཥྛ་དྲཱྀ་ཌྷོ་མེ་བྷ་ཝ།\nསུ་ཏོ་ཥྱོ་མེ་བྷ་ཝ། སུ་པོ་ཥྱོ་མེ་བྷ་ཝ། ཨ་ནུ་རཀྟོ་མེ་བྷ་ཝ། སརྦ་སིདྡྷི་མྨེ་པྲ་ཡཙྪ།\nསརྦ་ཀརྨ་སུ་ཙ་མེ། ཙིཏྟཾ་ཤྲཱེ་ཡཾ་ཀུ་རུ་ཧཱུྃ། ཧ་ཧ་ཧ་ཧ་ཧོཿ བྷ་ག་ཝཱན།།\nསརྦ་ཏ་ཐཱ་ག་ཏ། བཛྲ་མཱ་མེ་མུཉྩ། བཛྲི་བྷ་ཝ་སརྦ་མ་ཧཱ་ས་མ་ཡ་སཏྭ་ཨཱཿ",
-        "author": "",
+            "ཏདྱཐཱ།   ཨོཾ་  བྷཻཥཛྱེ་  བྷཻཥཛྱེ་  མཧཱ་  བྷཻཥཛྱེ་  བྷཻཥཛྱེ་  རཱཇཱཡ་  སམུདྒཏེ་  སྭཱཧཱ།",
+        "author": "སངས་རྒྱས་བཅོམ་ལྡན་འདས།",
       },
       {
-        "label": "Go Deeper",
+        "label": "ཞིབ་གཟིགས།",
         "contentType": "video",
-        "content": "https://www.youtube.com/watch?v=dAMb-R1iDVg",
+        "content": "https://www.youtube.com/watch?v=RxzYBQ_KD50",
       },
       {
-        "label": "Meditation",
-        "contentType": "audio",
-        "content": "https://youtu.be/RfwWPmPxMCI",
+        "label": "སྒོམ་སྒྲུབ།",
+        "contentType": "video",
+        "content": "https://www.youtube.com/watch?v=-IS9FPHRy0o",
       },
       {
-        "label": "My Intention for Today",
+        "label": "བཟླས་པ།",
+        "contentType": "video",
+        "content": "https://www.youtube.com/watch?v=xwHuaB4IAMc",
+      },
+      {
+        "label": "今日任務",
         "contentType": "image",
         "content":
-            "https://drive.google.com/uc?export=view&id=1uNzvVledk4o0HGXuAuoLCnymfc6dWcK4",
-      },
-      {
-        "label": "Bringing it to life",
-        "contentType": "image",
-        "content":
-            "https://drive.google.com/uc?export=view&id=1vo0bUKXw3q6GpKLt36zAEbnpe8A0cz04",
+            "https://drive.google.com/uc?export=view&id=1LX7smXG5sksg7r3RP0QNPPHlPPcdKXhF",
       },
     ],
   },
 };
+
+// const Map<String, dynamic> weekPlanBo = {
+//   "monday": {
+//     "plan": [
+//       {
+//         "label": "Verse",
+//         "contentType": "text",
+//         "content":
+//             "ༀ་བཛྲ་སཏྭ་ས་མ་ཡ། མ་ནུ་པཱ་ལ་ཡ། བཛྲ་སཏྭ་ཏྲྭེ་ནོ་པ། ཏིཥྛ་དྲཱྀ་ཌྷོ་མེ་བྷ་ཝ།\nསུ་ཏོ་ཥྱོ་མེ་བྷ་ཝ། སུ་པོ་ཥྱོ་མེ་བྷ་ཝ། ཨ་ནུ་རཀྟོ་མེ་བྷ་ཝ། སརྦ་སིདྡྷི་མྨེ་པྲ་ཡཙྪ།\nསརྦ་ཀརྨ་སུ་ཙ་མེ། ཙིཏྟཾ་ཤྲཱེ་ཡཾ་ཀུ་རུ་ཧཱུྃ། ཧ་ཧ་ཧ་ཧ་ཧོཿ བྷ་ག་ཝཱན།།\nསརྦ་ཏ་ཐཱ་ག་ཏ། བཛྲ་མཱ་མེ་མུཉྩ། བཛྲི་བྷ་ཝ་སརྦ་མ་ཧཱ་ས་མ་ཡ་སཏྭ་ཨཱཿ",
+//         "author": "",
+//       },
+//       {
+//         "label": "Go Deeper",
+//         "contentType": "video",
+//         "content": "https://www.youtube.com/watch?v=dAMb-R1iDVg",
+//       },
+//       {
+//         "label": "Meditation",
+//         "contentType": "audio",
+//         "content": "https://youtu.be/RfwWPmPxMCI",
+//       },
+//       {
+//         "label": "My Intention for Today",
+//         "contentType": "image",
+//         "content":
+//             "https://drive.google.com/uc?export=view&id=1uNzvVledk4o0HGXuAuoLCnymfc6dWcK4",
+//       },
+//       {
+//         "label": "Bringing it to life",
+//         "contentType": "image",
+//         "content":
+//             "https://drive.google.com/uc?export=view&id=1vo0bUKXw3q6GpKLt36zAEbnpe8A0cz04",
+//       },
+//     ],
+//   },
+//   "tuesday": {
+//     "plan": [
+//       {
+//         "label": "Verse",
+//         "contentType": "text",
+//         "content":
+//             "ༀ་བཛྲ་སཏྭ་ས་མ་ཡ། མ་ནུ་པཱ་ལ་ཡ། བཛྲ་སཏྭ་ཏྲྭེ་ནོ་པ། ཏིཥྛ་དྲཱྀ་ཌྷོ་མེ་བྷ་ཝ།\nསུ་ཏོ་ཥྱོ་མེ་བྷ་ཝ། སུ་པོ་ཥྱོ་མེ་བྷ་ཝ། ཨ་ནུ་རཀྟོ་མེ་བྷ་ཝ། སརྦ་སིདྡྷི་མྨེ་པྲ་ཡཙྪ།\nསརྦ་ཀརྨ་སུ་ཙ་མེ། ཙིཏྟཾ་ཤྲཱེ་ཡཾ་ཀུ་རུ་ཧཱུྃ། ཧ་ཧ་ཧ་ཧ་ཧོཿ བྷ་ག་ཝཱན།།\nསརྦ་ཏ་ཐཱ་ག་ཏ། བཛྲ་མཱ་མེ་མུཉྩ། བཛྲི་བྷ་ཝ་སརྦ་མ་ཧཱ་ས་མ་ཡ་སཏྭ་ཨཱཿ",
+//         "author": "",
+//       },
+//       {
+//         "label": "Go Deeper",
+//         "contentType": "video",
+//         "content": "https://www.youtube.com/watch?v=AIqU8kQkM6s",
+//       },
+//       {
+//         "label": "Meditation",
+//         "contentType": "audio",
+//         "content": "https://youtu.be/mbXbjToHsag",
+//       },
+//       {
+//         "label": "My Intention for Today",
+//         "contentType": "image",
+//         "content":
+//             "https://drive.google.com/uc?export=view&id=1UpDsFFtZbDZsp8I2p1fjbhUTShVYHwFW",
+//       },
+//       {
+//         "label": "Bringing it to life",
+//         "contentType": "image",
+//         "content":
+//             "https://drive.google.com/uc?export=view&id=111WKKsUnP9X_kugAtNjvPMhbvhxeHC1M",
+//       },
+//     ],
+//   },
+//   "wednesday": {
+//     "plan": [
+//       {
+//         "label": "Verse",
+//         "contentType": "text",
+//         "content":
+//             "ༀ་བཛྲ་སཏྭ་ས་མ་ཡ། མ་ནུ་པཱ་ལ་ཡ། བཛྲ་སཏྭ་ཏྲྭེ་ནོ་པ། ཏིཥྛ་དྲཱྀ་ཌྷོ་མེ་བྷ་ཝ།\nསུ་ཏོ་ཥྱོ་མེ་བྷ་ཝ། སུ་པོ་ཥྱོ་མེ་བྷ་ཝ། ཨ་ནུ་རཀྟོ་མེ་བྷ་ཝ། སརྦ་སིདྡྷི་མྨེ་པྲ་ཡཙྪ།\nསརྦ་ཀརྨ་སུ་ཙ་མེ། ཙིཏྟཾ་ཤྲཱེ་ཡཾ་ཀུ་རུ་ཧཱུྃ། ཧ་ཧ་ཧ་ཧ་ཧོཿ བྷ་ག་ཝཱན།།\nསརྦ་ཏ་ཐཱ་ག་ཏ། བཛྲ་མཱ་མེ་མུཉྩ། བཛྲི་བྷ་ཝ་སརྦ་མ་ཧཱ་ས་མ་ཡ་སཏྭ་ཨཱཿ",
+//         "author": "",
+//       },
+//       {
+//         "label": "Go Deeper",
+//         "contentType": "video",
+//         "content": "https://www.youtube.com/watch?v=lUt32nHKUHk",
+//       },
+//       {
+//         "label": "Meditation",
+//         "contentType": "audio",
+//         "content": "https://youtu.be/TTjV-hZ3_eQ",
+//       },
+//       {
+//         "label": "My Intention for Today",
+//         "contentType": "image",
+//         "content":
+//             "https://drive.google.com/uc?export=view&id=17mAFn_fPNwN7tnNspnKhL_sitqyqrmCh",
+//       },
+//       {
+//         "label": "Bringing it to life",
+//         "contentType": "image",
+//         "content":
+//             "https://drive.google.com/uc?export=view&id=1I56jMTr_kbnMv0sy7HoI_fyO6u9JM0ll",
+//       },
+//     ],
+//   },
+//   "thursday": {
+//     "plan": [
+//       {
+//         "label": "Verse",
+//         "contentType": "text",
+//         "content":
+//             "ༀ་བཛྲ་སཏྭ་ས་མ་ཡ། མ་ནུ་པཱ་ལ་ཡ། བཛྲ་སཏྭ་ཏྲྭེ་ནོ་པ། ཏིཥྛ་དྲཱྀ་ཌྷོ་མེ་བྷ་ཝ།\nསུ་ཏོ་ཥྱོ་མེ་བྷ་ཝ། སུ་པོ་ཥྱོ་མེ་བྷ་ཝ། ཨ་ནུ་རཀྟོ་མེ་བྷ་ཝ། སརྦ་སིདྡྷི་མྨེ་པྲ་ཡཙྪ།\nསརྦ་ཀརྨ་སུ་ཙ་མེ། ཙིཏྟཾ་ཤྲཱེ་ཡཾ་ཀུ་རུ་ཧཱུྃ། ཧ་ཧ་ཧ་ཧ་ཧོཿ བྷ་ག་ཝཱན།།\nསརྦ་ཏ་ཐཱ་ག་ཏ། བཛྲ་མཱ་མེ་མུཉྩ། བཛྲི་བྷ་ཝ་སརྦ་མ་ཧཱ་ས་མ་ཡ་སཏྭ་ཨཱཿ",
+//         "author": "",
+//       },
+//       {
+//         "label": "Go Deeper",
+//         "contentType": "video",
+//         "content": "https://www.youtube.com/watch?v=dAMb-R1iDVg",
+//       },
+//       {
+//         "label": "Meditation",
+//         "contentType": "audio",
+//         "content": "https://youtu.be/RfwWPmPxMCI",
+//       },
+//       {
+//         "label": "My Intention for Today",
+//         "contentType": "image",
+//         "content":
+//             "https://drive.google.com/uc?export=view&id=1uNzvVledk4o0HGXuAuoLCnymfc6dWcK4",
+//       },
+//       {
+//         "label": "Bringing it to life",
+//         "contentType": "image",
+//         "content":
+//             "https://drive.google.com/uc?export=view&id=1vo0bUKXw3q6GpKLt36zAEbnpe8A0cz04",
+//       },
+//     ],
+//   },
+//   "friday": {
+//     "plan": [
+//       {
+//         "label": "Verse",
+//         "contentType": "text",
+//         "content":
+//             "ༀ་བཛྲ་སཏྭ་ས་མ་ཡ། མ་ནུ་པཱ་ལ་ཡ། བཛྲ་སཏྭ་ཏྲྭེ་ནོ་པ། ཏིཥྛ་དྲཱྀ་ཌྷོ་མེ་བྷ་ཝ།\nསུ་ཏོ་ཥྱོ་མེ་བྷ་ཝ། སུ་པོ་ཥྱོ་མེ་བྷ་ཝ། ཨ་ནུ་རཀྟོ་མེ་བྷ་ཝ། སརྦ་སིདྡྷི་མྨེ་པྲ་ཡཙྪ།\nསརྦ་ཀརྨ་སུ་ཙ་མེ། ཙིཏྟཾ་ཤྲཱེ་ཡཾ་ཀུ་རུ་ཧཱུྃ། ཧ་ཧ་ཧ་ཧ་ཧོཿ བྷ་ག་ཝཱན།།\nསརྦ་ཏ་ཐཱ་ག་ཏ། བཛྲ་མཱ་མེ་མུཉྩ། བཛྲི་བྷ་ཝ་སརྦ་མ་ཧཱ་ས་མ་ཡ་སཏྭ་ཨཱཿ",
+//         "author": "",
+//       },
+//       {
+//         "label": "Go Deeper",
+//         "contentType": "video",
+//         "content": "https://www.youtube.com/watch?v=AIqU8kQkM6s",
+//       },
+//       {
+//         "label": "Meditation",
+//         "contentType": "audio",
+//         "content": "https://youtu.be/mbXbjToHsag",
+//       },
+//       {
+//         "label": "My Intention for Today",
+//         "contentType": "image",
+//         "content":
+//             "https://drive.google.com/uc?export=view&id=1UpDsFFtZbDZsp8I2p1fjbhUTShVYHwFW",
+//       },
+//       {
+//         "label": "Bringing it to life",
+//         "contentType": "image",
+//         "content":
+//             "https://drive.google.com/uc?export=view&id=111WKKsUnP9X_kugAtNjvPMhbvhxeHC1M",
+//       },
+//     ],
+//   },
+//   "saturday": {
+//     "plan": [
+//       {
+//         "label": "Verse",
+//         "contentType": "text",
+//         "content":
+//             "ༀ་བཛྲ་སཏྭ་ས་མ་ཡ། མ་ནུ་པཱ་ལ་ཡ། བཛྲ་སཏྭ་ཏྲྭེ་ནོ་པ། ཏིཥྛ་དྲཱྀ་ཌྷོ་མེ་བྷ་ཝ།\nསུ་ཏོ་ཥྱོ་མེ་བྷ་ཝ། སུ་པོ་ཥྱོ་མེ་བྷ་ཝ། ཨ་ནུ་རཀྟོ་མེ་བྷ་ཝ། སརྦ་སིདྡྷི་མྨེ་པྲ་ཡཙྪ།\nསརྦ་ཀརྨ་སུ་ཙ་མེ། ཙིཏྟཾ་ཤྲཱེ་ཡཾ་ཀུ་རུ་ཧཱུྃ། ཧ་ཧ་ཧ་ཧ་ཧོཿ བྷ་ག་ཝཱན།།\nསརྦ་ཏ་ཐཱ་ག་ཏ། བཛྲ་མཱ་མེ་མུཉྩ། བཛྲི་བྷ་ཝ་སརྦ་མ་ཧཱ་ས་མ་ཡ་སཏྭ་ཨཱཿ",
+//         "author": "",
+//       },
+//       {
+//         "label": "Go Deeper",
+//         "contentType": "video",
+//         "content": "https://www.youtube.com/watch?v=lUt32nHKUHk",
+//       },
+//       {
+//         "label": "Meditation",
+//         "contentType": "audio",
+//         "content": "https://youtu.be/TTjV-hZ3_eQ",
+//       },
+//       {
+//         "label": "My Intention for Today",
+//         "contentType": "image",
+//         "content":
+//             "https://drive.google.com/uc?export=view&id=17mAFn_fPNwN7tnNspnKhL_sitqyqrmCh",
+//       },
+//       {
+//         "label": "Bringing it to life",
+//         "contentType": "image",
+//         "content":
+//             "https://drive.google.com/uc?export=view&id=1I56jMTr_kbnMv0sy7HoI_fyO6u9JM0ll",
+//       },
+//     ],
+//   },
+//   "sunday": {
+//     "plan": [
+//       {
+//         "label": "Verse",
+//         "contentType": "text",
+//         "content":
+//             "ༀ་བཛྲ་སཏྭ་ས་མ་ཡ། མ་ནུ་པཱ་ལ་ཡ། བཛྲ་སཏྭ་ཏྲྭེ་ནོ་པ། ཏིཥྛ་དྲཱྀ་ཌྷོ་མེ་བྷ་ཝ།\nསུ་ཏོ་ཥྱོ་མེ་བྷ་ཝ། སུ་པོ་ཥྱོ་མེ་བྷ་ཝ། ཨ་ནུ་རཀྟོ་མེ་བྷ་ཝ། སརྦ་སིདྡྷི་མྨེ་པྲ་ཡཙྪ།\nསརྦ་ཀརྨ་སུ་ཙ་མེ། ཙིཏྟཾ་ཤྲཱེ་ཡཾ་ཀུ་རུ་ཧཱུྃ། ཧ་ཧ་ཧ་ཧ་ཧོཿ བྷ་ག་ཝཱན།།\nསརྦ་ཏ་ཐཱ་ག་ཏ། བཛྲ་མཱ་མེ་མུཉྩ། བཛྲི་བྷ་ཝ་སརྦ་མ་ཧཱ་ས་མ་ཡ་སཏྭ་ཨཱཿ",
+//         "author": "",
+//       },
+//       {
+//         "label": "Go Deeper",
+//         "contentType": "video",
+//         "content": "https://www.youtube.com/watch?v=dAMb-R1iDVg",
+//       },
+//       {
+//         "label": "Meditation",
+//         "contentType": "audio",
+//         "content": "https://youtu.be/RfwWPmPxMCI",
+//       },
+//       {
+//         "label": "My Intention for Today",
+//         "contentType": "image",
+//         "content":
+//             "https://drive.google.com/uc?export=view&id=1uNzvVledk4o0HGXuAuoLCnymfc6dWcK4",
+//       },
+//       {
+//         "label": "Bringing it to life",
+//         "contentType": "image",
+//         "content":
+//             "https://drive.google.com/uc?export=view&id=1vo0bUKXw3q6GpKLt36zAEbnpe8A0cz04",
+//       },
+//     ],
+//   },
+// };
 
 // const Map<String, dynamic> weekPlanBo = {
 //   "monday": {

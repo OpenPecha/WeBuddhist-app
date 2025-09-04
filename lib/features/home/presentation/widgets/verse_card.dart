@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_pecha/core/config/locale_provider.dart';
 import 'package:flutter_pecha/features/texts/data/providers/selected_segment_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -11,15 +10,10 @@ class VerseCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final locale = ref.watch(localeProvider);
-    final languageCode = locale?.languageCode;
-    final isZh = languageCode == 'zh';
     return GestureDetector(
       onTap: () {
-        if (isZh) {
-          ref.read(bottomBarVisibleProvider.notifier).state =
-              !ref.read(bottomBarVisibleProvider.notifier).state;
-        }
+        ref.read(bottomBarVisibleProvider.notifier).state =
+            !ref.read(bottomBarVisibleProvider.notifier).state;
       },
       child: Container(
         width: double.infinity,

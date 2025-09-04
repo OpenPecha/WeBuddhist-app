@@ -4,24 +4,29 @@ const Map<String, dynamic> weekPlanZh = {
       {
         "label": "今日智慧",
         "contentType": "text",
-        "content": "是故我應於此敵\n毀其糧秣令無餘\n唯除如是為我害\n此敵更無他事業",
-        "author": "入菩薩行論忍辱品第 8 偈\n寂天菩薩造 如石法師譯\n講解者：格西索南貢布（諾諾格西）",
+        "content": "迭亞他 嗡 貝卡則 貝卡則 麻哈 貝卡則 拉雜 三木嘎迭 梭哈",
+        "author": "釋迦牟尼佛",
       },
       {
         "label": "深入了解",
         "contentType": "video",
-        "content": "https://www.youtube.com/watch?v=bGaxZDOlHAQ",
+        "content": "https://www.youtube.com/watch?v=4bL-U780yPE",
       },
       {
-        "label": "融入生活",
+        "label": "禪修",
         "contentType": "video",
-        "content": "https://www.youtube.com/watch?v=O4e1x4p2E7Q",
+        "content": "https://www.youtube.com/watch?v=nUWqxsENtG0",
+      },
+      {
+        "label": "持誦",
+        "contentType": "video",
+        "content": "https://www.youtube.com/watch?v=xwHuaB4IAMc",
       },
       {
         "label": "今日任務",
         "contentType": "image",
         "content":
-            "https://drive.google.com/uc?export=view&id=1uR8FuL-ym27wPv9Hw7hM53r0MoPiQ8yV",
+            "https://drive.google.com/uc?export=view&id=11MZuFIj3xkiweyCZPkO58qqFKTzk1K6e",
       },
     ],
   },
@@ -30,24 +35,30 @@ const Map<String, dynamic> weekPlanZh = {
       {
         "label": "今日智慧",
         "contentType": "text",
-        "content": "作所不欲遮所欲\n瞋恚由斯二者生\n心不愉悅如飲食\n長養瞋心應摧伏",
-        "author": "入菩薩行論忍辱品第 7 偈\n寂天菩薩造 如石法師譯\n講解者：格西索南貢布（諾諾格西）",
+        "content":
+            "願以此善速得證\n如來藥師佛果位\n一切眾生盡無餘\n悉皆安置彼剎土\n願諸病有情\n速脫疾病苦\n亦願眾生疾\n畢竟永不生",
+        "author": "",
       },
       {
         "label": "深入了解",
         "contentType": "video",
-        "content": "https://www.youtube.com/watch?v=XMKjN94v3gE",
+        "content": "https://www.youtube.com/watch?v=UbVkInws3kI",
       },
       {
-        "label": "融入生活",
+        "label": "禪修",
         "contentType": "video",
-        "content": "https://www.youtube.com/watch?v=e0m_J3LuTe4",
+        "content": "https://www.youtube.com/watch?v=nUWqxsENtG0",
+      },
+      {
+        "label": "持誦",
+        "contentType": "video",
+        "content": "https://www.youtube.com/watch?v=xwHuaB4IAMc",
       },
       {
         "label": "今日任務",
         "contentType": "image",
         "content":
-            "https://drive.google.com/uc?export=view&id=1SyyVwtNUVW_gDdIk8YbS5en00JlLNtB5",
+            "https://drive.google.com/uc?export=view&id=1MC_bfJ0x2S756WKiQBH6710KkizjA0nQ",
       },
     ],
   },
@@ -56,24 +67,29 @@ const Map<String, dynamic> weekPlanZh = {
       {
         "label": "今日智慧",
         "contentType": "text",
-        "content": "是故我應於此敵\n毀其糧秣令無餘\n唯除如是為我害\n此敵更無他事業",
-        "author": "入菩薩行論忍辱品第 8 偈\n寂天菩薩造 如石法師譯\n講解者：格西索南貢布（諾諾格西）",
+        "content": "敵害病疫悉消除\n爭鬥平息身心樂\n財富自在壽命增\n所願如意皆成就\n恆常護佑無退失",
+        "author": "Kalpabhadra（藏文 ཀལྤ་བྷ་དྲ）",
       },
       {
         "label": "深入了解",
         "contentType": "video",
-        "content": "https://www.youtube.com/watch?v=bGaxZDOlHAQ",
+        "content": "https://www.youtube.com/watch?v=rdG918bDUcY",
       },
       {
-        "label": "融入生活",
+        "label": "禪修",
         "contentType": "video",
-        "content": "https://www.youtube.com/watch?v=O4e1x4p2E7Q",
+        "content": "https://www.youtube.com/watch?v=nUWqxsENtG0",
+      },
+      {
+        "label": "持誦",
+        "contentType": "video",
+        "content": "https://www.youtube.com/watch?v=xwHuaB4IAMc",
       },
       {
         "label": "今日任務",
         "contentType": "image",
         "content":
-            "https://drive.google.com/uc?export=view&id=1uR8FuL-ym27wPv9Hw7hM53r0MoPiQ8yV",
+            "https://drive.google.com/uc?export=view&id=1MC_bfJ0x2S756WKiQBH6710KkizjA0nQ",
       },
     ],
   },
@@ -82,24 +98,29 @@ const Map<String, dynamic> weekPlanZh = {
       {
         "label": "今日智慧",
         "contentType": "text",
-        "content": "作所不欲遮所欲\n瞋恚由斯二者生\n心不愉悅如飲食\n長養瞋心應摧伏",
-        "author": "入菩薩行論忍辱品第 7 偈\n寂天菩薩造 如石法師譯\n講解者：格西索南貢布（諾諾格西）",
+        "content": "於眾平等大悲薄伽梵\n僅聞其號惡趣諸苦滅\n能消三毒病苦藥師佛\n琉璃光王如來敬頂禮",
+        "author": "宇妥·元丹貢布",
       },
       {
         "label": "深入了解",
         "contentType": "video",
-        "content": "https://www.youtube.com/watch?v=XMKjN94v3gE",
+        "content": "https://www.youtube.com/watch?v=EdwOCqbnt7c",
       },
       {
-        "label": "融入生活",
+        "label": "禪修",
         "contentType": "video",
-        "content": "https://www.youtube.com/watch?v=e0m_J3LuTe4",
+        "content": "https://www.youtube.com/watch?v=nUWqxsENtG0",
+      },
+      {
+        "label": "持誦",
+        "contentType": "video",
+        "content": "https://www.youtube.com/watch?v=xwHuaB4IAMc",
       },
       {
         "label": "今日任務",
         "contentType": "image",
         "content":
-            "https://drive.google.com/uc?export=view&id=1SyyVwtNUVW_gDdIk8YbS5en00JlLNtB5",
+            "https://drive.google.com/uc?export=view&id=11MZuFIj3xkiweyCZPkO58qqFKTzk1K6e",
       },
     ],
   },
@@ -108,24 +129,29 @@ const Map<String, dynamic> weekPlanZh = {
       {
         "label": "今日智慧",
         "contentType": "text",
-        "content": "作所不欲遮所欲\n瞋恚由斯二者生\n心不愉悅如飲食\n長養瞋心應摧伏",
-        "author": "入菩薩行論忍辱品第 7 偈\n寂天菩薩造 如石法師譯\n講解者：格西索南貢布（諾諾格西）",
+        "content": "敵害病疫悉消除\n爭鬥平息身心樂\n財富自在壽命增\n所願如意皆成就\n恆常護佑無退失",
+        "author": "Kalpabhadra（藏文 ཀལྤ་བྷ་དྲ）",
       },
       {
         "label": "深入了解",
         "contentType": "video",
-        "content": "https://www.youtube.com/watch?v=XMKjN94v3gE",
+        "content": "https://www.youtube.com/watch?v=rdG918bDUcY",
       },
       {
-        "label": "融入生活",
+        "label": "禪修",
         "contentType": "video",
-        "content": "https://www.youtube.com/watch?v=e0m_J3LuTe4",
+        "content": "https://www.youtube.com/watch?v=nUWqxsENtG0",
+      },
+      {
+        "label": "持誦",
+        "contentType": "video",
+        "content": "https://www.youtube.com/watch?v=xwHuaB4IAMc",
       },
       {
         "label": "今日任務",
         "contentType": "image",
         "content":
-            "https://drive.google.com/uc?export=view&id=1SyyVwtNUVW_gDdIk8YbS5en00JlLNtB5",
+            "https://drive.google.com/uc?export=view&id=1MC_bfJ0x2S756WKiQBH6710KkizjA0nQ",
       },
     ],
   },
@@ -134,24 +160,29 @@ const Map<String, dynamic> weekPlanZh = {
       {
         "label": "今日智慧",
         "contentType": "text",
-        "content": "是故我應於此敵\n毀其糧秣令無餘\n唯除如是為我害\n此敵更無他事業",
-        "author": "入菩薩行論忍辱品第 8 偈\n寂天菩薩造 如石法師譯\n講解者：格西索南貢布（諾諾格西）",
+        "content": "於眾平等大悲薄伽梵\n僅聞其號惡趣諸苦滅\n能消三毒病苦藥師佛\n琉璃光王如來敬頂禮",
+        "author": "宇妥·元丹貢布",
       },
       {
         "label": "深入了解",
         "contentType": "video",
-        "content": "https://www.youtube.com/watch?v=bGaxZDOlHAQ",
+        "content": "https://www.youtube.com/watch?v=EdwOCqbnt7c",
       },
       {
-        "label": "融入生活",
+        "label": "禪修",
         "contentType": "video",
-        "content": "https://www.youtube.com/watch?v=O4e1x4p2E7Q",
+        "content": "https://www.youtube.com/watch?v=nUWqxsENtG0",
+      },
+      {
+        "label": "持誦",
+        "contentType": "video",
+        "content": "https://www.youtube.com/watch?v=xwHuaB4IAMc",
       },
       {
         "label": "今日任務",
         "contentType": "image",
         "content":
-            "https://drive.google.com/uc?export=view&id=1uR8FuL-ym27wPv9Hw7hM53r0MoPiQ8yV",
+            "https://drive.google.com/uc?export=view&id=11MZuFIj3xkiweyCZPkO58qqFKTzk1K6e",
       },
     ],
   },
@@ -160,24 +191,29 @@ const Map<String, dynamic> weekPlanZh = {
       {
         "label": "今日智慧",
         "contentType": "text",
-        "content": "作所不欲遮所欲\n瞋恚由斯二者生\n心不愉悅如飲食\n長養瞋心應摧伏",
-        "author": "入菩薩行論忍辱品第 7 偈\n寂天菩薩造 如石法師譯\n講解者：格西索南貢布（諾諾格西）",
+        "content": "迭亞他 嗡 貝卡則 貝卡則 麻哈 貝卡則 拉雜 三木嘎迭 梭哈",
+        "author": "釋迦牟尼佛",
       },
       {
         "label": "深入了解",
         "contentType": "video",
-        "content": "https://www.youtube.com/watch?v=XMKjN94v3gE",
+        "content": "https://www.youtube.com/watch?v=0Sqm-M-GUTQ",
       },
       {
-        "label": "融入生活",
+        "label": "禪修",
         "contentType": "video",
-        "content": "https://www.youtube.com/watch?v=e0m_J3LuTe4",
+        "content": "https://www.youtube.com/watch?v=nUWqxsENtG0",
+      },
+      {
+        "label": "持誦",
+        "contentType": "video",
+        "content": "https://www.youtube.com/watch?v=xwHuaB4IAMc",
       },
       {
         "label": "今日任務",
         "contentType": "image",
         "content":
-            "https://drive.google.com/uc?export=view&id=1SyyVwtNUVW_gDdIk8YbS5en00JlLNtB5",
+            "https://drive.google.com/uc?export=view&id=1MC_bfJ0x2S756WKiQBH6710KkizjA0nQ",
       },
     ],
   },

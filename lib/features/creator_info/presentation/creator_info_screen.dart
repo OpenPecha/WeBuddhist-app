@@ -1,20 +1,43 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/config/locale_provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-class CreatorInfoScreen extends StatelessWidget {
+class CreatorInfoScreen extends ConsumerWidget {
   const CreatorInfoScreen({super.key});
 
-  static const List<String> _planItems = ["入菩薩行論教你如何對治嗔心"];
+  static const List<String> _planItems = ["Medicine Buddha Healing"];
+
+  static const credits = [
+    {
+      "language": "bo",
+      "name": "ཡེ་ཤེས་ལྷུན་གྲུབ།",
+      "bio":
+          "ཡེ་ཤེས་ལྷུན་གྲུབ་ནི་ནང་པ་ཞིག་ཡིན་པ་དང་། ཁོང་གིས་དབྱིན་ཡིག་ཐོག་ཏུ་བརྩེ་བ་དང་ཤེས་རབ་གཉིས་བསྡོམས་ན་བདེ་བ་ཡིན་ཞེས་པའི་དེབ་ཅིག་བྲིས་ཡོད།",
+    },
+    {
+      "language": "zh",
+      "name": "耶喜嘉措（Jay）",
+      "bio": "希望能把佛法的內容以現代化的方式，傳達給所有對佛法有興趣的人。",
+    },
+    {"language": "en", "name": "Kevin", "bio": "大家好，我是Kevin, 來自台灣。"},
+  ];
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final language = ref.watch(localeProvider);
+    final currentLanguage = language?.languageCode ?? 'en';
+    final currentCredits = credits.firstWhere(
+      (credit) => credit['language'] == currentLanguage,
+      orElse: () => credits.firstWhere((credit) => credit['language'] == 'en'),
+    );
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: Column(
           children: [
-            _buildHeader(context),
-            _buildBioSection(context),
+            _buildHeader(context, currentCredits),
+            _buildBioSection(context, currentCredits),
             _buildFeaturedPlanSection(context),
           ],
         ),
@@ -22,7 +45,10 @@ class CreatorInfoScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildHeader(BuildContext context) {
+  Widget _buildHeader(
+    BuildContext context,
+    Map<String, dynamic> currentCredits,
+  ) {
     return Container(
       decoration: BoxDecoration(color: Theme.of(context).cardColor),
       child: Padding(
@@ -62,18 +88,10 @@ class CreatorInfoScreen extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Text(
-                          "格西索南貢布（諾諾格西）",
+                        Text(
+                          currentCredits['name'],
                           style: TextStyle(
                             fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        const Text(
-                          "台灣格魯總會",
-                          style: TextStyle(
-                            fontSize: 14,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -89,14 +107,17 @@ class CreatorInfoScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildBioSection(BuildContext context) {
+  Widget _buildBioSection(
+    BuildContext context,
+    Map<String, dynamic> currentCredits,
+  ) {
     return Container(
       padding: const EdgeInsets.all(16.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            "索南貢布（sonam gonpo），1969年出生，1992年進入南印度色拉傑寺佛學院（serajey monastery）學習五部大論等各種佛法知識，2009年取得格西學位。2010年進入下密院學習密法。2011年有幸參加了尊者辦公室為有中文基礎的格西，特別開設為期三年的中文佛法介紹培訓課程，在此期間也同時學習到了孔子、孟子等聖賢教論。隨後經色拉傑寺派駐台灣色拉傑遍知佛學會，擔任當家格西；卸任後應邀為臺北市明覺佛學會常住當家格西，並為台灣國際藏傳佛教研究會組成成員之一，2024年獲聘任為臺灣格魯總會名譽理事長",
+          Text(
+            currentCredits['bio'],
             style: TextStyle(fontSize: 15, height: 1.7),
             softWrap: true,
             overflow: TextOverflow.visible,
