@@ -141,16 +141,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                 // context.push('/library');
                 ref.read(bottomBarVisibleProvider.notifier).state =
                     !ref.read(bottomBarVisibleProvider.notifier).state;
-                context.push(
-                  '/texts/detail',
-                  extra: Term(
-                    id: "67dd22a8d9f06ab28feedc90",
-                    title: "",
-                    description: "",
-                    slug: "",
-                    hasChild: false,
-                  ),
-                );
+                context.push('/texts');
               },
             ),
             ActionButton(
@@ -240,10 +231,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                   return Column(
                     children: [
                       ActionOfTheDayCard(
-                        title:
-                            isChinese
-                                ? planItem.label
-                                : localizations.home_goDeeper,
+                        title: planItem.label,
                         subtitle: "4-5 min",
                         iconWidget: Image.asset(
                           'assets/images/home/teaching.png',
