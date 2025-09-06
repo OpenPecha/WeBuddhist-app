@@ -23,7 +23,6 @@ class ProfilePage extends ConsumerWidget {
         (user.name ?? _joinNames(user.givenName, user.familyName)).trim();
     final email = user.email ?? '';
     final bio = "Welcome to WeBuddhist";
-    final location = _deriveLocation(user);
 
     return Scaffold(
       appBar: AppBar(title: const Text('Profile')),
@@ -82,21 +81,6 @@ class ProfilePage extends ConsumerWidget {
                               ?.copyWith(color: Colors.black87),
                         ),
                       if (bio.isNotEmpty) const SizedBox(height: 8),
-                      if (location.isNotEmpty)
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            const Icon(Icons.location_on_outlined, size: 18),
-                            const SizedBox(width: 4),
-                            Flexible(
-                              child: Text(
-                                location,
-                                style: Theme.of(context).textTheme.bodySmall,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                          ],
-                        ),
                     ],
                   ),
                 ),
@@ -121,21 +105,5 @@ class ProfilePage extends ConsumerWidget {
     final g = (given ?? '').trim();
     final f = (family ?? '').trim();
     return [g, f].where((e) => e.isNotEmpty).join(' ');
-  }
-
-  static String _deriveLocation(user) {
-    final address = user.address as Map<String, String>?;
-    final locality = address?['locality'];
-    final region = address?['region'];
-    final country = address?['country'];
-    final zoneinfo = user.zoneinfo as String?;
-    final locale = user.locale as String?;
-    final candidates =
-        [locality, region, country, zoneinfo, locale]
-            .whereType<String>()
-            .map((s) => s.trim())
-            .where((s) => s.isNotEmpty)
-            .toList();
-    return candidates.isNotEmpty ? candidates.first : "San Francisco, CA";
   }
 }
