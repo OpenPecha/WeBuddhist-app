@@ -83,7 +83,7 @@ class _CreateImageState extends State<CreateImage> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('Failed to save image'),
+              content: Text('Unable to save image. Please try again later.'),
               behavior: SnackBarBehavior.floating,
             ),
           );
@@ -94,7 +94,7 @@ class _CreateImageState extends State<CreateImage> {
         debugPrint('Error downloading image: $e');
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error: ${e.toString()}'),
+            content: Text('Unable to download image. Please try again later.'),
             behavior: SnackBarBehavior.floating,
           ),
         );
