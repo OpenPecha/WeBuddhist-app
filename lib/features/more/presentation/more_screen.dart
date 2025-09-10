@@ -105,7 +105,7 @@ class MoreScreen extends ConsumerWidget {
                   isDarkMode
                       ? localizations.themeDark
                       : localizations.themeLight,
-                  style: Theme.of(context).textTheme.bodyLarge,
+                  style: Theme.of(context).textTheme.bodyMedium,
                 ),
                 subtitle: Text(
                   isDarkMode ? 'Dark theme enabled' : 'Light theme enabled',
@@ -127,7 +127,10 @@ class MoreScreen extends ConsumerWidget {
                   Icons.language,
                   color: Theme.of(context).colorScheme.primary,
                 ),
-                title: const Text('Language'),
+                title: Text(
+                  'Language',
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
                 subtitle: Text(
                   _getLanguageName(locale ?? Localizations.localeOf(context)),
                   style: Theme.of(context).textTheme.bodySmall,
@@ -144,14 +147,19 @@ class MoreScreen extends ConsumerWidget {
             context,
             children: [
               ListTile(
-                leading: const Icon(Icons.notifications),
+                leading: Icon(
+                  Icons.notifications,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
                 title: Text(
                   AppLocalizations.of(context)?.notificationSettings ??
                       'Notification Settings',
+                  style: Theme.of(context).textTheme.bodyMedium,
                 ),
                 subtitle: Text(
                   AppLocalizations.of(context)?.manageDailyReminders ??
                       'Manage daily reminders',
+                  style: Theme.of(context).textTheme.bodySmall,
                 ),
                 onTap: () => context.push(NotificationSettingsScreen.routeName),
               ),
@@ -163,21 +171,44 @@ class MoreScreen extends ConsumerWidget {
           _buildSectionCard(
             context,
             children: [
-              ListTile(
-                leading: Icon(Icons.logout, color: Colors.red.shade600),
-                title: Text(
-                  'Logout',
-                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    color: Colors.red.shade600,
-                    fontWeight: FontWeight.w500,
+              if (authState.isGuest) ...[
+                // Show sign-in option for guest users
+                ListTile(
+                  leading: Icon(
+                    Icons.login,
+                    color: Theme.of(context).colorScheme.primary,
                   ),
+                  title: Text(
+                    'Sign In',
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      color: Theme.of(context).colorScheme.primary,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  subtitle: Text(
+                    'Sign in to sync your progress',
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                  onTap: () => ref.read(authProvider.notifier).logout(),
                 ),
-                subtitle: Text(
-                  'Sign out of your account',
-                  style: Theme.of(context).textTheme.bodySmall,
+              ] else if (authState.isLoggedIn) ...[
+                // Show logout option for authenticated users
+                ListTile(
+                  leading: Icon(Icons.logout, color: Colors.red.shade600),
+                  title: Text(
+                    'Logout',
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      color: Colors.red.shade600,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  subtitle: Text(
+                    'Sign out of your account',
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                  onTap: () => _showLogoutDialog(context, ref),
                 ),
-                onTap: () => _showLogoutDialog(context, ref),
-              ),
+              ],
             ],
           ),
         ],
