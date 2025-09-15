@@ -1,5 +1,5 @@
+import 'package:flutter_pecha/core/network/http_client_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:http/http.dart' as http;
 import '../repositories/author_repository.dart';
 import '../datasource/author_remote_datasource.dart';
 import '../../models/author_model.dart';
@@ -7,7 +7,9 @@ import '../../models/author_model.dart';
 // Repository provider
 final authorRepositoryProvider = Provider<AuthorRepository>((ref) {
   return AuthorRepository(
-    authorRemoteDatasource: AuthorRemoteDatasource(client: http.Client()),
+    authorRemoteDatasource: AuthorRemoteDatasource(
+      client: ref.watch(httpClientProvider),
+    ),
   );
 });
 

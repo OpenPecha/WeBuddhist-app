@@ -9,7 +9,7 @@ class PlanDaysRemoteDatasource {
 
   PlanDaysRemoteDatasource({required this.client});
 
-  // get plan days by plan id
+  // get plan days list by plan id
   Future<List<PlanDaysModel>> getPlanDaysByPlanId(String planId) async {
     try {
       final response = await client.get(

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/features/auth/application/auth_provider.dart';
 import 'package:flutter_pecha/features/plans/data/providers/plans_providers.dart';
+import 'package:flutter_pecha/features/plans/data/providers/user_plans_provider.dart';
 import 'package:flutter_pecha/features/plans/models/plans_model.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -13,13 +14,13 @@ class PlanList extends ConsumerWidget {
     final allPlans = ref.watch(plansFutureProvider);
     final authState = ref.watch(authProvider);
     final isGuest = authState.isGuest;
+    final isLoggedIn = authState.isLoggedIn;
+    var subscribedPlans = AsyncValue<List<PlansModel>>.data([]);
 
-    if (!isGuest) {
-      // TODO: api call to get the plans subscribed by the user
-      // final subscribedPlans = ref.watch(subscribedPlansFutureProvider);
+    if (!isGuest && isLoggedIn) {
+      subscribedPlans = ref.watch(userPlansFutureProvider(authState.userId!));
     }
 
-    // TODO: check if the user is logged in and show the plans accordingly
     return DefaultTabController(
       length: 2,
       child: Scaffold(
@@ -58,10 +59,10 @@ class PlanList extends ConsumerWidget {
         body: TabBarView(
           children: [
             // my plans tab
-            isGuest
+            isGuest || !isLoggedIn
                 ? _buildGuestLoginPrompt(context, ref)
-                : _buildMyPlans(allPlans),
-            _buildAllPlans(allPlans),
+                : _buildMyPlans(subscribedPlans, isGuest),
+            _buildAllPlans(allPlans, isGuest),
           ],
         ),
       ),
@@ -89,7 +90,10 @@ class PlanList extends ConsumerWidget {
     );
   }
 
-  Widget _buildMyPlans(AsyncValue<List<PlansModel>> subscribedPlans) {
+  Widget _buildMyPlans(
+    AsyncValue<List<PlansModel>> subscribedPlans,
+    bool isGuest,
+  ) {
     return Column(
       children: [
         Expanded(
@@ -103,7 +107,7 @@ class PlanList extends ConsumerWidget {
                   itemCount: plans.length,
                   itemBuilder: (context, index) {
                     final plan = plans[index];
-                    return _buildPlanCard(plan, context);
+                    return _buildPlanCard(context, plan, isGuest);
                   },
                 ),
             error: (error, stackTrace) => Center(child: Text('Error: $error')),
@@ -114,7 +118,7 @@ class PlanList extends ConsumerWidget {
     );
   }
 
-  Widget _buildAllPlans(AsyncValue<List<PlansModel>> allPlans) {
+  Widget _buildAllPlans(AsyncValue<List<PlansModel>> allPlans, bool isGuest) {
     return Column(
       children: [
         Expanded(
@@ -128,7 +132,7 @@ class PlanList extends ConsumerWidget {
                   itemCount: plans.length,
                   itemBuilder: (context, index) {
                     final plan = plans[index];
-                    return _buildPlanCard(plan, context);
+                    return _buildPlanCard(context, plan, isGuest);
                   },
                 ),
             error:
@@ -142,14 +146,18 @@ class PlanList extends ConsumerWidget {
     );
   }
 
-  Widget _buildPlanCard(PlansModel plan, BuildContext context) {
+  Widget _buildPlanCard(BuildContext context, PlansModel plan, bool isGuest) {
     return Card(
       color: Theme.of(context).cardColor,
       margin: const EdgeInsets.only(bottom: 16.0),
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: InkWell(
-        onTap: () => context.push('/plans/info', extra: plan),
+        onTap:
+            () => context.push(
+              isGuest ? '/plans/info' : '/plans/details',
+              extra: plan,
+            ),
         borderRadius: BorderRadius.circular(12),
         child: Padding(
           padding: const EdgeInsets.all(16.0),
