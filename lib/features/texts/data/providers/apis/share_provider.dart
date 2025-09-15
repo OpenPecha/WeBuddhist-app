@@ -1,12 +1,7 @@
 import 'package:flutter_pecha/features/texts/data/datasource/share_remote_datasource.dart';
 import 'package:flutter_pecha/features/texts/data/repositories/share_repository.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:http/http.dart' as http;
-
-// HTTP client provider for dependency injection
-final httpClientProvider = Provider<http.Client>((ref) {
-  return http.Client();
-});
+import 'package:flutter_pecha/core/network/http_client_provider.dart';
 
 // Share repository provider
 final shareRepositoryProvider = Provider<ShareRepository>((ref) {
