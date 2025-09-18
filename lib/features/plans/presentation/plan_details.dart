@@ -15,8 +15,9 @@ class PlanDetails extends ConsumerStatefulWidget {
 }
 
 class _PlanDetailsState extends ConsumerState<PlanDetails> {
-  int selectedDay = 1; // Day 3 is selected by default
+  int selectedDay = 1; // Day 1 is selected by default
   Set<int> selectedActivities = {}; // No activities selected initially
+  int? previousSelectedDay; // Track previous day to reset activities
 
   @override
   Widget build(BuildContext context) {
@@ -27,6 +28,20 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
         PlanDaysParams(planId: widget.plan.id, dayNumber: selectedDay),
       ),
     );
+
+    // Reset selected activities when day changes
+    if (previousSelectedDay != null && previousSelectedDay != selectedDay) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          setState(() {
+            selectedActivities.clear();
+          });
+        }
+      });
+    }
+    previousSelectedDay = selectedDay;
+
+    debugPrint('planDayContent day number: ${planDayContent.value?.dayNumber}');
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -49,20 +64,69 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
                 });
               },
             ),
-            ActivityList(
-              tasks: planDayContent.value?.tasks ?? [],
-              today: selectedDay,
-              totalDays: widget.plan.totalDays,
-              selectedActivities: selectedActivities,
-              onActivityToggled: (activity) {
-                setState(() {
-                  if (selectedActivities.contains(activity)) {
-                    selectedActivities.remove(activity);
-                  } else {
-                    selectedActivities.add(activity);
-                  }
-                });
-              },
+            planDayContent.when(
+              data:
+                  (dayContent) => ActivityList(
+                    tasks: dayContent.tasks ?? [],
+                    today: selectedDay,
+                    totalDays: widget.plan.totalDays,
+                    selectedActivities: selectedActivities,
+                    onActivityToggled: (activity) {
+                      setState(() {
+                        if (selectedActivities.contains(activity)) {
+                          selectedActivities.remove(activity);
+                        } else {
+                          selectedActivities.add(activity);
+                        }
+                      });
+                    },
+                  ),
+              loading:
+                  () => Container(
+                    margin: const EdgeInsets.all(20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "Day $selectedDay of ${widget.plan.totalDays}",
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        const Center(child: CircularProgressIndicator()),
+                      ],
+                    ),
+                  ),
+              error:
+                  (error, stackTrace) => Container(
+                    margin: const EdgeInsets.all(20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "Day $selectedDay of ${widget.plan.totalDays}",
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          'Failed to load activities for this day',
+                          style: TextStyle(color: Colors.red[600]),
+                        ),
+                        const SizedBox(height: 8),
+                        ElevatedButton(
+                          onPressed: () {
+                            ref.invalidate(planDayContentFutureProvider);
+                          },
+                          child: const Text('Retry'),
+                        ),
+                      ],
+                    ),
+                  ),
             ),
           ],
         ),
