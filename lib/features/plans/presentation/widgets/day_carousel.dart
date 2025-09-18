@@ -71,7 +71,14 @@ class DayCarousel extends StatelessWidget {
                   const SizedBox(height: 4),
                   Text(
                     dayDateString,
-                    style: const TextStyle(fontSize: 10, color: Colors.grey),
+                    style: TextStyle(
+                      fontSize: 10,
+                      color: Colors.black54,
+                      fontWeight:
+                          startDate == dayDate
+                              ? FontWeight.bold
+                              : FontWeight.normal,
+                    ),
                   ),
                 ],
               ),
