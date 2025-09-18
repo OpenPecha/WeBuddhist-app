@@ -331,7 +331,15 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: '/plans/details',
-        builder: (context, state) => const PlanDetails(),
+        builder: (context, state) {
+          final extra = state.extra;
+          if (extra == null || extra is! PlansModel) {
+            return const Scaffold(
+              body: Center(child: Text('Missing required parameters')),
+            );
+          }
+          return PlanDetails(plan: extra);
+        },
       ),
       GoRoute(
         path: NotificationSettingsScreen.routeName,

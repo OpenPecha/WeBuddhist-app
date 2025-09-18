@@ -24,7 +24,9 @@ class PlanTasksModel {
       id: json['id'] as String,
       title: json['title'] as String,
       description: json['description'] as String?,
-      contentType: ContentType.values.byName(json['content_type'] as String),
+      contentType: ContentType.values.byName(
+        (json['content_type'] as String).toLowerCase(),
+      ),
       content: json['content'] as String?,
       displayOrder: json['display_order'] as int?,
       estimatedTime: json['estimated_time'] as int?,

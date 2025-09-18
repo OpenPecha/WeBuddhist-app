@@ -10,7 +10,15 @@ class PlanDaysRepository {
     try {
       return await planDaysRemoteDatasource.getPlanDaysByPlanId(planId);
     } catch (e) {
-      throw Exception('Failed to load plan items: $e');
+      throw Exception('Failed to load plan days in repository: $e');
+    }
+  }
+
+  Future<PlanDaysModel> getDayContent(String planId, int dayNumber) async {
+    try {
+      return await planDaysRemoteDatasource.getDayContent(planId, dayNumber);
+    } catch (e) {
+      throw Exception('Failed to load plan day content in repository: $e');
     }
   }
 }

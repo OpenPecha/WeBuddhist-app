@@ -178,8 +178,9 @@ class PlanList extends ConsumerWidget {
       tag: plan.title,
       child: ClipRRect(
         borderRadius: BorderRadius.circular(12),
-        child: Image.asset(
-          'assets/images/bg.jpg',
+        child: Image.network(
+          // 'assets/images/bg.jpg',
+          'https://drive.google.com/uc?export=view&id=1v94uQ1YInSQCXub1_cUOQDeZZm0KuM7H',
           width: 90,
           height: 90,
           fit: BoxFit.cover,

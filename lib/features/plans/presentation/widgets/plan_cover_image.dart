@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
 class PlanCoverImage extends StatelessWidget {
-  final String imagePath;
+  final String imageUrl;
   final String heroTag;
   final double? height;
 
   const PlanCoverImage({
     super.key,
-    required this.imagePath,
+    required this.imageUrl,
     this.heroTag = 'plan_image',
     this.height,
   });
@@ -22,11 +22,19 @@ class PlanCoverImage extends StatelessWidget {
         tag: heroTag,
         child: ClipRRect(
           borderRadius: BorderRadius.circular(12),
-          child: Image.asset(
-            imagePath,
+          child: Image.network(
+            imageUrl,
             width: double.infinity,
             height: height ?? MediaQuery.of(context).size.height * 0.23,
             fit: BoxFit.cover,
+            loadingBuilder: (context, child, progress) {
+              return progress?.expectedTotalBytes == null
+                  ? child
+                  : const Center(child: CircularProgressIndicator());
+            },
+            errorBuilder: (context, error, stackTrace) {
+              return const Center(child: Icon(Icons.broken_image, size: 80));
+            },
           ),
         ),
       ),

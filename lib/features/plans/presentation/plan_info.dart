@@ -52,8 +52,9 @@ class _PlanInfoState extends ConsumerState<PlanInfo> {
       tag: widget.plan.title,
       child: ClipRRect(
         borderRadius: BorderRadius.circular(12),
-        child: Image.asset(
-          'assets/images/bg.jpg',
+        child: Image.network(
+          // 'assets/images/bg.jpg',
+          'https://drive.google.com/uc?export=view&id=1v94uQ1YInSQCXub1_cUOQDeZZm0KuM7H',
           width: double.infinity,
           height: MediaQuery.of(context).size.height * 0.25,
           fit: BoxFit.cover,
@@ -83,7 +84,7 @@ class _PlanInfoState extends ConsumerState<PlanInfo> {
     return SizedBox(
       width: double.infinity,
       child: FilledButton(
-        onPressed: () => handleStartPlan(), // Updated to call without ref
+        onPressed: () => context.push('/plans/details', extra: widget.plan),
         style: FilledButton.styleFrom(
           padding: EdgeInsets.symmetric(vertical: 12),
           backgroundColor: Colors.black,
@@ -105,50 +106,8 @@ class _PlanInfoState extends ConsumerState<PlanInfo> {
   // Updated handleStartPlan function
   Future<void> handleStartPlan() async {
     final planId = widget.plan.id;
-    final authState = ref.read(authProvider);
 
-    try {
-      // Subscribe to plan using the authenticated HTTP client
-      final success = await ref.read(
-        userPlanSubscribeFutureProvider(planId).future,
-      );
-
-      if (success) {
-        // Success: Show plan listed in my plans
-        if (mounted) {
-          // Show success message
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Successfully enrolled in ${widget.plan.title}!'),
-              backgroundColor: Colors.green,
-              duration: Duration(seconds: 2),
-            ),
-          );
-
-          // Invalidate the user plans provider to refresh the data
-          ref.invalidate(userPlansFutureProvider(authState.userId!));
-
-          // Wait a moment for the data to refresh, then navigate
-          await Future.delayed(Duration(milliseconds: 500));
-
-          // Navigate to plan details with the subscribed plan
-          if (mounted) {
-            context.push('/plans/details', extra: widget.plan);
-          }
-        }
-      } else {
-        // Failed to enroll
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Failed to enroll in plan. Please try again.'),
-              backgroundColor: Colors.red,
-              duration: Duration(seconds: 3),
-            ),
-          );
-        }
-      }
-    } catch (e) {
+    try {} catch (e) {
       // Handle any errors during enrollment
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -159,7 +118,6 @@ class _PlanInfoState extends ConsumerState<PlanInfo> {
           ),
         );
       }
-      print('Enrollment error: $e'); // For debugging
     }
   }
 

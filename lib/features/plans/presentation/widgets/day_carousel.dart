@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:flutter_pecha/features/plans/models/plan_days_model.dart';
+import 'package:intl/intl.dart';
 
 class DayCarousel extends StatelessWidget {
-  final List<Map<String, dynamic>> days;
+  final List<PlanDaysModel> days;
+  final DateTime startDate;
   final int selectedDay;
   final Function(int) onDaySelected;
 
   const DayCarousel({
     super.key,
     required this.days,
+    required this.startDate,
     required this.selectedDay,
     required this.onDaySelected,
   });
@@ -33,10 +37,13 @@ class DayCarousel extends StatelessWidget {
         itemCount: days.length,
         itemBuilder: (context, index, realIndex) {
           final day = days[index];
-          final isSelected = selectedDay == day['day'];
+          final dayDate = startDate.add(Duration(days: day.dayNumber - 1));
+          //convert to 02 Jan type format
+          final dayDateString = DateFormat('dd MMM').format(dayDate);
+          final isSelected = selectedDay == day.dayNumber;
 
           return GestureDetector(
-            onTap: () => onDaySelected(day['day']),
+            onTap: () => onDaySelected(day.dayNumber),
             child: Container(
               width: 60,
               margin: const EdgeInsets.symmetric(horizontal: 4),
@@ -55,7 +62,7 @@ class DayCarousel extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    '${day['day']}',
+                    '${day.dayNumber}',
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
@@ -63,7 +70,7 @@ class DayCarousel extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    day['date'],
+                    dayDateString,
                     style: const TextStyle(fontSize: 10, color: Colors.grey),
                   ),
                 ],
