@@ -1,18 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/features/plans/data/providers/plan_days_providers.dart';
+import 'package:flutter_pecha/features/plans/models/plans_model.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'widgets/plan_cover_image.dart';
 import 'widgets/day_carousel.dart';
 import 'widgets/activity_list.dart';
 
 class PlanDetails extends ConsumerStatefulWidget {
-  const PlanDetails({super.key});
+  const PlanDetails({super.key, required this.plan});
+  final PlansModel plan;
 
   @override
   ConsumerState<PlanDetails> createState() => _PlanDetailsState();
 }
 
 class _PlanDetailsState extends ConsumerState<PlanDetails> {
-  int selectedDay = 3; // Day 3 is selected by default
+  int selectedDay = 1; // Day 3 is selected by default
   int selectedActivity = -1; // No activity selected initially
 
   final List<String> activities = [
@@ -38,10 +41,20 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
 
   @override
   Widget build(BuildContext context) {
+    final DateTime startDate = DateTime.now();
+    final DateTime endDate = DateTime.now().add(
+      Duration(days: widget.plan.totalDays),
+    );
+    final planDays = ref.watch(planDaysByPlanIdFutureProvider(widget.plan.id));
+    final planDayContent = ref.watch(
+      planDayContentFutureProvider(
+        PlanDaysParams(planId: widget.plan.id, dayNumber: selectedDay),
+      ),
+    );
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'Train your Mind',
+        title: Text(
+          widget.plan.title,
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         elevation: 0,
@@ -49,10 +62,15 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            const PlanCoverImage(imagePath: 'assets/images/bg.jpg'),
+            PlanCoverImage(
+              imageUrl:
+                  // widget.plan.imageUrl ??
+                  'https://drive.google.com/uc?export=view&id=1v94uQ1YInSQCXub1_cUOQDeZZm0KuM7H',
+            ),
             DayCarousel(
-              days: days,
+              days: planDays.value ?? [],
               selectedDay: selectedDay,
+              startDate: startDate,
               onDaySelected: (day) {
                 setState(() {
                   selectedDay = day;
@@ -60,7 +78,9 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
               },
             ),
             ActivityList(
-              activities: activities,
+              tasks: planDayContent.value?.tasks ?? [],
+              today: selectedDay,
+              totalDays: widget.plan.totalDays,
               selectedActivity: selectedActivity,
               onActivitySelected: (activity) {
                 setState(() {

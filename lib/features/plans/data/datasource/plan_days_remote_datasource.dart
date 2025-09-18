@@ -21,10 +21,10 @@ class PlanDaysRemoteDatasource {
         final List<dynamic> jsonData = responseData['days'] as List<dynamic>;
         return jsonData.map((json) => PlanDaysModel.fromJson(json)).toList();
       } else {
-        throw Exception('Failed to load plan items: ${response.statusCode}');
+        throw Exception('Failed to load plan days: ${response.statusCode}');
       }
     } catch (e) {
-      throw Exception('Failed to load plan items: $e');
+      throw Exception('Failed to load plan days: $e');
     }
   }
 
@@ -39,10 +39,12 @@ class PlanDaysRemoteDatasource {
         final jsonData = json.decode(response.body);
         return PlanDaysModel.fromJson(jsonData);
       } else {
-        throw Exception('Failed to load plan item: ${response.statusCode}');
+        throw Exception(
+          'Failed to load plan day content: ${response.statusCode}',
+        );
       }
     } catch (e) {
-      throw Exception('Failed to load plan item: $e');
+      throw Exception('Failed to load plan day content: $e');
     }
   }
 }
