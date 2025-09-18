@@ -4,6 +4,7 @@ import 'package:flutter_pecha/features/auth/presentation/profile_page.dart';
 import 'package:flutter_pecha/features/app/presentation/skeleton_screen.dart';
 import 'package:flutter_pecha/features/creator_info/presentation/creator_info_screen.dart';
 import 'package:flutter_pecha/features/home/models/prayer_data.dart';
+import 'package:flutter_pecha/features/home/presentation/widgets/verse_text.dart';
 import 'package:flutter_pecha/features/home/presentation/widgets/view_illustration.dart';
 import 'package:flutter_pecha/features/home/presentation/widgets/youtube_video_player.dart';
 import 'package:flutter_pecha/features/home/presentation/widgets/meditation_video.dart';
@@ -147,6 +148,13 @@ final goRouterProvider = Provider<GoRouter>((ref) {
             imageUrl: extra['imageUrl'] as String,
             title: extra['title'] as String,
           );
+        },
+      ),
+      GoRoute(
+        path: '/home/verse_text',
+        builder: (context, state) {
+          final extra = state.extra;
+          return VerseText(verse: extra as String);
         },
       ),
       GoRoute(
