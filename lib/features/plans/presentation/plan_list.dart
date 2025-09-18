@@ -20,6 +20,7 @@ class PlanList extends ConsumerWidget {
     if (!isGuest && isLoggedIn) {
       subscribedPlans = ref.watch(userPlansFutureProvider(authState.userId!));
     }
+    debugPrint('subscribedPlans: ${subscribedPlans.valueOrNull}');
 
     return DefaultTabController(
       length: 2,
@@ -61,8 +62,8 @@ class PlanList extends ConsumerWidget {
             // my plans tab
             isGuest || !isLoggedIn
                 ? _buildGuestLoginPrompt(context, ref)
-                : _buildMyPlans(subscribedPlans, isGuest),
-            _buildAllPlans(allPlans, isGuest),
+                : _buildMyPlans(subscribedPlans, false),
+            _buildAllPlans(allPlans, true),
           ],
         ),
       ),
@@ -92,24 +93,27 @@ class PlanList extends ConsumerWidget {
 
   Widget _buildMyPlans(
     AsyncValue<List<PlansModel>> subscribedPlans,
-    bool isGuest,
+    bool showInfo,
   ) {
     return Column(
       children: [
         Expanded(
           child: subscribedPlans.when(
             data:
-                (plans) => ListView.builder(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 20.0,
-                    vertical: 16.0,
-                  ),
-                  itemCount: plans.length,
-                  itemBuilder: (context, index) {
-                    final plan = plans[index];
-                    return _buildPlanCard(context, plan, isGuest);
-                  },
-                ),
+                (plans) =>
+                    plans.isEmpty
+                        ? const Center(child: Text('No plans found'))
+                        : ListView.builder(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 20.0,
+                            vertical: 16.0,
+                          ),
+                          itemCount: plans.length,
+                          itemBuilder: (context, index) {
+                            final plan = plans[index];
+                            return _buildPlanCard(context, plan, showInfo);
+                          },
+                        ),
             error: (error, stackTrace) => Center(child: Text('Error: $error')),
             loading: () => const Center(child: CircularProgressIndicator()),
           ),
@@ -118,7 +122,7 @@ class PlanList extends ConsumerWidget {
     );
   }
 
-  Widget _buildAllPlans(AsyncValue<List<PlansModel>> allPlans, bool isGuest) {
+  Widget _buildAllPlans(AsyncValue<List<PlansModel>> allPlans, bool showInfo) {
     return Column(
       children: [
         Expanded(
@@ -132,7 +136,7 @@ class PlanList extends ConsumerWidget {
                   itemCount: plans.length,
                   itemBuilder: (context, index) {
                     final plan = plans[index];
-                    return _buildPlanCard(context, plan, isGuest);
+                    return _buildPlanCard(context, plan, showInfo);
                   },
                 ),
             error:
@@ -146,7 +150,7 @@ class PlanList extends ConsumerWidget {
     );
   }
 
-  Widget _buildPlanCard(BuildContext context, PlansModel plan, bool isGuest) {
+  Widget _buildPlanCard(BuildContext context, PlansModel plan, bool showInfo) {
     return Card(
       color: Theme.of(context).cardColor,
       margin: const EdgeInsets.only(bottom: 16.0),
@@ -155,12 +159,12 @@ class PlanList extends ConsumerWidget {
       child: InkWell(
         onTap:
             () => context.push(
-              isGuest ? '/plans/info' : '/plans/details',
+              showInfo ? '/plans/info' : '/plans/details',
               extra: plan,
             ),
         borderRadius: BorderRadius.circular(12),
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(12.0),
           child: Row(
             children: [
               _buildPlanImage(plan),
@@ -179,8 +183,7 @@ class PlanList extends ConsumerWidget {
       child: ClipRRect(
         borderRadius: BorderRadius.circular(12),
         child: Image.network(
-          // 'assets/images/bg.jpg',
-          'https://drive.google.com/uc?export=view&id=1v94uQ1YInSQCXub1_cUOQDeZZm0KuM7H',
+          plan.imageUrl ?? '',
           width: 90,
           height: 90,
           fit: BoxFit.cover,
@@ -195,9 +198,9 @@ class PlanList extends ConsumerWidget {
       children: [
         Text(
           '${plan.totalDays} Days',
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 12,
-            color: Colors.grey,
+            color: Colors.black54,
             fontWeight: FontWeight.w500,
           ),
         ),

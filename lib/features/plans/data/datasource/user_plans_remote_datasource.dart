@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_pecha/features/plans/models/plan_progress_model.dart';
 import 'package:flutter_pecha/features/plans/models/plans_model.dart';
@@ -18,7 +17,8 @@ class UserPlansRemoteDatasource {
       final response = await client.get(Uri.parse('$baseUrl/users/me/plans'));
 
       if (response.statusCode == 200) {
-        final responseData = json.decode(response.body);
+        final decoded = utf8.decode(response.bodyBytes);
+        final responseData = json.decode(decoded);
         final List<dynamic> jsonData = responseData['plans'] as List<dynamic>;
         return jsonData.map((json) => PlansModel.fromJson(json)).toList();
       } else {
@@ -58,7 +58,8 @@ class UserPlansRemoteDatasource {
         Uri.parse('$baseUrl/users/me/plans/$planId'),
       );
       if (response.statusCode == 200) {
-        final jsonData = json.decode(response.body);
+        final decoded = utf8.decode(response.bodyBytes);
+        final jsonData = json.decode(decoded);
         return jsonData.map((json) => PlanProgressModel.fromJson(json)).toList()
             as List<PlanProgressModel>;
       } else {
