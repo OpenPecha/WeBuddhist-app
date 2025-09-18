@@ -107,7 +107,7 @@ class ActivityList extends StatelessWidget {
           );
           break;
         case "TEXT":
-          context.push('/home/text_player', extra: task.subtasks[0].content);
+          context.push('/home/verse_text', extra: task.subtasks[0].content);
           break;
         case "IMAGE":
           context.push(
