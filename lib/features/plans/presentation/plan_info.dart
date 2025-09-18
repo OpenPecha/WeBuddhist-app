@@ -17,8 +17,17 @@ class PlanInfo extends ConsumerStatefulWidget {
 class _PlanInfoState extends ConsumerState<PlanInfo> {
   @override
   Widget build(BuildContext context) {
-    // final authState = ref.watch(authProvider);
-    // final isGuest = authState.isGuest;
+    final authState = ref.watch(authProvider);
+    final isGuest = authState.isGuest;
+    final isLoggedIn = authState.isLoggedIn;
+    var subscribedPlans = AsyncValue<List<PlansModel>>.data([]);
+
+    if (!isGuest && isLoggedIn) {
+      subscribedPlans = ref.watch(userPlansFutureProvider(authState.userId!));
+    }
+    final subscribedPlansIds =
+        subscribedPlans.valueOrNull?.map((plan) => plan.id).toList() ?? [];
+    debugPrint('subscribedPlansIds: $subscribedPlansIds');
 
     return Scaffold(
       appBar: AppBar(
@@ -38,7 +47,7 @@ class _PlanInfoState extends ConsumerState<PlanInfo> {
             SizedBox(height: 20),
             _buildPlanTitleDays(context),
             SizedBox(height: 20),
-            _buildActionButtons(context),
+            _buildActionButtons(context, subscribedPlansIds),
             SizedBox(height: 20),
             _buildPlanDescription(context),
           ],
@@ -83,11 +92,16 @@ class _PlanInfoState extends ConsumerState<PlanInfo> {
     );
   }
 
-  Widget _buildActionButtons(BuildContext context) {
+  Widget _buildActionButtons(
+    BuildContext context,
+    List<String> subscribedPlansIds,
+  ) {
+    final isSubscribed = subscribedPlansIds.contains(widget.plan.id);
     return SizedBox(
       width: double.infinity,
       child: FilledButton(
-        onPressed: () => handleStartPlan(),
+        onPressed:
+            () => isSubscribed ? handleContinuePlan() : handleStartPlan(),
         style: FilledButton.styleFrom(
           padding: EdgeInsets.symmetric(vertical: 12),
           backgroundColor: Colors.black,
@@ -99,11 +113,17 @@ class _PlanInfoState extends ConsumerState<PlanInfo> {
           ),
         ),
         child: Text(
-          'Start Plan',
+          isSubscribed ? 'Continue Plan' : 'Start Plan',
           style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
         ),
       ),
     );
+  }
+
+  Future<void> handleContinuePlan() async {
+    if (mounted) {
+      context.push('/plans/details', extra: widget.plan);
+    }
   }
 
   // Updated handleStartPlan function
