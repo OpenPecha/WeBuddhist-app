@@ -19,7 +19,8 @@ class PlanList extends ConsumerWidget {
 
     if (!isGuest && isLoggedIn) {
       subscribedPlans = ref.watch(userPlansFutureProvider(authState.userId!));
-    };
+    }
+    ;
 
     return DefaultTabController(
       length: 2,
@@ -161,11 +162,18 @@ class PlanList extends ConsumerWidget {
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: InkWell(
-        onTap:
-            () => context.push(
-              showInfo ? '/plans/info' : '/plans/details',
-              extra: plan,
-            ),
+        onTap: () async {
+          if (showInfo) {
+            final result = await context.push('/plans/info', extra: plan);
+
+            // Handle the result from plan_info screen
+            if (result == true && context.mounted) {
+              context.push('/plans/details', extra: plan);
+            }
+          } else {
+            context.push('/plans/details', extra: plan);
+          }
+        },
         borderRadius: BorderRadius.circular(12),
         child: Padding(
           padding: const EdgeInsets.all(12.0),

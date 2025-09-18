@@ -73,7 +73,6 @@ class DayCarousel extends StatelessWidget {
                     dayDateString,
                     style: TextStyle(
                       fontSize: 10,
-                      color: Colors.black54,
                       fontWeight:
                           startDate == dayDate
                               ? FontWeight.bold

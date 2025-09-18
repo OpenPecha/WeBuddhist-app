@@ -148,7 +148,6 @@ class _PlanInfoState extends ConsumerState<PlanInfo> {
               duration: Duration(seconds: 2),
             ),
           );
-          context.pop();
 
           // Invalidate the user plans provider to refresh the data
           ref.invalidate(userPlansFutureProvider(authState.userId!));
@@ -156,9 +155,8 @@ class _PlanInfoState extends ConsumerState<PlanInfo> {
           // Wait a moment for the data to refresh, then navigate
           await Future.delayed(Duration(milliseconds: 500));
 
-          // Navigate to plan details with the subscribed plan
           if (mounted) {
-            context.push('/plans/details', extra: widget.plan);
+            context.pop(true); // Return true to indicate successful enrollment
           }
         }
       } else {

@@ -43,7 +43,9 @@ class ActivityList extends StatelessWidget {
                     shape: BoxShape.circle,
                     border: Border.all(
                       color:
-                          isSelected ? const Color(0xFF1E3A8A) : Colors.black,
+                          isSelected
+                              ? const Color(0xFF1E3A8A)
+                              : Theme.of(context).iconTheme.color!,
                       width: 1,
                     ),
                     color:
@@ -77,10 +79,10 @@ class ActivityList extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(width: 8),
-                      const Icon(
+                      Icon(
                         Icons.arrow_forward_ios,
                         size: 20,
-                        color: Colors.black,
+                        color: Theme.of(context).iconTheme.color!,
                       ),
                     ],
                   ),
