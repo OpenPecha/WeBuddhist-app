@@ -64,73 +64,63 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
                 });
               },
             ),
-            planDayContent.when(
-              data:
-                  (dayContent) => ActivityList(
-                    tasks: dayContent.tasks ?? [],
-                    today: selectedDay,
-                    totalDays: widget.plan.totalDays,
-                    selectedActivities: selectedActivities,
-                    onActivityToggled: (activity) {
-                      setState(() {
-                        if (selectedActivities.contains(activity)) {
-                          selectedActivities.remove(activity);
-                        } else {
-                          selectedActivities.add(activity);
-                        }
-                      });
-                    },
-                  ),
-              loading:
-                  () => Container(
-                    margin: const EdgeInsets.all(20),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "Day $selectedDay of ${widget.plan.totalDays}",
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        const Center(child: CircularProgressIndicator()),
-                      ],
-                    ),
-                  ),
-              error:
-                  (error, stackTrace) => Container(
-                    margin: const EdgeInsets.all(20),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "Day $selectedDay of ${widget.plan.totalDays}",
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          'Failed to load activities for this day',
-                          style: TextStyle(color: Colors.red[600]),
-                        ),
-                        const SizedBox(height: 8),
-                        ElevatedButton(
-                          onPressed: () {
-                            ref.invalidate(planDayContentFutureProvider);
+            Container(
+              margin: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildDayTitle(selectedDay),
+                  const SizedBox(height: 16),
+                  planDayContent.when(
+                    data:
+                        (dayContent) => ActivityList(
+                          tasks: dayContent.tasks ?? [],
+                          today: selectedDay,
+                          totalDays: widget.plan.totalDays,
+                          selectedActivities: selectedActivities,
+                          onActivityToggled: (activity) {
+                            setState(() {
+                              if (selectedActivities.contains(activity)) {
+                                selectedActivities.remove(activity);
+                              } else {
+                                selectedActivities.add(activity);
+                              }
+                            });
                           },
-                          child: const Text('Retry'),
                         ),
-                      ],
-                    ),
+                    loading:
+                        () => const Center(child: CircularProgressIndicator()),
+                    error:
+                        (error, stackTrace) => Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Unable to load the tasks for the day',
+                              style: TextStyle(color: Colors.red[600]),
+                            ),
+                            const SizedBox(height: 8),
+                            ElevatedButton(
+                              onPressed: () {
+                                ref.invalidate(planDayContentFutureProvider);
+                              },
+                              child: const Text('Retry'),
+                            ),
+                          ],
+                        ),
                   ),
+                ],
+              ),
             ),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildDayTitle(int day) {
+    return Text(
+      "Day $day of ${widget.plan.totalDays}",
+      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
     );
   }
 }
