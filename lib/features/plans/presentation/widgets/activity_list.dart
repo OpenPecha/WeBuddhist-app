@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/features/plans/models/plan_tasks_model.dart';
+import 'package:go_router/go_router.dart';
 
 class ActivityList extends StatelessWidget {
   final List<PlanTasksModel> tasks;
@@ -63,7 +64,7 @@ class ActivityList extends StatelessWidget {
               const SizedBox(width: 10),
               Expanded(
                 child: GestureDetector(
-                  onTap: () => handleActivityTap(task),
+                  onTap: () => handleActivityTap(context, task),
                   child: Row(
                     children: [
                       Expanded(
@@ -92,10 +93,31 @@ class ActivityList extends StatelessWidget {
     );
   }
 
-  void handleActivityTap(PlanTasksModel task) {
+  void handleActivityTap(BuildContext context, PlanTasksModel task) {
     // Navigate to activity details or perform action
-    debugPrint('Activity tapped: ${task.title}');
-    // TODO: Add navigation to activity details page when implemented
-    if (task.subtasks.isNotEmpty) {}
+    debugPrint(
+      'Activity tapped: ${task.title}, ${task.subtasks[0].contentType}',
+    );
+    if (task.subtasks.isNotEmpty) {
+      switch (task.subtasks[0].contentType) {
+        case "VIDEO":
+          context.push(
+            '/home/video_player',
+            extra: {'videoUrl': task.subtasks[0].content, 'title': task.title},
+          );
+          break;
+        case "TEXT":
+          context.push('/home/text_player', extra: task.subtasks[0].content);
+          break;
+        case "IMAGE":
+          context.push(
+            '/home/view_illustration',
+            extra: {'imageUrl': task.subtasks[0].content, 'title': task.title},
+          );
+          break;
+        default:
+          break;
+      }
+    }
   }
 }

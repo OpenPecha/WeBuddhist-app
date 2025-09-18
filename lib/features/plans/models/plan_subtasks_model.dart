@@ -1,10 +1,6 @@
-import 'package:flutter_pecha/features/plans/models/plan_tasks_model.dart';
-
-enum ContentType { text, audio, video, image, sourceReference }
-
 class PlanSubtasksModel {
   final String id;
-  final ContentType contentType;
+  final String contentType;
   final String? content; // Made nullable as per schema
   final int? displayOrder;
 
@@ -18,9 +14,7 @@ class PlanSubtasksModel {
   factory PlanSubtasksModel.fromJson(Map<String, dynamic> json) {
     return PlanSubtasksModel(
       id: json['id'] as String,
-      contentType: ContentType.values.byName(
-        (json['content_type'] as String).toLowerCase(),
-      ),
+      contentType: json['content_type'] as String,
       content: json['content'] as String?,
       displayOrder: json['display_order'] as int?,
     );
@@ -29,7 +23,7 @@ class PlanSubtasksModel {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'content_type': contentType.name,
+      'content_type': contentType,
       'content': content,
       'display_order': displayOrder,
     };
@@ -38,7 +32,7 @@ class PlanSubtasksModel {
   /// Create a copy of this plan subtask with optional field updates
   PlanSubtasksModel copyWith({
     String? id,
-    ContentType? contentType,
+    String? contentType,
     String? content,
     int? displayOrder,
   }) {
