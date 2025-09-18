@@ -19,8 +19,7 @@ class PlanList extends ConsumerWidget {
 
     if (!isGuest && isLoggedIn) {
       subscribedPlans = ref.watch(userPlansFutureProvider(authState.userId!));
-    }
-    debugPrint('subscribedPlans: ${subscribedPlans.valueOrNull}');
+    };
 
     return DefaultTabController(
       length: 2,
@@ -62,8 +61,8 @@ class PlanList extends ConsumerWidget {
             // my plans tab
             isGuest || !isLoggedIn
                 ? _buildGuestLoginPrompt(context, ref)
-                : _buildMyPlans(subscribedPlans, false),
-            _buildAllPlans(allPlans, true),
+                : _buildMyPlans(subscribedPlans),
+            _buildAllPlans(allPlans),
           ],
         ),
       ),
@@ -91,10 +90,7 @@ class PlanList extends ConsumerWidget {
     );
   }
 
-  Widget _buildMyPlans(
-    AsyncValue<List<PlansModel>> subscribedPlans,
-    bool showInfo,
-  ) {
+  Widget _buildMyPlans(AsyncValue<List<PlansModel>> subscribedPlans) {
     return Column(
       children: [
         Expanded(
@@ -111,7 +107,11 @@ class PlanList extends ConsumerWidget {
                           itemCount: plans.length,
                           itemBuilder: (context, index) {
                             final plan = plans[index];
-                            return _buildPlanCard(context, plan, showInfo);
+                            return _buildPlanCard(
+                              context,
+                              plan,
+                              showInfo: false,
+                            );
                           },
                         ),
             error: (error, stackTrace) => Center(child: Text('Error: $error')),
@@ -122,7 +122,7 @@ class PlanList extends ConsumerWidget {
     );
   }
 
-  Widget _buildAllPlans(AsyncValue<List<PlansModel>> allPlans, bool showInfo) {
+  Widget _buildAllPlans(AsyncValue<List<PlansModel>> allPlans) {
     return Column(
       children: [
         Expanded(
@@ -136,7 +136,7 @@ class PlanList extends ConsumerWidget {
                   itemCount: plans.length,
                   itemBuilder: (context, index) {
                     final plan = plans[index];
-                    return _buildPlanCard(context, plan, showInfo);
+                    return _buildPlanCard(context, plan, showInfo: true);
                   },
                 ),
             error:
@@ -150,7 +150,11 @@ class PlanList extends ConsumerWidget {
     );
   }
 
-  Widget _buildPlanCard(BuildContext context, PlansModel plan, bool showInfo) {
+  Widget _buildPlanCard(
+    BuildContext context,
+    PlansModel plan, {
+    bool showInfo = false,
+  }) {
     return Card(
       color: Theme.of(context).cardColor,
       margin: const EdgeInsets.only(bottom: 16.0),
