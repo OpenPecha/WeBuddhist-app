@@ -17,7 +17,8 @@ class PlanDaysRemoteDatasource {
         headers: {'Content-Type': 'application/json'},
       );
       if (response.statusCode == 200) {
-        final responseData = json.decode(response.body);
+        final decoded = utf8.decode(response.bodyBytes);
+        final responseData = json.decode(decoded);
         final List<dynamic> jsonData = responseData['days'] as List<dynamic>;
         return jsonData.map((json) => PlanDaysModel.fromJson(json)).toList();
       } else {
@@ -36,7 +37,8 @@ class PlanDaysRemoteDatasource {
         headers: {'Content-Type': 'application/json'},
       );
       if (response.statusCode == 200) {
-        final jsonData = json.decode(response.body);
+        final decoded = utf8.decode(response.bodyBytes);
+        final jsonData = json.decode(decoded);
         return PlanDaysModel.fromJson(jsonData);
       } else {
         throw Exception(

@@ -3,13 +3,13 @@ import 'package:flutter_pecha/features/plans/models/plan_tasks_model.dart';
 class PlanDaysModel {
   final String id;
   final int dayNumber;
-  final String title;
+  final String? title;
   final List<PlanTasksModel>? tasks;
 
   PlanDaysModel({
     required this.id,
     required this.dayNumber,
-    required this.title,
+    this.title,
     this.tasks,
   });
 
@@ -17,7 +17,7 @@ class PlanDaysModel {
     return PlanDaysModel(
       id: json['id'] as String,
       dayNumber: json['day_number'] as int,
-      title: json['title'] as String,
+      title: json['title'] as String?,
       tasks:
           json['tasks'] != null
               ? (json['tasks'] as List<dynamic>)

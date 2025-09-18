@@ -18,33 +18,9 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
   int selectedDay = 1; // Day 3 is selected by default
   Set<int> selectedActivities = {}; // No activities selected initially
 
-  final List<String> activities = [
-    'Read verse of the day',
-    'Guided Scripture',
-    'Meditate on the verse',
-    'Pray',
-    'Habit',
-  ];
-
-  final List<Map<String, dynamic>> days = [
-    {'day': 1, 'date': 'Mar 04', 'completed': true},
-    {'day': 2, 'date': 'Mar 05', 'completed': true},
-    {'day': 3, 'date': 'Mar 06', 'completed': true},
-    {'day': 4, 'date': 'Mar 07', 'completed': false},
-    {'day': 5, 'date': 'Mar 08', 'completed': false},
-    {'day': 6, 'date': 'Mar 09', 'completed': false},
-    {'day': 7, 'date': 'Mar 10', 'completed': false},
-    {'day': 8, 'date': 'Mar 11', 'completed': false},
-    {'day': 9, 'date': 'Mar 12', 'completed': false},
-    {'day': 10, 'date': 'Mar 13', 'completed': false},
-  ];
-
   @override
   Widget build(BuildContext context) {
     final DateTime startDate = DateTime.now();
-    final DateTime endDate = DateTime.now().add(
-      Duration(days: widget.plan.totalDays),
-    );
     final planDays = ref.watch(planDaysByPlanIdFutureProvider(widget.plan.id));
     final planDayContent = ref.watch(
       planDayContentFutureProvider(
@@ -62,11 +38,7 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            PlanCoverImage(
-              imageUrl:
-                  // widget.plan.imageUrl ??
-                  'https://drive.google.com/uc?export=view&id=1v94uQ1YInSQCXub1_cUOQDeZZm0KuM7H',
-            ),
+            PlanCoverImage(imageUrl: widget.plan.imageUrl ?? ''),
             DayCarousel(
               days: planDays.value ?? [],
               selectedDay: selectedDay,
