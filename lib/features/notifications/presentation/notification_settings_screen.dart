@@ -45,14 +45,18 @@ class _NotificationSettingsScreenState
 
         _showSuccessMessage('Daily reminders enabled');
       } catch (e) {
-        _showErrorMessage('Failed to enable notifications. Please try again later.');
+        _showErrorMessage(
+          'Failed to enable notifications. Please try again later.',
+        );
       }
     } else {
       try {
         await ref.read(notificationProvider.notifier).disableDailyReminder();
         _showSuccessMessage('Daily reminders disabled');
       } catch (e) {
-        _showErrorMessage('Failed to disable notifications. Please try again later.');
+        _showErrorMessage(
+          'Failed to disable notifications. Please try again later.',
+        );
       }
     }
   }
@@ -62,16 +66,9 @@ class _NotificationSettingsScreenState
       await ref.read(notificationProvider.notifier).updateReminderTime(time);
       _showSuccessMessage('Reminder time updated');
     } catch (e) {
-      _showErrorMessage('Failed to update reminder time. Please try again later.');
-    }
-  }
-
-  Future<void> _testNotification() async {
-    try {
-      await ref.read(notificationProvider.notifier).showTestNotification();
-      _showSuccessMessage('Test notification sent!');
-    } catch (e) {
-      _showErrorMessage('Failed to send test notification. Please try again later.');
+      _showErrorMessage(
+        'Failed to update reminder time. Please try again later.',
+      );
     }
   }
 

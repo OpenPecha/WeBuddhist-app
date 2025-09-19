@@ -4,14 +4,12 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_pecha/core/config/locale_provider.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/features/auth/application/auth_provider.dart';
 import 'package:flutter_pecha/features/home/data/week_plan.dart';
 import 'package:flutter_pecha/features/home/models/plan_item.dart';
 import 'package:flutter_pecha/features/home/presentation/widgets/action_of_the_day_card.dart';
 import 'package:flutter_pecha/features/home/presentation/widgets/verse_card.dart';
-import 'package:flutter_pecha/features/home/presentation/widgets/view_illustration.dart';
 import 'package:flutter_pecha/features/notifications/presentation/notification_settings_screen.dart';
 import 'package:flutter_pecha/features/texts/data/providers/selected_segment_provider.dart';
 import 'package:flutter_pecha/features/texts/presentation/widgets/action_button.dart';
@@ -211,8 +209,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
 
   // Build the scrollable body
   Widget _buildBody(BuildContext context, AppLocalizations localizations) {
-    final language = ref.watch(localeProvider);
-    final isChinese = language?.languageCode == 'zh';
     return Expanded(
       child: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
