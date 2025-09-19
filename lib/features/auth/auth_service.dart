@@ -53,8 +53,8 @@ class AuthService {
     return _loginWithConnection('apple');
   }
 
-  // quick logout
-  Future<void> quickLogout() async {
+  // Local logout - clears credentials from device only
+  Future<void> localLogout() async {
     try {
       await auth0.credentialsManager.clearCredentials();
     } catch (e) {
@@ -62,11 +62,13 @@ class AuthService {
     }
   }
 
-  Future<void> logout() async {
+  // Global logout - clears credentials from device and server
+  Future<void> globalLogout() async {
     try {
       await auth0
           .webAuthentication(scheme: 'org.pecha.app')
           .logout(useHTTPS: true);
+      await auth0.credentialsManager.clearCredentials();
     } catch (e) {
       _logger.severe('Logout failed: $e');
     }

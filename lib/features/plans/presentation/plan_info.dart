@@ -128,7 +128,6 @@ class _PlanInfoState extends ConsumerState<PlanInfo> {
   // Updated handleStartPlan function
   Future<void> handleStartPlan() async {
     final planId = widget.plan.id;
-    final authState = ref.read(authProvider);
 
     try {
       // Subscribe to plan using the authenticated HTTP client

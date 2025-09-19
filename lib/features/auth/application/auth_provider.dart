@@ -161,7 +161,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
   Future<void> logout() async {
     // ✅ STOP timer before logout
     _stopRefreshTimer();
-    await authService.quickLogout();
+    await authService.localLogout();
     state = state.copyWith(
       isLoggedIn: false,
       userId: null,
