@@ -27,7 +27,6 @@ class _PlanInfoState extends ConsumerState<PlanInfo> {
     }
     final subscribedPlansIds =
         subscribedPlans.valueOrNull?.map((plan) => plan.id).toList() ?? [];
-    debugPrint('subscribedPlansIds: $subscribedPlansIds');
 
     return Scaffold(
       appBar: AppBar(

@@ -6,11 +6,31 @@ import 'package:flutter_pecha/features/plans/models/plans_model.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-class PlanList extends ConsumerWidget {
+class PlanList extends ConsumerStatefulWidget {
   const PlanList({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<PlanList> createState() => _PlanListState();
+}
+
+class _PlanListState extends ConsumerState<PlanList>
+    with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 2, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final allPlans = ref.watch(plansFutureProvider);
     final authState = ref.watch(authProvider);
     final isGuest = authState.isGuest;
@@ -20,52 +40,58 @@ class PlanList extends ConsumerWidget {
     if (!isGuest && isLoggedIn) {
       subscribedPlans = ref.watch(userPlansFutureProvider(authState.userId!));
     }
-    ;
 
-    return DefaultTabController(
-      length: 2,
-      child: Scaffold(
-        appBar: AppBar(
-          title: const Text(
-            'Plans',
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
-          ),
-          scrolledUnderElevation: 0,
-          centerTitle: false,
-          actions: [
-            IconButton(
-              onPressed: () {
-                showSearch(
-                  context: context,
-                  delegate: PlanSearchDelegate(
-                    plans: allPlans.valueOrNull ?? [],
-                    ref: ref,
-                  ),
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text(
+          'Plans',
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
+        ),
+        scrolledUnderElevation: 0,
+        centerTitle: false,
+        actions: [
+          AnimatedBuilder(
+            animation: _tabController,
+            builder: (context, child) {
+              if (_tabController.index == 1) {
+                return IconButton(
+                  onPressed: () {
+                    showSearch(
+                      context: context,
+                      delegate: PlanSearchDelegate(
+                        plans: allPlans.valueOrNull ?? [],
+                        ref: ref,
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.search),
                 );
-              },
-              icon: const Icon(Icons.search),
-            ),
-          ],
-          bottom: TabBar(
-            tabs: [Tab(text: 'My Plans'), Tab(text: 'All Plans')],
-            labelStyle: TextStyle(fontWeight: FontWeight.bold),
-            unselectedLabelStyle: TextStyle(fontWeight: FontWeight.bold),
-            labelColor: Theme.of(context).colorScheme.secondary,
-            unselectedLabelColor:
-                Theme.of(context).brightness == Brightness.dark
-                    ? Colors.white
-                    : Colors.black,
+              }
+              return const SizedBox.shrink();
+            },
           ),
+        ],
+        bottom: TabBar(
+          controller: _tabController,
+          tabs: [Tab(text: 'My Plans'), Tab(text: 'All Plans')],
+          labelStyle: TextStyle(fontWeight: FontWeight.bold),
+          unselectedLabelStyle: TextStyle(fontWeight: FontWeight.bold),
+          labelColor: Theme.of(context).colorScheme.secondary,
+          unselectedLabelColor:
+              Theme.of(context).brightness == Brightness.dark
+                  ? Colors.white
+                  : Colors.black,
         ),
-        body: TabBarView(
-          children: [
-            // my plans tab
-            isGuest || !isLoggedIn
-                ? _buildGuestLoginPrompt(context, ref)
-                : _buildMyPlans(subscribedPlans),
-            _buildAllPlans(allPlans),
-          ],
-        ),
+      ),
+      body: TabBarView(
+        controller: _tabController,
+        children: [
+          // my plans tab
+          isGuest || !isLoggedIn
+              ? _buildGuestLoginPrompt(context, ref)
+              : _buildMyPlans(subscribedPlans),
+          _buildAllPlans(allPlans),
+        ],
       ),
     );
   }
@@ -115,7 +141,10 @@ class PlanList extends ConsumerWidget {
                             );
                           },
                         ),
-            error: (error, stackTrace) => Center(child: Text('Error: $error')),
+            error:
+                (error, stackTrace) => Center(
+                  child: Text("Unable to load plans. Please try again later."),
+                ),
             loading: () => const Center(child: CircularProgressIndicator()),
           ),
         ),
@@ -258,10 +287,7 @@ class PlanSearchDelegate extends SearchDelegate<PlansModel?> {
           final titleMatch = plan.title.toLowerCase().contains(
             query.toLowerCase(),
           );
-          final descMatch =
-              plan.description?.toLowerCase().contains(query.toLowerCase()) ??
-              false;
-          return titleMatch || descMatch;
+          return titleMatch;
         }).toList();
 
     if (filteredPlans.isEmpty) {
@@ -274,7 +300,6 @@ class PlanSearchDelegate extends SearchDelegate<PlansModel?> {
         final plan = filteredPlans[index];
         return ListTile(
           title: Text(plan.title),
-          subtitle: Text(plan.description ?? ''),
           onTap: () {
             close(context, plan);
             context.push('/plans/info', extra: plan);
