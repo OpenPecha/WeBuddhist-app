@@ -24,25 +24,39 @@ class TextsRepository {
     );
   }
 
-  Future<TocResponse> fetchTextContent({required String textId}) async {
-    return remoteDatasource.fetchTextContent(textId: textId);
+  Future<TocResponse> fetchTextContent({
+    required String textId,
+    String? language,
+  }) async {
+    return remoteDatasource.fetchTextContent(
+      textId: textId,
+      language: language,
+    );
   }
 
-  Future<VersionResponse> fetchTextVersion({required String textId}) async {
-    return remoteDatasource.fetchTextVersion(textId: textId);
+  Future<VersionResponse> fetchTextVersion({
+    required String textId,
+    String? language,
+  }) async {
+    return remoteDatasource.fetchTextVersion(
+      textId: textId,
+      language: language,
+    );
   }
 
   Future<ReaderResponse> fetchTextDetails({
     required String textId,
     required String contentId,
     String? versionId,
-    String? skip,
+    String? segmentId,
+    String? direction,
   }) async {
     final result = await remoteDatasource.fetchTextDetails(
       textId: textId,
       contentId: contentId,
       versionId: versionId,
-      skip: skip,
+      segmentId: segmentId,
+      direction: direction,
     );
     return result;
   }

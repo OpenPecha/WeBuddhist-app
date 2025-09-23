@@ -21,8 +21,8 @@ class TextRemoteDatasource {
   }) async {
     final uri = Uri.parse('${dotenv.env['BASE_API_URL']}/texts').replace(
       queryParameters: {
-        'term_id': termId,
-        if (language != null) 'language': language == 'zh' ? 'en' : language,
+        'collection_id': termId,
+        if (language != null) 'language': language,
         'skip': skip.toString(),
         'limit': limit.toString(),
       },
@@ -84,16 +84,16 @@ class TextRemoteDatasource {
     required String textId,
     required String contentId,
     String? versionId,
-    String? skip,
+    String? segmentId,
+    String? direction,
   }) async {
     final uri = Uri.parse(
       '${dotenv.env['BASE_API_URL']}/texts/$textId/details',
     );
     final body = json.encode({
       'content_id': contentId,
-      'version_id': versionId,
-      'skip': skip ?? 0,
-      'limit': 1,
+      if (segmentId != null) 'segment_id': segmentId,
+      'direction': direction,
     });
     try {
       final response = await client.post(

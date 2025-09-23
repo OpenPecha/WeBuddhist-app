@@ -1,6 +1,9 @@
 // Riverpod provider and logic for authentication state.
+import 'dart:async';
+
 import 'package:auth0_flutter/auth0_flutter.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:logging/logging.dart';
 import '../auth_service.dart';
 import 'package:flutter_pecha/features/auth/application/auth0_config.dart';
 
@@ -10,6 +13,7 @@ class AuthState {
   final bool isGuest;
   final String? userId;
   final UserProfile? userProfile;
+  final String? errorMessage; // Add error state
 
   const AuthState({
     required this.isLoggedIn,
@@ -17,6 +21,7 @@ class AuthState {
     this.userId,
     this.isLoading = false,
     this.userProfile,
+    this.errorMessage,
   });
 
   AuthState copyWith({
@@ -25,29 +30,56 @@ class AuthState {
     bool? isLoading,
     bool? isGuest,
     UserProfile? userProfile,
+    String? errorMessage,
   }) => AuthState(
     isLoggedIn: isLoggedIn ?? this.isLoggedIn,
     userId: userId ?? this.userId,
     isLoading: isLoading ?? this.isLoading,
     isGuest: isGuest ?? this.isGuest,
     userProfile: userProfile ?? this.userProfile,
+    errorMessage: errorMessage,
   );
+
+  AuthState clearError() => copyWith(errorMessage: '');
 }
 
 class AuthNotifier extends StateNotifier<AuthState> {
   final AuthService authService;
+  Timer? _refreshTimer;
+
   AuthNotifier({required this.authService})
-    : super(const AuthState(isLoggedIn: false, isLoading: true)) {
+    : super(const AuthState(isLoggedIn: false, isLoading: false)) {
     _restoreLoginState();
+  }
+
+  void _startRefreshTimer() {
+    _refreshTimer?.cancel();
+    _refreshTimer = Timer.periodic(
+      const Duration(minutes: 30), // Refresh every 30 minutes
+      (_) => refreshTokens(),
+    );
+  }
+
+  void _stopRefreshTimer() {
+    _refreshTimer?.cancel();
+    _refreshTimer = null;
+  }
+
+  @override
+  void dispose() {
+    _stopRefreshTimer();
+    super.dispose();
   }
 
   Future<void> _restoreLoginState() async {
     try {
-      final hasValid =
-          await authService.auth0.credentialsManager.hasValidCredentials();
+      final hasValid = await authService.auth0.credentialsManager
+          .hasValidCredentials(minTtl: 300);
       if (hasValid) {
-        final credentials =
-            await authService.auth0.credentialsManager.credentials();
+        final credentials = await authService.auth0.credentialsManager
+            .credentials(
+              minTtl: 300, // Ensure token is valid for at least 5 minutes
+            );
         state = state.copyWith(
           isLoggedIn: true,
           userId: credentials.user.sub,
@@ -55,6 +87,8 @@ class AuthNotifier extends StateNotifier<AuthState> {
           isGuest: false,
           userProfile: credentials.user,
         );
+        // ✅ START timer after successful restore
+        _startRefreshTimer();
       } else {
         state = state.copyWith(
           isLoggedIn: false,
@@ -70,30 +104,51 @@ class AuthNotifier extends StateNotifier<AuthState> {
   }
 
   Future<void> login({String? connection}) async {
-    state = state.copyWith(isLoading: true);
-    Credentials? credentials;
-    if (connection == 'google') {
-      credentials = await authService.loginWithGoogle();
-    } else if (connection == 'facebook') {
-      credentials = await authService.loginWithFacebook();
-    } else if (connection == 'apple') {
-      credentials = await authService.loginWithApple();
-    }
-    if (credentials != null) {
+    state = state.copyWith(isLoading: true, errorMessage: null);
+
+    try {
+      Credentials? credentials;
+
+      switch (connection) {
+        case 'google':
+          credentials = await authService.loginWithGoogle();
+          break;
+        case 'apple':
+          credentials = await authService.loginWithApple();
+          break;
+        default:
+          throw Exception('Unsupported login method: $connection');
+      }
+
+      if (credentials != null) {
+        state = state.copyWith(
+          isLoggedIn: true,
+          userId: credentials.user.sub,
+          isLoading: false,
+          isGuest: false,
+          userProfile: credentials.user,
+          errorMessage: null,
+        );
+        // ✅ START timer after successful login
+        _startRefreshTimer();
+      } else {
+        state = state.copyWith(
+          isLoading: false,
+          errorMessage: 'Login was cancelled or failed',
+        );
+      }
+    } catch (e) {
       state = state.copyWith(
-        isLoggedIn: true,
-        userId: credentials.user.sub,
         isLoading: false,
-        isGuest: false,
-        userProfile: credentials.user,
+        errorMessage: 'Login failed: ${e.toString()}',
       );
-    } else {
-      state = state.copyWith(isLoading: false);
     }
   }
 
   // continue as guest
   Future<void> continueAsGuest() async {
+    // ✅ STOP timer for guest users (they don't need token refresh)
+    _stopRefreshTimer();
     state = state.copyWith(
       isLoading: false,
       isLoggedIn: true,
@@ -104,7 +159,9 @@ class AuthNotifier extends StateNotifier<AuthState> {
   }
 
   Future<void> logout() async {
-    await authService.quickLogout();
+    // ✅ STOP timer before logout
+    _stopRefreshTimer();
+    await authService.localLogout();
     state = state.copyWith(
       isLoggedIn: false,
       userId: null,
@@ -113,23 +170,77 @@ class AuthNotifier extends StateNotifier<AuthState> {
       userProfile: null,
     );
   }
+
+  // Add token refresh capability
+  Future<void> refreshTokens() async {
+    if (state.isGuest || !state.isLoggedIn) return;
+
+    try {
+      final credentials = await authService.refreshTokens();
+      if (credentials != null) {
+        state = state.copyWith(
+          userProfile: credentials.user,
+          errorMessage: null,
+        );
+      } else {
+        // Token refresh failed, user needs to re-authenticate
+        // ✅ STOP timer when session expires
+        _stopRefreshTimer();
+        state = state.copyWith(
+          isLoggedIn: false,
+          userId: null,
+          isGuest: false,
+          userProfile: null,
+          errorMessage: 'Session expired. Please log in again.',
+        );
+      }
+    } catch (e) {
+      state = state.copyWith(
+        errorMessage: 'Failed to refresh session: ${e.toString()}',
+      );
+    }
+  }
+}
+
+// Helper classes for loading and error states
+class LoadingAuthNotifier extends AuthNotifier {
+  LoadingAuthNotifier()
+    : super(authService: AuthService(domain: 'temp', clientId: 'temp')) {
+    state = const AuthState(isLoggedIn: false, isLoading: true);
+  }
+}
+
+class ErrorAuthNotifier extends AuthNotifier {
+  ErrorAuthNotifier(String errorMessage)
+    : super(authService: AuthService(domain: 'temp', clientId: 'temp')) {
+    state = AuthState(
+      isLoggedIn: false,
+      isLoading: false,
+      errorMessage: errorMessage,
+    );
+  }
 }
 
 final authProvider = StateNotifierProvider<AuthNotifier, AuthState>((ref) {
   final configAsync = ref.watch(auth0ConfigProvider);
   return configAsync.when(
-    data:
-        (config) => AuthNotifier(
-          authService: AuthService(
-            domain: config.domain,
-            clientId: config.clientId,
-          ),
-        ),
-    loading:
-        () => AuthNotifier(authService: AuthService(domain: '', clientId: '')),
-    error:
-        (err, stack) =>
-            AuthNotifier(authService: AuthService(domain: '', clientId: '')),
+    data: (config) {
+      final authService = AuthService(
+        domain: config.domain,
+        clientId: config.clientId,
+      );
+      final notifier = AuthNotifier(authService: authService);
+      return notifier;
+    },
+    loading: () {
+      // Return a temporary notifier with loading state
+      return LoadingAuthNotifier();
+    },
+    error: (err, stack) {
+      // Log the error for debugging
+      Logger('AuthProvider').severe('Failed to load auth config', err, stack);
+      return ErrorAuthNotifier('Failed to load authentication configuration');
+    },
   );
 });
 

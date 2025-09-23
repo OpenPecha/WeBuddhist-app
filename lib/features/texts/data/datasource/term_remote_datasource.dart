@@ -1,4 +1,3 @@
-// lib/features/texts/data/datasources/term_remote_datasource.dart
 import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_pecha/features/texts/models/term/term_response.dart';
@@ -18,7 +17,7 @@ class TermRemoteDatasource {
     final uri = Uri.parse('${dotenv.env['BASE_API_URL']}/terms').replace(
       queryParameters: {
         if (parentId != null) 'parent_id': parentId,
-        if (language != null) 'language': language == 'zh' ? 'en' : language,
+        if (language != null) 'language': language,
         'skip': skip.toString(),
         'limit': limit.toString(),
       },

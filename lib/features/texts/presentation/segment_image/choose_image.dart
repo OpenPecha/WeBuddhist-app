@@ -7,6 +7,7 @@ class ChooseImage extends StatelessWidget {
 
   void showImageConfirmation(BuildContext context, String imagePath) {
     showModalBottomSheet(
+      isDismissible: false,
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,

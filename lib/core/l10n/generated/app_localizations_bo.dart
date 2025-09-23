@@ -57,6 +57,9 @@ class AppLocalizationsBo extends AppLocalizations {
   String get home_intention => 'ངའི་དེ་རིང་གི་དམིགས་པ།';
 
   @override
+  String get home_recitation => 'འདོན་པ།';
+
+  @override
   String get home_bringing => 'ཉམས་ལེན་དངོས།';
 
   @override
@@ -93,5 +96,53 @@ class AppLocalizationsBo extends AppLocalizations {
   String get english => 'ཨིན་ཇི།';
 
   @override
+  String get chinese => 'རྒྱ་ཡིག།';
+
+  @override
   String get language => 'སྐད་ཡིག';
+
+  @override
+  String get dailyPracticeNotificationTitle => 'Daily Practice Reminder';
+
+  @override
+  String get timeForDailyPractice => 'It\'s time for your daily practice.';
+
+  @override
+  String get notificationSettings => 'Notification Settings';
+
+  @override
+  String get dailyPractice => 'Daily Practice';
+
+  @override
+  String get dailyPracticeRemindersDescription => 'Get reminded daily to practice your meditation and prayers';
+
+  @override
+  String get enableReminders => 'Enable Reminders';
+
+  @override
+  String get remindersEnabled => 'Reminders are active';
+
+  @override
+  String get remindersDisabled => 'Reminders are inactive';
+
+  @override
+  String get reminderTime => 'Reminder Time';
+
+  @override
+  String get selectTime => 'Select Time';
+
+  @override
+  String get updateTime => 'Update Time';
+
+  @override
+  String get testNotifications => 'Test Notifications';
+
+  @override
+  String get testNotificationsDescription => 'Send a test notification to verify everything is working';
+
+  @override
+  String get sendTestNotification => 'Send Test Notification';
+
+  @override
+  String get manageDailyReminders => 'Manage daily reminders';
 }

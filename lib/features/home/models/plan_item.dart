@@ -1,38 +1,70 @@
 class PlanItem {
-  final String verseText;
-  final String scriptureVideoUrl;
-  final String meditationVideoUrl;
-  final String intentionImageUrl;
-  final String bringingImageUrl;
+  final String label;
+  final String contentType;
+  final String content;
+  final String? author;
 
   PlanItem({
-    required this.verseText,
-    required this.scriptureVideoUrl,
-    required this.meditationVideoUrl,
-    required this.intentionImageUrl,
-    required this.bringingImageUrl,
+    required this.label,
+    required this.contentType,
+    required this.content,
+    this.author,
   });
 
   factory PlanItem.fromJson(Map<String, dynamic> json) {
     return PlanItem(
-      verseText: json['verseText'],
-      scriptureVideoUrl: json['scriptureVideoUrl'],
-      meditationVideoUrl: json['meditationVideoUrl'],
-      intentionImageUrl: json['intentionImageUrl'],
-      bringingImageUrl: json['bringingImageUrl'],
+      label: json['label'],
+      contentType: json['contentType'],
+      content: json['content'],
+      author: json['author'],
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'verseText': verseText,
-      'scriptureVideoUrl': scriptureVideoUrl,
-      'meditationVideoUrl': meditationVideoUrl,
-      'intentionImageUrl': intentionImageUrl,
-      'bringingImageUrl': bringingImageUrl,
+      'label': label,
+      'contentType': contentType,
+      'content': content,
+      'author': author,
     };
   }
 }
+
+// class PlanItem {
+//   final String verseText;
+//   final String scriptureVideoUrl;
+//   final String meditationVideoUrl;
+//   final String intentionImageUrl;
+//   final String bringingImageUrl;
+
+//   PlanItem({
+//     required this.verseText,
+//     required this.scriptureVideoUrl,
+//     required this.meditationVideoUrl,
+//     required this.intentionImageUrl,
+//     required this.bringingImageUrl,
+//   });
+
+//   factory PlanItem.fromJson(Map<String, dynamic> json) {
+//     return PlanItem(
+//       verseText: json['verseText'],
+//       scriptureVideoUrl: json['scriptureVideoUrl'],
+//       meditationVideoUrl: json['meditationVideoUrl'],
+//       intentionImageUrl: json['intentionImageUrl'],
+//       bringingImageUrl: json['bringingImageUrl'],
+//     );
+//   }
+
+//   Map<String, dynamic> toJson() {
+//     return {
+//       'verseText': verseText,
+//       'scriptureVideoUrl': scriptureVideoUrl,
+//       'meditationVideoUrl': meditationVideoUrl,
+//       'intentionImageUrl': intentionImageUrl,
+//       'bringingImageUrl': bringingImageUrl,
+//     };
+//   }
+// }
 
 // class PlanItem {
 //   final String verseText;

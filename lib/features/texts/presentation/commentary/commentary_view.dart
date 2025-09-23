@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_pecha/features/texts/data/providers/segment_provider.dart';
+import 'package:flutter_pecha/features/texts/data/providers/apis/segment_provider.dart';
 import 'package:flutter_pecha/shared/utils/helper_fucntions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -69,7 +69,7 @@ class CommentaryView extends ConsumerWidget {
                           margin: const EdgeInsets.only(bottom: 16, top: 0),
                           padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
-                            color: Colors.grey.shade100,
+                            color: Theme.of(context).cardColor,
                             borderRadius: BorderRadius.circular(18),
                             boxShadow: [
                               BoxShadow(

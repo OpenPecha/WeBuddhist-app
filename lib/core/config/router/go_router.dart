@@ -1,10 +1,17 @@
 import 'dart:async';
 import 'package:flutter_pecha/features/auth/presentation/login_page.dart';
+import 'package:flutter_pecha/features/auth/presentation/profile_page.dart';
 import 'package:flutter_pecha/features/app/presentation/skeleton_screen.dart';
+import 'package:flutter_pecha/features/creator_info/presentation/creator_info_screen.dart';
 import 'package:flutter_pecha/features/home/models/prayer_data.dart';
-import 'package:flutter_pecha/features/home/presentation/widgets/guided_scripture.dart';
+import 'package:flutter_pecha/features/home/presentation/widgets/verse_text.dart';
+import 'package:flutter_pecha/features/home/presentation/widgets/view_illustration.dart';
+import 'package:flutter_pecha/features/home/presentation/widgets/youtube_video_player.dart';
 import 'package:flutter_pecha/features/home/presentation/widgets/meditation_video.dart';
 import 'package:flutter_pecha/features/meditation_of_day/presentation/meditation_of_day_screen.dart';
+import 'package:flutter_pecha/features/notifications/presentation/notification_settings_screen.dart';
+import 'package:flutter_pecha/features/plans/models/plans_model.dart';
+import 'package:flutter_pecha/features/plans/presentation/plan_details.dart';
 import 'package:flutter_pecha/features/plans/presentation/plan_info.dart';
 import 'package:flutter_pecha/features/prayer_of_the_day/presentation/prayer_of_the_day_screen.dart';
 import 'package:flutter_pecha/features/splash/presentation/splash_screen.dart';
@@ -15,8 +22,8 @@ import 'package:flutter_pecha/features/texts/presentation/commentary/commentary_
 import 'package:flutter_pecha/features/texts/presentation/library_catalog_screen.dart';
 import 'package:flutter_pecha/features/texts/presentation/segment_image/choose_image.dart';
 import 'package:flutter_pecha/features/texts/presentation/segment_image/create_image.dart';
+import 'package:flutter_pecha/features/texts/presentation/text_chapter.dart';
 import 'package:flutter_pecha/features/texts/presentation/text_detail_screen.dart';
-import 'package:flutter_pecha/features/texts/presentation/text_reader_screen.dart';
 import 'package:flutter_pecha/features/texts/presentation/text_toc_screen.dart';
 import 'package:flutter_pecha/features/texts/presentation/version_selection/language_selection.dart';
 import 'package:flutter_pecha/features/texts/presentation/version_selection/version_selection_screen.dart';
@@ -24,34 +31,130 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/features/auth/application/auth_provider.dart';
+import 'route_config.dart';
 
 final goRouterProvider = Provider<GoRouter>((ref) {
   final authState = ref.watch(authProvider);
   return GoRouter(
-    initialLocation: '/splash',
+    initialLocation: '/',
     refreshListenable: GoRouterRefreshStream(
       ref.watch(authProvider.notifier).stream,
     ),
     routes: [
       GoRoute(
-        path: '/splash',
+        path: RouteConfig.splash,
         builder: (context, state) => const SplashScreen(),
       ),
-      GoRoute(path: '/login', builder: (context, state) => const LoginPage()),
+      GoRoute(
+        path: RouteConfig.login,
+        builder: (context, state) => const LoginPage(),
+      ),
       // home page routes
       GoRoute(
-        path: '/home',
+        path: RouteConfig.home,
         builder: (context, state) => const SkeletonScreen(),
       ),
       GoRoute(
-        path: '/home/guided_scripture',
+        path: RouteConfig.profile,
+        pageBuilder: (context, state) {
+          return CustomTransitionPage(
+            key: state.pageKey,
+            child: const ProfilePage(),
+            transitionsBuilder: (
+              context,
+              animation,
+              secondaryAnimation,
+              child,
+            ) {
+              final fade = CurvedAnimation(
+                parent: animation,
+                curve: Curves.easeInOut,
+              );
+              final offsetTween = Tween<Offset>(
+                begin: const Offset(0.0, 0.03),
+                end: Offset.zero,
+              ).chain(CurveTween(curve: Curves.easeOutCubic));
+              return FadeTransition(
+                opacity: fade,
+                child: SlideTransition(
+                  position: animation.drive(offsetTween),
+                  child: child,
+                ),
+              );
+            },
+          );
+        },
+      ),
+      GoRoute(
+        path: RouteConfig.creatorInfo,
+        pageBuilder: (context, state) {
+          return CustomTransitionPage(
+            key: state.pageKey,
+            child: const CreatorInfoScreen(),
+            transitionsBuilder: (
+              context,
+              animation,
+              secondaryAnimation,
+              child,
+            ) {
+              final fade = CurvedAnimation(
+                parent: animation,
+                curve: Curves.easeInOut,
+              );
+              final offsetTween = Tween<Offset>(
+                begin: const Offset(0.0, 0.03),
+                end: Offset.zero,
+              ).chain(CurveTween(curve: Curves.easeOutCubic));
+              return FadeTransition(
+                opacity: fade,
+                child: SlideTransition(
+                  position: animation.drive(offsetTween),
+                  child: child,
+                ),
+              );
+            },
+          );
+        },
+      ),
+      GoRoute(
+        path: '/home/video_player',
         builder: (context, state) {
           final extra = state.extra;
-          if (extra is String) {
-            return GuidedScripture(videoUrl: extra);
+          if (extra is Map &&
+              extra.containsKey('videoUrl') &&
+              extra.containsKey('title')) {
+            return YoutubeVideoPlayer(
+              videoUrl: extra['videoUrl'] as String,
+              title: extra['title'] as String,
+            );
           } else {
-            throw Exception('Invalid extra type for /home/guided_scripture');
+            throw Exception('Invalid extra type for /home/video_player');
           }
+        },
+      ),
+      GoRoute(
+        path: '/home/view_illustration',
+        builder: (context, state) {
+          final extra = state.extra;
+          if (extra == null ||
+              extra is! Map ||
+              !extra.containsKey('imageUrl') ||
+              !extra.containsKey('title')) {
+            return const Scaffold(
+              body: Center(child: Text('Missing required parameters')),
+            );
+          }
+          return ViewIllustration(
+            imageUrl: extra['imageUrl'] as String,
+            title: extra['title'] as String,
+          );
+        },
+      ),
+      GoRoute(
+        path: '/home/verse_text',
+        builder: (context, state) {
+          final extra = state.extra;
+          return VerseText(verse: extra as String);
         },
       ),
       GoRoute(
@@ -152,9 +255,27 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         },
       ),
       GoRoute(
-        path: '/texts/reader',
+        path: '/texts/chapter',
         builder: (context, state) {
-          return const TextReaderScreen();
+          final extra = state.extra;
+          if (extra == null ||
+              extra is! Map ||
+              !extra.containsKey('textId') ||
+              !extra.containsKey('contentId')) {
+            return const Scaffold(
+              body: Center(child: Text('Missing required parameters')),
+            );
+          }
+          return TextChapter(
+            textId: extra['textId'] as String,
+            contentId: extra['contentId'] as String,
+            segmentId: extra['segmentId'] as String?,
+          );
+          // return TextReaderScreen(
+          //   textId: extra['textId'] as String,
+          //   contentId: extra['contentId'] as String,
+          //   segmentId: extra['segmentId'] as String?,
+          // );
         },
       ),
       GoRoute(
@@ -230,33 +351,56 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       // plan tab routes
       GoRoute(
         path: '/plans/info',
-        builder: (context, state) => const PlanInfo(),
+        builder: (context, state) {
+          final extra = state.extra;
+          if (extra == null || extra is! PlansModel) {
+            return const Scaffold(
+              body: Center(child: Text('Missing required parameters')),
+            );
+          }
+          return PlanInfo(plan: extra);
+        },
+      ),
+      GoRoute(
+        path: '/plans/details',
+        builder: (context, state) {
+          final extra = state.extra;
+          if (extra == null || extra is! PlansModel) {
+            return const Scaffold(
+              body: Center(child: Text('Missing required parameters')),
+            );
+          }
+          return PlanDetails(plan: extra);
+        },
+      ),
+      GoRoute(
+        path: NotificationSettingsScreen.routeName,
+        builder: (context, state) => const NotificationSettingsScreen(),
       ),
     ],
     redirect: (context, state) {
       final isLoading = authState.isLoading;
       final isLoggedIn = authState.isLoggedIn;
-      final onSplash = state.fullPath == '/splash';
-      final onLogin = state.fullPath == '/login';
+      final currentPath = state.fullPath ?? RouteConfig.splash;
 
-      // // 1. If loading, stay on splash screen
+      // 1. While loading, stay on splash screen
       if (isLoading) {
-        return '/login';
+        return currentPath == RouteConfig.splash ? null : RouteConfig.splash;
       }
 
-      // 2. If not loading and on splash, go to login or home
-      if (!isLoading && onSplash) {
-        return isLoggedIn ? '/home' : '/login';
+      // 2. From splash screen, redirect based on auth status
+      if (currentPath == RouteConfig.splash) {
+        return isLoggedIn ? RouteConfig.home : RouteConfig.login;
       }
 
-      // 3. If not logged in and not on login/splash, go to login
-      if (!isLoggedIn && !onLogin && !onSplash) {
-        return '/login';
+      // 3. Authenticated user on login page should go to home
+      if (isLoggedIn && currentPath == RouteConfig.login) {
+        return RouteConfig.home;
       }
 
-      // 4. If logged in and on login, go to home
-      if (isLoggedIn && onLogin) {
-        return '/home';
+      // 4. Unauthenticated user trying to access protected route
+      if (!isLoggedIn && RouteConfig.isProtectedRoute(currentPath)) {
+        return RouteConfig.login;
       }
 
       // 5. No redirect needed

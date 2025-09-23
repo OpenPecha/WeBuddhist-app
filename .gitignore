@@ -44,6 +44,11 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 
+
+# Ignore generated entitlements
+ios/Runner/Runner.entitlements
+
 # env
 .env
 
+*.todo

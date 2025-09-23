@@ -1,21 +1,23 @@
+import 'package:flutter_pecha/core/network/http_client_provider.dart';
 import 'package:flutter_pecha/features/texts/data/datasource/text_remote_datasource.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:http/http.dart' as http;
-import '../repositories/texts_repository.dart';
+import '../../repositories/texts_repository.dart';
 import 'package:flutter_pecha/core/config/locale_provider.dart';
 
 class TextDetailsParams {
   final String textId;
-  final String? contentId;
+  final String contentId;
   final String? versionId;
-  final String? skip;
+  final String? segmentId;
+  final String? direction;
   final String key;
   const TextDetailsParams({
     required this.textId,
-    this.contentId,
+    required this.contentId,
     this.versionId,
-    this.skip,
-  }) : key = '${textId}_${contentId}_${versionId}_$skip';
+    this.segmentId,
+    this.direction,
+  }) : key = '${textId}_${contentId}_${versionId}_${segmentId}_$direction';
 
   @override
   bool operator ==(Object other) =>
@@ -30,7 +32,9 @@ class TextDetailsParams {
 
 final textsRepositoryProvider = Provider<TextsRepository>(
   (ref) => TextsRepository(
-    remoteDatasource: TextRemoteDatasource(client: http.Client()),
+    remoteDatasource: TextRemoteDatasource(
+      client: ref.watch(httpClientProvider),
+    ),
   ),
 );
 
@@ -43,11 +47,19 @@ final textsFutureProvider = FutureProvider.family((ref, String termId) {
 });
 
 final textContentFutureProvider = FutureProvider.family((ref, String textId) {
-  return ref.watch(textsRepositoryProvider).fetchTextContent(textId: textId);
+  final locale = ref.watch(localeProvider);
+  final languageCode = locale?.languageCode;
+  return ref
+      .watch(textsRepositoryProvider)
+      .fetchTextContent(textId: textId, language: languageCode);
 });
 
 final textVersionFutureProvider = FutureProvider.family((ref, String textId) {
-  return ref.watch(textsRepositoryProvider).fetchTextVersion(textId: textId);
+  final locale = ref.watch(localeProvider);
+  final languageCode = locale?.languageCode;
+  return ref
+      .watch(textsRepositoryProvider)
+      .fetchTextVersion(textId: textId, language: languageCode);
 });
 
 final textDetailsFutureProvider = FutureProvider.family((
@@ -58,9 +70,10 @@ final textDetailsFutureProvider = FutureProvider.family((
       .watch(textsRepositoryProvider)
       .fetchTextDetails(
         textId: params.textId,
-        contentId: params.contentId!,
+        contentId: params.contentId,
         versionId: params.versionId,
-        skip: params.skip,
+        segmentId: params.segmentId,
+        direction: params.direction,
       );
 });
 
