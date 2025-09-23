@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_pecha/features/texts/data/providers/share_provider.dart';
+import 'package:flutter_pecha/features/texts/data/providers/apis/share_provider.dart';
 import 'package:flutter_pecha/features/texts/presentation/widgets/action_button.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -120,7 +120,7 @@ class SegmentActionBar extends ConsumerWidget {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
                                       content: Text(
-                                        'Failed to share: ${e.toString()}',
+                                        'Unable to share. Please try again later.',
                                       ),
                                       backgroundColor: Colors.red,
                                     ),
@@ -152,7 +152,7 @@ class SegmentActionBar extends ConsumerWidget {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
                                   content: Text(
-                                    'Retrying... ${error.toString()}',
+                                    'Unable to create share link. Please try again later.',
                                   ),
                                   backgroundColor: Colors.orange,
                                 ),
@@ -168,9 +168,13 @@ class SegmentActionBar extends ConsumerWidget {
                   onTap: () {
                     final textWithLineBreaks = text.replaceAll("<br>", "\n");
                     final plainText = htmlToPlainText(textWithLineBreaks);
+                    final cutText =
+                        plainText.length > 180
+                            ? plainText.substring(0, 180)
+                            : plainText;
                     context.push(
                       '/texts/segment_image/choose_image',
-                      extra: plainText,
+                      extra: cutText,
                     );
                     onClose();
                   },

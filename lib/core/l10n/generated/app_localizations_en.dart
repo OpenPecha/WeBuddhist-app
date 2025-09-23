@@ -12,7 +12,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get appTitle => 'Pecha App';
 
   @override
-  String get pechaHeading => 'Pecha';
+  String get pechaHeading => 'WeBuddhist';
 
   @override
   String get learnLiveShare => 'Learn Live and Share';
@@ -57,6 +57,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get home_intention => 'My Intention for Today';
 
   @override
+  String get home_recitation => 'Recitation';
+
+  @override
   String get home_bringing => 'Bringing it to life';
 
   @override
@@ -93,5 +96,53 @@ class AppLocalizationsEn extends AppLocalizations {
   String get english => 'English';
 
   @override
+  String get chinese => 'Chinese';
+
+  @override
   String get language => 'Language';
+
+  @override
+  String get dailyPracticeNotificationTitle => 'Daily Practice Reminder';
+
+  @override
+  String get timeForDailyPractice => 'It\'s time for your daily practice.';
+
+  @override
+  String get notificationSettings => 'Notification Settings';
+
+  @override
+  String get dailyPractice => 'Daily Practice';
+
+  @override
+  String get dailyPracticeRemindersDescription => 'Get reminded daily to practice your meditation and prayers';
+
+  @override
+  String get enableReminders => 'Enable Reminders';
+
+  @override
+  String get remindersEnabled => 'Reminders are active';
+
+  @override
+  String get remindersDisabled => 'Reminders are inactive';
+
+  @override
+  String get reminderTime => 'Reminder Time';
+
+  @override
+  String get selectTime => 'Select Time';
+
+  @override
+  String get updateTime => 'Update Time';
+
+  @override
+  String get testNotifications => 'Test Notifications';
+
+  @override
+  String get testNotificationsDescription => 'Send a test notification to verify everything is working';
+
+  @override
+  String get sendTestNotification => 'Send Test Notification';
+
+  @override
+  String get manageDailyReminders => 'Manage daily reminders';
 }

@@ -16,17 +16,30 @@ class AuthService {
     Map<String, String>? additionalParameters,
   ]) async {
     try {
-      final parameters = {'connection': connection};
+      final parameters = {"connection": connection};
       if (additionalParameters != null) {
         parameters.addAll(additionalParameters);
       }
+
       final credentials = await auth0
           .webAuthentication(scheme: 'org.pecha.app')
-          .login(parameters: parameters);
+          .login(
+            useHTTPS: true,
+            parameters: parameters,
+            scopes: {"openid", "profile", "email", "offline_access"},
+          );
+
+      _logger.info('Login successful for connection: $connection');
       return credentials;
+    } on WebAuthenticationException catch (e) {
+      _logger.severe('WebAuth error for $connection: ${e.message}');
+      if (e.code == 'a0.session.user_cancelled') {
+        throw AuthException('Login was cancelled by user', code: e.code);
+      }
+      throw AuthException('Login failed: ${e.message}', code: e.code);
     } catch (e) {
-      _logger.severe('Login failed: $e');
-      return null;
+      _logger.severe('Unexpected login error for $connection: $e');
+      throw AuthException('An unexpected error occurred during login');
     }
   }
 
@@ -35,18 +48,13 @@ class AuthService {
     return _loginWithConnection('google-oauth2', {'prompt': 'select_account'});
   }
 
-  // Login with Facebook
-  Future<Credentials?> loginWithFacebook() async {
-    return _loginWithConnection('facebook');
-  }
-
   // Login with Apple
   Future<Credentials?> loginWithApple() async {
     return _loginWithConnection('apple');
   }
 
-  // quick logout
-  Future<void> quickLogout() async {
+  // Local logout - clears credentials from device only
+  Future<void> localLogout() async {
     try {
       await auth0.credentialsManager.clearCredentials();
     } catch (e) {
@@ -54,11 +62,39 @@ class AuthService {
     }
   }
 
-  Future<void> logout() async {
+  // Global logout - clears credentials from device and server
+  Future<void> globalLogout() async {
     try {
-      await auth0.webAuthentication(scheme: 'org.pecha.app').logout();
+      await auth0
+          .webAuthentication(scheme: 'org.pecha.app')
+          .logout(useHTTPS: true);
+      await auth0.credentialsManager.clearCredentials();
     } catch (e) {
       _logger.severe('Logout failed: $e');
     }
   }
+
+  // Add token refresh functionality
+  Future<Credentials?> refreshTokens() async {
+    try {
+      final credentials = await auth0.credentialsManager.credentials(
+        minTtl: 900, // 15 minutes
+      );
+      _logger.info('Token refresh successful');
+      return credentials;
+    } catch (e) {
+      _logger.warning('Token refresh failed: $e');
+      return null;
+    }
+  }
+}
+
+class AuthException implements Exception {
+  final String message;
+  final String? code;
+
+  AuthException(this.message, {this.code});
+
+  @override
+  String toString() => 'AuthException: $message';
 }

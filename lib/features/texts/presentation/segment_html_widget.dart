@@ -7,14 +7,12 @@ class SegmentHtmlWidget extends ConsumerStatefulWidget {
   final String htmlContent;
   final int segmentIndex;
   final double fontSize;
-  final bool isSelected;
   final String language;
   const SegmentHtmlWidget({
     super.key,
     required this.htmlContent,
     required this.segmentIndex,
     required this.fontSize,
-    this.isSelected = false,
     required this.language,
   });
 

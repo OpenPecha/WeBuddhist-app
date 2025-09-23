@@ -16,13 +16,13 @@ class PechaBottomNavBar extends ConsumerWidget {
       child: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         currentIndex: selectedIndex,
-        showSelectedLabels: false,
-        showUnselectedLabels: false,
+        showSelectedLabels: true,
+        showUnselectedLabels: true,
+        selectedLabelStyle: TextStyle(fontWeight: FontWeight.w600),
+        unselectedLabelStyle: TextStyle(fontWeight: FontWeight.w600),
         onTap: (idx) {
           if (idx != selectedIndex) {
-            // Update state
             ref.read(bottomNavIndexProvider.notifier).state = idx;
-            // Navigate to root of the selected tab
             context.go('/home');
           }
         },

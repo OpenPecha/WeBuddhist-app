@@ -60,4 +60,30 @@ class Section {
       'published_date': publishedDate,
     };
   }
+
+  /// Creates a copy of this Section with the given fields replaced by new values.
+  /// This is equivalent to the JavaScript spread operator {...existingSection, ...newValues}
+  Section copyWith({
+    String? id,
+    String? title,
+    int? sectionNumber,
+    String? parentId,
+    List<Segment>? segments,
+    List<Section>? sections,
+    String? createdDate,
+    String? updatedDate,
+    String? publishedDate,
+  }) {
+    return Section(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      sectionNumber: sectionNumber ?? this.sectionNumber,
+      parentId: parentId ?? this.parentId,
+      segments: segments ?? this.segments,
+      sections: sections ?? this.sections,
+      createdDate: createdDate ?? this.createdDate,
+      updatedDate: updatedDate ?? this.updatedDate,
+      publishedDate: publishedDate ?? this.publishedDate,
+    );
+  }
 }

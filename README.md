@@ -1,9 +1,9 @@
-# Pecha App
+# WeBuddhist App
 
 A modern Flutter app for learning, sharing, and live collaboration.
 
 ## 🚀 Project Goal
-Pecha App is designed to help users learn, live, and share knowledge interactively. It features a beautiful UI, supports both light and dark themes, and is built with best Flutter practices.
+WeBuddhist App is designed to help users learn, live, and share knowledge interactively. It features a beautiful UI, supports both light and dark themes, and is built with best Flutter practices.
 
 ## 🛠 Features
 - Light and Dark theme support with toggle

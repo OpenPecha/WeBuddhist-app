@@ -1,20 +1,33 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/features/texts/models/section.dart';
+import 'package:flutter_pecha/features/texts/models/segment.dart';
+import 'package:flutter_pecha/features/texts/models/text/reader_response.dart';
+import 'package:flutter_pecha/features/texts/models/text/toc.dart';
+import 'package:flutter_pecha/features/texts/models/text_detail.dart';
 import 'package:flutter_pecha/features/texts/presentation/segment_html_widget.dart';
-import 'package:flutter_pecha/features/texts/data/providers/texts_provider.dart';
-import 'package:flutter_pecha/features/texts/data/providers/text_reading_params_provider.dart';
+import 'package:flutter_pecha/features/texts/data/providers/apis/texts_provider.dart';
 import 'package:flutter_pecha/features/texts/data/providers/text_version_language_provider.dart';
 import 'package:flutter_pecha/features/texts/data/providers/font_size_provider.dart';
 import 'package:flutter_pecha/features/texts/data/providers/selected_segment_provider.dart';
+import 'package:flutter_pecha/features/texts/presentation/widgets/font_size_selector.dart';
 import 'package:flutter_pecha/features/texts/presentation/widgets/segment_action_bar.dart';
+import 'package:flutter_pecha/features/texts/utils/hepler_functions.dart';
 import 'package:flutter_pecha/shared/utils/helper_fucntions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:flutter_pecha/features/texts/models/text/reader_response.dart';
-import 'package:flutter_pecha/features/texts/models/search/segment_match.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
+import 'dart:async'; // Added for Timer
 
 class TextReaderScreen extends ConsumerStatefulWidget {
-  const TextReaderScreen({super.key});
+  const TextReaderScreen({
+    super.key,
+    required this.textId,
+    required this.contentId,
+    this.segmentId,
+  });
+  final String textId;
+  final String contentId;
+  final String? segmentId;
 
   @override
   ConsumerState<TextReaderScreen> createState() => _TextReaderScreenState();
@@ -25,91 +38,489 @@ class _TextReaderScreenState extends ConsumerState<TextReaderScreen> {
   final ItemPositionsListener itemPositionsListener =
       ItemPositionsListener.create();
 
-  void _showFontSizeSelector(BuildContext context, WidgetRef ref) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return Consumer(
-          builder: (context, ref, child) {
-            final fontSize = ref.watch(fontSizeProvider);
-            return Dialog(
-              backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-              alignment: Alignment.topCenter,
-              insetPadding: const EdgeInsets.only(
-                top: 60.0,
-                left: 20.0,
-                right: 20.0,
-              ),
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 24,
-                  vertical: 16,
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        for (final size in [12.0, 18.0, 24.0, 30.0, 40.0])
-                          Text(
-                            'A',
-                            style: TextStyle(
-                              fontSize: size,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    Slider(
-                      padding: EdgeInsets.zero,
-                      activeColor: Theme.of(context).colorScheme.primary,
-                      inactiveColor: Colors.grey.shade300,
-                      min: 10,
-                      max: 40,
-                      value: fontSize,
-                      label: '${fontSize.round()}',
-                      onChanged: (value) {
-                        ref.read(fontSizeProvider.notifier).setFontSize(value);
-                      },
-                    ),
-                    const SizedBox(height: 16),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: const [
-                        Text('50%'),
-                        Text('110%'),
-                        Text('175%'),
-                        Text('235%'),
-                        Text('300%'),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            );
-          },
-        );
-      },
+  // State variables
+  List<Section> sectionsData = [];
+  TextDetail? textDetailData;
+  bool isLoading = true;
+  bool isLoadingPreviousSection = false;
+  bool isLoadingNextSection = false;
+  int currentSegmentPosition = 0;
+  int totalSegments = 0;
+  int size = 20;
+
+  // Scroll management
+  bool _hasTriggeredPrevious = false;
+  bool _hasTriggeredNext = false;
+  Timer? _debounceTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    itemPositionsListener.itemPositions.addListener(_onScrollPositionChanged);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initializeFromProvider();
+    });
+  }
+
+  @override
+  void dispose() {
+    itemPositionsListener.itemPositions.removeListener(
+      _onScrollPositionChanged,
     );
+    _debounceTimer?.cancel();
+    super.dispose();
+  }
+
+  void _initializeFromProvider() async {
+    try {
+      setState(() {
+        isLoading = true;
+      });
+      final params = TextDetailsParams(
+        textId: widget.textId,
+        contentId: widget.contentId,
+        segmentId: widget.segmentId,
+        direction: 'next',
+      );
+      final response = await ref.read(textDetailsFutureProvider(params).future);
+      initialSections(response);
+    } catch (e) {
+      debugPrint('error initializing from provider: $e');
+      setState(() {
+        isLoading = false;
+      });
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
+  void initialSections(ReaderResponse response) {
+    if (response.content.sections.isNotEmpty && mounted) {
+      setState(() {
+        sectionsData = response.content.sections;
+        textDetailData = response.textDetail;
+        isLoading = false;
+        totalSegments = response.totalSegments;
+        currentSegmentPosition = response.currentSegmentPosition;
+      });
+    }
+  }
+
+  void _onScrollPositionChanged() {
+    _debounceTimer?.cancel();
+    _debounceTimer = Timer(const Duration(milliseconds: 100), () {
+      final positions = itemPositionsListener.itemPositions.value;
+      if (positions.isEmpty) return;
+
+      final firstVisibleIndex = positions.first.index;
+      final lastVisibleIndex = positions.last.index;
+
+      // Load previous sections when near the beginning
+      if (firstVisibleIndex <= 5 &&
+          !isLoadingPreviousSection &&
+          !_hasTriggeredPrevious &&
+          sectionsData.isNotEmpty) {
+        if (currentSegmentPosition >= 5) {
+          _hasTriggeredPrevious = true;
+          loadPreviousSection();
+        }
+      }
+
+      // Load next sections when near the end
+      if (lastVisibleIndex >= _getTotalItemCount() - 3 &&
+          !isLoadingNextSection &&
+          !_hasTriggeredNext &&
+          currentSegmentPosition <= totalSegments - size) {
+        _hasTriggeredNext = true;
+        loadNextSection();
+      }
+    });
+  }
+
+  void loadPreviousSection() async {
+    setState(() {
+      isLoadingPreviousSection = true;
+    });
+
+    try {
+      final firstSegmentId = getFirstSegmentId(sectionsData);
+      if (firstSegmentId == null) {
+        return;
+      }
+
+      final params = TextDetailsParams(
+        textId: widget.textId,
+        contentId: widget.contentId,
+        segmentId: firstSegmentId,
+        direction: 'previous',
+      );
+
+      final response = await ref.read(textDetailsFutureProvider(params).future);
+
+      if (response.content.sections.isNotEmpty) {
+        final newSections = response.content.sections;
+        final mergedSections = mergeSections(
+          sectionsData,
+          newSections,
+          'previous',
+        );
+
+        setState(() {
+          sectionsData = mergedSections;
+          currentSegmentPosition = response.currentSegmentPosition;
+        });
+
+        // Adjust scroll position to maintain current view
+        final currentPosition =
+            itemPositionsListener.itemPositions.value.first.index;
+        final newSegmentsCount = getTotalSegmentsCount(newSections);
+        final newPosition = currentPosition + newSegmentsCount;
+
+        if (newPosition > 0) {
+          itemScrollController.scrollTo(
+            index: newPosition,
+            duration: const Duration(milliseconds: 1),
+          );
+        }
+      }
+    } catch (e) {
+      debugPrint('error loading previous section: $e');
+    } finally {
+      setState(() {
+        isLoadingPreviousSection = false;
+        _hasTriggeredPrevious = false;
+      });
+    }
+  }
+
+  void loadNextSection() async {
+    setState(() {
+      isLoadingNextSection = true;
+    });
+
+    try {
+      final lastSegmentId = getLastSegmentId(sectionsData);
+      if (lastSegmentId == null) {
+        return;
+      }
+
+      final params = TextDetailsParams(
+        textId: widget.textId,
+        contentId: widget.contentId,
+        segmentId: lastSegmentId,
+        direction: 'next',
+      );
+
+      final response = await ref.read(textDetailsFutureProvider(params).future);
+
+      if (response.content.sections.isNotEmpty) {
+        final newSections = response.content.sections;
+        final mergedSections = mergeSections(sectionsData, newSections, 'next');
+
+        setState(() {
+          sectionsData = mergedSections;
+          currentSegmentPosition = response.currentSegmentPosition;
+        });
+      }
+    } catch (e) {
+      debugPrint('error loading next section: $e');
+    } finally {
+      setState(() {
+        isLoadingNextSection = false;
+        _hasTriggeredNext = false;
+      });
+    }
+  }
+
+  int _getTotalItemCount() {
+    int count = 0;
+    for (final section in sectionsData) {
+      count += _calculateSectionItemCount(section);
+    }
+    if (isLoadingPreviousSection) count++;
+    if (isLoadingNextSection) count++;
+    return count;
+  }
+
+  int _calculateSectionItemCount(Section section) {
+    int count = 1; // Section title
+    count += section.segments.length; // Direct segments
+
+    // Add nested sections
+    if (section.sections != null) {
+      for (final nestedSection in section.sections!) {
+        count += _calculateSectionItemCount(nestedSection);
+      }
+    }
+
+    return count;
+  }
+
+  Widget _buildSectionOrSegmentItem(int index) {
+    // Loading indicator at top
+    if (index == 0 && isLoadingPreviousSection) {
+      return _buildLoadingIndicator('Loading previous sections...');
+    }
+
+    // Adjust index for loading indicator
+    final adjustedIndex = isLoadingPreviousSection ? index - 1 : index;
+
+    // Calculate which section and segment this index corresponds to
+    int currentIndex = 0;
+
+    // for (
+    //   int sectionIndex = 0;
+    //   sectionIndex < sectionsData.length;
+    //   sectionIndex++
+    // ) {
+    //   final section = sectionsData[sectionIndex];
+
+    //   // Section title
+    //   if (currentIndex == adjustedIndex) {
+    //     return _buildSectionTitle(section);
+    //   }
+    //   currentIndex++;
+
+    //   // Section segments
+    //   for (
+    //     int segmentIndex = 0;
+    //     segmentIndex < section.segments.length;
+    //     segmentIndex++
+    //   ) {
+    //     if (currentIndex == adjustedIndex) {
+    //       return _buildSegmentItem(section, segmentIndex, sectionIndex);
+    //     }
+    //     currentIndex++;
+    //   }
+    // }
+    for (
+      int sectionIndex = 0;
+      sectionIndex < sectionsData.length;
+      sectionIndex++
+    ) {
+      final section = sectionsData[sectionIndex];
+      final sectionItemCount = _calculateSectionItemCount(section);
+      if (currentIndex <= adjustedIndex &&
+          adjustedIndex < currentIndex + sectionItemCount) {
+        return _buildSectionRecursive(
+          section,
+          adjustedIndex - currentIndex,
+          sectionIndex,
+        );
+      }
+      currentIndex += sectionItemCount;
+    }
+    // Loading indicator at bottom
+    if (index == _getTotalItemCount() - 1 && isLoadingNextSection) {
+      return _buildLoadingIndicator('Loading next sections...');
+    }
+
+    return const SizedBox.shrink();
+  }
+
+  Widget _buildSectionRecursive(
+    Section section,
+    int relativeIndex,
+    int sectionIndex,
+  ) {
+    int currentIndex = 0;
+    // Section title
+    if (currentIndex == relativeIndex) {
+      return _buildSectionTitle(section);
+    }
+    currentIndex++;
+
+    // direct segments
+    for (
+      int segmentIndex = 0;
+      segmentIndex < section.segments.length;
+      segmentIndex++
+    ) {
+      if (currentIndex == relativeIndex) {
+        return _buildSegmentItem(section, segmentIndex, sectionIndex);
+      }
+      currentIndex++;
+    }
+
+    // nested sections
+    if (section.sections != null) {
+      for (final nestedSection in section.sections!) {
+        final nestedSectionItemCount = _calculateSectionItemCount(
+          nestedSection,
+        );
+        if (currentIndex <= relativeIndex &&
+            relativeIndex < currentIndex + nestedSectionItemCount) {
+          return _buildSectionRecursive(
+            nestedSection,
+            relativeIndex - currentIndex,
+            sectionIndex,
+          );
+        }
+        currentIndex += nestedSectionItemCount;
+      }
+    }
+    return const SizedBox.shrink();
+  }
+
+  Widget _buildSectionTitle(Section section) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 10, bottom: 10),
+      child: Text(
+        section.title ?? '',
+        textAlign: TextAlign.center,
+        style: TextStyle(
+          fontSize: 18,
+          fontFamily: getFontFamily(textDetailData?.language ?? 'en'),
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSegmentItem(
+    Section section,
+    int segmentIndex,
+    int sectionIndex,
+  ) {
+    final segment = section.segments[segmentIndex];
+    final segmentNumber = segment.segmentNumber.toString().padLeft(2);
+    final content = segment.content;
+
+    // Calculate global segment index for selection
+    final globalSegmentIndex = _calculateGlobalSegmentIndex(
+      sectionIndex,
+      segmentIndex,
+    );
+    final isSelected = ref.watch(selectedSegmentProvider) == globalSegmentIndex;
+
+    return GestureDetector(
+      onTap: () {
+        // ref.read(selectedSegmentProvider.notifier).state =
+        //     ref.read(selectedSegmentProvider) == globalSegmentIndex
+        //         ? null
+        //         : globalSegmentIndex;
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          color:
+              isSelected
+                  ? Theme.of(context).colorScheme.primary.withAlpha(25)
+                  : null,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(top: 2),
+              child: SizedBox(
+                width: 30,
+                child: Text(
+                  segmentNumber,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                  ),
+                  textAlign: TextAlign.left,
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: SegmentHtmlWidget(
+                htmlContent: content ?? '',
+                segmentIndex: globalSegmentIndex,
+                fontSize: ref.watch(fontSizeProvider),
+                language: textDetailData?.language ?? 'en',
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLoadingIndicator(String message) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      child: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const CircularProgressIndicator(),
+            const SizedBox(height: 8),
+            Text(message),
+          ],
+        ),
+      ),
+    );
+  }
+
+  int _calculateGlobalSegmentIndex(int sectionIndex, int segmentIndex) {
+    int globalIndex = 0;
+    for (int i = 0; i < sectionIndex; i++) {
+      // globalIndex += sectionsData[i].segments.length;
+      globalIndex += _calculateTotalSegmentsInSection(sectionsData[i]);
+    }
+    return globalIndex + segmentIndex;
+  }
+
+  int _calculateTotalSegmentsInSection(Section section) {
+    int count = section.segments.length;
+    if (section.sections != null) {
+      for (final nestedSection in section.sections!) {
+        count += _calculateTotalSegmentsInSection(nestedSection);
+      }
+    }
+    return count;
+  }
+
+  Segment? _getSegmentByGlobalIndex(int globalIndex) {
+    int currentIndex = 0;
+    for (final section in sectionsData) {
+      final totalSegments = _calculateTotalSegmentsInSection(section);
+      if (currentIndex <= globalIndex &&
+          globalIndex < currentIndex + totalSegments) {
+        return _findSegmentInSection(section, globalIndex - currentIndex);
+      }
+      currentIndex += totalSegments;
+    }
+    return null;
+  }
+
+  Segment? _findSegmentInSection(Section section, int relativeIndex) {
+    int currentIndex = 0;
+
+    // Check direct segments
+    if (relativeIndex < section.segments.length) {
+      return section.segments[relativeIndex];
+    }
+    currentIndex += section.segments.length;
+
+    // Check nested sections
+    if (section.sections != null) {
+      for (final nestedSection in section.sections!) {
+        final nestedSegments = _calculateTotalSegmentsInSection(nestedSection);
+        if (currentIndex <= relativeIndex &&
+            relativeIndex < currentIndex + nestedSegments) {
+          return _findSegmentInSection(
+            nestedSection,
+            relativeIndex - currentIndex,
+          );
+        }
+        currentIndex += nestedSegments;
+      }
+    }
+    return null;
   }
 
   @override
   Widget build(BuildContext context) {
-    final readingParams = ref.watch(textReadingParamsProvider);
     final fontSize = ref.watch(fontSizeProvider);
     final selectedIndex = ref.watch(selectedSegmentProvider);
-
-    final params = TextDetailsParams(
-      textId: readingParams?.textId ?? '',
-      contentId: readingParams?.contentId ?? '',
-      versionId: readingParams?.versionId,
-      skip: readingParams?.skip,
-    );
-
-    final textDetails = ref.watch(textDetailsFutureProvider(params));
 
     return Scaffold(
       appBar: AppBar(
@@ -125,40 +536,87 @@ class _TextReaderScreenState extends ConsumerState<TextReaderScreen> {
         ),
         toolbarHeight: 50,
         actions: [
-          // search icon
           IconButton(
             onPressed: () async {
-              final details = textDetails.value;
-              if (details != null) {
-                final selectedIndex = await showSearch<int?>(
-                  context: context,
-                  delegate: TextSearchDelegate(textDetails: details, ref: ref),
+              if (textDetailData != null) {
+                // Create a ReaderResponse for search
+                final readerResponse = ReaderResponse(
+                  textDetail: textDetailData!,
+                  content: Toc(
+                    id: widget.contentId,
+                    textId: widget.textId,
+                    sections: sectionsData,
+                  ),
+                  size: size,
+                  paginationDirection: 'next',
+                  currentSegmentPosition: currentSegmentPosition,
+                  totalSegments: totalSegments,
                 );
 
-                if (selectedIndex != null && mounted) {
-                  itemScrollController.scrollTo(
-                    index: selectedIndex + 1, // +1 for the header
-                    duration: const Duration(milliseconds: 500),
-                    curve: Curves.easeInOut,
-                  );
-                }
+                // final selectedIndex = await showSearch<int?>(
+                //   context: context,
+                //   delegate: TextSearchDelegate(
+                //     textDetails: readerResponse,
+                //     ref: ref,
+                //   ),
+                // );
+
+                // if (selectedIndex != null && mounted) {
+                //   final adjustedIndex = _calculateIndexForSearch(selectedIndex);
+                //   itemScrollController.scrollTo(
+                //     index: adjustedIndex,
+                //     duration: const Duration(milliseconds: 500),
+                //     curve: Curves.easeInOut,
+                //   );
+                // }
               }
             },
             icon: const Icon(Icons.search),
           ),
           IconButton(
-            onPressed: () => _showFontSizeSelector(context, ref),
+            onPressed: () => showFontSizeSelector(context, ref),
             icon: const Icon(Icons.text_increase),
           ),
           GestureDetector(
-            onTap: () {
+            onTap: () async {
               ref
                   .read(textVersionLanguageProvider.notifier)
-                  .setLanguage(textDetails.value?.textDetail.language ?? "en");
-              context.push(
+                  .setLanguage(textDetailData?.language ?? "en");
+              final result = await context.push(
                 '/texts/version_selection',
-                extra: {"textId": textDetails.value?.textDetail.id},
+                extra: {"textId": textDetailData?.id},
               );
+
+              if (result != null && result is Map<String, dynamic>) {
+                final newTextId = result['textId'] as String?;
+                final newContentId = result['contentId'] as String?;
+
+                if (newTextId != null && newContentId != null) {
+                  // Update the text with new parameters
+                  setState(() {
+                    isLoading = true;
+                  });
+
+                  try {
+                    final params = TextDetailsParams(
+                      textId: newTextId,
+                      contentId: newContentId,
+                      segmentId: null,
+                      direction: 'next',
+                    );
+                    final response = await ref.read(
+                      textDetailsFutureProvider(params).future,
+                    );
+                    initialSections(response);
+                  } catch (e) {
+                    debugPrint('error updating text: $e');
+                  } finally {
+                    setState(() {
+                      isLoading = false;
+                    });
+                  }
+                }
+              }
             },
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
@@ -171,7 +629,7 @@ class _TextReaderScreenState extends ConsumerState<TextReaderScreen> {
                   const Icon(Icons.language, size: 18),
                   const SizedBox(width: 4),
                   Text(
-                    textDetails.value?.textDetail.language.toUpperCase() ?? "",
+                    textDetailData?.language.toUpperCase() ?? "",
                     style: const TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w600,
@@ -188,339 +646,119 @@ class _TextReaderScreenState extends ConsumerState<TextReaderScreen> {
           child: Container(height: 2, color: const Color(0xFFB6D7D7)),
         ),
       ),
-      body: textDetails.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, stackTrace) => Center(child: Text(error.toString())),
-        data: (response) {
-          if (response.content.sections.isEmpty) {
-            return const Center(child: Text("No content available"));
-          }
-          final firstSection = response.content.sections[0];
-          final textId = response.textDetail.id;
-          final contentId = response.content.id;
-          if (firstSection.segments.isEmpty) {
-            return const Center(child: Text("No segments available"));
-          }
-          return Stack(
-            children: [
-              ScrollablePositionedList.builder(
-                itemScrollController: itemScrollController,
-                itemPositionsListener: itemPositionsListener,
-                itemCount: firstSection.segments.length + 1,
-                itemBuilder: (context, index) {
-                  if (index == 0) {
-                    // This is the header
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 4,
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          const SizedBox(height: 16),
-                          Text(
-                            response.textDetail.title,
-                            style: TextStyle(
-                              fontSize: getFontSize(
-                                response.textDetail.language,
-                              ),
-                              fontFamily: getFontFamily(
-                                response.textDetail.language,
-                              ),
-                              fontWeight: FontWeight.w600,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            firstSection.title ?? '',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontFamily: getFontFamily(
-                                response.textDetail.language,
-                              ),
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                        ],
-                      ),
-                    );
-                  }
-
-                  final segmentIndex = index - 1;
-                  final segment = firstSection.segments[segmentIndex];
-                  final segmentNumber = segment.segmentNumber
-                      .toString()
-                      .padLeft(2);
-                  final content = segment.content;
-                  final isSelected = selectedIndex == segmentIndex;
-
-                  return GestureDetector(
-                    onTap: () {
-                      ref.read(selectedSegmentProvider.notifier).state =
-                          ref.read(selectedSegmentProvider) == segmentIndex
-                              ? null
-                              : segmentIndex;
-                    },
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color:
-                            isSelected
-                                ? Theme.of(
-                                  context,
-                                ).colorScheme.primary.withAlpha(25)
-                                : null,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 8,
-                      ),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.only(top: 2),
-                            child: SizedBox(
-                              width: 30,
-                              child: Text(
-                                segmentNumber,
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 14,
-                                ),
-                                textAlign: TextAlign.left,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: SegmentHtmlWidget(
-                              htmlContent: content ?? '',
-                              segmentIndex: segmentIndex,
-                              fontSize: fontSize,
-                              isSelected: isSelected,
-                              language: response.textDetail.language,
-                            ),
-                          ),
-                        ],
-                      ),
+      body:
+          isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : Column(
+                children: [
+                  // Fixed header
+                  Container(
+                    color: Theme.of(context).scaffoldBackgroundColor,
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 10,
                     ),
-                  );
-                },
+                    child: Column(
+                      children: [
+                        Text(
+                          textDetailData?.title ?? '',
+                          style: TextStyle(
+                            fontSize: getFontSize(
+                              textDetailData?.language ?? 'en',
+                            ),
+                            fontFamily: getFontFamily(
+                              textDetailData?.language ?? 'en',
+                            ),
+                            fontWeight: FontWeight.w600,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          '$currentSegmentPosition / $totalSegments',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  // Main content with defined height
+                  Expanded(
+                    child: Stack(
+                      children: [
+                        // Main content
+                        ScrollablePositionedList.builder(
+                          itemScrollController: itemScrollController,
+                          itemPositionsListener: itemPositionsListener,
+                          itemCount: _getTotalItemCount(),
+                          padding: const EdgeInsets.only(bottom: 40),
+                          itemBuilder: (context, index) {
+                            return _buildSectionOrSegmentItem(index);
+                          },
+                        ),
+                        // Segment action bar
+                        // if (selectedIndex != null)
+                        // _buildSegmentActionBar(selectedIndex),
+                      ],
+                    ),
+                  ),
+                ],
               ),
-              if (selectedIndex != null)
-                SegmentActionBar(
-                  text: firstSection.segments[selectedIndex].content ?? '',
-                  textId: textId,
-                  contentId: contentId,
-                  segmentId: firstSection.segments[selectedIndex].segmentId,
-                  language: response.textDetail.language,
-                  onClose:
-                      () =>
-                          ref.read(selectedSegmentProvider.notifier).state =
-                              null,
-                ),
-            ],
-          );
-        },
-      ),
     );
+  }
+
+  Widget _buildSegmentActionBar(int selectedIndex) {
+    final segment = _getSegmentByGlobalIndex(selectedIndex);
+    if (segment == null) return const SizedBox.shrink();
+
+    return SegmentActionBar(
+      text: segment.content ?? '',
+      textId: textDetailData?.id ?? '',
+      contentId: widget.contentId,
+      segmentId: segment.segmentId,
+      language: textDetailData?.language ?? 'en',
+      onClose: () => ref.read(selectedSegmentProvider.notifier).state = null,
+    );
+  }
+
+  int _calculateIndexForSearch(int searchResultIndex) {
+    // Convert search result index to the correct position in the list
+    int currentIndex = 0;
+    int segmentCount = 0;
+
+    for (
+      int sectionIndex = 0;
+      sectionIndex < sectionsData.length;
+      sectionIndex++
+    ) {
+      final section = sectionsData[sectionIndex];
+      final totalSegments = _calculateTotalSegmentsInSection(section);
+
+      // Check if the search result is in this section
+      if (searchResultIndex >= segmentCount &&
+          searchResultIndex < segmentCount + totalSegments) {
+        // Calculate the position: header + previous sections + section title + segment position
+        return (isLoadingPreviousSection
+                ? 2
+                : 1) + // Header + loading indicator
+            currentIndex + // Previous sections and their segments
+            (searchResultIndex - segmentCount); // Position within this section
+      }
+
+      currentIndex += _calculateSectionItemCount(
+        section,
+      ); // Section title + segments + nested sections
+      segmentCount += totalSegments;
+    }
+
+    return searchResultIndex + (isLoadingPreviousSection ? 2 : 1);
   }
 }
 
-class TextSearchDelegate extends SearchDelegate<int?> {
-  final ReaderResponse textDetails;
-  final WidgetRef ref;
-  String _submittedQuery = '';
-  bool _hasSubmitted = false;
-
-  TextSearchDelegate({required this.textDetails, required this.ref});
-
-  @override
-  ThemeData appBarTheme(BuildContext context) {
-    return Theme.of(context).copyWith(
-      appBarTheme: AppBarTheme(
-        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        iconTheme: IconThemeData(
-          color: Theme.of(context).textTheme.bodyLarge?.color,
-        ),
-      ),
-      inputDecorationTheme: const InputDecorationTheme(
-        border: InputBorder.none,
-      ),
-    );
-  }
-
-  @override
-  List<Widget> buildActions(BuildContext context) {
-    return [
-      IconButton(
-        icon: const Icon(Icons.clear),
-        onPressed: () {
-          query = '';
-          _submittedQuery = '';
-          _hasSubmitted = false;
-          showSuggestions(context);
-        },
-      ),
-    ];
-  }
-
-  @override
-  Widget buildLeading(BuildContext context) {
-    return IconButton(
-      icon: const Icon(Icons.arrow_back_ios),
-      onPressed: () {
-        close(context, null);
-      },
-    );
-  }
-
-  @override
-  Widget buildResults(BuildContext context) {
-    // Only make API call when user submits search (presses search button)
-    if (query.isNotEmpty && !_hasSubmitted) {
-      _submittedQuery = query;
-      _hasSubmitted = true;
-    }
-
-    return _buildSearchResults(context);
-  }
-
-  @override
-  Widget buildSuggestions(BuildContext context) {
-    // Reset submitted state when user starts typing again
-    if (_hasSubmitted && query != _submittedQuery) {
-      _hasSubmitted = false;
-      _submittedQuery = '';
-    }
-
-    return _buildSearchResults(context);
-  }
-
-  Widget _buildSearchResults(BuildContext context) {
-    if (query.isEmpty) {
-      return Container(
-        color: Theme.of(context).scaffoldBackgroundColor,
-        child: const Center(
-          child: Text(
-            'Type to search',
-            style: TextStyle(fontSize: 16, color: Colors.grey),
-          ),
-        ),
-      );
-    }
-
-    // Use API search only when submitted
-    if (!_hasSubmitted || _submittedQuery.isEmpty) {
-      return Container(
-        color: Theme.of(context).scaffoldBackgroundColor,
-        child: const Center(
-          child: Text(
-            "Press search button to search",
-            style: TextStyle(fontSize: 16, color: Colors.grey),
-          ),
-        ),
-      );
-    }
-
-    final searchParams = SearchTextParams(
-      query: _submittedQuery,
-      textId: textDetails.textDetail.id,
-    );
-
-    // Use Consumer to ensure rebuilds when provider changes
-    return Consumer(
-      builder: (context, ref, child) {
-        final searchResults = ref.watch(searchTextFutureProvider(searchParams));
-
-        return searchResults.when(
-          loading: () {
-            return const Center(child: CircularProgressIndicator());
-          },
-          error: (error, stackTrace) {
-            return Center(
-              child: Text(
-                'Error searching: ${error.toString()}',
-                style: const TextStyle(fontSize: 16),
-              ),
-            );
-          },
-          data: (searchResponse) {
-            if (searchResponse.sources == null ||
-                searchResponse.sources!.isEmpty) {
-              return Center(
-                child: Text(
-                  'No results found for "$_submittedQuery"',
-                  style: const TextStyle(fontSize: 16),
-                ),
-              );
-            }
-
-            // Flatten all segment matches from all sources
-            final allSegmentMatches = <SegmentMatch>[];
-            for (final source in searchResponse.sources!) {
-              allSegmentMatches.addAll(source.segmentMatches);
-            }
-
-            if (allSegmentMatches.isEmpty) {
-              return Center(
-                child: Text(
-                  'No results found for "$_submittedQuery"',
-                  style: const TextStyle(fontSize: 16),
-                ),
-              );
-            }
-
-            return Container(
-              color: Theme.of(context).scaffoldBackgroundColor,
-              child: ListView.separated(
-                itemCount: allSegmentMatches.length,
-                separatorBuilder:
-                    (context, index) => const Divider(
-                      height: 1,
-                      color: Colors.grey,
-                      indent: 20,
-                      endIndent: 20,
-                    ),
-                itemBuilder: (context, index) {
-                  final segmentMatch = allSegmentMatches[index];
-                  return ListTile(
-                    title: Text(
-                      segmentMatch.content.replaceAll(RegExp(r'<[^>]*>'), ''),
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 8,
-                    ),
-                    onTap: () {
-                      // Find the segment index in the local segments to scroll to
-                      final segments =
-                          textDetails.content.sections.first.segments;
-                      final segmentIndex = segments.indexWhere(
-                        (segment) =>
-                            segment.segmentId == segmentMatch.segmentId,
-                      );
-
-                      if (segmentIndex != -1) {
-                        close(context, segmentIndex);
-                      } else {
-                        // If segment not found locally, just close with null
-                        close(context, null);
-                      }
-                    },
-                  );
-                },
-              ),
-            );
-          },
-        );
-      },
-    );
-  }
+// Utility function to show font size selector
+void showFontSizeSelector(BuildContext context, WidgetRef ref) {
+  showDialog(context: context, builder: (context) => const FontSizeSelector());
 }

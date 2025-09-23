@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/utils/get_language.dart';
 import 'package:flutter_pecha/features/texts/data/providers/text_reading_params_provider.dart';
-import 'package:flutter_pecha/features/texts/data/providers/texts_provider.dart';
+import 'package:flutter_pecha/features/texts/data/providers/apis/texts_provider.dart';
 import 'package:flutter_pecha/features/texts/data/providers/text_version_language_provider.dart';
 import 'package:flutter_pecha/features/texts/models/version.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -41,7 +41,7 @@ class VersionSelectionScreen extends ConsumerWidget {
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios),
-          onPressed: () => Navigator.pop(context),
+          onPressed: () => context.pop(),
         ),
         toolbarHeight: 50,
         actions: [
@@ -152,15 +152,14 @@ class VersionSelectionScreen extends ConsumerWidget {
         final version = versions[index];
         return ListTile(
           onTap: () {
-            ref
-                .read(textReadingParamsProvider.notifier)
-                .setParams(
-                  textId: version.id,
-                  contentId: version.tableOfContents[0],
-                  versionId: version.id,
-                  skip: '0',
-                );
             context.pop();
+            context.replace(
+              '/texts/chapter',
+              extra: {
+                'textId': version.id,
+                'contentId': version.tableOfContents[0],
+              },
+            );
           },
           contentPadding: EdgeInsets.zero,
           title: Text(
@@ -242,7 +241,9 @@ class VersionSearchDelegate extends SearchDelegate<Version?> {
                   textId: version.id,
                   contentId: version.tableOfContents[0],
                   versionId: version.id,
-                  skip: '0',
+                  segmentId: '',
+                  sectionId: '',
+                  direction: '',
                 );
             close(context, version);
             Navigator.pop(context);
