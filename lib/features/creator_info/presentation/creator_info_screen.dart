@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/config/locale_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
 class CreatorInfoScreen extends ConsumerWidget {
   const CreatorInfoScreen({super.key});
@@ -32,9 +31,12 @@ class CreatorInfoScreen extends ConsumerWidget {
       orElse: () => credits.firstWhere((credit) => credit['language'] == 'en'),
     );
     return Scaffold(
+      appBar: AppBar(),
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      body: SafeArea(
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20.0),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildHeader(context, currentCredits),
             _buildBioSection(context, currentCredits),
@@ -49,61 +51,57 @@ class CreatorInfoScreen extends ConsumerWidget {
     BuildContext context,
     Map<String, dynamic> currentCredits,
   ) {
-    return Container(
-      decoration: BoxDecoration(color: Theme.of(context).cardColor),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
+    return Column(
+      children: [
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                TextButton(
-                  onPressed: () => context.pop(),
-                  child: Text(
-                    'Done',
-                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-              ],
+            CircleAvatar(
+              radius: 50,
+              backgroundImage: const AssetImage('assets/images/pecha_logo.png'),
+              backgroundColor: Colors.grey[800],
             ),
-            const SizedBox(height: 20),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                CircleAvatar(
-                  radius: 50,
-                  backgroundImage: const AssetImage(
-                    'assets/images/pecha_logo.png',
-                  ),
-                  backgroundColor: Colors.grey[800],
-                ),
-                const SizedBox(width: 20),
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.only(top: 10),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          currentCredits['name'],
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
+            const SizedBox(width: 20),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.only(top: 10),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      currentCredits['name'],
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                  ),
+                    // add list of social media icons with links
+                    // Row(
+                    //   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    //   children: [
+                    //     IconButton(
+                    //       onPressed: () {},
+                    //       icon: Icon(Icons.facebook),
+                    //     ),
+                    //     IconButton(onPressed: () {}, icon: Icon(Icons.email)),
+                    //     IconButton(
+                    //       onPressed: () {},
+                    //       icon: Icon(Icons.alternate_email),
+                    //     ),
+                    //     IconButton(
+                    //       onPressed: () {},
+                    //       icon: Icon(Icons.camera_alt),
+                    //     ),
+                    //   ],
+                    // ),
+                  ],
                 ),
-              ],
+              ),
             ),
           ],
         ),
-      ),
+      ],
     );
   }
 
@@ -111,26 +109,21 @@ class CreatorInfoScreen extends ConsumerWidget {
     BuildContext context,
     Map<String, dynamic> currentCredits,
   ) {
-    return Container(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            currentCredits['bio'],
-            style: TextStyle(fontSize: 15, height: 1.7),
-            softWrap: true,
-            overflow: TextOverflow.visible,
-          ),
-        ],
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 16.0),
+      child: Text(
+        currentCredits['bio'],
+        style: TextStyle(fontSize: 15, height: 1.7),
+        softWrap: true,
+        overflow: TextOverflow.visible,
       ),
     );
   }
 
   Widget _buildFeaturedPlanSection(BuildContext context) {
     return Expanded(
-      child: Container(
-        padding: const EdgeInsets.all(16.0),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -171,7 +164,7 @@ class CreatorInfoScreen extends ConsumerWidget {
             ),
           ),
           const SizedBox(width: 16),
-          Text(title, style: const TextStyle(fontSize: 16)),
+          Text(title, style: const TextStyle(fontSize: 14)),
         ],
       ),
     );
