@@ -7,6 +7,8 @@ const Map<String, dynamic> weekPlanZh = {
         "content":
             "讓樣康 (灑淨) 嗡阿吽 (三遍)\n六字真言神力故，薰煙化雲成妙供\n三寶怙主與護法，一切具德應供客\n六道眾生⾷餘者，所有悲施應供客\n業債命債諸債主，我悉敬獻此煙供\n飽足欣喜而解冤，共與不共善成就\n三輪體空普迴向",
         "author": "楚西仁波切造",
+        "imageUrl":
+            "https://drive.google.com/uc?export=view&id=1r7oMXGgLclpzIr2qFjXjhYbI86Sq9cFG",
       },
       {
         "label": "深入了解",
@@ -39,6 +41,8 @@ const Map<String, dynamic> weekPlanZh = {
         "content":
             "讓樣康 (灑淨) 嗡阿吽 (三遍)\n六字真言神力故，薰煙化雲成妙供\n三寶怙主與護法，一切具德應供客\n六道眾生⾷餘者，所有悲施應供客\n業債命債諸債主，我悉敬獻此煙供\n飽足欣喜而解冤，共與不共善成就\n三輪體空普迴向",
         "author": "楚西仁波切造",
+        "imageUrl":
+            "https://drive.google.com/uc?export=view&id=1dzfVNVAFX3K9E2XS7RizwdQCdfwfAf-n",
       },
       {
         "label": "深入了解",
@@ -71,6 +75,8 @@ const Map<String, dynamic> weekPlanZh = {
         "content":
             "讓樣康 (灑淨) 嗡阿吽 (三遍)\n六字真言神力故，薰煙化雲成妙供\n三寶怙主與護法，一切具德應供客\n六道眾生⾷餘者，所有悲施應供客\n業債命債諸債主，我悉敬獻此煙供\n飽足欣喜而解冤，共與不共善成就\n三輪體空普迴向",
         "author": "楚西仁波切造",
+        "imageUrl":
+            "https://drive.google.com/uc?export=view&id=1r7oMXGgLclpzIr2qFjXjhYbI86Sq9cFG",
       },
       {
         "label": "深入了解",
@@ -103,6 +109,8 @@ const Map<String, dynamic> weekPlanZh = {
         "content":
             "讓樣康 (灑淨) 嗡阿吽 (三遍)\n六字真言神力故，薰煙化雲成妙供\n三寶怙主與護法，一切具德應供客\n六道眾生⾷餘者，所有悲施應供客\n業債命債諸債主，我悉敬獻此煙供\n飽足欣喜而解冤，共與不共善成就\n三輪體空普迴向",
         "author": "楚西仁波切造",
+        "imageUrl":
+            "https://drive.google.com/uc?export=view&id=1dzfVNVAFX3K9E2XS7RizwdQCdfwfAf-n",
       },
       {
         "label": "深入了解",
@@ -135,6 +143,8 @@ const Map<String, dynamic> weekPlanZh = {
         "content":
             "讓樣康 (灑淨) 嗡阿吽 (三遍)\n六字真言神力故，薰煙化雲成妙供\n三寶怙主與護法，一切具德應供客\n六道眾生⾷餘者，所有悲施應供客\n業債命債諸債主，我悉敬獻此煙供\n飽足欣喜而解冤，共與不共善成就\n三輪體空普迴向",
         "author": "楚西仁波切造",
+        "imageUrl":
+            "https://drive.google.com/uc?export=view&id=1dzfVNVAFX3K9E2XS7RizwdQCdfwfAf-n",
       },
       {
         "label": "深入了解",
@@ -167,6 +177,8 @@ const Map<String, dynamic> weekPlanZh = {
         "content":
             "讓樣康 (灑淨) 嗡阿吽 (三遍)\n六字真言神力故，薰煙化雲成妙供\n三寶怙主與護法，一切具德應供客\n六道眾生⾷餘者，所有悲施應供客\n業債命債諸債主，我悉敬獻此煙供\n飽足欣喜而解冤，共與不共善成就\n三輪體空普迴向",
         "author": "楚西仁波切造",
+        "imageUrl":
+            "https://drive.google.com/uc?export=view&id=1r7oMXGgLclpzIr2qFjXjhYbI86Sq9cFG",
       },
       {
         "label": "深入了解",
@@ -199,6 +211,8 @@ const Map<String, dynamic> weekPlanZh = {
         "content":
             "讓樣康 (灑淨) 嗡阿吽 (三遍)\n六字真言神力故，薰煙化雲成妙供\n三寶怙主與護法，一切具德應供客\n六道眾生⾷餘者，所有悲施應供客\n業債命債諸債主，我悉敬獻此煙供\n飽足欣喜而解冤，共與不共善成就\n三輪體空普迴向",
         "author": "楚西仁波切造",
+        "imageUrl":
+            "https://drive.google.com/uc?export=view&id=1dzfVNVAFX3K9E2XS7RizwdQCdfwfAf-n",
       },
       {
         "label": "深入了解",
