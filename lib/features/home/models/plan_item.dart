@@ -3,12 +3,14 @@ class PlanItem {
   final String contentType;
   final String content;
   final String? author;
+  final String? imageUrl;
 
   PlanItem({
     required this.label,
     required this.contentType,
     required this.content,
     this.author,
+    this.imageUrl,
   });
 
   factory PlanItem.fromJson(Map<String, dynamic> json) {
@@ -17,6 +19,7 @@ class PlanItem {
       contentType: json['contentType'],
       content: json['content'],
       author: json['author'],
+      imageUrl: json['imageUrl'],
     );
   }
 
@@ -26,6 +29,7 @@ class PlanItem {
       'contentType': contentType,
       'content': content,
       'author': author,
+      'imageUrl': imageUrl,
     };
   }
 }
