@@ -164,7 +164,7 @@ class SegmentActionBar extends ConsumerWidget {
                                       content: Text(
                                         'Unable to share. Please try again later.',
                                       ),
-                                      backgroundColor: Colors.red,
+                                      backgroundColor: Colors.orange,
                                     ),
                                   );
                                 }

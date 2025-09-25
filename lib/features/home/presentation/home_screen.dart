@@ -223,6 +223,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                       VerseCard(
                         verse: planItem.content,
                         author: planItem.author,
+                        imageUrl: planItem.imageUrl,
+                        title: planItem.label,
                       ),
                       SizedBox(height: 16),
                     ],

@@ -2,222 +2,449 @@ const Map<String, dynamic> weekPlanZh = {
   "monday": {
     "plan": [
       {
-        "label": "今日智慧",
+        "label": "今日偈誦",
         "contentType": "text",
-        "content": "迭亞他 嗡 貝卡則 貝卡則 麻哈 貝卡則 拉雜 三木嘎迭 梭哈",
-        "author": "釋迦牟尼佛",
+        "content":
+            "讓樣康 (灑淨) 嗡阿吽 (三遍)\n六字真言神力故，薰煙化雲成妙供\n三寶怙主與護法，一切具德應供客\n六道眾生⾷餘者，所有悲施應供客\n業債命債諸債主，我悉敬獻此煙供\n飽足欣喜而解冤，共與不共善成就\n三輪體空普迴向",
+        "author": "楚西仁波切造",
       },
       {
         "label": "深入了解",
         "contentType": "video",
-        "content": "https://www.youtube.com/watch?v=4bL-U780yPE",
+        "content": "https://www.youtube.com/watch?v=0YoNkWZhvwo",
       },
       {
         "label": "禪修",
         "contentType": "video",
-        "content": "https://www.youtube.com/watch?v=nUWqxsENtG0",
+        "content": "https://www.youtube.com/watch?v=3xpab3s7-a0",
       },
       {
         "label": "持誦",
         "contentType": "video",
-        "content": "https://www.youtube.com/watch?v=xwHuaB4IAMc",
+        "content": "https://www.youtube.com/watch?v=_8Dw-ySfcD4",
       },
       {
         "label": "今日任務",
         "contentType": "image",
         "content":
-            "https://drive.google.com/uc?export=view&id=11MZuFIj3xkiweyCZPkO58qqFKTzk1K6e",
+            "https://drive.google.com/uc?export=view&id=1r7oMXGgLclpzIr2qFjXjhYbI86Sq9cFG",
       },
     ],
   },
   "tuesday": {
     "plan": [
       {
-        "label": "今日智慧",
+        "label": "今日偈誦",
         "contentType": "text",
         "content":
-            "願以此善速得證\n如來藥師佛果位\n一切眾生盡無餘\n悉皆安置彼剎土\n願諸病有情\n速脫疾病苦\n亦願眾生疾\n畢竟永不生",
-        "author": "",
+            "讓樣康 (灑淨) 嗡阿吽 (三遍)\n六字真言神力故，薰煙化雲成妙供\n三寶怙主與護法，一切具德應供客\n六道眾生⾷餘者，所有悲施應供客\n業債命債諸債主，我悉敬獻此煙供\n飽足欣喜而解冤，共與不共善成就\n三輪體空普迴向",
+        "author": "楚西仁波切造",
       },
       {
         "label": "深入了解",
         "contentType": "video",
-        "content": "https://www.youtube.com/watch?v=UbVkInws3kI",
+        "content": "https://www.youtube.com/watch?v=JMYxDJ7RW1w",
       },
       {
-        "label": "禪修",
+        "label": "教學",
         "contentType": "video",
-        "content": "https://www.youtube.com/watch?v=nUWqxsENtG0",
+        "content": "https://www.youtube.com/watch?v=3xpab3s7-a0",
       },
       {
-        "label": "持誦",
+        "label": "真實故事",
         "contentType": "video",
-        "content": "https://www.youtube.com/watch?v=xwHuaB4IAMc",
+        "content": "https://www.youtube.com/watch?v=eRRp3BiBuE0",
       },
       {
-        "label": "今日任務",
+        "label": "觀想",
         "contentType": "image",
         "content":
-            "https://drive.google.com/uc?export=view&id=1MC_bfJ0x2S756WKiQBH6710KkizjA0nQ",
+            "https://drive.google.com/uc?export=view&id=1Bdp50NH-me9fU6rbxASBTYJOUhSreFIe",
       },
     ],
   },
   "wednesday": {
     "plan": [
       {
-        "label": "今日智慧",
+        "label": "今日偈誦",
         "contentType": "text",
-        "content": "敵害病疫悉消除\n爭鬥平息身心樂\n財富自在壽命增\n所願如意皆成就\n恆常護佑無退失",
-        "author": "Kalpabhadra（藏文 ཀལྤ་བྷ་དྲ）",
+        "content":
+            "讓樣康 (灑淨) 嗡阿吽 (三遍)\n六字真言神力故，薰煙化雲成妙供\n三寶怙主與護法，一切具德應供客\n六道眾生⾷餘者，所有悲施應供客\n業債命債諸債主，我悉敬獻此煙供\n飽足欣喜而解冤，共與不共善成就\n三輪體空普迴向",
+        "author": "楚西仁波切造",
       },
       {
         "label": "深入了解",
         "contentType": "video",
-        "content": "https://www.youtube.com/watch?v=rdG918bDUcY",
+        "content": "https://www.youtube.com/watch?v=0YoNkWZhvwo",
       },
       {
         "label": "禪修",
         "contentType": "video",
-        "content": "https://www.youtube.com/watch?v=nUWqxsENtG0",
+        "content": "https://www.youtube.com/watch?v=3xpab3s7-a0",
       },
       {
         "label": "持誦",
         "contentType": "video",
-        "content": "https://www.youtube.com/watch?v=xwHuaB4IAMc",
+        "content": "https://www.youtube.com/watch?v=_8Dw-ySfcD4",
       },
       {
         "label": "今日任務",
         "contentType": "image",
         "content":
-            "https://drive.google.com/uc?export=view&id=1MC_bfJ0x2S756WKiQBH6710KkizjA0nQ",
+            "https://drive.google.com/uc?export=view&id=1r7oMXGgLclpzIr2qFjXjhYbI86Sq9cFG",
       },
     ],
   },
   "thursday": {
     "plan": [
       {
-        "label": "今日智慧",
+        "label": "今日偈誦",
         "contentType": "text",
-        "content": "於眾平等大悲薄伽梵\n僅聞其號惡趣諸苦滅\n能消三毒病苦藥師佛\n琉璃光王如來敬頂禮",
-        "author": "宇妥·元丹貢布",
+        "content":
+            "讓樣康 (灑淨) 嗡阿吽 (三遍)\n六字真言神力故，薰煙化雲成妙供\n三寶怙主與護法，一切具德應供客\n六道眾生⾷餘者，所有悲施應供客\n業債命債諸債主，我悉敬獻此煙供\n飽足欣喜而解冤，共與不共善成就\n三輪體空普迴向",
+        "author": "楚西仁波切造",
       },
       {
         "label": "深入了解",
         "contentType": "video",
-        "content": "https://www.youtube.com/watch?v=EdwOCqbnt7c",
+        "content": "https://www.youtube.com/watch?v=JMYxDJ7RW1w",
       },
       {
-        "label": "禪修",
+        "label": "教學",
         "contentType": "video",
-        "content": "https://www.youtube.com/watch?v=nUWqxsENtG0",
+        "content": "https://www.youtube.com/watch?v=3xpab3s7-a0",
       },
       {
-        "label": "持誦",
+        "label": "真實故事",
         "contentType": "video",
-        "content": "https://www.youtube.com/watch?v=xwHuaB4IAMc",
+        "content": "https://www.youtube.com/watch?v=eRRp3BiBuE0",
       },
       {
-        "label": "今日任務",
+        "label": "觀想",
         "contentType": "image",
         "content":
-            "https://drive.google.com/uc?export=view&id=11MZuFIj3xkiweyCZPkO58qqFKTzk1K6e",
+            "https://drive.google.com/uc?export=view&id=1Bdp50NH-me9fU6rbxASBTYJOUhSreFIe",
       },
     ],
   },
   "friday": {
     "plan": [
       {
-        "label": "今日智慧",
+        "label": "今日偈誦",
         "contentType": "text",
-        "content": "敵害病疫悉消除\n爭鬥平息身心樂\n財富自在壽命增\n所願如意皆成就\n恆常護佑無退失",
-        "author": "Kalpabhadra（藏文 ཀལྤ་བྷ་དྲ）",
+        "content":
+            "讓樣康 (灑淨) 嗡阿吽 (三遍)\n六字真言神力故，薰煙化雲成妙供\n三寶怙主與護法，一切具德應供客\n六道眾生⾷餘者，所有悲施應供客\n業債命債諸債主，我悉敬獻此煙供\n飽足欣喜而解冤，共與不共善成就\n三輪體空普迴向",
+        "author": "楚西仁波切造",
       },
       {
         "label": "深入了解",
         "contentType": "video",
-        "content": "https://www.youtube.com/watch?v=rdG918bDUcY",
+        "content": "https://www.youtube.com/watch?v=JMYxDJ7RW1w",
       },
       {
-        "label": "禪修",
+        "label": "教學",
         "contentType": "video",
-        "content": "https://www.youtube.com/watch?v=nUWqxsENtG0",
+        "content": "https://www.youtube.com/watch?v=3xpab3s7-a0",
       },
       {
-        "label": "持誦",
+        "label": "真實故事",
         "contentType": "video",
-        "content": "https://www.youtube.com/watch?v=xwHuaB4IAMc",
+        "content": "https://www.youtube.com/watch?v=eRRp3BiBuE0",
       },
       {
-        "label": "今日任務",
+        "label": "觀想",
         "contentType": "image",
         "content":
-            "https://drive.google.com/uc?export=view&id=1MC_bfJ0x2S756WKiQBH6710KkizjA0nQ",
+            "https://drive.google.com/uc?export=view&id=1Bdp50NH-me9fU6rbxASBTYJOUhSreFIe",
       },
     ],
   },
   "saturday": {
     "plan": [
       {
-        "label": "今日智慧",
+        "label": "今日偈誦",
         "contentType": "text",
-        "content": "於眾平等大悲薄伽梵\n僅聞其號惡趣諸苦滅\n能消三毒病苦藥師佛\n琉璃光王如來敬頂禮",
-        "author": "宇妥·元丹貢布",
+        "content":
+            "讓樣康 (灑淨) 嗡阿吽 (三遍)\n六字真言神力故，薰煙化雲成妙供\n三寶怙主與護法，一切具德應供客\n六道眾生⾷餘者，所有悲施應供客\n業債命債諸債主，我悉敬獻此煙供\n飽足欣喜而解冤，共與不共善成就\n三輪體空普迴向",
+        "author": "楚西仁波切造",
       },
       {
         "label": "深入了解",
         "contentType": "video",
-        "content": "https://www.youtube.com/watch?v=EdwOCqbnt7c",
+        "content": "https://www.youtube.com/watch?v=0YoNkWZhvwo",
       },
       {
         "label": "禪修",
         "contentType": "video",
-        "content": "https://www.youtube.com/watch?v=nUWqxsENtG0",
+        "content": "https://www.youtube.com/watch?v=3xpab3s7-a0",
       },
       {
         "label": "持誦",
         "contentType": "video",
-        "content": "https://www.youtube.com/watch?v=xwHuaB4IAMc",
+        "content": "https://www.youtube.com/watch?v=_8Dw-ySfcD4",
       },
       {
         "label": "今日任務",
         "contentType": "image",
         "content":
-            "https://drive.google.com/uc?export=view&id=11MZuFIj3xkiweyCZPkO58qqFKTzk1K6e",
+            "https://drive.google.com/uc?export=view&id=1r7oMXGgLclpzIr2qFjXjhYbI86Sq9cFG",
       },
     ],
   },
   "sunday": {
     "plan": [
       {
-        "label": "今日智慧",
+        "label": "今日偈誦",
         "contentType": "text",
-        "content": "迭亞他 嗡 貝卡則 貝卡則 麻哈 貝卡則 拉雜 三木嘎迭 梭哈",
-        "author": "釋迦牟尼佛",
+        "content":
+            "讓樣康 (灑淨) 嗡阿吽 (三遍)\n六字真言神力故，薰煙化雲成妙供\n三寶怙主與護法，一切具德應供客\n六道眾生⾷餘者，所有悲施應供客\n業債命債諸債主，我悉敬獻此煙供\n飽足欣喜而解冤，共與不共善成就\n三輪體空普迴向",
+        "author": "楚西仁波切造",
       },
       {
         "label": "深入了解",
         "contentType": "video",
-        "content": "https://www.youtube.com/watch?v=0Sqm-M-GUTQ",
+        "content": "https://www.youtube.com/watch?v=JMYxDJ7RW1w",
       },
       {
-        "label": "禪修",
+        "label": "教學",
         "contentType": "video",
-        "content": "https://www.youtube.com/watch?v=nUWqxsENtG0",
+        "content": "https://www.youtube.com/watch?v=3xpab3s7-a0",
       },
       {
-        "label": "持誦",
+        "label": "真實故事",
         "contentType": "video",
-        "content": "https://www.youtube.com/watch?v=xwHuaB4IAMc",
+        "content": "https://www.youtube.com/watch?v=eRRp3BiBuE0",
       },
       {
-        "label": "今日任務",
+        "label": "觀想",
         "contentType": "image",
         "content":
-            "https://drive.google.com/uc?export=view&id=1MC_bfJ0x2S756WKiQBH6710KkizjA0nQ",
+            "https://drive.google.com/uc?export=view&id=1Bdp50NH-me9fU6rbxASBTYJOUhSreFIe",
       },
     ],
   },
 };
+
+// const Map<String, dynamic> weekPlanZh = {
+//   "monday": {
+//     "plan": [
+//       {
+//         "label": "今日智慧",
+//         "contentType": "text",
+//         "content": "迭亞他 嗡 貝卡則 貝卡則 麻哈 貝卡則 拉雜 三木嘎迭 梭哈",
+//         "author": "釋迦牟尼佛",
+//       },
+//       {
+//         "label": "深入了解",
+//         "contentType": "video",
+//         "content": "https://www.youtube.com/watch?v=4bL-U780yPE",
+//       },
+//       {
+//         "label": "禪修",
+//         "contentType": "video",
+//         "content": "https://www.youtube.com/watch?v=nUWqxsENtG0",
+//       },
+//       {
+//         "label": "持誦",
+//         "contentType": "video",
+//         "content": "https://www.youtube.com/watch?v=xwHuaB4IAMc",
+//       },
+//       {
+//         "label": "今日任務",
+//         "contentType": "image",
+//         "content":
+//             "https://drive.google.com/uc?export=view&id=11MZuFIj3xkiweyCZPkO58qqFKTzk1K6e",
+//       },
+//     ],
+//   },
+//   "tuesday": {
+//     "plan": [
+//       {
+//         "label": "今日智慧",
+//         "contentType": "text",
+//         "content":
+//             "願以此善速得證\n如來藥師佛果位\n一切眾生盡無餘\n悉皆安置彼剎土\n願諸病有情\n速脫疾病苦\n亦願眾生疾\n畢竟永不生",
+//         "author": "",
+//       },
+//       {
+//         "label": "深入了解",
+//         "contentType": "video",
+//         "content": "https://www.youtube.com/watch?v=UbVkInws3kI",
+//       },
+//       {
+//         "label": "禪修",
+//         "contentType": "video",
+//         "content": "https://www.youtube.com/watch?v=nUWqxsENtG0",
+//       },
+//       {
+//         "label": "持誦",
+//         "contentType": "video",
+//         "content": "https://www.youtube.com/watch?v=xwHuaB4IAMc",
+//       },
+//       {
+//         "label": "今日任務",
+//         "contentType": "image",
+//         "content":
+//             "https://drive.google.com/uc?export=view&id=1MC_bfJ0x2S756WKiQBH6710KkizjA0nQ",
+//       },
+//     ],
+//   },
+//   "wednesday": {
+//     "plan": [
+//       {
+//         "label": "今日智慧",
+//         "contentType": "text",
+//         "content": "敵害病疫悉消除\n爭鬥平息身心樂\n財富自在壽命增\n所願如意皆成就\n恆常護佑無退失",
+//         "author": "Kalpabhadra（藏文 ཀལྤ་བྷ་དྲ）",
+//       },
+//       {
+//         "label": "深入了解",
+//         "contentType": "video",
+//         "content": "https://www.youtube.com/watch?v=rdG918bDUcY",
+//       },
+//       {
+//         "label": "禪修",
+//         "contentType": "video",
+//         "content": "https://www.youtube.com/watch?v=nUWqxsENtG0",
+//       },
+//       {
+//         "label": "持誦",
+//         "contentType": "video",
+//         "content": "https://www.youtube.com/watch?v=xwHuaB4IAMc",
+//       },
+//       {
+//         "label": "今日任務",
+//         "contentType": "image",
+//         "content":
+//             "https://drive.google.com/uc?export=view&id=1MC_bfJ0x2S756WKiQBH6710KkizjA0nQ",
+//       },
+//     ],
+//   },
+//   "thursday": {
+//     "plan": [
+//       {
+//         "label": "今日智慧",
+//         "contentType": "text",
+//         "content": "於眾平等大悲薄伽梵\n僅聞其號惡趣諸苦滅\n能消三毒病苦藥師佛\n琉璃光王如來敬頂禮",
+//         "author": "宇妥·元丹貢布",
+//       },
+//       {
+//         "label": "深入了解",
+//         "contentType": "video",
+//         "content": "https://www.youtube.com/watch?v=EdwOCqbnt7c",
+//       },
+//       {
+//         "label": "禪修",
+//         "contentType": "video",
+//         "content": "https://www.youtube.com/watch?v=nUWqxsENtG0",
+//       },
+//       {
+//         "label": "持誦",
+//         "contentType": "video",
+//         "content": "https://www.youtube.com/watch?v=xwHuaB4IAMc",
+//       },
+//       {
+//         "label": "今日任務",
+//         "contentType": "image",
+//         "content":
+//             "https://drive.google.com/uc?export=view&id=11MZuFIj3xkiweyCZPkO58qqFKTzk1K6e",
+//       },
+//     ],
+//   },
+//   "friday": {
+//     "plan": [
+//       {
+//         "label": "今日智慧",
+//         "contentType": "text",
+//         "content": "敵害病疫悉消除\n爭鬥平息身心樂\n財富自在壽命增\n所願如意皆成就\n恆常護佑無退失",
+//         "author": "Kalpabhadra（藏文 ཀལྤ་བྷ་དྲ）",
+//       },
+//       {
+//         "label": "深入了解",
+//         "contentType": "video",
+//         "content": "https://www.youtube.com/watch?v=rdG918bDUcY",
+//       },
+//       {
+//         "label": "禪修",
+//         "contentType": "video",
+//         "content": "https://www.youtube.com/watch?v=nUWqxsENtG0",
+//       },
+//       {
+//         "label": "持誦",
+//         "contentType": "video",
+//         "content": "https://www.youtube.com/watch?v=xwHuaB4IAMc",
+//       },
+//       {
+//         "label": "今日任務",
+//         "contentType": "image",
+//         "content":
+//             "https://drive.google.com/uc?export=view&id=1MC_bfJ0x2S756WKiQBH6710KkizjA0nQ",
+//       },
+//     ],
+//   },
+//   "saturday": {
+//     "plan": [
+//       {
+//         "label": "今日智慧",
+//         "contentType": "text",
+//         "content": "於眾平等大悲薄伽梵\n僅聞其號惡趣諸苦滅\n能消三毒病苦藥師佛\n琉璃光王如來敬頂禮",
+//         "author": "宇妥·元丹貢布",
+//       },
+//       {
+//         "label": "深入了解",
+//         "contentType": "video",
+//         "content": "https://www.youtube.com/watch?v=EdwOCqbnt7c",
+//       },
+//       {
+//         "label": "禪修",
+//         "contentType": "video",
+//         "content": "https://www.youtube.com/watch?v=nUWqxsENtG0",
+//       },
+//       {
+//         "label": "持誦",
+//         "contentType": "video",
+//         "content": "https://www.youtube.com/watch?v=xwHuaB4IAMc",
+//       },
+//       {
+//         "label": "今日任務",
+//         "contentType": "image",
+//         "content":
+//             "https://drive.google.com/uc?export=view&id=11MZuFIj3xkiweyCZPkO58qqFKTzk1K6e",
+//       },
+//     ],
+//   },
+//   "sunday": {
+//     "plan": [
+//       {
+//         "label": "今日智慧",
+//         "contentType": "text",
+//         "content": "迭亞他 嗡 貝卡則 貝卡則 麻哈 貝卡則 拉雜 三木嘎迭 梭哈",
+//         "author": "釋迦牟尼佛",
+//       },
+//       {
+//         "label": "深入了解",
+//         "contentType": "video",
+//         "content": "https://www.youtube.com/watch?v=0Sqm-M-GUTQ",
+//       },
+//       {
+//         "label": "禪修",
+//         "contentType": "video",
+//         "content": "https://www.youtube.com/watch?v=nUWqxsENtG0",
+//       },
+//       {
+//         "label": "持誦",
+//         "contentType": "video",
+//         "content": "https://www.youtube.com/watch?v=xwHuaB4IAMc",
+//       },
+//       {
+//         "label": "今日任務",
+//         "contentType": "image",
+//         "content":
+//             "https://drive.google.com/uc?export=view&id=1MC_bfJ0x2S756WKiQBH6710KkizjA0nQ",
+//       },
+//     ],
+//   },
+// };
 
 // friday, sunday, tuesday, thursday,
 // saturday, monday, wednesday,

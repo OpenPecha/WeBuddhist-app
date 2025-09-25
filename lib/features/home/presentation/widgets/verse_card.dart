@@ -1,19 +1,37 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/config/locale_provider.dart';
 import 'package:flutter_pecha/features/texts/data/providers/selected_segment_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 class VerseCard extends ConsumerWidget {
   final String verse;
   final String? author;
-
-  const VerseCard({super.key, required this.verse, this.author});
+  final String? imageUrl;
+  final String? title;
+  const VerseCard({
+    super.key,
+    required this.verse,
+    this.author,
+    this.imageUrl,
+    this.title,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final locale = ref.watch(localeProvider);
+    final currentLocale = locale?.languageCode ?? 'en';
     return GestureDetector(
       onTap: () {
-        ref.read(bottomBarVisibleProvider.notifier).state =
-            !ref.read(bottomBarVisibleProvider.notifier).state;
+        if (currentLocale == 'zh') {
+          context.push(
+            '/home/view_illustration',
+            extra: {'imageUrl': imageUrl, 'title': title},
+          );
+        } else {
+          ref.read(bottomBarVisibleProvider.notifier).state =
+              !ref.read(bottomBarVisibleProvider.notifier).state;
+        }
       },
       child: Container(
         width: double.infinity,
