@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/config/locale_provider.dart';
+import 'package:flutter_pecha/features/creator_info/widgets/social_media_section.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class CreatorInfoScreen extends ConsumerWidget {
@@ -20,6 +21,19 @@ class CreatorInfoScreen extends ConsumerWidget {
       "bio": "希望能把佛法的內容以現代化的方式，傳達給所有對佛法有興趣的人。",
     },
     {"language": "en", "name": "Kevin", "bio": "大家好，我是Kevin, 來自台灣。"},
+  ];
+
+  static const socialMedia = [
+    {"account": "email", "url": "kevin@gmail.com"},
+    {
+      "account": "facebook",
+      "url": "https://www.facebook.com/profile.php?id=100063506767189",
+    },
+    {
+      "account": "linkedin",
+      "url": "https://www.linkedin.com/in/kevin-chen-63506350635063506350/",
+    },
+    {"account": "youtube", "url": "https://www.youtube.com/kevin.chen/"},
   ];
 
   @override
@@ -69,32 +83,24 @@ class CreatorInfoScreen extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text(
-                      currentCredits['name'],
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      child: Text(
+                        currentCredits['name'],
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
-                    // add list of social media icons with links
-                    // Row(
-                    //   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    //   children: [
-                    //     IconButton(
-                    //       onPressed: () {},
-                    //       icon: Icon(Icons.facebook),
-                    //     ),
-                    //     IconButton(onPressed: () {}, icon: Icon(Icons.email)),
-                    //     IconButton(
-                    //       onPressed: () {},
-                    //       icon: Icon(Icons.alternate_email),
-                    //     ),
-                    //     IconButton(
-                    //       onPressed: () {},
-                    //       icon: Icon(Icons.camera_alt),
-                    //     ),
-                    //   ],
-                    // ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        ...socialMedia.map(
+                          (item) => SocialMediaSection(item: item),
+                        ),
+                      ],
+                    ),
                   ],
                 ),
               ),
