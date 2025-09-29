@@ -5,29 +5,37 @@ class CreatorStoryAvator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final Map<String, dynamic> authorInfo = {
+      "name": "Tenzin",
+      "imageUrl":
+          "https://avatars2.githubusercontent.com/u/5024388?s=460&u=d260850b9267cf89188499695f8bcf71e743f8a7&v=4",
+      "time": "1h",
+    };
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         CircleAvatar(
-          radius: 24,
-          backgroundImage: NetworkImage(
-            "https://avatars2.githubusercontent.com/u/5024388?s=460&u=d260850b9267cf89188499695f8bcf71e743f8a7&v=4",
-          ),
+          radius: 22,
+          backgroundImage: NetworkImage(authorInfo['imageUrl']),
         ),
         SizedBox(width: 16),
         Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
               Text(
-                "Tenzin",
+                authorInfo['name'],
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
                 ),
               ),
-              Text("1 hour", style: TextStyle(color: Colors.white38)),
+              SizedBox(width: 8),
+              Text(
+                authorInfo['time'],
+                style: TextStyle(fontSize: 12, color: Colors.white),
+              ),
             ],
           ),
         ),
