@@ -12,7 +12,7 @@ import 'package:flutter_pecha/features/texts/presentation/widgets/chapter.dart';
 import 'package:flutter_pecha/features/texts/presentation/widgets/font_size_selector.dart';
 import 'package:flutter_pecha/features/texts/presentation/widgets/segment_action_bar.dart';
 import 'package:flutter_pecha/features/texts/presentation/widgets/text_search_delegate.dart';
-import 'package:flutter_pecha/features/texts/utils/hepler_functions.dart';
+import 'package:flutter_pecha/features/texts/utils/helper_functions.dart';
 import 'package:flutter_pecha/shared/utils/helper_fucntions.dart';
 import 'package:fquery/fquery.dart';
 import 'package:go_router/go_router.dart';

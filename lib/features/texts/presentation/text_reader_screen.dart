@@ -11,7 +11,7 @@ import 'package:flutter_pecha/features/texts/data/providers/font_size_provider.d
 import 'package:flutter_pecha/features/texts/data/providers/selected_segment_provider.dart';
 import 'package:flutter_pecha/features/texts/presentation/widgets/font_size_selector.dart';
 import 'package:flutter_pecha/features/texts/presentation/widgets/segment_action_bar.dart';
-import 'package:flutter_pecha/features/texts/utils/hepler_functions.dart';
+import 'package:flutter_pecha/features/texts/utils/helper_functions.dart';
 import 'package:flutter_pecha/shared/utils/helper_fucntions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
