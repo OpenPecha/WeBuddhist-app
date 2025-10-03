@@ -1,5 +1,5 @@
 import 'package:flutter_pecha/core/network/http_client_provider.dart';
-import 'package:flutter_pecha/features/texts/data/datasource/segment_remote.datasource.dart';
+import 'package:flutter_pecha/features/texts/data/datasource/segment_remote_datasource.dart';
 import 'package:flutter_pecha/features/texts/data/repositories/segment_repository.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 

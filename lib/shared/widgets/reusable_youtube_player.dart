@@ -86,21 +86,18 @@ class _ReusableYoutubePlayerState extends State<ReusableYoutubePlayer> {
 
   @override
   Widget build(BuildContext context) {
-    return AbsorbPointer(
-      absorbing: true,
-      child: YoutubePlayerBuilder(
-        player: YoutubePlayer(
-          aspectRatio: widget.aspectRatio,
-          controller: _controller,
-          showVideoProgressIndicator: widget.showVideoProgressIndicator,
-          progressIndicatorColor: widget.progressIndicatorColor,
-          progressColors: widget.progressColors,
-          onReady: widget.onReady,
-        ),
-        builder: (context, player) {
-          return player;
-        },
+    return YoutubePlayerBuilder(
+      player: YoutubePlayer(
+        aspectRatio: widget.aspectRatio,
+        controller: _controller,
+        showVideoProgressIndicator: widget.showVideoProgressIndicator,
+        progressIndicatorColor: widget.progressIndicatorColor,
+        progressColors: widget.progressColors,
+        onReady: widget.onReady,
       ),
+      builder: (context, player) {
+        return player;
+      },
     );
   }
 }
