@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:auth0_flutter/auth0_flutter.dart';
@@ -6,6 +7,9 @@ import 'package:logging/logging.dart';
 class AuthService {
   late final Auth0 auth0;
   final Logger _logger = Logger('AuthService');
+
+  // Serialize concurrent refresh attempts
+  Future<void>? _ongoingRefresh;
 
   // Accept config as parameter
   AuthService({required String domain, required String clientId}) {
@@ -79,8 +83,37 @@ class AuthService {
     }
   }
 
+  // Force refresh credentials using the stored refresh token, serialized
+  Future<void> forceRefresh() {
+    if (_ongoingRefresh != null) return _ongoingRefresh!;
+    final completer = Completer<void>();
+    _ongoingRefresh = completer.future;
+
+    () async {
+      try {
+        final storedCreds = await auth0.credentialsManager.credentials();
+        final rt = storedCreds.refreshToken;
+        if (rt == null) {
+          throw AuthException('No refresh token available');
+        }
+        final newCreds = await auth0.api.renewCredentials(refreshToken: rt);
+        await auth0.credentialsManager.storeCredentials(newCreds);
+        _logger.info('Credentials force-refreshed');
+        completer.complete();
+      } catch (e, st) {
+        _logger.severe('Force refresh failed', e, st);
+        completer.completeError(e);
+        rethrow;
+      } finally {
+        _ongoingRefresh = null;
+      }
+    }();
+
+    return _ongoingRefresh!;
+  }
+
   /// Decode and check if ID token is expired
-  bool _isIdTokenExpired(String idToken) {
+  bool isIdTokenExpired(String idToken) {
     final parts = idToken.split('.');
     if (parts.length != 3) return true;
 
@@ -97,8 +130,28 @@ class AuthService {
     );
   }
 
+  // Optional: keep a hardened parser if needed elsewhere
+  bool isIdTokenExpiredSafe(String idToken) {
+    try {
+      final parts = idToken.split('.');
+      if (parts.length != 3) return true;
+      final payload = utf8.decode(
+        base64Url.decode(base64Url.normalize(parts[1])),
+      );
+      final claims = jsonDecode(payload) as Map<String, dynamic>;
+      final exp = (claims['exp'] as num?)?.toInt();
+      if (exp == null) return true;
+      final expiryDate = DateTime.fromMillisecondsSinceEpoch(exp * 1000);
+      return DateTime.now().isAfter(
+        expiryDate.subtract(const Duration(minutes: 2)),
+      );
+    } catch (_) {
+      return true;
+    }
+  }
+
   /// Force refresh ID token using refresh token
-  Future<String?> _refreshIdToken() async {
+  Future<String?> refreshIdToken() async {
     final storedCreds = await auth0.credentialsManager.credentials();
     if (storedCreds.refreshToken == null) {
       throw Exception("No refresh token available.");
@@ -114,8 +167,8 @@ class AuthService {
   /// Public method to always return a valid ID token
   Future<String?> getValidIdToken() async {
     final creds = await auth0.credentialsManager.credentials();
-    if (_isIdTokenExpired(creds.idToken)) {
-      final newToken = await _refreshIdToken();
+    if (isIdTokenExpiredSafe(creds.idToken)) {
+      final newToken = await refreshIdToken();
       if (newToken == null) {
         throw Exception("Failed to refresh ID token");
       }

@@ -52,3 +52,6 @@ ios/Runner/Runner.entitlements
 .env
 
 *.todo
+
+# warp
+warp.md
