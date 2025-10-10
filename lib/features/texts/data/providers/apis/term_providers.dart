@@ -1,5 +1,5 @@
 // lib/features/texts/data/providers/term_providers.dart
-import 'package:flutter_pecha/core/network/http_client_provider.dart';
+import 'package:flutter_pecha/core/network/api_client_provider.dart';
 import 'package:flutter_pecha/features/texts/data/datasource/term_remote_datasource.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../repositories/term_repository.dart';
@@ -8,7 +8,7 @@ import 'package:flutter_pecha/core/config/locale_provider.dart';
 final termRepositoryProvider = Provider(
   (ref) => TermRepository(
     remoteDatasource: TermRemoteDatasource(
-      client: ref.watch(httpClientProvider),
+      client: ref.watch(apiClientProvider),
     ),
   ),
 );
