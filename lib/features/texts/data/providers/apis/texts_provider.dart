@@ -1,4 +1,4 @@
-import 'package:flutter_pecha/core/network/http_client_provider.dart';
+import 'package:flutter_pecha/core/network/api_client_provider.dart';
 import 'package:flutter_pecha/features/texts/data/datasource/text_remote_datasource.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../repositories/texts_repository.dart';
@@ -33,7 +33,7 @@ class TextDetailsParams {
 final textsRepositoryProvider = Provider<TextsRepository>(
   (ref) => TextsRepository(
     remoteDatasource: TextRemoteDatasource(
-      client: ref.watch(httpClientProvider),
+      client: ref.watch(apiClientProvider),
     ),
   ),
 );
