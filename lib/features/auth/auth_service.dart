@@ -14,13 +14,8 @@ class AuthService {
   final Logger _logger = Logger('AuthService');
 
   // Serialize concurrent refresh attempts
-  Future<void>? _ongoingRefresh;
+  Future<String?>? _ongoingIdTokenRefresh;
   bool _isInitialized = false;
-
-  // Accept config as parameter
-  // AuthService({required String domain, required String clientId}) {
-  //   auth0 = Auth0(domain, clientId);
-  // }
 
   Future<void> initialize() async {
     if (_isInitialized) return;
@@ -105,35 +100,6 @@ class AuthService {
     }
   }
 
-  // Force refresh credentials using the stored refresh token, serialized
-  Future<void> forceRefresh() {
-    if (_ongoingRefresh != null) return _ongoingRefresh!;
-    final completer = Completer<void>();
-    _ongoingRefresh = completer.future;
-
-    () async {
-      try {
-        final storedCreds = await _auth0.credentialsManager.credentials();
-        final rt = storedCreds.refreshToken;
-        if (rt == null) {
-          throw AuthException('No refresh token available');
-        }
-        final newCreds = await _auth0.api.renewCredentials(refreshToken: rt);
-        await _auth0.credentialsManager.storeCredentials(newCreds);
-        _logger.info('Credentials force-refreshed');
-        completer.complete();
-      } catch (e, st) {
-        _logger.severe('Force refresh failed', e, st);
-        completer.completeError(e);
-        rethrow;
-      } finally {
-        _ongoingRefresh = null;
-      }
-    }();
-
-    return _ongoingRefresh!;
-  }
-
   /// Decode and check if ID token is expired
   bool isIdTokenExpired(String idToken) {
     try {
@@ -145,9 +111,7 @@ class AuthService {
       );
       final claims = jsonDecode(payload) as Map<String, dynamic>;
       final exp = (claims['exp'] as num?)?.toInt();
-
       if (exp == null) return true;
-
       final expiryDate = DateTime.fromMillisecondsSinceEpoch(exp * 1000);
 
       // Consider token expired 2 minutes before actual expiry
@@ -160,52 +124,90 @@ class AuthService {
     }
   }
 
-  // Optional: keep a hardened parser if needed elsewhere
-  bool isIdTokenExpiredSafe(String idToken) {
+  /// Force refresh ID token using refresh token (internal, no concurrency control)
+  Future<String?> _refreshIdTokenInternal() async {
     try {
-      final parts = idToken.split('.');
-      if (parts.length != 3) return true;
-      final payload = utf8.decode(
-        base64Url.decode(base64Url.normalize(parts[1])),
-      );
-      final claims = jsonDecode(payload) as Map<String, dynamic>;
-      final exp = (claims['exp'] as num?)?.toInt();
-      if (exp == null) return true;
-      final expiryDate = DateTime.fromMillisecondsSinceEpoch(exp * 1000);
+      final storedCreds = await _auth0.credentialsManager.credentials();
 
-      return DateTime.now().isAfter(
-        expiryDate.subtract(const Duration(minutes: 2)),
-      );
-    } catch (e) {
-      return true;
-    }
-  }
-
-  /// Force refresh ID token using refresh token
-  Future<String?> refreshIdToken() async {
-    final storedCreds = await _auth0.credentialsManager.credentials();
-    if (storedCreds.refreshToken == null) {
-      throw Exception("No refresh token available.");
-    }
-
-    final newCreds = await _auth0.api.renewCredentials(
-      refreshToken: storedCreds.refreshToken!,
-    );
-    await _auth0.credentialsManager.storeCredentials(newCreds);
-    return newCreds.idToken;
-  }
-
-  /// Public method to always return a valid ID token
-  Future<String?> getValidIdToken() async {
-    final creds = await _auth0.credentialsManager.credentials();
-    if (isIdTokenExpiredSafe(creds.idToken)) {
-      final newToken = await refreshIdToken();
-      if (newToken == null) {
-        throw Exception("Failed to refresh ID token");
+      if (storedCreds.refreshToken == null) {
+        _logger.severe('No refresh token available');
+        throw AuthException("No refresh token available");
       }
-      return newToken;
+
+      _logger.fine('Refreshing ID token using refresh token');
+      final newCreds = await _auth0.api.renewCredentials(
+        refreshToken: storedCreds.refreshToken!,
+      );
+
+      await _auth0.credentialsManager.storeCredentials(newCreds);
+      _logger.info('ID token refreshed successfully');
+
+      return newCreds.idToken;
+    } on ApiException catch (e) {
+      _logger.severe('Auth0 API error during token refresh: ${e.message}');
+
+      throw AuthException('Token refresh failed: ${e.message}');
+    } catch (e) {
+      _logger.severe('Unexpected error during token refresh: $e');
+      throw AuthException('Token refresh failed: $e');
     }
-    return creds.idToken;
+  }
+
+  /// Public method to force refresh ID token with concurrency control
+  Future<String?> refreshIdToken() async {
+    // If a refresh is already in progress, wait for it
+    if (_ongoingIdTokenRefresh != null) {
+      _logger.fine('Waiting for ongoing ID token refresh');
+      return await _ongoingIdTokenRefresh!;
+    }
+
+    // Start new refresh
+    _logger.info('Starting new ID token refresh');
+    _ongoingIdTokenRefresh = _refreshIdTokenInternal();
+
+    try {
+      final newToken = await _ongoingIdTokenRefresh!;
+      return newToken;
+    } finally {
+      _ongoingIdTokenRefresh = null;
+    }
+  }
+
+  /// Public method to always return a valid ID token with concurrency control
+  Future<String?> getValidIdToken() async {
+    // If a refresh is already in progress, wait for it
+    if (_ongoingIdTokenRefresh != null) {
+      _logger.fine('Waiting for ongoing ID token refresh');
+      await _ongoingIdTokenRefresh!;
+    }
+
+    // Get current credentials
+    final creds = await _auth0.credentialsManager.credentials();
+
+    // Check if ID token is still valid after waiting
+    if (!isIdTokenExpired(creds.idToken)) {
+      _logger.fine('ID token is still valid');
+      return creds.idToken;
+    }
+
+    // Need to refresh - start new refresh if not already in progress
+    if (_ongoingIdTokenRefresh == null) {
+      _logger.info('ID token expired, starting refresh');
+      _ongoingIdTokenRefresh = _refreshIdTokenInternal();
+
+      try {
+        final newToken = await _ongoingIdTokenRefresh!;
+        return newToken;
+      } finally {
+        _ongoingIdTokenRefresh = null;
+      }
+    } else {
+      // Another thread started refresh while we checked, wait for it
+      _logger.fine('Another refresh started, waiting for completion');
+      await _ongoingIdTokenRefresh!;
+      final freshCreds = await _auth0.credentialsManager.credentials();
+      return freshCreds.idToken;
+    }
   }
 
   /// Check if credentials exist and are valid
@@ -227,8 +229,4 @@ class AuthException implements Exception {
 
   @override
   String toString() => 'AuthException: $message';
-}
-
-class RefreshTokenExpiredException extends AuthException {
-  RefreshTokenExpiredException(super.message, {super.code});
 }
