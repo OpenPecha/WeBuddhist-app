@@ -8,12 +8,27 @@ import 'package:logging/logging.dart';
 class ApiClient extends http.BaseClient {
   final AuthService _authService;
   final http.Client _inner = http.Client();
-  final Logger _logger = Logger('AuthenticatedHttpClient');
+  static const List<String> _protectedPaths = [
+    '/api/v1/users/me',
+    '/api/v1/users/me/plans',
+    // Add more as needed
+  ];
+  final Logger _logger = Logger('ApiClient');
 
   ApiClient(this._authService);
 
   @override
+  void close() {
+    _logger.fine('Closing ApiClient HTTP client');
+    _inner.close();
+    super.close();
+  }
+
+  @override
   Future<http.StreamedResponse> send(http.BaseRequest request) async {
+    _logger.info('${request.method} ${request.url}');
+
+    // Add authentication header for protected routes
     if (_isProtectedRoute(request.url.path)) {
       final token = await _authService.getValidIdToken();
       if (token != null) {
@@ -21,33 +36,41 @@ class ApiClient extends http.BaseClient {
         _logger.fine(
           'Added auth token for ${request.method} ${request.url.path}',
         );
+      } else {
+        _logger.warning('No ID token available for protected route');
       }
     }
-    request.headers['Content-Type'] = 'application/json';
+
+    // Set content type if not already set
+    if (!request.headers.containsKey('Content-Type')) {
+      request.headers['Content-Type'] = 'application/json';
+    }
+
     final response = await _inner.send(request);
 
     // Handle 401 by refreshing token and retrying once
     if (response.statusCode == 401 && _isProtectedRoute(request.url.path)) {
       try {
-        _logger.info('Received 401, attempting to refresh token and retry');
+        _logger.info('Received 401, attempting to forcing token refresh');
 
         // Clone the original request for retry
         final newRequest = _cloneRequest(request);
 
-        // Force refresh the token
-        final newToken = await _authService.getValidIdToken();
+        // FORCE refresh (not just getValid, which might return same expired token)
+        final newToken = await _authService.refreshIdToken();
         if (newToken != null) {
           // Add the new token to the cloned request
           newRequest.headers['Authorization'] = 'Bearer $newToken';
           _logger.info('Retrying request with refreshed token');
-          return await _inner.send(newRequest);
+          final retryResponse = await _inner.send(newRequest);
+          _logger.fine('${retryResponse.statusCode} ${request.url}');
+          return retryResponse;
         }
       } catch (e) {
-        // Refresh failed, return original response
-        _logger.warning('Token refresh failed on 401: $e');
+        _logger.warning('Token refresh returned null, returning original 401');
       }
     }
-
+    _logger.info('${response.statusCode} ${request.url}');
     return response;
   }
 
@@ -76,10 +99,7 @@ class ApiClient extends http.BaseClient {
   }
 
   bool _isProtectedRoute(String path) {
-    // Define which endpoints need authentication
-    final protectedPaths = ['/api/v1/users/me', '/api/v1/users/me/plans'];
-
-    return protectedPaths.any(
+    return _protectedPaths.any(
       (protectedPath) => path.startsWith(protectedPath),
     );
   }
@@ -87,5 +107,10 @@ class ApiClient extends http.BaseClient {
 
 final apiClientProvider = Provider<ApiClient>((ref) {
   final authService = ref.watch(authServiceProvider);
-  return ApiClient(authService);
+  final client = ApiClient(authService);
+
+  ref.onDispose(() {
+    client.close();
+  });
+  return client;
 });
