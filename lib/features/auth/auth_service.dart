@@ -176,9 +176,13 @@ class AuthService {
   /// Public method to always return a valid ID token with concurrency control
   Future<String?> getValidIdToken() async {
     // If a refresh is already in progress, wait for it
-    if (_ongoingIdTokenRefresh != null) {
+    final ongoing = _ongoingIdTokenRefresh;
+    if (ongoing != null) {
       _logger.fine('Waiting for ongoing ID token refresh');
-      await _ongoingIdTokenRefresh!;
+      await ongoing;
+      // After waiting, get fresh credentials and return
+      final creds = await _auth0.credentialsManager.credentials();
+      return creds.idToken;
     }
 
     // Get current credentials
@@ -190,23 +194,24 @@ class AuthService {
       return creds.idToken;
     }
 
-    // Need to refresh - start new refresh if not already in progress
-    if (_ongoingIdTokenRefresh == null) {
-      _logger.info('ID token expired, starting refresh');
-      _ongoingIdTokenRefresh = _refreshIdTokenInternal();
-
-      try {
-        final newToken = await _ongoingIdTokenRefresh!;
-        return newToken;
-      } finally {
-        _ongoingIdTokenRefresh = null;
-      }
-    } else {
-      // Another thread started refresh while we checked, wait for it
-      _logger.fine('Another refresh started, waiting for completion');
+    // Token is expired, need to refresh
+    // Double-check if another thread started refresh while we were checking
+    if (_ongoingIdTokenRefresh != null) {
+      _logger.fine('Another thread started refresh, waiting for completion');
       await _ongoingIdTokenRefresh!;
       final freshCreds = await _auth0.credentialsManager.credentials();
       return freshCreds.idToken;
+    }
+
+    // Start the refresh (we're the first thread to need it)
+    _logger.info('ID token expired, starting refresh');
+    _ongoingIdTokenRefresh = _refreshIdTokenInternal();
+
+    try {
+      final newToken = await _ongoingIdTokenRefresh!;
+      return newToken;
+    } finally {
+      _ongoingIdTokenRefresh = null;
     }
   }
 
