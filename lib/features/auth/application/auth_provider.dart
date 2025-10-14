@@ -52,33 +52,52 @@ class AuthNotifier extends StateNotifier<AuthState> {
   Future<void> _restoreLoginState() async {
     try {
       await authService.initialize(); // Ensure config + Auth0 initialized
+
       // First check if we have any credentials at all
       final hasCredentials = await authService.hasValidCredentials();
 
-      if (!hasCredentials) {
-        // No credentials at all, user needs to log in
+      if (hasCredentials) {
+        // Try to get valid credentials with automatic refresh if needed
+        final credentials =
+            await authService.getCredentials(); // 5 minute buffer
         state = state.copyWith(
-          isLoggedIn: false,
-          userId: null,
+          isLoggedIn: true,
+          userId: credentials?.user.sub,
           isLoading: false,
           isGuest: false,
-          userProfile: null,
+          userProfile: credentials?.user,
+          errorMessage: null,
         );
-        _logger.info('No valid credentials found, user needs to log in');
+        _logger.info('Login state restored for user: ${credentials?.user.sub}');
         return;
       }
 
-      // Try to get valid credentials with automatic refresh if needed
-      final credentials = await authService.getCredentials(); // 5 minute buffer
+      // No credentials, check if user previously chose guest mode
+      final isGuest = await authService.isGuestMode();
+
+      if (isGuest) {
+        // Restore guest mode
+        state = state.copyWith(
+          isLoggedIn: true,
+          userId: 'guest',
+          isLoading: false,
+          isGuest: true,
+          userProfile: null,
+          errorMessage: null,
+        );
+        _logger.info('Guest mode restored from preferences');
+        return;
+      }
+
+      // No credentials and not guest mode, user needs to log in
       state = state.copyWith(
-        isLoggedIn: true,
-        userId: credentials?.user.sub,
+        isLoggedIn: false,
+        userId: null,
         isLoading: false,
         isGuest: false,
-        userProfile: credentials?.user,
-        errorMessage: null,
+        userProfile: null,
       );
-      _logger.info('Login state restored for user: ${credentials?.user.sub}');
+      _logger.info('No valid credentials or guest mode found, showing login');
     } on CredentialsManagerException catch (e) {
       _logger.severe('Credentials manager error during restore: ${e.message}');
 
@@ -127,6 +146,9 @@ class AuthNotifier extends StateNotifier<AuthState> {
       }
 
       if (credentials != null) {
+        // Clear guest mode when user authenticates
+        await authService.clearGuestMode();
+
         state = state.copyWith(
           isLoggedIn: true,
           userId: credentials.user.sub,
@@ -135,6 +157,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
           userProfile: credentials.user,
           errorMessage: null,
         );
+        _logger.info('User authenticated, guest mode cleared');
       } else {
         state = state.copyWith(
           isLoading: false,
@@ -151,6 +174,9 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
   // continue as guest
   Future<void> continueAsGuest() async {
+    // Persist guest mode preference
+    await authService.saveGuestMode();
+
     state = state.copyWith(
       isLoading: false,
       isLoggedIn: true,
@@ -158,10 +184,11 @@ class AuthNotifier extends StateNotifier<AuthState> {
       isGuest: true,
       userProfile: null,
     );
+    _logger.info('Guest mode activated and persisted');
   }
 
   Future<void> logout() async {
-    await authService.localLogout();
+    await authService.localLogout(); // This also clears guest mode
     state = state.copyWith(
       isLoggedIn: false,
       userId: null,
@@ -169,6 +196,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
       isGuest: false,
       userProfile: null,
     );
+    _logger.info('User logged out, all auth state cleared');
   }
 }
 

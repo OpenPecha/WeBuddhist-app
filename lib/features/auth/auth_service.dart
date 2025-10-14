@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:auth0_flutter/auth0_flutter.dart';
 import 'package:flutter_pecha/features/auth/application/config_service.dart';
 import 'package:logging/logging.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthService {
   AuthService._internal();
@@ -16,6 +17,9 @@ class AuthService {
   // Serialize concurrent refresh attempts
   Future<String?>? _ongoingIdTokenRefresh;
   bool _isInitialized = false;
+
+  // SharedPreferences key for guest mode
+  static const String _guestModeKey = 'is_guest_mode';
 
   Future<void> initialize() async {
     if (_isInitialized) return;
@@ -83,6 +87,7 @@ class AuthService {
   Future<void> localLogout() async {
     try {
       await _auth0.credentialsManager.clearCredentials();
+      await clearGuestMode(); // Also clear guest mode on logout
     } catch (e) {
       _logger.severe('Logout failed: $e');
     }
@@ -222,6 +227,42 @@ class AuthService {
     } catch (e) {
       _logger.warning('Error checking valid credentials: $e');
       return false;
+    }
+  }
+
+  // Guest Mode Persistence Methods
+
+  /// Save guest mode preference to SharedPreferences
+  Future<void> saveGuestMode() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool(_guestModeKey, true);
+      _logger.info('Guest mode saved to preferences');
+    } catch (e) {
+      _logger.warning('Failed to save guest mode: $e');
+    }
+  }
+
+  /// Check if user previously chose guest mode
+  Future<bool> isGuestMode() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final isGuest = prefs.getBool(_guestModeKey) ?? false;
+      return isGuest;
+    } catch (e) {
+      _logger.warning('Failed to check guest mode: $e');
+      return false;
+    }
+  }
+
+  /// Clear guest mode state (called when user logs in or logs out)
+  Future<void> clearGuestMode() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove(_guestModeKey);
+      _logger.info('Guest mode cleared from preferences');
+    } catch (e) {
+      _logger.warning('Failed to clear guest mode: $e');
     }
   }
 }
