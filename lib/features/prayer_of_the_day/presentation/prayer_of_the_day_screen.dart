@@ -255,7 +255,6 @@ class _PrayerOfTheDayScreenState extends ConsumerState<PrayerOfTheDayScreen> {
                     style: TextStyle(
                       fontSize: 20,
                       height: 1.5,
-                      fontFamily: 'Jomolhari',
                       color:
                           isCurrentSegment
                               ? Theme.of(context).primaryColor
