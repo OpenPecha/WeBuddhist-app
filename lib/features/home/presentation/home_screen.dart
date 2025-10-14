@@ -176,7 +176,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                 icon: Icon(Icons.notifications_none, size: 28),
               ),
               SizedBox(width: 16),
-              if (authState.isGuest) Icon(Icons.account_circle, size: 32),
+              if (authState.isGuest)
+                GestureDetector(
+                  onTap: () => context.push('/profile'),
+                  child: Hero(
+                    tag: 'profile-avatar',
+                    child: Icon(Icons.account_circle, size: 32),
+                  ),
+                ),
               if (authState.isLoggedIn && !authState.isGuest)
                 GestureDetector(
                   onTap: () => context.push('/profile'),
