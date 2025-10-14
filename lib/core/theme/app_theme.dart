@@ -22,7 +22,7 @@ class AppTheme {
         primarySwatch: Colors.blue,
       ).copyWith(secondary: Colors.blueAccent, brightness: Brightness.light),
       listTileTheme: const ListTileThemeData(
-        titleTextStyle: TextStyle(color: Colors.black),
+        // titleTextStyle removed to inherit fontFamily from theme
       ),
       inputDecorationTheme: InputDecorationTheme(
         hintStyle: const TextStyle(color: Colors.black),
@@ -80,29 +80,12 @@ class AppTheme {
         foregroundColor: Colors.white30,
         elevation: 0,
       ),
-      textTheme: const TextTheme(
-        bodyLarge: TextStyle(color: Colors.white),
-        bodyMedium: TextStyle(color: Colors.white),
-        bodySmall: TextStyle(color: Colors.white),
-        titleLarge: TextStyle(color: Colors.white),
-        titleMedium: TextStyle(color: Colors.white),
-        titleSmall: TextStyle(color: Colors.white),
-        labelLarge: TextStyle(color: Colors.white),
-        labelMedium: TextStyle(color: Colors.white),
-        labelSmall: TextStyle(color: Colors.white),
-        headlineLarge: TextStyle(color: Colors.white),
-        headlineMedium: TextStyle(color: Colors.white),
-        headlineSmall: TextStyle(color: Colors.white),
-        displayLarge: TextStyle(color: Colors.white),
-        displayMedium: TextStyle(color: Colors.white),
-        displaySmall: TextStyle(color: Colors.white),
-      ),
       cardColor: const Color(0xFF232121),
       colorScheme: ColorScheme.fromSwatch(
         primarySwatch: Colors.blue,
       ).copyWith(secondary: Colors.blueAccent, brightness: Brightness.dark),
       listTileTheme: const ListTileThemeData(
-        titleTextStyle: TextStyle(color: Colors.white),
+        // titleTextStyle removed to inherit fontFamily from theme
       ),
       inputDecorationTheme: InputDecorationTheme(
         hintStyle: TextStyle(color: Colors.grey[400]),
