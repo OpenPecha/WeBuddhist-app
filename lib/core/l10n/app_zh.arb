@@ -30,5 +30,7 @@
   "sanskrit": "Sanskrit",
   "english": "English",
   "chinese": "Chinese",
-  "language": "Language"
+  "language": "Language",
+  "text_noContent": "No texts available in the selected language",
+  "text_switchToTibetan": "Switch to Tibetan"
 }

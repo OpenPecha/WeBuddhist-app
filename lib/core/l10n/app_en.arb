@@ -45,5 +45,7 @@
   "testNotifications": "Test Notifications",
   "testNotificationsDescription": "Send a test notification to verify everything is working",
   "sendTestNotification": "Send Test Notification",
-  "manageDailyReminders": "Manage daily reminders"
+  "manageDailyReminders": "Manage daily reminders",
+  "text_noContent": "No texts available in the selected language",
+  "text_switchToTibetan": "Switch to Tibetan"
 }

@@ -145,4 +145,10 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get manageDailyReminders => 'Manage daily reminders';
+
+  @override
+  String get text_noContent => 'No texts available in the selected language';
+
+  @override
+  String get text_switchToTibetan => 'Switch to Tibetan';
 }

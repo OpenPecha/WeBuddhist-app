@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/config/locale_provider.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/features/app/presentation/pecha_bottom_nav_bar.dart';
 import 'package:flutter_pecha/features/texts/models/collections/collections.dart';
@@ -15,7 +16,6 @@ class TextDetailScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final textDetailResponse = ref.watch(textsFutureProvider(collection.id));
-    final localizations = AppLocalizations.of(context)!;
 
     return Scaffold(
       appBar: AppBar(
@@ -43,6 +43,7 @@ class TextDetailScreen extends ConsumerWidget {
               const SizedBox(height: 16),
               textDetailResponse.when(
                 data: (response) {
+                  final texts = response.texts;
                   final rootTexts =
                       response.texts
                           .where((t) => t.type.toLowerCase() == 'root_text')
@@ -54,9 +55,13 @@ class TextDetailScreen extends ConsumerWidget {
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _buildRootTexts(rootTexts, context),
-                      const SizedBox(height: 12),
-                      _buildCommentaries(commentaries, context),
+                      if (texts.isEmpty)
+                        _buildEmptyState(context, ref)
+                      else ...[
+                        _buildRootTexts(rootTexts, context),
+                        const SizedBox(height: 12),
+                        _buildCommentaries(commentaries, context),
+                      ],
                     ],
                   );
                 },
@@ -144,6 +149,58 @@ class TextDetailScreen extends ConsumerWidget {
               ],
             );
           }).toList(),
+    );
+  }
+
+  Widget _buildEmptyState(BuildContext context, WidgetRef ref) {
+    final localizations = AppLocalizations.of(context)!;
+    final currentLocale = ref.watch(localeProvider);
+
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 60.0, horizontal: 24.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              localizations.text_noContent,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+                color: Colors.grey[700],
+              ),
+            ),
+            const SizedBox(height: 18),
+            if (currentLocale?.languageCode != 'bo')
+              ElevatedButton(
+                onPressed: () {
+                  ref
+                      .read(localeProvider.notifier)
+                      .setLocale(const Locale('bo'));
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Theme.of(context).colorScheme.primary,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 32,
+                    vertical: 12,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                child: Text(
+                  localizations.text_switchToTibetan,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ),
     );
   }
 }

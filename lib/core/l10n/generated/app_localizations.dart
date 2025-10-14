@@ -372,6 +372,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Manage daily reminders'**
   String get manageDailyReminders;
+
+  /// No description provided for @text_noContent.
+  ///
+  /// In en, this message translates to:
+  /// **'No texts available in the selected language'**
+  String get text_noContent;
+
+  /// No description provided for @text_switchToTibetan.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch to Tibetan'**
+  String get text_switchToTibetan;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

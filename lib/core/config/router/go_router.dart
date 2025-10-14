@@ -266,11 +266,6 @@ final goRouterProvider = Provider<GoRouter>((ref) {
             contentId: extra['contentId'] as String,
             segmentId: extra['segmentId'] as String?,
           );
-          // return TextReaderScreen(
-          //   textId: extra['textId'] as String,
-          //   contentId: extra['contentId'] as String,
-          //   segmentId: extra['segmentId'] as String?,
-          // );
         },
       ),
       GoRoute(
@@ -381,7 +376,7 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       // 1. While auth is loading, allow navigation to proceed
       // The native splash will remain visible until Flutter is ready
       if (isLoading) {
-        return null;
+        return RouteConfig.login;
       }
 
       // 2. Authenticated user on login page should go to home
