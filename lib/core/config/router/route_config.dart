@@ -3,7 +3,6 @@ class RouteConfig {
   RouteConfig._();
 
   // Route paths
-  static const String splash = '/';
   static const String login = '/login';
   static const String home = '/home';
   static const String profile = '/profile';
@@ -20,7 +19,7 @@ class RouteConfig {
   };
 
   // Public routes that don't require authentication
-  static const Set<String> publicRoutes = {splash, login};
+  static const Set<String> publicRoutes = {login};
 
   /// Check if a given path requires authentication
   static bool isProtectedRoute(String path) {
@@ -28,9 +27,7 @@ class RouteConfig {
     if (protectedRoutes.contains(path)) return true;
 
     // Check path prefixes for nested routes
-    return protectedRoutes.any(
-          (route) => route != splash && path.startsWith('$route/'),
-        ) ||
+    return protectedRoutes.any((route) => path.startsWith('$route/')) ||
         path.startsWith('/home/') ||
         path.startsWith('/plans/');
   }
