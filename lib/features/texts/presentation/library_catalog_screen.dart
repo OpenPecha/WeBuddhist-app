@@ -31,8 +31,8 @@ class _LibraryCatalogScreenState extends ConsumerState<LibraryCatalogScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildHeader(context),
-            _buildSearchField(context),
-            const SizedBox(height: 10),
+            // _buildSearchField(context),
+            // const SizedBox(height: 10),
             Expanded(
               child: collectionsListResponse.when(
                 data: (response) {
