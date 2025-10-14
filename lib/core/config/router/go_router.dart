@@ -14,7 +14,6 @@ import 'package:flutter_pecha/features/plans/models/plans_model.dart';
 import 'package:flutter_pecha/features/plans/presentation/plan_details.dart';
 import 'package:flutter_pecha/features/plans/presentation/plan_info.dart';
 import 'package:flutter_pecha/features/prayer_of_the_day/presentation/prayer_of_the_day_screen.dart';
-import 'package:flutter_pecha/features/splash/presentation/splash_screen.dart';
 import 'package:flutter_pecha/features/texts/models/collections/collections.dart';
 import 'package:flutter_pecha/features/texts/models/text/texts.dart';
 import 'package:flutter_pecha/features/texts/presentation/category_screen.dart';
@@ -36,15 +35,11 @@ import 'route_config.dart';
 final goRouterProvider = Provider<GoRouter>((ref) {
   final authState = ref.watch(authProvider);
   return GoRouter(
-    initialLocation: '/',
+    initialLocation: RouteConfig.home,
     refreshListenable: GoRouterRefreshStream(
       ref.watch(authProvider.notifier).stream,
     ),
     routes: [
-      GoRoute(
-        path: RouteConfig.splash,
-        builder: (context, state) => const SplashScreen(),
-      ),
       GoRoute(
         path: RouteConfig.login,
         builder: (context, state) => const LoginPage(),
@@ -381,29 +376,25 @@ final goRouterProvider = Provider<GoRouter>((ref) {
     redirect: (context, state) {
       final isLoading = authState.isLoading;
       final isLoggedIn = authState.isLoggedIn;
-      final currentPath = state.fullPath ?? RouteConfig.splash;
+      final currentPath = state.fullPath ?? RouteConfig.home;
 
-      // 1. While loading, stay on splash screen
+      // 1. While auth is loading, allow navigation to proceed
+      // The native splash will remain visible until Flutter is ready
       if (isLoading) {
-        return currentPath == RouteConfig.splash ? null : RouteConfig.splash;
+        return null;
       }
 
-      // 2. From splash screen, redirect based on auth status
-      if (currentPath == RouteConfig.splash) {
-        return isLoggedIn ? RouteConfig.home : RouteConfig.login;
-      }
-
-      // 3. Authenticated user on login page should go to home
+      // 2. Authenticated user on login page should go to home
       if (isLoggedIn && currentPath == RouteConfig.login) {
         return RouteConfig.home;
       }
 
-      // 4. Unauthenticated user trying to access protected route
+      // 3. Unauthenticated user trying to access protected route
       if (!isLoggedIn && RouteConfig.isProtectedRoute(currentPath)) {
         return RouteConfig.login;
       }
 
-      // 5. No redirect needed
+      // 4. No redirect needed
       return null;
     },
   );

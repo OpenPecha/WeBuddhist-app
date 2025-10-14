@@ -45,13 +45,11 @@ class AuthNotifier extends StateNotifier<AuthState> {
   final Logger _logger = Logger('AuthNotifier');
 
   AuthNotifier({required this.authService})
-    : super(const AuthState(isLoggedIn: false, isLoading: false)) {
+    : super(const AuthState(isLoggedIn: false, isLoading: true)) {
     _restoreLoginState();
   }
 
   Future<void> _restoreLoginState() async {
-    state = state.copyWith(isLoading: true);
-
     try {
       await authService.initialize(); // Ensure config + Auth0 initialized
       // First check if we have any credentials at all
