@@ -137,7 +137,7 @@ class TextDetailScreen extends ConsumerWidget {
                   contentPadding: EdgeInsets.zero,
                   title: Text(
                     text.title,
-                    style: TextStyle(
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                       fontSize: getFontSize(text.language),
                       fontFamily: getFontFamily(text.language),
                     ),

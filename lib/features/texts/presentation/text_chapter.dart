@@ -191,8 +191,8 @@ class TextChapter extends HookConsumerWidget {
         ),
         toolbarHeight: 50,
         actions: [
-          if (infiniteQuery.data != null)
-            _buildSearchButton(context, ref, allContent!),
+          // if (infiniteQuery.data != null)
+          // _buildSearchButton(context, ref, allContent!),
           _buildFontSizeSelector(context, ref),
           if (infiniteQuery.data != null)
             _buildLanguageSelector(context, ref, infiniteQuery),
@@ -293,7 +293,7 @@ class TextChapter extends HookConsumerWidget {
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
       child: Text(
         textDetail.title,
-        style: TextStyle(
+        style: Theme.of(context).textTheme.titleLarge?.copyWith(
           fontSize: getFontSize(textDetail.language),
           fontFamily: getFontFamily(textDetail.language),
           fontWeight: FontWeight.w600,
