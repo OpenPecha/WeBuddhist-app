@@ -289,10 +289,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                   return Column(
                     children: [
                       ActionOfTheDayCard(
-                        title:
-                            planItem.label == "My Intention for Today"
-                                ? localizations.home_intention
-                                : localizations.home_bringing,
+                        title: planItem.label,
                         subtitle: "1 min",
                         iconWidget: Image.asset(
                           'assets/images/home/mind_free.png',
