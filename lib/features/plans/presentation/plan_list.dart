@@ -4,6 +4,7 @@ import 'package:flutter_pecha/features/auth/application/auth_provider.dart';
 import 'package:flutter_pecha/features/plans/data/providers/plans_providers.dart';
 import 'package:flutter_pecha/features/plans/data/providers/user_plans_provider.dart';
 import 'package:flutter_pecha/features/plans/models/plans_model.dart';
+import 'package:flutter_pecha/features/plans/models/response/plan_list_response_model.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -36,7 +37,9 @@ class _PlanListState extends ConsumerState<PlanList>
     final authState = ref.watch(authProvider);
     final isGuest = authState.isGuest;
     final isLoggedIn = authState.isLoggedIn;
-    var subscribedPlans = AsyncValue<List<PlansModel>>.data([]);
+    var subscribedPlans = AsyncValue<PlanListResponseModel>.data(
+      PlanListResponseModel(plans: [], total: 0, skip: 0, limit: 0),
+    );
 
     if (!isGuest && isLoggedIn) {
       subscribedPlans = ref.watch(userPlansFutureProvider);
@@ -119,23 +122,23 @@ class _PlanListState extends ConsumerState<PlanList>
     );
   }
 
-  Widget _buildMyPlans(AsyncValue<List<PlansModel>> subscribedPlans) {
+  Widget _buildMyPlans(AsyncValue<PlanListResponseModel> subscribedPlans) {
     return Column(
       children: [
         Expanded(
           child: subscribedPlans.when(
             data:
                 (plans) =>
-                    plans.isEmpty
+                    plans.plans.isEmpty
                         ? const Center(child: Text('No plans found'))
                         : ListView.builder(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 20.0,
                             vertical: 16.0,
                           ),
-                          itemCount: plans.length,
+                          itemCount: plans.plans.length,
                           itemBuilder: (context, index) {
-                            final plan = plans[index];
+                            final plan = plans.plans[index];
                             return _buildPlanCard(
                               context,
                               plan,
