@@ -89,6 +89,7 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
                               }
                             });
                           },
+                          author: widget.plan.author,
                         ),
                     loading:
                         () => const Center(child: CircularProgressIndicator()),

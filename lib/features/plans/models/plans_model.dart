@@ -1,3 +1,5 @@
+import 'package:flutter_pecha/features/plans/models/author/author_dto_model.dart';
+
 enum DifficultyLevel { beginner, intermediate, advanced }
 
 enum PlanStatus { draft, published, archived, inactive }
@@ -7,32 +9,44 @@ enum LanguageCode { en, bo, zh }
 class PlansModel {
   final String id;
   final String title;
-  final String? description;
+  final String description;
+  final String language;
+  final String? difficultyLevel;
   final String? imageUrl;
   final int totalDays;
   final PlanStatus status;
-  final bool? featured;
+  final int subscriptionCount;
+  final AuthorDtoModel? author;
 
   PlansModel({
     required this.id,
     required this.title,
-    this.description,
+    required this.description,
+    required this.language,
+    this.difficultyLevel,
+    this.imageUrl,
     required this.totalDays,
     this.status = PlanStatus.draft,
-    this.featured = false,
-    this.imageUrl,
+    required this.subscriptionCount,
+    this.author,
   });
 
   factory PlansModel.fromJson(Map<String, dynamic> json) {
     return PlansModel(
       id: json['id'] as String,
       title: json['title'] as String,
-      description: json['description'] as String?,
+      description: json['description'] as String,
+      language: json['language'] as String,
+      difficultyLevel: json['difficulty_level'] as String?,
       totalDays: json['total_days'] as int,
       status: PlanStatus.values.byName(
         (json['status'] as String).toLowerCase(),
       ),
-      featured: json['featured'] as bool? ?? false,
+      subscriptionCount: json['subscription_count'] as int,
+      author:
+          json['author'] != null
+              ? AuthorDtoModel.fromJson(json['author'])
+              : null,
       imageUrl: json['image_url'] as String?,
     );
   }
@@ -42,9 +56,12 @@ class PlansModel {
       'id': id,
       'title': title,
       'description': description,
+      'language': language,
+      'difficulty_level': difficultyLevel,
       'total_days': totalDays,
       'status': status.name.toUpperCase(),
-      'featured': featured,
+      'subscription_count': subscriptionCount,
+      'author': author?.toJson(),
       'image_url': imageUrl,
     };
   }
@@ -54,6 +71,8 @@ class PlansModel {
     String? id,
     String? title,
     String? description,
+    String? language,
+    String? difficultyLevel,
     int? totalDays,
     PlanStatus? status,
     bool? featured,
@@ -63,9 +82,12 @@ class PlansModel {
       id: id ?? this.id,
       title: title ?? this.title,
       description: description ?? this.description,
+      language: language ?? this.language,
+      difficultyLevel: difficultyLevel ?? this.difficultyLevel,
       totalDays: totalDays ?? this.totalDays,
       status: status ?? this.status,
-      featured: featured ?? this.featured,
+      subscriptionCount: subscriptionCount,
+      author: author,
       imageUrl: imageUrl ?? this.imageUrl,
     );
   }
@@ -132,6 +154,6 @@ class PlansModel {
 
   @override
   String toString() {
-    return 'PlansModel(id: $id, title: $title, status: $status, featured: $featured)';
+    return 'PlansModel(id: $id, title: $title, status: $status, author: $author)';
   }
 }

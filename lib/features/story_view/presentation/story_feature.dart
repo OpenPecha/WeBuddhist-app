@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/features/plans/models/plan_subtasks_model.dart';
+import 'package:flutter_pecha/features/plans/models/author/author_dto_model.dart';
 import 'package:flutter_pecha/features/story_view/presentation/widgets/image_story.dart';
 import 'package:flutter_pecha/features/story_view/presentation/widgets/text_story.dart';
 import 'package:flutter_pecha/features/story_view/presentation/widgets/video_story.dart';
+import 'package:flutter_pecha/features/story_view/presentation/widgets/story_author_avatar.dart';
 import 'package:go_router/go_router.dart';
 import 'package:story_view/story_view.dart';
 
 class StoryFeature extends StatefulWidget {
-  const StoryFeature({super.key, required this.subtask});
+  const StoryFeature({super.key, required this.subtask, this.author});
   final List<PlanSubtasksModel> subtask;
+  final AuthorDtoModel? author;
 
   @override
   State<StoryFeature> createState() => _StoryFeatureState();
@@ -85,17 +88,22 @@ class _StoryFeatureState extends State<StoryFeature> {
 
   @override
   Widget build(BuildContext context) {
-    return StoryView(
-      storyItems: storyItems,
-      controller: storyController,
-      onComplete: () {
-        context.pop();
-      },
-      onVerticalSwipeComplete: (direction) {
-        if (direction == Direction.down) {
-          context.pop();
-        }
-      },
+    return Stack(
+      children: [
+        StoryView(
+          storyItems: storyItems,
+          controller: storyController,
+          onComplete: () {
+            context.pop();
+          },
+          onVerticalSwipeComplete: (direction) {
+            if (direction == Direction.down) {
+              context.pop();
+            }
+          },
+        ),
+        StoryAuthorAvatar(author: widget.author),
+      ],
     );
   }
 }
