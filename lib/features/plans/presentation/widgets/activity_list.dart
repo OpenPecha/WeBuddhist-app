@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/features/plans/models/plan_tasks_model.dart';
-import 'package:go_router/go_router.dart';
+import 'package:flutter_pecha/features/plans/models/author/author_dto_model.dart';
+import 'package:flutter_pecha/features/story_view/presentation/story_feature.dart';
 
 class ActivityList extends StatelessWidget {
   final List<PlanTasksModel> tasks;
@@ -8,6 +9,7 @@ class ActivityList extends StatelessWidget {
   final int totalDays;
   final Set<int> selectedActivities; // Changed from single int to Set<int>
   final Function(int) onActivityToggled; // Changed from onActivitySelected
+  final AuthorDtoModel? author;
 
   const ActivityList({
     super.key,
@@ -16,6 +18,7 @@ class ActivityList extends StatelessWidget {
     required this.totalDays,
     required this.selectedActivities,
     required this.onActivityToggled,
+    this.author,
   });
 
   @override
@@ -94,25 +97,32 @@ class ActivityList extends StatelessWidget {
 
   void handleActivityTap(BuildContext context, PlanTasksModel task) {
     if (task.subtasks.isNotEmpty) {
-      switch (task.subtasks[0].contentType) {
-        case "VIDEO":
-          context.push(
-            '/home/video_player',
-            extra: {'videoUrl': task.subtasks[0].content, 'title': task.title},
-          );
-          break;
-        case "TEXT":
-          context.push('/home/verse_text', extra: task.subtasks[0].content);
-          break;
-        case "IMAGE":
-          context.push(
-            '/home/view_illustration',
-            extra: {'imageUrl': task.subtasks[0].content, 'title': task.title},
-          );
-          break;
-        default:
-          break;
-      }
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder:
+              (context) => StoryFeature(subtask: task.subtasks, author: author),
+        ),
+      );
+      // switch (task.subtasks[0].contentType) {
+      //   case "VIDEO":
+      //     context.push(
+      //       '/home/video_player',
+      //       extra: {'videoUrl': task.subtasks[0].content, 'title': task.title},
+      //     );
+      //     break;
+      //   case "TEXT":
+      //     context.push('/home/verse_text', extra: task.subtasks[0].content);
+      //     break;
+      //   case "IMAGE":
+      //     context.push(
+      //       '/home/view_illustration',
+      //       extra: {'imageUrl': task.subtasks[0].content, 'title': task.title},
+      //     );
+      //     break;
+      //   default:
+      //     break;
+      // }
     }
   }
 }

@@ -22,7 +22,7 @@ class AppTheme {
         primarySwatch: Colors.blue,
       ).copyWith(secondary: Colors.blueAccent, brightness: Brightness.light),
       listTileTheme: const ListTileThemeData(
-        titleTextStyle: TextStyle(color: Colors.black),
+        // titleTextStyle removed to inherit fontFamily from theme
       ),
       inputDecorationTheme: InputDecorationTheme(
         hintStyle: const TextStyle(color: Colors.black),
@@ -102,7 +102,7 @@ class AppTheme {
         primarySwatch: Colors.blue,
       ).copyWith(secondary: Colors.blueAccent, brightness: Brightness.dark),
       listTileTheme: const ListTileThemeData(
-        titleTextStyle: TextStyle(color: Colors.white),
+        // titleTextStyle removed to inherit fontFamily from theme
       ),
       inputDecorationTheme: InputDecorationTheme(
         hintStyle: TextStyle(color: Colors.grey[400]),

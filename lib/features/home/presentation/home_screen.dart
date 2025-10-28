@@ -176,7 +176,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                 icon: Icon(Icons.notifications_none, size: 28),
               ),
               SizedBox(width: 16),
-              if (authState.isGuest) Icon(Icons.account_circle, size: 32),
+              if (authState.isGuest)
+                GestureDetector(
+                  onTap: () => context.push('/profile'),
+                  child: Hero(
+                    tag: 'profile-avatar',
+                    child: Icon(Icons.account_circle, size: 32),
+                  ),
+                ),
               if (authState.isLoggedIn && !authState.isGuest)
                 GestureDetector(
                   onTap: () => context.push('/profile'),
@@ -223,6 +230,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                       VerseCard(
                         verse: planItem.content,
                         author: planItem.author,
+                        imageUrl: planItem.imageUrl,
+                        title: planItem.label,
                       ),
                       SizedBox(height: 16),
                     ],
@@ -280,10 +289,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                   return Column(
                     children: [
                       ActionOfTheDayCard(
-                        title:
-                            planItem.label == "My Intention for Today"
-                                ? localizations.home_intention
-                                : localizations.home_bringing,
+                        title: planItem.label,
                         subtitle: "1 min",
                         iconWidget: Image.asset(
                           'assets/images/home/mind_free.png',

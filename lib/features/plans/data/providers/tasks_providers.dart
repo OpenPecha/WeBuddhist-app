@@ -1,4 +1,4 @@
-import 'package:flutter_pecha/core/network/http_client_provider.dart';
+import 'package:flutter_pecha/core/network/api_client_provider.dart';
 import 'package:flutter_pecha/features/plans/data/datasource/tasks_remote_datasource.dart';
 import 'package:flutter_pecha/features/plans/data/repositories/tasks_repository.dart';
 import 'package:flutter_pecha/features/plans/models/plan_tasks_model.dart';
@@ -7,7 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 final tasksRepositoryProvider = Provider<TasksRepository>((ref) {
   return TasksRepository(
     tasksRemoteDatasource: TasksRemoteDatasource(
-      client: ref.watch(httpClientProvider),
+      client: ref.watch(apiClientProvider),
     ),
   );
 });

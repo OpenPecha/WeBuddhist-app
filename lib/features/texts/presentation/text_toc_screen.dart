@@ -15,13 +15,13 @@ class TextTocScreen extends ConsumerWidget {
   const TextTocScreen({super.key, required this.text});
   final Texts text;
 
-  Widget _buildTextHeader(Texts text) {
+  Widget _buildTextHeader(BuildContext context, Texts text) {
     return Row(
       children: [
         Expanded(
           child: Text(
             text.title,
-            style: TextStyle(
+            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
               fontSize: getFontSize(text.language),
               fontWeight: FontWeight.w500,
               fontFamily: getFontFamily(text.language),
@@ -160,7 +160,7 @@ class TextTocScreen extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildTextHeader(text),
+              _buildTextHeader(context, text),
               const SizedBox(height: 4),
               _buildTextType(text, localizations),
               const SizedBox(height: 18),

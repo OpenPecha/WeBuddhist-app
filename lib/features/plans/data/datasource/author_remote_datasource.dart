@@ -2,7 +2,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_pecha/features/plans/models/plans_model.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import '../../models/author_model.dart';
+import '../../models/author/author_model.dart';
 
 class AuthorRemoteDatasource {
   final http.Client client;

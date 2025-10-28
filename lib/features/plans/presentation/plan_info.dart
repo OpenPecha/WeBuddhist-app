@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_pecha/features/auth/application/auth_provider.dart';
 import 'package:flutter_pecha/features/plans/data/providers/user_plans_provider.dart';
 import 'package:flutter_pecha/features/plans/models/plans_model.dart';
+import 'package:flutter_pecha/features/plans/models/response/plan_list_response_model.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -20,13 +21,15 @@ class _PlanInfoState extends ConsumerState<PlanInfo> {
     final authState = ref.watch(authProvider);
     final isGuest = authState.isGuest;
     final isLoggedIn = authState.isLoggedIn;
-    var subscribedPlans = AsyncValue<List<PlansModel>>.data([]);
+    var subscribedPlans = AsyncValue<PlanListResponseModel>.data(
+      PlanListResponseModel(plans: [], total: 0, skip: 0, limit: 0),
+    );
 
     if (!isGuest && isLoggedIn) {
       subscribedPlans = ref.watch(userPlansFutureProvider);
     }
     final subscribedPlansIds =
-        subscribedPlans.valueOrNull?.map((plan) => plan.id).toList() ?? [];
+        subscribedPlans.valueOrNull?.plans.map((e) => e.id).toList() ?? [];
 
     return Scaffold(
       appBar: AppBar(
@@ -203,7 +206,7 @@ class _PlanInfoState extends ConsumerState<PlanInfo> {
         ),
         const SizedBox(height: 8),
         Text(
-          widget.plan.description ?? 'No description available.',
+          widget.plan.description,
           style: const TextStyle(fontSize: 16),
         ),
       ],
