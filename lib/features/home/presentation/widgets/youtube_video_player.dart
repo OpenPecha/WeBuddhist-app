@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:youtube_player_flutter/youtube_player_flutter.dart';
+import '../../../../shared/widgets/reusable_youtube_player.dart';
 
-class YoutubeVideoPlayer extends StatefulWidget {
+class YoutubeVideoPlayer extends StatelessWidget {
   final String videoUrl;
   final String title;
   const YoutubeVideoPlayer({
@@ -10,29 +10,6 @@ class YoutubeVideoPlayer extends StatefulWidget {
     required this.videoUrl,
     required this.title,
   });
-
-  @override
-  State<YoutubeVideoPlayer> createState() => _YoutubeVideoPlayerState();
-}
-
-class _YoutubeVideoPlayerState extends State<YoutubeVideoPlayer> {
-  late YoutubePlayerController _controller;
-
-  @override
-  void initState() {
-    super.initState();
-    final videoId = YoutubePlayer.convertUrlToId(widget.videoUrl);
-    _controller = YoutubePlayerController(
-      initialVideoId: videoId ?? '',
-      flags: const YoutubePlayerFlags(autoPlay: true, mute: false),
-    );
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -44,22 +21,13 @@ class _YoutubeVideoPlayerState extends State<YoutubeVideoPlayer> {
             context.pop();
           },
         ),
-        title: Text(widget.title),
+        title: Text(title),
       ),
-      body: YoutubePlayerBuilder(
-        player: YoutubePlayer(
-          aspectRatio: 9 / 16,
-          controller: _controller,
-          showVideoProgressIndicator: true,
-          progressIndicatorColor: Colors.red,
-          progressColors: const ProgressBarColors(
-            playedColor: Colors.red,
-            handleColor: Colors.redAccent,
-          ),
-        ),
-        builder: (context, player) {
-          return player;
-        },
+      body: ReusableYoutubePlayer(
+        videoUrl: videoUrl,
+        aspectRatio: 9 / 16,
+        autoPlay: true,
+        mute: false,
       ),
     );
   }

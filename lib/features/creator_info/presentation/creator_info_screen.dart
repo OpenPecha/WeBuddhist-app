@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/config/locale_provider.dart';
+import 'package:flutter_pecha/features/creator_info/widgets/social_media_section.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
 class CreatorInfoScreen extends ConsumerWidget {
   const CreatorInfoScreen({super.key});
@@ -23,6 +23,19 @@ class CreatorInfoScreen extends ConsumerWidget {
     {"language": "en", "name": "Kevin", "bio": "大家好，我是Kevin, 來自台灣。"},
   ];
 
+  static const socialMedia = [
+    {"account": "email", "url": "kevin@gmail.com"},
+    {
+      "account": "facebook",
+      "url": "https://www.facebook.com/profile.php?id=100063506767189",
+    },
+    {
+      "account": "linkedin",
+      "url": "https://www.linkedin.com/in/kevin-chen-63506350635063506350/",
+    },
+    {"account": "youtube", "url": "https://www.youtube.com/kevin.chen/"},
+  ];
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final language = ref.watch(localeProvider);
@@ -32,9 +45,12 @@ class CreatorInfoScreen extends ConsumerWidget {
       orElse: () => credits.firstWhere((credit) => credit['language'] == 'en'),
     );
     return Scaffold(
+      appBar: AppBar(),
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      body: SafeArea(
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20.0),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildHeader(context, currentCredits),
             _buildBioSection(context, currentCredits),
@@ -49,61 +65,49 @@ class CreatorInfoScreen extends ConsumerWidget {
     BuildContext context,
     Map<String, dynamic> currentCredits,
   ) {
-    return Container(
-      decoration: BoxDecoration(color: Theme.of(context).cardColor),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
+    return Column(
+      children: [
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                TextButton(
-                  onPressed: () => context.pop(),
-                  child: Text(
-                    'Done',
-                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-              ],
+            CircleAvatar(
+              radius: 50,
+              backgroundImage: const AssetImage('assets/images/pecha_logo.png'),
+              backgroundColor: Colors.grey[800],
             ),
-            const SizedBox(height: 20),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                CircleAvatar(
-                  radius: 50,
-                  backgroundImage: const AssetImage(
-                    'assets/images/pecha_logo.png',
-                  ),
-                  backgroundColor: Colors.grey[800],
-                ),
-                const SizedBox(width: 20),
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.only(top: 10),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.center,
+            const SizedBox(width: 20),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.only(top: 10),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      child: Text(
+                        currentCredits['name'],
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    Wrap(
+                      alignment: WrapAlignment.start,
                       children: [
-                        Text(
-                          currentCredits['name'],
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
+                        ...socialMedia.map(
+                          (item) => SocialMediaSection(item: item),
                         ),
                       ],
                     ),
-                  ),
+                  ],
                 ),
-              ],
+              ),
             ),
           ],
         ),
-      ),
+      ],
     );
   }
 
@@ -111,26 +115,21 @@ class CreatorInfoScreen extends ConsumerWidget {
     BuildContext context,
     Map<String, dynamic> currentCredits,
   ) {
-    return Container(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            currentCredits['bio'],
-            style: TextStyle(fontSize: 15, height: 1.7),
-            softWrap: true,
-            overflow: TextOverflow.visible,
-          ),
-        ],
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 16.0),
+      child: Text(
+        currentCredits['bio'],
+        style: TextStyle(fontSize: 15, height: 1.7),
+        softWrap: true,
+        overflow: TextOverflow.visible,
       ),
     );
   }
 
   Widget _buildFeaturedPlanSection(BuildContext context) {
     return Expanded(
-      child: Container(
-        padding: const EdgeInsets.all(16.0),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -171,7 +170,7 @@ class CreatorInfoScreen extends ConsumerWidget {
             ),
           ),
           const SizedBox(width: 16),
-          Text(title, style: const TextStyle(fontSize: 16)),
+          Text(title, style: const TextStyle(fontSize: 14)),
         ],
       ),
     );

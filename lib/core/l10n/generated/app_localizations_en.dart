@@ -9,7 +9,7 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
-  String get appTitle => 'Pecha App';
+  String get appTitle => 'WeBuddhist';
 
   @override
   String get pechaHeading => 'WeBuddhist';
@@ -61,6 +61,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get home_bringing => 'Bringing it to life';
+
+  @override
+  String get home_profile => 'Profile';
 
   @override
   String get text_browseTheLibrary => 'Browse The Library';
@@ -145,4 +148,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get manageDailyReminders => 'Manage daily reminders';
+
+  @override
+  String get text_noContent => 'No texts available in the selected language';
+
+  @override
+  String get text_switchToTibetan => 'Switch to Tibetan';
+
+  @override
+  String get common_sign_in => 'Sign in';
 }

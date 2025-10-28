@@ -1,7 +1,7 @@
 {
   "@@locale": "bo",
   "appTitle": "པེ་ཆ་འཇུག",
-  "pechaHeading": "པེ་ཆ་",
+  "pechaHeading": "WeBuddhist",
   "learnLiveShare": "སློབ་སྦྱོང་དང་འཚོ་བ་དང་མཉམ་འབྲེལ།",
   "themeLight": "དཀར་པོའི་ཚད་གཞི་",
   "themeDark": "ནག་པོའི་ཚད་གཞི་",
@@ -9,15 +9,16 @@
   "switchToDark": "ནག་པོའི་ཚད་གཞི་ལ་སྒྲིག་པ།",
   "home_today": "དེ་རིང་།",
   "home_dailyRefresh": "Daily Refresh",
-  "home_meditationTitle": "སྒོམ་སྒྲུབ།",
+  "home_meditationTitle": "དངོས་གཞི་སྒོམ།",
   "home_meditationSubtitle": "Awaken peace within.",
   "home_prayerTitle": "Prayer of the Day",
   "home_prayerSubtitle": "Begin your day with a sacred intention.",
   "home_btnText": "Start now",
   "home_goDeeper": " ཞིབ་གཟིགས།",
   "home_intention": "ངའི་དེ་རིང་གི་དམིགས་པ།",
-  "home_recitation": "འདོན་པ།",
-  "home_bringing": "ཉམས་ལེན་དངོས།",
+  "home_recitation": "བཟླས་པ།",
+  "home_bringing": "བློ་སྦྱོང་གོམས་འདྲིས།",
+  "home_profile": "ངོ་སྤྲོད་སྙིང་བསྡུས།",
   "text_browseTheLibrary": "དཀར་ཆག",
   "text_search": "འཚོལ་ས།",
   "text_detail_rootText": "རྩ་བ།",
@@ -30,5 +31,8 @@
   "sanskrit": "ལེགས་སྦྱར་སྐད།",
   "english": "ཨིན་ཇི།",
   "chinese": "རྒྱ་ཡིག།",
-  "language": "སྐད་ཡིག"
+  "language": "སྐད་ཡིག",
+  "text_noContent": "No texts available in the selected language",
+  "text_switchToTibetan": "Switch to Tibetan",
+  "common_sign_in": "ནང་འཛུལ་གྱིས།"
 }

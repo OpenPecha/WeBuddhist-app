@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_pecha/features/plans/models/plan_progress_model.dart';
-import 'package:flutter_pecha/features/plans/models/plans_model.dart';
+import 'package:flutter_pecha/features/plans/models/response/plan_list_response_model.dart';
 import 'package:http/http.dart' as http;
 
 class UserPlansRemoteDatasource {
@@ -12,15 +12,14 @@ class UserPlansRemoteDatasource {
   UserPlansRemoteDatasource({required this.client});
 
   // get user plans by user id
-  Future<List<PlansModel>> getUserPlansByUserId() async {
+  Future<PlanListResponseModel> getUserPlansByUserId() async {
     try {
       final response = await client.get(Uri.parse('$baseUrl/users/me/plans'));
 
       if (response.statusCode == 200) {
         final decoded = utf8.decode(response.bodyBytes);
-        final responseData = json.decode(decoded);
-        final List<dynamic> jsonData = responseData['plans'] as List<dynamic>;
-        return jsonData.map((json) => PlansModel.fromJson(json)).toList();
+        final jsonData = json.decode(decoded);
+        return PlanListResponseModel.fromJson(jsonData);
       } else {
         throw Exception('Failed to load user plans: ${response.statusCode}');
       }

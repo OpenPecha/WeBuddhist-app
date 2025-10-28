@@ -38,7 +38,7 @@ String removeHtmlElementsWithContent(String html, List<String> tagsToRemove) {
 class SegmentActionBar extends ConsumerWidget {
   final String text;
   final String textId;
-  final String contentId;
+  final String? contentId;
   final String segmentId;
   final String language;
   final VoidCallback onClose;
@@ -47,7 +47,7 @@ class SegmentActionBar extends ConsumerWidget {
     required this.text,
     required this.onClose,
     required this.textId,
-    required this.contentId,
+    this.contentId,
     required this.segmentId,
     required this.language,
     super.key,
@@ -95,7 +95,7 @@ class SegmentActionBar extends ConsumerWidget {
                   builder: (context, ref, child) {
                     final shareParams = ShareUrlParams(
                       textId: textId,
-                      contentId: contentId,
+                      contentId: contentId ?? textId,
                       segmentId: segmentId,
                       language: language,
                     );
@@ -111,8 +111,50 @@ class SegmentActionBar extends ConsumerWidget {
                             label: 'Share',
                             onTap: () async {
                               try {
+                                Rect sharePositionOrigin;
+
+                                try {
+                                  final RenderBox? box =
+                                      context.findRenderObject() as RenderBox?;
+                                  if (box != null && box.hasSize) {
+                                    final Offset position = box.localToGlobal(
+                                      Offset.zero,
+                                    );
+                                    final Size size = box.size;
+                                    sharePositionOrigin = Rect.fromLTWH(
+                                      position.dx,
+                                      position.dy,
+                                      size.width,
+                                      size.height,
+                                    );
+                                  } else {
+                                    // Better fallback - use screen center
+                                    final screenSize =
+                                        MediaQuery.of(context).size;
+                                    sharePositionOrigin = Rect.fromLTWH(
+                                      screenSize.width * 0.5 - 50,
+                                      screenSize.height * 0.5 - 50,
+                                      100,
+                                      100,
+                                    );
+                                  }
+                                } catch (e) {
+                                  // Ultimate fallback - use screen center
+                                  final screenSize =
+                                      MediaQuery.of(context).size;
+                                  sharePositionOrigin = Rect.fromLTWH(
+                                    screenSize.width * 0.5 - 50,
+                                    screenSize.height * 0.5 - 50,
+                                    100,
+                                    100,
+                                  );
+                                }
+
                                 await SharePlus.instance.share(
-                                  ShareParams(text: shortUrl),
+                                  ShareParams(
+                                    text: shortUrl,
+                                    sharePositionOrigin: sharePositionOrigin,
+                                  ),
                                 );
                                 onClose();
                               } catch (e) {
@@ -122,7 +164,7 @@ class SegmentActionBar extends ConsumerWidget {
                                       content: Text(
                                         'Unable to share. Please try again later.',
                                       ),
-                                      backgroundColor: Colors.red,
+                                      backgroundColor: Colors.orange,
                                     ),
                                   );
                                 }
