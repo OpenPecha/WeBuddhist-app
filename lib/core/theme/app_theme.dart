@@ -2,46 +2,186 @@
 // defining the light and dark themes and other styling elements.
 // Defines the application's light and dark themes and theme utilities.
 // Shared across all features for consistent styling.
+//
+// Typography specs from Figma (for reference):
+// - Font sizes: 32px, 24px, 18px, 16px, 14px, 12px, 10px, 8px
+// - Font weights: Light (300), Regular (400), Medium (500), Semi Bold (600), Bold (700), Extra Bold (800)
+// - Primary font: System default (Roboto on Android, SF Pro on iOS)
+// - Accent font: Serif fallback for special headings
+// - Tibetan: MonlamTibetan (existing implementation)
 
 import 'package:flutter/material.dart';
+import 'app_colors.dart';
 
 class AppTheme {
   static ThemeData lightTheme([Locale? locale]) {
     final baseTheme = ThemeData(
+      useMaterial3: true,
       brightness: Brightness.light,
-      primarySwatch: Colors.blue,
       fontFamily: _fontFamilyForLocale(locale),
-      scaffoldBackgroundColor: Colors.white,
+      scaffoldBackgroundColor: AppColors.surfaceLight,
+
+      // Color scheme based on Figma design
+      colorScheme: const ColorScheme.light(
+        primary: AppColors.primary,
+        onPrimary: AppColors.onPrimary,
+        primaryContainer: AppColors.primaryContainer,
+        secondary: AppColors.primary,
+        onSecondary: AppColors.onPrimary,
+        error: AppColors.error,
+        surface: AppColors.surfaceLight,
+        onSurface: AppColors.textPrimary,
+      ),
+
+      // AppBar with light background
       appBarTheme: const AppBarTheme(
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
+        backgroundColor: AppColors.surfaceLight,
+        foregroundColor: AppColors.textPrimary,
         elevation: 0,
-      ),
-      cardColor: Colors.grey.shade100,
-      colorScheme: ColorScheme.fromSwatch(
-        primarySwatch: Colors.blue,
-      ).copyWith(secondary: Colors.blueAccent, brightness: Brightness.light),
-      listTileTheme: const ListTileThemeData(
-        // titleTextStyle removed to inherit fontFamily from theme
-      ),
-      inputDecorationTheme: InputDecorationTheme(
-        hintStyle: const TextStyle(color: Colors.black),
-        prefixIconColor: Colors.black45,
-        fillColor: const Color(0xFFefefef),
-        filled: true,
-        contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 16),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(25),
-          borderSide: BorderSide.none,
+        iconTheme: IconThemeData(color: AppColors.textPrimary),
+        titleTextStyle: TextStyle(
+          color: AppColors.textPrimary,
+          fontSize: 20,
+          fontWeight: FontWeight.w600,
         ),
       ),
-      iconTheme: const IconThemeData(color: Colors.black),
+
+      // Card theme with gold accent colors
+      cardTheme: CardTheme(
+        color: AppColors.goldLight,
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: const BorderSide(color: AppColors.goldAccent, width: 1),
+        ),
+        margin: const EdgeInsets.all(8),
+      ),
+
+      // List tiles
+      listTileTheme: const ListTileThemeData(
+        textColor: AppColors.textPrimary,
+        iconColor: AppColors.textPrimary,
+      ),
+
+      // Input fields with rounded corners
+      inputDecorationTheme: InputDecorationTheme(
+        hintStyle: const TextStyle(color: AppColors.textSecondary),
+        prefixIconColor: AppColors.greyMedium,
+        fillColor: AppColors.primarySurface,
+        filled: true,
+        contentPadding: const EdgeInsets.symmetric(
+          vertical: 12,
+          horizontal: 16,
+        ),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: BorderSide.none,
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: BorderSide.none,
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: const BorderSide(color: AppColors.primary, width: 2),
+        ),
+      ),
+
+      // Icon theme
+      iconTheme: const IconThemeData(color: AppColors.textPrimary, size: 24),
+
+      // Bottom navigation bar with burgundy background and rounded top corners
       bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-        backgroundColor: Colors.white,
-        selectedItemColor: Colors.black87,
-        unselectedItemColor: Colors.black26,
-        showSelectedLabels: false,
-        showUnselectedLabels: false,
+        backgroundColor: AppColors.primaryDark, // MAN 800
+        selectedItemColor: AppColors.surfaceLight,
+        unselectedItemColor: AppColors.surfaceLight,
+        selectedIconTheme: IconThemeData(
+          size: 28,
+          color: AppColors.surfaceLight,
+        ),
+        unselectedIconTheme: IconThemeData(
+          size: 24,
+          color: AppColors.surfaceLight,
+        ),
+        showSelectedLabels: true,
+        showUnselectedLabels: true,
+        selectedLabelStyle: TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.w400,
+          color: AppColors.surfaceLight,
+        ),
+        unselectedLabelStyle: TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.w300,
+          color: AppColors.surfaceLight,
+        ),
+        type: BottomNavigationBarType.fixed,
+        elevation: 0,
+      ),
+
+      // Elevated buttons
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: AppColors.primary,
+          foregroundColor: AppColors.onPrimary,
+          elevation: 0,
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          textStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+        ),
+      ),
+
+      // Text buttons
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(
+          foregroundColor: AppColors.primary,
+          textStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+        ),
+      ),
+
+      // Outlined buttons
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(
+          foregroundColor: AppColors.primary,
+          side: const BorderSide(color: AppColors.primary, width: 1),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          textStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+        ),
+      ),
+
+      // Floating action button
+      floatingActionButtonTheme: const FloatingActionButtonThemeData(
+        backgroundColor: AppColors.primary,
+        foregroundColor: AppColors.onPrimary,
+        elevation: 2,
+      ),
+
+      // Divider
+      dividerTheme: const DividerThemeData(
+        color: AppColors.greyLight,
+        thickness: 1,
+      ),
+
+      // Chip theme
+      chipTheme: ChipThemeData(
+        backgroundColor: AppColors.primaryContainer,
+        selectedColor: AppColors.primary,
+        labelStyle: const TextStyle(color: AppColors.textPrimary, fontSize: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      ),
+
+      // Snackbar
+      snackBarTheme: SnackBarThemeData(
+        backgroundColor: AppColors.textPrimary,
+        contentTextStyle: const TextStyle(color: AppColors.surfaceLight),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        behavior: SnackBarBehavior.floating,
       ),
     );
     // If locale is Tibetan, set line height to 2.0 for all text styles
