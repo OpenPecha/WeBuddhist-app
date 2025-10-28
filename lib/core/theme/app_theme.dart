@@ -211,57 +211,178 @@ class AppTheme {
 
   static ThemeData darkTheme([Locale? locale]) {
     final baseTheme = ThemeData(
+      useMaterial3: true,
       brightness: Brightness.dark,
-      primarySwatch: Colors.blue,
       fontFamily: _fontFamilyForLocale(locale),
-      scaffoldBackgroundColor: const Color(0xFF121212),
+      scaffoldBackgroundColor: AppColors.backgroundDark,
+
+      // Color scheme based on Figma dark mode design
+      colorScheme: const ColorScheme.dark(
+        primary: AppColors.primaryDark, // Use darker primary for dark mode
+        onPrimary: AppColors.onPrimary,
+        primaryContainer: AppColors.primaryDarkest,
+        secondary: AppColors.primaryDark,
+        onSecondary: AppColors.onPrimary,
+        error: AppColors.error,
+        surface: AppColors.surfaceDark,
+        onSurface: AppColors.textPrimaryDark,
+      ),
+
+      // AppBar with dark background
       appBarTheme: const AppBarTheme(
-        backgroundColor: Color(0xFF222222),
-        foregroundColor: Colors.white30,
+        backgroundColor: AppColors.backgroundDark,
+        foregroundColor: AppColors.textPrimaryDark,
         elevation: 0,
-      ),
-      textTheme: const TextTheme(
-        bodyLarge: TextStyle(color: Colors.white),
-        bodyMedium: TextStyle(color: Colors.white),
-        bodySmall: TextStyle(color: Colors.white),
-        titleLarge: TextStyle(color: Colors.white),
-        titleMedium: TextStyle(color: Colors.white),
-        titleSmall: TextStyle(color: Colors.white),
-        labelLarge: TextStyle(color: Colors.white),
-        labelMedium: TextStyle(color: Colors.white),
-        labelSmall: TextStyle(color: Colors.white),
-        headlineLarge: TextStyle(color: Colors.white),
-        headlineMedium: TextStyle(color: Colors.white),
-        headlineSmall: TextStyle(color: Colors.white),
-        displayLarge: TextStyle(color: Colors.white),
-        displayMedium: TextStyle(color: Colors.white),
-        displaySmall: TextStyle(color: Colors.white),
-      ),
-      cardColor: const Color(0xFF232121),
-      colorScheme: ColorScheme.fromSwatch(
-        primarySwatch: Colors.blue,
-      ).copyWith(secondary: Colors.blueAccent, brightness: Brightness.dark),
-      listTileTheme: const ListTileThemeData(
-        // titleTextStyle removed to inherit fontFamily from theme
-      ),
-      inputDecorationTheme: InputDecorationTheme(
-        hintStyle: TextStyle(color: Colors.grey[400]),
-        prefixIconColor: Colors.grey[400],
-        fillColor: const Color(0xFF444444),
-        filled: true,
-        contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 16),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(25),
-          borderSide: BorderSide.none,
+        iconTheme: IconThemeData(color: AppColors.textPrimaryDark),
+        titleTextStyle: TextStyle(
+          color: AppColors.textPrimaryDark,
+          fontSize: 20,
+          fontWeight: FontWeight.w600,
         ),
       ),
-      iconTheme: const IconThemeData(color: Colors.white),
+
+      // Card theme with dark background and border
+      cardTheme: CardTheme(
+        color: AppColors.cardDark,
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: const BorderSide(color: AppColors.cardBorderDark, width: 1),
+        ),
+        margin: const EdgeInsets.all(8),
+      ),
+
+      // List tiles
+      listTileTheme: const ListTileThemeData(
+        textColor: AppColors.textPrimaryDark,
+        iconColor: AppColors.textPrimaryDark,
+      ),
+
+      // Input fields with dark background
+      inputDecorationTheme: InputDecorationTheme(
+        hintStyle: const TextStyle(color: AppColors.textSubtleDark),
+        prefixIconColor: AppColors.grey600,
+        fillColor: AppColors.surfaceVariantDark,
+        filled: true,
+        contentPadding: const EdgeInsets.symmetric(
+          vertical: 12,
+          horizontal: 16,
+        ),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: BorderSide.none,
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: BorderSide.none,
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: const BorderSide(color: AppColors.primaryDark, width: 2),
+        ),
+      ),
+
+      // Icon theme
+      iconTheme: const IconThemeData(
+        color: AppColors.textPrimaryDark,
+        size: 24,
+      ),
+
+      // Bottom navigation bar (same burgundy as light mode)
       bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-        backgroundColor: Color(0xFF121212),
-        selectedItemColor: Colors.white,
-        unselectedItemColor: Color(0xFF7f7f7f),
-        showSelectedLabels: false,
-        showUnselectedLabels: false,
+        backgroundColor: AppColors.primaryDark, // MAN 800
+        selectedItemColor: AppColors.surfaceLight,
+        unselectedItemColor: AppColors.surfaceLight,
+        selectedIconTheme: IconThemeData(
+          size: 28,
+          color: AppColors.surfaceLight,
+        ),
+        unselectedIconTheme: IconThemeData(
+          size: 24,
+          color: AppColors.surfaceLight,
+        ),
+        showSelectedLabels: true,
+        showUnselectedLabels: true,
+        selectedLabelStyle: TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.w400,
+          color: AppColors.surfaceLight,
+        ),
+        unselectedLabelStyle: TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.w300,
+          color: AppColors.surfaceLight,
+        ),
+        type: BottomNavigationBarType.fixed,
+        elevation: 0,
+      ),
+
+      // Elevated buttons
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: AppColors.primaryDark, // Darker in dark mode
+          foregroundColor: AppColors.onPrimary,
+          elevation: 0,
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          textStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+        ),
+      ),
+
+      // Text buttons
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(
+          foregroundColor: AppColors.primaryLight,
+          textStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+        ),
+      ),
+
+      // Outlined buttons
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(
+          foregroundColor: AppColors.primaryLight,
+          side: const BorderSide(color: AppColors.primaryDark, width: 1),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          textStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+        ),
+      ),
+
+      // Floating action button
+      floatingActionButtonTheme: const FloatingActionButtonThemeData(
+        backgroundColor: AppColors.primaryDark,
+        foregroundColor: AppColors.onPrimary,
+        elevation: 2,
+      ),
+
+      // Divider
+      dividerTheme: const DividerThemeData(
+        color: AppColors.cardBorderDark,
+        thickness: 1,
+      ),
+
+      // Chip theme
+      chipTheme: ChipThemeData(
+        backgroundColor: AppColors.surfaceVariantDark,
+        selectedColor: AppColors.primaryDark,
+        labelStyle: const TextStyle(
+          color: AppColors.textPrimaryDark,
+          fontSize: 12,
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      ),
+
+      // Snackbar
+      snackBarTheme: SnackBarThemeData(
+        backgroundColor: AppColors.cardDark,
+        contentTextStyle: const TextStyle(color: AppColors.textPrimaryDark),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        behavior: SnackBarBehavior.floating,
       ),
     );
     // If locale is Tibetan, set line height to 2.0 for all text styles
