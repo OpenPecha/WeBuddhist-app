@@ -14,11 +14,7 @@ class OnboardingBackButton extends StatelessWidget {
       borderRadius: BorderRadius.circular(20),
       child: Container(
         padding: const EdgeInsets.all(8),
-        child: const Icon(
-          Icons.arrow_back_ios,
-          size: 20,
-          color: AppColors.textPrimary,
-        ),
+        child: const Icon(Icons.arrow_back_ios, size: 20),
       ),
     );
   }

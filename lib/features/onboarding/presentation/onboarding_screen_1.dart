@@ -14,7 +14,7 @@ class OnboardingScreen1 extends StatelessWidget {
     final size = MediaQuery.of(context).size;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 32.0),
@@ -32,7 +32,7 @@ class OnboardingScreen1 extends StatelessWidget {
               _buildLogoSection(size),
               const Spacer(),
               // Quote text
-              _buildQuote(),
+              _buildQuote(context),
               const SizedBox(height: 32),
               // CTA Button
               _buildCTAButton(theme),
@@ -52,7 +52,6 @@ class OnboardingScreen1 extends StatelessWidget {
         fontWeight: FontWeight.w800,
         height: 1.2,
         letterSpacing: -0.544,
-        color: Color(0xFF020C1D), // Dark blue-black from Figma
       ),
     );
   }
@@ -65,7 +64,6 @@ class OnboardingScreen1 extends StatelessWidget {
         fontWeight: FontWeight.w400,
         height: 1.4,
         letterSpacing: -0.272,
-        color: Color(0xFF020C1D),
       ),
     );
   }
@@ -134,7 +132,8 @@ class OnboardingScreen1 extends StatelessWidget {
     );
   }
 
-  Widget _buildQuote() {
+  Widget _buildQuote(BuildContext context) {
+    final theme = Theme.of(context);
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8.0),
       child: Text(
@@ -145,7 +144,7 @@ class OnboardingScreen1 extends StatelessWidget {
           fontWeight: FontWeight.w500,
           height: 1.5,
           letterSpacing: -0.272,
-          color: const Color(0xFF707070), // Secondary grey from Figma
+          color: theme.colorScheme.onSurface, // Secondary grey from Figma
         ),
       ),
     );

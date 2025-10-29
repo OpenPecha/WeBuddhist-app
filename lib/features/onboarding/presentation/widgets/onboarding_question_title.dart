@@ -18,7 +18,6 @@ class OnboardingQuestionTitle extends StatelessWidget {
             fontWeight: FontWeight.w700,
             height: 1.2,
             letterSpacing: -0.544,
-            color: Color(0xFF020C1D),
             fontFamily: 'Inter',
           ),
     );

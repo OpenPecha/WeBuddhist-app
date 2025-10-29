@@ -35,12 +35,12 @@ class AppColors {
 
   // ============ Grey Scale ============
   static const Color greyLight = Color(0xFFEDEDED); // MGS 100
-  static const Color greyMedium = Color(0xFF707070); // MGS 800
+  static const Color greyMedium = Color(0xFF707070); // MGS 800 - onboarding quote light
   static const Color greyDark = Color(0xFF454545); // MGS 900
 
   // Extended grey scale for dark mode
   static const Color grey00 = Color(0xFFFFFFFF); // MGS 00
-  static const Color grey50 = Color(0xFFF2F2F2); // MGS 50
+  static const Color grey50 = Color(0xFFF2F2F2); // MGS 50 - onboarding quote dark
   static const Color grey100 = Color(0xFFEDEDED); // MGS 100
   static const Color grey300 = Color(0xFFDADADA); // MGS 300
   static const Color grey400 = Color(0xFFC4C4C4); // MGS 400
@@ -52,6 +52,7 @@ class AppColors {
   // ============ Text Colors ============
   // Light mode text
   static const Color textPrimary = Color(0xFF000000);
+  static const Color textPrimaryLight = Color(0xFF707070); // onboarding quote light
   static const Color textSecondary = Color(0xFF707070);
 
   // Dark mode text

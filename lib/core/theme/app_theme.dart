@@ -30,7 +30,7 @@ class AppTheme {
         onSecondary: AppColors.onPrimary,
         error: AppColors.error,
         surface: AppColors.surfaceLight,
-        onSurface: AppColors.textPrimary,
+        onSurface: AppColors.textPrimaryLight,
       ),
 
       // AppBar with light background

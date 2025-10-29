@@ -71,7 +71,7 @@ class _OnboardingScreen5State extends ConsumerState<OnboardingScreen5>
     );
 
     return Scaffold(
-      backgroundColor: AppColors.scaffoldBackgroundLight,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: Center(
           child: Padding(
@@ -130,21 +130,20 @@ class _OnboardingScreen5State extends ConsumerState<OnboardingScreen5>
         fontWeight: FontWeight.w400,
         fontStyle: FontStyle.italic,
         letterSpacing: -0.544,
-        color: AppColors.textPrimary,
         fontFamily: 'Instrument Serif',
       ),
     );
   }
 
   Widget _buildSubtitle() {
-    return const Text(
+    return Text(
       'Welcome To WeBuddhist',
       textAlign: TextAlign.center,
       style: TextStyle(
         fontSize: 26,
         fontWeight: FontWeight.w500,
         letterSpacing: -0.442,
-        color: Color(0xFF871C1C),
+        color: Theme.of(context).colorScheme.primary,
       ),
     );
   }
