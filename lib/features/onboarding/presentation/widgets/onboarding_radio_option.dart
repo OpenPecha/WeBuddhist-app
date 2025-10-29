@@ -36,7 +36,6 @@ class OnboardingRadioOption extends StatelessWidget {
                   fontSize: 18,
                   fontWeight: FontWeight.w500,
                   letterSpacing: -0.306,
-                  color: Color(0xFF171717),
                 ),
               ),
             ),

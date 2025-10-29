@@ -36,10 +36,6 @@ class OnboardingCheckboxOption extends StatelessWidget {
                   fontSize: 18,
                   fontWeight: FontWeight.w500,
                   letterSpacing: -0.306,
-                  color:
-                      isEnabled
-                          ? const Color(0xFF171717)
-                          : AppColors.greyMedium,
                 ),
               ),
             ),
