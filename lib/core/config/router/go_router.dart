@@ -10,6 +10,8 @@ import 'package:flutter_pecha/features/home/presentation/widgets/view_illustrati
 import 'package:flutter_pecha/features/home/presentation/widgets/youtube_video_player.dart';
 import 'package:flutter_pecha/features/home/presentation/widgets/meditation_video.dart';
 import 'package:flutter_pecha/features/meditation_of_day/presentation/meditation_of_day_screen.dart';
+import 'package:flutter_pecha/features/story_view/presentation/story_feature.dart';
+import 'package:flutter_pecha/features/plans/models/plan_subtasks_model.dart';
 import 'package:flutter_pecha/features/notifications/presentation/notification_settings_screen.dart';
 import 'package:flutter_pecha/features/plans/models/plans_model.dart';
 import 'package:flutter_pecha/features/plans/presentation/plan_details.dart';
@@ -188,6 +190,18 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         },
       ),
       GoRoute(
+        path: '/home/verse_story',
+        builder: (context, state) {
+          final extra = state.extra;
+          if (extra == null || extra is! List<PlanSubtasksModel>) {
+            return const Scaffold(
+              body: Center(child: Text('Missing required parameters')),
+            );
+          }
+          return StoryFeature(subtask: extra);
+        },
+      ),
+      GoRoute(
         path: '/home/prayer_of_the_day',
         builder: (context, state) {
           final extra = state.extra;
@@ -202,6 +216,7 @@ final goRouterProvider = Provider<GoRouter>((ref) {
           return PrayerOfTheDayScreen(
             audioUrl: extra['prayerAudioUrl'] as String,
             prayerData: extra['prayerData'] as List<PrayerData>,
+            audioHeaders: extra['audioHeaders'] as Map<String, String>?,
           );
         },
       ),
