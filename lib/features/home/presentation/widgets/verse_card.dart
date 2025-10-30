@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/features/plans/models/plan_subtasks_model.dart';
-import 'package:flutter_pecha/features/story_view/presentation/story_feature.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 class VerseCard extends ConsumerWidget {
   final String verse;
@@ -21,20 +21,16 @@ class VerseCard extends ConsumerWidget {
     return GestureDetector(
       onTap: () {
         // Navigate to story view with verse as image story
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder:
-                (context) => StoryFeature(
-                  subtask: [
-                    PlanSubtasksModel(
-                      id: 'verse-of-day',
-                      contentType: 'IMAGE',
-                      content: imageUrl,
-                      displayOrder: 0,
-                    ),
-                  ],
-                ),
-          ),
+        context.push(
+          '/home/verse_story',
+          extra: [
+            PlanSubtasksModel(
+              id: 'verse-of-day',
+              contentType: 'IMAGE',
+              content: imageUrl,
+              displayOrder: 0,
+            ),
+          ],
         );
       },
       child: Stack(
