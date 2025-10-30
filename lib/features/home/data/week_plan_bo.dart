@@ -7,6 +7,8 @@ const Map<String, dynamic> weekPlanBo = {
         "content":
             "ཏདྱཐཱ།   ཨོཾ་  བྷཻཥཛྱེ་  བྷཻཥཛྱེ་  མཧཱ་  བྷཻཥཛྱེ་  བྷཻཥཛྱེ་  རཱཇཱཡ་  སམུདྒཏེ་  སྭཱཧཱ། ",
         "author": "སངས་རྒྱས་བཅོམ་ལྡན་འདས།",
+        "imageUrl":
+            "https://drive.google.com/uc?export=view&id=1ImGalpW_1duxn4J7cxuWYqlFG0xBm-2X",
       },
       {
         "label": "འགྲེལ་བཤད།",
@@ -15,19 +17,13 @@ const Map<String, dynamic> weekPlanBo = {
       },
       {
         "label": "དངོས་གཞི་སྒོམ།",
-        "contentType": "video",
+        "contentType": "audio",
         "content": "https://www.youtube.com/watch?v=xq095RzdX-k",
       },
       {
         "label": "བཟླས་པ།",
         "contentType": "video",
         "content": "https://www.youtube.com/watch?v=xwHuaB4IAMc",
-      },
-      {
-        "label": "བློ་སྦྱོང་གོམས་འདྲིས།",
-        "contentType": "image",
-        "content":
-            "https://drive.google.com/uc?export=view&id=1LX7smXG5sksg7r3RP0QNPPHlPPcdKXhF",
       },
     ],
   },
@@ -39,6 +35,8 @@ const Map<String, dynamic> weekPlanBo = {
         "content":
             "དགེ་བ་འདི་ཡིས་མྱུར་དུ་བདག །\nསངས་རྒྱས་སྨན་བླ་འགྲུབ་གྱུར་ནས།\nའགྲོ་བ་གཅིག་ཀྱང་མ་ལུས་པ།\nདེ་ཡི་ས་ལ་འགོད་པར་ཤོག\nསེམས་ཅན་ནད་པ་ཇི་སྙེད་པ།\nམྱུར་དུ་ནད་ལས་ཐར་གྱུར་ནས།\nའགྲོ་བའི་ནད་རྣམས་མ་ལུས་པ།\nརྟག་ཏུ་འབྱུང་བ་མེད་པར་ཤོག །",
         "author": "",
+        "imageUrl":
+            "https://drive.google.com/uc?export=view&id=1ImGalpW_1duxn4J7cxuWYqlFG0xBm-2X",
       },
       {
         "label": "འགྲེལ་བཤད།",
@@ -47,19 +45,13 @@ const Map<String, dynamic> weekPlanBo = {
       },
       {
         "label": "དངོས་གཞི་སྒོམ།",
-        "contentType": "video",
+        "contentType": "audio",
         "content": "https://www.youtube.com/watch?v=ViJoFWcqSxk",
       },
       {
         "label": "བཟླས་པ།",
         "contentType": "video",
         "content": "https://www.youtube.com/watch?v=xwHuaB4IAMc",
-      },
-      {
-        "label": "བློ་སྦྱོང་གོམས་འདྲིས།",
-        "contentType": "image",
-        "content":
-            "https://drive.google.com/uc?export=view&id=1LX7smXG5sksg7r3RP0QNPPHlPPcdKXhF",
       },
     ],
   },
@@ -71,6 +63,8 @@ const Map<String, dynamic> weekPlanBo = {
         "content":
             "དགྲ་དང་གནོད་པ་ནད་རིམས་བཟློག་པ་དང་། །\nའཐབ་རྩོད་ཀུན་ཞི་ལུས་སེམས་བདེ་བ་རྒྱས། །\nལོངས་སྤྱོད་དབང་ཕྱུག་ནོར་འབྲུ་ཚེ་འཕེལ་ཞིང་། །\nབསམ་པའི་དོན་རྣམས་ཡིད་བཞིན་འགྲུབ་པ་དང་། །\nརྟག་ཏུ་བསྲུང་སྐྱོབ་གཡེལ་བ་མེད་པར་མཛོད། །",
         "author": "ཀལྤ་བྷ་དྲ",
+        "imageUrl":
+            "https://drive.google.com/uc?export=view&id=19dDFtkhowkKg_mtTOGJXp9X_B4B_A6G7",
       },
       {
         "label": "འགྲེལ་བཤད།",
@@ -79,19 +73,13 @@ const Map<String, dynamic> weekPlanBo = {
       },
       {
         "label": "དངོས་གཞི་སྒོམ།",
-        "contentType": "video",
+        "contentType": "audio",
         "content": "https://www.youtube.com/watch?v=y2CF0bZ2k-U",
       },
       {
         "label": "བཟླས་པ།",
         "contentType": "video",
         "content": "https://www.youtube.com/watch?v=xwHuaB4IAMc",
-      },
-      {
-        "label": "བློ་སྦྱོང་གོམས་འདྲིས།",
-        "contentType": "image",
-        "content":
-            "https://drive.google.com/uc?export=view&id=1LX7smXG5sksg7r3RP0QNPPHlPPcdKXhF",
       },
     ],
   },
@@ -103,6 +91,8 @@ const Map<String, dynamic> weekPlanBo = {
         "content":
             "ཐུགས་རྗེ་ཀུན་ལ་སྙོམས་པའི་བཅོམ་ལྡན་འདས། །\nམཚན་ཙམ་ཐོས་པས་ངན་འགྲོའི་སྡུག་བསྔལ་སེལ། །\nདུག་གསུམ་ནད་སེལ་སངས་རྒྱས་སྨན་གྱི་བླ། །\nབཻཌཱུརྱ་ཡི་འོད་ལ་གསོལ་བ་འདེབས། །",
         "author": "གཡུ་ཐོག་ཡོན་ཏན་མགོན་པོ།",
+        "imageUrl":
+            "https://drive.google.com/uc?export=view&id=19dDFtkhowkKg_mtTOGJXp9X_B4B_A6G7",
       },
       {
         "label": "འགྲེལ་བཤད།",
@@ -111,19 +101,13 @@ const Map<String, dynamic> weekPlanBo = {
       },
       {
         "label": "དངོས་གཞི་སྒོམ།",
-        "contentType": "video",
+        "contentType": "audio",
         "content": "https://www.youtube.com/watch?v=b5QfI3pTREw",
       },
       {
         "label": "བཟླས་པ།",
         "contentType": "video",
         "content": "https://www.youtube.com/watch?v=xwHuaB4IAMc",
-      },
-      {
-        "label": "བློ་སྦྱོང་གོམས་འདྲིས།",
-        "contentType": "image",
-        "content":
-            "https://drive.google.com/uc?export=view&id=1LX7smXG5sksg7r3RP0QNPPHlPPcdKXhF",
       },
     ],
   },
@@ -135,6 +119,8 @@ const Map<String, dynamic> weekPlanBo = {
         "content":
             "དགྲ་དང་གནོད་པ་ནད་རིམས་བཟློག་པ་དང་། །\nའཐབ་རྩོད་ཀུན་ཞི་ལུས་སེམས་བདེ་བ་རྒྱས། །\nལོངས་སྤྱོད་དབང་ཕྱུག་ནོར་འབྲུ་ཚེ་འཕེལ་ཞིང་། །\nབསམ་པའི་དོན་རྣམས་ཡིད་བཞིན་འགྲུབ་པ་དང་། །\nརྟག་ཏུ་བསྲུང་སྐྱོབ་གཡེལ་བ་མེད་པར་མཛོད། །",
         "author": "ཀལྤ་བྷ་དྲ",
+        "imageUrl":
+            "https://drive.google.com/uc?export=view&id=19dDFtkhowkKg_mtTOGJXp9X_B4B_A6G7",
       },
       {
         "label": "འགྲེལ་བཤད།",
@@ -143,19 +129,13 @@ const Map<String, dynamic> weekPlanBo = {
       },
       {
         "label": "དངོས་གཞི་སྒོམ།",
-        "contentType": "video",
+        "contentType": "audio",
         "content": "https://www.youtube.com/watch?v=y2CF0bZ2k-U",
       },
       {
         "label": "བཟླས་པ།",
         "contentType": "video",
         "content": "https://www.youtube.com/watch?v=xwHuaB4IAMc",
-      },
-      {
-        "label": "བློ་སྦྱོང་གོམས་འདྲིས།",
-        "contentType": "image",
-        "content":
-            "https://drive.google.com/uc?export=view&id=1LX7smXG5sksg7r3RP0QNPPHlPPcdKXhF",
       },
     ],
   },
@@ -167,6 +147,8 @@ const Map<String, dynamic> weekPlanBo = {
         "content":
             "ཐུགས་རྗེ་ཀུན་ལ་སྙོམས་པའི་བཅོམ་ལྡན་འདས། །\nམཚན་ཙམ་ཐོས་པས་ངན་འགྲོའི་སྡུག་བསྔལ་སེལ། །\nདུག་གསུམ་ནད་སེལ་སངས་རྒྱས་སྨན་གྱི་བླ། །\nབཻཌཱུརྱ་ཡི་འོད་ལ་གསོལ་བ་འདེབས། །",
         "author": "གཡུ་ཐོག་ཡོན་ཏན་མགོན་པོ།",
+        "imageUrl":
+            "https://drive.google.com/uc?export=view&id=19dDFtkhowkKg_mtTOGJXp9X_B4B_A6G7",
       },
       {
         "label": "འགྲེལ་བཤད།",
@@ -175,19 +157,13 @@ const Map<String, dynamic> weekPlanBo = {
       },
       {
         "label": "དངོས་གཞི་སྒོམ།",
-        "contentType": "video",
+        "contentType": "audio",
         "content": "https://www.youtube.com/watch?v=b5QfI3pTREw",
       },
       {
         "label": "བཟླས་པ།",
         "contentType": "video",
         "content": "https://www.youtube.com/watch?v=xwHuaB4IAMc",
-      },
-      {
-        "label": "བློ་སྦྱོང་གོམས་འདྲིས།",
-        "contentType": "image",
-        "content":
-            "https://drive.google.com/uc?export=view&id=1LX7smXG5sksg7r3RP0QNPPHlPPcdKXhF",
       },
     ],
   },
@@ -199,6 +175,8 @@ const Map<String, dynamic> weekPlanBo = {
         "content":
             "ཏདྱཐཱ།   ཨོཾ་  བྷཻཥཛྱེ་  བྷཻཥཛྱེ་  མཧཱ་  བྷཻཥཛྱེ་  བྷཻཥཛྱེ་  རཱཇཱཡ་  སམུདྒཏེ་  སྭཱཧཱ།",
         "author": "སངས་རྒྱས་བཅོམ་ལྡན་འདས།",
+        "imageUrl":
+            "https://drive.google.com/uc?export=view&id=1ImGalpW_1duxn4J7cxuWYqlFG0xBm-2X",
       },
       {
         "label": "འགྲེལ་བཤད།",
@@ -207,19 +185,13 @@ const Map<String, dynamic> weekPlanBo = {
       },
       {
         "label": "དངོས་གཞི་སྒོམ།",
-        "contentType": "video",
+        "contentType": "audio",
         "content": "https://www.youtube.com/watch?v=-IS9FPHRy0o",
       },
       {
         "label": "བཟླས་པ།",
         "contentType": "video",
         "content": "https://www.youtube.com/watch?v=xwHuaB4IAMc",
-      },
-      {
-        "label": "བློ་སྦྱོང་གོམས་འདྲིས།",
-        "contentType": "image",
-        "content":
-            "https://drive.google.com/uc?export=view&id=1LX7smXG5sksg7r3RP0QNPPHlPPcdKXhF",
       },
     ],
   },
@@ -234,6 +206,7 @@ const Map<String, dynamic> weekPlanBo = {
 //         "content":
 //             "ༀ་བཛྲ་སཏྭ་ས་མ་ཡ། མ་ནུ་པཱ་ལ་ཡ། བཛྲ་སཏྭ་ཏྲྭེ་ནོ་པ། ཏིཥྛ་དྲཱྀ་ཌྷོ་མེ་བྷ་ཝ།\nསུ་ཏོ་ཥྱོ་མེ་བྷ་ཝ། སུ་པོ་ཥྱོ་མེ་བྷ་ཝ། ཨ་ནུ་རཀྟོ་མེ་བྷ་ཝ། སརྦ་སིདྡྷི་མྨེ་པྲ་ཡཙྪ།\nསརྦ་ཀརྨ་སུ་ཙ་མེ། ཙིཏྟཾ་ཤྲཱེ་ཡཾ་ཀུ་རུ་ཧཱུྃ། ཧ་ཧ་ཧ་ཧ་ཧོཿ བྷ་ག་ཝཱན།།\nསརྦ་ཏ་ཐཱ་ག་ཏ། བཛྲ་མཱ་མེ་མུཉྩ། བཛྲི་བྷ་ཝ་སརྦ་མ་ཧཱ་ས་མ་ཡ་སཏྭ་ཨཱཿ",
 //         "author": "",
+//         "imageUrl": "https://drive.google.com/uc?export=view&id=1ImGalpW_1duxn4J7cxuWYqlFG0xBm-2X",
 //       },
 //       {
 //         "label": "Go Deeper",
@@ -267,6 +240,7 @@ const Map<String, dynamic> weekPlanBo = {
 //         "content":
 //             "ༀ་བཛྲ་སཏྭ་ས་མ་ཡ། མ་ནུ་པཱ་ལ་ཡ། བཛྲ་སཏྭ་ཏྲྭེ་ནོ་པ། ཏིཥྛ་དྲཱྀ་ཌྷོ་མེ་བྷ་ཝ།\nསུ་ཏོ་ཥྱོ་མེ་བྷ་ཝ། སུ་པོ་ཥྱོ་མེ་བྷ་ཝ། ཨ་ནུ་རཀྟོ་མེ་བྷ་ཝ། སརྦ་སིདྡྷི་མྨེ་པྲ་ཡཙྪ།\nསརྦ་ཀརྨ་སུ་ཙ་མེ། ཙིཏྟཾ་ཤྲཱེ་ཡཾ་ཀུ་རུ་ཧཱུྃ། ཧ་ཧ་ཧ་ཧ་ཧོཿ བྷ་ག་ཝཱན།།\nསརྦ་ཏ་ཐཱ་ག་ཏ། བཛྲ་མཱ་མེ་མུཉྩ། བཛྲི་བྷ་ཝ་སརྦ་མ་ཧཱ་ས་མ་ཡ་སཏྭ་ཨཱཿ",
 //         "author": "",
+//         "imageUrl": "https://drive.google.com/uc?export=view&id=1ImGalpW_1duxn4J7cxuWYqlFG0xBm-2X",
 //       },
 //       {
 //         "label": "Go Deeper",
@@ -300,6 +274,7 @@ const Map<String, dynamic> weekPlanBo = {
 //         "content":
 //             "ༀ་བཛྲ་སཏྭ་ས་མ་ཡ། མ་ནུ་པཱ་ལ་ཡ། བཛྲ་སཏྭ་ཏྲྭེ་ནོ་པ། ཏིཥྛ་དྲཱྀ་ཌྷོ་མེ་བྷ་ཝ།\nསུ་ཏོ་ཥྱོ་མེ་བྷ་ཝ། སུ་པོ་ཥྱོ་མེ་བྷ་ཝ། ཨ་ནུ་རཀྟོ་མེ་བྷ་ཝ། སརྦ་སིདྡྷི་མྨེ་པྲ་ཡཙྪ།\nསརྦ་ཀརྨ་སུ་ཙ་མེ། ཙིཏྟཾ་ཤྲཱེ་ཡཾ་ཀུ་རུ་ཧཱུྃ། ཧ་ཧ་ཧ་ཧ་ཧོཿ བྷ་ག་ཝཱན།།\nསརྦ་ཏ་ཐཱ་ག་ཏ། བཛྲ་མཱ་མེ་མུཉྩ། བཛྲི་བྷ་ཝ་སརྦ་མ་ཧཱ་ས་མ་ཡ་སཏྭ་ཨཱཿ",
 //         "author": "",
+//         "imageUrl": "https://drive.google.com/uc?export=view&id=1ImGalpW_1duxn4J7cxuWYqlFG0xBm-2X",
 //       },
 //       {
 //         "label": "Go Deeper",
@@ -333,6 +308,7 @@ const Map<String, dynamic> weekPlanBo = {
 //         "content":
 //             "ༀ་བཛྲ་སཏྭ་ས་མ་ཡ། མ་ནུ་པཱ་ལ་ཡ། བཛྲ་སཏྭ་ཏྲྭེ་ནོ་པ། ཏིཥྛ་དྲཱྀ་ཌྷོ་མེ་བྷ་ཝ།\nསུ་ཏོ་ཥྱོ་མེ་བྷ་ཝ། སུ་པོ་ཥྱོ་མེ་བྷ་ཝ། ཨ་ནུ་རཀྟོ་མེ་བྷ་ཝ། སརྦ་སིདྡྷི་མྨེ་པྲ་ཡཙྪ།\nསརྦ་ཀརྨ་སུ་ཙ་མེ། ཙིཏྟཾ་ཤྲཱེ་ཡཾ་ཀུ་རུ་ཧཱུྃ། ཧ་ཧ་ཧ་ཧ་ཧོཿ བྷ་ག་ཝཱན།།\nསརྦ་ཏ་ཐཱ་ག་ཏ། བཛྲ་མཱ་མེ་མུཉྩ། བཛྲི་བྷ་ཝ་སརྦ་མ་ཧཱ་ས་མ་ཡ་སཏྭ་ཨཱཿ",
 //         "author": "",
+//         "imageUrl": "https://drive.google.com/uc?export=view&id=1ImGalpW_1duxn4J7cxuWYqlFG0xBm-2X",
 //       },
 //       {
 //         "label": "Go Deeper",
@@ -366,6 +342,7 @@ const Map<String, dynamic> weekPlanBo = {
 //         "content":
 //             "ༀ་བཛྲ་སཏྭ་ས་མ་ཡ། མ་ནུ་པཱ་ལ་ཡ། བཛྲ་སཏྭ་ཏྲྭེ་ནོ་པ། ཏིཥྛ་དྲཱྀ་ཌྷོ་མེ་བྷ་ཝ།\nསུ་ཏོ་ཥྱོ་མེ་བྷ་ཝ། སུ་པོ་ཥྱོ་མེ་བྷ་ཝ། ཨ་ནུ་རཀྟོ་མེ་བྷ་ཝ། སརྦ་སིདྡྷི་མྨེ་པྲ་ཡཙྪ།\nསརྦ་ཀརྨ་སུ་ཙ་མེ། ཙིཏྟཾ་ཤྲཱེ་ཡཾ་ཀུ་རུ་ཧཱུྃ། ཧ་ཧ་ཧ་ཧ་ཧོཿ བྷ་ག་ཝཱན།།\nསརྦ་ཏ་ཐཱ་ག་ཏ། བཛྲ་མཱ་མེ་མུཉྩ། བཛྲི་བྷ་ཝ་སརྦ་མ་ཧཱ་ས་མ་ཡ་སཏྭ་ཨཱཿ",
 //         "author": "",
+//         "imageUrl": "https://drive.google.com/uc?export=view&id=1ImGalpW_1duxn4J7cxuWYqlFG0xBm-2X",
 //       },
 //       {
 //         "label": "Go Deeper",
@@ -399,6 +376,7 @@ const Map<String, dynamic> weekPlanBo = {
 //         "content":
 //             "ༀ་བཛྲ་སཏྭ་ས་མ་ཡ། མ་ནུ་པཱ་ལ་ཡ། བཛྲ་སཏྭ་ཏྲྭེ་ནོ་པ། ཏིཥྛ་དྲཱྀ་ཌྷོ་མེ་བྷ་ཝ།\nསུ་ཏོ་ཥྱོ་མེ་བྷ་ཝ། སུ་པོ་ཥྱོ་མེ་བྷ་ཝ། ཨ་ནུ་རཀྟོ་མེ་བྷ་ཝ། སརྦ་སིདྡྷི་མྨེ་པྲ་ཡཙྪ།\nསརྦ་ཀརྨ་སུ་ཙ་མེ། ཙིཏྟཾ་ཤྲཱེ་ཡཾ་ཀུ་རུ་ཧཱུྃ། ཧ་ཧ་ཧ་ཧ་ཧོཿ བྷ་ག་ཝཱན།།\nསརྦ་ཏ་ཐཱ་ག་ཏ། བཛྲ་མཱ་མེ་མུཉྩ། བཛྲི་བྷ་ཝ་སརྦ་མ་ཧཱ་ས་མ་ཡ་སཏྭ་ཨཱཿ",
 //         "author": "",
+//         "imageUrl": "https://drive.google.com/uc?export=view&id=1ImGalpW_1duxn4J7cxuWYqlFG0xBm-2X",
 //       },
 //       {
 //         "label": "Go Deeper",
@@ -432,6 +410,7 @@ const Map<String, dynamic> weekPlanBo = {
 //         "content":
 //             "ༀ་བཛྲ་སཏྭ་ས་མ་ཡ། མ་ནུ་པཱ་ལ་ཡ། བཛྲ་སཏྭ་ཏྲྭེ་ནོ་པ། ཏིཥྛ་དྲཱྀ་ཌྷོ་མེ་བྷ་ཝ།\nསུ་ཏོ་ཥྱོ་མེ་བྷ་ཝ། སུ་པོ་ཥྱོ་མེ་བྷ་ཝ། ཨ་ནུ་རཀྟོ་མེ་བྷ་ཝ། སརྦ་སིདྡྷི་མྨེ་པྲ་ཡཙྪ།\nསརྦ་ཀརྨ་སུ་ཙ་མེ། ཙིཏྟཾ་ཤྲཱེ་ཡཾ་ཀུ་རུ་ཧཱུྃ། ཧ་ཧ་ཧ་ཧ་ཧོཿ བྷ་ག་ཝཱན།།\nསརྦ་ཏ་ཐཱ་ག་ཏ། བཛྲ་མཱ་མེ་མུཉྩ། བཛྲི་བྷ་ཝ་སརྦ་མ་ཧཱ་ས་མ་ཡ་སཏྭ་ཨཱཿ",
 //         "author": "",
+//         "imageUrl": "https://drive.google.com/uc?export=view&id=1ImGalpW_1duxn4J7cxuWYqlFG0xBm-2X",
 //       },
 //       {
 //         "label": "Go Deeper",

@@ -19,7 +19,7 @@ class AppTheme {
       useMaterial3: true,
       brightness: Brightness.light,
       fontFamily: _fontFamilyForLocale(locale),
-      scaffoldBackgroundColor: AppColors.surfaceLight,
+      scaffoldBackgroundColor: AppColors.surfaceWhite,
 
       // Color scheme based on Figma design
       colorScheme: const ColorScheme.light(
@@ -30,7 +30,9 @@ class AppTheme {
         onSecondary: AppColors.onPrimary,
         error: AppColors.error,
         surface: AppColors.surfaceLight,
-        onSurface: AppColors.textPrimaryLight,
+        onSurface: AppColors.textPrimary,
+        surfaceContainer: AppColors.goldLight, // used for container bgcolor
+        outline: AppColors.goldAccent, // used for container border color
       ),
 
       // AppBar with light background
@@ -226,6 +228,8 @@ class AppTheme {
         error: AppColors.error,
         surface: AppColors.surfaceDark,
         onSurface: AppColors.textPrimaryDark,
+        surfaceContainer: AppColors.cardDark, // used for container bgcolor
+        outline: AppColors.cardBorderDark, // used for container border color
       ),
 
       // AppBar with dark background
