@@ -7,6 +7,8 @@ const Map<String, dynamic> weekPlanEn = {
         "content":
             "Tayatha Om Bhekanze Bhekanze Maha Bhekanze\nRadza Samudgate Soha (Tibetan)\nTadhyatha Om Bhaisajye Bhaisajye Bhaisajya\nSamudgate Svaha (Sanskrit)",
         "author": "The Lord Buddha",
+        "imageUrl":
+            "https://drive.google.com/uc?export=view&id=1ImGalpW_1duxn4J7cxuWYqlFG0xBm-2X",
       },
       {
         "label": "Go deeper",
@@ -15,19 +17,8 @@ const Map<String, dynamic> weekPlanEn = {
       },
       {
         "label": "Meditation",
-        "contentType": "video",
+        "contentType": "audio",
         "content": "https://youtube.com/shorts/k4kzbi48SVc",
-      },
-      {
-        "label": "Recitation",
-        "contentType": "video",
-        "content": "https://www.youtube.com/shorts/JoyGCOrgPjY",
-      },
-      {
-        "label": "Bringing it to life",
-        "contentType": "image",
-        "content":
-            "https://drive.google.com/uc?export=view&id=1ImGalpW_1duxn4J7cxuWYqlFG0xBm-2X",
       },
     ],
   },
@@ -39,6 +30,8 @@ const Map<String, dynamic> weekPlanEn = {
         "content":
             "Through this positive energy, may I quickly\nAttain the realization of Medicine Buddha,\nAnd may I bring every single living being\nWithout exception to that same enlightened state.\nMay all beings who suffer from illness,\nHowever many there are, be swiftly freed from disease,\nAnd may all the sicknesses that afflict living beings never arise again.",
         "author": "",
+        "imageUrl":
+            "https://drive.google.com/uc?export=view&id=19dDFtkhowkKg_mtTOGJXp9X_B4B_A6G7",
       },
       {
         "label": "Go deeper",
@@ -47,19 +40,8 @@ const Map<String, dynamic> weekPlanEn = {
       },
       {
         "label": "Meditation",
-        "contentType": "video",
+        "contentType": "audio",
         "content": "https://youtube.com/shorts/k4kzbi48SVc",
-      },
-      {
-        "label": "Recitation",
-        "contentType": "video",
-        "content": "https://www.youtube.com/shorts/JoyGCOrgPjY",
-      },
-      {
-        "label": "Bringing it to life",
-        "contentType": "image",
-        "content":
-            "https://drive.google.com/uc?export=view&id=19dDFtkhowkKg_mtTOGJXp9X_B4B_A6G7",
       },
     ],
   },
@@ -71,6 +53,8 @@ const Map<String, dynamic> weekPlanEn = {
         "content":
             "Avert enemies, harm, and epidemics,\nPacify all conflicts, expand bodily and mental bliss,\nIncrease wealth, dominion, grain, and lifespan,\nAccomplish all desired aims according to one's wishes,\nAnd always protect and guard without negligence.",
         "author": "Kalpa Bhadra",
+        "imageUrl":
+            "https://drive.google.com/uc?export=view&id=19dDFtkhowkKg_mtTOGJXp9X_B4B_A6G7",
       },
       {
         "label": "Go deeper",
@@ -79,19 +63,8 @@ const Map<String, dynamic> weekPlanEn = {
       },
       {
         "label": "Meditation",
-        "contentType": "video",
+        "contentType": "audio",
         "content": "https://youtube.com/shorts/k4kzbi48SVc",
-      },
-      {
-        "label": "Recitation",
-        "contentType": "video",
-        "content": "https://www.youtube.com/shorts/JoyGCOrgPjY",
-      },
-      {
-        "label": "Bringing it to life",
-        "contentType": "image",
-        "content":
-            "https://drive.google.com/uc?export=view&id=19dDFtkhowkKg_mtTOGJXp9X_B4B_A6G7",
       },
     ],
   },
@@ -103,6 +76,8 @@ const Map<String, dynamic> weekPlanEn = {
         "content":
             "Blessed One whose compassion extends equally to all,\nWhose very name, when heard, relieves the suffering of unfortunate rebirths,\nMedicine Buddha who heals the illness of the three poisons,\nI pray to your lapis lazuli radiance.",
         "author": "Yuthok Yonten Gonpo",
+        "imageUrl":
+            "https://drive.google.com/uc?export=view&id=1ImGalpW_1duxn4J7cxuWYqlFG0xBm-2X",
       },
       {
         "label": "Go deeper",
@@ -111,19 +86,8 @@ const Map<String, dynamic> weekPlanEn = {
       },
       {
         "label": "Meditation",
-        "contentType": "video",
+        "contentType": "audio",
         "content": "https://youtube.com/shorts/k4kzbi48SVc",
-      },
-      {
-        "label": "Recitation",
-        "contentType": "video",
-        "content": "https://www.youtube.com/shorts/JoyGCOrgPjY",
-      },
-      {
-        "label": "Bringing it to life",
-        "contentType": "image",
-        "content":
-            "https://drive.google.com/uc?export=view&id=1ImGalpW_1duxn4J7cxuWYqlFG0xBm-2X",
       },
     ],
   },
@@ -135,6 +99,8 @@ const Map<String, dynamic> weekPlanEn = {
         "content":
             "Avert enemies, harm, and epidemics,\nPacify all conflicts, expand bodily and mental bliss,\nIncrease wealth, dominion, grain, and lifespan,\nAccomplish all desired aims according to one's wishes,\nAnd always protect and guard without negligence.",
         "author": "Kalpa Bhadra",
+        "imageUrl":
+            "https://drive.google.com/uc?export=view&id=19dDFtkhowkKg_mtTOGJXp9X_B4B_A6G7",
       },
       {
         "label": "Go deeper",
@@ -143,19 +109,8 @@ const Map<String, dynamic> weekPlanEn = {
       },
       {
         "label": "Meditation",
-        "contentType": "video",
+        "contentType": "audio",
         "content": "https://youtube.com/shorts/k4kzbi48SVc",
-      },
-      {
-        "label": "Recitation",
-        "contentType": "video",
-        "content": "https://www.youtube.com/shorts/JoyGCOrgPjY",
-      },
-      {
-        "label": "Bringing it to life",
-        "contentType": "image",
-        "content":
-            "https://drive.google.com/uc?export=view&id=19dDFtkhowkKg_mtTOGJXp9X_B4B_A6G7",
       },
     ],
   },
@@ -167,6 +122,8 @@ const Map<String, dynamic> weekPlanEn = {
         "content":
             "Blessed One whose compassion extends equally to all,\nWhose very name, when heard, relieves the suffering of unfortunate rebirths,\nMedicine Buddha who heals the illness of the three poisons,\nI pray to your lapis lazuli radiance.",
         "author": "Yuthok Yonten Gonpo",
+        "imageUrl":
+            "https://drive.google.com/uc?export=view&id=1ImGalpW_1duxn4J7cxuWYqlFG0xBm-2X",
       },
       {
         "label": "Go deeper",
@@ -175,19 +132,8 @@ const Map<String, dynamic> weekPlanEn = {
       },
       {
         "label": "Meditation",
-        "contentType": "video",
+        "contentType": "audio",
         "content": "https://youtube.com/shorts/k4kzbi48SVc",
-      },
-      {
-        "label": "Recitation",
-        "contentType": "video",
-        "content": "https://www.youtube.com/shorts/JoyGCOrgPjY",
-      },
-      {
-        "label": "Bringing it to life",
-        "contentType": "image",
-        "content":
-            "https://drive.google.com/uc?export=view&id=1ImGalpW_1duxn4J7cxuWYqlFG0xBm-2X",
       },
     ],
   },
@@ -199,6 +145,8 @@ const Map<String, dynamic> weekPlanEn = {
         "content":
             "Tayatha Om Bhekanze Bhekanze Maha Bhekanze\nRadza Samudgate Soha (Tibetan)\nTadhyatha Om Bhaisajye Bhaisajye Bhaisajya\nSamudgate Svaha. (Sanskrit)",
         "author": "The Lord Buddha",
+        "imageUrl":
+            "https://drive.google.com/uc?export=view&id=19dDFtkhowkKg_mtTOGJXp9X_B4B_A6G7",
       },
       {
         "label": "Go deeper",
@@ -207,19 +155,8 @@ const Map<String, dynamic> weekPlanEn = {
       },
       {
         "label": "Meditation",
-        "contentType": "video",
+        "contentType": "audio",
         "content": "https://youtube.com/shorts/k4kzbi48SVc",
-      },
-      {
-        "label": "Recitation",
-        "contentType": "video",
-        "content": "https://www.youtube.com/shorts/JoyGCOrgPjY",
-      },
-      {
-        "label": "Bringing it to life",
-        "contentType": "image",
-        "content":
-            "https://drive.google.com/uc?export=view&id=19dDFtkhowkKg_mtTOGJXp9X_B4B_A6G7",
       },
     ],
   },

@@ -56,7 +56,7 @@ class AppColors {
   static const Color textSecondary = Color(0xFF707070);
 
   // Dark mode text
-  static const Color textPrimaryDark = Color(0xFFF2F2F2); // Primary white
+  static const Color textPrimaryDark = Color(0xFFFFFFFF); // Primary white
   static const Color textSecondaryDark = Color(0xFFE4E4E4); // Emphasis/headings
   static const Color textTertiaryDark = Color(0xFFB3B3B3); // Less emphasis
   static const Color textMutedDark = Color(0xFFC4C4C4); // Muted

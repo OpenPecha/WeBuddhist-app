@@ -17,19 +17,13 @@ const Map<String, dynamic> weekPlanZh = {
       },
       {
         "label": "禪修",
-        "contentType": "video",
+        "contentType": "audio",
         "content": "https://www.youtube.com/watch?v=3xpab3s7-a0",
       },
       {
         "label": "持誦",
         "contentType": "video",
         "content": "https://www.youtube.com/watch?v=x3ifRZogB5I",
-      },
-      {
-        "label": "今日任務",
-        "contentType": "image",
-        "content":
-            "https://drive.google.com/uc?export=view&id=1pUG2oKNds7IyoEOkw-9K3VlG191Z91UW",
       },
     ],
   },
@@ -51,7 +45,7 @@ const Map<String, dynamic> weekPlanZh = {
       },
       {
         "label": "教學",
-        "contentType": "video",
+        "contentType": "audio",
         "content": "https://www.youtube.com/watch?v=3xpab3s7-a0",
       },
       {
@@ -85,7 +79,7 @@ const Map<String, dynamic> weekPlanZh = {
       },
       {
         "label": "教學",
-        "contentType": "video",
+        "contentType": "audio",
         "content": "https://www.youtube.com/watch?v=3xpab3s7-a0",
       },
       {
@@ -119,19 +113,13 @@ const Map<String, dynamic> weekPlanZh = {
       },
       {
         "label": "禪修",
-        "contentType": "video",
+        "contentType": "audio",
         "content": "https://www.youtube.com/watch?v=3xpab3s7-a0",
       },
       {
         "label": "持誦",
         "contentType": "video",
         "content": "https://www.youtube.com/watch?v=ft-w5RoFyXI",
-      },
-      {
-        "label": "今日任務",
-        "contentType": "image",
-        "content":
-            "https://drive.google.com/uc?export=view&id=15fJiqSC4UFW5iF4mvAU6bsjpaHPt0FlK",
       },
     ],
   },
@@ -153,7 +141,7 @@ const Map<String, dynamic> weekPlanZh = {
       },
       {
         "label": "教學",
-        "contentType": "video",
+        "contentType": "audio",
         "content": "https://www.youtube.com/watch?v=3xpab3s7-a0",
       },
       {
@@ -187,19 +175,13 @@ const Map<String, dynamic> weekPlanZh = {
       },
       {
         "label": "禪修",
-        "contentType": "video",
+        "contentType": "audio",
         "content": "https://www.youtube.com/watch?v=3xpab3s7-a0",
       },
       {
         "label": "持誦",
         "contentType": "video",
         "content": "https://www.youtube.com/watch?v=ft-w5RoFyXI",
-      },
-      {
-        "label": "今日任務",
-        "contentType": "image",
-        "content":
-            "https://drive.google.com/uc?export=view&id=15fJiqSC4UFW5iF4mvAU6bsjpaHPt0FlK",
       },
     ],
   },
@@ -221,7 +203,7 @@ const Map<String, dynamic> weekPlanZh = {
       },
       {
         "label": "教學",
-        "contentType": "video",
+        "contentType": "audio",
         "content": "https://www.youtube.com/watch?v=3xpab3s7-a0",
       },
       {

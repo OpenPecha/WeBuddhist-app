@@ -9,12 +9,12 @@ import 'package:flutter_pecha/features/auth/application/auth_provider.dart';
 import 'package:flutter_pecha/features/home/data/week_plan.dart';
 import 'package:flutter_pecha/features/home/models/plan_item.dart';
 import 'package:flutter_pecha/features/home/presentation/widgets/action_of_the_day_card.dart';
+import 'package:flutter_pecha/features/home/presentation/widgets/calendar_banner_card.dart';
 import 'package:flutter_pecha/features/home/presentation/widgets/verse_card.dart';
 import 'package:flutter_pecha/features/notifications/presentation/notification_settings_screen.dart';
 import 'package:flutter_pecha/features/texts/data/providers/selected_segment_provider.dart';
 import 'package:flutter_pecha/features/texts/presentation/widgets/action_button.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
@@ -100,6 +100,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     final authState = ref.watch(authProvider);
     final bottomBarVisible = ref.watch(bottomBarVisibleProvider);
     return Scaffold(
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: Stack(
           children: [
@@ -222,9 +223,22 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            ...planItems.map((planItem) {
-              switch (planItem.contentType) {
-                case "text":
+            // Calendar Banner
+            CalendarBannerCard(
+              title: 'Saka Dawa',
+              subtitle: 'Full Moon',
+              description:
+                  'Celebrated in the fourth month of the Tibetan calendar',
+              celebratedBy: 'ALL SCHOOL',
+              imageUrl: 'https://picsum.photos/200/300',
+            ),
+            const SizedBox(height: 16),
+            // Plan Items
+            ...planItems.asMap().entries.map((entry) {
+              final index = entry.key;
+              final planItem = entry.value;
+              switch (index) {
+                case 0:
                   return Column(
                     children: [
                       VerseCard(
@@ -233,21 +247,17 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                         imageUrl: planItem.imageUrl,
                         title: planItem.label,
                       ),
-                      SizedBox(height: 16),
+                      const SizedBox(height: 16),
                     ],
                   );
-                case "video":
+                case 1:
                   return Column(
                     children: [
                       ActionOfTheDayCard(
+                        heading: "Guided Scripture",
                         title: planItem.label,
-                        subtitle: "4-5 min",
-                        iconWidget: Image.asset(
-                          'assets/images/home/teaching.png',
-                          color: Theme.of(context).iconTheme.color,
-                          width: 80,
-                          height: 80,
-                        ),
+                        subtitle: "1-2 min",
+                        iconWidget: _getVideoThumbnail(planItem.content),
                         onTap:
                             () => context.push(
                               '/home/video_player',
@@ -257,66 +267,94 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                               },
                             ),
                       ),
-                      SizedBox(height: 16),
+                      const SizedBox(height: 16),
                     ],
                   );
-                case "audio":
+                case 2:
                   return Column(
                     children: [
                       ActionOfTheDayCard(
+                        heading: "Guided Meditation",
                         title:
                             planItem.label == "Meditation"
                                 ? localizations.home_meditationTitle
                                 : localizations.home_recitation,
-                        subtitle: "3-4 min",
-                        iconWidget:
-                            planItem.label == "Meditation"
-                                ? Icon(Icons.self_improvement, size: 80)
-                                : FaIcon(
-                                  FontAwesomeIcons.handsPraying,
-                                  size: 60,
-                                ),
+                        subtitle: "1-2 min",
+                        iconWidget: _getAudioThumbnail(planItem.label),
                         onTap:
                             () => context.push(
                               '/home/meditation_video',
                               extra: planItem.content,
                             ),
                       ),
-                      SizedBox(height: 16),
-                    ],
-                  );
-                case "image":
-                  return Column(
-                    children: [
-                      ActionOfTheDayCard(
-                        title: planItem.label,
-                        subtitle: "1 min",
-                        iconWidget: Image.asset(
-                          'assets/images/home/mind_free.png',
-                          color: Theme.of(context).iconTheme.color,
-                          width: 80,
-                          height: 80,
-                        ),
-                        onTap:
-                            () => context.push(
-                              '/home/view_illustration',
-                              extra: {
-                                'imageUrl': planItem.content,
-                                'title': planItem.label,
-                              },
-                            ),
-                      ),
-                      SizedBox(height: 16),
+                      const SizedBox(height: 16),
                     ],
                   );
                 default:
-                  return SizedBox.shrink();
+                  return const SizedBox.shrink();
               }
             }),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _getVideoThumbnail(String videoUrl) {
+    // Extract YouTube video ID and create thumbnail
+    final uri = Uri.parse(videoUrl);
+    String? videoId;
+
+    if (uri.host.contains('youtube.com')) {
+      videoId = uri.queryParameters['v'];
+    } else if (uri.host.contains('youtu.be')) {
+      videoId = uri.pathSegments.firstOrNull;
+    }
+
+    if (videoId != null) {
+      return Image.network(
+        'https://img.youtube.com/vi/$videoId/hqdefault.jpg',
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) {
+          return Container(
+            color: Colors.grey.shade300,
+            child: const Icon(
+              Icons.video_library,
+              size: 48,
+              color: Colors.grey,
+            ),
+          );
+        },
+      );
+    }
+
+    return Container(
+      color: Colors.grey.shade300,
+      child: const Icon(Icons.video_library, size: 48, color: Colors.grey),
+    );
+  }
+
+  Widget _getAudioThumbnail(String label) {
+    if (label == "Meditation") {
+      return Image.asset(
+        'assets/images/meditation.png',
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) {
+          return Container(
+            color: Colors.grey.shade300,
+            child: const Icon(
+              Icons.self_improvement,
+              size: 48,
+              color: Colors.grey,
+            ),
+          );
+        },
+      );
+    }
+    return Container(
+      color: Colors.grey.shade300,
+      child: const Icon(Icons.audiotrack, size: 48, color: Colors.grey),
     );
   }
 }

@@ -49,49 +49,52 @@ class _ImageStoryState extends State<ImageStory> {
         ),
         child: Stack(
           children: [
-            // Image
+            // Image with Hero animation
             Center(
-              child: Image.network(
-                widget.imageUrl,
-                fit: widget.imageFit ?? BoxFit.contain,
-                loadingBuilder: (context, child, loadingProgress) {
-                  if (loadingProgress == null) {
-                    // Image loaded successfully
+              child: Hero(
+                tag: 'verse-image-${widget.imageUrl}',
+                child: Image.network(
+                  widget.imageUrl,
+                  fit: widget.imageFit ?? BoxFit.contain,
+                  loadingBuilder: (context, child, loadingProgress) {
+                    if (loadingProgress == null) {
+                      // Image loaded successfully
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        // Resume story progress when image is loaded
+                        widget.controller.play();
+                      });
+                      return child;
+                    } else {
+                      // Image is loading - show loading indicator
+                      return const Center(
+                        child: CircularProgressIndicator(color: Colors.white),
+                      );
+                    }
+                  },
+                  errorBuilder: (context, error, stackTrace) {
+                    // Resume on error
                     WidgetsBinding.instance.addPostFrameCallback((_) {
-                      // Resume story progress when image is loaded
                       widget.controller.play();
                     });
-                    return child;
-                  } else {
-                    // Image is loading - show loading indicator
                     return const Center(
-                      child: CircularProgressIndicator(color: Colors.white),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.error_outline,
+                            color: Colors.white,
+                            size: 48,
+                          ),
+                          SizedBox(height: 16),
+                          Text(
+                            'Unable to load image',
+                            style: TextStyle(color: Colors.white, fontSize: 16),
+                          ),
+                        ],
+                      ),
                     );
-                  }
-                },
-                errorBuilder: (context, error, stackTrace) {
-                  // Resume on error
-                  WidgetsBinding.instance.addPostFrameCallback((_) {
-                    widget.controller.play();
-                  });
-                  return const Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.error_outline,
-                          color: Colors.white,
-                          size: 48,
-                        ),
-                        SizedBox(height: 16),
-                        Text(
-                          'Unable to load image',
-                          style: TextStyle(color: Colors.white, fontSize: 16),
-                        ),
-                      ],
-                    ),
-                  );
-                },
+                  },
+                ),
               ),
             ),
 

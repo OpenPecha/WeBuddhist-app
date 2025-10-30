@@ -12,7 +12,9 @@ class VerseText extends StatelessWidget {
       appBar: AppBar(title: Text("Verse Of The Day")),
       body: Padding(
         padding: const EdgeInsets.all(16),
-        child: Column(children: [VerseCard(verse: verse)]),
+        child: Column(
+          children: [VerseCard(verse: verse, title: 'Verse Of The Day')],
+        ),
       ),
     );
   }
