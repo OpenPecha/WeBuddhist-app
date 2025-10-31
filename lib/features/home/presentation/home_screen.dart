@@ -7,16 +7,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/features/auth/application/auth_provider.dart';
 import 'package:flutter_pecha/features/home/data/week_plan.dart';
-import 'package:flutter_pecha/features/home/models/plan_item.dart';
 import 'package:flutter_pecha/features/home/presentation/widgets/action_of_the_day_card.dart';
 import 'package:flutter_pecha/features/home/presentation/widgets/calendar_banner_card.dart';
 import 'package:flutter_pecha/features/home/presentation/widgets/verse_card.dart';
 import 'package:flutter_pecha/features/notifications/presentation/notification_settings_screen.dart';
-import 'package:flutter_pecha/features/texts/data/providers/selected_segment_provider.dart';
-import 'package:flutter_pecha/features/texts/presentation/widgets/action_button.dart';
+import 'package:flutter_pecha/features/home/models/prayer_data.dart';
+import 'package:flutter_pecha/features/plans/models/plan_subtasks_model.dart';
+import 'package:flutter_pecha/features/plans/models/plan_tasks_model.dart';
+import 'package:flutter_pecha/features/prayer_of_the_day/presentation/json_data.dart';
+import 'package:flutter_pecha/features/prayer_of_the_day/presentation/prayer_of_the_day_screen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:story_view/story_view.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -27,9 +30,10 @@ class HomeScreen extends ConsumerStatefulWidget {
 
 class _HomeScreenState extends ConsumerState<HomeScreen>
     with WidgetsBindingObserver {
-  late List<PlanItem> planItems;
+  late List<PlanTasksModel> planItems;
   Timer? _dayCheckTimer;
   String _currentDay = '';
+  late final StoryController _storyController;
 
   @override
   void initState() {
@@ -37,6 +41,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     WidgetsBinding.instance.addObserver(this);
     _initializeTodayPlan();
     _startDayCheckTimer();
+    _storyController = StoryController();
   }
 
   void _startDayCheckTimer() {
@@ -60,7 +65,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     setState(() {
       planItems =
           (plan["plan"] as List<dynamic>)
-              .map((item) => PlanItem.fromJson(item))
+              .map((item) => PlanTasksModel.fromJson(item))
               .toList();
     });
   }
@@ -89,7 +94,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     final plan = weekPlan[_currentDay];
     planItems =
         (plan["plan"] as List<dynamic>)
-            .map((item) => PlanItem.fromJson(item))
+            .map((item) => PlanTasksModel.fromJson(item))
             .toList();
   }
 
@@ -98,7 +103,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     final localizations = AppLocalizations.of(context)!;
 
     final authState = ref.watch(authProvider);
-    final bottomBarVisible = ref.watch(bottomBarVisibleProvider);
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
@@ -109,48 +113,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                 _buildTopBar(authState, localizations),
                 _buildBody(context, localizations),
               ],
-            ),
-            if (bottomBarVisible) _buildBottomBar(context, localizations),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildBottomBar(BuildContext context, AppLocalizations localizations) {
-    return Positioned(
-      bottom: 16,
-      left: 0,
-      right: 0,
-      child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 24.0),
-        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-        constraints: const BoxConstraints(minHeight: 60),
-        decoration: BoxDecoration(
-          color: Theme.of(context).cardColor,
-          borderRadius: BorderRadius.circular(18),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            ActionButton(
-              icon: Icons.library_books,
-              label: 'Library',
-              onTap: () {
-                // context.push('/library');
-                ref.read(bottomBarVisibleProvider.notifier).state =
-                    !ref.read(bottomBarVisibleProvider.notifier).state;
-                context.push('/texts');
-              },
-            ),
-            ActionButton(
-              icon: Icons.info_outline,
-              label: 'Creator Info',
-              onTap: () {
-                ref.read(bottomBarVisibleProvider.notifier).state =
-                    !ref.read(bottomBarVisibleProvider.notifier).state;
-                context.push('/creator_info');
-              },
             ),
           ],
         ),
@@ -233,7 +195,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
               imageUrl: 'https://picsum.photos/200/300',
             ),
             const SizedBox(height: 16),
-            // Plan Items
+
+            // doc: planitems - plan item from api call
             ...planItems.asMap().entries.map((entry) {
               final index = entry.key;
               final planItem = entry.value;
@@ -242,10 +205,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                   return Column(
                     children: [
                       VerseCard(
-                        verse: planItem.content,
-                        author: planItem.author,
-                        imageUrl: planItem.imageUrl,
-                        title: planItem.label,
+                        verseText: planItem.subtasks[0].content!,
+                        title: planItem.title,
                       ),
                       const SizedBox(height: 16),
                     ],
@@ -255,16 +216,22 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                     children: [
                       ActionOfTheDayCard(
                         heading: "Guided Scripture",
-                        title: planItem.label,
+                        title: planItem.title,
                         subtitle: "1-2 min",
-                        iconWidget: _getVideoThumbnail(planItem.content),
+                        iconWidget: _getVideoThumbnail(
+                          planItem.subtasks[0].content!,
+                        ),
                         onTap:
                             () => context.push(
-                              '/home/video_player',
-                              extra: {
-                                'videoUrl': planItem.content,
-                                'title': planItem.label,
-                              },
+                              '/home/stories',
+                              extra: [
+                                PlanSubtasksModel(
+                                  id: 'guided_scripture',
+                                  contentType: 'VIDEO',
+                                  content: planItem.subtasks[0].content!,
+                                  displayOrder: 0,
+                                ),
+                              ],
                             ),
                       ),
                       const SizedBox(height: 16),
@@ -275,16 +242,22 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                     children: [
                       ActionOfTheDayCard(
                         heading: "Guided Meditation",
-                        title:
-                            planItem.label == "Meditation"
-                                ? localizations.home_meditationTitle
-                                : localizations.home_recitation,
+                        title: planItem.title,
                         subtitle: "1-2 min",
-                        iconWidget: _getAudioThumbnail(planItem.label),
+                        iconWidget: _getAudioThumbnail(
+                          planItem.subtasks[0].label!,
+                        ),
                         onTap:
                             () => context.push(
-                              '/home/meditation_video',
-                              extra: planItem.content,
+                              '/home/stories',
+                              extra: [
+                                PlanSubtasksModel(
+                                  id: 'guided_meditation',
+                                  contentType: 'VIDEO',
+                                  content: planItem.subtasks[0].content!,
+                                  displayOrder: 0,
+                                ),
+                              ],
                             ),
                       ),
                       const SizedBox(height: 16),

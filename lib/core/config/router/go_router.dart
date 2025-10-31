@@ -17,6 +17,9 @@ import 'package:flutter_pecha/features/plans/models/plans_model.dart';
 import 'package:flutter_pecha/features/plans/presentation/plan_details.dart';
 import 'package:flutter_pecha/features/plans/presentation/plan_info.dart';
 import 'package:flutter_pecha/features/prayer_of_the_day/presentation/prayer_of_the_day_screen.dart';
+import 'package:flutter_pecha/features/story_view/presentation/widgets/image_story.dart';
+import 'package:flutter_pecha/features/story_view/presentation/widgets/text_story.dart';
+import 'package:flutter_pecha/features/story_view/presentation/widgets/video_story.dart';
 import 'package:flutter_pecha/features/texts/models/collections/collections.dart';
 import 'package:flutter_pecha/features/texts/models/text/texts.dart';
 import 'package:flutter_pecha/features/texts/presentation/category_screen.dart';
@@ -33,6 +36,7 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/features/auth/application/auth_provider.dart';
+import 'package:story_view/story_view.dart';
 import 'route_config.dart';
 
 final goRouterProvider = Provider<GoRouter>((ref) {
@@ -156,7 +160,7 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         path: '/home/verse_text',
         builder: (context, state) {
           final extra = state.extra;
-          return VerseText(verse: extra as String);
+          return VerseText(verseText: extra as String);
         },
       ),
       GoRoute(
@@ -190,15 +194,88 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         },
       ),
       GoRoute(
-        path: '/home/verse_story',
+        path: '/home/stories',
         builder: (context, state) {
           final extra = state.extra;
-          if (extra == null || extra is! List<PlanSubtasksModel>) {
+          List<PlanSubtasksModel> subtasks;
+          dynamic author;
+          if (extra is Map<String, dynamic>) {
+            final subtasksValue = extra['subtasks'];
+            if (subtasksValue is! List<PlanSubtasksModel>) {
+              return const Scaffold(
+                body: Center(child: Text('Missing required parameters')),
+              );
+            }
+            subtasks = subtasksValue;
+            author = extra['author'];
+          } else if (extra is List<PlanSubtasksModel>) {
+            subtasks = extra;
+            author = null;
+          } else {
             return const Scaffold(
               body: Center(child: Text('Missing required parameters')),
             );
           }
-          return StoryFeature(subtask: extra);
+          return StoryFeature(
+            author: author,
+            storyItemsBuilder: (controller) {
+              final List<StoryItem> storyItems = [];
+              const durationForText = Duration(seconds: 15);
+              const durationForVideo = Duration(minutes: 5);
+              const durationForImage = Duration(seconds: 15);
+              for (final subtask in subtasks) {
+                if (subtask.content == null || subtask.content!.isEmpty) {
+                  continue;
+                }
+                switch (subtask.contentType) {
+                  case "TEXT":
+                    storyItems.add(
+                      StoryItem(
+                        TextStory(
+                          text: subtask.content!,
+                          backgroundColor: Colors.black38,
+                          textStyle: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w500,
+                            decoration: TextDecoration.none,
+                          ),
+                          roundedTop: true,
+                          roundedBottom: true,
+                        ),
+                        duration: durationForText,
+                      ),
+                    );
+                    break;
+                  case "VIDEO":
+                    storyItems.add(
+                      StoryItem(
+                        VideoStory(
+                          videoUrl: subtask.content!,
+                          controller: controller,
+                        ),
+                        duration: durationForVideo,
+                      ),
+                    );
+                    break;
+                  case "IMAGE":
+                    storyItems.add(
+                      StoryItem(
+                        ImageStory(
+                          imageUrl: subtask.content!,
+                          controller: controller,
+                          imageFit: BoxFit.contain,
+                          roundedTop: true,
+                          roundedBottom: true,
+                        ),
+                        duration: durationForImage,
+                      ),
+                    );
+                    break;
+                }
+              }
+              return storyItems;
+            },
+          );
         },
       ),
       GoRoute(

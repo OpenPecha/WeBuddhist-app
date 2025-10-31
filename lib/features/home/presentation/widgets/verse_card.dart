@@ -4,25 +4,19 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 class VerseCard extends ConsumerWidget {
-  final String verse;
-  final String? author;
-  final String? imageUrl;
+  final String verseText;
   final String title;
-  const VerseCard({
-    super.key,
-    required this.verse,
-    this.author,
-    this.imageUrl,
-    required this.title,
-  });
+  const VerseCard({super.key, required this.verseText, required this.title});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final imageUrl =
+        "https://images.unsplash.com/photo-1685495856559-5d96a0e51acb?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=2624";
     return GestureDetector(
       onTap: () {
         // Navigate to story view with verse as image story
         context.push(
-          '/home/verse_story',
+          '/home/stories',
           extra: [
             PlanSubtasksModel(
               id: 'verse-of-day',
@@ -37,40 +31,23 @@ class VerseCard extends ConsumerWidget {
         children: [
           // Main card with Hero animation
           Hero(
-            tag: 'verse-image-${imageUrl ?? 'default'}',
+            tag: 'verse-image-$imageUrl',
             child: Container(
               width: double.infinity,
               height: 311,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(12),
                 image:
-                    imageUrl != null && imageUrl!.isNotEmpty
+                    imageUrl.isNotEmpty
                         ? DecorationImage(
-                          image: NetworkImage(imageUrl!),
-                          fit: BoxFit.cover,
+                          image: NetworkImage(imageUrl),
+                          fit: BoxFit.fill,
                         )
                         : null,
-                color:
-                    imageUrl == null || imageUrl!.isEmpty
-                        ? Colors.brown[700]
-                        : null,
+                color: imageUrl.isEmpty ? Colors.brown[700] : null,
               ),
               child: Stack(
                 children: [
-                  // Gradient overlay for better text visibility
-                  Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(12),
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [
-                          Colors.black.withValues(alpha: 0.3),
-                          Colors.black.withValues(alpha: 0.6),
-                        ],
-                      ),
-                    ),
-                  ),
                   // Content
                   Padding(
                     padding: const EdgeInsets.all(20.0),
@@ -84,6 +61,7 @@ class VerseCard extends ConsumerWidget {
                             fontWeight: FontWeight.w400,
                             fontStyle: FontStyle.italic,
                             fontFamily: 'Instrument Serif',
+                            color: Colors.white,
                           ),
                         ),
                         Text(
@@ -91,30 +69,20 @@ class VerseCard extends ConsumerWidget {
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w400,
+                            color: Colors.white,
                           ),
                         ),
                         const Spacer(),
                         Text(
-                          verse,
+                          verseText,
                           style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.w400,
                             height: 0.97,
+                            color: Colors.white,
                           ),
-                          maxLines: 6,
-                          overflow: TextOverflow.ellipsis,
                         ),
                         const Spacer(),
-                        if (author != null && author!.isNotEmpty)
-                          Text(
-                            author!,
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w400,
-                              fontStyle: FontStyle.italic,
-                              fontFamily: 'Instrument Serif',
-                            ),
-                          ),
                       ],
                     ),
                   ),
