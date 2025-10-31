@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/features/plans/models/plan_tasks_model.dart';
 import 'package:flutter_pecha/features/plans/models/author/author_dto_model.dart';
-import 'package:flutter_pecha/features/story_view/presentation/story_feature.dart';
+import 'package:go_router/go_router.dart';
 
 class ActivityList extends StatelessWidget {
   final List<PlanTasksModel> tasks;
@@ -97,12 +97,9 @@ class ActivityList extends StatelessWidget {
 
   void handleActivityTap(BuildContext context, PlanTasksModel task) {
     if (task.subtasks.isNotEmpty) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder:
-              (context) => StoryFeature(subtask: task.subtasks, author: author),
-        ),
+      context.push(
+        '/home/stories',
+        extra: {'subtasks': task.subtasks, 'author': author},
       );
       // switch (task.subtasks[0].contentType) {
       //   case "VIDEO":
