@@ -40,7 +40,7 @@ const Map<String, dynamic> weekPlanEn = {
             "id": "3",
             "label": "Meditation",
             "content_type": "AUDIO",
-            "content": "https://youtube.com/shorts/k4kzbi48SVc",
+            "content": "https://youtube.com/watch?v=k4kzbi48SVc",
             "display_order": 3,
           },
         ],

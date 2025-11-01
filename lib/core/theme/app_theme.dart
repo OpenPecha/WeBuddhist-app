@@ -49,7 +49,7 @@ class AppTheme {
       ),
 
       // Card theme with gold accent colors
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         color: AppColors.goldLight,
         elevation: 0,
         shape: RoundedRectangleBorder(
@@ -246,7 +246,7 @@ class AppTheme {
       ),
 
       // Card theme with dark background and border
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         color: AppColors.cardDark,
         elevation: 0,
         shape: RoundedRectangleBorder(
