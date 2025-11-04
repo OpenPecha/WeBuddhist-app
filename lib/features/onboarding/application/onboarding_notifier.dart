@@ -24,13 +24,6 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
     }
   }
 
-  /// Set familiarity level and save locally
-  Future<void> setFamiliarityLevel(String level) async {
-    final updated = state.preferences.copyWith(familiarityLevel: level);
-    state = state.copyWithPreferences(updated);
-    await savePreferencesLocally();
-  }
-
   /// Set preferred language and save locally
   Future<void> setPreferredLanguage(String language) async {
     final updated = state.preferences.copyWith(preferredLanguage: language);
