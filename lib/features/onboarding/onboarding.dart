@@ -18,7 +18,6 @@ export 'data/providers/onboarding_datasource_providers.dart';
 
 // Presentation Layer - Screens
 export 'presentation/onboarding_screen_1.dart';
-export 'presentation/onboarding_screen_2.dart';
 export 'presentation/onboarding_screen_3.dart';
 export 'presentation/onboarding_screen_4.dart';
 export 'presentation/onboarding_screen_5.dart';

@@ -1,23 +1,16 @@
 /// Model for storing user preferences collected during onboarding
 class OnboardingPreferences {
-  const OnboardingPreferences({
-    this.familiarityLevel,
-    this.preferredLanguage,
-    this.selectedPaths,
-  });
+  const OnboardingPreferences({this.preferredLanguage, this.selectedPaths});
 
-  final String? familiarityLevel;
   final String? preferredLanguage;
   final List<String>? selectedPaths;
 
   /// Creates a copy with the specified fields replaced with new values
   OnboardingPreferences copyWith({
-    String? familiarityLevel,
     String? preferredLanguage,
     List<String>? selectedPaths,
   }) {
     return OnboardingPreferences(
-      familiarityLevel: familiarityLevel ?? this.familiarityLevel,
       preferredLanguage: preferredLanguage ?? this.preferredLanguage,
       selectedPaths: selectedPaths ?? this.selectedPaths,
     );
@@ -26,7 +19,6 @@ class OnboardingPreferences {
   /// Converts to JSON for storage
   Map<String, dynamic> toJson() {
     return {
-      'familiarityLevel': familiarityLevel,
       'preferredLanguage': preferredLanguage,
       'selectedPaths': selectedPaths,
     };
@@ -35,7 +27,6 @@ class OnboardingPreferences {
   /// Creates from JSON
   factory OnboardingPreferences.fromJson(Map<String, dynamic> json) {
     return OnboardingPreferences(
-      familiarityLevel: json['familiarityLevel'] as String?,
       preferredLanguage: json['preferredLanguage'] as String?,
       selectedPaths:
           (json['selectedPaths'] as List<dynamic>?)
@@ -46,15 +37,14 @@ class OnboardingPreferences {
 
   /// Checks if all preferences are complete
   bool get isComplete {
-    return familiarityLevel != null &&
-        preferredLanguage != null &&
+    return preferredLanguage != null &&
         selectedPaths != null &&
         selectedPaths!.isNotEmpty;
   }
 
   @override
   String toString() {
-    return 'OnboardingPreferences(familiarityLevel: $familiarityLevel, '
+    return 'OnboardingPreferences( '
         'preferredLanguage: $preferredLanguage, '
         'selectedPaths: $selectedPaths)';
   }
@@ -63,14 +53,13 @@ class OnboardingPreferences {
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
     return other is OnboardingPreferences &&
-        other.familiarityLevel == familiarityLevel &&
         other.preferredLanguage == preferredLanguage &&
         _listEquals(other.selectedPaths, selectedPaths);
   }
 
   @override
   int get hashCode {
-    return Object.hash(familiarityLevel, preferredLanguage, selectedPaths);
+    return Object.hash(preferredLanguage, selectedPaths);
   }
 
   bool _listEquals(List<String>? a, List<String>? b) {
@@ -81,13 +70,6 @@ class OnboardingPreferences {
     }
     return true;
   }
-}
-
-/// Familiarity level options
-class FamiliarityLevel {
-  static const String completelyNew = 'completely_new';
-  static const String knowLittle = 'know_little';
-  static const String practicingBuddhist = 'practicing_buddhist';
 }
 
 /// Language options
