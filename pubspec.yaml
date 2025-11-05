@@ -70,6 +70,7 @@ dependencies:
   url_launcher: ^6.3.2
   flutter_story_presenter: ^1.0.7
   just_audio_background: ^0.0.1-beta.17
+  audio_service: ^0.18.18
 
 dev_dependencies:
   flutter_test:

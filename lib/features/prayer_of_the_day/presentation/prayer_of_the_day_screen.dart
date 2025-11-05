@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
+import 'package:flutter_pecha/core/services/audio/audio_handler.dart';
 import 'package:flutter_pecha/core/widgets/audio_progress_bar.dart';
 import 'package:flutter_pecha/features/home/models/prayer_data.dart';
+import 'package:flutter_pecha/core/services/audio/audio_handler_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:just_audio/just_audio.dart';
-import 'package:just_audio_background/just_audio_background.dart';
+import 'package:audio_service/audio_service.dart';
 import 'package:go_router/go_router.dart';
 
 class PrayerOfTheDayScreen extends ConsumerStatefulWidget {
@@ -25,7 +27,7 @@ class PrayerOfTheDayScreen extends ConsumerStatefulWidget {
 }
 
 class _PrayerOfTheDayScreenState extends ConsumerState<PrayerOfTheDayScreen> {
-  late AudioPlayer _audioPlayer;
+  AudioPlayer? _audioPlayer;
   bool _isPlaying = false;
   Duration _duration = Duration.zero;
   Duration _position = Duration.zero;
@@ -33,11 +35,12 @@ class _PrayerOfTheDayScreenState extends ConsumerState<PrayerOfTheDayScreen> {
   int _currentSegmentIndex = 0;
   final Map<int, GlobalKey> _segmentKeys = {};
   bool _isAudioInitialized = false;
+  // Store the audio handler reference early
+  AppAudioHandler? _audioHandler;
 
   @override
   void initState() {
     super.initState();
-    // _initializeAudioPlayer();
     // Initialize keys for each segment
     for (int i = 0; i < widget.prayerData.length; i++) {
       _segmentKeys[i] = GlobalKey();
@@ -49,6 +52,8 @@ class _PrayerOfTheDayScreenState extends ConsumerState<PrayerOfTheDayScreen> {
     super.didChangeDependencies();
     if (!_isAudioInitialized) {
       _isAudioInitialized = true;
+      // Store the audio handler reference immediately
+      _audioHandler = ref.read(audioHandlerProvider);
       _initializeAudioPlayer();
     }
   }
@@ -126,11 +131,12 @@ class _PrayerOfTheDayScreenState extends ConsumerState<PrayerOfTheDayScreen> {
   }
 
   Future<void> _initializeAudioPlayer() async {
-    _audioPlayer = AudioPlayer();
     try {
       final url = widget.audioUrl.trim();
       final localizations = AppLocalizations.of(context)!;
-      Duration? duration;
+
+      // Use the stored audio handler reference
+      _audioPlayer = _audioHandler!.player;
 
       // Create MediaItem for background playback
       final mediaItem = MediaItem(
@@ -140,25 +146,46 @@ class _PrayerOfTheDayScreenState extends ConsumerState<PrayerOfTheDayScreen> {
         artUri: Uri.parse('https://pecha.org/static/icons/favicon-pecha.png'),
       );
 
-      if (url.startsWith('http://') || url.startsWith('https://')) {
-        // Remote URL (S3, CloudFront, etc.)
-        final source = AudioSource.uri(
-          Uri.parse(url),
-          headers: widget.audioHeaders,
-          tag: mediaItem,
-        );
-        duration = await _audioPlayer.setAudioSource(source);
-      } else {
-        // Local asset path
-        final source = AudioSource.asset(url, tag: mediaItem);
-        duration = await _audioPlayer.setAudioSource(source);
-      }
+      // Load the audio source
+      final duration = await _audioHandler!.setAudioSource(
+        url: url,
+        item: mediaItem,
+        headers: widget.audioHeaders,
+      );
 
       if (mounted) {
         setState(() {
           _duration = duration ?? Duration.zero;
         });
       }
+
+      // Listen to position updates for text synchronization
+      _audioPlayer!.positionStream.listen((pos) {
+        if (mounted) {
+          setState(() {
+            _position = pos;
+          });
+          _updateCurrentSegment(pos);
+        }
+      });
+
+      // Listen to player state changes
+      _audioPlayer!.playerStateStream.listen((state) {
+        if (mounted) {
+          setState(() {
+            _isPlaying = state.playing;
+          });
+
+          // Handle audio completion
+          if (state.processingState == ProcessingState.completed) {
+            setState(() {
+              _isPlaying = false;
+              _currentSegmentIndex = 0;
+              _position = Duration.zero;
+            });
+          }
+        }
+      });
     } catch (e) {
       debugPrint('Error initializing audio player: $e');
       if (mounted) {
@@ -171,52 +198,26 @@ class _PrayerOfTheDayScreenState extends ConsumerState<PrayerOfTheDayScreen> {
         );
       }
     }
-
-    // Listen to position updates for text synchronization
-    _audioPlayer.positionStream.listen((pos) {
-      if (mounted) {
-        setState(() {
-          _position = pos;
-        });
-        _updateCurrentSegment(pos);
-      }
-    });
-
-    // Listen to player state changes
-    _audioPlayer.playerStateStream.listen((state) {
-      if (mounted) {
-        setState(() {
-          _isPlaying = state.playing;
-        });
-
-        // Handle audio completion
-        if (state.processingState == ProcessingState.completed) {
-          setState(() {
-            _isPlaying = false;
-            _currentSegmentIndex = 0;
-            _position = Duration.zero;
-          });
-        }
-      }
-    });
   }
 
   @override
   void dispose() {
     _scrollController.dispose();
-    _audioPlayer.dispose();
+    // Stop audio when leaving the screen using the stored reference
+    _audioHandler!.stop();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final localizations = AppLocalizations.of(context)!;
+
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios),
           onPressed: () {
-            _audioPlayer.stop();
+            _audioHandler!.stop();
             context.pop();
           },
         ),
@@ -265,11 +266,12 @@ class _PrayerOfTheDayScreenState extends ConsumerState<PrayerOfTheDayScreen> {
             child: Column(
               children: [
                 // Progress bar
-                AudioProgressBar(
-                  audioPlayer: _audioPlayer,
-                  duration: _duration,
-                  position: _position,
-                ),
+                if (_audioPlayer != null)
+                  AudioProgressBar(
+                    audioPlayer: _audioPlayer!,
+                    duration: _duration,
+                    position: _position,
+                  ),
                 const SizedBox(height: 8),
                 // Controls
                 Row(
@@ -284,15 +286,7 @@ class _PrayerOfTheDayScreenState extends ConsumerState<PrayerOfTheDayScreen> {
                     IconButton(
                       color: Theme.of(context).appBarTheme.foregroundColor,
                       icon: const Icon(Icons.replay_10, size: 32),
-                      onPressed: () async {
-                        final newPosition =
-                            _position - const Duration(seconds: 10);
-                        await _audioPlayer.seek(
-                          newPosition > Duration.zero
-                              ? newPosition
-                              : Duration.zero,
-                        );
-                      },
+                      onPressed: () => _audioHandler!.skipBackward(),
                     ),
                     IconButton(
                       color: Theme.of(context).appBarTheme.foregroundColor,
@@ -302,24 +296,18 @@ class _PrayerOfTheDayScreenState extends ConsumerState<PrayerOfTheDayScreen> {
                             : Icons.play_circle_outline,
                         size: 44,
                       ),
-                      onPressed: () async {
+                      onPressed: () {
                         if (_isPlaying) {
-                          await _audioPlayer.pause();
+                          _audioHandler!.pause();
                         } else {
-                          await _audioPlayer.play();
+                          _audioHandler!.play();
                         }
                       },
                     ),
                     IconButton(
                       color: Theme.of(context).appBarTheme.foregroundColor,
                       icon: const Icon(Icons.forward_10, size: 32),
-                      onPressed: () async {
-                        final newPosition =
-                            _position + const Duration(seconds: 10);
-                        await _audioPlayer.seek(
-                          newPosition < _duration ? newPosition : _duration,
-                        );
-                      },
+                      onPressed: () => _audioHandler!.skipForward(),
                     ),
                     StatefulBuilder(
                       builder: (context, setState) {
@@ -332,7 +320,7 @@ class _PrayerOfTheDayScreenState extends ConsumerState<PrayerOfTheDayScreen> {
                           1.0,
                         ];
                         int currentSpeedIndex = speeds.indexOf(
-                          _audioPlayer.speed,
+                          _audioPlayer?.speed ?? 1.0,
                         );
                         if (currentSpeedIndex == -1) currentSpeedIndex = 0;
                         return IconButton(
@@ -340,12 +328,12 @@ class _PrayerOfTheDayScreenState extends ConsumerState<PrayerOfTheDayScreen> {
                           onPressed: () {
                             int nextIndex =
                                 (currentSpeedIndex + 1) % speeds.length;
-                            _audioPlayer.setSpeed(speeds[nextIndex]);
+                            _audioHandler!.setSpeed(speeds[nextIndex]);
                             setState(() {});
                           },
                           icon: Text(
-                            'x${_audioPlayer.speed == 1.0 ? 1 : _audioPlayer.speed.toStringAsFixed(1)}',
-                            style: TextStyle(fontSize: 20),
+                            'x${(_audioPlayer?.speed ?? 1.0) == 1.0 ? 1 : (_audioPlayer?.speed ?? 1.0).toStringAsFixed(1)}',
+                            style: const TextStyle(fontSize: 20),
                           ),
                         );
                       },
