@@ -142,6 +142,48 @@ abstract class AppLocalizations {
   /// **'Switch to Dark Mode'**
   String get switchToDark;
 
+  /// No description provided for @onboarding_welcome.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome to WeBuddhist'**
+  String get onboarding_welcome;
+
+  /// No description provided for @onboarding_description.
+  ///
+  /// In en, this message translates to:
+  /// **'Where we learn, live, and share Buddhist wisdom every day'**
+  String get onboarding_description;
+
+  /// No description provided for @onboarding_quote.
+  ///
+  /// In en, this message translates to:
+  /// **'Approximatey 500 million people worldwide practice Buddhism, making it the world\'s fourth largest religion'**
+  String get onboarding_quote;
+
+  /// No description provided for @onboarding_first_question.
+  ///
+  /// In en, this message translates to:
+  /// **'In which language would you like to access core texts?'**
+  String get onboarding_first_question;
+
+  /// No description provided for @onboarding_second_question.
+  ///
+  /// In en, this message translates to:
+  /// **'Which path or school do you feel drawn to?'**
+  String get onboarding_second_question;
+
+  /// No description provided for @onboarding_choose_option.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose upto 3 options'**
+  String get onboarding_choose_option;
+
+  /// No description provided for @onboarding_all_set.
+  ///
+  /// In en, this message translates to:
+  /// **'You are All Setup'**
+  String get onboarding_all_set;
+
   /// No description provided for @home_today.
   ///
   /// In en, this message translates to:

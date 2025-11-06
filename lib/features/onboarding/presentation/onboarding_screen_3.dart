@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/features/onboarding/application/onboarding_provider.dart';
 import 'package:flutter_pecha/features/onboarding/models/onboarding_preferences.dart';
 import 'package:flutter_pecha/features/onboarding/presentation/widgets/onboarding_back_button.dart';
@@ -31,30 +32,42 @@ class OnboardingScreen3 extends ConsumerWidget {
     final selectedLanguage = ref.watch(
       onboardingProvider.select((state) => state.preferences.preferredLanguage),
     );
+    final appLocalizations = AppLocalizations.of(context);
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 32.0),
+          padding: const EdgeInsets.symmetric(horizontal: 20.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 24),
               OnboardingBackButton(onBack: onBack),
               const SizedBox(height: 40),
-              const OnboardingQuestionTitle(
-                title:
-                    'In which language \nwould you like to \naccess core texts?',
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      OnboardingQuestionTitle(
+                        title: appLocalizations!.onboarding_first_question,
+                      ),
+                      const SizedBox(height: 50),
+                      _buildLanguageOptions(ref, selectedLanguage),
+                      const Spacer(),
+                      Center(
+                        child: OnboardingContinueButton(
+                          onPressed: () => _handleContinue(ref),
+                          isEnabled: selectedLanguage != null,
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                    ],
+                  ),
+                ),
               ),
-              const SizedBox(height: 60),
-              _buildLanguageOptions(ref, selectedLanguage),
-              const Spacer(),
-              OnboardingContinueButton(
-                onPressed: () => _handleContinue(ref),
-                isEnabled: selectedLanguage != null,
-              ),
-              const SizedBox(height: 24),
             ],
           ),
         ),
@@ -63,19 +76,24 @@ class OnboardingScreen3 extends ConsumerWidget {
   }
 
   Widget _buildLanguageOptions(WidgetRef ref, String? selectedLanguage) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children:
-          _languages.map((language) {
-            return OnboardingRadioOption(
-              id: language.id,
-              label: language.label,
-              selectedId: selectedLanguage,
-              onSelect: (id) {
-                ref.read(onboardingProvider.notifier).setPreferredLanguage(id);
-              },
-            );
-          }).toList(),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children:
+            _languages.map((language) {
+              return OnboardingRadioOption(
+                id: language.id,
+                label: language.label,
+                selectedId: selectedLanguage,
+                onSelect: (id) {
+                  ref
+                      .read(onboardingProvider.notifier)
+                      .setPreferredLanguage(id);
+                },
+              );
+            }).toList(),
+      ),
     );
   }
 

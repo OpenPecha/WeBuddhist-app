@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter_pecha/core/services/user/user_service.dart';
 import 'package:flutter_pecha/features/onboarding/data/onboarding_local_datasource.dart';
 import 'package:flutter_pecha/features/onboarding/data/onboarding_remote_datasource.dart';
 import 'package:flutter_pecha/features/onboarding/models/onboarding_preferences.dart';
@@ -9,10 +10,12 @@ class OnboardingRepository {
   const OnboardingRepository({
     required this.localDatasource,
     required this.remoteDatasource,
+    required this.userService,
   });
 
   final OnboardingLocalDatasource localDatasource;
   final OnboardingRemoteDatasource remoteDatasource;
+  final UserService userService;
 
   /// Save preferences both locally and optionally remotely
   Future<void> savePreferences(
@@ -45,7 +48,20 @@ class OnboardingRepository {
 
     // Mark onboarding as complete
     await localDatasource.markOnboardingComplete();
-
+    
+    try {
+      final currentUser = userService.currentUser;
+      if (currentUser != null) {
+        final updatedUser = currentUser.copyWith(onboardingCompleted: true);
+        await userService.updateUser(updatedUser);
+        debugPrint('✅ User data updated: onboardingCompleted = true');
+      } else {
+        debugPrint('⚠️ No current user found to update onboarding status');
+      }
+    } catch (e) {
+      debugPrint('❌ Failed to update user onboarding status: $e');
+      // Don't throw - onboarding flag is still saved separately
+    }
     debugPrint('Onboarding completed and marked');
   }
 

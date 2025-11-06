@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 
 /// First onboarding screen: "Welcome to WeBuddhist"
@@ -23,10 +24,10 @@ class OnboardingScreen1 extends StatelessWidget {
             children: [
               const SizedBox(height: 60),
               // Title: "Welcome to WeBuddhist"
-              _buildTitle(),
+              _buildTitle(context),
               const SizedBox(height: 20),
               // Subtitle text
-              _buildSubtitle(),
+              _buildSubtitle(context),
               const Spacer(),
               // Center logo with concentric circles
               _buildLogoSection(size),
@@ -44,9 +45,10 @@ class OnboardingScreen1 extends StatelessWidget {
     );
   }
 
-  Widget _buildTitle() {
-    return const Text(
-      'Welcome\nto WeBuddhist',
+  Widget _buildTitle(BuildContext context) {
+    final appLocalizations = AppLocalizations.of(context);
+    return Text(
+      appLocalizations!.onboarding_welcome,
       style: TextStyle(
         fontSize: 32,
         fontWeight: FontWeight.w800,
@@ -56,9 +58,10 @@ class OnboardingScreen1 extends StatelessWidget {
     );
   }
 
-  Widget _buildSubtitle() {
-    return const Text(
-      'Where we learn, live, and share Buddhist wisdom every day',
+  Widget _buildSubtitle(BuildContext context) {
+    final appLocalizations = AppLocalizations.of(context);
+    return Text(
+      appLocalizations!.onboarding_description,
       style: TextStyle(
         fontSize: 18,
         fontWeight: FontWeight.w400,
@@ -113,8 +116,8 @@ class OnboardingScreen1 extends StatelessWidget {
               child: Center(
                 child: Image.asset(
                   'assets/images/favicon-pecha.png',
-                  width: 56,
-                  height: 56,
+                  width: 72,
+                  height: 72,
                   errorBuilder: (context, error, stackTrace) {
                     // Fallback icon if logo is not found
                     return const Icon(
@@ -133,11 +136,12 @@ class OnboardingScreen1 extends StatelessWidget {
   }
 
   Widget _buildQuote(BuildContext context) {
+    final appLocalizations = AppLocalizations.of(context);
     final theme = Theme.of(context);
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8.0),
       child: Text(
-        '" Approximately 500 million people worldwide practice Buddhism, making it the world\'s fourth largest religion "',
+        appLocalizations!.onboarding_quote,
         textAlign: TextAlign.center,
         style: TextStyle(
           fontSize: 16,
