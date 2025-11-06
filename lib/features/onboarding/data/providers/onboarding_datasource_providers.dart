@@ -1,4 +1,5 @@
 import 'package:flutter_pecha/core/network/api_client_provider.dart';
+import 'package:flutter_pecha/core/services/user/user_service_provider.dart';
 import 'package:flutter_pecha/core/utils/local_storage_service.dart';
 import 'package:flutter_pecha/features/onboarding/data/onboarding_local_datasource.dart';
 import 'package:flutter_pecha/features/onboarding/data/onboarding_remote_datasource.dart';
@@ -25,8 +26,10 @@ final onboardingRemoteDatasourceProvider = Provider<OnboardingRemoteDatasource>(
 final onboardingRepositoryProvider = Provider<OnboardingRepository>((ref) {
   final localDatasource = ref.watch(onboardingLocalDatasourceProvider);
   final remoteDatasource = ref.watch(onboardingRemoteDatasourceProvider);
+  final userService = ref.watch(userServiceProvider);
   return OnboardingRepository(
     localDatasource: localDatasource,
     remoteDatasource: remoteDatasource,
+    userService: userService,
   );
 });

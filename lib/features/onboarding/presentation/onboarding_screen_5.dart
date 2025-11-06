@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/features/onboarding/application/onboarding_provider.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -48,7 +49,7 @@ class _OnboardingScreen5State extends ConsumerState<OnboardingScreen5>
   }
 
   void _submitPreferencesAndNavigate() async {
-    // Submit preferences to backend
+    // Submit preferences to local storage
     await ref.read(onboardingProvider.notifier).submitPreferences();
 
     // Wait for animation to complete, then navigate
@@ -122,8 +123,9 @@ class _OnboardingScreen5State extends ConsumerState<OnboardingScreen5>
   }
 
   Widget _buildTitle() {
-    return const Text(
-      'You are All Setup',
+    final appLocalizations = AppLocalizations.of(context);
+    return Text(
+      appLocalizations!.onboarding_all_set,
       textAlign: TextAlign.center,
       style: TextStyle(
         fontSize: 32,
@@ -136,8 +138,9 @@ class _OnboardingScreen5State extends ConsumerState<OnboardingScreen5>
   }
 
   Widget _buildSubtitle() {
+    final appLocalizations = AppLocalizations.of(context);
     return Text(
-      'Welcome To WeBuddhist',
+      appLocalizations!.onboarding_welcome,
       textAlign: TextAlign.center,
       style: TextStyle(
         fontSize: 26,

@@ -61,7 +61,7 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
     }
   }
 
-  /// Submit preferences to backend and mark onboarding complete
+  /// Submit preferences to local storage and mark onboarding complete
   Future<void> submitPreferences() async {
     state = state.copyWithLoading(true);
     try {

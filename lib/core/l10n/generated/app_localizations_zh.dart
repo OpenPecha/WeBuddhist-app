@@ -30,6 +30,31 @@ class AppLocalizationsZh extends AppLocalizations {
   String get switchToDark => '切换到深色模式';
 
   @override
+  String get onboarding_welcome => 'Welcome to WeBuddhist';
+
+  @override
+  String get onboarding_description =>
+      'Where we learn, live, and share Buddhist wisdom every day';
+
+  @override
+  String get onboarding_quote =>
+      'Approximatey 500 million people worldwide practice Buddhism, making it the world\'s fourth largest religion';
+
+  @override
+  String get onboarding_first_question =>
+      'In which language would you like to access core texts?';
+
+  @override
+  String get onboarding_second_question =>
+      'Which path or school do you feel drawn to?';
+
+  @override
+  String get onboarding_choose_option => 'Choose upto 3 options';
+
+  @override
+  String get onboarding_all_set => 'You are All Setup';
+
+  @override
   String get home_today => 'Today';
 
   @override

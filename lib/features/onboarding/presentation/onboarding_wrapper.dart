@@ -35,12 +35,9 @@ class _OnboardingWrapperState extends ConsumerState<OnboardingWrapper> {
     ref.read(onboardingProvider.notifier).goToPreviousPage();
   }
 
-  void _skipOnboarding() {
-    _completeOnboarding();
-  }
-
   void _completeOnboarding() {
-    context.go(RouteConfig.login);
+    // context.go(RouteConfig.login);
+    context.go(RouteConfig.home);
   }
 
   @override
@@ -87,23 +84,6 @@ class _OnboardingWrapperState extends ConsumerState<OnboardingWrapper> {
               OnboardingScreen5(onComplete: _completeOnboarding),
             ],
           ),
-          // Skip button (top right) - only show on first 4 screens
-          if (currentPage < _totalPages - 1)
-            Positioned(
-              top: MediaQuery.of(context).padding.top + 16,
-              right: 24,
-              child: TextButton(
-                onPressed: _skipOnboarding,
-                child: const Text(
-                  'Skip',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                    // color: AppColors.textSecondary,
-                  ),
-                ),
-              ),
-            ),
         ],
       ),
     );
