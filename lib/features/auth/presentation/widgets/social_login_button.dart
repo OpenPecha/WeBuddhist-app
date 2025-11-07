@@ -1,7 +1,7 @@
 // Widget for social login buttons
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../application/auth_provider.dart';
+import '../../application/auth_notifier.dart';
 
 class SocialLoginButton extends ConsumerWidget {
   const SocialLoginButton({

@@ -4,7 +4,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/widgets/logo_label.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_pecha/features/auth/application/auth_provider.dart';
+import 'package:flutter_pecha/features/auth/application/auth_notifier.dart';
 import '../presentation/widgets/auth_buttons.dart';
 
 class LoginPage extends ConsumerWidget {

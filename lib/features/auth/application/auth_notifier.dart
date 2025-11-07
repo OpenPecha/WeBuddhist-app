@@ -1,8 +1,11 @@
 // Riverpod provider and logic for authentication state.
 import 'package:auth0_flutter/auth0_flutter.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter_pecha/features/onboarding/data/providers/onboarding_datasource_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logging/logging.dart';
 import '../auth_service.dart';
+import 'package:flutter_pecha/core/services/user/user_service_provider.dart';
 
 class AuthState {
   final bool isLoggedIn;
@@ -42,35 +45,62 @@ class AuthState {
 
 class AuthNotifier extends StateNotifier<AuthState> {
   final AuthService authService;
+  final Ref ref;
   final Logger _logger = Logger('AuthNotifier');
 
-  AuthNotifier({required this.authService})
+  AuthNotifier({required this.authService, required this.ref})
     : super(const AuthState(isLoggedIn: false, isLoading: true)) {
     _restoreLoginState();
   }
 
   Future<void> _restoreLoginState() async {
+    debugPrint('Restoring login state');
     try {
       await authService.initialize(); // Ensure config + Auth0 initialized
 
       // First check if we have any credentials at all
       final hasCredentials = await authService.hasValidCredentials();
+      debugPrint('Checking if credentials are valid: $hasCredentials');
 
       if (hasCredentials) {
-        // Try to get valid credentials with automatic refresh if needed
         final credentials =
             await authService.getCredentials(); // 5 minute buffer
-        state = state.copyWith(
-          isLoggedIn: true,
-          userId: credentials?.user.sub,
-          isLoading: false,
-          isGuest: false,
-          userProfile: credentials?.user,
-          errorMessage: null,
-        );
-        _logger.info('Login state restored for user: ${credentials?.user.sub}');
-        return;
+
+        // Validate credentials were actually retrieved
+        if (credentials != null && credentials.user.sub.isNotEmpty) {
+          state = state.copyWith(
+            isLoggedIn: true,
+            userId: credentials.user.sub,
+            isLoading: false,
+            isGuest: false,
+            userProfile: credentials.user,
+            errorMessage: null,
+          );
+          debugPrint(
+            'Login state restored for user: ${credentials.user.sub} auth isLoggedin ${state.isLoggedIn}',
+          );
+
+          // Check user has completed onboarding or not
+          // Note: UserService may need initialization, but onboarding check
+          // is handled by router redirect logic, so this is just for logging
+          try {
+            final userService = ref.read(userServiceProvider);
+            final isOnboardingCompleted = userService.hasCompletedOnboarding;
+            debugPrint('User has completed onboarding: $isOnboardingCompleted');
+          } catch (e) {
+            debugPrint('Could not check onboarding status: $e');
+            // Non-critical, router will handle onboarding redirects
+          }
+
+          // Early return after successful credential restoration
+          return;
+        } else {
+          debugPrint('Credentials check returned null or invalid user');
+          // Fall through to check guest mode
+        }
       }
+
+      debugPrint('No valid credentials found, checking guest mode');
 
       // No credentials, check if user previously chose guest mode
       final isGuest = await authService.isGuestMode();
@@ -158,6 +188,17 @@ class AuthNotifier extends StateNotifier<AuthState> {
           errorMessage: null,
         );
         _logger.info('User authenticated, guest mode cleared');
+
+        // Fetch and save user data from backend on first login
+        try {
+          final userService = ref.read(userServiceProvider);
+          await userService.initializeUser();
+
+          _logger.info('User data fetched and saved locally');
+        } catch (e) {
+          _logger.warning('Failed to fetch user data: $e');
+          // Don't fail the login if user data fetch fails
+        }
       } else {
         state = state.copyWith(
           isLoading: false,
@@ -165,6 +206,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
         );
       }
     } catch (e) {
+      debugPrint('Login failed: ${e.toString()}');
       state = state.copyWith(
         isLoading: false,
         errorMessage: 'Login failed: ${e.toString()}',
@@ -189,6 +231,11 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
   Future<void> logout() async {
     await authService.localLogout(); // This also clears guest mode
+
+    // Note: We keep user data cached locally for faster re-login
+    // This includes profile info but onboarding status is tracked separately
+    // Only clear user data if you need to (e.g., account deletion, privacy reasons)
+
     state = state.copyWith(
       isLoggedIn: false,
       userId: null,
@@ -196,7 +243,22 @@ class AuthNotifier extends StateNotifier<AuthState> {
       isGuest: false,
       userProfile: null,
     );
+
+    // clear onboarding preferences
+    final onboardingRepo = ref.read(onboardingRepositoryProvider);
+    await onboardingRepo.clearPreferences();
     _logger.info('User logged out, all auth state cleared');
+  }
+
+  /// Completely clear all user data (use for account deletion or privacy reset)
+  Future<void> clearAllUserData() async {
+    try {
+      final userService = ref.read(userServiceProvider);
+      await userService.clearUser();
+      _logger.info('All user data cleared');
+    } catch (e) {
+      _logger.warning('Failed to clear user data: $e');
+    }
   }
 }
 
@@ -227,32 +289,5 @@ final authServiceProvider = Provider<AuthService>((ref) {
 
 final authProvider = StateNotifierProvider<AuthNotifier, AuthState>((ref) {
   final authService = AuthService.instance; // Use singleton
-  return AuthNotifier(authService: authService);
+  return AuthNotifier(authService: authService, ref: ref);
 });
-
-// final authProvider = StateNotifierProvider<AuthNotifier, AuthState>((ref) {
-//   final configAsync = ref.watch(auth0ConfigProvider);
-//   return configAsync.when(
-//     data: (config) {
-//       final authService = AuthService(
-//         domain: config.domain,
-//         clientId: config.clientId,
-//       );
-//       final notifier = AuthNotifier(authService: authService);
-//       return notifier;
-//     },
-//     loading: () {
-//       // Return a temporary notifier with loading state
-//       return LoadingAuthNotifier();
-//     },
-//     error: (err, stack) {
-//       // Log the error for debugging
-//       Logger('AuthProvider').severe('Failed to load auth config', err, stack);
-//       return ErrorAuthNotifier('Failed to load authentication configuration');
-//     },
-//   );
-// });
-
-// final auth0ConfigProvider = FutureProvider<Auth0Config>((ref) async {
-//   return await fetchAuth0Config();
-// });
