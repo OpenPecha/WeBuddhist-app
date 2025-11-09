@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_pecha/features/plans/models/plan_tasks_model.dart';
 import 'package:flutter_pecha/features/plans/models/author/author_dto_model.dart';
+import 'package:flutter_pecha/features/plans/models/user/user_tasks_dto.dart';
 import 'package:go_router/go_router.dart';
 
 class ActivityList extends StatelessWidget {
-  final List<PlanTasksModel> tasks;
+  final List<UserTasksDto> tasks;
   final int today;
   final int totalDays;
   final Set<int> selectedActivities; // Changed from single int to Set<int>
@@ -95,11 +95,11 @@ class ActivityList extends StatelessWidget {
     );
   }
 
-  void handleActivityTap(BuildContext context, PlanTasksModel task) {
-    if (task.subtasks.isNotEmpty) {
+  void handleActivityTap(BuildContext context, UserTasksDto task) {
+    if (task.subTasks.isNotEmpty) {
       context.push(
         '/home/stories',
-        extra: {'subtasks': task.subtasks, 'author': author},
+        extra: {'subtasks': task.subTasks, 'author': author},
       );
       // switch (task.subtasks[0].contentType) {
       //   case "VIDEO":

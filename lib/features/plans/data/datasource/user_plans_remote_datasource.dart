@@ -3,7 +3,8 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_pecha/features/plans/models/plan_progress_model.dart';
-import 'package:flutter_pecha/features/plans/models/response/plan_list_response_model.dart';
+import 'package:flutter_pecha/features/plans/models/response/user_plan_day_detail_response.dart';
+import 'package:flutter_pecha/features/plans/models/response/user_plan_list_response_model.dart';
 import 'package:http/http.dart' as http;
 
 class UserPlansRemoteDatasource {
@@ -13,7 +14,7 @@ class UserPlansRemoteDatasource {
   UserPlansRemoteDatasource({required this.client});
 
   // get user plans by user id
-  Future<PlanListResponseModel> fetchUserPlans({
+  Future<UserPlanListResponseModel> fetchUserPlans({
     required String language,
     int? skip,
     int? limit,
@@ -37,7 +38,7 @@ class UserPlansRemoteDatasource {
       if (response.statusCode == 200) {
         final decoded = utf8.decode(response.bodyBytes);
         final jsonData = json.decode(decoded);
-        return PlanListResponseModel.fromJson(jsonData);
+        return UserPlanListResponseModel.fromJson(jsonData);
       } else {
         debugPrint('Failed to load user plans: ${response.statusCode}');
         throw Exception('Failed to load user plans: ${response.statusCode}');
@@ -58,7 +59,7 @@ class UserPlansRemoteDatasource {
         body: body,
         headers: {'Content-Type': 'application/json'},
       );
-      if (response.statusCode == 201) {
+      if (response.statusCode == 204) {
         return true;
       } else {
         return false;
@@ -88,6 +89,29 @@ class UserPlansRemoteDatasource {
       }
     } catch (e) {
       throw Exception('Failed to load user plan progress details: $e');
+    }
+  }
+
+  // fetch user plan day content or details
+  Future<UserPlanDayDetailResponse> fetchUserPlanDayContent(
+    String planId,
+    int dayNumber,
+  ) async {
+    try {
+      final response = await client.get(
+        Uri.parse('$baseUrl/users/me/plan/$planId/days/$dayNumber'),
+      );
+      if (response.statusCode == 200) {
+        final decoded = utf8.decode(response.bodyBytes);
+        final jsonData = json.decode(decoded);
+        return UserPlanDayDetailResponse.fromJson(jsonData);
+      } else {
+        throw Exception(
+          'Failed to load user plan day content: ${response.statusCode}',
+        );
+      }
+    } catch (e) {
+      throw Exception('Failed to load user plan day content: $e');
     }
   }
 }

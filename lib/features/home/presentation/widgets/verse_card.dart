@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_pecha/features/plans/models/plan_subtasks_model.dart';
+import 'package:flutter_pecha/features/plans/models/user/user_subtasks_dto.dart';
 import 'package:flutter_pecha/features/story_view/utils/story_dialog_helper.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -24,11 +24,12 @@ class VerseCard extends ConsumerWidget {
         showStoryDialog(
           context: context,
           subtasks: [
-            PlanSubtasksModel(
+            UserSubtasksDto(
               id: 'verse-of-day',
               contentType: 'IMAGE',
               content: imageUrl,
               displayOrder: 0,
+              isCompleted: false,
             ),
           ],
           nextCard: nextCard,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/features/plans/models/plan_subtasks_model.dart';
+import 'package:flutter_pecha/features/plans/models/user/user_subtasks_dto.dart';
 import 'package:flutter_pecha/features/story_view/presentation/widgets/story_presenter/custom_audio_story.dart';
 import 'package:flutter_pecha/features/story_view/presentation/widgets/story_presenter/custom_video_story.dart';
 import 'package:flutter_pecha/features/story_view/presentation/widgets/story_presenter/custom_widget_story.dart';
@@ -9,7 +10,7 @@ import 'package:flutter_story_presenter/flutter_story_presenter.dart';
 import 'package:just_audio/just_audio.dart';
 
 List<StoryItem> createFlutterStoryItems(
-  List<PlanSubtasksModel> subtasks,
+  List<UserSubtasksDto> subtasks,
   FlutterStoryController? controller,
   Map<String, dynamic>? nextCard,
 ) {
@@ -20,7 +21,7 @@ List<StoryItem> createFlutterStoryItems(
   const durationForAudio = Duration(seconds: 15);
   const durationForActionCard = Duration(seconds: 15);
   for (final subtask in subtasks) {
-    if (subtask.content == null || subtask.content!.isEmpty) {
+    if (subtask.content.isEmpty || subtask.content.isEmpty) {
       continue;
     }
 
@@ -113,7 +114,7 @@ List<StoryItem> createFlutterStoryItems(
               controller: controller!,
               onTap: (context) {
                 final nextSubtasks =
-                    nextCard['subtasks'] as List<PlanSubtasksModel>;
+                    nextCard['subtasks'] as List<UserSubtasksDto>;
                 final nextNextCard =
                     nextCard['nextCard'] as Map<String, dynamic>?;
                 Navigator.of(context).pop();

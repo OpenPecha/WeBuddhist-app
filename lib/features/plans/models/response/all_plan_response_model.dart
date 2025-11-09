@@ -1,20 +1,20 @@
 import 'package:flutter_pecha/features/plans/models/plans_model.dart';
 
-class PlanListResponseModel {
+class AllPlanResponseModel {
   final List<PlansModel> plans;
   final int total;
   final int skip;
   final int limit;
 
-  PlanListResponseModel({
+  AllPlanResponseModel({
     required this.plans,
     required this.total,
     required this.skip,
     required this.limit,
   });
 
-  factory PlanListResponseModel.fromJson(Map<String, dynamic> json) {
-    return PlanListResponseModel(
+  factory AllPlanResponseModel.fromJson(Map<String, dynamic> json) {
+    return AllPlanResponseModel(
       plans:
           (json['plans'] as List).map((e) => PlansModel.fromJson(e)).toList(),
       total: json['total'] as int,
