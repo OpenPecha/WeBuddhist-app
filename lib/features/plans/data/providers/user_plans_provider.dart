@@ -1,9 +1,11 @@
 import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
 import 'package:flutter_pecha/core/network/api_client_provider.dart';
 import 'package:flutter_pecha/features/plans/data/datasource/user_plans_remote_datasource.dart';
+import 'package:flutter_pecha/features/plans/data/providers/plan_days_providers.dart';
 import 'package:flutter_pecha/features/plans/data/repositories/user_plans_repository.dart';
 import 'package:flutter_pecha/features/plans/models/plan_progress_model.dart';
-import 'package:flutter_pecha/features/plans/models/response/plan_list_response_model.dart';
+import 'package:flutter_pecha/features/plans/models/response/user_plan_day_detail_response.dart';
+import 'package:flutter_pecha/features/plans/models/response/user_plan_list_response_model.dart';
 import 'package:flutter_pecha/features/plans/presentation/providers/my_plans_paginated_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -15,7 +17,9 @@ final userPlansRepositoryProvider = Provider<UserPlansRepository>((ref) {
   );
 });
 
-final userPlansFutureProvider = FutureProvider<PlanListResponseModel>((ref) {
+final userPlansFutureProvider = FutureProvider<UserPlanListResponseModel>((
+  ref,
+) {
   final locale = ref.watch(localeProvider);
   final languageCode = locale.languageCode;
   return ref
@@ -38,7 +42,7 @@ final userPlanSubscribeFutureProvider = FutureProvider.family<bool, String>((
 });
 
 // Upgrade: my plans provider
-final myPlansProvider = FutureProvider<PlanListResponseModel>((ref) {
+final myPlansProvider = FutureProvider<UserPlanListResponseModel>((ref) {
   final locale = ref.watch(localeProvider);
   final languageCode = locale.languageCode;
   return ref
@@ -55,4 +59,15 @@ final myPlansPaginatedProvider =
         repository: repository,
         languageCode: locale.languageCode,
       );
+    });
+
+// User plan day content provider
+final userPlanDayContentFutureProvider =
+    FutureProvider.family<UserPlanDayDetailResponse, PlanDaysParams>((
+      ref,
+      params,
+    ) {
+      return ref
+          .watch(userPlansRepositoryProvider)
+          .getUserPlanDayContent(params.planId, params.dayNumber);
     });

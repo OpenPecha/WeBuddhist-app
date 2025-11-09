@@ -1,30 +1,44 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/features/plans/data/providers/plan_days_providers.dart';
-import 'package:flutter_pecha/features/plans/models/plans_model.dart';
+import 'package:flutter_pecha/features/plans/data/providers/user_plans_provider.dart';
+import 'package:flutter_pecha/features/plans/models/user/user_plans_model.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'widgets/plan_cover_image.dart';
 import 'widgets/day_carousel.dart';
 import 'widgets/activity_list.dart';
 
 class PlanDetails extends ConsumerStatefulWidget {
-  const PlanDetails({super.key, required this.plan});
-  final PlansModel plan;
+  const PlanDetails({super.key, required this.plan, required this.selectedDay});
+  final UserPlansModel plan;
+  final int selectedDay;
 
   @override
   ConsumerState<PlanDetails> createState() => _PlanDetailsState();
 }
 
 class _PlanDetailsState extends ConsumerState<PlanDetails> {
-  int selectedDay = 1; // Day 1 is selected by default
+  late final int selectedDay; // Day 1 is selected by default
   Set<int> selectedActivities = {}; // No activities selected initially
   int? previousSelectedDay; // Track previous day to reset activities
+
+  @override
+  void initState() {
+    super.initState();
+    selectedDay = widget.selectedDay;
+  }
 
   @override
   Widget build(BuildContext context) {
     final DateTime startDate = DateTime.now();
     final planDays = ref.watch(planDaysByPlanIdFutureProvider(widget.plan.id));
-    final planDayContent = ref.watch(
-      planDayContentFutureProvider(
+    // final planDayContent = ref.watch(
+    //   planDayContentFutureProvider(
+    //     PlanDaysParams(planId: widget.plan.id, dayNumber: selectedDay),
+    //   ),
+    // );
+
+    final userPlanDayContent = ref.watch(
+      userPlanDayContentFutureProvider(
         PlanDaysParams(planId: widget.plan.id, dayNumber: selectedDay),
       ),
     );
@@ -73,10 +87,10 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
                 children: [
                   _buildDayTitle(selectedDay),
                   const SizedBox(height: 16),
-                  planDayContent.when(
+                  userPlanDayContent.when(
                     data:
                         (dayContent) => ActivityList(
-                          tasks: dayContent.tasks ?? [],
+                          tasks: dayContent.tasks,
                           today: selectedDay,
                           totalDays: widget.plan.totalDays,
                           selectedActivities: selectedActivities,
@@ -89,7 +103,6 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
                               }
                             });
                           },
-                          author: widget.plan.author,
                         ),
                     loading:
                         () => const Center(child: CircularProgressIndicator()),

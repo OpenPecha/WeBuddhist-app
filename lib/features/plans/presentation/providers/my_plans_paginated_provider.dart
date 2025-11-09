@@ -1,10 +1,10 @@
 import 'package:flutter_pecha/features/plans/data/repositories/user_plans_repository.dart';
-import 'package:flutter_pecha/features/plans/models/plans_model.dart';
+import 'package:flutter_pecha/features/plans/models/user/user_plans_model.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// State for paginated my plans list
 class MyPlansState {
-  final List<PlansModel> plans;
+  final List<UserPlansModel> plans;
   final bool isLoading;
   final bool isLoadingMore;
   final String? error;
@@ -23,7 +23,7 @@ class MyPlansState {
   });
 
   MyPlansState copyWith({
-    List<PlansModel>? plans,
+    List<UserPlansModel>? plans,
     bool? isLoading,
     bool? isLoadingMore,
     String? error,
@@ -65,10 +65,10 @@ class MyPlansNotifier extends StateNotifier<MyPlansState> {
 
       if (mounted) {
         state = state.copyWith(
-          plans: response.plans,
+          plans: response.userPlans,
           isLoading: false,
-          hasMore: response.plans.length >= _limit,
-          skip: response.plans.length,
+          hasMore: response.userPlans.length >= _limit,
+          skip: response.userPlans.length,
           total: response.total,
           error: null,
         );
@@ -93,10 +93,11 @@ class MyPlansNotifier extends StateNotifier<MyPlansState> {
 
       if (mounted) {
         state = state.copyWith(
-          plans: [...state.plans, ...response.plans],
+          plans: [...state.plans, ...response.userPlans],
           isLoadingMore: false,
-          hasMore: state.plans.length + response.plans.length < response.total,
-          skip: state.skip + response.plans.length,
+          hasMore:
+              state.plans.length + response.userPlans.length < response.total,
+          skip: state.skip + response.userPlans.length,
           total: response.total,
           error: null,
         );

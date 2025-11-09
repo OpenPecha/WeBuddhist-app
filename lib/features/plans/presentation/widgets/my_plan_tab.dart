@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/features/plans/data/providers/user_plans_provider.dart';
+import 'package:flutter_pecha/features/plans/presentation/providers/my_plans_paginated_provider.dart';
+import 'package:flutter_pecha/features/plans/presentation/widgets/user_plan_card.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'plan_card.dart';
 
 class MyPlansTab extends ConsumerStatefulWidget {
   final TabController controller;
@@ -46,7 +47,7 @@ class _MyPlansTabState extends ConsumerState<MyPlansTab> {
     );
   }
 
-  Widget _buildContent(BuildContext context, myPlansState) {
+  Widget _buildContent(BuildContext context, MyPlansState myPlansState) {
     // Initial loading state
     if (myPlansState.isLoading && myPlansState.plans.isEmpty) {
       return const Center(child: CircularProgressIndicator());
@@ -88,11 +89,32 @@ class _MyPlansTabState extends ConsumerState<MyPlansTab> {
           );
         }
 
+        int selectedDay = 1;
+
         final plan = myPlansState.plans[index];
-        return PlanCard(
+        final totalDays = plan.totalDays;
+        final startedAt = plan.startedAt;
+        final today = DateTime.now();
+
+        // startAt will never be before today
+        if (today == startedAt) {
+          selectedDay = 1;
+        } else if (today.isAfter(startedAt)) {
+          final difference = today.difference(startedAt).inDays;
+          if (difference > totalDays) {
+            selectedDay = totalDays;
+          } else {
+            selectedDay = difference + 1;
+          }
+        }
+
+        return UserPlanCard(
           plan: plan,
           onTap: () {
-            context.push('/plans/details', extra: plan);
+            context.push(
+              '/plans/details',
+              extra: {'plan': plan, 'selectedDay': selectedDay},
+            );
           },
         );
       },
