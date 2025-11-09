@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_pecha/features/plans/models/plan_progress_model.dart';
 import 'package:flutter_pecha/features/plans/models/response/plan_list_response_model.dart';
@@ -12,18 +13,37 @@ class UserPlansRemoteDatasource {
   UserPlansRemoteDatasource({required this.client});
 
   // get user plans by user id
-  Future<PlanListResponseModel> getUserPlansByUserId() async {
+  Future<PlanListResponseModel> fetchUserPlans({
+    required String language,
+    int? skip,
+    int? limit,
+  }) async {
     try {
-      final response = await client.get(Uri.parse('$baseUrl/users/me/plans'));
+      final queryParams = <String, String>{'language': language};
+
+      if (skip != null) {
+        queryParams['skip'] = skip.toString();
+      }
+      if (limit != null) {
+        queryParams['limit'] = limit.toString();
+      }
+
+      final response = await client.get(
+        Uri.parse(
+          '$baseUrl/users/me/plans',
+        ).replace(queryParameters: queryParams),
+      );
 
       if (response.statusCode == 200) {
         final decoded = utf8.decode(response.bodyBytes);
         final jsonData = json.decode(decoded);
         return PlanListResponseModel.fromJson(jsonData);
       } else {
+        debugPrint('Failed to load user plans: ${response.statusCode}');
         throw Exception('Failed to load user plans: ${response.statusCode}');
       }
     } catch (e) {
+      debugPrint('Error in fetchUserPlans: $e');
       throw Exception('Failed to load user plans: $e');
     }
   }
