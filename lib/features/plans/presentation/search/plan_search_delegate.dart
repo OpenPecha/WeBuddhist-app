@@ -14,6 +14,21 @@ class PlanSearchDelegate extends SearchDelegate<PlansModel?> {
   String get searchFieldLabel => 'Search plans...';
 
   @override
+  ThemeData appBarTheme(BuildContext context) {
+    final theme = Theme.of(context);
+    return theme.copyWith(
+      textTheme: theme.textTheme.copyWith(
+        titleLarge: theme.textTheme.titleLarge?.copyWith(fontSize: 14),
+        bodyLarge: theme.textTheme.bodyLarge?.copyWith(fontSize: 14),
+        bodyMedium: theme.textTheme.bodyMedium?.copyWith(fontSize: 14),
+      ),
+      inputDecorationTheme: InputDecorationTheme(
+        hintStyle: const TextStyle(fontSize: 14),
+      ),
+    );
+  }
+
+  @override
   List<Widget> buildActions(BuildContext context) {
     return [
       if (query.isNotEmpty)
@@ -187,7 +202,7 @@ class _EmptySearchState extends StatelessWidget {
               title,
               style: Theme.of(
                 context,
-              ).textTheme.titleLarge?.copyWith(color: Colors.grey[700]),
+              ).textTheme.titleMedium?.copyWith(color: Colors.grey[700]),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 8),
