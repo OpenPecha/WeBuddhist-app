@@ -28,6 +28,7 @@ class StoryPresenter extends StatefulWidget {
 class _StoryPresenterState extends State<StoryPresenter> {
   late final FlutterStoryController flutterStoryController;
   late final List<StoryItem> storyItems;
+  bool _isDisposing = false;
 
   @override
   void initState() {
@@ -38,12 +39,14 @@ class _StoryPresenterState extends State<StoryPresenter> {
 
   @override
   void dispose() {
-    flutterStoryController.dispose();
+    _isDisposing = true;
+    // Let the FlutterStoryPresenter package handle controller disposal
+    // The package manages its own controller lifecycle
     super.dispose();
   }
 
   void _closeStory() {
-    if (!mounted) return;
+    if (!mounted || _isDisposing) return;
     while (Navigator.of(context, rootNavigator: true).canPop()) {
       Navigator.of(context, rootNavigator: true).pop();
     }
@@ -56,27 +59,33 @@ class _StoryPresenterState extends State<StoryPresenter> {
 
   @override
   Widget build(BuildContext context) {
+    if (_isDisposing) {
+      return const SizedBox.shrink();
+    }
+
     return Stack(
       children: [
         FlutterStoryPresenter(
           flutterStoryController: flutterStoryController,
           items: storyItems,
           onCompleted: () async {
+            if (_isDisposing) return;
             while (Navigator.of(context, rootNavigator: true).canPop()) {
               Navigator.of(context, rootNavigator: true).pop();
             }
             WidgetsBinding.instance.addPostFrameCallback((_) {
-              if (mounted) {
+              if (mounted && !_isDisposing) {
                 context.go(RouteConfig.home);
               }
             });
           },
           onSlideDown: (details) {
+            if (_isDisposing) return;
             while (Navigator.of(context, rootNavigator: true).canPop()) {
               Navigator.of(context, rootNavigator: true).pop();
             }
             WidgetsBinding.instance.addPostFrameCallback((_) {
-              if (mounted) {
+              if (mounted && !_isDisposing) {
                 context.go(RouteConfig.home);
               }
             });
