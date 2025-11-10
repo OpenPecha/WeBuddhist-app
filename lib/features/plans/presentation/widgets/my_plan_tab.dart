@@ -71,9 +71,10 @@ class _MyPlansTabState extends ConsumerState<MyPlansTab> {
     }
 
     // Plans list with pagination
-    return ListView.builder(
+    return ListView.separated(
       controller: _scrollController,
-      padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
+      separatorBuilder: (context, index) => const SizedBox(height: 16.0),
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
       itemCount: myPlansState.plans.length + (myPlansState.hasMore ? 1 : 0),
       itemBuilder: (context, index) {
         // Loading indicator at bottom

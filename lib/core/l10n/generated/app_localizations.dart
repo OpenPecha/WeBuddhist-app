@@ -453,6 +453,96 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Sign in'**
   String get common_sign_in;
+
+  /// No description provided for @recitations_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Recitations'**
+  String get recitations_title;
+
+  /// No description provided for @recitations_my_recitations.
+  ///
+  /// In en, this message translates to:
+  /// **'My Recitations'**
+  String get recitations_my_recitations;
+
+  /// No description provided for @recitations_search.
+  ///
+  /// In en, this message translates to:
+  /// **'Search'**
+  String get recitations_search;
+
+  /// No description provided for @recitations_saved.
+  ///
+  /// In en, this message translates to:
+  /// **'Recitation saved'**
+  String get recitations_saved;
+
+  /// No description provided for @recitations_unsaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Recitation removed'**
+  String get recitations_unsaved;
+
+  /// No description provided for @recitations_no_content.
+  ///
+  /// In en, this message translates to:
+  /// **'No recitations available'**
+  String get recitations_no_content;
+
+  /// No description provided for @recitations_no_saved.
+  ///
+  /// In en, this message translates to:
+  /// **'No saved recitations'**
+  String get recitations_no_saved;
+
+  /// No description provided for @recitations_save_prompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Save recitations to access them here'**
+  String get recitations_save_prompt;
+
+  /// No description provided for @recitations_login_required.
+  ///
+  /// In en, this message translates to:
+  /// **'Login Required'**
+  String get recitations_login_required;
+
+  /// No description provided for @recitations_login_prompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Please login to view your saved recitations'**
+  String get recitations_login_prompt;
+
+  /// No description provided for @recitations_save.
+  ///
+  /// In en, this message translates to:
+  /// **'Save Recitation'**
+  String get recitations_save;
+
+  /// No description provided for @recitations_unsave.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove from Saved'**
+  String get recitations_unsave;
+
+  /// No description provided for @recitations_share.
+  ///
+  /// In en, this message translates to:
+  /// **'Share'**
+  String get recitations_share;
+
+  /// No description provided for @recitations_phonetic.
+  ///
+  /// In en, this message translates to:
+  /// **'Phonetic'**
+  String get recitations_phonetic;
+
+  /// No description provided for @recitations_translation.
+  ///
+  /// In en, this message translates to:
+  /// **'Translation'**
+  String get recitations_translation;
 }
 
 class _AppLocalizationsDelegate

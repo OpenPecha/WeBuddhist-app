@@ -43,5 +43,20 @@
   "language": "སྐད་ཡིག",
   "text_noContent": "No texts available in the selected language",
   "text_switchToTibetan": "Switch to Tibetan",
-  "common_sign_in": "ནང་འཛུལ་གྱིས།"
+  "common_sign_in": "ནང་འཛུལ་གྱིས།",
+  "recitations_title": "བཟླས་པ།",
+  "recitations_my_recitations": "ངའི་བཟླས་པ།",
+  "recitations_search": "འཚོལ་ས།",
+  "recitations_saved": "བཟླས་པ་ཉར་ཟིན།",
+  "recitations_unsaved": "བཟླས་པ་བསུབས།",
+  "recitations_no_content": "བཟླས་པ་མི་འདུག",
+  "recitations_no_saved": "ཉར་ཟིན་པའི་བཟླས་པ་མི་འདུག",
+  "recitations_save_prompt": "འདིར་རྙེད་པའི་བཟླས་པ་ཉར་ཟིན།",
+  "recitations_login_required": "ནང་འཛུལ་དགོས།",
+  "recitations_login_prompt": "ཉར་ཟིན་པའི་བཟླས་པ་མཐོང་བའི་དོན་དུ་ནང་འཛུལ་གྱིས།",
+  "recitations_save": "བཟླས་པ་ཉར་བ།",
+  "recitations_unsave": "ཉར་ཟིན་ནས་བསུབ་པ།",
+  "recitations_share": "མཉམ་སྤྱོད།",
+  "recitations_phonetic": "སྒྲ་སྦྱོར།",
+  "recitations_translation": "བསྒྱུར་བ།"
 }

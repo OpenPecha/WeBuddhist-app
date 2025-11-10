@@ -190,4 +190,49 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get common_sign_in => 'Sign in';
+
+  @override
+  String get recitations_title => '持誦';
+
+  @override
+  String get recitations_my_recitations => '我的持誦';
+
+  @override
+  String get recitations_search => '搜索';
+
+  @override
+  String get recitations_saved => '已保存持誦';
+
+  @override
+  String get recitations_unsaved => '已移除持誦';
+
+  @override
+  String get recitations_no_content => '沒有可用的持誦';
+
+  @override
+  String get recitations_no_saved => '沒有已保存的持誦';
+
+  @override
+  String get recitations_save_prompt => '保存持誦以便在此訪問';
+
+  @override
+  String get recitations_login_required => '需要登錄';
+
+  @override
+  String get recitations_login_prompt => '請登錄以查看您保存的持誦';
+
+  @override
+  String get recitations_save => '保存持誦';
+
+  @override
+  String get recitations_unsave => '從已保存中移除';
+
+  @override
+  String get recitations_share => '分享';
+
+  @override
+  String get recitations_phonetic => '讀音';
+
+  @override
+  String get recitations_translation => '翻譯';
 }
