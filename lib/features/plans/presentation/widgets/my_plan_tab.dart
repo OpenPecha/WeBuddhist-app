@@ -101,7 +101,7 @@ class _MyPlansTabState extends ConsumerState<MyPlansTab> {
           selectedDay = 1;
         } else if (today.isAfter(startedAt)) {
           final difference = today.difference(startedAt).inDays + 1;
-          if (difference > totalDays) {
+          if (difference >= totalDays) {
             selectedDay = totalDays;
           } else {
             selectedDay = difference + 1;

@@ -7,8 +7,7 @@ class ActivityList extends StatelessWidget {
   final List<UserTasksDto> tasks;
   final int today;
   final int totalDays;
-  final Set<int> selectedActivities; // Changed from single int to Set<int>
-  final Function(int) onActivityToggled; // Changed from onActivitySelected
+  final Function(String taskId) onActivityToggled;
   final AuthorDtoModel? author;
 
   const ActivityList({
@@ -16,7 +15,6 @@ class ActivityList extends StatelessWidget {
     required this.tasks,
     required this.today,
     required this.totalDays,
-    required this.selectedActivities,
     required this.onActivityToggled,
     this.author,
   });
@@ -28,14 +26,15 @@ class ActivityList extends StatelessWidget {
       physics: const NeverScrollableScrollPhysics(),
       itemCount: tasks.length,
       itemBuilder: (context, index) {
-        final isSelected = selectedActivities.contains(index);
         final task = tasks[index];
+        final isCompleted = task.isCompleted;
+        final taskId = task.id;
         return Container(
           margin: const EdgeInsets.symmetric(vertical: 10),
           child: Row(
             children: [
               GestureDetector(
-                onTap: () => onActivityToggled(index),
+                onTap: () => onActivityToggled(taskId),
                 child: Container(
                   width: 24,
                   height: 24,
@@ -43,18 +42,18 @@ class ActivityList extends StatelessWidget {
                     shape: BoxShape.circle,
                     border: Border.all(
                       color:
-                          isSelected
+                          isCompleted
                               ? const Color(0xFF1E3A8A)
                               : Theme.of(context).iconTheme.color!,
                       width: 1,
                     ),
                     color:
-                        isSelected
+                        isCompleted
                             ? const Color(0xFF1E3A8A)
                             : Colors.transparent,
                   ),
                   child:
-                      isSelected
+                      isCompleted
                           ? const Icon(
                             Icons.check,
                             size: 16,
@@ -98,28 +97,9 @@ class ActivityList extends StatelessWidget {
   void handleActivityTap(BuildContext context, UserTasksDto task) {
     if (task.subTasks.isNotEmpty) {
       context.push(
-        '/home/stories',
-        extra: {'subtasks': task.subTasks, 'author': author},
+        '/home/plan-stories-presenter',
+        extra: {'subtasks': task.subTasks},
       );
-      // switch (task.subtasks[0].contentType) {
-      //   case "VIDEO":
-      //     context.push(
-      //       '/home/video_player',
-      //       extra: {'videoUrl': task.subtasks[0].content, 'title': task.title},
-      //     );
-      //     break;
-      //   case "TEXT":
-      //     context.push('/home/verse_text', extra: task.subtasks[0].content);
-      //     break;
-      //   case "IMAGE":
-      //     context.push(
-      //       '/home/view_illustration',
-      //       extra: {'imageUrl': task.subtasks[0].content, 'title': task.title},
-      //     );
-      //     break;
-      //   default:
-      //     break;
-      // }
     }
   }
 }

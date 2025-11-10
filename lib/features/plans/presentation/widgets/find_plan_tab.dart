@@ -5,7 +5,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 class FindPlansTab extends ConsumerStatefulWidget {
-  const FindPlansTab({super.key});
+  final TabController controller;
+  const FindPlansTab({super.key, required this.controller});
 
   @override
   ConsumerState<FindPlansTab> createState() => _FindPlansTabState();
@@ -88,10 +89,20 @@ class _FindPlansTabState extends ConsumerState<FindPlansTab> {
         }
 
         final plan = plansState.plans[index];
+        final startDate = DateTime.now();
         return PlanCard(
           plan: plan,
-          onTap: () {
-            context.push('/plans/info', extra: plan);
+          onTap: () async {
+            final result = await context.push('/plans/info', extra: plan);
+            //  Handle the result from plan_info screen
+            if (result == true && context.mounted) {
+              // change tab to my plans
+              widget.controller.animateTo(0);
+              context.push(
+                '/plans/details',
+                extra: {'plan': plan, 'selectedDay': 1, 'startDate': startDate},
+              );
+            }
           },
         );
       },

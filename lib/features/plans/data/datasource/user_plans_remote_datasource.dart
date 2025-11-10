@@ -65,6 +65,7 @@ class UserPlansRemoteDatasource {
         return false;
       }
     } catch (e) {
+      debugPrint('Failed to enroll user to plan: $e');
       throw Exception('Failed to enroll user to plan: $e');
     }
   }
@@ -111,7 +112,62 @@ class UserPlansRemoteDatasource {
         );
       }
     } catch (e) {
+      debugPrint('Failed to load user plan day content: $e');
       throw Exception('Failed to load user plan day content: $e');
+    }
+  }
+
+  // sub tasks completion post request
+  Future<bool> completeSubTask(String subTaskId) async {
+    try {
+      final uri = Uri.parse('$baseUrl/users/me/sub-tasks/$subTaskId/complete');
+      final response = await client.post(
+        uri,
+        headers: {'Content-Type': 'application/json'},
+      );
+      if (response.statusCode == 204) {
+        return true;
+      } else {
+        return false;
+      }
+    } catch (e) {
+      debugPrint('Failed to complete sub tasks: $e');
+      throw Exception('Failed to complete sub tasks: $e');
+    }
+  }
+
+  // task completion post request
+  Future<bool> completeTask(String taskId) async {
+    try {
+      final uri = Uri.parse('$baseUrl/users/me/tasks/$taskId/completion');
+      final response = await client.post(
+        uri,
+        headers: {'Content-Type': 'application/json'},
+      );
+      if (response.statusCode == 204) {
+        return true;
+      } else {
+        return false;
+      }
+    } catch (e) {
+      debugPrint('Failed to complete task: $e');
+      throw Exception('Failed to complete task: $e');
+    }
+  }
+
+  // delete task request
+  Future<bool> deleteTask(String taskId) async {
+    try {
+      final uri = Uri.parse('$baseUrl/users/me/task/$taskId');
+      final response = await client.delete(uri);
+      if (response.statusCode == 204) {
+        return true;
+      } else {
+        return false;
+      }
+    } catch (e) {
+      debugPrint('Failed to delete task: $e');
+      throw Exception('Failed to delete task: $e');
     }
   }
 }

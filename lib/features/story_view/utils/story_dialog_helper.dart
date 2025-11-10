@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_pecha/features/plans/models/plan_subtasks_model.dart';
-import 'package:flutter_pecha/features/story_view/presentation/story_presenter.dart';
+import 'package:flutter_pecha/features/plans/models/user/user_subtasks_dto.dart';
+import 'package:flutter_pecha/features/story_view/presentation/screens/story_presenter.dart';
 import 'package:flutter_pecha/features/story_view/utils/helper_functions.dart';
 
 void showStoryDialog({
   required BuildContext context,
-  required List<PlanSubtasksModel> subtasks,
+  required List<UserSubtasksDto> subtasks,
   dynamic author,
   Map<String, dynamic>? nextCard,
 }) {

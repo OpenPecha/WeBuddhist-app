@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_pecha/features/plans/models/plan_subtasks_model.dart';
 import 'package:flutter_pecha/features/plans/models/user/user_subtasks_dto.dart';
 import 'package:flutter_pecha/features/story_view/presentation/widgets/story_presenter/custom_audio_story.dart';
 import 'package:flutter_pecha/features/story_view/presentation/widgets/story_presenter/custom_video_story.dart';
@@ -67,7 +66,7 @@ List<StoryItem> createFlutterStoryItems(
       case "IMAGE":
         storyItems.add(
           StoryItem(
-            url: subtask.content!,
+            url: subtask.content,
             storyItemType: StoryItemType.image,
             duration: durationForImage,
             storyItemSource: StoryItemSource.network,
@@ -83,7 +82,7 @@ List<StoryItem> createFlutterStoryItems(
             storyItemType: StoryItemType.custom,
             duration: durationForAudio,
             audioConfig: StoryViewAudioConfig(
-              audioPath: subtask.content!,
+              audioPath: subtask.content,
               source: StoryItemSource.network,
               onAudioStart: (audioPlayer) {
                 // Audio playback is handled by the package
