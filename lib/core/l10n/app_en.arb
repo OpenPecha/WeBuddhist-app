@@ -58,5 +58,20 @@
   "manageDailyReminders": "Manage daily reminders",
   "text_noContent": "No texts available in the selected language",
   "text_switchToTibetan": "Switch to Tibetan",
-  "common_sign_in": "Sign in"
+  "common_sign_in": "Sign in",
+  "recitations_title": "Recitations",
+  "recitations_my_recitations": "My Recitations",
+  "recitations_search": "Search",
+  "recitations_saved": "Recitation saved",
+  "recitations_unsaved": "Recitation removed",
+  "recitations_no_content": "No recitations available",
+  "recitations_no_saved": "No saved recitations",
+  "recitations_save_prompt": "Save recitations to access them here",
+  "recitations_login_required": "Login Required",
+  "recitations_login_prompt": "Please login to view your saved recitations",
+  "recitations_save": "Save Recitation",
+  "recitations_unsave": "Remove from Saved",
+  "recitations_share": "Share",
+  "recitations_phonetic": "Phonetic",
+  "recitations_translation": "Translation"
 }

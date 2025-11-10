@@ -190,4 +190,50 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get common_sign_in => 'Sign in';
+
+  @override
+  String get recitations_title => 'Recitations';
+
+  @override
+  String get recitations_my_recitations => 'My Recitations';
+
+  @override
+  String get recitations_search => 'Search';
+
+  @override
+  String get recitations_saved => 'Recitation saved';
+
+  @override
+  String get recitations_unsaved => 'Recitation removed';
+
+  @override
+  String get recitations_no_content => 'No recitations available';
+
+  @override
+  String get recitations_no_saved => 'No saved recitations';
+
+  @override
+  String get recitations_save_prompt => 'Save recitations to access them here';
+
+  @override
+  String get recitations_login_required => 'Login Required';
+
+  @override
+  String get recitations_login_prompt =>
+      'Please login to view your saved recitations';
+
+  @override
+  String get recitations_save => 'Save Recitation';
+
+  @override
+  String get recitations_unsave => 'Remove from Saved';
+
+  @override
+  String get recitations_share => 'Share';
+
+  @override
+  String get recitations_phonetic => 'Phonetic';
+
+  @override
+  String get recitations_translation => 'Translation';
 }

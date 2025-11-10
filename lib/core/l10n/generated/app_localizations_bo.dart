@@ -190,4 +190,50 @@ class AppLocalizationsBo extends AppLocalizations {
 
   @override
   String get common_sign_in => 'ནང་འཛུལ་གྱིས།';
+
+  @override
+  String get recitations_title => 'བཟླས་པ།';
+
+  @override
+  String get recitations_my_recitations => 'ངའི་བཟླས་པ།';
+
+  @override
+  String get recitations_search => 'འཚོལ་ས།';
+
+  @override
+  String get recitations_saved => 'བཟླས་པ་ཉར་ཟིན།';
+
+  @override
+  String get recitations_unsaved => 'བཟླས་པ་བསུབས།';
+
+  @override
+  String get recitations_no_content => 'བཟླས་པ་མི་འདུག';
+
+  @override
+  String get recitations_no_saved => 'ཉར་ཟིན་པའི་བཟླས་པ་མི་འདུག';
+
+  @override
+  String get recitations_save_prompt => 'འདིར་རྙེད་པའི་བཟླས་པ་ཉར་ཟིན།';
+
+  @override
+  String get recitations_login_required => 'ནང་འཛུལ་དགོས།';
+
+  @override
+  String get recitations_login_prompt =>
+      'ཉར་ཟིན་པའི་བཟླས་པ་མཐོང་བའི་དོན་དུ་ནང་འཛུལ་གྱིས།';
+
+  @override
+  String get recitations_save => 'བཟླས་པ་ཉར་བ།';
+
+  @override
+  String get recitations_unsave => 'ཉར་ཟིན་ནས་བསུབ་པ།';
+
+  @override
+  String get recitations_share => 'མཉམ་སྤྱོད།';
+
+  @override
+  String get recitations_phonetic => 'སྒྲ་སྦྱོར།';
+
+  @override
+  String get recitations_translation => 'བསྒྱུར་བ།';
 }

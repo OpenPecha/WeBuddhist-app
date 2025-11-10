@@ -42,6 +42,19 @@ class _PlanStoryPresenterState extends ConsumerState<PlanStoryPresenter> {
 
     // CRITICAL FIX: Build index mapping
     _storyIndexToSubtaskId = _buildIndexMapping();
+
+    // Pre-populate completed Set from initial data
+    _initializeCompletedSubtaskIds();
+  }
+
+  /// Pre-populate completed subtask IDs from initial data
+  /// This prevents unnecessary timer creation for already-completed subtasks
+  void _initializeCompletedSubtaskIds() {
+    for (final subtask in widget.subtasks) {
+      if (subtask.isCompleted) {
+        _completedSubtaskIds.add(subtask.id);
+      }
+    }
   }
 
   /// Maps story item index to subtask ID
@@ -70,34 +83,48 @@ class _PlanStoryPresenterState extends ConsumerState<PlanStoryPresenter> {
     // Cancel previous debounce timer
     _debounceTimer?.cancel();
 
+    // Get actual subtask ID from mapping
+    final subtaskId = _storyIndexToSubtaskId[storyIndex];
+    if (subtaskId == null) {
+      debugPrint('Warning: No subtask mapping for story index $storyIndex');
+      return;
+    }
+
+    // OPTIMIZATION: Check if already completed BEFORE creating timer
+    // This prevents unnecessary timer creation and API calls
+    if (_completedSubtaskIds.contains(subtaskId) ||
+        _pendingSubtaskIds.contains(subtaskId)) {
+      // Already completed or in progress, no need to track
+      _lastTrackedIndex = storyIndex;
+      return;
+    }
+
+    // Find subtask to check isCompleted flag
+    final subtask = widget.subtasks.firstWhere(
+      (s) => s.id == subtaskId,
+      orElse: () => widget.subtasks.first, // Fallback
+    );
+
+    // OPTIMIZATION: Check isCompleted flag BEFORE creating timer
+    if (subtask.isCompleted) {
+      // Already completed on server, add to Set and skip timer
+      _completedSubtaskIds.add(subtaskId);
+      _lastTrackedIndex = storyIndex;
+      return;
+    }
+
+    // Only create timer if subtask needs tracking
     // Set new debounce timer (300ms to prevent excessive API calls)
     _debounceTimer = Timer(const Duration(milliseconds: 300), () {
       // Double check not disposing (timer might fire after disposal starts)
       if (_isDisposing || !mounted) return;
 
-      // Get actual subtask ID from mapping
-      final subtaskId = _storyIndexToSubtaskId[storyIndex];
-
-      if (subtaskId == null) {
-        debugPrint('Warning: No subtask mapping for story index $storyIndex');
-        return;
-      }
-
-      // Check if already tracked or in progress
+      // Re-check conditions (might have changed during debounce)
       if (storyIndex != _lastTrackedIndex &&
           !_completedSubtaskIds.contains(subtaskId) &&
           !_pendingSubtaskIds.contains(subtaskId)) {
         _lastTrackedIndex = storyIndex;
-
-        // Find subtask to check isCompleted flag
-        final subtask = widget.subtasks.firstWhere(
-          (s) => s.id == subtaskId,
-          orElse: () => widget.subtasks.first, // Fallback
-        );
-
-        if (!subtask.isCompleted) {
-          _markSubtaskComplete(subtaskId);
-        }
+        _markSubtaskComplete(subtaskId);
       }
     });
   }
@@ -183,22 +210,16 @@ class _PlanStoryPresenterState extends ConsumerState<PlanStoryPresenter> {
         // if (widget.author != null) StoryAuthorAvatar(author: widget.author),
         // Close button in top-left corner
         Positioned(
-          top: MediaQuery.of(context).padding.top + 16,
-          left: 16,
+          top: 24,
+          // left: 16,
+          right: 16,
           child: SafeArea(
             child: Material(
               color: Colors.transparent,
               child: InkWell(
                 onTap: _closeStory,
                 borderRadius: BorderRadius.circular(24),
-                child: Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Colors.black.withValues(alpha: 0.5),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(Icons.close, color: Colors.white, size: 24),
-                ),
+                child: const Icon(Icons.close, color: Colors.white, size: 30),
               ),
             ),
           ),
