@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/widgets/cached_network_image_widget.dart';
 import 'package:flutter_pecha/features/plans/data/providers/author_providers.dart';
@@ -282,48 +283,41 @@ class AuthorDetailScreen extends ConsumerWidget {
   Widget _buildPlanCard(BuildContext context, PlansModel plan) {
     return GestureDetector(
       onTap: () {
-        context.push(
-          '/plans/info',
-          extra: {'plan': plan, 'author': plan.author},
-        );
+        // context.push(
+        //   '/plans/info',
+        //   extra: {'plan': plan, 'author': plan.author},
+        // );
       },
       child: Container(
         width: 120,
         margin: const EdgeInsets.only(right: 12),
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            ClipRRect(
+            CachedNetworkImageWidget(
+              imageUrl: plan.imageUrl ?? '',
+              width: 120,
+              height: 90,
+              fit: BoxFit.cover,
               borderRadius: BorderRadius.circular(12),
-              child: Image.network(
-                plan.imageUrl ?? '',
-                width: 120,
-                height: 90,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) {
-                  return Container(
-                    width: 120,
-                    height: 90,
-                    decoration: BoxDecoration(
-                      color: Colors.grey[300],
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: const Icon(Icons.image_not_supported),
-                  );
-                },
-              ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 4),
             Text(
               '${plan.totalDays} days',
-              style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w500),
+              style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w500),
             ),
             const SizedBox(height: 2),
-            Text(
-              plan.title,
-              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
+            Flexible(
+              child: Text(
+                plan.title,
+                style: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
           ],
         ),
