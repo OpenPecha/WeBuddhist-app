@@ -2,15 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/widgets/cached_network_image_widget.dart';
 import 'package:flutter_pecha/features/auth/application/auth_notifier.dart';
 import 'package:flutter_pecha/features/plans/data/providers/user_plans_provider.dart';
+import 'package:flutter_pecha/features/plans/data/utils/plan_utils.dart';
 import 'package:flutter_pecha/features/plans/models/author/author_dto_model.dart';
 import 'package:flutter_pecha/features/plans/models/plans_model.dart';
 import 'package:flutter_pecha/features/plans/models/response/user_plan_list_response_model.dart';
+import 'package:flutter_pecha/features/plans/models/user/user_plans_model.dart';
 import 'package:flutter_pecha/features/plans/presentation/author_detail_screen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 class PlanInfo extends ConsumerStatefulWidget {
-  // Changed to StatefulWidget
   const PlanInfo({super.key, required this.plan, required this.author});
   final PlansModel plan;
   final AuthorDtoModel author;
@@ -51,11 +52,16 @@ class _PlanInfoState extends ConsumerState<PlanInfo> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildPlanImage(context),
-            SizedBox(height: 20),
+            SizedBox(height: 16),
             _buildPlanTitleDays(context),
-            SizedBox(height: 20),
-            _buildActionButtons(context, subscribedPlansIds, isGuest),
-            SizedBox(height: 20),
+            SizedBox(height: 16),
+            _buildActionButtons(
+              context,
+              subscribedPlansIds,
+              isGuest,
+              subscribedPlans,
+            ),
+            SizedBox(height: 16),
             _buildPlanDescription(context),
           ],
         ),
@@ -142,44 +148,84 @@ class _PlanInfoState extends ConsumerState<PlanInfo> {
     BuildContext context,
     List<String> subscribedPlansIds,
     bool isGuest,
+    AsyncValue<UserPlanListResponseModel> subscribedPlans,
   ) {
     final isSubscribed = subscribedPlansIds.contains(widget.plan.id);
+    final buttonText = _getButtonText(isGuest, isSubscribed);
+    final userPlan = _findUserPlan(subscribedPlans);
+
     return SizedBox(
       width: double.infinity,
       child: FilledButton(
-        onPressed:
-            () =>
-                isGuest
-                    ? ref.read(authProvider.notifier).logout()
-                    : isSubscribed
-                    ? handleContinuePlan()
-                    : handleStartPlan(),
+        onPressed: () => _handleButtonAction(isGuest, isSubscribed, userPlan),
         style: FilledButton.styleFrom(
-          padding: EdgeInsets.symmetric(vertical: 12),
           backgroundColor: Colors.black,
           foregroundColor: Colors.white,
           disabledBackgroundColor: Colors.grey[300],
           disabledForegroundColor: Colors.grey[600],
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(20),
           ),
         ),
         child: Text(
-          isGuest
-              ? 'Login to Continue'
-              : isSubscribed
-              ? 'Continue Plan'
-              : 'Start Plan',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          buttonText,
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
         ),
       ),
     );
   }
 
-  Future<void> handleContinuePlan() async {
-    if (mounted) {
-      context.push('/plans/details', extra: widget.plan);
+  UserPlansModel? _findUserPlan(
+    AsyncValue<UserPlanListResponseModel> subscribedPlans,
+  ) {
+    final userPlans = subscribedPlans.valueOrNull?.userPlans;
+    if (userPlans == null) return null;
+
+    final matchingPlans = userPlans.where(
+      (userPlan) => userPlan.id == widget.plan.id,
+    );
+    return matchingPlans.isNotEmpty ? matchingPlans.first : null;
+  }
+
+  String _getButtonText(bool isGuest, bool isSubscribed) {
+    if (isGuest) return 'Login to Continue';
+    if (isSubscribed) return 'Continue Plan';
+    return 'Start Plan';
+  }
+
+  Future<void> _handleButtonAction(
+    bool isGuest,
+    bool isSubscribed,
+    UserPlansModel? userPlan,
+  ) async {
+    if (isGuest) {
+      context.push('/login');
+      return;
     }
+
+    if (isSubscribed && userPlan != null) {
+      await handleContinuePlan(userPlan);
+    } else {
+      await handleStartPlan();
+    }
+  }
+
+  Future<void> handleContinuePlan(UserPlansModel userPlan) async {
+    if (!mounted) return;
+
+    final selectedDay = PlanUtils.calculateSelectedDay(
+      userPlan.startedAt,
+      userPlan.totalDays,
+    );
+
+    context.push(
+      '/plans/details',
+      extra: {
+        'plan': userPlan,
+        'selectedDay': selectedDay,
+        'startDate': userPlan.startedAt,
+      },
+    );
   }
 
   // Updated handleStartPlan function
@@ -242,16 +288,6 @@ class _PlanInfoState extends ConsumerState<PlanInfo> {
   }
 
   Widget _buildPlanDescription(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Description',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 8),
-        Text(widget.plan.description, style: const TextStyle(fontSize: 16)),
-      ],
-    );
+    return Text(widget.plan.description, style: const TextStyle(fontSize: 16));
   }
 }
