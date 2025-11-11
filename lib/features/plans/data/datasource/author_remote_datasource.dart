@@ -39,9 +39,14 @@ class AuthorRemoteDatasource {
         headers: {'Content-Type': 'application/json'},
       );
       if (response.statusCode == 200) {
-        final jsonData = json.decode(response.body);
-        return jsonData.map((json) => PlansModel.fromJson(json)).toList();
+        final decoded = utf8.decode(response.bodyBytes);
+        final responseData = json.decode(decoded);
+        final List<dynamic> jsonData = responseData['plans'] as List<dynamic>;
+        return jsonData
+            .map((json) => PlansModel.fromJson(json as Map<String, dynamic>))
+            .toList();
       } else {
+        debugPrint('Failed to load plans: ${response.statusCode}');
         throw Exception('Failed to load plans: ${response.statusCode}');
       }
     } catch (e) {

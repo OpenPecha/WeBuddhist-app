@@ -18,8 +18,9 @@ class PlanCard extends StatelessWidget {
         onTap: onTap,
         borderRadius: BorderRadius.circular(12),
         child: Padding(
-          padding: const EdgeInsets.all(12.0),
+          padding: const EdgeInsets.all(8.0),
           child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildPlanImage(plan),
               const SizedBox(width: 24),
@@ -47,14 +48,14 @@ Widget _buildPlanInfo(PlansModel plan) {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-      Text(
-        '${plan.totalDays} Days',
-        style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
-      ),
       const SizedBox(height: 4),
       Text(
+        '${plan.totalDays} Days',
+        style: TextStyle(fontSize: 10, fontWeight: FontWeight.w500),
+      ),
+      Text(
         plan.title,
-        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
         maxLines: 2,
         overflow: TextOverflow.ellipsis,
       ),

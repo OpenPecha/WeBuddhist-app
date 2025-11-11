@@ -57,23 +57,28 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
               imageUrl: widget.plan.imageUrl ?? '',
               heroTag: widget.plan.title,
             ),
-            DayCarousel(
-              days: planDays.value ?? [],
-              selectedDay: selectedDay,
-              startDate: widget.startDate,
-              onDaySelected: (day) {
-                setState(() {
-                  selectedDay = day;
-                });
-              },
+            planDays.when(
+              data:
+                  (days) => DayCarousel(
+                    days: days,
+                    selectedDay: selectedDay,
+                    startDate: widget.startDate,
+                    onDaySelected: (day) {
+                      setState(() {
+                        selectedDay = day;
+                      });
+                    },
+                  ),
+              loading: () => _buildDayCarouselLoadingPlaceholder(),
+              error: (error, stackTrace) => const SizedBox.shrink(),
             ),
             Container(
-              margin: const EdgeInsets.all(20),
+              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _buildDayTitle(selectedDay),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 8),
                   userPlanDayContent.when(
                     data:
                         (dayContent) => ActivityList(
@@ -119,6 +124,49 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
     return Text(
       "Day $day of ${widget.plan.totalDays}",
       style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+    );
+  }
+
+  Widget _buildDayCarouselLoadingPlaceholder() {
+    return Container(
+      height: 80,
+      margin: const EdgeInsets.symmetric(horizontal: 12),
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        itemCount: 5,
+        itemBuilder: (context, index) {
+          return Container(
+            width: 70,
+            margin: const EdgeInsets.symmetric(horizontal: 4),
+            decoration: BoxDecoration(
+              color: Theme.of(context).cardColor,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  width: 24,
+                  height: 24,
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade300,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Container(
+                  width: 40,
+                  height: 10,
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade300,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
     );
   }
 

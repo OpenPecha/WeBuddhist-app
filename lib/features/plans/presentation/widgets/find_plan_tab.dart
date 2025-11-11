@@ -103,10 +103,10 @@ class _FindPlansTabState extends ConsumerState<FindPlansTab> {
             if (result == true && context.mounted) {
               // change tab to my plans
               widget.controller.animateTo(0);
-              context.push(
-                '/plans/details',
-                extra: {'plan': plan, 'selectedDay': 1, 'startDate': startDate},
-              );
+              // context.push(
+              //   '/plans/details',
+              //   extra: {'plan': plan, 'selectedDay': 1, 'startDate': startDate},
+              // );
             }
           },
         );

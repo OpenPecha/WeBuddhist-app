@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/features/plans/data/providers/user_plans_provider.dart';
+import 'package:flutter_pecha/features/plans/data/utils/plan_utils.dart';
 import 'package:flutter_pecha/features/plans/presentation/providers/my_plans_paginated_provider.dart';
 import 'package:flutter_pecha/features/plans/presentation/widgets/user_plan_card.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -90,24 +91,11 @@ class _MyPlansTabState extends ConsumerState<MyPlansTab> {
           );
         }
 
-        int selectedDay = 1;
-
         final plan = myPlansState.plans[index];
-        final totalDays = plan.totalDays;
-        final startedAt = plan.startedAt;
-        final today = DateTime.now();
-
-        // startAt will never be before today
-        if (today == startedAt) {
-          selectedDay = 1;
-        } else if (today.isAfter(startedAt)) {
-          final difference = today.difference(startedAt).inDays + 1;
-          if (difference >= totalDays) {
-            selectedDay = totalDays;
-          } else {
-            selectedDay = difference + 1;
-          }
-        }
+        final selectedDay = PlanUtils.calculateSelectedDay(
+          plan.startedAt,
+          plan.totalDays,
+        );
 
         return UserPlanCard(
           plan: plan,
@@ -117,7 +105,7 @@ class _MyPlansTabState extends ConsumerState<MyPlansTab> {
               extra: {
                 'plan': plan,
                 'selectedDay': selectedDay,
-                'startDate': startedAt,
+                'startDate': plan.startedAt,
               },
             );
           },

@@ -17,7 +17,7 @@ class PlanCoverImage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      margin: const EdgeInsets.only(left: 20, right: 20, bottom: 16, top: 16),
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(borderRadius: BorderRadius.circular(12)),
       child: CachedNetworkImageWidget(
         imageUrl: imageUrl,

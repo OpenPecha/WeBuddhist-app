@@ -21,11 +21,11 @@ class DayCarousel extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       height: 80,
-      margin: const EdgeInsets.symmetric(horizontal: 16),
+      margin: const EdgeInsets.symmetric(horizontal: 12),
       child: CarouselSlider.builder(
         options: CarouselOptions(
           aspectRatio: 1,
-          height: 80,
+          height: 60,
           viewportFraction: 0.2, // Show ~4 items at once (60px + margins)
           enableInfiniteScroll: false,
           scrollPhysics: const ClampingScrollPhysics(), // Smoother scroll
@@ -45,17 +45,17 @@ class DayCarousel extends StatelessWidget {
           return GestureDetector(
             onTap: () => onDaySelected(day.dayNumber),
             child: Container(
-              width: 60,
+              width: 70,
               margin: const EdgeInsets.symmetric(horizontal: 4),
               decoration: BoxDecoration(
-                color: Theme.of(context).scaffoldBackgroundColor,
+                color: Theme.of(context).cardColor,
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(
                   color:
                       isSelected
                           ? const Color(0xFF1E3A8A)
                           : Theme.of(context).cardColor,
-                  width: 1,
+                  width: 2,
                 ),
               ),
               child: Column(
