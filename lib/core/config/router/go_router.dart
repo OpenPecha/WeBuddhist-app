@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter_pecha/core/utils/local_storage_service.dart';
 import 'package:flutter_pecha/features/auth/presentation/login_page.dart';
 import 'package:flutter_pecha/features/auth/presentation/profile_page.dart';
 import 'package:flutter_pecha/features/app/presentation/skeleton_screen.dart';
@@ -10,9 +11,12 @@ import 'package:flutter_pecha/features/home/presentation/widgets/view_illustrati
 import 'package:flutter_pecha/features/home/presentation/widgets/youtube_video_player.dart';
 import 'package:flutter_pecha/features/home/presentation/widgets/meditation_video.dart';
 import 'package:flutter_pecha/features/meditation_of_day/presentation/meditation_of_day_screen.dart';
-import 'package:flutter_pecha/features/story_view/presentation/story_feature.dart';
-import 'package:flutter_pecha/features/story_view/presentation/story_presenter.dart';
-import 'package:flutter_pecha/features/plans/models/plan_subtasks_model.dart';
+import 'package:flutter_pecha/features/plans/models/author/author_dto_model.dart';
+import 'package:flutter_pecha/features/plans/models/user/user_plans_model.dart';
+import 'package:flutter_pecha/features/plans/models/user/user_subtasks_dto.dart';
+import 'package:flutter_pecha/features/story_view/presentation/screens/plan_story_presenter.dart';
+import 'package:flutter_pecha/features/story_view/presentation/screens/story_feature.dart';
+import 'package:flutter_pecha/features/story_view/presentation/screens/story_presenter.dart';
 import 'package:flutter_pecha/features/notifications/presentation/notification_settings_screen.dart';
 import 'package:flutter_pecha/features/plans/models/plans_model.dart';
 import 'package:flutter_pecha/features/plans/presentation/plan_details.dart';
@@ -34,15 +38,22 @@ import 'package:flutter_pecha/features/texts/presentation/text_detail_screen.dar
 import 'package:flutter_pecha/features/texts/presentation/text_toc_screen.dart';
 import 'package:flutter_pecha/features/texts/presentation/version_selection/language_selection.dart';
 import 'package:flutter_pecha/features/texts/presentation/version_selection/version_selection_screen.dart';
+import 'package:flutter_pecha/features/recitation/data/models/recitation_model.dart';
+import 'package:flutter_pecha/features/recitation/presentation/screens/recitation_detail_screen.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_pecha/features/auth/application/auth_provider.dart';
+import 'package:flutter_pecha/features/auth/application/auth_notifier.dart';
 import 'package:story_view/story_view.dart';
+import 'package:flutter_story_presenter/flutter_story_presenter.dart' as fsp;
 import 'route_config.dart';
+import 'package:flutter_pecha/features/onboarding/data/providers/onboarding_datasource_providers.dart';
 
 final goRouterProvider = Provider<GoRouter>((ref) {
   final authState = ref.watch(authProvider);
+  final localStorageService = ref.watch(localStorageServiceProvider);
+  final onboardingRepo = ref.watch(onboardingRepositoryProvider);
+
   return GoRouter(
     initialLocation: RouteConfig.home,
     refreshListenable: GoRouterRefreshStream(
@@ -199,18 +210,18 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         path: '/home/stories',
         builder: (context, state) {
           final extra = state.extra;
-          List<PlanSubtasksModel> subtasks;
+          List<UserSubtasksDto> subtasks;
           dynamic author;
           if (extra is Map<String, dynamic>) {
             final subtasksValue = extra['subtasks'];
-            if (subtasksValue is! List<PlanSubtasksModel>) {
+            if (subtasksValue is! List<UserSubtasksDto>) {
               return const Scaffold(
                 body: Center(child: Text('Missing required parameters')),
               );
             }
             subtasks = subtasksValue;
             author = extra['author'];
-          } else if (extra is List<PlanSubtasksModel>) {
+          } else if (extra is List<UserSubtasksDto>) {
             subtasks = extra;
             author = null;
           } else {
@@ -218,6 +229,14 @@ final goRouterProvider = Provider<GoRouter>((ref) {
               body: Center(child: Text('Missing required parameters')),
             );
           }
+
+          // Validate that we have at least one valid subtask
+          if (subtasks.isEmpty) {
+            return const Scaffold(
+              body: Center(child: Text('No content available')),
+            );
+          }
+
           return StoryFeature(
             author: author,
             storyItemsBuilder: (controller) {
@@ -226,7 +245,7 @@ final goRouterProvider = Provider<GoRouter>((ref) {
               const durationForVideo = Duration(minutes: 5);
               const durationForImage = Duration(seconds: 15);
               for (final subtask in subtasks) {
-                if (subtask.content == null || subtask.content!.isEmpty) {
+                if (subtask.content.isEmpty || subtask.content.isEmpty) {
                   continue;
                 }
                 switch (subtask.contentType) {
@@ -234,7 +253,7 @@ final goRouterProvider = Provider<GoRouter>((ref) {
                     storyItems.add(
                       StoryItem(
                         TextStory(
-                          text: subtask.content!,
+                          text: subtask.content,
                           backgroundColor: Colors.black38,
                           textStyle: const TextStyle(
                             fontSize: 18,
@@ -252,7 +271,7 @@ final goRouterProvider = Provider<GoRouter>((ref) {
                     storyItems.add(
                       StoryItem(
                         VideoStory(
-                          videoUrl: subtask.content!,
+                          videoUrl: subtask.content,
                           controller: controller,
                         ),
                         duration: durationForVideo,
@@ -263,7 +282,7 @@ final goRouterProvider = Provider<GoRouter>((ref) {
                     storyItems.add(
                       StoryItem(
                         ImageStory(
-                          imageUrl: subtask.content!,
+                          imageUrl: subtask.content,
                           controller: controller,
                           imageFit: BoxFit.contain,
                           roundedTop: true,
@@ -275,6 +294,27 @@ final goRouterProvider = Provider<GoRouter>((ref) {
                     break;
                 }
               }
+
+              // If no valid story items were created, add a placeholder
+              if (storyItems.isEmpty) {
+                storyItems.add(
+                  StoryItem(
+                    TextStory(
+                      text: 'No content available',
+                      backgroundColor: Colors.black38,
+                      textStyle: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w500,
+                        decoration: TextDecoration.none,
+                      ),
+                      roundedTop: true,
+                      roundedBottom: true,
+                    ),
+                    duration: const Duration(seconds: 3),
+                  ),
+                );
+              }
+
               return storyItems;
             },
           );
@@ -284,12 +324,12 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         path: '/home/stories-presenter',
         builder: (context, state) {
           final extra = state.extra;
-          List<PlanSubtasksModel> subtasks;
+          List<UserSubtasksDto> subtasks;
           dynamic author;
           Map<String, dynamic>? nextCard;
           if (extra is Map<String, dynamic>) {
             final subtasksValue = extra['subtasks'];
-            if (subtasksValue is! List<PlanSubtasksModel>) {
+            if (subtasksValue is! List<UserSubtasksDto>) {
               return const Scaffold(
                 body: Center(child: Text('Missing required parameters')),
               );
@@ -297,7 +337,7 @@ final goRouterProvider = Provider<GoRouter>((ref) {
             subtasks = subtasksValue;
             author = extra['author'];
             nextCard = extra['nextCard'] as Map<String, dynamic>?;
-          } else if (extra is List<PlanSubtasksModel>) {
+          } else if (extra is List<UserSubtasksDto>) {
             subtasks = extra;
             author = null;
             nextCard = null;
@@ -306,10 +346,119 @@ final goRouterProvider = Provider<GoRouter>((ref) {
               body: Center(child: Text('Missing required parameters')),
             );
           }
+
+          // Validate that we have at least one valid subtask
+          if (subtasks.isEmpty && nextCard == null) {
+            return const Scaffold(
+              body: Center(child: Text('No content available')),
+            );
+          }
+
           return StoryPresenter(
             author: author,
             storyItemsBuilder: (controller) {
-              return createFlutterStoryItems(subtasks, controller, nextCard);
+              final items = createFlutterStoryItems(
+                subtasks,
+                controller,
+                nextCard,
+              );
+              // Ensure we have at least one item
+              if (items.isEmpty) {
+                return [
+                  fsp.StoryItem(
+                    storyItemType: fsp.StoryItemType.custom,
+                    duration: const Duration(seconds: 3),
+                    customWidget: (controller, audioPlayer) {
+                      return const Center(
+                        child: Text(
+                          'No content available',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w500,
+                            decoration: TextDecoration.none,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ];
+              }
+              return items;
+            },
+          );
+        },
+      ),
+      GoRoute(
+        path: '/home/plan-stories-presenter',
+        builder: (context, state) {
+          final extra = state.extra;
+          List<UserSubtasksDto> subtasks;
+          Map<String, dynamic>? nextCard;
+          String? planId;
+          int? dayNumber;
+          if (extra is Map<String, dynamic>) {
+            final subtasksValue = extra['subtasks'];
+            if (subtasksValue is! List<UserSubtasksDto>) {
+              return const Scaffold(
+                body: Center(child: Text('Missing required parameters')),
+              );
+            }
+            subtasks = subtasksValue;
+            nextCard = extra['nextCard'] as Map<String, dynamic>?;
+            planId = extra['planId'] as String?;
+            dayNumber = extra['dayNumber'] as int?;
+          } else if (extra is List<UserSubtasksDto>) {
+            subtasks = extra;
+            nextCard = null;
+            planId = null;
+            dayNumber = null;
+          } else {
+            return const Scaffold(
+              body: Center(child: Text('Missing required parameters')),
+            );
+          }
+
+          // Validate that we have at least one valid subtask
+          if (subtasks.isEmpty && nextCard == null) {
+            return const Scaffold(
+              body: Center(child: Text('No content available')),
+            );
+          }
+
+          return PlanStoryPresenter(
+            subtasks: subtasks,
+            planId: planId,
+            dayNumber: dayNumber,
+            storyItemsBuilder: (controller) {
+              final items = createFlutterStoryItems(
+                subtasks,
+                controller,
+                nextCard,
+              );
+              // Ensure we have at least one item
+              if (items.isEmpty) {
+                return [
+                  fsp.StoryItem(
+                    storyItemType: fsp.StoryItemType.custom,
+                    duration: const Duration(seconds: 3),
+                    customWidget: (controller, audioPlayer) {
+                      return const Center(
+                        child: Text(
+                          'No content available',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w500,
+                            decoration: TextDecoration.none,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ];
+              }
+              return items;
             },
           );
         },
@@ -468,58 +617,125 @@ final goRouterProvider = Provider<GoRouter>((ref) {
           return CommentaryView(segmentId: extra);
         },
       ),
-      // plan tab routes
+      // all plan tab routes
       GoRoute(
         path: '/plans/info',
         builder: (context, state) {
           final extra = state.extra;
-          if (extra == null || extra is! PlansModel) {
+          if (extra == null ||
+              extra is! Map ||
+              !extra.containsKey('plan') ||
+              !extra.containsKey('author')) {
             return const Scaffold(
               body: Center(child: Text('Missing required parameters')),
             );
           }
-          return PlanInfo(plan: extra);
+          return PlanInfo(
+            plan: extra['plan'] as PlansModel,
+            author: extra['author'] as AuthorDtoModel,
+          );
         },
       ),
       GoRoute(
         path: '/plans/details',
         builder: (context, state) {
           final extra = state.extra;
-          if (extra == null || extra is! PlansModel) {
+          if (extra == null ||
+              extra is! Map ||
+              !extra.containsKey('plan') ||
+              !extra.containsKey('selectedDay') ||
+              !extra.containsKey('startDate')) {
             return const Scaffold(
               body: Center(child: Text('Missing required parameters')),
             );
           }
-          return PlanDetails(plan: extra);
+          return PlanDetails(
+            plan: extra['plan'] as UserPlansModel,
+            selectedDay: extra['selectedDay'] as int,
+            startDate: extra['startDate'] as DateTime,
+          );
         },
       ),
       GoRoute(
         path: NotificationSettingsScreen.routeName,
         builder: (context, state) => const NotificationSettingsScreen(),
       ),
+      // recitation tab routes
+      GoRoute(
+        path: '/recitations/detail',
+        builder: (context, state) {
+          final extra = state.extra;
+          if (extra == null || extra is! RecitationModel) {
+            return const Scaffold(
+              body: Center(child: Text('Missing required parameters')),
+            );
+          }
+          return RecitationDetailScreen(recitation: extra);
+        },
+      ),
     ],
-    redirect: (context, state) {
+    redirect: (context, state) async {
       final isLoading = authState.isLoading;
       final isLoggedIn = authState.isLoggedIn;
+      final isGuest = authState.isGuest;
       final currentPath = state.fullPath ?? RouteConfig.home;
 
       // 1. While auth is loading, allow navigation to proceed
-      // The native splash will remain visible until Flutter is ready
       if (isLoading) {
+        debugPrint('Auth is loading, redirecting to login');
         return RouteConfig.login;
       }
 
-      // 2. Authenticated user on login page should go to home
+      // // 2. Check onboarding for authenticated non-guest users
+      // if (isLoggedIn && !isGuest) {
+      //   debugPrint('Authenticated non-guest user, checking onboarding');
+
+      //   User? user;
+      //   bool hasCompletedOnboarding;
+
+      //   // get user from api and local storage
+      //   final userData = await localStorageService.getUserData();
+      //   debugPrint('User data: $userData');
+      //   if (userData != null) {
+      //     user = UserModel.fromJson(userData).toEntity();
+      //     // Use user data if available
+      //     hasCompletedOnboarding = user.onboardingCompleted;
+      //     debugPrint(
+      //       'Current user: ${user.firstName} onboardingCompleted: $hasCompletedOnboarding',
+      //     );
+      //   } else {
+      //     // Fallback: Check onboarding repository (reads from local storage)
+      //     hasCompletedOnboarding =
+      //         await onboardingRepo.hasCompletedOnboarding();
+      //     debugPrint(
+      //       'Checking onboarding from repository: $hasCompletedOnboarding',
+      //     );
+      //   }
+
+      //   // Redirect to onboarding if not completed (unless already there or on login)
+      //   if (!hasCompletedOnboarding &&
+      //       currentPath != RouteConfig.onboarding &&
+      //       currentPath != RouteConfig.login) {
+      //     return RouteConfig.onboarding;
+      //   }
+
+      //   // If completed and on onboarding page, redirect to home
+      //   if (hasCompletedOnboarding && currentPath == RouteConfig.onboarding) {
+      //     return RouteConfig.home;
+      //   }
+      // }
+
+      // 3. Authenticated user on login page should go to home
       if (isLoggedIn && currentPath == RouteConfig.login) {
         return RouteConfig.home;
       }
 
-      // 3. Unauthenticated user trying to access protected route
+      // 4. Unauthenticated user trying to access protected route
       if (!isLoggedIn && RouteConfig.isProtectedRoute(currentPath)) {
         return RouteConfig.login;
       }
 
-      // 4. No redirect needed
+      // 5. No redirect needed
       return null;
     },
   );

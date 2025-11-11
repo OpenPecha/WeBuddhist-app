@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/features/plans/data/providers/plan_days_providers.dart';
 import 'package:flutter_pecha/features/plans/data/providers/user_plans_provider.dart';
 import 'package:flutter_pecha/features/plans/models/user/user_subtasks_dto.dart';
 import 'package:flutter_story_presenter/flutter_story_presenter.dart';
@@ -14,10 +15,14 @@ class PlanStoryPresenter extends ConsumerStatefulWidget {
     super.key,
     required this.storyItemsBuilder,
     required this.subtasks,
+    this.planId,
+    this.dayNumber,
   });
 
   final FlutterStoryItemsBuilder storyItemsBuilder;
   final List<UserSubtasksDto> subtasks;
+  final String? planId;
+  final int? dayNumber;
 
   @override
   ConsumerState<PlanStoryPresenter> createState() => _PlanStoryPresenterState();
@@ -177,7 +182,18 @@ class _PlanStoryPresenterState extends ConsumerState<PlanStoryPresenter> {
 
   void _closeStory() {
     if (!mounted || _isDisposing) return;
+    _invalidateProviderIfNeeded();
     context.pop();
+  }
+
+  void _invalidateProviderIfNeeded() {
+    if (widget.planId != null && widget.dayNumber != null) {
+      ref.invalidate(
+        userPlanDayContentFutureProvider(
+          PlanDaysParams(planId: widget.planId!, dayNumber: widget.dayNumber!),
+        ),
+      );
+    }
   }
 
   @override
@@ -198,11 +214,13 @@ class _PlanStoryPresenterState extends ConsumerState<PlanStoryPresenter> {
           },
           onCompleted: () async {
             if (!_isDisposing && mounted) {
+              _invalidateProviderIfNeeded();
               context.pop();
             }
           },
           onSlideDown: (details) {
             if (!_isDisposing && mounted) {
+              _invalidateProviderIfNeeded();
               context.pop();
             }
           },
@@ -211,7 +229,6 @@ class _PlanStoryPresenterState extends ConsumerState<PlanStoryPresenter> {
         // Close button in top-left corner
         Positioned(
           top: 24,
-          // left: 16,
           right: 16,
           child: SafeArea(
             child: Material(

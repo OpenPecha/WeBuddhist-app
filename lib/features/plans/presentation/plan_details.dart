@@ -85,6 +85,8 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
                           tasks: dayContent.tasks,
                           today: selectedDay,
                           totalDays: dayContent.tasks.length,
+                          planId: widget.plan.id,
+                          dayNumber: selectedDay,
                           onActivityToggled:
                               (taskId) =>
                                   _handleTaskToggle(taskId, dayContent.tasks),
