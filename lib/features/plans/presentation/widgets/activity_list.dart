@@ -9,6 +9,8 @@ class ActivityList extends StatelessWidget {
   final int totalDays;
   final Function(String taskId) onActivityToggled;
   final AuthorDtoModel? author;
+  final String? planId;
+  final int? dayNumber;
 
   const ActivityList({
     super.key,
@@ -17,6 +19,8 @@ class ActivityList extends StatelessWidget {
     required this.totalDays,
     required this.onActivityToggled,
     this.author,
+    this.planId,
+    this.dayNumber,
   });
 
   @override
@@ -98,7 +102,11 @@ class ActivityList extends StatelessWidget {
     if (task.subTasks.isNotEmpty) {
       context.push(
         '/home/plan-stories-presenter',
-        extra: {'subtasks': task.subTasks},
+        extra: {
+          'subtasks': task.subTasks,
+          if (planId != null) 'planId': planId,
+          if (dayNumber != null) 'dayNumber': dayNumber,
+        },
       );
     }
   }
