@@ -3,6 +3,7 @@ import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/core/theme/theme_notifier.dart';
+import 'package:flutter_pecha/core/widgets/cached_network_image_widget.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_pecha/features/auth/application/auth_notifier.dart';
 import 'package:go_router/go_router.dart';
@@ -62,9 +63,9 @@ class MoreScreen extends ConsumerWidget {
                       backgroundImage:
                           (authState.userProfile?.pictureUrl?.toString() ?? '')
                                   .isNotEmpty
-                              ? NetworkImage(
-                                authState.userProfile!.pictureUrl!.toString(),
-                              )
+                              ? authState.userProfile!.pictureUrl!
+                                  .toString()
+                                  .cachedNetworkImageProvider
                               : null,
                       child:
                           ((authState.userProfile?.pictureUrl?.toString() ?? '')
@@ -220,11 +221,14 @@ class MoreScreen extends ConsumerWidget {
   Widget _buildSectionHeader(BuildContext context, String title) {
     return Padding(
       padding: const EdgeInsets.only(left: 16, right: 16, bottom: 8),
-      child: Text(title, style: TextStyle(
-        fontSize: 16,
-        fontWeight: FontWeight.w600,
-        color: AppColors.primary,
-      )),
+      child: Text(
+        title,
+        style: TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.w600,
+          color: AppColors.primary,
+        ),
+      ),
     );
   }
 

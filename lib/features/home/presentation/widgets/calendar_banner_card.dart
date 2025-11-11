@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/widgets/cached_network_image_widget.dart';
 
 class CalendarBannerCard extends StatelessWidget {
   final String title;
@@ -108,24 +109,20 @@ class CalendarBannerCard extends StatelessWidget {
           ),
           if (imageUrl != null && imageUrl!.isNotEmpty) ...[
             const SizedBox(width: 12),
-            ClipRRect(
+            CachedNetworkImageWidget(
+              imageUrl: imageUrl!,
+              width: 76,
+              height: 66.5,
+              fit: BoxFit.cover,
               borderRadius: BorderRadius.circular(8),
-              child: Image.network(
-                imageUrl!,
+              errorWidget: Container(
                 width: 76,
                 height: 66.5,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) {
-                  return Container(
-                    width: 76,
-                    height: 66.5,
-                    decoration: BoxDecoration(
-                      color: Colors.grey.shade300,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: const Icon(Icons.image, color: Colors.grey),
-                  );
-                },
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade300,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Icon(Icons.image, color: Colors.grey),
               ),
             ),
           ],
