@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/widgets/cached_network_image_widget.dart';
 import 'package:flutter_pecha/features/auth/application/auth_notifier.dart';
 import 'package:flutter_pecha/features/plans/data/providers/user_plans_provider.dart';
 import 'package:flutter_pecha/features/plans/models/author/author_dto_model.dart';
@@ -122,7 +123,9 @@ class _PlanInfoState extends ConsumerState<PlanInfo> {
       child: CircleAvatar(
         radius: 20,
         backgroundImage:
-            authorImage.isNotEmpty ? NetworkImage(authorImage) : null,
+            authorImage.isNotEmpty
+                ? authorImage.cachedNetworkImageProvider
+                : null,
         backgroundColor: Colors.grey[300],
         child:
             authorImage.isEmpty

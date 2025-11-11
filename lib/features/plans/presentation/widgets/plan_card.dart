@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/widgets/cached_network_image_widget.dart';
 import 'package:flutter_pecha/features/plans/models/plans_model.dart';
 
 class PlanCard extends StatelessWidget {
@@ -32,17 +33,13 @@ class PlanCard extends StatelessWidget {
 }
 
 Widget _buildPlanImage(PlansModel plan) {
-  return Hero(
-    tag: plan.title,
-    child: ClipRRect(
-      borderRadius: BorderRadius.circular(12),
-      child: Image.network(
-        plan.imageUrl ?? '',
-        width: 90,
-        height: 90,
-        fit: BoxFit.cover,
-      ),
-    ),
+  return CachedNetworkImageWidget(
+    imageUrl: plan.imageUrl ?? '',
+    width: 90,
+    height: 90,
+    fit: BoxFit.cover,
+    borderRadius: BorderRadius.circular(12),
+    heroTag: plan.title,
   );
 }
 

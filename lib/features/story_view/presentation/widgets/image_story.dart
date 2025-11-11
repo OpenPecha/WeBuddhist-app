@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/widgets/cached_network_image_widget.dart';
 import 'package:story_view/story_view.dart';
 
 class ImageStory extends StatefulWidget {
@@ -53,46 +54,43 @@ class _ImageStoryState extends State<ImageStory> {
             Center(
               child: Hero(
                 tag: 'verse-image-${widget.imageUrl}',
-                child: Image.network(
-                  widget.imageUrl,
+                child: CachedNetworkImageWidget(
+                  imageUrl: widget.imageUrl,
                   fit: widget.imageFit ?? BoxFit.contain,
-                  loadingBuilder: (context, child, loadingProgress) {
-                    if (loadingProgress == null) {
-                      // Image loaded successfully
+                  placeholder: const Center(
+                    child: CircularProgressIndicator(color: Colors.white),
+                  ),
+                  errorWidget: Builder(
+                    builder: (context) {
+                      // Resume on error
                       WidgetsBinding.instance.addPostFrameCallback((_) {
-                        // Resume story progress when image is loaded
                         widget.controller.play();
                       });
-                      return child;
-                    } else {
-                      // Image is loading - show loading indicator
                       return const Center(
-                        child: CircularProgressIndicator(color: Colors.white),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.error_outline,
+                              color: Colors.white,
+                              size: 48,
+                            ),
+                            SizedBox(height: 16),
+                            Text(
+                              'Unable to load image',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                              ),
+                            ),
+                          ],
+                        ),
                       );
-                    }
-                  },
-                  errorBuilder: (context, error, stackTrace) {
-                    // Resume on error
-                    WidgetsBinding.instance.addPostFrameCallback((_) {
-                      widget.controller.play();
-                    });
-                    return const Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.error_outline,
-                            color: Colors.white,
-                            size: 48,
-                          ),
-                          SizedBox(height: 16),
-                          Text(
-                            'Unable to load image',
-                            style: TextStyle(color: Colors.white, fontSize: 16),
-                          ),
-                        ],
-                      ),
-                    );
+                    },
+                  ),
+                  onImageLoaded: () {
+                    // Resume story progress when image is loaded
+                    widget.controller.play();
                   },
                 ),
               ),

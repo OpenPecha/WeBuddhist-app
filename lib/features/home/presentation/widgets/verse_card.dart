@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/widgets/cached_network_image_widget.dart';
 import 'package:flutter_pecha/features/plans/models/user/user_subtasks_dto.dart';
 import 'package:flutter_pecha/features/story_view/utils/story_dialog_helper.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -48,7 +49,7 @@ class VerseCard extends ConsumerWidget {
                 image:
                     imageUrl.isNotEmpty
                         ? DecorationImage(
-                          image: NetworkImage(imageUrl),
+                          image: imageUrl.cachedNetworkImageProvider,
                           fit: BoxFit.fill,
                         )
                         : null,
@@ -72,17 +73,21 @@ class VerseCard extends ConsumerWidget {
                             color: Colors.white,
                           ),
                         ),
-                        const Spacer(),
-                        Text(
-                          verseText,
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w400,
-                            height: 0.97,
-                            color: Colors.white,
+                        const SizedBox(height: 20),
+                        Expanded(
+                          child: SingleChildScrollView(
+                            padding: const EdgeInsets.only(bottom: 20),
+                            child: Text(
+                              verseText,
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w400,
+                                height: 0.97,
+                                color: Colors.white,
+                              ),
+                            ),
                           ),
                         ),
-                        const Spacer(),
                       ],
                     ),
                   ),

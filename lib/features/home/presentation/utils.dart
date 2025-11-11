@@ -1,5 +1,6 @@
 // function to add story items to a list
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/widgets/cached_network_image_widget.dart';
 import 'package:flutter_pecha/features/story_view/presentation/widgets/image_story.dart';
 import 'package:flutter_pecha/features/story_view/presentation/widgets/text_story.dart';
 import 'package:flutter_pecha/features/story_view/presentation/widgets/video_story.dart';
@@ -60,15 +61,13 @@ Widget getVideoThumbnail(String videoUrl) {
   videoId ??= YoutubePlayer.convertUrlToId(videoUrl);
 
   if (videoId != null) {
-    return Image.network(
-      'https://img.youtube.com/vi/$videoId/hqdefault.jpg',
+    return CachedNetworkImageWidget(
+      imageUrl: 'https://img.youtube.com/vi/$videoId/hqdefault.jpg',
       fit: BoxFit.cover,
-      errorBuilder: (context, error, stackTrace) {
-        return Container(
-          color: Colors.grey.shade300,
-          child: const Icon(Icons.video_library, size: 48, color: Colors.grey),
-        );
-      },
+      errorWidget: Container(
+        color: Colors.grey.shade300,
+        child: const Icon(Icons.video_library, size: 48, color: Colors.grey),
+      ),
     );
   }
 

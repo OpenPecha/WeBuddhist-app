@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/widgets/cached_network_image_widget.dart';
 import 'package:flutter_pecha/features/plans/models/author/author_dto_model.dart';
 import 'package:flutter_pecha/features/plans/presentation/author_detail_screen.dart';
 
@@ -49,7 +50,7 @@ class StoryAuthorAvatar extends StatelessWidget {
                 radius: 22,
                 backgroundImage:
                     author!.imageUrl.isNotEmpty
-                        ? NetworkImage(author!.imageUrl)
+                        ? author!.imageUrl.cachedNetworkImageProvider
                         : null,
                 child:
                     author!.imageUrl.isEmpty

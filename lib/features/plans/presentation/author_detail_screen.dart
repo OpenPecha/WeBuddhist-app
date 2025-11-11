@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/widgets/cached_network_image_widget.dart';
 import 'package:flutter_pecha/features/plans/data/providers/author_providers.dart';
 import 'package:flutter_pecha/features/plans/models/author/author_model.dart';
 import 'package:flutter_pecha/features/plans/models/author/social_profile_dto.dart';
@@ -79,7 +80,7 @@ class AuthorDetailScreen extends ConsumerWidget {
               radius: 50,
               backgroundImage:
                   authorData.imageUrl?.isNotEmpty ?? false
-                      ? NetworkImage(authorData.imageUrl!)
+                      ? authorData.imageUrl!.cachedNetworkImageProvider
                       : null,
               backgroundColor: Colors.grey[800],
               child:
