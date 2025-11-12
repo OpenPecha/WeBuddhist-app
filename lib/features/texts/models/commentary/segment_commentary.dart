@@ -2,7 +2,7 @@ class SegmentCommentary {
   final String segmentId;
   final String textId;
   final String title;
-  final String content;
+  final List<String> content;
   final String language;
   final int count;
 
@@ -20,7 +20,12 @@ class SegmentCommentary {
       segmentId: json['segment_id'],
       textId: json['text_id'],
       title: json['title'],
-      content: json['content'],
+      content:
+          json['content'] != null
+              ? (json['content'] as List<dynamic>)
+                  .map((e) => e.toString())
+                  .toList()
+              : <String>[],
       language: json['language'],
       count: json['count'],
     );
