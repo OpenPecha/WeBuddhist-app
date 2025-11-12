@@ -139,7 +139,7 @@ class UserPlansRemoteDatasource {
   // task completion post request
   Future<bool> completeTask(String taskId) async {
     try {
-      final uri = Uri.parse('$baseUrl/users/me/tasks/$taskId/completion');
+      final uri = Uri.parse('$baseUrl/users/me/tasks/$taskId/complete');
       final response = await client.post(
         uri,
         headers: {'Content-Type': 'application/json'},

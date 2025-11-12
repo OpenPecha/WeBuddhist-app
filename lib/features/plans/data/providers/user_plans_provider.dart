@@ -71,3 +71,32 @@ final userPlanDayContentFutureProvider =
           .watch(userPlansRepositoryProvider)
           .getUserPlanDayContent(params.planId, params.dayNumber);
     });
+
+/// Provider that fetches completion status for all days in a plan
+/// Returns a Map where key is dayNumber and value is isCompleted status
+final userPlanDaysCompletionStatusProvider =
+    FutureProvider.family<Map<int, bool>, String>((ref, planId) async {
+      // First get the list of days to know how many days to fetch
+      final planDays = await ref.watch(
+        planDaysByPlanIdFutureProvider(planId).future,
+      );
+
+      final repository = ref.read(userPlansRepositoryProvider);
+
+      // Fetch completion status for all days in parallel
+      final completionFutures = planDays.map((day) async {
+        try {
+          final dayContent = await repository.getUserPlanDayContent(
+            planId,
+            day.dayNumber,
+          );
+          return MapEntry(day.dayNumber, dayContent.isCompleted);
+        } catch (e) {
+          // If fetch fails, assume not completed
+          return MapEntry(day.dayNumber, false);
+        }
+      });
+
+      final results = await Future.wait(completionFutures);
+      return Map.fromEntries(results);
+    });
