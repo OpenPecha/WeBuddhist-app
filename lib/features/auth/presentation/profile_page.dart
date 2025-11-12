@@ -63,7 +63,7 @@ class ProfilePage extends ConsumerWidget {
                               ? Text(
                                 _initialsFromName(fullName),
                                 style: const TextStyle(
-                                  fontSize: 24,
+                                  fontSize: 20,
                                   fontWeight: FontWeight.bold,
                                   color: Colors.black54,
                                 ),
@@ -83,7 +83,7 @@ class ProfilePage extends ConsumerWidget {
                             ? fullName
                             : (user.nickname ?? 'Anonymous'),
                         textAlign: TextAlign.center,
-                        style: Theme.of(context).textTheme.titleLarge,
+                        style: Theme.of(context).textTheme.titleMedium,
                       ),
                       const SizedBox(height: 4),
                       Text(email, style: Theme.of(context).textTheme.bodyLarge),

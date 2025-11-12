@@ -12,6 +12,7 @@ class ApiClient extends http.BaseClient {
   static const List<String> _protectedPaths = [
     // public plans
     '/api/v1/plans/{planId}/days',
+    '/api/v1/plans/{planId}/days/{dayNumber}',
 
     // user progress
     '/api/v1/users/me',
@@ -46,7 +47,10 @@ class ApiClient extends http.BaseClient {
     // Add authentication header for protected routes
     if (_isProtectedRoute(request.url.path)) {
       final token = await _authService.getValidIdToken();
-      debugPrint('Token: $token');
+      // debugPrint('Token half: ${token?.substring(0, token.length ~/ 2)}');
+      // debugPrint(
+      //   'Token half length: ${token?.substring(token.length ~/ 2, token.length)}',
+      // );
       if (token != null) {
         request.headers['Authorization'] = 'Bearer $token';
         debugPrint(

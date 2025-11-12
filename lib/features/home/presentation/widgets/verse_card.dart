@@ -7,12 +7,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 class VerseCard extends ConsumerWidget {
   final String verseText;
   final String title;
+  final UserSubtasksDto subtask;
   final Map<String, dynamic>? nextCard;
 
   const VerseCard({
     super.key,
     required this.verseText,
     required this.title,
+    required this.subtask,
     this.nextCard,
   });
 
@@ -24,15 +26,7 @@ class VerseCard extends ConsumerWidget {
       onTap: () {
         showStoryDialog(
           context: context,
-          subtasks: [
-            UserSubtasksDto(
-              id: 'verse-of-day',
-              contentType: 'IMAGE',
-              content: imageUrl,
-              displayOrder: 0,
-              isCompleted: false,
-            ),
-          ],
+          subtasks: [subtask],
           nextCard: nextCard,
         );
       },
