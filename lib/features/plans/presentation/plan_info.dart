@@ -45,7 +45,7 @@ class _PlanInfoState extends ConsumerState<PlanInfo> {
         ),
         centerTitle: false,
       ),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
@@ -62,7 +62,8 @@ class _PlanInfoState extends ConsumerState<PlanInfo> {
               subscribedPlans,
             ),
             SizedBox(height: 16),
-            _buildPlanDescription(context),
+            Text(widget.plan.description, style: const TextStyle(fontSize: 16)),
+            SizedBox(height: 24),
           ],
         ),
       ),
@@ -285,9 +286,5 @@ class _PlanInfoState extends ConsumerState<PlanInfo> {
         );
       }
     }
-  }
-
-  Widget _buildPlanDescription(BuildContext context) {
-    return Text(widget.plan.description, style: const TextStyle(fontSize: 16));
   }
 }

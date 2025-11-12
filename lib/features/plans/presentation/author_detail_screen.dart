@@ -1,4 +1,3 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/widgets/cached_network_image_widget.dart';
 import 'package:flutter_pecha/features/plans/data/providers/author_providers.dart';
@@ -6,7 +5,6 @@ import 'package:flutter_pecha/features/plans/models/author/author_model.dart';
 import 'package:flutter_pecha/features/plans/models/author/social_profile_dto.dart';
 import 'package:flutter_pecha/features/plans/models/plans_model.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -237,6 +235,7 @@ class AuthorDetailScreen extends ConsumerWidget {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            const SizedBox(height: 16),
             const Text(
               'Plans Created',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
