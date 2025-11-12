@@ -62,7 +62,7 @@ class MyApp extends ConsumerWidget {
         ),
       ),
       child: MaterialApp.router(
-        title: 'Pecha',
+        title: 'WeBuddhist',
         theme: AppTheme.lightTheme(locale),
         darkTheme: AppTheme.darkTheme(locale),
         themeMode: themeMode,
