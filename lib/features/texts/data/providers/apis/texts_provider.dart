@@ -41,7 +41,7 @@ final textsRepositoryProvider = Provider<TextsRepository>(
 
 final textsFutureProvider = FutureProvider.family((ref, String termId) {
   final locale = ref.watch(localeProvider);
-  final languageCode = locale?.languageCode;
+  final languageCode = locale.languageCode;
   return ref
       .watch(textsRepositoryProvider)
       .getTexts(termId: termId, language: languageCode);
@@ -49,7 +49,7 @@ final textsFutureProvider = FutureProvider.family((ref, String termId) {
 
 final textContentFutureProvider = FutureProvider.family((ref, String textId) {
   final locale = ref.watch(localeProvider);
-  final languageCode = locale?.languageCode;
+  final languageCode = locale.languageCode;
   return ref
       .watch(textsRepositoryProvider)
       .fetchTextContent(textId: textId, language: languageCode);
@@ -57,7 +57,7 @@ final textContentFutureProvider = FutureProvider.family((ref, String textId) {
 
 final textVersionFutureProvider = FutureProvider.family((ref, String textId) {
   final locale = ref.watch(localeProvider);
-  final languageCode = locale?.languageCode;
+  final languageCode = locale.languageCode;
   return ref
       .watch(textsRepositoryProvider)
       .fetchTextVersion(textId: textId, language: languageCode);
