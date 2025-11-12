@@ -111,32 +111,33 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
 
   // Build the top bar
   Widget _buildTopBar(AuthState authState, AppLocalizations localizations) {
-    final url = s3AudioUrl;
-    final prayerData =
-        tibetanAudioJson.map((e) => PrayerData.fromJson(e)).toList();
+    // final url = s3AudioUrl;
+    // final prayerData =
+    //     tibetanAudioJson.map((e) => PrayerData.fromJson(e)).toList();
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          GestureDetector(
-            onTap:
-                () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder:
-                        (context) => PrayerOfTheDayScreen(
-                          audioUrl: url,
-                          prayerData: prayerData,
-                          audioHeaders: {},
-                        ),
-                  ),
-                ),
-            child: Text(
-              localizations.home_today,
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
-            ),
+          // GestureDetector(
+          //   onTap:
+          //       () => Navigator.push(
+          //         context,
+          //         MaterialPageRoute(
+          //           builder:
+          //               (context) => PrayerOfTheDayScreen(
+          //                 audioUrl: url,
+          //                 prayerData: prayerData,
+          //                 audioHeaders: {},
+          //               ),
+          //         ),
+          //       ),
+          //   child:
+          Text(
+            localizations.home_today,
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
           ),
+          // ),
           Row(
             children: [
               IconButton(
@@ -194,15 +195,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Calendar Banner
-            CalendarBannerCard(
-              title: 'Saka Dawa',
-              subtitle: 'Full Moon',
-              description:
-                  'Celebrated in the fourth month of the Tibetan calendar',
-              celebratedBy: 'ALL SCHOOL',
-              imageUrl: 'https://picsum.photos/200/300',
-            ),
-            const SizedBox(height: 16),
+            // CalendarBannerCard(
+            //   title: 'Saka Dawa',
+            //   subtitle: 'Full Moon',
+            //   description:
+            //       'Celebrated in the fourth month of the Tibetan calendar',
+            //   celebratedBy: 'ALL SCHOOL',
+            //   imageUrl: 'https://picsum.photos/200/300',
+            // ),
+            // const SizedBox(height: 16),
 
             // Handle loading, error, and data states
             featuredDayAsync.when(
@@ -212,8 +213,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                     child: Padding(
                       padding: const EdgeInsets.all(32.0),
                       child: Text(
-                        'No content available',
-                        style: Theme.of(context).textTheme.bodyLarge,
+                        'No featured content available',
+                        style: Theme.of(context).textTheme.bodyMedium,
                       ),
                     ),
                   );
@@ -240,6 +241,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                               VerseCard(
                                 verseText: planItem.subtasks[0].content,
                                 title: planItem.title,
+                                subtask: UserSubtasksDto(
+                                  id: planItem.id,
+                                  contentType: planItem.subtasks[0].contentType,
+                                  content: planItem.subtasks[0].content,
+                                  displayOrder:
+                                      planItem.subtasks[0].displayOrder,
+                                  isCompleted: false,
+                                ),
                                 nextCard:
                                     nextPlanItem != null
                                         ? {
@@ -251,7 +260,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                                             nextPlanItem.subtasks[0].content,
                                           ),
                                           'subtasks': [
-                                            FeaturedDaySubtask(
+                                            UserSubtasksDto(
                                               id: nextPlanItem.subtasks[0].id,
                                               contentType:
                                                   nextPlanItem
@@ -265,6 +274,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                                                   nextPlanItem
                                                       .subtasks[0]
                                                       .displayOrder,
+                                              isCompleted: false,
                                             ),
                                           ],
                                           'nextCard':
@@ -284,7 +294,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                                                               .content,
                                                         ),
                                                     'subtasks': [
-                                                      FeaturedDaySubtask(
+                                                      UserSubtasksDto(
                                                         id:
                                                             planItems[index + 2]
                                                                 .subtasks[0]
@@ -301,6 +311,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                                                             planItems[index + 2]
                                                                 .subtasks[0]
                                                                 .displayOrder,
+                                                        isCompleted: false,
                                                       ),
                                                     ],
                                                   }
@@ -350,7 +361,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                                                       .content,
                                                 ),
                                                 'subtasks': [
-                                                  FeaturedDaySubtask(
+                                                  UserSubtasksDto(
                                                     id:
                                                         nextPlanItem
                                                             .subtasks[0]
@@ -367,6 +378,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                                                         nextPlanItem
                                                             .subtasks[0]
                                                             .displayOrder,
+                                                    isCompleted: false,
                                                   ),
                                                 ],
                                               }
