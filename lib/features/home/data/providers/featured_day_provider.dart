@@ -25,5 +25,9 @@ final featuredDayFutureProvider = FutureProvider<List<FeaturedDayTask>>((
   final response = await repository.getFeaturedDay(
     language: locale.languageCode,
   );
-  return repository.mapToFeaturedDayTasks(response);
+  if (response.tasks.isEmpty) {
+    return [];
+  } else {
+    return repository.mapToFeaturedDayTasks(response);
+  }
 });

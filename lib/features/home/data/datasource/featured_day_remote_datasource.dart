@@ -26,11 +26,15 @@ class FeaturedDayRemoteDatasource {
         return FeaturedDayResponse.fromJson(jsonData);
       } else {
         debugPrint('Failed to load featured day: ${response.statusCode}');
-        throw Exception('Failed to load featured day: ${response.statusCode}');
+        return FeaturedDayResponse.fromJson({
+          'id': '',
+          'day_number': 0,
+          'tasks': [],
+        });
       }
     } catch (e) {
-      debugPrint('Error in fetchFeaturedDay: $e');
-      throw Exception('Failed to load featured day: $e');
+      debugPrint('Failed to load featured day: $e');
+      throw Exception('Faild in fetching featured day: $e');
     }
   }
 }
