@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/config/router/route_config.dart';
+import 'package:flutter_pecha/features/auth/application/auth_notifier.dart';
 import 'package:flutter_pecha/features/plans/data/providers/user_plans_provider.dart';
 import 'package:flutter_pecha/features/plans/data/utils/plan_utils.dart';
 import 'package:flutter_pecha/features/plans/presentation/providers/my_plans_paginated_provider.dart';
@@ -40,6 +42,17 @@ class _MyPlansTabState extends ConsumerState<MyPlansTab> {
 
   @override
   Widget build(BuildContext context) {
+    final authState = ref.watch(authProvider);
+
+    // Check if user is guest - show login prompt instead of calling APIs
+    if (authState.isGuest) {
+      return _GuestLoginPrompt(
+        onLogin: () {
+          ref.read(authProvider.notifier).logout();
+        },
+      );
+    }
+
     final myPlansState = ref.watch(myPlansPaginatedProvider);
 
     return RefreshIndicator(
@@ -111,6 +124,62 @@ class _MyPlansTabState extends ConsumerState<MyPlansTab> {
           },
         );
       },
+    );
+  }
+}
+
+/// Login prompt widget shown to guest users
+class _GuestLoginPrompt extends StatelessWidget {
+  const _GuestLoginPrompt({required this.onLogin});
+
+  final VoidCallback onLogin;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.lock_outline,
+              size: 60,
+              color: Theme.of(
+                context,
+              ).colorScheme.primary.withValues(alpha: 0.7),
+            ),
+            const SizedBox(height: 24),
+            Text(
+              'Sign in to view your plans',
+              style: Theme.of(context).textTheme.titleLarge,
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Create an account or sign in to track your practice plans and progress',
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.7),
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 24),
+            ElevatedButton.icon(
+              onPressed: onLogin,
+              icon: const Icon(Icons.login),
+              label: const Text('Sign In'),
+              style: ElevatedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 32,
+                  vertical: 16,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

@@ -189,7 +189,7 @@ class _PlanInfoState extends ConsumerState<PlanInfo> {
   }
 
   String _getButtonText(bool isGuest, bool isSubscribed) {
-    if (isGuest) return 'Login to Continue';
+    if (isGuest) return 'Sign in';
     if (isSubscribed) return 'Continue Plan';
     return 'Start Plan';
   }
@@ -200,7 +200,7 @@ class _PlanInfoState extends ConsumerState<PlanInfo> {
     UserPlansModel? userPlan,
   ) async {
     if (isGuest) {
-      context.push('/login');
+      ref.read(authProvider.notifier).logout();
       return;
     }
 
@@ -232,7 +232,6 @@ class _PlanInfoState extends ConsumerState<PlanInfo> {
   // Updated handleStartPlan function
   Future<void> handleStartPlan() async {
     final planId = widget.plan.id;
-    debugPrint('planId: $planId');
 
     try {
       // Subscribe to plan using the authenticated HTTP client
@@ -267,7 +266,7 @@ class _PlanInfoState extends ConsumerState<PlanInfo> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Failed to enroll in plan. Please try again.'),
+              content: Text('Unable to enroll in plan. Please try again.'),
               backgroundColor: Colors.red,
               duration: Duration(seconds: 3),
             ),
@@ -279,7 +278,7 @@ class _PlanInfoState extends ConsumerState<PlanInfo> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error enrolling in plan: ${e.toString()}'),
+            content: Text('Unable to enroll in plan: ${e.toString()}'),
             backgroundColor: Colors.red,
             duration: Duration(seconds: 3),
           ),
