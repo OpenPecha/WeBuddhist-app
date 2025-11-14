@@ -152,13 +152,7 @@ class _GuestLoginPrompt extends StatelessWidget {
             const SizedBox(height: 24),
             Text(
               'Sign in to view your plans',
-              style: Theme.of(context).textTheme.titleLarge,
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Create an account or sign in to track your practice plans and progress',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                 color: Theme.of(
                   context,
                 ).colorScheme.onSurface.withValues(alpha: 0.7),

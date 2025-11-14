@@ -132,6 +132,7 @@ class RecitationsTab extends ConsumerWidget {
                       .watch(recitationsRepositoryProvider)
                       .saveRecitation(recitation.textId);
                   ref.invalidate(savedRecitationsFutureProvider);
+                  if (context.mounted) Navigator.pop(context);
                   if (context.mounted && result) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
