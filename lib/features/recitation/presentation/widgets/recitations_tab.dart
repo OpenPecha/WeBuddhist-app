@@ -34,18 +34,34 @@ class RecitationsTab extends ConsumerWidget {
     List<RecitationModel> recitations,
     WidgetRef ref,
   ) {
+    final authState = ref.watch(authProvider);
+    final isGuest = authState.isGuest;
+
+    var savedRecitationsAsync = AsyncValue<List<RecitationModel>>.data([]);
+
+    if (!isGuest) {
+      savedRecitationsAsync = ref.watch(savedRecitationsFutureProvider);
+    }
+    final savedRecitationIds =
+        savedRecitationsAsync.valueOrNull?.map((e) => e.textId).toList() ?? [];
+
     return ListView.builder(
       padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 16),
       itemCount: recitations.length,
       itemBuilder: (context, index) {
         final recitation = recitations[index];
+        final isSaved = savedRecitationIds.contains(recitation.textId);
         return RecitationCard(
           recitation: recitation,
           onTap: () {
             context.push('/recitations/detail', extra: recitation);
           },
           onMoreTap: () {
-            _showRecitationOptions(context, recitation, ref);
+            if (isGuest) {
+              LoginDrawer.show(context, ref);
+            } else {
+              _showRecitationOptions(context, recitation, isSaved, ref);
+            }
           },
         );
       },
@@ -110,26 +126,30 @@ class RecitationsTab extends ConsumerWidget {
   void _showRecitationOptions(
     BuildContext context,
     RecitationModel recitation,
+    bool isSaved,
     WidgetRef ref,
   ) {
     showModalBottomSheet(
       context: context,
       builder: (context) {
-        final authState = ref.watch(authProvider);
         return SafeArea(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               ListTile(
-                leading: const Icon(Icons.bookmark_add_outlined),
-                title: const Text('Save Recitation'),
+                leading: Icon(
+                  isSaved
+                      ? Icons.bookmark_remove_outlined
+                      : Icons.bookmark_add_outlined,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+                title: Text(
+                  isSaved ? 'Remove from Saved' : 'Save Recitation',
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
                 onTap: () async {
-                  if (authState.isGuest) {
-                    LoginDrawer.show(context, ref);
-                    return;
-                  }
                   final result = await ref
-                      .watch(recitationsRepositoryProvider)
+                      .read(recitationsRepositoryProvider)
                       .saveRecitation(recitation.textId);
                   ref.invalidate(savedRecitationsFutureProvider);
                   if (context.mounted) Navigator.pop(context);

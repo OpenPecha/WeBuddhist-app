@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
+import 'package:flutter_pecha/features/auth/application/auth_notifier.dart';
+import 'package:flutter_pecha/features/auth/presentation/widgets/login_drawer.dart';
 import 'package:flutter_pecha/features/recitation/data/models/recitation_model.dart';
 import 'package:flutter_pecha/features/recitation/data/models/recitation_content_model.dart';
 import 'package:flutter_pecha/features/recitation/presentation/providers/recitations_providers.dart';
@@ -17,8 +19,6 @@ class RecitationDetailScreen extends ConsumerStatefulWidget {
 
 class _RecitationDetailScreenState
     extends ConsumerState<RecitationDetailScreen> {
-  bool _isSaved = false;
-
   @override
   void initState() {
     super.initState();
@@ -29,6 +29,16 @@ class _RecitationDetailScreenState
     final locale = ref.watch(localeProvider);
     final languageCode = locale.languageCode;
 
+    final authState = ref.watch(authProvider);
+    final isGuest = authState.isGuest;
+    var savedRecitationsAsync = AsyncValue<List<RecitationModel>>.data([]);
+
+    if (!isGuest) {
+      savedRecitationsAsync = ref.watch(savedRecitationsFutureProvider);
+    }
+    final savedRecitationIds =
+        savedRecitationsAsync.valueOrNull?.map((e) => e.textId).toList() ?? [];
+    final isSaved = savedRecitationIds.contains(widget.recitation.textId);
     // Build params based on language
     List<String>? recitations;
     List<String>? translations;
@@ -66,13 +76,13 @@ class _RecitationDetailScreenState
         // ),
         actions: [
           IconButton(
-            onPressed: _toggleSave,
-            icon: Icon(_isSaved ? Icons.bookmark : Icons.bookmark_border),
+            onPressed: () => _toggleSave(isGuest, isSaved),
+            icon: Icon(isSaved ? Icons.bookmark : Icons.bookmark_border),
           ),
-          IconButton(
-            onPressed: _shareRecitation,
-            icon: const Icon(Icons.share_outlined),
-          ),
+          // IconButton(
+          //   onPressed: _shareRecitation,
+          //   icon: const Icon(Icons.share_outlined),
+          // ),
         ],
       ),
       body: contentAsync.when(
@@ -260,17 +270,35 @@ class _RecitationDetailScreenState
     );
   }
 
-  void _toggleSave() async {
-    final repository = ref.read(recitationsRepositoryProvider);
-    final result = await repository.saveRecitation(widget.recitation.textId);
-    if (mounted && result) {
-      setState(() {
-        _isSaved = true;
-      });
-    } else {
-      setState(() {
-        _isSaved = false;
-      });
+  Future<void> _toggleSave(bool isGuest, bool isSaved) async {
+    if (isGuest) {
+      LoginDrawer.show(context, ref);
+      return;
+    }
+
+    try {
+      if (isSaved) {
+        await ref
+            .read(recitationsRepositoryProvider)
+            .unsaveRecitation(widget.recitation.textId);
+      } else {
+        await ref
+            .read(recitationsRepositoryProvider)
+            .saveRecitation(widget.recitation.textId);
+      }
+      // Invalidate the provider after the operation completes
+      ref.invalidate(savedRecitationsFutureProvider);
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Failed to ${isSaved ? 'unsave' : 'save'} recitation',
+            ),
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
     }
   }
 
