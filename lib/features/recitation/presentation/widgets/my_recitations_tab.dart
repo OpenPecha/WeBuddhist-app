@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/features/auth/application/auth_notifier.dart';
+import 'package:flutter_pecha/features/auth/presentation/widgets/login_drawer.dart';
 import 'package:flutter_pecha/features/recitation/data/models/recitation_model.dart';
 import 'package:flutter_pecha/features/recitation/presentation/providers/recitations_providers.dart';
 import 'package:flutter_pecha/features/recitation/presentation/widgets/recitation_card.dart';
@@ -17,7 +18,7 @@ class MyRecitationsTab extends ConsumerWidget {
 
     // Show login prompt for guest users
     if (authState.isGuest) {
-      return _buildLoginPrompt(context, localizations);
+      return _buildLoginPrompt(context, localizations, ref);
     }
 
     final savedRecitationsAsync = ref.watch(savedRecitationsFutureProvider);
@@ -90,33 +91,47 @@ class MyRecitationsTab extends ConsumerWidget {
   Widget _buildLoginPrompt(
     BuildContext context,
     AppLocalizations localizations,
+    WidgetRef ref,
   ) {
     return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.person_outline,
-            size: 64,
-            color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            'Login Required',
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Please login to view your saved recitations',
-            style: Theme.of(context).textTheme.bodySmall,
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 24),
-          ElevatedButton(
-            onPressed: () => context.push('/login'),
-            child: const Text('Login'),
-          ),
-        ],
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.lock_outline,
+              size: 60,
+              color: Theme.of(
+                context,
+              ).colorScheme.primary.withValues(alpha: 0.7),
+            ),
+            const SizedBox(height: 24),
+            Text(
+              'Sign in to view your saved recitations',
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.7),
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 24),
+            ElevatedButton.icon(
+              onPressed: () {
+                LoginDrawer.show(context, ref);
+              },
+              icon: const Icon(Icons.login),
+              label: const Text('Sign In'),
+              style: ElevatedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 32,
+                  vertical: 16,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -165,6 +180,7 @@ class MyRecitationsTab extends ConsumerWidget {
                       .watch(recitationsRepositoryProvider)
                       .unsaveRecitation(recitation.textId);
                   ref.invalidate(savedRecitationsFutureProvider);
+                  if (context.mounted) Navigator.pop(context);
                   if (context.mounted && result) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
