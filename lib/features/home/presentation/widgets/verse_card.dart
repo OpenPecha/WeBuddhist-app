@@ -43,7 +43,7 @@ class VerseCard extends ConsumerWidget {
                     imageUrl.isNotEmpty
                         ? DecorationImage(
                           image: imageUrl.cachedNetworkImageProvider,
-                          fit: BoxFit.fill,
+                          fit: BoxFit.cover,
                         )
                         : null,
                 color: imageUrl.isEmpty ? Colors.brown[700] : null,
