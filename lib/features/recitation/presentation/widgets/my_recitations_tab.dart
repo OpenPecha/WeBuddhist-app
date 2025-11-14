@@ -173,11 +173,17 @@ class MyRecitationsTab extends ConsumerWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               ListTile(
-                leading: const Icon(Icons.bookmark_remove_outlined),
-                title: const Text('Remove from Saved'),
+                leading: Icon(
+                  Icons.bookmark_remove_outlined,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+                title: Text(
+                  'Remove from Saved',
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
                 onTap: () async {
                   final result = await ref
-                      .watch(recitationsRepositoryProvider)
+                      .read(recitationsRepositoryProvider)
                       .unsaveRecitation(recitation.textId);
                   ref.invalidate(savedRecitationsFutureProvider);
                   if (context.mounted) Navigator.pop(context);
