@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_pecha/features/home/presentation/widgets/verse_background_service.dart';
+import 'package:flutter_pecha/core/services/background_image/background_image_service.dart';
 import 'package:flutter_pecha/features/home/presentation/widgets/verse_card_constants.dart';
 import 'package:flutter_pecha/features/plans/models/user/user_subtasks_dto.dart';
 import 'package:flutter_pecha/features/story_view/utils/story_dialog_helper.dart';
@@ -22,7 +22,7 @@ class VerseCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     // Get consistent background image for this verse
-    final backgroundImagePath = VerseBackgroundService().getImageForVerse(
+    final backgroundImagePath = BackgroundImageService().getImageForContent(
       verseText,
     );
     return GestureDetector(
