@@ -23,7 +23,6 @@ class OnboardingScreen3 extends ConsumerWidget {
   static const List<_LanguageOption> _languages = [
     _LanguageOption(id: PreferredLanguage.tibetan, label: 'Tibetan'),
     _LanguageOption(id: PreferredLanguage.english, label: 'English'),
-    _LanguageOption(id: PreferredLanguage.sanskrit, label: 'Sanskrit'),
     _LanguageOption(id: PreferredLanguage.chinese, label: 'Chinese'),
   ];
 

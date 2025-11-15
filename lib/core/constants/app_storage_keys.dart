@@ -1,10 +1,13 @@
 /// Application storage keys
-/// Contains all local storage keys used throughout the app
+///
+/// Single source of truth for all SharedPreferences keys used throughout the app.
+/// This consolidates keys from the legacy StorageKeys class.
 class AppStorageKeys {
   AppStorageKeys._();
 
   // ========== AUTHENTICATION ==========
   static const String userData = 'user_data';
+  static const String isGuestMode = 'is_guest_mode';
 
   // ========== ONBOARDING ==========
   static const String onboardingPreferences = 'onboarding_preferences';
@@ -14,8 +17,9 @@ class AppStorageKeys {
 
   // ========== USER PREFERENCES ==========
   static const String themeMode = 'theme_mode';
-  static const String language = 'language'; // legacy string is "locale"
+  static const String locale = 'locale'; // App language/locale preference
   static const String fontSize = 'font_size';
+  static const String firstLaunch = 'first_launch';
 
   // ========== NOTIFICATIONS ==========
   static const String dailyReminderTime = 'daily_reminder_time';

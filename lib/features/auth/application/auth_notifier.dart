@@ -176,8 +176,22 @@ class AuthNotifier extends StateNotifier<AuthState> {
       }
 
       if (credentials != null) {
+        // Check if user was previously in guest mode
+        final wasGuest = state.isGuest || await authService.isGuestMode();
+
         // Clear guest mode when user authenticates
         await authService.clearGuestMode();
+
+        // If user was a guest, clear onboarding completion so they see onboarding
+        if (wasGuest) {
+          try {
+            final onboardingRepo = ref.read(onboardingRepositoryProvider);
+            await onboardingRepo.clearPreferences();
+            debugPrint('✅ Guest converted to authenticated user, onboarding reset');
+          } catch (e) {
+            debugPrint('⚠️ Failed to clear guest onboarding: $e');
+          }
+        }
 
         state = state.copyWith(
           isLoggedIn: true,
@@ -233,8 +247,8 @@ class AuthNotifier extends StateNotifier<AuthState> {
     await authService.localLogout(); // This also clears guest mode
 
     // Note: We keep user data cached locally for faster re-login
-    // This includes profile info but onboarding status is tracked separately
-    // Only clear user data if you need to (e.g., account deletion, privacy reasons)
+    // This includes profile info and onboarding completion status
+    // Onboarding preferences are preserved so user doesn't see onboarding again on re-login
 
     state = state.copyWith(
       isLoggedIn: false,
@@ -244,10 +258,9 @@ class AuthNotifier extends StateNotifier<AuthState> {
       userProfile: null,
     );
 
-    // clear onboarding preferences
-    final onboardingRepo = ref.read(onboardingRepositoryProvider);
-    await onboardingRepo.clearPreferences();
-    _logger.info('User logged out, all auth state cleared');
+    // DO NOT clear onboarding preferences on logout
+    // Once a user completes onboarding, they should not see it again on re-login
+    _logger.info('User logged out, auth state cleared (onboarding status preserved)');
   }
 
   /// Completely clear all user data (use for account deletion or privacy reset)
@@ -255,9 +268,26 @@ class AuthNotifier extends StateNotifier<AuthState> {
     try {
       final userService = ref.read(userServiceProvider);
       await userService.clearUser();
-      _logger.info('All user data cleared');
+
+      // Also clear onboarding preferences for complete reset
+      final onboardingRepo = ref.read(onboardingRepositoryProvider);
+      await onboardingRepo.clearPreferences();
+
+      _logger.info('All user data and onboarding preferences cleared');
     } catch (e) {
       _logger.warning('Failed to clear user data: $e');
+    }
+  }
+
+  /// Reset onboarding status (for testing or manual reset)
+  /// This allows a user to go through onboarding again
+  Future<void> resetOnboarding() async {
+    try {
+      final onboardingRepo = ref.read(onboardingRepositoryProvider);
+      await onboardingRepo.clearPreferences();
+      _logger.info('Onboarding status reset - user will see onboarding on next navigation');
+    } catch (e) {
+      _logger.warning('Failed to reset onboarding: $e');
     }
   }
 }
