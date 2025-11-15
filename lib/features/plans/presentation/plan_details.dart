@@ -3,6 +3,7 @@ import 'package:flutter_pecha/features/plans/data/providers/plan_days_providers.
 import 'package:flutter_pecha/features/plans/data/providers/user_plans_provider.dart';
 import 'package:flutter_pecha/features/plans/models/user/user_plans_model.dart';
 import 'package:flutter_pecha/features/plans/models/user/user_tasks_dto.dart';
+import 'package:flutter_pecha/features/plans/presentation/providers/my_plans_paginated_provider.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'widgets/plan_cover_image.dart';
 import 'widgets/day_carousel.dart';
@@ -52,6 +53,28 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         elevation: 0,
+        actions: [
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.more_vert),
+            onSelected: (value) {
+              if (value == 'unenroll') {
+                _showUnenrollDialog(context);
+              }
+            },
+            itemBuilder: (BuildContext context) => [
+              const PopupMenuItem<String>(
+                value: 'unenroll',
+                child: Row(
+                  children: [
+                    Icon(Icons.exit_to_app, size: 20),
+                    SizedBox(width: 12),
+                    Text('Unenroll from Plan'),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -243,6 +266,75 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
       debugPrint('Error toggling task: $e');
       if (mounted) {
         _showErrorSnackbar('Error: $e');
+      }
+    }
+  }
+
+  void _showUnenrollDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          title: const Text('Unenroll from Plan'),
+          content: Text(
+            'Are you sure you want to unenroll from "${widget.plan.title}"?\n\nYour progress will be permanently lost and cannot be recovered.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              onPressed: () {
+                Navigator.of(dialogContext).pop();
+                _handleUnenroll();
+              },
+              style: FilledButton.styleFrom(
+                backgroundColor: Theme.of(context).colorScheme.error,
+              ),
+              child: const Text('Unenroll'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _handleUnenroll() async {
+    try {
+      final success = await ref.read(
+        userPlansRepositoryProvider,
+      ).unenrollFromPlan(widget.plan.id);
+
+      if (success) {
+        // Invalidate plans to refresh the list
+        ref.invalidate(myPlansPaginatedProvider);
+
+        if (mounted) {
+          // Pop back to plans list
+          Navigator.of(context).pop();
+
+          // Show success message
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('You have been unenrolled from "${widget.plan.title}"'),
+              backgroundColor: Theme.of(context).colorScheme.primary,
+              behavior: SnackBarBehavior.floating,
+              duration: const Duration(seconds: 3),
+            ),
+          );
+        }
+      } else {
+        if (mounted) {
+          _showErrorSnackbar('Unable to unenroll at this time. Please try again.');
+        }
+      }
+    } catch (e) {
+      debugPrint('Error unenrolling from plan: $e');
+      if (mounted) {
+        _showErrorSnackbar(
+          'Something went wrong. Please check your connection and try again.',
+        );
       }
     }
   }
