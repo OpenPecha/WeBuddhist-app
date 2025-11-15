@@ -39,15 +39,19 @@ class RecitationSaveController {
     }
 
     try {
-      if (isSaved) {
-        await _unsaveRecitation(textId);
-      } else {
-        await _saveRecitation(textId);
-      }
+      // Perform save or unsave operation
+      isSaved
+          ? await _unsaveRecitation(textId)
+          : await _saveRecitation(textId);
 
       // Invalidate the saved recitations provider to refresh the UI
       ref.invalidate(savedRecitationsFutureProvider);
-    } catch (e) {
+    } catch (e, stackTrace) {
+      // Log error for debugging
+      debugPrint('Error ${isSaved ? 'unsaving' : 'saving'} recitation: $e');
+      debugPrint('Stack trace: $stackTrace');
+
+      // Show user-friendly error message
       _showErrorSnackBar(isSaved);
     }
   }

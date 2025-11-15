@@ -62,7 +62,8 @@ Split a 307-line monolithic file into focused, single-responsibility components:
 6. **`lib/features/recitation/presentation/widgets/recitation_text_section.dart`**
    - Renders individual text sections
    - Handles HTML break tag conversion
-   - Consistent text styling
+   - Language-specific text styling (font family, size, line height)
+   - Uses shared helper functions (`getFontFamily`, `getLineHeight`, `getFontSize`)
    - Reusable component
 
 7. **`lib/features/recitation/presentation/widgets/recitation_error_state.dart`**

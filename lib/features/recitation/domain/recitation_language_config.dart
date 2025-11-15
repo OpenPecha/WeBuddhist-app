@@ -13,6 +13,10 @@ class RecitationLanguageConfig {
   static const String tibetan = 'bo';
   static const String english = 'en';
   static const String chinese = 'zh';
+  static const String sanskrit = 'sa';
+
+  /// Supported languages list
+  static const List<String> supportedLanguages = [tibetan, english, chinese];
 
   /// Returns the appropriate [RecitationContentParams] based on the user's
   /// language preference.
@@ -59,6 +63,31 @@ class RecitationLanguageConfig {
     }
   }
 
+  /// Content order configurations for each language (cached for performance)
+  static const List<ContentType> _tibetanOrder = [
+    ContentType.recitation,
+    ContentType.adaptation,
+    ContentType.translation,
+  ];
+
+  static const List<ContentType> _englishOrder = [
+    ContentType.translation,
+    ContentType.recitation,
+    ContentType.transliteration,
+  ];
+
+  static const List<ContentType> _chineseOrder = [
+    ContentType.translation,
+    ContentType.transliteration,
+  ];
+
+  static const List<ContentType> _defaultOrder = [
+    ContentType.recitation,
+    ContentType.translation,
+    ContentType.transliteration,
+    ContentType.adaptation,
+  ];
+
   /// Returns the display order of content types based on the user's language.
   ///
   /// This determines the visual hierarchy of different content types:
@@ -67,39 +96,16 @@ class RecitationLanguageConfig {
   /// - Chinese users see: Translation → Transliteration
   /// - Others see: Recitation → Translation → Transliteration → Adaptation
   static List<ContentType> getContentOrder(String languageCode) {
-    switch (languageCode) {
-      case tibetan:
-        return [
-          ContentType.recitation,
-          ContentType.adaptation,
-          ContentType.translation,
-        ];
-
-      case english:
-        return [
-          ContentType.translation,
-          ContentType.recitation,
-          ContentType.transliteration,
-        ];
-
-      case chinese:
-        return [
-          ContentType.translation,
-          ContentType.transliteration,
-        ];
-
-      default:
-        return [
-          ContentType.recitation,
-          ContentType.translation,
-          ContentType.transliteration,
-          ContentType.adaptation,
-        ];
-    }
+    return switch (languageCode) {
+      tibetan => _tibetanOrder,
+      english => _englishOrder,
+      chinese => _chineseOrder,
+      _ => _defaultOrder,
+    };
   }
 
   /// Checks if a language code is supported.
   static bool isLanguageSupported(String languageCode) {
-    return [tibetan, english, chinese].contains(languageCode);
+    return supportedLanguages.contains(languageCode);
   }
 }

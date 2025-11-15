@@ -30,30 +30,33 @@ class RecitationContent extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Title
-          Text(
-            content.title,
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
-          ),
+          _buildTitle(context),
           const Divider(),
 
           // Segments
-          ...content.segments.asMap().entries.map((entry) {
-            final index = entry.key;
-            final segment = entry.value;
-
-            return RecitationSegment(
-              segment: segment,
+          ...List.generate(
+            content.segments.length,
+            (index) => RecitationSegment(
+              segment: content.segments[index],
               contentOrder: contentOrder,
               isFirstSegment: index == 0,
-            );
-          }),
+            ),
+          ),
 
           // Bottom spacing
           const SizedBox(height: 32),
         ],
       ),
+    );
+  }
+
+  /// Builds the title widget with proper styling.
+  Widget _buildTitle(BuildContext context) {
+    return Text(
+      content.title,
+      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+            fontWeight: FontWeight.bold,
+          ),
     );
   }
 }

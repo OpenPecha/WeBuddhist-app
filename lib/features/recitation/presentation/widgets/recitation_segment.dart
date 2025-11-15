@@ -50,42 +50,42 @@ class RecitationSegment extends StatelessWidget {
   /// Returns an empty list if the content type is not available
   /// in this segment.
   List<Widget> _buildContentForType(ContentType contentType) {
-    final Map<String, RecitationTextModel>? contentMap;
-
-    switch (contentType) {
-      case ContentType.recitation:
-        contentMap = segment.recitation;
-        break;
-      case ContentType.translation:
-        contentMap = segment.translations;
-        break;
-      case ContentType.transliteration:
-        contentMap = segment.transliterations;
-        break;
-      case ContentType.adaptation:
-        contentMap = segment.adaptations;
-        break;
-    }
+    // Get the appropriate content map based on content type
+    final contentMap = _getContentMap(contentType);
 
     // Return empty list if this content type is not available
     if (contentMap == null || contentMap.isEmpty) {
       return [];
     }
 
-    // Build widgets for each text entry
-    final widgets = <Widget>[];
-    bool isFirstEntry = true;
+    // Build widgets for each text entry with spacing
+    return contentMap.entries
+        .expand((entry) sync* {
+          // Add spacing between different language entries
+          // (but not before the first one)
+          if (entry.key != contentMap.keys.first) {
+            yield const SizedBox(height: 8);
+          }
 
-    for (final entry in contentMap.entries) {
-      // Add spacing between different entries (but not before the first one)
-      if (!isFirstEntry) {
-        widgets.add(const SizedBox(height: 8));
-      }
-      isFirstEntry = false;
+          // entry.key is the language code (e.g., 'bo', 'en', 'zh')
+          // entry.value contains the text content
+          yield RecitationTextSection(
+            text: entry.value.content,
+            languageCode: entry.key,
+          );
+        })
+        .toList();
+  }
 
-      widgets.add(RecitationTextSection(text: entry.value.content));
-    }
-
-    return widgets;
+  /// Gets the content map for a specific content type.
+  ///
+  /// Returns null if the content type is not available in this segment.
+  Map<String, RecitationTextModel>? _getContentMap(ContentType contentType) {
+    return switch (contentType) {
+      ContentType.recitation => segment.recitation,
+      ContentType.translation => segment.translations,
+      ContentType.transliteration => segment.transliterations,
+      ContentType.adaptation => segment.adaptations,
+    };
   }
 }

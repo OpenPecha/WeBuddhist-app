@@ -27,29 +27,17 @@ class RecitationDetailScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     // Get user's language preference
-    final locale = ref.watch(localeProvider);
-    final languageCode = locale.languageCode;
+    final languageCode = ref.watch(localeProvider.select((locale) => locale.languageCode));
 
-    // Check authentication status
-    final authState = ref.watch(authProvider);
-    final isGuest = authState.isGuest;
+    // Check authentication status and saved state
+    final isGuest = ref.watch(authProvider.select((state) => state.isGuest));
+    final isSaved = _checkIfSaved(ref, isGuest);
 
-    // Get saved recitations for authenticated users
-    final savedRecitationsAsync = isGuest
-        ? const AsyncValue<List<RecitationModel>>.data([])
-        : ref.watch(savedRecitationsFutureProvider);
-
-    final savedRecitationIds =
-        savedRecitationsAsync.valueOrNull?.map((e) => e.textId).toList() ?? [];
-    final isSaved = savedRecitationIds.contains(recitation.textId);
-
-    // Get content parameters based on language
+    // Get content parameters and display order based on language
     final recitationParams = RecitationLanguageConfig.getContentParams(
       languageCode,
       recitation.textId,
     );
-
-    // Get content display order based on language
     final contentOrder = RecitationLanguageConfig.getContentOrder(languageCode);
 
     // Watch recitation content
@@ -74,6 +62,19 @@ class RecitationDetailScreen extends ConsumerWidget {
         error: (error, stack) => RecitationErrorState(error: error),
       ),
     );
+  }
+
+  /// Checks if the current recitation is saved by the user.
+  ///
+  /// Returns false for guest users without checking the saved list.
+  bool _checkIfSaved(WidgetRef ref, bool isGuest) {
+    if (isGuest) return false;
+
+    final savedRecitationsAsync = ref.watch(savedRecitationsFutureProvider);
+    final savedRecitationIds =
+        savedRecitationsAsync.valueOrNull?.map((e) => e.textId).toSet() ?? {};
+
+    return savedRecitationIds.contains(recitation.textId);
   }
 
   /// Handles the save/unsave toggle action.

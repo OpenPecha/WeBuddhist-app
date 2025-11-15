@@ -14,7 +14,7 @@ String? getFontFamily(String language) {
     case "bo":
       return "MonlamTibetan";
     case "en":
-      return null;
+      return "Inter";
     case "sa":
       return "MonlamTibetan";
     case "zh":
