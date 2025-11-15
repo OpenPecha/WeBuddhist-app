@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/services/background_image/background_image_service.dart';
 
 class TextStory extends StatelessWidget {
   final String text;
@@ -7,6 +8,7 @@ class TextStory extends StatelessWidget {
   final EdgeInsetsGeometry? padding;
   final bool roundedTop;
   final bool roundedBottom;
+  final String? backgroundImagePath;
 
   const TextStory({
     super.key,
@@ -16,6 +18,7 @@ class TextStory extends StatelessWidget {
     this.padding,
     this.roundedTop = false,
     this.roundedBottom = false,
+    this.backgroundImagePath,
   });
 
   @override
@@ -30,18 +33,25 @@ class TextStory extends StatelessWidget {
     final textColor =
         brightness == Brightness.dark ? Colors.white : Colors.black;
 
-    final imageUrl =
-        "https://images.unsplash.com/photo-1685495856559-5d96a0e51acb?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=2624";
+    // Get background image - use provided path or generate from text content
+    final imagePath = backgroundImagePath ??
+        BackgroundImageService().getImageForContent(text);
+
+    // Get screen height to calculate 80% constraint
+    final screenHeight = MediaQuery.of(context).size.height;
+    final maxTextHeight = screenHeight * 0.6;
 
     return Container(
       width: double.infinity,
       height: double.infinity,
       decoration: BoxDecoration(
-        image: DecorationImage(
-          image: Image.network(imageUrl).image,
-          fit: BoxFit.cover,
-        ),
-        color: defaultBackgroundColor,
+        image: imagePath.isNotEmpty
+            ? DecorationImage(
+                image: AssetImage(imagePath),
+                fit: BoxFit.cover,
+              )
+            : null,
+        color: imagePath.isEmpty ? defaultBackgroundColor : null,
         borderRadius: BorderRadius.vertical(
           top: Radius.circular(roundedTop ? 8 : 0),
           bottom: Radius.circular(roundedBottom ? 8 : 0),
@@ -59,14 +69,16 @@ class TextStory extends StatelessWidget {
             height: 4,
             margin: const EdgeInsets.only(bottom: 32),
             decoration: BoxDecoration(
-              color: textColor.withOpacity(0.3),
+              color: textColor.withValues(alpha: 0.3),
               borderRadius: BorderRadius.circular(2),
             ),
           ),
 
           // Main text content
-          Flexible(
+          SizedBox(
+            height: maxTextHeight,
             child: SingleChildScrollView(
+              physics: const ClampingScrollPhysics(),
               child: Text(
                 text,
                 style:
@@ -76,7 +88,7 @@ class TextStory extends StatelessWidget {
                       fontSize: 18,
                       fontWeight: FontWeight.w500,
                     ),
-                textAlign: TextAlign.left,
+                textAlign: TextAlign.center,
               ),
             ),
           ),
