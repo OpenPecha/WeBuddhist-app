@@ -18,10 +18,10 @@ class AppLocalizationsBo extends AppLocalizations {
   String get learnLiveShare => 'སློབ་སྦྱོང་དང་འཚོ་བ་དང་མཉམ་འབྲེལ།';
 
   @override
-  String get themeLight => 'དཀར་པོའི་ཚད་གཞི་';
+  String get themeLight => 'དཀར་པོའི་ཚད་གཞི་།';
 
   @override
-  String get themeDark => 'ནག་པོའི་ཚད་གཞི་';
+  String get themeDark => 'ནག་པོའི་ཚད་གཞི་།';
 
   @override
   String get switchToLight => 'དཀར་པོའི་ཚད་གཞི་ལ་སྒྲིག་པ།';

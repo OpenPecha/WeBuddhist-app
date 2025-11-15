@@ -41,15 +41,9 @@ class _RecitationsScreenState extends ConsumerState<RecitationsScreen>
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Center(
-            //   child: Text(
-            //     'Work in progress...',
-            //     style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            //   ),
-            // ),
             _buildAppBar(context, localizations),
             // if (_isSearchVisible)
-            _buildSearchBar(context, localizations),
+            // _buildSearchBar(context, localizations),
             _buildTabBar(context, localizations),
             Expanded(
               child: TabBarView(
@@ -76,17 +70,17 @@ class _RecitationsScreenState extends ConsumerState<RecitationsScreen>
             'Recitations',
             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
           ),
-          IconButton(
-            onPressed: () {
-              setState(() {
-                _isSearchVisible = !_isSearchVisible;
-                if (!_isSearchVisible) {
-                  _searchController.clear();
-                }
-              });
-            },
-            icon: Icon(_isSearchVisible ? Icons.close : Icons.search, size: 24),
-          ),
+          // IconButton(
+          //   onPressed: () {
+          //     setState(() {
+          //       _isSearchVisible = !_isSearchVisible;
+          //       if (!_isSearchVisible) {
+          //         _searchController.clear();
+          //       }
+          //     });
+          //   },
+          //   icon: Icon(_isSearchVisible ? Icons.close : Icons.search, size: 24),
+          // ),
         ],
       ),
     );

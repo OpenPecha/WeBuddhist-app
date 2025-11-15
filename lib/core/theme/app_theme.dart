@@ -39,12 +39,12 @@ class AppTheme {
       ),
 
       // AppBar with light background
-      appBarTheme: const AppBarTheme(
+      appBarTheme: AppBarTheme(
         backgroundColor: AppColors.surfaceLight,
         foregroundColor: AppColors.textPrimary,
         elevation: 0,
-        iconTheme: IconThemeData(color: AppColors.textPrimary),
-        titleTextStyle: TextStyle(
+        iconTheme: const IconThemeData(color: AppColors.textPrimary),
+        titleTextStyle: (fontConfig.textTheme?.headlineSmall ?? const TextStyle()).copyWith(
           color: AppColors.textPrimary,
           fontSize: 20,
           fontWeight: FontWeight.w600,
@@ -238,12 +238,12 @@ class AppTheme {
       ),
 
       // AppBar with dark background
-      appBarTheme: const AppBarTheme(
+      appBarTheme: AppBarTheme(
         backgroundColor: AppColors.backgroundDark,
         foregroundColor: AppColors.textPrimaryDark,
         elevation: 0,
-        iconTheme: IconThemeData(color: AppColors.textPrimaryDark),
-        titleTextStyle: TextStyle(
+        iconTheme: const IconThemeData(color: AppColors.textPrimaryDark),
+        titleTextStyle: (fontConfig.textTheme?.headlineSmall ?? const TextStyle()).copyWith(
           color: AppColors.textPrimaryDark,
           fontSize: 20,
           fontWeight: FontWeight.w600,

@@ -42,7 +42,9 @@ class MoreScreen extends ConsumerWidget {
         centerTitle: false,
         title: Text(
           localizations.nav_settings,
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
+          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
         ),
         elevation: 0,
         backgroundColor: Colors.transparent,
