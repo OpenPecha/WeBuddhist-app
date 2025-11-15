@@ -170,4 +170,21 @@ class UserPlansRemoteDatasource {
       throw Exception('Failed to delete task: $e');
     }
   }
+
+  // unenroll from plan request
+  Future<bool> unenrollFromPlan(String planId) async {
+    try {
+      final uri = Uri.parse('$baseUrl/users/me/plans/$planId');
+      final response = await client.delete(uri);
+      if (response.statusCode == 204) {
+        return true;
+      } else {
+        debugPrint('Failed to unenroll from plan: ${response.statusCode}');
+        return false;
+      }
+    } catch (e) {
+      debugPrint('Failed to unenroll from plan: $e');
+      throw Exception('Failed to unenroll from plan: $e');
+    }
+  }
 }

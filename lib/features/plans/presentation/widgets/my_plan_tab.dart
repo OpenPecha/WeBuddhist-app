@@ -3,6 +3,7 @@ import 'package:flutter_pecha/features/auth/application/auth_notifier.dart';
 import 'package:flutter_pecha/features/auth/presentation/widgets/login_drawer.dart';
 import 'package:flutter_pecha/features/plans/data/providers/user_plans_provider.dart';
 import 'package:flutter_pecha/features/plans/data/utils/plan_utils.dart';
+import 'package:flutter_pecha/features/plans/models/user/user_plans_model.dart';
 import 'package:flutter_pecha/features/plans/presentation/providers/my_plans_paginated_provider.dart';
 import 'package:flutter_pecha/features/plans/presentation/widgets/user_plan_card.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -37,6 +38,60 @@ class _MyPlansTabState extends ConsumerState<MyPlansTab> {
         _scrollController.position.maxScrollExtent - 200) {
       // Load more when 200px from bottom
       ref.read(myPlansPaginatedProvider.notifier).loadMore();
+    }
+  }
+
+  Future<void> _handleUnenroll(
+    BuildContext context,
+    UserPlansModel plan,
+  ) async {
+    try {
+      // Call the repository to unenroll
+      final success = await ref.read(
+        userPlansRepositoryProvider,
+      ).unenrollFromPlan(plan.id);
+
+      if (success) {
+        // Refresh the plans list
+        ref.invalidate(myPlansPaginatedProvider);
+
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('You have been unenrolled from "${plan.title}"'),
+              backgroundColor: Theme.of(context).colorScheme.primary,
+              behavior: SnackBarBehavior.floating,
+              duration: const Duration(seconds: 3),
+            ),
+          );
+        }
+      } else {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: const Text(
+                'Unable to unenroll at this time. Please try again.',
+              ),
+              backgroundColor: Theme.of(context).colorScheme.error,
+              behavior: SnackBarBehavior.floating,
+              duration: const Duration(seconds: 3),
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text(
+              'Something went wrong. Please check your connection and try again.',
+            ),
+            backgroundColor: Theme.of(context).colorScheme.error,
+            behavior: SnackBarBehavior.floating,
+            duration: const Duration(seconds: 4),
+          ),
+        );
+      }
     }
   }
 
@@ -122,6 +177,7 @@ class _MyPlansTabState extends ConsumerState<MyPlansTab> {
               },
             );
           },
+          onDelete: () => _handleUnenroll(context, plan),
         );
       },
     );

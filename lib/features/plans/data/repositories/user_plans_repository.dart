@@ -51,4 +51,8 @@ class UserPlansRepository {
   Future<bool> deleteTask(String taskId) async {
     return await userPlansRemoteDatasource.deleteTask(taskId);
   }
+
+  Future<bool> unenrollFromPlan(String planId) async {
+    return await userPlansRemoteDatasource.unenrollFromPlan(planId);
+  }
 }
