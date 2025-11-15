@@ -1,3 +1,6 @@
+/// @deprecated Use AppStorageKeys from 'package:flutter_pecha/core/constants/app_storage_keys.dart' instead.
+/// This class is kept for backward compatibility and will be removed in a future version.
+@Deprecated('Use AppStorageKeys instead')
 class StorageKeys {
   // Theme
   static const String themeMode = 'theme_mode';

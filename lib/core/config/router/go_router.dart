@@ -673,62 +673,67 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       final isGuest = authState.isGuest;
       final currentPath = state.fullPath ?? RouteConfig.home;
 
-      // 1. While auth is loading, allow navigation to proceed
+      // 1. While auth is loading, redirect to login
       if (isLoading) {
-        debugPrint('Auth is loading, redirecting to login');
+        debugPrint('🔄 Auth is loading, redirecting to login');
         return RouteConfig.login;
       }
 
-      // // 2. Check onboarding for authenticated non-guest users
-      // if (isLoggedIn && !isGuest) {
-      //   debugPrint('Authenticated non-guest user, checking onboarding');
+      // 2. Check onboarding for authenticated non-guest users
+      if (isLoggedIn && !isGuest) {
+        debugPrint('✅ Authenticated non-guest user, checking onboarding');
 
-      //   User? user;
-      //   bool hasCompletedOnboarding;
+        // Check onboarding completion from local storage
+        // This is the single source of truth per requirements
+        final hasCompletedOnboarding =
+            await onboardingRepo.hasCompletedOnboarding();
+        debugPrint(
+          '📋 Onboarding status: $hasCompletedOnboarding',
+        );
 
-      //   // get user from api and local storage
-      //   final userData = await localStorageService.getUserData();
-      //   debugPrint('User data: $userData');
-      //   if (userData != null) {
-      //     user = UserModel.fromJson(userData).toEntity();
-      //     // Use user data if available
-      //     hasCompletedOnboarding = user.onboardingCompleted;
-      //     debugPrint(
-      //       'Current user: ${user.firstName} onboardingCompleted: $hasCompletedOnboarding',
-      //     );
-      //   } else {
-      //     // Fallback: Check onboarding repository (reads from local storage)
-      //     hasCompletedOnboarding =
-      //         await onboardingRepo.hasCompletedOnboarding();
-      //     debugPrint(
-      //       'Checking onboarding from repository: $hasCompletedOnboarding',
-      //     );
-      //   }
+        // Redirect to onboarding if not completed (unless already there or on login)
+        if (!hasCompletedOnboarding &&
+            currentPath != RouteConfig.onboarding &&
+            currentPath != RouteConfig.login) {
+          debugPrint('🎯 Redirecting to onboarding');
+          return RouteConfig.onboarding;
+        }
 
-      //   // Redirect to onboarding if not completed (unless already there or on login)
-      //   if (!hasCompletedOnboarding &&
-      //       currentPath != RouteConfig.onboarding &&
-      //       currentPath != RouteConfig.login) {
-      //     return RouteConfig.onboarding;
-      //   }
+        // If completed and on onboarding page, redirect to home
+        if (hasCompletedOnboarding && currentPath == RouteConfig.onboarding) {
+          debugPrint('✅ Onboarding already completed, redirecting to home');
+          return RouteConfig.home;
+        }
+      }
 
-      //   // If completed and on onboarding page, redirect to home
-      //   if (hasCompletedOnboarding && currentPath == RouteConfig.onboarding) {
-      //     return RouteConfig.home;
-      //   }
-      // }
-
-      // 3. Authenticated user on login page should go to home
-      if (isLoggedIn && currentPath == RouteConfig.login) {
+      // 3. Guest users skip onboarding - allow them to navigate freely
+      if (isGuest && currentPath == RouteConfig.onboarding) {
+        debugPrint('👤 Guest user, skipping onboarding');
         return RouteConfig.home;
       }
 
-      // 4. Unauthenticated user trying to access protected route
+      // 4. Authenticated user on login page should go to home or onboarding
+      if (isLoggedIn && currentPath == RouteConfig.login) {
+        // Check if they need onboarding first
+        if (!isGuest) {
+          final hasCompletedOnboarding =
+              await onboardingRepo.hasCompletedOnboarding();
+          if (!hasCompletedOnboarding) {
+            debugPrint('🎯 New authenticated user, redirecting to onboarding');
+            return RouteConfig.onboarding;
+          }
+        }
+        debugPrint('✅ Authenticated user, redirecting to home');
+        return RouteConfig.home;
+      }
+
+      // 5. Unauthenticated user trying to access protected route
       if (!isLoggedIn && RouteConfig.isProtectedRoute(currentPath)) {
+        debugPrint('🔒 Protected route, redirecting to login');
         return RouteConfig.login;
       }
 
-      // 5. No redirect needed
+      // 6. No redirect needed
       return null;
     },
   );

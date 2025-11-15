@@ -76,7 +76,6 @@ class OnboardingPreferences {
 class PreferredLanguage {
   static const String tibetan = 'tibetan';
   static const String english = 'english';
-  static const String sanskrit = 'sanskrit';
   static const String chinese = 'chinese';
 }
 
