@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/widgets/cached_network_image_widget.dart';
 import 'package:flutter_pecha/features/auth/application/auth_notifier.dart';
+import 'package:flutter_pecha/features/auth/application/user_notifier.dart';
 import 'package:flutter_pecha/features/home/data/providers/featured_day_provider.dart';
 import 'package:flutter_pecha/features/home/presentation/featured_content_factory.dart';
 import 'package:flutter_pecha/features/home/presentation/home_screen_constants.dart';
@@ -149,15 +150,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                       radius: HomeScreenConstants.avatarRadius,
                       backgroundColor: Colors.grey.shade300,
                       backgroundImage:
-                          (authState.userProfile?.pictureUrl?.toString() ?? '')
-                                  .isNotEmpty
-                              ? authState.userProfile!.pictureUrl!
-                                  .toString()
+                          (ref.watch(userProvider).user?.avatarUrl ?? '').isNotEmpty
+                              ? ref.watch(userProvider).user!.avatarUrl!
                                   .cachedNetworkImageProvider
                               : null,
                       child:
-                          ((authState.userProfile?.pictureUrl?.toString() ?? '')
-                                  .isEmpty)
+                          (ref.watch(userProvider).user?.avatarUrl ?? '').isEmpty
                               ? const Icon(Icons.person, color: Colors.black54)
                               : null,
                     ),

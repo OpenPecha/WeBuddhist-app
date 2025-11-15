@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/widgets/cached_network_image_widget.dart';
+import 'package:flutter_pecha/features/auth/application/user_notifier.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../application/auth_notifier.dart';
@@ -12,9 +13,10 @@ class ProfilePage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final authState = ref.watch(authProvider);
+    final userState = ref.watch(userProvider);
     final localizations = AppLocalizations.of(context)!;
 
-    if (authState.isLoading) {
+    if (authState.isLoading || userState.isLoading) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
@@ -28,16 +30,18 @@ class ProfilePage extends ConsumerWidget {
     }
 
     // Authenticated user
-    if (authState.userProfile == null) {
-      return const Scaffold(body: Center(child: Text('Error loading profile')));
+    if (userState.user == null) {
+      return Scaffold(
+        appBar: AppBar(title: Text(localizations.home_profile)),
+        body: const Center(child: Text('Error loading profile')),
+      );
     }
 
-    final user = authState.userProfile!;
-    final pictureUrl = user.pictureUrl?.toString();
-    final fullName =
-        (user.name ?? _joinNames(user.givenName, user.familyName)).trim();
+    final user = userState.user!;
+    final pictureUrl = user.avatarUrl;
+    final fullName = user.fullName;
     final email = user.email ?? '';
-    final bio = "Welcome to WeBuddhist";
+    final bio = user.aboutMe ?? "Welcome to WeBuddhist";
 
     return Scaffold(
       appBar: AppBar(title: Text(localizations.home_profile)),
@@ -81,7 +85,7 @@ class ProfilePage extends ConsumerWidget {
                       Text(
                         fullName.isNotEmpty
                             ? fullName
-                            : (user.nickname ?? 'Anonymous'),
+                            : (user.username ?? 'Anonymous'),
                         textAlign: TextAlign.center,
                         style: Theme.of(context).textTheme.titleMedium,
                       ),
@@ -113,12 +117,6 @@ class ProfilePage extends ConsumerWidget {
         parts.isNotEmpty && parts.first.isNotEmpty ? parts.first[0] : '';
     final last = parts.length > 1 && parts.last.isNotEmpty ? parts.last[0] : '';
     return (first + last).toUpperCase();
-  }
-
-  static String _joinNames(String? given, String? family) {
-    final g = (given ?? '').trim();
-    final f = (family ?? '').trim();
-    return [g, f].where((e) => e.isNotEmpty).join(' ');
   }
 
   Widget _buildGuestProfile(BuildContext context, WidgetRef ref) {

@@ -1,42 +1,43 @@
 // Riverpod provider and logic for authentication state.
 import 'package:auth0_flutter/auth0_flutter.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_pecha/features/auth/application/user_notifier.dart';
 import 'package:flutter_pecha/features/onboarding/data/providers/onboarding_datasource_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logging/logging.dart';
 import '../auth_service.dart';
-import 'package:flutter_pecha/core/services/user/user_service_provider.dart';
 
+/// Authentication state
+///
+/// Handles ONLY authentication concerns:
+/// - Login/logout status
+/// - Guest mode
+/// - Auth loading states
+/// - Auth errors
+///
+/// User profile data is now managed by UserNotifier (userProvider)
 class AuthState {
   final bool isLoggedIn;
   final bool isLoading;
   final bool isGuest;
-  final String? userId;
-  final UserProfile? userProfile;
-  final String? errorMessage; // Add error state
+  final String? errorMessage;
 
   const AuthState({
     required this.isLoggedIn,
     this.isGuest = false,
-    this.userId,
     this.isLoading = false,
-    this.userProfile,
     this.errorMessage,
   });
 
   AuthState copyWith({
     bool? isLoggedIn,
-    String? userId,
     bool? isLoading,
     bool? isGuest,
-    UserProfile? userProfile,
     String? errorMessage,
   }) => AuthState(
     isLoggedIn: isLoggedIn ?? this.isLoggedIn,
-    userId: userId ?? this.userId,
     isLoading: isLoading ?? this.isLoading,
     isGuest: isGuest ?? this.isGuest,
-    userProfile: userProfile ?? this.userProfile,
     errorMessage: errorMessage,
   );
 
@@ -70,26 +71,21 @@ class AuthNotifier extends StateNotifier<AuthState> {
         if (credentials != null && credentials.user.sub.isNotEmpty) {
           state = state.copyWith(
             isLoggedIn: true,
-            userId: credentials.user.sub,
             isLoading: false,
             isGuest: false,
-            userProfile: credentials.user,
             errorMessage: null,
           );
           debugPrint(
             'Login state restored for user: ${credentials.user.sub} auth isLoggedin ${state.isLoggedIn}',
           );
 
-          // Check user has completed onboarding or not
-          // Note: UserService may need initialization, but onboarding check
-          // is handled by router redirect logic, so this is just for logging
+          // Initialize user data
           try {
-            final userService = ref.read(userServiceProvider);
-            final isOnboardingCompleted = userService.hasCompletedOnboarding;
-            debugPrint('User has completed onboarding: $isOnboardingCompleted');
+            await ref.read(userProvider.notifier).initializeUser();
+            debugPrint('User data initialized successfully');
           } catch (e) {
-            debugPrint('Could not check onboarding status: $e');
-            // Non-critical, router will handle onboarding redirects
+            debugPrint('Could not initialize user data: $e');
+            // Non-critical, user can still use the app
           }
 
           // Early return after successful credential restoration
@@ -109,10 +105,8 @@ class AuthNotifier extends StateNotifier<AuthState> {
         // Restore guest mode
         state = state.copyWith(
           isLoggedIn: true,
-          userId: 'guest',
           isLoading: false,
           isGuest: true,
-          userProfile: null,
           errorMessage: null,
         );
         _logger.info('Guest mode restored from preferences');
@@ -122,10 +116,8 @@ class AuthNotifier extends StateNotifier<AuthState> {
       // No credentials and not guest mode, user needs to log in
       state = state.copyWith(
         isLoggedIn: false,
-        userId: null,
         isLoading: false,
         isGuest: false,
-        userProfile: null,
       );
       _logger.info('No valid credentials or guest mode found, showing login');
     } on CredentialsManagerException catch (e) {
@@ -151,10 +143,8 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
     state = state.copyWith(
       isLoggedIn: false,
-      userId: null,
       isLoading: false,
       isGuest: false,
-      userProfile: null,
     );
   }
 
@@ -195,19 +185,15 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
         state = state.copyWith(
           isLoggedIn: true,
-          userId: credentials.user.sub,
           isLoading: false,
           isGuest: false,
-          userProfile: credentials.user,
           errorMessage: null,
         );
         _logger.info('User authenticated, guest mode cleared');
 
         // Fetch and save user data from backend on first login
         try {
-          final userService = ref.read(userServiceProvider);
-          await userService.initializeUser();
-
+          await ref.read(userProvider.notifier).initializeUser();
           _logger.info('User data fetched and saved locally');
         } catch (e) {
           _logger.warning('Failed to fetch user data: $e');
@@ -236,9 +222,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
     state = state.copyWith(
       isLoading: false,
       isLoggedIn: true,
-      userId: 'guest',
       isGuest: true,
-      userProfile: null,
     );
     _logger.info('Guest mode activated and persisted');
   }
@@ -246,28 +230,22 @@ class AuthNotifier extends StateNotifier<AuthState> {
   Future<void> logout() async {
     await authService.localLogout(); // This also clears guest mode
 
-    // Note: We keep user data cached locally for faster re-login
-    // This includes profile info and onboarding completion status
-    // Onboarding preferences are preserved so user doesn't see onboarding again on re-login
+    // Clear user data on logout
+    await ref.read(userProvider.notifier).clearUser();
 
     state = state.copyWith(
       isLoggedIn: false,
-      userId: null,
       isLoading: false,
       isGuest: false,
-      userProfile: null,
     );
 
-    // DO NOT clear onboarding preferences on logout
-    // Once a user completes onboarding, they should not see it again on re-login
-    _logger.info('User logged out, auth state cleared (onboarding status preserved)');
+    _logger.info('User logged out, auth and user state cleared');
   }
 
   /// Completely clear all user data (use for account deletion or privacy reset)
   Future<void> clearAllUserData() async {
     try {
-      final userService = ref.read(userServiceProvider);
-      await userService.clearUser();
+      await ref.read(userProvider.notifier).clearUser();
 
       // Also clear onboarding preferences for complete reset
       final onboardingRepo = ref.read(onboardingRepositoryProvider);
