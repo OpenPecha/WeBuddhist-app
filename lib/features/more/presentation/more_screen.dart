@@ -4,6 +4,7 @@ import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/core/theme/theme_notifier.dart';
 import 'package:flutter_pecha/core/widgets/cached_network_image_widget.dart';
+import 'package:flutter_pecha/features/auth/application/user_notifier.dart';
 import 'package:flutter_pecha/features/auth/presentation/widgets/login_drawer.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_pecha/features/auth/application/auth_notifier.dart';
@@ -62,29 +63,24 @@ class MoreScreen extends ConsumerWidget {
                       radius: 20,
                       backgroundColor: Colors.grey.shade300,
                       backgroundImage:
-                          (authState.userProfile?.pictureUrl?.toString() ?? '')
-                                  .isNotEmpty
-                              ? authState.userProfile!.pictureUrl!
-                                  .toString()
+                          (ref.watch(userProvider).user?.avatarUrl ?? '').isNotEmpty
+                              ? ref.watch(userProvider).user!.avatarUrl!
                                   .cachedNetworkImageProvider
                               : null,
                       child:
-                          ((authState.userProfile?.pictureUrl?.toString() ?? '')
-                                  .isEmpty)
+                          (ref.watch(userProvider).user?.avatarUrl ?? '').isEmpty
                               ? const Icon(Icons.person, color: Colors.black54)
                               : null,
                     ),
                   ),
                   title: Text(
-                    authState.userProfile?.name ??
-                        '${authState.userProfile?.givenName ?? ''} ${authState.userProfile?.familyName ?? ''}'
-                            .trim(),
+                    ref.watch(userProvider).user?.fullName ?? 'User',
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.w600,
                     ),
                   ),
                   subtitle: Text(
-                    authState.userProfile?.email ?? '',
+                    ref.watch(userProvider).user?.email ?? '',
                     style: Theme.of(context).textTheme.bodyMedium,
                   ),
                   trailing: const Icon(Icons.chevron_right),
