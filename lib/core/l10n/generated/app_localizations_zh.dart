@@ -231,10 +231,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get common_sign_in => 'Sign in';
 
   @override
-  String get recitations_title => '持誦';
+  String get recitations_title => '唱頌';
 
   @override
-  String get recitations_my_recitations => '我的持誦';
+  String get recitations_my_recitations => '我的清單';
 
   @override
   String get recitations_search => '搜索';

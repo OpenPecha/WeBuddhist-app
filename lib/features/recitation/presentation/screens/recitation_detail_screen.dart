@@ -54,10 +54,17 @@ class RecitationDetailScreen extends ConsumerWidget {
         ],
       ),
       body: contentAsync.when(
-        data: (content) => RecitationContent(
-          content: content,
-          contentOrder: contentOrder,
-        ),
+        data: (content) {
+          // Check if content is empty and show friendly message
+          if (content.isEmpty) {
+            return _buildEmptyContentState(context, content.title);
+          }
+
+          return RecitationContent(
+            content: content,
+            contentOrder: contentOrder,
+          );
+        },
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, stack) => RecitationErrorState(error: error),
       ),
@@ -87,6 +94,49 @@ class RecitationDetailScreen extends ConsumerWidget {
     controller.toggleSave(
       textId: recitation.textId,
       isSaved: isSaved,
+    );
+  }
+
+  /// Builds a user-friendly empty state when recitation content is not available.
+  Widget _buildEmptyContentState(BuildContext context, String title) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.menu_book_outlined,
+              size: 80,
+              color: Colors.grey[400],
+            ),
+            const SizedBox(height: 24),
+            Text(
+              title,
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Content not available',
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    color: Colors.grey[700],
+                  ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'The content for this recitation is currently not available.\nPlease check back later.',
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: Colors.grey[600],
+                  ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

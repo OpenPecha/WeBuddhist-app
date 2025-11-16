@@ -5,6 +5,7 @@ import '../../data/repositories/recitations_repository.dart';
 import '../../data/datasource/recitations_remote_datasource.dart';
 import '../../data/models/recitation_model.dart';
 import '../../data/models/recitation_content_model.dart';
+import 'recitation_search_provider.dart';
 
 // Params class for recitation content
 class RecitationContentParams {
@@ -87,3 +88,14 @@ final searchRecitationsProvider =
           .watch(recitationsRepositoryProvider)
           .getRecitations(language: languageCode, searchQuery: searchQuery);
     });
+
+// Recitation search state provider with debounce
+final recitationSearchProvider = StateNotifierProvider<
+    RecitationSearchNotifier, RecitationSearchState>((ref) {
+  final repository = ref.watch(recitationsRepositoryProvider);
+  final locale = ref.watch(localeProvider);
+  return RecitationSearchNotifier(
+    repository: repository,
+    languageCode: locale.languageCode,
+  );
+});
