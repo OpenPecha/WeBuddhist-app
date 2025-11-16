@@ -137,4 +137,21 @@ class RecitationContentModel {
   String toString() {
     return 'RecitationContentModel(textId: $textId, title: $title, segments: ${segments.length})';
   }
+
+  /// Checks if the recitation content is empty (all segments have no content).
+  bool get isEmpty {
+    if (segments.isEmpty) return true;
+
+    return segments.every((segment) {
+      final hasRecitation = segment.recitation?.isNotEmpty ?? false;
+      final hasTranslations = segment.translations?.isNotEmpty ?? false;
+      final hasTransliterations = segment.transliterations?.isNotEmpty ?? false;
+      final hasAdaptations = segment.adaptations?.isNotEmpty ?? false;
+
+      return !hasRecitation &&
+          !hasTranslations &&
+          !hasTransliterations &&
+          !hasAdaptations;
+    });
+  }
 }

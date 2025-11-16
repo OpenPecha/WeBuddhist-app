@@ -9,7 +9,11 @@ import 'package:go_router/go_router.dart';
 
 class RecitationsTab extends ConsumerWidget {
   final TabController controller;
-  const RecitationsTab({super.key, required this.controller});
+
+  const RecitationsTab({
+    super.key,
+    required this.controller,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -24,10 +28,12 @@ class RecitationsTab extends ConsumerWidget {
         return _buildRecitationsList(context, recitations, ref);
       },
       loading: () => const Center(child: CircularProgressIndicator()),
-      error: (error, stack) => ErrorStateWidget(
-        error: error,
-        customMessage: 'Unable to load recitations.\nPlease try again later.',
-      ),
+      error:
+          (error, stack) => ErrorStateWidget(
+            error: error,
+            customMessage:
+                'Unable to load recitations.\nPlease try again later.',
+          ),
     );
   }
 
@@ -37,15 +43,19 @@ class RecitationsTab extends ConsumerWidget {
     WidgetRef ref,
   ) {
     return ListView.builder(
-      padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       itemCount: recitations.length,
       itemBuilder: (context, index) {
         final recitation = recitations[index];
-        return RecitationCard(
-          recitation: recitation,
-          onTap: () {
-            context.push('/recitations/detail', extra: recitation);
-          },
+        return Container(
+          key: ValueKey(recitation.textId),
+          margin: const EdgeInsets.only(bottom: 12),
+          child: RecitationCard(
+            recitation: recitation,
+            onTap: () {
+              context.push('/recitations/detail', extra: recitation);
+            },
+          ),
         );
       },
     );

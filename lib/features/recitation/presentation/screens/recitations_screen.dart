@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
-import 'package:flutter_pecha/core/theme/app_colors.dart';
+import 'package:flutter_pecha/features/recitation/presentation/search/recitation_search_delegate.dart';
 import 'package:flutter_pecha/features/recitation/presentation/widgets/my_recitations_tab.dart';
 import 'package:flutter_pecha/features/recitation/presentation/widgets/recitations_tab.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -15,8 +15,6 @@ class RecitationsScreen extends ConsumerStatefulWidget {
 class _RecitationsScreenState extends ConsumerState<RecitationsScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  final TextEditingController _searchController = TextEditingController();
-  bool _isSearchVisible = false;
 
   @override
   void initState() {
@@ -27,7 +25,6 @@ class _RecitationsScreenState extends ConsumerState<RecitationsScreen>
   @override
   void dispose() {
     _tabController.dispose();
-    _searchController.dispose();
     super.dispose();
   }
 
@@ -36,148 +33,64 @@ class _RecitationsScreenState extends ConsumerState<RecitationsScreen>
     final localizations = AppLocalizations.of(context)!;
 
     return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      body: SafeArea(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            _buildAppBar(context, localizations),
-            // if (_isSearchVisible)
-            // _buildSearchBar(context, localizations),
-            _buildTabBar(context, localizations),
-            Expanded(
-              child: TabBarView(
-                controller: _tabController,
-                children: [
-                  RecitationsTab(controller: _tabController),
-                  MyRecitationsTab(),
-                ],
-              ),
-            ),
-          ],
+      appBar: AppBar(
+        title: Text(
+          localizations.recitations_title,
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
         ),
-      ),
-    );
-  }
-
-  Widget _buildAppBar(BuildContext context, AppLocalizations localizations) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          const Text(
-            'Recitations',
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
+        scrolledUnderElevation: 0,
+        centerTitle: false,
+        actions: [
+          AnimatedBuilder(
+            animation: _tabController,
+            builder: (context, child) {
+              if (_tabController.index == 1) {
+                return IconButton(
+                  onPressed: () {
+                    showSearch(
+                      context: context,
+                      delegate: RecitationSearchDelegate(ref: ref),
+                    );
+                  },
+                  icon: const Icon(Icons.search),
+                );
+              }
+              return const SizedBox.shrink();
+            },
           ),
-          // IconButton(
-          //   onPressed: () {
-          //     setState(() {
-          //       _isSearchVisible = !_isSearchVisible;
-          //       if (!_isSearchVisible) {
-          //         _searchController.clear();
-          //       }
-          //     });
-          //   },
-          //   icon: Icon(_isSearchVisible ? Icons.close : Icons.search, size: 24),
-          // ),
+        ],
+        bottom: _buildTabBar(context, localizations),
+      ),
+      body: TabBarView(
+        controller: _tabController,
+        children: [
+          MyRecitationsTab(),
+          RecitationsTab(controller: _tabController),
         ],
       ),
     );
   }
 
-  Widget _buildSearchBar(BuildContext context, AppLocalizations localizations) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 8),
-      child: Container(
-        height: 40,
-        decoration: BoxDecoration(
-          color: const Color(0xFFFCF2F2),
-          borderRadius: BorderRadius.circular(11),
-        ),
-        child: TextField(
-          controller: _searchController,
-          decoration: InputDecoration(
-            hintText: 'Search',
-            hintStyle: const TextStyle(color: Color(0xFF707070), fontSize: 12),
-            prefixIcon: const Icon(
-              Icons.search,
-              color: Color(0xFF707070),
-              size: 20,
-            ),
-            border: InputBorder.none,
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: 10,
-            ),
-          ),
-          style: const TextStyle(fontSize: 14),
-          onChanged: (value) {
-            // TODO: Implement search functionality
-          },
-        ),
+  PreferredSizeWidget _buildTabBar(
+    BuildContext context,
+    AppLocalizations localizations,
+  ) {
+    return TabBar(
+      controller: _tabController,
+      tabs: [
+        Tab(text: localizations.recitations_my_recitations),
+        Tab(text: localizations.recitations_title),
+      ],
+      labelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+      unselectedLabelStyle: const TextStyle(
+        fontWeight: FontWeight.bold,
+        fontSize: 16,
       ),
-    );
-  }
-
-  Widget _buildTabBar(BuildContext context, AppLocalizations localizations) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 8),
-      child: Row(
-        children: [
-          _buildTabButton(
-            context: context,
-            label: 'Recitations',
-            tabIndex: 0,
-            onTap: () {
-              _tabController.animateTo(0);
-            },
-          ),
-          const SizedBox(width: 9),
-          _buildTabButton(
-            context: context,
-            label: 'My Recitations',
-            tabIndex: 1,
-            onTap: () {
-              _tabController.animateTo(1);
-            },
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTabButton({
-    required BuildContext context,
-    required String label,
-    required int tabIndex,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedBuilder(
-        animation: _tabController,
-        builder: (context, child) {
-          final isSelected = _tabController.index == tabIndex;
-          return Container(
-            height: 34,
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            decoration: BoxDecoration(
-              color: isSelected ? AppColors.primary : const Color(0xFFFAE6E6),
-              borderRadius: BorderRadius.circular(4),
-            ),
-            alignment: Alignment.center,
-            child: Text(
-              label,
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-                color: isSelected ? Colors.white : AppColors.primary,
-              ),
-            ),
-          );
-        },
-      ),
+      labelColor: Theme.of(context).colorScheme.secondary,
+      unselectedLabelColor:
+          Theme.of(context).brightness == Brightness.dark
+              ? Colors.white
+              : Colors.black,
     );
   }
 }
