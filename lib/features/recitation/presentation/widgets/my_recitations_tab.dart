@@ -9,29 +9,51 @@ import 'package:flutter_pecha/features/recitation/presentation/widgets/recitatio
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-class MyRecitationsTab extends ConsumerWidget {
+/// Tab displaying user's saved recitations with reorderable list.
+class MyRecitationsTab extends ConsumerStatefulWidget {
   const MyRecitationsTab({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<MyRecitationsTab> createState() => _MyRecitationsTabState();
+}
+
+class _MyRecitationsTabState extends ConsumerState<MyRecitationsTab> {
+  /// Local state for optimistic UI updates during reordering
+  List<RecitationModel>? _optimisticRecitations;
+
+  // Constants
+  static const _horizontalPadding = 16.0;
+  static const _verticalPadding = 16.0;
+  static const _itemBottomMargin = 12.0;
+  static const _errorSnackBarDuration = Duration(seconds: 3);
+
+  @override
+  void dispose() {
+    _optimisticRecitations = null;
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final authState = ref.watch(authProvider);
     final localizations = AppLocalizations.of(context)!;
 
     // Show login prompt for guest users
     if (authState.isGuest) {
-      return _buildLoginPrompt(context, localizations, ref);
+      return _buildLoginPrompt(context, localizations);
     }
 
     final savedRecitationsAsync = ref.watch(savedRecitationsFutureProvider);
 
     return savedRecitationsAsync.when(
-      data: (recitations) {
-        if (recitations.isEmpty) {
-          return _buildEmptyState(context, localizations);
+      data: (recitations) => _buildDataView(context, recitations),
+      loading: () {
+        // If we have optimistic data during refetch, show it instead of loading spinner
+        if (_optimisticRecitations != null) {
+          return _buildRecitationsList(_optimisticRecitations!);
         }
-        return _buildRecitationsList(context, recitations, ref);
+        return const Center(child: CircularProgressIndicator());
       },
-      loading: () => const Center(child: CircularProgressIndicator()),
       error:
           (error, stack) => ErrorStateWidget(
             error: error,
@@ -41,71 +63,158 @@ class MyRecitationsTab extends ConsumerWidget {
     );
   }
 
-  Widget _buildRecitationsList(
+  /// Builds the data view with recitations list or empty state
+  Widget _buildDataView(
     BuildContext context,
     List<RecitationModel> recitations,
-    WidgetRef ref,
   ) {
+    final displayRecitations = _optimisticRecitations ?? recitations;
+
+    if (displayRecitations.isEmpty) {
+      return _buildEmptyState(context);
+    }
+
+    return _buildRecitationsList(displayRecitations);
+  }
+
+  /// Builds the reorderable list of recitations
+  Widget _buildRecitationsList(List<RecitationModel> displayRecitations) {
     return ReorderableListView.builder(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
-      itemCount: recitations.length,
-      onReorder: (oldIndex, newIndex) async {
-        // Handle reorder
-        // 2 - 5 -> 2 - 4 (oldIndex < newIndex)
-        if (oldIndex < newIndex) {
-          newIndex -= 1;
-        }
-
-        final updatedList = List<RecitationModel>.from(recitations);
-        final item = updatedList.removeAt(oldIndex);
-        updatedList.insert(newIndex, item);
-
-        // Build the request payload with id (text_id) and display_order
-        final recitationsPayload =
-            updatedList.asMap().entries.map((entry) {
-              final index = entry.key;
-              final recitation = entry.value;
-              return {'text_id': recitation.textId, 'display_order': index};
-            }).toList();
-
-        try {
-          await ref
-              .read(recitationsRepositoryProvider)
-              .updateRecitationsOrder(recitationsPayload);
-
-          // Refresh the list
-          ref.invalidate(savedRecitationsFutureProvider);
-        } catch (e) {
-          if (context.mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Failed to update order'),
-                backgroundColor: Colors.red,
-              ),
-            );
-          }
-        }
-      },
-      itemBuilder: (context, index) {
-        final recitation = recitations[index];
-        return Container(
-          key: ValueKey(recitation.textId),
-          margin: const EdgeInsets.only(bottom: 12),
-          child: RecitationCard(
-            recitation: recitation,
-            onTap: () {
-              context.push('/recitations/detail', extra: recitation);
-            },
-          ),
-        );
-      },
+      padding: const EdgeInsets.symmetric(
+        horizontal: _horizontalPadding,
+        vertical: _verticalPadding,
+      ),
+      itemCount: displayRecitations.length,
+      onReorder:
+          (oldIndex, newIndex) =>
+              _handleReorder(oldIndex, newIndex, displayRecitations),
+      itemBuilder:
+          (context, index) =>
+              _buildRecitationItem(context, displayRecitations[index]),
     );
   }
 
-  Widget _buildEmptyState(
+  /// Builds a single recitation list item
+  Widget _buildRecitationItem(
     BuildContext context,
-    AppLocalizations localizations,
+    RecitationModel recitation,
   ) {
+    return Container(
+      key: ValueKey(recitation.textId),
+      margin: const EdgeInsets.only(bottom: _itemBottomMargin),
+      child: RecitationCard(
+        recitation: recitation,
+        onTap: () => context.push('/recitations/detail', extra: recitation),
+      ),
+    );
+  }
+
+  /// Handles the reorder operation with optimistic UI updates
+  Future<void> _handleReorder(
+    int oldIndex,
+    int newIndex,
+    List<RecitationModel> displayRecitations,
+  ) async {
+    _clearOptimisticState();
+
+    final adjustedNewIndex = _adjustNewIndex(oldIndex, newIndex);
+
+    final reorderedList = _reorderRecitations(
+      displayRecitations,
+      oldIndex,
+      adjustedNewIndex,
+    );
+
+    _updateOptimisticState(reorderedList);
+
+    final payload = _buildReorderPayload(reorderedList);
+
+    final messenger = ScaffoldMessenger.of(context);
+
+    await _performReorderApiCall(payload, messenger);
+  }
+
+  /// Adjusts the new index based on ReorderableListView behavior
+  int _adjustNewIndex(int oldIndex, int newIndex) {
+    return oldIndex < newIndex ? newIndex - 1 : newIndex;
+  }
+
+  /// Creates a new list with items reordered
+  List<RecitationModel> _reorderRecitations(
+    List<RecitationModel> recitations,
+    int oldIndex,
+    int newIndex,
+  ) {
+    final updatedList = List<RecitationModel>.from(recitations);
+    final item = updatedList.removeAt(oldIndex);
+    updatedList.insert(newIndex, item);
+    return updatedList;
+  }
+
+  /// Builds the API payload for reorder request
+  List<Map<String, dynamic>> _buildReorderPayload(
+    List<RecitationModel> recitations,
+  ) {
+    return recitations.asMap().entries.map((entry) {
+      return {'text_id': entry.value.textId, 'display_order': entry.key};
+    }).toList();
+  }
+
+  /// Updates the local optimistic state
+  void _updateOptimisticState(List<RecitationModel> reorderedList) {
+    setState(() {
+      _optimisticRecitations = reorderedList;
+    });
+  }
+
+  /// Clears the optimistic state
+  void _clearOptimisticState() {
+    if (mounted) {
+      setState(() {
+        _optimisticRecitations = null;
+      });
+    }
+  }
+
+  /// Performs the API call to update recitation order
+  Future<void> _performReorderApiCall(
+    List<Map<String, dynamic>> payload,
+    ScaffoldMessengerState messenger,
+  ) async {
+    try {
+      await ref
+          .read(recitationsRepositoryProvider)
+          .updateRecitationsOrder(payload);
+
+      _handleReorderSuccess();
+    } catch (error) {
+      _handleReorderFailure(messenger, error);
+    }
+  }
+
+  /// Handles successful reorder operation
+  void _handleReorderSuccess() {
+    ref.invalidate(savedRecitationsFutureProvider);
+  }
+
+  /// Handles failed reorder operation
+  void _handleReorderFailure(ScaffoldMessengerState messenger, Object error) {
+    // Rollback to original order
+    _clearOptimisticState();
+
+    messenger.showSnackBar(
+      const SnackBar(
+        content: Text('Failed to update order. Please try again.'),
+        backgroundColor: Colors.red,
+        duration: _errorSnackBarDuration,
+      ),
+    );
+  }
+
+  /// Builds the empty state when no recitations are saved
+  Widget _buildEmptyState(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -113,30 +222,32 @@ class MyRecitationsTab extends ConsumerWidget {
           Icon(
             Icons.bookmark_border,
             size: 64,
-            color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
+            color: theme.colorScheme.primary.withValues(alpha: 0.3),
           ),
           const SizedBox(height: 16),
           Text(
             'No saved recitations',
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              color: Theme.of(context).textTheme.bodySmall?.color,
+            style: theme.textTheme.titleMedium?.copyWith(
+              color: theme.textTheme.bodySmall?.color,
             ),
           ),
           const SizedBox(height: 8),
           Text(
             'Save recitations to access them here',
-            style: Theme.of(context).textTheme.bodySmall,
+            style: theme.textTheme.bodySmall,
           ),
         ],
       ),
     );
   }
 
+  /// Builds the login prompt for guest users
   Widget _buildLoginPrompt(
     BuildContext context,
     AppLocalizations localizations,
-    WidgetRef ref,
   ) {
+    final theme = Theme.of(context);
+
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
@@ -146,25 +257,19 @@ class MyRecitationsTab extends ConsumerWidget {
             Icon(
               Icons.lock_outline,
               size: 60,
-              color: Theme.of(
-                context,
-              ).colorScheme.primary.withValues(alpha: 0.7),
+              color: theme.colorScheme.primary.withValues(alpha: 0.7),
             ),
             const SizedBox(height: 24),
             Text(
               'Sign in to view your saved recitations',
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                color: Theme.of(
-                  context,
-                ).colorScheme.onSurface.withValues(alpha: 0.7),
+              style: theme.textTheme.bodyLarge?.copyWith(
+                color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
               ),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 24),
             ElevatedButton.icon(
-              onPressed: () {
-                LoginDrawer.show(context, ref);
-              },
+              onPressed: () => LoginDrawer.show(context, ref),
               icon: const Icon(Icons.login),
               label: const Text('Sign In'),
               style: ElevatedButton.styleFrom(
