@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/services/audio/audio_handler.dart';
+import 'package:flutter_pecha/core/services/service_providers.dart';
 import 'package:flutter_pecha/core/widgets/audio_progress_bar.dart';
 import 'package:flutter_pecha/features/home/models/prayer_data.dart';
-import 'package:flutter_pecha/core/services/audio/audio_handler_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:audio_service/audio_service.dart';
@@ -35,7 +35,7 @@ class _PrayerOfTheDayScreenState extends ConsumerState<PrayerOfTheDayScreen> {
   int _currentSegmentIndex = 0;
   final Map<int, GlobalKey> _segmentKeys = {};
   bool _isAudioInitialized = false;
-  // Store the audio handler reference early
+  // Store the audio handler reference early (nullable if service failed to initialize)
   AppAudioHandler? _audioHandler;
 
   @override
@@ -53,8 +53,11 @@ class _PrayerOfTheDayScreenState extends ConsumerState<PrayerOfTheDayScreen> {
     if (!_isAudioInitialized) {
       _isAudioInitialized = true;
       // Store the audio handler reference immediately
-      _audioHandler = ref.read(audioHandlerProvider);
-      _initializeAudioPlayer();
+      final handler = ref.read(appAudioHandlerProvider);
+      if (handler != null) {
+        _audioHandler = handler;
+        _initializeAudioPlayer();
+      }
     }
   }
 
@@ -204,7 +207,7 @@ class _PrayerOfTheDayScreenState extends ConsumerState<PrayerOfTheDayScreen> {
   void dispose() {
     _scrollController.dispose();
     // Stop audio when leaving the screen using the stored reference
-    _audioHandler!.stop();
+    _audioHandler?.stop();
     super.dispose();
   }
 
@@ -286,7 +289,10 @@ class _PrayerOfTheDayScreenState extends ConsumerState<PrayerOfTheDayScreen> {
                     IconButton(
                       color: Theme.of(context).appBarTheme.foregroundColor,
                       icon: const Icon(Icons.replay_10, size: 32),
-                      onPressed: () => _audioHandler!.skipBackward(),
+                      onPressed:
+                          _audioHandler != null
+                              ? () => _audioHandler!.skipBackward()
+                              : null,
                     ),
                     IconButton(
                       color: Theme.of(context).appBarTheme.foregroundColor,
@@ -296,18 +302,24 @@ class _PrayerOfTheDayScreenState extends ConsumerState<PrayerOfTheDayScreen> {
                             : Icons.play_circle_outline,
                         size: 44,
                       ),
-                      onPressed: () {
-                        if (_isPlaying) {
-                          _audioHandler!.pause();
-                        } else {
-                          _audioHandler!.play();
-                        }
-                      },
+                      onPressed:
+                          _audioHandler != null
+                              ? () {
+                                if (_isPlaying) {
+                                  _audioHandler!.pause();
+                                } else {
+                                  _audioHandler!.play();
+                                }
+                              }
+                              : null,
                     ),
                     IconButton(
                       color: Theme.of(context).appBarTheme.foregroundColor,
                       icon: const Icon(Icons.forward_10, size: 32),
-                      onPressed: () => _audioHandler!.skipForward(),
+                      onPressed:
+                          _audioHandler != null
+                              ? () => _audioHandler!.skipForward()
+                              : null,
                     ),
                     StatefulBuilder(
                       builder: (context, setState) {
@@ -325,12 +337,15 @@ class _PrayerOfTheDayScreenState extends ConsumerState<PrayerOfTheDayScreen> {
                         if (currentSpeedIndex == -1) currentSpeedIndex = 0;
                         return IconButton(
                           color: Theme.of(context).appBarTheme.foregroundColor,
-                          onPressed: () {
-                            int nextIndex =
-                                (currentSpeedIndex + 1) % speeds.length;
-                            _audioHandler!.setSpeed(speeds[nextIndex]);
-                            setState(() {});
-                          },
+                          onPressed:
+                              _audioHandler != null
+                                  ? () {
+                                    int nextIndex =
+                                        (currentSpeedIndex + 1) % speeds.length;
+                                    _audioHandler!.setSpeed(speeds[nextIndex]);
+                                    setState(() {});
+                                  }
+                                  : null,
                           icon: Text(
                             'x${(_audioPlayer?.speed ?? 1.0) == 1.0 ? 1 : (_audioPlayer?.speed ?? 1.0).toStringAsFixed(1)}',
                             style: const TextStyle(fontSize: 20),

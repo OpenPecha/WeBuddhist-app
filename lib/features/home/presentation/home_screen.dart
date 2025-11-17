@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
+import 'package:flutter_pecha/core/services/service_providers.dart';
 import 'package:flutter_pecha/core/widgets/cached_network_image_widget.dart';
 import 'package:flutter_pecha/core/widgets/error_state_widget.dart';
 import 'package:flutter_pecha/features/auth/application/auth_notifier.dart';
@@ -11,6 +12,9 @@ import 'package:flutter_pecha/features/home/presentation/home_screen_constants.d
 import 'package:flutter_pecha/features/notifications/presentation/notification_settings_screen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:logging/logging.dart';
+
+final _log = Logger('HomeScreen');
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -23,6 +27,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     with WidgetsBindingObserver {
   Timer? _dayCheckTimer;
   DateTime? _lastFetchedDate;
+  bool _hasRequestedPermissions = false;
 
   @override
   void initState() {
@@ -30,15 +35,49 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     WidgetsBinding.instance.addObserver(this);
     _lastFetchedDate = DateTime.now();
     _startDayCheckTimer();
+
+    // Request notification permissions when home screen loads
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _requestNotificationPermissionsIfNeeded();
+    });
+  }
+
+  Future<void> _requestNotificationPermissionsIfNeeded() async {
+    if (_hasRequestedPermissions) return;
+    _hasRequestedPermissions = true;
+
+    final notificationService = ref.read(notificationServiceProvider);
+    if (notificationService == null) {
+      _log.warning(
+        'NotificationService not initialized, skipping permission request',
+      );
+      return;
+    }
+
+    try {
+      // Check if permissions are already granted
+      final alreadyEnabled =
+          await notificationService.areNotificationsEnabled();
+      if (!alreadyEnabled) {
+        _log.info('Requesting notification permissions...');
+        final granted = await notificationService.requestPermission();
+        if (granted) {
+          _log.info('Notification permissions granted');
+        } else {
+          _log.info('Notification permissions denied');
+        }
+      }
+    } catch (e) {
+      _log.warning('Error requesting notification permissions: $e');
+    }
   }
 
   void _startDayCheckTimer() {
-    _dayCheckTimer = Timer.periodic(
-      HomeScreenConstants.dayCheckInterval,
-      (timer) {
-        _checkAndUpdateDay();
-      },
-    );
+    _dayCheckTimer = Timer.periodic(HomeScreenConstants.dayCheckInterval, (
+      timer,
+    ) {
+      _checkAndUpdateDay();
+    });
   }
 
   void _checkAndUpdateDay() {
@@ -151,12 +190,17 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                       radius: HomeScreenConstants.avatarRadius,
                       backgroundColor: Colors.grey.shade300,
                       backgroundImage:
-                          (ref.watch(userProvider).user?.avatarUrl ?? '').isNotEmpty
-                              ? ref.watch(userProvider).user!.avatarUrl!
+                          (ref.watch(userProvider).user?.avatarUrl ?? '')
+                                  .isNotEmpty
+                              ? ref
+                                  .watch(userProvider)
+                                  .user!
+                                  .avatarUrl!
                                   .cachedNetworkImageProvider
                               : null,
                       child:
-                          (ref.watch(userProvider).user?.avatarUrl ?? '').isEmpty
+                          (ref.watch(userProvider).user?.avatarUrl ?? '')
+                                  .isEmpty
                               ? const Icon(Icons.person, color: Colors.black54)
                               : null,
                     ),
@@ -217,18 +261,20 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                   ],
                 );
               },
-              loading: () => const Center(
-                child: Padding(
-                  padding: EdgeInsets.all(
-                    HomeScreenConstants.emptyStatePadding,
+              loading:
+                  () => const Center(
+                    child: Padding(
+                      padding: EdgeInsets.all(
+                        HomeScreenConstants.emptyStatePadding,
+                      ),
+                      child: CircularProgressIndicator(),
+                    ),
                   ),
-                  child: CircularProgressIndicator(),
-                ),
-              ),
-              error: (error, stackTrace) => ErrorStateWidget(
-                error: error,
-                onRetry: refetchFeaturedDay,
-              ),
+              error:
+                  (error, stackTrace) => ErrorStateWidget(
+                    error: error,
+                    onRetry: refetchFeaturedDay,
+                  ),
             ),
           ],
         ),
