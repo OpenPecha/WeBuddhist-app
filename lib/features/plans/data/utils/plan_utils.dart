@@ -1,27 +1,30 @@
-/// Utility functions for plan-related calculations
 class PlanUtils {
-  /// Calculates the selected day based on when the plan started and total days.
-  ///
-  /// [startedAt] - The date when the plan was started
-  /// [totalDays] - Total number of days in the plan
-  ///
-  /// Returns the current day number (1-indexed) that should be selected.
-  /// Returns 1 if today equals startedAt, or if startedAt is in the future.
-  /// Returns totalDays if the plan duration has been exceeded.
   static int calculateSelectedDay(DateTime startedAt, int totalDays) {
     final today = DateTime.now();
 
-    // startedAt will never be before today
-    if (today == startedAt) {
+    // Normalize dates to midnight to compare only date parts (ignore time)
+    final normalizedToday = DateTime(today.year, today.month, today.day);
+    final normalizedStartedAt = DateTime(
+      startedAt.year,
+      startedAt.month,
+      startedAt.day,
+    );
+
+    // If today equals startedAt (date-wise), return day 1
+    if (normalizedToday.isAtSameMomentAs(normalizedStartedAt)) {
       return 1;
-    } else if (today.isAfter(startedAt)) {
-      final difference = today.difference(startedAt).inDays + 1;
-      if (difference >= totalDays) {
+    } else if (normalizedToday.isAfter(normalizedStartedAt)) {
+      // Calculate day difference (1-indexed)
+      final difference =
+          normalizedToday.difference(normalizedStartedAt).inDays + 1;
+      if (difference > totalDays) {
         return totalDays;
       } else {
         return difference;
       }
     }
+
+    // If startedAt is in the future
     return 1;
   }
 }
