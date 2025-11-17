@@ -1,8 +1,5 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_pecha/main.dart';
-import 'package:flutter_pecha/core/services/audio/audio_handler.dart';
+// This file is deprecated - use core/services/service_providers.dart instead
+// Kept for backward compatibility during migration
 
-/// Provider for the global audio handler
-final audioHandlerProvider = Provider<AppAudioHandler>((ref) {
-  return audioHandler as AppAudioHandler;
-});
+export 'package:flutter_pecha/core/services/service_providers.dart'
+    show appAudioHandlerProvider;
