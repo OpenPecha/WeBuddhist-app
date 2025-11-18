@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_pecha/features/recitation/data/models/recitation_model.dart';
 
 class RecitationCard extends StatelessWidget {
@@ -46,12 +47,16 @@ class RecitationCard extends StatelessWidget {
   Widget _buildDragHandle(BuildContext context, int index) {
     return ReorderableDragStartListener(
       index: index,
-      child: Padding(
-        padding: const EdgeInsets.only(left: 8),
-        child: Icon(
-          Icons.drag_handle,
-          color: Theme.of(context).iconTheme.color?.withValues(alpha: 0.5),
-          size: 24,
+      child: GestureDetector(
+        onTapDown: (_) => HapticFeedback.heavyImpact(),
+        child: Padding(
+          padding: const EdgeInsets.only(left: 8),
+          child: Icon(
+            Icons.drag_handle,
+            size: 26,
+            fontWeight: FontWeight.w600,
+            color: Theme.of(context).iconTheme.color?.withValues(alpha: 0.5),
+          ),
         ),
       ),
     );
