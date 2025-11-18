@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/widgets/error_state_widget.dart';
 import 'package:flutter_pecha/features/plans/data/providers/plans_providers.dart';
 import 'package:flutter_pecha/features/plans/presentation/providers/find_plans_paginated_provider.dart';
 import 'package:flutter_pecha/features/plans/presentation/widgets/plan_card.dart';
@@ -55,9 +56,10 @@ class _FindPlansTabState extends ConsumerState<FindPlansTab> {
 
     // Error state with no plans
     if (plansState.error != null && plansState.plans.isEmpty) {
-      return _ErrorState(
-        message: plansState.error!,
+      return ErrorStateWidget(
+        error: plansState.error!,
         onRetry: () => ref.read(findPlansPaginatedProvider.notifier).retry(),
+        customMessage: 'Unable to load plans.\nPlease try again later.',
       );
     }
 
@@ -91,7 +93,6 @@ class _FindPlansTabState extends ConsumerState<FindPlansTab> {
 
         final plan = plansState.plans[index];
         final author = plan.author;
-        final startDate = DateTime.now();
         return PlanCard(
           plan: plan,
           onTap: () async {

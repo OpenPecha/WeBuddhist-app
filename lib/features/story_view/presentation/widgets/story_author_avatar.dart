@@ -49,16 +49,14 @@ class StoryAuthorAvatar extends StatelessWidget {
               CircleAvatar(
                 radius: 22,
                 backgroundImage:
-                    author!.imageUrl.isNotEmpty
-                        ? author!.imageUrl.cachedNetworkImageProvider
+                    author!.authorImageThumbnail?.isNotEmpty ?? false
+                        ? author!
+                            .authorImageThumbnail!
+                            .cachedNetworkImageProvider
                         : null,
                 child:
-                    author!.imageUrl.isEmpty
-                        ? const Icon(
-                          Icons.person,
-                          color: Colors.white,
-                          size: 24,
-                        )
+                    author!.authorImageThumbnail?.isEmpty ?? true
+                        ? Icon(Icons.person, color: Colors.white, size: 24)
                         : null,
               ),
               const SizedBox(width: 16),

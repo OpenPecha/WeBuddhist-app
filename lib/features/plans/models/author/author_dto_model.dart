@@ -1,22 +1,30 @@
+import 'package:flutter_pecha/features/plans/models/plans_model.dart';
+
 class AuthorDtoModel {
   final String id;
   final String firstName;
   final String lastName;
-  final String imageUrl;
+  final ImageModel? image;
 
   AuthorDtoModel({
     required this.id,
     required this.firstName,
     required this.lastName,
-    required this.imageUrl,
+    this.image,
   });
+
+  String? get authorImageUrl => image?.medium ?? image?.original;
+  String? get authorImageThumbnail => image?.thumbnail ?? image?.medium;
 
   factory AuthorDtoModel.fromJson(Map<String, dynamic> json) {
     return AuthorDtoModel(
       id: json['id'],
       firstName: json['firstname'],
       lastName: json['lastname'],
-      imageUrl: json['image_url'],
+      image:
+          json['image'] != null
+              ? ImageModel.fromJson(json['image'] as Map<String, dynamic>?)
+              : null,
     );
   }
 
@@ -25,13 +33,13 @@ class AuthorDtoModel {
       'id': id,
       'firstName': firstName,
       'lastName': lastName,
-      'imageUrl': imageUrl,
+      'image': image?.toJson(),
     };
   }
 
   @override
   String toString() {
-    return 'AuthorDtoModel(id: $id, firstName: $firstName, lastName: $lastName, imageUrl: $imageUrl)';
+    return 'AuthorDtoModel(id: $id, firstName: $firstName, lastName: $lastName, image: $image)';
   }
 
   @override

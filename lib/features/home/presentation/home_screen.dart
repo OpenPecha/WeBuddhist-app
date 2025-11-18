@@ -169,43 +169,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                   size: HomeScreenConstants.notificationIconSize,
                 ),
               ),
-              const SizedBox(width: HomeScreenConstants.iconSpacing),
-              if (authState.isGuest)
-                GestureDetector(
-                  onTap: () => context.push('/profile'),
-                  child: const Hero(
-                    tag: 'profile-avatar',
-                    child: Icon(
-                      Icons.account_circle,
-                      size: HomeScreenConstants.profileIconSize,
-                    ),
-                  ),
-                ),
-              if (authState.isLoggedIn && !authState.isGuest)
-                GestureDetector(
-                  onTap: () => context.push('/profile'),
-                  child: Hero(
-                    tag: 'profile-avatar',
-                    child: CircleAvatar(
-                      radius: HomeScreenConstants.avatarRadius,
-                      backgroundColor: Colors.grey.shade300,
-                      backgroundImage:
-                          (ref.watch(userProvider).user?.avatarUrl ?? '')
-                                  .isNotEmpty
-                              ? ref
-                                  .watch(userProvider)
-                                  .user!
-                                  .avatarUrl!
-                                  .cachedNetworkImageProvider
-                              : null,
-                      child:
-                          (ref.watch(userProvider).user?.avatarUrl ?? '')
-                                  .isEmpty
-                              ? const Icon(Icons.person, color: Colors.black54)
-                              : null,
-                    ),
-                  ),
-                ),
             ],
           ),
         ],

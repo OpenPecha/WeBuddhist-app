@@ -41,7 +41,8 @@ class ErrorStateWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Use custom message or generate user-friendly message
-    final errorMessage = customMessage ?? _getUserFriendlyMessage(error.toString());
+    final errorMessage =
+        customMessage ?? _getUserFriendlyMessage(error.toString());
     final title = customTitle ?? 'Oops! Something went wrong';
 
     return Center(
@@ -61,9 +62,9 @@ class ErrorStateWidget extends StatelessWidget {
             // Error title
             Text(
               title,
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
+              style: Theme.of(
+                context,
+              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 12),
@@ -100,7 +101,7 @@ class ErrorStateWidget extends StatelessWidget {
   String _getUserFriendlyMessage(String error) {
     // 404 Not Found errors
     if (error.contains('404')) {
-      return 'The requested content is currently unavailable.\nPlease try again later or contact support.';
+      return 'The requested content is currently unavailable.\nPlease try again later.';
     }
     // 401 Unauthorized errors
     else if (error.contains('401')) {
@@ -108,10 +109,12 @@ class ErrorStateWidget extends StatelessWidget {
     }
     // 403 Forbidden errors
     else if (error.contains('403')) {
-      return 'You don\'t have permission to access this content.\nPlease contact support if you believe this is an error.';
+      return 'You don\'t have permission to access this content.\nPlease try again later.';
     }
     // 500/502/503 Server errors
-    else if (error.contains('500') || error.contains('502') || error.contains('503')) {
+    else if (error.contains('500') ||
+        error.contains('502') ||
+        error.contains('503')) {
       return 'Our servers are experiencing issues.\nPlease try again in a few moments.';
     }
     // Network connectivity errors

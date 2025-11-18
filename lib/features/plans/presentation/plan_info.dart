@@ -77,11 +77,12 @@ class _PlanInfoState extends ConsumerState<PlanInfo> {
       tag: widget.plan.title,
       child: ClipRRect(
         borderRadius: BorderRadius.circular(12),
-        child: Image.network(
-          widget.plan.imageUrl ?? '',
+        child: CachedNetworkImageWidget(
+          imageUrl: widget.plan.imageUrl ?? '',
           width: double.infinity,
           height: MediaQuery.of(context).size.height * 0.25,
           fit: BoxFit.cover,
+          borderRadius: BorderRadius.circular(12),
         ),
       ),
     );
@@ -117,7 +118,7 @@ class _PlanInfoState extends ConsumerState<PlanInfo> {
 
   Widget _buildAuthorAvatar(BuildContext context) {
     final author = widget.author;
-    final authorImage = author.imageUrl;
+    final authorImage = author.authorImageThumbnail;
     final authorId = author.id;
 
     return GestureDetector(
@@ -134,12 +135,12 @@ class _PlanInfoState extends ConsumerState<PlanInfo> {
         child: CircleAvatar(
           radius: 20,
           backgroundImage:
-              authorImage.isNotEmpty
-                  ? authorImage.cachedNetworkImageProvider
+              authorImage?.isNotEmpty ?? false
+                  ? authorImage!.cachedNetworkImageProvider
                   : null,
           backgroundColor: Colors.grey[300],
           child:
-              authorImage.isEmpty
+              authorImage?.isEmpty ?? true
                   ? Icon(Icons.person, color: Colors.grey[600], size: 20)
                   : null,
         ),
