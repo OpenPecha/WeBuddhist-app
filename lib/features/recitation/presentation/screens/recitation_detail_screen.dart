@@ -19,15 +19,17 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 class RecitationDetailScreen extends ConsumerWidget {
   final RecitationModel recitation;
 
-  const RecitationDetailScreen({
-    super.key,
-    required this.recitation,
-  });
+  const RecitationDetailScreen({super.key, required this.recitation});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     // Get user's language preference
-    final languageCode = ref.watch(localeProvider.select((locale) => locale.languageCode));
+    final userLanguageCode = ref.watch(
+      localeProvider.select((locale) => locale.languageCode),
+    );
+
+    // Prefer recitation's specified language, fallback to user's preference
+    final effectiveLanguageCode = recitation.language ?? userLanguageCode;
 
     // Check authentication status and saved state
     final isGuest = ref.watch(authProvider.select((state) => state.isGuest));
@@ -35,10 +37,12 @@ class RecitationDetailScreen extends ConsumerWidget {
 
     // Get content parameters and display order based on language
     final recitationParams = RecitationLanguageConfig.getContentParams(
-      languageCode,
+      effectiveLanguageCode,
       recitation.textId,
     );
-    final contentOrder = RecitationLanguageConfig.getContentOrder(languageCode);
+    final contentOrder = RecitationLanguageConfig.getContentOrder(
+      effectiveLanguageCode,
+    );
 
     // Watch recitation content
     final contentAsync = ref.watch(recitationContentProvider(recitationParams));
@@ -86,15 +90,9 @@ class RecitationDetailScreen extends ConsumerWidget {
 
   /// Handles the save/unsave toggle action.
   void _handleSaveToggle(BuildContext context, WidgetRef ref, bool isSaved) {
-    final controller = RecitationSaveController(
-      ref: ref,
-      context: context,
-    );
+    final controller = RecitationSaveController(ref: ref, context: context);
 
-    controller.toggleSave(
-      textId: recitation.textId,
-      isSaved: isSaved,
-    );
+    controller.toggleSave(textId: recitation.textId, isSaved: isSaved);
   }
 
   /// Builds a user-friendly empty state when recitation content is not available.
@@ -105,33 +103,29 @@ class RecitationDetailScreen extends ConsumerWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.menu_book_outlined,
-              size: 80,
-              color: Colors.grey[400],
-            ),
+            Icon(Icons.menu_book_outlined, size: 80, color: Colors.grey[400]),
             const SizedBox(height: 24),
             Text(
               title,
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+              style: Theme.of(
+                context,
+              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 16),
             Text(
               'Content not available',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    color: Colors.grey[700],
-                  ),
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(color: Colors.grey[700]),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 8),
             Text(
               'The content for this recitation is currently not available.\nPlease check back later.',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Colors.grey[600],
-                  ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
               textAlign: TextAlign.center,
             ),
           ],
