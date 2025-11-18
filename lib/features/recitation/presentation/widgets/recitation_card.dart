@@ -32,10 +32,11 @@ class RecitationCard extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
             child: Row(
               children: [
-                _buildRecitationLogo(),
-                const SizedBox(width: 12),
-                Expanded(child: _buildRecitationTitle(context)),
                 if (dragIndex != null) _buildDragHandle(context, dragIndex!),
+                const SizedBox(width: 12),
+                _buildRecitationLogo(),
+                const SizedBox(width: 6),
+                Expanded(child: _buildRecitationTitle(context)),
               ],
             ),
           ),
@@ -49,14 +50,11 @@ class RecitationCard extends StatelessWidget {
       index: index,
       child: GestureDetector(
         onTapDown: (_) => HapticFeedback.heavyImpact(),
-        child: Padding(
-          padding: const EdgeInsets.only(left: 8),
-          child: Icon(
-            Icons.drag_handle,
-            size: 26,
-            fontWeight: FontWeight.w600,
-            color: Theme.of(context).iconTheme.color?.withValues(alpha: 0.5),
-          ),
+        child: Icon(
+          Icons.drag_handle,
+          size: 26,
+          fontWeight: FontWeight.w600,
+          color: Theme.of(context).iconTheme.color?.withValues(alpha: 0.5),
         ),
       ),
     );

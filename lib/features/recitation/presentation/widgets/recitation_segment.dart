@@ -30,12 +30,8 @@ class RecitationSegment extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Add divider for segments after the first one
-        if (!isFirstSegment) ...[
-          const SizedBox(height: 8),
-          const Divider(),
-          const SizedBox(height: 8),
-        ],
+        // Add height for segments after the first one
+        if (!isFirstSegment) ...[const SizedBox(height: 26)],
 
         // Render content in the specified order
         ...contentOrder.expand((contentType) {
@@ -59,22 +55,20 @@ class RecitationSegment extends StatelessWidget {
     }
 
     // Build widgets for each text entry with spacing
-    return contentMap.entries
-        .expand((entry) sync* {
-          // Add spacing between different language entries
-          // (but not before the first one)
-          if (entry.key != contentMap.keys.first) {
-            yield const SizedBox(height: 8);
-          }
+    return contentMap.entries.expand((entry) sync* {
+      // Add spacing between different language entries
+      // (but not before the first one)
+      if (entry.key != contentMap.keys.first) {
+        yield const SizedBox(height: 8);
+      }
 
-          // entry.key is the language code (e.g., 'bo', 'en', 'zh')
-          // entry.value contains the text content
-          yield RecitationTextSection(
-            text: entry.value.content,
-            languageCode: entry.key,
-          );
-        })
-        .toList();
+      // entry.key is the language code (e.g., 'bo', 'en', 'zh')
+      // entry.value contains the text content
+      yield RecitationTextSection(
+        text: entry.value.content,
+        languageCode: entry.key,
+      );
+    }).toList();
   }
 
   /// Gets the content map for a specific content type.

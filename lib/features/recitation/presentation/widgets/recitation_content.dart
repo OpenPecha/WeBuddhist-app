@@ -31,7 +31,7 @@ class RecitationContent extends StatelessWidget {
         children: [
           // Title
           _buildTitle(context),
-          const Divider(),
+          const SizedBox(height: 26),
 
           // Segments
           ...List.generate(
@@ -54,9 +54,9 @@ class RecitationContent extends StatelessWidget {
   Widget _buildTitle(BuildContext context) {
     return Text(
       content.title,
-      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
+      style: Theme.of(
+        context,
+      ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
     );
   }
 }
