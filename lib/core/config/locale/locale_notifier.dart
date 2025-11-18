@@ -41,18 +41,15 @@ class LocaleNotifier extends StateNotifier<Locale> {
   }
 
   Future<void> setLocale(Locale locale) async {
-    state = locale;
     final isSupported = L10n.all.any(
       (l) => l.languageCode == locale.languageCode,
     );
-    if (isSupported) {
-      await _localStorageService.set(
-        AppStorageKeys.locale,
-        locale.languageCode,
-      );
-    } else {
+    if (!isSupported) {
       throw Exception("Locale ${locale.languageCode} is not supported");
     }
+
+    state = locale;
+    await _localStorageService.set(AppStorageKeys.locale, locale.languageCode);
   }
 
   /// Maps onboarding language preference to app locale
