@@ -41,9 +41,8 @@ class ActionOfTheDayCard extends ConsumerWidget {
                   Text(
                     heading,
                     style: const TextStyle(
-                      fontSize: 16,
+                      fontSize: 14,
                       fontWeight: FontWeight.w400,
-                      fontFamily: 'Instrument Serif',
                     ),
                   ),
                   const SizedBox(height: 4),
@@ -51,7 +50,7 @@ class ActionOfTheDayCard extends ConsumerWidget {
                     child: Text(
                       title,
                       style: const TextStyle(
-                        fontSize: 16,
+                        fontSize: 14,
                         fontWeight: FontWeight.w600,
                       ),
                       maxLines: 2,

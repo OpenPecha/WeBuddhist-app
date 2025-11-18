@@ -35,7 +35,7 @@ class PlanCard extends StatelessWidget {
 
 Widget _buildPlanImage(PlansModel plan) {
   return CachedNetworkImageWidget(
-    imageUrl: plan.imageUrl ?? '',
+    imageUrl: plan.imageThumbnail ?? '',
     width: 90,
     height: 90,
     fit: BoxFit.cover,

@@ -41,8 +41,8 @@ class PechaBottomNavBar extends ConsumerWidget {
               context: context,
               ref: ref,
               index: 1,
-              icon: Icons.menu_book_outlined,
-              selectedIcon: Icons.menu_book,
+              icon: Icons.book_outlined,
+              selectedIcon: Icons.book,
               label: localizations.nav_texts,
               isSelected: selectedIndex == 1,
             ),
@@ -121,18 +121,6 @@ class PechaBottomNavBar extends ConsumerWidget {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
-              // Selected indicator bar
-              if (isSelected)
-                Container(
-                  width: 24,
-                  height: 3,
-                  decoration: BoxDecoration(
-                    color: AppColors.surfaceLight,
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                )
-              else
-                const SizedBox(height: 3),
             ],
           ),
         ),

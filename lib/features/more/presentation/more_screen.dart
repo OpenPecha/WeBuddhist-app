@@ -42,9 +42,9 @@ class MoreScreen extends ConsumerWidget {
         centerTitle: false,
         title: Text(
           localizations.nav_settings,
-          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+          style: Theme.of(
+            context,
+          ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
         ),
         elevation: 0,
         backgroundColor: Colors.transparent,
@@ -65,12 +65,17 @@ class MoreScreen extends ConsumerWidget {
                       radius: 20,
                       backgroundColor: Colors.grey.shade300,
                       backgroundImage:
-                          (ref.watch(userProvider).user?.avatarUrl ?? '').isNotEmpty
-                              ? ref.watch(userProvider).user!.avatarUrl!
+                          (ref.watch(userProvider).user?.avatarUrl ?? '')
+                                  .isNotEmpty
+                              ? ref
+                                  .watch(userProvider)
+                                  .user!
+                                  .avatarUrl!
                                   .cachedNetworkImageProvider
                               : null,
                       child:
-                          (ref.watch(userProvider).user?.avatarUrl ?? '').isEmpty
+                          (ref.watch(userProvider).user?.avatarUrl ?? '')
+                                  .isEmpty
                               ? const Icon(Icons.person, color: Colors.black54)
                               : null,
                     ),
@@ -85,8 +90,6 @@ class MoreScreen extends ConsumerWidget {
                     ref.watch(userProvider).user?.email ?? '',
                     style: Theme.of(context).textTheme.bodyMedium,
                   ),
-                  trailing: const Icon(Icons.chevron_right),
-                  onTap: () => context.push('/profile'),
                 ),
               ],
             ),
