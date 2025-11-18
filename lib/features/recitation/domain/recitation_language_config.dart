@@ -49,8 +49,9 @@ class RecitationLanguageConfig {
       case chinese:
         return RecitationContentParams(
           textId: textId,
-          translations: [chinese, english],
-          transliterations: [english],
+          translations: [chinese],
+          recitations: [tibetan],
+          transliterations: [chinese],
         );
 
       default:
@@ -78,6 +79,7 @@ class RecitationLanguageConfig {
 
   static const List<ContentType> _chineseOrder = [
     ContentType.translation,
+    ContentType.recitation,
     ContentType.transliteration,
   ];
 
