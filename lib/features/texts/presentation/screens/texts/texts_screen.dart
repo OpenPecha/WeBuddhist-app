@@ -12,8 +12,8 @@ import 'package:flutter_pecha/shared/utils/helper_fucntions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-class TextTocScreen extends ConsumerWidget {
-  const TextTocScreen({super.key, required this.text});
+class TextsScreen extends ConsumerWidget {
+  const TextsScreen({super.key, required this.text});
   final Texts text;
 
   Widget _buildTextHeader(BuildContext context, Texts text) {
@@ -29,7 +29,6 @@ class TextTocScreen extends ConsumerWidget {
             ),
           ),
         ),
-        const Icon(Icons.menu_book_outlined, size: 22),
       ],
     );
   }
@@ -37,8 +36,8 @@ class TextTocScreen extends ConsumerWidget {
   Widget _buildTextType(Texts text, AppLocalizations localizations) {
     return Text(
       text.type.toLowerCase() == "root_text"
-          ? localizations.text_detail_rootText
-          : localizations.text_detail_commentaryText,
+          ? localizations.text_detail_rootText.toUpperCase()
+          : localizations.text_detail_commentaryText.toUpperCase(),
       style: TextStyle(
         fontSize: 16,
         fontWeight: FontWeight.w500,
@@ -53,7 +52,7 @@ class TextTocScreen extends ConsumerWidget {
     BuildContext context,
   ) {
     return SizedBox(
-      width: 200,
+      width: 160,
       height: 40,
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
@@ -61,7 +60,7 @@ class TextTocScreen extends ConsumerWidget {
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         ),
         onPressed: () {
-          context.push('/texts/chapter', extra: {'textId': text.id});
+          context.push('/texts/chapters', extra: {'textId': text.id});
         },
         child: Text(
           localizations.text_toc_continueReading,
@@ -70,6 +69,7 @@ class TextTocScreen extends ConsumerWidget {
             color: Colors.white,
             fontWeight: FontWeight.w500,
             fontSize: 14,
+            overflow: TextOverflow.ellipsis,
           ),
         ),
       ),
@@ -134,9 +134,16 @@ class TextTocScreen extends ConsumerWidget {
                         customMessage:
                             'Unable to load versions.\nPlease try again later.',
                       ),
-                  data:
-                      (versionResponse) =>
-                          _buildVersionsTab(versionResponse.versions, context),
+                  data: (versionResponse) {
+                    if (versionResponse.versions.isNotEmpty) {
+                      return _buildVersionsTab(
+                        versionResponse.versions,
+                        context,
+                      );
+                    } else {
+                      return const Center(child: Text('No versions found'));
+                    }
+                  },
                 ),
               ],
             ),
@@ -212,11 +219,6 @@ class TextTocScreen extends ConsumerWidget {
   }
 
   Widget _buildVersionsTab(List<Version> versions, BuildContext context) {
-    final localizations = AppLocalizations.of(context)!;
-
-    if (versions.isEmpty) {
-      return const Center(child: Text('No versions found'));
-    }
     return ListView.separated(
       itemCount: versions.length,
       padding: const EdgeInsets.only(top: 10, bottom: 10),
@@ -225,14 +227,15 @@ class TextTocScreen extends ConsumerWidget {
               const Divider(height: 32, thickness: 1, color: Color(0xFFF0F0F0)),
       itemBuilder: (context, idx) {
         final version = versions[idx];
+        final contentId =
+            version.tableOfContents.isNotEmpty
+                ? version.tableOfContents[0]
+                : null;
         return GestureDetector(
           onTap: () {
             context.push(
-              '/texts/chapter',
-              extra: {
-                'textId': version.id,
-                'contentId': version.tableOfContents[0],
-              },
+              '/texts/chapters',
+              extra: {'textId': version.id, 'contentId': contentId},
             );
           },
           child: Column(
@@ -274,12 +277,8 @@ class TextTocScreen extends ConsumerWidget {
               ),
               const SizedBox(height: 4),
               Text(
-                localizations.text_toc_revisionHistory,
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.grey.shade800,
-                  fontWeight: FontWeight.w400,
-                ),
+                "License: ${version.license}",
+                style: TextStyle(fontSize: 14, color: Colors.grey.shade800),
               ),
             ],
           ),
@@ -300,6 +299,9 @@ class TextTocScreen extends ConsumerWidget {
       case 'en':
       case 'english':
         return localizations.english;
+      case "zh":
+      case "chinese":
+        return localizations.chinese;
       default:
         return code;
     }

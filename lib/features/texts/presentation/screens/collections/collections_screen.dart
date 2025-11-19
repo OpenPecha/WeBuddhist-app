@@ -3,19 +3,19 @@ import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/widgets/error_state_widget.dart';
 import 'package:flutter_pecha/features/texts/data/providers/apis/collections_providers.dart';
 import 'package:flutter_pecha/features/texts/data/providers/apis/texts_provider.dart';
+import 'package:flutter_pecha/features/texts/presentation/widgets/collections_section.dart';
 import 'package:flutter_pecha/features/texts/utils/text_highlight_helper.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-class LibraryCatalogScreen extends ConsumerStatefulWidget {
-  const LibraryCatalogScreen({super.key});
+class CollectionsScreen extends ConsumerStatefulWidget {
+  const CollectionsScreen({super.key});
 
   @override
-  ConsumerState<LibraryCatalogScreen> createState() =>
-      _LibraryCatalogScreenState();
+  ConsumerState<CollectionsScreen> createState() => _CollectionsScreenState();
 }
 
-class _LibraryCatalogScreenState extends ConsumerState<LibraryCatalogScreen> {
+class _CollectionsScreenState extends ConsumerState<CollectionsScreen> {
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
   String _submittedQuery = '';
@@ -30,6 +30,7 @@ class _LibraryCatalogScreenState extends ConsumerState<LibraryCatalogScreen> {
   @override
   Widget build(BuildContext context) {
     final collectionsListResponse = ref.watch(collectionsListFutureProvider);
+
     return Scaffold(
       body: SafeArea(
         child: Column(
@@ -37,7 +38,6 @@ class _LibraryCatalogScreenState extends ConsumerState<LibraryCatalogScreen> {
           children: [
             _buildHeader(context),
             _buildSearchField(context),
-            const SizedBox(height: 10),
             Expanded(
               child:
                   _hasSubmitted && _submittedQuery.isNotEmpty
@@ -57,11 +57,11 @@ class _LibraryCatalogScreenState extends ConsumerState<LibraryCatalogScreen> {
                               return GestureDetector(
                                 onTap: () {
                                   context.push(
-                                    '/texts/detail',
+                                    '/texts/works',
                                     extra: collection,
                                   );
                                 },
-                                child: _LibrarySection(
+                                child: CollectionsSection(
                                   title: collection.title,
                                   subtitle: collection.description,
                                   dividerColor: Color(0xFF8B3A50),
@@ -252,7 +252,7 @@ class _LibraryCatalogScreenState extends ConsumerState<LibraryCatalogScreen> {
                           InkWell(
                             onTap: () {
                               context.push(
-                                '/texts/chapter',
+                                '/texts/chapters',
                                 extra: {
                                   'textId': textId,
                                   'segmentId': segmentId,
@@ -299,44 +299,6 @@ class _LibraryCatalogScreenState extends ConsumerState<LibraryCatalogScreen> {
           },
         );
       },
-    );
-  }
-}
-
-class _LibrarySection extends StatelessWidget {
-  final String title;
-  final String subtitle;
-  final Color dividerColor;
-  final String slug;
-
-  const _LibrarySection({
-    required this.title,
-    required this.subtitle,
-    required this.dividerColor,
-    required this.slug,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 8.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Divider(color: dividerColor, thickness: 3, height: 4),
-          const SizedBox(height: 8),
-          Text(
-            title,
-            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
-          ),
-          const SizedBox(height: 2),
-          Text(
-            subtitle,
-            style: TextStyle(color: Colors.grey[700], fontSize: 16),
-          ),
-          const SizedBox(height: 8),
-        ],
-      ),
     );
   }
 }
