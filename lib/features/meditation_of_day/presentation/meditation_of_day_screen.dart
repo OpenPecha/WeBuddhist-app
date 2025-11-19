@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/widgets/audio_controls.dart';
 import 'package:flutter_pecha/core/widgets/audio_progress_bar.dart';
+import 'package:flutter_pecha/core/widgets/cached_network_image_widget.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:go_router/go_router.dart';
 
@@ -99,24 +100,11 @@ class _MeditationOfTheDayScreenState extends State<MeditationOfTheDayScreen> {
         children: [
           const SizedBox(height: 40),
           Expanded(
-            child: ClipRRect(
+            child: CachedNetworkImageWidget(
+              imageUrl: widget.imageUrl,
+              fit: BoxFit.cover,
+              width: double.infinity,
               borderRadius: BorderRadius.circular(12),
-              child: Image.network(
-                widget.imageUrl,
-                fit: BoxFit.cover,
-                width: double.infinity,
-                frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
-                  if (wasSynchronouslyLoaded) return child;
-                  return AnimatedOpacity(
-                    opacity: frame == null ? 0 : 1,
-                    duration: const Duration(milliseconds: 300),
-                    child: child,
-                  );
-                },
-                loadingBuilder: (context, child, loadingProgress) {
-                  return child;
-                },
-              ),
             ),
           ),
           // Audio player controls

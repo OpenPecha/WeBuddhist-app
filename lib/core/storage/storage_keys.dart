@@ -1,3 +1,6 @@
+/// @deprecated Use AppStorageKeys from 'package:flutter_pecha/core/constants/app_storage_keys.dart' instead.
+/// This class is kept for backward compatibility and will be removed in a future version.
+@Deprecated('Use AppStorageKeys instead')
 class StorageKeys {
   // Theme
   static const String themeMode = 'theme_mode';
@@ -15,8 +18,5 @@ class StorageKeys {
   // User Preferences
   static const String firstLaunch = 'first_launch';
   static const String onboardingCompleted = 'onboarding_completed';
-
-  // App State
-  static const String lastActivePlan = 'last_active_plan';
-  static const String readingProgress = 'reading_progress';
+  static const String onboardingPreferences = 'onboarding_preferences';
 }

@@ -1,5 +1,6 @@
 import 'dart:async';
-import 'package:flutter_pecha/features/auth/application/auth_provider.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter_pecha/features/auth/application/auth_notifier.dart';
 import 'package:flutter_pecha/features/auth/auth_service.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:http/http.dart' as http;
@@ -9,8 +10,27 @@ class ApiClient extends http.BaseClient {
   final AuthService _authService;
   final http.Client _inner = http.Client();
   static const List<String> _protectedPaths = [
+    // user profile
+    '/api/v1/users/info',
+    '/api/v1/users/upload',
+
+    // public plans
+    '/api/v1/plans/{planId}/days',
+    '/api/v1/plans/{planId}/days/{dayNumber}',
+
+    // user progress
     '/api/v1/users/me',
     '/api/v1/users/me/plans',
+    '/api/v1/users/me/plans/{planId}',
+    '/api/v1/users/me/tasks',
+    '/api/v1/users/me/tasks/{taskId}/complete',
+    '/api/v1/users/me/sub-tasks',
+    '/api/v1/users/me/sub-tasks/{subTaskId}/complete',
+    '/api/v1/users/me/task/{taskId}',
+    '/api/v1/users/me/plan/{planId}/days/{dayNumber}',
+
+    // recitations
+    '/api/v1/users/me/recitations',
     // Add more as needed
   ];
   final Logger _logger = Logger('ApiClient');
@@ -31,8 +51,15 @@ class ApiClient extends http.BaseClient {
     // Add authentication header for protected routes
     if (_isProtectedRoute(request.url.path)) {
       final token = await _authService.getValidIdToken();
+      // debugPrint('Token half: ${token?.substring(0, token.length ~/ 2)}');
+      // debugPrint(
+      //   'Token half length: ${token?.substring(token.length ~/ 2, token.length)}',
+      // );
       if (token != null) {
         request.headers['Authorization'] = 'Bearer $token';
+        debugPrint(
+          'Added auth token for ${request.method} ${request.url.path}',
+        );
         _logger.fine(
           'Added auth token for ${request.method} ${request.url.path}',
         );
@@ -67,6 +94,7 @@ class ApiClient extends http.BaseClient {
           return retryResponse;
         }
       } catch (e) {
+        debugPrint('Error in ApiClient: $e');
         _logger.warning('Token refresh returned null, returning original 401');
       }
     }
@@ -100,8 +128,44 @@ class ApiClient extends http.BaseClient {
 
   bool _isProtectedRoute(String path) {
     return _protectedPaths.any(
-      (protectedPath) => path.startsWith(protectedPath),
+      (protectedPath) => _matchesPathPattern(path, protectedPath),
     );
+  }
+
+  /// Matches a path against a pattern that may contain path parameters like {planId}
+  bool _matchesPathPattern(String path, String pattern) {
+    // If no parameters in pattern, do simple prefix match
+    if (!pattern.contains('{')) {
+      return path.startsWith(pattern);
+    }
+
+    // Split both path and pattern into segments
+    final pathSegments = path.split('/').where((s) => s.isNotEmpty).toList();
+    final patternSegments =
+        pattern.split('/').where((s) => s.isNotEmpty).toList();
+
+    // Must have same number of segments
+    if (pathSegments.length != patternSegments.length) {
+      return false;
+    }
+
+    // Compare each segment
+    for (var i = 0; i < pathSegments.length; i++) {
+      final pathSegment = pathSegments[i];
+      final patternSegment = patternSegments[i];
+
+      // If pattern segment is a parameter (e.g., {planId}), it matches any value
+      if (patternSegment.startsWith('{') && patternSegment.endsWith('}')) {
+        continue;
+      }
+
+      // Otherwise, segments must match exactly
+      if (pathSegment != patternSegment) {
+        return false;
+      }
+    }
+
+    return true;
   }
 }
 

@@ -1,16 +1,22 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_pecha/features/auth/application/auth_provider.dart';
+import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
+import 'package:flutter_pecha/core/widgets/cached_network_image_widget.dart';
+import 'package:flutter_pecha/features/auth/application/auth_notifier.dart';
+import 'package:flutter_pecha/features/auth/presentation/widgets/login_drawer.dart';
 import 'package:flutter_pecha/features/plans/data/providers/user_plans_provider.dart';
+import 'package:flutter_pecha/features/plans/data/utils/plan_utils.dart';
+import 'package:flutter_pecha/features/plans/models/author/author_dto_model.dart';
 import 'package:flutter_pecha/features/plans/models/plans_model.dart';
-import 'package:flutter_pecha/features/plans/models/response/plan_list_response_model.dart';
+import 'package:flutter_pecha/features/plans/models/response/user_plan_list_response_model.dart';
+import 'package:flutter_pecha/features/plans/models/user/user_plans_model.dart';
+import 'package:flutter_pecha/features/plans/presentation/author_detail_screen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 class PlanInfo extends ConsumerStatefulWidget {
-  // Changed to StatefulWidget
-  const PlanInfo({super.key, required this.plan});
+  const PlanInfo({super.key, required this.plan, required this.author});
   final PlansModel plan;
-
+  final AuthorDtoModel author;
   @override
   ConsumerState<PlanInfo> createState() => _PlanInfoState();
 }
@@ -21,37 +27,45 @@ class _PlanInfoState extends ConsumerState<PlanInfo> {
     final authState = ref.watch(authProvider);
     final isGuest = authState.isGuest;
     final isLoggedIn = authState.isLoggedIn;
-    var subscribedPlans = AsyncValue<PlanListResponseModel>.data(
-      PlanListResponseModel(plans: [], total: 0, skip: 0, limit: 0),
+    var subscribedPlans = AsyncValue<UserPlanListResponseModel>.data(
+      UserPlanListResponseModel(userPlans: [], total: 0, skip: 0, limit: 0),
     );
 
     if (!isGuest && isLoggedIn) {
       subscribedPlans = ref.watch(userPlansFutureProvider);
     }
     final subscribedPlansIds =
-        subscribedPlans.valueOrNull?.plans.map((e) => e.id).toList() ?? [];
+        subscribedPlans.valueOrNull?.userPlans.map((e) => e.id).toList() ?? [];
 
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        scrolledUnderElevation: 0,
         title: const Text(
           'Plan Info',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         centerTitle: false,
       ),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildPlanImage(context),
-            SizedBox(height: 20),
+            SizedBox(height: 16),
             _buildPlanTitleDays(context),
-            SizedBox(height: 20),
-            _buildActionButtons(context, subscribedPlansIds, isGuest),
-            SizedBox(height: 20),
-            _buildPlanDescription(context),
+            SizedBox(height: 16),
+            _buildActionButtons(
+              context,
+              subscribedPlansIds,
+              isGuest,
+              subscribedPlans,
+            ),
+            SizedBox(height: 16),
+            Text(widget.plan.description, style: const TextStyle(fontSize: 16)),
+            SizedBox(height: 24),
           ],
         ),
       ),
@@ -59,38 +73,69 @@ class _PlanInfoState extends ConsumerState<PlanInfo> {
   }
 
   Widget _buildPlanImage(BuildContext context) {
-    return Hero(
-      tag: widget.plan.title,
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(12),
-        child: Image.network(
-          widget.plan.imageUrl ?? '',
-          width: double.infinity,
-          height: MediaQuery.of(context).size.height * 0.25,
-          fit: BoxFit.cover,
-        ),
-      ),
+    return CachedNetworkImageWidget(
+      imageUrl: widget.plan.imageUrl ?? '',
+      width: double.infinity,
+      height: MediaQuery.of(context).size.height * 0.25,
+      fit: BoxFit.cover,
+      borderRadius: BorderRadius.circular(12),
     );
   }
 
   Widget _buildPlanTitleDays(BuildContext context) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Expanded(
-          child: Text(
-            widget.plan.title,
-            overflow: TextOverflow.ellipsis,
-            maxLines: 2,
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                widget.plan.title,
+                overflow: TextOverflow.ellipsis,
+                maxLines: 2,
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              SizedBox(height: 4),
+              Text(
+                '${widget.plan.totalDays} Days',
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+              ),
+            ],
           ),
         ),
         SizedBox(width: 10),
-        Text(
-          '${widget.plan.totalDays} Days',
-          style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
-        ),
+        _buildAuthorAvatar(context),
       ],
+    );
+  }
+
+  Widget _buildAuthorAvatar(BuildContext context) {
+    final author = widget.author;
+    final authorImage = author.authorImageThumbnail;
+    final authorId = author.id;
+
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => AuthorDetailScreen(authorId: authorId),
+          ),
+        );
+      },
+      child: CircleAvatar(
+        radius: 20,
+        backgroundImage:
+            authorImage?.isNotEmpty ?? false
+                ? authorImage!.cachedNetworkImageProvider
+                : null,
+        backgroundColor: Colors.grey[300],
+        child:
+            authorImage?.isEmpty ?? true
+                ? Icon(Icons.person, color: Colors.grey[600], size: 20)
+                : null,
+      ),
     );
   }
 
@@ -98,44 +143,85 @@ class _PlanInfoState extends ConsumerState<PlanInfo> {
     BuildContext context,
     List<String> subscribedPlansIds,
     bool isGuest,
+    AsyncValue<UserPlanListResponseModel> subscribedPlans,
   ) {
     final isSubscribed = subscribedPlansIds.contains(widget.plan.id);
+    final buttonText = _getButtonText(isGuest, isSubscribed);
+    final userPlan = _findUserPlan(subscribedPlans);
+
     return SizedBox(
       width: double.infinity,
       child: FilledButton(
-        onPressed:
-            () =>
-                isGuest
-                    ? ref.read(authProvider.notifier).logout()
-                    : isSubscribed
-                    ? handleContinuePlan()
-                    : handleStartPlan(),
+        onPressed: () => _handleButtonAction(isGuest, isSubscribed, userPlan),
         style: FilledButton.styleFrom(
-          padding: EdgeInsets.symmetric(vertical: 12),
           backgroundColor: Colors.black,
           foregroundColor: Colors.white,
           disabledBackgroundColor: Colors.grey[300],
           disabledForegroundColor: Colors.grey[600],
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(20),
           ),
         ),
         child: Text(
-          isGuest
-              ? 'Login to Continue'
-              : isSubscribed
-              ? 'Continue Plan'
-              : 'Start Plan',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          buttonText,
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
         ),
       ),
     );
   }
 
-  Future<void> handleContinuePlan() async {
-    if (mounted) {
-      context.push('/plans/details', extra: widget.plan);
+  UserPlansModel? _findUserPlan(
+    AsyncValue<UserPlanListResponseModel> subscribedPlans,
+  ) {
+    final userPlans = subscribedPlans.valueOrNull?.userPlans;
+    if (userPlans == null) return null;
+
+    final matchingPlans = userPlans.where(
+      (userPlan) => userPlan.id == widget.plan.id,
+    );
+    return matchingPlans.isNotEmpty ? matchingPlans.first : null;
+  }
+
+  String _getButtonText(bool isGuest, bool isSubscribed) {
+    final localizations = AppLocalizations.of(context)!;
+    if (isGuest) return localizations.sign_in;
+    if (isSubscribed) return localizations.continue_plan;
+    return localizations.start_plan;
+  }
+
+  Future<void> _handleButtonAction(
+    bool isGuest,
+    bool isSubscribed,
+    UserPlansModel? userPlan,
+  ) async {
+    if (isGuest) {
+      LoginDrawer.show(context, ref);
+      return;
     }
+
+    if (isSubscribed && userPlan != null) {
+      await handleContinuePlan(userPlan);
+    } else {
+      await handleStartPlan();
+    }
+  }
+
+  Future<void> handleContinuePlan(UserPlansModel userPlan) async {
+    if (!mounted) return;
+
+    final selectedDay = PlanUtils.calculateSelectedDay(
+      userPlan.startedAt,
+      userPlan.totalDays,
+    );
+
+    context.push(
+      '/plans/details',
+      extra: {
+        'plan': userPlan,
+        'selectedDay': selectedDay,
+        'startDate': userPlan.startedAt,
+      },
+    );
   }
 
   // Updated handleStartPlan function
@@ -151,7 +237,6 @@ class _PlanInfoState extends ConsumerState<PlanInfo> {
       if (success) {
         // Success: Show plan listed in my plans
         if (mounted) {
-          // Show success message
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('Successfully enrolled in ${widget.plan.title}!'),
@@ -160,8 +245,9 @@ class _PlanInfoState extends ConsumerState<PlanInfo> {
             ),
           );
 
-          // Invalidate the user plans provider to refresh the data
+          // Invalidate both user plans providers to refresh the data
           ref.invalidate(userPlansFutureProvider);
+          ref.invalidate(myPlansPaginatedProvider);
 
           // Wait a moment for the data to refresh, then navigate
           await Future.delayed(Duration(milliseconds: 500));
@@ -175,7 +261,7 @@ class _PlanInfoState extends ConsumerState<PlanInfo> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Failed to enroll in plan. Please try again.'),
+              content: Text('Unable to enroll in plan. Please try again.'),
               backgroundColor: Colors.red,
               duration: Duration(seconds: 3),
             ),
@@ -187,29 +273,12 @@ class _PlanInfoState extends ConsumerState<PlanInfo> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error enrolling in plan: ${e.toString()}'),
+            content: Text('Unable to enroll in plan: ${e.toString()}'),
             backgroundColor: Colors.red,
             duration: Duration(seconds: 3),
           ),
         );
       }
     }
-  }
-
-  Widget _buildPlanDescription(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Description',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          widget.plan.description,
-          style: const TextStyle(fontSize: 16),
-        ),
-      ],
-    );
   }
 }

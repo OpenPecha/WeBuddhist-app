@@ -18,10 +18,10 @@ class AppLocalizationsBo extends AppLocalizations {
   String get learnLiveShare => 'སློབ་སྦྱོང་དང་འཚོ་བ་དང་མཉམ་འབྲེལ།';
 
   @override
-  String get themeLight => 'དཀར་པོའི་ཚད་གཞི་';
+  String get themeLight => 'དཀར་པོའི་ཚད་གཞི་།';
 
   @override
-  String get themeDark => 'ནག་པོའི་ཚད་གཞི་';
+  String get themeDark => 'ནག་པོའི་ཚད་གཞི་།';
 
   @override
   String get switchToLight => 'དཀར་པོའི་ཚད་གཞི་ལ་སྒྲིག་པ།';
@@ -30,7 +30,47 @@ class AppLocalizationsBo extends AppLocalizations {
   String get switchToDark => 'ནག་པོའི་ཚད་གཞི་ལ་སྒྲིག་པ།';
 
   @override
+  String get sign_in => 'Sign in';
+
+  @override
+  String get logout => 'Logout';
+
+  @override
+  String get onboarding_welcome => 'Welcome to WeBuddhist';
+
+  @override
+  String get onboarding_description =>
+      'Where we learn, live, and share Buddhist wisdom every day';
+
+  @override
+  String get onboarding_quote =>
+      'Approximatey 500 million people worldwide practice Buddhism, making it the world\'s fourth largest religion';
+
+  @override
+  String get onboarding_first_question =>
+      'In which language would you like to access core texts?';
+
+  @override
+  String get onboarding_second_question =>
+      'Which path or school do you feel drawn to?';
+
+  @override
+  String get onboarding_choose_option => 'Choose upto 3 options';
+
+  @override
+  String get onboarding_all_set => 'You are All Setup';
+
+  @override
   String get home_today => 'དེ་རིང་།';
+
+  @override
+  String get home_good_morning => 'སྔ་དྲོ་བདེ་ལེགས།';
+
+  @override
+  String get home_good_afternoon => 'ཉིན་གུང་བདེ་ལེགས།';
+
+  @override
+  String get home_good_evening => 'དགོང་དྲོ་བདེ་ལེགས།';
 
   @override
   String get home_dailyRefresh => 'Daily Refresh';
@@ -51,6 +91,12 @@ class AppLocalizationsBo extends AppLocalizations {
   String get home_btnText => 'Start now';
 
   @override
+  String get home_scripture => 'Guided Scripture';
+
+  @override
+  String get home_meditation => 'Guided Meditation';
+
+  @override
   String get home_goDeeper => ' ཞིབ་གཟིགས།';
 
   @override
@@ -64,6 +110,21 @@ class AppLocalizationsBo extends AppLocalizations {
 
   @override
   String get home_profile => 'ངོ་སྤྲོད་སྙིང་བསྡུས།';
+
+  @override
+  String get nav_home => 'Home';
+
+  @override
+  String get nav_texts => 'Texts';
+
+  @override
+  String get nav_recitations => 'Recitations';
+
+  @override
+  String get nav_practice => 'Practice';
+
+  @override
+  String get nav_settings => 'Settings';
 
   @override
   String get text_browseTheLibrary => 'དཀར་ཆག';
@@ -90,6 +151,21 @@ class AppLocalizationsBo extends AppLocalizations {
   String get text_toc_revisionHistory => 'བཟོ་བཅོས་ཀྱི་ལོ་རྒྱུས།';
 
   @override
+  String get my_plans => 'My Plans';
+
+  @override
+  String get find_plans => 'Find Plans';
+
+  @override
+  String get browse_plans => 'Browse Plans';
+
+  @override
+  String get start_plan => 'Start Plan';
+
+  @override
+  String get continue_plan => 'Continue Plan';
+
+  @override
   String get tibetan => 'བོད་སྐད།';
 
   @override
@@ -111,13 +187,11 @@ class AppLocalizationsBo extends AppLocalizations {
   String get timeForDailyPractice => 'It\'s time for your daily practice.';
 
   @override
-  String get notificationSettings => 'Notification Settings';
-
-  @override
   String get dailyPractice => 'Daily Practice';
 
   @override
-  String get dailyPracticeRemindersDescription => 'Get reminded daily to practice your meditation and prayers';
+  String get dailyPracticeRemindersDescription =>
+      'Get reminded daily to practice your meditation and prayers';
 
   @override
   String get enableReminders => 'Enable Reminders';
@@ -141,7 +215,8 @@ class AppLocalizationsBo extends AppLocalizations {
   String get testNotifications => 'Test Notifications';
 
   @override
-  String get testNotificationsDescription => 'Send a test notification to verify everything is working';
+  String get testNotificationsDescription =>
+      'Send a test notification to verify everything is working';
 
   @override
   String get sendTestNotification => 'Send Test Notification';
@@ -157,4 +232,65 @@ class AppLocalizationsBo extends AppLocalizations {
 
   @override
   String get common_sign_in => 'ནང་འཛུལ་གྱིས།';
+
+  @override
+  String get recitations_title => 'Recitations';
+
+  @override
+  String get recitations_my_recitations => 'My Recitations';
+
+  @override
+  String get browse_recitations => 'Browse Recitations';
+
+  @override
+  String get recitations_search => 'འཚོལ་ས།';
+
+  @override
+  String get recitations_saved => 'བཟླས་པ་ཉར་ཟིན།';
+
+  @override
+  String get recitations_unsaved => 'བཟླས་པ་བསུབས།';
+
+  @override
+  String get recitations_no_content => 'བཟླས་པ་མི་འདུག';
+
+  @override
+  String get recitations_no_saved => 'ཉར་ཟིན་པའི་བཟླས་པ་མི་འདུག';
+
+  @override
+  String get recitations_save_prompt => 'འདིར་རྙེད་པའི་བཟླས་པ་ཉར་ཟིན།';
+
+  @override
+  String get recitations_login_required => 'ནང་འཛུལ་དགོས།';
+
+  @override
+  String get recitations_login_prompt =>
+      'ཉར་ཟིན་པའི་བཟླས་པ་མཐོང་བའི་དོན་དུ་ནང་འཛུལ་གྱིས།';
+
+  @override
+  String get recitations_save => 'བཟླས་པ་ཉར་བ།';
+
+  @override
+  String get recitations_unsave => 'ཉར་ཟིན་ནས་བསུབ་པ།';
+
+  @override
+  String get recitations_share => 'མཉམ་སྤྱོད།';
+
+  @override
+  String get recitations_phonetic => 'སྒྲ་སྦྱོར།';
+
+  @override
+  String get recitations_translation => 'བསྒྱུར་བ།';
+
+  @override
+  String get settings_appearance => 'Appearance';
+
+  @override
+  String get settings_notifications => 'Notifications';
+
+  @override
+  String get notification_settings => 'Notification Settings';
+
+  @override
+  String get settings_account => 'Account';
 }

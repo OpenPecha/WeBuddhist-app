@@ -1,19 +1,30 @@
 import 'dart:async';
+import 'package:flutter_pecha/core/utils/local_storage_service.dart';
 import 'package:flutter_pecha/features/auth/presentation/login_page.dart';
 import 'package:flutter_pecha/features/auth/presentation/profile_page.dart';
 import 'package:flutter_pecha/features/app/presentation/skeleton_screen.dart';
 import 'package:flutter_pecha/features/creator_info/presentation/creator_info_screen.dart';
+import 'package:flutter_pecha/features/onboarding/presentation/onboarding_wrapper.dart';
 import 'package:flutter_pecha/features/home/models/prayer_data.dart';
-import 'package:flutter_pecha/features/home/presentation/widgets/verse_text.dart';
 import 'package:flutter_pecha/features/home/presentation/widgets/view_illustration.dart';
 import 'package:flutter_pecha/features/home/presentation/widgets/youtube_video_player.dart';
 import 'package:flutter_pecha/features/home/presentation/widgets/meditation_video.dart';
 import 'package:flutter_pecha/features/meditation_of_day/presentation/meditation_of_day_screen.dart';
+import 'package:flutter_pecha/features/plans/models/author/author_dto_model.dart';
+import 'package:flutter_pecha/features/plans/models/user/user_plans_model.dart';
+import 'package:flutter_pecha/features/plans/models/user/user_subtasks_dto.dart';
+import 'package:flutter_pecha/features/story_view/presentation/screens/plan_story_presenter.dart';
+import 'package:flutter_pecha/features/story_view/presentation/screens/story_feature.dart';
+import 'package:flutter_pecha/features/story_view/presentation/screens/story_presenter.dart';
 import 'package:flutter_pecha/features/notifications/presentation/notification_settings_screen.dart';
 import 'package:flutter_pecha/features/plans/models/plans_model.dart';
 import 'package:flutter_pecha/features/plans/presentation/plan_details.dart';
 import 'package:flutter_pecha/features/plans/presentation/plan_info.dart';
 import 'package:flutter_pecha/features/prayer_of_the_day/presentation/prayer_of_the_day_screen.dart';
+import 'package:flutter_pecha/features/story_view/presentation/widgets/image_story.dart';
+import 'package:flutter_pecha/features/story_view/presentation/widgets/text_story.dart';
+import 'package:flutter_pecha/features/story_view/presentation/widgets/video_story.dart';
+import 'package:flutter_pecha/features/story_view/utils/helper_functions.dart';
 import 'package:flutter_pecha/features/texts/models/collections/collections.dart';
 import 'package:flutter_pecha/features/texts/models/text/texts.dart';
 import 'package:flutter_pecha/features/texts/presentation/category_screen.dart';
@@ -26,20 +37,32 @@ import 'package:flutter_pecha/features/texts/presentation/text_detail_screen.dar
 import 'package:flutter_pecha/features/texts/presentation/text_toc_screen.dart';
 import 'package:flutter_pecha/features/texts/presentation/version_selection/language_selection.dart';
 import 'package:flutter_pecha/features/texts/presentation/version_selection/version_selection_screen.dart';
+import 'package:flutter_pecha/features/recitation/data/models/recitation_model.dart';
+import 'package:flutter_pecha/features/recitation/presentation/screens/recitation_detail_screen.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_pecha/features/auth/application/auth_provider.dart';
+import 'package:flutter_pecha/features/auth/application/auth_notifier.dart';
+import 'package:story_view/story_view.dart';
+import 'package:flutter_story_presenter/flutter_story_presenter.dart' as fsp;
 import 'route_config.dart';
+import 'package:flutter_pecha/features/onboarding/data/providers/onboarding_datasource_providers.dart';
 
 final goRouterProvider = Provider<GoRouter>((ref) {
   final authState = ref.watch(authProvider);
+  final localStorageService = ref.watch(localStorageServiceProvider);
+  final onboardingRepo = ref.watch(onboardingRepositoryProvider);
+
   return GoRouter(
     initialLocation: RouteConfig.home,
     refreshListenable: GoRouterRefreshStream(
       ref.watch(authProvider.notifier).stream,
     ),
     routes: [
+      GoRoute(
+        path: RouteConfig.onboarding,
+        builder: (context, state) => const OnboardingWrapper(),
+      ),
       GoRoute(
         path: RouteConfig.login,
         builder: (context, state) => const LoginPage(),
@@ -146,13 +169,6 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         },
       ),
       GoRoute(
-        path: '/home/verse_text',
-        builder: (context, state) {
-          final extra = state.extra;
-          return VerseText(verse: extra as String);
-        },
-      ),
-      GoRoute(
         path: '/home/meditation_of_the_day',
         builder: (context, state) {
           final extra = state.extra;
@@ -183,6 +199,262 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         },
       ),
       GoRoute(
+        path: '/home/stories',
+        builder: (context, state) {
+          final extra = state.extra;
+          List<UserSubtasksDto> subtasks;
+          dynamic author;
+          if (extra is Map<String, dynamic>) {
+            final subtasksValue = extra['subtasks'];
+            if (subtasksValue is! List<UserSubtasksDto>) {
+              return const Scaffold(
+                body: Center(child: Text('Missing required parameters')),
+              );
+            }
+            subtasks = subtasksValue;
+            author = extra['author'];
+          } else if (extra is List<UserSubtasksDto>) {
+            subtasks = extra;
+            author = null;
+          } else {
+            return const Scaffold(
+              body: Center(child: Text('Missing required parameters')),
+            );
+          }
+
+          // Validate that we have at least one valid subtask
+          if (subtasks.isEmpty) {
+            return const Scaffold(
+              body: Center(child: Text('No content available')),
+            );
+          }
+
+          return StoryFeature(
+            author: author,
+            storyItemsBuilder: (controller) {
+              final List<StoryItem> storyItems = [];
+              const durationForText = Duration(seconds: 15);
+              const durationForVideo = Duration(minutes: 5);
+              const durationForImage = Duration(seconds: 15);
+              for (final subtask in subtasks) {
+                if (subtask.content.isEmpty || subtask.content.isEmpty) {
+                  continue;
+                }
+                switch (subtask.contentType) {
+                  case "TEXT":
+                    storyItems.add(
+                      StoryItem(
+                        TextStory(
+                          text: subtask.content,
+                          textStyle: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w500,
+                            decoration: TextDecoration.none,
+                          ),
+                          roundedTop: true,
+                          roundedBottom: true,
+                        ),
+                        duration: durationForText,
+                      ),
+                    );
+                    break;
+                  case "VIDEO":
+                    storyItems.add(
+                      StoryItem(
+                        VideoStory(
+                          videoUrl: subtask.content,
+                          controller: controller,
+                        ),
+                        duration: durationForVideo,
+                      ),
+                    );
+                    break;
+                  case "IMAGE":
+                    storyItems.add(
+                      StoryItem(
+                        ImageStory(
+                          imageUrl: subtask.content,
+                          controller: controller,
+                          imageFit: BoxFit.contain,
+                          roundedTop: true,
+                          roundedBottom: true,
+                        ),
+                        duration: durationForImage,
+                      ),
+                    );
+                    break;
+                }
+              }
+
+              // If no valid story items were created, add a placeholder
+              if (storyItems.isEmpty) {
+                storyItems.add(
+                  StoryItem(
+                    TextStory(
+                      text: 'No content available',
+                      textStyle: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w500,
+                        decoration: TextDecoration.none,
+                      ),
+                      roundedTop: true,
+                      roundedBottom: true,
+                    ),
+                    duration: const Duration(seconds: 3),
+                  ),
+                );
+              }
+
+              return storyItems;
+            },
+          );
+        },
+      ),
+      GoRoute(
+        path: '/home/stories-presenter',
+        builder: (context, state) {
+          final extra = state.extra;
+          List<UserSubtasksDto> subtasks;
+          dynamic author;
+          Map<String, dynamic>? nextCard;
+          if (extra is Map<String, dynamic>) {
+            final subtasksValue = extra['subtasks'];
+            if (subtasksValue is! List<UserSubtasksDto>) {
+              return const Scaffold(
+                body: Center(child: Text('Missing required parameters')),
+              );
+            }
+            subtasks = subtasksValue;
+            author = extra['author'];
+            nextCard = extra['nextCard'] as Map<String, dynamic>?;
+          } else if (extra is List<UserSubtasksDto>) {
+            subtasks = extra;
+            author = null;
+            nextCard = null;
+          } else {
+            return const Scaffold(
+              body: Center(child: Text('Missing required parameters')),
+            );
+          }
+
+          // Validate that we have at least one valid subtask
+          if (subtasks.isEmpty && nextCard == null) {
+            return const Scaffold(
+              body: Center(child: Text('No content available')),
+            );
+          }
+
+          return StoryPresenter(
+            author: author,
+            subtasks: subtasks,
+            storyItemsBuilder: (controller) {
+              final items = createFlutterStoryItems(
+                subtasks,
+                controller,
+                nextCard,
+              );
+              // Ensure we have at least one item
+              if (items.isEmpty) {
+                return [
+                  fsp.StoryItem(
+                    storyItemType: fsp.StoryItemType.custom,
+                    duration: const Duration(seconds: 3),
+                    customWidget: (controller, audioPlayer) {
+                      return const Center(
+                        child: Text(
+                          'No content available',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w500,
+                            decoration: TextDecoration.none,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ];
+              }
+              return items;
+            },
+          );
+        },
+      ),
+      GoRoute(
+        path: '/home/plan-stories-presenter',
+        builder: (context, state) {
+          final extra = state.extra;
+          List<UserSubtasksDto> subtasks;
+          Map<String, dynamic>? nextCard;
+          String? planId;
+          int? dayNumber;
+          if (extra is Map<String, dynamic>) {
+            final subtasksValue = extra['subtasks'];
+            if (subtasksValue is! List<UserSubtasksDto>) {
+              return const Scaffold(
+                body: Center(child: Text('Missing required parameters')),
+              );
+            }
+            subtasks = subtasksValue;
+            nextCard = extra['nextCard'] as Map<String, dynamic>?;
+            planId = extra['planId'] as String?;
+            dayNumber = extra['dayNumber'] as int?;
+          } else if (extra is List<UserSubtasksDto>) {
+            subtasks = extra;
+            nextCard = null;
+            planId = null;
+            dayNumber = null;
+          } else {
+            return const Scaffold(
+              body: Center(child: Text('Missing required parameters')),
+            );
+          }
+
+          // Validate that we have at least one valid subtask
+          if (subtasks.isEmpty && nextCard == null) {
+            return const Scaffold(
+              body: Center(child: Text('No content available')),
+            );
+          }
+
+          return PlanStoryPresenter(
+            subtasks: subtasks,
+            planId: planId,
+            dayNumber: dayNumber,
+            storyItemsBuilder: (controller) {
+              final items = createFlutterStoryItems(
+                subtasks,
+                controller,
+                nextCard,
+              );
+              // Ensure we have at least one item
+              if (items.isEmpty) {
+                return [
+                  fsp.StoryItem(
+                    storyItemType: fsp.StoryItemType.custom,
+                    duration: const Duration(seconds: 3),
+                    customWidget: (controller, audioPlayer) {
+                      return const Center(
+                        child: Text(
+                          'No content available',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w500,
+                            decoration: TextDecoration.none,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ];
+              }
+              return items;
+            },
+          );
+        },
+      ),
+      GoRoute(
         path: '/home/prayer_of_the_day',
         builder: (context, state) {
           final extra = state.extra;
@@ -197,6 +469,7 @@ final goRouterProvider = Provider<GoRouter>((ref) {
           return PrayerOfTheDayScreen(
             audioUrl: extra['prayerAudioUrl'] as String,
             prayerData: extra['prayerData'] as List<PrayerData>,
+            audioHeaders: extra['audioHeaders'] as Map<String, String>?,
           );
         },
       ),
@@ -335,58 +608,128 @@ final goRouterProvider = Provider<GoRouter>((ref) {
           return CommentaryView(segmentId: extra);
         },
       ),
-      // plan tab routes
+      // all plan tab routes
       GoRoute(
         path: '/plans/info',
         builder: (context, state) {
           final extra = state.extra;
-          if (extra == null || extra is! PlansModel) {
+          if (extra == null ||
+              extra is! Map ||
+              !extra.containsKey('plan') ||
+              !extra.containsKey('author')) {
             return const Scaffold(
               body: Center(child: Text('Missing required parameters')),
             );
           }
-          return PlanInfo(plan: extra);
+          return PlanInfo(
+            plan: extra['plan'] as PlansModel,
+            author: extra['author'] as AuthorDtoModel,
+          );
         },
       ),
       GoRoute(
         path: '/plans/details',
         builder: (context, state) {
           final extra = state.extra;
-          if (extra == null || extra is! PlansModel) {
+          if (extra == null ||
+              extra is! Map ||
+              !extra.containsKey('plan') ||
+              !extra.containsKey('selectedDay') ||
+              !extra.containsKey('startDate')) {
             return const Scaffold(
               body: Center(child: Text('Missing required parameters')),
             );
           }
-          return PlanDetails(plan: extra);
+          return PlanDetails(
+            plan: extra['plan'] as UserPlansModel,
+            selectedDay: extra['selectedDay'] as int,
+            startDate: extra['startDate'] as DateTime,
+          );
         },
       ),
       GoRoute(
         path: NotificationSettingsScreen.routeName,
         builder: (context, state) => const NotificationSettingsScreen(),
       ),
+      // recitation tab routes
+      GoRoute(
+        path: '/recitations/detail',
+        builder: (context, state) {
+          final extra = state.extra;
+          if (extra == null || extra is! RecitationModel) {
+            return const Scaffold(
+              body: Center(child: Text('Missing required parameters')),
+            );
+          }
+          return RecitationDetailScreen(recitation: extra);
+        },
+      ),
     ],
-    redirect: (context, state) {
+    redirect: (context, state) async {
       final isLoading = authState.isLoading;
       final isLoggedIn = authState.isLoggedIn;
+      final isGuest = authState.isGuest;
       final currentPath = state.fullPath ?? RouteConfig.home;
 
-      // 1. While auth is loading, allow navigation to proceed
-      // The native splash will remain visible until Flutter is ready
+      // 1. While auth is loading, redirect to login
       if (isLoading) {
+        debugPrint('🔄 Auth is loading, redirecting to login');
         return RouteConfig.login;
       }
 
-      // 2. Authenticated user on login page should go to home
-      if (isLoggedIn && currentPath == RouteConfig.login) {
+      // 2. Check onboarding for authenticated non-guest users
+      if (isLoggedIn && !isGuest) {
+        debugPrint('✅ Authenticated non-guest user, checking onboarding');
+
+        // Check onboarding completion from local storage
+        // This is the single source of truth per requirements
+        final hasCompletedOnboarding =
+            await onboardingRepo.hasCompletedOnboarding();
+        debugPrint('📋 Onboarding status: $hasCompletedOnboarding');
+
+        // Redirect to onboarding if not completed (unless already there or on login)
+        if (!hasCompletedOnboarding &&
+            currentPath != RouteConfig.onboarding &&
+            currentPath != RouteConfig.login) {
+          debugPrint('🎯 Redirecting to onboarding');
+          return RouteConfig.onboarding;
+        }
+
+        // If completed and on onboarding page, redirect to home
+        if (hasCompletedOnboarding && currentPath == RouteConfig.onboarding) {
+          debugPrint('✅ Onboarding already completed, redirecting to home');
+          return RouteConfig.home;
+        }
+      }
+
+      // 3. Guest users skip onboarding - allow them to navigate freely
+      if (isGuest && currentPath == RouteConfig.onboarding) {
+        debugPrint('👤 Guest user, skipping onboarding');
         return RouteConfig.home;
       }
 
-      // 3. Unauthenticated user trying to access protected route
+      // 4. Authenticated user on login page should go to home or onboarding
+      if (isLoggedIn && currentPath == RouteConfig.login) {
+        // Check if they need onboarding first
+        if (!isGuest) {
+          final hasCompletedOnboarding =
+              await onboardingRepo.hasCompletedOnboarding();
+          if (!hasCompletedOnboarding) {
+            debugPrint('🎯 New authenticated user, redirecting to onboarding');
+            return RouteConfig.onboarding;
+          }
+        }
+        debugPrint('✅ Authenticated user, redirecting to home');
+        return RouteConfig.home;
+      }
+
+      // 5. Unauthenticated user trying to access protected route
       if (!isLoggedIn && RouteConfig.isProtectedRoute(currentPath)) {
+        debugPrint('🔒 Protected route, redirecting to login');
         return RouteConfig.login;
       }
 
-      // 4. No redirect needed
+      // 6. No redirect needed
       return null;
     },
   );

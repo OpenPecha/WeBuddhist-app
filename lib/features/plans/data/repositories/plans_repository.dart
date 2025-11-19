@@ -7,9 +7,21 @@ class PlansRepository {
 
   PlansRepository({required this.plansRemoteDatasource});
 
-  Future<List<PlansModel>> getPlans() async {
+  Future<List<PlansModel>> getPlans({
+    required String language,
+    String? search,
+    int? skip,
+    int? limit,
+  }) async {
     try {
-      return await plansRemoteDatasource.getPlans();
+      return await plansRemoteDatasource.fetchPlans(
+        queryParams: PlansQueryParams(
+          language: language,
+          search: search,
+          skip: skip,
+          limit: limit,
+        ),
+      );
     } catch (e) {
       throw Exception('Failed to load plans: $e');
     }

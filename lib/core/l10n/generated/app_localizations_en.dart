@@ -30,7 +30,47 @@ class AppLocalizationsEn extends AppLocalizations {
   String get switchToDark => 'Switch to Dark Mode';
 
   @override
+  String get sign_in => 'Sign in';
+
+  @override
+  String get logout => 'Logout';
+
+  @override
+  String get onboarding_welcome => 'Welcome to WeBuddhist';
+
+  @override
+  String get onboarding_description =>
+      'Where we learn, live, and share Buddhist wisdom every day';
+
+  @override
+  String get onboarding_quote =>
+      'Approximatey 500 million people worldwide practice Buddhism, making it the world\'s fourth largest religion';
+
+  @override
+  String get onboarding_first_question =>
+      'In which language would you like to access core texts?';
+
+  @override
+  String get onboarding_second_question =>
+      'Which path or school do you feel drawn to?';
+
+  @override
+  String get onboarding_choose_option => 'Choose upto 3 options';
+
+  @override
+  String get onboarding_all_set => 'You are All Setup';
+
+  @override
   String get home_today => 'Today';
+
+  @override
+  String get home_good_morning => 'Good Morning';
+
+  @override
+  String get home_good_afternoon => 'Good Afternoon';
+
+  @override
+  String get home_good_evening => 'Good Evening';
 
   @override
   String get home_dailyRefresh => 'Daily Refresh';
@@ -51,6 +91,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get home_btnText => 'Start now';
 
   @override
+  String get home_scripture => 'Guided Scripture';
+
+  @override
+  String get home_meditation => 'Guided Meditation';
+
+  @override
   String get home_goDeeper => 'Go Deeper';
 
   @override
@@ -64,6 +110,21 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get home_profile => 'Profile';
+
+  @override
+  String get nav_home => 'Home';
+
+  @override
+  String get nav_texts => 'Texts';
+
+  @override
+  String get nav_recitations => 'Recitations';
+
+  @override
+  String get nav_practice => 'Practice';
+
+  @override
+  String get nav_settings => 'Settings';
 
   @override
   String get text_browseTheLibrary => 'Browse The Library';
@@ -90,6 +151,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String get text_toc_revisionHistory => 'Revision History';
 
   @override
+  String get my_plans => 'My Plans';
+
+  @override
+  String get find_plans => 'Find Plans';
+
+  @override
+  String get browse_plans => 'Browse Plans';
+
+  @override
+  String get start_plan => 'Start Plan';
+
+  @override
+  String get continue_plan => 'Continue Plan';
+
+  @override
   String get tibetan => 'Tibetan';
 
   @override
@@ -111,13 +187,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get timeForDailyPractice => 'It\'s time for your daily practice.';
 
   @override
-  String get notificationSettings => 'Notification Settings';
-
-  @override
   String get dailyPractice => 'Daily Practice';
 
   @override
-  String get dailyPracticeRemindersDescription => 'Get reminded daily to practice your meditation and prayers';
+  String get dailyPracticeRemindersDescription =>
+      'Get reminded daily to practice your meditation and prayers';
 
   @override
   String get enableReminders => 'Enable Reminders';
@@ -141,7 +215,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get testNotifications => 'Test Notifications';
 
   @override
-  String get testNotificationsDescription => 'Send a test notification to verify everything is working';
+  String get testNotificationsDescription =>
+      'Send a test notification to verify everything is working';
 
   @override
   String get sendTestNotification => 'Send Test Notification';
@@ -157,4 +232,65 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get common_sign_in => 'Sign in';
+
+  @override
+  String get recitations_title => 'Recitations';
+
+  @override
+  String get recitations_my_recitations => 'My Recitations';
+
+  @override
+  String get browse_recitations => 'Browse Recitations';
+
+  @override
+  String get recitations_search => 'Search';
+
+  @override
+  String get recitations_saved => 'Recitation saved';
+
+  @override
+  String get recitations_unsaved => 'Recitation removed';
+
+  @override
+  String get recitations_no_content => 'No recitations available';
+
+  @override
+  String get recitations_no_saved => 'No saved recitations';
+
+  @override
+  String get recitations_save_prompt => 'Save recitations to access them here';
+
+  @override
+  String get recitations_login_required => 'Login Required';
+
+  @override
+  String get recitations_login_prompt =>
+      'Please login to view your saved recitations';
+
+  @override
+  String get recitations_save => 'Save Recitation';
+
+  @override
+  String get recitations_unsave => 'Remove from Saved';
+
+  @override
+  String get recitations_share => 'Share';
+
+  @override
+  String get recitations_phonetic => 'Phonetic';
+
+  @override
+  String get recitations_translation => 'Translation';
+
+  @override
+  String get settings_appearance => 'Appearance';
+
+  @override
+  String get settings_notifications => 'Notifications';
+
+  @override
+  String get notification_settings => 'Notification Settings';
+
+  @override
+  String get settings_account => 'Account';
 }

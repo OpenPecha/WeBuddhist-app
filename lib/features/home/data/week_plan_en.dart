@@ -2,228 +2,504 @@ const Map<String, dynamic> weekPlanEn = {
   "monday": {
     "plan": [
       {
-        "label": "Verse of the day",
-        "contentType": "text",
-        "content":
-            "Tayatha Om Bhekanze Bhekanze Maha Bhekanze\nRadza Samudgate Soha (Tibetan)\nTadhyatha Om Bhaisajye Bhaisajye Bhaisajya\nSamudgate Svaha (Sanskrit)",
-        "author": "The Lord Buddha",
+        "id": "0",
+        "title": "Verse of the day",
+        "estimated_time": 1,
+        "display_order": 1,
+        "subtasks": [
+          {
+            "id": "1",
+            "content_type": "IMAGE",
+            "content":
+                "Tayatha Om Bhekanze Bhekanze Maha Bhekanze\nRadza Samudgate Soha (Tibetan)\nTadhyatha Om Bhaisajye Bhaisajye Bhaisajya\nSamudgate Svaha (Sanskrit)",
+            "display_order": 1,
+          },
+        ],
       },
       {
-        "label": "Go deeper",
-        "contentType": "video",
-        "content": "https://www.youtube.com/watch?v=HkuSCwRJJUo",
+        "id": "087f61c3-5cbe-4eaa-8a27-038541b4f7a1",
+        "title": "Go deeper",
+        "estimated_time": 3,
+        "display_order": null,
+        "subtasks": [
+          {
+            "id": "2",
+            "content_type": "VIDEO",
+            "content": "https://www.youtube.com/watch?v=HkuSCwRJJUo",
+            "display_order": 2,
+          },
+        ],
       },
       {
-        "label": "Meditation",
-        "contentType": "video",
-        "content": "https://youtube.com/shorts/k4kzbi48SVc",
-      },
-      {
-        "label": "Recitation",
-        "contentType": "video",
-        "content": "https://www.youtube.com/shorts/JoyGCOrgPjY",
-      },
-      {
-        "label": "Bringing it to life",
-        "contentType": "image",
-        "content":
-            "https://drive.google.com/uc?export=view&id=1ImGalpW_1duxn4J7cxuWYqlFG0xBm-2X",
+        "id": "58fa44ff-a13c-474a-b6f1-3a2db8d07269",
+        "title": "Meditation",
+        "estimated_time": 3,
+        "display_order": null,
+        "subtasks": [
+          {
+            "id": "3",
+            "label": "Meditation",
+            "content_type": "AUDIO",
+            "content": "https://youtube.com/watch?v=k4kzbi48SVc",
+            "display_order": 3,
+          },
+        ],
       },
     ],
   },
   "tuesday": {
     "plan": [
       {
-        "label": "Verse of the day",
-        "contentType": "text",
-        "content":
-            "Through this positive energy, may I quickly\nAttain the realization of Medicine Buddha,\nAnd may I bring every single living being\nWithout exception to that same enlightened state.\nMay all beings who suffer from illness,\nHowever many there are, be swiftly freed from disease,\nAnd may all the sicknesses that afflict living beings never arise again.",
-        "author": "",
+        "id": "4",
+        "title": "Verse of the day",
+        "estimated_time": 1,
+        "display_order": 1,
+        "subtasks": [
+          {
+            "id": "4-1",
+            "content_type": "IMAGE",
+            "content":
+                "Through this positive energy, may I quickly\nAttain the realization of Medicine Buddha,\nAnd may I bring every single living being\nWithout exception to that same enlightened state.\nMay all beings who suffer from illness,\nHowever many there are, be swiftly freed from disease,\nAnd may all the sicknesses that afflict living beings never arise again.",
+            "display_order": 1,
+          },
+        ],
       },
       {
-        "label": "Go deeper",
-        "contentType": "video",
-        "content": "https://www.youtube.com/watch?v=cTYvsrVtfAU",
+        "id": "5",
+        "title": "Go deeper",
+        "estimated_time": 3,
+        "display_order": 2,
+        "subtasks": [
+          {
+            "id": "5-1",
+            "content_type": "VIDEO",
+            "content": "https://www.youtube.com/watch?v=cTYvsrVtfAU",
+            "display_order": 1,
+          },
+        ],
       },
       {
-        "label": "Meditation",
-        "contentType": "video",
-        "content": "https://youtube.com/shorts/k4kzbi48SVc",
-      },
-      {
-        "label": "Recitation",
-        "contentType": "video",
-        "content": "https://www.youtube.com/shorts/JoyGCOrgPjY",
-      },
-      {
-        "label": "Bringing it to life",
-        "contentType": "image",
-        "content":
-            "https://drive.google.com/uc?export=view&id=19dDFtkhowkKg_mtTOGJXp9X_B4B_A6G7",
+        "id": "6",
+        "title": "Meditation",
+        "estimated_time": 3,
+        "display_order": 3,
+        "subtasks": [
+          {
+            "id": "6-1",
+            "label": "Meditation",
+            "content_type": "AUDIO",
+            "content": "https://youtube.com/shorts/k4kzbi48SVc",
+            "display_order": 1,
+          },
+        ],
       },
     ],
   },
   "wednesday": {
     "plan": [
       {
-        "label": "Verse of the day",
-        "contentType": "text",
-        "content":
-            "Avert enemies, harm, and epidemics,\nPacify all conflicts, expand bodily and mental bliss,\nIncrease wealth, dominion, grain, and lifespan,\nAccomplish all desired aims according to one's wishes,\nAnd always protect and guard without negligence.",
-        "author": "Kalpa Bhadra",
+        "id": "7",
+        "title": "Verse of the day",
+        "estimated_time": 1,
+        "display_order": 1,
+        "subtasks": [
+          {
+            "id": "7-1",
+            "content_type": "IMAGE",
+            "content":
+                "Whenever someone out of envy\nDoes me wrong by attacking or belittling me,\nI will take defeat upon myself,\nAnd give the victory to others.",
+            "display_order": 1,
+          },
+        ],
       },
       {
-        "label": "Go deeper",
-        "contentType": "video",
-        "content": "https://www.youtube.com/watch?v=fusKR990UyE",
+        "id": "8",
+        "title": "Go deeper",
+        "estimated_time": 3,
+        "display_order": 2,
+        "subtasks": [
+          {
+            "id": "8-1",
+            "content_type": "VIDEO",
+            "content": "https://www.youtube.com/watch?v=fusKR990UyE",
+            "display_order": 1,
+          },
+        ],
       },
       {
-        "label": "Meditation",
-        "contentType": "video",
-        "content": "https://youtube.com/shorts/k4kzbi48SVc",
-      },
-      {
-        "label": "Recitation",
-        "contentType": "video",
-        "content": "https://www.youtube.com/shorts/JoyGCOrgPjY",
-      },
-      {
-        "label": "Bringing it to life",
-        "contentType": "image",
-        "content":
-            "https://drive.google.com/uc?export=view&id=19dDFtkhowkKg_mtTOGJXp9X_B4B_A6G7",
+        "id": "9",
+        "title": "Meditation",
+        "estimated_time": 3,
+        "display_order": 3,
+        "subtasks": [
+          {
+            "id": "9-1",
+            "label": "Meditation",
+            "content_type": "AUDIO",
+            "content": "https://youtube.com/shorts/k4kzbi48SVc",
+            "display_order": 1,
+          },
+        ],
       },
     ],
   },
   "thursday": {
     "plan": [
       {
-        "label": "Verse of the day",
-        "contentType": "text",
-        "content":
-            "Blessed One whose compassion extends equally to all,\nWhose very name, when heard, relieves the suffering of unfortunate rebirths,\nMedicine Buddha who heals the illness of the three poisons,\nI pray to your lapis lazuli radiance.",
-        "author": "Yuthok Yonten Gonpo",
+        "id": "10",
+        "title": "Verse of the day",
+        "estimated_time": 1,
+        "display_order": 1,
+        "subtasks": [
+          {
+            "id": "10-1",
+            "content_type": "TEXT",
+            "author": "Yuthok Yonten Gonpo",
+            "content":
+                "Blessed One whose compassion extends equally to all,\nWhose very name, when heard, relieves the suffering of unfortunate rebirths,\nMedicine Buddha who heals the illness of the three poisons,\nI pray to your lapis lazuli radiance.",
+            "display_order": 1,
+          },
+        ],
       },
       {
-        "label": "Go deeper",
-        "contentType": "video",
-        "content": "https://www.youtube.com/watch?v=qy779fPrHEY",
+        "id": "11",
+        "title": "Go deeper",
+        "estimated_time": 3,
+        "display_order": 2,
+        "subtasks": [
+          {
+            "id": "11-1",
+            "content_type": "VIDEO",
+            "content": "https://www.youtube.com/watch?v=qy779fPrHEY",
+            "display_order": 1,
+          },
+        ],
       },
       {
-        "label": "Meditation",
-        "contentType": "video",
-        "content": "https://youtube.com/shorts/k4kzbi48SVc",
-      },
-      {
-        "label": "Recitation",
-        "contentType": "video",
-        "content": "https://www.youtube.com/shorts/JoyGCOrgPjY",
-      },
-      {
-        "label": "Bringing it to life",
-        "contentType": "image",
-        "content":
-            "https://drive.google.com/uc?export=view&id=1ImGalpW_1duxn4J7cxuWYqlFG0xBm-2X",
+        "id": "12",
+        "title": "Meditation",
+        "estimated_time": 3,
+        "display_order": 3,
+        "subtasks": [
+          {
+            "id": "12-1",
+            "label": "Meditation",
+            "content_type": "AUDIO",
+            "content": "https://youtube.com/shorts/k4kzbi48SVc",
+            "display_order": 1,
+          },
+        ],
       },
     ],
   },
   "friday": {
     "plan": [
       {
-        "label": "Verse of the day",
-        "contentType": "text",
-        "content":
-            "Avert enemies, harm, and epidemics,\nPacify all conflicts, expand bodily and mental bliss,\nIncrease wealth, dominion, grain, and lifespan,\nAccomplish all desired aims according to one's wishes,\nAnd always protect and guard without negligence.",
-        "author": "Kalpa Bhadra",
+        "id": "13",
+        "title": "Verse of the day",
+        "estimated_time": 1,
+        "display_order": 1,
+        "subtasks": [
+          {
+            "id": "13-1",
+            "content_type": "IMAGE",
+            "content":
+                "Avert enemies, harm, and epidemics,\nPacify all conflicts, expand bodily and mental bliss,\nIncrease wealth, dominion, grain, and lifespan,\nAccomplish all desired aims according to one's wishes,\nAnd always protect and guard without negligence.",
+            "display_order": 1,
+          },
+        ],
       },
       {
-        "label": "Go deeper",
-        "contentType": "video",
-        "content": "https://www.youtube.com/watch?v=fusKR990UyE",
+        "id": "14",
+        "title": "Go deeper",
+        "estimated_time": 3,
+        "display_order": 2,
+        "subtasks": [
+          {
+            "id": "14-1",
+            "content_type": "VIDEO",
+            "content": "https://www.youtube.com/watch?v=fusKR990UyE",
+            "display_order": 1,
+          },
+        ],
       },
       {
-        "label": "Meditation",
-        "contentType": "video",
-        "content": "https://youtube.com/shorts/k4kzbi48SVc",
-      },
-      {
-        "label": "Recitation",
-        "contentType": "video",
-        "content": "https://www.youtube.com/shorts/JoyGCOrgPjY",
-      },
-      {
-        "label": "Bringing it to life",
-        "contentType": "image",
-        "content":
-            "https://drive.google.com/uc?export=view&id=19dDFtkhowkKg_mtTOGJXp9X_B4B_A6G7",
+        "id": "15",
+        "title": "Meditation",
+        "estimated_time": 3,
+        "display_order": 3,
+        "subtasks": [
+          {
+            "id": "15-1",
+            "label": "Meditation",
+            "content_type": "AUDIO",
+            "content": "https://youtube.com/shorts/k4kzbi48SVc",
+            "display_order": 1,
+          },
+        ],
       },
     ],
   },
   "saturday": {
     "plan": [
       {
-        "label": "Verse of the day",
-        "contentType": "text",
-        "content":
-            "Blessed One whose compassion extends equally to all,\nWhose very name, when heard, relieves the suffering of unfortunate rebirths,\nMedicine Buddha who heals the illness of the three poisons,\nI pray to your lapis lazuli radiance.",
-        "author": "Yuthok Yonten Gonpo",
+        "id": "16",
+        "title": "Verse of the day",
+        "estimated_time": 1,
+        "display_order": 1,
+        "subtasks": [
+          {
+            "id": "16-1",
+            "content_type": "IMAGE",
+            "content":
+                "Blessed One whose compassion extends equally to all,\nWhose very name, when heard, relieves the suffering of unfortunate rebirths,\nMedicine Buddha who heals the illness of the three poisons,\nI pray to your lapis lazuli radiance.",
+            "display_order": 1,
+          },
+        ],
       },
       {
-        "label": "Go deeper",
-        "contentType": "video",
-        "content": "https://www.youtube.com/watch?v=qy779fPrHEY",
+        "id": "17",
+        "title": "Go deeper",
+        "estimated_time": 3,
+        "display_order": 2,
+        "subtasks": [
+          {
+            "id": "17-1",
+            "content_type": "VIDEO",
+            "content": "https://www.youtube.com/watch?v=qy779fPrHEY",
+            "display_order": 1,
+          },
+        ],
       },
       {
-        "label": "Meditation",
-        "contentType": "video",
-        "content": "https://youtube.com/shorts/k4kzbi48SVc",
-      },
-      {
-        "label": "Recitation",
-        "contentType": "video",
-        "content": "https://www.youtube.com/shorts/JoyGCOrgPjY",
-      },
-      {
-        "label": "Bringing it to life",
-        "contentType": "image",
-        "content":
-            "https://drive.google.com/uc?export=view&id=1ImGalpW_1duxn4J7cxuWYqlFG0xBm-2X",
+        "id": "18",
+        "title": "Meditation",
+        "estimated_time": 3,
+        "display_order": 3,
+        "subtasks": [
+          {
+            "id": "18-1",
+            "label": "Meditation",
+            "content_type": "AUDIO",
+            "content": "https://youtube.com/shorts/k4kzbi48SVc",
+            "display_order": 1,
+          },
+        ],
       },
     ],
   },
   "sunday": {
     "plan": [
       {
-        "label": "Verse of the day",
-        "contentType": "text",
-        "content":
-            "Tayatha Om Bhekanze Bhekanze Maha Bhekanze\nRadza Samudgate Soha (Tibetan)\nTadhyatha Om Bhaisajye Bhaisajye Bhaisajya\nSamudgate Svaha. (Sanskrit)",
-        "author": "The Lord Buddha",
+        "id": "19",
+        "title": "Verse of the day",
+        "estimated_time": 1,
+        "display_order": 1,
+        "subtasks": [
+          {
+            "id": "19-1",
+            "content_type": "IMAGE",
+            "content":
+                "Tayatha Om Bhekanze Bhekanze Maha Bhekanze\nRadza Samudgate Soha (Tibetan)\nTadhyatha Om Bhaisajye Bhaisajye Bhaisajya\nSamudgate Svaha (Sanskrit)",
+            "display_order": 1,
+          },
+        ],
       },
       {
-        "label": "Go deeper",
-        "contentType": "video",
-        "content": "https://www.youtube.com/watch?v=VKlbbq3BdEI",
+        "id": "20",
+        "title": "Go deeper",
+        "estimated_time": 3,
+        "display_order": 2,
+        "subtasks": [
+          {
+            "id": "20-1",
+            "content_type": "VIDEO",
+            "content": "https://www.youtube.com/watch?v=VKlbbq3BdEI",
+            "display_order": 1,
+          },
+        ],
       },
       {
-        "label": "Meditation",
-        "contentType": "video",
-        "content": "https://youtube.com/shorts/k4kzbi48SVc",
-      },
-      {
-        "label": "Recitation",
-        "contentType": "video",
-        "content": "https://www.youtube.com/shorts/JoyGCOrgPjY",
-      },
-      {
-        "label": "Bringing it to life",
-        "contentType": "image",
-        "content":
-            "https://drive.google.com/uc?export=view&id=19dDFtkhowkKg_mtTOGJXp9X_B4B_A6G7",
+        "id": "21",
+        "title": "Meditation",
+        "estimated_time": 3,
+        "display_order": 3,
+        "subtasks": [
+          {
+            "id": "21-1",
+            "label": "Meditation",
+            "content_type": "AUDIO",
+            "content": "https://youtube.com/shorts/k4kzbi48SVc",
+            "display_order": 1,
+          },
+        ],
       },
     ],
   },
 };
+// const Map<String, dynamic> weekPlanEn = {
+//   "monday": {
+//     "plan": [
+//       {
+//         "label": "Verse of the day",
+//         "contentType": "text",
+//         "content":
+//             "Tayatha Om Bhekanze Bhekanze Maha Bhekanze\nRadza Samudgate Soha (Tibetan)\nTadhyatha Om Bhaisajye Bhaisajye Bhaisajya\nSamudgate Svaha (Sanskrit)",
+//         "author": "The Lord Buddha",
+//         "imageUrl":
+//             "https://drive.google.com/uc?export=view&id=1ImGalpW_1duxn4J7cxuWYqlFG0xBm-2X",
+//       },
+//       {
+//         "label": "Go deeper",
+//         "contentType": "video",
+//         "content": "https://www.youtube.com/watch?v=HkuSCwRJJUo",
+//       },
+//       {
+//         "label": "Meditation",
+//         "contentType": "audio",
+//         "content": "https://youtube.com/shorts/k4kzbi48SVc",
+//       },
+//     ],
+//   },
+//   "tuesday": {
+//     "plan": [
+//       {
+//         "label": "Verse of the day",
+//         "contentType": "text",
+//         "content":
+//             "Through this positive energy, may I quickly\nAttain the realization of Medicine Buddha,\nAnd may I bring every single living being\nWithout exception to that same enlightened state.\nMay all beings who suffer from illness,\nHowever many there are, be swiftly freed from disease,\nAnd may all the sicknesses that afflict living beings never arise again.",
+//         "author": "",
+//         "imageUrl":
+//             "https://drive.google.com/uc?export=view&id=19dDFtkhowkKg_mtTOGJXp9X_B4B_A6G7",
+//       },
+//       {
+//         "label": "Go deeper",
+//         "contentType": "video",
+//         "content": "https://www.youtube.com/watch?v=cTYvsrVtfAU",
+//       },
+//       {
+//         "label": "Meditation",
+//         "contentType": "audio",
+//         "content": "https://youtube.com/shorts/k4kzbi48SVc",
+//       },
+//     ],
+//   },
+//   "wednesday": {
+//     "plan": [
+//       {
+//         "label": "Verse of the day",
+//         "contentType": "text",
+//         "content":
+//             "Avert enemies, harm, and epidemics,\nPacify all conflicts, expand bodily and mental bliss,\nIncrease wealth, dominion, grain, and lifespan,\nAccomplish all desired aims according to one's wishes,\nAnd always protect and guard without negligence.",
+//         "author": "Kalpa Bhadra",
+//         "imageUrl":
+//             "https://drive.google.com/uc?export=view&id=19dDFtkhowkKg_mtTOGJXp9X_B4B_A6G7",
+//       },
+//       {
+//         "label": "Go deeper",
+//         "contentType": "video",
+//         "content": "https://www.youtube.com/watch?v=fusKR990UyE",
+//       },
+//       {
+//         "label": "Meditation",
+//         "contentType": "audio",
+//         "content": "https://youtube.com/shorts/k4kzbi48SVc",
+//       },
+//     ],
+//   },
+//   "thursday": {
+//     "plan": [
+//       {
+//         "label": "Verse of the day",
+//         "contentType": "text",
+//         "content":
+//             "Blessed One whose compassion extends equally to all,\nWhose very name, when heard, relieves the suffering of unfortunate rebirths,\nMedicine Buddha who heals the illness of the three poisons,\nI pray to your lapis lazuli radiance.",
+//         "author": "Yuthok Yonten Gonpo",
+//         "imageUrl":
+//             "https://drive.google.com/uc?export=view&id=1ImGalpW_1duxn4J7cxuWYqlFG0xBm-2X",
+//       },
+//       {
+//         "label": "Go deeper",
+//         "contentType": "video",
+//         "content": "https://www.youtube.com/watch?v=qy779fPrHEY",
+//       },
+//       {
+//         "label": "Meditation",
+//         "contentType": "audio",
+//         "content": "https://youtube.com/shorts/k4kzbi48SVc",
+//       },
+//     ],
+//   },
+//   "friday": {
+//     "plan": [
+//       {
+//         "label": "Verse of the day",
+//         "contentType": "text",
+//         "content":
+//             "Avert enemies, harm, and epidemics,\nPacify all conflicts, expand bodily and mental bliss,\nIncrease wealth, dominion, grain, and lifespan,\nAccomplish all desired aims according to one's wishes,\nAnd always protect and guard without negligence.",
+//         "author": "Kalpa Bhadra",
+//         "imageUrl":
+//             "https://drive.google.com/uc?export=view&id=19dDFtkhowkKg_mtTOGJXp9X_B4B_A6G7",
+//       },
+//       {
+//         "label": "Go deeper",
+//         "contentType": "video",
+//         "content": "https://www.youtube.com/watch?v=fusKR990UyE",
+//       },
+//       {
+//         "label": "Meditation",
+//         "contentType": "audio",
+//         "content": "https://youtube.com/shorts/k4kzbi48SVc",
+//       },
+//     ],
+//   },
+//   "saturday": {
+//     "plan": [
+//       {
+//         "label": "Verse of the day",
+//         "contentType": "text",
+//         "content":
+//             "Blessed One whose compassion extends equally to all,\nWhose very name, when heard, relieves the suffering of unfortunate rebirths,\nMedicine Buddha who heals the illness of the three poisons,\nI pray to your lapis lazuli radiance.",
+//         "author": "Yuthok Yonten Gonpo",
+//         "imageUrl":
+//             "https://drive.google.com/uc?export=view&id=1ImGalpW_1duxn4J7cxuWYqlFG0xBm-2X",
+//       },
+//       {
+//         "label": "Go deeper",
+//         "contentType": "video",
+//         "content": "https://www.youtube.com/watch?v=qy779fPrHEY",
+//       },
+//       {
+//         "label": "Meditation",
+//         "contentType": "audio",
+//         "content": "https://youtube.com/shorts/k4kzbi48SVc",
+//       },
+//     ],
+//   },
+//   "sunday": {
+//     "plan": [
+//       {
+//         "label": "Verse of the day",
+//         "contentType": "text",
+//         "content":
+//             "Tayatha Om Bhekanze Bhekanze Maha Bhekanze\nRadza Samudgate Soha (Tibetan)\nTadhyatha Om Bhaisajye Bhaisajye Bhaisajya\nSamudgate Svaha. (Sanskrit)",
+//         "author": "The Lord Buddha",
+//         "imageUrl":
+//             "https://drive.google.com/uc?export=view&id=19dDFtkhowkKg_mtTOGJXp9X_B4B_A6G7",
+//       },
+//       {
+//         "label": "Go deeper",
+//         "contentType": "video",
+//         "content": "https://www.youtube.com/watch?v=VKlbbq3BdEI",
+//       },
+//       {
+//         "label": "Meditation",
+//         "contentType": "audio",
+//         "content": "https://youtube.com/shorts/k4kzbi48SVc",
+//       },
+//     ],
+//   },
+// };
 
 // const Map<String, dynamic> weekPlanEnSprint14 = {
 //   "monday": {
