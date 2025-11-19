@@ -68,7 +68,7 @@ class _TableOfContentsState extends ConsumerState<TableOfContents> {
       return GestureDetector(
         onTap: () {
           context.push(
-            '/texts/chapter',
+            '/texts/chapters',
             extra: {
               'textId': textId,
               'contentId': tocId,

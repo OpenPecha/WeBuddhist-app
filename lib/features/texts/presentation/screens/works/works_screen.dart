@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
+import 'package:flutter_pecha/core/widgets/error_state_widget.dart';
 import 'package:flutter_pecha/features/app/presentation/pecha_bottom_nav_bar.dart';
 import 'package:flutter_pecha/features/texts/models/collections/collections.dart';
 import 'package:flutter_pecha/features/texts/data/providers/apis/texts_provider.dart';
@@ -9,8 +10,8 @@ import 'package:flutter_pecha/shared/utils/helper_fucntions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-class TextDetailScreen extends ConsumerWidget {
-  const TextDetailScreen({super.key, required this.collection});
+class WorksScreen extends ConsumerWidget {
+  const WorksScreen({super.key, required this.collection});
   final Collections collection;
 
   @override
@@ -26,8 +27,6 @@ class TextDetailScreen extends ConsumerWidget {
           icon: const Icon(Icons.arrow_back_ios),
           onPressed: () => Navigator.pop(context),
         ),
-        title: null,
-        centerTitle: true,
         shape: Border(bottom: BorderSide(color: Color(0xFFB6D7D7), width: 3)),
       ),
       body: SingleChildScrollView(
@@ -71,9 +70,10 @@ class TextDetailScreen extends ConsumerWidget {
                       child: Center(child: CircularProgressIndicator()),
                     ),
                 error:
-                    (e, st) => Padding(
-                      padding: const EdgeInsets.only(top: 40.0),
-                      child: Center(child: Text('Failed to load texts')),
+                    (e, st) => ErrorStateWidget(
+                      error: e,
+                      customMessage:
+                          'Unable to load texts.\nPlease try again later.',
                     ),
               ),
             ],
@@ -143,7 +143,7 @@ class TextDetailScreen extends ConsumerWidget {
                     ),
                   ),
                   onTap: () {
-                    context.push('/texts/toc', extra: text);
+                    context.push('/texts/texts', extra: text);
                   },
                 ),
               ],

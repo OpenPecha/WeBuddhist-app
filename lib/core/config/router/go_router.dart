@@ -29,12 +29,12 @@ import 'package:flutter_pecha/features/texts/models/collections/collections.dart
 import 'package:flutter_pecha/features/texts/models/text/texts.dart';
 import 'package:flutter_pecha/features/texts/presentation/category_screen.dart';
 import 'package:flutter_pecha/features/texts/presentation/commentary/commentary_view.dart';
-import 'package:flutter_pecha/features/texts/presentation/library_catalog_screen.dart';
+import 'package:flutter_pecha/features/texts/presentation/screens/collections/collections_screen.dart';
 import 'package:flutter_pecha/features/texts/presentation/segment_image/choose_image.dart';
 import 'package:flutter_pecha/features/texts/presentation/segment_image/create_image.dart';
-import 'package:flutter_pecha/features/texts/presentation/text_chapter.dart';
-import 'package:flutter_pecha/features/texts/presentation/text_detail_screen.dart';
-import 'package:flutter_pecha/features/texts/presentation/text_toc_screen.dart';
+import 'package:flutter_pecha/features/texts/presentation/screens/chapters/chapters_screen.dart';
+import 'package:flutter_pecha/features/texts/presentation/screens/works/works_screen.dart';
+import 'package:flutter_pecha/features/texts/presentation/screens/texts/texts_screen.dart';
 import 'package:flutter_pecha/features/texts/presentation/version_selection/language_selection.dart';
 import 'package:flutter_pecha/features/texts/presentation/version_selection/version_selection_screen.dart';
 import 'package:flutter_pecha/features/recitation/data/models/recitation_model.dart';
@@ -474,8 +474,8 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         },
       ),
       GoRoute(
-        path: '/texts',
-        builder: (context, state) => const LibraryCatalogScreen(),
+        path: '/texts/collections',
+        builder: (context, state) => const CollectionsScreen(),
       ),
       GoRoute(
         path: '/texts/category',
@@ -493,7 +493,7 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         },
       ),
       GoRoute(
-        path: '/texts/detail',
+        path: '/texts/works',
         builder: (context, state) {
           final extra = state.extra;
           late Collections collection;
@@ -502,13 +502,13 @@ final goRouterProvider = Provider<GoRouter>((ref) {
           } else if (extra is Map<String, dynamic>) {
             collection = Collections.fromJson(extra);
           } else {
-            throw Exception('Invalid extra type for /texts/detail');
+            throw Exception('Invalid extra type for /texts/works');
           }
-          return TextDetailScreen(collection: collection);
+          return WorksScreen(collection: collection);
         },
       ),
       GoRoute(
-        path: '/texts/toc',
+        path: '/texts/texts',
         builder: (context, state) {
           final extra = state.extra;
           late Texts text;
@@ -517,13 +517,13 @@ final goRouterProvider = Provider<GoRouter>((ref) {
           } else if (extra is Map<String, dynamic>) {
             text = Texts.fromJson(extra);
           } else {
-            throw Exception('Invalid extra type for /texts/toc');
+            throw Exception('Invalid extra type for /texts/texts');
           }
-          return TextTocScreen(text: text);
+          return TextsScreen(text: text);
         },
       ),
       GoRoute(
-        path: '/texts/chapter',
+        path: '/texts/chapters',
         builder: (context, state) {
           final extra = state.extra;
           if (extra == null || extra is! Map || !extra.containsKey('textId')) {
@@ -531,7 +531,7 @@ final goRouterProvider = Provider<GoRouter>((ref) {
               body: Center(child: Text('Missing required parameters')),
             );
           }
-          return TextChapter(
+          return ChaptersScreen(
             textId: extra['textId'] as String,
             contentId: extra['contentId'] as String?,
             segmentId: extra['segmentId'] as String?,

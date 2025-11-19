@@ -8,7 +8,7 @@ import 'package:flutter_pecha/features/texts/models/segment.dart';
 import 'package:flutter_pecha/features/texts/models/text/reader_response.dart';
 import 'package:flutter_pecha/features/texts/models/text/toc.dart';
 import 'package:flutter_pecha/features/texts/models/text_detail.dart';
-import 'package:flutter_pecha/features/texts/presentation/widgets/chapter.dart';
+import 'package:flutter_pecha/features/texts/presentation/widgets/contents_chapter.dart';
 import 'package:flutter_pecha/features/texts/presentation/widgets/font_size_selector.dart';
 import 'package:flutter_pecha/features/texts/presentation/widgets/segment_action_bar.dart';
 import 'package:flutter_pecha/features/texts/presentation/widgets/library_search_delegate.dart';
@@ -19,13 +19,12 @@ import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
-// text chapter layout for long text
-class TextChapter extends StatefulHookConsumerWidget {
+class ChaptersScreen extends StatefulHookConsumerWidget {
   final String textId;
   final String? contentId;
   final String? segmentId;
 
-  const TextChapter({
+  const ChaptersScreen({
     super.key,
     required this.textId,
     this.contentId,
@@ -33,10 +32,10 @@ class TextChapter extends StatefulHookConsumerWidget {
   });
 
   @override
-  ConsumerState<TextChapter> createState() => _TextChapterState();
+  ConsumerState<ChaptersScreen> createState() => _ChaptersScreenState();
 }
 
-class _TextChapterState extends ConsumerState<TextChapter> {
+class _ChaptersScreenState extends ConsumerState<ChaptersScreen> {
   final ItemScrollController itemScrollController = ItemScrollController();
 
   // State variables to hold the current textId and segmentId
@@ -231,7 +230,6 @@ class _TextChapterState extends ConsumerState<TextChapter> {
         ),
         toolbarHeight: 50,
         actions: [
-          // if (infiniteQuery.data != null)
           _buildSearchButton(context, ref),
           _buildFontSizeSelector(context, ref),
           if (infiniteQuery.data != null)
@@ -346,7 +344,7 @@ class _TextChapterState extends ConsumerState<TextChapter> {
       child: Stack(
         children: [
           // Main content
-          Chapter(
+          ContentsChapter(
             itemScrollController: itemScrollController,
             textDetail: textDetail,
             content: content,
