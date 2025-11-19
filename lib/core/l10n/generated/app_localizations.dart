@@ -63,7 +63,8 @@ import 'app_localizations_zh.dart';
 /// be consistent with the languages listed in the AppLocalizations.supportedLocales
 /// property.
 abstract class AppLocalizations {
-  AppLocalizations(String locale) : localeName = intl.Intl.canonicalizedLocale(locale.toString());
+  AppLocalizations(String locale)
+    : localeName = intl.Intl.canonicalizedLocale(locale.toString());
 
   final String localeName;
 
@@ -71,7 +72,8 @@ abstract class AppLocalizations {
     return Localizations.of<AppLocalizations>(context, AppLocalizations);
   }
 
-  static const LocalizationsDelegate<AppLocalizations> delegate = _AppLocalizationsDelegate();
+  static const LocalizationsDelegate<AppLocalizations> delegate =
+      _AppLocalizationsDelegate();
 
   /// A list of this localizations delegate along with the default localizations
   /// delegates.
@@ -83,18 +85,19 @@ abstract class AppLocalizations {
   /// Additional delegates can be added by appending to this list in
   /// MaterialApp. This list does not have to be used at all if a custom list
   /// of delegates is preferred or required.
-  static const List<LocalizationsDelegate<dynamic>> localizationsDelegates = <LocalizationsDelegate<dynamic>>[
-    delegate,
-    GlobalMaterialLocalizations.delegate,
-    GlobalCupertinoLocalizations.delegate,
-    GlobalWidgetsLocalizations.delegate,
-  ];
+  static const List<LocalizationsDelegate<dynamic>> localizationsDelegates =
+      <LocalizationsDelegate<dynamic>>[
+        delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+      ];
 
   /// A list of this localizations delegate's supported locales.
   static const List<Locale> supportedLocales = <Locale>[
     Locale('bo'),
     Locale('en'),
-    Locale('zh')
+    Locale('zh'),
   ];
 
   /// No description provided for @appTitle.
@@ -139,11 +142,83 @@ abstract class AppLocalizations {
   /// **'Switch to Dark Mode'**
   String get switchToDark;
 
+  /// No description provided for @sign_in.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in'**
+  String get sign_in;
+
+  /// No description provided for @logout.
+  ///
+  /// In en, this message translates to:
+  /// **'Logout'**
+  String get logout;
+
+  /// No description provided for @onboarding_welcome.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome to WeBuddhist'**
+  String get onboarding_welcome;
+
+  /// No description provided for @onboarding_description.
+  ///
+  /// In en, this message translates to:
+  /// **'Where we learn, live, and share Buddhist wisdom every day'**
+  String get onboarding_description;
+
+  /// No description provided for @onboarding_quote.
+  ///
+  /// In en, this message translates to:
+  /// **'Approximatey 500 million people worldwide practice Buddhism, making it the world\'s fourth largest religion'**
+  String get onboarding_quote;
+
+  /// No description provided for @onboarding_first_question.
+  ///
+  /// In en, this message translates to:
+  /// **'In which language would you like to access core texts?'**
+  String get onboarding_first_question;
+
+  /// No description provided for @onboarding_second_question.
+  ///
+  /// In en, this message translates to:
+  /// **'Which path or school do you feel drawn to?'**
+  String get onboarding_second_question;
+
+  /// No description provided for @onboarding_choose_option.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose upto 3 options'**
+  String get onboarding_choose_option;
+
+  /// No description provided for @onboarding_all_set.
+  ///
+  /// In en, this message translates to:
+  /// **'You are All Setup'**
+  String get onboarding_all_set;
+
   /// No description provided for @home_today.
   ///
   /// In en, this message translates to:
   /// **'Today'**
   String get home_today;
+
+  /// No description provided for @home_good_morning.
+  ///
+  /// In en, this message translates to:
+  /// **'Good Morning'**
+  String get home_good_morning;
+
+  /// No description provided for @home_good_afternoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Good Afternoon'**
+  String get home_good_afternoon;
+
+  /// No description provided for @home_good_evening.
+  ///
+  /// In en, this message translates to:
+  /// **'Good Evening'**
+  String get home_good_evening;
 
   /// No description provided for @home_dailyRefresh.
   ///
@@ -181,6 +256,18 @@ abstract class AppLocalizations {
   /// **'Start now'**
   String get home_btnText;
 
+  /// No description provided for @home_scripture.
+  ///
+  /// In en, this message translates to:
+  /// **'Guided Scripture'**
+  String get home_scripture;
+
+  /// No description provided for @home_meditation.
+  ///
+  /// In en, this message translates to:
+  /// **'Guided Meditation'**
+  String get home_meditation;
+
   /// No description provided for @home_goDeeper.
   ///
   /// In en, this message translates to:
@@ -210,6 +297,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Profile'**
   String get home_profile;
+
+  /// No description provided for @nav_home.
+  ///
+  /// In en, this message translates to:
+  /// **'Home'**
+  String get nav_home;
+
+  /// No description provided for @nav_texts.
+  ///
+  /// In en, this message translates to:
+  /// **'Texts'**
+  String get nav_texts;
+
+  /// No description provided for @nav_recitations.
+  ///
+  /// In en, this message translates to:
+  /// **'Recitations'**
+  String get nav_recitations;
+
+  /// No description provided for @nav_practice.
+  ///
+  /// In en, this message translates to:
+  /// **'Practice'**
+  String get nav_practice;
+
+  /// No description provided for @nav_settings.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get nav_settings;
 
   /// No description provided for @text_browseTheLibrary.
   ///
@@ -259,6 +376,36 @@ abstract class AppLocalizations {
   /// **'Revision History'**
   String get text_toc_revisionHistory;
 
+  /// No description provided for @my_plans.
+  ///
+  /// In en, this message translates to:
+  /// **'My Plans'**
+  String get my_plans;
+
+  /// No description provided for @find_plans.
+  ///
+  /// In en, this message translates to:
+  /// **'Find Plans'**
+  String get find_plans;
+
+  /// No description provided for @browse_plans.
+  ///
+  /// In en, this message translates to:
+  /// **'Browse Plans'**
+  String get browse_plans;
+
+  /// No description provided for @start_plan.
+  ///
+  /// In en, this message translates to:
+  /// **'Start Plan'**
+  String get start_plan;
+
+  /// No description provided for @continue_plan.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue Plan'**
+  String get continue_plan;
+
   /// No description provided for @tibetan.
   ///
   /// In en, this message translates to:
@@ -300,12 +447,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'It\'s time for your daily practice.'**
   String get timeForDailyPractice;
-
-  /// No description provided for @notificationSettings.
-  ///
-  /// In en, this message translates to:
-  /// **'Notification Settings'**
-  String get notificationSettings;
 
   /// No description provided for @dailyPractice.
   ///
@@ -396,9 +537,130 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Sign in'**
   String get common_sign_in;
+
+  /// No description provided for @recitations_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Recitations'**
+  String get recitations_title;
+
+  /// No description provided for @recitations_my_recitations.
+  ///
+  /// In en, this message translates to:
+  /// **'My Recitations'**
+  String get recitations_my_recitations;
+
+  /// No description provided for @browse_recitations.
+  ///
+  /// In en, this message translates to:
+  /// **'Browse Recitations'**
+  String get browse_recitations;
+
+  /// No description provided for @recitations_search.
+  ///
+  /// In en, this message translates to:
+  /// **'Search'**
+  String get recitations_search;
+
+  /// No description provided for @recitations_saved.
+  ///
+  /// In en, this message translates to:
+  /// **'Recitation saved'**
+  String get recitations_saved;
+
+  /// No description provided for @recitations_unsaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Recitation removed'**
+  String get recitations_unsaved;
+
+  /// No description provided for @recitations_no_content.
+  ///
+  /// In en, this message translates to:
+  /// **'No recitations available'**
+  String get recitations_no_content;
+
+  /// No description provided for @recitations_no_saved.
+  ///
+  /// In en, this message translates to:
+  /// **'No saved recitations'**
+  String get recitations_no_saved;
+
+  /// No description provided for @recitations_save_prompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Save recitations to access them here'**
+  String get recitations_save_prompt;
+
+  /// No description provided for @recitations_login_required.
+  ///
+  /// In en, this message translates to:
+  /// **'Login Required'**
+  String get recitations_login_required;
+
+  /// No description provided for @recitations_login_prompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Please login to view your saved recitations'**
+  String get recitations_login_prompt;
+
+  /// No description provided for @recitations_save.
+  ///
+  /// In en, this message translates to:
+  /// **'Save Recitation'**
+  String get recitations_save;
+
+  /// No description provided for @recitations_unsave.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove from Saved'**
+  String get recitations_unsave;
+
+  /// No description provided for @recitations_share.
+  ///
+  /// In en, this message translates to:
+  /// **'Share'**
+  String get recitations_share;
+
+  /// No description provided for @recitations_phonetic.
+  ///
+  /// In en, this message translates to:
+  /// **'Phonetic'**
+  String get recitations_phonetic;
+
+  /// No description provided for @recitations_translation.
+  ///
+  /// In en, this message translates to:
+  /// **'Translation'**
+  String get recitations_translation;
+
+  /// No description provided for @settings_appearance.
+  ///
+  /// In en, this message translates to:
+  /// **'Appearance'**
+  String get settings_appearance;
+
+  /// No description provided for @settings_notifications.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications'**
+  String get settings_notifications;
+
+  /// No description provided for @notification_settings.
+  ///
+  /// In en, this message translates to:
+  /// **'Notification Settings'**
+  String get notification_settings;
+
+  /// No description provided for @settings_account.
+  ///
+  /// In en, this message translates to:
+  /// **'Account'**
+  String get settings_account;
 }
 
-class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
+class _AppLocalizationsDelegate
+    extends LocalizationsDelegate<AppLocalizations> {
   const _AppLocalizationsDelegate();
 
   @override
@@ -407,26 +669,28 @@ class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> 
   }
 
   @override
-  bool isSupported(Locale locale) => <String>['bo', 'en', 'zh'].contains(locale.languageCode);
+  bool isSupported(Locale locale) =>
+      <String>['bo', 'en', 'zh'].contains(locale.languageCode);
 
   @override
   bool shouldReload(_AppLocalizationsDelegate old) => false;
 }
 
 AppLocalizations lookupAppLocalizations(Locale locale) {
-
-
   // Lookup logic when only language code is specified.
   switch (locale.languageCode) {
-    case 'bo': return AppLocalizationsBo();
-    case 'en': return AppLocalizationsEn();
-    case 'zh': return AppLocalizationsZh();
+    case 'bo':
+      return AppLocalizationsBo();
+    case 'en':
+      return AppLocalizationsEn();
+    case 'zh':
+      return AppLocalizationsZh();
   }
 
   throw FlutterError(
     'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
     'an issue with the localizations generation tool. Please file an issue '
     'on GitHub with a reproducible sample app and the gen-l10n configuration '
-    'that was used.'
+    'that was used.',
   );
 }

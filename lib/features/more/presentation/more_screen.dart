@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_pecha/core/config/locale_provider.dart';
+import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
-import 'package:flutter_pecha/core/theme/theme_provider.dart';
+import 'package:flutter_pecha/core/theme/app_colors.dart';
+import 'package:flutter_pecha/core/theme/theme_notifier.dart';
+import 'package:flutter_pecha/core/widgets/cached_network_image_widget.dart';
+import 'package:flutter_pecha/features/auth/application/user_notifier.dart';
+import 'package:flutter_pecha/features/auth/presentation/widgets/login_drawer.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_pecha/features/auth/application/auth_provider.dart';
+import 'package:flutter_pecha/features/auth/application/auth_notifier.dart';
 import 'package:go_router/go_router.dart';
 import '../../notifications/presentation/notification_settings_screen.dart';
 
@@ -16,9 +20,9 @@ class MoreScreen extends ConsumerWidget {
       case 'en':
         return 'English';
       case 'zh':
-        return '中文 (Chinese)';
+        return '中文';
       case 'bo':
-        return 'བོད་སྐད་ (Tibetan)';
+        return 'བོད་ཡིག';
       default:
         return locale.languageCode;
     }
@@ -36,9 +40,11 @@ class MoreScreen extends ConsumerWidget {
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         centerTitle: false,
-        title: const Text(
-          'More',
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
+        title: Text(
+          localizations.nav_settings,
+          style: Theme.of(
+            context,
+          ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
         ),
         elevation: 0,
         backgroundColor: Colors.transparent,
@@ -59,40 +65,38 @@ class MoreScreen extends ConsumerWidget {
                       radius: 20,
                       backgroundColor: Colors.grey.shade300,
                       backgroundImage:
-                          (authState.userProfile?.pictureUrl?.toString() ?? '')
+                          (ref.watch(userProvider).user?.avatarUrl ?? '')
                                   .isNotEmpty
-                              ? NetworkImage(
-                                authState.userProfile!.pictureUrl!.toString(),
-                              )
+                              ? ref
+                                  .watch(userProvider)
+                                  .user!
+                                  .avatarUrl!
+                                  .cachedNetworkImageProvider
                               : null,
                       child:
-                          ((authState.userProfile?.pictureUrl?.toString() ?? '')
-                                  .isEmpty)
+                          (ref.watch(userProvider).user?.avatarUrl ?? '')
+                                  .isEmpty
                               ? const Icon(Icons.person, color: Colors.black54)
                               : null,
                     ),
                   ),
                   title: Text(
-                    authState.userProfile?.name ??
-                        '${authState.userProfile?.givenName ?? ''} ${authState.userProfile?.familyName ?? ''}'
-                            .trim(),
+                    ref.watch(userProvider).user?.fullName ?? 'User',
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.w600,
                     ),
                   ),
                   subtitle: Text(
-                    authState.userProfile?.email ?? '',
-                    style: Theme.of(context).textTheme.bodySmall,
+                    ref.watch(userProvider).user?.email ?? '',
+                    style: Theme.of(context).textTheme.bodyMedium,
                   ),
-                  trailing: const Icon(Icons.chevron_right),
-                  onTap: () => context.push('/profile'),
                 ),
               ],
             ),
             const SizedBox(height: 16),
           ],
           // Appearance Section
-          _buildSectionHeader(context, 'Appearance'),
+          _buildSectionHeader(context, localizations.settings_appearance),
           _buildSectionCard(
             context,
             children: [
@@ -105,11 +109,11 @@ class MoreScreen extends ConsumerWidget {
                   isDarkMode
                       ? localizations.themeDark
                       : localizations.themeLight,
-                  style: Theme.of(context).textTheme.bodyMedium,
+                  style: Theme.of(context).textTheme.titleMedium,
                 ),
                 subtitle: Text(
                   isDarkMode ? 'Dark theme enabled' : 'Light theme enabled',
-                  style: Theme.of(context).textTheme.bodySmall,
+                  style: Theme.of(context).textTheme.bodyMedium,
                 ),
                 trailing: Switch(
                   value: isDarkMode,
@@ -128,12 +132,12 @@ class MoreScreen extends ConsumerWidget {
                   color: Theme.of(context).colorScheme.primary,
                 ),
                 title: Text(
-                  'Language',
-                  style: Theme.of(context).textTheme.bodyMedium,
+                  localizations.language,
+                  style: Theme.of(context).textTheme.titleMedium,
                 ),
                 subtitle: Text(
-                  _getLanguageName(locale ?? Localizations.localeOf(context)),
-                  style: Theme.of(context).textTheme.bodySmall,
+                  _getLanguageName(locale),
+                  style: Theme.of(context).textTheme.bodyMedium,
                 ),
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () => _showLanguageBottomSheet(context, ref, locale),
@@ -142,7 +146,7 @@ class MoreScreen extends ConsumerWidget {
           ),
           const SizedBox(height: 16),
           // Notification Settings
-          _buildSectionHeader(context, 'Notifications'),
+          _buildSectionHeader(context, localizations.settings_notifications),
           _buildSectionCard(
             context,
             children: [
@@ -152,14 +156,13 @@ class MoreScreen extends ConsumerWidget {
                   color: Theme.of(context).colorScheme.primary,
                 ),
                 title: Text(
-                  AppLocalizations.of(context)?.notificationSettings ??
-                      'Notification Settings',
-                  style: Theme.of(context).textTheme.bodyMedium,
+                  localizations.notification_settings,
+                  style: Theme.of(context).textTheme.titleMedium,
                 ),
                 subtitle: Text(
                   AppLocalizations.of(context)?.manageDailyReminders ??
                       'Manage daily reminders',
-                  style: Theme.of(context).textTheme.bodySmall,
+                  style: Theme.of(context).textTheme.bodyMedium,
                 ),
                 onTap: () => context.push(NotificationSettingsScreen.routeName),
               ),
@@ -167,7 +170,7 @@ class MoreScreen extends ConsumerWidget {
           ),
           const SizedBox(height: 16),
           // Account Section
-          _buildSectionHeader(context, 'Account'),
+          _buildSectionHeader(context, localizations.settings_account),
           _buildSectionCard(
             context,
             children: [
@@ -185,18 +188,14 @@ class MoreScreen extends ConsumerWidget {
                       fontWeight: FontWeight.w500,
                     ),
                   ),
-                  subtitle: Text(
-                    'Sign in to sync your progress',
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-                  onTap: () => ref.read(authProvider.notifier).logout(),
+                  onTap: () => LoginDrawer.show(context, ref),
                 ),
-              ] else if (authState.isLoggedIn) ...[
+              ] else ...[
                 // Show logout option for authenticated users
                 ListTile(
                   leading: Icon(Icons.logout, color: Colors.red.shade600),
                   title: Text(
-                    'Logout',
+                    localizations.logout,
                     style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                       color: Colors.red.shade600,
                       fontWeight: FontWeight.w500,
@@ -221,9 +220,11 @@ class MoreScreen extends ConsumerWidget {
       padding: const EdgeInsets.only(left: 16, right: 16, bottom: 8),
       child: Text(
         title,
-        style: Theme.of(
-          context,
-        ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
+        style: TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.w600,
+          color: AppColors.primary,
+        ),
       ),
     );
   }
@@ -290,7 +291,7 @@ class MoreScreen extends ConsumerWidget {
                   return ListTile(
                     title: Text(
                       _getLanguageName(localeItem),
-                      style: Theme.of(context).textTheme.bodyLarge,
+                      style: Theme.of(context).textTheme.titleMedium,
                     ),
                     trailing:
                         isSelected

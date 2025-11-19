@@ -1,22 +1,20 @@
-// This file contains the presentation layer for the home screen feature.
-// It handles the UI for the main home screen after splash.
-
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
-import 'package:flutter_pecha/features/auth/application/auth_provider.dart';
-import 'package:flutter_pecha/features/home/data/week_plan.dart';
-import 'package:flutter_pecha/features/home/models/plan_item.dart';
-import 'package:flutter_pecha/features/home/presentation/widgets/action_of_the_day_card.dart';
-import 'package:flutter_pecha/features/home/presentation/widgets/verse_card.dart';
+import 'package:flutter_pecha/core/services/service_providers.dart';
+import 'package:flutter_pecha/core/widgets/cached_network_image_widget.dart';
+import 'package:flutter_pecha/core/widgets/error_state_widget.dart';
+import 'package:flutter_pecha/features/auth/application/auth_notifier.dart';
+import 'package:flutter_pecha/features/auth/application/user_notifier.dart';
+import 'package:flutter_pecha/features/home/data/providers/featured_day_provider.dart';
+import 'package:flutter_pecha/features/home/presentation/featured_content_factory.dart';
+import 'package:flutter_pecha/features/home/presentation/home_screen_constants.dart';
 import 'package:flutter_pecha/features/notifications/presentation/notification_settings_screen.dart';
-import 'package:flutter_pecha/features/texts/data/providers/selected_segment_provider.dart';
-import 'package:flutter_pecha/features/texts/presentation/widgets/action_button.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
+import 'package:logging/logging.dart';
+
+final _log = Logger('HomeScreen');
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -27,42 +25,85 @@ class HomeScreen extends ConsumerStatefulWidget {
 
 class _HomeScreenState extends ConsumerState<HomeScreen>
     with WidgetsBindingObserver {
-  late List<PlanItem> planItems;
   Timer? _dayCheckTimer;
-  String _currentDay = '';
+  DateTime? _lastFetchedDate;
+  bool _hasRequestedPermissions = false;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    _initializeTodayPlan();
+    _lastFetchedDate = DateTime.now();
     _startDayCheckTimer();
+
+    // Request notification permissions when home screen loads
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _requestNotificationPermissionsIfNeeded();
+    });
+  }
+
+  Future<void> _requestNotificationPermissionsIfNeeded() async {
+    if (_hasRequestedPermissions) return;
+    _hasRequestedPermissions = true;
+
+    final notificationService = ref.read(notificationServiceProvider);
+    if (notificationService == null) {
+      _log.warning(
+        'NotificationService not initialized, skipping permission request',
+      );
+      return;
+    }
+
+    try {
+      // Check if permissions are already granted
+      final alreadyEnabled =
+          await notificationService.areNotificationsEnabled();
+      if (!alreadyEnabled) {
+        _log.info('Requesting notification permissions...');
+        final granted = await notificationService.requestPermission();
+        if (granted) {
+          _log.info('Notification permissions granted');
+        } else {
+          _log.info('Notification permissions denied');
+        }
+      }
+    } catch (e) {
+      _log.warning('Error requesting notification permissions: $e');
+    }
   }
 
   void _startDayCheckTimer() {
-    _dayCheckTimer = Timer.periodic(const Duration(minutes: 15), (timer) {
+    _dayCheckTimer = Timer.periodic(HomeScreenConstants.dayCheckInterval, (
+      timer,
+    ) {
       _checkAndUpdateDay();
     });
   }
 
   void _checkAndUpdateDay() {
     final today = DateTime.now();
-    final dayName = DateFormat('EEEE').format(today).toLowerCase();
-    if (dayName != _currentDay) {
-      _currentDay = dayName;
-      _updatePlanForNewDay();
+    final lastFetched = _lastFetchedDate;
+
+    // Check if day has changed (compare year, month, day)
+    if (lastFetched == null ||
+        today.year != lastFetched.year ||
+        today.month != lastFetched.month ||
+        today.day != lastFetched.day) {
+      _lastFetchedDate = today;
+      _refreshFeaturedDay();
     }
   }
 
-  void _updatePlanForNewDay() {
-    final weekPlan = ref.read(weekPlanProvider);
-    final plan = weekPlan[_currentDay];
-    setState(() {
-      planItems =
-          (plan["plan"] as List<dynamic>)
-              .map((item) => PlanItem.fromJson(item))
-              .toList();
-    });
+  void _refreshFeaturedDay() {
+    // Invalidate the provider to force refresh
+    ref.invalidate(featuredDayFutureProvider);
+  }
+
+  /// Manual refetch/retry method that can be called from UI
+  void refetchFeaturedDay() {
+    // Refresh the provider to immediately fetch fresh data
+    // ignore: unused_result
+    ref.refresh(featuredDayFutureProvider);
   }
 
   @override
@@ -79,27 +120,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     super.dispose();
   }
 
-  void _initializeTodayPlan() {
-    final today = DateTime.now();
-    final dayName = DateFormat('EEEE').format(today).toLowerCase();
-    _currentDay = dayName;
-
-    // Get the localized week plan
-    final weekPlan = ref.read(weekPlanProvider);
-    final plan = weekPlan[_currentDay];
-    planItems =
-        (plan["plan"] as List<dynamic>)
-            .map((item) => PlanItem.fromJson(item))
-            .toList();
-  }
-
   @override
   Widget build(BuildContext context) {
     final localizations = AppLocalizations.of(context)!;
 
     final authState = ref.watch(authProvider);
-    final bottomBarVisible = ref.watch(bottomBarVisibleProvider);
     return Scaffold(
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: Stack(
           children: [
@@ -108,48 +135,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                 _buildTopBar(authState, localizations),
                 _buildBody(context, localizations),
               ],
-            ),
-            if (bottomBarVisible) _buildBottomBar(context, localizations),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildBottomBar(BuildContext context, AppLocalizations localizations) {
-    return Positioned(
-      bottom: 16,
-      left: 0,
-      right: 0,
-      child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 24.0),
-        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-        constraints: const BoxConstraints(minHeight: 60),
-        decoration: BoxDecoration(
-          color: Theme.of(context).cardColor,
-          borderRadius: BorderRadius.circular(18),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            ActionButton(
-              icon: Icons.library_books,
-              label: 'Library',
-              onTap: () {
-                // context.push('/library');
-                ref.read(bottomBarVisibleProvider.notifier).state =
-                    !ref.read(bottomBarVisibleProvider.notifier).state;
-                context.push('/texts');
-              },
-            ),
-            ActionButton(
-              icon: Icons.info_outline,
-              label: 'Creator Info',
-              onTap: () {
-                ref.read(bottomBarVisibleProvider.notifier).state =
-                    !ref.read(bottomBarVisibleProvider.notifier).state;
-                context.push('/creator_info');
-              },
             ),
           ],
         ),
@@ -160,53 +145,30 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
   // Build the top bar
   Widget _buildTopBar(AuthState authState, AppLocalizations localizations) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+      padding: const EdgeInsets.symmetric(
+        horizontal: HomeScreenConstants.topBarHorizontalPadding,
+        vertical: HomeScreenConstants.topBarVerticalPadding,
+      ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
             localizations.home_today,
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: HomeScreenConstants.titleFontSize,
+            ),
           ),
           Row(
             children: [
               IconButton(
                 onPressed:
                     () => context.push(NotificationSettingsScreen.routeName),
-                icon: Icon(Icons.notifications_none, size: 28),
+                icon: const Icon(
+                  Icons.notifications_none,
+                  size: HomeScreenConstants.notificationIconSize,
+                ),
               ),
-              SizedBox(width: 16),
-              if (authState.isGuest)
-                GestureDetector(
-                  onTap: () => context.push('/profile'),
-                  child: Hero(
-                    tag: 'profile-avatar',
-                    child: Icon(Icons.account_circle, size: 32),
-                  ),
-                ),
-              if (authState.isLoggedIn && !authState.isGuest)
-                GestureDetector(
-                  onTap: () => context.push('/profile'),
-                  child: Hero(
-                    tag: 'profile-avatar',
-                    child: CircleAvatar(
-                      radius: 16,
-                      backgroundColor: Colors.grey.shade300,
-                      backgroundImage:
-                          (authState.userProfile?.pictureUrl?.toString() ?? '')
-                                  .isNotEmpty
-                              ? NetworkImage(
-                                authState.userProfile!.pictureUrl!.toString(),
-                              )
-                              : null,
-                      child:
-                          ((authState.userProfile?.pictureUrl?.toString() ?? '')
-                                  .isEmpty)
-                              ? const Icon(Icons.person, color: Colors.black54)
-                              : null,
-                    ),
-                  ),
-                ),
             ],
           ),
         ],
@@ -216,104 +178,67 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
 
   // Build the scrollable body
   Widget _buildBody(BuildContext context, AppLocalizations localizations) {
+    final featuredDayAsync = ref.watch(featuredDayFutureProvider);
+
     return Expanded(
       child: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+        padding: const EdgeInsets.symmetric(
+          horizontal: HomeScreenConstants.bodyHorizontalPadding,
+          vertical: HomeScreenConstants.bodyVerticalPadding,
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            ...planItems.map((planItem) {
-              switch (planItem.contentType) {
-                case "text":
-                  return Column(
-                    children: [
-                      VerseCard(
-                        verse: planItem.content,
-                        author: planItem.author,
-                        imageUrl: planItem.imageUrl,
-                        title: planItem.label,
+            // Handle loading, error, and data states
+            featuredDayAsync.when(
+              data: (planItems) {
+                if (planItems.isEmpty) {
+                  return Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(
+                        HomeScreenConstants.emptyStatePadding,
                       ),
-                      SizedBox(height: 16),
-                    ],
-                  );
-                case "video":
-                  return Column(
-                    children: [
-                      ActionOfTheDayCard(
-                        title: planItem.label,
-                        subtitle: "4-5 min",
-                        iconWidget: Image.asset(
-                          'assets/images/home/teaching.png',
-                          color: Theme.of(context).iconTheme.color,
-                          width: 80,
-                          height: 80,
-                        ),
-                        onTap:
-                            () => context.push(
-                              '/home/video_player',
-                              extra: {
-                                'videoUrl': planItem.content,
-                                'title': planItem.label,
-                              },
-                            ),
+                      child: Text(
+                        HomeScreenConstants.emptyStateMessage,
+                        style: Theme.of(context).textTheme.bodyMedium,
                       ),
-                      SizedBox(height: 16),
-                    ],
+                    ),
                   );
-                case "audio":
-                  return Column(
-                    children: [
-                      ActionOfTheDayCard(
-                        title:
-                            planItem.label == "Meditation"
-                                ? localizations.home_meditationTitle
-                                : localizations.home_recitation,
-                        subtitle: "3-4 min",
-                        iconWidget:
-                            planItem.label == "Meditation"
-                                ? Icon(Icons.self_improvement, size: 80)
-                                : FaIcon(
-                                  FontAwesomeIcons.handsPraying,
-                                  size: 60,
-                                ),
-                        onTap:
-                            () => context.push(
-                              '/home/meditation_video',
-                              extra: planItem.content,
-                            ),
+                }
+
+                return Column(
+                  children: [
+                    ...planItems.asMap().entries.map((entry) {
+                      final index = entry.key;
+                      final planItem = entry.value;
+
+                      return FeaturedContentFactory.createCard(
+                        context: context,
+                        index: index,
+                        planItem: planItem,
+                        allPlanItems: planItems,
+                        localizations: localizations,
+                      );
+                    }),
+                    const SizedBox(height: 10),
+                  ],
+                );
+              },
+              loading:
+                  () => const Center(
+                    child: Padding(
+                      padding: EdgeInsets.all(
+                        HomeScreenConstants.emptyStatePadding,
                       ),
-                      SizedBox(height: 16),
-                    ],
-                  );
-                case "image":
-                  return Column(
-                    children: [
-                      ActionOfTheDayCard(
-                        title: planItem.label,
-                        subtitle: "1 min",
-                        iconWidget: Image.asset(
-                          'assets/images/home/mind_free.png',
-                          color: Theme.of(context).iconTheme.color,
-                          width: 80,
-                          height: 80,
-                        ),
-                        onTap:
-                            () => context.push(
-                              '/home/view_illustration',
-                              extra: {
-                                'imageUrl': planItem.content,
-                                'title': planItem.label,
-                              },
-                            ),
-                      ),
-                      SizedBox(height: 16),
-                    ],
-                  );
-                default:
-                  return SizedBox.shrink();
-              }
-            }),
-            SizedBox(height: 10),
+                      child: CircularProgressIndicator(),
+                    ),
+                  ),
+              error:
+                  (error, stackTrace) => ErrorStateWidget(
+                    error: error,
+                    onRetry: refetchFeaturedDay,
+                  ),
+            ),
           ],
         ),
       ),

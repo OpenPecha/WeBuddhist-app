@@ -1,25 +1,39 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/l10n/l10n.dart';
-import 'package:flutter_pecha/core/theme/theme_provider.dart';
+import 'package:flutter_pecha/core/services/service_providers.dart';
+import 'package:flutter_pecha/core/theme/theme_notifier.dart';
 import 'package:flutter_pecha/features/notifications/services/notification_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/config/router/go_router.dart';
-import 'package:flutter_pecha/core/config/locale_provider.dart';
+import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
 import 'package:fquery/fquery.dart';
+import 'package:logging/logging.dart';
 import 'core/theme/app_theme.dart';
 import 'core/localization/material_localizations_bo.dart';
 import 'core/localization/cupertino_localizations_bo.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
+final _log = Logger('main');
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await dotenv.load(fileName: ".env");
 
-  // Initialize notification service
-  final notificationService = NotificationService();
-  await notificationService.initialize();
+  // Setup logging
+  Logger.root.level = Level.ALL;
+  Logger.root.onRecord.listen((record) {
+    debugPrint('${record.level.name}: ${record.time}: ${record.message}');
+  });
+
+  // Load environment variables
+  try {
+    await dotenv.load(fileName: ".env");
+  } catch (e) {
+    _log.warning('Error loading .env file: $e');
+    // Continue app initialization even if .env fails
+  }
+
   runApp(const ProviderScope(child: MyApp()));
 }
 
@@ -32,6 +46,12 @@ class MyApp extends ConsumerWidget {
     final locale = ref.watch(localeProvider);
     final themeMode = ref.watch(themeModeProvider);
 
+    // Initialize services in background via providers
+    // This triggers the service initialization without blocking the UI
+    ref.watch(audioHandlerProvider);
+    ref.watch(notificationServiceProvider);
+
+    // Set router for notification service
     NotificationService.setRouter(router);
 
     // Add QueryClient provider wrapper
@@ -48,7 +68,7 @@ class MyApp extends ConsumerWidget {
         ),
       ),
       child: MaterialApp.router(
-        title: 'Pecha',
+        title: 'WeBuddhist',
         theme: AppTheme.lightTheme(locale),
         darkTheme: AppTheme.darkTheme(locale),
         themeMode: themeMode,

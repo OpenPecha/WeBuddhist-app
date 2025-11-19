@@ -1,45 +1,50 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/features/plans/data/providers/plan_days_providers.dart';
-import 'package:flutter_pecha/features/plans/models/plans_model.dart';
+import 'package:flutter_pecha/features/plans/data/providers/plans_providers.dart';
+import 'package:flutter_pecha/features/plans/data/providers/user_plans_provider.dart';
+import 'package:flutter_pecha/features/plans/models/user/user_plans_model.dart';
+import 'package:flutter_pecha/features/plans/models/user/user_tasks_dto.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'widgets/plan_cover_image.dart';
 import 'widgets/day_carousel.dart';
 import 'widgets/activity_list.dart';
 
 class PlanDetails extends ConsumerStatefulWidget {
-  const PlanDetails({super.key, required this.plan});
-  final PlansModel plan;
+  const PlanDetails({
+    super.key,
+    required this.plan,
+    required this.selectedDay,
+    required this.startDate,
+  });
+  final UserPlansModel plan;
+  final int selectedDay;
+  final DateTime startDate;
 
   @override
   ConsumerState<PlanDetails> createState() => _PlanDetailsState();
 }
 
 class _PlanDetailsState extends ConsumerState<PlanDetails> {
-  int selectedDay = 1; // Day 1 is selected by default
-  Set<int> selectedActivities = {}; // No activities selected initially
-  int? previousSelectedDay; // Track previous day to reset activities
+  late int selectedDay; // Day 1 is selected by default
+
+  @override
+  void initState() {
+    super.initState();
+    selectedDay = widget.selectedDay;
+  }
 
   @override
   Widget build(BuildContext context) {
-    final DateTime startDate = DateTime.now();
     final planDays = ref.watch(planDaysByPlanIdFutureProvider(widget.plan.id));
-    final planDayContent = ref.watch(
-      planDayContentFutureProvider(
+    final dayCompletionStatus = ref.watch(
+      userPlanDaysCompletionStatusProvider(widget.plan.id),
+    );
+
+    final userPlanDayContent = ref.watch(
+      userPlanDayContentFutureProvider(
         PlanDaysParams(planId: widget.plan.id, dayNumber: selectedDay),
       ),
     );
-
-    // Reset selected activities when day changes
-    if (previousSelectedDay != null && previousSelectedDay != selectedDay) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) {
-          setState(() {
-            selectedActivities.clear();
-          });
-        }
-      });
-    }
-    previousSelectedDay = selectedDay;
 
     return Scaffold(
       appBar: AppBar(
@@ -48,48 +53,97 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         elevation: 0,
+        actions: [
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.more_vert),
+            onSelected: (value) {
+              if (value == 'unenroll') {
+                _showUnenrollDialog(context);
+              }
+            },
+            itemBuilder:
+                (BuildContext context) => [
+                  const PopupMenuItem<String>(
+                    value: 'unenroll',
+                    child: Row(
+                      children: [
+                        Icon(Icons.exit_to_app, size: 20),
+                        SizedBox(width: 12),
+                        Text('Unenroll from Plan'),
+                      ],
+                    ),
+                  ),
+                ],
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         child: Column(
           children: [
-            PlanCoverImage(
-              imageUrl: widget.plan.imageUrl ?? '',
-              heroTag: widget.plan.title,
-            ),
-            DayCarousel(
-              days: planDays.value ?? [],
-              selectedDay: selectedDay,
-              startDate: startDate,
-              onDaySelected: (day) {
-                setState(() {
-                  selectedDay = day;
-                });
+            PlanCoverImage(imageUrl: widget.plan.imageUrl ?? ''),
+            planDays.when(
+              data: (days) {
+                if (days.isEmpty) {
+                  return _buildEmptyDayCarouselState(context);
+                }
+                return dayCompletionStatus.when(
+                  data:
+                      (completionStatus) => DayCarousel(
+                        days: days,
+                        selectedDay: selectedDay,
+                        startDate: widget.startDate,
+                        dayCompletionStatus: completionStatus,
+                        onDaySelected: (day) {
+                          setState(() {
+                            selectedDay = day;
+                          });
+                        },
+                      ),
+                  loading:
+                      () => DayCarousel(
+                        days: days,
+                        selectedDay: selectedDay,
+                        startDate: widget.startDate,
+                        onDaySelected: (day) {
+                          setState(() {
+                            selectedDay = day;
+                          });
+                        },
+                      ),
+                  error:
+                      (error, stackTrace) => DayCarousel(
+                        days: days,
+                        selectedDay: selectedDay,
+                        startDate: widget.startDate,
+                        onDaySelected: (day) {
+                          setState(() {
+                            selectedDay = day;
+                          });
+                        },
+                      ),
+                );
               },
+              loading: () => _buildDayCarouselLoadingPlaceholder(),
+              error: (error, stackTrace) => const SizedBox.shrink(),
             ),
             Container(
-              margin: const EdgeInsets.all(20),
+              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _buildDayTitle(selectedDay),
-                  const SizedBox(height: 16),
-                  planDayContent.when(
+                  const SizedBox(height: 8),
+                  userPlanDayContent.when(
                     data:
                         (dayContent) => ActivityList(
-                          tasks: dayContent.tasks ?? [],
+                          tasks: dayContent.tasks,
                           today: selectedDay,
-                          totalDays: widget.plan.totalDays,
-                          selectedActivities: selectedActivities,
-                          onActivityToggled: (activity) {
-                            setState(() {
-                              if (selectedActivities.contains(activity)) {
-                                selectedActivities.remove(activity);
-                              } else {
-                                selectedActivities.add(activity);
-                              }
-                            });
-                          },
-                          author: widget.plan.author,
+                          totalDays: dayContent.tasks.length,
+                          planId: widget.plan.id,
+                          dayNumber: selectedDay,
+                          onActivityToggled:
+                              (taskId) =>
+                                  _handleTaskToggle(taskId, dayContent.tasks),
                         ),
                     loading:
                         () => const Center(child: CircularProgressIndicator()),
@@ -104,7 +158,9 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
                             const SizedBox(height: 8),
                             ElevatedButton(
                               onPressed: () {
-                                ref.invalidate(planDayContentFutureProvider);
+                                ref.invalidate(
+                                  userPlanDayContentFutureProvider,
+                                );
                               },
                               child: const Text('Retry'),
                             ),
@@ -120,10 +176,176 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
     );
   }
 
+  Widget _buildEmptyDayCarouselState(BuildContext context) {
+    return Container(
+      height: 80,
+      margin: const EdgeInsets.symmetric(horizontal: 12),
+      child: Center(child: Text('No days available')),
+    );
+  }
+
   Widget _buildDayTitle(int day) {
     return Text(
       "Day $day of ${widget.plan.totalDays}",
       style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+    );
+  }
+
+  Widget _buildDayCarouselLoadingPlaceholder() {
+    return Container(
+      height: 80,
+      margin: const EdgeInsets.symmetric(horizontal: 12),
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        itemCount: 5,
+        itemBuilder: (context, index) {
+          return Container(
+            width: 70,
+            margin: const EdgeInsets.symmetric(horizontal: 4),
+            decoration: BoxDecoration(
+              color: Theme.of(context).cardColor,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  width: 24,
+                  height: 24,
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade300,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Container(
+                  width: 40,
+                  height: 10,
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade300,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Future<void> _handleTaskToggle(
+    String taskId,
+    List<UserTasksDto> tasks,
+  ) async {
+    final task = tasks.firstWhere((t) => t.id == taskId);
+    final repository = ref.read(userPlansRepositoryProvider);
+
+    try {
+      bool success;
+      if (task.isCompleted) {
+        success = await repository.deleteTask(taskId);
+      } else {
+        success = await repository.completeTask(taskId);
+      }
+
+      if (success && mounted) {
+        ref.invalidate(
+          userPlanDayContentFutureProvider(
+            PlanDaysParams(planId: widget.plan.id, dayNumber: selectedDay),
+          ),
+        );
+        // Also invalidate completion status to refresh checkmarks
+        ref.invalidate(userPlanDaysCompletionStatusProvider(widget.plan.id));
+      } else if (!success && mounted) {
+        _showErrorSnackbar('Unable to update task status');
+      }
+    } catch (e) {
+      debugPrint('Error toggling task: $e');
+      if (mounted) {
+        _showErrorSnackbar('Error: $e');
+      }
+    }
+  }
+
+  void _showUnenrollDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          title: const Text('Unenroll from Plan'),
+          content: Text(
+            'Are you sure you want to unenroll from "${widget.plan.title}"?\n\nYour progress will be permanently lost and cannot be recovered.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              onPressed: () {
+                Navigator.of(dialogContext).pop();
+                _handleUnenroll();
+              },
+              style: FilledButton.styleFrom(
+                backgroundColor: Theme.of(context).colorScheme.error,
+              ),
+              child: const Text('Unenroll'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _handleUnenroll() async {
+    try {
+      final success = await ref
+          .read(userPlansRepositoryProvider)
+          .unenrollFromPlan(widget.plan.id);
+
+      if (success) {
+        // Invalidate plans to refresh the list
+        ref.invalidate(myPlansPaginatedProvider);
+        ref.invalidate(findPlansPaginatedProvider);
+        ref.invalidate(userPlansFutureProvider);
+
+        if (mounted) {
+          // Pop back to plans list
+          Navigator.of(context).pop();
+
+          // Show success message
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                'You have been unenrolled from "${widget.plan.title}"',
+              ),
+              backgroundColor: Theme.of(context).colorScheme.primary,
+              behavior: SnackBarBehavior.floating,
+              duration: const Duration(seconds: 3),
+            ),
+          );
+        }
+      } else {
+        if (mounted) {
+          _showErrorSnackbar(
+            'Unable to unenroll at this time. Please try again.',
+          );
+        }
+      }
+    } catch (e) {
+      debugPrint('Error unenrolling from plan: $e');
+      if (mounted) {
+        _showErrorSnackbar(
+          'Something went wrong. Please check your connection and try again.',
+        );
+      }
+    }
+  }
+
+  void _showErrorSnackbar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message), backgroundColor: Colors.red),
     );
   }
 }

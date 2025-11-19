@@ -29,8 +29,8 @@ class NotificationService {
 
   bool get isInitialized => _isInitialized;
 
-  /// Initialize
-  Future<void> initialize() async {
+  /// Initialize without requesting permissions (for early app initialization)
+  Future<void> initializeWithoutPermissions() async {
     if (_isInitialized) return; // prevent re-initialization
 
     // initialize timezone
@@ -38,16 +38,16 @@ class NotificationService {
     final currentTimezone = await FlutterTimezone.getLocalTimezone();
     tz.setLocalLocation(tz.getLocation(currentTimezone));
 
-    // Android initialization
+    // Android initialization - do NOT request permissions
     const AndroidInitializationSettings androidSettings =
         AndroidInitializationSettings('@mipmap/launcher_icon');
 
-    // iOS initialization
+    // iOS initialization - do NOT request permissions
     const DarwinInitializationSettings iosSettings =
         DarwinInitializationSettings(
-          requestAlertPermission: true,
-          requestSoundPermission: true,
-          requestBadgePermission: true,
+          requestAlertPermission: false,
+          requestSoundPermission: false,
+          requestBadgePermission: false,
         );
 
     // initialization settings
@@ -63,6 +63,11 @@ class NotificationService {
     );
 
     _isInitialized = true;
+  }
+
+  /// Initialize with permission request (legacy method)
+  Future<void> initialize() async {
+    await initializeWithoutPermissions();
     await requestPermission();
   }
 

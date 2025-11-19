@@ -1,10 +1,29 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_pecha/features/plans/models/author/author_dto_model.dart';
 
 enum DifficultyLevel { beginner, intermediate, advanced }
 
-enum PlanStatus { draft, published, archived, inactive }
+/// Model for plan image with different sizes
+class ImageModel {
+  final String? thumbnail;
+  final String? medium;
+  final String? original;
 
-enum LanguageCode { en, bo, zh }
+  ImageModel({this.thumbnail, this.medium, this.original});
+
+  factory ImageModel.fromJson(Map<String, dynamic>? json) {
+    if (json == null) return ImageModel();
+    return ImageModel(
+      thumbnail: json['thumbnail'] as String?,
+      medium: json['medium'] as String?,
+      original: json['original'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {'thumbnail': thumbnail, 'medium': medium, 'original': original};
+  }
+}
 
 class PlansModel {
   final String id;
@@ -12,10 +31,9 @@ class PlansModel {
   final String description;
   final String language;
   final String? difficultyLevel;
-  final String? imageUrl;
-  final int totalDays;
-  final PlanStatus status;
-  final int subscriptionCount;
+  final ImageModel? image;
+  final int? totalDays;
+  final List<String>? tags;
   final AuthorDtoModel? author;
 
   PlansModel({
@@ -24,31 +42,59 @@ class PlansModel {
     required this.description,
     required this.language,
     this.difficultyLevel,
-    this.imageUrl,
-    required this.totalDays,
-    this.status = PlanStatus.draft,
-    required this.subscriptionCount,
+    this.image,
+    this.totalDays,
+    this.tags,
     this.author,
   });
 
+  /// Backward compatibility getter - returns medium image or original as fallback
+  String? get imageUrl => image?.medium ?? image?.original;
+  String? get imageThumbnail => image?.thumbnail ?? image?.medium;
+
   factory PlansModel.fromJson(Map<String, dynamic> json) {
-    return PlansModel(
-      id: json['id'] as String,
-      title: json['title'] as String,
-      description: json['description'] as String,
-      language: json['language'] as String,
-      difficultyLevel: json['difficulty_level'] as String?,
-      totalDays: json['total_days'] as int,
-      status: PlanStatus.values.byName(
-        (json['status'] as String).toLowerCase(),
-      ),
-      subscriptionCount: json['subscription_count'] as int,
-      author:
-          json['author'] != null
-              ? AuthorDtoModel.fromJson(json['author'])
-              : null,
-      imageUrl: json['image_url'] as String?,
-    );
+    try {
+      // Handle both old format (image_url) and new format (image object)
+      ImageModel? imageModel;
+      if (json['image'] != null) {
+        imageModel = ImageModel.fromJson(
+          json['image'] as Map<String, dynamic>?,
+        );
+      } else if (json['image_url'] != null) {
+        // Backward compatibility: convert old string format to new model
+        final imageUrl = json['image_url'] as String?;
+        if (imageUrl != null) {
+          imageModel = ImageModel(
+            thumbnail: imageUrl,
+            medium: imageUrl,
+            original: imageUrl,
+          );
+        }
+      }
+
+      return PlansModel(
+        id: json['id'] as String,
+        title: json['title'] as String,
+        description: json['description'] as String,
+        language: json['language'] as String,
+        difficultyLevel: json['difficulty_level'] as String?,
+        image: imageModel,
+        totalDays: json['total_days'] as int?,
+        tags:
+            json['tags'] != null
+                ? List<String>.from(json['tags'] as List)
+                : null,
+        author:
+            json['author'] != null
+                ? AuthorDtoModel.fromJson(
+                  json['author'] as Map<String, dynamic>,
+                )
+                : null,
+      );
+    } catch (e) {
+      debugPrint('Error in PlansModel.fromJson: $e');
+      throw Exception('Failed to load plans: $e');
+    }
   }
 
   Map<String, dynamic> toJson() {
@@ -58,11 +104,9 @@ class PlansModel {
       'description': description,
       'language': language,
       'difficulty_level': difficultyLevel,
-      'total_days': totalDays,
-      'status': status.name.toUpperCase(),
-      'subscription_count': subscriptionCount,
-      'author': author?.toJson(),
-      'image_url': imageUrl,
+      'image': image?.toJson(),
+      'total_days': totalDays ?? 0,
+      'tags': tags,
     };
   }
 
@@ -73,10 +117,9 @@ class PlansModel {
     String? description,
     String? language,
     String? difficultyLevel,
+    ImageModel? image,
     int? totalDays,
-    PlanStatus? status,
-    bool? featured,
-    String? imageUrl,
+    List<String>? tags,
   }) {
     return PlansModel(
       id: id ?? this.id,
@@ -84,63 +127,11 @@ class PlansModel {
       description: description ?? this.description,
       language: language ?? this.language,
       difficultyLevel: difficultyLevel ?? this.difficultyLevel,
+      image: image ?? this.image,
       totalDays: totalDays ?? this.totalDays,
-      status: status ?? this.status,
-      subscriptionCount: subscriptionCount,
+      tags: tags ?? this.tags,
       author: author,
-      imageUrl: imageUrl ?? this.imageUrl,
     );
-  }
-
-  /// Check if this plan is soft deleted
-  // bool get isDeleted => deletedAt != null;
-
-  /// Check if this plan is published and active
-  // bool get isActive => status == PlanStatus.published && !isDeleted;
-
-  /// Check if this plan is a draft
-  bool get isDraft => status == PlanStatus.draft;
-
-  /// Get display name for difficulty level
-  // String get difficultyDisplayName {
-  //   switch (difficultyLevel) {
-  //     case DifficultyLevel.beginner:
-  //       return 'Beginner';
-  //     case DifficultyLevel.intermediate:
-  //       return 'Intermediate';
-  //     case DifficultyLevel.advanced:
-  //       return 'Advanced';
-  //     default:
-  //       return 'Unknown';
-  //   }
-  // }
-
-  /// Get display name for language
-  // String get languageDisplayName {
-  //   switch (language) {
-  //     case LanguageCode.en:
-  //       return 'English';
-  //     case LanguageCode.bo:
-  //       return 'Tibetan';
-  //     case LanguageCode.zh:
-  //       return 'Chinese';
-  //     default:
-  //       return 'Unknown';
-  //   }
-  // }
-
-  /// Get display name for status
-  String get statusDisplayName {
-    switch (status) {
-      case PlanStatus.draft:
-        return 'Draft';
-      case PlanStatus.published:
-        return 'Published';
-      case PlanStatus.archived:
-        return 'Archived';
-      case PlanStatus.inactive:
-        return 'Inactive';
-    }
   }
 
   @override
@@ -154,6 +145,6 @@ class PlansModel {
 
   @override
   String toString() {
-    return 'PlansModel(id: $id, title: $title, status: $status, author: $author)';
+    return 'PlansModel(id: $id, title: $title, language: $language, totalDays: $totalDays)';
   }
 }
