@@ -239,14 +239,13 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
     List<UserTasksDto> tasks,
   ) async {
     final task = tasks.firstWhere((t) => t.id == taskId);
-    final repository = ref.read(userPlansRepositoryProvider);
 
     try {
       bool success;
       if (task.isCompleted) {
-        success = await repository.deleteTask(taskId);
+        success = await ref.read(deleteTaskFutureProvider(taskId).future);
       } else {
-        success = await repository.completeTask(taskId);
+        success = await ref.read(completeTaskFutureProvider(taskId).future);
       }
 
       if (success && mounted) {
@@ -300,9 +299,9 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
 
   Future<void> _handleUnenroll() async {
     try {
-      final success = await ref
-          .read(userPlansRepositoryProvider)
-          .unenrollFromPlan(widget.plan.id);
+      final success = await ref.read(
+        userPlanUnsubscribeFutureProvider(widget.plan.id).future,
+      );
 
       if (success) {
         // Invalidate plans to refresh the list

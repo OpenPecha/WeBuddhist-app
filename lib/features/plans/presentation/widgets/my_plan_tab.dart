@@ -47,10 +47,10 @@ class _MyPlansTabState extends ConsumerState<MyPlansTab> {
     UserPlansModel plan,
   ) async {
     try {
-      // Call the repository to unenroll
-      final success = await ref
-          .read(userPlansRepositoryProvider)
-          .unenrollFromPlan(plan.id);
+      // Call the provider to unenroll
+      final success = await ref.read(
+        userPlanUnsubscribeFutureProvider(plan.id).future,
+      );
 
       if (success) {
         // Refresh the plans list
