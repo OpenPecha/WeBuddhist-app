@@ -82,4 +82,17 @@ class TextsRepository {
     );
     return result;
   }
+
+  Future<SearchResponse> multilingualSearchRepository({
+    required String query,
+    String? language,
+    String? textId,
+  }) async {
+    final result = await remoteDatasource.multilingualSearch(
+      query: query,
+      language: language,
+      textId: textId,
+    );
+    return result;
+  }
 }

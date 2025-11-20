@@ -151,6 +151,38 @@ class TextRemoteDatasource {
       queryParameters: {
         'query': query,
         'search_type': 'SOURCE',
+        if (language != null) 'language': language,
+        if (textId != null) 'text_id': textId,
+      },
+    );
+    final response = await client.get(uri);
+    if (response.statusCode == 200) {
+      try {
+        final decoded = utf8.decode(response.bodyBytes);
+        final Map<String, dynamic> jsonMap = json.decode(decoded);
+        final searchResponse = SearchResponse.fromJson(jsonMap);
+        return searchResponse;
+      } catch (e) {
+        throw Exception('Failed to search text');
+      }
+    } else {
+      throw Exception('Failed to search text');
+    }
+  }
+
+  // multilingual search
+  Future<SearchResponse> multilingualSearch({
+    required String query,
+    String? language,
+    String? textId,
+  }) async {
+    final uri = Uri.parse(
+      '${dotenv.env['BASE_API_URL']}/search/multilingual',
+    ).replace(
+      queryParameters: {
+        'query': query,
+        'search_type': 'exact',
+        if (language != null) 'language': language,
         if (textId != null) 'text_id': textId,
       },
     );
