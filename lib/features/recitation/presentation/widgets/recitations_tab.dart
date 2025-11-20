@@ -108,9 +108,9 @@ class RecitationsTab extends ConsumerWidget {
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
                 onTap: () async {
-                  final result = await ref
-                      .read(recitationsRepositoryProvider)
-                      .saveRecitation(recitation.textId);
+                  final result = await ref.read(
+                    saveRecitationProvider(recitation.textId).future,
+                  );
                   ref.invalidate(savedRecitationsFutureProvider);
                   if (context.mounted) Navigator.pop(context);
                   if (context.mounted && result) {

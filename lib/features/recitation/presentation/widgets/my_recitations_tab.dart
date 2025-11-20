@@ -185,9 +185,7 @@ class _MyRecitationsTabState extends ConsumerState<MyRecitationsTab> {
     ScaffoldMessengerState messenger,
   ) async {
     try {
-      await ref
-          .read(recitationsRepositoryProvider)
-          .updateRecitationsOrder(payload);
+      await ref.read(updateRecitationsOrderProvider(payload).future);
 
       _handleReorderSuccess();
     } catch (error) {

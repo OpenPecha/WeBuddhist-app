@@ -44,7 +44,7 @@ class ShareUrlParams {
 }
 
 // Share URL provider
-final shareUrlProvider = FutureProvider.family<String, ShareUrlParams>((
+final shareUrlProvider = FutureProvider.autoDispose.family<String, ShareUrlParams>((
   ref,
   params,
 ) async {

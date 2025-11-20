@@ -99,3 +99,25 @@ final recitationSearchProvider = StateNotifierProvider<
     languageCode: locale.languageCode,
   );
 });
+
+// Mutation providers for recitations
+final saveRecitationProvider = FutureProvider.autoDispose.family<bool, String>((
+  ref,
+  recitationId,
+) {
+  return ref.watch(recitationsRepositoryProvider).saveRecitation(recitationId);
+});
+
+final unsaveRecitationProvider = FutureProvider.autoDispose.family<bool, String>((
+  ref,
+  recitationId,
+) {
+  return ref.watch(recitationsRepositoryProvider).unsaveRecitation(recitationId);
+});
+
+final updateRecitationsOrderProvider = FutureProvider.autoDispose.family<bool, List<Map<String, dynamic>>>((
+  ref,
+  recitations,
+) {
+  return ref.watch(recitationsRepositoryProvider).updateRecitationsOrder(recitations);
+});
