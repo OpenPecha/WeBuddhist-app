@@ -63,6 +63,14 @@ final textVersionFutureProvider = FutureProvider.family((ref, String textId) {
       .fetchTextVersion(textId: textId, language: languageCode);
 });
 
+final commentaryTextFutureProvider = FutureProvider.family((ref, String textId) {
+  final locale = ref.watch(localeProvider);
+  final languageCode = locale.languageCode;
+  return ref
+      .watch(textsRepositoryProvider)
+      .fetchCommentaryText(textId: textId, language: languageCode);
+});
+
 final textDetailsFutureProvider = FutureProvider.family((
   ref,
   TextDetailsParams params,

@@ -7,6 +7,7 @@ import 'package:flutter_pecha/features/texts/constants/text_screen_constants.dar
 import 'package:flutter_pecha/features/texts/constants/text_routes.dart';
 import 'package:flutter_pecha/features/texts/models/collections/collections.dart';
 import 'package:flutter_pecha/features/texts/data/providers/apis/texts_provider.dart';
+import 'package:flutter_pecha/features/texts/models/text/detail_response.dart';
 import 'package:flutter_pecha/features/texts/models/text/texts.dart';
 import 'package:flutter_pecha/features/texts/presentation/widgets/loading_state_widget.dart';
 import 'package:flutter_pecha/features/texts/presentation/widgets/section_header.dart';
@@ -15,15 +16,15 @@ import 'package:flutter_pecha/features/texts/presentation/widgets/text_screen_ap
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-/// Screen displaying works (texts) within a collection
-/// Separates root texts and commentaries
 class WorksScreen extends ConsumerWidget {
   const WorksScreen({super.key, required this.collection});
   final Collections collection;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final textDetailResponse = ref.watch(textsFutureProvider(collection.id));
+    final AsyncValue<TextDetailResponse?> textDetailResponse = ref.watch(
+      textsFutureProvider(collection.id),
+    );
 
     return Scaffold(
       appBar: TextScreenAppBar(onBackPressed: () => Navigator.pop(context)),
@@ -42,8 +43,12 @@ class WorksScreen extends ConsumerWidget {
               ),
               const SizedBox(height: TextScreenConstants.largeVerticalSpacing),
               textDetailResponse.when(
-                data:
-                    (response) => _buildTextsList(context, ref, response.texts),
+                data: (response) {
+                  if (response == null) {
+                    return const Center(child: Text('No texts found'));
+                  }
+                  return _buildTextsList(context, ref, response.texts);
+                },
                 loading: () => const LoadingStateWidget(topPadding: 40.0),
                 error:
                     (e, st) => ErrorStateWidget(
@@ -149,16 +154,13 @@ class _RootTextsSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final localizations = AppLocalizations.of(context)!;
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SectionHeader(title: localizations.text_detail_rootText),
         ...texts.map(
           (text) => TextListItem(
             title: text.title,
-            language: text.language,
+            language: text.language ?? '',
             onTap: () {
               context.push(TextRoutes.texts, extra: text);
             },
@@ -186,7 +188,7 @@ class _CommentariesSection extends StatelessWidget {
         ...texts.map(
           (text) => TextListItem(
             title: text.title,
-            language: text.language,
+            language: text.language ?? '',
             onTap: () {
               context.push(TextRoutes.texts, extra: text);
             },

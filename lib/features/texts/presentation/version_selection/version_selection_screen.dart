@@ -17,21 +17,23 @@ class VersionSelectionScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final textVersionResponse = ref.watch(textVersionFutureProvider(textId));
     final currentLanguage = ref.watch(textVersionLanguageProvider);
-    final numberOfVersions = textVersionResponse.value?.versions
-        .map((version) {
-          if (version.language == currentLanguage) {
-            return 1;
-          }
-          return 0;
-        })
-        .reduce((a, b) => a + b);
+    final numberOfVersions =
+        textVersionResponse.value?.versions
+            ?.map((version) {
+              if (version.language == currentLanguage) {
+                return 1;
+              }
+              return 0;
+            })
+            .reduce((a, b) => a + b) ??
+        0;
     final filteredVersions =
         textVersionResponse.value?.versions
-            .where((version) => version.language == currentLanguage)
+            ?.where((version) => version.language == currentLanguage)
             .toList();
     final uniqueLanguages =
         textVersionResponse.value?.versions
-            .map((version) => version.language)
+            ?.map((version) => version.language)
             .toSet()
             .toList();
 

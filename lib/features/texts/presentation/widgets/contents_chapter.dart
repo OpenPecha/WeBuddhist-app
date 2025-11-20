@@ -277,12 +277,13 @@ class _ContentsChapterState extends ConsumerState<ContentsChapter> {
   }
 
   Widget _buildSectionTitle(Section section) {
+    final fontSize = ref.watch(fontSizeProvider);
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Text(
         section.title ?? '',
         textAlign: TextAlign.center,
-        style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+        style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.bold),
       ),
     );
   }
@@ -293,6 +294,7 @@ class _ContentsChapterState extends ConsumerState<ContentsChapter> {
     final content = segment.content;
     final selectedSegment = ref.watch(selectedSegmentProvider);
     final isSelected = selectedSegment?.segmentId == segment.segmentId;
+    final fontSize = ref.watch(fontSizeProvider);
 
     return Container(
       key: Key(segment.segmentId),
@@ -326,8 +328,8 @@ class _ContentsChapterState extends ConsumerState<ContentsChapter> {
                     child: Text(
                       segmentNumber,
                       textAlign: TextAlign.left,
-                      style: const TextStyle(
-                        fontSize: 14,
+                      style: TextStyle(
+                        fontSize: fontSize,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -339,7 +341,7 @@ class _ContentsChapterState extends ConsumerState<ContentsChapter> {
                   child: SegmentHtmlWidget(
                     htmlContent: content ?? '',
                     segmentIndex: segment.segmentNumber,
-                    fontSize: ref.watch(fontSizeProvider),
+                    fontSize: fontSize,
                     language: widget.textDetail.language,
                   ),
                 ),

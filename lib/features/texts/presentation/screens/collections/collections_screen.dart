@@ -6,6 +6,7 @@ import 'package:flutter_pecha/features/texts/constants/text_routes.dart';
 import 'package:flutter_pecha/features/texts/data/providers/apis/collections_providers.dart';
 import 'package:flutter_pecha/features/texts/data/providers/apis/texts_provider.dart';
 import 'package:flutter_pecha/features/texts/data/providers/library_search_state_provider.dart';
+import 'package:flutter_pecha/features/texts/models/collections/collections_response.dart';
 import 'package:flutter_pecha/features/texts/presentation/widgets/collections_section.dart';
 import 'package:flutter_pecha/features/texts/presentation/widgets/loading_state_widget.dart';
 import 'package:flutter_pecha/features/texts/presentation/widgets/search_result_card.dart';
@@ -114,7 +115,7 @@ class _SearchFieldState extends ConsumerState<_SearchField> {
 
 /// Collections list view
 class _CollectionsListView extends StatelessWidget {
-  final AsyncValue collectionsResponse;
+  final AsyncValue<CollectionsResponse> collectionsResponse;
 
   const _CollectionsListView({required this.collectionsResponse});
 

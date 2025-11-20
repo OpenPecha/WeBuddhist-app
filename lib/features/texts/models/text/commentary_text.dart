@@ -1,4 +1,4 @@
-class Texts {
+class CommentaryText {
   final String id;
   final String? pechaTextId;
   final String title;
@@ -18,7 +18,7 @@ class Texts {
   final int? ranking;
   final String? license;
 
-  const Texts({
+  const CommentaryText({
     required this.id,
     this.pechaTextId,
     required this.title,
@@ -39,8 +39,8 @@ class Texts {
     this.license,
   });
 
-  factory Texts.fromJson(Map<String, dynamic> json) {
-    return Texts(
+  factory CommentaryText.fromJson(Map<String, dynamic> json) {
+    return CommentaryText(
       id: json['id'] as String,
       pechaTextId: json['pecha_text_id'] as String?,
       title: json['title'] as String,
