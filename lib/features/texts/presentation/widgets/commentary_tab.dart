@@ -27,6 +27,7 @@ class CommentaryTab extends StatelessWidget {
 
         return CommentaryListItem(
           commentary: commentary,
+          language: commentary.language ?? '',
           languageLabel: getLanguageLabel(commentary.language ?? '', context),
           onTap: () {
             context.push(TextRoutes.chapters, extra: {'textId': commentary.id});

@@ -76,10 +76,10 @@ class _SegmentHtmlWidgetState extends ConsumerState<SegmentHtmlWidget> {
                   child: Padding(
                     padding: const EdgeInsets.only(left: 4, right: 4),
                     child: DefaultTextStyle.merge(
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: Color(0xFF007bff),
                         fontWeight: FontWeight.w700,
-                        fontSize: 16,
+                        fontSize: widget.fontSize,
                       ),
                       child:
                           (context.element?.text ?? '').isNotEmpty

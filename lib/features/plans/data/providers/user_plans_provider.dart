@@ -28,7 +28,7 @@ final userPlansFutureProvider = FutureProvider<UserPlanListResponseModel>((
 });
 
 final userPlanProgressDetailsFutureProvider =
-    FutureProvider.family<List<PlanProgressModel>, String>((ref, planId) {
+    FutureProvider.autoDispose.family<List<PlanProgressModel>, String>((ref, planId) {
       return ref
           .watch(userPlansRepositoryProvider)
           .getUserPlanProgressDetails(planId);
@@ -82,7 +82,7 @@ final myPlansPaginatedProvider =
 
 // User plan day content provider
 final userPlanDayContentFutureProvider =
-    FutureProvider.family<UserPlanDayDetailResponse, PlanDaysParams>((
+    FutureProvider.autoDispose.family<UserPlanDayDetailResponse, PlanDaysParams>((
       ref,
       params,
     ) {
@@ -94,7 +94,7 @@ final userPlanDayContentFutureProvider =
 /// Provider that fetches completion status for all days in a plan
 /// Returns a Map where key is dayNumber and value is isCompleted status
 final userPlanDaysCompletionStatusProvider =
-    FutureProvider.family<Map<int, bool>, String>((ref, planId) async {
+    FutureProvider.autoDispose.family<Map<int, bool>, String>((ref, planId) async {
       // First get the list of days to know how many days to fetch
       final planDays = await ref.watch(
         planDaysByPlanIdFutureProvider(planId).future,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
 import 'package:flutter_pecha/features/texts/constants/text_screen_constants.dart';
 import 'package:flutter_pecha/features/texts/constants/text_routes.dart';
 import 'package:flutter_pecha/features/texts/data/providers/selected_segment_provider.dart';
@@ -350,9 +351,11 @@ class _ChaptersScreenState extends ConsumerState<ChaptersScreen> {
 
   /// Show font size selector dialog
   void _showFontSizeSelector(BuildContext context) {
+    final locale = ref.watch(localeProvider);
+    final language = locale.languageCode;
     showDialog(
       context: context,
-      builder: (context) => const FontSizeSelector(),
+      builder: (context) => FontSizeSelector(language: language),
     );
   }
 }

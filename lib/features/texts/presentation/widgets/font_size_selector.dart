@@ -3,21 +3,22 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_pecha/features/texts/data/providers/font_size_notifier.dart';
 
 class FontSizeSelector extends ConsumerWidget {
-  const FontSizeSelector({super.key});
+  const FontSizeSelector({super.key, required this.language});
+  final String language;
 
   // Base font size (100% = 16px)
-  static const double baseFontSize = 16.0;
+  double get baseFontSize => language == 'bo' ? 26.0 : 22.0;
 
   // Industry standard font size percentages
   static const List<double> fontSizePercentages = [100, 150, 200, 250];
 
   // Convert percentage to actual font size
-  static double percentageToFontSize(double percentage) {
+  double percentageToFontSize(double percentage) {
     return baseFontSize * (percentage / 100);
   }
 
   // Convert font size to percentage
-  static double fontSizeToPercentage(double fontSize) {
+  double fontSizeToPercentage(double fontSize) {
     return (fontSize / baseFontSize) * 100;
   }
 

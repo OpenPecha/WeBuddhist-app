@@ -1,23 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/features/texts/constants/text_screen_constants.dart';
+import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 
 /// Continue reading button widget
 /// Standard button for starting/continuing text reading
 class ContinueReadingButton extends StatelessWidget {
   final String label;
+  final String language;
   final VoidCallback onPressed;
 
   const ContinueReadingButton({
     super.key,
     required this.label,
+    required this.language,
     required this.onPressed,
   });
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: TextScreenConstants.continueReadingButtonWidth,
-      height: TextScreenConstants.continueReadingButtonHeight,
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
           backgroundColor: Theme.of(context).colorScheme.primary,
@@ -31,10 +32,11 @@ class ContinueReadingButton extends StatelessWidget {
         child: Text(
           label,
           textAlign: TextAlign.center,
-          style: const TextStyle(
+          style: TextStyle(
             color: Colors.white,
+            fontFamily: getFontFamily(language),
             fontWeight: FontWeight.w500,
-            fontSize: TextScreenConstants.subtitleFontSize,
+            fontSize: TextScreenConstants.bodyFontSize,
             overflow: TextOverflow.ellipsis,
           ),
         ),

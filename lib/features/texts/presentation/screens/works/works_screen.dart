@@ -13,6 +13,7 @@ import 'package:flutter_pecha/features/texts/presentation/widgets/loading_state_
 import 'package:flutter_pecha/features/texts/presentation/widgets/section_header.dart';
 import 'package:flutter_pecha/features/texts/presentation/widgets/text_list_item.dart';
 import 'package:flutter_pecha/features/texts/presentation/widgets/text_screen_app_bar.dart';
+import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -25,6 +26,10 @@ class WorksScreen extends ConsumerWidget {
     final AsyncValue<TextDetailResponse?> textDetailResponse = ref.watch(
       textsFutureProvider(collection.id),
     );
+    final locale = ref.watch(localeProvider);
+    final fontFamily = getFontFamily(locale.languageCode);
+    final lineHeight = getLineHeight(locale.languageCode);
+    final fontSize = locale.languageCode == 'bo' ? 28.0 : 24.0;
 
     return Scaffold(
       appBar: TextScreenAppBar(onBackPressed: () => Navigator.pop(context)),
@@ -36,9 +41,10 @@ class WorksScreen extends ConsumerWidget {
             children: [
               Text(
                 textDetailResponse.value?.collections.title ?? '',
-                style: const TextStyle(
-                  fontSize: TextScreenConstants.titleFontSize,
-                  fontWeight: FontWeight.w500,
+                style: TextStyle(
+                  fontFamily: fontFamily,
+                  height: lineHeight,
+                  fontSize: fontSize,
                 ),
               ),
               const SizedBox(height: TextScreenConstants.largeVerticalSpacing),

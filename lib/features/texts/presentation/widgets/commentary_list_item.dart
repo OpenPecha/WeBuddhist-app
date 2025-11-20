@@ -5,18 +5,23 @@ import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 
 class CommentaryListItem extends StatelessWidget {
   final CommentaryText commentary;
+  final String language;
   final String languageLabel;
   final VoidCallback onTap;
 
   const CommentaryListItem({
     super.key,
     required this.commentary,
+    required this.language,
     required this.languageLabel,
     required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
+    final fontFamily = getFontFamily(language);
+    final lineHeight = getLineHeight(language);
+    final fontSize = language == 'bo' ? 22.0 : 18.0;
     return GestureDetector(
       onTap: onTap,
       child: Column(
@@ -29,9 +34,10 @@ class CommentaryListItem extends StatelessWidget {
                 child: Text(
                   commentary.title,
                   style: TextStyle(
-                    fontSize: TextScreenConstants.largeTitleFontSize,
                     fontWeight: FontWeight.w500,
-                    fontFamily: getFontFamily(commentary.language ?? ''),
+                    fontFamily: fontFamily,
+                    height: lineHeight,
+                    fontSize: fontSize,
                   ),
                 ),
               ),
