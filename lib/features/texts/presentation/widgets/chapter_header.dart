@@ -17,7 +17,7 @@ class ChapterHeader extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.symmetric(
         horizontal: TextScreenConstants.screenHorizontalPadding + 4,
-        vertical: TextScreenConstants.smallVerticalSpacing,
+        vertical: TextScreenConstants.extraLargeVerticalSpacing,
       ),
       child: Text(
         textDetail.title,

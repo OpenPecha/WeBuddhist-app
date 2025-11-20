@@ -1,5 +1,6 @@
 import 'package:flutter_pecha/features/texts/data/datasource/text_remote_datasource.dart';
 import 'package:flutter_pecha/features/texts/models/search/search_response.dart';
+import 'package:flutter_pecha/features/texts/models/text/commentary_text_response.dart';
 import 'package:flutter_pecha/features/texts/models/text/detail_response.dart';
 import 'package:flutter_pecha/features/texts/models/text/reader_response.dart';
 import 'package:flutter_pecha/features/texts/models/text/toc_response.dart';
@@ -39,6 +40,16 @@ class TextsRepository {
     String? language,
   }) async {
     return remoteDatasource.fetchTextVersion(
+      textId: textId,
+      language: language,
+    );
+  }
+
+  Future<CommentaryTextResponse> fetchCommentaryText({
+    required String textId,
+    String? language,
+  }) async {
+    return remoteDatasource.fetchCommentaryText(
       textId: textId,
       language: language,
     );

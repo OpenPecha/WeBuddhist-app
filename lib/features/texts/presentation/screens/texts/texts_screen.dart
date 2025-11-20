@@ -5,10 +5,12 @@ import 'package:flutter_pecha/features/app/presentation/pecha_bottom_nav_bar.dar
 import 'package:flutter_pecha/features/texts/constants/text_screen_constants.dart';
 import 'package:flutter_pecha/features/texts/constants/text_routes.dart';
 import 'package:flutter_pecha/features/texts/data/providers/apis/texts_provider.dart';
+import 'package:flutter_pecha/features/texts/models/text/commentary_text_response.dart';
 import 'package:flutter_pecha/features/texts/models/text/texts.dart';
 import 'package:flutter_pecha/features/texts/models/text/toc_response.dart';
 import 'package:flutter_pecha/features/texts/models/text/version_response.dart';
 import 'package:flutter_pecha/features/texts/models/version.dart';
+import 'package:flutter_pecha/features/texts/presentation/widgets/commentary_tab.dart';
 import 'package:flutter_pecha/features/texts/presentation/widgets/continue_reading_button.dart';
 import 'package:flutter_pecha/features/texts/presentation/widgets/loading_state_widget.dart';
 import 'package:flutter_pecha/features/texts/presentation/widgets/table_of_contens.dart';
@@ -29,6 +31,9 @@ class TextsScreen extends ConsumerWidget {
     final localizations = AppLocalizations.of(context)!;
     final textContentResponse = ref.watch(textContentFutureProvider(text.id));
     final textVersionResponse = ref.watch(textVersionFutureProvider(text.id));
+    final commentaryTextResponse = ref.watch(
+      commentaryTextFutureProvider(text.id),
+    );
 
     // Determine if we should show the contents tab
     final showContentsTab = textContentResponse.maybeWhen(
@@ -39,7 +44,7 @@ class TextsScreen extends ConsumerWidget {
       orElse: () => null, // Return null while loading
     );
 
-    final tabCount = showContentsTab == true ? 2 : 1;
+    final tabCount = showContentsTab == true ? 3 : 2;
 
     return DefaultTabController(
       length: tabCount,
@@ -72,6 +77,7 @@ class TextsScreen extends ConsumerWidget {
                   context,
                   textContentResponse,
                   textVersionResponse,
+                  commentaryTextResponse,
                   showContentsTab,
                 ),
             ],
@@ -83,15 +89,16 @@ class TextsScreen extends ConsumerWidget {
   }
 
   Widget _buildTextHeader(BuildContext context, Texts text) {
+    final language = text.language ?? '';
     return Row(
       children: [
         Expanded(
           child: Text(
             text.title,
             style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-              fontSize: getFontSize(text.language),
+              fontSize: getFontSize(language),
               fontWeight: FontWeight.w500,
-              fontFamily: getFontFamily(text.language),
+              fontFamily: getFontFamily(language),
             ),
           ),
         ),
@@ -117,6 +124,7 @@ class TextsScreen extends ConsumerWidget {
     BuildContext context,
     AsyncValue<TocResponse> textContentResponse,
     AsyncValue<VersionResponse> textVersionResponse,
+    AsyncValue<CommentaryTextResponse> commentaryTextResponse,
     bool showContentsTab,
   ) {
     return Expanded(
@@ -134,6 +142,7 @@ class TextsScreen extends ConsumerWidget {
             tabs: [
               if (showContentsTab) Tab(text: localizations.text_toc_content),
               Tab(text: localizations.text_toc_versions),
+              Tab(text: localizations.text_detail_commentaryText),
             ],
             dividerColor: const Color(0xFFDEE2E6),
           ),
@@ -169,13 +178,33 @@ class TextsScreen extends ConsumerWidget {
                             'Unable to load versions.\nPlease try again later.',
                       ),
                   data: (versionResponse) {
-                    if (versionResponse.versions.isNotEmpty) {
+                    if (versionResponse.versions?.isNotEmpty ?? false) {
                       return _buildVersionsList(
-                        versionResponse.versions,
+                        versionResponse.versions ?? [],
                         context,
                       );
                     } else {
                       return const Center(child: Text('No versions found'));
+                    }
+                  },
+                ),
+                // Commentary Tab
+                commentaryTextResponse.when(
+                  loading: () => const LoadingStateWidget(),
+                  error:
+                      (error, stackTrace) => ErrorStateWidget(
+                        error: error,
+                        customMessage:
+                            'Unable to load commentary text.\nPlease try again later.',
+                      ),
+                  data: (commentaryTextResponse) {
+                    if (commentaryTextResponse.commentaries.isNotEmpty) {
+                      final commentaries = commentaryTextResponse.commentaries;
+                      return CommentaryTab(commentaries: commentaries);
+                    } else {
+                      return const Center(
+                        child: Text('No commentary text found'),
+                      );
                     }
                   },
                 ),

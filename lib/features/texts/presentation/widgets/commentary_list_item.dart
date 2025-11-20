@@ -1,17 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/features/texts/constants/text_screen_constants.dart';
-import 'package:flutter_pecha/features/texts/models/version.dart';
+import 'package:flutter_pecha/features/texts/models/text/commentary_text.dart';
 import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 
-/// List item widget for displaying text versions
-class VersionListItem extends StatelessWidget {
-  final Version version;
+class CommentaryListItem extends StatelessWidget {
+  final CommentaryText commentary;
   final String languageLabel;
   final VoidCallback onTap;
 
-  const VersionListItem({
+  const CommentaryListItem({
     super.key,
-    required this.version,
+    required this.commentary,
     required this.languageLabel,
     required this.onTap,
   });
@@ -28,11 +27,11 @@ class VersionListItem extends StatelessWidget {
             children: [
               Expanded(
                 child: Text(
-                  version.title,
+                  commentary.title,
                   style: TextStyle(
                     fontSize: TextScreenConstants.largeTitleFontSize,
                     fontWeight: FontWeight.w500,
-                    fontFamily: getFontFamily(version.language),
+                    fontFamily: getFontFamily(commentary.language ?? ''),
                   ),
                 ),
               ),
@@ -58,14 +57,14 @@ class VersionListItem extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           Text(
-            "Source: ${version.sourceLink}",
+            "Source: ${commentary.sourceLink}",
             style: TextStyle(
               fontSize: TextScreenConstants.subtitleFontSize,
               color: Colors.grey.shade800,
             ),
           ),
           Text(
-            "License: ${version.license}",
+            "License: ${commentary.license}",
             style: TextStyle(
               fontSize: TextScreenConstants.subtitleFontSize,
               color: Colors.grey.shade800,
