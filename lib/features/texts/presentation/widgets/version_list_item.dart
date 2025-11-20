@@ -6,18 +6,24 @@ import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 /// List item widget for displaying text versions
 class VersionListItem extends StatelessWidget {
   final Version version;
+  final String language;
   final String languageLabel;
   final VoidCallback onTap;
 
   const VersionListItem({
     super.key,
     required this.version,
+    required this.language,
     required this.languageLabel,
     required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
+    final fontFamily = getFontFamily(language);
+    final lineHeight = getLineHeight(language);
+    final fontSize = language == 'bo' ? 22.0 : 18.0;
+
     return GestureDetector(
       onTap: onTap,
       child: Column(
@@ -30,9 +36,10 @@ class VersionListItem extends StatelessWidget {
                 child: Text(
                   version.title,
                   style: TextStyle(
-                    fontSize: TextScreenConstants.largeTitleFontSize,
                     fontWeight: FontWeight.w500,
-                    fontFamily: getFontFamily(version.language),
+                    fontFamily: fontFamily,
+                    height: lineHeight,
+                    fontSize: fontSize,
                   ),
                 ),
               ),

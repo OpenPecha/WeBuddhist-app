@@ -760,5 +760,8 @@ class _TextReaderScreenState extends ConsumerState<TextReaderScreen> {
 
 // Utility function to show font size selector
 void showFontSizeSelector(BuildContext context, WidgetRef ref) {
-  showDialog(context: context, builder: (context) => const FontSizeSelector());
+  showDialog(
+    context: context,
+    builder: (context) => FontSizeSelector(language: "en"),
+  );
 }

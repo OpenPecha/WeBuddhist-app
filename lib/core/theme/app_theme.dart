@@ -11,16 +11,19 @@
 // - Tibetan: MonlamTibetan (existing implementation)
 
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 import 'app_colors.dart';
+import 'font_config.dart';
 
 class AppTheme {
   static ThemeData lightTheme([Locale? locale]) {
     final fontConfig = _getFontConfiguration(locale, Brightness.light);
+    final systemFontFamily = fontConfig.fontFamily;
+    final contentFontFamily = getFontFamily(locale?.languageCode ?? 'en');
     final baseTheme = ThemeData(
       useMaterial3: true,
       brightness: Brightness.light,
-      fontFamily: fontConfig.fontFamily,
+      fontFamily: systemFontFamily,
       textTheme: fontConfig.textTheme,
       scaffoldBackgroundColor: AppColors.surfaceWhite,
 
@@ -44,11 +47,12 @@ class AppTheme {
         foregroundColor: AppColors.textPrimary,
         elevation: 0,
         iconTheme: const IconThemeData(color: AppColors.textPrimary),
-        titleTextStyle: (fontConfig.textTheme?.headlineSmall ?? const TextStyle()).copyWith(
-          color: AppColors.textPrimary,
-          fontSize: 20,
-          fontWeight: FontWeight.w600,
-        ),
+        titleTextStyle:
+            (fontConfig.textTheme?.headlineSmall ?? const TextStyle()).copyWith(
+              color: AppColors.textPrimary,
+              fontSize: 20,
+              fontWeight: FontWeight.w600,
+            ),
       ),
 
       // Card theme with gold accent colors
@@ -70,7 +74,10 @@ class AppTheme {
 
       // Input fields with rounded corners
       inputDecorationTheme: InputDecorationTheme(
-        hintStyle: const TextStyle(color: AppColors.textSecondary),
+        hintStyle: TextStyle(
+          color: AppColors.textSecondary,
+          fontFamily: contentFontFamily,
+        ),
         prefixIconColor: AppColors.greyMedium,
         fillColor: AppColors.primarySurface,
         filled: true,
@@ -88,7 +95,7 @@ class AppTheme {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: AppColors.primary, width: 2),
+          borderSide: BorderSide(color: AppColors.grey500, width: 2),
         ),
       ),
 
@@ -216,10 +223,12 @@ class AppTheme {
 
   static ThemeData darkTheme([Locale? locale]) {
     final fontConfig = _getFontConfiguration(locale, Brightness.dark);
+    final systemFontFamily = fontConfig.fontFamily;
+    final contentFontFamily = getFontFamily(locale?.languageCode ?? 'en');
     final baseTheme = ThemeData(
       useMaterial3: true,
       brightness: Brightness.dark,
-      fontFamily: fontConfig.fontFamily,
+      fontFamily: systemFontFamily,
       textTheme: fontConfig.textTheme,
       scaffoldBackgroundColor: AppColors.backgroundDark,
 
@@ -243,11 +252,12 @@ class AppTheme {
         foregroundColor: AppColors.textPrimaryDark,
         elevation: 0,
         iconTheme: const IconThemeData(color: AppColors.textPrimaryDark),
-        titleTextStyle: (fontConfig.textTheme?.headlineSmall ?? const TextStyle()).copyWith(
-          color: AppColors.textPrimaryDark,
-          fontSize: 20,
-          fontWeight: FontWeight.w600,
-        ),
+        titleTextStyle:
+            (fontConfig.textTheme?.headlineSmall ?? const TextStyle()).copyWith(
+              color: AppColors.textPrimaryDark,
+              fontSize: 20,
+              fontWeight: FontWeight.w600,
+            ),
       ),
 
       // Card theme with dark background and border
@@ -269,7 +279,10 @@ class AppTheme {
 
       // Input fields with dark background
       inputDecorationTheme: InputDecorationTheme(
-        hintStyle: const TextStyle(color: AppColors.textSubtleDark),
+        hintStyle: TextStyle(
+          color: AppColors.textSubtleDark,
+          fontFamily: contentFontFamily,
+        ),
         prefixIconColor: AppColors.grey600,
         fillColor: AppColors.surfaceVariantDark,
         filled: true,
@@ -287,7 +300,7 @@ class AppTheme {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: AppColors.primaryDark, width: 2),
+          borderSide: const BorderSide(color: AppColors.greyDark, width: 2),
         ),
       ),
 
@@ -423,20 +436,14 @@ class AppTheme {
     Locale? locale,
     Brightness brightness,
   ) {
-    // For Tibetan locale, use MonlamTibetan fontFamily
-    if (locale?.languageCode == 'bo') {
-      return _FontConfiguration(
-        fontFamily: 'MonlamTibetan',
-        textTheme: null, // Use default textTheme to respect fontFamily
-      );
-    }
-    // For English and other locales, use Inter font via GoogleFonts
-    return _FontConfiguration(
-      fontFamily: null, // No fontFamily needed when using textTheme
-      textTheme: GoogleFonts.interTextTheme(
-        ThemeData(brightness: brightness).textTheme,
-      ),
+    // Get system font configuration for the locale
+    final textTheme = AppFontConfig.getTextTheme(
+      locale?.languageCode,
+      FontType.system,
+      brightness,
     );
+
+    return _FontConfiguration(fontFamily: null, textTheme: textTheme);
   }
 }
 

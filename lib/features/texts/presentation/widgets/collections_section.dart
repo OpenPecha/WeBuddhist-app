@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
+import 'package:flutter_pecha/shared/utils/helper_functions.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class CollectionsSection extends StatelessWidget {
+class CollectionsSection extends ConsumerWidget {
   final String title;
   final String subtitle;
   final Color dividerColor;
@@ -15,7 +18,11 @@ class CollectionsSection extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final locale = ref.watch(localeProvider);
+    final fontFamily = getFontFamily(locale.languageCode);
+    final lineHeight = getLineHeight(locale.languageCode);
+    final fontSize = locale.languageCode == 'bo' ? 26.0 : 22.0;
     return Card(
       color: Colors.transparent,
       elevation: 0,
@@ -28,13 +35,22 @@ class CollectionsSection extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             title,
-            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
+            style: TextStyle(
+              fontFamily: fontFamily,
+              height: lineHeight,
+              fontSize: fontSize.toDouble(),
+            ),
           ),
           const SizedBox(height: 2),
           if (subtitle.isNotEmpty)
             Text(
               subtitle,
-              style: TextStyle(color: Colors.grey[700], fontSize: 16),
+              style: TextStyle(
+                color: Colors.grey[700],
+                fontSize: 16.0,
+                height: lineHeight,
+                fontFamily: fontFamily,
+              ),
             ),
           const SizedBox(height: 8),
         ],

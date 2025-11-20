@@ -56,11 +56,10 @@ class TextsScreen extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildTextHeader(context, text),
-              const SizedBox(height: 4),
-              _buildTextType(text, localizations),
               const SizedBox(height: TextScreenConstants.largeTitleFontSize),
               ContinueReadingButton(
                 label: localizations.text_toc_continueReading,
+                language: text.language ?? 'en',
                 onPressed: () {
                   context.push(TextRoutes.chapters, extra: {'textId': text.id});
                 },
@@ -90,13 +89,14 @@ class TextsScreen extends ConsumerWidget {
 
   Widget _buildTextHeader(BuildContext context, Texts text) {
     final language = text.language ?? '';
+    final fontSize = 24.0;
     return Row(
       children: [
         Expanded(
           child: Text(
             text.title,
             style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-              fontSize: getFontSize(language),
+              fontSize: fontSize,
               fontWeight: FontWeight.w500,
               fontFamily: getFontFamily(language),
             ),
@@ -133,6 +133,10 @@ class TextsScreen extends ConsumerWidget {
           // Tab Bar
           TabBar(
             labelColor: Theme.of(context).textTheme.bodyMedium?.color,
+            labelStyle: TextStyle(
+              fontSize: TextScreenConstants.largeTitleFontSize,
+              fontWeight: FontWeight.w500,
+            ),
             unselectedLabelColor: Colors.grey,
             indicatorColor: Theme.of(context).colorScheme.primary,
             indicatorWeight: 2.5,
@@ -235,6 +239,7 @@ class TextsScreen extends ConsumerWidget {
 
         return VersionListItem(
           version: version,
+          language: version.language,
           languageLabel: getLanguageLabel(version.language, context),
           onTap: () {
             context.push(

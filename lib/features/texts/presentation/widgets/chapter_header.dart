@@ -12,6 +12,7 @@ class ChapterHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final fontSize = textDetail.language == 'bo' ? 26.0 : 22.0;
     return Container(
       color: Theme.of(context).scaffoldBackgroundColor,
       width: double.infinity,
@@ -22,7 +23,7 @@ class ChapterHeader extends StatelessWidget {
       child: Text(
         textDetail.title,
         style: Theme.of(context).textTheme.titleLarge?.copyWith(
-          fontSize: getFontSize(textDetail.language),
+          fontSize: fontSize,
           fontFamily: getFontFamily(textDetail.language),
           fontWeight: FontWeight.w600,
         ),

@@ -9,6 +9,7 @@ import 'package:flutter_pecha/features/texts/models/text/toc.dart';
 import 'package:flutter_pecha/features/texts/models/text_detail.dart';
 import 'package:flutter_pecha/features/texts/presentation/segment_html_widget.dart';
 import 'package:flutter_pecha/features/texts/utils/helper_functions.dart';
+import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fquery/fquery.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
@@ -277,13 +278,18 @@ class _ContentsChapterState extends ConsumerState<ContentsChapter> {
   }
 
   Widget _buildSectionTitle(Section section) {
-    final fontSize = ref.watch(fontSizeProvider);
+    final language = widget.textDetail.language;
+    final fontSize = language == 'bo' ? 26.0 : 22.0;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Text(
         section.title ?? '',
         textAlign: TextAlign.center,
-        style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.bold),
+        style: TextStyle(
+          fontSize: fontSize,
+          fontWeight: FontWeight.bold,
+          fontFamily: getFontFamily(widget.textDetail.language),
+        ),
       ),
     );
   }
@@ -329,8 +335,9 @@ class _ContentsChapterState extends ConsumerState<ContentsChapter> {
                       segmentNumber,
                       textAlign: TextAlign.left,
                       style: TextStyle(
-                        fontSize: fontSize,
+                        fontSize: fontSize * 0.6,
                         fontWeight: FontWeight.w500,
+                        fontFamily: getFontFamily(widget.textDetail.language),
                       ),
                     ),
                   ),
