@@ -6,11 +6,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class LibrarySearchDelegate extends SearchDelegate<Map<String, String>?> {
   final WidgetRef ref;
-  final String? textId; // If provided, search only within this text
+  final String textId;
   String _submittedQuery = '';
   bool _hasSubmitted = false;
 
-  LibrarySearchDelegate({required this.ref, this.textId});
+  LibrarySearchDelegate({required this.ref, required this.textId});
 
   @override
   ThemeData appBarTheme(BuildContext context) {
@@ -102,22 +102,19 @@ class LibrarySearchDelegate extends SearchDelegate<Map<String, String>?> {
       );
     }
 
-    // Use Consumer to ensure rebuilds when provider changes
     return Consumer(
       builder: (context, ref, child) {
-        // Use text-specific search if textId is provided, otherwise global search
-        final searchResults =
-            textId != null
-                ? ref.watch(
-                  searchTextFutureProvider(
-                    SearchTextParams(query: _submittedQuery, textId: textId!),
-                  ),
-                )
-                : ref.watch(
-                  librarySearchProvider(
-                    LibrarySearchParams(query: _submittedQuery),
-                  ),
-                );
+        // final searchResults = ref.watch(
+        //   searchTextFutureProvider(
+        //     SearchTextParams(query: _submittedQuery, textId: textId),
+        //   ),
+        // );
+
+        final searchResults = ref.watch(
+          multilingualSearchProvider(
+            LibrarySearchParams(query: _submittedQuery, textId: textId),
+          ),
+        );
 
         return searchResults.when(
           loading: () {

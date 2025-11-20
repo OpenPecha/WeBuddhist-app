@@ -34,7 +34,7 @@ final userPlanProgressDetailsFutureProvider =
           .getUserPlanProgressDetails(planId);
     });
 
-final userPlanSubscribeFutureProvider = FutureProvider.family<bool, String>((
+final userPlanSubscribeFutureProvider = FutureProvider.autoDispose.family<bool, String>((
   ref,
   planId,
 ) {

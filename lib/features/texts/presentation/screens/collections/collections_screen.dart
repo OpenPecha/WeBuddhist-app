@@ -173,10 +173,14 @@ class _SearchResultsView extends ConsumerWidget {
       );
     }
 
-    final searchParams = LibrarySearchParams(query: query);
-    final searchResults = ref.watch(librarySearchProvider(searchParams));
+    final searchParams = LibrarySearchParams(query: query, textId: null);
+    // final searchResults = ref.watch(librarySearchProvider(searchParams));
+    final multilingualSearchResults = ref.watch(
+      multilingualSearchProvider(searchParams),
+    );
 
-    return searchResults.when(
+    // return searchResults.when(
+    return multilingualSearchResults.when(
       loading: () => const LoadingStateWidget(),
       error:
           (error, stackTrace) => ErrorStateWidget(
