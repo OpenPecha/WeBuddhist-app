@@ -180,8 +180,7 @@ class MaterialLocalizationsBo extends GlobalMaterialLocalizations {
   String get dateSeparator => throw UnimplementedError();
 
   @override
-  // TODO: implement dialModeButtonLabel
-  String get dialModeButtonLabel => throw UnimplementedError();
+  String get dialModeButtonLabel => _en.dialModeButtonLabel;
 
   @override
   String get expandedHint => _en.expandedHint;
@@ -512,20 +511,18 @@ class MaterialLocalizationsBo extends GlobalMaterialLocalizations {
   String get showAccountsLabel => throw UnimplementedError();
 
   @override
-  // TODO: implement timeOfDayFormatRaw
-  TimeOfDayFormat get timeOfDayFormatRaw => throw UnimplementedError();
+  TimeOfDayFormat get timeOfDayFormatRaw => _en.timeOfDayFormatRaw;
 
   @override
-  // TODO: implement timePickerHourModeAnnouncement
-  String get timePickerHourModeAnnouncement => throw UnimplementedError();
+  String get timePickerHourModeAnnouncement =>
+      _en.timePickerHourModeAnnouncement;
 
   @override
-  // TODO: implement timePickerInputHelpText
-  String get timePickerInputHelpText => throw UnimplementedError();
+  String get timePickerInputHelpText => _en.timePickerInputHelpText;
 
   @override
-  // TODO: implement timePickerMinuteModeAnnouncement
-  String get timePickerMinuteModeAnnouncement => throw UnimplementedError();
+  String get timePickerMinuteModeAnnouncement =>
+      _en.timePickerMinuteModeAnnouncement;
 
   @override
   // TODO: implement unspecifiedDate
