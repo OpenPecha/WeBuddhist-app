@@ -18,10 +18,11 @@ class ContinueReadingButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final buttonColor = Color(0xFF18345d);
     return SizedBox(
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
-          backgroundColor: Theme.of(context).colorScheme.primary,
+          backgroundColor: buttonColor,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(
               TextScreenConstants.buttonBorderRadius,
