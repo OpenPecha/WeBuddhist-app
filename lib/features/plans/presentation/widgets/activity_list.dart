@@ -28,12 +28,14 @@ class ActivityList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final sortedTasks = List<UserTasksDto>.from(tasks)
+      ..sort((a, b) => a.displayOrder.compareTo(b.displayOrder));
     return ListView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      itemCount: tasks.length,
+      itemCount: sortedTasks.length,
       itemBuilder: (context, index) {
-        final task = tasks[index];
+        final task = sortedTasks[index];
         final isCompleted = task.isCompleted;
         final taskId = task.id;
         return Container(
