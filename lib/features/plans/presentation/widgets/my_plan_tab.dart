@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
 import 'package:flutter_pecha/features/auth/application/auth_notifier.dart';
 import 'package:flutter_pecha/features/auth/presentation/widgets/login_drawer.dart';
 import 'package:flutter_pecha/features/plans/data/providers/plans_providers.dart';
@@ -7,6 +8,7 @@ import 'package:flutter_pecha/features/plans/data/utils/plan_utils.dart';
 import 'package:flutter_pecha/features/plans/models/user/user_plans_model.dart';
 import 'package:flutter_pecha/features/plans/presentation/providers/my_plans_paginated_provider.dart';
 import 'package:flutter_pecha/features/plans/presentation/widgets/user_plan_card.dart';
+import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -232,34 +234,33 @@ class _GuestLoginPrompt extends StatelessWidget {
   }
 }
 
-class _EmptyMyPlansState extends StatelessWidget {
+class _EmptyMyPlansState extends ConsumerWidget {
   final VoidCallback onBrowsePlans;
 
   const _EmptyMyPlansState({required this.onBrowsePlans});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final language = ref.watch(localeProvider).languageCode;
+    final fontFamily = getFontFamily(language);
+    final lineHeight = getLineHeight(language);
+    final fontSize = language == 'bo' ? 22.0 : 18.0;
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.assignment_outlined, size: 80, color: Colors.grey[400]),
-            const SizedBox(height: 24),
-            Text(
-              'No enrolled plans yet',
-              style: Theme.of(
-                context,
-              ).textTheme.titleLarge?.copyWith(color: Colors.grey[700]),
-              textAlign: TextAlign.center,
-            ),
+            Icon(Icons.assignment_outlined, size: 60, color: Colors.grey[400]),
             const SizedBox(height: 8),
             Text(
-              'Start your practice journey by enrolling in a plan',
-              style: Theme.of(
-                context,
-              ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
+              'Practice plans help you stay consistent with your practice. We have a variety of plans to choose from and for different durations.',
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                color: Colors.grey[600],
+                fontFamily: fontFamily,
+                height: lineHeight,
+                fontSize: fontSize,
+              ),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 24),
