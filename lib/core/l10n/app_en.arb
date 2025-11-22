@@ -83,14 +83,18 @@
   "recitations_no_saved": "No saved recitations",
   "recitations_save_prompt": "Save recitations to access them here",
   "recitations_login_required": "Login Required",
-  "recitations_login_prompt": "Please login to view your saved recitations",
+  "recitations_login_prompt": "Sign in to view your saved recitations",
   "recitations_save": "Save Recitation",
-  "recitations_unsave": "Remove from Saved",
+  "recitations_unsave": "Unsave recitation",
   "recitations_share": "Share",
   "recitations_phonetic": "Phonetic",
   "recitations_translation": "Translation",
+  "no_availabel": "Not available",
+  "recitations_no_data_message": "The content for this recitation is currently not available.\nPlease check back later.",
   "settings_appearance": "Appearance",
   "settings_notifications": "Notifications",
   "notification_settings": "Notification Settings",
-  "settings_account": "Account"
+  "settings_account": "Account",
+  "logout_confirmation": "Are you sure you want to log out?",
+  "cancel": "Cancel"
 }

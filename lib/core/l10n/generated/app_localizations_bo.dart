@@ -246,41 +246,48 @@ class AppLocalizationsBo extends AppLocalizations {
   String get recitations_search => 'འཚོལ་ས།';
 
   @override
-  String get recitations_saved => 'བཟླས་པ་ཉར་ཟིན།';
+  String get recitations_saved => 'Recitation saved';
 
   @override
-  String get recitations_unsaved => 'བཟླས་པ་བསུབས།';
+  String get recitations_unsaved => 'Recitation removed';
 
   @override
-  String get recitations_no_content => 'བཟླས་པ་མི་འདུག';
+  String get recitations_no_content => 'No recitations available';
 
   @override
-  String get recitations_no_saved => 'ཉར་ཟིན་པའི་བཟླས་པ་མི་འདུག';
+  String get recitations_no_saved => 'No saved recitations';
 
   @override
-  String get recitations_save_prompt => 'འདིར་རྙེད་པའི་བཟླས་པ་ཉར་ཟིན།';
+  String get recitations_save_prompt => 'Save recitations to access them here';
 
   @override
-  String get recitations_login_required => 'ནང་འཛུལ་དགོས།';
+  String get recitations_login_required => 'Login Required';
 
   @override
   String get recitations_login_prompt =>
-      'ཉར་ཟིན་པའི་བཟླས་པ་མཐོང་བའི་དོན་དུ་ནང་འཛུལ་གྱིས།';
+      'Sign in to view your saved recitations';
 
   @override
-  String get recitations_save => 'བཟླས་པ་ཉར་བ།';
+  String get recitations_save => 'Save Recitation';
 
   @override
-  String get recitations_unsave => 'ཉར་ཟིན་ནས་བསུབ་པ།';
+  String get recitations_unsave => 'Unsave recitation';
 
   @override
-  String get recitations_share => 'མཉམ་སྤྱོད།';
+  String get recitations_share => 'Share';
 
   @override
-  String get recitations_phonetic => 'སྒྲ་སྦྱོར།';
+  String get recitations_phonetic => 'Phonetic';
 
   @override
-  String get recitations_translation => 'བསྒྱུར་བ།';
+  String get recitations_translation => 'Translation';
+
+  @override
+  String get no_availabel => 'Not available';
+
+  @override
+  String get recitations_no_data_message =>
+      'The content for this recitation is currently not available.\nPlease check back later.';
 
   @override
   String get settings_appearance => 'Appearance';
@@ -293,4 +300,10 @@ class AppLocalizationsBo extends AppLocalizations {
 
   @override
   String get settings_account => 'Account';
+
+  @override
+  String get logout_confirmation => 'Are you sure you want to log out?';
+
+  @override
+  String get cancel => 'Cancel';
 }

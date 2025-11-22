@@ -282,6 +282,13 @@ class AppLocalizationsZh extends AppLocalizations {
   String get recitations_translation => '翻譯';
 
   @override
+  String get no_availabel => 'Not available';
+
+  @override
+  String get recitations_no_data_message =>
+      'The content for this recitation is currently not available.\nPlease check back later.';
+
+  @override
   String get settings_appearance => '外觀';
 
   @override
@@ -292,4 +299,10 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get settings_account => '帳號';
+
+  @override
+  String get logout_confirmation => '您確定要登出嗎？';
+
+  @override
+  String get cancel => '取消';
 }

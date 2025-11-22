@@ -601,7 +601,7 @@ abstract class AppLocalizations {
   /// No description provided for @recitations_login_prompt.
   ///
   /// In en, this message translates to:
-  /// **'Please login to view your saved recitations'**
+  /// **'Sign in to view your saved recitations'**
   String get recitations_login_prompt;
 
   /// No description provided for @recitations_save.
@@ -613,7 +613,7 @@ abstract class AppLocalizations {
   /// No description provided for @recitations_unsave.
   ///
   /// In en, this message translates to:
-  /// **'Remove from Saved'**
+  /// **'Unsave recitation'**
   String get recitations_unsave;
 
   /// No description provided for @recitations_share.
@@ -633,6 +633,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Translation'**
   String get recitations_translation;
+
+  /// No description provided for @no_availabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Not available'**
+  String get no_availabel;
+
+  /// No description provided for @recitations_no_data_message.
+  ///
+  /// In en, this message translates to:
+  /// **'The content for this recitation is currently not available.\nPlease check back later.'**
+  String get recitations_no_data_message;
 
   /// No description provided for @settings_appearance.
   ///
@@ -657,6 +669,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Account'**
   String get settings_account;
+
+  /// No description provided for @logout_confirmation.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to log out?'**
+  String get logout_confirmation;
+
+  /// No description provided for @cancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get cancel;
 }
 
 class _AppLocalizationsDelegate

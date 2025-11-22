@@ -73,7 +73,7 @@ class RecitationsTab extends ConsumerWidget {
           ),
           const SizedBox(height: 16),
           Text(
-            'No recitations available',
+            localizations.recitations_no_content,
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
               color: Theme.of(context).textTheme.bodySmall?.color,
             ),
@@ -135,14 +135,6 @@ class RecitationsTab extends ConsumerWidget {
                   }
                 },
               ),
-              // ListTile(
-              //   leading: const Icon(Icons.share_outlined),
-              //   title: const Text('Share'),
-              //   onTap: () {
-              //     Navigator.pop(context);
-              //     // TODO: Implement share functionality
-              //   },
-              // ),
             ],
           ),
         );

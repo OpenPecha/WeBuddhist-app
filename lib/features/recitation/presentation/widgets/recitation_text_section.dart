@@ -28,7 +28,7 @@ class RecitationTextSection extends StatelessWidget {
     // Get language-specific styling
     final fontFamily = getFontFamily(languageCode);
     final lineHeight = getLineHeight(languageCode);
-    final fontSize = getFontSize(languageCode);
+    final fontSize = languageCode == 'bo' ? 22.0 : 18.0;
 
     return Text(
       processedText,

@@ -265,13 +265,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get recitations_login_prompt =>
-      'Please login to view your saved recitations';
+      'Sign in to view your saved recitations';
 
   @override
   String get recitations_save => 'Save Recitation';
 
   @override
-  String get recitations_unsave => 'Remove from Saved';
+  String get recitations_unsave => 'Unsave recitation';
 
   @override
   String get recitations_share => 'Share';
@@ -281,6 +281,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get recitations_translation => 'Translation';
+
+  @override
+  String get no_availabel => 'Not available';
+
+  @override
+  String get recitations_no_data_message =>
+      'The content for this recitation is currently not available.\nPlease check back later.';
 
   @override
   String get settings_appearance => 'Appearance';
@@ -293,4 +300,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settings_account => 'Account';
+
+  @override
+  String get logout_confirmation => 'Are you sure you want to log out?';
+
+  @override
+  String get cancel => 'Cancel';
 }
