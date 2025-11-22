@@ -3,6 +3,7 @@ import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/features/auth/application/auth_notifier.dart';
 import 'package:flutter_pecha/features/recitation/data/models/recitation_model.dart';
+import 'package:flutter_pecha/features/recitation/domain/content_type.dart';
 import 'package:flutter_pecha/features/recitation/domain/recitation_language_config.dart';
 import 'package:flutter_pecha/features/recitation/presentation/controllers/recitation_save_controller.dart';
 import 'package:flutter_pecha/features/recitation/presentation/providers/recitations_providers.dart';
@@ -36,6 +37,10 @@ class RecitationDetailScreen extends ConsumerWidget {
     final isGuest = ref.watch(authProvider.select((state) => state.isGuest));
     final isSaved = _checkIfSaved(ref, isGuest);
 
+    // Watch visibility toggles for second and third segments
+    final showSecondSegment = ref.watch(showSecondSegmentProvider);
+    final showThirdSegment = ref.watch(showThirdSegmentProvider);
+
     // Get content parameters and display order based on language
     final recitationParams = RecitationLanguageConfig.getContentParams(
       effectiveLanguageCode,
@@ -45,21 +50,74 @@ class RecitationDetailScreen extends ConsumerWidget {
       effectiveLanguageCode,
     );
 
+    // Get the content types at positions 2 and 3 (index 1 and 2)
+    final secondContentType = contentOrder.length > 1 ? contentOrder[1] : null;
+    final thirdContentType = contentOrder.length > 2 ? contentOrder[2] : null;
+
+    // Filter content order based on visibility toggles
+    final filteredContentOrder = _filterContentOrder(
+      contentOrder,
+      showSecondSegment: showSecondSegment,
+      showThirdSegment: showThirdSegment,
+    );
+
     // Watch recitation content
     final contentAsync = ref.watch(recitationContentProvider(recitationParams));
     final localizations = AppLocalizations.of(context)!;
+
+    // Check if content is loaded and not empty
+    final isContentLoaded =
+        contentAsync.hasValue && !contentAsync.value!.isEmpty;
 
     return Scaffold(
       appBar: AppBar(
         scrolledUnderElevation: 0,
         actions: [
+          // Only show toggle icons when content is loaded
+          if (isContentLoaded) ...[
+            // Second segment toggle
+            if (secondContentType != null)
+              IconButton(
+                onPressed: () =>
+                    ref.read(showSecondSegmentProvider.notifier).state =
+                        !showSecondSegment,
+                icon: Icon(
+                  _getIconForContentType(secondContentType, showSecondSegment),
+                  color: showSecondSegment
+                      ? null
+                      : Theme.of(context).disabledColor,
+                ),
+                tooltip: _getTooltipForContentType(
+                  secondContentType,
+                  showSecondSegment,
+                  localizations,
+                ),
+              ),
+            // Third segment toggle
+            if (thirdContentType != null)
+              IconButton(
+                onPressed: () =>
+                    ref.read(showThirdSegmentProvider.notifier).state =
+                        !showThirdSegment,
+                icon: Icon(
+                  _getIconForContentType(thirdContentType, showThirdSegment),
+                  color:
+                      showThirdSegment ? null : Theme.of(context).disabledColor,
+                ),
+                tooltip: _getTooltipForContentType(
+                  thirdContentType,
+                  showThirdSegment,
+                  localizations,
+                ),
+              ),
+          ],
+          // Save/unsave toggle (always visible)
           IconButton(
             onPressed: () => _handleSaveToggle(context, ref, isSaved),
             icon: Icon(isSaved ? Icons.bookmark : Icons.bookmark_border),
-            tooltip:
-                isSaved
-                    ? localizations.recitations_unsave
-                    : localizations.recitations_save,
+            tooltip: isSaved
+                ? localizations.recitations_unsave
+                : localizations.recitations_save,
           ),
         ],
       ),
@@ -71,13 +129,66 @@ class RecitationDetailScreen extends ConsumerWidget {
 
           return RecitationContent(
             content: content,
-            contentOrder: contentOrder,
+            contentOrder: filteredContentOrder,
           );
         },
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, stack) => RecitationErrorState(error: error),
       ),
     );
+  }
+
+  /// Returns the appropriate icon for a content type.
+  IconData _getIconForContentType(ContentType type, bool isVisible) {
+    return switch (type) {
+      ContentType.translation =>
+        isVisible ? Icons.translate : Icons.translate_outlined,
+      ContentType.transliteration => isVisible ? Icons.abc : Icons.abc_outlined,
+      ContentType.recitation =>
+        isVisible ? Icons.record_voice_over : Icons.record_voice_over_outlined,
+      ContentType.adaptation =>
+        isVisible ? Icons.auto_fix_high : Icons.auto_fix_high_outlined,
+    };
+  }
+
+  /// Returns the appropriate tooltip for a content type.
+  String _getTooltipForContentType(
+    ContentType type,
+    bool isVisible,
+    AppLocalizations localizations,
+  ) {
+    return switch (type) {
+      ContentType.translation => isVisible
+          ? localizations.recitations_hide_translation
+          : localizations.recitations_show_translation,
+      ContentType.transliteration => isVisible
+          ? localizations.recitations_hide_transliteration
+          : localizations.recitations_show_transliteration,
+      ContentType.recitation => isVisible
+          ? localizations.recitations_hide_recitation
+          : localizations.recitations_show_recitation,
+      ContentType.adaptation => isVisible
+          ? localizations.recitations_hide_adaptation
+          : localizations.recitations_show_adaptation,
+    };
+  }
+
+  /// Filters the content order based on visibility toggles.
+  List<ContentType> _filterContentOrder(
+    List<ContentType> contentOrder, {
+    required bool showSecondSegment,
+    required bool showThirdSegment,
+  }) {
+    return contentOrder.asMap().entries.where((entry) {
+      final index = entry.key;
+      // Always show the first segment (primary content)
+      if (index == 0) return true;
+      // Toggle for second segment
+      if (index == 1 && !showSecondSegment) return false;
+      // Toggle for third segment
+      if (index == 2 && !showThirdSegment) return false;
+      return true;
+    }).map((entry) => entry.value).toList();
   }
 
   /// Checks if the current recitation is saved by the user.

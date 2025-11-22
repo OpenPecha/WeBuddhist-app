@@ -682,6 +682,54 @@ abstract class AppLocalizations {
   /// **'The content for this recitation is currently not available.\nPlease check back later.'**
   String get recitations_no_data_message;
 
+  /// No description provided for @recitations_show_translation.
+  ///
+  /// In en, this message translates to:
+  /// **'Show translation'**
+  String get recitations_show_translation;
+
+  /// No description provided for @recitations_hide_translation.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide translation'**
+  String get recitations_hide_translation;
+
+  /// No description provided for @recitations_show_transliteration.
+  ///
+  /// In en, this message translates to:
+  /// **'Show transliteration'**
+  String get recitations_show_transliteration;
+
+  /// No description provided for @recitations_hide_transliteration.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide transliteration'**
+  String get recitations_hide_transliteration;
+
+  /// No description provided for @recitations_show_recitation.
+  ///
+  /// In en, this message translates to:
+  /// **'Show recitation'**
+  String get recitations_show_recitation;
+
+  /// No description provided for @recitations_hide_recitation.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide recitation'**
+  String get recitations_hide_recitation;
+
+  /// No description provided for @recitations_show_adaptation.
+  ///
+  /// In en, this message translates to:
+  /// **'Show adaptation'**
+  String get recitations_show_adaptation;
+
+  /// No description provided for @recitations_hide_adaptation.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide adaptation'**
+  String get recitations_hide_adaptation;
+
   /// No description provided for @settings_appearance.
   ///
   /// In en, this message translates to:
