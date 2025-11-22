@@ -304,8 +304,31 @@ class AppLocalizationsZh extends AppLocalizations {
   String get no_availabel => 'Not available';
 
   @override
-  String get recitations_no_data_message =>
-      'The content for this recitation is currently not available.\nPlease check back later.';
+  String get recitations_no_data_message => '此持誦的內容目前不可用。\n請稍後再查看。';
+
+  @override
+  String get recitations_show_translation => '顯示翻譯';
+
+  @override
+  String get recitations_hide_translation => '隱藏翻譯';
+
+  @override
+  String get recitations_show_transliteration => '顯示音譯';
+
+  @override
+  String get recitations_hide_transliteration => '隱藏音譯';
+
+  @override
+  String get recitations_show_recitation => '顯示持誦';
+
+  @override
+  String get recitations_hide_recitation => '隱藏持誦';
+
+  @override
+  String get recitations_show_adaptation => '顯示改編';
+
+  @override
+  String get recitations_hide_adaptation => '隱藏改編';
 
   @override
   String get settings_appearance => '外觀';

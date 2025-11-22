@@ -309,6 +309,30 @@ class AppLocalizationsBo extends AppLocalizations {
       'The content for this recitation is currently not available.\nPlease check back later.';
 
   @override
+  String get recitations_show_translation => 'ཡིག་སྒྱུར་མཐོང་།';
+
+  @override
+  String get recitations_hide_translation => 'ཡིག་སྒྱུར་སྦས།';
+
+  @override
+  String get recitations_show_transliteration => 'སྒྲ་བསྒྱུར་མཐོང་།';
+
+  @override
+  String get recitations_hide_transliteration => 'སྒྲ་བསྒྱུར་སྦས།';
+
+  @override
+  String get recitations_show_recitation => 'བཟླས་པ་མཐོང་།';
+
+  @override
+  String get recitations_hide_recitation => 'བཟླས་པ་སྦས།';
+
+  @override
+  String get recitations_show_adaptation => 'བསྒྱུར་བཅོས་མཐོང་།';
+
+  @override
+  String get recitations_hide_adaptation => 'བསྒྱུར་བཅོས་སྦས།';
+
+  @override
   String get settings_appearance => 'Appearance';
 
   @override

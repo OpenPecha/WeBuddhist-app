@@ -121,3 +121,8 @@ final updateRecitationsOrderProvider = FutureProvider.autoDispose.family<bool, L
 ) {
   return ref.watch(recitationsRepositoryProvider).updateRecitationsOrder(recitations);
 });
+
+// Toggle providers for showing/hiding second and third content segments
+// The actual content type depends on the language's content order
+final showSecondSegmentProvider = StateProvider<bool>((ref) => true);
+final showThirdSegmentProvider = StateProvider<bool>((ref) => true);

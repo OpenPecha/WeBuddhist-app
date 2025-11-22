@@ -43,7 +43,7 @@ class RecitationLanguageConfig {
           textId: textId,
           translations: [english],
           recitations: [tibetan],
-          transliterations: [english],
+          transliterations: [tibetan],
         );
 
       case chinese:
@@ -51,7 +51,7 @@ class RecitationLanguageConfig {
           textId: textId,
           translations: [chinese],
           recitations: [tibetan],
-          transliterations: [chinese],
+          transliterations: [tibetan],
         );
 
       default:
