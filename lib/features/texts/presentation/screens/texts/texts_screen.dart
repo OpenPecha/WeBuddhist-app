@@ -151,7 +151,7 @@ class TextsScreen extends ConsumerWidget {
               fontWeight: FontWeight.w500,
             ),
             unselectedLabelColor: Colors.grey,
-            indicatorColor: Theme.of(context).colorScheme.primary,
+            indicatorColor: Colors.grey,
             indicatorWeight: 2.5,
             isScrollable: !showContentsTab, // Left-align when single tab
             tabAlignment:

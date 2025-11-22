@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
 import 'package:flutter_pecha/core/widgets/cached_network_image_widget.dart';
 import 'package:flutter_pecha/core/widgets/error_state_widget.dart';
 import 'package:flutter_pecha/features/plans/data/providers/author_providers.dart';
@@ -19,10 +20,16 @@ class AuthorDetailScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     // Fetch full author details using the author ID
     final authorDetails = ref.watch(authorByIdFutureProvider(authorId));
+    final language = ref.watch(localeProvider).languageCode;
+    final fontSize = language == 'bo' ? 22.0 : 18.0;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Author'),
+        centerTitle: false,
+        title: Text(
+          'Author',
+          style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.bold),
+        ),
         elevation: 0,
         scrolledUnderElevation: 0,
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
