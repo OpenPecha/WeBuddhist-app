@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
+import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/features/auth/application/auth_notifier.dart';
 import 'package:flutter_pecha/features/recitation/data/models/recitation_model.dart';
 import 'package:flutter_pecha/features/recitation/domain/recitation_language_config.dart';
@@ -46,6 +47,7 @@ class RecitationDetailScreen extends ConsumerWidget {
 
     // Watch recitation content
     final contentAsync = ref.watch(recitationContentProvider(recitationParams));
+    final localizations = AppLocalizations.of(context)!;
 
     return Scaffold(
       appBar: AppBar(
@@ -54,13 +56,15 @@ class RecitationDetailScreen extends ConsumerWidget {
           IconButton(
             onPressed: () => _handleSaveToggle(context, ref, isSaved),
             icon: Icon(isSaved ? Icons.bookmark : Icons.bookmark_border),
-            tooltip: isSaved ? 'Unsave recitation' : 'Save recitation',
+            tooltip:
+                isSaved
+                    ? localizations.recitations_unsave
+                    : localizations.recitations_save,
           ),
         ],
       ),
       body: contentAsync.when(
         data: (content) {
-          // Check if content is empty and show friendly message
           if (content.isEmpty) {
             return _buildEmptyContentState(context, content.title);
           }
@@ -98,6 +102,7 @@ class RecitationDetailScreen extends ConsumerWidget {
 
   /// Builds a user-friendly empty state when recitation content is not available.
   Widget _buildEmptyContentState(BuildContext context, String title) {
+    final localizations = AppLocalizations.of(context)!;
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
@@ -107,15 +112,7 @@ class RecitationDetailScreen extends ConsumerWidget {
             Icon(Icons.menu_book_outlined, size: 80, color: Colors.grey[400]),
             const SizedBox(height: 24),
             Text(
-              title,
-              style: Theme.of(
-                context,
-              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'Content not available',
+              localizations.no_availabel,
               style: Theme.of(
                 context,
               ).textTheme.titleMedium?.copyWith(color: Colors.grey[700]),
@@ -123,7 +120,7 @@ class RecitationDetailScreen extends ConsumerWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              'The content for this recitation is currently not available.\nPlease check back later.',
+              localizations.recitations_no_data_message,
               style: Theme.of(
                 context,
               ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),

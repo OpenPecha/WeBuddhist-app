@@ -78,5 +78,7 @@
   "settings_appearance": "外觀",
   "settings_notifications": "通知",
   "notification_settings": "通知設定",
-  "settings_account": "帳號"
+  "settings_account": "帳號",
+  "logout_confirmation": "您確定要登出嗎？",
+  "cancel": "取消"
 }
