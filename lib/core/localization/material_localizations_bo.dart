@@ -38,9 +38,9 @@ class MaterialLocalizationsBo extends GlobalMaterialLocalizations {
   ];
 
   @override
-  String get okButtonLabel => 'གཏན་འཁེལ';
+  String get okButtonLabel => 'འགྲིག';
   @override
-  String get cancelButtonLabel => 'ཆ་མེད';
+  String get cancelButtonLabel => 'རྩིས་མེད།';
   @override
   String get closeButtonLabel => 'ཁ་རྒྱབ';
   @override
@@ -518,7 +518,7 @@ class MaterialLocalizationsBo extends GlobalMaterialLocalizations {
       _en.timePickerHourModeAnnouncement;
 
   @override
-  String get timePickerInputHelpText => _en.timePickerInputHelpText;
+  String get timePickerInputHelpText => 'དུས་ཚོད་འདེམ།';
 
   @override
   String get timePickerMinuteModeAnnouncement =>
