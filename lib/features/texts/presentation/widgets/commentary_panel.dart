@@ -150,22 +150,13 @@ class _CommentaryPanelContent extends StatelessWidget {
       return const _EmptyState();
     }
 
-    final totalCommentaries = commentaries.fold<int>(
-      0,
-      (sum, commentary) => sum + commentary.count,
-    );
-
     return ListView.builder(
       padding: const EdgeInsets.all(
         _CommentaryPanelConstants.horizontalPadding,
       ),
-      itemCount: commentaries.length + 1,
+      itemCount: commentaries.length,
       itemBuilder: (context, index) {
-        if (index == 0) {
-          return _CommentaryHeader(totalCount: totalCommentaries);
-        }
-
-        final commentary = commentaries[index - 1];
+        final commentary = commentaries[index];
         final isExpanded = expandedIndex == index;
 
         return _CommentaryCard(
