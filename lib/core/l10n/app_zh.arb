@@ -52,8 +52,11 @@
   "commentary_total": "Total",
   "show_less":"Show less",
   "read_more":"Read more",
+  "no_content": "No content found",
+  "no_version": "No versions found",
   "no_commentary": "No commentary found",
   "no_commentary_message": "There are no commentaries available for this segment.",
+   "loading": "Loading...",
 
   "practice_nav_title": "修持計劃",
   "my_plans": "我的計畫",

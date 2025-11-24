@@ -169,11 +169,20 @@ class AppLocalizationsZh extends AppLocalizations {
   String get read_more => 'Read more';
 
   @override
+  String get no_content => 'No content found';
+
+  @override
+  String get no_version => 'No versions found';
+
+  @override
   String get no_commentary => 'No commentary found';
 
   @override
   String get no_commentary_message =>
       'There are no commentaries available for this segment.';
+
+  @override
+  String get loading => 'Loading...';
 
   @override
   String get practice_nav_title => '修持計劃';

@@ -126,6 +126,7 @@ class TextsScreen extends ConsumerWidget {
     AsyncValue<CommentaryTextResponse> commentaryTextResponse,
     bool showContentsTab,
   ) {
+    final localizations = AppLocalizations.of(context)!;
     return Expanded(
       child: Column(
         children: [
@@ -167,7 +168,7 @@ class TextsScreen extends ConsumerWidget {
                       if (contentResponse.contents[0].sections.length > 1) {
                         return TableOfContents(toc: contentResponse);
                       } else {
-                        return const Center(child: Text('No content found'));
+                        return Center(child: Text(localizations.no_content));
                       }
                     },
                   ),
@@ -183,7 +184,7 @@ class TextsScreen extends ConsumerWidget {
                   data: (versionResponse) {
                     if ((versionResponse.versions?.isEmpty ?? true) &&
                         versionResponse.text == null) {
-                      return const Center(child: Text('No versions found'));
+                      return Center(child: Text(localizations.no_version));
                     }
                     return _buildVersionsList(
                       versionResponse.text!,
@@ -206,9 +207,7 @@ class TextsScreen extends ConsumerWidget {
                       final commentaries = commentaryTextResponse.commentaries;
                       return CommentaryTab(commentaries: commentaries);
                     } else {
-                      return const Center(
-                        child: Text('No commentary text found'),
-                      );
+                      return Center(child: Text(localizations.no_commentary));
                     }
                   },
                 ),
