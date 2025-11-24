@@ -20,7 +20,7 @@ class TextRemoteDatasource {
     required String termId,
     String? language,
     int skip = 0,
-    int limit = 10,
+    int limit = 20,
   }) async {
     final uri = Uri.parse('${dotenv.env['BASE_API_URL']}/texts').replace(
       queryParameters: {
