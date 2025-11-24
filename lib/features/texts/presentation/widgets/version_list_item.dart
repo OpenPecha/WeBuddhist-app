@@ -1,18 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/features/texts/constants/text_screen_constants.dart';
-import 'package:flutter_pecha/features/texts/models/version.dart';
 import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 
 /// List item widget for displaying text versions
 class VersionListItem extends StatelessWidget {
-  final Version version;
+  final String title;
+  final String sourceLink;
+  final String license;
   final String language;
   final String languageLabel;
   final VoidCallback onTap;
 
   const VersionListItem({
     super.key,
-    required this.version,
+    required this.title,
+    required this.sourceLink,
+    required this.license,
     required this.language,
     required this.languageLabel,
     required this.onTap,
@@ -34,7 +37,7 @@ class VersionListItem extends StatelessWidget {
             children: [
               Expanded(
                 child: Text(
-                  version.title,
+                  title,
                   style: TextStyle(
                     fontWeight: FontWeight.w500,
                     fontFamily: fontFamily,
@@ -65,14 +68,14 @@ class VersionListItem extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           Text(
-            "Source: ${version.sourceLink}",
+            "Source: $sourceLink",
             style: TextStyle(
               fontSize: TextScreenConstants.subtitleFontSize,
               color: Colors.grey.shade800,
             ),
           ),
           Text(
-            "License: ${version.license}",
+            "License: $license",
             style: TextStyle(
               fontSize: TextScreenConstants.subtitleFontSize,
               color: Colors.grey.shade800,

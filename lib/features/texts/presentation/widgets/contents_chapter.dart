@@ -288,13 +288,14 @@ class _ContentsChapterState extends ConsumerState<ContentsChapter> {
         style: TextStyle(
           fontSize: fontSize,
           fontWeight: FontWeight.bold,
-          fontFamily: getFontFamily(widget.textDetail.language),
+          fontFamily: getFontFamily(language),
         ),
       ),
     );
   }
 
   Widget _buildSegmentWidget(Section section, int segmentIndex) {
+    final language = widget.textDetail.language;
     final segment = section.segments[segmentIndex];
     final segmentNumber = segment.segmentNumber.toString().padLeft(2);
     final content = segment.content;
@@ -309,8 +310,10 @@ class _ContentsChapterState extends ConsumerState<ContentsChapter> {
         color: Colors.transparent,
         child: InkWell(
           onTap: () {
-            final isSameSegment = selectedSegment?.segmentId == segment.segmentId;
-            final isCommentaryOpen = ref.read(commentarySplitSegmentProvider) != null;
+            final isSameSegment =
+                selectedSegment?.segmentId == segment.segmentId;
+            final isCommentaryOpen =
+                ref.read(commentarySplitSegmentProvider) != null;
 
             if (isSameSegment) {
               // Tapping the same segment - close split view if open and deselect
@@ -321,18 +324,20 @@ class _ContentsChapterState extends ConsumerState<ContentsChapter> {
               ref.read(selectedSegmentProvider.notifier).state = segment;
               // If commentary is open, update it to show this segment's commentary
               if (isCommentaryOpen) {
-                ref.read(commentarySplitSegmentProvider.notifier).state = segment.segmentId;
+                ref.read(commentarySplitSegmentProvider.notifier).state =
+                    segment.segmentId;
               }
             }
           },
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
             decoration: BoxDecoration(
-              color: isSelected
-                  ? Theme.of(context).brightness == Brightness.dark
-                      ? Theme.of(context).colorScheme.primary.withAlpha(60)
-                      : Theme.of(context).colorScheme.primary.withAlpha(30)
-                  : null,
+              color:
+                  isSelected
+                      ? Theme.of(context).brightness == Brightness.dark
+                          ? Theme.of(context).colorScheme.primary.withAlpha(60)
+                          : Theme.of(context).colorScheme.primary.withAlpha(30)
+                      : null,
               borderRadius: BorderRadius.circular(8.0),
             ),
             child: Row(
@@ -349,7 +354,7 @@ class _ContentsChapterState extends ConsumerState<ContentsChapter> {
                       style: TextStyle(
                         fontSize: fontSize * 0.6,
                         fontWeight: FontWeight.w500,
-                        fontFamily: getFontFamily(widget.textDetail.language),
+                        fontFamily: getFontFamily(language),
                       ),
                     ),
                   ),
@@ -361,7 +366,7 @@ class _ContentsChapterState extends ConsumerState<ContentsChapter> {
                     htmlContent: content ?? '',
                     segmentIndex: segment.segmentNumber,
                     fontSize: fontSize,
-                    language: widget.textDetail.language,
+                    language: language,
                   ),
                 ),
               ],

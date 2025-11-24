@@ -9,9 +9,9 @@ import 'package:flutter_pecha/features/texts/models/text/commentary_text_respons
 import 'package:flutter_pecha/features/texts/models/text/texts.dart';
 import 'package:flutter_pecha/features/texts/models/text/toc_response.dart';
 import 'package:flutter_pecha/features/texts/models/text/version_response.dart';
+import 'package:flutter_pecha/features/texts/models/text_detail.dart';
 import 'package:flutter_pecha/features/texts/models/version.dart';
 import 'package:flutter_pecha/features/texts/presentation/widgets/commentary_tab.dart';
-import 'package:flutter_pecha/features/texts/presentation/widgets/continue_reading_button.dart';
 import 'package:flutter_pecha/features/texts/presentation/widgets/loading_state_widget.dart';
 import 'package:flutter_pecha/features/texts/presentation/widgets/table_of_contens.dart';
 import 'package:flutter_pecha/features/texts/presentation/widgets/text_screen_app_bar.dart';
@@ -67,20 +67,6 @@ class TextsScreen extends ConsumerWidget {
             children: [
               _buildTextHeader(context, text),
               const SizedBox(height: TextScreenConstants.largeTitleFontSize),
-              ContinueReadingButton(
-                label: localizations.text_toc_continueReading,
-                language: text.language ?? 'en',
-                onPressed: () {
-                  context.push(
-                    TextRoutes.chapters,
-                    extra: {'textId': text.id, 'colorIndex': colorIndex},
-                  );
-                },
-              ),
-              const SizedBox(
-                height: TextScreenConstants.extraLargeVerticalSpacing,
-              ),
-              // Show loading state until we know whether to show contents tab
               if (showContentsTab == null)
                 const Expanded(child: LoadingStateWidget())
               else
@@ -195,14 +181,15 @@ class TextsScreen extends ConsumerWidget {
                             'Unable to load versions.\nPlease try again later.',
                       ),
                   data: (versionResponse) {
-                    if (versionResponse.versions?.isNotEmpty ?? false) {
-                      return _buildVersionsList(
-                        versionResponse.versions ?? [],
-                        context,
-                      );
-                    } else {
+                    if ((versionResponse.versions?.isEmpty ?? true) &&
+                        versionResponse.text == null) {
                       return const Center(child: Text('No versions found'));
                     }
+                    return _buildVersionsList(
+                      versionResponse.text!,
+                      versionResponse.versions ?? [],
+                      context,
+                    );
                   },
                 ),
                 // Commentary Tab
@@ -233,9 +220,30 @@ class TextsScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildVersionsList(List<Version> versions, BuildContext context) {
+  Widget _buildVersionsList(
+    TextDetail text,
+    List<Version> versions,
+    BuildContext context,
+  ) {
+    final newVersions = [
+      Version(
+        id: text.id,
+        title: text.title,
+        language: text.language,
+        type: text.type,
+        tableOfContents: [],
+        isPublished: text.isPublished,
+        createdDate: text.createdDate,
+        updatedDate: text.updatedDate,
+        publishedDate: text.publishedDate,
+        publishedBy: text.publishedBy,
+        sourceLink: text.sourceLink,
+        license: text.license,
+      ),
+      ...versions,
+    ];
     return ListView.separated(
-      itemCount: versions.length,
+      itemCount: newVersions.length,
       padding: const EdgeInsets.only(top: 10, bottom: 10),
       separatorBuilder:
           (context, idx) => const Divider(
@@ -244,14 +252,16 @@ class TextsScreen extends ConsumerWidget {
             color: Color(0xFFF0F0F0),
           ),
       itemBuilder: (context, idx) {
-        final version = versions[idx];
+        final version = newVersions[idx];
         final contentId =
             version.tableOfContents.isNotEmpty
                 ? version.tableOfContents[0]
                 : null;
 
         return VersionListItem(
-          version: version,
+          title: version.title,
+          sourceLink: version.sourceLink ?? '',
+          license: version.license ?? '',
           language: version.language,
           languageLabel: getLanguageLabel(version.language, context),
           onTap: () {

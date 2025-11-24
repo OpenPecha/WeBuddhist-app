@@ -14,6 +14,7 @@ class RecitationLanguageConfig {
   static const String english = 'en';
   static const String chinese = 'zh';
   static const String sanskrit = 'sa';
+  static const String tibetanAdaptation = 'tib';
 
   /// Supported languages list
   static const List<String> supportedLanguages = [tibetan, english, chinese];
@@ -34,7 +35,7 @@ class RecitationLanguageConfig {
         return RecitationContentParams(
           textId: textId,
           recitations: [tibetan],
-          adaptations: [tibetan],
+          adaptations: [tibetanAdaptation],
           translations: [english],
         );
 

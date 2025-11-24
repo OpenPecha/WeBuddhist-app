@@ -6,7 +6,7 @@ String getLanguageLabel(String code, BuildContext context) {
   final localizations = AppLocalizations.of(context)!;
 
   switch (code.toLowerCase()) {
-    case 'bo':
+    case 'bo' || 'tib':
     case 'tibetan':
       return localizations.tibetan;
     case 'sa':
