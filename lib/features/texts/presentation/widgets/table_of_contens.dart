@@ -44,6 +44,7 @@ class _TableOfContentsState extends ConsumerState<TableOfContents> {
     String textId,
     BuildContext context,
   ) {
+    final language = widget.toc.textDetail.language;
     final isExpanded = expandedSections[section.id] ?? false;
     final hasChildren =
         section.sections != null && section.sections!.isNotEmpty;
@@ -60,7 +61,7 @@ class _TableOfContentsState extends ConsumerState<TableOfContents> {
           style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w500,
-            fontFamily: getFontFamily(widget.toc.textDetail.language),
+            fontFamily: getFontFamily(language),
           ),
         ),
       );
