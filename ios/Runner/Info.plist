@@ -39,6 +39,8 @@
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>WeBuddhist does not use the microphone. This permission is required by audio playback libraries for App Store compliance.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>WeBuddhist needs access to photo library to save the image</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
