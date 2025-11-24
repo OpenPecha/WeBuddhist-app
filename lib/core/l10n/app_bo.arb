@@ -52,8 +52,11 @@
   "commentary_total": "Total",
   "show_less":"Show less",
   "read_more":"Read more",
-  "no_commentary": "No commentary found",
+  "no_content": "རྙེད་མ་བྱུང།",
+  "no_version": "རྙེད་མ་བྱུང།",
+  "no_commentary": "རྙེད་མ་བྱུང།",
   "no_commentary_message": "There are no commentaries available for this segment.",
+  "loading": "ལེན་བཞིན་པ་་་",
 
   "practice_nav_title": "ཉིན་རེ་ཉམས་ལེན།",
   "my_plans": "ངའི་ཉམས་ལེན།",

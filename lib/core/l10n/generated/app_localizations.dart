@@ -412,6 +412,18 @@ abstract class AppLocalizations {
   /// **'Read more'**
   String get read_more;
 
+  /// No description provided for @no_content.
+  ///
+  /// In en, this message translates to:
+  /// **'No content found'**
+  String get no_content;
+
+  /// No description provided for @no_version.
+  ///
+  /// In en, this message translates to:
+  /// **'No versions found'**
+  String get no_version;
+
   /// No description provided for @no_commentary.
   ///
   /// In en, this message translates to:
@@ -423,6 +435,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'There are no commentaries available for this segment.'**
   String get no_commentary_message;
+
+  /// No description provided for @loading.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading...'**
+  String get loading;
 
   /// No description provided for @practice_nav_title.
   ///

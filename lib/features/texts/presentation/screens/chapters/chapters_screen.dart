@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
+import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/features/texts/constants/text_screen_constants.dart';
 import 'package:flutter_pecha/features/texts/constants/text_routes.dart';
@@ -311,12 +312,13 @@ class _ChaptersScreenState extends ConsumerState<ChaptersScreen> {
     Segment? selectedSegment,
     List<Section> newPageSections,
   ) {
+    final localizations = AppLocalizations.of(context)!;
     if (infiniteQuery.isLoading) {
-      return const Center(child: Text("Loading..."));
+      return Center(child: Text(localizations.loading));
     }
 
     if (infiniteQuery.isError) {
-      return const Center(child: Text('No data found'));
+      return Center(child: Text(localizations.no_content));
     }
 
     final commentarySegmentId = ref.watch(commentarySplitSegmentProvider);
