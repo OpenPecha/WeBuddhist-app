@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter_pecha/features/plans/models/plan_days_model.dart';
-import 'package:flutter_pecha/shared/utils/helper_functions.dart';
+import 'package:flutter_pecha/shared/extensions/typography_extensions.dart';
 import 'package:intl/intl.dart';
 
 class DayCarousel extends StatelessWidget {
@@ -24,8 +24,6 @@ class DayCarousel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final fontFamily = getFontFamily(language);
-    final lineHeight = getLineHeight(language);
     final fontSize = language == 'bo' ? 20.0 : 16.0;
     return Container(
       height: 80,
@@ -85,9 +83,8 @@ class DayCarousel extends StatelessWidget {
                     children: [
                       Text(
                         '${day.dayNumber}',
-                        style: TextStyle(
-                          fontFamily: fontFamily,
-                          height: lineHeight,
+                        style: context.languageTextStyle(
+                          language,
                           fontSize: fontSize,
                           fontWeight: FontWeight.bold,
                         ),
@@ -95,10 +92,9 @@ class DayCarousel extends StatelessWidget {
                       const SizedBox(height: 4),
                       Text(
                         dayDateString,
-                        style: TextStyle(
-                          fontSize: 10,
-                          fontFamily: fontFamily,
-                          height: lineHeight,
+                        style: context.languageTextStyle(
+                          language,
+                          fontSize: 14,
                           fontWeight:
                               startDate == dayDate
                                   ? FontWeight.bold
