@@ -56,6 +56,20 @@ class AppFontConfig {
       contentFontIsGoogle: false,
     ),
 
+    'tib': LanguageFontConfig(
+      systemFont: 'Noto Serif Tibetan',
+      contentFont: 'Atisha',
+      systemFontIsGoogle: true,
+      contentFontIsGoogle: false,
+    ),
+
+    'TIB': LanguageFontConfig(
+      systemFont: 'Noto Serif Tibetan',
+      contentFont: 'Atisha',
+      systemFontIsGoogle: true,
+      contentFontIsGoogle: false,
+    ),
+
     // English - Google Inter for UI, EB Garamond for content
     'en': LanguageFontConfig(
       systemFont: 'Inter',
