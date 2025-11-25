@@ -59,12 +59,17 @@ class UserPlansRemoteDatasource {
         body: body,
         headers: {'Content-Type': 'application/json'},
       );
+
       if (response.statusCode == 204) {
         return true;
       } else {
-        return false;
+        // Throw exception with status code and response body
+        final errorMessage = 'HTTP ${response.statusCode}: ${response.body}';
+        debugPrint('Failed to enroll user to plan: $errorMessage');
+        throw Exception('Failed to enroll in plan: $errorMessage');
       }
     } catch (e) {
+      if (e is Exception) rethrow;
       debugPrint('Failed to enroll user to plan: $e');
       throw Exception('Failed to enroll user to plan: $e');
     }
@@ -117,6 +122,45 @@ class UserPlansRemoteDatasource {
     }
   }
 
+  /// Fetch completion status for all days in a plan (bulk endpoint)
+  /// Returns a map where key is dayNumber and value is isCompleted status
+  ///
+  /// API Endpoint: GET /users/me/plans/{planId}/days/completion-status
+  /// Expected Response: { "1": true, "2": false, "3": true, ... }
+  Future<Map<int, bool>> fetchPlanDaysCompletionStatus(String planId) async {
+    try {
+      final response = await client.get(
+        Uri.parse('$baseUrl/users/me/plans/$planId/days/completion-status'),
+      );
+
+      if (response.statusCode == 200) {
+        final decoded = utf8.decode(response.bodyBytes);
+        final jsonData = json.decode(decoded) as Map<String, dynamic>;
+
+        // Convert string keys to int keys
+        final Map<int, bool> completionStatus = {};
+        jsonData.forEach((key, value) {
+          final dayNumber = int.tryParse(key);
+          if (dayNumber != null) {
+            completionStatus[dayNumber] = value as bool;
+          }
+        });
+
+        return completionStatus;
+      } else {
+        debugPrint(
+          'Failed to load plan days completion status: ${response.statusCode}',
+        );
+        throw Exception(
+          'Failed to load plan days completion status: ${response.statusCode}',
+        );
+      }
+    } catch (e) {
+      debugPrint('Error fetching plan days completion status: $e');
+      throw Exception('Failed to load plan days completion status: $e');
+    }
+  }
+
   // sub tasks completion post request
   Future<bool> completeSubTask(String subTaskId) async {
     try {
@@ -125,14 +169,18 @@ class UserPlansRemoteDatasource {
         uri,
         headers: {'Content-Type': 'application/json'},
       );
+
       if (response.statusCode == 204) {
         return true;
       } else {
-        return false;
+        final errorMessage = 'HTTP ${response.statusCode}: ${response.body}';
+        debugPrint('Failed to complete sub task: $errorMessage');
+        throw Exception('Failed to complete sub task: $errorMessage');
       }
     } catch (e) {
-      debugPrint('Failed to complete sub tasks: $e');
-      throw Exception('Failed to complete sub tasks: $e');
+      if (e is Exception) rethrow;
+      debugPrint('Failed to complete sub task: $e');
+      throw Exception('Failed to complete sub task: $e');
     }
   }
 
@@ -144,12 +192,16 @@ class UserPlansRemoteDatasource {
         uri,
         headers: {'Content-Type': 'application/json'},
       );
+
       if (response.statusCode == 204) {
         return true;
       } else {
-        return false;
+        final errorMessage = 'HTTP ${response.statusCode}: ${response.body}';
+        debugPrint('Failed to complete task: $errorMessage');
+        throw Exception('Failed to complete task: $errorMessage');
       }
     } catch (e) {
+      if (e is Exception) rethrow;
       debugPrint('Failed to complete task: $e');
       throw Exception('Failed to complete task: $e');
     }
@@ -160,12 +212,16 @@ class UserPlansRemoteDatasource {
     try {
       final uri = Uri.parse('$baseUrl/users/me/task/$taskId');
       final response = await client.delete(uri);
+
       if (response.statusCode == 204) {
         return true;
       } else {
-        return false;
+        final errorMessage = 'HTTP ${response.statusCode}: ${response.body}';
+        debugPrint('Failed to delete task: $errorMessage');
+        throw Exception('Failed to delete task: $errorMessage');
       }
     } catch (e) {
+      if (e is Exception) rethrow;
       debugPrint('Failed to delete task: $e');
       throw Exception('Failed to delete task: $e');
     }
@@ -176,13 +232,16 @@ class UserPlansRemoteDatasource {
     try {
       final uri = Uri.parse('$baseUrl/users/me/plans/$planId');
       final response = await client.delete(uri);
+
       if (response.statusCode == 204) {
         return true;
       } else {
-        debugPrint('Failed to unenroll from plan: ${response.statusCode}');
-        return false;
+        final errorMessage = 'HTTP ${response.statusCode}: ${response.body}';
+        debugPrint('Failed to unenroll from plan: $errorMessage');
+        throw Exception('Failed to unenroll from plan: $errorMessage');
       }
     } catch (e) {
+      if (e is Exception) rethrow;
       debugPrint('Failed to unenroll from plan: $e');
       throw Exception('Failed to unenroll from plan: $e');
     }
