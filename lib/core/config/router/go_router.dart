@@ -237,7 +237,7 @@ final goRouterProvider = Provider<GoRouter>((ref) {
               const durationForVideo = Duration(minutes: 5);
               const durationForImage = Duration(seconds: 15);
               for (final subtask in subtasks) {
-                if (subtask.content.isEmpty || subtask.content.isEmpty) {
+                if (subtask.content.isEmpty || subtask.contentType.isEmpty) {
                   continue;
                 }
                 switch (subtask.contentType) {

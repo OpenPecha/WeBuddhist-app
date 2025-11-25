@@ -5,9 +5,7 @@ class OnboardingPreferences {
   final String? preferredLanguage;
 
   /// Creates a copy with the specified fields replaced with new values
-  OnboardingPreferences copyWith({
-    String? preferredLanguage,
-  }) {
+  OnboardingPreferences copyWith({String? preferredLanguage}) {
     return OnboardingPreferences(
       preferredLanguage: preferredLanguage ?? this.preferredLanguage,
     );
@@ -15,9 +13,7 @@ class OnboardingPreferences {
 
   /// Converts to JSON for storage
   Map<String, dynamic> toJson() {
-    return {
-      'preferredLanguage': preferredLanguage,
-    };
+    return {'preferredLanguage': preferredLanguage};
   }
 
   /// Creates from JSON
@@ -46,7 +42,7 @@ class OnboardingPreferences {
 
   @override
   int get hashCode {
-    return preferredLanguage.hashCode;
+    return preferredLanguage?.hashCode ?? 0;
   }
 }
 
