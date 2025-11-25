@@ -9,7 +9,6 @@ import 'package:flutter_pecha/features/recitation/presentation/widgets/recitatio
 /// (recitation, translation, transliteration, adaptation) based on
 /// the specified display order.
 class RecitationSegment extends StatelessWidget {
-  /// The segment data to display
   final RecitationSegmentModel segment;
 
   final List<ContentType> contentOrder;
@@ -28,10 +27,8 @@ class RecitationSegment extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Add height for segments after the first one
-        if (!isFirstSegment) ...[const SizedBox(height: 26)],
+        if (!isFirstSegment) const SizedBox(height: 26),
 
-        // Render content in the specified order
         ...contentOrder.expand((contentType) {
           return _buildContentForType(contentType);
         }),
@@ -50,10 +47,14 @@ class RecitationSegment extends StatelessWidget {
     }
 
     // Build widgets for each text entry with spacing
-    return contentMap.entries.expand((entry) sync* {
+    final entries = contentMap.entries.toList();
+    return entries.asMap().entries.expand((indexedEntry) sync* {
+      final index = indexedEntry.key;
+      final entry = indexedEntry.value;
+
       // Add spacing between different language entries
       // (but not before the first one)
-      if (entry.key != contentMap.keys.first) {
+      if (index > 0) {
         yield const SizedBox(height: 8);
       }
 
@@ -62,6 +63,7 @@ class RecitationSegment extends StatelessWidget {
       yield RecitationTextSection(
         text: entry.value.content,
         languageCode: entry.key,
+        textIndex: index,
       );
     }).toList();
   }
