@@ -31,13 +31,6 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
     await savePreferencesLocally();
   }
 
-  /// Set selected Buddhist paths and save locally
-  Future<void> setSelectedPaths(List<String> paths) async {
-    final updated = state.preferences.copyWith(selectedPaths: paths);
-    state = state.copyWithPreferences(updated);
-    await savePreferencesLocally();
-  }
-
   /// Navigate to next page
   void goToNextPage() {
     state = state.copyWithPage(state.currentPage + 1);
