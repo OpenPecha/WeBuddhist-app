@@ -215,7 +215,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get find_plans => '尋找計劃';
 
   @override
-  String get browse_plans => 'Browse Plans';
+  String get browse_plans => '尋找計劃';
 
   @override
   String get plan_info => 'Plan Info';
@@ -317,7 +317,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get recitations_my_recitations => '我的清單';
 
   @override
-  String get browse_recitations => 'Browse Recitations';
+  String get browse_recitations => '唱頌';
 
   @override
   String get recitations_search => '搜索';
@@ -404,7 +404,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get settings_account => '帳號';
 
   @override
-  String get select_language => 'Select Language';
+  String get select_language => '語言設定';
 
   @override
   String get logout_confirmation => '您確定要登出嗎？';
