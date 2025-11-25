@@ -139,7 +139,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get text_detail_rootText => 'Root Text';
 
   @override
-  String get text_detail_commentaryText => 'Commentary';
+  String get text_detail_commentaryText => '釋論';
 
   @override
   String get text_toc_continueReading => 'Continue Reading';
@@ -413,16 +413,16 @@ class AppLocalizationsZh extends AppLocalizations {
   String get cancel => '取消';
 
   @override
-  String get copy => 'Copy';
+  String get copy => '複製';
 
   @override
   String get copied => 'Copied';
 
   @override
-  String get share => 'Share';
+  String get share => '分享';
 
   @override
-  String get image => 'Image';
+  String get image => '圖片';
 
   @override
   String get author => 'Author';
