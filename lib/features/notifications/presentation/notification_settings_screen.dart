@@ -155,13 +155,13 @@ class _NotificationSettingsScreenState
     // Use provider state directly
     final isEnabled = state.isEnabled;
     final selectedTime =
-        state.reminderTime ?? const TimeOfDay(hour: 8, minute: 0);
+        state.reminderTime ?? const TimeOfDay(hour: 9, minute: 0);
     final hasPermission = state.hasPermission;
 
     // Recitation state
     final isRecitationEnabled = recitationState.isEnabled;
     final recitationSelectedTime =
-        recitationState.reminderTime ?? const TimeOfDay(hour: 18, minute: 0);
+        recitationState.reminderTime ?? const TimeOfDay(hour: 8, minute: 0);
 
     final localizations = AppLocalizations.of(context)!;
     final locale = ref.watch(localeProvider);
@@ -191,12 +191,7 @@ class _NotificationSettingsScreenState
                       ),
                       SizedBox(height: 8),
                       Text(
-                        'Please turn on Notifications',
-                        style: TextStyle(fontSize: titleFontSize),
-                      ),
-                      SizedBox(height: 8),
-                      Text(
-                        'Please enable notifications to receive daily practice reminders.',
+                        localizations.notification_enable_message,
                         textAlign: TextAlign.center,
                         style: TextStyle(fontSize: subtitleFontSize),
                       ),
@@ -212,11 +207,13 @@ class _NotificationSettingsScreenState
                                 .read(notificationProvider.notifier)
                                 .checkPermissionStatus();
                           } else {
-                            // open app settings
                             openNotificationSettings();
                           }
                         },
-                        child: Text('Enable Notifications'),
+                        child: Text(
+                          localizations.enable_notification,
+                          style: TextStyle(fontSize: titleFontSize),
+                        ),
                       ),
                     ],
                   ),
@@ -225,7 +222,6 @@ class _NotificationSettingsScreenState
               SizedBox(height: 16),
             ],
             if (hasPermission) ...[
-              // Daily Practice Card
               Card(
                 color: Theme.of(context).cardColor,
                 child: Padding(
@@ -266,7 +262,6 @@ class _NotificationSettingsScreenState
                 ),
               ),
               const SizedBox(height: 16),
-              // Recitation Reminder Card
               Card(
                 color: Theme.of(context).cardColor,
                 child: Padding(

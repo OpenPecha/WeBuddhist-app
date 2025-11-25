@@ -8,12 +8,9 @@ import 'package:flutter_pecha/features/plans/models/response/featured_day_respon
 import 'package:flutter_pecha/features/plans/models/user/user_subtasks_dto.dart';
 import 'package:flutter_pecha/features/story_view/utils/story_dialog_helper.dart';
 
-/// Factory class for creating featured content cards on the home screen
 class FeaturedContentFactory {
-  /// Private constructor to prevent instantiation
   FeaturedContentFactory._();
 
-  /// Creates a widget based on the card index and plan item data
   static Widget createCard({
     required BuildContext context,
     required int index,
@@ -21,7 +18,6 @@ class FeaturedContentFactory {
     required List<FeaturedDayTask> allPlanItems,
     required AppLocalizations localizations,
   }) {
-    // Validate that subtasks exist
     if (planItem.subtasks.isEmpty) {
       return const SizedBox.shrink();
     }
@@ -59,7 +55,6 @@ class FeaturedContentFactory {
     }
   }
 
-  /// Builds the verse card (first card)
   static Widget _buildVerseCard({
     required FeaturedDayTask planItem,
     required FeaturedDayTask? nextPlanItem,
@@ -95,7 +90,6 @@ class FeaturedContentFactory {
     );
   }
 
-  /// Builds the scripture card (second card)
   static Widget _buildScriptureCard({
     required BuildContext context,
     required FeaturedDayTask planItem,
@@ -127,7 +121,6 @@ class FeaturedContentFactory {
     );
   }
 
-  /// Builds the meditation card (third card - last item)
   static Widget _buildMeditationCard({
     required BuildContext context,
     required FeaturedDayTask planItem,
@@ -157,7 +150,6 @@ class FeaturedContentFactory {
     required String subtitle,
     Map<String, dynamic>? nextNextCard,
   }) {
-    // Validate that subtasks exist
     if (planItem.subtasks.isEmpty) {
       throw StateError('PlanItem must have at least one subtask');
     }

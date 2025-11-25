@@ -610,6 +610,24 @@ abstract class AppLocalizations {
   /// **'No plans found'**
   String get no_plans_found;
 
+  /// No description provided for @notification_turn_on.
+  ///
+  /// In en, this message translates to:
+  /// **'Please turn on Notifications'**
+  String get notification_turn_on;
+
+  /// No description provided for @notification_enable_message.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable notifications to receive daily practice and recitation reminders.'**
+  String get notification_enable_message;
+
+  /// No description provided for @enable_notification.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable Notifications'**
+  String get enable_notification;
+
   /// No description provided for @notification_daily_practice.
   ///
   /// In en, this message translates to:
@@ -621,24 +639,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Select Time'**
   String get notification_select_time;
-
-  /// No description provided for @enableReminders.
-  ///
-  /// In en, this message translates to:
-  /// **'Enable Reminders'**
-  String get enableReminders;
-
-  /// No description provided for @remindersEnabled.
-  ///
-  /// In en, this message translates to:
-  /// **'Reminders are active'**
-  String get remindersEnabled;
-
-  /// No description provided for @remindersDisabled.
-  ///
-  /// In en, this message translates to:
-  /// **'Reminders are inactive'**
-  String get remindersDisabled;
 
   /// No description provided for @reminderTime.
   ///
@@ -657,24 +657,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Daily Recitation'**
   String get notification_daily_recitation;
-
-  /// No description provided for @testNotifications.
-  ///
-  /// In en, this message translates to:
-  /// **'Test Notifications'**
-  String get testNotifications;
-
-  /// No description provided for @testNotificationsDescription.
-  ///
-  /// In en, this message translates to:
-  /// **'Send a test notification to verify everything is working'**
-  String get testNotificationsDescription;
-
-  /// No description provided for @sendTestNotification.
-  ///
-  /// In en, this message translates to:
-  /// **'Send Test Notification'**
-  String get sendTestNotification;
 
   /// No description provided for @manageDailyReminders.
   ///

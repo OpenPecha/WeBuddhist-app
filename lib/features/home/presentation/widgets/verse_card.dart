@@ -28,10 +28,10 @@ class VerseCard extends ConsumerWidget {
     final fontFamily = getFontFamily(languageCode);
     final lineHeight = getLineHeight(languageCode);
 
-    // Get consistent background image for this verse
     final backgroundImagePath = BackgroundImageService().getImageForContent(
       verseText,
     );
+
     return GestureDetector(
       onTap: () {
         showStoryDialog(
@@ -43,7 +43,7 @@ class VerseCard extends ConsumerWidget {
       child: Stack(
         children: [
           Hero(
-            tag: 'verse-image-$backgroundImagePath',
+            tag: backgroundImagePath,
             child: Container(
               width: double.infinity,
               height: VerseCardConstants.cardHeight,

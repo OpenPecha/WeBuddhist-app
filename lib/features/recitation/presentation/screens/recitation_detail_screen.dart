@@ -25,23 +25,18 @@ class RecitationDetailScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Get user's language preference
     final userLanguageCode = ref.watch(
       localeProvider.select((locale) => locale.languageCode),
     );
 
-    // Prefer recitation's specified language, fallback to user's preference
     final effectiveLanguageCode = recitation.language ?? userLanguageCode;
 
-    // Check authentication status and saved state
     final isGuest = ref.watch(authProvider.select((state) => state.isGuest));
     final isSaved = _checkIfSaved(ref, isGuest);
 
-    // Watch visibility toggles for second and third segments
     final showSecondSegment = ref.watch(showSecondSegmentProvider);
     final showThirdSegment = ref.watch(showThirdSegmentProvider);
 
-    // Get content parameters and display order based on language
     final recitationParams = RecitationLanguageConfig.getContentParams(
       effectiveLanguageCode,
       recitation.textId,
@@ -78,14 +73,16 @@ class RecitationDetailScreen extends ConsumerWidget {
             // Second segment toggle
             if (secondContentType != null)
               IconButton(
-                onPressed: () =>
-                    ref.read(showSecondSegmentProvider.notifier).state =
-                        !showSecondSegment,
+                onPressed:
+                    () =>
+                        ref.read(showSecondSegmentProvider.notifier).state =
+                            !showSecondSegment,
                 icon: Icon(
                   _getIconForContentType(secondContentType, showSecondSegment),
-                  color: showSecondSegment
-                      ? null
-                      : Theme.of(context).disabledColor,
+                  color:
+                      showSecondSegment
+                          ? null
+                          : Theme.of(context).disabledColor,
                 ),
                 tooltip: _getTooltipForContentType(
                   secondContentType,
@@ -96,9 +93,10 @@ class RecitationDetailScreen extends ConsumerWidget {
             // Third segment toggle
             if (thirdContentType != null)
               IconButton(
-                onPressed: () =>
-                    ref.read(showThirdSegmentProvider.notifier).state =
-                        !showThirdSegment,
+                onPressed:
+                    () =>
+                        ref.read(showThirdSegmentProvider.notifier).state =
+                            !showThirdSegment,
                 icon: Icon(
                   _getIconForContentType(thirdContentType, showThirdSegment),
                   color:
@@ -115,9 +113,10 @@ class RecitationDetailScreen extends ConsumerWidget {
           IconButton(
             onPressed: () => _handleSaveToggle(context, ref, isSaved),
             icon: Icon(isSaved ? Icons.bookmark : Icons.bookmark_border),
-            tooltip: isSaved
-                ? localizations.recitations_unsave
-                : localizations.recitations_save,
+            tooltip:
+                isSaved
+                    ? localizations.recitations_unsave
+                    : localizations.recitations_save,
           ),
         ],
       ),
@@ -158,18 +157,22 @@ class RecitationDetailScreen extends ConsumerWidget {
     AppLocalizations localizations,
   ) {
     return switch (type) {
-      ContentType.translation => isVisible
-          ? localizations.recitations_hide_translation
-          : localizations.recitations_show_translation,
-      ContentType.transliteration => isVisible
-          ? localizations.recitations_hide_transliteration
-          : localizations.recitations_show_transliteration,
-      ContentType.recitation => isVisible
-          ? localizations.recitations_hide_recitation
-          : localizations.recitations_show_recitation,
-      ContentType.adaptation => isVisible
-          ? localizations.recitations_hide_adaptation
-          : localizations.recitations_show_adaptation,
+      ContentType.translation =>
+        isVisible
+            ? localizations.recitations_hide_translation
+            : localizations.recitations_show_translation,
+      ContentType.transliteration =>
+        isVisible
+            ? localizations.recitations_hide_transliteration
+            : localizations.recitations_show_transliteration,
+      ContentType.recitation =>
+        isVisible
+            ? localizations.recitations_hide_recitation
+            : localizations.recitations_show_recitation,
+      ContentType.adaptation =>
+        isVisible
+            ? localizations.recitations_hide_adaptation
+            : localizations.recitations_show_adaptation,
     };
   }
 
@@ -179,16 +182,21 @@ class RecitationDetailScreen extends ConsumerWidget {
     required bool showSecondSegment,
     required bool showThirdSegment,
   }) {
-    return contentOrder.asMap().entries.where((entry) {
-      final index = entry.key;
-      // Always show the first segment (primary content)
-      if (index == 0) return true;
-      // Toggle for second segment
-      if (index == 1 && !showSecondSegment) return false;
-      // Toggle for third segment
-      if (index == 2 && !showThirdSegment) return false;
-      return true;
-    }).map((entry) => entry.value).toList();
+    return contentOrder
+        .asMap()
+        .entries
+        .where((entry) {
+          final index = entry.key;
+          // Always show the first segment (primary content)
+          if (index == 0) return true;
+          // Toggle for second segment
+          if (index == 1 && !showSecondSegment) return false;
+          // Toggle for third segment
+          if (index == 2 && !showThirdSegment) return false;
+          return true;
+        })
+        .map((entry) => entry.value)
+        .toList();
   }
 
   /// Checks if the current recitation is saved by the user.
