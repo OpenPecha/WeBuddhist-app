@@ -15,7 +15,7 @@ class OnboardingContinueButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: double.infinity,
+      width: MediaQuery.of(context).size.width * 0.6,
       height: 56,
       child: ElevatedButton(
         onPressed: isEnabled ? onPressed : null,

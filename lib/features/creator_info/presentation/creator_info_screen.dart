@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_pecha/core/config/locale_provider.dart';
+import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
 import 'package:flutter_pecha/features/creator_info/widgets/social_media_section.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -39,7 +39,7 @@ class CreatorInfoScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final language = ref.watch(localeProvider);
-    final currentLanguage = language?.languageCode ?? 'en';
+    final currentLanguage = language.languageCode;
     final currentCredits = credits.firstWhere(
       (credit) => credit['language'] == currentLanguage,
       orElse: () => credits.firstWhere((credit) => credit['language'] == 'en'),

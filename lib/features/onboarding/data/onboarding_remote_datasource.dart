@@ -14,7 +14,7 @@ class OnboardingRemoteDatasource {
   ///
   /// TODO: Backend implementation required
   /// Endpoint: POST /api/v1/users/me/onboarding-preferences
-  /// Body: JSON with familiarityLevel, preferredLanguage, selectedPaths
+  /// Body: JSON with  preferredLanguage, selectedPaths
   /// Returns: Success boolean
   Future<bool> saveOnboardingPreferences(OnboardingPreferences prefs) async {
     try {

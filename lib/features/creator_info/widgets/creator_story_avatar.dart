@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/widgets/cached_network_image_widget.dart';
 
 class CreatorStoryAvator extends StatelessWidget {
   const CreatorStoryAvator({super.key});
@@ -16,7 +17,8 @@ class CreatorStoryAvator extends StatelessWidget {
       children: <Widget>[
         CircleAvatar(
           radius: 22,
-          backgroundImage: NetworkImage(authorInfo['imageUrl']),
+          backgroundImage:
+              (authorInfo['imageUrl'] as String).cachedNetworkImageProvider,
         ),
         SizedBox(width: 16),
         Expanded(

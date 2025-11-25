@@ -1,6 +1,8 @@
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
+import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:screenshot/screenshot.dart';
 import 'package:share_plus/share_plus.dart';
@@ -17,6 +19,7 @@ class CreateImage extends StatefulWidget {
 
 class _CreateImageState extends State<CreateImage> {
   final screenshotController = ScreenshotController();
+  final _shareButtonKey = GlobalKey();
   bool _isSaved = false;
   Uint8List? _capturedImageBytes;
 
@@ -39,14 +42,28 @@ class _CreateImageState extends State<CreateImage> {
     await file.writeAsBytes(_capturedImageBytes!);
 
     try {
+      final sharePositionOrigin = getSharePositionOrigin(
+        context: context,
+        globalKey: _shareButtonKey,
+      );
+
       await SharePlus.instance.share(
         ShareParams(
           previewThumbnail: XFile(widget.imagePath),
           files: [XFile(file.path)],
+          sharePositionOrigin: sharePositionOrigin,
         ),
       );
     } catch (e) {
       debugPrint('Error sharing image: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Unable to share. Please try again later.'),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
     } finally {
       if (await file.exists()) {
         await file.delete();
@@ -104,6 +121,7 @@ class _CreateImageState extends State<CreateImage> {
 
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
         shape: const RoundedRectangleBorder(
@@ -114,7 +132,7 @@ class _CreateImageState extends State<CreateImage> {
         ),
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         title: Text(
-          "Create Image",
+          localizations.create_image,
           style: TextStyle(
             fontWeight: FontWeight.w600,
             fontSize: 18,
@@ -138,7 +156,7 @@ class _CreateImageState extends State<CreateImage> {
               ),
               onPressed: _captureAndSetState,
               child: Text(
-                "Save",
+                localizations.save,
                 style: TextStyle(
                   fontWeight: FontWeight.w600,
                   color: Theme.of(context).textTheme.bodyMedium?.color,
@@ -149,7 +167,7 @@ class _CreateImageState extends State<CreateImage> {
             TextButton(
               onPressed: () => Navigator.pop(context),
               child: Text(
-                "Done",
+                localizations.done,
                 style: TextStyle(
                   fontWeight: FontWeight.w600,
                   color: Theme.of(context).textTheme.bodyMedium?.color,
@@ -216,8 +234,8 @@ class _CreateImageState extends State<CreateImage> {
                           ),
                         ),
                         onPressed: _downloadImage,
-                        child: const Text(
-                          'Download Image',
+                        child: Text(
+                          localizations.download_image,
                           style: TextStyle(fontWeight: FontWeight.bold),
                         ),
                       ),
@@ -226,6 +244,7 @@ class _CreateImageState extends State<CreateImage> {
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
+                        key: _shareButtonKey,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.black,
                           foregroundColor: Colors.white,
@@ -235,8 +254,8 @@ class _CreateImageState extends State<CreateImage> {
                           ),
                         ),
                         onPressed: _shareImage,
-                        child: const Text(
-                          'Share',
+                        child: Text(
+                          localizations.share,
                           style: TextStyle(fontWeight: FontWeight.bold),
                         ),
                       ),

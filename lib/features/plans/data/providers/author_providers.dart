@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../repositories/author_repository.dart';
 import '../datasource/author_remote_datasource.dart';
 import '../../models/author/author_model.dart';
+import '../../models/plans_model.dart';
 
 // Repository provider
 final authorRepositoryProvider = Provider<AuthorRepository>((ref) {
@@ -20,6 +21,12 @@ final authorByIdFutureProvider = FutureProvider.family<AuthorModel, String>((
 ) {
   return ref.watch(authorRepositoryProvider).getAuthorById(id);
 });
+
+// Get plans by author ID provider
+final authorPlansFutureProvider =
+    FutureProvider.family<List<PlansModel>, String>((ref, authorId) {
+      return ref.watch(authorRepositoryProvider).getPlansByAuthorId(authorId);
+    });
 
 // Author state notifier for managing local state
 class AuthorState {

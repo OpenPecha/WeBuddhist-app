@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:auth0_flutter/auth0_flutter.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_pecha/features/auth/application/config_service.dart';
 import 'package:logging/logging.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -27,7 +28,6 @@ class AuthService {
     // load config from config service
     final config = ConfigService.instance;
     await config.loadConfig();
-
     // Initialize Auth0
     _auth0 = Auth0(config.auth0Domain!, config.auth0ClientId!);
 
@@ -48,13 +48,18 @@ class AuthService {
       final credentials = await _auth0
           .webAuthentication(scheme: 'org.pecha.app')
           .login(
-            useHTTPS: true,
+            // useHTTPS: true,
             parameters: parameters,
             scopes: {"openid", "profile", "email", "offline_access"},
           );
 
       // Store credentials in the credentials manager
       await _auth0.credentialsManager.storeCredentials(credentials);
+      debugPrint('✅ Credentials stored successfully');
+
+      // VERIFY STORAGE IMMEDIATELY AFTER STORING
+      final verified = await _auth0.credentialsManager.hasValidCredentials();
+      debugPrint('🔍 Verification after store: $verified');
 
       _logger.info('Login successful for connection: $connection');
       return credentials;
@@ -131,6 +136,7 @@ class AuthService {
 
   /// Force refresh ID token using refresh token (internal, no concurrency control)
   Future<String?> _refreshIdTokenInternal() async {
+    debugPrint('Refreshing ID token using refresh token');
     try {
       final storedCreds = await _auth0.credentialsManager.credentials();
 
@@ -162,12 +168,12 @@ class AuthService {
   Future<String?> refreshIdToken() async {
     // If a refresh is already in progress, wait for it
     if (_ongoingIdTokenRefresh != null) {
-      _logger.fine('Waiting for ongoing ID token refresh');
+      debugPrint('Waiting for ongoing ID token refresh');
       return await _ongoingIdTokenRefresh!;
     }
 
     // Start new refresh
-    _logger.info('Starting new ID token refresh');
+    debugPrint('Starting new ID token refresh');
     _ongoingIdTokenRefresh = _refreshIdTokenInternal();
 
     try {

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/widgets/cached_network_image_widget.dart';
 import 'package:go_router/go_router.dart';
 
 class ViewIllustration extends StatelessWidget {
@@ -23,20 +24,12 @@ class ViewIllustration extends StatelessWidget {
         ),
         title: Text(title),
       ),
-      body: ClipRRect(
-        child: Image.network(
-          imageUrl,
-          fit: BoxFit.cover,
-          width: double.infinity,
-          height: double.infinity,
-          loadingBuilder: (context, child, progress) {
-            if (progress == null) return child;
-            return const Center(child: CircularProgressIndicator());
-          },
-          errorBuilder:
-              (context, error, stackTrace) =>
-                  const Center(child: Icon(Icons.broken_image, size: 80)),
-        ),
+      body: CachedNetworkImageWidget(
+        imageUrl: imageUrl,
+        fit: BoxFit.cover,
+        width: double.infinity,
+        height: double.infinity,
+        errorWidget: const Center(child: Icon(Icons.broken_image, size: 80)),
       ),
     );
   }
