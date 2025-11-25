@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/features/onboarding/application/onboarding_provider.dart';
 import 'package:flutter_pecha/features/onboarding/presentation/onboarding_screen_1.dart';
-import 'package:flutter_pecha/features/onboarding/presentation/onboarding_screen_2.dart';
 import 'package:flutter_pecha/features/onboarding/presentation/onboarding_screen_3.dart';
 import 'package:flutter_pecha/features/onboarding/presentation/onboarding_screen_4.dart';
 import 'package:flutter_pecha/features/onboarding/presentation/onboarding_screen_5.dart';
@@ -21,7 +19,7 @@ class OnboardingWrapper extends ConsumerStatefulWidget {
 
 class _OnboardingWrapperState extends ConsumerState<OnboardingWrapper> {
   final PageController _pageController = PageController();
-  final int _totalPages = 5;
+  final int _totalPages = 4;
 
   @override
   void dispose() {
@@ -37,12 +35,14 @@ class _OnboardingWrapperState extends ConsumerState<OnboardingWrapper> {
     ref.read(onboardingProvider.notifier).goToPreviousPage();
   }
 
-  void _skipOnboarding() {
-    _completeOnboarding();
-  }
+  Future<void> _completeOnboarding() async {
+    // Submit onboarding preferences and mark as complete
+    await ref.read(onboardingProvider.notifier).submitPreferences();
 
-  void _completeOnboarding() {
-    context.go(RouteConfig.login);
+    // Navigate to home screen
+    if (mounted) {
+      context.go(RouteConfig.home);
+    }
   }
 
   @override
@@ -84,29 +84,11 @@ class _OnboardingWrapperState extends ConsumerState<OnboardingWrapper> {
             },
             children: [
               OnboardingScreen1(onNext: _nextPage),
-              OnboardingScreen2(onNext: _nextPage, onBack: _previousPage),
               OnboardingScreen3(onNext: _nextPage, onBack: _previousPage),
               OnboardingScreen4(onNext: _nextPage, onBack: _previousPage),
               OnboardingScreen5(onComplete: _completeOnboarding),
             ],
           ),
-          // Skip button (top right) - only show on first 4 screens
-          if (currentPage < _totalPages - 1)
-            Positioned(
-              top: MediaQuery.of(context).padding.top + 16,
-              right: 24,
-              child: TextButton(
-                onPressed: _skipOnboarding,
-                child: const Text(
-                  'Skip',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                    // color: AppColors.textSecondary,
-                  ),
-                ),
-              ),
-            ),
         ],
       ),
     );

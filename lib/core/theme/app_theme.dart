@@ -8,18 +8,26 @@
 // - Font weights: Light (300), Regular (400), Medium (500), Semi Bold (600), Bold (700), Extra Bold (800)
 // - Primary font: System default (Roboto on Android, SF Pro on iOS)
 // - Accent font: Serif fallback for special headings
-// - Tibetan: MonlamTibetan (existing implementation)
+// - Tibetan: Atisha (local) for content and Noto Serif Tibetan for system UI
+// - English: Inter for system UI and EB Garamond for content
+// - Chinese: Inter for system UI and EB Garamond for content
 
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 import 'app_colors.dart';
+import 'font_config.dart';
 
 class AppTheme {
   static ThemeData lightTheme([Locale? locale]) {
+    final fontConfig = _getFontConfiguration(locale, Brightness.light);
+    final systemFontFamily = fontConfig.fontFamily;
+    final contentFontFamily = getFontFamily(locale?.languageCode ?? 'en');
     final baseTheme = ThemeData(
       useMaterial3: true,
       brightness: Brightness.light,
-      fontFamily: _fontFamilyForLocale(locale),
-      scaffoldBackgroundColor: AppColors.surfaceLight,
+      fontFamily: systemFontFamily,
+      textTheme: fontConfig.textTheme,
+      scaffoldBackgroundColor: AppColors.surfaceWhite,
 
       // Color scheme based on Figma design
       colorScheme: const ColorScheme.light(
@@ -30,24 +38,27 @@ class AppTheme {
         onSecondary: AppColors.onPrimary,
         error: AppColors.error,
         surface: AppColors.surfaceLight,
-        onSurface: AppColors.textPrimaryLight,
+        onSurface: AppColors.textPrimary,
+        surfaceContainer: AppColors.goldLight, // used for container bgcolor
+        outline: AppColors.goldAccent, // used for container border color
       ),
 
       // AppBar with light background
-      appBarTheme: const AppBarTheme(
+      appBarTheme: AppBarTheme(
         backgroundColor: AppColors.surfaceLight,
         foregroundColor: AppColors.textPrimary,
         elevation: 0,
-        iconTheme: IconThemeData(color: AppColors.textPrimary),
-        titleTextStyle: TextStyle(
-          color: AppColors.textPrimary,
-          fontSize: 20,
-          fontWeight: FontWeight.w600,
-        ),
+        iconTheme: const IconThemeData(color: AppColors.textPrimary),
+        titleTextStyle:
+            (fontConfig.textTheme?.headlineSmall ?? const TextStyle()).copyWith(
+              color: AppColors.textPrimary,
+              fontSize: 20,
+              fontWeight: FontWeight.w600,
+            ),
       ),
 
       // Card theme with gold accent colors
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         color: AppColors.goldLight,
         elevation: 0,
         shape: RoundedRectangleBorder(
@@ -65,7 +76,10 @@ class AppTheme {
 
       // Input fields with rounded corners
       inputDecorationTheme: InputDecorationTheme(
-        hintStyle: const TextStyle(color: AppColors.textSecondary),
+        hintStyle: TextStyle(
+          color: AppColors.textSecondary,
+          fontFamily: contentFontFamily,
+        ),
         prefixIconColor: AppColors.greyMedium,
         fillColor: AppColors.primarySurface,
         filled: true,
@@ -83,7 +97,7 @@ class AppTheme {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: AppColors.primary, width: 2),
+          borderSide: BorderSide(color: AppColors.grey500, width: 2),
         ),
       ),
 
@@ -210,10 +224,14 @@ class AppTheme {
   }
 
   static ThemeData darkTheme([Locale? locale]) {
+    final fontConfig = _getFontConfiguration(locale, Brightness.dark);
+    final systemFontFamily = fontConfig.fontFamily;
+    final contentFontFamily = getFontFamily(locale?.languageCode ?? 'en');
     final baseTheme = ThemeData(
       useMaterial3: true,
       brightness: Brightness.dark,
-      fontFamily: _fontFamilyForLocale(locale),
+      fontFamily: systemFontFamily,
+      textTheme: fontConfig.textTheme,
       scaffoldBackgroundColor: AppColors.backgroundDark,
 
       // Color scheme based on Figma dark mode design
@@ -226,23 +244,26 @@ class AppTheme {
         error: AppColors.error,
         surface: AppColors.surfaceDark,
         onSurface: AppColors.textPrimaryDark,
+        surfaceContainer: AppColors.cardDark, // used for container bgcolor
+        outline: AppColors.cardBorderDark, // used for container border color
       ),
 
       // AppBar with dark background
-      appBarTheme: const AppBarTheme(
+      appBarTheme: AppBarTheme(
         backgroundColor: AppColors.backgroundDark,
         foregroundColor: AppColors.textPrimaryDark,
         elevation: 0,
-        iconTheme: IconThemeData(color: AppColors.textPrimaryDark),
-        titleTextStyle: TextStyle(
-          color: AppColors.textPrimaryDark,
-          fontSize: 20,
-          fontWeight: FontWeight.w600,
-        ),
+        iconTheme: const IconThemeData(color: AppColors.textPrimaryDark),
+        titleTextStyle:
+            (fontConfig.textTheme?.headlineSmall ?? const TextStyle()).copyWith(
+              color: AppColors.textPrimaryDark,
+              fontSize: 20,
+              fontWeight: FontWeight.w600,
+            ),
       ),
 
       // Card theme with dark background and border
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         color: AppColors.cardDark,
         elevation: 0,
         shape: RoundedRectangleBorder(
@@ -260,7 +281,10 @@ class AppTheme {
 
       // Input fields with dark background
       inputDecorationTheme: InputDecorationTheme(
-        hintStyle: const TextStyle(color: AppColors.textSubtleDark),
+        hintStyle: TextStyle(
+          color: AppColors.textSubtleDark,
+          fontFamily: contentFontFamily,
+        ),
         prefixIconColor: AppColors.grey600,
         fillColor: AppColors.surfaceVariantDark,
         filled: true,
@@ -278,7 +302,7 @@ class AppTheme {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: AppColors.primaryDark, width: 2),
+          borderSide: const BorderSide(color: AppColors.greyDark, width: 2),
         ),
       ),
 
@@ -410,10 +434,24 @@ class AppTheme {
     return baseTheme;
   }
 
-  static String? _fontFamilyForLocale(Locale? locale) {
-    if (locale?.languageCode == 'bo') {
-      return 'MonlamTibetan';
-    }
-    return 'Inter'; // Default font
+  static _FontConfiguration _getFontConfiguration(
+    Locale? locale,
+    Brightness brightness,
+  ) {
+    // Get system font configuration for the locale
+    final textTheme = AppFontConfig.getTextTheme(
+      locale?.languageCode,
+      FontType.system,
+      brightness,
+    );
+
+    return _FontConfiguration(fontFamily: null, textTheme: textTheme);
   }
+}
+
+class _FontConfiguration {
+  final String? fontFamily;
+  final TextTheme? textTheme;
+
+  _FontConfiguration({required this.fontFamily, required this.textTheme});
 }

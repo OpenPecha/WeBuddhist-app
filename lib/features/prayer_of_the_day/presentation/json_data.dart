@@ -1,371 +1,174 @@
 import 'package:flutter_pecha/features/plans/models/plan_subtasks_model.dart';
 
-const List<Map<String, String>> prayerOfTheDayJson = [
+
+final List<PlanSubtasksModel> subtask = [
+  PlanSubtasksModel(
+    id: "1",
+    contentType: "TEXT",
+    content:
+        "Avert enemies, harm, and epidemics,\nPacify all conflicts, expand bodily and mental bliss,\nIncrease wealth, dominion, grain, and lifespan,\nAccomplish all desired aims according to one's wishes,\nAnd always protect and guard without negligence.",
+    displayOrder: 1,
+  ),
+  PlanSubtasksModel(
+    id: "2",
+    contentType: "VIDEO",
+    content: "https://www.youtube.com/watch?v=fusKR990UyE",
+    displayOrder: 2,
+  ),
+  PlanSubtasksModel(
+    id: "3",
+    contentType: "VIDEO",
+    content: "https://youtube.com/shorts/k4kzbi48SVc",
+    displayOrder: 3,
+  ),
+  PlanSubtasksModel(
+    id: "4",
+    contentType: "VIDEO",
+    content: "https://www.youtube.com/watch?v=JoyGCOrgPjY",
+    displayOrder: 4,
+  ),
+  PlanSubtasksModel(
+    id: "5",
+    contentType: "IMAGE",
+    content:
+        "https://drive.google.com/uc?export=view&id=19dDFtkhowkKg_mtTOGJXp9X_B4B_A6G7",
+    displayOrder: 5,
+  ),
+];
+
+const s3AudioUrl = "https://s3.ap-south-1.amazonaws.com/monlam.ai.stt/Garchen+Rinpoche+STT/guru-yoga-2009/01-Lama.wav";
+
+const List<Map<String, String>> tibetanAudioJson = [
   {
-    "text": "I'm am Jud I'm the CEO and founder of Replit",
-    "startTime": "00:00",
-    "endTime": "00:02",
-  },
-  {
-    "text": "two months ago we introduced agent",
-    "startTime": "00:02",
-    "endTime": "00:05",
-  },
-  {
-    "text": "agent is a fully automated software",
-    "startTime": "00:05",
-    "endTime": "00:07",
-  },
-  {
-    "text": "developer that runs in your browser",
-    "startTime": "00:07",
-    "endTime": "00:09",
-  },
-  {
-    "text": "agent can set up a development",
-    "startTime": "00:09",
-    "endTime": "00:10",
-  },
-  {
-    "text": "environment can install packages and set",
-    "startTime": "00:10",
-    "endTime": "00:13",
-  },
-  {
-    "text": "up a database for you it can take you",
+    "text": "ད་འོ་ན། ཆོས་གྲོགས་རྣམ་པ་ལ། དེ་ནས་ང་ཡིས",
     "startTime": "00:13",
-    "endTime": "00:15",
+    "endTime": "00:17",
   },
   {
-    "text": "all the way from an idea to an app since",
-    "startTime": "00:15",
-    "endTime": "00:19",
+    "text":
+        "ཨེ་དེ་ནས་བླ་མའི་རྣལ་འབྱོར་གྱི་སྒོ་ནས་རང་གིས་གང་ཤེས་ཤེས་ཞུ་དགོས་ཀྱི་ཡོད་རེད་ཟེར།",
+    "startTime": "00:17",
+    "endTime": "00:21",
   },
   {
-    "text": "we announced agent we've improved it a",
-    "startTime": "00:19",
-    "endTime": "00:20",
-  },
-  {
-    "text": "ton it is faster and more reliable so",
-    "startTime": "00:20",
-    "endTime": "00:23",
-  },
-  {
-    "text": "today I'm excited to announce that agent",
-    "startTime": "00:23",
-    "endTime": "00:25",
-  },
-  {
-    "text": "is out of Early Access and I have a",
-    "startTime": "00:25",
+    "text": "དེ་ནས་ཡིན་ན་ད་ལྟ། ཨ། ཆོས་གྲོགས་གསར་རྙིང་རྣམ་པ་སྣ་ཚོགས་ཡོད་རེད།",
+    "startTime": "00:22",
     "endTime": "00:27",
   },
+  {"text": "ཨེ་ད་རང་གི་", "startTime": "00:28", "endTime": "00:31"},
   {
-    "text": "major update to share with you",
-    "startTime": "00:27",
-    "endTime": "00:32",
-  },
-  {
-    "text": "I want to show you what it's like to",
+    "text":
+        "ཐོས་བསམ་གྱི་སྦྱངས་པ་གང་ཞེ་དྲག་ཡོད་མ་རེད་ད། རང་གི་ཉམས་མྱོང་ལྟར་དུ་ཞུ་གི་ཡོད་རེད། འགྲིག་ས་ནས་འགྲིག་ས་རེད། མ་འགྲིག་ས་ནས་འདི་ལ་དགོངས་དག་ཞུ་འདི་ན་མཁས་པ་མང་པོ་བཞུགས་ཡོད་རེད་ཁོང་རྣམ་པས་ཡོ་བཅོས་གནང་དགོས་རེད་ཟེར། དེ་ནས་དེ་ཡང་ད་ལྟ་བླ་མ་ཞེས་པའི་མིང་དེ་འདོགས་ཀྱི་ཡོད་རེད། ད་དེ་ལ་ང་ཚོ་གླུ་སྐད་ལྟ་བུ་བྱས་ན།  བླ་ནི་སེམས་ཅན་ཀུན་གྱི་བླ། །མ་ནི་སེམས་ཅན་ཀུན་གྱི་མ། །རྫས།",
     "startTime": "00:32",
-    "endTime": "00:33",
-  },
-  {
-    "text": "build with a new agent I'll go to repet",
-    "startTime": "00:33",
-    "endTime": "00:36",
-  },
-  {
-    "text": "and enter my prompt you don't have to",
-    "startTime": "00:36",
-    "endTime": "00:38",
-  },
-  {
-    "text": "worry about entering the perfect prompt",
-    "startTime": "00:38",
-    "endTime": "00:40",
-  },
-  {
-    "text": "cuz we can enhance it for you so now the",
-    "startTime": "00:40",
-    "endTime": "00:41",
-  },
-  {
-    "text": "agent is setting up the development",
-    "startTime": "00:41",
-    "endTime": "00:43",
-  },
-  {
-    "text": "environment it's adding a database um it",
-    "startTime": "00:43",
-    "endTime": "00:46",
-  },
-  {
-    "text": "is actually building a full stack",
-    "startTime": "00:46",
-    "endTime": "00:48",
-  },
-  {
-    "text": "application uh took a screenshot figured",
-    "startTime": "00:48",
-    "endTime": "00:50",
-  },
-  {
-    "text": "out that there's an error in the app and",
-    "startTime": "00:50",
-    "endTime": "00:52",
-  },
-  {
-    "text": "fixed it itself agent now creates more",
-    "startTime": "00:52",
-    "endTime": "00:55",
-  },
-  {
-    "text": "beautiful apps powered by react agent",
-    "startTime": "00:55",
     "endTime": "00:57",
   },
   {
-    "text": "finished and we have a fully functioning",
-    "startTime": "00:57",
-    "endTime": "00:59",
-  },
-  {"text": "prototype", "startTime": "00:59", "endTime": "01:01"},
-  {
-    "text": "and we're going to go here and add a",
-    "startTime": "01:01",
-    "endTime": "01:03",
-  },
-  {
-    "text": "notes it's crucial to point out that",
-    "startTime": "01:03",
-    "endTime": "01:05",
-  },
-  {
-    "text": "persistance is fully built in the notes",
-    "startTime": "01:05",
+    "text":
+        "དེ་ནས་བླ་སེམས་ཅན་ཀུན་གྱི་བླ་ཞེ་ན། ག་རེ་རེད། སེམས་ཅན་ཐམས་ཅད་ཀི་ཡིད་ལ་གནས་དགོས་རྒྱུ། བླ་ཞེས་པ་དེ་ཡིད་རེད། ཡིད་ལ་གནས་ཀྱི་ཡོད་རེད།",
+    "startTime": "00:58",
     "endTime": "01:07",
   },
   {
-    "text": "are stored in the database you don't",
+    "text":
+        "དེའི་ནང་ནས་ཡ།  ཤེས་རབ་དང་ལྡན་པ་སྐལ་པ་དང་ལྡན་པ་ཐམས་ཅད། ལྷག་པར་དུ་དེ་ལ། སེམས་ལ་གནས་རྒྱུ་ཞིག་ཡིན་པ་རེད་རྫས།",
     "startTime": "01:07",
-    "endTime": "01:09",
+    "endTime": "01:16",
   },
   {
-    "text": "have to worry about any of that all",
-    "startTime": "01:09",
-    "endTime": "01:10",
+    "text": "དཔེ་ཆ་བཞག་ན་ད་ད་ལྟ་ང་ཚོ།",
+    "startTime": "01:16",
+    "endTime": "01:19",
   },
   {
-    "text": "right so normally I might continue",
-    "startTime": "01:10",
-    "endTime": "01:13",
+    "text":
+        "མཁན་པོ་འཇིགས་མེད་ཕུན་ཚོགས་ཀྱིས་གསུངས་ཡོད་རེད། ཨོ་ད་ད་ལྟ་འཛམ་བུ་གླིང་ན། ཨ། དེ་ནས་བྱང་ཆུབ་སེམས་པ། གཅིག་མཚན་གསོལ་དགོས་ན་གང་རེད་དེ། རྒྱལ་བ་ཐམས་ཅད་མཁྱེན་པ་རེད་ཟེར།",
+    "startTime": "01:21",
+    "endTime": "01:32",
   },
   {
-    "text": "prompting the agents but today I want to",
-    "startTime": "01:13",
-    "endTime": "01:15",
-  },
-  {
-    "text": "show you something new so I'm going to",
-    "startTime": "01:15",
-    "endTime": "01:17",
-  },
-  {
-    "text": "go here to a new feature called",
-    "startTime": "01:17",
-    "endTime": "01:20",
-  },
-  {
-    "text": "assistant and put in the prompts we want",
-    "startTime": "01:20",
-    "endTime": "01:22",
-  },
-  {
-    "text": "to create a dark mode and as you can see",
-    "startTime": "01:22",
-    "endTime": "01:25",
-  },
-  {
-    "text": "it is editing the files and adding dark",
-    "startTime": "01:25",
-    "endTime": "01:28",
-  },
-  {
-    "text": "mode uh I can go into the individual",
-    "startTime": "01:28",
-    "endTime": "01:30",
-  },
-  {
-    "text": "files that changed uh and look at what",
-    "startTime": "01:30",
-    "endTime": "01:33",
-  },
-  {
-    "text": "what happened the assistant is going to",
+    "text":
+        "ཁོང་དེ་ནས་དགེ་འདུན་ཁྲི་ཡི་མངའ་བདག་རེད། དེ་གླེང་དུས་ནས་ཏིག་ཙི་བསོད་ནམས་དང་ཤེས་རབ་ལྡན་པ་ཐམས་ཅད་ཀྱི་རྒྱུད་ལ། འཛམ་བུ་གླིང་གི་ཆོས་ལུགས་གང་ཡིན་པ། མི་རིགས་གང་ཡིན་པ་དེ་ཐམས་ཅད་ཀྱི་དེ་ནས་ད་ལྟ།",
     "startTime": "01:33",
-    "endTime": "01:35",
+    "endTime": "01:46",
   },
   {
-    "text": "make all those changes for me I don't",
-    "startTime": "01:35",
-    "endTime": "01:37",
+    "text": "རྒྱལ་བ་ཐམས་ཅད་མཁྱེན་པ་རྫས་ན་དེ་ནས། ཨ། ཕལ་ཆེར་",
+    "startTime": "01:46",
+    "endTime": "01:50",
   },
   {
-    "text": "have to edit any code finally we want to",
-    "startTime": "01:37",
-    "endTime": "01:39",
-  },
-  {
-    "text": "add uh search to our Notes app as with",
-    "startTime": "01:39",
-    "endTime": "01:42",
-  },
-  {
-    "text": "agents uh with assistants you can attach",
-    "startTime": "01:42",
-    "endTime": "01:45",
-  },
-  {
-    "text": "images or mention URLs so again I'm",
-    "startTime": "01:45",
-    "endTime": "01:48",
-  },
-  {
-    "text": "going to create a new chats and watch it",
-    "startTime": "01:48",
-    "endTime": "01:51",
-  },
-  {
-    "text": "edit the files if I didn't like the changes I can",
+    "text": "དེ་ནས་སེམས་ལ་གནས་རྒྱུ་ཡིན་པ་རེད། ཨོ་རེད།",
     "startTime": "01:51",
     "endTime": "01:54",
   },
   {
-    "text": "go here and just hit roll back as you",
-    "startTime": "01:54",
-    "endTime": "01:57",
+    "text":
+        "དེ་ག་རེ་ཡིས་གནས་དགོས་རེད། སེམས་ལ་གནས་པ་དེ་ལ་བླ་བརྫས། རྟག་པར་དྲན་དགོས་པ་དེ་རྒྱུ་ཞིག་རེད་བརྫས།",
+    "startTime": "01:55",
+    "endTime": "02:01",
   },
   {
-    "text": "can see uh agent is very useful for",
-    "startTime": "01:57",
-    "endTime": "01:59",
+    "text":
+        "དེ་བྱེད་དགོས་པའི་རྒྱུ་ག་རེ་རེད་ཟེར་ན། ཨོ་ཁོས་སེམས་ཅན་ཐམས་ཅད་ལ་མ་དང་བུའི་འདུ་ཤེས་ཡོད་རེད་ཟེར། སེམས་ཅན་ཐམས་ཅད་ཀྱི་ཨ་མ་ནང་བཞིན་བརྩེ་བ་ཆེན་པོ་ཡོད་རེད་ཟེར། དེ་བརྩེ་བ་ཆེན་པོ་ཡོད་ན། དེ་ནས་པུ་གུ་ཡང་མ་ལ་གདུང་མ་ཡོད་རེད། དཔེ་དེ་ལྟ་བུ་དེ་ནས་བརྩེ་བའི་ཡོན་ཏན་རེད་ཟེར། བླ་མ་ཞེས་པ་དེ་དེ་ནས། ཨ། དེ་ནས་བླ་མ་གང་ནས་བྱུང་། བླ་མ་དེ་གང་ནས་བྱུང་ཟེར་ན། བླ་མ་དེ་སངས་རྒྱས་ལས་བྱུང་ཡོད་རེད་ཟེར།",
+    "startTime": "02:02",
+    "endTime": "02:28",
   },
   {
-    "text": "making Broad odd changes whereas assistant is best to use",
-    "startTime": "01:59",
-    "endTime": "02:04",
-  },
-  {
-    "text": "when you're iterating on your app",
-    "startTime": "02:04",
-    "endTime": "02:06",
-  },
-  {
-    "text": "quickly assistant is also faster more",
-    "startTime": "02:06",
-    "endTime": "02:08",
-  },
-  {
-    "text": "lightweight and about five times cheaper",
-    "startTime": "02:08",
-    "endTime": "02:11",
-  },
-  {
-    "text": "as always uh repet can run on your",
-    "startTime": "02:11",
-    "endTime": "02:14",
-  },
-  {
-    "text": "desktop computer it can run on your",
-    "startTime": "02:14",
-    "endTime": "02:16",
-  },
-  {
-    "text": "phone or your iPads and we can also",
-    "startTime": "02:16",
-    "endTime": "02:19",
-  },
-  {
-    "text": "deploy the app in just a couple of",
-    "startTime": "02:19",
-    "endTime": "02:21",
-  },
-  {
-    "text": "clicks we used agent to create an app we",
-    "startTime": "02:21",
-    "endTime": "02:25",
-  },
-  {
-    "text": "use assistant to iterate on it I went",
-    "startTime": "02:25",
-    "endTime": "02:27",
-  },
-  {
-    "text": "from an idea to an app without writing a",
-    "startTime": "02:27",
-    "endTime": "02:29",
-  },
-  {
-    "text": "single line code our mission is to",
-    "startTime": "02:29",
-    "endTime": "02:31",
-  },
-  {
-    "text": "enable a billion software creators and",
-    "startTime": "02:31",
+    "text": "སངས་རྒྱས་གང་ལས་བྱུང་རེད། སངས་རྒྱས་སེམས་ཅན་ལས་བྱུང་ཡོད་རེད་ཟེར།",
+    "startTime": "02:30",
     "endTime": "02:34",
   },
   {
-    "text": "today we took another step towards that",
-    "startTime": "02:34",
-    "endTime": "02:36",
+    "text":
+        "སྒང་ནས་སེམས་ཅན་རྣམས་ནི་ག་རེ་རེ་བྱུང་རེད་བརྫས་ན། ད་ངས་རྒྱལ་སྲས་ལག་ལེན་སོ་བདུན་མ་གཏོགས་གང་ཤེས་ཀྱི་མ་རེད། དེ་ཡིན་དུས་རྫོགས་པའི་སངས་གཞན་ཕན་སེམས་ལས་འཁྲུངས་རེད། སེམས་ཅན་གྱི་ནང་ནས་བྱམས་རྗེ་ཆེན་པོ་དེ་རྒྱུད་ལ་འཁྲུངས་རེད། དེ་གིས་རང་གི་བདག་འཛིན་གྱི་དེ་ནས་འཆིང་བ་ལས་གྲོལ་ནས། གཉིས་སུ་འཛིན་པའི་ཤེས་པ་ལས་གྲོལ་ནས་དེ་ནས་",
+    "startTime": "02:35",
+    "endTime": "02:54",
   },
   {
-    "text": "thank you and I'm thrilled to see where",
-    "startTime": "02:36",
-    "endTime": "02:38",
+    "text":
+        "གཉིས་སུ་འཛིན་པའི་ཤེས་པ་ཐམས་སངས་ནས། དེ་ནས་གཉིས་སུ་མེད་པའི་ཡེ་ཤེས་དེ་རྒྱས་དེ་ནས། སངས་རྒྱས་བརྫས།",
+    "startTime": "02:56",
+    "endTime": "03:02",
   },
   {
-    "text": "you going to build with it",
-    "startTime": "02:38",
-    "endTime": "02:42",
+    "text":
+        "དེ་ནས་སངས་རྒྱས་སེམས་ཅན་ལས་བྱུང་ཡོད་རེད་ཟེར། དཔེར་ན་མེ་ཏོག་ལས་ས་བོན་བྱུང་། ས་བོན་ལས་མེ་ཏོག་བྱུང་། འདི་ལྟ་བུ་དེ་ཤེས་ན་",
+    "startTime": "03:02",
+    "endTime": "03:10",
+  },
+  {
+    "text": "དེ་ནས་སངས་རྒྱས་རྒྱུ་དེ་གང་རེད་རྫས་ན། དཔེར་ན་ད་ལྟ་",
+    "startTime": "03:12",
+    "endTime": "03:16",
+  },
+  {
+    "text":
+        "ད་གོང་ནས་བཤད་པ་ནང་བཞིན། བྱང་ཆུབ་ཀྱི་སེམས་རིན་པོ་ཆེ་དེ་ལ་བརྟེན་ནས།སངས་རྒྱུ་དེ་ག་རེ་སངས། རྒྱས་རྒྱུ་དེ་ག་རེ་རྒྱས།",
+    "startTime": "03:16",
+    "endTime": "03:24",
+  },
+  {
+    "text":
+        "ཨོ། བྱང་ཆུབ་དེ་བདག་ཏུ་འཛིན་པ་དང་། གཉིས་སུ་འཛིན་པའི། བྱང་ཆུབ་སེམས་བསླབ་པ་གཉིས་ལ་བརྟེན་ནས་དེ་ནས་སངས་རྒྱས་ཆགས་ཡོད་པ་རེད་ཟེར།",
+    "startTime": "03:25",
+    "endTime": "03:33",
+  },
+  {
+    "text":
+        "དང་པོ། ཀུན་རྫོབ་བྱང་ཆུབ་སེམས་རིན་པོ་ཆེ་རྒྱུད་ལ་འཁྲུངས་ནས། འོ་རེད། བདག་གཅེས་འཛིན་གྱི་བློ་ཐམས་ཅད་སངས་ནས་གཞན་ཕན་གྱི་བློ་རྒྱ་ཆེན་པོ། ཚད་མེད་པ་བཞི་པོའི་བློ་དེ། རྒྱུད་ལ་སྐྱེས་ནས། དེ་ནས་ཚད་མེད་པ་བཞིའི་བློ་ལ་བརྟེན་ནས། ཨུ། དེ་ནས་གཉིས་སུ་འཛིན་པའི་ཤེས་པ་ཐམས་ཅད་སངས་ནས། དེ་ནས་གཉིས་སུ་མེད་པའི་ཡེ་ཤེས། དེ་ནས་འཁོར་འདས་དབྱེར་མེད་ཀྱི་དཔེར་ན་",
+    "startTime": "03:34",
+    "endTime": "03:58",
+  },
+  {
+    "text":
+        "དཔེར་ན་སངས་ཟེར་ན་གཉིས་སུ་འཛིན་པ་ཐམས་ཅད། རང་གི་སེམས་བདེ་གཤེགས་སྙིང་པོ་ལས་འཛིན་པ་ཐམས་ཅད་སངས་སོང་བ། རྒྱས་ཟེར་ན་སེམས་བདེར་གཤེགས་སྙིང་པོའི་རང་བཞིན་དེ་དེ་ནས་",
+    "startTime": "04:00",
+    "endTime": "04:09",
+  },
+  {
+    "text":
+        "ནམ་མཁས་གར་ཁྱབ་ལ་ཁྱབ་བསྡད་པའི་དཔེ་ཡིན་པ་རེད། ཆོས་སྐུ་མཁའ་ལྟ་བུ་གསུངས།",
+    "startTime": "04:09",
+    "endTime": "04:14",
   },
 ];
-
-
-  final List<PlanSubtasksModel> subtask = [
-    PlanSubtasksModel(
-      id: "1",
-      contentType: "TEXT",
-      content:
-          "Avert enemies, harm, and epidemics,\nPacify all conflicts, expand bodily and mental bliss,\nIncrease wealth, dominion, grain, and lifespan,\nAccomplish all desired aims according to one's wishes,\nAnd always protect and guard without negligence.",
-      displayOrder: 1,
-    ),
-    PlanSubtasksModel(
-      id: "2",
-      contentType: "VIDEO",
-      content: "https://www.youtube.com/watch?v=fusKR990UyE",
-      displayOrder: 2,
-    ),
-    PlanSubtasksModel(
-      id: "3",
-      contentType: "VIDEO",
-      content: "https://youtube.com/shorts/k4kzbi48SVc",
-      displayOrder: 3,
-    ),
-    PlanSubtasksModel(
-      id: "4",
-      contentType: "VIDEO",
-      content: "https://www.youtube.com/watch?v=JoyGCOrgPjY",
-      displayOrder: 4,
-    ),
-    PlanSubtasksModel(
-      id: "5",
-      contentType: "IMAGE",
-      content:
-          "https://drive.google.com/uc?export=view&id=19dDFtkhowkKg_mtTOGJXp9X_B4B_A6G7",
-      displayOrder: 5,
-    ),
-  ];

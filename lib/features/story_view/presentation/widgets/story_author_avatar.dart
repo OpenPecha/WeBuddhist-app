@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/widgets/cached_network_image_widget.dart';
 import 'package:flutter_pecha/features/plans/models/author/author_dto_model.dart';
 import 'package:flutter_pecha/features/plans/presentation/author_detail_screen.dart';
 
@@ -12,6 +13,7 @@ class StoryAuthorAvatar extends StatelessWidget {
     if (author == null) {
       return const SizedBox.shrink();
     }
+    final authorId = author!.id;
 
     return Positioned(
       top: 0,
@@ -37,7 +39,7 @@ class StoryAuthorAvatar extends StatelessWidget {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => AuthorDetailScreen(author: author!),
+                builder: (context) => AuthorDetailScreen(authorId: authorId),
               ),
             );
           },
@@ -47,16 +49,14 @@ class StoryAuthorAvatar extends StatelessWidget {
               CircleAvatar(
                 radius: 22,
                 backgroundImage:
-                    author!.imageUrl.isNotEmpty
-                        ? NetworkImage(author!.imageUrl)
+                    author!.authorImageThumbnail?.isNotEmpty ?? false
+                        ? author!
+                            .authorImageThumbnail!
+                            .cachedNetworkImageProvider
                         : null,
                 child:
-                    author!.imageUrl.isEmpty
-                        ? const Icon(
-                          Icons.person,
-                          color: Colors.white,
-                          size: 24,
-                        )
+                    author!.authorImageThumbnail?.isEmpty ?? true
+                        ? Icon(Icons.person, color: Colors.white, size: 24)
                         : null,
               ),
               const SizedBox(width: 16),

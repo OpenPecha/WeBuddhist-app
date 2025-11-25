@@ -1,8 +1,10 @@
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_pecha/features/plans/models/plan_progress_model.dart';
-import 'package:flutter_pecha/features/plans/models/response/plan_list_response_model.dart';
+import 'package:flutter_pecha/features/plans/models/response/user_plan_day_detail_response.dart';
+import 'package:flutter_pecha/features/plans/models/response/user_plan_list_response_model.dart';
 import 'package:http/http.dart' as http;
 
 class UserPlansRemoteDatasource {
@@ -12,18 +14,37 @@ class UserPlansRemoteDatasource {
   UserPlansRemoteDatasource({required this.client});
 
   // get user plans by user id
-  Future<PlanListResponseModel> getUserPlansByUserId() async {
+  Future<UserPlanListResponseModel> fetchUserPlans({
+    required String language,
+    int? skip,
+    int? limit,
+  }) async {
     try {
-      final response = await client.get(Uri.parse('$baseUrl/users/me/plans'));
+      final queryParams = <String, String>{'language': language};
+
+      if (skip != null) {
+        queryParams['skip'] = skip.toString();
+      }
+      if (limit != null) {
+        queryParams['limit'] = limit.toString();
+      }
+
+      final response = await client.get(
+        Uri.parse(
+          '$baseUrl/users/me/plans',
+        ).replace(queryParameters: queryParams),
+      );
 
       if (response.statusCode == 200) {
         final decoded = utf8.decode(response.bodyBytes);
         final jsonData = json.decode(decoded);
-        return PlanListResponseModel.fromJson(jsonData);
+        return UserPlanListResponseModel.fromJson(jsonData);
       } else {
+        debugPrint('Failed to load user plans: ${response.statusCode}');
         throw Exception('Failed to load user plans: ${response.statusCode}');
       }
     } catch (e) {
+      debugPrint('Error in fetchUserPlans: $e');
       throw Exception('Failed to load user plans: $e');
     }
   }
@@ -38,12 +59,13 @@ class UserPlansRemoteDatasource {
         body: body,
         headers: {'Content-Type': 'application/json'},
       );
-      if (response.statusCode == 201) {
+      if (response.statusCode == 204) {
         return true;
       } else {
         return false;
       }
     } catch (e) {
+      debugPrint('Failed to enroll user to plan: $e');
       throw Exception('Failed to enroll user to plan: $e');
     }
   }
@@ -68,6 +90,101 @@ class UserPlansRemoteDatasource {
       }
     } catch (e) {
       throw Exception('Failed to load user plan progress details: $e');
+    }
+  }
+
+  // fetch user plan day content or details
+  Future<UserPlanDayDetailResponse> fetchUserPlanDayContent(
+    String planId,
+    int dayNumber,
+  ) async {
+    try {
+      final response = await client.get(
+        Uri.parse('$baseUrl/users/me/plan/$planId/days/$dayNumber'),
+      );
+      if (response.statusCode == 200) {
+        final decoded = utf8.decode(response.bodyBytes);
+        final jsonData = json.decode(decoded);
+        return UserPlanDayDetailResponse.fromJson(jsonData);
+      } else {
+        throw Exception(
+          'Failed to load user plan day content: ${response.statusCode}',
+        );
+      }
+    } catch (e) {
+      debugPrint('Failed to load user plan day content: $e');
+      throw Exception('Failed to load user plan day content: $e');
+    }
+  }
+
+  // sub tasks completion post request
+  Future<bool> completeSubTask(String subTaskId) async {
+    try {
+      final uri = Uri.parse('$baseUrl/users/me/sub-tasks/$subTaskId/complete');
+      final response = await client.post(
+        uri,
+        headers: {'Content-Type': 'application/json'},
+      );
+      if (response.statusCode == 204) {
+        return true;
+      } else {
+        return false;
+      }
+    } catch (e) {
+      debugPrint('Failed to complete sub tasks: $e');
+      throw Exception('Failed to complete sub tasks: $e');
+    }
+  }
+
+  // task completion post request
+  Future<bool> completeTask(String taskId) async {
+    try {
+      final uri = Uri.parse('$baseUrl/users/me/tasks/$taskId/complete');
+      final response = await client.post(
+        uri,
+        headers: {'Content-Type': 'application/json'},
+      );
+      if (response.statusCode == 204) {
+        return true;
+      } else {
+        return false;
+      }
+    } catch (e) {
+      debugPrint('Failed to complete task: $e');
+      throw Exception('Failed to complete task: $e');
+    }
+  }
+
+  // delete task request
+  Future<bool> deleteTask(String taskId) async {
+    try {
+      final uri = Uri.parse('$baseUrl/users/me/task/$taskId');
+      final response = await client.delete(uri);
+      if (response.statusCode == 204) {
+        return true;
+      } else {
+        return false;
+      }
+    } catch (e) {
+      debugPrint('Failed to delete task: $e');
+      throw Exception('Failed to delete task: $e');
+    }
+  }
+
+  // unenroll from plan request
+  Future<bool> unenrollFromPlan(String planId) async {
+    try {
+      final uri = Uri.parse('$baseUrl/users/me/plans/$planId');
+      final response = await client.delete(uri);
+      if (response.statusCode == 204) {
+        return true;
+      } else {
+        debugPrint('Failed to unenroll from plan: ${response.statusCode}');
+        return false;
+      }
+    } catch (e) {
+      debugPrint('Failed to unenroll from plan: $e');
+      throw Exception('Failed to unenroll from plan: $e');
     }
   }
 }

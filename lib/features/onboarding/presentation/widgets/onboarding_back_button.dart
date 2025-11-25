@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_pecha/core/theme/app_colors.dart';
 
 /// Reusable back button for onboarding questionnaire screens
 class OnboardingBackButton extends StatelessWidget {
