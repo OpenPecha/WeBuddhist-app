@@ -21,8 +21,8 @@ class ActionOfTheDayCard extends ConsumerWidget {
     final locale = ref.watch(localeProvider);
     final fontFamily = getFontFamily(locale.languageCode);
     final lineHeight = getLineHeight(locale.languageCode);
-    final titleFontSize = locale.languageCode == 'bo' ? 18.0 : 14.0;
-    final subtitleFontSize = locale.languageCode == 'bo' ? 16.0 : 12.0;
+    final titleFontSize = locale.languageCode == 'bo' ? 22.0 : 18.0;
+    final subtitleFontSize = locale.languageCode == 'bo' ? 18.0 : 14.0;
 
     return InkWell(
       onTap: onTap,

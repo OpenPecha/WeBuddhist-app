@@ -271,19 +271,20 @@ class AppLocalizationsBo extends AppLocalizations {
   String get no_plans_found => 'No plans found';
 
   @override
+  String get notification_turn_on => 'Please turn on Notifications';
+
+  @override
+  String get notification_enable_message =>
+      'ཉིན་རེའི་ཉམས་ལེན་དང་ཞལ་འདོན་གསལ་བརྡ་ཡོང་ཆེད་གསལ་བརྡ་སྒོ་འབྱེད་གནང་རོགས།';
+
+  @override
+  String get enable_notification => 'གསལ་བརྡའི་སྒོ་ཕྱེས།';
+
+  @override
   String get notification_daily_practice => 'ཉམས་ལེན་དྲན་བརྡ།';
 
   @override
   String get notification_select_time => 'དུས་ཚོད་འདེམ།';
-
-  @override
-  String get enableReminders => 'Enable Reminders';
-
-  @override
-  String get remindersEnabled => 'Reminders are active';
-
-  @override
-  String get remindersDisabled => 'Reminders are inactive';
 
   @override
   String get reminderTime => 'Reminder Time';
@@ -293,16 +294,6 @@ class AppLocalizationsBo extends AppLocalizations {
 
   @override
   String get notification_daily_recitation => 'ཞལ་འདོན་དྲན་བརྡ།';
-
-  @override
-  String get testNotifications => 'Test Notifications';
-
-  @override
-  String get testNotificationsDescription =>
-      'Send a test notification to verify everything is working';
-
-  @override
-  String get sendTestNotification => 'Send Test Notification';
 
   @override
   String get manageDailyReminders => 'Manage daily reminders';

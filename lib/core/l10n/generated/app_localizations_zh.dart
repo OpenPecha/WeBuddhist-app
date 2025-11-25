@@ -271,19 +271,20 @@ class AppLocalizationsZh extends AppLocalizations {
   String get no_plans_found => 'No plans found';
 
   @override
+  String get notification_turn_on => 'Please turn on Notifications';
+
+  @override
+  String get notification_enable_message =>
+      'Enable notifications to receive daily practice and recitation reminders.';
+
+  @override
+  String get enable_notification => 'Enable Notifications';
+
+  @override
   String get notification_daily_practice => 'Daily Practice';
 
   @override
   String get notification_select_time => 'Select Time';
-
-  @override
-  String get enableReminders => 'Enable Reminders';
-
-  @override
-  String get remindersEnabled => 'Reminders are active';
-
-  @override
-  String get remindersDisabled => 'Reminders are inactive';
 
   @override
   String get reminderTime => 'Reminder Time';
@@ -293,16 +294,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get notification_daily_recitation => 'Daily Recitation';
-
-  @override
-  String get testNotifications => 'Test Notifications';
-
-  @override
-  String get testNotificationsDescription =>
-      'Send a test notification to verify everything is working';
-
-  @override
-  String get sendTestNotification => 'Send Test Notification';
 
   @override
   String get manageDailyReminders => 'Manage daily reminders';
