@@ -13,7 +13,6 @@ class RecitationTextSection extends StatelessWidget {
 
   final String languageCode;
 
-  /// The index of this text in the display order (0-based)
   final int textIndex;
 
   const RecitationTextSection({
@@ -25,7 +24,6 @@ class RecitationTextSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Replace HTML break tags with newlines
     final processedText = _processText(text);
 
     final fontFamily = getFontFamily(languageCode);
@@ -33,7 +31,6 @@ class RecitationTextSection extends StatelessWidget {
     final fontSize =
         languageCode == 'bo' || languageCode == 'tib' ? 24.0 : 20.0;
 
-    // Get color based on text index and theme brightness
     final textColor = _getColorForTextIndex(context);
 
     return Text(
@@ -48,12 +45,6 @@ class RecitationTextSection extends StatelessWidget {
   }
 
   /// Returns the appropriate text color based on text index and theme mode.
-  ///
-  /// Light mode colors:
-  /// - First text (index 0): #954a29 (brown/reddish)
-  /// - Second text (index 1): black
-  /// - Third text (index 2): #2b2b2a (dark gray)
-  ///
   /// Dark mode colors are automatically adjusted for better readability.
   Color _getColorForTextIndex(BuildContext context) {
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
@@ -79,7 +70,6 @@ class RecitationTextSection extends StatelessWidget {
   }
 
   /// Processes the text by replacing HTML break tags with newlines.
-  ///
   /// Handles both <br> and <br/> tags.
   String _processText(String text) {
     return text.replaceAll('<br>', '\n').replaceAll('<br/>', '\n');

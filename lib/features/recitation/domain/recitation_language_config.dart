@@ -15,6 +15,7 @@ class RecitationLanguageConfig {
   static const String chinese = 'zh';
   static const String sanskrit = 'sa';
   static const String tibetanAdaptation = 'tib';
+  static const String tibetanTransliteration = 'tibphono';
 
   /// Supported languages list
   static const List<String> supportedLanguages = [tibetan, english, chinese];
@@ -44,7 +45,7 @@ class RecitationLanguageConfig {
           textId: textId,
           translations: [english],
           recitations: [tibetan],
-          transliterations: [tibetan],
+          transliterations: [tibetanTransliteration],
         );
 
       case chinese:
@@ -52,7 +53,7 @@ class RecitationLanguageConfig {
           textId: textId,
           translations: [chinese],
           recitations: [tibetan],
-          transliterations: [tibetan],
+          transliterations: [tibetanTransliteration],
         );
 
       default:
