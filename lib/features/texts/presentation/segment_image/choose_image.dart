@@ -12,7 +12,7 @@ class ChooseImage extends StatefulWidget {
 }
 
 class _ChooseImageState extends State<ChooseImage> {
-  static const int _imageCount = 4;
+  static const int _imageCount = 16;
   final Set<int> _loadedImages = {};
   final Set<int> _failedImages = {};
 
