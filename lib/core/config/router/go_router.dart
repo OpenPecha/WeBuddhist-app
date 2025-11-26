@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:flutter_pecha/core/utils/local_storage_service.dart';
 import 'package:flutter_pecha/features/auth/presentation/login_page.dart';
 import 'package:flutter_pecha/features/auth/presentation/profile_page.dart';
 import 'package:flutter_pecha/features/app/presentation/skeleton_screen.dart';
@@ -50,7 +49,6 @@ import 'package:flutter_pecha/features/onboarding/data/providers/onboarding_data
 
 final goRouterProvider = Provider<GoRouter>((ref) {
   final authState = ref.watch(authProvider);
-  final localStorageService = ref.watch(localStorageServiceProvider);
   final onboardingRepo = ref.watch(onboardingRepositoryProvider);
 
   return GoRouter(
