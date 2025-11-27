@@ -125,8 +125,6 @@ class _StoryPresenterState extends State<StoryPresenter> {
         flutterStoryController.play();
       }
     } catch (e) {
-      debugPrint('Error preloading first item: $e');
-      // Even if preloading fails, show the story (graceful degradation)
       if (mounted) {
         setState(() {
           _isFirstItemReady = true;
