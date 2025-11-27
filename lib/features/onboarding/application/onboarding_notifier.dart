@@ -1,7 +1,9 @@
-import 'package:flutter/foundation.dart';
+import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/features/onboarding/application/onboarding_state.dart';
 import 'package:flutter_pecha/features/onboarding/data/onboarding_repository.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+
+final _logger = AppLogger('OnboardingNotifier');
 
 /// Notifier for managing onboarding flow state
 class OnboardingNotifier extends StateNotifier<OnboardingState> {
@@ -17,10 +19,10 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
       final saved = await _repository.loadPreferences();
       if (saved != null) {
         state = state.copyWithPreferences(saved);
-        debugPrint('Loaded saved preferences: $saved');
+        _logger.debug('Loaded saved preferences');
       }
     } catch (e) {
-      debugPrint('Error loading saved preferences: $e');
+      _logger.error('Error loading saved preferences', e);
     }
   }
 
@@ -47,9 +49,8 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
   Future<void> savePreferencesLocally() async {
     try {
       await _repository.savePreferences(state.preferences, saveRemote: false);
-      debugPrint('Saved preferences locally: ${state.preferences}');
     } catch (e) {
-      debugPrint('Error saving preferences locally: $e');
+      _logger.error('Error saving preferences locally', e);
       state = state.copyWithError('Failed to save preferences: $e');
     }
   }
@@ -60,9 +61,8 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
     try {
       await _repository.completeOnboarding(state.preferences);
       state = state.copyWithLoading(false);
-      debugPrint('Onboarding completed successfully');
     } catch (e) {
-      debugPrint('Error submitting preferences: $e');
+      _logger.error('Error submitting preferences', e);
       // Don't show error to user, preferences are saved locally
       state = state.copyWithLoading(false);
     }
@@ -74,7 +74,7 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
       await _repository.clearPreferences();
       state = OnboardingState.initial();
     } catch (e) {
-      debugPrint('Error clearing preferences: $e');
+      _logger.error('Error clearing preferences', e);
     }
   }
 }

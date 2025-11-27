@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/features/auth/presentation/login_page.dart';
 import 'package:flutter_pecha/features/auth/presentation/profile_page.dart';
 import 'package:flutter_pecha/features/app/presentation/skeleton_screen.dart';
@@ -46,6 +47,8 @@ import 'package:story_view/story_view.dart';
 import 'package:flutter_story_presenter/flutter_story_presenter.dart' as fsp;
 import 'route_config.dart';
 import 'package:flutter_pecha/features/onboarding/data/providers/onboarding_datasource_providers.dart';
+
+final _logger = AppLogger('GoRouter');
 
 final goRouterProvider = Provider<GoRouter>((ref) {
   final authState = ref.watch(authProvider);
@@ -712,38 +715,38 @@ final goRouterProvider = Provider<GoRouter>((ref) {
 
       // 1. While auth is loading, redirect to login
       if (isLoading) {
-        debugPrint('🔄 Auth is loading, redirecting to login');
+        _logger.debug('Auth is loading, redirecting to login');
         return RouteConfig.login;
       }
 
       // 2. Check onboarding for authenticated non-guest users
       if (isLoggedIn && !isGuest) {
-        debugPrint('✅ Authenticated non-guest user, checking onboarding');
+        _logger.debug('Authenticated non-guest user, checking onboarding');
 
         // Check onboarding completion from local storage
         // This is the single source of truth per requirements
         final hasCompletedOnboarding =
             await onboardingRepo.hasCompletedOnboarding();
-        debugPrint('📋 Onboarding status: $hasCompletedOnboarding');
+        _logger.debug('Onboarding status: $hasCompletedOnboarding');
 
         // Redirect to onboarding if not completed (unless already there or on login)
         if (!hasCompletedOnboarding &&
             currentPath != RouteConfig.onboarding &&
             currentPath != RouteConfig.login) {
-          debugPrint('🎯 Redirecting to onboarding');
+          _logger.debug('Redirecting to onboarding');
           return RouteConfig.onboarding;
         }
 
         // If completed and on onboarding page, redirect to home
         if (hasCompletedOnboarding && currentPath == RouteConfig.onboarding) {
-          debugPrint('✅ Onboarding already completed, redirecting to home');
+          _logger.debug('Onboarding already completed, redirecting to home');
           return RouteConfig.home;
         }
       }
 
       // 3. Guest users skip onboarding - allow them to navigate freely
       if (isGuest && currentPath == RouteConfig.onboarding) {
-        debugPrint('👤 Guest user, skipping onboarding');
+        _logger.debug('Guest user, skipping onboarding');
         return RouteConfig.home;
       }
 
@@ -754,17 +757,17 @@ final goRouterProvider = Provider<GoRouter>((ref) {
           final hasCompletedOnboarding =
               await onboardingRepo.hasCompletedOnboarding();
           if (!hasCompletedOnboarding) {
-            debugPrint('🎯 New authenticated user, redirecting to onboarding');
+            _logger.debug('New authenticated user, redirecting to onboarding');
             return RouteConfig.onboarding;
           }
         }
-        debugPrint('✅ Authenticated user, redirecting to home');
+        _logger.debug('Authenticated user, redirecting to home');
         return RouteConfig.home;
       }
 
       // 5. Unauthenticated user trying to access protected route
       if (!isLoggedIn && RouteConfig.isProtectedRoute(currentPath)) {
-        debugPrint('🔒 Protected route, redirecting to login');
+        _logger.debug('Protected route, redirecting to login');
         return RouteConfig.login;
       }
 
