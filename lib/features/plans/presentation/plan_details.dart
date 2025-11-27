@@ -268,13 +268,19 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
       return;
     }
 
-    final task = tasks.firstWhere(
-      (t) => t.id == taskId,
-      orElse: () {
-        _showErrorSnackbar('Task not found');
-        return tasks.first; // Safe fallback - will be caught below
-      },
-    );
+    // Safely find the task - return early if not found or list is empty
+    if (tasks.isEmpty) {
+      _showErrorSnackbar('No tasks available');
+      return;
+    }
+
+    final taskIndex = tasks.indexWhere((t) => t.id == taskId);
+    if (taskIndex == -1) {
+      _showErrorSnackbar('Task not found');
+      return;
+    }
+
+    final task = tasks[taskIndex];
 
     // Mark task as being toggled
     setState(() {
