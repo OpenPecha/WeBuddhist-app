@@ -85,7 +85,6 @@ class _TextReaderScreenState extends ConsumerState<TextReaderScreen> {
       final response = await ref.read(textDetailsFutureProvider(params).future);
       initialSections(response);
     } catch (e) {
-      debugPrint('error initializing from provider: $e');
       setState(() {
         isLoading = false;
       });

@@ -120,7 +120,6 @@ class _CreateImageState extends State<CreateImage> {
         });
       }
     } catch (e) {
-      debugPrint('Error capturing image: $e');
       if (mounted) {
         _showErrorSnackBar('Failed to capture image. Please try again.');
       }
@@ -160,7 +159,6 @@ class _CreateImageState extends State<CreateImage> {
         ),
       );
     } catch (e) {
-      debugPrint('Error sharing image: $e');
       if (mounted) {
         _showErrorSnackBar('Unable to share. Please try again later.');
       }

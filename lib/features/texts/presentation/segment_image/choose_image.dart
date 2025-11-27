@@ -33,7 +33,6 @@ class _ChooseImageState extends State<ChooseImage> {
           });
         }
       } catch (e) {
-        debugPrint('Failed to load image $i: $e');
         if (mounted) {
           setState(() {
             _failedImages.add(i);
@@ -43,7 +42,11 @@ class _ChooseImageState extends State<ChooseImage> {
     }
   }
 
-  void _showImageConfirmation(BuildContext context, String imagePath, int index) {
+  void _showImageConfirmation(
+    BuildContext context,
+    String imagePath,
+    int index,
+  ) {
     final localizations = AppLocalizations.of(context)!;
 
     showModalBottomSheet(
@@ -110,7 +113,8 @@ class _ChooseImageState extends State<ChooseImage> {
                       width: double.infinity,
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Theme.of(context).colorScheme.primary,
+                          backgroundColor:
+                              Theme.of(context).colorScheme.primary,
                           foregroundColor: Colors.white,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(16),
@@ -122,7 +126,10 @@ class _ChooseImageState extends State<ChooseImage> {
                           context.pop();
                           context.push(
                             '/texts/segment_image/create_image',
-                            extra: {'text': widget.text, 'imagePath': imagePath},
+                            extra: {
+                              'text': widget.text,
+                              'imagePath': imagePath,
+                            },
                           );
                         },
                         child: Text(
@@ -147,7 +154,8 @@ class _ChooseImageState extends State<ChooseImage> {
                           style: TextStyle(
                             fontWeight: FontWeight.w500,
                             fontSize: 16,
-                            color: Theme.of(context).textTheme.bodyMedium?.color,
+                            color:
+                                Theme.of(context).textTheme.bodyMedium?.color,
                           ),
                         ),
                       ),
@@ -188,85 +196,91 @@ class _ChooseImageState extends State<ChooseImage> {
         ),
         centerTitle: false,
       ),
-      body: _loadedImages.isEmpty && _failedImages.length < _imageCount
-          ? const Center(child: CircularProgressIndicator())
-          : availableImages == 0
+      body:
+          _loadedImages.isEmpty && _failedImages.length < _imageCount
+              ? const Center(child: CircularProgressIndicator())
+              : availableImages == 0
               ? Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.error_outline,
-                        size: 64,
-                        color: Colors.grey[400],
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        localizations.no_images_available,
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.grey[600],
-                        ),
-                      ),
-                    ],
-                  ),
-                )
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.error_outline,
+                      size: 64,
+                      color: Colors.grey[400],
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      localizations.no_images_available,
+                      style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+                    ),
+                  ],
+                ),
+              )
               : SingleChildScrollView(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        localizations.choose_bg_image,
-                        style: TextStyle(
-                          color: Colors.grey[600],
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                        ),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 10,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      localizations.choose_bg_image,
+                      style: TextStyle(
+                        color: Colors.grey[600],
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
                       ),
-                      const SizedBox(height: 16),
-                      GridView.builder(
-                        physics: const NeverScrollableScrollPhysics(),
-                        shrinkWrap: true,
-                        itemCount: _imageCount,
-                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 3,
-                          mainAxisSpacing: 12,
-                          crossAxisSpacing: 12,
-                          childAspectRatio: 1,
-                        ),
-                        itemBuilder: (context, index) {
-                          final imageIndex = index + 1;
-                          final imagePath = 'assets/images/segment-bg/$imageIndex.jpg';
-                          final isLoading = !_loadedImages.contains(imageIndex) &&
-                              !_failedImages.contains(imageIndex);
-                          final hasFailed = _failedImages.contains(imageIndex);
+                    ),
+                    const SizedBox(height: 16),
+                    GridView.builder(
+                      physics: const NeverScrollableScrollPhysics(),
+                      shrinkWrap: true,
+                      itemCount: _imageCount,
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 3,
+                            mainAxisSpacing: 12,
+                            crossAxisSpacing: 12,
+                            childAspectRatio: 1,
+                          ),
+                      itemBuilder: (context, index) {
+                        final imageIndex = index + 1;
+                        final imagePath =
+                            'assets/images/segment-bg/$imageIndex.jpg';
+                        final isLoading =
+                            !_loadedImages.contains(imageIndex) &&
+                            !_failedImages.contains(imageIndex);
+                        final hasFailed = _failedImages.contains(imageIndex);
 
-                          return Hero(
-                            tag: 'image_preview_$imageIndex',
-                            child: Material(
-                              color: Colors.transparent,
-                              child: InkWell(
-                                onTap: hasFailed
-                                    ? null
-                                    : () => _showImageConfirmation(
-                                          context,
-                                          imagePath,
-                                          imageIndex,
-                                        ),
-                                borderRadius: BorderRadius.circular(12),
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    color: Theme.of(context).cardColor,
-                                    borderRadius: BorderRadius.circular(12),
-                                    border: Border.all(
-                                      color: Colors.grey[300]!,
-                                      width: 1,
-                                    ),
+                        return Hero(
+                          tag: 'image_preview_$imageIndex',
+                          child: Material(
+                            color: Colors.transparent,
+                            child: InkWell(
+                              onTap:
+                                  hasFailed
+                                      ? null
+                                      : () => _showImageConfirmation(
+                                        context,
+                                        imagePath,
+                                        imageIndex,
+                                      ),
+                              borderRadius: BorderRadius.circular(12),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: Theme.of(context).cardColor,
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(
+                                    color: Colors.grey[300]!,
+                                    width: 1,
                                   ),
-                                  clipBehavior: Clip.antiAlias,
-                                  child: isLoading
-                                      ? const Center(
+                                ),
+                                clipBehavior: Clip.antiAlias,
+                                child:
+                                    isLoading
+                                        ? const Center(
                                           child: SizedBox(
                                             width: 24,
                                             height: 24,
@@ -275,34 +289,38 @@ class _ChooseImageState extends State<ChooseImage> {
                                             ),
                                           ),
                                         )
-                                      : hasFailed
-                                          ? Center(
-                                              child: Icon(
-                                                Icons.broken_image,
-                                                size: 32,
-                                                color: Colors.grey[400],
-                                              ),
-                                            )
-                                          : Image.asset(
-                                              imagePath,
-                                              fit: BoxFit.cover,
-                                              errorBuilder: (context, error, stackTrace) {
-                                                return Icon(
-                                                  Icons.broken_image,
-                                                  size: 32,
-                                                  color: Colors.grey[400],
-                                                );
-                                              },
-                                            ),
-                                ),
+                                        : hasFailed
+                                        ? Center(
+                                          child: Icon(
+                                            Icons.broken_image,
+                                            size: 32,
+                                            color: Colors.grey[400],
+                                          ),
+                                        )
+                                        : Image.asset(
+                                          imagePath,
+                                          fit: BoxFit.cover,
+                                          errorBuilder: (
+                                            context,
+                                            error,
+                                            stackTrace,
+                                          ) {
+                                            return Icon(
+                                              Icons.broken_image,
+                                              size: 32,
+                                              color: Colors.grey[400],
+                                            );
+                                          },
+                                        ),
                               ),
                             ),
-                          );
-                        },
-                      ),
-                    ],
-                  ),
+                          ),
+                        );
+                      },
+                    ),
+                  ],
                 ),
+              ),
     );
   }
 }
