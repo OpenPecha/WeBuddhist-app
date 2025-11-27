@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
+import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/features/plans/data/providers/plan_days_providers.dart';
 import 'package:flutter_pecha/features/plans/data/providers/plans_providers.dart';
 import 'package:flutter_pecha/features/plans/data/providers/user_plans_provider.dart';
@@ -11,6 +12,8 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'widgets/plan_cover_image.dart';
 import 'widgets/day_carousel.dart';
 import 'widgets/activity_list.dart';
+
+final _logger = AppLogger('PlanDetails');
 
 class PlanDetails extends ConsumerStatefulWidget {
   const PlanDetails({
@@ -298,7 +301,7 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
         _showErrorSnackbar('Unable to update task status');
       }
     } catch (e) {
-      debugPrint('Error toggling task: $e');
+      _logger.error('Error toggling task', e);
       if (mounted) {
         _showErrorSnackbar('Error: $e');
       }
@@ -391,7 +394,7 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
         }
       }
     } catch (e) {
-      debugPrint('Error unenrolling from plan: $e');
+      _logger.error('Error unenrolling from plan', e);
       if (mounted) {
         _showErrorSnackbar(
           'Something went wrong. Please check your connection and try again.',

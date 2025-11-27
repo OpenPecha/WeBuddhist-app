@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
+import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 import 'package:go_router/go_router.dart';
 import 'package:path_provider/path_provider.dart';
@@ -19,6 +20,7 @@ class CreateImage extends StatefulWidget {
 }
 
 class _CreateImageState extends State<CreateImage> {
+  final _logger = AppLogger('CreateImage');
   final ScreenshotController _screenshotController = ScreenshotController();
   final GlobalKey _shareButtonKey = GlobalKey();
 
@@ -168,7 +170,7 @@ class _CreateImageState extends State<CreateImage> {
         try {
           await tempFile.delete();
         } catch (e) {
-          debugPrint('Error deleting temp file: $e');
+          _logger.error('Error deleting temp file', e);
         }
       }
 
@@ -202,7 +204,7 @@ class _CreateImageState extends State<CreateImage> {
         }
       }
     } catch (e) {
-      debugPrint('Error downloading image: $e');
+      _logger.error('Error downloading image', e);
       if (mounted) {
         _showErrorSnackBar('Unable to download image. Please try again later.');
       }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/features/texts/models/section.dart';
 import 'package:flutter_pecha/features/texts/models/segment.dart';
 import 'package:flutter_pecha/features/texts/models/text/reader_response.dart';
@@ -34,6 +35,7 @@ class TextReaderScreen extends ConsumerStatefulWidget {
 }
 
 class _TextReaderScreenState extends ConsumerState<TextReaderScreen> {
+  final _logger = AppLogger('TextReaderScreen');
   final ItemScrollController itemScrollController = ItemScrollController();
   final ItemPositionsListener itemPositionsListener =
       ItemPositionsListener.create();
@@ -185,7 +187,7 @@ class _TextReaderScreenState extends ConsumerState<TextReaderScreen> {
         }
       }
     } catch (e) {
-      debugPrint('error loading previous section: $e');
+      _logger.error('error loading previous section', e);
     } finally {
       setState(() {
         isLoadingPreviousSection = false;
@@ -224,7 +226,7 @@ class _TextReaderScreenState extends ConsumerState<TextReaderScreen> {
         });
       }
     } catch (e) {
-      debugPrint('error loading next section: $e');
+      _logger.error('error loading next section', e);
     } finally {
       setState(() {
         isLoadingNextSection = false;
@@ -605,7 +607,7 @@ class _TextReaderScreenState extends ConsumerState<TextReaderScreen> {
                     );
                     initialSections(response);
                   } catch (e) {
-                    debugPrint('error updating text: $e');
+                    _logger.error('error updating text', e);
                   } finally {
                     setState(() {
                       isLoading = false;

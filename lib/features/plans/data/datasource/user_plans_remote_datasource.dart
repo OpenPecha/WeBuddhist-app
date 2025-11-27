@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/features/plans/exceptions/plan_exceptions.dart';
 import 'package:flutter_pecha/features/plans/models/plan_progress_model.dart';
 import 'package:flutter_pecha/features/plans/models/response/user_plan_day_detail_response.dart';
@@ -13,6 +13,7 @@ import 'package:http/http.dart' as http;
 class UserPlansRemoteDatasource {
   final String baseUrl = dotenv.env['BASE_API_URL']!;
   final http.Client client;
+  final _logger = AppLogger('UserPlansRemoteDatasource');
 
   UserPlansRemoteDatasource({required this.client});
 
@@ -43,11 +44,11 @@ class UserPlansRemoteDatasource {
         final jsonData = json.decode(decoded);
         return UserPlanListResponseModel.fromJson(jsonData);
       } else {
-        debugPrint('Failed to load user plans: ${response.statusCode}');
+        _logger.error('Failed to load user plans: ${response.statusCode}');
         throw Exception('Failed to load user plans: ${response.statusCode}');
       }
     } catch (e) {
-      debugPrint('Error in fetchUserPlans: $e');
+      _logger.error('Error in fetchUserPlans', e);
       throw Exception('Failed to load user plans: $e');
     }
   }
@@ -132,7 +133,7 @@ class UserPlansRemoteDatasource {
         );
       }
     } catch (e) {
-      debugPrint('Failed to load user plan day content: $e');
+      _logger.error('Failed to load user plan day content', e);
       throw Exception('Failed to load user plan day content: $e');
     }
   }
@@ -153,7 +154,7 @@ class UserPlansRemoteDatasource {
 
         return completionResponse.toCompletionStatusMap();
       } else {
-        debugPrint(
+        _logger.error(
           'Failed to load plan days completion status: ${response.statusCode}',
         );
         throw Exception(
@@ -161,7 +162,7 @@ class UserPlansRemoteDatasource {
         );
       }
     } catch (e) {
-      debugPrint('Error fetching plan days completion status: $e');
+      _logger.error('Error fetching plan days completion status', e);
       throw Exception('Failed to load plan days completion status: $e');
     }
   }
@@ -179,12 +180,12 @@ class UserPlansRemoteDatasource {
         return true;
       } else {
         final errorMessage = 'HTTP ${response.statusCode}: ${response.body}';
-        debugPrint('Failed to complete sub task: $errorMessage');
+        _logger.error('Failed to complete sub task: $errorMessage');
         throw Exception('Failed to complete sub task: $errorMessage');
       }
     } catch (e) {
       if (e is Exception) rethrow;
-      debugPrint('Failed to complete sub task: $e');
+      _logger.error('Failed to complete sub task', e);
       throw Exception('Failed to complete sub task: $e');
     }
   }
@@ -202,12 +203,12 @@ class UserPlansRemoteDatasource {
         return true;
       } else {
         final errorMessage = 'HTTP ${response.statusCode}: ${response.body}';
-        debugPrint('Failed to complete task: $errorMessage');
+        _logger.error('Failed to complete task: $errorMessage');
         throw Exception('Failed to complete task: $errorMessage');
       }
     } catch (e) {
       if (e is Exception) rethrow;
-      debugPrint('Failed to complete task: $e');
+      _logger.error('Failed to complete task', e);
       throw Exception('Failed to complete task: $e');
     }
   }
@@ -222,12 +223,12 @@ class UserPlansRemoteDatasource {
         return true;
       } else {
         final errorMessage = 'HTTP ${response.statusCode}: ${response.body}';
-        debugPrint('Failed to delete task: $errorMessage');
+        _logger.error('Failed to delete task: $errorMessage');
         throw Exception('Failed to delete task: $errorMessage');
       }
     } catch (e) {
       if (e is Exception) rethrow;
-      debugPrint('Failed to delete task: $e');
+      _logger.error('Failed to delete task', e);
       throw Exception('Failed to delete task: $e');
     }
   }
@@ -242,12 +243,12 @@ class UserPlansRemoteDatasource {
         return true;
       } else {
         final errorMessage = 'HTTP ${response.statusCode}: ${response.body}';
-        debugPrint('Failed to unenroll from plan: $errorMessage');
+        _logger.error('Failed to unenroll from plan: $errorMessage');
         throw Exception('Failed to unenroll from plan: $errorMessage');
       }
     } catch (e) {
       if (e is Exception) rethrow;
-      debugPrint('Failed to unenroll from plan: $e');
+      _logger.error('Failed to unenroll from plan', e);
       throw Exception('Failed to unenroll from plan: $e');
     }
   }
