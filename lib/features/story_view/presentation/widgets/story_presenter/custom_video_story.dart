@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_pecha/features/story_view/services/story_media_preloader.dart';
 import 'package:flutter_pecha/shared/widgets/reusable_youtube_player.dart';
 import 'package:flutter_story_presenter/flutter_story_presenter.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart' as yt;
@@ -22,7 +21,6 @@ class _CustomVideoStoryState extends State<CustomVideoStory> {
   bool _isVideoReady = false;
   bool _isVideoPlaying = false;
   yt.YoutubePlayerController? _youtubeController;
-  final StoryMediaPreloader _preloader = StoryMediaPreloader();
 
   @override
   void initState() {

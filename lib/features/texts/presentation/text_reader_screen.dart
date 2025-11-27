@@ -519,9 +519,6 @@ class _TextReaderScreenState extends ConsumerState<TextReaderScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final fontSize = ref.watch(fontSizeProvider);
-    final selectedIndex = ref.watch(selectedSegmentProvider);
-
     return Scaffold(
       appBar: AppBar(
         elevation: 0,

@@ -39,9 +39,9 @@ class StoryMediaPreloader {
     if (remainingItems.isNotEmpty) {
       Future.microtask(() {
         for (final subtask in remainingItems) {
-          // if (context.mounted) {
-          _preloadSubtask(subtask, context).ignore();
-          // }
+          if (context.mounted) {
+            _preloadSubtask(subtask, context).ignore();
+          }
         }
       });
     }

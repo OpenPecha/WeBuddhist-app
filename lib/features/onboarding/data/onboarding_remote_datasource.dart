@@ -12,7 +12,6 @@ class OnboardingRemoteDatasource {
 
   /// Save onboarding preferences to backend
   ///
-  /// TODO: Backend implementation required
   /// Endpoint: POST /api/v1/users/me/onboarding-preferences
   /// Body: JSON with  preferredLanguage, selectedPaths
   /// Returns: Success boolean
