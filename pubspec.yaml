@@ -104,7 +104,6 @@ flutter:
   generate: true
   assets:
     - assets/images/
-    - assets/images/home/
     - assets/images/segment-bg/
     - assets/images/verse-bg/
     - assets/fonts/

@@ -113,7 +113,9 @@ class PechaBottomNavBar extends ConsumerWidget {
               ),
               const SizedBox(height: 2),
               MediaQuery(
-                data: MediaQuery.of(context).copyWith(textScaler: TextScaler.linear(1.0)),
+                data: MediaQuery.of(
+                  context,
+                ).copyWith(textScaler: TextScaler.linear(1.0)),
                 child: Text(
                   label,
                   style: TextStyle(

@@ -43,7 +43,7 @@ class VerseCard extends ConsumerWidget {
       child: Stack(
         children: [
           Hero(
-            tag: backgroundImagePath,
+            tag: 'verse-image-$backgroundImagePath',
             child: Container(
               width: double.infinity,
               height: VerseCardConstants.cardHeight,
