@@ -340,7 +340,7 @@ class _ContentsChapterState extends ConsumerState<ContentsChapter> {
               children: [
                 // Segment number
                 Padding(
-                  padding: const EdgeInsets.only(top: 8),
+                  padding: const EdgeInsets.only(top: 6),
                   child: SizedBox(
                     width: 20,
                     child: Text(
