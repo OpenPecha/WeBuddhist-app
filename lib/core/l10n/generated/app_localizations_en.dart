@@ -136,10 +136,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get text_search => 'Search';
 
   @override
-  String get text_detail_rootText => 'Root Text';
+  String get text_detail_rootText => 'Root';
 
   @override
-  String get text_detail_commentaryText => 'Commentary Text';
+  String get text_detail_commentaryText => 'Commentary';
 
   @override
   String get text_toc_continueReading => 'Continue Reading';
