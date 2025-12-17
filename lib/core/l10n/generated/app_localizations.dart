@@ -349,13 +349,13 @@ abstract class AppLocalizations {
   /// No description provided for @text_detail_rootText.
   ///
   /// In en, this message translates to:
-  /// **'Root Text'**
+  /// **'Root'**
   String get text_detail_rootText;
 
   /// No description provided for @text_detail_commentaryText.
   ///
   /// In en, this message translates to:
-  /// **'Commentary Text'**
+  /// **'Commentary'**
   String get text_detail_commentaryText;
 
   /// No description provided for @text_toc_continueReading.
