@@ -41,8 +41,8 @@
   "nav_settings": "Settings",
   "text_browseTheLibrary": "Browse The Library",
   "text_search": "Search",
-  "text_detail_rootText": "Root Text",
-  "text_detail_commentaryText": "Commentary Text",
+  "text_detail_rootText": "Root",
+  "text_detail_commentaryText": "Commentary",
   "text_toc_continueReading": "Continue Reading",
   "text_toc_content": "Contents",
   "text_toc_versions": "Versions",
@@ -146,6 +146,8 @@
   "copied": "Copied",
   "share": "Share",
   "image": "Image",
+  "feedback": "Feedback",
+  "feedback_wishlist": "Feedback and Wishlist",
 
   "author": "Author",
   "plans_created": "Plan created"
