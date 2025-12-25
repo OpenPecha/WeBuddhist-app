@@ -79,6 +79,7 @@ dependencies:
   hive_flutter: ^1.1.0
   # Network connectivity
   connectivity_plus: ^6.1.1
+  upgrader: ^12.3.0
 
 dev_dependencies:
   flutter_test:
