@@ -49,7 +49,6 @@ class _AiModeScreenState extends ConsumerState<AiModeScreen> {
 
   void _onSuggestionTap(String suggestion) {
     // Don't focus the text field when tapping suggestions
-    _focusNode.unfocus();
     _sendMessage(suggestion);
   }
 
@@ -57,7 +56,7 @@ class _AiModeScreenState extends ConsumerState<AiModeScreen> {
     if (_controller.text.trim().isEmpty) return;
     final message = _controller.text.trim();
     _controller.clear();
-    _focusNode.unfocus(); // Hide keyboard after sending
+    _focusNode.unfocus();
     _sendMessage(message);
   }
 
@@ -66,8 +65,6 @@ class _AiModeScreenState extends ConsumerState<AiModeScreen> {
   }
 
   void _onNewChat() {
-    // Unfocus to prevent keyboard from appearing
-    _focusNode.unfocus();
     // Start new thread
     ref.read(chatControllerProvider.notifier).startNewThread();
     // Refresh thread list to show the new thread (when API is integrated)
@@ -257,12 +254,15 @@ class _AiModeScreenState extends ConsumerState<AiModeScreen> {
 
   Widget _buildInputSection(bool isDarkMode) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
       child: Column(
         children: [
           Container(
             decoration: BoxDecoration(
-              color: isDarkMode ? AppColors.surfaceVariantDark : Colors.white,
+              color:
+                  isDarkMode
+                      ? AppColors.surfaceVariantDark
+                      : AppColors.primarySurface,
               borderRadius: BorderRadius.circular(24),
             ),
             child: Row(
@@ -283,10 +283,17 @@ class _AiModeScreenState extends ConsumerState<AiModeScreen> {
                         color:
                             isDarkMode
                                 ? AppColors.textSubtleDark
-                                : AppColors.grey500,
-                        fontSize: 15,
+                                : AppColors.textPrimaryLight,
+                        fontSize: 14,
                       ),
+                      filled: true,
+                      fillColor: Colors.transparent,
                       border: InputBorder.none,
+                      enabledBorder: InputBorder.none,
+                      focusedBorder: InputBorder.none,
+                      disabledBorder: InputBorder.none,
+                      errorBorder: InputBorder.none,
+                      focusedErrorBorder: InputBorder.none,
                       contentPadding: const EdgeInsets.symmetric(
                         horizontal: 16,
                         vertical: 14,
@@ -297,6 +304,7 @@ class _AiModeScreenState extends ConsumerState<AiModeScreen> {
                           isDarkMode
                               ? AppColors.textPrimaryDark
                               : AppColors.textPrimary,
+                      fontSize: 13,
                     ),
                   ),
                 ),
@@ -309,7 +317,7 @@ class _AiModeScreenState extends ConsumerState<AiModeScreen> {
                       color:
                           _hasText
                               ? (isDarkMode
-                                  ? Colors.white
+                                  ? AppColors.primaryContainer
                                   : AppColors.backgroundDark)
                               : (isDarkMode
                                   ? AppColors.grey500
@@ -321,7 +329,7 @@ class _AiModeScreenState extends ConsumerState<AiModeScreen> {
               ],
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 5),
         ],
       ),
     );
