@@ -10,25 +10,37 @@ class AiChatRemoteDatasource {
 
   AiChatRemoteDatasource(this._client);
 
-  Stream<Map<String, dynamic>> sendMessage(String message) async* {
+  Stream<Map<String, dynamic>> sendMessage({
+    required String message,
+    required String email,
+    String? threadId,
+  }) async* {
     final aiUrl = dotenv.env['AI_URL'];
     if (aiUrl == null || aiUrl.isEmpty) {
       _logger.error('AI_URL not configured in .env');
       throw Exception('AI_URL not configured');
     }
 
-    final url = Uri.parse('$aiUrl/api/chat/stream');
+    final url = Uri.parse('$aiUrl/chats');
     
-    final requestBody = {
-      'messages': [
-        {
-          'role': 'user',
-          'content': message,
-        }
-      ]
+    // Build request body with required fields
+    final requestBody = <String, dynamic>{
+      'email': email,
+      'query': message,
+      'application': 'webuddhist',
+      'device_type': 'mobile_app',
     };
+    
+    // Only include thread_id if it's provided
+    if (threadId != null && threadId.isNotEmpty) {
+      requestBody['thread_id'] = threadId;
+      _logger.info('Sending message with thread_id: $threadId');
+    } else {
+      _logger.info('Sending message without thread_id (new conversation)');
+    }
 
     _logger.info('Sending message to AI API: ${url.toString()}');
+    _logger.debug('Request body: $requestBody');
     
     try {
       final request = http.Request('POST', url);

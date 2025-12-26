@@ -19,6 +19,11 @@ class TokenEvent extends ChatStreamEvent {
 
 class DoneEvent extends ChatStreamEvent {}
 
+class ThreadIdEvent extends ChatStreamEvent {
+  final String threadId;
+  ThreadIdEvent(this.threadId);
+}
+
 class ErrorEvent extends ChatStreamEvent {
   final String message;
   ErrorEvent(this.message);
@@ -32,10 +37,28 @@ class AiChatRepository {
   AiChatRepository(this._datasource, this._threadDatasource);
 
   /// Sends a message and returns a stream of chat events
-  Stream<ChatStreamEvent> sendMessage(String message) async* {
+  Stream<ChatStreamEvent> sendMessage({
+    required String message,
+    required String email,
+    String? threadId,
+  }) async* {
     try {
-      await for (final data in _datasource.sendMessage(message)) {
+      await for (final data in _datasource.sendMessage(
+        message: message,
+        email: email,
+        threadId: threadId,
+      )) {
         final type = data['type'] as String?;
+        
+        // Check if this is the thread_id response (no type field)
+        if (type == null && data.containsKey('thread_id')) {
+          final receivedThreadId = data['thread_id'] as String?;
+          if (receivedThreadId != null && receivedThreadId.isNotEmpty) {
+            _logger.info('Received thread_id: $receivedThreadId');
+            yield ThreadIdEvent(receivedThreadId);
+          }
+          continue;
+        }
         
         switch (type) {
           case 'search_results':

@@ -1,8 +1,10 @@
 import 'dart:async';
+import 'dart:math';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/features/ai/data/providers/ai_chat_provider.dart';
 import 'package:flutter_pecha/features/ai/data/repositories/ai_chat_repository.dart';
 import 'package:flutter_pecha/features/ai/models/chat_message.dart';
+import 'package:flutter_pecha/features/auth/application/user_notifier.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class ChatState {
@@ -43,10 +45,35 @@ class ChatState {
 
 class ChatController extends StateNotifier<ChatState> {
   final AiChatRepository _repository;
+  final Ref _ref;
   final _logger = AppLogger('ChatController');
   StreamSubscription? _streamSubscription;
 
-  ChatController(this._repository) : super(ChatState());
+  ChatController(this._repository, this._ref) : super(ChatState());
+
+  /// Get user email or generate a random guest email
+  String _getUserEmail() {
+    final userState = _ref.read(userProvider);
+    
+    // Check if user is authenticated and has an email
+    if (userState.isAuthenticated && 
+        userState.user?.email != null && 
+        userState.user!.email!.isNotEmpty) {
+      _logger.debug('Using authenticated user email: ${userState.user!.email}');
+      return userState.user!.email!;
+    }
+    
+    // Otherwise, use guest email
+    _logger.debug('User not authenticated or no email, using random generated guest email');
+    return _generateGuestEmail();
+  }
+  
+  /// Generate a random guest email for unauthenticated users
+  String _generateGuestEmail() {
+    final random = Random();
+    final randomId = random.nextInt(999999).toString().padLeft(6, '0');
+    return 'guest_$randomId@temp.com';
+  }
 
   /// Sends a message to the AI and handles the streaming response
   Future<void> sendMessage(String content) async {
@@ -62,6 +89,16 @@ class ChatController extends StateNotifier<ChatState> {
       error: null,
     );
 
+    // Get user email
+    final email = _getUserEmail();
+    
+    // Log the thread_id being sent (or null if new conversation)
+    if (state.currentThreadId != null) {
+      _logger.info('Sending message with existing thread_id: ${state.currentThreadId}');
+    } else {
+      _logger.info('Sending message for new conversation (no thread_id)');
+    }
+
     // Start streaming AI response
     state = state.copyWith(
       isStreaming: true,
@@ -70,7 +107,11 @@ class ChatController extends StateNotifier<ChatState> {
     );
 
     try {
-      final stream = _repository.sendMessage(content);
+      final stream = _repository.sendMessage(
+        message: content,
+        email: email,
+        threadId: state.currentThreadId,
+      );
       
       _streamSubscription = stream.listen(
         (event) {
@@ -84,6 +125,12 @@ class ChatController extends StateNotifier<ChatState> {
             // Append token to the streaming content
             state = state.copyWith(
               currentStreamingContent: state.currentStreamingContent + event.token,
+            );
+          } else if (event is ThreadIdEvent) {
+            // Store the thread_id for subsequent messages
+            _logger.info('Received and stored thread_id: ${event.threadId}');
+            state = state.copyWith(
+              currentThreadId: event.threadId,
             );
           } else if (event is DoneEvent) {
             // Finalize the AI message with search results
@@ -192,6 +239,6 @@ class ChatController extends StateNotifier<ChatState> {
 
 final chatControllerProvider = StateNotifierProvider<ChatController, ChatState>((ref) {
   final repository = ref.watch(aiChatRepositoryProvider);
-  return ChatController(repository);
+  return ChatController(repository, ref);
 });
 
