@@ -238,29 +238,11 @@ abstract class AppLocalizations {
   /// **'Meditation'**
   String get home_meditationTitle;
 
-  /// No description provided for @home_meditationSubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Awaken peace within.'**
-  String get home_meditationSubtitle;
-
   /// No description provided for @home_prayerTitle.
   ///
   /// In en, this message translates to:
   /// **'Prayer of the Day'**
   String get home_prayerTitle;
-
-  /// No description provided for @home_prayerSubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Begin your day with a sacred intention.'**
-  String get home_prayerSubtitle;
-
-  /// No description provided for @home_btnText.
-  ///
-  /// In en, this message translates to:
-  /// **'Start now'**
-  String get home_btnText;
 
   /// No description provided for @home_scripture.
   ///

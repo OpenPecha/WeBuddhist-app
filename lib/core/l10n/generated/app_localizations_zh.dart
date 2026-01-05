@@ -81,16 +81,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get home_meditationTitle => '禪修時刻';
 
   @override
-  String get home_meditationSubtitle => 'Awaken peace within.';
-
-  @override
   String get home_prayerTitle => 'Prayer of the Day';
-
-  @override
-  String get home_prayerSubtitle => 'Begin your day with a sacred intention.';
-
-  @override
-  String get home_btnText => 'Start now';
 
   @override
   String get home_scripture => 'Guided Scripture';
