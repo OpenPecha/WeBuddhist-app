@@ -145,5 +145,8 @@
   "feedback_wishlist": "དགོངས་འཆར་དང་རེ་འདུན།",
 
   "author": "རྩོམ་སྒྲིག་པ།",
-  "plans_created": "ཉམས་ལེན་ཁག"
+  "plans_created": "ཉམས་ལེན་ཁག",
+
+  "nav_settings": "སྒྲིག་འགོད།",
+  "nav_ai_mode": "རིག་ནུས་"
 }

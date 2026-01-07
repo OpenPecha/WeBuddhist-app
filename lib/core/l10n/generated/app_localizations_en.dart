@@ -439,4 +439,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get plans_created => 'Plan created';
+
+  @override
+  String get nav_ai_mode => 'AI';
 }
