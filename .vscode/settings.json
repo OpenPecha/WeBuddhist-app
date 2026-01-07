@@ -1,3 +1,6 @@
 {
-  "arb-editor.suppressedWarnings": ["missing_metadata_for_key"]
+  "arb-editor.suppressedWarnings": [
+    "missing_metadata_for_key"
+  ],
+  "postman.settings.dotenv-detection-notification-visibility": false
 }
