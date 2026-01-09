@@ -64,8 +64,8 @@ class MessageBubble extends StatelessWidget {
                 decoration: BoxDecoration(
                   color:
                       isDarkMode
-                          ? AppColors.grey600.withOpacity(0.3)
-                          : AppColors.grey300.withOpacity(0.6),
+                          ? AppColors.grey600.withValues(alpha: 0.3)
+                          : AppColors.grey300.withValues(alpha: 0.6),
                   borderRadius: BorderRadius.circular(4),
                   border: Border.all(
                     color: isDarkMode ? AppColors.grey500 : AppColors.grey600,

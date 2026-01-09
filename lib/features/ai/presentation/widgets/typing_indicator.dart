@@ -82,7 +82,7 @@ class _TypingIndicatorState extends State<TypingIndicator>
                   color: (isDarkMode
                           ? AppColors.textPrimaryDark
                           : AppColors.textPrimary)
-                      .withOpacity(opacity.clamp(0.3, 1.0)),
+                      .withValues(alpha: opacity.clamp(0.3, 1.0)),
                   shape: BoxShape.circle,
                 ),
               ),

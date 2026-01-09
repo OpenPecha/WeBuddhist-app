@@ -1,4 +1,5 @@
 import 'package:flutter_pecha/core/utils/app_logger.dart';
+import 'package:flutter_pecha/core/utils/error_message_mapper.dart';
 import 'package:flutter_pecha/features/ai/data/providers/ai_chat_provider.dart';
 import 'package:flutter_pecha/features/ai/data/repositories/ai_chat_repository.dart';
 import 'package:flutter_pecha/features/ai/models/chat_thread.dart';
@@ -58,14 +59,14 @@ class ThreadListController extends StateNotifier<ThreadListState> {
   /// Get user email for authenticated users
   String? _getUserEmail() {
     final userState = _ref.read(userProvider);
-    
+
     // Only return email if user is authenticated
-    if (userState.isAuthenticated && 
-        userState.user?.email != null && 
+    if (userState.isAuthenticated &&
+        userState.user?.email != null &&
         userState.user!.email!.isNotEmpty) {
       return userState.user!.email!;
     }
-    
+
     return null;
   }
 
@@ -117,27 +118,28 @@ class ThreadListController extends StateNotifier<ThreadListState> {
     try {
       final skip = state.threads.length;
       _logger.info('Loading more threads (skip: $skip)');
-      
+
       final response = await _repository.getThreads(
         email: email,
         skip: skip,
         limit: 10,
       );
-      
+
       state = state.copyWith(
         threads: [...state.threads, ...response.data],
         total: response.total,
         isLoadingMore: false,
         lastFetchTime: DateTime.now(),
       );
-      
+
       _logger.info('Loaded ${response.data.length} more threads');
     } catch (e, stackTrace) {
       _logger.error('Error loading more threads', e, stackTrace);
-      state = state.copyWith(
-        isLoadingMore: false,
-        error: e.toString(),
+      final friendlyMessage = ErrorMessageMapper.getDisplayMessage(
+        e,
+        context: 'load',
       );
+      state = state.copyWith(isLoadingMore: false, error: friendlyMessage);
     }
   }
 
@@ -150,21 +152,24 @@ class ThreadListController extends StateNotifier<ThreadListState> {
         skip: 0,
         limit: 10,
       );
-      
+
       state = state.copyWith(
         threads: response.data,
         total: response.total,
         isLoading: false,
         lastFetchTime: DateTime.now(),
       );
-      
-      _logger.info('Loaded ${response.data.length} threads (total: ${response.total})');
+
+      _logger.info(
+        'Loaded ${response.data.length} threads (total: ${response.total})',
+      );
     } catch (e, stackTrace) {
       _logger.error('Error loading threads', e, stackTrace);
-      state = state.copyWith(
-        isLoading: false,
-        error: e.toString(),
+      final friendlyMessage = ErrorMessageMapper.getDisplayMessage(
+        e,
+        context: 'load',
       );
+      state = state.copyWith(isLoading: false, error: friendlyMessage);
     }
   }
 
@@ -179,14 +184,12 @@ class ThreadListController extends StateNotifier<ThreadListState> {
     try {
       _logger.info('Deleting thread: $threadId');
       await _repository.deleteThread(threadId);
-      
+
       // Remove the thread from the local list
-      final updatedThreads = state.threads.where((t) => t.id != threadId).toList();
-      state = state.copyWith(
-        threads: updatedThreads,
-        total: state.total - 1,
-      );
-      
+      final updatedThreads =
+          state.threads.where((t) => t.id != threadId).toList();
+      state = state.copyWith(threads: updatedThreads, total: state.total - 1);
+
       _logger.info('Thread deleted successfully: $threadId');
     } catch (e, stackTrace) {
       _logger.error('Error deleting thread', e, stackTrace);
@@ -207,7 +210,6 @@ class ThreadListController extends StateNotifier<ThreadListState> {
 
 final threadListControllerProvider =
     StateNotifierProvider<ThreadListController, ThreadListState>((ref) {
-  final repository = ref.watch(aiChatRepositoryProvider);
-  return ThreadListController(repository, ref);
-});
-
+      final repository = ref.watch(aiChatRepositoryProvider);
+      return ThreadListController(repository, ref);
+    });
