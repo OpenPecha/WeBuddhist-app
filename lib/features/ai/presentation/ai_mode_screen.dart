@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
+import 'package:flutter_pecha/core/utils/error_message_mapper.dart';
 import 'package:flutter_pecha/features/ai/presentation/controllers/chat_controller.dart';
 import 'package:flutter_pecha/features/ai/presentation/controllers/thread_list_controller.dart';
 import 'package:flutter_pecha/features/ai/presentation/widgets/chat_header.dart';
@@ -113,17 +114,24 @@ class _AiModeScreenState extends ConsumerState<AiModeScreen> {
 
     if (chatState.error != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
+        final friendlyMessage = ErrorMessageMapper.getDisplayMessage(
+          chatState.error,
+          context: 'chat',
+        );
+        final isRetryable = ErrorMessageMapper.isRetryable(chatState.error);
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error: ${chatState.error}'),
+            content: Text(friendlyMessage),
             backgroundColor: Colors.red,
             action: SnackBarAction(
-              label: 'Dismiss',
+              label: isRetryable ? 'Retry' : 'Dismiss',
               textColor: Colors.white,
               onPressed: () {
                 ref.read(chatControllerProvider.notifier).clearError();
               },
             ),
+            duration: const Duration(seconds: 4),
           ),
         );
         ref.read(chatControllerProvider.notifier).clearError();
