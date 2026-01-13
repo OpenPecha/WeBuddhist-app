@@ -23,7 +23,7 @@ class AiChatRemoteDatasource {
     }
 
     final url = Uri.parse('$aiUrl/chats');
-    
+
     // Build request body with required fields
     final requestBody = <String, dynamic>{
       'email': email,
@@ -31,7 +31,7 @@ class AiChatRemoteDatasource {
       'application': 'webuddhist',
       'device_type': 'mobile_app',
     };
-    
+
     // Only include thread_id if it's provided
     if (threadId != null && threadId.isNotEmpty) {
       requestBody['thread_id'] = threadId;
@@ -42,7 +42,7 @@ class AiChatRemoteDatasource {
 
     _logger.info('Sending message to AI API: ${url.toString()}');
     _logger.debug('Request body: $requestBody');
-    
+
     try {
       final request = http.Request('POST', url);
       request.headers['Content-Type'] = 'application/json';
@@ -50,16 +50,20 @@ class AiChatRemoteDatasource {
       request.body = jsonEncode(requestBody);
 
       // Add connection timeout
-      final streamedResponse = await _client.send(request).timeout(
-        AiConfig.connectionTimeout,
-        onTimeout: () {
-          _logger.error('Connection timeout after ${AiConfig.connectionTimeout.inSeconds}s');
-          throw TimeoutException(
-            'Connection timed out. Please check your internet connection.',
+      final streamedResponse = await _client
+          .send(request)
+          .timeout(
             AiConfig.connectionTimeout,
+            onTimeout: () {
+              _logger.error(
+                'Connection timeout after ${AiConfig.connectionTimeout.inSeconds}s',
+              );
+              throw TimeoutException(
+                'Connection timed out. Please check your internet connection.',
+                AiConfig.connectionTimeout,
+              );
+            },
           );
-        },
-      );
 
       if (streamedResponse.statusCode != 200) {
         _logger.error('API error: ${streamedResponse.statusCode}');
@@ -78,33 +82,37 @@ class AiChatRemoteDatasource {
           .timeout(
             AiConfig.tokenTimeout,
             onTimeout: (sink) {
-              _logger.error('Stream timeout - no data received for ${AiConfig.tokenTimeout.inSeconds}s');
-              sink.addError(TimeoutException(
-                'Response timed out. The AI server may be busy.',
-                AiConfig.tokenTimeout,
-              ));
+              _logger.error(
+                'Stream timeout - no data received for ${AiConfig.tokenTimeout.inSeconds}s',
+              );
+              sink.addError(
+                TimeoutException(
+                  'Response timed out. The AI server may be busy.',
+                  AiConfig.tokenTimeout,
+                ),
+              );
               sink.close();
             },
           )) {
         // Add new chunk to buffer
         buffer += chunk;
-        
+
         // Split by lines
         final lines = buffer.split('\n');
-        
+
         // Keep the last line in buffer (might be incomplete)
         buffer = lines.last;
-        
+
         // Process all complete lines (all except the last)
         for (int i = 0; i < lines.length - 1; i++) {
           final line = lines[i].trim();
-          
+
           if (line.isEmpty) continue;
-          
+
           // SSE format: "data: {json}"
           if (line.startsWith('data: ')) {
             final jsonString = line.substring(6); // Remove "data: " prefix
-            
+
             try {
               final data = jsonDecode(jsonString) as Map<String, dynamic>;
               _logger.debug('Received event type: ${data['type']}');
@@ -116,7 +124,7 @@ class AiChatRemoteDatasource {
           }
         }
       }
-      
+
       // Process any remaining buffered line after stream ends
       if (buffer.trim().isNotEmpty && buffer.trim().startsWith('data: ')) {
         final jsonString = buffer.trim().substring(6);
@@ -128,7 +136,7 @@ class AiChatRemoteDatasource {
           _logger.warning('Failed to parse final buffered JSON: $jsonString');
         }
       }
-      
+
       _logger.info('Stream completed');
     } catch (e, stackTrace) {
       _logger.error('Error in sendMessage stream', e, stackTrace);
@@ -136,4 +144,3 @@ class AiChatRemoteDatasource {
     }
   }
 }
-
