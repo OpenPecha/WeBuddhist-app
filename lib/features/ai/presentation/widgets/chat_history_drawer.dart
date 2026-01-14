@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/core/utils/error_message_mapper.dart';
+import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/features/ai/presentation/controllers/chat_controller.dart';
 import 'package:flutter_pecha/features/ai/presentation/controllers/thread_list_controller.dart';
 import 'package:flutter_pecha/features/ai/presentation/widgets/delete_thread_dialog.dart';
@@ -89,16 +90,17 @@ class _ChatHistoryDrawerState extends ConsumerState<ChatHistoryDrawer> {
 
         // Show success message
         if (mounted) {
+          final localizations = AppLocalizations.of(context)!;
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Row(
                 children: [
                   const Icon(Icons.check_circle, color: Colors.white, size: 20),
                   const SizedBox(width: 12),
-                  const Expanded(
+                  Expanded(
                     child: Text(
-                      'Chat Deleted',
-                      style: TextStyle(
+                      localizations.ai_chat_deleted,
+                      style: const TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w500,
                         color: Colors.white,
@@ -180,7 +182,7 @@ class _ChatHistoryDrawerState extends ConsumerState<ChatHistoryDrawer> {
                           focusNode: _searchFocusNode,
                           textInputAction: TextInputAction.search,
                           decoration: InputDecoration(
-                            hintText: 'Search for chats',
+                            hintText: AppLocalizations.of(context)!.ai_search_chats,
                             hintStyle: TextStyle(
                               fontSize: 12,
                               color:
@@ -239,7 +241,7 @@ class _ChatHistoryDrawerState extends ConsumerState<ChatHistoryDrawer> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              'Chats',
+                              AppLocalizations.of(context)!.ai_chats,
                               style: TextStyle(
                                 fontSize: 15,
                                 fontWeight: FontWeight.w900,
@@ -306,6 +308,7 @@ class _ChatHistoryDrawerState extends ConsumerState<ChatHistoryDrawer> {
     }
 
     if (state.error != null) {
+      final localizations = AppLocalizations.of(context)!;
       return Center(
         child: Padding(
           padding: const EdgeInsets.all(16),
@@ -340,7 +343,7 @@ class _ChatHistoryDrawerState extends ConsumerState<ChatHistoryDrawer> {
                   backgroundColor: AppColors.primaryDarkest,
                   foregroundColor: Colors.white,
                 ),
-                child: const Text('Retry'),
+                child: Text(localizations.ai_retry),
               ),
             ],
           ),
@@ -349,6 +352,7 @@ class _ChatHistoryDrawerState extends ConsumerState<ChatHistoryDrawer> {
     }
 
     if (state.threads.isEmpty) {
+      final localizations = AppLocalizations.of(context)!;
       return Center(
         child: Padding(
           padding: const EdgeInsets.all(16),
@@ -362,7 +366,7 @@ class _ChatHistoryDrawerState extends ConsumerState<ChatHistoryDrawer> {
               ),
               const SizedBox(height: 16),
               Text(
-                'No conversations yet',
+                localizations.ai_no_conversations,
                 style: TextStyle(
                   fontSize: 16,
                   color: isDarkMode ? AppColors.grey400 : AppColors.grey800,
@@ -370,7 +374,7 @@ class _ChatHistoryDrawerState extends ConsumerState<ChatHistoryDrawer> {
               ),
               const SizedBox(height: 8),
               Text(
-                'Start a new chat to begin',
+                localizations.ai_start_new_chat,
                 style: TextStyle(
                   fontSize: 14,
                   color: isDarkMode ? AppColors.grey500 : AppColors.grey600,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
+import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 
 class DeleteThreadDialog extends StatelessWidget {
   final String threadTitle;
@@ -9,12 +10,13 @@ class DeleteThreadDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final localizations = AppLocalizations.of(context)!;
 
     return AlertDialog(
       backgroundColor: isDarkMode ? AppColors.surfaceVariantDark : Colors.white,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       title: Text(
-        'Delete Chat',
+        localizations.ai_delete_chat,
         style: TextStyle(
           fontSize: 18,
           fontWeight: FontWeight.w600,
@@ -26,7 +28,7 @@ class DeleteThreadDialog extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Are you sure you want to delete this chat?',
+            localizations.ai_delete_confirmation,
             style: TextStyle(
               fontSize: 14,
               color: isDarkMode ? AppColors.grey300 : AppColors.textSecondary,
@@ -34,7 +36,7 @@ class DeleteThreadDialog extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           Text(
-            'This action cannot be undone.',
+            localizations.ai_delete_warning,
             style: TextStyle(
               fontSize: 12,
               color: AppColors.error,
@@ -49,7 +51,7 @@ class DeleteThreadDialog extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
           ),
           child: Text(
-            'Cancel',
+            localizations.cancel,
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w500,
@@ -67,9 +69,9 @@ class DeleteThreadDialog extends StatelessWidget {
               borderRadius: BorderRadius.circular(8),
             ),
           ),
-          child: const Text(
-            'Confirm',
-            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+          child: Text(
+            localizations.ai_confirm,
+            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
           ),
         ),
       ],

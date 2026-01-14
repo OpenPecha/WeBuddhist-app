@@ -951,6 +951,132 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Plan created'**
   String get plans_created;
+
+  /// No description provided for @ai_chat_history.
+  ///
+  /// In en, this message translates to:
+  /// **'Chat History'**
+  String get ai_chat_history;
+
+  /// No description provided for @ai_buddhist_assistant.
+  ///
+  /// In en, this message translates to:
+  /// **'Buddhist AI Assistant'**
+  String get ai_buddhist_assistant;
+
+  /// No description provided for @ai_new_chat.
+  ///
+  /// In en, this message translates to:
+  /// **'New Chat'**
+  String get ai_new_chat;
+
+  /// No description provided for @ai_retry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get ai_retry;
+
+  /// No description provided for @ai_dismiss.
+  ///
+  /// In en, this message translates to:
+  /// **'Dismiss'**
+  String get ai_dismiss;
+
+  /// No description provided for @ai_sign_in_prompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Please sign in to access the Buddhist AI Assistant and start meaningful conversations'**
+  String get ai_sign_in_prompt;
+
+  /// No description provided for @ai_explore_wisdom.
+  ///
+  /// In en, this message translates to:
+  /// **'Explore Buddhist Wisdom'**
+  String get ai_explore_wisdom;
+
+  /// No description provided for @ai_suggestion_self.
+  ///
+  /// In en, this message translates to:
+  /// **'What is self ?'**
+  String get ai_suggestion_self;
+
+  /// No description provided for @ai_suggestion_enlightenment.
+  ///
+  /// In en, this message translates to:
+  /// **'How one can attain enlightenment ?'**
+  String get ai_suggestion_enlightenment;
+
+  /// No description provided for @ai_ask_question.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask a question ...'**
+  String get ai_ask_question;
+
+  /// No description provided for @ai_loading_conversation.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading conversation...'**
+  String get ai_loading_conversation;
+
+  /// No description provided for @ai_search_chats.
+  ///
+  /// In en, this message translates to:
+  /// **'Search for chats'**
+  String get ai_search_chats;
+
+  /// No description provided for @ai_chats.
+  ///
+  /// In en, this message translates to:
+  /// **'Chats'**
+  String get ai_chats;
+
+  /// No description provided for @ai_chat_deleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Chat Deleted'**
+  String get ai_chat_deleted;
+
+  /// No description provided for @ai_no_conversations.
+  ///
+  /// In en, this message translates to:
+  /// **'No conversations yet'**
+  String get ai_no_conversations;
+
+  /// No description provided for @ai_start_new_chat.
+  ///
+  /// In en, this message translates to:
+  /// **'Start a new chat to begin'**
+  String get ai_start_new_chat;
+
+  /// No description provided for @ai_delete_chat.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Chat'**
+  String get ai_delete_chat;
+
+  /// No description provided for @ai_delete_confirmation.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete this chat?'**
+  String get ai_delete_confirmation;
+
+  /// No description provided for @ai_delete_warning.
+  ///
+  /// In en, this message translates to:
+  /// **'This action cannot be undone.'**
+  String get ai_delete_warning;
+
+  /// No description provided for @ai_confirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm'**
+  String get ai_confirm;
+
+  /// No description provided for @ai_delete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get ai_delete;
 }
 
 class _AppLocalizationsDelegate
