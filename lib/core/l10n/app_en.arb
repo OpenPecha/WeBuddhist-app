@@ -148,5 +148,27 @@
   "feedback_wishlist": "Feedback and Wishlist",
 
   "author": "Author",
-  "plans_created": "Plan created"
+  "plans_created": "Plan created",
+
+  "ai_chat_history": "Chat History",
+  "ai_buddhist_assistant": "Buddhist AI Assistant",
+  "ai_new_chat": "New Chat",
+  "ai_retry": "Retry",
+  "ai_dismiss": "Dismiss",
+  "ai_sign_in_prompt": "Please sign in to access the Buddhist AI Assistant and start meaningful conversations",
+  "ai_explore_wisdom": "Explore Buddhist Wisdom",
+  "ai_suggestion_self": "What is self ?",
+  "ai_suggestion_enlightenment": "How one can attain enlightenment ?",
+  "ai_ask_question": "Ask a question ...",
+  "ai_loading_conversation": "Loading conversation...",
+  "ai_search_chats": "Search for chats",
+  "ai_chats": "Chats",
+  "ai_chat_deleted": "Chat Deleted",
+  "ai_no_conversations": "No conversations yet",
+  "ai_start_new_chat": "Start a new chat to begin",
+  "ai_delete_chat": "Delete Chat",
+  "ai_delete_confirmation": "Are you sure you want to delete this chat?",
+  "ai_delete_warning": "This action cannot be undone.",
+  "ai_confirm": "Confirm",
+  "ai_delete": "Delete"
 }
