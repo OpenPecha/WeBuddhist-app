@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/core/utils/error_message_mapper.dart';
+import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/features/ai/presentation/controllers/chat_controller.dart';
 import 'package:flutter_pecha/features/ai/presentation/controllers/thread_list_controller.dart';
 import 'package:flutter_pecha/features/ai/presentation/widgets/chat_header.dart';
@@ -21,11 +22,15 @@ class AiModeScreen extends ConsumerStatefulWidget {
 class _AiModeScreenState extends ConsumerState<AiModeScreen> {
   final TextEditingController _controller = TextEditingController();
   final FocusNode _focusNode = FocusNode();
-  final List<String> _suggestions = [
-    'What is self ?',
-    'How one can attain enlightenment ?',
-  ];
   bool _hasText = false;
+
+  List<String> _getSuggestions(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
+    return [
+      localizations.ai_suggestion_self,
+      localizations.ai_suggestion_enlightenment,
+    ];
+  }
 
   @override
   void initState() {
@@ -74,10 +79,11 @@ class _AiModeScreenState extends ConsumerState<AiModeScreen> {
 
   void _onMenuPressed() {
     // Show fullscreen overlay drawer that covers bottom nav
+    final localizations = AppLocalizations.of(context)!;
     showGeneralDialog(
       context: context,
       barrierDismissible: true,
-      barrierLabel: 'Chat History',
+      barrierLabel: localizations.ai_chat_history,
       barrierColor: Colors.black54,
       transitionDuration: const Duration(milliseconds: 250),
       pageBuilder: (context, animation, secondaryAnimation) {
@@ -114,6 +120,7 @@ class _AiModeScreenState extends ConsumerState<AiModeScreen> {
 
     if (chatState.error != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
+        final localizations = AppLocalizations.of(context)!;
         final friendlyMessage = ErrorMessageMapper.getDisplayMessage(
           chatState.error,
           context: 'chat',
@@ -125,7 +132,7 @@ class _AiModeScreenState extends ConsumerState<AiModeScreen> {
             content: Text(friendlyMessage),
             backgroundColor: Colors.red,
             action: SnackBarAction(
-              label: isRetryable ? 'Retry' : 'Dismiss',
+              label: isRetryable ? localizations.ai_retry : localizations.ai_dismiss,
               textColor: Colors.white,
               onPressed: () {
                 ref.read(chatControllerProvider.notifier).clearError();
@@ -185,6 +192,7 @@ class _AiModeScreenState extends ConsumerState<AiModeScreen> {
 
   // Build the minimal header for the empty state. Starting State for the app.
   Widget _buildMinimalHeader(bool isDarkMode) {
+    final localizations = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
       decoration: BoxDecoration(
@@ -208,10 +216,10 @@ class _AiModeScreenState extends ConsumerState<AiModeScreen> {
                       ? AppColors.surfaceWhite
                       : AppColors.cardBorderDark,
             ),
-            tooltip: 'Chat History',
+            tooltip: localizations.ai_chat_history,
           ),
           Text(
-            'Buddhist AI Assistant',
+            localizations.ai_buddhist_assistant,
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w600,
@@ -227,6 +235,7 @@ class _AiModeScreenState extends ConsumerState<AiModeScreen> {
   }
 
   Widget _buildLoadingState(bool isDarkMode) {
+    final localizations = AppLocalizations.of(context)!;
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -234,7 +243,7 @@ class _AiModeScreenState extends ConsumerState<AiModeScreen> {
           CircularProgressIndicator(color: AppColors.primary),
           const SizedBox(height: 16),
           Text(
-            'Loading conversation...',
+            localizations.ai_loading_conversation,
             style: TextStyle(
               fontSize: 14,
               color: isDarkMode ? AppColors.grey400 : AppColors.grey600,
@@ -247,6 +256,7 @@ class _AiModeScreenState extends ConsumerState<AiModeScreen> {
 
   Widget _buildSignInPrompt(bool isDarkMode) {
     final theme = Theme.of(context);
+    final localizations = AppLocalizations.of(context)!;
     return SafeArea(
       child: Center(
         child: Padding(
@@ -261,7 +271,7 @@ class _AiModeScreenState extends ConsumerState<AiModeScreen> {
               ),
               const SizedBox(height: 24),
               Text(
-                'Sign In',
+                localizations.sign_in,
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
@@ -274,7 +284,7 @@ class _AiModeScreenState extends ConsumerState<AiModeScreen> {
               ),
               const SizedBox(height: 12),
               Text(
-                'Please sign in to access the Buddhist AI Assistant and start meaningful conversations',
+                localizations.ai_sign_in_prompt,
                 style: TextStyle(
                   fontSize: 14,
                   color: isDarkMode ? AppColors.grey400 : AppColors.grey600,
@@ -284,7 +294,7 @@ class _AiModeScreenState extends ConsumerState<AiModeScreen> {
               const SizedBox(height: 32),
               ElevatedButton.icon(
                 icon: const Icon(Icons.login),
-                label: const Text('Sign In'),
+                label: Text(localizations.sign_in),
                 onPressed: () {
                   LoginDrawer.show(context, ref);
                 },
@@ -303,6 +313,8 @@ class _AiModeScreenState extends ConsumerState<AiModeScreen> {
   }
 
   Widget _buildEmptyState(bool isDarkMode) {
+    final localizations = AppLocalizations.of(context)!;
+    final suggestions = _getSuggestions(context);
     return Center(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -310,7 +322,7 @@ class _AiModeScreenState extends ConsumerState<AiModeScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              'Explore Buddhist Wisdom',
+              localizations.ai_explore_wisdom,
               style: TextStyle(
                 fontSize: 25,
                 fontWeight: FontWeight.w500,
@@ -327,7 +339,7 @@ class _AiModeScreenState extends ConsumerState<AiModeScreen> {
                 spacing: 8,
                 runSpacing: 8,
                 children:
-                    _suggestions.map((s) {
+                    suggestions.map((s) {
                       return InkWell(
                         onTap: () => _onSuggestionTap(s),
                         child: Padding(
@@ -404,7 +416,7 @@ class _AiModeScreenState extends ConsumerState<AiModeScreen> {
                     minLines: 1,
                     textInputAction: TextInputAction.newline,
                     decoration: InputDecoration(
-                      hintText: 'Ask a question ...',
+                      hintText: AppLocalizations.of(context)!.ai_ask_question,
                       hintStyle: TextStyle(
                         color:
                             isDarkMode

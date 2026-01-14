@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
+import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 
 class ChatHeader extends StatelessWidget {
   final VoidCallback? onNewChat;
@@ -14,6 +15,7 @@ class ChatHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final localizations = AppLocalizations.of(context)!;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -35,10 +37,10 @@ class ChatHeader extends StatelessWidget {
               Icons.menu_sharp,
               color: isDarkMode ? AppColors.surfaceWhite : AppColors.cardBorderDark,
             ),
-            tooltip: 'Chat History',
+            tooltip: localizations.ai_chat_history,
           ),
           Text(
-            'Buddhist AI Assistant',
+            localizations.ai_buddhist_assistant,
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w600,
@@ -52,7 +54,7 @@ class ChatHeader extends StatelessWidget {
                 Icons.add,
                 color: isDarkMode ? AppColors.surfaceWhite : AppColors.cardBorderDark,
               ),
-              tooltip: 'New Chat',
+              tooltip: localizations.ai_new_chat,
             ),
         ],
       ),
