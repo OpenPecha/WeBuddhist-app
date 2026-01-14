@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
+import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/features/ai/models/chat_thread.dart';
 
 class ThreadListItem extends StatelessWidget {
@@ -19,6 +20,7 @@ class ThreadListItem extends StatelessWidget {
 
   void _showContextMenu(BuildContext context, RenderBox renderBox) async {
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final localizations = AppLocalizations.of(context)!;
 
     // Get the position and size of the thread item
     final position = renderBox.localToGlobal(Offset.zero);
@@ -79,7 +81,7 @@ class ThreadListItem extends StatelessWidget {
                                       MainAxisSize.min, // Don't expand
                                   children: [
                                     Text(
-                                      'Delete',
+                                      localizations.ai_delete,
                                       style: TextStyle(
                                         color: Colors.red,
                                         fontSize: 13,
