@@ -114,8 +114,11 @@ class MoreScreen extends ConsumerWidget {
                 ),
                 trailing: Switch(
                   value: isDarkMode,
-                  onChanged:
-                      (_) => ref.read(themeModeProvider.notifier).toggleTheme(),
+                  onChanged: (bool value) {
+                    ref
+                        .read(themeModeProvider.notifier)
+                        .setTheme(value ? ThemeMode.dark : ThemeMode.light);
+                  },
                   activeThumbColor: Theme.of(context).colorScheme.primary,
                   thumbColor: WidgetStateProperty.all(
                     themeMode == ThemeMode.dark ? Colors.white : Colors.black,
@@ -275,54 +278,56 @@ class MoreScreen extends ConsumerWidget {
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder:
-          (context) => Container(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Center(
-                  child: Container(
-                    width: 40,
-                    height: 4,
-                    margin: const EdgeInsets.only(bottom: 20),
-                    decoration: BoxDecoration(
-                      color: Colors.grey.shade300,
-                      borderRadius: BorderRadius.circular(2),
+          (context) => SafeArea(
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Center(
+                    child: Container(
+                      width: 40,
+                      height: 4,
+                      margin: const EdgeInsets.only(bottom: 20),
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade300,
+                        borderRadius: BorderRadius.circular(2),
+                      ),
                     ),
                   ),
-                ),
-                Text(
-                  localizations.select_language,
-                  style: Theme.of(
-                    context,
-                  ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600),
-                ),
-                const SizedBox(height: 16),
-                ..._supportedLocales.map((localeItem) {
-                  final isSelected =
-                      (currentLocale ?? Localizations.localeOf(context)) ==
-                      localeItem;
-                  return ListTile(
-                    title: Text(
-                      _getLanguageName(localeItem),
-                      style: Theme.of(context).textTheme.titleMedium,
+                  Text(
+                    localizations.select_language,
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.w600,
                     ),
-                    trailing:
-                        isSelected
-                            ? Icon(
-                              Icons.check,
-                              color: Theme.of(context).colorScheme.primary,
-                            )
-                            : null,
-                    onTap: () {
-                      ref.read(localeProvider.notifier).setLocale(localeItem);
-                      Navigator.pop(context);
-                    },
-                  );
-                }),
-                const SizedBox(height: 16),
-              ],
+                  ),
+                  const SizedBox(height: 16),
+                  ..._supportedLocales.map((localeItem) {
+                    final isSelected =
+                        (currentLocale ?? Localizations.localeOf(context)) ==
+                        localeItem;
+                    return ListTile(
+                      title: Text(
+                        _getLanguageName(localeItem),
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                      trailing:
+                          isSelected
+                              ? Icon(
+                                Icons.check,
+                                color: Theme.of(context).colorScheme.primary,
+                              )
+                              : null,
+                      onTap: () {
+                        ref.read(localeProvider.notifier).setLocale(localeItem);
+                        Navigator.pop(context);
+                      },
+                    );
+                  }),
+                  const SizedBox(height: 16),
+                ],
+              ),
             ),
           ),
     );

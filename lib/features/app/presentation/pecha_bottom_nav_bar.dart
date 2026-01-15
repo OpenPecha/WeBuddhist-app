@@ -14,7 +14,7 @@ class PechaBottomNavBar extends ConsumerWidget {
     final localizations = AppLocalizations.of(context)!;
 
     return Container(
-      padding: EdgeInsets.only(bottom: 16),
+      // padding: EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.only(

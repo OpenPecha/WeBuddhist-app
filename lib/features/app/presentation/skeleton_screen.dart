@@ -33,7 +33,7 @@ class SkeletonScreen extends ConsumerWidget {
     return AppUpgradeWrapper(
       child: Scaffold(
         body: _pages[selectedIndex],
-        bottomNavigationBar: PechaBottomNavBar(),
+        bottomNavigationBar: SafeArea(child: PechaBottomNavBar()),
       ),
     );
   }
