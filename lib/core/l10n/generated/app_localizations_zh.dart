@@ -438,68 +438,65 @@ class AppLocalizationsZh extends AppLocalizations {
   String get plans_created => '參與設計的計劃';
 
   @override
-  String get ai_chat_history => 'Chat History';
+  String get ai_chat_history => '對話紀錄';
 
   @override
-  String get ai_buddhist_assistant => 'Buddhist AI Assistant';
+  String get ai_buddhist_assistant => '佛法AI助手';
 
   @override
-  String get ai_new_chat => 'New Chat';
+  String get ai_new_chat => '新對話';
 
   @override
-  String get ai_retry => 'Retry';
+  String get ai_retry => '重試';
 
   @override
-  String get ai_dismiss => 'Dismiss';
+  String get ai_dismiss => '略過';
 
   @override
-  String get ai_sign_in_prompt =>
-      'Please sign in to access the Buddhist AI Assistant and start meaningful conversations';
+  String get ai_sign_in_prompt => '請登入以使用佛法AI助手，並展開有深度的對話';
 
   @override
-  String get ai_explore_wisdom => 'Explore Buddhist Wisdom';
+  String get ai_explore_wisdom => '探索佛法的智慧';
 
   @override
-  String get ai_suggestion_self => 'What is self ?';
+  String get ai_suggestion_self => '什麼是自我？';
 
   @override
-  String get ai_suggestion_enlightenment =>
-      'How one can attain enlightenment ?';
+  String get ai_suggestion_enlightenment => '如何證悟？';
 
   @override
-  String get ai_ask_question => 'Ask a question ...';
+  String get ai_ask_question => '問一個問題...';
 
   @override
-  String get ai_loading_conversation => 'Loading conversation...';
+  String get ai_loading_conversation => '加載對話...';
 
   @override
-  String get ai_search_chats => 'Search for chats';
+  String get ai_search_chats => '搜尋對話紀錄';
 
   @override
-  String get ai_chats => 'Chats';
+  String get ai_chats => '對話紀錄';
 
   @override
-  String get ai_chat_deleted => 'Chat Deleted';
+  String get ai_chat_deleted => '對話已刪除';
 
   @override
-  String get ai_no_conversations => 'No conversations yet';
+  String get ai_no_conversations => '尚無任何對話';
 
   @override
-  String get ai_start_new_chat => 'Start a new chat to begin';
+  String get ai_start_new_chat => '開始新對話';
 
   @override
-  String get ai_delete_chat => 'Delete Chat';
+  String get ai_delete_chat => '刪除對話';
 
   @override
-  String get ai_delete_confirmation =>
-      'Are you sure you want to delete this chat?';
+  String get ai_delete_confirmation => '確定要刪除此對話？';
 
   @override
-  String get ai_delete_warning => 'This action cannot be undone.';
+  String get ai_delete_warning => '此操作執行後將無法復原';
 
   @override
-  String get ai_confirm => 'Confirm';
+  String get ai_confirm => '確認';
 
   @override
-  String get ai_delete => 'Delete';
+  String get ai_delete => '刪除';
 }

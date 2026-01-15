@@ -446,68 +446,68 @@ class AppLocalizationsBo extends AppLocalizations {
   String get plans_created => 'ཉམས་ལེན་ཁག';
 
   @override
-  String get ai_chat_history => 'Chat History';
+  String get ai_chat_history => 'ཁ་བརྡའི་ལོ་རྒྱུས།';
 
   @override
-  String get ai_buddhist_assistant => 'Buddhist AI Assistant';
+  String get ai_buddhist_assistant => 'ནང་པའི་རིག་ནུས་ཕྱག་རོགས།';
 
   @override
-  String get ai_new_chat => 'New Chat';
+  String get ai_new_chat => 'ཁ་བརྡ་གསར་པ།';
 
   @override
-  String get ai_retry => 'Retry';
+  String get ai_retry => 'བསྐྱར་དུ་འབད་པ།';
 
   @override
-  String get ai_dismiss => 'Dismiss';
+  String get ai_dismiss => 'ཕྱིར་འཐེན།';
 
   @override
   String get ai_sign_in_prompt =>
-      'Please sign in to access the Buddhist AI Assistant and start meaningful conversations';
+      'ནང་པའི་རིག་ནུས་ཕྱག་རོགས་བེད་སྤྱོད་གཏོང་བ་དང་དོན་སྙིང་ལྡན་པའི་གླེང་མོལ་འགོ་འཛུགས་པར་དེབ་སྐྱེལ་གནང་རོགས།';
 
   @override
-  String get ai_explore_wisdom => 'Explore Buddhist Wisdom';
+  String get ai_explore_wisdom => 'ནང་ཆོས་ཀྱི་ཤེས་བྱ་འཚོལ་ཞིབ་བྱེད།';
 
   @override
-  String get ai_suggestion_self => 'What is self ?';
+  String get ai_suggestion_self => 'བདག་ཅེས་པ་ནི་ཅི་ཞིག་ཡིན།';
 
   @override
   String get ai_suggestion_enlightenment =>
-      'How one can attain enlightenment ?';
+      'བྱང་ཆུབ་ཀྱི་གོ་འཕང་ཇི་ལྟར་ཐོབ་ཐུབ་བམ།';
 
   @override
-  String get ai_ask_question => 'Ask a question ...';
+  String get ai_ask_question => 'དྲི་བ་ཞིག་འདྲི་དང་། ...';
 
   @override
-  String get ai_loading_conversation => 'Loading conversation...';
+  String get ai_loading_conversation => 'ཁ་བརྡ་འཇུག་བཞིན་པ། ...';
 
   @override
-  String get ai_search_chats => 'Search for chats';
+  String get ai_search_chats => 'ཁ་བརྡ་འཚོལ་བ།';
 
   @override
-  String get ai_chats => 'Chats';
+  String get ai_chats => 'ཁ་བརྡ།';
 
   @override
-  String get ai_chat_deleted => 'Chat Deleted';
+  String get ai_chat_deleted => 'ཁ་བརྡ་བསུབས་ཟིན།';
 
   @override
-  String get ai_no_conversations => 'No conversations yet';
+  String get ai_no_conversations => 'ད་བར་ཁ་བརྡ་བྱུང་མེད།';
 
   @override
-  String get ai_start_new_chat => 'Start a new chat to begin';
+  String get ai_start_new_chat => 'འགོ་འཛུགས་པའི་ཆེད་ཁ་བརྡ་གསར་པ་ཞིག་བཟོ་རོགས།';
 
   @override
-  String get ai_delete_chat => 'Delete Chat';
+  String get ai_delete_chat => 'ཁ་བརྡ་བསུབ་པ།';
 
   @override
   String get ai_delete_confirmation =>
-      'Are you sure you want to delete this chat?';
+      'ཁྱེད་ཀྱིས་ཁ་བརྡ་འདི་བསུབ་རྒྱུ་གཏན་འཁེལ་ཡིན་ནམ།';
 
   @override
-  String get ai_delete_warning => 'This action cannot be undone.';
+  String get ai_delete_warning => 'བྱ་བ་འདི་ཕྱིར་ལོག་བྱེད་མི་ཐུབ།';
 
   @override
-  String get ai_confirm => 'Confirm';
+  String get ai_confirm => 'གཏན་འཁེལ།';
 
   @override
-  String get ai_delete => 'Delete';
+  String get ai_delete => 'བསུབ།';
 }
