@@ -202,15 +202,12 @@ class MessageBubble extends StatelessWidget {
                         vertical: 12,
                       ),
                       decoration: BoxDecoration(
-                        color:
-                            isDarkMode
-                                ? AppColors.primaryDark
-                                : AppColors.backgroundDark,
+                        color: Theme.of(context).colorScheme.surfaceContainer,
                         borderRadius: const BorderRadius.only(
                           topLeft: Radius.circular(18),
-                          topRight: Radius.circular(18),
+                          topRight: Radius.circular(4),
                           bottomLeft: Radius.circular(18),
-                          bottomRight: Radius.circular(4),
+                          bottomRight: Radius.circular(18),
                         ),
                       ),
                       child: Text(
@@ -218,7 +215,7 @@ class MessageBubble extends StatelessWidget {
                         style: const TextStyle(
                           fontSize: 12,
                           height: 1.4,
-                          color: Colors.white,
+                          // color: Colors.white,
                         ),
                       ),
                     )

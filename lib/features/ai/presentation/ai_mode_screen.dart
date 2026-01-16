@@ -3,7 +3,6 @@ import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/core/utils/error_message_mapper.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/features/ai/presentation/controllers/chat_controller.dart';
-import 'package:flutter_pecha/features/ai/presentation/controllers/thread_list_controller.dart';
 import 'package:flutter_pecha/features/ai/presentation/widgets/chat_header.dart';
 import 'package:flutter_pecha/features/ai/presentation/widgets/chat_history_drawer.dart';
 import 'package:flutter_pecha/features/ai/presentation/widgets/message_list.dart';
@@ -73,8 +72,8 @@ class _AiModeScreenState extends ConsumerState<AiModeScreen> {
   void _onNewChat() {
     // Start new thread
     ref.read(chatControllerProvider.notifier).startNewThread();
-    // Refresh thread list to show the new thread (when API is integrated)
-    ref.read(threadListControllerProvider.notifier).refreshThreads();
+    // Note: Thread list will be refreshed automatically when we receive
+    // the thread_id from the API after sending the first message
   }
 
   void _onMenuPressed() {
@@ -132,7 +131,10 @@ class _AiModeScreenState extends ConsumerState<AiModeScreen> {
             content: Text(friendlyMessage),
             backgroundColor: Colors.red,
             action: SnackBarAction(
-              label: isRetryable ? localizations.ai_retry : localizations.ai_dismiss,
+              label:
+                  isRetryable
+                      ? localizations.ai_retry
+                      : localizations.ai_dismiss,
               textColor: Colors.white,
               onPressed: () {
                 ref.read(chatControllerProvider.notifier).clearError();
@@ -340,38 +342,31 @@ class _AiModeScreenState extends ConsumerState<AiModeScreen> {
                 runSpacing: 8,
                 children:
                     suggestions.map((s) {
-                      return InkWell(
-                        onTap: () => _onSuggestionTap(s),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 8,
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                Icons.lightbulb_outline,
-                                size: 15,
-                                color:
-                                    isDarkMode
-                                        ? AppColors.surfaceWhite
-                                        : AppColors.grey800,
-                              ),
-                              const SizedBox(width: 8),
-                              Text(
-                                s,
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  // fontWeight: FontWeight.w500,
-                                  color:
-                                      isDarkMode
-                                          ? AppColors.surfaceWhite
-                                          : AppColors.grey800,
-                                ),
-                              ),
-                            ],
-                          ),
+                      return ActionChip(
+                        onPressed: () => _onSuggestionTap(s),
+                        avatar: Icon(
+                          Icons.lightbulb_outline,
+                          size: 15,
+                          color:
+                              isDarkMode
+                                  ? AppColors.surfaceWhite
+                                  : AppColors.grey800,
+                        ),
+                        label: Text(s),
+                        labelStyle: TextStyle(
+                          fontSize: 12,
+                          color:
+                              isDarkMode
+                                  ? AppColors.surfaceWhite
+                                  : AppColors.grey800,
+                        ),
+                        backgroundColor: Colors.transparent,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 4,
+                          vertical: 4,
+                        ),
+                        shape: StadiumBorder(
+                          side: BorderSide(color: Colors.transparent),
                         ),
                       );
                     }).toList(),
