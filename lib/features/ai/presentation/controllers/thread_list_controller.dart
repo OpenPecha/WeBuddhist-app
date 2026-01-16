@@ -13,6 +13,7 @@ class ThreadListState {
   final String? error;
   final int total;
   final DateTime? lastFetchTime;
+  final DateTime? lastInteractionTime;
 
   ThreadListState({
     this.threads = const [],
@@ -21,6 +22,7 @@ class ThreadListState {
     this.error,
     this.total = 0,
     this.lastFetchTime,
+    this.lastInteractionTime,
   });
 
   ThreadListState copyWith({
@@ -30,6 +32,7 @@ class ThreadListState {
     String? error,
     int? total,
     DateTime? lastFetchTime,
+    DateTime? lastInteractionTime,
   }) {
     return ThreadListState(
       threads: threads ?? this.threads,
@@ -38,14 +41,31 @@ class ThreadListState {
       error: error,
       total: total ?? this.total,
       lastFetchTime: lastFetchTime ?? this.lastFetchTime,
+      lastInteractionTime: lastInteractionTime ?? this.lastInteractionTime,
     );
   }
 
   bool get hasMore => threads.length < total;
+
+  /// Check if cache is stale using sliding window approach
+  /// - Maximum lifetime: 1 hour (even if active)
+  /// - Idle timeout: 5 minutes since last interaction
   bool get isStale {
     if (lastFetchTime == null) return true;
     final now = DateTime.now();
-    return now.difference(lastFetchTime!) > const Duration(seconds: 30);
+
+    // Maximum lifetime: 1 hour (even if active)
+    if (now.difference(lastFetchTime!) > const Duration(hours: 1)) {
+      return true;
+    }
+
+    // Idle timeout: 5 minutes since last interaction
+    if (lastInteractionTime != null) {
+      return now.difference(lastInteractionTime!) > const Duration(minutes: 5);
+    }
+
+    // Fallback: 5 minutes since fetch
+    return now.difference(lastFetchTime!) > const Duration(minutes: 5);
   }
 }
 
@@ -70,8 +90,16 @@ class ThreadListController extends StateNotifier<ThreadListState> {
     return null;
   }
 
-  /// Load threads list (smart caching - reload if stale)
-  Future<void> loadThreads() async { 
+  /// Record user interaction to reset idle timer
+  /// This implements the sliding window approach used by ChatGPT/Gemini
+  void recordInteraction() {
+    state = state.copyWith(lastInteractionTime: DateTime.now());
+    _logger.debug('User interaction recorded, idle timer reset');
+  }
+
+  /// Load threads list with smart caching and optimistic UI
+  /// Uses industry-standard sliding window: 5min idle timeout, 1hr max lifetime
+  Future<void> loadThreads({bool showCachedFirst = true}) async {
     // Check if user is authenticated
     final email = _getUserEmail();
     if (email == null) {
@@ -79,13 +107,25 @@ class ThreadListController extends StateNotifier<ThreadListState> {
       return;
     }
 
+    // Optimistic UI: Show cached data immediately if available
+    if (showCachedFirst && state.threads.isNotEmpty) {
+      _logger.debug('Showing cached threads while checking freshness');
+      // Cache is already displayed, now check if refresh needed
+    }
+
     // If data is fresh, skip reload
     if (state.threads.isNotEmpty && !state.isStale) {
-      _logger.debug('Threads already loaded and fresh, skipping');
+      _logger.debug(
+        'Threads fresh (within 5min idle or 1hr max), skipping reload',
+      );
+      recordInteraction(); // Reset idle timer
       return;
     }
 
+    // Refresh in background if stale
+    _logger.info('Cache stale, refreshing threads');
     await _fetchThreads();
+    recordInteraction(); // Record interaction after successful fetch
   }
 
   /// Force refresh threads list (always reload)

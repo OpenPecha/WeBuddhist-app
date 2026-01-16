@@ -28,12 +28,11 @@ class _ChatHistoryDrawerState extends ConsumerState<ChatHistoryDrawer> {
     _scrollController.addListener(_onScroll);
 
     // Load threads with smart caching when drawer opens
-    // loadThreads() has built-in caching: it only makes an API call if:
-    // 1. Cache is empty (first load)
-    // 2. Data is stale (>30 seconds old)
-    // Otherwise, it uses cached data instantly
+    // Uses sliding window: 5min idle, 1hr max lifetime
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(threadListControllerProvider.notifier).loadThreads();
+      // Record that user opened drawer (interaction)
+      ref.read(threadListControllerProvider.notifier).recordInteraction();
     });
   }
 
@@ -46,6 +45,9 @@ class _ChatHistoryDrawerState extends ConsumerState<ChatHistoryDrawer> {
   }
 
   void _onScroll() {
+    // Record interaction when user scrolls (resets idle timer)
+    ref.read(threadListControllerProvider.notifier).recordInteraction();
+
     // Load more when user scrolls to 80% of the list
     if (_scrollController.position.pixels >=
         _scrollController.position.maxScrollExtent * 0.8) {
@@ -391,50 +393,62 @@ class _ChatHistoryDrawerState extends ConsumerState<ChatHistoryDrawer> {
       );
     }
 
-    return ListView.builder(
-      controller: _scrollController,
-      itemCount: state.threads.length + (state.isLoadingMore ? 1 : 0),
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      itemBuilder: (context, index) {
-        // Show loading indicator at the bottom
-        if (index == state.threads.length) {
-          return Padding(
-            padding: const EdgeInsets.all(16),
-            child: Center(
-              child: SizedBox(
-                width: 24,
-                height: 24,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  color: AppColors.primary,
+    return RefreshIndicator(
+      onRefresh: () async {
+        // Manual refresh - force reload regardless of cache state
+        await ref.read(threadListControllerProvider.notifier).refreshThreads();
+      },
+      child: ListView.builder(
+        controller: _scrollController,
+        itemCount: state.threads.length + (state.isLoadingMore ? 1 : 0),
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        itemBuilder: (context, index) {
+          // Show loading indicator at the bottom
+          if (index == state.threads.length) {
+            return Padding(
+              padding: const EdgeInsets.all(16),
+              child: Center(
+                child: SizedBox(
+                  width: 24,
+                  height: 24,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: AppColors.primary,
+                  ),
                 ),
               ),
-            ),
+            );
+          }
+
+          final thread = state.threads[index];
+          final isActive = thread.id == currentThreadId;
+
+          return ThreadListItem(
+            thread: thread,
+            isActive: isActive,
+            onTap: () async {
+              // Unfocus to prevent keyboard popup
+              FocusScope.of(context).unfocus();
+
+              // Record interaction before loading thread (resets idle timer)
+              ref
+                  .read(threadListControllerProvider.notifier)
+                  .recordInteraction();
+
+              // Load the selected thread
+              await ref
+                  .read(chatControllerProvider.notifier)
+                  .loadThread(thread.id);
+              // No need to refresh threads - just switching between existing threads
+              // Close drawer
+              if (context.mounted) {
+                Navigator.of(context).pop();
+              }
+            },
+            onDelete: () => _handleDeleteThread(thread.id, thread.title),
           );
-        }
-
-        final thread = state.threads[index];
-        final isActive = thread.id == currentThreadId;
-
-        return ThreadListItem(
-          thread: thread,
-          isActive: isActive,
-          onTap: () async {
-            // Unfocus to prevent keyboard popup
-            FocusScope.of(context).unfocus();
-            // Load the selected thread
-            await ref
-                .read(chatControllerProvider.notifier)
-                .loadThread(thread.id);
-            // No need to refresh threads - just switching between existing threads
-            // Close drawer
-            if (context.mounted) {
-              Navigator.of(context).pop();
-            }
-          },
-          onDelete: () => _handleDeleteThread(thread.id, thread.title),
-        );
-      },
+        },
+      ),
     );
   }
 }
