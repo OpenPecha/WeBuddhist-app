@@ -125,7 +125,7 @@ class MoreScreen extends ConsumerWidget {
                   ),
                 ),
               ),
-              const Divider(height: 2),
+              Divider(height: 4, color: Theme.of(context).dividerColor),
               ListTile(
                 leading: Icon(
                   Icons.language,

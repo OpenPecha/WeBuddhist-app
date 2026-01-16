@@ -39,17 +39,15 @@ class AiChatRepository {
   /// Sends a message and returns a stream of chat events
   Stream<ChatStreamEvent> sendMessage({
     required String message,
-    required String email,
     String? threadId,
   }) async* {
     try {
       await for (final data in _datasource.sendMessage(
         message: message,
-        email: email,
         threadId: threadId,
       )) {
         final type = data['type'] as String?;
-        
+
         // Check if this is the thread_id response (no type field)
         if (type == null && data.containsKey('thread_id')) {
           final receivedThreadId = data['thread_id'] as String?;
@@ -59,31 +57,32 @@ class AiChatRepository {
           }
           continue;
         }
-        
+
         switch (type) {
           case 'search_results':
-            final resultsData = (data['data'] as List?)
-                ?.map((e) => e as Map<String, dynamic>)
-                .toList() ?? [];
-            
-            final results = resultsData
-                .map((json) => SearchResult.fromJson(json))
-                .toList();
-            
+            final resultsData =
+                (data['data'] as List?)
+                    ?.map((e) => e as Map<String, dynamic>)
+                    .toList() ??
+                [];
+
+            final results =
+                resultsData.map((json) => SearchResult.fromJson(json)).toList();
+
             _logger.debug('Received ${results.length} search results');
             yield SearchResultsEvent(results);
             break;
-            
+
           case 'token':
             final token = data['data'] as String? ?? '';
             yield TokenEvent(token);
             break;
-            
+
           case 'done':
             _logger.info('Stream completed');
             yield DoneEvent();
             break;
-            
+
           default:
             _logger.warning('Unknown event type: $type');
         }
@@ -95,18 +94,10 @@ class AiChatRepository {
   }
 
   /// Get list of threads
-  Future<ThreadListResponse> getThreads({
-    required String email,
-    int skip = 0,
-    int limit = 10,
-  }) async {
+  Future<ThreadListResponse> getThreads({int skip = 0, int limit = 10}) async {
     try {
-      _logger.info('Fetching threads (email: $email, skip: $skip, limit: $limit)');
-      return await _threadDatasource.getThreads(
-        email: email,
-        skip: skip,
-        limit: limit,
-      );
+      _logger.info('Fetching threads ( skip: $skip, limit: $limit)');
+      return await _threadDatasource.getThreads(skip: skip, limit: limit);
     } catch (e, stackTrace) {
       _logger.error('Error fetching threads', e, stackTrace);
       rethrow;
@@ -136,4 +127,3 @@ class AiChatRepository {
     }
   }
 }
-

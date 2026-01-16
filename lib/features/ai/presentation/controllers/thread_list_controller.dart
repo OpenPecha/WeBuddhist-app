@@ -71,7 +71,7 @@ class ThreadListController extends StateNotifier<ThreadListState> {
   }
 
   /// Load threads list (smart caching - reload if stale)
-  Future<void> loadThreads() async {
+  Future<void> loadThreads() async { 
     // Check if user is authenticated
     final email = _getUserEmail();
     if (email == null) {
@@ -85,19 +85,13 @@ class ThreadListController extends StateNotifier<ThreadListState> {
       return;
     }
 
-    await _fetchThreads(email);
+    await _fetchThreads();
   }
 
   /// Force refresh threads list (always reload)
   Future<void> refreshThreads() async {
-    final email = _getUserEmail();
-    if (email == null) {
-      _logger.debug('User not authenticated, skipping thread refresh');
-      return;
-    }
-
     _logger.info('Force refreshing threads list');
-    await _fetchThreads(email, forceRefresh: true);
+    await _fetchThreads(forceRefresh: true);
   }
 
   /// Load more threads (pagination)
@@ -119,11 +113,7 @@ class ThreadListController extends StateNotifier<ThreadListState> {
       final skip = state.threads.length;
       _logger.info('Loading more threads (skip: $skip)');
 
-      final response = await _repository.getThreads(
-        email: email,
-        skip: skip,
-        limit: 10,
-      );
+      final response = await _repository.getThreads(skip: skip, limit: 10);
 
       state = state.copyWith(
         threads: [...state.threads, ...response.data],
@@ -143,15 +133,11 @@ class ThreadListController extends StateNotifier<ThreadListState> {
     }
   }
 
-  Future<void> _fetchThreads(String email, {bool forceRefresh = false}) async {
+  Future<void> _fetchThreads({bool forceRefresh = false}) async {
     state = state.copyWith(isLoading: true, error: null);
 
     try {
-      final response = await _repository.getThreads(
-        email: email,
-        skip: 0,
-        limit: 10,
-      );
+      final response = await _repository.getThreads(skip: 0, limit: 10);
 
       state = state.copyWith(
         threads: response.data,

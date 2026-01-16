@@ -27,7 +27,11 @@ class _ChatHistoryDrawerState extends ConsumerState<ChatHistoryDrawer> {
     // Setup scroll listener for pagination
     _scrollController.addListener(_onScroll);
 
-    // Load threads when drawer is opened
+    // Load threads with smart caching when drawer opens
+    // loadThreads() has built-in caching: it only makes an API call if:
+    // 1. Cache is empty (first load)
+    // 2. Data is stale (>30 seconds old)
+    // Otherwise, it uses cached data instantly
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(threadListControllerProvider.notifier).loadThreads();
     });
@@ -49,16 +53,17 @@ class _ChatHistoryDrawerState extends ConsumerState<ChatHistoryDrawer> {
     }
   }
 
-  void _performSearch(String query) {
-    // Unfocus the text field
-    _searchFocusNode.unfocus();
-    // TODO: Implement search functionality with query
-    // For now, just print or handle the search
-    if (query.trim().isNotEmpty) {
-      // Add your search logic here
-      debugPrint('Searching for: $query');
-    }
-  }
+  // Commented out until search functionality is implemented
+  // void _performSearch(String query) {
+  //   // Unfocus the text field
+  //   _searchFocusNode.unfocus();
+  //   // TODO: Implement search functionality with query
+  //   // For now, just print or handle the search
+  //   if (query.trim().isNotEmpty) {
+  //     // Add your search logic here
+  //     debugPrint('Searching for: $query');
+  //   }
+  // }
 
   Future<void> _handleDeleteThread(String threadId, String threadTitle) async {
     // Unfocus any focused widget
@@ -150,7 +155,7 @@ class _ChatHistoryDrawerState extends ConsumerState<ChatHistoryDrawer> {
     return Align(
       alignment: Alignment.centerLeft,
       child: Material(
-        color: isDarkMode ? AppColors.backgroundDark : AppColors.primarySurface,
+        color: Theme.of(context).scaffoldBackgroundColor,
         child: GestureDetector(
           onTap: () {
             // Dismiss keyboard when tapping outside the text field
@@ -177,65 +182,65 @@ class _ChatHistoryDrawerState extends ConsumerState<ChatHistoryDrawer> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         // Search Field
-                        TextField(
-                          controller: _searchController,
-                          focusNode: _searchFocusNode,
-                          textInputAction: TextInputAction.search,
-                          decoration: InputDecoration(
-                            hintText: AppLocalizations.of(context)!.ai_search_chats,
-                            hintStyle: TextStyle(
-                              fontSize: 12,
-                              color:
-                                  isDarkMode
-                                      ? AppColors.grey500
-                                      : AppColors.textPrimaryLight,
-                            ),
-                            prefixIcon: Icon(
-                              Icons.search,
-                              color:
-                                  isDarkMode
-                                      ? AppColors.textPrimaryDark
-                                      : AppColors.textPrimary,
-                              size: 28,
-                            ),
-                            filled: true,
-                            fillColor:
-                                isDarkMode
-                                    ? AppColors.surfaceDark
-                                    : AppColors.textPrimaryDark,
-                            contentPadding: const EdgeInsets.symmetric(
-                              vertical: 12,
-                              horizontal: 16,
-                            ),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(20),
-                              borderSide: BorderSide.none,
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(20),
-                              borderSide: BorderSide.none,
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(20),
-                              borderSide: BorderSide(
-                                color: AppColors.primary,
-                                width: 1.5,
-                              ),
-                            ),
-                          ),
-                          style: TextStyle(
-                            fontSize: 11,
-                            color:
-                                isDarkMode
-                                    ? AppColors.surfaceWhite
-                                    : AppColors.textPrimary,
-                          ),
-                          onChanged: (value) {
-                            // TODO: Implement real-time search filtering
-                          },
-                          onSubmitted: _performSearch,
-                        ),
-                        const SizedBox(height: 16),
+                        // TextField(
+                        //   controller: _searchController,
+                        //   focusNode: _searchFocusNode,
+                        //   textInputAction: TextInputAction.search,
+                        //   decoration: InputDecoration(
+                        //     hintText: AppLocalizations.of(context)!.ai_search_chats,
+                        //     hintStyle: TextStyle(
+                        //       fontSize: 12,
+                        //       color:
+                        //           isDarkMode
+                        //               ? AppColors.grey500
+                        //               : AppColors.textPrimaryLight,
+                        //     ),
+                        //     prefixIcon: Icon(
+                        //       Icons.search,
+                        //       color:
+                        //           isDarkMode
+                        //               ? AppColors.textPrimaryDark
+                        //               : AppColors.textPrimary,
+                        //       size: 28,
+                        //     ),
+                        //     filled: true,
+                        //     fillColor:
+                        //         isDarkMode
+                        //             ? AppColors.surfaceDark
+                        //             : AppColors.textPrimaryDark,
+                        //     contentPadding: const EdgeInsets.symmetric(
+                        //       vertical: 12,
+                        //       horizontal: 16,
+                        //     ),
+                        //     border: OutlineInputBorder(
+                        //       borderRadius: BorderRadius.circular(20),
+                        //       borderSide: BorderSide.none,
+                        //     ),
+                        //     enabledBorder: OutlineInputBorder(
+                        //       borderRadius: BorderRadius.circular(20),
+                        //       borderSide: BorderSide.none,
+                        //     ),
+                        //     focusedBorder: OutlineInputBorder(
+                        //       borderRadius: BorderRadius.circular(20),
+                        //       borderSide: BorderSide(
+                        //         color: AppColors.primary,
+                        //         width: 1.5,
+                        //       ),
+                        //     ),
+                        //   ),
+                        //   style: TextStyle(
+                        //     fontSize: 11,
+                        //     color:
+                        //         isDarkMode
+                        //             ? AppColors.surfaceWhite
+                        //             : AppColors.textPrimary,
+                        //   ),
+                        //   onChanged: (value) {
+                        //     // TODO: Implement real-time search filtering
+                        //   },
+                        //   onSubmitted: _performSearch,
+                        // ),
+                        // const SizedBox(height: 16),
                         // Chats Header with New Chat Button
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -280,7 +285,7 @@ class _ChatHistoryDrawerState extends ConsumerState<ChatHistoryDrawer> {
                     ),
                   ),
                   const Divider(height: 1),
-                  const SizedBox(height: 5),
+                  const SizedBox(height: 8),
                   // Thread List
                   Expanded(
                     child: _buildThreadList(
@@ -335,9 +340,9 @@ class _ChatHistoryDrawerState extends ConsumerState<ChatHistoryDrawer> {
               const SizedBox(height: 24),
               ElevatedButton(
                 onPressed: () {
-                  ref
-                      .read(threadListControllerProvider.notifier)
-                      .refreshThreads();
+                  // Use loadThreads() instead of refreshThreads() for retry
+                  // This respects the cache and only reloads if needed
+                  ref.read(threadListControllerProvider.notifier).loadThreads();
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primaryDarkest,
@@ -389,6 +394,7 @@ class _ChatHistoryDrawerState extends ConsumerState<ChatHistoryDrawer> {
     return ListView.builder(
       controller: _scrollController,
       itemCount: state.threads.length + (state.isLoadingMore ? 1 : 0),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       itemBuilder: (context, index) {
         // Show loading indicator at the bottom
         if (index == state.threads.length) {
@@ -420,8 +426,7 @@ class _ChatHistoryDrawerState extends ConsumerState<ChatHistoryDrawer> {
             await ref
                 .read(chatControllerProvider.notifier)
                 .loadThread(thread.id);
-            // Refresh threads to update order
-            ref.read(threadListControllerProvider.notifier).refreshThreads();
+            // No need to refresh threads - just switching between existing threads
             // Close drawer
             if (context.mounted) {
               Navigator.of(context).pop();

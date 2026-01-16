@@ -14,11 +14,7 @@ class ThreadRemoteDatasource {
   ThreadRemoteDatasource(this._client);
 
   /// Get list of all threads
-  Future<ThreadListResponse> getThreads({
-    required String email,
-    int skip = 0,
-    int limit = 10,
-  }) async {
+  Future<ThreadListResponse> getThreads({int skip = 0, int limit = 10}) async {
     final aiUrl = dotenv.env['AI_URL'];
     if (aiUrl == null || aiUrl.isEmpty) {
       _logger.error('AI_URL not configured in .env');
@@ -27,7 +23,6 @@ class ThreadRemoteDatasource {
 
     final url = Uri.parse('$aiUrl/threads').replace(
       queryParameters: {
-        'email': email,
         'application': 'webuddhist',
         'skip': skip.toString(),
         'limit': limit.toString(),
@@ -40,12 +35,14 @@ class ThreadRemoteDatasource {
       // Use retry service for resilience
       return await RetryService.execute(
         () async {
-          final response = await _client.get(url).timeout(
-            AiConfig.requestTimeout,
-            onTimeout: () {
-              throw Exception('Request timed out. Please try again.');
-            },
-          );
+          final response = await _client
+              .get(url)
+              .timeout(
+                AiConfig.requestTimeout,
+                onTimeout: () {
+                  throw Exception('Request timed out. Please try again.');
+                },
+              );
 
           if (response.statusCode == 200) {
             final decoded = utf8.decode(response.bodyBytes);
@@ -58,17 +55,23 @@ class ThreadRemoteDatasource {
             throw Exception('Authentication required. Please log in.');
           } else {
             _logger.error('Failed to fetch threads: ${response.statusCode}');
-            throw Exception('Failed to load chat history: ${response.statusCode}');
+            throw Exception(
+              'Failed to load chat history: ${response.statusCode}',
+            );
           }
         },
         onRetry: (attempt, delay, error) {
-          _logger.warning('Retrying getThreads (attempt $attempt) after ${delay.inSeconds}s');
+          _logger.warning(
+            'Retrying getThreads (attempt $attempt) after ${delay.inSeconds}s',
+          );
         },
       );
     } catch (e) {
       if (e is Exception) rethrow;
       _logger.error('Network error fetching threads', e);
-      throw Exception('Unable to load chat history. Please check your connection.');
+      throw Exception(
+        'Unable to load chat history. Please check your connection.',
+      );
     }
   }
 
@@ -81,19 +84,21 @@ class ThreadRemoteDatasource {
     }
 
     final url = Uri.parse('$aiUrl/threads/$threadId');
-    
+
     _logger.info('Fetching thread details: ${url.toString()}');
 
     try {
       // Use retry service for resilience
       return await RetryService.execute(
         () async {
-          final response = await _client.get(url).timeout(
-            AiConfig.requestTimeout,
-            onTimeout: () {
-              throw Exception('Request timed out. Please try again.');
-            },
-          );
+          final response = await _client
+              .get(url)
+              .timeout(
+                AiConfig.requestTimeout,
+                onTimeout: () {
+                  throw Exception('Request timed out. Please try again.');
+                },
+              );
 
           if (response.statusCode == 200) {
             final decoded = utf8.decode(response.bodyBytes);
@@ -109,17 +114,23 @@ class ThreadRemoteDatasource {
             throw Exception('Authentication required. Please log in.');
           } else {
             _logger.error('Failed to fetch thread: ${response.statusCode}');
-            throw Exception('Failed to load conversation: ${response.statusCode}');
+            throw Exception(
+              'Failed to load conversation: ${response.statusCode}',
+            );
           }
         },
         onRetry: (attempt, delay, error) {
-          _logger.warning('Retrying getThreadById (attempt $attempt) after ${delay.inSeconds}s');
+          _logger.warning(
+            'Retrying getThreadById (attempt $attempt) after ${delay.inSeconds}s',
+          );
         },
       );
     } catch (e) {
       if (e is Exception) rethrow;
       _logger.error('Network error fetching thread', e);
-      throw Exception('Unable to load conversation. Please check your connection.');
+      throw Exception(
+        'Unable to load conversation. Please check your connection.',
+      );
     }
   }
 
@@ -132,23 +143,25 @@ class ThreadRemoteDatasource {
     }
 
     final url = Uri.parse('$aiUrl/threads/$threadId');
-    
+
     _logger.info('Deleting thread: ${url.toString()}');
 
     try {
       // Use retry service for resilience
       await RetryService.execute(
         () async {
-          final response = await _client.delete(
-            url,
-            headers: {'Content-Type': 'application/json'},
-            body: json.encode({'thread_id': threadId}),
-          ).timeout(
-            AiConfig.requestTimeout,
-            onTimeout: () {
-              throw Exception('Request timed out. Please try again.');
-            },
-          );
+          final response = await _client
+              .delete(
+                url,
+                headers: {'Content-Type': 'application/json'},
+                body: json.encode({'thread_id': threadId}),
+              )
+              .timeout(
+                AiConfig.requestTimeout,
+                onTimeout: () {
+                  throw Exception('Request timed out. Please try again.');
+                },
+              );
 
           if (response.statusCode == 200 || response.statusCode == 204) {
             // Parse response body for 200 status code
@@ -156,8 +169,11 @@ class ThreadRemoteDatasource {
               try {
                 final decoded = utf8.decode(response.bodyBytes);
                 final jsonData = json.decode(decoded) as Map<String, dynamic>;
-                final message = jsonData['message'] ?? 'Thread deleted successfully';
-                _logger.info('Delete thread response: $message (thread_id: $threadId)');
+                final message =
+                    jsonData['message'] ?? 'Thread deleted successfully';
+                _logger.info(
+                  'Delete thread response: $message (thread_id: $threadId)',
+                );
               } catch (e) {
                 _logger.info('Successfully deleted thread: $threadId');
               }
@@ -173,18 +189,23 @@ class ThreadRemoteDatasource {
             throw Exception('Authentication required. Please log in.');
           } else {
             _logger.error('Failed to delete thread: ${response.statusCode}');
-            throw Exception('Failed to delete conversation: ${response.statusCode}');
+            throw Exception(
+              'Failed to delete conversation: ${response.statusCode}',
+            );
           }
         },
         onRetry: (attempt, delay, error) {
-          _logger.warning('Retrying deleteThread (attempt $attempt) after ${delay.inSeconds}s');
+          _logger.warning(
+            'Retrying deleteThread (attempt $attempt) after ${delay.inSeconds}s',
+          );
         },
       );
     } catch (e) {
       if (e is Exception) rethrow;
       _logger.error('Network error deleting thread', e);
-      throw Exception('Unable to delete conversation. Please check your connection.');
+      throw Exception(
+        'Unable to delete conversation. Please check your connection.',
+      );
     }
   }
 }
-
