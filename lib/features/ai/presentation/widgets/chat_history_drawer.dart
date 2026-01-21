@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/core/utils/error_message_mapper.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
@@ -426,7 +427,10 @@ class _ChatHistoryDrawerState extends ConsumerState<ChatHistoryDrawer> {
           return ThreadListItem(
             thread: thread,
             isActive: isActive,
-            onTap: () async {
+            onTap: () {
+              // Haptic feedback for better tactile response
+              HapticFeedback.lightImpact();
+
               // Unfocus to prevent keyboard popup
               FocusScope.of(context).unfocus();
 
@@ -435,15 +439,10 @@ class _ChatHistoryDrawerState extends ConsumerState<ChatHistoryDrawer> {
                   .read(threadListControllerProvider.notifier)
                   .recordInteraction();
 
-              // Load the selected thread
-              await ref
-                  .read(chatControllerProvider.notifier)
-                  .loadThread(thread.id);
-              // No need to refresh threads - just switching between existing threads
-              // Close drawer
-              if (context.mounted) {
-                Navigator.of(context).pop();
-              }
+              Navigator.of(context).pop();
+
+              // Load the selected thread in background
+              ref.read(chatControllerProvider.notifier).loadThread(thread.id);
             },
             onDelete: () => _handleDeleteThread(thread.id, thread.title),
           );

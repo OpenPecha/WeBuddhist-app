@@ -86,7 +86,7 @@ class SourceBottomSheet extends StatelessWidget {
                         Text(
                           source.title,
                           style: TextStyle(
-                            fontSize: 17,
+                            fontSize: 18,
                             fontWeight: FontWeight.w500,
                             color:
                                 isDarkMode
@@ -100,7 +100,7 @@ class SourceBottomSheet extends StatelessWidget {
                         Text(
                           source.text,
                           style: TextStyle(
-                            fontSize: 13,
+                            fontSize: 16,
                             height: 1.6,
                             color:
                                 isDarkMode
