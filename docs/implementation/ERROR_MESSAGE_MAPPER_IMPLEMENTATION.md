@@ -1,6 +1,7 @@
 # Error Message Mapper Implementation
 
 ## Overview
+
 Implemented a production-ready, centralized error message mapper utility to convert technical errors into user-friendly messages across the AI feature and entire application.
 
 **Date**: January 2026  
@@ -16,6 +17,7 @@ Implemented a production-ready, centralized error message mapper utility to conv
 **Location**: `lib/core/utils/error_message_mapper.dart`
 
 **Features**:
+
 - Converts technical errors to user-friendly messages
 - Handles multiple error types (Failures, Exceptions, error strings)
 - Provides context-specific messages
@@ -38,6 +40,7 @@ bool isRetryable(dynamic error)
 ### 2. Error Types Handled
 
 #### Failure Objects (from `core/error/failures.dart`)
+
 - ✅ `NetworkFailure` → "Unable to connect. Please check your internet connection."
 - ✅ `ServerFailure` → "Service temporarily unavailable. Please try again later."
 - ✅ `AuthenticationFailure` → "Session expired. Please sign in again."
@@ -49,12 +52,14 @@ bool isRetryable(dynamic error)
 - ✅ `UnknownFailure` → "Something went wrong. Please try again."
 
 #### Common Exceptions
+
 - ✅ `TimeoutException` → Context-aware timeout messages
 - ✅ `SocketException` → Network connectivity messages
 - ✅ `FormatException` → "Invalid data format. Please try again."
 - ✅ `HttpException` → HTTP status code specific messages
 
 #### HTTP Status Codes
+
 - ✅ 400 → "Invalid request. Please try again."
 - ✅ 401 → "Session expired. Please sign in again."
 - ✅ 403 → "Access denied. You don't have permission for this action."
@@ -64,6 +69,7 @@ bool isRetryable(dynamic error)
 - ✅ 500/502/503/504 → "Service temporarily unavailable. Please try again later."
 
 #### Error String Patterns
+
 - ✅ Socket/connection errors
 - ✅ Network unreachable
 - ✅ Timeout errors
@@ -87,6 +93,7 @@ ErrorMessageMapper.getDisplayMessage(error, context: 'delete')
 ```
 
 **Supported Contexts**:
+
 - `chat` / `message` → "Unable to send message..."
 - `thread` / `conversation` → "Unable to load conversation..."
 - `delete` → "Unable to delete..."
@@ -100,12 +107,15 @@ ErrorMessageMapper.getDisplayMessage(error, context: 'delete')
 ### Files Updated
 
 #### 1. `ai_mode_screen.dart`
+
 **Before**:
+
 ```dart
 content: Text('Error: ${chatState.error}')
 ```
 
 **After**:
+
 ```dart
 final friendlyMessage = ErrorMessageMapper.getDisplayMessage(
   chatState.error,
@@ -123,13 +133,16 @@ SnackBar(
 ```
 
 #### 2. `chat_controller.dart`
+
 Updated 4 error handling locations:
+
 - Stream error events
 - Stream subscription errors
 - Send message errors
 - Load thread errors
 
 **Example**:
+
 ```dart
 // Before
 error: error.toString()
@@ -143,19 +156,24 @@ state = state.copyWith(error: friendlyMessage)
 ```
 
 #### 3. `thread_list_controller.dart`
+
 Updated 2 error handling locations:
+
 - Load threads errors
 - Load more threads errors
 
 #### 4. `chat_history_drawer.dart`
+
 Updated delete thread error handling:
 
 **Before**:
+
 ```dart
 content: Text('Failed to delete conversation: ${e.toString()}')
 ```
 
 **After**:
+
 ```dart
 final friendlyMessage = ErrorMessageMapper.getDisplayMessage(
   e,
@@ -169,9 +187,11 @@ content: Text(friendlyMessage)
 ## Testing
 
 ### Test File
+
 **Location**: `test/core/utils/error_message_mapper_test.dart`
 
 ### Test Coverage
+
 - ✅ 49 tests, all passing
 - ✅ 100% method coverage
 - ✅ All error types tested
@@ -180,7 +200,9 @@ content: Text(friendlyMessage)
 - ✅ Helper methods tested
 
 ### Test Groups
+
 1. **getDisplayMessage** (33 tests)
+
    - Null errors
    - Failure objects (10 types)
    - Exception objects (5 types)
@@ -188,15 +210,18 @@ content: Text(friendlyMessage)
    - Context-specific messages (5 contexts)
 
 2. **isNetworkError** (4 tests)
+
    - Exception detection
    - Failure detection
    - String pattern detection
 
 3. **isTimeoutError** (3 tests)
+
    - Exception detection
    - String pattern detection
 
 4. **isAuthError** (3 tests)
+
    - Failure detection
    - String pattern detection
 
@@ -210,12 +235,14 @@ content: Text(friendlyMessage)
 ## Benefits
 
 ### User Experience
+
 1. ✅ **Clear Messages**: No technical jargon or stack traces
 2. ✅ **Actionable**: Users know what to do next
 3. ✅ **Consistent**: Same error types show same messages
 4. ✅ **Context-Aware**: Messages tailored to the operation
 
 ### Developer Experience
+
 1. ✅ **Centralized**: One place to manage all error messages
 2. ✅ **Reusable**: Can be used across entire application
 3. ✅ **Maintainable**: Easy to update messages
@@ -223,6 +250,7 @@ content: Text(friendlyMessage)
 5. ✅ **Well-Tested**: Comprehensive test coverage
 
 ### Production Ready
+
 1. ✅ **Comprehensive**: Handles all common error scenarios
 2. ✅ **Defensive**: Handles null and unexpected errors
 3. ✅ **Documented**: Clear documentation and examples
@@ -234,6 +262,7 @@ content: Text(friendlyMessage)
 ## Usage Examples
 
 ### Basic Usage
+
 ```dart
 try {
   await someOperation();
@@ -244,6 +273,7 @@ try {
 ```
 
 ### With Context
+
 ```dart
 try {
   await sendMessage(content);
@@ -255,13 +285,14 @@ try {
 ```
 
 ### With Retry Logic
+
 ```dart
 try {
   await loadData();
 } catch (e) {
   final message = ErrorMessageMapper.getDisplayMessage(e);
   final canRetry = ErrorMessageMapper.isRetryable(e);
-  
+
   showSnackBar(
     message,
     action: canRetry ? 'Retry' : 'Dismiss',
@@ -270,6 +301,7 @@ try {
 ```
 
 ### Error Classification
+
 ```dart
 try {
   await apiCall();
@@ -292,6 +324,7 @@ try {
 ## Best Practices
 
 ### DO ✅
+
 - Use `getDisplayMessage()` for all user-facing error messages
 - Provide context when available for more specific messages
 - Use helper methods (`isRetryable`, `isNetworkError`, etc.) for conditional logic
@@ -299,6 +332,7 @@ try {
 - Log technical errors separately for debugging
 
 ### DON'T ❌
+
 - Don't show raw `error.toString()` to users
 - Don't expose HTTP status codes directly
 - Don't show stack traces in production
@@ -310,6 +344,7 @@ try {
 ## Future Enhancements
 
 ### Potential Improvements
+
 1. **Localization**: Add multi-language support
 2. **Analytics**: Track error types for monitoring
 3. **Custom Messages**: Allow app-specific error messages
@@ -317,7 +352,9 @@ try {
 5. **User Feedback**: Collect user feedback on error messages
 
 ### Extension Points
+
 The utility can be extended to:
+
 - Support more error types
 - Add more context types
 - Provide error-specific actions
@@ -331,11 +368,13 @@ The utility can be extended to:
 ### For Existing Code
 
 1. **Import the utility**:
+
 ```dart
 import 'package:flutter_pecha/core/utils/error_message_mapper.dart';
 ```
 
 2. **Replace error.toString()**:
+
 ```dart
 // Before
 error: error.toString()
@@ -345,11 +384,13 @@ error: ErrorMessageMapper.getDisplayMessage(error)
 ```
 
 3. **Add context if available**:
+
 ```dart
 error: ErrorMessageMapper.getDisplayMessage(error, context: 'chat')
 ```
 
 4. **Use helper methods for logic**:
+
 ```dart
 final canRetry = ErrorMessageMapper.isRetryable(error);
 ```
