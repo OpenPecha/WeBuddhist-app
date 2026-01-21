@@ -30,7 +30,7 @@ class AppLocalizationsBo extends AppLocalizations {
   String get switchToDark => 'ནག་པོའི་ཚད་གཞི་ལ་སྒྲིག་པ།';
 
   @override
-  String get sign_in => 'Sign in';
+  String get sign_in => 'ནང་འཛུལ།';
 
   @override
   String get logout => 'ཕྱིར་ཐོན།';
@@ -45,6 +45,12 @@ class AppLocalizationsBo extends AppLocalizations {
   @override
   String get onboarding_quote =>
       'Approximatey 500 million people worldwide practice Buddhism, making it the world\'s fourth largest religion';
+
+  @override
+  String get onboarding_find_peace => 'Find your Peace';
+
+  @override
+  String get onboarding_continue => 'Continue';
 
   @override
   String get onboarding_first_question =>
@@ -73,22 +79,10 @@ class AppLocalizationsBo extends AppLocalizations {
   String get home_good_evening => 'དགོང་དྲོ་བདེ་ལེགས།';
 
   @override
-  String get home_dailyRefresh => 'Daily Refresh';
-
-  @override
   String get home_meditationTitle => 'དངོས་གཞི་སྒོམ།';
 
   @override
-  String get home_meditationSubtitle => 'Awaken peace within.';
-
-  @override
   String get home_prayerTitle => 'Prayer of the Day';
-
-  @override
-  String get home_prayerSubtitle => 'Begin your day with a sacred intention.';
-
-  @override
-  String get home_btnText => 'Start now';
 
   @override
   String get home_scripture => 'Guided Scripture';
@@ -130,6 +124,9 @@ class AppLocalizationsBo extends AppLocalizations {
   String get nav_settings => 'སྒྲིག་འགོད།';
 
   @override
+  String get nav_ai_mode => 'རིག་ནུས་';
+
+  @override
   String get text_browseTheLibrary => 'དཀར་ཆག';
 
   @override
@@ -149,9 +146,6 @@ class AppLocalizationsBo extends AppLocalizations {
 
   @override
   String get text_toc_versions => 'འགྱུར་མ་དང་དཔེ་རྒྱུན།';
-
-  @override
-  String get text_toc_revisionHistory => 'བཟོ་བཅོས་ཀྱི་ལོ་རྒྱུས།';
 
   @override
   String get text_commentary => 'འགྲེལ་བ།';
@@ -321,9 +315,6 @@ class AppLocalizationsBo extends AppLocalizations {
   String get reminderTime => 'Reminder Time';
 
   @override
-  String get selectTime => 'དུས་ཚོད་འདེམ།';
-
-  @override
   String get notification_daily_recitation => 'ཞལ་འདོན་དྲན་བརྡ།';
 
   @override
@@ -331,9 +322,6 @@ class AppLocalizationsBo extends AppLocalizations {
 
   @override
   String get text_switchToTibetan => ' བོད་སྐད་ཐོག་བལྟ།';
-
-  @override
-  String get common_sign_in => 'ནང་འཛུལ།';
 
   @override
   String get recitations_title => 'ཞལ་འདོན།';
@@ -456,4 +444,70 @@ class AppLocalizationsBo extends AppLocalizations {
 
   @override
   String get plans_created => 'ཉམས་ལེན་ཁག';
+
+  @override
+  String get ai_chat_history => 'ཁ་བརྡའི་ལོ་རྒྱུས།';
+
+  @override
+  String get ai_buddhist_assistant => 'ནང་པའི་རིག་ནུས་ཕྱག་རོགས།';
+
+  @override
+  String get ai_new_chat => 'ཁ་བརྡ་གསར་པ།';
+
+  @override
+  String get ai_retry => 'བསྐྱར་དུ་འབད་པ།';
+
+  @override
+  String get ai_dismiss => 'ཕྱིར་འཐེན།';
+
+  @override
+  String get ai_sign_in_prompt =>
+      'ནང་པའི་རིག་ནུས་ཕྱག་རོགས་བེད་སྤྱོད་གཏོང་བ་དང་དོན་སྙིང་ལྡན་པའི་གླེང་མོལ་འགོ་འཛུགས་པར་དེབ་སྐྱེལ་གནང་རོགས།';
+
+  @override
+  String get ai_explore_wisdom => 'ནང་ཆོས་ཀྱི་ཤེས་བྱ་འཚོལ་ཞིབ་བྱེད།';
+
+  @override
+  String get ai_suggestion_self => 'བདག་ཅེས་པ་ནི་ཅི་ཞིག་ཡིན།';
+
+  @override
+  String get ai_suggestion_enlightenment =>
+      'བྱང་ཆུབ་ཀྱི་གོ་འཕང་ཇི་ལྟར་ཐོབ་ཐུབ་བམ།';
+
+  @override
+  String get ai_ask_question => 'དྲི་བ་ཞིག་འདྲི་དང་། ...';
+
+  @override
+  String get ai_loading_conversation => 'ཁ་བརྡ་འཇུག་བཞིན་པ། ...';
+
+  @override
+  String get ai_search_chats => 'ཁ་བརྡ་འཚོལ་བ།';
+
+  @override
+  String get ai_chats => 'ཁ་བརྡ།';
+
+  @override
+  String get ai_chat_deleted => 'ཁ་བརྡ་བསུབས་ཟིན།';
+
+  @override
+  String get ai_no_conversations => 'ད་བར་ཁ་བརྡ་བྱུང་མེད།';
+
+  @override
+  String get ai_start_new_chat => 'འགོ་འཛུགས་པའི་ཆེད་ཁ་བརྡ་གསར་པ་ཞིག་བཟོ་རོགས།';
+
+  @override
+  String get ai_delete_chat => 'ཁ་བརྡ་བསུབ་པ།';
+
+  @override
+  String get ai_delete_confirmation =>
+      'ཁྱེད་ཀྱིས་ཁ་བརྡ་འདི་བསུབ་རྒྱུ་གཏན་འཁེལ་ཡིན་ནམ།';
+
+  @override
+  String get ai_delete_warning => 'བྱ་བ་འདི་ཕྱིར་ལོག་བྱེད་མི་ཐུབ།';
+
+  @override
+  String get ai_confirm => 'གཏན་འཁེལ།';
+
+  @override
+  String get ai_delete => 'བསུབ།';
 }

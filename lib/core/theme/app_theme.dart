@@ -39,7 +39,7 @@ class AppTheme {
         error: AppColors.error,
         surface: AppColors.surfaceLight,
         onSurface: AppColors.textPrimary,
-        surfaceContainer: AppColors.goldLight, // used for container bgcolor
+        surfaceContainer: AppColors.goldAccent, // used for container bgcolor
         outline: AppColors.goldAccent, // used for container border color
       ),
 
@@ -244,7 +244,8 @@ class AppTheme {
         error: AppColors.error,
         surface: AppColors.surfaceDark,
         onSurface: AppColors.textPrimaryDark,
-        surfaceContainer: AppColors.cardDark, // used for container bgcolor
+        surfaceContainer:
+            AppColors.cardBorderDark, // used for container bgcolor
         outline: AppColors.cardBorderDark, // used for container border color
       ),
 

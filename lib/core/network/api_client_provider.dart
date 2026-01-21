@@ -30,7 +30,11 @@ class ApiClient extends http.BaseClient {
 
     // recitations
     '/api/v1/users/me/recitations',
-    // Add more as needed
+
+    // AI chat
+    '/chats',
+    '/threads',
+    '/threads/{threadId}',
   ];
   final _logger = AppLogger('ApiClient');
 

@@ -172,6 +172,18 @@ abstract class AppLocalizations {
   /// **'Approximatey 500 million people worldwide practice Buddhism, making it the world\'s fourth largest religion'**
   String get onboarding_quote;
 
+  /// No description provided for @onboarding_find_peace.
+  ///
+  /// In en, this message translates to:
+  /// **'Find your Peace'**
+  String get onboarding_find_peace;
+
+  /// No description provided for @onboarding_continue.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get onboarding_continue;
+
   /// No description provided for @onboarding_first_question.
   ///
   /// In en, this message translates to:
@@ -220,41 +232,17 @@ abstract class AppLocalizations {
   /// **'Good Evening'**
   String get home_good_evening;
 
-  /// No description provided for @home_dailyRefresh.
-  ///
-  /// In en, this message translates to:
-  /// **'Daily Refresh'**
-  String get home_dailyRefresh;
-
   /// No description provided for @home_meditationTitle.
   ///
   /// In en, this message translates to:
   /// **'Meditation'**
   String get home_meditationTitle;
 
-  /// No description provided for @home_meditationSubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Awaken peace within.'**
-  String get home_meditationSubtitle;
-
   /// No description provided for @home_prayerTitle.
   ///
   /// In en, this message translates to:
   /// **'Prayer of the Day'**
   String get home_prayerTitle;
-
-  /// No description provided for @home_prayerSubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Begin your day with a sacred intention.'**
-  String get home_prayerSubtitle;
-
-  /// No description provided for @home_btnText.
-  ///
-  /// In en, this message translates to:
-  /// **'Start now'**
-  String get home_btnText;
 
   /// No description provided for @home_scripture.
   ///
@@ -334,6 +322,12 @@ abstract class AppLocalizations {
   /// **'Settings'**
   String get nav_settings;
 
+  /// No description provided for @nav_ai_mode.
+  ///
+  /// In en, this message translates to:
+  /// **'AI'**
+  String get nav_ai_mode;
+
   /// No description provided for @text_browseTheLibrary.
   ///
   /// In en, this message translates to:
@@ -375,12 +369,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Versions'**
   String get text_toc_versions;
-
-  /// No description provided for @text_toc_revisionHistory.
-  ///
-  /// In en, this message translates to:
-  /// **'Revision History'**
-  String get text_toc_revisionHistory;
 
   /// No description provided for @text_commentary.
   ///
@@ -706,12 +694,6 @@ abstract class AppLocalizations {
   /// **'Reminder Time'**
   String get reminderTime;
 
-  /// No description provided for @selectTime.
-  ///
-  /// In en, this message translates to:
-  /// **'Select Time'**
-  String get selectTime;
-
   /// No description provided for @notification_daily_recitation.
   ///
   /// In en, this message translates to:
@@ -729,12 +711,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Switch to Tibetan'**
   String get text_switchToTibetan;
-
-  /// No description provided for @common_sign_in.
-  ///
-  /// In en, this message translates to:
-  /// **'Sign in'**
-  String get common_sign_in;
 
   /// No description provided for @recitations_title.
   ///
@@ -975,6 +951,132 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Plan created'**
   String get plans_created;
+
+  /// No description provided for @ai_chat_history.
+  ///
+  /// In en, this message translates to:
+  /// **'Chat History'**
+  String get ai_chat_history;
+
+  /// No description provided for @ai_buddhist_assistant.
+  ///
+  /// In en, this message translates to:
+  /// **'Buddhist AI Assistant'**
+  String get ai_buddhist_assistant;
+
+  /// No description provided for @ai_new_chat.
+  ///
+  /// In en, this message translates to:
+  /// **'New Chat'**
+  String get ai_new_chat;
+
+  /// No description provided for @ai_retry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get ai_retry;
+
+  /// No description provided for @ai_dismiss.
+  ///
+  /// In en, this message translates to:
+  /// **'Dismiss'**
+  String get ai_dismiss;
+
+  /// No description provided for @ai_sign_in_prompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Please sign in to access the Buddhist AI Assistant and start meaningful conversations'**
+  String get ai_sign_in_prompt;
+
+  /// No description provided for @ai_explore_wisdom.
+  ///
+  /// In en, this message translates to:
+  /// **'Explore Buddhist Wisdom'**
+  String get ai_explore_wisdom;
+
+  /// No description provided for @ai_suggestion_self.
+  ///
+  /// In en, this message translates to:
+  /// **'What is self ?'**
+  String get ai_suggestion_self;
+
+  /// No description provided for @ai_suggestion_enlightenment.
+  ///
+  /// In en, this message translates to:
+  /// **'How one can attain enlightenment ?'**
+  String get ai_suggestion_enlightenment;
+
+  /// No description provided for @ai_ask_question.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask a question ...'**
+  String get ai_ask_question;
+
+  /// No description provided for @ai_loading_conversation.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading conversation...'**
+  String get ai_loading_conversation;
+
+  /// No description provided for @ai_search_chats.
+  ///
+  /// In en, this message translates to:
+  /// **'Search for chats'**
+  String get ai_search_chats;
+
+  /// No description provided for @ai_chats.
+  ///
+  /// In en, this message translates to:
+  /// **'Chats'**
+  String get ai_chats;
+
+  /// No description provided for @ai_chat_deleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Chat Deleted'**
+  String get ai_chat_deleted;
+
+  /// No description provided for @ai_no_conversations.
+  ///
+  /// In en, this message translates to:
+  /// **'No conversations yet'**
+  String get ai_no_conversations;
+
+  /// No description provided for @ai_start_new_chat.
+  ///
+  /// In en, this message translates to:
+  /// **'Start a new chat to begin'**
+  String get ai_start_new_chat;
+
+  /// No description provided for @ai_delete_chat.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Chat'**
+  String get ai_delete_chat;
+
+  /// No description provided for @ai_delete_confirmation.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete this chat?'**
+  String get ai_delete_confirmation;
+
+  /// No description provided for @ai_delete_warning.
+  ///
+  /// In en, this message translates to:
+  /// **'This action cannot be undone.'**
+  String get ai_delete_warning;
+
+  /// No description provided for @ai_confirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm'**
+  String get ai_confirm;
+
+  /// No description provided for @ai_delete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get ai_delete;
 }
 
 class _AppLocalizationsDelegate
