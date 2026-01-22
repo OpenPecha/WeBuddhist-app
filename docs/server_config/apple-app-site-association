@@ -1,0 +1,11 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [
+      {
+        "appID": "<REPLACE_WITH_TEAM_ID>.org.pecha.app",
+        "paths": [ "/plans/invite", "/plans/invite/*" ]
+      }
+    ]
+  }
+}

@@ -8,6 +8,7 @@ import 'package:flutter_pecha/features/plans/data/providers/user_plans_provider.
 import 'package:flutter_pecha/features/plans/models/plan_days_model.dart';
 import 'package:flutter_pecha/features/plans/models/user/user_plans_model.dart';
 import 'package:flutter_pecha/features/plans/models/user/user_tasks_dto.dart';
+import 'package:flutter_pecha/features/plans/services/plan_share_service.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'widgets/plan_cover_image.dart';
 import 'widgets/day_carousel.dart';
@@ -68,6 +69,10 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
       title: Text(widget.plan.title, style: TextStyle(fontSize: 20)),
       elevation: 0,
       actions: [
+        IconButton(
+          icon: const Icon(Icons.share),
+          onPressed: _handleSharePlan,
+        ),
         PopupMenuButton<String>(
           icon: const Icon(Icons.more_vert),
           onSelected: (value) {
@@ -91,6 +96,23 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
         ),
       ],
     );
+  }
+  
+  Future<void> _handleSharePlan() async {
+    try {
+      final shareService = ref.read(planShareServiceProvider);
+      await shareService.sharePlan(
+        widget.plan.id,
+        widget.plan.title,
+      );
+      
+      _logger.info('Plan shared successfully');
+    } catch (e) {
+      _logger.error('Error sharing plan', e);
+      if (mounted) {
+        _showErrorSnackbar('Unable to share plan. Please try again.');
+      }
+    }
   }
 
   Widget _buildDayCarouselSection(String language) {

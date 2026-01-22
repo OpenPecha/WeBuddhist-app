@@ -11,6 +11,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/config/router/go_router.dart';
 import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
+import 'package:flutter_pecha/core/deep_linking/deep_link_service.dart';
 import 'package:fquery/fquery.dart';
 import 'core/theme/app_theme.dart';
 import 'core/localization/material_localizations_bo.dart';
@@ -57,6 +58,9 @@ void main() async {
   // Set the container reference for notifications
   NotificationService.setContainer(container);
 
+  // Initialize deep linking service
+  await DeepLinkService.instance.initialize();
+
   runApp(UncontrolledProviderScope(container: container, child: const MyApp()));
 }
 
@@ -76,6 +80,9 @@ class MyApp extends ConsumerWidget {
 
     // Set router for notification service
     NotificationService.setRouter(router);
+    
+    // Set router for deep linking service
+    DeepLinkService.instance.setRouter(router);
 
     // Add QueryClient provider wrapper
     return QueryClientProvider(

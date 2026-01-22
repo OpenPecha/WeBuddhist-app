@@ -20,6 +20,7 @@ import 'package:flutter_pecha/features/notifications/presentation/notification_s
 import 'package:flutter_pecha/features/plans/models/plans_model.dart';
 import 'package:flutter_pecha/features/plans/presentation/plan_details.dart';
 import 'package:flutter_pecha/features/plans/presentation/plan_info.dart';
+import 'package:flutter_pecha/features/plans/presentation/plan_invite_handler.dart';
 import 'package:flutter_pecha/features/prayer_of_the_day/presentation/prayer_of_the_day_screen.dart';
 import 'package:flutter_pecha/features/story_view/presentation/widgets/image_story.dart';
 import 'package:flutter_pecha/features/story_view/presentation/widgets/text_story.dart';
@@ -47,6 +48,7 @@ import 'package:story_view/story_view.dart';
 import 'package:flutter_story_presenter/flutter_story_presenter.dart' as fsp;
 import 'route_config.dart';
 import 'package:flutter_pecha/features/onboarding/data/providers/onboarding_datasource_providers.dart';
+import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 
 final _logger = AppLogger('GoRouter');
 
@@ -625,6 +627,22 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       ),
       // all plan tab routes
       GoRoute(
+        path: '/plans/invite',
+        builder: (context, state) {
+          // Handle deep link invitation to a plan
+          final planId = state.uri.queryParameters['planId'];
+          
+          if (planId == null || planId.isEmpty) {
+            return const Scaffold(
+              body: Center(child: Text('Invalid plan invitation link')),
+            );
+          }
+          
+          // Show handler that fetches plan data and navigates
+          return PlanInviteHandler(planId: planId);
+        },
+      ),
+      GoRoute(
         path: '/plans/info',
         builder: (context, state) {
           final extra = state.extra;
@@ -638,7 +656,7 @@ final goRouterProvider = Provider<GoRouter>((ref) {
           }
           return PlanInfo(
             plan: extra['plan'] as PlansModel,
-            author: extra['author'] as AuthorDtoModel,
+            author: extra['author'] as AuthorDtoModel?,
           );
         },
       ),
@@ -769,6 +787,82 @@ final goRouterProvider = Provider<GoRouter>((ref) {
 
       // 6. No redirect needed
       return null;
+    },
+    errorBuilder: (context, state) {
+      _logger.warning('Route not found: ${state.uri}');
+      _logger.debug('Full path: ${state.fullPath}, Matched location: ${state.matchedLocation}, URI path: ${state.uri.path}, URI host: ${state.uri.host}');
+      
+      // If this is a plan invite deep link that failed, try to redirect manually
+      if (state.uri.path.contains('invite') || (state.uri.host == 'plans' && state.uri.path.contains('invite'))) {
+        final planId = state.uri.queryParameters['planId'];
+        if (planId != null && planId.isNotEmpty) {
+          _logger.info('Attempting to redirect plan invite deep link manually');
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            try {
+              final router = GoRouter.of(context);
+              router.go('/plans/invite?planId=$planId');
+            } catch (e) {
+              _logger.error('Error redirecting plan invite', e);
+            }
+          });
+          // Return a loading widget while redirecting
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
+      }
+      
+      // Don't modify providers during build - delay it
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        try {
+          final container = ProviderScope.containerOf(context);
+          container.read(bottomNavIndexProvider.notifier).state = 0;
+        } catch (e) {
+          _logger.error('Error resetting bottom nav index', e);
+        }
+      });
+      
+      return Scaffold(
+        appBar: AppBar(
+          title: Text(AppLocalizations.of(context)?.nav_home ?? 'Home'),
+        ),
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(
+                  Icons.error_outline,
+                  size: 64,
+                  color: Colors.red,
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  'Page not found',
+                  style: Theme.of(context).textTheme.headlineSmall,
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'The requested page could not be found.',
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+                const SizedBox(height: 24),
+                FilledButton(
+                  onPressed: () {
+                    // Reset bottom nav index to 0 (texts tab) and navigate home
+                    final container = ProviderScope.containerOf(context);
+                    container.read(bottomNavIndexProvider.notifier).state = 0;
+                    context.go(RouteConfig.home);
+                  },
+                  child: Text(AppLocalizations.of(context)?.nav_home ?? 'Home'),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
     },
   );
 });
