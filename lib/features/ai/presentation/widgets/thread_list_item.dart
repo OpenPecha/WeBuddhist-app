@@ -161,18 +161,6 @@ class ThreadListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
-
-    // Highlight colors for active/selected thread
-    final activeBackgroundColor =
-        isDarkMode
-            ? AppColors.primary.withValues(alpha: 0.25)
-            : AppColors.primaryContainer;
-    final activeBorderColor =
-        isDarkMode
-            ? AppColors.primary.withValues(alpha: 0.5)
-            : AppColors.primaryLight.withValues(alpha: 0.4);
-
     return GestureDetector(
       onLongPress: () {
         if (onDelete != null) {
@@ -189,35 +177,19 @@ class ThreadListItem extends StatelessWidget {
                   : EdgeInsets.zero,
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
           decoration: BoxDecoration(
-            color: isActive ? activeBackgroundColor : Colors.transparent,
-            borderRadius: isActive ? BorderRadius.circular(10) : null,
-            border:
+            color:
                 isActive
-                    ? Border.all(color: activeBorderColor, width: 1)
-                    : null,
+                    ? Theme.of(context).colorScheme.surfaceContainer
+                    : Colors.transparent,
+            borderRadius: isActive ? BorderRadius.circular(12) : null,
           ),
           child: Row(
             children: [
-              // Active indicator dot
-              if (isActive)
-                Container(
-                  width: 6,
-                  height: 6,
-                  margin: const EdgeInsets.only(right: 10),
-                  decoration: BoxDecoration(
-                    color: AppColors.primary,
-                    shape: BoxShape.circle,
-                  ),
-                ),
               Expanded(
                 child: Text(
                   thread.title,
                   style: TextStyle(
                     fontSize: 14,
-                    color:
-                        isDarkMode
-                            ? AppColors.surfaceWhite
-                            : AppColors.textPrimary,
                     fontWeight: isActive ? FontWeight.w600 : FontWeight.w400,
                   ),
                   maxLines: 2,

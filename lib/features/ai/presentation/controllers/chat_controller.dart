@@ -143,7 +143,6 @@ class ChatController extends StateNotifier<ChatState> {
     try {
       final stream = _repository.sendMessage(
         message: sanitizedContent,
-        email: email,
         threadId: state.currentThreadId,
       );
 

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/core/utils/error_message_mapper.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
@@ -27,9 +28,12 @@ class _ChatHistoryDrawerState extends ConsumerState<ChatHistoryDrawer> {
     // Setup scroll listener for pagination
     _scrollController.addListener(_onScroll);
 
-    // Load threads when drawer is opened
+    // Load threads with smart caching when drawer opens
+    // Uses sliding window: 5min idle, 1hr max lifetime
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(threadListControllerProvider.notifier).loadThreads();
+      // Record that user opened drawer (interaction)
+      ref.read(threadListControllerProvider.notifier).recordInteraction();
     });
   }
 
@@ -42,6 +46,9 @@ class _ChatHistoryDrawerState extends ConsumerState<ChatHistoryDrawer> {
   }
 
   void _onScroll() {
+    // Record interaction when user scrolls (resets idle timer)
+    ref.read(threadListControllerProvider.notifier).recordInteraction();
+
     // Load more when user scrolls to 80% of the list
     if (_scrollController.position.pixels >=
         _scrollController.position.maxScrollExtent * 0.8) {
@@ -49,16 +56,17 @@ class _ChatHistoryDrawerState extends ConsumerState<ChatHistoryDrawer> {
     }
   }
 
-  void _performSearch(String query) {
-    // Unfocus the text field
-    _searchFocusNode.unfocus();
-    // TODO: Implement search functionality with query
-    // For now, just print or handle the search
-    if (query.trim().isNotEmpty) {
-      // Add your search logic here
-      debugPrint('Searching for: $query');
-    }
-  }
+  // Commented out until search functionality is implemented
+  // void _performSearch(String query) {
+  //   // Unfocus the text field
+  //   _searchFocusNode.unfocus();
+  //   // TODO: Implement search functionality with query
+  //   // For now, just print or handle the search
+  //   if (query.trim().isNotEmpty) {
+  //     // Add your search logic here
+  //     debugPrint('Searching for: $query');
+  //   }
+  // }
 
   Future<void> _handleDeleteThread(String threadId, String threadTitle) async {
     // Unfocus any focused widget
@@ -150,7 +158,7 @@ class _ChatHistoryDrawerState extends ConsumerState<ChatHistoryDrawer> {
     return Align(
       alignment: Alignment.centerLeft,
       child: Material(
-        color: isDarkMode ? AppColors.backgroundDark : AppColors.primarySurface,
+        color: Theme.of(context).scaffoldBackgroundColor,
         child: GestureDetector(
           onTap: () {
             // Dismiss keyboard when tapping outside the text field
@@ -177,65 +185,65 @@ class _ChatHistoryDrawerState extends ConsumerState<ChatHistoryDrawer> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         // Search Field
-                        TextField(
-                          controller: _searchController,
-                          focusNode: _searchFocusNode,
-                          textInputAction: TextInputAction.search,
-                          decoration: InputDecoration(
-                            hintText: AppLocalizations.of(context)!.ai_search_chats,
-                            hintStyle: TextStyle(
-                              fontSize: 12,
-                              color:
-                                  isDarkMode
-                                      ? AppColors.grey500
-                                      : AppColors.textPrimaryLight,
-                            ),
-                            prefixIcon: Icon(
-                              Icons.search,
-                              color:
-                                  isDarkMode
-                                      ? AppColors.textPrimaryDark
-                                      : AppColors.textPrimary,
-                              size: 28,
-                            ),
-                            filled: true,
-                            fillColor:
-                                isDarkMode
-                                    ? AppColors.surfaceDark
-                                    : AppColors.textPrimaryDark,
-                            contentPadding: const EdgeInsets.symmetric(
-                              vertical: 12,
-                              horizontal: 16,
-                            ),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(20),
-                              borderSide: BorderSide.none,
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(20),
-                              borderSide: BorderSide.none,
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(20),
-                              borderSide: BorderSide(
-                                color: AppColors.primary,
-                                width: 1.5,
-                              ),
-                            ),
-                          ),
-                          style: TextStyle(
-                            fontSize: 11,
-                            color:
-                                isDarkMode
-                                    ? AppColors.surfaceWhite
-                                    : AppColors.textPrimary,
-                          ),
-                          onChanged: (value) {
-                            // TODO: Implement real-time search filtering
-                          },
-                          onSubmitted: _performSearch,
-                        ),
-                        const SizedBox(height: 16),
+                        // TextField(
+                        //   controller: _searchController,
+                        //   focusNode: _searchFocusNode,
+                        //   textInputAction: TextInputAction.search,
+                        //   decoration: InputDecoration(
+                        //     hintText: AppLocalizations.of(context)!.ai_search_chats,
+                        //     hintStyle: TextStyle(
+                        //       fontSize: 12,
+                        //       color:
+                        //           isDarkMode
+                        //               ? AppColors.grey500
+                        //               : AppColors.textPrimaryLight,
+                        //     ),
+                        //     prefixIcon: Icon(
+                        //       Icons.search,
+                        //       color:
+                        //           isDarkMode
+                        //               ? AppColors.textPrimaryDark
+                        //               : AppColors.textPrimary,
+                        //       size: 28,
+                        //     ),
+                        //     filled: true,
+                        //     fillColor:
+                        //         isDarkMode
+                        //             ? AppColors.surfaceDark
+                        //             : AppColors.textPrimaryDark,
+                        //     contentPadding: const EdgeInsets.symmetric(
+                        //       vertical: 12,
+                        //       horizontal: 16,
+                        //     ),
+                        //     border: OutlineInputBorder(
+                        //       borderRadius: BorderRadius.circular(20),
+                        //       borderSide: BorderSide.none,
+                        //     ),
+                        //     enabledBorder: OutlineInputBorder(
+                        //       borderRadius: BorderRadius.circular(20),
+                        //       borderSide: BorderSide.none,
+                        //     ),
+                        //     focusedBorder: OutlineInputBorder(
+                        //       borderRadius: BorderRadius.circular(20),
+                        //       borderSide: BorderSide(
+                        //         color: AppColors.primary,
+                        //         width: 1.5,
+                        //       ),
+                        //     ),
+                        //   ),
+                        //   style: TextStyle(
+                        //     fontSize: 11,
+                        //     color:
+                        //         isDarkMode
+                        //             ? AppColors.surfaceWhite
+                        //             : AppColors.textPrimary,
+                        //   ),
+                        //   onChanged: (value) {
+                        //     // TODO: Implement real-time search filtering
+                        //   },
+                        //   onSubmitted: _performSearch,
+                        // ),
+                        // const SizedBox(height: 16),
                         // Chats Header with New Chat Button
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -280,7 +288,7 @@ class _ChatHistoryDrawerState extends ConsumerState<ChatHistoryDrawer> {
                     ),
                   ),
                   const Divider(height: 1),
-                  const SizedBox(height: 5),
+                  const SizedBox(height: 8),
                   // Thread List
                   Expanded(
                     child: _buildThreadList(
@@ -335,9 +343,9 @@ class _ChatHistoryDrawerState extends ConsumerState<ChatHistoryDrawer> {
               const SizedBox(height: 24),
               ElevatedButton(
                 onPressed: () {
-                  ref
-                      .read(threadListControllerProvider.notifier)
-                      .refreshThreads();
+                  // Use loadThreads() instead of refreshThreads() for retry
+                  // This respects the cache and only reloads if needed
+                  ref.read(threadListControllerProvider.notifier).loadThreads();
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primaryDarkest,
@@ -386,50 +394,60 @@ class _ChatHistoryDrawerState extends ConsumerState<ChatHistoryDrawer> {
       );
     }
 
-    return ListView.builder(
-      controller: _scrollController,
-      itemCount: state.threads.length + (state.isLoadingMore ? 1 : 0),
-      itemBuilder: (context, index) {
-        // Show loading indicator at the bottom
-        if (index == state.threads.length) {
-          return Padding(
-            padding: const EdgeInsets.all(16),
-            child: Center(
-              child: SizedBox(
-                width: 24,
-                height: 24,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  color: AppColors.primary,
+    return RefreshIndicator(
+      onRefresh: () async {
+        // Manual refresh - force reload regardless of cache state
+        await ref.read(threadListControllerProvider.notifier).refreshThreads();
+      },
+      child: ListView.builder(
+        controller: _scrollController,
+        itemCount: state.threads.length + (state.isLoadingMore ? 1 : 0),
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        itemBuilder: (context, index) {
+          // Show loading indicator at the bottom
+          if (index == state.threads.length) {
+            return Padding(
+              padding: const EdgeInsets.all(16),
+              child: Center(
+                child: SizedBox(
+                  width: 24,
+                  height: 24,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: AppColors.primary,
+                  ),
                 ),
               ),
-            ),
-          );
-        }
+            );
+          }
 
-        final thread = state.threads[index];
-        final isActive = thread.id == currentThreadId;
+          final thread = state.threads[index];
+          final isActive = thread.id == currentThreadId;
 
-        return ThreadListItem(
-          thread: thread,
-          isActive: isActive,
-          onTap: () async {
-            // Unfocus to prevent keyboard popup
-            FocusScope.of(context).unfocus();
-            // Load the selected thread
-            await ref
-                .read(chatControllerProvider.notifier)
-                .loadThread(thread.id);
-            // Refresh threads to update order
-            ref.read(threadListControllerProvider.notifier).refreshThreads();
-            // Close drawer
-            if (context.mounted) {
+          return ThreadListItem(
+            thread: thread,
+            isActive: isActive,
+            onTap: () {
+              // Haptic feedback for better tactile response
+              HapticFeedback.lightImpact();
+
+              // Unfocus to prevent keyboard popup
+              FocusScope.of(context).unfocus();
+
+              // Record interaction before loading thread (resets idle timer)
+              ref
+                  .read(threadListControllerProvider.notifier)
+                  .recordInteraction();
+
               Navigator.of(context).pop();
-            }
-          },
-          onDelete: () => _handleDeleteThread(thread.id, thread.title),
-        );
-      },
+
+              // Load the selected thread in background
+              ref.read(chatControllerProvider.notifier).loadThread(thread.id);
+            },
+            onDelete: () => _handleDeleteThread(thread.id, thread.title),
+          );
+        },
+      ),
     );
   }
 }

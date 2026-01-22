@@ -20,7 +20,7 @@ class AppColors {
   static const Color surfaceWhite = Color(0xFFFFFFFF);
 
   // Dark mode surfaces
-  static const Color backgroundDark = Color(0xFF1A1A1A); // Main dark background
+  static const Color backgroundDark = Colors.black; // Main dark background
   static const Color surfaceDark = Color(0xFF222222); // Card/surface dark
   static const Color surfaceVariantDark = Color(
     0xFF252525,
@@ -35,12 +35,16 @@ class AppColors {
 
   // ============ Grey Scale ============
   static const Color greyLight = Color(0xFFEDEDED); // MGS 100
-  static const Color greyMedium = Color(0xFF707070); // MGS 800 - onboarding quote light
+  static const Color greyMedium = Color(
+    0xFF707070,
+  ); // MGS 800 - onboarding quote light
   static const Color greyDark = Color(0xFF454545); // MGS 900
 
   // Extended grey scale for dark mode
   static const Color grey00 = Color(0xFFFFFFFF); // MGS 00
-  static const Color grey50 = Color(0xFFF2F2F2); // MGS 50 - onboarding quote dark
+  static const Color grey50 = Color(
+    0xFFF2F2F2,
+  ); // MGS 50 - onboarding quote dark
   static const Color grey100 = Color(0xFFEDEDED); // MGS 100
   static const Color grey300 = Color(0xFFDADADA); // MGS 300
   static const Color grey400 = Color(0xFFC4C4C4); // MGS 400
@@ -52,7 +56,9 @@ class AppColors {
   // ============ Text Colors ============
   // Light mode text
   static const Color textPrimary = Color(0xFF000000);
-  static const Color textPrimaryLight = Color(0xFF707070); // onboarding quote light
+  static const Color textPrimaryLight = Color(
+    0xFF707070,
+  ); // onboarding quote light
   static const Color textSecondary = Color(0xFF707070);
 
   // Dark mode text

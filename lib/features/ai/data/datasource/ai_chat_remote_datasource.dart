@@ -13,7 +13,6 @@ class AiChatRemoteDatasource {
 
   Stream<Map<String, dynamic>> sendMessage({
     required String message,
-    required String email,
     String? threadId,
   }) async* {
     final aiUrl = dotenv.env['AI_URL'];
@@ -26,7 +25,6 @@ class AiChatRemoteDatasource {
 
     // Build request body with required fields
     final requestBody = <String, dynamic>{
-      'email': email,
       'query': message,
       'application': 'webuddhist',
       'device_type': 'mobile_app',
