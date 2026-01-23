@@ -71,9 +71,33 @@ int getTotalSegmentsCount(List<Section> sections) {
 
 /// Merges two lists of sections recursively, handling nested sections
 ///
+/// This function is used for bidirectional pagination to combine content
+/// from multiple API calls into a single coherent structure.
+///
+/// Parameters:
+/// - [existingSections]: The current merged sections
+/// - [newSections]: New sections to merge in
+/// - [direction]: 'next' (append) or 'previous' (prepend)
+///
+/// The [direction] parameter determines merge behavior:
+/// - 'next': New content is appended (for scrolling down)
+/// - 'previous': New content is prepended (for scrolling up)
+///
 /// Returns a new list of sections that is the combination of the two input lists.
-/// If a section exists in both lists, the segments and nested sections from the new list will be merged with the existing section.
-/// If a section does not exist in the existing list, it will be added.
+/// If a section exists in both lists, the segments and nested sections from
+/// the new list will be merged with the existing section.
+/// If a section does not exist in the existing list, it will be added based on direction.
+///
+/// Example:
+/// ```dart
+/// // Scrolling down (next page)
+/// mergeSections([seg1-20], [seg21-40], 'next')
+/// // Result: [seg1-20, seg21-40]
+///
+/// // Scrolling up (previous page)
+/// mergeSections([seg21-40], [seg1-20], 'previous')
+/// // Result: [seg1-20, seg21-40]
+/// ```
 List<Section> mergeSections(
   List<Section> existingSections,
   List<Section> newSections,
@@ -95,21 +119,6 @@ List<Section> mergeSections(
         final Section existingSection = mergedSections[existingIndex];
         final mergedSegments = List<Segment>.from(existingSection.segments);
 
-        // Merge segments
-        // if (direction == 'previous') {
-        //   // For previous direction, insert segments in reverse order so last one is on top
-        //   for (int i = newSection.segments.length - 1; i >= 0; i--) {
-        //     final newSegment = newSection.segments[i];
-        //     final segmentExists = mergedSegments.any(
-        //       (segment) => segment.segmentId == newSegment.segmentId,
-        //     );
-
-        //     if (!segmentExists) {
-        //       mergedSegments.insert(0, newSegment);
-        //     }
-        //   }
-        // } else {
-        // For next direction, add segments in normal order
         for (final newSegment in newSection.segments) {
           final segmentExists = mergedSegments.any(
             (segment) => segment.segmentId == newSegment.segmentId,
@@ -125,7 +134,6 @@ List<Section> mergeSections(
             }
           }
         }
-        // }
 
         // Merge nested sections recursively
         final mergedNestedSections = mergeSections(
