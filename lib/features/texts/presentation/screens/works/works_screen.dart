@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/widgets/error_state_widget.dart';
-import 'package:flutter_pecha/features/app/presentation/pecha_bottom_nav_bar.dart';
 import 'package:flutter_pecha/features/texts/constants/text_screen_constants.dart';
 import 'package:flutter_pecha/features/texts/constants/text_routes.dart';
 import 'package:flutter_pecha/features/texts/data/providers/paginated_texts_provider.dart';
@@ -132,7 +131,6 @@ class _WorksScreenState extends ConsumerState<WorksScreen> {
           ),
         ),
       ),
-      bottomNavigationBar: const PechaBottomNavBar(),
     );
   }
 
