@@ -80,6 +80,8 @@ dependencies:
   # Network connectivity
   connectivity_plus: ^6.1.1
   upgrader: ^12.3.0
+  # QR code generation
+  qr_flutter: ^4.1.0
 
 dev_dependencies:
   flutter_test:
