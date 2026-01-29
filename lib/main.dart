@@ -16,6 +16,8 @@ import 'core/theme/app_theme.dart';
 import 'core/localization/material_localizations_bo.dart';
 import 'core/localization/cupertino_localizations_bo.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_pecha/core/config/app_feature_flags.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 final _logger = AppLogger('Main');
 
@@ -51,11 +53,24 @@ void main() async {
     // Continue app initialization even if connectivity check fails
   }
 
+  // Cancel any previously scheduled notifications in Coming Soon mode
+  if (AppFeatureFlags.kComingSoonMode) {
+    try {
+      final notificationsPlugin = FlutterLocalNotificationsPlugin();
+      await notificationsPlugin.cancelAll();
+      _logger.info('Cancelled all scheduled notifications for Coming Soon mode');
+    } catch (e) {
+      _logger.warning('Error cancelling notifications: $e');
+    }
+  }
+
   // Create provider container for notification service access
   final container = ProviderContainer();
 
   // Set the container reference for notifications
-  NotificationService.setContainer(container);
+  if (!AppFeatureFlags.kComingSoonMode) {
+    NotificationService.setContainer(container);
+  }
 
   runApp(UncontrolledProviderScope(container: container, child: const MyApp()));
 }
@@ -70,12 +85,12 @@ class MyApp extends ConsumerWidget {
     final themeMode = ref.watch(themeModeProvider);
 
     // Initialize services in background via providers
-    // This triggers the service initialization without blocking the UI
-    ref.watch(audioHandlerProvider);
-    ref.watch(notificationServiceProvider);
-
-    // Set router for notification service
-    NotificationService.setRouter(router);
+    // Skip in Coming Soon mode - no content to play, no notifications needed
+    if (!AppFeatureFlags.kComingSoonMode) {
+      ref.watch(audioHandlerProvider);
+      ref.watch(notificationServiceProvider);
+      NotificationService.setRouter(router);
+    }
 
     // Add QueryClient provider wrapper
     return QueryClientProvider(

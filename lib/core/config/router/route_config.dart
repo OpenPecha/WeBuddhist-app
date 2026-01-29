@@ -10,6 +10,7 @@ class RouteConfig {
   static const String creatorInfo = '/creator_info';
   static const String plans = '/plans';
   static const String texts = '/texts';
+  static const String comingSoon = '/coming-soon';
 
   // Protected routes that require authentication
   static const Set<String> protectedRoutes = {
@@ -20,7 +21,7 @@ class RouteConfig {
   };
 
   // Public routes that don't require authentication
-  static const Set<String> publicRoutes = {onboarding, login};
+  static const Set<String> publicRoutes = {onboarding, login, comingSoon};
 
   /// Check if a given path requires authentication
   static bool isProtectedRoute(String path) {
