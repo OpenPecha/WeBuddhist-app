@@ -2,7 +2,7 @@
   "@@locale": "bo",
   "appTitle": "པེ་ཆ་འཇུག",
   "pechaHeading": "WeBuddhist",
-  "learnLiveShare": "སློབ་སྦྱོང་དང་འཚོ་བ་དང་མཉམ་འབྲེལ།",
+  "learnLiveShare": "Learn, Live, and Share",
   "themeLight": "འཆར་ངོས་དཀར་པོ།",
   "themeDark": "འཆར་ངོས་ནག་པོ།",
   "switchToLight": "དཀར་པོའི་ཚད་གཞི་ལ་སྒྲིག་པ།",
@@ -170,5 +170,7 @@
   "ai_delete_confirmation": "ཁྱེད་ཀྱིས་ཁ་བརྡ་འདི་བསུབ་རྒྱུ་གཏན་འཁེལ་ཡིན་ནམ།",
   "ai_delete_warning": "བྱ་བ་འདི་ཕྱིར་ལོག་བྱེད་མི་ཐུབ།",
   "ai_confirm": "གཏན་འཁེལ།",
-  "ai_delete": "བསུབ།"
+  "ai_delete": "བསུབ།",
+
+  "comingSoonHeadline": "Coming Soon"
 }

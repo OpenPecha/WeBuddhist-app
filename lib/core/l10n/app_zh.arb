@@ -2,7 +2,7 @@
   "@@locale": "zh",
   "appTitle": "WeBuddhist",
   "pechaHeading": "WeBuddhist",
-  "learnLiveShare": "学习、生活与分享",
+  "learnLiveShare": "Learn, Live, and Share",
   "themeLight": "浅色模式",
   "themeDark": "深色模式",
   "switchToLight": "切换到浅色模式",
@@ -170,5 +170,7 @@
   "ai_delete_confirmation": "確定要刪除此對話？",
   "ai_delete_warning": "此操作執行後將無法復原",
   "ai_confirm": "確認",
-  "ai_delete": "刪除"
+  "ai_delete": "刪除",
+
+  "comingSoonHeadline": "Coming Soon"
 }
