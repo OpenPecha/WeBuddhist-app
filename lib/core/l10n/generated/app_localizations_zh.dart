@@ -15,7 +15,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get pechaHeading => 'WeBuddhist';
 
   @override
-  String get learnLiveShare => '学习、生活与分享';
+  String get learnLiveShare => 'Learn, Live, and Share';
 
   @override
   String get themeLight => '浅色模式';
@@ -499,4 +499,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get ai_delete => '刪除';
+
+  @override
+  String get comingSoonHeadline => 'Coming Soon';
 }

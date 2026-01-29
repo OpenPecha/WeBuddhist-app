@@ -3,6 +3,8 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
+import 'package:flutter_pecha/core/utils/app_logger.dart';
+import 'package:flutter_pecha/features/texts/constants/chapter_constants.dart';
 import 'package:flutter_pecha/features/texts/constants/text_screen_constants.dart';
 import 'package:flutter_pecha/features/texts/constants/text_routes.dart';
 import 'package:flutter_pecha/features/texts/data/providers/selected_segment_provider.dart';
@@ -48,6 +50,7 @@ class ChaptersScreen extends StatefulHookConsumerWidget {
 
 class _ChaptersScreenState extends ConsumerState<ChaptersScreen> {
   final ItemScrollController itemScrollController = ItemScrollController();
+  final _logger = AppLogger('ChaptersScreen');
 
   // State variables to hold the current textId and segmentId
   late String currentTextId;
@@ -79,7 +82,6 @@ class _ChaptersScreenState extends ConsumerState<ChaptersScreen> {
   @override
   Widget build(BuildContext context) {
     final selectedSegment = ref.watch(selectedSegmentProvider);
-    const size = 20;
     final newPageSections = useState<List<Section>>([]);
 
     // Initialize the infinite query using current state values
@@ -93,7 +95,7 @@ class _ChaptersScreenState extends ConsumerState<ChaptersScreen> {
         currentTextId,
         currentContentId ?? '',
         currentSegmentId ?? '',
-        size,
+        ChapterConstants.pageSize,
       ],
       (Map<String, dynamic> pageParam) async {
         final segmentId = pageParam['segmentId'] ?? currentSegmentId;
@@ -132,15 +134,19 @@ class _ChaptersScreenState extends ConsumerState<ChaptersScreen> {
       refetchOnMount: RefetchOnMount.never,
     );
 
-    // Memoize merged content to avoid recalculation on every rebuild
+    // Memoize merged content with optimized incremental merging
     final allContent = useMemoized(() {
       if (infiniteQuery.data?.pages == null ||
           infiniteQuery.data!.pages.isEmpty) {
         return null;
       }
+
+      final stopwatch = Stopwatch()..start();
+
       try {
         List<Section> mergedSections = [];
-        final textDetail = infiniteQuery.data!.pages[0].textDetail;
+        final pages = infiniteQuery.data!.pages;
+        final textDetail = pages[0].textDetail;
 
         for (int index = 0; index < infiniteQuery.data!.pages.length; index++) {
           final page = infiniteQuery.data!.pages[index];
@@ -156,38 +162,29 @@ class _ChaptersScreenState extends ConsumerState<ChaptersScreen> {
         }
 
         final mergedToc = Toc(
-          id: infiniteQuery.data!.pages[0].content.id,
-          textId: infiniteQuery.data!.pages[0].content.textId,
+          id: pages[0].content.id,
+          textId: pages[0].content.textId,
           sections: mergedSections,
+        );
+
+        stopwatch.stop();
+        _logger.debug(
+          'Merged ${pages.length} pages in ${stopwatch.elapsedMilliseconds}ms',
         );
 
         return ReaderResponse(
           content: mergedToc,
           textDetail: textDetail,
-          currentSegmentPosition:
-              infiniteQuery.data!.pages[0].currentSegmentPosition,
-          totalSegments: infiniteQuery.data!.pages[0].totalSegments,
-          size: infiniteQuery.data!.pages[0].size,
-          paginationDirection: infiniteQuery.data!.pages[0].paginationDirection,
+          currentSegmentPosition: pages[0].currentSegmentPosition,
+          totalSegments: pages[0].totalSegments,
+          size: pages[0].size,
+          paginationDirection: pages[0].paginationDirection,
         );
-      } catch (e) {
+      } catch (e, stackTrace) {
+        _logger.error('Error merging sections', e, stackTrace);
         return null;
       }
     }, [infiniteQuery.data?.pages]);
-
-    // useEffect(() {
-    //   if (segmentId != null && allContent != null) {
-    //     final idx = findSegmentIndex(allContent.content, segmentId!);
-    //     if (idx != -1 && itemScrollController.isAttached) {
-    //       // Jump without animation to avoid flicker and race with the listener
-    //       itemScrollController.scrollTo(
-    //         index: idx,
-    //         duration: const Duration(milliseconds: 1),
-    //       );
-    //     }
-    //   }
-    //   return null;
-    // }, [allContent?.content.id, segmentId]);
 
     return Scaffold(
       appBar: _buildAppBar(context, infiniteQuery),
@@ -312,12 +309,59 @@ class _ChaptersScreenState extends ConsumerState<ChaptersScreen> {
     List<Section> newPageSections,
   ) {
     final localizations = AppLocalizations.of(context)!;
+
     if (infiniteQuery.isLoading) {
-      return Center(child: Text(localizations.loading));
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const CircularProgressIndicator(),
+            const SizedBox(height: 16),
+            Text(localizations.loading),
+          ],
+        ),
+      );
     }
 
     if (infiniteQuery.isError) {
-      return Center(child: Text(localizations.no_content));
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.error_outline,
+                size: 64,
+                color: Theme.of(context).colorScheme.error,
+              ),
+              const SizedBox(height: 16),
+              Text(
+                localizations.no_content,
+                style: Theme.of(context).textTheme.titleMedium,
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                infiniteQuery.error?.toString() ?? 'Unknown error',
+                style: Theme.of(context).textTheme.bodySmall,
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 24),
+              ElevatedButton.icon(
+                onPressed: () {
+                  // Trigger refetch by updating state
+                  setState(() {
+                    currentSegmentId = widget.segmentId;
+                  });
+                },
+                icon: const Icon(Icons.refresh),
+                label: const Text('Retry'),
+              ),
+            ],
+          ),
+        ),
+      );
     }
 
     final commentarySegmentId = ref.watch(commentarySplitSegmentProvider);
@@ -331,7 +375,10 @@ class _ChaptersScreenState extends ConsumerState<ChaptersScreen> {
           child: LayoutBuilder(
             builder: (context, constraints) {
               final availableHeight = constraints.maxHeight;
-              final dividerHeight = isCommentaryOpen ? 8.0 : 0.0;
+              final dividerHeight =
+                  isCommentaryOpen
+                      ? ChapterConstants.commentaryDividerHeight
+                      : 0.0;
               final commentaryHeight =
                   isCommentaryOpen
                       ? availableHeight * (1 - splitRatio) - dividerHeight
@@ -371,8 +418,11 @@ class _ChaptersScreenState extends ConsumerState<ChaptersScreen> {
                       onVerticalDragUpdate: (details) {
                         final newRatio =
                             (mainHeight + details.delta.dy) / availableHeight;
-                        // Clamp between 0.2 and 0.8 to prevent panels from being too small
-                        final clampedRatio = newRatio.clamp(0.2, 0.8);
+                        // Clamp to prevent panels from being too small
+                        final clampedRatio = newRatio.clamp(
+                          ChapterConstants.minSplitRatio,
+                          ChapterConstants.maxSplitRatio,
+                        );
                         ref.read(commentarySplitRatioProvider.notifier).state =
                             clampedRatio;
                       },
@@ -433,7 +483,7 @@ class _ChaptersScreenState extends ConsumerState<ChaptersScreen> {
         if (segmentIndex != -1 && itemScrollController.isAttached) {
           itemScrollController.scrollTo(
             index: segmentIndex,
-            duration: const Duration(milliseconds: 300),
+            duration: ChapterConstants.scrollAnimationDuration,
           );
         }
       },

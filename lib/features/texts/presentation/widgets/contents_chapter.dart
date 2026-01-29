@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/utils/app_logger.dart';
+import 'package:flutter_pecha/features/texts/constants/chapter_constants.dart';
 import 'package:flutter_pecha/features/texts/data/providers/font_size_notifier.dart';
 import 'package:flutter_pecha/features/texts/data/providers/selected_segment_provider.dart';
 import 'package:flutter_pecha/features/texts/models/section.dart';
@@ -40,8 +42,9 @@ class ContentsChapter extends ConsumerStatefulWidget {
 class _ContentsChapterState extends ConsumerState<ContentsChapter> {
   final ItemPositionsListener itemPositionsListener =
       ItemPositionsListener.create();
+  final _logger = AppLogger('ContentsChapter');
 
-  // Scroll management (equivalent to React's scrollRef)
+  // Scroll management
   bool _hasTriggeredPrevious = false;
   bool _hasTriggeredNext = false;
   Timer? _debounceTimer;
@@ -85,7 +88,10 @@ class _ContentsChapterState extends ConsumerState<ContentsChapter> {
         if (widget.itemScrollController.isAttached && targetIndex >= 0) {
           widget.itemScrollController.scrollTo(
             index: targetIndex,
-            duration: const Duration(milliseconds: 1),
+            duration: ChapterConstants.instantScrollDuration,
+          );
+          _logger.debug(
+            'Adjusted scroll after prepend: $targetIndex (added $newItemsCount items)',
           );
         }
       }
@@ -105,7 +111,7 @@ class _ContentsChapterState extends ConsumerState<ContentsChapter> {
 
   void _onScrollPositionChanged() {
     _debounceTimer?.cancel();
-    _debounceTimer = Timer(const Duration(milliseconds: 100), () {
+    _debounceTimer = Timer(ChapterConstants.scrollDebounce, () {
       final positionsSet = itemPositionsListener.itemPositions.value;
       if (positionsSet.isEmpty) return;
 
@@ -119,22 +125,28 @@ class _ContentsChapterState extends ConsumerState<ContentsChapter> {
       final hasPreviousPage = currentSegmentPosition > 1;
 
       // Load previous sections when near the beginning
-      if (firstVisibleIndex <= 5 &&
+      if (firstVisibleIndex <= ChapterConstants.previousLoadThreshold &&
           hasPreviousPage &&
           !widget.infiniteQuery.isFetchingPreviousPage &&
           !_hasTriggeredPrevious) {
         _hasTriggeredPrevious = true;
-        // Store current position before loading
         _currentPositionBeforeLoad = firstVisibleIndex;
+        _logger.info(
+          'Triggering previous page load at index $firstVisibleIndex',
+        );
         _loadPreviousPage(anchorIndex: firstVisibleIndex);
       }
 
       // Load next sections when near the end
-      if (lastVisibleIndex >= _getTotalItemCount() - 3 &&
+      final totalItems = _getTotalItemCount();
+      if (lastVisibleIndex >= totalItems - ChapterConstants.nextLoadThreshold &&
           widget.infiniteQuery.hasNextPage &&
           !widget.infiniteQuery.isFetchingNextPage &&
           !_hasTriggeredNext) {
         _hasTriggeredNext = true;
+        _logger.info(
+          'Triggering next page load at index $lastVisibleIndex/$totalItems',
+        );
         _loadNextPage();
       }
     });
@@ -143,17 +155,6 @@ class _ContentsChapterState extends ConsumerState<ContentsChapter> {
   Future<void> _loadPreviousPage({required int anchorIndex}) async {
     try {
       widget.infiniteQuery.fetchPreviousPage();
-
-      // How many new list items were prepended?
-      // final newItemsCount = getTotalSegmentsCount(widget.newPageSections);
-
-      // final targetIndex = anchorIndex + newItemsCount;
-      // if (widget.itemScrollController.isAttached && targetIndex >= 0) {
-      //   widget.itemScrollController.scrollTo(
-      //     index: targetIndex,
-      //     duration: const Duration(milliseconds: 1),
-      //   );
-      // }
     } finally {
       _hasTriggeredPrevious = false;
     }
@@ -173,6 +174,7 @@ class _ContentsChapterState extends ConsumerState<ContentsChapter> {
   }
 
   void _loadNextPage() {
+    _logger.debug('Fetching next page...');
     widget.infiniteQuery.fetchNextPage();
     _hasTriggeredNext = false;
   }
@@ -191,11 +193,13 @@ class _ContentsChapterState extends ConsumerState<ContentsChapter> {
       return const SizedBox.shrink();
     }
 
+    final pagesLoaded = widget.infiniteQuery.data?.pages.length ?? 0;
+
     return Column(
       children: [
         // Loading previous content indicator
         if (widget.infiniteQuery.isFetchingPreviousPage)
-          _buildLoadingIndicator("Loading previous content..."),
+          _buildLoadingIndicator("Loading previous... ($pagesLoaded pages)"),
 
         // Main content with ScrollablePositionedList
         Expanded(
@@ -213,7 +217,7 @@ class _ContentsChapterState extends ConsumerState<ContentsChapter> {
 
         // Loading next content indicator
         if (widget.infiniteQuery.isFetchingNextPage)
-          _buildLoadingIndicator("Loading more content..."),
+          _buildLoadingIndicator("Loading more... ($pagesLoaded pages)"),
       ],
     );
   }
