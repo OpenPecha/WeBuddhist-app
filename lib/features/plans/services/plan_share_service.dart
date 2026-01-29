@@ -45,8 +45,7 @@ class PlanShareService {
       // ignore: deprecated_member_use
       await Share.share(
         message,
-        // Subject removed to improve WhatsApp compatibility on iOS
-        // subject: 'Join me on WeBuddhist',
+        subject: 'Join me on WeBuddhist',
       );
 
       _logger.info('Share completed successfully');

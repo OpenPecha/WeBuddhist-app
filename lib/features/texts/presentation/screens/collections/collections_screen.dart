@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
+import 'package:flutter_pecha/core/services/app_share/app_share.dart';
 import 'package:flutter_pecha/core/widgets/error_state_widget.dart';
 import 'package:flutter_pecha/features/texts/constants/text_screen_constants.dart';
 import 'package:flutter_pecha/features/texts/constants/text_routes.dart';
@@ -32,10 +33,12 @@ class CollectionsScreen extends ConsumerWidget {
               child:
                   searchState.hasSubmitted &&
                           searchState.submittedQuery.isNotEmpty
-                      ? _SearchResultsView(query: searchState.submittedQuery)
+                      ? _SearchResultsView(
+                          query: searchState.submittedQuery,
+                        )
                       : _CollectionsListView(
-                        collectionsResponse: collectionsListResponse,
-                      ),
+                          collectionsResponse: collectionsListResponse,
+                        ),
             ),
           ],
         ),
@@ -55,6 +58,7 @@ class CollectionsScreen extends ConsumerWidget {
       ),
     );
   }
+
 }
 
 /// Search field widget with state management
@@ -114,13 +118,15 @@ class _SearchFieldState extends ConsumerState<_SearchField> {
 }
 
 /// Collections list view
-class _CollectionsListView extends StatelessWidget {
+class _CollectionsListView extends ConsumerWidget {
   final AsyncValue<CollectionsResponse> collectionsResponse;
 
-  const _CollectionsListView({required this.collectionsResponse});
+  const _CollectionsListView({
+    required this.collectionsResponse,
+  });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return collectionsResponse.when(
       data: (response) {
         final collections = response.collections;
@@ -128,8 +134,13 @@ class _CollectionsListView extends StatelessWidget {
           return const Center(child: Text('No collections available'));
         }
         return ListView.builder(
-          itemCount: collections.length,
+          itemCount: collections.length + 1, // +1 for share button
           itemBuilder: (context, index) {
+            // If this is the last item, show share button
+            if (index == collections.length) {
+              return _buildShareButton(ref);
+            }
+            
             final collection = collections[index];
             final colorIndex = index % 9;
             return GestureDetector(
@@ -152,6 +163,27 @@ class _CollectionsListView extends StatelessWidget {
       error:
           (error, stackTrace) =>
               const Center(child: Text('Unable to load collections')),
+    );
+  }
+
+  Widget _buildShareButton(WidgetRef ref) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+      child: Center(
+        child: ElevatedButton.icon(
+          onPressed: () {
+            ref.read(appShareServiceProvider).shareApp();
+          },
+          icon: const Icon(Icons.share),
+          label: const Text('Share WeBuddhist'),
+          style: ElevatedButton.styleFrom(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
@@ -201,7 +233,7 @@ class _SearchResultsView extends ConsumerWidget {
           return _buildNoResults(query);
         }
 
-        return _buildSearchResultsList(groupedResults, query);
+        return _buildSearchResultsList(groupedResults, query, ref);
       },
     );
   }
@@ -243,12 +275,18 @@ class _SearchResultsView extends ConsumerWidget {
   Widget _buildSearchResultsList(
     Map<String, Map<String, dynamic>> groupedResults,
     String query,
+    WidgetRef ref,
   ) {
     final groupedList = groupedResults.values.toList();
 
     return ListView.builder(
-      itemCount: groupedList.length,
+      itemCount: groupedList.length + 1, // +1 for share button
       itemBuilder: (context, index) {
+        // If this is the last item, show share button
+        if (index == groupedList.length) {
+          return _buildShareButton(ref);
+        }
+
         final textGroup = groupedList[index];
         final textId = textGroup['textId'] as String;
         final textTitle = textGroup['textTitle'] as String;
@@ -261,6 +299,27 @@ class _SearchResultsView extends ConsumerWidget {
           searchQuery: query,
         );
       },
+    );
+  }
+
+  Widget _buildShareButton(WidgetRef ref) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+      child: Center(
+        child: ElevatedButton.icon(
+          onPressed: () {
+            ref.read(appShareServiceProvider).shareApp();
+          },
+          icon: const Icon(Icons.share),
+          label: const Text('Share WeBuddhist'),
+          style: ElevatedButton.styleFrom(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
