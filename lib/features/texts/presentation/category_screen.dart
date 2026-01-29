@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_pecha/features/texts/data/providers/apis/collections_providers.dart';
 import 'package:flutter_pecha/features/texts/models/collections/collections.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_pecha/features/app/presentation/pecha_bottom_nav_bar.dart';
 import 'package:go_router/go_router.dart';
 
 class CategoryScreen extends ConsumerWidget {
@@ -73,7 +72,6 @@ class CategoryScreen extends ConsumerWidget {
             (error, stackTrace) =>
                 const Center(child: Text('Failed to load collections')),
       ),
-      bottomNavigationBar: const PechaBottomNavBar(),
     );
   }
 }

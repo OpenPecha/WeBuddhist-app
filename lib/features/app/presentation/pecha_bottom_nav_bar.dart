@@ -13,76 +13,77 @@ class PechaBottomNavBar extends ConsumerWidget {
     final selectedIndex = ref.watch(bottomNavIndexProvider);
     final localizations = AppLocalizations.of(context)!;
 
-    return Container(
-      // padding: EdgeInsets.only(bottom: 16),
-      decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(32),
-          topRight: Radius.circular(32),
-        ),
-      ),
+    return SafeArea(
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            // Home tab hidden - keeping in codebase but not displayed
-            // _buildNavItem(
-            //   context: context,
-            //   ref: ref,
-            //   index: 0,
-            //   icon: Icons.home_outlined,
-            //   selectedIcon: Icons.home,
-            //   label: localizations.nav_home,
-            //   isSelected: selectedIndex == 0,
-            // ),
-            _buildNavItem(
-              context: context,
-              ref: ref,
-              index: 0,
-              icon: Icons.book_outlined,
-              selectedIcon: Icons.book,
-              label: localizations.nav_texts,
-              isSelected: selectedIndex == 0,
-            ),
-            _buildNavItem(
-              context: context,
-              ref: ref,
-              index: 1,
-              icon: FontAwesomeIcons.handsPraying,
-              selectedIcon: FontAwesomeIcons.handsPraying,
-              label: localizations.nav_recitations,
-              isSelected: selectedIndex == 1,
-            ),
-            _buildNavItem(
-              context: context,
-              ref: ref,
-              index: 2,
-              icon: Icons.auto_awesome_outlined,
-              selectedIcon: Icons.auto_awesome,
-              label: localizations.nav_ai_mode,
-              isSelected: selectedIndex == 2,
-            ),
-            _buildNavItem(
-              context: context,
-              ref: ref,
-              index: 3,
-              icon: Icons.check_box_outlined,
-              selectedIcon: Icons.check_box,
-              label: localizations.nav_practice,
-              isSelected: selectedIndex == 3,
-            ),
-            _buildNavItem(
-              context: context,
-              ref: ref,
-              index: 4,
-              icon: Icons.settings_outlined,
-              selectedIcon: Icons.settings,
-              label: localizations.nav_settings,
-              isSelected: selectedIndex == 4,
-            ),
-          ],
+        decoration: BoxDecoration(
+          color: Theme.of(context).cardColor,
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(32),
+            topRight: Radius.circular(32),
+          ),
+        ),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              // Home tab hidden - keeping in codebase but not displayed
+              // _buildNavItem(
+              //   context: context,
+              //   ref: ref,
+              //   index: 0,
+              //   icon: Icons.home_outlined,
+              //   selectedIcon: Icons.home,
+              //   label: localizations.nav_home,
+              //   isSelected: selectedIndex == 0,
+              // ),
+              _buildNavItem(
+                context: context,
+                ref: ref,
+                index: 0,
+                icon: Icons.book_outlined,
+                selectedIcon: Icons.book,
+                label: localizations.nav_texts,
+                isSelected: selectedIndex == 0,
+              ),
+              _buildNavItem(
+                context: context,
+                ref: ref,
+                index: 1,
+                icon: FontAwesomeIcons.handsPraying,
+                selectedIcon: FontAwesomeIcons.handsPraying,
+                label: localizations.nav_recitations,
+                isSelected: selectedIndex == 1,
+              ),
+              _buildNavItem(
+                context: context,
+                ref: ref,
+                index: 2,
+                icon: Icons.auto_awesome_outlined,
+                selectedIcon: Icons.auto_awesome,
+                label: localizations.nav_ai_mode,
+                isSelected: selectedIndex == 2,
+              ),
+              _buildNavItem(
+                context: context,
+                ref: ref,
+                index: 3,
+                icon: Icons.check_box_outlined,
+                selectedIcon: Icons.check_box,
+                label: localizations.nav_practice,
+                isSelected: selectedIndex == 3,
+              ),
+              _buildNavItem(
+                context: context,
+                ref: ref,
+                index: 4,
+                icon: Icons.settings_outlined,
+                selectedIcon: Icons.settings,
+                label: localizations.nav_settings,
+                isSelected: selectedIndex == 4,
+              ),
+            ],
+          ),
         ),
       ),
     );
