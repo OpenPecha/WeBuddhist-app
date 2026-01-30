@@ -4,11 +4,13 @@
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_pecha/core/constants/app_config.dart';
 
 class CupertinoLocalizationsBo extends DefaultCupertinoLocalizations {
   const CupertinoLocalizationsBo();
 
-  static const LocalizationsDelegate<CupertinoLocalizations> delegate = _CupertinoLocalizationsBoDelegate();
+  static const LocalizationsDelegate<CupertinoLocalizations> delegate =
+      _CupertinoLocalizationsBoDelegate();
 
   @override
   String get todayLabel => 'དི་རིང་';
@@ -25,15 +27,19 @@ class CupertinoLocalizationsBo extends DefaultCupertinoLocalizations {
   // Add more overrides as needed
 }
 
-class _CupertinoLocalizationsBoDelegate extends LocalizationsDelegate<CupertinoLocalizations> {
+class _CupertinoLocalizationsBoDelegate
+    extends LocalizationsDelegate<CupertinoLocalizations> {
   const _CupertinoLocalizationsBoDelegate();
 
   @override
-  bool isSupported(Locale locale) => locale.languageCode == 'bo';
+  bool isSupported(Locale locale) =>
+      locale.languageCode == AppConfig.tibetanLanguageCode;
 
   @override
   Future<CupertinoLocalizations> load(Locale locale) async {
-    return SynchronousFuture<CupertinoLocalizations>(const CupertinoLocalizationsBo());
+    return SynchronousFuture<CupertinoLocalizations>(
+      const CupertinoLocalizationsBo(),
+    );
   }
 
   @override

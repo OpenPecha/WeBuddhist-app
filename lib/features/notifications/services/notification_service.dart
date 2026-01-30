@@ -47,7 +47,14 @@ class NotificationService {
     // initialize timezone
     tz.initializeTimeZones();
     final currentTimezone = await FlutterTimezone.getLocalTimezone();
-    tz.setLocalLocation(tz.getLocation(currentTimezone));
+    try {
+      tz.setLocalLocation(tz.getLocation(currentTimezone));
+    } catch (e) {
+      // Some devices return legacy timezone names (e.g. "Asia/Calcutta")
+      // that the timezone package doesn't recognize. Fall back to UTC.
+      _logger.warning('Unknown timezone "$currentTimezone", falling back to UTC');
+      tz.setLocalLocation(tz.getLocation('UTC'));
+    }
 
     // Android initialization - do NOT request permissions
     // Use drawable resource for notification icon (not mipmap)

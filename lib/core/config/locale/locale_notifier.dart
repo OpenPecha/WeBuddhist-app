@@ -3,6 +3,7 @@ import 'package:flutter_pecha/core/constants/app_storage_keys.dart';
 import 'package:flutter_pecha/core/l10n/l10n.dart';
 import 'package:flutter_pecha/core/utils/local_storage_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_pecha/core/constants/app_config.dart';
 
 class LocaleNotifier extends StateNotifier<Locale> {
   final LocalStorageService _localStorageService;
@@ -10,7 +11,7 @@ class LocaleNotifier extends StateNotifier<Locale> {
 
   LocaleNotifier({required LocalStorageService localStorageService})
     : _localStorageService = localStorageService,
-      super(const Locale("en")) {
+      super(const Locale(AppConfig.defaultLanguage)) {
     // Initialize locale asynchronously, but mark initialization as started
     _initializeLocale();
   }
@@ -64,13 +65,13 @@ class LocaleNotifier extends StateNotifier<Locale> {
     Locale? locale;
     switch (languagePreference.toLowerCase()) {
       case 'tibetan':
-        locale = const Locale('bo');
+        locale = const Locale(AppConfig.tibetanLanguageCode);
         break;
       case 'english':
-        locale = const Locale('en');
+        locale = const Locale(AppConfig.englishLanguageCode);
         break;
       case 'chinese':
-        locale = const Locale('zh');
+        locale = const Locale(AppConfig.chineseLanguageCode);
         break;
       default:
         // Unknown preference, don't change locale

@@ -18,6 +18,7 @@ import 'core/localization/cupertino_localizations_bo.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_pecha/core/config/app_feature_flags.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 final _logger = AppLogger('Main');
 
@@ -26,6 +27,9 @@ void main() async {
 
   // Setup environment-aware logging
   AppLogger.init();
+
+  // Use bundled fonts only — prevent runtime network fetching
+  GoogleFonts.config.allowRuntimeFetching = false;
 
   // Load environment variables
   try {

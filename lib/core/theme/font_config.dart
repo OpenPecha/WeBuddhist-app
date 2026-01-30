@@ -2,8 +2,12 @@
 // Defines system fonts (for UI) and content fonts (for backend texts)
 // for each supported language.
 
+// - Tibetan (bo): Noto Serif Tibetan for system UI and SambhotaUnicode for content/source
+// - English (en): Inter for system UI and Source Serif 4 for content/source
+// - Chinese (zh): Noto Sans Traditional Chinese for system UI and Noto Serif Traditional Chinese for content
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/constants/app_config.dart';
 
 /// Defines the type of font usage in the application
 enum FontType {
@@ -16,13 +20,10 @@ enum FontType {
 
 /// Configuration for a language's font families
 class LanguageFontConfig {
-  /// Font family name for system UI elements
   final String systemFont;
 
-  /// Font family name for content elements
   final String contentFont;
 
-  /// Whether the font is from Google Fonts (vs local assets)
   final bool systemFontIsGoogle;
   final bool contentFontIsGoogle;
 
@@ -36,73 +37,43 @@ class LanguageFontConfig {
 
 /// Central font configuration for all supported languages
 class AppFontConfig {
-  // Private constructor to prevent instantiation
   AppFontConfig._();
 
-  /// Font configurations mapped by language code
   static const Map<String, LanguageFontConfig> _languageFonts = {
-    // Tibetan - Google Noto Serif Tibetan for UI, Atisha (local) for content
-    'bo': LanguageFontConfig(
-      systemFont: 'Noto Serif Tibetan',
-      contentFont: 'Atisha',
+    // Tibetan - Noto Serif Tibetan for UI, SambhotaUnicode for content/source
+    AppConfig.tibetanLanguageCode: LanguageFontConfig(
+      systemFont: AppConfig.tibetanSystemFont,
+      contentFont: AppConfig.tibetanContentFont,
       systemFontIsGoogle: true,
       contentFontIsGoogle: false,
     ),
 
-    'BO': LanguageFontConfig(
-      systemFont: 'Noto Serif Tibetan',
-      contentFont: 'Atisha',
+    AppConfig.tibetanAdaptationLanguageCode: LanguageFontConfig(
+      systemFont: AppConfig.tibetanSystemFont,
+      contentFont: AppConfig.tibetanContentFont,
       systemFontIsGoogle: true,
       contentFontIsGoogle: false,
     ),
 
-    'tib': LanguageFontConfig(
-      systemFont: 'Noto Serif Tibetan',
-      contentFont: 'Atisha',
-      systemFontIsGoogle: true,
-      contentFontIsGoogle: false,
-    ),
-
-    'TIB': LanguageFontConfig(
-      systemFont: 'Noto Serif Tibetan',
-      contentFont: 'Atisha',
-      systemFontIsGoogle: true,
-      contentFontIsGoogle: false,
-    ),
-
-    // English - Google Inter for UI, EB Garamond for content
-    'en': LanguageFontConfig(
-      systemFont: 'Inter',
-      contentFont: 'EB Garamond',
+    // English - Google Inter for UI, Source Serif 4 for content
+    AppConfig.englishLanguageCode: LanguageFontConfig(
+      systemFont: AppConfig.englishSystemFont,
+      contentFont: AppConfig.englishContentFont,
       systemFontIsGoogle: true,
       contentFontIsGoogle: true,
     ),
 
-    'EN': LanguageFontConfig(
-      systemFont: 'Inter',
-      contentFont: 'EB Garamond',
+    AppConfig.tibetanTransliterationLanguageCode: LanguageFontConfig(
+      systemFont: AppConfig.englishSystemFont,
+      contentFont: AppConfig.englishContentFont,
       systemFontIsGoogle: true,
       contentFontIsGoogle: true,
     ),
 
-    'tibphono': LanguageFontConfig(
-      systemFont: 'Inter',
-      contentFont: 'EB Garamond',
-      systemFontIsGoogle: true,
-      contentFontIsGoogle: true,
-    ),
-
-    // Chinese - Google Inter for UI, EB Garamond for content
-    'zh': LanguageFontConfig(
-      systemFont: 'Inter',
-      contentFont: 'EB Garamond',
-      systemFontIsGoogle: true,
-      contentFontIsGoogle: true,
-    ),
-
-    'ZH': LanguageFontConfig(
-      systemFont: 'Inter',
-      contentFont: 'EB Garamond',
+    // Chinese (zh-TW) - Noto Sans Traditional Chinese for UI, Noto Serif Traditional Chinese for content
+    AppConfig.chineseLanguageCode: LanguageFontConfig(
+      systemFont: AppConfig.chineseSystemFont,
+      contentFont: AppConfig.chineseContentFont,
       systemFontIsGoogle: true,
       contentFontIsGoogle: true,
     ),
@@ -110,8 +81,8 @@ class AppFontConfig {
 
   /// Default font configuration (used when language is not found)
   static const LanguageFontConfig _defaultConfig = LanguageFontConfig(
-    systemFont: 'Inter',
-    contentFont: 'EB Garamond',
+    systemFont: AppConfig.englishSystemFont,
+    contentFont: AppConfig.englishContentFont,
     systemFontIsGoogle: true,
     contentFontIsGoogle: true,
   );
@@ -119,7 +90,7 @@ class AppFontConfig {
   /// Get font configuration for a specific language
   static LanguageFontConfig getConfig(String? languageCode) {
     if (languageCode == null) return _defaultConfig;
-    return _languageFonts[languageCode] ?? _defaultConfig;
+    return _languageFonts[languageCode.toLowerCase()] ?? _defaultConfig;
   }
 
   /// Get font family name for a specific language and font type
@@ -145,15 +116,22 @@ class AppFontConfig {
   /// Helper to get the actual font family name from Google Fonts
   static String _getGoogleFontFamilyName(String fontName) {
     switch (fontName) {
-      case 'Inter':
-        return GoogleFonts.inter().fontFamily ?? 'Inter';
-      case 'EB Garamond':
-        return GoogleFonts.ebGaramond().fontFamily ?? 'EB Garamond';
-      case 'Noto Serif Tibetan':
+      case AppConfig.englishSystemFont:
+        return GoogleFonts.inter().fontFamily ?? AppConfig.englishSystemFont;
+      case AppConfig.englishContentFont:
+        return GoogleFonts.sourceSerif4().fontFamily ??
+            AppConfig.englishContentFont;
+      case AppConfig.tibetanSystemFont:
         return GoogleFonts.notoSerifTibetan().fontFamily ??
-            'Noto Serif Tibetan';
+            AppConfig.tibetanSystemFont;
+      case AppConfig.chineseSystemFont:
+        return GoogleFonts.notoSansTc().fontFamily ??
+            AppConfig.chineseSystemFont;
+      case AppConfig.chineseContentFont:
+        return GoogleFonts.notoSerifTc().fontFamily ??
+            AppConfig.chineseContentFont;
       default:
-        return GoogleFonts.inter().fontFamily ?? 'Inter';
+        return GoogleFonts.inter().fontFamily ?? AppConfig.englishSystemFont;
     }
   }
 
@@ -189,12 +167,16 @@ class AppFontConfig {
     final baseTextTheme = ThemeData(brightness: brightness).textTheme;
 
     switch (fontName) {
-      case 'Inter':
+      case AppConfig.englishSystemFont:
         return GoogleFonts.interTextTheme(baseTextTheme);
-      case 'EB Garamond':
-        return GoogleFonts.ebGaramondTextTheme(baseTextTheme);
-      case 'Noto Serif Tibetan':
+      case AppConfig.englishContentFont:
+        return GoogleFonts.sourceSerif4TextTheme(baseTextTheme);
+      case AppConfig.tibetanSystemFont:
         return GoogleFonts.notoSerifTibetanTextTheme(baseTextTheme);
+      case AppConfig.chineseSystemFont:
+        return GoogleFonts.notoSansTcTextTheme(baseTextTheme);
+      case AppConfig.chineseContentFont:
+        return GoogleFonts.notoSerifTcTextTheme(baseTextTheme);
       default:
         return GoogleFonts.interTextTheme(baseTextTheme);
     }
@@ -222,12 +204,16 @@ class AppFontConfig {
     TextStyle? baseStyle,
   ) {
     switch (fontName) {
-      case 'Inter':
+      case AppConfig.englishSystemFont:
         return GoogleFonts.inter(textStyle: baseStyle);
-      case 'EB Garamond':
-        return GoogleFonts.ebGaramond(textStyle: baseStyle);
-      case 'Noto Serif Tibetan':
+      case AppConfig.englishContentFont:
+        return GoogleFonts.sourceSerif4(textStyle: baseStyle);
+      case AppConfig.tibetanSystemFont:
         return GoogleFonts.notoSerifTibetan(textStyle: baseStyle);
+      case AppConfig.chineseSystemFont:
+        return GoogleFonts.notoSansTc(textStyle: baseStyle);
+      case AppConfig.chineseContentFont:
+        return GoogleFonts.notoSerifTc(textStyle: baseStyle);
       default:
         return GoogleFonts.inter(textStyle: baseStyle);
     }
