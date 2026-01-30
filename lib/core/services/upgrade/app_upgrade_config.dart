@@ -3,6 +3,7 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:upgrader/upgrader.dart';
+import 'package:flutter_pecha/core/constants/app_config.dart';
 
 /// Configuration for app upgrade prompts.
 /// Provides a centralized configuration for the upgrader package.
@@ -75,9 +76,9 @@ class _AppUpgraderMessages extends UpgraderMessages {
   @override
   String get title {
     switch (locale.languageCode) {
-      case 'bo':
+      case AppConfig.tibetanLanguageCode:
         return 'WeBuddhist གསར་བསྒྱུར།';
-      case 'zh':
+      case AppConfig.chineseLanguageCode:
         return '更新 WeBuddhist';
       default:
         return 'Update WeBuddhist';
@@ -87,9 +88,9 @@ class _AppUpgraderMessages extends UpgraderMessages {
   @override
   String get body {
     switch (locale.languageCode) {
-      case 'bo':
+      case AppConfig.tibetanLanguageCode:
         return 'ཐོན་རིམ་ {{currentAppStoreVersion}} གསར་བཅོས་དང་བཅས་པ་སླེབས་ཡོད། ད་ལྟའི་ཐོན་རིམ་ {{currentInstalledVersion}} རེད།';
-      case 'zh':
+      case AppConfig.chineseLanguageCode:
         return '版本 {{currentAppStoreVersion}} 已推出，带来全新改进。 您当前的版本是 {{currentInstalledVersion}}。';
       default:
         return 'Version {{currentAppStoreVersion}} is here with new improvements. You have {{currentInstalledVersion}}.';
@@ -99,9 +100,9 @@ class _AppUpgraderMessages extends UpgraderMessages {
   @override
   String get buttonTitleUpdate {
     switch (locale.languageCode) {
-      case 'bo':
+      case AppConfig.tibetanLanguageCode:
         return 'གསར་བསྐྱར།';
-      case 'zh':
+      case AppConfig.chineseLanguageCode:
         return '立即更新';
       default:
         return 'Update Now';
@@ -111,9 +112,9 @@ class _AppUpgraderMessages extends UpgraderMessages {
   @override
   String get buttonTitleLater {
     switch (locale.languageCode) {
-      case 'bo':
+      case AppConfig.tibetanLanguageCode:
         return 'ཕྱིས་སུ།';
-      case 'zh':
+      case AppConfig.chineseLanguageCode:
         return '稍后';
       default:
         return 'Later';
@@ -123,9 +124,9 @@ class _AppUpgraderMessages extends UpgraderMessages {
   @override
   String get buttonTitleIgnore {
     switch (locale.languageCode) {
-      case 'bo':
+      case AppConfig.tibetanLanguageCode:
         return 'མཐོང་མཆི།';
-      case 'zh':
+      case AppConfig.chineseLanguageCode:
         return '忽略';
       default:
         return 'Ignore';
@@ -135,9 +136,9 @@ class _AppUpgraderMessages extends UpgraderMessages {
   @override
   String get prompt {
     switch (locale.languageCode) {
-      case 'bo':
+      case AppConfig.tibetanLanguageCode:
         return 'ད་ལྟ་གསར་བསྐྱར་གནང་འདོད་དམ།';
-      case 'zh':
+      case AppConfig.chineseLanguageCode:
         return '您想现在更新吗？';
       default:
         return 'Would you like to update now?';
@@ -147,9 +148,9 @@ class _AppUpgraderMessages extends UpgraderMessages {
   @override
   String get releaseNotes {
     switch (locale.languageCode) {
-      case 'bo':
+      case AppConfig.tibetanLanguageCode:
         return 'གསར་བཏོན་འགྲེལ་བཤད།';
-      case 'zh':
+      case AppConfig.chineseLanguageCode:
         return '更新说明';
       default:
         return 'Release Notes';

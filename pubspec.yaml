@@ -1,7 +1,5 @@
 name: flutter_pecha
 description: "A Buddhist app for learning, sharing, and living the teachings."
-# The following line prevents the package from being accidentally published to
-# pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: "none" # Remove this line if you wish to publish to pub.dev
 
 # The following defines the version and build number for your application.
@@ -30,23 +28,79 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+
+  # Audio
   just_audio: ^0.9.36
 
-  # The following adds the Cupertino Icons font to your application.
-  # Use with the CupertinoIcons class for iOS style icons.
+  # Localization
   cupertino_icons: ^1.0.8
   flutter_localizations:
     sdk: flutter
   intl: ^0.20.2
+
+  # Routing
   go_router: ^15.1.1
+
+  # HTML
   flutter_html: ^3.0.0
+
+  # State management
   flutter_riverpod: ^2.6.1
   flutter_gen: ^5.10.0
-  change_app_package_name: ^1.5.0
+
+  # Authentication
   auth0_flutter: ^1.9.0
+
+  # Environment
   flutter_dotenv: ^5.2.1
+
+  # Logging
   logging: ^1.3.0
+
+  # Networking
   http: ^1.3.0
+
+  # Carousel
+  carousel_slider: ^5.1.1
+
+  # FQuery
+  fquery: ^1.5.4-beta.2
+
+  # Hooks
+  flutter_hooks: ^0.21.2
+  hooks_riverpod: ^2.6.1
+
+  # Local notifications
+  flutter_local_notifications: ^19.4.1
+
+  # Timezone
+  timezone: ^0.10.1
+  flutter_timezone: ^4.1.1
+
+  # Permissions
+  permission_handler: ^12.0.1
+
+  # Story view
+  story_view: ^0.16.6
+  url_launcher: ^6.3.2
+  flutter_story_presenter: ^1.0.7
+
+  # Audio service
+  just_audio_background: ^0.0.1-beta.17
+  audio_service: ^0.18.18
+
+  # Equatable
+  equatable: ^2.0.7
+  cached_network_image: ^3.4.1
+
+  # Google fonts
+  google_fonts: ^6.2.1
+
+  # Hive
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
+
+  # Icons
   font_awesome_flutter: ^10.9.1
   flutter_launcher_icons: ^0.14.3
 
@@ -59,25 +113,7 @@ dependencies:
   video_player: ^2.10.0
   youtube_player_flutter: ^9.1.1
   image_gallery_saver_plus: ^4.0.1
-  carousel_slider: ^5.1.1
-  fquery: ^1.5.4-beta.2
-  flutter_hooks: ^0.21.2
-  hooks_riverpod: ^2.6.1
-  flutter_local_notifications: ^19.4.1
-  timezone: ^0.10.1
-  flutter_timezone: ^4.1.1
-  permission_handler: ^12.0.1
-  story_view: ^0.16.6
-  url_launcher: ^6.3.2
-  flutter_story_presenter: ^1.0.7
-  just_audio_background: ^0.0.1-beta.17
-  audio_service: ^0.18.18
-  equatable: ^2.0.7
-  cached_network_image: ^3.4.1
-  google_fonts: ^6.2.1
-  # Local caching
-  hive: ^2.2.3
-  hive_flutter: ^1.1.0
+
   # Network connectivity
   connectivity_plus: ^6.1.1
   upgrader: ^12.3.0
@@ -112,22 +148,21 @@ flutter:
   # the material Icons class.
   uses-material-design: true
   generate: true
+
   assets:
     - assets/images/
     - assets/images/segment-bg/
     - assets/images/verse-bg/
     - assets/fonts/
     - assets/audios/
+    - google_fonts/
     - .env
-  fonts:
-    - family: MonlamTibetan
-      fonts:
-        - asset: assets/fonts/MonlamTBslim.ttf
-          style: normal
 
-    - family: TsumachuTibetan
+  fonts:
+    # Tibetan fonts
+    - family: SambhotaUnicode
       fonts:
-        - asset: assets/fonts/Tsumachu.ttf
+        - asset: assets/fonts/sambhotaunicodeweb.ttf
           style: normal
 
     - family: Atisha
@@ -144,23 +179,3 @@ flutter:
 
 # For details regarding adding assets from package dependencies, see
 # https://flutter.dev/to/asset-from-package
-
-# To add custom fonts to your application, add a fonts section here,
-# in this "flutter" section. Each entry in this list should have a
-# "family" key with the font family name, and a "fonts" key with a
-# list giving the asset and other descriptors for the font. For
-# example:
-# fonts:
-#   - family: Schyler
-#     fonts:
-#       - asset: fonts/Schyler-Regular.ttf
-#       - asset: fonts/Schyler-Italic.ttf
-#         style: italic
-#   - family: Trajan Pro
-#     fonts:
-#       - asset: fonts/TrajanPro.ttf
-#       - asset: fonts/TrajanPro_Bold.ttf
-#         weight: 700
-#
-# For details regarding fonts from package dependencies,
-# see https://flutter.dev/to/font-from-package
