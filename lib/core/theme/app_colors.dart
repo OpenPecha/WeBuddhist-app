@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 
-/// Color palette extracted from Figma design
-/// Based on Monlam Colors design system
 class AppColors {
-  AppColors._(); // Prevent instantiation
+  AppColors._();
 
   // ============ Primary Colors (Action Negative - Red/Burgundy Theme) ============
   static const Color primary = Color(0xFFAD2424); // MAN 700
