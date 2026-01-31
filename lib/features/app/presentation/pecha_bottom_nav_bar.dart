@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'skeleton_screen.dart';
 import 'package:go_router/go_router.dart';
 
@@ -28,59 +28,59 @@ class PechaBottomNavBar extends ConsumerWidget {
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               // Home tab hidden - keeping in codebase but not displayed
-              // _buildNavItem(
-              //   context: context,
-              //   ref: ref,
-              //   index: 0,
-              //   icon: Icons.home_outlined,
-              //   selectedIcon: Icons.home,
-              //   label: localizations.nav_home,
-              //   isSelected: selectedIndex == 0,
-              // ),
               _buildNavItem(
                 context: context,
                 ref: ref,
                 index: 0,
-                icon: Icons.book_outlined,
-                selectedIcon: Icons.book,
-                label: localizations.nav_texts,
+                icon: AppAssets.homeUnselected,
+                selectedIcon: AppAssets.homeSelected,
+                label: localizations.nav_home,
                 isSelected: selectedIndex == 0,
               ),
               _buildNavItem(
                 context: context,
                 ref: ref,
                 index: 1,
-                icon: FontAwesomeIcons.handsPraying,
-                selectedIcon: FontAwesomeIcons.handsPraying,
-                label: localizations.nav_recitations,
+                icon: AppAssets.textsUnselected,
+                selectedIcon: AppAssets.textsSelected,
+                label: localizations.nav_texts,
                 isSelected: selectedIndex == 1,
               ),
+              // _buildNavItem(
+              //   context: context,
+              //   ref: ref,
+              //   index: 1,
+              //   icon: FontAwesomeIcons.handsPraying,
+              //   selectedIcon: FontAwesomeIcons.handsPraying,
+              //   label: localizations.nav_recitations,
+              //   isSelected: selectedIndex == 1,
+              // ),
+              // _buildNavItem(
+              //   context: context,
+              //   ref: ref,
+              //   index: 2,
+              //   icon: AppAssets.practiceUnselected,
+              //   selectedIcon: AppAssets.practiceSelected,
+              //   label: localizations.nav_ai_mode,
+              //   isSelected: selectedIndex == 2,
+              // ),
               _buildNavItem(
                 context: context,
                 ref: ref,
                 index: 2,
-                icon: Icons.auto_awesome_outlined,
-                selectedIcon: Icons.auto_awesome,
-                label: localizations.nav_ai_mode,
+                icon: AppAssets.practiceUnselected,
+                selectedIcon: AppAssets.practiceSelected,
+                label: localizations.nav_practice,
                 isSelected: selectedIndex == 2,
               ),
               _buildNavItem(
                 context: context,
                 ref: ref,
                 index: 3,
-                icon: Icons.check_box_outlined,
-                selectedIcon: Icons.check_box,
-                label: localizations.nav_practice,
-                isSelected: selectedIndex == 3,
-              ),
-              _buildNavItem(
-                context: context,
-                ref: ref,
-                index: 4,
-                icon: Icons.settings_outlined,
-                selectedIcon: Icons.settings,
+                icon: AppAssets.settingsUnselected,
+                selectedIcon: AppAssets.settingsSelected,
                 label: localizations.nav_settings,
-                isSelected: selectedIndex == 4,
+                isSelected: selectedIndex == 3,
               ),
             ],
           ),
