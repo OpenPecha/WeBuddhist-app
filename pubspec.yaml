@@ -43,6 +43,7 @@ dependencies:
 
   # HTML
   flutter_html: ^3.0.0
+  html: ^0.15.6
 
   # State management
   flutter_riverpod: ^2.6.1
@@ -101,11 +102,13 @@ dependencies:
   hive_flutter: ^1.1.0
 
   # Icons
+  phosphor_flutter: ^2.1.0
   font_awesome_flutter: ^10.9.1
   flutter_launcher_icons: ^0.14.3
+
+  # Shared preferences
   shared_preferences: ^2.5.3
   share_plus: ^11.0.0
-  html: ^0.15.6
   screenshot: ^3.0.0
   path_provider: ^2.1.5
   scrollable_positioned_list: ^0.3.8
@@ -116,6 +119,7 @@ dependencies:
   # Network connectivity
   connectivity_plus: ^6.1.1
   upgrader: ^12.3.0
+  skeletonizer: ^2.1.2
 
 dev_dependencies:
   flutter_test:

@@ -3,6 +3,7 @@ import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/features/recitation/data/models/recitation_model.dart';
 import 'package:flutter_pecha/features/recitation/presentation/providers/recitations_providers.dart';
 import 'package:flutter_pecha/features/recitation/presentation/widgets/recitation_card.dart';
+import 'package:flutter_pecha/features/recitation/presentation/widgets/recitation_list_skeleton.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -82,7 +83,7 @@ class _SearchResultsView extends ConsumerWidget {
 
     // Loading initial results
     if (searchState.isLoading && searchState.results.isEmpty) {
-      return const Center(child: CircularProgressIndicator());
+      return const RecitationListSkeleton();
     }
 
     // Error state
