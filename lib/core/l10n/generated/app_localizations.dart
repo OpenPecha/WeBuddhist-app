@@ -1077,6 +1077,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Delete'**
   String get ai_delete;
+
+  /// No description provided for @search_no_results.
+  ///
+  /// In en, this message translates to:
+  /// **'No results found for \"{query}\"'**
+  String search_no_results(Object query);
+
+  /// No description provided for @search_show_more.
+  ///
+  /// In en, this message translates to:
+  /// **'Show More'**
+  String get search_show_more;
+
+  /// No description provided for @search_contents.
+  ///
+  /// In en, this message translates to:
+  /// **'Contents'**
+  String get search_contents;
+
+  /// No description provided for @search_titles.
+  ///
+  /// In en, this message translates to:
+  /// **'Titles'**
+  String get search_titles;
+
+  /// No description provided for @search_all.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get search_all;
+
+  /// No description provided for @search_coming_soon.
+  ///
+  /// In en, this message translates to:
+  /// **'Coming Soon'**
+  String get search_coming_soon;
+
+  /// No description provided for @search_title_search_coming_soon.
+  ///
+  /// In en, this message translates to:
+  /// **'Title search will be available soon'**
+  String get search_title_search_coming_soon;
+
+  /// No description provided for @search_buddhist_texts.
+  ///
+  /// In en, this message translates to:
+  /// **'Search Buddhist texts...'**
+  String get search_buddhist_texts;
 }
 
 class _AppLocalizationsDelegate

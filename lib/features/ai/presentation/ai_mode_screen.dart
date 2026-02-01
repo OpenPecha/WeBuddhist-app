@@ -3,13 +3,17 @@ import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/core/utils/error_message_mapper.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/features/ai/presentation/controllers/chat_controller.dart';
+import 'package:flutter_pecha/features/ai/presentation/controllers/search_state_controller.dart';
+import 'package:flutter_pecha/features/ai/models/search_state.dart';
 import 'package:flutter_pecha/features/ai/presentation/widgets/chat_header.dart';
 import 'package:flutter_pecha/features/ai/presentation/widgets/chat_history_drawer.dart';
 import 'package:flutter_pecha/features/ai/presentation/widgets/message_list.dart';
 import 'package:flutter_pecha/features/ai/validators/message_validator.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_pecha/features/auth/application/auth_notifier.dart';
+import 'package:flutter_pecha/features/auth/application/user_notifier.dart';
 import 'package:flutter_pecha/features/auth/presentation/widgets/login_drawer.dart';
+import 'package:go_router/go_router.dart';
 
 class AiModeScreen extends ConsumerStatefulWidget {
   const AiModeScreen({super.key});
@@ -23,12 +27,29 @@ class _AiModeScreenState extends ConsumerState<AiModeScreen> {
   final FocusNode _focusNode = FocusNode();
   bool _hasText = false;
 
-  List<String> _getSuggestions(BuildContext context) {
-    final localizations = AppLocalizations.of(context)!;
-    return [
-      localizations.ai_suggestion_self,
-      localizations.ai_suggestion_enlightenment,
-    ];
+  // Mode selection: true = Search Mode, false = AI Mode
+  bool _isSearchMode = true;
+
+  /// Extract first name from user data
+  /// Uses firstName if available, otherwise extracts first part of username
+  String? _getFirstName() {
+    final userState = ref.read(userProvider);
+    final user = userState.user;
+
+    if (user == null) return null;
+
+    // Try firstName first
+    if (user.firstName != null && user.firstName!.trim().isNotEmpty) {
+      return user.firstName!.trim();
+    }
+
+    // Fallback to username (extract first part)
+    if (user.username != null && user.username!.trim().isNotEmpty) {
+      final usernameParts = user.username!.trim().split(' ');
+      return usernameParts.first;
+    }
+
+    return null;
   }
 
   @override
@@ -52,21 +73,22 @@ class _AiModeScreenState extends ConsumerState<AiModeScreen> {
     super.dispose();
   }
 
-  void _onSuggestionTap(String suggestion) {
-    // Don't focus the text field when tapping suggestions
-    _sendMessage(suggestion);
-  }
-
   void _onSendMessage() {
     if (_controller.text.trim().isEmpty) return;
     final message = _controller.text.trim();
     _controller.clear();
     _focusNode.unfocus();
-    _sendMessage(message);
-  }
 
-  void _sendMessage(String message) {
-    ref.read(chatControllerProvider.notifier).sendMessage(message);
+    if (_isSearchMode) {
+      // Navigate to search results screen
+      context.push(
+        '/search-results',
+        extra: {'query': message},
+      );
+    } else {
+      // AI Mode - send message to chat
+      ref.read(chatControllerProvider.notifier).sendMessage(message);
+    }
   }
 
   void _onNewChat() {
@@ -106,6 +128,20 @@ class _AiModeScreenState extends ConsumerState<AiModeScreen> {
   Widget build(BuildContext context) {
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final authState = ref.watch(authProvider);
+
+    // Listen for flag to switch to AI mode when returning from search results
+    ref.listen<SearchState>(
+      searchStateProvider,
+      (previous, next) {
+        if (next.shouldSwitchToAiMode && _isSearchMode) {
+          setState(() {
+            _isSearchMode = false;
+          });
+          // Clear the flag
+          ref.read(searchStateProvider.notifier).setSwitchToAiMode(false);
+        }
+      },
+    );
 
     if (authState.isGuest) {
       return Scaffold(
@@ -316,60 +352,38 @@ class _AiModeScreenState extends ConsumerState<AiModeScreen> {
 
   Widget _buildEmptyState(bool isDarkMode) {
     final localizations = AppLocalizations.of(context)!;
-    final suggestions = _getSuggestions(context);
+    final firstName = _getFirstName();
+
     return Center(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(
-              localizations.ai_explore_wisdom,
-              style: TextStyle(
-                fontSize: 25,
-                fontWeight: FontWeight.w500,
-                color: isDarkMode ? AppColors.surfaceWhite : Colors.black,
+            // Personalized greeting
+            if (firstName != null) ...[
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  'Hi $firstName',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w400,
+                    color: isDarkMode ? AppColors.grey500 : AppColors.grey800,
+                  ),
+                ),
               ),
-            ),
-            const SizedBox(height: 30),
+              const SizedBox(height: 2),
+            ],
             Align(
               alignment: Alignment.centerLeft,
-              child: Wrap(
-                alignment: WrapAlignment.start,
-                runAlignment: WrapAlignment.start,
-                crossAxisAlignment: WrapCrossAlignment.start,
-                spacing: 8,
-                runSpacing: 8,
-                children:
-                    suggestions.map((s) {
-                      return ActionChip(
-                        onPressed: () => _onSuggestionTap(s),
-                        avatar: Icon(
-                          Icons.lightbulb_outline,
-                          size: 15,
-                          color:
-                              isDarkMode
-                                  ? AppColors.surfaceWhite
-                                  : AppColors.grey800,
-                        ),
-                        label: Text(s),
-                        labelStyle: TextStyle(
-                          fontSize: 12,
-                          color:
-                              isDarkMode
-                                  ? AppColors.surfaceWhite
-                                  : AppColors.grey800,
-                        ),
-                        backgroundColor: Colors.transparent,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 4,
-                          vertical: 4,
-                        ),
-                        shape: StadiumBorder(
-                          side: BorderSide(color: Colors.transparent),
-                        ),
-                      );
-                    }).toList(),
+              child: Text(
+                localizations.ai_explore_wisdom,
+                style: TextStyle(
+                  fontSize: 25,
+                  fontWeight: FontWeight.w500,
+                  color: isDarkMode ? AppColors.surfaceWhite : Colors.black,
+                ),
               ),
             ),
           ],
@@ -390,6 +404,7 @@ class _AiModeScreenState extends ConsumerState<AiModeScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
       child: Column(
         children: [
+          // Text input container
           Container(
             decoration: BoxDecoration(
               color:
@@ -398,70 +413,115 @@ class _AiModeScreenState extends ConsumerState<AiModeScreen> {
                       : AppColors.primarySurface,
               borderRadius: BorderRadius.circular(24),
             ),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.end,
+            child: Column(
               children: [
-                Expanded(
-                  child: TextField(
-                    controller: _controller,
-                    focusNode: _focusNode,
-                    autofocus: false,
-                    enableInteractiveSelection: true,
-                    maxLines: null,
-                    minLines: 1,
-                    textInputAction: TextInputAction.newline,
-                    decoration: InputDecoration(
-                      hintText: AppLocalizations.of(context)!.ai_ask_question,
-                      hintStyle: TextStyle(
-                        color:
-                            isDarkMode
-                                ? AppColors.textSubtleDark
-                                : AppColors.textPrimaryLight,
-                        fontSize: 14,
-                      ),
-                      filled: true,
-                      fillColor: Colors.transparent,
-                      border: InputBorder.none,
-                      enabledBorder: InputBorder.none,
-                      focusedBorder: InputBorder.none,
-                      disabledBorder: InputBorder.none,
-                      errorBorder: InputBorder.none,
-                      focusedErrorBorder: InputBorder.none,
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 14,
-                      ),
-                    ),
-                    style: TextStyle(
+                // Text field
+                TextField(
+                  controller: _controller,
+                  focusNode: _focusNode,
+                  autofocus: false,
+                  enableInteractiveSelection: true,
+                  maxLines: null,
+                  minLines: 1,
+                  textInputAction: TextInputAction.newline,
+                  decoration: InputDecoration(
+                    hintText:
+                        _isSearchMode
+                            ? 'Search Buddhist texts...'
+                            : AppLocalizations.of(context)!.ai_ask_question,
+                    hintStyle: TextStyle(
                       color:
                           isDarkMode
-                              ? AppColors.textPrimaryDark
-                              : AppColors.textPrimary,
-                      fontSize: 13,
+                              ? AppColors.textSubtleDark
+                              : AppColors.textPrimaryLight,
+                      fontSize: 14,
+                    ),
+                    filled: true,
+                    fillColor: Colors.transparent,
+                    border: InputBorder.none,
+                    enabledBorder: InputBorder.none,
+                    focusedBorder: InputBorder.none,
+                    disabledBorder: InputBorder.none,
+                    errorBorder: InputBorder.none,
+                    focusedErrorBorder: InputBorder.none,
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 14,
                     ),
                   ),
+                  style: TextStyle(
+                    color:
+                        isDarkMode
+                            ? AppColors.textPrimaryDark
+                            : AppColors.textPrimary,
+                    fontSize: 13,
+                  ),
                 ),
+
+                // Controls row with mode selection and send button
                 Padding(
-                  padding: const EdgeInsets.only(right: 4, bottom: 4),
-                  child: IconButton(
-                    onPressed: canSend ? _onSendMessage : null,
-                    icon: Icon(
-                      Icons.send_rounded,
-                      color:
-                          canSend
-                              ? (isDarkMode
-                                  ? AppColors.primaryContainer
-                                  : AppColors.backgroundDark)
-                              : (isDarkMode
-                                  ? AppColors.grey500
-                                  : AppColors.grey800),
-                      size: 22,
-                    ),
+                  padding: const EdgeInsets.only(
+                    left: 8,
+                    right: 4,
+                    bottom: 4,
+                    top: 4,
+                  ),
+                  child: Row(
+                    children: [
+                      const SizedBox(width: 8),
+                      // Mode selection buttons (AI and Search)
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          // AI Mode Button
+                          _buildCompactModeButton(
+                            isDarkMode: isDarkMode,
+                            icon: Icons.auto_awesome,
+                            isSelected: !_isSearchMode,
+                            onTap: () {
+                              setState(() {
+                                _isSearchMode = false;
+                              });
+                            },
+                          ),
+                          const SizedBox(width: 8),
+                          // Search Mode Button
+                          _buildCompactModeButton(
+                            isDarkMode: isDarkMode,
+                            icon: Icons.search,
+                            isSelected: _isSearchMode,
+                            onTap: () {
+                              setState(() {
+                                _isSearchMode = true;
+                              });
+                            },
+                          ),
+                        ],
+                      ),
+                      const Spacer(),
+                      // Send button
+                      IconButton(
+                        onPressed: canSend ? _onSendMessage : null,
+                        icon: Icon(
+                          Icons.send_rounded,
+                          color:
+                              canSend
+                                  ? (isDarkMode
+                                      ? AppColors.primaryContainer
+                                      : AppColors.backgroundDark)
+                                  : (isDarkMode
+                                      ? AppColors.grey500
+                                      : AppColors.grey800),
+                          size: 22,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
             ),
           ),
+
           // Character counter - only show when user has typed something
           if (_hasText)
             Padding(
@@ -487,6 +547,43 @@ class _AiModeScreenState extends ConsumerState<AiModeScreen> {
           else
             const SizedBox(height: 5),
         ],
+      ),
+    );
+  }
+
+  Widget _buildCompactModeButton({
+    required bool isDarkMode,
+    required IconData icon,
+    required bool isSelected,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color:
+              isSelected
+                  ? (isDarkMode
+                      ? AppColors.primary.withValues(alpha: 0.2)
+                      : AppColors.primaryContainer)
+                  : Colors.transparent,
+          borderRadius: BorderRadius.circular(8),
+          border:
+              isSelected
+                  ? Border.all(color: AppColors.primary, width: 1.5)
+                  : null,
+        ),
+        child: Icon(
+          icon,
+          size: 22,
+          color:
+              isSelected
+                  ? AppColors.primary
+                  : (isDarkMode
+                      ? AppColors.textPrimaryDark
+                      : AppColors.textPrimary),
+        ),
       ),
     );
   }

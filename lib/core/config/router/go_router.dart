@@ -39,6 +39,7 @@ import 'package:flutter_pecha/features/texts/presentation/version_selection/lang
 import 'package:flutter_pecha/features/texts/presentation/version_selection/version_selection_screen.dart';
 import 'package:flutter_pecha/features/recitation/data/models/recitation_model.dart';
 import 'package:flutter_pecha/features/recitation/presentation/screens/recitation_detail_screen.dart';
+import 'package:flutter_pecha/features/ai/presentation/search_results_screen.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
@@ -705,6 +706,16 @@ final goRouterProvider = Provider<GoRouter>((ref) {
           return const Scaffold(
             body: Center(child: Text('Invalid parameters')),
           );
+        },
+      ),
+      // Search results screen
+      GoRoute(
+        path: '/search-results',
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>?;
+          final query = extra?['query'] as String? ?? '';
+
+          return SearchResultsScreen(initialQuery: query);
         },
       ),
     ],
