@@ -510,5 +510,32 @@ class AppLocalizationsEn extends AppLocalizations {
   String get ai_delete => 'Delete';
 
   @override
+  String search_no_results(Object query) {
+    return 'No results found for \"$query\"';
+  }
+
+  @override
+  String get search_show_more => 'Show More';
+
+  @override
+  String get search_contents => 'Contents';
+
+  @override
+  String get search_titles => 'Titles';
+
+  @override
+  String get search_all => 'All';
+
+  @override
+  String get search_coming_soon => 'Coming Soon';
+
+  @override
+  String get search_title_search_coming_soon =>
+      'Title search will be available soon';
+
+  @override
+  String get search_buddhist_texts => 'Search Buddhist texts...';
+
+  @override
   String get comingSoonHeadline => 'Coming Soon';
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/theme/font_config.dart';
+import 'package:flutter_pecha/core/constants/app_config.dart';
 
 extension HelperFunctions on BuildContext {
   void showSnackBar(String message) {
@@ -22,13 +23,13 @@ TextStyle? getContentTextStyle(String? language, TextStyle? baseStyle) {
 // Helper function to get the line height for a given language
 double? getLineHeight(String language) {
   switch (language) {
-    case "bo":
+    case AppConfig.tibetanLanguageCode ||
+        AppConfig.tibetanAdaptationLanguageCode:
       return 2;
-    case "en":
+    case AppConfig.englishLanguageCode ||
+        AppConfig.tibetanTransliterationLanguageCode:
       return 1.5;
-    case "sa":
-      return 2;
-    case "zh":
+    case AppConfig.chineseLanguageCode:
       return 1.5;
     default:
       return 1.5;
@@ -38,13 +39,13 @@ double? getLineHeight(String language) {
 // Helper function to get the font size for a given language
 double? getFontSize(String language) {
   switch (language) {
-    case "bo":
+    case AppConfig.tibetanLanguageCode ||
+        AppConfig.tibetanAdaptationLanguageCode:
       return 18;
-    case "en":
+    case AppConfig.englishLanguageCode ||
+        AppConfig.tibetanTransliterationLanguageCode:
       return 20;
-    case "sa":
-      return 18;
-    case "zh":
+    case AppConfig.chineseLanguageCode:
       return 18;
     default:
       return null;

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
+import 'package:flutter_pecha/core/services/app_share/app_share.dart';
 import 'package:flutter_pecha/core/widgets/error_state_widget.dart';
 import 'package:flutter_pecha/features/texts/constants/text_screen_constants.dart';
 import 'package:flutter_pecha/features/texts/constants/text_routes.dart';
@@ -52,6 +53,62 @@ class CollectionsScreen extends ConsumerWidget {
           fontWeight: FontWeight.bold,
           fontSize: TextScreenConstants.headerFontSize,
         ),
+      ),
+    );
+  }
+}
+
+/// Shared share and QR code buttons widget
+class _ShareButtonsWidget extends ConsumerWidget {
+  const _ShareButtonsWidget();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+      child: Builder(
+        builder: (context) {
+          final textColor = Theme.of(context).brightness == Brightness.dark
+              ? Colors.white
+              : Colors.black;
+          const fontSize = 17.0;
+          const fontSizeIcon = 20.0;
+          return Row(
+            children: [
+              Expanded(
+                child: TextButton.icon(
+                  onPressed: () {
+                    ref.read(appShareServiceProvider).shareApp();
+                  },
+                  icon: Icon(Icons.share, color: textColor, size: fontSizeIcon),
+                  label: Text(
+                    'Share',
+                    style: TextStyle(color: textColor, fontSize: fontSize),
+                  ),
+                  style: TextButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: TextButton.icon(
+                  onPressed: () {
+                    QrCodeBottomSheet.show(context);
+                  },
+                  icon: Icon(Icons.qr_code_2, color: textColor, size: fontSizeIcon),
+                  label: Text(
+                    'QR Code',
+                    style: TextStyle(color: textColor, fontSize: fontSize),
+                  ),
+                  style: TextButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
       ),
     );
   }
@@ -114,13 +171,13 @@ class _SearchFieldState extends ConsumerState<_SearchField> {
 }
 
 /// Collections list view
-class _CollectionsListView extends StatelessWidget {
+class _CollectionsListView extends ConsumerWidget {
   final AsyncValue<CollectionsResponse> collectionsResponse;
 
   const _CollectionsListView({required this.collectionsResponse});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return collectionsResponse.when(
       data: (response) {
         final collections = response.collections;
@@ -128,8 +185,12 @@ class _CollectionsListView extends StatelessWidget {
           return const Center(child: Text('No collections available'));
         }
         return ListView.builder(
-          itemCount: collections.length,
+          itemCount: collections.length + 1, // +1 for share button
           itemBuilder: (context, index) {
+            // If this is the last item, show share button
+            if (index == collections.length) {
+              return const _ShareButtonsWidget();
+            }
             final collection = collections[index];
             final colorIndex = index % 9;
             return GestureDetector(
@@ -201,7 +262,7 @@ class _SearchResultsView extends ConsumerWidget {
           return _buildNoResults(query);
         }
 
-        return _buildSearchResultsList(groupedResults, query);
+        return _buildSearchResultsList(groupedResults, query, ref);
       },
     );
   }
@@ -243,12 +304,17 @@ class _SearchResultsView extends ConsumerWidget {
   Widget _buildSearchResultsList(
     Map<String, Map<String, dynamic>> groupedResults,
     String query,
+    WidgetRef ref,
   ) {
     final groupedList = groupedResults.values.toList();
 
     return ListView.builder(
-      itemCount: groupedList.length,
+      itemCount: groupedList.length + 1, // +1 for share button
       itemBuilder: (context, index) {
+        // If this is the last item, show share button
+        if (index == groupedList.length) {
+          return const _ShareButtonsWidget();
+        }
         final textGroup = groupedList[index];
         final textId = textGroup['textId'] as String;
         final textTitle = textGroup['textTitle'] as String;

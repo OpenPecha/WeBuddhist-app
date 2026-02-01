@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
+import 'package:flutter_pecha/core/utils/get_language.dart';
 import 'package:flutter_pecha/core/widgets/error_state_widget.dart';
 import 'package:flutter_pecha/features/texts/constants/text_screen_constants.dart';
 import 'package:flutter_pecha/features/texts/constants/text_routes.dart';
@@ -15,7 +16,6 @@ import 'package:flutter_pecha/features/texts/presentation/widgets/loading_state_
 import 'package:flutter_pecha/features/texts/presentation/widgets/table_of_contens.dart';
 import 'package:flutter_pecha/features/texts/presentation/widgets/text_screen_app_bar.dart';
 import 'package:flutter_pecha/features/texts/presentation/widgets/version_list_item.dart';
-import 'package:flutter_pecha/features/texts/utils/language_helper.dart';
 import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';

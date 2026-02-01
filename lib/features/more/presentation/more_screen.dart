@@ -11,18 +11,23 @@ import 'package:flutter_pecha/features/auth/application/auth_notifier.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../notifications/presentation/notification_settings_screen.dart';
+import 'package:flutter_pecha/core/constants/app_config.dart';
 
 class MoreScreen extends ConsumerWidget {
   const MoreScreen({super.key});
-  final _supportedLocales = const [Locale('en'), Locale('zh'), Locale('bo')];
+  final _supportedLocales = const [
+    Locale(AppConfig.englishLanguageCode),
+    Locale(AppConfig.chineseLanguageCode),
+    Locale(AppConfig.tibetanLanguageCode),
+  ];
 
   String _getLanguageName(Locale locale) {
     switch (locale.languageCode) {
-      case 'en':
+      case AppConfig.englishLanguageCode:
         return 'English';
-      case 'zh':
+      case AppConfig.chineseLanguageCode:
         return '中文';
-      case 'bo':
+      case AppConfig.tibetanLanguageCode:
         return 'བོད་ཡིག';
       default:
         return locale.languageCode;

@@ -13,6 +13,7 @@
 // - Chinese: Inter for system UI and EB Garamond for content
 
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/constants/app_config.dart';
 import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 import 'app_colors.dart';
 import 'font_config.dart';
@@ -21,7 +22,9 @@ class AppTheme {
   static ThemeData lightTheme([Locale? locale]) {
     final fontConfig = _getFontConfiguration(locale, Brightness.light);
     final systemFontFamily = fontConfig.fontFamily;
-    final contentFontFamily = getFontFamily(locale?.languageCode ?? 'en');
+    final contentFontFamily = getFontFamily(
+      locale?.languageCode ?? AppConfig.englishLanguageCode,
+    );
     final baseTheme = ThemeData(
       useMaterial3: true,
       brightness: Brightness.light,
@@ -199,7 +202,7 @@ class AppTheme {
       ),
     );
     // If locale is Tibetan, set line height to 2.0 for all text styles
-    if (locale?.languageCode == 'bo') {
+    if (locale?.languageCode == AppConfig.tibetanLanguageCode) {
       final baseTextTheme = baseTheme.textTheme;
       final boTextTheme = baseTextTheme.copyWith(
         displayLarge: baseTextTheme.displayLarge?.copyWith(height: 2.0),
@@ -226,7 +229,9 @@ class AppTheme {
   static ThemeData darkTheme([Locale? locale]) {
     final fontConfig = _getFontConfiguration(locale, Brightness.dark);
     final systemFontFamily = fontConfig.fontFamily;
-    final contentFontFamily = getFontFamily(locale?.languageCode ?? 'en');
+    final contentFontFamily = getFontFamily(
+      locale?.languageCode ?? AppConfig.englishLanguageCode,
+    );
     final baseTheme = ThemeData(
       useMaterial3: true,
       brightness: Brightness.dark,
@@ -411,7 +416,7 @@ class AppTheme {
       ),
     );
     // If locale is Tibetan, set line height to 2.0 for all text styles
-    if (locale?.languageCode == 'bo') {
+    if (locale?.languageCode == AppConfig.tibetanLanguageCode) {
       final baseTextTheme = baseTheme.textTheme;
       final boTextTheme = baseTextTheme.copyWith(
         displayLarge: baseTextTheme.displayLarge?.copyWith(height: 2.0),

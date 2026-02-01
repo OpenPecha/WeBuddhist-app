@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/cache/cache_service.dart';
+import 'package:flutter_pecha/core/config/router/app_router.dart';
 import 'package:flutter_pecha/core/network/connectivity_service.dart';
 import 'package:flutter_pecha/core/l10n/l10n.dart';
 import 'package:flutter_pecha/core/services/service_providers.dart';
@@ -18,6 +19,7 @@ import 'core/localization/cupertino_localizations_bo.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_pecha/core/config/app_feature_flags.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 final _logger = AppLogger('Main');
 
@@ -26,6 +28,9 @@ void main() async {
 
   // Setup environment-aware logging
   AppLogger.init();
+
+  // Use bundled fonts only — prevent runtime network fetching
+  GoogleFonts.config.allowRuntimeFetching = false;
 
   // Load environment variables
   try {
@@ -58,7 +63,9 @@ void main() async {
     try {
       final notificationsPlugin = FlutterLocalNotificationsPlugin();
       await notificationsPlugin.cancelAll();
-      _logger.info('Cancelled all scheduled notifications for Coming Soon mode');
+      _logger.info(
+        'Cancelled all scheduled notifications for Coming Soon mode',
+      );
     } catch (e) {
       _logger.warning('Error cancelling notifications: $e');
     }
@@ -121,7 +128,8 @@ class MyApp extends ConsumerWidget {
         ],
         supportedLocales: L10n.all,
         debugShowCheckedModeBanner: false,
-        routerConfig: router,
+        // routerConfig: router,
+        routerConfig: AppRouter().router,
       ),
     );
   }
