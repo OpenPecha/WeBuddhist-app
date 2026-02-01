@@ -535,5 +535,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get search_buddhist_texts => 'Search Buddhist texts...';
+
+  @override
   String get comingSoonHeadline => 'Coming Soon';
 }
