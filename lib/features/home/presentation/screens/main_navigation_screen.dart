@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
+import 'package:flutter_pecha/features/ai/presentation/ai_mode_screen.dart';
 import 'package:flutter_pecha/features/home/presentation/screens/home_screen.dart';
 import 'package:flutter_pecha/features/more/presentation/more_screen.dart';
 import 'package:flutter_pecha/features/plans/presentation/screens/plans_screen.dart';
-import 'package:flutter_pecha/features/texts/presentation/screens/collections/collections_screen.dart';
 import 'package:flutter_pecha/shared/widgets/appBottomNavBar/app_bottom_nav_bar.dart';
 import 'package:flutter_pecha/shared/widgets/appBottomNavBar/app_bottom_nav_item.dart';
 
@@ -31,8 +31,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
       AppBottomBarItemModel(
         type: 1,
         label: localizations.nav_texts,
-        // selectedWidget: const TextsScreen(),
-        selectedWidget: const CollectionsScreen(),
+        selectedWidget: const AiModeScreen(),
         selectedIconData: AppAssets.textsSelected,
         unSelectedIconData: AppAssets.textsUnselected,
       ),

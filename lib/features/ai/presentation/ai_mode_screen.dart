@@ -81,10 +81,7 @@ class _AiModeScreenState extends ConsumerState<AiModeScreen> {
 
     if (_isSearchMode) {
       // Navigate to search results screen
-      context.push(
-        '/search-results',
-        extra: {'query': message},
-      );
+      context.push('/ai-mode/search-results', extra: {'query': message});
     } else {
       // AI Mode - send message to chat
       ref.read(chatControllerProvider.notifier).sendMessage(message);
@@ -130,18 +127,15 @@ class _AiModeScreenState extends ConsumerState<AiModeScreen> {
     final authState = ref.watch(authProvider);
 
     // Listen for flag to switch to AI mode when returning from search results
-    ref.listen<SearchState>(
-      searchStateProvider,
-      (previous, next) {
-        if (next.shouldSwitchToAiMode && _isSearchMode) {
-          setState(() {
-            _isSearchMode = false;
-          });
-          // Clear the flag
-          ref.read(searchStateProvider.notifier).setSwitchToAiMode(false);
-        }
-      },
-    );
+    ref.listen<SearchState>(searchStateProvider, (previous, next) {
+      if (next.shouldSwitchToAiMode && _isSearchMode) {
+        setState(() {
+          _isSearchMode = false;
+        });
+        // Clear the flag
+        ref.read(searchStateProvider.notifier).setSwitchToAiMode(false);
+      }
+    });
 
     if (authState.isGuest) {
       return Scaffold(

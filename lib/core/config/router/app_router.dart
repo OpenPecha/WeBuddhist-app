@@ -1,3 +1,5 @@
+import 'package:flutter_pecha/features/ai/presentation/ai_mode_screen.dart';
+import 'package:flutter_pecha/features/ai/presentation/search_results_screen.dart';
 import 'package:flutter_pecha/features/auth/presentation/login_page.dart';
 import 'package:flutter_pecha/features/home/presentation/screens/main_navigation_screen.dart';
 import 'package:flutter_pecha/features/home/presentation/screens/plan_list_screen.dart';
@@ -29,6 +31,25 @@ class AppRouter {
               builder: (context, state) {
                 final tag = state.pathParameters['tag'] ?? '';
                 return PlanListScreen(tag: tag);
+              },
+            ),
+          ],
+        ),
+
+        // ai mode route
+        GoRoute(
+          path: "/ai-mode",
+          name: "ai-mode",
+          builder: (context, state) => const AiModeScreen(),
+          routes: [
+            // route - /ai-mode/search-results
+            GoRoute(
+              path: "search-results",
+              name: "search-results",
+              builder: (context, state) {
+                final extra = state.extra as Map<String, dynamic>?;
+                final query = extra?['query'] as String? ?? '';
+                return SearchResultsScreen(initialQuery: query);
               },
             ),
           ],
