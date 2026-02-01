@@ -120,6 +120,7 @@ dependencies:
   # QR code generation
   qr_flutter: ^4.1.0
   skeletonizer: ^2.1.2
+  phosphor_flutter: ^2.1.0
 
 dev_dependencies:
   flutter_test:
