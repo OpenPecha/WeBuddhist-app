@@ -139,7 +139,7 @@ flutter_launcher_icons:
   android: "launcher_icon"
   ios: true
   remove_alpha_ios: true
-  image_path: "assets/images/favicon-pecha.png"
+  image_path: "assets/images/webuddhist_logo.png"
   min_sdk_android: 21
 
 # The following section is specific to Flutter packages.

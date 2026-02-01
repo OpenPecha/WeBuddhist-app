@@ -13,7 +13,7 @@ class LogoLabel extends StatelessWidget {
         // Logo or splash animation can go here
         Padding(
           padding: const EdgeInsets.only(bottom: 8.0),
-          child: Image.asset('assets/images/favicon-pecha.png', height: 150),
+          child: Image.asset('assets/images/webuddhist_logo.png', height: 150),
         ),
         Text(
           localizations.pechaHeading,

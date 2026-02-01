@@ -113,7 +113,7 @@ class RecitationCard extends ConsumerWidget {
             left: 17,
             top: 30,
             child: Image.asset(
-              'assets/images/favicon-pecha.png',
+              'assets/images/webuddhist_logo.png',
               width: 26,
               height: 26,
               fit: BoxFit.contain,

@@ -319,7 +319,6 @@ class _PlanListItem extends ConsumerWidget {
                       fontFamily: fontFamily,
                       height: lineHeight,
                     ),
-                    maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 4),

@@ -1125,6 +1125,7 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Search Buddhist texts...'**
   String get search_buddhist_texts;
+
   /// No description provided for @comingSoonHeadline.
   ///
   /// In en, this message translates to:
