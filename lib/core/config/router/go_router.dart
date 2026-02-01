@@ -58,9 +58,10 @@ final goRouterProvider = Provider<GoRouter>((ref) {
   final onboardingRepo = ref.watch(onboardingRepositoryProvider);
 
   return GoRouter(
-    initialLocation: AppFeatureFlags.kComingSoonMode
-        ? RouteConfig.comingSoon
-        : RouteConfig.home,
+    initialLocation:
+        AppFeatureFlags.kComingSoonMode
+            ? RouteConfig.comingSoon
+            : RouteConfig.home,
     refreshListenable: GoRouterRefreshStream(
       ref.watch(authProvider.notifier).stream,
     ),

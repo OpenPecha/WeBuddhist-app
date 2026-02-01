@@ -8,6 +8,7 @@ import 'package:flutter_pecha/features/recitation/domain/recitation_language_con
 import 'package:flutter_pecha/features/recitation/presentation/controllers/recitation_save_controller.dart';
 import 'package:flutter_pecha/features/recitation/presentation/providers/recitations_providers.dart';
 import 'package:flutter_pecha/features/recitation/presentation/widgets/recitation_content.dart';
+import 'package:flutter_pecha/features/recitation/presentation/widgets/recitation_detail_skeleton.dart';
 import 'package:flutter_pecha/features/recitation/presentation/widgets/recitation_error_state.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -222,7 +223,7 @@ class _RecitationDetailScreenState
                 language: effectiveLanguageCode,
               );
             },
-            loading: () => const Center(child: CircularProgressIndicator()),
+            loading: () => const RecitationDetailSkeleton(),
             error: (error, stack) => RecitationErrorState(error: error),
           ),
         ],

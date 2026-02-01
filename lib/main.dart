@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/cache/cache_service.dart';
+import 'package:flutter_pecha/core/config/router/app_router.dart';
 import 'package:flutter_pecha/core/network/connectivity_service.dart';
 import 'package:flutter_pecha/core/l10n/l10n.dart';
 import 'package:flutter_pecha/core/services/service_providers.dart';
@@ -58,7 +59,9 @@ void main() async {
     try {
       final notificationsPlugin = FlutterLocalNotificationsPlugin();
       await notificationsPlugin.cancelAll();
-      _logger.info('Cancelled all scheduled notifications for Coming Soon mode');
+      _logger.info(
+        'Cancelled all scheduled notifications for Coming Soon mode',
+      );
     } catch (e) {
       _logger.warning('Error cancelling notifications: $e');
     }
@@ -121,7 +124,8 @@ class MyApp extends ConsumerWidget {
         ],
         supportedLocales: L10n.all,
         debugShowCheckedModeBanner: false,
-        routerConfig: router,
+        // routerConfig: router,
+        routerConfig: AppRouter().router,
       ),
     );
   }
