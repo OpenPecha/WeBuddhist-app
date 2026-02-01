@@ -15,9 +15,9 @@ class TagsRemoteDatasource {
   /// Endpoint: GET /plans/tags?language={language}
   Future<List<String>> fetchTags({required String language}) async {
     try {
-      final uri = Uri.parse('$baseUrl/plans/tags').replace(
-        queryParameters: {'language': language},
-      );
+      final uri = Uri.parse(
+        '$baseUrl/plans/tags',
+      ).replace(queryParameters: {'language': language});
 
       final response = await client.get(
         uri,

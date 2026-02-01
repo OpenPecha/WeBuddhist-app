@@ -10,6 +10,7 @@ class PlansRepository {
   Future<List<PlansModel>> getPlans({
     required String language,
     String? search,
+    String? tag,
     int? skip,
     int? limit,
   }) async {
@@ -18,6 +19,7 @@ class PlansRepository {
         queryParams: PlansQueryParams(
           language: language,
           search: search,
+          tag: tag,
           skip: skip,
           limit: limit,
         ),

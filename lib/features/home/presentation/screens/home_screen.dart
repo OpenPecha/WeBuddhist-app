@@ -8,6 +8,7 @@ import 'package:flutter_pecha/features/home/presentation/home_screen_constants.d
 import 'package:flutter_pecha/features/home/presentation/widgets/tag_card.dart';
 import 'package:flutter_pecha/features/home/presentation/widgets/tag_search_overlay.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:logging/logging.dart';
 
 final _log = Logger('HomeScreen');
@@ -68,6 +69,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     ref.refresh(tagsFutureProvider);
   }
 
+  void _navigateToPlans(String tag) {
+    context.push('/home/plans/$tag');
+  }
+
   void _openSearchOverlay(List<String> tags) {
     showGeneralDialog(
       context: context,
@@ -82,7 +87,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             allTags: tags,
             onTagSelected: (tag) {
               _log.info('Tag selected from search: $tag');
-              // TODO: Navigate to filtered plans by tag
+              _navigateToPlans(tag);
             },
           ),
         );
@@ -209,8 +214,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               return TagCard(
                 tag: tag,
                 onTap: () {
-                  // TODO: Navigate to filtered plans by tag
                   _log.info('Tag tapped: $tag');
+                  _navigateToPlans(tag);
                 },
               );
             },
