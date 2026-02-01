@@ -1,16 +1,13 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/services/service_providers.dart';
 import 'package:flutter_pecha/core/widgets/error_state_widget.dart';
-import 'package:flutter_pecha/features/auth/application/auth_notifier.dart';
-import 'package:flutter_pecha/features/home/data/providers/featured_day_provider.dart';
-import 'package:flutter_pecha/features/home/presentation/featured_content_factory.dart';
+import 'package:flutter_pecha/features/home/data/providers/tags_provider.dart';
 import 'package:flutter_pecha/features/home/presentation/home_screen_constants.dart';
-import 'package:flutter_pecha/features/notifications/presentation/notification_settings_screen.dart';
+import 'package:flutter_pecha/features/home/presentation/widgets/tag_card.dart';
+import 'package:flutter_pecha/features/home/presentation/widgets/tag_search_overlay.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:logging/logging.dart';
 
 final _log = Logger('HomeScreen');
@@ -22,19 +19,12 @@ class HomeScreen extends ConsumerStatefulWidget {
   ConsumerState<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends ConsumerState<HomeScreen>
-    with WidgetsBindingObserver {
-  Timer? _dayCheckTimer;
-  DateTime? _lastFetchedDate;
+class _HomeScreenState extends ConsumerState<HomeScreen> {
   bool _hasRequestedPermissions = false;
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addObserver(this);
-    _lastFetchedDate = DateTime.now();
-    _startDayCheckTimer();
-
     // Request notification permissions when home screen loads
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _requestNotificationPermissionsIfNeeded();
@@ -71,70 +61,48 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     }
   }
 
-  void _startDayCheckTimer() {
-    _dayCheckTimer = Timer.periodic(HomeScreenConstants.dayCheckInterval, (
-      timer,
-    ) {
-      _checkAndUpdateDay();
-    });
-  }
-
-  void _checkAndUpdateDay() {
-    final today = DateTime.now();
-    final lastFetched = _lastFetchedDate;
-
-    // Check if day has changed (compare year, month, day)
-    if (lastFetched == null ||
-        today.year != lastFetched.year ||
-        today.month != lastFetched.month ||
-        today.day != lastFetched.day) {
-      _lastFetchedDate = today;
-      _refreshFeaturedDay();
-    }
-  }
-
-  void _refreshFeaturedDay() {
-    // Invalidate the provider to force refresh
-    ref.invalidate(featuredDayFutureProvider);
-  }
-
   /// Manual refetch/retry method that can be called from UI
-  void refetchFeaturedDay() {
+  void _refetchTags() {
     // Refresh the provider to immediately fetch fresh data
     // ignore: unused_result
-    ref.refresh(featuredDayFutureProvider);
+    ref.refresh(tagsFutureProvider);
   }
 
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) {
-      _checkAndUpdateDay();
-    }
-  }
-
-  @override
-  void dispose() {
-    _dayCheckTimer?.cancel();
-    WidgetsBinding.instance.removeObserver(this);
-    super.dispose();
+  void _openSearchOverlay(List<String> tags) {
+    showGeneralDialog(
+      context: context,
+      barrierDismissible: true,
+      barrierLabel: 'Search',
+      barrierColor: Colors.transparent,
+      transitionDuration: const Duration(milliseconds: 300),
+      pageBuilder: (context, animation, secondaryAnimation) {
+        return FadeTransition(
+          opacity: animation,
+          child: TagSearchOverlay(
+            allTags: tags,
+            onTagSelected: (tag) {
+              _log.info('Tag selected from search: $tag');
+              // TODO: Navigate to filtered plans by tag
+            },
+          ),
+        );
+      },
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     final localizations = AppLocalizations.of(context)!;
+    final tagsAsync = ref.watch(tagsFutureProvider);
 
-    final authState = ref.watch(authProvider);
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
-        child: Stack(
+        child: Column(
           children: [
-            Column(
-              children: [
-                _buildTopBar(authState, localizations),
-                _buildBody(context, localizations),
-              ],
-            ),
+            _buildTopBar(localizations),
+            _buildSearchSection(localizations, tagsAsync),
+            _buildBody(context, localizations),
           ],
         ),
       ),
@@ -142,102 +110,122 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
   }
 
   // Build the top bar
-  Widget _buildTopBar(AuthState authState, AppLocalizations localizations) {
+  Widget _buildTopBar(AppLocalizations localizations) {
     return Padding(
       padding: const EdgeInsets.symmetric(
         horizontal: HomeScreenConstants.topBarHorizontalPadding,
         vertical: HomeScreenConstants.topBarVerticalPadding,
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            localizations.home_today,
-            style: const TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: HomeScreenConstants.titleFontSize,
-            ),
+      child: Align(
+        alignment: Alignment.centerLeft,
+        child: Text(
+          localizations.nav_home,
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: HomeScreenConstants.titleFontSize,
           ),
-          Row(
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSearchSection(
+    AppLocalizations localizations,
+    AsyncValue<List<String>> tagsAsync,
+  ) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+      child: GestureDetector(
+        onTap: () {
+          tagsAsync.whenData((tags) {
+            _openSearchOverlay(tags);
+          });
+        },
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 14.0),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surfaceContainer,
+            border: Border.all(color: Theme.of(context).colorScheme.outline),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Row(
             children: [
-              IconButton(
-                onPressed:
-                    () => context.push(NotificationSettingsScreen.routeName),
-                icon: const Icon(
-                  Icons.notifications_none,
-                  size: HomeScreenConstants.notificationIconSize,
+              Icon(
+                Icons.search,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+              const SizedBox(width: 12),
+              Text(
+                localizations.text_search,
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
               ),
             ],
           ),
-        ],
+        ),
       ),
     );
   }
 
   Widget _buildBody(BuildContext context, AppLocalizations localizations) {
-    final featuredDayAsync = ref.watch(featuredDayFutureProvider);
+    final tagsAsync = ref.watch(tagsFutureProvider);
     final language = ref.watch(localeProvider).languageCode;
     final fontSize = language == 'bo' ? 22.0 : 18.0;
-    return Expanded(
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(
-          horizontal: HomeScreenConstants.bodyHorizontalPadding,
-          vertical: HomeScreenConstants.bodyVerticalPadding,
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            featuredDayAsync.when(
-              data: (planItems) {
-                if (planItems.isEmpty) {
-                  return Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(
-                        HomeScreenConstants.emptyStatePadding,
-                      ),
-                      child: Text(
-                        localizations.no_feature_content,
-                        style: TextStyle(fontSize: fontSize),
-                      ),
-                    ),
-                  );
-                }
-                return Column(
-                  children: [
-                    ...planItems.asMap().entries.map((entry) {
-                      final index = entry.key;
-                      final planItem = entry.value;
 
-                      return FeaturedContentFactory.createCard(
-                        context: context,
-                        index: index,
-                        planItem: planItem,
-                        allPlanItems: planItems,
-                        localizations: localizations,
-                      );
-                    }),
-                    const SizedBox(height: 10),
-                  ],
-                );
-              },
-              loading:
-                  () => const Center(
-                    child: Padding(
-                      padding: EdgeInsets.all(
-                        HomeScreenConstants.emptyStatePadding,
-                      ),
-                      child: CircularProgressIndicator(),
-                    ),
-                  ),
-              error:
-                  (error, stackTrace) => ErrorStateWidget(
-                    error: error,
-                    onRetry: refetchFeaturedDay,
-                  ),
+    return Expanded(
+      child: tagsAsync.when(
+        data: (tags) {
+          if (tags.isEmpty) {
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.all(
+                  HomeScreenConstants.emptyStatePadding,
+                ),
+                child: Text(
+                  localizations.no_feature_content,
+                  style: TextStyle(fontSize: fontSize),
+                ),
+              ),
+            );
+          }
+
+          // 2-column grid layout, only the grid is scrollable
+          return GridView.builder(
+            padding: const EdgeInsets.symmetric(
+              horizontal: HomeScreenConstants.bodyHorizontalPadding,
+              vertical: HomeScreenConstants.bodyVerticalPadding,
             ),
-          ],
-        ),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              crossAxisSpacing: 8,
+              mainAxisSpacing: 8,
+              childAspectRatio: 1.4,
+            ),
+            itemCount: tags.length,
+            itemBuilder: (context, index) {
+              final tag = tags[index];
+              return TagCard(
+                tag: tag,
+                onTap: () {
+                  // TODO: Navigate to filtered plans by tag
+                  _log.info('Tag tapped: $tag');
+                },
+              );
+            },
+          );
+        },
+        loading:
+            () => const Center(
+              child: Padding(
+                padding: EdgeInsets.all(HomeScreenConstants.emptyStatePadding),
+                child: CircularProgressIndicator(),
+              ),
+            ),
+        error:
+            (error, stackTrace) =>
+                ErrorStateWidget(error: error, onRetry: _refetchTags),
       ),
     );
   }
