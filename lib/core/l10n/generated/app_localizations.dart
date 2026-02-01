@@ -115,7 +115,7 @@ abstract class AppLocalizations {
   /// No description provided for @learnLiveShare.
   ///
   /// In en, this message translates to:
-  /// **'Learn Live and Share'**
+  /// **'Learn, Live, and Share'**
   String get learnLiveShare;
 
   /// No description provided for @themeLight.
@@ -1125,6 +1125,11 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Search Buddhist texts...'**
   String get search_buddhist_texts;
+  /// No description provided for @comingSoonHeadline.
+  ///
+  /// In en, this message translates to:
+  /// **'Coming Soon'**
+  String get comingSoonHeadline;
 }
 
 class _AppLocalizationsDelegate

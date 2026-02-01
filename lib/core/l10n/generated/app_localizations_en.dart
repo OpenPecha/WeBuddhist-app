@@ -15,7 +15,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get pechaHeading => 'WeBuddhist';
 
   @override
-  String get learnLiveShare => 'Learn Live and Share';
+  String get learnLiveShare => 'Learn, Live, and Share';
 
   @override
   String get themeLight => 'Light Mode';
@@ -535,4 +535,5 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get search_buddhist_texts => 'Search Buddhist texts...';
+  String get comingSoonHeadline => 'Coming Soon';
 }
