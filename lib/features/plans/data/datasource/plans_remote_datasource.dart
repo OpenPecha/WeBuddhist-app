@@ -10,19 +10,21 @@ import 'package:http/http.dart' as http;
 class PlansQueryParams {
   final String? search;
   final String? language;
+  final String? tag;
   final int? skip;
   final int? limit;
 
   const PlansQueryParams({
     this.search,
     this.language,
+    this.tag,
     this.skip = 0,
     this.limit = 20,
   });
 
   /// Convert to query parameters map
-  Map<String, String> toQueryParams() {
-    final params = <String, String>{};
+  Map<String, dynamic> toQueryParams() {
+    final params = <String, dynamic>{};
 
     if (language != null) {
       params['language'] = language!;
@@ -32,8 +34,17 @@ class PlansQueryParams {
       params['search'] = search!;
     }
 
-    params['skip'] = skip.toString();
-    params['limit'] = limit.toString();
+    if (tag != null && tag!.isNotEmpty) {
+      params['tag'] = tag!;
+    }
+
+    if (skip != null) {
+      params['skip'] = skip!;
+    }
+
+    if (limit != null) {
+      params['limit'] = limit!;
+    }
 
     return params;
   }
