@@ -25,8 +25,8 @@ class _EditableBlock {
     required this.time,
     required this.notificationEnabled,
     List<RoutineItem>? items,
-  })  : id = id ?? _uuid.v4(),
-        items = items ?? [];
+  }) : id = id ?? _uuid.v4(),
+       items = items ?? [];
 }
 
 class EditRoutineScreen extends ConsumerStatefulWidget {
@@ -44,14 +44,17 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
     super.initState();
     final existingData = ref.read(routineProvider);
     if (existingData.hasItems) {
-      _blocks = existingData.blocks
-          .map((b) => _EditableBlock(
-                id: b.id,
-                time: b.time,
-                notificationEnabled: b.notificationEnabled,
-                items: List.from(b.items),
-              ))
-          .toList();
+      _blocks =
+          existingData.blocks
+              .map(
+                (b) => _EditableBlock(
+                  id: b.id,
+                  time: b.time,
+                  notificationEnabled: b.notificationEnabled,
+                  items: List.from(b.items),
+                ),
+              )
+              .toList();
     } else {
       _blocks = [
         _EditableBlock(
@@ -63,14 +66,17 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
   }
 
   void _saveAndPop() {
-    final blocks = _blocks
-        .map((b) => RoutineBlock(
-              id: b.id,
-              time: b.time,
-              notificationEnabled: b.notificationEnabled,
-              items: b.items,
-            ))
-        .toList();
+    final blocks =
+        _blocks
+            .map(
+              (b) => RoutineBlock(
+                id: b.id,
+                time: b.time,
+                notificationEnabled: b.notificationEnabled,
+                items: b.items,
+              ),
+            )
+            .toList();
     ref.read(routineProvider.notifier).saveRoutine(blocks);
     Navigator.of(context).pop();
   }
@@ -81,12 +87,13 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
       initialTime: _blocks[index].time,
     );
     if (picked != null) {
-      final otherTimes = _blocks
-          .asMap()
-          .entries
-          .where((e) => e.key != index)
-          .map((e) => e.value.time)
-          .toList();
+      final otherTimes =
+          _blocks
+              .asMap()
+              .entries
+              .where((e) => e.key != index)
+              .map((e) => e.value.time)
+              .toList();
       final adjusted = adjustTimeForMinimumGap(picked, otherTimes);
       setState(() {
         _blocks[index].time = adjusted;
@@ -106,9 +113,11 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
   }
 
   void _sortBlocks() {
-    _blocks.sort((a, b) =>
-        (a.time.hour * 60 + a.time.minute)
-            .compareTo(b.time.hour * 60 + b.time.minute));
+    _blocks.sort(
+      (a, b) => (a.time.hour * 60 + a.time.minute).compareTo(
+        b.time.hour * 60 + b.time.minute,
+      ),
+    );
   }
 
   String _formatTime(TimeOfDay time) {
@@ -135,10 +144,7 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
     final defaultTime = const TimeOfDay(hour: 12, minute: 0);
     final adjusted = adjustTimeForMinimumGap(defaultTime, otherTimes);
     setState(() {
-      _blocks.add(_EditableBlock(
-        time: adjusted,
-        notificationEnabled: true,
-      ));
+      _blocks.add(_EditableBlock(time: adjusted, notificationEnabled: true));
       _sortBlocks();
     });
   }
@@ -163,12 +169,14 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
     );
     if (result != null && mounted) {
       setState(() {
-        _blocks[blockIndex].items.add(RoutineItem(
-          id: result.id,
-          title: result.title,
-          imageUrl: result.imageThumbnail,
-          type: RoutineItemType.plan,
-        ));
+        _blocks[blockIndex].items.add(
+          RoutineItem(
+            id: result.id,
+            title: result.title,
+            imageUrl: result.imageThumbnail,
+            type: RoutineItemType.plan,
+          ),
+        );
       });
     }
   }
@@ -179,11 +187,13 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
     );
     if (result != null && mounted) {
       setState(() {
-        _blocks[blockIndex].items.add(RoutineItem(
-          id: result.textId,
-          title: result.title,
-          type: RoutineItemType.recitation,
-        ));
+        _blocks[blockIndex].items.add(
+          RoutineItem(
+            id: result.textId,
+            title: result.title,
+            type: RoutineItemType.recitation,
+          ),
+        );
       });
     }
   }
@@ -231,10 +241,7 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
                   },
                   itemBuilder: (context, index) {
                     if (index == _blocks.length) {
-                      return _AddBlockButton(
-                        onTap: _addBlock,
-                        isDark: isDark,
-                      );
+                      return _AddBlockButton(onTap: _addBlock, isDark: isDark);
                     }
                     final block = _blocks[index];
                     return RoutineTimeBlock(
@@ -246,10 +253,10 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
                       onDelete: () => _deleteBlock(index),
                       onAddPlan: () => _navigateToSelectPlan(index),
                       onAddRecitation: () => _navigateToSelectRecitation(index),
-                      onReorderItems: (oldIdx, newIdx) =>
-                          _onReorderItems(index, oldIdx, newIdx),
-                      onDeleteItem: (itemIdx) =>
-                          _onDeleteItem(index, itemIdx),
+                      onReorderItems:
+                          (oldIdx, newIdx) =>
+                              _onReorderItems(index, oldIdx, newIdx),
+                      onDeleteItem: (itemIdx) => _onDeleteItem(index, itemIdx),
                     );
                   },
                 ),
@@ -296,43 +303,43 @@ class _AddBlockButton extends StatelessWidget {
   final VoidCallback onTap;
   final bool isDark;
 
-  const _AddBlockButton({
-    required this.onTap,
-    required this.isDark,
-  });
+  const _AddBlockButton({required this.onTap, required this.isDark});
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 14),
-        decoration: BoxDecoration(
-          border: Border.all(
-            color: isDark ? AppColors.textSubtleDark : AppColors.grey300,
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          decoration: BoxDecoration(
+            color: isDark ? AppColors.surfaceVariantDark : AppColors.grey100,
+            borderRadius: BorderRadius.circular(20),
           ),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.add,
-              size: 20,
-              color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimary,
-            ),
-            const SizedBox(width: 8),
-            Text(
-              'Add Time Block',
-              style: TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.w500,
-                color: isDark
-                    ? AppColors.textPrimaryDark
-                    : AppColors.textPrimary,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.add,
+                size: 16,
+                color:
+                    isDark ? AppColors.textPrimaryDark : AppColors.textPrimary,
               ),
-            ),
-          ],
+              const SizedBox(width: 6),
+              Text(
+                'Time Block',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color:
+                      isDark
+                          ? AppColors.textPrimaryDark
+                          : AppColors.textPrimary,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

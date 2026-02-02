@@ -39,6 +39,61 @@ class RoutineTimeBlock extends StatelessWidget {
     return '$hour:$minute $period';
   }
 
+  Future<void> _confirmDeleteItem(BuildContext context, int index) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Remove Item'),
+        content: Text('Remove "${items[index].title}" from this block?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: Text(
+              'Remove',
+              style: TextStyle(color: Colors.red.shade400),
+            ),
+          ),
+        ],
+      ),
+    );
+    if (confirmed == true) {
+      onDeleteItem(index);
+    }
+  }
+
+  Future<void> _confirmDeleteBlock(BuildContext context) async {
+    final localizations = AppLocalizations.of(context)!;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(localizations.routine_delete_block),
+        content: const Text(
+          'This will remove the time block and all its items.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: Text(
+              'Delete',
+              style: TextStyle(color: Colors.red.shade400),
+            ),
+          ),
+        ],
+      ),
+    );
+    if (confirmed == true) {
+      onDelete();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final localizations = AppLocalizations.of(context)!;
@@ -48,6 +103,7 @@ class RoutineTimeBlock extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
+        // Time selector row
         Row(
           children: [
             _TimeSelector(
@@ -64,11 +120,40 @@ class RoutineTimeBlock extends StatelessWidget {
             ),
             const Spacer(),
             _DeleteBlockButton(
-              onTap: onDelete,
+              onTap: () => _confirmDeleteBlock(context),
               label: localizations.routine_delete_block,
             ),
           ],
         ),
+        // Items list (above action buttons)
+        if (items.isNotEmpty) ...[
+          const SizedBox(height: 12),
+          ReorderableListView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            buildDefaultDragHandles: false,
+            itemCount: items.length,
+            onReorder: onReorderItems,
+            proxyDecorator: (child, index, animation) {
+              return Material(
+                elevation: 2,
+                borderRadius: BorderRadius.circular(10),
+                child: child,
+              );
+            },
+            itemBuilder: (context, i) {
+              final item = items[i];
+              return RoutineItemCard(
+                key: ValueKey(item.id),
+                title: item.title,
+                imageUrl: item.imageUrl,
+                onDelete: () => _confirmDeleteItem(context, i),
+                reorderIndex: i,
+              );
+            },
+          ),
+        ],
+        // Action buttons (below items)
         const SizedBox(height: 16),
         Row(
           children: [
@@ -89,46 +174,6 @@ class RoutineTimeBlock extends StatelessWidget {
             ),
           ],
         ),
-        if (items.isNotEmpty) ...[
-          const SizedBox(height: 12),
-          ReorderableListView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: items.length,
-            onReorder: onReorderItems,
-            proxyDecorator: (child, index, animation) {
-              return Material(
-                elevation: 2,
-                borderRadius: BorderRadius.circular(10),
-                child: child,
-              );
-            },
-            itemBuilder: (context, i) {
-              final item = items[i];
-              return Dismissible(
-                key: ValueKey(item.id),
-                direction: DismissDirection.endToStart,
-                onDismissed: (_) => onDeleteItem(i),
-                background: Container(
-                  alignment: Alignment.centerRight,
-                  padding: const EdgeInsets.only(right: 16),
-                  decoration: BoxDecoration(
-                    color: Colors.red.shade400,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: const Icon(
-                    PhosphorIconsRegular.trash,
-                    color: Colors.white,
-                  ),
-                ),
-                child: RoutineItemCard(
-                  title: item.title,
-                  imageUrl: item.imageUrl,
-                ),
-              );
-            },
-          ),
-        ],
       ],
     );
   }
@@ -214,15 +259,13 @@ class _DeleteBlockButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
     return GestureDetector(
       onTap: onTap,
       child: Text(
         label,
         style: TextStyle(
           fontSize: 14,
-          color: isDark ? AppColors.textSubtleDark : AppColors.grey500,
+          color: Colors.red.shade400,
         ),
       ),
     );
