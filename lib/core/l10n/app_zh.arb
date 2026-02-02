@@ -172,5 +172,25 @@
   "ai_confirm": "確認",
   "ai_delete": "刪除",
 
-  "comingSoonHeadline": "Coming Soon"
+  "comingSoonHeadline": "Coming Soon",
+
+  "routine_title": "日常修持",
+  "routine_empty_title": "日常修持",
+  "routine_edit": "編輯",
+  "routine_empty_description": "建立您的日常修持，保持祈禱生活的穩定。選擇時間和課程，我們會提醒您祈禱！",
+  "routine_build": "建立日常修持",
+  "routine_session": "課程",
+  "routine_time": "時間",
+  "routine_notification": "通知",
+  "routine_save": "保存日常修持",
+  "routine_morning": "早晨",
+  "routine_afternoon": "下午",
+  "routine_evening": "晚上",
+  "routine_add_session": "添加課程",
+  "routine_select_time": "選擇時間",
+  "routine_remind_me": "提醒我",
+  "routine_edit_title": "編輯日常修持",
+  "routine_delete_block": "刪除區塊",
+  "routine_add_plan": "添加計劃",
+  "routine_add_recitation": "添加持誦"
 }

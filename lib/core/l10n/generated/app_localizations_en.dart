@@ -538,4 +538,62 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get comingSoonHeadline => 'Coming Soon';
+
+  @override
+  String get routine_title => 'Your Routine';
+
+  @override
+  String get routine_empty_title => 'Routine';
+
+  @override
+  String get routine_edit => 'Edit';
+
+  @override
+  String get routine_empty_description =>
+      'Stay consistent in your prayer life by building your routine. Select times and sessions and we\'ll remind you to prayer!';
+
+  @override
+  String get routine_build => 'Build your Routine';
+
+  @override
+  String get routine_session => 'Session';
+
+  @override
+  String get routine_time => 'Time';
+
+  @override
+  String get routine_notification => 'Notification';
+
+  @override
+  String get routine_save => 'Save Routine';
+
+  @override
+  String get routine_morning => 'Morning';
+
+  @override
+  String get routine_afternoon => 'Afternoon';
+
+  @override
+  String get routine_evening => 'Evening';
+
+  @override
+  String get routine_add_session => 'Add Session';
+
+  @override
+  String get routine_select_time => 'Select Time';
+
+  @override
+  String get routine_remind_me => 'Remind me';
+
+  @override
+  String get routine_edit_title => 'Edit Your Routine';
+
+  @override
+  String get routine_delete_block => 'Delete Block';
+
+  @override
+  String get routine_add_plan => 'Add Plan';
+
+  @override
+  String get routine_add_recitation => 'Add Recitation';
 }

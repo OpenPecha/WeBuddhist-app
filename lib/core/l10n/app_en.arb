@@ -180,5 +180,25 @@
   "search_coming_soon": "Coming Soon",
   "search_title_search_coming_soon": "Title search will be available soon",
   "search_buddhist_texts": "Search Buddhist texts...",
-  "comingSoonHeadline": "Coming Soon"
+  "comingSoonHeadline": "Coming Soon",
+
+  "routine_title": "Your Routine",
+  "routine_empty_title": "Routine",
+  "routine_edit": "Edit",
+  "routine_empty_description": "Stay consistent in your prayer life by building your routine. Select times and sessions and we'll remind you to prayer!",
+  "routine_build": "Build your Routine",
+  "routine_session": "Session",
+  "routine_time": "Time",
+  "routine_notification": "Notification",
+  "routine_save": "Save Routine",
+  "routine_morning": "Morning",
+  "routine_afternoon": "Afternoon",
+  "routine_evening": "Evening",
+  "routine_add_session": "Add Session",
+  "routine_select_time": "Select Time",
+  "routine_remind_me": "Remind me",
+  "routine_edit_title": "Edit Your Routine",
+  "routine_delete_block": "Delete Block",
+  "routine_add_plan": "Add Plan",
+  "routine_add_recitation": "Add Recitation"
 }

@@ -4,7 +4,7 @@ import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/features/ai/presentation/ai_mode_screen.dart';
 import 'package:flutter_pecha/features/home/presentation/screens/home_screen.dart';
 import 'package:flutter_pecha/features/more/presentation/more_screen.dart';
-import 'package:flutter_pecha/features/plans/presentation/screens/plans_screen.dart';
+import 'package:flutter_pecha/features/practice/presentation/screens/practice_screen.dart';
 import 'package:flutter_pecha/shared/widgets/appBottomNavBar/app_bottom_nav_bar.dart';
 import 'package:flutter_pecha/shared/widgets/appBottomNavBar/app_bottom_nav_item.dart';
 
@@ -38,7 +38,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
       AppBottomBarItemModel(
         type: 2,
         label: localizations.nav_practice,
-        selectedWidget: const PlansScreen(),
+        selectedWidget: const PracticeScreen(),
         selectedIconData: AppAssets.practiceSelected,
         unSelectedIconData: AppAssets.practiceUnselected,
       ),

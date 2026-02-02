@@ -6,6 +6,7 @@ class AppAssets {
   AppAssets._();
 
   // ========== IMAGES ==========
+  static const String routineCalendar = 'assets/images/routine_calendar.png';
 
   // ========== LOGOS ==========
   static const String weBuddhistLogo = 'assets/images/webuddhist_logo.svg';
