@@ -103,7 +103,8 @@ class RoutineNotificationService {
     if (block.items.isEmpty) return 'Check your daily routine';
     final firstItem = block.items.first.title;
     final remaining = block.items.length - 1;
-    if (remaining > 0) return '$firstItem and $remaining others';
+    if (remaining == 1) return '$firstItem and 1 other';
+    if (remaining > 1) return '$firstItem and $remaining others';
     return firstItem;
   }
 }

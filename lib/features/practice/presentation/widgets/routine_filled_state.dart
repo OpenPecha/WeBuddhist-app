@@ -139,12 +139,14 @@ class _RoutineBlockSection extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 8),
-        ...block.items.map(
-          (item) => RoutineItemCard(
-            title: item.title,
-            imageUrl: item.imageUrl,
+        for (int i = 0; i < block.items.length; i++) ...[
+          RoutineItemCard(
+            title: block.items[i].title,
+            imageUrl: block.items[i].imageUrl,
           ),
-        ),
+          if (i < block.items.length - 1)
+            const Divider(height: 1, indent: 80),
+        ],
         if (block.items.isNotEmpty)
           const Padding(
             padding: EdgeInsets.only(top: 8.0),

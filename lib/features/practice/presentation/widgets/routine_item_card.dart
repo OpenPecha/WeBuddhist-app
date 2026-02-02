@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/core/widgets/cached_network_image_widget.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
@@ -22,7 +23,7 @@ class RoutineItemCard extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6.0),
+      padding: const EdgeInsets.symmetric(vertical: 12.0),
       child: Row(
         children: [
           if (onDelete != null) ...[
@@ -57,13 +58,16 @@ class RoutineItemCard extends StatelessWidget {
             const SizedBox(width: 8),
             ReorderableDragStartListener(
               index: reorderIndex!,
-              child: Icon(
-                PhosphorIconsRegular.list,
-                size: 22,
-                color:
-                    isDark
-                        ? AppColors.textTertiaryDark
-                        : AppColors.textSecondary,
+              child: GestureDetector(
+                onTapDown: (_) => HapticFeedback.heavyImpact(),
+                child: Icon(
+                  PhosphorIconsRegular.list,
+                  size: 22,
+                  color:
+                      isDark
+                          ? AppColors.textTertiaryDark
+                          : AppColors.textSecondary,
+                ),
               ),
             ),
           ],

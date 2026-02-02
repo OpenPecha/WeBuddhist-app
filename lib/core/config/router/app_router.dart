@@ -30,7 +30,7 @@ class AppRouter {
           builder: (context, state) => const MainNavigationScreen(),
           routes: [
             GoRoute(
-              path: "plans/:tag",
+              path: "plans/:tag", // route - /home/plans/all
               name: "home-plans",
               builder: (context, state) {
                 final tag = state.pathParameters['tag'] ?? '';
@@ -48,7 +48,7 @@ class AppRouter {
           routes: [
             // route - /ai-mode/search-results
             GoRoute(
-              path: "search-results",
+              path: "search-results", // route - /ai-mode/search-results
               name: "search-results",
               builder: (context, state) {
                 final extra = state.extra as Map<String, dynamic>?;
@@ -66,17 +66,17 @@ class AppRouter {
           builder: (context, state) => const PracticeScreen(),
           routes: [
             GoRoute(
-              path: "edit-routine",
+              path: "edit-routine", // route - /practice/edit-routine
               name: "edit-routine",
               builder: (context, state) => const EditRoutineScreen(),
               routes: [
                 GoRoute(
-                  path: "select-plan",
+                  path: "select-plan", // route - /practice/edit-routine/select-plan
                   name: "select-plan",
                   builder: (context, state) => const SelectPlanScreen(),
                 ),
                 GoRoute(
-                  path: "select-recitation",
+                  path: "select-recitation", // route - /practice/edit-routine/select-recitation
                   name: "select-recitation",
                   builder: (context, state) => const SelectRecitationScreen(),
                 ),

@@ -72,7 +72,7 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
               (b) => RoutineBlock(
                 id: b.id,
                 time: b.time,
-                notificationEnabled: b.notificationEnabled,
+                notificationEnabled: b.notificationEnabled && b.items.isNotEmpty,
                 items: b.items,
               ),
             )

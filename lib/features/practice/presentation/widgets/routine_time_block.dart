@@ -42,23 +42,24 @@ class RoutineTimeBlock extends StatelessWidget {
   Future<void> _confirmDeleteItem(BuildContext context, int index) async {
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Remove Item'),
-        content: Text('Remove "${items[index].title}" from this block?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancel'),
+      builder:
+          (context) => AlertDialog(
+            title: const Text('Remove Item'),
+            content: Text('Remove "${items[index].title}" from this block?'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: const Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                child: Text(
+                  'Remove',
+                  style: TextStyle(color: Colors.red.shade400),
+                ),
+              ),
+            ],
           ),
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: Text(
-              'Remove',
-              style: TextStyle(color: Colors.red.shade400),
-            ),
-          ),
-        ],
-      ),
     );
     if (confirmed == true) {
       onDeleteItem(index);
@@ -69,25 +70,26 @@ class RoutineTimeBlock extends StatelessWidget {
     final localizations = AppLocalizations.of(context)!;
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text(localizations.routine_delete_block),
-        content: const Text(
-          'This will remove the time block and all its items.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: Text(
-              'Delete',
-              style: TextStyle(color: Colors.red.shade400),
+      builder:
+          (context) => AlertDialog(
+            title: Text(localizations.routine_delete_block),
+            content: const Text(
+              'This will remove the time block and all its items.',
             ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: const Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                child: Text(
+                  'Delete',
+                  style: TextStyle(color: Colors.red.shade400),
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
     );
     if (confirmed == true) {
       onDelete();
@@ -143,12 +145,19 @@ class RoutineTimeBlock extends StatelessWidget {
             },
             itemBuilder: (context, i) {
               final item = items[i];
-              return RoutineItemCard(
+              return Column(
                 key: ValueKey(item.id),
-                title: item.title,
-                imageUrl: item.imageUrl,
-                onDelete: () => _confirmDeleteItem(context, i),
-                reorderIndex: i,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  RoutineItemCard(
+                    title: item.title,
+                    imageUrl: item.imageUrl,
+                    onDelete: () => _confirmDeleteItem(context, i),
+                    reorderIndex: i,
+                  ),
+                  if (i < items.length - 1)
+                    const Divider(height: 1, indent: 100),
+                ],
               );
             },
           ),
@@ -244,7 +253,7 @@ class _NotificationIcon extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Icon(
-        enabled ? PhosphorIconsRegular.bellSlash : PhosphorIconsRegular.bell,
+        enabled ? PhosphorIconsRegular.bell : PhosphorIconsRegular.bellSlash,
         size: 22,
       ),
     );
@@ -263,10 +272,7 @@ class _DeleteBlockButton extends StatelessWidget {
       onTap: onTap,
       child: Text(
         label,
-        style: TextStyle(
-          fontSize: 14,
-          color: Colors.red.shade400,
-        ),
+        style: TextStyle(fontSize: 14, color: Colors.red.shade400),
       ),
     );
   }
