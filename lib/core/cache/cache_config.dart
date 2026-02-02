@@ -20,6 +20,9 @@ class CacheConfig {
   /// Cache metadata box
   static const String cacheMetadataBox = 'cache_metadata';
 
+  /// Routine data box (persistent local user data — no TTL)
+  static const String routineDataBox = 'routine_data';
+
   // TTL durations for lists (in hours)
   static const Duration collectionListTtl = Duration(hours: 24);
   static const Duration workListTtl = Duration(hours: 24);

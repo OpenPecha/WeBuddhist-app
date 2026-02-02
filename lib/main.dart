@@ -7,6 +7,8 @@ import 'package:flutter_pecha/core/services/service_providers.dart';
 import 'package:flutter_pecha/core/theme/theme_notifier.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/features/notifications/services/notification_service.dart';
+import 'package:flutter_pecha/features/practice/data/datasources/routine_local_storage.dart';
+import 'package:flutter_pecha/features/practice/data/providers/routine_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
@@ -71,8 +73,21 @@ void main() async {
     }
   }
 
+  // Initialize routine local storage (persistent user data, not cache)
+  final routineStorage = RoutineLocalStorage();
+  try {
+    await routineStorage.initialize();
+    _logger.info('Routine local storage initialized');
+  } catch (e) {
+    _logger.warning('Error initializing routine local storage: $e');
+  }
+
   // Create provider container for notification service access
-  final container = ProviderContainer();
+  final container = ProviderContainer(
+    overrides: [
+      routineLocalStorageProvider.overrideWithValue(routineStorage),
+    ],
+  );
 
   // Set the container reference for notifications
   if (!AppFeatureFlags.kComingSoonMode) {

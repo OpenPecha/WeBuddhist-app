@@ -120,11 +120,23 @@ class NotificationService {
             enableVibration: true,
           );
 
+      // Routine block reminder channel
+      const AndroidNotificationChannel routineBlockChannel =
+          AndroidNotificationChannel(
+            routineBlockNotificationChannelId,
+            routineBlockNotificationChannelName,
+            description: routineBlockNotificationChannelDescription,
+            importance: Importance.high,
+            playSound: true,
+            enableVibration: true,
+          );
+
       // Create all channels
       await androidImplementation.createNotificationChannel(
         dailyPracticeChannel,
       );
       await androidImplementation.createNotificationChannel(recitationChannel);
+      await androidImplementation.createNotificationChannel(routineBlockChannel);
 
       _logger.info('Android notification channels created');
     }
@@ -199,14 +211,18 @@ class NotificationService {
     // Navigate based on notification ID
     if (_router != null && _container != null) {
       // Check notification ID to determine which tab to open
-      if (response.id == recitationNotificationId) {
+      if (response.id != null && response.id! >= 100) {
+        // Routine block notification — navigate to practice screen
+        _router!.go('/practice');
+      } else if (response.id == recitationNotificationId) {
         // Recitation notification - go to recitation tab (index 1, was 2 before home hidden)
         _container!.read(bottomNavIndexProvider.notifier).state = 1;
+        _router!.go('/home');
       } else {
         // Daily practice or default - go to texts tab (index 0, home is hidden)
         _container!.read(bottomNavIndexProvider.notifier).state = 0;
+        _router!.go('/home');
       }
-      _router!.go('/home');
     }
   }
 
@@ -332,3 +348,9 @@ const recitationNotificationChannelName = 'Recitation Reminder';
 const recitationNotificationChannelDescription =
     'Notification for recitation reminders';
 const recitationNotificationId = 2;
+
+// Routine block notification constants
+const routineBlockNotificationChannelId = 'routine_block_reminder';
+const routineBlockNotificationChannelName = 'Routine Block Reminder';
+const routineBlockNotificationChannelDescription =
+    'Daily notifications for routine practice blocks';

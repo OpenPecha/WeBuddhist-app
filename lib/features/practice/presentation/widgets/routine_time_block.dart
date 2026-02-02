@@ -1,27 +1,35 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
+import 'package:flutter_pecha/features/practice/data/models/routine_model.dart';
 import 'package:flutter_pecha/features/practice/presentation/widgets/routine_action_button.dart';
+import 'package:flutter_pecha/features/practice/presentation/widgets/routine_item_card.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 class RoutineTimeBlock extends StatelessWidget {
   final TimeOfDay time;
   final bool notificationEnabled;
+  final List<RoutineItem> items;
   final VoidCallback onTimeChanged;
   final VoidCallback onNotificationToggle;
   final VoidCallback onDelete;
   final VoidCallback onAddPlan;
   final VoidCallback onAddRecitation;
+  final void Function(int oldIndex, int newIndex) onReorderItems;
+  final void Function(int itemIndex) onDeleteItem;
 
   const RoutineTimeBlock({
     super.key,
     required this.time,
     required this.notificationEnabled,
+    required this.items,
     required this.onTimeChanged,
     required this.onNotificationToggle,
     required this.onDelete,
     required this.onAddPlan,
     required this.onAddRecitation,
+    required this.onReorderItems,
+    required this.onDeleteItem,
   });
 
   String _formatTime(TimeOfDay time) {
@@ -38,6 +46,7 @@ class RoutineTimeBlock extends StatelessWidget {
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
       children: [
         Row(
           children: [
@@ -80,6 +89,46 @@ class RoutineTimeBlock extends StatelessWidget {
             ),
           ],
         ),
+        if (items.isNotEmpty) ...[
+          const SizedBox(height: 12),
+          ReorderableListView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: items.length,
+            onReorder: onReorderItems,
+            proxyDecorator: (child, index, animation) {
+              return Material(
+                elevation: 2,
+                borderRadius: BorderRadius.circular(10),
+                child: child,
+              );
+            },
+            itemBuilder: (context, i) {
+              final item = items[i];
+              return Dismissible(
+                key: ValueKey(item.id),
+                direction: DismissDirection.endToStart,
+                onDismissed: (_) => onDeleteItem(i),
+                background: Container(
+                  alignment: Alignment.centerRight,
+                  padding: const EdgeInsets.only(right: 16),
+                  decoration: BoxDecoration(
+                    color: Colors.red.shade400,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Icon(
+                    PhosphorIconsRegular.trash,
+                    color: Colors.white,
+                  ),
+                ),
+                child: RoutineItemCard(
+                  title: item.title,
+                  imageUrl: item.imageUrl,
+                ),
+              );
+            },
+          ),
+        ],
       ],
     );
   }
