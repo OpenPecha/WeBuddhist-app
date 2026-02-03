@@ -40,20 +40,48 @@ class NotificationService {
 
   bool get isInitialized => _isInitialized;
 
+  /// Map legacy timezone IDs (e.g. from Android) to IANA names used by the timezone package.
+  /// Default timezone data (latest.dart) may not include all legacy names.
+  static const Map<String, String> _legacyTimezoneToIana = {
+    'Asia/Calcutta': 'Asia/Kolkata',
+    'US/Eastern': 'America/New_York',
+    'US/Central': 'America/Chicago',
+    'US/Mountain': 'America/Denver',
+    'US/Pacific': 'America/Los_Angeles',
+    'GMT': 'UTC',
+  };
+
   /// Initialize without requesting permissions (for early app initialization)
   Future<void> initializeWithoutPermissions() async {
     if (_isInitialized) return; // prevent re-initialization
 
-    // initialize timezone
+    // Initialize timezone: use device local time so scheduled notifications
+    // (e.g. "7:10 AM") are in the user's local time, not UTC.
     tz.initializeTimeZones();
     final currentTimezone = await FlutterTimezone.getLocalTimezone();
+    bool localSet = false;
     try {
       tz.setLocalLocation(tz.getLocation(currentTimezone));
-    } catch (e) {
-      // Some devices return legacy timezone names (e.g. "Asia/Calcutta")
-      // that the timezone package doesn't recognize. Fall back to UTC.
-      _logger.warning('Unknown timezone "$currentTimezone", falling back to UTC');
-      tz.setLocalLocation(tz.getLocation('UTC'));
+      localSet = true;
+    } catch (_) {
+      final ianaName = _legacyTimezoneToIana[currentTimezone];
+      if (ianaName != null) {
+        try {
+          tz.setLocalLocation(tz.getLocation(ianaName));
+          _logger.info(
+            'Mapped legacy timezone "$currentTimezone" to "$ianaName"',
+          );
+          localSet = true;
+        } catch (_) {
+          // fall through to UTC fallback
+        }
+      }
+      if (!localSet) {
+        _logger.warning(
+          'Unknown timezone "$currentTimezone", falling back to UTC',
+        );
+        tz.setLocalLocation(tz.getLocation('UTC'));
+      }
     }
 
     // Android initialization - do NOT request permissions
