@@ -239,6 +239,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get start_plan => 'Start Plan';
 
   @override
+  String get start_reading => 'Start Reading';
+
+  @override
   String get continue_plan => 'Continue Plan';
 
   @override

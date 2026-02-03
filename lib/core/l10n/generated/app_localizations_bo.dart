@@ -240,6 +240,9 @@ class AppLocalizationsBo extends AppLocalizations {
   String get start_plan => 'ཉམས་ལེན་འགོ་འཛུགས།';
 
   @override
+  String get start_reading => 'ཀློག་པ་འགོ་འཛུགས།';
+
+  @override
   String get continue_plan => 'ཉམས་ལེན་མུ་མཐུད་';
 
   @override

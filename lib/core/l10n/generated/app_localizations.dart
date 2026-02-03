@@ -550,6 +550,12 @@ abstract class AppLocalizations {
   /// **'Start Plan'**
   String get start_plan;
 
+  /// No description provided for @start_reading.
+  ///
+  /// In en, this message translates to:
+  /// **'Start Reading'**
+  String get start_reading;
+
   /// No description provided for @continue_plan.
   ///
   /// In en, this message translates to:

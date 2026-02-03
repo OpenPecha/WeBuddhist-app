@@ -133,9 +133,6 @@ class _RoutineBlockSection extends ConsumerWidget {
       final planAsync = await ref.read(planByIdFutureProvider(item.id).future);
       if (context.mounted) {
         context.push('/practice/plans/info', extra: {'plan': planAsync});
-        // Navigator.of(
-        //   context,
-        // ).push(MaterialPageRoute(builder: (_) => PlanInfo(plan: planAsync)));
       }
     }
   }

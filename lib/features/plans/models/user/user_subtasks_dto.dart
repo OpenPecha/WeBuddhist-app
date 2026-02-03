@@ -5,6 +5,8 @@ class UserSubtasksDto {
   final String content;
   final int? displayOrder;
   final String? duration;
+  final String? sourceTextId;
+  final String? pechaSegmentId;
 
   UserSubtasksDto({
     required this.id,
@@ -13,6 +15,8 @@ class UserSubtasksDto {
     required this.content,
     this.displayOrder,
     this.duration,
+    this.sourceTextId,
+    this.pechaSegmentId,
   });
 
   factory UserSubtasksDto.fromJson(Map<String, dynamic> json) {
@@ -23,6 +27,8 @@ class UserSubtasksDto {
       content: json['content'] as String,
       displayOrder: json['display_order'] as int?,
       duration: json['duration'] as String?,
+      sourceTextId: json['source_text_id'] as String?,
+      pechaSegmentId: json['pecha_segment_id'] as String?,
     );
   }
 
@@ -34,6 +40,8 @@ class UserSubtasksDto {
       'content': content,
       'display_order': displayOrder,
       'duration': duration,
+      'source_text_id': sourceTextId,
+      'pecha_segment_id': pechaSegmentId,
     };
   }
 }

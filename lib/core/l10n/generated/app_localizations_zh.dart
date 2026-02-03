@@ -237,6 +237,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get start_plan => '開始計畫';
 
   @override
+  String get start_reading => '開始閱讀';
+
+  @override
   String get continue_plan => '繼續計劃';
 
   @override

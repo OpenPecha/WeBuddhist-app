@@ -231,7 +231,8 @@ class _PlanInfoState extends ConsumerState<PlanInfo> {
     );
 
     context.push(
-      '/plans/details',
+      // '/plans/details',
+      '/practice/plans/info/details',
       extra: {
         'plan': userPlan,
         'selectedDay': selectedDay,

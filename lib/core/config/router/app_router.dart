@@ -3,9 +3,11 @@ import 'package:flutter_pecha/features/ai/presentation/search_results_screen.dar
 import 'package:flutter_pecha/features/auth/presentation/login_page.dart';
 import 'package:flutter_pecha/features/home/presentation/screens/main_navigation_screen.dart';
 import 'package:flutter_pecha/features/home/presentation/screens/plan_list_screen.dart';
-import 'package:flutter_pecha/features/more/presentation/more_screen.dart';
 import 'package:flutter_pecha/features/plans/models/plans_model.dart';
+import 'package:flutter_pecha/features/plans/models/user/user_plans_model.dart';
+import 'package:flutter_pecha/features/plans/presentation/plan_details.dart';
 import 'package:flutter_pecha/features/plans/presentation/plan_info.dart';
+import 'package:flutter_pecha/features/plans/presentation/plan_preview_details.dart';
 import 'package:flutter_pecha/features/practice/presentation/screens/edit_routine_screen.dart';
 import 'package:flutter_pecha/features/practice/presentation/screens/practice_screen.dart';
 import 'package:flutter_pecha/features/practice/presentation/screens/select_plan_screen.dart';
@@ -87,16 +89,31 @@ class AppRouter {
                 ),
               ],
             ),
-            // route - /practice/routine
+            // route - /practice/texts/:textId
             GoRoute(
               path: "texts/:textId",
               name: "practice-text",
               builder: (context, state) {
+                final extra = state.extra as Map<String, dynamic>?;
                 final textId = state.pathParameters['textId'] ?? '';
-                return ChaptersScreen(textId: textId);
+                final segmentId = extra?["segmentId"] as String?;
+                return ChaptersScreen(textId: textId, segmentId: segmentId);
               },
             ),
-            // route - /practice/plans/:planId
+            // route - /practice/plans/preview (preview plan before enrollment)
+            GoRoute(
+              path: "plans/preview",
+              name: "practice-plan-preview",
+              builder: (context, state) {
+                final extra = state.extra as Map<String, dynamic>?;
+                final plan = extra?['plan'] as PlansModel?;
+                if (plan == null) {
+                  throw Exception('Missing required parameters');
+                }
+                return PlanPreviewDetails(plan: plan);
+              },
+            ),
+            // route - /practice/plans/info
             GoRoute(
               path: "plans/info",
               name: "practice-plan-info",
@@ -108,6 +125,33 @@ class AppRouter {
                 }
                 return PlanInfo(plan: plan);
               },
+              routes: [
+                // route - /practice/plans/info/details
+                GoRoute(
+                  path: "details",
+                  name: "practice-plan-details",
+                  builder: (context, state) {
+                    final extra = state.extra as Map<String, dynamic>?;
+                    final plan = extra?['plan'] as UserPlansModel?;
+                    final selectedDay = extra?['selectedDay'] as int?;
+                    final startDate = extra?['startDate'] as DateTime?;
+                    if (plan == null) {
+                      throw Exception('Missing required parameters');
+                    }
+                    return PlanDetails(
+                      plan: plan,
+                      selectedDay: selectedDay ?? 0,
+                      startDate: startDate ?? DateTime.now(),
+                    );
+                  },
+                ),
+                // route - /practice/plans/info/author
+                // GoRoute(
+                //   path: "author",
+                //   name: "practice-plan-author",
+                //   builder: (context, state) => const AuthorDetailScreen(),
+                // ),
+              ],
             ),
           ],
         ),
