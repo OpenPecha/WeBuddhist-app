@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
+import 'package:flutter_pecha/features/notifications/services/notification_service.dart';
 import 'package:flutter_pecha/features/plans/models/plans_model.dart';
 import 'package:flutter_pecha/features/practice/data/models/routine_model.dart';
 import 'package:flutter_pecha/features/practice/data/providers/routine_provider.dart';
@@ -10,6 +11,7 @@ import 'package:flutter_pecha/features/practice/presentation/screens/select_reci
 import 'package:flutter_pecha/features/practice/presentation/widgets/routine_time_block.dart';
 import 'package:flutter_pecha/features/recitation/data/models/recitation_model.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:uuid/uuid.dart';
 
 const _uuid = Uuid();
@@ -65,20 +67,21 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
     }
   }
 
-  void _saveAndPop() {
+  Future<void> _saveAndPop() async {
     final blocks =
         _blocks
             .map(
               (b) => RoutineBlock(
                 id: b.id,
                 time: b.time,
-                notificationEnabled: b.notificationEnabled && b.items.isNotEmpty,
+                notificationEnabled:
+                    b.notificationEnabled && b.items.isNotEmpty,
                 items: b.items,
               ),
             )
             .toList();
-    ref.read(routineProvider.notifier).saveRoutine(blocks);
-    Navigator.of(context).pop();
+    await ref.read(routineProvider.notifier).saveRoutine(blocks);
+    if (mounted) Navigator.of(context).pop();
   }
 
   Future<void> _pickTime(int index) async {
@@ -127,10 +130,137 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
     return '$hour:$minute $period';
   }
 
-  void _toggleNotification(int index) {
-    setState(() {
-      _blocks[index].notificationEnabled = !_blocks[index].notificationEnabled;
-    });
+  Future<void> _toggleNotification(int index) async {
+    // If currently enabled, just disable — no permission check needed
+    if (_blocks[index].notificationEnabled) {
+      setState(() {
+        _blocks[index].notificationEnabled = false;
+      });
+      return;
+    }
+
+    // Enabling: check notification permission first
+    final enabled = await NotificationService().areNotificationsEnabled();
+    if (!enabled && mounted) {
+      final granted = await _showNotificationPermissionModal();
+      if (granted != true) return;
+    }
+
+    if (mounted) {
+      setState(() {
+        _blocks[index].notificationEnabled = true;
+      });
+    }
+  }
+
+  Future<bool?> _showNotificationPermissionModal() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return showModalBottomSheet<bool>(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(24, 28, 24, 16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.notifications_outlined,
+                  size: 48,
+                  color:
+                      isDark
+                          ? AppColors.textPrimaryDark
+                          : AppColors.textPrimary,
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  'Make Prayer Daily',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color:
+                        isDark
+                            ? AppColors.textPrimaryDark
+                            : AppColors.textPrimary,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Allow notifications to receive your reminder to pray.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 14,
+                    color:
+                        isDark
+                            ? AppColors.textTertiaryDark
+                            : AppColors.textSecondary,
+                  ),
+                ),
+                const SizedBox(height: 24),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      final nav = Navigator.of(context);
+                      final granted =
+                          await NotificationService().requestPermission();
+                      if (!granted) {
+                        await openAppSettings();
+                      }
+                      final nowEnabled =
+                          await NotificationService().areNotificationsEnabled();
+                      nav.pop(nowEnabled);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor:
+                          isDark
+                              ? AppColors.textPrimaryDark
+                              : AppColors.textPrimary,
+                      foregroundColor:
+                          isDark
+                              ? AppColors.textPrimary
+                              : AppColors.textPrimaryDark,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: const Text(
+                      'Enable Notifications',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                SizedBox(
+                  width: double.infinity,
+                  child: TextButton(
+                    onPressed: () => Navigator.of(context).pop(false),
+                    child: Text(
+                      'Skip',
+                      style: TextStyle(
+                        fontSize: 16,
+                        color:
+                            isDark
+                                ? AppColors.textTertiaryDark
+                                : AppColors.textSecondary,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 
   void _deleteBlock(int index) {
@@ -144,7 +274,7 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
     final defaultTime = const TimeOfDay(hour: 12, minute: 0);
     final adjusted = adjustTimeForMinimumGap(defaultTime, otherTimes);
     setState(() {
-      _blocks.add(_EditableBlock(time: adjusted, notificationEnabled: true));
+      _blocks.add(_EditableBlock(time: adjusted, notificationEnabled: false));
       _sortBlocks();
     });
   }
