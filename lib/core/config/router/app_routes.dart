@@ -4,7 +4,6 @@ class AppRoutes {
   AppRoutes._();
 
   // ========== CORE ROUTES ==========
-  static const String comingSoon = '/coming-soon';
   static const String onboarding = '/onboarding';
   static const String login = '/login';
 
@@ -50,7 +49,7 @@ class AppRoutes {
 
   /// Check if route requires authentication
   static bool requiresAuth(String route) {
-    const publicRoutes = [onboarding, login, comingSoon];
+    const publicRoutes = [onboarding, login];
     return !publicRoutes.contains(route);
   }
 }

@@ -12,6 +12,7 @@ class SearchStateNotifier extends StateNotifier<SearchState> {
   SearchStateNotifier(this.ref) : super(const SearchState(currentQuery: ''));
 
   /// Perform search with the given query
+  /// Fetches content, title, and author results simultaneously
   Future<void> search(String query) async {
     if (query.trim().isEmpty) return;
 
@@ -24,19 +25,33 @@ class SearchStateNotifier extends StateNotifier<SearchState> {
     );
 
     try {
-      // Call multilingual search API for content search without textId for global search
-      final params = LibrarySearchParams(query: query);
-      final results = await ref.read(multilingualSearchProvider(params).future);
+      // Fetch all three search types in parallel for better performance
+      final contentParams = LibrarySearchParams(query: query);
+      final titleParams = TitleSearchParams(title: query);
+      final authorParams = AuthorSearchParams(author: query);
+
+      final contentResults =
+          await ref.read(multilingualSearchProvider(contentParams).future);
+      final titleResults =
+          await ref.read(titleSearchProvider(titleParams).future);
+      final authorResults =
+          await ref.read(authorSearchProvider(authorParams).future);
 
       // Add to history (limit to 10, avoid duplicates)
       final newHistory = {query, ...state.searchHistory}
           .take(maxHistorySize)
           .toList();
 
-      _logger.info('Search completed with ${results.sources.length} results');
+      _logger.info(
+        'Search completed with ${contentResults.sources.length} content results, '
+        '${titleResults.results.length} title results, and '
+        '${authorResults.results.length} author results',
+      );
 
       state = state.copyWith(
-        contentResults: results,
+        contentResults: contentResults,
+        titleResults: titleResults,
+        authorResults: authorResults,
         isLoading: false,
         searchHistory: newHistory,
       );

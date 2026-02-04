@@ -91,32 +91,37 @@ class _SearchResultsScreenState extends ConsumerState<SearchResultsScreen>
     final searchState = ref.watch(searchStateProvider);
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
-    return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      appBar: _buildAppBar(isDarkMode),
-      body: Column(
-        children: [
-          _buildTabBar(isDarkMode),
-          Expanded(
-            child: TabBarView(
-              controller: _tabController,
-              children: [
-                const SizedBox.shrink(), // AI Mode Placeholder
-                AllTabView(
-                  searchState: searchState,
-                  onShowMore: _onShowMore,
-                  onRetry: _onRetry,
-                ),
-                const TitlesTabView(),
-                ContentsTabView(
-                  searchState: searchState,
-                  onRetry: _onRetry,
-                ),
-                const AuthorTabView(),
-              ],
+    return GestureDetector(
+      onTap: () {
+        // Dismiss keyboard when tapping outside the TextField
+        if (_searchFocusNode.hasFocus) {
+          _searchFocusNode.unfocus();
+        }
+      },
+      child: Scaffold(
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        appBar: _buildAppBar(isDarkMode),
+        body: Column(
+          children: [
+            _buildTabBar(isDarkMode),
+            Expanded(
+              child: TabBarView(
+                controller: _tabController,
+                children: [
+                  const SizedBox.shrink(), // AI Mode Placeholder
+                  AllTabView(
+                    searchState: searchState,
+                    onShowMore: _onShowMore,
+                    onRetry: _onRetry,
+                  ),
+                  TitlesTabView(searchState: searchState, onRetry: _onRetry),
+                  ContentsTabView(searchState: searchState, onRetry: _onRetry),
+                  AuthorTabView(searchState: searchState, onRetry: _onRetry),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -148,6 +153,8 @@ class _SearchResultsScreenState extends ConsumerState<SearchResultsScreen>
           focusNode: _searchFocusNode,
           textInputAction: TextInputAction.search,
           onSubmitted: (_) => _onSearch(),
+          onChanged:
+              (_) => setState(() {}), // Rebuild to show/hide clear button
           textAlignVertical: TextAlignVertical.center,
           style: TextStyle(
             color: isDarkMode ? AppColors.surfaceWhite : AppColors.textPrimary,
@@ -164,6 +171,23 @@ class _SearchResultsScreenState extends ConsumerState<SearchResultsScreen>
               size: 20,
               color: isDarkMode ? AppColors.grey500 : AppColors.grey600,
             ),
+            suffixIcon:
+                _searchController.text.isNotEmpty
+                    ? IconButton(
+                      icon: Icon(
+                        Icons.close,
+                        size: 20,
+                        color:
+                            isDarkMode ? AppColors.grey500 : AppColors.grey600,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _searchController.clear();
+                        });
+                        _searchFocusNode.unfocus();
+                      },
+                    )
+                    : null,
             border: InputBorder.none,
             contentPadding: const EdgeInsets.symmetric(horizontal: 12),
           ),

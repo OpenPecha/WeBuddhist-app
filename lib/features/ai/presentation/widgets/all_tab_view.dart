@@ -3,8 +3,8 @@ import 'package:flutter_pecha/features/ai/models/search_state.dart';
 import 'package:flutter_pecha/features/texts/presentation/widgets/search_result_card.dart';
 import 'package:flutter_pecha/features/texts/models/search/multilingual_source_result.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
+import 'package:go_router/go_router.dart';
 
-/// Tab view showing both titles and contents (limited to 3 each)
 class AllTabView extends StatelessWidget {
   final SearchState searchState;
   final Function(SearchTab) onShowMore;
@@ -68,8 +68,19 @@ class AllTabView extends StatelessWidget {
       );
     }
 
-    final results = searchState.contentResults;
-    if (results == null || results.sources.isEmpty) {
+    final contentResults = searchState.contentResults;
+    final titleResults = searchState.titleResults;
+    final authorResults = searchState.authorResults;
+
+    // Check if we have any results at all
+    final hasContentResults =
+        contentResults != null && contentResults.sources.isNotEmpty;
+    final hasTitleResults =
+        titleResults != null && titleResults.results.isNotEmpty;
+    final hasAuthorResults =
+        authorResults != null && authorResults.results.isNotEmpty;
+
+    if (!hasContentResults && !hasTitleResults && !hasAuthorResults) {
       return Center(
         child: Padding(
           padding: const EdgeInsets.all(24.0),
@@ -85,22 +96,40 @@ class AllTabView extends StatelessWidget {
       );
     }
 
-    // Get first 3 content results
-    final contentResults = results.sources.take(3).toList();
-    final hasMoreContent = results.sources.length > 1;
+    // Get first 3 results for each section
+    final topContentResults =
+        hasContentResults
+            ? contentResults.sources.take(3).toList()
+            : <MultilingualSourceResult>[];
+    final topTitleResults =
+        hasTitleResults ? titleResults.results.take(3).toList() : [];
+    final topAuthorResults =
+        hasAuthorResults ? authorResults.results.take(3).toList() : [];
+
+    final hasMoreContent = hasContentResults && contentResults.sources.length >= 2;
+    final hasMoreTitles = hasTitleResults && titleResults.results.length >= 2;
+    final hasMoreAuthors = hasAuthorResults && authorResults.results.length >= 2;
 
     return ListView(
       padding: const EdgeInsets.symmetric(vertical: 8),
       children: [
-        // Titles Section
-        _buildSectionHeader(context, isDarkMode, 'Titles'),
-        _buildComingSoonMessage(context, isDarkMode),
-        const SizedBox(height: 24),
+        // Titles Section - Only show if there are results
+        if (hasTitleResults) ...[
+          _buildSectionHeader(context, isDarkMode, 'Titles'),
+          ...topTitleResults.map(
+            (item) => _buildTitleResultCard(context, item, isDarkMode),
+          ),
+          if (hasMoreTitles) ...[
+            const SizedBox(height: 25),
+            _buildShowMoreButton(context, isDarkMode, SearchTab.titles),
+          ],
+          const SizedBox(height: 24),
+        ],
 
-        // Contents Section
-        if (contentResults.isNotEmpty) ...[
+        // Contents Section - Only show if there are results
+        if (hasContentResults) ...[
           _buildSectionHeader(context, isDarkMode, 'Contents'),
-          ...contentResults.map(
+          ...topContentResults.map(
             (source) => _buildContentResultCard(
               context,
               source,
@@ -111,12 +140,21 @@ class AllTabView extends StatelessWidget {
             const SizedBox(height: 25),
             _buildShowMoreButton(context, isDarkMode, SearchTab.contents),
           ],
-          const SizedBox(height: 16),
+          const SizedBox(height: 24),
         ],
-        // Author Section
-        _buildSectionHeader(context, isDarkMode, 'Author'),
-        _buildComingSoonMessage(context, isDarkMode),
-        const SizedBox(height: 24),
+
+        // Author Section - Only show if there are results
+        if (hasAuthorResults) ...[
+          _buildSectionHeader(context, isDarkMode, 'Author'),
+          ...topAuthorResults.map(
+            (item) => _buildAuthorResultCard(context, item, isDarkMode),
+          ),
+          if (hasMoreAuthors) ...[
+            const SizedBox(height: 25),
+            _buildShowMoreButton(context, isDarkMode, SearchTab.author),
+          ],
+          const SizedBox(height: 24),
+        ],
       ],
     );
   }
@@ -166,39 +204,108 @@ class AllTabView extends StatelessWidget {
     );
   }
 
-  Widget _buildComingSoonMessage(BuildContext context, bool isDarkMode) {
+  Widget _buildTitleResultCard(
+    BuildContext context,
+    dynamic item,
+    bool isDarkMode,
+  ) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       decoration: BoxDecoration(
-        color:
-            isDarkMode
-                ? AppColors.grey800.withOpacity(0.3)
-                : AppColors.grey300.withOpacity(0.5),
+        color: isDarkMode ? AppColors.grey900 : Colors.white,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: isDarkMode ? AppColors.grey800 : AppColors.grey300,
           width: 1,
         ),
       ),
-      child: Row(
-        children: [
-          Icon(
-            Icons.info_outline_rounded,
-            size: 20,
-            color: isDarkMode ? AppColors.grey400 : AppColors.grey600,
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              'Coming Soon',
-              style: TextStyle(
-                fontSize: 14,
-                color: isDarkMode ? AppColors.grey400 : AppColors.grey600,
-                fontWeight: FontWeight.w500,
+      child: InkWell(
+        onTap: () {
+          context.push(
+           "/ai-mode/search-results/text-chapters",
+            extra: {'textId': item.id},
+          );
+        },
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  item.title,
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    color:
+                        isDarkMode
+                            ? AppColors.surfaceWhite
+                            : AppColors.textPrimary,
+                  ),
+                ),
               ),
-            ),
+              const SizedBox(width: 12),
+              Icon(
+                Icons.chevron_right,
+                color: isDarkMode ? AppColors.grey600 : AppColors.grey400,
+                size: 20,
+              ),
+            ],
           ),
-        ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAuthorResultCard(
+    BuildContext context,
+    dynamic item,
+    bool isDarkMode,
+  ) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      decoration: BoxDecoration(
+        color: isDarkMode ? AppColors.grey900 : Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: isDarkMode ? AppColors.grey800 : AppColors.grey300,
+          width: 1,
+        ),
+      ),
+      child: InkWell(
+        onTap: () {
+          context.push(
+           "/ai-mode/search-results/text-chapters",
+            extra: {'textId': item.id},
+          );
+        },
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  item.title,
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    color:
+                        isDarkMode
+                            ? AppColors.surfaceWhite
+                            : AppColors.textPrimary,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Icon(
+                Icons.chevron_right,
+                color: isDarkMode ? AppColors.grey600 : AppColors.grey400,
+                size: 20,
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

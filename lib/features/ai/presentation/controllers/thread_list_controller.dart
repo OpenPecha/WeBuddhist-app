@@ -153,7 +153,7 @@ class ThreadListController extends StateNotifier<ThreadListState> {
       final skip = state.threads.length;
       _logger.info('Loading more threads (skip: $skip)');
 
-      final response = await _repository.getThreads(skip: skip, limit: 10);
+      final response = await _repository.getThreads(skip: skip, limit: 50);
 
       state = state.copyWith(
         threads: [...state.threads, ...response.data],
@@ -177,7 +177,7 @@ class ThreadListController extends StateNotifier<ThreadListState> {
     state = state.copyWith(isLoading: true, error: null);
 
     try {
-      final response = await _repository.getThreads(skip: 0, limit: 10);
+      final response = await _repository.getThreads(skip: 0, limit: 50);
 
       state = state.copyWith(
         threads: response.data,

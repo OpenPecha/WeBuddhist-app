@@ -152,3 +152,80 @@ final multilingualSearchProvider = FutureProvider.family((
       .multilingualSearchRepository(query: params.query, textId: params.textId);
   return result;
 });
+
+class TitleSearchParams {
+  final String? title;
+  final String? author;
+  final int limit;
+  final int offset;
+
+  const TitleSearchParams({
+    this.title,
+    this.author,
+    this.limit = 20,
+    this.offset = 0,
+  });
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is TitleSearchParams &&
+          runtimeType == other.runtimeType &&
+          title == other.title &&
+          author == other.author &&
+          limit == other.limit &&
+          offset == other.offset;
+
+  @override
+  int get hashCode =>
+      title.hashCode ^ author.hashCode ^ limit.hashCode ^ offset.hashCode;
+}
+
+final titleSearchProvider = FutureProvider.family((
+  ref,
+  TitleSearchParams params,
+) {
+  final result = ref.watch(textsRepositoryProvider).titleSearchRepository(
+        title: params.title,
+        author: params.author,
+        limit: params.limit,
+        offset: params.offset,
+      );
+  return result;
+});
+
+class AuthorSearchParams {
+  final String? author;
+  final int limit;
+  final int offset;
+
+  const AuthorSearchParams({
+    this.author,
+    this.limit = 20,
+    this.offset = 0,
+  });
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is AuthorSearchParams &&
+          runtimeType == other.runtimeType &&
+          author == other.author &&
+          limit == other.limit &&
+          offset == other.offset;
+
+  @override
+  int get hashCode => author.hashCode ^ limit.hashCode ^ offset.hashCode;
+}
+
+final authorSearchProvider = FutureProvider.family((
+  ref,
+  AuthorSearchParams params,
+) {
+  final result = ref.watch(textsRepositoryProvider).authorSearchRepository(
+        author: params.author,
+        limit: params.limit,
+        offset: params.offset,
+      );
+  return result;
+});
