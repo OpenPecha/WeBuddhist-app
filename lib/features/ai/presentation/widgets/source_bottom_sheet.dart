@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/features/ai/models/chat_message.dart';
+import 'package:flutter_pecha/features/ai/data/providers/segment_url_resolver_provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
-class SourceBottomSheet extends StatelessWidget {
+class SourceBottomSheet extends ConsumerStatefulWidget {
   final SearchResult source;
   final int citationNumber;
 
@@ -12,6 +15,7 @@ class SourceBottomSheet extends StatelessWidget {
     required this.citationNumber,
   });
 
+  /// Static method to show the bottom sheet
   static void show(
     BuildContext context,
     SearchResult source,
@@ -34,6 +38,67 @@ class SourceBottomSheet extends StatelessWidget {
       // ignore: use_build_context_synchronously
       FocusScope.of(context).unfocus();
     });
+  }
+
+  @override
+  ConsumerState<SourceBottomSheet> createState() => _SourceBottomSheetState();
+}
+
+class _SourceBottomSheetState extends ConsumerState<SourceBottomSheet> {
+  bool _isLoading = false;
+
+  /// Handle source click - resolve URL and navigate
+  Future<void> _handleNavigateToChapter() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      // Get the repository
+      final repository = ref.read(segmentUrlResolverRepositoryProvider);
+
+      // Call API to resolve segment URL
+      final result = await repository.resolveSegmentUrl(widget.source.id);
+
+      // Check if widget is still mounted before navigation
+      if (!mounted) return;
+
+      // Close the bottom sheet first
+      Navigator.of(context).pop();
+
+      // Navigate to chapters screen
+      context.push(
+        '/ai-mode/search-results/text-chapters',
+        extra: {'textId': result['textId'], 'segmentId': result['segmentId']},
+      );
+    } catch (e) {
+      // Show error dialog if API fails
+      if (!mounted) return;
+
+      showDialog(
+        context: context,
+        builder:
+            (context) => AlertDialog(
+              title: const Text('Text Not Found'),
+              content: Text(
+                'Could not find the text for "${widget.source.title}".\n\nPlease try another source.',
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: const Text('OK'),
+                ),
+              ],
+            ),
+      );
+    } finally {
+      // Clear loading state
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
   }
 
   @override
@@ -69,48 +134,63 @@ class SourceBottomSheet extends StatelessWidget {
 
               const SizedBox(height: 12),
 
-              // Content
+              // Content - Make entire area clickable
               Expanded(
-                child: SingleChildScrollView(
-                  controller: scrollController,
-                  padding: const EdgeInsets.all(20),
-                  child: ConstrainedBox(
-                    constraints: BoxConstraints(
-                      minHeight: MediaQuery.of(context).size.height * 0.3,
-                      minWidth: double.infinity,
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Title
-                        Text(
-                          source.title,
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w500,
-                            color:
-                                isDarkMode
-                                    ? AppColors.textPrimaryDark
-                                    : AppColors.textPrimary,
-                            height: 1.4,
+                child: Stack(
+                  children: [
+                    InkWell(
+                      onTap: _isLoading ? null : _handleNavigateToChapter,
+                      child: SingleChildScrollView(
+                        controller: scrollController,
+                        padding: const EdgeInsets.all(20),
+                        child: ConstrainedBox(
+                          constraints: BoxConstraints(
+                            minHeight: MediaQuery.of(context).size.height * 0.3,
+                            minWidth: double.infinity,
                           ),
-                        ),
-                        const SizedBox(height: 16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // Title
+                              Text(
+                                widget.source.title,
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w500,
+                                  color:
+                                      isDarkMode
+                                          ? AppColors.textPrimaryDark
+                                          : AppColors.textPrimary,
+                                  height: 1.4,
+                                ),
+                              ),
+                              const SizedBox(height: 16),
 
-                        Text(
-                          source.text,
-                          style: TextStyle(
-                            fontSize: 16,
-                            height: 1.6,
-                            color:
-                                isDarkMode
-                                    ? AppColors.textSecondaryDark
-                                    : AppColors.textSecondary,
+                              Text(
+                                widget.source.text,
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  height: 1.6,
+                                  color:
+                                      isDarkMode
+                                          ? AppColors.textSecondaryDark
+                                          : AppColors.textSecondary,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                      ],
+                      ),
                     ),
-                  ),
+
+                    // Loading overlay
+                    if (_isLoading)
+                      Container(
+                        color: (isDarkMode ? Colors.black : Colors.white)
+                            .withOpacity(0.7),
+                        child: const Center(child: CircularProgressIndicator()),
+                      ),
+                  ],
                 ),
               ),
             ],

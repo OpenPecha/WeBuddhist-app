@@ -47,8 +47,6 @@ import 'package:flutter_pecha/features/auth/application/auth_notifier.dart';
 import 'package:story_view/story_view.dart';
 import 'package:flutter_story_presenter/flutter_story_presenter.dart' as fsp;
 import 'route_config.dart';
-import 'package:flutter_pecha/core/config/app_feature_flags.dart';
-import 'package:flutter_pecha/features/coming_soon/presentation/coming_soon_screen.dart';
 import 'package:flutter_pecha/features/onboarding/data/providers/onboarding_datasource_providers.dart';
 
 final _logger = AppLogger('GoRouter');
@@ -58,18 +56,11 @@ final goRouterProvider = Provider<GoRouter>((ref) {
   final onboardingRepo = ref.watch(onboardingRepositoryProvider);
 
   return GoRouter(
-    initialLocation:
-        AppFeatureFlags.kComingSoonMode
-            ? RouteConfig.comingSoon
-            : RouteConfig.home,
+    initialLocation: RouteConfig.home,
     refreshListenable: GoRouterRefreshStream(
       ref.watch(authProvider.notifier).stream,
     ),
     routes: [
-      GoRoute(
-        path: RouteConfig.comingSoon,
-        builder: (context, state) => const ComingSoonScreen(),
-      ),
       GoRoute(
         path: RouteConfig.onboarding,
         builder: (context, state) => const OnboardingWrapper(),
@@ -729,15 +720,6 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       ),
     ],
     redirect: (context, state) async {
-      // Coming Soon mode: redirect everything to coming-soon page
-      if (AppFeatureFlags.kComingSoonMode) {
-        final path = state.fullPath ?? RouteConfig.comingSoon;
-        if (path != RouteConfig.comingSoon) {
-          return RouteConfig.comingSoon;
-        }
-        return null;
-      }
-
       final isLoading = authState.isLoading;
       final isLoggedIn = authState.isLoggedIn;
       final isGuest = authState.isGuest;

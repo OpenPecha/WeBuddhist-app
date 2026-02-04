@@ -4,6 +4,7 @@ import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/features/texts/data/datasource/text_remote_datasource.dart';
 import 'package:flutter_pecha/features/texts/models/search/multilingual_search_response.dart';
 import 'package:flutter_pecha/features/texts/models/search/search_response.dart';
+import 'package:flutter_pecha/features/texts/models/search/title_search_response.dart';
 import 'package:flutter_pecha/features/texts/models/text/commentary_text_response.dart';
 import 'package:flutter_pecha/features/texts/models/text/detail_response.dart';
 import 'package:flutter_pecha/features/texts/models/text/reader_response.dart';
@@ -571,6 +572,34 @@ class TextsRepository {
       query: query,
       language: language,
       textId: textId,
+    );
+    return result;
+  }
+
+  Future<TitleSearchResponse> titleSearchRepository({
+    String? title,
+    String? author,
+    int limit = 20,
+    int offset = 0,
+  }) async {
+    final result = await remoteDatasource.titleSearch(
+      title: title,
+      author: author,
+      limit: limit,
+      offset: offset,
+    );
+    return result;
+  }
+
+  Future<TitleSearchResponse> authorSearchRepository({
+    String? author,
+    int limit = 20,
+    int offset = 0,
+  }) async {
+    final result = await remoteDatasource.authorSearch(
+      author: author,
+      limit: limit,
+      offset: offset,
     );
     return result;
   }
