@@ -72,13 +72,16 @@ class _SelectSessionScreenState extends ConsumerState<SelectSessionScreen>
           ),
           unselectedLabelStyle: context.languageTextStyle(
             languageCode,
-            fontWeight: FontWeight.bold,
+            fontWeight: FontWeight.normal,
           ),
-          labelColor: Theme.of(context).colorScheme.secondary,
-          unselectedLabelColor:
+          labelColor:
               Theme.of(context).brightness == Brightness.dark
                   ? Colors.white
                   : Colors.black,
+          unselectedLabelColor:
+              Theme.of(context).brightness == Brightness.dark
+                  ? Colors.white.withValues(alpha: 0.5)
+                  : Colors.black.withValues(alpha: 0.5),
         ),
       ),
       body: TabBarView(

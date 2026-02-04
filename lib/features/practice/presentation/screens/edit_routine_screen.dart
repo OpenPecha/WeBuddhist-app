@@ -338,9 +338,8 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
   }
 
   void _deleteBlock(int index) {
-    if (_blocks.length > 1) {
-      setState(() => _blocks.removeAt(index));
-    }
+    // Confirmation dialog is already handled in RoutineTimeBlock._confirmDeleteBlock
+    setState(() => _blocks.removeAt(index));
   }
 
   void _addBlock() {
@@ -402,72 +401,79 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
     final localizations = AppLocalizations.of(context)!;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return Scaffold(
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 16),
-              _DoneButton(
-                onTap: _saveAndPop,
-                isDark: isDark,
-                label: localizations.done,
-              ),
-              const SizedBox(height: 8),
-              Text(
-                localizations.routine_edit_title,
-                style: const TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
+    return PopScope(
+      canPop: false,
+      child: Scaffold(
+        body: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 16),
+                _DoneButton(
+                  onTap: _saveAndPop,
+                  isDark: isDark,
+                  label: localizations.done,
                 ),
-              ),
-              const SizedBox(height: 12),
-              const Divider(height: 1),
-              const SizedBox(height: 20),
-              Expanded(
-                child: ListView.separated(
-                  itemCount:
-                      _isLastBlockEmpty
-                          ? _blocks.length
-                          : _blocks.length + 1, // +1 for add block button
-                  separatorBuilder: (_, index) {
-                    final isLastItem =
+                const SizedBox(height: 8),
+                Text(
+                  localizations.routine_edit_title,
+                  style: const TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                const Divider(height: 1),
+                const SizedBox(height: 20),
+                Expanded(
+                  child: ListView.separated(
+                    itemCount:
                         _isLastBlockEmpty
-                            ? index == _blocks.length - 1
-                            : index == _blocks.length - 1;
-                    if (isLastItem) {
-                      return const SizedBox(height: 16);
-                    }
-                    return const Padding(
-                      padding: EdgeInsets.symmetric(vertical: 16),
-                      child: Divider(height: 1),
-                    );
-                  },
-                  itemBuilder: (context, index) {
-                    // Show add block button only if last block is not empty
-                    if (!_isLastBlockEmpty && index == _blocks.length) {
-                      return _AddBlockButton(onTap: _addBlock, isDark: isDark);
-                    }
-                    final block = _blocks[index];
-                    return RoutineTimeBlock(
-                      time: block.time,
-                      notificationEnabled: block.notificationEnabled,
-                      items: block.items,
-                      onTimeChanged: () => _pickTime(index),
-                      onNotificationToggle: () => _toggleNotification(index),
-                      onDelete: () => _deleteBlock(index),
-                      onAddSession: () => _navigateToSelectSession(index),
-                      onReorderItems:
-                          (oldIdx, newIdx) =>
-                              _onReorderItems(index, oldIdx, newIdx),
-                      onDeleteItem: (itemIdx) => _onDeleteItem(index, itemIdx),
-                    );
-                  },
+                            ? _blocks.length
+                            : _blocks.length + 1, // +1 for add block button
+                    separatorBuilder: (_, index) {
+                      final isLastItem =
+                          _isLastBlockEmpty
+                              ? index == _blocks.length - 1
+                              : index == _blocks.length - 1;
+                      if (isLastItem) {
+                        return const SizedBox(height: 16);
+                      }
+                      return const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 16),
+                        child: Divider(height: 1),
+                      );
+                    },
+                    itemBuilder: (context, index) {
+                      // Show add block button only if last block is not empty
+                      if (!_isLastBlockEmpty && index == _blocks.length) {
+                        return _AddBlockButton(
+                          onTap: _addBlock,
+                          isDark: isDark,
+                        );
+                      }
+                      final block = _blocks[index];
+                      return RoutineTimeBlock(
+                        time: block.time,
+                        notificationEnabled: block.notificationEnabled,
+                        items: block.items,
+                        onTimeChanged: () => _pickTime(index),
+                        onNotificationToggle: () => _toggleNotification(index),
+                        onDelete: () => _deleteBlock(index),
+                        onAddSession: () => _navigateToSelectSession(index),
+                        onReorderItems:
+                            (oldIdx, newIdx) =>
+                                _onReorderItems(index, oldIdx, newIdx),
+                        onDeleteItem:
+                            (itemIdx) => _onDeleteItem(index, itemIdx),
+                      );
+                    },
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
