@@ -19,34 +19,33 @@ class RoutineActionButton extends StatelessWidget {
 
     return GestureDetector(
       onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-        decoration: BoxDecoration(
-          color: isDark ? AppColors.surfaceVariantDark : AppColors.grey100,
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Row(
-          children: [
-            Icon(
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+            decoration: BoxDecoration(
+              color: isDark ? AppColors.surfaceVariantDark : AppColors.grey100,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(
               icon,
               size: 18,
               color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimary,
             ),
-            const SizedBox(width: 10),
-            Flexible(
-              child: Text(
-                label,
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  color: isDark
-                      ? AppColors.textPrimaryDark
-                      : AppColors.textPrimary,
-                ),
+          ),
+          const SizedBox(width: 10),
+          Flexible(
+            child: Text(
+              label,
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                color:
+                    isDark ? AppColors.textPrimaryDark : AppColors.textPrimary,
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

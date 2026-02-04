@@ -2,14 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/features/notifications/services/notification_service.dart';
-import 'package:flutter_pecha/features/plans/models/plans_model.dart';
 import 'package:flutter_pecha/features/practice/data/models/routine_model.dart';
+import 'package:flutter_pecha/features/practice/data/models/session_selection.dart';
 import 'package:flutter_pecha/features/practice/data/providers/routine_provider.dart';
 import 'package:flutter_pecha/features/practice/data/utils/routine_time_utils.dart';
-import 'package:flutter_pecha/features/practice/presentation/screens/select_plan_screen.dart';
-import 'package:flutter_pecha/features/practice/presentation/screens/select_recitation_screen.dart';
+import 'package:flutter_pecha/features/practice/presentation/screens/select_session_screen.dart';
 import 'package:flutter_pecha/features/practice/presentation/widgets/routine_time_block.dart';
-import 'package:flutter_pecha/features/recitation/data/models/recitation_model.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:uuid/uuid.dart';
@@ -41,6 +39,13 @@ class EditRoutineScreen extends ConsumerStatefulWidget {
 class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
   late List<_EditableBlock> _blocks;
 
+  /// Check if the last block in the list is empty (has no items)
+  bool get _isLastBlockEmpty =>
+      _blocks.isNotEmpty && _blocks.last.items.isEmpty;
+
+  /// Check if there are any empty blocks
+  bool get _hasEmptyBlocks => _blocks.any((b) => b.items.isEmpty);
+
   @override
   void initState() {
     super.initState();
@@ -68,20 +73,89 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
   }
 
   Future<void> _saveAndPop() async {
+    // If there are empty blocks, show validation dialog
+    if (_hasEmptyBlocks) {
+      final shouldDelete = await _showEmptyBlockDialog();
+      if (!mounted) return;
+
+      if (shouldDelete == true) {
+        // Remove empty blocks from state
+        setState(() {
+          _blocks.removeWhere((b) => b.items.isEmpty);
+        });
+
+        // If all blocks were empty, save empty list and pop
+        if (_blocks.isEmpty) {
+          await ref.read(routineProvider.notifier).saveRoutine([]);
+          if (mounted) Navigator.of(context).pop();
+          return;
+        }
+      } else {
+        // User chose to add items, don't save yet
+        return;
+      }
+    }
+
+    // Save non-empty blocks
     final blocks =
         _blocks
             .map(
               (b) => RoutineBlock(
                 id: b.id,
                 time: b.time,
-                notificationEnabled:
-                    b.notificationEnabled && b.items.isNotEmpty,
+                notificationEnabled: b.notificationEnabled,
                 items: b.items,
               ),
             )
             .toList();
+
     await ref.read(routineProvider.notifier).saveRoutine(blocks);
     if (mounted) Navigator.of(context).pop();
+  }
+
+  Future<bool?> _showEmptyBlockDialog() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final emptyCount = _blocks.where((b) => b.items.isEmpty).length;
+    final hasMultipleEmpty = emptyCount > 1;
+
+    return showDialog<bool>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: Text(
+            hasMultipleEmpty ? 'Empty Time Blocks' : 'Empty Time Block',
+          ),
+          content: Text(
+            hasMultipleEmpty
+                ? 'You have $emptyCount time blocks without any items. Would you like to add items or delete these blocks?'
+                : 'This time block has no items. Would you like to add an item or delete the block?',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(false),
+              child: Text(
+                'Add Items',
+                style: TextStyle(
+                  color:
+                      isDark
+                          ? AppColors.textPrimaryDark
+                          : AppColors.textPrimary,
+                ),
+              ),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.of(dialogContext).pop(true),
+              style: FilledButton.styleFrom(
+                backgroundColor: Theme.of(dialogContext).colorScheme.error,
+              ),
+              child: Text(
+                hasMultipleEmpty ? 'Delete Empty Blocks' : 'Delete Block',
+              ),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   Future<void> _pickTime(int index) async {
@@ -293,37 +367,32 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
     });
   }
 
-  Future<void> _navigateToSelectPlan(int blockIndex) async {
-    final result = await Navigator.of(context).push<PlansModel>(
-      MaterialPageRoute(builder: (_) => const SelectPlanScreen()),
+  Future<void> _navigateToSelectSession(int blockIndex) async {
+    final result = await Navigator.of(context).push<SessionSelection>(
+      MaterialPageRoute(builder: (_) => const SelectSessionScreen()),
     );
-    if (result != null && mounted) {
-      setState(() {
-        _blocks[blockIndex].items.add(
-          RoutineItem(
-            id: result.id,
-            title: result.title,
-            imageUrl: result.imageThumbnail,
-            type: RoutineItemType.plan,
-          ),
-        );
-      });
-    }
-  }
 
-  Future<void> _navigateToSelectRecitation(int blockIndex) async {
-    final result = await Navigator.of(context).push<RecitationModel>(
-      MaterialPageRoute(builder: (_) => const SelectRecitationScreen()),
-    );
     if (result != null && mounted) {
       setState(() {
-        _blocks[blockIndex].items.add(
-          RoutineItem(
-            id: result.textId,
-            title: result.title,
-            type: RoutineItemType.recitation,
-          ),
-        );
+        switch (result) {
+          case PlanSessionSelection(:final plan):
+            _blocks[blockIndex].items.add(
+              RoutineItem(
+                id: plan.id,
+                title: plan.title,
+                imageUrl: plan.imageThumbnail,
+                type: RoutineItemType.plan,
+              ),
+            );
+          case RecitationSessionSelection(:final recitation):
+            _blocks[blockIndex].items.add(
+              RoutineItem(
+                id: recitation.textId,
+                title: recitation.title,
+                type: RoutineItemType.recitation,
+              ),
+            );
+        }
       });
     }
   }
@@ -359,9 +428,16 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
               const SizedBox(height: 20),
               Expanded(
                 child: ListView.separated(
-                  itemCount: _blocks.length + 1, // +1 for add block button
+                  itemCount:
+                      _isLastBlockEmpty
+                          ? _blocks.length
+                          : _blocks.length + 1, // +1 for add block button
                   separatorBuilder: (_, index) {
-                    if (index == _blocks.length - 1) {
+                    final isLastItem =
+                        _isLastBlockEmpty
+                            ? index == _blocks.length - 1
+                            : index == _blocks.length - 1;
+                    if (isLastItem) {
                       return const SizedBox(height: 16);
                     }
                     return const Padding(
@@ -370,7 +446,8 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
                     );
                   },
                   itemBuilder: (context, index) {
-                    if (index == _blocks.length) {
+                    // Show add block button only if last block is not empty
+                    if (!_isLastBlockEmpty && index == _blocks.length) {
                       return _AddBlockButton(onTap: _addBlock, isDark: isDark);
                     }
                     final block = _blocks[index];
@@ -381,8 +458,7 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
                       onTimeChanged: () => _pickTime(index),
                       onNotificationToggle: () => _toggleNotification(index),
                       onDelete: () => _deleteBlock(index),
-                      onAddPlan: () => _navigateToSelectPlan(index),
-                      onAddRecitation: () => _navigateToSelectRecitation(index),
+                      onAddSession: () => _navigateToSelectSession(index),
                       onReorderItems:
                           (oldIdx, newIdx) =>
                               _onReorderItems(index, oldIdx, newIdx),

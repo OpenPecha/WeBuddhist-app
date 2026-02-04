@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/features/practice/data/models/routine_model.dart';
-import 'package:flutter_pecha/features/practice/presentation/widgets/routine_action_button.dart';
 import 'package:flutter_pecha/features/practice/presentation/widgets/routine_item_card.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
@@ -13,8 +12,7 @@ class RoutineTimeBlock extends StatelessWidget {
   final VoidCallback onTimeChanged;
   final VoidCallback onNotificationToggle;
   final VoidCallback onDelete;
-  final VoidCallback onAddPlan;
-  final VoidCallback onAddRecitation;
+  final VoidCallback onAddSession;
   final void Function(int oldIndex, int newIndex) onReorderItems;
   final void Function(int itemIndex) onDeleteItem;
 
@@ -26,8 +24,7 @@ class RoutineTimeBlock extends StatelessWidget {
     required this.onTimeChanged,
     required this.onNotificationToggle,
     required this.onDelete,
-    required this.onAddPlan,
-    required this.onAddRecitation,
+    required this.onAddSession,
     required this.onReorderItems,
     required this.onDeleteItem,
   });
@@ -162,26 +159,12 @@ class RoutineTimeBlock extends StatelessWidget {
             },
           ),
         ],
-        // Action buttons (below items)
+        // Add Session button (below items)
         const SizedBox(height: 16),
-        Row(
-          children: [
-            Expanded(
-              child: RoutineActionButton(
-                icon: PhosphorIconsRegular.plus,
-                label: localizations.routine_add_plan,
-                onTap: onAddPlan,
-              ),
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: RoutineActionButton(
-                icon: PhosphorIconsRegular.plus,
-                label: localizations.routine_add_recitation,
-                onTap: onAddRecitation,
-              ),
-            ),
-          ],
+        _AddSessionButton(
+          label: localizations.routine_add_session,
+          onTap: onAddSession,
+          isDark: isDark,
         ),
       ],
     );
@@ -273,6 +256,69 @@ class _DeleteBlockButton extends StatelessWidget {
       child: Text(
         label,
         style: TextStyle(fontSize: 14, color: Colors.red.shade400),
+      ),
+    );
+  }
+}
+
+/// Add Session button matching the design - square icon placeholder with + icon,
+/// "Add Session" text, whole area clickable.
+class _AddSessionButton extends StatelessWidget {
+  final String label;
+  final VoidCallback onTap;
+  final bool isDark;
+
+  const _AddSessionButton({
+    required this.label,
+    required this.onTap,
+    required this.isDark,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: const EdgeInsets.only(top: 8, bottom: 8, left: 32),
+          child: Row(
+            children: [
+              Container(
+                width: 60,
+                height: 60,
+                decoration: BoxDecoration(
+                  color:
+                      isDark ? AppColors.surfaceVariantDark : AppColors.grey100,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(
+                  PhosphorIconsRegular.plus,
+                  size: 24,
+                  color:
+                      isDark
+                          ? AppColors.textPrimaryDark
+                          : AppColors.textPrimary,
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color:
+                        isDark
+                            ? AppColors.textPrimaryDark
+                            : AppColors.textPrimary,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
