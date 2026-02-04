@@ -237,6 +237,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get start_plan => '開始計畫';
 
   @override
+  String get start_reading => '開始閱讀';
+
+  @override
   String get continue_plan => '繼續計劃';
 
   @override
@@ -529,4 +532,62 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get comingSoonHeadline => 'Coming Soon';
+
+  @override
+  String get routine_title => '日常修持';
+
+  @override
+  String get routine_empty_title => '日常修持';
+
+  @override
+  String get routine_edit => '編輯';
+
+  @override
+  String get routine_empty_description =>
+      '建立您的日常修持，保持祈禱生活的穩定。選擇時間和課程，我們會提醒您祈禱！';
+
+  @override
+  String get routine_build => '建立日常修持';
+
+  @override
+  String get routine_session => '課程';
+
+  @override
+  String get routine_time => '時間';
+
+  @override
+  String get routine_notification => '通知';
+
+  @override
+  String get routine_save => '保存日常修持';
+
+  @override
+  String get routine_morning => '早晨';
+
+  @override
+  String get routine_afternoon => '下午';
+
+  @override
+  String get routine_evening => '晚上';
+
+  @override
+  String get routine_add_session => '添加課程';
+
+  @override
+  String get routine_select_time => '選擇時間';
+
+  @override
+  String get routine_remind_me => '提醒我';
+
+  @override
+  String get routine_edit_title => '編輯日常修持';
+
+  @override
+  String get routine_delete_block => '刪除區塊';
+
+  @override
+  String get routine_add_plan => '添加計劃';
+
+  @override
+  String get routine_add_recitation => '添加持誦';
 }

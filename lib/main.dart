@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_pecha/core/cache/cache_service.dart';
+import 'package:flutter_pecha/core/config/app_feature_flags.dart';
 import 'package:flutter_pecha/core/config/router/app_router.dart';
 import 'package:flutter_pecha/core/network/connectivity_service.dart';
 import 'package:flutter_pecha/core/l10n/l10n.dart';
@@ -7,6 +9,8 @@ import 'package:flutter_pecha/core/services/service_providers.dart';
 import 'package:flutter_pecha/core/theme/theme_notifier.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/features/notifications/services/notification_service.dart';
+import 'package:flutter_pecha/features/practice/data/datasources/routine_local_storage.dart';
+import 'package:flutter_pecha/features/practice/data/providers/routine_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
@@ -56,8 +60,34 @@ void main() async {
     // Continue app initialization even if connectivity check fails
   }
 
+  // Cancel any previously scheduled notifications in Coming Soon mode
+  if (AppFeatureFlags.kComingSoonMode) {
+    try {
+      final notificationsPlugin = FlutterLocalNotificationsPlugin();
+      await notificationsPlugin.cancelAll();
+      _logger.info(
+        'Cancelled all scheduled notifications for Coming Soon mode',
+      );
+    } catch (e) {
+      _logger.warning('Error cancelling notifications: $e');
+    }
+  }
+
+  // Initialize routine local storage (persistent user data, not cache)
+  final routineStorage = RoutineLocalStorage();
+  try {
+    await routineStorage.initialize();
+    _logger.info('Routine local storage initialized');
+  } catch (e) {
+    _logger.warning('Error initializing routine local storage: $e');
+  }
+
   // Create provider container for notification service access
-  final container = ProviderContainer();
+  final container = ProviderContainer(
+    overrides: [
+      routineLocalStorageProvider.overrideWithValue(routineStorage),
+    ],
+  );
 
   // Set the container reference for notifications
   NotificationService.setContainer(container);

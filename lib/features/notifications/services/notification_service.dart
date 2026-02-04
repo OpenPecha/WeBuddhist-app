@@ -40,20 +40,48 @@ class NotificationService {
 
   bool get isInitialized => _isInitialized;
 
+  /// Map legacy timezone IDs (e.g. from Android) to IANA names used by the timezone package.
+  /// Default timezone data (latest.dart) may not include all legacy names.
+  static const Map<String, String> _legacyTimezoneToIana = {
+    'Asia/Calcutta': 'Asia/Kolkata',
+    'US/Eastern': 'America/New_York',
+    'US/Central': 'America/Chicago',
+    'US/Mountain': 'America/Denver',
+    'US/Pacific': 'America/Los_Angeles',
+    'GMT': 'UTC',
+  };
+
   /// Initialize without requesting permissions (for early app initialization)
   Future<void> initializeWithoutPermissions() async {
     if (_isInitialized) return; // prevent re-initialization
 
-    // initialize timezone
+    // Initialize timezone: use device local time so scheduled notifications
+    // (e.g. "7:10 AM") are in the user's local time, not UTC.
     tz.initializeTimeZones();
     final currentTimezone = await FlutterTimezone.getLocalTimezone();
+    bool localSet = false;
     try {
       tz.setLocalLocation(tz.getLocation(currentTimezone));
-    } catch (e) {
-      // Some devices return legacy timezone names (e.g. "Asia/Calcutta")
-      // that the timezone package doesn't recognize. Fall back to UTC.
-      _logger.warning('Unknown timezone "$currentTimezone", falling back to UTC');
-      tz.setLocalLocation(tz.getLocation('UTC'));
+      localSet = true;
+    } catch (_) {
+      final ianaName = _legacyTimezoneToIana[currentTimezone];
+      if (ianaName != null) {
+        try {
+          tz.setLocalLocation(tz.getLocation(ianaName));
+          _logger.info(
+            'Mapped legacy timezone "$currentTimezone" to "$ianaName"',
+          );
+          localSet = true;
+        } catch (_) {
+          // fall through to UTC fallback
+        }
+      }
+      if (!localSet) {
+        _logger.warning(
+          'Unknown timezone "$currentTimezone", falling back to UTC',
+        );
+        tz.setLocalLocation(tz.getLocation('UTC'));
+      }
     }
 
     // Android initialization - do NOT request permissions
@@ -120,11 +148,23 @@ class NotificationService {
             enableVibration: true,
           );
 
+      // Routine block reminder channel
+      const AndroidNotificationChannel routineBlockChannel =
+          AndroidNotificationChannel(
+            routineBlockNotificationChannelId,
+            routineBlockNotificationChannelName,
+            description: routineBlockNotificationChannelDescription,
+            importance: Importance.high,
+            playSound: true,
+            enableVibration: true,
+          );
+
       // Create all channels
       await androidImplementation.createNotificationChannel(
         dailyPracticeChannel,
       );
       await androidImplementation.createNotificationChannel(recitationChannel);
+      await androidImplementation.createNotificationChannel(routineBlockChannel);
 
       _logger.info('Android notification channels created');
     }
@@ -199,14 +239,18 @@ class NotificationService {
     // Navigate based on notification ID
     if (_router != null && _container != null) {
       // Check notification ID to determine which tab to open
-      if (response.id == recitationNotificationId) {
+      if (response.id != null && response.id! >= 100) {
+        // Routine block notification — navigate to practice screen
+        _router!.go('/practice');
+      } else if (response.id == recitationNotificationId) {
         // Recitation notification - go to recitation tab (index 1, was 2 before home hidden)
         _container!.read(bottomNavIndexProvider.notifier).state = 1;
+        _router!.go('/home');
       } else {
         // Daily practice or default - go to texts tab (index 0, home is hidden)
         _container!.read(bottomNavIndexProvider.notifier).state = 0;
+        _router!.go('/home');
       }
-      _router!.go('/home');
     }
   }
 
@@ -332,3 +376,9 @@ const recitationNotificationChannelName = 'Recitation Reminder';
 const recitationNotificationChannelDescription =
     'Notification for recitation reminders';
 const recitationNotificationId = 2;
+
+// Routine block notification constants
+const routineBlockNotificationChannelId = 'routine_block_reminder';
+const routineBlockNotificationChannelName = 'Routine Block Reminder';
+const routineBlockNotificationChannelDescription =
+    'Daily notifications for routine practice blocks';

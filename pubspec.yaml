@@ -122,6 +122,9 @@ dependencies:
   skeletonizer: ^2.1.2
   phosphor_flutter: ^2.1.0
 
+  # UUID generation
+  uuid: ^4.5.1
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

@@ -240,6 +240,9 @@ class AppLocalizationsBo extends AppLocalizations {
   String get start_plan => 'ཉམས་ལེན་འགོ་འཛུགས།';
 
   @override
+  String get start_reading => 'ཀློག་པ་འགོ་འཛུགས།';
+
+  @override
   String get continue_plan => 'ཉམས་ལེན་མུ་མཐུད་';
 
   @override
@@ -540,4 +543,62 @@ class AppLocalizationsBo extends AppLocalizations {
 
   @override
   String get comingSoonHeadline => 'Coming Soon';
+
+  @override
+  String get routine_title => 'ཉམས་ལེན་གོམས་གཤིས།';
+
+  @override
+  String get routine_empty_title => 'ཉམས་ལེན་གོམས་གཤིས།';
+
+  @override
+  String get routine_edit => 'བཟོ་བཅོས།';
+
+  @override
+  String get routine_empty_description =>
+      'ཉམས་ལེན་གོམས་གཤིས་བཟོས་ནས་སྨོན་ལམ་གྱི་འཚོ་བར་རྒྱུན་མཐུད་གནས་རོགས། དུས་ཚོད་དང་ཉམས་ལེན་འདེམས་དང་ང་ཚོས་ཁྱེད་ལ་དྲན་སྐུལ་བྱེད་ཀྱི་ཡིན།';
+
+  @override
+  String get routine_build => 'ཉམས་ལེན་གོམས་གཤིས་བཟོས།';
+
+  @override
+  String get routine_session => 'ཉམས་ལེན།';
+
+  @override
+  String get routine_time => 'དུས་ཚོད།';
+
+  @override
+  String get routine_notification => 'གསལ་བརྡ།';
+
+  @override
+  String get routine_save => 'ཉམས་ལེན་གོམས་གཤིས་ཉར་ཚགས།';
+
+  @override
+  String get routine_morning => 'སྔ་དྲོ།';
+
+  @override
+  String get routine_afternoon => 'ཉིན་གུང་།';
+
+  @override
+  String get routine_evening => 'དགོང་དྲོ།';
+
+  @override
+  String get routine_add_session => 'ཉམས་ལེན་ཁ་སྣོན།';
+
+  @override
+  String get routine_select_time => 'དུས་ཚོད་འདེམས།';
+
+  @override
+  String get routine_remind_me => 'དྲན་སྐུལ་བྱེད།';
+
+  @override
+  String get routine_edit_title => 'ཉམས་ལེན་གོམས་གཤིས་བཟོ་བཅོས།';
+
+  @override
+  String get routine_delete_block => 'སུབ།';
+
+  @override
+  String get routine_add_plan => 'ཉམས་ལེན་ཁ་སྣོན།';
+
+  @override
+  String get routine_add_recitation => 'ཞལ་འདོན་ཁ་སྣོན།';
 }

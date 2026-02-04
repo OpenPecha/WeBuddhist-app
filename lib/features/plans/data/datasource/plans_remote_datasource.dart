@@ -23,8 +23,8 @@ class PlansQueryParams {
   });
 
   /// Convert to query parameters map
-  Map<String, dynamic> toQueryParams() {
-    final params = <String, dynamic>{};
+  Map<String, String> toQueryParams() {
+    final params = <String, String>{};
 
     if (language != null) {
       params['language'] = language!;
@@ -39,11 +39,11 @@ class PlansQueryParams {
     }
 
     if (skip != null) {
-      params['skip'] = skip!;
+      params['skip'] = skip!.toString();
     }
 
     if (limit != null) {
-      params['limit'] = limit!;
+      params['limit'] = limit!.toString();
     }
 
     return params;

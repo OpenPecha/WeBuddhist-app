@@ -151,7 +151,7 @@ class _FeaturedPlanCard extends ConsumerWidget {
 
     return InkWell(
       onTap: () {
-        // TODO: Navigate to plan details
+        context.push('/practice/plans/preview', extra: {'plan': plan});
       },
       borderRadius: BorderRadius.circular(16),
       child: Container(

@@ -78,6 +78,7 @@
   "browse_plans": "ཉམས་ལེན་འཚོལ།",
   "plan_info": "ཉམས་ལེན་ངོས་སྤྲོད།",
   "start_plan": "ཉམས་ལེན་འགོ་འཛུགས།",
+  "start_reading": "ཀློག་པ་འགོ་འཛུགས།",
   "continue_plan": "ཉམས་ལེན་མུ་མཐུད་",
   "tibetan": "བོད་ཡིག",
   "sanskrit": "ལེགས་སྦྱར་སྐད།",
@@ -172,5 +173,25 @@
   "ai_confirm": "གཏན་འཁེལ།",
   "ai_delete": "བསུབ།",
 
-  "comingSoonHeadline": "Coming Soon"
+  "comingSoonHeadline": "Coming Soon",
+
+  "routine_title": "ཉམས་ལེན་གོམས་གཤིས།",
+  "routine_empty_title": "ཉམས་ལེན་གོམས་གཤིས།",
+  "routine_edit": "བཟོ་བཅོས།",
+  "routine_empty_description": "ཉམས་ལེན་གོམས་གཤིས་བཟོས་ནས་སྨོན་ལམ་གྱི་འཚོ་བར་རྒྱུན་མཐུད་གནས་རོགས། དུས་ཚོད་དང་ཉམས་ལེན་འདེམས་དང་ང་ཚོས་ཁྱེད་ལ་དྲན་སྐུལ་བྱེད་ཀྱི་ཡིན།",
+  "routine_build": "ཉམས་ལེན་གོམས་གཤིས་བཟོས།",
+  "routine_session": "ཉམས་ལེན།",
+  "routine_time": "དུས་ཚོད།",
+  "routine_notification": "གསལ་བརྡ།",
+  "routine_save": "ཉམས་ལེན་གོམས་གཤིས་ཉར་ཚགས།",
+  "routine_morning": "སྔ་དྲོ།",
+  "routine_afternoon": "ཉིན་གུང་།",
+  "routine_evening": "དགོང་དྲོ།",
+  "routine_add_session": "ཉམས་ལེན་ཁ་སྣོན།",
+  "routine_select_time": "དུས་ཚོད་འདེམས།",
+  "routine_remind_me": "དྲན་སྐུལ་བྱེད།",
+  "routine_edit_title": "ཉམས་ལེན་གོམས་གཤིས་བཟོ་བཅོས།",
+  "routine_delete_block": "སུབ།",
+  "routine_add_plan": "ཉམས་ལེན་ཁ་སྣོན།",
+  "routine_add_recitation": "ཞལ་འདོན་ཁ་སྣོན།"
 }
