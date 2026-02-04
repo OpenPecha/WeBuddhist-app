@@ -3,6 +3,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/features/texts/models/search/multilingual_search_response.dart';
 import 'package:flutter_pecha/features/texts/models/search/search_response.dart';
+import 'package:flutter_pecha/features/texts/models/search/title_search_response.dart';
 import 'package:flutter_pecha/features/texts/models/text/commentary_text_response.dart';
 import 'package:flutter_pecha/features/texts/models/text/detail_response.dart';
 import 'package:flutter_pecha/features/texts/models/text/reader_response.dart';
@@ -203,6 +204,86 @@ class TextRemoteDatasource {
       }
     } else {
       throw Exception('MultilingualSearchResponse::: Failed to search text');
+    }
+  }
+
+  // title search
+  Future<TitleSearchResponse> titleSearch({
+    String? title,
+    String? author,
+    int limit = 20,
+    int offset = 0,
+  }) async {
+    final uri = Uri.parse(
+      '${dotenv.env['BASE_API_URL']}/texts/title-search',
+    ).replace(
+      queryParameters: {
+        if (title != null && title.isNotEmpty) 'title': title,
+        if (author != null && author.isNotEmpty) 'author': author,
+        'limit': limit.toString(),
+        'offset': offset.toString(),
+      },
+    );
+
+    final response = await client.get(uri);
+
+    if (response.statusCode == 200) {
+      try {
+        final decoded = utf8.decode(response.bodyBytes);
+        final List<dynamic> jsonList = json.decode(decoded) as List<dynamic>;
+        final titleSearchResponse = TitleSearchResponse.fromJson(
+          jsonList,
+          total: jsonList.length,
+          limit: limit,
+          offset: offset,
+        );
+        return titleSearchResponse;
+      } catch (e) {
+        _logger.error('TitleSearchResponse::: Failed to search titles', e);
+        throw Exception('TitleSearchResponse::: Failed to search titles');
+      }
+    } else {
+      _logger.error('TitleSearchResponse::: Failed to search titles: ${response.statusCode}');
+      throw Exception('TitleSearchResponse::: Failed to search titles');
+    }
+  }
+
+  // author search - uses same endpoint as title search but with author parameter
+  Future<TitleSearchResponse> authorSearch({
+    String? author,
+    int limit = 20,
+    int offset = 0,
+  }) async {
+    final uri = Uri.parse(
+      '${dotenv.env['BASE_API_URL']}/texts/title-search',
+    ).replace(
+      queryParameters: {
+        if (author != null && author.isNotEmpty) 'author': author,
+        'limit': limit.toString(),
+        'offset': offset.toString(),
+      },
+    );
+
+    final response = await client.get(uri);
+
+    if (response.statusCode == 200) {
+      try {
+        final decoded = utf8.decode(response.bodyBytes);
+        final List<dynamic> jsonList = json.decode(decoded) as List<dynamic>;
+        final authorSearchResponse = TitleSearchResponse.fromJson(
+          jsonList,
+          total: jsonList.length,
+          limit: limit,
+          offset: offset,
+        );
+        return authorSearchResponse;
+      } catch (e) {
+        _logger.error('AuthorSearchResponse::: Failed to search authors', e);
+        throw Exception('AuthorSearchResponse::: Failed to search authors');
+      }
+    } else {
+      _logger.error('AuthorSearchResponse::: Failed to search authors: ${response.statusCode}');
+      throw Exception('AuthorSearchResponse::: Failed to search authors');
     }
   }
 }

@@ -14,7 +14,7 @@ class ThreadRemoteDatasource {
   ThreadRemoteDatasource(this._client);
 
   /// Get list of all threads
-  Future<ThreadListResponse> getThreads({int skip = 0, int limit = 10}) async {
+  Future<ThreadListResponse> getThreads({int skip = 0, int limit = 50}) async {
     final aiUrl = dotenv.env['AI_URL'];
     if (aiUrl == null || aiUrl.isEmpty) {
       _logger.error('AI_URL not configured in .env');

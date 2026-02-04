@@ -21,11 +21,7 @@ class ContentsTabView extends ConsumerWidget {
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
     if (searchState.isLoading) {
-      return Center(
-        child: CircularProgressIndicator(
-          color: AppColors.primary,
-        ),
-      );
+      return Center(child: CircularProgressIndicator(color: AppColors.primary));
     }
 
     if (searchState.error != null) {
@@ -75,7 +71,7 @@ class ContentsTabView extends ConsumerWidget {
     if (results == null || results.sources.isEmpty) {
       return Center(
         child: Text(
-          'No results found for "${searchState.currentQuery}"',
+          'No contents found for "${searchState.currentQuery}"',
           style: TextStyle(
             color: isDarkMode ? AppColors.grey400 : AppColors.grey600,
             fontSize: 16,
@@ -121,9 +117,9 @@ class ContentsTabView extends ConsumerWidget {
         (groupedResults[source.text.textId]!['segments']
                 as List<Map<String, String>>)
             .add({
-          'segmentId': segmentMatch.segmentId,
-          'content': segmentMatch.content,
-        });
+              'segmentId': segmentMatch.segmentId,
+              'content': segmentMatch.content,
+            });
       }
     }
 

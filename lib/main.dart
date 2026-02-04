@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_pecha/core/cache/cache_service.dart';
+import 'package:flutter_pecha/core/config/app_feature_flags.dart';
 import 'package:flutter_pecha/core/config/router/app_router.dart';
 import 'package:flutter_pecha/core/network/connectivity_service.dart';
 import 'package:flutter_pecha/core/l10n/l10n.dart';
@@ -19,8 +21,6 @@ import 'core/theme/app_theme.dart';
 import 'core/localization/material_localizations_bo.dart';
 import 'core/localization/cupertino_localizations_bo.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:flutter_pecha/core/config/app_feature_flags.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 final _logger = AppLogger('Main');
@@ -90,9 +90,7 @@ void main() async {
   );
 
   // Set the container reference for notifications
-  if (!AppFeatureFlags.kComingSoonMode) {
-    NotificationService.setContainer(container);
-  }
+  NotificationService.setContainer(container);
 
   runApp(UncontrolledProviderScope(container: container, child: const MyApp()));
 }
@@ -107,12 +105,9 @@ class MyApp extends ConsumerWidget {
     final themeMode = ref.watch(themeModeProvider);
 
     // Initialize services in background via providers
-    // Skip in Coming Soon mode - no content to play, no notifications needed
-    if (!AppFeatureFlags.kComingSoonMode) {
-      ref.watch(audioHandlerProvider);
-      ref.watch(notificationServiceProvider);
-      NotificationService.setRouter(router);
-    }
+    ref.watch(audioHandlerProvider);
+    ref.watch(notificationServiceProvider);
+    NotificationService.setRouter(router);
 
     // Add QueryClient provider wrapper
     return QueryClientProvider(

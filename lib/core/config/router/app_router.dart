@@ -14,6 +14,7 @@ import 'package:flutter_pecha/features/practice/presentation/screens/select_plan
 import 'package:flutter_pecha/features/practice/presentation/screens/select_recitation_screen.dart';
 import 'package:flutter_pecha/features/texts/presentation/screens/chapters/chapters_screen.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_pecha/features/texts/presentation/screens/chapters/chapters_screen.dart';
 
 class AppRouter {
   late final GoRouter router;
@@ -60,7 +61,21 @@ class AppRouter {
                 final query = extra?['query'] as String? ?? '';
                 return SearchResultsScreen(initialQuery: query);
               },
-            ),
+              routes: [
+                GoRoute(
+                  path: "text-chapters", // /ai-mode/search-results/text-chapters
+                  name: "text-chapters",
+                  builder: (context, state) {
+                    final extra = state.extra as Map<String, dynamic>?;
+                    final textId = extra?['textId'] as String? ?? '';
+                    final segmentId = extra?['segmentId'] as String?;
+                    return ChaptersScreen(
+                      textId: textId,
+                      segmentId: segmentId,
+                    );
+                  },
+                ),
+              ]),
           ],
         ),
 
