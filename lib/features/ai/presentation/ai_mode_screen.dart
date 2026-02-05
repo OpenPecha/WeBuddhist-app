@@ -359,7 +359,7 @@ class _AiModeScreenState extends ConsumerState<AiModeScreen> {
               Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
-                  'Hi $firstName',
+                  localizations.ai_greeting(firstName),
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w400,
@@ -421,7 +421,9 @@ class _AiModeScreenState extends ConsumerState<AiModeScreen> {
                   decoration: InputDecoration(
                     hintText:
                         _isSearchMode
-                            ? 'Search Buddhist texts...'
+                            ? AppLocalizations.of(
+                              context,
+                            )!.search_buddhist_texts
                             : AppLocalizations.of(context)!.ai_ask_question,
                     hintStyle: TextStyle(
                       color:

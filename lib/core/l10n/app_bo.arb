@@ -172,6 +172,28 @@
   "ai_delete_warning": "བྱ་བ་འདི་ཕྱིར་ལོག་བྱེད་མི་ཐུབ།",
   "ai_confirm": "གཏན་འཁེལ།",
   "ai_delete": "བསུབ།",
+  "ai_greeting": "Hi {name}",
+  "ai_text_not_found": "Text Not Found",
+  "ai_text_not_found_message": "Could not find the text for \"{title}\".\n\nPlease try another source.",
+  "ai_sources": "Sources",
+  "ai_sources_count": "{count} sources",
+
+  "search_no_results": "No results found for \"{query}\"",
+  "search_show_more": "Show More",
+  "search_contents": "Contents",
+  "search_titles": "Titles",
+  "search_all": "All",
+  "search_author": "Author",
+  "search_tab_ai_mode": "AI Mode",
+  "search_error": "Error: {message}",
+  "search_retrying": "Retrying...",
+  "search_no_titles_found": "No titles found for \"{query}\"",
+  "search_no_contents_found": "No contents found for \"{query}\"",
+  "search_no_authors_found": "No authors found for \"{query}\"",
+  "search_coming_soon": "Coming Soon",
+  "search_buddhist_texts": "Search Buddhist texts...",
+
+  "common_ok": "OK",
 
   "comingSoonHeadline": "Coming Soon",
 

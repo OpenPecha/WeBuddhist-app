@@ -504,7 +504,28 @@ class AppLocalizationsZh extends AppLocalizations {
   String get ai_delete => '刪除';
 
   @override
-  String search_no_results(Object query) {
+  String ai_greeting(String name) {
+    return 'Hi $name';
+  }
+
+  @override
+  String get ai_text_not_found => 'Text Not Found';
+
+  @override
+  String ai_text_not_found_message(String title) {
+    return 'Could not find the text for \"$title\".\n\nPlease try another source.';
+  }
+
+  @override
+  String get ai_sources => 'Sources';
+
+  @override
+  String ai_sources_count(int count) {
+    return '$count sources';
+  }
+
+  @override
+  String search_no_results(String query) {
     return 'No results found for \"$query\"';
   }
 
@@ -521,14 +542,42 @@ class AppLocalizationsZh extends AppLocalizations {
   String get search_all => 'All';
 
   @override
+  String get search_author => 'Author';
+
+  @override
+  String get search_tab_ai_mode => 'AI Mode';
+
+  @override
+  String search_error(String message) {
+    return 'Error: $message';
+  }
+
+  @override
+  String get search_retrying => 'Retrying...';
+
+  @override
+  String search_no_titles_found(String query) {
+    return 'No titles found for \"$query\"';
+  }
+
+  @override
+  String search_no_contents_found(String query) {
+    return 'No contents found for \"$query\"';
+  }
+
+  @override
+  String search_no_authors_found(String query) {
+    return 'No authors found for \"$query\"';
+  }
+
+  @override
   String get search_coming_soon => 'Coming Soon';
 
   @override
-  String get search_title_search_coming_soon =>
-      'Title search will be available soon';
+  String get search_buddhist_texts => 'Search Buddhist texts...';
 
   @override
-  String get search_buddhist_texts => 'Search Buddhist texts...';
+  String get common_ok => 'OK';
 
   @override
   String get comingSoonHeadline => 'Coming Soon';

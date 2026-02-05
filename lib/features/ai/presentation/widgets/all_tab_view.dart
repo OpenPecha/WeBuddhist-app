@@ -3,6 +3,7 @@ import 'package:flutter_pecha/features/ai/models/search_state.dart';
 import 'package:flutter_pecha/features/texts/presentation/widgets/search_result_card.dart';
 import 'package:flutter_pecha/features/texts/models/search/multilingual_source_result.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
+import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 
 class AllTabView extends StatelessWidget {
@@ -20,6 +21,7 @@ class AllTabView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final localizations = AppLocalizations.of(context)!;
 
     if (searchState.isLoading) {
       return Center(child: CircularProgressIndicator(color: AppColors.primary));
@@ -39,7 +41,7 @@ class AllTabView extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               Text(
-                'Error: ${searchState.error}',
+                localizations.search_error(searchState.error!),
                 style: TextStyle(
                   color: isDarkMode ? AppColors.grey400 : AppColors.grey600,
                   fontSize: 14,
@@ -52,7 +54,7 @@ class AllTabView extends StatelessWidget {
                 icon: Icon(
                   searchState.isLoading ? Icons.hourglass_empty : Icons.refresh,
                 ),
-                label: Text(searchState.isLoading ? 'Retrying...' : 'Retry'),
+                label: Text(searchState.isLoading ? localizations.search_retrying : localizations.ai_retry),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,
                   foregroundColor: Colors.white,
@@ -85,7 +87,7 @@ class AllTabView extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.all(24.0),
           child: Text(
-            'No results found for "${searchState.currentQuery}"',
+            localizations.search_no_results(searchState.currentQuery),
             style: TextStyle(
               color: isDarkMode ? AppColors.grey400 : AppColors.grey600,
               fontSize: 16,
@@ -115,20 +117,20 @@ class AllTabView extends StatelessWidget {
       children: [
         // Titles Section - Only show if there are results
         if (hasTitleResults) ...[
-          _buildSectionHeader(context, isDarkMode, 'Titles'),
+          _buildSectionHeader(context, isDarkMode, localizations.search_titles),
           ...topTitleResults.map(
             (item) => _buildTitleResultCard(context, item, isDarkMode),
           ),
           if (hasMoreTitles) ...[
             const SizedBox(height: 25),
-            _buildShowMoreButton(context, isDarkMode, SearchTab.titles),
+            _buildShowMoreButton(context, isDarkMode, SearchTab.titles, localizations),
           ],
           const SizedBox(height: 24),
         ],
 
         // Contents Section - Only show if there are results
         if (hasContentResults) ...[
-          _buildSectionHeader(context, isDarkMode, 'Contents'),
+          _buildSectionHeader(context, isDarkMode, localizations.search_contents),
           ...topContentResults.map(
             (source) => _buildContentResultCard(
               context,
@@ -138,20 +140,20 @@ class AllTabView extends StatelessWidget {
           ),
           if (hasMoreContent) ...[
             const SizedBox(height: 25),
-            _buildShowMoreButton(context, isDarkMode, SearchTab.contents),
+            _buildShowMoreButton(context, isDarkMode, SearchTab.contents, localizations),
           ],
           const SizedBox(height: 24),
         ],
 
         // Author Section - Only show if there are results
         if (hasAuthorResults) ...[
-          _buildSectionHeader(context, isDarkMode, 'Author'),
+          _buildSectionHeader(context, isDarkMode, localizations.search_author),
           ...topAuthorResults.map(
             (item) => _buildAuthorResultCard(context, item, isDarkMode),
           ),
           if (hasMoreAuthors) ...[
             const SizedBox(height: 25),
-            _buildShowMoreButton(context, isDarkMode, SearchTab.author),
+            _buildShowMoreButton(context, isDarkMode, SearchTab.author, localizations),
           ],
           const SizedBox(height: 24),
         ],
@@ -314,6 +316,7 @@ class AllTabView extends StatelessWidget {
     BuildContext context,
     bool isDarkMode,
     SearchTab tab,
+    AppLocalizations localizations,
   ) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
@@ -334,7 +337,7 @@ class AllTabView extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                'Show More',
+                localizations.search_show_more,
                 style: TextStyle(
                   color: AppColors.primary,
                   fontSize: 14,
