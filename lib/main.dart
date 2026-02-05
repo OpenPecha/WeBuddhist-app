@@ -14,7 +14,6 @@ import 'package:flutter_pecha/features/practice/data/providers/routine_provider.
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
-import 'package:flutter_pecha/core/config/router/go_router.dart';
 import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
 import 'package:fquery/fquery.dart';
 import 'core/theme/app_theme.dart';
@@ -100,9 +99,11 @@ class MyApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final router = ref.watch(goRouterProvider);
     final locale = ref.watch(localeProvider);
     final themeMode = ref.watch(themeModeProvider);
+    
+    // Get the singleton router instance - same instance is reused across rebuilds
+    final router = AppRouter().router;
 
     // Initialize services in background via providers
     ref.watch(audioHandlerProvider);
@@ -138,8 +139,7 @@ class MyApp extends ConsumerWidget {
         ],
         supportedLocales: L10n.all,
         debugShowCheckedModeBanner: false,
-        // routerConfig: router,
-        routerConfig: AppRouter().router,
+        routerConfig: router,
       ),
     );
   }

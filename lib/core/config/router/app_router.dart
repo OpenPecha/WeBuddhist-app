@@ -14,12 +14,19 @@ import 'package:flutter_pecha/features/practice/presentation/screens/select_plan
 import 'package:flutter_pecha/features/practice/presentation/screens/select_recitation_screen.dart';
 import 'package:flutter_pecha/features/texts/presentation/screens/chapters/chapters_screen.dart';
 import 'package:go_router/go_router.dart';
-import 'package:flutter_pecha/features/texts/presentation/screens/chapters/chapters_screen.dart';
 
 class AppRouter {
+  // Singleton instance
+  static final AppRouter _instance = AppRouter._internal();
+
+  // The GoRouter instance
   late final GoRouter router;
 
-  AppRouter() {
+  // Factory constructor returns the singleton instance
+  factory AppRouter() => _instance;
+
+  // Private named constructor for singleton
+  AppRouter._internal() {
     router = GoRouter(
       initialLocation: "/home",
       routes: [
@@ -63,19 +70,18 @@ class AppRouter {
               },
               routes: [
                 GoRoute(
-                  path: "text-chapters", // /ai-mode/search-results/text-chapters
+                  path:
+                      "text-chapters", // /ai-mode/search-results/text-chapters
                   name: "text-chapters",
                   builder: (context, state) {
                     final extra = state.extra as Map<String, dynamic>?;
                     final textId = extra?['textId'] as String? ?? '';
                     final segmentId = extra?['segmentId'] as String?;
-                    return ChaptersScreen(
-                      textId: textId,
-                      segmentId: segmentId,
-                    );
+                    return ChaptersScreen(textId: textId, segmentId: segmentId);
                   },
                 ),
-              ]),
+              ],
+            ),
           ],
         ),
 
