@@ -12,9 +12,10 @@ import 'package:flutter_pecha/features/practice/presentation/screens/edit_routin
 import 'package:flutter_pecha/features/practice/presentation/screens/practice_screen.dart';
 import 'package:flutter_pecha/features/practice/presentation/screens/select_plan_screen.dart';
 import 'package:flutter_pecha/features/practice/presentation/screens/select_recitation_screen.dart';
+import 'package:flutter_pecha/features/reader/data/models/navigation_context.dart';
+import 'package:flutter_pecha/features/reader/presentation/reader_screen.dart';
 import 'package:flutter_pecha/features/texts/presentation/screens/chapters/chapters_screen.dart';
 import 'package:go_router/go_router.dart';
-import 'package:flutter_pecha/features/texts/presentation/screens/chapters/chapters_screen.dart';
 
 class AppRouter {
   late final GoRouter router;
@@ -36,12 +37,26 @@ class AppRouter {
           builder: (context, state) => const MainNavigationScreen(),
           routes: [
             GoRoute(
-              path: "plans/:tag", // route - /home/plans/all
+              path: "plans/:tag", // route - /home/plans/:tag
               name: "home-plans",
               builder: (context, state) {
                 final tag = state.pathParameters['tag'] ?? '';
                 return PlanListScreen(tag: tag);
               },
+              routes: [
+                GoRoute(
+                  path: "preview", // route - /home/plans/:tag/preview
+                  name: "home-plan-preview",
+                  builder: (context, state) {
+                    final extra = state.extra as Map<String, dynamic>?;
+                    final plan = extra?['plan'] as PlansModel?;
+                    if (plan == null) {
+                      throw Exception('Missing required parameters');
+                    }
+                    return PlanPreviewDetails(plan: plan);
+                  },
+                ),
+              ],
             ),
           ],
         ),
@@ -63,19 +78,18 @@ class AppRouter {
               },
               routes: [
                 GoRoute(
-                  path: "text-chapters", // /ai-mode/search-results/text-chapters
+                  path:
+                      "text-chapters", // /ai-mode/search-results/text-chapters
                   name: "text-chapters",
                   builder: (context, state) {
                     final extra = state.extra as Map<String, dynamic>?;
                     final textId = extra?['textId'] as String? ?? '';
                     final segmentId = extra?['segmentId'] as String?;
-                    return ChaptersScreen(
-                      textId: textId,
-                      segmentId: segmentId,
-                    );
+                    return ChaptersScreen(textId: textId, segmentId: segmentId);
                   },
                 ),
-              ]),
+              ],
+            ),
           ],
         ),
 
@@ -169,6 +183,53 @@ class AppRouter {
               ],
             ),
           ],
+        ),
+
+        // reader route - new refactored text reader
+        GoRoute(
+          path: "/reader/:textId",
+          name: "reader",
+          builder: (context, state) {
+            final textId = state.pathParameters['textId'] ?? '';
+            final extra = state.extra;
+            String? segmentId;
+
+            // Extract navigation context if provided
+            NavigationContext? navigationContext;
+            if (extra is NavigationContext) {
+              navigationContext = extra;
+              segmentId = extra.targetSegmentId;
+            } else if (extra is Map<String, dynamic>) {
+              // Support passing as map for flexibility
+              segmentId = extra['segmentId'] as String?;
+              final sourceStr = extra['source'] as String?;
+              final planTextItems =
+                  extra['planTextItems'] as List<PlanTextItem>?;
+              final currentTextIndex = extra['currentTextIndex'] as int?;
+
+              NavigationSource source = NavigationSource.normal;
+              if (sourceStr == 'plan') {
+                source = NavigationSource.plan;
+              } else if (sourceStr == 'search') {
+                source = NavigationSource.search;
+              } else if (sourceStr == 'deepLink') {
+                source = NavigationSource.deepLink;
+              }
+
+              navigationContext = NavigationContext(
+                source: source,
+                targetSegmentId: segmentId,
+                planTextItems: planTextItems,
+                currentTextIndex: currentTextIndex ?? 0,
+              );
+            }
+
+            return ReaderScreen(
+              textId: textId,
+              navigationContext: navigationContext,
+              segmentId: segmentId,
+            );
+          },
         ),
       ],
     );

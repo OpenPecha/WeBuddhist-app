@@ -3,6 +3,7 @@ import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/features/plans/data/providers/plan_days_providers.dart';
 import 'package:flutter_pecha/features/plans/models/plan_days_model.dart';
 import 'package:flutter_pecha/features/plans/models/plans_model.dart';
+import 'package:flutter_pecha/features/reader/data/models/navigation_context.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'widgets/day_carousel.dart';
@@ -110,6 +111,8 @@ class _PlanPreviewDetailsState extends ConsumerState<PlanPreviewDetails> {
                   tasks: content.tasks ?? [],
                   today: selectedDay,
                   totalDays: widget.plan.totalDays ?? 0,
+                  planId: widget.plan.id,
+                  dayNumber: selectedDay,
                 ),
             loading:
                 () => const Center(
@@ -248,22 +251,38 @@ class _PlanPreviewDetailsState extends ConsumerState<PlanPreviewDetails> {
     dayContent.whenData((content) {
       final tasks = content.tasks;
       if (tasks != null && tasks.isNotEmpty) {
-        // Find the first subtask that has a sourceTextId
+        // Build plan text items for swipe navigation
+        final planTextItems = <PlanTextItem>[];
         for (final task in tasks) {
-          for (final subtask in task.subtasks) {
-            if (subtask.sourceTextId != null &&
-                subtask.sourceTextId!.isNotEmpty) {
-              context.push(
-                '/practice/texts/${subtask.sourceTextId}',
-                extra: {
-                  if (subtask.pechaSegmentId != null)
-                    'segmentId': subtask.pechaSegmentId,
-                },
-              );
-              return;
-            }
+          // for (final subtask in task.subtasks) { - we are using the first subtask for now
+          final subtask = task.subtasks[0];
+          if (subtask.sourceTextId != null &&
+              subtask.sourceTextId!.isNotEmpty) {
+            planTextItems.add(
+              PlanTextItem(
+                textId: subtask.sourceTextId!,
+                segmentId: subtask.pechaSegmentId,
+                title: task.title,
+              ),
+            );
           }
+          // }
         }
+
+        if (planTextItems.isEmpty) return;
+
+        // Navigate to the first text with navigation context
+        final firstItem = planTextItems.first;
+        final navigationContext = NavigationContext(
+          source: NavigationSource.plan,
+          planId: widget.plan.id,
+          dayNumber: 1,
+          targetSegmentId: firstItem.segmentId,
+          planTextItems: planTextItems,
+          currentTextIndex: 0,
+        );
+
+        context.push('/reader/${firstItem.textId}', extra: navigationContext);
       }
     });
   }

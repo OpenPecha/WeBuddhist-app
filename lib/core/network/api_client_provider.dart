@@ -15,7 +15,6 @@ class ApiClient extends http.BaseClient {
 
     // public plans
     '/api/v1/plans/{planId}/days',
-    '/api/v1/plans/{planId}/days/{dayNumber}',
 
     // user progress
     '/api/v1/users/me',

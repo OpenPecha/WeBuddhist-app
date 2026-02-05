@@ -4,6 +4,7 @@ import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/features/plans/data/providers/plans_providers.dart';
 import 'package:flutter_pecha/features/practice/data/models/routine_model.dart';
 import 'package:flutter_pecha/features/practice/presentation/widgets/routine_item_card.dart';
+import 'package:flutter_pecha/features/reader/data/models/navigation_context.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
@@ -126,8 +127,14 @@ class _RoutineBlockSection extends ConsumerWidget {
     RoutineItem item,
   ) async {
     if (item.type == RoutineItemType.recitation) {
-      // Navigate to ChaptersScreen for recitation text
-      context.push('/practice/texts/${item.id}');
+      // Navigate to new ReaderScreen for recitation text
+      final navigationContext = NavigationContext(
+        source: NavigationSource.normal,
+      );
+      context.push(
+        '/reader/${item.id}',
+        extra: navigationContext,
+      );
     } else if (item.type == RoutineItemType.plan) {
       // Fetch plan data and navigate to PlanInfo for preview
       final planAsync = await ref.read(planByIdFutureProvider(item.id).future);
