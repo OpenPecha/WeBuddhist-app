@@ -46,8 +46,8 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
         type: 3,
         label: localizations.nav_settings,
         selectedWidget: const MoreScreen(),
-        selectedIconData: AppAssets.settingsSelected,
-        unSelectedIconData: AppAssets.settingsUnselected,
+        selectedIconData: AppAssets.settingsMeSelected,
+        unSelectedIconData: AppAssets.settingsMeUnselected,
       ),
     ];
   }
