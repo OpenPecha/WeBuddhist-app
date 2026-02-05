@@ -1,40 +1,27 @@
+import 'package:flutter_pecha/core/config/router/app_routes.dart';
+
 /// Route configuration constants and utilities for the application
+///
+/// @deprecated Use AppRoutes and RouteGuard instead.
+@Deprecated('Use AppRoutes and RouteGuard instead')
 class RouteConfig {
   RouteConfig._();
 
-  // Route paths
-  static const String onboarding = '/onboarding';
-  static const String login = '/login';
-  static const String home = '/home';
-  static const String profile = '/profile';
-  static const String creatorInfo = '/creator_info';
+  // Route paths - delegated to AppRoutes
+  static const String onboarding = AppRoutes.onboarding;
+  static const String login = AppRoutes.login;
+  static const String home = AppRoutes.home;
+  static const String profile = AppRoutes.profile;
+  static const String creatorInfo = AppRoutes.creatorInfo;
   static const String plans = '/plans';
-  static const String texts = '/texts';
-
-  // Protected routes that require authentication
-  static const Set<String> protectedRoutes = {
-    profile,
-    home,
-    plans,
-    creatorInfo,
-  };
+  static const String texts = AppRoutes.texts;
 
   // Public routes that don't require authentication
-  static const Set<String> publicRoutes = {onboarding, login};
+  static final Set<String> publicRoutes = AppRoutes.publicRoutes;
 
-  /// Check if a given path requires authentication
-  static bool isProtectedRoute(String path) {
-    // Check exact matches first
-    if (protectedRoutes.contains(path)) return true;
+  @Deprecated('Use AppRoutes.requiresAuth() instead')
+  static bool isProtectedRoute(String path) => AppRoutes.requiresAuth(path);
 
-    // Check path prefixes for nested routes
-    return protectedRoutes.any((route) => path.startsWith('$route/')) ||
-        path.startsWith('/home/') ||
-        path.startsWith('/plans/');
-  }
-
-  /// Check if a given path is a public route
-  static bool isPublicRoute(String path) {
-    return publicRoutes.contains(path);
-  }
+  @Deprecated('Use AppRoutes.isPublicRoute() instead')
+  static bool isPublicRoute(String path) => AppRoutes.isPublicRoute(path);
 }

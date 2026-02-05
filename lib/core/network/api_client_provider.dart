@@ -8,13 +8,13 @@ import 'package:http/http.dart' as http;
 class ApiClient extends http.BaseClient {
   final AuthService _authService;
   final http.Client _inner = http.Client();
+
+  /// Note: Route protection is handled by RouteGuard in the router layer.
+  /// This list ensures API requests also include auth tokens for protected endpoints.
   static const List<String> _protectedPaths = [
     // user profile
     '/api/v1/users/info',
     '/api/v1/users/upload',
-
-    // public plans
-    '/api/v1/plans/{planId}/days',
 
     // user progress
     '/api/v1/users/me',

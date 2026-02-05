@@ -84,9 +84,7 @@ void main() async {
 
   // Create provider container for notification service access
   final container = ProviderContainer(
-    overrides: [
-      routineLocalStorageProvider.overrideWithValue(routineStorage),
-    ],
+    overrides: [routineLocalStorageProvider.overrideWithValue(routineStorage)],
   );
 
   // Set the container reference for notifications
@@ -139,7 +137,7 @@ class MyApp extends ConsumerWidget {
         supportedLocales: L10n.all,
         debugShowCheckedModeBanner: false,
         // routerConfig: router,
-        routerConfig: AppRouter().router,
+        routerConfig: ref.watch(appRouterProvider),
       ),
     );
   }
