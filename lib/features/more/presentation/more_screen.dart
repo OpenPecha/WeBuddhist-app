@@ -90,7 +90,7 @@ class MoreScreen extends ConsumerWidget {
             // Account Section
             _buildSectionHeader(context, localizations.settings_account),
             const SizedBox(height: 12),
-            if (authState.isGuest) ...[
+            if (!authState.isLoggedIn) ...[
               _buildSettingsRow(
                 context,
                 icon: PhosphorIconsRegular.signIn,
