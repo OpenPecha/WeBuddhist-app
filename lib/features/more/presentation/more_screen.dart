@@ -74,23 +74,10 @@ class MoreScreen extends ConsumerWidget {
             _buildLanguageRow(context, ref, locale),
             const SizedBox(height: 24),
 
-            // Notification Settings (commented out as requested)
-            // if (authState.isLoggedIn && !authState.isGuest) ...[
-            //   _buildSectionHeader(context, localizations.settings_notifications),
-            //   const SizedBox(height: 12),
-            //   _buildSettingsRow(
-            //     context,
-            //     icon: PhosphorIconsRegular.bell,
-            //     title: localizations.notification_settings,
-            //     onTap: () => context.push(NotificationSettingsScreen.routeName),
-            //   ),
-            //   const SizedBox(height: 24),
-            // ],
-
             // Account Section
             _buildSectionHeader(context, localizations.settings_account),
             const SizedBox(height: 12),
-            if (!authState.isLoggedIn) ...[
+            if (!authState.isLoggedIn || authState.isGuest) ...[
               _buildSettingsRow(
                 context,
                 icon: PhosphorIconsRegular.signIn,

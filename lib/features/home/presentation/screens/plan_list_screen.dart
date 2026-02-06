@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/widgets/error_state_widget.dart';
+import 'package:flutter_pecha/core/widgets/skeletons/skeletons.dart';
 import 'package:flutter_pecha/features/home/data/providers/plans_by_tag_provider.dart';
 import 'package:flutter_pecha/features/plans/models/plans_model.dart';
 import 'package:flutter_pecha/shared/utils/helper_functions.dart';
@@ -34,7 +35,7 @@ class PlanListScreen extends ConsumerWidget {
                   }
                   return _buildContent(context, ref, plans);
                 },
-                loading: () => const Center(child: CircularProgressIndicator()),
+                loading: () => const PlanListSkeleton(),
                 error:
                     (error, stackTrace) => ErrorStateWidget(
                       error: error,
@@ -61,6 +62,8 @@ class PlanListScreen extends ConsumerWidget {
             child: Center(
               child: Text(
                 _capitalizeTag(tag),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
                 style: const TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,

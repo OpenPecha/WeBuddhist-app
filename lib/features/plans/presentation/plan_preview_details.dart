@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
+import 'package:flutter_pecha/core/widgets/skeletons/skeletons.dart';
 import 'package:flutter_pecha/features/plans/data/providers/plan_days_providers.dart';
 import 'package:flutter_pecha/features/plans/models/plan_days_model.dart';
 import 'package:flutter_pecha/features/plans/models/plans_model.dart';
@@ -71,7 +72,7 @@ class _PlanPreviewDetailsState extends ConsumerState<PlanPreviewDetails> {
         }
         return _buildDayCarousel(language, days);
       },
-      loading: () => _buildDayCarouselLoadingPlaceholder(),
+      loading: () => const DayCarouselSkeleton(),
       error: (error, stackTrace) => const SizedBox.shrink(),
     );
   }
@@ -114,13 +115,7 @@ class _PlanPreviewDetailsState extends ConsumerState<PlanPreviewDetails> {
                   planId: widget.plan.id,
                   dayNumber: selectedDay,
                 ),
-            loading:
-                () => const Center(
-                  child: Padding(
-                    padding: EdgeInsets.all(16.0),
-                    child: CircularProgressIndicator(),
-                  ),
-                ),
+            loading: () => const DayContentSkeleton(),
             error: (error, stackTrace) => _buildDayContentError(),
           ),
         ],
@@ -163,49 +158,6 @@ class _PlanPreviewDetailsState extends ConsumerState<PlanPreviewDetails> {
         fontSize: 18,
         fontWeight: FontWeight.bold,
         fontFamily: "Inter",
-      ),
-    );
-  }
-
-  Widget _buildDayCarouselLoadingPlaceholder() {
-    return Container(
-      height: 80,
-      margin: const EdgeInsets.symmetric(horizontal: 12),
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        itemCount: 5,
-        itemBuilder: (context, index) {
-          return Container(
-            width: 70,
-            margin: const EdgeInsets.symmetric(horizontal: 4),
-            decoration: BoxDecoration(
-              color: Theme.of(context).cardColor,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  width: 24,
-                  height: 24,
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade300,
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Container(
-                  width: 40,
-                  height: 10,
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade300,
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                ),
-              ],
-            ),
-          );
-        },
       ),
     );
   }

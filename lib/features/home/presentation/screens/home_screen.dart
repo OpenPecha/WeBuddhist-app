@@ -3,6 +3,7 @@ import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/services/service_providers.dart';
 import 'package:flutter_pecha/core/widgets/error_state_widget.dart';
+import 'package:flutter_pecha/core/widgets/skeletons/skeletons.dart';
 import 'package:flutter_pecha/features/home/data/providers/tags_provider.dart';
 import 'package:flutter_pecha/features/home/presentation/home_screen_constants.dart';
 import 'package:flutter_pecha/features/home/presentation/widgets/tag_card.dart';
@@ -221,13 +222,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             },
           );
         },
-        loading:
-            () => const Center(
-              child: Padding(
-                padding: EdgeInsets.all(HomeScreenConstants.emptyStatePadding),
-                child: CircularProgressIndicator(),
-              ),
-            ),
+        loading: () => const TagGridSkeleton(),
         error:
             (error, stackTrace) =>
                 ErrorStateWidget(error: error, onRetry: _refetchTags),
