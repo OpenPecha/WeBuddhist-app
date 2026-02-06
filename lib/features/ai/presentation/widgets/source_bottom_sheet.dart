@@ -3,6 +3,7 @@ import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/features/ai/models/chat_message.dart';
 import 'package:flutter_pecha/features/ai/data/providers/segment_url_resolver_provider.dart';
+import 'package:flutter_pecha/features/reader/data/models/navigation_context.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -63,15 +64,18 @@ class _SourceBottomSheetState extends ConsumerState<SourceBottomSheet> {
 
       // Check if widget is still mounted before navigation
       if (!mounted) return;
+      final textId = result['textId'];
+      final segmentId = result['segmentId'];
 
       // Close the bottom sheet first
       Navigator.of(context).pop();
 
-      // Navigate to chapters screen
-      context.push(
-        '/ai-mode/search-results/text-chapters',
-        extra: {'textId': result['textId'], 'segmentId': result['segmentId']},
+      // Navigate to new reader with search context
+      final navigationContext = NavigationContext(
+        source: NavigationSource.search,
+        targetSegmentId: segmentId,
       );
+      context.push('/reader/$textId', extra: navigationContext);
     } catch (e) {
       // Show error dialog if API fails
       if (!mounted) return;

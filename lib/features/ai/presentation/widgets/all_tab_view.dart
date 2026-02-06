@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/features/ai/models/search_state.dart';
+import 'package:flutter_pecha/features/reader/data/models/navigation_context.dart';
 import 'package:flutter_pecha/features/texts/presentation/widgets/search_result_card.dart';
 import 'package:flutter_pecha/features/texts/models/search/multilingual_source_result.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
@@ -223,9 +224,13 @@ class AllTabView extends StatelessWidget {
       ),
       child: InkWell(
         onTap: () {
+          // Navigate to new reader with normal context
+          final navigationContext = NavigationContext(
+            source: NavigationSource.normal,
+          );
           context.push(
-           "/ai-mode/search-results/text-chapters",
-            extra: {'textId': item.id},
+            '/reader/${item.id}',
+            extra: navigationContext,
           );
         },
         borderRadius: BorderRadius.circular(12),
@@ -276,9 +281,13 @@ class AllTabView extends StatelessWidget {
       ),
       child: InkWell(
         onTap: () {
+          // Navigate to new reader with normal context
+          final navigationContext = NavigationContext(
+            source: NavigationSource.normal,
+          );
           context.push(
-           "/ai-mode/search-results/text-chapters",
-            extra: {'textId': item.id},
+            '/reader/${item.id}',
+            extra: navigationContext,
           );
         },
         borderRadius: BorderRadius.circular(12),

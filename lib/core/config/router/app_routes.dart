@@ -1,5 +1,10 @@
 /// Application route definitions
 /// Contains all route path constants and route names used throughout the app
+///
+/// Route Categories:
+/// - Public Routes: Accessible without authentication
+/// - Guest Accessible Routes: Accessible in guest mode
+/// - Protected Routes: Require full authentication
 class AppRoutes {
   AppRoutes._();
 
@@ -9,6 +14,9 @@ class AppRoutes {
 
   // ========== MAIN ROUTES ==========
   static const String home = '/home';
+  static const String texts = "/ai-mode";
+  static const String practice = "/practice";
+  static const String more = "/more";
   static const String profile = '/profile';
   static const String creatorInfo = '/creator_info';
   static const String notifications = '/notifications';
@@ -22,8 +30,12 @@ class AppRoutes {
   static const String homeStoriesPresenter = '/home/stories-presenter';
   static const String homePlanStoriesPresenter = '/home/plan-stories-presenter';
   static const String homePrayerOfTheDay = '/home/prayer_of_the_day';
+  static const String homePlans = '/home/plans';
 
-  // ========== TEXTS SUB ROUTES ==========
+  // ========== TEXTS/AI MODE SUB ROUTES ==========
+  static const String aiModeSearchResults = '/ai-mode/search-results';
+  static const String aiModeTextChapters =
+      '/ai-mode/search-results/text-chapters';
   static const String textsCollections = '/texts/collections';
   static const String textsCategory = '/texts/category';
   static const String textsWorks = '/texts/works';
@@ -37,6 +49,16 @@ class AppRoutes {
       '/texts/segment_image/create_image';
   static const String textsCommentary = '/texts/commentary';
 
+  // ========== PRACTICE SUB ROUTES ==========
+  static const String practiceEditRoutine = '/practice/edit-routine';
+  static const String practiceSelectPlan = '/practice/edit-routine/select-plan';
+  static const String practiceSelectRecitation =
+      '/practice/edit-routine/select-recitation';
+  static const String practiceText = '/practice/texts';
+  static const String practicePlanPreview = '/practice/plans/preview';
+  static const String practicePlanInfo = '/practice/plans/info';
+  static const String practicePlanDetails = '/practice/plans/info/details';
+
   // ========== PLANS SUB ROUTES ==========
   static const String plansInfo = '/plans/info';
   static const String plansDetails = '/plans/details';
@@ -44,12 +66,62 @@ class AppRoutes {
   // ========== RECITATIONS SUB ROUTES ==========
   static const String recitationDetail = '/recitations/detail';
 
+  // ========== READER ROUTES ==========
+  static const String reader = '/reader';
+
   // ========== NOTIFICATIONS SUB ROUTES ==========
   static const String notificationSettings = '/notifications/settings';
 
-  /// Check if route requires authentication
-  static bool requiresAuth(String route) {
-    const publicRoutes = [onboarding, login];
-    return !publicRoutes.contains(route);
+  // ========== SEARCH ROUTES ==========
+  static const String searchResults = '/search-results';
+
+  // ========== ROUTE CATEGORIES ==========
+
+  /// Routes that don't require any authentication
+  static const Set<String> publicRoutes = {onboarding, login};
+
+  /// Routes accessible to guest users (includes sub-routes automatically)
+  static const Set<String> guestAccessibleRoutes = {
+    home,
+    more,
+    texts,
+    practice, // Guests can see empty practice screen
+    practicePlanPreview, // Allow guests to browse/preview plans
+  };
+
+  /// Base paths that require full authentication (prefix matching)
+  static const Set<String> _protectedBasePaths = {
+    practiceEditRoutine, // Building routine requires auth
+    profile,
+    notifications,
+    plansInfo,
+    recitationDetail,
+  };
+
+  // ========== HELPER METHODS ==========
+
+  /// Check if a route is fully public (no auth needed at all)
+  static bool isPublicRoute(String path) {
+    return publicRoutes.contains(path);
+  }
+
+  /// Check if a route is accessible to guest users
+  static bool isGuestAccessible(String path) {
+    if (isPublicRoute(path)) return true;
+    return guestAccessibleRoutes.any((route) => _matchesRoute(path, route));
+  }
+
+  /// Check if a route requires full authentication
+  static bool requiresAuth(String path) {
+    // Public and guest routes don't require auth
+    if (isGuestAccessible(path)) return false;
+
+    // Check if path matches any protected base path
+    return _protectedBasePaths.any((route) => _matchesRoute(path, route));
+  }
+
+  /// Match a path against a route pattern (exact or prefix match)
+  static bool _matchesRoute(String path, String route) {
+    return path == route || path.startsWith('$route/');
   }
 }

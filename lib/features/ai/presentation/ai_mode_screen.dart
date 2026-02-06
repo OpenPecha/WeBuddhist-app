@@ -125,36 +125,44 @@ class _AiModeScreenState extends ConsumerState<AiModeScreen> {
   Widget build(BuildContext context) {
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final authState = ref.watch(authProvider);
+    final isGuest = authState.isGuest;
 
     // Listen for flag to switch to AI mode when returning from search results
     ref.listen<SearchState>(searchStateProvider, (previous, next) {
       if (next.shouldSwitchToAiMode && _isSearchMode) {
-        setState(() {
-          _isSearchMode = false;
-        });
+        // Only switch to AI mode if user is authenticated
+        if (!isGuest) {
+          setState(() {
+            _isSearchMode = false;
+          });
+        }
         // Clear the flag
         ref.read(searchStateProvider.notifier).setSwitchToAiMode(false);
       }
     });
 
-    if (authState.isGuest) {
+    // Guests in AI mode should see sign-in prompt
+    if (isGuest && !_isSearchMode) {
       return Scaffold(
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-        body: _buildSignInPrompt(isDarkMode),
+        body: _buildGuestAiModeView(isDarkMode),
       );
     }
 
-    final chatState = ref.watch(chatControllerProvider);
-    final hasMessages = chatState.messages.isNotEmpty || chatState.isStreaming;
+    // For guests in search mode, don't load chat state
+    final chatState = isGuest ? null : ref.watch(chatControllerProvider);
+    final hasMessages = chatState != null && 
+        (chatState.messages.isNotEmpty || chatState.isStreaming);
 
-    if (chatState.error != null) {
+    final chatError = chatState?.error;
+    if (chatError != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         final localizations = AppLocalizations.of(context)!;
         final friendlyMessage = ErrorMessageMapper.getDisplayMessage(
-          chatState.error,
+          chatError,
           context: 'chat',
         );
-        final isRetryable = ErrorMessageMapper.isRetryable(chatState.error);
+        final isRetryable = ErrorMessageMapper.isRetryable(chatError);
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -200,21 +208,11 @@ class _AiModeScreenState extends ConsumerState<AiModeScreen> {
 
               // Main content area
               Expanded(
-                child:
-                    chatState.isLoadingThread
-                        ? _buildLoadingState(isDarkMode)
-                        : hasMessages
-                        ? MessageList(
-                          messages: chatState.messages,
-                          isStreaming: chatState.isStreaming,
-                          currentStreamingContent:
-                              chatState.currentStreamingContent,
-                        )
-                        : _buildEmptyState(isDarkMode),
+                child: _buildMainContent(isDarkMode, isGuest, chatState),
               ),
 
               // Bottom input section
-              _buildInputSection(isDarkMode),
+              _buildInputSection(isDarkMode, isGuest),
             ],
           ),
         ),
@@ -286,67 +284,29 @@ class _AiModeScreenState extends ConsumerState<AiModeScreen> {
     );
   }
 
-  Widget _buildSignInPrompt(bool isDarkMode) {
-    final theme = Theme.of(context);
-    final localizations = AppLocalizations.of(context)!;
-    return SafeArea(
-      child: Center(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.lock_outline,
-                size: 80,
-                color: theme.colorScheme.primary.withValues(alpha: 0.7),
-              ),
-              const SizedBox(height: 24),
-              Text(
-                localizations.sign_in,
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color:
-                      isDarkMode
-                          ? AppColors.surfaceWhite
-                          : AppColors.textPrimary,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 12),
-              Text(
-                localizations.ai_sign_in_prompt,
-                style: TextStyle(
-                  fontSize: 14,
-                  color: isDarkMode ? AppColors.grey400 : AppColors.grey600,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 32),
-              ElevatedButton.icon(
-                icon: const Icon(Icons.login),
-                label: Text(localizations.sign_in),
-                onPressed: () {
-                  LoginDrawer.show(context, ref);
-                },
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 32,
-                    vertical: 16,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
+  /// Build main content based on chat state
+  Widget _buildMainContent(bool isDarkMode, bool isGuest, dynamic chatState) {
+    if (chatState?.isLoadingThread == true) {
+      return _buildLoadingState(isDarkMode);
+    }
+
+    final hasMessages = chatState != null &&
+        (chatState.messages.isNotEmpty || chatState.isStreaming);
+
+    if (hasMessages) {
+      return MessageList(
+        messages: chatState.messages,
+        isStreaming: chatState.isStreaming,
+        currentStreamingContent: chatState.currentStreamingContent,
+      );
+    }
+
+    return _buildEmptyState(isDarkMode, isGuest);
   }
 
-  Widget _buildEmptyState(bool isDarkMode) {
+  Widget _buildEmptyState(bool isDarkMode, bool isGuest) {
     final localizations = AppLocalizations.of(context)!;
-    final firstName = _getFirstName();
+    final firstName = isGuest ? null : _getFirstName();
 
     return Center(
       child: Padding(
@@ -354,7 +314,7 @@ class _AiModeScreenState extends ConsumerState<AiModeScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Personalized greeting
+            // Personalized greeting (only for authenticated users)
             if (firstName != null) ...[
               Align(
                 alignment: Alignment.centerLeft,
@@ -386,7 +346,185 @@ class _AiModeScreenState extends ConsumerState<AiModeScreen> {
     );
   }
 
-  Widget _buildInputSection(bool isDarkMode) {
+  /// Build view for guests who selected AI mode (requires sign in)
+  Widget _buildGuestAiModeView(bool isDarkMode) {
+    final theme = Theme.of(context);
+    final localizations = AppLocalizations.of(context)!;
+    return SafeArea(
+      child: Column(
+        children: [
+          // Minimal header with mode switch
+          _buildGuestHeader(isDarkMode),
+          // Sign in prompt
+          Expanded(
+            child: Center(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.auto_awesome,
+                      size: 80,
+                      color: theme.colorScheme.primary.withValues(alpha: 0.7),
+                    ),
+                    const SizedBox(height: 24),
+                    Text(
+                      localizations.sign_in,
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: isDarkMode
+                            ? AppColors.surfaceWhite
+                            : AppColors.textPrimary,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      localizations.ai_sign_in_prompt,
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: isDarkMode ? AppColors.grey400 : AppColors.grey600,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 32),
+                    ElevatedButton.icon(
+                      icon: const Icon(Icons.login),
+                      label: Text(localizations.sign_in),
+                      onPressed: () => LoginDrawer.show(context, ref),
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 32,
+                          vertical: 16,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    // Option to switch to search mode
+                    TextButton(
+                      onPressed: () => setState(() => _isSearchMode = true),
+                      child: Text(
+                        'Use Search Instead',
+                        style: TextStyle(
+                          color: theme.colorScheme.primary,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Header for guest AI mode view with mode toggle
+  Widget _buildGuestHeader(bool isDarkMode) {
+    final localizations = AppLocalizations.of(context)!;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        color: Theme.of(context).scaffoldBackgroundColor,
+        border: Border(
+          bottom: BorderSide(
+            color: isDarkMode ? AppColors.grey800 : AppColors.grey100,
+            width: 1,
+          ),
+        ),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          // Mode toggle buttons
+          Row(
+            children: [
+              _buildHeaderModeButton(
+                isDarkMode: isDarkMode,
+                icon: Icons.auto_awesome,
+                label: 'AI',
+                isSelected: !_isSearchMode,
+                onTap: () {}, // Already in AI mode
+              ),
+              const SizedBox(width: 8),
+              _buildHeaderModeButton(
+                isDarkMode: isDarkMode,
+                icon: Icons.search,
+                label: localizations.text_search,
+                isSelected: _isSearchMode,
+                onTap: () => setState(() => _isSearchMode = true),
+              ),
+            ],
+          ),
+          Text(
+            localizations.ai_buddhist_assistant,
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: isDarkMode ? AppColors.surfaceWhite : AppColors.textPrimary,
+            ),
+          ),
+          const SizedBox(width: 48), // Balance
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHeaderModeButton({
+    required bool isDarkMode,
+    required IconData icon,
+    required String label,
+    required bool isSelected,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? (isDarkMode
+                  ? AppColors.primary.withValues(alpha: 0.2)
+                  : AppColors.primaryContainer)
+              : Colors.transparent,
+          borderRadius: BorderRadius.circular(16),
+          border: isSelected
+              ? Border.all(color: AppColors.primary, width: 1.5)
+              : Border.all(
+                  color: isDarkMode ? AppColors.grey800 : AppColors.grey300,
+                ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              icon,
+              size: 16,
+              color: isSelected
+                  ? AppColors.primary
+                  : (isDarkMode ? AppColors.grey400 : AppColors.grey600),
+            ),
+            const SizedBox(width: 4),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                color: isSelected
+                    ? AppColors.primary
+                    : (isDarkMode ? AppColors.grey400 : AppColors.grey600),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInputSection(bool isDarkMode, bool isGuest) {
     final textLength = _controller.text.length;
     final isOverLimit = MessageValidator.exceedsLimit(_controller.text);
     final isApproachingLimit = MessageValidator.isApproachingLimit(
@@ -475,6 +613,11 @@ class _AiModeScreenState extends ConsumerState<AiModeScreen> {
                             icon: Icons.auto_awesome,
                             isSelected: !_isSearchMode,
                             onTap: () {
+                              if (isGuest) {
+                                // Show sign-in prompt for guests
+                                LoginDrawer.show(context, ref);
+                                return;
+                              }
                               setState(() {
                                 _isSearchMode = false;
                               });

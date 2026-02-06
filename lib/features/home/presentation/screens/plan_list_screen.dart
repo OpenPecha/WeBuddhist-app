@@ -287,7 +287,7 @@ class _PlanListItem extends ConsumerWidget {
       padding: const EdgeInsets.only(bottom: 12.0),
       child: InkWell(
         onTap: () {
-          // TODO: Navigate to plan details
+          context.push('/practice/plans/preview', extra: {'plan': plan});
         },
         borderRadius: BorderRadius.circular(12),
         child: Row(

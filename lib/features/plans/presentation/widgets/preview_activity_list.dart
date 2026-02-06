@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/features/plans/models/plan_tasks_model.dart';
+import 'package:flutter_pecha/features/reader/data/models/navigation_context.dart';
 import 'package:flutter_pecha/shared/extensions/typography_extensions.dart';
 import 'package:go_router/go_router.dart';
 
@@ -7,12 +8,14 @@ import 'package:go_router/go_router.dart';
 /// Unlike ActivityList, this widget:
 /// - Works with PlanTasksModel (non-enrolled data)
 /// - Has no checkbox/completion toggle (preview only)
-/// - Navigates to ChaptersScreen with sourceTextId and pechaSegmentId
+/// - Navigates to ReaderScreen with sourceTextId and NavigationContext
 class PreviewActivityList extends StatelessWidget {
   final String language;
   final List<PlanTasksModel> tasks;
   final int today;
   final int totalDays;
+  final String? planId;
+  final int? dayNumber;
 
   const PreviewActivityList({
     super.key,
@@ -20,6 +23,8 @@ class PreviewActivityList extends StatelessWidget {
     required this.tasks,
     required this.today,
     required this.totalDays,
+    this.planId,
+    this.dayNumber,
   });
 
   @override
@@ -49,6 +54,20 @@ class PreviewActivityList extends StatelessWidget {
   }
 
   void _handleActivityTap(BuildContext context, PlanTasksModel task) {
+    // Build plan text items for swipe navigation
+    final planTextItems = _buildPlanTextItems();
+    if (planTextItems.isEmpty) return;
+
+    // Find current task index
+    final taskIndex = tasks.indexOf(task);
+    final currentTextIndex = planTextItems.indexWhere(
+      (item) => tasks.any(
+        (t) =>
+            t.subtasks.any((s) => s.sourceTextId == item.textId) &&
+            tasks.indexOf(t) == taskIndex,
+      ),
+    );
+
     // Get sourceTextId from the first subtask that has it
     final subtaskWithText = task.subtasks.cast<dynamic>().firstWhere(
       (s) => s.sourceTextId != null && s.sourceTextId!.isNotEmpty,
@@ -57,14 +76,40 @@ class PreviewActivityList extends StatelessWidget {
 
     if (subtaskWithText != null) {
       final sourceTextId = subtaskWithText.sourceTextId as String;
-      context.push(
-        '/practice/texts/$sourceTextId',
-        extra: {
-          if (subtaskWithText.pechaSegmentId != null)
-            'pechaSegmentId': subtaskWithText.pechaSegmentId,
-        },
+      final segmentId = subtaskWithText.pechaSegmentId as String?;
+
+      // Create navigation context for plan navigation
+      final navigationContext = NavigationContext(
+        source: NavigationSource.plan,
+        planId: planId,
+        dayNumber: dayNumber,
+        targetSegmentId: segmentId,
+        planTextItems: planTextItems,
+        currentTextIndex: currentTextIndex >= 0 ? currentTextIndex : 0,
       );
+
+      context.push('/reader/$sourceTextId', extra: navigationContext);
     }
+  }
+
+  /// Build list of plan text items for swipe navigation
+  List<PlanTextItem> _buildPlanTextItems() {
+    final items = <PlanTextItem>[];
+    for (final task in tasks) {
+      // for (final subtask in task.subtasks) { - we are using the first subtask for now
+      final subtask = task.subtasks[0];
+      if (subtask.sourceTextId != null && subtask.sourceTextId!.isNotEmpty) {
+        items.add(
+          PlanTextItem(
+            textId: subtask.sourceTextId!,
+            segmentId: subtask.pechaSegmentId,
+            title: task.title,
+          ),
+        );
+      }
+      // }
+    }
+    return items;
   }
 
   /// Check if any subtask has a sourceTextId
