@@ -85,12 +85,13 @@ class AppRoutes {
     home,
     more,
     texts,
+    practice, // Guests can see empty practice screen
     practicePlanPreview, // Allow guests to browse/preview plans
   };
 
   /// Base paths that require full authentication (prefix matching)
   static const Set<String> _protectedBasePaths = {
-    practice,
+    practiceEditRoutine, // Building routine requires auth
     profile,
     notifications,
     plansInfo,
