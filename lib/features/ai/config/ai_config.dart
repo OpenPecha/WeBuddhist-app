@@ -14,4 +14,9 @@ class AiConfig {
 
   /// Timeout for non-streaming API requests (thread list, thread detail, delete)
   static const Duration requestTimeout = Duration(seconds: 30);
+
+  /// Fallback message shown when AI cannot find an answer in the Buddhist texts
+  static const String noAnswerFoundMessage =
+      "I couldn't find an answer to this within my library of Buddhist texts. "
+      "Please try rephrasing your question or asking about a different concept.";
 }

@@ -1,3 +1,4 @@
+import 'package:flutter_pecha/features/ai/config/ai_config.dart';
 import 'package:flutter_pecha/features/ai/models/chat_message.dart';
 
 /// Represents a thread summary in the thread list
@@ -110,8 +111,13 @@ class ThreadMessage {
 
   /// Convert to ChatMessage for display
   ChatMessage toChatMessage() {
+    // For assistant messages, use fallback if content is empty
+    final displayContent = (role == 'assistant' && content.trim().isEmpty)
+        ? AiConfig.noAnswerFoundMessage
+        : content;
+
     return ChatMessage(
-      content: content,
+      content: displayContent,
       isUser: role == 'user',
       searchResults: searchResults ?? [],
     );
