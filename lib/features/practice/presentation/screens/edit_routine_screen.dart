@@ -1,18 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
+import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/features/notifications/services/notification_service.dart';
+import 'package:flutter_pecha/features/plans/data/providers/user_plans_provider.dart';
 import 'package:flutter_pecha/features/practice/data/models/routine_model.dart';
 import 'package:flutter_pecha/features/practice/data/models/session_selection.dart';
 import 'package:flutter_pecha/features/practice/data/providers/routine_provider.dart';
 import 'package:flutter_pecha/features/practice/data/utils/routine_time_utils.dart';
 import 'package:flutter_pecha/features/practice/presentation/screens/select_session_screen.dart';
 import 'package:flutter_pecha/features/practice/presentation/widgets/routine_time_block.dart';
+import 'package:flutter_pecha/features/recitation/presentation/providers/recitations_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:uuid/uuid.dart';
 
 const _uuid = Uuid();
+final _logger = AppLogger('EditRoutineScreen');
 
 class _EditableBlock {
   final String id;
@@ -339,7 +343,12 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
 
   void _deleteBlock(int index) {
     // Confirmation dialog is already handled in RoutineTimeBlock._confirmDeleteBlock
+    final items = List<RoutineItem>.from(_blocks[index].items);
     setState(() => _blocks.removeAt(index));
+    // Unenroll/unsave all items in the deleted block
+    for (final item in items) {
+      _unenrollItem(item);
+    }
   }
 
   void _addBlock() {
@@ -361,14 +370,39 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
   }
 
   void _onDeleteItem(int blockIndex, int itemIndex) {
+    final item = _blocks[blockIndex].items[itemIndex];
     setState(() {
       _blocks[blockIndex].items.removeAt(itemIndex);
     });
+    // Unenroll/unsave immediately in background
+    _unenrollItem(item);
+  }
+
+  /// Collects all item IDs currently in the routine to prevent duplicates.
+  ({Set<String> planIds, Set<String> recitationIds}) _collectRoutineItemIds() {
+    final planIds = <String>{};
+    final recitationIds = <String>{};
+    for (final block in _blocks) {
+      for (final item in block.items) {
+        if (item.type == RoutineItemType.plan) {
+          planIds.add(item.id);
+        } else {
+          recitationIds.add(item.id);
+        }
+      }
+    }
+    return (planIds: planIds, recitationIds: recitationIds);
   }
 
   Future<void> _navigateToSelectSession(int blockIndex) async {
+    final excluded = _collectRoutineItemIds();
     final result = await Navigator.of(context).push<SessionSelection>(
-      MaterialPageRoute(builder: (_) => const SelectSessionScreen()),
+      MaterialPageRoute(
+        builder: (_) => SelectSessionScreen(
+          excludedPlanIds: excluded.planIds,
+          excludedRecitationIds: excluded.recitationIds,
+        ),
+      ),
     );
 
     if (result != null && mounted) {
@@ -393,6 +427,34 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
             );
         }
       });
+    }
+  }
+
+  /// Unenrolls a plan or unsaves a recitation in the background.
+  /// Shows error snackbar if the API call fails.
+  Future<void> _unenrollItem(RoutineItem item) async {
+    try {
+      if (item.type == RoutineItemType.plan) {
+        await ref.read(userPlanUnsubscribeFutureProvider(item.id).future);
+        ref.invalidate(userPlansFutureProvider);
+        ref.invalidate(myPlansPaginatedProvider);
+      } else {
+        await ref.read(unsaveRecitationProvider(item.id).future);
+        ref.invalidate(savedRecitationsFutureProvider);
+      }
+    } catch (e) {
+      _logger.error('Failed to unenroll/unsave item: ${item.title}', e);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Failed to unenroll "${item.title}". Please try again.',
+            ),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
     }
   }
 

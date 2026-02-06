@@ -99,9 +99,10 @@ class MyApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final locale = ref.watch(localeProvider);
     final themeMode = ref.watch(themeModeProvider);
-    
+
     // Get the singleton router instance - same instance is reused across rebuilds
-    final router = AppRouter().router;
+    // final router = AppRouter().router;
+    final router = ref.watch(appRouterProvider);
 
     // Initialize services in background via providers
     ref.watch(audioHandlerProvider);
@@ -138,7 +139,7 @@ class MyApp extends ConsumerWidget {
         supportedLocales: L10n.all,
         debugShowCheckedModeBanner: false,
         // routerConfig: router,
-        routerConfig: ref.watch(appRouterProvider),
+        routerConfig: router,
       ),
     );
   }

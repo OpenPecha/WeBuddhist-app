@@ -4,6 +4,7 @@ import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/core/widgets/cached_network_image_widget.dart';
 import 'package:flutter_pecha/core/widgets/error_state_widget.dart';
 import 'package:flutter_pecha/features/plans/data/providers/plans_providers.dart';
+import 'package:flutter_pecha/features/plans/data/providers/user_plans_provider.dart';
 import 'package:flutter_pecha/features/practice/data/models/session_selection.dart';
 import 'package:flutter_pecha/features/recitation/presentation/providers/recitations_providers.dart';
 import 'package:flutter_pecha/shared/extensions/typography_extensions.dart';
@@ -11,8 +12,21 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Combined screen for selecting either a Plan or Recitation to add to routine.
 /// Returns [SessionSelection] - either [PlanSessionSelection] or [RecitationSessionSelection].
+///
+/// Automatically enrolls plans / saves recitations on selection.
+/// Filters out already enrolled/saved items and items already in the routine.
 class SelectSessionScreen extends ConsumerStatefulWidget {
-  const SelectSessionScreen({super.key});
+  /// IDs of plans already in the routine (across all blocks).
+  final Set<String> excludedPlanIds;
+
+  /// IDs of recitations already in the routine (across all blocks).
+  final Set<String> excludedRecitationIds;
+
+  const SelectSessionScreen({
+    super.key,
+    this.excludedPlanIds = const {},
+    this.excludedRecitationIds = const {},
+  });
 
   @override
   ConsumerState<SelectSessionScreen> createState() =>
@@ -23,6 +37,9 @@ class _SelectSessionScreenState extends ConsumerState<SelectSessionScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   final ScrollController _plansScrollController = ScrollController();
+
+  /// ID of the item currently being enrolled/saved (null if idle).
+  String? _enrollingItemId;
 
   @override
   void initState() {
@@ -46,11 +63,87 @@ class _SelectSessionScreenState extends ConsumerState<SelectSessionScreen>
     }
   }
 
+  Future<void> _onPlanSelected(dynamic plan) async {
+    if (_enrollingItemId != null) return;
+    setState(() => _enrollingItemId = plan.id);
+    try {
+      final success = await ref.read(
+        userPlanSubscribeFutureProvider(plan.id).future,
+      );
+      if (!mounted) return;
+      if (success) {
+        ref.invalidate(userPlansFutureProvider);
+        ref.invalidate(myPlansPaginatedProvider);
+        Navigator.of(context).pop(PlanSessionSelection(plan));
+      } else {
+        setState(() => _enrollingItemId = null);
+        _showErrorSnackbar('Unable to enroll in plan. Please try again.');
+      }
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _enrollingItemId = null);
+      _showErrorSnackbar('Unable to enroll in plan. Please try again.');
+    }
+  }
+
+  Future<void> _onRecitationSelected(dynamic recitation) async {
+    if (_enrollingItemId != null) return;
+    setState(() => _enrollingItemId = recitation.textId);
+    try {
+      final success = await ref.read(
+        saveRecitationProvider(recitation.textId).future,
+      );
+      if (!mounted) return;
+      if (success) {
+        ref.invalidate(savedRecitationsFutureProvider);
+        Navigator.of(context).pop(RecitationSessionSelection(recitation));
+      } else {
+        setState(() => _enrollingItemId = null);
+        _showErrorSnackbar('Unable to save recitation. Please try again.');
+      }
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _enrollingItemId = null);
+      _showErrorSnackbar('Unable to save recitation. Please try again.');
+    }
+  }
+
+  void _showErrorSnackbar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.red,
+        duration: const Duration(seconds: 3),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final localizations = AppLocalizations.of(context)!;
     final locale = Localizations.localeOf(context);
     final languageCode = locale.languageCode;
+
+    // Get enrolled plan IDs from backend
+    final enrolledPlanIds = ref
+            .watch(userPlansFutureProvider)
+            .whenData((data) => data.userPlans.map((e) => e.id).toSet())
+            .valueOrNull ??
+        <String>{};
+
+    // Get saved recitation IDs from backend
+    final savedRecitationIds = ref
+            .watch(savedRecitationsFutureProvider)
+            .whenData((data) => data.map((e) => e.textId).toSet())
+            .valueOrNull ??
+        <String>{};
+
+    // Combine backend enrolled/saved + items already in routine blocks
+    final allExcludedPlanIds = {...enrolledPlanIds, ...widget.excludedPlanIds};
+    final allExcludedRecitationIds = {
+      ...savedRecitationIds,
+      ...widget.excludedRecitationIds,
+    };
 
     return Scaffold(
       appBar: AppBar(
@@ -89,14 +182,14 @@ class _SelectSessionScreenState extends ConsumerState<SelectSessionScreen>
         children: [
           _PlansTab(
             scrollController: _plansScrollController,
-            onPlanSelected: (plan) {
-              Navigator.of(context).pop(PlanSessionSelection(plan));
-            },
+            excludedPlanIds: allExcludedPlanIds,
+            enrollingItemId: _enrollingItemId,
+            onPlanSelected: _onPlanSelected,
           ),
           _RecitationsTab(
-            onRecitationSelected: (recitation) {
-              Navigator.of(context).pop(RecitationSessionSelection(recitation));
-            },
+            excludedRecitationIds: allExcludedRecitationIds,
+            enrollingItemId: _enrollingItemId,
+            onRecitationSelected: _onRecitationSelected,
           ),
         ],
       ),
@@ -105,12 +198,17 @@ class _SelectSessionScreenState extends ConsumerState<SelectSessionScreen>
 }
 
 /// Tab content for displaying and selecting plans.
+/// Filters out plans that are already enrolled or in the routine.
 class _PlansTab extends ConsumerWidget {
   final ScrollController scrollController;
+  final Set<String> excludedPlanIds;
+  final String? enrollingItemId;
   final void Function(dynamic plan) onPlanSelected;
 
   const _PlansTab({
     required this.scrollController,
+    required this.excludedPlanIds,
+    required this.enrollingItemId,
     required this.onPlanSelected,
   });
 
@@ -131,7 +229,13 @@ class _PlansTab extends ConsumerWidget {
       );
     }
 
-    if (plansState.plans.isEmpty && !plansState.isLoading) {
+    // Filter out enrolled plans and plans already in routine
+    final availablePlans =
+        plansState.plans
+            .where((plan) => !excludedPlanIds.contains(plan.id))
+            .toList();
+
+    if (availablePlans.isEmpty && !plansState.isLoading) {
       return Center(
         child: Text(
           localizations.no_plans_found,
@@ -143,10 +247,10 @@ class _PlansTab extends ConsumerWidget {
     return ListView.separated(
       controller: scrollController,
       padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
-      itemCount: plansState.plans.length + (plansState.hasMore ? 1 : 0),
+      itemCount: availablePlans.length + (plansState.hasMore ? 1 : 0),
       separatorBuilder: (_, __) => const Divider(height: 1),
       itemBuilder: (context, index) {
-        if (index == plansState.plans.length) {
+        if (index == availablePlans.length) {
           return Padding(
             padding: const EdgeInsets.symmetric(vertical: 16.0),
             child: Center(
@@ -158,16 +262,20 @@ class _PlansTab extends ConsumerWidget {
           );
         }
 
-        final plan = plansState.plans[index];
+        final plan = availablePlans[index];
         final author = plan.author;
         final authorName =
             author != null
                 ? '${author.firstName} ${author.lastName}'.trim()
                 : null;
+        final isEnrolling = enrollingItemId == plan.id;
+
         return _SessionListTile(
           title: plan.title,
           subtitle: authorName,
           imageUrl: plan.imageThumbnail,
+          isLoading: isEnrolling,
+          isDisabled: enrollingItemId != null,
           onTap: () => onPlanSelected(plan),
         );
       },
@@ -176,10 +284,17 @@ class _PlansTab extends ConsumerWidget {
 }
 
 /// Tab content for displaying and selecting recitations.
+/// Filters out recitations that are already saved or in the routine.
 class _RecitationsTab extends ConsumerWidget {
+  final Set<String> excludedRecitationIds;
+  final String? enrollingItemId;
   final void Function(dynamic recitation) onRecitationSelected;
 
-  const _RecitationsTab({required this.onRecitationSelected});
+  const _RecitationsTab({
+    required this.excludedRecitationIds,
+    required this.enrollingItemId,
+    required this.onRecitationSelected,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -196,7 +311,13 @@ class _RecitationsTab extends ConsumerWidget {
             ),
           ),
       data: (recitations) {
-        if (recitations.isEmpty) {
+        // Filter out saved recitations and recitations already in routine
+        final availableRecitations =
+            recitations
+                .where((r) => !excludedRecitationIds.contains(r.textId))
+                .toList();
+
+        if (availableRecitations.isEmpty) {
           return Center(
             child: Text(
               localizations.recitations_no_content,
@@ -207,14 +328,18 @@ class _RecitationsTab extends ConsumerWidget {
 
         return ListView.separated(
           padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
-          itemCount: recitations.length,
+          itemCount: availableRecitations.length,
           separatorBuilder: (_, __) => const Divider(height: 1),
           itemBuilder: (context, index) {
-            final recitation = recitations[index];
+            final recitation = availableRecitations[index];
+            final isEnrolling = enrollingItemId == recitation.textId;
+
             return _SessionListTile(
               title: recitation.title,
               subtitle: null,
               imageUrl: null,
+              isLoading: isEnrolling,
+              isDisabled: enrollingItemId != null,
               onTap: () => onRecitationSelected(recitation),
             );
           },
@@ -225,82 +350,100 @@ class _RecitationsTab extends ConsumerWidget {
 }
 
 /// Reusable list tile for session selection (plans and recitations).
+/// Supports loading and disabled states for enrollment/save feedback.
 class _SessionListTile extends StatelessWidget {
   final String title;
   final String? subtitle;
   final String? imageUrl;
   final VoidCallback onTap;
+  final bool isLoading;
+  final bool isDisabled;
 
   const _SessionListTile({
     required this.title,
     required this.subtitle,
     required this.imageUrl,
     required this.onTap,
+    this.isLoading = false,
+    this.isDisabled = false,
   });
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: onTap,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 12.0),
-        child: Row(
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child:
-                  imageUrl != null && imageUrl!.isNotEmpty
-                      ? CachedNetworkImageWidget(
-                        imageUrl: imageUrl!,
-                        width: 56,
-                        height: 56,
-                        fit: BoxFit.cover,
-                        borderRadius: BorderRadius.circular(8),
-                      )
-                      : Container(
-                        width: 56,
-                        height: 56,
-                        decoration: BoxDecoration(
-                          color: AppColors.grey100,
+      onTap: isDisabled ? null : onTap,
+      child: AnimatedOpacity(
+        opacity: isDisabled && !isLoading ? 0.5 : 1.0,
+        duration: const Duration(milliseconds: 200),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 12.0),
+          child: Row(
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child:
+                    imageUrl != null && imageUrl!.isNotEmpty
+                        ? CachedNetworkImageWidget(
+                          imageUrl: imageUrl!,
+                          width: 56,
+                          height: 56,
+                          fit: BoxFit.cover,
                           borderRadius: BorderRadius.circular(8),
+                        )
+                        : Container(
+                          width: 56,
+                          height: 56,
+                          decoration: BoxDecoration(
+                            color: AppColors.grey100,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Icon(
+                            Icons.music_note,
+                            color: AppColors.textSecondary,
+                            size: 24,
+                          ),
                         ),
-                        child: Icon(
-                          Icons.music_note,
-                          color: AppColors.textSecondary,
-                          size: 24,
-                        ),
-                      ),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  if (subtitle != null && subtitle!.isNotEmpty) ...[
-                    const SizedBox(height: 2),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
                     Text(
-                      subtitle!,
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: AppColors.textSecondary,
+                      title,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
+                    if (subtitle != null && subtitle!.isNotEmpty) ...[
+                      const SizedBox(height: 2),
+                      Text(
+                        subtitle!,
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: AppColors.textSecondary,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
                   ],
-                ],
+                ),
               ),
-            ),
-          ],
+              if (isLoading)
+                const Padding(
+                  padding: EdgeInsets.only(left: 12.0),
+                  child: SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  ),
+                ),
+            ],
+          ),
         ),
       ),
     );
