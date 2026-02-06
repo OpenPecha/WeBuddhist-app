@@ -24,4 +24,6 @@ class AppAssets {
       PhosphorIconsFill.gearSix;
   static const PhosphorFlatIconData settingsUnselected =
       PhosphorIconsRegular.gearSix;
+  static const PhosphorFlatIconData settingsMeSelected = PhosphorIconsFill.userCircle;
+  static const PhosphorFlatIconData settingsMeUnselected = PhosphorIconsRegular.userCircle;
 }

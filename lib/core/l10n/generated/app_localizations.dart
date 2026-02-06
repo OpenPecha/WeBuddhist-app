@@ -1084,11 +1084,41 @@ abstract class AppLocalizations {
   /// **'Delete'**
   String get ai_delete;
 
+  /// No description provided for @ai_greeting.
+  ///
+  /// In en, this message translates to:
+  /// **'Hi {name}'**
+  String ai_greeting(String name);
+
+  /// No description provided for @ai_text_not_found.
+  ///
+  /// In en, this message translates to:
+  /// **'Text Not Found'**
+  String get ai_text_not_found;
+
+  /// No description provided for @ai_text_not_found_message.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not find the text for \"{title}\".\n\nPlease try another source.'**
+  String ai_text_not_found_message(String title);
+
+  /// No description provided for @ai_sources.
+  ///
+  /// In en, this message translates to:
+  /// **'Sources'**
+  String get ai_sources;
+
+  /// No description provided for @ai_sources_count.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} sources'**
+  String ai_sources_count(int count);
+
   /// No description provided for @search_no_results.
   ///
   /// In en, this message translates to:
   /// **'No results found for \"{query}\"'**
-  String search_no_results(Object query);
+  String search_no_results(String query);
 
   /// No description provided for @search_show_more.
   ///
@@ -1114,23 +1144,65 @@ abstract class AppLocalizations {
   /// **'All'**
   String get search_all;
 
+  /// No description provided for @search_author.
+  ///
+  /// In en, this message translates to:
+  /// **'Author'**
+  String get search_author;
+
+  /// No description provided for @search_tab_ai_mode.
+  ///
+  /// In en, this message translates to:
+  /// **'AI Mode'**
+  String get search_tab_ai_mode;
+
+  /// No description provided for @search_error.
+  ///
+  /// In en, this message translates to:
+  /// **'Error: {message}'**
+  String search_error(String message);
+
+  /// No description provided for @search_retrying.
+  ///
+  /// In en, this message translates to:
+  /// **'Retrying...'**
+  String get search_retrying;
+
+  /// No description provided for @search_no_titles_found.
+  ///
+  /// In en, this message translates to:
+  /// **'No titles found for \"{query}\"'**
+  String search_no_titles_found(String query);
+
+  /// No description provided for @search_no_contents_found.
+  ///
+  /// In en, this message translates to:
+  /// **'No contents found for \"{query}\"'**
+  String search_no_contents_found(String query);
+
+  /// No description provided for @search_no_authors_found.
+  ///
+  /// In en, this message translates to:
+  /// **'No authors found for \"{query}\"'**
+  String search_no_authors_found(String query);
+
   /// No description provided for @search_coming_soon.
   ///
   /// In en, this message translates to:
   /// **'Coming Soon'**
   String get search_coming_soon;
 
-  /// No description provided for @search_title_search_coming_soon.
-  ///
-  /// In en, this message translates to:
-  /// **'Title search will be available soon'**
-  String get search_title_search_coming_soon;
-
   /// No description provided for @search_buddhist_texts.
   ///
   /// In en, this message translates to:
   /// **'Search Buddhist texts...'**
   String get search_buddhist_texts;
+
+  /// No description provided for @common_ok.
+  ///
+  /// In en, this message translates to:
+  /// **'OK'**
+  String get common_ok;
 
   /// No description provided for @comingSoonHeadline.
   ///

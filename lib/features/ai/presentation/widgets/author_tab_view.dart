@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
+import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/features/ai/models/search_state.dart';
 import 'package:flutter_pecha/features/reader/data/models/navigation_context.dart';
 import 'package:flutter_pecha/features/texts/data/providers/apis/texts_provider.dart';
@@ -80,6 +81,7 @@ class _AuthorTabViewState extends ConsumerState<AuthorTabView> {
   @override
   Widget build(BuildContext context) {
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final localizations = AppLocalizations.of(context)!;
 
     if (widget.searchState.isLoading && _currentOffset == 0) {
       return Center(
@@ -103,7 +105,7 @@ class _AuthorTabViewState extends ConsumerState<AuthorTabView> {
               ),
               const SizedBox(height: 16),
               Text(
-                'Error: ${widget.searchState.error}',
+                localizations.search_error(widget.searchState.error!),
                 style: TextStyle(
                   color: isDarkMode ? AppColors.grey400 : AppColors.grey600,
                   fontSize: 14,
@@ -119,7 +121,7 @@ class _AuthorTabViewState extends ConsumerState<AuthorTabView> {
                       : Icons.refresh,
                 ),
                 label: Text(
-                  widget.searchState.isLoading ? 'Retrying...' : 'Retry',
+                  widget.searchState.isLoading ? localizations.search_retrying : localizations.ai_retry,
                 ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,
@@ -142,7 +144,7 @@ class _AuthorTabViewState extends ConsumerState<AuthorTabView> {
         child: Padding(
           padding: const EdgeInsets.all(24.0),
           child: Text(
-            'No authors found for "${widget.searchState.currentQuery}"',
+            localizations.search_no_authors_found(widget.searchState.currentQuery),
             style: TextStyle(
               color: isDarkMode ? AppColors.grey400 : AppColors.grey600,
               fontSize: 16,

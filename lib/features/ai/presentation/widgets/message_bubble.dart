@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
+import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/features/ai/models/chat_message.dart';
 import 'package:flutter_pecha/features/ai/presentation/widgets/source_bottom_sheet.dart';
 import 'package:flutter_pecha/features/ai/data/providers/segment_url_resolver_provider.dart';
@@ -55,18 +56,19 @@ class _MessageBubbleState extends ConsumerState<MessageBubble> {
       // Show error dialog if API fails
       if (!mounted) return;
 
+      final localizations = AppLocalizations.of(context)!;
       showDialog(
         context: context,
         builder:
-            (context) => AlertDialog(
-              title: const Text('Text Not Found'),
+            (dialogContext) => AlertDialog(
+              title: Text(localizations.ai_text_not_found),
               content: Text(
-                'Could not find the text for "${source.title}".\n\nPlease try another source.',
+                localizations.ai_text_not_found_message(source.title),
               ),
               actions: [
                 TextButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  child: const Text('OK'),
+                  onPressed: () => Navigator.of(dialogContext).pop(),
+                  child: Text(localizations.common_ok),
                 ),
               ],
             ),
@@ -295,6 +297,8 @@ class _MessageBubbleState extends ConsumerState<MessageBubble> {
 
     if (citedSources.isEmpty) return const SizedBox.shrink();
 
+    final localizations = AppLocalizations.of(context)!;
+
     return Padding(
       padding: const EdgeInsets.only(top: 16),
       child: GestureDetector(
@@ -315,7 +319,7 @@ class _MessageBubbleState extends ConsumerState<MessageBubble> {
             ),
           ),
           child: Text(
-            '${citedSources.length} sources',
+            localizations.ai_sources_count(citedSources.length),
             style: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w500,
@@ -378,7 +382,7 @@ class _MessageBubbleState extends ConsumerState<MessageBubble> {
                         vertical: 12,
                       ),
                       child: Text(
-                        'Sources',
+                        AppLocalizations.of(context)!.ai_sources,
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w600,
