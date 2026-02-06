@@ -436,7 +436,6 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
     try {
       if (item.type == RoutineItemType.plan) {
         await ref.read(userPlanUnsubscribeFutureProvider(item.id).future);
-        ref.invalidate(userPlansFutureProvider);
         ref.invalidate(myPlansPaginatedProvider);
       } else {
         await ref.read(unsaveRecitationProvider(item.id).future);

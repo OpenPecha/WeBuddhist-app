@@ -72,7 +72,6 @@ class _SelectSessionScreenState extends ConsumerState<SelectSessionScreen>
       );
       if (!mounted) return;
       if (success) {
-        ref.invalidate(userPlansFutureProvider);
         ref.invalidate(myPlansPaginatedProvider);
         Navigator.of(context).pop(PlanSessionSelection(plan));
       } else {
@@ -124,12 +123,9 @@ class _SelectSessionScreenState extends ConsumerState<SelectSessionScreen>
     final locale = Localizations.localeOf(context);
     final languageCode = locale.languageCode;
 
-    // Get enrolled plan IDs from backend
-    final enrolledPlanIds = ref
-            .watch(userPlansFutureProvider)
-            .whenData((data) => data.userPlans.map((e) => e.id).toSet())
-            .valueOrNull ??
-        <String>{};
+    // Get enrolled plan IDs from paginated provider (already loaded by app)
+    final myPlansState = ref.watch(myPlansPaginatedProvider);
+    final enrolledPlanIds = myPlansState.plans.map<String>((e) => e.id).toSet();
 
     // Get saved recitation IDs from backend
     final savedRecitationIds = ref
