@@ -7,7 +7,7 @@ import 'package:flutter_pecha/core/widgets/skeletons/skeletons.dart';
 import 'package:flutter_pecha/features/home/data/providers/tags_provider.dart';
 import 'package:flutter_pecha/features/home/presentation/home_screen_constants.dart';
 import 'package:flutter_pecha/features/home/presentation/widgets/tag_card.dart';
-import 'package:flutter_pecha/features/home/presentation/widgets/tag_search_overlay.dart';
+import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:logging/logging.dart';
@@ -74,28 +74,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     context.push('/home/plans/$tag');
   }
 
-  void _openSearchOverlay(List<String> tags) {
-    showGeneralDialog(
-      context: context,
-      barrierDismissible: true,
-      barrierLabel: 'Search',
-      barrierColor: Colors.transparent,
-      transitionDuration: const Duration(milliseconds: 300),
-      pageBuilder: (context, animation, secondaryAnimation) {
-        return FadeTransition(
-          opacity: animation,
-          child: TagSearchOverlay(
-            allTags: tags,
-            onTagSelected: (tag) {
-              _log.info('Tag selected from search: $tag');
-              _navigateToPlans(tag);
-            },
-          ),
-        );
-      },
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final localizations = AppLocalizations.of(context)!;
@@ -139,40 +117,152 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     AppLocalizations localizations,
     AsyncValue<List<String>> tagsAsync,
   ) {
+    final locale = ref.watch(localeProvider);
+    final fontFamily = getFontFamily(locale.languageCode);
+    final lineHeight = getLineHeight(locale.languageCode);
+    final fontSize = locale.languageCode == 'bo' ? 18.0 : 16.0;
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-      child: GestureDetector(
-        onTap: () {
-          tagsAsync.whenData((tags) {
-            _openSearchOverlay(tags);
-          });
-        },
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 14.0),
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surfaceContainer,
-            border: Border.all(color: Theme.of(context).colorScheme.outline),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Row(
-            children: [
-              Icon(
+      child: tagsAsync.when(
+        data:
+            (tags) => SearchAnchor(
+              viewOnClose: () {
+                // Dismiss keyboard when search view closes
+                FocusScope.of(context).unfocus();
+              },
+              builder: (BuildContext context, SearchController controller) {
+                return SearchBar(
+                  controller: controller,
+                  padding: const WidgetStatePropertyAll<EdgeInsets>(
+                    EdgeInsets.symmetric(horizontal: 16.0),
+                  ),
+                  elevation: WidgetStatePropertyAll(0.0),
+                  shadowColor: WidgetStatePropertyAll(Colors.transparent),
+                  onTap: () {
+                    controller.openView();
+                  },
+                  onChanged: (_) {
+                    controller.openView();
+                  },
+                  leading: Icon(
+                    Icons.search,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                  hintText: localizations.text_search,
+                  hintStyle: WidgetStatePropertyAll(
+                    TextStyle(
+                      fontSize: 16,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                );
+              },
+              suggestionsBuilder: (
+                BuildContext context,
+                SearchController controller,
+              ) {
+                final query = controller.text.toLowerCase();
+                final filteredTags =
+                    query.isEmpty
+                        ? tags
+                        : tags
+                            .where((tag) => tag.toLowerCase().contains(query))
+                            .toList();
+
+                if (filteredTags.isEmpty) {
+                  return [
+                    Padding(
+                      padding: const EdgeInsets.all(32.0),
+                      child: Center(
+                        child: Text(
+                          'No tags found',
+                          style: TextStyle(
+                            fontSize: fontSize,
+                            fontFamily: fontFamily,
+                            height: lineHeight,
+                            color:
+                                Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ];
+                }
+
+                return filteredTags.map((tag) {
+                  return ListTile(
+                    leading: Icon(
+                      Icons.tag,
+                      size: 20,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                    title: Text(
+                      _capitalizeFirstLetter(tag),
+                      style: TextStyle(
+                        fontSize: fontSize,
+                        fontWeight: FontWeight.w500,
+                        fontFamily: fontFamily,
+                        height: lineHeight,
+                      ),
+                    ),
+                    trailing: Icon(
+                      Icons.arrow_forward_ios,
+                      size: 16,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+                    onTap: () {
+                      controller.closeView(tag);
+                      _log.info('Tag selected from search: $tag');
+                      _navigateToPlans(tag);
+                    },
+                  );
+                }).toList();
+              },
+            ),
+        loading:
+            () => SearchBar(
+              padding: const WidgetStatePropertyAll<EdgeInsets>(
+                EdgeInsets.symmetric(horizontal: 16.0),
+              ),
+              enabled: false,
+              leading: Icon(
                 Icons.search,
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
-              const SizedBox(width: 12),
-              Text(
-                localizations.text_search,
-                style: TextStyle(
+              hintText: localizations.text_search,
+              hintStyle: WidgetStatePropertyAll(
+                TextStyle(
                   fontSize: 16,
                   color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
               ),
-            ],
-          ),
-        ),
+            ),
+        error:
+            (_, __) => SearchBar(
+              padding: const WidgetStatePropertyAll<EdgeInsets>(
+                EdgeInsets.symmetric(horizontal: 16.0),
+              ),
+              enabled: false,
+              leading: Icon(
+                Icons.search,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+              hintText: localizations.text_search,
+              hintStyle: WidgetStatePropertyAll(
+                TextStyle(
+                  fontSize: 16,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ),
       ),
     );
+  }
+
+  String _capitalizeFirstLetter(String text) {
+    if (text.isEmpty) return text;
+    return text[0].toUpperCase() + text.substring(1);
   }
 
   Widget _buildBody(BuildContext context, AppLocalizations localizations) {
