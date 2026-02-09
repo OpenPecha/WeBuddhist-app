@@ -11,7 +11,7 @@ class RoutineTimeBlock extends StatelessWidget {
   final List<RoutineItem> items;
   final VoidCallback onTimeChanged;
   final VoidCallback onNotificationToggle;
-  final VoidCallback onDelete;
+  final Future<void> Function() onDelete;
   final VoidCallback onAddSession;
   final void Function(int oldIndex, int newIndex) onReorderItems;
   final void Function(int itemIndex) onDeleteItem;
@@ -89,7 +89,7 @@ class RoutineTimeBlock extends StatelessWidget {
           ),
     );
     if (confirmed == true) {
-      onDelete();
+      await onDelete();
     }
   }
 
