@@ -120,7 +120,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get nav_practice => '修持計劃';
 
   @override
-  String get nav_settings => '設定';
+  String get nav_settings => 'Me';
 
   @override
   String get nav_ai_mode => '人工智能';

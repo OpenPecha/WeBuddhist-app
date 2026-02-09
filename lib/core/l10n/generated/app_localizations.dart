@@ -319,7 +319,7 @@ abstract class AppLocalizations {
   /// No description provided for @nav_settings.
   ///
   /// In en, this message translates to:
-  /// **'Settings'**
+  /// **'Me'**
   String get nav_settings;
 
   /// No description provided for @nav_ai_mode.
