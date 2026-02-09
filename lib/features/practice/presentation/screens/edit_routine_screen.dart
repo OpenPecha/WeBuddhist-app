@@ -7,6 +7,7 @@ import 'package:flutter_pecha/features/plans/data/providers/user_plans_provider.
 import 'package:flutter_pecha/features/practice/data/models/routine_model.dart';
 import 'package:flutter_pecha/features/practice/data/models/session_selection.dart';
 import 'package:flutter_pecha/features/practice/data/providers/routine_provider.dart';
+import 'package:flutter_pecha/features/practice/data/services/routine_notification_service.dart';
 import 'package:flutter_pecha/features/practice/data/utils/routine_time_utils.dart';
 import 'package:flutter_pecha/features/practice/presentation/screens/select_session_screen.dart';
 import 'package:flutter_pecha/features/practice/presentation/widgets/routine_time_block.dart';
@@ -341,14 +342,24 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
     );
   }
 
-  void _deleteBlock(int index) {
+  Future<void> _deleteBlock(int index) async {
     // Confirmation dialog is already handled in RoutineTimeBlock._confirmDeleteBlock
-    final items = List<RoutineItem>.from(_blocks[index].items);
+    final block = _blocks[index];
+    final items = List<RoutineItem>.from(block.items);
+
+    // Cancel notification for this block immediately
+    final routineBlock = RoutineBlock(
+      id: block.id,
+      time: block.time,
+      notificationEnabled: block.notificationEnabled,
+      items: items,
+    );
+    await RoutineNotificationService().cancelBlockNotification(routineBlock);
+
     setState(() => _blocks.removeAt(index));
-    // Unenroll/unsave all items in the deleted block
-    for (final item in items) {
-      _unenrollItem(item);
-    }
+
+    // Unenroll all items with error aggregation
+    await _unenrollItems(items);
   }
 
   void _addBlock() {
@@ -371,9 +382,23 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
 
   void _onDeleteItem(int blockIndex, int itemIndex) {
     final item = _blocks[blockIndex].items[itemIndex];
+    final block = _blocks[blockIndex];
+
     setState(() {
       _blocks[blockIndex].items.removeAt(itemIndex);
     });
+
+    // Cancel notification if block becomes empty and had notifications enabled
+    if (_blocks[blockIndex].items.isEmpty && block.notificationEnabled) {
+      final routineBlock = RoutineBlock(
+        id: block.id,
+        time: block.time,
+        notificationEnabled: block.notificationEnabled,
+        items: [], // empty after deletion
+      );
+      RoutineNotificationService().cancelBlockNotification(routineBlock);
+    }
+
     // Unenroll/unsave immediately in background
     _unenrollItem(item);
   }
@@ -454,6 +479,45 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
           ),
         );
       }
+    }
+  }
+
+  /// Unenrolls multiple items and shows single error if any fail.
+  /// This is used when deleting a block with multiple items.
+  Future<void> _unenrollItems(List<RoutineItem> items) async {
+    if (items.isEmpty) return;
+
+    final failedItems = <String>[];
+
+    for (final item in items) {
+      try {
+        if (item.type == RoutineItemType.plan) {
+          await ref.read(userPlanUnsubscribeFutureProvider(item.id).future);
+        } else {
+          await ref.read(unsaveRecitationProvider(item.id).future);
+        }
+      } catch (e) {
+        _logger.error('Failed to unenroll/unsave item: ${item.title}', e);
+        failedItems.add(item.title);
+      }
+    }
+
+    // Invalidate providers once after all operations
+    ref.invalidate(myPlansPaginatedProvider);
+    ref.invalidate(savedRecitationsFutureProvider);
+
+    // Show single aggregated error message if any failed
+    if (failedItems.isNotEmpty && mounted) {
+      final message = failedItems.length == 1
+          ? 'Failed to unenroll "${failedItems.first}"'
+          : 'Failed to unenroll ${failedItems.length} items';
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(message),
+          backgroundColor: Colors.red,
+          duration: const Duration(seconds: 3),
+        ),
+      );
     }
   }
 
