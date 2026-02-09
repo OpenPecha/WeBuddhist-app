@@ -12,21 +12,29 @@ class PlanTextItem {
   final String? segmentId;
   final String title;
 
+  /// The subtask ID associated with this text item.
+  /// When non-null, navigating to this item will auto-track subtask completion.
+  /// Left null in preview mode to prevent tracking for unenrolled plans.
+  final String? subtaskId;
+
   const PlanTextItem({
     required this.textId,
     this.segmentId,
     required this.title,
+    this.subtaskId,
   });
 
   PlanTextItem copyWith({
     String? textId,
     String? segmentId,
     String? title,
+    String? subtaskId,
   }) {
     return PlanTextItem(
       textId: textId ?? this.textId,
       segmentId: segmentId ?? this.segmentId,
       title: title ?? this.title,
+      subtaskId: subtaskId ?? this.subtaskId,
     );
   }
 
@@ -36,15 +44,16 @@ class PlanTextItem {
     return other is PlanTextItem &&
         other.textId == textId &&
         other.segmentId == segmentId &&
-        other.title == title;
+        other.title == title &&
+        other.subtaskId == subtaskId;
   }
 
   @override
-  int get hashCode => Object.hash(textId, segmentId, title);
+  int get hashCode => Object.hash(textId, segmentId, title, subtaskId);
 
   @override
   String toString() {
-    return 'PlanTextItem(textId: $textId, segmentId: $segmentId, title: $title)';
+    return 'PlanTextItem(textId: $textId, segmentId: $segmentId, title: $title, subtaskId: $subtaskId)';
   }
 }
 

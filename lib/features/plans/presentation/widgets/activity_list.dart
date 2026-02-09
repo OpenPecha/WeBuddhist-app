@@ -105,6 +105,7 @@ class ActivityList extends StatelessWidget {
   }
 
   /// Build list of plan text items for swipe navigation
+  /// Includes subtaskId for auto-tracking completion (enrolled plan only)
   List<PlanTextItem> _buildPlanTextItems() {
     final items = <PlanTextItem>[];
     for (final task in tasks) {
@@ -117,6 +118,7 @@ class ActivityList extends StatelessWidget {
             textId: subtask.sourceTextId!,
             segmentId: subtask.pechaSegmentId,
             title: task.title,
+            subtaskId: subtask.id,
           ),
         );
       }

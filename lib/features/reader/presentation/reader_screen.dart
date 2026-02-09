@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
+import 'package:flutter_pecha/core/utils/app_logger.dart';
+import 'package:flutter_pecha/features/plans/data/providers/user_plans_provider.dart';
 import 'package:flutter_pecha/features/reader/data/models/navigation_context.dart';
 import 'package:flutter_pecha/features/reader/data/models/reader_state.dart';
 import 'package:flutter_pecha/features/reader/data/providers/reader_notifier.dart';
@@ -38,6 +40,7 @@ class ReaderScreen extends ConsumerStatefulWidget {
 }
 
 class _ReaderScreenState extends ConsumerState<ReaderScreen> {
+  static final _logger = AppLogger('ReaderScreen');
   late ReaderParams _params;
   final NavigationService _navigationService = const NavigationService();
 
@@ -50,11 +53,45 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
       segmentId: widget.segmentId,
       navigationContext: widget.navigationContext,
     );
+
+    // Auto-track subtask completion for enrolled plan navigation
+    _trackSubtaskCompletion();
+  }
+
+  /// Automatically marks the current subtask as complete when navigating
+  /// to a plan text item (via tap or swipe).
+  /// Only fires when subtaskId is present (enrolled plan), skipped for preview.
+  void _trackSubtaskCompletion() {
+    final navContext = widget.navigationContext;
+    if (navContext == null || navContext.source != NavigationSource.plan) return;
+
+    final items = navContext.planTextItems;
+    final index = navContext.currentTextIndex;
+    if (items == null || index == null || index < 0 || index >= items.length) {
+      return;
+    }
+
+    final subtaskId = items[index].subtaskId;
+    if (subtaskId == null || subtaskId.isEmpty) return;
+
+    // Fire-and-forget: mark subtask complete via API
+    Future.microtask(() async {
+      try {
+        final success =
+            await ref.read(completeSubTaskFutureProvider(subtaskId).future);
+        if (success) {
+          _logger.info('Auto-tracked subtask $subtaskId as complete');
+        } else {
+          _logger.warning('Subtask $subtaskId completion returned false');
+        }
+      } catch (e) {
+        _logger.error('Failed to auto-track subtask $subtaskId', e);
+      }
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    print("ReaderScreen build, ${widget.navigationContext}");
     final state = ref.watch(readerNotifierProvider(_params));
     final notifier = ref.read(readerNotifierProvider(_params).notifier);
 

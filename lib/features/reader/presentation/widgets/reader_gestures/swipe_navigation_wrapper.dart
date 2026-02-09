@@ -116,12 +116,10 @@ class _SwipeNavigationWrapperState
     _isNavigating = true;
 
     // Navigate to the new text
+    // Pass NavigationContext directly (it already contains targetSegmentId)
     context.pushReplacement(
       '/reader/${adjacentText.textId}',
-      extra: {
-        'segmentId': adjacentText.segmentId,
-        'navigationContext': newContext,
-      },
+      extra: newContext,
     );
 
     // Reset navigating flag after a short delay
