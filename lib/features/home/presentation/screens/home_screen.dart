@@ -23,6 +23,10 @@ class HomeScreen extends ConsumerStatefulWidget {
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
   bool _hasRequestedPermissions = false;
+  
+  // For proper keyboard dismissal with SearchAnchor
+  final FocusScopeNode _searchFocusScopeNode = FocusScopeNode();
+  bool _didJustDismissSearch = false;
 
   @override
   void initState() {
@@ -31,6 +35,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _requestNotificationPermissionsIfNeeded();
     });
+  }
+
+  @override
+  void dispose() {
+    _searchFocusScopeNode.dispose();
+    super.dispose();
   }
 
   Future<void> _requestNotificationPermissionsIfNeeded() async {
@@ -126,99 +136,114 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
       child: tagsAsync.when(
         data:
-            (tags) => SearchAnchor(
-              viewOnClose: () {
-                // Dismiss keyboard when search view closes
-                FocusScope.of(context).unfocus();
+            (tags) => FocusScope(
+              node: _searchFocusScopeNode,
+              onFocusChange: (isFocused) {
+                // When search view closes and focus returns to SearchBar, unfocus it
+                if (_didJustDismissSearch && isFocused) {
+                  _didJustDismissSearch = false;
+                  _searchFocusScopeNode.unfocus();
+                }
               },
-              builder: (BuildContext context, SearchController controller) {
-                return SearchBar(
-                  controller: controller,
-                  padding: const WidgetStatePropertyAll<EdgeInsets>(
-                    EdgeInsets.symmetric(horizontal: 16.0),
-                  ),
-                  elevation: WidgetStatePropertyAll(0.0),
-                  shadowColor: WidgetStatePropertyAll(Colors.transparent),
-                  onTap: () {
-                    controller.openView();
-                  },
-                  onChanged: (_) {
-                    controller.openView();
-                  },
-                  leading: Icon(
-                    Icons.search,
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
-                  hintText: localizations.text_search,
-                  hintStyle: WidgetStatePropertyAll(
-                    TextStyle(
-                      fontSize: 16,
+              child: SearchAnchor(
+                builder: (BuildContext context, SearchController controller) {
+                  return SearchBar(
+                    controller: controller,
+                    padding: const WidgetStatePropertyAll<EdgeInsets>(
+                      EdgeInsets.symmetric(horizontal: 16.0),
+                    ),
+                    elevation: const WidgetStatePropertyAll(0.0),
+                    shadowColor:
+                        const WidgetStatePropertyAll(Colors.transparent),
+                    onTap: () {
+                      controller.openView();
+                    },
+                    onChanged: (_) {
+                      controller.openView();
+                    },
+                    leading: Icon(
+                      Icons.search,
                       color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
-                  ),
-                );
-              },
-              suggestionsBuilder: (
-                BuildContext context,
-                SearchController controller,
-              ) {
-                final query = controller.text.toLowerCase();
-                final filteredTags =
-                    query.isEmpty
-                        ? tags
-                        : tags
-                            .where((tag) => tag.toLowerCase().contains(query))
-                            .toList();
+                    hintText: localizations.text_search,
+                    hintStyle: WidgetStatePropertyAll(
+                      TextStyle(
+                        fontSize: 16,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  );
+                },
+                viewLeading: IconButton(
+                  icon: const Icon(Icons.arrow_back),
+                  onPressed: () {
+                    _didJustDismissSearch = true;
+                    Navigator.of(context).pop();
+                  },
+                ),
+                suggestionsBuilder: (
+                  BuildContext context,
+                  SearchController controller,
+                ) {
+                  final query = controller.text.toLowerCase();
+                  final filteredTags = query.isEmpty
+                      ? tags
+                      : tags
+                          .where((tag) => tag.toLowerCase().contains(query))
+                          .toList();
 
-                if (filteredTags.isEmpty) {
-                  return [
-                    Padding(
-                      padding: const EdgeInsets.all(32.0),
-                      child: Center(
-                        child: Text(
-                          'No tags found',
-                          style: TextStyle(
-                            fontSize: fontSize,
-                            fontFamily: fontFamily,
-                            height: lineHeight,
-                            color:
-                                Theme.of(context).colorScheme.onSurfaceVariant,
+                  if (filteredTags.isEmpty) {
+                    return [
+                      Padding(
+                        padding: const EdgeInsets.all(32.0),
+                        child: Center(
+                          child: Text(
+                            'No tags found',
+                            style: TextStyle(
+                              fontSize: fontSize,
+                              fontFamily: fontFamily,
+                              height: lineHeight,
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onSurfaceVariant,
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                  ];
-                }
+                    ];
+                  }
 
-                return filteredTags.map((tag) {
-                  return ListTile(
-                    leading: Icon(
-                      Icons.tag,
-                      size: 20,
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
-                    title: Text(
-                      _capitalizeFirstLetter(tag),
-                      style: TextStyle(
-                        fontSize: fontSize,
-                        fontWeight: FontWeight.w500,
-                        fontFamily: fontFamily,
-                        height: lineHeight,
+                  return filteredTags.map((tag) {
+                    return ListTile(
+                      leading: Icon(
+                        Icons.tag,
+                        size: 20,
+                        color: Theme.of(context).colorScheme.primary,
                       ),
-                    ),
-                    trailing: Icon(
-                      Icons.arrow_forward_ios,
-                      size: 16,
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
-                    onTap: () {
-                      controller.closeView(tag);
-                      _log.info('Tag selected from search: $tag');
-                      _navigateToPlans(tag);
-                    },
-                  );
-                }).toList();
-              },
+                      title: Text(
+                        _capitalizeFirstLetter(tag),
+                        style: TextStyle(
+                          fontSize: fontSize,
+                          fontWeight: FontWeight.w500,
+                          fontFamily: fontFamily,
+                          height: lineHeight,
+                        ),
+                      ),
+                      trailing: Icon(
+                        Icons.arrow_forward_ios,
+                        size: 16,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                      onTap: () {
+                        _didJustDismissSearch = true;
+                        controller.closeView(tag);
+                        _log.info('Tag selected from search: $tag');
+                        _navigateToPlans(tag);
+                      },
+                    );
+                  }).toList();
+                },
+              ),
             ),
         loading:
             () => SearchBar(
