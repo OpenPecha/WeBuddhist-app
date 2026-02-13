@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/features/ai/models/search_state.dart';
+import 'package:flutter_pecha/features/ai/presentation/widgets/skeletons/search_result_skeleton.dart';
 import 'package:flutter_pecha/features/texts/constants/text_routes.dart';
 import 'package:flutter_pecha/features/texts/data/providers/apis/texts_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -84,11 +85,7 @@ class _TitlesTabViewState extends ConsumerState<TitlesTabView> {
     final localizations = AppLocalizations.of(context)!;
 
     if (widget.searchState.isLoading && _currentOffset == 0) {
-      return Center(
-        child: CircularProgressIndicator(
-          color: AppColors.primary,
-        ),
-      );
+      return const SearchResultSkeleton();
     }
 
     if (widget.searchState.error != null && _currentOffset == 0) {

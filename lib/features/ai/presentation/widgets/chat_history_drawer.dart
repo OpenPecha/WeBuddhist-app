@@ -6,6 +6,7 @@ import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/features/ai/presentation/controllers/chat_controller.dart';
 import 'package:flutter_pecha/features/ai/presentation/controllers/thread_list_controller.dart';
 import 'package:flutter_pecha/features/ai/presentation/widgets/delete_thread_dialog.dart';
+import 'package:flutter_pecha/features/ai/presentation/widgets/skeletons/chat_thread_skeleton.dart';
 import 'package:flutter_pecha/features/ai/presentation/widgets/thread_list_item.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -312,7 +313,7 @@ class _ChatHistoryDrawerState extends ConsumerState<ChatHistoryDrawer> {
     String? currentThreadId,
   ) {
     if (state.isLoading) {
-      return Center(child: CircularProgressIndicator(color: AppColors.primary));
+      return const ChatThreadSkeleton();
     }
 
     if (state.error != null) {

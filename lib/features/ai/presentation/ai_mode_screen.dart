@@ -8,6 +8,7 @@ import 'package:flutter_pecha/features/ai/models/search_state.dart';
 import 'package:flutter_pecha/features/ai/presentation/widgets/chat_header.dart';
 import 'package:flutter_pecha/features/ai/presentation/widgets/chat_history_drawer.dart';
 import 'package:flutter_pecha/features/ai/presentation/widgets/message_list.dart';
+import 'package:flutter_pecha/features/ai/presentation/widgets/skeletons/chat_message_skeleton.dart';
 import 'package:flutter_pecha/features/ai/validators/message_validator.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_pecha/features/auth/application/auth_notifier.dart';
@@ -265,23 +266,7 @@ class _AiModeScreenState extends ConsumerState<AiModeScreen> {
   }
 
   Widget _buildLoadingState(bool isDarkMode) {
-    final localizations = AppLocalizations.of(context)!;
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          CircularProgressIndicator(color: AppColors.primary),
-          const SizedBox(height: 16),
-          Text(
-            localizations.ai_loading_conversation,
-            style: TextStyle(
-              fontSize: 14,
-              color: isDarkMode ? AppColors.grey400 : AppColors.grey600,
-            ),
-          ),
-        ],
-      ),
-    );
+    return const ChatMessageSkeleton();
   }
 
   /// Build main content based on chat state
