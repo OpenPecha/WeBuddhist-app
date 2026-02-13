@@ -7,9 +7,9 @@ import 'package:flutter_pecha/features/plans/models/plans_model.dart';
 import 'package:flutter_pecha/features/reader/data/models/navigation_context.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'widgets/day_carousel.dart';
-import 'widgets/plan_cover_image.dart';
-import 'widgets/preview_activity_list.dart';
+import '../day_carousel.dart';
+import '../plan_cover_image.dart';
+import 'preview_activity_list.dart';
 
 /// A preview screen for viewing plan content before enrollment.
 /// Unlike PlanDetails, this screen:
@@ -41,6 +41,7 @@ class _PlanPreviewDetailsState extends ConsumerState<PlanPreviewDetails> {
           Expanded(
             child: SingleChildScrollView(
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   PlanCoverImage(imageUrl: widget.plan.imageUrl ?? ''),
                   _buildDayCarouselSection(language),
@@ -49,7 +50,7 @@ class _PlanPreviewDetailsState extends ConsumerState<PlanPreviewDetails> {
               ),
             ),
           ),
-          _buildStartReadingButton(context, localizations, language),
+          // _buildStartReadingButton(context, localizations, language),
         ],
       ),
     );
@@ -152,90 +153,93 @@ class _PlanPreviewDetailsState extends ConsumerState<PlanPreviewDetails> {
   }
 
   Widget _buildDayTitle(BuildContext context, String language, int day) {
-    return Text(
-      "Days $day of ${widget.plan.totalDays ?? 0}",
-      style: const TextStyle(
-        fontSize: 18,
-        fontWeight: FontWeight.bold,
-        fontFamily: "Inter",
-      ),
-    );
-  }
-
-  Widget _buildStartReadingButton(
-    BuildContext context,
-    AppLocalizations localizations,
-    String language,
-  ) {
-    return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: SizedBox(
-          width: double.infinity,
-          child: FilledButton(
-            onPressed: () => _handleStartReading(context),
-            style: FilledButton.styleFrom(
-              backgroundColor: Colors.black,
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
-              ),
-            ),
-            child: Text(
-              localizations.start_reading,
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-            ),
-          ),
+    return Align(
+      alignment: Alignment.topLeft,
+      child: Text(
+        "Days $day of ${widget.plan.totalDays ?? 0}",
+        style: const TextStyle(
+          fontSize: 18,
+          fontWeight: FontWeight.bold,
+          fontFamily: "Inter",
         ),
       ),
     );
   }
 
-  void _handleStartReading(BuildContext context) {
-    // Get the first day's content and navigate to the first subtask's text
-    final dayContent = ref.read(
-      planDayContentFutureProvider(
-        PlanDaysParams(planId: widget.plan.id, dayNumber: 1),
-      ),
-    );
+  // Widget _buildStartReadingButton(
+  //   BuildContext context,
+  //   AppLocalizations localizations,
+  //   String language,
+  // ) {
+  //   return SafeArea(
+  //     child: Padding(
+  //       padding: const EdgeInsets.all(16.0),
+  //       child: SizedBox(
+  //         width: double.infinity,
+  //         child: FilledButton(
+  //           onPressed: () => _handleStartReading(context),
+  //           style: FilledButton.styleFrom(
+  //             backgroundColor: Colors.black,
+  //             foregroundColor: Colors.white,
+  //             padding: const EdgeInsets.symmetric(vertical: 16),
+  //             shape: RoundedRectangleBorder(
+  //               borderRadius: BorderRadius.circular(20),
+  //             ),
+  //           ),
+  //           child: Text(
+  //             localizations.start_reading,
+  //             style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+  //           ),
+  //         ),
+  //       ),
+  //     ),
+  //   );
+  // }
 
-    dayContent.whenData((content) {
-      final tasks = content.tasks;
-      if (tasks != null && tasks.isNotEmpty) {
-        // Build plan text items for swipe navigation
-        final planTextItems = <PlanTextItem>[];
-        for (final task in tasks) {
-          // for (final subtask in task.subtasks) { - we are using the first subtask for now
-          final subtask = task.subtasks[0];
-          if (subtask.sourceTextId != null &&
-              subtask.sourceTextId!.isNotEmpty) {
-            planTextItems.add(
-              PlanTextItem(
-                textId: subtask.sourceTextId!,
-                segmentId: subtask.pechaSegmentId,
-                title: task.title,
-              ),
-            );
-          }
-          // }
-        }
+  // void _handleStartReading(BuildContext context) {
+  //   // Get the first day's content and navigate to the first subtask's text
+  //   final dayContent = ref.read(
+  //     planDayContentFutureProvider(
+  //       PlanDaysParams(planId: widget.plan.id, dayNumber: 1),
+  //     ),
+  //   );
 
-        if (planTextItems.isEmpty) return;
+  //   dayContent.whenData((content) {
+  //     final tasks = content.tasks;
+  //     if (tasks != null && tasks.isNotEmpty) {
+  //       // Build plan text items for swipe navigation
+  //       final planTextItems = <PlanTextItem>[];
+  //       for (final task in tasks) {
+  //         // for (final subtask in task.subtasks) { - we are using the first subtask for now
+  //         final subtask = task.subtasks[0];
+  //         if (subtask.sourceTextId != null &&
+  //             subtask.sourceTextId!.isNotEmpty) {
+  //           planTextItems.add(
+  //             PlanTextItem(
+  //               textId: subtask.sourceTextId!,
+  //               segmentId: subtask.pechaSegmentId,
+  //               title: task.title,
+  //             ),
+  //           );
+  //         }
+  //         // }
+  //       }
 
-        // Navigate to the first text with navigation context
-        final firstItem = planTextItems.first;
-        final navigationContext = NavigationContext(
-          source: NavigationSource.plan,
-          planId: widget.plan.id,
-          dayNumber: 1,
-          targetSegmentId: firstItem.segmentId,
-          planTextItems: planTextItems,
-          currentTextIndex: 0,
-        );
+  //       if (planTextItems.isEmpty) return;
 
-        context.push('/reader/${firstItem.textId}', extra: navigationContext);
-      }
-    });
-  }
+  //       // Navigate to the first text with navigation context
+  //       final firstItem = planTextItems.first;
+  //       final navigationContext = NavigationContext(
+  //         source: NavigationSource.plan,
+  //         planId: widget.plan.id,
+  //         dayNumber: 1,
+  //         targetSegmentId: firstItem.segmentId,
+  //         planTextItems: planTextItems,
+  //         currentTextIndex: 0,
+  //       );
+
+  //       context.push('/reader/${firstItem.textId}', extra: navigationContext);
+  //     }
+  //   });
+  // }
 }

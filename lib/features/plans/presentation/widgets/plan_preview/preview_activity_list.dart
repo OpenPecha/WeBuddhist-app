@@ -76,7 +76,7 @@ class PreviewActivityList extends StatelessWidget {
 
     if (subtaskWithText != null) {
       final sourceTextId = subtaskWithText.sourceTextId as String;
-      final segmentId = subtaskWithText.pechaSegmentId as String?;
+      final segmentId = subtaskWithText.segmentId as String?;
 
       // Create navigation context for plan navigation
       final navigationContext = NavigationContext(
@@ -102,7 +102,7 @@ class PreviewActivityList extends StatelessWidget {
         items.add(
           PlanTextItem(
             textId: subtask.sourceTextId!,
-            segmentId: subtask.pechaSegmentId,
+            segmentId: subtask.segmentId,
             title: task.title,
           ),
         );

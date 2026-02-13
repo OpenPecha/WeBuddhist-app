@@ -9,9 +9,9 @@ import 'package:flutter_pecha/features/plans/models/plan_days_model.dart';
 import 'package:flutter_pecha/features/plans/models/user/user_plans_model.dart';
 import 'package:flutter_pecha/features/plans/models/user/user_tasks_dto.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'widgets/plan_cover_image.dart';
-import 'widgets/day_carousel.dart';
-import 'widgets/activity_list.dart';
+import '../plan_cover_image.dart';
+import '../day_carousel.dart';
+import 'activity_list.dart';
 
 final _logger = AppLogger('PlanDetails');
 
