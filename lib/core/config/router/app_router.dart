@@ -13,9 +13,9 @@ import 'package:flutter_pecha/features/onboarding/data/providers/onboarding_data
 import 'package:flutter_pecha/features/onboarding/presentation/onboarding_wrapper.dart';
 import 'package:flutter_pecha/features/plans/models/plans_model.dart';
 import 'package:flutter_pecha/features/plans/models/user/user_plans_model.dart';
-import 'package:flutter_pecha/features/plans/presentation/plan_details.dart';
+import 'package:flutter_pecha/features/plans/presentation/widgets/plan_track/plan_details.dart';
 import 'package:flutter_pecha/features/plans/presentation/plan_info.dart';
-import 'package:flutter_pecha/features/plans/presentation/plan_preview_details.dart';
+import 'package:flutter_pecha/features/plans/presentation/widgets/plan_preview/plan_preview_details.dart';
 import 'package:flutter_pecha/features/practice/presentation/screens/edit_routine_screen.dart';
 import 'package:flutter_pecha/features/practice/presentation/screens/practice_screen.dart';
 import 'package:flutter_pecha/features/practice/presentation/screens/select_plan_screen.dart';
