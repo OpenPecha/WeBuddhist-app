@@ -21,12 +21,14 @@ class ReaderContentPart extends ConsumerStatefulWidget {
   final ReaderParams params;
   final String language;
   final String? initialSegmentId;
+  final void Function(bool isScrollingDown)? onScrollDirectionChanged;
 
   const ReaderContentPart({
     super.key,
     required this.params,
     required this.language,
     this.initialSegmentId,
+    this.onScrollDirectionChanged,
   });
 
   @override
@@ -44,6 +46,10 @@ class _ReaderContentPartState extends ConsumerState<ReaderContentPart> {
   bool _hasTriggeredNext = false;
   bool _hasScrolledToInitial = false;
   int? _positionBeforePreviousLoad;
+
+  // Scroll direction tracking
+  double _lastScrollOffset = 0;
+  bool _lastScrollDirection = false; // false = up, true = down
 
   @override
   void initState() {
@@ -65,6 +71,31 @@ class _ReaderContentPartState extends ConsumerState<ReaderContentPart> {
     _debounceTimer = Timer(ReaderConstants.scrollDebounce, () {
       _checkPaginationThresholds();
     });
+
+    // Track scroll direction for app bar visibility
+    _trackScrollDirection();
+  }
+
+  void _trackScrollDirection() {
+    final positions = _itemPositionsListener.itemPositions.value;
+    if (positions.isEmpty) return;
+
+    // Calculate approximate scroll offset based on first visible item
+    final sortedPositions =
+        positions.toList()..sort((a, b) => a.index.compareTo(b.index));
+    final firstItem = sortedPositions.first;
+    final currentOffset = firstItem.index + (1 - firstItem.itemLeadingEdge);
+
+    // Determine scroll direction with a small threshold to avoid jitter
+    const threshold = 0.5;
+    if ((currentOffset - _lastScrollOffset).abs() > threshold) {
+      final isScrollingDown = currentOffset > _lastScrollOffset;
+      if (isScrollingDown != _lastScrollDirection) {
+        _lastScrollDirection = isScrollingDown;
+        widget.onScrollDirectionChanged?.call(isScrollingDown);
+      }
+      _lastScrollOffset = currentOffset;
+    }
   }
 
   void _checkPaginationThresholds() {

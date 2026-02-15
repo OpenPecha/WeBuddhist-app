@@ -17,7 +17,7 @@ class ReaderChapterHeader extends StatelessWidget {
       width: double.infinity,
       padding: EdgeInsets.symmetric(
         horizontal: ReaderConstants.segmentHorizontalPadding + 4,
-        vertical: 8,
+        vertical:12,
       ),
       child: Text(
         textDetail.title,

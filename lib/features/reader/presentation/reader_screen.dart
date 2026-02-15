@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/features/plans/data/providers/user_plans_provider.dart';
+import 'package:flutter_pecha/features/reader/constants/reader_constants.dart';
 import 'package:flutter_pecha/features/reader/data/models/navigation_context.dart';
 import 'package:flutter_pecha/features/reader/data/models/reader_state.dart';
 import 'package:flutter_pecha/features/reader/data/providers/reader_notifier.dart';
@@ -39,10 +40,16 @@ class ReaderScreen extends ConsumerStatefulWidget {
   ConsumerState<ReaderScreen> createState() => _ReaderScreenState();
 }
 
-class _ReaderScreenState extends ConsumerState<ReaderScreen> {
+class _ReaderScreenState extends ConsumerState<ReaderScreen>
+    with SingleTickerProviderStateMixin {
   static final _logger = AppLogger('ReaderScreen');
   late ReaderParams _params;
   final NavigationService _navigationService = const NavigationService();
+
+  // App bar visibility state
+  bool _isAppBarVisible = true;
+  late final AnimationController _appBarAnimationController;
+  late final Animation<Offset> _appBarSlideAnimation;
 
   @override
   void initState() {
@@ -54,8 +61,39 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
       navigationContext: widget.navigationContext,
     );
 
+    // Initialize app bar animation
+    _appBarAnimationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 200),
+    );
+    _appBarSlideAnimation = Tween<Offset>(
+      begin: Offset.zero,
+      end: const Offset(0, -1),
+    ).animate(
+      CurvedAnimation(
+        parent: _appBarAnimationController,
+        curve: Curves.easeInOut,
+      ),
+    );
+
     // Auto-track subtask completion for enrolled plan navigation
     _trackSubtaskCompletion();
+  }
+
+  @override
+  void dispose() {
+    _appBarAnimationController.dispose();
+    super.dispose();
+  }
+
+  void _onScrollDirectionChanged(bool isScrollingDown) {
+    if (isScrollingDown && _isAppBarVisible) {
+      _isAppBarVisible = false;
+      _appBarAnimationController.forward();
+    } else if (!isScrollingDown && !_isAppBarVisible) {
+      _isAppBarVisible = true;
+      _appBarAnimationController.reverse();
+    }
   }
 
   /// Automatically marks the current subtask as complete when navigating
@@ -63,7 +101,8 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
   /// Only fires when subtaskId is present (enrolled plan), skipped for preview.
   void _trackSubtaskCompletion() {
     final navContext = widget.navigationContext;
-    if (navContext == null || navContext.source != NavigationSource.plan) return;
+    if (navContext == null || navContext.source != NavigationSource.plan)
+      return;
 
     final items = navContext.planTextItems;
     final index = navContext.currentTextIndex;
@@ -77,8 +116,9 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
     // Fire-and-forget: mark subtask complete via API
     Future.microtask(() async {
       try {
-        final success =
-            await ref.read(completeSubTaskFutureProvider(subtaskId).future);
+        final success = await ref.read(
+          completeSubTaskFutureProvider(subtaskId).future,
+        );
         if (success) {
           _logger.info('Auto-tracked subtask $subtaskId as complete');
         } else {
@@ -96,12 +136,7 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
     final notifier = ref.read(readerNotifierProvider(_params).notifier);
 
     return Scaffold(
-      appBar: ReaderAppBar(
-        params: _params,
-        colorIndex: widget.colorIndex,
-        onSearchPressed: () => _handleSearch(context, state),
-        onLanguagePressed: () => _handleLanguageSelection(context, state),
-      ),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: _buildBody(context, state, notifier),
     );
   }
@@ -169,40 +204,77 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
       return const Center(child: CircularProgressIndicator());
     }
 
-    return Column(
+    return Stack(
       children: [
-        // Chapter header
-        ReaderChapterHeader(textDetail: state.textDetail!),
-        // Plan progress indicator (if applicable)
-        if (state.navigationContext?.canSwipe ?? false)
-          _buildPlanProgressIndicator(state.navigationContext!),
         // Main content area
-        Expanded(
-          child: SwipeNavigationWrapper(
-            params: _params,
-            child: ReaderCommentarySplitView(
-              params: _params,
-              mainContent: Stack(
-                children: [
-                  // Reader content
-                  ReaderContentPart(
-                    params: _params,
-                    language: state.textDetail!.language,
-                    initialSegmentId: widget.segmentId,
-                  ),
-                  // Segment action bar (when segment selected and commentary closed)
-                  if (state.hasSelection && !state.isCommentaryOpen)
-                    SegmentActionBar(
-                      segment: state.selectedSegment!,
-                      params: _params,
-                      onClose: () => notifier.selectSegment(null),
-                      onOpenCommentary: () {
-                        // Scroll to segment when opening commentary
-                        // This will be handled by the content widget
-                      },
-                    ),
-                ],
+        SafeArea(
+          child: Column(
+            children: [
+              // Spacer for app bar (animated)
+              AnimatedBuilder(
+                animation: _appBarAnimationController,
+                builder: (context, child) {
+                  final appBarHeight =
+                      MediaQuery.of(context).padding.top +
+                      ReaderConstants.appBarToolbarHeight +
+                      ReaderConstants.appBarBottomHeight;
+                  return SizedBox(
+                    height:
+                        appBarHeight * (1 - _appBarAnimationController.value),
+                  );
+                },
               ),
+              // Chapter header
+              ReaderChapterHeader(textDetail: state.textDetail!),
+              // Plan progress indicator (if applicable)
+              if (state.navigationContext?.canSwipe ?? false)
+                _buildPlanProgressIndicator(state.navigationContext!),
+              // Main scrollable content
+              Expanded(
+                child: SwipeNavigationWrapper(
+                  params: _params,
+                  child: ReaderCommentarySplitView(
+                    params: _params,
+                    mainContent: Stack(
+                      children: [
+                        // Reader content with scroll detection
+                        ReaderContentPart(
+                          params: _params,
+                          language: state.textDetail!.language,
+                          initialSegmentId: widget.segmentId,
+                          onScrollDirectionChanged: _onScrollDirectionChanged,
+                        ),
+                        // Segment action bar (when segment selected and commentary closed)
+                        if (state.hasSelection && !state.isCommentaryOpen)
+                          SegmentActionBar(
+                            segment: state.selectedSegment!,
+                            params: _params,
+                            onClose: () => notifier.selectSegment(null),
+                            onOpenCommentary: () {
+                              // Scroll to segment when opening commentary
+                              // This will be handled by the content widget
+                            },
+                          ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        // Animated App Bar overlay
+        Positioned(
+          top: 0,
+          left: 0,
+          right: 0,
+          child: SlideTransition(
+            position: _appBarSlideAnimation,
+            child: ReaderAppBarOverlay(
+              params: _params,
+              colorIndex: widget.colorIndex,
+              onSearchPressed: () => _handleSearch(context, state),
+              onLanguagePressed: () => _handleLanguageSelection(context, state),
             ),
           ),
         ),
