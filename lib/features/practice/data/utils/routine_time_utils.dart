@@ -7,6 +7,33 @@ const int kMinBlockGapMinutes = 10;
 /// Maximum number of time blocks allowed (re-exported from RoutineData).
 const int kMaxBlocks = RoutineData.maxBlocks;
 
+// ============================================================================
+// Time Formatting Utilities
+// ============================================================================
+
+/// Formats a [TimeOfDay] into a 12-hour format string (e.g., "12:30 PM").
+///
+/// This is the single source of truth for time formatting across the routine
+/// feature to ensure consistency.
+String formatRoutineTime(TimeOfDay time) {
+  final hour = time.hourOfPeriod == 0 ? 12 : time.hourOfPeriod;
+  final minute = time.minute.toString().padLeft(2, '0');
+  final period = time.period == DayPeriod.am ? 'AM' : 'PM';
+  return '$hour:$minute $period';
+}
+
+/// Converts a [TimeOfDay] to total minutes since midnight.
+int timeToMinutes(TimeOfDay time) => time.hour * 60 + time.minute;
+
+/// Converts total minutes since midnight to a [TimeOfDay].
+TimeOfDay minutesToTime(int minutes) {
+  final normalizedMinutes = minutes % 1440; // Wrap around midnight
+  return TimeOfDay(
+    hour: normalizedMinutes ~/ 60,
+    minute: normalizedMinutes % 60,
+  );
+}
+
 /// Total minutes in a day.
 const int _minutesInDay = 1440;
 

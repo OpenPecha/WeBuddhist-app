@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/features/practice/data/utils/routine_time_utils.dart';
 import 'package:uuid/uuid.dart';
 
 const _uuid = Uuid();
@@ -132,12 +133,8 @@ class RoutineBlock {
     return (hash.abs() % 998999) + 1000;
   }
 
-  String get formattedTime {
-    final hour = time.hourOfPeriod == 0 ? 12 : time.hourOfPeriod;
-    final minute = time.minute.toString().padLeft(2, '0');
-    final period = time.period == DayPeriod.am ? 'AM' : 'PM';
-    return '$hour:$minute $period';
-  }
+  /// Returns the time formatted as "12:30 PM".
+  String get formattedTime => formatRoutineTime(time);
 
   Map<String, dynamic> toJson() => {
     'id': id,

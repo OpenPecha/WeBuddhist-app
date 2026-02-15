@@ -199,7 +199,7 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              'Adjusted to ${_formatTime(adjusted)} ($kMinBlockGapMinutes-min minimum gap)',
+              'Adjusted to ${formatRoutineTime(adjusted)} ($kMinBlockGapMinutes-min minimum gap)',
             ),
             duration: const Duration(seconds: 2),
           ),
@@ -210,17 +210,8 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
 
   void _sortBlocks() {
     _blocks.sort(
-      (a, b) => (a.time.hour * 60 + a.time.minute).compareTo(
-        b.time.hour * 60 + b.time.minute,
-      ),
+      (a, b) => timeToMinutes(a.time).compareTo(timeToMinutes(b.time)),
     );
-  }
-
-  String _formatTime(TimeOfDay time) {
-    final hour = time.hourOfPeriod == 0 ? 12 : time.hourOfPeriod;
-    final minute = time.minute.toString().padLeft(2, '0');
-    final period = time.period == DayPeriod.am ? 'AM' : 'PM';
-    return '$hour:$minute $period';
   }
 
   Future<void> _toggleNotification(int index) async {
@@ -435,13 +426,18 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
   void _onDeleteItem(int blockIndex, int itemIndex) {
     final item = _blocks[blockIndex].items[itemIndex];
     final block = _blocks[blockIndex];
+    final wasNotEmpty = block.items.isNotEmpty;
 
     setState(() {
       _blocks[blockIndex].items.removeAt(itemIndex);
     });
 
-    // Cancel notification if block becomes empty and had notifications enabled
-    if (_blocks[blockIndex].items.isEmpty && block.notificationEnabled) {
+    // Cancel notification when block becomes empty
+    // We cancel regardless of notificationEnabled state because:
+    // 1. The notification might have been scheduled when notifications were enabled
+    // 2. It's safe to cancel a notification that doesn't exist
+    // 3. This ensures cleanup even if the user toggled notifications off after scheduling
+    if (wasNotEmpty && _blocks[blockIndex].items.isEmpty) {
       final routineBlock = RoutineBlock(
         id: block.id,
         time: block.time,
@@ -471,39 +467,77 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
     return (planIds: planIds, recitationIds: recitationIds);
   }
 
-  Future<void> _navigateToSelectSession(int blockIndex) async {
-    final excluded = _collectRoutineItemIds();
-    final result = await Navigator.of(context).push<SessionSelection>(
-      MaterialPageRoute(
-        builder: (_) => SelectSessionScreen(
-          excludedPlanIds: excluded.planIds,
-          excludedRecitationIds: excluded.recitationIds,
-        ),
-      ),
-    );
+  /// Flag to prevent concurrent navigation to session selection.
+  bool _isSelectingSession = false;
 
-    if (result != null && mounted) {
-      setState(() {
-        switch (result) {
-          case PlanSessionSelection(:final plan):
-            _blocks[blockIndex].items.add(
-              RoutineItem(
-                id: plan.id,
-                title: plan.title,
-                imageUrl: plan.imageThumbnail,
-                type: RoutineItemType.plan,
+  Future<void> _navigateToSelectSession(int blockIndex) async {
+    // Prevent rapid concurrent navigation that could lead to duplicates
+    if (_isSelectingSession) return;
+    _isSelectingSession = true;
+
+    try {
+      final excluded = _collectRoutineItemIds();
+      final result = await Navigator.of(context).push<SessionSelection>(
+        MaterialPageRoute(
+          builder: (_) => SelectSessionScreen(
+            excludedPlanIds: excluded.planIds,
+            excludedRecitationIds: excluded.recitationIds,
+          ),
+        ),
+      );
+
+      if (result != null && mounted) {
+        // Extract the item ID to check for duplicates
+        final (newItemId, newItemType) = switch (result) {
+          PlanSessionSelection(:final plan) => (plan.id, RoutineItemType.plan),
+          RecitationSessionSelection(:final recitation) => (
+              recitation.textId,
+              RoutineItemType.recitation
+            ),
+        };
+
+        // Double-check for duplicates (race condition protection)
+        final isDuplicate = _blocks[blockIndex].items.any(
+          (item) => item.id == newItemId && item.type == newItemType,
+        );
+
+        if (isDuplicate) {
+          _logger.warning('Duplicate item prevented: $newItemId');
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('This item is already in the block.'),
+                duration: Duration(seconds: 2),
               ),
             );
-          case RecitationSessionSelection(:final recitation):
-            _blocks[blockIndex].items.add(
-              RoutineItem(
-                id: recitation.textId,
-                title: recitation.title,
-                type: RoutineItemType.recitation,
-              ),
-            );
+          }
+          return;
         }
-      });
+
+        setState(() {
+          switch (result) {
+            case PlanSessionSelection(:final plan):
+              _blocks[blockIndex].items.add(
+                RoutineItem(
+                  id: plan.id,
+                  title: plan.title,
+                  imageUrl: plan.imageThumbnail,
+                  type: RoutineItemType.plan,
+                ),
+              );
+            case RecitationSessionSelection(:final recitation):
+              _blocks[blockIndex].items.add(
+                RoutineItem(
+                  id: recitation.textId,
+                  title: recitation.title,
+                  type: RoutineItemType.recitation,
+                ),
+              );
+          }
+        });
+      }
+    } finally {
+      _isSelectingSession = false;
     }
   }
 
