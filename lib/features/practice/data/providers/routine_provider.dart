@@ -11,8 +11,9 @@ final routineLocalStorageProvider = Provider<RoutineLocalStorage>((ref) {
   );
 });
 
-final routineProvider =
-    StateNotifierProvider<RoutineNotifier, RoutineData>((ref) {
+final routineProvider = StateNotifierProvider<RoutineNotifier, RoutineData>((
+  ref,
+) {
   final storage = ref.watch(routineLocalStorageProvider);
   return RoutineNotifier(storage);
 });
@@ -26,8 +27,8 @@ class RoutineNotifier extends StateNotifier<RoutineData> {
     _loadFromStorage();
   }
 
-  void _loadFromStorage() {
-    final data = _storage.loadRoutine();
+  Future<void> _loadFromStorage() async {
+    final data = await _storage.loadRoutine();
     state = data.sortedByTime;
   }
 
@@ -52,14 +53,15 @@ class RoutineNotifier extends StateNotifier<RoutineData> {
     int oldIndex,
     int newIndex,
   ) async {
-    final blocks = state.blocks.map((block) {
-      if (block.id != blockId) return block;
-      final items = List<RoutineItem>.from(block.items);
-      final item = items.removeAt(oldIndex);
-      final adjustedIndex = newIndex > oldIndex ? newIndex - 1 : newIndex;
-      items.insert(adjustedIndex, item);
-      return block.copyWith(items: items);
-    }).toList();
+    final blocks =
+        state.blocks.map((block) {
+          if (block.id != blockId) return block;
+          final items = List<RoutineItem>.from(block.items);
+          final item = items.removeAt(oldIndex);
+          final adjustedIndex = newIndex > oldIndex ? newIndex - 1 : newIndex;
+          items.insert(adjustedIndex, item);
+          return block.copyWith(items: items);
+        }).toList();
     await saveRoutine(blocks);
   }
 }

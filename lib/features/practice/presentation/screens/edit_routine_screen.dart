@@ -177,6 +177,20 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
               .map((e) => e.value.time)
               .toList();
       final adjusted = adjustTimeForMinimumGap(picked, otherTimes);
+
+      // Handle case where no valid time slot is available
+      if (adjusted == null) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('No available time slot. Try removing a block first.'),
+              duration: Duration(seconds: 3),
+            ),
+          );
+        }
+        return;
+      }
+
       setState(() {
         _blocks[index].time = adjusted;
         _sortBlocks();
@@ -362,10 +376,48 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
     await _unenrollItems(items);
   }
 
+  /// Whether the maximum number of blocks has been reached.
+  bool get _isAtMaxBlocks => !canAddBlock(_blocks.length);
+
+  /// Whether to show the "Add Block" button in the list.
+  /// Hidden when last block is empty OR when at max blocks.
+  bool get _shouldShowAddButton => !_isLastBlockEmpty && !_isAtMaxBlocks;
+
+  /// Calculate the total item count for the list.
+  int _calculateListItemCount() {
+    if (_shouldShowAddButton) {
+      return _blocks.length + 1; // +1 for add block button
+    }
+    return _blocks.length;
+  }
+
   void _addBlock() {
+    // Enforce max block limit
+    if (_isAtMaxBlocks) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Maximum of $kMaxBlocks time blocks reached.'),
+          duration: const Duration(seconds: 3),
+        ),
+      );
+      return;
+    }
+
     final otherTimes = _blocks.map((b) => b.time).toList();
     final defaultTime = const TimeOfDay(hour: 12, minute: 0);
     final adjusted = adjustTimeForMinimumGap(defaultTime, otherTimes);
+
+    // Handle case where no valid time slot is available
+    if (adjusted == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('No available time slot. Try removing a block first.'),
+          duration: Duration(seconds: 3),
+        ),
+      );
+      return;
+    }
+
     setState(() {
       _blocks.add(_EditableBlock(time: adjusted, notificationEnabled: false));
       _sortBlocks();
@@ -554,15 +606,10 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
                 const SizedBox(height: 20),
                 Expanded(
                   child: ListView.separated(
-                    itemCount:
-                        _isLastBlockEmpty
-                            ? _blocks.length
-                            : _blocks.length + 1, // +1 for add block button
+                    itemCount: _calculateListItemCount(),
                     separatorBuilder: (_, index) {
-                      final isLastItem =
-                          _isLastBlockEmpty
-                              ? index == _blocks.length - 1
-                              : index == _blocks.length - 1;
+                      final isLastItem = index == _blocks.length - 1 ||
+                          (_shouldShowAddButton && index == _blocks.length);
                       if (isLastItem) {
                         return const SizedBox(height: 16);
                       }
@@ -572,8 +619,10 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
                       );
                     },
                     itemBuilder: (context, index) {
-                      // Show add block button only if last block is not empty
-                      if (!_isLastBlockEmpty && index == _blocks.length) {
+                      // Show add block button only if:
+                      // 1. Last block is not empty
+                      // 2. We haven't reached max blocks
+                      if (_shouldShowAddButton && index == _blocks.length) {
                         return _AddBlockButton(
                           onTap: _addBlock,
                           isDark: isDark,

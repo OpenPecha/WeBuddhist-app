@@ -3,10 +3,10 @@ import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/features/auth/application/auth_notifier.dart';
 import 'package:flutter_pecha/features/auth/presentation/widgets/login_drawer.dart';
 import 'package:flutter_pecha/features/practice/data/providers/routine_provider.dart';
-import 'package:flutter_pecha/features/practice/presentation/screens/edit_routine_screen.dart';
 import 'package:flutter_pecha/features/practice/presentation/widgets/routine_empty_state.dart';
 import 'package:flutter_pecha/features/practice/presentation/widgets/routine_filled_state.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 class PracticeScreen extends ConsumerWidget {
   const PracticeScreen({super.key});
@@ -17,16 +17,14 @@ class PracticeScreen extends ConsumerWidget {
       LoginDrawer.show(context, ref);
       return;
     }
-    Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => const EditRoutineScreen()),
-    );
+    context.pushNamed("edit-routine");
   }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final localizations = AppLocalizations.of(context)!;
     final authState = ref.watch(authProvider);
-    
+
     // Guests always see empty state (they have no routine data)
     final routineData = authState.isGuest ? null : ref.watch(routineProvider);
 
