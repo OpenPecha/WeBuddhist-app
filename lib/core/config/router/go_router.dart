@@ -18,7 +18,7 @@ import 'package:flutter_pecha/features/story_view/presentation/screens/story_fea
 import 'package:flutter_pecha/features/story_view/presentation/screens/story_presenter.dart';
 import 'package:flutter_pecha/features/notifications/presentation/notification_settings_screen.dart';
 import 'package:flutter_pecha/features/plans/models/plans_model.dart';
-import 'package:flutter_pecha/features/plans/presentation/plan_details.dart';
+import 'package:flutter_pecha/features/plans/presentation/widgets/plan_track/plan_details.dart';
 import 'package:flutter_pecha/features/plans/presentation/plan_info.dart';
 import 'package:flutter_pecha/features/prayer_of_the_day/presentation/prayer_of_the_day_screen.dart';
 import 'package:flutter_pecha/features/story_view/presentation/widgets/image_story.dart';

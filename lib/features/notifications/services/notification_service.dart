@@ -1,11 +1,9 @@
 import 'dart:io';
 
-import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:go_router/go_router.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -22,8 +20,7 @@ class NotificationService {
       FlutterLocalNotificationsPlugin();
 
   bool _isInitialized = false;
-  static const String _dailyReminderKey = 'daily_reminder_time';
-  static const String _dailyReminderEnabledKey = 'daily_reminder_enabled';
+  
   // Add static references for navigation
   static GoRouter? _router;
   static ProviderContainer? _container;
@@ -126,29 +123,7 @@ class NotificationService {
             >();
 
     if (androidImplementation != null) {
-      // Daily practice channel
-      const AndroidNotificationChannel dailyPracticeChannel =
-          AndroidNotificationChannel(
-            androidNotificationChannelId,
-            androidNotificationChannelName,
-            description: androidNotificationChannelDescription,
-            importance: Importance.high,
-            playSound: true,
-            enableVibration: true,
-          );
-
-      // Recitation reminder channel
-      const AndroidNotificationChannel recitationChannel =
-          AndroidNotificationChannel(
-            recitationNotificationChannelId,
-            recitationNotificationChannelName,
-            description: recitationNotificationChannelDescription,
-            importance: Importance.high,
-            playSound: true,
-            enableVibration: true,
-          );
-
-      // Routine block reminder channel
+      // Routine block reminder channel (only channel needed now)
       const AndroidNotificationChannel routineBlockChannel =
           AndroidNotificationChannel(
             routineBlockNotificationChannelId,
@@ -159,11 +134,6 @@ class NotificationService {
             enableVibration: true,
           );
 
-      // Create all channels
-      await androidImplementation.createNotificationChannel(
-        dailyPracticeChannel,
-      );
-      await androidImplementation.createNotificationChannel(recitationChannel);
       await androidImplementation.createNotificationChannel(routineBlockChannel);
 
       _logger.info('Android notification channels created');
@@ -238,144 +208,18 @@ class NotificationService {
   void _onNotificationTapped(NotificationResponse response) {
     // Navigate based on notification ID
     if (_router != null && _container != null) {
-      // Check notification ID to determine which tab to open
+      // Routine block notifications have ID >= 100
       if (response.id != null && response.id! >= 100) {
         // Routine block notification — navigate to practice screen
         _router!.go('/practice');
-      } else if (response.id == recitationNotificationId) {
-        // Recitation notification - go to recitation tab (index 1, was 2 before home hidden)
-        _container!.read(bottomNavIndexProvider.notifier).state = 1;
-        _router!.go('/home');
       } else {
-        // Daily practice or default - go to texts tab (index 0, home is hidden)
+        // Default fallback - go to texts tab (index 0)
         _container!.read(bottomNavIndexProvider.notifier).state = 0;
         _router!.go('/home');
       }
     }
   }
-
-  // schedule notification
-  Future<void> scheduledNotification({
-    required String title,
-    required String body,
-    required TimeOfDay scheduledTime,
-  }) async {
-    try {
-      final now = tz.TZDateTime.now(tz.local);
-      var scheduledDate = tz.TZDateTime(
-        tz.local,
-        now.year,
-        now.month,
-        now.day,
-        scheduledTime.hour,
-        scheduledTime.minute,
-      );
-
-      // If the scheduled time has already passed today, schedule for tomorrow
-      if (scheduledDate.isBefore(now)) {
-        scheduledDate = scheduledDate.add(const Duration(days: 1));
-      }
-
-      _logger.debug('Scheduling notification for: $scheduledDate');
-
-      // save the reminder time and enable the notification in shared preferences
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString(
-        _dailyReminderKey,
-        '${scheduledTime.hour}:${scheduledTime.minute}',
-      );
-      await prefs.setBool(_dailyReminderEnabledKey, true);
-
-      // schedule the notification
-      await notificationsPlugin.zonedSchedule(
-        dailyNotificationId,
-        title,
-        body,
-        scheduledDate,
-        const NotificationDetails(
-          android: AndroidNotificationDetails(
-            androidNotificationChannelId,
-            androidNotificationChannelName,
-            channelDescription: androidNotificationChannelDescription,
-            importance: Importance.high,
-            priority: Priority.high,
-            icon: 'ic_notification',
-            enableVibration: true,
-            playSound: true,
-          ),
-          iOS: DarwinNotificationDetails(
-            presentAlert: true,
-            presentBadge: true,
-            presentSound: true,
-          ),
-        ),
-        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-        matchDateTimeComponents: DateTimeComponents.time,
-      );
-
-      _logger.info('Notification scheduled with ID: $dailyNotificationId');
-    } catch (e) {
-      _logger.error('Error scheduling notification', e);
-      rethrow;
-    }
-  }
-
-  Future<void> cancelNotification() async {
-    await notificationsPlugin.cancel(dailyNotificationId);
-
-    // Update preferences
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(_dailyReminderEnabledKey, false);
-  }
-
-  Future<TimeOfDay?> getDailyReminderTime() async {
-    final prefs = await SharedPreferences.getInstance();
-    final timeString = prefs.getString(_dailyReminderKey);
-    if (timeString != null) {
-      final parts = timeString.split(':');
-      if (parts.length == 2) {
-        return TimeOfDay(
-          hour: int.parse(parts[0]),
-          minute: int.parse(parts[1]),
-        );
-      }
-    }
-    return null;
-  }
-
-  Future<bool> isDailyReminderEnabled() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getBool(_dailyReminderEnabledKey) ?? false;
-  }
-
-  Future<void> updateDailyReminder({
-    required TimeOfDay time,
-    required String title,
-    required String body,
-  }) async {
-    if (await isDailyReminderEnabled()) {
-      await scheduledNotification(
-        scheduledTime: time,
-        title: title,
-        body: body,
-      );
-    }
-  }
 }
-
-// Daily practice notification channel constants
-const androidNotificationChannelId = 'daily_practice_reminder';
-const androidNotificationChannelName = 'Daily Practice Reminder';
-const androidNotificationChannelDescription =
-    'Notification for daily practice reminders';
-const dailyNotificationId = 1;
-
-// Recitation notification constants (shared with recitation service)
-const recitationNotificationChannelId = 'recitation_reminder';
-const recitationNotificationChannelName = 'Recitation Reminder';
-const recitationNotificationChannelDescription =
-    'Notification for recitation reminders';
-const recitationNotificationId = 2;
 
 // Routine block notification constants
 const routineBlockNotificationChannelId = 'routine_block_reminder';

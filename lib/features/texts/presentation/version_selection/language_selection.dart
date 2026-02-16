@@ -3,6 +3,7 @@ import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/utils/get_language.dart';
 import 'package:flutter_pecha/features/texts/data/providers/text_version_language_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 class LanguageSelectionScreen extends ConsumerWidget {
   const LanguageSelectionScreen({super.key, required this.uniqueLanguages});
@@ -19,7 +20,7 @@ class LanguageSelectionScreen extends ConsumerWidget {
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios, size: 20),
-          onPressed: () => Navigator.pop(context),
+          onPressed: () => context.pop(),
         ),
         toolbarHeight: 50,
         title: Text(
@@ -70,7 +71,7 @@ class LanguageSelectionScreen extends ConsumerWidget {
               ref
                   .read(textVersionLanguageProvider.notifier)
                   .setLanguage(language);
-              Navigator.pop(context);
+              context.pop();
             },
           );
         },

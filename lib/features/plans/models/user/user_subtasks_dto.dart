@@ -7,6 +7,7 @@ class UserSubtasksDto {
   final String? duration;
   final String? sourceTextId;
   final String? pechaSegmentId;
+  final String? segmentId;
 
   UserSubtasksDto({
     required this.id,
@@ -17,6 +18,7 @@ class UserSubtasksDto {
     this.duration,
     this.sourceTextId,
     this.pechaSegmentId,
+    this.segmentId,
   });
 
   factory UserSubtasksDto.fromJson(Map<String, dynamic> json) {
@@ -29,6 +31,7 @@ class UserSubtasksDto {
       duration: json['duration'] as String?,
       sourceTextId: json['source_text_id'] as String?,
       pechaSegmentId: json['pecha_segment_id'] as String?,
+      segmentId: json['segment_id'] as String?,
     );
   }
 
@@ -42,6 +45,7 @@ class UserSubtasksDto {
       'duration': duration,
       'source_text_id': sourceTextId,
       'pecha_segment_id': pechaSegmentId,
+      'segment_id': segmentId,
     };
   }
 }

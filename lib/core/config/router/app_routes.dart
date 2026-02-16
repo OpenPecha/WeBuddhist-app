@@ -87,6 +87,7 @@ class AppRoutes {
     texts,
     practice, // Guests can see empty practice screen
     practicePlanPreview, // Allow guests to browse/preview plans
+    reader,
   };
 
   /// Base paths that require full authentication (prefix matching)

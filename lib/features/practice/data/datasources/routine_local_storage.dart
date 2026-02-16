@@ -22,14 +22,20 @@ class RoutineLocalStorage {
     _logger.info('RoutineLocalStorage initialized');
   }
 
+  /// Ensures initialization is complete before any operation.
+  Future<void> _ensureInitialized() async {
+    if (!_isInitialized) await initialize();
+  }
+
   /// READ: Load persisted routine. Returns empty RoutineData if none saved.
-  RoutineData loadRoutine() {
+  Future<RoutineData> loadRoutine() async {
+    await _ensureInitialized();
+
     final json = _box.get(_routineKey);
     if (json == null) return const RoutineData();
+
     try {
-      return RoutineData.fromJson(
-        jsonDecode(json) as Map<String, dynamic>,
-      );
+      return RoutineData.fromJson(jsonDecode(json) as Map<String, dynamic>);
     } catch (e) {
       _logger.error('Failed to parse routine data', e);
       return const RoutineData();

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/features/practice/data/models/routine_model.dart';
+import 'package:flutter_pecha/features/practice/data/utils/routine_time_utils.dart';
 import 'package:flutter_pecha/features/practice/presentation/widgets/routine_item_card.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
@@ -11,7 +12,7 @@ class RoutineTimeBlock extends StatelessWidget {
   final List<RoutineItem> items;
   final VoidCallback onTimeChanged;
   final VoidCallback onNotificationToggle;
-  final VoidCallback onDelete;
+  final Future<void> Function() onDelete;
   final VoidCallback onAddSession;
   final void Function(int oldIndex, int newIndex) onReorderItems;
   final void Function(int itemIndex) onDeleteItem;
@@ -28,13 +29,6 @@ class RoutineTimeBlock extends StatelessWidget {
     required this.onReorderItems,
     required this.onDeleteItem,
   });
-
-  String _formatTime(TimeOfDay time) {
-    final hour = time.hourOfPeriod == 0 ? 12 : time.hourOfPeriod;
-    final minute = time.minute.toString().padLeft(2, '0');
-    final period = time.period == DayPeriod.am ? 'AM' : 'PM';
-    return '$hour:$minute $period';
-  }
 
   Future<void> _confirmDeleteItem(BuildContext context, int index) async {
     final confirmed = await showDialog<bool>(
@@ -89,7 +83,7 @@ class RoutineTimeBlock extends StatelessWidget {
           ),
     );
     if (confirmed == true) {
-      onDelete();
+      await onDelete();
     }
   }
 
@@ -109,7 +103,7 @@ class RoutineTimeBlock extends StatelessWidget {
               time: time,
               onTap: onTimeChanged,
               isDark: isDark,
-              formattedTime: _formatTime(time),
+              formattedTime: formatRoutineTime(time),
             ),
             const SizedBox(width: 8),
             _NotificationIcon(

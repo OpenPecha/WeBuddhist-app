@@ -111,17 +111,12 @@ class VersionSelectionScreen extends ConsumerWidget {
           ),
           const Spacer(),
           GestureDetector(
-            onTap: () async {
-              final result = await context.push(
-                '/texts/language_selection',
-                extra: {"uniqueLanguages": uniqueLanguages},
-              );
-              if (result != null && result is String) {
-                ref
-                    .read(textVersionLanguageProvider.notifier)
-                    .setLanguage(result);
-              }
-            },
+            onTap:
+                () => context.pushNamed(
+                  'reader-versions-language',
+                  pathParameters: {"textId": textId},
+                  extra: {"uniqueLanguages": uniqueLanguages},
+                ),
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
