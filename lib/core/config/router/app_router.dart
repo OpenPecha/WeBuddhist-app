@@ -23,6 +23,8 @@ import 'package:flutter_pecha/features/practice/presentation/screens/select_reci
 import 'package:flutter_pecha/features/reader/data/models/navigation_context.dart';
 import 'package:flutter_pecha/features/reader/presentation/reader_screen.dart';
 import 'package:flutter_pecha/features/texts/presentation/screens/chapters/chapters_screen.dart';
+import 'package:flutter_pecha/features/texts/presentation/version_selection/language_selection.dart';
+import 'package:flutter_pecha/features/texts/presentation/version_selection/version_selection_screen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -272,6 +274,32 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             segmentId: segmentId,
           );
         },
+        routes: [
+          // route - /reader/:textId/versions (version selection)
+          GoRoute(
+            path: "versions",
+            name: "reader-versions",
+            builder: (context, state) {
+              final textId = state.pathParameters['textId'] ?? '';
+              return VersionSelectionScreen(textId: textId);
+            },
+            routes: [
+              // route - /reader/:textId/versions/language (language selection)
+              GoRoute(
+                path: "language",
+                name: "reader-versions-language",
+                builder: (context, state) {
+                  final extra = state.extra as Map<String, dynamic>?;
+                  final uniqueLanguages =
+                      extra?['uniqueLanguages'] as List<String>?;
+                  return LanguageSelectionScreen(
+                    uniqueLanguages: uniqueLanguages ?? [],
+                  );
+                },
+              ),
+            ],
+          ),
+        ],
       ),
     ],
 
@@ -282,7 +310,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
     },
   );
 });
-
 
 /// This allows the router to automatically refresh when auth state changes,
 /// triggering redirect logic to re-evaluate route access permissions.

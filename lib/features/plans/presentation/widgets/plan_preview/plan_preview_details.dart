@@ -4,8 +4,6 @@ import 'package:flutter_pecha/core/widgets/skeletons/skeletons.dart';
 import 'package:flutter_pecha/features/plans/data/providers/plan_days_providers.dart';
 import 'package:flutter_pecha/features/plans/models/plan_days_model.dart';
 import 'package:flutter_pecha/features/plans/models/plans_model.dart';
-import 'package:flutter_pecha/features/reader/data/models/navigation_context.dart';
-import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../day_carousel.dart';
 import '../plan_cover_image.dart';
@@ -32,7 +30,6 @@ class _PlanPreviewDetailsState extends ConsumerState<PlanPreviewDetails> {
   @override
   Widget build(BuildContext context) {
     final language = widget.plan.language;
-    final localizations = AppLocalizations.of(context)!;
 
     return Scaffold(
       appBar: _buildAppBar(context),

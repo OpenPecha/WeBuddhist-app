@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/config/router/app_router.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/features/plans/data/providers/user_plans_provider.dart';
@@ -14,7 +15,6 @@ import 'package:flutter_pecha/features/reader/presentation/widgets/reader_conten
 import 'package:flutter_pecha/features/reader/presentation/widgets/reader_controls/reader_chapter_header.dart';
 import 'package:flutter_pecha/features/reader/presentation/widgets/reader_gestures/swipe_navigation_wrapper.dart';
 import 'package:flutter_pecha/features/reader/presentation/widgets/reader_search/reader_search_delegate.dart';
-import 'package:flutter_pecha/features/texts/constants/text_routes.dart';
 import 'package:flutter_pecha/features/texts/data/providers/text_version_language_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -333,7 +333,7 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
     ReaderState state,
   ) async {
     final notifier = ref.read(readerNotifierProvider(_params).notifier);
-    final router = GoRouter.of(context); // Capture router before async gap
+    final router = ref.read(appRouterProvider);
 
     // Close selection before navigation
     notifier.selectSegment(null);
@@ -344,9 +344,9 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
           .read(textVersionLanguageProvider.notifier)
           .setLanguage(state.textDetail!.language);
 
-      final result = await router.push(
-        TextRoutes.versionSelection,
-        extra: {"textId": widget.textId},
+      final result = await router.pushNamed(
+        "reader-versions",
+        pathParameters: {"textId": widget.textId},
       );
 
       if (result != null && result is Map<String, dynamic> && mounted) {
