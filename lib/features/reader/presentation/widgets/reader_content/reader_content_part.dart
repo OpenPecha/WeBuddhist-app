@@ -257,19 +257,18 @@ class _ReaderContentPartState extends ConsumerState<ReaderContentPart> {
     required void Function(Segment) onSegmentTap,
   }) {
     return item.when(
-      header:
-          (section, depth) {
-            // Only show section headers for nested sections (depth > 0)
-            // The chapter header (depth 0) is shown at the top of the screen
-            if (depth == 0) {
-              return const SizedBox.shrink();
-            }
-            return SectionHeader(
-              section: section,
-              depth: depth,
-              language: widget.language,
-            );
-          },
+      header: (section, depth) {
+        // Only show section headers for nested sections (depth > 0)
+        // The chapter header (depth 0) is shown at the top of the screen
+        if (depth == 0) {
+          return const SizedBox.shrink();
+        }
+        return SectionHeader(
+          section: section,
+          depth: depth,
+          language: widget.language,
+        );
+      },
       segment:
           (segment, depth, sectionId) => SegmentItem(
             segment: segment,

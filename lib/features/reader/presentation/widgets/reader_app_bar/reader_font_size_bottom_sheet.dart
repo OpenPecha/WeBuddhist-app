@@ -9,7 +9,7 @@ class ReaderFontSizeBottomSheet extends ConsumerWidget {
   final String language;
 
   // Base font size for calculations
-  double get baseFontSize => language == 'bo' ? 22.0 : 22.0;
+  double get baseFontSize => language == 'bo' ? 22.0 : 18.0;
 
   // Font size steps (percentages): 100%, 150%, 200%, 250%
   static const List<double> fontSizePercentages = [100, 150, 200, 250];

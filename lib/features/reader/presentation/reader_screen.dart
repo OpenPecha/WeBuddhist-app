@@ -87,6 +87,8 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
   }
 
   void _onScrollDirectionChanged(bool isScrollingDown) {
+    // Feature flag to disable auto-hide behavior
+    if (!ReaderConstants.enableAppBarAutoHide) return;
     if (isScrollingDown && _isAppBarVisible) {
       _isAppBarVisible = false;
       _appBarAnimationController.forward();
