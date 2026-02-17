@@ -129,7 +129,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     AsyncValue<List<String>> tagsAsync,
   ) {
     final locale = ref.watch(localeProvider);
-    final fontFamily = getFontFamily(locale.languageCode);
     final lineHeight = getLineHeight(locale.languageCode);
     final fontSize = locale.languageCode == 'bo' ? 18.0 : 16.0;
 
@@ -204,7 +203,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                             'No tags found',
                             style: TextStyle(
                               fontSize: fontSize,
-                              fontFamily: fontFamily,
                               height: lineHeight,
                               color:
                                   Theme.of(
@@ -229,7 +227,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         style: TextStyle(
                           fontSize: fontSize,
                           fontWeight: FontWeight.w500,
-                          fontFamily: fontFamily,
                           height: lineHeight,
                         ),
                       ),

@@ -252,12 +252,8 @@ class _ChatHistoryDrawerState extends ConsumerState<ChatHistoryDrawer> {
                             Text(
                               AppLocalizations.of(context)!.ai_chats,
                               style: TextStyle(
-                                fontSize: 15,
+                                fontSize: 16,
                                 fontWeight: FontWeight.w900,
-                                color:
-                                    isDarkMode
-                                        ? AppColors.surfaceWhite
-                                        : AppColors.textPrimary,
                               ),
                             ),
                             // New Chat Icon
@@ -273,14 +269,7 @@ class _ChatHistoryDrawerState extends ConsumerState<ChatHistoryDrawer> {
                                     .refreshThreads();
                                 Navigator.of(context).pop(); // Close drawer
                               },
-                              child: Icon(
-                                Icons.add,
-                                size: 24,
-                                color:
-                                    isDarkMode
-                                        ? AppColors.surfaceWhite
-                                        : AppColors.textPrimary,
-                              ),
+                              child: Icon(Icons.add, size: 24),
                             ),
                           ],
                         ),
@@ -332,13 +321,7 @@ class _ChatHistoryDrawerState extends ConsumerState<ChatHistoryDrawer> {
               const SizedBox(height: 16),
               Text(
                 state.error!,
-                style: TextStyle(
-                  fontSize: 16,
-                  color:
-                      isDarkMode
-                          ? AppColors.textPrimaryDark
-                          : AppColors.textPrimary,
-                ),
+                style: TextStyle(fontSize: 16),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 24),
