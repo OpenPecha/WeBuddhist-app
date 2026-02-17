@@ -156,7 +156,7 @@ class _RecitationDetailScreenState
       appBar: AppBar(
         scrolledUnderElevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back_ios),
           onPressed: () => _handleBackNavigation(context),
         ),
         actions: [
