@@ -39,7 +39,7 @@ class ReaderConstants {
   static const double appBarElevation = 0.0;
   static const double appBarToolbarHeight = 56.0;
   static const double appBarBottomHeight = 3.0;
-  static const bool enableAppBarAutoHide = false; // Set to true to re-enable
+  static const bool enableAppBarAutoHide = true; // Set to true to re-enable
 
   // Segment item
   static const double segmentHorizontalPadding = 12.0;

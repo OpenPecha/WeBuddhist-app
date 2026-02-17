@@ -37,32 +37,30 @@ class _SwipeNavigationWrapperState
       return widget.child;
     }
 
+    // Hide bottom navigation bar when segment action bar is visible
+    final hideBottomNav = state.hasSelection && !state.isCommentaryOpen;
+
     return GestureDetector(
       onHorizontalDragStart: _onDragStart,
       onHorizontalDragEnd: (details) => _onDragEnd(details, navigationContext),
       child: Stack(
         children: [
           widget.child,
-          // Navigation indicators
-          if (navigationContext.hasPreviousText)
-            Positioned(
-              left: 0,
-              top: 0,
-              bottom: 0,
-              child: _SwipeIndicator(
-                direction: SwipeDirection.previous,
-                isActive: false,
-              ),
-            ),
-          if (navigationContext.hasNextText)
-            Positioned(
-              right: 0,
-              top: 0,
-              bottom: 0,
-              child: _SwipeIndicator(
-                direction: SwipeDirection.next,
-                isActive: false,
-              ),
+          // Bottom navigation bar with left/right tap buttons
+          if (!hideBottomNav)
+            _BottomNavigationBar(
+              navigationContext: navigationContext,
+              onPreviousTap:
+                  () => _navigateToAdjacentText(
+                    navigationContext,
+                    SwipeDirection.previous,
+                  ),
+              onNextTap:
+                  () => _navigateToAdjacentText(
+                    navigationContext,
+                    SwipeDirection.next,
+                  ),
+              onEdgeReached: _showEdgeReachedFeedback,
             ),
         ],
       ),
@@ -144,69 +142,127 @@ class _SwipeNavigationWrapperState
   }
 }
 
-/// Visual indicator for swipe navigation
-class _SwipeIndicator extends StatelessWidget {
-  final SwipeDirection direction;
-  final bool isActive;
+/// Bottom navigation bar with left/right navigation buttons
+class _BottomNavigationBar extends StatelessWidget {
+  final NavigationContext navigationContext;
+  final VoidCallback onPreviousTap;
+  final VoidCallback onNextTap;
+  final void Function(SwipeDirection direction) onEdgeReached;
 
-  const _SwipeIndicator({required this.direction, required this.isActive});
+  const _BottomNavigationBar({
+    required this.navigationContext,
+    required this.onPreviousTap,
+    required this.onNextTap,
+    required this.onEdgeReached,
+  });
 
   @override
   Widget build(BuildContext context) {
-    // Subtle edge indicator
-    return IgnorePointer(
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        width: isActive ? 8 : 2,
+    final hasPrevious = navigationContext.hasPreviousText;
+    final hasNext = navigationContext.hasNextText;
+    final progress = _getProgressText();
+
+    return Positioned(
+      left: 0,
+      right: 0,
+      bottom: 0,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin:
-                direction == SwipeDirection.previous
-                    ? Alignment.centerLeft
-                    : Alignment.centerRight,
-            end:
-                direction == SwipeDirection.previous
-                    ? Alignment.centerRight
-                    : Alignment.centerLeft,
-            colors: [
-              Theme.of(
-                context,
-              ).colorScheme.primary.withAlpha(isActive ? 128 : 0),
-              Colors.transparent,
+          color: Theme.of(context).scaffoldBackgroundColor,
+          border: Border(
+            top: BorderSide(
+              color: Theme.of(context).dividerColor,
+              width: 1,
+            ),
+          ),
+        ),
+        child: SafeArea(
+          top: false,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              // Previous button
+              _NavigationButton(
+                icon: Icons.chevron_left,
+                isEnabled: hasPrevious,
+                onTap:
+                    hasPrevious
+                        ? onPreviousTap
+                        : () => onEdgeReached(SwipeDirection.previous),
+              ),
+              // Progress text
+              Expanded(
+                child: Text(
+                  progress,
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(
+                      context,
+                    ).textTheme.bodySmall?.color?.withAlpha(180),
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+              // Next button
+              _NavigationButton(
+                icon: Icons.chevron_right,
+                isEnabled: hasNext,
+                onTap:
+                    hasNext
+                        ? onNextTap
+                        : () => onEdgeReached(SwipeDirection.next),
+              ),
             ],
           ),
         ),
       ),
     );
   }
+
+  String _getProgressText() {
+    final items = navigationContext.planTextItems;
+    final index = navigationContext.currentTextIndex;
+    if (items == null || index == null) return '';
+    return '${index + 1} of ${items.length}';
+  }
 }
 
-/// Navigation indicator showing current position in plan
-class PlanNavigationIndicator extends StatelessWidget {
-  final NavigationProgress progress;
+/// Individual navigation button (left/right arrow)
+class _NavigationButton extends StatelessWidget {
+  final IconData icon;
+  final bool isEnabled;
+  final VoidCallback onTap;
 
-  const PlanNavigationIndicator({super.key, required this.progress});
+  const _NavigationButton({
+    required this.icon,
+    required this.isEnabled,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (progress.hasPrevious) const Icon(Icons.chevron_left, size: 16),
-          Text(
-            progress.progressText,
-            style: Theme.of(
-              context,
-            ).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w600),
+    final color =
+        isEnabled
+            ? Theme.of(context).colorScheme.onSurface
+            : Theme.of(context).colorScheme.onSurface.withAlpha(80);
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(24),
+        child: Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            border: Border.all(
+              color: color.withAlpha(isEnabled ? 100 : 50),
+              width: 1,
+            ),
           ),
-          if (progress.hasNext) const Icon(Icons.chevron_right, size: 16),
-        ],
+          child: Icon(icon, size: 24, color: color),
+        ),
       ),
     );
   }

@@ -228,9 +228,6 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
               ),
               // Chapter header
               ReaderChapterHeader(textDetail: state.textDetail!),
-              // Plan progress indicator (if applicable)
-              if (state.navigationContext?.canSwipe ?? false)
-                _buildPlanProgressIndicator(state.navigationContext!),
               // Main scrollable content
               Expanded(
                 child: SwipeNavigationWrapper(
@@ -281,19 +278,6 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
           ),
         ),
       ],
-    );
-  }
-
-  Widget _buildPlanProgressIndicator(NavigationContext navigationContext) {
-    final progress = _navigationService.getProgress(navigationContext);
-    if (progress == null) return const SizedBox.shrink();
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [PlanNavigationIndicator(progress: progress)],
-      ),
     );
   }
 
