@@ -3,6 +3,8 @@ import 'package:flutter_pecha/features/reader/constants/reader_constants.dart';
 import 'package:flutter_pecha/features/reader/data/models/navigation_context.dart';
 import 'package:flutter_pecha/features/reader/data/providers/reader_notifier.dart';
 import 'package:flutter_pecha/features/reader/domain/services/navigation_service.dart';
+import 'package:flutter_pecha/features/texts/models/text_detail.dart';
+import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -10,11 +12,13 @@ import 'package:go_router/go_router.dart';
 class SwipeNavigationWrapper extends ConsumerStatefulWidget {
   final Widget child;
   final ReaderParams params;
+  final TextDetail textDetail;
 
   const SwipeNavigationWrapper({
     super.key,
     required this.child,
     required this.params,
+    required this.textDetail,
   });
 
   @override
@@ -49,6 +53,7 @@ class _SwipeNavigationWrapperState
           // Bottom navigation bar with left/right tap buttons
           if (!hideBottomNav)
             _BottomNavigationBar(
+              textDetail: widget.textDetail,
               navigationContext: navigationContext,
               onPreviousTap:
                   () => _navigateToAdjacentText(
@@ -145,11 +150,13 @@ class _SwipeNavigationWrapperState
 /// Bottom navigation bar with left/right navigation buttons
 class _BottomNavigationBar extends StatelessWidget {
   final NavigationContext navigationContext;
+  final TextDetail textDetail;
   final VoidCallback onPreviousTap;
   final VoidCallback onNextTap;
   final void Function(SwipeDirection direction) onEdgeReached;
 
   const _BottomNavigationBar({
+    required this.textDetail,
     required this.navigationContext,
     required this.onPreviousTap,
     required this.onNextTap,
@@ -171,10 +178,7 @@ class _BottomNavigationBar extends StatelessWidget {
         decoration: BoxDecoration(
           color: Theme.of(context).scaffoldBackgroundColor,
           border: Border(
-            top: BorderSide(
-              color: Theme.of(context).dividerColor,
-              width: 1,
-            ),
+            top: BorderSide(color: Theme.of(context).dividerColor, width: 1),
           ),
         ),
         child: SafeArea(
@@ -193,15 +197,30 @@ class _BottomNavigationBar extends StatelessWidget {
               ),
               // Progress text
               Expanded(
-                child: Text(
-                  progress,
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Theme.of(
-                      context,
-                    ).textTheme.bodySmall?.color?.withAlpha(180),
-                    fontWeight: FontWeight.w500,
-                  ),
+                child: Column(
+                  children: [
+                    // text title
+                    Text(
+                      textDetail.title,
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontFamily: getFontFamily(textDetail.language),
+                        fontWeight: FontWeight.bold,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    Text(
+                      progress,
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Theme.of(
+                          context,
+                        ).textTheme.bodySmall?.color?.withAlpha(180),
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
                 ),
               ),
               // Next button

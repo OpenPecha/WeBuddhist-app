@@ -227,11 +227,11 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
                 },
               ),
               // Chapter header
-              ReaderChapterHeader(textDetail: state.textDetail!),
               // Main scrollable content
               Expanded(
                 child: SwipeNavigationWrapper(
                   params: _params,
+                  textDetail: state.textDetail!,
                   child: ReaderCommentarySplitView(
                     params: _params,
                     mainContent: Stack(
