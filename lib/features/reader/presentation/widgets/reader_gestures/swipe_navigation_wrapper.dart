@@ -36,35 +36,41 @@ class _SwipeNavigationWrapperState
     final state = ref.watch(readerNotifierProvider(widget.params));
     final navigationContext = state.navigationContext;
 
-    // Only enable swipe if we have plan context
-    if (navigationContext == null || !navigationContext.canSwipe) {
-      return widget.child;
-    }
-
     // Hide bottom navigation bar when segment action bar is visible
     final hideBottomNav = state.hasSelection && !state.isCommentaryOpen;
 
+    // Show bottom bar for all readers (with or without navigation context)
+    final showBottomBar = !hideBottomNav;
+
+    // Determine if we should enable swipe and show full controls
+    final canSwipe = navigationContext != null && navigationContext.canSwipe;
+
     return GestureDetector(
-      onHorizontalDragStart: _onDragStart,
-      onHorizontalDragEnd: (details) => _onDragEnd(details, navigationContext),
+      onHorizontalDragStart: canSwipe ? _onDragStart : null,
+      onHorizontalDragEnd:
+          canSwipe ? (details) => _onDragEnd(details, navigationContext) : null,
       child: Stack(
         children: [
           widget.child,
-          // Bottom navigation bar with left/right tap buttons
-          if (!hideBottomNav)
-            _BottomNavigationBar(
+          // Bottom bar - always show when not hidden by segment action bar
+          if (showBottomBar)
+            _BottomBar(
               textDetail: widget.textDetail,
               navigationContext: navigationContext,
               onPreviousTap:
-                  () => _navigateToAdjacentText(
-                    navigationContext,
-                    SwipeDirection.previous,
-                  ),
+                  canSwipe
+                      ? () => _navigateToAdjacentText(
+                        navigationContext,
+                        SwipeDirection.previous,
+                      )
+                      : null,
               onNextTap:
-                  () => _navigateToAdjacentText(
-                    navigationContext,
-                    SwipeDirection.next,
-                  ),
+                  canSwipe
+                      ? () => _navigateToAdjacentText(
+                        navigationContext,
+                        SwipeDirection.next,
+                      )
+                      : null,
               onEdgeReached: _showEdgeReachedFeedback,
             ),
         ],
@@ -147,15 +153,15 @@ class _SwipeNavigationWrapperState
   }
 }
 
-/// Bottom navigation bar with left/right navigation buttons
-class _BottomNavigationBar extends StatelessWidget {
-  final NavigationContext navigationContext;
+/// Bottom bar - shows title only initially, expands to show full controls when tapped
+class _BottomBar extends StatelessWidget {
+  final NavigationContext? navigationContext;
   final TextDetail textDetail;
-  final VoidCallback onPreviousTap;
-  final VoidCallback onNextTap;
+  final VoidCallback? onPreviousTap;
+  final VoidCallback? onNextTap;
   final void Function(SwipeDirection direction) onEdgeReached;
 
-  const _BottomNavigationBar({
+  const _BottomBar({
     required this.textDetail,
     required this.navigationContext,
     required this.onPreviousTap,
@@ -165,9 +171,7 @@ class _BottomNavigationBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final hasPrevious = navigationContext.hasPreviousText;
-    final hasNext = navigationContext.hasNextText;
-    final progress = _getProgressText();
+    final canSwipe = navigationContext != null && navigationContext!.canSwipe;
 
     return Positioned(
       left: 0,
@@ -183,65 +187,89 @@ class _BottomNavigationBar extends StatelessWidget {
         ),
         child: SafeArea(
           top: false,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              // Previous button
-              _NavigationButton(
-                icon: Icons.chevron_left,
-                isEnabled: hasPrevious,
-                onTap:
-                    hasPrevious
-                        ? onPreviousTap
-                        : () => onEdgeReached(SwipeDirection.previous),
-              ),
-              // Progress text
-              Expanded(
-                child: Column(
-                  children: [
-                    // text title
-                    Text(
-                      textDetail.title,
-                      overflow: TextOverflow.ellipsis,
-                      maxLines: 1,
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontFamily: getFontFamily(textDetail.language),
-                        fontWeight: FontWeight.bold,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                    Text(
-                      progress,
-                      textAlign: TextAlign.center,
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Theme.of(
-                          context,
-                        ).textTheme.bodySmall?.color?.withAlpha(180),
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              // Next button
-              _NavigationButton(
-                icon: Icons.chevron_right,
-                isEnabled: hasNext,
-                onTap:
-                    hasNext
-                        ? onNextTap
-                        : () => onEdgeReached(SwipeDirection.next),
-              ),
-            ],
-          ),
+          child:
+              canSwipe
+                  ? _buildFullControls(context)
+                  : _buildMinimalTitle(context),
         ),
       ),
     );
   }
 
+  Widget _buildMinimalTitle(BuildContext context) {
+    return Center(
+      child: Text(
+        textDetail.title,
+        overflow: TextOverflow.ellipsis,
+        maxLines: 1,
+        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+          fontFamily: getFontFamily(textDetail.language),
+          fontWeight: FontWeight.bold,
+        ),
+        textAlign: TextAlign.center,
+      ),
+    );
+  }
+
+  Widget _buildFullControls(BuildContext context) {
+    final hasPrevious = navigationContext!.hasPreviousText;
+    final hasNext = navigationContext!.hasNextText;
+    final progress = _getProgressText();
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        // Previous button
+        _NavigationButton(
+          icon: Icons.chevron_left,
+          isEnabled: hasPrevious,
+          onTap:
+              hasPrevious
+                  ? onPreviousTap!
+                  : () => onEdgeReached(SwipeDirection.previous),
+        ),
+        // Progress text
+        Expanded(
+          child: Column(
+            children: [
+              // text title
+              Text(
+                textDetail.title,
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  fontFamily: getFontFamily(textDetail.language),
+                  fontWeight: FontWeight.bold,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              Text(
+                progress,
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: Theme.of(
+                    context,
+                  ).textTheme.bodySmall?.color?.withAlpha(180),
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
+        ),
+        // Next button
+        _NavigationButton(
+          icon: Icons.chevron_right,
+          isEnabled: hasNext,
+          onTap:
+              hasNext ? onNextTap! : () => onEdgeReached(SwipeDirection.next),
+        ),
+      ],
+    );
+  }
+
   String _getProgressText() {
-    final items = navigationContext.planTextItems;
-    final index = navigationContext.currentTextIndex;
+    final items = navigationContext?.planTextItems;
+    final index = navigationContext?.currentTextIndex;
     if (items == null || index == null) return '';
     return '${index + 1} of ${items.length}';
   }
