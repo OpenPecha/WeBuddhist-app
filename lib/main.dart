@@ -30,8 +30,9 @@ void main() async {
   // Setup environment-aware logging
   AppLogger.init();
 
-  // Use bundled fonts only — prevent runtime network fetching
-  GoogleFonts.config.allowRuntimeFetching = false;
+  // Enable Google Fonts runtime fetching for automatic font management
+  // Fonts are downloaded once and cached locally for offline use
+  GoogleFonts.config.allowRuntimeFetching = true;
 
   // Load environment variables
   try {

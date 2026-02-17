@@ -24,7 +24,7 @@ class HomeScreen extends ConsumerStatefulWidget {
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
   bool _hasRequestedPermissions = false;
-  
+
   // For proper keyboard dismissal with SearchAnchor
   final FocusScopeNode _searchFocusScopeNode = FocusScopeNode();
   bool _didJustDismissSearch = false;
@@ -154,8 +154,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       EdgeInsets.symmetric(horizontal: 16.0),
                     ),
                     elevation: const WidgetStatePropertyAll(0.0),
-                    shadowColor:
-                        const WidgetStatePropertyAll(Colors.transparent),
+                    shadowColor: const WidgetStatePropertyAll(
+                      Colors.transparent,
+                    ),
                     onTap: () {
                       controller.openView();
                     },
@@ -187,11 +188,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   SearchController controller,
                 ) {
                   final query = controller.text.toLowerCase();
-                  final filteredTags = query.isEmpty
-                      ? tags
-                      : tags
-                          .where((tag) => tag.toLowerCase().contains(query))
-                          .toList();
+                  final filteredTags =
+                      query.isEmpty
+                          ? tags
+                          : tags
+                              .where((tag) => tag.toLowerCase().contains(query))
+                              .toList();
 
                   if (filteredTags.isEmpty) {
                     return [
@@ -204,9 +206,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                               fontSize: fontSize,
                               fontFamily: fontFamily,
                               height: lineHeight,
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .onSurfaceVariant,
+                              color:
+                                  Theme.of(
+                                    context,
+                                  ).colorScheme.onSurfaceVariant,
                             ),
                           ),
                         ),
@@ -258,10 +261,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               ),
               hintText: localizations.text_search,
               hintStyle: WidgetStatePropertyAll(
-                TextStyle(
-                  fontSize: 16,
-                  color: AppColors.textPrimaryLight,
-                ),
+                TextStyle(fontSize: 16, color: AppColors.textPrimaryLight),
               ),
             ),
         error:

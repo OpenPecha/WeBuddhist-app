@@ -56,6 +56,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
   Widget build(BuildContext context) {
     final items = _getItems(context);
     return Scaffold(
+      backgroundColor: Theme.of(context).cardColor,
       body: items[_currentIndex].selectedWidget,
       bottomNavigationBar: AppBottomNavBar(
         items: items,
