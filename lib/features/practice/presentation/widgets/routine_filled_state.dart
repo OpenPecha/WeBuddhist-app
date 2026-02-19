@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
-import 'package:flutter_pecha/features/plans/data/providers/plans_providers.dart';
+import 'package:flutter_pecha/features/plans/data/providers/user_plans_provider.dart';
 import 'package:flutter_pecha/features/practice/data/models/routine_model.dart';
 import 'package:flutter_pecha/features/practice/presentation/widgets/routine_item_card.dart';
 import 'package:flutter_pecha/features/reader/data/models/navigation_context.dart';
@@ -9,7 +9,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
-class RoutineFilledState extends StatelessWidget {
+class RoutineFilledState extends ConsumerWidget {
   final RoutineData routineData;
   final VoidCallback onEdit;
 
@@ -20,10 +20,11 @@ class RoutineFilledState extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final localizations = AppLocalizations.of(context)!;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final dateStr = DateFormat('EEE, MMM yyyy').format(DateTime.now());
+
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -131,15 +132,38 @@ class _RoutineBlockSection extends ConsumerWidget {
       final navigationContext = NavigationContext(
         source: NavigationSource.normal,
       );
-      context.push(
-        '/reader/${item.id}',
-        extra: navigationContext,
-      );
+      context.push('/reader/${item.id}', extra: navigationContext);
     } else if (item.type == RoutineItemType.plan) {
-      // Fetch plan data and navigate to PlanInfo for preview
-      final planAsync = await ref.read(planByIdFutureProvider(item.id).future);
+      // Find user plan from cached my plans list
+      final myPlansState = ref.read(myPlansPaginatedProvider);
+      final userPlan = myPlansState.plans.where((p) => p.id == item.id).firstOrNull;
+      
+      if (userPlan == null) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Plan not found. Please try again.')),
+          );
+        }
+        return;
+      }
+
       if (context.mounted) {
-        context.push('/practice/plans/info', extra: {'plan': planAsync});
+        // Use enrolledAt from routine item, fallback to plan's startedAt
+        final startDate = item.enrolledAt ?? userPlan.startedAt;
+        final today = DateTime.now();
+        final daysSinceEnrollment =
+            today.difference(DateUtils.dateOnly(startDate)).inDays;
+        // Day 1 is the enrollment day, so add 1; minimum is day 1
+        final selectedDay = (daysSinceEnrollment + 1).clamp(1, userPlan.totalDays);
+
+        context.push(
+          '/practice/details',
+          extra: {
+            'plan': userPlan,
+            'selectedDay': selectedDay,
+            'startDate': startDate,
+          },
+        );
       }
     }
   }

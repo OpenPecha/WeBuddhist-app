@@ -163,28 +163,23 @@ final appRouterProvider = Provider<GoRouter>((ref) {
               ),
             ],
           ),
-          // route - /practice/texts/:textId
+          // route - /practice/details
           GoRoute(
-            path: "texts/:textId",
-            name: "practice-text",
+            path: "details",
+            name: "practice-plan-details",
             builder: (context, state) {
               final extra = state.extra as Map<String, dynamic>?;
-              final textId = state.pathParameters['textId'] ?? '';
-              final segmentId = extra?["segmentId"] as String?;
-              return ChaptersScreen(textId: textId, segmentId: segmentId);
-            },
-          ),
-          // route - /practice/plans/preview (preview plan before enrollment)
-          GoRoute(
-            path: "plans/preview",
-            name: "practice-plan-preview",
-            builder: (context, state) {
-              final extra = state.extra as Map<String, dynamic>?;
-              final plan = extra?['plan'] as PlansModel?;
+              final plan = extra?['plan'] as UserPlansModel?;
+              final selectedDay = extra?['selectedDay'] as int?;
+              final startDate = extra?['startDate'] as DateTime?;
               if (plan == null) {
                 throw Exception('Missing required parameters');
               }
-              return PlanPreviewDetails(plan: plan);
+              return PlanDetails(
+                plan: plan,
+                selectedDay: selectedDay ?? 0,
+                startDate: startDate ?? DateTime.now(),
+              );
             },
           ),
           // route - /practice/plans/info
@@ -203,7 +198,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
               // route - /practice/plans/info/details
               GoRoute(
                 path: "details",
-                name: "practice-plan-details",
+                name: "practice-plan-info-details",
                 builder: (context, state) {
                   final extra = state.extra as Map<String, dynamic>?;
                   final plan = extra?['plan'] as UserPlansModel?;
