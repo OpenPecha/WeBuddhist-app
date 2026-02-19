@@ -2,12 +2,12 @@ import 'dart:io';
 
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
+import 'package:flutter_pecha/features/home/presentation/screens/main_navigation_screen.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:go_router/go_router.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest.dart' as tz;
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_pecha/features/app/presentation/skeleton_screen.dart';
 
 final _logger = AppLogger('NotificationService');
 
@@ -20,8 +20,8 @@ class NotificationService {
       FlutterLocalNotificationsPlugin();
 
   bool _isInitialized = false;
-  
-  // Add static references for navigation
+
+  // Static reference for navigation
   static GoRouter? _router;
   static ProviderContainer? _container;
 
@@ -134,7 +134,9 @@ class NotificationService {
             enableVibration: true,
           );
 
-      await androidImplementation.createNotificationChannel(routineBlockChannel);
+      await androidImplementation.createNotificationChannel(
+        routineBlockChannel,
+      );
 
       _logger.info('Android notification channels created');
     }
@@ -206,18 +208,36 @@ class NotificationService {
   }
 
   void _onNotificationTapped(NotificationResponse response) {
+    _logger.info('Notification tapped - ID: ${response.id}, Payload: ${response.payload}');
+    
     // Navigate based on notification ID
-    if (_router != null && _container != null) {
-      // Routine block notifications have ID >= 100
-      if (response.id != null && response.id! >= 100) {
-        // Routine block notification — navigate to practice screen
-        _router!.go('/practice');
-      } else {
-        // Default fallback - go to texts tab (index 0)
-        _container!.read(bottomNavIndexProvider.notifier).state = 0;
-        _router!.go('/home');
-      }
+    if (_router == null) {
+      _logger.warning('Router not initialized, cannot navigate');
+      return;
     }
+    
+    if (_container == null) {
+      _logger.warning('Container not initialized, cannot navigate');
+      return;
+    }
+
+    final currentUri = _router!.routerDelegate.currentConfiguration.uri;
+    _logger.debug('Current route: $currentUri');
+    
+    // Routine block notifications have ID >= 1000 (range: 1000-999999)
+    // Legacy notifications use ID 100-999
+    if (response.id != null && response.id! >= 100) {
+      _logger.info('Navigating to practice screen (routine notification)');
+      // Routine block notification — navigate to practice screen (index 2)
+      _container!.read(mainNavigationIndexProvider.notifier).state = 2;
+    } else {
+      _logger.info('Navigating to home screen (default)');
+      // Default fallback - go to home tab (index 0)
+      _container!.read(mainNavigationIndexProvider.notifier).state = 0;
+    }
+    
+    _router!.go('/home');
+    _logger.debug('Navigation completed');
   }
 }
 

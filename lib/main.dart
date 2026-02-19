@@ -82,12 +82,12 @@ void main() async {
     _logger.warning('Error initializing routine local storage: $e');
   }
 
-  // Create provider container for notification service access
+  // Create provider container for routine storage
   final container = ProviderContainer(
     overrides: [routineLocalStorageProvider.overrideWithValue(routineStorage)],
   );
 
-  // Set the container reference for notifications
+  // Set container reference for notification navigation
   NotificationService.setContainer(container);
 
   runApp(UncontrolledProviderScope(container: container, child: const MyApp()));
