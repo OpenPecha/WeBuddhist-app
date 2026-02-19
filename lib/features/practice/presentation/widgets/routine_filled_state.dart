@@ -25,7 +25,6 @@ class RoutineFilledState extends ConsumerWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final dateStr = DateFormat('EEE, MMM yyyy').format(DateTime.now());
 
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -126,6 +125,7 @@ class _RoutineBlockSection extends ConsumerWidget {
     BuildContext context,
     WidgetRef ref,
     RoutineItem item,
+    Map<String, dynamic> userPlansMap,
   ) async {
     if (item.type == RoutineItemType.recitation) {
       // Navigate to new ReaderScreen for recitation text
@@ -134,10 +134,8 @@ class _RoutineBlockSection extends ConsumerWidget {
       );
       context.push('/reader/${item.id}', extra: navigationContext);
     } else if (item.type == RoutineItemType.plan) {
-      // Find user plan from cached my plans list
-      final myPlansState = ref.read(myPlansPaginatedProvider);
-      final userPlan = myPlansState.plans.where((p) => p.id == item.id).firstOrNull;
-      
+      final userPlan = userPlansMap[item.id];
+
       if (userPlan == null) {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -154,7 +152,10 @@ class _RoutineBlockSection extends ConsumerWidget {
         final daysSinceEnrollment =
             today.difference(DateUtils.dateOnly(startDate)).inDays;
         // Day 1 is the enrollment day, so add 1; minimum is day 1
-        final selectedDay = (daysSinceEnrollment + 1).clamp(1, userPlan.totalDays);
+        final selectedDay = (daysSinceEnrollment + 1).clamp(
+          1,
+          userPlan.totalDays,
+        );
 
         context.push(
           '/practice/details',
@@ -171,6 +172,10 @@ class _RoutineBlockSection extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    // Watch the my plans state to ensure we have the latest data
+    final myPlansState = ref.watch(myPlansPaginatedProvider);
+    final userPlansMap = {for (var plan in myPlansState.plans) plan.id: plan};
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -189,7 +194,7 @@ class _RoutineBlockSection extends ConsumerWidget {
           RoutineItemCard(
             title: block.items[i].title,
             imageUrl: block.items[i].imageUrl,
-            onTap: () => _onItemTap(context, ref, block.items[i]),
+            onTap: () => _onItemTap(context, ref, block.items[i], userPlansMap),
           ),
           if (i < block.items.length - 1) const Divider(height: 1, indent: 80),
         ],
