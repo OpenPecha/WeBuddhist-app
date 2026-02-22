@@ -119,6 +119,7 @@ class ActivityList extends StatelessWidget {
             segmentId: subtask.segmentId,
             title: task.title,
             subtaskId: subtask.id,
+            isCompleted: subtask.isCompleted,
           ),
         );
       }
