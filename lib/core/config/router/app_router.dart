@@ -182,6 +182,19 @@ final appRouterProvider = Provider<GoRouter>((ref) {
               );
             },
           ),
+          // route - /practice/plans/preview
+          GoRoute(
+            path: "plans/preview",
+            name: "practice-plan-preview",
+            builder: (context, state) {
+              final extra = state.extra as Map<String, dynamic>?;
+              final plan = extra?['plan'] as PlansModel?;
+              if (plan == null) {
+                throw Exception('Missing required parameters');
+              }
+              return PlanPreviewDetails(plan: plan);
+            },
+          ),
           // route - /practice/plans/info
           GoRoute(
             path: "plans/info",

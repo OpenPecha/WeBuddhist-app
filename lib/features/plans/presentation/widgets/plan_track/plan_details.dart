@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
+import 'package:flutter_pecha/core/widgets/skeletons/skeletons.dart';
 import 'package:flutter_pecha/features/plans/data/providers/plan_days_providers.dart';
 import 'package:flutter_pecha/features/plans/data/providers/plans_providers.dart';
 import 'package:flutter_pecha/features/plans/data/providers/user_plans_provider.dart';
@@ -103,7 +104,7 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
         }
         return _buildDayCarouselWithStatus(language, days);
       },
-      loading: () => _buildDayCarouselLoadingPlaceholder(),
+      loading: () => DayCarouselSkeleton(),
       error: (error, stackTrace) => const SizedBox.shrink(),
     );
   }
@@ -169,7 +170,7 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
                   onActivityToggled:
                       (taskId) => _handleTaskToggle(taskId, dayContent.tasks),
                 ),
-            loading: () => const Center(child: CircularProgressIndicator()),
+            loading: () => const DayContentSkeleton(),
             error: (error, stackTrace) => _buildDayContentError(),
           ),
         ],
