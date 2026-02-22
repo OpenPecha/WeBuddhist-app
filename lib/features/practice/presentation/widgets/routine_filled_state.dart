@@ -23,7 +23,7 @@ class RoutineFilledState extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final localizations = AppLocalizations.of(context)!;
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final dateStr = DateFormat('EEE, MMM yyyy').format(DateTime.now());
+    final dateStr = DateFormat('EEE, MMM d').format(DateTime.now());
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
