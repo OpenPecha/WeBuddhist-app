@@ -152,7 +152,7 @@ class RecitationsRemoteDatasource {
     }
   }
 
-  // Save recitation
+  // Save recitation to user's saved recitations
   Future<bool> saveRecitation(String id) async {
     try {
       final uri = Uri.parse('$baseUrl/users/me/recitations');
@@ -173,7 +173,7 @@ class RecitationsRemoteDatasource {
     }
   }
 
-  // Unsave recitation
+  // Unsave recitation from user's saved recitations
   Future<bool> unsaveRecitation(String textId) async {
     try {
       final uri = Uri.parse('$baseUrl/users/me/recitations/$textId');

@@ -96,7 +96,7 @@ class _LoginDrawerState extends ConsumerState<LoginDrawer>
                 ),
                 // App logo
                 Image.asset(
-                  'assets/images/favicon-pecha.png',
+                  'assets/images/webuddhist_logo.png',
                   height: 80,
                   width: 80,
                 ),

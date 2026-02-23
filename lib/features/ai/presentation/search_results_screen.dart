@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
+import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/features/ai/models/search_state.dart';
 import 'package:flutter_pecha/features/ai/presentation/controllers/chat_controller.dart';
 import 'package:flutter_pecha/features/ai/presentation/controllers/search_state_controller.dart';
@@ -91,32 +92,37 @@ class _SearchResultsScreenState extends ConsumerState<SearchResultsScreen>
     final searchState = ref.watch(searchStateProvider);
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
-    return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      appBar: _buildAppBar(isDarkMode),
-      body: Column(
-        children: [
-          _buildTabBar(isDarkMode),
-          Expanded(
-            child: TabBarView(
-              controller: _tabController,
-              children: [
-                const SizedBox.shrink(), // AI Mode Placeholder
-                AllTabView(
-                  searchState: searchState,
-                  onShowMore: _onShowMore,
-                  onRetry: _onRetry,
-                ),
-                const TitlesTabView(),
-                ContentsTabView(
-                  searchState: searchState,
-                  onRetry: _onRetry,
-                ),
-                const AuthorTabView(),
-              ],
+    return GestureDetector(
+      onTap: () {
+        // Dismiss keyboard when tapping outside the TextField
+        if (_searchFocusNode.hasFocus) {
+          _searchFocusNode.unfocus();
+        }
+      },
+      child: Scaffold(
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        appBar: _buildAppBar(isDarkMode),
+        body: Column(
+          children: [
+            _buildTabBar(isDarkMode),
+            Expanded(
+              child: TabBarView(
+                controller: _tabController,
+                children: [
+                  const SizedBox.shrink(), // AI Mode Placeholder
+                  AllTabView(
+                    searchState: searchState,
+                    onShowMore: _onShowMore,
+                    onRetry: _onRetry,
+                  ),
+                  TitlesTabView(searchState: searchState, onRetry: _onRetry),
+                  ContentsTabView(searchState: searchState, onRetry: _onRetry),
+                  AuthorTabView(searchState: searchState, onRetry: _onRetry),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -148,13 +154,15 @@ class _SearchResultsScreenState extends ConsumerState<SearchResultsScreen>
           focusNode: _searchFocusNode,
           textInputAction: TextInputAction.search,
           onSubmitted: (_) => _onSearch(),
+          onChanged:
+              (_) => setState(() {}), // Rebuild to show/hide clear button
           textAlignVertical: TextAlignVertical.center,
           style: TextStyle(
             color: isDarkMode ? AppColors.surfaceWhite : AppColors.textPrimary,
             fontSize: 15,
           ),
           decoration: InputDecoration(
-            hintText: 'Search Buddhist texts...',
+            hintText: AppLocalizations.of(context)!.search_buddhist_texts,
             hintStyle: TextStyle(
               color: isDarkMode ? AppColors.grey600 : AppColors.grey500,
               fontSize: 15,
@@ -164,6 +172,23 @@ class _SearchResultsScreenState extends ConsumerState<SearchResultsScreen>
               size: 20,
               color: isDarkMode ? AppColors.grey500 : AppColors.grey600,
             ),
+            suffixIcon:
+                _searchController.text.isNotEmpty
+                    ? IconButton(
+                      icon: Icon(
+                        Icons.close,
+                        size: 20,
+                        color:
+                            isDarkMode ? AppColors.grey500 : AppColors.grey600,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _searchController.clear();
+                        });
+                        _searchFocusNode.unfocus();
+                      },
+                    )
+                    : null,
             border: InputBorder.none,
             contentPadding: const EdgeInsets.symmetric(horizontal: 12),
           ),
@@ -207,12 +232,12 @@ class _SearchResultsScreenState extends ConsumerState<SearchResultsScreen>
           fontSize: 14,
           fontWeight: FontWeight.w500,
         ),
-        tabs: const [
-          Tab(text: 'AI Mode'),
-          Tab(text: 'All'),
-          Tab(text: 'Titles'),
-          Tab(text: 'Contents'),
-          Tab(text: 'Author'),
+        tabs: [
+          Tab(text: AppLocalizations.of(context)!.search_tab_ai_mode),
+          Tab(text: AppLocalizations.of(context)!.search_all),
+          Tab(text: AppLocalizations.of(context)!.search_titles),
+          Tab(text: AppLocalizations.of(context)!.search_contents),
+          Tab(text: AppLocalizations.of(context)!.search_author),
         ],
       ),
     );

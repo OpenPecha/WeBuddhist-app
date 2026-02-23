@@ -121,7 +121,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get nav_practice => 'Practice';
 
   @override
-  String get nav_settings => 'Settings';
+  String get nav_settings => 'Me';
 
   @override
   String get nav_ai_mode => 'AI';
@@ -237,6 +237,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get start_plan => 'Start Plan';
+
+  @override
+  String get start_reading => 'Start Reading';
 
   @override
   String get continue_plan => 'Continue Plan';
@@ -510,7 +513,28 @@ class AppLocalizationsEn extends AppLocalizations {
   String get ai_delete => 'Delete';
 
   @override
-  String search_no_results(Object query) {
+  String ai_greeting(String name) {
+    return 'Hi $name';
+  }
+
+  @override
+  String get ai_text_not_found => 'Text Not Found';
+
+  @override
+  String ai_text_not_found_message(String title) {
+    return 'Could not find the text for \"$title\".\n\nPlease try another source.';
+  }
+
+  @override
+  String get ai_sources => 'Sources';
+
+  @override
+  String ai_sources_count(int count) {
+    return '$count sources';
+  }
+
+  @override
+  String search_no_results(String query) {
     return 'No results found for \"$query\"';
   }
 
@@ -527,15 +551,101 @@ class AppLocalizationsEn extends AppLocalizations {
   String get search_all => 'All';
 
   @override
-  String get search_coming_soon => 'Coming Soon';
+  String get search_author => 'Author';
 
   @override
-  String get search_title_search_coming_soon =>
-      'Title search will be available soon';
+  String get search_tab_ai_mode => 'AI Mode';
+
+  @override
+  String search_error(String message) {
+    return 'Error: $message';
+  }
+
+  @override
+  String get search_retrying => 'Retrying...';
+
+  @override
+  String search_no_titles_found(String query) {
+    return 'No titles found for \"$query\"';
+  }
+
+  @override
+  String search_no_contents_found(String query) {
+    return 'No contents found for \"$query\"';
+  }
+
+  @override
+  String search_no_authors_found(String query) {
+    return 'No authors found for \"$query\"';
+  }
+
+  @override
+  String get search_coming_soon => 'Coming Soon';
 
   @override
   String get search_buddhist_texts => 'Search Buddhist texts...';
 
   @override
+  String get common_ok => 'OK';
+
+  @override
   String get comingSoonHeadline => 'Coming Soon';
+
+  @override
+  String get routine_title => 'Your Routine';
+
+  @override
+  String get routine_empty_title => 'Routine';
+
+  @override
+  String get routine_edit => 'Edit';
+
+  @override
+  String get routine_empty_description =>
+      'Stay consistent in your prayer life by building your routine. Select times and sessions and we\'ll remind you to prayer!';
+
+  @override
+  String get routine_build => 'Build your Routine';
+
+  @override
+  String get routine_session => 'Session';
+
+  @override
+  String get routine_time => 'Time';
+
+  @override
+  String get routine_notification => 'Notification';
+
+  @override
+  String get routine_save => 'Save Routine';
+
+  @override
+  String get routine_morning => 'Morning';
+
+  @override
+  String get routine_afternoon => 'Afternoon';
+
+  @override
+  String get routine_evening => 'Evening';
+
+  @override
+  String get routine_add_session => 'Add Session';
+
+  @override
+  String get routine_select_time => 'Select Time';
+
+  @override
+  String get routine_remind_me => 'Remind me';
+
+  @override
+  String get routine_edit_title => 'Edit Your Routine';
+
+  @override
+  String get routine_delete_block => 'Delete Time Block';
+
+  @override
+  String get routine_add_plan => 'Add Plan';
+
+  @override
+  String get routine_add_recitation => 'Add Recitation';
 }

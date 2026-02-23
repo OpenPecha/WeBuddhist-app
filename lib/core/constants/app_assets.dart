@@ -6,6 +6,7 @@ class AppAssets {
   AppAssets._();
 
   // ========== IMAGES ==========
+  static const String routineCalendar = 'assets/images/routine_calendar.png';
 
   // ========== LOGOS ==========
   static const String weBuddhistLogo = 'assets/images/webuddhist_logo.svg';
@@ -23,4 +24,6 @@ class AppAssets {
       PhosphorIconsFill.gearSix;
   static const PhosphorFlatIconData settingsUnselected =
       PhosphorIconsRegular.gearSix;
+  static const PhosphorFlatIconData settingsMeSelected = PhosphorIconsFill.userCircle;
+  static const PhosphorFlatIconData settingsMeUnselected = PhosphorIconsRegular.userCircle;
 }

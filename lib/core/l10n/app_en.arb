@@ -37,7 +37,7 @@
   "nav_texts": "Texts",
   "nav_recitations": "Recitations",
   "nav_practice": "Practice",
-  "nav_settings": "Settings",
+  "nav_settings": "Me",
   "nav_ai_mode": "AI",
 
   "text_browseTheLibrary": "Browse The Library",
@@ -78,6 +78,7 @@
   "browse_plans": "Browse Plans",
   "plan_info": "Plan Info",
   "start_plan": "Start Plan",
+  "start_reading": "Start Reading",
   "continue_plan": "Continue Plan",
   "tibetan": "Tibetan",
   "sanskrit": "Sanskrit",
@@ -171,14 +172,104 @@
   "ai_delete_warning": "This action cannot be undone.",
   "ai_confirm": "Confirm",
   "ai_delete": "Delete",
+  "ai_greeting": "Hi {name}",
+  "@ai_greeting": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "ai_text_not_found": "Text Not Found",
+  "ai_text_not_found_message": "Could not find the text for \"{title}\".\n\nPlease try another source.",
+  "@ai_text_not_found_message": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "ai_sources": "Sources",
+  "ai_sources_count": "{count} sources",
+  "@ai_sources_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
 
   "search_no_results": "No results found for \"{query}\"",
+  "@search_no_results": {
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
   "search_show_more": "Show More",
   "search_contents": "Contents",
   "search_titles": "Titles",
   "search_all": "All",
+  "search_author": "Author",
+  "search_tab_ai_mode": "AI Mode",
+  "search_error": "Error: {message}",
+  "@search_error": {
+    "placeholders": {
+      "message": {
+        "type": "String"
+      }
+    }
+  },
+  "search_retrying": "Retrying...",
+  "search_no_titles_found": "No titles found for \"{query}\"",
+  "@search_no_titles_found": {
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
+  "search_no_contents_found": "No contents found for \"{query}\"",
+  "@search_no_contents_found": {
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
+  "search_no_authors_found": "No authors found for \"{query}\"",
+  "@search_no_authors_found": {
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
   "search_coming_soon": "Coming Soon",
-  "search_title_search_coming_soon": "Title search will be available soon",
   "search_buddhist_texts": "Search Buddhist texts...",
-  "comingSoonHeadline": "Coming Soon"
+  
+  "common_ok": "OK",
+  
+  "comingSoonHeadline": "Coming Soon",
+
+  "routine_title": "Your Routine",
+  "routine_empty_title": "Routine",
+  "routine_edit": "Edit",
+  "routine_empty_description": "Stay consistent in your prayer life by building your routine. Select times and sessions and we'll remind you to prayer!",
+  "routine_build": "Build your Routine",
+  "routine_session": "Session",
+  "routine_time": "Time",
+  "routine_notification": "Notification",
+  "routine_save": "Save Routine",
+  "routine_morning": "Morning",
+  "routine_afternoon": "Afternoon",
+  "routine_evening": "Evening",
+  "routine_add_session": "Add Session",
+  "routine_select_time": "Select Time",
+  "routine_remind_me": "Remind me",
+  "routine_edit_title": "Edit Your Routine",
+  "routine_delete_block": "Delete Time Block",
+  "routine_add_plan": "Add Plan",
+  "routine_add_recitation": "Add Recitation"
 }

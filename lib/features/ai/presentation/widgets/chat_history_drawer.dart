@@ -6,6 +6,7 @@ import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/features/ai/presentation/controllers/chat_controller.dart';
 import 'package:flutter_pecha/features/ai/presentation/controllers/thread_list_controller.dart';
 import 'package:flutter_pecha/features/ai/presentation/widgets/delete_thread_dialog.dart';
+import 'package:flutter_pecha/features/ai/presentation/widgets/skeletons/chat_thread_skeleton.dart';
 import 'package:flutter_pecha/features/ai/presentation/widgets/thread_list_item.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -251,12 +252,8 @@ class _ChatHistoryDrawerState extends ConsumerState<ChatHistoryDrawer> {
                             Text(
                               AppLocalizations.of(context)!.ai_chats,
                               style: TextStyle(
-                                fontSize: 15,
+                                fontSize: 16,
                                 fontWeight: FontWeight.w900,
-                                color:
-                                    isDarkMode
-                                        ? AppColors.surfaceWhite
-                                        : AppColors.textPrimary,
                               ),
                             ),
                             // New Chat Icon
@@ -272,14 +269,7 @@ class _ChatHistoryDrawerState extends ConsumerState<ChatHistoryDrawer> {
                                     .refreshThreads();
                                 Navigator.of(context).pop(); // Close drawer
                               },
-                              child: Icon(
-                                Icons.add,
-                                size: 24,
-                                color:
-                                    isDarkMode
-                                        ? AppColors.surfaceWhite
-                                        : AppColors.textPrimary,
-                              ),
+                              child: Icon(Icons.add, size: 24),
                             ),
                           ],
                         ),
@@ -312,7 +302,7 @@ class _ChatHistoryDrawerState extends ConsumerState<ChatHistoryDrawer> {
     String? currentThreadId,
   ) {
     if (state.isLoading) {
-      return Center(child: CircularProgressIndicator(color: AppColors.primary));
+      return const ChatThreadSkeleton();
     }
 
     if (state.error != null) {
@@ -331,13 +321,7 @@ class _ChatHistoryDrawerState extends ConsumerState<ChatHistoryDrawer> {
               const SizedBox(height: 16),
               Text(
                 state.error!,
-                style: TextStyle(
-                  fontSize: 16,
-                  color:
-                      isDarkMode
-                          ? AppColors.textPrimaryDark
-                          : AppColors.textPrimary,
-                ),
+                style: TextStyle(fontSize: 16),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 24),

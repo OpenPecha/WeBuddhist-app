@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/features/reader/data/models/navigation_context.dart';
 import 'package:flutter_pecha/features/texts/models/section.dart';
 import 'package:flutter_pecha/features/texts/models/text/toc_response.dart';
 import 'package:flutter_pecha/shared/utils/helper_functions.dart';
@@ -74,13 +75,14 @@ class _TableOfContentsState extends ConsumerState<TableOfContents> {
         onTap:
             segmentId != null
                 ? () {
+                  // Navigate to new reader with normal context
+                  final navigationContext = NavigationContext(
+                    source: NavigationSource.normal,
+                    targetSegmentId: segmentId,
+                  );
                   context.push(
-                    '/texts/chapters',
-                    extra: {
-                      'textId': textId,
-                      'contentId': tocId,
-                      'segmentId': segmentId,
-                    },
+                    '/reader/$textId',
+                    extra: navigationContext,
                   );
                 }
                 : null,

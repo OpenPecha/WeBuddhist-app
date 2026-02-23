@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
+import 'package:flutter_pecha/features/reader/data/models/navigation_context.dart';
 import 'package:flutter_pecha/features/texts/constants/text_screen_constants.dart';
-import 'package:flutter_pecha/features/texts/constants/text_routes.dart';
 import 'package:flutter_pecha/features/texts/utils/text_highlight_helper.dart';
 import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -91,10 +91,11 @@ class SearchResultCard extends ConsumerWidget {
     final fontSize = language == 'bo' ? 22.0 : 18.0;
     return InkWell(
       onTap: () {
-        context.push(
-          TextRoutes.chapters,
-          extra: {'textId': textId, 'segmentId': segmentId},
+        final navigationContext = NavigationContext(
+          source: NavigationSource.search,
+          targetSegmentId: segmentId,
         );
+        context.push('/reader/$textId', extra: navigationContext);
       },
       borderRadius: BorderRadius.circular(TextScreenConstants.cardBorderRadius),
       child: Container(

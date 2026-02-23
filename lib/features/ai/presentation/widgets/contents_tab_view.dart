@@ -3,6 +3,8 @@ import 'package:flutter_pecha/features/ai/models/search_state.dart';
 import 'package:flutter_pecha/features/texts/presentation/widgets/search_result_card.dart';
 import 'package:flutter_pecha/features/texts/models/search/multilingual_search_response.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
+import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
+import 'package:flutter_pecha/features/ai/presentation/widgets/skeletons/search_result_skeleton.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Tab view for displaying content search results
@@ -19,13 +21,10 @@ class ContentsTabView extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final localizations = AppLocalizations.of(context)!;
 
     if (searchState.isLoading) {
-      return Center(
-        child: CircularProgressIndicator(
-          color: AppColors.primary,
-        ),
-      );
+      return const SearchResultSkeleton();
     }
 
     if (searchState.error != null) {
@@ -42,7 +41,7 @@ class ContentsTabView extends ConsumerWidget {
               ),
               const SizedBox(height: 16),
               Text(
-                'Error: ${searchState.error}',
+                localizations.search_error(searchState.error!),
                 style: TextStyle(
                   color: isDarkMode ? AppColors.grey400 : AppColors.grey600,
                   fontSize: 14,
@@ -55,7 +54,7 @@ class ContentsTabView extends ConsumerWidget {
                 icon: Icon(
                   searchState.isLoading ? Icons.hourglass_empty : Icons.refresh,
                 ),
-                label: Text(searchState.isLoading ? 'Retrying...' : 'Retry'),
+                label: Text(searchState.isLoading ? localizations.search_retrying : localizations.ai_retry),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,
                   foregroundColor: Colors.white,
@@ -75,7 +74,7 @@ class ContentsTabView extends ConsumerWidget {
     if (results == null || results.sources.isEmpty) {
       return Center(
         child: Text(
-          'No results found for "${searchState.currentQuery}"',
+          localizations.search_no_contents_found(searchState.currentQuery),
           style: TextStyle(
             color: isDarkMode ? AppColors.grey400 : AppColors.grey600,
             fontSize: 16,
@@ -121,9 +120,9 @@ class ContentsTabView extends ConsumerWidget {
         (groupedResults[source.text.textId]!['segments']
                 as List<Map<String, String>>)
             .add({
-          'segmentId': segmentMatch.segmentId,
-          'content': segmentMatch.content,
-        });
+              'segmentId': segmentMatch.segmentId,
+              'content': segmentMatch.content,
+            });
       }
     }
 

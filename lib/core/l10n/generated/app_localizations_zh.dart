@@ -120,7 +120,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get nav_practice => '修持計劃';
 
   @override
-  String get nav_settings => '設定';
+  String get nav_settings => 'Me';
 
   @override
   String get nav_ai_mode => '人工智能';
@@ -235,6 +235,9 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get start_plan => '開始計畫';
+
+  @override
+  String get start_reading => '開始閱讀';
 
   @override
   String get continue_plan => '繼續計劃';
@@ -501,7 +504,28 @@ class AppLocalizationsZh extends AppLocalizations {
   String get ai_delete => '刪除';
 
   @override
-  String search_no_results(Object query) {
+  String ai_greeting(String name) {
+    return 'Hi $name';
+  }
+
+  @override
+  String get ai_text_not_found => 'Text Not Found';
+
+  @override
+  String ai_text_not_found_message(String title) {
+    return 'Could not find the text for \"$title\".\n\nPlease try another source.';
+  }
+
+  @override
+  String get ai_sources => 'Sources';
+
+  @override
+  String ai_sources_count(int count) {
+    return '$count sources';
+  }
+
+  @override
+  String search_no_results(String query) {
     return 'No results found for \"$query\"';
   }
 
@@ -518,15 +542,101 @@ class AppLocalizationsZh extends AppLocalizations {
   String get search_all => 'All';
 
   @override
-  String get search_coming_soon => 'Coming Soon';
+  String get search_author => 'Author';
 
   @override
-  String get search_title_search_coming_soon =>
-      'Title search will be available soon';
+  String get search_tab_ai_mode => 'AI Mode';
+
+  @override
+  String search_error(String message) {
+    return 'Error: $message';
+  }
+
+  @override
+  String get search_retrying => 'Retrying...';
+
+  @override
+  String search_no_titles_found(String query) {
+    return 'No titles found for \"$query\"';
+  }
+
+  @override
+  String search_no_contents_found(String query) {
+    return 'No contents found for \"$query\"';
+  }
+
+  @override
+  String search_no_authors_found(String query) {
+    return 'No authors found for \"$query\"';
+  }
+
+  @override
+  String get search_coming_soon => 'Coming Soon';
 
   @override
   String get search_buddhist_texts => 'Search Buddhist texts...';
 
   @override
+  String get common_ok => 'OK';
+
+  @override
   String get comingSoonHeadline => 'Coming Soon';
+
+  @override
+  String get routine_title => '日常修持';
+
+  @override
+  String get routine_empty_title => '日常修持';
+
+  @override
+  String get routine_edit => '編輯';
+
+  @override
+  String get routine_empty_description =>
+      '建立您的日常修持，保持祈禱生活的穩定。選擇時間和課程，我們會提醒您祈禱！';
+
+  @override
+  String get routine_build => '建立日常修持';
+
+  @override
+  String get routine_session => '課程';
+
+  @override
+  String get routine_time => '時間';
+
+  @override
+  String get routine_notification => '通知';
+
+  @override
+  String get routine_save => '保存日常修持';
+
+  @override
+  String get routine_morning => '早晨';
+
+  @override
+  String get routine_afternoon => '下午';
+
+  @override
+  String get routine_evening => '晚上';
+
+  @override
+  String get routine_add_session => '添加課程';
+
+  @override
+  String get routine_select_time => '選擇時間';
+
+  @override
+  String get routine_remind_me => '提醒我';
+
+  @override
+  String get routine_edit_title => '編輯日常修持';
+
+  @override
+  String get routine_delete_block => '刪除區塊';
+
+  @override
+  String get routine_add_plan => '添加計劃';
+
+  @override
+  String get routine_add_recitation => '添加持誦';
 }

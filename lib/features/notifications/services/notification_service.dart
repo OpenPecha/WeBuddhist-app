@@ -1,15 +1,13 @@
 import 'dart:io';
 
-import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
+import 'package:flutter_pecha/features/home/presentation/screens/main_navigation_screen.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:go_router/go_router.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest.dart' as tz;
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_pecha/features/app/presentation/skeleton_screen.dart';
 
 final _logger = AppLogger('NotificationService');
 
@@ -22,9 +20,8 @@ class NotificationService {
       FlutterLocalNotificationsPlugin();
 
   bool _isInitialized = false;
-  static const String _dailyReminderKey = 'daily_reminder_time';
-  static const String _dailyReminderEnabledKey = 'daily_reminder_enabled';
-  // Add static references for navigation
+
+  // Static reference for navigation
   static GoRouter? _router;
   static ProviderContainer? _container;
 
@@ -40,20 +37,48 @@ class NotificationService {
 
   bool get isInitialized => _isInitialized;
 
+  /// Map legacy timezone IDs (e.g. from Android) to IANA names used by the timezone package.
+  /// Default timezone data (latest.dart) may not include all legacy names.
+  static const Map<String, String> _legacyTimezoneToIana = {
+    'Asia/Calcutta': 'Asia/Kolkata',
+    'US/Eastern': 'America/New_York',
+    'US/Central': 'America/Chicago',
+    'US/Mountain': 'America/Denver',
+    'US/Pacific': 'America/Los_Angeles',
+    'GMT': 'UTC',
+  };
+
   /// Initialize without requesting permissions (for early app initialization)
   Future<void> initializeWithoutPermissions() async {
     if (_isInitialized) return; // prevent re-initialization
 
-    // initialize timezone
+    // Initialize timezone: use device local time so scheduled notifications
+    // (e.g. "7:10 AM") are in the user's local time, not UTC.
     tz.initializeTimeZones();
     final currentTimezone = await FlutterTimezone.getLocalTimezone();
+    bool localSet = false;
     try {
       tz.setLocalLocation(tz.getLocation(currentTimezone));
-    } catch (e) {
-      // Some devices return legacy timezone names (e.g. "Asia/Calcutta")
-      // that the timezone package doesn't recognize. Fall back to UTC.
-      _logger.warning('Unknown timezone "$currentTimezone", falling back to UTC');
-      tz.setLocalLocation(tz.getLocation('UTC'));
+      localSet = true;
+    } catch (_) {
+      final ianaName = _legacyTimezoneToIana[currentTimezone];
+      if (ianaName != null) {
+        try {
+          tz.setLocalLocation(tz.getLocation(ianaName));
+          _logger.info(
+            'Mapped legacy timezone "$currentTimezone" to "$ianaName"',
+          );
+          localSet = true;
+        } catch (_) {
+          // fall through to UTC fallback
+        }
+      }
+      if (!localSet) {
+        _logger.warning(
+          'Unknown timezone "$currentTimezone", falling back to UTC',
+        );
+        tz.setLocalLocation(tz.getLocation('UTC'));
+      }
     }
 
     // Android initialization - do NOT request permissions
@@ -98,33 +123,20 @@ class NotificationService {
             >();
 
     if (androidImplementation != null) {
-      // Daily practice channel
-      const AndroidNotificationChannel dailyPracticeChannel =
+      // Routine block reminder channel (only channel needed now)
+      const AndroidNotificationChannel routineBlockChannel =
           AndroidNotificationChannel(
-            androidNotificationChannelId,
-            androidNotificationChannelName,
-            description: androidNotificationChannelDescription,
+            routineBlockNotificationChannelId,
+            routineBlockNotificationChannelName,
+            description: routineBlockNotificationChannelDescription,
             importance: Importance.high,
             playSound: true,
             enableVibration: true,
           );
 
-      // Recitation reminder channel
-      const AndroidNotificationChannel recitationChannel =
-          AndroidNotificationChannel(
-            recitationNotificationChannelId,
-            recitationNotificationChannelName,
-            description: recitationNotificationChannelDescription,
-            importance: Importance.high,
-            playSound: true,
-            enableVibration: true,
-          );
-
-      // Create all channels
       await androidImplementation.createNotificationChannel(
-        dailyPracticeChannel,
+        routineBlockChannel,
       );
-      await androidImplementation.createNotificationChannel(recitationChannel);
 
       _logger.info('Android notification channels created');
     }
@@ -196,139 +208,41 @@ class NotificationService {
   }
 
   void _onNotificationTapped(NotificationResponse response) {
+    _logger.info('Notification tapped - ID: ${response.id}, Payload: ${response.payload}');
+    
     // Navigate based on notification ID
-    if (_router != null && _container != null) {
-      // Check notification ID to determine which tab to open
-      if (response.id == recitationNotificationId) {
-        // Recitation notification - go to recitation tab (index 1, was 2 before home hidden)
-        _container!.read(bottomNavIndexProvider.notifier).state = 1;
-      } else {
-        // Daily practice or default - go to texts tab (index 0, home is hidden)
-        _container!.read(bottomNavIndexProvider.notifier).state = 0;
-      }
-      _router!.go('/home');
+    if (_router == null) {
+      _logger.warning('Router not initialized, cannot navigate');
+      return;
     }
-  }
-
-  // schedule notification
-  Future<void> scheduledNotification({
-    required String title,
-    required String body,
-    required TimeOfDay scheduledTime,
-  }) async {
-    try {
-      final now = tz.TZDateTime.now(tz.local);
-      var scheduledDate = tz.TZDateTime(
-        tz.local,
-        now.year,
-        now.month,
-        now.day,
-        scheduledTime.hour,
-        scheduledTime.minute,
-      );
-
-      // If the scheduled time has already passed today, schedule for tomorrow
-      if (scheduledDate.isBefore(now)) {
-        scheduledDate = scheduledDate.add(const Duration(days: 1));
-      }
-
-      _logger.debug('Scheduling notification for: $scheduledDate');
-
-      // save the reminder time and enable the notification in shared preferences
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString(
-        _dailyReminderKey,
-        '${scheduledTime.hour}:${scheduledTime.minute}',
-      );
-      await prefs.setBool(_dailyReminderEnabledKey, true);
-
-      // schedule the notification
-      await notificationsPlugin.zonedSchedule(
-        dailyNotificationId,
-        title,
-        body,
-        scheduledDate,
-        const NotificationDetails(
-          android: AndroidNotificationDetails(
-            androidNotificationChannelId,
-            androidNotificationChannelName,
-            channelDescription: androidNotificationChannelDescription,
-            importance: Importance.high,
-            priority: Priority.high,
-            icon: 'ic_notification',
-            enableVibration: true,
-            playSound: true,
-          ),
-          iOS: DarwinNotificationDetails(
-            presentAlert: true,
-            presentBadge: true,
-            presentSound: true,
-          ),
-        ),
-        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-        matchDateTimeComponents: DateTimeComponents.time,
-      );
-
-      _logger.info('Notification scheduled with ID: $dailyNotificationId');
-    } catch (e) {
-      _logger.error('Error scheduling notification', e);
-      rethrow;
+    
+    if (_container == null) {
+      _logger.warning('Container not initialized, cannot navigate');
+      return;
     }
-  }
 
-  Future<void> cancelNotification() async {
-    await notificationsPlugin.cancel(dailyNotificationId);
-
-    // Update preferences
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(_dailyReminderEnabledKey, false);
-  }
-
-  Future<TimeOfDay?> getDailyReminderTime() async {
-    final prefs = await SharedPreferences.getInstance();
-    final timeString = prefs.getString(_dailyReminderKey);
-    if (timeString != null) {
-      final parts = timeString.split(':');
-      if (parts.length == 2) {
-        return TimeOfDay(
-          hour: int.parse(parts[0]),
-          minute: int.parse(parts[1]),
-        );
-      }
+    final currentUri = _router!.routerDelegate.currentConfiguration.uri;
+    _logger.debug('Current route: $currentUri');
+    
+    // Routine block notifications have ID >= 1000 (range: 1000-999999)
+    // Legacy notifications use ID 100-999
+    if (response.id != null && response.id! >= 100) {
+      _logger.info('Navigating to practice screen (routine notification)');
+      // Routine block notification — navigate to practice screen (index 2)
+      _container!.read(mainNavigationIndexProvider.notifier).state = 2;
+    } else {
+      _logger.info('Navigating to home screen (default)');
+      // Default fallback - go to home tab (index 0)
+      _container!.read(mainNavigationIndexProvider.notifier).state = 0;
     }
-    return null;
-  }
-
-  Future<bool> isDailyReminderEnabled() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getBool(_dailyReminderEnabledKey) ?? false;
-  }
-
-  Future<void> updateDailyReminder({
-    required TimeOfDay time,
-    required String title,
-    required String body,
-  }) async {
-    if (await isDailyReminderEnabled()) {
-      await scheduledNotification(
-        scheduledTime: time,
-        title: title,
-        body: body,
-      );
-    }
+    
+    _router!.go('/home');
+    _logger.debug('Navigation completed');
   }
 }
 
-// Daily practice notification channel constants
-const androidNotificationChannelId = 'daily_practice_reminder';
-const androidNotificationChannelName = 'Daily Practice Reminder';
-const androidNotificationChannelDescription =
-    'Notification for daily practice reminders';
-const dailyNotificationId = 1;
-
-// Recitation notification constants (shared with recitation service)
-const recitationNotificationChannelId = 'recitation_reminder';
-const recitationNotificationChannelName = 'Recitation Reminder';
-const recitationNotificationChannelDescription =
-    'Notification for recitation reminders';
-const recitationNotificationId = 2;
+// Routine block notification constants
+const routineBlockNotificationChannelId = 'routine_block_reminder';
+const routineBlockNotificationChannelName = 'Routine Block Reminder';
+const routineBlockNotificationChannelDescription =
+    'Daily notifications for routine practice blocks';

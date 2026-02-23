@@ -39,7 +39,7 @@ class PlanSearchDelegate extends SearchDelegate<PlansModel?> {
         close(context, null);
         ref.read(planSearchProvider.notifier).clear();
       },
-      icon: const Icon(Icons.arrow_back),
+      icon: const Icon(Icons.arrow_back_ios),
     );
   }
 

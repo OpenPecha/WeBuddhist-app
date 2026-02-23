@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/widgets/error_state_widget.dart';
+import 'package:flutter_pecha/core/widgets/skeletons/skeletons.dart';
 import 'package:flutter_pecha/features/home/data/providers/plans_by_tag_provider.dart';
 import 'package:flutter_pecha/features/plans/models/plans_model.dart';
 import 'package:flutter_pecha/shared/utils/helper_functions.dart';
@@ -34,7 +35,7 @@ class PlanListScreen extends ConsumerWidget {
                   }
                   return _buildContent(context, ref, plans);
                 },
-                loading: () => const Center(child: CircularProgressIndicator()),
+                loading: () => const PlanListSkeleton(),
                 error:
                     (error, stackTrace) => ErrorStateWidget(
                       error: error,
@@ -54,13 +55,15 @@ class PlanListScreen extends ConsumerWidget {
       child: Row(
         children: [
           IconButton(
-            icon: const Icon(Icons.arrow_back),
+            icon: const Icon(Icons.arrow_back_ios),
             onPressed: () => context.pop(),
           ),
           Expanded(
             child: Center(
               child: Text(
                 _capitalizeTag(tag),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
                 style: const TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
@@ -144,14 +147,13 @@ class _FeaturedPlanCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final locale = ref.watch(localeProvider);
-    final fontFamily = getFontFamily(locale.languageCode);
     final lineHeight = getLineHeight(locale.languageCode);
     final titleFontSize = locale.languageCode == 'bo' ? 22.0 : 18.0;
     final subtitleFontSize = locale.languageCode == 'bo' ? 18.0 : 14.0;
 
     return InkWell(
       onTap: () {
-        // TODO: Navigate to plan details
+        context.push('/practice/plans/preview', extra: {'plan': plan});
       },
       borderRadius: BorderRadius.circular(16),
       child: Container(
@@ -194,7 +196,6 @@ class _FeaturedPlanCard extends ConsumerWidget {
                     style: TextStyle(
                       fontSize: titleFontSize,
                       fontWeight: FontWeight.bold,
-                      fontFamily: fontFamily,
                       height: lineHeight,
                       color: Colors.white,
                       shadows: [
@@ -213,7 +214,6 @@ class _FeaturedPlanCard extends ConsumerWidget {
                     plan.description,
                     style: TextStyle(
                       fontSize: subtitleFontSize,
-                      fontFamily: fontFamily,
                       height: lineHeight,
                       color: Colors.white.withValues(alpha: 0.9),
                     ),
@@ -278,7 +278,6 @@ class _PlanListItem extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final locale = ref.watch(localeProvider);
-    final fontFamily = getFontFamily(locale.languageCode);
     final lineHeight = getLineHeight(locale.languageCode);
     final titleFontSize = locale.languageCode == 'bo' ? 18.0 : 16.0;
     final subtitleFontSize = locale.languageCode == 'bo' ? 16.0 : 14.0;
@@ -287,7 +286,7 @@ class _PlanListItem extends ConsumerWidget {
       padding: const EdgeInsets.only(bottom: 12.0),
       child: InkWell(
         onTap: () {
-          // TODO: Navigate to plan details
+          context.push('/practice/plans/preview', extra: {'plan': plan});
         },
         borderRadius: BorderRadius.circular(12),
         child: Row(
@@ -316,10 +315,8 @@ class _PlanListItem extends ConsumerWidget {
                     style: TextStyle(
                       fontSize: titleFontSize,
                       fontWeight: FontWeight.w600,
-                      fontFamily: fontFamily,
                       height: lineHeight,
                     ),
-                    maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 4),
@@ -327,7 +324,6 @@ class _PlanListItem extends ConsumerWidget {
                     plan.description,
                     style: TextStyle(
                       fontSize: subtitleFontSize,
-                      fontFamily: fontFamily,
                       height: lineHeight,
                       color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),

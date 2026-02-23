@@ -121,7 +121,7 @@ class AppLocalizationsBo extends AppLocalizations {
   String get nav_practice => 'ཉམས་ལེན།';
 
   @override
-  String get nav_settings => 'སྒྲིག་འགོད།';
+  String get nav_settings => 'Me';
 
   @override
   String get nav_ai_mode => 'རིག་ནུས་';
@@ -238,6 +238,9 @@ class AppLocalizationsBo extends AppLocalizations {
 
   @override
   String get start_plan => 'ཉམས་ལེན་འགོ་འཛུགས།';
+
+  @override
+  String get start_reading => 'ཀློག་པ་འགོ་འཛུགས།';
 
   @override
   String get continue_plan => 'ཉམས་ལེན་མུ་མཐུད་';
@@ -512,7 +515,28 @@ class AppLocalizationsBo extends AppLocalizations {
   String get ai_delete => 'བསུབ།';
 
   @override
-  String search_no_results(Object query) {
+  String ai_greeting(String name) {
+    return 'Hi $name';
+  }
+
+  @override
+  String get ai_text_not_found => 'Text Not Found';
+
+  @override
+  String ai_text_not_found_message(String title) {
+    return 'Could not find the text for \"$title\".\n\nPlease try another source.';
+  }
+
+  @override
+  String get ai_sources => 'Sources';
+
+  @override
+  String ai_sources_count(int count) {
+    return '$count sources';
+  }
+
+  @override
+  String search_no_results(String query) {
     return 'No results found for \"$query\"';
   }
 
@@ -529,15 +553,101 @@ class AppLocalizationsBo extends AppLocalizations {
   String get search_all => 'All';
 
   @override
-  String get search_coming_soon => 'Coming Soon';
+  String get search_author => 'Author';
 
   @override
-  String get search_title_search_coming_soon =>
-      'Title search will be available soon';
+  String get search_tab_ai_mode => 'AI Mode';
+
+  @override
+  String search_error(String message) {
+    return 'Error: $message';
+  }
+
+  @override
+  String get search_retrying => 'Retrying...';
+
+  @override
+  String search_no_titles_found(String query) {
+    return 'No titles found for \"$query\"';
+  }
+
+  @override
+  String search_no_contents_found(String query) {
+    return 'No contents found for \"$query\"';
+  }
+
+  @override
+  String search_no_authors_found(String query) {
+    return 'No authors found for \"$query\"';
+  }
+
+  @override
+  String get search_coming_soon => 'Coming Soon';
 
   @override
   String get search_buddhist_texts => 'Search Buddhist texts...';
 
   @override
+  String get common_ok => 'OK';
+
+  @override
   String get comingSoonHeadline => 'Coming Soon';
+
+  @override
+  String get routine_title => 'ཉམས་ལེན་གོམས་གཤིས།';
+
+  @override
+  String get routine_empty_title => 'ཉམས་ལེན་གོམས་གཤིས།';
+
+  @override
+  String get routine_edit => 'བཟོ་བཅོས།';
+
+  @override
+  String get routine_empty_description =>
+      'ཉམས་ལེན་གོམས་གཤིས་བཟོས་ནས་སྨོན་ལམ་གྱི་འཚོ་བར་རྒྱུན་མཐུད་གནས་རོགས། དུས་ཚོད་དང་ཉམས་ལེན་འདེམས་དང་ང་ཚོས་ཁྱེད་ལ་དྲན་སྐུལ་བྱེད་ཀྱི་ཡིན།';
+
+  @override
+  String get routine_build => 'ཉམས་ལེན་གོམས་གཤིས་བཟོས།';
+
+  @override
+  String get routine_session => 'ཉམས་ལེན།';
+
+  @override
+  String get routine_time => 'དུས་ཚོད།';
+
+  @override
+  String get routine_notification => 'གསལ་བརྡ།';
+
+  @override
+  String get routine_save => 'ཉམས་ལེན་གོམས་གཤིས་ཉར་ཚགས།';
+
+  @override
+  String get routine_morning => 'སྔ་དྲོ།';
+
+  @override
+  String get routine_afternoon => 'ཉིན་གུང་།';
+
+  @override
+  String get routine_evening => 'དགོང་དྲོ།';
+
+  @override
+  String get routine_add_session => 'ཉམས་ལེན་ཁ་སྣོན།';
+
+  @override
+  String get routine_select_time => 'དུས་ཚོད་འདེམས།';
+
+  @override
+  String get routine_remind_me => 'དྲན་སྐུལ་བྱེད།';
+
+  @override
+  String get routine_edit_title => 'ཉམས་ལེན་གོམས་གཤིས་བཟོ་བཅོས།';
+
+  @override
+  String get routine_delete_block => 'སུབ།';
+
+  @override
+  String get routine_add_plan => 'ཉམས་ལེན་ཁ་སྣོན།';
+
+  @override
+  String get routine_add_recitation => 'ཞལ་འདོན་ཁ་སྣོན།';
 }

@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/features/ai/models/search_state.dart';
+import 'package:flutter_pecha/features/reader/data/models/navigation_context.dart';
 import 'package:flutter_pecha/features/texts/presentation/widgets/search_result_card.dart';
 import 'package:flutter_pecha/features/texts/models/search/multilingual_source_result.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
+import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
+import 'package:flutter_pecha/features/ai/presentation/widgets/skeletons/search_result_skeleton.dart';
+import 'package:go_router/go_router.dart';
 
-/// Tab view showing both titles and contents (limited to 3 each)
 class AllTabView extends StatelessWidget {
   final SearchState searchState;
   final Function(SearchTab) onShowMore;
@@ -20,9 +23,10 @@ class AllTabView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final localizations = AppLocalizations.of(context)!;
 
     if (searchState.isLoading) {
-      return Center(child: CircularProgressIndicator(color: AppColors.primary));
+      return const SearchResultSkeleton();
     }
 
     if (searchState.error != null) {
@@ -39,7 +43,7 @@ class AllTabView extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               Text(
-                'Error: ${searchState.error}',
+                localizations.search_error(searchState.error!),
                 style: TextStyle(
                   color: isDarkMode ? AppColors.grey400 : AppColors.grey600,
                   fontSize: 14,
@@ -52,7 +56,7 @@ class AllTabView extends StatelessWidget {
                 icon: Icon(
                   searchState.isLoading ? Icons.hourglass_empty : Icons.refresh,
                 ),
-                label: Text(searchState.isLoading ? 'Retrying...' : 'Retry'),
+                label: Text(searchState.isLoading ? localizations.search_retrying : localizations.ai_retry),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,
                   foregroundColor: Colors.white,
@@ -68,13 +72,24 @@ class AllTabView extends StatelessWidget {
       );
     }
 
-    final results = searchState.contentResults;
-    if (results == null || results.sources.isEmpty) {
+    final contentResults = searchState.contentResults;
+    final titleResults = searchState.titleResults;
+    final authorResults = searchState.authorResults;
+
+    // Check if we have any results at all
+    final hasContentResults =
+        contentResults != null && contentResults.sources.isNotEmpty;
+    final hasTitleResults =
+        titleResults != null && titleResults.results.isNotEmpty;
+    final hasAuthorResults =
+        authorResults != null && authorResults.results.isNotEmpty;
+
+    if (!hasContentResults && !hasTitleResults && !hasAuthorResults) {
       return Center(
         child: Padding(
           padding: const EdgeInsets.all(24.0),
           child: Text(
-            'No results found for "${searchState.currentQuery}"',
+            localizations.search_no_results(searchState.currentQuery),
             style: TextStyle(
               color: isDarkMode ? AppColors.grey400 : AppColors.grey600,
               fontSize: 16,
@@ -85,22 +100,40 @@ class AllTabView extends StatelessWidget {
       );
     }
 
-    // Get first 3 content results
-    final contentResults = results.sources.take(3).toList();
-    final hasMoreContent = results.sources.length > 1;
+    // Get first 3 results for each section
+    final topContentResults =
+        hasContentResults
+            ? contentResults.sources.take(3).toList()
+            : <MultilingualSourceResult>[];
+    final topTitleResults =
+        hasTitleResults ? titleResults.results.take(3).toList() : [];
+    final topAuthorResults =
+        hasAuthorResults ? authorResults.results.take(3).toList() : [];
+
+    final hasMoreContent = hasContentResults && contentResults.sources.length >= 2;
+    final hasMoreTitles = hasTitleResults && titleResults.results.length >= 2;
+    final hasMoreAuthors = hasAuthorResults && authorResults.results.length >= 2;
 
     return ListView(
       padding: const EdgeInsets.symmetric(vertical: 8),
       children: [
-        // Titles Section
-        _buildSectionHeader(context, isDarkMode, 'Titles'),
-        _buildComingSoonMessage(context, isDarkMode),
-        const SizedBox(height: 24),
+        // Titles Section - Only show if there are results
+        if (hasTitleResults) ...[
+          _buildSectionHeader(context, isDarkMode, localizations.search_titles),
+          ...topTitleResults.map(
+            (item) => _buildTitleResultCard(context, item, isDarkMode),
+          ),
+          if (hasMoreTitles) ...[
+            const SizedBox(height: 25),
+            _buildShowMoreButton(context, isDarkMode, SearchTab.titles, localizations),
+          ],
+          const SizedBox(height: 24),
+        ],
 
-        // Contents Section
-        if (contentResults.isNotEmpty) ...[
-          _buildSectionHeader(context, isDarkMode, 'Contents'),
-          ...contentResults.map(
+        // Contents Section - Only show if there are results
+        if (hasContentResults) ...[
+          _buildSectionHeader(context, isDarkMode, localizations.search_contents),
+          ...topContentResults.map(
             (source) => _buildContentResultCard(
               context,
               source,
@@ -109,14 +142,23 @@ class AllTabView extends StatelessWidget {
           ),
           if (hasMoreContent) ...[
             const SizedBox(height: 25),
-            _buildShowMoreButton(context, isDarkMode, SearchTab.contents),
+            _buildShowMoreButton(context, isDarkMode, SearchTab.contents, localizations),
           ],
-          const SizedBox(height: 16),
+          const SizedBox(height: 24),
         ],
-        // Author Section
-        _buildSectionHeader(context, isDarkMode, 'Author'),
-        _buildComingSoonMessage(context, isDarkMode),
-        const SizedBox(height: 24),
+
+        // Author Section - Only show if there are results
+        if (hasAuthorResults) ...[
+          _buildSectionHeader(context, isDarkMode, localizations.search_author),
+          ...topAuthorResults.map(
+            (item) => _buildAuthorResultCard(context, item, isDarkMode),
+          ),
+          if (hasMoreAuthors) ...[
+            const SizedBox(height: 25),
+            _buildShowMoreButton(context, isDarkMode, SearchTab.author, localizations),
+          ],
+          const SizedBox(height: 24),
+        ],
       ],
     );
   }
@@ -166,39 +208,116 @@ class AllTabView extends StatelessWidget {
     );
   }
 
-  Widget _buildComingSoonMessage(BuildContext context, bool isDarkMode) {
+  Widget _buildTitleResultCard(
+    BuildContext context,
+    dynamic item,
+    bool isDarkMode,
+  ) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       decoration: BoxDecoration(
-        color:
-            isDarkMode
-                ? AppColors.grey800.withOpacity(0.3)
-                : AppColors.grey300.withOpacity(0.5),
+        color: isDarkMode ? AppColors.grey900 : Colors.white,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: isDarkMode ? AppColors.grey800 : AppColors.grey300,
           width: 1,
         ),
       ),
-      child: Row(
-        children: [
-          Icon(
-            Icons.info_outline_rounded,
-            size: 20,
-            color: isDarkMode ? AppColors.grey400 : AppColors.grey600,
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              'Coming Soon',
-              style: TextStyle(
-                fontSize: 14,
-                color: isDarkMode ? AppColors.grey400 : AppColors.grey600,
-                fontWeight: FontWeight.w500,
+      child: InkWell(
+        onTap: () {
+          // Navigate to new reader with normal context
+          final navigationContext = NavigationContext(
+            source: NavigationSource.normal,
+          );
+          context.push(
+            '/reader/${item.id}',
+            extra: navigationContext,
+          );
+        },
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  item.title,
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    color:
+                        isDarkMode
+                            ? AppColors.surfaceWhite
+                            : AppColors.textPrimary,
+                  ),
+                ),
               ),
-            ),
+              const SizedBox(width: 12),
+              Icon(
+                Icons.chevron_right,
+                color: isDarkMode ? AppColors.grey600 : AppColors.grey400,
+                size: 20,
+              ),
+            ],
           ),
-        ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAuthorResultCard(
+    BuildContext context,
+    dynamic item,
+    bool isDarkMode,
+  ) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      decoration: BoxDecoration(
+        color: isDarkMode ? AppColors.grey900 : Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: isDarkMode ? AppColors.grey800 : AppColors.grey300,
+          width: 1,
+        ),
+      ),
+      child: InkWell(
+        onTap: () {
+          // Navigate to new reader with normal context
+          final navigationContext = NavigationContext(
+            source: NavigationSource.normal,
+          );
+          context.push(
+            '/reader/${item.id}',
+            extra: navigationContext,
+          );
+        },
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  item.title,
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    color:
+                        isDarkMode
+                            ? AppColors.surfaceWhite
+                            : AppColors.textPrimary,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Icon(
+                Icons.chevron_right,
+                color: isDarkMode ? AppColors.grey600 : AppColors.grey400,
+                size: 20,
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -207,6 +326,7 @@ class AllTabView extends StatelessWidget {
     BuildContext context,
     bool isDarkMode,
     SearchTab tab,
+    AppLocalizations localizations,
   ) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
@@ -227,7 +347,7 @@ class AllTabView extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                'Show More',
+                localizations.search_show_more,
                 style: TextStyle(
                   color: AppColors.primary,
                   fontSize: 14,
