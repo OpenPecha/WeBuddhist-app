@@ -18,7 +18,6 @@ class TagCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final locale = ref.watch(localeProvider);
-    final fontFamily = getFontFamily(locale.languageCode);
     final lineHeight = getLineHeight(locale.languageCode);
     final fontSize = locale.languageCode == 'bo' ? 20.0 : 16.0;
 
@@ -60,7 +59,6 @@ class TagCard extends ConsumerWidget {
                 style: TextStyle(
                   fontSize: fontSize,
                   fontWeight: FontWeight.w600,
-                  fontFamily: fontFamily,
                   height: lineHeight,
                   color: Colors.white,
                   shadows: [

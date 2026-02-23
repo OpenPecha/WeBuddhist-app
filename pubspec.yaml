@@ -159,7 +159,6 @@ flutter:
     - assets/images/verse-bg/
     - assets/fonts/
     - assets/audios/
-    - google_fonts/
     - .env
 
   fonts:

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/features/plans/models/plan_tasks_model.dart';
 import 'package:flutter_pecha/features/reader/data/models/navigation_context.dart';
-import 'package:flutter_pecha/shared/extensions/typography_extensions.dart';
 import 'package:go_router/go_router.dart';
 
 /// A read-only activity list for previewing plan tasks before enrollment.
@@ -148,10 +147,7 @@ class _PreviewTaskItem extends StatelessWidget {
               Expanded(
                 child: Text(
                   task.title,
-                  style: context.languageTextStyle(
-                    language,
-                    fontWeight: FontWeight.w500,
-                  ),
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
                 ),
               ),
               if (hasSourceText) ...[

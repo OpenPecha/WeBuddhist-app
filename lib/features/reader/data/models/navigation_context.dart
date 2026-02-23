@@ -17,11 +17,16 @@ class PlanTextItem {
   /// Left null in preview mode to prevent tracking for unenrolled plans.
   final String? subtaskId;
 
+  /// Whether the subtask is already completed.
+  /// When true, prevents duplicate completion API calls.
+  final bool isCompleted;
+
   const PlanTextItem({
     required this.textId,
     this.segmentId,
     required this.title,
     this.subtaskId,
+    this.isCompleted = false,
   });
 
   PlanTextItem copyWith({
@@ -29,12 +34,14 @@ class PlanTextItem {
     String? segmentId,
     String? title,
     String? subtaskId,
+    bool? isCompleted,
   }) {
     return PlanTextItem(
       textId: textId ?? this.textId,
       segmentId: segmentId ?? this.segmentId,
       title: title ?? this.title,
       subtaskId: subtaskId ?? this.subtaskId,
+      isCompleted: isCompleted ?? this.isCompleted,
     );
   }
 
@@ -45,15 +52,16 @@ class PlanTextItem {
         other.textId == textId &&
         other.segmentId == segmentId &&
         other.title == title &&
-        other.subtaskId == subtaskId;
+        other.subtaskId == subtaskId &&
+        other.isCompleted == isCompleted;
   }
 
   @override
-  int get hashCode => Object.hash(textId, segmentId, title, subtaskId);
+  int get hashCode => Object.hash(textId, segmentId, title, subtaskId, isCompleted);
 
   @override
   String toString() {
-    return 'PlanTextItem(textId: $textId, segmentId: $segmentId, title: $title, subtaskId: $subtaskId)';
+    return 'PlanTextItem(textId: $textId, segmentId: $segmentId, title: $title, subtaskId: $subtaskId, isCompleted: $isCompleted)';
   }
 }
 

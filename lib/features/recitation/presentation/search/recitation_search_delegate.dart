@@ -39,7 +39,7 @@ class RecitationSearchDelegate extends SearchDelegate<RecitationModel?> {
         close(context, null);
         ref.read(recitationSearchProvider.notifier).clear();
       },
-      icon: const Icon(Icons.arrow_back),
+      icon: const Icon(Icons.arrow_back_ios),
     );
   }
 

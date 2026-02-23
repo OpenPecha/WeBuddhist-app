@@ -523,6 +523,7 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
                   title: plan.title,
                   imageUrl: plan.imageThumbnail,
                   type: RoutineItemType.plan,
+                  enrolledAt: DateTime.now(),
                 ),
               );
             case RecitationSessionSelection(:final recitation):

@@ -58,3 +58,6 @@ warp.md
 
 # cursor rules
 .cursor/
+
+# Google Fonts (managed by google_fonts package, not needed in repo)
+google_fonts/

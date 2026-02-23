@@ -189,7 +189,7 @@ class ThreadListItem extends StatelessWidget {
                 child: Text(
                   thread.title,
                   style: TextStyle(
-                    fontSize: 14,
+                    fontSize: 15,
                     fontWeight: isActive ? FontWeight.w600 : FontWeight.w400,
                   ),
                   maxLines: 2,

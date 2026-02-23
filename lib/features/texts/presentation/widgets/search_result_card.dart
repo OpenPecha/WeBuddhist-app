@@ -91,17 +91,11 @@ class SearchResultCard extends ConsumerWidget {
     final fontSize = language == 'bo' ? 22.0 : 18.0;
     return InkWell(
       onTap: () {
-        print("SearchResultCard onTap, $textId, $segmentId");
-        // Navigate to new reader with search context
         final navigationContext = NavigationContext(
           source: NavigationSource.search,
           targetSegmentId: segmentId,
         );
         context.push('/reader/$textId', extra: navigationContext);
-        // context.push('/ai-mode/search-results/text-chapters', extra: {
-        //   'textId': textId,
-        //   'segmentId': segmentId,
-        // });
       },
       borderRadius: BorderRadius.circular(TextScreenConstants.cardBorderRadius),
       child: Container(

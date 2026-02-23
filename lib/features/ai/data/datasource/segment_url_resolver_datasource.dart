@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_pecha/core/error/exceptions.dart';
 import 'package:http/http.dart' as http;
@@ -27,15 +29,13 @@ class SegmentUrlResolverDatasource {
       );
 
       if (response.statusCode == 200) {
-        // Response is a URL string like "/chapter?text_id=XXX&segment_id=YYY"
-        final urlString = response.body.replaceAll('"', '').trim();
+        // Response is a JSON object: {"text_id": "...", "segment_id": "..."}
+        final jsonData = json.decode(response.body) as Map<String, dynamic>;
         
-        // Parse the URL to extract query parameters
-        final uri = Uri.parse(urlString);
-        final textId = uri.queryParameters['text_id'];
-        final segmentId = uri.queryParameters['segment_id'];
+        final textId = jsonData['text_id'] as String?;
+        final segmentId = jsonData['segment_id'] as String?;
 
-        if (textId == null) {
+        if (textId == null || textId.isEmpty) {
           throw const ServerException('Invalid response: missing text_id');
         }
 

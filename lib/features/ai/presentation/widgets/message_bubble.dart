@@ -149,7 +149,7 @@ class _MessageBubbleState extends ConsumerState<MessageBubble> {
                 child: Text(
                   _truncateTitle(source.title, 15),
                   style: TextStyle(
-                    fontSize: 11,
+                    fontSize: 14,
                     fontWeight: FontWeight.w500,
                     color: isDarkMode ? AppColors.grey300 : AppColors.grey800,
                   ),
@@ -228,7 +228,7 @@ class _MessageBubbleState extends ConsumerState<MessageBubble> {
         spans.add(
           TextSpan(
             text: text.substring(lastMatchEnd, match.start),
-            style: style,
+            style: TextStyle(fontSize: 16),
           ),
         );
       }
@@ -487,7 +487,7 @@ class _MessageBubbleState extends ConsumerState<MessageBubble> {
                                         Text(
                                           source.title,
                                           style: TextStyle(
-                                            fontSize: 15,
+                                            fontSize: 16,
                                             fontWeight: FontWeight.w500,
                                             color:
                                                 isDarkMode
@@ -500,7 +500,7 @@ class _MessageBubbleState extends ConsumerState<MessageBubble> {
                                         Text(
                                           source.text,
                                           style: TextStyle(
-                                            fontSize: 13,
+                                            fontSize: 14,
                                             color:
                                                 isDarkMode
                                                     ? AppColors
@@ -536,6 +536,8 @@ class _MessageBubbleState extends ConsumerState<MessageBubble> {
   @override
   Widget build(BuildContext context) {
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final locale = Localizations.localeOf(context);
+    final fontSize = locale.languageCode == 'bo' ? 18.0 : 16.0;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -566,7 +568,7 @@ class _MessageBubbleState extends ConsumerState<MessageBubble> {
                       ),
                       child: Text(
                         widget.message.content,
-                        style: const TextStyle(fontSize: 12, height: 1.4),
+                        style: TextStyle(fontSize: fontSize, height: 1.4),
                       ),
                     )
                     : Column(
@@ -576,7 +578,7 @@ class _MessageBubbleState extends ConsumerState<MessageBubble> {
                         RichText(
                           text: TextSpan(
                             style: TextStyle(
-                              fontSize: 14,
+                              fontSize: fontSize,
                               height: 1.4,
                               color:
                                   isDarkMode

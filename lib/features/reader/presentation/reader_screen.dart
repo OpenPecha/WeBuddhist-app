@@ -7,12 +7,10 @@ import 'package:flutter_pecha/features/reader/constants/reader_constants.dart';
 import 'package:flutter_pecha/features/reader/data/models/navigation_context.dart';
 import 'package:flutter_pecha/features/reader/data/models/reader_state.dart';
 import 'package:flutter_pecha/features/reader/data/providers/reader_notifier.dart';
-import 'package:flutter_pecha/features/reader/domain/services/navigation_service.dart';
 import 'package:flutter_pecha/features/reader/presentation/widgets/reader_actions/segement_action_bar.dart';
 import 'package:flutter_pecha/features/reader/presentation/widgets/reader_app_bar/reader_app_bar.dart';
 import 'package:flutter_pecha/features/reader/presentation/widgets/reader_commentary/reader_commentary_split_view.dart';
 import 'package:flutter_pecha/features/reader/presentation/widgets/reader_content/reader_content_part.dart';
-import 'package:flutter_pecha/features/reader/presentation/widgets/reader_controls/reader_chapter_header.dart';
 import 'package:flutter_pecha/features/reader/presentation/widgets/reader_gestures/swipe_navigation_wrapper.dart';
 import 'package:flutter_pecha/features/reader/presentation/widgets/reader_search/reader_search_delegate.dart';
 import 'package:flutter_pecha/features/texts/data/providers/text_version_language_provider.dart';
@@ -44,7 +42,6 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
     with SingleTickerProviderStateMixin {
   static final _logger = AppLogger('ReaderScreen');
   late ReaderParams _params;
-  final NavigationService _navigationService = const NavigationService();
 
   // App bar visibility state
   bool _isAppBarVisible = true;
@@ -87,6 +84,8 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
   }
 
   void _onScrollDirectionChanged(bool isScrollingDown) {
+    // Feature flag to disable auto-hide behavior
+    if (!ReaderConstants.enableAppBarAutoHide) return;
     if (isScrollingDown && _isAppBarVisible) {
       _isAppBarVisible = false;
       _appBarAnimationController.forward();
@@ -110,8 +109,15 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
       return;
     }
 
-    final subtaskId = items[index].subtaskId;
+    final currentItem = items[index];
+    final subtaskId = currentItem.subtaskId;
     if (subtaskId == null || subtaskId.isEmpty) return;
+
+    // Skip if already completed to prevent duplicate API calls
+    if (currentItem.isCompleted) {
+      _logger.debug('Subtask $subtaskId already completed, skipping API call');
+      return;
+    }
 
     // Fire-and-forget: mark subtask complete via API
     Future.microtask(() async {
@@ -225,14 +231,11 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
                 },
               ),
               // Chapter header
-              ReaderChapterHeader(textDetail: state.textDetail!),
-              // Plan progress indicator (if applicable)
-              if (state.navigationContext?.canSwipe ?? false)
-                _buildPlanProgressIndicator(state.navigationContext!),
               // Main scrollable content
               Expanded(
                 child: SwipeNavigationWrapper(
                   params: _params,
+                  textDetail: state.textDetail!,
                   child: ReaderCommentarySplitView(
                     params: _params,
                     mainContent: Stack(
@@ -279,19 +282,6 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
           ),
         ),
       ],
-    );
-  }
-
-  Widget _buildPlanProgressIndicator(NavigationContext navigationContext) {
-    final progress = _navigationService.getProgress(navigationContext);
-    if (progress == null) return const SizedBox.shrink();
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [PlanNavigationIndicator(progress: progress)],
-      ),
     );
   }
 

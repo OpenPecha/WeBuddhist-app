@@ -11,12 +11,14 @@ class RoutineItem {
   final String title;
   final String? imageUrl;
   final RoutineItemType type;
+  final DateTime? enrolledAt;
 
   const RoutineItem({
     required this.id,
     required this.title,
     this.imageUrl,
     required this.type,
+    this.enrolledAt,
   });
 
   Map<String, dynamic> toJson() => {
@@ -24,6 +26,7 @@ class RoutineItem {
     'title': title,
     'imageUrl': imageUrl,
     'type': type.name,
+    'enrolledAt': enrolledAt?.toIso8601String(),
   };
 
   /// Safely parses a [RoutineItem] from JSON with null checks and fallbacks.
@@ -43,6 +46,7 @@ class RoutineItem {
       title: title,
       imageUrl: json['imageUrl'] as String?,
       type: _parseRoutineItemType(json['type']),
+      enrolledAt: _parseDateTime(json['enrolledAt']),
     );
   }
 
@@ -61,6 +65,12 @@ class RoutineItem {
       (e) => e.name == value,
       orElse: () => RoutineItemType.plan,
     );
+  }
+
+  /// Safely parses a [DateTime] from an ISO 8601 string.
+  static DateTime? _parseDateTime(dynamic value) {
+    if (value is! String || value.isEmpty) return null;
+    return DateTime.tryParse(value);
   }
 }
 

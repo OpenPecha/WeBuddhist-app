@@ -55,7 +55,7 @@ class PlanListScreen extends ConsumerWidget {
       child: Row(
         children: [
           IconButton(
-            icon: const Icon(Icons.arrow_back),
+            icon: const Icon(Icons.arrow_back_ios),
             onPressed: () => context.pop(),
           ),
           Expanded(
@@ -147,7 +147,6 @@ class _FeaturedPlanCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final locale = ref.watch(localeProvider);
-    final fontFamily = getFontFamily(locale.languageCode);
     final lineHeight = getLineHeight(locale.languageCode);
     final titleFontSize = locale.languageCode == 'bo' ? 22.0 : 18.0;
     final subtitleFontSize = locale.languageCode == 'bo' ? 18.0 : 14.0;
@@ -197,7 +196,6 @@ class _FeaturedPlanCard extends ConsumerWidget {
                     style: TextStyle(
                       fontSize: titleFontSize,
                       fontWeight: FontWeight.bold,
-                      fontFamily: fontFamily,
                       height: lineHeight,
                       color: Colors.white,
                       shadows: [
@@ -216,7 +214,6 @@ class _FeaturedPlanCard extends ConsumerWidget {
                     plan.description,
                     style: TextStyle(
                       fontSize: subtitleFontSize,
-                      fontFamily: fontFamily,
                       height: lineHeight,
                       color: Colors.white.withValues(alpha: 0.9),
                     ),
@@ -281,7 +278,6 @@ class _PlanListItem extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final locale = ref.watch(localeProvider);
-    final fontFamily = getFontFamily(locale.languageCode);
     final lineHeight = getLineHeight(locale.languageCode);
     final titleFontSize = locale.languageCode == 'bo' ? 18.0 : 16.0;
     final subtitleFontSize = locale.languageCode == 'bo' ? 16.0 : 14.0;
@@ -319,7 +315,6 @@ class _PlanListItem extends ConsumerWidget {
                     style: TextStyle(
                       fontSize: titleFontSize,
                       fontWeight: FontWeight.w600,
-                      fontFamily: fontFamily,
                       height: lineHeight,
                     ),
                     overflow: TextOverflow.ellipsis,
@@ -329,7 +324,6 @@ class _PlanListItem extends ConsumerWidget {
                     plan.description,
                     style: TextStyle(
                       fontSize: subtitleFontSize,
-                      fontFamily: fontFamily,
                       height: lineHeight,
                       color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
