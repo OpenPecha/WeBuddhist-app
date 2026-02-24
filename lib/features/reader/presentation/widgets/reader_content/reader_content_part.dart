@@ -219,7 +219,6 @@ class _ReaderContentPartState extends ConsumerState<ReaderContentPart> {
             message: 'Loading previous...',
             showSkeleton: true,
           ),
-
         // Main content list
         Expanded(
           child: ScrollablePositionedList.builder(
@@ -260,9 +259,9 @@ class _ReaderContentPartState extends ConsumerState<ReaderContentPart> {
       header: (section, depth) {
         // Only show section headers for nested sections (depth > 0)
         // The chapter header (depth 0) is shown at the top of the screen
-        if (depth == 0) {
-          return const SizedBox.shrink();
-        }
+        // if (depth == 0) {
+        //   return const SizedBox.shrink();
+        // }
         return SectionHeader(
           section: section,
           depth: depth,
