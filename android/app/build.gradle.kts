@@ -20,8 +20,8 @@ if (localPropertiesFile.exists()) {
     localProperties.load(FileInputStream(localPropertiesFile))
 }
 
-val auth0Domain: String = localProperties.getProperty("auth0Domain") ?: "YOUR_DEFAULT_DOMAIN"
-val auth0Scheme: String = localProperties.getProperty("auth0Scheme") ?: "YOUR_DEFAULT_SCHEME"
+val auth0Domain: String = localProperties.getProperty("auth0Domain") ?: "we-buddhist-prod.us.auth0.com"
+val auth0Scheme: String = localProperties.getProperty("auth0Scheme") ?: "org.pecha.app"
     
 android {
     namespace = "org.pecha.app"
