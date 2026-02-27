@@ -193,7 +193,7 @@ class _SourceBottomSheetState extends ConsumerState<SourceBottomSheet> {
                     if (_isLoading)
                       Container(
                         color: (isDarkMode ? Colors.black : Colors.white)
-                            .withOpacity(0.7),
+                            .withValues(alpha: 0.7),
                         child: const Center(child: CircularProgressIndicator()),
                       ),
                   ],

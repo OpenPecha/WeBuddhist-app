@@ -43,6 +43,7 @@ dependencies:
 
   # HTML
   flutter_html: ^3.0.0
+  html: ^0.15.6
 
   # State management
   flutter_riverpod: ^2.6.1
