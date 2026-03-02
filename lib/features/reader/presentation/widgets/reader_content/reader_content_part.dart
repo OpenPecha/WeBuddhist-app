@@ -22,7 +22,6 @@ class ReaderContentPart extends ConsumerStatefulWidget {
   final String language;
   final String? initialSegmentId;
   final void Function(bool isScrollingDown)? onScrollDirectionChanged;
-
   const ReaderContentPart({
     super.key,
     required this.params,
@@ -262,11 +261,14 @@ class _ReaderContentPartState extends ConsumerState<ReaderContentPart> {
         // if (depth == 0) {
         //   return const SizedBox.shrink();
         // }
-        return SectionHeader(
-          section: section,
-          depth: depth,
-          language: widget.language,
-        );
+        if (section.segments[0].segmentNumber == 1) {
+          return SectionHeader(
+            section: section,
+            depth: depth,
+            language: widget.language,
+          );
+        }
+        return const SizedBox.shrink();
       },
       segment:
           (segment, depth, sectionId) => SegmentItem(
