@@ -200,6 +200,26 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
         SafeArea(
           child: Column(
             children: [
+              // Animated App Bar with smooth hide/show
+              AnimatedSize(
+                duration: const Duration(milliseconds: 500),
+                curve: Curves.easeInOut,
+                alignment: Alignment.topCenter,
+                child: SizedBox(
+                  height: _isAppBarVisible ? null : 0,
+                  child:
+                      _isAppBarVisible
+                          ? ReaderAppBarOverlay(
+                            params: _params,
+                            colorIndex: widget.colorIndex,
+                            onSearchPressed:
+                                () => _handleSearch(context, state),
+                            onLanguagePressed:
+                                () => _handleLanguageSelection(context, state),
+                          )
+                          : const SizedBox.shrink(),
+                ),
+              ),
               // Main scrollable content
               Expanded(
                 child: SwipeNavigationWrapper(
@@ -237,22 +257,22 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
           ),
         ),
         // Animated App Bar overlay
-        Positioned(
-          top: 0,
-          left: 0,
-          right: 0,
-          child: AnimatedSlide(
-            duration: const Duration(milliseconds: 500),
-            curve: Curves.easeInOut,
-            offset: _isAppBarVisible ? Offset.zero : const Offset(0, -1),
-            child: ReaderAppBarOverlay(
-              params: _params,
-              colorIndex: widget.colorIndex,
-              onSearchPressed: () => _handleSearch(context, state),
-              onLanguagePressed: () => _handleLanguageSelection(context, state),
-            ),
-          ),
-        ),
+        // Positioned(
+        //   top: 0,
+        //   left: 0,
+        //   right: 0,
+        //   child: AnimatedSlide(
+        //     duration: const Duration(milliseconds: 500),
+        //     curve: Curves.easeInOut,
+        //     offset: _isAppBarVisible ? Offset.zero : const Offset(0, -1),
+        //     child: ReaderAppBarOverlay(
+        //       params: _params,
+        //       colorIndex: widget.colorIndex,
+        //       onSearchPressed: () => _handleSearch(context, state),
+        //       onLanguagePressed: () => _handleLanguageSelection(context, state),
+        //     ),
+        //   ),
+        // ),
       ],
     );
   }

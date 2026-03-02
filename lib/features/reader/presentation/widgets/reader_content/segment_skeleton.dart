@@ -44,9 +44,7 @@ class SegmentSkeleton extends StatelessWidget {
                   lineCount,
                   (index) => Padding(
                     padding: const EdgeInsets.only(bottom: 8),
-                    child: Bone.text(
-                      words: index == lineCount - 1 ? 3 : 8,
-                    ),
+                    child: Bone.text(words: index == lineCount - 1 ? 3 : 8),
                   ),
                 ),
               ),
@@ -74,9 +72,7 @@ class SegmentSkeletonList extends StatelessWidget {
     return Column(
       children: List.generate(
         count,
-        (index) => SegmentSkeleton(
-          lineCount: linesPerSegment,
-        ),
+        (index) => SegmentSkeleton(lineCount: linesPerSegment),
       ),
     );
   }
@@ -110,19 +106,13 @@ class PaginationLoadingIndicator extends StatelessWidget {
                 child: CircularProgressIndicator(strokeWidth: 2),
               ),
               const SizedBox(width: 12),
-              Text(
-                message,
-                style: Theme.of(context).textTheme.bodySmall,
-              ),
+              Text(message, style: Theme.of(context).textTheme.bodySmall),
             ],
           ),
         ),
         // Optional skeleton preview
         if (showSkeleton)
-          const SegmentSkeletonList(
-            count: 2,
-            linesPerSegment: 3,
-          ),
+          const SegmentSkeletonList(count: 1, linesPerSegment: 2),
       ],
     );
   }

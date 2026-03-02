@@ -221,7 +221,7 @@ class _ReaderContentPartState extends ConsumerState<ReaderContentPart> {
             itemScrollController: _itemScrollController,
             itemPositionsListener: _itemPositionsListener,
             itemCount: content.itemCount,
-            padding: const EdgeInsets.only(bottom: 40),
+            padding: const EdgeInsets.only(bottom: 60),
             itemBuilder: (context, index) {
               final item = content.getItemAt(index);
               if (item == null) return const SizedBox.shrink();

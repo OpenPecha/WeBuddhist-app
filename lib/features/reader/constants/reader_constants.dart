@@ -37,7 +37,7 @@ class ReaderConstants {
 
   // App bar
   static const double appBarElevation = 0.0;
-  static const double appBarToolbarHeight = 56.0;
+  static const double appBarToolbarHeight = 50.0;
   static const double appBarBottomHeight = 3.0;
   static const bool enableAppBarAutoHide = true; // Set to true to re-enable
 
