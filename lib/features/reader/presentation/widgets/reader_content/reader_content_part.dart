@@ -176,7 +176,6 @@ class _ReaderContentPartState extends ConsumerState<ReaderContentPart> {
         // For simplicity, we'll use the page size as an approximation
         final newItemsCount = ReaderConstants.pageSize;
         final targetIndex = _positionBeforePreviousLoad! + newItemsCount;
-
         if (targetIndex >= 0 && targetIndex < content.itemCount) {
           _itemScrollController.jumpTo(index: targetIndex);
           _logger.debug(

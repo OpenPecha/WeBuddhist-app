@@ -194,6 +194,7 @@ class _RoutineBlockSection extends ConsumerWidget {
           RoutineItemCard(
             title: block.items[i].title,
             imageUrl: block.items[i].imageUrl,
+            type: block.items[i].type,
             onTap: () => _onItemTap(context, ref, block.items[i], userPlansMap),
           ),
           if (i < block.items.length - 1) const Divider(height: 1, indent: 80),
