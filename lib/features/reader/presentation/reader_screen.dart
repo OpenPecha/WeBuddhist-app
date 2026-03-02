@@ -60,11 +60,6 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
     _trackSubtaskCompletion();
   }
 
-  @override
-  void dispose() {
-    super.dispose();
-  }
-
   void _onScrollDirectionChanged(bool isScrollingDown) {
     // Feature flag to disable auto-hide behavior
     if (!ReaderConstants.enableAppBarAutoHide) return;

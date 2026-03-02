@@ -47,8 +47,13 @@ class _ReaderContentPartState extends ConsumerState<ReaderContentPart> {
   int? _positionBeforePreviousLoad;
 
   // Scroll direction tracking
-  double _lastScrollOffset = 0;
+  double? _lastScrollOffset; // Nullable to detect first measurement
   bool _lastScrollDirection = false; // false = up, true = down
+
+  // User gesture tracking - only track scroll direction when user is actively scrolling
+  bool _isUserScrolling = false;
+  bool _hasUserInteracted = false;
+  bool _isProgrammaticScroll = false;
 
   @override
   void initState() {
@@ -76,6 +81,11 @@ class _ReaderContentPartState extends ConsumerState<ReaderContentPart> {
   }
 
   void _trackScrollDirection() {
+    // Only track scroll direction for user-initiated scrolls
+    if (_isProgrammaticScroll) return;
+    if (!_hasUserInteracted) return;
+    if (!_isUserScrolling) return;
+
     final positions = _itemPositionsListener.itemPositions.value;
     if (positions.isEmpty) return;
 
@@ -85,10 +95,16 @@ class _ReaderContentPartState extends ConsumerState<ReaderContentPart> {
     final firstItem = sortedPositions.first;
     final currentOffset = firstItem.index + (1 - firstItem.itemLeadingEdge);
 
+    // Initialize on first user scroll - don't trigger direction change
+    if (_lastScrollOffset == null) {
+      _lastScrollOffset = currentOffset;
+      return;
+    }
+
     // Determine scroll direction with a small threshold to avoid jitter
     const threshold = 0.5;
-    if ((currentOffset - _lastScrollOffset).abs() > threshold) {
-      final isScrollingDown = currentOffset > _lastScrollOffset;
+    if ((currentOffset - _lastScrollOffset!).abs() > threshold) {
+      final isScrollingDown = currentOffset > _lastScrollOffset!;
       if (isScrollingDown != _lastScrollDirection) {
         _lastScrollDirection = isScrollingDown;
         widget.onScrollDirectionChanged?.call(isScrollingDown);
@@ -153,6 +169,9 @@ class _ReaderContentPartState extends ConsumerState<ReaderContentPart> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (_itemScrollController.isAttached &&
           _positionBeforePreviousLoad != null) {
+        // Mark as programmatic scroll to avoid affecting app bar
+        _isProgrammaticScroll = true;
+
         // Estimate the number of new items added
         // For simplicity, we'll use the page size as an approximation
         final newItemsCount = ReaderConstants.pageSize;
@@ -164,6 +183,11 @@ class _ReaderContentPartState extends ConsumerState<ReaderContentPart> {
             'Adjusted scroll after prepend: $targetIndex (added ~$newItemsCount items)',
           );
         }
+
+        // Clear programmatic scroll flag after a short delay
+        Future.delayed(const Duration(milliseconds: 100), () {
+          _isProgrammaticScroll = false;
+        });
       }
       _positionBeforePreviousLoad = null;
     });
@@ -177,6 +201,9 @@ class _ReaderContentPartState extends ConsumerState<ReaderContentPart> {
     }
 
     if (_itemScrollController.isAttached) {
+      // Mark as programmatic scroll to avoid affecting app bar
+      _isProgrammaticScroll = true;
+
       _itemScrollController.scrollTo(
         index: index,
         duration: ReaderConstants.scrollAnimationDuration,
@@ -184,6 +211,15 @@ class _ReaderContentPartState extends ConsumerState<ReaderContentPart> {
         alignment: ReaderConstants.scrollToSegmentAlignment,
       );
       _logger.debug('Scrolling to segment $segmentId at index $index');
+
+      // Clear programmatic scroll flag after animation completes
+      Future.delayed(
+        ReaderConstants.scrollAnimationDuration +
+            const Duration(milliseconds: 100),
+        () {
+          _isProgrammaticScroll = false;
+        },
+      );
     }
   }
 
@@ -215,24 +251,38 @@ class _ReaderContentPartState extends ConsumerState<ReaderContentPart> {
         // Loading previous indicator
         if (state.isLoadingPrevious)
           const SegmentSkeletonList(count: 1, linesPerSegment: 2),
-        // Main content list
+        // Main content list with user gesture detection
         Expanded(
-          child: ScrollablePositionedList.builder(
-            itemScrollController: _itemScrollController,
-            itemPositionsListener: _itemPositionsListener,
-            itemCount: content.itemCount,
-            padding: const EdgeInsets.only(bottom: 60),
-            itemBuilder: (context, index) {
-              final item = content.getItemAt(index);
-              if (item == null) return const SizedBox.shrink();
-
-              return _buildItem(
-                item: item,
-                state: state,
-                onSegmentTap:
-                    (segment) => notifier.toggleSegmentSelection(segment),
-              );
+          child: Listener(
+            onPointerDown: (_) {
+              _isUserScrolling = true;
+              _hasUserInteracted = true;
             },
+            onPointerUp: (_) {
+              Future.delayed(const Duration(milliseconds: 300), () {
+                _isUserScrolling = false;
+              });
+            },
+            onPointerCancel: (_) {
+              _isUserScrolling = false;
+            },
+            child: ScrollablePositionedList.builder(
+              itemScrollController: _itemScrollController,
+              itemPositionsListener: _itemPositionsListener,
+              itemCount: content.itemCount,
+              padding: const EdgeInsets.only(bottom: 60),
+              itemBuilder: (context, index) {
+                final item = content.getItemAt(index);
+                if (item == null) return const SizedBox.shrink();
+
+                return _buildItem(
+                  item: item,
+                  state: state,
+                  onSegmentTap:
+                      (segment) => notifier.toggleSegmentSelection(segment),
+                );
+              },
+            ),
           ),
         ),
 
