@@ -115,7 +115,7 @@ class AppLocalizationsBo extends AppLocalizations {
   String get nav_texts => 'ཡིག་མཛོད།';
 
   @override
-  String get nav_recitations => 'ཞལ་འདོན།';
+  String get nav_learn => 'ཡིག་མཛོད།';
 
   @override
   String get nav_practice => 'ཉམས་ལེན།';
@@ -124,7 +124,7 @@ class AppLocalizationsBo extends AppLocalizations {
   String get nav_settings => 'Me';
 
   @override
-  String get nav_ai_mode => 'རིག་ནུས་';
+  String get nav_connect => ' མཐུད།';
 
   @override
   String get text_browseTheLibrary => 'དཀར་ཆག';

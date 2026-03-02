@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_pecha/features/texts/models/commentary/segment_commentary_response.dart';
+import 'package:flutter_pecha/features/texts/models/translation/segment_translation_response.dart';
 import 'package:http/http.dart' as http;
 
 class SegmentRemoteDatasource {
@@ -24,6 +25,24 @@ class SegmentRemoteDatasource {
       return SegmentCommentaryResponse.fromJson(jsonMap);
     } else {
       throw Exception('Failed to load segment commentaries');
+    }
+  }
+
+  // get all translations of a segment
+  Future<List<SegmentTranslationResponse>> getSegmentTranslations(
+    String segmentId,
+  ) async {
+    final response = await client.get(
+      Uri.parse('$baseUrl/segments/$segmentId/translations'),
+    );
+    if (response.statusCode == 200) {
+      final decoded = utf8.decode(response.bodyBytes);
+      final List<dynamic> jsonMap = json.decode(decoded);
+      return jsonMap
+          .map((e) => SegmentTranslationResponse.fromJson(e))
+          .toList();
+    } else {
+      throw Exception('Failed to load segment translations');
     }
   }
 }

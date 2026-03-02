@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/core/widgets/cached_network_image_widget.dart';
+import 'package:flutter_pecha/features/practice/data/models/routine_model.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 class RoutineItemCard extends StatelessWidget {
@@ -10,6 +11,7 @@ class RoutineItemCard extends StatelessWidget {
   final VoidCallback? onTap;
   final VoidCallback? onDelete;
   final int? reorderIndex;
+  final RoutineItemType? type;
 
   const RoutineItemCard({
     super.key,
@@ -18,6 +20,7 @@ class RoutineItemCard extends StatelessWidget {
     this.onTap,
     this.onDelete,
     this.reorderIndex,
+    this.type,
   });
 
   @override
@@ -38,13 +41,23 @@ class RoutineItemCard extends StatelessWidget {
               ),
               const SizedBox(width: 10),
             ],
-            CachedNetworkImageWidget(
-              imageUrl: imageUrl ?? '',
-              width: 60,
-              height: 60,
-              fit: BoxFit.cover,
-              borderRadius: BorderRadius.circular(10),
-            ),
+            type == RoutineItemType.recitation
+                ? ClipRRect(
+                    borderRadius: BorderRadius.circular(10),
+                    child: Image.asset(
+                      'assets/images/webuddhist_logo.png',
+                      width: 60,
+                      height: 60,
+                      fit: BoxFit.cover,
+                    ),
+                  )
+                : CachedNetworkImageWidget(
+                    imageUrl: imageUrl ?? '',
+                    width: 60,
+                    height: 60,
+                    fit: BoxFit.cover,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
             const SizedBox(width: 16),
             Expanded(
               child: Text(

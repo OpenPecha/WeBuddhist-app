@@ -143,6 +143,7 @@ class RoutineTimeBlock extends StatelessWidget {
                   RoutineItemCard(
                     title: item.title,
                     imageUrl: item.imageUrl,
+                    type: item.type,
                     onDelete: () => _confirmDeleteItem(context, i),
                     reorderIndex: i,
                   ),

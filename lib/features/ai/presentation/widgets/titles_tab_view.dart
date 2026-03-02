@@ -3,7 +3,7 @@ import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/features/ai/models/search_state.dart';
 import 'package:flutter_pecha/features/ai/presentation/widgets/skeletons/search_result_skeleton.dart';
-import 'package:flutter_pecha/features/texts/constants/text_routes.dart';
+import 'package:flutter_pecha/features/reader/data/models/navigation_context.dart';
 import 'package:flutter_pecha/features/texts/data/providers/apis/texts_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -191,9 +191,12 @@ class _TitlesTabViewState extends ConsumerState<TitlesTabView> {
       ),
       child: InkWell(
         onTap: () {
+          final navigationContext = NavigationContext(
+            source: NavigationSource.normal,
+          );
           context.push(
-            TextRoutes.chapters,
-            extra: {'textId': item.id},
+            '/reader/${item.id}',
+            extra: navigationContext,
           );
         },
         borderRadius: BorderRadius.circular(12),

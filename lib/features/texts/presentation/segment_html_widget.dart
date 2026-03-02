@@ -8,12 +8,14 @@ class SegmentHtmlWidget extends ConsumerStatefulWidget {
   final int segmentIndex;
   final double fontSize;
   final String language;
+  final bool isSelected;
   const SegmentHtmlWidget({
     super.key,
     required this.htmlContent,
     required this.segmentIndex,
     required this.fontSize,
     required this.language,
+    this.isSelected = false,
   });
 
   @override
@@ -47,10 +49,13 @@ class _SegmentHtmlWidgetState extends ConsumerState<SegmentHtmlWidget> {
         ),
         "body": Style(
           fontSize: FontSize(widget.fontSize),
-          lineHeight: LineHeight(lineHeight),
           margin: Margins.zero,
           fontFamily: getFontFamily(widget.language),
           padding: HtmlPaddings.zero,
+          textDecoration: widget.isSelected ? TextDecoration.underline : null,
+          textDecorationStyle:
+              widget.isSelected ? TextDecorationStyle.dotted : null,
+          textDecorationThickness: widget.isSelected ? 1.5 : null,
         ),
         'p': Style(margin: Margins.zero, padding: HtmlPaddings.zero),
       },

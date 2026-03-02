@@ -13,12 +13,14 @@ class SwipeNavigationWrapper extends ConsumerStatefulWidget {
   final Widget child;
   final ReaderParams params;
   final TextDetail textDetail;
+  final bool isAppBarVisible;
 
   const SwipeNavigationWrapper({
     super.key,
     required this.child,
     required this.params,
     required this.textDetail,
+    required this.isAppBarVisible,
   });
 
   @override
@@ -52,11 +54,12 @@ class _SwipeNavigationWrapperState
       child: Stack(
         children: [
           widget.child,
-          // Bottom bar - always show when not hidden by segment action bar
+          // Bottom bar - always present but animated in/out
           if (showBottomBar)
             _BottomBar(
               textDetail: widget.textDetail,
               navigationContext: navigationContext,
+              isAppBarVisible: widget.isAppBarVisible,
               onPreviousTap:
                   canSwipe
                       ? () => _navigateToAdjacentText(
@@ -157,6 +160,7 @@ class _SwipeNavigationWrapperState
 class _BottomBar extends StatelessWidget {
   final NavigationContext? navigationContext;
   final TextDetail textDetail;
+  final bool isAppBarVisible;
   final VoidCallback? onPreviousTap;
   final VoidCallback? onNextTap;
   final void Function(SwipeDirection direction) onEdgeReached;
@@ -164,6 +168,7 @@ class _BottomBar extends StatelessWidget {
   const _BottomBar({
     required this.textDetail,
     required this.navigationContext,
+    required this.isAppBarVisible,
     required this.onPreviousTap,
     required this.onNextTap,
     required this.onEdgeReached,
@@ -177,20 +182,25 @@ class _BottomBar extends StatelessWidget {
       left: 0,
       right: 0,
       bottom: 0,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        decoration: BoxDecoration(
-          color: Theme.of(context).scaffoldBackgroundColor,
-          border: Border(
-            top: BorderSide(color: Theme.of(context).dividerColor, width: 1),
+      child: AnimatedSlide(
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.easeInOut,
+        offset: isAppBarVisible ? Offset.zero : Offset.zero,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          decoration: BoxDecoration(
+            color: Theme.of(context).scaffoldBackgroundColor,
+            border: Border(
+              top: BorderSide(color: Theme.of(context).dividerColor, width: 1),
+            ),
           ),
-        ),
-        child: SafeArea(
-          top: false,
-          child:
-              canSwipe
-                  ? _buildFullControls(context)
-                  : _buildMinimalTitle(context),
+          child: SafeArea(
+            top: false,
+            child:
+                canSwipe
+                    ? _buildFullControls(context)
+                    : _buildMinimalTitle(context),
+          ),
         ),
       ),
     );
@@ -220,14 +230,15 @@ class _BottomBar extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         // Previous button
-        _NavigationButton(
-          icon: Icons.chevron_left,
-          isEnabled: hasPrevious,
-          onTap:
-              hasPrevious
-                  ? onPreviousTap!
-                  : () => onEdgeReached(SwipeDirection.previous),
-        ),
+        if (hasPrevious)
+          _NavigationButton(
+            icon: Icons.chevron_left,
+            isEnabled: hasPrevious,
+            onTap:
+                hasPrevious
+                    ? onPreviousTap!
+                    : () => onEdgeReached(SwipeDirection.previous),
+          ),
         // Progress text
         Expanded(
           child: Column(
@@ -257,12 +268,21 @@ class _BottomBar extends StatelessWidget {
           ),
         ),
         // Next button
-        _NavigationButton(
-          icon: Icons.chevron_right,
-          isEnabled: hasNext,
-          onTap:
-              hasNext ? onNextTap! : () => onEdgeReached(SwipeDirection.next),
-        ),
+        if (hasNext)
+          _NavigationButton(
+            icon: Icons.chevron_right,
+            isEnabled: hasNext,
+            onTap:
+                hasNext ? onNextTap! : () => onEdgeReached(SwipeDirection.next),
+          ),
+
+        // if is last text, show checked icon to pop back to the plan screen
+        if (!hasNext)
+          _NavigationButton(
+            icon: Icons.check,
+            isEnabled: !hasNext,
+            onTap: () => context.pop(),
+          ),
       ],
     );
   }

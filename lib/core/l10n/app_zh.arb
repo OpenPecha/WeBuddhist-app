@@ -35,10 +35,11 @@
 
   "nav_home": "首頁",
   "nav_texts": "文本",
-  "nav_recitations": "唱誦",
+  "nav_learn": "学习",
   "nav_practice": "修持計劃",
   "nav_settings": "Me",
-  "nav_ai_mode": "人工智能",
+  "nav_connect": "连接",
+
 
   "text_browseTheLibrary": "瀏覽文庫",
   "text_search": "搜尋",

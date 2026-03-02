@@ -35,10 +35,10 @@
 
   "nav_home": "འདུན་ངོས།",
   "nav_texts": "ཡིག་མཛོད།",
-  "nav_recitations": "ཞལ་འདོན།",
+  "nav_learn": "ཡིག་མཛོད།",
   "nav_practice": "ཉམས་ལེན།",
   "nav_settings": "Me",
-  "nav_ai_mode": "རིག་ནུས་",
+  "nav_connect": " མཐུད།",
 
   "text_browseTheLibrary": "དཀར་ཆག",
   "text_search": "འཚོལ་ས།",

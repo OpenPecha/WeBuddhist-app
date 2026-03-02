@@ -115,7 +115,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get nav_texts => 'Texts';
 
   @override
-  String get nav_recitations => 'Recitations';
+  String get nav_learn => 'Learn';
 
   @override
   String get nav_practice => 'Practice';
@@ -124,7 +124,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get nav_settings => 'Me';
 
   @override
-  String get nav_ai_mode => 'AI';
+  String get nav_connect => 'Connect';
 
   @override
   String get text_browseTheLibrary => 'Browse The Library';

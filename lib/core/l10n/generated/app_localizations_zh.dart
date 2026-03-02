@@ -114,7 +114,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get nav_texts => '文本';
 
   @override
-  String get nav_recitations => '唱誦';
+  String get nav_learn => '学习';
 
   @override
   String get nav_practice => '修持計劃';
@@ -123,7 +123,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get nav_settings => 'Me';
 
   @override
-  String get nav_ai_mode => '人工智能';
+  String get nav_connect => '连接';
 
   @override
   String get text_browseTheLibrary => '瀏覽文庫';

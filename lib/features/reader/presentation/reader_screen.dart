@@ -45,8 +45,6 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
 
   // App bar visibility state
   bool _isAppBarVisible = true;
-  late final AnimationController _appBarAnimationController;
-  late final Animation<Offset> _appBarSlideAnimation;
 
   @override
   void initState() {
@@ -58,40 +56,21 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
       navigationContext: widget.navigationContext,
     );
 
-    // Initialize app bar animation
-    _appBarAnimationController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 200),
-    );
-    _appBarSlideAnimation = Tween<Offset>(
-      begin: Offset.zero,
-      end: const Offset(0, -1),
-    ).animate(
-      CurvedAnimation(
-        parent: _appBarAnimationController,
-        curve: Curves.easeInOut,
-      ),
-    );
-
     // Auto-track subtask completion for enrolled plan navigation
     _trackSubtaskCompletion();
-  }
-
-  @override
-  void dispose() {
-    _appBarAnimationController.dispose();
-    super.dispose();
   }
 
   void _onScrollDirectionChanged(bool isScrollingDown) {
     // Feature flag to disable auto-hide behavior
     if (!ReaderConstants.enableAppBarAutoHide) return;
     if (isScrollingDown && _isAppBarVisible) {
-      _isAppBarVisible = false;
-      _appBarAnimationController.forward();
+      setState(() {
+        _isAppBarVisible = false;
+      });
     } else if (!isScrollingDown && !_isAppBarVisible) {
-      _isAppBarVisible = true;
-      _appBarAnimationController.reverse();
+      setState(() {
+        _isAppBarVisible = true;
+      });
     }
   }
 
@@ -216,26 +195,32 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
         SafeArea(
           child: Column(
             children: [
-              // Spacer for app bar (animated)
-              AnimatedBuilder(
-                animation: _appBarAnimationController,
-                builder: (context, child) {
-                  final appBarHeight =
-                      MediaQuery.of(context).padding.top +
-                      ReaderConstants.appBarToolbarHeight +
-                      ReaderConstants.appBarBottomHeight;
-                  return SizedBox(
-                    height:
-                        appBarHeight * (1 - _appBarAnimationController.value),
-                  );
-                },
+              // Animated App Bar with smooth hide/show
+              AnimatedSize(
+                duration: const Duration(milliseconds: 500),
+                curve: Curves.easeInOut,
+                alignment: Alignment.topCenter,
+                child: SizedBox(
+                  height: _isAppBarVisible ? null : 0,
+                  child:
+                      _isAppBarVisible
+                          ? ReaderAppBarOverlay(
+                            params: _params,
+                            colorIndex: widget.colorIndex,
+                            onSearchPressed:
+                                () => _handleSearch(context, state),
+                            onLanguagePressed:
+                                () => _handleLanguageSelection(context, state),
+                          )
+                          : const SizedBox.shrink(),
+                ),
               ),
-              // Chapter header
               // Main scrollable content
               Expanded(
                 child: SwipeNavigationWrapper(
                   params: _params,
                   textDetail: state.textDetail!,
+                  isAppBarVisible: _isAppBarVisible,
                   child: ReaderCommentarySplitView(
                     params: _params,
                     mainContent: Stack(
@@ -267,20 +252,22 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
           ),
         ),
         // Animated App Bar overlay
-        Positioned(
-          top: 0,
-          left: 0,
-          right: 0,
-          child: SlideTransition(
-            position: _appBarSlideAnimation,
-            child: ReaderAppBarOverlay(
-              params: _params,
-              colorIndex: widget.colorIndex,
-              onSearchPressed: () => _handleSearch(context, state),
-              onLanguagePressed: () => _handleLanguageSelection(context, state),
-            ),
-          ),
-        ),
+        // Positioned(
+        //   top: 0,
+        //   left: 0,
+        //   right: 0,
+        //   child: AnimatedSlide(
+        //     duration: const Duration(milliseconds: 500),
+        //     curve: Curves.easeInOut,
+        //     offset: _isAppBarVisible ? Offset.zero : const Offset(0, -1),
+        //     child: ReaderAppBarOverlay(
+        //       params: _params,
+        //       colorIndex: widget.colorIndex,
+        //       onSearchPressed: () => _handleSearch(context, state),
+        //       onLanguagePressed: () => _handleLanguageSelection(context, state),
+        //     ),
+        //   ),
+        // ),
       ],
     );
   }

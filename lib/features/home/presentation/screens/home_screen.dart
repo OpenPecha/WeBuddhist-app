@@ -85,6 +85,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     context.push('/home/plans/$tag');
   }
 
+  String? _getTagImagePath(String tag) {
+    final tagLower = tag.toLowerCase();
+    if (tagLower == 'abhidhamma in a year') {
+      return 'assets/images/tag_cover/abhidhamma.png';
+    }
+    return null;
+  }
+
   @override
   Widget build(BuildContext context) {
     final localizations = AppLocalizations.of(context)!;
@@ -327,6 +335,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               final tag = tags[index];
               return TagCard(
                 tag: tag,
+                imageUrl: _getTagImagePath(tag),
                 onTap: () {
                   _log.info('Tag tapped: $tag');
                   _navigateToPlans(tag);

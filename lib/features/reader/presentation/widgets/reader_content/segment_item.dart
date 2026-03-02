@@ -82,6 +82,7 @@ class SegmentItem extends ConsumerWidget {
                     segmentIndex: segment.segmentNumber,
                     fontSize: fontSize,
                     language: language,
+                    isSelected: isSelected,
                   ),
                 ),
               ],
@@ -96,12 +97,6 @@ class SegmentItem extends ConsumerWidget {
     if (isHighlighted) {
       final config = HighlightConfig.forSource(highlightSource);
       return config.getColor(context);
-    }
-
-    if (isSelected) {
-      return Theme.of(context).brightness == Brightness.dark
-          ? Theme.of(context).colorScheme.primary.withAlpha(60)
-          : Theme.of(context).colorScheme.primary.withAlpha(30);
     }
 
     return null;

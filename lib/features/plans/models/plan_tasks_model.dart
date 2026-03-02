@@ -4,12 +4,14 @@ class PlanTasksModel {
   final String id;
   final String title;
   final int? estimatedTime;
+  final int? displayOrder;
   final List<PlanSubtasksModel> subtasks;
 
   PlanTasksModel({
     required this.id,
     required this.title,
     this.estimatedTime,
+    this.displayOrder,
     required this.subtasks,
   });
 
@@ -22,6 +24,7 @@ class PlanTasksModel {
               .map((e) => PlanSubtasksModel.fromJson(e as Map<String, dynamic>))
               .toList(),
       estimatedTime: json['estimated_time'] as int?,
+      displayOrder: json['display_order'] as int?,
     );
   }
 
@@ -31,6 +34,7 @@ class PlanTasksModel {
       'title': title,
       'subtasks': subtasks.map((e) => e.toJson()).toList(),
       'estimated_time': estimatedTime,
+      'display_order': displayOrder,
     };
   }
 
@@ -40,12 +44,14 @@ class PlanTasksModel {
     String? title,
     List<PlanSubtasksModel>? subtasks,
     int? estimatedTime,
+    int? displayOrder,
   }) {
     return PlanTasksModel(
       id: id ?? this.id,
       title: title ?? this.title,
       subtasks: subtasks ?? this.subtasks,
       estimatedTime: estimatedTime ?? this.estimatedTime,
+      displayOrder: displayOrder ?? this.displayOrder,
     );
   }
 

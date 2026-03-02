@@ -17,7 +17,7 @@ class ReaderConstants {
   static const Duration scrollDebounce = Duration(milliseconds: 100);
   static const Duration scrollAnimationDuration = Duration(milliseconds: 500);
   static const Duration instantScrollDuration = Duration(milliseconds: 1);
-  static const double scrollToSegmentAlignment = 0.3; // 30% from top
+  static const double scrollToSegmentAlignment = 0.4; // 30% from top
 
   // Highlight durations by source
   static const Duration planHighlightDuration = Duration(seconds: 3);
@@ -37,7 +37,7 @@ class ReaderConstants {
 
   // App bar
   static const double appBarElevation = 0.0;
-  static const double appBarToolbarHeight = 56.0;
+  static const double appBarToolbarHeight = 50.0;
   static const double appBarBottomHeight = 3.0;
   static const bool enableAppBarAutoHide = true; // Set to true to re-enable
 

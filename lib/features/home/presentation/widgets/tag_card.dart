@@ -19,7 +19,7 @@ class TagCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final locale = ref.watch(localeProvider);
     final lineHeight = getLineHeight(locale.languageCode);
-    final fontSize = locale.languageCode == 'bo' ? 20.0 : 16.0;
+    final fontSize = locale.languageCode == 'bo' ? 16.0 : 14.0;
 
     return InkWell(
       onTap: onTap,
@@ -82,6 +82,15 @@ class TagCard extends ConsumerWidget {
 
   Widget _buildBackgroundImage(BuildContext context) {
     if (imageUrl != null && imageUrl!.isNotEmpty) {
+      if (imageUrl!.startsWith('assets/')) {
+        return Image.asset(
+          imageUrl!,
+          fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) {
+            return _buildPlaceholder(context);
+          },
+        );
+      }
       return Image.network(
         imageUrl!,
         fit: BoxFit.cover,

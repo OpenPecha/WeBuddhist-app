@@ -26,18 +26,29 @@ class PreviewActivityList extends StatelessWidget {
     this.dayNumber,
   });
 
+  List<PlanTasksModel> get _sortedTasks {
+    return List<PlanTasksModel>.from(tasks)
+      ..sort((a, b) {
+        final orderA = a.displayOrder ?? 0;
+        final orderB = b.displayOrder ?? 0;
+        return orderA.compareTo(orderB);
+      });
+  }
+
   @override
   Widget build(BuildContext context) {
     if (tasks.isEmpty) {
       return const SizedBox.shrink();
     }
 
+    final sortedTasks = _sortedTasks;
+
     return ListView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      itemCount: tasks.length,
+      itemCount: sortedTasks.length,
       itemBuilder: (context, index) {
-        final task = tasks[index];
+        final task = sortedTasks[index];
         final hasSourceText = _hasSourceText(task);
         return Container(
           margin: const EdgeInsets.symmetric(vertical: 10),
@@ -57,13 +68,14 @@ class PreviewActivityList extends StatelessWidget {
     final planTextItems = _buildPlanTextItems();
     if (planTextItems.isEmpty) return;
 
-    // Find current task index
-    final taskIndex = tasks.indexOf(task);
+    // Find current task index in sorted tasks
+    final sortedTasks = _sortedTasks;
+    final taskIndex = sortedTasks.indexOf(task);
     final currentTextIndex = planTextItems.indexWhere(
-      (item) => tasks.any(
+      (item) => sortedTasks.any(
         (t) =>
             t.subtasks.any((s) => s.sourceTextId == item.textId) &&
-            tasks.indexOf(t) == taskIndex,
+            sortedTasks.indexOf(t) == taskIndex,
       ),
     );
 
@@ -94,7 +106,8 @@ class PreviewActivityList extends StatelessWidget {
   /// Build list of plan text items for swipe navigation
   List<PlanTextItem> _buildPlanTextItems() {
     final items = <PlanTextItem>[];
-    for (final task in tasks) {
+    final sortedTasks = _sortedTasks;
+    for (final task in sortedTasks) {
       // for (final subtask in task.subtasks) { - we are using the first subtask for now
       final subtask = task.subtasks[0];
       if (subtask.sourceTextId != null && subtask.sourceTextId!.isNotEmpty) {

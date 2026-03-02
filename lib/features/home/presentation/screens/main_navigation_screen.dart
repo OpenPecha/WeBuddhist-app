@@ -26,7 +26,7 @@ class MainNavigationScreen extends ConsumerWidget {
       ),
       AppBottomBarItemModel(
         type: 1,
-        label: localizations.nav_texts,
+        label: localizations.nav_learn,
         selectedWidget: const AiModeScreen(),
         selectedIconData: AppAssets.textsSelected,
         unSelectedIconData: AppAssets.textsUnselected,
@@ -40,7 +40,7 @@ class MainNavigationScreen extends ConsumerWidget {
       ),
       AppBottomBarItemModel(
         type: 3,
-        label: localizations.nav_settings,
+        label: localizations.nav_connect,
         selectedWidget: const MoreScreen(),
         selectedIconData: AppAssets.settingsMeSelected,
         unSelectedIconData: AppAssets.settingsMeUnselected,

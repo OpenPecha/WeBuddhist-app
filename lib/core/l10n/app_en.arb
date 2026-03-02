@@ -35,10 +35,10 @@
 
   "nav_home": "Home",
   "nav_texts": "Texts",
-  "nav_recitations": "Recitations",
+  "nav_learn": "Learn",
   "nav_practice": "Practice",
   "nav_settings": "Me",
-  "nav_ai_mode": "AI",
+  "nav_connect": "Connect",
 
   "text_browseTheLibrary": "Browse The Library",
   "text_search": "Search",

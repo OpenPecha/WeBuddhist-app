@@ -304,11 +304,11 @@ abstract class AppLocalizations {
   /// **'Texts'**
   String get nav_texts;
 
-  /// No description provided for @nav_recitations.
+  /// No description provided for @nav_learn.
   ///
   /// In en, this message translates to:
-  /// **'Recitations'**
-  String get nav_recitations;
+  /// **'Learn'**
+  String get nav_learn;
 
   /// No description provided for @nav_practice.
   ///
@@ -322,11 +322,11 @@ abstract class AppLocalizations {
   /// **'Me'**
   String get nav_settings;
 
-  /// No description provided for @nav_ai_mode.
+  /// No description provided for @nav_connect.
   ///
   /// In en, this message translates to:
-  /// **'AI'**
-  String get nav_ai_mode;
+  /// **'Connect'**
+  String get nav_connect;
 
   /// No description provided for @text_browseTheLibrary.
   ///
