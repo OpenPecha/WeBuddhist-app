@@ -263,7 +263,7 @@ class TextsScreen extends ConsumerWidget {
           sourceLink: version.sourceLink ?? '',
           license: version.license ?? '',
           language: version.language,
-          languageLabel: getLanguageLabel(version.language, context),
+          languageLabel: getLanguageName(version.language),
           onTap: () {
             context.push(
               TextRoutes.chapters,
