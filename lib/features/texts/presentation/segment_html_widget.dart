@@ -28,8 +28,6 @@ class _SegmentHtmlWidgetState extends ConsumerState<SegmentHtmlWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final lineHeight = widget.language == 'bo' ? 2.0 : 1.5;
-
     int footnoteCounter = 0;
     return Html(
       data: widget.htmlContent,

@@ -309,7 +309,7 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
     if (state.textDetail != null) {
       ref
           .read(textVersionLanguageProvider.notifier)
-          .setLanguage(state.textDetail!.language);
+          .setLanguageCode(state.textDetail!.language);
 
       final result = await router.pushNamed(
         "reader-versions",
