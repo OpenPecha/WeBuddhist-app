@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/features/plans/data/providers/plan_days_providers.dart';
+import 'package:flutter_pecha/features/plans/data/providers/user_plans_provider.dart';
 import 'package:flutter_pecha/features/reader/constants/reader_constants.dart';
 import 'package:flutter_pecha/features/reader/data/models/navigation_context.dart';
 import 'package:flutter_pecha/features/reader/data/providers/reader_notifier.dart';
@@ -54,6 +56,33 @@ class _SwipeNavigationWrapperState
       child: Stack(
         children: [
           widget.child,
+          // Circular audio play button - positioned above SegmentActionBar
+          // if (!hideBottomNav)
+          AnimatedPositioned(
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeInOut,
+            bottom: hideBottomNav ? 110 : 80,
+            left: MediaQuery.of(context).size.width / 2 - 28,
+            child: Material(
+              elevation: 4,
+              shape: const CircleBorder(),
+              color: Theme.of(context).cardColor,
+              child: InkWell(
+                onTap: () {},
+                customBorder: const CircleBorder(),
+                child: Container(
+                  width: 56,
+                  height: 56,
+                  padding: const EdgeInsets.all(8),
+                  child: Icon(
+                    Icons.play_arrow_rounded,
+                    size: 32,
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
+                ),
+              ),
+            ),
+          ),
           // Bottom bar - always present but animated in/out
           if (showBottomBar)
             _BottomBar(
@@ -74,6 +103,7 @@ class _SwipeNavigationWrapperState
                         SwipeDirection.next,
                       )
                       : null,
+              onFinishedTap: canSwipe ? _finishReading : null,
               onEdgeReached: _showEdgeReachedFeedback,
             ),
         ],
@@ -140,6 +170,25 @@ class _SwipeNavigationWrapperState
     });
   }
 
+  void _finishReading() {
+    final navContext = widget.params.navigationContext;
+    if (navContext != null && navContext.source == NavigationSource.plan) {
+      final planId = navContext.planId;
+      final dayNumber = navContext.dayNumber;
+      if (planId != null && dayNumber != null) {
+        ref.invalidate(
+          userPlanDayContentFutureProvider(
+            PlanDaysParams(planId: planId, dayNumber: dayNumber),
+          ),
+        );
+        ref.invalidate(userPlanDaysCompletionStatusProvider(planId));
+      }
+    }
+    if (mounted) {
+      context.pop();
+    }
+  }
+
   void _showEdgeReachedFeedback(SwipeDirection direction) {
     final message =
         direction == SwipeDirection.next
@@ -163,6 +212,7 @@ class _BottomBar extends StatelessWidget {
   final bool isAppBarVisible;
   final VoidCallback? onPreviousTap;
   final VoidCallback? onNextTap;
+  final VoidCallback? onFinishedTap;
   final void Function(SwipeDirection direction) onEdgeReached;
 
   const _BottomBar({
@@ -171,6 +221,7 @@ class _BottomBar extends StatelessWidget {
     required this.isAppBarVisible,
     required this.onPreviousTap,
     required this.onNextTap,
+    this.onFinishedTap,
     required this.onEdgeReached,
   });
 
@@ -248,11 +299,9 @@ class _BottomBar extends StatelessWidget {
                 textDetail.title,
                 overflow: TextOverflow.ellipsis,
                 maxLines: 1,
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontFamily: getFontFamily(textDetail.language),
-                  fontWeight: FontWeight.bold,
-                ),
-                textAlign: TextAlign.center,
+                style: Theme.of(
+                  context,
+                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
               ),
               Text(
                 progress,
@@ -281,7 +330,7 @@ class _BottomBar extends StatelessWidget {
           _NavigationButton(
             icon: Icons.check,
             isEnabled: !hasNext,
-            onTap: () => context.pop(),
+            onTap: onFinishedTap ?? () => context.pop(),
           ),
       ],
     );

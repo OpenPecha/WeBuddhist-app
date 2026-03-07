@@ -123,10 +123,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         alignment: Alignment.centerLeft,
         child: Text(
           localizations.nav_home,
-          style: const TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: HomeScreenConstants.titleFontSize,
-          ),
+          style: Theme.of(
+            context,
+          ).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
         ),
       ),
     );

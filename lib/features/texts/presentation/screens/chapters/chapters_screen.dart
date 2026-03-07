@@ -284,7 +284,7 @@ class _ChaptersScreenState extends ConsumerState<ChaptersScreen> {
 
         ref
             .read(textVersionLanguageProvider.notifier)
-            .setLanguage(textDetail.language);
+            .setLanguageCode(textDetail.language);
         final result = await context.push(
           TextRoutes.versionSelection,
           extra: {"textId": currentTextId},

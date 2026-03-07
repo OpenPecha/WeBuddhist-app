@@ -185,7 +185,9 @@ final titleSearchProvider = FutureProvider.family((
   ref,
   TitleSearchParams params,
 ) {
-  final result = ref.watch(textsRepositoryProvider).titleSearchRepository(
+  final result = ref
+      .watch(textsRepositoryProvider)
+      .titleSearchRepository(
         title: params.title,
         author: params.author,
         limit: params.limit,
@@ -199,11 +201,7 @@ class AuthorSearchParams {
   final int limit;
   final int offset;
 
-  const AuthorSearchParams({
-    this.author,
-    this.limit = 20,
-    this.offset = 0,
-  });
+  const AuthorSearchParams({this.author, this.limit = 20, this.offset = 0});
 
   @override
   bool operator ==(Object other) =>
@@ -222,7 +220,9 @@ final authorSearchProvider = FutureProvider.family((
   ref,
   AuthorSearchParams params,
 ) {
-  final result = ref.watch(textsRepositoryProvider).authorSearchRepository(
+  final result = ref
+      .watch(textsRepositoryProvider)
+      .authorSearchRepository(
         author: params.author,
         limit: params.limit,
         offset: params.offset,

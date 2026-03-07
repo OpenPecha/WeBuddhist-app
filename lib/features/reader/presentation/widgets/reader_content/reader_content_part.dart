@@ -55,6 +55,9 @@ class _ReaderContentPartState extends ConsumerState<ReaderContentPart> {
   bool _hasUserInteracted = false;
   bool _isProgrammaticScroll = false;
 
+  // Grey-out feature: show only initial segment, disable on first user scroll
+  bool _enableGreyOut = true;
+
   @override
   void initState() {
     super.initState();
@@ -78,6 +81,13 @@ class _ReaderContentPartState extends ConsumerState<ReaderContentPart> {
 
     // Track scroll direction for app bar visibility
     _trackScrollDirection();
+
+    // Disable grey-out on first user scroll
+    if (_hasUserInteracted && _isUserScrolling && _enableGreyOut) {
+      setState(() {
+        _enableGreyOut = false;
+      });
+    }
   }
 
   void _trackScrollDirection() {
@@ -314,13 +324,16 @@ class _ReaderContentPartState extends ConsumerState<ReaderContentPart> {
         return const SizedBox.shrink();
       },
       segment:
-          (segment, depth, sectionId) => SegmentItem(
+          (segment, depth, sectionId) => SegmentItem( 
             segment: segment,
             depth: depth,
             language: widget.language,
             isSelected: state.selectedSegment?.segmentId == segment.segmentId,
             isHighlighted: state.highlightedSegmentId == segment.segmentId,
             highlightSource: state.highlightSource,
+            isGreyedOut: _enableGreyOut && 
+                         widget.initialSegmentId != null &&
+                         widget.initialSegmentId != segment.segmentId,
             onTap: () => onSegmentTap(segment),
           ),
     );

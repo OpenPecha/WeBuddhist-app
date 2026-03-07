@@ -10,6 +10,7 @@ import 'package:flutter_pecha/features/plans/models/plan_days_model.dart';
 import 'package:flutter_pecha/features/plans/models/user/user_plans_model.dart';
 import 'package:flutter_pecha/features/plans/models/user/user_tasks_dto.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import '../day_completion_bottom_sheet.dart';
 import '../plan_cover_image.dart';
 import '../day_carousel.dart';
 import 'activity_list.dart';
@@ -33,7 +34,8 @@ class PlanDetails extends ConsumerStatefulWidget {
 
 class _PlanDetailsState extends ConsumerState<PlanDetails> {
   late int selectedDay;
-  final Set<String> _togglingTaskIds = {}; // Track tasks being toggled
+  final Set<String> _togglingTaskIds = {};
+  final Map<int, bool> _dayCompletionTracker = {};
 
   @override
   void initState() {
@@ -46,18 +48,89 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
     final language = widget.plan.language;
     final localizations = AppLocalizations.of(context)!;
 
+    _listenForDayCompletion();
+
     return Scaffold(
       appBar: _buildAppBar(context, language, localizations),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            PlanCoverImage(imageUrl: widget.plan.imageUrl ?? ''),
-            _buildDayCarouselSection(language),
-            _buildDayContentSection(context, language),
-          ],
-        ),
+      body: Column(
+        children: [
+          Expanded(
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  PlanCoverImage(imageUrl: widget.plan.imageUrl ?? ''),
+                  _buildDayCarouselSection(language),
+                  _buildDayContentSection(context, language),
+                ],
+              ),
+            ),
+          ),
+          // _buildStartReadingButton(context, localizations, language),
+        ],
       ),
     );
+  }
+
+  void _listenForDayCompletion() {
+    ref.listen(
+      userPlanDayContentFutureProvider(
+        PlanDaysParams(planId: widget.plan.id, dayNumber: selectedDay),
+      ),
+      (previous, next) {
+        final dayContent = next.valueOrNull;
+        if (dayContent == null) return;
+
+        final day = dayContent.dayNumber;
+        if (_dayCompletionTracker.containsKey(day)) {
+          final wasCompleted = _dayCompletionTracker[day]!;
+          if (!wasCompleted && dayContent.isCompleted) {
+            _onDayCompleted(day);
+          }
+        }
+        _dayCompletionTracker[day] = dayContent.isCompleted;
+      },
+    );
+  }
+
+  void _onReaderClosed() {
+    if (!mounted) return;
+    Future.delayed(const Duration(milliseconds: 500), () {
+      if (!mounted) return;
+      ref.invalidate(
+        userPlanDayContentFutureProvider(
+          PlanDaysParams(planId: widget.plan.id, dayNumber: selectedDay),
+        ),
+      );
+      ref.invalidate(userPlanDaysCompletionStatusProvider(widget.plan.id));
+    });
+  }
+
+  Future<void> _onDayCompleted(int dayNumber) async {
+    try {
+      final completionStatus = await ref.read(
+        userPlanDaysCompletionStatusProvider(widget.plan.id).future,
+      );
+      final completedDays = completionStatus.values.where((v) => v).length;
+
+      if (!mounted) return;
+
+      showModalBottomSheet(
+        context: context,
+        isScrollControlled: true,
+        backgroundColor: Colors.transparent,
+        builder:
+            (_) => DayCompletionBottomSheet(
+              dayNumber: dayNumber,
+              totalDays: widget.plan.totalDays,
+              completedDays: completedDays,
+              imageUrl: widget.plan.imageUrl,
+              planTitle: widget.plan.title,
+            ),
+      );
+    } catch (e) {
+      _logger.error('Error showing day completion', e);
+    }
   }
 
   AppBar _buildAppBar(
@@ -68,29 +141,6 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
     return AppBar(
       title: Text(widget.plan.title, style: TextStyle(fontSize: 20)),
       elevation: 0,
-      actions: [
-        PopupMenuButton<String>(
-          icon: const Icon(Icons.more_vert),
-          onSelected: (value) {
-            if (value == 'unenroll') {
-              _showUnenrollDialog(context);
-            }
-          },
-          itemBuilder:
-              (BuildContext context) => [
-                PopupMenuItem<String>(
-                  value: 'unenroll',
-                  child: Row(
-                    children: [
-                      Icon(Icons.exit_to_app, size: 20),
-                      SizedBox(width: 12),
-                      Text(localizations.plan_unenroll),
-                    ],
-                  ),
-                ),
-              ],
-        ),
-      ],
     );
   }
 
@@ -153,7 +203,7 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
     );
 
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -169,6 +219,7 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
                   dayNumber: selectedDay,
                   onActivityToggled:
                       (taskId) => _handleTaskToggle(taskId, dayContent.tasks),
+                  onReaderClosed: _onReaderClosed,
                 ),
             loading: () => const DayContentSkeleton(),
             error: (error, stackTrace) => _buildDayContentError(),
@@ -370,6 +421,36 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
   void _showErrorSnackbar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(message), backgroundColor: Colors.red),
+    );
+  }
+
+  Widget _buildStartReadingButton(
+    BuildContext context,
+    AppLocalizations localizations,
+    String language,
+  ) {
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: SizedBox(
+          width: double.infinity,
+          child: FilledButton(
+            onPressed: () {},
+            style: FilledButton.styleFrom(
+              backgroundColor: Theme.of(context).cardColor,
+              foregroundColor: Theme.of(context).textTheme.bodyMedium?.color,
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+            ),
+            child: Text(
+              localizations.start_reading,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

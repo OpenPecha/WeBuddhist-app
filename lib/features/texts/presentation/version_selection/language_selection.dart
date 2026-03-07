@@ -49,7 +49,7 @@ class LanguageSelectionScreen extends ConsumerWidget {
             title: Row(
               children: [
                 Text(
-                  getLanguageLabel(language, context),
+                  getLanguageName(language),
                   style: const TextStyle(fontSize: 16),
                 ),
               ],
@@ -70,7 +70,7 @@ class LanguageSelectionScreen extends ConsumerWidget {
             onTap: () {
               ref
                   .read(textVersionLanguageProvider.notifier)
-                  .setLanguage(language);
+                  .setLanguageCode(language);
               context.pop();
             },
           );

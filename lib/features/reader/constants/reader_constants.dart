@@ -17,7 +17,7 @@ class ReaderConstants {
   static const Duration scrollDebounce = Duration(milliseconds: 100);
   static const Duration scrollAnimationDuration = Duration(milliseconds: 500);
   static const Duration instantScrollDuration = Duration(milliseconds: 1);
-  static const double scrollToSegmentAlignment = 0.4; // 30% from top
+  static const double scrollToSegmentAlignment = 0.0; // 30% from top
 
   // Highlight durations by source
   static const Duration planHighlightDuration = Duration(seconds: 3);

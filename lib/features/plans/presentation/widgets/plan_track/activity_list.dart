@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_pecha/features/plans/models/author/author_dto_model.dart';
 import 'package:flutter_pecha/features/plans/models/user/user_tasks_dto.dart';
 import 'package:flutter_pecha/features/reader/data/models/navigation_context.dart';
-import 'package:flutter_pecha/shared/extensions/typography_extensions.dart';
 import 'package:go_router/go_router.dart';
 
 class ActivityList extends StatelessWidget {
@@ -11,6 +10,7 @@ class ActivityList extends StatelessWidget {
   final int today;
   final int totalDays;
   final Function(String taskId) onActivityToggled;
+  final VoidCallback? onReaderClosed;
   final AuthorDtoModel? author;
   final String? planId;
   final int? dayNumber;
@@ -22,6 +22,7 @@ class ActivityList extends StatelessWidget {
     required this.today,
     required this.totalDays,
     required this.onActivityToggled,
+    this.onReaderClosed,
     this.author,
     this.planId,
     this.dayNumber,
@@ -100,7 +101,9 @@ class ActivityList extends StatelessWidget {
         currentTextIndex: currentTextIndex >= 0 ? currentTextIndex : 0,
       );
 
-      context.push('/reader/$sourceTextId', extra: navigationContext);
+      context.push('/reader/$sourceTextId', extra: navigationContext).then((_) {
+        onReaderClosed?.call();
+      });
     }
   }
 
@@ -201,8 +204,8 @@ class _TaskTitleButton extends StatelessWidget {
               Expanded(
                 child: Text(
                   title,
-                  style: context.languageTextStyle(
-                    language,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.w500,
                   ),
                 ),

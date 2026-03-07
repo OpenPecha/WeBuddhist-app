@@ -38,7 +38,9 @@ class ReaderCommentaryPanel extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final expandedIndex = ref.watch(_expandedCommentaryIndexProvider(segmentId));
+    final expandedIndex = ref.watch(
+      _expandedCommentaryIndexProvider(segmentId),
+    );
     final segmentCommentaries = ref.watch(
       segmentCommentaryFutureProvider(segmentId),
     );
@@ -54,26 +56,38 @@ class ReaderCommentaryPanel extends ConsumerWidget {
           _CommentaryPanelHeader(
             onClose: () {
               notifier.closeCommentary();
-              ref.read(_expandedCommentaryIndexProvider(segmentId).notifier).state = null;
+              ref
+                  .read(_expandedCommentaryIndexProvider(segmentId).notifier)
+                  .state = null;
             },
           ),
           // Content
           Expanded(
             child: segmentCommentaries.when(
-              data: (data) => _CommentaryPanelContent(
-                commentaries: data.commentaries,
-                expandedIndex: expandedIndex,
-                segmentId: segmentId,
-                onExpansionChanged: (index) {
-                  ref.read(_expandedCommentaryIndexProvider(segmentId).notifier).state = index;
-                },
-              ),
-              error: (error, stackTrace) => _ErrorState(
-                error: error,
-                onRetry: () {
-                  ref.invalidate(segmentCommentaryFutureProvider(segmentId));
-                },
-              ),
+              data:
+                  (data) => _CommentaryPanelContent(
+                    commentaries: data.commentaries,
+                    expandedIndex: expandedIndex,
+                    segmentId: segmentId,
+                    onExpansionChanged: (index) {
+                      ref
+                          .read(
+                            _expandedCommentaryIndexProvider(
+                              segmentId,
+                            ).notifier,
+                          )
+                          .state = index;
+                    },
+                  ),
+              error:
+                  (error, stackTrace) => _ErrorState(
+                    error: error,
+                    onRetry: () {
+                      ref.invalidate(
+                        segmentCommentaryFutureProvider(segmentId),
+                      );
+                    },
+                  ),
               loading: () => const CommentarySkeleton(),
             ),
           ),
@@ -97,9 +111,10 @@ class _CommentaryPanelHeader extends StatelessWidget {
       decoration: BoxDecoration(
         border: Border(
           bottom: BorderSide(
-            color: Theme.of(context).brightness == Brightness.dark
-                ? AppColors.greyDark
-                : AppColors.greyLight,
+            color:
+                Theme.of(context).brightness == Brightness.dark
+                    ? AppColors.greyDark
+                    : AppColors.greyLight,
             width: 2,
           ),
         ),
@@ -109,9 +124,9 @@ class _CommentaryPanelHeader extends StatelessWidget {
           const SizedBox(width: 8),
           Text(
             localizations.text_commentary,
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.w600,
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
           ),
           const Spacer(),
           IconButton(
@@ -147,7 +162,9 @@ class _CommentaryPanelContent extends StatelessWidget {
     }
 
     return ListView.builder(
-      padding: const EdgeInsets.all(_CommentaryPanelConstants.horizontalPadding),
+      padding: const EdgeInsets.all(
+        _CommentaryPanelConstants.horizontalPadding,
+      ),
       itemCount: commentaries.length,
       itemBuilder: (context, index) {
         final commentary = commentaries[index];
@@ -183,7 +200,7 @@ class _CommentaryCard extends StatelessWidget {
     final fontFamily = getFontFamily(commentary.language);
     final lineHeight = getLineHeight(commentary.language);
     final fontSize = commentary.language == 'bo' ? 20.0 : 16.0;
-    final titleFontSize = commentary.language == 'bo' ? 21.0 : 17.0;
+    final titleFontSize = commentary.language == 'bo' ? 16.0 : 14.0;
 
     return Container(
       margin: const EdgeInsets.only(
@@ -196,38 +213,42 @@ class _CommentaryCard extends StatelessWidget {
           // Title
           Text(
             '${commentary.title} (${commentary.segments.length})',
-            style: Theme.of(context).textTheme.titleSmall?.copyWith(
+            style: TextStyle(
               fontFamily: fontFamily,
               fontSize: titleFontSize,
+              color: Colors.grey[600],
             ),
           ),
           const SizedBox(height: _CommentaryPanelConstants.contentSpacing),
           // Divider
           Container(
             height: _CommentaryPanelConstants.dividerHeight,
-            color: Theme.of(context).brightness == Brightness.dark
-                ? AppColors.greyDark
-                : Colors.grey,
+            color:
+                Theme.of(context).brightness == Brightness.dark
+                    ? AppColors.greyDark
+                    : Colors.grey,
             margin: const EdgeInsets.only(
               bottom: _CommentaryPanelConstants.dividerMargin,
             ),
           ),
-          const SizedBox(height: _CommentaryPanelConstants.contentSpacing),
           // Content
           ...commentary.segments.map((segment) {
             final content = segment.content;
-            final displayContent = isExpanded
-                ? content
-                : content.length <= _CommentaryPanelConstants.previewMaxLength
+            final displayContent =
+                isExpanded
                     ? content
-                    : content.substring(0, _CommentaryPanelConstants.previewMaxLength);
+                    : content.length <=
+                        _CommentaryPanelConstants.previewMaxLength
+                    ? content
+                    : content.substring(
+                      0,
+                      _CommentaryPanelConstants.previewMaxLength,
+                    );
 
             return Padding(
-              padding: const EdgeInsets.only(
-                bottom: _CommentaryPanelConstants.contentSpacing,
-              ),
+              padding: const EdgeInsets.only(bottom: 0),
               child: Text(
-                displayContent,
+                "$displayContent...",
                 style: TextStyle(
                   fontFamily: fontFamily,
                   height: lineHeight,
@@ -236,7 +257,6 @@ class _CommentaryCard extends StatelessWidget {
               ),
             );
           }),
-          const SizedBox(height: _CommentaryPanelConstants.contentSpacing),
           // Expand/collapse button
           Align(
             alignment: Alignment.centerRight,
@@ -267,7 +287,9 @@ class _EmptyState extends StatelessWidget {
     final localizations = AppLocalizations.of(context)!;
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(_CommentaryPanelConstants.horizontalPadding * 2),
+        padding: const EdgeInsets.all(
+          _CommentaryPanelConstants.horizontalPadding * 2,
+        ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -302,7 +324,9 @@ class _ErrorState extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(_CommentaryPanelConstants.horizontalPadding * 2),
+        padding: const EdgeInsets.all(
+          _CommentaryPanelConstants.horizontalPadding * 2,
+        ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [

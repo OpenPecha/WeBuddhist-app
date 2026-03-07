@@ -27,12 +27,11 @@ class PreviewActivityList extends StatelessWidget {
   });
 
   List<PlanTasksModel> get _sortedTasks {
-    return List<PlanTasksModel>.from(tasks)
-      ..sort((a, b) {
-        final orderA = a.displayOrder ?? 0;
-        final orderB = b.displayOrder ?? 0;
-        return orderA.compareTo(orderB);
-      });
+    return List<PlanTasksModel>.from(tasks)..sort((a, b) {
+      final orderA = a.displayOrder ?? 0;
+      final orderB = b.displayOrder ?? 0;
+      return orderA.compareTo(orderB);
+    });
   }
 
   @override
@@ -160,7 +159,10 @@ class _PreviewTaskItem extends StatelessWidget {
               Expanded(
                 child: Text(
                   task.title,
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
               ),
               if (hasSourceText) ...[

@@ -251,23 +251,6 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
             ],
           ),
         ),
-        // Animated App Bar overlay
-        // Positioned(
-        //   top: 0,
-        //   left: 0,
-        //   right: 0,
-        //   child: AnimatedSlide(
-        //     duration: const Duration(milliseconds: 500),
-        //     curve: Curves.easeInOut,
-        //     offset: _isAppBarVisible ? Offset.zero : const Offset(0, -1),
-        //     child: ReaderAppBarOverlay(
-        //       params: _params,
-        //       colorIndex: widget.colorIndex,
-        //       onSearchPressed: () => _handleSearch(context, state),
-        //       onLanguagePressed: () => _handleLanguageSelection(context, state),
-        //     ),
-        //   ),
-        // ),
       ],
     );
   }
@@ -319,7 +302,7 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
     if (state.textDetail != null) {
       ref
           .read(textVersionLanguageProvider.notifier)
-          .setLanguage(state.textDetail!.language);
+          .setLanguageCode(state.textDetail!.language);
 
       final result = await router.pushNamed(
         "reader-versions",

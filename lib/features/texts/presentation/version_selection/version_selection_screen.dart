@@ -17,11 +17,11 @@ class VersionSelectionScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final localizations = AppLocalizations.of(context)!;
     final textVersionResponse = ref.watch(textVersionFutureProvider(textId));
-    final currentLanguage = ref.watch(textVersionLanguageProvider);
+    final currentLanguageCode = ref.watch(textVersionLanguageProvider);
     final numberOfVersions =
         textVersionResponse.value?.versions
             ?.map((version) {
-              if (version.language == currentLanguage) {
+              if (version.language == currentLanguageCode) {
                 return 1;
               }
               return 0;
@@ -31,7 +31,7 @@ class VersionSelectionScreen extends ConsumerWidget {
 
     final filteredVersions =
         textVersionResponse.value?.versions
-            ?.where((version) => version.language == currentLanguage)
+            ?.where((version) => version.language == currentLanguageCode)
             .toList();
     final uniqueLanguages =
         textVersionResponse.value?.versions
@@ -93,7 +93,7 @@ class VersionSelectionScreen extends ConsumerWidget {
     WidgetRef ref,
   ) {
     final localizations = AppLocalizations.of(context)!;
-    final currentLanguage = ref.watch(textVersionLanguageProvider);
+    final currentLanguageCode = ref.watch(textVersionLanguageProvider);
     return Container(
       margin: EdgeInsets.all(18),
       padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
@@ -126,7 +126,7 @@ class VersionSelectionScreen extends ConsumerWidget {
               child: Row(
                 children: [
                   Text(
-                    getLanguageLabel(currentLanguage, context),
+                    getLanguageName(currentLanguageCode),
                     style: TextStyle(fontWeight: FontWeight.w500, fontSize: 14),
                   ),
                   const SizedBox(width: 8),
@@ -165,7 +165,7 @@ class VersionSelectionScreen extends ConsumerWidget {
             style: TextStyle(fontWeight: FontWeight.w600),
           ),
           subtitle: Text(
-            '${getLanguageLabel(version.language, context)}, ${version.publishedBy}',
+            '${getLanguageName(version.language)}, ${version.publishedBy}',
           ),
           trailing: Icon(Icons.info_outline, color: Colors.grey.shade700),
         );
@@ -251,7 +251,7 @@ class VersionSearchDelegate extends SearchDelegate<Version?> {
             style: const TextStyle(fontWeight: FontWeight.w600),
           ),
           subtitle: Text(
-            '${getLanguageLabel(version.language, context)}, ${version.publishedBy}',
+            '${getLanguageName(version.language)}, ${version.publishedBy}',
           ),
         );
       },
