@@ -57,34 +57,34 @@ class _SwipeNavigationWrapperState
         children: [
           widget.child,
           // Circular audio play button - positioned above SegmentActionBar
-          // if (!hideBottomNav)
-          AnimatedPositioned(
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.easeInOut,
-            bottom: hideBottomNav ? 110 : 80,
-            left: MediaQuery.of(context).size.width / 2 - 28,
-            child: Material(
-              elevation: 4,
-              shape: const CircleBorder(),
-              color: Theme.of(context).cardColor,
-              child: InkWell(
-                onTap: () {},
-                customBorder: const CircleBorder(),
-                child: Container(
-                  width: 56,
-                  height: 56,
-                  padding: const EdgeInsets.all(8),
-                  child: Icon(
-                    Icons.play_arrow_rounded,
-                    size: 32,
-                    color: Theme.of(context).colorScheme.onSurface,
+          if (!state.isCommentaryOpen)
+            AnimatedPositioned(
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeInOut,
+              bottom: hideBottomNav ? 110 : 80,
+              left: MediaQuery.of(context).size.width / 2 - 28,
+              child: Material(
+                elevation: 4,
+                shape: const CircleBorder(),
+                color: Theme.of(context).cardColor,
+                child: InkWell(
+                  onTap: () {},
+                  customBorder: const CircleBorder(),
+                  child: Container(
+                    width: 56,
+                    height: 56,
+                    padding: const EdgeInsets.all(8),
+                    child: Icon(
+                      Icons.play_arrow_rounded,
+                      size: 32,
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
           // Bottom bar - always present but animated in/out
-          if (showBottomBar)
+          if (showBottomBar && !state.isCommentaryOpen)
             _BottomBar(
               textDetail: widget.textDetail,
               navigationContext: navigationContext,
