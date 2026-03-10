@@ -1,0 +1,7 @@
+#include? "Pods/Target Support Files/Pods-Runner/Pods-Runner.staging.release.xcconfig"
+#include "Generated.xcconfig"
+
+FLUTTER_TARGET=lib/main_staging.dart
+BUNDLE_ID=org.pecha.app.staging
+APP_NAME=[Staging] WeBuddhist
+AUTH0_SCHEME=org.pecha.app.staging

@@ -162,6 +162,9 @@ flutter:
     - assets/fonts/
     - assets/audios/
     - .env
+    - .env.dev
+    - .env.staging
+    - .env.prod
 
   fonts:
     # Tibetan fonts
