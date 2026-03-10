@@ -124,8 +124,8 @@ class _ChooseImageState extends State<ChooseImage> {
                         ),
                         onPressed: () {
                           context.pop();
-                          context.push(
-                            '/texts/segment_image/create_image',
+                          context.pushNamed(
+                            'create-image',
                             extra: {
                               'text': widget.text,
                               'imagePath': imagePath,

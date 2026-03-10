@@ -128,7 +128,7 @@ class SegmentActionBar extends ConsumerWidget {
   void _handleImage(BuildContext context, String content) {
     final textWithLineBreaks = content.replaceAll("<br>", "\n");
     final plainText = _htmlToPlainText(textWithLineBreaks);
-    context.push('/texts/segment_image/choose_image', extra: plainText);
+    context.pushNamed('choose-image', extra: plainText);
     onClose();
   }
 }

@@ -23,6 +23,8 @@ import 'package:flutter_pecha/features/practice/presentation/screens/select_reci
 import 'package:flutter_pecha/features/reader/data/models/navigation_context.dart';
 import 'package:flutter_pecha/features/reader/presentation/reader_screen.dart';
 import 'package:flutter_pecha/features/texts/presentation/screens/chapters/chapters_screen.dart';
+import 'package:flutter_pecha/features/texts/presentation/segment_image/choose_image.dart';
+import 'package:flutter_pecha/features/texts/presentation/segment_image/create_image.dart';
 import 'package:flutter_pecha/features/texts/presentation/version_selection/language_selection.dart';
 import 'package:flutter_pecha/features/texts/presentation/version_selection/version_selection_screen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -236,6 +238,28 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             ],
           ),
         ],
+      ),
+
+      // route - /choose-image (choose image)
+      GoRoute(
+        path: "/choose-image",
+        name: "choose-image",
+        builder: (context, state) {
+          final extra = state.extra as String?;
+          if (extra == null) {
+            throw Exception('Missing required parameters');
+          }
+          return ChooseImage(text: extra);
+        },
+      ),
+      // route - /create-image (create image)
+      GoRoute(
+        path: "/create-image",
+        name: "create-image",
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>?;
+          return CreateImage(text: extra?['text'] as String, imagePath: extra?['imagePath'] as String);
+        },
       ),
 
       // reader route - new refactored text reader

@@ -104,7 +104,6 @@ class _SwipeNavigationWrapperState
                       )
                       : null,
               onFinishedTap: canSwipe ? _finishReading : null,
-              onEdgeReached: _showEdgeReachedFeedback,
             ),
         ],
       ),
@@ -131,7 +130,6 @@ class _SwipeNavigationWrapperState
 
     // Check if navigation is possible
     if (!_navigationService.canNavigate(navigationContext, direction)) {
-      _showEdgeReachedFeedback(direction);
       return;
     }
 
@@ -188,21 +186,6 @@ class _SwipeNavigationWrapperState
       context.pop();
     }
   }
-
-  void _showEdgeReachedFeedback(SwipeDirection direction) {
-    final message =
-        direction == SwipeDirection.next
-            ? 'Last text in this day'
-            : 'First text in this day';
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        duration: const Duration(seconds: 1),
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
-  }
 }
 
 /// Bottom bar - shows title only initially, expands to show full controls when tapped
@@ -213,7 +196,6 @@ class _BottomBar extends StatelessWidget {
   final VoidCallback? onPreviousTap;
   final VoidCallback? onNextTap;
   final VoidCallback? onFinishedTap;
-  final void Function(SwipeDirection direction) onEdgeReached;
 
   const _BottomBar({
     required this.textDetail,
@@ -222,7 +204,6 @@ class _BottomBar extends StatelessWidget {
     required this.onPreviousTap,
     required this.onNextTap,
     this.onFinishedTap,
-    required this.onEdgeReached,
   });
 
   @override
@@ -285,10 +266,7 @@ class _BottomBar extends StatelessWidget {
           _NavigationButton(
             icon: Icons.chevron_left,
             isEnabled: hasPrevious,
-            onTap:
-                hasPrevious
-                    ? onPreviousTap!
-                    : () => onEdgeReached(SwipeDirection.previous),
+            onTap: hasPrevious ? onPreviousTap! : () => context.pop(),
           ),
         // Progress text
         Expanded(
@@ -321,8 +299,7 @@ class _BottomBar extends StatelessWidget {
           _NavigationButton(
             icon: Icons.chevron_right,
             isEnabled: hasNext,
-            onTap:
-                hasNext ? onNextTap! : () => onEdgeReached(SwipeDirection.next),
+            onTap: hasNext ? onNextTap! : () => context.pop(),
           ),
 
         // if is last text, show checked icon to pop back to the plan screen
