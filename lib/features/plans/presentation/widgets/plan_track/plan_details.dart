@@ -9,6 +9,8 @@ import 'package:flutter_pecha/features/plans/data/providers/user_plans_provider.
 import 'package:flutter_pecha/features/plans/models/plan_days_model.dart';
 import 'package:flutter_pecha/features/plans/models/user/user_plans_model.dart';
 import 'package:flutter_pecha/features/plans/models/user/user_tasks_dto.dart';
+import 'package:flutter_pecha/features/reader/data/models/navigation_context.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../day_completion_bottom_sheet.dart';
 import '../plan_cover_image.dart';
@@ -66,7 +68,7 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
               ),
             ),
           ),
-          // _buildStartReadingButton(context, localizations, language),
+          _buildStartReadingButton(context, localizations),
         ],
       ),
     );
@@ -424,21 +426,83 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
     );
   }
 
+  List<PlanTextItem> _buildPlanTextItems(List<UserTasksDto> tasks) {
+    final items = <PlanTextItem>[];
+    for (final task in tasks) {
+      if (task.subTasks.isEmpty) continue;
+      final subtask = task.subTasks[0];
+      if (subtask.sourceTextId != null && subtask.sourceTextId!.isNotEmpty) {
+        items.add(
+          PlanTextItem(
+            textId: subtask.sourceTextId!,
+            segmentId: subtask.segmentId,
+            title: task.title,
+            subtaskId: subtask.id,
+            isCompleted: subtask.isCompleted,
+          ),
+        );
+      }
+    }
+    return items;
+  }
+
+  void _startReading(List<UserTasksDto> tasks) {
+    final planTextItems = _buildPlanTextItems(tasks);
+    if (planTextItems.isEmpty) return;
+
+    // Find first uncompleted task with source text; fall back to first item
+    final targetIndex = planTextItems.indexWhere((item) => !item.isCompleted);
+    final index = targetIndex >= 0 ? targetIndex : 0;
+    final target = planTextItems[index];
+
+    final navigationContext = NavigationContext(
+      source: NavigationSource.plan,
+      planId: widget.plan.id,
+      dayNumber: selectedDay,
+      targetSegmentId: target.segmentId,
+      planTextItems: planTextItems,
+      currentTextIndex: index,
+    );
+
+    context.push('/reader/${target.textId}', extra: navigationContext).then((
+      _,
+    ) {
+      _onReaderClosed();
+    });
+  }
+
   Widget _buildStartReadingButton(
     BuildContext context,
     AppLocalizations localizations,
-    String language,
   ) {
+    final dayContent = ref.watch(
+      userPlanDayContentFutureProvider(
+        PlanDaysParams(planId: widget.plan.id, dayNumber: selectedDay),
+      ),
+    );
+
+    final tasks = dayContent.valueOrNull?.tasks;
+    final hasReadableContent =
+        tasks != null &&
+        tasks.any(
+          (t) => t.subTasks.any(
+            (s) => s.sourceTextId != null && s.sourceTextId!.isNotEmpty,
+          ),
+        );
+
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: SizedBox(
           width: double.infinity,
           child: FilledButton(
-            onPressed: () {},
+            onPressed: hasReadableContent ? () => _startReading(tasks) : null,
             style: FilledButton.styleFrom(
-              backgroundColor: Theme.of(context).cardColor,
-              foregroundColor: Theme.of(context).textTheme.bodyMedium?.color,
+              backgroundColor: Theme.of(context).colorScheme.onSurface,
+              foregroundColor: Theme.of(context).colorScheme.surface,
+              disabledBackgroundColor: Theme.of(
+                context,
+              ).colorScheme.onSurface.withValues(alpha: 0.5),
               padding: const EdgeInsets.symmetric(vertical: 16),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20),
@@ -446,7 +510,11 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
             ),
             child: Text(
               localizations.start_reading,
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                letterSpacing: -0.3,
+              ),
             ),
           ),
         ),

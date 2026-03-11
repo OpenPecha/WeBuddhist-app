@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/config/router/app_router.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
-import 'package:flutter_pecha/core/utils/app_logger.dart';
+import 'package:flutter_pecha/features/plans/data/providers/plan_days_providers.dart';
 import 'package:flutter_pecha/features/plans/data/providers/user_plans_provider.dart';
 import 'package:flutter_pecha/features/reader/constants/reader_constants.dart';
 import 'package:flutter_pecha/features/reader/data/models/navigation_context.dart';
@@ -40,7 +40,6 @@ class ReaderScreen extends ConsumerStatefulWidget {
 
 class _ReaderScreenState extends ConsumerState<ReaderScreen>
     with SingleTickerProviderStateMixin {
-  static final _logger = AppLogger('ReaderScreen');
   late ReaderParams _params;
 
   // App bar visibility state
@@ -55,13 +54,9 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
       segmentId: widget.segmentId,
       navigationContext: widget.navigationContext,
     );
-
-    // Auto-track subtask completion for enrolled plan navigation
-    _trackSubtaskCompletion();
   }
 
   void _onScrollDirectionChanged(bool isScrollingDown) {
-    // Feature flag to disable auto-hide behavior
     if (!ReaderConstants.enableAppBarAutoHide) return;
     if (isScrollingDown && _isAppBarVisible) {
       setState(() {
@@ -74,45 +69,21 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
     }
   }
 
-  /// Automatically marks the current subtask as complete when navigating
-  /// to a plan text item (via tap or swipe).
-  /// Only fires when subtaskId is present (enrolled plan), skipped for preview.
-  void _trackSubtaskCompletion() {
+  void _invalidatePlanProviders() {
     final navContext = widget.navigationContext;
     if (navContext == null || navContext.source != NavigationSource.plan)
       return;
 
-    final items = navContext.planTextItems;
-    final index = navContext.currentTextIndex;
-    if (items == null || index == null || index < 0 || index >= items.length) {
-      return;
-    }
+    final planId = navContext.planId;
+    final dayNumber = navContext.dayNumber;
+    if (planId == null || dayNumber == null) return;
 
-    final currentItem = items[index];
-    final subtaskId = currentItem.subtaskId;
-    if (subtaskId == null || subtaskId.isEmpty) return;
-
-    // Skip if already completed to prevent duplicate API calls
-    if (currentItem.isCompleted) {
-      _logger.debug('Subtask $subtaskId already completed, skipping API call');
-      return;
-    }
-
-    // Fire-and-forget: mark subtask complete via API
-    Future.microtask(() async {
-      try {
-        final success = await ref.read(
-          completeSubTaskFutureProvider(subtaskId).future,
-        );
-        if (success) {
-          _logger.info('Auto-tracked subtask $subtaskId as complete');
-        } else {
-          _logger.warning('Subtask $subtaskId completion returned false');
-        }
-      } catch (e) {
-        _logger.error('Failed to auto-track subtask $subtaskId', e);
-      }
-    });
+    ref.invalidate(
+      userPlanDayContentFutureProvider(
+        PlanDaysParams(planId: planId, dayNumber: dayNumber),
+      ),
+    );
+    ref.invalidate(userPlanDaysCompletionStatusProvider(planId));
   }
 
   @override
@@ -120,9 +91,15 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
     final state = ref.watch(readerNotifierProvider(_params));
     final notifier = ref.read(readerNotifierProvider(_params).notifier);
 
-    return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      body: _buildBody(context, state, notifier),
+    return PopScope(
+      canPop: true,
+      onPopInvokedWithResult: (didPop, _) {
+        if (didPop) _invalidatePlanProviders();
+      },
+      child: Scaffold(
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        body: _buildBody(context, state, notifier),
+      ),
     );
   }
 
