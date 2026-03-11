@@ -140,6 +140,8 @@ class _SwipeNavigationWrapperState
     NavigationContext currentContext,
     SwipeDirection direction,
   ) {
+    if (_isNavigating) return;
+    
     final newContext = _navigationService.createNavigationContextForAdjacent(
       currentContext,
       direction,
@@ -155,6 +157,11 @@ class _SwipeNavigationWrapperState
 
     _isNavigating = true;
 
+    // Clear UI state before navigation for clean transition
+    final notifier = ref.read(readerNotifierProvider(widget.params).notifier);
+    notifier.selectSegment(null);
+    notifier.closeCommentary();
+
     // Navigate to the new text
     // Pass NavigationContext directly (it already contains targetSegmentId)
     context.pushReplacement(
@@ -164,7 +171,9 @@ class _SwipeNavigationWrapperState
 
     // Reset navigating flag after a short delay
     Future.delayed(const Duration(milliseconds: 500), () {
-      _isNavigating = false;
+      if (mounted) {
+        _isNavigating = false;
+      }
     });
   }
 
