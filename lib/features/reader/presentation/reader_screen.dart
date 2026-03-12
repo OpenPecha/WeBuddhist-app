@@ -44,6 +44,8 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
 
   // App bar visibility state
   bool _isAppBarVisible = true;
+  // Scroll controller callback
+  void Function(String segmentId, {double? alignment})? _scrollToSegment;
 
   @override
   void initState() {
@@ -71,8 +73,9 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
 
   void _invalidatePlanProviders() {
     final navContext = widget.navigationContext;
-    if (navContext == null || navContext.source != NavigationSource.plan)
+    if (navContext == null || navContext.source != NavigationSource.plan) {
       return;
+    }
 
     final planId = navContext.planId;
     final dayNumber = navContext.dayNumber;
@@ -208,6 +211,9 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
                           language: state.textDetail!.language,
                           initialSegmentId: widget.segmentId,
                           onScrollDirectionChanged: _onScrollDirectionChanged,
+                          onScrollControllerReady: (scrollFn) {
+                            _scrollToSegment = scrollFn;
+                          },
                         ),
                         // Segment action bar (when segment selected and commentary closed)
                         if (state.hasSelection && !state.isCommentaryOpen)
@@ -216,8 +222,13 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
                             params: _params,
                             onClose: () => notifier.selectSegment(null),
                             onOpenCommentary: () {
-                              // Scroll to segment when opening commentary
-                              // This will be handled by the content widget
+                              if (_scrollToSegment != null &&
+                                  state.selectedSegment != null) {
+                                _scrollToSegment!(
+                                  state.selectedSegment!.segmentId,
+                                  alignment: 0.0,
+                                );
+                              }
                             },
                           ),
                       ],

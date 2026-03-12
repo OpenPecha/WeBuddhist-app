@@ -61,32 +61,40 @@ class _SwipeNavigationWrapperState
       child: Stack(
         children: [
           widget.child,
-          AnimatedPositioned(
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.easeInOut,
-            bottom: hideBottomNav ? 110 : 80,
-            left: MediaQuery.of(context).size.width / 2 - 28,
-            child: Material(
-              elevation: 4,
-              shape: const CircleBorder(),
-              color: Theme.of(context).cardColor,
-              child: InkWell(
-                onTap: () {},
-                customBorder: const CircleBorder(),
-                child: Container(
-                  width: 56,
-                  height: 56,
-                  padding: const EdgeInsets.all(8),
-                  child: Icon(
-                    Icons.play_arrow_rounded,
-                    size: 32,
-                    color: Theme.of(context).colorScheme.onSurface,
+          // Circular audio play button - positioned above SegmentActionBar
+          if (!state.isCommentaryOpen)
+            AnimatedPositioned(
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeInOut,
+              bottom: hideBottomNav ? 110 : 80,
+              left: MediaQuery.of(context).size.width / 2 - 28,
+              child: Material(
+                elevation: 4,
+                shape: const CircleBorder(),
+                color: Theme.of(context).cardColor,
+                child: InkWell(
+                  onTap: () {
+                    // show a comming soon snackbar
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Coming soon')),
+                    );
+                  },
+                  customBorder: const CircleBorder(),
+                  child: Container(
+                    width: 56,
+                    height: 56,
+                    padding: const EdgeInsets.all(8),
+                    child: Icon(
+                      Icons.play_arrow_rounded,
+                      size: 32,
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
-          if (showBottomBar)
+          // Bottom bar - always present but animated in/out
+          if (showBottomBar && !state.isCommentaryOpen)
             _BottomBar(
               textDetail: widget.textDetail,
               navigationContext: navigationContext,
@@ -106,8 +114,7 @@ class _SwipeNavigationWrapperState
                         SwipeDirection.next,
                       )
                       : null,
-              onFinishedTap: isPlanNavigation ? _finishReading : null,
-              onEdgeReached: _showEdgeReachedFeedback,
+              onFinishedTap: canSwipe ? _finishReading : null,
             ),
         ],
       ),
@@ -134,7 +141,6 @@ class _SwipeNavigationWrapperState
 
     // Check if navigation is possible
     if (!_navigationService.canNavigate(navigationContext, direction)) {
-      _showEdgeReachedFeedback(direction);
       return;
     }
 
@@ -170,6 +176,8 @@ class _SwipeNavigationWrapperState
     NavigationContext currentContext,
     SwipeDirection direction,
   ) {
+    if (_isNavigating) return;
+
     final newContext = _navigationService.createNavigationContextForAdjacent(
       currentContext,
       direction,
@@ -189,6 +197,13 @@ class _SwipeNavigationWrapperState
 
     _isNavigating = true;
 
+    // Clear UI state before navigation for clean transition
+    final notifier = ref.read(readerNotifierProvider(widget.params).notifier);
+    notifier.selectSegment(null);
+    notifier.closeCommentary();
+
+    // Navigate to the new text
+    // Pass NavigationContext directly (it already contains targetSegmentId)
     context.pushReplacement(
       '/reader/${adjacentText.textId}',
       extra: newContext,
@@ -196,7 +211,9 @@ class _SwipeNavigationWrapperState
 
     // Reset navigating flag after a short delay
     Future.delayed(const Duration(milliseconds: 500), () {
-      _isNavigating = false;
+      if (mounted) {
+        _isNavigating = false;
+      }
     });
   }
 
@@ -220,21 +237,6 @@ class _SwipeNavigationWrapperState
       context.pop();
     }
   }
-
-  void _showEdgeReachedFeedback(SwipeDirection direction) {
-    final message =
-        direction == SwipeDirection.next
-            ? 'Last text in this day'
-            : 'First text in this day';
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        duration: const Duration(seconds: 1),
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
-  }
 }
 
 /// Bottom bar - shows title only initially, expands to show full controls when tapped
@@ -246,7 +248,6 @@ class _BottomBar extends StatelessWidget {
   final VoidCallback? onPreviousTap;
   final VoidCallback? onNextTap;
   final VoidCallback? onFinishedTap;
-  final void Function(SwipeDirection direction) onEdgeReached;
 
   const _BottomBar({
     required this.textDetail,
@@ -256,7 +257,6 @@ class _BottomBar extends StatelessWidget {
     required this.onPreviousTap,
     required this.onNextTap,
     this.onFinishedTap,
-    required this.onEdgeReached,
   });
 
   @override
@@ -346,10 +346,7 @@ class _BottomBar extends StatelessWidget {
           _NavigationButton(
             icon: Icons.chevron_left,
             isEnabled: hasPrevious,
-            onTap:
-                hasPrevious
-                    ? onPreviousTap!
-                    : () => onEdgeReached(SwipeDirection.previous),
+            onTap: hasPrevious ? onPreviousTap! : () => context.pop(),
           ),
         // Progress text
         Expanded(
@@ -382,8 +379,7 @@ class _BottomBar extends StatelessWidget {
           _NavigationButton(
             icon: Icons.chevron_right,
             isEnabled: hasNext,
-            onTap:
-                hasNext ? onNextTap! : () => onEdgeReached(SwipeDirection.next),
+            onTap: hasNext ? onNextTap! : () => context.pop(),
           ),
 
         // if is last text, show checked icon to pop back to the plan screen

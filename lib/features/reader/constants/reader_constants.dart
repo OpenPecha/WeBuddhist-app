@@ -9,7 +9,7 @@ class ReaderConstants {
 
   // Commentary split view
   static const double defaultSplitRatio = 0.5;
-  static const double minSplitRatio = 0.2;
+  static const double minSplitRatio = 0.0;
   static const double maxSplitRatio = 0.8;
   static const double commentaryDividerHeight = 8.0;
 

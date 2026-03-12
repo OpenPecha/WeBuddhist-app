@@ -14,8 +14,7 @@ class _CommentaryPanelConstants {
 
   static const double horizontalPadding = 16.0;
   static const double cardSpacing = 16.0;
-  static const double dividerHeight = 2.0;
-  static const double dividerMargin = 8.0;
+  static const double dividerHeight = 1.0;
   static const double contentSpacing = 8.0;
   static const int previewMaxLength = 150;
 }
@@ -28,12 +27,16 @@ final _expandedCommentaryIndexProvider = StateProvider.family<int?, String>(
 /// Commentary panel for the reader
 class ReaderCommentaryPanel extends ConsumerWidget {
   final String segmentId;
+  final String textLanguage;
   final ReaderParams params;
+  final double availableHeight;
 
   const ReaderCommentaryPanel({
     super.key,
     required this.segmentId,
+    required this.textLanguage,
     required this.params,
+    required this.availableHeight,
   });
 
   @override
@@ -52,8 +55,10 @@ class ReaderCommentaryPanel extends ConsumerWidget {
       ),
       child: Column(
         children: [
-          // Header with close button
+          // Header with close button and resizable divider
           _CommentaryPanelHeader(
+            params: params,
+            availableHeight: availableHeight,
             onClose: () {
               notifier.closeCommentary();
               ref
@@ -69,6 +74,7 @@ class ReaderCommentaryPanel extends ConsumerWidget {
                     commentaries: data.commentaries,
                     expandedIndex: expandedIndex,
                     segmentId: segmentId,
+                    textLanguage: textLanguage,
                     onExpansionChanged: (index) {
                       ref
                           .read(
@@ -80,7 +86,7 @@ class ReaderCommentaryPanel extends ConsumerWidget {
                     },
                   ),
               error:
-                  (error, stackTrace) => _ErrorState(
+                  (error, _) => _ErrorState(
                     error: error,
                     onRetry: () {
                       ref.invalidate(
@@ -97,46 +103,72 @@ class ReaderCommentaryPanel extends ConsumerWidget {
   }
 }
 
-/// Header for the commentary panel
-class _CommentaryPanelHeader extends StatelessWidget {
+/// Header for the commentary panel with resizable divider
+class _CommentaryPanelHeader extends ConsumerWidget {
   final VoidCallback onClose;
+  final ReaderParams params;
+  final double availableHeight;
 
-  const _CommentaryPanelHeader({required this.onClose});
+  const _CommentaryPanelHeader({
+    required this.onClose,
+    required this.params,
+    required this.availableHeight,
+  });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final localizations = AppLocalizations.of(context)!;
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        border: Border(
-          bottom: BorderSide(
-            color:
-                Theme.of(context).brightness == Brightness.dark
-                    ? AppColors.greyDark
-                    : AppColors.greyLight,
-            width: 2,
+    final notifier = ref.read(readerNotifierProvider(params).notifier);
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        // Resizable divider handle
+        GestureDetector(
+          onVerticalDragUpdate: (details) {
+            final state = ref.read(readerNotifierProvider(params));
+            final currentMainHeight = availableHeight * state.splitRatio;
+            final newRatio =
+                (currentMainHeight + details.delta.dy) / availableHeight;
+            notifier.updateSplitRatio(newRatio);
+          },
+          child:
+          // Header content
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            decoration: BoxDecoration(
+              color: Theme.of(context).cardColor,
+              border: Border.symmetric(
+                horizontal: BorderSide(
+                  color:
+                      Theme.of(context).brightness == Brightness.dark
+                          ? AppColors.greyDark
+                          : AppColors.greyLight,
+                  width: 2,
+                ),
+              ),
+            ),
+            child: Row(
+              children: [
+                const SizedBox(width: 8),
+                Text(
+                  localizations.text_commentary,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const Spacer(),
+                IconButton(
+                  onPressed: onClose,
+                  icon: const Icon(Icons.close),
+                  tooltip: localizations.text_close_commentary,
+                  iconSize: 20,
+                ),
+              ],
+            ),
           ),
         ),
-      ),
-      child: Row(
-        children: [
-          const SizedBox(width: 8),
-          Text(
-            localizations.text_commentary,
-            style: Theme.of(
-              context,
-            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
-          ),
-          const Spacer(),
-          IconButton(
-            onPressed: onClose,
-            icon: const Icon(Icons.close),
-            tooltip: localizations.text_close_commentary,
-            iconSize: 20,
-          ),
-        ],
-      ),
+      ],
     );
   }
 }
@@ -146,12 +178,14 @@ class _CommentaryPanelContent extends StatelessWidget {
   final List<SegmentCommentary> commentaries;
   final int? expandedIndex;
   final String segmentId;
+  final String textLanguage;
   final ValueChanged<int?> onExpansionChanged;
 
   const _CommentaryPanelContent({
     required this.commentaries,
     required this.expandedIndex,
     required this.segmentId,
+    required this.textLanguage,
     required this.onExpansionChanged,
   });
 
@@ -160,14 +194,19 @@ class _CommentaryPanelContent extends StatelessWidget {
     if (commentaries.isEmpty) {
       return const _EmptyState();
     }
-
+    final sortedCommentaries = List<SegmentCommentary>.from(commentaries)
+      ..sort((a, b) {
+        final aFirst = a.language == textLanguage ? 0 : 1;
+        final bFirst = b.language == textLanguage ? 0 : 1;
+        return aFirst.compareTo(bFirst);
+      });
     return ListView.builder(
-      padding: const EdgeInsets.all(
-        _CommentaryPanelConstants.horizontalPadding,
+      padding: const EdgeInsets.symmetric(
+        horizontal: _CommentaryPanelConstants.horizontalPadding,
       ),
-      itemCount: commentaries.length,
+      itemCount: sortedCommentaries.length,
       itemBuilder: (context, index) {
-        final commentary = commentaries[index];
+        final commentary = sortedCommentaries[index];
         final isExpanded = expandedIndex == index;
 
         return _CommentaryCard(
@@ -203,10 +242,7 @@ class _CommentaryCard extends StatelessWidget {
     final titleFontSize = commentary.language == 'bo' ? 16.0 : 14.0;
 
     return Container(
-      margin: const EdgeInsets.only(
-        bottom: _CommentaryPanelConstants.cardSpacing,
-        top: _CommentaryPanelConstants.cardSpacing,
-      ),
+      margin: const EdgeInsets.only(top: _CommentaryPanelConstants.cardSpacing),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -220,20 +256,13 @@ class _CommentaryCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: _CommentaryPanelConstants.contentSpacing),
-          // Divider
-          Container(
-            height: _CommentaryPanelConstants.dividerHeight,
-            color:
-                Theme.of(context).brightness == Brightness.dark
-                    ? AppColors.greyDark
-                    : Colors.grey,
-            margin: const EdgeInsets.only(
-              bottom: _CommentaryPanelConstants.dividerMargin,
-            ),
-          ),
           // Content
           ...commentary.segments.map((segment) {
             final content = segment.content;
+            final isTruncated =
+                !isExpanded &&
+                content.length >
+                    _CommentaryPanelConstants.previewMaxLength;
             final displayContent =
                 isExpanded
                     ? content
@@ -241,19 +270,15 @@ class _CommentaryCard extends StatelessWidget {
                         _CommentaryPanelConstants.previewMaxLength
                     ? content
                     : content.substring(
-                      0,
-                      _CommentaryPanelConstants.previewMaxLength,
-                    );
-
-            return Padding(
-              padding: const EdgeInsets.only(bottom: 0),
-              child: Text(
-                "$displayContent...",
-                style: TextStyle(
-                  fontFamily: fontFamily,
-                  height: lineHeight,
-                  fontSize: fontSize,
-                ),
+                        0,
+                        _CommentaryPanelConstants.previewMaxLength,
+                      );
+            return Text(
+              isTruncated ? '$displayContent...' : displayContent,
+              style: TextStyle(
+                fontFamily: fontFamily,
+                height: lineHeight,
+                fontSize: fontSize,
               ),
             );
           }),
@@ -271,6 +296,13 @@ class _CommentaryCard extends StatelessWidget {
                 style: Theme.of(context).textTheme.bodySmall,
               ),
             ),
+          ),
+          // divider
+          Container(
+            height: _CommentaryPanelConstants.dividerHeight,
+            color: Theme.of(context).brightness == Brightness.dark
+                ? AppColors.greyDark
+                : AppColors.greyLight,
           ),
         ],
       ),
@@ -322,6 +354,7 @@ class _ErrorState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(
@@ -355,7 +388,7 @@ class _ErrorState extends StatelessWidget {
             ElevatedButton.icon(
               onPressed: onRetry,
               icon: const Icon(Icons.refresh, size: 18),
-              label: const Text('Retry'),
+              label: Text(localizations.ai_retry),
             ),
           ],
         ),
