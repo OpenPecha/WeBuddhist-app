@@ -20,28 +20,26 @@ class ReaderCommentarySplitView extends ConsumerWidget {
 
     final isCommentaryOpen = state.isCommentaryOpen;
     final splitRatio = state.splitRatio;
+    final textLanguage = state.textDetail?.language ?? 'en';
 
     return LayoutBuilder(
       builder: (context, constraints) {
         final availableHeight = constraints.maxHeight;
-        final commentaryHeight = isCommentaryOpen
-            ? availableHeight * (1 - splitRatio)
-            : 0.0;
+        final commentaryHeight =
+            isCommentaryOpen ? availableHeight * (1 - splitRatio) : 0.0;
         final mainHeight = availableHeight - commentaryHeight;
 
         return Column(
           children: [
             // Main content (top)
-            SizedBox(
-              height: mainHeight,
-              child: mainContent,
-            ),
+            SizedBox(height: mainHeight, child: mainContent),
             // Commentary panel (bottom, only when open)
             if (isCommentaryOpen && state.commentarySegmentId != null)
               SizedBox(
                 height: commentaryHeight,
                 child: ReaderCommentaryPanel(
                   segmentId: state.commentarySegmentId!,
+                  textLanguage: textLanguage,
                   params: params,
                   availableHeight: availableHeight,
                 ),
