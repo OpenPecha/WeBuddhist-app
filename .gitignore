@@ -63,3 +63,4 @@ warp.md
 # Google Fonts (managed by google_fonts package, not needed in repo)
 google_fonts/
 /android/ key.properties
+/ENV_SETUP.md
