@@ -16,23 +16,38 @@ class LoginPage extends ConsumerWidget {
 
     return Scaffold(
       body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const LogoLabel(),
-                  const SizedBox(height: 30),
-                  if (authState.isLoading)
-                    const CircularProgressIndicator()
-                  else
-                    AuthButtons(),
-                ],
+        child: Stack(
+          children: [
+            Positioned(
+              top: 30,
+              right: 30,
+              child: IconButton(
+                onPressed: () {
+                  ref.read(authProvider.notifier).continueAsGuest();
+                },
+                icon: const Icon(Icons.close, size: 24),
+                tooltip: 'Continue as guest',
               ),
             ),
-          ),
+            Center(
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const LogoLabel(),
+                      const SizedBox(height: 30),
+                      if (authState.isLoading)
+                        const CircularProgressIndicator()
+                      else
+                        AuthButtons(),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
