@@ -1323,6 +1323,396 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Add Recitation'**
   String get routine_add_recitation;
+
+  /// No description provided for @continueWithGoogle.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue with Google'**
+  String get continueWithGoogle;
+
+  /// No description provided for @continueWithApple.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue with Apple'**
+  String get continueWithApple;
+
+  /// No description provided for @continueAsGuest.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue as Guest'**
+  String get continueAsGuest;
+
+  /// No description provided for @signIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign In'**
+  String get signIn;
+
+  /// No description provided for @profileError.
+  ///
+  /// In en, this message translates to:
+  /// **'Error loading profile'**
+  String get profileError;
+
+  /// No description provided for @profileTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile'**
+  String get profileTitle;
+
+  /// No description provided for @notLoggedIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Not logged in'**
+  String get notLoggedIn;
+
+  /// No description provided for @retry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get retry;
+
+  /// No description provided for @back.
+  ///
+  /// In en, this message translates to:
+  /// **'Back'**
+  String get back;
+
+  /// No description provided for @delete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get delete;
+
+  /// No description provided for @close.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get close;
+
+  /// No description provided for @tryAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Try Again'**
+  String get tryAgain;
+
+  /// No description provided for @pleaseTryAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Please try again'**
+  String get pleaseTryAgain;
+
+  /// No description provided for @successfully.
+  ///
+  /// In en, this message translates to:
+  /// **'Successfully'**
+  String get successfully;
+
+  /// No description provided for @failedTo.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to'**
+  String get failedTo;
+
+  /// No description provided for @unableTo.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to'**
+  String get unableTo;
+
+  /// No description provided for @error.
+  ///
+  /// In en, this message translates to:
+  /// **'Error'**
+  String get error;
+
+  /// No description provided for @anonymous.
+  ///
+  /// In en, this message translates to:
+  /// **'Anonymous'**
+  String get anonymous;
+
+  /// No description provided for @noContentAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'No content available'**
+  String get noContentAvailable;
+
+  /// No description provided for @missingParameters.
+  ///
+  /// In en, this message translates to:
+  /// **'Missing required parameters'**
+  String get missingParameters;
+
+  /// No description provided for @invalidParameters.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid parameters'**
+  String get invalidParameters;
+
+  /// No description provided for @cannotOpenLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Cannot open this link'**
+  String get cannotOpenLink;
+
+  /// No description provided for @invalidUrlFormat.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid URL format'**
+  String get invalidUrlFormat;
+
+  /// No description provided for @cannotOpenEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Cannot open this email'**
+  String get cannotOpenEmail;
+
+  /// No description provided for @invalidEmailFormat.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid email format'**
+  String get invalidEmailFormat;
+
+  /// No description provided for @unableToLoad.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to load. Please try again.'**
+  String get unableToLoad;
+
+  /// No description provided for @somethingWrong.
+  ///
+  /// In en, this message translates to:
+  /// **'Something went wrong. Please check your connection and try again.'**
+  String get somethingWrong;
+
+  /// No description provided for @typing.
+  ///
+  /// In en, this message translates to:
+  /// **'typing...'**
+  String get typing;
+
+  /// No description provided for @source.
+  ///
+  /// In en, this message translates to:
+  /// **'Source'**
+  String get source;
+
+  /// No description provided for @searchResults.
+  ///
+  /// In en, this message translates to:
+  /// **'Search Results'**
+  String get searchResults;
+
+  /// No description provided for @deleteConversation.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Conversation?'**
+  String get deleteConversation;
+
+  /// No description provided for @errorOops.
+  ///
+  /// In en, this message translates to:
+  /// **'Oops. Please try again.'**
+  String get errorOops;
+
+  /// No description provided for @tabAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get tabAll;
+
+  /// No description provided for @tabAuthors.
+  ///
+  /// In en, this message translates to:
+  /// **'Authors'**
+  String get tabAuthors;
+
+  /// No description provided for @tabContents.
+  ///
+  /// In en, this message translates to:
+  /// **'Contents'**
+  String get tabContents;
+
+  /// No description provided for @tabTitles.
+  ///
+  /// In en, this message translates to:
+  /// **'Titles'**
+  String get tabTitles;
+
+  /// No description provided for @option1.
+  ///
+  /// In en, this message translates to:
+  /// **'Option 1'**
+  String get option1;
+
+  /// No description provided for @option2.
+  ///
+  /// In en, this message translates to:
+  /// **'Option 2'**
+  String get option2;
+
+  /// No description provided for @option3.
+  ///
+  /// In en, this message translates to:
+  /// **'Option 3'**
+  String get option3;
+
+  /// No description provided for @languageTibetan.
+  ///
+  /// In en, this message translates to:
+  /// **'བོད་ཡིག'**
+  String get languageTibetan;
+
+  /// No description provided for @languageEnglish.
+  ///
+  /// In en, this message translates to:
+  /// **'English'**
+  String get languageEnglish;
+
+  /// No description provided for @noTasks.
+  ///
+  /// In en, this message translates to:
+  /// **'No tasks available'**
+  String get noTasks;
+
+  /// No description provided for @taskNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Task not found'**
+  String get taskNotFound;
+
+  /// No description provided for @updateTaskError.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to update task status'**
+  String get updateTaskError;
+
+  /// No description provided for @enrollSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Successfully enrolled in {planTitle}'**
+  String enrollSuccess(String planTitle);
+
+  /// No description provided for @enrollError.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to enroll in plan. Please try again.'**
+  String get enrollError;
+
+  /// No description provided for @enrollErrorDetail.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to enroll in plan: {error}'**
+  String enrollErrorDetail(String error);
+
+  /// No description provided for @unenrollSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'You have been unenrolled from {planTitle}'**
+  String unenrollSuccess(String planTitle);
+
+  /// No description provided for @unenrollError.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to unenroll at this time. Please try again.'**
+  String get unenrollError;
+
+  /// No description provided for @unenrollGenericError.
+  ///
+  /// In en, this message translates to:
+  /// **'Something went wrong. Please check your connection and try again.'**
+  String get unenrollGenericError;
+
+  /// No description provided for @notFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Plan not found. Please try again.'**
+  String get notFound;
+
+  /// No description provided for @noTimeSlot.
+  ///
+  /// In en, this message translates to:
+  /// **'No available time slot. Try removing a block first.'**
+  String get noTimeSlot;
+
+  /// No description provided for @maxBlocks.
+  ///
+  /// In en, this message translates to:
+  /// **'Maximum of {max} time blocks reached.'**
+  String maxBlocks(int max);
+
+  /// No description provided for @duplicateItem.
+  ///
+  /// In en, this message translates to:
+  /// **'This item is already in the block.'**
+  String get duplicateItem;
+
+  /// No description provided for @removeItem.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove Item'**
+  String get removeItem;
+
+  /// No description provided for @removeConfirmation.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove \"{itemName}\" from this block?'**
+  String removeConfirmation(String itemName);
+
+  /// No description provided for @shareError.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to share: {error}'**
+  String shareError(String error);
+
+  /// No description provided for @updateOrderError.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to update order. Please try again.'**
+  String get updateOrderError;
+
+  /// No description provided for @noCollections.
+  ///
+  /// In en, this message translates to:
+  /// **'No collections available'**
+  String get noCollections;
+
+  /// No description provided for @loadCollectionsError.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to load collections'**
+  String get loadCollectionsError;
+
+  /// No description provided for @loadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load collections'**
+  String get loadFailed;
+
+  /// No description provided for @captureError.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to capture QR code. Please try again.'**
+  String get captureError;
+
+  /// No description provided for @qrShareError.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to share QR code. Please try again later.'**
+  String get qrShareError;
+
+  /// No description provided for @errorDetail.
+  ///
+  /// In en, this message translates to:
+  /// **'Error: {error}'**
+  String errorDetail(String error);
+
+  /// No description provided for @text_qrCode.
+  ///
+  /// In en, this message translates to:
+  /// **'QR Code'**
+  String get text_qrCode;
 }
 
 class _AppLocalizationsDelegate

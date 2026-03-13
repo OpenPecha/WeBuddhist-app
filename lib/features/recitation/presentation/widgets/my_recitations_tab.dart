@@ -7,6 +7,7 @@ import 'package:flutter_pecha/features/recitation/data/models/recitation_model.d
 import 'package:flutter_pecha/features/recitation/presentation/providers/recitations_providers.dart';
 import 'package:flutter_pecha/features/recitation/presentation/widgets/recitation_card.dart';
 import 'package:flutter_pecha/features/recitation/presentation/widgets/recitation_list_skeleton.dart';
+import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -37,7 +38,7 @@ class _MyRecitationsTabState extends ConsumerState<MyRecitationsTab> {
   @override
   Widget build(BuildContext context) {
     final authState = ref.watch(authProvider);
-    final localizations = AppLocalizations.of(context)!;
+    final localizations = context.l10n;
 
     // Show login prompt for guest users
     if (authState.isGuest) {
@@ -146,8 +147,9 @@ class _MyRecitationsTabState extends ConsumerState<MyRecitationsTab> {
     final payload = _buildReorderPayload(reorderedList);
 
     final messenger = ScaffoldMessenger.of(context);
+    final errorMessage = context.l10n.updateOrderError;
 
-    await _performReorderApiCall(payload, messenger);
+    await _performReorderApiCall(payload, messenger, errorMessage);
   }
 
   /// Adjusts the new index based on ReorderableListView behavior
@@ -196,13 +198,14 @@ class _MyRecitationsTabState extends ConsumerState<MyRecitationsTab> {
   Future<void> _performReorderApiCall(
     List<Map<String, dynamic>> payload,
     ScaffoldMessengerState messenger,
+    String errorMessage,
   ) async {
     try {
       await ref.read(updateRecitationsOrderProvider(payload).future);
 
       _handleReorderSuccess();
     } catch (error) {
-      _handleReorderFailure(messenger, error);
+      _handleReorderFailure(messenger, errorMessage);
     }
   }
 
@@ -212,13 +215,13 @@ class _MyRecitationsTabState extends ConsumerState<MyRecitationsTab> {
   }
 
   /// Handles failed reorder operation
-  void _handleReorderFailure(ScaffoldMessengerState messenger, Object error) {
+  void _handleReorderFailure(ScaffoldMessengerState messenger, String errorMessage) {
     // Rollback to original order
     _clearOptimisticState();
 
     messenger.showSnackBar(
-      const SnackBar(
-        content: Text('Unable to update order. Please try again.'),
+      SnackBar(
+        content: Text(errorMessage),
         backgroundColor: Colors.red,
         duration: _errorSnackBarDuration,
       ),
@@ -228,7 +231,7 @@ class _MyRecitationsTabState extends ConsumerState<MyRecitationsTab> {
   /// Builds the empty state when no recitations are saved
   Widget _buildEmptyState(BuildContext context) {
     final theme = Theme.of(context);
-    final localizations = AppLocalizations.of(context)!;
+    final localizations = context.l10n;
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,

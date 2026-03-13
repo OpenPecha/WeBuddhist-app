@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/features/auth/presentation/login_page.dart';
+import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/features/auth/presentation/profile_page.dart';
 import 'package:flutter_pecha/features/app/presentation/skeleton_screen.dart';
 import 'package:flutter_pecha/features/creator_info/presentation/creator_info_screen.dart';
@@ -160,8 +161,8 @@ final goRouterProvider = Provider<GoRouter>((ref) {
               extra is! Map ||
               !extra.containsKey('imageUrl') ||
               !extra.containsKey('title')) {
-            return const Scaffold(
-              body: Center(child: Text('Missing required parameters')),
+            return Scaffold(
+              body: Center(child: Text(context.l10n.missingParameters)),
             );
           }
           return ViewIllustration(
@@ -178,8 +179,8 @@ final goRouterProvider = Provider<GoRouter>((ref) {
               extra is! Map ||
               !extra.containsKey('meditationAudioUrl') ||
               !extra.containsKey('meditationImageUrl')) {
-            return const Scaffold(
-              body: Center(child: Text('Missing required parameters')),
+            return Scaffold(
+              body: Center(child: Text(context.l10n.missingParameters)),
             );
           }
           return MeditationOfTheDayScreen(
@@ -193,8 +194,8 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) {
           final extra = state.extra;
           if (extra == null || extra is! String) {
-            return const Scaffold(
-              body: Center(child: Text('Missing required parameters')),
+            return Scaffold(
+              body: Center(child: Text(context.l10n.missingParameters)),
             );
           }
           return MeditationVideo(videoUrl: extra);
@@ -219,15 +220,15 @@ final goRouterProvider = Provider<GoRouter>((ref) {
             subtasks = extra;
             author = null;
           } else {
-            return const Scaffold(
-              body: Center(child: Text('Missing required parameters')),
+            return Scaffold(
+              body: Center(child: Text(context.l10n.missingParameters)),
             );
           }
 
           // Validate that we have at least one valid subtask
           if (subtasks.isEmpty) {
-            return const Scaffold(
-              body: Center(child: Text('No content available')),
+            return Scaffold(
+              body: Center(child: Text(context.l10n.noContentAvailable)),
             );
           }
 
@@ -324,15 +325,15 @@ final goRouterProvider = Provider<GoRouter>((ref) {
             author = null;
             nextCard = null;
           } else {
-            return const Scaffold(
-              body: Center(child: Text('Missing required parameters')),
+            return Scaffold(
+              body: Center(child: Text(context.l10n.missingParameters)),
             );
           }
 
           // Validate that we have at least one valid subtask
           if (subtasks.isEmpty && nextCard == null) {
-            return const Scaffold(
-              body: Center(child: Text('No content available')),
+            return Scaffold(
+              body: Center(child: Text(context.l10n.noContentAvailable)),
             );
           }
 
@@ -401,15 +402,15 @@ final goRouterProvider = Provider<GoRouter>((ref) {
             dayNumber = null;
             language = null;
           } else {
-            return const Scaffold(
-              body: Center(child: Text('Missing required parameters')),
+            return Scaffold(
+              body: Center(child: Text(context.l10n.missingParameters)),
             );
           }
 
           // Validate that we have at least one valid subtask
           if (subtasks.isEmpty && nextCard == null) {
-            return const Scaffold(
-              body: Center(child: Text('No content available')),
+            return Scaffold(
+              body: Center(child: Text(context.l10n.noContentAvailable)),
             );
           }
 
@@ -459,8 +460,8 @@ final goRouterProvider = Provider<GoRouter>((ref) {
               extra is! Map ||
               !extra.containsKey('prayerAudioUrl') ||
               !extra.containsKey('prayerData')) {
-            return const Scaffold(
-              body: Center(child: Text('Missing required parameters')),
+            return Scaffold(
+              body: Center(child: Text(context.l10n.missingParameters)),
             );
           }
           return PrayerOfTheDayScreen(
@@ -542,8 +543,8 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) {
           final extra = state.extra;
           if (extra == null || extra is! Map || !extra.containsKey('textId')) {
-            return const Scaffold(
-              body: Center(child: Text('Missing required parameters')),
+            return Scaffold(
+              body: Center(child: Text(context.l10n.missingParameters)),
             );
           }
           return ChaptersScreen(
@@ -559,8 +560,8 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) {
           final extra = state.extra;
           if (extra == null || extra is! Map || !extra.containsKey('textId')) {
-            return const Scaffold(
-              body: Center(child: Text('Missing required parameters')),
+            return Scaffold(
+              body: Center(child: Text(context.l10n.missingParameters)),
             );
           }
           return VersionSelectionScreen(textId: extra['textId'] as String);
@@ -573,8 +574,8 @@ final goRouterProvider = Provider<GoRouter>((ref) {
           if (extra == null ||
               extra is! Map ||
               !extra.containsKey('uniqueLanguages')) {
-            return const Scaffold(
-              body: Center(child: Text('Missing required parameters')),
+            return Scaffold(
+              body: Center(child: Text(context.l10n.missingParameters)),
             );
           }
           return LanguageSelectionScreen(
@@ -587,8 +588,8 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) {
           final extra = state.extra;
           if (extra == null || extra is! String) {
-            return const Scaffold(
-              body: Center(child: Text('Missing required parameters')),
+            return Scaffold(
+              body: Center(child: Text(context.l10n.missingParameters)),
             );
           }
           return ChooseImage(text: extra);
@@ -602,8 +603,8 @@ final goRouterProvider = Provider<GoRouter>((ref) {
               extra is! Map ||
               !extra.containsKey('text') ||
               !extra.containsKey('imagePath')) {
-            return const Scaffold(
-              body: Center(child: Text('Missing required parameters')),
+            return Scaffold(
+              body: Center(child: Text(context.l10n.missingParameters)),
             );
           }
           return CreateImage(
@@ -617,8 +618,8 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) {
           final extra = state.extra;
           if (extra == null || extra is! String) {
-            return const Scaffold(
-              body: Center(child: Text('Missing required parameters')),
+            return Scaffold(
+              body: Center(child: Text(context.l10n.missingParameters)),
             );
           }
           return CommentaryView(segmentId: extra);
@@ -633,8 +634,8 @@ final goRouterProvider = Provider<GoRouter>((ref) {
               extra is! Map ||
               !extra.containsKey('plan') ||
               !extra.containsKey('author')) {
-            return const Scaffold(
-              body: Center(child: Text('Missing required parameters')),
+            return Scaffold(
+              body: Center(child: Text(context.l10n.missingParameters)),
             );
           }
           return PlanInfo(
@@ -652,8 +653,8 @@ final goRouterProvider = Provider<GoRouter>((ref) {
               !extra.containsKey('plan') ||
               !extra.containsKey('selectedDay') ||
               !extra.containsKey('startDate')) {
-            return const Scaffold(
-              body: Center(child: Text('Missing required parameters')),
+            return Scaffold(
+              body: Center(child: Text(context.l10n.missingParameters)),
             );
           }
           return PlanDetails(
@@ -675,8 +676,8 @@ final goRouterProvider = Provider<GoRouter>((ref) {
 
           // Support both single recitation and recitation with list
           if (extra == null) {
-            return const Scaffold(
-              body: Center(child: Text('Missing required parameters')),
+            return Scaffold(
+              body: Center(child: Text(context.l10n.missingParameters)),
             );
           }
 
@@ -703,8 +704,8 @@ final goRouterProvider = Provider<GoRouter>((ref) {
             );
           }
 
-          return const Scaffold(
-            body: Center(child: Text('Invalid parameters')),
+          return Scaffold(
+            body: Center(child: Text(context.l10n.invalidParameters)),
           );
         },
       ),

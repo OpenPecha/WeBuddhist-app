@@ -648,4 +648,217 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get routine_add_recitation => 'Add Recitation';
+
+  @override
+  String get continueWithGoogle => 'Continue with Google';
+
+  @override
+  String get continueWithApple => 'Continue with Apple';
+
+  @override
+  String get continueAsGuest => 'Continue as Guest';
+
+  @override
+  String get signIn => 'Sign In';
+
+  @override
+  String get profileError => 'Error loading profile';
+
+  @override
+  String get profileTitle => 'Profile';
+
+  @override
+  String get notLoggedIn => 'Not logged in';
+
+  @override
+  String get retry => 'Retry';
+
+  @override
+  String get back => 'Back';
+
+  @override
+  String get delete => 'Delete';
+
+  @override
+  String get close => 'Close';
+
+  @override
+  String get tryAgain => 'Try Again';
+
+  @override
+  String get pleaseTryAgain => 'Please try again';
+
+  @override
+  String get successfully => 'Successfully';
+
+  @override
+  String get failedTo => 'Failed to';
+
+  @override
+  String get unableTo => 'Unable to';
+
+  @override
+  String get error => 'Error';
+
+  @override
+  String get anonymous => 'Anonymous';
+
+  @override
+  String get noContentAvailable => 'No content available';
+
+  @override
+  String get missingParameters => 'Missing required parameters';
+
+  @override
+  String get invalidParameters => 'Invalid parameters';
+
+  @override
+  String get cannotOpenLink => 'Cannot open this link';
+
+  @override
+  String get invalidUrlFormat => 'Invalid URL format';
+
+  @override
+  String get cannotOpenEmail => 'Cannot open this email';
+
+  @override
+  String get invalidEmailFormat => 'Invalid email format';
+
+  @override
+  String get unableToLoad => 'Unable to load. Please try again.';
+
+  @override
+  String get somethingWrong =>
+      'Something went wrong. Please check your connection and try again.';
+
+  @override
+  String get typing => 'typing...';
+
+  @override
+  String get source => 'Source';
+
+  @override
+  String get searchResults => 'Search Results';
+
+  @override
+  String get deleteConversation => 'Delete Conversation?';
+
+  @override
+  String get errorOops => 'Oops. Please try again.';
+
+  @override
+  String get tabAll => 'All';
+
+  @override
+  String get tabAuthors => 'Authors';
+
+  @override
+  String get tabContents => 'Contents';
+
+  @override
+  String get tabTitles => 'Titles';
+
+  @override
+  String get option1 => 'Option 1';
+
+  @override
+  String get option2 => 'Option 2';
+
+  @override
+  String get option3 => 'Option 3';
+
+  @override
+  String get languageTibetan => 'བོད་ཡིག';
+
+  @override
+  String get languageEnglish => 'English';
+
+  @override
+  String get noTasks => 'No tasks available';
+
+  @override
+  String get taskNotFound => 'Task not found';
+
+  @override
+  String get updateTaskError => 'Unable to update task status';
+
+  @override
+  String enrollSuccess(String planTitle) {
+    return 'Successfully enrolled in $planTitle';
+  }
+
+  @override
+  String get enrollError => 'Unable to enroll in plan. Please try again.';
+
+  @override
+  String enrollErrorDetail(String error) {
+    return 'Unable to enroll in plan: $error';
+  }
+
+  @override
+  String unenrollSuccess(String planTitle) {
+    return 'You have been unenrolled from $planTitle';
+  }
+
+  @override
+  String get unenrollError =>
+      'Unable to unenroll at this time. Please try again.';
+
+  @override
+  String get unenrollGenericError =>
+      'Something went wrong. Please check your connection and try again.';
+
+  @override
+  String get notFound => 'Plan not found. Please try again.';
+
+  @override
+  String get noTimeSlot =>
+      'No available time slot. Try removing a block first.';
+
+  @override
+  String maxBlocks(int max) {
+    return 'Maximum of $max time blocks reached.';
+  }
+
+  @override
+  String get duplicateItem => 'This item is already in the block.';
+
+  @override
+  String get removeItem => 'Remove Item';
+
+  @override
+  String removeConfirmation(String itemName) {
+    return 'Remove \"$itemName\" from this block?';
+  }
+
+  @override
+  String shareError(String error) {
+    return 'Unable to share: $error';
+  }
+
+  @override
+  String get updateOrderError => 'Unable to update order. Please try again.';
+
+  @override
+  String get noCollections => 'No collections available';
+
+  @override
+  String get loadCollectionsError => 'Unable to load collections';
+
+  @override
+  String get loadFailed => 'Failed to load collections';
+
+  @override
+  String get captureError => 'Failed to capture QR code. Please try again.';
+
+  @override
+  String get qrShareError => 'Unable to share QR code. Please try again later.';
+
+  @override
+  String errorDetail(String error) {
+    return 'Error: $error';
+  }
+
+  @override
+  String get text_qrCode => 'QR Code';
 }

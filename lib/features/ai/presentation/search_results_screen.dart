@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
-import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/features/ai/models/search_state.dart';
 import 'package:flutter_pecha/features/ai/presentation/controllers/chat_controller.dart';
 import 'package:flutter_pecha/features/ai/presentation/controllers/search_state_controller.dart';
@@ -10,6 +9,7 @@ import 'package:flutter_pecha/features/ai/presentation/widgets/contents_tab_view
 import 'package:flutter_pecha/features/ai/presentation/widgets/titles_tab_view.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_pecha/core/extensions/context_ext.dart';
 
 class SearchResultsScreen extends ConsumerStatefulWidget {
   final String initialQuery;
@@ -162,7 +162,7 @@ class _SearchResultsScreenState extends ConsumerState<SearchResultsScreen>
             fontSize: 15,
           ),
           decoration: InputDecoration(
-            hintText: AppLocalizations.of(context)!.search_buddhist_texts,
+            hintText: context.l10n.search_buddhist_texts,
             hintStyle: TextStyle(
               color: isDarkMode ? AppColors.grey600 : AppColors.grey500,
               fontSize: 15,
@@ -233,11 +233,11 @@ class _SearchResultsScreenState extends ConsumerState<SearchResultsScreen>
           fontWeight: FontWeight.w500,
         ),
         tabs: [
-          Tab(text: AppLocalizations.of(context)!.search_tab_ai_mode),
-          Tab(text: AppLocalizations.of(context)!.search_all),
-          Tab(text: AppLocalizations.of(context)!.search_titles),
-          Tab(text: AppLocalizations.of(context)!.search_contents),
-          Tab(text: AppLocalizations.of(context)!.search_author),
+          Tab(text: context.l10n.search_tab_ai_mode),
+          Tab(text: context.l10n.search_all),
+          Tab(text: context.l10n.search_titles),
+          Tab(text: context.l10n.search_contents),
+          Tab(text: context.l10n.search_author),
         ],
       ),
     );

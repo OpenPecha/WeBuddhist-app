@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
-import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/features/texts/constants/chapter_constants.dart';
@@ -23,6 +22,7 @@ import 'package:flutter_pecha/features/texts/presentation/widgets/language_selec
 import 'package:flutter_pecha/features/texts/presentation/widgets/segment_action_bar.dart';
 import 'package:flutter_pecha/features/texts/presentation/widgets/library_search_delegate.dart';
 import 'package:flutter_pecha/features/texts/utils/helper_functions.dart';
+import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:fquery/fquery.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -308,7 +308,7 @@ class _ChaptersScreenState extends ConsumerState<ChaptersScreen> {
     Segment? selectedSegment,
     List<Section> newPageSections,
   ) {
-    final localizations = AppLocalizations.of(context)!;
+    final localizations = context.l10n;
 
     if (infiniteQuery.isLoading) {
       return Center(
@@ -356,7 +356,7 @@ class _ChaptersScreenState extends ConsumerState<ChaptersScreen> {
                   });
                 },
                 icon: const Icon(Icons.refresh),
-                label: const Text('Retry'),
+                label: Text(localizations.retry),
               ),
             ],
           ),

@@ -7,6 +7,7 @@ import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/features/ai/presentation/widgets/skeletons/search_result_skeleton.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_pecha/core/extensions/context_ext.dart';
 
 class AllTabView extends StatelessWidget {
   final SearchState searchState;
@@ -23,7 +24,7 @@ class AllTabView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
-    final localizations = AppLocalizations.of(context)!;
+    final localizations = context.l10n;
 
     if (searchState.isLoading) {
       return const SearchResultSkeleton();

@@ -47,7 +47,7 @@ class AppLocalizationsBo extends AppLocalizations {
       'Approximatey 500 million people worldwide practice Buddhism, making it the world\'s fourth largest religion';
 
   @override
-  String get onboarding_find_peace => 'Find your Peace';
+  String get onboarding_find_peace => 'ཁྱོད་རང་གི་ཞི་བདེ་དང་ལྷན་དུ་སྡོད་པ།';
 
   @override
   String get onboarding_continue => 'Continue';
@@ -650,4 +650,215 @@ class AppLocalizationsBo extends AppLocalizations {
 
   @override
   String get routine_add_recitation => 'ཞལ་འདོན་ཁ་སྣོན།';
+
+  @override
+  String get continueWithGoogle => 'Google བརྒྱུད་ནས་མུ་མཐུད།';
+
+  @override
+  String get continueWithApple => 'Apple བརྒྱུད་ནས་མུ་མཐུད།';
+
+  @override
+  String get continueAsGuest => 'མགོ་ཚུགས་པ་བརྒྱུད་ནས་མུ་མཐུད།';
+
+  @override
+  String get signIn => 'ནང་བསྐྱོད།';
+
+  @override
+  String get profileError => 'མིང་གི་བརྡ་དོན་བརྙན་འཁུར་བྱེད་མི་ཐུབ།';
+
+  @override
+  String get profileTitle => 'མིང་གི་བརྡ་དོན།';
+
+  @override
+  String get notLoggedIn => 'ནང་བསྐྱོད་མ་བྱས།';
+
+  @override
+  String get retry => 'བསྐྱར་དུ་འབད་པ།';
+
+  @override
+  String get back => 'རྒྱབ་ལོག';
+
+  @override
+  String get delete => 'བཏོན་གཏང་';
+
+  @override
+  String get close => 'ཁ་བསྡམས།';
+
+  @override
+  String get tryAgain => 'བསྐྱར་དུ་ཚུར་ཐེངས་གཅིག་འབད།';
+
+  @override
+  String get pleaseTryAgain => 'ལོག་སྟེ་འབད་རོགས།';
+
+  @override
+  String get successfully => 'མཐར་འཁྱོལ་བྱུང་།';
+
+  @override
+  String get failedTo => 'ལམ་འགྲོ་མ་བྱུང་།';
+
+  @override
+  String get unableTo => 'མི་ཐུབ།';
+
+  @override
+  String get error => 'སྐྱོན།';
+
+  @override
+  String get anonymous => 'མིང་མེད།';
+
+  @override
+  String get noContentAvailable => 'ནང་དོན་མེད།';
+
+  @override
+  String get missingParameters => 'ཆ་རྐྱེན་བརླགས་ཟིན།';
+
+  @override
+  String get invalidParameters => 'ཆ་རྐྱེན་ནོར་བ།';
+
+  @override
+  String get cannotOpenLink => 'འབྲེལ་ལམ་ཁ་ཕྱེ་མི་ཐུབ།';
+
+  @override
+  String get invalidUrlFormat => 'URL རྩོམ་སྒྲིག་ནོར་བ།';
+
+  @override
+  String get cannotOpenEmail => 'པར་ལེ་སེ་ཁ་ཕྱེ་མི་ཐུབ།';
+
+  @override
+  String get invalidEmailFormat => 'པར་ལེ་སེ་རྩོམ་སྒྲིག་ནོར་བ།';
+
+  @override
+  String get unableToLoad => 'བརྙན་འཁུར་བྱེད་མི་ཐུབ། འདི་གནས་ནས་ཚུར་འབད།';
+
+  @override
+  String get somethingWrong => 'ཅི་ཞིག་ནོར་འདུག ཁེ་ལེ་ལག་ལེན་རྒྱུགས་པར་གྱིས།';
+
+  @override
+  String get typing => 'འབྲི་བཞིན་འདུག...';
+
+  @override
+  String get source => 'འབྱུང་ཁུངས།';
+
+  @override
+  String get searchResults => 'འཚོལ་ཞིབ་འབྲས་བུ།';
+
+  @override
+  String get deleteConversation => 'གླེང་མོལ་བཏོན་གཏང་གི་ཡིན་ནམ།';
+
+  @override
+  String get errorOops => 'ཨོ། ལོག་སྟེ་འབད་རོགས།';
+
+  @override
+  String get tabAll => 'ཆ་ཚང་།';
+
+  @override
+  String get tabAuthors => 'རྩོམ་པ་པོ།';
+
+  @override
+  String get tabContents => 'ནང་དོན།';
+
+  @override
+  String get tabTitles => 'མགོ་མིང་།';
+
+  @override
+  String get option1 => 'གདམ་ཁ་ ༡';
+
+  @override
+  String get option2 => 'གདམ་ཁ་ ༢';
+
+  @override
+  String get option3 => 'གདམ་ཁ་ ༣';
+
+  @override
+  String get languageTibetan => 'བོད་ཡིག';
+
+  @override
+  String get languageEnglish => 'English';
+
+  @override
+  String get noTasks => 'ལས་ཀ་མེད།';
+
+  @override
+  String get taskNotFound => 'ལས་ཀ་མ་རྙེད་པ།';
+
+  @override
+  String get updateTaskError => 'ལས་ཀའི་གནས་ཚུལ་བསྒྱུར་མི་ཐུབ།';
+
+  @override
+  String enrollSuccess(String planTitle) {
+    return '$planTitle ལ་མཐར་འཁྱོལ་བྱུང་།';
+  }
+
+  @override
+  String get enrollError => 'འཆར་གཞིར་ཞུགས་མི་ཐུབ། ལོག་སྟེ་འབད་རོགས།';
+
+  @override
+  String enrollErrorDetail(String error) {
+    return 'འཆར་གཞིར་ཞུགས་མི་ཐུབ། $error';
+  }
+
+  @override
+  String unenrollSuccess(String planTitle) {
+    return '$planTitle ནས་ཕྱིར་བཏོན་ཟིན།';
+  }
+
+  @override
+  String get unenrollError => 'ད་ལྟ་ཞུགས་མི་ཐུབ། ལོག་སྟེ་འབད་རོགས།';
+
+  @override
+  String get unenrollGenericError =>
+      'ཅི་ཞིག་ནོར་འདུག ཁེ་ལེ་ལག་ལེན་རྒྱུགས་པར་གྱིས།';
+
+  @override
+  String get notFound => 'འཆར་གཞི་མ་རྙེད། ལོག་སྟེ་འབད་རོགས།';
+
+  @override
+  String get noTimeSlot => 'དུས་ཚོད་མེད། ཐོག་གཅིག་ཕྱིར་བཏོན་ནས་ལོག་སྟེ་འབད།';
+
+  @override
+  String maxBlocks(int max) {
+    return 'དུས་ཚོད་ཐོག་གི་མང་མཐའ་ $max ལ་སླེབས་ཟིན།';
+  }
+
+  @override
+  String get duplicateItem => 'རྣམ་གྲངས་འདི་གནས་སུ་ཡོད་ཟིན།';
+
+  @override
+  String get removeItem => 'རྣམ་གྲངས་ཕྱིར་བཏོན།';
+
+  @override
+  String removeConfirmation(String itemName) {
+    return '\"$itemName\" འདི་གནས་ནས་ཕྱིར་བཏོན་གི་ཡིན་ནམ།';
+  }
+
+  @override
+  String shareError(String error) {
+    return 'མཉམ་སྤྱོད་བྱེད་མི་ཐུབ། $error';
+  }
+
+  @override
+  String get updateOrderError => 'གོ་རིམ་བསྒྱུར་མི་ཐུབ། ལོག་སྟེ་འབད་རོགས།';
+
+  @override
+  String get noCollections => 'བསྡུ་ཉར་མེད།';
+
+  @override
+  String get loadCollectionsError => 'བསྡུ་ཉར་བརྙན་འཁུར་བྱེད་མི་ཐུབ།';
+
+  @override
+  String get loadFailed => 'བསྡུ་ཉར་བརྙན་འཁུར་བྱེད་མི་ཐུབ།';
+
+  @override
+  String get captureError => 'QR གོམ་པ་བརྙན་འཕྲུལ་མི་ཐུབ། ལོག་སྟེ་འབད་རོགས།';
+
+  @override
+  String get qrShareError =>
+      'QR གོམ་པ་མཉམ་སྤྱོད་བྱེད་མི་ཐུབ། ཅུང་ཙམ་སོང་རྗེས་ལོག་སྟེ་འབད་རོགས།';
+
+  @override
+  String errorDetail(String error) {
+    return 'སྐྱོན། $error';
+  }
+
+  @override
+  String get text_qrCode => 'QR གོམ་པ།';
 }

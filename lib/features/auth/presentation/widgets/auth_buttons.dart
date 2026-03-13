@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/features/auth/presentation/widgets/social_login_button.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_pecha/core/extensions/context_ext.dart';
 
 class AuthButtons extends ConsumerWidget {
   const AuthButtons({super.key});
@@ -11,13 +12,14 @@ class AuthButtons extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isIOS = Platform.isIOS;
+    final l10n = context.l10n;
     return Column(
       children: [
         SocialLoginButton(
           connection: 'google',
           icon: Icons.g_mobiledata,
           iconColor: Colors.black,
-          label: 'Continue with Google',
+          label: l10n.continueWithGoogle,
           backgroundColor: Colors.white,
           foregroundColor: Colors.black,
           iconWidget: Image.asset(
@@ -33,7 +35,7 @@ class AuthButtons extends ConsumerWidget {
             connection: 'apple',
             icon: Icons.apple,
             iconColor: Colors.white,
-            label: 'Continue with Apple',
+            label: l10n.continueWithApple,
             backgroundColor: Colors.black,
             foregroundColor: Colors.white,
             iconWidget: Icon(Icons.apple, color: Colors.white, size: 24),
@@ -43,7 +45,7 @@ class AuthButtons extends ConsumerWidget {
           connection: 'guest',
           icon: Icons.person,
           iconColor: Colors.black,
-          label: 'Continue as Guest',
+          label: l10n.continueAsGuest,
           backgroundColor: Colors.white,
           foregroundColor: Colors.black,
           iconWidget: Icon(Icons.person, color: Colors.black, size: 24),

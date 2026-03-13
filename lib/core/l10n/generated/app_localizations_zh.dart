@@ -639,4 +639,213 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get routine_add_recitation => '添加持誦';
+
+  @override
+  String get continueWithGoogle => '使用 Google 繼續';
+
+  @override
+  String get continueWithApple => '使用 Apple 繼續';
+
+  @override
+  String get continueAsGuest => '以訪客身份繼續';
+
+  @override
+  String get signIn => '登入';
+
+  @override
+  String get profileError => '加載個人資料時出錯';
+
+  @override
+  String get profileTitle => '個人資料';
+
+  @override
+  String get notLoggedIn => '未登入';
+
+  @override
+  String get retry => '重試';
+
+  @override
+  String get back => '返回';
+
+  @override
+  String get delete => '刪除';
+
+  @override
+  String get close => '關閉';
+
+  @override
+  String get tryAgain => '再試一次';
+
+  @override
+  String get pleaseTryAgain => '請再試一次';
+
+  @override
+  String get successfully => '成功';
+
+  @override
+  String get failedTo => '失敗';
+
+  @override
+  String get unableTo => '無法';
+
+  @override
+  String get error => '錯誤';
+
+  @override
+  String get anonymous => '匿名';
+
+  @override
+  String get noContentAvailable => '沒有可用內容';
+
+  @override
+  String get missingParameters => '缺少必需參數';
+
+  @override
+  String get invalidParameters => '無效參數';
+
+  @override
+  String get cannotOpenLink => '無法打開此鏈接';
+
+  @override
+  String get invalidUrlFormat => '無效的URL格式';
+
+  @override
+  String get cannotOpenEmail => '無法打開此郵件';
+
+  @override
+  String get invalidEmailFormat => '無效的郵件格式';
+
+  @override
+  String get unableToLoad => '無法加載，請再試一次';
+
+  @override
+  String get somethingWrong => '出了點問題，請檢查您的連接並重試';
+
+  @override
+  String get typing => '正在輸入...';
+
+  @override
+  String get source => '來源';
+
+  @override
+  String get searchResults => '搜索結果';
+
+  @override
+  String get deleteConversation => '刪除對話？';
+
+  @override
+  String get errorOops => '哎呀，請再試一次';
+
+  @override
+  String get tabAll => '全部';
+
+  @override
+  String get tabAuthors => '作者';
+
+  @override
+  String get tabContents => '內容';
+
+  @override
+  String get tabTitles => '標題';
+
+  @override
+  String get option1 => '選項 1';
+
+  @override
+  String get option2 => '選項 2';
+
+  @override
+  String get option3 => '選項 3';
+
+  @override
+  String get languageTibetan => '藏文';
+
+  @override
+  String get languageEnglish => '英文';
+
+  @override
+  String get noTasks => '沒有可用任務';
+
+  @override
+  String get taskNotFound => '找不到任務';
+
+  @override
+  String get updateTaskError => '無法更新任務狀態';
+
+  @override
+  String enrollSuccess(String planTitle) {
+    return '成功加入 $planTitle';
+  }
+
+  @override
+  String get enrollError => '無法加入計劃，請再試一次';
+
+  @override
+  String enrollErrorDetail(String error) {
+    return '無法加入計劃：$error';
+  }
+
+  @override
+  String unenrollSuccess(String planTitle) {
+    return '您已退出 $planTitle';
+  }
+
+  @override
+  String get unenrollError => '目前無法退出，請再試一次';
+
+  @override
+  String get unenrollGenericError => '出了點問題，請檢查您的連接並重試';
+
+  @override
+  String get notFound => '找不到計劃，請再試一次';
+
+  @override
+  String get noTimeSlot => '沒有可用的時間段，請先移除一個區塊';
+
+  @override
+  String maxBlocks(int max) {
+    return '已達到 $max 個時間區塊的上限';
+  }
+
+  @override
+  String get duplicateItem => '此項目已在區塊中';
+
+  @override
+  String get removeItem => '移除項目';
+
+  @override
+  String removeConfirmation(String itemName) {
+    return '要從此區塊中移除「$itemName」嗎？';
+  }
+
+  @override
+  String shareError(String error) {
+    return '無法分享：$error';
+  }
+
+  @override
+  String get updateOrderError => '無法更新順序，請再試一次';
+
+  @override
+  String get noCollections => '沒有可用的收藏';
+
+  @override
+  String get loadCollectionsError => '無法加載收藏';
+
+  @override
+  String get loadFailed => '加載收藏失敗';
+
+  @override
+  String get captureError => '捕獲二維碼失敗，請再試一次';
+
+  @override
+  String get qrShareError => '無法分享二維碼，請稍後再試';
+
+  @override
+  String errorDetail(String error) {
+    return '錯誤：$error';
+  }
+
+  @override
+  String get text_qrCode => '二維碼';
 }
