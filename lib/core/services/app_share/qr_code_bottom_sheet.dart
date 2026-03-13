@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
+import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:screenshot/screenshot.dart';
@@ -81,8 +82,8 @@ Or visit: $url''';
       if (imageBytes == null) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Failed to capture QR code. Please try again.'),
+            SnackBar(
+              content: Text(context.l10n.captureError),
               behavior: SnackBarBehavior.floating,
             ),
           );
@@ -112,8 +113,8 @@ Or visit: $url''';
       _logger.error('Error sharing QR code', e);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Unable to share QR code. Please try again later.'),
+          SnackBar(
+            content: Text(context.l10n.qrShareError),
             behavior: SnackBarBehavior.floating,
           ),
         );
@@ -219,7 +220,7 @@ Or visit: $url''';
                 Navigator.pop(context);
               },
               child: Text(
-                'Done',
+                context.l10n.done,
                 style: TextStyle(
                   fontSize: 16,
                   color: textColor,

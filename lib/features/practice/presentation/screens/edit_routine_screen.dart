@@ -12,6 +12,7 @@ import 'package:flutter_pecha/features/practice/data/utils/routine_time_utils.da
 import 'package:flutter_pecha/features/practice/presentation/screens/select_session_screen.dart';
 import 'package:flutter_pecha/features/practice/presentation/widgets/routine_time_block.dart';
 import 'package:flutter_pecha/features/recitation/presentation/providers/recitations_providers.dart';
+import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:uuid/uuid.dart';
@@ -182,8 +183,8 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
       if (adjusted == null) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('No available time slot. Try removing a block first.'),
+            SnackBar(
+              content: Text(context.l10n.noTimeSlot),
               duration: Duration(seconds: 3),
             ),
           );
@@ -387,7 +388,7 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
     if (_isAtMaxBlocks) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Maximum of $kMaxBlocks time blocks reached.'),
+          content: Text(context.l10n.maxBlocks(kMaxBlocks)),
           duration: const Duration(seconds: 3),
         ),
       );
@@ -401,8 +402,8 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
     // Handle case where no valid time slot is available
     if (adjusted == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('No available time slot. Try removing a block first.'),
+        SnackBar(
+          content: Text(context.l10n.noTimeSlot),
           duration: Duration(seconds: 3),
         ),
       );
@@ -505,8 +506,8 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
           _logger.warning('Duplicate item prevented: $newItemId');
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('This item is already in the block.'),
+              SnackBar(
+                content: Text(context.l10n.duplicateItem),
                 duration: Duration(seconds: 2),
               ),
             );

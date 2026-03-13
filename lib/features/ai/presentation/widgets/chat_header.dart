@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
-import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
+import 'package:flutter_pecha/core/extensions/context_ext.dart';
 
 class ChatHeader extends StatelessWidget {
   final VoidCallback? onNewChat;
@@ -15,7 +15,7 @@ class ChatHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
-    final localizations = AppLocalizations.of(context)!;
+    final localizations = context.l10n;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),

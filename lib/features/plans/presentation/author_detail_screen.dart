@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
-import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/widgets/cached_network_image_widget.dart';
 import 'package:flutter_pecha/core/widgets/error_state_widget.dart';
 import 'package:flutter_pecha/features/plans/data/providers/author_providers.dart';
@@ -8,6 +7,7 @@ import 'package:flutter_pecha/features/plans/models/author/author_model.dart';
 import 'package:flutter_pecha/features/plans/models/author/social_profile_dto.dart';
 import 'package:flutter_pecha/features/plans/models/plans_model.dart';
 import 'package:flutter_pecha/features/plans/presentation/widgets/plan_card.dart';
+import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -23,7 +23,7 @@ class AuthorDetailScreen extends ConsumerWidget {
     final authorDetails = ref.watch(authorByIdFutureProvider(authorId));
     final language = ref.watch(localeProvider).languageCode;
     final fontSize = language == 'bo' ? 22.0 : 18.0;
-    final localizations = AppLocalizations.of(context)!;
+    final localizations = context.l10n;
     return Scaffold(
       appBar: AppBar(
         centerTitle: false,
@@ -222,7 +222,7 @@ class AuthorDetailScreen extends ConsumerWidget {
     return Consumer(
       builder: (context, ref, child) {
         final plansAsync = ref.watch(authorPlansFutureProvider(authorId));
-        final localizations = AppLocalizations.of(context)!;
+        final localizations = context.l10n;
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -303,6 +303,7 @@ class AuthorDetailScreen extends ConsumerWidget {
     WidgetRef ref,
     String authorId,
   ) {
+    final l10n = context.l10n;
     return Container(
       padding: const EdgeInsets.all(32),
       child: Center(
@@ -319,7 +320,7 @@ class AuthorDetailScreen extends ConsumerWidget {
               onPressed: () {
                 ref.invalidate(authorPlansFutureProvider(authorId));
               },
-              child: const Text('Retry'),
+              child: Text(l10n.retry),
             ),
           ],
         ),

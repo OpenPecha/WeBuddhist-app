@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/widgets/cached_network_image_widget.dart';
 import 'package:flutter_pecha/features/auth/application/user_notifier.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import '../application/auth_notifier.dart';
 import '../../../core/config/router/route_config.dart';
 
@@ -14,14 +14,14 @@ class ProfilePage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final authState = ref.watch(authProvider);
     final userState = ref.watch(userProvider);
-    final localizations = AppLocalizations.of(context)!;
+    final l10n = context.l10n;
 
     if (authState.isLoading || userState.isLoading) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
     if (!authState.isLoggedIn) {
-      return const Scaffold(body: Center(child: Text('Not logged in')));
+      return Scaffold(body: Center(child: Text(l10n.notLoggedIn)));
     }
 
     // Guest user
@@ -32,8 +32,8 @@ class ProfilePage extends ConsumerWidget {
     // Authenticated user
     if (userState.user == null) {
       return Scaffold(
-        appBar: AppBar(title: Text(localizations.home_profile)),
-        body: const Center(child: Text('Error loading profile')),
+        appBar: AppBar(title: Text(l10n.profileTitle)),
+        body: Center(child: Text(l10n.profileError)),
       );
     }
 
@@ -44,7 +44,7 @@ class ProfilePage extends ConsumerWidget {
     final bio = user.aboutMe ?? "Welcome to WeBuddhist";
 
     return Scaffold(
-      appBar: AppBar(title: Text(localizations.home_profile)),
+      appBar: AppBar(title: Text(l10n.profileTitle)),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Column(
@@ -85,7 +85,7 @@ class ProfilePage extends ConsumerWidget {
                       Text(
                         fullName.isNotEmpty
                             ? fullName
-                            : (user.username ?? 'Anonymous'),
+                            : (user.username ?? l10n.anonymous),
                         textAlign: TextAlign.center,
                         style: Theme.of(context).textTheme.titleMedium,
                       ),
@@ -121,10 +121,10 @@ class ProfilePage extends ConsumerWidget {
 
   Widget _buildGuestProfile(BuildContext context, WidgetRef ref) {
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
-    final localizations = AppLocalizations.of(context)!;
+    final l10n = context.l10n;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Profile')),
+      appBar: AppBar(title: Text(l10n.profileTitle)),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Column(
@@ -171,7 +171,7 @@ class ProfilePage extends ConsumerWidget {
                   context.go(RouteConfig.login);
                 },
                 icon: const Icon(Icons.login),
-                label: Text(localizations.sign_in),
+                label: Text(l10n.signIn),
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(

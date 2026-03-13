@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/widgets/cached_network_image_widget.dart';
 import 'package:flutter_pecha/features/auth/application/auth_notifier.dart';
 import 'package:flutter_pecha/features/auth/presentation/widgets/login_drawer.dart';
@@ -11,6 +10,7 @@ import 'package:flutter_pecha/features/plans/models/response/user_plan_list_resp
 import 'package:flutter_pecha/features/plans/models/user/user_plans_model.dart';
 import 'package:flutter_pecha/features/plans/presentation/author_detail_screen.dart';
 import 'package:flutter_pecha/shared/extensions/typography_extensions.dart';
+import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -39,7 +39,7 @@ class _PlanInfoState extends ConsumerState<PlanInfo> {
         subscribedPlans.valueOrNull?.userPlans.map((e) => e.id).toList() ?? [];
 
     final language = widget.plan.language.toLowerCase();
-    final localizations = AppLocalizations.of(context)!;
+    final localizations = context.l10n;
 
     return Scaffold(
       appBar: AppBar(
@@ -199,7 +199,7 @@ class _PlanInfoState extends ConsumerState<PlanInfo> {
   }
 
   String _getButtonText(bool isGuest, bool isSubscribed) {
-    final localizations = AppLocalizations.of(context)!;
+    final localizations = context.l10n;
     if (isGuest) return localizations.sign_in;
     if (isSubscribed) return localizations.continue_plan;
     return localizations.start_plan;
@@ -256,7 +256,7 @@ class _PlanInfoState extends ConsumerState<PlanInfo> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Successfully enrolled in ${widget.plan.title}!'),
+              content: Text(context.l10n.enrollSuccess(widget.plan.title)),
               backgroundColor: Colors.green,
               duration: Duration(seconds: 2),
             ),
@@ -278,7 +278,7 @@ class _PlanInfoState extends ConsumerState<PlanInfo> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Unable to enroll in plan. Please try again.'),
+              content: Text(context.l10n.enrollError),
               backgroundColor: Colors.red,
               duration: Duration(seconds: 3),
             ),
@@ -290,7 +290,7 @@ class _PlanInfoState extends ConsumerState<PlanInfo> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Unable to enroll in plan: ${e.toString()}'),
+            content: Text(context.l10n.enrollErrorDetail(e.toString())),
             backgroundColor: Colors.red,
             duration: Duration(seconds: 3),
           ),

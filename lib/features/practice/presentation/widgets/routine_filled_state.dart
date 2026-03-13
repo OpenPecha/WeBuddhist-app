@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/features/plans/data/providers/user_plans_provider.dart';
 import 'package:flutter_pecha/features/practice/data/models/routine_model.dart';
 import 'package:flutter_pecha/features/practice/presentation/widgets/routine_item_card.dart';
 import 'package:flutter_pecha/features/reader/data/models/navigation_context.dart';
+import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
@@ -21,7 +21,7 @@ class RoutineFilledState extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final localizations = AppLocalizations.of(context)!;
+    final localizations = context.l10n;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final dateStr = DateFormat('EEE, MMM d').format(DateTime.now());
 
@@ -139,7 +139,7 @@ class _RoutineBlockSection extends ConsumerWidget {
       if (userPlan == null) {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Plan not found. Please try again.')),
+            SnackBar(content: Text(context.l10n.notFound)),
           );
         }
         return;
