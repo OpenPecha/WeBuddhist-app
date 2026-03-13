@@ -7,7 +7,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>WeBuddhist</string>
+	<string>$(APP_NAME)</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -31,7 +31,7 @@
 			<string>auth0</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>org.pecha.app</string>
+				<string>$(AUTH0_SCHEME)</string>
 			</array>
 		</dict>
 		<dict>
