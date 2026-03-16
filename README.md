@@ -23,9 +23,46 @@ cd flutter_pecha
 flutter pub get
 ```
 
-### 3. Run the App
+### 3. Environment Setup
+Create environment files from the template:
 ```sh
-flutter run
+cp .env.example .env.dev
+cp .env.example .env.staging
+cp .env.example .env.prod
+```
+Edit each file with the appropriate values for that environment.
+
+### 4. Run the App
+
+**Android**
+```sh
+flutter run --flavor dev -t lib/main_dev.dart
+flutter run --flavor staging -t lib/main_staging.dart
+flutter run --flavor prod -t lib/main_prod.dart
+```
+
+Build APK:
+```sh
+flutter build apk --flavor dev -t lib/main_dev.dart
+flutter build apk --flavor staging -t lib/main_staging.dart
+flutter build apk --flavor prod -t lib/main_prod.dart
+```
+
+Build App Bundle:
+```sh
+flutter build appbundle --flavor prod -t lib/main_prod.dart
+```
+
+**iOS**
+```sh
+flutter run --flavor dev -t lib/main_dev.dart
+flutter run --flavor staging -t lib/main_staging.dart
+flutter run --flavor prod -t lib/main_prod.dart
+```
+
+Build IPA:
+```sh
+flutter build ios --flavor prod -t lib/main_prod.dart
 ```
 
 > **Note:**

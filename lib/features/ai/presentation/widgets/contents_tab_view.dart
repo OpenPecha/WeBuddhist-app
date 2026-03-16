@@ -3,9 +3,9 @@ import 'package:flutter_pecha/features/ai/models/search_state.dart';
 import 'package:flutter_pecha/features/texts/presentation/widgets/search_result_card.dart';
 import 'package:flutter_pecha/features/texts/models/search/multilingual_search_response.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
-import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/features/ai/presentation/widgets/skeletons/search_result_skeleton.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_pecha/core/extensions/context_ext.dart';
 
 /// Tab view for displaying content search results
 class ContentsTabView extends ConsumerWidget {
@@ -21,7 +21,7 @@ class ContentsTabView extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
-    final localizations = AppLocalizations.of(context)!;
+    final localizations = context.l10n;
 
     if (searchState.isLoading) {
       return const SearchResultSkeleton();

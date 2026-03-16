@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
-import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/widgets/error_state_widget.dart';
 import 'package:flutter_pecha/features/auth/application/auth_notifier.dart';
 import 'package:flutter_pecha/features/auth/presentation/widgets/login_drawer.dart';
@@ -10,6 +9,7 @@ import 'package:flutter_pecha/features/plans/data/utils/plan_utils.dart';
 import 'package:flutter_pecha/features/plans/models/user/user_plans_model.dart';
 import 'package:flutter_pecha/features/plans/presentation/providers/my_plans_paginated_provider.dart';
 import 'package:flutter_pecha/features/plans/presentation/widgets/user_plan_card.dart';
+import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -64,7 +64,7 @@ class _MyPlansTabState extends ConsumerState<MyPlansTab> {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('You have been unenrolled from "${plan.title}"'),
+              content: Text(context.l10n.unenrollSuccess(plan.title)),
               backgroundColor: Theme.of(context).colorScheme.primary,
               behavior: SnackBarBehavior.floating,
               duration: const Duration(seconds: 3),
@@ -75,9 +75,7 @@ class _MyPlansTabState extends ConsumerState<MyPlansTab> {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: const Text(
-                'Unable to unenroll at this time. Please try again.',
-              ),
+              content: Text(context.l10n.unenrollError),
               backgroundColor: Theme.of(context).colorScheme.error,
               behavior: SnackBarBehavior.floating,
               duration: const Duration(seconds: 3),
@@ -89,9 +87,7 @@ class _MyPlansTabState extends ConsumerState<MyPlansTab> {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Text(
-              'Something went wrong. Please check your connection and try again.',
-            ),
+            content: Text(context.l10n.unenrollGenericError),
             backgroundColor: Theme.of(context).colorScheme.error,
             behavior: SnackBarBehavior.floating,
             duration: const Duration(seconds: 4),
@@ -131,7 +127,7 @@ class _MyPlansTabState extends ConsumerState<MyPlansTab> {
       return ErrorStateWidget(
         error: myPlansState.error!,
         onRetry: () => ref.read(myPlansPaginatedProvider.notifier).retry(),
-        customMessage: 'Unable to load plans.\nPlease try again later.',
+        customMessage: context.l10n.unableToLoad,
       );
     }
 
@@ -194,6 +190,7 @@ class _GuestLoginPrompt extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
@@ -221,7 +218,7 @@ class _GuestLoginPrompt extends StatelessWidget {
             ElevatedButton.icon(
               onPressed: onLogin,
               icon: const Icon(Icons.login),
-              label: const Text('Sign In'),
+              label: Text(l10n.signIn),
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 32,
@@ -245,7 +242,7 @@ class _EmptyMyPlansState extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final language = ref.watch(localeProvider).languageCode;
     final fontSize = language == 'bo' ? 18.0 : 16.0;
-    final localizations = AppLocalizations.of(context)!;
+    final localizations = context.l10n;
 
     return Center(
       child: Padding(

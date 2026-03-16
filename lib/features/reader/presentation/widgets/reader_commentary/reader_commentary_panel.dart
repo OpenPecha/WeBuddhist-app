@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/features/reader/data/providers/reader_notifier.dart';
 import 'package:flutter_pecha/features/reader/presentation/widgets/reader_commentary/commentary_skeleton.dart';
 import 'package:flutter_pecha/features/texts/data/providers/apis/segment_provider.dart';
 import 'package:flutter_pecha/features/texts/models/commentary/segment_commentary.dart';
 import 'package:flutter_pecha/shared/utils/helper_functions.dart';
+import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Constants for commentary panel styling
@@ -117,7 +117,7 @@ class _CommentaryPanelHeader extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final localizations = AppLocalizations.of(context)!;
+    final localizations = context.l10n;
     final notifier = ref.read(readerNotifierProvider(params).notifier);
 
     return Column(
@@ -132,18 +132,15 @@ class _CommentaryPanelHeader extends ConsumerWidget {
                 (currentMainHeight + details.delta.dy) / availableHeight;
             notifier.updateSplitRatio(newRatio);
           },
-          child:
-          // Header content
-          Container(
+          child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             decoration: BoxDecoration(
               color: Theme.of(context).cardColor,
               border: Border.symmetric(
                 horizontal: BorderSide(
-                  color:
-                      Theme.of(context).brightness == Brightness.dark
-                          ? AppColors.greyDark
-                          : AppColors.greyLight,
+                  color: Theme.of(context).brightness == Brightness.dark
+                      ? AppColors.greyDark
+                      : AppColors.greyLight,
                   width: 2,
                 ),
               ),
@@ -291,8 +288,8 @@ class _CommentaryCard extends StatelessWidget {
               },
               child: Text(
                 isExpanded
-                    ? AppLocalizations.of(context)!.show_less
-                    : AppLocalizations.of(context)!.show_more,
+                    ? context.l10n.show_less
+                    : context.l10n.show_more,
                 style: Theme.of(context).textTheme.bodySmall,
               ),
             ),
@@ -316,7 +313,7 @@ class _EmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final localizations = AppLocalizations.of(context)!;
+    final localizations = context.l10n;
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(
@@ -354,7 +351,7 @@ class _ErrorState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final localizations = AppLocalizations.of(context)!;
+    final localizations = context.l10n;
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(
@@ -388,7 +385,7 @@ class _ErrorState extends StatelessWidget {
             ElevatedButton.icon(
               onPressed: onRetry,
               icon: const Icon(Icons.refresh, size: 18),
-              label: Text(localizations.ai_retry),
+              label: Text(localizations.retry),
             ),
           ],
         ),

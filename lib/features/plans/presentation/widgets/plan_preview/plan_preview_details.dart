@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/widgets/skeletons/skeletons.dart';
 import 'package:flutter_pecha/features/plans/data/providers/plan_days_providers.dart';
 import 'package:flutter_pecha/features/plans/models/plan_days_model.dart';
 import 'package:flutter_pecha/features/plans/models/plans_model.dart';
+import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../day_carousel.dart';
 import '../plan_cover_image.dart';
@@ -114,14 +114,14 @@ class _PlanPreviewDetailsState extends ConsumerState<PlanPreviewDetails> {
                   dayNumber: selectedDay,
                 ),
             loading: () => const DayContentSkeleton(),
-            error: (error, stackTrace) => _buildDayContentError(),
+            error: (error, stackTrace) => _buildDayContentError(context),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildDayContentError() {
+  Widget _buildDayContentError(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -134,18 +134,17 @@ class _PlanPreviewDetailsState extends ConsumerState<PlanPreviewDetails> {
           onPressed: () {
             ref.invalidate(planDayContentFutureProvider);
           },
-          child: const Text('Retry'),
+          child: Text(context.l10n.retry),
         ),
       ],
     );
   }
 
   Widget _buildEmptyDayCarouselState(BuildContext context) {
-    final localizations = AppLocalizations.of(context)!;
     return Container(
       height: 80,
       margin: const EdgeInsets.symmetric(horizontal: 12),
-      child: Center(child: Text(localizations.no_days_available)),
+      child: Center(child: Text(context.l10n.no_days_available)),
     );
   }
 

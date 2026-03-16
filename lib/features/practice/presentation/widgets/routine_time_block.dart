@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/features/practice/data/models/routine_model.dart';
 import 'package:flutter_pecha/features/practice/data/utils/routine_time_utils.dart';
 import 'package:flutter_pecha/features/practice/presentation/widgets/routine_item_card.dart';
+import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 class RoutineTimeBlock extends StatelessWidget {
@@ -31,21 +31,22 @@ class RoutineTimeBlock extends StatelessWidget {
   });
 
   Future<void> _confirmDeleteItem(BuildContext context, int index) async {
+    final l10n = context.l10n;
     final confirmed = await showDialog<bool>(
       context: context,
       builder:
           (context) => AlertDialog(
-            title: const Text('Remove Item'),
-            content: Text('Remove "${items[index].title}" from this block?'),
+            title: Text(l10n.removeItem),
+            content: Text(l10n.removeConfirmation(items[index].title)),
             actions: [
               TextButton(
                 onPressed: () => Navigator.of(context).pop(false),
-                child: const Text('Cancel'),
+                child: Text(l10n.cancel),
               ),
               TextButton(
                 onPressed: () => Navigator.of(context).pop(true),
                 child: Text(
-                  'Remove',
+                  l10n.delete,
                   style: TextStyle(color: Colors.red.shade400),
                 ),
               ),
@@ -58,7 +59,7 @@ class RoutineTimeBlock extends StatelessWidget {
   }
 
   Future<void> _confirmDeleteBlock(BuildContext context) async {
-    final localizations = AppLocalizations.of(context)!;
+    final localizations = context.l10n;
     final confirmed = await showDialog<bool>(
       context: context,
       builder:
@@ -89,7 +90,7 @@ class RoutineTimeBlock extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final localizations = AppLocalizations.of(context)!;
+    final localizations = context.l10n;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Column(

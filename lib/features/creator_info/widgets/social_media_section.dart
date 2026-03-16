@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -13,12 +14,12 @@ class SocialMediaSection extends StatelessWidget {
         await launchUrl(uri, mode: LaunchMode.externalApplication);
       } else {
         if (context.mounted) {
-          _showErrorSnackBar(context, 'Cannot open this link');
+          _showErrorSnackBar(context, context.l10n.cannotOpenLink);
         }
       }
     } catch (e) {
       if (context.mounted) {
-        _showErrorSnackBar(context, 'Invalid URL format');
+        _showErrorSnackBar(context, context.l10n.invalidUrlFormat);
       }
     }
   }
@@ -29,12 +30,12 @@ class SocialMediaSection extends StatelessWidget {
         await launchUrl(Uri.parse('mailto:$email'));
       } else {
         if (context.mounted) {
-          _showErrorSnackBar(context, 'Cannot open this email');
+          _showErrorSnackBar(context, context.l10n.cannotOpenEmail);
         }
       }
     } catch (e) {
       if (context.mounted) {
-        _showErrorSnackBar(context, 'Invalid email format');
+        _showErrorSnackBar(context, context.l10n.invalidEmailFormat);
       }
     }
   }

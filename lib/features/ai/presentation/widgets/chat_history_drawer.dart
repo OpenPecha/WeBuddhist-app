@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/core/utils/error_message_mapper.dart';
-import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/features/ai/presentation/controllers/chat_controller.dart';
 import 'package:flutter_pecha/features/ai/presentation/controllers/thread_list_controller.dart';
 import 'package:flutter_pecha/features/ai/presentation/widgets/delete_thread_dialog.dart';
 import 'package:flutter_pecha/features/ai/presentation/widgets/skeletons/chat_thread_skeleton.dart';
 import 'package:flutter_pecha/features/ai/presentation/widgets/thread_list_item.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_pecha/core/extensions/context_ext.dart';
 
 class ChatHistoryDrawer extends ConsumerStatefulWidget {
   const ChatHistoryDrawer({super.key});
@@ -99,7 +99,7 @@ class _ChatHistoryDrawerState extends ConsumerState<ChatHistoryDrawer> {
 
         // Show success message
         if (mounted) {
-          final localizations = AppLocalizations.of(context)!;
+          final localizations = context.l10n;
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Row(
@@ -191,7 +191,7 @@ class _ChatHistoryDrawerState extends ConsumerState<ChatHistoryDrawer> {
                         //   focusNode: _searchFocusNode,
                         //   textInputAction: TextInputAction.search,
                         //   decoration: InputDecoration(
-                        //     hintText: AppLocalizations.of(context)!.ai_search_chats,
+                        //     hintText: context.l10n.ai_search_chats,
                         //     hintStyle: TextStyle(
                         //       fontSize: 12,
                         //       color:
@@ -250,7 +250,7 @@ class _ChatHistoryDrawerState extends ConsumerState<ChatHistoryDrawer> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              AppLocalizations.of(context)!.ai_chats,
+                              context.l10n.ai_chats,
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w900,
@@ -306,7 +306,7 @@ class _ChatHistoryDrawerState extends ConsumerState<ChatHistoryDrawer> {
     }
 
     if (state.error != null) {
-      final localizations = AppLocalizations.of(context)!;
+      final localizations = context.l10n;
       return Center(
         child: Padding(
           padding: const EdgeInsets.all(16),
@@ -344,7 +344,7 @@ class _ChatHistoryDrawerState extends ConsumerState<ChatHistoryDrawer> {
     }
 
     if (state.threads.isEmpty) {
-      final localizations = AppLocalizations.of(context)!;
+      final localizations = context.l10n;
       return Center(
         child: Padding(
           padding: const EdgeInsets.all(16),

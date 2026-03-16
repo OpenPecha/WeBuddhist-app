@@ -12,7 +12,7 @@
   "onboarding_welcome": "Welcome to WeBuddhist",
   "onboarding_description": "Where we learn, live, and share Buddhist wisdom every day",
   "onboarding_quote": "Approximatey 500 million people worldwide practice Buddhism, making it the world's fourth largest religion",
-  "onboarding_find_peace" :"Find your Peace",
+  "onboarding_find_peace": "Find your Peace",
   "onboarding_continue": "Continue",
   "onboarding_first_question": "In which language would you like to access core texts?",
   "onboarding_second_question": "Which path or school do you feel drawn to?",
@@ -32,14 +32,12 @@
   "home_bringing": "Bringing it to life",
   "home_profile": "Profile",
   "no_feature_content": "No featured content available",
-
   "nav_home": "Home",
   "nav_texts": "Texts",
   "nav_learn": "Learn",
   "nav_practice": "Practice",
   "nav_settings": "Me",
   "nav_connect": "Connect",
-
   "text_browseTheLibrary": "Browse The Library",
   "text_search": "Search",
   "text_detail_rootText": "Root",
@@ -47,12 +45,12 @@
   "text_toc_continueReading": "Continue Reading",
   "text_toc_content": "Contents",
   "text_toc_versions": "Versions",
-  "text_commentary":"Commentary",
+  "text_commentary": "Commentary",
   "text_close_commentary": "Close commentary",
   "commentary_total": "Total",
   "show_more": "Show more",
-  "show_less":"Show less",
-  "read_more":"Read more",
+  "show_less": "Show less",
+  "read_more": "Read more",
   "no_content": "No content found",
   "no_version": "No versions found",
   "no_commentary": "No commentary found",
@@ -71,7 +69,6 @@
   "text_color": "Text Color",
   "text_shadow": "Text Shadow",
   "apply": "Apply",
-
   "practice_nav_title": "Practice",
   "my_plans": "My Plans",
   "find_plans": "Find Plans",
@@ -90,14 +87,13 @@
   "recitation_reminder": "Recitations Reminder.",
   "moment_to_pray": "Take a moment to pray.",
   "plan_unenroll": "Unenroll",
-  "unenroll_confirmation":"Are you sure you want to unenroll from",
+  "unenroll_confirmation": "Are you sure you want to unenroll from",
   "unenroll_message": "Your progress will be permanently lost and cannot be recovered.",
   "practice_plan": "Practice plans help you stay consistent with your practice. We have a variety of plans to choose from and for different durations.",
   "search_plans": "Search plans...",
   "search_for_plans": "Search for plans",
   "no_plans_found": "No plans found",
   "no_days_available": "No days found",
-
   "notification_turn_on": "Please turn on Notifications",
   "notification_enable_message": "Enable notifications to receive daily practice and recitation reminders.",
   "enable_notification": "Enable Notifications",
@@ -107,7 +103,6 @@
   "notification_daily_recitation": "Daily Recitation",
   "text_noContent": "No texts available in the selected language",
   "text_switchToTibetan": "Switch to Tibetan",
-
   "recitations_title": "Recitations",
   "recitations_my_recitations": "My Recitations",
   "browse_recitations": "Browse Recitations",
@@ -133,7 +128,6 @@
   "recitations_show_adaptation": "Show adaptation",
   "recitations_hide_adaptation": "Hide adaptation",
   "next_recitation": "Next",
-
   "settings_appearance": "Appearance",
   "settings_notifications": "Notifications",
   "notification_settings": "Notification Settings",
@@ -147,10 +141,8 @@
   "image": "Image",
   "feedback": "Feedback",
   "feedback_wishlist": "Feedback and Wishlist",
-
   "author": "Author",
   "plans_created": "Plan created",
-
   "ai_chat_history": "Chat History",
   "ai_buddhist_assistant": "Buddhist AI Assistant",
   "ai_new_chat": "New Chat",
@@ -198,7 +190,6 @@
       }
     }
   },
-
   "search_no_results": "No results found for \"{query}\"",
   "@search_no_results": {
     "placeholders": {
@@ -248,11 +239,8 @@
   },
   "search_coming_soon": "Coming Soon",
   "search_buddhist_texts": "Search Buddhist texts...",
-  
   "common_ok": "OK",
-  
   "comingSoonHeadline": "Coming Soon",
-
   "routine_title": "Your Routine",
   "routine_empty_title": "Routine",
   "routine_edit": "Edit",
@@ -271,5 +259,119 @@
   "routine_edit_title": "Edit Your Routine",
   "routine_delete_block": "Delete Time Block",
   "routine_add_plan": "Add Plan",
-  "routine_add_recitation": "Add Recitation"
+  "routine_add_recitation": "Add Recitation",
+  "continueWithGoogle": "Continue with Google",
+  "continueWithApple": "Continue with Apple",
+  "continueAsGuest": "Continue as Guest",
+  "signIn": "Sign In",
+  "profileError": "Error loading profile",
+  "profileTitle": "Profile",
+  "notLoggedIn": "Not logged in",
+  "retry": "Retry",
+  "back": "Back",
+  "delete": "Delete",
+  "close": "Close",
+  "tryAgain": "Try Again",
+  "pleaseTryAgain": "Please try again",
+  "successfully": "Successfully",
+  "failedTo": "Failed to",
+  "unableTo": "Unable to",
+  "error": "Error",
+  "anonymous": "Anonymous",
+  "noContentAvailable": "No content available",
+  "missingParameters": "Missing required parameters",
+  "invalidParameters": "Invalid parameters",
+  "cannotOpenLink": "Cannot open this link",
+  "invalidUrlFormat": "Invalid URL format",
+  "cannotOpenEmail": "Cannot open this email",
+  "invalidEmailFormat": "Invalid email format",
+  "unableToLoad": "Unable to load. Please try again.",
+  "somethingWrong": "Something went wrong. Please check your connection and try again.",
+  "typing": "typing...",
+  "source": "Source",
+  "searchResults": "Search Results",
+  "deleteConversation": "Delete Conversation?",
+  "errorOops": "Oops. Please try again.",
+  "tabAll": "All",
+  "tabAuthors": "Authors",
+  "tabContents": "Contents",
+  "tabTitles": "Titles",
+  "option1": "Option 1",
+  "option2": "Option 2",
+  "option3": "Option 3",
+  "languageTibetan": "བོད་ཡིག",
+  "languageEnglish": "English",
+  "noTasks": "No tasks available",
+  "taskNotFound": "Task not found",
+  "updateTaskError": "Unable to update task status",
+  "enrollSuccess": "Successfully enrolled in {planTitle}",
+  "enrollError": "Unable to enroll in plan. Please try again.",
+  "enrollErrorDetail": "Unable to enroll in plan: {error}",
+  "unenrollSuccess": "You have been unenrolled from {planTitle}",
+  "unenrollError": "Unable to unenroll at this time. Please try again.",
+  "unenrollGenericError": "Something went wrong. Please check your connection and try again.",
+  "notFound": "Plan not found. Please try again.",
+  "noTimeSlot": "No available time slot. Try removing a block first.",
+  "maxBlocks": "Maximum of {max} time blocks reached.",
+  "duplicateItem": "This item is already in the block.",
+  "removeItem": "Remove Item",
+  "removeConfirmation": "Remove \"{itemName}\" from this block?",
+  "shareError": "Unable to share: {error}",
+  "updateOrderError": "Unable to update order. Please try again.",
+  "noCollections": "No collections available",
+  "loadCollectionsError": "Unable to load collections",
+  "loadFailed": "Failed to load collections",
+  "captureError": "Failed to capture QR code. Please try again.",
+  "qrShareError": "Unable to share QR code. Please try again later.",
+  "errorDetail": "Error: {error}",
+  "@errorDetail": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "@enrollSuccess": {
+    "placeholders": {
+      "planTitle": {
+        "type": "String"
+      }
+    }
+  },
+  "@enrollErrorDetail": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "@unenrollSuccess": {
+    "placeholders": {
+      "planTitle": {
+        "type": "String"
+      }
+    }
+  },
+  "@maxBlocks": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "@removeConfirmation": {
+    "placeholders": {
+      "itemName": {
+        "type": "String"
+      }
+    }
+  },
+  "@shareError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "text_qrCode": "QR Code"
 }
