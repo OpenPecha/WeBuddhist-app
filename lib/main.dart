@@ -19,7 +19,6 @@ import 'package:fquery/fquery.dart';
 import 'core/theme/app_theme.dart';
 import 'core/localization/material_localizations_bo.dart';
 import 'core/localization/cupertino_localizations_bo.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 final _logger = AppLogger('Main');
@@ -34,13 +33,7 @@ void main() async {
   // Fonts are downloaded once and cached locally for offline use
   GoogleFonts.config.allowRuntimeFetching = true;
 
-  // Load environment variables
-  try {
-    await dotenv.load(fileName: ".env");
-  } catch (e) {
-    _logger.warning('Error loading .env file: $e');
-    // Continue app initialization even if .env fails
-  }
+  // Note: .env files are loaded by flavor-specific entry points (main_dev.dart, main_staging.dart, main_prod.dart)
 
   // Initialize cache service for offline-first data
   try {

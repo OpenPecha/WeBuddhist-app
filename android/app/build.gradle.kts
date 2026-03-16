@@ -55,6 +55,30 @@ android {
         )
     }
 
+    flavorDimensions += "environment"
+
+    productFlavors {
+        create("dev") {
+            dimension = "environment"
+            applicationId = "org.pecha.app.dev"
+            resValue("string", "app_name", "[Dev] WeBuddhist")
+            versionNameSuffix = "-dev"
+        }
+
+        create("staging") {
+            dimension = "environment"
+            applicationId = "org.pecha.app.staging"
+            resValue("string", "app_name", "[Staging] WeBuddhist")
+            versionNameSuffix = "-staging"
+        }
+
+        create("prod") {
+            dimension = "environment"
+            applicationId = "org.pecha.app"
+            resValue("string", "app_name", "WeBuddhist")
+        }
+    }
+
     signingConfigs {
         create("release") {
             keyAlias = keystoreProperties["keyAlias"]?.toString()
