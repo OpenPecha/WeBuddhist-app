@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
+import 'package:flutter_pecha/core/extensions/context_ext.dart';
 
 /// First onboarding screen: "Welcome to WeBuddhist"
 /// Based on Figma design node-id=127-147
@@ -11,7 +11,6 @@ class OnboardingScreen1 extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final size = MediaQuery.of(context).size;
 
     return Scaffold(
@@ -36,7 +35,7 @@ class OnboardingScreen1 extends StatelessWidget {
               _buildQuote(context),
               const SizedBox(height: 32),
               // CTA Button
-              _buildCTAButton(theme),
+              _buildCTAButton(context),
               const SizedBox(height: 24),
             ],
           ),
@@ -46,9 +45,8 @@ class OnboardingScreen1 extends StatelessWidget {
   }
 
   Widget _buildTitle(BuildContext context) {
-    final appLocalizations = AppLocalizations.of(context);
     return Text(
-      appLocalizations!.onboarding_welcome,
+      context.l10n.onboarding_welcome,
       style: TextStyle(
         fontSize: 32,
         fontWeight: FontWeight.w800,
@@ -59,9 +57,8 @@ class OnboardingScreen1 extends StatelessWidget {
   }
 
   Widget _buildSubtitle(BuildContext context) {
-    final appLocalizations = AppLocalizations.of(context);
     return Text(
-      appLocalizations!.onboarding_description,
+      context.l10n.onboarding_description,
       style: TextStyle(
         fontSize: 18,
         fontWeight: FontWeight.w400,
@@ -136,12 +133,11 @@ class OnboardingScreen1 extends StatelessWidget {
   }
 
   Widget _buildQuote(BuildContext context) {
-    final appLocalizations = AppLocalizations.of(context);
     final theme = Theme.of(context);
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8.0),
       child: Text(
-        appLocalizations!.onboarding_quote,
+        context.l10n.onboarding_quote,
         textAlign: TextAlign.center,
         style: TextStyle(
           fontSize: 16,
@@ -154,7 +150,7 @@ class OnboardingScreen1 extends StatelessWidget {
     );
   }
 
-  Widget _buildCTAButton(ThemeData theme) {
+  Widget _buildCTAButton(BuildContext context) {
     return SizedBox(
       width: double.infinity,
       height: 56,
@@ -169,9 +165,9 @@ class OnboardingScreen1 extends StatelessWidget {
           ),
           padding: const EdgeInsets.symmetric(vertical: 16),
         ),
-        child: const Text(
-          'Find your Peace',
-          style: TextStyle(
+        child: Text(
+          context.l10n.onboarding_find_peace,
+          style: const TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w600,
             letterSpacing: -0.306,

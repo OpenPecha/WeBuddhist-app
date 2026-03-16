@@ -9,6 +9,7 @@ import 'package:flutter_pecha/features/plans/data/providers/user_plans_provider.
 import 'package:flutter_pecha/features/plans/models/plan_days_model.dart';
 import 'package:flutter_pecha/features/plans/models/user/user_plans_model.dart';
 import 'package:flutter_pecha/features/plans/models/user/user_tasks_dto.dart';
+import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../plan_cover_image.dart';
 import '../day_carousel.dart';
@@ -44,7 +45,7 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
   @override
   Widget build(BuildContext context) {
     final language = widget.plan.language;
-    final localizations = AppLocalizations.of(context)!;
+    final localizations = context.l10n;
 
     return Scaffold(
       appBar: _buildAppBar(context, language, localizations),
@@ -183,7 +184,7 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Unable to load the tasks for the day',
+          'Unable to load tasks',
           style: TextStyle(color: Colors.red[600]),
         ),
         const SizedBox(height: 8),
@@ -191,14 +192,14 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
           onPressed: () {
             ref.invalidate(userPlanDayContentFutureProvider);
           },
-          child: const Text('Retry'),
+          child: Text(context.l10n.retry),
         ),
       ],
     );
   }
 
   Widget _buildEmptyDayCarouselState(BuildContext context) {
-    final localizations = AppLocalizations.of(context)!;
+    final localizations = context.l10n;
     return Container(
       height: 80,
       margin: const EdgeInsets.symmetric(horizontal: 12),
@@ -228,13 +229,13 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
 
     // Safely find the task - return early if not found or list is empty
     if (tasks.isEmpty) {
-      _showErrorSnackbar('No tasks available');
+      _showErrorSnackbar(context.l10n.noTasks);
       return;
     }
 
     final taskIndex = tasks.indexWhere((t) => t.id == taskId);
     if (taskIndex == -1) {
-      _showErrorSnackbar('Task not found');
+      _showErrorSnackbar(context.l10n.taskNotFound);
       return;
     }
 
@@ -262,12 +263,12 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
         // Also invalidate completion status to refresh checkmarks
         ref.invalidate(userPlanDaysCompletionStatusProvider(widget.plan.id));
       } else if (!success && mounted) {
-        _showErrorSnackbar('Unable to update task status');
+        _showErrorSnackbar(context.l10n.updateTaskError);
       }
     } catch (e) {
       _logger.error('Error toggling task', e);
       if (mounted) {
-        _showErrorSnackbar('Error: $e');
+        _showErrorSnackbar(context.l10n.errorDetail(e.toString()));
       }
     } finally {
       // Always remove task from toggling set
@@ -280,7 +281,7 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
   }
 
   void _showUnenrollDialog(BuildContext context) {
-    final localizations = AppLocalizations.of(context)!;
+    final localizations = context.l10n;
     final locale = ref.watch(localeProvider);
     final language = locale.languageCode;
     final fontSize = language == 'bo' || language == 'BO' ? 16.0 : 14.0;
@@ -342,7 +343,7 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
-                'You have been unenrolled from "${widget.plan.title}"',
+                context.l10n.unenrollSuccess(widget.plan.title),
               ),
               backgroundColor: Theme.of(context).colorScheme.primary,
               behavior: SnackBarBehavior.floating,
@@ -352,17 +353,13 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
         }
       } else {
         if (mounted) {
-          _showErrorSnackbar(
-            'Unable to unenroll at this time. Please try again.',
-          );
+          _showErrorSnackbar(context.l10n.unenrollError);
         }
       }
     } catch (e) {
       _logger.error('Error unenrolling from plan', e);
       if (mounted) {
-        _showErrorSnackbar(
-          'Something went wrong. Please check your connection and try again.',
-        );
+        _showErrorSnackbar(context.l10n.unenrollGenericError);
       }
     }
   }

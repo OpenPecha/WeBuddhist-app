@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/extensions/context_ext.dart';
+import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 
 /// A reusable error state widget for displaying user-friendly error messages.
 ///
@@ -40,10 +42,11 @@ class ErrorStateWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     // Use custom message or generate user-friendly message
     final errorMessage =
-        customMessage ?? _getUserFriendlyMessage(error.toString());
-    final title = customTitle ?? 'Oops! Something went wrong';
+        customMessage ?? _getUserFriendlyMessage(error.toString(), l10n);
+    final title = customTitle ?? l10n.error;
 
     return Center(
       child: Padding(
@@ -82,7 +85,7 @@ class ErrorStateWidget extends StatelessWidget {
               ElevatedButton.icon(
                 onPressed: onRetry,
                 icon: const Icon(Icons.refresh),
-                label: const Text('Try Again'),
+                label: Text(l10n.tryAgain),
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 24,
@@ -98,39 +101,39 @@ class ErrorStateWidget extends StatelessWidget {
   }
 
   /// Converts technical error messages into user-friendly text
-  String _getUserFriendlyMessage(String error) {
+  String _getUserFriendlyMessage(String error, AppLocalizations l10n) {
     // 404 Not Found errors
     if (error.contains('404')) {
-      return 'The requested content is currently unavailable.\nPlease try again later.';
+      return l10n.noContentAvailable;
     }
     // 401 Unauthorized errors
     else if (error.contains('401')) {
-      return 'You need to sign in to access this content.\nPlease log in and try again.';
+      return '${l10n.signIn}\n${l10n.pleaseTryAgain}';
     }
     // 403 Forbidden errors
     else if (error.contains('403')) {
-      return 'You don\'t have permission to access this content.\nPlease try again later.';
+      return l10n.pleaseTryAgain;
     }
     // 500/502/503 Server errors
     else if (error.contains('500') ||
         error.contains('502') ||
         error.contains('503')) {
-      return 'Our servers are experiencing issues.\nPlease try again in a few moments.';
+      return l10n.somethingWrong;
     }
     // Network connectivity errors
     else if (error.contains('No internet') ||
         error.contains('SocketException') ||
         error.contains('Failed host lookup') ||
         error.contains('Network is unreachable')) {
-      return 'Please check your internet connection\nand try again.';
+      return l10n.somethingWrong;
     }
     // Timeout errors
     else if (error.contains('timeout') || error.contains('Timeout')) {
-      return 'The request took too long.\nPlease check your connection and try again.';
+      return l10n.somethingWrong;
     }
     // Generic fallback
     else {
-      return 'Unable to load content at this time.\nPlease try again later.';
+      return l10n.unableToLoad;
     }
   }
 }

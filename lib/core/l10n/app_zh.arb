@@ -12,7 +12,7 @@
   "onboarding_welcome": "歡迎來到 WeBuddhist",
   "onboarding_description": "在這裡每天學習、生活與分享佛教智慧",
   "onboarding_quote": "Approximatey 500 million people worldwide practice Buddhism, making it the world's fourth largest religion",
-  "onboarding_find_peace" :"尋找你本有的平靜",
+  "onboarding_find_peace": "尋找你本有的平靜",
   "onboarding_continue": "下一步",
   "onboarding_first_question": "In which language would you like to access core texts?",
   "onboarding_second_question": "Which path or school do you feel drawn to?",
@@ -32,15 +32,12 @@
   "home_bringing": "融入生活",
   "home_profile": "Profile",
   "no_feature_content": "尚無內容",
-
   "nav_home": "首頁",
   "nav_texts": "文本",
   "nav_learn": "学习",
   "nav_practice": "修持計劃",
   "nav_settings": "Me",
   "nav_connect": "连接",
-
-
   "text_browseTheLibrary": "瀏覽文庫",
   "text_search": "搜尋",
   "text_detail_rootText": "原文本",
@@ -48,12 +45,12 @@
   "text_toc_continueReading": "Continue Reading",
   "text_toc_content": "內容",
   "text_toc_versions": "版本",
-  "text_commentary":"注釋",
+  "text_commentary": "注釋",
   "text_close_commentary": "關閉注釋",
   "commentary_total": "總計",
   "show_more": "顯示更多",
-  "show_less":"顯示較少",
-  "read_more":"閱讀更多",
+  "show_less": "顯示較少",
+  "read_more": "閱讀更多",
   "no_content": "尚無相關內容",
   "no_version": "尚無相關版本",
   "no_commentary": "尚無相關注釋",
@@ -72,7 +69,6 @@
   "text_color": "文字顏色",
   "text_shadow": "文字陰影",
   "apply": "執行",
-
   "practice_nav_title": "修持計劃",
   "my_plans": "我的計畫",
   "find_plans": "尋找計劃",
@@ -91,14 +87,13 @@
   "recitation_reminder": "持誦提醒",
   "moment_to_pray": "這一刻讓我們一起祈願",
   "plan_unenroll": "退出計劃",
-  "unenroll_confirmation":"確定要退出嗎",
+  "unenroll_confirmation": "確定要退出嗎",
   "unenroll_message": "您的進度將永久丟失，且無法恢復",
   "practice_plan": "修持計劃幫助您在修持中保持穩定。我們有許多計劃可供選擇，也有時間長短不同的計劃。",
   "search_plans": "搜尋計畫...",
   "search_for_plans": "搜尋計劃",
   "no_plans_found": "無相關計劃",
   "no_days_available": "無此天數",
-
   "notification_turn_on": "請開啟通知",
   "notification_enable_message": "開啟通知以收取每日修持、持誦提醒",
   "enable_notification": "開啟通知",
@@ -108,7 +103,6 @@
   "notification_daily_recitation": "每日持誦",
   "text_noContent": "所選語言下無可用文本",
   "text_switchToTibetan": "切換成藏文",
-
   "recitations_title": "唱頌",
   "recitations_my_recitations": "我的清單",
   "browse_recitations": "唱頌",
@@ -134,7 +128,6 @@
   "recitations_show_adaptation": "顯示改編",
   "recitations_hide_adaptation": "隱藏改編",
   "next_recitation": "下一步",
-
   "settings_appearance": "外觀",
   "settings_notifications": "通知",
   "notification_settings": "通知設定",
@@ -148,10 +141,8 @@
   "image": "圖片",
   "feedback": "回饋",
   "feedback_wishlist": "回饋及願望清單",
-
   "author": "作者",
   "plans_created": "參與設計的計劃",
-
   "ai_chat_history": "對話紀錄",
   "ai_buddhist_assistant": "佛法AI助手",
   "ai_new_chat": "新對話",
@@ -178,7 +169,6 @@
   "ai_text_not_found_message": "Could not find the text for \"{title}\".\n\nPlease try another source.",
   "ai_sources": "Sources",
   "ai_sources_count": "{count} sources",
-
   "search_no_results": "No results found for \"{query}\"",
   "search_show_more": "Show More",
   "search_contents": "Contents",
@@ -193,11 +183,8 @@
   "search_no_authors_found": "No authors found for \"{query}\"",
   "search_coming_soon": "Coming Soon",
   "search_buddhist_texts": "Search Buddhist texts...",
-
   "common_ok": "OK",
-
   "comingSoonHeadline": "Coming Soon",
-
   "routine_title": "日常修持",
   "routine_empty_title": "日常修持",
   "routine_edit": "編輯",
@@ -216,5 +203,119 @@
   "routine_edit_title": "編輯日常修持",
   "routine_delete_block": "刪除區塊",
   "routine_add_plan": "添加計劃",
-  "routine_add_recitation": "添加持誦"
+  "routine_add_recitation": "添加持誦",
+  "continueWithGoogle": "使用 Google 繼續",
+  "continueWithApple": "使用 Apple 繼續",
+  "continueAsGuest": "以訪客身份繼續",
+  "signIn": "登入",
+  "profileError": "加載個人資料時出錯",
+  "profileTitle": "個人資料",
+  "notLoggedIn": "未登入",
+  "retry": "重試",
+  "back": "返回",
+  "delete": "刪除",
+  "close": "關閉",
+  "tryAgain": "再試一次",
+  "pleaseTryAgain": "請再試一次",
+  "successfully": "成功",
+  "failedTo": "失敗",
+  "unableTo": "無法",
+  "error": "錯誤",
+  "anonymous": "匿名",
+  "noContentAvailable": "沒有可用內容",
+  "missingParameters": "缺少必需參數",
+  "invalidParameters": "無效參數",
+  "cannotOpenLink": "無法打開此鏈接",
+  "invalidUrlFormat": "無效的URL格式",
+  "cannotOpenEmail": "無法打開此郵件",
+  "invalidEmailFormat": "無效的郵件格式",
+  "unableToLoad": "無法加載，請再試一次",
+  "somethingWrong": "出了點問題，請檢查您的連接並重試",
+  "typing": "正在輸入...",
+  "source": "來源",
+  "searchResults": "搜索結果",
+  "deleteConversation": "刪除對話？",
+  "errorOops": "哎呀，請再試一次",
+  "tabAll": "全部",
+  "tabAuthors": "作者",
+  "tabContents": "內容",
+  "tabTitles": "標題",
+  "option1": "選項 1",
+  "option2": "選項 2",
+  "option3": "選項 3",
+  "languageTibetan": "藏文",
+  "languageEnglish": "英文",
+  "noTasks": "沒有可用任務",
+  "taskNotFound": "找不到任務",
+  "updateTaskError": "無法更新任務狀態",
+  "enrollSuccess": "成功加入 {planTitle}",
+  "enrollError": "無法加入計劃，請再試一次",
+  "enrollErrorDetail": "無法加入計劃：{error}",
+  "unenrollSuccess": "您已退出 {planTitle}",
+  "unenrollError": "目前無法退出，請再試一次",
+  "unenrollGenericError": "出了點問題，請檢查您的連接並重試",
+  "notFound": "找不到計劃，請再試一次",
+  "noTimeSlot": "沒有可用的時間段，請先移除一個區塊",
+  "maxBlocks": "已達到 {max} 個時間區塊的上限",
+  "duplicateItem": "此項目已在區塊中",
+  "removeItem": "移除項目",
+  "removeConfirmation": "要從此區塊中移除「{itemName}」嗎？",
+  "shareError": "無法分享：{error}",
+  "updateOrderError": "無法更新順序，請再試一次",
+  "noCollections": "沒有可用的收藏",
+  "loadCollectionsError": "無法加載收藏",
+  "loadFailed": "加載收藏失敗",
+  "captureError": "捕獲二維碼失敗，請再試一次",
+  "qrShareError": "無法分享二維碼，請稍後再試",
+  "errorDetail": "錯誤：{error}",
+  "@errorDetail": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "@enrollSuccess": {
+    "placeholders": {
+      "planTitle": {
+        "type": "String"
+      }
+    }
+  },
+  "@enrollErrorDetail": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "@unenrollSuccess": {
+    "placeholders": {
+      "planTitle": {
+        "type": "String"
+      }
+    }
+  },
+  "@maxBlocks": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "@removeConfirmation": {
+    "placeholders": {
+      "itemName": {
+        "type": "String"
+      }
+    }
+  },
+  "@shareError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "text_qrCode": "二維碼"
 }

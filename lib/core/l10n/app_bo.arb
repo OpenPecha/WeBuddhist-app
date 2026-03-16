@@ -12,7 +12,7 @@
   "onboarding_welcome": "Welcome to WeBuddhist",
   "onboarding_description": "Where we learn, live, and share Buddhist wisdom every day",
   "onboarding_quote": "Approximatey 500 million people worldwide practice Buddhism, making it the world's fourth largest religion",
-  "onboarding_find_peace" :"Find your Peace",
+  "onboarding_find_peace": "ཁྱོད་རང་གི་ཞི་བདེ་དང་ལྷན་དུ་སྡོད་པ།",
   "onboarding_continue": "Continue",
   "onboarding_first_question": "In which language would you like to access core texts?",
   "onboarding_second_question": "Which path or school do you feel drawn to?",
@@ -32,14 +32,12 @@
   "home_bringing": "བློ་སྦྱོང་གོམས་འདྲིས།",
   "home_profile": "ངོ་སྤྲོད་སྙིང་བསྡུས།",
   "no_feature_content": "རྒྱུ་ཆ་མིན་འདུག",
-
   "nav_home": "འདུན་ངོས།",
   "nav_texts": "ཡིག་མཛོད།",
   "nav_learn": "ཡིག་མཛོད།",
   "nav_practice": "ཉམས་ལེན།",
   "nav_settings": "Me",
   "nav_connect": " མཐུད།",
-
   "text_browseTheLibrary": "དཀར་ཆག",
   "text_search": "འཚོལ་ས།",
   "text_detail_rootText": "རྩ་བ།",
@@ -47,12 +45,12 @@
   "text_toc_continueReading": "སྔར་གྱི་མཚམས་ནས་ཀློག།",
   "text_toc_content": "ས་བཅད།",
   "text_toc_versions": "འགྱུར་མ་དང་དཔེ་རྒྱུན།",
-  "text_commentary":"འགྲེལ་བ།",
+  "text_commentary": "འགྲེལ་བ།",
   "text_close_commentary": "Close commentary",
   "commentary_total": "Total",
   "show_more": "མང་བ་བསྟོན།",
-  "show_less":"ཉུང་བ་བསྟོན།",
-  "read_more":"མང་ཙམ་ཀློགས།",
+  "show_less": "ཉུང་བ་བསྟོན།",
+  "read_more": "མང་ཙམ་ཀློགས།",
   "no_content": "རྙེད་མ་བྱུང།",
   "no_version": "རྙེད་མ་བྱུང།",
   "no_commentary": "རྙེད་མ་བྱུང།",
@@ -71,7 +69,6 @@
   "text_color": "ཡིག་གཟུགས་མཚོན་ཁྲ།",
   "text_shadow": "ཡི་གེའི་གྲིབ་གཟུགས།",
   "apply": "ཉར་ཚགས།",
-
   "practice_nav_title": "ཉིན་རེ་ཉམས་ལེན།",
   "my_plans": "ངའི་ཉམས་ལེན།",
   "find_plans": "ཉམས་ལེན་འཚོལ།",
@@ -97,7 +94,6 @@
   "search_for_plans": "ཉམས་ལེན་འཚོལ་ཞིབ་བྱེད།",
   "no_plans_found": "རྙེད་མ་བྱུང།",
   "no_days_available": "རྙེད་མ་བྱུང།",
-
   "notification_turn_on": "Please turn on Notifications",
   "notification_enable_message": "ཉིན་རེའི་ཉམས་ལེན་དང་ཞལ་འདོན་གསལ་བརྡ་ཡོང་ཆེད་གསལ་བརྡ་སྒོ་འབྱེད་གནང་རོགས།",
   "enable_notification": "གསལ་བརྡའི་སྒོ་ཕྱེས།",
@@ -107,7 +103,6 @@
   "notification_daily_recitation": "ཞལ་འདོན་དྲན་བརྡ།",
   "text_noContent": "སྡེ་ཚན་དེའི་ནང་དཔེ་ཆ་མིན་འདུག",
   "text_switchToTibetan": " བོད་སྐད་ཐོག་བལྟ།",
-  
   "recitations_title": "ཞལ་འདོན།",
   "recitations_my_recitations": "ངའི་ཞལ་འདོན།",
   "browse_recitations": "ཞལ་འདོན་འཚོལ།",
@@ -133,7 +128,6 @@
   "recitations_show_adaptation": "བསྒྱུར་བཅོས་མཐོང་།",
   "recitations_hide_adaptation": "བསྒྱུར་བཅོས་སྦས།",
   "next_recitation": "རྗེས་མ།",
-
   "settings_appearance": "རྣམ་པ།",
   "settings_notifications": "གསལ་བརྡ།",
   "notification_settings": "གསལ་བརྡ་སྒྲིག་འགོད།",
@@ -147,10 +141,8 @@
   "image": "འདྲ་པར།",
   "feedback": "དགོངས་འཆར།",
   "feedback_wishlist": "དགོངས་འཆར་དང་རེ་འདུན།",
-
   "author": "རྩོམ་སྒྲིག་པ།",
   "plans_created": "ཉམས་ལེན་ཁག",
-
   "ai_chat_history": "ཁ་བརྡའི་ལོ་རྒྱུས།",
   "ai_buddhist_assistant": "ནང་པའི་རིག་ནུས་ཕྱག་རོགས།",
   "ai_new_chat": "ཁ་བརྡ་གསར་པ།",
@@ -177,7 +169,6 @@
   "ai_text_not_found_message": "Could not find the text for \"{title}\".\n\nPlease try another source.",
   "ai_sources": "Sources",
   "ai_sources_count": "{count} sources",
-
   "search_no_results": "No results found for \"{query}\"",
   "search_show_more": "Show More",
   "search_contents": "Contents",
@@ -192,11 +183,8 @@
   "search_no_authors_found": "No authors found for \"{query}\"",
   "search_coming_soon": "Coming Soon",
   "search_buddhist_texts": "Search Buddhist texts...",
-
   "common_ok": "OK",
-
   "comingSoonHeadline": "Coming Soon",
-
   "routine_title": "ཉམས་ལེན་གོམས་གཤིས།",
   "routine_empty_title": "ཉམས་ལེན་གོམས་གཤིས།",
   "routine_edit": "བཟོ་བཅོས།",
@@ -215,5 +203,119 @@
   "routine_edit_title": "ཉམས་ལེན་གོམས་གཤིས་བཟོ་བཅོས།",
   "routine_delete_block": "སུབ།",
   "routine_add_plan": "ཉམས་ལེན་ཁ་སྣོན།",
-  "routine_add_recitation": "ཞལ་འདོན་ཁ་སྣོན།"
+  "routine_add_recitation": "ཞལ་འདོན་ཁ་སྣོན།",
+  "continueWithGoogle": "Google བརྒྱུད་ནས་མུ་མཐུད།",
+  "continueWithApple": "Apple བརྒྱུད་ནས་མུ་མཐུད།",
+  "continueAsGuest": "མགོ་ཚུགས་པ་བརྒྱུད་ནས་མུ་མཐུད།",
+  "signIn": "ནང་བསྐྱོད།",
+  "profileError": "མིང་གི་བརྡ་དོན་བརྙན་འཁུར་བྱེད་མི་ཐུབ།",
+  "profileTitle": "མིང་གི་བརྡ་དོན།",
+  "notLoggedIn": "ནང་བསྐྱོད་མ་བྱས།",
+  "retry": "བསྐྱར་དུ་འབད་པ།",
+  "back": "རྒྱབ་ལོག",
+  "delete": "བཏོན་གཏང་",
+  "close": "ཁ་བསྡམས།",
+  "tryAgain": "བསྐྱར་དུ་ཚུར་ཐེངས་གཅིག་འབད།",
+  "pleaseTryAgain": "ལོག་སྟེ་འབད་རོགས།",
+  "successfully": "མཐར་འཁྱོལ་བྱུང་།",
+  "failedTo": "ལམ་འགྲོ་མ་བྱུང་།",
+  "unableTo": "མི་ཐུབ།",
+  "error": "སྐྱོན།",
+  "anonymous": "མིང་མེད།",
+  "noContentAvailable": "ནང་དོན་མེད།",
+  "missingParameters": "ཆ་རྐྱེན་བརླགས་ཟིན།",
+  "invalidParameters": "ཆ་རྐྱེན་ནོར་བ།",
+  "cannotOpenLink": "འབྲེལ་ལམ་ཁ་ཕྱེ་མི་ཐུབ།",
+  "invalidUrlFormat": "URL རྩོམ་སྒྲིག་ནོར་བ།",
+  "cannotOpenEmail": "པར་ལེ་སེ་ཁ་ཕྱེ་མི་ཐུབ།",
+  "invalidEmailFormat": "པར་ལེ་སེ་རྩོམ་སྒྲིག་ནོར་བ།",
+  "unableToLoad": "བརྙན་འཁུར་བྱེད་མི་ཐུབ། འདི་གནས་ནས་ཚུར་འབད།",
+  "somethingWrong": "ཅི་ཞིག་ནོར་འདུག ཁེ་ལེ་ལག་ལེན་རྒྱུགས་པར་གྱིས།",
+  "typing": "འབྲི་བཞིན་འདུག...",
+  "source": "འབྱུང་ཁུངས།",
+  "searchResults": "འཚོལ་ཞིབ་འབྲས་བུ།",
+  "deleteConversation": "གླེང་མོལ་བཏོན་གཏང་གི་ཡིན་ནམ།",
+  "errorOops": "ཨོ། ལོག་སྟེ་འབད་རོགས།",
+  "tabAll": "ཆ་ཚང་།",
+  "tabAuthors": "རྩོམ་པ་པོ།",
+  "tabContents": "ནང་དོན།",
+  "tabTitles": "མགོ་མིང་།",
+  "option1": "གདམ་ཁ་ ༡",
+  "option2": "གདམ་ཁ་ ༢",
+  "option3": "གདམ་ཁ་ ༣",
+  "languageTibetan": "བོད་ཡིག",
+  "languageEnglish": "English",
+  "noTasks": "ལས་ཀ་མེད།",
+  "taskNotFound": "ལས་ཀ་མ་རྙེད་པ།",
+  "updateTaskError": "ལས་ཀའི་གནས་ཚུལ་བསྒྱུར་མི་ཐུབ།",
+  "enrollSuccess": "{planTitle} ལ་མཐར་འཁྱོལ་བྱུང་།",
+  "enrollError": "འཆར་གཞིར་ཞུགས་མི་ཐུབ། ལོག་སྟེ་འབད་རོགས།",
+  "enrollErrorDetail": "འཆར་གཞིར་ཞུགས་མི་ཐུབ། {error}",
+  "unenrollSuccess": "{planTitle} ནས་ཕྱིར་བཏོན་ཟིན།",
+  "unenrollError": "ད་ལྟ་ཞུགས་མི་ཐུབ། ལོག་སྟེ་འབད་རོགས།",
+  "unenrollGenericError": "ཅི་ཞིག་ནོར་འདུག ཁེ་ལེ་ལག་ལེན་རྒྱུགས་པར་གྱིས།",
+  "notFound": "འཆར་གཞི་མ་རྙེད། ལོག་སྟེ་འབད་རོགས།",
+  "noTimeSlot": "དུས་ཚོད་མེད། ཐོག་གཅིག་ཕྱིར་བཏོན་ནས་ལོག་སྟེ་འབད།",
+  "maxBlocks": "དུས་ཚོད་ཐོག་གི་མང་མཐའ་ {max} ལ་སླེབས་ཟིན།",
+  "duplicateItem": "རྣམ་གྲངས་འདི་གནས་སུ་ཡོད་ཟིན།",
+  "removeItem": "རྣམ་གྲངས་ཕྱིར་བཏོན།",
+  "removeConfirmation": "\"{itemName}\" འདི་གནས་ནས་ཕྱིར་བཏོན་གི་ཡིན་ནམ།",
+  "shareError": "མཉམ་སྤྱོད་བྱེད་མི་ཐུབ། {error}",
+  "updateOrderError": "གོ་རིམ་བསྒྱུར་མི་ཐུབ། ལོག་སྟེ་འབད་རོགས།",
+  "noCollections": "བསྡུ་ཉར་མེད།",
+  "loadCollectionsError": "བསྡུ་ཉར་བརྙན་འཁུར་བྱེད་མི་ཐུབ།",
+  "loadFailed": "བསྡུ་ཉར་བརྙན་འཁུར་བྱེད་མི་ཐུབ།",
+  "captureError": "QR གོམ་པ་བརྙན་འཕྲུལ་མི་ཐུབ། ལོག་སྟེ་འབད་རོགས།",
+  "qrShareError": "QR གོམ་པ་མཉམ་སྤྱོད་བྱེད་མི་ཐུབ། ཅུང་ཙམ་སོང་རྗེས་ལོག་སྟེ་འབད་རོགས།",
+  "errorDetail": "སྐྱོན། {error}",
+  "@errorDetail": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "@enrollSuccess": {
+    "placeholders": {
+      "planTitle": {
+        "type": "String"
+      }
+    }
+  },
+  "@enrollErrorDetail": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "@unenrollSuccess": {
+    "placeholders": {
+      "planTitle": {
+        "type": "String"
+      }
+    }
+  },
+  "@maxBlocks": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "@removeConfirmation": {
+    "placeholders": {
+      "itemName": {
+        "type": "String"
+      }
+    }
+  },
+  "@shareError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "text_qrCode": "QR གོམ་པ།"
 }

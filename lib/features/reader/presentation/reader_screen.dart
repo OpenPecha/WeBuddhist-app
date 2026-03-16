@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/config/router/app_router.dart';
-import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/features/plans/data/providers/user_plans_provider.dart';
 import 'package:flutter_pecha/features/reader/constants/reader_constants.dart';
@@ -14,6 +13,7 @@ import 'package:flutter_pecha/features/reader/presentation/widgets/reader_conten
 import 'package:flutter_pecha/features/reader/presentation/widgets/reader_gestures/swipe_navigation_wrapper.dart';
 import 'package:flutter_pecha/features/reader/presentation/widgets/reader_search/reader_search_delegate.dart';
 import 'package:flutter_pecha/features/texts/data/providers/text_version_language_provider.dart';
+import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -131,7 +131,7 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
     ReaderState state,
     ReaderNotifier notifier,
   ) {
-    final localizations = AppLocalizations.of(context)!;
+    final localizations = context.l10n;
 
     // Loading state
     if (state.isLoading) {
@@ -176,7 +176,7 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
               ElevatedButton.icon(
                 onPressed: () => notifier.reload(),
                 icon: const Icon(Icons.refresh),
-                label: const Text('Retry'),
+                label: Text(localizations.retry),
               ),
             ],
           ),

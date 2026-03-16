@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
+import 'package:flutter_pecha/core/extensions/context_ext.dart';
 
 /// Reusable continue button for onboarding questionnaire screens
 class OnboardingContinueButton extends StatelessWidget {
@@ -28,9 +29,9 @@ class OnboardingContinueButton extends StatelessWidget {
           ),
           padding: const EdgeInsets.symmetric(vertical: 16),
         ),
-        child: const Text(
-          'Continue',
-          style: TextStyle(
+        child: Text(
+          context.l10n.onboarding_continue,
+          style: const TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w600,
             letterSpacing: -0.306,

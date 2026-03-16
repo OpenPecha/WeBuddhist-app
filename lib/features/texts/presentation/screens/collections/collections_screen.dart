@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/services/app_share/app_share.dart';
 import 'package:flutter_pecha/core/widgets/error_state_widget.dart';
 import 'package:flutter_pecha/features/texts/constants/text_screen_constants.dart';
@@ -11,6 +10,7 @@ import 'package:flutter_pecha/features/texts/models/collections/collections_resp
 import 'package:flutter_pecha/features/texts/presentation/widgets/collections_section.dart';
 import 'package:flutter_pecha/features/texts/presentation/widgets/loading_state_widget.dart';
 import 'package:flutter_pecha/features/texts/presentation/widgets/search_result_card.dart';
+import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -48,7 +48,7 @@ class CollectionsScreen extends ConsumerWidget {
     return Padding(
       padding: TextScreenConstants.screenPadding,
       child: Text(
-        AppLocalizations.of(context)!.text_browseTheLibrary,
+        context.l10n.text_browseTheLibrary,
         style: const TextStyle(
           fontWeight: FontWeight.bold,
           fontSize: TextScreenConstants.headerFontSize,
@@ -64,6 +64,7 @@ class _ShareButtonsWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
       child: Builder(
@@ -82,7 +83,7 @@ class _ShareButtonsWidget extends ConsumerWidget {
                   },
                   icon: Icon(Icons.share, color: textColor, size: fontSizeIcon),
                   label: Text(
-                    'Share',
+                    l10n.share,
                     style: TextStyle(color: textColor, fontSize: fontSize),
                   ),
                   style: TextButton.styleFrom(
@@ -98,7 +99,7 @@ class _ShareButtonsWidget extends ConsumerWidget {
                   },
                   icon: Icon(Icons.qr_code_2, color: textColor, size: fontSizeIcon),
                   label: Text(
-                    'QR Code',
+                    l10n.text_qrCode,
                     style: TextStyle(color: textColor, fontSize: fontSize),
                   ),
                   style: TextButton.styleFrom(
@@ -137,7 +138,7 @@ class _SearchFieldState extends ConsumerState<_SearchField> {
 
   @override
   Widget build(BuildContext context) {
-    final localizations = AppLocalizations.of(context)!;
+    final localizations = context.l10n;
     final searchNotifier = ref.read(librarySearchStateProvider.notifier);
 
     return Padding(
@@ -178,11 +179,12 @@ class _CollectionsListView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
     return collectionsResponse.when(
       data: (response) {
         final collections = response.collections;
         if (collections.isEmpty) {
-          return const Center(child: Text('No collections available'));
+          return Center(child: Text(l10n.noCollections));
         }
         return ListView.builder(
           itemCount: collections.length + 1, // +1 for share button
@@ -210,9 +212,9 @@ class _CollectionsListView extends ConsumerWidget {
         );
       },
       loading: () => const LoadingStateWidget(),
-      error:
-          (error, stackTrace) =>
-              const Center(child: Text('Unable to load collections')),
+      error: (error, stackTrace) => Center(
+        child: Text(context.l10n.loadCollectionsError),
+      ),
     );
   }
 }
@@ -228,7 +230,7 @@ class _SearchResultsView extends ConsumerWidget {
     if (query.isEmpty) {
       return Center(
         child: Text(
-          AppLocalizations.of(context)!.text_search,
+          context.l10n.text_search,
           style: const TextStyle(
             fontSize: TextScreenConstants.bodyFontSize,
             color: Colors.grey,
