@@ -1,8 +1,9 @@
-import 'package:flutter_pecha/core/constants/app_storage_keys.dart';
+import 'package:flutter_pecha/core/storage/storage_keys.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/core/utils/local_storage_service.dart';
 import 'package:flutter_pecha/features/auth/application/user_state.dart';
 import 'package:flutter_pecha/features/auth/data/providers/auth_providers.dart';
+import 'package:flutter_pecha/features/auth/data/models/user_model.dart';
 import 'package:flutter_pecha/features/auth/domain/entities/user.dart';
 import 'package:flutter_pecha/features/auth/domain/repositories/auth_repository.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -44,7 +45,7 @@ class UserNotifier extends StateNotifier<UserState> {
         // Preserve local onboarding status (backend doesn't store this)
         final localOnboardingCompleted =
             await _localStorageService.get<bool>(
-              AppStorageKeys.onboardingCompleted,
+              StorageKeys.onboardingCompleted,
             ) ??
             false;
 
@@ -85,7 +86,7 @@ class UserNotifier extends StateNotifier<UserState> {
         // Preserve local onboarding status (backend doesn't store this)
         final localOnboardingCompleted =
             await _localStorageService.get<bool>(
-              AppStorageKeys.onboardingCompleted,
+              StorageKeys.onboardingCompleted,
             ) ??
             false;
 
@@ -115,7 +116,7 @@ class UserNotifier extends StateNotifier<UserState> {
 
       // Sync onboarding status separately to local storage
       await _localStorageService.set(
-        AppStorageKeys.onboardingCompleted,
+        StorageKeys.onboardingCompleted,
         updatedUser.onboardingCompleted,
       );
 
@@ -131,7 +132,7 @@ class UserNotifier extends StateNotifier<UserState> {
     try {
       // Update local storage first (primary source of truth)
       await _localStorageService.set(
-        AppStorageKeys.onboardingCompleted,
+        StorageKeys.onboardingCompleted,
         completed,
       );
 
@@ -169,7 +170,8 @@ class UserNotifier extends StateNotifier<UserState> {
     final localUserData = await _localStorageService.getUserData();
 
     if (localUserData != null) {
-      final user = User.fromJson(localUserData);
+      final userModel = UserModel.fromJson(localUserData);
+      final user = userModel.toEntity();
       _logger.debug('Loaded user from cache: ${user.displayName}');
       state = UserState.loaded(user);
     } else {
@@ -180,7 +182,8 @@ class UserNotifier extends StateNotifier<UserState> {
 
   /// Cache user data locally
   Future<void> _cacheUserLocally(User user) async {
-    await _localStorageService.setUserData(user.toJson());
+    final userModel = UserModel.fromEntity(user);
+    await _localStorageService.setUserData(userModel.toJson());
   }
 }
 

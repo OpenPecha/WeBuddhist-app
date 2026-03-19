@@ -1,4 +1,4 @@
-import 'package:flutter_pecha/core/constants/app_storage_keys.dart';
+import 'package:flutter_pecha/core/storage/storage_keys.dart';
 import 'package:flutter_pecha/core/utils/local_storage_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -12,14 +12,14 @@ class FontSizeNotifier extends StateNotifier<double> {
 
   Future<void> _loadFontSize() async {
     final fontSize = await _localStorageService.get<double>(
-      AppStorageKeys.fontSize,
+      StorageKeys.fontSize,
     );
     state = fontSize ?? 18.0;
   }
 
   Future<void> setFontSize(double size) async {
     state = size;
-    await _localStorageService.set<double>(AppStorageKeys.fontSize, size);
+    await _localStorageService.set<double>(StorageKeys.fontSize, size);
   }
 }
 

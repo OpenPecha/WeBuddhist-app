@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:flutter_pecha/core/error/failures.dart';
-import 'package:flutter_pecha/core/utils/error_message_mapper.dart';
+import 'package:flutter_pecha/core/error/error_message_mapper.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

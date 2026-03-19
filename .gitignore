@@ -65,3 +65,7 @@ google_fonts/
 /android/ key.properties
 /ENV_SETUP.md
 /WeBhddhist0-improvement-plan.pdf
+
+# Local documentation (not for git)
+CLEAN_ARCHITECTURE_VERIFICATION.md
+DEVELOPER_ARCHITECTURE_GUIDE.docx

@@ -333,6 +333,8 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
     }
   }
 
+  // TODO: Wire up this dialog to a menu button in the AppBar
+  // ignore: unused_element
   void _showUnenrollDialog(BuildContext context) {
     final localizations = context.l10n;
     final locale = ref.watch(localeProvider);
@@ -376,6 +378,7 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
     );
   }
 
+  // ignore: unused_element
   Future<void> _handleUnenroll() async {
     try {
       final success = await ref.read(

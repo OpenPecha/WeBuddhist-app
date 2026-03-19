@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
-import 'package:flutter_pecha/core/constants/app_storage_keys.dart';
+import 'package:flutter_pecha/core/storage/storage_keys.dart';
 import 'package:flutter_pecha/core/utils/local_storage_service.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
@@ -28,7 +28,7 @@ void main() {
     test('should load valid stored locale "en" on initialization', () async {
       // Arrange
       when(
-        mockLocalStorageService.get<String>(AppStorageKeys.locale),
+        mockLocalStorageService.get<String>(StorageKeys.preferredLanguage),
       ).thenAnswer((_) async => 'en');
 
       // Act
@@ -40,14 +40,14 @@ void main() {
       // Assert
       expect(localeNotifier.state.languageCode, 'en');
       verify(
-        mockLocalStorageService.get<String>(AppStorageKeys.locale),
+        mockLocalStorageService.get<String>(StorageKeys.preferredLanguage),
       ).called(1);
     });
 
     test('should load valid stored locale "bo" on initialization', () async {
       // Arrange
       when(
-        mockLocalStorageService.get<String>(AppStorageKeys.locale),
+        mockLocalStorageService.get<String>(StorageKeys.preferredLanguage),
       ).thenAnswer((_) async => 'bo');
 
       // Act
@@ -59,14 +59,14 @@ void main() {
       // Assert
       expect(localeNotifier.state.languageCode, 'bo');
       verify(
-        mockLocalStorageService.get<String>(AppStorageKeys.locale),
+        mockLocalStorageService.get<String>(StorageKeys.preferredLanguage),
       ).called(1);
     });
 
     test('should load valid stored locale "zh" on initialization', () async {
       // Arrange
       when(
-        mockLocalStorageService.get<String>(AppStorageKeys.locale),
+        mockLocalStorageService.get<String>(StorageKeys.preferredLanguage),
       ).thenAnswer((_) async => 'zh');
 
       // Act
@@ -78,17 +78,17 @@ void main() {
       // Assert
       expect(localeNotifier.state.languageCode, 'zh');
       verify(
-        mockLocalStorageService.get<String>(AppStorageKeys.locale),
+        mockLocalStorageService.get<String>(StorageKeys.preferredLanguage),
       ).called(1);
     });
 
     test('should set and persist new locale', () async {
       // Arrange
       when(
-        mockLocalStorageService.get<String>(AppStorageKeys.locale),
+        mockLocalStorageService.get<String>(StorageKeys.preferredLanguage),
       ).thenAnswer((_) async => null);
       when(
-        mockLocalStorageService.set(AppStorageKeys.locale, any),
+        mockLocalStorageService.set(StorageKeys.preferredLanguage, any),
       ).thenAnswer((_) async => true);
 
       localeNotifier = LocaleNotifier(
@@ -102,7 +102,7 @@ void main() {
       // Assert
       expect(localeNotifier.state.languageCode, 'bo');
       verify(
-        mockLocalStorageService.set(AppStorageKeys.locale, 'bo'),
+        mockLocalStorageService.set(StorageKeys.preferredLanguage, 'bo'),
       ).called(1);
     });
 
@@ -111,7 +111,7 @@ void main() {
       () async {
         // Arrange
         when(
-          mockLocalStorageService.get<String>(AppStorageKeys.locale),
+          mockLocalStorageService.get<String>(StorageKeys.preferredLanguage),
         ).thenAnswer((_) async => null);
 
         // Act
@@ -123,7 +123,7 @@ void main() {
         // Assert
         expect(localeNotifier.state.languageCode, 'en');
         verify(
-          mockLocalStorageService.get<String>(AppStorageKeys.locale),
+          mockLocalStorageService.get<String>(StorageKeys.preferredLanguage),
         ).called(1);
       },
     );
@@ -131,10 +131,10 @@ void main() {
     test('should persist locale change correctly', () async {
       // Arrange
       when(
-        mockLocalStorageService.get<String>(AppStorageKeys.locale),
+        mockLocalStorageService.get<String>(StorageKeys.preferredLanguage),
       ).thenAnswer((_) async => 'en');
       when(
-        mockLocalStorageService.set(AppStorageKeys.locale, any),
+        mockLocalStorageService.set(StorageKeys.preferredLanguage, any),
       ).thenAnswer((_) async => true);
 
       localeNotifier = LocaleNotifier(
@@ -149,10 +149,10 @@ void main() {
       // Assert
       expect(localeNotifier.state.languageCode, 'bo');
       verify(
-        mockLocalStorageService.set(AppStorageKeys.locale, 'zh'),
+        mockLocalStorageService.set(StorageKeys.preferredLanguage, 'zh'),
       ).called(1);
       verify(
-        mockLocalStorageService.set(AppStorageKeys.locale, 'bo'),
+        mockLocalStorageService.set(StorageKeys.preferredLanguage, 'bo'),
       ).called(1);
     });
   });
@@ -163,7 +163,7 @@ void main() {
       () async {
         // Arrange
         when(
-          mockLocalStorageService.get<String>(AppStorageKeys.locale),
+          mockLocalStorageService.get<String>(StorageKeys.preferredLanguage),
         ).thenAnswer((_) async => 'fr');
 
         // Act
@@ -175,7 +175,7 @@ void main() {
         // Assert - Implementation doesn't validate on load, so it sets the locale
         expect(localeNotifier.state.languageCode, 'fr');
         verify(
-          mockLocalStorageService.get<String>(AppStorageKeys.locale),
+          mockLocalStorageService.get<String>(StorageKeys.preferredLanguage),
         ).called(1);
       },
     );
@@ -185,7 +185,7 @@ void main() {
       () async {
         // Arrange
         when(
-          mockLocalStorageService.get<String>(AppStorageKeys.locale),
+          mockLocalStorageService.get<String>(StorageKeys.preferredLanguage),
         ).thenAnswer((_) async => 'de');
 
         // Act
@@ -197,7 +197,7 @@ void main() {
         // Assert - Implementation doesn't validate on load, so it sets the locale
         expect(localeNotifier.state.languageCode, 'de');
         verify(
-          mockLocalStorageService.get<String>(AppStorageKeys.locale),
+          mockLocalStorageService.get<String>(StorageKeys.preferredLanguage),
         ).called(1);
       },
     );
@@ -207,7 +207,7 @@ void main() {
       () async {
         // Arrange
         when(
-          mockLocalStorageService.get<String>(AppStorageKeys.locale),
+          mockLocalStorageService.get<String>(StorageKeys.preferredLanguage),
         ).thenAnswer((_) async => 'es');
 
         // Act
@@ -219,7 +219,7 @@ void main() {
         // Assert - Implementation doesn't validate on load, so it sets the locale
         expect(localeNotifier.state.languageCode, 'es');
         verify(
-          mockLocalStorageService.get<String>(AppStorageKeys.locale),
+          mockLocalStorageService.get<String>(StorageKeys.preferredLanguage),
         ).called(1);
       },
     );
@@ -227,7 +227,7 @@ void main() {
     test('should default to "en" when stored value is null', () async {
       // Arrange
       when(
-        mockLocalStorageService.get<String>(AppStorageKeys.locale),
+        mockLocalStorageService.get<String>(StorageKeys.preferredLanguage),
       ).thenAnswer((_) async => null);
 
       // Act
@@ -239,14 +239,14 @@ void main() {
       // Assert
       expect(localeNotifier.state.languageCode, 'en');
       verify(
-        mockLocalStorageService.get<String>(AppStorageKeys.locale),
+        mockLocalStorageService.get<String>(StorageKeys.preferredLanguage),
       ).called(1);
     });
 
     test('should load empty string as locale when stored', () async {
       // Arrange
       when(
-        mockLocalStorageService.get<String>(AppStorageKeys.locale),
+        mockLocalStorageService.get<String>(StorageKeys.preferredLanguage),
       ).thenAnswer((_) async => '');
 
       // Act
@@ -258,7 +258,7 @@ void main() {
       // Assert - Implementation doesn't validate on load, so it sets empty string
       expect(localeNotifier.state.languageCode, '');
       verify(
-        mockLocalStorageService.get<String>(AppStorageKeys.locale),
+        mockLocalStorageService.get<String>(StorageKeys.preferredLanguage),
       ).called(1);
     });
 
@@ -267,7 +267,7 @@ void main() {
       () async {
         // Arrange
         when(
-          mockLocalStorageService.get<String>(AppStorageKeys.locale),
+          mockLocalStorageService.get<String>(StorageKeys.preferredLanguage),
         ).thenAnswer((_) async => 'en');
 
         localeNotifier = LocaleNotifier(
@@ -296,7 +296,7 @@ void main() {
       () async {
         // Arrange
         when(
-          mockLocalStorageService.get<String>(AppStorageKeys.locale),
+          mockLocalStorageService.get<String>(StorageKeys.preferredLanguage),
         ).thenAnswer((_) async => 'invalid-locale-123');
 
         // Act
@@ -308,7 +308,7 @@ void main() {
         // Assert - Implementation doesn't validate on load, so it sets the locale
         expect(localeNotifier.state.languageCode, 'invalid-locale-123');
         verify(
-          mockLocalStorageService.get<String>(AppStorageKeys.locale),
+          mockLocalStorageService.get<String>(StorageKeys.preferredLanguage),
         ).called(1);
       },
     );
@@ -318,7 +318,7 @@ void main() {
     test('should handle storage service failure gracefully', () async {
       // Arrange
       when(
-        mockLocalStorageService.get<String>(AppStorageKeys.locale),
+        mockLocalStorageService.get<String>(StorageKeys.preferredLanguage),
       ).thenThrow(Exception('Storage error'));
 
       // Act & Assert
@@ -336,10 +336,10 @@ void main() {
     test('should handle concurrent locale changes correctly', () async {
       // Arrange
       when(
-        mockLocalStorageService.get<String>(AppStorageKeys.locale),
+        mockLocalStorageService.get<String>(StorageKeys.preferredLanguage),
       ).thenAnswer((_) async => 'en');
       when(
-        mockLocalStorageService.set(AppStorageKeys.locale, any),
+        mockLocalStorageService.set(StorageKeys.preferredLanguage, any),
       ).thenAnswer((_) async => true);
 
       localeNotifier = LocaleNotifier(
@@ -357,16 +357,16 @@ void main() {
 
       // Assert - Last change should win
       expect(localeNotifier.state.languageCode, 'en');
-      verify(mockLocalStorageService.set(AppStorageKeys.locale, any)).called(3);
+      verify(mockLocalStorageService.set(StorageKeys.preferredLanguage, any)).called(3);
     });
 
     test('should verify locale is persisted after setting', () async {
       // Arrange
       when(
-        mockLocalStorageService.get<String>(AppStorageKeys.locale),
+        mockLocalStorageService.get<String>(StorageKeys.preferredLanguage),
       ).thenAnswer((_) async => 'en');
       when(
-        mockLocalStorageService.set(AppStorageKeys.locale, 'zh'),
+        mockLocalStorageService.set(StorageKeys.preferredLanguage, 'zh'),
       ).thenAnswer((_) async => true);
 
       localeNotifier = LocaleNotifier(
@@ -379,7 +379,7 @@ void main() {
 
       // Assert
       verify(
-        mockLocalStorageService.set(AppStorageKeys.locale, 'zh'),
+        mockLocalStorageService.set(StorageKeys.preferredLanguage, 'zh'),
       ).called(1);
       expect(localeNotifier.state.languageCode, 'zh');
     });
@@ -387,10 +387,10 @@ void main() {
     test('should handle storage set failure gracefully', () async {
       // Arrange
       when(
-        mockLocalStorageService.get<String>(AppStorageKeys.locale),
+        mockLocalStorageService.get<String>(StorageKeys.preferredLanguage),
       ).thenAnswer((_) async => 'en');
       when(
-        mockLocalStorageService.set(AppStorageKeys.locale, any),
+        mockLocalStorageService.set(StorageKeys.preferredLanguage, any),
       ).thenThrow(Exception('Failed to save'));
 
       localeNotifier = LocaleNotifier(
@@ -406,10 +406,10 @@ void main() {
     test('should maintain state consistency across multiple changes', () async {
       // Arrange
       when(
-        mockLocalStorageService.get<String>(AppStorageKeys.locale),
+        mockLocalStorageService.get<String>(StorageKeys.preferredLanguage),
       ).thenAnswer((_) async => null);
       when(
-        mockLocalStorageService.set(AppStorageKeys.locale, any),
+        mockLocalStorageService.set(StorageKeys.preferredLanguage, any),
       ).thenAnswer((_) async => true);
 
       localeNotifier = LocaleNotifier(
@@ -430,7 +430,7 @@ void main() {
       expect(localeNotifier.state.languageCode, 'en');
 
       // Assert
-      verify(mockLocalStorageService.set(AppStorageKeys.locale, any)).called(3);
+      verify(mockLocalStorageService.set(StorageKeys.preferredLanguage, any)).called(3);
     });
   });
 
@@ -438,10 +438,10 @@ void main() {
     test('should handle app restart simulation with valid locale', () async {
       // Arrange - First app session
       when(
-        mockLocalStorageService.get<String>(AppStorageKeys.locale),
+        mockLocalStorageService.get<String>(StorageKeys.preferredLanguage),
       ).thenAnswer((_) async => null);
       when(
-        mockLocalStorageService.set(AppStorageKeys.locale, any),
+        mockLocalStorageService.set(StorageKeys.preferredLanguage, any),
       ).thenAnswer((_) async => true);
 
       localeNotifier = LocaleNotifier(
@@ -453,7 +453,7 @@ void main() {
 
       // Arrange - Second app session (restart)
       when(
-        mockLocalStorageService.get<String>(AppStorageKeys.locale),
+        mockLocalStorageService.get<String>(StorageKeys.preferredLanguage),
       ).thenAnswer((_) async => 'bo');
 
       // Act
@@ -471,7 +471,7 @@ void main() {
       () async {
         // Arrange - Simulate old app version stored unsupported locale
         when(
-          mockLocalStorageService.get<String>(AppStorageKeys.locale),
+          mockLocalStorageService.get<String>(StorageKeys.preferredLanguage),
         ).thenAnswer((_) async => 'unsupported_old_locale');
 
         // Act
@@ -488,10 +488,10 @@ void main() {
     test('should handle clear data scenario', () async {
       // Arrange
       when(
-        mockLocalStorageService.get<String>(AppStorageKeys.locale),
+        mockLocalStorageService.get<String>(StorageKeys.preferredLanguage),
       ).thenAnswer((_) async => 'bo');
       when(
-        mockLocalStorageService.set(AppStorageKeys.locale, any),
+        mockLocalStorageService.set(StorageKeys.preferredLanguage, any),
       ).thenAnswer((_) async => true);
 
       localeNotifier = LocaleNotifier(
@@ -503,7 +503,7 @@ void main() {
 
       // Act - Simulate app data cleared
       when(
-        mockLocalStorageService.get<String>(AppStorageKeys.locale),
+        mockLocalStorageService.get<String>(StorageKeys.preferredLanguage),
       ).thenAnswer((_) async => null);
 
       localeNotifier = LocaleNotifier(

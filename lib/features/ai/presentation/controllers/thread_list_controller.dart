@@ -1,5 +1,5 @@
 import 'package:flutter_pecha/core/utils/app_logger.dart';
-import 'package:flutter_pecha/core/utils/error_message_mapper.dart';
+import 'package:flutter_pecha/core/error/error_message_mapper.dart';
 import 'package:flutter_pecha/features/ai/data/providers/ai_chat_provider.dart';
 import 'package:flutter_pecha/features/ai/data/repositories/ai_chat_repository.dart';
 import 'package:flutter_pecha/features/ai/models/chat_thread.dart';

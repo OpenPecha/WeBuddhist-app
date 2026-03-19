@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:flutter_pecha/core/constants/app_storage_keys.dart';
+import 'package:flutter_pecha/core/storage/storage_keys.dart';
 import 'package:flutter_pecha/core/utils/local_storage_service.dart';
 import 'package:flutter_pecha/features/onboarding/models/onboarding_preferences.dart';
 
@@ -13,7 +13,7 @@ class OnboardingLocalDatasource {
   Future<void> savePreferences(OnboardingPreferences prefs) async {
     final jsonString = json.encode(prefs.toJson());
     await localStorageService.set<String>(
-      AppStorageKeys.onboardingPreferences,
+      StorageKeys.onboardingPreferences,
       jsonString,
     );
   }
@@ -21,7 +21,7 @@ class OnboardingLocalDatasource {
   /// Load preferences from local storage
   Future<OnboardingPreferences?> loadPreferences() async {
     final jsonString = await localStorageService.get<String>(
-      AppStorageKeys.onboardingPreferences,
+      StorageKeys.onboardingPreferences,
     );
     if (jsonString == null) return null;
     try {
@@ -34,14 +34,14 @@ class OnboardingLocalDatasource {
 
   /// Clear preferences from local storage
   Future<void> clearPreferences() async {
-    await localStorageService.remove(AppStorageKeys.onboardingPreferences);
-    await localStorageService.remove(AppStorageKeys.onboardingCompleted);
+    await localStorageService.remove(StorageKeys.onboardingPreferences);
+    await localStorageService.remove(StorageKeys.onboardingCompleted);
   }
 
   /// Check if onboarding has been completed
   Future<bool> hasCompletedOnboarding() async {
     final completed = await localStorageService.get<bool>(
-      AppStorageKeys.onboardingCompleted,
+      StorageKeys.onboardingCompleted,
     );
     return completed ?? false;
   }
@@ -49,7 +49,7 @@ class OnboardingLocalDatasource {
   /// Mark onboarding as complete
   Future<void> markOnboardingComplete() async {
     await localStorageService.set<bool>(
-      AppStorageKeys.onboardingCompleted,
+      StorageKeys.onboardingCompleted,
       true,
     );
   }

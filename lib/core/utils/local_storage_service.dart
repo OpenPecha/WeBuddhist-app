@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../constants/app_storage_keys.dart';
+import '../storage/storage_keys.dart';
 
 abstract class LocalStorageService {
   // ========== USER DATA ==========
@@ -39,13 +39,13 @@ class LocalStorageServiceImpl implements LocalStorageService {
   Future<void> setUserData(Map<String, dynamic> userData) async {
     final userDataJson = json.encode(userData);
     final prefs = await _prefs;
-    await prefs.setString(AppStorageKeys.userData, userDataJson);
+    await prefs.setString(StorageKeys.userData, userDataJson);
   }
 
   @override
   Future<Map<String, dynamic>?> getUserData() async {
     final prefs = await _prefs;
-    final userDataJson = prefs.getString(AppStorageKeys.userData);
+    final userDataJson = prefs.getString(StorageKeys.userData);
     if (userDataJson != null) {
       return json.decode(userDataJson) as Map<String, dynamic>;
     }
@@ -55,19 +55,19 @@ class LocalStorageServiceImpl implements LocalStorageService {
   @override
   Future<void> clearUserData() async {
     final prefs = await _prefs;
-    await prefs.remove(AppStorageKeys.userData);
+    await prefs.remove(StorageKeys.userData);
   }
 
   @override
   Future<void> setOnboardingCompleted(bool completed) async {
     final prefs = await _prefs;
-    await prefs.setBool(AppStorageKeys.onboardingCompleted, completed);
+    await prefs.setBool(StorageKeys.onboardingCompleted, completed);
   }
 
   @override
   Future<bool> getOnboardingCompleted() async {
     final prefs = await _prefs;
-    return prefs.getBool(AppStorageKeys.onboardingCompleted) ?? false;
+    return prefs.getBool(StorageKeys.onboardingCompleted) ?? false;
   }
 
   @override

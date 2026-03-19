@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_pecha/core/constants/app_storage_keys.dart';
+import 'package:flutter_pecha/core/storage/storage_keys.dart';
 import 'package:flutter_pecha/core/l10n/l10n.dart';
 import 'package:flutter_pecha/core/utils/local_storage_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -24,7 +24,7 @@ class LocaleNotifier extends StateNotifier<Locale> {
 
     try {
       final locale = await _localStorageService.get<String>(
-        AppStorageKeys.locale,
+        StorageKeys.preferredLanguage,
       );
       if (locale != null) {
         state = Locale(locale);
@@ -50,7 +50,7 @@ class LocaleNotifier extends StateNotifier<Locale> {
     }
 
     state = locale;
-    await _localStorageService.set(AppStorageKeys.locale, locale.languageCode);
+    await _localStorageService.set(StorageKeys.preferredLanguage, locale.languageCode);
   }
 
   /// Maps onboarding language preference to app locale

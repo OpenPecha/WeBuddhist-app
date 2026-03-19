@@ -1,0 +1,97 @@
+/// Plans feature barrel export
+///
+/// Usage:
+/// ```dart
+/// import 'package:flutter_pecha/features/plans/plans.dart';
+/// ```
+library;
+
+// Domain - Entities
+export 'domain/entities/plan.dart';
+export 'domain/entities/week_plan.dart';
+export 'domain/entities/plan_day.dart';
+export 'domain/entities/plan_task.dart';
+export 'domain/entities/plan_progress.dart';
+export 'domain/entities/author.dart';
+
+// Domain - Repositories
+export 'domain/repositories/plans_repository.dart';
+
+// Domain - Use Cases
+export 'domain/usecases/plans_usecases.dart';
+
+// Domain - Exceptions
+export 'exceptions/plan_exceptions.dart';
+
+// Domain - Constants
+export 'constants/plan_constants.dart';
+
+// Models
+export 'models/plans_model.dart' hide DifficultyLevel;
+export 'models/plan_tasks_model.dart';
+export 'models/plan_subtasks_model.dart';
+export 'models/plan_progress_model.dart';
+export 'models/plan_days_model.dart';
+export 'models/author/author_model.dart';
+export 'models/user/user_plans_model.dart';
+export 'models/user/user_tasks_dto.dart';
+export 'models/user/user_subtasks_dto.dart';
+
+// Response Models
+export 'models/response/all_plan_response_model.dart';
+export 'models/response/featured_day_response.dart';
+export 'models/response/user_plan_list_response_model.dart';
+export 'models/response/user_plan_day_detail_response.dart';
+export 'models/response/user_plan_day_completion_status_response.dart';
+
+// Data - Datasources
+export 'data/datasource/plans_remote_datasource.dart';
+export 'data/datasource/user_plans_remote_datasource.dart';
+export 'data/datasource/plan_days_remote_datasource.dart';
+export 'data/datasource/tasks_remote_datasource.dart';
+export 'data/datasource/author_remote_datasource.dart';
+
+// Data - Providers
+export 'data/providers/plans_providers.dart';
+export 'data/providers/user_plans_provider.dart';
+export 'data/providers/plan_days_providers.dart';
+export 'data/providers/tasks_providers.dart';
+export 'data/providers/author_providers.dart';
+
+// Data - Repositories
+export 'data/repositories/plans_repository.dart' hide PlansRepository;
+export 'data/repositories/user_plans_repository.dart';
+export 'data/repositories/plan_days_repository.dart';
+export 'data/repositories/tasks_repository.dart';
+export 'data/repositories/author_repository.dart';
+
+// Data - Utils
+export 'data/utils/plan_utils.dart';
+
+// Presentation - Providers
+export 'presentation/providers/plan_search_provider.dart';
+export 'presentation/providers/my_plans_paginated_provider.dart';
+export 'presentation/providers/find_plans_paginated_provider.dart';
+
+// Presentation - Screens
+export 'presentation/screens/plans_screen.dart';
+export 'presentation/plan_info.dart';
+export 'presentation/author_detail_screen.dart';
+
+// Presentation - Widgets
+export 'presentation/widgets/plan_card.dart';
+export 'presentation/widgets/user_plan_card.dart';
+export 'presentation/widgets/day_carousel.dart';
+export 'presentation/widgets/my_plan_tab.dart';
+export 'presentation/widgets/find_plan_tab.dart';
+export 'presentation/widgets/plan_preview/plan_preview_details.dart';
+export 'presentation/widgets/plan_preview/preview_activity_list.dart';
+export 'presentation/widgets/plan_track/plan_details.dart';
+export 'presentation/widgets/plan_track/activity_list.dart';
+export 'presentation/widgets/plan_cover_image.dart';
+
+// Presentation - Search
+export 'presentation/search/plan_search_delegate.dart';
+
+// Services
+export 'services/plan_share_service.dart';

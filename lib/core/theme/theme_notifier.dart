@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_pecha/core/constants/app_storage_keys.dart';
+import 'package:flutter_pecha/core/storage/storage_keys.dart';
 import 'package:flutter_pecha/core/utils/local_storage_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -15,7 +15,7 @@ class ThemeModeNotifier extends StateNotifier<ThemeMode> {
   // Load theme mode from local storage if available
   Future<void> _loadThemeMode() async {
     final themeIndex = await _localStorageService.get<int>(
-      AppStorageKeys.themeMode,
+      StorageKeys.themeMode,
     );
     if (themeIndex != null) {
       state = ThemeMode.values[themeIndex];
@@ -24,7 +24,7 @@ class ThemeModeNotifier extends StateNotifier<ThemeMode> {
 
   Future<void> setTheme(ThemeMode mode) async {
     state = mode;
-    await _localStorageService.set<int>(AppStorageKeys.themeMode, mode.index);
+    await _localStorageService.set<int>(StorageKeys.themeMode, mode.index);
   }
 
   void toggleTheme() {

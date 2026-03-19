@@ -1,0 +1,97 @@
+/// Texts feature barrel export
+///
+/// Usage:
+/// ```dart
+/// import 'package:flutter_pecha/features/texts/texts.dart';
+/// ```
+library;
+
+// Domain - Entities
+export 'domain/entities/text.dart';
+export 'domain/entities/section.dart';
+export 'domain/entities/segment.dart';
+export 'domain/entities/version.dart';
+
+// Domain - Repositories
+export 'domain/repositories/texts_repository.dart';
+
+// Domain - Use Cases
+export 'domain/usecases/texts_usecases.dart';
+
+// Models
+export 'models/segment.dart';
+export 'models/section.dart';
+export 'models/version.dart';
+export 'models/translation.dart';
+export 'models/detail_segment.dart';
+export 'models/text_detail.dart';
+export 'models/search/segment_match.dart';
+export 'models/search/search_response.dart';
+export 'models/commentary/segment_commentary.dart';
+export 'models/collections/collections.dart';
+
+// Data - Datasources
+export 'data/datasource/text_remote_datasource.dart';
+export 'data/datasource/segment_remote_datasource.dart';
+export 'data/datasource/collections_remote_datasource.dart';
+export 'data/datasource/share_remote_datasource.dart';
+
+// Data - Providers
+export 'data/providers/apis/texts_provider.dart';
+export 'data/providers/apis/segment_provider.dart';
+export 'data/providers/apis/collections_providers.dart';
+export 'data/providers/apis/share_provider.dart';
+export 'data/providers/font_size_notifier.dart';
+export 'data/providers/library_search_state_provider.dart';
+export 'data/providers/paginated_texts_provider.dart';
+export 'data/providers/selected_segment_provider.dart';
+export 'data/providers/text_reading_params_provider.dart';
+export 'data/providers/text_version_language_provider.dart';
+export 'data/providers/version_provider.dart';
+
+// Data - Repositories
+export 'data/repositories/texts_repository.dart' hide TextsRepository;
+export 'data/repositories/segment_repository.dart';
+export 'data/repositories/collections_repository.dart';
+export 'data/repositories/share_repository.dart';
+
+// Presentation - Screens
+export 'presentation/screens/works/works_screen.dart';
+export 'presentation/screens/texts/texts_screen.dart';
+export 'presentation/screens/chapters/chapters_screen.dart';
+export 'presentation/screens/collections/collections_screen.dart';
+export 'presentation/category_screen.dart';
+export 'presentation/version_selection/version_selection_screen.dart';
+
+// Presentation - Widgets
+export 'presentation/widgets/table_of_contens.dart';
+export 'presentation/widgets/language_selector_badge.dart';
+export 'presentation/widgets/action_button.dart';
+export 'presentation/widgets/font_size_selector.dart';
+export 'presentation/widgets/collections_section.dart';
+export 'presentation/widgets/commentary_list_item.dart';
+export 'presentation/widgets/library_search_delegate.dart';
+export 'presentation/widgets/loading_state_widget.dart';
+export 'presentation/widgets/section_header.dart';
+export 'presentation/widgets/chapter_header.dart';
+export 'presentation/widgets/search_text_field.dart';
+export 'presentation/widgets/text_list_item.dart';
+export 'presentation/widgets/search_result_card.dart';
+export 'presentation/widgets/continue_reading_button.dart';
+export 'presentation/widgets/text_search_delegate.dart';
+export 'presentation/widgets/version_list_item.dart';
+export 'presentation/widgets/contents_chapter.dart';
+export 'presentation/widgets/text_screen_app_bar.dart';
+export 'presentation/widgets/segment_action_bar.dart';
+export 'presentation/widgets/commentary_panel.dart';
+export 'presentation/commentary/commentary_view.dart';
+
+// Constants
+export 'constants/chapter_constants.dart';
+export 'constants/text_routes.dart';
+export 'constants/text_screen_constants.dart';
+
+// Utils
+// export 'utils/language_helper.dart';
+export 'utils/helper_functions.dart';
+export 'utils/text_highlight_helper.dart';

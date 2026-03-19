@@ -45,11 +45,10 @@ class MaterialLocalizationsBo extends GlobalMaterialLocalizations {
   String get closeButtonLabel => 'ཁ་རྒྱབ';
   @override
   String get continueButtonLabel => 'འཕྲལ་མར་འགྱོ';
+  // Note: These getters are kept for potential future use
   @override
   List<String> get narrowWeekdays => _boWeekdays;
-  @override
   List<String> get weekdays => _boWeekdays;
-  @override
   List<String> get shortWeekdays => _boWeekdays;
 
   @override
@@ -127,11 +126,12 @@ class MaterialLocalizationsBo extends GlobalMaterialLocalizations {
   @override
   String get viewLicensesButtonLabel => _en.viewLicensesButtonLabel;
 
-  static const _enDelegate = GlobalMaterialLocalizations.delegate;
-
-  static Future<MaterialLocalizations> _loadEn(Locale locale) {
-    return GlobalMaterialLocalizations.delegate.load(const Locale('en'));
-  }
+  // Reserved for future use - fallback to English localization
+  // static const _enDelegate = GlobalMaterialLocalizations.delegate;
+  //
+  // static Future<MaterialLocalizations> _loadEn(Locale locale) {
+  //   return GlobalMaterialLocalizations.delegate.load(const Locale('en'));
+  // }
 
   @override
   String get bottomSheetLabel => 'Bottom sheet';
