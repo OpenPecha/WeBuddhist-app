@@ -127,7 +127,9 @@ class TextsRepository {
     String cacheKey,
   ) {
     if (_pendingRefreshes.contains(cacheKey)) {
-      _logger.debug('Background refresh already in progress for works: $termId');
+      _logger.debug(
+        'Background refresh already in progress for works: $termId',
+      );
       return;
     }
 
@@ -252,7 +254,9 @@ class TextsRepository {
     String cacheKey,
   ) {
     if (_pendingRefreshes.contains(cacheKey)) {
-      _logger.debug('Background refresh already in progress for version: $textId');
+      _logger.debug(
+        'Background refresh already in progress for version: $textId',
+      );
       return;
     }
 
@@ -367,7 +371,9 @@ class TextsRepository {
     String cacheKey,
   ) {
     if (_pendingRefreshes.contains(cacheKey)) {
-      _logger.debug('Background refresh already in progress for commentary: $textId');
+      _logger.debug(
+        'Background refresh already in progress for commentary: $textId',
+      );
       return;
     }
 

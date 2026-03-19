@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
 import 'package:flutter_pecha/core/widgets/error_state_widget.dart';
 import 'package:flutter_pecha/features/reader/presentation/widgets/reader_content/text_search_skeleton.dart';
+import 'package:flutter_pecha/features/texts/constants/text_screen_constants.dart';
 import 'package:flutter_pecha/features/texts/data/providers/apis/texts_provider.dart';
-import 'package:flutter_pecha/features/texts/models/search/segment_match.dart';
+import 'package:flutter_pecha/features/texts/models/search/multilingual_source_result.dart';
+import 'package:flutter_pecha/features/texts/utils/text_highlight_helper.dart';
+import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Search delegate for the reader feature
@@ -10,10 +14,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 class ReaderSearchDelegate extends SearchDelegate<Map<String, String>?> {
   final WidgetRef ref;
   final String textId;
+  final String? language;
   String _submittedQuery = '';
   bool _hasSubmitted = false;
 
-  ReaderSearchDelegate({required this.ref, required this.textId});
+  ReaderSearchDelegate({
+    required this.ref,
+    required this.textId,
+    this.language,
+  });
 
   @override
   ThemeData appBarTheme(BuildContext context) {
@@ -98,14 +107,17 @@ class ReaderSearchDelegate extends SearchDelegate<Map<String, String>?> {
       );
     }
 
-    final searchParams = SearchTextParams(
+    final searchParams = LibrarySearchParams(
       query: _submittedQuery,
       textId: textId,
+      language: language,
     );
 
     return Consumer(
       builder: (context, ref, child) {
-        final searchResults = ref.watch(searchTextFutureProvider(searchParams));
+        final searchResults = ref.watch(
+          multilingualSearchProvider(searchParams),
+        );
 
         return searchResults.when(
           loading: () => const TextSearchSkeleton(),
@@ -115,25 +127,48 @@ class ReaderSearchDelegate extends SearchDelegate<Map<String, String>?> {
                 customMessage: 'Unable to perform search.\nPlease try again.',
               ),
           data: (searchResponse) {
-            if (searchResponse.sources == null ||
-                searchResponse.sources!.isEmpty) {
+            if (searchResponse.sources.isEmpty) {
               return _buildNoResults();
             }
 
-            final allSegmentMatches = <SegmentMatch>[];
-            for (final source in searchResponse.sources!) {
-              allSegmentMatches.addAll(source.segmentMatches);
+            final allSegmentMatches = <MultilingualSegmentMatch>[];
+            for (final source in searchResponse.sources) {
+              if (source.text.textId == textId) {
+                allSegmentMatches.addAll(source.segmentMatches);
+              }
             }
 
             if (allSegmentMatches.isEmpty) {
               return _buildNoResults();
             }
 
-            return _SearchResultsList(
-              matches: allSegmentMatches,
-              onSelect: (segmentId) {
-                close(context, {'textId': textId, 'segmentId': segmentId});
-              },
+            final segments =
+                allSegmentMatches
+                    .map(
+                      (match) => {
+                        'segmentId': match.segmentId,
+                        'content': match.content,
+                      },
+                    )
+                    .toList();
+
+            return Container(
+              color: Theme.of(context).scaffoldBackgroundColor,
+              child: ListView(
+                children: [
+                  _SearchResultsCard(
+                    textId: textId,
+                    segments: segments,
+                    searchQuery: _submittedQuery,
+                    onSegmentTap: (segmentId) {
+                      close(context, {
+                        'textId': textId,
+                        'segmentId': segmentId,
+                      });
+                    },
+                  ),
+                ],
+              ),
             );
           },
         );
@@ -151,59 +186,104 @@ class ReaderSearchDelegate extends SearchDelegate<Map<String, String>?> {
   }
 }
 
-/// Widget displaying search results as a list
-class _SearchResultsList extends StatelessWidget {
-  final List<SegmentMatch> matches;
-  final void Function(String segmentId) onSelect;
+/// Custom search result card for reader that handles segment selection
+class _SearchResultsCard extends ConsumerWidget {
+  final String textId;
+  final List<Map<String, String>> segments;
+  final String searchQuery;
+  final void Function(String segmentId) onSegmentTap;
 
-  const _SearchResultsList({required this.matches, required this.onSelect});
+  const _SearchResultsCard({
+    required this.textId,
+    required this.segments,
+    required this.searchQuery,
+    required this.onSegmentTap,
+  });
 
   @override
-  Widget build(BuildContext context) {
-    return Container(
-      color: Theme.of(context).scaffoldBackgroundColor,
-      child: ListView.separated(
-        itemCount: matches.length,
-        separatorBuilder:
-            (context, index) => const Divider(
-              height: 1,
-              color: Colors.grey,
-              indent: 20,
-              endIndent: 20,
-            ),
-        itemBuilder: (context, index) {
-          final match = matches[index];
-          return _SearchResultItem(
-            match: match,
-            onTap: () => onSelect(match.segmentId),
-          );
-        },
+  Widget build(BuildContext context, WidgetRef ref) {
+    final language = ref.watch(localeProvider).languageCode;
+    final fontFamily = getFontFamily(language);
+    final lineHeight = getLineHeight(language);
+    final fontSize = language == 'bo' ? 20.0 : 16.0;
+
+    return Card(
+      color: Colors.transparent,
+      elevation: 0,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(0)),
+      margin: TextScreenConstants.cardMargin,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          ...segments.asMap().entries.map((entry) {
+            final segmentIndex = entry.key;
+            final segment = entry.value;
+            final segmentId = segment['segmentId']!;
+            final content = segment['content']!;
+            final cleanContent = content.replaceAll(RegExp(r'<[^>]*>'), '');
+
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildSegmentItem(
+                  context,
+                  segmentId,
+                  cleanContent,
+                  language,
+                  fontFamily,
+                  lineHeight,
+                  fontSize,
+                ),
+                if (segmentIndex < segments.length - 1)
+                  SizedBox(height: TextScreenConstants.contentVerticalSpacing),
+              ],
+            );
+          }),
+        ],
       ),
     );
   }
-}
 
-/// Individual search result item
-class _SearchResultItem extends StatelessWidget {
-  final SegmentMatch match;
-  final VoidCallback onTap;
-
-  const _SearchResultItem({required this.match, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    final cleanContent = match.content.replaceAll(RegExp(r'<[^>]*>'), '');
-
-    return ListTile(
-      title: Text(cleanContent),
-      subtitle: Text(
-        'Segment ${match.content}',
-        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-          color: Theme.of(context).colorScheme.onSurface.withAlpha(153),
+  Widget _buildSegmentItem(
+    BuildContext context,
+    String segmentId,
+    String content,
+    String language,
+    String? fontFamily,
+    double? lineHeight,
+    double fontSize,
+  ) {
+    return InkWell(
+      onTap: () => onSegmentTap(segmentId),
+      borderRadius: BorderRadius.circular(TextScreenConstants.cardBorderRadius),
+      child: Container(
+        width: double.infinity,
+        padding: TextScreenConstants.cardInnerPaddingValue,
+        decoration: BoxDecoration(
+          color: Theme.of(context).cardColor,
+          borderRadius: BorderRadius.circular(
+            TextScreenConstants.cardBorderRadius,
+          ),
+          border: Border.all(
+            color: Theme.of(context).dividerColor,
+            width: TextScreenConstants.thinDividerThickness,
+          ),
+        ),
+        child: Text.rich(
+          TextSpan(
+            children: buildHighlightedText(
+              context,
+              content,
+              searchQuery,
+              TextStyle(
+                fontSize: fontSize,
+                fontFamily: fontFamily,
+                height: lineHeight,
+              ),
+            ),
+          ),
         ),
       ),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-      onTap: onTap,
     );
   }
 }

@@ -14,15 +14,15 @@ import 'package:go_router/go_router.dart';
 class ReaderAppBarOverlay extends ConsumerWidget {
   final ReaderParams params;
   final int? colorIndex;
-  final VoidCallback? onSearchPressed;
-  final VoidCallback? onLanguagePressed;
+  final VoidCallback onSearchPressed;
+  final VoidCallback onLanguagePressed;
 
   const ReaderAppBarOverlay({
     super.key,
     required this.params,
     this.colorIndex,
-    this.onSearchPressed,
-    this.onLanguagePressed,
+    required this.onSearchPressed,
+    required this.onLanguagePressed,
   });
 
   @override
@@ -31,9 +31,10 @@ class ReaderAppBarOverlay extends ConsumerWidget {
     final notifier = ref.read(readerNotifierProvider(params).notifier);
 
     // Get the border color from the color index
-    final borderColor = colorIndex != null
-        ? TextScreenConstants.collectionCyclingColors[colorIndex! % 9]
-        : TextScreenConstants.primaryBorderColor;
+    final borderColor =
+        colorIndex != null
+            ? TextScreenConstants.collectionCyclingColors[colorIndex! % 9]
+            : TextScreenConstants.primaryBorderColor;
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -53,9 +54,7 @@ class ReaderAppBarOverlay extends ConsumerWidget {
           ),
           toolbarHeight: ReaderConstants.appBarToolbarHeight,
           actions: [
-            ReaderSearchButton(
-              onPressed: onSearchPressed ?? () => _handleSearch(context, ref),
-            ),
+            ReaderSearchButton(onPressed: onSearchPressed),
             const SizedBox(width: 4),
             ReaderFontSizeButton(
               onPressed: () => _showFontSizeBottomSheet(context, ref),
@@ -64,8 +63,7 @@ class ReaderAppBarOverlay extends ConsumerWidget {
               const SizedBox(width: 4),
               ReaderLanguageButton(
                 language: state.textDetail!.language,
-                onPressed:
-                    onLanguagePressed ?? () => _handleLanguageSelection(context, ref),
+                onPressed: onLanguagePressed,
               ),
             ],
             const SizedBox(width: 12),
@@ -80,28 +78,10 @@ class ReaderAppBarOverlay extends ConsumerWidget {
     );
   }
 
-  void _handleSearch(BuildContext context, WidgetRef ref) {
-    // Default search implementation - can be overridden via callback
-    final notifier = ref.read(readerNotifierProvider(params).notifier);
-
-    // Close split view and selection before search
-    notifier.closeCommentary();
-    notifier.selectSegment(null);
-  }
-
   void _showFontSizeBottomSheet(BuildContext context, WidgetRef ref) {
     final locale = ref.read(localeProvider);
     final language = locale.languageCode;
     showFontSizeBottomSheet(context, language);
-  }
-
-  void _handleLanguageSelection(BuildContext context, WidgetRef ref) {
-    // Default implementation - can be overridden via callback
-    final notifier = ref.read(readerNotifierProvider(params).notifier);
-
-    // Close split view and selection before language selection
-    notifier.closeCommentary();
-    notifier.selectSegment(null);
   }
 }
 
@@ -126,9 +106,10 @@ class ReaderAppBar extends ConsumerWidget {
     final notifier = ref.read(readerNotifierProvider(params).notifier);
 
     // Get the border color from the color index
-    final borderColor = colorIndex != null
-        ? TextScreenConstants.collectionCyclingColors[colorIndex! % 9]
-        : TextScreenConstants.primaryBorderColor;
+    final borderColor =
+        colorIndex != null
+            ? TextScreenConstants.collectionCyclingColors[colorIndex! % 9]
+            : TextScreenConstants.primaryBorderColor;
 
     return SliverAppBar(
       floating: true,
@@ -159,13 +140,16 @@ class ReaderAppBar extends ConsumerWidget {
           ReaderLanguageButton(
             language: state.textDetail!.language,
             onPressed:
-                onLanguagePressed ?? () => _handleLanguageSelection(context, ref),
+                onLanguagePressed ??
+                () => _handleLanguageSelection(context, ref),
           ),
         ],
         const SizedBox(width: 12),
       ],
       bottom: PreferredSize(
-        preferredSize: const Size.fromHeight(ReaderConstants.appBarBottomHeight),
+        preferredSize: const Size.fromHeight(
+          ReaderConstants.appBarBottomHeight,
+        ),
         child: Container(
           height: ReaderConstants.appBarBottomHeight,
           color: borderColor,

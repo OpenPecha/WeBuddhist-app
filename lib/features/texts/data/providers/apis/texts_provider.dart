@@ -119,7 +119,8 @@ final searchTextFutureProvider = FutureProvider.family((
 class LibrarySearchParams {
   final String query;
   final String? textId;
-  const LibrarySearchParams({required this.query, this.textId});
+  final String? language;
+  const LibrarySearchParams({required this.query, this.textId, this.language});
 
   @override
   bool operator ==(Object other) =>
@@ -127,10 +128,11 @@ class LibrarySearchParams {
       other is LibrarySearchParams &&
           runtimeType == other.runtimeType &&
           query == other.query &&
-          textId == other.textId;
+          textId == other.textId &&
+          language == other.language;
 
   @override
-  int get hashCode => query.hashCode ^ textId.hashCode;
+  int get hashCode => query.hashCode ^ textId.hashCode ^ language.hashCode;
 }
 
 final librarySearchProvider = FutureProvider.family((
@@ -149,7 +151,11 @@ final multilingualSearchProvider = FutureProvider.family((
 ) {
   final result = ref
       .watch(textsRepositoryProvider)
-      .multilingualSearchRepository(query: params.query, textId: params.textId);
+      .multilingualSearchRepository(
+        query: params.query,
+        textId: params.textId,
+        language: params.language,
+      );
   return result;
 });
 
