@@ -792,7 +792,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String enrollErrorDetail(String error) {
-    return 'Unable to enroll in plan: $error';
+    return 'Unable to enroll in plan. Please try again later';
   }
 
   @override
@@ -833,7 +833,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String shareError(String error) {
-    return 'Unable to share: $error';
+    return 'Unable to share your segment. Please try again later';
   }
 
   @override

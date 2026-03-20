@@ -793,7 +793,7 @@ class AppLocalizationsBo extends AppLocalizations {
 
   @override
   String enrollErrorDetail(String error) {
-    return 'འཆར་གཞིར་ཞུགས་མི་ཐུབ། $error';
+    return 'འཆར་གཞིར་ཞུགས་མི་ཐུབ།';
   }
 
   @override
@@ -832,7 +832,7 @@ class AppLocalizationsBo extends AppLocalizations {
 
   @override
   String shareError(String error) {
-    return 'མཉམ་སྤྱོད་བྱེད་མི་ཐུབ། $error';
+    return 'མཉམ་སྤྱོད་བྱེད་མི་ཐུབ།';
   }
 
   @override

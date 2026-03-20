@@ -1603,7 +1603,7 @@ abstract class AppLocalizations {
   /// No description provided for @enrollErrorDetail.
   ///
   /// In en, this message translates to:
-  /// **'Unable to enroll in plan: {error}'**
+  /// **'Unable to enroll in plan. Please try again later'**
   String enrollErrorDetail(String error);
 
   /// No description provided for @unenrollSuccess.
@@ -1663,7 +1663,7 @@ abstract class AppLocalizations {
   /// No description provided for @shareError.
   ///
   /// In en, this message translates to:
-  /// **'Unable to share: {error}'**
+  /// **'Unable to share your segment. Please try again later'**
   String shareError(String error);
 
   /// No description provided for @updateOrderError.

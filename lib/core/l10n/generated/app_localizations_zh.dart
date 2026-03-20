@@ -782,7 +782,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String enrollErrorDetail(String error) {
-    return '無法加入計劃：$error';
+    return '無法加入計劃';
   }
 
   @override
@@ -820,7 +820,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String shareError(String error) {
-    return '無法分享：$error';
+    return '無法分享';
   }
 
   @override
