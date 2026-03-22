@@ -1,52 +1,100 @@
-import 'package:flutter_pecha/core/error/exceptions.dart';
-import 'package:flutter_pecha/core/error/failures.dart';
-import 'package:flutter_pecha/core/utils/local_storage_service.dart';
+import 'package:auth0_flutter/auth0_flutter.dart';
 import 'package:flutter_pecha/features/auth/data/datasource/auth_remote_datasource.dart';
-import 'package:flutter_pecha/features/auth/data/models/user_model.dart';
 import 'package:flutter_pecha/features/auth/domain/entities/user.dart';
 import 'package:flutter_pecha/features/auth/domain/repositories/auth_repository.dart';
+import 'package:flutter_pecha/features/auth/auth_service.dart';
 
+/// Auth repository implementation (Data Layer)
+///
+/// Wraps the working AuthService to provide repository interface.
+/// This maintains all existing functionality while providing clean abstraction.
 class AuthRepositoryImpl implements AuthRepository {
-  final AuthRemoteDataSource remoteDataSource;
-  final LocalStorageService localStorageService;
+  final AuthService _authService;
+  final AuthRemoteDataSource _remoteDataSource;
 
   AuthRepositoryImpl({
-    required this.remoteDataSource,
-    required this.localStorageService,
-  });
+    required AuthService authService,
+    required AuthRemoteDataSource remoteDataSource,
+  })  : _authService = authService,
+        _remoteDataSource = remoteDataSource;
+
+  // ========== Initialization ==========
+
+  @override
+  Future<void> initialize() async {
+    await _authService.initialize();
+  }
+
+  // ========== Authentication Operations ==========
+
+  @override
+  Future<Credentials?> loginWithGoogle() async {
+    return await _authService.loginWithGoogle();
+  }
+
+  @override
+  Future<Credentials?> loginWithApple() async {
+    return await _authService.loginWithApple();
+  }
+
+  @override
+  Future<void> localLogout() async {
+    await _authService.localLogout();
+  }
+
+  @override
+  Future<bool> hasValidCredentials() async {
+    return await _authService.hasValidCredentials();
+  }
+
+  @override
+  Future<Credentials?> getCredentials() async {
+    return await _authService.getCredentials();
+  }
+
+  @override
+  bool isIdTokenExpired(String idToken) {
+    return _authService.isIdTokenExpired(idToken);
+  }
+
+  @override
+  Future<String?> getValidIdToken() async {
+    return await _authService.getValidIdToken();
+  }
+
+  @override
+  Future<String?> refreshIdToken() async {
+    return await _authService.refreshIdToken();
+  }
+
+  // ========== Guest Mode Operations ==========
+
+  @override
+  Future<void> continueAsGuest() async {
+    await _authService.continueAsGuest();
+  }
+
+  @override
+  Future<bool> isGuestMode() async {
+    return await _authService.isGuestMode();
+  }
+
+  @override
+  Future<void> clearGuestMode() async {
+    await _authService.clearGuestMode();
+  }
+
+  // ========== User Data Operations ==========
 
   @override
   Future<User?> getCurrentUser() async {
-    try {
-      final userModel = await remoteDataSource.getCurrentUser();
-      await localStorageService.setUserData(userModel.toJson());
-      return userModel.toEntity();
-    } on NetworkException {
-      // If no network, try local storage only
-      final userData = await localStorageService.getUserData();
-      if (userData != null) {
-        return UserModel.fromJson(userData).toEntity();
-      }
-      throw const NetworkFailure(
-        'No internet connection and no local user data',
-      );
-    } on ServerException catch (e) {
-      throw ServerFailure(e.message);
-    } on AuthenticationException catch (e) {
-      throw AuthenticationFailure(e.message);
-    } catch (e) {
-      throw UnknownFailure('An unexpected error occurred: ${e.toString()}');
+    // Get valid ID token for the API request
+    final idToken = await _authService.getValidIdToken();
+    if (idToken == null) {
+      return null;
     }
-  }
 
-  // @override
-  // Future<void> logout() async {
-  //   try {
-  //     // Try to logout on server first
-  //     await remoteDataSource.logout(allDevices: false);
-  //   } catch (e) {
-  //     // Continue with local logout even if server logout fails
-  //     logger.warning('Server logout failed: $e');
-  //   }
-  // }
+    final userModel = await _remoteDataSource.getCurrentUser(idToken);
+    return userModel.toEntity();
+  }
 }

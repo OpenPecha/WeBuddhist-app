@@ -2,9 +2,9 @@
 import 'package:auth0_flutter/auth0_flutter.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/features/auth/application/user_notifier.dart';
+import 'package:flutter_pecha/features/auth/domain/repositories/auth_repository.dart';
 import 'package:flutter_pecha/features/onboarding/presentation/providers/onboarding_datasource_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../auth_service.dart';
 
 /// Authentication state
 ///
@@ -44,11 +44,11 @@ class AuthState {
 }
 
 class AuthNotifier extends StateNotifier<AuthState> {
-  final AuthService authService;
+  final AuthRepository authRepository;
   final Ref ref;
   final _logger = AppLogger('AuthNotifier');
 
-  AuthNotifier({required this.authService, required this.ref})
+  AuthNotifier({required this.authRepository, required this.ref})
     : super(const AuthState(isLoggedIn: false, isLoading: true)) {
     _restoreLoginState();
   }
@@ -56,15 +56,15 @@ class AuthNotifier extends StateNotifier<AuthState> {
   Future<void> _restoreLoginState() async {
     _logger.debug('Restoring login state');
     try {
-      await authService.initialize(); // Ensure config + Auth0 initialized
+      await authRepository.initialize(); // Ensure config + Auth0 initialized
 
       // First check if we have any credentials at all
-      final hasCredentials = await authService.hasValidCredentials();
+      final hasCredentials = await authRepository.hasValidCredentials();
       _logger.debug('Credentials valid: $hasCredentials');
 
       if (hasCredentials) {
         final credentials =
-            await authService.getCredentials(); // 5 minute buffer
+            await authRepository.getCredentials(); // 5 minute buffer
 
         // Validate credentials were actually retrieved
         if (credentials != null && credentials.user.sub.isNotEmpty) {
@@ -95,7 +95,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
       _logger.debug('No valid credentials found, checking guest mode');
 
       // No credentials, check if user previously chose guest mode
-      final isGuest = await authService.isGuestMode();
+      final isGuest = await authRepository.isGuestMode();
 
       if (isGuest) {
         // Restore guest mode
@@ -130,7 +130,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
   Future<void> _handleAuthFailure() async {
     try {
-      await authService.localLogout();
+      await authRepository.localLogout();
     } catch (logoutError) {
       _logger.warning(
         'Failed to clear credentials during logout: $logoutError',
@@ -152,10 +152,10 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
       switch (connection) {
         case 'google':
-          credentials = await authService.loginWithGoogle();
+          credentials = await authRepository.loginWithGoogle();
           break;
         case 'apple':
-          credentials = await authService.loginWithApple();
+          credentials = await authRepository.loginWithApple();
           break;
         default:
           throw Exception('Unsupported login method: $connection');
@@ -163,10 +163,10 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
       if (credentials != null) {
         // Check if user was previously in guest mode
-        final wasGuest = state.isGuest || await authService.isGuestMode();
+        final wasGuest = state.isGuest || await authRepository.isGuestMode();
 
         // Clear guest mode when user authenticates
-        await authService.clearGuestMode();
+        await authRepository.clearGuestMode();
 
         // If user was a guest, clear onboarding completion so they see onboarding
         if (wasGuest) {
@@ -213,7 +213,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
   // continue as guest
   Future<void> continueAsGuest() async {
     // Persist guest mode preference
-    await authService.saveGuestMode();
+    await authRepository.continueAsGuest();
 
     state = state.copyWith(
       isLoading: false,
@@ -224,7 +224,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
   }
 
   Future<void> logout() async {
-    await authService.localLogout(); // This also clears guest mode
+    await authRepository.localLogout(); // This also clears guest mode
 
     // Clear user data on logout
     await ref.read(userProvider.notifier).clearUser();
@@ -266,32 +266,5 @@ class AuthNotifier extends StateNotifier<AuthState> {
   }
 }
 
-// Helper classes for loading and error states
-// class LoadingAuthNotifier extends AuthNotifier {
-//   LoadingAuthNotifier()
-//     : super(authService: AuthService(domain: 'temp', clientId: 'temp')) {
-//     // Don't call _restoreLoginState() as this is just a temporary loading state
-//     // The actual AuthNotifier will handle state restoration when config loads
-//     state = const AuthState(isLoggedIn: false, isLoading: true);
-//   }
-// }
-
-// class ErrorAuthNotifier extends AuthNotifier {
-//   ErrorAuthNotifier(String errorMessage)
-//     : super(authService: AuthService(domain: 'temp', clientId: 'temp')) {
-//     state = AuthState(
-//       isLoggedIn: false,
-//       isLoading: false,
-//       errorMessage: errorMessage,
-//     );
-//   }
-// }
-
-final authServiceProvider = Provider<AuthService>((ref) {
-  return AuthService.instance;
-});
-
-final authProvider = StateNotifierProvider<AuthNotifier, AuthState>((ref) {
-  final authService = AuthService.instance; // Use singleton
-  return AuthNotifier(authService: authService, ref: ref);
-});
+// Note: Providers are now defined in lib/features/auth/presentation/providers/auth_providers.dart
+// to follow clean architecture structure better

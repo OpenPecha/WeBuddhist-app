@@ -4,7 +4,7 @@ import 'package:flutter_pecha/features/auth/application/user_notifier.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
-import '../../application/auth_notifier.dart';
+import 'package:flutter_pecha/features/auth/presentation/providers/auth_providers.dart';
 import '../../../../core/config/router/route_config.dart';
 
 class ProfilePage extends ConsumerWidget {

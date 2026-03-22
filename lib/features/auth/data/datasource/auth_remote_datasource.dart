@@ -2,32 +2,29 @@ import 'dart:convert';
 
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_pecha/core/error/exceptions.dart';
-import 'package:flutter_pecha/core/network/api_client_provider.dart';
 import 'package:flutter_pecha/features/auth/data/models/user_model.dart';
+import 'package:http/http.dart' as http;
 
 abstract class AuthRemoteDataSource {
-  // Future<void> loginWithGoogle();
-
-  // Future<void> loginWithApple();
-
-  Future<UserModel> getCurrentUser();
-
-  // Future<Credentials?> refreshToken();
-
-  // Future<void> logout();
+  Future<UserModel> getCurrentUser(String idToken);
 }
 
 class AuthRemoteDatasourceImpl extends AuthRemoteDataSource {
-  final ApiClient _apiClient;
+  final http.Client _client;
   final String baseUrl = dotenv.env['BASE_API_URL']!;
 
-  AuthRemoteDatasourceImpl({required ApiClient apiClient})
-    : _apiClient = apiClient;
+  AuthRemoteDatasourceImpl({required http.Client client}) : _client = client;
 
   @override
-  Future<UserModel> getCurrentUser() async {
+  Future<UserModel> getCurrentUser(String idToken) async {
     try {
-      final response = await _apiClient.get(Uri.parse('$baseUrl/users/info'));
+      final response = await _client.get(
+        Uri.parse('$baseUrl/users/info'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $idToken',
+        },
+      );
 
       if (response.statusCode == 200) {
         final decoded = utf8.decode(response.bodyBytes);

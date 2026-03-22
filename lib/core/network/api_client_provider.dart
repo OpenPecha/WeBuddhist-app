@@ -1,12 +1,12 @@
 import 'dart:async';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
-import 'package:flutter_pecha/features/auth/application/auth_notifier.dart';
-import 'package:flutter_pecha/features/auth/auth_service.dart';
+import 'package:flutter_pecha/features/auth/domain/repositories/auth_repository.dart';
+import 'package:flutter_pecha/features/auth/presentation/providers/auth_providers.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:http/http.dart' as http;
 
 class ApiClient extends http.BaseClient {
-  final AuthService _authService;
+  final AuthRepository _authRepository;
   final http.Client _inner = http.Client();
 
   /// Note: Route protection is handled by RouteGuard in the router layer.
@@ -37,7 +37,7 @@ class ApiClient extends http.BaseClient {
   ];
   final _logger = AppLogger('ApiClient');
 
-  ApiClient(this._authService);
+  ApiClient(this._authRepository);
 
   @override
   void close() {
@@ -52,7 +52,7 @@ class ApiClient extends http.BaseClient {
 
     // Add authentication header for protected routes
     if (_isProtectedRoute(request.url.path)) {
-      final token = await _authService.getValidIdToken();
+      final token = await _authRepository.getValidIdToken();
       if (token != null) {
         request.headers['Authorization'] = 'Bearer $token';
         _logger.debug(
@@ -79,7 +79,7 @@ class ApiClient extends http.BaseClient {
         final newRequest = _cloneRequest(request);
 
         // FORCE refresh (not just getValid, which might return same expired token)
-        final newToken = await _authService.refreshIdToken();
+        final newToken = await _authRepository.refreshIdToken();
         if (newToken != null) {
           // Add the new token to the cloned request
           newRequest.headers['Authorization'] = 'Bearer $newToken';
@@ -165,8 +165,8 @@ class ApiClient extends http.BaseClient {
 }
 
 final apiClientProvider = Provider<ApiClient>((ref) {
-  final authService = ref.watch(authServiceProvider);
-  final client = ApiClient(authService);
+  final authRepository = ref.watch(authRepositoryProvider);
+  final client = ApiClient(authRepository);
 
   ref.onDispose(() {
     client.close();
