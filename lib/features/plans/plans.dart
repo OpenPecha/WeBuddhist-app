@@ -26,23 +26,23 @@ export 'exceptions/plan_exceptions.dart';
 // Domain - Constants
 export 'constants/plan_constants.dart';
 
-// Models
-export 'models/plans_model.dart' hide DifficultyLevel;
-export 'models/plan_tasks_model.dart';
-export 'models/plan_subtasks_model.dart';
-export 'models/plan_progress_model.dart';
-export 'models/plan_days_model.dart';
-export 'models/author/author_model.dart';
-export 'models/user/user_plans_model.dart';
-export 'models/user/user_tasks_dto.dart';
-export 'models/user/user_subtasks_dto.dart';
+// Data - Models
+export 'data/models/plans_model.dart' hide DifficultyLevel;
+export 'data/models/plan_tasks_model.dart';
+export 'data/models/plan_subtasks_model.dart';
+export 'data/models/plan_progress_model.dart';
+export 'data/models/plan_days_model.dart';
+export 'data/models/author/author_model.dart';
+export 'data/models/user/user_plans_model.dart';
+export 'data/models/user/user_tasks_dto.dart';
+export 'data/models/user/user_subtasks_dto.dart';
 
 // Response Models
-export 'models/response/all_plan_response_model.dart';
-export 'models/response/featured_day_response.dart';
-export 'models/response/user_plan_list_response_model.dart';
-export 'models/response/user_plan_day_detail_response.dart';
-export 'models/response/user_plan_day_completion_status_response.dart';
+export 'data/models/response/all_plan_response_model.dart';
+export 'data/models/response/featured_day_response.dart';
+export 'data/models/response/user_plan_list_response_model.dart';
+export 'data/models/response/user_plan_day_detail_response.dart';
+export 'data/models/response/user_plan_day_completion_status_response.dart';
 
 // Data - Datasources
 export 'data/datasource/plans_remote_datasource.dart';
@@ -51,12 +51,7 @@ export 'data/datasource/plan_days_remote_datasource.dart';
 export 'data/datasource/tasks_remote_datasource.dart';
 export 'data/datasource/author_remote_datasource.dart';
 
-// Data - Providers
-export 'data/providers/plans_providers.dart';
-export 'data/providers/user_plans_provider.dart';
-export 'data/providers/plan_days_providers.dart';
-export 'data/providers/tasks_providers.dart';
-export 'data/providers/author_providers.dart';
+// Data - Providers (moved to presentation)
 
 // Data - Repositories
 export 'data/repositories/plans_repository.dart' hide PlansRepository;
@@ -72,6 +67,11 @@ export 'data/utils/plan_utils.dart';
 export 'presentation/providers/plan_search_provider.dart';
 export 'presentation/providers/my_plans_paginated_provider.dart';
 export 'presentation/providers/find_plans_paginated_provider.dart';
+export 'presentation/providers/plans_providers.dart';
+export 'presentation/providers/user_plans_provider.dart';
+export 'presentation/providers/plan_days_providers.dart';
+export 'presentation/providers/tasks_providers.dart';
+export 'presentation/providers/author_providers.dart';
 
 // Presentation - Screens
 export 'presentation/screens/plans_screen.dart';

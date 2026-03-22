@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
-import 'package:flutter_pecha/features/plans/data/providers/user_plans_provider.dart';
+import 'package:flutter_pecha/features/plans/presentation/providers/user_plans_provider.dart';
 import 'package:flutter_pecha/features/practice/data/models/routine_model.dart';
 import 'package:flutter_pecha/features/practice/presentation/widgets/routine_item_card.dart';
 import 'package:flutter_pecha/features/reader/data/models/navigation_context.dart';

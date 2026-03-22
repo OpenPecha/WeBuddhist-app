@@ -69,3 +69,4 @@ google_fonts/
 # Local documentation (not for git)
 CLEAN_ARCHITECTURE_VERIFICATION.md
 DEVELOPER_ARCHITECTURE_GUIDE.docx
+/WeBhuddhist_Architecture_Guide.pdf

@@ -1,5 +1,5 @@
-import 'package:flutter_pecha/features/ai/models/search_state.dart';
-import 'package:flutter_pecha/features/texts/data/providers/apis/texts_provider.dart';
+import 'package:flutter_pecha/features/ai/data/models/search_state.dart';
+import 'package:flutter_pecha/features/texts/presentation/providers/texts_provider.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 

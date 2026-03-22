@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/features/reader/data/models/navigation_context.dart';
-import 'package:flutter_pecha/features/texts/models/section.dart';
-import 'package:flutter_pecha/features/texts/models/text/toc_response.dart';
+import 'package:flutter_pecha/features/texts/data/models/section.dart';
+import 'package:flutter_pecha/features/texts/data/models/text/toc_response.dart';
 import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';

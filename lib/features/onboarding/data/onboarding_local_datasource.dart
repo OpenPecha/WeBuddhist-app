@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:flutter_pecha/core/storage/storage_keys.dart';
 import 'package:flutter_pecha/core/utils/local_storage_service.dart';
-import 'package:flutter_pecha/features/onboarding/models/onboarding_preferences.dart';
+import 'package:flutter_pecha/features/onboarding/data/models/onboarding_preferences.dart';
 
 /// Local datasource for onboarding preferences using SharedPreferences
 class OnboardingLocalDatasource {

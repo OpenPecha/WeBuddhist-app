@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/utils/get_language.dart';
-import 'package:flutter_pecha/features/texts/data/providers/text_version_language_provider.dart';
+import 'package:flutter_pecha/features/texts/presentation/providers/text_version_language_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 

@@ -1,5 +1,5 @@
 import 'package:flutter_pecha/features/plans/data/datasource/tasks_remote_datasource.dart';
-import 'package:flutter_pecha/features/plans/models/plan_tasks_model.dart';
+import 'package:flutter_pecha/features/plans/data/models/plan_tasks_model.dart';
 
 class TasksRepository {
   final TasksRemoteDatasource tasksRemoteDatasource;

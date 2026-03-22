@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/widgets/error_state_widget.dart';
 import 'package:flutter_pecha/features/reader/presentation/widgets/reader_content/text_search_skeleton.dart';
-import 'package:flutter_pecha/features/texts/data/providers/apis/texts_provider.dart';
-import 'package:flutter_pecha/features/texts/models/search/segment_match.dart';
+import 'package:flutter_pecha/features/texts/presentation/providers/texts_provider.dart';
+import 'package:flutter_pecha/features/texts/data/models/search/segment_match.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Search delegate for the reader feature

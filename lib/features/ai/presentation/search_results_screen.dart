@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
-import 'package:flutter_pecha/features/ai/models/search_state.dart';
+import 'package:flutter_pecha/features/ai/data/models/search_state.dart';
 import 'package:flutter_pecha/features/ai/presentation/controllers/chat_controller.dart';
 import 'package:flutter_pecha/features/ai/presentation/controllers/search_state_controller.dart';
 import 'package:flutter_pecha/features/ai/presentation/widgets/all_tab_view.dart';

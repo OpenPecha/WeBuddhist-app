@@ -1,7 +1,7 @@
 import 'package:flutter_pecha/features/plans/data/datasource/user_plans_remote_datasource.dart';
-import 'package:flutter_pecha/features/plans/models/plan_progress_model.dart';
-import 'package:flutter_pecha/features/plans/models/response/user_plan_day_detail_response.dart';
-import 'package:flutter_pecha/features/plans/models/response/user_plan_list_response_model.dart';
+import 'package:flutter_pecha/features/plans/data/models/plan_progress_model.dart';
+import 'package:flutter_pecha/features/plans/data/models/response/user_plan_day_detail_response.dart';
+import 'package:flutter_pecha/features/plans/data/models/response/user_plan_list_response_model.dart';
 
 class UserPlansRepository {
   final UserPlansRemoteDatasource userPlansRemoteDatasource;

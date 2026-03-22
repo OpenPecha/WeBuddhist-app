@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
-import 'package:flutter_pecha/features/onboarding/models/onboarding_preferences.dart';
+import 'package:flutter_pecha/features/onboarding/data/models/onboarding_preferences.dart';
 import 'package:http/http.dart' as http;
 
 final _logger = AppLogger('OnboardingRemoteDatasource');

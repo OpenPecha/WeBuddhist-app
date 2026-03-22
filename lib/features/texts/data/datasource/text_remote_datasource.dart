@@ -1,14 +1,14 @@
 import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
-import 'package:flutter_pecha/features/texts/models/search/multilingual_search_response.dart';
-import 'package:flutter_pecha/features/texts/models/search/search_response.dart';
-import 'package:flutter_pecha/features/texts/models/search/title_search_response.dart';
-import 'package:flutter_pecha/features/texts/models/text/commentary_text_response.dart';
-import 'package:flutter_pecha/features/texts/models/text/detail_response.dart';
-import 'package:flutter_pecha/features/texts/models/text/reader_response.dart';
-import 'package:flutter_pecha/features/texts/models/text/toc_response.dart';
-import 'package:flutter_pecha/features/texts/models/text/version_response.dart';
+import 'package:flutter_pecha/features/texts/data/models/search/multilingual_search_response.dart';
+import 'package:flutter_pecha/features/texts/data/models/search/search_response.dart';
+import 'package:flutter_pecha/features/texts/data/models/search/title_search_response.dart';
+import 'package:flutter_pecha/features/texts/data/models/text/commentary_text_response.dart';
+import 'package:flutter_pecha/features/texts/data/models/text/detail_response.dart';
+import 'package:flutter_pecha/features/texts/data/models/text/reader_response.dart';
+import 'package:flutter_pecha/features/texts/data/models/text/toc_response.dart';
+import 'package:flutter_pecha/features/texts/data/models/text/version_response.dart';
 import 'package:http/http.dart' as http;
 
 class TextRemoteDatasource {

@@ -5,7 +5,7 @@ import 'package:flutter_pecha/core/services/service_providers.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/core/widgets/error_state_widget.dart';
 import 'package:flutter_pecha/core/widgets/skeletons/skeletons.dart';
-import 'package:flutter_pecha/features/home/data/providers/tags_provider.dart';
+import 'package:flutter_pecha/features/home/presentation/providers/tags_provider.dart';
 import 'package:flutter_pecha/features/home/presentation/home_screen_constants.dart';
 import 'package:flutter_pecha/features/home/presentation/widgets/tag_card.dart';
 import 'package:flutter_pecha/shared/utils/helper_functions.dart';

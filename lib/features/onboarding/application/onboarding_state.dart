@@ -1,4 +1,4 @@
-import 'package:flutter_pecha/features/onboarding/models/onboarding_preferences.dart';
+import 'package:flutter_pecha/features/onboarding/data/models/onboarding_preferences.dart';
 
 /// State for onboarding flow management
 class OnboardingState {

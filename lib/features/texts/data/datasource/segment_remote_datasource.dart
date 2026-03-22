@@ -1,8 +1,8 @@
 import 'dart:convert';
 
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:flutter_pecha/features/texts/models/commentary/segment_commentary_response.dart';
-import 'package:flutter_pecha/features/texts/models/translation/segment_translation_response.dart';
+import 'package:flutter_pecha/features/texts/data/models/commentary/segment_commentary_response.dart';
+import 'package:flutter_pecha/features/texts/data/models/translation/segment_translation_response.dart';
 import 'package:http/http.dart' as http;
 
 class SegmentRemoteDatasource {

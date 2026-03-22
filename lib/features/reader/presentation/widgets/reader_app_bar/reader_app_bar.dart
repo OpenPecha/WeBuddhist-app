@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
 import 'package:flutter_pecha/features/reader/constants/reader_constants.dart';
-import 'package:flutter_pecha/features/reader/data/providers/reader_notifier.dart';
+import 'package:flutter_pecha/features/reader/presentation/providers/reader_notifier.dart';
 import 'package:flutter_pecha/features/reader/presentation/widgets/reader_app_bar/reader_font_size_bottom_sheet.dart';
 import 'package:flutter_pecha/features/reader/presentation/widgets/reader_app_bar/reader_font_size_button.dart';
 import 'package:flutter_pecha/features/reader/presentation/widgets/reader_app_bar/reader_language_button.dart';

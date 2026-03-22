@@ -1,8 +1,8 @@
 import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/features/ai/data/datasource/ai_chat_remote_datasource.dart';
 import 'package:flutter_pecha/features/ai/data/datasource/thread_remote_datasource.dart';
-import 'package:flutter_pecha/features/ai/models/chat_message.dart';
-import 'package:flutter_pecha/features/ai/models/chat_thread.dart';
+import 'package:flutter_pecha/features/ai/data/models/chat_message.dart';
+import 'package:flutter_pecha/features/ai/data/models/chat_thread.dart';
 
 /// Event types emitted by the chat stream
 abstract class ChatStreamEvent {}

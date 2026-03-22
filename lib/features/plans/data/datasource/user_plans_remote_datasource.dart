@@ -4,10 +4,10 @@ import 'dart:io';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/features/plans/exceptions/plan_exceptions.dart';
-import 'package:flutter_pecha/features/plans/models/plan_progress_model.dart';
-import 'package:flutter_pecha/features/plans/models/response/user_plan_day_detail_response.dart';
-import 'package:flutter_pecha/features/plans/models/response/user_plan_day_completion_status_response.dart';
-import 'package:flutter_pecha/features/plans/models/response/user_plan_list_response_model.dart';
+import 'package:flutter_pecha/features/plans/data/models/plan_progress_model.dart';
+import 'package:flutter_pecha/features/plans/data/models/response/user_plan_day_detail_response.dart';
+import 'package:flutter_pecha/features/plans/data/models/response/user_plan_day_completion_status_response.dart';
+import 'package:flutter_pecha/features/plans/data/models/response/user_plan_list_response_model.dart';
 import 'package:http/http.dart' as http;
 
 class UserPlansRemoteDatasource {

@@ -26,8 +26,8 @@ export 'data/models/session_selection.dart';
 // Data - Services
 export 'data/services/routine_notification_service.dart';
 
-// Data - Providers
-export 'data/providers/routine_provider.dart';
+// Presentation - Providers
+export 'presentation/providers/routine_provider.dart';
 
 // Data - Utils
 export 'data/utils/routine_time_utils.dart';

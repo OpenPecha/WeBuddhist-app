@@ -10,7 +10,7 @@ import 'package:flutter_pecha/core/theme/theme_notifier.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/features/notifications/services/notification_service.dart';
 import 'package:flutter_pecha/features/practice/data/datasources/routine_local_storage.dart';
-import 'package:flutter_pecha/features/practice/data/providers/routine_provider.dart';
+import 'package:flutter_pecha/features/practice/presentation/providers/routine_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';

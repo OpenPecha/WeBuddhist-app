@@ -1,5 +1,5 @@
 import 'package:flutter_pecha/features/home/data/datasource/featured_day_remote_datasource.dart';
-import 'package:flutter_pecha/features/plans/models/response/featured_day_response.dart';
+import 'package:flutter_pecha/features/plans/data/models/response/featured_day_response.dart';
 
 class FeaturedDayRepository {
   final FeaturedDayRemoteDatasource featuredDayRemoteDatasource;

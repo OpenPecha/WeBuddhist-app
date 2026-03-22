@@ -1,6 +1,6 @@
 import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/features/onboarding/application/onboarding_state.dart';
-import 'package:flutter_pecha/features/onboarding/data/onboarding_repository.dart';
+import 'package:flutter_pecha/features/onboarding/data/repositories/onboarding_repository.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 final _logger = AppLogger('OnboardingNotifier');

@@ -4,7 +4,7 @@ import 'package:flutter_pecha/core/error/error_message_mapper.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/features/ai/presentation/controllers/chat_controller.dart';
 import 'package:flutter_pecha/features/ai/presentation/controllers/search_state_controller.dart';
-import 'package:flutter_pecha/features/ai/models/search_state.dart';
+import 'package:flutter_pecha/features/ai/data/models/search_state.dart';
 import 'package:flutter_pecha/features/ai/presentation/widgets/chat_header.dart';
 import 'package:flutter_pecha/features/ai/presentation/widgets/chat_history_drawer.dart';
 import 'package:flutter_pecha/features/ai/presentation/widgets/message_list.dart';

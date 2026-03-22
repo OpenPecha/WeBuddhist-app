@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_pecha/features/plans/models/author/author_dto_model.dart';
-import 'package:flutter_pecha/features/plans/models/user/user_tasks_dto.dart';
+import 'package:flutter_pecha/features/plans/data/models/author/author_dto_model.dart';
+import 'package:flutter_pecha/features/plans/data/models/user/user_tasks_dto.dart';
 import 'package:flutter_pecha/features/reader/data/models/navigation_context.dart';
 import 'package:go_router/go_router.dart';
 

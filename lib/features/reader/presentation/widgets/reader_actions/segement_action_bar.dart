@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_pecha/features/reader/data/providers/reader_notifier.dart';
+import 'package:flutter_pecha/features/reader/presentation/providers/reader_notifier.dart';
 import 'package:flutter_pecha/features/reader/presentation/widgets/reader_actions/action_button.dart';
-import 'package:flutter_pecha/features/texts/data/providers/apis/share_provider.dart';
-import 'package:flutter_pecha/features/texts/models/segment.dart';
+import 'package:flutter_pecha/features/texts/presentation/providers/share_provider.dart';
+import 'package:flutter_pecha/features/texts/data/models/segment.dart';
 import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

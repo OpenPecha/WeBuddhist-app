@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/features/reader/constants/reader_constants.dart';
-import 'package:flutter_pecha/features/texts/models/text_detail.dart';
+import 'package:flutter_pecha/features/texts/data/models/text_detail.dart';
 import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 
 /// Header widget showing the text title

@@ -18,17 +18,17 @@ export 'domain/repositories/texts_repository.dart';
 // Domain - Use Cases
 export 'domain/usecases/texts_usecases.dart';
 
-// Models
-export 'models/segment.dart';
-export 'models/section.dart';
-export 'models/version.dart';
-export 'models/translation.dart';
-export 'models/detail_segment.dart';
-export 'models/text_detail.dart';
-export 'models/search/segment_match.dart';
-export 'models/search/search_response.dart';
-export 'models/commentary/segment_commentary.dart';
-export 'models/collections/collections.dart';
+// Data - Models
+export 'data/models/segment.dart';
+export 'data/models/section.dart';
+export 'data/models/version.dart';
+export 'data/models/translation.dart';
+export 'data/models/detail_segment.dart';
+export 'data/models/text_detail.dart';
+export 'data/models/search/segment_match.dart';
+export 'data/models/search/search_response.dart';
+export 'data/models/commentary/segment_commentary.dart';
+export 'data/models/collections/collections.dart';
 
 // Data - Datasources
 export 'data/datasource/text_remote_datasource.dart';
@@ -36,18 +36,18 @@ export 'data/datasource/segment_remote_datasource.dart';
 export 'data/datasource/collections_remote_datasource.dart';
 export 'data/datasource/share_remote_datasource.dart';
 
-// Data - Providers
-export 'data/providers/apis/texts_provider.dart';
-export 'data/providers/apis/segment_provider.dart';
-export 'data/providers/apis/collections_providers.dart';
-export 'data/providers/apis/share_provider.dart';
-export 'data/providers/font_size_notifier.dart';
-export 'data/providers/library_search_state_provider.dart';
-export 'data/providers/paginated_texts_provider.dart';
-export 'data/providers/selected_segment_provider.dart';
-export 'data/providers/text_reading_params_provider.dart';
-export 'data/providers/text_version_language_provider.dart';
-export 'data/providers/version_provider.dart';
+// Presentation - Providers
+export 'presentation/providers/texts_provider.dart';
+export 'presentation/providers/segment_provider.dart';
+export 'presentation/providers/collections_providers.dart';
+export 'presentation/providers/share_provider.dart';
+export 'presentation/providers/font_size_notifier.dart';
+export 'presentation/providers/library_search_state_provider.dart';
+export 'presentation/providers/paginated_texts_provider.dart';
+export 'presentation/providers/selected_segment_provider.dart';
+export 'presentation/providers/text_reading_params_provider.dart';
+export 'presentation/providers/text_version_language_provider.dart';
+export 'presentation/providers/version_provider.dart';
 
 // Data - Repositories
 export 'data/repositories/texts_repository.dart' hide TextsRepository;

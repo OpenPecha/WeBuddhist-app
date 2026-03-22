@@ -3,8 +3,8 @@ import 'package:flutter_pecha/features/reader/data/models/flattened_content.dart
 import 'package:flutter_pecha/features/reader/data/models/flattened_item.dart';
 import 'package:flutter_pecha/features/reader/data/models/reader_state.dart';
 import 'package:flutter_pecha/features/reader/domain/services/section_flattener_service.dart';
-import 'package:flutter_pecha/features/texts/models/section.dart';
-import 'package:flutter_pecha/features/texts/models/segment.dart';
+import 'package:flutter_pecha/features/texts/data/models/section.dart';
+import 'package:flutter_pecha/features/texts/data/models/segment.dart';
 
 /// Service responsible for efficiently merging new sections into existing
 /// flattened content during pagination

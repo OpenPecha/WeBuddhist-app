@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
-import 'package:flutter_pecha/features/plans/data/providers/plan_days_providers.dart';
-import 'package:flutter_pecha/features/plans/data/providers/user_plans_provider.dart';
+import 'package:flutter_pecha/features/plans/presentation/providers/plan_days_providers.dart';
+import 'package:flutter_pecha/features/plans/presentation/providers/user_plans_provider.dart';
 import 'package:flutter_pecha/features/reader/constants/reader_constants.dart';
 import 'package:flutter_pecha/features/reader/data/models/navigation_context.dart';
-import 'package:flutter_pecha/features/reader/data/providers/reader_notifier.dart';
+import 'package:flutter_pecha/features/reader/presentation/providers/reader_notifier.dart';
 import 'package:flutter_pecha/features/reader/domain/services/navigation_service.dart';
-import 'package:flutter_pecha/features/texts/models/text_detail.dart';
+import 'package:flutter_pecha/features/texts/data/models/text_detail.dart';
 import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';

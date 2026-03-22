@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
 import 'package:flutter_pecha/core/widgets/error_state_widget.dart';
-import 'package:flutter_pecha/features/texts/data/providers/apis/texts_provider.dart';
+import 'package:flutter_pecha/features/texts/presentation/providers/texts_provider.dart';
 import 'package:flutter_pecha/features/texts/utils/text_highlight_helper.dart';
 import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

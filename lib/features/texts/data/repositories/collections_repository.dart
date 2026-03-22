@@ -2,7 +2,7 @@ import 'package:flutter_pecha/core/cache/cache.dart';
 import 'package:flutter_pecha/core/network/connectivity_service.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/features/texts/data/datasource/collections_remote_datasource.dart';
-import 'package:flutter_pecha/features/texts/models/collections/collections_response.dart';
+import 'package:flutter_pecha/features/texts/data/models/collections/collections_response.dart';
 
 class CollectionsRepository {
   final CollectionsRemoteDatasource remoteDatasource;

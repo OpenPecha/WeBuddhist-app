@@ -17,9 +17,9 @@ export 'domain/repositories/home_repository.dart';
 // Domain - Use Cases
 export 'domain/usecases/home_usecases.dart';
 
-// Models
-export 'models/prayer_data.dart';
-export 'models/plan_item.dart';
+// Data - Models
+export 'data/models/prayer_data.dart';
+export 'data/models/plan_item.dart';
 
 // Data - Week Plan Content (Localized)
 export 'data/week_plan.dart';
@@ -31,10 +31,10 @@ export 'data/week_plan_zh.dart';
 export 'data/datasource/tags_remote_datasource.dart';
 export 'data/datasource/featured_day_remote_datasource.dart';
 
-// Data - Providers
-export 'data/providers/tags_provider.dart';
-export 'data/providers/featured_day_provider.dart';
-export 'data/providers/plans_by_tag_provider.dart';
+// Presentation - Providers
+export 'presentation/providers/tags_provider.dart';
+export 'presentation/providers/featured_day_provider.dart';
+export 'presentation/providers/plans_by_tag_provider.dart';
 
 // Data - Repositories
 export 'data/repositories/tags_repository.dart';

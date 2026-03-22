@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_pecha/features/ai/models/search_state.dart';
+import 'package:flutter_pecha/features/ai/data/models/search_state.dart';
 import 'package:flutter_pecha/features/reader/data/models/navigation_context.dart';
 import 'package:flutter_pecha/features/texts/presentation/widgets/search_result_card.dart';
-import 'package:flutter_pecha/features/texts/models/search/multilingual_source_result.dart';
+import 'package:flutter_pecha/features/texts/data/models/search/multilingual_source_result.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/features/ai/presentation/widgets/skeletons/search_result_skeleton.dart';

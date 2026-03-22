@@ -1,5 +1,5 @@
 import 'package:flutter_pecha/features/texts/data/datasource/segment_remote_datasource.dart';
-import 'package:flutter_pecha/features/texts/models/commentary/segment_commentary_response.dart';
+import 'package:flutter_pecha/features/texts/data/models/commentary/segment_commentary_response.dart';
 
 class SegmentRepository {
   final SegmentRemoteDatasource remoteDatasource;

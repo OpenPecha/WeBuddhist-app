@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/features/reader/constants/reader_constants.dart';
-import 'package:flutter_pecha/features/texts/models/section.dart';
+import 'package:flutter_pecha/features/texts/data/models/section.dart';
 import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 
 /// Widget for displaying a section header in the reader

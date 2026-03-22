@@ -20,9 +20,9 @@ export 'domain/usecases/ai_usecases.dart';
 export 'config/ai_config.dart';
 
 // Models
-export 'models/chat_message.dart' hide ChatMessage;
-export 'models/chat_thread.dart';
-export 'models/search_state.dart';
+export 'data/models/chat_message.dart' hide ChatMessage;
+export 'data/models/chat_thread.dart';
+export 'data/models/search_state.dart';
 
 // Validators
 export 'validators/message_validator.dart';
@@ -32,9 +32,9 @@ export 'data/datasource/ai_chat_remote_datasource.dart';
 export 'data/datasource/thread_remote_datasource.dart';
 export 'data/datasource/segment_url_resolver_datasource.dart';
 
-// Data - Providers
-export 'data/providers/ai_chat_provider.dart';
-export 'data/providers/segment_url_resolver_provider.dart';
+// Presentation - Providers
+export 'presentation/providers/ai_chat_provider.dart';
+export 'presentation/providers/segment_url_resolver_provider.dart';
 
 // Data - Repositories
 export 'data/repositories/ai_chat_repository.dart';

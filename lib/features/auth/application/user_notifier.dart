@@ -2,7 +2,7 @@ import 'package:flutter_pecha/core/storage/storage_keys.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/core/utils/local_storage_service.dart';
 import 'package:flutter_pecha/features/auth/application/user_state.dart';
-import 'package:flutter_pecha/features/auth/data/providers/auth_providers.dart';
+import 'package:flutter_pecha/features/auth/presentation/providers/auth_providers.dart';
 import 'package:flutter_pecha/features/auth/data/models/user_model.dart';
 import 'package:flutter_pecha/features/auth/domain/entities/user.dart';
 import 'package:flutter_pecha/features/auth/domain/repositories/auth_repository.dart';

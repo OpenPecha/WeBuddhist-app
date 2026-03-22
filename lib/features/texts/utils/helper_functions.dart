@@ -1,8 +1,8 @@
 // to get the last segment id
 import 'package:flutter_pecha/core/utils/app_logger.dart';
-import 'package:flutter_pecha/features/texts/models/section.dart';
-import 'package:flutter_pecha/features/texts/models/segment.dart';
-import 'package:flutter_pecha/features/texts/models/text/toc.dart';
+import 'package:flutter_pecha/features/texts/data/models/section.dart';
+import 'package:flutter_pecha/features/texts/data/models/segment.dart';
+import 'package:flutter_pecha/features/texts/data/models/text/toc.dart';
 
 final _logger = AppLogger('TextHelperFunctions');
 

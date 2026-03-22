@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_pecha/features/texts/models/collections/collections.dart';
+import 'package:flutter_pecha/features/texts/data/models/collections/collections.dart';
 import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 

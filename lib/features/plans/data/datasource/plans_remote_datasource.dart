@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
-import 'package:flutter_pecha/features/plans/models/plans_model.dart';
+import 'package:flutter_pecha/features/plans/data/models/plans_model.dart';
 import 'package:http/http.dart' as http;
 
 /// Query parameters for filtering and paginating plans

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/features/reader/constants/reader_constants.dart';
 import 'package:flutter_pecha/features/reader/data/models/navigation_context.dart';
-import 'package:flutter_pecha/features/texts/data/providers/font_size_notifier.dart';
-import 'package:flutter_pecha/features/texts/models/segment.dart';
+import 'package:flutter_pecha/features/texts/presentation/providers/font_size_notifier.dart';
+import 'package:flutter_pecha/features/texts/data/models/segment.dart';
 import 'package:flutter_pecha/features/texts/presentation/segment_html_widget.dart';
 import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

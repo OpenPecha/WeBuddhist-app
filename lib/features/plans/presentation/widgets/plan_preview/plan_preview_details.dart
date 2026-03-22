@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/widgets/skeletons/skeletons.dart';
-import 'package:flutter_pecha/features/plans/data/providers/plan_days_providers.dart';
-import 'package:flutter_pecha/features/plans/models/plan_days_model.dart';
-import 'package:flutter_pecha/features/plans/models/plans_model.dart';
+import 'package:flutter_pecha/features/plans/presentation/providers/plan_days_providers.dart';
+import 'package:flutter_pecha/features/plans/data/models/plan_days_model.dart';
+import 'package:flutter_pecha/features/plans/data/models/plans_model.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../day_carousel.dart';

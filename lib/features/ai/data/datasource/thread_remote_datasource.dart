@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/features/ai/config/ai_config.dart';
-import 'package:flutter_pecha/features/ai/models/chat_thread.dart';
+import 'package:flutter_pecha/features/ai/data/models/chat_thread.dart';
 import 'package:flutter_pecha/features/ai/services/retry_service.dart';
 import 'package:http/http.dart' as http;
 

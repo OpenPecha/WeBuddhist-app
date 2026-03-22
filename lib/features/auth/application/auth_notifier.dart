@@ -2,7 +2,7 @@
 import 'package:auth0_flutter/auth0_flutter.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/features/auth/application/user_notifier.dart';
-import 'package:flutter_pecha/features/onboarding/data/providers/onboarding_datasource_providers.dart';
+import 'package:flutter_pecha/features/onboarding/presentation/providers/onboarding_datasource_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../auth_service.dart';
 

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
-import 'package:flutter_pecha/features/plans/models/plan_days_model.dart';
+import 'package:flutter_pecha/features/plans/data/models/plan_days_model.dart';
 import 'package:intl/intl.dart';
 
 class DayCarousel extends StatelessWidget {

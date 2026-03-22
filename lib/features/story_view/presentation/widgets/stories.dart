@@ -1,7 +1,7 @@
 // a widget that create a story item
 
 import 'package:flutter/material.dart';
-import 'package:flutter_pecha/features/plans/models/author/author_dto_model.dart';
+import 'package:flutter_pecha/features/plans/data/models/author/author_dto_model.dart';
 import 'package:flutter_pecha/features/story_view/presentation/widgets/story_author_avatar.dart';
 import 'package:go_router/go_router.dart';
 import 'package:story_view/story_view.dart';

@@ -1,4 +1,4 @@
-import 'package:flutter_pecha/features/plans/models/plans_model.dart';
+import 'package:flutter_pecha/features/plans/data/models/plans_model.dart';
 import 'package:flutter_pecha/features/recitation/data/models/recitation_model.dart';
 
 /// Sealed class representing a session selection result.

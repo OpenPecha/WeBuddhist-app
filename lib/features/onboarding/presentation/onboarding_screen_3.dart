@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/features/onboarding/application/onboarding_provider.dart';
-import 'package:flutter_pecha/features/onboarding/models/onboarding_preferences.dart';
+import 'package:flutter_pecha/features/onboarding/data/models/onboarding_preferences.dart';
 import 'package:flutter_pecha/features/onboarding/presentation/widgets/onboarding_back_button.dart';
 import 'package:flutter_pecha/features/onboarding/presentation/widgets/onboarding_continue_button.dart';
 import 'package:flutter_pecha/features/onboarding/presentation/widgets/onboarding_question_title.dart';

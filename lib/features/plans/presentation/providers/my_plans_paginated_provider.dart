@@ -1,5 +1,5 @@
 import 'package:flutter_pecha/features/plans/data/repositories/user_plans_repository.dart';
-import 'package:flutter_pecha/features/plans/models/user/user_plans_model.dart';
+import 'package:flutter_pecha/features/plans/data/models/user/user_plans_model.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// State for paginated my plans list

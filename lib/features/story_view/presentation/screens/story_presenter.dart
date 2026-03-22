@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/config/router/route_config.dart';
-import 'package:flutter_pecha/features/plans/models/user/user_subtasks_dto.dart';
+import 'package:flutter_pecha/features/plans/data/models/user/user_subtasks_dto.dart';
 import 'package:flutter_pecha/features/story_view/presentation/widgets/story_author_avatar.dart';
 import 'package:flutter_pecha/features/story_view/presentation/widgets/story_loading_overlay.dart';
 import 'package:flutter_pecha/features/story_view/services/story_media_preloader.dart';

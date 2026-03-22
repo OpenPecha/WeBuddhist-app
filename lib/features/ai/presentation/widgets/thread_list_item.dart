@@ -2,7 +2,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
-import 'package:flutter_pecha/features/ai/models/chat_thread.dart';
+import 'package:flutter_pecha/features/ai/data/models/chat_thread.dart';
 
 class ThreadListItem extends StatelessWidget {
   final ChatThreadSummary thread;

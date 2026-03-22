@@ -30,9 +30,9 @@ export 'data/models/flattened_content.dart';
 export 'data/models/navigation_context.dart';
 export 'data/models/highlight_config.dart';
 
-// Data - Providers
-export 'data/providers/reader_notifier.dart';
-export 'data/providers/reader_providers.dart';
+// Presentation - Providers
+export 'presentation/providers/reader_notifier.dart';
+export 'presentation/providers/reader_providers.dart';
 
 // Presentation - Screens
 export 'presentation/reader_screen.dart';

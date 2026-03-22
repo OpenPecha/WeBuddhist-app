@@ -1,4 +1,4 @@
-import 'package:flutter_pecha/features/plans/models/plan_subtasks_model.dart';
+import 'package:flutter_pecha/features/plans/data/models/plan_subtasks_model.dart';
 
 
 final List<PlanSubtasksModel> subtask = [

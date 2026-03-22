@@ -1,7 +1,7 @@
 import 'package:flutter_pecha/features/reader/data/models/flattened_content.dart';
 import 'package:flutter_pecha/features/reader/data/models/navigation_context.dart';
-import 'package:flutter_pecha/features/texts/models/segment.dart';
-import 'package:flutter_pecha/features/texts/models/text_detail.dart';
+import 'package:flutter_pecha/features/texts/data/models/segment.dart';
+import 'package:flutter_pecha/features/texts/data/models/text_detail.dart';
 
 /// Status of the reader
 enum ReaderStatus {

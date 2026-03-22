@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_pecha/features/texts/data/providers/apis/collections_providers.dart';
-import 'package:flutter_pecha/features/texts/models/collections/collections.dart';
+import 'package:flutter_pecha/features/texts/presentation/providers/collections_providers.dart';
+import 'package:flutter_pecha/features/texts/data/models/collections/collections.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 

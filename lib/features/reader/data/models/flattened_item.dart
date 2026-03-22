@@ -1,5 +1,5 @@
-import 'package:flutter_pecha/features/texts/models/section.dart';
-import 'package:flutter_pecha/features/texts/models/segment.dart';
+import 'package:flutter_pecha/features/texts/data/models/section.dart';
+import 'package:flutter_pecha/features/texts/data/models/segment.dart';
 
 /// Type of flattened item
 enum FlattenedItemType {

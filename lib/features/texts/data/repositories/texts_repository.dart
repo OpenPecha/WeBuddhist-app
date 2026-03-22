@@ -2,14 +2,14 @@ import 'package:flutter_pecha/core/cache/cache.dart';
 import 'package:flutter_pecha/core/network/connectivity_service.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/features/texts/data/datasource/text_remote_datasource.dart';
-import 'package:flutter_pecha/features/texts/models/search/multilingual_search_response.dart';
-import 'package:flutter_pecha/features/texts/models/search/search_response.dart';
-import 'package:flutter_pecha/features/texts/models/search/title_search_response.dart';
-import 'package:flutter_pecha/features/texts/models/text/commentary_text_response.dart';
-import 'package:flutter_pecha/features/texts/models/text/detail_response.dart';
-import 'package:flutter_pecha/features/texts/models/text/reader_response.dart';
-import 'package:flutter_pecha/features/texts/models/text/toc_response.dart';
-import 'package:flutter_pecha/features/texts/models/text/version_response.dart';
+import 'package:flutter_pecha/features/texts/data/models/search/multilingual_search_response.dart';
+import 'package:flutter_pecha/features/texts/data/models/search/search_response.dart';
+import 'package:flutter_pecha/features/texts/data/models/search/title_search_response.dart';
+import 'package:flutter_pecha/features/texts/data/models/text/commentary_text_response.dart';
+import 'package:flutter_pecha/features/texts/data/models/text/detail_response.dart';
+import 'package:flutter_pecha/features/texts/data/models/text/reader_response.dart';
+import 'package:flutter_pecha/features/texts/data/models/text/toc_response.dart';
+import 'package:flutter_pecha/features/texts/data/models/text/version_response.dart';
 
 class TextsRepository {
   final TextRemoteDatasource remoteDatasource;

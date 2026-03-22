@@ -23,8 +23,8 @@ export 'data/models/user_model.dart';
 // Data - Repositories
 export 'data/repositories/auth_repository_impl.dart';
 
-// Data - Providers
-export 'data/providers/auth_providers.dart';
+// Presentation - Providers
+export 'presentation/providers/auth_providers.dart';
 
 // Application - Auth Service
 export 'auth_service.dart';

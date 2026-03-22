@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_pecha/features/plans/models/plan_tasks_model.dart';
+import 'package:flutter_pecha/features/plans/data/models/plan_tasks_model.dart';
 import 'package:flutter_pecha/features/reader/data/models/navigation_context.dart';
 import 'package:go_router/go_router.dart';
 

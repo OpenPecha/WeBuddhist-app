@@ -1,6 +1,6 @@
 import 'package:flutter_pecha/features/reader/data/models/flattened_content.dart';
 import 'package:flutter_pecha/features/reader/data/models/flattened_item.dart';
-import 'package:flutter_pecha/features/texts/models/section.dart';
+import 'package:flutter_pecha/features/texts/data/models/section.dart';
 
 /// Service responsible for flattening nested sections into a single list
 /// with O(1) segment lookups via an index map
