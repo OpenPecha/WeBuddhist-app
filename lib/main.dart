@@ -20,6 +20,7 @@ import 'core/theme/app_theme.dart';
 import 'core/localization/material_localizations_bo.dart';
 import 'core/localization/cupertino_localizations_bo.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:just_audio_background/just_audio_background.dart';
 
 final _logger = AppLogger('Main');
 
@@ -28,6 +29,13 @@ void main() async {
 
   // Setup environment-aware logging
   AppLogger.init();
+
+  // MUST be called before runApp
+  await JustAudioBackground.init(
+    androidNotificationChannelId: 'com.webudbhist.channel.audio',
+    androidNotificationChannelName: 'WeBuddhist Audio Playback',
+    androidNotificationOngoing: true,
+  );
 
   // Enable Google Fonts runtime fetching for automatic font management
   // Fonts are downloaded once and cached locally for offline use

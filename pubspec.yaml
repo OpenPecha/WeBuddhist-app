@@ -125,6 +125,7 @@ dependencies:
 
   # UUID generation
   uuid: ^4.5.1
+  audio_session: ^0.1.25
 
 dev_dependencies:
   flutter_test:
