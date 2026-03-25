@@ -37,4 +37,4 @@ export 'utils/story_dialog_helper.dart';
 export 'utils/helper_functions.dart';
 
 // Services
-export 'services/story_media_preloader.dart';
+export 'data/services/story_media_preloader.dart';

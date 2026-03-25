@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../services/notification_service.dart';
+import 'package:flutter_pecha/features/notifications/data/services/notification_service.dart';
 
 /// Simplified notification state - only tracks permission status
 class NotificationState {

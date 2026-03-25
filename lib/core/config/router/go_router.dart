@@ -174,19 +174,7 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/home/meditation_of_the_day',
         builder: (context, state) {
-          final extra = state.extra;
-          if (extra == null ||
-              extra is! Map ||
-              !extra.containsKey('meditationAudioUrl') ||
-              !extra.containsKey('meditationImageUrl')) {
-            return Scaffold(
-              body: Center(child: Text(context.l10n.missingParameters)),
-            );
-          }
-          return MeditationOfTheDayScreen(
-            audioUrl: extra['meditationAudioUrl'] as String,
-            imageUrl: extra['meditationImageUrl'] as String,
-          );
+          return const MeditationOfTheDayScreen();
         },
       ),
       GoRoute(

@@ -17,7 +17,7 @@ export 'domain/repositories/notifications_repository.dart';
 export 'domain/usecases/notifications_usecases.dart';
 
 // Services
-export 'services/notification_service.dart';
+export 'data/services/notification_service.dart';
 
 // Presentation - Providers
 export 'presentation/providers/notification_provider.dart';

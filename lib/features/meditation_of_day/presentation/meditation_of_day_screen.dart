@@ -3,39 +3,42 @@ import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/widgets/audio_controls.dart';
 import 'package:flutter_pecha/core/widgets/audio_progress_bar.dart';
 import 'package:flutter_pecha/core/widgets/cached_network_image_widget.dart';
+import 'package:flutter_pecha/features/meditation_of_day/domain/entities/meditation.dart';
+import 'package:flutter_pecha/features/meditation_of_day/presentation/providers/meditation_notifier.dart';
+import 'package:flutter_pecha/features/meditation_of_day/presentation/state/meditation_state.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class MeditationOfTheDayScreen extends StatefulWidget {
-  final String audioUrl;
-  final String imageUrl;
-  const MeditationOfTheDayScreen({
-    super.key,
-    required this.audioUrl,
-    required this.imageUrl,
-  });
+class MeditationOfTheDayScreen extends ConsumerStatefulWidget {
+  const MeditationOfTheDayScreen({super.key});
 
   @override
-  State<MeditationOfTheDayScreen> createState() =>
+  ConsumerState<MeditationOfTheDayScreen> createState() =>
       _MeditationOfTheDayScreenState();
 }
 
-class _MeditationOfTheDayScreenState extends State<MeditationOfTheDayScreen> {
+class _MeditationOfTheDayScreenState extends ConsumerState<MeditationOfTheDayScreen> {
   late AudioPlayer _audioPlayer;
   Duration _duration = Duration.zero;
   Duration _position = Duration.zero;
+  Meditation? _currentMeditation;
+  bool _hasInitializedAudio = false;
 
   @override
   void initState() {
     super.initState();
     _initializeAudioPlayer();
+    // Load meditation data using the new architecture
+    Future.microtask(() {
+      ref.read(meditationNotifierProvider.notifier).loadTodayMeditation();
+    });
   }
 
   Future<void> _initializeAudioPlayer() async {
     try {
       _audioPlayer = AudioPlayer();
 
-      // Set up listeners before loading audio
       _audioPlayer.durationStream.listen((duration) {
         if (mounted) {
           setState(() {
@@ -52,10 +55,52 @@ class _MeditationOfTheDayScreenState extends State<MeditationOfTheDayScreen> {
         }
       });
 
-      // Load and play audio for url
-      // await _audioPlayer.setUrl(widget.audioUrl);
-      // for assets
-      await _audioPlayer.setAsset("assets/audios/monday_meditation.mp3");
+      // Handle completion
+      _audioPlayer.playerStateStream.listen((state) {
+        if (state.processingState == ProcessingState.completed) {
+          // Reset position when completed
+          if (mounted) {
+            setState(() {
+              _position = Duration.zero;
+            });
+          }
+        }
+      });
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Unable to initialize audio player. Please try again later.',
+            ),
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _loadAudioForMeditation(Meditation meditation) async {
+    if (_hasInitializedAudio && _currentMeditation?.id == meditation.id) {
+      return; // Already loaded this meditation
+    }
+
+    try {
+      // Try to load from URL if it's a network resource
+      if (meditation.audioUrl.startsWith('http')) {
+        await _audioPlayer.setUrl(meditation.audioUrl);
+      } else {
+        // Load from assets
+        await _audioPlayer.setAsset(meditation.audioUrl);
+      }
+
+      if (mounted) {
+        setState(() {
+          _currentMeditation = meditation;
+          _hasInitializedAudio = true;
+        });
+      }
+
+      // Auto-play on load
       if (mounted) {
         await _audioPlayer.play();
       }
@@ -82,6 +127,8 @@ class _MeditationOfTheDayScreenState extends State<MeditationOfTheDayScreen> {
   @override
   Widget build(BuildContext context) {
     final localizations = AppLocalizations.of(context)!;
+    final meditationState = ref.watch(meditationNotifierProvider);
+
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -95,90 +142,92 @@ class _MeditationOfTheDayScreenState extends State<MeditationOfTheDayScreen> {
         centerTitle: true,
         elevation: 0,
       ),
-      body: Column(
-        children: [
-          const SizedBox(height: 40),
-          Expanded(
-            child: CachedNetworkImageWidget(
-              imageUrl: widget.imageUrl,
-              fit: BoxFit.cover,
-              width: double.infinity,
-              borderRadius: BorderRadius.circular(12),
-            ),
+      body: meditationState.when(
+        initial: () => const Center(child: CircularProgressIndicator()),
+        loading: () => const Center(child: CircularProgressIndicator()),
+        loaded: (meditation) {
+          // Load audio when meditation data is available
+          Future.microtask(() => _loadAudioForMeditation(meditation));
+          return _buildContent(meditation);
+        },
+        error: (message) => Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(message),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () {
+                  ref.read(meditationNotifierProvider.notifier).loadTodayMeditation();
+                },
+                child: const Text('Retry'),
+              ),
+            ],
           ),
-          // Audio player controls
-          Padding(
-            padding: const EdgeInsets.only(
-              left: 16.0,
-              right: 16.0,
-              top: 0.0,
-              bottom: 16.0,
-            ),
-            child: Column(
-              children: [
-                // Progress bar
-                AudioProgressBar(
-                  audioPlayer: _audioPlayer,
-                  duration: _duration,
-                  position: _position,
-                ),
-                // Controls
-                AudioControls(
-                  audioPlayer: _audioPlayer,
-                  duration: _duration,
-                  position: _position,
-                ),
-                const SizedBox(height: 28),
-                // Row(
-                //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                //   children: [
-                //     IconButton(
-                //       color: Theme.of(context).appBarTheme.foregroundColor,
-                //       icon: const Icon(Icons.close, size: 28),
-                //       onPressed: () => context.pop(),
-                //     ),
-                //     IconButton(
-                //       color: Theme.of(context).appBarTheme.foregroundColor,
-                //       icon: const Icon(Icons.music_note, size: 28),
-                //       onPressed: () {},
-                //     ),
-                //     StatefulBuilder(
-                //       builder: (context, setState) {
-                //         final List<double> speeds = [
-                //           1.0,
-                //           0.6,
-                //           0.7,
-                //           0.8,
-                //           0.9,
-                //           1.0,
-                //         ];
-                //         int currentSpeedIndex = speeds.indexOf(
-                //           _audioPlayer.speed,
-                //         );
-                //         if (currentSpeedIndex == -1) currentSpeedIndex = 0;
-                //         return IconButton(
-                //           color: Theme.of(context).appBarTheme.foregroundColor,
-                //           onPressed: () {
-                //             int nextIndex =
-                //                 (currentSpeedIndex + 1) % speeds.length;
-                //             _audioPlayer.setSpeed(speeds[nextIndex]);
-                //             setState(() {});
-                //           },
-                //           icon: Text(
-                //             'x${_audioPlayer.speed == 1.0 ? 1 : _audioPlayer.speed.toStringAsFixed(1)}',
-                //             style: TextStyle(fontSize: 20),
-                //           ),
-                //         );
-                //       },
-                //     ),
-                //   ],
-                // ),
-                const SizedBox(height: 16),
-              ],
-            ),
-          ),
-        ],
+        ),
       ),
     );
+  }
+
+  Widget _buildContent(Meditation meditation) {
+    return Column(
+      children: [
+        const SizedBox(height: 40),
+        Expanded(
+          child: CachedNetworkImageWidget(
+            imageUrl: meditation.imageUrl,
+            fit: BoxFit.cover,
+            width: double.infinity,
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+        // Audio player controls
+        Padding(
+          padding: const EdgeInsets.only(
+            left: 16.0,
+            right: 16.0,
+            top: 0.0,
+            bottom: 16.0,
+          ),
+          child: Column(
+            children: [
+              // Progress bar
+              AudioProgressBar(
+                audioPlayer: _audioPlayer,
+                duration: _duration,
+                position: _position,
+              ),
+              // Controls
+              AudioControls(
+                audioPlayer: _audioPlayer,
+                duration: _duration,
+                position: _position,
+              ),
+              const SizedBox(height: 28),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+// Extension for state.when
+extension MeditationStateX on MeditationState {
+  T when<T>({
+    required T Function() initial,
+    required T Function() loading,
+    required T Function(Meditation meditation) loaded,
+    required T Function(String message) error,
+  }) {
+    if (this is MeditationInitial) {
+      return initial();
+    } else if (this is MeditationLoading) {
+      return loading();
+    } else if (this is MeditationLoaded) {
+      return loaded((this as MeditationLoaded).meditation);
+    } else {
+      return error((this as MeditationError).message);
+    }
   }
 }

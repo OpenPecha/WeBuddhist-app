@@ -16,6 +16,23 @@ class GetStoriesUseCase extends UseCase<List<Story>, NoParams> {
   }
 }
 
+/// Get stories by type use case.
+class GetStoriesByTypeUseCase extends UseCase<List<Story>, GetStoriesByTypeParams> {
+  final StoryViewRepository _repository;
+
+  GetStoriesByTypeUseCase(this._repository);
+
+  @override
+  Future<Either<Failure, List<Story>>> call(GetStoriesByTypeParams params) async {
+    return await _repository.getStoriesByType(params.type);
+  }
+}
+
+class GetStoriesByTypeParams {
+  final StoryType type;
+  const GetStoriesByTypeParams({required this.type});
+}
+
 /// Mark story as viewed use case.
 class MarkStoryAsViewedUseCase extends UseCase<void, MarkStoryAsViewedParams> {
   final StoryViewRepository _repository;
@@ -35,3 +52,16 @@ class MarkStoryAsViewedParams {
   final String storyId;
   const MarkStoryAsViewedParams({required this.storyId});
 }
+
+/// Get viewed story IDs use case.
+class GetViewedStoryIdsUseCase extends UseCase<List<String>, NoParams> {
+  final StoryViewRepository _repository;
+
+  GetViewedStoryIdsUseCase(this._repository);
+
+  @override
+  Future<Either<Failure, List<String>>> call(NoParams params) async {
+    return await _repository.getViewedStoryIds();
+  }
+}
+

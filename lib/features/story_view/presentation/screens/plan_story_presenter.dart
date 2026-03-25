@@ -5,7 +5,7 @@ import 'package:flutter_pecha/features/plans/presentation/providers/plan_days_pr
 import 'package:flutter_pecha/features/plans/presentation/providers/user_plans_provider.dart';
 import 'package:flutter_pecha/features/plans/data/models/user/user_subtasks_dto.dart';
 import 'package:flutter_pecha/features/story_view/presentation/widgets/story_loading_overlay.dart';
-import 'package:flutter_pecha/features/story_view/services/story_media_preloader.dart';
+import 'package:flutter_pecha/features/story_view/data/services/story_media_preloader.dart';
 import 'package:flutter_story_presenter/flutter_story_presenter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
