@@ -1,5 +1,5 @@
 import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
-import 'package:flutter_pecha/core/network/api_client_provider.dart';
+import 'package:flutter_pecha/core/di/core_providers.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/repositories/plans_repository.dart';
@@ -14,7 +14,7 @@ final _logger = AppLogger('PlansProviders');
 final plansRepositoryProvider = Provider<PlansRepository>((ref) {
   return PlansRepository(
     plansRemoteDatasource: PlansRemoteDatasource(
-      client: ref.watch(apiClientProvider),
+      dio: ref.watch(dioProvider),
     ),
   );
 });

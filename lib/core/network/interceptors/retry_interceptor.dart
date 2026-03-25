@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_pecha/core/storage/storage_keys.dart';
 import 'package:flutter_pecha/core/storage/storage_service.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
+import 'package:flutter_pecha/features/auth/auth_service.dart';
 
 /// Interceptor that retries failed requests.
 ///
@@ -9,10 +10,15 @@ import 'package:flutter_pecha/core/utils/app_logger.dart';
 /// - 401 errors with token refresh (if refresh token is available)
 /// - Network errors with exponential backoff
 class RetryInterceptor extends Interceptor {
-  RetryInterceptor(this._secureStorage, this._logger);
+  RetryInterceptor(
+    this._secureStorage,
+    this._logger,
+    this._authService,
+  );
 
   final SecureStorage _secureStorage;
   final AppLogger _logger;
+  final AuthService _authService;
 
   /// Maximum number of retries for network errors
   static const maxRetries = 3;
@@ -47,18 +53,49 @@ class RetryInterceptor extends Interceptor {
         _isRefreshing = true;
 
         try {
-          // TODO: Implement actual token refresh logic
-          // For now, we'll just clear tokens and let the request fail
-          _logger.warning('Token refresh not yet implemented, clearing tokens');
-          await _secureStorage.delete(StorageKeys.accessToken);
-          await _secureStorage.delete(StorageKeys.refreshToken);
+          _logger.info('Attempting to refresh token');
+          final newIdToken = await _authService.refreshIdToken();
 
-          // Process queued requests with original error
-          _processQueue(error: err);
-          _isRefreshing = false;
+          if (newIdToken != null) {
+            // Update secure storage with new token
+            await _secureStorage.set(StorageKeys.accessToken, newIdToken);
+
+            _logger.info('Token refreshed successfully, retrying queued requests');
+
+            // Retry all queued requests with new token
+            for (final request in _refreshQueue) {
+              final opts = request.error.requestOptions;
+              opts.headers['Authorization'] = 'Bearer $newIdToken';
+              try {
+                final response = await Dio().fetch(opts);
+                request.handler.resolve(response);
+              } on DioException catch (e) {
+                request.handler.next(e);
+              }
+            }
+            _refreshQueue.clear();
+
+            // Also retry the original request
+            final originalOpts = err.requestOptions;
+            originalOpts.headers['Authorization'] = 'Bearer $newIdToken';
+            try {
+              final response = await Dio().fetch(originalOpts);
+              handler.resolve(response);
+            } on DioException catch (e) {
+              handler.next(e);
+            }
+          } else {
+            _logger.warning('Token refresh returned null, clearing tokens');
+            await _secureStorage.delete(StorageKeys.accessToken);
+            await _secureStorage.delete(StorageKeys.refreshToken);
+            _processQueue(error: err);
+          }
         } catch (e) {
           _logger.error('Token refresh failed', e);
+          await _secureStorage.delete(StorageKeys.accessToken);
+          await _secureStorage.delete(StorageKeys.refreshToken);
           _processQueue(error: err);
+        } finally {
           _isRefreshing = false;
         }
         return;

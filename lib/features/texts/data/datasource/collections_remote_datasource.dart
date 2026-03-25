@@ -1,12 +1,10 @@
-import 'dart:convert';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter_pecha/features/texts/data/models/collections/collections_response.dart';
-import 'package:http/http.dart' as http;
 
 class CollectionsRemoteDatasource {
-  final http.Client client;
+  final Dio dio;
 
-  CollectionsRemoteDatasource({required this.client});
+  CollectionsRemoteDatasource({required this.dio});
 
   Future<CollectionsResponse> fetchCollections({
     String? parentId,
@@ -14,21 +12,18 @@ class CollectionsRemoteDatasource {
     int skip = 0,
     int limit = 50,
   }) async {
-    final uri = Uri.parse('${dotenv.env['BASE_API_URL']}/collections').replace(
+    final response = await dio.get(
+      '/collections',
       queryParameters: {
         if (parentId != null) 'parent_id': parentId,
         if (language != null) 'language': language,
-        'skip': skip.toString(),
-        'limit': limit.toString(),
+        'skip': skip,
+        'limit': limit,
       },
     );
 
-    final response = await client.get(uri);
-
     if (response.statusCode == 200) {
-      final decoded = utf8.decode(response.bodyBytes);
-      final Map<String, dynamic> jsonMap = json.decode(decoded);
-      return CollectionsResponse.fromJson(jsonMap);
+      return CollectionsResponse.fromJson(response.data);
     } else {
       throw Exception('Failed to load collections');
     }

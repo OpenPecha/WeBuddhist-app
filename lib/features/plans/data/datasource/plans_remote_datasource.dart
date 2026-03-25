@@ -1,9 +1,6 @@
-import 'dart:convert';
-
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/features/plans/data/models/plans_model.dart';
-import 'package:http/http.dart' as http;
 
 /// Query parameters for filtering and paginating plans
 ///
@@ -23,8 +20,8 @@ class PlansQueryParams {
   });
 
   /// Convert to query parameters map
-  Map<String, String> toQueryParams() {
-    final params = <String, String>{};
+  Map<String, dynamic> toQueryParams() {
+    final params = <String, dynamic>{};
 
     if (language != null) {
       params['language'] = language!;
@@ -39,11 +36,11 @@ class PlansQueryParams {
     }
 
     if (skip != null) {
-      params['skip'] = skip!.toString();
+      params['skip'] = skip!;
     }
 
     if (limit != null) {
-      params['limit'] = limit!.toString();
+      params['limit'] = limit!;
     }
 
     return params;
@@ -51,30 +48,22 @@ class PlansQueryParams {
 }
 
 class PlansRemoteDatasource {
-  final http.Client client;
-  final String baseUrl = dotenv.env['BASE_API_URL']!;
+  final Dio dio;
   final _logger = AppLogger('PlansRemoteDatasource');
 
-  PlansRemoteDatasource({required this.client});
+  PlansRemoteDatasource({required this.dio});
 
   // get all plans with filtering and pagination
   Future<List<PlansModel>> fetchPlans({
     required PlansQueryParams queryParams,
   }) async {
     try {
-      // Build URI with query parameters
-      final uri = Uri.parse(
-        '$baseUrl/plans',
-      ).replace(queryParameters: queryParams.toQueryParams());
-
-      final response = await client.get(
-        uri,
-        headers: {'Content-Type': 'application/json'},
+      final response = await dio.get(
+        '/plans',
+        queryParameters: queryParams.toQueryParams(),
       );
       if (response.statusCode == 200) {
-        final decoded = utf8.decode(response.bodyBytes);
-        final responseData = json.decode(decoded);
-        final List<dynamic> jsonData = responseData['plans'] as List<dynamic>;
+        final List<dynamic> jsonData = response.data['plans'] as List<dynamic>;
         return jsonData.map((json) => PlansModel.fromJson(json)).toList();
       } else {
         _logger.error('Failed to load plans: ${response.statusCode}');
@@ -89,14 +78,9 @@ class PlansRemoteDatasource {
   // get plan by id
   Future<PlansModel> getPlanById(String planId) async {
     try {
-      final response = await client.get(
-        Uri.parse('$baseUrl/plans/$planId'),
-        headers: {'Content-Type': 'application/json'},
-      );
+      final response = await dio.get('/plans/$planId');
       if (response.statusCode == 200) {
-        final decoded = utf8.decode(response.bodyBytes);
-        final jsonData = json.decode(decoded);
-        return PlansModel.fromJson(jsonData);
+        return PlansModel.fromJson(response.data);
       } else {
         throw Exception('Failed to load plan: ${response.statusCode}');
       }

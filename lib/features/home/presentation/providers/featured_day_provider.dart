@@ -1,7 +1,7 @@
 import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
+import 'package:flutter_pecha/core/di/core_providers.dart';
 import 'package:flutter_pecha/features/plans/data/models/response/featured_day_response.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:http/http.dart' as http;
 import '../../data/datasource/featured_day_remote_datasource.dart';
 import '../../data/repositories/featured_day_repository.dart';
 import '../../domain/usecases/get_featured_day_usecase.dart';
@@ -11,7 +11,7 @@ import 'use_case_providers.dart';
 final featuredDayRepositoryProvider = Provider<FeaturedDayRepository>((ref) {
   return FeaturedDayRepository(
     featuredDayRemoteDatasource: FeaturedDayRemoteDatasource(
-      client: http.Client(),
+      dio: ref.watch(dioProvider),
     ),
   );
 });

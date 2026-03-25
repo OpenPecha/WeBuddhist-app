@@ -1,28 +1,25 @@
 import 'dart:async';
 import 'dart:convert';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/features/ai/config/ai_config.dart';
-import 'package:http/http.dart' as http;
 
+/// Remote data source for AI chat operations.
+///
+/// This datasource uses the dedicated AI Dio client which:
+/// - Uses AI_URL as base URL
+/// - Automatically adds auth tokens via interceptors
+/// - Has AI-specific timeout configurations
 class AiChatRemoteDatasource {
-  final http.Client _client;
+  final Dio _aiDio;
   final _logger = AppLogger('AiChatRemoteDatasource');
 
-  AiChatRemoteDatasource(this._client);
+  AiChatRemoteDatasource(this._aiDio);
 
   Stream<Map<String, dynamic>> sendMessage({
     required String message,
     String? threadId,
   }) async* {
-    final aiUrl = dotenv.env['AI_URL'];
-    if (aiUrl == null || aiUrl.isEmpty) {
-      _logger.error('AI_URL not configured in .env');
-      throw Exception('AI_URL not configured');
-    }
-
-    final url = Uri.parse('$aiUrl/chats');
-
     // Build request body with required fields
     final requestBody = <String, dynamic>{
       'query': message,
@@ -38,34 +35,24 @@ class AiChatRemoteDatasource {
       _logger.info('Sending message without thread_id (new conversation)');
     }
 
-    _logger.info('Sending message to AI API: ${url.toString()}');
+    _logger.info('Sending message to AI API: /chats');
     _logger.debug('Request body: $requestBody');
 
     try {
-      final request = http.Request('POST', url);
-      request.headers['Content-Type'] = 'application/json';
-      request.headers['Accept'] = 'application/json';
-      request.body = jsonEncode(requestBody);
+      final response = await _aiDio.post(
+        '/chats',
+        data: requestBody,
+        options: Options(
+          responseType: ResponseType.stream,
+        ),
+      );
 
-      // Add connection timeout
-      final streamedResponse = await _client
-          .send(request)
-          .timeout(
-            AiConfig.connectionTimeout,
-            onTimeout: () {
-              _logger.error(
-                'Connection timeout after ${AiConfig.connectionTimeout.inSeconds}s',
-              );
-              throw TimeoutException(
-                'Connection timed out. Please check your internet connection.',
-                AiConfig.connectionTimeout,
-              );
-            },
-          );
+      _logger.debug('Response status code: ${response.statusCode}');
 
-      if (streamedResponse.statusCode != 200) {
-        _logger.error('API error: ${streamedResponse.statusCode}');
-        throw Exception('API returned status ${streamedResponse.statusCode}');
+      if (response.statusCode != 200) {
+        _logger.error('API error: ${response.statusCode}');
+        _logger.error('Response headers: ${response.headers}');
+        throw Exception('API returned status ${response.statusCode}');
       }
 
       _logger.info('Receiving stream from API');
@@ -73,27 +60,30 @@ class AiChatRemoteDatasource {
       // Buffer for incomplete lines across chunks
       String buffer = '';
 
+      // Get the stream from ResponseBody
+      final responseBody = response.data;
+      final stream = responseBody.stream;
+
       // Parse the SSE stream with token timeout
       // Using stream timeout to detect stalled connections
-      await for (final chunk in streamedResponse.stream
-          .transform(utf8.decoder)
-          .timeout(
-            AiConfig.tokenTimeout,
-            onTimeout: (sink) {
-              _logger.error(
-                'Stream timeout - no data received for ${AiConfig.tokenTimeout.inSeconds}s',
-              );
-              sink.addError(
-                TimeoutException(
-                  'Response timed out. The AI server may be busy.',
-                  AiConfig.tokenTimeout,
-                ),
-              );
-              sink.close();
-            },
-          )) {
-        // Add new chunk to buffer
-        buffer += chunk;
+      await for (final chunk in stream.timeout(
+        AiConfig.tokenTimeout,
+        onTimeout: (sink) {
+          _logger.error(
+            'Stream timeout - no data received for ${AiConfig.tokenTimeout.inSeconds}s',
+          );
+          sink.addError(
+            TimeoutException(
+              'Response timed out. The AI server may be busy.',
+              AiConfig.tokenTimeout,
+            ),
+          );
+          sink.close();
+        },
+      )) {
+        // Convert bytes to string
+        final chunkString = utf8.decode(chunk);
+        buffer += chunkString;
 
         // Split by lines
         final lines = buffer.split('\n');
@@ -136,6 +126,19 @@ class AiChatRemoteDatasource {
       }
 
       _logger.info('Stream completed');
+    } on DioException catch (e) {
+      _logger.error('Dio error in sendMessage', e);
+      _logger.error('Dio error type: ${e.type}');
+      _logger.error('Dio error response: ${e.response}');
+      _logger.error('Dio error message: ${e.message}');
+      _logger.error('Dio error request options: ${e.requestOptions}');
+      if (e.type == DioExceptionType.connectionTimeout ||
+                 e.type == DioExceptionType.receiveTimeout) {
+        throw Exception('Connection timed out. Please check your internet connection.');
+      } else if (e.type == DioExceptionType.connectionError) {
+        throw Exception('Network error. Please check your internet connection.');
+      }
+      throw Exception('Failed to send message: ${e.message}');
     } catch (e, stackTrace) {
       _logger.error('Error in sendMessage stream', e, stackTrace);
       rethrow;

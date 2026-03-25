@@ -1,4 +1,4 @@
-import 'package:flutter_pecha/core/network/api_client_provider.dart';
+import 'package:flutter_pecha/core/di/core_providers.dart';
 import 'package:flutter_pecha/features/plans/data/datasource/plans_remote_datasource.dart';
 import 'package:flutter_pecha/features/plans/data/repositories/plans_repository_impl.dart';
 import 'package:flutter_pecha/features/plans/domain/repositories/plans_repository.dart';
@@ -9,8 +9,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Provider for PlansRepository implementation (domain interface).
 final plansDomainRepositoryProvider = Provider<PlansRepository>((ref) {
-  final client = ref.watch(apiClientProvider);
-  final datasource = PlansRemoteDatasource(client: client);
+  final dio = ref.watch(dioProvider);
+  final datasource = PlansRemoteDatasource(dio: dio);
   return PlansRepositoryImpl(datasource: datasource);
 });
 

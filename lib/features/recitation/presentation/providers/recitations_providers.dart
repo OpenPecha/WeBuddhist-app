@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
-import 'package:flutter_pecha/core/network/api_client_provider.dart';
+import 'package:flutter_pecha/core/di/core_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/repositories/recitations_repository.dart';
 import '../../data/datasource/recitations_remote_datasource.dart';
@@ -53,7 +53,7 @@ class RecitationContentParams {
 final recitationsRepositoryProvider = Provider<RecitationsRepository>((ref) {
   return RecitationsRepository(
     recitationsRemoteDatasource: RecitationsRemoteDatasource(
-      client: ref.watch(apiClientProvider),
+      dio: ref.watch(dioProvider),
     ),
   );
 });

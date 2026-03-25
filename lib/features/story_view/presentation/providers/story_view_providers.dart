@@ -1,17 +1,12 @@
+import 'package:flutter_pecha/core/di/core_providers.dart';
 import 'package:flutter_pecha/features/story_view/data/datasource/story_local_datasource.dart';
 import 'package:flutter_pecha/features/story_view/data/datasource/story_remote_datasource.dart';
 import 'package:flutter_pecha/features/story_view/data/repositories/story_view_repository_impl.dart';
 import 'package:flutter_pecha/features/story_view/domain/repositories/story_view_repository.dart';
 import 'package:flutter_pecha/features/story_view/domain/usecases/story_view_usecases.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:http/http.dart' as http;
 
 // ========== Data Layer Providers ==========
-
-/// Provider for basic HTTP client (for remote data source)
-final basicHttpClientProvider = Provider<http.Client>((ref) {
-  return http.Client();
-});
 
 /// Provider for StoryLocalDataSource.
 final storyLocalDataSourceProvider = Provider<StoryLocalDataSource>((ref) {
@@ -20,8 +15,8 @@ final storyLocalDataSourceProvider = Provider<StoryLocalDataSource>((ref) {
 
 /// Provider for StoryRemoteDataSource.
 final storyRemoteDataSourceProvider = Provider<StoryRemoteDataSource>((ref) {
-  final client = ref.watch(basicHttpClientProvider);
-  return StoryRemoteDataSource(client: client);
+  final dio = ref.watch(dioProvider);
+  return StoryRemoteDataSource(dio: dio);
 });
 
 /// Provider for StoryView Repository.

@@ -1,28 +1,20 @@
-import 'dart:convert';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter_pecha/features/plans/data/models/response/featured_day_response.dart';
-import 'package:http/http.dart' as http;
 
 class FeaturedDayRemoteDatasource {
-  final http.Client client;
-  final String baseUrl = dotenv.env['BASE_API_URL']!;
+  final Dio dio;
 
-  FeaturedDayRemoteDatasource({required this.client});
+  FeaturedDayRemoteDatasource({required this.dio});
 
   Future<FeaturedDayResponse> fetchFeaturedDay({String? language}) async {
     try {
-      final uri = Uri.parse('$baseUrl/plans/featured/day').replace(
+      final response = await dio.get(
+        '/plans/featured/day',
         queryParameters: language != null ? {'language': language} : null,
-      );
-      final response = await client.get(
-        uri,
-        headers: {'Content-Type': 'application/json'},
       );
 
       if (response.statusCode == 200) {
-        final decoded = utf8.decode(response.bodyBytes);
-        final jsonData = json.decode(decoded);
-        return FeaturedDayResponse.fromJson(jsonData);
+        return FeaturedDayResponse.fromJson(response.data);
       } else {
         return FeaturedDayResponse.fromJson({
           'id': '',

@@ -1,7 +1,5 @@
-import 'dart:convert';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
-import 'package:http/http.dart' as http;
 import 'package:flutter_pecha/features/recitation/data/models/recitation_model.dart';
 import 'package:flutter_pecha/features/recitation/data/models/recitation_content_model.dart';
 
@@ -11,8 +9,8 @@ class RecitationsQueryParams {
 
   RecitationsQueryParams({this.language, this.search});
 
-  Map<String, String> toQueryParams() {
-    final Map<String, String> params = {};
+  Map<String, dynamic> toQueryParams() {
+    final Map<String, dynamic> params = {};
     if (language != null) params['language'] = language!;
     if (search != null && search!.isNotEmpty) params['search'] = search!;
     return params;
@@ -20,29 +18,23 @@ class RecitationsQueryParams {
 }
 
 class RecitationsRemoteDatasource {
-  final http.Client client;
-  final String baseUrl = dotenv.env['BASE_API_URL']!;
+  final Dio dio;
   final _logger = AppLogger('RecitationsRemoteDatasource');
 
-  RecitationsRemoteDatasource({required this.client});
+  RecitationsRemoteDatasource({required this.dio});
 
   // Get all recitations
   Future<List<RecitationModel>> fetchRecitations({
     RecitationsQueryParams? queryParams,
   }) async {
     try {
-      final uri = Uri.parse(
-        '$baseUrl/recitations',
-      ).replace(queryParameters: queryParams?.toQueryParams());
-
-      final response = await client.get(
-        uri,
-        headers: {'Content-Type': 'application/json'},
+      final response = await dio.get(
+        '/recitations',
+        queryParameters: queryParams?.toQueryParams(),
       );
 
       if (response.statusCode == 200) {
-        final decoded = utf8.decode(response.bodyBytes);
-        final responseData = json.decode(decoded) as Map<String, dynamic>;
+        final responseData = response.data as Map<String, dynamic>;
 
         // Parse the nested "recitations" array from the response
         final List<dynamic> recitationsData =
@@ -66,14 +58,9 @@ class RecitationsRemoteDatasource {
   // Get saved recitations
   Future<List<RecitationModel>> fetchSavedRecitations() async {
     try {
-      final uri = Uri.parse('$baseUrl/users/me/recitations');
-      final response = await client.get(
-        uri,
-        headers: {'Content-Type': 'application/json'},
-      );
+      final response = await dio.get('/users/me/recitations');
       if (response.statusCode == 200) {
-        final decoded = utf8.decode(response.bodyBytes);
-        final responseData = json.decode(decoded) as Map<String, dynamic>;
+        final responseData = response.data as Map<String, dynamic>;
         final List<dynamic> recitationsData =
             responseData['recitations'] as List<dynamic>? ?? [];
         return recitationsData
@@ -105,8 +92,6 @@ class RecitationsRemoteDatasource {
     List<String>? adaptations,
   }) async {
     try {
-      final uri = Uri.parse('$baseUrl/recitations/$id');
-
       // Build request body according to API spec
       final requestBody = <String, dynamic>{
         'language': language,
@@ -116,28 +101,16 @@ class RecitationsRemoteDatasource {
         'adaptations': adaptations ?? [],
       };
 
-      _logger.debug('Recitation Content Request URL: $uri');
-      _logger.debug(
-        'Recitation Content Request Body: ${json.encode(requestBody)}',
-      );
+      _logger.debug('Fetching recitation content for ID: $id');
+      _logger.debug('Request body: $requestBody');
 
-      final response = await client.post(
-        uri,
-        headers: {'Content-Type': 'application/json'},
-        body: json.encode(requestBody),
+      final response = await dio.post(
+        '/recitations/$id',
+        data: requestBody,
       );
-
-      _logger.debug(
-        'Recitation Content Response Status: ${response.statusCode}',
-      );
-      if (response.statusCode != 200) {
-        _logger.debug('Recitation Content Response Body: ${response.body}');
-      }
 
       if (response.statusCode == 200) {
-        final decoded = utf8.decode(response.bodyBytes);
-        final data = json.decode(decoded) as Map<String, dynamic>;
-        return RecitationContentModel.fromJson(data);
+        return RecitationContentModel.fromJson(response.data);
       } else {
         _logger.error(
           'Failed to fetch recitation content: ${response.statusCode}',
@@ -155,12 +128,9 @@ class RecitationsRemoteDatasource {
   // Save recitation to user's saved recitations
   Future<bool> saveRecitation(String id) async {
     try {
-      final uri = Uri.parse('$baseUrl/users/me/recitations');
-      final body = json.encode({'text_id': id});
-      final response = await client.post(
-        uri,
-        headers: {'Content-Type': 'application/json'},
-        body: body,
+      final response = await dio.post(
+        '/users/me/recitations',
+        data: {'text_id': id},
       );
       if (response.statusCode == 200 || response.statusCode == 201) {
         return true;
@@ -176,11 +146,7 @@ class RecitationsRemoteDatasource {
   // Unsave recitation from user's saved recitations
   Future<bool> unsaveRecitation(String textId) async {
     try {
-      final uri = Uri.parse('$baseUrl/users/me/recitations/$textId');
-      final response = await client.delete(
-        uri,
-        headers: {'Content-Type': 'application/json'},
-      );
+      final response = await dio.delete('/users/me/recitations/$textId');
       if (response.statusCode == 200 || response.statusCode == 204) {
         return true;
       } else {
@@ -197,13 +163,10 @@ class RecitationsRemoteDatasource {
     List<Map<String, dynamic>> recitations,
   ) async {
     try {
-      final uri = Uri.parse('$baseUrl/users/me/recitations/order');
-      final body = json.encode({'recitations': recitations});
       _logger.debug('Updating recitations order: $recitations');
-      final response = await client.put(
-        uri,
-        headers: {'Content-Type': 'application/json'},
-        body: body,
+      final response = await dio.put(
+        '/users/me/recitations/order',
+        data: {'recitations': recitations},
       );
       if (response.statusCode == 200 || response.statusCode == 204) {
         return true;
@@ -211,7 +174,6 @@ class RecitationsRemoteDatasource {
         _logger.error(
           'Failed to update recitations order: ${response.statusCode}',
         );
-        _logger.debug('Response body: ${response.body}');
         return false;
       }
     } catch (e) {

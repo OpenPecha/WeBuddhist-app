@@ -1,4 +1,4 @@
-import 'dart:convert';
+import 'package:dio/dio.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/features/texts/data/models/search/multilingual_search_response.dart';
@@ -9,13 +9,13 @@ import 'package:flutter_pecha/features/texts/data/models/text/detail_response.da
 import 'package:flutter_pecha/features/texts/data/models/text/reader_response.dart';
 import 'package:flutter_pecha/features/texts/data/models/text/toc_response.dart';
 import 'package:flutter_pecha/features/texts/data/models/text/version_response.dart';
-import 'package:http/http.dart' as http;
 
 class TextRemoteDatasource {
-  final http.Client client;
+  final Dio dio;
   final _logger = AppLogger('TextRemoteDatasource');
+  final String baseUrl = dotenv.env['BASE_API_URL']!;
 
-  TextRemoteDatasource({required this.client});
+  TextRemoteDatasource({required this.dio});
 
   // to get the texts
   Future<TextDetailResponse> fetchTexts({
@@ -24,21 +24,18 @@ class TextRemoteDatasource {
     int skip = 0,
     int limit = 20,
   }) async {
-    final uri = Uri.parse('${dotenv.env['BASE_API_URL']}/texts').replace(
+    final response = await dio.get(
+      '/texts',
       queryParameters: {
         'collection_id': termId,
         if (language != null) 'language': language,
-        'skip': skip.toString(),
-        'limit': limit.toString(),
+        'skip': skip,
+        'limit': limit,
       },
     );
 
-    final response = await client.get(uri);
-
     if (response.statusCode == 200) {
-      final decoded = utf8.decode(response.bodyBytes);
-      final Map<String, dynamic> jsonMap = json.decode(decoded);
-      return TextDetailResponse.fromJson(jsonMap);
+      return TextDetailResponse.fromJson(response.data);
     } else {
       throw Exception('Failed to load texts');
     }
@@ -49,18 +46,15 @@ class TextRemoteDatasource {
     required String textId,
     String? language,
   }) async {
-    final uri = Uri.parse(
-      '${dotenv.env['BASE_API_URL']}/texts/$textId/contents',
-    ).replace(queryParameters: {'language': language ?? 'en'});
-
-    final response = await client.get(uri);
+    final response = await dio.get(
+      '/texts/$textId/contents',
+      queryParameters: {'language': language ?? 'en'},
+    );
 
     if (response.statusCode == 200) {
-      final decoded = utf8.decode(response.bodyBytes);
-      final Map<String, dynamic> jsonMap = json.decode(decoded);
-      return TocResponse.fromJson(jsonMap);
+      return TocResponse.fromJson(response.data);
     } else {
-      _logger.error('Failed to load text content: ${response.body}');
+      _logger.error('Failed to load text content: ${response.data}');
       throw Exception('Failed to load text content');
     }
   }
@@ -70,18 +64,15 @@ class TextRemoteDatasource {
     required String textId,
     String? language,
   }) async {
-    final uri = Uri.parse(
-      '${dotenv.env['BASE_API_URL']}/texts/$textId/versions',
-    ).replace(queryParameters: {'language': language ?? 'en'});
-
-    final response = await client.get(uri);
+    final response = await dio.get(
+      '/texts/$textId/versions',
+      queryParameters: {'language': language ?? 'en'},
+    );
 
     if (response.statusCode == 200) {
-      final decoded = utf8.decode(response.bodyBytes);
-      final Map<String, dynamic> jsonMap = json.decode(decoded);
-      return VersionResponse.fromJson(jsonMap);
+      return VersionResponse.fromJson(response.data);
     } else {
-      _logger.error('Failed to load text version: ${response.body}');
+      _logger.error('Failed to load text version: ${response.data}');
       throw Exception('Failed to load text version');
     }
   }
@@ -91,16 +82,14 @@ class TextRemoteDatasource {
     required String textId,
     String? language,
   }) async {
-    final uri = Uri.parse(
-      '${dotenv.env['BASE_API_URL']}/texts/$textId/commentaries',
-    ).replace(queryParameters: {'language': language ?? 'en'});
-    final response = await client.get(uri);
+    final response = await dio.get(
+      '/texts/$textId/commentaries',
+      queryParameters: {'language': language ?? 'en'},
+    );
     if (response.statusCode == 200) {
-      final decoded = utf8.decode(response.bodyBytes);
-      final List<dynamic> jsonMap = json.decode(decoded) as List<dynamic>;
-      return CommentaryTextResponse.fromJson(jsonMap);
+      return CommentaryTextResponse.fromJson(response.data);
     } else {
-      _logger.error('Failed to load commentary text: ${response.body}');
+      _logger.error('Failed to load commentary text: ${response.data}');
       throw Exception('Failed to load commentary text');
     }
   }
@@ -113,31 +102,20 @@ class TextRemoteDatasource {
     String? segmentId,
     String? direction,
   }) async {
-    final uri = Uri.parse(
-      '${dotenv.env['BASE_API_URL']}/texts/$textId/details',
-    );
-    final body = json.encode({
-      if (contentId != null) 'content_id': contentId,
-      if (segmentId != null) 'segment_id': segmentId,
-      'direction': direction,
-    });
     try {
-      final response = await client.post(
-        uri,
-        body: body,
-        headers: {'Content-Type': 'application/json'},
+      final response = await dio.post(
+        '/texts/$textId/details',
+        data: {
+          if (contentId != null) 'content_id': contentId,
+          if (segmentId != null) 'segment_id': segmentId,
+          'direction': direction,
+        },
       );
 
       if (response.statusCode == 200) {
-        try {
-          final decoded = utf8.decode(response.bodyBytes);
-          final Map<String, dynamic> jsonMap = json.decode(decoded);
-          return ReaderResponse.fromJson(jsonMap);
-        } catch (e) {
-          throw Exception('Failed to load text details in response $e');
-        }
+        return ReaderResponse.fromJson(response.data);
       } else {
-        throw Exception('Failed to load text details ::: ${response.body}');
+        throw Exception('Failed to load text details ::: ${response.data}');
       }
     } catch (e) {
       throw Exception('Failed to load text details ????? $e');
@@ -150,7 +128,8 @@ class TextRemoteDatasource {
     String? language,
     String? textId,
   }) async {
-    final uri = Uri.parse('${dotenv.env['BASE_API_URL']}/search').replace(
+    final response = await dio.get(
+      '/search',
       queryParameters: {
         'query': query,
         'search_type': 'SOURCE',
@@ -158,16 +137,8 @@ class TextRemoteDatasource {
         if (textId != null) 'text_id': textId,
       },
     );
-    final response = await client.get(uri);
     if (response.statusCode == 200) {
-      try {
-        final decoded = utf8.decode(response.bodyBytes);
-        final Map<String, dynamic> jsonMap = json.decode(decoded);
-        final searchResponse = SearchResponse.fromJson(jsonMap);
-        return searchResponse;
-      } catch (e) {
-        throw Exception('Failed to search text');
-      }
+      return SearchResponse.fromJson(response.data);
     } else {
       throw Exception('Failed to search text');
     }
@@ -179,9 +150,8 @@ class TextRemoteDatasource {
     String? language,
     String? textId,
   }) async {
-    final uri = Uri.parse(
-      '${dotenv.env['BASE_API_URL']}/search/multilingual',
-    ).replace(
+    final response = await dio.get(
+      '/search/multilingual',
       queryParameters: {
         'query': query,
         'search_type': 'exact',
@@ -189,19 +159,8 @@ class TextRemoteDatasource {
         if (textId != null) 'text_id': textId,
       },
     );
-    final response = await client.get(uri);
     if (response.statusCode == 200) {
-      try {
-        final decoded = utf8.decode(response.bodyBytes);
-        final Map<String, dynamic> jsonMap = json.decode(decoded);
-        final multilingualSearchResponse = MultilingualSearchResponse.fromJson(
-          jsonMap,
-        );
-        return multilingualSearchResponse;
-      } catch (e) {
-        _logger.error('MultilingualSearchResponse::: Failed to search text', e);
-        throw Exception('MultilingualSearchResponse::: Failed to search text');
-      }
+      return MultilingualSearchResponse.fromJson(response.data);
     } else {
       throw Exception('MultilingualSearchResponse::: Failed to search text');
     }
@@ -214,34 +173,24 @@ class TextRemoteDatasource {
     int limit = 20,
     int offset = 0,
   }) async {
-    final uri = Uri.parse(
-      '${dotenv.env['BASE_API_URL']}/texts/title-search',
-    ).replace(
+    final response = await dio.get(
+      '/texts/title-search',
       queryParameters: {
         if (title != null && title.isNotEmpty) 'title': title,
         if (author != null && author.isNotEmpty) 'author': author,
-        'limit': limit.toString(),
-        'offset': offset.toString(),
+        'limit': limit,
+        'offset': offset,
       },
     );
 
-    final response = await client.get(uri);
-
     if (response.statusCode == 200) {
-      try {
-        final decoded = utf8.decode(response.bodyBytes);
-        final List<dynamic> jsonList = json.decode(decoded) as List<dynamic>;
-        final titleSearchResponse = TitleSearchResponse.fromJson(
-          jsonList,
-          total: jsonList.length,
-          limit: limit,
-          offset: offset,
-        );
-        return titleSearchResponse;
-      } catch (e) {
-        _logger.error('TitleSearchResponse::: Failed to search titles', e);
-        throw Exception('TitleSearchResponse::: Failed to search titles');
-      }
+      final jsonList = response.data as List<dynamic>;
+      return TitleSearchResponse.fromJson(
+        jsonList,
+        total: jsonList.length,
+        limit: limit,
+        offset: offset,
+      );
     } else {
       _logger.error('TitleSearchResponse::: Failed to search titles: ${response.statusCode}');
       throw Exception('TitleSearchResponse::: Failed to search titles');
@@ -254,33 +203,23 @@ class TextRemoteDatasource {
     int limit = 20,
     int offset = 0,
   }) async {
-    final uri = Uri.parse(
-      '${dotenv.env['BASE_API_URL']}/texts/title-search',
-    ).replace(
+    final response = await dio.get(
+      '/texts/title-search',
       queryParameters: {
         if (author != null && author.isNotEmpty) 'author': author,
-        'limit': limit.toString(),
-        'offset': offset.toString(),
+        'limit': limit,
+        'offset': offset,
       },
     );
 
-    final response = await client.get(uri);
-
     if (response.statusCode == 200) {
-      try {
-        final decoded = utf8.decode(response.bodyBytes);
-        final List<dynamic> jsonList = json.decode(decoded) as List<dynamic>;
-        final authorSearchResponse = TitleSearchResponse.fromJson(
-          jsonList,
-          total: jsonList.length,
-          limit: limit,
-          offset: offset,
-        );
-        return authorSearchResponse;
-      } catch (e) {
-        _logger.error('AuthorSearchResponse::: Failed to search authors', e);
-        throw Exception('AuthorSearchResponse::: Failed to search authors');
-      }
+      final jsonList = response.data as List<dynamic>;
+      return TitleSearchResponse.fromJson(
+        jsonList,
+        total: jsonList.length,
+        limit: limit,
+        offset: offset,
+      );
     } else {
       _logger.error('AuthorSearchResponse::: Failed to search authors: ${response.statusCode}');
       throw Exception('AuthorSearchResponse::: Failed to search authors');

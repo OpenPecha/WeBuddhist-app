@@ -1,13 +1,13 @@
-import 'package:flutter_pecha/core/network/api_client_provider.dart';
+import 'package:flutter_pecha/core/di/core_providers.dart';
 import 'package:flutter_pecha/features/texts/data/datasource/share_remote_datasource.dart';
 import 'package:flutter_pecha/features/texts/data/repositories/share_repository.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 // Share repository provider
 final shareRepositoryProvider = Provider<ShareRepository>((ref) {
-  final client = ref.watch(apiClientProvider);
+  final dio = ref.watch(dioProvider);
   return ShareRepository(
-    remoteDatasource: ShareRemoteDatasource(client: client),
+    remoteDatasource: ShareRemoteDatasource(dio: dio),
   );
 });
 

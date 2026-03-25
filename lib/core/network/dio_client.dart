@@ -7,6 +7,7 @@ import 'package:flutter_pecha/core/network/interceptors/logging_interceptor.dart
 import 'package:flutter_pecha/core/network/interceptors/retry_interceptor.dart';
 import 'package:flutter_pecha/core/storage/storage_service.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
+import 'package:flutter_pecha/features/auth/auth_service.dart';
 
 /// Dio HTTP client with interceptors.
 ///
@@ -49,6 +50,19 @@ class DioClient {
   /// Get the underlying Dio instance
   Dio get dio => _dio;
 
+  /// Send a request and return the response stream for SSE/Server-Sent Events.
+  ///
+  /// This is used for streaming responses like AI chat.
+  /// The response type is set to stream, and the caller can iterate over the data.
+  Stream<String> sendStreamedRequest(RequestOptions options) async* {
+    options.responseType = ResponseType.stream;
+    final response = await _dio.fetch(options);
+
+    await for (final chunk in response.data.stream) {
+      yield chunk;
+    }
+  }
+
   /// Close the client and release resources
   void close({bool force = false}) {
     _dio.close(force: force);
@@ -60,20 +74,27 @@ class DioClientFactory {
   DioClientFactory({
     required SecureStorage secureStorage,
     required AppLogger logger,
+    required AuthService authService,
     ApiConfig? config,
   }) : _secureStorage = secureStorage,
        _logger = logger,
+       _authService = authService,
        _config = config ?? ApiConfig.current;
 
   final SecureStorage _secureStorage;
   final AppLogger _logger;
+  final AuthService _authService;
   final ApiConfig _config;
 
-  late final AuthInterceptor _authInterceptor = AuthInterceptor(_secureStorage);
+  late final AuthInterceptor _authInterceptor = AuthInterceptor(_secureStorage, _logger);
   late final LoggingInterceptor _loggingInterceptor = LoggingInterceptor(_logger);
   late final ErrorInterceptor _errorInterceptor = ErrorInterceptor(_logger);
   late final CacheInterceptor _cacheInterceptor = CacheInterceptor(_logger);
-  late final RetryInterceptor _retryInterceptor = RetryInterceptor(_secureStorage, _logger);
+  late final RetryInterceptor _retryInterceptor = RetryInterceptor(
+    _secureStorage,
+    _logger,
+    _authService,
+  );
 
   /// Create the DioClient instance
   DioClient create() {

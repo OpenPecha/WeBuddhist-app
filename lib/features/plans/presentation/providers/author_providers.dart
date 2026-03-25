@@ -1,4 +1,4 @@
-import 'package:flutter_pecha/core/network/api_client_provider.dart';
+import 'package:flutter_pecha/core/di/core_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/repositories/author_repository.dart';
 import '../../data/datasource/author_remote_datasource.dart';
@@ -9,7 +9,7 @@ import '../../data/models/plans_model.dart';
 final authorRepositoryProvider = Provider<AuthorRepository>((ref) {
   return AuthorRepository(
     authorRemoteDatasource: AuthorRemoteDatasource(
-      client: ref.watch(apiClientProvider),
+      dio: ref.watch(dioProvider),
     ),
   );
 });

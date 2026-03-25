@@ -1,16 +1,14 @@
-import 'dart:convert';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/features/onboarding/data/models/onboarding_preferences.dart';
-import 'package:http/http.dart' as http;
 
 final _logger = AppLogger('OnboardingRemoteDatasource');
 
 /// Remote datasource for saving onboarding preferences to backend
 class OnboardingRemoteDatasource {
-  const OnboardingRemoteDatasource({required this.client});
+  const OnboardingRemoteDatasource({required this.dio});
 
-  final http.Client client;
+  final Dio dio;
 
   /// Save onboarding preferences to backend
   ///
@@ -19,19 +17,9 @@ class OnboardingRemoteDatasource {
   /// Returns: Success boolean
   Future<bool> saveOnboardingPreferences(OnboardingPreferences prefs) async {
     try {
-      final baseUrl = dotenv.env['BASE_API_URL'];
-      if (baseUrl == null) {
-        _logger.warning('BASE_API_URL not configured');
-        return false;
-      }
-
-      final uri = Uri.parse('$baseUrl/users/me/onboarding-preferences');
-      final body = json.encode(prefs.toJson());
-
-      final response = await client.post(
-        uri,
-        body: body,
-        headers: {'Content-Type': 'application/json'},
+      final response = await dio.post(
+        '/users/me/onboarding-preferences',
+        data: prefs.toJson(),
       );
 
       if (response.statusCode == 200 || response.statusCode == 201) {

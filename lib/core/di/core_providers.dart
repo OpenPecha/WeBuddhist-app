@@ -1,6 +1,8 @@
+import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_pecha/core/cache/cache_service.dart';
 import 'package:flutter_pecha/core/config/api_config.dart';
+import 'package:flutter_pecha/core/network/ai_dio_client.dart';
 import 'package:flutter_pecha/core/network/connectivity_service.dart';
 import 'package:flutter_pecha/core/network/dio_client.dart';
 import 'package:flutter_pecha/core/network/interceptors/interceptors.dart';
@@ -9,6 +11,7 @@ import 'package:flutter_pecha/core/storage/preferences_service.dart';
 import 'package:flutter_pecha/core/storage/secure_storage_impl.dart';
 import 'package:flutter_pecha/core/storage/storage_service.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
+import 'package:flutter_pecha/features/auth/auth_service.dart';
 
 // ============ Logger ============
 
@@ -42,11 +45,27 @@ final networkInfoProvider = Provider<NetworkInfo>((ref) {
   return ref.watch(connectivityServiceProvider);
 });
 
+/// Provider for AuthService (singleton)
+final authServiceProvider = Provider<AuthService>((ref) {
+  return AuthService.instance;
+});
+
 // ============ Interceptors ============
 
-/// Provider for AuthInterceptor
+/// Provider for AuthInterceptor (for main API - uses SecureStorage)
 final authInterceptorProvider = Provider<AuthInterceptor>((ref) {
-  return AuthInterceptor(ref.watch(secureStorageProvider));
+  return AuthInterceptor(
+    ref.watch(secureStorageProvider),
+    ref.watch(loggerProvider),
+  );
+});
+
+/// Provider for AI AuthInterceptor (for AI API - uses AuthService)
+final aiAuthInterceptorProvider = Provider<AuthInterceptor>((ref) {
+  return AuthInterceptor(
+    ref.watch(authServiceProvider),
+    ref.watch(loggerProvider),
+  );
 });
 
 /// Provider for LoggingInterceptor
@@ -69,6 +88,7 @@ final retryInterceptorProvider = Provider<RetryInterceptor>((ref) {
   return RetryInterceptor(
     ref.watch(secureStorageProvider),
     ref.watch(loggerProvider),
+    ref.watch(authServiceProvider),
   );
 });
 
@@ -89,6 +109,29 @@ final dioClientProvider = Provider<DioClient>((ref) {
     cacheInterceptor: ref.watch(cacheInterceptorProvider),
     retryInterceptor: ref.watch(retryInterceptorProvider),
   );
+});
+
+/// Provider for raw Dio instance (for datasources that need it directly)
+final dioProvider = Provider<Dio>((ref) {
+  return ref.watch(dioClientProvider).dio;
+});
+
+// ============ AI Dio Client ============
+
+/// Provider for AiDioClient
+///
+/// This is a dedicated HTTP client for AI endpoints. It uses the AI_URL
+/// base URL and automatically adds auth tokens via AuthService.
+final aiDioClientProvider = Provider<AiDioClient>((ref) {
+  return AiDioClient(
+    ref.watch(authServiceProvider),
+    ref.watch(loggerProvider),
+  );
+});
+
+/// Provider for raw AI Dio instance (for AI datasources)
+final aiDioProvider = Provider<Dio>((ref) {
+  return ref.watch(aiDioClientProvider).dio;
 });
 
 // ============ Cache ============

@@ -1,15 +1,15 @@
+import 'package:dio/dio.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/features/story_view/data/models/story_model.dart';
 import 'package:flutter_pecha/features/story_view/domain/entities/story.dart';
-import 'package:http/http.dart' as http;
 
 final _logger = AppLogger('StoryRemoteDataSource');
 
 /// Remote data source for story data.
 class StoryRemoteDataSource {
-  final http.Client _client;
+  final Dio dio;
 
-  StoryRemoteDataSource({required http.Client client}) : _client = client;
+  StoryRemoteDataSource({required Dio dio}) : dio = dio;
 
   /// Get all active stories from the API.
   Future<List<StoryModel>> getStories() async {

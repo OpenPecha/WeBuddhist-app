@@ -2,7 +2,6 @@ import 'package:flutter_pecha/features/onboarding/domain/usecases/onboarding_use
 import 'package:flutter_pecha/features/onboarding/data/repositories/onboarding_repository.dart';
 import 'package:flutter_pecha/features/onboarding/presentation/providers/onboarding_datasource_providers.dart';
 import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
-import 'package:flutter_pecha/core/network/api_client_provider.dart';
 import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 

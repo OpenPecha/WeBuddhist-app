@@ -1,5 +1,5 @@
 import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
-import 'package:flutter_pecha/core/network/api_client_provider.dart';
+import 'package:flutter_pecha/core/di/core_providers.dart';
 import 'package:flutter_pecha/core/utils/local_storage_service.dart';
 import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
 import 'package:flutter_pecha/features/onboarding/data/datasource/onboarding_local_datasource.dart';
@@ -19,8 +19,8 @@ final onboardingLocalDatasourceProvider = Provider<OnboardingLocalDatasource>((
 /// Provider for remote datasource
 final onboardingRemoteDatasourceProvider = Provider<OnboardingRemoteDatasource>(
   (ref) {
-    final client = ref.watch(apiClientProvider);
-    return OnboardingRemoteDatasource(client: client);
+    final dio = ref.watch(dioProvider);
+    return OnboardingRemoteDatasource(dio: dio);
   },
 );
 

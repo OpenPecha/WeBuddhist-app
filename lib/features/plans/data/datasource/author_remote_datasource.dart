@@ -1,27 +1,20 @@
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/features/plans/data/models/plans_model.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 import '../models/author/author_model.dart';
 
 class AuthorRemoteDatasource {
-  final http.Client client;
-  final String baseUrl = dotenv.env['BASE_API_URL']!;
+  final Dio dio;
   final _logger = AppLogger('AuthorRemoteDatasource');
 
-  AuthorRemoteDatasource({required this.client});
+  AuthorRemoteDatasource({required this.dio});
 
   Future<AuthorModel> getAuthorById(String authorId) async {
     try {
-      final response = await client.get(
-        Uri.parse('$baseUrl/authors/$authorId'),
-        headers: {'Content-Type': 'application/json'},
-      );
+      final response = await dio.get('/authors/$authorId');
 
       if (response.statusCode == 200) {
-        final jsonData = json.decode(response.body);
-        return AuthorModel.fromJson(jsonData);
+        return AuthorModel.fromJson(response.data);
       } else {
         _logger.error('Error to load author: ${response.statusCode}');
         throw Exception('Error to load author: ${response.statusCode}');
@@ -35,14 +28,9 @@ class AuthorRemoteDatasource {
   // gets plans by author id
   Future<List<PlansModel>> getPlansByAuthorId(String authorId) async {
     try {
-      final response = await client.get(
-        Uri.parse('$baseUrl/authors/$authorId/plans'),
-        headers: {'Content-Type': 'application/json'},
-      );
+      final response = await dio.get('/authors/$authorId/plans');
       if (response.statusCode == 200) {
-        final decoded = utf8.decode(response.bodyBytes);
-        final responseData = json.decode(decoded);
-        final List<dynamic> jsonData = responseData['plans'] as List<dynamic>;
+        final List<dynamic> jsonData = response.data['plans'] as List<dynamic>;
         return jsonData
             .map((json) => PlansModel.fromJson(json as Map<String, dynamic>))
             .toList();

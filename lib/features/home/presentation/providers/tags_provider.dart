@@ -1,5 +1,5 @@
 import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
-import 'package:flutter_pecha/core/network/api_client_provider.dart';
+import 'package:flutter_pecha/core/di/core_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/datasource/tags_remote_datasource.dart';
@@ -11,7 +11,7 @@ import 'use_case_providers.dart';
 final tagsRepositoryProvider = Provider<TagsRepository>((ref) {
   return TagsRepository(
     tagsRemoteDatasource: TagsRemoteDatasource(
-      client: ref.watch(apiClientProvider),
+      dio: ref.watch(dioProvider),
     ),
   );
 });

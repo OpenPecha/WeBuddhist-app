@@ -1,21 +1,16 @@
-import 'dart:convert';
-import 'dart:io';
-
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/features/plans/exceptions/plan_exceptions.dart';
 import 'package:flutter_pecha/features/plans/data/models/plan_progress_model.dart';
 import 'package:flutter_pecha/features/plans/data/models/response/user_plan_day_detail_response.dart';
 import 'package:flutter_pecha/features/plans/data/models/response/user_plan_day_completion_status_response.dart';
 import 'package:flutter_pecha/features/plans/data/models/response/user_plan_list_response_model.dart';
-import 'package:http/http.dart' as http;
 
 class UserPlansRemoteDatasource {
-  final String baseUrl = dotenv.env['BASE_API_URL']!;
-  final http.Client client;
+  final Dio dio;
   final _logger = AppLogger('UserPlansRemoteDatasource');
 
-  UserPlansRemoteDatasource({required this.client});
+  UserPlansRemoteDatasource({required this.dio});
 
   // get user plans by user id
   Future<UserPlanListResponseModel> fetchUserPlans({
@@ -24,25 +19,22 @@ class UserPlansRemoteDatasource {
     int? limit,
   }) async {
     try {
-      final queryParams = <String, String>{'language': language};
+      final queryParams = <String, dynamic>{'language': language};
 
       if (skip != null) {
-        queryParams['skip'] = skip.toString();
+        queryParams['skip'] = skip;
       }
       if (limit != null) {
-        queryParams['limit'] = limit.toString();
+        queryParams['limit'] = limit;
       }
 
-      final response = await client.get(
-        Uri.parse(
-          '$baseUrl/users/me/plans',
-        ).replace(queryParameters: queryParams),
+      final response = await dio.get(
+        '/users/me/plans',
+        queryParameters: queryParams,
       );
 
       if (response.statusCode == 200) {
-        final decoded = utf8.decode(response.bodyBytes);
-        final jsonData = json.decode(decoded);
-        return UserPlanListResponseModel.fromJson(jsonData);
+        return UserPlanListResponseModel.fromJson(response.data);
       } else {
         _logger.error('Failed to load user plans: ${response.statusCode}');
         throw Exception('Failed to load user plans: ${response.statusCode}');
@@ -55,13 +47,10 @@ class UserPlansRemoteDatasource {
 
   //subscribe user to a plan
   Future<bool> subscribeToPlan(String planId) async {
-    final uri = Uri.parse('$baseUrl/users/me/plans');
-    final body = json.encode({'plan_id': planId});
     try {
-      final response = await client.post(
-        uri,
-        body: body,
-        headers: {'Content-Type': 'application/json'},
+      final response = await dio.post(
+        '/users/me/plans',
+        data: {'plan_id': planId},
       );
 
       if (response.statusCode == 204) {
@@ -70,13 +59,13 @@ class UserPlansRemoteDatasource {
         throw PlanApiException(
           'Failed to subscribe to plan',
           statusCode: response.statusCode,
-          responseBody: response.body,
+          responseBody: response.data,
         );
       }
-    } on SocketException catch (e, stackTrace) {
+    } on DioException catch (e, stackTrace) {
       throw PlanApiException(
         'Network error while subscribing to plan',
-        originalError: e,
+        originalError: e.error,
         stackTrace: stackTrace,
       );
     } on PlanApiException {
@@ -96,14 +85,10 @@ class UserPlansRemoteDatasource {
     String planId,
   ) async {
     try {
-      final response = await client.get(
-        Uri.parse('$baseUrl/users/me/plans/$planId'),
-      );
+      final response = await dio.get('/users/me/plans/$planId');
       if (response.statusCode == 200) {
-        final decoded = utf8.decode(response.bodyBytes);
-        final jsonData = json.decode(decoded);
-        return jsonData.map((json) => PlanProgressModel.fromJson(json)).toList()
-            as List<PlanProgressModel>;
+        final jsonData = response.data as List<dynamic>;
+        return jsonData.map((json) => PlanProgressModel.fromJson(json)).toList();
       } else {
         throw Exception(
           'Failed to load user plan progress details: ${response.statusCode}',
@@ -120,13 +105,9 @@ class UserPlansRemoteDatasource {
     int dayNumber,
   ) async {
     try {
-      final response = await client.get(
-        Uri.parse('$baseUrl/users/me/plan/$planId/days/$dayNumber'),
-      );
+      final response = await dio.get('/users/me/plan/$planId/days/$dayNumber');
       if (response.statusCode == 200) {
-        final decoded = utf8.decode(response.bodyBytes);
-        final jsonData = json.decode(decoded);
-        return UserPlanDayDetailResponse.fromJson(jsonData);
+        return UserPlanDayDetailResponse.fromJson(response.data);
       } else {
         throw Exception(
           'Failed to load user plan day content: ${response.statusCode}',
@@ -142,13 +123,10 @@ class UserPlansRemoteDatasource {
   /// Returns a map where key is dayNumber and value is isCompleted status
   Future<Map<int, bool>> fetchPlanDaysCompletionStatus(String planId) async {
     try {
-      final response = await client.get(
-        Uri.parse('$baseUrl/users/me/plans/$planId/days/completion_status'),
-      );
+      final response = await dio.get('/users/me/plans/$planId/days/completion_status');
 
       if (response.statusCode == 200) {
-        final decoded = utf8.decode(response.bodyBytes);
-        final jsonData = json.decode(decoded) as Map<String, dynamic>;
+        final jsonData = response.data as Map<String, dynamic>;
         final completionResponse =
             UserPlanDayCompletionStatusResponse.fromJson(jsonData);
 
@@ -170,16 +148,12 @@ class UserPlansRemoteDatasource {
   // sub tasks completion post request
   Future<bool> completeSubTask(String subTaskId) async {
     try {
-      final uri = Uri.parse('$baseUrl/users/me/sub-tasks/$subTaskId/complete');
-      final response = await client.post(
-        uri,
-        headers: {'Content-Type': 'application/json'},
-      );
+      final response = await dio.post('/users/me/sub-tasks/$subTaskId/complete');
 
       if (response.statusCode == 204) {
         return true;
       } else {
-        final errorMessage = 'HTTP ${response.statusCode}: ${response.body}';
+        final errorMessage = 'HTTP ${response.statusCode}: ${response.data}';
         _logger.error('Failed to complete sub task: $errorMessage');
         throw Exception('Failed to complete sub task: $errorMessage');
       }
@@ -193,16 +167,12 @@ class UserPlansRemoteDatasource {
   // task completion post request
   Future<bool> completeTask(String taskId) async {
     try {
-      final uri = Uri.parse('$baseUrl/users/me/tasks/$taskId/complete');
-      final response = await client.post(
-        uri,
-        headers: {'Content-Type': 'application/json'},
-      );
+      final response = await dio.post('/users/me/tasks/$taskId/complete');
 
       if (response.statusCode == 204) {
         return true;
       } else {
-        final errorMessage = 'HTTP ${response.statusCode}: ${response.body}';
+        final errorMessage = 'HTTP ${response.statusCode}: ${response.data}';
         _logger.error('Failed to complete task: $errorMessage');
         throw Exception('Failed to complete task: $errorMessage');
       }
@@ -216,13 +186,12 @@ class UserPlansRemoteDatasource {
   // delete task request
   Future<bool> deleteTask(String taskId) async {
     try {
-      final uri = Uri.parse('$baseUrl/users/me/task/$taskId');
-      final response = await client.delete(uri);
+      final response = await dio.delete('/users/me/task/$taskId');
 
       if (response.statusCode == 204) {
         return true;
       } else {
-        final errorMessage = 'HTTP ${response.statusCode}: ${response.body}';
+        final errorMessage = 'HTTP ${response.statusCode}: ${response.data}';
         _logger.error('Failed to delete task: $errorMessage');
         throw Exception('Failed to delete task: $errorMessage');
       }
@@ -236,13 +205,12 @@ class UserPlansRemoteDatasource {
   // unenroll from plan request
   Future<bool> unenrollFromPlan(String planId) async {
     try {
-      final uri = Uri.parse('$baseUrl/users/me/plans/$planId');
-      final response = await client.delete(uri);
+      final response = await dio.delete('/users/me/plans/$planId');
 
       if (response.statusCode == 204) {
         return true;
       } else {
-        final errorMessage = 'HTTP ${response.statusCode}: ${response.body}';
+        final errorMessage = 'HTTP ${response.statusCode}: ${response.data}';
         _logger.error('Failed to unenroll from plan: $errorMessage');
         throw Exception('Failed to unenroll from plan: $errorMessage');
       }

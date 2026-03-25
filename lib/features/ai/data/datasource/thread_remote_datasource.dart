@@ -1,55 +1,39 @@
-import 'dart:convert';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
-import 'package:flutter_pecha/features/ai/config/ai_config.dart';
 import 'package:flutter_pecha/features/ai/data/models/chat_thread.dart';
 import 'package:flutter_pecha/features/ai/services/retry_service.dart';
-import 'package:http/http.dart' as http;
 
-/// Remote data source for thread operations
+/// Remote data source for thread operations.
+///
+/// This datasource uses the dedicated AI Dio client which:
+/// - Uses AI_URL as base URL
+/// - Automatically adds auth tokens via interceptors
+/// - Has AI-specific timeout configurations
 class ThreadRemoteDatasource {
-  final http.Client _client;
+  final Dio _aiDio;
   final _logger = AppLogger('ThreadRemoteDatasource');
 
-  ThreadRemoteDatasource(this._client);
+  ThreadRemoteDatasource(this._aiDio);
 
   /// Get list of all threads
   Future<ThreadListResponse> getThreads({int skip = 0, int limit = 50}) async {
-    final aiUrl = dotenv.env['AI_URL'];
-    if (aiUrl == null || aiUrl.isEmpty) {
-      _logger.error('AI_URL not configured in .env');
-      throw Exception('AI_URL not configured');
-    }
-
-    final url = Uri.parse('$aiUrl/threads').replace(
-      queryParameters: {
-        'application': 'webuddhist',
-        'skip': skip.toString(),
-        'limit': limit.toString(),
-      },
-    );
-
-    _logger.info('Fetching threads: ${url.toString()}');
+    _logger.info('Fetching threads');
 
     try {
-      // Use retry service for resilience
       return await RetryService.execute(
         () async {
-          final response = await _client
-              .get(url)
-              .timeout(
-                AiConfig.requestTimeout,
-                onTimeout: () {
-                  throw Exception('Request timed out. Please try again.');
-                },
-              );
+          final response = await _aiDio.get(
+            '/threads',
+            queryParameters: {
+              'application': 'webuddhist',
+              'skip': skip,
+              'limit': limit,
+            },
+          );
 
           if (response.statusCode == 200) {
-            final decoded = utf8.decode(response.bodyBytes);
-            final jsonData = json.decode(decoded) as Map<String, dynamic>;
-
             _logger.info('Successfully fetched threads');
-            return ThreadListResponse.fromJson(jsonData);
+            return ThreadListResponse.fromJson(response.data);
           } else if (response.statusCode == 401 || response.statusCode == 403) {
             _logger.error('Authentication error: ${response.statusCode}');
             throw Exception('Authentication required. Please log in.');
@@ -77,35 +61,16 @@ class ThreadRemoteDatasource {
 
   /// Get specific thread by ID with all messages
   Future<ChatThreadDetail> getThreadById(String threadId) async {
-    final aiUrl = dotenv.env['AI_URL'];
-    if (aiUrl == null || aiUrl.isEmpty) {
-      _logger.error('AI_URL not configured in .env');
-      throw Exception('AI_URL not configured');
-    }
-
-    final url = Uri.parse('$aiUrl/threads/$threadId');
-
-    _logger.info('Fetching thread details: ${url.toString()}');
+    _logger.info('Fetching thread details: $threadId');
 
     try {
-      // Use retry service for resilience
       return await RetryService.execute(
         () async {
-          final response = await _client
-              .get(url)
-              .timeout(
-                AiConfig.requestTimeout,
-                onTimeout: () {
-                  throw Exception('Request timed out. Please try again.');
-                },
-              );
+          final response = await _aiDio.get('/threads/$threadId');
 
           if (response.statusCode == 200) {
-            final decoded = utf8.decode(response.bodyBytes);
-            final jsonData = json.decode(decoded) as Map<String, dynamic>;
-
             _logger.info('Successfully fetched thread: $threadId');
-            return ChatThreadDetail.fromJson(jsonData);
+            return ChatThreadDetail.fromJson(response.data);
           } else if (response.statusCode == 404) {
             _logger.error('Thread not found: $threadId');
             throw Exception('Conversation not found');
@@ -136,39 +101,21 @@ class ThreadRemoteDatasource {
 
   /// Delete a thread by ID
   Future<void> deleteThread(String threadId) async {
-    final aiUrl = dotenv.env['AI_URL'];
-    if (aiUrl == null || aiUrl.isEmpty) {
-      _logger.error('AI_URL not configured in .env');
-      throw Exception('AI_URL not configured');
-    }
-
-    final url = Uri.parse('$aiUrl/threads/$threadId');
-
-    _logger.info('Deleting thread: ${url.toString()}');
+    _logger.info('Deleting thread: $threadId');
 
     try {
-      // Use retry service for resilience
       await RetryService.execute(
         () async {
-          final response = await _client
-              .delete(
-                url,
-                headers: {'Content-Type': 'application/json'},
-                body: json.encode({'thread_id': threadId}),
-              )
-              .timeout(
-                AiConfig.requestTimeout,
-                onTimeout: () {
-                  throw Exception('Request timed out. Please try again.');
-                },
-              );
+          final response = await _aiDio.delete(
+            '/threads/$threadId',
+            data: {'thread_id': threadId},
+          );
 
           if (response.statusCode == 200 || response.statusCode == 204) {
             // Parse response body for 200 status code
             if (response.statusCode == 200) {
               try {
-                final decoded = utf8.decode(response.bodyBytes);
-                final jsonData = json.decode(decoded) as Map<String, dynamic>;
+                final jsonData = response.data as Map<String, dynamic>;
                 final message =
                     jsonData['message'] ?? 'Thread deleted successfully';
                 _logger.info(

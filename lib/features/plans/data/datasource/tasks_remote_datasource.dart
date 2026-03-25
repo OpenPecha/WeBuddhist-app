@@ -1,23 +1,17 @@
-import 'dart:convert';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter_pecha/features/plans/data/models/plan_tasks_model.dart';
-import 'package:http/http.dart' as http;
 
 class TasksRemoteDatasource {
-  final http.Client client;
-  final String baseUrl = dotenv.env['BASE_API_URL']!;
+  final Dio dio;
 
-  TasksRemoteDatasource({required this.client});
+  TasksRemoteDatasource({required this.dio});
 
   // Get tasks by plan item ID
   Future<List<PlanTasksModel>> getTasksByPlanItemId(String planItemId) async {
     try {
-      final response = await client.get(
-        Uri.parse('$baseUrl/plan-items/$planItemId/tasks'),
-        headers: {'Content-Type': 'application/json'},
-      );
+      final response = await dio.get('/plan-items/$planItemId/tasks');
       if (response.statusCode == 200) {
-        final List<dynamic> jsonData = json.decode(response.body);
+        final List<dynamic> jsonData = response.data as List<dynamic>;
         return jsonData.map((json) => PlanTasksModel.fromJson(json)).toList();
       } else {
         throw Exception('Failed to load tasks: ${response.statusCode}');
@@ -30,13 +24,9 @@ class TasksRemoteDatasource {
   // Get task by ID
   Future<PlanTasksModel> getTaskById(String id) async {
     try {
-      final response = await client.get(
-        Uri.parse('$baseUrl/tasks/$id'),
-        headers: {'Content-Type': 'application/json'},
-      );
+      final response = await dio.get('/tasks/$id');
       if (response.statusCode == 200) {
-        final jsonData = json.decode(response.body);
-        return PlanTasksModel.fromJson(jsonData);
+        return PlanTasksModel.fromJson(response.data);
       } else {
         throw Exception('Failed to load task: ${response.statusCode}');
       }
@@ -48,14 +38,12 @@ class TasksRemoteDatasource {
   // Update task
   Future<PlanTasksModel> updateTask(String id, PlanTasksModel task) async {
     try {
-      final response = await client.put(
-        Uri.parse('$baseUrl/tasks/$id'),
-        headers: {'Content-Type': 'application/json'},
-        body: json.encode(task.toJson()),
+      final response = await dio.put(
+        '/tasks/$id',
+        data: task.toJson(),
       );
       if (response.statusCode == 200) {
-        final jsonData = json.decode(response.body);
-        return PlanTasksModel.fromJson(jsonData);
+        return PlanTasksModel.fromJson(response.data);
       } else {
         throw Exception('Failed to update task: ${response.statusCode}');
       }
