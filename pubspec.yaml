@@ -161,7 +161,6 @@ flutter:
     - assets/images/tag_cover/
     - assets/fonts/
     - assets/audios/
-    - .env
     - .env.dev
     - .env.staging
     - .env.prod
