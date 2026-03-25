@@ -26,6 +26,7 @@ class DayCarousel extends StatelessWidget {
     // Convert to local time first, then extract date-only to avoid
     // timezone-related date shifts when the time component crosses midnight
     final localStartDate = DateUtils.dateOnly(startDate.toLocal());
+    final today = DateUtils.dateOnly(DateTime.now());
     final selectedIndex = days.indexWhere((d) => d.dayNumber == selectedDay);
     final initialPage = selectedIndex >= 0 ? selectedIndex : 0;
 
@@ -51,6 +52,7 @@ class DayCarousel extends StatelessWidget {
           final dayDateString = DateFormat('dd MMM').format(dayDate);
           final isSelected = selectedDay == day.dayNumber;
           final isCompleted = dayCompletionStatus?[day.dayNumber] ?? false;
+          final isToday = dayDate.isAtSameMomentAs(today);
 
           return GestureDetector(
             onTap: () => onDaySelected(day.dayNumber),
@@ -89,19 +91,37 @@ class DayCarousel extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
-                          fontFamily: "Inter",
                         ),
                       ),
                       const SizedBox(height: 4),
-                      Text(
-                        dayDateString,
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight:
-                              day.dayNumber == 1
-                                  ? FontWeight.bold
-                                  : FontWeight.normal,
-                          fontFamily: "Inter",
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 2,
+                        ),
+                        decoration:
+                            isToday
+                                ? BoxDecoration(
+                                  color:
+                                      Theme.of(context).brightness ==
+                                              Brightness.dark
+                                          ? Colors.white.withValues(alpha: 0.2)
+                                          : const Color(0xFF1A1A1A),
+                                  borderRadius: BorderRadius.circular(12),
+                                )
+                                : null,
+                        child: Text(
+                          dayDateString,
+                          style: TextStyle(
+                            fontSize: 11,
+                            color:
+                                isToday
+                                    ? (Theme.of(context).brightness ==
+                                            Brightness.dark
+                                        ? Colors.white
+                                        : Colors.white)
+                                    : null,
+                          ),
                         ),
                       ),
                     ],
