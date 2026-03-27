@@ -183,6 +183,7 @@ class PlansModel {
       difficulty: difficulty,
       tags: tags ?? [],
       weekPlans: const [], // Will be populated by separate call if needed
+      language: language,
     );
   }
 
@@ -209,7 +210,7 @@ class PlansModel {
       id: entity.id,
       title: entity.title,
       description: entity.description,
-      language: 'en', // Will be set by the caller
+      language: entity.language,
       difficultyLevel: difficultyLevelStr,
       image: entity.coverImageUrl != null
           ? ImageModel(

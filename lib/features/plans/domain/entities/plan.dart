@@ -14,6 +14,7 @@ class Plan extends BaseEntity {
   final DifficultyLevel difficulty;
   final List<String> tags;
   final List<WeekPlan> weekPlans;
+  final String language;
 
   const Plan({
     required this.id,
@@ -27,6 +28,7 @@ class Plan extends BaseEntity {
     required this.difficulty,
     this.tags = const [],
     this.weekPlans = const [],
+    this.language = 'en',
   });
 
   /// Get display title based on language preference.
@@ -50,6 +52,7 @@ class Plan extends BaseEntity {
     DifficultyLevel? difficulty,
     List<String>? tags,
     List<WeekPlan>? weekPlans,
+    String? language,
   }) {
     return Plan(
       id: id ?? this.id,
@@ -63,6 +66,7 @@ class Plan extends BaseEntity {
       difficulty: difficulty ?? this.difficulty,
       tags: tags ?? this.tags,
       weekPlans: weekPlans ?? this.weekPlans,
+      language: language ?? this.language,
     );
   }
 
@@ -79,6 +83,7 @@ class Plan extends BaseEntity {
     difficulty,
     tags,
     weekPlans,
+    language,
   ];
 }
 

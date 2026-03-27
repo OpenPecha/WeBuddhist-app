@@ -3,6 +3,7 @@ import 'package:fpdart/fpdart.dart';
 import 'package:flutter_pecha/core/error/exceptions.dart';
 import 'package:flutter_pecha/core/error/failures.dart';
 import 'package:flutter_pecha/features/auth/data/datasource/auth_remote_datasource.dart';
+import 'package:flutter_pecha/features/auth/domain/entities/auth_credentials.dart';
 import 'package:flutter_pecha/features/auth/domain/entities/user.dart';
 import 'package:flutter_pecha/features/auth/domain/repositories/auth_repository.dart';
 import 'package:flutter_pecha/features/auth/auth_service.dart';
@@ -11,6 +12,7 @@ import 'package:flutter_pecha/features/auth/auth_service.dart';
 ///
 /// Wraps the working AuthService to provide repository interface.
 /// This maintains all existing functionality while providing clean abstraction.
+/// Converts between Auth0 Credentials and domain AuthCredentials.
 class AuthRepositoryImpl implements AuthRepository {
   final AuthService _authService;
   final AuthRemoteDataSource _remoteDataSource;
@@ -20,6 +22,23 @@ class AuthRepositoryImpl implements AuthRepository {
     required AuthRemoteDataSource remoteDataSource,
   })  : _authService = authService,
         _remoteDataSource = remoteDataSource;
+
+  /// Convert Auth0 Credentials to domain AuthCredentials
+  AuthCredentials _toAuthCredentials(Credentials credentials) {
+    final now = DateTime.now();
+    final expiresAt = credentials.expiresAt;
+    final expiresIn = expiresAt.difference(now).inSeconds;
+
+    return AuthCredentials(
+      accessToken: credentials.accessToken,
+      idToken: credentials.idToken,
+      tokenType: credentials.tokenType,
+      expiresIn: expiresIn > 0 ? expiresIn : 3600,
+      obtainedAt: now,
+      refreshToken: credentials.refreshToken,
+      scope: null, // Not exposed by Auth0 Credentials
+    );
+  }
 
   // ========== Initialization ==========
 
@@ -36,26 +55,26 @@ class AuthRepositoryImpl implements AuthRepository {
   // ========== Authentication Operations ==========
 
   @override
-  Future<Either<Failure, Credentials>> loginWithGoogle() async {
+  Future<Either<Failure, AuthCredentials>> loginWithGoogle() async {
     try {
       final credentials = await _authService.loginWithGoogle();
       if (credentials == null) {
         return const Left(AuthenticationFailure('Google login failed'));
       }
-      return Right(credentials);
+      return Right(_toAuthCredentials(credentials));
     } catch (e) {
       return Left(AuthenticationFailure('Google login failed: $e'));
     }
   }
 
   @override
-  Future<Either<Failure, Credentials>> loginWithApple() async {
+  Future<Either<Failure, AuthCredentials>> loginWithApple() async {
     try {
       final credentials = await _authService.loginWithApple();
       if (credentials == null) {
         return const Left(AuthenticationFailure('Apple login failed'));
       }
-      return Right(credentials);
+      return Right(_toAuthCredentials(credentials));
     } catch (e) {
       return Left(AuthenticationFailure('Apple login failed: $e'));
     }
@@ -82,13 +101,13 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Either<Failure, Credentials>> getCredentials() async {
+  Future<Either<Failure, AuthCredentials>> getCredentials() async {
     try {
       final credentials = await _authService.getCredentials();
       if (credentials == null) {
         return const Left(AuthenticationFailure('No credentials found'));
       }
-      return Right(credentials);
+      return Right(_toAuthCredentials(credentials));
     } catch (e) {
       return Left(AuthenticationFailure('Failed to get credentials: $e'));
     }

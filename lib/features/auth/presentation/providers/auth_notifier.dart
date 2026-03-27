@@ -1,6 +1,6 @@
 // Riverpod provider and logic for authentication state.
-import 'package:auth0_flutter/auth0_flutter.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
+import 'package:flutter_pecha/features/auth/domain/entities/auth_credentials.dart';
 import 'package:flutter_pecha/features/auth/domain/usecases/clear_guest_mode_and_onboarding_usecase.dart';
 import 'package:flutter_pecha/features/auth/domain/usecases/clear_guest_mode_usecase.dart';
 import 'package:flutter_pecha/features/auth/domain/usecases/continue_as_guest_usecase.dart';
@@ -95,14 +95,14 @@ class AuthNotifier extends StateNotifier<AuthState> {
       },
       (credentials) {
         // Validate credentials were actually retrieved
-        if (credentials != null && credentials.user.sub.isNotEmpty) {
+        if (credentials != null && credentials.idToken.isNotEmpty) {
           state = state.copyWith(
             isLoggedIn: true,
             isLoading: false,
             isGuest: false,
             errorMessage: null,
           );
-          _logger.info('Login state restored for user: ${credentials.user.sub}');
+          _logger.info('Login state restored');
 
           // Initialize user data
           try {
@@ -112,7 +112,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
             // Non-critical, user can still use the app
           }
         } else {
-          _logger.debug('Credentials check returned null or invalid user');
+          _logger.debug('Credentials check returned null or invalid credentials');
           _checkGuestMode();
         }
       },
@@ -198,7 +198,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
     );
   }
 
-  Future<void> _handleSuccessfulLogin(Credentials credentials) async {
+  Future<void> _handleSuccessfulLogin(AuthCredentials credentials) async {
     // Check if user was previously in guest mode
     final guestModeResult = await _isGuestModeUseCase(const NoParams());
     guestModeResult.fold(

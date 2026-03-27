@@ -1,6 +1,6 @@
-import 'package:auth0_flutter/auth0_flutter.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:flutter_pecha/core/error/failures.dart';
+import 'package:flutter_pecha/features/auth/domain/entities/auth_credentials.dart';
 import 'package:flutter_pecha/features/auth/domain/entities/user.dart';
 
 /// Auth repository interface (Domain Layer)
@@ -16,10 +16,10 @@ abstract class AuthRepository {
   // ========== Authentication Operations ==========
 
   /// Login with Google
-  Future<Either<Failure, Credentials>> loginWithGoogle();
+  Future<Either<Failure, AuthCredentials>> loginWithGoogle();
 
   /// Login with Apple
-  Future<Either<Failure, Credentials>> loginWithApple();
+  Future<Either<Failure, AuthCredentials>> loginWithApple();
 
   /// Logout (local - clears credentials from device)
   Future<Either<Failure, void>> localLogout();
@@ -28,7 +28,7 @@ abstract class AuthRepository {
   Future<Either<Failure, bool>> hasValidCredentials();
 
   /// Get current auth credentials
-  Future<Either<Failure, Credentials>> getCredentials();
+  Future<Either<Failure, AuthCredentials>> getCredentials();
 
   /// Check if ID token is expired
   bool isIdTokenExpired(String idToken);
@@ -55,4 +55,3 @@ abstract class AuthRepository {
   /// Get current user profile from backend
   Future<Either<Failure, User>> getCurrentUser();
 }
-

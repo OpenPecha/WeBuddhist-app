@@ -9,6 +9,7 @@ library;
 
 // Domain - Entities
 export 'domain/entities/user.dart';
+export 'domain/entities/auth_credentials.dart';
 
 // Domain - Repositories
 export 'domain/repositories/auth_repository.dart';
