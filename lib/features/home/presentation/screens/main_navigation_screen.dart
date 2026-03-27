@@ -26,24 +26,31 @@ class MainNavigationScreen extends ConsumerWidget {
       ),
       AppBottomBarItemModel(
         type: 1,
+        label: localizations.nav_explore,
+        selectedWidget: const AiModeScreen(),
+        selectedIconData: AppAssets.exploreSelected,
+        unSelectedIconData: AppAssets.exploreUnselected,
+      ),
+      AppBottomBarItemModel(
+        type: 2,
         label: localizations.nav_learn,
         selectedWidget: const AiModeScreen(),
         selectedIconData: AppAssets.textsSelected,
         unSelectedIconData: AppAssets.textsUnselected,
       ),
       AppBottomBarItemModel(
-        type: 2,
+        type: 3,
         label: localizations.nav_practice,
         selectedWidget: const PracticeScreen(),
         selectedIconData: AppAssets.practiceSelected,
         unSelectedIconData: AppAssets.practiceUnselected,
       ),
       AppBottomBarItemModel(
-        type: 3,
+        type: 4,
         label: localizations.nav_connect,
         selectedWidget: const MoreScreen(),
-        selectedIconData: AppAssets.settingsMeSelected,
-        unSelectedIconData: AppAssets.settingsMeUnselected,
+        selectedIconData: AppAssets.connectSelected,
+        unSelectedIconData: AppAssets.connectUnselected,
       ),
     ];
   }

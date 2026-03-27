@@ -298,6 +298,12 @@ abstract class AppLocalizations {
   /// **'Home'**
   String get nav_home;
 
+  /// No description provided for @nav_explore.
+  ///
+  /// In en, this message translates to:
+  /// **'Explore'**
+  String get nav_explore;
+
   /// No description provided for @nav_texts.
   ///
   /// In en, this message translates to:

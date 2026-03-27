@@ -111,6 +111,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get nav_home => '首頁';
 
   @override
+  String get nav_explore => '探索';
+
+  @override
   String get nav_texts => '文本';
 
   @override

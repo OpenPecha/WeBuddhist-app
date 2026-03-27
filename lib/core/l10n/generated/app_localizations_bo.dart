@@ -112,6 +112,9 @@ class AppLocalizationsBo extends AppLocalizations {
   String get nav_home => 'འདུན་ངོས།';
 
   @override
+  String get nav_explore => 'འཚོལ་ཞིབ།';
+
+  @override
   String get nav_texts => 'ཡིག་མཛོད།';
 
   @override

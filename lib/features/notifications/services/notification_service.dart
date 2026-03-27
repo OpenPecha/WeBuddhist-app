@@ -229,7 +229,7 @@ class NotificationService {
     if (response.id != null && response.id! >= 100) {
       _logger.info('Navigating to practice screen (routine notification)');
       // Routine block notification — navigate to practice screen (index 2)
-      _container!.read(mainNavigationIndexProvider.notifier).state = 2;
+      _container!.read(mainNavigationIndexProvider.notifier).state = 3;
     } else {
       _logger.info('Navigating to home screen (default)');
       // Default fallback - go to home tab (index 0)
