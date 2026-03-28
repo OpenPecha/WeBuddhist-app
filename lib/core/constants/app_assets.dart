@@ -9,7 +9,7 @@ class AppAssets {
   static const String routineCalendar = 'assets/images/routine_calendar.png';
 
   // ========== LOGOS ==========
-  static const String weBuddhistLogo = 'assets/images/webuddhist_logo.svg';
+  static const String weBuddhistLogo = 'assets/images/webuddhist_gold.png';
 
   // Bottom Navigation icons
   static const PhosphorFlatIconData homeSelected = PhosphorIconsFill.house;

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 
 class LogoLabel extends StatelessWidget {
@@ -13,7 +14,7 @@ class LogoLabel extends StatelessWidget {
         // Logo or splash animation can go here
         Padding(
           padding: const EdgeInsets.only(bottom: 8.0),
-          child: Image.asset('assets/images/webuddhist_logo.png', height: 150),
+          child: Image.asset(AppAssets.weBuddhistLogo, height: 150),
         ),
         Text(
           localizations.pechaHeading,

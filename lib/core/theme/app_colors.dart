@@ -4,10 +4,10 @@ class AppColors {
   AppColors._();
 
   // ============ Primary Colors (Action Negative - Red/Burgundy Theme) ============
-  static const Color primary = Color(0xFFAD2424); // MAN 700
-  static const Color primaryLight = Color(0xFFD32F2F); // MAN 500
-  static const Color primaryDark = Color(0xFF871C1C); // MAN 800
-  static const Color primaryDarkest = Color(0xFF611414); // MAN 900
+  static const Color primary = Color(0xFFDEAD2D); // MAN 700
+  static const Color primaryLight = Color(0xFFDEAD2D); // MAN 500
+  static const Color primaryDark = Color(0xFFB3861C); // MAN 800
+  static const Color primaryDarkest = Color(0xFF805700); // MAN 900
 
   /// Primary color containers and tints
   static const Color primaryContainer = Color(0xFFFAE6E6); // MAN 100

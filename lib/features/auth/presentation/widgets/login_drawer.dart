@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../application/auth_notifier.dart';
 import 'social_login_button.dart';
@@ -96,7 +97,7 @@ class _LoginDrawerState extends ConsumerState<LoginDrawer>
                 ),
                 // App logo
                 Image.asset(
-                  'assets/images/webuddhist_logo.png',
+                  AppAssets.weBuddhistLogo,
                   height: 80,
                   width: 80,
                 ),

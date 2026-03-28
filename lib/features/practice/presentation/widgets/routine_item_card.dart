@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/core/widgets/cached_network_image_widget.dart';
 import 'package:flutter_pecha/features/practice/data/models/routine_model.dart';
@@ -45,7 +46,7 @@ class RoutineItemCard extends StatelessWidget {
                 ? ClipRRect(
                     borderRadius: BorderRadius.circular(10),
                     child: Image.asset(
-                      'assets/images/webuddhist_logo.png',
+                      AppAssets.weBuddhistLogo,
                       width: 60,
                       height: 60,
                       fit: BoxFit.cover,
