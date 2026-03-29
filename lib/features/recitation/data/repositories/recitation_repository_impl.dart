@@ -1,4 +1,5 @@
 import 'package:fpdart/fpdart.dart';
+import 'package:flutter_pecha/core/error/exception_mapper.dart';
 import 'package:flutter_pecha/core/error/failures.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/features/recitation/data/datasource/recitations_remote_datasource.dart';
@@ -28,7 +29,7 @@ class RecitationRepositoryImpl implements RecitationRepository {
       return Right(entities);
     } catch (e) {
       _logger.error('Failed to get recitations', e);
-      return Left(ServerFailure('Failed to load recitations: $e'));
+      return Left(ExceptionMapper.map(e, context: 'getRecitations'));
     }
   }
 
@@ -44,7 +45,7 @@ class RecitationRepositoryImpl implements RecitationRepository {
       return Right(entities);
     } catch (e) {
       _logger.error('Failed to get recitations by type', e);
-      return Left(ServerFailure('Failed to load recitations: $e'));
+      return Left(ExceptionMapper.map(e, context: 'getRecitationsByType'));
     }
   }
 
@@ -61,7 +62,7 @@ class RecitationRepositoryImpl implements RecitationRepository {
       return Right(entities);
     } catch (e) {
       _logger.error('Failed to get recitations by text', e);
-      return Left(ServerFailure('Failed to load recitations: $e'));
+      return Left(ExceptionMapper.map(e, context: 'getRecitationsByText'));
     }
   }
 
@@ -81,7 +82,7 @@ class RecitationRepositoryImpl implements RecitationRepository {
       return Right(entities);
     } catch (e) {
       _logger.error('Failed to search recitations', e);
-      return Left(ServerFailure('Failed to search recitations: $e'));
+      return Left(ExceptionMapper.map(e, context: 'searchRecitations'));
     }
   }
 
@@ -99,7 +100,7 @@ class RecitationRepositoryImpl implements RecitationRepository {
       return Right(entities);
     } catch (e) {
       _logger.error('Failed to get saved recitations', e);
-      return Left(ServerFailure('Failed to load saved recitations: $e'));
+      return Left(ExceptionMapper.map(e, context: 'getSavedRecitations'));
     }
   }
 }

@@ -1,9 +1,13 @@
 import 'package:dio/dio.dart';
-import 'package:flutter_pecha/core/network/dio_error_handler.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/features/recitation/data/models/recitation_model.dart';
 import 'package:flutter_pecha/features/recitation/data/models/recitation_content_model.dart';
 
+/// Recitations remote datasource.
+///
+/// Error handling is centralized in ErrorInterceptor, which converts
+/// DioExceptions to typed AppExceptions. Exceptions propagate naturally
+/// to the repository layer for mapping to Failures.
 class RecitationsQueryParams {
   final String? language;
   final String? search;
@@ -28,42 +32,34 @@ class RecitationsRemoteDatasource {
   Future<List<RecitationModel>> fetchRecitations({
     RecitationsQueryParams? queryParams,
   }) async {
-    try {
-      final response = await dio.get(
-        '/recitations',
-        queryParameters: queryParams?.toQueryParams(),
-      );
+    final response = await dio.get(
+      '/recitations',
+      queryParameters: queryParams?.toQueryParams(),
+    );
 
-      final responseData = response.data as Map<String, dynamic>;
-      final List<dynamic> recitationsData =
-          responseData['recitations'] as List<dynamic>? ?? [];
+    final responseData = response.data as Map<String, dynamic>;
+    final List<dynamic> recitationsData =
+        responseData['recitations'] as List<dynamic>? ?? [];
 
-      return recitationsData
-          .map(
-            (json) => RecitationModel.fromJson(json as Map<String, dynamic>),
-          )
-          .toList();
-    } on DioException catch (e) {
-      DioErrorHandler.handleDioException(e, 'Failed to fetch recitations');
-    }
+    return recitationsData
+        .map(
+          (json) => RecitationModel.fromJson(json as Map<String, dynamic>),
+        )
+        .toList();
   }
 
   // Get saved recitations
   Future<List<RecitationModel>> fetchSavedRecitations() async {
-    try {
-      final response = await dio.get('/users/me/recitations');
+    final response = await dio.get('/users/me/recitations');
 
-      final responseData = response.data as Map<String, dynamic>;
-      final List<dynamic> recitationsData =
-          responseData['recitations'] as List<dynamic>? ?? [];
-      return recitationsData
-          .map(
-            (json) => RecitationModel.fromJson(json as Map<String, dynamic>),
-          )
-          .toList();
-    } on DioException catch (e) {
-      DioErrorHandler.handleDioException(e, 'Failed to fetch saved recitations');
-    }
+    final responseData = response.data as Map<String, dynamic>;
+    final List<dynamic> recitationsData =
+        responseData['recitations'] as List<dynamic>? ?? [];
+    return recitationsData
+        .map(
+          (json) => RecitationModel.fromJson(json as Map<String, dynamic>),
+        )
+        .toList();
   }
 
   // Get recitation content by text ID
@@ -75,68 +71,52 @@ class RecitationsRemoteDatasource {
     List<String>? transliterations,
     List<String>? adaptations,
   }) async {
-    try {
-      final requestBody = <String, dynamic>{
-        'language': language,
-        'recitation': recitation ?? [],
-        'translations': translations ?? [],
-        'transliterations': transliterations ?? [],
-        'adaptations': adaptations ?? [],
-      };
+    final requestBody = <String, dynamic>{
+      'language': language,
+      'recitation': recitation ?? [],
+      'translations': translations ?? [],
+      'transliterations': transliterations ?? [],
+      'adaptations': adaptations ?? [],
+    };
 
-      _logger.debug('Fetching recitation content for ID: $id');
-      _logger.debug('Request body: $requestBody');
+    _logger.debug('Fetching recitation content for ID: $id');
+    _logger.debug('Request body: $requestBody');
 
-      final response = await dio.post(
-        '/recitations/$id',
-        data: requestBody,
-      );
+    final response = await dio.post(
+      '/recitations/$id',
+      data: requestBody,
+    );
 
-      return RecitationContentModel.fromJson(response.data);
-    } on DioException catch (e) {
-      DioErrorHandler.handleDioException(e, 'Failed to fetch recitation content');
-    }
+    return RecitationContentModel.fromJson(response.data);
   }
 
   // Save recitation to user's saved recitations
   Future<bool> saveRecitation(String id) async {
-    try {
-      final response = await dio.post(
-        '/users/me/recitations',
-        data: {'text_id': id},
-      );
+    final response = await dio.post(
+      '/users/me/recitations',
+      data: {'text_id': id},
+    );
 
-      return response.statusCode == 200 || response.statusCode == 201;
-    } on DioException catch (e) {
-      DioErrorHandler.handleDioException(e, 'Failed to save recitation');
-    }
+    return response.statusCode == 200 || response.statusCode == 201;
   }
 
   // Unsave recitation from user's saved recitations
   Future<bool> unsaveRecitation(String textId) async {
-    try {
-      final response = await dio.delete('/users/me/recitations/$textId');
+    final response = await dio.delete('/users/me/recitations/$textId');
 
-      return response.statusCode == 200 || response.statusCode == 204;
-    } on DioException catch (e) {
-      DioErrorHandler.handleDioException(e, 'Failed to unsave recitation');
-    }
+    return response.statusCode == 200 || response.statusCode == 204;
   }
 
   // Update recitations order
   Future<bool> updateRecitationsOrder(
     List<Map<String, dynamic>> recitations,
   ) async {
-    try {
-      _logger.debug('Updating recitations order: $recitations');
-      final response = await dio.put(
-        '/users/me/recitations/order',
-        data: {'recitations': recitations},
-      );
+    _logger.debug('Updating recitations order: $recitations');
+    final response = await dio.put(
+      '/users/me/recitations/order',
+      data: {'recitations': recitations},
+    );
 
-      return response.statusCode == 200 || response.statusCode == 204;
-    } on DioException catch (e) {
-      DioErrorHandler.handleDioException(e, 'Failed to update recitations order');
-    }
+    return response.statusCode == 200 || response.statusCode == 204;
   }
 }

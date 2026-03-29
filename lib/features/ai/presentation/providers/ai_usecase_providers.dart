@@ -1,5 +1,4 @@
 import 'package:flutter_pecha/core/di/core_providers.dart';
-import 'package:flutter_pecha/features/ai/data/datasource/ai_chat_remote_datasource.dart';
 import 'package:flutter_pecha/features/ai/data/datasource/thread_remote_datasource.dart';
 import 'package:flutter_pecha/features/ai/data/repositories/ai_repository_impl.dart';
 import 'package:flutter_pecha/features/ai/domain/repositories/ai_repository.dart';
@@ -11,9 +10,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// Provider for the AI repository (domain interface).
 final aiDomainRepositoryProvider = Provider<AIRepository>((ref) {
   final aiDio = ref.watch(aiDioProvider);
-  final datasource = AiChatRemoteDatasource(aiDio);
   final threadDatasource = ThreadRemoteDatasource(aiDio);
-  return AiRepositoryImpl(datasource, threadDatasource);
+  return AiRepositoryImpl(threadDatasource);
 });
 
 // ========== Use Case Providers ==========

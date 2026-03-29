@@ -1,6 +1,6 @@
 import 'package:auth0_flutter/auth0_flutter.dart';
 import 'package:fpdart/fpdart.dart';
-import 'package:flutter_pecha/core/error/exceptions.dart';
+import 'package:flutter_pecha/core/error/exception_mapper.dart';
 import 'package:flutter_pecha/core/error/failures.dart';
 import 'package:flutter_pecha/features/auth/data/datasource/auth_remote_datasource.dart';
 import 'package:flutter_pecha/features/auth/domain/entities/auth_credentials.dart';
@@ -191,18 +191,8 @@ class AuthRepositoryImpl implements AuthRepository {
     try {
       final userModel = await _remoteDataSource.getCurrentUser(idToken);
       return Right(userModel.toEntity());
-    } on AuthenticationException catch (e) {
-      return Left(AuthenticationFailure(e.message));
-    } on AuthorizationException catch (e) {
-      return Left(AuthorizationFailure(e.message));
-    } on NotFoundException catch (e) {
-      return Left(NotFoundFailure(e.message));
-    } on NetworkException catch (e) {
-      return Left(NetworkFailure(e.message));
-    } on ServerException catch (e) {
-      return Left(ServerFailure(e.message));
     } catch (e) {
-      return Left(UnknownFailure('Failed to get current user: $e'));
+      return Left(ExceptionMapper.map(e, context: 'getCurrentUser'));
     }
   }
 }

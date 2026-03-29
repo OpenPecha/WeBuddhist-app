@@ -1,13 +1,12 @@
 import 'package:fpdart/fpdart.dart';
+import 'package:flutter_pecha/core/error/exception_mapper.dart';
 import 'package:flutter_pecha/core/error/failures.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/features/plans/data/datasource/plans_remote_datasource.dart';
-import 'package:flutter_pecha/features/plans/data/models/plans_model.dart';
 import 'package:flutter_pecha/features/plans/domain/entities/author.dart';
 import 'package:flutter_pecha/features/plans/domain/entities/plan.dart';
 import 'package:flutter_pecha/features/plans/domain/entities/plan_day.dart';
 import 'package:flutter_pecha/features/plans/domain/entities/plan_progress.dart';
-import 'package:flutter_pecha/features/plans/domain/entities/week_plan.dart';
 import 'package:flutter_pecha/features/plans/domain/repositories/plans_repository.dart';
 
 final _logger = AppLogger('PlansRepositoryImpl');
@@ -44,7 +43,7 @@ class PlansRepositoryImpl implements PlansRepository {
       return Right(entities);
     } catch (e) {
       _logger.error('Failed to get plans', e);
-      return Left(ServerFailure('Failed to load plans: $e'));
+      return Left(ExceptionMapper.map(e, context: 'getPlans'));
     }
   }
 
@@ -58,7 +57,7 @@ class PlansRepositoryImpl implements PlansRepository {
       return Right(model.toEntity());
     } catch (e) {
       _logger.error('Failed to get plan $id', e);
-      return Left(ServerFailure('Failed to load plan: $e'));
+      return Left(ExceptionMapper.map(e, context: 'getPlan'));
     }
   }
 
@@ -78,7 +77,7 @@ class PlansRepositoryImpl implements PlansRepository {
       return Right(entities);
     } catch (e) {
       _logger.error('Failed to get plans by tags', e);
-      return Left(ServerFailure('Failed to load plans: $e'));
+      return Left(ExceptionMapper.map(e, context: 'getPlansByTags'));
     }
   }
 
@@ -98,7 +97,7 @@ class PlansRepositoryImpl implements PlansRepository {
       return Right(entities);
     } catch (e) {
       _logger.error('Failed to search plans', e);
-      return Left(ServerFailure('Failed to search plans: $e'));
+      return Left(ExceptionMapper.map(e, context: 'searchPlans'));
     }
   }
 
@@ -117,7 +116,7 @@ class PlansRepositoryImpl implements PlansRepository {
       return Right(entities);
     } catch (e) {
       _logger.error('Failed to get plans by author', e);
-      return Left(ServerFailure('Failed to load plans: $e'));
+      return Left(ExceptionMapper.map(e, context: 'getPlansByAuthor'));
     }
   }
 
@@ -129,7 +128,7 @@ class PlansRepositoryImpl implements PlansRepository {
       return const Right(null);
     } catch (e) {
       _logger.error('Failed to get author', e);
-      return Left(ServerFailure('Failed to load author: $e'));
+      return Left(ExceptionMapper.map(e, context: 'getAuthor'));
     }
   }
 
@@ -141,7 +140,7 @@ class PlansRepositoryImpl implements PlansRepository {
       return const Right(null);
     } catch (e) {
       _logger.error('Failed to get user plan progress', e);
-      return Left(ServerFailure('Failed to load progress: $e'));
+      return Left(ExceptionMapper.map(e, context: 'getUserPlanProgress'));
     }
   }
 
@@ -153,7 +152,7 @@ class PlansRepositoryImpl implements PlansRepository {
       return Left(ServerFailure('Enrollment not yet implemented'));
     } catch (e) {
       _logger.error('Failed to enroll in plan', e);
-      return Left(ServerFailure('Failed to enroll: $e'));
+      return Left(ExceptionMapper.map(e, context: 'enrollInPlan'));
     }
   }
 
@@ -169,7 +168,7 @@ class PlansRepositoryImpl implements PlansRepository {
       return Left(ServerFailure('Progress update not yet implemented'));
     } catch (e) {
       _logger.error('Failed to update progress', e);
-      return Left(ServerFailure('Failed to update progress: $e'));
+      return Left(ExceptionMapper.map(e, context: 'updateProgress'));
     }
   }
 
@@ -181,7 +180,7 @@ class PlansRepositoryImpl implements PlansRepository {
       return const Right(null);
     } catch (e) {
       _logger.error('Failed to unenroll from plan', e);
-      return Left(ServerFailure('Failed to unenroll: $e'));
+      return Left(ExceptionMapper.map(e, context: 'unenrollFromPlan'));
     }
   }
 
@@ -193,7 +192,7 @@ class PlansRepositoryImpl implements PlansRepository {
       return const Right(null);
     } catch (e) {
       _logger.error('Failed to get plan day', e);
-      return Left(ServerFailure('Failed to load plan day: $e'));
+      return Left(ExceptionMapper.map(e, context: 'getPlanDay'));
     }
   }
 }

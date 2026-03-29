@@ -1,6 +1,6 @@
 import 'package:fpdart/fpdart.dart';
+import 'package:flutter_pecha/core/error/exception_mapper.dart';
 import 'package:flutter_pecha/core/error/failures.dart';
-import 'package:flutter_pecha/features/ai/data/datasource/ai_chat_remote_datasource.dart';
 import 'package:flutter_pecha/features/ai/data/datasource/thread_remote_datasource.dart';
 import 'package:flutter_pecha/features/ai/data/models/chat_thread.dart' as data_models;
 import 'package:flutter_pecha/features/ai/domain/entities/chat_message.dart' as domain;
@@ -13,10 +13,9 @@ import 'package:flutter_pecha/features/ai/domain/repositories/ai_repository.dart
 /// but the actual API uses streaming. For streaming responses, use AiChatRepository directly.
 /// This implementation is provided for non-streaming use cases.
 class AiRepositoryImpl implements AIRepository {
-  final AiChatRemoteDatasource _datasource;
   final ThreadRemoteDatasource _threadDatasource;
 
-  AiRepositoryImpl(this._datasource, this._threadDatasource);
+  AiRepositoryImpl(this._threadDatasource);
 
   @override
   Future<Either<Failure, List<domain.ChatThread>>> getThreads() async {
@@ -25,7 +24,7 @@ class AiRepositoryImpl implements AIRepository {
       final threads = response.data.map((model) => _toDomainThread(model)).toList();
       return Right(threads);
     } catch (e) {
-      return Left(ServerFailure('Failed to load threads: $e'));
+      return Left(ExceptionMapper.map(e, context: 'getThreads'));
     }
   }
 
@@ -39,7 +38,7 @@ class AiRepositoryImpl implements AIRepository {
       final thread = _toDomainThreadFromDetail(threadDetail);
       return Right(thread);
     } catch (e) {
-      return Left(ServerFailure('Failed to load thread: $e'));
+      return Left(ExceptionMapper.map(e, context: 'getThread'));
     }
   }
 
@@ -56,7 +55,7 @@ class AiRepositoryImpl implements AIRepository {
         ServerFailure('Create thread not implemented - threads are created implicitly'),
       );
     } catch (e) {
-      return Left(ServerFailure('Failed to create thread: $e'));
+      return Left(ExceptionMapper.map(e, context: 'createThread'));
     }
   }
 
@@ -69,7 +68,7 @@ class AiRepositoryImpl implements AIRepository {
       await _threadDatasource.deleteThread(threadId);
       return const Right(null);
     } catch (e) {
-      return Left(ServerFailure('Failed to delete thread: $e'));
+      return Left(ExceptionMapper.map(e, context: 'deleteThread'));
     }
   }
 
@@ -100,7 +99,7 @@ class AiRepositoryImpl implements AIRepository {
         ServerFailure('Search content not implemented in datasource'),
       );
     } catch (e) {
-      return Left(ServerFailure('Failed to search content: $e'));
+      return Left(ExceptionMapper.map(e, context: 'searchContent'));
     }
   }
 
@@ -115,7 +114,7 @@ class AiRepositoryImpl implements AIRepository {
         ServerFailure('Get suggestions not implemented in datasource'),
       );
     } catch (e) {
-      return Left(ServerFailure('Failed to get suggestions: $e'));
+      return Left(ExceptionMapper.map(e, context: 'getSuggestions'));
     }
   }
 
