@@ -20,6 +20,10 @@ class RetryInterceptor extends Interceptor {
   final AppLogger _logger;
   final AuthService _authService;
 
+  /// Dio instance used for retries — configured with parent's BaseOptions
+  /// but without interceptors to avoid infinite loops.
+  late Dio _retryDio;
+
   /// Maximum number of retries for network errors
   static const maxRetries = 3;
 
@@ -31,6 +35,12 @@ class RetryInterceptor extends Interceptor {
 
   /// Requests waiting for token refresh
   final List<_RetryRequest> _refreshQueue = [];
+
+  /// Configure the retry Dio instance with the parent Dio's options.
+  /// Must be called after the parent Dio is created and interceptors are added.
+  void configure(Dio parentDio) {
+    _retryDio = Dio(parentDio.options);
+  }
 
   @override
   void onError(
@@ -67,7 +77,7 @@ class RetryInterceptor extends Interceptor {
               final opts = request.error.requestOptions;
               opts.headers['Authorization'] = 'Bearer $newIdToken';
               try {
-                final response = await Dio().fetch(opts);
+                final response = await _retryDio.fetch(opts);
                 request.handler.resolve(response);
               } on DioException catch (e) {
                 request.handler.next(e);
@@ -79,7 +89,7 @@ class RetryInterceptor extends Interceptor {
             final originalOpts = err.requestOptions;
             originalOpts.headers['Authorization'] = 'Bearer $newIdToken';
             try {
-              final response = await Dio().fetch(originalOpts);
+              final response = await _retryDio.fetch(originalOpts);
               handler.resolve(response);
             } on DioException catch (e) {
               handler.next(e);
@@ -120,7 +130,7 @@ class RetryInterceptor extends Interceptor {
 
         try {
           // Clone and retry the request
-          final response = await Dio().fetch(err.requestOptions);
+          final response = await _retryDio.fetch(err.requestOptions);
           handler.resolve(response);
           return;
         } on DioException catch (e) {

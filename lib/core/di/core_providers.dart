@@ -1,16 +1,20 @@
 import 'package:dio/dio.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_pecha/core/cache/cache_service.dart';
 import 'package:flutter_pecha/core/config/api_config.dart';
 import 'package:flutter_pecha/core/network/ai_dio_client.dart';
+import 'package:flutter_pecha/core/network/auth_service_token_provider.dart';
 import 'package:flutter_pecha/core/network/connectivity_service.dart';
 import 'package:flutter_pecha/core/network/dio_client.dart';
 import 'package:flutter_pecha/core/network/interceptors/interceptors.dart';
 import 'package:flutter_pecha/core/network/network_info.dart';
+import 'package:flutter_pecha/core/network/token_provider.dart';
 import 'package:flutter_pecha/core/storage/preferences_service.dart';
 import 'package:flutter_pecha/core/storage/secure_storage_impl.dart';
 import 'package:flutter_pecha/core/storage/storage_service.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
+import 'package:flutter_pecha/features/ai/config/ai_config.dart';
 import 'package:flutter_pecha/features/auth/auth_service.dart';
 
 // ============ Logger ============
@@ -50,21 +54,19 @@ final authServiceProvider = Provider<AuthService>((ref) {
   return AuthService.instance;
 });
 
-// ============ Interceptors ============
+// ============ Token Providers ============
 
-/// Provider for AuthInterceptor (for main API - uses AuthService to get token from Auth0)
-final authInterceptorProvider = Provider<AuthInterceptor>((ref) {
-  return AuthInterceptor(
-    ref.watch(authServiceProvider),
-    ref.watch(loggerProvider),
-  );
+/// Provider for AuthService-based TokenProvider (main API and AI API)
+final authTokenProvider = Provider<TokenProvider>((ref) {
+  return AuthServiceTokenProvider(ref.watch(authServiceProvider));
 });
 
-/// Provider for AI AuthInterceptor (for AI API - uses AuthService)
-/// NOTE: Both main API and AI API now use AuthService to get tokens from Auth0
-final aiAuthInterceptorProvider = Provider<AuthInterceptor>((ref) {
+// ============ Interceptors ============
+
+/// Provider for AuthInterceptor (uses AuthService-based TokenProvider)
+final authInterceptorProvider = Provider<AuthInterceptor>((ref) {
   return AuthInterceptor(
-    ref.watch(authServiceProvider),
+    ref.watch(authTokenProvider),
     ref.watch(loggerProvider),
   );
 });
@@ -95,15 +97,28 @@ final retryInterceptorProvider = Provider<RetryInterceptor>((ref) {
 
 // ============ Dio Client ============
 
+/// Provider for main DioClient BaseOptions
+final _dioBaseOptionsProvider = Provider<BaseOptions>((ref) {
+  final config = ref.watch(apiConfigProvider);
+  return BaseOptions(
+    baseUrl: config.baseUrl,
+    connectTimeout: config.connectTimeout,
+    receiveTimeout: config.receiveTimeout,
+    sendTimeout: config.sendTimeout,
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+    },
+  );
+});
+
 /// Provider for DioClient
 ///
 /// This is the main HTTP client for the app. It includes all interceptors
 /// for auth, logging, error handling, caching, and retry logic.
 final dioClientProvider = Provider<DioClient>((ref) {
-  final config = ref.watch(apiConfigProvider);
-
   return DioClient(
-    config: config,
+    options: ref.watch(_dioBaseOptionsProvider),
     authInterceptor: ref.watch(authInterceptorProvider),
     loggingInterceptor: ref.watch(loggingInterceptorProvider),
     errorInterceptor: ref.watch(errorInterceptorProvider),
@@ -119,14 +134,36 @@ final dioProvider = Provider<Dio>((ref) {
 
 // ============ AI Dio Client ============
 
+/// Provider for AI DioClient BaseOptions
+final _aiDioBaseOptionsProvider = Provider<BaseOptions>((ref) {
+  final aiUrl = dotenv.env['AI_URL'];
+  if (aiUrl == null || aiUrl.isEmpty) {
+    throw Exception('AI_URL not configured');
+  }
+  return BaseOptions(
+    baseUrl: aiUrl,
+    connectTimeout: AiConfig.connectionTimeout,
+    receiveTimeout: AiConfig.connectionTimeout,
+    sendTimeout: AiConfig.connectionTimeout,
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+    },
+  );
+});
+
 /// Provider for AiDioClient
 ///
 /// This is a dedicated HTTP client for AI endpoints. It uses the AI_URL
-/// base URL and automatically adds auth tokens via AuthService.
+/// base URL and automatically adds auth tokens via AuthService TokenProvider.
 final aiDioClientProvider = Provider<AiDioClient>((ref) {
   return AiDioClient(
-    ref.watch(authServiceProvider),
-    ref.watch(loggerProvider),
+    options: ref.watch(_aiDioBaseOptionsProvider),
+    interceptors: [
+      ref.watch(authInterceptorProvider),
+      ref.watch(loggingInterceptorProvider),
+      ref.watch(errorInterceptorProvider),
+    ],
   );
 });
 

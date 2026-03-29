@@ -4,6 +4,7 @@ import 'package:flutter_pecha/core/utils/app_logger.dart';
 /// Interceptor that logs all HTTP requests and responses.
 ///
 /// Provides detailed logging for debugging API calls in development mode.
+/// Includes request IDs and durations for log correlation.
 class LoggingInterceptor extends Interceptor {
   LoggingInterceptor(this._logger);
 
@@ -14,12 +15,13 @@ class LoggingInterceptor extends Interceptor {
     RequestOptions options,
     RequestInterceptorHandler handler,
   ) {
-    _logger.info('🌐 API Request: ${options.method} ${options.path}');
-    _logger.debug('Headers: ${_filterHeaders(options.headers)}');
+    final requestId = options.extra['requestId'] ?? 'unknown';
+    _logger.info('[$requestId] API Request: ${options.method} ${options.path}');
+    _logger.debug('[$requestId] Headers: ${_filterHeaders(options.headers)}');
     if (options.data != null && options.data is! Map) {
-      _logger.debug('Body: ${options.data}');
+      _logger.debug('[$requestId] Body: ${options.data}');
     } else if (options.queryParameters.isNotEmpty) {
-      _logger.debug('Query: ${options.queryParameters}');
+      _logger.debug('[$requestId] Query: ${options.queryParameters}');
     }
     handler.next(options);
   }
@@ -29,10 +31,13 @@ class LoggingInterceptor extends Interceptor {
     Response response,
     ResponseInterceptorHandler handler,
   ) {
-    final duration = response.requestOptions.extra['duration'] as Duration?;
-    final durationStr = duration != null ? ' (${duration.inMilliseconds}ms)' : '';
+    final requestId = response.requestOptions.extra['requestId'] ?? 'unknown';
+    final startTime = response.requestOptions.extra['requestStartTime'] as DateTime?;
+    final durationStr = startTime != null
+        ? ' (${DateTime.now().difference(startTime).inMilliseconds}ms)'
+        : '';
     _logger.info(
-      '✅ API Response: ${response.statusCode} '
+      '[$requestId] API Response: ${response.statusCode} '
       '${response.requestOptions.path}$durationStr',
     );
     handler.next(response);
@@ -43,8 +48,9 @@ class LoggingInterceptor extends Interceptor {
     DioException err,
     ErrorInterceptorHandler handler,
   ) {
+    final requestId = err.requestOptions.extra['requestId'] ?? 'unknown';
     _logger.error(
-      '❌ API Error: ${err.requestOptions.method} ${err.requestOptions.path} '
+      '[$requestId] API Error: ${err.requestOptions.method} ${err.requestOptions.path} '
       '- ${err.response?.statusCode ?? err.type}',
       err.error,
       err.stackTrace,

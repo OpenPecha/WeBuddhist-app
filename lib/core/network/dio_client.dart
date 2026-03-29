@@ -1,13 +1,9 @@
 import 'package:dio/dio.dart';
-import 'package:flutter_pecha/core/config/api_config.dart';
 import 'package:flutter_pecha/core/network/interceptors/auth_interceptor.dart';
 import 'package:flutter_pecha/core/network/interceptors/cache_interceptor.dart';
 import 'package:flutter_pecha/core/network/interceptors/error_interceptor.dart';
 import 'package:flutter_pecha/core/network/interceptors/logging_interceptor.dart';
 import 'package:flutter_pecha/core/network/interceptors/retry_interceptor.dart';
-import 'package:flutter_pecha/core/storage/storage_service.dart';
-import 'package:flutter_pecha/core/utils/app_logger.dart';
-import 'package:flutter_pecha/features/auth/auth_service.dart';
 
 /// Dio HTTP client with interceptors.
 ///
@@ -19,22 +15,13 @@ import 'package:flutter_pecha/features/auth/auth_service.dart';
 /// - Retry (automatic retry on failure)
 class DioClient {
   DioClient({
-    required ApiConfig config,
+    required BaseOptions options,
     required AuthInterceptor authInterceptor,
     required LoggingInterceptor loggingInterceptor,
     required ErrorInterceptor errorInterceptor,
     required CacheInterceptor cacheInterceptor,
     required RetryInterceptor retryInterceptor,
-  }) : _dio = Dio(BaseOptions(
-    baseUrl: config.baseUrl,
-    connectTimeout: config.connectTimeout,
-    receiveTimeout: config.receiveTimeout,
-    sendTimeout: config.sendTimeout,
-    headers: {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json',
-    },
-  )) {
+  }) : _dio = Dio(options) {
     // Add interceptors in order
     // IMPORTANT: Order matters! Each interceptor processes the request/response in sequence
     _dio.interceptors.addAll([
@@ -44,6 +31,9 @@ class DioClient {
       errorInterceptor,     // 4. Convert DioExceptions to typed exceptions
       loggingInterceptor,   // 5. Log the FINAL friendly exception (not raw DioException)
     ]);
+
+    // Configure retry interceptor with parent Dio's options for safe retries
+    retryInterceptor.configure(_dio);
   }
 
   final Dio _dio;
@@ -67,45 +57,5 @@ class DioClient {
   /// Close the client and release resources
   void close({bool force = false}) {
     _dio.close(force: force);
-  }
-}
-
-/// Factory for creating DioClient with all dependencies
-class DioClientFactory {
-  DioClientFactory({
-    required SecureStorage secureStorage,
-    required AppLogger logger,
-    required AuthService authService,
-    ApiConfig? config,
-  }) : _secureStorage = secureStorage,
-       _logger = logger,
-       _authService = authService,
-       _config = config ?? ApiConfig.current;
-
-  final SecureStorage _secureStorage;
-  final AppLogger _logger;
-  final AuthService _authService;
-  final ApiConfig _config;
-
-  late final AuthInterceptor _authInterceptor = AuthInterceptor(_secureStorage, _logger);
-  late final LoggingInterceptor _loggingInterceptor = LoggingInterceptor(_logger);
-  late final ErrorInterceptor _errorInterceptor = ErrorInterceptor(_logger);
-  late final CacheInterceptor _cacheInterceptor = CacheInterceptor(_logger);
-  late final RetryInterceptor _retryInterceptor = RetryInterceptor(
-    _secureStorage,
-    _logger,
-    _authService,
-  );
-
-  /// Create the DioClient instance
-  DioClient create() {
-    return DioClient(
-      config: _config,
-      authInterceptor: _authInterceptor,
-      loggingInterceptor: _loggingInterceptor,
-      errorInterceptor: _errorInterceptor,
-      cacheInterceptor: _cacheInterceptor,
-      retryInterceptor: _retryInterceptor,
-    );
   }
 }

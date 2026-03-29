@@ -1,23 +1,19 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_pecha/core/config/protected_routes.dart';
-import 'package:flutter_pecha/core/storage/storage_keys.dart';
-import 'package:flutter_pecha/core/storage/storage_service.dart';
+import 'package:flutter_pecha/core/network/token_provider.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
-import 'package:flutter_pecha/features/auth/auth_service.dart';
 
 /// Interceptor that adds authentication tokens to requests.
 ///
-/// This interceptor checks if a request path is protected and adds
-/// the Authorization header with the access token from the appropriate source:
-/// - For main API endpoints: uses SecureStorage
-/// - For AI endpoints: uses AuthService (Auth0 credentials manager)
+/// Uses a [TokenProvider] to retrieve tokens from the appropriate source,
+/// eliminating the need for runtime type checks.
 class AuthInterceptor extends Interceptor {
   AuthInterceptor(
-    this._tokenSource,
+    this._tokenProvider,
     this._logger,
   );
 
-  final dynamic _tokenSource; // Can be SecureStorage or AuthService
+  final TokenProvider _tokenProvider;
   final AppLogger _logger;
 
   @override
@@ -25,35 +21,19 @@ class AuthInterceptor extends Interceptor {
     RequestOptions options,
     RequestInterceptorHandler handler,
   ) async {
-    // DEBUG: Log all requests
-    _logger.debug('[AuthInterceptor] Checking path: ${options.path}');
-    _logger.debug('[AuthInterceptor] Is protected: ${ProtectedRoutes.isProtected(options.path)}');
+    // Add request ID and start time for log correlation
+    options.extra['requestId'] = DateTime.now().microsecondsSinceEpoch.toRadixString(36);
+    options.extra['requestStartTime'] = DateTime.now();
 
-    // Add auth token to protected routes
     if (ProtectedRoutes.isProtected(options.path)) {
-      String? token;
-
-      // Get token from the appropriate source
-      if (_tokenSource is AuthService) {
-        // For AI endpoints - use AuthService
-        token = await (_tokenSource as AuthService).getValidIdToken();
-        if (token != null) {
-          _logger.debug('[AuthInterceptor] Added AI auth token for ${options.method} ${options.path}');
-        }
-      } else if (_tokenSource is SecureStorage) {
-        // For main API endpoints - use SecureStorage
-        token = await (_tokenSource as SecureStorage).get(StorageKeys.accessToken);
-        _logger.debug('[AuthInterceptor] Retrieved token from storage: ${token != null ? 'YES' : 'NO'}');
-      }
+      final token = await _tokenProvider.getToken();
 
       if (token != null) {
         options.headers['Authorization'] = 'Bearer $token';
-        _logger.info('[AuthInterceptor] ✅ Added auth header for ${options.method} ${options.path}');
+        _logger.debug('[AuthInterceptor] Added auth header for ${options.method} ${options.path}');
       } else {
-        _logger.warning('[AuthInterceptor] ❌ No auth token found for ${options.path}');
+        _logger.warning('[AuthInterceptor] No auth token found for ${options.path}');
       }
-    } else {
-      _logger.debug('[AuthInterceptor] ⚠️ Path not protected, skipping auth: ${options.path}');
     }
 
     handler.next(options);

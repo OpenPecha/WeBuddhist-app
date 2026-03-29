@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:flutter_pecha/core/error/exceptions.dart';
+import 'package:flutter_pecha/core/network/dio_error_handler.dart';
 import 'package:flutter_pecha/features/texts/data/models/search/multilingual_search_response.dart';
 import 'package:flutter_pecha/features/texts/data/models/search/search_response.dart';
 import 'package:flutter_pecha/features/texts/data/models/search/title_search_response.dart';
@@ -15,47 +15,6 @@ class TextRemoteDatasource {
   final String baseUrl = dotenv.env['BASE_API_URL']!;
 
   TextRemoteDatasource({required this.dio});
-
-  // Helper method to handle Dio errors
-  Never _throwDioException(DioException e, String defaultMessage) {
-    if (e.type == DioExceptionType.connectionTimeout ||
-        e.type == DioExceptionType.sendTimeout ||
-        e.type == DioExceptionType.receiveTimeout) {
-      throw const NetworkException('Connection timeout');
-    } else if (e.type == DioExceptionType.connectionError) {
-      throw const NetworkException('No internet connection');
-    } else if (e.response?.statusCode != null) {
-      final statusCode = e.response!.statusCode!;
-      if (statusCode == 401) {
-        throw const AuthenticationException('Unauthorized');
-      } else if (statusCode == 403) {
-        throw const AuthorizationException('Forbidden');
-      } else if (statusCode == 404) {
-        throw const NotFoundException('Resource not found');
-      } else if (statusCode == 429) {
-        throw const RateLimitException('Too many requests');
-      } else {
-        throw ServerException('$defaultMessage: $statusCode');
-      }
-    } else {
-      throw const NetworkException('Network error');
-    }
-  }
-
-  // Helper method to handle status codes
-  void _handleStatusCode(int statusCode, String defaultMessage) {
-    if (statusCode == 401) {
-      throw const AuthenticationException('Unauthorized');
-    } else if (statusCode == 403) {
-      throw const AuthorizationException('Forbidden');
-    } else if (statusCode == 404) {
-      throw const NotFoundException('Resource not found');
-    } else if (statusCode == 429) {
-      throw const RateLimitException('Too many requests');
-    } else if (statusCode != 200) {
-      throw ServerException('$defaultMessage: $statusCode');
-    }
-  }
 
   // to get the texts
   Future<TextDetailResponse> fetchTexts({
@@ -75,10 +34,9 @@ class TextRemoteDatasource {
         },
       );
 
-      _handleStatusCode(response.statusCode!, 'Failed to load texts');
       return TextDetailResponse.fromJson(response.data);
     } on DioException catch (e) {
-      _throwDioException(e, 'Failed to load texts');
+      DioErrorHandler.handleDioException(e, 'Failed to load texts');
     }
   }
 
@@ -93,10 +51,9 @@ class TextRemoteDatasource {
         queryParameters: {'language': language ?? 'en'},
       );
 
-      _handleStatusCode(response.statusCode!, 'Failed to load text content');
       return TocResponse.fromJson(response.data);
     } on DioException catch (e) {
-      _throwDioException(e, 'Failed to load text content');
+      DioErrorHandler.handleDioException(e, 'Failed to load text content');
     }
   }
 
@@ -111,10 +68,9 @@ class TextRemoteDatasource {
         queryParameters: {'language': language ?? 'en'},
       );
 
-      _handleStatusCode(response.statusCode!, 'Failed to load text version');
       return VersionResponse.fromJson(response.data);
     } on DioException catch (e) {
-      _throwDioException(e, 'Failed to load text version');
+      DioErrorHandler.handleDioException(e, 'Failed to load text version');
     }
   }
 
@@ -129,10 +85,9 @@ class TextRemoteDatasource {
         queryParameters: {'language': language ?? 'en'},
       );
 
-      _handleStatusCode(response.statusCode!, 'Failed to load commentary text');
       return CommentaryTextResponse.fromJson(response.data);
     } on DioException catch (e) {
-      _throwDioException(e, 'Failed to load commentary text');
+      DioErrorHandler.handleDioException(e, 'Failed to load commentary text');
     }
   }
 
@@ -154,10 +109,9 @@ class TextRemoteDatasource {
         },
       );
 
-      _handleStatusCode(response.statusCode!, 'Failed to load text details');
       return ReaderResponse.fromJson(response.data);
     } on DioException catch (e) {
-      _throwDioException(e, 'Failed to load text details');
+      DioErrorHandler.handleDioException(e, 'Failed to load text details');
     }
   }
 
@@ -178,10 +132,9 @@ class TextRemoteDatasource {
         },
       );
 
-      _handleStatusCode(response.statusCode!, 'Failed to search text');
       return SearchResponse.fromJson(response.data);
     } on DioException catch (e) {
-      _throwDioException(e, 'Failed to search text');
+      DioErrorHandler.handleDioException(e, 'Failed to search text');
     }
   }
 
@@ -202,10 +155,9 @@ class TextRemoteDatasource {
         },
       );
 
-      _handleStatusCode(response.statusCode!, 'Failed to search text');
       return MultilingualSearchResponse.fromJson(response.data);
     } on DioException catch (e) {
-      _throwDioException(e, 'Failed to search text');
+      DioErrorHandler.handleDioException(e, 'Failed to search text');
     }
   }
 
@@ -227,7 +179,6 @@ class TextRemoteDatasource {
         },
       );
 
-      _handleStatusCode(response.statusCode!, 'Failed to search titles');
       final jsonList = response.data as List<dynamic>;
       return TitleSearchResponse.fromJson(
         jsonList,
@@ -236,7 +187,7 @@ class TextRemoteDatasource {
         offset: offset,
       );
     } on DioException catch (e) {
-      _throwDioException(e, 'Failed to search titles');
+      DioErrorHandler.handleDioException(e, 'Failed to search titles');
     }
   }
 
@@ -256,7 +207,6 @@ class TextRemoteDatasource {
         },
       );
 
-      _handleStatusCode(response.statusCode!, 'Failed to search authors');
       final jsonList = response.data as List<dynamic>;
       return TitleSearchResponse.fromJson(
         jsonList,
@@ -265,7 +215,7 @@ class TextRemoteDatasource {
         offset: offset,
       );
     } on DioException catch (e) {
-      _throwDioException(e, 'Failed to search authors');
+      DioErrorHandler.handleDioException(e, 'Failed to search authors');
     }
   }
 }

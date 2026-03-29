@@ -16,11 +16,12 @@ class ErrorInterceptor extends Interceptor {
     DioException err,
     ErrorInterceptorHandler handler,
   ) {
+    final requestId = err.requestOptions.extra['requestId'] ?? 'unknown';
     final exception = _convertDioException(err);
 
-    // Log the error
+    // Log the error with request ID for correlation
     _logger.error(
-      'API Error: ${err.message}',
+      '[$requestId] API Error: ${err.message}',
       exception,
       err.stackTrace,
     );
