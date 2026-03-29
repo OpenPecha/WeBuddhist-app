@@ -1,10 +1,12 @@
 import 'package:flutter_pecha/features/texts/data/datasource/share_remote_datasource.dart';
+import 'package:flutter_pecha/features/texts/domain/repositories/share_repository.dart';
 
-class ShareRepository {
+class ShareRepository implements ShareRepositoryInterface {
   final ShareRemoteDatasource remoteDatasource;
 
   ShareRepository({required this.remoteDatasource});
 
+  @override
   Future<String> getShareUrl({
     required String textId,
     required String segmentId,

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/features/plans/presentation/providers/plan_days_providers.dart';
+import 'package:flutter_pecha/features/plans/presentation/providers/use_case_providers.dart';
 import 'package:flutter_pecha/features/plans/presentation/providers/user_plans_provider.dart';
 import 'package:flutter_pecha/features/plans/data/models/user/user_subtasks_dto.dart';
 import 'package:flutter_pecha/features/story_view/presentation/widgets/story_loading_overlay.dart';
@@ -257,10 +258,10 @@ class _PlanStoryPresenterState extends ConsumerState<PlanStoryPresenter> {
     _pendingSubtaskIds.add(subtaskId);
 
     try {
-      final repository = ref.read(userPlansRepositoryProvider);
+      final useCase = ref.read(completeSubTaskUseCaseProvider);
 
       // Make API call
-      final success = await repository.completeSubTask(subtaskId);
+      final success = await useCase(subtaskId);
 
       // Only update state if still mounted and not disposing
       if (mounted && !_isDisposing) {

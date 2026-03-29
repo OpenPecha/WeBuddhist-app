@@ -1,23 +1,13 @@
-import 'package:flutter_pecha/core/di/core_providers.dart';
-import 'package:flutter_pecha/features/texts/data/datasource/collections_remote_datasource.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../data/repositories/collections_repository.dart';
 import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
-
-final collectionsRepositoryProvider = Provider(
-  (ref) => CollectionsRepository(
-    remoteDatasource: CollectionsRemoteDatasource(
-      dio: ref.watch(dioProvider),
-    ),
-  ),
-);
+import 'package:flutter_pecha/features/texts/domain/usecases/collections_usecases.dart';
+import 'package:flutter_pecha/features/texts/presentation/providers/use_case_providers.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final collectionsListFutureProvider = FutureProvider.autoDispose((ref) {
   final locale = ref.watch(localeProvider);
   final languageCode = locale.languageCode;
-  return ref
-      .watch(collectionsRepositoryProvider)
-      .getCollections(language: languageCode);
+  final useCase = ref.watch(getCollectionsUseCaseProvider);
+  return useCase(CollectionsParams(language: languageCode));
 });
 
 final collectionsCategoryFutureProvider = FutureProvider.autoDispose.family((
@@ -26,7 +16,9 @@ final collectionsCategoryFutureProvider = FutureProvider.autoDispose.family((
 ) {
   final locale = ref.watch(localeProvider);
   final languageCode = locale.languageCode;
-  return ref
-      .watch(collectionsRepositoryProvider)
-      .getCollections(language: languageCode, parentId: parentId);
+  final useCase = ref.watch(getCollectionsUseCaseProvider);
+  return useCase(CollectionsParams(
+    language: languageCode,
+    parentId: parentId,
+  ));
 });

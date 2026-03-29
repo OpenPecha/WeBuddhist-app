@@ -1,5 +1,5 @@
-import 'package:flutter_pecha/features/plans/data/repositories/user_plans_repository.dart';
 import 'package:flutter_pecha/features/plans/data/models/user/user_plans_model.dart';
+import 'package:flutter_pecha/features/plans/domain/repositories/user_plans_repository.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// State for paginated my plans list
@@ -45,7 +45,7 @@ class MyPlansState {
 
 /// StateNotifier for paginated my plans
 class MyPlansNotifier extends StateNotifier<MyPlansState> {
-  final UserPlansRepository repository;
+  final UserPlansRepositoryInterface repository;
   final String languageCode;
   static const int _limit = 20;
 

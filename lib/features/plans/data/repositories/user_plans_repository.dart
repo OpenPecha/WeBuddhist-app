@@ -2,12 +2,14 @@ import 'package:flutter_pecha/features/plans/data/datasource/user_plans_remote_d
 import 'package:flutter_pecha/features/plans/data/models/plan_progress_model.dart';
 import 'package:flutter_pecha/features/plans/data/models/response/user_plan_day_detail_response.dart';
 import 'package:flutter_pecha/features/plans/data/models/response/user_plan_list_response_model.dart';
+import 'package:flutter_pecha/features/plans/domain/repositories/user_plans_repository.dart';
 
-class UserPlansRepository {
+class UserPlansRepository implements UserPlansRepositoryInterface {
   final UserPlansRemoteDatasource userPlansRemoteDatasource;
 
   UserPlansRepository({required this.userPlansRemoteDatasource});
 
+  @override
   Future<UserPlanListResponseModel> getUserPlans({
     required String language,
     int? skip,
@@ -22,6 +24,7 @@ class UserPlansRepository {
 
   /// Subscribe user to a plan
   /// Throws [Exception] if enrollment fails
+  @override
   Future<bool> subscribeToPlan(String planId) async {
     try {
       return await userPlansRemoteDatasource.subscribeToPlan(planId);
@@ -32,6 +35,7 @@ class UserPlansRepository {
 
   /// Get user plan progress details
   /// Throws [Exception] if fetching fails
+  @override
   Future<List<PlanProgressModel>> getUserPlanProgressDetails(
     String planId,
   ) async {
@@ -44,6 +48,7 @@ class UserPlansRepository {
 
   /// Get user plan day content
   /// Throws [Exception] if fetching fails
+  @override
   Future<UserPlanDayDetailResponse> getUserPlanDayContent(
     String planId,
     int dayNumber,
@@ -61,6 +66,7 @@ class UserPlansRepository {
   /// Get completion status for all days in a plan using bulk endpoint
   /// This replaces the N+1 query pattern with a single API call
   /// Throws [Exception] if fetching fails
+  @override
   Future<Map<int, bool>> getPlanDaysCompletionStatus(String planId) async {
     try {
       return await userPlansRemoteDatasource.fetchPlanDaysCompletionStatus(
@@ -75,6 +81,7 @@ class UserPlansRepository {
 
   /// Mark a subtask as complete
   /// Throws [Exception] if operation fails
+  @override
   Future<bool> completeSubTask(String subTaskId) async {
     try {
       return await userPlansRemoteDatasource.completeSubTask(subTaskId);
@@ -85,6 +92,7 @@ class UserPlansRepository {
 
   /// Mark a task as complete
   /// Throws [Exception] if operation fails
+  @override
   Future<bool> completeTask(String taskId) async {
     try {
       return await userPlansRemoteDatasource.completeTask(taskId);
@@ -95,6 +103,7 @@ class UserPlansRepository {
 
   /// Delete/uncomplete a task
   /// Throws [Exception] if operation fails
+  @override
   Future<bool> deleteTask(String taskId) async {
     try {
       return await userPlansRemoteDatasource.deleteTask(taskId);
@@ -105,6 +114,7 @@ class UserPlansRepository {
 
   /// Unenroll user from a plan
   /// Throws [Exception] if operation fails
+  @override
   Future<bool> unenrollFromPlan(String planId) async {
     try {
       return await userPlansRemoteDatasource.unenrollFromPlan(planId);

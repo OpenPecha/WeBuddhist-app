@@ -1,22 +1,13 @@
-import 'package:flutter_pecha/core/di/core_providers.dart';
-import 'package:flutter_pecha/features/plans/data/datasource/plan_days_remote_datasource.dart';
-import 'package:flutter_pecha/features/plans/data/repositories/plan_days_repository.dart';
 import 'package:flutter_pecha/features/plans/data/models/plan_days_model.dart';
+import 'package:flutter_pecha/features/plans/domain/usecases/plan_days_usecases.dart';
+import 'package:flutter_pecha/features/plans/presentation/providers/use_case_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-// Repository provider
-final planDaysRepositoryProvider = Provider<PlanDaysRepository>((ref) {
-  return PlanDaysRepository(
-    planDaysRemoteDatasource: PlanDaysRemoteDatasource(
-      dio: ref.watch(dioProvider),
-    ),
-  );
-});
 
 // Get plan days by plan id provider
 final planDaysByPlanIdFutureProvider =
     FutureProvider.family<List<PlanDaysModel>, String>((ref, planId) {
-      return ref.watch(planDaysRepositoryProvider).getPlanDaysByPlanId(planId);
+      final useCase = ref.watch(getPlanDaysUseCaseProvider);
+      return useCase(planId);
     });
 
 // Plan days params
@@ -40,7 +31,9 @@ class PlanDaysParams {
 // Get day content with tasks by plan id and day number
 final planDayContentFutureProvider =
     FutureProvider.family<PlanDaysModel, PlanDaysParams>((ref, params) {
-      return ref
-          .watch(planDaysRepositoryProvider)
-          .getDayContent(params.planId, params.dayNumber);
+      final useCase = ref.watch(getDayContentUseCaseProvider);
+      return useCase(DayContentParams(
+        planId: params.planId,
+        dayNumber: params.dayNumber,
+      ));
     });

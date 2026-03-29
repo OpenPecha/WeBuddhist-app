@@ -1,15 +1,6 @@
-import 'package:flutter_pecha/core/di/core_providers.dart';
-import 'package:flutter_pecha/features/texts/data/datasource/share_remote_datasource.dart';
-import 'package:flutter_pecha/features/texts/data/repositories/share_repository.dart';
+import 'package:flutter_pecha/features/texts/domain/usecases/share_usecases.dart' as domain;
+import 'package:flutter_pecha/features/texts/presentation/providers/use_case_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-// Share repository provider
-final shareRepositoryProvider = Provider<ShareRepository>((ref) {
-  final dio = ref.watch(dioProvider);
-  return ShareRepository(
-    remoteDatasource: ShareRemoteDatasource(dio: dio),
-  );
-});
 
 // Share parameters model
 class ShareUrlParams {
@@ -39,13 +30,13 @@ class ShareUrlParams {
 // Share URL provider
 final shareUrlProvider = FutureProvider.autoDispose
     .family<String, ShareUrlParams>((ref, params) async {
-      final repository = ref.watch(shareRepositoryProvider);
+      final useCase = ref.watch(getShareUrlUseCaseProvider);
       try {
-        final shortUrl = await repository.getShareUrl(
+        final shortUrl = await useCase(domain.ShareUrlParams(
           textId: params.textId,
           segmentId: params.segmentId,
           language: params.language,
-        );
+        ));
         if (shortUrl.isEmpty) {
           throw Exception('Failed to generate share URL');
         }

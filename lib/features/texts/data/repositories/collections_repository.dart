@@ -3,8 +3,9 @@ import 'package:flutter_pecha/core/network/connectivity_service.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/features/texts/data/datasource/collections_remote_datasource.dart';
 import 'package:flutter_pecha/features/texts/data/models/collections/collections_response.dart';
+import 'package:flutter_pecha/features/texts/domain/repositories/collections_repository.dart';
 
-class CollectionsRepository {
+class CollectionsRepository implements CollectionsRepositoryInterface {
   final CollectionsRemoteDatasource remoteDatasource;
   final CacheService _cacheService = CacheService.instance;
   final ConnectivityService _connectivityService = ConnectivityService.instance;
@@ -23,6 +24,7 @@ class CollectionsRepository {
   /// 4. If offline, return cached data even if expired
   ///
   /// Set [forceRefresh] to true to bypass cache (e.g., for pull-to-refresh).
+  @override
   Future<CollectionsResponse> getCollections({
     String? parentId,
     String? language,

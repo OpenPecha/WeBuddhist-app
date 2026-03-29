@@ -1,27 +1,17 @@
-import 'package:flutter_pecha/core/di/core_providers.dart';
-import 'package:flutter_pecha/features/plans/data/datasource/tasks_remote_datasource.dart';
-import 'package:flutter_pecha/features/plans/data/repositories/tasks_repository.dart';
 import 'package:flutter_pecha/features/plans/data/models/plan_tasks_model.dart';
+import 'package:flutter_pecha/features/plans/presentation/providers/use_case_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-final tasksRepositoryProvider = Provider<TasksRepository>((ref) {
-  return TasksRepository(
-    tasksRemoteDatasource: TasksRemoteDatasource(
-      dio: ref.watch(dioProvider),
-    ),
-  );
-});
 
 final tasksByPlanItemIdFutureProvider =
     FutureProvider.family<List<PlanTasksModel>, String>((ref, planItemId) {
-      return ref
-          .watch(tasksRepositoryProvider)
-          .getTasksByPlanItemId(planItemId);
+      final useCase = ref.watch(getTasksByPlanItemIdUseCaseProvider);
+      return useCase(planItemId);
     });
 
 final taskByIdFutureProvider = FutureProvider.family<PlanTasksModel, String>((
   ref,
   id,
 ) {
-  return ref.watch(tasksRepositoryProvider).getTaskById(id);
+  final useCase = ref.watch(getTaskByIdUseCaseProvider);
+  return useCase(id);
 });
