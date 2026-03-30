@@ -58,7 +58,10 @@ final authServiceProvider = Provider<AuthService>((ref) {
 
 /// Provider for AuthService-based TokenProvider (main API and AI API)
 final authTokenProvider = Provider<TokenProvider>((ref) {
-  return AuthServiceTokenProvider(ref.watch(authServiceProvider));
+  return AuthServiceTokenProvider(
+    ref.watch(authServiceProvider),
+    ref.watch(loggerProvider),
+  );
 });
 
 // ============ Interceptors ============
@@ -88,10 +91,21 @@ final cacheInterceptorProvider = Provider<CacheInterceptor>((ref) {
 
 /// Provider for RetryInterceptor
 final retryInterceptorProvider = Provider<RetryInterceptor>((ref) {
+  final logger = ref.watch(loggerProvider);
+  final authService = ref.watch(authServiceProvider);
+
   return RetryInterceptor(
-    ref.watch(secureStorageProvider),
-    ref.watch(loggerProvider),
-    ref.watch(authServiceProvider),
+    logger,
+    authService,
+    // When token refresh fails, clear credentials to trigger re-authentication
+    () async {
+      try {
+        await authService.localLogout();
+        logger.info('Logged out due to expired token refresh');
+      } catch (e) {
+        logger.warning('Failed to logout after token refresh failure', e);
+      }
+    },
   );
 });
 

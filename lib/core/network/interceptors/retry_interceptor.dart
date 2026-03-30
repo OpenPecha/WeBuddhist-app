@@ -1,24 +1,26 @@
 import 'package:dio/dio.dart';
-import 'package:flutter_pecha/core/storage/storage_keys.dart';
-import 'package:flutter_pecha/core/storage/storage_service.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/features/auth/auth_service.dart';
 
 /// Interceptor that retries failed requests.
 ///
 /// This interceptor handles:
-/// - 401 errors with token refresh (if refresh token is available)
+/// - 401 errors with token refresh (if user has valid credentials)
 /// - Network errors with exponential backoff
 class RetryInterceptor extends Interceptor {
   RetryInterceptor(
-    this._secureStorage,
     this._logger,
-    this._authService,
-  );
+    this._authService, [
+    this.onAuthExpired,
+  ]);
 
-  final SecureStorage _secureStorage;
   final AppLogger _logger;
   final AuthService _authService;
+
+  /// Callback invoked when token refresh fails and user needs to re-authenticate.
+  /// This can be used to trigger logout or redirect to login screen.
+  final VoidCallback? onAuthExpired;
 
   /// Dio instance used for retries — configured with parent's BaseOptions
   /// but without interceptors to avoid infinite loops.
@@ -49,9 +51,9 @@ class RetryInterceptor extends Interceptor {
   ) async {
     // Handle 401 - try to refresh token
     if (err.response?.statusCode == 401) {
-      // Check if we have a refresh token
-      final refreshToken = await _secureStorage.get(StorageKeys.refreshToken);
-      if (refreshToken != null) {
+      // Check if user has valid credentials (refresh token available via CredentialsManager)
+      final hasValidCreds = await _authService.hasValidCredentials();
+      if (hasValidCreds) {
         // If already refreshing, add to queue
         if (_isRefreshing) {
           _logger.debug('Adding request to refresh queue');
@@ -67,9 +69,6 @@ class RetryInterceptor extends Interceptor {
           final newIdToken = await _authService.refreshIdToken();
 
           if (newIdToken != null) {
-            // Update secure storage with new token
-            await _secureStorage.set(StorageKeys.accessToken, newIdToken);
-
             _logger.info('Token refreshed successfully, retrying queued requests');
 
             // Retry all queued requests with new token
@@ -95,15 +94,13 @@ class RetryInterceptor extends Interceptor {
               handler.next(e);
             }
           } else {
-            _logger.warning('Token refresh returned null, clearing tokens');
-            await _secureStorage.delete(StorageKeys.accessToken);
-            await _secureStorage.delete(StorageKeys.refreshToken);
+            _logger.warning('Token refresh returned null - user needs to re-authenticate');
+            onAuthExpired?.call();
             _processQueue(error: err);
           }
         } catch (e) {
           _logger.error('Token refresh failed', e);
-          await _secureStorage.delete(StorageKeys.accessToken);
-          await _secureStorage.delete(StorageKeys.refreshToken);
+          onAuthExpired?.call();
           _processQueue(error: err);
         } finally {
           _isRefreshing = false;
