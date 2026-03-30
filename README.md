@@ -250,34 +250,6 @@ presentation/
 - `authProviders`: Wire up dependencies using Riverpod
 - `LoginPage`: UI that consumes state via providers
 
-### Data Flow Example: Login
-
-```
-User clicks login button
-        ↓
-LoginPage (Presentation)
-        ↓
-AuthNotifier.login() (Presentation)
-        ↓
-LoginUseCase.call() (Domain)
-        ↓
-AuthRepository.login() (Domain interface)
-        ↓
-AuthRepositoryImpl.login() (Data implementation)
-        ↓
-AuthRemoteDataSource.login() (Data)
-        ↓
-External Auth Service
-        ↓
-Returns Either<Failure, User>
-        ↓
-User entity flows back up through layers
-        ↓
-AuthNotifier updates state
-        ↓
-UI rebuilds with new state
-```
-
 ### Key Principles
 
 | Layer | Responsibility | Dependencies |
@@ -292,6 +264,612 @@ UI rebuilds with new state
 - **Maintainable**: Changes in one layer don't break others
 - **Scalable**: Easy to add new features following same pattern
 - **Flexible**: Swap implementations (e.g., change API) without affecting business logic
+
+
+
+## Dio Implementation
+Dio is a powerful HTTP client for Dart. Think of it as a supercharged `http` package with built-in support for interceptors, retries, timeout handling, and request transformation.
+
+### Why Dio Over `http` Package?
+
+| Feature | `http` package | Dio |
+|---------|----------------|-----|
+| Interceptors | No | Yes (we use this heavily) |
+| Global configuration | Limited | Full |
+| Automatic retries | Manual | Built-in |
+
+### Our DioClient Structure
+
+**Location**: `lib/core/network/dio_client.dart`
+
+```dart
+class DioClient {
+  DioClient({
+    required AuthInterceptor authInterceptor,
+    required RetryInterceptor retryInterceptor,
+    // ... other interceptors
+  }) : _dio = Dio(options) {
+    // Interceptor order is critical
+    _dio.interceptors.addAll([
+      authInterceptor,      // 1. Add auth headers first
+      cacheInterceptor,     // 2. Check cache
+      retryInterceptor,     // 3. Handle 401 & network errors
+      errorInterceptor,     // 4. Convert errors
+      loggingInterceptor,   // 5. Log final result
+    ]);
+  }
+}
+```
+
+**Why this order?** Each interceptor processes the request in sequence. Auth must run first to add tokens before the request goes out.
+
+### Interceptor Chain: How Requests Flow
+
+```
+Request:  Auth → Cache → Retry → Error → Log → Server
+Response: Log → Error → Retry → Cache → Auth → UI
+```
+
+### Interceptor 1: AuthInterceptor
+
+**What it does**: Checks if the API endpoint requires authentication, adds the auth token.
+
+```dart
+// lib/core/network/interceptors/auth_interceptor.dart
+@override
+void onRequest(RequestOptions options, RequestInterceptorHandler handler) async {
+  // Only add auth for protected routes
+  if (ProtectedRoutes.isProtected(options.path)) {
+    final token = await _tokenProvider.getToken();
+    if (token != null) {
+      options.headers['Authorization'] = 'Bearer $token';
+    }
+  }
+  handler.next(options);  // Pass to next interceptor
+}
+```
+
+**Key point**: Uses `TokenProvider` abstraction so we can swap token sources without changing this code.
+
+### Interceptor 2: RetryInterceptor
+
+**What it does**: Handles 401 (token expired) errors by refreshing the token and retrying the request.
+
+```dart
+// lib/core/network/interceptors/retry_interceptor.dart
+@override
+void onError(DioException err, ErrorInterceptorHandler handler) async {
+  // Handle 401 - Token expired
+  if (err.response?.statusCode == 401) {
+    if (_isRefreshing) {
+      // Already refreshing, queue this request
+      _refreshQueue.add(_RetryRequest(err, handler));
+      return;
+    }
+
+    _isRefreshing = true;
+    final newToken = await _authService.refreshIdToken();
+
+    // Retry all queued requests with new token
+    for (final request in _refreshQueue) {
+      request.error.requestOptions.headers['Authorization'] = 'Bearer $newToken';
+      // Retry the request...
+    }
+  }
+
+  // Retry network errors with exponential backoff
+  if (_shouldRetry(err)) {
+    await Future.delayed(Duration(milliseconds: 1000 * (1 << retryCount)));
+    // Retry...
+  }
+}
+```
+
+
+## OAuth Implementation
+
+### What is OAuth 2.0?
+
+OAuth 2.0 is an authorization framework that lets users grant limited access to their accounts without sharing passwords.
+
+**Real-world analogy**: Like giving a valet key to your car - it can only drive the car, not open the trunk.
+
+### Why OAuth 2.0?
+
+1. **Security**: User never shares password with your app
+2. **Control**: User can revoke access anytime
+3. **Standardization**: Industry-wide protocol
+4. **Social Login**: Leverage existing accounts
+
+### OAuth 2.0 Roles
+
+```
+┌─────────────┐                 ┌─────────────┐
+│   User      │                 │ Auth0 Server │
+│  (Resource  │                 │              │
+│   Owner)    │                 │              │
+└──────┬──────┘                 └──────┬──────┘
+       │                                │
+       │ 1. Tap "Login with Google"     │
+       ├───────────────────────────────►│
+       │                                │
+       │ 2. Show Google login page      │
+       │◄───────────────────────────────┤
+       │                                │
+       │ 3. User authenticates           │
+       ├───────────────────────────────►│
+       │                                │
+       │ 4. Return tokens                │
+       │◄───────────────────────────────┤
+       │                                │
+       │    (Access Token, ID Token,     │
+       │     Refresh Token)              │
+```
+
+### Our Auth0 Implementation
+
+**Location**: `lib/features/auth/auth_service.dart`
+
+```dart
+class AuthService {
+  final Auth0 _auth0 = Auth0('YOUR_DOMAIN', 'YOUR_CLIENT_ID');
+
+  Future<Credentials?> loginWithGoogle() async {
+    final credentials = await _auth0.webAuthentication(scheme: 'org.pecha.app')
+        .login(
+          useHTTPS: true,
+          parameters: {"connection": "google-oauth2"},
+          scopes: {"openid", "profile", "email", "offline_access"},
+        );
+
+    // Auth0 SDK handles PKCE automatically
+    // Credentials contain: accessToken, idToken, refreshToken, expiresIn
+
+    await _auth0.credentialsManager.storeCredentials(credentials);
+    return credentials;
+  }
+}
+```
+
+**What scopes mean**:
+- `openid`: Enables OIDC protocol
+- `profile`: Access to user profile data
+- `email`: Access to user email
+- `offline_access`: Enables refresh tokens
+
+### Login Flow: Step by Step
+
+**Step 1: UI - Login Button**
+```dart
+// lib/features/auth/presentation/widgets/auth_buttons.dart
+ElevatedButton(
+  onPressed: () {
+    ref.read(authProvider.notifier).login(connection: 'google-oauth2');
+  },
+  child: Text('Login with Google'),
+)
+```
+
+**Step 2: AuthNotifier - State Management**
+```dart
+// lib/features/auth/presentation/providers/auth_notifier.dart
+Future<void> login({String? connection}) async {
+  state = state.copyWith(isLoading: true);
+
+  final result = await _loginUseCase(LoginParams(connection: connection));
+
+  result.fold(
+    (failure) => state = state.copyWith(errorMessage: failure.message),
+    (credentials) => _handleSuccessfulLogin(credentials),
+  );
+}
+```
+
+**Step 3: UseCase - Orchestration**
+```dart
+// lib/features/auth/domain/usecases/login_usecase.dart
+Future<Either<Failure, AuthCredentials>> call(LoginParams params) async {
+  switch (params.connection) {
+    case 'google-oauth2':
+      return await _repository.loginWithGoogle();
+    case 'apple':
+      return await _repository.loginWithApple();
+  }
+}
+```
+
+**Step 4: Repository - Data Layer**
+```dart
+// lib/features/auth/data/repositories/auth_repository_impl.dart
+Future<Either<Failure, AuthCredentials>> loginWithGoogle() async {
+  try {
+    final credentials = await _authService.loginWithGoogle();
+    return Right(_toAuthCredentials(credentials));
+  } catch (e) {
+    return Left(AuthenticationFailure('Login failed'));
+  }
+}
+```
+
+**Step 5: AuthService - Auth0 Integration**
+```dart
+// lib/features/auth/auth_service.dart
+Future<Credentials?> loginWithGoogle() async {
+  return _loginWithConnection('google-oauth2');
+}
+
+Future<Credentials?> _loginWithConnection(String connection) async {
+  final credentials = await _auth0.webAuthentication(scheme: 'org.pecha.app')
+      .login(
+        useHTTPS: true,
+        parameters: {"connection": connection},
+        scopes: {"openid", "profile", "email", "offline_access"},
+      );
+
+  await _auth0.credentialsManager.storeCredentials(credentials);
+  return credentials;
+}
+```
+
+
+### Auth State & Navigation
+
+**Location**: `lib/core/config/router/go_router.dart`
+
+```dart
+final goRouterProvider = Provider<GoRouter>((ref) {
+  return GoRouter(
+    refreshListenable: GoRouterRefreshStream(ref.watch(authProvider.notifier).stream),
+    redirect: (context, state) async {
+      final authState = ref.watch(authProvider);
+
+      // Unauthenticated trying to access protected route
+      if (!authState.isLoggedIn && RouteConfig.isProtectedRoute(currentPath)) {
+        return RouteConfig.login;  // Redirect to login
+      }
+
+      // Authenticated user on login page
+      if (authState.isLoggedIn && currentPath == RouteConfig.login) {
+        return RouteConfig.home;  // Redirect to home
+      }
+
+      return null;  // No redirect
+    },
+  );
+});
+```
+
+**How it works**:
+- Router watches `authProvider` for state changes
+- When auth state changes, router re-evaluates redirect logic
+- Automatically redirects based on auth status
+
+### Logout Flow
+
+```dart
+// lib/features/auth/presentation/providers/auth_notifier.dart
+Future<void> logout() async {
+  // 1. Clear credentials from storage
+  await _localLogoutUseCase(const NoParams());
+
+  // 2. Clear user data
+  await ref.read(userProvider.notifier).clearUser();
+
+  // 3. Update state
+  state = state.copyWith(isLoggedIn: false);
+
+  // 4. Router automatically redirects to login
+}
+```
+
+### App Launch: Auth State Restoration
+
+```dart
+// lib/features/auth/presentation/providers/auth_notifier.dart
+AuthNotifier(...) : super(const AuthState(isLoading: true)) {
+  _restoreLoginState();  // Runs immediately on creation
+}
+
+Future<void> _restoreLoginState() async {
+  // 1. Check for valid credentials
+  final hasCredentials = await _hasValidCredentialsUseCase();
+
+  if (hasCredentials) {
+    // 2. Restore user data
+    state = state.copyWith(isLoggedIn: true, isLoading: false);
+    ref.read(userProvider.notifier).initializeUser();
+  } else {
+    // 3. Check for guest mode
+    final isGuest = await _isGuestModeUseCase();
+    state = state.copyWith(isLoggedIn: isGuest, isGuest: isGuest, isLoading: false);
+  }
+}
+```
+
+
+### Complete Flow Diagram
+#### End-to-End: From Login to API Call
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                     AUTHENTICATION & API CALL FLOW                      │
+└─────────────────────────────────────────────────────────────────────────┘
+
+                        APP LAUNCH
+                            │
+                            ▼
+              ┌─────────────────────────┐
+              │   AuthNotifier created  │
+              │   (isLoading: true)     │
+              └───────────┬─────────────┘
+                          │
+                          ▼
+              ┌─────────────────────────┐
+              │  Check stored creds     │
+              │  (CredentialsManager)   │
+              └───────────┬─────────────┘
+                          │
+              ┌───────────┴───────────┐
+              │                       │
+        Has Creds              No Creds
+              │                       │
+              ▼                       ▼
+    ┌─────────────────┐    ┌─────────────────┐
+    │ isLoggedIn=true │    │ Check guest mode │
+    │ isLoading=false │    └────────┬────────┘
+    └────────┬────────┘             │
+             │              ┌───────┴───────┐
+             │         Was Guest?  Not Guest
+             │              │             │
+             ▼              ▼             ▼
+    ┌─────────────┐  ┌──────────┐  ┌──────────┐
+    │ Show Home   │  │Show Home │  │Show Login│
+    └──────┬──────┘  └──────┬───┘  └──────────┘
+           │                │
+           │                │
+           ▼                ▼
+    ┌──────────────────────────────────┐
+    │     USER TAPS LOGIN BUTTON       │
+    └──────────────┬───────────────────┘
+                   │
+                   ▼
+    ┌──────────────────────────────────┐
+    │ AuthNotifier.login() called      │
+    └──────────────┬───────────────────┘
+                   │
+                   ▼
+    ┌──────────────────────────────────┐
+    │ LoginUseCase called              │
+    └──────────────┬───────────────────┘
+                   │
+                   ▼
+    ┌──────────────────────────────────┐
+    │ AuthRepository.loginWithGoogle() │
+    └──────────────┬───────────────────┘
+                   │
+                   ▼
+    ┌──────────────────────────────────┐
+    │ AuthService.loginWithGoogle()    │
+    └──────────────┬───────────────────┘
+                   │
+                   ▼
+    ┌──────────────────────────────────┐
+    │ Auth0 Web Auth opens             │
+    │ (PKCE flow handled by SDK)       │
+    └──────────────┬───────────────────┘
+                   │
+                   ▼
+    ┌──────────────────────────────────┐
+    │ User authenticates with Google   │
+    └──────────────┬───────────────────┘
+                   │
+                   ▼
+    ┌──────────────────────────────────┐
+    │ Credentials returned             │
+    │ (access, id, refresh tokens)     │
+    └──────────────┬───────────────────┘
+                   │
+                   ▼
+    ┌──────────────────────────────────┐
+    │ Stored in CredentialsManager     │
+    │ (Keychain/Keystore)              │
+    └──────────────┬───────────────────┘
+                   │
+                   ▼
+    ┌──────────────────────────────────┐
+    │ AuthNotifier state updated       │
+    │ (isLoggedIn: true)               │
+    └──────────────┬───────────────────┘
+                   │
+                   ▼
+    ┌──────────────────────────────────┐
+    │ GoRouter redirects to Home       │
+    └──────────────┬───────────────────┘
+                   │
+                   ▼
+    ┌──────────────────────────────────┐
+    │ User fetches their plans         │
+    └──────────────┬───────────────────┘
+                   │
+                   ▼
+    ┌──────────────────────────────────┐
+    │ UserPlansNotifier.fetchPlans()   │
+    └──────────────┬───────────────────┘
+                   │
+                   ▼
+    ┌──────────────────────────────────┐
+    │ GetPlansUseCase called           │
+    └──────────────┬───────────────────┘
+                   │
+                   ▼
+    ┌──────────────────────────────────┐
+    │ Repository.getUserPlans()        │
+    └──────────────┬───────────────────┘
+                   │
+                   ▼
+    ┌──────────────────────────────────┐
+    │ DataSource calls Dio.get()       │
+    │ URL: /users/me/plans             │
+    └──────────────┬───────────────────┘
+                   │
+                   ▼
+    ┌──────────────────────────────────┐
+    │ REQUEST INTERCEPTOR CHAIN        │
+    │                                  │
+    │ 1. AuthInterceptor               │
+    │    - Path is protected? YES      │
+    │    - Get token from Provider     │
+    │    - Provider calls AuthService  │
+    │    - AuthService checks expiry   │
+    │    - If expired, refreshes       │
+    │    - Returns valid token         │
+    │    - Adds Authorization header   │
+    │                                  │
+    │ 2. CacheInterceptor              │
+    │    - Not in cache, proceed       │
+    │                                  │
+    │ 3. RetryInterceptor              │
+    │    - No error, proceed           │
+    │                                  │
+    │ 4. Send to server                │
+    └──────────────┬───────────────────┘
+                   │
+                   ▼
+    ┌──────────────────────────────────┐
+    │ SERVER RESPONSE: 200 OK          │
+    └──────────────┬───────────────────┘
+                   │
+                   ▼
+    ┌──────────────────────────────────┐
+    │ RESPONSE INTERCEPTOR CHAIN       │
+    │                                  │
+    │ 1. RetryInterceptor              │
+    │    - No 401, proceed             │
+    │                                  │
+    │ 2. CacheInterceptor              │
+    │    - Store in cache              │
+    │                                  │
+    │ 3. ErrorInterceptor              │
+    │    - No error, proceed           │
+    │                                  │
+    │ 4. LoggingInterceptor            │
+    │    - Log success                 │
+    └──────────────┬───────────────────┘
+                   │
+                   ▼
+    ┌──────────────────────────────────┐
+    │ DataSource parses JSON           │
+    │ Returns List<UserPlanModel>      │
+    └──────────────┬───────────────────┘
+                   │
+                   ▼
+    ┌──────────────────────────────────┐
+    │ Repository maps to entities      │
+    │ Returns Either<Failure, Plans>   │
+    └──────────────┬───────────────────┘
+                   │
+                   ▼
+    ┌──────────────────────────────────┐
+    │ UseCase returns Either            │
+    └──────────────┬───────────────────┘
+                   │
+                   ▼
+    ┌──────────────────────────────────┐
+    │ Notifier folds Either            │
+    │ Updates state with data          │
+    └──────────────┬───────────────────┘
+                   │
+                   ▼
+    ┌──────────────────────────────────┐
+    │ UI rebuilds with plans data      │
+    └──────────────────────────────────┘
+```
+
+### 401 Error Flow
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                      401 TOKEN EXPIRED FLOW                             │
+└─────────────────────────────────────────────────────────────────────────┘
+
+    API Request with expired token
+                  │
+                  ▼
+    ┌──────────────────────────────────┐
+    │ Server returns 401 Unauthorized  │
+    └──────────────┬───────────────────┘
+                   │
+                   ▼
+    ┌──────────────────────────────────┐
+    │ RetryInterceptor.onError()       │
+    └──────────────┬───────────────────┘
+                   │
+                   ▼
+    ┌──────────────────────────────────┐
+    │ Check: Has valid credentials?    │
+    └──────────────┬───────────────────┘
+                   │
+          ┌────────┴────────┐
+          │                 │
+         YES               NO
+          │                 │
+          ▼                 ▼
+    ┌──────────────┐  ┌──────────────┐
+    │ Check if     │  │ Pass error   │
+    │ already     │  │ through      │
+    │ refreshing? │  └──────────────┘
+    └──────┬───────┘
+           │
+     ┌─────┴─────┐
+     │           │
+  Refreshing   Not refreshing
+     │           │
+     ▼           ▼
+┌─────────┐  ┌──────────────────┐
+│ Queue   │  │ Set refreshing = │
+│ request │  │ true             │
+└─────────┘  └────────┬─────────┘
+                      │
+                      ▼
+            ┌──────────────────────┐
+            │ Call AuthService     │
+            │ .refreshIdToken()    │
+            └──────────┬───────────┘
+                       │
+                       ▼
+            ┌──────────────────────┐
+            │ Auth0 API renews     │
+            │ using refresh token  │
+            └──────────┬───────────┘
+                       │
+              ┌────────┴────────┐
+              │                 │
+         Success           Failure
+              │                 │
+              ▼                 ▼
+    ┌───────────────┐  ┌────────────────┐
+    │ Store new     │  │ onAuthExpired  │
+    │ credentials   │  │ callback       │
+    └───────┬───────┘  │ → Logout      │
+            │          └────────────────┘
+            ▼
+    ┌───────────────┐
+    │ Retry queued  │
+    │ requests      │
+    └───────┬───────┘
+            │
+            ▼
+    ┌───────────────┐
+    │ Retry original│
+    │ request       │
+    └───────┬───────┘
+            │
+            ▼
+    ┌───────────────┐
+    │ Set refreshing│
+    │ = false       │
+    └───────────────┘
+```
 
 ## 🤝 Contributing
 Pull requests are welcome! For major changes, please open an issue first to discuss what you would like to change.
