@@ -112,7 +112,7 @@ class OnboardingScreen1 extends StatelessWidget {
               ),
               child: Center(
                 child: Image.asset(
-                  'assets/images/webuddhist_logo.png',
+                  'assets/images/webuddhist_gold.png',
                   width: 72,
                   height: 72,
                   errorBuilder: (context, error, stackTrace) {
