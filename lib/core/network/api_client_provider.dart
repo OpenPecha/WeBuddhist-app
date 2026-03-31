@@ -30,6 +30,12 @@ class ApiClient extends http.BaseClient {
     // recitations
     '/api/v1/users/me/recitations',
 
+    // routines
+    '/api/v1/users/me/routine',
+    '/api/v1/routines',
+    '/api/v1/routines/{routineId}/time-blocks',
+    '/api/v1/routines/{routineId}/time-blocks/{timeBlockId}',
+
     // AI chat
     '/chats',
     '/threads',

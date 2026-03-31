@@ -80,6 +80,9 @@ class RoutineBlock {
   final bool notificationEnabled;
   final List<RoutineItem> items;
 
+  /// Server time-block id when this block exists on the API (null for new blocks).
+  final String? apiTimeBlockId;
+
   /// Persisted notification ID for stable scheduling across app restarts.
   /// This is stored to ensure the same block always uses the same notification ID.
   final int? _persistedNotificationId;
@@ -90,6 +93,7 @@ class RoutineBlock {
     this.notificationEnabled = true,
     this.items = const [],
     int? notificationId,
+    this.apiTimeBlockId,
   })  : id = id ?? _uuid.v4(),
         _persistedNotificationId = notificationId;
 
@@ -98,6 +102,8 @@ class RoutineBlock {
     TimeOfDay? time,
     bool? notificationEnabled,
     List<RoutineItem>? items,
+    int? notificationId,
+    String? apiTimeBlockId,
   }) {
     return RoutineBlock(
       id: id ?? this.id,
@@ -105,6 +111,7 @@ class RoutineBlock {
       notificationEnabled: notificationEnabled ?? this.notificationEnabled,
       items: items ?? this.items,
       notificationId: _persistedNotificationId ?? notificationId,
+      apiTimeBlockId: apiTimeBlockId ?? this.apiTimeBlockId,
     );
   }
 
@@ -152,6 +159,7 @@ class RoutineBlock {
     'minute': time.minute,
     'notificationEnabled': notificationEnabled,
     'notificationId': notificationId, // Persist for stability
+    if (apiTimeBlockId != null) 'apiTimeBlockId': apiTimeBlockId,
     'items': items.map((i) => i.toJson()).toList(),
   };
 
@@ -188,6 +196,7 @@ class RoutineBlock {
       time: TimeOfDay(hour: hour, minute: minute),
       notificationEnabled: json['notificationEnabled'] as bool? ?? true,
       notificationId: json['notificationId'] as int?,
+      apiTimeBlockId: json['apiTimeBlockId'] as String?,
       items: items,
     );
   }
@@ -207,7 +216,10 @@ class RoutineData {
 
   final List<RoutineBlock> blocks;
 
-  const RoutineData({this.blocks = const []});
+  /// Server routine id when loaded from or created via API.
+  final String? apiRoutineId;
+
+  const RoutineData({this.blocks = const [], this.apiRoutineId});
 
   bool get isEmpty => blocks.isEmpty;
   bool get hasItems => blocks.any((b) => b.items.isNotEmpty);
@@ -219,11 +231,12 @@ class RoutineData {
   RoutineData get sortedByTime {
     final sorted = List<RoutineBlock>.from(blocks)
       ..sort((a, b) => a.timeInMinutes.compareTo(b.timeInMinutes));
-    return RoutineData(blocks: sorted);
+    return RoutineData(blocks: sorted, apiRoutineId: apiRoutineId);
   }
 
   Map<String, dynamic> toJson() => {
     'blocks': blocks.map((b) => b.toJson()).toList(),
+    if (apiRoutineId != null) 'apiRoutineId': apiRoutineId,
   };
 
   /// Safely parses [RoutineData] from JSON with null checks.
@@ -232,7 +245,9 @@ class RoutineData {
     if (json == null) return null;
 
     final blocksList = json['blocks'];
-    if (blocksList is! List) return const RoutineData();
+    if (blocksList is! List) {
+      return RoutineData(apiRoutineId: json['apiRoutineId'] as String?);
+    }
 
     final blocks = <RoutineBlock>[];
     for (final blockJson in blocksList) {
@@ -244,7 +259,10 @@ class RoutineData {
       }
     }
 
-    return RoutineData(blocks: blocks);
+    return RoutineData(
+      blocks: blocks,
+      apiRoutineId: json['apiRoutineId'] as String?,
+    );
   }
 
   factory RoutineData.fromJson(Map<String, dynamic> json) {
