@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
-import 'package:flutter_pecha/features/notifications/services/notification_service.dart';
-import 'package:flutter_pecha/features/plans/data/providers/user_plans_provider.dart';
+import 'package:flutter_pecha/features/notifications/data/services/notification_service.dart';
+import 'package:flutter_pecha/features/plans/presentation/providers/user_plans_provider.dart';
 import 'package:flutter_pecha/features/practice/data/models/routine_model.dart';
 import 'package:flutter_pecha/features/practice/data/models/session_selection.dart';
-import 'package:flutter_pecha/features/practice/data/providers/routine_provider.dart';
+import 'package:flutter_pecha/features/practice/presentation/providers/routine_provider.dart';
 import 'package:flutter_pecha/features/practice/data/services/routine_notification_service.dart';
 import 'package:flutter_pecha/features/practice/data/utils/routine_time_utils.dart';
 import 'package:flutter_pecha/features/practice/presentation/screens/select_session_screen.dart';
@@ -548,11 +548,17 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
   Future<void> _unenrollItem(RoutineItem item) async {
     try {
       if (item.type == RoutineItemType.plan) {
-        await ref.read(userPlanUnsubscribeFutureProvider(item.id).future);
-        ref.invalidate(myPlansPaginatedProvider);
+        final result = await ref.read(userPlanUnsubscribeFutureProvider(item.id).future);
+        result.fold(
+          (failure) => throw Exception('Failed to unenroll: ${failure.message}'),
+          (_) => ref.invalidate(myPlansPaginatedProvider),
+        );
       } else {
-        await ref.read(unsaveRecitationProvider(item.id).future);
-        ref.invalidate(savedRecitationsFutureProvider);
+        final result = await ref.read(unsaveRecitationProvider(item.id).future);
+        result.fold(
+          (failure) => throw Exception('Failed to unsave: ${failure.message}'),
+          (_) => ref.invalidate(savedRecitationsFutureProvider),
+        );
       }
     } catch (e) {
       _logger.error('Failed to unenroll/unsave item: ${item.title}', e);
@@ -580,9 +586,17 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
     for (final item in items) {
       try {
         if (item.type == RoutineItemType.plan) {
-          await ref.read(userPlanUnsubscribeFutureProvider(item.id).future);
+          final result = await ref.read(userPlanUnsubscribeFutureProvider(item.id).future);
+          result.fold(
+            (failure) => throw Exception('Failed to unenroll: ${failure.message}'),
+            (_) => {},
+          );
         } else {
-          await ref.read(unsaveRecitationProvider(item.id).future);
+          final result = await ref.read(unsaveRecitationProvider(item.id).future);
+          result.fold(
+            (failure) => throw Exception('Failed to unsave: ${failure.message}'),
+            (_) => {},
+          );
         }
       } catch (e) {
         _logger.error('Failed to unenroll/unsave item: ${item.title}', e);

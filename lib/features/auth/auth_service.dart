@@ -269,6 +269,17 @@ class AuthService {
       _logger.warning('Failed to clear guest mode: $e');
     }
   }
+
+  /// Continue as guest mode
+  Future<void> continueAsGuest() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool(_guestModeKey, true);
+      _logger.info('Guest mode saved to preferences');
+    } catch (e) {
+      _logger.warning('Failed to save guest mode: $e');
+    }
+  }
 }
 
 class AuthException implements Exception {

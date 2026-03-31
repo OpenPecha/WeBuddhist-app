@@ -4,7 +4,7 @@ import 'package:flutter_pecha/core/services/audio/audio_handler.dart';
 import 'package:flutter_pecha/core/services/service_providers.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/core/widgets/audio_progress_bar.dart';
-import 'package:flutter_pecha/features/home/models/prayer_data.dart';
+import 'package:flutter_pecha/features/home/data/models/prayer_data.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:audio_service/audio_service.dart';

@@ -2,16 +2,17 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:flutter_pecha/core/network/network_info.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Service for monitoring network connectivity.
 ///
-/// Provides:
+/// Implements NetworkInfo interface and provides:
 /// - Current connectivity status
 /// - Stream of connectivity changes
 /// - Actual internet reachability check (not just connection type)
-class ConnectivityService {
+class ConnectivityService implements NetworkInfo {
   static ConnectivityService? _instance;
   static ConnectivityService get instance =>
       _instance ??= ConnectivityService._();
@@ -27,10 +28,10 @@ class ConnectivityService {
 
   ConnectivityService._();
 
-  /// Whether the device currently has internet connectivity
+  @override
   bool get isOnline => _isOnline;
 
-  /// Stream of connectivity changes (true = online, false = offline)
+  @override
   Stream<bool> get onConnectivityChanged => _connectivityController.stream;
 
   /// Initialize the connectivity service
@@ -89,7 +90,7 @@ class ConnectivityService {
     }
   }
 
-  /// Manually check current connectivity (useful before important operations)
+  @override
   Future<bool> checkConnectivity() async {
     final results = await _connectivity.checkConnectivity();
     _isOnline = await _checkActualConnectivity(results);

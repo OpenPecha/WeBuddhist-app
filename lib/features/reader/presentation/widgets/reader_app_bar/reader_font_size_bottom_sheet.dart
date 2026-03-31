@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_pecha/features/texts/data/providers/font_size_notifier.dart';
+import 'package:flutter_pecha/features/texts/presentation/providers/font_size_notifier.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Bottom sheet for adjusting font size with increase/decrease buttons

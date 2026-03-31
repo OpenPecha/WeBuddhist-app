@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
-import 'package:flutter_pecha/features/ai/models/chat_message.dart';
+import 'package:flutter_pecha/features/ai/data/models/chat_message.dart';
 import 'package:flutter_pecha/features/ai/presentation/widgets/source_bottom_sheet.dart';
-import 'package:flutter_pecha/features/ai/data/providers/segment_url_resolver_provider.dart';
+import 'package:flutter_pecha/features/ai/presentation/providers/segment_url_resolver_provider.dart';
 import 'package:flutter_pecha/features/reader/data/models/navigation_context.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';

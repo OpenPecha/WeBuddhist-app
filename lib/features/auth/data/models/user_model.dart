@@ -1,5 +1,47 @@
 import 'package:flutter_pecha/features/auth/domain/entities/user.dart';
 
+/// Social profile model for JSON serialization
+class SocialProfileModel {
+  final String account;
+  final String url;
+
+  SocialProfileModel({
+    required this.account,
+    required this.url,
+  });
+
+  factory SocialProfileModel.fromJson(Map<String, dynamic> json) {
+    return SocialProfileModel(
+      account: json['account']?.toString() ?? '',
+      url: json['url']?.toString() ?? '',
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'account': account,
+      'url': url,
+    };
+  }
+
+  SocialProfile toEntity() {
+    return SocialProfile(
+      account: account,
+      url: url,
+    );
+  }
+
+  factory SocialProfileModel.fromEntity(SocialProfile profile) {
+    return SocialProfileModel(
+      account: profile.account,
+      url: profile.url,
+    );
+  }
+}
+
+/// User model for JSON serialization
+///
+/// This handles conversion between JSON and the User domain entity.
 class UserModel {
   // from api response
   final String? id;
@@ -15,7 +57,7 @@ class UserModel {
   final List<String>? educations;
   final int? followers;
   final int? following;
-  final List<SocialProfile>? socialProfiles;
+  final List<SocialProfileModel>? socialProfiles;
 
   // from local storage
   final bool onboardingCompleted;
@@ -56,7 +98,7 @@ class UserModel {
       followers: json['followers'] as int?,
       following: json['following'] as int?,
       socialProfiles: (json['social_profiles'] as List<dynamic>?)
-          ?.map((e) => SocialProfile.fromJson(e as Map<String, dynamic>))
+          ?.map((e) => SocialProfileModel.fromJson(e as Map<String, dynamic>))
           .toList(),
       // Note: onboarding_completed is NOT sent by backend API
       // It's managed locally only - will be set by UserNotifier
@@ -84,26 +126,6 @@ class UserModel {
     };
   }
 
-  factory UserModel.fromEntity(User user) {
-    return UserModel(
-      id: user.id,
-      email: user.email,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      username: user.username,
-      title: user.title,
-      organization: user.organization,
-      location: user.location,
-      aboutMe: user.aboutMe,
-      avatarUrl: user.avatarUrl,
-      educations: user.educations,
-      followers: user.followers,
-      following: user.following,
-      socialProfiles: user.socialProfiles,
-      onboardingCompleted: user.onboardingCompleted,
-    );
-  }
-
   User toEntity() {
     return User(
       id: id,
@@ -119,8 +141,30 @@ class UserModel {
       educations: educations,
       followers: followers,
       following: following,
-      socialProfiles: socialProfiles,
+      socialProfiles: socialProfiles?.map((e) => e.toEntity()).toList(),
       onboardingCompleted: onboardingCompleted,
+    );
+  }
+
+  factory UserModel.fromEntity(User user) {
+    return UserModel(
+      id: user.id,
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      username: user.username,
+      title: user.title,
+      organization: user.organization,
+      location: user.location,
+      aboutMe: user.aboutMe,
+      avatarUrl: user.avatarUrl,
+      educations: user.educations,
+      followers: user.followers,
+      following: user.following,
+      socialProfiles: user.socialProfiles
+          ?.map((e) => SocialProfileModel.fromEntity(e))
+          .toList(),
+      onboardingCompleted: user.onboardingCompleted,
     );
   }
 }

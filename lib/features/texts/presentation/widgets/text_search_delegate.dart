@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_pecha/core/widgets/error_state_widget.dart';
-import 'package:flutter_pecha/features/texts/models/text/reader_response.dart';
-import 'package:flutter_pecha/features/texts/models/search/segment_match.dart';
-import 'package:flutter_pecha/features/texts/data/providers/apis/texts_provider.dart';
+import 'package:flutter_pecha/core/error/failures.dart';
+import 'package:flutter_pecha/features/texts/data/models/text/reader_response.dart';
+import 'package:flutter_pecha/features/texts/data/models/search/segment_match.dart';
+import 'package:flutter_pecha/features/texts/presentation/providers/texts_provider.dart';
+import 'package:fpdart/fpdart.dart';
 
 class TextSearchDelegate extends SearchDelegate<String?> {
   final ReaderResponse allContent;
@@ -123,60 +125,68 @@ class TextSearchDelegate extends SearchDelegate<String?> {
               customMessage: 'Unable to perform search.\nPlease try again.',
             );
           },
-          data: (searchResponse) {
-            if (searchResponse.sources == null ||
-                searchResponse.sources!.isEmpty) {
-              return Center(
-                child: Text(
-                  'No results found for "$_submittedQuery"',
-                  style: const TextStyle(fontSize: 16),
-                ),
-              );
-            }
-
-            // Flatten all segment matches from all sources
-            final allSegmentMatches = <SegmentMatch>[];
-            for (final source in searchResponse.sources!) {
-              allSegmentMatches.addAll(source.segmentMatches);
-            }
-
-            if (allSegmentMatches.isEmpty) {
-              return Center(
-                child: Text(
-                  'No results found for "$_submittedQuery"',
-                  style: const TextStyle(fontSize: 16),
-                ),
-              );
-            }
-
-            return Container(
-              color: Theme.of(context).scaffoldBackgroundColor,
-              child: ListView.separated(
-                itemCount: allSegmentMatches.length,
-                separatorBuilder:
-                    (context, index) => const Divider(
-                      height: 1,
-                      color: Colors.grey,
-                      indent: 20,
-                      endIndent: 20,
-                    ),
-                itemBuilder: (context, index) {
-                  final segmentMatch = allSegmentMatches[index];
-                  return ListTile(
-                    title: Text(
-                      segmentMatch.content.replaceAll(RegExp(r'<[^>]*>'), ''),
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 8,
-                    ),
-                    onTap: () {
-                      final segmentId = segmentMatch.segmentId;
-                      close(context, segmentId);
-                    },
-                  );
-                },
+          data: (eitherResponse) {
+            return eitherResponse.fold(
+              (failure) => ErrorStateWidget(
+                error: failure,
+                customMessage: 'Unable to perform search.\nPlease try again.',
               ),
+              (searchResponse) {
+                if (searchResponse.sources == null ||
+                    searchResponse.sources!.isEmpty) {
+                  return Center(
+                    child: Text(
+                      'No results found for "$_submittedQuery"',
+                      style: const TextStyle(fontSize: 16),
+                    ),
+                  );
+                }
+
+                // Flatten all segment matches from all sources
+                final allSegmentMatches = <SegmentMatch>[];
+                for (final source in searchResponse.sources!) {
+                  allSegmentMatches.addAll(source.segmentMatches);
+                }
+
+                if (allSegmentMatches.isEmpty) {
+                  return Center(
+                    child: Text(
+                      'No results found for "$_submittedQuery"',
+                      style: const TextStyle(fontSize: 16),
+                    ),
+                  );
+                }
+
+                return Container(
+                  color: Theme.of(context).scaffoldBackgroundColor,
+                  child: ListView.separated(
+                    itemCount: allSegmentMatches.length,
+                    separatorBuilder:
+                        (context, index) => const Divider(
+                          height: 1,
+                          color: Colors.grey,
+                          indent: 20,
+                          endIndent: 20,
+                        ),
+                    itemBuilder: (context, index) {
+                      final segmentMatch = allSegmentMatches[index];
+                      return ListTile(
+                        title: Text(
+                          segmentMatch.content.replaceAll(RegExp(r'<[^>]*>'), ''),
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 8,
+                        ),
+                        onTap: () {
+                          final segmentId = segmentMatch.segmentId;
+                          close(context, segmentId);
+                        },
+                      );
+                    },
+                  ),
+                );
+              },
             );
           },
         );

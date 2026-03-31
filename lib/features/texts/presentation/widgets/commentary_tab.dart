@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/utils/get_language.dart';
 import 'package:flutter_pecha/features/texts/constants/text_routes.dart';
-import 'package:flutter_pecha/features/texts/models/text/commentary_text.dart';
+import 'package:flutter_pecha/features/texts/data/models/text/commentary_text.dart';
 import 'package:flutter_pecha/features/texts/constants/text_screen_constants.dart';
 import 'package:flutter_pecha/features/texts/presentation/widgets/commentary_list_item.dart';
 import 'package:go_router/go_router.dart';

@@ -1,4 +1,6 @@
+import 'package:fpdart/fpdart.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/error/failures.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/widgets/error_state_widget.dart';
 import 'package:flutter_pecha/features/recitation/data/models/recitation_model.dart';
@@ -20,11 +22,19 @@ class RecitationsTab extends ConsumerWidget {
     final localizations = context.l10n;
 
     return recitationsAsync.when(
-      data: (recitations) {
-        if (recitations.isEmpty) {
-          return _buildEmptyState(context, localizations);
-        }
-        return _buildRecitationsList(context, recitations, ref);
+      data: (recitationsEither) {
+        return recitationsEither.fold(
+          (failure) => ErrorStateWidget(
+            error: failure,
+            customMessage: 'Unable to load recitations.\nPlease try again later.',
+          ),
+          (recitations) {
+            if (recitations.isEmpty) {
+              return _buildEmptyState(context, localizations);
+            }
+            return _buildRecitationsList(context, recitations, ref);
+          },
+        );
       },
       loading: () => const RecitationListSkeleton(),
       error:

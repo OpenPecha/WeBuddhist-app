@@ -1,10 +1,13 @@
-import 'package:flutter_pecha/features/plans/data/repositories/plans_repository.dart';
-import 'package:flutter_pecha/features/plans/models/plans_model.dart';
+import 'package:flutter_pecha/core/utils/app_logger.dart';
+import 'package:flutter_pecha/features/plans/domain/entities/plan.dart';
+import 'package:flutter_pecha/features/plans/domain/usecases/plans_usecases.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+final _logger = AppLogger('FindPlansNotifier');
 
 /// State for paginated plans list
 class FindPlansState {
-  final List<PlansModel> plans;
+  final List<Plan> plans;
   final bool isLoading;
   final bool isLoadingMore;
   final String? error;
@@ -21,7 +24,7 @@ class FindPlansState {
   });
 
   FindPlansState copyWith({
-    List<PlansModel>? plans,
+    List<Plan>? plans,
     bool? isLoading,
     bool? isLoadingMore,
     String? error,
@@ -41,42 +44,69 @@ class FindPlansState {
 
 /// StateNotifier for paginated find plans
 class FindPlansNotifier extends StateNotifier<FindPlansState> {
-  final PlansRepository repository;
+  final GetPlansUseCase getPlansUseCase;
   final String languageCode;
   static const int _limit = 20;
 
-  FindPlansNotifier({required this.repository, required this.languageCode})
+  FindPlansNotifier({required this.getPlansUseCase, required this.languageCode})
     : super(const FindPlansState()) {
+    _logger.debug('🏗️ FindPlansNotifier CREATED with language: $languageCode');
     loadInitial();
+  }
+
+  @override
+  void dispose() {
+    _logger.debug('💥 FindPlansNotifier DISPOSED - this will reset state!');
+    super.dispose();
   }
 
   /// Load initial plans
   Future<void> loadInitial() async {
-    if (state.isLoading) return;
+    _logger.debug('🔄 loadInitial() called - current state: ${state.plans.length} plans, isLoading: ${state.isLoading}');
 
-    state = state.copyWith(isLoading: true, error: null);
-
-    try {
-      final plans = await repository.getPlans(
-        language: languageCode,
-        skip: 0,
-        limit: _limit,
-      );
-
-      if (mounted) {
-        state = state.copyWith(
-          plans: plans,
-          isLoading: false,
-          hasMore: plans.length >= _limit,
-          skip: plans.length,
-          error: null,
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        state = state.copyWith(isLoading: false, error: e.toString());
-      }
+    if (state.isLoading) {
+      _logger.debug('⏸️ Already loading, skipping');
+      return;
     }
+
+    _logger.debug('📊 Setting isLoading: true');
+    state = state.copyWith(isLoading: true, error: null);
+    _logger.debug('📊 State after setting loading: ${state.plans.length} plans, isLoading: ${state.isLoading}');
+
+    final result = await getPlansUseCase(GetPlansParams(
+      language: languageCode,
+      skip: 0,
+      limit: _limit,
+    ));
+
+    result.fold(
+      (failure) {
+        _logger.error('❌ Error loading plans: ${failure.message}');
+        if (mounted) {
+          _logger.debug('📊 Setting error state');
+          state = state.copyWith(isLoading: false, error: failure.message);
+        }
+      },
+      (plans) {
+        _logger.debug('✅ Got ${plans.length} plans from use case');
+        if (mounted) {
+          _logger.debug('📦 Updating state with ${plans.length} plans');
+          final newState = state.copyWith(
+            plans: plans,
+            isLoading: false,
+            hasMore: plans.length >= _limit,
+            skip: plans.length,
+            error: null,
+          );
+          state = newState;
+          _logger.debug('✅ State updated: ${state.plans.length} plans, hasMore: ${state.hasMore}');
+        } else {
+          _logger.debug('⚠️ Not mounted, skipping state update');
+        }
+      },
+    );
+
+    _logger.debug('🏁 loadInitial() finished - final state: ${state.plans.length} plans, isLoading: ${state.isLoading}');
   }
 
   /// Load more plans
@@ -87,27 +117,30 @@ class FindPlansNotifier extends StateNotifier<FindPlansState> {
 
     state = state.copyWith(isLoadingMore: true, error: null);
 
-    try {
-      final newPlans = await repository.getPlans(
-        language: languageCode,
-        skip: state.skip,
-        limit: _limit,
-      );
+    final result = await getPlansUseCase(GetPlansParams(
+      language: languageCode,
+      skip: state.skip,
+      limit: _limit,
+    ));
 
-      if (mounted) {
-        state = state.copyWith(
-          plans: [...state.plans, ...newPlans],
-          isLoadingMore: false,
-          hasMore: newPlans.length >= _limit,
-          skip: state.skip + newPlans.length,
-          error: null,
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        state = state.copyWith(isLoadingMore: false, error: e.toString());
-      }
-    }
+    result.fold(
+      (failure) {
+        if (mounted) {
+          state = state.copyWith(isLoadingMore: false, error: failure.message);
+        }
+      },
+      (newPlans) {
+        if (mounted) {
+          state = state.copyWith(
+            plans: [...state.plans, ...newPlans],
+            isLoadingMore: false,
+            hasMore: newPlans.length >= _limit,
+            skip: state.skip + newPlans.length,
+            error: null,
+          );
+        }
+      },
+    );
   }
 
   /// Retry loading

@@ -1,0 +1,101 @@
+/// Centralized configuration for protected API routes that require authentication.
+class ProtectedRoutes {
+  /// List of all protected API paths.
+  ///
+  /// Paths can contain path parameters in curly braces like {planId}, {taskId}, etc.
+  /// These parameters will match any value in that segment position.
+  ///
+  /// Patterns ending with '/' or '**' will match all sub-paths (prefix match).
+  ///
+  /// IMPORTANT: These paths should NOT include the /api/v1 prefix as the base URL
+  /// is already configured with it. Match the exact paths used in API calls.
+  static const List<String> paths = [
+    // User profile
+    '/users/info',
+    '/users/upload',
+
+    // User progress - all /users/me routes require auth
+    '/users/me',
+    '/users/me/', // Catch-all: matches all /users/me/* paths
+    '/users/me/plans',
+    '/users/me/plans/{planId}',
+    '/users/me/plans/{planId}/', // Matches sub-paths like /plans/123/tasks
+    '/users/me/tasks',
+    '/users/me/tasks/{taskId}/complete',
+    '/users/me/sub-tasks',
+    '/users/me/sub-tasks/{subTaskId}/complete',
+    '/users/me/task/{taskId}',
+    '/users/me/plan/{planId}/days/{dayNumber}',
+    '/users/me/plan/{planId}/days/{dayNumber}/content',
+
+    // Recitations
+    '/users/me/recitations',
+    '/users/me/recitations/{recitationId}',
+
+    // AI chat
+    '/chats',
+    '/chats/', // Catch-all for chat sub-paths
+    '/threads',
+    '/threads/{threadId}',
+    '/threads/{threadId}/', // Catch-all for thread sub-paths
+
+    // Plans (public endpoints but may need auth for user-specific data)
+    '/plans/{planId}',
+    '/plans/{planId}/days',
+    '/plans/{planId}/days/{dayNumber}',
+  ];
+
+  /// Check if a given path is protected (requires authentication).
+  ///
+  /// Returns true if the path matches any protected route pattern.
+  static bool isProtected(String path) {
+    return paths.any((route) => _matchesPathPattern(path, route));
+  }
+
+  /// Matches a path against a pattern that may contain path parameters like {planId}.
+  ///
+  /// Examples:
+  /// - `_matchesPathPattern('/users/me', '/users/me')` → true
+  /// - `_matchesPathPattern('/users/me/plans/123', '/users/me/plans/{planId}')` → true
+  /// - `_matchesPathPattern('/users/me/plans/123/tasks', '/users/me/plans/{planId}/')` → true (prefix match)
+  /// - `_matchesPathPattern('/users/me/plans/123/tasks', '/users/me/plans/{planId}')` → false (exact segment count)
+  static bool _matchesPathPattern(String path, String pattern) {
+    // Pattern ending with '/' indicates prefix match for all sub-paths
+    final isPrefixMatch = pattern.endsWith('/');
+    final cleanPattern = isPrefixMatch ? pattern.substring(0, pattern.length - 1) : pattern;
+
+    // Split both path and pattern into segments
+    final pathSegments = path.split('/').where((s) => s.isNotEmpty).toList();
+    final patternSegments = cleanPattern.split('/').where((s) => s.isNotEmpty).toList();
+
+    // For prefix match, path must have at least as many segments as pattern
+    if (isPrefixMatch) {
+      if (pathSegments.length < patternSegments.length) {
+        return false;
+      }
+    } else {
+      // For exact match, must have same number of segments
+      if (pathSegments.length != patternSegments.length) {
+        return false;
+      }
+    }
+
+    // Compare each segment up to pattern length
+    for (var i = 0; i < patternSegments.length; i++) {
+      final pathSegment = pathSegments[i];
+      final patternSegment = patternSegments[i];
+
+      // If pattern segment is a parameter (e.g., {planId}), it matches any value
+      if (patternSegment.startsWith('{') && patternSegment.endsWith('}')) {
+        continue;
+      }
+
+      // Otherwise, segments must match exactly
+      if (pathSegment != patternSegment) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+}

@@ -1,8 +1,10 @@
+import 'package:fpdart/fpdart.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/error/failures.dart';
 import 'package:flutter_pecha/core/widgets/skeletons/skeletons.dart';
-import 'package:flutter_pecha/features/plans/data/providers/plan_days_providers.dart';
-import 'package:flutter_pecha/features/plans/models/plan_days_model.dart';
-import 'package:flutter_pecha/features/plans/models/plans_model.dart';
+import 'package:flutter_pecha/features/plans/domain/entities/plan.dart';
+import 'package:flutter_pecha/features/plans/presentation/providers/plan_days_providers.dart';
+import 'package:flutter_pecha/features/plans/data/models/plan_days_model.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../day_carousel.dart';
@@ -11,14 +13,14 @@ import 'preview_activity_list.dart';
 
 /// A preview screen for viewing plan content before enrollment.
 /// Unlike PlanDetails, this screen:
-/// - Uses PlansModel (non-enrolled data)
+/// - Uses Plan domain entity
 /// - Has no completion status tracking
 /// - Has no task toggle functionality (read-only preview)
 /// - Has "Start Reading" button to begin reading without enrolling
 class PlanPreviewDetails extends ConsumerStatefulWidget {
   const PlanPreviewDetails({super.key, required this.plan});
 
-  final PlansModel plan;
+  final Plan plan;
 
   @override
   ConsumerState<PlanPreviewDetails> createState() => _PlanPreviewDetailsState();
@@ -40,7 +42,7 @@ class _PlanPreviewDetailsState extends ConsumerState<PlanPreviewDetails> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  PlanCoverImage(imageUrl: widget.plan.imageUrl ?? ''),
+                  PlanCoverImage(imageUrl: widget.plan.coverImageUrl ?? ''),
                   _buildDayCarouselSection(language),
                   _buildDayContentSection(context, language),
                 ],
@@ -64,11 +66,16 @@ class _PlanPreviewDetailsState extends ConsumerState<PlanPreviewDetails> {
     final planDays = ref.watch(planDaysByPlanIdFutureProvider(widget.plan.id));
 
     return planDays.when(
-      data: (days) {
-        if (days.isEmpty) {
-          return _buildEmptyDayCarouselState(context);
-        }
-        return _buildDayCarousel(language, days);
+      data: (daysEither) {
+        return daysEither.fold(
+          (failure) => _buildEmptyDayCarouselState(context),
+          (days) {
+            if (days.isEmpty) {
+              return _buildEmptyDayCarouselState(context);
+            }
+            return _buildDayCarousel(language, days);
+          },
+        );
       },
       loading: () => const DayCarouselSkeleton(),
       error: (error, stackTrace) => const SizedBox.shrink(),
@@ -104,15 +111,19 @@ class _PlanPreviewDetailsState extends ConsumerState<PlanPreviewDetails> {
         children: [
           _buildDayTitle(context, language, selectedDay),
           dayContent.when(
-            data:
+            data: (contentEither) {
+              return contentEither.fold(
+                (failure) => _buildDayContentError(context),
                 (content) => PreviewActivityList(
                   language: language,
                   tasks: content.tasks ?? [],
                   today: selectedDay,
-                  totalDays: widget.plan.totalDays ?? 0,
+                  totalDays: widget.plan.totalDays,
                   planId: widget.plan.id,
                   dayNumber: selectedDay,
                 ),
+              );
+            },
             loading: () => const DayContentSkeleton(),
             error: (error, stackTrace) => _buildDayContentError(context),
           ),
@@ -152,7 +163,7 @@ class _PlanPreviewDetailsState extends ConsumerState<PlanPreviewDetails> {
     return Align(
       alignment: Alignment.topLeft,
       child: Text(
-        "Days $day of ${widget.plan.totalDays ?? 0}",
+        "Days $day of ${widget.plan.totalDays}",
         style: const TextStyle(
           fontSize: 18,
           fontWeight: FontWeight.bold,

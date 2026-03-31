@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/features/texts/constants/text_screen_constants.dart';
-import 'package:flutter_pecha/features/texts/models/text/commentary_text.dart';
+import 'package:flutter_pecha/features/texts/data/models/text/commentary_text.dart';
 import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 
 class CommentaryListItem extends StatelessWidget {

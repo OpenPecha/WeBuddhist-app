@@ -1,11 +1,8 @@
 class PlanUtils {
   static int calculateSelectedDay(DateTime startedAt, int totalDays) {
     final today = DateTime.now();
-    // Convert startedAt to local time before extracting date components
-    // (startedAt may be UTC from backend)
     final localStartedAt = startedAt.toLocal();
 
-    // Normalize dates to midnight to compare only date parts (ignore time)
     final normalizedToday = DateTime(today.year, today.month, today.day);
     final normalizedStartedAt = DateTime(
       localStartedAt.year,
@@ -13,11 +10,9 @@ class PlanUtils {
       localStartedAt.day,
     );
 
-    // If today equals startedAt (date-wise), return day 1
     if (normalizedToday.isAtSameMomentAs(normalizedStartedAt)) {
       return 1;
     } else if (normalizedToday.isAfter(normalizedStartedAt)) {
-      // Calculate day difference (1-indexed)
       final difference =
           normalizedToday.difference(normalizedStartedAt).inDays + 1;
       if (difference > totalDays) {
@@ -27,7 +22,23 @@ class PlanUtils {
       }
     }
 
-    // If startedAt is in the future
     return 1;
+  }
+
+  /// Counts past scheduled days (before today) that the user has not completed.
+  /// Excludes today — the user still has time to finish it.
+  static int calculateMissedDays(
+    DateTime startedAt,
+    int totalDays,
+    Map<int, bool> completionStatus,
+  ) {
+    final todayDayNumber = calculateSelectedDay(startedAt, totalDays);
+    int missedCount = 0;
+    for (int day = 1; day < todayDayNumber; day++) {
+      if (completionStatus[day] != true) {
+        missedCount++;
+      }
+    }
+    return missedCount;
   }
 }

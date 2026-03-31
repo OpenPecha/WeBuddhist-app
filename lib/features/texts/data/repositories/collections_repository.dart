@@ -1,10 +1,14 @@
+import 'package:fpdart/fpdart.dart';
 import 'package:flutter_pecha/core/cache/cache.dart';
+import 'package:flutter_pecha/core/error/exception_mapper.dart';
+import 'package:flutter_pecha/core/error/failures.dart';
 import 'package:flutter_pecha/core/network/connectivity_service.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/features/texts/data/datasource/collections_remote_datasource.dart';
-import 'package:flutter_pecha/features/texts/models/collections/collections_response.dart';
+import 'package:flutter_pecha/features/texts/data/models/collections/collections_response.dart';
+import 'package:flutter_pecha/features/texts/domain/repositories/collections_repository.dart';
 
-class CollectionsRepository {
+class CollectionsRepository implements CollectionsRepositoryInterface {
   final CollectionsRemoteDatasource remoteDatasource;
   final CacheService _cacheService = CacheService.instance;
   final ConnectivityService _connectivityService = ConnectivityService.instance;
@@ -23,7 +27,8 @@ class CollectionsRepository {
   /// 4. If offline, return cached data even if expired
   ///
   /// Set [forceRefresh] to true to bypass cache (e.g., for pull-to-refresh).
-  Future<CollectionsResponse> getCollections({
+  @override
+  Future<Either<Failure, CollectionsResponse>> getCollections({
     String? parentId,
     String? language,
     bool forceRefresh = false,
@@ -51,15 +56,13 @@ class CollectionsRepository {
             _refreshInBackground(parentId, language, cacheKey);
           }
 
-          return cacheResult.data!;
+          return Right(cacheResult.data!);
         }
       }
 
-      // If offline and no cache, throw offline exception
+      // If offline and no cache, return network failure
       if (!isOnline) {
-        throw const OfflineException(
-          'No internet connection and no cached collections available',
-        );
+        return const Left(NetworkFailure('No internet connection and no cached collections available'));
       }
 
       // Cache miss or force refresh - fetch from network
@@ -68,7 +71,8 @@ class CollectionsRepository {
             ? 'Force refreshing collections from network'
             : 'Collections cache miss',
       );
-      return await _fetchAndCache(parentId, language, cacheKey);
+      final result = await _fetchAndCache(parentId, language, cacheKey);
+      return Right(result);
     } catch (e) {
       // If network fails, try to return cached data (even expired)
       if (e is! OfflineException) {
@@ -81,13 +85,12 @@ class CollectionsRepository {
 
         if (fallbackCache.isHit && fallbackCache.data != null) {
           _logger.debug('Returning fallback cache after network error');
-          return fallbackCache.data!;
+          return Right(fallbackCache.data!);
         }
       }
 
       _logger.error('Error fetching collections', e);
-      if (e is OfflineException) rethrow;
-      throw Exception('Failed to load collections: $e');
+      return Left(ExceptionMapper.map(e, context: 'Failed to load collections'));
     }
   }
 

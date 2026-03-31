@@ -111,6 +111,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get nav_home => '首頁';
 
   @override
+  String get nav_explore => '探索';
+
+  @override
   String get nav_texts => '文本';
 
   @override
@@ -441,6 +444,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get plans_created => '參與設計的計劃';
 
   @override
+  String get ask_ai => '向 AI 提问';
+
+  @override
   String get ai_chat_history => '對話紀錄';
 
   @override
@@ -571,7 +577,7 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get search_coming_soon => 'Coming Soon';
+  String get search_coming_soon => '即将推出';
 
   @override
   String get search_buddhist_texts => 'Search Buddhist texts...';
@@ -580,7 +586,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get common_ok => 'OK';
 
   @override
-  String get comingSoonHeadline => 'Coming Soon';
+  String get comingSoonHeadline => '即将推出';
 
   @override
   String get routine_title => '日常修持';
@@ -782,7 +788,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String enrollErrorDetail(String error) {
-    return '無法加入計劃：$error';
+    return '無法加入計劃';
   }
 
   @override
@@ -820,7 +826,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String shareError(String error) {
-    return '無法分享：$error';
+    return '無法分享';
   }
 
   @override
@@ -848,4 +854,16 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get text_qrCode => '二維碼';
+
+  @override
+  String missedDaysCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count missed days',
+      one: '1 missed day',
+      zero: '0 missed days',
+    );
+    return '$_temp0';
+  }
 }

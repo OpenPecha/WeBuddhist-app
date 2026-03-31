@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
 import 'package:flutter_pecha/core/widgets/error_state_widget.dart';
-import 'package:flutter_pecha/features/texts/data/providers/apis/texts_provider.dart';
+import 'package:flutter_pecha/features/texts/presentation/providers/texts_provider.dart';
 import 'package:flutter_pecha/features/texts/utils/text_highlight_helper.dart';
 import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -132,146 +132,154 @@ class LibrarySearchDelegate extends SearchDelegate<Map<String, String>?> {
               customMessage: 'Unable to perform search.\nPlease try again.',
             );
           },
-          data: (searchResponse) {
-            if (searchResponse.sources.isEmpty) {
-              return Center(
-                child: Text(
-                  'No results found for "$_submittedQuery"',
-                  style: const TextStyle(fontSize: 16),
-                ),
-              );
-            }
-
-            // Group segment matches by textId
-            final groupedResults = <String, Map<String, dynamic>>{};
-            for (final source in searchResponse.sources) {
-              if (!groupedResults.containsKey(source.text.textId)) {
-                groupedResults[source.text.textId] = {
-                  'textId': source.text.textId,
-                  'textTitle': source.text.title,
-                  'segments': <Map<String, String>>[],
-                };
-              }
-              for (final segmentMatch in source.segmentMatches) {
-                (groupedResults[source.text.textId]!['segments'] as List).add({
-                  'segmentId': segmentMatch.segmentId,
-                  'content': segmentMatch.content,
-                });
-              }
-            }
-
-            if (groupedResults.isEmpty) {
-              return Center(
-                child: Text(
-                  'No results found for "$_submittedQuery"',
-                  style: const TextStyle(fontSize: 16),
-                ),
-              );
-            }
-
-            final groupedList = groupedResults.values.toList();
-            final language = ref.watch(localeProvider).languageCode;
-            final fontFamily = getFontFamily(language);
-            final lineHeight = getLineHeight(language);
-            final fontSize = language == 'bo' ? 22.0 : 18.0;
-
-            return Container(
-              color: Colors.transparent,
-              child: ListView.builder(
-                itemCount: groupedList.length,
-                itemBuilder: (context, index) {
-                  final textGroup = groupedList[index];
-                  final textId = textGroup['textId'] as String;
-                  final textTitle = textGroup['textTitle'] as String;
-                  final segments =
-                      textGroup['segments'] as List<Map<String, String>>;
-
-                  return Card(
-                    color: Colors.transparent,
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(0),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            textTitle,
-                            style: TextStyle(
-                              fontFamily: fontFamily,
-                              height: lineHeight,
-                              fontSize: fontSize,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          const Divider(height: 1),
-                          const SizedBox(height: 12),
-                          // List all segments for this text
-                          ...segments.asMap().entries.map((entry) {
-                            final segmentIndex = entry.key;
-                            final segment = entry.value;
-                            final segmentId = segment['segmentId']!;
-                            final content = segment['content']!;
-                            final cleanContent = content.replaceAll(
-                              RegExp(r'<[^>]*>'),
-                              '',
-                            );
-
-                            return Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                InkWell(
-                                  onTap: () {
-                                    // Return both textId and segmentId
-                                    close(context, {
-                                      'textId': textId,
-                                      'segmentId': segmentId,
-                                    });
-                                  },
-                                  borderRadius: BorderRadius.circular(8),
-                                  child: Container(
-                                    width: double.infinity,
-                                    padding: const EdgeInsets.all(12.0),
-                                    decoration: BoxDecoration(
-                                      color: Theme.of(context).cardColor,
-                                      borderRadius: BorderRadius.circular(8),
-                                      border: Border.all(
-                                        color: Theme.of(context).dividerColor,
-                                        width: 1,
-                                      ),
-                                    ),
-                                    child: Text.rich(
-                                      TextSpan(
-                                        children: buildHighlightedText(
-                                          context,
-                                          cleanContent,
-                                          _submittedQuery,
-                                          TextStyle(
-                                            fontSize: fontSize,
-                                            fontFamily: fontFamily,
-                                            height: lineHeight,
-                                          ),
-                                        ),
-                                      ),
-                                      maxLines: 3,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ),
-                                ),
-                                if (segmentIndex < segments.length - 1)
-                                  const SizedBox(height: 12),
-                              ],
-                            );
-                          }),
-                        ],
-                      ),
+          data: (searchResponseEither) {
+            return searchResponseEither.fold(
+              (failure) => ErrorStateWidget(
+                error: failure,
+                customMessage: 'Search failed.\nPlease try again.',
+              ),
+              (searchResponse) {
+                if (searchResponse.sources.isEmpty) {
+                  return Center(
+                    child: Text(
+                      'No results found for "$_submittedQuery"',
+                      style: const TextStyle(fontSize: 16),
                     ),
                   );
-                },
-              ),
+                }
+
+                // Group segment matches by textId
+                final groupedResults = <String, Map<String, dynamic>>{};
+                for (final source in searchResponse.sources) {
+                  if (!groupedResults.containsKey(source.text.textId)) {
+                    groupedResults[source.text.textId] = {
+                      'textId': source.text.textId,
+                      'textTitle': source.text.title,
+                      'segments': <Map<String, String>>[],
+                    };
+                  }
+                  for (final segmentMatch in source.segmentMatches) {
+                    (groupedResults[source.text.textId]!['segments'] as List).add({
+                      'segmentId': segmentMatch.segmentId,
+                      'content': segmentMatch.content,
+                    });
+                  }
+                }
+
+                if (groupedResults.isEmpty) {
+                  return Center(
+                    child: Text(
+                      'No results found for "$_submittedQuery"',
+                      style: const TextStyle(fontSize: 16),
+                    ),
+                  );
+                }
+
+                final groupedList = groupedResults.values.toList();
+                final language = ref.watch(localeProvider).languageCode;
+                final fontFamily = getFontFamily(language);
+                final lineHeight = getLineHeight(language);
+                final fontSize = language == 'bo' ? 22.0 : 18.0;
+
+                return Container(
+                  color: Colors.transparent,
+                  child: ListView.builder(
+                    itemCount: groupedList.length,
+                    itemBuilder: (context, index) {
+                      final textGroup = groupedList[index];
+                      final textId = textGroup['textId'] as String;
+                      final textTitle = textGroup['textTitle'] as String;
+                      final segments =
+                          textGroup['segments'] as List<Map<String, String>>;
+
+                      return Card(
+                        color: Colors.transparent,
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(0),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                textTitle,
+                                style: TextStyle(
+                                  fontFamily: fontFamily,
+                                  height: lineHeight,
+                                  fontSize: fontSize,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              const Divider(height: 1),
+                              const SizedBox(height: 12),
+                              // List all segments for this text
+                              ...segments.asMap().entries.map((entry) {
+                                final segmentIndex = entry.key;
+                                final segment = entry.value;
+                                final segmentId = segment['segmentId']!;
+                                final content = segment['content']!;
+                                final cleanContent = content.replaceAll(
+                                  RegExp(r'<[^>]*>'),
+                                  '',
+                                );
+
+                                return Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    InkWell(
+                                      onTap: () {
+                                        // Return both textId and segmentId
+                                        close(context, {
+                                          'textId': textId,
+                                          'segmentId': segmentId,
+                                        });
+                                      },
+                                      borderRadius: BorderRadius.circular(8),
+                                      child: Container(
+                                        width: double.infinity,
+                                        padding: const EdgeInsets.all(12.0),
+                                        decoration: BoxDecoration(
+                                          color: Theme.of(context).cardColor,
+                                          borderRadius: BorderRadius.circular(8),
+                                          border: Border.all(
+                                            color: Theme.of(context).dividerColor,
+                                            width: 1,
+                                          ),
+                                        ),
+                                        child: Text.rich(
+                                          TextSpan(
+                                            children: buildHighlightedText(
+                                              context,
+                                              cleanContent,
+                                              _submittedQuery,
+                                              TextStyle(
+                                                fontSize: fontSize,
+                                                fontFamily: fontFamily,
+                                                height: lineHeight,
+                                              ),
+                                            ),
+                                          ),
+                                          maxLines: 3,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                    ),
+                                    if (segmentIndex < segments.length - 1)
+                                      const SizedBox(height: 12),
+                                  ],
+                                );
+                              }),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                );
+              },
             );
           },
         );

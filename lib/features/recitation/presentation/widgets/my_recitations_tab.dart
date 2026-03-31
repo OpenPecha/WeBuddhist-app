@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/widgets/error_state_widget.dart';
-import 'package:flutter_pecha/features/auth/application/auth_notifier.dart';
+import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
 import 'package:flutter_pecha/features/auth/presentation/widgets/login_drawer.dart';
 import 'package:flutter_pecha/features/recitation/data/models/recitation_model.dart';
 import 'package:flutter_pecha/features/recitation/presentation/providers/recitations_providers.dart';
@@ -48,7 +48,15 @@ class _MyRecitationsTabState extends ConsumerState<MyRecitationsTab> {
     final savedRecitationsAsync = ref.watch(savedRecitationsFutureProvider);
 
     return savedRecitationsAsync.when(
-      data: (recitations) => _buildDataView(context, recitations),
+      data: (recitationsEither) {
+        return recitationsEither.fold(
+          (failure) => ErrorStateWidget(
+            error: failure,
+            customMessage: 'Unable to load your saved recitations.\nPlease try again later.',
+          ),
+          (recitations) => _buildDataView(context, recitations),
+        );
+      },
       loading: () {
         // If we have optimistic data during refetch, show it instead of loading spinner
         if (_optimisticRecitations != null) {
@@ -105,7 +113,10 @@ class _MyRecitationsTabState extends ConsumerState<MyRecitationsTab> {
   ) {
     // Get the display recitations for navigation context
     final displayRecitations = _optimisticRecitations ??
-        ref.watch(savedRecitationsFutureProvider).valueOrNull ??
+        ref.watch(savedRecitationsFutureProvider).valueOrNull?.fold(
+          (failure) => <RecitationModel>[],
+          (recitations) => recitations,
+        ) ??
         [];
 
     return Container(
@@ -200,13 +211,16 @@ class _MyRecitationsTabState extends ConsumerState<MyRecitationsTab> {
     ScaffoldMessengerState messenger,
     String errorMessage,
   ) async {
-    try {
-      await ref.read(updateRecitationsOrderProvider(payload).future);
+    final result = await ref.read(updateRecitationsOrderProvider(payload).future);
 
-      _handleReorderSuccess();
-    } catch (error) {
-      _handleReorderFailure(messenger, errorMessage);
-    }
+    result.fold(
+      (failure) {
+        _handleReorderFailure(messenger, errorMessage);
+      },
+      (_) {
+        _handleReorderSuccess();
+      },
+    );
   }
 
   /// Handles successful reorder operation

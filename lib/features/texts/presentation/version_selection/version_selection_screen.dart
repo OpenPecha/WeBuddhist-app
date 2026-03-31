@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/utils/get_language.dart';
-import 'package:flutter_pecha/features/texts/data/providers/text_reading_params_provider.dart';
-import 'package:flutter_pecha/features/texts/data/providers/apis/texts_provider.dart';
-import 'package:flutter_pecha/features/texts/data/providers/text_version_language_provider.dart';
-import 'package:flutter_pecha/features/texts/models/version.dart';
+import 'package:flutter_pecha/features/texts/presentation/providers/text_reading_params_provider.dart';
+import 'package:flutter_pecha/features/texts/presentation/providers/texts_provider.dart';
+import 'package:flutter_pecha/features/texts/presentation/providers/text_version_language_provider.dart';
+import 'package:flutter_pecha/features/texts/data/models/version.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -16,28 +16,8 @@ class VersionSelectionScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final localizations = AppLocalizations.of(context)!;
-    final textVersionResponse = ref.watch(textVersionFutureProvider(textId));
+    final textVersionResponseAsync = ref.watch(textVersionFutureProvider(textId));
     final currentLanguageCode = ref.watch(textVersionLanguageProvider);
-    final numberOfVersions =
-        textVersionResponse.value?.versions
-            ?.map((version) {
-              if (version.language == currentLanguageCode) {
-                return 1;
-              }
-              return 0;
-            })
-            .fold(0, (a, b) => a + b) ??
-        0;
-
-    final filteredVersions =
-        textVersionResponse.value?.versions
-            ?.where((version) => version.language == currentLanguageCode)
-            .toList();
-    final uniqueLanguages =
-        textVersionResponse.value?.versions
-            ?.map((version) => version.language)
-            .toSet()
-            .toList();
 
     return Scaffold(
       appBar: AppBar(
@@ -52,10 +32,19 @@ class VersionSelectionScreen extends ConsumerWidget {
           IconButton(
             icon: const Icon(Icons.search),
             onPressed: () {
+              final versions = textVersionResponseAsync.valueOrNull?.fold(
+                (failure) => <Version>[],
+                (response) => response.versions,
+              ) ?? <Version>[];
+
+              final filteredVersions = versions
+                  .where((version) => version.language == currentLanguageCode)
+                  .toList();
+
               showSearch(
                 context: context,
                 delegate: VersionSearchDelegate(
-                  versions: filteredVersions ?? [],
+                  versions: filteredVersions,
                   ref: ref,
                 ),
               );
@@ -67,21 +56,78 @@ class VersionSelectionScreen extends ConsumerWidget {
           child: Container(height: 2, color: const Color(0xFFB6D7D7)),
         ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Language Card
-            _buildLanguageCard(uniqueLanguages ?? [], context, ref),
-            // Versions Title
-            Text(
-              '${localizations.text_toc_versions} ($numberOfVersions)',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+      body: textVersionResponseAsync.when(
+        data: (versionResponseEither) {
+          return versionResponseEither.fold(
+            (failure) => Center(
+              child: Padding(
+                padding: const EdgeInsets.all(32.0),
+                child: Column(
+                  children: [
+                    Icon(Icons.error_outline, size: 48, color: Colors.grey),
+                    SizedBox(height: 16),
+                    Text(
+                      'Failed to load versions',
+                      style: TextStyle(fontSize: 16),
+                    ),
+                  ],
+                ),
+              ),
             ),
-            const SizedBox(height: 12),
-            Expanded(child: _buildVersionCard(filteredVersions ?? [], ref)),
-          ],
+            (versionResponse) {
+              final numberOfVersions = versionResponse.versions
+                  ?.map((version) {
+                    if (version.language == currentLanguageCode) {
+                      return 1;
+                    }
+                    return 0;
+                  })
+                  .fold(0, (a, b) => a + b) ??
+                  0;
+
+              final filteredVersions = versionResponse.versions
+                  ?.where((version) => version.language == currentLanguageCode)
+                  .toList();
+              final uniqueLanguages = versionResponse.versions
+                  ?.map((version) => version.language)
+                  .toSet()
+                  .toList();
+
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Language Card
+                    _buildLanguageCard(uniqueLanguages ?? [], context, ref),
+                    // Versions Title
+                    Text(
+                      '${localizations.text_toc_versions} ($numberOfVersions)',
+                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+                    ),
+                    const SizedBox(height: 12),
+                    Expanded(child: _buildVersionCard(filteredVersions ?? [], ref)),
+                  ],
+                ),
+              );
+            },
+          );
+        },
+        loading: () => Center(child: CircularProgressIndicator()),
+        error: (error, stack) => Center(
+          child: Padding(
+            padding: const EdgeInsets.all(32.0),
+            child: Column(
+              children: [
+                Icon(Icons.error_outline, size: 48, color: Colors.grey),
+                SizedBox(height: 16),
+                Text(
+                  'Failed to load versions',
+                  style: TextStyle(fontSize: 16),
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     );

@@ -1,4 +1,7 @@
+import 'package:fpdart/fpdart.dart';
 import 'package:flutter_pecha/core/cache/cache.dart';
+import 'package:flutter_pecha/core/error/exception_mapper.dart';
+import 'package:flutter_pecha/core/error/failures.dart';
 import 'package:flutter_pecha/core/network/connectivity_service.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/features/recitation/data/models/recitation_model.dart';
@@ -24,7 +27,7 @@ class RecitationsRepository {
   /// 4. If offline, return cached data even if expired
   ///
   /// Set [forceRefresh] to true to bypass cache (e.g., for pull-to-refresh).
-  Future<List<RecitationModel>> getRecitations({
+  Future<Either<Failure, List<RecitationModel>>> getRecitations({
     required String language,
     String? searchQuery,
     bool forceRefresh = false,
@@ -52,15 +55,13 @@ class RecitationsRepository {
             _refreshRecitationsInBackground(language, searchQuery, cacheKey);
           }
 
-          return cacheResult.data!;
+          return Right(cacheResult.data!);
         }
       }
 
-      // If offline and no cache, throw offline exception
+      // If offline and no cache, return network failure
       if (!isOnline) {
-        throw const OfflineException(
-          'No internet connection and no cached recitations available',
-        );
+        return const Left(NetworkFailure('No internet connection and no cached recitations available'));
       }
 
       // Cache miss or force refresh - fetch from network
@@ -69,7 +70,8 @@ class RecitationsRepository {
             ? 'Force refreshing recitations from network'
             : 'Recitation list cache miss, fetching from network',
       );
-      return await _fetchAndCacheRecitations(language, searchQuery, cacheKey);
+      final result = await _fetchAndCacheRecitations(language, searchQuery, cacheKey);
+      return Right(result);
     } catch (e) {
       // If network fails, try to return cached data (even expired)
       if (e is! OfflineException) {
@@ -82,13 +84,12 @@ class RecitationsRepository {
 
         if (fallbackCache.isHit && fallbackCache.data != null) {
           _logger.debug('Returning fallback cache after network error');
-          return fallbackCache.data!;
+          return Right(fallbackCache.data!);
         }
       }
 
       _logger.error('Error getting recitations', e);
-      if (e is OfflineException) rethrow;
-      throw Exception('Unable to load recitations: $e');
+      return Left(ExceptionMapper.map(e, context: 'Unable to load recitations'));
     }
   }
 
@@ -148,7 +149,7 @@ class RecitationsRepository {
   /// This is user-specific data cached separately from the general list.
   /// Cache is invalidated when save/unsave operations occur.
   /// Set [forceRefresh] to true to bypass cache (e.g., for pull-to-refresh).
-  Future<List<RecitationModel>> getSavedRecitations({
+  Future<Either<Failure, List<RecitationModel>>> getSavedRecitations({
     bool forceRefresh = false,
   }) async {
     const cacheKey = CacheKeys.savedRecitations;
@@ -172,15 +173,13 @@ class RecitationsRepository {
             _refreshSavedRecitationsInBackground();
           }
 
-          return cacheResult.data!;
+          return Right(cacheResult.data!);
         }
       }
 
-      // If offline and no cache, throw offline exception
+      // If offline and no cache, return network failure
       if (!isOnline) {
-        throw const OfflineException(
-          'No internet connection and no cached saved recitations',
-        );
+        return const Left(NetworkFailure('No internet connection and no cached saved recitations'));
       }
 
       // Cache miss or force refresh - fetch from network
@@ -189,7 +188,8 @@ class RecitationsRepository {
             ? 'Force refreshing saved recitations'
             : 'Saved recitations cache miss',
       );
-      return await _fetchAndCacheSavedRecitations();
+      final result = await _fetchAndCacheSavedRecitations();
+      return Right(result);
     } catch (e) {
       // If network fails, try to return cached data (even expired)
       if (e is! OfflineException) {
@@ -202,13 +202,12 @@ class RecitationsRepository {
 
         if (fallbackCache.isHit && fallbackCache.data != null) {
           _logger.debug('Returning fallback cache after network error');
-          return fallbackCache.data!;
+          return Right(fallbackCache.data!);
         }
       }
 
       _logger.error('Error getting saved recitations', e);
-      if (e is OfflineException) rethrow;
-      throw Exception('Failed to load saved recitations: $e');
+      return Left(ExceptionMapper.map(e, context: 'Failed to load saved recitations'));
     }
   }
 
@@ -272,7 +271,7 @@ class RecitationsRepository {
   ///
   /// Content is cached based on textId and requested language variants.
   /// Set [forceRefresh] to true to bypass cache (e.g., for pull-to-refresh).
-  Future<RecitationContentModel> getRecitationContent(
+  Future<Either<Failure, RecitationContentModel>> getRecitationContent(
     String id,
     String language,
     List<String>? recitations,
@@ -319,15 +318,13 @@ class RecitationsRepository {
             );
           }
 
-          return cacheResult.data!;
+          return Right(cacheResult.data!);
         }
       }
 
-      // If offline and no cache, throw offline exception
+      // If offline and no cache, return network failure
       if (!isOnline) {
-        throw const OfflineException(
-          'No internet connection and no cached content available',
-        );
+        return const Left(NetworkFailure('No internet connection and no cached content available'));
       }
 
       // Cache miss or force refresh - fetch from network
@@ -336,7 +333,7 @@ class RecitationsRepository {
             ? 'Force refreshing recitation content from network'
             : 'Recitation content cache miss for: $id',
       );
-      return await _fetchAndCacheContent(
+      final result = await _fetchAndCacheContent(
         id,
         language,
         recitations,
@@ -345,6 +342,7 @@ class RecitationsRepository {
         adaptations,
         cacheKey,
       );
+      return Right(result);
     } catch (e) {
       // If network fails, try to return cached data (even expired)
       if (e is! OfflineException) {
@@ -357,13 +355,12 @@ class RecitationsRepository {
 
         if (fallbackCache.isHit && fallbackCache.data != null) {
           _logger.debug('Returning fallback cache after network error');
-          return fallbackCache.data!;
+          return Right(fallbackCache.data!);
         }
       }
 
       _logger.error('Error getting recitation content', e);
-      if (e is OfflineException) rethrow;
-      throw Exception('Failed to load recitation content: $e');
+      return Left(ExceptionMapper.map(e, context: 'Failed to load recitation content'));
     }
   }
 
@@ -435,33 +432,33 @@ class RecitationsRepository {
     });
   }
 
-  Future<bool> saveRecitation(String id) async {
+  Future<Either<Failure, bool>> saveRecitation(String id) async {
     try {
       final result = await recitationsRemoteDatasource.saveRecitation(id);
       if (result) {
         // Invalidate saved recitations cache so next fetch gets updated list
         await _invalidateSavedRecitationsCache();
       }
-      return result;
+      return Right(result);
     } catch (e) {
-      throw Exception('Failed to save recitation: $e');
+      return Left(ExceptionMapper.map(e, context: 'Failed to save recitation'));
     }
   }
 
-  Future<bool> unsaveRecitation(String id) async {
+  Future<Either<Failure, bool>> unsaveRecitation(String id) async {
     try {
       final result = await recitationsRemoteDatasource.unsaveRecitation(id);
       if (result) {
         // Invalidate saved recitations cache so next fetch gets updated list
         await _invalidateSavedRecitationsCache();
       }
-      return result;
+      return Right(result);
     } catch (e) {
-      throw Exception('Failed to unsave recitation: $e');
+      return Left(ExceptionMapper.map(e, context: 'Failed to unsave recitation'));
     }
   }
 
-  Future<bool> updateRecitationsOrder(
+  Future<Either<Failure, bool>> updateRecitationsOrder(
     List<Map<String, dynamic>> recitations,
   ) async {
     try {
@@ -472,9 +469,9 @@ class RecitationsRepository {
         // Invalidate saved recitations cache since order changed
         await _invalidateSavedRecitationsCache();
       }
-      return result;
+      return Right(result);
     } catch (e) {
-      throw Exception('Failed to update recitations order: $e');
+      return Left(ExceptionMapper.map(e, context: 'Failed to update recitations order'));
     }
   }
 }

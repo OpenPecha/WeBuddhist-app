@@ -1,15 +1,16 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
-import 'package:flutter_pecha/core/utils/error_message_mapper.dart';
+import 'package:flutter_pecha/core/error/error_message_mapper.dart';
 import 'package:flutter_pecha/features/ai/config/ai_config.dart';
-import 'package:flutter_pecha/features/ai/data/providers/ai_chat_provider.dart';
+import 'package:flutter_pecha/features/ai/presentation/providers/ai_chat_provider.dart';
 import 'package:flutter_pecha/features/ai/data/repositories/ai_chat_repository.dart';
-import 'package:flutter_pecha/features/ai/models/chat_message.dart';
+import 'package:flutter_pecha/features/ai/data/models/chat_message.dart';
 import 'package:flutter_pecha/features/ai/presentation/controllers/thread_list_controller.dart';
 import 'package:flutter_pecha/features/ai/services/rate_limiter.dart';
 import 'package:flutter_pecha/features/ai/validators/message_validator.dart';
-import 'package:flutter_pecha/features/auth/application/user_notifier.dart';
+import 'package:flutter_pecha/features/auth/presentation/providers/user_notifier.dart';
+import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class ChatState {

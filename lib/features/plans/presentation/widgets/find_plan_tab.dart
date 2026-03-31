@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/widgets/error_state_widget.dart';
-import 'package:flutter_pecha/features/plans/data/providers/plans_providers.dart';
+import 'package:flutter_pecha/features/plans/presentation/providers/plans_providers.dart';
 import 'package:flutter_pecha/features/plans/presentation/providers/find_plans_paginated_provider.dart';
 import 'package:flutter_pecha/features/plans/presentation/widgets/plan_card.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -92,13 +92,13 @@ class _FindPlansTabState extends ConsumerState<FindPlansTab> {
         }
 
         final plan = plansState.plans[index];
-        final author = plan.author;
+        final authorName = plan.authorName;
         return PlanCard(
           plan: plan,
           onTap: () async {
             final result = await context.push(
               '/plans/info',
-              extra: {'plan': plan, 'author': author},
+              extra: {'plan': plan, 'author': authorName},
             );
             if (result == true && context.mounted) {
               // Change tab to my plans after successful enrollment

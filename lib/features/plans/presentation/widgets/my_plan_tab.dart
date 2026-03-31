@@ -1,12 +1,13 @@
+import 'package:fpdart/fpdart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
 import 'package:flutter_pecha/core/widgets/error_state_widget.dart';
-import 'package:flutter_pecha/features/auth/application/auth_notifier.dart';
+import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
 import 'package:flutter_pecha/features/auth/presentation/widgets/login_drawer.dart';
-import 'package:flutter_pecha/features/plans/data/providers/plans_providers.dart';
-import 'package:flutter_pecha/features/plans/data/providers/user_plans_provider.dart';
+import 'package:flutter_pecha/features/plans/presentation/providers/plans_providers.dart';
+import 'package:flutter_pecha/features/plans/presentation/providers/user_plans_provider.dart';
 import 'package:flutter_pecha/features/plans/data/utils/plan_utils.dart';
-import 'package:flutter_pecha/features/plans/models/user/user_plans_model.dart';
+import 'package:flutter_pecha/features/plans/data/models/user/user_plans_model.dart';
 import 'package:flutter_pecha/features/plans/presentation/providers/my_plans_paginated_provider.dart';
 import 'package:flutter_pecha/features/plans/presentation/widgets/user_plan_card.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
@@ -51,8 +52,13 @@ class _MyPlansTabState extends ConsumerState<MyPlansTab> {
   ) async {
     try {
       // Call the provider to unenroll
-      final success = await ref.read(
+      final resultEither = await ref.read(
         userPlanUnsubscribeFutureProvider(plan.id).future,
+      );
+
+      final success = resultEither.fold(
+        (failure) => false,
+        (success) => success,
       );
 
       if (success) {

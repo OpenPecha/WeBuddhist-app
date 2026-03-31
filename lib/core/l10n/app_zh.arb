@@ -33,6 +33,7 @@
   "home_profile": "Profile",
   "no_feature_content": "尚無內容",
   "nav_home": "首頁",
+  "nav_explore": "探索",
   "nav_texts": "文本",
   "nav_learn": "学习",
   "nav_practice": "修持計劃",
@@ -143,6 +144,7 @@
   "feedback_wishlist": "回饋及願望清單",
   "author": "作者",
   "plans_created": "參與設計的計劃",
+  "ask_ai": "向 AI 提问",
   "ai_chat_history": "對話紀錄",
   "ai_buddhist_assistant": "佛法AI助手",
   "ai_new_chat": "新對話",
@@ -181,10 +183,10 @@
   "search_no_titles_found": "No titles found for \"{query}\"",
   "search_no_contents_found": "No contents found for \"{query}\"",
   "search_no_authors_found": "No authors found for \"{query}\"",
-  "search_coming_soon": "Coming Soon",
+  "search_coming_soon": "即将推出",
   "search_buddhist_texts": "Search Buddhist texts...",
   "common_ok": "OK",
-  "comingSoonHeadline": "Coming Soon",
+  "comingSoonHeadline": "即将推出",
   "routine_title": "日常修持",
   "routine_empty_title": "日常修持",
   "routine_edit": "編輯",
@@ -250,7 +252,7 @@
   "updateTaskError": "無法更新任務狀態",
   "enrollSuccess": "成功加入 {planTitle}",
   "enrollError": "無法加入計劃，請再試一次",
-  "enrollErrorDetail": "無法加入計劃：{error}",
+  "enrollErrorDetail": "無法加入計劃",
   "unenrollSuccess": "您已退出 {planTitle}",
   "unenrollError": "目前無法退出，請再試一次",
   "unenrollGenericError": "出了點問題，請檢查您的連接並重試",
@@ -260,7 +262,7 @@
   "duplicateItem": "此項目已在區塊中",
   "removeItem": "移除項目",
   "removeConfirmation": "要從此區塊中移除「{itemName}」嗎？",
-  "shareError": "無法分享：{error}",
+  "shareError": "無法分享",
   "updateOrderError": "無法更新順序，請再試一次",
   "noCollections": "沒有可用的收藏",
   "loadCollectionsError": "無法加載收藏",
@@ -317,5 +319,13 @@
       }
     }
   },
-  "text_qrCode": "二維碼"
+  "text_qrCode": "二維碼",
+  "missedDaysCount": "{count, plural, =0{0 missed days} =1{1 missed day} other{{count} missed days}}",
+  "@missedDaysCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  }
 }

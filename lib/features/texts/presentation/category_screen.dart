@@ -1,6 +1,9 @@
+import 'package:fpdart/fpdart.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_pecha/features/texts/data/providers/apis/collections_providers.dart';
-import 'package:flutter_pecha/features/texts/models/collections/collections.dart';
+import 'package:flutter_pecha/core/error/failures.dart';
+import 'package:flutter_pecha/core/widgets/error_state_widget.dart';
+import 'package:flutter_pecha/features/texts/presentation/providers/collections_providers.dart';
+import 'package:flutter_pecha/features/texts/data/models/collections/collections.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -26,7 +29,9 @@ class CategoryScreen extends ConsumerWidget {
         shape: Border(bottom: BorderSide(color: Color(0xFFB6D7D7), width: 3)),
       ),
       body: collectionsCategoryResponse.when(
-        data:
+        data: (responseEither) {
+          return responseEither.fold(
+            (failure) => ErrorStateWidget(error: failure),
             (response) => SingleChildScrollView(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -67,6 +72,8 @@ class CategoryScreen extends ConsumerWidget {
                 ],
               ),
             ),
+          );
+        },
         loading: () => const Center(child: CircularProgressIndicator()),
         error:
             (error, stackTrace) =>

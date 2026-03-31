@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
-import 'package:flutter_pecha/features/texts/data/providers/apis/share_provider.dart';
-import 'package:flutter_pecha/features/texts/data/providers/selected_segment_provider.dart';
+import 'package:flutter_pecha/features/texts/presentation/providers/share_provider.dart';
+import 'package:flutter_pecha/features/texts/presentation/providers/selected_segment_provider.dart';
 import 'package:flutter_pecha/features/texts/presentation/widgets/action_button.dart';
 import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -183,7 +183,12 @@ class _ShareButtonState extends ConsumerState<_ShareButton> {
         segmentId: widget.segmentId,
         language: widget.language,
       );
-      final shortUrl = await ref.read(shareUrlProvider(params).future);
+      final result = await ref.read(shareUrlProvider(params).future);
+
+      final shortUrl = result.fold(
+        (failure) => throw Exception('Failed to generate share URL: ${failure.message}'),
+        (url) => url,
+      );
 
       if (!mounted) return;
 

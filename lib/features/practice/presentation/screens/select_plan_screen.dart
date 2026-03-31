@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
+import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/core/widgets/error_state_widget.dart';
-import 'package:flutter_pecha/features/plans/data/providers/plans_providers.dart';
+import 'package:flutter_pecha/features/plans/presentation/providers/plans_providers.dart';
 import 'package:flutter_pecha/features/plans/presentation/providers/find_plans_paginated_provider.dart';
 import 'package:flutter_pecha/core/widgets/cached_network_image_widget.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+final _logger = AppLogger('SelectPlanScreen');
 
 class SelectPlanScreen extends ConsumerStatefulWidget {
   const SelectPlanScreen({super.key});
@@ -20,11 +23,19 @@ class _SelectPlanScreenState extends ConsumerState<SelectPlanScreen> {
   @override
   void initState() {
     super.initState();
+    _logger.debug('🚀 initState() called');
     _scrollController.addListener(_onScroll);
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _logger.debug('🔄 didChangeDependencies() called');
+  }
+
+  @override
   void dispose() {
+    _logger.debug('💥 dispose() called - widget being destroyed');
     _scrollController.removeListener(_onScroll);
     _scrollController.dispose();
     super.dispose();
@@ -39,30 +50,46 @@ class _SelectPlanScreenState extends ConsumerState<SelectPlanScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final localizations = AppLocalizations.of(context)!;
-    final plansState = ref.watch(findPlansPaginatedProvider);
+    try {
+      _logger.debug('🎨 ===== BUILD METHOD STARTED =====');
+      final localizations = AppLocalizations.of(context)!;
+      final plansState = ref.watch(findPlansPaginatedProvider);
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          localizations.routine_add_plan,
-          style: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold),
+      _logger.debug('🎨 UI BUILD: ${plansState.plans.length} plans, isLoading: ${plansState.isLoading}, error: ${plansState.error}');
+
+      final scaffold = Scaffold(
+        appBar: AppBar(
+          title: Text(
+            localizations.routine_add_plan,
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold),
+          ),
+          scrolledUnderElevation: 0,
+          centerTitle: true,
         ),
-        scrolledUnderElevation: 0,
-        centerTitle: true,
-      ),
-      body: _buildContent(context, plansState),
-    );
+        body: _buildContent(context, plansState),
+      );
+
+      _logger.debug('✅ BUILD COMPLETED - returning Scaffold');
+      return scaffold;
+    } catch (e, stack) {
+      _logger.error('❌ BUILD ERROR: $e');
+      _logger.error('Stack trace: $stack');
+      rethrow;
+    }
   }
 
   Widget _buildContent(BuildContext context, FindPlansState plansState) {
+    _logger.debug('🔍 _buildContent: ${plansState.plans.length} plans, isLoading: ${plansState.isLoading}');
+
     if (plansState.isLoading && plansState.plans.isEmpty) {
+      _logger.debug('⏳ SHOWING: Loading spinner');
       return const Center(child: CircularProgressIndicator());
     }
 
     if (plansState.error != null && plansState.plans.isEmpty) {
+      _logger.debug('❌ SHOWING: Error - ${plansState.error}');
       return ErrorStateWidget(
         error: plansState.error!,
         onRetry: () => ref.read(findPlansPaginatedProvider.notifier).retry(),
@@ -71,6 +98,7 @@ class _SelectPlanScreenState extends ConsumerState<SelectPlanScreen> {
     }
 
     if (plansState.plans.isEmpty && !plansState.isLoading) {
+      _logger.debug('📭 SHOWING: Empty state');
       return Center(
         child: Text(
           AppLocalizations.of(context)!.no_plans_found,
@@ -79,6 +107,7 @@ class _SelectPlanScreenState extends ConsumerState<SelectPlanScreen> {
       );
     }
 
+    _logger.debug('✅ SHOWING: ListView with ${plansState.plans.length} plans');
     return ListView.builder(
       controller: _scrollController,
       padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
@@ -99,7 +128,7 @@ class _SelectPlanScreenState extends ConsumerState<SelectPlanScreen> {
         return _SelectablePlanCard(
           title: plan.title,
           subtitle: '${plan.totalDays} Days',
-          imageUrl: plan.imageThumbnail,
+          imageUrl: plan.coverImageUrl,
           onTap: () => Navigator.of(context).pop(plan),
         );
       },

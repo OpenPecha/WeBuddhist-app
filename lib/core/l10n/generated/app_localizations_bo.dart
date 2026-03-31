@@ -112,6 +112,9 @@ class AppLocalizationsBo extends AppLocalizations {
   String get nav_home => 'འདུན་ངོས།';
 
   @override
+  String get nav_explore => 'འཚོལ་ཞིབ།';
+
+  @override
   String get nav_texts => 'ཡིག་མཛོད།';
 
   @override
@@ -449,6 +452,9 @@ class AppLocalizationsBo extends AppLocalizations {
   String get plans_created => 'ཉམས་ལེན་ཁག';
 
   @override
+  String get ask_ai => 'རིག་ནུས་ལ་དྲིས།';
+
+  @override
   String get ai_chat_history => 'ཁ་བརྡའི་ལོ་རྒྱུས།';
 
   @override
@@ -582,7 +588,7 @@ class AppLocalizationsBo extends AppLocalizations {
   }
 
   @override
-  String get search_coming_soon => 'Coming Soon';
+  String get search_coming_soon => 'མྱུར་དུ།';
 
   @override
   String get search_buddhist_texts => 'Search Buddhist texts...';
@@ -591,7 +597,7 @@ class AppLocalizationsBo extends AppLocalizations {
   String get common_ok => 'OK';
 
   @override
-  String get comingSoonHeadline => 'Coming Soon';
+  String get comingSoonHeadline => ' མྱུར་དུ།';
 
   @override
   String get routine_title => 'ཉམས་ལེན་གོམས་གཤིས།';
@@ -793,7 +799,7 @@ class AppLocalizationsBo extends AppLocalizations {
 
   @override
   String enrollErrorDetail(String error) {
-    return 'འཆར་གཞིར་ཞུགས་མི་ཐུབ། $error';
+    return 'འཆར་གཞིར་ཞུགས་མི་ཐུབ།';
   }
 
   @override
@@ -832,7 +838,7 @@ class AppLocalizationsBo extends AppLocalizations {
 
   @override
   String shareError(String error) {
-    return 'མཉམ་སྤྱོད་བྱེད་མི་ཐུབ། $error';
+    return 'མཉམ་སྤྱོད་བྱེད་མི་ཐུབ།';
   }
 
   @override
@@ -861,4 +867,16 @@ class AppLocalizationsBo extends AppLocalizations {
 
   @override
   String get text_qrCode => 'QR གོམ་པ།';
+
+  @override
+  String missedDaysCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count missed days',
+      one: '1 missed day',
+      zero: '0 missed days',
+    );
+    return '$_temp0';
+  }
 }

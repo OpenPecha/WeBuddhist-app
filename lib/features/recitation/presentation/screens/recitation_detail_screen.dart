@@ -1,7 +1,9 @@
+import 'package:fpdart/fpdart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
+import 'package:flutter_pecha/core/error/failures.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
-import 'package:flutter_pecha/features/auth/application/auth_notifier.dart';
+import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
 import 'package:flutter_pecha/features/recitation/data/models/recitation_model.dart';
 import 'package:flutter_pecha/features/recitation/domain/content_type.dart';
 import 'package:flutter_pecha/features/recitation/domain/recitation_language_config.dart';
@@ -141,8 +143,10 @@ class _RecitationDetailScreenState
     final localizations = AppLocalizations.of(context)!;
 
     // Check if content is loaded and not empty
-    final isContentLoaded =
-        contentAsync.hasValue && !contentAsync.value!.isEmpty;
+    final isContentLoaded = contentAsync.valueOrNull?.fold(
+          (failure) => false,
+          (content) => !content.isEmpty,
+        ) ?? false;
 
     // Trigger scroll check once when content loads
     if (isContentLoaded && !_isNavigating && !_hasCheckedScroll) {
@@ -211,16 +215,21 @@ class _RecitationDetailScreenState
       body: Stack(
         children: [
           contentAsync.when(
-            data: (content) {
-              if (content.isEmpty) {
-                return _buildEmptyContentState(context, content.title);
-              }
+            data: (contentEither) {
+              return contentEither.fold(
+                (failure) => RecitationErrorState(error: failure),
+                (content) {
+                  if (content.isEmpty) {
+                    return _buildEmptyContentState(context, content.title);
+                  }
 
-              return RecitationContent(
-                content: content,
-                contentOrder: filteredContentOrder,
-                scrollController: _scrollController,
-                language: effectiveLanguageCode,
+                  return RecitationContent(
+                    content: content,
+                    contentOrder: filteredContentOrder,
+                    scrollController: _scrollController,
+                    language: effectiveLanguageCode,
+                  );
+                },
               );
             },
             loading: () => const RecitationDetailSkeleton(),
@@ -371,7 +380,10 @@ class _RecitationDetailScreenState
 
     final savedRecitationsAsync = ref.watch(savedRecitationsFutureProvider);
     final savedRecitationIds =
-        savedRecitationsAsync.valueOrNull?.map((e) => e.textId).toSet() ?? {};
+        savedRecitationsAsync.valueOrNull?.fold(
+          (failure) => <String>{},
+          (recitations) => recitations.map((e) => e.textId).toSet(),
+        ) ?? {};
 
     return savedRecitationIds.contains(widget.recitation.textId);
   }

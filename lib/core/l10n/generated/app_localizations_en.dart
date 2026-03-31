@@ -112,6 +112,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get nav_home => 'Home';
 
   @override
+  String get nav_explore => 'Explore';
+
+  @override
   String get nav_texts => 'Texts';
 
   @override
@@ -148,7 +151,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get text_toc_versions => 'Versions';
 
   @override
-  String get text_commentary => 'Commentary';
+  String get text_commentary => 'Commentaries';
 
   @override
   String get text_close_commentary => 'Close commentary';
@@ -445,6 +448,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get plans_created => 'Plan created';
+
+  @override
+  String get ask_ai => 'Ask AI';
 
   @override
   String get ai_chat_history => 'Chat History';
@@ -792,7 +798,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String enrollErrorDetail(String error) {
-    return 'Unable to enroll in plan: $error';
+    return 'Unable to enroll in plan. Please try again later';
   }
 
   @override
@@ -833,7 +839,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String shareError(String error) {
-    return 'Unable to share: $error';
+    return 'Unable to share your segment. Please try again later';
   }
 
   @override
@@ -861,4 +867,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get text_qrCode => 'QR Code';
+
+  @override
+  String missedDaysCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count missed days',
+      one: '1 missed day',
+      zero: '0 missed days',
+    );
+    return '$_temp0';
+  }
 }

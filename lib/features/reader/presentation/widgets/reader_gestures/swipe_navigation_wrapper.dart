@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
-import 'package:flutter_pecha/features/plans/data/providers/plan_days_providers.dart';
-import 'package:flutter_pecha/features/plans/data/providers/user_plans_provider.dart';
+import 'package:flutter_pecha/features/plans/presentation/providers/plan_days_providers.dart';
+import 'package:flutter_pecha/features/plans/presentation/providers/user_plans_provider.dart';
 import 'package:flutter_pecha/features/reader/constants/reader_constants.dart';
 import 'package:flutter_pecha/features/reader/data/models/navigation_context.dart';
-import 'package:flutter_pecha/features/reader/data/providers/reader_notifier.dart';
+import 'package:flutter_pecha/features/reader/presentation/providers/reader_notifier.dart';
 import 'package:flutter_pecha/features/reader/domain/services/navigation_service.dart';
-import 'package:flutter_pecha/features/texts/models/text_detail.dart';
+import 'package:flutter_pecha/features/texts/data/models/text_detail.dart';
 import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -41,7 +42,7 @@ class _SwipeNavigationWrapperState
   Widget build(BuildContext context) {
     final state = ref.watch(readerNotifierProvider(widget.params));
     final navigationContext = state.navigationContext;
-
+    final localizations = context.l10n;
     // Hide bottom navigation bar when segment action bar is visible
     final hideBottomNav = state.hasSelection && !state.isCommentaryOpen;
 
@@ -76,7 +77,10 @@ class _SwipeNavigationWrapperState
                   onTap: () {
                     // show a comming soon snackbar
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Coming soon')),
+                      SnackBar(
+                        content: Text(localizations.comingSoonHeadline),
+                        duration: Duration(seconds: 2),
+                      ),
                     );
                   },
                   customBorder: const CircleBorder(),
@@ -149,7 +153,8 @@ class _SwipeNavigationWrapperState
 
   void _completeCurrentSubtask() {
     final navContext = widget.params.navigationContext;
-    if (navContext == null || navContext.source != NavigationSource.plan) return;
+    if (navContext == null || navContext.source != NavigationSource.plan)
+      return;
 
     final items = navContext.planTextItems;
     final index = navContext.currentTextIndex;
@@ -164,8 +169,11 @@ class _SwipeNavigationWrapperState
 
     Future.microtask(() async {
       try {
-        await ref.read(completeSubTaskFutureProvider(subtaskId).future);
-        _logger.info('Marked subtask $subtaskId as complete on navigation');
+        final result = await ref.read(completeSubTaskFutureProvider(subtaskId).future);
+        result.fold(
+          (failure) => _logger.error('Failed to complete subtask: ${failure.message}'),
+          (_) => _logger.info('Marked subtask $subtaskId as complete on navigation'),
+        );
       } catch (e) {
         _logger.error('Failed to complete subtask $subtaskId', e);
       }
@@ -285,8 +293,8 @@ class _BottomBar extends StatelessWidget {
                 canSwipe
                     ? _buildFullControls(context)
                     : isPlanNavigation
-                        ? _buildSingleItemControls(context)
-                        : _buildMinimalTitle(context),
+                    ? _buildSingleItemControls(context)
+                    : _buildMinimalTitle(context),
           ),
         ),
       ),

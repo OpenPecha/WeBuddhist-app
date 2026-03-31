@@ -1,3 +1,6 @@
+import '../../domain/entities/recitation.dart';
+import '../../domain/content_type.dart';
+
 class RecitationModel {
   final String textId;
   final String title;
@@ -40,6 +43,35 @@ class RecitationModel {
       title: title ?? this.title,
       language: language ?? this.language,
       displayOrder: displayOrder ?? this.displayOrder,
+    );
+  }
+
+  /// Convert to Recitation domain entity.
+  ///
+  /// Note: RecitationModel is a summary model with limited fields.
+  /// The Recitation entity has additional fields (reciterName, duration, audioUrl, etc.)
+  /// that are not available in the model. These will be populated with default values
+  /// or should be fetched separately when needed.
+  Recitation toEntity() {
+    return Recitation(
+      id: textId, // Use textId as the entity id
+      title: title,
+      titleTibetan: null, // Not available in the model
+      reciterName: 'Unknown', // Not available in the model
+      duration: Duration.zero, // Not available in the model
+      audioUrl: null, // Not available in the model
+      contentType: ContentType.recitation, // Default to recitation type
+      textId: textId,
+    );
+  }
+
+  /// Create RecitationModel from a Recitation domain entity.
+  factory RecitationModel.fromEntity(Recitation entity) {
+    return RecitationModel(
+      textId: entity.id, // Use entity id as textId
+      title: entity.title,
+      language: 'en', // Default to English, will be set by the caller
+      displayOrder: null, // Not available in the entity
     );
   }
 

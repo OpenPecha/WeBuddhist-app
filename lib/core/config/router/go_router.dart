@@ -1,24 +1,23 @@
 import 'dart:async';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
-import 'package:flutter_pecha/features/auth/presentation/login_page.dart';
+import 'package:flutter_pecha/features/auth/presentation/screens/login_page.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
-import 'package:flutter_pecha/features/auth/presentation/profile_page.dart';
+import 'package:flutter_pecha/features/auth/presentation/screens/profile_page.dart';
 import 'package:flutter_pecha/features/app/presentation/skeleton_screen.dart';
 import 'package:flutter_pecha/features/creator_info/presentation/creator_info_screen.dart';
-import 'package:flutter_pecha/features/onboarding/presentation/onboarding_wrapper.dart';
-import 'package:flutter_pecha/features/home/models/prayer_data.dart';
+import 'package:flutter_pecha/features/onboarding/presentation/screens/onboarding_wrapper.dart';
+import 'package:flutter_pecha/features/home/data/models/prayer_data.dart';
 import 'package:flutter_pecha/features/home/presentation/widgets/view_illustration.dart';
 import 'package:flutter_pecha/features/home/presentation/widgets/youtube_video_player.dart';
 import 'package:flutter_pecha/features/home/presentation/widgets/meditation_video.dart';
 import 'package:flutter_pecha/features/meditation_of_day/presentation/meditation_of_day_screen.dart';
-import 'package:flutter_pecha/features/plans/models/author/author_dto_model.dart';
-import 'package:flutter_pecha/features/plans/models/user/user_plans_model.dart';
-import 'package:flutter_pecha/features/plans/models/user/user_subtasks_dto.dart';
+import 'package:flutter_pecha/features/plans/domain/entities/plan.dart';
+import 'package:flutter_pecha/features/plans/data/models/user/user_plans_model.dart';
+import 'package:flutter_pecha/features/plans/data/models/user/user_subtasks_dto.dart';
 import 'package:flutter_pecha/features/story_view/presentation/screens/plan_story_presenter.dart';
 import 'package:flutter_pecha/features/story_view/presentation/screens/story_feature.dart';
 import 'package:flutter_pecha/features/story_view/presentation/screens/story_presenter.dart';
 import 'package:flutter_pecha/features/notifications/presentation/notification_settings_screen.dart';
-import 'package:flutter_pecha/features/plans/models/plans_model.dart';
 import 'package:flutter_pecha/features/plans/presentation/widgets/plan_track/plan_details.dart';
 import 'package:flutter_pecha/features/plans/presentation/plan_info.dart';
 import 'package:flutter_pecha/features/prayer_of_the_day/presentation/prayer_of_the_day_screen.dart';
@@ -26,8 +25,8 @@ import 'package:flutter_pecha/features/story_view/presentation/widgets/image_sto
 import 'package:flutter_pecha/features/story_view/presentation/widgets/text_story.dart';
 import 'package:flutter_pecha/features/story_view/presentation/widgets/video_story.dart';
 import 'package:flutter_pecha/features/story_view/utils/helper_functions.dart';
-import 'package:flutter_pecha/features/texts/models/collections/collections.dart';
-import 'package:flutter_pecha/features/texts/models/text/texts.dart';
+import 'package:flutter_pecha/features/texts/data/models/collections/collections.dart';
+import 'package:flutter_pecha/features/texts/data/models/text/texts.dart';
 import 'package:flutter_pecha/features/texts/presentation/category_screen.dart';
 import 'package:flutter_pecha/features/texts/presentation/commentary/commentary_view.dart';
 import 'package:flutter_pecha/features/texts/presentation/screens/collections/collections_screen.dart';
@@ -40,15 +39,15 @@ import 'package:flutter_pecha/features/texts/presentation/version_selection/lang
 import 'package:flutter_pecha/features/texts/presentation/version_selection/version_selection_screen.dart';
 import 'package:flutter_pecha/features/recitation/data/models/recitation_model.dart';
 import 'package:flutter_pecha/features/recitation/presentation/screens/recitation_detail_screen.dart';
-import 'package:flutter_pecha/features/ai/presentation/search_results_screen.dart';
+import 'package:flutter_pecha/features/ai/presentation/screens/search_results_screen.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_pecha/features/auth/application/auth_notifier.dart';
+import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
 import 'package:story_view/story_view.dart';
 import 'package:flutter_story_presenter/flutter_story_presenter.dart' as fsp;
 import 'route_config.dart';
-import 'package:flutter_pecha/features/onboarding/data/providers/onboarding_datasource_providers.dart';
+import 'package:flutter_pecha/features/onboarding/presentation/providers/onboarding_datasource_providers.dart';
 
 final _logger = AppLogger('GoRouter');
 
@@ -174,19 +173,7 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/home/meditation_of_the_day',
         builder: (context, state) {
-          final extra = state.extra;
-          if (extra == null ||
-              extra is! Map ||
-              !extra.containsKey('meditationAudioUrl') ||
-              !extra.containsKey('meditationImageUrl')) {
-            return Scaffold(
-              body: Center(child: Text(context.l10n.missingParameters)),
-            );
-          }
-          return MeditationOfTheDayScreen(
-            audioUrl: extra['meditationAudioUrl'] as String,
-            imageUrl: extra['meditationImageUrl'] as String,
-          );
+          return const MeditationOfTheDayScreen();
         },
       ),
       GoRoute(
@@ -639,8 +626,8 @@ final goRouterProvider = Provider<GoRouter>((ref) {
             );
           }
           return PlanInfo(
-            plan: extra['plan'] as PlansModel,
-            author: extra['author'] as AuthorDtoModel,
+            plan: extra['plan'] as Plan,
+            author: extra['author'] as String?,
           );
         },
       ),
@@ -734,8 +721,14 @@ final goRouterProvider = Provider<GoRouter>((ref) {
 
       // 2. Check onboarding for authenticated non-guest users
       if (isLoggedIn && !isGuest) {
-        final hasCompletedOnboarding =
-            await onboardingRepo.hasCompletedOnboarding();
+        final onboardingResult = await onboardingRepo.isOnboardingCompleted();
+        final hasCompletedOnboarding = onboardingResult.fold(
+          (failure) {
+            _logger.warning('Failed to check onboarding status', failure);
+            return false; // Default to false on error
+          },
+          (isCompleted) => isCompleted,
+        );
 
         // Redirect to onboarding if not completed (unless already there or on login)
         if (!hasCompletedOnboarding &&
@@ -762,8 +755,14 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       if (isLoggedIn && currentPath == RouteConfig.login) {
         // Check if they need onboarding first
         if (!isGuest) {
-          final hasCompletedOnboarding =
-              await onboardingRepo.hasCompletedOnboarding();
+          final onboardingResult = await onboardingRepo.isOnboardingCompleted();
+          final hasCompletedOnboarding = onboardingResult.fold(
+            (failure) {
+              _logger.warning('Failed to check onboarding status', failure);
+              return false; // Default to false on error
+            },
+            (isCompleted) => isCompleted,
+          );
           if (!hasCompletedOnboarding) {
             _logger.debug('New authenticated user, redirecting to onboarding');
             return RouteConfig.onboarding;

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_pecha/features/ai/models/chat_message.dart';
+import 'package:flutter_pecha/features/ai/data/models/chat_message.dart';
 import 'package:flutter_pecha/features/ai/presentation/widgets/message_bubble.dart';
 import 'package:flutter_pecha/features/ai/presentation/widgets/typing_indicator.dart';
 

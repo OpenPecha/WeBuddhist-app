@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
-import 'package:flutter_pecha/features/auth/application/auth_notifier.dart';
+import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
 import 'package:flutter_pecha/features/auth/presentation/widgets/login_drawer.dart';
 import 'package:flutter_pecha/features/recitation/presentation/providers/recitations_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -63,12 +63,20 @@ class RecitationSaveController {
 
   /// Saves a recitation.
   Future<void> _saveRecitation(String textId) async {
-    await ref.read(saveRecitationProvider(textId).future);
+    final result = await ref.read(saveRecitationProvider(textId).future);
+    result.fold(
+      (failure) => throw Exception('Failed to save recitation: ${failure.message}'),
+      (_) => {},
+    );
   }
 
   /// Unsaves a recitation.
   Future<void> _unsaveRecitation(String textId) async {
-    await ref.read(unsaveRecitationProvider(textId).future);
+    final result = await ref.read(unsaveRecitationProvider(textId).future);
+    result.fold(
+      (failure) => throw Exception('Failed to unsave recitation: ${failure.message}'),
+      (_) => {},
+    );
   }
 
   /// Shows the login drawer for guest users.

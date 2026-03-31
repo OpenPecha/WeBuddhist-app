@@ -33,6 +33,7 @@
   "home_profile": "Profile",
   "no_feature_content": "No featured content available",
   "nav_home": "Home",
+  "nav_explore": "Explore",
   "nav_texts": "Texts",
   "nav_learn": "Learn",
   "nav_practice": "Practice",
@@ -45,7 +46,7 @@
   "text_toc_continueReading": "Continue Reading",
   "text_toc_content": "Contents",
   "text_toc_versions": "Versions",
-  "text_commentary": "Commentary",
+  "text_commentary": "Commentaries",
   "text_close_commentary": "Close commentary",
   "commentary_total": "Total",
   "show_more": "Show more",
@@ -143,6 +144,7 @@
   "feedback_wishlist": "Feedback and Wishlist",
   "author": "Author",
   "plans_created": "Plan created",
+  "ask_ai": "Ask AI",
   "ai_chat_history": "Chat History",
   "ai_buddhist_assistant": "Buddhist AI Assistant",
   "ai_new_chat": "New Chat",
@@ -306,7 +308,7 @@
   "updateTaskError": "Unable to update task status",
   "enrollSuccess": "Successfully enrolled in {planTitle}",
   "enrollError": "Unable to enroll in plan. Please try again.",
-  "enrollErrorDetail": "Unable to enroll in plan: {error}",
+  "enrollErrorDetail": "Unable to enroll in plan. Please try again later",
   "unenrollSuccess": "You have been unenrolled from {planTitle}",
   "unenrollError": "Unable to unenroll at this time. Please try again.",
   "unenrollGenericError": "Something went wrong. Please check your connection and try again.",
@@ -316,7 +318,7 @@
   "duplicateItem": "This item is already in the block.",
   "removeItem": "Remove Item",
   "removeConfirmation": "Remove \"{itemName}\" from this block?",
-  "shareError": "Unable to share: {error}",
+  "shareError": "Unable to share your segment. Please try again later",
   "updateOrderError": "Unable to update order. Please try again.",
   "noCollections": "No collections available",
   "loadCollectionsError": "Unable to load collections",
@@ -373,5 +375,13 @@
       }
     }
   },
-  "text_qrCode": "QR Code"
+  "text_qrCode": "QR Code",
+  "missedDaysCount": "{count, plural, =0{0 missed days} =1{1 missed day} other{{count} missed days}}",
+  "@missedDaysCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  }
 }

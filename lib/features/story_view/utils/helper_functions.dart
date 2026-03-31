@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_pecha/features/plans/models/user/user_subtasks_dto.dart';
+import 'package:flutter_pecha/features/plans/data/models/user/user_subtasks_dto.dart';
 import 'package:flutter_pecha/features/story_view/presentation/widgets/story_presenter/custom_audio_story.dart';
 import 'package:flutter_pecha/features/story_view/presentation/widgets/story_presenter/custom_video_story.dart';
 import 'package:flutter_pecha/features/story_view/presentation/widgets/story_presenter/custom_widget_story.dart';

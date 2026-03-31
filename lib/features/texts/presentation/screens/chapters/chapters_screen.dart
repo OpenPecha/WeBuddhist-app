@@ -1,19 +1,21 @@
+import 'package:fpdart/fpdart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
+import 'package:flutter_pecha/core/error/failures.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/features/texts/constants/chapter_constants.dart';
 import 'package:flutter_pecha/features/texts/constants/text_screen_constants.dart';
 import 'package:flutter_pecha/features/texts/constants/text_routes.dart';
-import 'package:flutter_pecha/features/texts/data/providers/selected_segment_provider.dart';
-import 'package:flutter_pecha/features/texts/data/providers/text_version_language_provider.dart';
-import 'package:flutter_pecha/features/texts/data/providers/apis/texts_provider.dart';
-import 'package:flutter_pecha/features/texts/models/section.dart';
-import 'package:flutter_pecha/features/texts/models/segment.dart';
-import 'package:flutter_pecha/features/texts/models/text/reader_response.dart';
-import 'package:flutter_pecha/features/texts/models/text/toc.dart';
-import 'package:flutter_pecha/features/texts/models/text_detail.dart';
+import 'package:flutter_pecha/features/texts/presentation/providers/selected_segment_provider.dart';
+import 'package:flutter_pecha/features/texts/presentation/providers/text_version_language_provider.dart';
+import 'package:flutter_pecha/features/texts/presentation/providers/texts_provider.dart';
+import 'package:flutter_pecha/features/texts/data/models/section.dart';
+import 'package:flutter_pecha/features/texts/data/models/segment.dart';
+import 'package:flutter_pecha/features/texts/data/models/text/reader_response.dart';
+import 'package:flutter_pecha/features/texts/data/models/text/toc.dart';
+import 'package:flutter_pecha/features/texts/data/models/text_detail.dart';
 import 'package:flutter_pecha/features/texts/presentation/widgets/chapter_header.dart';
 import 'package:flutter_pecha/features/texts/presentation/widgets/commentary_panel.dart';
 import 'package:flutter_pecha/features/texts/presentation/widgets/contents_chapter.dart';
@@ -109,11 +111,17 @@ class _ChaptersScreenState extends ConsumerState<ChaptersScreen> {
           direction: direction,
         );
 
-        final response = await ref.read(
+        final result = await ref.read(
           textDetailsFutureProvider(params).future,
         );
-        newPageSections.value = response.content.sections;
-        return response;
+
+        return result.fold(
+          (failure) => throw Exception('Failed to fetch content: ${failure.message}'),
+          (response) {
+            newPageSections.value = response.content.sections;
+            return response;
+          },
+        );
       },
       initialPageParam: {'segmentId': currentSegmentId, 'direction': 'next'},
       getNextPageParam: (lastPage, allPages, lastPageParam, allParams) {

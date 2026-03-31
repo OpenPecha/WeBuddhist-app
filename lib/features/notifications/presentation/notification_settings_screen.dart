@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
-import 'package:flutter_pecha/features/notifications/provider/notification_provider.dart';
+import 'package:flutter_pecha/features/notifications/presentation/providers/notification_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:permission_handler/permission_handler.dart';

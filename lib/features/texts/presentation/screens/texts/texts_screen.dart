@@ -4,21 +4,23 @@ import 'package:flutter_pecha/core/utils/get_language.dart';
 import 'package:flutter_pecha/core/widgets/error_state_widget.dart';
 import 'package:flutter_pecha/features/texts/constants/text_screen_constants.dart';
 import 'package:flutter_pecha/features/texts/constants/text_routes.dart';
-import 'package:flutter_pecha/features/texts/data/providers/apis/texts_provider.dart';
-import 'package:flutter_pecha/features/texts/models/text/commentary_text_response.dart';
-import 'package:flutter_pecha/features/texts/models/text/texts.dart';
-import 'package:flutter_pecha/features/texts/models/text/toc_response.dart';
-import 'package:flutter_pecha/features/texts/models/text/version_response.dart';
-import 'package:flutter_pecha/features/texts/models/text_detail.dart';
-import 'package:flutter_pecha/features/texts/models/version.dart';
+import 'package:flutter_pecha/features/texts/presentation/providers/texts_provider.dart';
+import 'package:flutter_pecha/features/texts/data/models/text/commentary_text_response.dart';
+import 'package:flutter_pecha/features/texts/data/models/text/texts.dart';
+import 'package:flutter_pecha/features/texts/data/models/text/toc_response.dart';
+import 'package:flutter_pecha/features/texts/data/models/text/version_response.dart';
+import 'package:flutter_pecha/features/texts/data/models/text_detail.dart';
+import 'package:flutter_pecha/features/texts/data/models/version.dart';
 import 'package:flutter_pecha/features/texts/presentation/widgets/commentary_tab.dart';
 import 'package:flutter_pecha/features/texts/presentation/widgets/loading_state_widget.dart';
 import 'package:flutter_pecha/features/texts/presentation/widgets/table_of_contens.dart';
 import 'package:flutter_pecha/features/texts/presentation/widgets/text_screen_app_bar.dart';
 import 'package:flutter_pecha/features/texts/presentation/widgets/version_list_item.dart';
 import 'package:flutter_pecha/shared/utils/helper_functions.dart';
+import 'package:flutter_pecha/core/error/failures.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:fpdart/fpdart.dart';
 
 /// Screen displaying text details with table of contents and versions
 class TextsScreen extends ConsumerWidget {
@@ -37,10 +39,12 @@ class TextsScreen extends ConsumerWidget {
 
     // Determine if we should show the contents tab
     final showContentsTab = textContentResponse.maybeWhen(
-      data:
-          (contentResponse) =>
-              contentResponse.contents.isNotEmpty &&
-              contentResponse.contents[0].sections.length > 1,
+      data: (eitherResponse) => eitherResponse.fold(
+        (failure) => false,
+        (contentResponse) =>
+            contentResponse.contents.isNotEmpty &&
+            contentResponse.contents[0].sections.length > 1,
+      ),
       orElse: () => null, // Return null while loading
     );
 
@@ -76,6 +80,7 @@ class TextsScreen extends ConsumerWidget {
                   textVersionResponse,
                   commentaryTextResponse,
                   showContentsTab,
+                  ref,
                 ),
             ],
           ),
@@ -120,10 +125,11 @@ class TextsScreen extends ConsumerWidget {
   Widget _buildTabs(
     AppLocalizations localizations,
     BuildContext context,
-    AsyncValue<TocResponse> textContentResponse,
-    AsyncValue<VersionResponse> textVersionResponse,
-    AsyncValue<CommentaryTextResponse> commentaryTextResponse,
+    AsyncValue<Either<Failure, TocResponse>> textContentResponse,
+    AsyncValue<Either<Failure, VersionResponse>> textVersionResponse,
+    AsyncValue<Either<Failure, CommentaryTextResponse>> commentaryTextResponse,
     bool showContentsTab,
+    WidgetRef ref,
   ) {
     final localizations = AppLocalizations.of(context)!;
     return Expanded(
@@ -163,14 +169,23 @@ class TextsScreen extends ConsumerWidget {
                           customMessage:
                               'Unable to load table of contents.\nPlease try again later.',
                         ),
-                    data: (contentResponse) {
-                      // Safely check bounds before accessing contents[0]
-                      if (contentResponse.contents.isNotEmpty &&
-                          contentResponse.contents[0].sections.length > 1) {
-                        return TableOfContents(toc: contentResponse);
-                      } else {
-                        return Center(child: Text(localizations.no_content));
-                      }
+                    data: (eitherResponse) {
+                      return eitherResponse.fold(
+                        (failure) => ErrorStateWidget(
+                          error: failure,
+                          customMessage:
+                              'Unable to load table of contents.\nPlease try again later.',
+                        ),
+                        (contentResponse) {
+                          // Safely check bounds before accessing contents[0]
+                          if (contentResponse.contents.isNotEmpty &&
+                              contentResponse.contents[0].sections.length > 1) {
+                            return TableOfContents(toc: contentResponse);
+                          } else {
+                            return Center(child: Text(localizations.no_content));
+                          }
+                        },
+                      );
                     },
                   ),
                 // Versions Tab
@@ -182,15 +197,24 @@ class TextsScreen extends ConsumerWidget {
                         customMessage:
                             'Unable to load versions.\nPlease try again later.',
                       ),
-                  data: (versionResponse) {
-                    if ((versionResponse.versions?.isEmpty ?? true) &&
-                        versionResponse.text == null) {
-                      return Center(child: Text(localizations.no_version));
-                    }
-                    return _buildVersionsList(
-                      versionResponse.text!,
-                      versionResponse.versions ?? [],
-                      context,
+                  data: (eitherResponse) {
+                    return eitherResponse.fold(
+                      (failure) => ErrorStateWidget(
+                        error: failure,
+                        customMessage:
+                            'Unable to load versions.\nPlease try again later.',
+                      ),
+                      (versionResponse) {
+                        if ((versionResponse.versions?.isEmpty ?? true) &&
+                            versionResponse.text == null) {
+                          return Center(child: Text(localizations.no_version));
+                        }
+                        return _buildVersionsList(
+                          versionResponse.text!,
+                          versionResponse.versions ?? [],
+                          context,
+                        );
+                      },
                     );
                   },
                 ),
@@ -203,13 +227,22 @@ class TextsScreen extends ConsumerWidget {
                         customMessage:
                             'Unable to load commentary text.\nPlease try again later.',
                       ),
-                  data: (commentaryTextResponse) {
-                    if (commentaryTextResponse.commentaries.isNotEmpty) {
-                      final commentaries = commentaryTextResponse.commentaries;
-                      return CommentaryTab(commentaries: commentaries);
-                    } else {
-                      return Center(child: Text(localizations.no_commentary));
-                    }
+                  data: (eitherResponse) {
+                    return eitherResponse.fold(
+                      (failure) => ErrorStateWidget(
+                        error: failure,
+                        customMessage:
+                            'Unable to load commentary text.\nPlease try again later.',
+                      ),
+                      (commentaryTextResponse) {
+                        if (commentaryTextResponse.commentaries.isNotEmpty) {
+                          final commentaries = commentaryTextResponse.commentaries;
+                          return CommentaryTab(commentaries: commentaries);
+                        } else {
+                          return Center(child: Text(localizations.no_commentary));
+                        }
+                      },
+                    );
                   },
                 ),
               ],

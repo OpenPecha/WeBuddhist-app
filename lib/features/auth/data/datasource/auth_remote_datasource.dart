@@ -1,43 +1,36 @@
-import 'dart:convert';
-
+import 'package:dio/dio.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:flutter_pecha/core/error/exceptions.dart';
-import 'package:flutter_pecha/core/network/api_client_provider.dart';
 import 'package:flutter_pecha/features/auth/data/models/user_model.dart';
 
+/// Auth remote datasource.
+///
+/// Error handling is centralized in ErrorInterceptor, which converts
+/// DioExceptions to typed AppExceptions. Exceptions propagate naturally
+/// to the repository layer for mapping to Failures.
 abstract class AuthRemoteDataSource {
-  // Future<void> loginWithGoogle();
-
-  // Future<void> loginWithApple();
-
-  Future<UserModel> getCurrentUser();
-
-  // Future<Credentials?> refreshToken();
-
-  // Future<void> logout();
+  Future<UserModel> getCurrentUser(String idToken);
 }
 
 class AuthRemoteDatasourceImpl extends AuthRemoteDataSource {
-  final ApiClient _apiClient;
+  final Dio _dio;
   final String baseUrl = dotenv.env['BASE_API_URL']!;
 
-  AuthRemoteDatasourceImpl({required ApiClient apiClient})
-    : _apiClient = apiClient;
+  AuthRemoteDatasourceImpl({required Dio dio}) : _dio = dio;
 
   @override
-  Future<UserModel> getCurrentUser() async {
-    try {
-      final response = await _apiClient.get(Uri.parse('$baseUrl/users/info'));
+  Future<UserModel> getCurrentUser(String idToken) async {
+    final response = await _dio.get(
+      '/users/info',
+      options: Options(
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $idToken',
+        },
+      ),
+    );
 
-      if (response.statusCode == 200) {
-        final decoded = utf8.decode(response.bodyBytes);
-        final jsonData = json.decode(decoded);
-        return UserModel.fromJson(jsonData);
-      } else {
-        throw ServerException('User data not found in response');
-      }
-    } catch (e) {
-      throw ServerException('Failed to get current user: ${e.toString()}');
-    }
+    return UserModel.fromJson(response.data);
+    // ErrorInterceptor already converted DioException → AppException
+    // AppException propagates naturally to repository
   }
 }

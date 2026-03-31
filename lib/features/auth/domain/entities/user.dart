@@ -1,5 +1,7 @@
+import 'package:equatable/equatable.dart';
+
 /// Social profile information
-class SocialProfile {
+class SocialProfile extends Equatable {
   final String account;
   final String url;
 
@@ -8,33 +10,15 @@ class SocialProfile {
     required this.url,
   });
 
-  factory SocialProfile.fromJson(Map<String, dynamic> json) {
-    return SocialProfile(
-      account: json['account']?.toString() ?? '',
-      url: json['url']?.toString() ?? '',
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'account': account,
-      'url': url,
-    };
-  }
-
   @override
-  bool operator ==(Object other) {
-    if (identical(this, other)) return true;
-    return other is SocialProfile &&
-        other.account == account &&
-        other.url == url;
-  }
-
-  @override
-  int get hashCode => Object.hash(account, url);
+  List<Object?> get props => [account, url];
 }
 
-class User {
+/// User domain entity - Pure entity with no framework dependencies
+///
+/// This is the domain entity used throughout the app.
+/// JSON serialization is handled by UserModel in the data layer.
+class User extends Equatable {
   // from api response
   final String? id;
   final String? firstName;
@@ -108,53 +92,6 @@ class User {
     );
   }
 
-
-  factory User.fromJson(Map<String, dynamic> json) {
-    return User(
-      id: json['id']?.toString(),
-      email: json['email']?.toString(),
-      firstName: json['firstname']?.toString(),
-      lastName: json['lastname']?.toString(),
-      username: json['username']?.toString(),
-      title: json['title']?.toString(),
-      organization: json['organization']?.toString(),
-      location: json['location']?.toString(),
-      aboutMe: json['about_me']?.toString(),
-      avatarUrl: json['avatar_url']?.toString(),
-      educations: (json['educations'] as List<dynamic>?)
-          ?.map((e) => e.toString())
-          .toList(),
-      followers: json['followers'] as int?,
-      following: json['following'] as int?,
-      socialProfiles: (json['social_profiles'] as List<dynamic>?)
-          ?.map((e) => SocialProfile.fromJson(e as Map<String, dynamic>))
-          .toList(),
-      // Note: onboarding_completed is NOT sent by backend API
-      // It's managed locally only - will be set by UserNotifier
-      onboardingCompleted: json['onboarding_completed'] as bool? ?? false,
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'email': email,
-      'firstname': firstName,
-      'lastname': lastName,
-      'username': username,
-      'title': title,
-      'organization': organization,
-      'location': location,
-      'about_me': aboutMe,
-      'avatar_url': avatarUrl,
-      'educations': educations,
-      'followers': followers,
-      'following': following,
-      'social_profiles': socialProfiles?.map((e) => e.toJson()).toList() ?? [],
-      'onboarding_completed': onboardingCompleted,
-    };
-  }
-
   /// Get user's full name
   String get fullName {
     if (firstName != null && lastName != null) {
@@ -169,16 +106,10 @@ class User {
   }
 
   @override
+  List<Object?> get props => [id];
+
+  @override
   String toString() {
-    return 'User(id: $id, email: $email, firstName: $firstName, lastName: $lastName, username: $username, title: $title, organization: $organization, location: $location, aboutMe: $aboutMe, avatarUrl: $avatarUrl, educations: $educations, followers: $followers, following: $following, socialProfiles: $socialProfiles, onboardingCompleted: $onboardingCompleted)';
+    return 'User(id: $id, email: $email, firstName: $firstName, lastName: $lastName, username: $username)';
   }
-
-  @override
-  bool operator ==(Object other) {
-    if (identical(this, other)) return true;
-    return other is User && other.id == id;
-  }
-
-  @override
-  int get hashCode => id.hashCode;
 }

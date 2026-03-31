@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
-import 'package:flutter_pecha/features/texts/data/providers/apis/segment_provider.dart';
-import 'package:flutter_pecha/features/texts/models/commentary/segment_commentary.dart';
+import 'package:flutter_pecha/features/texts/presentation/providers/segment_provider.dart';
+import 'package:flutter_pecha/features/texts/data/models/commentary/segment_commentary.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';

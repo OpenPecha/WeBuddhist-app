@@ -3,16 +3,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/config/router/app_routes.dart';
 import 'package:flutter_pecha/core/config/router/route_guard.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
-import 'package:flutter_pecha/features/ai/presentation/ai_mode_screen.dart';
-import 'package:flutter_pecha/features/ai/presentation/search_results_screen.dart';
-import 'package:flutter_pecha/features/auth/application/auth_notifier.dart';
-import 'package:flutter_pecha/features/auth/presentation/login_page.dart';
+import 'package:flutter_pecha/features/ai/presentation/screens/ai_mode_screen.dart';
+import 'package:flutter_pecha/features/ai/presentation/screens/search_results_screen.dart';
+import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
+import 'package:flutter_pecha/features/auth/presentation/screens/login_page.dart';
 import 'package:flutter_pecha/features/home/presentation/screens/main_navigation_screen.dart';
 import 'package:flutter_pecha/features/home/presentation/screens/plan_list_screen.dart';
-import 'package:flutter_pecha/features/onboarding/data/providers/onboarding_datasource_providers.dart';
-import 'package:flutter_pecha/features/onboarding/presentation/onboarding_wrapper.dart';
-import 'package:flutter_pecha/features/plans/models/plans_model.dart';
-import 'package:flutter_pecha/features/plans/models/user/user_plans_model.dart';
+import 'package:flutter_pecha/features/more/presentation/more_screen.dart';
+import 'package:flutter_pecha/features/onboarding/presentation/providers/onboarding_datasource_providers.dart';
+import 'package:flutter_pecha/features/onboarding/presentation/screens/onboarding_wrapper.dart';
+import 'package:flutter_pecha/features/plans/domain/entities/plan.dart';
+import 'package:flutter_pecha/features/plans/data/models/user/user_plans_model.dart';
 import 'package:flutter_pecha/features/plans/presentation/widgets/plan_track/plan_details.dart';
 import 'package:flutter_pecha/features/plans/presentation/plan_info.dart';
 import 'package:flutter_pecha/features/plans/presentation/widgets/plan_preview/plan_preview_details.dart';
@@ -21,7 +22,7 @@ import 'package:flutter_pecha/features/practice/presentation/screens/practice_sc
 import 'package:flutter_pecha/features/practice/presentation/screens/select_plan_screen.dart';
 import 'package:flutter_pecha/features/practice/presentation/screens/select_recitation_screen.dart';
 import 'package:flutter_pecha/features/reader/data/models/navigation_context.dart';
-import 'package:flutter_pecha/features/reader/presentation/reader_screen.dart';
+import 'package:flutter_pecha/features/reader/presentation/screens/reader_screen.dart';
 import 'package:flutter_pecha/features/texts/presentation/screens/chapters/chapters_screen.dart';
 import 'package:flutter_pecha/features/texts/presentation/segment_image/choose_image.dart';
 import 'package:flutter_pecha/features/texts/presentation/segment_image/create_image.dart';
@@ -97,7 +98,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                 name: "home-plan-preview",
                 builder: (context, state) {
                   final extra = state.extra as Map<String, dynamic>?;
-                  final plan = extra?['plan'] as PlansModel?;
+                  final plan = extra?['plan'] as Plan?;
                   if (plan == null) {
                     throw Exception('Missing required parameters');
                   }
@@ -105,6 +106,12 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                 },
               ),
             ],
+          ),
+          // settings route
+          GoRoute(
+            path: "settings",
+            name: "home-settings",
+            builder: (context, state) => const MoreScreen(),
           ),
         ],
       ),
@@ -190,7 +197,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             name: "practice-plan-preview",
             builder: (context, state) {
               final extra = state.extra as Map<String, dynamic>?;
-              final plan = extra?['plan'] as PlansModel?;
+              final plan = extra?['plan'] as Plan?;
               if (plan == null) {
                 throw Exception('Missing required parameters');
               }
@@ -203,7 +210,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             name: "practice-plan-info",
             builder: (context, state) {
               final extra = state.extra as Map<String, dynamic>?;
-              final plan = extra?['plan'] as PlansModel?;
+              final plan = extra?['plan'] as Plan?;
               if (plan == null) {
                 throw Exception('Missing required parameters');
               }
@@ -258,7 +265,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         name: "create-image",
         builder: (context, state) {
           final extra = state.extra as Map<String, dynamic>?;
-          return CreateImage(text: extra?['text'] as String, imagePath: extra?['imagePath'] as String);
+          return CreateImage(
+            text: extra?['text'] as String,
+            imagePath: extra?['imagePath'] as String,
+          );
         },
       ),
 

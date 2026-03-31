@@ -1,5 +1,5 @@
-import 'package:flutter_pecha/features/ai/models/search_state.dart';
-import 'package:flutter_pecha/features/texts/data/providers/apis/texts_provider.dart';
+import 'package:flutter_pecha/features/ai/data/models/search_state.dart';
+import 'package:flutter_pecha/features/texts/presentation/providers/texts_provider.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -30,12 +30,26 @@ class SearchStateNotifier extends StateNotifier<SearchState> {
       final titleParams = TitleSearchParams(title: query);
       final authorParams = AuthorSearchParams(author: query);
 
-      final contentResults =
+      final contentResultsEither =
           await ref.read(multilingualSearchProvider(contentParams).future);
-      final titleResults =
+      final titleResultsEither =
           await ref.read(titleSearchProvider(titleParams).future);
-      final authorResults =
+      final authorResultsEither =
           await ref.read(authorSearchProvider(authorParams).future);
+
+      // Extract results from Either types
+      final contentResults = contentResultsEither.fold(
+        (failure) => throw Exception('Content search failed: ${failure.message}'),
+        (results) => results,
+      );
+      final titleResults = titleResultsEither.fold(
+        (failure) => throw Exception('Title search failed: ${failure.message}'),
+        (results) => results,
+      );
+      final authorResults = authorResultsEither.fold(
+        (failure) => throw Exception('Author search failed: ${failure.message}'),
+        (results) => results,
+      );
 
       // Add to history (limit to 10, avoid duplicates)
       final newHistory = {query, ...state.searchHistory}

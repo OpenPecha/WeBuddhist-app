@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'package:fpdart/fpdart.dart';
+import 'package:flutter_pecha/core/error/failures.dart';
 import 'package:flutter_pecha/features/recitation/data/models/recitation_model.dart';
 import 'package:flutter_pecha/features/recitation/data/repositories/recitations_repository.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -70,29 +72,32 @@ class RecitationSearchNotifier extends StateNotifier<RecitationSearchState> {
       return;
     }
 
-    try {
-      state = state.copyWith(isLoading: true, error: null);
+    state = state.copyWith(isLoading: true, error: null);
 
-      final results = await repository.getRecitations(
-        language: languageCode,
-        searchQuery: query.trim(),
-      );
+    final result = await repository.getRecitations(
+      language: languageCode,
+      searchQuery: query.trim(),
+    );
 
-      if (mounted) {
-        state = state.copyWith(
-          results: results,
-          isLoading: false,
-          error: null,
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        state = state.copyWith(
-          isLoading: false,
-          error: e.toString(),
-        );
-      }
-    }
+    result.fold(
+      (failure) {
+        if (mounted) {
+          state = state.copyWith(
+            isLoading: false,
+            error: failure.message,
+          );
+        }
+      },
+      (results) {
+        if (mounted) {
+          state = state.copyWith(
+            results: results,
+            isLoading: false,
+            error: null,
+          );
+        }
+      },
+    );
   }
 
   /// Retry search

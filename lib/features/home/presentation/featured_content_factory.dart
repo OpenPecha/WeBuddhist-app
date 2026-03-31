@@ -4,8 +4,8 @@ import 'package:flutter_pecha/features/home/presentation/home_screen_constants.d
 import 'package:flutter_pecha/features/home/presentation/utils.dart';
 import 'package:flutter_pecha/features/home/presentation/widgets/action_of_the_day_card.dart';
 import 'package:flutter_pecha/features/home/presentation/widgets/verse_card.dart';
-import 'package:flutter_pecha/features/plans/models/response/featured_day_response.dart';
-import 'package:flutter_pecha/features/plans/models/user/user_subtasks_dto.dart';
+import 'package:flutter_pecha/features/plans/data/models/response/featured_day_response.dart';
+import 'package:flutter_pecha/features/plans/data/models/user/user_subtasks_dto.dart';
 import 'package:flutter_pecha/features/story_view/utils/story_dialog_helper.dart';
 
 class FeaturedContentFactory {

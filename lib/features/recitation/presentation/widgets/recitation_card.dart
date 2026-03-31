@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
+import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_pecha/features/recitation/data/models/recitation_model.dart';
 import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -113,7 +114,7 @@ class RecitationCard extends ConsumerWidget {
             left: 17,
             top: 30,
             child: Image.asset(
-              'assets/images/webuddhist_logo.png',
+              AppAssets.weBuddhistLogo,
               width: 26,
               height: 26,
               fit: BoxFit.contain,

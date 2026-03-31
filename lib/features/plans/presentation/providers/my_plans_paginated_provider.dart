@@ -1,5 +1,7 @@
-import 'package:flutter_pecha/features/plans/data/repositories/user_plans_repository.dart';
-import 'package:flutter_pecha/features/plans/models/user/user_plans_model.dart';
+import 'package:fpdart/fpdart.dart';
+import 'package:flutter_pecha/core/error/failures.dart';
+import 'package:flutter_pecha/features/plans/data/models/user/user_plans_model.dart';
+import 'package:flutter_pecha/features/plans/domain/repositories/user_plans_repository.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// State for paginated my plans list
@@ -45,7 +47,7 @@ class MyPlansState {
 
 /// StateNotifier for paginated my plans
 class MyPlansNotifier extends StateNotifier<MyPlansState> {
-  final UserPlansRepository repository;
+  final UserPlansRepositoryInterface repository;
   final String languageCode;
   static const int _limit = 20;
 
@@ -60,32 +62,35 @@ class MyPlansNotifier extends StateNotifier<MyPlansState> {
 
     state = state.copyWith(isLoading: true, error: null);
 
-    try {
-      final response = await repository.getUserPlans(
-        language: languageCode,
-        skip: 0,
-        limit: _limit,
-      );
+    final result = await repository.getUserPlans(
+      language: languageCode,
+      skip: 0,
+      limit: _limit,
+    );
 
-      // Sort plans by startedAt in descending order (latest first)
-      final sortedPlans = List<UserPlansModel>.from(response.userPlans)
-        ..sort((a, b) => b.startedAt.compareTo(a.startedAt));
+    result.fold(
+      (failure) {
+        if (mounted) {
+          state = state.copyWith(isLoading: false, error: failure.message);
+        }
+      },
+      (response) {
+        // Sort plans by startedAt in descending order (latest first)
+        final sortedPlans = List<UserPlansModel>.from(response.userPlans)
+          ..sort((a, b) => b.startedAt.compareTo(a.startedAt));
 
-      if (mounted) {
-        state = state.copyWith(
-          plans: sortedPlans,
-          isLoading: false,
-          hasMore: response.userPlans.length >= _limit,
-          skip: response.userPlans.length,
-          total: response.total,
-          error: null,
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        state = state.copyWith(isLoading: false, error: e.toString());
-      }
-    }
+        if (mounted) {
+          state = state.copyWith(
+            plans: sortedPlans,
+            isLoading: false,
+            hasMore: response.userPlans.length >= _limit,
+            skip: response.userPlans.length,
+            total: response.total,
+            error: null,
+          );
+        }
+      },
+    );
   }
 
   /// Load more plans
@@ -96,33 +101,36 @@ class MyPlansNotifier extends StateNotifier<MyPlansState> {
 
     state = state.copyWith(isLoadingMore: true, error: null);
 
-    try {
-      final response = await repository.getUserPlans(
-        language: languageCode,
-        skip: state.skip,
-        limit: _limit,
-      );
+    final result = await repository.getUserPlans(
+      language: languageCode,
+      skip: state.skip,
+      limit: _limit,
+    );
 
-      // Combine and sort all plans by startedAt in descending order (latest first)
-      final allPlans = [...state.plans, ...response.userPlans]
-        ..sort((a, b) => b.startedAt.compareTo(a.startedAt));
+    result.fold(
+      (failure) {
+        if (mounted) {
+          state = state.copyWith(isLoadingMore: false, error: failure.message);
+        }
+      },
+      (response) {
+        // Combine and sort all plans by startedAt in descending order (latest first)
+        final allPlans = [...state.plans, ...response.userPlans]
+          ..sort((a, b) => b.startedAt.compareTo(a.startedAt));
 
-      if (mounted) {
-        state = state.copyWith(
-          plans: allPlans,
-          isLoadingMore: false,
-          hasMore:
-              state.plans.length + response.userPlans.length < response.total,
-          skip: state.skip + response.userPlans.length,
-          total: response.total,
-          error: null,
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        state = state.copyWith(isLoadingMore: false, error: e.toString());
-      }
-    }
+        if (mounted) {
+          state = state.copyWith(
+            plans: allPlans,
+            isLoadingMore: false,
+            hasMore:
+                state.plans.length + response.userPlans.length < response.total,
+            skip: state.skip + response.userPlans.length,
+            total: response.total,
+            error: null,
+          );
+        }
+      },
+    );
   }
 
   /// Retry loading

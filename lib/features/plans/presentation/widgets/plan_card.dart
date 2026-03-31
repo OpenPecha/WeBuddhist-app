@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
 import 'package:flutter_pecha/core/widgets/cached_network_image_widget.dart';
-import 'package:flutter_pecha/features/plans/models/plans_model.dart';
+import 'package:flutter_pecha/features/plans/domain/entities/plan.dart';
 import 'package:flutter_pecha/shared/extensions/typography_extensions.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class PlanCard extends ConsumerWidget {
-  final PlansModel plan;
+  final Plan plan;
   final VoidCallback onTap;
   const PlanCard({super.key, required this.plan, required this.onTap});
 
@@ -36,9 +36,9 @@ class PlanCard extends ConsumerWidget {
   }
 }
 
-Widget _buildPlanImage(PlansModel plan) {
+Widget _buildPlanImage(Plan plan) {
   return CachedNetworkImageWidget(
-    imageUrl: plan.imageThumbnail ?? '',
+    imageUrl: plan.coverImageUrl ?? '',
     width: 90,
     height: 90,
     fit: BoxFit.cover,
@@ -47,7 +47,7 @@ Widget _buildPlanImage(PlansModel plan) {
   );
 }
 
-Widget _buildPlanInfo(BuildContext context, PlansModel plan, WidgetRef ref) {
+Widget _buildPlanInfo(BuildContext context, Plan plan, WidgetRef ref) {
   final languageCode = ref.watch(localeProvider).languageCode;
   final fontSize = languageCode == 'bo' ? 16.0 : 14.0;
 

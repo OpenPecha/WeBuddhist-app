@@ -1,4 +1,4 @@
-import 'package:flutter_pecha/features/onboarding/models/onboarding_preferences.dart';
+import 'package:flutter_pecha/features/onboarding/domain/entities/onboarding_preferences.dart';
 
 /// State for onboarding flow management
 class OnboardingState {
@@ -16,8 +16,11 @@ class OnboardingState {
 
   /// Initial state
   factory OnboardingState.initial() {
-    return const OnboardingState(
-      preferences: OnboardingPreferences(),
+    return OnboardingState(
+      preferences: OnboardingPreferences(
+        userId: '',
+        completedAt: DateTime.now(),
+      ),
       currentPage: 0,
       isLoading: false,
     );

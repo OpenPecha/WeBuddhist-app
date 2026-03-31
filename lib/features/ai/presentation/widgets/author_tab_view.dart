@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
-import 'package:flutter_pecha/features/ai/models/search_state.dart';
+import 'package:flutter_pecha/features/ai/data/models/search_state.dart';
 import 'package:flutter_pecha/features/ai/presentation/widgets/skeletons/search_result_skeleton.dart';
 import 'package:flutter_pecha/features/reader/data/models/navigation_context.dart';
-import 'package:flutter_pecha/features/texts/data/providers/apis/texts_provider.dart';
+import 'package:flutter_pecha/features/texts/presentation/providers/texts_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
@@ -67,7 +67,15 @@ class _AuthorTabViewState extends ConsumerState<AuthorTabView> {
         offset: _currentOffset,
       );
 
-      await ref.read(authorSearchProvider(params).future);
+      final result = await ref.read(authorSearchProvider(params).future);
+      result.fold(
+        (failure) {
+          // Error handling - silently ignore for pagination
+        },
+        (_) {
+          // Success - provider will invalidate and refresh
+        },
+      );
     } catch (e) {
       // Error handling is done in the provider
     } finally {

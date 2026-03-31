@@ -1,6 +1,8 @@
+import 'package:fpdart/fpdart.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
-import 'package:flutter_pecha/core/network/api_client_provider.dart';
+import 'package:flutter_pecha/core/di/core_providers.dart';
+import 'package:flutter_pecha/core/error/failures.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/repositories/recitations_repository.dart';
 import '../../data/datasource/recitations_remote_datasource.dart';
@@ -53,13 +55,13 @@ class RecitationContentParams {
 final recitationsRepositoryProvider = Provider<RecitationsRepository>((ref) {
   return RecitationsRepository(
     recitationsRemoteDatasource: RecitationsRemoteDatasource(
-      client: ref.watch(apiClientProvider),
+      dio: ref.watch(dioProvider),
     ),
   );
 });
 
 // Get all recitations provider
-final recitationsFutureProvider = FutureProvider<List<RecitationModel>>((ref) {
+final recitationsFutureProvider = FutureProvider<Either<Failure, List<RecitationModel>>>((ref) {
   final locale = ref.watch(localeProvider);
   final languageCode = locale.languageCode;
   return ref
@@ -68,7 +70,7 @@ final recitationsFutureProvider = FutureProvider<List<RecitationModel>>((ref) {
 });
 
 // Get saved recitations provider
-final savedRecitationsFutureProvider = FutureProvider<List<RecitationModel>>((
+final savedRecitationsFutureProvider = FutureProvider<Either<Failure, List<RecitationModel>>>((
   ref,
 ) {
   return ref.watch(recitationsRepositoryProvider).getSavedRecitations();
@@ -76,7 +78,7 @@ final savedRecitationsFutureProvider = FutureProvider<List<RecitationModel>>((
 
 // Get recitation content by ID
 final recitationContentProvider =
-    FutureProvider.family<RecitationContentModel, RecitationContentParams>((
+    FutureProvider.family<Either<Failure, RecitationContentModel>, RecitationContentParams>((
       ref,
       params,
     ) {
@@ -94,7 +96,7 @@ final recitationContentProvider =
 
 // Search recitations provider
 final searchRecitationsProvider =
-    FutureProvider.family<List<RecitationModel>, String>((ref, searchQuery) {
+    FutureProvider.family<Either<Failure, List<RecitationModel>>, String>((ref, searchQuery) {
       final locale = ref.watch(localeProvider);
       final languageCode = locale.languageCode;
       return ref
@@ -116,22 +118,20 @@ final recitationSearchProvider =
     });
 
 // Mutation providers for recitations
-final saveRecitationProvider = FutureProvider.autoDispose.family<bool, String>((
-  ref,
-  recitationId,
-) {
+final saveRecitationProvider = FutureProvider.autoDispose
+    .family<Either<Failure, bool>, String>((ref, recitationId) {
   return ref.watch(recitationsRepositoryProvider).saveRecitation(recitationId);
 });
 
 final unsaveRecitationProvider = FutureProvider.autoDispose
-    .family<bool, String>((ref, recitationId) {
+    .family<Either<Failure, bool>, String>((ref, recitationId) {
       return ref
           .watch(recitationsRepositoryProvider)
           .unsaveRecitation(recitationId);
     });
 
 final updateRecitationsOrderProvider = FutureProvider.autoDispose
-    .family<bool, List<Map<String, dynamic>>>((ref, recitations) {
+    .family<Either<Failure, bool>, List<Map<String, dynamic>>>((ref, recitations) {
       return ref
           .watch(recitationsRepositoryProvider)
           .updateRecitationsOrder(recitations);

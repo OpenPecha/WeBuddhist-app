@@ -1,37 +1,63 @@
-import 'dart:convert';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:flutter_pecha/features/plans/models/response/featured_day_response.dart';
-import 'package:http/http.dart' as http;
+import 'package:dio/dio.dart';
+import 'package:flutter_pecha/core/error/exceptions.dart';
+import 'package:flutter_pecha/features/plans/data/models/response/featured_day_response.dart';
 
 class FeaturedDayRemoteDatasource {
-  final http.Client client;
-  final String baseUrl = dotenv.env['BASE_API_URL']!;
+  final Dio dio;
 
-  FeaturedDayRemoteDatasource({required this.client});
+  FeaturedDayRemoteDatasource({required this.dio});
 
   Future<FeaturedDayResponse> fetchFeaturedDay({String? language}) async {
     try {
-      final uri = Uri.parse('$baseUrl/plans/featured/day').replace(
+      final response = await dio.get(
+        '/plans/featured/day',
         queryParameters: language != null ? {'language': language} : null,
-      );
-      final response = await client.get(
-        uri,
-        headers: {'Content-Type': 'application/json'},
       );
 
       if (response.statusCode == 200) {
-        final decoded = utf8.decode(response.bodyBytes);
-        final jsonData = json.decode(decoded);
-        return FeaturedDayResponse.fromJson(jsonData);
+        return FeaturedDayResponse.fromJson(response.data);
       } else {
-        return FeaturedDayResponse.fromJson({
-          'id': '',
-          'day_number': 0,
-          'tasks': [],
-        });
+        if (response.statusCode == 401) {
+          throw const AuthenticationException('Unauthorized');
+        } else if (response.statusCode == 404) {
+          // Return empty response instead of throwing for 404
+          return FeaturedDayResponse.fromJson({
+            'id': '',
+            'day_number': 0,
+            'tasks': [],
+          });
+        } else if (response.statusCode == 429) {
+          throw const RateLimitException('Too many requests');
+        } else {
+          throw ServerException('Failed to fetch featured day: ${response.statusCode}');
+        }
       }
-    } catch (e) {
-      throw Exception('Faild in fetching featured day: $e');
+    } on DioException catch (e) {
+      if (e.type == DioExceptionType.connectionTimeout ||
+          e.type == DioExceptionType.sendTimeout ||
+          e.type == DioExceptionType.receiveTimeout) {
+        throw const NetworkException('Connection timeout');
+      } else if (e.type == DioExceptionType.connectionError) {
+        throw const NetworkException('No internet connection');
+      } else if (e.response?.statusCode != null) {
+        final statusCode = e.response!.statusCode!;
+        if (statusCode == 401) {
+          throw const AuthenticationException('Unauthorized');
+        } else if (statusCode == 404) {
+          // Return empty response instead of throwing for 404
+          return FeaturedDayResponse.fromJson({
+            'id': '',
+            'day_number': 0,
+            'tasks': [],
+          });
+        } else if (statusCode == 429) {
+          throw const RateLimitException('Too many requests');
+        } else {
+          throw ServerException('Failed to fetch featured day: $statusCode');
+        }
+      } else {
+        throw const NetworkException('Network error');
+      }
     }
   }
 }

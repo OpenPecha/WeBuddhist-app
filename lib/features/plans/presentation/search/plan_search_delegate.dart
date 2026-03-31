@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_pecha/features/plans/data/providers/plans_providers.dart';
-import 'package:flutter_pecha/features/plans/models/plans_model.dart';
-import 'package:flutter_pecha/features/plans/presentation/widgets/plan_card.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
+import 'package:flutter_pecha/features/plans/domain/entities/plan.dart';
+import 'package:flutter_pecha/features/plans/presentation/providers/plans_providers.dart';
+import 'package:flutter_pecha/features/plans/presentation/widgets/plan_card.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-class PlanSearchDelegate extends SearchDelegate<PlansModel?> {
+class PlanSearchDelegate extends SearchDelegate<Plan?> {
   final WidgetRef ref;
   final String hintText;
 
@@ -150,13 +150,13 @@ class _SearchResultsViewState extends ConsumerState<_SearchResultsView> {
         }
 
         final plan = searchState.results[index];
-        final author = plan.author;
+        final authorName = plan.authorName;
         return PlanCard(
           plan: plan,
           onTap: () {
             context.push(
               '/plans/info',
-              extra: {'plan': plan, 'author': author},
+              extra: {'plan': plan, 'author': authorName},
             );
           },
         );
@@ -179,13 +179,11 @@ class _EmptySearchState extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, size: 80, color: Colors.grey[400]),
-            const SizedBox(height: 24),
+            Icon(icon, size: 64, color: Colors.grey[400]),
+            const SizedBox(height: 16),
             Text(
               title,
-              style: Theme.of(
-                context,
-              ).textTheme.titleMedium?.copyWith(color: Colors.grey[700]),
+              style: TextStyle(fontSize: 16, color: Colors.grey[600]),
               textAlign: TextAlign.center,
             ),
           ],
@@ -203,33 +201,23 @@ class _ErrorState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = context.l10n;
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.error_outline, size: 80, color: Colors.red[300]),
-            const SizedBox(height: 24),
-            Text(
-              l10n.error,
-              style: Theme.of(context).textTheme.titleLarge,
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 8),
+            const Icon(Icons.error_outline, size: 64, color: Colors.red),
+            const SizedBox(height: 16),
             Text(
               message,
-              style: Theme.of(
-                context,
-              ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
+              style: const TextStyle(fontSize: 16, color: Colors.red),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 24),
-            ElevatedButton.icon(
+            const SizedBox(height: 16),
+            ElevatedButton(
               onPressed: onRetry,
-              icon: const Icon(Icons.refresh),
-              label: Text(l10n.retry),
+              child: const Text('Retry'),
             ),
           ],
         ),
