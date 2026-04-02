@@ -192,6 +192,13 @@ class ErrorResponse {
   const ErrorResponse({required this.error, required this.message});
 
   factory ErrorResponse.fromJson(Map<String, dynamic> json) {
+    final detail = json['detail'];
+    if (detail is Map<String, dynamic>) {
+      return ErrorResponse(
+        error: detail['error'] as String,
+        message: detail['message'] as String,
+      );
+    }
     return ErrorResponse(
       error: json['error'] as String,
       message: json['message'] as String,

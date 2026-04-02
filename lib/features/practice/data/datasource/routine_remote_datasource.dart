@@ -219,6 +219,18 @@ class RoutineRemoteDatasource {
     }
 
     final errorBody = _tryParseError(response);
+
+    // Backend returns 400 when no routine has been created yet.
+    // Treat this as "no routine" (same as 404) so the UI shows the
+    // empty / build-routine state instead of an error + Retry.
+    if (response.statusCode == 400 && errorBody != null) {
+      final msg = errorBody.message.toLowerCase();
+      if (msg.contains('no routine')) {
+        _logger.info('No routine for user – treating as empty');
+        return null;
+      }
+    }
+
     switch (response.statusCode) {
       case 401:
         throw RoutineApiException('Unauthorized', response.statusCode);
