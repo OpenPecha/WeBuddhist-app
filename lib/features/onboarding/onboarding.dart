@@ -24,7 +24,7 @@ export 'application/onboarding_state.dart';
 export 'application/onboarding_provider.dart';
 
 // Data - Repositories
-export 'data/repositories/onboarding_repository.dart' hide OnboardingRepository;
+export 'data/repositories/onboarding_repository.dart';
 
 // Data - Datasources
 export 'data/datasource/onboarding_local_datasource.dart';
@@ -37,10 +37,12 @@ export 'presentation/providers/onboarding_datasource_providers.dart';
 export 'presentation/screens/onboarding_wrapper.dart';
 export 'presentation/screens/onboarding_screen_1.dart';
 export 'presentation/screens/onboarding_screen_3.dart';
+export 'presentation/screens/onboarding_screen_4.dart';
 export 'presentation/screens/onboarding_screen_5.dart';
 
 // Presentation - Widgets
 export 'presentation/widgets/onboarding_back_button.dart';
+export 'presentation/widgets/onboarding_checkbox_option.dart';
 export 'presentation/widgets/onboarding_continue_button.dart';
 export 'presentation/widgets/onboarding_radio_option.dart';
 export 'presentation/widgets/onboarding_question_title.dart';

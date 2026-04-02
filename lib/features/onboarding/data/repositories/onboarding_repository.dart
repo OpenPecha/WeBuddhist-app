@@ -1,8 +1,6 @@
 import 'package:fpdart/fpdart.dart';
-import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
 import 'package:flutter_pecha/core/error/failures.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
-import 'package:flutter_pecha/features/auth/presentation/providers/user_notifier.dart';
 import 'package:flutter_pecha/features/onboarding/data/datasource/onboarding_local_datasource.dart';
 import 'package:flutter_pecha/features/onboarding/data/datasource/onboarding_remote_datasource.dart';
 import 'package:flutter_pecha/features/onboarding/data/models/onboarding_preferences.dart';
@@ -11,22 +9,18 @@ import 'package:flutter_pecha/features/onboarding/domain/repositories/onboarding
 
 final _logger = AppLogger('OnboardingRepository');
 
-/// Repository implementation for managing onboarding preferences
+/// Repository implementation for managing onboarding preferences.
 ///
-/// This implements the domain repository interface and aggregates
-/// local and remote datasources, returning Either<Failure, T> results.
+/// Implements the domain repository interface. Aggregates local and remote
+/// datasources, returning Either&lt;Failure, T&gt; results.
 class OnboardingRepositoryImpl implements domain_repo.OnboardingRepository {
   const OnboardingRepositoryImpl({
     required this.localDatasource,
     required this.remoteDatasource,
-    required this.userNotifier,
-    required this.localeNotifier,
   });
 
   final OnboardingLocalDatasource localDatasource;
   final OnboardingRemoteDatasource remoteDatasource;
-  final UserNotifier userNotifier;
-  final LocaleNotifier localeNotifier;
 
   @override
   Future<Either<Failure, bool>> isOnboardingCompleted() async {
@@ -45,9 +39,8 @@ class OnboardingRepositoryImpl implements domain_repo.OnboardingRepository {
       if (model == null) {
         return const Right(null);
       }
-      // Convert model to entity
       final entity = model.toEntity(
-        userId: '', // userId will be set by the caller
+        userId: '',
         completedAt: DateTime.now(),
       );
       return Right(entity);
@@ -61,9 +54,13 @@ class OnboardingRepositoryImpl implements domain_repo.OnboardingRepository {
     domain.OnboardingPreferences preferences,
   ) async {
     try {
-      // Convert entity to model
       final model = OnboardingPreferences.fromEntity(preferences);
+      // Always save locally first
       await localDatasource.savePreferences(model);
+
+      // TODO: Enable when API is ready — sync to backend
+      //await _syncToRemote(model);
+
       return Right(preferences);
     } catch (e) {
       return Left(CacheFailure('Failed to save preferences: $e'));
@@ -83,8 +80,6 @@ class OnboardingRepositoryImpl implements domain_repo.OnboardingRepository {
   @override
   Future<Either<Failure, List<domain.OnboardingStep>>> getOnboardingSteps() async {
     try {
-      // For now, return default onboarding steps
-      // In a full implementation, this might come from a remote config
       final steps = <domain.OnboardingStep>[
         const domain.OnboardingStep(
           stepNumber: 1,
@@ -108,109 +103,28 @@ class OnboardingRepositoryImpl implements domain_repo.OnboardingRepository {
   @override
   Future<Either<Failure, void>> completeOnboarding() async {
     try {
-      // Apply language preference to app locale if set
-      final prefsModel = await localDatasource.loadPreferences();
-      if (prefsModel?.preferredLanguage != null) {
-        try {
-          await localeNotifier.setLocaleFromOnboardingPreference(
-            prefsModel!.preferredLanguage,
-          );
-          _logger.debug('App locale set to: ${prefsModel.preferredLanguage}');
-        } catch (e) {
-          _logger.warning('Failed to set app locale', e);
-          // Don't throw - continue with onboarding completion
-        }
-      }
-
-      // Mark onboarding as complete
+      // Mark onboarding as complete in local storage
       await localDatasource.markOnboardingComplete();
-
-      // Update user's onboarding status via UserNotifier
-      try {
-        await userNotifier.updateOnboardingStatus(true);
-      } catch (e) {
-        _logger.warning('Failed to update user onboarding status', e);
-        // Don't throw - onboarding flag is still saved separately
-      }
       _logger.info('Onboarding completed');
+
+      // TODO: Enable when API is ready — final sync to backend
+      // final prefsModel = await localDatasource.loadPreferences();
+      // if (prefsModel != null) {
+      //   await _syncToRemote(prefsModel);
+      // }
 
       return const Right(null);
     } catch (e) {
       return Left(CacheFailure('Failed to complete onboarding: $e'));
     }
   }
-}
 
-/// Legacy repository class for backward compatibility.
-///
-/// This class is deprecated and should not be used for new code.
-/// Use OnboardingRepositoryImpl which implements the proper interface.
-@Deprecated('Use OnboardingRepositoryImpl instead')
-class OnboardingRepositoryLegacy {
-  OnboardingRepositoryLegacy({
-    required this.localDatasource,
-    required this.remoteDatasource,
-    required this.userNotifier,
-    required this.localeNotifier,
-  });
-
-  final OnboardingLocalDatasource localDatasource;
-  final OnboardingRemoteDatasource remoteDatasource;
-  final UserNotifier userNotifier;
-  final LocaleNotifier localeNotifier;
-
-  /// Save preferences both locally and optionally remotely
-  Future<void> savePreferences(
-    OnboardingPreferences prefs, {
-    bool saveRemote = true,
-  }) async {
-    // Always save locally first
-    await localDatasource.savePreferences(prefs);
-  }
-
-  /// Load preferences from local storage
-  Future<OnboardingPreferences?> loadPreferences() async {
-    return await localDatasource.loadPreferences();
-  }
-
-  /// Complete onboarding: save preferences and mark as complete
-  Future<void> completeOnboarding(OnboardingPreferences prefs) async {
-    // Save preferences locally and remotely
-    await savePreferences(prefs, saveRemote: true);
-
-    // Apply language preference to app locale if provided
-    if (prefs.preferredLanguage != null) {
-      try {
-        await localeNotifier.setLocaleFromOnboardingPreference(
-          prefs.preferredLanguage,
-        );
-        _logger.debug('App locale set to: ${prefs.preferredLanguage}');
-      } catch (e) {
-        _logger.warning('Failed to set app locale', e);
-        // Don't throw - continue with onboarding completion
-      }
-    }
-
-    // Mark onboarding as complete
-    await localDatasource.markOnboardingComplete();
-
-    // Update user's onboarding status via UserNotifier
-    try {
-      await userNotifier.updateOnboardingStatus(true);
-    } catch (e) {
-      _logger.warning('Failed to update user onboarding status', e);
-      // Don't throw - onboarding flag is still saved separately
-    }
-    _logger.info('Onboarding completed');
-  }
-
-  /// Check if user has completed onboarding
-  Future<bool> hasCompletedOnboarding() async {
-    return await localDatasource.hasCompletedOnboarding();
-  }
-
-  /// Clear all preferences and completion status
-  Future<void> clearPreferences() async {
-    await localDatasource.clearPreferences();
-  }
+  /// Sync preferences to backend.
+  ///
+  /// TODO: Uncomment when API is ready. The remote datasource is already
+  /// wired up via Dio. Just call this method wherever sync is needed.
+  // Future<void> _syncToRemote(OnboardingPreferences model) async {
+  //   await remoteDatasource.saveOnboardingPreferences(model);
+  //   _logger.info('Onboarding preferences synced to backend');
+  // }
 }

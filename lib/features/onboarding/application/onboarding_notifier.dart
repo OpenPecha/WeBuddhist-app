@@ -1,24 +1,37 @@
-import 'package:fpdart/fpdart.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/features/onboarding/application/onboarding_state.dart';
-import 'package:flutter_pecha/features/onboarding/domain/repositories/onboarding_repository.dart' as domain_repo;
-import 'package:flutter_pecha/features/onboarding/domain/entities/onboarding_preferences.dart' as domain;
+import 'package:flutter_pecha/features/onboarding/domain/usecases/onboarding_usecases.dart';
+import 'package:flutter_pecha/shared/domain/base_classes/usecase.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 final _logger = AppLogger('OnboardingNotifier');
 
-/// Notifier for managing onboarding flow state
+/// Notifier for managing onboarding flow state.
+///
+/// Uses domain use cases for all data operations, following clean architecture.
 class OnboardingNotifier extends StateNotifier<OnboardingState> {
-  OnboardingNotifier(this._repository) : super(OnboardingState.initial()) {
+  OnboardingNotifier({
+    required LoadSavedPreferencesUseCase loadSavedPreferencesUseCase,
+    required SaveOnboardingPreferencesUseCase saveOnboardingPreferencesUseCase,
+    required CompleteOnboardingUseCase completeOnboardingUseCase,
+    required ClearOnboardingPreferencesUseCase clearOnboardingPreferencesUseCase,
+  })  : _loadSavedPreferencesUseCase = loadSavedPreferencesUseCase,
+        _saveOnboardingPreferencesUseCase = saveOnboardingPreferencesUseCase,
+        _completeOnboardingUseCase = completeOnboardingUseCase,
+        _clearOnboardingPreferencesUseCase = clearOnboardingPreferencesUseCase,
+        super(OnboardingState.initial()) {
     loadSavedPreferences();
   }
 
-  final domain_repo.OnboardingRepository _repository;
+  final LoadSavedPreferencesUseCase _loadSavedPreferencesUseCase;
+  final SaveOnboardingPreferencesUseCase _saveOnboardingPreferencesUseCase;
+  final CompleteOnboardingUseCase _completeOnboardingUseCase;
+  final ClearOnboardingPreferencesUseCase _clearOnboardingPreferencesUseCase;
 
-  /// Load saved preferences from local storage on initialization
+  /// Load saved preferences from local storage on initialization.
   Future<void> loadSavedPreferences() async {
     try {
-      final result = await _repository.getPreferences();
+      final result = await _loadSavedPreferencesUseCase(const NoParams());
       result.fold(
         (failure) {
           _logger.error('Error loading saved preferences', failure);
@@ -35,83 +48,89 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
     }
   }
 
-  /// Set preferred language and save locally
+  /// Set preferred language and save locally.
   Future<void> setPreferredLanguage(String language) async {
-    // Update the entity directly using copyWith
     final updatedEntity = state.preferences.copyWith(primaryLanguage: language);
     state = state.copyWithPreferences(updatedEntity);
-    await savePreferencesLocally();
+    await _savePreferences();
   }
 
-  /// Navigate to next page
+  /// Set selected Buddhist paths and save locally.
+  Future<void> setSelectedPaths(List<String> paths) async {
+    final updatedEntity = state.preferences.copyWith(selectedPaths: paths);
+    state = state.copyWithPreferences(updatedEntity);
+    await _savePreferences();
+  }
+
+  /// Navigate to next page.
   void goToNextPage() {
     state = state.copyWithPage(state.currentPage + 1);
   }
 
-  /// Navigate to previous page
+  /// Navigate to previous page.
   void goToPreviousPage() {
     if (state.currentPage > 0) {
       state = state.copyWithPage(state.currentPage - 1);
     }
   }
 
-  /// Save preferences to local storage
-  Future<void> savePreferencesLocally() async {
+  /// Save current preferences via use case.
+  Future<void> _savePreferences() async {
     try {
-      final result = await _repository.savePreferences(state.preferences);
+      final result = await _saveOnboardingPreferencesUseCase(
+        SavePreferencesParams(preferences: state.preferences),
+      );
       result.fold(
         (failure) {
-          _logger.error('Error saving preferences locally', failure);
-          state = state.copyWithError('Failed to save preferences: ${failure.message}');
+          _logger.error('Error saving preferences', failure);
+          state = state.copyWithError(
+            'Failed to save preferences: ${failure.message}',
+          );
         },
         (_) {
           _logger.debug('Preferences saved successfully');
         },
       );
     } catch (e) {
-      _logger.error('Error saving preferences locally', e);
+      _logger.error('Error saving preferences', e);
       state = state.copyWithError('Failed to save preferences: $e');
     }
   }
 
-  /// Submit preferences to local storage and mark onboarding complete
+  /// Submit preferences and complete onboarding.
   Future<void> submitPreferences() async {
     state = state.copyWithLoading(true);
     try {
-      // First save preferences
-      final saveResult = await _repository.savePreferences(state.preferences);
+      // Save preferences
+      final saveResult = await _saveOnboardingPreferencesUseCase(
+        SavePreferencesParams(preferences: state.preferences),
+      );
       saveResult.fold(
-        (failure) {
-          _logger.error('Error saving preferences', failure);
-        },
-        (_) {
-          _logger.debug('Preferences saved successfully');
-        },
+        (failure) => _logger.error('Error saving preferences', failure),
+        (_) => _logger.debug('Preferences saved successfully'),
       );
 
-      // Then complete onboarding
-      final completeResult = await _repository.completeOnboarding();
+      // Complete onboarding
+      final completeResult = await _completeOnboardingUseCase(const NoParams());
       completeResult.fold(
-        (failure) {
-          _logger.error('Error completing onboarding', failure);
-        },
-        (_) {
-          _logger.debug('Onboarding completed successfully');
-        },
+        (failure) => _logger.error('Error completing onboarding', failure),
+        (_) => _logger.debug('Onboarding completed successfully'),
       );
+
+      // TODO: Enable when API is ready — sync all preferences to backend
+      // Add a SyncPreferencesToRemoteUseCase and call it here.
 
       state = state.copyWithLoading(false);
     } catch (e) {
       _logger.error('Error submitting preferences', e);
-      // Don't show error to user, preferences are saved locally
       state = state.copyWithLoading(false);
     }
   }
 
-  /// Clear all preferences and reset state
+  /// Clear all preferences and reset state.
   Future<void> clearPreferences() async {
     try {
-      final result = await _repository.clearPreferences();
+      final result = await _clearOnboardingPreferencesUseCase(const NoParams());
       result.fold(
         (failure) {
           _logger.error('Error clearing preferences', failure);
