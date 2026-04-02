@@ -1,6 +1,4 @@
-import 'package:fpdart/fpdart.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_pecha/core/error/failures.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
@@ -12,7 +10,6 @@ import 'package:flutter_pecha/features/plans/presentation/providers/user_plans_p
 import 'package:flutter_pecha/features/practice/data/models/session_selection.dart';
 import 'package:flutter_pecha/features/recitation/presentation/providers/recitations_providers.dart';
 import 'package:flutter_pecha/features/recitation/presentation/widgets/recitation_list_skeleton.dart';
-import 'package:flutter_pecha/shared/extensions/typography_extensions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final _logger = AppLogger('SelectSessionScreen');
@@ -145,7 +142,6 @@ class _SelectSessionScreenState extends ConsumerState<SelectSessionScreen>
   Widget build(BuildContext context) {
     _logger.debug('🎨 ===== BUILD STARTED =====');
     final localizations = AppLocalizations.of(context)!;
-    final locale = Localizations.localeOf(context);
 
     // Get enrolled plan IDs from paginated provider (already loaded by app)
     final myPlansState = ref.watch(myPlansPaginatedProvider);
