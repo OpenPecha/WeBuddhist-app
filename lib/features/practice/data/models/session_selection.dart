@@ -1,4 +1,4 @@
-import 'package:flutter_pecha/features/plans/data/models/plans_model.dart';
+import 'package:flutter_pecha/features/plans/domain/entities/plan.dart';
 import 'package:flutter_pecha/features/recitation/data/models/recitation_model.dart';
 
 /// Sealed class representing a session selection result.
@@ -8,8 +8,9 @@ sealed class SessionSelection {
 }
 
 /// Represents a plan selection from the session picker.
+/// Uses the domain entity [Plan] following Clean Architecture principles.
 class PlanSessionSelection extends SessionSelection {
-  final PlansModel plan;
+  final Plan plan;
 
   const PlanSessionSelection(this.plan);
 }

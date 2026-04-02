@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/config/router/app_routes.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
-import 'package:flutter_pecha/features/auth/presentation/providers/auth_notifier.dart';
-import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
 import 'package:flutter_pecha/features/auth/presentation/state/auth_state.dart';
 import 'package:flutter_pecha/features/onboarding/domain/repositories/onboarding_repository.dart';
 import 'package:go_router/go_router.dart';
@@ -44,8 +42,8 @@ class RouteGuard {
     }
     return _handleUnauthenticated(currentPath);
 
-  RouteGuard._();
-}
+    RouteGuard._();
+  }
 
   /// Authenticated user redirect logic
   static Future<String?> _handleAuthenticated(
@@ -53,14 +51,14 @@ class RouteGuard {
     OnboardingRepository onboardingRepo,
   ) async {
     final hasOnboarded = await onboardingRepo.isOnboardingCompleted().then(
-      (result) => result.fold(
-        (failure) => false,
-        (hasCompleted) => hasCompleted,
-      ),
+      (result) =>
+          result.fold((failure) => false, (hasCompleted) => hasCompleted),
     );
 
     // Force onboarding if not completed
-    if (!hasOnboarded && path != AppRoutes.onboarding && path != AppRoutes.login) {
+    if (!hasOnboarded &&
+        path != AppRoutes.onboarding &&
+        path != AppRoutes.login) {
       return AppRoutes.onboarding;
     }
 

@@ -522,7 +522,7 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
                 RoutineItem(
                   id: plan.id,
                   title: plan.title,
-                  imageUrl: plan.imageThumbnail,
+                  imageUrl: plan.coverImageUrl,
                   type: RoutineItemType.plan,
                   enrolledAt: DateTime.now(),
                 ),

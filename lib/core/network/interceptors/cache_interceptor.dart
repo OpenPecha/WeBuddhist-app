@@ -51,10 +51,20 @@ class CacheInterceptor extends Interceptor {
     Response response,
     ResponseInterceptorHandler handler,
   ) {
-    // Cache successful GET responses
     final request = response.requestOptions;
-    if (request.method.toUpperCase() == 'GET' &&
-        response.statusCode == 200 &&
+    final method = request.method.toUpperCase();
+    final statusCode = response.statusCode ?? 0;
+
+    // Auto-invalidate related GET cache when mutations succeed
+    if (_isMutationMethod(method) && _isSuccessStatus(statusCode)) {
+      final basePath = _extractBasePath(request.path);
+      invalidate(basePath);
+      _logger.info('🗑️ Auto-invalidated cache for mutation on: $basePath');
+    }
+
+    // Cache successful GET responses
+    if (method == 'GET' &&
+        statusCode == 200 &&
         !response.extra.containsKey('cached')) {
       final cacheKey = _generateCacheKey(request);
       final ttl = request.extra['cache_ttl'] as Duration? ?? defaultTTL;
@@ -68,6 +78,42 @@ class CacheInterceptor extends Interceptor {
     }
 
     handler.next(response);
+  }
+
+  /// Check if HTTP method is a mutation (modifies data)
+  bool _isMutationMethod(String method) {
+    return method == 'POST' ||
+        method == 'PUT' ||
+        method == 'PATCH' ||
+        method == 'DELETE';
+  }
+
+  /// Check if status code indicates success
+  bool _isSuccessStatus(int statusCode) {
+    return statusCode >= 200 && statusCode < 300;
+  }
+
+  /// Extract base path for cache invalidation.
+  /// "/users/me/plans/123" → "/users/me/plans"
+  /// "/users/me/plans" → "/users/me/plans"
+  String _extractBasePath(String path) {
+    final segments = path.split('/').where((s) => s.isNotEmpty).toList();
+    
+    // If last segment looks like an ID (UUID or numeric), remove it
+    if (segments.isNotEmpty && _looksLikeId(segments.last)) {
+      segments.removeLast();
+    }
+    
+    return '/${segments.join('/')}';
+  }
+
+  /// Check if a string looks like an ID (UUID or numeric)
+  bool _looksLikeId(String value) {
+    // Check for UUID format
+    if (RegExp(r'^[0-9a-fA-F-]{36}$').hasMatch(value)) return true;
+    // Check for numeric ID
+    if (RegExp(r'^\d+$').hasMatch(value)) return true;
+    return false;
   }
 
   @override
