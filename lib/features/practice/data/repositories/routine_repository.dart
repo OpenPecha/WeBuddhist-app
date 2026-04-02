@@ -1,5 +1,5 @@
 import 'package:flutter_pecha/core/utils/app_logger.dart';
-import 'package:flutter_pecha/features/practice/data/datasources/routine_remote_datasource.dart';
+import 'package:flutter_pecha/features/practice/data/datasource/routine_remote_datasource.dart';
 import 'package:flutter_pecha/features/practice/data/models/routine_api_models.dart';
 
 class RoutineRepository {

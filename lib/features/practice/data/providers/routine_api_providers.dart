@@ -1,6 +1,6 @@
 import 'package:flutter_pecha/core/network/api_client_provider.dart';
-import 'package:flutter_pecha/features/auth/application/auth_notifier.dart';
-import 'package:flutter_pecha/features/practice/data/datasources/routine_remote_datasource.dart';
+import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
+import 'package:flutter_pecha/features/practice/data/datasource/routine_remote_datasource.dart';
 import 'package:flutter_pecha/features/practice/data/models/routine_api_models.dart';
 import 'package:flutter_pecha/features/practice/data/repositories/routine_repository.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

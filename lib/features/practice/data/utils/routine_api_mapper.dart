@@ -16,7 +16,7 @@ RoutineBlock routineBlockFromDto(TimeBlockDTO tb) {
     ..sort((a, b) => a.displayOrder.compareTo(b.displayOrder));
   return RoutineBlock(
     id: tb.id,
-    time: minutesToTime(tb.timeInt),
+    time: hhmmToTime(tb.timeInt),
     notificationEnabled: tb.notificationEnabled,
     apiTimeBlockId: tb.id,
     items: sessions.map(routineItemFromSessionDto).toList(),
@@ -55,7 +55,7 @@ List<SessionRequest> _sessionsForBlock(RoutineBlock block) {
 CreateTimeBlockRequest routineBlockToCreateRequest(RoutineBlock block) {
   return CreateTimeBlockRequest(
     time: formatRoutineTime(block.time),
-    timeInt: block.timeInMinutes,
+    timeInt: timeToHHMM(block.time),
     notificationEnabled: block.notificationEnabled,
     sessions: _sessionsForBlock(block),
   );
@@ -64,7 +64,7 @@ CreateTimeBlockRequest routineBlockToCreateRequest(RoutineBlock block) {
 UpdateTimeBlockRequest routineBlockToUpdateRequest(RoutineBlock block) {
   return UpdateTimeBlockRequest(
     time: formatRoutineTime(block.time),
-    timeInt: block.timeInMinutes,
+    timeInt: timeToHHMM(block.time),
     notificationEnabled: block.notificationEnabled,
     sessions: _sessionsForBlock(block),
   );

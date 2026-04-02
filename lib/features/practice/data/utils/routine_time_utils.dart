@@ -34,6 +34,15 @@ TimeOfDay minutesToTime(int minutes) {
   );
 }
 
+/// Converts a [TimeOfDay] to HHMM integer format used by the API's `time_int`
+/// field (e.g. 6:00 AM → 600, 12:00 PM → 1200, 11:59 PM → 2359).
+int timeToHHMM(TimeOfDay time) => time.hour * 100 + time.minute;
+
+/// Converts an HHMM integer (from the API's `time_int` field) to [TimeOfDay].
+TimeOfDay hhmmToTime(int hhmm) {
+  return TimeOfDay(hour: hhmm ~/ 100, minute: hhmm % 100);
+}
+
 /// Total minutes in a day.
 const int _minutesInDay = 1440;
 
