@@ -1,5 +1,4 @@
-import 'package:fpdart/fpdart.dart';
-import 'package:flutter_pecha/core/error/failures.dart';
+
 import 'package:flutter_pecha/features/plans/data/models/user/user_plans_model.dart';
 import 'package:flutter_pecha/features/plans/domain/repositories/user_plans_repository.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

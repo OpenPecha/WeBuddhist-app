@@ -38,7 +38,8 @@ class UserNotifier extends StateNotifier<UserState> {
     final userResult = await _getCurrentUserUseCase(const NoParams());
 
     // First, get the onboarding status separately
-    final localOnboardingCompleted = await _localStorageService.getOnboardingCompleted();
+    final localOnboardingCompleted =
+        await _localStorageService.getOnboardingCompleted();
 
     userResult.fold(
       (failure) {
@@ -47,23 +48,17 @@ class UserNotifier extends StateNotifier<UserState> {
         _loadFromLocalCache();
       },
       (user) {
-        if (user != null) {
-          _logger.info('User data loaded from API: ${user.displayName}');
+        _logger.info('User data loaded from API: ${user.displayName}');
 
-          // Update user with local onboarding status
-          final userWithLocalOnboarding = user.copyWith(
-            onboardingCompleted: localOnboardingCompleted,
-          );
+        // Update user with local onboarding status
+        final userWithLocalOnboarding = user.copyWith(
+          onboardingCompleted: localOnboardingCompleted,
+        );
 
-          state = UserState.loaded(userWithLocalOnboarding);
+        state = UserState.loaded(userWithLocalOnboarding);
 
-          // Cache locally for offline access
-          _cacheUserLocally(userWithLocalOnboarding);
-        } else {
-          // Fallback to local cache
-          _logger.debug('No user from API, trying local cache');
-          _loadFromLocalCache();
-        }
+        // Cache locally for offline access
+        _cacheUserLocally(userWithLocalOnboarding);
       },
     );
   }
@@ -73,7 +68,8 @@ class UserNotifier extends StateNotifier<UserState> {
     final userResult = await _getCurrentUserUseCase(const NoParams());
 
     // First, get the onboarding status separately
-    final localOnboardingCompleted = await _localStorageService.getOnboardingCompleted();
+    final localOnboardingCompleted =
+        await _localStorageService.getOnboardingCompleted();
 
     userResult.fold(
       (failure) {
@@ -82,17 +78,15 @@ class UserNotifier extends StateNotifier<UserState> {
         state = state.copyWith(errorMessage: 'Failed to refresh user data');
       },
       (user) {
-        if (user != null) {
-          _logger.debug('User data refreshed: ${user.displayName}');
+        _logger.debug('User data refreshed: ${user.displayName}');
 
-          // Update user with local onboarding status
-          final userWithLocalOnboarding = user.copyWith(
-            onboardingCompleted: localOnboardingCompleted,
-          );
+        // Update user with local onboarding status
+        final userWithLocalOnboarding = user.copyWith(
+          onboardingCompleted: localOnboardingCompleted,
+        );
 
-          state = UserState.loaded(userWithLocalOnboarding);
-          _cacheUserLocally(userWithLocalOnboarding);
-        }
+        state = UserState.loaded(userWithLocalOnboarding);
+        _cacheUserLocally(userWithLocalOnboarding);
       },
     );
   }

@@ -2,7 +2,6 @@ import 'package:fpdart/fpdart.dart';
 import 'package:flutter_pecha/core/error/failures.dart';
 import 'package:flutter_pecha/features/story_view/data/datasource/story_local_datasource.dart';
 import 'package:flutter_pecha/features/story_view/data/datasource/story_remote_datasource.dart';
-import 'package:flutter_pecha/features/story_view/data/models/story_model.dart';
 import 'package:flutter_pecha/features/story_view/domain/entities/story.dart';
 import 'package:flutter_pecha/features/story_view/domain/repositories/story_view_repository.dart';
 
@@ -14,8 +13,8 @@ class StoryViewRepositoryImpl implements StoryViewRepository {
   StoryViewRepositoryImpl({
     required StoryLocalDataSource localDataSource,
     required StoryRemoteDataSource remoteDataSource,
-  })  : _localDataSource = localDataSource,
-        _remoteDataSource = remoteDataSource;
+  }) : _localDataSource = localDataSource,
+       _remoteDataSource = remoteDataSource;
 
   @override
   Future<Either<Failure, List<Story>>> getStories() async {
@@ -36,7 +35,8 @@ class StoryViewRepositoryImpl implements StoryViewRepository {
       try {
         final cachedModels = await _localDataSource.getCachedStories();
         if (cachedModels.isNotEmpty) {
-          final stories = cachedModels.map((model) => model.toEntity()).toList();
+          final stories =
+              cachedModels.map((model) => model.toEntity()).toList();
           return Right(stories);
         }
       } catch (_) {}

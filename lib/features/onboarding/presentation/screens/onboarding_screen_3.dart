@@ -59,7 +59,7 @@ class OnboardingScreen3 extends ConsumerWidget {
                       Center(
                         child: OnboardingContinueButton(
                           onPressed: () => _handleContinue(ref),
-                          isEnabled: selectedLanguage != null,
+                          isEnabled: selectedLanguage.isNotEmpty,
                         ),
                       ),
                       const SizedBox(height: 24),
@@ -97,11 +97,9 @@ class OnboardingScreen3 extends ConsumerWidget {
   }
 
   void _handleContinue(WidgetRef ref) {
-    final selectedLanguage = ref
-        .read(onboardingProvider)
-        .preferences
-        .primaryLanguage;
-    if (selectedLanguage != null) {
+    final selectedLanguage =
+        ref.read(onboardingProvider).preferences.primaryLanguage;
+    if (selectedLanguage.isNotEmpty) {
       onNext();
     }
   }

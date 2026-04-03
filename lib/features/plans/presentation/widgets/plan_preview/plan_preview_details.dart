@@ -1,6 +1,4 @@
-import 'package:fpdart/fpdart.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_pecha/core/error/failures.dart';
 import 'package:flutter_pecha/core/widgets/skeletons/skeletons.dart';
 import 'package:flutter_pecha/features/plans/domain/entities/plan.dart';
 import 'package:flutter_pecha/features/plans/presentation/providers/plan_days_providers.dart';

@@ -41,8 +41,6 @@ class RouteGuard {
       return _handleGuest(currentPath);
     }
     return _handleUnauthenticated(currentPath);
-
-    RouteGuard._();
   }
 
   /// Authenticated user redirect logic

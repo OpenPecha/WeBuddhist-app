@@ -8,6 +8,8 @@ import 'package:flutter_pecha/features/texts/data/models/text/detail_response.da
 import 'package:flutter_pecha/features/texts/data/models/text/reader_response.dart';
 import 'package:flutter_pecha/features/texts/data/models/text/toc_response.dart';
 import 'package:flutter_pecha/features/texts/data/models/text/version_response.dart';
+import 'package:flutter_pecha/features/texts/data/models/text_detail.dart';
+import 'package:flutter_pecha/features/texts/data/models/version.dart';
 
 /// Text remote datasource.
 ///
@@ -63,7 +65,39 @@ class TextRemoteDatasource {
       queryParameters: {'language': language ?? 'en'},
     );
 
-    return VersionResponse.fromJson(response.data);
+    final versionResponse = VersionResponse.fromJson(response.data);
+
+    // Add the main text as the first version in the list
+    final mainText = versionResponse.text;
+    if (mainText != null) {
+      final mainTextAsVersion = _textDetailToVersion(mainText);
+      final updatedVersions = [mainTextAsVersion, ...?versionResponse.versions];
+      return VersionResponse(text: mainText, versions: updatedVersions);
+    }
+
+    return versionResponse;
+  }
+
+  /// Converts a TextDetail to a Version object.
+  Version _textDetailToVersion(TextDetail textDetail) {
+    return Version(
+      id: textDetail.id,
+      title: textDetail.title,
+      parentId: textDetail.parentId,
+      priority: null,
+      language: textDetail.language,
+      type: textDetail.type,
+      groupId: textDetail.groupId,
+      tableOfContents: const [],
+      isPublished: textDetail.isPublished,
+      createdDate: textDetail.createdDate,
+      updatedDate: textDetail.updatedDate,
+      publishedDate: textDetail.publishedDate,
+      publishedBy: textDetail.publishedBy,
+      sourceLink: textDetail.sourceLink,
+      ranking: textDetail.ranking,
+      license: textDetail.license,
+    );
   }
 
   // get the commentary text of the text

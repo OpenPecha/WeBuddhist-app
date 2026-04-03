@@ -3,7 +3,6 @@ import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/features/connect/presentation/screens/connect_screen.dart';
 import 'package:flutter_pecha/features/explore/presentation/screens/explore_screen.dart';
-import 'package:flutter_pecha/features/ai/presentation/screens/ai_mode_screen.dart';
 import 'package:flutter_pecha/features/home/presentation/screens/home_screen.dart';
 import 'package:flutter_pecha/features/learn/presentation/screens/learn_screen.dart';
 import 'package:flutter_pecha/features/practice/presentation/screens/practice_screen.dart';

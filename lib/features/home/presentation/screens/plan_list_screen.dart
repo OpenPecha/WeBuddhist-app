@@ -1,7 +1,5 @@
-import 'package:fpdart/fpdart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
-import 'package:flutter_pecha/core/error/failures.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/widgets/error_state_widget.dart';
 import 'package:flutter_pecha/core/widgets/skeletons/skeletons.dart';

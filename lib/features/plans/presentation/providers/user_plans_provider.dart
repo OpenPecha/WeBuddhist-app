@@ -1,7 +1,6 @@
 import 'package:fpdart/fpdart.dart';
 import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
 import 'package:flutter_pecha/core/error/failures.dart';
-import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/features/plans/data/models/plan_progress_model.dart';
 import 'package:flutter_pecha/features/plans/data/models/response/user_plan_day_detail_response.dart';
 import 'package:flutter_pecha/features/plans/data/models/response/user_plan_list_response_model.dart';
@@ -10,8 +9,6 @@ import 'package:flutter_pecha/features/plans/presentation/providers/my_plans_pag
 import 'package:flutter_pecha/features/plans/presentation/providers/plan_days_providers.dart';
 import 'package:flutter_pecha/features/plans/presentation/providers/use_case_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-final _logger = AppLogger('UserPlansProvider');
 
 final userPlansFutureProvider = FutureProvider<Either<Failure, UserPlanListResponseModel>>((
   ref,

@@ -1,7 +1,5 @@
-import 'package:fpdart/fpdart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
-import 'package:flutter_pecha/core/error/failures.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
 import 'package:flutter_pecha/features/recitation/data/models/recitation_model.dart';
@@ -131,22 +129,25 @@ class _RecitationDetailScreenState
     );
 
     // Build params based on toggle states - single request with all needed content
-    final recitationParams = RecitationLanguageConfig.getContentParamsWithToggles(
-      effectiveLanguageCode,
-      widget.recitation.textId,
-      includeSecondary: showSecondSegment,
-      includeTertiary: showThirdSegment,
-    );
+    final recitationParams =
+        RecitationLanguageConfig.getContentParamsWithToggles(
+          effectiveLanguageCode,
+          widget.recitation.textId,
+          includeSecondary: showSecondSegment,
+          includeTertiary: showThirdSegment,
+        );
 
     // Watch recitation content
     final contentAsync = ref.watch(recitationContentProvider(recitationParams));
     final localizations = AppLocalizations.of(context)!;
 
     // Check if content is loaded and not empty
-    final isContentLoaded = contentAsync.valueOrNull?.fold(
+    final isContentLoaded =
+        contentAsync.valueOrNull?.fold(
           (failure) => false,
           (content) => !content.isEmpty,
-        ) ?? false;
+        ) ??
+        false;
 
     // Trigger scroll check once when content loads
     if (isContentLoaded && !_isNavigating && !_hasCheckedScroll) {
@@ -383,7 +384,8 @@ class _RecitationDetailScreenState
         savedRecitationsAsync.valueOrNull?.fold(
           (failure) => <String>{},
           (recitations) => recitations.map((e) => e.textId).toSet(),
-        ) ?? {};
+        ) ??
+        {};
 
     return savedRecitationIds.contains(widget.recitation.textId);
   }

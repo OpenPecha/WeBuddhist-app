@@ -1,15 +1,9 @@
-import 'package:fpdart/fpdart.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_pecha/core/error/failures.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/widgets/cached_network_image_widget.dart';
 import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
-import 'package:flutter_pecha/features/auth/presentation/widgets/login_drawer.dart';
 import 'package:flutter_pecha/features/plans/domain/entities/plan.dart';
 import 'package:flutter_pecha/features/plans/presentation/providers/user_plans_provider.dart';
-import 'package:flutter_pecha/features/plans/data/utils/plan_utils.dart';
-import 'package:flutter_pecha/features/plans/data/models/response/user_plan_list_response_model.dart';
-import 'package:flutter_pecha/features/plans/data/models/user/user_plans_model.dart';
 import 'package:flutter_pecha/features/plans/presentation/author_detail_screen.dart';
 import 'package:flutter_pecha/shared/extensions/typography_extensions.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
@@ -35,10 +29,12 @@ class _PlanInfoState extends ConsumerState<PlanInfo> {
     List<String> enrolledPlanIds = [];
     if (!isGuest && isLoggedIn) {
       final subscribedPlans = ref.watch(userPlansFutureProvider);
-      enrolledPlanIds = subscribedPlans.valueOrNull?.fold(
-        (failure) => <String>[],
-        (response) => response.userPlans.map((e) => e.id).toList(),
-      ) ?? <String>[];
+      enrolledPlanIds =
+          subscribedPlans.valueOrNull?.fold(
+            (failure) => <String>[],
+            (response) => response.userPlans.map((e) => e.id).toList(),
+          ) ??
+          <String>[];
     }
 
     final language = widget.plan.language.toLowerCase();
@@ -134,7 +130,6 @@ class _PlanInfoState extends ConsumerState<PlanInfo> {
 
   Widget _buildAuthorAvatar(BuildContext context) {
     final authorId = widget.plan.authorId;
-    final authorName = widget.author;
 
     // Handle null author case
     if (authorId.isEmpty) {
@@ -179,12 +174,14 @@ class _PlanInfoState extends ConsumerState<PlanInfo> {
           Wrap(
             spacing: 8,
             runSpacing: 8,
-            children: widget.plan.tags.take(3).map((tag) {
-              return Chip(
-                label: Text(tag),
-                backgroundColor: Theme.of(context).colorScheme.surfaceContainer,
-              );
-            }).toList(),
+            children:
+                widget.plan.tags.take(3).map((tag) {
+                  return Chip(
+                    label: Text(tag),
+                    backgroundColor:
+                        Theme.of(context).colorScheme.surfaceContainer,
+                  );
+                }).toList(),
           ),
         const SizedBox(height: 16),
         // Enroll/Start button
@@ -209,9 +206,7 @@ class _PlanInfoState extends ConsumerState<PlanInfo> {
               ),
             ),
             child: Text(
-              isSubscribed
-                  ? 'Go to Practice'
-                  : 'Enroll',
+              isSubscribed ? 'Go to Practice' : 'Enroll',
               style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
             ),
           ),
@@ -222,8 +217,8 @@ class _PlanInfoState extends ConsumerState<PlanInfo> {
 
   Future<void> _handleEnroll(BuildContext context) async {
     // TODO: Implement enrollment
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Enrollment coming soon!')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text('Enrollment coming soon!')));
   }
 }

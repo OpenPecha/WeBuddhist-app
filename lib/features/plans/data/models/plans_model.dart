@@ -1,7 +1,7 @@
 import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/features/plans/data/models/author/author_dto_model.dart';
-import 'package:flutter_pecha/features/plans/domain/entities/plan.dart' as domain;
-import 'package:flutter_pecha/features/plans/domain/entities/week_plan.dart';
+import 'package:flutter_pecha/features/plans/domain/entities/plan.dart'
+    as domain;
 
 final _logger = AppLogger('PlansModel');
 
@@ -212,22 +212,24 @@ class PlansModel {
       description: entity.description,
       language: entity.language,
       difficultyLevel: difficultyLevelStr,
-      image: entity.coverImageUrl != null
-          ? ImageModel(
-              thumbnail: entity.coverImageUrl,
-              medium: entity.coverImageUrl,
-              original: entity.coverImageUrl,
-            )
-          : null,
+      image:
+          entity.coverImageUrl != null
+              ? ImageModel(
+                thumbnail: entity.coverImageUrl,
+                medium: entity.coverImageUrl,
+                original: entity.coverImageUrl,
+              )
+              : null,
       totalDays: entity.totalDays,
       tags: entity.tags,
-      author: entity.authorId.isNotEmpty
-          ? AuthorDtoModel(
-              id: entity.authorId,
-              firstName: entity.authorName ?? 'Unknown',
-              lastName: '',
-            )
-          : null,
+      author:
+          entity.authorId.isNotEmpty
+              ? AuthorDtoModel(
+                id: entity.authorId,
+                firstName: entity.authorName ?? 'Unknown',
+                lastName: '',
+              )
+              : null,
     );
   }
 }

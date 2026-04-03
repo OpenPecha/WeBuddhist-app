@@ -1,12 +1,9 @@
-import 'package:fpdart/fpdart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
-import 'package:flutter_pecha/core/error/failures.dart';
 import 'package:flutter_pecha/core/widgets/error_state_widget.dart';
 import 'package:flutter_pecha/features/reader/presentation/widgets/reader_content/text_search_skeleton.dart';
 import 'package:flutter_pecha/features/texts/constants/text_screen_constants.dart';
 import 'package:flutter_pecha/features/texts/data/models/search/multilingual_source_result.dart';
-import 'package:flutter_pecha/features/texts/data/models/search/multilingual_search_response.dart';
 import 'package:flutter_pecha/features/texts/presentation/providers/texts_provider.dart';
 import 'package:flutter_pecha/features/texts/utils/text_highlight_helper.dart';
 import 'package:flutter_pecha/shared/utils/helper_functions.dart';
@@ -151,15 +148,15 @@ class ReaderSearchDelegate extends SearchDelegate<Map<String, String>?> {
                   return _buildNoResults();
                 }
 
-            final segments =
-                allSegmentMatches
-                    .map(
-                      (match) => {
-                        'segmentId': match.segmentId,
-                        'content': match.content,
-                        },
-                      )
-                      .toList();
+                final segments =
+                    allSegmentMatches
+                        .map(
+                          (match) => {
+                            'segmentId': match.segmentId,
+                            'content': match.content,
+                          },
+                        )
+                        .toList();
 
                 return Container(
                   color: Theme.of(context).scaffoldBackgroundColor,
