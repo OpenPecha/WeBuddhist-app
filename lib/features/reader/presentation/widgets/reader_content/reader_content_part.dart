@@ -130,6 +130,10 @@ class _ReaderContentPartState extends ConsumerState<ReaderContentPart> {
   }
 
   void _checkPaginationThresholds() {
+    // Skip pagination during programmatic scroll (e.g. initial scroll animation)
+    // to prevent false triggers from stale visible positions
+    if (_isProgrammaticScroll) return;
+
     final positions = _itemPositionsListener.itemPositions.value;
     if (positions.isEmpty) return;
 
@@ -255,10 +259,36 @@ class _ReaderContentPartState extends ConsumerState<ReaderContentPart> {
         state.content != null &&
         state.content!.isNotEmpty &&
         widget.initialSegmentId != null) {
+      _hasScrolledToInitial = true;
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (!_hasScrolledToInitial && _itemScrollController.isAttached) {
-          _scrollToSegment(widget.initialSegmentId!);
-          _hasScrolledToInitial = true;
+        if (_itemScrollController.isAttached) {
+          final index =
+              state.content!.getSegmentIndex(widget.initialSegmentId!);
+          if (index != null) {
+            _isProgrammaticScroll = true;
+            // Short content at top: instant jump (no animation issues)
+            // Otherwise: smooth scroll animation
+            if (index <= 5 && !state.hasPreviousPage) {
+              _itemScrollController.jumpTo(index: index);
+              _logger.debug('Jumped to initial segment at index $index');
+              Future.delayed(const Duration(milliseconds: 100), () {
+                _isProgrammaticScroll = false;
+              });
+            } else {
+              _itemScrollController.scrollTo(
+                index: index,
+                duration: ReaderConstants.scrollAnimationDuration,
+                curve: Curves.easeInOutCubic,
+                alignment: ReaderConstants.scrollToSegmentAlignment,
+              );
+              _logger.debug('Scrolled to initial segment at index $index');
+              Future.delayed(
+                ReaderConstants.scrollAnimationDuration +
+                    const Duration(milliseconds: 100),
+                () => _isProgrammaticScroll = false,
+              );
+            }
+          }
         }
       });
     }

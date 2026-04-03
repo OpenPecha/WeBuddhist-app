@@ -85,7 +85,46 @@ class ReaderNotifier extends StateNotifier<ReaderState> {
       if (_isDisposed) return;
 
       // Flatten the content
-      final flattenedContent = _flattener.flatten(response.content.sections);
+      var flattenedContent = _flattener.flatten(response.content.sections);
+      var hasPreviousPage = response.currentSegmentPosition > 1;
+
+      // Pre-load previous page when target is near the top so the widget
+      // receives content with the target already at a stable index.
+      if (hasPreviousPage && _params.segmentId != null) {
+        final targetIndex =
+            flattenedContent.getSegmentIndex(_params.segmentId!);
+        if (targetIndex != null &&
+            targetIndex <= ReaderConstants.previousLoadThreshold) {
+          _logger.debug(
+            'Pre-loading previous page during init (target at index $targetIndex)',
+          );
+          final firstSegmentId = flattenedContent.firstSegmentId;
+          if (firstSegmentId != null) {
+            try {
+              final prevResponse = await _fetchContent(
+                segmentId: firstSegmentId,
+                direction: 'previous',
+              );
+              if (!_isDisposed) {
+                flattenedContent = _merger.merge(
+                  flattenedContent,
+                  prevResponse.content.sections,
+                  PaginationDirection.previous,
+                );
+                hasPreviousPage = prevResponse.currentSegmentPosition > 1;
+                _logger.debug(
+                  'Pre-loaded previous page during init. Total items: ${flattenedContent.itemCount}',
+                );
+              }
+            } catch (e) {
+              // Graceful fallback — widget will load via normal pagination
+              _logger.debug('Pre-load previous page failed, skipping: $e');
+            }
+          }
+        }
+      }
+
+      if (_isDisposed) return;
 
       state = state.copyWith(
         status: ReaderStatus.loaded,
@@ -94,7 +133,7 @@ class ReaderNotifier extends StateNotifier<ReaderState> {
         currentSegmentPosition: response.currentSegmentPosition,
         totalSegments: response.totalSegments,
         hasNextPage: response.currentSegmentPosition < response.totalSegments,
-        hasPreviousPage: response.currentSegmentPosition > 1,
+        hasPreviousPage: hasPreviousPage,
       );
 
       // Handle highlight if navigating to a specific segment
