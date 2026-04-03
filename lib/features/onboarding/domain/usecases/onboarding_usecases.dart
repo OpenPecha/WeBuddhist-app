@@ -16,17 +16,30 @@ class GetOnboardingStatusUseCase extends UseCase<bool, NoParams> {
   }
 }
 
+/// Load saved preferences use case.
+class LoadSavedPreferencesUseCase
+    extends UseCase<OnboardingPreferences?, NoParams> {
+  final OnboardingRepository _repository;
+
+  LoadSavedPreferencesUseCase(this._repository);
+
+  @override
+  Future<Either<Failure, OnboardingPreferences?>> call(NoParams params) async {
+    return await _repository.getPreferences();
+  }
+}
+
 /// Save onboarding preferences use case.
-class SaveOnboardingPreferencesUseCase extends UseCase<OnboardingPreferences, SavePreferencesParams> {
+class SaveOnboardingPreferencesUseCase
+    extends UseCase<OnboardingPreferences, SavePreferencesParams> {
   final OnboardingRepository _repository;
 
   SaveOnboardingPreferencesUseCase(this._repository);
 
   @override
-  Future<Either<Failure, OnboardingPreferences>> call(SavePreferencesParams params) async {
-    if (params.preferences.userId.isEmpty) {
-      return const Left(ValidationFailure('User ID cannot be empty'));
-    }
+  Future<Either<Failure, OnboardingPreferences>> call(
+    SavePreferencesParams params,
+  ) async {
     return await _repository.savePreferences(params.preferences);
   }
 }
@@ -45,5 +58,17 @@ class CompleteOnboardingUseCase extends UseCase<void, NoParams> {
   @override
   Future<Either<Failure, void>> call(NoParams params) async {
     return await _repository.completeOnboarding();
+  }
+}
+
+/// Clear onboarding preferences use case.
+class ClearOnboardingPreferencesUseCase extends UseCase<void, NoParams> {
+  final OnboardingRepository _repository;
+
+  ClearOnboardingPreferencesUseCase(this._repository);
+
+  @override
+  Future<Either<Failure, void>> call(NoParams params) async {
+    return await _repository.clearPreferences();
   }
 }

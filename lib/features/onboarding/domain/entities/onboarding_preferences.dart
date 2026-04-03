@@ -9,6 +9,7 @@ class OnboardingPreferences extends BaseEntity {
   final int dailyPracticeGoalMinutes;
   final List<String> preferredPracticeTypes;
   final DateTime completedAt;
+  final List<String> selectedPaths;
 
   const OnboardingPreferences({
     required this.userId,
@@ -17,6 +18,7 @@ class OnboardingPreferences extends BaseEntity {
     this.dailyPracticeGoalMinutes = 30,
     this.preferredPracticeTypes = const [],
     required this.completedAt,
+    this.selectedPaths = const [],
   });
 
   /// Creates a copy with the specified fields replaced with new values
@@ -27,6 +29,7 @@ class OnboardingPreferences extends BaseEntity {
     int? dailyPracticeGoalMinutes,
     List<String>? preferredPracticeTypes,
     DateTime? completedAt,
+    List<String>? selectedPaths,
   }) {
     return OnboardingPreferences(
       userId: userId ?? this.userId,
@@ -35,6 +38,7 @@ class OnboardingPreferences extends BaseEntity {
       dailyPracticeGoalMinutes: dailyPracticeGoalMinutes ?? this.dailyPracticeGoalMinutes,
       preferredPracticeTypes: preferredPracticeTypes ?? this.preferredPracticeTypes,
       completedAt: completedAt ?? this.completedAt,
+      selectedPaths: selectedPaths ?? this.selectedPaths,
     );
   }
 
@@ -46,6 +50,7 @@ class OnboardingPreferences extends BaseEntity {
     dailyPracticeGoalMinutes,
     preferredPracticeTypes,
     completedAt,
+    selectedPaths,
   ];
 }
 
@@ -85,4 +90,19 @@ class OnboardingOption extends Equatable {
 
   @override
   List<Object?> get props => [value, label, iconPath, isSelected];
+}
+
+/// Language options
+class PreferredLanguage {
+  static const String tibetan = 'tibetan';
+  static const String english = 'english';
+  static const String chinese = 'chinese';
+}
+
+/// Buddhist path options
+class BuddhistPath {
+  static const String theravada = 'theravada';
+  static const String zen = 'zen';
+  static const String tibetanBuddhism = 'tibetan_buddhism';
+  static const String pureLand = 'pure_land';
 }
