@@ -43,7 +43,7 @@ class UserPlansRemoteDatasource {
       '/users/me/plans',
       data: {'plan_id': planId},
     );
-    return response.statusCode == 204;
+    return _isSuccessStatus(response.statusCode);
   }
 
   Future<List<PlanProgressModel>> getUserPlanProgressDetails(
@@ -72,21 +72,25 @@ class UserPlansRemoteDatasource {
 
   Future<bool> completeSubTask(String subTaskId) async {
     final response = await dio.post('/users/me/sub-tasks/$subTaskId/complete');
-    return response.statusCode == 204;
+    return _isSuccessStatus(response.statusCode);
   }
 
   Future<bool> completeTask(String taskId) async {
     final response = await dio.post('/users/me/tasks/$taskId/complete');
-    return response.statusCode == 204;
+    return _isSuccessStatus(response.statusCode);
   }
 
   Future<bool> deleteTask(String taskId) async {
     final response = await dio.delete('/users/me/task/$taskId');
-    return response.statusCode == 204;
+    return _isSuccessStatus(response.statusCode);
+  }
+
+  bool _isSuccessStatus(int? statusCode) {
+    return statusCode != null && statusCode >= 200 && statusCode < 300;
   }
 
   Future<bool> unenrollFromPlan(String planId) async {
     final response = await dio.delete('/users/me/plans/$planId');
-    return response.statusCode == 204;
+    return _isSuccessStatus(response.statusCode);
   }
 }

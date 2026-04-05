@@ -113,9 +113,9 @@ class CacheInterceptor extends Interceptor {
     
     paths.add('/${segments.join('/')}');
     
-    // For task/subtask completion, also invalidate plan-related caches
-    // This handles: /users/me/tasks/... or /users/me/sub-tasks/...
-    if (path.contains('/tasks/') || path.contains('/sub-tasks/')) {
+    // For task/subtask mutations, also invalidate plan-related caches
+    // This handles: /users/me/tasks/..., /users/me/task/..., /users/me/sub-tasks/...
+    if (path.contains('/task') || path.contains('/sub-task')) {
       paths.add('/users/me/plan');
       paths.add('/users/me/plans');
     }
