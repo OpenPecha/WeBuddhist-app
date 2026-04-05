@@ -1,0 +1,703 @@
+openapi: 3.0.3
+info:
+  title: WeBuddhist Routine API
+  description: |
+    OpenAPI spec for the Routine persistence feature.
+
+    ## Context
+    The Routine Builder in the Flutter app currently stores all routine data
+    (time blocks, sessions) in local storage. This means data is lost when
+    the app is uninstalled/reinstalled (see issue #126). This spec defines
+    backend endpoints and schema to persist routine data server-side.
+
+    ## Key Design Decisions
+    - A user has exactly one routine
+    - The routine is purely structural — it stores what sessions go in what
+      time blocks and in what order
+    - Plan progress/completion is not tracked here (already exists in
+      `UserPlanProgress`)
+    - Recitation progress is not tracked here (does not currently exist)
+    - A plan can only appear once across the entire routine
+    - Recitations can appear multiple times across time blocks or within
+      the same time block
+    - A time block must have at least one session
+    - Each time block must have a unique time within the routine
+    - Sessions referencing deleted plans or removed texts are silently
+      skipped in the GET response
+    - Time block deletion is soft delete (sets deleted_at timestamp)
+    - The API is called each time a session is added to a time block
+    - Sessions use a single source_id field — the session_type determines
+      whether it references a plan or a recitation
+  version: 1.0.0
+
+servers:
+  - url: /api/v1
+    description: WeBuddhist API v1
+
+tags:
+  - name: User Routines
+    description: CRUD operations for user routine persistence
+
+security:
+  - BearerAuth: []
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+
+    SessionType:
+      type: string
+      enum:
+        - PLAN
+        - RECITATION
+
+    SessionRequest:
+      type: object
+      required:
+        - session_type
+        - source_id
+        - display_order
+      properties:
+        session_type:
+          $ref: '#/components/schemas/SessionType'
+        source_id:
+          type: string
+          format: uuid
+          description: References plans.id when session_type is PLAN, or MongoDB text document ID when session_type is RECITATION.
+        display_order:
+          type: integer
+          minimum: 0
+          description: Order of this session within the time block.
+
+    CreateTimeBlockRequest:
+      type: object
+      required:
+        - time
+        - time_int
+        - sessions
+      properties:
+        time:
+          type: string
+          pattern: '^([01]\d|2[0-3]):[0-5]\d$'
+          description: Time of day in 24-hour HH:MM format. Must be unique within the routine.
+          example: "12:00"
+        time_int:
+          type: integer
+          minimum: 0
+          maximum: 2359
+          description: Time as integer in 24-hour format (e.g. 1:00 AM = 100, 12:00 PM = 1200, 11:59 PM = 2359).
+          example: 1200
+        notification_enabled:
+          type: boolean
+          default: true
+        sessions:
+          type: array
+          items:
+            $ref: '#/components/schemas/SessionRequest'
+          minItems: 1
+
+    UpdateTimeBlockRequest:
+      type: object
+      required:
+        - time
+        - time_int
+        - sessions
+      properties:
+        time:
+          type: string
+          pattern: '^([01]\d|2[0-3]):[0-5]\d$'
+          description: Time of day in 24-hour HH:MM format. Must be unique within the routine.
+          example: "08:00"
+        time_int:
+          type: integer
+          minimum: 0
+          maximum: 2359
+          description: Time as integer in 24-hour format (e.g. 1:00 AM = 100, 12:00 PM = 1200, 11:59 PM = 2359).
+          example: 800
+        notification_enabled:
+          type: boolean
+          default: true
+        sessions:
+          type: array
+          items:
+            $ref: '#/components/schemas/SessionRequest'
+          minItems: 1
+
+    SessionDTO:
+      type: object
+      required:
+        - id
+        - session_type
+        - source_id
+        - title
+        - language
+        - display_order
+      properties:
+        id:
+          type: string
+          format: uuid
+        session_type:
+          $ref: '#/components/schemas/SessionType'
+        source_id:
+          type: string
+          format: uuid
+          description: References plans.id when session_type is PLAN, or MongoDB text document ID when session_type is RECITATION.
+        title:
+          type: string
+          description: Resolved from plans table or MongoDB texts collection.
+        language:
+          type: string
+          description: Language of the plan or recitation.
+          example: "en"
+        image_url:
+          type: string
+          nullable: true
+          description: Thumbnail image URL. Null for recitations.
+        display_order:
+          type: integer
+
+    TimeBlockDTO:
+      type: object
+      required:
+        - id
+        - time
+        - time_int
+        - notification_enabled
+        - sessions
+      properties:
+        id:
+          type: string
+          format: uuid
+        time:
+          type: string
+          example: "12:00"
+        time_int:
+          type: integer
+          example: 1200
+        notification_enabled:
+          type: boolean
+        sessions:
+          type: array
+          items:
+            $ref: '#/components/schemas/SessionDTO'
+
+    RoutineWithTimeBlocksResponse:
+      type: object
+      required:
+        - id
+        - time_blocks
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Routine ID.
+        time_blocks:
+          type: array
+          items:
+            $ref: '#/components/schemas/TimeBlockDTO'
+
+    RoutineResponse:
+      type: object
+      required:
+        - id
+        - time_blocks
+        - skip
+        - limit
+        - total
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Routine ID.
+        time_blocks:
+          type: array
+          items:
+            $ref: '#/components/schemas/TimeBlockDTO'
+        skip:
+          type: integer
+          description: Number of time blocks skipped.
+          example: 0
+        limit:
+          type: integer
+          description: Maximum number of time blocks returned.
+          example: 20
+        total:
+          type: integer
+          description: Total number of time blocks in the routine.
+          example: 3
+
+    ErrorResponse:
+      type: object
+      required:
+        - error
+        - message
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+
+  responses:
+    Unauthorized:
+      description: Invalid or missing JWT token.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    NotFound:
+      description: Resource not found.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Forbidden:
+      description: Routine does not belong to the authenticated user.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    ValidationError:
+      description: Validation error.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+paths:
+
+  /users/me/routine:
+
+    get:
+      tags:
+        - User Routines
+      summary: Get user's routine
+      description: |
+        Returns the authenticated user's routine with all time blocks and sessions.
+        Sessions include resolved title, language, and image_url.
+
+        Only non-deleted time blocks are returned (filtered by deleted_at IS NULL).
+        Sessions referencing soft-deleted plans or removed MongoDB texts are
+        silently skipped (not included in the response).
+
+        Returns empty time_blocks array if the user has no routine yet.
+
+        Supports pagination via skip and limit query parameters.
+      operationId: getUserRoutine
+      parameters:
+        - name: skip
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 0
+            minimum: 0
+          description: Number of time blocks to skip.
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 20
+            minimum: 1
+            maximum: 100
+          description: Maximum number of time blocks to return.
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RoutineResponse'
+              examples:
+                with_time_blocks:
+                  summary: User with time blocks
+                  value:
+                    id: "rr111111-2222-3333-4444-555555555555"
+                    time_blocks:
+                      - id: "aaaa1111-bbbb-cccc-dddd-eeee11111111"
+                        time: "06:00"
+                        time_int: 600
+                        notification_enabled: true
+                        sessions:
+                          - id: "ssss1111-2222-3333-4444-555555555555"
+                            session_type: "PLAN"
+                            source_id: "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+                            title: "AIY - Introduction"
+                            language: "en"
+                            image_url: "https://s3.amazonaws.com/plans/aiy-intro-thumb.jpg"
+                            display_order: 0
+                          - id: "ssss2222-2222-3333-4444-555555555555"
+                            session_type: "RECITATION"
+                            source_id: "f9e8d7c6-b5a4-3210-fedc-ba9876543210"
+                            title: "Praise to Bhagavatī Tārā"
+                            language: "en"
+                            image_url: null
+                            display_order: 1
+                      - id: "aaaa2222-bbbb-cccc-dddd-eeee22222222"
+                        time: "12:00"
+                        time_int: 1200
+                        notification_enabled: true
+                        sessions:
+                          - id: "ssss3333-2222-3333-4444-555555555555"
+                            session_type: "PLAN"
+                            source_id: "b2c3d4e5-f6a7-8901-bcde-f12345678901"
+                            title: "Days 01-08"
+                            language: "en"
+                            image_url: "https://s3.amazonaws.com/plans/days-01-08-thumb.jpg"
+                            display_order: 0
+                      - id: "aaaa3333-bbbb-cccc-dddd-eeee33333333"
+                        time: "21:00"
+                        time_int: 2100
+                        notification_enabled: false
+                        sessions:
+                          - id: "ssss4444-2222-3333-4444-555555555555"
+                            session_type: "RECITATION"
+                            source_id: "c3d4e5f6-a7b8-9012-cdef-123456789012"
+                            title: "Heart Sutra"
+                            language: "bo"
+                            image_url: null
+                            display_order: 0
+                          - id: "ssss5555-2222-3333-4444-555555555555"
+                            session_type: "RECITATION"
+                            source_id: "d4e5f6a7-b8c9-0123-defa-234567890123"
+                            title: "Dedication of Merit"
+                            language: "en"
+                            image_url: null
+                            display_order: 1
+                    skip: 0
+                    limit: 20
+                    total: 3
+                empty_routine:
+                  summary: User with no time blocks
+                  value:
+                    id: "rr111111-2222-3333-4444-555555555555"
+                    time_blocks: []
+                    skip: 0
+                    limit: 20
+                    total: 0
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /routines:
+
+    post:
+      tags:
+        - User Routines
+      summary: Create routine with first time block
+      description: |
+        Creates a new routine for the user along with the first time block
+        and its sessions. Used when no routine exists yet.
+
+        Validation:
+        - Must have at least one session
+        - A plan source_id can only appear once across the entire routine (422 if duplicate)
+        - time must be valid HH:MM 24-hour format (00:00 to 23:59)
+      operationId: createRoutineWithTimeBlock
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTimeBlockRequest'
+            example:
+              time: "06:00"
+              time_int: 600
+              notification_enabled: true
+              sessions:
+                - session_type: "PLAN"
+                  source_id: "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+                  display_order: 0
+      responses:
+        '201':
+          description: Routine and time block created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RoutineWithTimeBlocksResponse'
+              example:
+                id: "rr111111-2222-3333-4444-555555555555"
+                time_blocks:
+                  - id: "aaaa1111-bbbb-cccc-dddd-eeee11111111"
+                    time: "06:00"
+                    time_int: 600
+                    notification_enabled: true
+                    sessions:
+                      - id: "ssss1111-2222-3333-4444-555555555555"
+                        session_type: "PLAN"
+                        source_id: "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+                        title: "AIY - Introduction"
+                        language: "en"
+                        image_url: "https://s3.amazonaws.com/plans/aiy-intro-thumb.jpg"
+                        display_order: 0
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '409':
+          description: Routine already exists for this user.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
+  /routines/{routine_id}/time-blocks:
+
+    post:
+      tags:
+        - User Routines
+      summary: Create a new time block for a routine
+      description: |
+        Creates a single time block with its sessions in an existing routine.
+
+        Validates that the routine belongs to the authenticated user.
+
+        Validation:
+        - Must have at least one session
+        - Time must be unique within the routine
+        - A plan source_id can only appear once across the entire routine (422 if duplicate)
+        - time must be valid HH:MM 24-hour format (00:00 to 23:59)
+      operationId: createTimeBlock
+      parameters:
+        - name: routine_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: ID of the routine.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTimeBlockRequest'
+            example:
+              time: "12:00"
+              time_int: 1200
+              notification_enabled: true
+              sessions:
+                - session_type: "PLAN"
+                  source_id: "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+                  display_order: 0
+      responses:
+        '201':
+          description: Time block created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TimeBlockDTO'
+              example:
+                id: "aaaa1111-bbbb-cccc-dddd-eeee11111111"
+                time: "12:00"
+                time_int: 1200
+                notification_enabled: true
+                sessions:
+                  - id: "ssss1111-2222-3333-4444-555555555555"
+                    session_type: "PLAN"
+                    source_id: "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+                    title: "AIY - Introduction"
+                    language: "en"
+                    image_url: "https://s3.amazonaws.com/plans/aiy-intro-thumb.jpg"
+                    display_order: 0
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: Time block with this time already exists.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
+  /routines/{routine_id}/time-blocks/{time_block_id}:
+
+    put:
+      tags:
+        - User Routines
+      summary: Update a time block
+      description: |
+        Replaces a single time block and its sessions.
+        All existing sessions in the time block are deleted and replaced.
+        Called each time a session is added or modified in the time block.
+
+        Validates that the routine and time block belong to the authenticated user.
+
+        Same validation rules as POST apply.
+      operationId: updateTimeBlock
+      parameters:
+        - name: routine_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: ID of the routine.
+        - name: time_block_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: ID of the time block to update.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateTimeBlockRequest'
+            example:
+              time: "12:00"
+              time_int: 1200
+              notification_enabled: true
+              sessions:
+                - session_type: "PLAN"
+                  source_id: "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+                  display_order: 0
+                - session_type: "RECITATION"
+                  source_id: "f9e8d7c6-b5a4-3210-fedc-ba9876543210"
+                  display_order: 1
+      responses:
+        '201':
+          description: Time block updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TimeBlockDTO'
+              example:
+                id: "aaaa1111-bbbb-cccc-dddd-eeee11111111"
+                time: "12:00"
+                time_int: 1200
+                notification_enabled: true
+                sessions:
+                  - id: "ssss1111-2222-3333-4444-555555555555"
+                    session_type: "PLAN"
+                    source_id: "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+                    title: "AIY - Introduction"
+                    language: "en"
+                    image_url: "https://s3.amazonaws.com/plans/aiy-intro-thumb.jpg"
+                    display_order: 0
+                  - id: "ssss2222-2222-3333-4444-555555555555"
+                    session_type: "RECITATION"
+                    source_id: "f9e8d7c6-b5a4-3210-fedc-ba9876543210"
+                    title: "Praise to Bhagavatī Tārā"
+                    language: "en"
+                    image_url: null
+                    display_order: 1
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: Time block with this time already exists.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
+    delete:
+      tags:
+        - User Routines
+      summary: Delete a time block
+      description: |
+        Soft deletes a single time block by setting deleted_at timestamp.
+        The time block and its sessions remain in the database but are
+        excluded from GET responses. Does not affect plan enrollments
+        or user recitations.
+
+        Validates that the routine and time block belong to the authenticated user.
+      operationId: deleteTimeBlock
+      parameters:
+        - name: routine_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: ID of the routine.
+        - name: time_block_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: ID of the time block to delete.
+      responses:
+        '204':
+          description: Time block deleted successfully.
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+# ──────────────────────────────────────────────
+# Database Tables (via Alembic migration)
+# ──────────────────────────────────────────────
+#
+# Table: routines
+# ─────────────────────────────────────────────
+# id                    UUID  PK  default uuid4()
+# user_id               UUID  FK → users.id  ON DELETE CASCADE  UNIQUE
+# created_at            DateTime(tz)  default now()
+# updated_at            DateTime(tz)  default now()
+# deleted_at            DateTime(tz)  nullable
+# deleted_by            String(255)  nullable
+#
+# Index: idx_routines_user on user_id
+# Unique: user_id — one routine per user
+#
+# Table: routine_time_blocks
+# ─────────────────────────────────────────────
+# id                    UUID  PK  default uuid4()
+# routine_id            UUID  FK → routines.id  ON DELETE CASCADE
+# time                  String(5)  NOT NULL  (HH:MM 24-hour display format)
+# time_int              Integer  NOT NULL  (24-hour format as integer, 0–2359)
+# notification_enabled  Boolean  default true
+# created_at            DateTime(tz)  default now()
+# updated_at            DateTime(tz)  default now()
+# deleted_at            DateTime(tz)  nullable
+# deleted_by            String(255)  nullable
+#
+# Index: idx_time_blocks_routine on routine_id
+# Unique: (routine_id, time) — no duplicate times within a routine
+# Query filter: deleted_at IS NULL (exclude soft-deleted time blocks)
+#
+# Table: routine_sessions
+# ─────────────────────────────────────────────
+# id              UUID  PK  default uuid4()
+# time_block_id   UUID  FK → routine_time_blocks.id  ON DELETE CASCADE
+# session_type    Enum('PLAN','RECITATION')  NOT NULL
+# source_id       UUID  NOT NULL
+# display_order   Integer  NOT NULL
+# created_at      DateTime(tz)  default now()
+# updated_at      DateTime(tz)  default now()
+#
+# Index: idx_sessions_time_block on time_block_id
+# Unique: idx_unique_plan_per_routine on source_id
+#         WHERE session_type = 'PLAN'
+# source_id: references plans.id when PLAN, MongoDB text ID when RECITATION
+#            No FK constraint (mixed PostgreSQL/MongoDB references)
+#
+# Relationships:
+#   User (1) ──── (1) Routine
+#   Routine (1) ──── (many) TimeBlock
+#   TimeBlock (1) ──── (many) RoutineSession
+#
+# Cascade: Delete User → Routine → TimeBlocks → Sessions
+# Soft delete: On routines and routine_time_blocks tables (deleted_at/deleted_by)
+# Sessions are not soft-deleted — they become invisible when parent is soft-deleted

@@ -34,6 +34,22 @@ TimeOfDay minutesToTime(int minutes) {
   );
 }
 
+/// Formats a [TimeOfDay] into 24-hour HH:MM format for the API (e.g., "06:00", "23:59").
+String formatRoutineTime24h(TimeOfDay time) {
+  final hour = time.hour.toString().padLeft(2, '0');
+  final minute = time.minute.toString().padLeft(2, '0');
+  return '$hour:$minute';
+}
+
+/// Converts a [TimeOfDay] to HHMM integer format used by the API's `time_int`
+/// field (e.g. 6:00 AM → 600, 12:00 PM → 1200, 11:59 PM → 2359).
+int timeToHHMM(TimeOfDay time) => time.hour * 100 + time.minute;
+
+/// Converts an HHMM integer (from the API's `time_int` field) to [TimeOfDay].
+TimeOfDay hhmmToTime(int hhmm) {
+  return TimeOfDay(hour: hhmm ~/ 100, minute: hhmm % 100);
+}
+
 /// Total minutes in a day.
 const int _minutesInDay = 1440;
 
