@@ -4,6 +4,8 @@ import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
 import 'package:flutter_pecha/core/error/failures.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/services/service_providers.dart';
+import 'package:flutter_pecha/core/services/upgrade/update_banner.dart';
+import 'package:flutter_pecha/core/services/upgrade/upgrade_provider.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/core/widgets/error_state_widget.dart';
 import 'package:flutter_pecha/core/widgets/skeletons/skeletons.dart';
@@ -27,6 +29,7 @@ class HomeScreen extends ConsumerStatefulWidget {
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
   bool _hasRequestedPermissions = false;
+  bool _showUpdateBanner = false;
 
   // For proper keyboard dismissal with SearchAnchor
   final FocusScopeNode _searchFocusScopeNode = FocusScopeNode();
@@ -115,14 +118,50 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final localizations = AppLocalizations.of(context)!;
     final tagsAsync = ref.watch(tagsFutureProvider);
 
+    // Check for app updates (only show once per app session)
+    final updateAvailable = ref.watch(updateAvailableProvider);
+    final bannerAlreadyShown = ref.watch(updateBannerShownProvider);
+
+    updateAvailable.whenData((isAvailable) {
+      if (isAvailable && !bannerAlreadyShown && !_showUpdateBanner) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) {
+            setState(() => _showUpdateBanner = true);
+            // Mark as shown so it won't appear again this session
+            ref.read(updateBannerShownProvider.notifier).state = true;
+          }
+        });
+      }
+    });
+
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
-        child: Column(
+        child: Stack(
           children: [
-            _buildTopBar(localizations),
-            _buildSearchSection(localizations, tagsAsync),
-            _buildBody(context, localizations),
+            Column(
+              children: [
+                _buildTopBar(localizations),
+                _buildSearchSection(localizations, tagsAsync),
+                _buildBody(context, localizations),
+              ],
+            ),
+            if (_showUpdateBanner)
+              Positioned(
+                left: 0,
+                right: 0,
+                bottom: 0,
+                child: UpdateBanner(
+                  onUpdateTap: () {
+                    ref.read(openAppStoreProvider)();
+                  },
+                  onDismissed: () {
+                    if (mounted) {
+                      setState(() => _showUpdateBanner = false);
+                    }
+                  },
+                ),
+              ),
           ],
         ),
       ),
