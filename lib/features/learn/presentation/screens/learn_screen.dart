@@ -21,7 +21,9 @@ class LearnScreen extends StatelessWidget {
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 34.0),
-        child: Column(
+        child: 
+        Center(
+          child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
@@ -36,6 +38,7 @@ class LearnScreen extends StatelessWidget {
               textAlign: TextAlign.center,
             ),
           ],
+        ),
         ),
       ),
     );

@@ -110,11 +110,7 @@ class PlanListScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildContent(
-    BuildContext context,
-    WidgetRef ref,
-    List<Plan> plans,
-  ) {
+  Widget _buildContent(BuildContext context, WidgetRef ref, List<Plan> plans) {
     return CustomScrollView(
       physics: const BouncingScrollPhysics(
         parent: AlwaysScrollableScrollPhysics(),
@@ -165,7 +161,7 @@ class _FeaturedPlanCard extends ConsumerWidget {
       },
       borderRadius: BorderRadius.circular(16),
       child: Container(
-        height: 200,
+        height: MediaQuery.of(context).size.height * 0.3,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
           color: Theme.of(context).colorScheme.surfaceContainer,

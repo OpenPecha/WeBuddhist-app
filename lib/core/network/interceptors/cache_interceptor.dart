@@ -57,9 +57,11 @@ class CacheInterceptor extends Interceptor {
 
     // Auto-invalidate related GET cache when mutations succeed
     if (_isMutationMethod(method) && _isSuccessStatus(statusCode)) {
-      final basePath = _extractBasePath(request.path);
-      invalidate(basePath);
-      _logger.info('🗑️ Auto-invalidated cache for mutation on: $basePath');
+      final relatedPaths = _extractRelatedPaths(request.path);
+      for (final path in relatedPaths) {
+        invalidate(path);
+      }
+      _logger.info('🗑️ Auto-invalidated cache for mutation on: $relatedPaths');
     }
 
     // Cache successful GET responses
@@ -93,18 +95,38 @@ class CacheInterceptor extends Interceptor {
     return statusCode >= 200 && statusCode < 300;
   }
 
-  /// Extract base path for cache invalidation.
-  /// "/users/me/plans/123" → "/users/me/plans"
-  /// "/users/me/plans" → "/users/me/plans"
-  String _extractBasePath(String path) {
+  /// Extract base paths for cache invalidation.
+  /// Returns list of paths to invalidate for comprehensive cache clearing.
+  List<String> _extractRelatedPaths(String path) {
+    final paths = <String>[];
     final segments = path.split('/').where((s) => s.isNotEmpty).toList();
     
-    // If last segment looks like an ID (UUID or numeric), remove it
+    // Remove trailing action segments like "complete"
+    if (segments.isNotEmpty && _isActionSegment(segments.last)) {
+      segments.removeLast();
+    }
+    
+    // If last segment looks like an ID, remove it for the base path
     if (segments.isNotEmpty && _looksLikeId(segments.last)) {
       segments.removeLast();
     }
     
-    return '/${segments.join('/')}';
+    paths.add('/${segments.join('/')}');
+    
+    // For task/subtask completion, also invalidate plan-related caches
+    // This handles: /users/me/tasks/... or /users/me/sub-tasks/...
+    if (path.contains('/tasks/') || path.contains('/sub-tasks/')) {
+      paths.add('/users/me/plan');
+      paths.add('/users/me/plans');
+    }
+    
+    return paths;
+  }
+
+  /// Check if a segment is an action (not data to be cached)
+  bool _isActionSegment(String value) {
+    const actions = ['complete', 'incomplete', 'toggle', 'delete', 'archive'];
+    return actions.contains(value.toLowerCase());
   }
 
   /// Check if a string looks like an ID (UUID or numeric)

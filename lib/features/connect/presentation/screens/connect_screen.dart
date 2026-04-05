@@ -21,7 +21,9 @@ class ConnectScreen extends StatelessWidget {
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 34.0),
-        child: Column(
+        child: 
+        Center(
+          child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
@@ -34,8 +36,9 @@ class ConnectScreen extends StatelessWidget {
             Text(
               'Teachers, communities, challenges, and events to support you on the path.',
               textAlign: TextAlign.center,
-            ),
-          ],
+              ),
+            ],
+          ),
         ),
       ),
     );

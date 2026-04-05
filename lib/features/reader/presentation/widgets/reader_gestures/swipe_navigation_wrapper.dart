@@ -153,8 +153,9 @@ class _SwipeNavigationWrapperState
 
   void _completeCurrentSubtask() {
     final navContext = widget.params.navigationContext;
-    if (navContext == null || navContext.source != NavigationSource.plan)
+    if (navContext == null || navContext.source != NavigationSource.plan) {
       return;
+    }
 
     final items = navContext.planTextItems;
     final index = navContext.currentTextIndex;
@@ -167,12 +168,26 @@ class _SwipeNavigationWrapperState
     if (subtaskId == null || subtaskId.isEmpty) return;
     if (currentItem.isCompleted) return;
 
+    final planId = navContext.planId;
+    final dayNumber = navContext.dayNumber;
+
     Future.microtask(() async {
       try {
         final result = await ref.read(completeSubTaskFutureProvider(subtaskId).future);
         result.fold(
           (failure) => _logger.error('Failed to complete subtask: ${failure.message}'),
-          (_) => _logger.info('Marked subtask $subtaskId as complete on navigation'),
+          (_) {
+            _logger.info('Marked subtask $subtaskId as complete on navigation');
+            // Invalidate providers to refresh UI when user returns to plan screen
+            if (planId != null && dayNumber != null) {
+              ref.invalidate(
+                userPlanDayContentFutureProvider(
+                  PlanDaysParams(planId: planId, dayNumber: dayNumber),
+                ),
+              );
+              ref.invalidate(userPlanDaysCompletionStatusProvider(planId));
+            }
+          },
         );
       } catch (e) {
         _logger.error('Failed to complete subtask $subtaskId', e);
