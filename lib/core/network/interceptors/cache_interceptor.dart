@@ -57,9 +57,11 @@ class CacheInterceptor extends Interceptor {
 
     // Auto-invalidate related GET cache when mutations succeed
     if (_isMutationMethod(method) && _isSuccessStatus(statusCode)) {
-      final basePath = _extractBasePath(request.path);
-      invalidate(basePath);
-      _logger.info('🗑️ Auto-invalidated cache for mutation on: $basePath');
+      final relatedPaths = _extractRelatedPaths(request.path);
+      for (final path in relatedPaths) {
+        invalidate(path);
+      }
+      _logger.info('🗑️ Auto-invalidated cache for mutation on: $relatedPaths');
     }
 
     // Cache successful GET responses
@@ -98,13 +100,26 @@ class CacheInterceptor extends Interceptor {
   /// "/users/me/plans" → "/users/me/plans"
   String _extractBasePath(String path) {
     final segments = path.split('/').where((s) => s.isNotEmpty).toList();
-    
+
     // If last segment looks like an ID (UUID or numeric), remove it
     if (segments.isNotEmpty && _looksLikeId(segments.last)) {
       segments.removeLast();
     }
-    
+
     return '/${segments.join('/')}';
+  }
+
+  /// Extract related paths for comprehensive cache invalidation.
+  /// Returns a list of paths to invalidate when a mutation occurs.
+  List<String> _extractRelatedPaths(String path) {
+    final paths = <String>[_extractBasePath(path)];
+
+    // Routine mutations (/routines/...) should invalidate the user routine GET (/users/me/routine)
+    if (path.startsWith('/routines')) {
+      paths.add('/users/me/routine');
+    }
+
+    return paths;
   }
 
   /// Check if a string looks like an ID (UUID or numeric)

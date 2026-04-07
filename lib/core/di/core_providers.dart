@@ -123,6 +123,8 @@ final _dioBaseOptionsProvider = Provider<BaseOptions>((ref) {
       'Content-Type': 'application/json',
       'Accept': 'application/json',
     },
+    // Allow all status codes through - ErrorInterceptor will handle error conversion
+    validateStatus: (status) => status != null && status >= 100 && status < 600,
   );
 });
 
@@ -163,6 +165,8 @@ final _aiDioBaseOptionsProvider = Provider<BaseOptions>((ref) {
       'Content-Type': 'application/json',
       'Accept': 'application/json',
     },
+    // Allow all status codes through - ErrorInterceptor will handle error conversion
+    validateStatus: (status) => status != null && status >= 100 && status < 600,
   );
 });
 

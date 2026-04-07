@@ -39,6 +39,13 @@ class ProtectedRoutes {
     '/threads/{threadId}',
     '/threads/{threadId}/', // Catch-all for thread sub-paths
 
+    // Routines
+    '/routines',
+    '/routines/{routineId}',
+    '/routines/{routineId}/time-blocks',
+    '/routines/{routineId}/time-blocks/{timeBlockId}',
+    '/users/me/routine',
+
     // Plans (public endpoints but may need auth for user-specific data)
     '/plans/{planId}',
     '/plans/{planId}/days',

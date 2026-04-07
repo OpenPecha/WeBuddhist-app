@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/error/exceptions.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
@@ -6,9 +7,10 @@ import 'package:flutter_pecha/features/notifications/data/services/notification_
 import 'package:flutter_pecha/features/plans/presentation/providers/user_plans_provider.dart';
 import 'package:flutter_pecha/features/practice/data/models/routine_model.dart';
 import 'package:flutter_pecha/features/practice/data/models/session_selection.dart';
+import 'package:flutter_pecha/features/practice/data/utils/routine_api_mapper.dart';
+import 'package:flutter_pecha/features/practice/data/utils/routine_time_utils.dart';
 import 'package:flutter_pecha/features/practice/presentation/providers/routine_provider.dart';
 import 'package:flutter_pecha/features/practice/data/services/routine_notification_service.dart';
-import 'package:flutter_pecha/features/practice/data/utils/routine_time_utils.dart';
 import 'package:flutter_pecha/features/practice/presentation/screens/select_session_screen.dart';
 import 'package:flutter_pecha/features/practice/presentation/widgets/routine_time_block.dart';
 import 'package:flutter_pecha/features/recitation/presentation/providers/recitations_providers.dart';
@@ -21,13 +23,15 @@ const _uuid = Uuid();
 final _logger = AppLogger('EditRoutineScreen');
 
 class _EditableBlock {
-  final String id;
+  String id;
+  String? apiTimeBlockId;
   TimeOfDay time;
   bool notificationEnabled;
   List<RoutineItem> items;
 
   _EditableBlock({
     String? id,
+    this.apiTimeBlockId,
     required this.time,
     required this.notificationEnabled,
     List<RoutineItem>? items,
@@ -45,6 +49,15 @@ class EditRoutineScreen extends ConsumerStatefulWidget {
 class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
   late List<_EditableBlock> _blocks;
 
+  /// Server routine id once loaded or after first create.
+  String? _apiRoutineId;
+
+  /// Time block ids that existed when the screen opened (for DELETE on save).
+  Set<String> _initialApiTimeBlockIds = {};
+
+  bool _hydratedFromApi = false;
+  bool _isLoading = false;
+
   /// Check if the last block in the list is empty (has no items)
   bool get _isLastBlockEmpty =>
       _blocks.isNotEmpty && _blocks.last.items.isEmpty;
@@ -55,13 +68,28 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
   @override
   void initState() {
     super.initState();
-    final existingData = ref.read(routineProvider);
-    if (existingData.hasItems) {
+    _blocks = [
+      _EditableBlock(
+        time: const TimeOfDay(hour: 12, minute: 0),
+        notificationEnabled: true,
+      ),
+    ];
+  }
+
+  void _applyInitialResponse(RoutineData? data) {
+    _apiRoutineId = data?.apiRoutineId;
+    _initialApiTimeBlockIds = {
+      if (data != null)
+        ...data.blocks.map((b) => b.apiTimeBlockId).whereType<String>(),
+    };
+
+    if (data != null && data.blocks.isNotEmpty) {
       _blocks =
-          existingData.blocks
+          data.blocks
               .map(
                 (b) => _EditableBlock(
                   id: b.id,
+                  apiTimeBlockId: b.apiTimeBlockId,
                   time: b.time,
                   notificationEnabled: b.notificationEnabled,
                   items: List.from(b.items),
@@ -78,6 +106,105 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
     }
   }
 
+  RoutineBlock _toRoutineBlock(_EditableBlock b) {
+    return RoutineBlock(
+      id: b.id,
+      time: b.time,
+      notificationEnabled: b.notificationEnabled,
+      apiTimeBlockId: b.apiTimeBlockId,
+      items: b.items,
+    );
+  }
+
+  Future<void> _syncNotificationsFromEditable() async {
+    final blocks = _blocks.map(_toRoutineBlock).toList();
+    await RoutineNotificationService().syncNotifications(blocks);
+  }
+
+  String _mapRoutineError(Object e) {
+    if (e is AppException) return e.message;
+    return 'Something went wrong. Please try again.';
+  }
+
+  Future<void> _syncEmptyRoutineToServer() async {
+    final routineId = _apiRoutineId;
+    if (routineId == null) return;
+    for (final blockId in _initialApiTimeBlockIds) {
+      await ref.read(deleteTimeBlockProvider(
+        (routineId: routineId, timeBlockId: blockId),
+      ).future);
+    }
+  }
+
+  Future<void> _persistBlocksToServer() async {
+    var routineId = _apiRoutineId;
+
+    if (routineId == null) {
+      final firstEditable = _blocks.first;
+      final created = await ref.read(createRoutineProvider(
+        routineBlockToCreateRequest(_toRoutineBlock(firstEditable)),
+      ).future);
+      routineId = created.id;
+      _apiRoutineId = routineId;
+
+      final firstDto = created.timeBlocks.first;
+      firstEditable.apiTimeBlockId = firstDto.id;
+      firstEditable.id = firstDto.id;
+
+      for (var i = 1; i < _blocks.length; i++) {
+        final editable = _blocks[i];
+        final dto = await ref.read(createTimeBlockProvider(
+          (
+            routineId: routineId,
+            request: routineBlockToCreateRequest(_toRoutineBlock(editable)),
+          ),
+        ).future);
+        editable.apiTimeBlockId = dto.id;
+        editable.id = dto.id;
+      }
+    } else {
+      final currentIds =
+          _blocks.map((b) => b.apiTimeBlockId).whereType<String>().toSet();
+      for (final oldId in _initialApiTimeBlockIds) {
+        if (!currentIds.contains(oldId)) {
+          await ref.read(deleteTimeBlockProvider(
+            (routineId: routineId, timeBlockId: oldId),
+          ).future);
+        }
+      }
+
+      for (final editable in _blocks) {
+        final block = _toRoutineBlock(editable);
+        final apiId = editable.apiTimeBlockId;
+        if (apiId != null) {
+          final dto = await ref.read(updateTimeBlockProvider(
+            (
+              routineId: routineId,
+              timeBlockId: apiId,
+              request: routineBlockToUpdateRequest(block),
+            ),
+          ).future);
+          // Sync back in case API changed something
+          editable.apiTimeBlockId = dto.id;
+        } else {
+          final dto = await ref.read(createTimeBlockProvider(
+            (
+              routineId: routineId,
+              request: routineBlockToCreateRequest(block),
+            ),
+          ).future);
+          editable.apiTimeBlockId = dto.id;
+          editable.id = dto.id;
+        }
+      }
+    }
+
+    _initialApiTimeBlockIds = {
+      for (final b in _blocks)
+        if (b.apiTimeBlockId != null) b.apiTimeBlockId!,
+    };
+  }
+
   Future<void> _saveAndPop() async {
     // If there are empty blocks, show validation dialog
     if (_hasEmptyBlocks) {
@@ -92,8 +219,22 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
 
         // If all blocks were empty, save empty list and pop
         if (_blocks.isEmpty) {
-          await ref.read(routineProvider.notifier).saveRoutine([]);
-          if (mounted) Navigator.of(context).pop();
+          try {
+            await _syncEmptyRoutineToServer();
+            await _syncNotificationsFromEditable();
+            ref.invalidate(userRoutineProvider);
+            if (mounted) Navigator.of(context).pop();
+          } catch (e, st) {
+            _logger.error('Failed to clear routine', e, st);
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(_mapRoutineError(e)),
+                  backgroundColor: Colors.red,
+                ),
+              );
+            }
+          }
           return;
         }
       } else {
@@ -102,21 +243,25 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
       }
     }
 
-    // Save non-empty blocks
-    final blocks =
-        _blocks
-            .map(
-              (b) => RoutineBlock(
-                id: b.id,
-                time: b.time,
-                notificationEnabled: b.notificationEnabled,
-                items: b.items,
-              ),
-            )
-            .toList();
-
-    await ref.read(routineProvider.notifier).saveRoutine(blocks);
-    if (mounted) Navigator.of(context).pop();
+    setState(() => _isLoading = true);
+    try {
+      await _persistBlocksToServer();
+      await _syncNotificationsFromEditable();
+      ref.invalidate(userRoutineProvider);
+      if (mounted) Navigator.of(context).pop();
+    } catch (e, st) {
+      _logger.error('Failed to save routine', e, st);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(_mapRoutineError(e)),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
   }
 
   Future<bool?> _showEmptyBlockDialog() {
@@ -358,6 +503,7 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
       id: block.id,
       time: block.time,
       notificationEnabled: block.notificationEnabled,
+      apiTimeBlockId: block.apiTimeBlockId,
       items: items,
     );
     await RoutineNotificationService().cancelBlockNotification(routineBlock);
@@ -443,6 +589,7 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
         id: block.id,
         time: block.time,
         notificationEnabled: block.notificationEnabled,
+        apiTimeBlockId: block.apiTimeBlockId,
         items: [], // empty after deletion
       );
       RoutineNotificationService().cancelBlockNotification(routineBlock);
@@ -628,6 +775,85 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
     final localizations = AppLocalizations.of(context)!;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
+    final routineAsync = ref.watch(userRoutineProvider);
+
+    if (!_hydratedFromApi) {
+      return routineAsync.when(
+        loading: () => PopScope(
+          canPop: false,
+          child: Scaffold(
+            body: SafeArea(
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const CircularProgressIndicator(),
+                    const SizedBox(height: 16),
+                    Text(
+                      localizations.routine_edit_title,
+                      style: const TextStyle(fontWeight: FontWeight.w600),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+        error: (e, _) => PopScope(
+          canPop: false,
+          child: Scaffold(
+            body: SafeArea(
+              child: Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text('$e', textAlign: TextAlign.center),
+                      const SizedBox(height: 16),
+                      FilledButton(
+                        onPressed: () => ref.invalidate(userRoutineProvider),
+                        child: const Text('Retry'),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+        data: (data) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (!mounted || _hydratedFromApi) return;
+            setState(() {
+              _hydratedFromApi = true;
+              _applyInitialResponse(data);
+            });
+          });
+          return PopScope(
+            canPop: false,
+            child: Scaffold(
+              body: SafeArea(
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const CircularProgressIndicator(),
+                      const SizedBox(height: 16),
+                      Text(
+                        localizations.routine_edit_title,
+                        style: const TextStyle(fontWeight: FontWeight.w600),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          );
+        },
+      );
+    }
+
     return PopScope(
       canPop: false,
       child: Scaffold(
@@ -639,9 +865,10 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
               children: [
                 const SizedBox(height: 16),
                 _DoneButton(
-                  onTap: _saveAndPop,
+                  onTap: _isLoading ? null : _saveAndPop,
                   isDark: isDark,
                   label: localizations.done,
+                  isLoading: _isLoading,
                 ),
                 const SizedBox(height: 8),
                 Text(
@@ -706,14 +933,16 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
 }
 
 class _DoneButton extends StatelessWidget {
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
   final bool isDark;
   final String label;
+  final bool isLoading;
 
   const _DoneButton({
     required this.onTap,
     required this.isDark,
     required this.label,
+    this.isLoading = false,
   });
 
   @override
@@ -722,14 +951,20 @@ class _DoneButton extends StatelessWidget {
       alignment: Alignment.centerRight,
       child: GestureDetector(
         onTap: onTap,
-        child: Text(
-          label,
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w500,
-            color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimary,
-          ),
-        ),
+        child: isLoading
+            ? const SizedBox(
+                width: 16,
+                height: 16,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              )
+            : Text(
+                label,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimary,
+                ),
+              ),
       ),
     );
   }
