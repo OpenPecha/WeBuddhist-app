@@ -1348,6 +1348,18 @@ abstract class AppLocalizations {
   /// **'Add Recitation'**
   String get routine_add_recitation;
 
+  /// No description provided for @routine_add_plan_to_routine.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to Routine'**
+  String get routine_add_plan_to_routine;
+
+  /// No description provided for @routine_go_to_practice.
+  ///
+  /// In en, this message translates to:
+  /// **'Go to Practice'**
+  String get routine_go_to_practice;
+
   /// No description provided for @continueWithGoogle.
   ///
   /// In en, this message translates to:
@@ -1743,6 +1755,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count, plural, =0{0 missed days} =1{1 missed day} other{{count} missed days}}'**
   String missedDaysCount(int count);
+
+  /// No description provided for @plan_enrolled.
+  ///
+  /// In en, this message translates to:
+  /// **'Enrolled'**
+  String get plan_enrolled;
 }
 
 class _AppLocalizationsDelegate

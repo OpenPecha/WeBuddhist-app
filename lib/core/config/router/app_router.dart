@@ -157,7 +157,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: "edit-routine", // route - /practice/edit-routine
             name: "edit-routine",
-            builder: (context, state) => const EditRoutineScreen(),
+            builder: (context, state) {
+              final extra = state.extra as Map<String, dynamic>?;
+              final plan = extra?['initialPlan'] as Plan?;
+              return EditRoutineScreen(initialPlan: plan);
+            },
             routes: [
               GoRoute(
                 path:

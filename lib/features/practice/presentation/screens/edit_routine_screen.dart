@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/error/failures.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
@@ -7,6 +9,7 @@ import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/features/notifications/data/services/notification_service.dart';
 import 'package:flutter_pecha/features/practice/data/models/routine_model.dart';
 import 'package:flutter_pecha/features/practice/data/models/session_selection.dart';
+import 'package:flutter_pecha/features/plans/domain/entities/plan.dart';
 import 'package:flutter_pecha/features/practice/data/utils/routine_api_mapper.dart';
 import 'package:flutter_pecha/features/practice/data/utils/routine_time_utils.dart';
 import 'package:flutter_pecha/features/practice/presentation/providers/practice_providers.dart';
@@ -38,7 +41,9 @@ class _EditableBlock {
 }
 
 class EditRoutineScreen extends ConsumerStatefulWidget {
-  const EditRoutineScreen({super.key});
+  final Plan? initialPlan;
+
+  const EditRoutineScreen({super.key, this.initialPlan});
 
   @override
   ConsumerState<EditRoutineScreen> createState() => _EditRoutineScreenState();
@@ -50,10 +55,10 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
   /// Server routine id once loaded or after first create.
   String? _apiRoutineId;
 
-  /// Time block ids that existed when the screen opened (for DELETE on save).
-  Set<String> _initialApiTimeBlockIds = {};
-
   bool _hydratedFromApi = false;
+
+  /// Sequential queue so API calls never overlap or race.
+  Future<void> _opQueue = Future.value();
 
   bool get _isLastBlockEmpty =>
       _blocks.isNotEmpty && _blocks.last.items.isEmpty;
@@ -73,16 +78,8 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
 
   // ─── Hydration ───
 
-  /// Populates local editable state from the API response (already mapped
-  /// to [RoutineData] by [userRoutineProvider] — no mapper calls in UI).
   void _applyInitialData(RoutineData? routineData) {
     _apiRoutineId = routineData?.apiRoutineId;
-    _initialApiTimeBlockIds = {
-      if (routineData != null)
-        ...routineData.blocks
-            .map((b) => b.apiTimeBlockId)
-            .whereType<String>(),
-    };
 
     if (routineData != null && routineData.blocks.isNotEmpty) {
       _blocks = routineData.blocks
@@ -106,7 +103,57 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
     }
   }
 
-  // ─── Helpers ───
+  void _injectInitialPlan(Plan plan) {
+    final alreadyExists = _blocks.any(
+      (b) => b.items.any(
+        (item) => item.id == plan.id && item.type == RoutineItemType.plan,
+      ),
+    );
+    if (alreadyExists) return;
+
+    final newItem = RoutineItem(
+      id: plan.id,
+      title: plan.title,
+      imageUrl: plan.coverImageUrl,
+      type: RoutineItemType.plan,
+      enrolledAt: DateTime.now(),
+    );
+
+    // If we have exactly one empty default block, add the plan there
+    if (_blocks.length == 1 && _blocks.first.items.isEmpty) {
+      _blocks.first.items.add(newItem);
+      return;
+    }
+
+    // Otherwise create a new time block at the user's current local time
+    final otherTimes = _blocks.map((b) => b.time).toList();
+    final adjusted = adjustTimeForMinimumGap(TimeOfDay.now(), otherTimes);
+    if (adjusted == null) {
+      // Fallback: add to the first block if no time slot available
+      _blocks.first.items.add(newItem);
+      return;
+    }
+
+    _blocks.add(
+      _EditableBlock(
+          time: adjusted, notificationEnabled: true, items: [newItem]),
+    );
+    _sortBlocks();
+  }
+
+  /// Syncs the block that contains [plan] after deep-link injection.
+  void _syncInjectedPlan(Plan plan) {
+    for (final block in _blocks) {
+      if (block.items.any(
+        (i) => i.id == plan.id && i.type == RoutineItemType.plan,
+      )) {
+        _syncBlock(block).catchError((e) {
+          if (mounted) _showErrorSnackBar(_mapError(e));
+        });
+        break;
+      }
+    }
+  }
 
   RoutineBlock _toRoutineBlock(_EditableBlock b) {
     return RoutineBlock(
@@ -123,166 +170,133 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
     await ref.read(routineNotificationServiceProvider).syncNotifications(blocks);
   }
 
+  // ─── Operation queue ───
+
+  /// Enqueues [fn] so API calls run sequentially.
+  /// Errors propagate to callers but never break the chain for subsequent ops.
+  Future<void> _enqueue(Future<void> Function() fn) async {
+    final prev = _opQueue;
+    final completer = Completer<void>();
+    _opQueue = completer.future;
+
+    try {
+      await prev;
+    } catch (_) {}
+
+    try {
+      await fn();
+      completer.complete();
+    } catch (e, st) {
+      completer.complete();
+      Error.throwWithStackTrace(e, st);
+    }
+  }
+
+  // ─── Server sync ───
+
+  /// Syncs a single block's current local state to the server.
+  ///
+  /// Empty block with a server ID → DELETE (block becomes local-only).
+  /// Block with items but no server ID → CREATE (routine or time block).
+  /// Block with items and a server ID → UPDATE (full replacement).
+  Future<void> _syncBlock(_EditableBlock block) => _enqueue(() async {
+        if (block.items.isEmpty) {
+          if (block.apiTimeBlockId != null && _apiRoutineId != null) {
+            final result = await ref.read(deleteTimeBlockUseCaseProvider)(
+              _apiRoutineId!,
+              block.apiTimeBlockId!,
+            );
+            result.fold((f) => throw f, (_) {
+              block.apiTimeBlockId = null;
+            });
+          }
+          return;
+        }
+
+        final request = routineBlockToRequest(_toRoutineBlock(block));
+
+        if (_apiRoutineId == null) {
+          // First block ever: creates the routine + block together.
+          final result = await ref
+              .read(createRoutineWithTimeBlockUseCaseProvider)(request);
+          result.fold((f) => throw f, (created) {
+            _apiRoutineId = created.routineId;
+            block.apiTimeBlockId = created.timeBlockId;
+            block.id = created.timeBlockId;
+          });
+        } else if (block.apiTimeBlockId == null) {
+          // Routine exists but this block is new.
+          final result = await ref.read(createTimeBlockUseCaseProvider)(
+            _apiRoutineId!,
+            request,
+          );
+          result.fold((f) => throw f, (timeBlockId) {
+            block.apiTimeBlockId = timeBlockId;
+            block.id = timeBlockId;
+          });
+        } else {
+          // Both exist — full replacement update.
+          final result = await ref.read(updateTimeBlockUseCaseProvider)(
+            _apiRoutineId!,
+            block.apiTimeBlockId!,
+            request,
+          );
+          result.fold((f) => throw f, (_) {});
+        }
+      });
+
+  /// Deletes a persisted time block from the server.
+  Future<void> _deletePersistedBlock(String apiTimeBlockId) =>
+      _enqueue(() async {
+        if (_apiRoutineId == null) return;
+        final result = await ref.read(deleteTimeBlockUseCaseProvider)(
+          _apiRoutineId!,
+          apiTimeBlockId,
+        );
+        result.fold((f) => throw f, (_) {});
+      });
+
   // ─── Error handling ───
 
-  /// Maps any thrown value to a user-facing error message.
-  /// Handles both [Failure] objects (from use cases) and legacy exception types.
   String _mapError(Object e) {
     if (e is Failure) return e.message;
     if (e is Exception) return e.toString().replaceFirst('Exception: ', '');
     return 'Something went wrong. Please try again.';
   }
 
-  // ─── Server sync ───
-
-  /// Deletes all remaining server-side time blocks when the user clears the
-  /// entire routine.
-  Future<void> _syncEmptyRoutineToServer() async {
-    final routineId = _apiRoutineId;
-    if (routineId == null) return;
-
-    final deleteUseCase = ref.read(deleteTimeBlockUseCaseProvider);
-    for (final blockId in _initialApiTimeBlockIds) {
-      final result = await deleteUseCase(routineId, blockId);
-      result.fold((failure) => throw failure, (_) {});
-    }
-  }
-
-  /// Syncs the current [_blocks] state to the server.
-  ///
-  /// - If no routine exists yet: creates the routine with the first block,
-  ///   then creates all remaining blocks.
-  /// - If a routine already exists: deletes removed blocks, then
-  ///   creates/updates each remaining block.
-  Future<void> _persistBlocksToServer() async {
-    var routineId = _apiRoutineId;
-
-    final createRoutineUseCase =
-        ref.read(createRoutineWithTimeBlockUseCaseProvider);
-    final createBlockUseCase = ref.read(createTimeBlockUseCaseProvider);
-    final updateBlockUseCase = ref.read(updateTimeBlockUseCaseProvider);
-    final deleteBlockUseCase = ref.read(deleteTimeBlockUseCaseProvider);
-
-    if (routineId == null) {
-      // ── First save: create the routine ──
-      final firstEditable = _blocks.first;
-      final createResult = await createRoutineUseCase(
-        routineBlockToRequest(_toRoutineBlock(firstEditable)),
-      );
-      createResult.fold(
-        (failure) => throw failure,
-        (created) {
-          routineId = created.routineId;
-          _apiRoutineId = routineId;
-          firstEditable.apiTimeBlockId = created.timeBlockId;
-          firstEditable.id = created.timeBlockId;
-        },
-      );
-
-      // Create any additional blocks beyond the first
-      for (var i = 1; i < _blocks.length; i++) {
-        final editable = _blocks[i];
-        final blockResult = await createBlockUseCase(
-          routineId!,
-          routineBlockToRequest(_toRoutineBlock(editable)),
-        );
-        blockResult.fold(
-          (failure) => throw failure,
-          (timeBlockId) {
-            editable.apiTimeBlockId = timeBlockId;
-            editable.id = timeBlockId;
-          },
-        );
-      }
-    } else {
-      // ── Subsequent saves: diff and sync ──
-
-      // 1. Delete blocks that were removed during editing
-      final currentApiIds =
-          _blocks.map((b) => b.apiTimeBlockId).whereType<String>().toSet();
-      for (final oldId in _initialApiTimeBlockIds) {
-        if (!currentApiIds.contains(oldId)) {
-          final result = await deleteBlockUseCase(routineId, oldId);
-          result.fold((failure) => throw failure, (_) {});
-        }
-      }
-
-      // 2. Create new blocks / update existing ones
-      for (final editable in _blocks) {
-        final block = _toRoutineBlock(editable);
-        final apiId = editable.apiTimeBlockId;
-        if (apiId != null) {
-          final result = await updateBlockUseCase(
-            routineId,
-            apiId,
-            routineBlockToRequest(block),
-          );
-          result.fold((failure) => throw failure, (_) {});
-        } else {
-          final result = await createBlockUseCase(
-            routineId,
-            routineBlockToRequest(block),
-          );
-          result.fold(
-            (failure) => throw failure,
-            (timeBlockId) {
-              editable.apiTimeBlockId = timeBlockId;
-              editable.id = timeBlockId;
-            },
-          );
-        }
-      }
-    }
-
-    // Track new canonical set of API ids for any further saves in this session
-    _initialApiTimeBlockIds = {
-      for (final b in _blocks)
-        if (b.apiTimeBlockId != null) b.apiTimeBlockId!,
-    };
+  void _showErrorSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message), backgroundColor: Colors.red),
+    );
   }
 
   // ─── Save flow ───
 
   Future<void> _saveAndPop() async {
+    // Wait for any in-flight API operations to finish.
+    try {
+      await _opQueue;
+    } catch (_) {}
+
     if (_hasEmptyBlocks) {
       final shouldDelete = await _showEmptyBlockDialog();
       if (!mounted) return;
 
       if (shouldDelete == true) {
         setState(() => _blocks.removeWhere((b) => b.items.isEmpty));
-
-        if (_blocks.isEmpty) {
-          try {
-            await _syncEmptyRoutineToServer();
-            await _syncNotifications();
-            ref.invalidate(userRoutineProvider);
-            if (mounted) Navigator.of(context).pop();
-          } catch (e, st) {
-            _logger.error('Failed to clear routine', e, st);
-            if (mounted) _showErrorSnackBar(_mapError(e));
-          }
-          return;
-        }
       } else {
-        return; // User chose to add items instead
+        return;
       }
     }
 
     try {
-      await _persistBlocksToServer();
       await _syncNotifications();
-      ref.invalidate(userRoutineProvider);
-      if (mounted) Navigator.of(context).pop();
     } catch (e, st) {
-      _logger.error('Failed to save routine', e, st);
-      if (mounted) _showErrorSnackBar(_mapError(e));
+      _logger.error('Failed to sync notifications on save', e, st);
     }
-  }
 
-  void _showErrorSnackBar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), backgroundColor: Colors.red),
-    );
+    ref.invalidate(userRoutineProvider);
+    if (mounted) Navigator.of(context).pop();
   }
 
   // ─── Dialogs ───
@@ -361,10 +375,14 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
         return;
       }
 
+      final block = _blocks[index];
+      final previousTime = block.time;
+
       setState(() {
-        _blocks[index].time = adjusted;
+        block.time = adjusted;
         _sortBlocks();
       });
+
       if (adjusted != picked && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -376,6 +394,20 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
           ),
         );
       }
+
+      if (block.apiTimeBlockId != null) {
+        try {
+          await _syncBlock(block);
+        } catch (e) {
+          if (mounted) {
+            setState(() {
+              block.time = previousTime;
+              _sortBlocks();
+            });
+            _showErrorSnackBar(_mapError(e));
+          }
+        }
+      }
     }
   }
 
@@ -386,8 +418,22 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
   }
 
   Future<void> _toggleNotification(int index) async {
-    if (_blocks[index].notificationEnabled) {
-      setState(() => _blocks[index].notificationEnabled = false);
+    final block = _blocks[index];
+
+    if (block.notificationEnabled) {
+      final previousValue = block.notificationEnabled;
+      setState(() => block.notificationEnabled = false);
+
+      if (block.apiTimeBlockId != null) {
+        try {
+          await _syncBlock(block);
+        } catch (e) {
+          if (mounted) {
+            setState(() => block.notificationEnabled = previousValue);
+            _showErrorSnackBar(_mapError(e));
+          }
+        }
+      }
       return;
     }
 
@@ -398,7 +444,18 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
     }
 
     if (mounted) {
-      setState(() => _blocks[index].notificationEnabled = true);
+      setState(() => block.notificationEnabled = true);
+
+      if (block.apiTimeBlockId != null) {
+        try {
+          await _syncBlock(block);
+        } catch (e) {
+          if (mounted) {
+            setState(() => block.notificationEnabled = false);
+            _showErrorSnackBar(_mapError(e));
+          }
+        }
+      }
     }
   }
 
@@ -506,18 +563,28 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
 
   Future<void> _deleteBlock(int index) async {
     final block = _blocks[index];
-    final routineBlock = RoutineBlock(
-      id: block.id,
-      time: block.time,
-      notificationEnabled: block.notificationEnabled,
-      apiTimeBlockId: block.apiTimeBlockId,
-      items: List.from(block.items),
-    );
+    final apiId = block.apiTimeBlockId;
+
+    final routineBlock = _toRoutineBlock(block);
     await ref
         .read(routineNotificationServiceProvider)
         .cancelBlockNotification(routineBlock);
 
     setState(() => _blocks.removeAt(index));
+
+    if (apiId != null) {
+      try {
+        await _deletePersistedBlock(apiId);
+      } catch (e) {
+        if (mounted) {
+          setState(() {
+            _blocks.add(block);
+            _sortBlocks();
+          });
+          _showErrorSnackBar(_mapError(e));
+        }
+      }
+    }
   }
 
   bool get _isAtMaxBlocks => !canAddBlock(_blocks.length);
@@ -539,8 +606,8 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
     }
 
     final otherTimes = _blocks.map((b) => b.time).toList();
-    final adjusted =
-        adjustTimeForMinimumGap(const TimeOfDay(hour: 12, minute: 0), otherTimes);
+    final adjusted = adjustTimeForMinimumGap(
+        const TimeOfDay(hour: 12, minute: 0), otherTimes);
 
     if (adjusted == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -556,24 +623,41 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
       _blocks.add(_EditableBlock(time: adjusted, notificationEnabled: false));
       _sortBlocks();
     });
+    // No API call — block is local-only until the first session is added.
   }
 
   void _onReorderItems(int blockIndex, int oldIndex, int newIndex) {
+    final block = _blocks[blockIndex];
+    final previousOrder = List<RoutineItem>.from(block.items);
+
     setState(() {
       if (newIndex > oldIndex) newIndex -= 1;
-      final item = _blocks[blockIndex].items.removeAt(oldIndex);
-      _blocks[blockIndex].items.insert(newIndex, item);
+      final item = block.items.removeAt(oldIndex);
+      block.items.insert(newIndex, item);
     });
+
+    if (block.apiTimeBlockId != null) {
+      _syncBlock(block).catchError((e) {
+        if (mounted) {
+          setState(() {
+            block.items
+              ..clear()
+              ..addAll(previousOrder);
+          });
+          _showErrorSnackBar(_mapError(e));
+        }
+      });
+    }
   }
 
   void _onDeleteItem(int blockIndex, int itemIndex) {
     final block = _blocks[blockIndex];
+    final removedItem = block.items[itemIndex];
     final wasNotEmpty = block.items.isNotEmpty;
 
-    setState(() => _blocks[blockIndex].items.removeAt(itemIndex));
+    setState(() => block.items.removeAt(itemIndex));
 
-    // Cancel notification when the block becomes empty
-    if (wasNotEmpty && _blocks[blockIndex].items.isEmpty) {
+    if (wasNotEmpty && block.items.isEmpty) {
       final routineBlock = RoutineBlock(
         id: block.id,
         time: block.time,
@@ -584,6 +668,15 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
       ref
           .read(routineNotificationServiceProvider)
           .cancelBlockNotification(routineBlock);
+    }
+
+    if (block.apiTimeBlockId != null) {
+      _syncBlock(block).catchError((e) {
+        if (mounted) {
+          setState(() => block.items.insert(itemIndex, removedItem));
+          _showErrorSnackBar(_mapError(e));
+        }
+      });
     }
   }
 
@@ -639,28 +732,35 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
           return;
         }
 
-        setState(() {
-          switch (result) {
-            case PlanSessionSelection(:final plan):
-              _blocks[blockIndex].items.add(
-                RoutineItem(
-                  id: plan.id,
-                  title: plan.title,
-                  imageUrl: plan.coverImageUrl,
-                  type: RoutineItemType.plan,
-                  enrolledAt: DateTime.now(),
-                ),
-              );
-            case RecitationSessionSelection(:final recitation):
-              _blocks[blockIndex].items.add(
-                RoutineItem(
-                  id: recitation.textId,
-                  title: recitation.title,
-                  type: RoutineItemType.recitation,
-                ),
-              );
+        final RoutineItem newItem;
+        switch (result) {
+          case PlanSessionSelection(:final plan):
+            newItem = RoutineItem(
+              id: plan.id,
+              title: plan.title,
+              imageUrl: plan.coverImageUrl,
+              type: RoutineItemType.plan,
+              enrolledAt: DateTime.now(),
+            );
+          case RecitationSessionSelection(:final recitation):
+            newItem = RoutineItem(
+              id: recitation.textId,
+              title: recitation.title,
+              type: RoutineItemType.recitation,
+            );
+        }
+
+        final block = _blocks[blockIndex];
+        setState(() => block.items.add(newItem));
+
+        try {
+          await _syncBlock(block);
+        } catch (e) {
+          if (mounted) {
+            setState(() => block.items.remove(newItem));
+            _showErrorSnackBar(_mapError(e));
           }
-        });
+        }
       }
     } finally {
       _isSelectingSession = false;
@@ -688,7 +788,14 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
             setState(() {
               _hydratedFromApi = true;
               _applyInitialData(routineData);
+              if (widget.initialPlan != null) {
+                _injectInitialPlan(widget.initialPlan!);
+              }
             });
+            // Sync the block that received the injected plan.
+            if (widget.initialPlan != null) {
+              _syncInjectedPlan(widget.initialPlan!);
+            }
           });
           return _buildLoadingScaffold(localizations);
         },

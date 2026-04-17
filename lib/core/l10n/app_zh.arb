@@ -208,6 +208,8 @@
   "routine_delete_block": "刪除區塊",
   "routine_add_plan": "添加計劃",
   "routine_add_recitation": "添加持誦",
+  "routine_add_plan_to_routine": "Add to Routine",
+  "routine_go_to_practice": "Go to Practice",
   "continueWithGoogle": "使用 Google 繼續",
   "continueWithApple": "使用 Apple 繼續",
   "continueAsGuest": "以訪客身份繼續",
@@ -329,5 +331,6 @@
         "type": "int"
       }
     }
-  }
+  },
+  "plan_enrolled": "已加入"
 }
