@@ -120,9 +120,11 @@ class CacheInterceptor extends Interceptor {
       paths.add('/users/me/plans');
     }
 
-    // Routine mutations (/routines/...) should invalidate the user routine GET (/users/me/routine)
+    // Routine mutations (/routines/...) should invalidate user routine and enrolled plans
+    // (backend auto-enrolls users in plans when added to routine)
     if (path.startsWith('/routines')) {
       paths.add('/users/me/routine');
+      paths.add('/users/me/plans');
     }
     
     return paths;

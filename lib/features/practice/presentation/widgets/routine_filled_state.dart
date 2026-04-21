@@ -28,10 +28,9 @@ class RoutineFilledState extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const SizedBox(height: 16),
         // Header with Edit button
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20.0),
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
           child: _RoutineHeader(
             title: localizations.routine_title,
             editLabel: localizations.routine_edit,
@@ -125,57 +124,72 @@ class _RoutineBlockSection extends ConsumerWidget {
     BuildContext context,
     WidgetRef ref,
     RoutineItem item,
-    Map<String, dynamic> userPlansMap,
   ) async {
-    if (item.type == RoutineItemType.recitation) {
-      // Navigate to new ReaderScreen for recitation text
-      final navigationContext = NavigationContext(
-        source: NavigationSource.normal,
-      );
-      context.push('/reader/${item.id}', extra: navigationContext);
-    } else if (item.type == RoutineItemType.plan) {
-      final userPlan = userPlansMap[item.id];
-
-      if (userPlan == null) {
-        if (context.mounted) {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text(context.l10n.notFound)));
-        }
-        return;
-      }
-
-      if (context.mounted) {
-        // Use enrolledAt from routine item, fallback to plan's startedAt
-        final startDate = item.enrolledAt ?? userPlan.startedAt;
-        final today = DateTime.now();
-        final daysSinceEnrollment =
-            today.difference(DateUtils.dateOnly(startDate)).inDays;
-        // Day 1 is the enrollment day, so add 1; minimum is day 1
-        final selectedDay = (daysSinceEnrollment + 1).clamp(
-          1,
-          userPlan.totalDays,
-        );
-
-        context.push(
-          '/practice/details',
-          extra: {
-            'plan': userPlan,
-            'selectedDay': selectedDay,
-            'startDate': startDate,
-          },
-        );
-      }
+    switch (item.type) {
+      case RoutineItemType.recitation:
+        _navigateToReader(context, item.id);
+      case RoutineItemType.plan:
+        await _navigateToPlanDetails(context, ref, item);
     }
+  }
+
+  void _navigateToReader(BuildContext context, String textId) {
+    final navigationContext = NavigationContext(source: NavigationSource.normal);
+    context.push('/reader/$textId', extra: navigationContext);
+  }
+
+  Future<void> _navigateToPlanDetails(
+    BuildContext context,
+    WidgetRef ref,
+    RoutineItem item,
+  ) async {
+    final userPlan = await _resolveUserPlan(ref, item.id);
+
+    if (userPlan == null) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(context.l10n.notFound)),
+        );
+      }
+      return;
+    }
+
+    if (!context.mounted) return;
+
+    final startDate = item.enrolledAt ?? userPlan.startedAt;
+    final daysSinceEnrollment =
+        DateTime.now().difference(DateUtils.dateOnly(startDate)).inDays;
+    final selectedDay = (daysSinceEnrollment + 1).clamp(1, userPlan.totalDays);
+
+    context.push(
+      '/practice/details',
+      extra: {
+        'plan': userPlan,
+        'selectedDay': selectedDay,
+        'startDate': startDate,
+      },
+    );
+  }
+
+  /// Resolves the user plan from cached state, with a fallback refresh.
+  Future<dynamic> _resolveUserPlan(WidgetRef ref, String planId) async {
+    var plans = ref.read(myPlansPaginatedProvider).plans;
+    var userPlan = plans.where((p) => p.id == planId).firstOrNull;
+
+    // Safety net: refresh if plan not found (handles edge cases like
+    // enrollment via different flow or stale cache)
+    if (userPlan == null) {
+      await ref.read(myPlansPaginatedProvider.notifier).refresh();
+      plans = ref.read(myPlansPaginatedProvider).plans;
+      userPlan = plans.where((p) => p.id == planId).firstOrNull;
+    }
+
+    return userPlan;
   }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    // Watch the my plans state to ensure we have the latest data
-    final myPlansState = ref.watch(myPlansPaginatedProvider);
-    final userPlansMap = {for (var plan in myPlansState.plans) plan.id: plan};
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -193,13 +207,9 @@ class _RoutineBlockSection extends ConsumerWidget {
         for (int i = 0; i < block.items.length; i++) ...[
           RoutineItemCard(
             title: block.items[i].title,
-            imageUrl:
-                block.items[i].imageUrl ??
-                (block.items[i].type == RoutineItemType.plan
-                    ? block.items[i].imageUrl
-                    : null),
+            imageUrl: block.items[i].imageUrl,
             type: block.items[i].type,
-            onTap: () => _onItemTap(context, ref, block.items[i], userPlansMap),
+            onTap: () => _onItemTap(context, ref, block.items[i]),
           ),
           if (i < block.items.length - 1) const Divider(height: 1, indent: 80),
         ],

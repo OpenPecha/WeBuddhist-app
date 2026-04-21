@@ -157,7 +157,7 @@ abstract class AppLocalizations {
   /// No description provided for @onboarding_welcome.
   ///
   /// In en, this message translates to:
-  /// **'Welcome to WeBuddhist'**
+  /// **'Welcome to'**
   String get onboarding_welcome;
 
   /// No description provided for @onboarding_description.
@@ -169,13 +169,13 @@ abstract class AppLocalizations {
   /// No description provided for @onboarding_quote.
   ///
   /// In en, this message translates to:
-  /// **'Approximatey 500 million people worldwide practice Buddhism, making it the world\'s fourth largest religion'**
+  /// **'Drop by drop is the water pot filled. Likewise, the wise person, gathering it little by little, fills themselves with good.'**
   String get onboarding_quote;
 
   /// No description provided for @onboarding_find_peace.
   ///
   /// In en, this message translates to:
-  /// **'Find your Peace'**
+  /// **'Get Started'**
   String get onboarding_find_peace;
 
   /// No description provided for @onboarding_continue.
@@ -187,7 +187,7 @@ abstract class AppLocalizations {
   /// No description provided for @onboarding_first_question.
   ///
   /// In en, this message translates to:
-  /// **'In which language would you like to access core texts?'**
+  /// **'Choose your language:'**
   String get onboarding_first_question;
 
   /// No description provided for @onboarding_second_question.
@@ -199,14 +199,26 @@ abstract class AppLocalizations {
   /// No description provided for @onboarding_choose_option.
   ///
   /// In en, this message translates to:
-  /// **'Choose upto 3 options'**
+  /// **'Choose at least one:'**
   String get onboarding_choose_option;
 
   /// No description provided for @onboarding_all_set.
   ///
   /// In en, this message translates to:
-  /// **'You are All Setup'**
+  /// **'You\'re all set up'**
   String get onboarding_all_set;
+
+  /// No description provided for @onboarding_all_set_description.
+  ///
+  /// In en, this message translates to:
+  /// **'We\'ve tailored your experience to your tradition. Show up each day — even for a moment — and watch your practice grow.'**
+  String get onboarding_all_set_description;
+
+  /// No description provided for @onboarding_begin_practice.
+  ///
+  /// In en, this message translates to:
+  /// **'Begin Your Practice'**
+  String get onboarding_begin_practice;
 
   /// No description provided for @home_today.
   ///
@@ -325,7 +337,7 @@ abstract class AppLocalizations {
   /// No description provided for @nav_settings.
   ///
   /// In en, this message translates to:
-  /// **'Me'**
+  /// **'Settings'**
   String get nav_settings;
 
   /// No description provided for @nav_connect.
@@ -1321,8 +1333,14 @@ abstract class AppLocalizations {
   /// No description provided for @routine_delete_block.
   ///
   /// In en, this message translates to:
-  /// **'Delete Time Block'**
+  /// **'Delete Block'**
   String get routine_delete_block;
+
+  /// No description provided for @routine_delete_time_block.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Time Block'**
+  String get routine_delete_time_block;
 
   /// No description provided for @routine_add_plan.
   ///
@@ -1335,6 +1353,102 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Add Recitation'**
   String get routine_add_recitation;
+
+  /// No description provided for @routine_add_plan_to_routine.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to Routine'**
+  String get routine_add_plan_to_routine;
+
+  /// No description provided for @routine_go_to_practice.
+  ///
+  /// In en, this message translates to:
+  /// **'Go to Practice'**
+  String get routine_go_to_practice;
+
+  /// No description provided for @routine_load_error.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load your routine. Please try again.'**
+  String get routine_load_error;
+
+  /// No description provided for @routine_empty_block_title_singular.
+  ///
+  /// In en, this message translates to:
+  /// **'Empty Time Block'**
+  String get routine_empty_block_title_singular;
+
+  /// No description provided for @routine_empty_block_title_plural.
+  ///
+  /// In en, this message translates to:
+  /// **'Empty Time Blocks ({count})'**
+  String routine_empty_block_title_plural(int count);
+
+  /// No description provided for @routine_empty_block_message_singular.
+  ///
+  /// In en, this message translates to:
+  /// **'This time block has no items. Would you like to add an item or delete the block?'**
+  String get routine_empty_block_message_singular;
+
+  /// No description provided for @routine_empty_block_message_plural.
+  ///
+  /// In en, this message translates to:
+  /// **'You have {count} time blocks without any items. Would you like to add items or delete these blocks?'**
+  String routine_empty_block_message_plural(int count);
+
+  /// No description provided for @routine_empty_block_add_items.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Items'**
+  String get routine_empty_block_add_items;
+
+  /// No description provided for @routine_empty_block_delete_singular.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Block'**
+  String get routine_empty_block_delete_singular;
+
+  /// No description provided for @routine_empty_block_delete_plural.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Empty Blocks'**
+  String get routine_empty_block_delete_plural;
+
+  /// No description provided for @routine_notification_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Make Prayer Daily'**
+  String get routine_notification_title;
+
+  /// No description provided for @routine_notification_description.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow notifications to receive your reminder to pray.'**
+  String get routine_notification_description;
+
+  /// No description provided for @routine_notification_enable.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable Notifications'**
+  String get routine_notification_enable;
+
+  /// No description provided for @routine_notification_skip.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip'**
+  String get routine_notification_skip;
+
+  /// No description provided for @routine_time_adjusted.
+  ///
+  /// In en, this message translates to:
+  /// **'Adjusted to {time} ({gap}-min minimum gap)'**
+  String routine_time_adjusted(String time, int gap);
+
+  /// No description provided for @routine_add_block_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Time Block'**
+  String get routine_add_block_label;
 
   /// No description provided for @continueWithGoogle.
   ///
@@ -1731,6 +1845,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count, plural, =0{0 missed days} =1{1 missed day} other{{count} missed days}}'**
   String missedDaysCount(int count);
+
+  /// No description provided for @plan_enrolled.
+  ///
+  /// In en, this message translates to:
+  /// **'Enrolled'**
+  String get plan_enrolled;
 }
 
 class _AppLocalizationsDelegate

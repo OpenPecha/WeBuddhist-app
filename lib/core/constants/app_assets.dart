@@ -7,6 +7,8 @@ class AppAssets {
 
   // ========== IMAGES ==========
   static const String routineCalendar = 'assets/images/routine_calendar.png';
+  static const String recitationCoverDefault =
+      'assets/images/recitation_cover/recitation_05.jpg';
 
   // ========== LOGOS ==========
   static const String weBuddhistLogo = 'assets/images/webuddhist_gold.png';

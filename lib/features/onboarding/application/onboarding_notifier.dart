@@ -97,33 +97,38 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
     }
   }
 
-  /// Submit preferences and complete onboarding.
-  Future<void> submitPreferences() async {
+  /// Submit preferences and mark onboarding as complete.
+  /// Returns true only when completion was successfully persisted to storage.
+  Future<bool> submitPreferences() async {
     state = state.copyWithLoading(true);
     try {
-      // Save preferences
       final saveResult = await _saveOnboardingPreferencesUseCase(
         SavePreferencesParams(preferences: state.preferences),
       );
       saveResult.fold(
         (failure) => _logger.error('Error saving preferences', failure),
-        (_) => _logger.debug('Preferences saved successfully'),
+        (_) => _logger.debug('Preferences saved'),
       );
 
-      // Complete onboarding
+      bool completed = false;
       final completeResult = await _completeOnboardingUseCase(const NoParams());
       completeResult.fold(
-        (failure) => _logger.error('Error completing onboarding', failure),
-        (_) => _logger.debug('Onboarding completed successfully'),
+        (failure) {
+          _logger.error('Error completing onboarding', failure);
+          state = state.copyWithError('Failed to save progress. Please try again.');
+        },
+        (_) {
+          _logger.debug('Onboarding completed');
+          completed = true;
+        },
       );
 
-      // TODO: Enable when API is ready — sync all preferences to backend
-      // Add a SyncPreferencesToRemoteUseCase and call it here.
-
       state = state.copyWithLoading(false);
+      return completed;
     } catch (e) {
       _logger.error('Error submitting preferences', e);
       state = state.copyWithLoading(false);
+      return false;
     }
   }
 

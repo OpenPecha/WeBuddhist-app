@@ -87,21 +87,21 @@ class SegmentActionBar extends ConsumerWidget {
                       }
                     },
                   ),
-                  // AI button
-                  ActionButton(
-                    icon: PhosphorIconsRegular.sparkle,
-                    label: localizations.ask_ai,
-                    onTap:
-                        () => {
-                          // show a comming soon snackbar
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(localizations.comingSoonHeadline),
-                              duration: Duration(seconds: 2),
-                            ),
-                          ),
-                        },
-                  ),
+                  // // AI button
+                  // ActionButton(
+                  //   icon: PhosphorIconsRegular.sparkle,
+                  //   label: localizations.ask_ai,
+                  //   onTap:
+                  //       () => {
+                  //         // show a comming soon snackbar
+                  //         ScaffoldMessenger.of(context).showSnackBar(
+                  //           SnackBar(
+                  //             content: Text(localizations.comingSoonHeadline),
+                  //             duration: Duration(seconds: 2),
+                  //           ),
+                  //         ),
+                  //       },
+                  // ),
                   // Copy button
                   ActionButton(
                     icon: Icons.copy,

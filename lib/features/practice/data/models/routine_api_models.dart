@@ -34,34 +34,15 @@ class SessionRequest {
   };
 }
 
-class CreateTimeBlockRequest {
+/// Unified request body for both creating and updating a time block.
+/// Used by [createRoutineWithTimeBlock], [createTimeBlock], and [updateTimeBlock].
+class TimeBlockRequest {
   final String time;
   final int timeInt;
   final bool notificationEnabled;
   final List<SessionRequest> sessions;
 
-  const CreateTimeBlockRequest({
-    required this.time,
-    required this.timeInt,
-    this.notificationEnabled = true,
-    required this.sessions,
-  });
-
-  Map<String, dynamic> toJson() => {
-    'time': time,
-    'time_int': timeInt,
-    'notification_enabled': notificationEnabled,
-    'sessions': sessions.map((s) => s.toJson()).toList(),
-  };
-}
-
-class UpdateTimeBlockRequest {
-  final String time;
-  final int timeInt;
-  final bool notificationEnabled;
-  final List<SessionRequest> sessions;
-
-  const UpdateTimeBlockRequest({
+  const TimeBlockRequest({
     required this.time,
     required this.timeInt,
     this.notificationEnabled = true,

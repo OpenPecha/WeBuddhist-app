@@ -9,15 +9,17 @@
   "switchToDark": "切换到深色模式",
   "sign_in": "登錄",
   "logout": "登出",
-  "onboarding_welcome": "歡迎來到 WeBuddhist",
+  "onboarding_welcome": "歡迎來到",
   "onboarding_description": "在這裡每天學習、生活與分享佛教智慧",
-  "onboarding_quote": "Approximatey 500 million people worldwide practice Buddhism, making it the world's fourth largest religion",
-  "onboarding_find_peace": "尋找你本有的平靜",
+  "onboarding_quote": "Drop by drop is the water pot filled. Likewise, the wise person, gathering it little by little, fills themselves with good.",  
+  "onboarding_find_peace": "立即開始",
   "onboarding_continue": "下一步",
-  "onboarding_first_question": "In which language would you like to access core texts?",
+  "onboarding_first_question": "选择您的语言：",
   "onboarding_second_question": "Which path or school do you feel drawn to?",
-  "onboarding_choose_option": "Choose upto 3 options",
-  "onboarding_all_set": "你已設定完成",
+  "onboarding_choose_option": "至少选择一项：",
+  "onboarding_all_set": "您已準備就緒",
+  "onboarding_all_set_description": "我們已根據您的傳承為您量身打造體驗。每天出現——哪怕片刻——見證您的修行成長。",
+  "onboarding_begin_practice": "開始您的修行",
   "home_today": "今天",
   "home_good_morning": "早上好",
   "home_good_afternoon": "下午好",
@@ -37,7 +39,7 @@
   "nav_texts": "文本",
   "nav_learn": "学习",
   "nav_practice": "修持計劃",
-  "nav_settings": "Me",
+  "nav_settings": "设置",
   "nav_connect": "连接",
   "text_browseTheLibrary": "瀏覽文庫",
   "text_search": "搜尋",
@@ -204,8 +206,41 @@
   "routine_remind_me": "提醒我",
   "routine_edit_title": "編輯日常修持",
   "routine_delete_block": "刪除區塊",
+  "routine_delete_time_block": "刪除區塊",
   "routine_add_plan": "添加計劃",
   "routine_add_recitation": "添加持誦",
+  "routine_add_plan_to_routine": "Add to Routine",
+  "routine_go_to_practice": "Go to Practice",
+  "routine_load_error": "無法載入你的日常修持，請重試。",
+  "routine_empty_block_title_singular": "空白時間區塊",
+  "routine_empty_block_title_plural": "空白時間區塊 ({count})",
+  "@routine_empty_block_title_plural": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "routine_empty_block_message_singular": "此時間區塊沒有任何項目。你要添加項目還是刪除區塊？",
+  "routine_empty_block_message_plural": "你有 {count} 個時間區塊沒有任何項目。你要添加項目還是刪除這些區塊？",
+  "@routine_empty_block_message_plural": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "routine_empty_block_add_items": "添加項目",
+  "routine_empty_block_delete_singular": "刪除區塊",
+  "routine_empty_block_delete_plural": "刪除空白區塊",
+  "routine_notification_title": "讓祈禱成為日常",
+  "routine_notification_description": "允許通知以接收祈禱提醒。",
+  "routine_notification_enable": "啟用通知",
+  "routine_notification_skip": "跳過",
+  "routine_time_adjusted": "已調整為 {time}（最少 {gap} 分鐘間隔）",
+  "@routine_time_adjusted": {
+    "placeholders": {
+      "time": { "type": "String" },
+      "gap": { "type": "int" }
+    }
+  },
+  "routine_add_block_label": "時間區塊",
   "continueWithGoogle": "使用 Google 繼續",
   "continueWithApple": "使用 Apple 繼續",
   "continueAsGuest": "以訪客身份繼續",
@@ -327,5 +362,6 @@
         "type": "int"
       }
     }
-  }
+  },
+  "plan_enrolled": "已加入"
 }

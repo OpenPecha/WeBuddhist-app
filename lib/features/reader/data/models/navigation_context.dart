@@ -9,7 +9,7 @@ enum NavigationSource {
 /// Represents a text item within a plan for swipe navigation
 class PlanTextItem {
   final String textId;
-  final String? segmentId;
+  final List<String>? segmentIds;
   final String title;
 
   /// The subtask ID associated with this text item.
@@ -23,22 +23,25 @@ class PlanTextItem {
 
   const PlanTextItem({
     required this.textId,
-    this.segmentId,
+    this.segmentIds,
     required this.title,
     this.subtaskId,
     this.isCompleted = false,
   });
 
+  /// Get the first segment ID for initial scroll position
+  String? get firstSegmentId => segmentIds?.isNotEmpty == true ? segmentIds!.first : null;
+
   PlanTextItem copyWith({
     String? textId,
-    String? segmentId,
+    List<String>? segmentIds,
     String? title,
     String? subtaskId,
     bool? isCompleted,
   }) {
     return PlanTextItem(
       textId: textId ?? this.textId,
-      segmentId: segmentId ?? this.segmentId,
+      segmentIds: segmentIds ?? this.segmentIds,
       title: title ?? this.title,
       subtaskId: subtaskId ?? this.subtaskId,
       isCompleted: isCompleted ?? this.isCompleted,
@@ -48,20 +51,26 @@ class PlanTextItem {
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
-    return other is PlanTextItem &&
-        other.textId == textId &&
-        other.segmentId == segmentId &&
-        other.title == title &&
-        other.subtaskId == subtaskId &&
-        other.isCompleted == isCompleted;
+    if (other is! PlanTextItem) return false;
+    if (other.textId != textId ||
+        other.title != title ||
+        other.subtaskId != subtaskId ||
+        other.isCompleted != isCompleted) return false;
+    if (segmentIds == null && other.segmentIds == null) return true;
+    if (segmentIds == null || other.segmentIds == null) return false;
+    if (segmentIds!.length != other.segmentIds!.length) return false;
+    for (int i = 0; i < segmentIds!.length; i++) {
+      if (segmentIds![i] != other.segmentIds![i]) return false;
+    }
+    return true;
   }
 
   @override
-  int get hashCode => Object.hash(textId, segmentId, title, subtaskId, isCompleted);
+  int get hashCode => Object.hash(textId, Object.hashAll(segmentIds ?? []), title, subtaskId, isCompleted);
 
   @override
   String toString() {
-    return 'PlanTextItem(textId: $textId, segmentId: $segmentId, title: $title, subtaskId: $subtaskId, isCompleted: $isCompleted)';
+    return 'PlanTextItem(textId: $textId, segmentIds: $segmentIds, title: $title, subtaskId: $subtaskId, isCompleted: $isCompleted)';
   }
 }
 
@@ -110,6 +119,13 @@ class NavigationContext {
   PlanTextItem? get previousTextItem {
     if (!hasPreviousText) return null;
     return planTextItems![currentTextIndex! - 1];
+  }
+
+  /// Get the current text item's segment IDs for visibility control
+  List<String>? get currentSegmentIds {
+    if (planTextItems == null || currentTextIndex == null) return null;
+    if (currentTextIndex! < 0 || currentTextIndex! >= planTextItems!.length) return null;
+    return planTextItems![currentTextIndex!].segmentIds;
   }
 
   NavigationContext copyWith({

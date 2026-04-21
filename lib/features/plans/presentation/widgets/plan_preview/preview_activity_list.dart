@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_pecha/features/plans/data/models/plan_tasks_model.dart';
 import 'package:flutter_pecha/features/plans/plans.dart';
 import 'package:flutter_pecha/features/reader/data/models/navigation_context.dart';
 import 'package:go_router/go_router.dart';
@@ -64,22 +63,9 @@ class PreviewActivityList extends StatelessWidget {
   }
 
   void _handleActivityTap(BuildContext context, PlanTasksModel task) {
-    // Build plan text items for swipe navigation
     final planTextItems = _buildPlanTextItems();
     if (planTextItems.isEmpty) return;
 
-    // Find current task index in sorted tasks
-    final sortedTasks = _sortedTasks;
-    final taskIndex = sortedTasks.indexOf(task);
-    final currentTextIndex = planTextItems.indexWhere(
-      (item) => sortedTasks.any(
-        (t) =>
-            t.subtasks.any((s) => s.sourceTextId == item.textId) &&
-            sortedTasks.indexOf(t) == taskIndex,
-      ),
-    );
-
-    // Get sourceTextId from the first subtask that has it
     final PlanSubtasksModel? subtaskWithText = task.subtasks
         .cast<dynamic>()
         .firstWhere(
@@ -91,7 +77,10 @@ class PreviewActivityList extends StatelessWidget {
       final sourceTextId = subtaskWithText.sourceTextId;
       final segmentId = subtaskWithText.segmentIds?.first;
 
-      // Create navigation context for plan navigation
+      final currentTextIndex = planTextItems.indexWhere(
+        (item) => item.textId == sourceTextId,
+      );
+
       final navigationContext = NavigationContext(
         source: NavigationSource.plan,
         planId: planId,
@@ -105,23 +94,22 @@ class PreviewActivityList extends StatelessWidget {
     }
   }
 
-  /// Build list of plan text items for swipe navigation
+  /// Build list of plan text items for swipe navigation.
+  /// One PlanTextItem per task with full segmentIds list.
   List<PlanTextItem> _buildPlanTextItems() {
     final items = <PlanTextItem>[];
     final sortedTasks = _sortedTasks;
     for (final task in sortedTasks) {
-      // for (final subtask in task.subtasks) { - we are using the first subtask for now
       final subtask = task.subtasks[0];
       if (subtask.sourceTextId != null && subtask.sourceTextId!.isNotEmpty) {
         items.add(
           PlanTextItem(
             textId: subtask.sourceTextId!,
-            segmentId: subtask.segmentIds?.first,
+            segmentIds: subtask.segmentIds,
             title: task.title,
           ),
         );
       }
-      // }
     }
     return items;
   }

@@ -20,6 +20,7 @@ class ReaderContentPart extends ConsumerStatefulWidget {
   final ReaderParams params;
   final String language;
   final String? initialSegmentId;
+  final List<String>? visibleSegmentIds;
   final void Function(bool isScrollingDown)? onScrollDirectionChanged;
   final void Function(void Function(String segmentId, {double? alignment}))? onScrollControllerReady;
   const ReaderContentPart({
@@ -27,6 +28,7 @@ class ReaderContentPart extends ConsumerStatefulWidget {
     required this.params,
     required this.language,
     this.initialSegmentId,
+    this.visibleSegmentIds,
     this.onScrollDirectionChanged,
     this.onScrollControllerReady,
   });
@@ -345,6 +347,16 @@ class _ReaderContentPartState extends ConsumerState<ReaderContentPart> {
     );
   }
 
+  bool _isSegmentGreyedOut(String segmentId) {
+    if (widget.visibleSegmentIds != null && widget.visibleSegmentIds!.isNotEmpty) {
+      return !widget.visibleSegmentIds!.contains(segmentId);
+    }
+    if (widget.initialSegmentId != null) {
+      return widget.initialSegmentId != segmentId;
+    }
+    return false;
+  }
+
   Widget _buildItem({
     required FlattenedItem item,
     required ReaderState state,
@@ -374,9 +386,7 @@ class _ReaderContentPartState extends ConsumerState<ReaderContentPart> {
             isSelected: state.selectedSegment?.segmentId == segment.segmentId,
             isHighlighted: state.highlightedSegmentId == segment.segmentId,
             highlightSource: state.highlightSource,
-            isGreyedOut: _enableGreyOut && 
-                         widget.initialSegmentId != null &&
-                         widget.initialSegmentId != segment.segmentId,
+            isGreyedOut: _enableGreyOut && _isSegmentGreyedOut(segment.segmentId),
             onTap: () => onSegmentTap(segment),
           ),
     );

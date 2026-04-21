@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "551646315172",
+    "project_id": "webuddhist-app",
+    "storage_bucket": "webuddhist-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:551646315172:android:0bd7b5394051c7df7adc31",
+        "android_client_info": {
+          "package_name": "org.pecha.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBRo5ms8zEQ4qyQlZfyBH3OOe9ajkuDiuA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

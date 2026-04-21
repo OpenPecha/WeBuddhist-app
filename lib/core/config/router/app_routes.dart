@@ -78,7 +78,7 @@ class AppRoutes {
   // ========== ROUTE CATEGORIES ==========
 
   /// Routes that don't require any authentication
-  static const Set<String> publicRoutes = {onboarding, login};
+  static const Set<String> publicRoutes = {login};
 
   /// Routes accessible to guest users (includes sub-routes automatically)
   static const Set<String> guestAccessibleRoutes = {

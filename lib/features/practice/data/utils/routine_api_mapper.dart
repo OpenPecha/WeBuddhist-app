@@ -52,17 +52,10 @@ List<SessionRequest> _sessionsForBlock(RoutineBlock block) {
   return sessions;
 }
 
-CreateTimeBlockRequest routineBlockToCreateRequest(RoutineBlock block) {
-  return CreateTimeBlockRequest(
-    time: formatRoutineTime24h(block.time),
-    timeInt: timeToHHMM(block.time),
-    notificationEnabled: block.notificationEnabled,
-    sessions: _sessionsForBlock(block),
-  );
-}
-
-UpdateTimeBlockRequest routineBlockToUpdateRequest(RoutineBlock block) {
-  return UpdateTimeBlockRequest(
+/// Converts a [RoutineBlock] to a [TimeBlockRequest] suitable for both
+/// create and update API calls.
+TimeBlockRequest routineBlockToRequest(RoutineBlock block) {
+  return TimeBlockRequest(
     time: formatRoutineTime24h(block.time),
     timeInt: timeToHHMM(block.time),
     notificationEnabled: block.notificationEnabled,

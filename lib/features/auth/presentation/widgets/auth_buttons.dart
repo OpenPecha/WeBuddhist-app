@@ -15,6 +15,7 @@ class AuthButtons extends ConsumerWidget {
     final l10n = context.l10n;
     return Column(
       children: [
+        SizedBox(height: 50),
         SocialLoginButton(
           connection: 'google',
           icon: Icons.g_mobiledata,

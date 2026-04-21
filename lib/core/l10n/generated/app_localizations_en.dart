@@ -36,7 +36,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get logout => 'Logout';
 
   @override
-  String get onboarding_welcome => 'Welcome to WeBuddhist';
+  String get onboarding_welcome => 'Welcome to';
 
   @override
   String get onboarding_description =>
@@ -44,27 +44,33 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get onboarding_quote =>
-      'Approximatey 500 million people worldwide practice Buddhism, making it the world\'s fourth largest religion';
+      'Drop by drop is the water pot filled. Likewise, the wise person, gathering it little by little, fills themselves with good.';
 
   @override
-  String get onboarding_find_peace => 'Find your Peace';
+  String get onboarding_find_peace => 'Get Started';
 
   @override
   String get onboarding_continue => 'Continue';
 
   @override
-  String get onboarding_first_question =>
-      'In which language would you like to access core texts?';
+  String get onboarding_first_question => 'Choose your language:';
 
   @override
   String get onboarding_second_question =>
       'Which path or school do you feel drawn to?';
 
   @override
-  String get onboarding_choose_option => 'Choose upto 3 options';
+  String get onboarding_choose_option => 'Choose at least one:';
 
   @override
-  String get onboarding_all_set => 'You are All Setup';
+  String get onboarding_all_set => 'You\'re all set up';
+
+  @override
+  String get onboarding_all_set_description =>
+      'We\'ve tailored your experience to your tradition. Show up each day — even for a moment — and watch your practice grow.';
+
+  @override
+  String get onboarding_begin_practice => 'Begin Your Practice';
 
   @override
   String get home_today => 'Today';
@@ -124,7 +130,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get nav_practice => 'Practice';
 
   @override
-  String get nav_settings => 'Me';
+  String get nav_settings => 'Settings';
 
   @override
   String get nav_connect => 'Connect';
@@ -647,13 +653,73 @@ class AppLocalizationsEn extends AppLocalizations {
   String get routine_edit_title => 'Edit Your Routine';
 
   @override
-  String get routine_delete_block => 'Delete Time Block';
+  String get routine_delete_block => 'Delete Block';
+
+  @override
+  String get routine_delete_time_block => 'Delete Time Block';
 
   @override
   String get routine_add_plan => 'Add Plan';
 
   @override
   String get routine_add_recitation => 'Add Recitation';
+
+  @override
+  String get routine_add_plan_to_routine => 'Add to Routine';
+
+  @override
+  String get routine_go_to_practice => 'Go to Practice';
+
+  @override
+  String get routine_load_error =>
+      'Could not load your routine. Please try again.';
+
+  @override
+  String get routine_empty_block_title_singular => 'Empty Time Block';
+
+  @override
+  String routine_empty_block_title_plural(int count) {
+    return 'Empty Time Blocks ($count)';
+  }
+
+  @override
+  String get routine_empty_block_message_singular =>
+      'This time block has no items. Would you like to add an item or delete the block?';
+
+  @override
+  String routine_empty_block_message_plural(int count) {
+    return 'You have $count time blocks without any items. Would you like to add items or delete these blocks?';
+  }
+
+  @override
+  String get routine_empty_block_add_items => 'Add Items';
+
+  @override
+  String get routine_empty_block_delete_singular => 'Delete Block';
+
+  @override
+  String get routine_empty_block_delete_plural => 'Delete Empty Blocks';
+
+  @override
+  String get routine_notification_title => 'Make Prayer Daily';
+
+  @override
+  String get routine_notification_description =>
+      'Allow notifications to receive your reminder to pray.';
+
+  @override
+  String get routine_notification_enable => 'Enable Notifications';
+
+  @override
+  String get routine_notification_skip => 'Skip';
+
+  @override
+  String routine_time_adjusted(String time, int gap) {
+    return 'Adjusted to $time ($gap-min minimum gap)';
+  }
+
+  @override
+  String get routine_add_block_label => 'Time Block';
 
   @override
   String get continueWithGoogle => 'Continue with Google';
@@ -879,4 +945,7 @@ class AppLocalizationsEn extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get plan_enrolled => 'Enrolled';
 }

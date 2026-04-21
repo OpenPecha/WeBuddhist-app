@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:auth0_flutter/auth0_flutter.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/features/auth/application/config_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -47,7 +48,7 @@ class AuthService {
       final credentials = await _auth0
           .webAuthentication(scheme: 'org.pecha.app')
           .login(
-            useHTTPS: true,
+            useHTTPS: defaultTargetPlatform != TargetPlatform.macOS,
             parameters: parameters,
             scopes: {"openid", "profile", "email", "offline_access"},
           );
@@ -103,7 +104,7 @@ class AuthService {
     try {
       await _auth0
           .webAuthentication(scheme: 'org.pecha.app')
-          .logout(useHTTPS: true);
+          .logout(useHTTPS: defaultTargetPlatform != TargetPlatform.macOS);
       await _auth0.credentialsManager.clearCredentials();
       _logger.info('Global logout successful');
     } catch (e) {

@@ -89,7 +89,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   void _navigateToPlans(String tag) {
-    context.push('/home/plans/$tag');
+    context.pushNamed('home-plans', pathParameters: {'tag': tag});
   }
 
   String? _getTagImagePath(String tag) {
@@ -110,8 +110,17 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       return 'assets/images/tag_cover/patience.png';
     } else if (tagLower == 'fear') {
       return 'assets/images/tag_cover/fear.jpg';
+    } else if (tagLower == 'anxiety') {
+      return 'assets/images/tag_cover/anxiety.jpg';
+    } else if (tagLower == 'aspiration') {
+      return 'assets/images/tag_cover/aspiration.jpg';
+    } else if (tagLower == 'joy') {
+      return 'assets/images/tag_cover/joy.jpg';
+    } else if (tagLower == 'loneliness') {
+      return 'assets/images/tag_cover/loneliness.jpg';
+    } else {
+      return 'assets/images/tag_cover/cover_image.jpg';
     }
-    return null;
   }
 
   @override
@@ -155,12 +164,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             child: Padding(
               padding: const EdgeInsets.only(right: 16.0),
               child: CircleAvatar(
-                backgroundColor: const Color(0xFF272727),
+                backgroundColor: Theme.of(context).cardColor,
                 radius: 20,
                 child: Icon(
-                  PhosphorIconsRegular.userCircle,
-                  size: 24,
-                  color: Colors.white,
+                  PhosphorIconsFill.userCircle,
+                  size: 26,
+                  color: const Color(0xFF7E7683),
                 ),
               ),
             ),
@@ -330,6 +339,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 EdgeInsets.symmetric(horizontal: 16.0),
               ),
               enabled: false,
+              elevation: const WidgetStatePropertyAll(0.0),
               leading: Icon(
                 Icons.search,
                 color: Theme.of(context).colorScheme.onSurfaceVariant,

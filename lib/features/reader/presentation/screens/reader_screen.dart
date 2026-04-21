@@ -209,6 +209,7 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
                           params: _params,
                           language: state.textDetail!.language,
                           initialSegmentId: widget.segmentId,
+                          visibleSegmentIds: widget.navigationContext?.currentSegmentIds,
                           onScrollDirectionChanged: _onScrollDirectionChanged,
                           onScrollControllerReady: (scrollFn) {
                             _scrollToSegment = scrollFn;

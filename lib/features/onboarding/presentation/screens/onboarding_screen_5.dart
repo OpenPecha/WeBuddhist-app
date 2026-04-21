@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
-import 'package:flutter_pecha/core/theme/app_colors.dart';
-import 'package:flutter_pecha/features/onboarding/application/onboarding_provider.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 
-/// Fifth onboarding screen: "You are All Setup"
-/// Based on Figma design node-id=127-173
+/// Fifth onboarding screen: "You're all set up"
 class OnboardingScreen5 extends ConsumerStatefulWidget {
   const OnboardingScreen5({super.key, required this.onComplete});
 
@@ -25,10 +24,6 @@ class _OnboardingScreen5State extends ConsumerState<OnboardingScreen5>
   void initState() {
     super.initState();
     _initializeAnimations();
-    // Use addPostFrameCallback to avoid modifying provider during build
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _submitPreferencesAndNavigate();
-    });
   }
 
   void _initializeAnimations() {
@@ -48,17 +43,6 @@ class _OnboardingScreen5State extends ConsumerState<OnboardingScreen5>
     _animationController.forward();
   }
 
-  void _submitPreferencesAndNavigate() async {
-    // Submit preferences to local storage
-    await ref.read(onboardingProvider.notifier).submitPreferences();
-
-    // Wait for animation to complete, then navigate
-    await Future.delayed(const Duration(seconds: 2));
-    if (mounted) {
-      widget.onComplete();
-    }
-  }
-
   @override
   void dispose() {
     _animationController.dispose();
@@ -67,86 +51,90 @@ class _OnboardingScreen5State extends ConsumerState<OnboardingScreen5>
 
   @override
   Widget build(BuildContext context) {
-    final isLoading = ref.watch(
-      onboardingProvider.select((state) => state.isLoading),
-    );
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
-        child: Center(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 32.0),
-            child: FadeTransition(
-              opacity: _fadeAnimation,
-              child: SlideTransition(
-                position: _slideAnimation,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    _buildCompletionIcon(isLoading),
-                    const SizedBox(height: 32),
-                    _buildTitle(),
-                    const SizedBox(height: 16),
-                    _buildSubtitle(),
-                  ],
-                ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 32.0),
+          child: FadeTransition(
+            opacity: _fadeAnimation,
+            child: SlideTransition(
+              position: _slideAnimation,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  const Spacer(),
+                  // App logo
+                  Image.asset(AppAssets.weBuddhistLogo, height: 80),
+                  const SizedBox(height: 16),
+                  // App name
+                  Text(
+                    l10n.pechaHeading,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 32,
+                      fontWeight: FontWeight.w600,
+                      fontFamily: getFontFamily('en'),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  // "You're all set up" in cursive
+                  Text(
+                    l10n.onboarding_all_set,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.w400,
+                      fontStyle: FontStyle.italic,
+                      fontFamily: getFontFamily('en'),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  // Description
+                  Text(
+                    l10n.onboarding_all_set_description,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      letterSpacing: -0.2,
+                      height: 1.6,
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.65),
+                    ),
+                  ),
+                  const Spacer(),
+                  // Begin Your Practice button
+                  SizedBox(
+                    width: double.infinity,
+                    child: FilledButton(
+                      onPressed: widget.onComplete,
+                      style: FilledButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: Text(
+                        l10n.onboarding_begin_practice,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: -0.2,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 32),
+                ],
               ),
             ),
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildCompletionIcon(bool isLoading) {
-    return Container(
-      width: 80,
-      height: 80,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: AppColors.primary.withValues(alpha: 0.1),
-      ),
-      child: Center(
-        child:
-            isLoading
-                ? const CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
-                )
-                : const Icon(
-                  Icons.check_circle,
-                  size: 56,
-                  color: AppColors.primary,
-                ),
-      ),
-    );
-  }
-
-  Widget _buildTitle() {
-    final appLocalizations = AppLocalizations.of(context);
-    return Text(
-      appLocalizations!.onboarding_all_set,
-      textAlign: TextAlign.center,
-      style: TextStyle(
-        fontSize: 32,
-        fontWeight: FontWeight.w400,
-        fontStyle: FontStyle.italic,
-        letterSpacing: -0.544,
-        fontFamily: 'Instrument Serif',
-      ),
-    );
-  }
-
-  Widget _buildSubtitle() {
-    final appLocalizations = AppLocalizations.of(context);
-    return Text(
-      appLocalizations!.onboarding_welcome,
-      textAlign: TextAlign.center,
-      style: TextStyle(
-        fontSize: 26,
-        fontWeight: FontWeight.w500,
-        letterSpacing: -0.442,
-        color: Theme.of(context).colorScheme.primary,
       ),
     );
   }

@@ -3,6 +3,10 @@ import java.util.Properties
 
 plugins {
     id("com.android.application")
+    // START: FlutterFire Configuration
+    id("com.google.gms.google-services")
+    id("com.google.firebase.crashlytics")
+    // END: FlutterFire Configuration
     id("kotlin-android")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
@@ -55,6 +59,34 @@ android {
         )
     }
 
+    val cmKeystorePath: String? = System.getenv("CM_KEYSTORE_PATH")
+    val cmKeystorePassword: String? = System.getenv("CM_KEYSTORE_PASSWORD")
+    val cmKeyAlias: String? = System.getenv("CM_KEY_ALIAS")
+    val cmKeyPassword: String? = System.getenv("CM_KEY_PASSWORD")
+    val isCi: Boolean = !cmKeystorePath.isNullOrBlank()
+
+    signingConfigs {
+        fun createSigningConfig(flavor: String) {
+            val storeFilePath = if (isCi) cmKeystorePath
+                else keystoreProperties["${flavor}.storeFile"]?.toString()
+            if (storeFilePath.isNullOrBlank()) return
+
+            create("${flavor}Release") {
+                storeFile = file(storeFilePath)
+                storePassword = if (isCi) cmKeystorePassword
+                    else keystoreProperties["${flavor}.storePassword"]?.toString()
+                keyAlias = if (isCi) cmKeyAlias
+                    else keystoreProperties["${flavor}.keyAlias"]?.toString()
+                keyPassword = if (isCi) cmKeyPassword
+                    else keystoreProperties["${flavor}.keyPassword"]?.toString()
+            }
+        }
+
+        createSigningConfig("dev")
+        createSigningConfig("staging")
+        createSigningConfig("prod")
+    }
+
     flavorDimensions += "environment"
 
     productFlavors {
@@ -63,41 +95,27 @@ android {
             applicationId = "org.pecha.app.dev"
             resValue("string", "app_name", "[Dev] WeBuddhist")
             versionNameSuffix = "-dev"
+            signingConfigs.findByName("devRelease")?.let { signingConfig = it }
         }
 
         create("staging") {
             dimension = "environment"
             applicationId = "org.pecha.app.staging"
-            resValue("string", "app_name", "[Staging] WeBuddhist")
+            resValue("string", "app_name", "[Stage] WeBuddhist")
             versionNameSuffix = "-staging"
+            signingConfigs.findByName("stagingRelease")?.let { signingConfig = it }
         }
 
         create("prod") {
             dimension = "environment"
             applicationId = "org.pecha.app"
             resValue("string", "app_name", "WeBuddhist")
-        }
-    }
-
-    signingConfigs {
-        create("release") {
-            keyAlias = keystoreProperties["keyAlias"]?.toString()
-            keyPassword = keystoreProperties["keyPassword"]?.toString()
-            storeFile = if (keystoreProperties["storeFile"] != null) {
-                file(keystoreProperties["storeFile"].toString())
-            } else {
-                null
-            }
-            storePassword = keystoreProperties["storePassword"]?.toString()
+            signingConfigs.findByName("prodRelease")?.let { signingConfig = it }
         }
     }
 
     buildTypes {
         getByName("release") {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.getByName("release")
-            
             // Enable ProGuard for release builds
             isMinifyEnabled = true
             isShrinkResources = true

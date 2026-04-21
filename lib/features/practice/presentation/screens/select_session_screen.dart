@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
+import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/core/widgets/cached_network_image_widget.dart';
@@ -284,7 +285,7 @@ class _RecitationsTab extends ConsumerWidget {
                 return _SessionListTile(
                   title: recitation.title,
                   subtitle: null,
-                  imageUrl: null,
+                  imageUrl: AppAssets.recitationCoverDefault,
                   isLoading: isEnrolling,
                   isDisabled: enrollingItemId != null,
                   onTap: () => onRecitationSelected(recitation),
@@ -330,15 +331,14 @@ class _SessionListTile extends StatelessWidget {
             children: [
               ClipRRect(
                 borderRadius: BorderRadius.circular(8),
-                child:
-                    imageUrl != null && imageUrl!.isNotEmpty
+                child: imageUrl?.trim().isNotEmpty == true
                         ? CachedNetworkImageWidget(
-                          imageUrl: imageUrl!,
-                          width: 56,
-                          height: 56,
-                          fit: BoxFit.cover,
-                          borderRadius: BorderRadius.circular(8),
-                        )
+                            imageUrl: imageUrl,
+                            width: 56,
+                            height: 56,
+                            fit: BoxFit.cover,
+                            borderRadius: BorderRadius.circular(8),
+                          )
                         : Container(
                           width: 56,
                           height: 56,

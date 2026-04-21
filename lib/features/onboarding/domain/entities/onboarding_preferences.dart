@@ -105,4 +105,5 @@ class BuddhistPath {
   static const String zen = 'zen';
   static const String tibetanBuddhism = 'tibetan_buddhism';
   static const String pureLand = 'pure_land';
+  static const String ambedkarBuddhism = 'ambedkar_buddhism';
 }

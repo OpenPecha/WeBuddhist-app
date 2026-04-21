@@ -35,11 +35,9 @@ class _OnboardingWrapperState extends ConsumerState<OnboardingWrapper> {
   }
 
   Future<void> _completeOnboarding() async {
-    // Submit onboarding preferences and mark as complete
-    await ref.read(onboardingProvider.notifier).submitPreferences();
-
-    // Navigate to home screen
-    if (mounted) {
+    // Only navigate if onboarding was successfully persisted.
+    final completed = await ref.read(onboardingProvider.notifier).submitPreferences();
+    if (mounted && completed) {
       context.go(RouteConfig.home);
     }
   }

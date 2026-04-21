@@ -40,27 +40,87 @@ class OnboardingLocalDatasource {
     }
   }
 
-  /// Clear preferences from local storage.
+  /// Clears all onboarding data for the current user.
+  /// Only called on account deletion — never on logout or guest transitions.
   Future<void> clearPreferences() async {
     await _localStorageService.remove(StorageKeys.onboardingPreferences);
     await _localStorageService.remove(StorageKeys.onboardingCompleted);
-    _logger.info('Preferences cleared');
+
+    final userId = await _localStorageService.get<String>(
+      StorageKeys.currentUserId,
+    );
+    if (userId != null && userId.isNotEmpty) {
+      await _localStorageService.remove(
+        StorageKeys.onboardingCompletedForUser(userId),
+      );
+    }
+    _logger.info('Onboarding data cleared');
   }
 
-  /// Check if onboarding has been completed.
+  /// Returns true if the current user has already completed onboarding.
+  ///
+  /// Checks the per-user key first (keyed by [StorageKeys.currentUserId]).
+  /// Falls back to the legacy device-level key and migrates it on first read,
+  /// so existing users are not asked to repeat onboarding after an update.
   Future<bool> hasCompletedOnboarding() async {
-    final completed = await _localStorageService.get<bool>(
-      StorageKeys.onboardingCompleted,
+    final userId = await _localStorageService.get<String>(
+      StorageKeys.currentUserId,
     );
-    return completed ?? false;
+
+    if (userId != null && userId.isNotEmpty) {
+      final userKey = StorageKeys.onboardingCompletedForUser(userId);
+      final perUserValue = await _localStorageService.get<bool>(userKey);
+
+      if (perUserValue != null) return perUserValue;
+
+      // One-time migration: promote the legacy device-level flag to the
+      // per-user key so existing users are not shown onboarding again.
+      // The legacy key is cleared after migration so it cannot be
+      // incorrectly adopted by a different user logging in later.
+      final legacy = await _localStorageService.get<bool>(
+        StorageKeys.onboardingCompleted,
+      );
+      if (legacy == true) {
+        await _localStorageService.set(userKey, true);
+        await _localStorageService.remove(StorageKeys.onboardingCompleted);
+        _logger.info('Migrated onboarding completion to per-user key');
+        return true;
+      }
+      return false;
+    }
+
+    // Fallback: no user ID in storage (safe default, should not occur
+    // after a normal login flow).
+    return await _localStorageService.get<bool>(
+          StorageKeys.onboardingCompleted,
+        ) ??
+        false;
   }
 
-  /// Mark onboarding as complete.
+  /// Marks onboarding as complete for the current user.
+  ///
+  /// Writes to the per-user key when a user ID is available (primary path).
+  /// Only falls back to the legacy device-level key when no user ID exists,
+  /// to avoid the legacy key being reused as a false positive for other users.
   Future<void> markOnboardingComplete() async {
-    await _localStorageService.set<bool>(
-      StorageKeys.onboardingCompleted,
-      true,
+    final userId = await _localStorageService.get<String>(
+      StorageKeys.currentUserId,
     );
-    _logger.info('Onboarding marked complete');
+
+    if (userId != null && userId.isNotEmpty) {
+      await _localStorageService.set(
+        StorageKeys.onboardingCompletedForUser(userId),
+        true,
+      );
+    } else {
+      // Only write the legacy device-level key when no user ID is available.
+      // With per-user tracking active the legacy key is not needed and would
+      // cause false positives for other users via the migration path.
+      await _localStorageService.set<bool>(
+          StorageKeys.onboardingCompleted, true);
+    }
+    _logger.info(
+      'Onboarding marked complete${userId != null ? " for $userId" : ""}',
+    );
   }
 }

@@ -1,78 +1,120 @@
+import 'package:fpdart/fpdart.dart';
+import 'package:flutter_pecha/core/error/failures.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/features/practice/data/datasource/routine_remote_datasource.dart';
 import 'package:flutter_pecha/features/practice/data/models/routine_api_models.dart';
+import 'package:flutter_pecha/features/practice/data/models/routine_model.dart';
+import 'package:flutter_pecha/features/practice/data/utils/routine_api_mapper.dart';
+import 'package:flutter_pecha/features/practice/domain/repositories/routine_api_repository.dart';
 
-class RoutineRepository {
-  final RoutineRemoteDatasource _remoteDatasource;
-  final _logger = AppLogger('RoutineRepository');
+/// Concrete implementation of [RoutineApiRepository].
+///
+/// Bridges the [RoutineRemoteDatasource] (raw Dio calls + DTOs) with the
+/// domain layer. Responsible for:
+///   - Calling the datasource
+///   - Mapping API responses to domain-friendly types ([RoutineData])
+///   - Catching datasource exceptions and mapping them to typed [Failure]s
+class RoutineApiRepositoryImpl implements RoutineApiRepository {
+  final RoutineRemoteDatasource _datasource;
+  final _logger = AppLogger('RoutineApiRepositoryImpl');
 
-  RoutineRepository({required RoutineRemoteDatasource remoteDatasource})
-      : _remoteDatasource = remoteDatasource;
+  RoutineApiRepositoryImpl({required RoutineRemoteDatasource datasource})
+      : _datasource = datasource;
 
-  Future<RoutineResponse?> getUserRoutine({
+  @override
+  Future<Either<Failure, RoutineData?>> getUserRoutine({
     int skip = 0,
     int limit = 20,
   }) async {
     try {
-      return await _remoteDatasource.getUserRoutine(
+      final response = await _datasource.getUserRoutine(
         skip: skip,
         limit: limit,
       );
-    } catch (e) {
-      _logger.error('Failed to fetch routine', e);
-      rethrow;
+      // null response means the backend reported "no routine yet" — not an error
+      return Right(routineDataFromApiResponse(response));
+    } catch (e, st) {
+      _logger.error('Failed to fetch user routine', e, st);
+      return Left(_toFailure(e));
     }
   }
 
-  Future<RoutineWithTimeBlocksResponse> createRoutineWithTimeBlock(
-    CreateTimeBlockRequest request,
-  ) async {
+  @override
+  Future<Either<Failure, ({String routineId, String timeBlockId})>>
+      createRoutineWithTimeBlock(TimeBlockRequest request) async {
     try {
-      return await _remoteDatasource.createRoutineWithTimeBlock(request);
-    } catch (e) {
-      _logger.error('Failed to create routine', e);
-      rethrow;
+      final response = await _datasource.createRoutineWithTimeBlock(request);
+      return Right((
+        routineId: response.id,
+        timeBlockId: response.timeBlocks.first.id,
+      ));
+    } catch (e, st) {
+      _logger.error('Failed to create routine with time block', e, st);
+      return Left(_toFailure(e));
     }
   }
 
-  Future<TimeBlockDTO> createTimeBlock(
+  @override
+  Future<Either<Failure, String>> createTimeBlock(
     String routineId,
-    CreateTimeBlockRequest request,
+    TimeBlockRequest request,
   ) async {
     try {
-      return await _remoteDatasource.createTimeBlock(routineId, request);
-    } catch (e) {
-      _logger.error('Failed to create time block', e);
-      rethrow;
+      final dto = await _datasource.createTimeBlock(routineId, request);
+      return Right(dto.id);
+    } catch (e, st) {
+      _logger.error('Failed to create time block', e, st);
+      return Left(_toFailure(e));
     }
   }
 
-  Future<TimeBlockDTO> updateTimeBlock(
-    String routineId,
-    String timeBlockId,
-    UpdateTimeBlockRequest request,
-  ) async {
-    try {
-      return await _remoteDatasource.updateTimeBlock(
-        routineId,
-        timeBlockId,
-        request,
-      );
-    } catch (e) {
-      _logger.error('Failed to update time block', e);
-      rethrow;
-    }
-  }
-
-  Future<void> deleteTimeBlock(
+  @override
+  Future<Either<Failure, void>> updateTimeBlock(
     String routineId,
     String timeBlockId,
+    TimeBlockRequest request,
   ) async {
     try {
-      await _remoteDatasource.deleteTimeBlock(routineId, timeBlockId);
-    } catch (e) {
-      _logger.error('Failed to delete time block', e);
-      rethrow;
+      await _datasource.updateTimeBlock(routineId, timeBlockId, request);
+      return const Right(null);
+    } catch (e, st) {
+      _logger.error('Failed to update time block', e, st);
+      return Left(_toFailure(e));
     }
+  }
+
+  @override
+  Future<Either<Failure, void>> deleteTimeBlock(
+    String routineId,
+    String timeBlockId,
+  ) async {
+    try {
+      await _datasource.deleteTimeBlock(routineId, timeBlockId);
+      return const Right(null);
+    } catch (e, st) {
+      _logger.error('Failed to delete time block', e, st);
+      return Left(_toFailure(e));
+    }
+  }
+
+  // ─── Exception → Failure mapping ───
+
+  Failure _toFailure(Object e) {
+    if (e is RoutineAlreadyExistsException) {
+      return ValidationFailure(e.message);
+    }
+    if (e is RoutineTimeConflictException) {
+      return ValidationFailure(e.message);
+    }
+    if (e is RoutineValidationException) {
+      return ValidationFailure(e.message);
+    }
+    if (e is RoutineNotFoundException) {
+      return NotFoundFailure(e.message);
+    }
+    if (e is RoutineApiException) {
+      return ServerFailure(e.message);
+    }
+    return const ServerFailure('An unexpected error occurred. Please try again.');
   }
 }

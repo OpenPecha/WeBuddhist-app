@@ -523,7 +523,7 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
         items.add(
           PlanTextItem(
             textId: subtask.sourceTextId!,
-            segmentId: subtask.segmentIds?.first,
+            segmentIds: subtask.segmentIds,
             title: task.title,
             subtaskId: subtask.id,
             isCompleted: subtask.isCompleted,
@@ -547,7 +547,7 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
       source: NavigationSource.plan,
       planId: widget.plan.id,
       dayNumber: selectedDay,
-      targetSegmentId: target.segmentId,
+      targetSegmentId: target.firstSegmentId,
       planTextItems: planTextItems,
       currentTextIndex: index,
     );

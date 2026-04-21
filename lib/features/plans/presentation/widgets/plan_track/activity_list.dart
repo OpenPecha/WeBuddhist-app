@@ -68,21 +68,9 @@ class ActivityList extends StatelessWidget {
   }
 
   void _handleActivityTap(BuildContext context, UserTasksDto task) {
-    // Build plan text items for swipe navigation
     final planTextItems = _buildPlanTextItems();
     if (planTextItems.isEmpty) return;
 
-    // Find current task index
-    final taskIndex = tasks.indexOf(task);
-    final currentTextIndex = planTextItems.indexWhere(
-      (item) => tasks.any(
-        (t) =>
-            t.subTasks.any((s) => s.sourceTextId == item.textId) &&
-            tasks.indexOf(t) == taskIndex,
-      ),
-    );
-
-    // Get sourceTextId from the first subtask that has it
     final UserSubtasksDto? subtaskWithText = task.subTasks
         .cast<dynamic>()
         .firstWhere(
@@ -94,7 +82,10 @@ class ActivityList extends StatelessWidget {
       final sourceTextId = subtaskWithText.sourceTextId as String;
       final segmentId = subtaskWithText.segmentIds?.first;
 
-      // Create navigation context for plan navigation with swipe support
+      final currentTextIndex = planTextItems.indexWhere(
+        (item) => item.textId == sourceTextId,
+      );
+
       final navigationContext = NavigationContext(
         source: NavigationSource.plan,
         planId: planId,
@@ -110,19 +101,18 @@ class ActivityList extends StatelessWidget {
     }
   }
 
-  /// Build list of plan text items for swipe navigation
-  /// Includes subtaskId for auto-tracking completion (enrolled plan only)
+  /// Build list of plan text items for swipe navigation.
+  /// One PlanTextItem per task with full segmentIds list.
   List<PlanTextItem> _buildPlanTextItems() {
     final items = <PlanTextItem>[];
     for (final task in tasks) {
       if (task.subTasks.isEmpty) continue;
-      // Use the first subtask for now
       final subtask = task.subTasks[0];
       if (subtask.sourceTextId != null && subtask.sourceTextId!.isNotEmpty) {
         items.add(
           PlanTextItem(
             textId: subtask.sourceTextId!,
-            segmentId: subtask.segmentIds?.first,
+            segmentIds: subtask.segmentIds,
             title: task.title,
             subtaskId: subtask.id,
             isCompleted: subtask.isCompleted,

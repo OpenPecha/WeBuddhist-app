@@ -1,9 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/core/widgets/skeletons/skeletons.dart';
+import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
+import 'package:flutter_pecha/features/auth/presentation/widgets/login_drawer.dart';
 import 'package:flutter_pecha/features/plans/domain/entities/plan.dart';
 import 'package:flutter_pecha/features/plans/presentation/providers/plan_days_providers.dart';
 import 'package:flutter_pecha/features/plans/data/models/plan_days_model.dart';
+import 'package:flutter_pecha/features/practice/presentation/providers/routine_api_providers.dart';
+import 'package:flutter_pecha/features/practice/data/models/routine_model.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../day_carousel.dart';
 import '../plan_cover_image.dart';
@@ -27,12 +33,36 @@ class PlanPreviewDetails extends ConsumerStatefulWidget {
 class _PlanPreviewDetailsState extends ConsumerState<PlanPreviewDetails> {
   int selectedDay = 1;
 
+  bool _isPlanInRoutine(RoutineData routineData) {
+    return routineData.blocks.any(
+      (block) => block.items.any(
+        (item) =>
+            item.id == widget.plan.id && item.type == RoutineItemType.plan,
+      ),
+    );
+  }
+
+  void _handleAddToRoutine() {
+    final isGuest = ref.read(authProvider).isGuest;
+    if (isGuest) {
+      LoginDrawer.show(context, ref);
+      return;
+    }
+    context.pushNamed(
+      'edit-routine',
+      extra: {'initialPlan': widget.plan},
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final language = widget.plan.language;
+    final authState = ref.watch(authProvider);
+    final isGuest = authState.isGuest;
+    final alreadyInRoutine = _isCurrentlyInRoutine();
 
     return Scaffold(
-      appBar: _buildAppBar(context),
+      appBar: _buildAppBar(context, alreadyInRoutine),
       body: Column(
         children: [
           Expanded(
@@ -47,16 +77,54 @@ class _PlanPreviewDetailsState extends ConsumerState<PlanPreviewDetails> {
               ),
             ),
           ),
-          // _buildStartReadingButton(context, localizations, language),
+          if (!alreadyInRoutine)
+            _buildBottomButton(context, isGuest),
         ],
       ),
     );
   }
 
-  AppBar _buildAppBar(BuildContext context) {
+  bool _isCurrentlyInRoutine() {
+    final routineAsync = ref.watch(userRoutineProvider);
+    final routineData = routineAsync.valueOrNull;
+    if (routineData == null) return false;
+    return _isPlanInRoutine(routineData);
+  }
+
+  AppBar _buildAppBar(BuildContext context, bool alreadyInRoutine) {
     return AppBar(
       title: Text(widget.plan.title, style: const TextStyle(fontSize: 20)),
       elevation: 0,
+      actions: [
+        if (alreadyInRoutine)
+          Padding(
+            padding: const EdgeInsets.only(right: 12),
+            child: Center(
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF4CAF50),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      context.l10n.plan_enrolled,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    const Icon(Icons.check, color: Colors.white, size: 14),
+                  ],
+                ),
+              ),
+            ),
+          ),
+      ],
     );
   }
 
@@ -171,80 +239,52 @@ class _PlanPreviewDetailsState extends ConsumerState<PlanPreviewDetails> {
     );
   }
 
-  // Widget _buildStartReadingButton(
-  //   BuildContext context,
-  //   AppLocalizations localizations,
-  //   String language,
-  // ) {
-  //   return SafeArea(
-  //     child: Padding(
-  //       padding: const EdgeInsets.all(16.0),
-  //       child: SizedBox(
-  //         width: double.infinity,
-  //         child: FilledButton(
-  //           onPressed: () => _handleStartReading(context),
-  //           style: FilledButton.styleFrom(
-  //             backgroundColor: Colors.black,
-  //             foregroundColor: Colors.white,
-  //             padding: const EdgeInsets.symmetric(vertical: 16),
-  //             shape: RoundedRectangleBorder(
-  //               borderRadius: BorderRadius.circular(20),
-  //             ),
-  //           ),
-  //           child: Text(
-  //             localizations.start_reading,
-  //             style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-  //           ),
-  //         ),
-  //       ),
-  //     ),
-  //   );
-  // }
+  Widget _buildBottomButton(BuildContext context, bool isGuest) {
+    return _AddToRoutineButton(
+      label: context.l10n.routine_add_plan_to_routine,
+      onPressed: _handleAddToRoutine,
+    );
+  }
+}
 
-  // void _handleStartReading(BuildContext context) {
-  //   // Get the first day's content and navigate to the first subtask's text
-  //   final dayContent = ref.read(
-  //     planDayContentFutureProvider(
-  //       PlanDaysParams(planId: widget.plan.id, dayNumber: 1),
-  //     ),
-  //   );
+class _AddToRoutineButton extends StatelessWidget {
+  final String label;
+  final VoidCallback? onPressed;
 
-  //   dayContent.whenData((content) {
-  //     final tasks = content.tasks;
-  //     if (tasks != null && tasks.isNotEmpty) {
-  //       // Build plan text items for swipe navigation
-  //       final planTextItems = <PlanTextItem>[];
-  //       for (final task in tasks) {
-  //         // for (final subtask in task.subtasks) { - we are using the first subtask for now
-  //         final subtask = task.subtasks[0];
-  //         if (subtask.sourceTextId != null &&
-  //             subtask.sourceTextId!.isNotEmpty) {
-  //           planTextItems.add(
-  //             PlanTextItem(
-  //               textId: subtask.sourceTextId!,
-  //               segmentId: subtask.pechaSegmentId,
-  //               title: task.title,
-  //             ),
-  //           );
-  //         }
-  //         // }
-  //       }
+  const _AddToRoutineButton({required this.label, required this.onPressed});
 
-  //       if (planTextItems.isEmpty) return;
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final backgroundColor =
+        isDark ? AppColors.scaffoldBackgroundLight : AppColors.scaffoldBackgroundDark;
+    final foregroundColor =
+        isDark ? AppColors.textPrimary : AppColors.textPrimaryDark;
 
-  //       // Navigate to the first text with navigation context
-  //       final firstItem = planTextItems.first;
-  //       final navigationContext = NavigationContext(
-  //         source: NavigationSource.plan,
-  //         planId: widget.plan.id,
-  //         dayNumber: 1,
-  //         targetSegmentId: firstItem.segmentId,
-  //         planTextItems: planTextItems,
-  //         currentTextIndex: 0,
-  //       );
-
-  //       context.push('/reader/${firstItem.textId}', extra: navigationContext);
-  //     }
-  //   });
-  // }
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+        child: SizedBox(
+          width: double.infinity,
+          child: FilledButton(
+            onPressed: onPressed,
+            style: FilledButton.styleFrom(
+              backgroundColor: backgroundColor,
+              foregroundColor: foregroundColor,
+              disabledBackgroundColor: backgroundColor.withValues(alpha: 0.5),
+              disabledForegroundColor: foregroundColor.withValues(alpha: 0.5),
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+            ),
+            child: Text(
+              label,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }

@@ -141,9 +141,42 @@ class MyPlansNotifier extends StateNotifier<MyPlansState> {
     }
   }
 
-  /// Refresh from start
+  /// Refresh from start — keeps existing plans visible while re-fetching
   Future<void> refresh() async {
-    state = const MyPlansState();
-    await loadInitial();
+    state = state.copyWith(
+      isLoading: true,
+      error: null,
+      skip: 0,
+      hasMore: true,
+    );
+
+    final result = await repository.getUserPlans(
+      language: languageCode,
+      skip: 0,
+      limit: _limit,
+    );
+
+    result.fold(
+      (failure) {
+        if (mounted) {
+          state = state.copyWith(isLoading: false, error: failure.message);
+        }
+      },
+      (response) {
+        final sortedPlans = List<UserPlansModel>.from(response.userPlans)
+          ..sort((a, b) => b.startedAt.compareTo(a.startedAt));
+
+        if (mounted) {
+          state = state.copyWith(
+            plans: sortedPlans,
+            isLoading: false,
+            hasMore: response.userPlans.length >= _limit,
+            skip: response.userPlans.length,
+            total: response.total,
+            error: null,
+          );
+        }
+      },
+    );
   }
 }

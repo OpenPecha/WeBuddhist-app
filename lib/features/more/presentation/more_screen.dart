@@ -38,7 +38,7 @@ class MoreScreen extends ConsumerWidget {
     final locale = ref.watch(localeProvider);
     final localizations = AppLocalizations.of(context)!;
     final authState = ref.watch(authProvider);
-    final isDarkMode = themeMode == ThemeMode.dark;
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,

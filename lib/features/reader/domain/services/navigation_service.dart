@@ -48,7 +48,7 @@ class NavigationService {
       source: NavigationSource.plan,
       planId: currentContext.planId,
       dayNumber: currentContext.dayNumber,
-      targetSegmentId: adjacentText.segmentId,
+      targetSegmentId: adjacentText.firstSegmentId,
       planTextItems: currentContext.planTextItems,
       currentTextIndex: newIndex,
     );

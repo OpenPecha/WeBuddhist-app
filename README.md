@@ -60,6 +60,13 @@ flutter run --flavor staging -t lib/main_staging.dart
 flutter run --flavor prod -t lib/main_prod.dart
 ```
 
+**macOs**
+```sh
+flutter run -d macos --flavor dev --target lib/main_dev.dart                                                                                                                  
+flutter run -d macos --flavor staging --target lib/main_staging.dart                                                                                                          
+flutter run -d macos --flavor prod --target lib/main_prod.dart        
+```
+
 Build IPA:
 ```sh
 flutter build ios --flavor prod -t lib/main_prod.dart

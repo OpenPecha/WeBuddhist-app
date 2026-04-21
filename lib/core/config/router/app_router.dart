@@ -42,26 +42,27 @@ final _logger = AppLogger('AppRouter');
 /// - Preserves deep links for post-login redirection
 /// - Automatically refreshes when auth state changes
 final appRouterProvider = Provider<GoRouter>((ref) {
-  final authState = ref.watch(authProvider);
-  final onboardingRepo = ref.watch(onboardingRepositoryProvider);
-
-  _logger.debug('Creating router with auth state: ${authState.isLoggedIn}');
+  // Use ref.read so the router is created once and never recreated on auth
+  // state changes. The refreshListenable handles redirect re-evaluation when
+  // auth state changes, and the redirect closure reads the current state each time.
+  final onboardingRepo = ref.read(onboardingRepositoryProvider);
 
   return GoRouter(
     initialLocation: AppRoutes.home,
     debugLogDiagnostics: true,
 
-    // Refresh router when auth state changes
+    // Re-evaluate redirect whenever auth state changes.
     refreshListenable: GoRouterRefreshStream(
-      ref.watch(authProvider.notifier).stream,
+      ref.read(authProvider.notifier).stream,
     ),
 
-    // Route guard for authentication and authorization
+    // Route guard for authentication and authorization.
+    // Always reads the latest auth state — do NOT capture it in the closure.
     redirect: (context, state) async {
       return await RouteGuard.redirect(
         context,
         state,
-        authState,
+        ref.read(authProvider),
         onboardingRepo,
       );
     },
@@ -156,7 +157,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: "edit-routine", // route - /practice/edit-routine
             name: "edit-routine",
-            builder: (context, state) => const EditRoutineScreen(),
+            builder: (context, state) {
+              final extra = state.extra as Map<String, dynamic>?;
+              final plan = extra?['initialPlan'] as Plan?;
+              return EditRoutineScreen(initialPlan: plan);
+            },
             routes: [
               GoRoute(
                 path:

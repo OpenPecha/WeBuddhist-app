@@ -11,7 +11,7 @@ class RoutineRemoteDatasource {
   /// POST /routines
   /// Creates a new routine for the user with the first time block.
   Future<RoutineWithTimeBlocksResponse> createRoutineWithTimeBlock(
-    CreateTimeBlockRequest request,
+    TimeBlockRequest request,
   ) async {
     try {
       final response = await _dio.post('/routines', data: request.toJson());
@@ -27,7 +27,7 @@ class RoutineRemoteDatasource {
   /// Creates a new time block in an existing routine.
   Future<TimeBlockDTO> createTimeBlock(
     String routineId,
-    CreateTimeBlockRequest request,
+    TimeBlockRequest request,
   ) async {
     try {
       final response = await _dio.post(
@@ -45,7 +45,7 @@ class RoutineRemoteDatasource {
   Future<TimeBlockDTO> updateTimeBlock(
     String routineId,
     String timeBlockId,
-    UpdateTimeBlockRequest request,
+    TimeBlockRequest request,
   ) async {
     try {
       final response = await _dio.put(
@@ -74,7 +74,7 @@ class RoutineRemoteDatasource {
         );
       }
       if (e.error is Exception) throw e.error! as Exception;
-      throw e;
+      rethrow;
     }
   }
 
@@ -105,7 +105,7 @@ class RoutineRemoteDatasource {
       }
 
       if (e.error is Exception) throw e.error! as Exception;
-      throw e;
+      rethrow;
     }
   }
 

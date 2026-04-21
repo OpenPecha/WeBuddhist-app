@@ -36,34 +36,40 @@ class AppLocalizationsZh extends AppLocalizations {
   String get logout => '登出';
 
   @override
-  String get onboarding_welcome => '歡迎來到 WeBuddhist';
+  String get onboarding_welcome => '歡迎來到';
 
   @override
   String get onboarding_description => '在這裡每天學習、生活與分享佛教智慧';
 
   @override
   String get onboarding_quote =>
-      'Approximatey 500 million people worldwide practice Buddhism, making it the world\'s fourth largest religion';
+      'Drop by drop is the water pot filled. Likewise, the wise person, gathering it little by little, fills themselves with good.';
 
   @override
-  String get onboarding_find_peace => '尋找你本有的平靜';
+  String get onboarding_find_peace => '立即開始';
 
   @override
   String get onboarding_continue => '下一步';
 
   @override
-  String get onboarding_first_question =>
-      'In which language would you like to access core texts?';
+  String get onboarding_first_question => '选择您的语言：';
 
   @override
   String get onboarding_second_question =>
       'Which path or school do you feel drawn to?';
 
   @override
-  String get onboarding_choose_option => 'Choose upto 3 options';
+  String get onboarding_choose_option => '至少选择一项：';
 
   @override
-  String get onboarding_all_set => '你已設定完成';
+  String get onboarding_all_set => '您已準備就緒';
+
+  @override
+  String get onboarding_all_set_description =>
+      '我們已根據您的傳承為您量身打造體驗。每天出現——哪怕片刻——見證您的修行成長。';
+
+  @override
+  String get onboarding_begin_practice => '開始您的修行';
 
   @override
   String get home_today => '今天';
@@ -123,7 +129,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get nav_practice => '修持計劃';
 
   @override
-  String get nav_settings => 'Me';
+  String get nav_settings => '设置';
 
   @override
   String get nav_connect => '连接';
@@ -641,10 +647,68 @@ class AppLocalizationsZh extends AppLocalizations {
   String get routine_delete_block => '刪除區塊';
 
   @override
+  String get routine_delete_time_block => '刪除區塊';
+
+  @override
   String get routine_add_plan => '添加計劃';
 
   @override
   String get routine_add_recitation => '添加持誦';
+
+  @override
+  String get routine_add_plan_to_routine => 'Add to Routine';
+
+  @override
+  String get routine_go_to_practice => 'Go to Practice';
+
+  @override
+  String get routine_load_error => '無法載入你的日常修持，請重試。';
+
+  @override
+  String get routine_empty_block_title_singular => '空白時間區塊';
+
+  @override
+  String routine_empty_block_title_plural(int count) {
+    return '空白時間區塊 ($count)';
+  }
+
+  @override
+  String get routine_empty_block_message_singular =>
+      '此時間區塊沒有任何項目。你要添加項目還是刪除區塊？';
+
+  @override
+  String routine_empty_block_message_plural(int count) {
+    return '你有 $count 個時間區塊沒有任何項目。你要添加項目還是刪除這些區塊？';
+  }
+
+  @override
+  String get routine_empty_block_add_items => '添加項目';
+
+  @override
+  String get routine_empty_block_delete_singular => '刪除區塊';
+
+  @override
+  String get routine_empty_block_delete_plural => '刪除空白區塊';
+
+  @override
+  String get routine_notification_title => '讓祈禱成為日常';
+
+  @override
+  String get routine_notification_description => '允許通知以接收祈禱提醒。';
+
+  @override
+  String get routine_notification_enable => '啟用通知';
+
+  @override
+  String get routine_notification_skip => '跳過';
+
+  @override
+  String routine_time_adjusted(String time, int gap) {
+    return '已調整為 $time（最少 $gap 分鐘間隔）';
+  }
+
+  @override
+  String get routine_add_block_label => '時間區塊';
 
   @override
   String get continueWithGoogle => '使用 Google 繼續';
@@ -866,4 +930,7 @@ class AppLocalizationsZh extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get plan_enrolled => '已加入';
 }

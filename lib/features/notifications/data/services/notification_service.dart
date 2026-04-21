@@ -94,10 +94,19 @@ class NotificationService {
           requestBadgePermission: false,
         );
 
+    // macOS initialization - same as iOS
+    const DarwinInitializationSettings macOSSettings =
+        DarwinInitializationSettings(
+          requestAlertPermission: false,
+          requestSoundPermission: false,
+          requestBadgePermission: false,
+        );
+
     // initialization settings
     final InitializationSettings initSettings = InitializationSettings(
       android: androidSettings,
       iOS: iosSettings,
+      macOS: macOSSettings,
     );
 
     // initialize the plugin
@@ -167,7 +176,7 @@ class NotificationService {
       }
 
       return granted ?? false;
-    } else if (Platform.isIOS) {
+    } else if (Platform.isIOS || Platform.isMacOS) {
       final IOSFlutterLocalNotificationsPlugin? iosImplementation =
           notificationsPlugin
               .resolvePlatformSpecificImplementation<
@@ -194,7 +203,7 @@ class NotificationService {
       final bool? granted =
           await androidImplementation?.areNotificationsEnabled();
       return granted ?? false;
-    } else if (Platform.isIOS) {
+    } else if (Platform.isIOS || Platform.isMacOS) {
       final IOSFlutterLocalNotificationsPlugin? iosImplementation =
           notificationsPlugin
               .resolvePlatformSpecificImplementation<

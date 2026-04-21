@@ -13,27 +13,36 @@ export 'domain/entities/practice_progress.dart';
 
 // Domain - Repositories
 export 'domain/repositories/practice_repository.dart';
+export 'domain/repositories/routine_api_repository.dart';
 
-// Domain - Use Cases
+// Domain - Use Cases (local storage)
 export 'domain/usecases/get_routines_usecase.dart';
 export 'domain/usecases/start_practice_usecase.dart';
 export 'domain/usecases/complete_practice_usecase.dart';
 
+// Domain - Use Cases (remote API)
+export 'domain/usecases/routine_api_usecases.dart';
+
 // Data - Models
 export 'data/models/routine_model.dart';
+export 'data/models/routine_api_models.dart';
 export 'data/models/session_selection.dart';
 
 // Data - Services
 export 'data/services/routine_notification_service.dart';
 
-// Presentation - Providers
-export 'presentation/providers/routine_provider.dart';
-
 // Data - Utils
 export 'data/utils/routine_time_utils.dart';
+export 'data/utils/routine_api_mapper.dart';
 
 // Data - Datasources
 export 'data/datasource/routine_local_storage.dart';
+
+// Presentation - Providers
+export 'presentation/providers/practice_providers.dart';
+export 'presentation/providers/use_case_providers.dart';
+export 'presentation/providers/routine_api_providers.dart';
+export 'presentation/providers/routine_provider.dart';
 
 // Presentation - Screens
 export 'presentation/screens/practice_screen.dart';

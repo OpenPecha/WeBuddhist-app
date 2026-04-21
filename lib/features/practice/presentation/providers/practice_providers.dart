@@ -2,61 +2,42 @@ import 'package:flutter_pecha/features/practice/data/datasource/routine_local_st
 import 'package:flutter_pecha/features/practice/data/repositories/practice_repository_impl.dart';
 import 'package:flutter_pecha/features/practice/data/services/routine_notification_service.dart';
 import 'package:flutter_pecha/features/practice/domain/repositories/practice_repository.dart';
-import 'package:flutter_pecha/features/practice/domain/usecases/complete_practice_usecase.dart';
-import 'package:flutter_pecha/features/practice/domain/usecases/get_practice_progress_usecase.dart';
-import 'package:flutter_pecha/features/practice/domain/usecases/get_routines_usecase.dart';
-import 'package:flutter_pecha/features/practice/domain/usecases/start_practice_usecase.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-// ========== Data Layer Providers ==========
+// ─── Infrastructure providers ───
 
-/// Provider for RoutineLocalStorage.
+/// Provider for [RoutineLocalStorage] (Hive-backed persistent storage).
 ///
-/// Must be overridden in ProviderScope with an initialized instance from main.dart.
+/// **Must be overridden** in the root [ProviderScope] / [ProviderContainer]
+/// with an already-initialised instance.
+///
+/// Override location: `lib/main.dart` → `ProviderContainer(overrides: [...])`
+///
+/// ```dart
+/// final routineStorage = RoutineLocalStorage();
+/// await routineStorage.initialize();
+/// ProviderContainer(overrides: [
+///   routineLocalStorageProvider.overrideWithValue(routineStorage),
+/// ]);
+/// ```
 final routineLocalStorageProvider = Provider<RoutineLocalStorage>((ref) {
   throw UnimplementedError(
-    'routineLocalStorageProvider must be overridden in ProviderScope',
+    'routineLocalStorageProvider must be overridden before use. '
+    'See lib/main.dart for the initialisation pattern.',
   );
 });
 
-/// Provider for RoutineNotificationService (singleton).
-final routineNotificationServiceProvider = Provider<RoutineNotificationService>((ref) {
+/// Provider for [RoutineNotificationService] (app-wide singleton).
+final routineNotificationServiceProvider =
+    Provider<RoutineNotificationService>((ref) {
   return RoutineNotificationService();
 });
 
-/// Provider for Practice Repository.
+/// Provider for [PracticeRepository] — the domain interface for local
+/// routine storage and session operations.
 final practiceRepositoryProvider = Provider<PracticeRepository>((ref) {
-  final localStorage = ref.watch(routineLocalStorageProvider);
-  final notificationService = ref.watch(routineNotificationServiceProvider);
-
   return PracticeRepositoryImpl(
-    localStorage: localStorage,
-    notificationService: notificationService,
+    localStorage: ref.watch(routineLocalStorageProvider),
+    notificationService: ref.watch(routineNotificationServiceProvider),
   );
-});
-
-// ========== Use Case Providers ==========
-
-/// Provider for GetRoutinesUseCase.
-final getRoutinesUseCaseProvider = Provider<GetRoutinesUseCase>((ref) {
-  final repository = ref.watch(practiceRepositoryProvider);
-  return GetRoutinesUseCase(repository);
-});
-
-/// Provider for StartPracticeUseCase.
-final startPracticeUseCaseProvider = Provider<StartPracticeUseCase>((ref) {
-  final repository = ref.watch(practiceRepositoryProvider);
-  return StartPracticeUseCase(repository);
-});
-
-/// Provider for CompletePracticeUseCase.
-final completePracticeUseCaseProvider = Provider<CompletePracticeUseCase>((ref) {
-  final repository = ref.watch(practiceRepositoryProvider);
-  return CompletePracticeUseCase(repository);
-});
-
-/// Provider for GetPracticeProgressUseCase.
-final getPracticeProgressUseCaseProvider = Provider<GetPracticeProgressUseCase>((ref) {
-  final repository = ref.watch(practiceRepositoryProvider);
-  return GetPracticeProgressUseCase(repository);
 });
