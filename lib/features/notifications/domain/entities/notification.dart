@@ -24,4 +24,4 @@ class AppNotification extends BaseEntity {
   List<Object?> get props => [id, title, body, scheduledTime, type, isRecurring, recurrencePattern];
 }
 
-enum NotificationType { practiceReminder, planReminder, newContent, announcement }
+enum NotificationType { practiceReminder, planReminder, newContent, announcement, routine }

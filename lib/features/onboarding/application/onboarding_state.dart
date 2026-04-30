@@ -1,4 +1,5 @@
 import 'package:flutter_pecha/features/onboarding/domain/entities/onboarding_preferences.dart';
+import 'package:flutter_pecha/features/plans/data/models/user/user_plans_model.dart';
 
 /// State for onboarding flow management
 class OnboardingState {
@@ -7,12 +8,17 @@ class OnboardingState {
     required this.currentPage,
     required this.isLoading,
     this.error,
+    this.enrolledPlans = const [],
   });
 
   final OnboardingPreferences preferences;
   final int currentPage;
   final bool isLoading;
   final String? error;
+
+  /// Plans enrolled from the event page. Transient — used only for post-onboarding
+  /// navigation to the plan detail screen. Not persisted beyond this session.
+  final List<UserPlansModel> enrolledPlans;
 
   /// Initial state
   factory OnboardingState.initial() {
@@ -33,6 +39,7 @@ class OnboardingState {
       currentPage: currentPage,
       isLoading: loading,
       error: error,
+      enrolledPlans: enrolledPlans,
     );
   }
 
@@ -43,6 +50,7 @@ class OnboardingState {
       currentPage: currentPage,
       isLoading: false,
       error: null,
+      enrolledPlans: enrolledPlans,
     );
   }
 
@@ -53,6 +61,7 @@ class OnboardingState {
       currentPage: currentPage,
       isLoading: false,
       error: errorMessage,
+      enrolledPlans: enrolledPlans,
     );
   }
 
@@ -63,6 +72,7 @@ class OnboardingState {
       currentPage: page,
       isLoading: isLoading,
       error: error,
+      enrolledPlans: enrolledPlans,
     );
   }
 
@@ -72,12 +82,14 @@ class OnboardingState {
     int? currentPage,
     bool? isLoading,
     String? error,
+    List<UserPlansModel>? enrolledPlans,
   }) {
     return OnboardingState(
       preferences: preferences ?? this.preferences,
       currentPage: currentPage ?? this.currentPage,
       isLoading: isLoading ?? this.isLoading,
       error: error ?? this.error,
+      enrolledPlans: enrolledPlans ?? this.enrolledPlans,
     );
   }
 

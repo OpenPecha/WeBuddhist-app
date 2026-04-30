@@ -1,4 +1,5 @@
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
+import 'package:flutter_pecha/features/home/presentation/screens/main_navigation_screen.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
@@ -60,6 +61,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       _log.warning(
         'NotificationService not initialized, skipping permission request',
       );
+      _navigateToPendingPlanIfNeeded();
       return;
     }
 
@@ -70,15 +72,44 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       if (!alreadyEnabled) {
         _log.info('Requesting notification permissions...');
         final granted = await notificationService.requestPermission();
-        if (granted) {
-          _log.info('Notification permissions granted');
-        } else {
-          _log.info('Notification permissions denied');
-        }
+        _log.info(granted
+            ? 'Notification permissions granted'
+            : 'Notification permissions denied');
       }
     } catch (e) {
       _log.warning('Error requesting notification permissions: $e');
     }
+
+    // After the permission flow (dialog shown or already granted), check
+    // whether onboarding left a plan waiting to be opened in Practice.
+    _navigateToPendingPlanIfNeeded();
+  }
+
+  /// Consumes [pendingOnboardingPlanProvider] and navigates to the Practice
+  /// tab + plan detail screen. Called once, right after notification setup.
+  void _navigateToPendingPlanIfNeeded() {
+    if (!mounted) return;
+    final plan = ref.read(pendingOnboardingPlanProvider);
+    if (plan == null) return;
+
+    // Clear immediately so back-navigation never re-triggers this.
+    ref.read(pendingOnboardingPlanProvider.notifier).state = null;
+
+    // Push plan details FIRST while HomeScreen is still mounted.
+    // Switching the tab index BEFORE the push would unmount HomeScreen,
+    // making the subsequent context.push a no-op.
+    context.push(
+      '/practice/details',
+      extra: {
+        'plan': plan,
+        'selectedDay': 1,
+        'startDate': plan.startedAt,
+      },
+    );
+
+    // Switch bottom-nav to Practice so popping back from plan details
+    // lands on the Practice tab rather than Home.
+    ref.read(mainNavigationIndexProvider.notifier).state = 2;
   }
 
   /// Manual refetch/retry method that can be called from UI

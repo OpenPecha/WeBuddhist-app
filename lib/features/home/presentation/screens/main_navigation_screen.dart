@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/features/plans/data/models/user/user_plans_model.dart';
 import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/features/connect/presentation/screens/connect_screen.dart';
@@ -11,6 +12,12 @@ import 'package:flutter_pecha/shared/widgets/appBottomNavBar/app_bottom_nav_item
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final mainNavigationIndexProvider = StateProvider<int>((ref) => 0);
+
+/// Holds an enrolled plan that should be opened after the home screen's
+/// notification-permission flow completes. Set during onboarding completion,
+/// consumed once by [HomeScreen], and cleared immediately after navigation.
+final pendingOnboardingPlanProvider =
+    StateProvider<UserPlansModel?>((ref) => null);
 
 class MainNavigationScreen extends ConsumerWidget {
   const MainNavigationScreen({super.key});

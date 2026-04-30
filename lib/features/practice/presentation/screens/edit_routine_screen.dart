@@ -14,6 +14,7 @@ import 'package:flutter_pecha/features/practice/data/utils/routine_api_mapper.da
 import 'package:flutter_pecha/features/practice/data/utils/routine_time_utils.dart';
 import 'package:flutter_pecha/features/practice/presentation/providers/practice_providers.dart';
 import 'package:flutter_pecha/features/practice/presentation/providers/routine_api_providers.dart';
+import 'package:flutter_pecha/features/practice/presentation/providers/routine_provider.dart';
 import 'package:flutter_pecha/features/practice/presentation/screens/select_session_screen.dart';
 import 'package:flutter_pecha/features/practice/presentation/widgets/routine_time_block.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -170,11 +171,14 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
     );
   }
 
-  Future<void> _syncNotifications() async {
+  /// Saves blocks to local Hive storage AND syncs notifications.
+  /// Routing through RoutineNotifier keeps Hive in sync so startup
+  /// reschedule works, and ensures [ROUTINE-SAVE] logs are visible.
+  Future<void> _saveLocalAndSyncNotifications() async {
     final blocks = _blocks.map(_toRoutineBlock).toList();
-    await ref
-        .read(routineNotificationServiceProvider)
-        .syncNotifications(blocks);
+    _logger.info('[EDIT-SAVE] persisting ${blocks.length} blocks to Hive + scheduling notifications');
+    await ref.read(routineProvider.notifier).saveRoutine(blocks);
+    _logger.info('[EDIT-SAVE] done');
   }
 
   // ─── Operation queue ───
@@ -305,9 +309,9 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
     }
 
     try {
-      await _syncNotifications();
+      await _saveLocalAndSyncNotifications();
     } catch (e, st) {
-      _logger.error('Failed to sync notifications on save', e, st);
+      _logger.error('[EDIT-SAVE] Failed to save/sync notifications', e, st);
       if (mounted) _showErrorSnackBar(_mapError(e));
     }
 

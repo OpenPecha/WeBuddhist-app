@@ -71,6 +71,15 @@ void main() async {
     }
   }
 
+  // Initialize notification service early so scheduled notifications can fire
+  // even when the app is in the background or was just launched from a tap.
+  try {
+    await NotificationService().initializeWithoutPermissions();
+    _logger.info('Notification service initialized');
+  } catch (e) {
+    _logger.warning('Error initializing notification service: $e');
+  }
+
   // Initialize routine local storage (persistent user data, not cache)
   final routineStorage = RoutineLocalStorage();
   try {
@@ -107,6 +116,7 @@ class MyApp extends ConsumerWidget {
     ref.watch(audioHandlerProvider);
     ref.watch(notificationServiceProvider);
     NotificationService.setRouter(router);
+    NotificationService().consumeLaunchNotification();
 
     // Add QueryClient provider wrapper
     return QueryClientProvider(

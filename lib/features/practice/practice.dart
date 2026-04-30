@@ -29,7 +29,7 @@ export 'data/models/routine_api_models.dart';
 export 'data/models/session_selection.dart';
 
 // Data - Services
-export 'data/services/routine_notification_service.dart';
+export 'package:flutter_pecha/features/notifications/data/services/routine_notification_service.dart';
 
 // Data - Utils
 export 'data/utils/routine_time_utils.dart';

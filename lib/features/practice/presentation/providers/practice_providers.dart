@@ -1,6 +1,6 @@
 import 'package:flutter_pecha/features/practice/data/datasource/routine_local_storage.dart';
 import 'package:flutter_pecha/features/practice/data/repositories/practice_repository_impl.dart';
-import 'package:flutter_pecha/features/practice/data/services/routine_notification_service.dart';
+import 'package:flutter_pecha/features/notifications/data/services/routine_notification_service.dart';
 import 'package:flutter_pecha/features/practice/domain/repositories/practice_repository.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 

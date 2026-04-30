@@ -88,13 +88,13 @@ class AppRoutes {
     practice, // Guests can see empty practice screen
     practicePlanPreview, // Allow guests to browse/preview plans
     reader,
+    notifications, // Local-only — guests can configure routine notifications
   };
 
   /// Base paths that require full authentication (prefix matching)
   static const Set<String> _protectedBasePaths = {
     practiceEditRoutine, // Building routine requires auth
     profile,
-    notifications,
     plansInfo,
     recitationDetail,
   };

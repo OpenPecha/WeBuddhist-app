@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
+import 'package:flutter_pecha/features/notifications/data/models/notification_nav.dart';
 import 'package:flutter_pecha/features/plans/presentation/providers/user_plans_provider.dart';
 import 'package:flutter_pecha/features/practice/data/models/routine_model.dart';
 import 'package:flutter_pecha/features/practice/presentation/widgets/routine_item_card.dart';
@@ -24,6 +25,42 @@ class RoutineFilledState extends ConsumerWidget {
     final localizations = context.l10n;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final dateStr = DateFormat('EEE, MMM d').format(DateTime.now());
+
+    // Handle deep-link from notification tap.
+    final pendingNav = ref.watch(pendingNotificationNavProvider);
+    final myPlansState = ref.watch(myPlansPaginatedProvider);
+    if (pendingNav != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!context.mounted) return;
+        final itemType = RoutineItemType.values.firstWhere(
+          (e) => e.name == pendingNav.itemType,
+          orElse: () => RoutineItemType.plan,
+        );
+        if (itemType == RoutineItemType.recitation) {
+          ref.read(pendingNotificationNavProvider.notifier).state = null;
+          context.push(
+            '/reader/${pendingNav.itemId}',
+            extra: NavigationContext(source: NavigationSource.normal),
+          );
+        } else {
+          final userPlan = myPlansState.plans
+              .where((p) => p.id == pendingNav.itemId)
+              .firstOrNull;
+          if (userPlan == null) return; // plans not loaded yet — wait for next build
+          ref.read(pendingNotificationNavProvider.notifier).state = null;
+          final startDate = userPlan.startedAt;
+          final daysSince = DateTime.now()
+              .difference(DateUtils.dateOnly(startDate))
+              .inDays;
+          final selectedDay = (daysSince + 1).clamp(1, userPlan.totalDays);
+          context.push('/practice/details', extra: {
+            'plan': userPlan,
+            'selectedDay': selectedDay,
+            'startDate': startDate,
+          });
+        }
+      });
+    }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

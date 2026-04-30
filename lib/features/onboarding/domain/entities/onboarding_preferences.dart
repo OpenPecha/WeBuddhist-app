@@ -1,6 +1,35 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter_pecha/shared/domain/entities/base_entity.dart';
 
+/// A hardcoded event shown on the onboarding event page.
+class OnboardingEventPlan {
+  final String planId;
+  final String eventLabel;
+  final String planName;
+  final String description;
+  final int totalDays;
+
+  const OnboardingEventPlan({
+    required this.planId,
+    required this.eventLabel,
+    required this.planName,
+    required this.description,
+    required this.totalDays,
+  });
+}
+
+/// All events shown on the onboarding event selection page.
+/// Add more entries here as new events are launched.
+const kOnboardingEvents = <OnboardingEventPlan>[
+  OnboardingEventPlan(
+    planId: 'b42c9270-8bc9-4a98-b375-924a948ab18e',
+    eventLabel: 'ITCC',
+    planName: 'Abhidhamma in a Year',
+    description: 'Daily Abhidhamma study over 8 days',
+    totalDays: 8,
+  ),
+];
+
 /// Onboarding preferences entity.
 class OnboardingPreferences extends BaseEntity {
   final String userId;
@@ -11,6 +40,10 @@ class OnboardingPreferences extends BaseEntity {
   final DateTime completedAt;
   final List<String> selectedPaths;
 
+  /// Plan IDs the user opted into from the onboarding event page.
+  /// Empty when the user skipped or unchecked all events.
+  final List<String> enrolledEventPlanIds;
+
   const OnboardingPreferences({
     required this.userId,
     this.interests = const [],
@@ -19,6 +52,7 @@ class OnboardingPreferences extends BaseEntity {
     this.preferredPracticeTypes = const [],
     required this.completedAt,
     this.selectedPaths = const [],
+    this.enrolledEventPlanIds = const [],
   });
 
   /// Creates a copy with the specified fields replaced with new values
@@ -30,6 +64,7 @@ class OnboardingPreferences extends BaseEntity {
     List<String>? preferredPracticeTypes,
     DateTime? completedAt,
     List<String>? selectedPaths,
+    List<String>? enrolledEventPlanIds,
   }) {
     return OnboardingPreferences(
       userId: userId ?? this.userId,
@@ -39,6 +74,7 @@ class OnboardingPreferences extends BaseEntity {
       preferredPracticeTypes: preferredPracticeTypes ?? this.preferredPracticeTypes,
       completedAt: completedAt ?? this.completedAt,
       selectedPaths: selectedPaths ?? this.selectedPaths,
+      enrolledEventPlanIds: enrolledEventPlanIds ?? this.enrolledEventPlanIds,
     );
   }
 
@@ -51,6 +87,7 @@ class OnboardingPreferences extends BaseEntity {
     preferredPracticeTypes,
     completedAt,
     selectedPaths,
+    enrolledEventPlanIds,
   ];
 }
 

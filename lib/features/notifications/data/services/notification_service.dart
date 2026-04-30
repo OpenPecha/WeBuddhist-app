@@ -1,13 +1,27 @@
+import 'dart:convert';
 import 'dart:io';
 
+import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
+import 'package:flutter_pecha/features/notifications/data/channels/notification_channels.dart';
 import 'package:flutter_pecha/features/home/presentation/screens/main_navigation_screen.dart';
+import 'package:flutter_pecha/features/notifications/data/models/notification_nav.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:go_router/go_router.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest.dart' as tz;
+
+/// Top-level background notification tap handler.
+/// Must be a top-level function annotated with @pragma so it survives AOT
+/// tree-shaking and is callable from a separate background isolate (Android).
+@pragma('vm:entry-point')
+void onNotificationTapBackground(NotificationResponse notificationResponse) {
+  // Background isolate — cannot access Riverpod state or UI.
+  // The tap will be handled when the app comes to foreground.
+}
 
 final _logger = AppLogger('NotificationService');
 
@@ -50,12 +64,14 @@ class NotificationService {
 
   /// Initialize without requesting permissions (for early app initialization)
   Future<void> initializeWithoutPermissions() async {
+    _logger.info('[NOTIF-INIT] initializeWithoutPermissions called, already initialized=$_isInitialized');
     if (_isInitialized) return; // prevent re-initialization
 
     // Initialize timezone: use device local time so scheduled notifications
     // (e.g. "7:10 AM") are in the user's local time, not UTC.
     tz.initializeTimeZones();
     final currentTimezone = await FlutterTimezone.getLocalTimezone();
+    _logger.info('[NOTIF-INIT] device timezone=$currentTimezone');
     bool localSet = false;
     try {
       tz.setLocalLocation(tz.getLocation(currentTimezone));
@@ -113,6 +129,7 @@ class NotificationService {
     await notificationsPlugin.initialize(
       initSettings,
       onDidReceiveNotificationResponse: _onNotificationTapped,
+      onDidReceiveBackgroundNotificationResponse: onNotificationTapBackground,
     );
 
     // Create notification channels for Android
@@ -121,6 +138,128 @@ class NotificationService {
     }
 
     _isInitialized = true;
+    _logger.info('[NOTIF-INIT] initialization complete, isInitialized=$_isInitialized');
+
+    // Log diagnostics that affect terminated-state reliability.
+    if (Platform.isAndroid) {
+      await _logAndroidDiagnostics();
+    }
+
+    // Check if the app was launched by tapping a notification (terminated state).
+    // Store the details so they can be consumed after the router is ready.
+    final launchDetails = await notificationsPlugin.getNotificationAppLaunchDetails();
+    if (launchDetails?.didNotificationLaunchApp == true) {
+      _launchNotificationResponse = launchDetails!.notificationResponse;
+      _logger.info('App launched from notification ID=${_launchNotificationResponse?.id}');
+    }
+  }
+
+  NotificationResponse? _launchNotificationResponse;
+
+  /// Call this once the router is ready to consume any pending launch navigation.
+  void consumeLaunchNotification() {
+    final response = _launchNotificationResponse;
+    if (response == null) return;
+    _launchNotificationResponse = null;
+    _onNotificationTapped(response);
+  }
+
+  /// Logs key Android diagnostics that affect whether notifications fire
+  /// when the app is in the background or terminated state.
+  Future<void> _logAndroidDiagnostics() async {
+    try {
+      final androidImpl = notificationsPlugin
+          .resolvePlatformSpecificImplementation<
+              AndroidFlutterLocalNotificationsPlugin>();
+
+      final canExact = await androidImpl?.canScheduleExactNotifications() ?? false;
+      final batteryExempt =
+          await Permission.ignoreBatteryOptimizations.isGranted;
+
+      _logger.info(
+        '[NOTIF-DIAG] canScheduleExactNotifications=$canExact  '
+        'batteryOptimizationExempt=$batteryExempt',
+      );
+
+      if (!canExact) {
+        _logger.warning(
+          '[NOTIF-DIAG] ⚠️ Exact alarms NOT allowed — '
+          'notifications may fire late or not at all when app is terminated.',
+        );
+      }
+      if (!batteryExempt) {
+        _logger.warning(
+          '[NOTIF-DIAG] ⚠️ Battery optimization is ACTIVE — '
+          'on some Android devices this kills alarms when the app is terminated. '
+          'User should go to Settings > Apps > WeBuddhist > Battery > Unrestricted.',
+        );
+      }
+    } catch (e) {
+      _logger.warning('[NOTIF-DIAG] Could not read diagnostics: $e');
+    }
+  }
+
+  /// Returns true if this app is exempt from battery optimisation.
+  Future<bool> isBatteryOptimizationExempt() async {
+    if (!Platform.isAndroid) return true;
+    return Permission.ignoreBatteryOptimizations.isGranted;
+  }
+
+  /// Opens the system dialog that lets the user exempt this app from
+  /// battery optimisation. Only needed on OEM devices (Samsung, Xiaomi, OnePlus).
+  Future<bool> requestBatteryOptimizationExemption() async {
+    if (!Platform.isAndroid) return true;
+    final status = await Permission.ignoreBatteryOptimizations.request();
+    _logger.info('[NOTIF] Battery optimization exemption request result: $status');
+    return status.isGranted;
+  }
+
+  /// Returns true if exact alarms are permitted (Android 12+).
+  /// Always true on iOS/macOS and Android < 12.
+  Future<bool> canScheduleExactNotifications() async {
+    if (!Platform.isAndroid) return true;
+    final androidImpl = notificationsPlugin
+        .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin>();
+    return await androidImpl?.canScheduleExactNotifications() ?? false;
+  }
+
+  /// Opens the Alarms & Reminders settings page for this app (Android 12+).
+  Future<void> openExactAlarmSettings() async {
+    if (!Platform.isAndroid) return;
+    final androidImpl = notificationsPlugin
+        .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin>();
+    await androidImpl?.requestExactAlarmsPermission();
+  }
+
+  /// Reads the live system state of a notification channel.
+  /// Returns false if the user has muted the channel (importance = none) or
+  /// the channel doesn't exist. iOS/macOS have no channels — returns the
+  /// app-level permission instead.
+  Future<bool> isChannelEnabled(String channelId) async {
+    if (!Platform.isAndroid) return areNotificationsEnabled();
+    final androidImpl = notificationsPlugin
+        .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin>();
+    final channels = await androidImpl?.getNotificationChannels() ?? [];
+    final channel = channels.where((c) => c.id == channelId).firstOrNull;
+    if (channel == null) return false;
+    return channel.importance != Importance.none;
+  }
+
+  /// Opens the OS notification settings for a specific channel (Android 8+).
+  /// Falls back to opening the app-level notification settings on older devices.
+  Future<void> openChannelSettings(String channelId) async {
+    if (!Platform.isAndroid) return;
+    const platform = MethodChannel('org.pecha.app/notifications');
+    try {
+      await platform.invokeMethod('openChannelSettings', {
+        'channelId': channelId,
+      });
+    } catch (e) {
+      _logger.warning('openChannelSettings failed: $e');
+    }
   }
 
   /// Create Android notification channels
@@ -132,26 +271,16 @@ class NotificationService {
             >();
 
     if (androidImplementation != null) {
-      // Routine block reminder channel (only channel needed now)
-      const AndroidNotificationChannel routineBlockChannel =
-          AndroidNotificationChannel(
-            routineBlockNotificationChannelId,
-            routineBlockNotificationChannelName,
-            description: routineBlockNotificationChannelDescription,
-            importance: Importance.high,
-            playSound: true,
-            enableVibration: true,
-          );
-
       await androidImplementation.createNotificationChannel(
-        routineBlockChannel,
+        NotificationChannels.routineBlockChannel,
       );
-
       _logger.info('Android notification channels created');
     }
   }
 
-  /// Initialize with permission request (legacy method)
+  /// Initialize and immediately request notification permissions.
+  /// Use [initializeWithoutPermissions] + [requestPermission] separately
+  /// when you need finer control over the permission prompt timing.
   Future<void> initialize() async {
     await initializeWithoutPermissions();
     await requestPermission();
@@ -171,7 +300,7 @@ class NotificationService {
           await androidImplementation?.requestNotificationsPermission();
 
       // For Android 12+, also request exact alarm permission
-      if (granted == true && Platform.isAndroid) {
+      if (granted == true) {
         await androidImplementation?.requestExactAlarmsPermission();
       }
 
@@ -218,40 +347,33 @@ class NotificationService {
 
   void _onNotificationTapped(NotificationResponse response) {
     _logger.info('Notification tapped - ID: ${response.id}, Payload: ${response.payload}');
-    
-    // Navigate based on notification ID
-    if (_router == null) {
-      _logger.warning('Router not initialized, cannot navigate');
-      return;
-    }
-    
-    if (_container == null) {
-      _logger.warning('Container not initialized, cannot navigate');
+
+    if (_router == null || _container == null) {
+      _logger.warning('Router/container not initialized, cannot navigate');
       return;
     }
 
-    final currentUri = _router!.routerDelegate.currentConfiguration.uri;
-    _logger.debug('Current route: $currentUri');
-    
-    // Routine block notifications have ID >= 1000 (range: 1000-999999)
-    // Legacy notifications use ID 100-999
-    if (response.id != null && response.id! >= 100) {
-      _logger.info('Navigating to practice screen (routine notification)');
-      // Routine block notification — navigate to practice screen (index 2)
-      _container!.read(mainNavigationIndexProvider.notifier).state = 3;
-    } else {
-      _logger.info('Navigating to home screen (default)');
-      // Default fallback - go to home tab (index 0)
-      _container!.read(mainNavigationIndexProvider.notifier).state = 0;
+    // Parse payload and store as pending navigation — RoutineFilledState will
+    // consume it once it renders and plan data is available.
+    final payload = response.payload;
+    if (payload != null && payload.isNotEmpty) {
+      try {
+        final data = jsonDecode(payload) as Map<String, dynamic>;
+        final itemId = data['itemId'] as String?;
+        final itemTypeStr = data['itemType'] as String?;
+        if (itemId != null && itemTypeStr != null) {
+          _logger.info('Storing pending notification nav: $itemTypeStr $itemId');
+          _container!.read(pendingNotificationNavProvider.notifier).state =
+              NotificationNav(itemId: itemId, itemType: itemTypeStr);
+        }
+      } catch (e) {
+        _logger.warning('Failed to parse notification payload: $e');
+      }
     }
-    
+
+    // Navigate to the practice tab — RoutineFilledState will push the detail screen.
+    _container!.read(mainNavigationIndexProvider.notifier).state = 2;
     _router!.go('/home');
-    _logger.debug('Navigation completed');
   }
 }
 
-// Routine block notification constants
-const routineBlockNotificationChannelId = 'routine_block_reminder';
-const routineBlockNotificationChannelName = 'Routine Block Reminder';
-const routineBlockNotificationChannelDescription =
-    'Daily notifications for routine practice blocks';

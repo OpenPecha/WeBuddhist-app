@@ -70,17 +70,11 @@ class ActivityList extends StatelessWidget {
   void _handleActivityTap(BuildContext context, UserTasksDto task) {
     final planTextItems = _buildPlanTextItems();
     if (planTextItems.isEmpty) return;
-
-    final UserSubtasksDto? subtaskWithText = task.subTasks
-        .cast<dynamic>()
-        .firstWhere(
-          (s) => s.sourceTextId != null && s.sourceTextId!.isNotEmpty,
-          orElse: () => null,
-        );
+    final UserSubtasksDto? subtaskWithText = _getSubtaskWithText(task);
 
     if (subtaskWithText != null) {
       final sourceTextId = subtaskWithText.sourceTextId as String;
-      final segmentId = subtaskWithText.segmentIds?.first;
+      final segmentId = _getFirstSegmentId(subtaskWithText);
 
       final currentTextIndex = planTextItems.indexWhere(
         (item) => item.textId == sourceTextId,
@@ -128,6 +122,21 @@ class ActivityList extends StatelessWidget {
     return task.subTasks.any(
       (s) => s.sourceTextId != null && s.sourceTextId!.isNotEmpty,
     );
+  }
+
+  UserSubtasksDto? _getSubtaskWithText(UserTasksDto task) {
+    for (final UserSubtasksDto subtask in task.subTasks) {
+      if (subtask.sourceTextId != null && subtask.sourceTextId!.isNotEmpty) {
+        return subtask;
+      }
+    }
+    return null;
+  }
+
+  String? _getFirstSegmentId(UserSubtasksDto subtask) {
+    final List<String>? segmentIds = subtask.segmentIds;
+    if (segmentIds == null || segmentIds.isEmpty) return null;
+    return segmentIds.first;
   }
 }
 
