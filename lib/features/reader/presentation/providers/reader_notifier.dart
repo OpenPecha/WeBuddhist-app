@@ -272,14 +272,19 @@ class ReaderNotifier extends StateNotifier<ReaderState> {
       state = state.copyWith(
         clearSelectedSegment: true,
         clearCommentarySegmentId: true,
+        clearTranslationSegmentId: true,
       );
     } else {
       // Select new segment
       state = state.copyWith(selectedSegment: segment);
-      
+
       // Update commentary if it's open
       if (state.isCommentaryOpen) {
         state = state.copyWith(commentarySegmentId: segment.segmentId);
+      }
+      // Update translation if it's open
+      if (state.isTranslationOpen) {
+        state = state.copyWith(translationSegmentId: segment.segmentId);
       }
     }
   }
@@ -304,6 +309,29 @@ class ReaderNotifier extends StateNotifier<ReaderState> {
       closeCommentary();
     } else {
       openCommentary(segmentId);
+    }
+  }
+
+  /// Open translation panel for a segment
+  void openTranslation(String segmentId) {
+    if (_isDisposed) return;
+    state = state.copyWith(translationSegmentId: segmentId);
+  }
+
+  /// Close translation panel
+  void closeTranslation() {
+    if (_isDisposed) return;
+    state = state.copyWith(clearTranslationSegmentId: true);
+  }
+
+  /// Toggle translation panel
+  void toggleTranslation(String segmentId) {
+    if (_isDisposed) return;
+
+    if (state.translationSegmentId == segmentId) {
+      closeTranslation();
+    } else {
+      openTranslation(segmentId);
     }
   }
 

@@ -22,7 +22,8 @@ class ReaderContentPart extends ConsumerStatefulWidget {
   final String? initialSegmentId;
   final List<String>? visibleSegmentIds;
   final void Function(bool isScrollingDown)? onScrollDirectionChanged;
-  final void Function(void Function(String segmentId, {double? alignment}))? onScrollControllerReady;
+  final void Function(void Function(String segmentId, {double? alignment}))?
+  onScrollControllerReady;
   const ReaderContentPart({
     super.key,
     required this.params,
@@ -59,13 +60,13 @@ class _ReaderContentPartState extends ConsumerState<ReaderContentPart> {
   bool _isProgrammaticScroll = false;
 
   // Grey-out feature: show only initial segment, disable on first user scroll
-  bool _enableGreyOut = true;
+  final bool _enableGreyOut = true;
 
   @override
   void initState() {
     super.initState();
     _itemPositionsListener.itemPositions.addListener(_onScrollPositionChanged);
-    
+
     // Expose scroll controller to parent
     WidgetsBinding.instance.addPostFrameCallback((_) {
       widget.onScrollControllerReady?.call(_scrollToSegment);
@@ -91,11 +92,11 @@ class _ReaderContentPartState extends ConsumerState<ReaderContentPart> {
     _trackScrollDirection();
 
     // Disable grey-out on first user scroll
-    if (_hasUserInteracted && _isUserScrolling && _enableGreyOut) {
-      setState(() {
-        _enableGreyOut = false;
-      });
-    }
+    // if (_hasUserInteracted && _isUserScrolling && _enableGreyOut) {
+    //   setState(() {
+    //     _enableGreyOut = false;
+    //   });
+    // }
   }
 
   void _trackScrollDirection() {
@@ -221,7 +222,7 @@ class _ReaderContentPartState extends ConsumerState<ReaderContentPart> {
       _logger.debug('No content available for scrolling');
       return;
     }
-    
+
     final index = content.getSegmentIndex(segmentId);
     if (index == null) {
       _logger.debug('Segment $segmentId not found in content');
@@ -264,8 +265,9 @@ class _ReaderContentPartState extends ConsumerState<ReaderContentPart> {
       _hasScrolledToInitial = true;
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (_itemScrollController.isAttached) {
-          final index =
-              state.content!.getSegmentIndex(widget.initialSegmentId!);
+          final index = state.content!.getSegmentIndex(
+            widget.initialSegmentId!,
+          );
           if (index != null) {
             _isProgrammaticScroll = true;
             // Short content at top: instant jump (no animation issues)
@@ -348,7 +350,8 @@ class _ReaderContentPartState extends ConsumerState<ReaderContentPart> {
   }
 
   bool _isSegmentGreyedOut(String segmentId) {
-    if (widget.visibleSegmentIds != null && widget.visibleSegmentIds!.isNotEmpty) {
+    if (widget.visibleSegmentIds != null &&
+        widget.visibleSegmentIds!.isNotEmpty) {
       return !widget.visibleSegmentIds!.contains(segmentId);
     }
     if (widget.initialSegmentId != null) {
@@ -379,14 +382,15 @@ class _ReaderContentPartState extends ConsumerState<ReaderContentPart> {
         return const SizedBox.shrink();
       },
       segment:
-          (segment, depth, sectionId) => SegmentItem( 
+          (segment, depth, sectionId) => SegmentItem(
             segment: segment,
             depth: depth,
             language: widget.language,
             isSelected: state.selectedSegment?.segmentId == segment.segmentId,
             isHighlighted: state.highlightedSegmentId == segment.segmentId,
             highlightSource: state.highlightSource,
-            isGreyedOut: _enableGreyOut && _isSegmentGreyedOut(segment.segmentId),
+            isGreyedOut:
+                _enableGreyOut && _isSegmentGreyedOut(segment.segmentId),
             onTap: () => onSegmentTap(segment),
           ),
     );

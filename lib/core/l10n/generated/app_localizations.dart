@@ -394,6 +394,24 @@ abstract class AppLocalizations {
   /// **'Commentaries'**
   String get text_commentary;
 
+  /// No description provided for @text_translations.
+  ///
+  /// In en, this message translates to:
+  /// **'Translations'**
+  String get text_translations;
+
+  /// No description provided for @text_close_translation.
+  ///
+  /// In en, this message translates to:
+  /// **'Close translations'**
+  String get text_close_translation;
+
+  /// No description provided for @no_translation.
+  ///
+  /// In en, this message translates to:
+  /// **'No translations found'**
+  String get no_translation;
+
   /// No description provided for @text_close_commentary.
   ///
   /// In en, this message translates to:

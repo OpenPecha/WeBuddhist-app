@@ -14,6 +14,8 @@ import 'package:flutter_pecha/core/widgets/skeletons/skeletons.dart';
 import 'package:flutter_pecha/features/home/presentation/providers/tags_provider.dart';
 import 'package:flutter_pecha/features/home/presentation/home_screen_constants.dart';
 import 'package:flutter_pecha/features/home/presentation/widgets/tag_card.dart';
+import 'package:flutter_pecha/features/notifications/application/special_plan_enrollment_hook.dart';
+import 'package:flutter_pecha/features/plans/presentation/providers/user_plans_provider.dart';
 import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -53,13 +55,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   Future<void> _requestNotificationPermissionsIfNeeded() async {
+    _log.info('[SP-HOME] _requestNotificationPermissionsIfNeeded ENTER '
+        'hasRequested=$_hasRequestedPermissions');
     if (_hasRequestedPermissions) return;
     _hasRequestedPermissions = true;
 
     final notificationService = ref.read(notificationServiceProvider);
     if (notificationService == null) {
       _log.warning(
-        'NotificationService not initialized, skipping permission request',
+        '[SP-HOME] NotificationService not initialized, skipping permission request',
       );
       _navigateToPendingPlanIfNeeded();
       return;
@@ -69,20 +73,74 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       // Check if permissions are already granted
       final alreadyEnabled =
           await notificationService.areNotificationsEnabled();
+      _log.info('[SP-HOME] alreadyEnabled=$alreadyEnabled');
       if (!alreadyEnabled) {
-        _log.info('Requesting notification permissions...');
+        _log.info('[SP-HOME] requesting notification permissions...');
         final granted = await notificationService.requestPermission();
-        _log.info(granted
-            ? 'Notification permissions granted'
-            : 'Notification permissions denied');
+        _log.info('[SP-HOME] permission request result granted=$granted');
       }
     } catch (e) {
-      _log.warning('Error requesting notification permissions: $e');
+      _log.warning('[SP-HOME] error requesting notification permissions: $e');
     }
+
+    // Permission flow has run — fire any pending special-plan Day 1
+    // notifications now (e.g. user just enrolled in ITCC during onboarding
+    // after 09:00). Without permission, `_plugin.show()` silently no-ops, so
+    // this MUST run after the permission request above.
+    await _firePendingSpecialPlanDay1IfNeeded();
 
     // After the permission flow (dialog shown or already granted), check
     // whether onboarding left a plan waiting to be opened in Practice.
     _navigateToPendingPlanIfNeeded();
+  }
+
+  Future<void> _firePendingSpecialPlanDay1IfNeeded() async {
+    _log.info('[SP-HOME] _firePendingSpecialPlanDay1IfNeeded ENTER');
+    // Invalidate first — the provider may have been evaluated pre-login
+    // (no auth header) and cached a Forbidden failure. We need a fresh read.
+    _log.info('[SP-HOME] invalidating userPlansFutureProvider for fresh fetch');
+    ref.invalidate(userPlansFutureProvider);
+
+    const maxAttempts = 3;
+    for (var attempt = 1; attempt <= maxAttempts; attempt++) {
+      _log.info('[SP-HOME] fetch attempt $attempt/$maxAttempts');
+      try {
+        final userPlansAsync = await ref.read(userPlansFutureProvider.future);
+        final isFailure = userPlansAsync.isLeft();
+        _log.info('[SP-HOME] attempt $attempt resolved isFailure=$isFailure');
+        if (isFailure && attempt < maxAttempts) {
+          _log.warning(
+            '[SP-HOME] attempt $attempt failed — invalidating and retrying: '
+            '${userPlansAsync.fold((f) => f, (_) => "")}',
+          );
+          ref.invalidate(userPlansFutureProvider);
+          await Future.delayed(const Duration(milliseconds: 400));
+          continue;
+        }
+        await userPlansAsync.fold(
+          (failure) async {
+            _log.warning(
+              '[SP-HOME] giving up after $attempt attempts — fetch failed: $failure',
+            );
+          },
+          (response) async {
+            _log.info(
+              '[SP-HOME] user plans loaded count=${response.userPlans.length} '
+              'on attempt=$attempt, calling tryFirePendingSpecialPlanDay1Notifications',
+            );
+            await tryFirePendingSpecialPlanDay1Notifications(response.userPlans);
+          },
+        );
+        break;
+      } catch (e, st) {
+        _log.warning('[SP-HOME] attempt $attempt threw: $e\n$st');
+        if (attempt < maxAttempts) {
+          ref.invalidate(userPlansFutureProvider);
+          await Future.delayed(const Duration(milliseconds: 400));
+        }
+      }
+    }
+    _log.info('[SP-HOME] _firePendingSpecialPlanDay1IfNeeded EXIT');
   }
 
   /// Consumes [pendingOnboardingPlanProvider] and navigates to the Practice

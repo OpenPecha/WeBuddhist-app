@@ -39,12 +39,22 @@ class NotificationChannels {
         enableVibration: true,
       );
 
+  /// Action ID used for the Android action button on special-plan day-N
+  /// notifications. The tap handler treats this the same as a body tap.
+  static const String specialPlanActionId = 'special_plan_action';
+
   /// Full platform-specific NotificationDetails for routine block notifications.
+  ///
+  /// [androidActionButtonText] adds a single Android action button (e.g.
+  /// "START", "READ ON"). When `null`, no action button is rendered. iOS does
+  /// not render this label per product decision — body tap on iOS routes to
+  /// the same destination, preserving functionality.
   static NotificationDetails routineBlockDetails({
     String icon = 'ic_notification',
     StyleInformation? styleInformation,
     FilePathAndroidBitmap? largeIcon,
     DarwinNotificationDetails? iOSDetails,
+    String? androidActionButtonText,
   }) =>
       NotificationDetails(
         android: AndroidNotificationDetails(
@@ -59,6 +69,16 @@ class NotificationChannels {
           enableVibration: true,
           playSound: true,
           sound: routineAndroidSound,
+          actions: androidActionButtonText == null
+              ? null
+              : <AndroidNotificationAction>[
+                  AndroidNotificationAction(
+                    specialPlanActionId,
+                    androidActionButtonText,
+                    showsUserInterface: true,
+                    cancelNotification: true,
+                  ),
+                ],
         ),
         iOS: iOSDetails ?? DarwinNotificationDetails(
           sound: routineIosSoundFile,

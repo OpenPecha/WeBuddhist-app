@@ -56,6 +56,12 @@ class StorageKeys {
   static const String dailyReminderTime = 'daily_reminder_time';
   /// Daily reminder enabled flag
   static const String dailyReminderEnabled = 'daily_reminder_enabled';
+  /// Per-plan startedAt prefix for special-plan day-N notification series.
+  /// Full key: `special_plan_started_at_<planId>` → ISO8601 string.
+  static const String specialPlanStartedAtPrefix = 'special_plan_started_at_';
+  /// Per-plan idempotency flag prefix preventing duplicate Day 1 immediate
+  /// fires. Full key: `special_plan_day1_shown_<planId>_<yyyy-MM-dd>` → bool.
+  static const String specialPlanDay1ShownPrefix = 'special_plan_day1_shown_';
 
   // ========== FEATURES ==========
   /// Profile data JSON

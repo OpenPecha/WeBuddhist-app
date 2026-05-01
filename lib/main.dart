@@ -9,8 +9,10 @@ import 'package:flutter_pecha/core/config/router/app_router.dart';
 import 'package:flutter_pecha/core/network/connectivity_service.dart';
 import 'package:flutter_pecha/core/l10n/l10n.dart';
 import 'package:flutter_pecha/core/services/service_providers.dart';
+import 'package:flutter_pecha/core/storage/special_plan_started_at_store.dart';
 import 'package:flutter_pecha/core/theme/theme_notifier.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
+import 'package:flutter_pecha/features/notifications/application/special_plan_bootstrap.dart';
 import 'package:flutter_pecha/features/notifications/data/services/notification_service.dart';
 import 'package:flutter_pecha/features/practice/data/datasource/routine_local_storage.dart';
 import 'package:flutter_pecha/features/practice/presentation/providers/practice_providers.dart';
@@ -80,6 +82,14 @@ void main() async {
     _logger.warning('Error initializing notification service: $e');
   }
 
+  // Prime the special-plan startedAt cache so the notification scheduler can
+  // read it synchronously when scheduling daily routine blocks.
+  try {
+    await SpecialPlanStartedAtStore.init();
+  } catch (e) {
+    _logger.warning('Error initializing special plan store: $e');
+  }
+
   // Initialize routine local storage (persistent user data, not cache)
   final routineStorage = RoutineLocalStorage();
   try {
@@ -115,6 +125,10 @@ class MyApp extends ConsumerWidget {
     // Initialize services in background via providers
     ref.watch(audioHandlerProvider);
     ref.watch(notificationServiceProvider);
+    // Listener that mirrors UserPlansModel.startedAt into
+    // SpecialPlanStartedAtStore whenever userPlansFutureProvider resolves.
+    // Must be watched here so the listener stays alive for the app lifetime.
+    ref.watch(specialPlanBootstrapProvider);
     NotificationService.setRouter(router);
     NotificationService().consumeLaunchNotification();
 

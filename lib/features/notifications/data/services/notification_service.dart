@@ -346,7 +346,15 @@ class NotificationService {
   }
 
   void _onNotificationTapped(NotificationResponse response) {
-    _logger.info('Notification tapped - ID: ${response.id}, Payload: ${response.payload}');
+    _logger.info(
+      'Notification tapped - ID: ${response.id}, '
+      'actionId: ${response.actionId}, Payload: ${response.payload}',
+    );
+
+    // Action button taps (e.g. special-plan day-N button) intentionally
+    // route the same as a body tap. The action button shares the
+    // notification's payload, so the existing parse-and-route logic below
+    // handles both cases without branching.
 
     if (_router == null || _container == null) {
       _logger.warning('Router/container not initialized, cannot navigate');

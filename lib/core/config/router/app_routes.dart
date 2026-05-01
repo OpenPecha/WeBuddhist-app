@@ -69,6 +69,12 @@ class AppRoutes {
   // ========== READER ROUTES ==========
   static const String reader = '/reader';
 
+  // ========== PLAN TEXT ROUTES ==========
+  /// Inline plan text screen — renders subtasks where `content_type == "TEXT"`.
+  /// Path param is the subtask id; the actual content travels in `extra`
+  /// as a [NavigationContext] whose `currentItem` carries `inlineContent`.
+  static const String planText = '/plan-text';
+
   // ========== NOTIFICATIONS SUB ROUTES ==========
   static const String notificationSettings = '/notifications/settings';
 

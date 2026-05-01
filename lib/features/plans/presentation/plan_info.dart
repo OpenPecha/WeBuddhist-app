@@ -216,7 +216,10 @@ class _PlanInfoState extends ConsumerState<PlanInfo> {
   }
 
   Future<void> _handleEnroll(BuildContext context) async {
-    // TODO: Implement enrollment
+    // TODO: Implement enrollment. After a successful subscribe + fetching the
+    // resulting UserPlansModel, call `onSpecialPlanEnrolled(plan)` from
+    // `lib/features/notifications/application/special_plan_enrollment_hook.dart`
+    // so special-plan day-N notifications (e.g. ITCC) trigger here too.
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(SnackBar(content: Text('Enrollment coming soon!')));

@@ -14,6 +14,7 @@ import 'package:flutter_pecha/features/onboarding/presentation/providers/onboard
 import 'package:flutter_pecha/features/onboarding/presentation/screens/onboarding_wrapper.dart';
 import 'package:flutter_pecha/features/plans/domain/entities/plan.dart';
 import 'package:flutter_pecha/features/plans/data/models/user/user_plans_model.dart';
+import 'package:flutter_pecha/features/plans/presentation/screens/plan_text_screen.dart';
 import 'package:flutter_pecha/features/plans/presentation/widgets/plan_track/plan_details.dart';
 import 'package:flutter_pecha/features/plans/presentation/plan_info.dart';
 import 'package:flutter_pecha/features/plans/presentation/widgets/plan_preview/plan_preview_details.dart';
@@ -283,6 +284,22 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: AppRoutes.notifications,
         name: "notifications",
         builder: (context, state) => const NotificationSettingsScreen(),
+      ),
+
+      // plan text route - inline TEXT subtasks (sibling to /reader)
+      GoRoute(
+        path: "/plan-text/:subtaskId",
+        name: "plan-text",
+        builder: (context, state) {
+          final extra = state.extra;
+          if (extra is! NavigationContext) {
+            _logger.warning(
+              'plan-text route called without NavigationContext extra',
+            );
+            return const MainNavigationScreen();
+          }
+          return PlanTextScreen(navigationContext: extra);
+        },
       ),
 
       // reader route - new refactored text reader

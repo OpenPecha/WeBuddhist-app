@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/features/plans/domain/subtask_navigation.dart';
 import 'package:flutter_pecha/features/plans/plans.dart';
+import 'package:flutter_pecha/features/plans/presentation/widgets/plan_navigation/plan_navigator.dart';
 import 'package:flutter_pecha/features/reader/data/models/navigation_context.dart';
-import 'package:go_router/go_router.dart';
 
 /// A read-only activity list for previewing plan tasks before enrollment.
-/// Unlike ActivityList, this widget:
-/// - Works with PlanTasksModel (non-enrolled data)
-/// - Has no checkbox/completion toggle (preview only)
-/// - Navigates to ReaderScreen with sourceTextId and NavigationContext
+/// Mirrors `ActivityList` but works with `PlanTasksModel` (non-enrolled
+/// data) and never tracks subtask completion.
+///
+/// Tapping a row opens the appropriate screen (ReaderScreen for
+/// SOURCE_REFERENCE, PlanTextScreen for TEXT) with the unified
+/// [PlanTextItem] list, so the bottom-bar progress works the same as in
+/// the enrolled flow.
 class PreviewActivityList extends StatelessWidget {
   final String language;
   final List<PlanTasksModel> tasks;
@@ -48,13 +52,13 @@ class PreviewActivityList extends StatelessWidget {
       itemCount: sortedTasks.length,
       itemBuilder: (context, index) {
         final task = sortedTasks[index];
-        final hasSourceText = _hasSourceText(task);
+        final isNavigable = PlanSubtaskNavigation.isPlanTaskNavigable(task);
         return Container(
           margin: const EdgeInsets.symmetric(vertical: 10),
           child: _PreviewTaskItem(
             language: language,
             task: task,
-            hasSourceText: hasSourceText,
+            hasNavigableContent: isNavigable,
             onTap: () => _handleActivityTap(context, task),
           ),
         );
@@ -63,72 +67,27 @@ class PreviewActivityList extends StatelessWidget {
   }
 
   void _handleActivityTap(BuildContext context, PlanTasksModel task) {
-    final planTextItems = _buildPlanTextItems();
+    final planTextItems = PlanSubtaskNavigation.fromPlanTasks(tasks);
     if (planTextItems.isEmpty) return;
-    final PlanSubtasksModel? subtaskWithText = _getSubtaskWithText(task);
 
-    if (subtaskWithText != null) {
-      final sourceTextId = subtaskWithText.sourceTextId;
-      final segmentId = _getFirstSegmentId(subtaskWithText);
+    // Find this task's position in the unified list. Without subtaskId
+    // (preview mode) we match on title — task titles are unique within
+    // a day in practice, and a stale match still navigates somewhere
+    // reasonable in the same list.
+    final index = planTextItems.indexWhere((item) => item.title == task.title);
+    if (index < 0) return;
 
-      final currentTextIndex = planTextItems.indexWhere(
-        (item) => item.textId == sourceTextId,
-      );
-
-      final navigationContext = NavigationContext(
-        source: NavigationSource.plan,
-        planId: planId,
-        dayNumber: dayNumber,
-        targetSegmentId: segmentId,
-        planTextItems: planTextItems,
-        currentTextIndex: currentTextIndex >= 0 ? currentTextIndex : 0,
-      );
-
-      context.push('/reader/$sourceTextId', extra: navigationContext);
-    }
-  }
-
-  /// Build list of plan text items for swipe navigation.
-  /// One PlanTextItem per task with full segmentIds list.
-  List<PlanTextItem> _buildPlanTextItems() {
-    final items = <PlanTextItem>[];
-    final sortedTasks = _sortedTasks;
-    for (final task in sortedTasks) {
-      if (task.subtasks.isEmpty) continue;
-      final subtask = task.subtasks[0];
-      if (subtask.sourceTextId != null && subtask.sourceTextId!.isNotEmpty) {
-        items.add(
-          PlanTextItem(
-            textId: subtask.sourceTextId!,
-            segmentIds: subtask.segmentIds,
-            title: task.title,
-          ),
-        );
-      }
-    }
-    return items;
-  }
-
-  /// Check if any subtask has a sourceTextId
-  bool _hasSourceText(PlanTasksModel task) {
-    return task.subtasks.any(
-      (s) => s.sourceTextId != null && s.sourceTextId!.isNotEmpty,
+    final target = planTextItems[index];
+    final navigationContext = NavigationContext(
+      source: NavigationSource.plan,
+      planId: planId,
+      dayNumber: dayNumber,
+      targetSegmentId: target.firstSegmentId,
+      planTextItems: planTextItems,
+      currentTextIndex: index,
     );
-  }
 
-  PlanSubtasksModel? _getSubtaskWithText(PlanTasksModel task) {
-    for (final PlanSubtasksModel subtask in task.subtasks) {
-      if (subtask.sourceTextId != null && subtask.sourceTextId!.isNotEmpty) {
-        return subtask;
-      }
-    }
-    return null;
-  }
-
-  String? _getFirstSegmentId(PlanSubtasksModel subtask) {
-    final List<String>? segmentIds = subtask.segmentIds;
-    if (segmentIds == null || segmentIds.isEmpty) return null;
-    return segmentIds.first;
+    PlanNavigator.push(context, target, navigationContext);
   }
 }
 
@@ -137,13 +96,13 @@ class _PreviewTaskItem extends StatelessWidget {
   const _PreviewTaskItem({
     required this.language,
     required this.task,
-    required this.hasSourceText,
+    required this.hasNavigableContent,
     required this.onTap,
   });
 
   final String language;
   final PlanTasksModel task;
-  final bool hasSourceText;
+  final bool hasNavigableContent;
   final VoidCallback onTap;
 
   @override
@@ -151,7 +110,7 @@ class _PreviewTaskItem extends StatelessWidget {
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        onTap: hasSourceText ? onTap : null,
+        onTap: hasNavigableContent ? onTap : null,
         borderRadius: BorderRadius.circular(8),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
@@ -162,11 +121,11 @@ class _PreviewTaskItem extends StatelessWidget {
                   task.title,
                   overflow: TextOverflow.ellipsis,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w500,
-                  ),
+                        fontWeight: FontWeight.w500,
+                      ),
                 ),
               ),
-              if (hasSourceText) ...[
+              if (hasNavigableContent) ...[
                 const SizedBox(width: 8),
                 Icon(
                   Icons.arrow_forward_ios,

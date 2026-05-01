@@ -36,7 +36,6 @@ class MoreScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final themeMode = ref.watch(themeModeProvider);
     final locale = ref.watch(localeProvider);
     final localizations = AppLocalizations.of(context)!;
     final authState = ref.watch(authProvider);

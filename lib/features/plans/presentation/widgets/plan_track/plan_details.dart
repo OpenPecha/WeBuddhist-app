@@ -11,9 +11,10 @@ import 'package:flutter_pecha/features/plans/presentation/providers/user_plans_p
 import 'package:flutter_pecha/features/plans/data/models/plan_days_model.dart';
 import 'package:flutter_pecha/features/plans/data/models/user/user_plans_model.dart';
 import 'package:flutter_pecha/features/plans/data/models/user/user_tasks_dto.dart';
+import 'package:flutter_pecha/features/plans/domain/subtask_navigation.dart';
+import 'package:flutter_pecha/features/plans/presentation/widgets/plan_navigation/plan_navigator.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/features/reader/data/models/navigation_context.dart';
-import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../day_completion_bottom_sheet.dart';
 import '../plan_cover_image.dart';
@@ -514,31 +515,11 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
     );
   }
 
-  List<PlanTextItem> _buildPlanTextItems(List<UserTasksDto> tasks) {
-    final items = <PlanTextItem>[];
-    for (final task in tasks) {
-      if (task.subTasks.isEmpty) continue;
-      final subtask = task.subTasks[0];
-      if (subtask.sourceTextId != null && subtask.sourceTextId!.isNotEmpty) {
-        items.add(
-          PlanTextItem(
-            textId: subtask.sourceTextId!,
-            segmentIds: subtask.segmentIds,
-            title: task.title,
-            subtaskId: subtask.id,
-            isCompleted: subtask.isCompleted,
-          ),
-        );
-      }
-    }
-    return items;
-  }
-
   void _startReading(List<UserTasksDto> tasks) {
-    final planTextItems = _buildPlanTextItems(tasks);
+    final planTextItems = PlanSubtaskNavigation.fromUserTasks(tasks);
     if (planTextItems.isEmpty) return;
 
-    // Find first uncompleted task with source text; fall back to first item
+    // Find first uncompleted item of any content type; fall back to first.
     final targetIndex = planTextItems.indexWhere((item) => !item.isCompleted);
     final index = targetIndex >= 0 ? targetIndex : 0;
     final target = planTextItems[index];
@@ -552,11 +533,8 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
       currentTextIndex: index,
     );
 
-    context.push('/reader/${target.textId}', extra: navigationContext).then((
-      _,
-    ) {
-      _onReaderClosed();
-    });
+    PlanNavigator.push(context, target, navigationContext)
+        .then((_) => _onReaderClosed());
   }
 
   Widget _buildStartReadingButton(
@@ -576,12 +554,7 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
     );
 
     final hasReadableContent =
-        tasks != null &&
-        tasks.any(
-          (t) => t.subTasks.any(
-            (s) => s.sourceTextId != null && s.sourceTextId!.isNotEmpty,
-          ),
-        );
+        tasks != null && tasks.any(PlanSubtaskNavigation.isUserTaskNavigable);
 
     return SafeArea(
       child: Padding(

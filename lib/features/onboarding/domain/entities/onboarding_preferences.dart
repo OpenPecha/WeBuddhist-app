@@ -23,9 +23,9 @@ class OnboardingEventPlan {
 const kOnboardingEvents = <OnboardingEventPlan>[
   OnboardingEventPlan(
     planId: 'b42c9270-8bc9-4a98-b375-924a948ab18e',
-    eventLabel: 'ITCC',
+    eventLabel: 'ITCC Bodhgaya · Dec 2026',
     planName: 'Abhidhamma in a Year',
-    description: 'Daily Abhidhamma study over 8 days',
+    description: '200 days prep for the International Tipitaka Chanting Ceremony',
     totalDays: 8,
   ),
 ];

@@ -160,6 +160,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get text_commentary => 'Commentaries';
 
   @override
+  String get text_translations => 'Translations';
+
+  @override
+  String get text_close_translation => 'Close translations';
+
+  @override
+  String get no_translation => 'No translations found';
+
+  @override
   String get text_close_commentary => 'Close commentary';
 
   @override

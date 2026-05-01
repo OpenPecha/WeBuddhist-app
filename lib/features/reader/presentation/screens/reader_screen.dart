@@ -9,6 +9,7 @@ import 'package:flutter_pecha/features/reader/presentation/providers/reader_noti
 import 'package:flutter_pecha/features/reader/presentation/widgets/reader_actions/segement_action_bar.dart';
 import 'package:flutter_pecha/features/reader/presentation/widgets/reader_app_bar/reader_app_bar.dart';
 import 'package:flutter_pecha/features/reader/presentation/widgets/reader_commentary/reader_commentary_split_view.dart';
+import 'package:flutter_pecha/features/reader/presentation/widgets/reader_translation/reader_translation_split_view.dart';
 import 'package:flutter_pecha/features/reader/presentation/widgets/reader_content/reader_content_part.dart';
 import 'package:flutter_pecha/features/reader/presentation/widgets/reader_gestures/swipe_navigation_wrapper.dart';
 import 'package:flutter_pecha/features/reader/presentation/widgets/reader_search/reader_search_delegate.dart';
@@ -200,28 +201,39 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
                   params: _params,
                   textDetail: state.textDetail!,
                   isAppBarVisible: _isAppBarVisible,
-                  child: ReaderCommentarySplitView(
+                  child: ReaderTranslationSplitView(
                     params: _params,
-                    mainContent: Stack(
-                      children: [
-                        // Reader content with scroll detection
-                        ReaderContentPart(
-                          params: _params,
-                          language: state.textDetail!.language,
-                          initialSegmentId: widget.segmentId,
-                          visibleSegmentIds: widget.navigationContext?.currentSegmentIds,
-                          onScrollDirectionChanged: _onScrollDirectionChanged,
-                          onScrollControllerReady: (scrollFn) {
-                            _scrollToSegment = scrollFn;
-                          },
-                        ),
-                        // Segment action bar (when segment selected and commentary closed)
-                        if (state.hasSelection && !state.isCommentaryOpen)
-                          SegmentActionBar(
+                    mainContent: ReaderCommentarySplitView(
+                      params: _params,
+                      mainContent: Stack(
+                        children: [
+                          // Reader content with scroll detection
+                          ReaderContentPart(
+                            params: _params,
+                            language: state.textDetail!.language,
+                            initialSegmentId: widget.segmentId,
+                            visibleSegmentIds: widget.navigationContext?.currentSegmentIds,
+                            onScrollDirectionChanged: _onScrollDirectionChanged,
+                            onScrollControllerReady: (scrollFn) {
+                              _scrollToSegment = scrollFn;
+                            },
+                          ),
+                          // Segment action bar (when segment selected and no panel open)
+                          if (state.hasSelection && !state.isCommentaryOpen && !state.isTranslationOpen)
+                            SegmentActionBar(
                             segment: state.selectedSegment!,
                             params: _params,
                             onClose: () => notifier.selectSegment(null),
                             onOpenCommentary: () {
+                              if (_scrollToSegment != null &&
+                                  state.selectedSegment != null) {
+                                _scrollToSegment!(
+                                  state.selectedSegment!.segmentId,
+                                  alignment: 0.0,
+                                );
+                              }
+                            },
+                            onOpenTranslation: () {
                               if (_scrollToSegment != null &&
                                   state.selectedSegment != null) {
                                 _scrollToSegment!(
@@ -236,6 +248,7 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
                   ),
                 ),
               ),
+            ),
             ],
           ),
         ),

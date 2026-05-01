@@ -1,8 +1,10 @@
 // Riverpod provider and logic for authentication state.
 import 'dart:convert';
 
+import 'package:flutter_pecha/core/storage/special_plan_started_at_store.dart';
 import 'package:flutter_pecha/core/storage/storage_keys.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
+import 'package:flutter_pecha/features/notifications/data/services/routine_notification_service.dart';
 import 'package:flutter_pecha/core/utils/local_storage_service.dart';
 import 'package:flutter_pecha/features/auth/domain/entities/auth_credentials.dart';
 import 'package:flutter_pecha/features/auth/domain/usecases/clear_guest_mode_and_onboarding_usecase.dart';
@@ -323,6 +325,19 @@ class AuthNotifier extends StateNotifier<AuthState> {
     await ref
         .read(localStorageServiceProvider)
         .remove(StorageKeys.currentUserId);
+
+    // Reset special-plan day-N cache so a different user signing in does not
+    // inherit the prior user's day index or "day 1 already shown" flag.
+    await SpecialPlanStartedAtStore.clearAll();
+
+    // Cancel any pending special-plan one-shot notifications so the next user
+    // (or the same user after re-login) does not receive notifications keyed
+    // off the previous session's startedAt.
+    try {
+      await RoutineNotificationService().cancelAllSpecialPlanSchedules();
+    } catch (e) {
+      _logger.warning('Failed to cancel special-plan schedules on logout: $e');
+    }
 
     state = state.copyWith(isLoggedIn: false, isLoading: false, isGuest: false);
     _logger.info('User logged out, auth and user state cleared');

@@ -60,17 +60,16 @@ class SegmentRemoteDatasource {
   }
 
   // get all translations of a segment
-  Future<List<SegmentTranslationResponse>> getSegmentTranslations(
+  Future<SegmentTranslationResponse> getSegmentTranslations(
     String segmentId,
   ) async {
     try {
       final response = await dio.get('/segments/$segmentId/translations');
 
       if (response.statusCode == 200) {
-        final List<dynamic> jsonMap = response.data as List<dynamic>;
-        return jsonMap
-            .map((e) => SegmentTranslationResponse.fromJson(e))
-            .toList();
+        return SegmentTranslationResponse.fromJson(
+          response.data as Map<String, dynamic>,
+        );
       } else {
         if (response.statusCode == 401) {
           throw const AuthenticationException('Unauthorized');

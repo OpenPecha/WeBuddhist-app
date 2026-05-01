@@ -33,6 +33,10 @@ class ReaderState {
 
   // Commentary
   final String? commentarySegmentId;
+
+  // Translation
+  final String? translationSegmentId;
+
   final double splitRatio;
 
   // Highlight (auto-clears after animation)
@@ -59,6 +63,7 @@ class ReaderState {
     this.navigationContext,
     this.selectedSegment,
     this.commentarySegmentId,
+    this.translationSegmentId,
     this.splitRatio = 0.5,
     this.highlightedSegmentId,
     this.highlightSource = NavigationSource.normal,
@@ -89,6 +94,9 @@ class ReaderState {
   /// Check if commentary panel is open
   bool get isCommentaryOpen => commentarySegmentId != null;
 
+  /// Check if translation panel is open
+  bool get isTranslationOpen => translationSegmentId != null;
+
   /// Check if a segment is selected
   bool get hasSelection => selectedSegment != null;
 
@@ -106,6 +114,7 @@ class ReaderState {
     NavigationContext? navigationContext,
     Segment? selectedSegment,
     String? commentarySegmentId,
+    String? translationSegmentId,
     double? splitRatio,
     String? highlightedSegmentId,
     NavigationSource? highlightSource,
@@ -120,6 +129,7 @@ class ReaderState {
     // Special flags for clearing nullable fields
     bool clearSelectedSegment = false,
     bool clearCommentarySegmentId = false,
+    bool clearTranslationSegmentId = false,
     bool clearHighlightedSegmentId = false,
     bool clearErrorMessage = false,
   }) {
@@ -135,6 +145,10 @@ class ReaderState {
           clearCommentarySegmentId
               ? null
               : (commentarySegmentId ?? this.commentarySegmentId),
+      translationSegmentId:
+          clearTranslationSegmentId
+              ? null
+              : (translationSegmentId ?? this.translationSegmentId),
       splitRatio: splitRatio ?? this.splitRatio,
       highlightedSegmentId:
           clearHighlightedSegmentId
