@@ -477,7 +477,7 @@ _EnrolledPlanInfo? _getEnrolledInfo(WidgetRef ref, String planId) {
   }
   if (userPlan == null) return null;
 
-  final startDate = routineItem.enrolledAt ?? userPlan.startedAt;
+  final startDate = userPlan.startDate ?? routineItem.enrolledAt ?? userPlan.startedAt;
   final daysSinceEnrollment =
       DateTime.now().difference(DateUtils.dateOnly(startDate)).inDays;
   final selectedDay = (daysSinceEnrollment + 1).clamp(1, userPlan.totalDays);

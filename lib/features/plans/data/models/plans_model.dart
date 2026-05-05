@@ -96,12 +96,12 @@ class PlansModel {
                   json['author'] as Map<String, dynamic>,
                 )
                 : null,
-        // startDate:
-        //     json['start_date'] != null
-        //         ? DateTime.tryParse(json['start_date'] as String)
-        //         : null,
+        startDate:
+            json['start_date'] != null
+                ? DateTime.tryParse(json['start_date'] as String)
+                : null,
         // TEMP TEST — remove before merging
-        startDate: _testStartDate(),
+        // startDate: _testStartDate(),
       );
     } catch (e) {
       _logger.error('Error in PlansModel.fromJson', e);

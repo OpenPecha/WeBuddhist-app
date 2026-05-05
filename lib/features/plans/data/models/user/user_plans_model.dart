@@ -37,12 +37,12 @@ class UserPlansModel {
       totalDays: json['total_days'] as int,
       tags:
           json['tags'] != null ? List<String>.from(json['tags'] as List) : null,
-      // startDate:
-      //     json['start_date'] != null
-      //         ? DateTime.tryParse(json['start_date'] as String)
-      //         : null,
+      startDate:
+          json['start_date'] != null
+              ? DateTime.tryParse(json['start_date'] as String)
+              : null,
       // TEMP TEST — remove before merging
-      startDate: _testStartDate(),
+      // startDate: _testStartDate(),
     );
   }
 
