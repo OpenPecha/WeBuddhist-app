@@ -39,6 +39,7 @@ class PlansModel {
   final int? totalDays;
   final List<String>? tags;
   final AuthorDtoModel? author;
+  final DateTime? startDate;
 
   PlansModel({
     required this.id,
@@ -50,6 +51,7 @@ class PlansModel {
     this.totalDays,
     this.tags,
     this.author,
+    this.startDate,
   });
 
   /// Backward compatibility getter - returns medium image or original as fallback
@@ -94,11 +96,23 @@ class PlansModel {
                   json['author'] as Map<String, dynamic>,
                 )
                 : null,
+        // startDate:
+        //     json['start_date'] != null
+        //         ? DateTime.tryParse(json['start_date'] as String)
+        //         : null,
+        // TEMP TEST — remove before merging
+        startDate: _testStartDate(),
       );
     } catch (e) {
       _logger.error('Error in PlansModel.fromJson', e);
       throw Exception('Failed to load plans: $e');
     }
+  }
+
+  // TEMP TEST — remove before merging
+  static DateTime _testStartDate() {
+    final now = DateTime.now();
+    return DateTime(now.year, now.month, now.day - 5);
   }
 
   Map<String, dynamic> toJson() {
@@ -111,6 +125,7 @@ class PlansModel {
       'image': image?.toJson(),
       'total_days': totalDays ?? 0,
       'tags': tags,
+      'start_date': startDate?.toIso8601String(),
     };
   }
 
@@ -124,6 +139,7 @@ class PlansModel {
     ImageModel? image,
     int? totalDays,
     List<String>? tags,
+    DateTime? startDate,
   }) {
     return PlansModel(
       id: id ?? this.id,
@@ -135,6 +151,7 @@ class PlansModel {
       totalDays: totalDays ?? this.totalDays,
       tags: tags ?? this.tags,
       author: author,
+      startDate: startDate ?? this.startDate,
     );
   }
 
@@ -184,6 +201,7 @@ class PlansModel {
       tags: tags ?? [],
       weekPlans: const [], // Will be populated by separate call if needed
       language: language,
+      startDate: startDate,
     );
   }
 

@@ -43,21 +43,25 @@ class RoutineFilledState extends ConsumerWidget {
             extra: NavigationContext(source: NavigationSource.normal),
           );
         } else {
-          final userPlan = myPlansState.plans
-              .where((p) => p.id == pendingNav.itemId)
-              .firstOrNull;
-          if (userPlan == null) return; // plans not loaded yet — wait for next build
+          final userPlan =
+              myPlansState.plans
+                  .where((p) => p.id == pendingNav.itemId)
+                  .firstOrNull;
+          if (userPlan == null)
+            return; // plans not loaded yet — wait for next build
           ref.read(pendingNotificationNavProvider.notifier).state = null;
           final startDate = userPlan.startedAt;
-          final daysSince = DateTime.now()
-              .difference(DateUtils.dateOnly(startDate))
-              .inDays;
+          final daysSince =
+              DateTime.now().difference(DateUtils.dateOnly(startDate)).inDays;
           final selectedDay = (daysSince + 1).clamp(1, userPlan.totalDays);
-          context.push('/practice/details', extra: {
-            'plan': userPlan,
-            'selectedDay': selectedDay,
-            'startDate': startDate,
-          });
+          context.push(
+            '/practice/details',
+            extra: {
+              'plan': userPlan,
+              'selectedDay': selectedDay,
+              'startDate': startDate,
+            },
+          );
         }
       });
     }
@@ -171,7 +175,9 @@ class _RoutineBlockSection extends ConsumerWidget {
   }
 
   void _navigateToReader(BuildContext context, String textId) {
-    final navigationContext = NavigationContext(source: NavigationSource.normal);
+    final navigationContext = NavigationContext(
+      source: NavigationSource.normal,
+    );
     context.push('/reader/$textId', extra: navigationContext);
   }
 
@@ -184,16 +190,18 @@ class _RoutineBlockSection extends ConsumerWidget {
 
     if (userPlan == null) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(context.l10n.notFound)),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(context.l10n.notFound)));
       }
       return;
     }
 
     if (!context.mounted) return;
 
-    final startDate = item.enrolledAt ?? userPlan.startedAt;
+    final startDate =
+        userPlan.startDate ?? item.enrolledAt ?? userPlan.startedAt;
+    debugPrint(':::::::::::::::: $startDate');
     final daysSinceEnrollment =
         DateTime.now().difference(DateUtils.dateOnly(startDate)).inDays;
     final selectedDay = (daysSinceEnrollment + 1).clamp(1, userPlan.totalDays);
