@@ -4,9 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/features/reader/constants/reader_constants.dart';
 import 'package:flutter_pecha/features/reader/data/models/flattened_item.dart';
+import 'package:flutter_pecha/features/reader/data/models/reader_slot_config.dart';
 import 'package:flutter_pecha/features/reader/data/models/reader_state.dart';
+import 'package:flutter_pecha/features/reader/presentation/providers/reader_dual_settings_provider.dart';
 import 'package:flutter_pecha/features/reader/presentation/providers/reader_notifier.dart';
 import 'package:flutter_pecha/features/reader/presentation/providers/reader_providers.dart';
+import 'package:flutter_pecha/features/reader/presentation/widgets/reader_content/interlinear_segment_item.dart';
 import 'package:flutter_pecha/features/reader/presentation/widgets/reader_content/section_header.dart';
 import 'package:flutter_pecha/features/reader/presentation/widgets/reader_content/segment_item.dart';
 import 'package:flutter_pecha/features/reader/presentation/widgets/reader_content/segment_skeleton.dart';
@@ -255,6 +258,7 @@ class _ReaderContentPartState extends ConsumerState<ReaderContentPart> {
   Widget build(BuildContext context) {
     final state = ref.watch(readerNotifierProvider(widget.params));
     final notifier = ref.read(readerNotifierProvider(widget.params).notifier);
+    final dualSettings = ref.watch(readerDualSettingsProvider);
 
     // Handle initial scroll to segment
     if (!_hasScrolledToInitial &&
@@ -332,6 +336,8 @@ class _ReaderContentPartState extends ConsumerState<ReaderContentPart> {
                 return _buildItem(
                   item: item,
                   state: state,
+                  dualSecondaryEnabled: dualSettings.secondaryEnabled,
+                  secondarySlot: dualSettings.secondary,
                   onSegmentTap:
                       (segment) => notifier.toggleSegmentSelection(segment),
                 );
@@ -360,15 +366,12 @@ class _ReaderContentPartState extends ConsumerState<ReaderContentPart> {
   Widget _buildItem({
     required FlattenedItem item,
     required ReaderState state,
+    required bool dualSecondaryEnabled,
+    required ReaderSlotConfig secondarySlot,
     required void Function(Segment) onSegmentTap,
   }) {
     return item.when(
       header: (section, depth) {
-        // Only show section headers for nested sections (depth > 0)
-        // The chapter header (depth 0) is shown at the top of the screen
-        // if (depth == 0) {
-        //   return const SizedBox.shrink();
-        // }
         if (section.segments[0].segmentNumber == 1) {
           return SectionHeader(
             section: section,
@@ -378,17 +381,37 @@ class _ReaderContentPartState extends ConsumerState<ReaderContentPart> {
         }
         return const SizedBox.shrink();
       },
-      segment:
-          (segment, depth, sectionId) => SegmentItem( 
+      segment: (segment, depth, sectionId) {
+        final isSelected = state.selectedSegment?.segmentId == segment.segmentId;
+        final isHighlighted = state.highlightedSegmentId == segment.segmentId;
+        final isGreyedOut =
+            _enableGreyOut && _isSegmentGreyedOut(segment.segmentId);
+
+        if (dualSecondaryEnabled) {
+          return InterlinearSegmentItem(
             segment: segment,
             depth: depth,
-            language: widget.language,
-            isSelected: state.selectedSegment?.segmentId == segment.segmentId,
-            isHighlighted: state.highlightedSegmentId == segment.segmentId,
+            primaryLanguage: widget.language,
+            secondarySlot: secondarySlot,
+            isSelected: isSelected,
+            isHighlighted: isHighlighted,
             highlightSource: state.highlightSource,
-            isGreyedOut: _enableGreyOut && _isSegmentGreyedOut(segment.segmentId),
+            isGreyedOut: isGreyedOut,
             onTap: () => onSegmentTap(segment),
-          ),
+          );
+        }
+
+        return SegmentItem(
+          segment: segment,
+          depth: depth,
+          language: widget.language,
+          isSelected: isSelected,
+          isHighlighted: isHighlighted,
+          highlightSource: state.highlightSource,
+          isGreyedOut: isGreyedOut,
+          onTap: () => onSegmentTap(segment),
+        );
+      },
     );
   }
 }

@@ -10,9 +10,10 @@ import 'package:flutter_pecha/features/reader/presentation/widgets/reader_action
 import 'package:flutter_pecha/features/reader/presentation/widgets/reader_app_bar/reader_app_bar.dart';
 import 'package:flutter_pecha/features/reader/presentation/widgets/reader_commentary/reader_commentary_split_view.dart';
 import 'package:flutter_pecha/features/reader/presentation/widgets/reader_content/reader_content_part.dart';
+import 'package:flutter_pecha/features/reader/presentation/widgets/reader_content/reader_metadata_subtitle.dart';
 import 'package:flutter_pecha/features/reader/presentation/widgets/reader_gestures/swipe_navigation_wrapper.dart';
 import 'package:flutter_pecha/features/reader/presentation/widgets/reader_search/reader_search_delegate.dart';
-import 'package:flutter_pecha/features/texts/presentation/providers/text_version_language_provider.dart';
+import 'package:flutter_pecha/features/reader/presentation/widgets/reader_settings/reader_settings_screen.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -183,13 +184,18 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
                   height: _isAppBarVisible ? null : 0,
                   child:
                       _isAppBarVisible
-                          ? ReaderAppBarOverlay(
-                            params: _params,
-                            colorIndex: widget.colorIndex,
-                            onSearchPressed:
-                                () => _handleSearch(context, state),
-                            onLanguagePressed:
-                                () => _handleLanguageSelection(context, state),
+                          ? Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              ReaderAppBarOverlay(
+                                params: _params,
+                                colorIndex: widget.colorIndex,
+                                onSearchPressed:
+                                    () => _handleSearch(context, state),
+                                onSettingsPressed: _openReaderSettings,
+                              ),
+                              ReaderMetadataSubtitle(params: _params),
+                            ],
                           )
                           : const SizedBox.shrink(),
                 ),
@@ -276,38 +282,10 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
     }
   }
 
-  Future<void> _handleLanguageSelection(
-    BuildContext context,
-    ReaderState state,
-  ) async {
+  Future<void> _openReaderSettings() async {
     final notifier = ref.read(readerNotifierProvider(_params).notifier);
-    final router = ref.read(appRouterProvider);
-
-    // Close selection before navigation
     notifier.selectSegment(null);
     notifier.closeCommentary();
-
-    if (state.textDetail != null) {
-      ref
-          .read(textVersionLanguageProvider.notifier)
-          .setLanguageCode(state.textDetail!.language);
-
-      final result = await router.pushNamed(
-        "reader-versions",
-        pathParameters: {"textId": widget.textId},
-      );
-
-      if (result != null && result is Map<String, dynamic> && mounted) {
-        final newTextId = result['textId'] as String?;
-        final newContentId = result['contentId'] as String?;
-
-        if (newTextId != null && newContentId != null) {
-          router.pushReplacement(
-            '/reader/$newTextId',
-            extra: NavigationContext(source: NavigationSource.normal),
-          );
-        }
-      }
-    }
+    await openReaderSettings(context, textId: widget.textId);
   }
 }

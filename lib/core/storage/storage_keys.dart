@@ -60,6 +60,9 @@ class StorageKeys {
   // ========== FEATURES ==========
   /// Profile data JSON
   static const String profileData = 'profile_data';
+  /// Dual-slot reader preferences JSON (primary+secondary language/version/script).
+  /// Global setting; applies to every text the user opens.
+  static const String readerDualSlotPreferences = 'reader_dual_slot_preferences';
 
   // ========== BUSINESS LOGIC ==========
   /// Last profile update timestamp
