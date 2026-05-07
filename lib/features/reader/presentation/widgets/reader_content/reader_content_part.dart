@@ -459,8 +459,6 @@ class _ReaderContentPartState extends ConsumerState<ReaderContentPart> {
           depth: depth,
           language: widget.language,
           isSelected: isSelected,
-          isHighlighted: isHighlighted,
-          highlightSource: state.highlightSource,
           isGreyedOut: isGreyedOut,
           onTap: () => onSegmentTap(segment),
         );
