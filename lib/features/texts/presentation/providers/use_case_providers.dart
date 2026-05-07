@@ -114,6 +114,14 @@ final getSegmentCommentariesUseCaseProvider =
   );
 });
 
+/// Provider for GetSegmentTranslationsUseCase.
+final getSegmentTranslationsUseCaseProvider =
+    Provider<GetSegmentTranslationsUseCase>((ref) {
+  return GetSegmentTranslationsUseCase(
+    ref.watch(segmentDomainRepositoryProvider),
+  );
+});
+
 // ========== Collections Use Case Providers ==========
 
 /// Provider for GetCollectionsUseCase.

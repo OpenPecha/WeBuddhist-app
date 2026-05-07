@@ -38,24 +38,40 @@ class RoutineItemCard extends StatelessWidget {
             if (onDelete != null) ...[
               GestureDetector(
                 onTap: onDelete,
-                child: Icon(PhosphorIconsRegular.minusCircle, size: 22),
+                child: Container(
+                  width: 24,
+                  height: 24,
+                  margin: const EdgeInsets.only(left: 8),
+                  decoration: BoxDecoration(
+                    color:
+                        isDark
+                            ? AppColors.surfaceVariantDark
+                            : AppColors.grey100,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(
+                    PhosphorIconsRegular.minus,
+                    size: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
               ),
-              const SizedBox(width: 10),
+              const SizedBox(width: 20),
             ],
             type == RoutineItemType.recitation
                 ? ClipRRect(
                   borderRadius: BorderRadius.circular(10),
                   child: Image.asset(
                     AppAssets.recitationCoverDefault,
-                    width: 60,
-                    height: 60,
+                    width: 74,
+                    height: 74,
                     fit: BoxFit.cover,
                   ),
                 )
                 : CachedNetworkImageWidget(
                   imageUrl: imageUrl ?? '',
-                  width: 60,
-                  height: 60,
+                  width: 74,
+                  height: 74,
                   fit: BoxFit.cover,
                   borderRadius: BorderRadius.circular(10),
                 ),
@@ -65,7 +81,7 @@ class RoutineItemCard extends StatelessWidget {
                 title,
                 style: TextStyle(
                   fontSize: 16,
-                  fontWeight: FontWeight.w500,
+                  fontWeight: FontWeight.w600,
                   color:
                       isDark
                           ? AppColors.textPrimaryDark

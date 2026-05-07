@@ -4,7 +4,7 @@ import 'package:uuid/uuid.dart';
 import 'package:flutter_pecha/core/error/failures.dart';
 import 'package:flutter_pecha/features/practice/data/datasource/routine_local_storage.dart';
 import 'package:flutter_pecha/features/practice/data/models/routine_model.dart';
-import 'package:flutter_pecha/features/practice/data/services/routine_notification_service.dart';
+import 'package:flutter_pecha/features/notifications/data/services/routine_notification_service.dart';
 import 'package:flutter_pecha/features/practice/domain/entities/practice_progress.dart';
 import 'package:flutter_pecha/features/practice/domain/entities/practice_session.dart';
 import 'package:flutter_pecha/features/practice/domain/entities/routine.dart';

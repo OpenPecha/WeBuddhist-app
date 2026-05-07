@@ -1,20 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/features/reader/constants/reader_constants.dart';
-import 'package:flutter_pecha/features/reader/data/models/navigation_context.dart';
 import 'package:flutter_pecha/features/texts/presentation/providers/font_size_notifier.dart';
 import 'package:flutter_pecha/features/texts/data/models/segment.dart';
 import 'package:flutter_pecha/features/texts/presentation/segment_html_widget.dart';
 import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-/// Widget for displaying a single segment in the reader
 class SegmentItem extends ConsumerWidget {
   final Segment segment;
   final int depth;
   final String language;
   final bool isSelected;
-  final bool isHighlighted;
-  final NavigationSource highlightSource;
   final bool isGreyedOut;
   final VoidCallback? onTap;
 
@@ -24,8 +20,6 @@ class SegmentItem extends ConsumerWidget {
     required this.depth,
     required this.language,
     this.isSelected = false,
-    this.isHighlighted = false,
-    this.highlightSource = NavigationSource.normal,
     this.isGreyedOut = false,
     this.onTap,
   });
@@ -33,7 +27,7 @@ class SegmentItem extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final fontSize = ref.watch(fontSizeProvider);
-    final content = segment.content;
+    final segmentHtmlContent = segment.content?.replaceAll('⤵', '<br>') ?? '';
     final segmentNumber = segment.segmentNumber.toString().padLeft(2);
 
     return AnimatedOpacity(
@@ -86,7 +80,7 @@ class SegmentItem extends ConsumerWidget {
                   // Segment content
                   Expanded(
                     child: SegmentHtmlWidget(
-                      htmlContent: content ?? '',
+                      htmlContent: segmentHtmlContent,
                       segmentIndex: segment.segmentNumber,
                       fontSize: fontSize,
                       language: language,

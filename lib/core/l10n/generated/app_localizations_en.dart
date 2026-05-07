@@ -130,7 +130,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get nav_practice => 'Practice';
 
   @override
-  String get nav_settings => 'Me';
+  String get nav_settings => 'Settings';
 
   @override
   String get nav_connect => 'Connect';
@@ -158,6 +158,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get text_commentary => 'Commentaries';
+
+  @override
+  String get text_translations => 'Translations';
+
+  @override
+  String get text_close_translation => 'Close translations';
+
+  @override
+  String get no_translation => 'No translations found';
 
   @override
   String get text_close_commentary => 'Close commentary';
@@ -604,10 +613,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get comingSoonHeadline => 'Coming Soon';
 
   @override
-  String get routine_title => 'Your Routine';
+  String get routine_title => 'My Practice Routine';
 
   @override
-  String get routine_empty_title => 'Routine';
+  String get routine_empty_title => 'Practice Routine';
 
   @override
   String get routine_edit => 'Edit';
@@ -653,7 +662,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get routine_edit_title => 'Edit Your Routine';
 
   @override
-  String get routine_delete_block => 'Delete Time Block';
+  String get routine_delete_block => 'Delete Block';
+
+  @override
+  String get routine_delete_time_block => 'Delete Time Block';
 
   @override
   String get routine_add_plan => 'Add Plan';

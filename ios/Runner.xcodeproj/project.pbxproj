@@ -17,6 +17,7 @@
 		97C146FC1CF9000F007C117D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FA1CF9000F007C117D /* Main.storyboard */; };
 		97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FD1CF9000F007C117D /* Assets.xcassets */; };
 		97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */; };
+		AA1EECC0F56A2B1C3D4E5F61 /* routine.caf in Resources */ = {isa = PBXBuildFile; fileRef = AA1EECC0F56A2B1C3D4E5F60 /* routine.caf */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -86,6 +87,7 @@
 		E15311C3931A9D053F75AABB /* Pods-Runner.staging-release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.staging-release.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.staging-release.xcconfig"; sourceTree = "<group>"; };
 		E71115BFC7481D10DF061018 /* Pods-RunnerTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerTests.release.xcconfig"; path = "Target Support Files/Pods-RunnerTests/Pods-RunnerTests.release.xcconfig"; sourceTree = "<group>"; };
 		F8F7BCF3F147DEA424FE966C /* GoogleService-Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "Runner/GoogleService-Info.plist"; sourceTree = "<group>"; };
+		AA1EECC0F56A2B1C3D4E5F60 /* routine.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = routine.caf; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -201,6 +203,7 @@
 				1498D2331E8E89220040F4C2 /* GeneratedPluginRegistrant.m */,
 				74858FAE1ED2DC5600515810 /* AppDelegate.swift */,
 				74858FAD1ED2DC5600515810 /* Runner-Bridging-Header.h */,
+				AA1EECC0F56A2B1C3D4E5F60 /* routine.caf */,
 			);
 			path = Runner;
 			sourceTree = "<group>";
@@ -308,6 +311,7 @@
 				97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */,
 				97C146FC1CF9000F007C117D /* Main.storyboard in Resources */,
 				1FDD6EF63583D83501C608C9 /* GoogleService-Info.plist in Resources */,
+				AA1EECC0F56A2B1C3D4E5F61 /* routine.caf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -417,7 +421,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Xcode Run Script Build Phase\n#!/bin/bash\n\n# Get AUTH0_DOMAIN from environment or Xcode build settings\nAUTH0_DOMAIN=${AUTH0_DOMAIN:-$(echo $AUTH0_DOMAIN_BUILD_SETTING)}\n\nif [ -z \"$AUTH0_DOMAIN\" ]; then\n    echo \"error: AUTH0_DOMAIN not set. Please set it in Build Settings or environment.\"\n    exit 1\nfi\n\necho \"Generating entitlements with domain: $AUTH0_DOMAIN\"\n\n# Generate entitlements from template\nsed \"s/\\${AUTH0_DOMAIN}/$AUTH0_DOMAIN/g\" \\\n    \"$SRCROOT/Runner/Runner.entitlements.template\" \\\n    > \"$SRCROOT/Runner/Runner.entitlements\"\n\necho \"✅ Entitlements generated successfully\"\n";
+			shellScript = "# Xcode Run Script Build Phase\n#!/bin/bash\nexport PATH=\"$PATH:$HOME/.pub-cache/bin:/usr/local/bin\"\n\n# Get AUTH0_DOMAIN from environment or Xcode build settings\nAUTH0_DOMAIN=${AUTH0_DOMAIN:-$(echo $AUTH0_DOMAIN_BUILD_SETTING)}\n\nif [ -z \"$AUTH0_DOMAIN\" ]; then\n    echo \"error: AUTH0_DOMAIN not set. Please set it in Build Settings or environment.\"\n    exit 1\nfi\n\necho \"Generating entitlements with domain: $AUTH0_DOMAIN\"\n\n# Generate entitlements from template\nsed \"s/\\${AUTH0_DOMAIN}/$AUTH0_DOMAIN/g\" \\\n    \"$SRCROOT/Runner/Runner.entitlements.template\" \\\n    > \"$SRCROOT/Runner/Runner.entitlements\"\n\necho \"✅ Entitlements generated successfully\"\n";
 		};
 		D9A06C095248D4046E79B764 /* FlutterFire: "flutterfire upload-crashlytics-symbols" */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -435,7 +439,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\n#!/bin/bash\nPATH=\"${PATH}:$FLUTTER_ROOT/bin:${PUB_CACHE}/bin:$HOME/.pub-cache/bin\"\n\nif [ -z \"$PODS_ROOT\" ] || [ ! -d \"$PODS_ROOT/FirebaseCrashlytics\" ]; then\n  # Cannot use \"BUILD_DIR%/Build/*\" as per Firebase documentation, it points to \"flutter-project/build/ios/*\" path which doesn't have run script\n  DERIVED_DATA_PATH=$(echo \"$BUILD_ROOT\" | sed -E 's|(.*DerivedData/[^/]+).*|\\1|')\n  PATH_TO_CRASHLYTICS_UPLOAD_SCRIPT=\"${DERIVED_DATA_PATH}/SourcePackages/checkouts/firebase-ios-sdk/Crashlytics/run\"\nelse\n  PATH_TO_CRASHLYTICS_UPLOAD_SCRIPT=\"$PODS_ROOT/FirebaseCrashlytics/run\"\nfi\n\n# Command to upload symbols script used to upload symbols to Firebase server\nflutterfire upload-crashlytics-symbols --upload-symbols-script-path=\"$PATH_TO_CRASHLYTICS_UPLOAD_SCRIPT\" --platform=ios --apple-project-path=\"${SRCROOT}\" --env-platform-name=\"${PLATFORM_NAME}\" --env-configuration=\"${CONFIGURATION}\" --env-project-dir=\"${PROJECT_DIR}\" --env-built-products-dir=\"${BUILT_PRODUCTS_DIR}\" --env-dwarf-dsym-folder-path=\"${DWARF_DSYM_FOLDER_PATH}\" --env-dwarf-dsym-file-name=\"${DWARF_DSYM_FILE_NAME}\" --env-infoplist-path=\"${INFOPLIST_PATH}\" --default-config=default\n";
+			shellScript = "\n#!/bin/bash\nexport PATH=\"${PATH}:$FLUTTER_ROOT/bin:${PUB_CACHE}/bin:$HOME/.pub-cache/bin:/usr/local/bin\"\n\nif [ -z \"$PODS_ROOT\" ] || [ ! -d \"$PODS_ROOT/FirebaseCrashlytics\" ]; then\n  DERIVED_DATA_PATH=$(echo \"$BUILD_ROOT\" | sed -E 's|(.*DerivedData/[^/]+).*|\\1|')\n  PATH_TO_CRASHLYTICS_UPLOAD_SCRIPT=\"${DERIVED_DATA_PATH}/SourcePackages/checkouts/firebase-ios-sdk/Crashlytics/run\"\nelse\n  PATH_TO_CRASHLYTICS_UPLOAD_SCRIPT=\"$PODS_ROOT/FirebaseCrashlytics/run\"\nfi\n\nFLUTTERFIRE_BIN=$(command -v flutterfire 2>/dev/null)\nif [ -z \"$FLUTTERFIRE_BIN\" ]; then\n  for dir in \"$HOME/.pub-cache/bin\" \"/Users/builder/.pub-cache/bin\" \"/usr/local/bin\"; do\n    if [ -x \"$dir/flutterfire\" ]; then\n      FLUTTERFIRE_BIN=\"$dir/flutterfire\"\n      break\n    fi\n  done\nfi\n\nif [ -z \"$FLUTTERFIRE_BIN\" ]; then\n  echo \"warning: flutterfire not found — skipping Crashlytics symbol upload\"\n  exit 0\nfi\n\n\"$FLUTTERFIRE_BIN\" upload-crashlytics-symbols --upload-symbols-script-path=\"$PATH_TO_CRASHLYTICS_UPLOAD_SCRIPT\" --platform=ios --apple-project-path=\"${SRCROOT}\" --env-platform-name=\"${PLATFORM_NAME}\" --env-configuration=\"${CONFIGURATION}\" --env-project-dir=\"${PROJECT_DIR}\" --env-built-products-dir=\"${BUILT_PRODUCTS_DIR}\" --env-dwarf-dsym-folder-path=\"${DWARF_DSYM_FOLDER_PATH}\" --env-dwarf-dsym-file-name=\"${DWARF_DSYM_FILE_NAME}\" --env-infoplist-path=\"${INFOPLIST_PATH}\" --default-config=default\n";
 		};
 		E7DD5C6AA1B42B8235995360 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;

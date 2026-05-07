@@ -14,6 +14,7 @@ import 'package:flutter_pecha/features/onboarding/presentation/providers/onboard
 import 'package:flutter_pecha/features/onboarding/presentation/screens/onboarding_wrapper.dart';
 import 'package:flutter_pecha/features/plans/domain/entities/plan.dart';
 import 'package:flutter_pecha/features/plans/data/models/user/user_plans_model.dart';
+import 'package:flutter_pecha/features/plans/presentation/screens/plan_text_screen.dart';
 import 'package:flutter_pecha/features/plans/presentation/widgets/plan_track/plan_details.dart';
 import 'package:flutter_pecha/features/plans/presentation/plan_info.dart';
 import 'package:flutter_pecha/features/plans/presentation/widgets/plan_preview/plan_preview_details.dart';
@@ -21,6 +22,7 @@ import 'package:flutter_pecha/features/practice/presentation/screens/edit_routin
 import 'package:flutter_pecha/features/practice/presentation/screens/practice_screen.dart';
 import 'package:flutter_pecha/features/practice/presentation/screens/select_plan_screen.dart';
 import 'package:flutter_pecha/features/practice/presentation/screens/select_recitation_screen.dart';
+import 'package:flutter_pecha/features/notifications/presentation/notification_settings_screen.dart';
 import 'package:flutter_pecha/features/reader/data/models/navigation_context.dart';
 import 'package:flutter_pecha/features/reader/presentation/screens/reader_screen.dart';
 import 'package:flutter_pecha/features/texts/presentation/screens/chapters/chapters_screen.dart';
@@ -191,7 +193,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
               }
               return PlanDetails(
                 plan: plan,
-                selectedDay: selectedDay ?? 0,
+                selectedDay: selectedDay ?? 1,
                 startDate: startDate ?? DateTime.now(),
               );
             },
@@ -236,7 +238,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                   }
                   return PlanDetails(
                     plan: plan,
-                    selectedDay: selectedDay ?? 0,
+                    selectedDay: selectedDay ?? 1,
                     startDate: startDate ?? DateTime.now(),
                   );
                 },
@@ -274,6 +276,29 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             text: extra?['text'] as String,
             imagePath: extra?['imagePath'] as String,
           );
+        },
+      ),
+
+      // notifications route
+      GoRoute(
+        path: AppRoutes.notifications,
+        name: "notifications",
+        builder: (context, state) => const NotificationSettingsScreen(),
+      ),
+
+      // plan text route - inline TEXT subtasks (sibling to /reader)
+      GoRoute(
+        path: "/plan-text/:subtaskId",
+        name: "plan-text",
+        builder: (context, state) {
+          final extra = state.extra;
+          if (extra is! NavigationContext) {
+            _logger.warning(
+              'plan-text route called without NavigationContext extra',
+            );
+            return const MainNavigationScreen();
+          }
+          return PlanTextScreen(navigationContext: extra);
         },
       ),
 

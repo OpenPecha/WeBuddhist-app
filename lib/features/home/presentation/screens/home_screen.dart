@@ -1,4 +1,5 @@
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
+import 'package:flutter_pecha/features/home/presentation/screens/main_navigation_screen.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
@@ -13,6 +14,8 @@ import 'package:flutter_pecha/core/widgets/skeletons/skeletons.dart';
 import 'package:flutter_pecha/features/home/presentation/providers/tags_provider.dart';
 import 'package:flutter_pecha/features/home/presentation/home_screen_constants.dart';
 import 'package:flutter_pecha/features/home/presentation/widgets/tag_card.dart';
+import 'package:flutter_pecha/features/notifications/application/special_plan_enrollment_hook.dart';
+import 'package:flutter_pecha/features/plans/presentation/providers/user_plans_provider.dart';
 import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -52,14 +55,19 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   Future<void> _requestNotificationPermissionsIfNeeded() async {
+    _log.info(
+      '[SP-HOME] _requestNotificationPermissionsIfNeeded ENTER '
+      'hasRequested=$_hasRequestedPermissions',
+    );
     if (_hasRequestedPermissions) return;
     _hasRequestedPermissions = true;
 
     final notificationService = ref.read(notificationServiceProvider);
     if (notificationService == null) {
       _log.warning(
-        'NotificationService not initialized, skipping permission request',
+        '[SP-HOME] NotificationService not initialized, skipping permission request',
       );
+      _navigateToPendingPlanIfNeeded();
       return;
     }
 
@@ -67,18 +75,99 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       // Check if permissions are already granted
       final alreadyEnabled =
           await notificationService.areNotificationsEnabled();
+      _log.info('[SP-HOME] alreadyEnabled=$alreadyEnabled');
       if (!alreadyEnabled) {
-        _log.info('Requesting notification permissions...');
+        _log.info('[SP-HOME] requesting notification permissions...');
         final granted = await notificationService.requestPermission();
-        if (granted) {
-          _log.info('Notification permissions granted');
-        } else {
-          _log.info('Notification permissions denied');
-        }
+        _log.info('[SP-HOME] permission request result granted=$granted');
       }
     } catch (e) {
-      _log.warning('Error requesting notification permissions: $e');
+      _log.warning('[SP-HOME] error requesting notification permissions: $e');
     }
+
+    // Permission flow has run — fire any pending special-plan Day 1
+    // notifications now (e.g. user just enrolled in ITCC during onboarding
+    // after 09:00). Without permission, `_plugin.show()` silently no-ops, so
+    // this MUST run after the permission request above.
+    await _firePendingSpecialPlanDay1IfNeeded();
+
+    // After the permission flow (dialog shown or already granted), check
+    // whether onboarding left a plan waiting to be opened in Practice.
+    _navigateToPendingPlanIfNeeded();
+  }
+
+  Future<void> _firePendingSpecialPlanDay1IfNeeded() async {
+    _log.info('[SP-HOME] _firePendingSpecialPlanDay1IfNeeded ENTER');
+    // Invalidate first — the provider may have been evaluated pre-login
+    // (no auth header) and cached a Forbidden failure. We need a fresh read.
+    _log.info('[SP-HOME] invalidating userPlansFutureProvider for fresh fetch');
+    ref.invalidate(userPlansFutureProvider);
+
+    const maxAttempts = 3;
+    for (var attempt = 1; attempt <= maxAttempts; attempt++) {
+      _log.info('[SP-HOME] fetch attempt $attempt/$maxAttempts');
+      try {
+        final userPlansAsync = await ref.read(userPlansFutureProvider.future);
+        final isFailure = userPlansAsync.isLeft();
+        _log.info('[SP-HOME] attempt $attempt resolved isFailure=$isFailure');
+        if (isFailure && attempt < maxAttempts) {
+          _log.warning(
+            '[SP-HOME] attempt $attempt failed — invalidating and retrying: '
+            '${userPlansAsync.fold((f) => f, (_) => "")}',
+          );
+          ref.invalidate(userPlansFutureProvider);
+          await Future.delayed(const Duration(milliseconds: 400));
+          continue;
+        }
+        await userPlansAsync.fold(
+          (failure) async {
+            _log.warning(
+              '[SP-HOME] giving up after $attempt attempts — fetch failed: $failure',
+            );
+          },
+          (response) async {
+            _log.info(
+              '[SP-HOME] user plans loaded count=${response.userPlans.length} '
+              'on attempt=$attempt, calling tryFirePendingSpecialPlanDay1Notifications',
+            );
+            await tryFirePendingSpecialPlanDay1Notifications(
+              response.userPlans,
+            );
+          },
+        );
+        break;
+      } catch (e, st) {
+        _log.warning('[SP-HOME] attempt $attempt threw: $e\n$st');
+        if (attempt < maxAttempts) {
+          ref.invalidate(userPlansFutureProvider);
+          await Future.delayed(const Duration(milliseconds: 400));
+        }
+      }
+    }
+    _log.info('[SP-HOME] _firePendingSpecialPlanDay1IfNeeded EXIT');
+  }
+
+  /// Consumes [pendingOnboardingPlanProvider] and navigates to the Practice
+  /// tab + plan detail screen. Called once, right after notification setup.
+  void _navigateToPendingPlanIfNeeded() {
+    if (!mounted) return;
+    final plan = ref.read(pendingOnboardingPlanProvider);
+    if (plan == null) return;
+
+    // Clear immediately so back-navigation never re-triggers this.
+    ref.read(pendingOnboardingPlanProvider.notifier).state = null;
+
+    // Push plan details FIRST while HomeScreen is still mounted.
+    // Switching the tab index BEFORE the push would unmount HomeScreen,
+    // making the subsequent context.push a no-op.
+    context.push(
+      '/practice/details',
+      extra: {'plan': plan, 'selectedDay': 1, 'startDate': plan.startedAt},
+    );
+
+    // Switch bottom-nav to Practice so popping back from plan details
+    // lands on the Practice tab rather than Home.
+    ref.read(mainNavigationIndexProvider.notifier).state = 2;
   }
 
   /// Manual refetch/retry method that can be called from UI
@@ -118,6 +207,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       return 'assets/images/tag_cover/joy.jpg';
     } else if (tagLower == 'loneliness') {
       return 'assets/images/tag_cover/loneliness.jpg';
+    } else if (tagLower == 'chanting the abhidhamma') {
+      return 'assets/images/tag_cover/chanting_the_abhidhanma.png';
     } else {
       return 'assets/images/tag_cover/cover_image.jpg';
     }

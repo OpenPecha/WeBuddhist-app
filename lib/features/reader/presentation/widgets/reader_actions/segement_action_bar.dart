@@ -38,6 +38,7 @@ class SegmentActionBar extends ConsumerWidget {
   final ReaderParams params;
   final VoidCallback onClose;
   final VoidCallback? onOpenCommentary;
+  final VoidCallback? onOpenTranslation;
 
   const SegmentActionBar({
     super.key,
@@ -45,6 +46,7 @@ class SegmentActionBar extends ConsumerWidget {
     required this.params,
     required this.onClose,
     this.onOpenCommentary,
+    this.onOpenTranslation,
   });
 
   @override
@@ -76,6 +78,17 @@ class SegmentActionBar extends ConsumerWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
+                  // Translations button
+                  ActionButton(
+                    icon: PhosphorIconsRegular.translate,
+                    label: localizations.text_translations,
+                    onTap: () {
+                      notifier.toggleTranslation(segment.segmentId);
+                      if (!state.isTranslationOpen) {
+                        onOpenTranslation?.call();
+                      }
+                    },
+                  ),
                   // Commentary button
                   ActionButton(
                     icon: PhosphorIconsRegular.chatText,
@@ -116,11 +129,11 @@ class SegmentActionBar extends ConsumerWidget {
                     onClose: onClose,
                   ),
                   // Image button
-                  ActionButton(
-                    icon: Icons.image_outlined,
-                    label: localizations.image,
-                    onTap: () => _handleImage(context, content),
-                  ),
+                  // ActionButton(
+                  //   icon: Icons.image_outlined,
+                  //   label: localizations.image,
+                  //   onTap: () => _handleImage(context, content),
+                  // ),
                 ],
               ),
             ),
@@ -186,7 +199,8 @@ class _ShareButtonState extends ConsumerState<_ShareButton> {
       final result = await ref.read(shareUrlProvider(params).future);
 
       final shortUrl = result.fold(
-        (failure) => throw Exception('Failed to generate share URL: ${failure.message}'),
+        (failure) =>
+            throw Exception('Failed to generate share URL: ${failure.message}'),
         (url) => url,
       );
 

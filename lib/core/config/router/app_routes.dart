@@ -69,6 +69,12 @@ class AppRoutes {
   // ========== READER ROUTES ==========
   static const String reader = '/reader';
 
+  // ========== PLAN TEXT ROUTES ==========
+  /// Inline plan text screen — renders subtasks where `content_type == "TEXT"`.
+  /// Path param is the subtask id; the actual content travels in `extra`
+  /// as a [NavigationContext] whose `currentItem` carries `inlineContent`.
+  static const String planText = '/plan-text';
+
   // ========== NOTIFICATIONS SUB ROUTES ==========
   static const String notificationSettings = '/notifications/settings';
 
@@ -88,13 +94,13 @@ class AppRoutes {
     practice, // Guests can see empty practice screen
     practicePlanPreview, // Allow guests to browse/preview plans
     reader,
+    notifications, // Local-only — guests can configure routine notifications
   };
 
   /// Base paths that require full authentication (prefix matching)
   static const Set<String> _protectedBasePaths = {
     practiceEditRoutine, // Building routine requires auth
     profile,
-    notifications,
     plansInfo,
     recitationDetail,
   };

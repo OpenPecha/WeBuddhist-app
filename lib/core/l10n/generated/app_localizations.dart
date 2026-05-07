@@ -337,7 +337,7 @@ abstract class AppLocalizations {
   /// No description provided for @nav_settings.
   ///
   /// In en, this message translates to:
-  /// **'Me'**
+  /// **'Settings'**
   String get nav_settings;
 
   /// No description provided for @nav_connect.
@@ -393,6 +393,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Commentaries'**
   String get text_commentary;
+
+  /// No description provided for @text_translations.
+  ///
+  /// In en, this message translates to:
+  /// **'Translations'**
+  String get text_translations;
+
+  /// No description provided for @text_close_translation.
+  ///
+  /// In en, this message translates to:
+  /// **'Close translations'**
+  String get text_close_translation;
+
+  /// No description provided for @no_translation.
+  ///
+  /// In en, this message translates to:
+  /// **'No translations found'**
+  String get no_translation;
 
   /// No description provided for @text_close_commentary.
   ///
@@ -1237,13 +1255,13 @@ abstract class AppLocalizations {
   /// No description provided for @routine_title.
   ///
   /// In en, this message translates to:
-  /// **'Your Routine'**
+  /// **'My Practice Routine'**
   String get routine_title;
 
   /// No description provided for @routine_empty_title.
   ///
   /// In en, this message translates to:
-  /// **'Routine'**
+  /// **'Practice Routine'**
   String get routine_empty_title;
 
   /// No description provided for @routine_edit.
@@ -1333,8 +1351,14 @@ abstract class AppLocalizations {
   /// No description provided for @routine_delete_block.
   ///
   /// In en, this message translates to:
-  /// **'Delete Time Block'**
+  /// **'Delete Block'**
   String get routine_delete_block;
+
+  /// No description provided for @routine_delete_time_block.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Time Block'**
+  String get routine_delete_time_block;
 
   /// No description provided for @routine_add_plan.
   ///

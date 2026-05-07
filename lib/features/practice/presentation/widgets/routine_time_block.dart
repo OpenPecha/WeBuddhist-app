@@ -107,7 +107,7 @@ class RoutineTimeBlock extends StatelessWidget {
               isDark: isDark,
               formattedTime: formatRoutineTime(time),
             ),
-            const SizedBox(width: 8),
+            const SizedBox(width: 4),
             _NotificationIcon(
               enabled: notificationEnabled,
               onTap: onNotificationToggle,
@@ -122,7 +122,7 @@ class RoutineTimeBlock extends StatelessWidget {
         ),
         // Items list (above action buttons)
         if (items.isNotEmpty) ...[
-          const SizedBox(height: 12),
+          const SizedBox(height: 8),
           ReorderableListView.builder(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
@@ -149,15 +149,14 @@ class RoutineTimeBlock extends StatelessWidget {
                     onDelete: () => _confirmDeleteItem(context, i),
                     reorderIndex: i,
                   ),
-                  if (i < items.length - 1)
-                    const Divider(height: 1, indent: 100),
+                  const Divider(height: 1, indent: 140),
                 ],
               );
             },
           ),
         ],
         // Add Session button (below items)
-        const SizedBox(height: 16),
+        const SizedBox(height: 12),
         _AddSessionButton(
           label: localizations.routine_add_session,
           onTap: onAddSession,
@@ -189,7 +188,12 @@ class _TimeSelector extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
           color: isDark ? AppColors.surfaceVariantDark : AppColors.grey100,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(20),
+            bottomLeft: Radius.circular(20),
+            bottomRight: Radius.circular(0),
+            topRight: Radius.circular(0),
+          ),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -198,15 +202,16 @@ class _TimeSelector extends StatelessWidget {
               formattedTime,
               style: TextStyle(
                 fontSize: 14,
-                fontWeight: FontWeight.w500,
+                fontWeight: FontWeight.w600,
                 color:
                     isDark ? AppColors.textPrimaryDark : AppColors.textPrimary,
               ),
             ),
-            const SizedBox(width: 4),
+            const SizedBox(width: 12),
             Icon(
               PhosphorIconsRegular.caretDown,
-              size: 16,
+              size: 18,
+              fontWeight: FontWeight.w600,
               color:
                   isDark ? AppColors.textTertiaryDark : AppColors.textSecondary,
             ),
@@ -232,9 +237,22 @@ class _NotificationIcon extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () => {HapticFeedback.mediumImpact(), onTap()},
-      child: Icon(
-        enabled ? PhosphorIconsRegular.bell : PhosphorIconsRegular.bellSlash,
-        size: 22,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(
+          color: isDark ? AppColors.surfaceVariantDark : AppColors.grey100,
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(0),
+            bottomLeft: Radius.circular(0),
+            bottomRight: Radius.circular(20),
+            topRight: Radius.circular(20),
+          ),
+        ),
+        child: Icon(
+          enabled ? PhosphorIconsRegular.bell : PhosphorIconsRegular.bellSlash,
+          size: 20,
+          color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimary,
+        ),
       ),
     );
   }
@@ -252,7 +270,11 @@ class _DeleteBlockButton extends StatelessWidget {
       onTap: onTap,
       child: Text(
         label,
-        style: TextStyle(fontSize: 14, color: Colors.red.shade400),
+        style: TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.w600,
+          color: Colors.red.shade400,
+        ),
       ),
     );
   }
@@ -279,12 +301,12 @@ class _AddSessionButton extends StatelessWidget {
         onTap: onTap,
         borderRadius: BorderRadius.circular(12),
         child: Padding(
-          padding: const EdgeInsets.only(top: 8, bottom: 8, left: 32),
+          padding: const EdgeInsets.only(left: 54),
           child: Row(
             children: [
               Container(
-                width: 60,
-                height: 60,
+                width: 72,
+                height: 72,
                 decoration: BoxDecoration(
                   color:
                       isDark ? AppColors.surfaceVariantDark : AppColors.grey100,

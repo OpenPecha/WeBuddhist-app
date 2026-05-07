@@ -130,7 +130,7 @@ class AppLocalizationsBo extends AppLocalizations {
   String get nav_practice => 'ཉམས་ལེན།';
 
   @override
-  String get nav_settings => 'Me';
+  String get nav_settings => 'སྒྲིག་འགོད།';
 
   @override
   String get nav_connect => ' མཐུད།';
@@ -158,6 +158,15 @@ class AppLocalizationsBo extends AppLocalizations {
 
   @override
   String get text_commentary => 'འགྲེལ་བ།';
+
+  @override
+  String get text_translations => 'Translations';
+
+  @override
+  String get text_close_translation => 'Close translations';
+
+  @override
+  String get no_translation => 'རྙེད་མ་བྱུང།';
 
   @override
   String get text_close_commentary => 'Close commentary';
@@ -656,6 +665,9 @@ class AppLocalizationsBo extends AppLocalizations {
 
   @override
   String get routine_delete_block => 'སུབ།';
+
+  @override
+  String get routine_delete_time_block => 'སུབ།';
 
   @override
   String get routine_add_plan => 'ཉམས་ལེན་ཁ་སྣོན།';

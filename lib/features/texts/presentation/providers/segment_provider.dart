@@ -8,3 +8,11 @@ final segmentCommentaryFutureProvider = FutureProvider.family((
   final useCase = ref.watch(getSegmentCommentariesUseCaseProvider);
   return useCase(segmentId);
 });
+
+final segmentTranslationsFutureProvider = FutureProvider.family((
+  ref,
+  String segmentId,
+) {
+  final useCase = ref.watch(getSegmentTranslationsUseCaseProvider);
+  return useCase(segmentId);
+});

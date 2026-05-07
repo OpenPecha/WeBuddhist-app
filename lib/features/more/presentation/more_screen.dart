@@ -5,8 +5,10 @@ import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/core/theme/theme_notifier.dart';
 import 'package:flutter_pecha/core/widgets/cached_network_image_widget.dart';
 import 'package:flutter_pecha/features/auth/presentation/widgets/login_drawer.dart';
+import 'package:flutter_pecha/features/notifications/presentation/notification_settings_screen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
+import 'package:go_router/go_router.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_pecha/core/constants/app_config.dart';
@@ -34,7 +36,6 @@ class MoreScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final themeMode = ref.watch(themeModeProvider);
     final locale = ref.watch(localeProvider);
     final localizations = AppLocalizations.of(context)!;
     final authState = ref.watch(authProvider);
@@ -72,6 +73,17 @@ class MoreScreen extends ConsumerWidget {
             _buildSectionHeader(context, localizations.language),
             const SizedBox(height: 12),
             _buildLanguageRow(context, ref, locale),
+            const SizedBox(height: 24),
+
+            // Notifications Section
+            _buildSectionHeader(context, localizations.notification_settings),
+            const SizedBox(height: 12),
+            _buildSettingsRow(
+              context,
+              icon: PhosphorIconsRegular.bell,
+              title: localizations.notification_settings,
+              onTap: () => context.push(NotificationSettingsScreen.routeName),
+            ),
             const SizedBox(height: 24),
 
             // Account Section

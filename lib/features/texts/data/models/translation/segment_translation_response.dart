@@ -13,7 +13,9 @@ class SegmentTranslationResponse {
   factory SegmentTranslationResponse.fromJson(Map<String, dynamic> json) {
     return SegmentTranslationResponse(
       parentSegment: ParentSegment.fromJson(json['parent_segment']),  
-      translations: json['translations'].map((e) => SegmentTranslation.fromJson(e)).toList(),
+      translations: (json['translations'] as List<dynamic>)
+          .map((e) => SegmentTranslation.fromJson(e as Map<String, dynamic>))
+          .toList(),
     );
   }
 
