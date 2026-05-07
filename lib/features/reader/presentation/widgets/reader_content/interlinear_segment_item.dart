@@ -15,6 +15,8 @@ class InterlinearSegmentItem extends ConsumerWidget {
     required this.depth,
     required this.primaryLanguage,
     required this.secondarySlot,
+    this.secondaryContentBySegmentNumber,
+    this.secondaryIsLoading = false,
     this.isSelected = false,
     this.isHighlighted = false,
     this.highlightSource = NavigationSource.normal,
@@ -27,6 +29,17 @@ class InterlinearSegmentItem extends ConsumerWidget {
   final String primaryLanguage;
 
   final ReaderSlotConfig secondarySlot;
+
+  /// Lookup map of secondary version's content keyed by segment_number.
+  /// When present, we resolve the secondary line from this map first; if
+  /// the segment_number is missing we fall back to inline `segment.translation`,
+  /// then finally to a placeholder string.
+  final Map<int, String>? secondaryContentBySegmentNumber;
+
+  /// True while the secondary version is fetching its first/next/previous
+  /// page. Used to choose between a "Loading…" placeholder and the
+  /// "unavailable" placeholder.
+  final bool secondaryIsLoading;
 
   final bool isSelected;
   final bool isHighlighted;
@@ -112,12 +125,19 @@ class InterlinearSegmentItem extends ConsumerWidget {
   }
 
   _SecondaryResolved _resolveSecondaryContent() {
+    final fromMap = secondaryContentBySegmentNumber?[segment.segmentNumber];
+    if (fromMap != null && fromMap.trim().isNotEmpty) {
+      return _SecondaryResolved(text: fromMap, isPlaceholder: false);
+    }
     final translation = segment.translation;
     if (translation != null && translation.content.trim().isNotEmpty) {
       return _SecondaryResolved(
         text: translation.content,
         isPlaceholder: false,
       );
+    }
+    if (secondaryIsLoading) {
+      return const _SecondaryResolved(text: 'Loading…', isPlaceholder: true);
     }
     return _SecondaryResolved(
       text: 'Translation in ${secondarySlot.languageLabel} unavailable',
@@ -129,7 +149,10 @@ class InterlinearSegmentItem extends ConsumerWidget {
 class _SecondaryResolved {
   final String text;
   final bool isPlaceholder;
-  const _SecondaryResolved({required this.text, required this.isPlaceholder});
+  const _SecondaryResolved({
+    required this.text,
+    required this.isPlaceholder,
+  });
 }
 
 class _SecondaryLine extends StatelessWidget {

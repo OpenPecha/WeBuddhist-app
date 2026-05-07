@@ -9,11 +9,14 @@ class ReaderDualSettingsNotifier extends StateNotifier<ReaderDualLayoutSettings>
   ReaderDualSettingsNotifier({required LocalStorageService localStorage})
       : _storage = localStorage,
         super(ReaderDualLayoutSettings.initial()) {
-    _load();
+    _loadFuture = _load();
   }
 
   final LocalStorageService _storage;
   Timer? _persistTimer;
+  late final Future<void> _loadFuture;
+
+  Future<void> get loaded => _loadFuture;
 
   Future<void> _load() async {
     final raw = await _storage.get<String>(

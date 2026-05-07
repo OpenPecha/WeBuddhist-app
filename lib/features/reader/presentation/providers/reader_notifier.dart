@@ -4,9 +4,11 @@ import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/features/reader/constants/reader_constants.dart';
 import 'package:flutter_pecha/features/reader/data/models/flattened_content.dart';
 import 'package:flutter_pecha/features/reader/data/models/navigation_context.dart';
+import 'package:flutter_pecha/features/reader/data/models/reader_slot_config.dart';
 import 'package:flutter_pecha/features/reader/data/models/reader_state.dart';
 import 'package:flutter_pecha/features/reader/domain/services/section_flattener_service.dart';
 import 'package:flutter_pecha/features/reader/domain/services/section_merger_service.dart';
+import 'package:flutter_pecha/features/reader/presentation/providers/reader_dual_settings_provider.dart';
 import 'package:flutter_pecha/features/texts/presentation/providers/texts_provider.dart';
 import 'package:flutter_pecha/features/texts/data/models/segment.dart';
 import 'package:flutter_pecha/features/texts/data/models/text/reader_response.dart';
@@ -50,6 +52,23 @@ class ReaderNotifier extends StateNotifier<ReaderState> {
   Timer? _highlightTimer;
   bool _isDisposed = false;
 
+  /// Tracks the `versionId` used for the current/last fetch so we can decide
+  /// when a settings change actually warrants a reload. Starts `null` —
+  /// matches "no `version_id` sent" which the API treats as "main text".
+  String? _activeVersionId;
+
+  /// True after the first successful initialize completes. Used to gate
+  /// the one-time backfill that syncs `readerDualSettingsProvider.primary`
+  /// to the language returned by the backend (so the settings sheet shows
+  /// the actually-loaded text instead of the stale persisted default).
+  bool _hasBackfilledPrimary = false;
+
+  /// True while an `_initialize` call is in flight. Used to suppress the
+  /// dual-settings listener during cold-start (when `_load` finishes mid
+  /// initialize and the persisted versionId becomes visible) — the in-flight
+  /// fetch already reads the latest settings so no extra reload is needed.
+  bool _isInitializing = false;
+
   ReaderNotifier({
     required Ref ref,
     required ReaderParams params,
@@ -60,24 +79,89 @@ class ReaderNotifier extends StateNotifier<ReaderState> {
        _flattener = flattener ?? const SectionFlattenerService(),
        _merger = merger ?? SectionMergerService(),
        super(ReaderState.initial(params.textId)) {
+    _ref.listen<ReaderDualLayoutSettings>(
+      readerDualSettingsProvider,
+      _onDualSettingsChanged,
+      fireImmediately: false,
+    );
     _initialize();
   }
 
-  /// Initialize the reader with initial content
-  Future<void> _initialize() async {
+  /// Reload primary content when the user picks a different version of the
+  /// main text in Reader Settings. Other primary-slot fields (language,
+  /// script, labels) are display-only here — they only translate into a new
+  /// API request when paired with a `version_id`.
+  void _onDualSettingsChanged(
+    ReaderDualLayoutSettings? previous,
+    ReaderDualLayoutSettings next,
+  ) {
+    if (_isDisposed) return;
+    final newVersionId = next.primary.versionId;
+    if (newVersionId == _activeVersionId) return;
+    if (_isInitializing) {
+      // Cold-start race: persisted prefs landed while the first fetch is
+      // still pending. The pending fetch reads settings just before issuing
+      // the request, so it will already see `newVersionId` and pick it up.
+      _logger.debug(
+        'Primary versionId changed during initialize, skipping listener-driven reload.',
+      );
+      return;
+    }
+    _logger.debug(
+      'Primary versionId changed: $_activeVersionId -> $newVersionId. '
+      'Reloading reader content.',
+    );
+    _reloadForVersionChange();
+  }
+
+  /// Fresh fetch driven by a primary version switch. We drop any
+  /// pagination-state contentId/segmentId so the new version starts from
+  /// its own first page rather than trying to resolve the previous version's
+  /// segment id (which is meaningless against the new version).
+  Future<void> _reloadForVersionChange() async {
+    if (_isDisposed) return;
+    state = ReaderState.initial(_params.textId).copyWith(
+      status: ReaderStatus.loading,
+      navigationContext: _params.navigationContext,
+    );
+    await _initialize(useNavParams: false);
+  }
+
+  /// Initialize the reader with initial content.
+  ///
+  /// [useNavParams] is `true` for the very first load — we honour
+  /// `_params.contentId` / `_params.segmentId` so deep-links and search jumps
+  /// work. After a primary-version change those original navigation params
+  /// no longer apply (they belong to the previous version), so we ignore
+  /// them and just fetch the new version's first page.
+  Future<void> _initialize({bool useNavParams = true}) async {
     if (_isDisposed) return;
     _logger.debug('ReaderNotifier initializing with params: $_params');
+    _isInitializing = true;
+
+    // Wait until the persisted dual-slot prefs have been merged into state,
+    // otherwise on cold start we'd fire the first fetch with no version_id
+    // and then immediately re-fetch when the listener notices the loaded
+    // versionId is non-null.
+    await _ref.read(readerDualSettingsProvider.notifier).loaded;
+    if (_isDisposed) {
+      _isInitializing = false;
+      return;
+    }
+
+    final initialContentId = useNavParams ? _params.contentId : null;
+    final initialSegmentId = useNavParams ? _params.segmentId : null;
 
     state = state.copyWith(
       status: ReaderStatus.loading,
-      contentId: _params.contentId,
+      contentId: initialContentId,
       navigationContext: _params.navigationContext,
     );
 
     try {
-      _logger.debug('ReaderNotifier fetching content with params: ${_params.segmentId}');
+      _logger.debug('ReaderNotifier fetching content with params: $initialSegmentId');
       final response = await _fetchContent(
-        segmentId: _params.segmentId,
+        segmentId: initialSegmentId,
         direction: 'next',
       );
       _logger.debug('ReaderNotifier initialized with response: $response');
@@ -90,9 +174,8 @@ class ReaderNotifier extends StateNotifier<ReaderState> {
 
       // Pre-load previous page when target is near the top so the widget
       // receives content with the target already at a stable index.
-      if (hasPreviousPage && _params.segmentId != null) {
-        final targetIndex =
-            flattenedContent.getSegmentIndex(_params.segmentId!);
+      if (hasPreviousPage && initialSegmentId != null) {
+        final targetIndex = flattenedContent.getSegmentIndex(initialSegmentId);
         if (targetIndex != null &&
             targetIndex <= ReaderConstants.previousLoadThreshold) {
           _logger.debug(
@@ -136,10 +219,12 @@ class ReaderNotifier extends StateNotifier<ReaderState> {
         hasPreviousPage: hasPreviousPage,
       );
 
+      _maybeBackfillPrimarySettings(response);
+
       // Handle highlight if navigating to a specific segment
-      if (_params.segmentId != null && _params.navigationContext != null) {
+      if (initialSegmentId != null && _params.navigationContext != null) {
         _triggerHighlight(
-          _params.segmentId!,
+          initialSegmentId,
           _params.navigationContext!.source,
         );
       }
@@ -150,17 +235,41 @@ class ReaderNotifier extends StateNotifier<ReaderState> {
         status: ReaderStatus.error,
         errorMessage: e.toString(),
       );
+    } finally {
+      _isInitializing = false;
+      // If settings shifted to a different version while the initial fetch
+      // was running, schedule a follow-up reload so we end on the active
+      // selection instead of a stale snapshot.
+      if (!_isDisposed) {
+        final settings = _ref.read(readerDualSettingsProvider);
+        if (settings.primary.versionId != _activeVersionId) {
+          _logger.debug(
+            'Settings drifted during initialize. Reloading to versionId=${settings.primary.versionId}',
+          );
+          unawaited(_reloadForVersionChange());
+        }
+      }
     }
   }
 
-  /// Fetch content from the repository
+  /// Fetch content from the repository.
+  ///
+  /// `version_id` is sourced from `readerDualSettingsProvider.primary` so the
+  /// primary stream stays in lockstep with what Reader Settings → Main text
+  /// reports. When no version is selected we omit it and the API returns the
+  /// default text — same as before this provider learned about settings.
   Future<ReaderResponse> _fetchContent({
     String? segmentId,
     required String direction,
   }) async {
+    final dualSettings = _ref.read(readerDualSettingsProvider);
+    final primaryVersionId = dualSettings.primary.versionId;
+    _activeVersionId = primaryVersionId;
+
     final params = TextDetailsParams(
       textId: _params.textId,
       contentId: state.contentId ?? _params.contentId,
+      versionId: primaryVersionId,
       segmentId: segmentId,
       direction: direction,
     );
@@ -172,11 +281,51 @@ class ReaderNotifier extends StateNotifier<ReaderState> {
     );
   }
 
+  /// One-shot, runs after the very first successful initialize: if the user
+  /// has not explicitly chosen a primary version, copy the loaded text's
+  /// language into `readerDualSettingsProvider.primary` so the Reader
+  /// Settings → Main text card and the metadata subtitle reflect what the
+  /// reader actually shows instead of the persisted "English" placeholder.
+  ///
+  /// We only sync language fields and only when `primary.versionId == null`,
+  /// so explicit user picks are never overwritten.
+  void _maybeBackfillPrimarySettings(ReaderResponse response) {
+    if (_hasBackfilledPrimary) return;
+    _hasBackfilledPrimary = true;
+
+    final settingsNotifier = _ref.read(readerDualSettingsProvider.notifier);
+    final settings = _ref.read(readerDualSettingsProvider);
+    final primary = settings.primary;
+    if (primary.versionId != null) {
+      // User has an explicit version pick — trust it, don't clobber labels.
+      return;
+    }
+
+    final loadedLanguage = response.textDetail.language;
+    if (loadedLanguage.isEmpty) return;
+    if (primary.languageCode.toLowerCase() == loadedLanguage.toLowerCase() &&
+        primary.languageLabel.toLowerCase() == loadedLanguage.toLowerCase()) {
+      return;
+    }
+
+    _logger.debug(
+      'Backfilling primary settings from loaded text: '
+      '${primary.languageCode} -> $loadedLanguage',
+    );
+    settingsNotifier.replacePrimary(
+      ReaderSlotConfig(
+        languageCode: loadedLanguage,
+        languageLabel: loadedLanguage,
+      ),
+    );
+  }
+
   /// Load the next page of content
   Future<void> loadNextPage() async {
     if (_isDisposed || state.isLoadingNext || !state.hasNextPage) return;
 
     state = state.copyWith(isLoadingNext: true);
+    final fetchVersionId = _activeVersionId;
 
     try {
       final lastSegmentId = state.content?.lastSegmentId;
@@ -191,6 +340,11 @@ class ReaderNotifier extends StateNotifier<ReaderState> {
       );
 
       if (_isDisposed) return;
+      if (_activeVersionId != fetchVersionId) {
+        // Primary version changed mid-pagination — discard the stale page.
+        _logger.debug('Discarding stale next page from versionId=$fetchVersionId');
+        return;
+      }
 
       // Merge new content with existing
       final mergedContent = _merger.merge(
@@ -217,6 +371,7 @@ class ReaderNotifier extends StateNotifier<ReaderState> {
     if (_isDisposed || state.isLoadingPrevious || !state.hasPreviousPage) return;
 
     state = state.copyWith(isLoadingPrevious: true);
+    final fetchVersionId = _activeVersionId;
 
     try {
       final firstSegmentId = state.content?.firstSegmentId;
@@ -231,6 +386,13 @@ class ReaderNotifier extends StateNotifier<ReaderState> {
       );
 
       if (_isDisposed) return;
+      if (_activeVersionId != fetchVersionId) {
+        // Primary version changed mid-pagination — discard the stale page.
+        _logger.debug(
+          'Discarding stale previous page from versionId=$fetchVersionId',
+        );
+        return;
+      }
 
       // Merge new content with existing
       final mergedContent = _merger.merge(

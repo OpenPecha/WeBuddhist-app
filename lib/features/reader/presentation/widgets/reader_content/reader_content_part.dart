@@ -6,9 +6,11 @@ import 'package:flutter_pecha/features/reader/constants/reader_constants.dart';
 import 'package:flutter_pecha/features/reader/data/models/flattened_item.dart';
 import 'package:flutter_pecha/features/reader/data/models/reader_slot_config.dart';
 import 'package:flutter_pecha/features/reader/data/models/reader_state.dart';
+import 'package:flutter_pecha/features/reader/data/models/secondary_reader_state.dart';
 import 'package:flutter_pecha/features/reader/presentation/providers/reader_dual_settings_provider.dart';
 import 'package:flutter_pecha/features/reader/presentation/providers/reader_notifier.dart';
 import 'package:flutter_pecha/features/reader/presentation/providers/reader_providers.dart';
+import 'package:flutter_pecha/features/reader/presentation/providers/reader_secondary_content_provider.dart';
 import 'package:flutter_pecha/features/reader/presentation/widgets/reader_content/interlinear_segment_item.dart';
 import 'package:flutter_pecha/features/reader/presentation/widgets/reader_content/section_header.dart';
 import 'package:flutter_pecha/features/reader/presentation/widgets/reader_content/segment_item.dart';
@@ -164,6 +166,7 @@ class _ReaderContentPartState extends ConsumerState<ReaderContentPart> {
       notifier.loadPreviousPage().then((_) {
         _hasTriggeredPrevious = false;
         _adjustScrollAfterPreviousLoad();
+        _maybeExtendSecondary(direction: PaginationDirection.previous);
       });
     }
 
@@ -178,7 +181,32 @@ class _ReaderContentPartState extends ConsumerState<ReaderContentPart> {
       );
       notifier.loadNextPage().then((_) {
         _hasTriggeredNext = false;
+        _maybeExtendSecondary(direction: PaginationDirection.next);
       });
+    }
+  }
+
+  /// Mirror primary pagination on the secondary stream (when enabled).
+  /// We read the dual settings lazily so toggling the secondary mid-session
+  /// is respected on the next page boundary.
+  void _maybeExtendSecondary({required PaginationDirection direction}) {
+    if (!mounted) return;
+    final dualSettings = ref.read(readerDualSettingsProvider);
+    final versionId = dualSettings.secondary.versionId;
+    if (!dualSettings.secondaryEnabled || versionId == null) return;
+
+    final notifier = ref.read(
+      secondaryReaderProvider(
+        SecondaryReaderKey(
+          textId: widget.params.textId,
+          versionId: versionId,
+        ),
+      ).notifier,
+    );
+    if (direction == PaginationDirection.next) {
+      notifier.loadNext();
+    } else {
+      notifier.loadPrevious();
     }
   }
 
@@ -260,6 +288,23 @@ class _ReaderContentPartState extends ConsumerState<ReaderContentPart> {
     final notifier = ref.read(readerNotifierProvider(widget.params).notifier);
     final dualSettings = ref.watch(readerDualSettingsProvider);
 
+    // Subscribe to the secondary provider only when the user has enabled
+    // the secondary AND picked a version. The autoDispose family means we
+    // tear down + free memory the moment either condition stops holding.
+    final secondaryVersionId = dualSettings.secondary.versionId;
+    final secondaryActive =
+        dualSettings.secondaryEnabled && secondaryVersionId != null;
+    final SecondaryReaderState? secondaryState = secondaryActive
+        ? ref.watch(
+            secondaryReaderProvider(
+              SecondaryReaderKey(
+                textId: widget.params.textId,
+                versionId: secondaryVersionId,
+              ),
+            ),
+          )
+        : null;
+
     // Handle initial scroll to segment
     if (!_hasScrolledToInitial &&
         state.content != null &&
@@ -338,6 +383,7 @@ class _ReaderContentPartState extends ConsumerState<ReaderContentPart> {
                   state: state,
                   dualSecondaryEnabled: dualSettings.secondaryEnabled,
                   secondarySlot: dualSettings.secondary,
+                  secondaryState: secondaryState,
                   onSegmentTap:
                       (segment) => notifier.toggleSegmentSelection(segment),
                 );
@@ -368,6 +414,7 @@ class _ReaderContentPartState extends ConsumerState<ReaderContentPart> {
     required ReaderState state,
     required bool dualSecondaryEnabled,
     required ReaderSlotConfig secondarySlot,
+    required SecondaryReaderState? secondaryState,
     required void Function(Segment) onSegmentTap,
   }) {
     return item.when(
@@ -393,6 +440,9 @@ class _ReaderContentPartState extends ConsumerState<ReaderContentPart> {
             depth: depth,
             primaryLanguage: widget.language,
             secondarySlot: secondarySlot,
+            secondaryContentBySegmentNumber:
+                secondaryState?.contentBySegmentNumber,
+            secondaryIsLoading: secondaryState?.isAnyLoading ?? false,
             isSelected: isSelected,
             isHighlighted: isHighlighted,
             highlightSource: state.highlightSource,

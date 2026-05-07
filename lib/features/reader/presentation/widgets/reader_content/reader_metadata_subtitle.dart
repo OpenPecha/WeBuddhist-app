@@ -35,21 +35,50 @@ class ReaderMetadataSubtitle extends ConsumerWidget {
     );
   }
 
+  /// Compose the line that sits under the app bar.
+  ///
+  /// The **primary language label** is sourced from the loaded
+  /// `state.textDetail` rather than `settings.primary` so the subtitle never
+  /// disagrees with the body text — even in edge cases where the user picked
+  /// a language but no version (so the API silently falls back to the
+  /// default text in another language).
+  ///
+  /// Script / version labels still come from `settings.primary` because the
+  /// `/texts/{id}/details` response does not echo those, and they are pure
+  /// display sugar that the user explicitly selected.
   String _composeLabel(
-    ReaderDualLayoutSettingsLike settings,
+    ReaderDualLayoutSettings settings,
     ReaderState state,
   ) {
     final primary = settings.primary;
+    final loadedLanguage = _resolvePrimaryLanguageLabel(primary, state);
+
     if (settings.secondaryEnabled) {
-      return '${primary.languageLabel} + ${settings.secondary.languageLabel}';
+      return '$loadedLanguage + ${settings.secondary.languageLabel}';
     }
     final parts = <String>[
-      primary.languageLabel.toUpperCase(),
+      loadedLanguage.toUpperCase(),
       if (primary.scriptLabel != null) primary.scriptLabel!.toUpperCase(),
       if (primary.versionLabel != null) primary.versionLabel!.toUpperCase(),
     ];
     return parts.join(' · ');
   }
-}
 
-typedef ReaderDualLayoutSettingsLike = ReaderDualLayoutSettings;
+  String _resolvePrimaryLanguageLabel(
+    ReaderSlotConfig primary,
+    ReaderState state,
+  ) {
+    final loaded = state.textDetail?.language ?? '';
+    if (loaded.isEmpty) {
+      return primary.languageLabel;
+    }
+    // Prefer the human-readable label from settings when it agrees with the
+    // loaded language, otherwise fall back to the backend value so the
+    // subtitle reflects what the user is actually reading.
+    if (primary.languageLabel.toLowerCase() == loaded.toLowerCase() ||
+        primary.languageCode.toLowerCase() == loaded.toLowerCase()) {
+      return primary.languageLabel;
+    }
+    return loaded;
+  }
+}
