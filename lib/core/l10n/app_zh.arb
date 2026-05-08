@@ -366,5 +366,7 @@
       }
     }
   },
-  "plan_enrolled": "已加入"
+  "plan_enrolled": "已加入",
+  "start_now": "立即開始",
+  "plan_enroll": "加入"
 }

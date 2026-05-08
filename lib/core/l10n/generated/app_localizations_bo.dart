@@ -957,4 +957,10 @@ class AppLocalizationsBo extends AppLocalizations {
 
   @override
   String get plan_enrolled => 'Enrolled';
+
+  @override
+  String get start_now => 'ད་ལྟ་འགོ་འཛུགས།';
+
+  @override
+  String get plan_enroll => 'ཞུགས་སྒྲིག';
 }

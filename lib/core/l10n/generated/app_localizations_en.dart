@@ -957,4 +957,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get plan_enrolled => 'Enrolled';
+
+  @override
+  String get start_now => 'Start now';
+
+  @override
+  String get plan_enroll => 'Enroll';
 }

@@ -422,5 +422,7 @@
       }
     }
   },
-  "plan_enrolled": "Enrolled"
+  "plan_enrolled": "Enrolled",
+  "start_now": "Start now",
+  "plan_enroll": "Enroll"
 }
