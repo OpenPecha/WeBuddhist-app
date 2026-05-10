@@ -4,6 +4,7 @@ import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/core/widgets/cached_network_image_widget.dart';
 import 'package:flutter_pecha/features/practice/data/models/routine_model.dart';
+import 'package:flutter_pecha/features/practice/presentation/widgets/routine_item_chip.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 class RoutineItemCard extends StatelessWidget {
@@ -97,18 +98,8 @@ class RoutineItemCard extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                   ),
                   if (startDateLabel != null) ...[
-                    const SizedBox(height: 4),
-                    Text(
-                      startDateLabel!,
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w500,
-                        color:
-                            isDark
-                                ? AppColors.textTertiaryDark
-                                : AppColors.textSecondary,
-                      ),
-                    ),
+                    const SizedBox(height: 8),
+                    RoutineItemChip(label: startDateLabel!),
                   ],
                 ],
               ),
