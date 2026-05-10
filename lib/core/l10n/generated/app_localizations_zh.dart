@@ -948,4 +948,9 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get plan_enroll => '加入';
+
+  @override
+  String plan_starts_on(String date) {
+    return '開始於 $date！';
+  }
 }

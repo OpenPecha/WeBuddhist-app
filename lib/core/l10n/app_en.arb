@@ -424,5 +424,11 @@
   },
   "plan_enrolled": "Enrolled",
   "start_now": "Start now",
-  "plan_enroll": "Enroll"
+  "plan_enroll": "Enroll",
+  "plan_starts_on": "Starts {date}!",
+  "@plan_starts_on": {
+    "placeholders": {
+      "date": { "type": "String" }
+    }
+  }
 }

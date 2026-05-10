@@ -368,5 +368,11 @@
   },
   "plan_enrolled": "已加入",
   "start_now": "立即開始",
-  "plan_enroll": "加入"
+  "plan_enroll": "加入",
+  "plan_starts_on": "開始於 {date}！",
+  "@plan_starts_on": {
+    "placeholders": {
+      "date": { "type": "String" }
+    }
+  }
 }

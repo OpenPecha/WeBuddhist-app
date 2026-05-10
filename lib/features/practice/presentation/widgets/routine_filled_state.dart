@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/features/notifications/data/models/notification_nav.dart';
+import 'package:flutter_pecha/features/plans/data/models/user/user_plans_model.dart';
 import 'package:flutter_pecha/features/plans/presentation/providers/user_plans_provider.dart';
 import 'package:flutter_pecha/features/practice/data/models/routine_model.dart';
 import 'package:flutter_pecha/features/practice/presentation/widgets/routine_item_card.dart';
 import 'package:flutter_pecha/features/reader/data/models/navigation_context.dart';
-import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
@@ -47,8 +48,9 @@ class RoutineFilledState extends ConsumerWidget {
               myPlansState.plans
                   .where((p) => p.id == pendingNav.itemId)
                   .firstOrNull;
-          if (userPlan == null)
+          if (userPlan == null) {
             return; // plans not loaded yet — wait for next build
+          }
           ref.read(pendingNotificationNavProvider.notifier).state = null;
           final startDate = userPlan.startedAt;
           final daysSince =
@@ -232,9 +234,23 @@ class _RoutineBlockSection extends ConsumerWidget {
     return userPlan;
   }
 
+  String? _startDateLabel(
+    BuildContext context,
+    RoutineItem item,
+    List<UserPlansModel> plans,
+  ) {
+    if (item.type != RoutineItemType.plan) return null;
+    final userPlan = plans.where((p) => p.id == item.id).firstOrNull;
+    final startDate = userPlan?.startDate;
+    if (startDate == null) return null;
+    if (!DateTime.now().isBefore(DateUtils.dateOnly(startDate))) return null;
+    return context.l10n.plan_starts_on(DateFormat('MMM d').format(startDate));
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final plans = ref.watch(myPlansPaginatedProvider).plans;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -255,6 +271,7 @@ class _RoutineBlockSection extends ConsumerWidget {
             imageUrl: block.items[i].imageUrl,
             type: block.items[i].type,
             onTap: () => _onItemTap(context, ref, block.items[i]),
+            startDateLabel: _startDateLabel(context, block.items[i], plans),
           ),
           if (i < block.items.length - 1) const Divider(height: 1, indent: 80),
         ],

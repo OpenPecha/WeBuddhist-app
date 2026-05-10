@@ -13,6 +13,7 @@ class RoutineItemCard extends StatelessWidget {
   final VoidCallback? onDelete;
   final int? reorderIndex;
   final RoutineItemType? type;
+  final String? startDateLabel;
 
   const RoutineItemCard({
     super.key,
@@ -22,6 +23,7 @@ class RoutineItemCard extends StatelessWidget {
     this.onDelete,
     this.reorderIndex,
     this.type,
+    this.startDateLabel,
   });
 
   @override
@@ -77,18 +79,38 @@ class RoutineItemCard extends StatelessWidget {
                 ),
             const SizedBox(width: 16),
             Expanded(
-              child: Text(
-                title,
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color:
-                      isDark
-                          ? AppColors.textPrimaryDark
-                          : AppColors.textPrimary,
-                ),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color:
+                          isDark
+                              ? AppColors.textPrimaryDark
+                              : AppColors.textPrimary,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  if (startDateLabel != null) ...[
+                    const SizedBox(height: 4),
+                    Text(
+                      startDateLabel!,
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w500,
+                        color:
+                            isDark
+                                ? AppColors.textTertiaryDark
+                                : AppColors.textSecondary,
+                      ),
+                    ),
+                  ],
+                ],
               ),
             ),
             if (reorderIndex != null) ...[

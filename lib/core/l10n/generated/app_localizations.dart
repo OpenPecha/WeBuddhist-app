@@ -1881,6 +1881,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Enroll'**
   String get plan_enroll;
+
+  /// No description provided for @plan_starts_on.
+  ///
+  /// In en, this message translates to:
+  /// **'Starts {date}!'**
+  String plan_starts_on(String date);
 }
 
 class _AppLocalizationsDelegate
