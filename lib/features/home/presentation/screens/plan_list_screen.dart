@@ -236,16 +236,25 @@ class _FeaturedPlanCard extends ConsumerWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  if (!isEnrolled && isFlexible) ...[
+                  if (_showFeaturedChipRow(isEnrolled, isFlexible, plan)) ...[
                     const SizedBox(height: 10),
                     Row(
                       children: [
-                        _StartNowChip(label: context.l10n.start_now),
-                        const SizedBox(width: 8),
-                        _EnrollButton(
-                          label: context.l10n.plan_enroll,
-                          onTap: () => _handleEnroll(context, ref, plan),
+                        _StartNowChip(
+                          label:
+                              isFlexible
+                                  ? context.l10n.start_now
+                                  : DateFormat(
+                                    'MMM d',
+                                  ).format(plan.startDate!.toLocal()),
                         ),
+                        if (!isEnrolled) ...[
+                          const SizedBox(width: 8),
+                          _EnrollButton(
+                            label: context.l10n.plan_enroll,
+                            onTap: () => _handleEnroll(context, ref, plan),
+                          ),
+                        ],
                       ],
                     ),
                   ],
@@ -269,7 +278,6 @@ class _PlanListItem extends ConsumerWidget {
     final locale = ref.watch(localeProvider);
     final lineHeight = getLineHeight(locale.languageCode);
     final titleFontSize = locale.languageCode == 'bo' ? 18.0 : 16.0;
-    final subtitleFontSize = locale.languageCode == 'bo' ? 16.0 : 14.0;
 
     final isGuest = ref.watch(authProvider).isGuest;
     final isEnrolled = !isGuest && _isPlanInRoutine(ref, plan.id);
@@ -317,18 +325,18 @@ class _PlanListItem extends ConsumerWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      // Start now chip or start date chip
                       if (isFlexible && !isEnrolled)
                         _StartNowChip(label: context.l10n.start_now)
-                      else if (isFlexible && isEnrolled)
-                        SizedBox.shrink()
-                      else if (!isFlexible)
+                      else if (!isFlexible &&
+                          (!isEnrolled ||
+                              DateTime.now().isBefore(plan.startDate!)))
                         _StartNowChip(
                           label: DateFormat(
-                            'MMMM d',
+                            'MMM d',
                           ).format(plan.startDate!.toLocal()),
-                        ),
-                      // Enrolled badge or enroll button
+                        )
+                      else
+                        const SizedBox.shrink(),
                       if (isEnrolled)
                         _EnrolledBadge(label: context.l10n.plan_enrolled)
                       else
@@ -483,6 +491,12 @@ _EnrolledPlanInfo? _getEnrolledInfo(WidgetRef ref, String planId) {
     selectedDay: selectedDay,
     startDate: startDate,
   );
+}
+
+bool _showFeaturedChipRow(bool isEnrolled, bool isFlexible, Plan plan) {
+  if (!isEnrolled) return true;
+  if (isFlexible) return false;
+  return DateTime.now().isBefore(plan.startDate!);
 }
 
 void _handleEnroll(BuildContext context, WidgetRef ref, Plan plan) {
