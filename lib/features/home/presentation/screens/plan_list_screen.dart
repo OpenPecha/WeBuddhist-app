@@ -13,6 +13,7 @@ import 'package:flutter_pecha/features/plans/data/models/user/user_plans_model.d
 import 'package:flutter_pecha/features/plans/presentation/providers/user_plans_provider.dart';
 import 'package:flutter_pecha/features/practice/data/models/routine_model.dart';
 import 'package:flutter_pecha/features/practice/presentation/providers/routine_api_providers.dart';
+import 'package:flutter_pecha/features/practice/presentation/widgets/routine_item_chip.dart';
 import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -240,13 +241,15 @@ class _FeaturedPlanCard extends ConsumerWidget {
                     const SizedBox(height: 10),
                     Row(
                       children: [
-                        _StartNowChip(
+                        RoutineItemChip(
                           label:
                               isFlexible
                                   ? context.l10n.start_now
-                                  : DateFormat(
-                                    'MMM d',
-                                  ).format(plan.startDate!.toLocal()),
+                                  : context.l10n.plan_starts_on(
+                                    DateFormat(
+                                      'MMM d',
+                                    ).format(plan.startDate!.toLocal()),
+                                  ),
                         ),
                         if (!isEnrolled) ...[
                           const SizedBox(width: 8),
@@ -326,14 +329,16 @@ class _PlanListItem extends ConsumerWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       if (isFlexible && !isEnrolled)
-                        _StartNowChip(label: context.l10n.start_now)
+                        RoutineItemChip(label: context.l10n.start_now)
                       else if (!isFlexible &&
                           (!isEnrolled ||
                               DateTime.now().isBefore(plan.startDate!)))
-                        _StartNowChip(
-                          label: DateFormat(
-                            'MMM d',
-                          ).format(plan.startDate!.toLocal()),
+                        RoutineItemChip(
+                          label: context.l10n.plan_starts_on(
+                            DateFormat(
+                              'MMM d',
+                            ).format(plan.startDate!.toLocal()),
+                          ),
                         )
                       else
                         const SizedBox.shrink(),
@@ -506,30 +511,6 @@ void _handleEnroll(BuildContext context, WidgetRef ref, Plan plan) {
     return;
   }
   context.push(AppRoutes.practicePlanPreview, extra: {'plan': plan});
-}
-
-class _StartNowChip extends StatelessWidget {
-  final String label;
-  const _StartNowChip({required this.label});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-      decoration: BoxDecoration(
-        color: const Color(0x33DEAD2D),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Text(
-        label,
-        style: const TextStyle(
-          color: Color(0xFFB28A24),
-          fontSize: 12,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
-    );
-  }
 }
 
 class _EnrollButton extends StatelessWidget {
