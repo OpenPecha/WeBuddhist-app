@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/utils/get_language.dart';
 import 'package:flutter_pecha/features/reader/data/models/reader_slot_config.dart';
 import 'package:flutter_pecha/features/reader/presentation/providers/reader_dual_settings_provider.dart';
 import 'package:flutter_pecha/features/reader/presentation/widgets/reader_settings/language_picker_sheet.dart';
@@ -125,7 +126,7 @@ class ReaderSettingsScreen extends ConsumerWidget {
         if (option.code == current.languageCode) return;
         final next = ReaderSlotConfig(
           languageCode: option.code,
-          languageLabel: option.label,
+          languageLabel: getLanguageName(option.code),
         );
         if (isPrimary) {
           notifier.replacePrimary(next);

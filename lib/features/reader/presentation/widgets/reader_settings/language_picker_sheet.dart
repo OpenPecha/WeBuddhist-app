@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/utils/get_language.dart';
 import 'package:flutter_pecha/features/reader/data/models/reader_language_option.dart';
 import 'package:flutter_pecha/features/reader/presentation/providers/reader_settings_providers.dart';
 import 'package:flutter_pecha/features/reader/presentation/widgets/reader_settings/picker_sheet_scaffold.dart';
@@ -91,7 +92,7 @@ class _LanguageTile extends StatelessWidget {
             children: [
               Expanded(
                 child: Text(
-                  option.label,
+                  getLanguageName(option.code),
                   style: theme.textTheme.titleMedium?.copyWith(
                     color: isSelected
                         ? activeColor

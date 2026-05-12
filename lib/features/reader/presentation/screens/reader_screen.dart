@@ -17,6 +17,8 @@ import 'package:flutter_pecha/features/reader/presentation/widgets/reader_gestur
 import 'package:flutter_pecha/features/reader/presentation/widgets/reader_search/reader_search_delegate.dart';
 import 'package:flutter_pecha/features/reader/presentation/widgets/reader_settings/reader_settings_screen.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
+import 'package:flutter_pecha/core/utils/get_language.dart';
+import 'package:flutter_pecha/features/texts/data/models/text_detail.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Main reader screen - thin orchestrator that composes child widgets
@@ -114,7 +116,7 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
     ReaderNotifier notifier,
   ) {
     final localizations = context.l10n;
-
+    final textDetail = state.textDetail;
     // Loading state
     if (state.isLoading) {
       return Center(
@@ -194,7 +196,11 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
                                 colorIndex: widget.colorIndex,
                                 onSearchPressed:
                                     () => _handleSearch(context, state),
-                                onSettingsPressed: _openReaderSettings,
+                                onSettingsPressed:
+                                    () => _openReaderSettings(
+                                      context,
+                                      textDetail,
+                                    ),
                               ),
                               ReaderMetadataSubtitle(params: _params),
                             ],
@@ -219,43 +225,46 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
                             params: _params,
                             language: state.textDetail!.language,
                             initialSegmentId: widget.segmentId,
-                            visibleSegmentIds: widget.navigationContext?.currentSegmentIds,
+                            visibleSegmentIds:
+                                widget.navigationContext?.currentSegmentIds,
                             onScrollDirectionChanged: _onScrollDirectionChanged,
                             onScrollControllerReady: (scrollFn) {
                               _scrollToSegment = scrollFn;
                             },
                           ),
                           // Segment action bar (when segment selected and no panel open)
-                          if (state.hasSelection && !state.isCommentaryOpen && !state.isTranslationOpen)
+                          if (state.hasSelection &&
+                              !state.isCommentaryOpen &&
+                              !state.isTranslationOpen)
                             SegmentActionBar(
-                            segment: state.selectedSegment!,
-                            params: _params,
-                            onClose: () => notifier.selectSegment(null),
-                            onOpenCommentary: () {
-                              if (_scrollToSegment != null &&
-                                  state.selectedSegment != null) {
-                                _scrollToSegment!(
-                                  state.selectedSegment!.segmentId,
-                                  alignment: 0.0,
-                                );
-                              }
-                            },
-                            onOpenTranslation: () {
-                              if (_scrollToSegment != null &&
-                                  state.selectedSegment != null) {
-                                _scrollToSegment!(
-                                  state.selectedSegment!.segmentId,
-                                  alignment: 0.0,
-                                );
-                              }
-                            },
-                          ),
-                      ],
+                              segment: state.selectedSegment!,
+                              params: _params,
+                              onClose: () => notifier.selectSegment(null),
+                              onOpenCommentary: () {
+                                if (_scrollToSegment != null &&
+                                    state.selectedSegment != null) {
+                                  _scrollToSegment!(
+                                    state.selectedSegment!.segmentId,
+                                    alignment: 0.0,
+                                  );
+                                }
+                              },
+                              onOpenTranslation: () {
+                                if (_scrollToSegment != null &&
+                                    state.selectedSegment != null) {
+                                  _scrollToSegment!(
+                                    state.selectedSegment!.segmentId,
+                                    alignment: 0.0,
+                                  );
+                                }
+                              },
+                            ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
             ],
           ),
         ),
@@ -296,22 +305,24 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
     }
   }
 
-  Future<void> _openReaderSettings() async {
+  Future<void> _openReaderSettings(
+    BuildContext context,
+    TextDetail? textDetail,
+  ) async {
     final notifier = ref.read(readerNotifierProvider(_params).notifier);
     notifier.selectSegment(null);
     notifier.closeCommentary();
 
     // Pass the currently-loaded primary display so the settings screen can
     // show it under "Main text" without the reader notifier having to write
-    // into a global settings store as a side effect.
-    final loadedLanguage =
-        ref.read(readerNotifierProvider(_params)).textDetail?.language;
-    final initialPrimaryDisplay = loadedLanguage == null
-        ? null
-        : ReaderSlotConfig(
-            languageCode: loadedLanguage,
-            languageLabel: loadedLanguage,
-          );
+    // into a global settings store as a side effect. The backend returns a
+    // raw code (e.g. "bo") — render it through getLanguageName so the user
+    // sees "Tibetan", not "bo".
+    final languageCode = textDetail?.language ?? 'en';
+    final initialPrimaryDisplay = ReaderSlotConfig(
+      languageCode: languageCode,
+      languageLabel: getLanguageName(languageCode),
+    );
 
     await openReaderSettings(
       context,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/utils/get_language.dart';
 import 'package:flutter_pecha/features/reader/data/models/reader_slot_config.dart';
 import 'package:flutter_pecha/features/reader/data/models/reader_state.dart';
 import 'package:flutter_pecha/features/reader/presentation/providers/reader_dual_settings_provider.dart';
@@ -73,12 +74,12 @@ class ReaderMetadataSubtitle extends ConsumerWidget {
       return primary.languageLabel;
     }
     // Prefer the human-readable label from settings when it agrees with the
-    // loaded language, otherwise fall back to the backend value so the
-    // subtitle reflects what the user is actually reading.
+    // loaded language, otherwise render the backend value (a raw code like
+    // "bo") through getLanguageName so the subtitle shows "Tibetan", not "bo".
     if (primary.languageLabel.toLowerCase() == loaded.toLowerCase() ||
         primary.languageCode.toLowerCase() == loaded.toLowerCase()) {
       return primary.languageLabel;
     }
-    return loaded;
+    return getLanguageName(loaded);
   }
 }
