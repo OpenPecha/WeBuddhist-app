@@ -4,13 +4,18 @@ import 'package:flutter_pecha/features/texts/data/models/segment.dart';
 ///
 /// `versionId` is required because the secondary stream is always pinned to
 /// a specific text version chosen by the user from the reader settings.
+///
+/// `initialSegmentId` is optional and used to align the secondary content
+/// with the primary reader's starting position (e.g., when navigating from plans).
 class SecondaryReaderKey {
   final String textId;
   final String versionId;
+  final String? initialSegmentId;
 
   const SecondaryReaderKey({
     required this.textId,
     required this.versionId,
+    this.initialSegmentId,
   });
 
   @override
@@ -18,14 +23,15 @@ class SecondaryReaderKey {
       identical(this, other) ||
       (other is SecondaryReaderKey &&
           other.textId == textId &&
-          other.versionId == versionId);
+          other.versionId == versionId &&
+          other.initialSegmentId == initialSegmentId);
 
   @override
-  int get hashCode => Object.hash(textId, versionId);
+  int get hashCode => Object.hash(textId, versionId, initialSegmentId);
 
   @override
   String toString() =>
-      'SecondaryReaderKey(textId: $textId, versionId: $versionId)';
+      'SecondaryReaderKey(textId: $textId, versionId: $versionId, initialSegmentId: $initialSegmentId)';
 }
 
 /// State for the secondary (translation/companion) text shown beneath the

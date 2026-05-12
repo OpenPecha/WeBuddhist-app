@@ -32,7 +32,11 @@ class SecondaryReaderNotifier extends StateNotifier<SecondaryReaderState> {
     state = state.copyWith(isLoading: true, clearError: true);
 
     try {
-      final response = await _fetch(segmentId: null, direction: 'next');
+      // Use initialSegmentId from key if provided (e.g., from plan navigation)
+      final response = await _fetch(
+        segmentId: key.initialSegmentId,
+        direction: 'next',
+      );
       if (_disposed) return;
 
       final segments = _extractSegments(response.content.sections);
@@ -48,7 +52,8 @@ class SecondaryReaderNotifier extends StateNotifier<SecondaryReaderState> {
       );
       _logger.debug(
         'Secondary initial load (${key.versionId}): '
-        '${segments.length} segments, total=${response.totalSegments}',
+        '${segments.length} segments, total=${response.totalSegments}, '
+        'startSegmentId=${key.initialSegmentId}',
       );
     } catch (e, st) {
       _logger.error('Secondary initial load failed for ${key.versionId}', e, st);

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/features/reader/constants/reader_constants.dart';
 import 'package:flutter_pecha/features/reader/data/models/flattened_item.dart';
+import 'package:flutter_pecha/features/reader/data/models/navigation_context.dart';
 import 'package:flutter_pecha/features/reader/data/models/reader_slot_config.dart';
 import 'package:flutter_pecha/features/reader/data/models/reader_state.dart';
 import 'package:flutter_pecha/features/reader/data/models/secondary_reader_state.dart';
@@ -187,6 +188,51 @@ class _ReaderContentPartState extends ConsumerState<ReaderContentPart> {
     }
   }
 
+  /// Determine the initial segment_id to use for secondary reader alignment.
+  /// - From plan navigation: use widget.params.segmentId
+  /// - Mid-session version switch: use first visible segment from viewport
+  /// - Otherwise: null (start from beginning)
+  String? _getSecondaryInitialSegmentId() {
+    // Check if coming from plan navigation
+    final navContext = widget.params.navigationContext;
+    if (navContext?.source == NavigationSource.plan &&
+        widget.params.segmentId != null) {
+      return widget.params.segmentId;
+    }
+
+    // If switching versions mid-session, align with current visible content
+    final state = ref.read(readerNotifierProvider(widget.params));
+    final content = state.content;
+    if (content != null && content.isNotEmpty) {
+      // Try to get the first visible segment from current viewport
+      final positions = _itemPositionsListener.itemPositions.value;
+      if (positions.isNotEmpty) {
+        // Find the topmost visible item
+        final topIndex = positions
+            .where(
+              (pos) => pos.itemLeadingEdge >= 0 && pos.itemLeadingEdge < 1.0,
+            )
+            .map((pos) => pos.index)
+            .fold<int?>(
+              null,
+              (min, index) => min == null || index < min ? index : min,
+            );
+
+        if (topIndex != null && topIndex < content.itemCount) {
+          final item = content.items[topIndex];
+          if (item.isSegment && item.segmentId != null) {
+            return item.segmentId;
+          }
+        }
+      }
+
+      // Fallback to first segment in loaded content
+      return content.firstSegmentId;
+    }
+
+    return null;
+  }
+
   /// Mirror primary pagination on the secondary stream (when enabled).
   /// We read the dual settings lazily so toggling the secondary mid-session
   /// is respected on the next page boundary.
@@ -201,6 +247,7 @@ class _ReaderContentPartState extends ConsumerState<ReaderContentPart> {
         SecondaryReaderKey(
           textId: widget.params.textId,
           versionId: versionId,
+          initialSegmentId: _getSecondaryInitialSegmentId(),
         ),
       ).notifier,
     );
@@ -295,16 +342,18 @@ class _ReaderContentPartState extends ConsumerState<ReaderContentPart> {
     final secondaryVersionId = dualSettings.secondary.versionId;
     final secondaryActive =
         dualSettings.secondaryEnabled && secondaryVersionId != null;
-    final SecondaryReaderState? secondaryState = secondaryActive
-        ? ref.watch(
-            secondaryReaderProvider(
-              SecondaryReaderKey(
-                textId: widget.params.textId,
-                versionId: secondaryVersionId,
+    final SecondaryReaderState? secondaryState =
+        secondaryActive
+            ? ref.watch(
+              secondaryReaderProvider(
+                SecondaryReaderKey(
+                  textId: widget.params.textId,
+                  versionId: secondaryVersionId,
+                  initialSegmentId: _getSecondaryInitialSegmentId(),
+                ),
               ),
-            ),
-          )
-        : null;
+            )
+            : null;
 
     // Handle initial scroll to segment
     if (!_hasScrolledToInitial &&
@@ -432,7 +481,8 @@ class _ReaderContentPartState extends ConsumerState<ReaderContentPart> {
         return const SizedBox.shrink();
       },
       segment: (segment, depth, sectionId) {
-        final isSelected = state.selectedSegment?.segmentId == segment.segmentId;
+        final isSelected =
+            state.selectedSegment?.segmentId == segment.segmentId;
         final isHighlighted = state.highlightedSegmentId == segment.segmentId;
         final isGreyedOut =
             _enableGreyOut && _isSegmentGreyedOut(segment.segmentId);
