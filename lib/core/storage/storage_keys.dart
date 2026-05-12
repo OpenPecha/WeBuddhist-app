@@ -66,9 +66,11 @@ class StorageKeys {
   // ========== FEATURES ==========
   /// Profile data JSON
   static const String profileData = 'profile_data';
-  /// Dual-slot reader preferences JSON (primary+secondary language/version/script).
-  /// Global setting; applies to every text the user opens.
-  static const String readerDualSlotPreferences = 'reader_dual_slot_preferences';
+  /// Whether the dual-slot reader's secondary panel is enabled. Global UX
+  /// preference (bool). Slot picks (language/version/script) are per-text
+  /// and live in memory only — they don't survive navigating to a different
+  /// text because `versionId` is text-scoped and won't resolve elsewhere.
+  static const String readerSecondaryEnabled = 'reader_secondary_enabled';
 
   // ========== BUSINESS LOGIC ==========
   /// Last profile update timestamp

@@ -254,7 +254,7 @@ class _ReaderContentPartState extends ConsumerState<ReaderContentPart> {
   /// is respected on the next page boundary.
   void _maybeExtendSecondary({required PaginationDirection direction}) {
     if (!mounted) return;
-    final dualSettings = ref.read(readerDualSettingsProvider);
+    final dualSettings = ref.read(readerDualSettingsProvider(widget.params.textId));
     final versionId = dualSettings.secondary.versionId;
     if (!dualSettings.secondaryEnabled || versionId == null) return;
 
@@ -350,7 +350,7 @@ class _ReaderContentPartState extends ConsumerState<ReaderContentPart> {
   Widget build(BuildContext context) {
     final state = ref.watch(readerNotifierProvider(widget.params));
     final notifier = ref.read(readerNotifierProvider(widget.params).notifier);
-    final dualSettings = ref.watch(readerDualSettingsProvider);
+    final dualSettings = ref.watch(readerDualSettingsProvider(widget.params.textId));
 
     // Subscribe to the secondary provider only when the user has enabled
     // the secondary AND picked a version. The autoDispose family means we

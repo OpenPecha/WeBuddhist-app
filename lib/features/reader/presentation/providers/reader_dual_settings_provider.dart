@@ -1,87 +1,98 @@
-import 'dart:async';
-
 import 'package:flutter_pecha/core/storage/storage_keys.dart';
 import 'package:flutter_pecha/core/utils/local_storage_service.dart';
 import 'package:flutter_pecha/features/reader/data/models/reader_slot_config.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class ReaderDualSettingsNotifier extends StateNotifier<ReaderDualLayoutSettings> {
-  ReaderDualSettingsNotifier({required LocalStorageService localStorage})
+/// Global on/off for the dual-slot reader layout. Persisted because it's a
+/// stable UX preference ("I usually want a translation underneath").
+class ReaderSecondaryEnabledNotifier extends StateNotifier<bool> {
+  ReaderSecondaryEnabledNotifier({required LocalStorageService localStorage})
       : _storage = localStorage,
-        super(ReaderDualLayoutSettings.initial()) {
+        super(false) {
     _loadFuture = _load();
   }
 
   final LocalStorageService _storage;
-  Timer? _persistTimer;
   late final Future<void> _loadFuture;
 
+  /// Resolves once the persisted value has been read (or determined absent).
   Future<void> get loaded => _loadFuture;
 
   Future<void> _load() async {
-    final raw = await _storage.get<String>(
-      StorageKeys.readerDualSlotPreferences,
+    final stored = await _storage.get<bool>(
+      StorageKeys.readerSecondaryEnabled,
     );
-    if (raw == null || raw.isEmpty) return;
-    if (!mounted) return;
-    state = ReaderDualLayoutSettings.decode(raw);
+    if (stored == null || !mounted) return;
+    state = stored;
   }
 
-  void _schedulePersist() {
-    _persistTimer?.cancel();
-    _persistTimer = Timer(const Duration(milliseconds: 250), () {
-      _storage.set<String>(
-        StorageKeys.readerDualSlotPreferences,
-        state.encode(),
-      );
-    });
+  void setEnabled(bool enabled) {
+    if (state == enabled) return;
+    state = enabled;
+    _storage.set<bool>(StorageKeys.readerSecondaryEnabled, enabled);
   }
+}
+
+final readerSecondaryEnabledProvider =
+    StateNotifierProvider<ReaderSecondaryEnabledNotifier, bool>((ref) {
+  return ReaderSecondaryEnabledNotifier(
+    localStorage: ref.read(localStorageServiceProvider),
+  );
+});
+
+/// Per-text dual-slot settings (the toggle + both slot configs).
+///
+/// `secondaryEnabled` is mirrored from the global
+/// [readerSecondaryEnabledProvider] so toggling it persists once and is
+/// observed by every text consistently.
+///
+/// `primary` and `secondary` slot picks live in memory only because their
+/// `versionId` / `scriptId` are scoped to a specific text and cannot
+/// meaningfully transfer to another text. autoDispose ensures they reset
+/// the next time this text is opened.
+class ReaderDualSettingsNotifier extends StateNotifier<ReaderDualLayoutSettings> {
+  ReaderDualSettingsNotifier({required Ref ref})
+      : _ref = ref,
+        super(ReaderDualLayoutSettings.initial()) {
+    _ref.listen<bool>(
+      readerSecondaryEnabledProvider,
+      (_, enabled) {
+        if (!mounted) return;
+        if (state.secondaryEnabled == enabled) return;
+        state = state.copyWith(secondaryEnabled: enabled);
+      },
+      fireImmediately: true,
+    );
+  }
+
+  final Ref _ref;
 
   void setSecondaryEnabled(bool enabled) {
-    state = state.copyWith(secondaryEnabled: enabled);
-    _schedulePersist();
+    _ref.read(readerSecondaryEnabledProvider.notifier).setEnabled(enabled);
+  }
+
+  void replacePrimary(ReaderSlotConfig config) {
+    state = state.copyWith(primary: config);
+  }
+
+  void replaceSecondary(ReaderSlotConfig config) {
+    state = state.copyWith(secondary: config);
   }
 
   void updatePrimary(
     ReaderSlotConfig Function(ReaderSlotConfig current) update,
   ) {
     state = state.copyWith(primary: update(state.primary));
-    _schedulePersist();
   }
 
   void updateSecondary(
     ReaderSlotConfig Function(ReaderSlotConfig current) update,
   ) {
     state = state.copyWith(secondary: update(state.secondary));
-    _schedulePersist();
-  }
-
-  void replacePrimary(ReaderSlotConfig config) {
-    state = state.copyWith(primary: config);
-    _schedulePersist();
-  }
-
-  void replaceSecondary(ReaderSlotConfig config) {
-    state = state.copyWith(secondary: config);
-    _schedulePersist();
-  }
-
-  @override
-  void dispose() {
-    if (_persistTimer?.isActive ?? false) {
-      _persistTimer?.cancel();
-      _storage.set<String>(
-        StorageKeys.readerDualSlotPreferences,
-        state.encode(),
-      );
-    }
-    super.dispose();
   }
 }
 
-final readerDualSettingsProvider = StateNotifierProvider<
-    ReaderDualSettingsNotifier, ReaderDualLayoutSettings>((ref) {
-  return ReaderDualSettingsNotifier(
-    localStorage: ref.read(localStorageServiceProvider),
-  );
-});
+final readerDualSettingsProvider = StateNotifierProvider.autoDispose
+    .family<ReaderDualSettingsNotifier, ReaderDualLayoutSettings, String>(
+  (ref, _) => ReaderDualSettingsNotifier(ref: ref),
+);

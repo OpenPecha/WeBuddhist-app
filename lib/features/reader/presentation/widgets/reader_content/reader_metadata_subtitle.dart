@@ -13,7 +13,7 @@ class ReaderMetadataSubtitle extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(readerNotifierProvider(params));
-    final settings = ref.watch(readerDualSettingsProvider);
+    final settings = ref.watch(readerDualSettingsProvider(params.textId));
     if (state.textDetail == null) return const SizedBox.shrink();
 
     final theme = Theme.of(context);

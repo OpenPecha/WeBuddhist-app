@@ -4,6 +4,7 @@ import 'package:flutter_pecha/features/plans/presentation/providers/plan_days_pr
 import 'package:flutter_pecha/features/plans/presentation/providers/user_plans_provider.dart';
 import 'package:flutter_pecha/features/reader/constants/reader_constants.dart';
 import 'package:flutter_pecha/features/reader/data/models/navigation_context.dart';
+import 'package:flutter_pecha/features/reader/data/models/reader_slot_config.dart';
 import 'package:flutter_pecha/features/reader/data/models/reader_state.dart';
 import 'package:flutter_pecha/features/reader/presentation/providers/reader_notifier.dart';
 import 'package:flutter_pecha/features/reader/presentation/widgets/reader_actions/segement_action_bar.dart';
@@ -299,6 +300,23 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
     final notifier = ref.read(readerNotifierProvider(_params).notifier);
     notifier.selectSegment(null);
     notifier.closeCommentary();
-    await openReaderSettings(context, textId: widget.textId);
+
+    // Pass the currently-loaded primary display so the settings screen can
+    // show it under "Main text" without the reader notifier having to write
+    // into a global settings store as a side effect.
+    final loadedLanguage =
+        ref.read(readerNotifierProvider(_params)).textDetail?.language;
+    final initialPrimaryDisplay = loadedLanguage == null
+        ? null
+        : ReaderSlotConfig(
+            languageCode: loadedLanguage,
+            languageLabel: loadedLanguage,
+          );
+
+    await openReaderSettings(
+      context,
+      textId: widget.textId,
+      initialPrimaryDisplay: initialPrimaryDisplay,
+    );
   }
 }

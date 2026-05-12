@@ -8,15 +8,28 @@ import 'package:flutter_pecha/features/reader/presentation/widgets/reader_settin
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class ReaderSettingsScreen extends ConsumerWidget {
-  const ReaderSettingsScreen({super.key, required this.textId});
+  const ReaderSettingsScreen({
+    super.key,
+    required this.textId,
+    this.initialPrimaryDisplay,
+  });
 
   final String textId;
 
+  /// Snapshot of what the reader is currently displaying for the primary
+  /// slot, passed in from the reader screen. Used as the display default for
+  /// the Main text card when the user hasn't picked a version yet — this is
+  /// the explicit, side-effect-free replacement for the previous
+  /// "backfill into global settings" mechanism.
+  final ReaderSlotConfig? initialPrimaryDisplay;
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final settings = ref.watch(readerDualSettingsProvider);
-    final notifier = ref.read(readerDualSettingsProvider.notifier);
+    final settings = ref.watch(readerDualSettingsProvider(textId));
+    final notifier = ref.read(readerDualSettingsProvider(textId).notifier);
     final theme = Theme.of(context);
+
+    final primaryDisplay = _primaryDisplay(settings);
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
@@ -48,7 +61,7 @@ class ReaderSettingsScreen extends ConsumerWidget {
               const SizedBox(height: 20),
               SlotConfigCard(
                 headerLabel: 'Main text',
-                config: settings.primary,
+                config: primaryDisplay,
                 enabled: true,
                 onLanguage: () => _pickLanguage(context, ref, isPrimary: true),
                 onVersion: () => _pickVersion(context, ref, isPrimary: true),
@@ -84,14 +97,25 @@ class ReaderSettingsScreen extends ConsumerWidget {
     );
   }
 
+  /// Show the user's explicit pick if they've made one (versionId set);
+  /// otherwise fall back to what the reader is currently displaying.
+  ReaderSlotConfig _primaryDisplay(ReaderDualLayoutSettings settings) {
+    if (settings.primary.versionId != null) return settings.primary;
+    return initialPrimaryDisplay ?? settings.primary;
+  }
+
+  ReaderSlotConfig _currentSlotFor(WidgetRef ref, {required bool isPrimary}) {
+    final settings = ref.read(readerDualSettingsProvider(textId));
+    return isPrimary ? _primaryDisplay(settings) : settings.secondary;
+  }
+
   Future<void> _pickLanguage(
     BuildContext context,
     WidgetRef ref, {
     required bool isPrimary,
   }) async {
-    final settings = ref.read(readerDualSettingsProvider);
-    final notifier = ref.read(readerDualSettingsProvider.notifier);
-    final current = isPrimary ? settings.primary : settings.secondary;
+    final notifier = ref.read(readerDualSettingsProvider(textId).notifier);
+    final current = _currentSlotFor(ref, isPrimary: isPrimary);
 
     await showLanguagePickerSheet(
       context,
@@ -117,9 +141,8 @@ class ReaderSettingsScreen extends ConsumerWidget {
     WidgetRef ref, {
     required bool isPrimary,
   }) async {
-    final settings = ref.read(readerDualSettingsProvider);
-    final notifier = ref.read(readerDualSettingsProvider.notifier);
-    final current = isPrimary ? settings.primary : settings.secondary;
+    final notifier = ref.read(readerDualSettingsProvider(textId).notifier);
+    final current = _currentSlotFor(ref, isPrimary: isPrimary);
 
     await showVersionPickerSheet(
       context,
@@ -146,9 +169,8 @@ class ReaderSettingsScreen extends ConsumerWidget {
     WidgetRef ref, {
     required bool isPrimary,
   }) async {
-    final settings = ref.read(readerDualSettingsProvider);
-    final notifier = ref.read(readerDualSettingsProvider.notifier);
-    final current = isPrimary ? settings.primary : settings.secondary;
+    final notifier = ref.read(readerDualSettingsProvider(textId).notifier);
+    final current = _currentSlotFor(ref, isPrimary: isPrimary);
 
     await showScriptPickerSheet(
       context,
@@ -227,11 +249,15 @@ class _SecondaryToggle extends StatelessWidget {
 Future<void> openReaderSettings(
   BuildContext context, {
   required String textId,
+  ReaderSlotConfig? initialPrimaryDisplay,
 }) {
   return Navigator.of(context).push(
     MaterialPageRoute(
       fullscreenDialog: false,
-      builder: (_) => ReaderSettingsScreen(textId: textId),
+      builder: (_) => ReaderSettingsScreen(
+        textId: textId,
+        initialPrimaryDisplay: initialPrimaryDisplay,
+      ),
     ),
   );
 }
