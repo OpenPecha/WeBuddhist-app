@@ -5,8 +5,11 @@ import 'package:flutter_pecha/features/texts/data/models/segment.dart';
 /// `versionId` is required because the secondary stream is always pinned to
 /// a specific text version chosen by the user from the reader settings.
 ///
-/// `initialSegmentId` is optional and used to align the secondary content
-/// with the primary reader's starting position (e.g., when navigating from plans).
+/// `initialSegmentId` is a creation-time hint (e.g. align with primary when
+/// navigating from plans) consumed once during the notifier's initial fetch.
+/// It is intentionally excluded from `==`/`hashCode` so the Riverpod family
+/// resolves the same notifier across rebuilds — otherwise viewport changes
+/// would tear down and re-create the secondary provider on every scroll.
 class SecondaryReaderKey {
   final String textId;
   final String versionId;
@@ -23,11 +26,10 @@ class SecondaryReaderKey {
       identical(this, other) ||
       (other is SecondaryReaderKey &&
           other.textId == textId &&
-          other.versionId == versionId &&
-          other.initialSegmentId == initialSegmentId);
+          other.versionId == versionId);
 
   @override
-  int get hashCode => Object.hash(textId, versionId, initialSegmentId);
+  int get hashCode => Object.hash(textId, versionId);
 
   @override
   String toString() =>

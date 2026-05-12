@@ -90,19 +90,10 @@ class SecondaryReaderNotifier extends StateNotifier<SecondaryReaderState> {
       }
 
       final mergedSegments = [...state.loadedSegments, ...dedupedNew];
-      final mergedMap =
-          Map<int, String>.from(state.contentBySegmentNumber);
-      for (final seg in dedupedNew) {
-        // First try to get content from the translation object (if present)
-        if (seg.translation != null && 
-            seg.translation!.content.trim().isNotEmpty) {
-          mergedMap[seg.segmentNumber] = seg.translation!.content;
-        } 
-        // Fall back to main content field if no translation
-        else if (seg.content != null && seg.content!.isNotEmpty) {
-          mergedMap[seg.segmentNumber] = seg.content!;
-        }
-      }
+      final mergedMap = _mergeSegmentContent(
+        state.contentBySegmentNumber,
+        dedupedNew,
+      );
 
       state = state.copyWith(
         loadedSegments: mergedSegments,
@@ -145,19 +136,10 @@ class SecondaryReaderNotifier extends StateNotifier<SecondaryReaderState> {
       }
 
       final mergedSegments = [...dedupedNew, ...state.loadedSegments];
-      final mergedMap =
-          Map<int, String>.from(state.contentBySegmentNumber);
-      for (final seg in dedupedNew) {
-        // First try to get content from the translation object (if present)
-        if (seg.translation != null && 
-            seg.translation!.content.trim().isNotEmpty) {
-          mergedMap[seg.segmentNumber] = seg.translation!.content;
-        } 
-        // Fall back to main content field if no translation
-        else if (seg.content != null && seg.content!.isNotEmpty) {
-          mergedMap[seg.segmentNumber] = seg.content!;
-        }
-      }
+      final mergedMap = _mergeSegmentContent(
+        state.contentBySegmentNumber,
+        dedupedNew,
+      );
 
       state = state.copyWith(
         loadedSegments: mergedSegments,
@@ -208,20 +190,32 @@ class SecondaryReaderNotifier extends StateNotifier<SecondaryReaderState> {
     return result;
   }
 
-  Map<int, String> _buildSegmentNumberMap(List<Segment> segments) {
-    final map = <int, String>{};
+  Map<int, String> _buildSegmentNumberMap(List<Segment> segments) =>
+      _mergeSegmentContent(const {}, segments);
+
+  /// Returns a new map containing every entry of [existing] plus an entry
+  /// for each segment in [segments] whose content is non-empty. Prefers
+  /// `seg.translation.content` over `seg.content` when both are present.
+  Map<int, String> _mergeSegmentContent(
+    Map<int, String> existing,
+    List<Segment> segments,
+  ) {
+    final merged = Map<int, String>.from(existing);
     for (final seg in segments) {
-      // First try to get content from the translation object (if present)
-      if (seg.translation != null && 
-          seg.translation!.content.trim().isNotEmpty) {
-        map[seg.segmentNumber] = seg.translation!.content;
-      } 
-      // Fall back to main content field if no translation
-      else if (seg.content != null && seg.content!.isNotEmpty) {
-        map[seg.segmentNumber] = seg.content!;
-      }
+      final content = _segmentContent(seg);
+      if (content != null) merged[seg.segmentNumber] = content;
     }
-    return map;
+    return merged;
+  }
+
+  String? _segmentContent(Segment seg) {
+    final translation = seg.translation;
+    if (translation != null && translation.content.trim().isNotEmpty) {
+      return translation.content;
+    }
+    final content = seg.content;
+    if (content != null && content.isNotEmpty) return content;
+    return null;
   }
 
   @override

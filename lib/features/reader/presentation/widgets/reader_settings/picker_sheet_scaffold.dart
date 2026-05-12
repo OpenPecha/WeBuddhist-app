@@ -47,7 +47,7 @@ class PickerSheetScaffold extends StatelessWidget {
                 ),
               ),
             ),
-            child,
+            Flexible(child: child),
             const SizedBox(height: 8),
           ],
         ),

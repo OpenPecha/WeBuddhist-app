@@ -68,6 +68,14 @@ class _ReaderContentPartState extends ConsumerState<ReaderContentPart> {
   // Grey-out feature: show only initial segment, disable on first user scroll
   final bool _enableGreyOut = true;
 
+  // Initial alignment segment for the secondary stream. Computed lazily the
+  // first time the secondary is needed, then frozen — the secondary notifier
+  // only consumes it once during its initial fetch, so recomputing on every
+  // build (and on every scroll) would be wasted work and would also defeat
+  // Riverpod's family caching.
+  String? _secondaryInitialSegmentId;
+  bool _hasComputedSecondaryInitial = false;
+
   @override
   void initState() {
     super.initState();
@@ -188,49 +196,57 @@ class _ReaderContentPartState extends ConsumerState<ReaderContentPart> {
     }
   }
 
-  /// Determine the initial segment_id to use for secondary reader alignment.
+  /// Resolve (and cache) the initial segment_id used to align the secondary
+  /// stream when its notifier first loads:
   /// - From plan navigation: use widget.params.segmentId
-  /// - Mid-session version switch: use first visible segment from viewport
+  /// - Mid-session enable / version switch: use first visible segment from viewport
   /// - Otherwise: null (start from beginning)
-  String? _getSecondaryInitialSegmentId() {
-    // Check if coming from plan navigation
+  ///
+  /// The value is computed once and frozen for the lifetime of this widget
+  /// state — the secondary notifier only consumes it during its initial
+  /// fetch, and Riverpod's family identity for `SecondaryReaderKey` ignores
+  /// it, so recomputing on every build would be pointless work.
+  String? _resolveSecondaryInitialSegmentId() {
+    if (_hasComputedSecondaryInitial) return _secondaryInitialSegmentId;
+    _hasComputedSecondaryInitial = true;
+
     final navContext = widget.params.navigationContext;
     if (navContext?.source == NavigationSource.plan &&
         widget.params.segmentId != null) {
-      return widget.params.segmentId;
+      _secondaryInitialSegmentId = widget.params.segmentId;
+      return _secondaryInitialSegmentId;
     }
 
-    // If switching versions mid-session, align with current visible content
     final state = ref.read(readerNotifierProvider(widget.params));
     final content = state.content;
-    if (content != null && content.isNotEmpty) {
-      // Try to get the first visible segment from current viewport
-      final positions = _itemPositionsListener.itemPositions.value;
-      if (positions.isNotEmpty) {
-        // Find the topmost visible item
-        final topIndex = positions
-            .where(
-              (pos) => pos.itemLeadingEdge >= 0 && pos.itemLeadingEdge < 1.0,
-            )
-            .map((pos) => pos.index)
-            .fold<int?>(
-              null,
-              (min, index) => min == null || index < min ? index : min,
-            );
-
-        if (topIndex != null && topIndex < content.itemCount) {
-          final item = content.items[topIndex];
-          if (item.isSegment && item.segmentId != null) {
-            return item.segmentId;
-          }
-        }
-      }
-
-      // Fallback to first segment in loaded content
-      return content.firstSegmentId;
+    if (content == null || content.isEmpty) {
+      _secondaryInitialSegmentId = null;
+      return null;
     }
 
-    return null;
+    final positions = _itemPositionsListener.itemPositions.value;
+    if (positions.isNotEmpty) {
+      final topIndex = positions
+          .where(
+            (pos) => pos.itemLeadingEdge >= 0 && pos.itemLeadingEdge < 1.0,
+          )
+          .map((pos) => pos.index)
+          .fold<int?>(
+            null,
+            (min, index) => min == null || index < min ? index : min,
+          );
+
+      if (topIndex != null && topIndex < content.itemCount) {
+        final item = content.items[topIndex];
+        if (item.isSegment && item.segmentId != null) {
+          _secondaryInitialSegmentId = item.segmentId;
+          return _secondaryInitialSegmentId;
+        }
+      }
+    }
+
+    _secondaryInitialSegmentId = content.firstSegmentId;
+    return _secondaryInitialSegmentId;
   }
 
   /// Mirror primary pagination on the secondary stream (when enabled).
@@ -247,7 +263,7 @@ class _ReaderContentPartState extends ConsumerState<ReaderContentPart> {
         SecondaryReaderKey(
           textId: widget.params.textId,
           versionId: versionId,
-          initialSegmentId: _getSecondaryInitialSegmentId(),
+          initialSegmentId: _resolveSecondaryInitialSegmentId(),
         ),
       ).notifier,
     );
@@ -349,7 +365,7 @@ class _ReaderContentPartState extends ConsumerState<ReaderContentPart> {
                 SecondaryReaderKey(
                   textId: widget.params.textId,
                   versionId: secondaryVersionId,
-                  initialSegmentId: _getSecondaryInitialSegmentId(),
+                  initialSegmentId: _resolveSecondaryInitialSegmentId(),
                 ),
               ),
             )
