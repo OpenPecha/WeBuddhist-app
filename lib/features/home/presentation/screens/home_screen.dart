@@ -57,8 +57,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   Future<void> _requestNotificationPermissionsIfNeeded() async {
-    _log.info('[SP-HOME] _requestNotificationPermissionsIfNeeded ENTER '
-        'hasRequested=$_hasRequestedPermissions');
+    _log.info(
+      '[SP-HOME] _requestNotificationPermissionsIfNeeded ENTER '
+      'hasRequested=$_hasRequestedPermissions',
+    );
     if (_hasRequestedPermissions) return;
     _hasRequestedPermissions = true;
 
@@ -135,6 +137,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               response.userPlans,
               ref.read(routineProvider).blocks,
             );
+            await tryFirePendingSpecialPlanDay1Notifications(
+              response.userPlans,
+            );
           },
         );
         break;
@@ -164,11 +169,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     // making the subsequent context.push a no-op.
     context.push(
       '/practice/details',
-      extra: {
-        'plan': plan,
-        'selectedDay': 1,
-        'startDate': plan.startedAt,
-      },
+      extra: {'plan': plan, 'selectedDay': 1, 'startDate': plan.startedAt},
     );
 
     // Switch bottom-nav to Practice so popping back from plan details
@@ -213,6 +214,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       return 'assets/images/tag_cover/joy.jpg';
     } else if (tagLower == 'loneliness') {
       return 'assets/images/tag_cover/loneliness.jpg';
+    } else if (tagLower == 'chanting the abhidhamma') {
+      return 'assets/images/tag_cover/chanting_the_abhidhanma.png';
     } else {
       return 'assets/images/tag_cover/cover_image.jpg';
     }

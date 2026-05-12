@@ -1255,13 +1255,13 @@ abstract class AppLocalizations {
   /// No description provided for @routine_title.
   ///
   /// In en, this message translates to:
-  /// **'Your Routine'**
+  /// **'My Practice Routine'**
   String get routine_title;
 
   /// No description provided for @routine_empty_title.
   ///
   /// In en, this message translates to:
-  /// **'Routine'**
+  /// **'Practice Routine'**
   String get routine_empty_title;
 
   /// No description provided for @routine_edit.

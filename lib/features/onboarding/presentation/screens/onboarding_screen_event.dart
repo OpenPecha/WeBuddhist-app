@@ -8,7 +8,7 @@ import 'package:flutter_pecha/features/onboarding/presentation/widgets/onboardin
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 /// Onboarding event page: lets the user opt into upcoming Buddhist events.
-/// Each event maps to a plan that gets auto-enrolled with a 9:00 AM time block.
+/// Each event maps to a plan that gets auto-enrolled with a 7:30 AM time block.
 class OnboardingScreenEvent extends ConsumerStatefulWidget {
   const OnboardingScreenEvent({
     super.key,
@@ -64,15 +64,20 @@ class _OnboardingScreenEventState extends ConsumerState<OnboardingScreenEvent> {
 
     try {
       final service = ref.read(eventEnrollmentServiceProvider);
-      final enrolledPlans = await service.enrollInEvents(_checkedPlanIds.toList());
+      final enrolledPlans = await service.enrollInEvents(
+        _checkedPlanIds.toList(),
+      );
 
-      await ref.read(onboardingProvider.notifier).setEnrolledPlans(enrolledPlans);
+      await ref
+          .read(onboardingProvider.notifier)
+          .setEnrolledPlans(enrolledPlans);
 
       if (mounted) widget.onNext();
     } catch (e) {
       if (mounted) {
         setState(() {
-          _errorMessage = 'Could not enroll. Please check your connection and try again.';
+          _errorMessage =
+              'Could not enroll. Please check your connection and try again.';
         });
       }
     } finally {
@@ -111,10 +116,9 @@ class _OnboardingScreenEventState extends ConsumerState<OnboardingScreenEvent> {
                           fontSize: 15,
                           fontWeight: FontWeight.w400,
                           letterSpacing: -0.2,
-                          color: Theme.of(context)
-                              .colorScheme
-                              .onSurface
-                              .withValues(alpha: 0.5),
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onSurface.withValues(alpha: 0.5),
                         ),
                       ),
                       const SizedBox(height: 36),
@@ -140,10 +144,12 @@ class _OnboardingScreenEventState extends ConsumerState<OnboardingScreenEvent> {
                         ),
                       ],
                       const Spacer(),
-                      Center(child: _ContinueButton(
-                        isLoading: _isLoading,
-                        onPressed: _handleContinue,
-                      )),
+                      Center(
+                        child: _ContinueButton(
+                          isLoading: _isLoading,
+                          onPressed: _handleContinue,
+                        ),
+                      ),
                       const SizedBox(height: 24),
                     ],
                   ),
@@ -174,9 +180,10 @@ class _EventCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final borderColor = isSelected
-        ? AppColors.primary
-        : (isDark ? AppColors.greyMedium : const Color(0xFFE0E0E0));
+    final borderColor =
+        isSelected
+            ? AppColors.primary
+            : (isDark ? AppColors.greyMedium : const Color(0xFFE0E0E0));
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
@@ -188,13 +195,11 @@ class _EventCard extends StatelessWidget {
           curve: Curves.easeInOut,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-              color: borderColor,
-              width: isSelected ? 2 : 1.5,
-            ),
-            color: isSelected
-                ? AppColors.primary.withValues(alpha: isDark ? 0.12 : 0.06)
-                : Colors.transparent,
+            border: Border.all(color: borderColor, width: isSelected ? 2 : 1.5),
+            color:
+                isSelected
+                    ? AppColors.primary.withValues(alpha: isDark ? 0.12 : 0.06)
+                    : Colors.transparent,
           ),
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
           child: Row(
@@ -232,9 +237,10 @@ class _EventCard extends StatelessWidget {
                         fontSize: 17,
                         fontWeight: FontWeight.w600,
                         letterSpacing: -0.3,
-                        color: isDark
-                            ? AppColors.textPrimaryDark
-                            : AppColors.textPrimary,
+                        color:
+                            isDark
+                                ? AppColors.textPrimaryDark
+                                : AppColors.textPrimary,
                       ),
                     ),
                     const SizedBox(height: 3),
@@ -244,9 +250,10 @@ class _EventCard extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w400,
-                        color: isDark
-                            ? AppColors.textTertiaryDark
-                            : AppColors.textSecondary,
+                        color:
+                            isDark
+                                ? AppColors.textTertiaryDark
+                                : AppColors.textSecondary,
                       ),
                     ),
                   ],
@@ -281,11 +288,12 @@ class _Checkbox extends StatelessWidget {
         ),
         color: isSelected ? AppColors.primary : Colors.transparent,
       ),
-      child: isSelected
-          ? const Center(
-              child: Icon(Icons.check, size: 14, color: Colors.white),
-            )
-          : null,
+      child:
+          isSelected
+              ? const Center(
+                child: Icon(Icons.check, size: 14, color: Colors.white),
+              )
+              : null,
     );
   }
 }
@@ -307,14 +315,13 @@ class _ReminderNote extends StatelessWidget {
         const SizedBox(width: 6),
         Expanded(
           child: Text(
-            'Selected events will be added to your practice with a 9:00 AM daily reminder.',
+            'Selected events will be added to your practice with a 7:30 AM daily reminder.',
             style: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w400,
               height: 1.5,
-              color: isDark
-                  ? AppColors.textTertiaryDark
-                  : AppColors.textSecondary,
+              color:
+                  isDark ? AppColors.textTertiaryDark : AppColors.textSecondary,
             ),
           ),
         ),
@@ -345,23 +352,24 @@ class _ContinueButton extends StatelessWidget {
           ),
           padding: const EdgeInsets.symmetric(vertical: 16),
         ),
-        child: isLoading
-            ? const SizedBox(
-                width: 22,
-                height: 22,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2.5,
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+        child:
+            isLoading
+                ? const SizedBox(
+                  width: 22,
+                  height: 22,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2.5,
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                  ),
+                )
+                : const Text(
+                  'Continue',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: -0.306,
+                  ),
                 ),
-              )
-            : const Text(
-                'Continue',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: -0.306,
-                ),
-              ),
       ),
     );
   }
