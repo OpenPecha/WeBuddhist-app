@@ -316,12 +316,16 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
     // Pass the currently-loaded primary display so the settings screen can
     // show it under "Main text" without the reader notifier having to write
     // into a global settings store as a side effect. The backend returns a
-    // raw code (e.g. "bo") — render it through getLanguageName so the user
-    // sees "Tibetan", not "bo".
+    // raw language code (e.g. "bo") — render it through getLanguageName so
+    // the user sees "Tibetan", not "bo". `versionId` in this API is just the
+    // loaded text's id, so textDetail.id / textDetail.title pre-fill the
+    // version row of the Main text card.
     final languageCode = textDetail?.language ?? 'en';
     final initialPrimaryDisplay = ReaderSlotConfig(
       languageCode: languageCode,
       languageLabel: getLanguageName(languageCode),
+      versionId: textDetail?.id,
+      versionLabel: textDetail?.title,
     );
 
     await openReaderSettings(

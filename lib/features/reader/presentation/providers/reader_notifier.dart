@@ -188,6 +188,11 @@ class ReaderNotifier extends StateNotifier<ReaderState> {
         hasPreviousPage: hasPreviousPage,
       );
 
+      // `version_id` in this API is just the loaded text's id. Capture it so
+      // the dual-settings listener can treat a user pick of the same version
+      // as a no-op instead of triggering a wasted reload.
+      // _activeVersionId = response.textDetail.id;
+
       // Handle highlight if navigating to a specific segment
       if (initialSegmentId != null && _params.navigationContext != null) {
         _triggerHighlight(
@@ -217,7 +222,12 @@ class ReaderNotifier extends StateNotifier<ReaderState> {
   }) async {
     final dualSettings = _ref.read(readerDualSettingsProvider(_params.textId));
     final primaryVersionId = dualSettings.primary.versionId;
-    _activeVersionId = primaryVersionId;
+    // Note: do NOT update _activeVersionId here. It's the id of the
+    // currently-LOADED version (set after a successful initial fetch in
+    // `_initialize`), not the value we happen to pass to the API on each
+    // call. Pagination calls reuse the same loaded version, so overwriting
+    // it here would race with the pagination stale-version guard and leave
+    // skeletons stuck on screen.
 
     final params = TextDetailsParams(
       textId: _params.textId,
@@ -256,7 +266,10 @@ class ReaderNotifier extends StateNotifier<ReaderState> {
       if (_isDisposed) return;
       if (_activeVersionId != fetchVersionId) {
         // Primary version changed mid-pagination — discard the stale page.
+        // Clear the loading flag so the bottom skeleton doesn't get stuck if
+        // the version-change reload didn't reset state for some reason.
         _logger.debug('Discarding stale next page from versionId=$fetchVersionId');
+        state = state.copyWith(isLoadingNext: false);
         return;
       }
 
@@ -302,9 +315,12 @@ class ReaderNotifier extends StateNotifier<ReaderState> {
       if (_isDisposed) return;
       if (_activeVersionId != fetchVersionId) {
         // Primary version changed mid-pagination — discard the stale page.
+        // Clear the loading flag so the top skeleton doesn't get stuck if
+        // the version-change reload didn't reset state for some reason.
         _logger.debug(
           'Discarding stale previous page from versionId=$fetchVersionId',
         );
+        state = state.copyWith(isLoadingPrevious: false);
         return;
       }
 
