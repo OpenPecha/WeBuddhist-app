@@ -1,99 +1,101 @@
 import 'package:flutter_pecha/core/storage/storage_keys.dart';
+import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+final _logger = AppLogger('SpecialPlanStartedAtStore');
 
 /// Synchronous-read store for special-plan `startedAt` dates.
 ///
-/// The notification scheduler (`RoutineNotificationService`) is a non-Riverpod
-/// singleton invoked from background contexts, so it cannot await a
-/// SharedPreferences load each time it schedules. Instead, we cache the
-/// `SharedPreferences` instance once at startup via [init] and expose
-/// synchronous getters.
-///
-/// Source of truth for `startedAt` is the server's `UserPlansModel.startedAt`.
-/// We mirror it here so the day-N resolver works without going through the
-/// plans repository at schedule time.
+/// The notification scheduler is a non-Riverpod singleton invoked from
+/// background contexts, so it cannot await SharedPreferences each time.
+/// We cache the instance once at startup via [init] and expose synchronous
+/// getters. Source of truth is always the server's [UserPlansModel.startedAt].
 class SpecialPlanStartedAtStore {
   SpecialPlanStartedAtStore._();
 
   static SharedPreferences? _prefs;
 
-  /// Initialize the cached [SharedPreferences] instance. Safe to call multiple
-  /// times — second call is a no-op once primed. Call early in app startup
-  /// (before any notification scheduling).
+  /// Initialises the cached [SharedPreferences] instance. Safe to call
+  /// multiple times — no-op after the first successful call.
   static Future<void> init() async {
-    _prefs ??= await SharedPreferences.getInstance();
+    if (_prefs != null) return;
+    _prefs = await SharedPreferences.getInstance();
   }
 
-  static String _key(String planId) =>
-      '${StorageKeys.specialPlanStartedAtPrefix}$planId';
+  // ─── startedAt ───────────────────────────────────────────────────────────
 
-  /// Reads the `startedAt` for [planId], or `null` if unknown.
-  /// Returns `null` when [init] has not run yet.
+  /// Returns the cached `startedAt` for [planId], or `null` if unknown.
   static DateTime? getStartedAt(String planId) {
-    final prefs = _prefs;
-    if (prefs == null) return null;
-    final raw = prefs.getString(_key(planId));
+    final raw = _prefs?.getString(_startedAtKey(planId));
     if (raw == null || raw.isEmpty) return null;
-    return DateTime.tryParse(raw);
+    final parsed = DateTime.tryParse(raw);
+    if (parsed == null) {
+      _logger.warning('Failed to parse startedAt for $planId: "$raw"');
+    }
+    return parsed;
   }
 
-  /// Persists [startedAt] for [planId]. Async because SharedPreferences write
-  /// goes to disk; the in-memory cache is updated synchronously by the plugin.
+  /// Persists [startedAt] for [planId].
   static Future<void> setStartedAt(String planId, DateTime startedAt) async {
     final prefs = await _ensurePrefs();
-    await prefs.setString(_key(planId), startedAt.toIso8601String());
-    // ignore: avoid_print
-    print(
-      '[SP-STORE] setStartedAt planId=$planId startedAt=${startedAt.toIso8601String()}',
-    );
+    await prefs.setString(_startedAtKey(planId), startedAt.toIso8601String());
   }
 
-  /// Removes the entry for [planId].
+  /// Removes the startedAt entry and all per-date shown flags for [planId].
+  /// Call when the user removes the plan from their routine so a subsequent
+  /// re-enrol is treated as fresh.
   static Future<void> clear(String planId) async {
     final prefs = await _ensurePrefs();
-    await prefs.remove(_key(planId));
-  }
-
-  /// Removes all special-plan startedAt entries AND day-1-shown flags.
-  /// Use on logout so a different user signing in starts fresh.
-  static Future<void> clearAll() async {
-    final prefs = await _ensurePrefs();
-    final keysToRemove = prefs
-        .getKeys()
-        .where(
-          (k) =>
-              k.startsWith(StorageKeys.specialPlanStartedAtPrefix) ||
-              k.startsWith(StorageKeys.specialPlanDay1ShownPrefix),
-        )
-        .toList();
-    for (final k in keysToRemove) {
-      await prefs.remove(k);
+    await prefs.remove(_startedAtKey(planId));
+    for (final key in prefs.getKeys().where(_isShownFlagForPlan(planId)).toList()) {
+      await prefs.remove(key);
     }
   }
 
-  /// True if the Day 1 immediate-fire notification has already been shown for
-  /// [planId] given the [startedAt] date (date-only key).
-  static bool wasDay1Shown(String planId, DateTime startedAt) {
-    final prefs = _prefs;
-    if (prefs == null) return false;
-    return prefs.getBool(_day1Key(planId, startedAt)) ?? false;
-  }
-
-  /// Marks Day 1 as shown for [planId] on [startedAt]'s date.
-  static Future<void> markDay1Shown(String planId, DateTime startedAt) async {
+  /// Removes all special-plan entries. Call on logout so a different user
+  /// signing in starts with a clean slate.
+  static Future<void> clearAll() async {
     final prefs = await _ensurePrefs();
-    final key = _day1Key(planId, startedAt);
-    await prefs.setBool(key, true);
-    // ignore: avoid_print
-    print('[SP-STORE] markDay1Shown key=$key value=true');
+    final toRemove = prefs.getKeys().where(
+      (k) =>
+          k.startsWith(StorageKeys.specialPlanStartedAtPrefix) ||
+          k.startsWith(StorageKeys.specialPlanDay1ShownPrefix),
+    );
+    for (final key in toRemove.toList()) {
+      await prefs.remove(key);
+    }
   }
 
-  static String _day1Key(String planId, DateTime startedAt) {
-    final y = startedAt.year.toString().padLeft(4, '0');
-    final m = startedAt.month.toString().padLeft(2, '0');
-    final d = startedAt.day.toString().padLeft(2, '0');
+  // ─── Per-date shown flags ─────────────────────────────────────────────────
+
+  /// Returns `true` if a notification has already been shown for [planId]
+  /// on the calendar date of [date]. Works for any day in the series — not
+  /// just Day 1 — so delete + re-enrol on Day 4 is also idempotent.
+  static bool wasShownOn(String planId, DateTime date) {
+    return _prefs?.getBool(_shownOnKey(planId, date)) ?? false;
+  }
+
+  /// Records that a notification was shown for [planId] on [date].
+  static Future<void> markShownOn(String planId, DateTime date) async {
+    final prefs = await _ensurePrefs();
+    await prefs.setBool(_shownOnKey(planId, date), true);
+  }
+
+  // ─── Private helpers ──────────────────────────────────────────────────────
+
+  static String _startedAtKey(String planId) =>
+      '${StorageKeys.specialPlanStartedAtPrefix}$planId';
+
+  static String _shownOnKey(String planId, DateTime date) {
+    final y = date.year.toString().padLeft(4, '0');
+    final m = date.month.toString().padLeft(2, '0');
+    final d = date.day.toString().padLeft(2, '0');
     return '${StorageKeys.specialPlanDay1ShownPrefix}${planId}_$y-$m-$d';
   }
+
+  /// Predicate: returns true if [key] is a shown-flag belonging to [planId].
+  static bool Function(String) _isShownFlagForPlan(String planId) =>
+      (key) => key.startsWith('${StorageKeys.specialPlanDay1ShownPrefix}$planId');
 
   static Future<SharedPreferences> _ensurePrefs() async {
     return _prefs ??= await SharedPreferences.getInstance();

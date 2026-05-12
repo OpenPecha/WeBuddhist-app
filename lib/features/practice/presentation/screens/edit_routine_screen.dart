@@ -4,9 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/error/failures.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
+import 'package:flutter_pecha/core/storage/plan_metadata_store.dart';
+import 'package:flutter_pecha/core/storage/special_plan_started_at_store.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/features/notifications/data/services/notification_service.dart';
+import 'package:flutter_pecha/features/notifications/data/special_plan_notifications.dart';
 import 'package:flutter_pecha/features/plans/plans.dart';
 import 'package:flutter_pecha/features/practice/data/models/routine_model.dart';
 import 'package:flutter_pecha/features/practice/data/models/session_selection.dart';
@@ -173,12 +176,10 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
 
   /// Saves blocks to local Hive storage AND syncs notifications.
   /// Routing through RoutineNotifier keeps Hive in sync so startup
-  /// reschedule works, and ensures [ROUTINE-SAVE] logs are visible.
+  /// reschedule works.
   Future<void> _saveLocalAndSyncNotifications() async {
     final blocks = _blocks.map(_toRoutineBlock).toList();
-    _logger.info('[EDIT-SAVE] persisting ${blocks.length} blocks to Hive + scheduling notifications');
     await ref.read(routineProvider.notifier).saveRoutine(blocks);
-    _logger.info('[EDIT-SAVE] done');
   }
 
   // ─── Operation queue ───
@@ -308,6 +309,7 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
       }
     }
 
+    _logger.info('[EDIT-SAVE] === Saving routine and syncing notifications ===');
     try {
       await _saveLocalAndSyncNotifications();
     } catch (e, st) {
@@ -315,9 +317,20 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
       if (mounted) _showErrorSnackBar(_mapError(e));
     }
 
+    // Invalidate AFTER save so bootstrap providers read the updated routine
+    // from Hive (written by saveRoutine above) and schedule correctly.
+    // Invalidating before save caused a race where the bootstrap could clear
+    // metadata before the new routine state was persisted.
+    _logger.info('[EDIT-SAVE] === Refreshing providers (post-save) ===');
     ref.invalidate(userRoutineProvider);
+    ref.invalidate(userPlansFutureProvider);
+
     await ref.read(myPlansPaginatedProvider.notifier).refresh();
-    if (mounted) context.pop();
+
+    if (mounted) {
+      _logger.info('[EDIT-SAVE] === Navigating back ===');
+      context.pop();
+    }
   }
 
   // ─── Dialogs ───
@@ -600,6 +613,17 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
     final block = _blocks[index];
     final apiId = block.apiTimeBlockId;
 
+    // Clean up metadata for all plan items in this block
+    for (final item in block.items) {
+      if (item.type == RoutineItemType.plan) {
+        if (isSpecialPlan(item.id)) {
+          await SpecialPlanStartedAtStore.clear(item.id);
+        } else {
+          await PlanMetadataStore.clear(item.id);
+        }
+      }
+    }
+
     final routineBlock = _toRoutineBlock(block);
     await ref
         .read(routineNotificationServiceProvider)
@@ -687,12 +711,22 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
     }
   }
 
-  void _onDeleteItem(int blockIndex, int itemIndex) {
+  Future<void> _onDeleteItem(int blockIndex, int itemIndex) async {
     final block = _blocks[blockIndex];
     final removedItem = block.items[itemIndex];
     final wasNotEmpty = block.items.isNotEmpty;
 
     setState(() => block.items.removeAt(itemIndex));
+
+    // Await cleanup so re-enrollment never races with stale metadata or
+    // stale "already shown" flags.
+    if (removedItem.type == RoutineItemType.plan) {
+      if (isSpecialPlan(removedItem.id)) {
+        await SpecialPlanStartedAtStore.clear(removedItem.id);
+      } else {
+        await PlanMetadataStore.clear(removedItem.id);
+      }
+    }
 
     if (wasNotEmpty && block.items.isEmpty) {
       final routineBlock = RoutineBlock(
@@ -702,7 +736,7 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
         apiTimeBlockId: block.apiTimeBlockId,
         items: const [],
       );
-      ref
+      await ref
           .read(routineNotificationServiceProvider)
           .cancelBlockNotification(routineBlock);
     }
