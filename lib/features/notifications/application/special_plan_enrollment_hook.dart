@@ -46,16 +46,14 @@ Future<void> tryFirePendingSpecialPlanNotifications(
   Iterable<UserPlansModel> plans,
 ) async {
   final now = DateTime.now();
+  final today = DateTime(now.year, now.month, now.day);
   final planList = plans.toList();
   for (final plan in planList) {
     if (!isSpecialPlan(plan.id)) continue;
 
     final anchorLocal = plan.effectiveStartDate.toLocal();
-    final isPlanDay1 = DateTime(
-          anchorLocal.year,
-          anchorLocal.month,
-          anchorLocal.day,
-        ) ==
+    final isPlanDay1 =
+        DateTime(anchorLocal.year, anchorLocal.month, anchorLocal.day) ==
         DateTime(now.year, now.month, now.day);
 
     if (!isPlanDay1) {
@@ -64,7 +62,9 @@ Future<void> tryFirePendingSpecialPlanNotifications(
 
     // Before 09:00 the scheduled one-shot handles the notification.
     if (now.hour < kRoutineBlockHourThreshold) {
-      _logger.info('skip ${plan.id}: before block time (${now.hour}h < ${kRoutineBlockHourThreshold}h)');
+      _logger.info(
+        'skip ${plan.id}: before block time (${now.hour}h < ${kRoutineBlockHourThreshold}h)',
+      );
       continue;
     }
 
@@ -79,11 +79,16 @@ Future<void> tryFirePendingSpecialPlanNotifications(
     final cached = SpecialPlanStartedAtStore.getStartedAt(plan.id);
     _logger.info('[SP-DAY1-HOOK] cache lookup ${plan.id} cached=$cached');
     if (cached == null) {
-      _logger.info('[SP-DAY1-HOOK] cache miss ${plan.id} — priming effectiveStartDate');
-      await SpecialPlanStartedAtStore.setStartedAt(plan.id, plan.effectiveStartDate);
+      _logger.info(
+        '[SP-DAY1-HOOK] cache miss ${plan.id} — priming effectiveStartDate',
+      );
+      await SpecialPlanStartedAtStore.setStartedAt(
+        plan.id,
+        plan.effectiveStartDate,
+      );
     }
 
-    _logger.info('Firing day ${daysSince + 1} immediate for ${plan.id}');
+    // _logger.info('Firing day ${daysSince + 1} immediate for ${plan.id}');
     await RoutineNotificationService().showSpecialPlanCurrentDayImmediate(
       planId: plan.id,
       planTitle: plan.title,

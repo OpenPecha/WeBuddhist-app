@@ -118,6 +118,15 @@ class PlanListScreen extends ConsumerWidget {
   }
 
   Widget _buildContent(BuildContext context, WidgetRef ref, List<Plan> plans) {
+    final sorted = [...plans]..sort((a, b) {
+      if (a.displayOrder != null && b.displayOrder != null) {
+        return a.displayOrder!.compareTo(b.displayOrder!);
+      }
+      if (a.displayOrder != null) return -1;
+      if (b.displayOrder != null) return 1;
+      return 0;
+    });
+
     return CustomScrollView(
       physics: const BouncingScrollPhysics(
         parent: AlwaysScrollableScrollPhysics(),
@@ -126,7 +135,7 @@ class PlanListScreen extends ConsumerWidget {
         SliverToBoxAdapter(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: _FeaturedPlanCard(plan: plans.first),
+            child: _FeaturedPlanCard(plan: sorted.first),
           ),
         ),
         const SliverToBoxAdapter(child: SizedBox(height: 16)),
@@ -134,8 +143,8 @@ class PlanListScreen extends ConsumerWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
           sliver: SliverList(
             delegate: SliverChildBuilderDelegate(
-              (context, index) => _PlanListItem(plan: plans[index + 1]),
-              childCount: plans.length - 1,
+              (context, index) => _PlanListItem(plan: sorted[index + 1]),
+              childCount: sorted.length - 1,
             ),
           ),
         ),
