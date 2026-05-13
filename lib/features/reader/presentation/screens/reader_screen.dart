@@ -24,7 +24,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// Main reader screen - thin orchestrator that composes child widgets
 class ReaderScreen extends ConsumerStatefulWidget {
   final String textId;
-  final String? contentId;
   final String? segmentId;
   final NavigationContext? navigationContext;
   final int? colorIndex;
@@ -32,7 +31,6 @@ class ReaderScreen extends ConsumerStatefulWidget {
   const ReaderScreen({
     super.key,
     required this.textId,
-    this.contentId,
     this.segmentId,
     this.navigationContext,
     this.colorIndex,
@@ -56,7 +54,6 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
     super.initState();
     _params = ReaderParams(
       textId: widget.textId,
-      contentId: widget.contentId,
       segmentId: widget.segmentId,
       navigationContext: widget.navigationContext,
     );

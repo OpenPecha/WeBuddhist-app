@@ -30,7 +30,7 @@ class ReaderSettingsScreen extends ConsumerWidget {
     final notifier = ref.read(readerDualSettingsProvider(textId).notifier);
     final theme = Theme.of(context);
 
-    final primaryDisplay = _primaryDisplay(settings);
+    final primaryDisplay = _primaryDisplay(ref, settings);
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
@@ -98,16 +98,25 @@ class ReaderSettingsScreen extends ConsumerWidget {
     );
   }
 
-  /// Show the user's explicit pick if they've made one (versionId set);
-  /// otherwise fall back to what the reader is currently displaying.
-  ReaderSlotConfig _primaryDisplay(ReaderDualLayoutSettings settings) {
-    if (settings.primary.versionId != null) return settings.primary;
+  /// Show the user's explicit pick if they've made one; otherwise fall back
+  /// to what the reader is currently displaying. The notifier's
+  /// `isPrimaryEdited` flag is the only reliable signal — a user picking the
+  /// default values (e.g. "English" when defaults are "English") would
+  /// otherwise be indistinguishable from "untouched".
+  ReaderSlotConfig _primaryDisplay(
+    WidgetRef ref,
+    ReaderDualLayoutSettings settings,
+  ) {
+    final notifier = ref.read(readerDualSettingsProvider(textId).notifier);
+    if (notifier.isPrimaryEdited) return settings.primary;
     return initialPrimaryDisplay ?? settings.primary;
   }
 
   ReaderSlotConfig _currentSlotFor(WidgetRef ref, {required bool isPrimary}) {
     final settings = ref.read(readerDualSettingsProvider(textId));
-    return isPrimary ? _primaryDisplay(settings) : settings.secondary;
+    return isPrimary
+        ? _primaryDisplay(ref, settings)
+        : settings.secondary;
   }
 
   Future<void> _pickLanguage(

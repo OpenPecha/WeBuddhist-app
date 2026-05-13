@@ -258,10 +258,16 @@ class _ReaderContentPartState extends ConsumerState<ReaderContentPart> {
     final versionId = dualSettings.secondary.versionId;
     if (!dualSettings.secondaryEnabled || versionId == null) return;
 
+    // Secondary's path follows the primary's effective text_id: if the user
+    // picked a different primary version, the secondary aligns against THAT
+    // version, not the navigated URL's text_id.
+    final effectivePrimaryTextId =
+        dualSettings.primary.versionId ?? widget.params.textId;
+
     final notifier = ref.read(
       secondaryReaderProvider(
         SecondaryReaderKey(
-          textId: widget.params.textId,
+          textId: effectivePrimaryTextId,
           versionId: versionId,
           initialSegmentId: _resolveSecondaryInitialSegmentId(),
         ),
@@ -358,12 +364,17 @@ class _ReaderContentPartState extends ConsumerState<ReaderContentPart> {
     final secondaryVersionId = dualSettings.secondary.versionId;
     final secondaryActive =
         dualSettings.secondaryEnabled && secondaryVersionId != null;
+    // Secondary's path follows the primary's effective text_id — when the
+    // user changes the primary version, the secondary re-keys to fetch its
+    // translation aligned against the new primary.
+    final effectivePrimaryTextId =
+        dualSettings.primary.versionId ?? widget.params.textId;
     final SecondaryReaderState? secondaryState =
         secondaryActive
             ? ref.watch(
               secondaryReaderProvider(
                 SecondaryReaderKey(
-                  textId: widget.params.textId,
+                  textId: effectivePrimaryTextId,
                   versionId: secondaryVersionId,
                   initialSegmentId: _resolveSecondaryInitialSegmentId(),
                 ),

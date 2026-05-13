@@ -18,13 +18,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// Parameters for initializing the reader
 class ReaderParams {
   final String textId;
-  final String? contentId;
   final String? segmentId;
   final NavigationContext? navigationContext;
 
   const ReaderParams({
     required this.textId,
-    this.contentId,
     this.segmentId,
     this.navigationContext,
   });
@@ -34,12 +32,11 @@ class ReaderParams {
     if (identical(this, other)) return true;
     return other is ReaderParams &&
         other.textId == textId &&
-        other.contentId == contentId &&
         other.segmentId == segmentId;
   }
 
   @override
-  int get hashCode => Object.hash(textId, contentId, segmentId);
+  int get hashCode => Object.hash(textId, segmentId);
 }
 
 /// Notifier for managing reader state
@@ -86,6 +83,13 @@ class ReaderNotifier extends StateNotifier<ReaderState> {
   ) {
     if (_isDisposed) return;
     final newVersionId = next.primary.versionId;
+    if (newVersionId == null) {
+      // User cleared the version (typical path: they changed the language,
+      // which resets the version field). Wait for an explicit version pick
+      // before reloading — fetching with `versionId: null` would just return
+      // the same default we already have on screen.
+      return;
+    }
     if (newVersionId == _activeVersionId) return;
     _logger.debug(
       'Primary versionId changed: $_activeVersionId -> $newVersionId. '
@@ -95,7 +99,7 @@ class ReaderNotifier extends StateNotifier<ReaderState> {
   }
 
   /// Fresh fetch driven by a primary version switch. We drop any
-  /// pagination-state contentId/segmentId so the new version starts from
+  /// pagination-state segmentId so the new version starts from
   /// its own first page rather than trying to resolve the previous version's
   /// segment id (which is meaningless against the new version).
   Future<void> _reloadForVersionChange() async {
@@ -110,7 +114,7 @@ class ReaderNotifier extends StateNotifier<ReaderState> {
   /// Initialize the reader with initial content.
   ///
   /// [useNavParams] is `true` for the very first load — we honour
-  /// `_params.contentId` / `_params.segmentId` so deep-links and search jumps
+  /// `_params.segmentId` so deep-links and search jumps
   /// work. After a primary-version change those original navigation params
   /// no longer apply (they belong to the previous version), so we ignore
   /// them and just fetch the new version's first page.
@@ -118,17 +122,17 @@ class ReaderNotifier extends StateNotifier<ReaderState> {
     if (_isDisposed) return;
     _logger.debug('ReaderNotifier initializing with params: $_params');
 
-    final initialContentId = useNavParams ? _params.contentId : null;
     final initialSegmentId = useNavParams ? _params.segmentId : null;
 
     state = state.copyWith(
       status: ReaderStatus.loading,
-      contentId: initialContentId,
       navigationContext: _params.navigationContext,
     );
 
     try {
-      _logger.debug('ReaderNotifier fetching content with params: $initialSegmentId');
+      _logger.debug(
+        'ReaderNotifier fetching content with params: $initialSegmentId',
+      );
       final response = await _fetchContent(
         segmentId: initialSegmentId,
         direction: 'next',
@@ -195,10 +199,7 @@ class ReaderNotifier extends StateNotifier<ReaderState> {
 
       // Handle highlight if navigating to a specific segment
       if (initialSegmentId != null && _params.navigationContext != null) {
-        _triggerHighlight(
-          initialSegmentId,
-          _params.navigationContext!.source,
-        );
+        _triggerHighlight(initialSegmentId, _params.navigationContext!.source);
       }
     } catch (e, stackTrace) {
       _logger.error('Failed to initialize reader', e, stackTrace);
@@ -230,16 +231,23 @@ class ReaderNotifier extends StateNotifier<ReaderState> {
     // skeletons stuck on screen.
 
     final params = TextDetailsParams(
-      textId: _params.textId,
-      contentId: state.contentId ?? _params.contentId,
-      versionId: primaryVersionId,
+      // A "version" is itself a text_id — different primary versions live at
+      // different /texts/<id>/details endpoints. Route to the picked version's
+      // text_id when set; otherwise stay on the navigated textId, which the
+      // backend resolves to its default version.
+      //
+      // No body `versionId` for the primary stream — the picked id is already
+      // in the path. Body `version_id` is the secondary's mechanism for
+      // requesting a parallel-aligned translation of the same text.
+      textId: primaryVersionId ?? _params.textId,
       segmentId: segmentId,
       direction: direction,
     );
 
     final result = await _ref.read(textDetailsFutureProvider(params).future);
     return result.fold(
-      (failure) => throw Exception('Failed to fetch content: ${failure.message}'),
+      (failure) =>
+          throw Exception('Failed to fetch content: ${failure.message}'),
       (response) => response,
     );
   }
@@ -268,7 +276,9 @@ class ReaderNotifier extends StateNotifier<ReaderState> {
         // Primary version changed mid-pagination — discard the stale page.
         // Clear the loading flag so the bottom skeleton doesn't get stuck if
         // the version-change reload didn't reset state for some reason.
-        _logger.debug('Discarding stale next page from versionId=$fetchVersionId');
+        _logger.debug(
+          'Discarding stale next page from versionId=$fetchVersionId',
+        );
         state = state.copyWith(isLoadingNext: false);
         return;
       }
@@ -295,7 +305,8 @@ class ReaderNotifier extends StateNotifier<ReaderState> {
 
   /// Load the previous page of content
   Future<void> loadPreviousPage() async {
-    if (_isDisposed || state.isLoadingPrevious || !state.hasPreviousPage) return;
+    if (_isDisposed || state.isLoadingPrevious || !state.hasPreviousPage)
+      return;
 
     state = state.copyWith(isLoadingPrevious: true);
     final fetchVersionId = _activeVersionId;
@@ -495,5 +506,5 @@ class ReaderNotifier extends StateNotifier<ReaderState> {
 /// Provider for reader notifier
 final readerNotifierProvider =
     StateNotifierProvider.family<ReaderNotifier, ReaderState, ReaderParams>(
-  (ref, params) => ReaderNotifier(ref: ref, params: params),
-);
+      (ref, params) => ReaderNotifier(ref: ref, params: params),
+    );

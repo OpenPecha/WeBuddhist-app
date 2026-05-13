@@ -67,27 +67,42 @@ class ReaderDualSettingsNotifier extends StateNotifier<ReaderDualLayoutSettings>
 
   final Ref _ref;
 
+  // "User has edited this slot" flags. Needed because the slot config alone
+  // can't tell "untouched defaults" apart from "user picked something that
+  // happens to match the defaults" (e.g. picking English when defaults are
+  // English). The settings UI reads these to decide whether to show the
+  // reader's loaded state or the user's explicit pick.
+  bool _primaryEdited = false;
+  bool _secondaryEdited = false;
+
+  bool get isPrimaryEdited => _primaryEdited;
+  bool get isSecondaryEdited => _secondaryEdited;
+
   void setSecondaryEnabled(bool enabled) {
     _ref.read(readerSecondaryEnabledProvider.notifier).setEnabled(enabled);
   }
 
   void replacePrimary(ReaderSlotConfig config) {
+    _primaryEdited = true;
     state = state.copyWith(primary: config);
   }
 
   void replaceSecondary(ReaderSlotConfig config) {
+    _secondaryEdited = true;
     state = state.copyWith(secondary: config);
   }
 
   void updatePrimary(
     ReaderSlotConfig Function(ReaderSlotConfig current) update,
   ) {
+    _primaryEdited = true;
     state = state.copyWith(primary: update(state.primary));
   }
 
   void updateSecondary(
     ReaderSlotConfig Function(ReaderSlotConfig current) update,
   ) {
+    _secondaryEdited = true;
     state = state.copyWith(secondary: update(state.secondary));
   }
 }
