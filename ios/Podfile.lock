@@ -285,13 +285,15 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   audio_service: aa99a6ba2ae7565996015322b0bb024e1d25c6fd
   audio_session: 9bb7f6c970f21241b19f5a3658097ae459681ba0
+  audio_service: aa99a6ba2ae7565996015322b0bb024e1d25c6fd
+  audio_session: 9bb7f6c970f21241b19f5a3658097ae459681ba0
   Auth0: 2876d0c36857422eda9cb580a6cc896c7d14cb36
   auth0_flutter: 031042ca6cf84f1b21611062b33ea7ec4bf3bc52
   connectivity_plus: cb623214f4e1f6ef8fe7403d580fdad517d2f7dd
   Firebase: 065f2bb395062046623036d8e6dc857bc2521d56
-  firebase_analytics: 57b35da5be80006f5757f4e30d615d9d015007f6
-  firebase_core: 9a760cbc5e2e92e2cddd82209e2e221049c7ba61
-  firebase_crashlytics: 86206fa46d16696d4e74fcee696fb8104f59bf10
+  firebase_analytics: 8288e2480a2b2a5eb2cc3c474e4a4327e8dc520b
+  firebase_core: 8e6f58412ca227827c366b92e7cee047a2148c60
+  firebase_crashlytics: c399f9682c474beb06a89c11dfab04db537f3cd2
   FirebaseAnalytics: cd7d01d352f3c237c9a0e31552c257cd0b0c0352
   FirebaseCore: 428912f751178b06bef0a1793effeb4a5e09a9b8
   FirebaseCoreExtension: e911052d59cd0da237a45d706fc0f81654f035c1
@@ -301,6 +303,10 @@ SPEC CHECKSUMS:
   FirebaseRemoteConfigInterop: 765ee19cd2bfa8e54937c8dae901eb634ad6787d
   FirebaseSessions: a2d06fd980431fda934c7a543901aca05fc4edcc
   Flutter: cabc95a1d2626b1b06e7179b784ebcf0c0cde467
+  flutter_inappwebview_ios: b89ba3482b96fb25e00c967aae065701b66e9b99
+  flutter_local_notifications: a5a732f069baa862e728d839dd2ebb904737effb
+  flutter_secure_storage: 1ed9476fba7e7a782b22888f956cce43e2c62f13
+  flutter_timezone: 7c838e17ffd4645d261e87037e5bebf6d38fe544
   flutter_inappwebview_ios: b89ba3482b96fb25e00c967aae065701b66e9b99
   flutter_local_notifications: a5a732f069baa862e728d839dd2ebb904737effb
   flutter_secure_storage: 1ed9476fba7e7a782b22888f956cce43e2c62f13

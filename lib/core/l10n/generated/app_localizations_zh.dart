@@ -942,4 +942,15 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get plan_enrolled => '已加入';
+
+  @override
+  String get start_now => '立即開始';
+
+  @override
+  String get plan_enroll => '加入';
+
+  @override
+  String plan_starts_on(String date) {
+    return '開始於 $date！';
+  }
 }

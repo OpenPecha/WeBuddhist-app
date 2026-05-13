@@ -8,6 +8,7 @@ class UserPlansModel {
   final DateTime startedAt;
   final int totalDays;
   final List<String>? tags;
+  final DateTime? startDate;
 
   UserPlansModel({
     required this.id,
@@ -19,7 +20,10 @@ class UserPlansModel {
     required this.startedAt,
     required this.totalDays,
     required this.tags,
+    this.startDate,
   });
+
+  DateTime get effectiveStartDate => startDate ?? startedAt;
 
   factory UserPlansModel.fromJson(Map<String, dynamic> json) {
     return UserPlansModel(
@@ -35,7 +39,19 @@ class UserPlansModel {
       totalDays: json['total_days'] as int,
       tags:
           json['tags'] != null ? List<String>.from(json['tags'] as List) : null,
+      startDate:
+          json['start_date'] != null
+              ? DateTime.tryParse(json['start_date'] as String)
+              : null,
+      // TEMP TEST — remove before merging
+      // startDate: _testStartDate(),
     );
+  }
+
+  // TEMP TEST — remove before merging
+  static DateTime _testStartDate() {
+    final now = DateTime.now();
+    return DateTime(now.year, now.month, now.day - 5);
   }
 
   Map<String, dynamic> toJson() {
@@ -49,6 +65,7 @@ class UserPlansModel {
       'started_at': startedAt.toIso8601String(),
       'total_days': totalDays,
       'tags': tags,
+      'start_date': startDate?.toIso8601String(),
     };
   }
 }

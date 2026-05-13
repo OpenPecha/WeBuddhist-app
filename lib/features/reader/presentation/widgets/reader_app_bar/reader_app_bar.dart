@@ -3,8 +3,8 @@ import 'package:flutter_pecha/features/reader/constants/reader_constants.dart';
 import 'package:flutter_pecha/features/reader/presentation/providers/reader_notifier.dart';
 import 'package:flutter_pecha/features/reader/presentation/widgets/reader_app_bar/reader_font_size_bottom_sheet.dart';
 import 'package:flutter_pecha/features/reader/presentation/widgets/reader_app_bar/reader_font_size_button.dart';
-import 'package:flutter_pecha/features/reader/presentation/widgets/reader_app_bar/reader_language_button.dart';
 import 'package:flutter_pecha/features/reader/presentation/widgets/reader_app_bar/reader_search_button.dart';
+import 'package:flutter_pecha/features/reader/presentation/widgets/reader_app_bar/reader_settings_button.dart';
 import 'package:flutter_pecha/features/texts/constants/text_screen_constants.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -14,19 +14,18 @@ class ReaderAppBarOverlay extends ConsumerWidget {
   final ReaderParams params;
   final int? colorIndex;
   final VoidCallback onSearchPressed;
-  final VoidCallback onLanguagePressed;
+  final VoidCallback onSettingsPressed;
 
   const ReaderAppBarOverlay({
     super.key,
     required this.params,
     this.colorIndex,
     required this.onSearchPressed,
-    required this.onLanguagePressed,
+    required this.onSettingsPressed,
   });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final state = ref.watch(readerNotifierProvider(params));
     final notifier = ref.read(readerNotifierProvider(params).notifier);
 
     // Get the border color from the color index
@@ -58,14 +57,9 @@ class ReaderAppBarOverlay extends ConsumerWidget {
             ReaderFontSizeButton(
               onPressed: () => _showFontSizeBottomSheet(context),
             ),
-            if (state.textDetail != null) ...[
-              const SizedBox(width: 4),
-              ReaderLanguageButton(
-                language: state.textDetail!.language,
-                onPressed: onLanguagePressed,
-              ),
-            ],
-            const SizedBox(width: 12),
+            const SizedBox(width: 4),
+            ReaderSettingsButton(onPressed: onSettingsPressed),
+            const SizedBox(width: 8),
           ],
         ),
         // Bottom border
@@ -87,19 +81,18 @@ class ReaderAppBar extends ConsumerWidget {
   final ReaderParams params;
   final int? colorIndex;
   final VoidCallback? onSearchPressed;
-  final VoidCallback? onLanguagePressed;
+  final VoidCallback? onSettingsPressed;
 
   const ReaderAppBar({
     super.key,
     required this.params,
     this.colorIndex,
     this.onSearchPressed,
-    this.onLanguagePressed,
+    this.onSettingsPressed,
   });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final state = ref.watch(readerNotifierProvider(params));
     final notifier = ref.read(readerNotifierProvider(params).notifier);
 
     // Get the border color from the color index
@@ -132,16 +125,11 @@ class ReaderAppBar extends ConsumerWidget {
         ReaderFontSizeButton(
           onPressed: () => _showFontSizeBottomSheet(context),
         ),
-        if (state.textDetail != null) ...[
-          const SizedBox(width: 4),
-          ReaderLanguageButton(
-            language: state.textDetail!.language,
-            onPressed:
-                onLanguagePressed ??
-                () => _handleLanguageSelection(context, ref),
-          ),
-        ],
-        const SizedBox(width: 12),
+        const SizedBox(width: 4),
+        ReaderSettingsButton(
+          onPressed: onSettingsPressed ?? () {},
+        ),
+        const SizedBox(width: 8),
       ],
       bottom: PreferredSize(
         preferredSize: const Size.fromHeight(
@@ -166,14 +154,5 @@ class ReaderAppBar extends ConsumerWidget {
 
   void _showFontSizeBottomSheet(BuildContext context) {
     showFontSizeBottomSheet(context);
-  }
-
-  void _handleLanguageSelection(BuildContext context, WidgetRef ref) {
-    // Default implementation - can be overridden via callback
-    final notifier = ref.read(readerNotifierProvider(params).notifier);
-
-    // Close split view and selection before language selection
-    notifier.closeCommentary();
-    notifier.selectSegment(null);
   }
 }

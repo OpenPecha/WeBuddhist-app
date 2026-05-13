@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/widgets/cached_network_image_widget.dart';
 import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
+import 'package:flutter_pecha/features/onboarding/presentation/providers/event_enrollment_providers.dart';
 import 'package:flutter_pecha/features/plans/domain/entities/plan.dart';
 import 'package:flutter_pecha/features/plans/presentation/providers/user_plans_provider.dart';
 import 'package:flutter_pecha/features/plans/presentation/author_detail_screen.dart';
@@ -9,6 +10,7 @@ import 'package:flutter_pecha/shared/extensions/typography_extensions.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 
 class PlanInfo extends ConsumerStatefulWidget {
   const PlanInfo({super.key, required this.plan, this.author});
@@ -19,6 +21,8 @@ class PlanInfo extends ConsumerStatefulWidget {
 }
 
 class _PlanInfoState extends ConsumerState<PlanInfo> {
+  bool _isEnrolling = false;
+
   @override
   Widget build(BuildContext context) {
     final authState = ref.watch(authProvider);
@@ -188,15 +192,16 @@ class _PlanInfoState extends ConsumerState<PlanInfo> {
         SizedBox(
           width: double.infinity,
           child: FilledButton(
-            onPressed: () {
-              if (isSubscribed) {
-                // Navigate to practice
-                context.push('/practice');
-              } else {
-                // Handle enrollment
-                _handleEnroll(context);
-              }
-            },
+            onPressed:
+                _isEnrolling
+                    ? null
+                    : () {
+                      if (isSubscribed) {
+                        context.push('/practice');
+                      } else {
+                        _handleEnroll(context);
+                      }
+                    },
             style: FilledButton.styleFrom(
               backgroundColor: isSubscribed ? Colors.grey : Colors.black,
               foregroundColor: Colors.white,
@@ -205,10 +210,23 @@ class _PlanInfoState extends ConsumerState<PlanInfo> {
                 borderRadius: BorderRadius.circular(12),
               ),
             ),
-            child: Text(
-              isSubscribed ? 'Go to Practice' : 'Enroll',
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-            ),
+            child:
+                _isEnrolling
+                    ? const SizedBox(
+                      height: 20,
+                      width: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Colors.white,
+                      ),
+                    )
+                    : Text(
+                      isSubscribed ? 'Go to Practice' : 'Enroll',
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
           ),
         ),
       ],
@@ -216,12 +234,64 @@ class _PlanInfoState extends ConsumerState<PlanInfo> {
   }
 
   Future<void> _handleEnroll(BuildContext context) async {
-    // TODO: Implement enrollment. After a successful subscribe + fetching the
-    // resulting UserPlansModel, call `onSpecialPlanEnrolled(plan)` from
-    // `lib/features/notifications/application/special_plan_enrollment_hook.dart`
-    // so special-plan day-N notifications (e.g. ITCC) trigger here too.
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text('Enrollment coming soon!')));
+    setState(() => _isEnrolling = true);
+    try {
+      final service = ref.read(eventEnrollmentServiceProvider);
+      await service.enrollInEvents([widget.plan.id]);
+      ref.invalidate(userPlansFutureProvider);
+
+      if (!context.mounted) return;
+
+      final startDate = widget.plan.startDate;
+      if (startDate != null) {
+        final today = DateUtils.dateOnly(DateTime.now());
+        final normalizedStart = DateUtils.dateOnly(startDate.toLocal());
+        final formattedDate = DateFormat('MMMM d, y').format(normalizedStart);
+
+        if (today.isBefore(normalizedStart)) {
+          await showDialog<void>(
+            context: context,
+            builder:
+                (ctx) => AlertDialog(
+                  title: const Text('Plan Starts Soon'),
+                  content: Text(
+                    'This plan starts on $formattedDate. You can browse the content now.',
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(ctx),
+                      child: const Text('Got it'),
+                    ),
+                  ],
+                ),
+          );
+        } else if (today.isAfter(normalizedStart)) {
+          await showDialog<void>(
+            context: context,
+            builder:
+                (ctx) => AlertDialog(
+                  title: const Text('Joining After Start Date'),
+                  content: Text(
+                    'This plan started on $formattedDate. You can complete past day tasks.',
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(ctx),
+                      child: const Text('Got it'),
+                    ),
+                  ],
+                ),
+          );
+        }
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Enrollment failed. Please try again.')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isEnrolling = false);
+    }
   }
 }

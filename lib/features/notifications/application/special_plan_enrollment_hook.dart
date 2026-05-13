@@ -19,8 +19,13 @@ const int kRoutineBlockHourThreshold = 9;
 /// HomeScreen mounts; the actual fire happens via [tryFirePendingSpecialPlanNotifications].
 Future<void> onSpecialPlanEnrolled(UserPlansModel plan) async {
   if (!isSpecialPlan(plan.id)) return;
-  await SpecialPlanStartedAtStore.setStartedAt(plan.id, plan.startedAt);
-  _logger.info('Cached startedAt for ${plan.id}: ${plan.startedAt.toIso8601String()}');
+
+  final anchor = plan.effectiveStartDate;
+  await SpecialPlanStartedAtStore.setStartedAt(plan.id, anchor);
+  _logger.info(
+    '[SP-HOOK] cached anchor for ${plan.id} = ${anchor.toIso8601String()} '
+    '(startDate=${plan.startDate?.toIso8601String()}, startedAt=${plan.startedAt.toIso8601String()})',
+  );
 }
 
 /// Fires an immediate notification for any [plans] whose series is active
@@ -41,23 +46,19 @@ Future<void> tryFirePendingSpecialPlanNotifications(
   Iterable<UserPlansModel> plans,
 ) async {
   final now = DateTime.now();
-  final today = DateTime(now.year, now.month, now.day);
-
-  for (final plan in plans) {
+  final planList = plans.toList();
+  for (final plan in planList) {
     if (!isSpecialPlan(plan.id)) continue;
 
-    final entries = kSpecialPlanNotifications[plan.id]!;
-    final startedLocal = plan.startedAt.toLocal();
-    final startedDay = DateTime(
-      startedLocal.year,
-      startedLocal.month,
-      startedLocal.day,
-    );
-    final daysSince = today.difference(startedDay).inDays;
+    final anchorLocal = plan.effectiveStartDate.toLocal();
+    final isPlanDay1 = DateTime(
+          anchorLocal.year,
+          anchorLocal.month,
+          anchorLocal.day,
+        ) ==
+        DateTime(now.year, now.month, now.day);
 
-    // Must be within the active series window.
-    if (daysSince < 0 || daysSince >= entries.length) {
-      _logger.info('skip ${plan.id}: daysSince=$daysSince outside series');
+    if (!isPlanDay1) {
       continue;
     }
 
@@ -73,10 +74,13 @@ Future<void> tryFirePendingSpecialPlanNotifications(
       continue;
     }
 
-    // Ensure startedAt is cached before firing (defensive — normally set by
-    // onSpecialPlanEnrolled or the bootstrap listener).
-    if (SpecialPlanStartedAtStore.getStartedAt(plan.id) == null) {
-      await SpecialPlanStartedAtStore.setStartedAt(plan.id, plan.startedAt);
+    // Ensure the cache has the startedAt — usually populated by
+    // [onSpecialPlanEnrolled] or the bootstrap listener, but be defensive.
+    final cached = SpecialPlanStartedAtStore.getStartedAt(plan.id);
+    _logger.info('[SP-DAY1-HOOK] cache lookup ${plan.id} cached=$cached');
+    if (cached == null) {
+      _logger.info('[SP-DAY1-HOOK] cache miss ${plan.id} — priming effectiveStartDate');
+      await SpecialPlanStartedAtStore.setStartedAt(plan.id, plan.effectiveStartDate);
     }
 
     _logger.info('Firing day ${daysSince + 1} immediate for ${plan.id}');
