@@ -125,16 +125,15 @@ class InterlinearSegmentItem extends ConsumerWidget {
   }
 
   _SecondaryResolved _resolveSecondaryContent() {
+    // Strict ladder: picked secondary content → loading → unavailable.
+    // We intentionally do NOT fall back to the primary's inline
+    // `segment.translation` here — that field carries an inline default
+    // translation shipped with the primary response, and leaking it into
+    // the picked-secondary slot would mask the "unavailable" state and
+    // make version swaps look like no-ops.
     final fromMap = secondaryContentBySegmentNumber?[segment.segmentNumber];
     if (fromMap != null && fromMap.trim().isNotEmpty) {
       return _SecondaryResolved(text: fromMap, isPlaceholder: false);
-    }
-    final translation = segment.translation;
-    if (translation != null && translation.content.trim().isNotEmpty) {
-      return _SecondaryResolved(
-        text: translation.content,
-        isPlaceholder: false,
-      );
     }
     if (secondaryIsLoading) {
       return const _SecondaryResolved(text: 'Loading…', isPlaceholder: true);

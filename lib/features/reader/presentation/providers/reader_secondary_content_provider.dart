@@ -213,8 +213,11 @@ class SecondaryReaderNotifier extends StateNotifier<SecondaryReaderState> {
     if (translation != null && translation.content.trim().isNotEmpty) {
       return translation.content;
     }
-    final content = seg.content;
-    if (content != null && content.isNotEmpty) return content;
+    // Intentionally no fallback to `seg.content`. For the secondary stream
+    // `seg.content` is the PRIMARY text (the path is the primary's id), so
+    // surfacing it here would render the primary's own content as the
+    // "translation" line. Returning null leaves the segment_number absent
+    // from the map; the renderer's "unavailable" placeholder takes over.
     return null;
   }
 
