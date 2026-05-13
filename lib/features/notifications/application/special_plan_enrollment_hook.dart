@@ -31,9 +31,11 @@ Future<void> onSpecialPlanEnrolled(UserPlansModel plan) async {
     return;
   }
 
-  await SpecialPlanStartedAtStore.setStartedAt(plan.id, plan.startedAt);
+  final anchor = plan.effectiveStartDate;
+  await SpecialPlanStartedAtStore.setStartedAt(plan.id, anchor);
   _logger.info(
-    '[SP-HOOK] cached startedAt for ${plan.id} = ${plan.startedAt.toIso8601String()}',
+    '[SP-HOOK] cached anchor for ${plan.id} = ${anchor.toIso8601String()} '
+    '(startDate=${plan.startDate?.toIso8601String()}, startedAt=${plan.startedAt.toIso8601String()})',
   );
 }
 
@@ -61,29 +63,29 @@ Future<void> tryFirePendingSpecialPlanDay1Notifications(
   for (final plan in planList) {
     _logger.info(
       '[SP-DAY1-HOOK] evaluating planId=${plan.id} title="${plan.title}" '
-      'startedAt=${plan.startedAt} startedAtLocal=${plan.startedAt.toLocal()}',
+      'effectiveStart=${plan.effectiveStartDate} startedAt=${plan.startedAt}',
     );
     if (!isSpecialPlan(plan.id)) {
       _logger.info('[SP-DAY1-HOOK] skip ${plan.id}: not a special plan');
       continue;
     }
 
-    final startedLocal = plan.startedAt.toLocal();
-    final isEnrollmentDay = DateTime(
-          startedLocal.year,
-          startedLocal.month,
-          startedLocal.day,
+    final anchorLocal = plan.effectiveStartDate.toLocal();
+    final isPlanDay1 = DateTime(
+          anchorLocal.year,
+          anchorLocal.month,
+          anchorLocal.day,
         ) ==
         DateTime(now.year, now.month, now.day);
     _logger.info(
-      '[SP-DAY1-HOOK] enrollment-day check planId=${plan.id} '
-      'startedLocal=${startedLocal.year}-${startedLocal.month}-${startedLocal.day} '
-      'now=${now.year}-${now.month}-${now.day} isEnrollmentDay=$isEnrollmentDay',
+      '[SP-DAY1-HOOK] day-1 check planId=${plan.id} '
+      'anchorLocal=${anchorLocal.year}-${anchorLocal.month}-${anchorLocal.day} '
+      'now=${now.year}-${now.month}-${now.day} isPlanDay1=$isPlanDay1',
     );
-    if (!isEnrollmentDay) {
+    if (!isPlanDay1) {
       _logger.info(
-        '[SP-DAY1-HOOK] skip ${plan.id}: not enrollment day '
-        '(startedAt=${plan.startedAt}, now=$now)',
+        '[SP-DAY1-HOOK] skip ${plan.id}: not plan day 1 '
+        '(effectiveStart=${plan.effectiveStartDate}, now=$now)',
       );
       continue;
     }
@@ -101,8 +103,8 @@ Future<void> tryFirePendingSpecialPlanDay1Notifications(
     final cached = SpecialPlanStartedAtStore.getStartedAt(plan.id);
     _logger.info('[SP-DAY1-HOOK] cache lookup ${plan.id} cached=$cached');
     if (cached == null) {
-      _logger.info('[SP-DAY1-HOOK] cache miss ${plan.id} — priming startedAt');
-      await SpecialPlanStartedAtStore.setStartedAt(plan.id, plan.startedAt);
+      _logger.info('[SP-DAY1-HOOK] cache miss ${plan.id} — priming effectiveStartDate');
+      await SpecialPlanStartedAtStore.setStartedAt(plan.id, plan.effectiveStartDate);
     }
 
     _logger.info('[SP-DAY1-HOOK] firing Day 1 immediate for ${plan.id}');
