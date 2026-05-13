@@ -14,7 +14,9 @@ import 'package:flutter_pecha/core/widgets/skeletons/skeletons.dart';
 import 'package:flutter_pecha/features/home/presentation/providers/tags_provider.dart';
 import 'package:flutter_pecha/features/home/presentation/home_screen_constants.dart';
 import 'package:flutter_pecha/features/home/presentation/widgets/tag_card.dart';
+import 'package:flutter_pecha/features/notifications/application/plan_enrollment_hook.dart';
 import 'package:flutter_pecha/features/notifications/application/special_plan_enrollment_hook.dart';
+import 'package:flutter_pecha/features/practice/presentation/providers/routine_provider.dart';
 import 'package:flutter_pecha/features/plans/presentation/providers/user_plans_provider.dart';
 import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -55,8 +57,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   Future<void> _requestNotificationPermissionsIfNeeded() async {
-    _log.info('[SP-HOME] _requestNotificationPermissionsIfNeeded ENTER '
-        'hasRequested=$_hasRequestedPermissions');
+    _log.info(
+      '[SP-HOME] _requestNotificationPermissionsIfNeeded ENTER '
+      'hasRequested=$_hasRequestedPermissions',
+    );
     if (_hasRequestedPermissions) return;
     _hasRequestedPermissions = true;
 
@@ -126,9 +130,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           (response) async {
             _log.info(
               '[SP-HOME] user plans loaded count=${response.userPlans.length} '
-              'on attempt=$attempt, calling tryFirePendingSpecialPlanDay1Notifications',
+              'on attempt=$attempt — firing pending day notifications',
             );
-            await tryFirePendingSpecialPlanDay1Notifications(response.userPlans);
+            await tryFirePendingSpecialPlanNotifications(response.userPlans);
+            await tryFirePendingPlanDayNotifications(
+              response.userPlans,
+              ref.read(routineProvider).blocks,
+            );
           },
         );
         break;
@@ -158,11 +166,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     // making the subsequent context.push a no-op.
     context.push(
       '/practice/details',
-      extra: {
-        'plan': plan,
-        'selectedDay': 1,
-        'startDate': plan.startedAt,
-      },
+      extra: {'plan': plan, 'selectedDay': 1, 'startDate': plan.startedAt},
     );
 
     // Switch bottom-nav to Practice so popping back from plan details
@@ -207,6 +211,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       return 'assets/images/tag_cover/joy.jpg';
     } else if (tagLower == 'loneliness') {
       return 'assets/images/tag_cover/loneliness.jpg';
+    } else if (tagLower == 'chanting the abhidhamma') {
+      return 'assets/images/tag_cover/chanting_the_abhidhanma.png';
     } else {
       return 'assets/images/tag_cover/cover_image.jpg';
     }

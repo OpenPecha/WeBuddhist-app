@@ -64,7 +64,7 @@ class _SegmentHtmlWidgetState extends ConsumerState<SegmentHtmlWidget> {
             final element = context.element;
             if ((element?.classes.contains('footnote-marker')) ?? false) {
               final currentIndex = footnoteCounter++;
-
+              final text = context.element?.text ?? '';
               return InkWell(
                 onTap: () {
                   setState(() {
@@ -96,10 +96,7 @@ class _SegmentHtmlWidgetState extends ConsumerState<SegmentHtmlWidget> {
                           fontWeight: FontWeight.w700,
                           fontSize: widget.fontSize * 0.85,
                         ),
-                        child:
-                            (context.element?.text ?? '').isNotEmpty
-                                ? Text(context.element?.text ?? '')
-                                : const Text('*'),
+                        child: Text(text.isNotEmpty ? text : '*'),
                       ),
                     ),
                   ),

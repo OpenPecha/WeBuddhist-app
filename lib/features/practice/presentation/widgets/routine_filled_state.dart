@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/features/notifications/data/models/notification_nav.dart';
+import 'package:flutter_pecha/features/plans/data/models/user/user_plans_model.dart';
 import 'package:flutter_pecha/features/plans/presentation/providers/user_plans_provider.dart';
 import 'package:flutter_pecha/features/practice/data/models/routine_model.dart';
 import 'package:flutter_pecha/features/practice/presentation/widgets/routine_item_card.dart';
 import 'package:flutter_pecha/features/reader/data/models/navigation_context.dart';
-import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
@@ -43,21 +44,26 @@ class RoutineFilledState extends ConsumerWidget {
             extra: NavigationContext(source: NavigationSource.normal),
           );
         } else {
-          final userPlan = myPlansState.plans
-              .where((p) => p.id == pendingNav.itemId)
-              .firstOrNull;
-          if (userPlan == null) return; // plans not loaded yet — wait for next build
+          final userPlan =
+              myPlansState.plans
+                  .where((p) => p.id == pendingNav.itemId)
+                  .firstOrNull;
+          if (userPlan == null) {
+            return; // plans not loaded yet — wait for next build
+          }
           ref.read(pendingNotificationNavProvider.notifier).state = null;
           final startDate = userPlan.startedAt;
-          final daysSince = DateTime.now()
-              .difference(DateUtils.dateOnly(startDate))
-              .inDays;
+          final daysSince =
+              DateTime.now().difference(DateUtils.dateOnly(startDate)).inDays;
           final selectedDay = (daysSince + 1).clamp(1, userPlan.totalDays);
-          context.push('/practice/details', extra: {
-            'plan': userPlan,
-            'selectedDay': selectedDay,
-            'startDate': startDate,
-          });
+          context.push(
+            '/practice/details',
+            extra: {
+              'plan': userPlan,
+              'selectedDay': selectedDay,
+              'startDate': startDate,
+            },
+          );
         }
       });
     }
@@ -171,7 +177,9 @@ class _RoutineBlockSection extends ConsumerWidget {
   }
 
   void _navigateToReader(BuildContext context, String textId) {
-    final navigationContext = NavigationContext(source: NavigationSource.normal);
+    final navigationContext = NavigationContext(
+      source: NavigationSource.normal,
+    );
     context.push('/reader/$textId', extra: navigationContext);
   }
 
@@ -184,16 +192,18 @@ class _RoutineBlockSection extends ConsumerWidget {
 
     if (userPlan == null) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(context.l10n.notFound)),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(context.l10n.notFound)));
       }
       return;
     }
 
     if (!context.mounted) return;
 
-    final startDate = item.enrolledAt ?? userPlan.startedAt;
+    final startDate =
+        userPlan.startDate ?? item.enrolledAt ?? userPlan.startedAt;
+    debugPrint(':::::::::::::::: $startDate');
     final daysSinceEnrollment =
         DateTime.now().difference(DateUtils.dateOnly(startDate)).inDays;
     final selectedDay = (daysSinceEnrollment + 1).clamp(1, userPlan.totalDays);
@@ -224,9 +234,23 @@ class _RoutineBlockSection extends ConsumerWidget {
     return userPlan;
   }
 
+  String? _startDateLabel(
+    BuildContext context,
+    RoutineItem item,
+    List<UserPlansModel> plans,
+  ) {
+    if (item.type != RoutineItemType.plan) return null;
+    final userPlan = plans.where((p) => p.id == item.id).firstOrNull;
+    final startDate = userPlan?.startDate;
+    if (startDate == null) return null;
+    if (!DateTime.now().isBefore(DateUtils.dateOnly(startDate))) return null;
+    return context.l10n.plan_starts_on(DateFormat('MMM d').format(startDate));
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final plans = ref.watch(myPlansPaginatedProvider).plans;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -247,6 +271,7 @@ class _RoutineBlockSection extends ConsumerWidget {
             imageUrl: block.items[i].imageUrl,
             type: block.items[i].type,
             onTap: () => _onItemTap(context, ref, block.items[i]),
+            startDateLabel: _startDateLabel(context, block.items[i], plans),
           ),
           if (i < block.items.length - 1) const Divider(height: 1, indent: 80),
         ],

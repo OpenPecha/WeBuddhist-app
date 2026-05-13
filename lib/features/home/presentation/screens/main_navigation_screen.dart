@@ -16,8 +16,9 @@ final mainNavigationIndexProvider = StateProvider<int>((ref) => 0);
 /// Holds an enrolled plan that should be opened after the home screen's
 /// notification-permission flow completes. Set during onboarding completion,
 /// consumed once by [HomeScreen], and cleared immediately after navigation.
-final pendingOnboardingPlanProvider =
-    StateProvider<UserPlansModel?>((ref) => null);
+final pendingOnboardingPlanProvider = StateProvider<UserPlansModel?>(
+  (ref) => null,
+);
 
 class MainNavigationScreen extends ConsumerWidget {
   const MainNavigationScreen({super.key});
@@ -34,10 +35,10 @@ class MainNavigationScreen extends ConsumerWidget {
       ),
       AppBottomBarItemModel(
         type: 1,
-        label: localizations.nav_explore,
-        selectedWidget: const ExploreScreen(),
-        selectedIconData: AppAssets.exploreSelected,
-        unSelectedIconData: AppAssets.exploreUnselected,
+        label: localizations.nav_learn,
+        selectedWidget: const LearnScreen(),
+        selectedIconData: AppAssets.textsSelected,
+        unSelectedIconData: AppAssets.textsUnselected,
       ),
       AppBottomBarItemModel(
         type: 2,
@@ -48,17 +49,17 @@ class MainNavigationScreen extends ConsumerWidget {
       ),
       AppBottomBarItemModel(
         type: 3,
-        label: localizations.nav_learn,
-        selectedWidget: const LearnScreen(),
-        selectedIconData: AppAssets.textsSelected,
-        unSelectedIconData: AppAssets.textsUnselected,
-      ),
-      AppBottomBarItemModel(
-        type: 4,
         label: localizations.nav_connect,
         selectedWidget: const ConnectScreen(),
         selectedIconData: AppAssets.connectSelected,
         unSelectedIconData: AppAssets.connectUnselected,
+      ),
+      AppBottomBarItemModel(
+        type: 4,
+        label: localizations.nav_explore,
+        selectedWidget: const ExploreScreen(),
+        selectedIconData: AppAssets.exploreSelected,
+        unSelectedIconData: AppAssets.exploreUnselected,
       ),
     ];
   }

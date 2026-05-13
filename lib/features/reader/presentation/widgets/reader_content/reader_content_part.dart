@@ -4,9 +4,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/features/reader/constants/reader_constants.dart';
 import 'package:flutter_pecha/features/reader/data/models/flattened_item.dart';
+import 'package:flutter_pecha/features/reader/data/models/navigation_context.dart';
+import 'package:flutter_pecha/features/reader/data/models/reader_slot_config.dart';
 import 'package:flutter_pecha/features/reader/data/models/reader_state.dart';
+import 'package:flutter_pecha/features/reader/data/models/secondary_reader_state.dart';
+import 'package:flutter_pecha/features/reader/presentation/providers/reader_dual_settings_provider.dart';
 import 'package:flutter_pecha/features/reader/presentation/providers/reader_notifier.dart';
 import 'package:flutter_pecha/features/reader/presentation/providers/reader_providers.dart';
+import 'package:flutter_pecha/features/reader/presentation/providers/reader_secondary_content_provider.dart';
+import 'package:flutter_pecha/features/reader/presentation/widgets/reader_content/interlinear_segment_item.dart';
 import 'package:flutter_pecha/features/reader/presentation/widgets/reader_content/section_header.dart';
 import 'package:flutter_pecha/features/reader/presentation/widgets/reader_content/segment_item.dart';
 import 'package:flutter_pecha/features/reader/presentation/widgets/reader_content/segment_skeleton.dart';
@@ -61,6 +67,14 @@ class _ReaderContentPartState extends ConsumerState<ReaderContentPart> {
 
   // Grey-out feature: show only initial segment, disable on first user scroll
   final bool _enableGreyOut = true;
+
+  // Initial alignment segment for the secondary stream. Computed lazily the
+  // first time the secondary is needed, then frozen — the secondary notifier
+  // only consumes it once during its initial fetch, so recomputing on every
+  // build (and on every scroll) would be wasted work and would also defeat
+  // Riverpod's family caching.
+  String? _secondaryInitialSegmentId;
+  bool _hasComputedSecondaryInitial = false;
 
   @override
   void initState() {
@@ -162,6 +176,7 @@ class _ReaderContentPartState extends ConsumerState<ReaderContentPart> {
       notifier.loadPreviousPage().then((_) {
         _hasTriggeredPrevious = false;
         _adjustScrollAfterPreviousLoad();
+        _maybeExtendSecondary(direction: PaginationDirection.previous);
       });
     }
 
@@ -176,7 +191,92 @@ class _ReaderContentPartState extends ConsumerState<ReaderContentPart> {
       );
       notifier.loadNextPage().then((_) {
         _hasTriggeredNext = false;
+        _maybeExtendSecondary(direction: PaginationDirection.next);
       });
+    }
+  }
+
+  /// Resolve (and cache) the initial segment_id used to align the secondary
+  /// stream when its notifier first loads:
+  /// - From plan navigation: use widget.params.segmentId
+  /// - Mid-session enable / version switch: use first visible segment from viewport
+  /// - Otherwise: null (start from beginning)
+  ///
+  /// The value is computed once and frozen for the lifetime of this widget
+  /// state — the secondary notifier only consumes it during its initial
+  /// fetch, and Riverpod's family identity for `SecondaryReaderKey` ignores
+  /// it, so recomputing on every build would be pointless work.
+  String? _resolveSecondaryInitialSegmentId() {
+    if (_hasComputedSecondaryInitial) return _secondaryInitialSegmentId;
+    _hasComputedSecondaryInitial = true;
+
+    final navContext = widget.params.navigationContext;
+    if (navContext?.source == NavigationSource.plan &&
+        widget.params.segmentId != null) {
+      _secondaryInitialSegmentId = widget.params.segmentId;
+      return _secondaryInitialSegmentId;
+    }
+
+    final state = ref.read(readerNotifierProvider(widget.params));
+    final content = state.content;
+    if (content == null || content.isEmpty) {
+      _secondaryInitialSegmentId = null;
+      return null;
+    }
+
+    final positions = _itemPositionsListener.itemPositions.value;
+    if (positions.isNotEmpty) {
+      final topIndex = positions
+          .where(
+            (pos) => pos.itemLeadingEdge >= 0 && pos.itemLeadingEdge < 1.0,
+          )
+          .map((pos) => pos.index)
+          .fold<int?>(
+            null,
+            (min, index) => min == null || index < min ? index : min,
+          );
+
+      if (topIndex != null && topIndex < content.itemCount) {
+        final item = content.items[topIndex];
+        if (item.isSegment && item.segmentId != null) {
+          _secondaryInitialSegmentId = item.segmentId;
+          return _secondaryInitialSegmentId;
+        }
+      }
+    }
+
+    _secondaryInitialSegmentId = content.firstSegmentId;
+    return _secondaryInitialSegmentId;
+  }
+
+  /// Mirror primary pagination on the secondary stream (when enabled).
+  /// We read the dual settings lazily so toggling the secondary mid-session
+  /// is respected on the next page boundary.
+  void _maybeExtendSecondary({required PaginationDirection direction}) {
+    if (!mounted) return;
+    final dualSettings = ref.read(readerDualSettingsProvider(widget.params.textId));
+    final versionId = dualSettings.secondary.versionId;
+    if (!dualSettings.secondaryEnabled || versionId == null) return;
+
+    // Secondary's path follows the primary's effective text_id: if the user
+    // picked a different primary version, the secondary aligns against THAT
+    // version, not the navigated URL's text_id.
+    final effectivePrimaryTextId =
+        dualSettings.primary.versionId ?? widget.params.textId;
+
+    final notifier = ref.read(
+      secondaryReaderProvider(
+        SecondaryReaderKey(
+          textId: effectivePrimaryTextId,
+          versionId: versionId,
+          initialSegmentId: _resolveSecondaryInitialSegmentId(),
+        ),
+      ).notifier,
+    );
+    if (direction == PaginationDirection.next) {
+      notifier.loadNext();
+    } else {
+      notifier.loadPrevious();
     }
   }
 
@@ -256,6 +356,31 @@ class _ReaderContentPartState extends ConsumerState<ReaderContentPart> {
   Widget build(BuildContext context) {
     final state = ref.watch(readerNotifierProvider(widget.params));
     final notifier = ref.read(readerNotifierProvider(widget.params).notifier);
+    final dualSettings = ref.watch(readerDualSettingsProvider(widget.params.textId));
+
+    // Subscribe to the secondary provider only when the user has enabled
+    // the secondary AND picked a version. The autoDispose family means we
+    // tear down + free memory the moment either condition stops holding.
+    final secondaryVersionId = dualSettings.secondary.versionId;
+    final secondaryActive =
+        dualSettings.secondaryEnabled && secondaryVersionId != null;
+    // Secondary's path follows the primary's effective text_id — when the
+    // user changes the primary version, the secondary re-keys to fetch its
+    // translation aligned against the new primary.
+    final effectivePrimaryTextId =
+        dualSettings.primary.versionId ?? widget.params.textId;
+    final SecondaryReaderState? secondaryState =
+        secondaryActive
+            ? ref.watch(
+              secondaryReaderProvider(
+                SecondaryReaderKey(
+                  textId: effectivePrimaryTextId,
+                  versionId: secondaryVersionId,
+                  initialSegmentId: _resolveSecondaryInitialSegmentId(),
+                ),
+              ),
+            )
+            : null;
 
     // Handle initial scroll to segment
     if (!_hasScrolledToInitial &&
@@ -334,6 +459,9 @@ class _ReaderContentPartState extends ConsumerState<ReaderContentPart> {
                 return _buildItem(
                   item: item,
                   state: state,
+                  dualSecondaryEnabled: dualSettings.secondaryEnabled,
+                  secondarySlot: dualSettings.secondary,
+                  secondaryState: secondaryState,
                   onSegmentTap:
                       (segment) => notifier.toggleSegmentSelection(segment),
                 );
@@ -363,15 +491,13 @@ class _ReaderContentPartState extends ConsumerState<ReaderContentPart> {
   Widget _buildItem({
     required FlattenedItem item,
     required ReaderState state,
+    required bool dualSecondaryEnabled,
+    required ReaderSlotConfig secondarySlot,
+    required SecondaryReaderState? secondaryState,
     required void Function(Segment) onSegmentTap,
   }) {
     return item.when(
       header: (section, depth) {
-        // Only show section headers for nested sections (depth > 0)
-        // The chapter header (depth 0) is shown at the top of the screen
-        // if (depth == 0) {
-        //   return const SizedBox.shrink();
-        // }
         if (section.segments[0].segmentNumber == 1) {
           return SectionHeader(
             section: section,
@@ -381,18 +507,39 @@ class _ReaderContentPartState extends ConsumerState<ReaderContentPart> {
         }
         return const SizedBox.shrink();
       },
-      segment:
-          (segment, depth, sectionId) => SegmentItem(
+      segment: (segment, depth, sectionId) {
+        final isSelected =
+            state.selectedSegment?.segmentId == segment.segmentId;
+        final isHighlighted = state.highlightedSegmentId == segment.segmentId;
+        final isGreyedOut =
+            _enableGreyOut && _isSegmentGreyedOut(segment.segmentId);
+
+        if (dualSecondaryEnabled) {
+          return InterlinearSegmentItem(
             segment: segment,
             depth: depth,
-            language: widget.language,
-            isSelected: state.selectedSegment?.segmentId == segment.segmentId,
-            isHighlighted: state.highlightedSegmentId == segment.segmentId,
+            primaryLanguage: widget.language,
+            secondarySlot: secondarySlot,
+            secondaryContentBySegmentNumber:
+                secondaryState?.contentBySegmentNumber,
+            secondaryIsLoading: secondaryState?.isAnyLoading ?? false,
+            isSelected: isSelected,
+            isHighlighted: isHighlighted,
             highlightSource: state.highlightSource,
-            isGreyedOut:
-                _enableGreyOut && _isSegmentGreyedOut(segment.segmentId),
+            isGreyedOut: isGreyedOut,
             onTap: () => onSegmentTap(segment),
-          ),
+          );
+        }
+
+        return SegmentItem(
+          segment: segment,
+          depth: depth,
+          language: widget.language,
+          isSelected: isSelected,
+          isGreyedOut: isGreyedOut,
+          onTap: () => onSegmentTap(segment),
+        );
+      },
     );
   }
 }

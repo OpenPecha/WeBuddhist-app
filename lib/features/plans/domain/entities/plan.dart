@@ -15,6 +15,7 @@ class Plan extends BaseEntity {
   final List<String> tags;
   final List<WeekPlan> weekPlans;
   final String language;
+  final DateTime? startDate;
 
   const Plan({
     required this.id,
@@ -29,6 +30,7 @@ class Plan extends BaseEntity {
     this.tags = const [],
     this.weekPlans = const [],
     this.language = 'en',
+    this.startDate,
   });
 
   /// Get display title based on language preference.
@@ -53,6 +55,7 @@ class Plan extends BaseEntity {
     List<String>? tags,
     List<WeekPlan>? weekPlans,
     String? language,
+    DateTime? startDate,
   }) {
     return Plan(
       id: id ?? this.id,
@@ -67,6 +70,7 @@ class Plan extends BaseEntity {
       tags: tags ?? this.tags,
       weekPlans: weekPlans ?? this.weekPlans,
       language: language ?? this.language,
+      startDate: startDate ?? this.startDate,
     );
   }
 
@@ -84,6 +88,7 @@ class Plan extends BaseEntity {
     tags,
     weekPlans,
     language,
+    startDate,
   ];
 }
 

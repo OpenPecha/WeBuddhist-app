@@ -1,4 +1,5 @@
 import 'package:flutter_pecha/core/utils/app_logger.dart';
+import 'package:flutter_pecha/features/notifications/application/plan_enrollment_hook.dart';
 import 'package:flutter_pecha/features/notifications/application/special_plan_enrollment_hook.dart';
 import 'package:flutter_pecha/features/plans/data/models/response/user_plan_list_response_model.dart';
 import 'package:flutter_pecha/features/plans/data/models/user/user_plans_model.dart';
@@ -12,12 +13,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Coordinates event enrollment during onboarding:
 ///   1. Subscribe the user to the plan via `POST /users/me/plans`
-///   2. Add the plan to the user's daily routine at 09:00 AM (server)
+///   2. Add the plan to the user's daily routine at 07:30 AM (server)
 ///   3. Persist the resulting routine to local Hive AND schedule device-local
 ///      notifications via [RoutineNotifier.saveRoutine] — exactly like
 ///      `edit_routine_screen` does on save. Without this step the server has
 ///      the time block but the device has no AlarmManager entry, so the
-///      9:00 AM reminder never fires.
+///      7:30 AM reminder never fires.
 ///   4. Return the enrolled [UserPlansModel] for post-onboarding navigation
 ///
 /// Subscription and time-block creation are best-effort and idempotent: if
@@ -73,7 +74,8 @@ class EventEnrollmentService {
       '${enrolledPlans.map((p) => "${p.id}@${p.startedAt.toIso8601String()}").join(", ")}',
     );
     for (final plan in enrolledPlans) {
-      await onSpecialPlanEnrolled(plan);
+      await onSpecialPlanEnrolled(plan); // ITCC and other hardcoded series
+      await onPlanEnrolled(plan);        // all other plans: caches startedAt + totalDays
     }
 
     // Mirror the practice-tab edit-routine save flow: persist the final
@@ -101,7 +103,7 @@ class EventEnrollmentService {
     );
   }
 
-  // ─── Step 2: Add to routine at 09:00 ───
+  // ─── Step 2: Add to routine at 07:30 ───
 
   Future<void> _addToRoutine(String planId) async {
     final routineResult = await _getUserRoutineUseCase();
@@ -122,8 +124,8 @@ class EventEnrollmentService {
     }
 
     final request = TimeBlockRequest(
-      time: '09:00',
-      timeInt: 900,
+      time: '07:30',
+      timeInt: 730,
       notificationEnabled: true,
       sessions: [
         SessionRequest(
@@ -140,7 +142,7 @@ class EventEnrollmentService {
         (failure) => _logger.warning(
           'create time-block for $planId: ${failure.message} (continuing)',
         ),
-        (_) => _logger.info('Time block created at 09:00 for plan $planId'),
+        (_) => _logger.info('Time block created at 07:30 for plan $planId'),
       );
     } else {
       final result = await _createRoutineWithTimeBlockUseCase(request);
@@ -152,7 +154,7 @@ class EventEnrollmentService {
             'create routine+time-block for $planId: ${failure.message} (continuing)',
           );
         },
-        (_) => _logger.info('Routine created with 09:00 block for plan $planId'),
+        (_) => _logger.info('Routine created with 07:30 block for plan $planId'),
       );
     }
   }

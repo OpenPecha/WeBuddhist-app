@@ -60,32 +60,50 @@ class RoutineNotifier extends StateNotifier<RoutineData> {
   }
 
   /// Save routine blocks to persistent storage and sync notifications.
+  ///
+  /// Convenience for non-latency-sensitive callers (e.g. background enrolment,
+  /// reorder ops). Latency-sensitive UI flows (e.g. Edit Routine → "Done")
+  /// should call [saveRoutineLocalOnly] and run [syncNotifications]
+  /// unawaited so the slow notification reschedule never blocks navigation.
   Future<void> saveRoutine(List<RoutineBlock> blocks) async {
+    await saveRoutineLocalOnly(blocks);
+    await syncNotifications(blocks);
+  }
+
+  /// Persists [blocks] to Hive and updates in-memory state. Fast (~ms).
+  ///
+  /// Does NOT touch OS notifications — see [syncNotifications]. Splitting
+  /// these lets the UI navigate away the moment local state is durable,
+  /// while the (slow) platform-channel notification work continues in the
+  /// background.
+  Future<void> saveRoutineLocalOnly(List<RoutineBlock> blocks) async {
     final data = RoutineData(blocks: blocks).sortedByTime;
-    _logger.info('[ROUTINE-SAVE] saving ${data.blocks.length} blocks');
-
+    _logger.info('[ROUTINE-SAVE] persisting ${data.blocks.length} blocks (local only)');
     try {
-      // 1. Persist to Hive storage
       await _localStorage.saveRoutine(data);
-      _logger.info('[ROUTINE-SAVE] persisted to storage');
-
-      // 2. Sync notifications
-      _logger.info('[ROUTINE-SAVE] calling syncNotifications...');
-      final syncResult = await _notificationService.syncNotifications(data.blocks);
-      _logger.info(
-        '[ROUTINE-SAVE] sync done: scheduled=${syncResult.scheduled} '
-        'cancelled=${syncResult.cancelled} failed=${syncResult.failed} '
-        'errors=${syncResult.errors}',
-      );
-
-      // 3. Update in-memory state
       if (mounted) {
         state = data;
       }
     } catch (e) {
-      _logger.error('[ROUTINE-SAVE] failed', e);
+      _logger.error('[ROUTINE-SAVE] local persist failed', e);
       rethrow;
     }
+  }
+
+  /// Reschedules OS notifications to match [blocks].
+  ///
+  /// Can be slow on plan blocks (60+ sequential platform-channel
+  /// cancel/schedule calls per plan). Safe to run unawaited from UI flows;
+  /// the startup bootstrap re-syncs on next launch so failures here are
+  /// recoverable.
+  Future<void> syncNotifications(List<RoutineBlock> blocks) async {
+    _logger.info('[ROUTINE-SAVE] syncing notifications for ${blocks.length} blocks');
+    final result = await _notificationService.syncNotifications(blocks);
+    _logger.info(
+      '[ROUTINE-SAVE] sync done: scheduled=${result.scheduled} '
+      'cancelled=${result.cancelled} failed=${result.failed} '
+      'errors=${result.errors}',
+    );
   }
 
   /// Clear all routine data from storage and cancel notifications.
