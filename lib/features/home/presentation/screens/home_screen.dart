@@ -137,9 +137,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               response.userPlans,
               ref.read(routineProvider).blocks,
             );
-            await tryFirePendingSpecialPlanDay1Notifications(
-              response.userPlans,
-            );
           },
         );
         break;
