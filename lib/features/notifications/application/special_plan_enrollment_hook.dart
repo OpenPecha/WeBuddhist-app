@@ -6,30 +6,19 @@ import 'package:flutter_pecha/features/plans/data/models/user/user_plans_model.d
 
 final _logger = AppLogger('SpecialPlanEnrollmentHook');
 
-/// 09:00 — the routine block time used by event-enrollments. If the user
-/// enrolls before this time, the regular daily routine notification will
-/// serve as Day 1, so the immediate fire is skipped to avoid duplicates.
+/// The time-of-day threshold (hour, 24h) for the scheduled routine block
+/// created server-side during event enrollment. Before this time the
+/// scheduled one-shot serves as the day's notification, so we never fire
+/// an immediate to avoid duplicates.
 const int kRoutineBlockHourThreshold = 9;
 
-/// Call after a user has been (newly or repeatedly) enrolled in [plan].
-/// Persists `plan.startedAt` (server truth) into [SpecialPlanStartedAtStore]
-/// so the routine notification scheduler can compute day-N at fire time.
+/// Caches [plan.startedAt] (server truth) into [SpecialPlanStartedAtStore]
+/// so the notification scheduler can compute the correct day-N at fire time.
 ///
-/// Does NOT fire the immediate Day 1 notification — that requires the
-/// notification permission, which is only requested after the home screen
-/// mounts (post-onboarding). The actual fire happens via
-/// [tryFirePendingSpecialPlanDay1Notifications], called from the home screen
-/// once permission has been granted.
+/// Does NOT fire an immediate notification. Permission is only requested after
+/// HomeScreen mounts; the actual fire happens via [tryFirePendingSpecialPlanNotifications].
 Future<void> onSpecialPlanEnrolled(UserPlansModel plan) async {
-  _logger.info(
-    '[SP-HOOK] onSpecialPlanEnrolled called: planId=${plan.id} '
-    'title="${plan.title}" startedAt=${plan.startedAt.toIso8601String()} '
-    'startedAtLocal=${plan.startedAt.toLocal()}',
-  );
-  if (!isSpecialPlan(plan.id)) {
-    _logger.info('[SP-HOOK] planId=${plan.id} is NOT a special plan — skip');
-    return;
-  }
+  if (!isSpecialPlan(plan.id)) return;
 
   final anchor = plan.effectiveStartDate;
   await SpecialPlanStartedAtStore.setStartedAt(plan.id, anchor);
@@ -39,36 +28,27 @@ Future<void> onSpecialPlanEnrolled(UserPlansModel plan) async {
   );
 }
 
-/// Fires the Day 1 immediate notification for any [plans] whose:
-///   - id is in [kSpecialPlanNotifications],
-///   - startedAt date == today (local),
-///   - current local hour ≥ 09:00 (otherwise the scheduled 09:00 fire serves
-///     as Day 1, so skipping avoids duplicates),
-///   - and Day 1 has not already been shown today (idempotency flag).
+/// Fires an immediate notification for any [plans] whose series is active
+/// today and whose scheduled block time (09:00) has already passed.
 ///
-/// Call this AFTER notification permission has been requested/granted, e.g.
-/// from `HomeScreen._requestNotificationPermissionsIfNeeded`. Without
-/// permission, `flutter_local_notifications.show()` silently no-ops on iOS
-/// and Android 13+ — so we cannot fire from inside the onboarding flow.
-Future<void> tryFirePendingSpecialPlanDay1Notifications(
+/// Handles all three cases:
+///   - **Day 1 / new enrol**: startedAt == today, past 09:00 → fire Day 1.
+///   - **Delete + re-enrol**: startedAt is in the past, still within series,
+///     past 09:00 → fire the current day's content.
+///   - **Start date in the future**: skip — scheduled one-shot handles it.
+///
+/// Idempotent: uses a per-date flag so repeated calls on the same day are
+/// no-ops even if the user opens the app multiple times.
+///
+/// Call AFTER notification permission has been granted. Without permission
+/// `_plugin.show()` silently no-ops on iOS and Android 13+.
+Future<void> tryFirePendingSpecialPlanNotifications(
   Iterable<UserPlansModel> plans,
 ) async {
   final now = DateTime.now();
   final planList = plans.toList();
-  _logger.info(
-    '[SP-DAY1-HOOK] tryFirePendingSpecialPlanDay1Notifications called '
-    'plans=${planList.length} now=$now (local) hour=${now.hour} '
-    'threshold=$kRoutineBlockHourThreshold',
-  );
   for (final plan in planList) {
-    _logger.info(
-      '[SP-DAY1-HOOK] evaluating planId=${plan.id} title="${plan.title}" '
-      'effectiveStart=${plan.effectiveStartDate} startedAt=${plan.startedAt}',
-    );
-    if (!isSpecialPlan(plan.id)) {
-      _logger.info('[SP-DAY1-HOOK] skip ${plan.id}: not a special plan');
-      continue;
-    }
+    if (!isSpecialPlan(plan.id)) continue;
 
     final anchorLocal = plan.effectiveStartDate.toLocal();
     final isPlanDay1 = DateTime(
@@ -77,24 +57,20 @@ Future<void> tryFirePendingSpecialPlanDay1Notifications(
           anchorLocal.day,
         ) ==
         DateTime(now.year, now.month, now.day);
-    _logger.info(
-      '[SP-DAY1-HOOK] day-1 check planId=${plan.id} '
-      'anchorLocal=${anchorLocal.year}-${anchorLocal.month}-${anchorLocal.day} '
-      'now=${now.year}-${now.month}-${now.day} isPlanDay1=$isPlanDay1',
-    );
+
     if (!isPlanDay1) {
-      _logger.info(
-        '[SP-DAY1-HOOK] skip ${plan.id}: not plan day 1 '
-        '(effectiveStart=${plan.effectiveStartDate}, now=$now)',
-      );
       continue;
     }
 
+    // Before 09:00 the scheduled one-shot handles the notification.
     if (now.hour < kRoutineBlockHourThreshold) {
-      _logger.info(
-        '[SP-DAY1-HOOK] skip ${plan.id}: now hour=${now.hour} < $kRoutineBlockHourThreshold '
-        '— scheduled 09:00 routine fire will serve as Day 1',
-      );
+      _logger.info('skip ${plan.id}: before block time (${now.hour}h < ${kRoutineBlockHourThreshold}h)');
+      continue;
+    }
+
+    // Idempotency: already shown today?
+    if (SpecialPlanStartedAtStore.wasShownOn(plan.id, today)) {
+      _logger.info('skip ${plan.id}: already shown today');
       continue;
     }
 
@@ -107,13 +83,11 @@ Future<void> tryFirePendingSpecialPlanDay1Notifications(
       await SpecialPlanStartedAtStore.setStartedAt(plan.id, plan.effectiveStartDate);
     }
 
-    _logger.info('[SP-DAY1-HOOK] firing Day 1 immediate for ${plan.id}');
-    final id = await RoutineNotificationService().showSpecialPlanDay1Immediate(
+    _logger.info('Firing day ${daysSince + 1} immediate for ${plan.id}');
+    await RoutineNotificationService().showSpecialPlanCurrentDayImmediate(
       planId: plan.id,
       planTitle: plan.title,
       planImageUrl: plan.imageUrl,
     );
-    _logger.info('[SP-DAY1-HOOK] Day 1 fire for ${plan.id} returned id=$id');
   }
-  _logger.info('[SP-DAY1-HOOK] done iterating ${planList.length} plans');
 }

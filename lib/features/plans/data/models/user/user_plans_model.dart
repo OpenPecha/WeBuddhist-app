@@ -33,7 +33,9 @@ class UserPlansModel {
       language: json['language'] as String,
       difficultyLevel: json['difficulty_level'] as String?,
       imageUrl: json['image_url'] as String?,
-      startedAt: DateTime.parse(json['started_at'] as String),
+      startedAt: json['started_at'] != null
+          ? DateTime.parse(json['started_at'] as String)
+          : DateTime.now(),
       totalDays: json['total_days'] as int,
       tags:
           json['tags'] != null ? List<String>.from(json['tags'] as List) : null,

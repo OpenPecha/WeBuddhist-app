@@ -4,9 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/error/failures.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
+import 'package:flutter_pecha/core/storage/plan_metadata_store.dart';
+import 'package:flutter_pecha/core/storage/special_plan_started_at_store.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/features/notifications/data/services/notification_service.dart';
+import 'package:flutter_pecha/features/notifications/data/special_plan_notifications.dart';
 import 'package:flutter_pecha/features/plans/plans.dart';
 import 'package:flutter_pecha/features/practice/data/models/routine_model.dart';
 import 'package:flutter_pecha/features/practice/data/models/session_selection.dart';
@@ -171,16 +174,6 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
     );
   }
 
-  /// Saves blocks to local Hive storage AND syncs notifications.
-  /// Routing through RoutineNotifier keeps Hive in sync so startup
-  /// reschedule works, and ensures [ROUTINE-SAVE] logs are visible.
-  Future<void> _saveLocalAndSyncNotifications() async {
-    final blocks = _blocks.map(_toRoutineBlock).toList();
-    _logger.info('[EDIT-SAVE] persisting ${blocks.length} blocks to Hive + scheduling notifications');
-    await ref.read(routineProvider.notifier).saveRoutine(blocks);
-    _logger.info('[EDIT-SAVE] done');
-  }
-
   // ─── Operation queue ───
 
   /// Enqueues [fn] so API calls run sequentially.
@@ -291,16 +284,24 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
 
   // ─── Save flow ───
 
+  /// Optimistic save: persists local state synchronously, then pops and
+  /// defers slow work (notification reschedule, paginated plans refetch,
+  /// in-flight API drain) to the background.
+  ///
+  /// Why: the previous serial flow could block the user for 3–4s because
+  /// (1) `_opQueue` waited for every in-flight `_syncBlock` to finish,
+  /// (2) notification sync issues 60+ platform-channel calls per plan
+  /// block, and (3) `myPlansPaginatedProvider.refresh()` is a network
+  /// round-trip. None of those need to complete before the user leaves
+  /// the screen — Hive is the source of truth for the next render, and
+  /// the startup bootstrap re-syncs notifications on the next launch if
+  /// the background work fails.
   Future<void> _saveAndPop() async {
-    // Wait for any in-flight API operations to finish.
-    try {
-      await _opQueue;
-    } catch (_) {}
-
+    // 1. Empty-block confirmation must run synchronously — it depends on
+    //    the user's input and changes what we persist below.
     if (_hasEmptyBlocks) {
       final shouldDelete = await _showEmptyBlockDialog();
       if (!mounted) return;
-
       if (shouldDelete == true) {
         setState(() => _blocks.removeWhere((b) => b.items.isEmpty));
       } else {
@@ -308,16 +309,61 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
       }
     }
 
+    // 2. Capture Riverpod handles BEFORE pop. `ref` becomes invalid once
+    //    this State is disposed, but the captured notifier instances are
+    //    kept alive by the ProviderScope (these providers are not
+    //    autoDispose), so the background block below can use them safely.
+    final routineNotifier = ref.read(routineProvider.notifier);
+    final myPlansNotifier = ref.read(myPlansPaginatedProvider.notifier);
+    final pendingOps = _opQueue;
+    final blocks = _blocks.map(_toRoutineBlock).toList();
+
+    // 3. Await ONLY the Hive write. It is fast (~ms) and the next screen
+    //    reads from Hive-backed state, so this must complete before pop.
+    //    A failure here is fatal: we surface it and stay on the screen.
+    _logger.info('[EDIT-SAVE] persisting ${blocks.length} blocks');
     try {
-      await _saveLocalAndSyncNotifications();
+      await routineNotifier.saveRoutineLocalOnly(blocks);
     } catch (e, st) {
-      _logger.error('[EDIT-SAVE] Failed to save/sync notifications', e, st);
+      _logger.error('[EDIT-SAVE] local save failed', e, st);
       if (mounted) _showErrorSnackBar(_mapError(e));
+      return;
     }
 
+    // 4. Invalidate while context is alive. These are cheap; the actual
+    //    refetch happens lazily when the next screen reads the provider.
     ref.invalidate(userRoutineProvider);
-    await ref.read(myPlansPaginatedProvider.notifier).refresh();
-    if (mounted) context.pop();
+    ref.invalidate(userPlansFutureProvider);
+
+    if (mounted) {
+      _logger.info('[EDIT-SAVE] popping (background tasks continuing)');
+      context.pop();
+    }
+
+    // 5. Fire-and-forget the slow work. Errors are non-fatal:
+    //    - API queue: each op's user-visible error was already surfaced
+    //      inline when the user added the item.
+    //    - Notification sync: startup bootstrap re-syncs on next launch.
+    //    - Plans refresh: the list refetches when next viewed.
+    //    We intentionally do NOT touch `setState`, `ref`, or `context`
+    //    below — this closure outlives the widget.
+    unawaited(() async {
+      try {
+        await pendingOps;
+      } catch (e) {
+        _logger.warning('[EDIT-SAVE-BG] op queue drained with error: $e');
+      }
+      try {
+        await routineNotifier.syncNotifications(blocks);
+      } catch (e) {
+        _logger.warning('[EDIT-SAVE-BG] notification sync failed: $e');
+      }
+      try {
+        await myPlansNotifier.refresh();
+      } catch (e) {
+        _logger.warning('[EDIT-SAVE-BG] plans refresh failed: $e');
+      }
+    }());
   }
 
   // ─── Dialogs ───
@@ -600,6 +646,17 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
     final block = _blocks[index];
     final apiId = block.apiTimeBlockId;
 
+    // Clean up metadata for all plan items in this block
+    for (final item in block.items) {
+      if (item.type == RoutineItemType.plan) {
+        if (isSpecialPlan(item.id)) {
+          await SpecialPlanStartedAtStore.clear(item.id);
+        } else {
+          await PlanMetadataStore.clear(item.id);
+        }
+      }
+    }
+
     final routineBlock = _toRoutineBlock(block);
     await ref
         .read(routineNotificationServiceProvider)
@@ -687,12 +744,22 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
     }
   }
 
-  void _onDeleteItem(int blockIndex, int itemIndex) {
+  Future<void> _onDeleteItem(int blockIndex, int itemIndex) async {
     final block = _blocks[blockIndex];
     final removedItem = block.items[itemIndex];
     final wasNotEmpty = block.items.isNotEmpty;
 
     setState(() => block.items.removeAt(itemIndex));
+
+    // Await cleanup so re-enrollment never races with stale metadata or
+    // stale "already shown" flags.
+    if (removedItem.type == RoutineItemType.plan) {
+      if (isSpecialPlan(removedItem.id)) {
+        await SpecialPlanStartedAtStore.clear(removedItem.id);
+      } else {
+        await PlanMetadataStore.clear(removedItem.id);
+      }
+    }
 
     if (wasNotEmpty && block.items.isEmpty) {
       final routineBlock = RoutineBlock(
@@ -702,7 +769,7 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
         apiTimeBlockId: block.apiTimeBlockId,
         items: const [],
       );
-      ref
+      await ref
           .read(routineNotificationServiceProvider)
           .cancelBlockNotification(routineBlock);
     }

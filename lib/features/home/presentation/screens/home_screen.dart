@@ -14,7 +14,9 @@ import 'package:flutter_pecha/core/widgets/skeletons/skeletons.dart';
 import 'package:flutter_pecha/features/home/presentation/providers/tags_provider.dart';
 import 'package:flutter_pecha/features/home/presentation/home_screen_constants.dart';
 import 'package:flutter_pecha/features/home/presentation/widgets/tag_card.dart';
+import 'package:flutter_pecha/features/notifications/application/plan_enrollment_hook.dart';
 import 'package:flutter_pecha/features/notifications/application/special_plan_enrollment_hook.dart';
+import 'package:flutter_pecha/features/practice/presentation/providers/routine_provider.dart';
 import 'package:flutter_pecha/features/plans/presentation/providers/user_plans_provider.dart';
 import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -128,10 +130,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           (response) async {
             _log.info(
               '[SP-HOME] user plans loaded count=${response.userPlans.length} '
-              'on attempt=$attempt, calling tryFirePendingSpecialPlanDay1Notifications',
+              'on attempt=$attempt — firing pending day notifications',
             );
-            await tryFirePendingSpecialPlanDay1Notifications(
+            await tryFirePendingSpecialPlanNotifications(response.userPlans);
+            await tryFirePendingPlanDayNotifications(
               response.userPlans,
+              ref.read(routineProvider).blocks,
             );
           },
         );
