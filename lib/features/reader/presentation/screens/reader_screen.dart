@@ -4,6 +4,7 @@ import 'package:flutter_pecha/features/plans/presentation/providers/plan_days_pr
 import 'package:flutter_pecha/features/plans/presentation/providers/user_plans_provider.dart';
 import 'package:flutter_pecha/features/reader/constants/reader_constants.dart';
 import 'package:flutter_pecha/features/reader/data/models/navigation_context.dart';
+import 'package:flutter_pecha/features/reader/data/models/reader_slot_config.dart';
 import 'package:flutter_pecha/features/reader/data/models/reader_state.dart';
 import 'package:flutter_pecha/features/reader/presentation/providers/reader_notifier.dart';
 import 'package:flutter_pecha/features/reader/presentation/widgets/reader_actions/segement_action_bar.dart';
@@ -11,16 +12,18 @@ import 'package:flutter_pecha/features/reader/presentation/widgets/reader_app_ba
 import 'package:flutter_pecha/features/reader/presentation/widgets/reader_commentary/reader_commentary_split_view.dart';
 import 'package:flutter_pecha/features/reader/presentation/widgets/reader_translation/reader_translation_split_view.dart';
 import 'package:flutter_pecha/features/reader/presentation/widgets/reader_content/reader_content_part.dart';
+import 'package:flutter_pecha/features/reader/presentation/widgets/reader_content/reader_metadata_subtitle.dart';
 import 'package:flutter_pecha/features/reader/presentation/widgets/reader_gestures/swipe_navigation_wrapper.dart';
 import 'package:flutter_pecha/features/reader/presentation/widgets/reader_search/reader_search_delegate.dart';
-import 'package:flutter_pecha/features/texts/presentation/providers/text_version_language_provider.dart';
+import 'package:flutter_pecha/features/reader/presentation/widgets/reader_settings/reader_settings_screen.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
+import 'package:flutter_pecha/core/utils/get_language.dart';
+import 'package:flutter_pecha/features/texts/data/models/text_detail.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Main reader screen - thin orchestrator that composes child widgets
 class ReaderScreen extends ConsumerStatefulWidget {
   final String textId;
-  final String? contentId;
   final String? segmentId;
   final NavigationContext? navigationContext;
   final int? colorIndex;
@@ -28,7 +31,6 @@ class ReaderScreen extends ConsumerStatefulWidget {
   const ReaderScreen({
     super.key,
     required this.textId,
-    this.contentId,
     this.segmentId,
     this.navigationContext,
     this.colorIndex,
@@ -52,7 +54,6 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
     super.initState();
     _params = ReaderParams(
       textId: widget.textId,
-      contentId: widget.contentId,
       segmentId: widget.segmentId,
       navigationContext: widget.navigationContext,
     );
@@ -112,7 +113,7 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
     ReaderNotifier notifier,
   ) {
     final localizations = context.l10n;
-
+    final textDetail = state.textDetail;
     // Loading state
     if (state.isLoading) {
       return Center(
@@ -184,13 +185,22 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
                   height: _isAppBarVisible ? null : 0,
                   child:
                       _isAppBarVisible
-                          ? ReaderAppBarOverlay(
-                            params: _params,
-                            colorIndex: widget.colorIndex,
-                            onSearchPressed:
-                                () => _handleSearch(context, state),
-                            onLanguagePressed:
-                                () => _handleLanguageSelection(context, state),
+                          ? Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              ReaderAppBarOverlay(
+                                params: _params,
+                                colorIndex: widget.colorIndex,
+                                onSearchPressed:
+                                    () => _handleSearch(context, state),
+                                onSettingsPressed:
+                                    () => _openReaderSettings(
+                                      context,
+                                      textDetail,
+                                    ),
+                              ),
+                              ReaderMetadataSubtitle(params: _params),
+                            ],
                           )
                           : const SizedBox.shrink(),
                 ),
@@ -212,43 +222,46 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
                             params: _params,
                             language: state.textDetail!.language,
                             initialSegmentId: widget.segmentId,
-                            visibleSegmentIds: widget.navigationContext?.currentSegmentIds,
+                            visibleSegmentIds:
+                                widget.navigationContext?.currentSegmentIds,
                             onScrollDirectionChanged: _onScrollDirectionChanged,
                             onScrollControllerReady: (scrollFn) {
                               _scrollToSegment = scrollFn;
                             },
                           ),
                           // Segment action bar (when segment selected and no panel open)
-                          if (state.hasSelection && !state.isCommentaryOpen && !state.isTranslationOpen)
+                          if (state.hasSelection &&
+                              !state.isCommentaryOpen &&
+                              !state.isTranslationOpen)
                             SegmentActionBar(
-                            segment: state.selectedSegment!,
-                            params: _params,
-                            onClose: () => notifier.selectSegment(null),
-                            onOpenCommentary: () {
-                              if (_scrollToSegment != null &&
-                                  state.selectedSegment != null) {
-                                _scrollToSegment!(
-                                  state.selectedSegment!.segmentId,
-                                  alignment: 0.0,
-                                );
-                              }
-                            },
-                            onOpenTranslation: () {
-                              if (_scrollToSegment != null &&
-                                  state.selectedSegment != null) {
-                                _scrollToSegment!(
-                                  state.selectedSegment!.segmentId,
-                                  alignment: 0.0,
-                                );
-                              }
-                            },
-                          ),
-                      ],
+                              segment: state.selectedSegment!,
+                              params: _params,
+                              onClose: () => notifier.selectSegment(null),
+                              onOpenCommentary: () {
+                                if (_scrollToSegment != null &&
+                                    state.selectedSegment != null) {
+                                  _scrollToSegment!(
+                                    state.selectedSegment!.segmentId,
+                                    alignment: 0.0,
+                                  );
+                                }
+                              },
+                              onOpenTranslation: () {
+                                if (_scrollToSegment != null &&
+                                    state.selectedSegment != null) {
+                                  _scrollToSegment!(
+                                    state.selectedSegment!.segmentId,
+                                    alignment: 0.0,
+                                  );
+                                }
+                              },
+                            ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
             ],
           ),
         ),
@@ -289,38 +302,33 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
     }
   }
 
-  Future<void> _handleLanguageSelection(
+  Future<void> _openReaderSettings(
     BuildContext context,
-    ReaderState state,
+    TextDetail? textDetail,
   ) async {
     final notifier = ref.read(readerNotifierProvider(_params).notifier);
-    final router = ref.read(appRouterProvider);
-
-    // Close selection before navigation
     notifier.selectSegment(null);
     notifier.closeCommentary();
 
-    if (state.textDetail != null) {
-      ref
-          .read(textVersionLanguageProvider.notifier)
-          .setLanguageCode(state.textDetail!.language);
+    // Pass the currently-loaded primary display so the settings screen can
+    // show it under "Main text" without the reader notifier having to write
+    // into a global settings store as a side effect. The backend returns a
+    // raw language code (e.g. "bo") — render it through getLanguageName so
+    // the user sees "Tibetan", not "bo". `versionId` in this API is just the
+    // loaded text's id, so textDetail.id / textDetail.title pre-fill the
+    // version row of the Main text card.
+    final languageCode = textDetail?.language ?? 'en';
+    final initialPrimaryDisplay = ReaderSlotConfig(
+      languageCode: languageCode,
+      languageLabel: getLanguageName(languageCode),
+      versionId: textDetail?.id,
+      versionLabel: textDetail?.title,
+    );
 
-      final result = await router.pushNamed(
-        "reader-versions",
-        pathParameters: {"textId": widget.textId},
-      );
-
-      if (result != null && result is Map<String, dynamic> && mounted) {
-        final newTextId = result['textId'] as String?;
-        final newContentId = result['contentId'] as String?;
-
-        if (newTextId != null && newContentId != null) {
-          router.pushReplacement(
-            '/reader/$newTextId',
-            extra: NavigationContext(source: NavigationSource.normal),
-          );
-        }
-      }
-    }
+    await openReaderSettings(
+      context,
+      textId: widget.textId,
+      initialPrimaryDisplay: initialPrimaryDisplay,
+    );
   }
 }

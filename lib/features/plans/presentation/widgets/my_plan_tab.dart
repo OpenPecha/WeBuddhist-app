@@ -164,8 +164,9 @@ class _MyPlansTabState extends ConsumerState<MyPlansTab> {
         }
 
         final plan = myPlansState.plans[index];
+        final effectiveStart = plan.effectiveStartDate;
         final selectedDay = PlanUtils.calculateSelectedDay(
-          plan.startedAt,
+          effectiveStart,
           plan.totalDays,
         );
 
@@ -177,7 +178,7 @@ class _MyPlansTabState extends ConsumerState<MyPlansTab> {
               extra: {
                 'plan': plan,
                 'selectedDay': selectedDay,
-                'startDate': plan.startedAt,
+                'startDate': effectiveStart,
               },
             );
           },

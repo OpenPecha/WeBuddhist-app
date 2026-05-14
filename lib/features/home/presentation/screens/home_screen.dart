@@ -14,7 +14,9 @@ import 'package:flutter_pecha/core/widgets/skeletons/skeletons.dart';
 import 'package:flutter_pecha/features/home/presentation/providers/tags_provider.dart';
 import 'package:flutter_pecha/features/home/presentation/home_screen_constants.dart';
 import 'package:flutter_pecha/features/home/presentation/widgets/tag_card.dart';
+import 'package:flutter_pecha/features/notifications/application/plan_enrollment_hook.dart';
 import 'package:flutter_pecha/features/notifications/application/special_plan_enrollment_hook.dart';
+import 'package:flutter_pecha/features/practice/presentation/providers/routine_provider.dart';
 import 'package:flutter_pecha/features/plans/presentation/providers/user_plans_provider.dart';
 import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -56,7 +58,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   Future<void> _requestNotificationPermissionsIfNeeded() async {
     _log.info(
-      '[SP-HOME] _requestNotificationPermissionsIfNeeded ENTER '
+      '[HOME-SCREEN] _requestNotificationPermissionsIfNeeded ENTER '
       'hasRequested=$_hasRequestedPermissions',
     );
     if (_hasRequestedPermissions) return;
@@ -65,7 +67,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final notificationService = ref.read(notificationServiceProvider);
     if (notificationService == null) {
       _log.warning(
-        '[SP-HOME] NotificationService not initialized, skipping permission request',
+        '[HOME-SCREEN] NotificationService not initialized, skipping permission request',
       );
       _navigateToPendingPlanIfNeeded();
       return;
@@ -75,14 +77,16 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       // Check if permissions are already granted
       final alreadyEnabled =
           await notificationService.areNotificationsEnabled();
-      _log.info('[SP-HOME] alreadyEnabled=$alreadyEnabled');
+      _log.info('[HOME-SCREEN] alreadyEnabled=$alreadyEnabled');
       if (!alreadyEnabled) {
-        _log.info('[SP-HOME] requesting notification permissions...');
+        _log.info('[HOME-SCREEN] requesting notification permissions...');
         final granted = await notificationService.requestPermission();
-        _log.info('[SP-HOME] permission request result granted=$granted');
+        _log.info('[HOME-SCREEN] permission request result granted=$granted');
       }
     } catch (e) {
-      _log.warning('[SP-HOME] error requesting notification permissions: $e');
+      _log.warning(
+        '[HOME-SCREEN] error requesting notification permissions: $e',
+      );
     }
 
     // Permission flow has run — fire any pending special-plan Day 1
@@ -97,22 +101,21 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   Future<void> _firePendingSpecialPlanDay1IfNeeded() async {
-    _log.info('[SP-HOME] _firePendingSpecialPlanDay1IfNeeded ENTER');
     // Invalidate first — the provider may have been evaluated pre-login
     // (no auth header) and cached a Forbidden failure. We need a fresh read.
-    _log.info('[SP-HOME] invalidating userPlansFutureProvider for fresh fetch');
+    _log.info('invalidating userPlansFutureProvider for fresh fetch');
     ref.invalidate(userPlansFutureProvider);
 
     const maxAttempts = 3;
     for (var attempt = 1; attempt <= maxAttempts; attempt++) {
-      _log.info('[SP-HOME] fetch attempt $attempt/$maxAttempts');
+      _log.info('fetch attempt $attempt/$maxAttempts');
       try {
         final userPlansAsync = await ref.read(userPlansFutureProvider.future);
         final isFailure = userPlansAsync.isLeft();
-        _log.info('[SP-HOME] attempt $attempt resolved isFailure=$isFailure');
+        _log.info('attempt $attempt resolved isFailure=$isFailure');
         if (isFailure && attempt < maxAttempts) {
           _log.warning(
-            '[SP-HOME] attempt $attempt failed — invalidating and retrying: '
+            'attempt $attempt failed — invalidating and retrying: '
             '${userPlansAsync.fold((f) => f, (_) => "")}',
           );
           ref.invalidate(userPlansFutureProvider);
@@ -122,29 +125,31 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         await userPlansAsync.fold(
           (failure) async {
             _log.warning(
-              '[SP-HOME] giving up after $attempt attempts — fetch failed: $failure',
+              'giving up after $attempt attempts — fetch failed: $failure',
             );
           },
           (response) async {
             _log.info(
-              '[SP-HOME] user plans loaded count=${response.userPlans.length} '
-              'on attempt=$attempt, calling tryFirePendingSpecialPlanDay1Notifications',
+              'user plans loaded count=${response.userPlans.length} '
+              'on attempt=$attempt — firing pending day notifications',
             );
-            await tryFirePendingSpecialPlanDay1Notifications(
+            await tryFirePendingSpecialPlanNotifications(response.userPlans);
+            await tryFirePendingPlanDayNotifications(
               response.userPlans,
+              ref.read(routineProvider).blocks,
             );
           },
         );
         break;
       } catch (e, st) {
-        _log.warning('[SP-HOME] attempt $attempt threw: $e\n$st');
+        _log.warning('attempt $attempt threw: $e\n$st');
         if (attempt < maxAttempts) {
           ref.invalidate(userPlansFutureProvider);
           await Future.delayed(const Duration(milliseconds: 400));
         }
       }
     }
-    _log.info('[SP-HOME] _firePendingSpecialPlanDay1IfNeeded EXIT');
+    _log.info('_firePendingSpecialPlanDay1IfNeeded EXIT');
   }
 
   /// Consumes [pendingOnboardingPlanProvider] and navigates to the Practice

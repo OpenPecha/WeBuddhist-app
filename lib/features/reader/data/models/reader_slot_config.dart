@@ -1,0 +1,148 @@
+import 'dart:convert';
+
+class ReaderSlotConfig {
+  final String languageCode;
+  final String languageLabel;
+  final String? versionId;
+  final String? versionLabel;
+  final String? scriptId;
+  final String? scriptLabel;
+
+  const ReaderSlotConfig({
+    required this.languageCode,
+    required this.languageLabel,
+    this.versionId,
+    this.versionLabel,
+    this.scriptId,
+    this.scriptLabel,
+  });
+
+  ReaderSlotConfig copyWith({
+    String? languageCode,
+    String? languageLabel,
+    String? versionId,
+    String? versionLabel,
+    String? scriptId,
+    String? scriptLabel,
+  }) {
+    return ReaderSlotConfig(
+      languageCode: languageCode ?? this.languageCode,
+      languageLabel: languageLabel ?? this.languageLabel,
+      versionId: versionId ?? this.versionId,
+      versionLabel: versionLabel ?? this.versionLabel,
+      scriptId: scriptId ?? this.scriptId,
+      scriptLabel: scriptLabel ?? this.scriptLabel,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        'languageCode': languageCode,
+        'languageLabel': languageLabel,
+        'versionId': versionId,
+        'versionLabel': versionLabel,
+        'scriptId': scriptId,
+        'scriptLabel': scriptLabel,
+      };
+
+  factory ReaderSlotConfig.fromJson(Map<String, dynamic> json) {
+    return ReaderSlotConfig(
+      languageCode: json['languageCode'] as String? ?? 'en',
+      languageLabel: json['languageLabel'] as String? ?? 'English',
+      versionId: json['versionId'] as String?,
+      versionLabel: json['versionLabel'] as String?,
+      scriptId: json['scriptId'] as String?,
+      scriptLabel: json['scriptLabel'] as String?,
+    );
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is ReaderSlotConfig &&
+        other.languageCode == languageCode &&
+        other.versionId == versionId &&
+        other.scriptId == scriptId;
+  }
+
+  @override
+  int get hashCode => Object.hash(languageCode, versionId, scriptId);
+}
+
+class ReaderDualLayoutSettings {
+  final bool secondaryEnabled;
+  final ReaderSlotConfig primary;
+  final ReaderSlotConfig secondary;
+
+  const ReaderDualLayoutSettings({
+    required this.secondaryEnabled,
+    required this.primary,
+    required this.secondary,
+  });
+
+  factory ReaderDualLayoutSettings.initial() {
+    return const ReaderDualLayoutSettings(
+      secondaryEnabled: false,
+      primary: ReaderSlotConfig(
+        languageCode: 'en',
+        languageLabel: 'English',
+      ),
+      secondary: ReaderSlotConfig(
+        languageCode: 'en',
+        languageLabel: 'English',
+      ),
+    );
+  }
+
+  ReaderDualLayoutSettings copyWith({
+    bool? secondaryEnabled,
+    ReaderSlotConfig? primary,
+    ReaderSlotConfig? secondary,
+  }) {
+    return ReaderDualLayoutSettings(
+      secondaryEnabled: secondaryEnabled ?? this.secondaryEnabled,
+      primary: primary ?? this.primary,
+      secondary: secondary ?? this.secondary,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        'secondaryEnabled': secondaryEnabled,
+        'primary': primary.toJson(),
+        'secondary': secondary.toJson(),
+      };
+
+  factory ReaderDualLayoutSettings.fromJson(Map<String, dynamic> json) {
+    return ReaderDualLayoutSettings(
+      secondaryEnabled: json['secondaryEnabled'] as bool? ?? false,
+      primary: ReaderSlotConfig.fromJson(
+        (json['primary'] as Map?)?.cast<String, dynamic>() ?? const {},
+      ),
+      secondary: ReaderSlotConfig.fromJson(
+        (json['secondary'] as Map?)?.cast<String, dynamic>() ?? const {},
+      ),
+    );
+  }
+
+  String encode() => jsonEncode(toJson());
+
+  factory ReaderDualLayoutSettings.decode(String source) {
+    try {
+      final map = jsonDecode(source) as Map<String, dynamic>;
+      return ReaderDualLayoutSettings.fromJson(map);
+    } catch (_) {
+      return ReaderDualLayoutSettings.initial();
+    }
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is ReaderDualLayoutSettings &&
+        other.secondaryEnabled == secondaryEnabled &&
+        other.primary == primary &&
+        other.secondary == secondary;
+  }
+
+  @override
+  int get hashCode => Object.hash(secondaryEnabled, primary, secondary);
+}

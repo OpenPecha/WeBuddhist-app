@@ -1,19 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
+import 'package:flutter_pecha/core/config/router/app_routes.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/widgets/error_state_widget.dart';
 import 'package:flutter_pecha/core/widgets/skeletons/skeletons.dart';
 import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
+import 'package:flutter_pecha/features/auth/presentation/widgets/login_drawer.dart';
 import 'package:flutter_pecha/features/home/presentation/providers/plans_by_tag_provider.dart';
 import 'package:flutter_pecha/features/plans/domain/entities/plan.dart';
 import 'package:flutter_pecha/features/plans/data/models/user/user_plans_model.dart';
 import 'package:flutter_pecha/features/plans/presentation/providers/user_plans_provider.dart';
 import 'package:flutter_pecha/features/practice/data/models/routine_model.dart';
 import 'package:flutter_pecha/features/practice/presentation/providers/routine_api_providers.dart';
+import 'package:flutter_pecha/features/practice/presentation/widgets/routine_item_chip.dart';
 import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 
 class PlanListScreen extends ConsumerWidget {
   final String tag;
@@ -30,9 +34,7 @@ class PlanListScreen extends ConsumerWidget {
       body: SafeArea(
         child: Column(
           children: [
-            // Back button
-            _buildAppBar(context, tag),
-            // Main content
+            _buildAppBar(context),
             Expanded(
               child: plansAsync.when(
                 data: (plansEither) {
@@ -63,7 +65,7 @@ class PlanListScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildAppBar(BuildContext context, String tag) {
+  Widget _buildAppBar(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
       child: Row(
@@ -85,7 +87,6 @@ class PlanListScreen extends ConsumerWidget {
               ),
             ),
           ),
-          // Invisible placeholder to balance back button and keep title centered
           const SizedBox(width: 48, height: 48),
         ],
       ),
@@ -117,38 +118,42 @@ class PlanListScreen extends ConsumerWidget {
   }
 
   Widget _buildContent(BuildContext context, WidgetRef ref, List<Plan> plans) {
+    final sorted = [...plans]..sort((a, b) {
+      if (a.displayOrder != null && b.displayOrder != null) {
+        return a.displayOrder!.compareTo(b.displayOrder!);
+      }
+      if (a.displayOrder != null) return -1;
+      if (b.displayOrder != null) return 1;
+      return 0;
+    });
+
     return CustomScrollView(
       physics: const BouncingScrollPhysics(
         parent: AlwaysScrollableScrollPhysics(),
       ),
       slivers: [
-        // Featured/Banner Card
         SliverToBoxAdapter(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: _FeaturedPlanCard(plan: plans.first),
+            child: _FeaturedPlanCard(plan: sorted.first),
           ),
         ),
-        // Spacing
         const SliverToBoxAdapter(child: SizedBox(height: 16)),
-        // Plan list
         SliverPadding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
           sliver: SliverList(
-            delegate: SliverChildBuilderDelegate((context, index) {
-              final plan = plans[index + 1];
-              return _PlanListItem(plan: plan);
-            }, childCount: plans.length - 1),
+            delegate: SliverChildBuilderDelegate(
+              (context, index) => _PlanListItem(plan: sorted[index + 1]),
+              childCount: sorted.length - 1,
+            ),
           ),
         ),
-        // Bottom padding
         const SliverToBoxAdapter(child: SizedBox(height: 24)),
       ],
     );
   }
 }
 
-/// Featured/Banner card at the top
 class _FeaturedPlanCard extends ConsumerWidget {
   final Plan plan;
 
@@ -164,9 +169,10 @@ class _FeaturedPlanCard extends ConsumerWidget {
     final isGuest = ref.watch(authProvider).isGuest;
     final isEnrolled = !isGuest && _isPlanInRoutine(ref, plan.id);
     final enrolledInfo = isEnrolled ? _getEnrolledInfo(ref, plan.id) : null;
+    final isFlexible = plan.startDate == null;
 
     return InkWell(
-      onTap: () => _handleTap(context, ref, enrolledInfo),
+      onTap: () => _navigateToPlan(context, plan, enrolledInfo),
       borderRadius: BorderRadius.circular(16),
       child: Container(
         height: MediaQuery.of(context).size.height * 0.3,
@@ -178,7 +184,12 @@ class _FeaturedPlanCard extends ConsumerWidget {
         child: Stack(
           fit: StackFit.expand,
           children: [
-            _buildBackgroundImage(context),
+            _PlanCoverImage(
+              imageUrl: plan.coverImageUrl,
+              placeholderIconSize: 48,
+              placeholderAlphaMin: 0.4,
+              placeholderAlphaMax: 0.7,
+            ),
             Container(
               decoration: BoxDecoration(
                 gradient: LinearGradient(
@@ -235,6 +246,30 @@ class _FeaturedPlanCard extends ConsumerWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
+                  if (_showFeaturedChipRow(isEnrolled, isFlexible, plan)) ...[
+                    const SizedBox(height: 10),
+                    Row(
+                      children: [
+                        RoutineItemChip(
+                          label:
+                              isFlexible
+                                  ? context.l10n.start_now
+                                  : context.l10n.plan_starts_on(
+                                    DateFormat(
+                                      'MMM d',
+                                    ).format(plan.startDate!.toLocal()),
+                                  ),
+                        ),
+                        if (!isEnrolled) ...[
+                          const SizedBox(width: 8),
+                          _EnrollButton(
+                            label: context.l10n.plan_enroll,
+                            onTap: () => _handleEnroll(context, ref, plan),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ],
                 ],
               ),
             ),
@@ -243,64 +278,8 @@ class _FeaturedPlanCard extends ConsumerWidget {
       ),
     );
   }
-
-  void _handleTap(
-    BuildContext context,
-    WidgetRef ref,
-    _EnrolledPlanInfo? enrolledInfo,
-  ) {
-    if (enrolledInfo != null) {
-      context.push('/practice/details', extra: {
-        'plan': enrolledInfo.userPlan,
-        'selectedDay': enrolledInfo.selectedDay,
-        'startDate': enrolledInfo.startDate,
-      });
-    } else {
-      context.push('/practice/plans/preview', extra: {'plan': plan});
-    }
-  }
-
-  Widget _buildBackgroundImage(BuildContext context) {
-    if (plan.coverImageUrl != null && plan.coverImageUrl!.isNotEmpty) {
-      return Image.network(
-        plan.coverImageUrl!,
-        fit: BoxFit.cover,
-        errorBuilder: (context, error, stackTrace) {
-          return _buildPlaceholder(context);
-        },
-        loadingBuilder: (context, child, loadingProgress) {
-          if (loadingProgress == null) return child;
-          return _buildPlaceholder(context);
-        },
-      );
-    }
-    return _buildPlaceholder(context);
-  }
-
-  Widget _buildPlaceholder(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Theme.of(context).colorScheme.primary.withValues(alpha: 0.4),
-            Theme.of(context).colorScheme.primary.withValues(alpha: 0.7),
-          ],
-        ),
-      ),
-      child: Center(
-        child: Icon(
-          Icons.image_outlined,
-          size: 48,
-          color: Colors.white.withValues(alpha: 0.5),
-        ),
-      ),
-    );
-  }
 }
 
-/// List item for each plan
 class _PlanListItem extends ConsumerWidget {
   final Plan plan;
 
@@ -311,26 +290,16 @@ class _PlanListItem extends ConsumerWidget {
     final locale = ref.watch(localeProvider);
     final lineHeight = getLineHeight(locale.languageCode);
     final titleFontSize = locale.languageCode == 'bo' ? 18.0 : 16.0;
-    final subtitleFontSize = locale.languageCode == 'bo' ? 16.0 : 14.0;
 
     final isGuest = ref.watch(authProvider).isGuest;
     final isEnrolled = !isGuest && _isPlanInRoutine(ref, plan.id);
     final enrolledInfo = isEnrolled ? _getEnrolledInfo(ref, plan.id) : null;
+    final isFlexible = plan.startDate == null;
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 12.0),
       child: InkWell(
-        onTap: () {
-          if (enrolledInfo != null) {
-            context.push('/practice/details', extra: {
-              'plan': enrolledInfo.userPlan,
-              'selectedDay': enrolledInfo.selectedDay,
-              'startDate': enrolledInfo.startDate,
-            });
-          } else {
-            context.push('/practice/plans/preview', extra: {'plan': plan});
-          }
-        },
+        onTap: () => _navigateToPlan(context, plan, enrolledInfo),
         borderRadius: BorderRadius.circular(12),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -343,7 +312,12 @@ class _PlanListItem extends ConsumerWidget {
                 color: Theme.of(context).colorScheme.surfaceContainer,
               ),
               clipBehavior: Clip.antiAlias,
-              child: _buildThumbnail(context),
+              child: _PlanCoverImage(
+                imageUrl: plan.coverImageUrl,
+                placeholderIconSize: 24,
+                placeholderAlphaMin: 0.3,
+                placeholderAlphaMax: 0.5,
+              ),
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -359,38 +333,64 @@ class _PlanListItem extends ConsumerWidget {
                     ),
                     overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    plan.description,
-                    style: TextStyle(
-                      fontSize: subtitleFontSize,
-                      height: lineHeight,
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+                  const SizedBox(height: 6),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      if (isFlexible && !isEnrolled)
+                        RoutineItemChip(label: context.l10n.start_now)
+                      else if (!isFlexible &&
+                          (!isEnrolled ||
+                              DateTime.now().isBefore(plan.startDate!)))
+                        RoutineItemChip(
+                          label: context.l10n.plan_starts_on(
+                            DateFormat(
+                              'MMM d',
+                            ).format(plan.startDate!.toLocal()),
+                          ),
+                        )
+                      else
+                        const SizedBox.shrink(),
+                      if (isEnrolled)
+                        _EnrolledBadge(label: context.l10n.plan_enrolled)
+                      else
+                        _EnrollButton(
+                          label: context.l10n.plan_enroll,
+                          onTap: () => _handleEnroll(context, ref, plan),
+                        ),
+                    ],
                   ),
                 ],
               ),
             ),
-            if (isEnrolled) ...[
-              const SizedBox(width: 8),
-              _EnrolledBadge(label: context.l10n.plan_enrolled),
-            ],
           ],
         ),
       ),
     );
   }
+}
 
-  Widget _buildThumbnail(BuildContext context) {
-    if (plan.coverImageUrl != null && plan.coverImageUrl!.isNotEmpty) {
+class _PlanCoverImage extends StatelessWidget {
+  final String? imageUrl;
+  final double placeholderIconSize;
+  final double placeholderAlphaMin;
+  final double placeholderAlphaMax;
+
+  const _PlanCoverImage({
+    required this.imageUrl,
+    required this.placeholderIconSize,
+    required this.placeholderAlphaMin,
+    required this.placeholderAlphaMax,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    if (imageUrl != null && imageUrl!.isNotEmpty) {
       return Image.network(
-        plan.coverImageUrl!,
+        imageUrl!,
         fit: BoxFit.cover,
-        errorBuilder: (context, error, stackTrace) {
-          return _buildPlaceholder(context);
-        },
+        errorBuilder:
+            (context, error, stackTrace) => _buildPlaceholder(context),
         loadingBuilder: (context, child, loadingProgress) {
           if (loadingProgress == null) return child;
           return _buildPlaceholder(context);
@@ -407,15 +407,19 @@ class _PlanListItem extends ConsumerWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
-            Theme.of(context).colorScheme.primary.withValues(alpha: 0.5),
+            Theme.of(
+              context,
+            ).colorScheme.primary.withValues(alpha: placeholderAlphaMin),
+            Theme.of(
+              context,
+            ).colorScheme.primary.withValues(alpha: placeholderAlphaMax),
           ],
         ),
       ),
       child: Center(
         child: Icon(
           Icons.image_outlined,
-          size: 24,
+          size: placeholderIconSize,
           color: Colors.white.withValues(alpha: 0.5),
         ),
       ),
@@ -423,7 +427,6 @@ class _PlanListItem extends ConsumerWidget {
   }
 }
 
-/// Holds pre-computed navigation data for an enrolled plan.
 class _EnrolledPlanInfo {
   final UserPlansModel userPlan;
   final int selectedDay;
@@ -436,8 +439,25 @@ class _EnrolledPlanInfo {
   });
 }
 
-/// Returns true if the plan exists in any routine block (lightweight check for
-/// badge display even when [UserPlansModel] data hasn't loaded yet).
+void _navigateToPlan(
+  BuildContext context,
+  Plan plan,
+  _EnrolledPlanInfo? enrolledInfo,
+) {
+  if (enrolledInfo != null) {
+    context.push(
+      '/practice/details',
+      extra: {
+        'plan': enrolledInfo.userPlan,
+        'selectedDay': enrolledInfo.selectedDay,
+        'startDate': enrolledInfo.startDate,
+      },
+    );
+  } else {
+    context.push('/practice/plans/preview', extra: {'plan': plan});
+  }
+}
+
 bool _isPlanInRoutine(WidgetRef ref, String planId) {
   final routineData = ref.watch(userRoutineProvider).valueOrNull;
   if (routineData == null) return false;
@@ -448,11 +468,8 @@ bool _isPlanInRoutine(WidgetRef ref, String planId) {
   );
 }
 
-/// Returns [_EnrolledPlanInfo] if the plan is in the user's routine and has a
-/// matching [UserPlansModel], or null otherwise.
 _EnrolledPlanInfo? _getEnrolledInfo(WidgetRef ref, String planId) {
-  final routineAsync = ref.watch(userRoutineProvider);
-  final routineData = routineAsync.valueOrNull;
+  final routineData = ref.watch(userRoutineProvider).valueOrNull;
   if (routineData == null) return null;
 
   RoutineItem? routineItem;
@@ -477,7 +494,8 @@ _EnrolledPlanInfo? _getEnrolledInfo(WidgetRef ref, String planId) {
   }
   if (userPlan == null) return null;
 
-  final startDate = routineItem.enrolledAt ?? userPlan.startedAt;
+  final startDate =
+      userPlan.startDate ?? routineItem.enrolledAt ?? userPlan.startedAt;
   final daysSinceEnrollment =
       DateTime.now().difference(DateUtils.dateOnly(startDate)).inDays;
   final selectedDay = (daysSinceEnrollment + 1).clamp(1, userPlan.totalDays);
@@ -489,7 +507,56 @@ _EnrolledPlanInfo? _getEnrolledInfo(WidgetRef ref, String planId) {
   );
 }
 
-/// Green pill badge with checkmark indicating a plan is already enrolled.
+bool _showFeaturedChipRow(bool isEnrolled, bool isFlexible, Plan plan) {
+  if (!isEnrolled) return true;
+  if (isFlexible) return false;
+  return DateTime.now().isBefore(plan.startDate!);
+}
+
+void _handleEnroll(BuildContext context, WidgetRef ref, Plan plan) {
+  final isGuest = ref.read(authProvider).isGuest;
+  if (isGuest) {
+    LoginDrawer.show(context, ref);
+    return;
+  }
+  context.push(AppRoutes.practicePlanPreview, extra: {'plan': plan});
+}
+
+class _EnrollButton extends StatelessWidget {
+  final String label;
+  final VoidCallback onTap;
+  const _EnrollButton({required this.label, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+        decoration: BoxDecoration(
+          color: Colors.black87,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.add, color: Colors.white, size: 14),
+            const SizedBox(width: 4),
+            Text(
+              label,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class _EnrolledBadge extends StatelessWidget {
   final String label;
   const _EnrolledBadge({required this.label});
@@ -497,7 +564,7 @@ class _EnrolledBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
         color: const Color(0xFF4CAF50),
         borderRadius: BorderRadius.circular(16),
@@ -513,8 +580,6 @@ class _EnrolledBadge extends StatelessWidget {
               fontWeight: FontWeight.w600,
             ),
           ),
-          const SizedBox(width: 4),
-          const Icon(Icons.check, color: Colors.white, size: 14),
         ],
       ),
     );

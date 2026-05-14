@@ -9,6 +9,7 @@ class AppRoutes {
   AppRoutes._();
 
   // ========== CORE ROUTES ==========
+  static const String splash = '/splash';
   static const String onboarding = '/onboarding';
   static const String login = '/login';
 
@@ -84,9 +85,19 @@ class AppRoutes {
   // ========== ROUTE CATEGORIES ==========
 
   /// Routes that don't require any authentication
-  static const Set<String> publicRoutes = {login};
+  static const Set<String> publicRoutes = {splash, login};
 
-  /// Routes accessible to guest users (includes sub-routes automatically)
+  /// Routes accessible to guest users.
+  ///
+  /// IMPORTANT — PREFIX MATCHING:
+  /// [isGuestAccessible] uses prefix matching, so any sub-route of a listed
+  /// path is automatically guest-accessible without being listed here.
+  ///
+  /// - Sub-routes of listed paths: DO NOT re-list them; they inherit access.
+  ///   e.g. `/home` listed → `/home/plans`, `/home/settings` are all guest-accessible.
+  /// - New top-level routes guests should access: ADD the prefix here.
+  /// - Sub-routes that guests must NOT access under a guest-accessible parent:
+  ///   add the base path to [_protectedBasePaths] — it takes priority.
   static const Set<String> guestAccessibleRoutes = {
     home,
     more,
@@ -95,6 +106,7 @@ class AppRoutes {
     practicePlanPreview, // Allow guests to browse/preview plans
     reader,
     notifications, // Local-only — guests can configure routine notifications
+    planText, // Guests can see inline TEXT subtasks
   };
 
   /// Base paths that require full authentication (prefix matching)

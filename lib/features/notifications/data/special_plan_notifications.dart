@@ -11,6 +11,10 @@
 /// No other code changes required.
 library;
 
+import 'package:flutter_pecha/core/utils/app_logger.dart';
+
+final _logger = AppLogger('SpecialPlanNotifications');
+
 class DayNotification {
   final String title;
   final String body;
@@ -95,8 +99,7 @@ int _daysSince(DateTime startedAt, DateTime now) {
   final start = DateTime(startLocal.year, startLocal.month, startLocal.day);
   final today = DateTime(nowLocal.year, nowLocal.month, nowLocal.day);
   final days = today.difference(start).inDays;
-  // ignore: avoid_print
-  print(
+  _logger.info(
     '[SP-RESOLVER] _daysSince startedAt=$startedAt (local=$startLocal) '
     'now=$now (local=$nowLocal) -> days=$days',
   );
@@ -113,23 +116,20 @@ DayNotification? resolveSpecialPlanNotification({
 }) {
   final entries = kSpecialPlanNotifications[planId];
   if (entries == null) {
-    // ignore: avoid_print
-    print('[SP-RESOLVER] resolveSpecialPlanNotification: planId=$planId is NOT a special plan');
+    _logger.info('[SP-RESOLVER] planId=$planId is NOT a special plan');
     return null;
   }
   final index = _daysSince(startedAt, now);
   if (index < 0 || index >= entries.length) {
-    // ignore: avoid_print
-    print(
-      '[SP-RESOLVER] resolveSpecialPlanNotification: index=$index out of range '
+    _logger.info(
+      '[SP-RESOLVER] index=$index out of range '
       '[0..${entries.length - 1}] for planId=$planId -> null',
     );
     return null;
   }
   final entry = entries[index];
-  // ignore: avoid_print
-  print(
-    '[SP-RESOLVER] resolveSpecialPlanNotification: planId=$planId day=${index + 1} '
+  _logger.info(
+    '[SP-RESOLVER] planId=$planId day=${index + 1} '
     'title="${entry.title}" button="${entry.buttonText}"',
   );
   return entry;

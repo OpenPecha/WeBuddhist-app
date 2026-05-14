@@ -1,4 +1,5 @@
 import 'package:flutter_pecha/core/utils/app_logger.dart';
+import 'package:flutter_pecha/features/notifications/application/plan_enrollment_hook.dart';
 import 'package:flutter_pecha/features/notifications/application/special_plan_enrollment_hook.dart';
 import 'package:flutter_pecha/features/plans/data/models/response/user_plan_list_response_model.dart';
 import 'package:flutter_pecha/features/plans/data/models/user/user_plans_model.dart';
@@ -73,7 +74,8 @@ class EventEnrollmentService {
       '${enrolledPlans.map((p) => "${p.id}@${p.startedAt.toIso8601String()}").join(", ")}',
     );
     for (final plan in enrolledPlans) {
-      await onSpecialPlanEnrolled(plan);
+      await onSpecialPlanEnrolled(plan); // ITCC and other hardcoded series
+      await onPlanEnrolled(plan);        // all other plans: caches startedAt + totalDays
     }
 
     // Mirror the practice-tab edit-routine save flow: persist the final

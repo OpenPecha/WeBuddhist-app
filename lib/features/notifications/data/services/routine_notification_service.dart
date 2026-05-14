@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_pecha/core/storage/plan_metadata_store.dart';
 import 'package:flutter_pecha/core/storage/special_plan_started_at_store.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/features/notifications/data/channels/notification_channels.dart';
@@ -14,7 +15,10 @@ import 'package:timezone/timezone.dart' as tz;
 
 final _logger = AppLogger('RoutineNotificationService');
 
-/// Result of a notification scheduling operation.
+// ─────────────────────────────────────────────────────────────────────────────
+// Result types
+// ─────────────────────────────────────────────────────────────────────────────
+
 class NotificationResult {
   final bool success;
   final String? errorMessage;
@@ -36,7 +40,6 @@ class NotificationResult {
       NotificationResult._(success: true, errorMessage: reason);
 }
 
-/// Result of a batch notification sync operation.
 class NotificationSyncResult {
   final int scheduled;
   final int failed;
@@ -54,13 +57,17 @@ class NotificationSyncResult {
   bool get isFullySuccessful => failed == 0 && errors.isEmpty;
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Service
+// ─────────────────────────────────────────────────────────────────────────────
+
 class RoutineNotificationService {
   static final RoutineNotificationService _instance =
       RoutineNotificationService._internal();
+
   factory RoutineNotificationService() => _instance;
   RoutineNotificationService._internal();
 
-  // Allows injecting a mock plugin in tests without breaking the public API.
   FlutterLocalNotificationsPlugin? _testPlugin;
 
   @visibleForTesting
@@ -77,59 +84,65 @@ class RoutineNotificationService {
 
   bool get _isReady => NotificationService().isInitialized;
 
-  /// Schedule a daily repeating notification for a single block.
+  // ─── Block-level scheduling ───────────────────────────────────────────────
+
+  /// Schedules a notification for [block].
+  ///
+  /// - **Plan blocks** (special or general): delegate to the appropriate
+  ///   series scheduler. These are finite one-shots keyed off `startedAt`,
+  ///   never repeating indefinitely.
+  /// - **Non-plan blocks** (recitation, etc.): schedule a daily repeat at
+  ///   the block's time using `matchDateTimeComponents`.
   Future<NotificationResult> scheduleBlockNotification(
     RoutineBlock block,
   ) async {
-    _logger.info(
-      '[NOTIF-SCHEDULE] block=${block.id} time=${block.formattedTime} '
-      'notificationEnabled=${block.notificationEnabled} '
-      'items=${block.items.length} notificationId=${block.notificationId}',
-    );
-
     if (!block.notificationEnabled) {
-      _logger.info('[NOTIF-SCHEDULE] SKIPPED: notifications disabled for block');
       return NotificationResult.skipped('Notifications disabled for block');
     }
-
     if (block.items.isEmpty) {
-      _logger.info('[NOTIF-SCHEDULE] SKIPPED: block has no items');
       return NotificationResult.skipped('Block has no items');
     }
-
-    _logger.info('[NOTIF-SCHEDULE] _isReady=$_isReady');
     if (!_isReady) {
-      _logger.warning('[NOTIF-SCHEDULE] FAILED: NotificationService not initialized');
+      _logger.warning('scheduleBlockNotification: service not initialised for block ${block.id}');
       return NotificationResult.failure('Notification service not initialized');
     }
 
     try {
       final firstItem = block.items.firstOrNull;
 
-      // Special-plan path: each day in the series has unique copy/button, so
-      // we cannot use a single `matchDateTimeComponents: time` repeating
-      // schedule (the OS would replay the same payload every day). Replace it
-      // with N deterministic one-shots, one per remaining day. The block's
-      // notificationId is cancelled to prevent duplicate fires from any
-      // previously-scheduled daily-repeat for the same block.
-      if (firstItem != null &&
-          firstItem.type == RoutineItemType.plan &&
-          isSpecialPlan(firstItem.id)) {
-        _logger.info(
-          '[SP-SCHEDULE] delegating to series scheduler for planId=${firstItem.id} '
-          'block=${block.id} notificationId=${block.notificationId}',
-        );
+      if (firstItem != null && firstItem.type == RoutineItemType.plan) {
+        // Cancel any stale daily-repeat schedule before replacing with one-shots.
         await _plugin.cancel(block.notificationId);
-        await rescheduleSpecialPlanSeries(
-          planId: firstItem.id,
-          planTitle: firstItem.title,
-          planImageUrl: firstItem.imageUrl,
-          blockHour: block.time.hour,
-          blockMinute: block.time.minute,
-        );
-        return NotificationResult.success(block.notificationId);
+
+        if (isSpecialPlan(firstItem.id)) {
+          await rescheduleSpecialPlanSeries(
+            planId: firstItem.id,
+            planTitle: firstItem.title,
+            planImageUrl: firstItem.imageUrl,
+            blockHour: block.time.hour,
+            blockMinute: block.time.minute,
+          );
+          return NotificationResult.success(block.notificationId);
+        }
+
+        final metadata = PlanMetadataStore.getMetadata(firstItem.id);
+        if (metadata != null) {
+          await reschedulePlanDurationSeries(
+            planId: firstItem.id,
+            planTitle: firstItem.title,
+            planImageUrl: firstItem.imageUrl,
+            blockHour: block.time.hour,
+            blockMinute: block.time.minute,
+          );
+          return NotificationResult.success(block.notificationId);
+        }
+
+        // Metadata not yet written (plan added via EditRoutine before server
+        // sync). The bootstrap will schedule after the next plans fetch.
+        return NotificationResult.skipped('Plan metadata pending — bootstrap will reschedule');
       }
 
+      // Non-plan block: daily repeating schedule.
       final now = tz.TZDateTime.now(tz.local);
       var scheduledDate = tz.TZDateTime(
         tz.local,
@@ -139,31 +152,21 @@ class RoutineNotificationService {
         block.time.hour,
         block.time.minute,
       );
-
       if (scheduledDate.isBefore(now)) {
         scheduledDate = scheduledDate.add(const Duration(days: 1));
       }
 
-      _logger.info(
-        '[NOTIF-SCHEDULE] now=$now  scheduledFor=$scheduledDate  '
-        'tz=${tz.local.name}',
-      );
-
       final payload = firstItem != null
           ? jsonEncode({'itemId': firstItem.id, 'itemType': firstItem.type.name})
           : null;
-
-      final title = firstItem?.title ?? 'Time for your practice';
-      final body = _getNotificationBody(block);
-
       final androidStyle = await _buildBigPictureStyle(firstItem);
       final iosDetails = await _buildIOSNotificationDetails(firstItem);
       final largeIcon = await _getLargeIcon(firstItem);
 
       await _plugin.zonedSchedule(
         block.notificationId,
-        title,
-        body,
+        firstItem?.title ?? 'Time for your practice',
+        _getNotificationBody(block),
         scheduledDate,
         NotificationChannels.routineBlockDetails(
           styleInformation: androidStyle,
@@ -175,70 +178,56 @@ class RoutineNotificationService {
         payload: payload,
       );
 
-      _logger.info(
-        '[NOTIF-SCHEDULE] SUCCESS  id=${block.notificationId}  '
-        'fires=$scheduledDate  body="$body"',
-      );
-
       return NotificationResult.success(block.notificationId);
-    } catch (e, stackTrace) {
-      _logger.error(
-        '[NOTIF-SCHEDULE] ERROR scheduling block ${block.id}',
-        e,
-        stackTrace,
-      );
+    } catch (e, st) {
+      _logger.error('scheduleBlockNotification failed for block ${block.id}', e, st);
       return NotificationResult.failure(e.toString());
     }
   }
 
-  /// Cancel notification for a single block.
+  /// Cancels the notification for [block], including any associated plan
+  /// series one-shots.
   Future<void> cancelBlockNotification(RoutineBlock block) async {
     if (!_isReady) return;
     try {
       await _plugin.cancel(block.notificationId);
-      _logger.info('Cancelled routine notification ID=${block.notificationId}');
-      // Special-plan blocks fan out into N one-shot schedules — cancel those
-      // too so disabling/removing the block stops the whole series.
       final firstItem = block.items.firstOrNull;
-      if (firstItem != null &&
-          firstItem.type == RoutineItemType.plan &&
-          isSpecialPlan(firstItem.id)) {
-        await _cancelSpecialPlanSeriesForPlan(firstItem.id);
+      if (firstItem != null && firstItem.type == RoutineItemType.plan) {
+        if (isSpecialPlan(firstItem.id)) {
+          await _cancelSpecialPlanSeries(firstItem.id);
+        } else {
+          await _cancelPlanDurationSeries(firstItem.id);
+        }
       }
     } catch (e) {
-      _logger.warning(
-        'Failed to cancel notification ${block.notificationId}: $e',
-      );
+      _logger.warning('cancelBlockNotification failed for block ${block.notificationId}: $e');
     }
   }
 
-  /// Synchronize notifications with the current block list.
+  /// Synchronises OS notifications with the current [blocks] list.
   ///
-  /// Schedules active blocks first, then cancels inactive ones — so if the
-  /// app crashes mid-sync, notifications are more likely to remain scheduled.
+  /// Schedules enabled blocks first, then cancels disabled/removed ones so
+  /// that a crash mid-sync leaves notifications in a better state.
   Future<NotificationSyncResult> syncNotifications(
     List<RoutineBlock> blocks,
   ) async {
-    _logger.info('[NOTIF-SYNC] starting sync for ${blocks.length} blocks, _isReady=$_isReady');
-
     if (!_isReady) {
-      _logger.warning('[NOTIF-SYNC] FAILED: NotificationService not initialized');
+      _logger.warning('syncNotifications: service not initialised');
       return const NotificationSyncResult(
         errors: ['Notification service not initialized'],
       );
     }
 
-    int scheduled = 0;
-    int failed = 0;
-    int cancelled = 0;
+    var scheduled = 0;
+    var failed = 0;
+    var cancelled = 0;
     final errors = <String>[];
 
     try {
-      final activeBlocks = blocks
-          .where((b) => b.notificationEnabled && b.items.isNotEmpty)
-          .toList();
-
+      final activeBlocks =
+          blocks.where((b) => b.notificationEnabled && b.items.isNotEmpty).toList();
       final activeIds = <int>{};
+
       for (final block in activeBlocks) {
         activeIds.add(block.notificationId);
         final result = await scheduleBlockNotification(block);
@@ -260,11 +249,10 @@ class RoutineNotificationService {
       }
 
       _logger.info(
-        'Notification sync complete: $scheduled scheduled, '
-        '$cancelled cancelled, $failed failed',
+        'syncNotifications: $scheduled scheduled, $cancelled cancelled, $failed failed',
       );
     } catch (e, st) {
-      _logger.error('Sync failed', e, st);
+      _logger.error('syncNotifications failed', e, st);
       errors.add('Sync error: $e');
     }
 
@@ -276,72 +264,58 @@ class RoutineNotificationService {
     );
   }
 
-  /// Notification ID range reserved for one-shot special-plan immediate fires.
-  /// Sits below the routine-block hash range (1000-999999) and above the
-  /// flutter_local_notifications system reservation (0-99). 800 + dayIndex - 1
-  /// → range 800–807 for an 8-day series.
-  static const int _specialPlanOneShotIdBase = 800;
+  // ─── Special-plan series ──────────────────────────────────────────────────
 
-  /// Notification ID range reserved for the daily 09:00 special-plan series.
-  /// Each plan in [kSpecialPlanNotifications] gets a contiguous slot of
-  /// [_specialPlanSeriesSlotSize] IDs starting at this base. ITCC (slot 0)
-  /// → 810..817. Future plans can claim slot 1 (820..827) etc.
+  // Notification ID allocation for special plans:
+  //
+  // Immediate one-shots: 800 + (dayIndex - 1)  → range 800–807 for 8-day series.
+  // Daily scheduled:     810 + slot * 10 + (dayIndex - 1)
+  //                      slot = position of planId in kSpecialPlanNotifications.keys
+  //                      ITCC (slot 0) → 810..817; next plan (slot 1) → 820..827; etc.
+  //
+  // Using a fixed slot per plan keeps IDs stable when new plans are added.
+  static const int _specialPlanOneShotIdBase = 800;
   static const int _specialPlanSeriesIdBase = 810;
   static const int _specialPlanSeriesSlotSize = 10;
 
-  /// Returns a stable notification ID for [planId] day [dayIndex] (1-based).
-  /// Each special plan owns a 10-ID slot; the position inside [kSpecialPlanNotifications.keys]
-  /// determines the slot, so adding a new plan does not perturb existing IDs.
   int _specialPlanSeriesNotifId(String planId, int dayIndex) {
-    final keys = kSpecialPlanNotifications.keys.toList();
-    final slot = keys.indexOf(planId);
-    if (slot < 0) {
-      throw ArgumentError('Plan $planId is not in kSpecialPlanNotifications');
-    }
-    return _specialPlanSeriesIdBase +
-        (slot * _specialPlanSeriesSlotSize) +
-        (dayIndex - 1);
+    final slot = kSpecialPlanNotifications.keys.toList().indexOf(planId);
+    if (slot < 0) throw ArgumentError('$planId is not a special plan');
+    return _specialPlanSeriesIdBase + (slot * _specialPlanSeriesSlotSize) + (dayIndex - 1);
   }
 
-  /// Cancels every reserved one-shot ID for [planId]'s series (both immediate
-  /// 800-range and daily 810+-range). Used when the block is disabled or the
-  /// user logs out.
-  Future<void> _cancelSpecialPlanSeriesForPlan(String planId) async {
+  Future<void> _cancelSpecialPlanSeries(String planId) async {
     final entries = kSpecialPlanNotifications[planId];
     if (entries == null) return;
-    _logger.info('[SP-SERIES] cancel series for planId=$planId days=${entries.length}');
     for (var day = 1; day <= entries.length; day++) {
       await _plugin.cancel(_specialPlanSeriesNotifId(planId, day));
       await _plugin.cancel(_specialPlanOneShotIdBase + (day - 1));
     }
   }
 
-  /// Cancels every special-plan schedule across every plan. Called on logout
-  /// so a different user signing in does not inherit pending notifications.
+  /// Cancels all scheduled special-plan notifications across every plan.
+  /// Call on logout so a signing-in user does not inherit another's schedules.
   Future<void> cancelAllSpecialPlanSchedules() async {
-    _logger.info(
-      '[SP-SERIES] cancelAllSpecialPlanSchedules — '
-      '${kSpecialPlanNotifications.length} plan(s)',
-    );
     if (!_isReady) return;
     for (final planId in kSpecialPlanNotifications.keys) {
-      await _cancelSpecialPlanSeriesForPlan(planId);
+      await _cancelSpecialPlanSeries(planId);
     }
+    _logger.info('Cancelled all special-plan schedules');
   }
 
-  /// Reschedules the full N-day special-plan series for [planId] using the
-  /// server-truth `startedAt` from [SpecialPlanStartedAtStore]. For each day
-  /// 1..N where the 09:00 fire is still in the future, schedules a one-shot
-  /// `zonedSchedule` with that day's title/body/button baked in. Days already
-  /// in the past are skipped (no `matchDateTimeComponents` — these never
-  /// repeat). Always cancels prior series IDs first, so calling repeatedly is
-  /// idempotent.
+  /// Reschedules the full day-N one-shot series for [planId].
   ///
-  /// Required from caller:
-  ///   - cache must already have `startedAt` for [planId] (bootstrap listener
-  ///     or onSpecialPlanEnrolled writes it).
-  ///   - [planTitle] and [planImageUrl] are used for the notification image
-  ///     and large icon — pass values from [UserPlansModel] or [RoutineItem].
+  /// Reads `startedAt` from [SpecialPlanStartedAtStore] (written by
+  /// [onSpecialPlanEnrolled] or the bootstrap). For each future day,
+  /// schedules a `zonedSchedule` with that day's title/body baked in
+  /// (no repeat — each fires exactly once). Past days are skipped.
+  ///
+  /// After scheduling, checks whether today's fire time has already passed
+  /// and fires an immediate catch-up if needed (covers delete + re-enrol
+  /// where `startedAt` is in the past but the series is still active).
+  ///
+  /// Idempotent: cancels prior IDs before rebuilding. Safe to call on every
+  /// app launch or plans-list refresh.
   Future<void> rescheduleSpecialPlanSeries({
     required String planId,
     required String planTitle,
@@ -349,31 +323,22 @@ class RoutineNotificationService {
     int blockHour = kSpecialPlanFireHour,
     int blockMinute = kSpecialPlanFireMinute,
   }) async {
-    _logger.info(
-      '[SP-SERIES] rescheduleSpecialPlanSeries ENTER planId=$planId '
-      'fire=$blockHour:${blockMinute.toString().padLeft(2, '0')} _isReady=$_isReady',
-    );
     if (!_isReady) {
-      _logger.warning('[SP-SERIES] notification service not ready — abort');
+      _logger.warning('rescheduleSpecialPlanSeries: service not ready for $planId');
       return;
     }
     final entries = kSpecialPlanNotifications[planId];
     if (entries == null) {
-      _logger.warning('[SP-SERIES] planId=$planId not a special plan — abort');
+      _logger.warning('rescheduleSpecialPlanSeries: $planId is not a special plan');
       return;
     }
     final startedAt = SpecialPlanStartedAtStore.getStartedAt(planId);
     if (startedAt == null) {
-      _logger.warning(
-        '[SP-SERIES] no cached startedAt for $planId — abort. Bootstrap '
-        'listener should write it before this is called.',
-      );
+      _logger.warning('rescheduleSpecialPlanSeries: no cached startedAt for $planId');
       return;
     }
 
-    // Always wipe prior schedules first so we don't end up with duplicate
-    // fires from a previous (possibly incorrect) series.
-    await _cancelSpecialPlanSeriesForPlan(planId);
+    await _cancelSpecialPlanSeries(planId);
 
     final startedLocal = startedAt.toLocal();
     final pseudoItem = RoutineItem(
@@ -390,32 +355,25 @@ class RoutineNotificationService {
     });
 
     final now = tz.TZDateTime.now(tz.local);
+
+    // Anchor Day 1 to the scheduled time, then add Duration(days:) per day.
+    // Using Duration avoids invalid dates when months/years roll over.
+    final seriesStart = tz.TZDateTime(
+      tz.local,
+      startedLocal.year,
+      startedLocal.month,
+      startedLocal.day,
+      blockHour,
+      blockMinute,
+    );
+
     var scheduledCount = 0;
-    var skippedPast = 0;
-
     for (var day = 1; day <= entries.length; day++) {
-      final fireDate = tz.TZDateTime(
-        tz.local,
-        startedLocal.year,
-        startedLocal.month,
-        startedLocal.day + (day - 1),
-        blockHour,
-        blockMinute,
-      );
-
-      if (!fireDate.isAfter(now)) {
-        _logger.info(
-          '[SP-SERIES] day=$day fire=$fireDate is in the past — skip',
-        );
-        skippedPast++;
-        continue;
-      }
+      final fireDate = seriesStart.add(Duration(days: day - 1));
+      if (!fireDate.isAfter(now)) continue; // past — skip
 
       final dayContent = entries[day - 1];
       final notifId = _specialPlanSeriesNotifId(planId, day);
-
-      // Build a fresh style per day so contentTitle/summaryText carry the
-      // day-N copy (Android style ignores the title/body args otherwise).
       final androidStyle = await _buildBigPictureStyle(
         pseudoItem,
         overrideTitle: dayContent.title,
@@ -438,88 +396,112 @@ class RoutineNotificationService {
           payload: payload,
         );
         scheduledCount++;
-        _logger.info(
-          '[SP-SERIES] scheduled day=$day id=$notifId fires=$fireDate '
-          'title="${dayContent.title}" button="${dayContent.buttonText}"',
-        );
       } catch (e, st) {
-        _logger.error(
-          '[SP-SERIES] failed to schedule day=$day id=$notifId',
-          e,
-          st,
-        );
+        _logger.error('rescheduleSpecialPlanSeries: failed to schedule day=$day for $planId', e, st);
       }
     }
 
     _logger.info(
-      '[SP-SERIES] rescheduleSpecialPlanSeries DONE planId=$planId '
-      'scheduled=$scheduledCount skippedPast=$skippedPast '
-      'totalDays=${entries.length}',
+      'rescheduleSpecialPlanSeries: $planId — $scheduledCount future days scheduled '
+      '(${entries.length - scheduledCount} in the past)',
+    );
+
+    // Immediate catch-up: if today's scheduled fire has already passed and
+    // the notification hasn't been shown yet, fire it now. This covers:
+    //   - Enrol after 09:00 on Day 1.
+    //   - Delete + re-enrol on Day 4 after 09:00.
+    await _fireSpecialPlanCurrentDayIfOverdue(
+      planId: planId,
+      planTitle: planTitle,
+      planImageUrl: planImageUrl,
+      seriesStart: seriesStart,
+      entries: entries,
+      startedLocal: startedLocal,
     );
   }
 
-  /// Fires an immediate (non-scheduled) one-shot notification with Day 1
-  /// content for [planId]. Idempotent: respects [SpecialPlanStartedAtStore]'s
-  /// `wasDay1Shown` flag — calling twice on the same day is a no-op. Requires
-  /// the startedAt to already be cached in the store (caller's responsibility).
+  /// Checks whether today's special-plan notification is overdue and fires
+  /// an immediate if so.
+  Future<void> _fireSpecialPlanCurrentDayIfOverdue({
+    required String planId,
+    required String planTitle,
+    required String? planImageUrl,
+    required tz.TZDateTime seriesStart,
+    required List<DayNotification> entries,
+    required DateTime startedLocal,
+  }) async {
+    final nowLocal = DateTime.now();
+    final today = DateTime(nowLocal.year, nowLocal.month, nowLocal.day);
+    final startedDay = DateTime(
+      startedLocal.year,
+      startedLocal.month,
+      startedLocal.day,
+    );
+    final daysSince = today.difference(startedDay).inDays;
+
+    if (daysSince < 0 || daysSince >= entries.length) return; // outside series
+    if (SpecialPlanStartedAtStore.wasShownOn(planId, today)) return; // already shown
+
+    final todayFireTz = seriesStart.add(Duration(days: daysSince));
+    if (todayFireTz.isAfter(tz.TZDateTime.now(tz.local))) return; // not yet due
+
+    await showSpecialPlanCurrentDayImmediate(
+      planId: planId,
+      planTitle: planTitle,
+      planImageUrl: planImageUrl,
+    );
+  }
+
+  /// Fires an immediate (non-scheduled) notification for whichever day of
+  /// [planId]'s series is current.
   ///
-  /// Returns the notification ID on success, or null when skipped.
-  Future<int?> showSpecialPlanDay1Immediate({
+  /// Handles Day 1 on enrol day AND any later day after delete + re-enrol.
+  /// Idempotent: keyed by today's calendar date — multiple calls on the same
+  /// day are no-ops.
+  ///
+  /// Returns the notification ID, or `null` when skipped or not ready.
+  Future<int?> showSpecialPlanCurrentDayImmediate({
     required String planId,
     required String planTitle,
     required String? planImageUrl,
   }) async {
-    _logger.info(
-      '[SP-DAY1] showSpecialPlanDay1Immediate ENTER planId=$planId '
-      'title="$planTitle" imageUrl=$planImageUrl _isReady=$_isReady',
-    );
-    if (!_isReady) {
-      _logger.warning('[SP-DAY1] FAILED: NotificationService not initialized');
-      return null;
-    }
+    if (!_isReady) return null;
 
     final startedAt = SpecialPlanStartedAtStore.getStartedAt(planId);
-    _logger.info('[SP-DAY1] cached startedAt=$startedAt');
     if (startedAt == null) {
-      _logger.warning('[SP-DAY1] no cached startedAt for $planId — skip');
-      return null;
-    }
-
-    final wasShown = SpecialPlanStartedAtStore.wasDay1Shown(planId, startedAt);
-    _logger.info('[SP-DAY1] wasDay1Shown=$wasShown');
-    if (wasShown) {
-      _logger.info(
-        '[SP-DAY1] day1 already shown for $planId on '
-        '${startedAt.toIso8601String()} — skip (idempotent)',
-      );
+      _logger.warning('showSpecialPlanCurrentDayImmediate: no cached startedAt for $planId');
       return null;
     }
 
     final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+
+    if (SpecialPlanStartedAtStore.wasShownOn(planId, today)) return null;
+
     final dayContent = resolveSpecialPlanNotification(
       planId: planId,
       startedAt: startedAt,
       now: now,
     );
-    if (dayContent == null) {
-      _logger.info('[SP-DAY1] resolveSpecialPlanNotification returned null — skip');
-      return null;
-    }
+    if (dayContent == null) return null;
+
     final dayIndex = specialPlanDayIndex(
       planId: planId,
       startedAt: startedAt,
       now: now,
     );
-    _logger.info('[SP-DAY1] resolved dayIndex=$dayIndex title="${dayContent.title}"');
-    if (dayIndex != 1) {
-      _logger.info('[SP-DAY1] not currently day 1 (resolved=$dayIndex) — skip');
+    if (dayIndex == null) return null;
+
+    // Guard: if permission is not yet granted, _plugin.show() silently no-ops
+    // on Android 13+ and iOS. Do NOT mark wasShownOn in that case — the
+    // HomeScreen will retry after the permission dialog resolves.
+    final hasPermission = await NotificationService().areNotificationsEnabled();
+    if (!hasPermission) {
+      _logger.warning('showSpecialPlanCurrentDayImmediate: no permission — will retry after grant for $planId');
       return null;
     }
 
     try {
-      // Build the same image-rich style as the daily routine notification,
-      // but with the day-N title/body baked into the style (otherwise Android
-      // would render the plan's static title + a generic summary).
       final pseudoItem = RoutineItem(
         id: planId,
         title: planTitle,
@@ -531,65 +513,280 @@ class RoutineNotificationService {
         overrideTitle: dayContent.title,
         overrideBody: dayContent.body,
       );
-      final iosDetails = await _buildIOSNotificationDetails(pseudoItem);
-      final largeIcon = await _getLargeIcon(pseudoItem);
-
-      // dayIndex is non-null here (we early-returned when it was != 1).
-      final notifId = _specialPlanOneShotIdBase + (dayIndex! - 1);
+      final notifId = _specialPlanOneShotIdBase + (dayIndex - 1);
       final payload = jsonEncode({
         'itemId': planId,
         'itemType': RoutineItemType.plan.name,
       });
 
-      _logger.info(
-        '[SP-DAY1] calling _plugin.show id=$notifId title="${dayContent.title}" '
-        'body="${dayContent.body}" button="${dayContent.buttonText}"',
-      );
       await _plugin.show(
         notifId,
         dayContent.title,
         dayContent.body,
         NotificationChannels.routineBlockDetails(
           styleInformation: androidStyle,
-          largeIcon: largeIcon,
-          iOSDetails: iosDetails,
+          largeIcon: await _getLargeIcon(pseudoItem),
+          iOSDetails: await _buildIOSNotificationDetails(pseudoItem),
           androidActionButtonText: dayContent.buttonText,
         ),
         payload: payload,
       );
 
-      await SpecialPlanStartedAtStore.markDay1Shown(planId, startedAt);
-
-      _logger.info(
-        '[SP-DAY1] SUCCESS id=$notifId planId=$planId '
-        'title="${dayContent.title}" markedDay1Shown=true',
-      );
+      await SpecialPlanStartedAtStore.markShownOn(planId, today);
+      _logger.info('showSpecialPlanCurrentDayImmediate: fired day=$dayIndex for $planId id=$notifId');
       return notifId;
     } catch (e, st) {
-      _logger.error('[SP-DAY1] error showing day 1 for $planId', e, st);
+      _logger.error('showSpecialPlanCurrentDayImmediate: failed for $planId', e, st);
       return null;
     }
   }
 
-  /// Cancel all routine block notifications.
+  // ─── General plan duration-based series ──────────────────────────────────
+
+  // Notification ID allocation for general plans:
+  //
+  // Series one-shots: 10,000,000 + (slot * 500) + (dayIndex - 1)
+  //                   slot = planId.hashCode.abs() % 10000
+  //                   Range: 10,000,000 – ~15,004,999
+  // Immediate:        9,000,000 + planId.hashCode.abs() % 10000
+  //
+  // Well above routine-block hashes (1000–999999) and special-plan IDs, so
+  // they never collide.
+  //
+  // iOS allows at most 64 pending scheduled notifications. We cap the lookahead
+  // window at [kPlanSeriesMaxScheduledDays]. The bootstrap re-runs on every app
+  // launch so the window slides forward automatically.
+  static const int kPlanSeriesMaxScheduledDays = 60;
+  static const int kPlanSeriesDefaultHour = 9;
+  static const int _planSeriesIdBase = 10000000;
+  static const int _planSeriesSlotSize = 500;
+  static const int _planOneShotIdBase = 9000000;
+
+  int _planDaySeriesNotifId(String planId, int dayIndex) {
+    final slot = planId.hashCode.abs() % 10000;
+    return _planSeriesIdBase + (slot * _planSeriesSlotSize) + (dayIndex - 1);
+  }
+
+  int _planOneShotNotifId(String planId) =>
+      _planOneShotIdBase + planId.hashCode.abs() % 10000;
+
+  String _planDayBody(String planTitle, int dayNumber, int totalDays) =>
+      'Day $dayNumber of $totalDays — check out $planTitle.';
+
+  Future<void> _cancelPlanDurationSeries(String planId) async {
+    for (var day = 1; day <= kPlanSeriesMaxScheduledDays; day++) {
+      await _plugin.cancel(_planDaySeriesNotifId(planId, day));
+    }
+    await _plugin.cancel(_planOneShotNotifId(planId));
+  }
+
+  /// Cancels all pending duration-series schedules across every enrolled plan.
+  /// Call on logout so a signing-in user does not inherit another's schedules.
+  Future<void> cancelAllPlanDurationSchedules() async {
+    if (!_isReady) return;
+    for (final planId in PlanMetadataStore.getAllPlanIds()) {
+      await _cancelPlanDurationSeries(planId);
+    }
+    _logger.info('Cancelled all general plan duration schedules');
+  }
+
+  /// Reschedules the duration-based one-shot series for [planId].
+  ///
+  /// Reads metadata from [PlanMetadataStore]. For each future day within the
+  /// next [kPlanSeriesMaxScheduledDays], schedules a `zonedSchedule` (no
+  /// repeat — fires exactly once). Past days are skipped. After scheduling,
+  /// fires an immediate catch-up if today's block time has already passed.
+  ///
+  /// Idempotent: cancels prior IDs first. Safe to call on every app launch.
+  Future<void> reschedulePlanDurationSeries({
+    required String planId,
+    required String planTitle,
+    required String? planImageUrl,
+    int blockHour = kPlanSeriesDefaultHour,
+    int blockMinute = 0,
+  }) async {
+    if (!_isReady) {
+      _logger.warning('reschedulePlanDurationSeries: service not ready for $planId');
+      return;
+    }
+    final metadata = PlanMetadataStore.getMetadata(planId);
+    if (metadata == null) {
+      _logger.warning('reschedulePlanDurationSeries: no metadata for $planId');
+      return;
+    }
+
+    await _cancelPlanDurationSeries(planId);
+
+    final startedLocal = metadata.startedAt.toLocal();
+    final nowTz = tz.TZDateTime.now(tz.local);
+    final pseudoItem = RoutineItem(
+      id: planId,
+      title: planTitle,
+      imageUrl: planImageUrl,
+      type: RoutineItemType.plan,
+    );
+    final iosDetails = await _buildIOSNotificationDetails(pseudoItem);
+    final largeIcon = await _getLargeIcon(pseudoItem);
+    final payload = jsonEncode({
+      'itemId': planId,
+      'itemType': RoutineItemType.plan.name,
+    });
+
+    // Anchor Day 1 to the scheduled time, then add Duration(days:) per day.
+    final seriesStart = tz.TZDateTime(
+      tz.local,
+      startedLocal.year,
+      startedLocal.month,
+      startedLocal.day,
+      blockHour,
+      blockMinute,
+    );
+
+    var scheduledCount = 0;
+    for (var day = 1; day <= metadata.totalDays; day++) {
+      final fireDate = seriesStart.add(Duration(days: day - 1));
+      if (!fireDate.isAfter(nowTz)) continue; // past — skip
+      if (scheduledCount >= kPlanSeriesMaxScheduledDays) break;
+
+      final body = _planDayBody(planTitle, day, metadata.totalDays);
+      final androidStyle = await _buildBigPictureStyle(
+        pseudoItem,
+        overrideTitle: planTitle,
+        overrideBody: body,
+      );
+
+      try {
+        await _plugin.zonedSchedule(
+          _planDaySeriesNotifId(planId, day),
+          planTitle,
+          body,
+          fireDate,
+          NotificationChannels.routineBlockDetails(
+            styleInformation: androidStyle,
+            largeIcon: largeIcon,
+            iOSDetails: iosDetails,
+          ),
+          androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+          payload: payload,
+        );
+        scheduledCount++;
+      } catch (e, st) {
+        _logger.error('reschedulePlanDurationSeries: failed day=$day for $planId', e, st);
+      }
+    }
+
+    _logger.info(
+      'reschedulePlanDurationSeries: $planId — $scheduledCount future days scheduled '
+      'of ${metadata.totalDays} total',
+    );
+
+    // Immediate catch-up: fire today's notification if the block time has
+    // already passed and it hasn't been shown yet.
+    final nowLocal = DateTime.now();
+    final today = DateTime(nowLocal.year, nowLocal.month, nowLocal.day);
+    final startedDay = DateTime(startedLocal.year, startedLocal.month, startedLocal.day);
+    final daysSince = today.difference(startedDay).inDays;
+    final todayDayNumber = daysSince + 1;
+
+    if (daysSince >= 0 &&
+        todayDayNumber <= metadata.totalDays &&
+        !PlanMetadataStore.wasImmediateShownOn(planId, today)) {
+      final todayFireTz = seriesStart.add(Duration(days: daysSince));
+      if (!todayFireTz.isAfter(nowTz)) {
+        final id = await showPlanDayImmediate(
+          planId: planId,
+          planTitle: planTitle,
+          planImageUrl: planImageUrl,
+          dayNumber: todayDayNumber,
+          totalDays: metadata.totalDays,
+        );
+        if (id != null) {
+          await PlanMetadataStore.markImmediateShownOn(planId, today);
+          _logger.info('reschedulePlanDurationSeries: fired immediate day=$todayDayNumber for $planId id=$id');
+        }
+      }
+    }
+  }
+
+  /// Fires an immediate (non-scheduled) notification for [planId] at [dayNumber].
+  ///
+  /// Used when today's block time has already passed and the scheduled one-shot
+  /// is in the past. The caller is responsible for idempotency checks before
+  /// calling, and for persisting the shown flag afterwards.
+  ///
+  /// Returns the notification ID on success, or `null` on failure or not ready.
+  Future<int?> showPlanDayImmediate({
+    required String planId,
+    required String planTitle,
+    required String? planImageUrl,
+    required int dayNumber,
+    required int totalDays,
+  }) async {
+    if (!_isReady) return null;
+
+    // Guard: don't mark shown flag if permission isn't granted yet.
+    final hasPermission = await NotificationService().areNotificationsEnabled();
+    if (!hasPermission) {
+      _logger.warning('showPlanDayImmediate: no permission — will retry after grant for $planId');
+      return null;
+    }
+
+    try {
+      final body = _planDayBody(planTitle, dayNumber, totalDays);
+      final pseudoItem = RoutineItem(
+        id: planId,
+        title: planTitle,
+        imageUrl: planImageUrl,
+        type: RoutineItemType.plan,
+      );
+      final androidStyle = await _buildBigPictureStyle(
+        pseudoItem,
+        overrideTitle: planTitle,
+        overrideBody: body,
+      );
+      final notifId = _planOneShotNotifId(planId);
+      final payload = jsonEncode({
+        'itemId': planId,
+        'itemType': RoutineItemType.plan.name,
+      });
+
+      await _plugin.show(
+        notifId,
+        planTitle,
+        body,
+        NotificationChannels.routineBlockDetails(
+          styleInformation: androidStyle,
+          largeIcon: await _getLargeIcon(pseudoItem),
+          iOSDetails: await _buildIOSNotificationDetails(pseudoItem),
+        ),
+        payload: payload,
+      );
+      return notifId;
+    } catch (e, st) {
+      _logger.error('showPlanDayImmediate: failed for $planId', e, st);
+      return null;
+    }
+  }
+
+  // ─── Bulk cancel helpers ──────────────────────────────────────────────────
+
   Future<void> cancelAllBlockNotifications(List<RoutineBlock> blocks) async {
     if (!_isReady) return;
     for (final block in blocks) {
       await cancelBlockNotification(block);
     }
-    _logger.info('Cancelled all routine block notifications');
   }
 
-  /// Cancel a notification by ID directly.
   Future<void> cancelNotificationById(int notificationId) async {
     if (!_isReady) return;
     try {
       await _plugin.cancel(notificationId);
-      _logger.info('Cancelled notification ID=$notificationId');
     } catch (e) {
-      _logger.warning('Failed to cancel notification $notificationId: $e');
+      _logger.warning('cancelNotificationById failed for id=$notificationId: $e');
     }
   }
+
+  // ─── Private helpers ──────────────────────────────────────────────────────
 
   String _getNotificationBody(RoutineBlock block) {
     if (block.items.isEmpty) return 'Check your daily routine';
@@ -600,66 +797,52 @@ class RoutineNotificationService {
     return firstItem;
   }
 
-  /// Builds Android BigPictureStyle for rich image notifications.
+  /// Builds [BigPictureStyleInformation] for Android if an image is available,
+  /// falling back to [BigTextStyleInformation] otherwise.
   ///
-  /// [overrideTitle]/[overrideBody] take precedence over [item]'s defaults —
-  /// pass the special-plan day-N copy here so Android renders that text inside
-  /// the style instead of the plan's static title and a generic summary.
+  /// Pass [overrideTitle]/[overrideBody] for day-N copy on plan blocks so
+  /// Android renders the day-specific text inside the expanded style instead
+  /// of the plan's generic static title.
   Future<StyleInformation> _buildBigPictureStyle(
     RoutineItem? item, {
     String? overrideTitle,
     String? overrideBody,
   }) async {
-    final effectiveTitle = overrideTitle ?? item?.title ?? 'Time for your practice';
-    final effectiveBody = overrideBody ?? item?.title ?? 'Time for your practice';
-    _logger.info(
-      '[SP-STYLE] _buildBigPictureStyle title="$effectiveTitle" '
-      'body="$effectiveBody" imageUrl=${item?.imageUrl}',
-    );
+    final title = overrideTitle ?? item?.title ?? 'Time for your practice';
+    final body = overrideBody ?? item?.title ?? 'Time for your practice';
 
-    if (item == null || item.imageUrl == null || item.imageUrl!.isEmpty) {
-      _logger.info('[SP-STYLE] no image — using BigTextStyle');
-      return BigTextStyleInformation(
-        effectiveBody,
-        htmlFormatBigText: true,
-        contentTitle: effectiveTitle,
-        htmlFormatContentTitle: true,
-      );
-    }
-
-    try {
-      final imagePath = await _downloadAndCacheImage(item.imageUrl!);
-      if (imagePath != null) {
-        _logger.info('[SP-STYLE] using BigPictureStyle imagePath=$imagePath');
-        return BigPictureStyleInformation(
-          FilePathAndroidBitmap(imagePath),
-          largeIcon: await _getLargeIcon(item),
-          contentTitle: effectiveTitle,
-          summaryText: effectiveBody,
-          htmlFormatContentTitle: true,
-          htmlFormatSummaryText: true,
-        );
+    if (item?.imageUrl case final String url when url.isNotEmpty) {
+      try {
+        final imagePath = await _downloadAndCacheImage(url);
+        if (imagePath != null) {
+          return BigPictureStyleInformation(
+            FilePathAndroidBitmap(imagePath),
+            largeIcon: await _getLargeIcon(item),
+            contentTitle: title,
+            summaryText: body,
+            htmlFormatContentTitle: true,
+            htmlFormatSummaryText: true,
+          );
+        }
+      } catch (e) {
+        _logger.warning('_buildBigPictureStyle: image load failed: $e');
       }
-    } catch (e) {
-      _logger.warning('[SP-STYLE] Failed to load image: $e');
     }
 
-    _logger.info('[SP-STYLE] image failed — falling back to BigTextStyle');
     return BigTextStyleInformation(
-      effectiveBody,
+      body,
       htmlFormatBigText: true,
-      contentTitle: effectiveTitle,
+      contentTitle: title,
       htmlFormatContentTitle: true,
     );
   }
 
-  /// Builds iOS notification details with attachments.
   Future<DarwinNotificationDetails> _buildIOSNotificationDetails(
     RoutineItem? item,
   ) async {
-    if (item?.imageUrl != null && item!.imageUrl!.isNotEmpty) {
+    if (item?.imageUrl case final String url when url.isNotEmpty) {
       try {
-        final imagePath = await _downloadAndCacheImage(item.imageUrl!);
+        final imagePath = await _downloadAndCacheImage(url);
         if (imagePath != null) {
           return DarwinNotificationDetails(
             attachments: [DarwinNotificationAttachment(imagePath)],
@@ -670,10 +853,9 @@ class RoutineNotificationService {
           );
         }
       } catch (e) {
-        _logger.warning('Failed to attach image for iOS notification: $e');
+        _logger.warning('_buildIOSNotificationDetails: image attach failed: $e');
       }
     }
-
     return const DarwinNotificationDetails(
       threadIdentifier: 'routine_notifications',
       presentAlert: true,
@@ -682,57 +864,42 @@ class RoutineNotificationService {
     );
   }
 
-  /// Downloads and caches an image URL to local storage.
+  /// Downloads [imageUrl] to a content-addressed temp file and returns its
+  /// path. Returns `null` on any error. Cached by content hash so repeated
+  /// calls for the same URL are cheap.
   Future<String?> _downloadAndCacheImage(String imageUrl) async {
     try {
-      // Generate a safe filename using hash to avoid length issues
-      final imageHash = imageUrl.hashCode.toString();
-      final extension = imageUrl.contains('.jpg') ? '.jpg' :
-                       imageUrl.contains('.png') ? '.png' : '.jpg';
-      final filename = 'notif_$imageHash$extension';
-
-      final directory = await getTemporaryDirectory();
-      final filePath = '${directory.path}/notification_images/$filename';
-
-      // Check if already cached
+      final hash = imageUrl.hashCode.toString();
+      final ext = imageUrl.contains('.png') ? '.png' : '.jpg';
+      final dir = await getTemporaryDirectory();
+      final filePath = '${dir.path}/notification_images/notif_$hash$ext';
       final file = File(filePath);
-      if (await file.exists()) {
-        return filePath;
-      }
 
-      // Create directory if it doesn't exist
+      if (await file.exists()) return filePath;
+
       await file.parent.create(recursive: true);
-
-      // Download the image
       final request = await HttpClient().getUrl(Uri.parse(imageUrl));
       final response = await request.close();
-
       if (response.statusCode == 200) {
         final bytes = await response.toList();
         await file.writeAsBytes(bytes.expand((b) => b).toList());
         return filePath;
       }
     } catch (e) {
-      _logger.warning('Error downloading image: $e');
+      _logger.warning('_downloadAndCacheImage: failed for $imageUrl: $e');
     }
     return null;
   }
 
-  /// Gets the large icon for Android notification.
   Future<FilePathAndroidBitmap?> _getLargeIcon(RoutineItem? item) async {
-    if (item?.imageUrl == null || item!.imageUrl!.isEmpty) {
-      return null;
-    }
-
-    try {
-      final imagePath = await _downloadAndCacheImage(item.imageUrl!);
-      if (imagePath != null) {
-        return FilePathAndroidBitmap(imagePath);
+    if (item?.imageUrl case final String url when url.isNotEmpty) {
+      try {
+        final path = await _downloadAndCacheImage(url);
+        if (path != null) return FilePathAndroidBitmap(path);
+      } catch (e) {
+        _logger.warning('_getLargeIcon: failed: $e');
       }
-    } catch (e) {
-      _logger.warning('Failed to load large icon: $e');
     }
-
     return null;
   }
 }
