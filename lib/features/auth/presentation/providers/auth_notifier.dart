@@ -17,6 +17,7 @@ import 'package:flutter_pecha/features/auth/domain/usecases/initialize_auth_usec
 import 'package:flutter_pecha/features/auth/domain/usecases/is_guest_mode_usecase.dart';
 import 'package:flutter_pecha/features/auth/domain/usecases/login_usecase.dart';
 import 'package:flutter_pecha/features/auth/domain/usecases/logout_usecase.dart';
+import 'package:flutter_pecha/core/config/router/pending_route_provider.dart';
 import 'package:flutter_pecha/features/onboarding/presentation/providers/onboarding_datasource_providers.dart';
 import 'package:flutter_pecha/shared/domain/base_classes/usecase.dart';
 import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
@@ -326,6 +327,9 @@ class AuthNotifier extends StateNotifier<AuthState> {
     await ref
         .read(localStorageServiceProvider)
         .remove(StorageKeys.currentUserId);
+
+    // Clear any pending deep-link route so a stale destination doesn't survive logout.
+    ref.read(pendingRouteProvider.notifier).state = null;
 
     // Clear notification caches so a different user signing in does not
     // inherit the prior user's day index or "already shown" flags.
