@@ -969,6 +969,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String plan_starts_on(String date) {
-    return 'Starts $date!';
+    return 'Starts $date';
   }
 }

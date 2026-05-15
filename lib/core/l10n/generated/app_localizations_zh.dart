@@ -954,6 +954,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String plan_starts_on(String date) {
-    return '開始於 $date！';
+    return '開始於 $date';
   }
 }
