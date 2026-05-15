@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_pecha/core/widgets/error_state_widget.dart';
-import 'package:flutter_pecha/core/error/failures.dart';
 import 'package:flutter_pecha/features/texts/data/models/text/reader_response.dart';
 import 'package:flutter_pecha/features/texts/data/models/search/segment_match.dart';
 import 'package:flutter_pecha/features/texts/presentation/providers/texts_provider.dart';
-import 'package:fpdart/fpdart.dart';
 
 class TextSearchDelegate extends SearchDelegate<String?> {
   final ReaderResponse allContent;

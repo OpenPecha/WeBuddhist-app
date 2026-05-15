@@ -40,6 +40,7 @@ class PlansModel {
   final List<String>? tags;
   final AuthorDtoModel? author;
   final DateTime? startDate;
+  final int? displayOrder;
 
   PlansModel({
     required this.id,
@@ -52,6 +53,7 @@ class PlansModel {
     this.tags,
     this.author,
     this.startDate,
+    this.displayOrder,
   });
 
   /// Backward compatibility getter - returns medium image or original as fallback
@@ -100,6 +102,7 @@ class PlansModel {
             json['start_date'] != null
                 ? DateTime.tryParse(json['start_date'] as String)
                 : null,
+        displayOrder: json['display_order'] as int?,
         // TEMP TEST — remove before merging
         // startDate: _testStartDate(),
       );
@@ -107,12 +110,6 @@ class PlansModel {
       _logger.error('Error in PlansModel.fromJson', e);
       throw Exception('Failed to load plans: $e');
     }
-  }
-
-  // TEMP TEST — remove before merging
-  static DateTime _testStartDate() {
-    final now = DateTime.now();
-    return DateTime(now.year, now.month, now.day - 5);
   }
 
   Map<String, dynamic> toJson() {
@@ -126,6 +123,7 @@ class PlansModel {
       'total_days': totalDays ?? 0,
       'tags': tags,
       'start_date': startDate?.toIso8601String(),
+      'display_order': displayOrder,
     };
   }
 
@@ -140,6 +138,7 @@ class PlansModel {
     int? totalDays,
     List<String>? tags,
     DateTime? startDate,
+    int? displayOrder,
   }) {
     return PlansModel(
       id: id ?? this.id,
@@ -152,6 +151,7 @@ class PlansModel {
       tags: tags ?? this.tags,
       author: author,
       startDate: startDate ?? this.startDate,
+      displayOrder: displayOrder ?? this.displayOrder,
     );
   }
 
@@ -202,6 +202,7 @@ class PlansModel {
       weekPlans: const [], // Will be populated by separate call if needed
       language: language,
       startDate: startDate,
+      displayOrder: displayOrder,
     );
   }
 
@@ -248,6 +249,7 @@ class PlansModel {
                 lastName: '',
               )
               : null,
+      displayOrder: entity.displayOrder,
     );
   }
 }
