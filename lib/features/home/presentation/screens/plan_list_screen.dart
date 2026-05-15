@@ -260,13 +260,6 @@ class _FeaturedPlanCard extends ConsumerWidget {
                                     ).format(plan.startDate!.toLocal()),
                                   ),
                         ),
-                        if (!isEnrolled) ...[
-                          const SizedBox(width: 8),
-                          _EnrollButton(
-                            label: context.l10n.plan_enroll,
-                            onTap: () => _handleEnroll(context, ref, plan),
-                          ),
-                        ],
                       ],
                     ),
                   ],
@@ -352,12 +345,7 @@ class _PlanListItem extends ConsumerWidget {
                       else
                         const SizedBox.shrink(),
                       if (isEnrolled)
-                        _EnrolledBadge(label: context.l10n.plan_enrolled)
-                      else
-                        _EnrollButton(
-                          label: context.l10n.plan_enroll,
-                          onTap: () => _handleEnroll(context, ref, plan),
-                        ),
+                        _EnrolledBadge(label: context.l10n.plan_enrolled),
                     ],
                   ),
                 ],
@@ -513,14 +501,6 @@ bool _showFeaturedChipRow(bool isEnrolled, bool isFlexible, Plan plan) {
   return DateTime.now().isBefore(plan.startDate!);
 }
 
-void _handleEnroll(BuildContext context, WidgetRef ref, Plan plan) {
-  final isGuest = ref.read(authProvider).isGuest;
-  if (isGuest) {
-    LoginDrawer.show(context, ref);
-    return;
-  }
-  context.push(AppRoutes.practicePlanPreview, extra: {'plan': plan});
-}
 
 class _EnrollButton extends StatelessWidget {
   final String label;

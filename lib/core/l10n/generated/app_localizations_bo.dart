@@ -969,6 +969,6 @@ class AppLocalizationsBo extends AppLocalizations {
 
   @override
   String plan_starts_on(String date) {
-    return 'འགོ་འཛུགས། $date!';
+    return 'འགོ་འཛུགས། $date';
   }
 }
