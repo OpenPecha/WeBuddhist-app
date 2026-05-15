@@ -346,6 +346,12 @@ abstract class AppLocalizations {
   /// **'Connect'**
   String get nav_connect;
 
+  /// No description provided for @nav_me.
+  ///
+  /// In en, this message translates to:
+  /// **'Me'**
+  String get nav_me;
+
   /// No description provided for @text_browseTheLibrary.
   ///
   /// In en, this message translates to:

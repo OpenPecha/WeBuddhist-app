@@ -136,6 +136,9 @@ class AppLocalizationsBo extends AppLocalizations {
   String get nav_connect => ' མཐུད།';
 
   @override
+  String get nav_me => 'ང།';
+
+  @override
   String get text_browseTheLibrary => 'དཀར་ཆག';
 
   @override
