@@ -252,25 +252,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             context,
           ).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
         ),
-        actions: [
-          GestureDetector(
-            onTap: () {
-              context.pushNamed('home-settings');
-            },
-            child: Padding(
-              padding: const EdgeInsets.only(right: 16.0),
-              child: CircleAvatar(
-                backgroundColor: Theme.of(context).cardColor,
-                radius: 20,
-                child: Icon(
-                  PhosphorIconsFill.userCircle,
-                  size: 26,
-                  color: const Color(0xFF7E7683),
-                ),
-              ),
-            ),
-          ),
-        ],
       ),
       body: SafeArea(
         child: Stack(
