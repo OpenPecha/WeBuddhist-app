@@ -46,7 +46,7 @@ class AuthService {
       }
 
       final credentials = await _auth0
-          .webAuthentication(scheme: 'org.pecha.app')
+          .webAuthentication(scheme: ConfigService.instance.auth0Scheme ?? 'org.pecha.app')
           .login(
             useHTTPS: defaultTargetPlatform != TargetPlatform.macOS,
             parameters: parameters,
@@ -103,7 +103,7 @@ class AuthService {
   Future<void> globalLogout() async {
     try {
       await _auth0
-          .webAuthentication(scheme: 'org.pecha.app')
+          .webAuthentication(scheme: ConfigService.instance.auth0Scheme ?? 'org.pecha.app')
           .logout(useHTTPS: defaultTargetPlatform != TargetPlatform.macOS);
       await _auth0.credentialsManager.clearCredentials();
       _logger.info('Global logout successful');

@@ -10,6 +10,7 @@ class ConfigService {
   String? auth0Domain;
   String? auth0ClientId;
   String? auth0Audience;
+  String? auth0Scheme;
 
   bool _isLoaded = false;
 
@@ -19,6 +20,7 @@ class ConfigService {
     if (baseUrl == null) {
       throw Exception('BASE_API_URL not set in .env');
     }
+    auth0Scheme = dotenv.env['AUTH0_SCHEME'];
     final response = await http.get(Uri.parse('$baseUrl/props'));
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
