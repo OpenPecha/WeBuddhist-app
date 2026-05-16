@@ -1,3 +1,4 @@
+import 'package:flutter_pecha/core/config/app_feature_flags.dart';
 import 'package:flutter_pecha/core/storage/plan_metadata_store.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/features/notifications/data/services/routine_notification_service.dart';
@@ -42,6 +43,16 @@ Future<void> tryFirePendingPlanDayNotifications(
   Iterable<UserPlansModel> plans,
   List<RoutineBlock> routineBlocks,
 ) async {
+  // Feature flag gate: when general-plan notifications are disabled we
+  // never fire today's catch-up immediate either. Special plans are
+  // handled by `tryFirePendingSpecialPlanNotifications` and are unaffected.
+  if (!AppFeatureFlags.kSchedulePlanNotifications) {
+    _logger.info(
+      'tryFirePendingPlanDayNotifications: skipped — kSchedulePlanNotifications=false',
+    );
+    return;
+  }
+
   final now = DateTime.now();
   final today = DateTime(now.year, now.month, now.day);
   var firedCount = 0;

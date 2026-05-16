@@ -22,7 +22,6 @@ import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:logging/logging.dart';
-import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 final _log = Logger('HomeScreen');
 
@@ -214,6 +213,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       return 'assets/images/tag_cover/loneliness.jpg';
     } else if (tagLower == 'chanting the abhidhamma') {
       return 'assets/images/tag_cover/chanting_the_abhidhanma.png';
+    } else if (tagLower == 'daily tipitaka') {
+      return 'assets/images/tag_cover/chanting_the_abhidhanma.png';
     } else {
       return 'assets/images/tag_cover/cover_image.jpg';
     }
@@ -252,25 +253,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             context,
           ).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
         ),
-        actions: [
-          GestureDetector(
-            onTap: () {
-              context.pushNamed('home-settings');
-            },
-            child: Padding(
-              padding: const EdgeInsets.only(right: 16.0),
-              child: CircleAvatar(
-                backgroundColor: Theme.of(context).cardColor,
-                radius: 20,
-                child: Icon(
-                  PhosphorIconsFill.userCircle,
-                  size: 26,
-                  color: const Color(0xFF7E7683),
-                ),
-              ),
-            ),
-          ),
-        ],
       ),
       body: SafeArea(
         child: Stack(

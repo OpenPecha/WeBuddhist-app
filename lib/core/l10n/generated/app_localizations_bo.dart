@@ -136,6 +136,9 @@ class AppLocalizationsBo extends AppLocalizations {
   String get nav_connect => ' མཐུད།';
 
   @override
+  String get nav_me => 'ང།';
+
+  @override
   String get text_browseTheLibrary => 'དཀར་ཆག';
 
   @override
@@ -966,6 +969,6 @@ class AppLocalizationsBo extends AppLocalizations {
 
   @override
   String plan_starts_on(String date) {
-    return 'འགོ་འཛུགས། $date!';
+    return 'འགོ་འཛུགས། $date';
   }
 }
