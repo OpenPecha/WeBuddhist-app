@@ -213,6 +213,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       return 'assets/images/tag_cover/loneliness.jpg';
     } else if (tagLower == 'chanting the abhidhamma') {
       return 'assets/images/tag_cover/chanting_the_abhidhanma.png';
+    } else if (tagLower == 'daily tipitaka') {
+      return 'assets/images/tag_cover/chanting_the_abhidhanma.png';
     } else {
       return 'assets/images/tag_cover/cover_image.jpg';
     }
