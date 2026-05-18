@@ -66,11 +66,23 @@ class CachedNetworkImageWidget extends StatelessWidget {
         width: width,
         height: height,
         fit: fit,
+        fadeInDuration: fadeInDuration ?? const Duration(milliseconds: 200),
+        placeholderFadeInDuration: placeholderFadeInDuration ?? Duration.zero,
         placeholder:
             placeholder != null
                 ? (context, url) => placeholder!
-                : (context, url) =>
-                    const Center(child: CircularProgressIndicator()),
+                : (context, url) => Container(
+                    width: width,
+                    height: height,
+                    color: Colors.grey.shade200,
+                    child: const Center(
+                      child: SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      ),
+                    ),
+                  ),
         errorWidget:
             errorWidget != null
                 ? (context, url, error) => errorWidget!

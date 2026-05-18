@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
 import 'package:flutter_pecha/core/config/router/app_routes.dart';
@@ -145,6 +146,8 @@ class PlanListScreen extends ConsumerWidget {
             delegate: SliverChildBuilderDelegate(
               (context, index) => _PlanListItem(plan: sorted[index + 1]),
               childCount: sorted.length - 1,
+              addAutomaticKeepAlives: false,
+              addRepaintBoundaries: true,
             ),
           ),
         ),
@@ -154,13 +157,31 @@ class PlanListScreen extends ConsumerWidget {
   }
 }
 
-class _FeaturedPlanCard extends ConsumerWidget {
+class _FeaturedPlanCard extends ConsumerStatefulWidget {
   final Plan plan;
 
   const _FeaturedPlanCard({required this.plan});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<_FeaturedPlanCard> createState() => _FeaturedPlanCardState();
+}
+
+class _FeaturedPlanCardState extends ConsumerState<_FeaturedPlanCard> {
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (widget.plan.coverImageUrl != null &&
+        widget.plan.coverImageUrl!.isNotEmpty) {
+      precacheImage(
+        CachedNetworkImageProvider(widget.plan.coverImageUrl!),
+        context,
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final plan = widget.plan;
     final locale = ref.watch(localeProvider);
     final lineHeight = getLineHeight(locale.languageCode);
     final titleFontSize = locale.languageCode == 'bo' ? 22.0 : 18.0;
@@ -280,13 +301,31 @@ class _FeaturedPlanCard extends ConsumerWidget {
   }
 }
 
-class _PlanListItem extends ConsumerWidget {
+class _PlanListItem extends ConsumerStatefulWidget {
   final Plan plan;
 
   const _PlanListItem({required this.plan});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<_PlanListItem> createState() => _PlanListItemState();
+}
+
+class _PlanListItemState extends ConsumerState<_PlanListItem> {
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (widget.plan.coverImageUrl != null &&
+        widget.plan.coverImageUrl!.isNotEmpty) {
+      precacheImage(
+        CachedNetworkImageProvider(widget.plan.coverImageUrl!),
+        context,
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final plan = widget.plan;
     final locale = ref.watch(localeProvider);
     final lineHeight = getLineHeight(locale.languageCode);
     final titleFontSize = locale.languageCode == 'bo' ? 18.0 : 16.0;
