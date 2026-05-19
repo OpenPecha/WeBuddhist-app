@@ -105,8 +105,7 @@ class _SwipeNavigationWrapperState
     if (_isNavigating) return;
 
     if (direction == SwipeDirection.next) {
-      completeCurrentPlanSubtask(ref, currentContext);
-      invalidatePlanProviders(ref, currentContext);
+      ref.read(planSubtaskCompletionProvider).completeCurrent(currentContext);
     }
 
     // Clear UI state before navigation for clean transition
@@ -122,15 +121,16 @@ class _SwipeNavigationWrapperState
     if (!didNavigate) return;
 
     _isNavigating = true;
-    Future.delayed(const Duration(milliseconds: 500), () {
-      if (mounted) _isNavigating = false;
-    });
   }
 
-  void _finishReading() {
+  void _finishReading() async {
+    if (_isNavigating) return;
+    _isNavigating = true;
+
     final navContext = widget.params.navigationContext;
-    completeCurrentPlanSubtask(ref, navContext);
-    invalidatePlanProviders(ref, navContext);
-    if (mounted) context.pop();
+    await ref.read(planSubtaskCompletionProvider).completeCurrent(navContext);
+
+    if (!mounted) return;
+    context.pop();
   }
 }

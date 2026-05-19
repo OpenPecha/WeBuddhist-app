@@ -456,9 +456,13 @@ class TextsRepository {
         }
       }
 
-      // If offline and no cache, return network failure
+      // Connectivity service may produce false-negatives (e.g. DNS to
+      // google.com blocked). If we have no cache, attempt the request anyway —
+      // a real network error will be caught below and surfaced then.
       if (!isOnline) {
-        return const Left(NetworkFailure('No internet connection and no cached text content available'));
+        _logger.debug(
+          'isOnline=false but no cache for $textId — attempting network as fallback',
+        );
       }
 
       // Cache miss or force refresh - fetch from network

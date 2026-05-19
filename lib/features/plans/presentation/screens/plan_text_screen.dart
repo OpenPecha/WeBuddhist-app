@@ -181,8 +181,9 @@ class _PlanTextScreenState extends ConsumerState<PlanTextScreen> {
     if (_isNavigating) return;
 
     if (direction == SwipeDirection.next) {
-      completeCurrentPlanSubtask(ref, widget.navigationContext);
-      invalidatePlanProviders(ref, widget.navigationContext);
+      ref
+          .read(planSubtaskCompletionProvider)
+          .completeCurrent(widget.navigationContext);
     }
 
     final didNavigate = PlanNavigator.navigateAdjacent(
@@ -195,19 +196,17 @@ class _PlanTextScreenState extends ConsumerState<PlanTextScreen> {
     setState(() {
       _isNavigating = true;
     });
-
-    Future.delayed(const Duration(milliseconds: 500), () {
-      if (mounted) {
-        setState(() {
-          _isNavigating = false;
-        });
-      }
-    });
   }
 
-  void _finish() {
-    completeCurrentPlanSubtask(ref, widget.navigationContext);
-    invalidatePlanProviders(ref, widget.navigationContext);
-    if (context.mounted) context.pop();
+  void _finish() async {
+    if (_isNavigating) return;
+    setState(() => _isNavigating = true);
+
+    await ref
+        .read(planSubtaskCompletionProvider)
+        .completeCurrent(widget.navigationContext);
+
+    if (!mounted) return;
+    context.pop();
   }
 }
