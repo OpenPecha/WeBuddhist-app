@@ -118,7 +118,11 @@ class _SwipeNavigationWrapperState
       currentContext,
       direction,
     );
-    if (!didNavigate) return;
+    if (!didNavigate) {
+      // A forward swipe past the last task exits the sequence.
+      if (direction == SwipeDirection.next) _finishReading();
+      return;
+    }
 
     _isNavigating = true;
   }

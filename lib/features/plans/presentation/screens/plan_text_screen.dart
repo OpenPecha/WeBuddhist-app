@@ -191,7 +191,11 @@ class _PlanTextScreenState extends ConsumerState<PlanTextScreen> {
       widget.navigationContext,
       direction,
     );
-    if (!didNavigate) return;
+    if (!didNavigate) {
+      // A forward swipe past the last task exits the sequence.
+      if (direction == SwipeDirection.next) _finish();
+      return;
+    }
 
     setState(() {
       _isNavigating = true;
