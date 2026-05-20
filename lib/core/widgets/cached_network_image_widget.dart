@@ -10,6 +10,14 @@ bool _isNetworkUrl(String url) {
       (uri.scheme == 'http' || uri.scheme == 'https');
 }
 
+/// Converts a logical dimension to physical pixels for cache sizing. Returns
+/// null when the dimension is null, non-finite (e.g. `double.infinity`), or
+/// non-positive — in those cases the framework should decode at natural size.
+int? _toCachePx(double? logical, double dpr) {
+  if (logical == null || !logical.isFinite || logical <= 0) return null;
+  return (logical * dpr).round();
+}
+
 /// Strips the query string and fragment so presigned URLs (e.g. S3 with
 /// rotating signatures) resolve to the same cache entry across sessions.
 String _stableCacheKey(String url) {
@@ -104,10 +112,8 @@ class _CachedNetworkImageWidgetState extends State<CachedNetworkImageWidget> {
       }
     } else if (url != null && _isNetworkUrl(url)) {
       final dpr = MediaQuery.of(context).devicePixelRatio;
-      final memW = widget.memCacheWidth ??
-          (widget.width != null ? (widget.width! * dpr).round() : null);
-      final memH = widget.memCacheHeight ??
-          (widget.height != null ? (widget.height! * dpr).round() : null);
+      final memW = widget.memCacheWidth ?? _toCachePx(widget.width, dpr);
+      final memH = widget.memCacheHeight ?? _toCachePx(widget.height, dpr);
 
       imageWidget = CachedNetworkImage(
         imageUrl: url,

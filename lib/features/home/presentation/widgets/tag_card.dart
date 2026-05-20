@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
+import 'package:flutter_pecha/core/widgets/cached_network_image_widget.dart';
 import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -81,29 +82,15 @@ class TagCard extends ConsumerWidget {
   }
 
   Widget _buildBackgroundImage(BuildContext context) {
-    if (imageUrl != null && imageUrl!.isNotEmpty) {
-      if (imageUrl!.startsWith('assets/')) {
-        return Image.asset(
-          imageUrl!,
-          fit: BoxFit.cover,
-          errorBuilder: (context, error, stackTrace) {
-            return _buildPlaceholder(context);
-          },
-        );
-      }
-      return Image.network(
-        imageUrl!,
-        fit: BoxFit.cover,
-        errorBuilder: (context, error, stackTrace) {
-          return _buildPlaceholder(context);
-        },
-        loadingBuilder: (context, child, loadingProgress) {
-          if (loadingProgress == null) return child;
-          return _buildPlaceholder(context);
-        },
-      );
+    if (imageUrl == null || imageUrl!.isEmpty) {
+      return _buildPlaceholder(context);
     }
-    return _buildPlaceholder(context);
+    return CachedNetworkImageWidget(
+      imageUrl: imageUrl,
+      fit: BoxFit.cover,
+      placeholder: _buildPlaceholder(context),
+      errorWidget: _buildPlaceholder(context),
+    );
   }
 
   Widget _buildPlaceholder(BuildContext context) {
