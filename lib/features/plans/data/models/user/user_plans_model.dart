@@ -1,3 +1,5 @@
+import 'package:flutter_pecha/features/plans/data/utils/plan_utils.dart';
+
 class UserPlansModel {
   final String id;
   final String title;
@@ -40,12 +42,7 @@ class UserPlansModel {
       totalDays: json['total_days'] as int,
       tags:
           json['tags'] != null ? List<String>.from(json['tags'] as List) : null,
-      startDate:
-          json['start_date'] != null
-              ? DateTime.tryParse(json['start_date'] as String)
-              : null,
-      // TEMP TEST — remove before merging
-      // startDate: _testStartDate(),
+      startDate: PlanUtils.parseCalendarDate(json['start_date'] as String?),
     );
   }
 

@@ -1,5 +1,6 @@
 import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/features/plans/data/models/author/author_dto_model.dart';
+import 'package:flutter_pecha/features/plans/data/utils/plan_utils.dart';
 import 'package:flutter_pecha/features/plans/domain/entities/plan.dart'
     as domain;
 
@@ -98,13 +99,8 @@ class PlansModel {
                   json['author'] as Map<String, dynamic>,
                 )
                 : null,
-        startDate:
-            json['start_date'] != null
-                ? DateTime.tryParse(json['start_date'] as String)
-                : null,
+        startDate: PlanUtils.parseCalendarDate(json['start_date'] as String?),
         displayOrder: json['display_order'] as int?,
-        // TEMP TEST — remove before merging
-        // startDate: _testStartDate(),
       );
     } catch (e) {
       _logger.error('Error in PlansModel.fromJson', e);

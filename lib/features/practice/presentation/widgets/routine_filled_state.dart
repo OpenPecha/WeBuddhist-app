@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
+import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/features/notifications/data/models/notification_nav.dart';
 import 'package:flutter_pecha/features/plans/data/models/user/user_plans_model.dart';
 import 'package:flutter_pecha/features/plans/presentation/providers/user_plans_provider.dart';
@@ -10,6 +11,8 @@ import 'package:flutter_pecha/features/reader/data/models/navigation_context.dar
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+
+final _logger = AppLogger('RoutineFilledState');
 
 class RoutineFilledState extends ConsumerWidget {
   final RoutineData routineData;
@@ -52,10 +55,17 @@ class RoutineFilledState extends ConsumerWidget {
             return; // plans not loaded yet — wait for next build
           }
           ref.read(pendingNotificationNavProvider.notifier).state = null;
-          final startDate = userPlan.startedAt;
+          final startDate = userPlan.effectiveStartDate;
           final daysSince =
               DateTime.now().difference(DateUtils.dateOnly(startDate)).inDays;
           final selectedDay = (daysSince + 1).clamp(1, userPlan.totalDays);
+          _logger.info(
+            '[ENROLL-NAV] deep-link open ${userPlan.id} '
+            'anchor=${startDate.toIso8601String()} '
+            'startDate=${userPlan.startDate?.toIso8601String()} '
+            'startedAt=${userPlan.startedAt.toIso8601String()} '
+            'selectedDay=$selectedDay/${userPlan.totalDays}',
+          );
           context.push(
             '/practice/details',
             extra: {
@@ -203,10 +213,16 @@ class _RoutineBlockSection extends ConsumerWidget {
 
     final startDate =
         userPlan.startDate ?? item.enrolledAt ?? userPlan.startedAt;
-    debugPrint(':::::::::::::::: $startDate');
     final daysSinceEnrollment =
         DateTime.now().difference(DateUtils.dateOnly(startDate)).inDays;
     final selectedDay = (daysSinceEnrollment + 1).clamp(1, userPlan.totalDays);
+    _logger.info(
+      '[ENROLL-NAV] open plan ${userPlan.id} '
+      'anchor=${startDate.toIso8601String()} '
+      'startDate=${userPlan.startDate?.toIso8601String()} '
+      'startedAt=${userPlan.startedAt.toIso8601String()} '
+      'selectedDay=$selectedDay/${userPlan.totalDays}',
+    );
 
     context.push(
       '/practice/details',

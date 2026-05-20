@@ -331,8 +331,9 @@ class _PlanListItem extends ConsumerWidget {
                       if (isFlexible && !isEnrolled)
                         RoutineItemChip(label: context.l10n.start_now)
                       else if (!isFlexible &&
-                          (!isEnrolled ||
-                              DateTime.now().isBefore(plan.startDate!)))
+                          DateTime.now().isBefore(
+                            DateUtils.dateOnly(plan.startDate!),
+                          ))
                         RoutineItemChip(
                           label: context.l10n.plan_starts_on(
                             DateFormat(
@@ -494,9 +495,14 @@ _EnrolledPlanInfo? _getEnrolledInfo(WidgetRef ref, String planId) {
 }
 
 bool _showFeaturedChipRow(bool isEnrolled, bool isFlexible, Plan plan) {
-  if (!isEnrolled) return true;
-  if (isFlexible) return false;
-  return DateTime.now().isBefore(plan.startDate!);
+  if (isFlexible) {
+    // Flexible plans show "Start now" chip only before enrollment.
+    return !isEnrolled;
+  }
+  // Fixed-date plans show "Starts <date>" only while the plan hasn't
+  // started yet — independent of enrollment status. Once today is on
+  // or after the plan start date, the chip is hidden.
+  return DateTime.now().isBefore(DateUtils.dateOnly(plan.startDate!));
 }
 
 class _EnrolledBadge extends StatelessWidget {
