@@ -1,9 +1,9 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
 import 'package:flutter_pecha/core/config/router/app_routes.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
+import 'package:flutter_pecha/core/widgets/cached_network_image_widget.dart';
 import 'package:flutter_pecha/core/widgets/error_state_widget.dart';
 import 'package:flutter_pecha/core/widgets/skeletons/skeletons.dart';
 import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
@@ -146,8 +146,6 @@ class PlanListScreen extends ConsumerWidget {
             delegate: SliverChildBuilderDelegate(
               (context, index) => _PlanListItem(plan: sorted[index + 1]),
               childCount: sorted.length - 1,
-              addAutomaticKeepAlives: false,
-              addRepaintBoundaries: true,
             ),
           ),
         ),
@@ -157,31 +155,13 @@ class PlanListScreen extends ConsumerWidget {
   }
 }
 
-class _FeaturedPlanCard extends ConsumerStatefulWidget {
+class _FeaturedPlanCard extends ConsumerWidget {
   final Plan plan;
 
   const _FeaturedPlanCard({required this.plan});
 
   @override
-  ConsumerState<_FeaturedPlanCard> createState() => _FeaturedPlanCardState();
-}
-
-class _FeaturedPlanCardState extends ConsumerState<_FeaturedPlanCard> {
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    if (widget.plan.coverImageUrl != null &&
-        widget.plan.coverImageUrl!.isNotEmpty) {
-      precacheImage(
-        CachedNetworkImageProvider(widget.plan.coverImageUrl!),
-        context,
-      );
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final plan = widget.plan;
+  Widget build(BuildContext context, WidgetRef ref) {
     final locale = ref.watch(localeProvider);
     final lineHeight = getLineHeight(locale.languageCode);
     final titleFontSize = locale.languageCode == 'bo' ? 22.0 : 18.0;
@@ -301,31 +281,13 @@ class _FeaturedPlanCardState extends ConsumerState<_FeaturedPlanCard> {
   }
 }
 
-class _PlanListItem extends ConsumerStatefulWidget {
+class _PlanListItem extends ConsumerWidget {
   final Plan plan;
 
   const _PlanListItem({required this.plan});
 
   @override
-  ConsumerState<_PlanListItem> createState() => _PlanListItemState();
-}
-
-class _PlanListItemState extends ConsumerState<_PlanListItem> {
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    if (widget.plan.coverImageUrl != null &&
-        widget.plan.coverImageUrl!.isNotEmpty) {
-      precacheImage(
-        CachedNetworkImageProvider(widget.plan.coverImageUrl!),
-        context,
-      );
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final plan = widget.plan;
+  Widget build(BuildContext context, WidgetRef ref) {
     final locale = ref.watch(localeProvider);
     final lineHeight = getLineHeight(locale.languageCode);
     final titleFontSize = locale.languageCode == 'bo' ? 18.0 : 16.0;
@@ -356,6 +318,8 @@ class _PlanListItemState extends ConsumerState<_PlanListItem> {
                 placeholderIconSize: 24,
                 placeholderAlphaMin: 0.3,
                 placeholderAlphaMax: 0.5,
+                width: 86,
+                height: 86,
               ),
             ),
             const SizedBox(width: 12),
@@ -414,26 +378,28 @@ class _PlanCoverImage extends StatelessWidget {
   final double placeholderIconSize;
   final double placeholderAlphaMin;
   final double placeholderAlphaMax;
+  final double? width;
+  final double? height;
 
   const _PlanCoverImage({
     required this.imageUrl,
     required this.placeholderIconSize,
     required this.placeholderAlphaMin,
     required this.placeholderAlphaMax,
+    this.width,
+    this.height,
   });
 
   @override
   Widget build(BuildContext context) {
     if (imageUrl != null && imageUrl!.isNotEmpty) {
-      return Image.network(
-        imageUrl!,
+      return CachedNetworkImageWidget(
+        imageUrl: imageUrl,
+        width: width,
+        height: height,
         fit: BoxFit.cover,
-        errorBuilder:
-            (context, error, stackTrace) => _buildPlaceholder(context),
-        loadingBuilder: (context, child, loadingProgress) {
-          if (loadingProgress == null) return child;
-          return _buildPlaceholder(context);
-        },
+        placeholder: _buildPlaceholder(context),
+        errorWidget: _buildPlaceholder(context),
       );
     }
     return _buildPlaceholder(context);
