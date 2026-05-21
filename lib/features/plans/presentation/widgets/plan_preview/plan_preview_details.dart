@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
+import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/core/widgets/skeletons/skeletons.dart';
 import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
 import 'package:flutter_pecha/features/auth/presentation/widgets/login_drawer.dart';
+import 'package:flutter_pecha/features/plans/data/utils/plan_utils.dart';
 import 'package:flutter_pecha/features/plans/domain/entities/plan.dart';
 import 'package:flutter_pecha/features/plans/presentation/providers/plan_days_providers.dart';
 import 'package:flutter_pecha/features/plans/data/models/plan_days_model.dart';
@@ -30,8 +32,38 @@ class PlanPreviewDetails extends ConsumerStatefulWidget {
   ConsumerState<PlanPreviewDetails> createState() => _PlanPreviewDetailsState();
 }
 
+final _logger = AppLogger('PlanPreviewDetails');
+
 class _PlanPreviewDetailsState extends ConsumerState<PlanPreviewDetails> {
-  int selectedDay = 1;
+  late int selectedDay;
+
+  @override
+  void initState() {
+    super.initState();
+    selectedDay = _defaultSelectedDay();
+  }
+
+  /// For fixed-date plans that have already started, default the carousel
+  /// to today's plan day so an unenrolled visitor sees they'd be joining
+  /// mid-stream. Before the start date (or for flexible plans without a
+  /// start date), default to Day 1. After the plan has ended, clamp to the
+  /// final day.
+  int _defaultSelectedDay() {
+    final startDate = widget.plan.startDate;
+    if (startDate == null) return 1;
+    final day = PlanUtils.dayNumberFor(
+      startDate,
+      DateTime.now(),
+      widget.plan.totalDays,
+    );
+    final selected = day < 1 ? 1 : day;
+    _logger.info(
+      '[ENROLL-DAY] preview ${widget.plan.id} '
+      'startDate=${startDate.toIso8601String()} '
+      'totalDays=${widget.plan.totalDays} default=$selected',
+    );
+    return selected;
+  }
 
   bool _isPlanInRoutine(RoutineData routineData) {
     return routineData.blocks.any(
