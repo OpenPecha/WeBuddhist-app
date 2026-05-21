@@ -75,11 +75,15 @@ class FeaturedPlanCard extends ConsumerWidget {
     final isGuest = ref.watch(authProvider).isGuest;
     final isEnrolled = !isGuest && _isPlanEnrolled(ref, plan.id);
     final enrolledInfo = isEnrolled ? _getEnrolledInfo(ref, plan.id) : null;
-    final isEnrolledInfoPending = isEnrolled && enrolledInfo == null && myPlansState.isLoading;
+    final isEnrolledInfoPending =
+        isEnrolled && enrolledInfo == null && myPlansState.isLoading;
     final isFlexible = plan.startDate == null;
 
     return InkWell(
-      onTap: isEnrolledInfoPending ? null : () => _navigateToPlan(context, plan, enrolledInfo),
+      onTap:
+          isEnrolledInfoPending
+              ? null
+              : () => _navigateToPlan(context, plan, enrolledInfo),
       borderRadius: BorderRadius.circular(16),
       child: Container(
         height: MediaQuery.of(context).size.height * 0.3,
@@ -195,13 +199,17 @@ class PlanListItem extends ConsumerWidget {
     final isGuest = ref.watch(authProvider).isGuest;
     final isEnrolled = !isGuest && _isPlanEnrolled(ref, plan.id);
     final enrolledInfo = isEnrolled ? _getEnrolledInfo(ref, plan.id) : null;
-    final isEnrolledInfoPending = isEnrolled && enrolledInfo == null && myPlansState.isLoading;
+    final isEnrolledInfoPending =
+        isEnrolled && enrolledInfo == null && myPlansState.isLoading;
     final isFlexible = plan.startDate == null;
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 12.0),
       child: InkWell(
-        onTap: isEnrolledInfoPending ? null : () => _navigateToPlan(context, plan, enrolledInfo),
+        onTap:
+            isEnrolledInfoPending
+                ? null
+                : () => _navigateToPlan(context, plan, enrolledInfo),
         borderRadius: BorderRadius.circular(12),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -423,11 +431,8 @@ _EnrolledPlanInfo? _getEnrolledInfo(WidgetRef ref, String planId) {
   if (routinePlanItem == null) return null;
 
   final myPlansState = ref.watch(myPlansPaginatedProvider);
-  debugPrint('myPlansState:::::: $myPlansState');
-  debugPrint('myPlansState.plans:::::: ${myPlansState.plans}');
   UserPlansModel? userPlan;
   for (final p in myPlansState.plans) {
-    debugPrint('p:::::: $p');
     if (p.id == planId) {
       userPlan = p;
       break;
