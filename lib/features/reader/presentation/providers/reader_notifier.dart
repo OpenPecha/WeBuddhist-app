@@ -492,6 +492,10 @@ class ReaderNotifier extends StateNotifier<ReaderState> {
   /// Reload content
   Future<void> reload() async {
     if (_isDisposed) return;
+    // Clear any cached failures so _initialize hits the network fresh.
+    // textDetailsFutureProvider is not autoDispose, so a prior Left(NetworkFailure)
+    // would otherwise be returned instantly on every retry without touching the network.
+    _ref.invalidate(textDetailsFutureProvider);
     await _initialize();
   }
 

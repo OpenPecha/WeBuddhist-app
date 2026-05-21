@@ -34,6 +34,13 @@ class AuthInterceptor extends Interceptor {
       } else {
         _logger.warning('[AuthInterceptor] No auth token found for ${options.path}');
       }
+    } else if (ProtectedRoutes.isOptional(options.path)) {
+      final token = await _tokenProvider.getToken();
+
+      if (token != null) {
+        options.headers['Authorization'] = 'Bearer $token';
+        _logger.debug('[AuthInterceptor] Added optional auth header for ${options.method} ${options.path}');
+      }
     }
 
     handler.next(options);
