@@ -315,7 +315,7 @@ class _ReminderNote extends StatelessWidget {
         const SizedBox(width: 6),
         Expanded(
           child: Text(
-            'Selected events will be added to your practice with a 7:30 AM daily reminder.',
+            "We'll send you a daily reminder at 7:30 AM.(Change anytime.)",
             style: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w400,

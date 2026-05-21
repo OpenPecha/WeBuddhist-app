@@ -1,5 +1,6 @@
 import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/features/plans/data/models/author/author_dto_model.dart';
+import 'package:flutter_pecha/features/plans/data/models/plan_tag_model.dart';
 import 'package:flutter_pecha/features/plans/domain/entities/plan.dart'
     as domain;
 
@@ -37,9 +38,10 @@ class PlansModel {
   final String? difficultyLevel;
   final ImageModel? image;
   final int? totalDays;
-  final List<String>? tags;
+  final List<PlanTag>? tags;
   final AuthorDtoModel? author;
   final DateTime? startDate;
+  final int? displayOrder;
 
   PlansModel({
     required this.id,
@@ -52,6 +54,7 @@ class PlansModel {
     this.tags,
     this.author,
     this.startDate,
+    this.displayOrder,
   });
 
   /// Backward compatibility getter - returns medium image or original as fallback
@@ -88,7 +91,9 @@ class PlansModel {
         totalDays: json['total_days'] as int?,
         tags:
             json['tags'] != null
-                ? List<String>.from(json['tags'] as List)
+                ? (json['tags'] as List)
+                    .map((t) => PlanTag.fromJson(t as Map<String, dynamic>))
+                    .toList()
                 : null,
         author:
             json['author'] != null
@@ -100,6 +105,7 @@ class PlansModel {
             json['start_date'] != null
                 ? DateTime.tryParse(json['start_date'] as String)
                 : null,
+        displayOrder: json['display_order'] as int?,
         // TEMP TEST — remove before merging
         // startDate: _testStartDate(),
       );
@@ -107,12 +113,6 @@ class PlansModel {
       _logger.error('Error in PlansModel.fromJson', e);
       throw Exception('Failed to load plans: $e');
     }
-  }
-
-  // TEMP TEST — remove before merging
-  static DateTime _testStartDate() {
-    final now = DateTime.now();
-    return DateTime(now.year, now.month, now.day - 5);
   }
 
   Map<String, dynamic> toJson() {
@@ -124,8 +124,9 @@ class PlansModel {
       'difficulty_level': difficultyLevel,
       'image': image?.toJson(),
       'total_days': totalDays ?? 0,
-      'tags': tags,
+      'tags': tags?.map((t) => t.toJson()).toList(),
       'start_date': startDate?.toIso8601String(),
+      'display_order': displayOrder,
     };
   }
 
@@ -138,8 +139,9 @@ class PlansModel {
     String? difficultyLevel,
     ImageModel? image,
     int? totalDays,
-    List<String>? tags,
+    List<PlanTag>? tags,
     DateTime? startDate,
+    int? displayOrder,
   }) {
     return PlansModel(
       id: id ?? this.id,
@@ -152,6 +154,7 @@ class PlansModel {
       tags: tags ?? this.tags,
       author: author,
       startDate: startDate ?? this.startDate,
+      displayOrder: displayOrder ?? this.displayOrder,
     );
   }
 
@@ -198,10 +201,11 @@ class PlansModel {
       coverImageUrl: imageUrl,
       totalDays: totalDays ?? 0,
       difficulty: difficulty,
-      tags: tags ?? [],
+      tags: tags?.map((t) => t.name).toList() ?? [],
       weekPlans: const [], // Will be populated by separate call if needed
       language: language,
       startDate: startDate,
+      displayOrder: displayOrder,
     );
   }
 
@@ -239,7 +243,7 @@ class PlansModel {
               )
               : null,
       totalDays: entity.totalDays,
-      tags: entity.tags,
+      tags: entity.tags.map((name) => PlanTag(id: '', name: name)).toList(),
       author:
           entity.authorId.isNotEmpty
               ? AuthorDtoModel(
@@ -248,6 +252,7 @@ class PlansModel {
                 lastName: '',
               )
               : null,
+      displayOrder: entity.displayOrder,
     );
   }
 }

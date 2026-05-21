@@ -135,6 +135,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get nav_connect => '连接';
 
   @override
+  String get nav_me => '我';
+
+  @override
   String get text_browseTheLibrary => '瀏覽文庫';
 
   @override
@@ -951,6 +954,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String plan_starts_on(String date) {
-    return '開始於 $date！';
+    return '開始於 $date';
   }
 }

@@ -1,4 +1,3 @@
-
 import 'package:flutter_pecha/features/plans/data/models/user/user_plans_model.dart';
 import 'package:flutter_pecha/features/plans/domain/repositories/user_plans_repository.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -66,6 +65,7 @@ class MyPlansNotifier extends StateNotifier<MyPlansState> {
       skip: 0,
       limit: _limit,
     );
+    print('loadInitial result:::::: $result');
 
     result.fold(
       (failure) {
@@ -74,13 +74,9 @@ class MyPlansNotifier extends StateNotifier<MyPlansState> {
         }
       },
       (response) {
-        // Sort plans by startedAt in descending order (latest first)
-        final sortedPlans = List<UserPlansModel>.from(response.userPlans)
-          ..sort((a, b) => b.startedAt.compareTo(a.startedAt));
-
         if (mounted) {
           state = state.copyWith(
-            plans: sortedPlans,
+            plans: response.userPlans,
             isLoading: false,
             hasMore: response.userPlans.length >= _limit,
             skip: response.userPlans.length,
@@ -163,12 +159,9 @@ class MyPlansNotifier extends StateNotifier<MyPlansState> {
         }
       },
       (response) {
-        final sortedPlans = List<UserPlansModel>.from(response.userPlans)
-          ..sort((a, b) => b.startedAt.compareTo(a.startedAt));
-
         if (mounted) {
           state = state.copyWith(
-            plans: sortedPlans,
+            plans: response.userPlans,
             isLoading: false,
             hasMore: response.userPlans.length >= _limit,
             skip: response.userPlans.length,

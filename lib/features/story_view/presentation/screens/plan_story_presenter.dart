@@ -44,6 +44,7 @@ class _PlanStoryPresenterState extends ConsumerState<PlanStoryPresenter> {
   final Set<String> _completedSubtaskIds = {};
   final Set<String> _pendingSubtaskIds = {};
   int? _lastTrackedIndex;
+  int _currentStoryIndex = 0;
 
   // Loading state management
   bool _isFirstItemReady = false;
@@ -202,6 +203,9 @@ class _PlanStoryPresenterState extends ConsumerState<PlanStoryPresenter> {
     // Guard: Check if disposing
     if (_isDisposing) return;
 
+    // Track current story index
+    _currentStoryIndex = storyIndex;
+
     // Cancel previous debounce timer
     _debounceTimer?.cancel();
 
@@ -340,6 +344,14 @@ class _PlanStoryPresenterState extends ConsumerState<PlanStoryPresenter> {
           },
           onCompleted: () async {
             if (!_isDisposing && mounted) {
+              // Mark the final subtask as complete before exiting
+              final subtaskId = _storyIndexToSubtaskId[_currentStoryIndex];
+              if (subtaskId != null &&
+                  !_completedSubtaskIds.contains(subtaskId) &&
+                  !_pendingSubtaskIds.contains(subtaskId)) {
+                await _markSubtaskComplete(subtaskId);
+              }
+              
               _invalidateProviderIfNeeded();
               context.pop();
             }
