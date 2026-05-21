@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/config/router/app_routes.dart';
+import 'package:flutter_pecha/core/config/router/page_transitions.dart';
 import 'package:flutter_pecha/core/config/router/route_guard.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/features/ai/presentation/screens/ai_mode_screen.dart';
@@ -9,8 +10,10 @@ import 'package:flutter_pecha/core/config/router/pending_route_provider.dart';
 import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
 import 'package:flutter_pecha/features/auth/presentation/screens/login_page.dart';
 import 'package:flutter_pecha/features/auth/presentation/screens/splash_screen.dart';
+import 'package:flutter_pecha/features/home/domain/entities/series.dart';
 import 'package:flutter_pecha/features/home/presentation/screens/main_navigation_screen.dart';
 import 'package:flutter_pecha/features/home/presentation/screens/plan_list_screen.dart';
+import 'package:flutter_pecha/features/home/presentation/screens/series_detail_screen.dart';
 import 'package:flutter_pecha/features/more/presentation/more_screen.dart';
 import 'package:flutter_pecha/features/onboarding/presentation/providers/onboarding_datasource_providers.dart';
 import 'package:flutter_pecha/features/onboarding/presentation/screens/onboarding_wrapper.dart';
@@ -118,6 +121,19 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                 },
               ),
             ],
+          ),
+          GoRoute(
+            path: "series/:id", // route - /home/series/:id
+            name: "home-series-detail",
+            builder: (context, state) {
+              final id = state.pathParameters['id'] ?? '';
+              final extra = state.extra as Map<String, dynamic>?;
+              final initialSeries = extra?['series'] as Series?;
+              return SeriesDetailScreen(
+                seriesId: id,
+                initialSeries: initialSeries,
+              );
+            },
           ),
           // settings route
           GoRoute(
@@ -299,15 +315,28 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: "/plan-text/:subtaskId",
         name: "plan-text",
-        builder: (context, state) {
+        pageBuilder: (context, state) {
           final extra = state.extra;
           if (extra is! NavigationContext) {
             _logger.warning(
               'plan-text route called without NavigationContext extra',
             );
-            return const MainNavigationScreen();
+            return const MaterialPage(child: MainNavigationScreen());
           }
-          return PlanTextScreen(navigationContext: extra);
+          
+          return CustomTransitionPage(
+            key: state.pageKey,
+            child: PlanTextScreen(navigationContext: extra),
+            transitionsBuilder: (context, animation, secondaryAnimation, child) {
+              return buildPlanNavigationTransition(
+                context,
+                animation,
+                secondaryAnimation,
+                child,
+                extra.navigationDirection,
+              );
+            },
+          );
         },
       ),
 
@@ -315,7 +344,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: "/reader/:textId",
         name: "reader",
-        builder: (context, state) {
+        pageBuilder: (context, state) {
           final textId = state.pathParameters['textId'] ?? '';
           final extra = state.extra;
           String? segmentId;
@@ -349,10 +378,35 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             );
           }
 
-          return ReaderScreen(
+          final screen = ReaderScreen(
             textId: textId,
             navigationContext: navigationContext,
             segmentId: segmentId,
+          );
+
+          // Use directional transition for plan navigation
+          if (navigationContext != null && 
+              navigationContext.source == NavigationSource.plan) {
+            final direction = navigationContext.navigationDirection;
+            return CustomTransitionPage(
+              key: state.pageKey,
+              child: screen,
+              transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                return buildPlanNavigationTransition(
+                  context,
+                  animation,
+                  secondaryAnimation,
+                  child,
+                  direction,
+                );
+              },
+            );
+          }
+
+          // Default MaterialPage for non-plan navigation
+          return MaterialPage(
+            key: state.pageKey,
+            child: screen,
           );
         },
         routes: [

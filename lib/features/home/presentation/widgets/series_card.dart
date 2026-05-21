@@ -1,18 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
+import 'package:flutter_pecha/core/widgets/cached_network_image_widget.dart';
+import 'package:flutter_pecha/features/home/domain/entities/series.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class TagCard extends ConsumerWidget {
-  const TagCard({
-    super.key,
-    required this.tag,
-    required this.onTap,
-    this.imageUrl,
-  });
+class SeriesCard extends ConsumerWidget {
+  const SeriesCard({super.key, required this.series, required this.onTap});
 
-  final String tag;
+  final Series series;
   final VoidCallback onTap;
-  final String? imageUrl;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -31,9 +27,13 @@ class TagCard extends ConsumerWidget {
         child: Stack(
           fit: StackFit.expand,
           children: [
-            // Background image placeholder
-            _buildBackgroundImage(context),
-            // Gradient overlay for text readability
+            CachedNetworkImageWidget(
+              imageUrl: series.imageUrl,
+              fallbackAsset: 'assets/images/tag_cover/cover_image.jpg',
+              fit: BoxFit.cover,
+              placeholder: _buildPlaceholder(context),
+              errorWidget: _buildPlaceholder(context),
+            ),
             Container(
               decoration: BoxDecoration(
                 gradient: LinearGradient(
@@ -47,13 +47,12 @@ class TagCard extends ConsumerWidget {
                 ),
               ),
             ),
-            // Tag title at bottom center
             Positioned(
               left: 8,
               right: 8,
               bottom: 8,
               child: Text(
-                _applyTitleCase(tag),
+                series.title,
                 style: TextStyle(
                   fontSize: fontSize,
                   fontWeight: FontWeight.w600,
@@ -78,18 +77,6 @@ class TagCard extends ConsumerWidget {
     );
   }
 
-  Widget _buildBackgroundImage(BuildContext context) {
-    if (imageUrl == null || imageUrl!.isEmpty) {
-      return _buildPlaceholder(context);
-    }
-    return CachedNetworkImageWidget(
-      imageUrl: imageUrl,
-      fit: BoxFit.cover,
-      placeholder: _buildPlaceholder(context),
-      errorWidget: _buildPlaceholder(context),
-    );
-  }
-
   Widget _buildPlaceholder(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
@@ -110,14 +97,5 @@ class TagCard extends ConsumerWidget {
         ),
       ),
     );
-  }
-
-  String _applyTitleCase(String text) {
-    final String trimmedText = text.trim();
-    if (trimmedText.isEmpty) return text;
-    final List<String> words = trimmedText.split(RegExp(r'\s+'));
-    return words
-        .map((word) => word[0].toUpperCase() + word.substring(1).toLowerCase())
-        .join(' ');
   }
 }

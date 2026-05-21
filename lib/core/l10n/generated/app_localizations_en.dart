@@ -136,6 +136,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get nav_connect => 'Connect';
 
   @override
+  String get nav_me => 'Me';
+
+  @override
   String get text_browseTheLibrary => 'Browse The Library';
 
   @override
@@ -966,6 +969,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String plan_starts_on(String date) {
-    return 'Starts $date!';
+    return 'Starts $date';
   }
 }

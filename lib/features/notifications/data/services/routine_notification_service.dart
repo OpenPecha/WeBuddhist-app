@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_pecha/core/config/app_feature_flags.dart';
 import 'package:flutter_pecha/core/storage/plan_metadata_store.dart';
 import 'package:flutter_pecha/core/storage/special_plan_started_at_store.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
@@ -609,6 +610,21 @@ class RoutineNotificationService {
       _logger.warning('reschedulePlanDurationSeries: service not ready for $planId');
       return;
     }
+
+    // Feature flag gate: when general-plan notifications are disabled we
+    // still want existing schedules on user devices to be torn down — the
+    // bootstrap calls this method on every userPlans fetch, so this branch
+    // cleans up alarms from prior installs before returning. Special plans
+    // and recitations go through different code paths and are unaffected.
+    if (!AppFeatureFlags.kSchedulePlanNotifications) {
+      await _cancelPlanDurationSeries(planId);
+      _logger.info(
+        'reschedulePlanDurationSeries: skipped for $planId — '
+        'kSchedulePlanNotifications=false (prior schedule cancelled)',
+      );
+      return;
+    }
+
     final metadata = PlanMetadataStore.getMetadata(planId);
     if (metadata == null) {
       _logger.warning('reschedulePlanDurationSeries: no metadata for $planId');

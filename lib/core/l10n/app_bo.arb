@@ -41,6 +41,7 @@
   "nav_practice": "ཉམས་ལེན།",
   "nav_settings": "སྒྲིག་འགོད།",
   "nav_connect": " མཐུད།",
+  "nav_me": "ང།",
   "text_browseTheLibrary": "དཀར་ཆག",
   "text_search": "འཚོལ་ས།",
   "text_detail_rootText": "རྩ་བ།",
@@ -369,7 +370,7 @@
   "plan_enrolled": "Enrolled",
   "start_now": "ད་ལྟ་འགོ་འཛུགས།",
   "plan_enroll": "ཞུགས་སྒྲིག",
-  "plan_starts_on": "འགོ་འཛུགས། {date}!",
+  "plan_starts_on": "འགོ་འཛུགས། {date}",
   "@plan_starts_on": {
     "placeholders": {
       "date": { "type": "String" }

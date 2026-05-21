@@ -197,6 +197,8 @@ class PlanTextItem {
   }
 }
 
+enum SwipeDirection { next, previous } // Direction for swipe/button navigation
+
 /// Context for navigation to reader / plan-text screens.
 /// Contains information about the navigation source and the linear list
 /// of plan subtasks for swipe / arrow navigation between them.
@@ -207,6 +209,7 @@ class NavigationContext {
   final String? targetSegmentId;
   final List<PlanTextItem>? planTextItems;
   final int? currentTextIndex;
+  final SwipeDirection? navigationDirection; // slide direction (left/right)
 
   const NavigationContext({
     required this.source,
@@ -215,6 +218,7 @@ class NavigationContext {
     this.targetSegmentId,
     this.planTextItems,
     this.currentTextIndex,
+    this.navigationDirection,
   });
 
   /// Whether this context can navigate between plan items at all
@@ -264,6 +268,7 @@ class NavigationContext {
     String? targetSegmentId,
     List<PlanTextItem>? planTextItems,
     int? currentTextIndex,
+    SwipeDirection? navigationDirection,
   }) {
     return NavigationContext(
       source: source ?? this.source,
@@ -272,6 +277,7 @@ class NavigationContext {
       targetSegmentId: targetSegmentId ?? this.targetSegmentId,
       planTextItems: planTextItems ?? this.planTextItems,
       currentTextIndex: currentTextIndex ?? this.currentTextIndex,
+      navigationDirection: navigationDirection ?? this.navigationDirection,
     );
   }
 
@@ -297,6 +303,6 @@ class NavigationContext {
 
   @override
   String toString() {
-    return 'NavigationContext(source: $source, planId: $planId, dayNumber: $dayNumber, targetSegmentId: $targetSegmentId, currentTextIndex: $currentTextIndex)';
+    return 'NavigationContext(source: $source, planId: $planId, dayNumber: $dayNumber, targetSegmentId: $targetSegmentId, currentTextIndex: $currentTextIndex, navigationDirection: $navigationDirection)';
   }
 }

@@ -1,6 +1,4 @@
-import 'package:fpdart/fpdart.dart';
 import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
-import 'package:flutter_pecha/core/error/failures.dart';
 import 'package:flutter_pecha/features/texts/presentation/providers/use_case_providers.dart';
 import 'package:flutter_pecha/features/texts/data/models/collections/collections.dart';
 import 'package:flutter_pecha/features/texts/data/models/text/texts.dart';
@@ -55,7 +53,7 @@ class PaginatedTextsNotifier extends StateNotifier<PaginatedTextsState> {
   final String collectionId;
 
   PaginatedTextsNotifier(this.ref, this.collectionId)
-      : super(PaginatedTextsState()) {
+    : super(PaginatedTextsState()) {
     loadInitialTexts();
   }
 
@@ -86,10 +84,7 @@ class PaginatedTextsNotifier extends StateNotifier<PaginatedTextsState> {
         hasMore: response.texts.length < response.total,
       );
     } catch (e) {
-      state = state.copyWith(
-        isLoading: false,
-        error: e.toString(),
-      );
+      state = state.copyWith(isLoading: false, error: e.toString());
     }
   }
 
@@ -125,10 +120,7 @@ class PaginatedTextsNotifier extends StateNotifier<PaginatedTextsState> {
         hasMore: updatedTexts.length < response.total,
       );
     } catch (e) {
-      state = state.copyWith(
-        isLoading: false,
-        error: e.toString(),
-      );
+      state = state.copyWith(isLoading: false, error: e.toString());
     }
   }
 
@@ -138,7 +130,7 @@ class PaginatedTextsNotifier extends StateNotifier<PaginatedTextsState> {
   }
 }
 
-final paginatedTextsProvider = StateNotifierProvider.autoDispose.family<
-    PaginatedTextsNotifier, PaginatedTextsState, String>(
-  (ref, collectionId) => PaginatedTextsNotifier(ref, collectionId),
-);
+final paginatedTextsProvider = StateNotifierProvider.autoDispose
+    .family<PaginatedTextsNotifier, PaginatedTextsState, String>(
+      (ref, collectionId) => PaginatedTextsNotifier(ref, collectionId),
+    );

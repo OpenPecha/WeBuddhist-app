@@ -1,24 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
-import 'package:flutter_pecha/core/widgets/cached_network_image_widget.dart';
 import 'package:flutter_pecha/core/widgets/error_state_widget.dart';
 import 'package:flutter_pecha/core/widgets/skeletons/skeletons.dart';
-import 'package:flutter_pecha/features/home/presentation/providers/plans_by_tag_provider.dart';
+import 'package:flutter_pecha/features/home/domain/entities/series.dart';
+import 'package:flutter_pecha/features/home/presentation/providers/series_provider.dart';
 import 'package:flutter_pecha/features/home/presentation/widgets/plan_list_view.dart';
 import 'package:flutter_pecha/features/plans/presentation/providers/user_plans_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-class PlanListScreen extends ConsumerWidget {
-  final String tag;
+class SeriesDetailScreen extends ConsumerWidget {
+  final String seriesId;
+  final Series? initialSeries;
 
-  const PlanListScreen({super.key, required this.tag});
+  const SeriesDetailScreen({
+    super.key,
+    required this.seriesId,
+    this.initialSeries,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     ref.watch(myPlansPaginatedProvider); // pre-warm so enrolled state is ready when list items render
-    final plansAsync = ref.watch(plansByTagProvider(tag));
+    final seriesAsync = ref.watch(seriesByIdProvider(seriesId));
     final localizations = AppLocalizations.of(context)!;
 
     return Scaffold(
@@ -26,20 +31,30 @@ class PlanListScreen extends ConsumerWidget {
       body: SafeArea(
         child: Column(
           children: [
-            _buildAppBar(context),
+            _buildAppBar(
+              context,
+              seriesAsync
+                  .whenOrNull(
+                    data:
+                        (either) =>
+                            either.fold((_) => null, (s) => s.title),
+                  ) ??
+                  initialSeries?.title ??
+                  '',
+            ),
             Expanded(
-              child: plansAsync.when(
-                data: (plansEither) {
-                  return plansEither.fold(
+              child: seriesAsync.when(
+                data: (either) {
+                  return either.fold(
                     (failure) => ErrorStateWidget(
                       error: failure,
-                      onRetry: () => ref.refresh(plansByTagProvider(tag)),
+                      onRetry: () => ref.refresh(seriesByIdProvider(seriesId)),
                     ),
-                    (plans) {
-                      if (plans.isEmpty) {
+                    (series) {
+                      if (series.plans.isEmpty) {
                         return _buildEmptyState(context, localizations, ref);
                       }
-                      return PlanListView(plans: plans);
+                      return PlanListView(plans: series.plans);
                     },
                   );
                 },
@@ -47,7 +62,7 @@ class PlanListScreen extends ConsumerWidget {
                 error:
                     (error, stackTrace) => ErrorStateWidget(
                       error: error,
-                      onRetry: () => ref.refresh(plansByTagProvider(tag)),
+                      onRetry: () => ref.refresh(seriesByIdProvider(seriesId)),
                     ),
               ),
             ),
@@ -57,7 +72,7 @@ class PlanListScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildAppBar(BuildContext context) {
+  Widget _buildAppBar(BuildContext context, String title) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
       child: Row(
@@ -69,7 +84,7 @@ class PlanListScreen extends ConsumerWidget {
           Expanded(
             child: Center(
               child: Text(
-                _capitalizeTag(tag),
+                title,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: const TextStyle(
@@ -83,11 +98,6 @@ class PlanListScreen extends ConsumerWidget {
         ],
       ),
     );
-  }
-
-  String _capitalizeTag(String text) {
-    if (text.isEmpty) return text;
-    return text[0].toUpperCase() + text.substring(1);
   }
 
   Widget _buildEmptyState(

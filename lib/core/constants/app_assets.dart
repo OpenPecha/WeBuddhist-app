@@ -35,4 +35,6 @@ class AppAssets {
       PhosphorIconsFill.usersThree;
   static const PhosphorFlatIconData connectUnselected =
       PhosphorIconsRegular.usersThree;
+  static const PhosphorFlatIconData meSelected = PhosphorIconsFill.userCircle;
+  static const PhosphorFlatIconData meUnselected = PhosphorIconsRegular.userCircle;
 }

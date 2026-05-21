@@ -49,42 +49,32 @@ const Map<String, List<DayNotification>> kSpecialPlanNotifications = {
           "Your journey to Bodhgaya begins today. If you haven't already started, jump right in.",
     ),
     DayNotification(
-      title: 'Abhidhamma in a Year',
+      title: 'ITCC: Days 1-6',
       body:
-          "Welcome to day 2 of Abhidhamma in a Year. Today's reading is short — start here.",
+          "Welcome to day 2. Yesterday we mapped the universe of phenomena using groups of three. Today look at phenomena as dualities like conditioned and unconditioned.",
       buttonText: 'START',
     ),
     DayNotification(
       title: "Today's tip",
       body:
-          'Did you know, you can tap "Edit" on the Practice page to update your reminders?',
+          'Did you know, you can tap "Edit" on the Practice page to update when you receive reminders?',
     ),
     DayNotification(
-      title: "Today's Pali word: kusula",
-      body: 'wholesome, as in kusula dhamma, wholesome phenomena.',
+      title: "Today's Pali word: kilesa",
+      body: '"Kilesa" means defilements, or mental forces that corrupt and stain the mind. The Abhidhamma identifies ten root defilements. Learn more in the app.',
       buttonText: 'START NOW',
     ),
     DayNotification(
       title: 'A verse for today',
       body:
-          '"They have gone to the state of arising together etc. with joy..." Continue in app.',
+          'Today\'s verses include lines like "States that lead to liberation. States that do not lead to liberation." setting up deep discussions in upcoming sessions.',
       buttonText: 'READ ON',
     ),
     DayNotification(
-      title: 'Today: Intro to the Matrix',
+      title: 'Last session of part 1',
       body:
-          "In today's reading, you'll learn the most important Abhidhamma terms.",
+          "Today marks a significant step: finishing part 1 - and tomorrow, you'll begin part 2.",
       buttonText: 'GOTO APP',
-    ),
-    DayNotification(
-      title: '196 days until Bodhgaya 🪷',
-      body:
-          'Every day of preparation brings the chanting closer. Open today\'s session.',
-    ),
-    DayNotification(
-      title: "You're almost there",
-      body:
-          "One more session to go in Part One. The path continues — open today's reading.",
     ),
   ],
 };
