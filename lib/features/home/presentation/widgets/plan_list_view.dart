@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
+import 'package:flutter_pecha/core/widgets/cached_network_image_widget.dart';
 import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
 import 'package:flutter_pecha/features/plans/data/models/user/user_plans_model.dart';
 import 'package:flutter_pecha/features/plans/domain/entities/plan.dart';
@@ -292,15 +293,11 @@ class PlanCoverImage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (imageUrl != null && imageUrl!.isNotEmpty) {
-      return Image.network(
-        imageUrl!,
+      return CachedNetworkImageWidget(
+        imageUrl: imageUrl,
         fit: BoxFit.cover,
-        errorBuilder:
-            (context, error, stackTrace) => _buildPlaceholder(context),
-        loadingBuilder: (context, child, loadingProgress) {
-          if (loadingProgress == null) return child;
-          return _buildPlaceholder(context);
-        },
+        placeholder: _buildPlaceholder(context),
+        errorWidget: _buildPlaceholder(context),
       );
     }
     return _buildPlaceholder(context);
