@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/constants/app_config.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 class AppBottomNavItem<T> extends StatelessWidget {
@@ -15,6 +16,8 @@ class AppBottomNavItem<T> extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDarkMode = theme.brightness == Brightness.dark;
+    final isTibetan = Localizations.localeOf(context).languageCode == 
+        AppConfig.tibetanLanguageCode;
 
     // Active color uses primary color, inactive uses grey (dark mode friendly)
     final activeColor =
@@ -45,6 +48,13 @@ class AppBottomNavItem<T> extends StatelessWidget {
         const SizedBox(height: 2),
         Text(
           model.label,
+          strutStyle: isTibetan
+              ? StrutStyle(
+                  fontSize: Theme.of(context).textTheme.bodySmall?.fontSize ?? 12,
+                  height: 1.6,
+                  forceStrutHeight: true,
+                )
+              : null,
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
             fontWeight:
                 model.type == selectedType
