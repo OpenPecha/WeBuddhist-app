@@ -3,6 +3,7 @@ import 'package:flutter_pecha/features/home/presentation/screens/main_navigation
 import 'package:fpdart/fpdart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
+import 'package:flutter_pecha/core/constants/app_config.dart';
 import 'package:flutter_pecha/core/error/failures.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/services/service_providers.dart';
@@ -247,11 +248,26 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         scrolledUnderElevation: 0,
         centerTitle: false,
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-        title: Text(
-          l10n.nav_home,
-          style: Theme.of(
-            context,
-          ).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
+        title: Builder(
+          builder: (context) {
+            final isTibetan = Localizations.localeOf(context).languageCode == 
+                AppConfig.tibetanLanguageCode;
+            final fontSize = Theme.of(context).textTheme.headlineMedium?.fontSize ?? 28;
+            
+            return Text(
+              l10n.nav_home,
+              strutStyle: isTibetan
+                  ? StrutStyle(
+                      fontSize: fontSize,
+                      height: 1.6,
+                      forceStrutHeight: true,
+                    )
+                  : null,
+              style: Theme.of(
+                context,
+              ).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
+            );
+          },
         ),
       ),
       body: SafeArea(

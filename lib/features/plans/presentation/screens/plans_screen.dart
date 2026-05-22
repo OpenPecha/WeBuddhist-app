@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/constants/app_config.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/features/plans/presentation/widgets/find_plan_tab.dart';
 import 'package:flutter_pecha/features/plans/presentation/widgets/my_plan_tab.dart';
@@ -37,9 +38,23 @@ class _PlansScreenState extends ConsumerState<PlansScreen>
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          localizations.nav_practice,
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
+        title: Builder(
+          builder: (context) {
+            final isTibetan = languageCode == AppConfig.tibetanLanguageCode;
+            final fontSize = 22.0;
+            
+            return Text(
+              localizations.nav_practice,
+              strutStyle: isTibetan
+                  ? StrutStyle(
+                      fontSize: fontSize,
+                      height: 1.6,
+                      forceStrutHeight: true,
+                    )
+                  : null,
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: fontSize),
+            );
+          },
         ),
         scrolledUnderElevation: 0,
         centerTitle: false,

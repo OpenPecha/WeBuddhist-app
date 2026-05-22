@@ -45,11 +45,26 @@ class MoreScreen extends ConsumerWidget {
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         elevation: 0,
-        title: Text(
-          localizations.nav_settings,
-          style: Theme.of(
-            context,
-          ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
+        title: Builder(
+          builder: (context) {
+            final isTibetan = Localizations.localeOf(context).languageCode == 
+                AppConfig.tibetanLanguageCode;
+            final fontSize = Theme.of(context).textTheme.headlineSmall?.fontSize ?? 24;
+            
+            return Text(
+              localizations.nav_settings,
+              strutStyle: isTibetan
+                  ? StrutStyle(
+                      fontSize: fontSize,
+                      height: 1.6,
+                      forceStrutHeight: true,
+                    )
+                  : null,
+              style: Theme.of(
+                context,
+              ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
+            );
+          },
         ),
         centerTitle: true,
       ),
