@@ -153,7 +153,7 @@ class AuthorDetailScreen extends ConsumerWidget {
     );
   }
 
-  IconData _getSocialIcon(String platform) {
+  FaIconData _getSocialIcon(String platform) {
     switch (platform.toLowerCase()) {
       case 'email':
         return FontAwesomeIcons.envelope;

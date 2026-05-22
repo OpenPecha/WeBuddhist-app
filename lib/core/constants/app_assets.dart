@@ -1,3 +1,4 @@
+import 'package:flutter/widgets.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 /// Application asset paths
@@ -14,27 +15,27 @@ class AppAssets {
   static const String weBuddhistLogo = 'assets/images/webuddhist_gold.png';
 
   // Bottom Navigation icons
-  static const PhosphorFlatIconData homeSelected = PhosphorIconsFill.house;
-  static const PhosphorFlatIconData homeUnselected = PhosphorIconsRegular.house;
-  static const PhosphorFlatIconData exploreSelected =
+  static const IconData homeSelected = PhosphorIconsFill.house;
+  static const IconData homeUnselected = PhosphorIconsRegular.house;
+  static const IconData exploreSelected =
       PhosphorIconsFill.magnifyingGlass;
-  static const PhosphorFlatIconData exploreUnselected =
+  static const IconData exploreUnselected =
       PhosphorIconsRegular.magnifyingGlass;
-  static const PhosphorFlatIconData textsSelected =
+  static const IconData textsSelected =
       PhosphorIconsFill.bookOpenText;
-  static const PhosphorFlatIconData textsUnselected =
+  static const IconData textsUnselected =
       PhosphorIconsRegular.bookOpenText;
-  static const PhosphorFlatIconData practiceSelected = PhosphorIconsFill.bell;
-  static const PhosphorFlatIconData practiceUnselected =
+  static const IconData practiceSelected = PhosphorIconsFill.bell;
+  static const IconData practiceUnselected =
       PhosphorIconsRegular.bell;
-  static const PhosphorFlatIconData settingsSelected =
+  static const IconData settingsSelected =
       PhosphorIconsFill.gearSix;
-  static const PhosphorFlatIconData settingsUnselected =
+  static const IconData settingsUnselected =
       PhosphorIconsRegular.gearSix;
-  static const PhosphorFlatIconData connectSelected =
+  static const IconData connectSelected =
       PhosphorIconsFill.usersThree;
-  static const PhosphorFlatIconData connectUnselected =
+  static const IconData connectUnselected =
       PhosphorIconsRegular.usersThree;
-  static const PhosphorFlatIconData meSelected = PhosphorIconsFill.userCircle;
-  static const PhosphorFlatIconData meUnselected = PhosphorIconsRegular.userCircle;
+  static const IconData meSelected = PhosphorIconsFill.userCircle;
+  static const IconData meUnselected = PhosphorIconsRegular.userCircle;
 }
