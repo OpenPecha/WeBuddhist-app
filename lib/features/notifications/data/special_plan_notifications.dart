@@ -35,6 +35,7 @@ class DayNotification {
 /// ITCC "Abhidhamma in a Year" plan ID.
 /// Mirrors `kOnboardingEvents` in onboarding_preferences.dart.
 const String kItccPlanId = 'b42c9270-8bc9-4a98-b375-924a948ab18e';
+const String kItccPlan7to37Id = '509657b5-7af5-45de-b22d-0ea2fe094424';
 
 /// Daily fire time for the special-plan series (local time). Mirrors the
 /// 09:00 routine block the event-enrollment flow creates server-side.
@@ -75,6 +76,38 @@ const Map<String, List<DayNotification>> kSpecialPlanNotifications = {
       body:
           "Today marks a significant step: finishing part 1 - and tomorrow, you'll begin part 2.",
       buttonText: 'GOTO APP',
+    ),
+  ],
+  kItccPlan7to37Id: <DayNotification>[
+    DayNotification(
+      title: 'Welcome to ITCC: Days 7-37',
+      body:
+          'Today we begin Cittuppādakaṇḍaṃ, the Chapter on the Arising of Consciousness and look at the mind when something wholesome arises.',
+      buttonText: 'Read Now',
+    ),
+    DayNotification(
+      title: 'A verse for today',
+      body:
+          '"Whatever at that time is mindfulness, recollection, the holding, the not floating away, the not forgetting — this at that time is the power of mindfulness."',
+      buttonText: 'Start Session',
+    ),
+    DayNotification(
+      title: "Today's Pali word: Khandha",
+      body:
+          '"Khanda" means heap or aggregate. Today\'s verses analyze a mind-moment via four immaterial aggregates — feeling, perception, formations, and consciousness — and the material one, form.',
+      buttonText: 'Open App',
+    ),
+    DayNotification(
+      title: 'The path in every moment',
+      body:
+          'Right view, thought, effort, mindfulness, concentration — the five path-factors are present in every wholesome mind.',
+      buttonText: 'Begin',
+    ),
+    DayNotification(
+      title: "Question for today's session",
+      body:
+          'Of these five types of wholesome mind — with joy or equanimity, with knowledge or without, spontaneous or prompted — which feels closest to this moment?',
+      buttonText: 'Start Reading',
     ),
   ],
 };

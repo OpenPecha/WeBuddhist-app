@@ -126,6 +126,11 @@ class RoutineNotificationService {
           return NotificationResult.success(block.notificationId);
         }
 
+        _logger.info(
+          '[SP-CHECK] planId=${firstItem.id} title="${firstItem.title}" '
+          'NOT in kSpecialPlanNotifications — falling through to general-plan path',
+        );
+
         final metadata = PlanMetadataStore.getMetadata(firstItem.id);
         if (metadata != null) {
           await reschedulePlanDurationSeries(
