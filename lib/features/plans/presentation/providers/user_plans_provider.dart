@@ -1,6 +1,8 @@
 import 'package:fpdart/fpdart.dart';
 import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
 import 'package:flutter_pecha/core/error/failures.dart';
+import 'package:flutter_pecha/core/services/analytics/analytics_events.dart';
+import 'package:flutter_pecha/core/services/analytics/analytics_providers.dart';
 import 'package:flutter_pecha/features/plans/data/models/plan_progress_model.dart';
 import 'package:flutter_pecha/features/plans/data/models/response/user_plan_day_detail_response.dart';
 import 'package:flutter_pecha/features/plans/data/models/response/user_plan_list_response_model.dart';
@@ -25,15 +27,29 @@ final userPlanProgressDetailsFutureProvider = FutureProvider.autoDispose
     });
 
 final userPlanSubscribeFutureProvider = FutureProvider.autoDispose
-    .family<Either<Failure, bool>, String>((ref, planId) {
+    .family<Either<Failure, bool>, String>((ref, planId) async {
       final useCase = ref.watch(subscribeToPlanUseCaseProvider);
-      return useCase(SubscribeToPlanParams(planId: planId));
+      final result = await useCase(SubscribeToPlanParams(planId: planId));
+      result.fold((_) {}, (_) {
+        ref.read(analyticsServiceProvider).capture(
+          AnalyticsEvents.planStarted,
+          properties: {'plan_id': planId},
+        );
+      });
+      return result;
     });
 
 final userPlanUnsubscribeFutureProvider = FutureProvider.autoDispose
-    .family<Either<Failure, bool>, String>((ref, planId) {
+    .family<Either<Failure, bool>, String>((ref, planId) async {
       final useCase = ref.watch(unsubscribeFromPlanUseCaseProvider);
-      return useCase(UnsubscribeFromPlanParams(planId: planId));
+      final result = await useCase(UnsubscribeFromPlanParams(planId: planId));
+      result.fold((_) {}, (_) {
+        ref.read(analyticsServiceProvider).capture(
+          'plan_unsubscribed',
+          properties: {'plan_id': planId},
+        );
+      });
+      return result;
     });
 
 final completeTaskFutureProvider = FutureProvider.autoDispose

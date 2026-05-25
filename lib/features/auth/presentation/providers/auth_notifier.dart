@@ -3,6 +3,8 @@ import 'dart:convert';
 
 import 'package:flutter_pecha/core/storage/plan_metadata_store.dart';
 import 'package:flutter_pecha/core/storage/special_plan_started_at_store.dart';
+import 'package:flutter_pecha/core/services/analytics/analytics_events.dart';
+import 'package:flutter_pecha/core/services/analytics/analytics_providers.dart';
 import 'package:flutter_pecha/core/storage/storage_keys.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/features/notifications/data/services/routine_notification_service.dart';
@@ -217,12 +219,15 @@ class AuthNotifier extends StateNotifier<AuthState> {
         );
       },
       (credentials) {
-        _handleSuccessfulLogin(credentials);
+        _handleSuccessfulLogin(credentials, connection: connection);
       },
     );
   }
 
-  Future<void> _handleSuccessfulLogin(AuthCredentials credentials) async {
+  Future<void> _handleSuccessfulLogin(
+    AuthCredentials credentials, {
+    String? connection,
+  }) async {
     // 1. Clear the guest mode flag from storage before the router fires.
     await _clearGuestMode();
 
@@ -253,6 +258,17 @@ class AuthNotifier extends StateNotifier<AuthState> {
     } catch (e) {
       _logger.warning('Failed to fetch user data: $e');
     }
+
+    // 5. Analytics — identify the user before capturing so the event is
+    //    attributed correctly, not posted under the anonymous distinct_id.
+    final analytics = ref.read(analyticsServiceProvider);
+    if (userId != null) {
+      await analytics.identify(userId: userId);
+    }
+    await analytics.capture(
+      AnalyticsEvents.login,
+      properties: {if (connection != null) 'connection': connection},
+    );
   }
 
   /// Clears the guest mode flag from storage.
@@ -302,6 +318,9 @@ class AuthNotifier extends StateNotifier<AuthState> {
           isGuest: true,
         );
         _logger.info('Guest mode activated and persisted');
+        ref.read(analyticsServiceProvider).capture(
+          AnalyticsEvents.guestModeStarted,
+        );
       },
     );
   }
@@ -346,6 +365,12 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
     state = state.copyWith(isLoggedIn: false, isLoading: false, isGuest: false);
     _logger.info('User logged out, auth and user state cleared');
+
+    // Capture before reset so the event is still attributed to the user
+    // who logged out; reset clears identity for subsequent anonymous traffic.
+    final analytics = ref.read(analyticsServiceProvider);
+    await analytics.capture(AnalyticsEvents.logout);
+    await analytics.reset();
   }
 
   /// Completely clear all user data (account deletion or privacy reset).

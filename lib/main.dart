@@ -7,13 +7,17 @@ import 'package:flutter_pecha/core/config/app_feature_flags.dart';
 import 'package:flutter_pecha/core/config/router/app_router.dart';
 import 'package:flutter_pecha/core/network/connectivity_service.dart';
 import 'package:flutter_pecha/core/l10n/l10n.dart';
+import 'package:flutter_pecha/core/services/analytics/analytics_providers.dart';
 import 'package:flutter_pecha/core/services/service_providers.dart';
 import 'package:flutter_pecha/core/storage/plan_metadata_store.dart';
 import 'package:flutter_pecha/core/storage/special_plan_started_at_store.dart';
+import 'package:flutter_pecha/core/storage/storage_keys.dart';
+import 'package:flutter_pecha/core/utils/local_storage_service.dart';
 import 'package:flutter_pecha/core/theme/theme_notifier.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/features/notifications/application/plan_notification_bootstrap.dart';
 import 'package:flutter_pecha/features/notifications/application/special_plan_bootstrap.dart';
+import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
 import 'package:flutter_pecha/features/notifications/data/services/notification_service.dart';
 import 'package:flutter_pecha/features/practice/data/datasource/routine_local_storage.dart';
 import 'package:flutter_pecha/features/practice/presentation/providers/practice_providers.dart';
@@ -106,6 +110,14 @@ void main() async {
     overrides: [routineLocalStorageProvider.overrideWithValue(routineStorage)],
   );
 
+  // Initialize analytics. Resolves to a no-op if POSTHOG_API_KEY is unset,
+  // so missing config never blocks app launch.
+  try {
+    await container.read(analyticsServiceProvider).initialize();
+  } catch (e) {
+    _logger.warning('Error initializing analytics: $e');
+  }
+
   // Set container reference for notification navigation
   NotificationService.setContainer(container);
 
@@ -134,6 +146,24 @@ class MyApp extends ConsumerWidget {
     ref.watch(planNotificationBootstrapProvider);
     NotificationService.setRouter(router);
     NotificationService().consumeLaunchNotification();
+
+    // Identify the user in analytics on login transitions and reset on
+    // logout. Listening at the app root keeps this independent of any screen.
+    ref.listen(authProvider, (previous, next) async {
+      final analytics = ref.read(analyticsServiceProvider);
+      final wasLoggedIn = previous?.isLoggedIn ?? false;
+
+      if (next.isLoggedIn && !next.isLoading && !next.isGuest) {
+        final userId = await ref
+            .read(localStorageServiceProvider)
+            .get<String>(StorageKeys.currentUserId);
+        if (userId != null && userId.isNotEmpty) {
+          await analytics.identify(userId: userId);
+        }
+      } else if (wasLoggedIn && !next.isLoggedIn) {
+        await analytics.reset();
+      }
+    });
 
     // Add QueryClient provider wrapper
     return QueryClientProvider(
