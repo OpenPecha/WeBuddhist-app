@@ -47,15 +47,26 @@ class ProtectedRoutes {
 
     // Plans (public endpoints but may need auth for user-specific data)
     '/plans/{planId}',
-    '/plans/{planId}/days',
     '/plans/{planId}/days/{dayNumber}',
   ];
 
-  /// Check if a given path is protected (requires authentication).
+  /// Routes that accept optional authentication.
   ///
-  /// Returns true if the path matches any protected route pattern.
+  /// The token is sent when the user is authenticated; silently skipped for guests.
+  static const List<String> optionalPaths = [
+    '/plans/{planId}/days',
+  ];
+
+  /// Check if a given path is protected (requires authentication).
   static bool isProtected(String path) {
     return paths.any((route) => _matchesPathPattern(path, route));
+  }
+
+  /// Check if a given path accepts optional authentication.
+  ///
+  /// Token is sent when available (authenticated user), silently skipped for guests.
+  static bool isOptional(String path) {
+    return optionalPaths.any((route) => _matchesPathPattern(path, route));
   }
 
   /// Matches a path against a pattern that may contain path parameters like {planId}.

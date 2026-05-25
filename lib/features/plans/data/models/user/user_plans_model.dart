@@ -1,3 +1,7 @@
+import 'package:flutter_pecha/features/plans/data/models/plan_tag_model.dart';
+
+export 'package:flutter_pecha/features/plans/data/models/plan_tag_model.dart';
+
 class UserPlansModel {
   final String id;
   final String title;
@@ -7,7 +11,7 @@ class UserPlansModel {
   final String? imageUrl;
   final DateTime startedAt;
   final int totalDays;
-  final List<String>? tags;
+  final List<PlanTag>? tags;
   final DateTime? startDate;
 
   UserPlansModel({
@@ -39,13 +43,15 @@ class UserPlansModel {
               : DateTime.now(),
       totalDays: json['total_days'] as int,
       tags:
-          json['tags'] != null ? List<String>.from(json['tags'] as List) : null,
+          json['tags'] != null
+              ? (json['tags'] as List)
+                  .map((t) => PlanTag.fromJson(t as Map<String, dynamic>))
+                  .toList()
+              : null,
       startDate:
           json['start_date'] != null
               ? DateTime.tryParse(json['start_date'] as String)
               : null,
-      // TEMP TEST — remove before merging
-      // startDate: _testStartDate(),
     );
   }
 
@@ -59,7 +65,7 @@ class UserPlansModel {
       'image_url': imageUrl,
       'started_at': startedAt.toIso8601String(),
       'total_days': totalDays,
-      'tags': tags,
+      'tags': tags?.map((t) => t.toJson()).toList(),
       'start_date': startDate?.toIso8601String(),
     };
   }
