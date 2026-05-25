@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:flutter_pecha/core/error/exception_mapper.dart';
 import 'package:flutter_pecha/core/error/failures.dart';
@@ -18,14 +19,19 @@ class UserPlansRepository implements UserPlansRepositoryInterface {
     int? skip,
     int? limit,
   }) async {
+    debugPrint('getUserPlans language:::::: $language');
+    debugPrint('getUserPlans skip:::::: $skip');
+    debugPrint('getUserPlans limit:::::: $limit');
     try {
       final result = await userPlansRemoteDatasource.fetchUserPlans(
         language: language,
         skip: skip,
         limit: limit,
       );
+      debugPrint('getUserPlans result:::::: $result');
       return Right(result);
     } catch (e) {
+      debugPrint('getUserPlans error:::::: $e');
       return Left(ExceptionMapper.map(e, context: 'Failed to fetch user plans'));
     }
   }

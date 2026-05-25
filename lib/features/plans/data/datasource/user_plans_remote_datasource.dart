@@ -63,16 +63,34 @@ class UserPlansRemoteDatasource {
   }
 
   Future<Map<int, bool>> fetchPlanDaysCompletionStatus(String planId) async {
-    final response = await dio.get('/users/me/plans/$planId/days/completion_status');
+    final response = await dio.get(
+      '/users/me/plans/$planId/days/completion_status',
+    );
     final jsonData = response.data as Map<String, dynamic>;
-    final completionResponse =
-        UserPlanDayCompletionStatusResponse.fromJson(jsonData);
+    final completionResponse = UserPlanDayCompletionStatusResponse.fromJson(
+      jsonData,
+    );
     return completionResponse.toCompletionStatusMap();
   }
 
   Future<bool> completeSubTask(String subTaskId) async {
-    final response = await dio.post('/users/me/sub-tasks/$subTaskId/complete');
-    return _isSuccessStatus(response.statusCode);
+    try {
+      final response = await dio.post(
+        '/users/me/sub-tasks/$subTaskId/complete',
+      );
+      return _isSuccessStatus(response.statusCode);
+    } on DioException catch (e) {
+      // 409 Conflict = subtask already completed. Completion is idempotent —
+      // the desired end state already holds — so treat it as success rather
+      // than surfacing it as an error.
+      if (e.response?.statusCode == 409) {
+        _logger.info(
+          'Subtask $subTaskId already completed (409) — treating as success',
+        );
+        return true;
+      }
+      rethrow;
+    }
   }
 
   Future<bool> completeTask(String taskId) async {

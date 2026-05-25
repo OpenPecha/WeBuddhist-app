@@ -5,7 +5,6 @@ import 'package:flutter_pecha/features/plans/presentation/widgets/plan_navigatio
 import 'package:flutter_pecha/features/reader/constants/reader_constants.dart';
 import 'package:flutter_pecha/features/reader/data/models/navigation_context.dart';
 import 'package:flutter_pecha/features/reader/presentation/providers/reader_notifier.dart';
-import 'package:flutter_pecha/features/reader/domain/services/navigation_service.dart';
 import 'package:flutter_pecha/features/texts/data/models/text_detail.dart';
 import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -106,8 +105,7 @@ class _SwipeNavigationWrapperState
     if (_isNavigating) return;
 
     if (direction == SwipeDirection.next) {
-      completeCurrentPlanSubtask(ref, currentContext);
-      invalidatePlanProviders(ref, currentContext);
+      ref.read(planSubtaskCompletionProvider).completeCurrent(currentContext);
     }
 
     // Clear UI state before navigation for clean transition
@@ -120,18 +118,23 @@ class _SwipeNavigationWrapperState
       currentContext,
       direction,
     );
-    if (!didNavigate) return;
+    if (!didNavigate) {
+      // A forward swipe past the last task exits the sequence.
+      if (direction == SwipeDirection.next) _finishReading();
+      return;
+    }
 
     _isNavigating = true;
-    Future.delayed(const Duration(milliseconds: 500), () {
-      if (mounted) _isNavigating = false;
-    });
   }
 
-  void _finishReading() {
+  void _finishReading() async {
+    if (_isNavigating) return;
+    _isNavigating = true;
+
     final navContext = widget.params.navigationContext;
-    completeCurrentPlanSubtask(ref, navContext);
-    invalidatePlanProviders(ref, navContext);
-    if (mounted) context.pop();
+    await ref.read(planSubtaskCompletionProvider).completeCurrent(navContext);
+
+    if (!mounted) return;
+    context.pop();
   }
 }

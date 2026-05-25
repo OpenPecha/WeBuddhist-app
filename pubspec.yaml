@@ -14,7 +14,7 @@ publish_to: "none" # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 2.4.2+58
+version: 2.4.3+59
 
 environment:
   sdk: ^3.7.2
@@ -111,7 +111,7 @@ dependencies:
   hive_flutter: ^1.1.0
 
   # Icons
-  font_awesome_flutter: ^10.9.1
+  font_awesome_flutter: ^11.0.0
   flutter_launcher_icons: ^0.14.3
 
   # Shared preferences
@@ -130,7 +130,10 @@ dependencies:
   # QR code generation
   qr_flutter: ^4.1.0
   skeletonizer: ^2.1.2
-  phosphor_flutter: ^2.1.0
+  phosphor_flutter:
+    git:
+      url: https://github.com/subarnaPdl/phosphor_icons.git
+      ref: 514f0a883571c4453dbd6ee3041d1dcba4fb8fc7
 
   # UUID generation
   uuid: ^4.5.1
