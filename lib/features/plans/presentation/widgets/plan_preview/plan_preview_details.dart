@@ -48,10 +48,7 @@ class _PlanPreviewDetailsState extends ConsumerState<PlanPreviewDetails> {
       LoginDrawer.show(context, ref);
       return;
     }
-    context.pushNamed(
-      'edit-routine',
-      extra: {'initialPlan': widget.plan},
-    );
+    context.pushNamed('edit-routine', extra: {'initialPlan': widget.plan});
   }
 
   @override
@@ -77,8 +74,7 @@ class _PlanPreviewDetailsState extends ConsumerState<PlanPreviewDetails> {
               ),
             ),
           ),
-          if (!alreadyInRoutine)
-            _buildBottomButton(context, isGuest),
+          if (!alreadyInRoutine) _buildBottomButton(context, isGuest),
         ],
       ),
     );
@@ -101,7 +97,10 @@ class _PlanPreviewDetailsState extends ConsumerState<PlanPreviewDetails> {
             padding: const EdgeInsets.only(right: 12),
             child: Center(
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 5,
+                ),
                 decoration: BoxDecoration(
                   color: const Color(0xFF4CAF50),
                   borderRadius: BorderRadius.circular(16),
@@ -153,7 +152,7 @@ class _PlanPreviewDetailsState extends ConsumerState<PlanPreviewDetails> {
       language: language,
       days: days,
       selectedDay: selectedDay,
-      startDate: DateTime.now(),
+      startDate: widget.plan.startDate ?? DateTime.now(),
       dayCompletionStatus: null, // No completion status in preview mode
       onDaySelected: (day) {
         setState(() {
@@ -257,7 +256,9 @@ class _AddToRoutineButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final backgroundColor =
-        isDark ? AppColors.scaffoldBackgroundLight : AppColors.scaffoldBackgroundDark;
+        isDark
+            ? AppColors.scaffoldBackgroundLight
+            : AppColors.scaffoldBackgroundDark;
     final foregroundColor =
         isDark ? AppColors.textPrimary : AppColors.textPrimaryDark;
 

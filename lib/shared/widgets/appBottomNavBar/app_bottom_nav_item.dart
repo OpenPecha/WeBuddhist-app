@@ -59,8 +59,8 @@ class AppBottomNavItem<T> extends StatelessWidget {
 }
 
 class AppBottomBarItemModel<T> {
-  final PhosphorFlatIconData selectedIconData;
-  final PhosphorFlatIconData unSelectedIconData;
+  final IconData selectedIconData;
+  final IconData unSelectedIconData;
   final String label;
   final Widget? selectedWidget;
 

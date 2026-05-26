@@ -1,67 +1,98 @@
 import 'package:flutter_pecha/core/utils/app_logger.dart';
+import 'package:flutter_pecha/features/plans/domain/usecases/user_plans_usecases.dart';
 import 'package:flutter_pecha/features/plans/presentation/providers/plan_days_providers.dart';
+import 'package:flutter_pecha/features/plans/presentation/providers/use_case_providers.dart';
 import 'package:flutter_pecha/features/plans/presentation/providers/user_plans_provider.dart';
 import 'package:flutter_pecha/features/reader/data/models/navigation_context.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final _logger = AppLogger('PlanSubtaskCompletion');
 
-/// Fires the complete-subtask API call for the current item in [navContext].
+/// Container-scoped handler for plan subtask completion.
 ///
-/// Callers should invoke [invalidatePlanProviders] **synchronously before
-/// navigating away** so that plan-day providers refresh regardless of when
-/// this async call finishes and the widget's `ref` is still valid.
+/// Plan task screens navigate via `pushReplacement`, which disposes the
+/// current screen — and its `WidgetRef` — the instant the next task is
+/// pushed. A completion POST fired from such a screen therefore outlives
+/// the `ref` that started it, so the screen cannot reliably refresh the
+/// plan-day providers once the API confirms.
 ///
-/// No-ops when:
-/// - [navContext] is null or source is not [NavigationSource.plan]
-/// - the current item has no `subtaskId` (preview mode)
-/// - the subtask is already completed
-void completeCurrentPlanSubtask(WidgetRef ref, NavigationContext? navContext) {
-  if (navContext == null || navContext.source != NavigationSource.plan) {
-    return;
-  }
+/// This service holds the container's [Ref] (alive for the app's lifetime),
+/// so the plan-day invalidation runs exactly when the POST completes —
+/// regardless of which screen, if any, is still on the stack. No timers,
+/// no racing the network.
+class PlanSubtaskCompletionService {
+  PlanSubtaskCompletionService(this._ref);
 
-  final currentItem = navContext.currentItem;
-  if (currentItem == null) return;
+  final Ref _ref;
 
-  final subtaskId = currentItem.subtaskId;
-  if (subtaskId == null || subtaskId.isEmpty) return;
-  if (currentItem.isCompleted) return;
+  /// Subtask IDs already completed (or in flight) this session.
+  ///
+  /// A [NavigationContext] snapshots each item's `isCompleted` flag once, on
+  /// entry — it never reflects completions made while swiping. Without this
+  /// set, swiping back over an already-finished subtask would re-fire the
+  /// completion POST, which the backend rejects with 409.
+  final Set<String> _completedSubtaskIds = {};
 
-  Future.microtask(() async {
+  /// Completes the current subtask in [navContext], then refreshes the
+  /// plan-day providers once the API confirms success.
+  ///
+  /// Awaitable: finish actions await it so the refresh is in flight before
+  /// they pop. Mid-sequence navigation calls it fire-and-forget — the
+  /// refresh still lands, since this service's `ref` is container-scoped.
+  ///
+  /// No-ops when [navContext] is not a plan, the item has no `subtaskId`
+  /// (preview mode), or the subtask is already completed.
+  Future<void> completeCurrent(NavigationContext? navContext) async {
+    if (navContext == null || navContext.source != NavigationSource.plan) {
+      return;
+    }
+
+    final currentItem = navContext.currentItem;
+    if (currentItem == null) return;
+
+    final subtaskId = currentItem.subtaskId;
+    if (subtaskId == null || subtaskId.isEmpty) return;
+    if (currentItem.isCompleted) return;
+    if (_completedSubtaskIds.contains(subtaskId)) return;
+
+    // Claim it up front so a concurrent or repeat swipe can't re-POST.
+    _completedSubtaskIds.add(subtaskId);
+
     try {
-      final result = await ref.read(
-        completeSubTaskFutureProvider(subtaskId).future,
+      final useCase = _ref.read(completeSubTaskUseCaseProvider);
+      final result = await useCase(
+        CompleteSubTaskParams(subTaskId: subtaskId),
       );
       result.fold(
-        (failure) =>
-            _logger.error('Failed to complete subtask: ${failure.message}'),
-        (_) => _logger.info('Marked subtask $subtaskId as complete'),
+        (failure) {
+          _logger.error('Failed to complete subtask: ${failure.message}');
+          _completedSubtaskIds.remove(subtaskId); // allow a later retry
+        },
+        (_) {
+          _logger.info('Marked subtask $subtaskId as complete');
+          _refreshPlanDay(navContext.planId, navContext.dayNumber);
+        },
       );
-    } on StateError {
-      // Widget was disposed before the API call finished — the request was
-      // already in-flight and providers were invalidated synchronously by the
-      // caller before navigation, so the UI will still reflect the change.
     } catch (e) {
       _logger.error('Failed to complete subtask $subtaskId', e);
+      _completedSubtaskIds.remove(subtaskId); // allow a later retry
     }
-  });
+  }
+
+  /// Invalidates the plan-day providers so the plan detail UI re-fetches.
+  /// Runs only after the completion POST has succeeded, so the re-fetch
+  /// reads the updated backend state rather than racing it.
+  void _refreshPlanDay(String? planId, int? dayNumber) {
+    if (planId == null || dayNumber == null) return;
+    _ref.invalidate(
+      userPlanDayContentFutureProvider(
+        PlanDaysParams(planId: planId, dayNumber: dayNumber),
+      ),
+    );
+    _ref.invalidate(userPlanDaysCompletionStatusProvider(planId));
+  }
 }
 
-/// Invalidates the plan-day providers so the UI refreshes on return.
-///
-/// Call this **synchronously** (while the widget is still mounted) before
-/// navigating away after a completion action.
-void invalidatePlanProviders(WidgetRef ref, NavigationContext? navContext) {
-  if (navContext == null) return;
-  final planId = navContext.planId;
-  final dayNumber = navContext.dayNumber;
-  if (planId == null || dayNumber == null) return;
-
-  ref.invalidate(
-    userPlanDayContentFutureProvider(
-      PlanDaysParams(planId: planId, dayNumber: dayNumber),
-    ),
-  );
-  ref.invalidate(userPlanDaysCompletionStatusProvider(planId));
-}
+final planSubtaskCompletionProvider = Provider<PlanSubtaskCompletionService>(
+  (ref) => PlanSubtaskCompletionService(ref),
+);

@@ -1,6 +1,7 @@
 // Riverpod provider and logic for authentication state.
 import 'dart:convert';
 
+import 'package:flutter_pecha/core/storage/plan_metadata_store.dart';
 import 'package:flutter_pecha/core/storage/special_plan_started_at_store.dart';
 import 'package:flutter_pecha/core/storage/storage_keys.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
@@ -16,6 +17,7 @@ import 'package:flutter_pecha/features/auth/domain/usecases/initialize_auth_usec
 import 'package:flutter_pecha/features/auth/domain/usecases/is_guest_mode_usecase.dart';
 import 'package:flutter_pecha/features/auth/domain/usecases/login_usecase.dart';
 import 'package:flutter_pecha/features/auth/domain/usecases/logout_usecase.dart';
+import 'package:flutter_pecha/core/config/router/pending_route_provider.dart';
 import 'package:flutter_pecha/features/onboarding/presentation/providers/onboarding_datasource_providers.dart';
 import 'package:flutter_pecha/shared/domain/base_classes/usecase.dart';
 import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
@@ -326,17 +328,20 @@ class AuthNotifier extends StateNotifier<AuthState> {
         .read(localStorageServiceProvider)
         .remove(StorageKeys.currentUserId);
 
-    // Reset special-plan day-N cache so a different user signing in does not
-    // inherit the prior user's day index or "day 1 already shown" flag.
-    await SpecialPlanStartedAtStore.clearAll();
+    // Clear any pending deep-link route so a stale destination doesn't survive logout.
+    ref.read(pendingRouteProvider.notifier).state = null;
 
-    // Cancel any pending special-plan one-shot notifications so the next user
-    // (or the same user after re-login) does not receive notifications keyed
-    // off the previous session's startedAt.
+    // Clear notification caches so a different user signing in does not
+    // inherit the prior user's day index or "already shown" flags.
+    await SpecialPlanStartedAtStore.clearAll();
+    await PlanMetadataStore.clearAll();
+
+    // Cancel all pending one-shot notifications (special and general plans).
     try {
       await RoutineNotificationService().cancelAllSpecialPlanSchedules();
+      await RoutineNotificationService().cancelAllPlanDurationSchedules();
     } catch (e) {
-      _logger.warning('Failed to cancel special-plan schedules on logout: $e');
+      _logger.warning('Failed to cancel plan schedules on logout: $e');
     }
 
     state = state.copyWith(isLoggedIn: false, isLoading: false, isGuest: false);

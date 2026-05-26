@@ -11,16 +11,18 @@ import 'package:flutter_pecha/core/services/upgrade/upgrade_provider.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/core/widgets/error_state_widget.dart';
 import 'package:flutter_pecha/core/widgets/skeletons/skeletons.dart';
-import 'package:flutter_pecha/features/home/presentation/providers/tags_provider.dart';
+import 'package:flutter_pecha/features/home/domain/entities/series.dart';
+import 'package:flutter_pecha/features/home/presentation/providers/series_provider.dart';
 import 'package:flutter_pecha/features/home/presentation/home_screen_constants.dart';
-import 'package:flutter_pecha/features/home/presentation/widgets/tag_card.dart';
+import 'package:flutter_pecha/features/home/presentation/widgets/series_card.dart';
+import 'package:flutter_pecha/features/notifications/application/plan_enrollment_hook.dart';
 import 'package:flutter_pecha/features/notifications/application/special_plan_enrollment_hook.dart';
+import 'package:flutter_pecha/features/practice/presentation/providers/routine_provider.dart';
 import 'package:flutter_pecha/features/plans/presentation/providers/user_plans_provider.dart';
 import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:logging/logging.dart';
-import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 final _log = Logger('HomeScreen');
 
@@ -56,7 +58,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   Future<void> _requestNotificationPermissionsIfNeeded() async {
     _log.info(
-      '[SP-HOME] _requestNotificationPermissionsIfNeeded ENTER '
+      '[HOME-SCREEN] _requestNotificationPermissionsIfNeeded ENTER '
       'hasRequested=$_hasRequestedPermissions',
     );
     if (_hasRequestedPermissions) return;
@@ -65,7 +67,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final notificationService = ref.read(notificationServiceProvider);
     if (notificationService == null) {
       _log.warning(
-        '[SP-HOME] NotificationService not initialized, skipping permission request',
+        '[HOME-SCREEN] NotificationService not initialized, skipping permission request',
       );
       _navigateToPendingPlanIfNeeded();
       return;
@@ -75,14 +77,16 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       // Check if permissions are already granted
       final alreadyEnabled =
           await notificationService.areNotificationsEnabled();
-      _log.info('[SP-HOME] alreadyEnabled=$alreadyEnabled');
+      _log.info('[HOME-SCREEN] alreadyEnabled=$alreadyEnabled');
       if (!alreadyEnabled) {
-        _log.info('[SP-HOME] requesting notification permissions...');
+        _log.info('[HOME-SCREEN] requesting notification permissions...');
         final granted = await notificationService.requestPermission();
-        _log.info('[SP-HOME] permission request result granted=$granted');
+        _log.info('[HOME-SCREEN] permission request result granted=$granted');
       }
     } catch (e) {
-      _log.warning('[SP-HOME] error requesting notification permissions: $e');
+      _log.warning(
+        '[HOME-SCREEN] error requesting notification permissions: $e',
+      );
     }
 
     // Permission flow has run — fire any pending special-plan Day 1
@@ -97,22 +101,21 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   Future<void> _firePendingSpecialPlanDay1IfNeeded() async {
-    _log.info('[SP-HOME] _firePendingSpecialPlanDay1IfNeeded ENTER');
     // Invalidate first — the provider may have been evaluated pre-login
     // (no auth header) and cached a Forbidden failure. We need a fresh read.
-    _log.info('[SP-HOME] invalidating userPlansFutureProvider for fresh fetch');
+    _log.info('invalidating userPlansFutureProvider for fresh fetch');
     ref.invalidate(userPlansFutureProvider);
 
     const maxAttempts = 3;
     for (var attempt = 1; attempt <= maxAttempts; attempt++) {
-      _log.info('[SP-HOME] fetch attempt $attempt/$maxAttempts');
+      _log.info('fetch attempt $attempt/$maxAttempts');
       try {
         final userPlansAsync = await ref.read(userPlansFutureProvider.future);
         final isFailure = userPlansAsync.isLeft();
-        _log.info('[SP-HOME] attempt $attempt resolved isFailure=$isFailure');
+        _log.info('attempt $attempt resolved isFailure=$isFailure');
         if (isFailure && attempt < maxAttempts) {
           _log.warning(
-            '[SP-HOME] attempt $attempt failed — invalidating and retrying: '
+            'attempt $attempt failed — invalidating and retrying: '
             '${userPlansAsync.fold((f) => f, (_) => "")}',
           );
           ref.invalidate(userPlansFutureProvider);
@@ -122,29 +125,31 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         await userPlansAsync.fold(
           (failure) async {
             _log.warning(
-              '[SP-HOME] giving up after $attempt attempts — fetch failed: $failure',
+              'giving up after $attempt attempts — fetch failed: $failure',
             );
           },
           (response) async {
             _log.info(
-              '[SP-HOME] user plans loaded count=${response.userPlans.length} '
-              'on attempt=$attempt, calling tryFirePendingSpecialPlanDay1Notifications',
+              'user plans loaded count=${response.userPlans.length} '
+              'on attempt=$attempt — firing pending day notifications',
             );
-            await tryFirePendingSpecialPlanDay1Notifications(
+            await tryFirePendingSpecialPlanNotifications(response.userPlans);
+            await tryFirePendingPlanDayNotifications(
               response.userPlans,
+              ref.read(routineProvider).blocks,
             );
           },
         );
         break;
       } catch (e, st) {
-        _log.warning('[SP-HOME] attempt $attempt threw: $e\n$st');
+        _log.warning('attempt $attempt threw: $e\n$st');
         if (attempt < maxAttempts) {
           ref.invalidate(userPlansFutureProvider);
           await Future.delayed(const Duration(milliseconds: 400));
         }
       }
     }
-    _log.info('[SP-HOME] _firePendingSpecialPlanDay1IfNeeded EXIT');
+    _log.info('_firePendingSpecialPlanDay1IfNeeded EXIT');
   }
 
   /// Consumes [pendingOnboardingPlanProvider] and navigates to the Practice
@@ -171,52 +176,22 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   /// Manual refetch/retry method that can be called from UI
-  void _refetchTags() {
-    // Refresh the provider to immediately fetch fresh data
+  void _refetchSeries() {
     // ignore: unused_result
-    ref.refresh(tagsFutureProvider);
+    ref.refresh(seriesListFutureProvider);
   }
 
-  void _navigateToPlans(String tag) {
-    context.pushNamed('home-plans', pathParameters: {'tag': tag});
-  }
-
-  String? _getTagImagePath(String tag) {
-    final tagLower = tag.toLowerCase();
-    if (tagLower == 'abhidhamma in a year') {
-      return 'assets/images/tag_cover/abhidhamma.png';
-    } else if (tagLower == 'ultimate reality') {
-      return 'assets/images/tag_cover/ultimate_reality.png';
-    } else if (tagLower == 'anger') {
-      return 'assets/images/tag_cover/anger.jpg';
-    } else if (tagLower == 'jealousy') {
-      return 'assets/images/tag_cover/jealousy.jpg';
-    } else if (tagLower == 'prayer & praise') {
-      return 'assets/images/tag_cover/prayer_praise.jpg';
-    } else if (tagLower == 'end-of-life') {
-      return 'assets/images/tag_cover/eol.jpg';
-    } else if (tagLower == 'patience') {
-      return 'assets/images/tag_cover/patience.png';
-    } else if (tagLower == 'fear') {
-      return 'assets/images/tag_cover/fear.jpg';
-    } else if (tagLower == 'anxiety') {
-      return 'assets/images/tag_cover/anxiety.jpg';
-    } else if (tagLower == 'aspiration') {
-      return 'assets/images/tag_cover/aspiration.jpg';
-    } else if (tagLower == 'joy') {
-      return 'assets/images/tag_cover/joy.jpg';
-    } else if (tagLower == 'loneliness') {
-      return 'assets/images/tag_cover/loneliness.jpg';
-    } else if (tagLower == 'chanting the abhidhamma') {
-      return 'assets/images/tag_cover/chanting_the_abhidhanma.png';
-    } else {
-      return 'assets/images/tag_cover/cover_image.jpg';
-    }
+  void _navigateToSeries(Series series) {
+    context.pushNamed(
+      'home-series-detail',
+      pathParameters: {'id': series.id},
+      extra: {'series': series},
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    final tagsAsync = ref.watch(tagsFutureProvider);
+    final seriesAsync = ref.watch(seriesListFutureProvider);
     final l10n = context.l10n;
 
     // Check for app updates (only show once per app session)
@@ -247,32 +222,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             context,
           ).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
         ),
-        actions: [
-          GestureDetector(
-            onTap: () {
-              context.pushNamed('home-settings');
-            },
-            child: Padding(
-              padding: const EdgeInsets.only(right: 16.0),
-              child: CircleAvatar(
-                backgroundColor: Theme.of(context).cardColor,
-                radius: 20,
-                child: Icon(
-                  PhosphorIconsFill.userCircle,
-                  size: 26,
-                  color: const Color(0xFF7E7683),
-                ),
-              ),
-            ),
-          ),
-        ],
       ),
       body: SafeArea(
         child: Stack(
           children: [
             Column(
               children: [
-                _buildSearchSection(l10n, tagsAsync),
+                _buildSearchSection(l10n, seriesAsync),
                 _buildBody(context, l10n),
               ],
             ),
@@ -300,7 +256,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   Widget _buildSearchSection(
     AppLocalizations localizations,
-    AsyncValue<Either<Failure, List<String>>> tagsAsync,
+    AsyncValue<Either<Failure, List<Series>>> seriesAsync,
   ) {
     final locale = ref.watch(localeProvider);
     final lineHeight = getLineHeight(locale.languageCode);
@@ -308,14 +264,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-      child: tagsAsync.when(
-        data: (tagsEither) {
-          return tagsEither.fold(
+      child: seriesAsync.when(
+        data: (seriesEither) {
+          return seriesEither.fold(
             (failure) => const SizedBox.shrink(),
-            (tags) => FocusScope(
+            (seriesList) => FocusScope(
               node: _searchFocusScopeNode,
               onFocusChange: (isFocused) {
-                // When search view closes and focus returns to SearchBar, unfocus it
                 if (_didJustDismissSearch && isFocused) {
                   _didJustDismissSearch = false;
                   _searchFocusScopeNode.unfocus();
@@ -363,20 +318,22 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   SearchController controller,
                 ) {
                   final query = controller.text.toLowerCase();
-                  final filteredTags =
+                  final filtered =
                       query.isEmpty
-                          ? tags
-                          : tags
-                              .where((tag) => tag.toLowerCase().contains(query))
+                          ? seriesList
+                          : seriesList
+                              .where(
+                                (s) => s.title.toLowerCase().contains(query),
+                              )
                               .toList();
 
-                  if (filteredTags.isEmpty) {
+                  if (filtered.isEmpty) {
                     return [
                       Padding(
                         padding: const EdgeInsets.all(32.0),
                         child: Center(
                           child: Text(
-                            'No tags found',
+                            'No series found',
                             style: TextStyle(
                               fontSize: fontSize,
                               height: lineHeight,
@@ -391,7 +348,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     ];
                   }
 
-                  return filteredTags.map((tag) {
+                  return filtered.map((series) {
                     return ListTile(
                       leading: Icon(
                         Icons.tag,
@@ -399,7 +356,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         color: Theme.of(context).colorScheme.primary,
                       ),
                       title: Text(
-                        _capitalizeFirstLetter(tag),
+                        series.title,
                         style: TextStyle(
                           fontSize: fontSize,
                           fontWeight: FontWeight.w500,
@@ -413,9 +370,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       ),
                       onTap: () {
                         _didJustDismissSearch = true;
-                        controller.closeView(tag);
-                        _log.info('Tag selected from search: $tag');
-                        _navigateToPlans(tag);
+                        controller.closeView(series.title);
+                        _log.info('Series selected from search: ${series.id}');
+                        _navigateToSeries(series);
                       },
                     );
                   }).toList();
@@ -462,24 +419,19 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 
-  String _capitalizeFirstLetter(String text) {
-    if (text.isEmpty) return text;
-    return text[0].toUpperCase() + text.substring(1);
-  }
-
   Widget _buildBody(BuildContext context, AppLocalizations localizations) {
-    final tagsAsync = ref.watch(tagsFutureProvider);
+    final seriesAsync = ref.watch(seriesListFutureProvider);
     final language = ref.watch(localeProvider).languageCode;
     final fontSize = language == 'bo' ? 22.0 : 18.0;
 
     return Expanded(
-      child: tagsAsync.when(
-        data: (tagsEither) {
-          return tagsEither.fold(
+      child: seriesAsync.when(
+        data: (seriesEither) {
+          return seriesEither.fold(
             (failure) =>
-                ErrorStateWidget(error: failure, onRetry: _refetchTags),
-            (tags) {
-              if (tags.isEmpty) {
+                ErrorStateWidget(error: failure, onRetry: _refetchSeries),
+            (seriesList) {
+              if (seriesList.isEmpty) {
                 return Center(
                   child: Padding(
                     padding: const EdgeInsets.all(
@@ -493,7 +445,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 );
               }
 
-              // 2-column grid layout, only the grid is scrollable
               return GridView.builder(
                 padding: const EdgeInsets.symmetric(
                   horizontal: HomeScreenConstants.bodyHorizontalPadding,
@@ -505,15 +456,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   mainAxisSpacing: 8,
                   childAspectRatio: 1.4,
                 ),
-                itemCount: tags.length,
+                itemCount: seriesList.length,
                 itemBuilder: (context, index) {
-                  final tag = tags[index];
-                  return TagCard(
-                    tag: tag,
-                    imageUrl: _getTagImagePath(tag),
+                  final series = seriesList[index];
+                  return SeriesCard(
+                    series: series,
                     onTap: () {
-                      _log.info('Tag tapped: $tag');
-                      _navigateToPlans(tag);
+                      _log.info('Series tapped: ${series.id}');
+                      _navigateToSeries(series);
                     },
                   );
                 },
@@ -524,7 +474,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         loading: () => const TagGridSkeleton(),
         error:
             (error, stackTrace) =>
-                ErrorStateWidget(error: error, onRetry: _refetchTags),
+                ErrorStateWidget(error: error, onRetry: _refetchSeries),
       ),
     );
   }

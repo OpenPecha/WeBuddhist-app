@@ -12,15 +12,19 @@ class RouteGuard {
   RouteGuard._();
 
   static final _logger = AppLogger('RouteGuard');
-  static String? _pendingRoute;
 
-  /// Main redirect function called by GoRouter
+  /// Main redirect function called by GoRouter.
+  ///
+  /// [getPendingRoute] — returns the currently saved pending route.
+  /// [setPendingRoute] — saves or clears the pending route (pass null to clear).
   static Future<String?> redirect(
     BuildContext context,
     GoRouterState state,
     AuthState authState,
-    OnboardingRepository onboardingRepo,
-  ) async {
+    OnboardingRepository onboardingRepo, {
+    required String? Function() getPendingRoute,
+    required void Function(String?) setPendingRoute,
+  }) async {
     final currentPath = state.fullPath ?? AppRoutes.home;
 
     _logger.debug(
@@ -30,23 +34,30 @@ class RouteGuard {
       'guest=${authState.isGuest}',
     );
 
-    // Show login while auth is loading
-    if (authState.isLoading) return AppRoutes.login;
+    // Show splash while auth is loading.
+    if (authState.isLoading) return AppRoutes.splash;
 
     // Route based on auth state
     if (authState.isLoggedIn && !authState.isGuest) {
-      return _handleAuthenticated(currentPath, onboardingRepo);
+      return _handleAuthenticated(
+        currentPath,
+        onboardingRepo,
+        getPendingRoute,
+        setPendingRoute,
+      );
     }
     if (authState.isGuest) {
       return _handleGuest(currentPath);
     }
-    return _handleUnauthenticated(currentPath);
+    return _handleUnauthenticated(currentPath, setPendingRoute);
   }
 
   /// Authenticated user redirect logic
   static Future<String?> _handleAuthenticated(
     String path,
     OnboardingRepository onboardingRepo,
+    String? Function() getPendingRoute,
+    void Function(String?) setPendingRoute,
   ) async {
     final hasOnboarded = await onboardingRepo.isOnboardingCompleted().then(
       (result) =>
@@ -65,9 +76,10 @@ class RouteGuard {
       return AppRoutes.home;
     }
 
-    // Redirect from login to pending route or home
-    if (path == AppRoutes.login) {
-      final pending = _consumePendingRoute();
+    // Redirect from login or splash to pending route or home
+    if (path == AppRoutes.login || path == AppRoutes.splash) {
+      final pending = getPendingRoute();
+      setPendingRoute(null);
       return pending ?? AppRoutes.home;
     }
 
@@ -76,8 +88,10 @@ class RouteGuard {
 
   /// Guest user redirect logic
   static String? _handleGuest(String path) {
-    // Guests skip onboarding and login
-    if (path == AppRoutes.onboarding || path == AppRoutes.login) {
+    // Guests skip onboarding, login, and splash
+    if (path == AppRoutes.onboarding ||
+        path == AppRoutes.login ||
+        path == AppRoutes.splash) {
       return AppRoutes.home;
     }
 
@@ -91,30 +105,23 @@ class RouteGuard {
   }
 
   /// Unauthenticated user redirect logic
-  static String? _handleUnauthenticated(String path) {
-    // Allow public routes
-    if (AppRoutes.isPublicRoute(path)) return null;
+  static String? _handleUnauthenticated(
+    String path,
+    void Function(String?) setPendingRoute,
+  ) {
+    // Allow public routes; once loading is done, forward splash → login
+    if (AppRoutes.isPublicRoute(path)) {
+      if (path == AppRoutes.splash) return AppRoutes.login;
+      return null;
+    }
 
     // Require login for all other routes
     _logger.info('Unauthenticated access to $path, redirecting to login');
-    _setPendingRoute(path);
+    if (path != AppRoutes.login &&
+        path != AppRoutes.onboarding &&
+        path != AppRoutes.splash) {
+      setPendingRoute(path);
+    }
     return AppRoutes.login;
   }
-
-  // ========== Pending Route Management ==========
-
-  static void _setPendingRoute(String route) {
-    if (route != AppRoutes.login && route != AppRoutes.onboarding) {
-      _pendingRoute = route;
-    }
-  }
-
-  static String? _consumePendingRoute() {
-    final route = _pendingRoute;
-    _pendingRoute = null;
-    return route;
-  }
-
-  /// Clear pending route (call on logout)
-  static void clearPendingRoute() => _pendingRoute = null;
 }

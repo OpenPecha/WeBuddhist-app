@@ -217,7 +217,7 @@ class _PlansTab extends ConsumerWidget {
 
         return _SessionListTile(
           title: plan.title,
-          subtitle: authorName,
+          subtitle: null,
           imageUrl: plan.coverImageUrl,
           isLoading: isEnrolling,
           isDisabled: enrollingItemId != null,
@@ -331,14 +331,15 @@ class _SessionListTile extends StatelessWidget {
             children: [
               ClipRRect(
                 borderRadius: BorderRadius.circular(8),
-                child: imageUrl?.trim().isNotEmpty == true
+                child:
+                    imageUrl?.trim().isNotEmpty == true
                         ? CachedNetworkImageWidget(
-                            imageUrl: imageUrl,
-                            width: 56,
-                            height: 56,
-                            fit: BoxFit.cover,
-                            borderRadius: BorderRadius.circular(8),
-                          )
+                          imageUrl: imageUrl,
+                          width: 56,
+                          height: 56,
+                          fit: BoxFit.cover,
+                          borderRadius: BorderRadius.circular(8),
+                        )
                         : Container(
                           width: 56,
                           height: 56,

@@ -11,6 +11,10 @@
 /// No other code changes required.
 library;
 
+import 'package:flutter_pecha/core/utils/app_logger.dart';
+
+final _logger = AppLogger('SpecialPlanNotifications');
+
 class DayNotification {
   final String title;
   final String body;
@@ -45,42 +49,32 @@ const Map<String, List<DayNotification>> kSpecialPlanNotifications = {
           "Your journey to Bodhgaya begins today. If you haven't already started, jump right in.",
     ),
     DayNotification(
-      title: 'Abhidhamma in a Year',
+      title: 'ITCC: Days 1-6',
       body:
-          "Welcome to day 2 of Abhidhamma in a Year. Today's reading is short — start here.",
+          "Welcome to day 2. Yesterday we mapped the universe of phenomena using groups of three. Today look at phenomena as dualities like conditioned and unconditioned.",
       buttonText: 'START',
     ),
     DayNotification(
       title: "Today's tip",
       body:
-          'Did you know, you can tap "Edit" on the Practice page to update your reminders?',
+          'Did you know, you can tap "Edit" on the Practice page to update when you receive reminders?',
     ),
     DayNotification(
-      title: "Today's Pali word: kusula",
-      body: 'wholesome, as in kusula dhamma, wholesome phenomena.',
+      title: "Today's Pali word: kilesa",
+      body: '"Kilesa" means defilements, or mental forces that corrupt and stain the mind. The Abhidhamma identifies ten root defilements. Learn more in the app.',
       buttonText: 'START NOW',
     ),
     DayNotification(
       title: 'A verse for today',
       body:
-          '"They have gone to the state of arising together etc. with joy..." Continue in app.',
+          'Today\'s verses include lines like "States that lead to liberation. States that do not lead to liberation." setting up deep discussions in upcoming sessions.',
       buttonText: 'READ ON',
     ),
     DayNotification(
-      title: 'Today: Intro to the Matrix',
+      title: 'Last session of part 1',
       body:
-          "In today's reading, you'll learn the most important Abhidhamma terms.",
+          "Today marks a significant step: finishing part 1 - and tomorrow, you'll begin part 2.",
       buttonText: 'GOTO APP',
-    ),
-    DayNotification(
-      title: '196 days until Bodhgaya 🪷',
-      body:
-          'Every day of preparation brings the chanting closer. Open today\'s session.',
-    ),
-    DayNotification(
-      title: "You're almost there",
-      body:
-          "One more session to go in Part One. The path continues — open today's reading.",
     ),
   ],
 };
@@ -95,8 +89,7 @@ int _daysSince(DateTime startedAt, DateTime now) {
   final start = DateTime(startLocal.year, startLocal.month, startLocal.day);
   final today = DateTime(nowLocal.year, nowLocal.month, nowLocal.day);
   final days = today.difference(start).inDays;
-  // ignore: avoid_print
-  print(
+  _logger.info(
     '[SP-RESOLVER] _daysSince startedAt=$startedAt (local=$startLocal) '
     'now=$now (local=$nowLocal) -> days=$days',
   );
@@ -113,23 +106,20 @@ DayNotification? resolveSpecialPlanNotification({
 }) {
   final entries = kSpecialPlanNotifications[planId];
   if (entries == null) {
-    // ignore: avoid_print
-    print('[SP-RESOLVER] resolveSpecialPlanNotification: planId=$planId is NOT a special plan');
+    _logger.info('[SP-RESOLVER] planId=$planId is NOT a special plan');
     return null;
   }
   final index = _daysSince(startedAt, now);
   if (index < 0 || index >= entries.length) {
-    // ignore: avoid_print
-    print(
-      '[SP-RESOLVER] resolveSpecialPlanNotification: index=$index out of range '
+    _logger.info(
+      '[SP-RESOLVER] index=$index out of range '
       '[0..${entries.length - 1}] for planId=$planId -> null',
     );
     return null;
   }
   final entry = entries[index];
-  // ignore: avoid_print
-  print(
-    '[SP-RESOLVER] resolveSpecialPlanNotification: planId=$planId day=${index + 1} '
+  _logger.info(
+    '[SP-RESOLVER] planId=$planId day=${index + 1} '
     'title="${entry.title}" button="${entry.buttonText}"',
   );
   return entry;

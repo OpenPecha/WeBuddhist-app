@@ -56,16 +56,32 @@ class StorageKeys {
   static const String dailyReminderTime = 'daily_reminder_time';
   /// Daily reminder enabled flag
   static const String dailyReminderEnabled = 'daily_reminder_enabled';
-  /// Per-plan startedAt prefix for special-plan day-N notification series.
-  /// Full key: `special_plan_started_at_<planId>` → ISO8601 string.
+
+  // Special-plan (ITCC and similar) keys — hardcoded per-day content series.
+  /// Per-plan startedAt prefix. Full key: `special_plan_started_at_<planId>` → ISO8601 string.
   static const String specialPlanStartedAtPrefix = 'special_plan_started_at_';
-  /// Per-plan idempotency flag prefix preventing duplicate Day 1 immediate
-  /// fires. Full key: `special_plan_day1_shown_<planId>_<yyyy-MM-dd>` → bool.
+  /// Idempotency flag preventing duplicate immediate fires on any series day.
+  /// Full key: `special_plan_day1_shown_<planId>_<yyyy-MM-dd>` → bool.
+  /// Note: key prefix is kept for backwards compatibility with stored data.
   static const String specialPlanDay1ShownPrefix = 'special_plan_day1_shown_';
+
+  // General plan duration-based notification keys — all other enrolled plans.
+  /// Per-plan startedAt prefix. Full key: `plan_started_at_<planId>` → ISO8601 string.
+  static const String planStartedAtPrefix = 'plan_started_at_';
+  /// Per-plan totalDays prefix. Full key: `plan_total_days_<planId>` → int.
+  static const String planTotalDaysPrefix = 'plan_total_days_';
+  /// Idempotency flag preventing duplicate immediate fires.
+  /// Full key: `plan_immediate_shown_<planId>_<yyyy-MM-dd>` → bool.
+  static const String planImmediateShownPrefix = 'plan_immediate_shown_';
 
   // ========== FEATURES ==========
   /// Profile data JSON
   static const String profileData = 'profile_data';
+  /// Whether the dual-slot reader's secondary panel is enabled. Global UX
+  /// preference (bool). Slot picks (language/version/script) are per-text
+  /// and live in memory only — they don't survive navigating to a different
+  /// text because `versionId` is text-scoped and won't resolve elsewhere.
+  static const String readerSecondaryEnabled = 'reader_secondary_enabled';
 
   // ========== BUSINESS LOGIC ==========
   /// Last profile update timestamp

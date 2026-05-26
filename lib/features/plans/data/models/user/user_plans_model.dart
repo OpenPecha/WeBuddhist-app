@@ -1,3 +1,7 @@
+import 'package:flutter_pecha/features/plans/data/models/plan_tag_model.dart';
+
+export 'package:flutter_pecha/features/plans/data/models/plan_tag_model.dart';
+
 class UserPlansModel {
   final String id;
   final String title;
@@ -7,7 +11,8 @@ class UserPlansModel {
   final String? imageUrl;
   final DateTime startedAt;
   final int totalDays;
-  final List<String>? tags;
+  final List<PlanTag>? tags;
+  final DateTime? startDate;
 
   UserPlansModel({
     required this.id,
@@ -19,7 +24,10 @@ class UserPlansModel {
     required this.startedAt,
     required this.totalDays,
     required this.tags,
+    this.startDate,
   });
+
+  DateTime get effectiveStartDate => startDate ?? startedAt;
 
   factory UserPlansModel.fromJson(Map<String, dynamic> json) {
     return UserPlansModel(
@@ -29,10 +37,21 @@ class UserPlansModel {
       language: json['language'] as String,
       difficultyLevel: json['difficulty_level'] as String?,
       imageUrl: json['image_url'] as String?,
-      startedAt: DateTime.parse(json['started_at'] as String),
+      startedAt:
+          json['started_at'] != null
+              ? DateTime.parse(json['started_at'] as String)
+              : DateTime.now(),
       totalDays: json['total_days'] as int,
       tags:
-          json['tags'] != null ? List<String>.from(json['tags'] as List) : null,
+          json['tags'] != null
+              ? (json['tags'] as List)
+                  .map((t) => PlanTag.fromJson(t as Map<String, dynamic>))
+                  .toList()
+              : null,
+      startDate:
+          json['start_date'] != null
+              ? DateTime.tryParse(json['start_date'] as String)
+              : null,
     );
   }
 
@@ -46,7 +65,8 @@ class UserPlansModel {
       'image_url': imageUrl,
       'started_at': startedAt.toIso8601String(),
       'total_days': totalDays,
-      'tags': tags,
+      'tags': tags?.map((t) => t.toJson()).toList(),
+      'start_date': startDate?.toIso8601String(),
     };
   }
 }

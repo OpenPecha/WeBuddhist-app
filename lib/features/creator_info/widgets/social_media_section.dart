@@ -46,7 +46,7 @@ class SocialMediaSection extends StatelessWidget {
     ).showSnackBar(SnackBar(content: Text(message)));
   }
 
-  IconData getIcon(String account) {
+  FaIconData getIcon(String account) {
     switch (account) {
       case 'email':
         return FontAwesomeIcons.envelope;

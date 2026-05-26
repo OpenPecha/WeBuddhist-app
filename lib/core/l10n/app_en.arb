@@ -41,6 +41,7 @@
   "nav_practice": "Practice",
   "nav_settings": "Settings",
   "nav_connect": "Connect",
+  "nav_me": "Me",
   "text_browseTheLibrary": "Browse The Library",
   "text_search": "Search",
   "text_detail_rootText": "Root",
@@ -422,5 +423,13 @@
       }
     }
   },
-  "plan_enrolled": "Enrolled"
+  "plan_enrolled": "Enrolled",
+  "start_now": "Start now",
+  "plan_enroll": "Enroll",
+  "plan_starts_on": "Starts {date}",
+  "@plan_starts_on": {
+    "placeholders": {
+      "date": { "type": "String" }
+    }
+  }
 }

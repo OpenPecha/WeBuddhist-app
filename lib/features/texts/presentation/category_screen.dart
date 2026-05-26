@@ -1,6 +1,4 @@
-import 'package:fpdart/fpdart.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_pecha/core/error/failures.dart';
 import 'package:flutter_pecha/core/widgets/error_state_widget.dart';
 import 'package:flutter_pecha/features/texts/presentation/providers/collections_providers.dart';
 import 'package:flutter_pecha/features/texts/data/models/collections/collections.dart';
