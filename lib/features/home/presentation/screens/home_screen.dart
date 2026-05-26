@@ -17,6 +17,7 @@ import 'package:flutter_pecha/features/home/presentation/home_screen_constants.d
 import 'package:flutter_pecha/features/home/presentation/widgets/series_card.dart';
 import 'package:flutter_pecha/features/notifications/application/plan_enrollment_hook.dart';
 import 'package:flutter_pecha/features/notifications/application/special_plan_enrollment_hook.dart';
+import 'package:flutter_pecha/features/plans/data/utils/plan_utils.dart';
 import 'package:flutter_pecha/features/practice/presentation/providers/routine_provider.dart';
 import 'package:flutter_pecha/features/plans/presentation/providers/user_plans_provider.dart';
 import 'package:flutter_pecha/shared/utils/helper_functions.dart';
@@ -165,9 +166,22 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     // Push plan details FIRST while HomeScreen is still mounted.
     // Switching the tab index BEFORE the push would unmount HomeScreen,
     // making the subsequent context.push a no-op.
+    final anchor = plan.effectiveStartDate;
+    final selectedDay = PlanUtils.dayNumberFor(
+      anchor,
+      DateTime.now(),
+      plan.totalDays,
+    ).clamp(1, plan.totalDays);
+    _log.info(
+      '[ENROLL-NAV] onboarding open ${plan.id} '
+      'anchor=${anchor.toIso8601String()} '
+      'startDate=${plan.startDate?.toIso8601String()} '
+      'startedAt=${plan.startedAt.toIso8601String()} '
+      'selectedDay=$selectedDay/${plan.totalDays}',
+    );
     context.push(
       '/practice/details',
-      extra: {'plan': plan, 'selectedDay': 1, 'startDate': plan.startedAt},
+      extra: {'plan': plan, 'selectedDay': selectedDay, 'startDate': anchor},
     );
 
     // Switch bottom-nav to Practice so popping back from plan details

@@ -3,13 +3,19 @@ import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/features/plans/data/utils/plan_utils.dart';
 
 class MissedDaysBadge extends StatelessWidget {
-  final DateTime startDate;
+  /// Day-1 anchor of the plan (= `plan.startDate ?? plan.startedAt`).
+  final DateTime planStartDate;
+
+  /// When the user actually enrolled (= `plan.startedAt`). Used to skip
+  /// days before enrollment when counting missed days.
+  final DateTime userJoinDate;
   final int totalDays;
   final Map<int, bool> completionStatus;
 
   const MissedDaysBadge({
     super.key,
-    required this.startDate,
+    required this.planStartDate,
+    required this.userJoinDate,
     required this.totalDays,
     required this.completionStatus,
   });
@@ -17,7 +23,8 @@ class MissedDaysBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final missedDays = PlanUtils.calculateMissedDays(
-      startDate,
+      planStartDate,
+      userJoinDate,
       totalDays,
       completionStatus,
     );
