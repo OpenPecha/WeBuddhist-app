@@ -48,6 +48,7 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
   void initState() {
     super.initState();
     selectedDay = widget.selectedDay;
+    _logger.info('PlanDetails opened — id: ${widget.plan.id} | title: "${widget.plan.title}"');
   }
 
   @override
@@ -268,6 +269,7 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
                   totalDays: dayContent.tasks.length,
                   planId: widget.plan.id,
                   dayNumber: selectedDay,
+                  dayAudioUrl: dayContent.audioUrl,
                   onActivityToggled:
                       (taskId) => _handleTaskToggle(taskId, dayContent.tasks),
                   onReaderClosed: _onReaderClosed,
@@ -516,7 +518,7 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
     );
   }
 
-  void _startReading(List<UserTasksDto> tasks) {
+  void _startReading(List<UserTasksDto> tasks, {String? audioUrl}) {
     final planTextItems = PlanSubtaskNavigation.fromUserTasks(tasks);
     if (planTextItems.isEmpty) return;
 
@@ -532,6 +534,7 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
       targetSegmentId: target.firstSegmentId,
       planTextItems: planTextItems,
       currentTextIndex: index,
+      dayAudioUrl: audioUrl,
     );
 
     PlanNavigator.push(context, target, navigationContext)
@@ -548,14 +551,16 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
       ),
     );
 
-    // Extract tasks from Either type
-    final tasks = dayContent.valueOrNull?.fold(
-      (failure) => <UserTasksDto>[],
-      (dayContent) => dayContent.tasks,
+    // Extract tasks and audioUrl from Either type
+    final dayData = dayContent.valueOrNull?.fold(
+      (failure) => null,
+      (d) => d,
     );
+    final tasks = dayData?.tasks ?? <UserTasksDto>[];
+    final audioUrl = dayData?.audioUrl;
 
     final hasReadableContent =
-        tasks != null && tasks.any(PlanSubtaskNavigation.isUserTaskNavigable);
+        tasks.isNotEmpty && tasks.any(PlanSubtaskNavigation.isUserTaskNavigable);
 
     return SafeArea(
       child: Padding(
@@ -563,7 +568,9 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
         child: SizedBox(
           width: double.infinity,
           child: FilledButton(
-            onPressed: hasReadableContent ? () => _startReading(tasks) : null,
+            onPressed: hasReadableContent
+                ? () => _startReading(tasks, audioUrl: audioUrl)
+                : null,
             style: FilledButton.styleFrom(
               backgroundColor: Theme.of(context).colorScheme.onSurface,
               foregroundColor: Theme.of(context).colorScheme.surface,
