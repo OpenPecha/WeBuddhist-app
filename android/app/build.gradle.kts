@@ -24,9 +24,6 @@ if (localPropertiesFile.exists()) {
     localProperties.load(FileInputStream(localPropertiesFile))
 }
 
-val auth0Domain: String = localProperties.getProperty("auth0Domain") ?: "we-buddhist-prod.us.auth0.com"
-val auth0Scheme: String = localProperties.getProperty("auth0Scheme") ?: "org.pecha.app"
-    
 android {
     namespace = "org.pecha.app"
     compileSdk = flutter.compileSdkVersion
@@ -51,12 +48,6 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
-        manifestPlaceholders.putAll(
-            mapOf(
-                "auth0Domain" to auth0Domain,
-                "auth0Scheme" to auth0Scheme
-            )
-        )
     }
 
     val cmKeystorePath: String? = System.getenv("CM_KEYSTORE_PATH")
@@ -96,6 +87,8 @@ android {
             resValue("string", "app_name", "[Dev] WeBuddhist")
             versionNameSuffix = "-dev"
             signingConfigs.findByName("devRelease")?.let { signingConfig = it }
+            manifestPlaceholders["auth0Domain"] = "dev-vz6o17motc18g45h.us.auth0.com"
+            manifestPlaceholders["auth0Scheme"] = "org.pecha.app.dev"
         }
 
         create("staging") {
@@ -104,6 +97,8 @@ android {
             resValue("string", "app_name", "[Stage] WeBuddhist")
             versionNameSuffix = "-staging"
             signingConfigs.findByName("stagingRelease")?.let { signingConfig = it }
+            manifestPlaceholders["auth0Domain"] = "we-buddhist-prod.us.auth0.com"
+            manifestPlaceholders["auth0Scheme"] = "org.pecha.app.staging"
         }
 
         create("prod") {
@@ -111,6 +106,8 @@ android {
             applicationId = "org.pecha.app"
             resValue("string", "app_name", "WeBuddhist")
             signingConfigs.findByName("prodRelease")?.let { signingConfig = it }
+            manifestPlaceholders["auth0Domain"] = "we-buddhist-prod.us.auth0.com"
+            manifestPlaceholders["auth0Scheme"] = "org.pecha.app"
         }
     }
 

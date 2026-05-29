@@ -6,13 +6,10 @@ import 'package:flutter_pecha/features/plans/presentation/widgets/plan_navigatio
 import 'package:flutter_pecha/features/reader/data/models/navigation_context.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
-/// Activity list for the *enrolled* plan flow. Each row is one task; the
-/// chevron on a row is enabled iff at least one of its subtasks is
-/// navigable (SOURCE_REFERENCE with text id, or TEXT with non-blank
-/// content). Tapping the row opens the appropriate screen for the task's
-/// first navigable subtask, with a unified [PlanTextItem] list so the
-/// bottom-bar progress reads "1 of N", "2 of N", ... across all tasks
-/// regardless of content type.
+/// Activity list for the *enrolled* plan flow. Each row is one task; the row
+/// is enabled iff at least one subtask is navigable. Tapping the title opens
+/// the task without auto-playing audio; tapping the play icon opens it with
+/// auto-play (only shown when the task has an audio segment).
 class ActivityList extends StatelessWidget {
   final String language;
   final List<UserTasksDto> tasks;
@@ -23,6 +20,7 @@ class ActivityList extends StatelessWidget {
   final AuthorDtoModel? author;
   final String? planId;
   final int? dayNumber;
+  final String? dayAudioUrl;
 
   const ActivityList({
     super.key,
@@ -35,6 +33,7 @@ class ActivityList extends StatelessWidget {
     this.author,
     this.planId,
     this.dayNumber,
+    this.dayAudioUrl,
   });
 
   @override
@@ -49,6 +48,7 @@ class ActivityList extends StatelessWidget {
       itemBuilder: (context, index) {
         final task = sortedTasks[index];
         final isNavigable = PlanSubtaskNavigation.isUserTaskNavigable(task);
+        final hasAudio = _taskHasAudio(task);
         return Container(
           margin: const EdgeInsets.symmetric(vertical: 10),
           child: Row(
@@ -63,9 +63,16 @@ class ActivityList extends StatelessWidget {
                   language: language,
                   title: task.title,
                   hasNavigableContent: isNavigable,
-                  onTap: () => _handleActivityTap(context, task),
+                  hasAudio: hasAudio,
+                  onTap: () => _handleActivityTap(context, task, autoPlay: false),
                 ),
               ),
+              if (isNavigable && hasAudio) ...[
+                const SizedBox(width: 8),
+                _PlayButton(
+                  onTap: () => _handleActivityTap(context, task, autoPlay: true),
+                ),
+              ],
             ],
           ),
         );
@@ -73,19 +80,29 @@ class ActivityList extends StatelessWidget {
     );
   }
 
-  void _handleActivityTap(BuildContext context, UserTasksDto task) {
+  bool _taskHasAudio(UserTasksDto task) {
+    if (dayAudioUrl == null) return false;
+    return task.subTasks.any((s) => s.hasAudioWindow);
+  }
+
+  void _handleActivityTap(
+    BuildContext context,
+    UserTasksDto task, {
+    required bool autoPlay,
+  }) {
     final planTextItems = PlanSubtaskNavigation.fromUserTasks(tasks);
     if (planTextItems.isEmpty) return;
 
-    // Tapping a row should open *that* task. Find its position in the
-    // unified list (one item per task that has a navigable subtask).
     final index = planTextItems.indexWhere(
-      (item) => item.subtaskId != null &&
+      (item) =>
+          item.subtaskId != null &&
           task.subTasks.any((s) => s.id == item.subtaskId),
     );
     if (index < 0) return;
 
     final target = planTextItems[index];
+    final effectiveAudioUrl = dayAudioUrl;
+
     final navigationContext = NavigationContext(
       source: NavigationSource.plan,
       planId: planId,
@@ -93,6 +110,8 @@ class ActivityList extends StatelessWidget {
       targetSegmentId: target.firstSegmentId,
       planTextItems: planTextItems,
       currentTextIndex: index,
+      autoPlay: autoPlay,
+      dayAudioUrl: effectiveAudioUrl,
     );
 
     PlanNavigator.push(context, target, navigationContext)
@@ -134,19 +153,22 @@ class _TaskCheckbox extends StatelessWidget {
   }
 }
 
-/// Task title button with ripple effect
+/// Task title button — tapping opens the task without audio auto-play.
+/// Shows the original chevron when the task is navigable but has no audio.
 class _TaskTitleButton extends StatelessWidget {
   const _TaskTitleButton({
     required this.title,
     required this.onTap,
     required this.language,
     required this.hasNavigableContent,
+    required this.hasAudio,
   });
 
   final String title;
   final VoidCallback onTap;
   final String language;
   final bool hasNavigableContent;
+  final bool hasAudio;
 
   @override
   Widget build(BuildContext context) {
@@ -168,7 +190,7 @@ class _TaskTitleButton extends StatelessWidget {
                       ),
                 ),
               ),
-              if (hasNavigableContent) ...[
+              if (hasNavigableContent && !hasAudio) ...[
                 const SizedBox(width: 8),
                 Icon(
                   Icons.arrow_forward_ios,
@@ -178,6 +200,34 @@ class _TaskTitleButton extends StatelessWidget {
               ],
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Circular play button shown on tasks that have an audio segment.
+class _PlayButton extends StatelessWidget {
+  const _PlayButton({required this.onTap});
+
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final color = Theme.of(context).colorScheme.onSurface;
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(24),
+        child: Container(
+          width: 40,
+          height: 40,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            border: Border.all(color: color.withAlpha(100), width: 1),
+          ),
+          child: Icon(Icons.play_arrow, size: 22, color: color),
         ),
       ),
     );
