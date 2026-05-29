@@ -1,4 +1,5 @@
 import 'package:flutter_pecha/features/plans/data/models/plan_tag_model.dart';
+import 'package:flutter_pecha/features/plans/data/utils/plan_utils.dart';
 
 export 'package:flutter_pecha/features/plans/data/models/plan_tag_model.dart';
 
@@ -48,10 +49,7 @@ class UserPlansModel {
                   .map((t) => PlanTag.fromJson(t as Map<String, dynamic>))
                   .toList()
               : null,
-      startDate:
-          json['start_date'] != null
-              ? DateTime.tryParse(json['start_date'] as String)
-              : null,
+      startDate: PlanUtils.parseCalendarDate(json['start_date'] as String?),
     );
   }
 

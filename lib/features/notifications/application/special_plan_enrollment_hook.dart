@@ -12,8 +12,9 @@ final _logger = AppLogger('SpecialPlanEnrollmentHook');
 /// an immediate to avoid duplicates.
 const int kRoutineBlockHourThreshold = 9;
 
-/// Caches [plan.startedAt] (server truth) into [SpecialPlanStartedAtStore]
-/// so the notification scheduler can compute the correct day-N at fire time.
+/// Caches the plan's day-1 anchor ([plan.effectiveStartDate]) into
+/// [SpecialPlanStartedAtStore] so the notification scheduler can compute
+/// the correct day-N at fire time.
 ///
 /// Does NOT fire an immediate notification. Permission is only requested after
 /// HomeScreen mounts; the actual fire happens via [tryFirePendingSpecialPlanNotifications].
@@ -23,19 +24,23 @@ Future<void> onSpecialPlanEnrolled(UserPlansModel plan) async {
   final anchor = plan.effectiveStartDate;
   await SpecialPlanStartedAtStore.setStartedAt(plan.id, anchor);
   _logger.info(
-    '[SP-HOOK] cached anchor for ${plan.id} = ${anchor.toIso8601String()} '
-    '(startDate=${plan.startDate?.toIso8601String()}, startedAt=${plan.startedAt.toIso8601String()})',
+    '[ENROLL-NOTIF-SP] cached ${plan.id} anchor=${anchor.toIso8601String()} '
+    'startDate=${plan.startDate?.toIso8601String()} '
+    'startedAt=${plan.startedAt.toIso8601String()}',
   );
 }
 
 /// Fires an immediate notification for any [plans] whose series is active
-/// today and whose scheduled block time (09:00) has already passed.
+/// today and whose scheduled block time has already passed.
 ///
-/// Handles all three cases:
-///   - **Day 1 / new enrol**: startedAt == today, past 09:00 → fire Day 1.
-///   - **Delete + re-enrol**: startedAt is in the past, still within series,
-///     past 09:00 → fire the current day's content.
-///   - **Start date in the future**: skip — scheduled one-shot handles it.
+/// Handles:
+///   - **Day 1 / new enrol**: anchor == today, past block time → fire Day 1.
+///   - **Late enrollment**: anchor in past, today is day-N within series →
+///     fire Day-N (e.g. user joined on day 5 → fire Day 5 notification).
+///   - **Delete + re-enrol**: anchor in past, still within series → fire
+///     current day.
+///   - **Anchor in the future** (early enrol): skip — scheduled one-shot
+///     handles it on the plan's actual day 1.
 ///
 /// Idempotent: uses a per-date flag so repeated calls on the same day are
 /// no-ops even if the user opens the app multiple times.
@@ -52,35 +57,50 @@ Future<void> tryFirePendingSpecialPlanNotifications(
     if (!isSpecialPlan(plan.id)) continue;
 
     final anchorLocal = plan.effectiveStartDate.toLocal();
-    final isPlanDay1 =
-        DateTime(anchorLocal.year, anchorLocal.month, anchorLocal.day) ==
-        DateTime(now.year, now.month, now.day);
+    final anchorDay = DateTime(
+      anchorLocal.year,
+      anchorLocal.month,
+      anchorLocal.day,
+    );
 
-    if (!isPlanDay1) {
+    // Plan hasn't started yet (early enrollment) — the scheduled one-shot
+    // will fire on the plan's actual day 1.
+    if (anchorDay.isAfter(today)) {
+      _logger.info(
+        '[ENROLL-NOTIF-SP] skip ${plan.id}: anchor in future '
+        '(${anchorDay.toIso8601String()} > ${today.toIso8601String()})',
+      );
       continue;
     }
 
-    // Before 09:00 the scheduled one-shot handles the notification.
+    // Today is on or after day 1 — figure out which day-N we're on so we
+    // can fire the right immediate.
+    final daysSince = today.difference(anchorDay).inDays;
+    final dayNumber = daysSince + 1;
+
+    // Before the block time the scheduled one-shot handles the notification.
     if (now.hour < kRoutineBlockHourThreshold) {
       _logger.info(
-        'skip ${plan.id}: before block time (${now.hour}h < ${kRoutineBlockHourThreshold}h)',
+        '[ENROLL-NOTIF-SP] skip ${plan.id}: before block time '
+        '(${now.hour}h < ${kRoutineBlockHourThreshold}h) day=$dayNumber',
       );
       continue;
     }
 
     // Idempotency: already shown today?
     if (SpecialPlanStartedAtStore.wasShownOn(plan.id, today)) {
-      _logger.info('skip ${plan.id}: already shown today');
+      _logger.info(
+        '[ENROLL-NOTIF-SP] skip ${plan.id}: already shown today day=$dayNumber',
+      );
       continue;
     }
 
-    // Ensure the cache has the startedAt — usually populated by
+    // Ensure the cache has the anchor — usually populated by
     // [onSpecialPlanEnrolled] or the bootstrap listener, but be defensive.
     final cached = SpecialPlanStartedAtStore.getStartedAt(plan.id);
-    _logger.info('[SP-DAY1-HOOK] cache lookup ${plan.id} cached=$cached');
     if (cached == null) {
       _logger.info(
-        '[SP-DAY1-HOOK] cache miss ${plan.id} — priming effectiveStartDate',
+        '[ENROLL-NOTIF-SP] cache miss ${plan.id} — priming effectiveStartDate=${plan.effectiveStartDate.toIso8601String()}',
       );
       await SpecialPlanStartedAtStore.setStartedAt(
         plan.id,
@@ -88,7 +108,9 @@ Future<void> tryFirePendingSpecialPlanNotifications(
       );
     }
 
-    // _logger.info('Firing day ${daysSince + 1} immediate for ${plan.id}');
+    _logger.info(
+      '[ENROLL-NOTIF-SP] firing ${plan.id} day=$dayNumber anchor=${anchorDay.toIso8601String()}',
+    );
     await RoutineNotificationService().showSpecialPlanCurrentDayImmediate(
       planId: plan.id,
       planTitle: plan.title,

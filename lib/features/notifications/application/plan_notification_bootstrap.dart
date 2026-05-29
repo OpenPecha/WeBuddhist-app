@@ -23,7 +23,7 @@ final planNotificationBootstrapProvider = Provider<void>((ref) {
   ref.listen<AsyncValue<dynamic>>(userPlansFutureProvider, (_, next) {
     next.whenData((either) {
       either.fold(
-        (failure) => _logger.warning('userPlans fetch failed: $failure'),
+        (failure) => _logger.warning('[ENROLL-NOTIF] userPlans fetch failed: $failure'),
         (response) async {
           for (final plan in response.userPlans) {
             if (!isSpecialPlan(plan.id)) await _bootstrap(ref, plan);
@@ -54,22 +54,27 @@ Future<void> _bootstrap(Ref ref, UserPlansModel plan) async {
   if (matchingBlockOrNull == null) {
     // Plan was removed from the routine — clear stale metadata so
     // re-enrolment is treated as fresh.
-    _logger.info('${plan.id} not in routine — clearing cached metadata');
+    _logger.info('[ENROLL-NOTIF] ${plan.id} not in routine — clearing cached metadata');
     await PlanMetadataStore.clear(plan.id);
     return;
   }
 
   // Keep the cached metadata in sync with server truth.
+  final anchor = plan.effectiveStartDate;
   final cached = PlanMetadataStore.getMetadata(plan.id);
   final isUpToDate =
-      cached?.startedAt.toIso8601String() == plan.startedAt.toIso8601String() &&
+      cached?.effectiveStartDate.toIso8601String() == anchor.toIso8601String() &&
       cached?.totalDays == plan.totalDays;
 
   if (!isUpToDate) {
-    _logger.info('${plan.id} metadata changed — updating cache');
+    _logger.info(
+      '[ENROLL-NOTIF] ${plan.id} metadata changed — updating cache '
+      '(cached=${cached?.toString()}, anchor=${anchor.toIso8601String()}, '
+      'startDate=${plan.startDate?.toIso8601String()}, startedAt=${plan.startedAt.toIso8601String()})',
+    );
     await PlanMetadataStore.setMetadata(
       plan.id,
-      startedAt: plan.startedAt,
+      effectiveStartDate: anchor,
       totalDays: plan.totalDays,
     );
   }
@@ -85,6 +90,6 @@ Future<void> _bootstrap(Ref ref, UserPlansModel plan) async {
       blockMinute: matchingBlockOrNull.time.minute,
     );
   } catch (e, st) {
-    _logger.error('Failed to reschedule ${plan.id}', e, st);
+    _logger.error('[ENROLL-NOTIF] Failed to reschedule ${plan.id}', e, st);
   }
 }

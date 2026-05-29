@@ -6,17 +6,25 @@ final _logger = AppLogger('PlanMetadataStore');
 
 /// Enrollment metadata for a single plan.
 class PlanMetadata {
-  final DateTime startedAt;
+  /// Day-1 anchor of the plan. Equals `plan.startDate ?? plan.startedAt`.
+  /// For fixed-date plans this is the plan's scheduled start (e.g. May 13).
+  /// For flexible plans this is when the user enrolled.
+  ///
+  /// All notification day-numbering is computed against this anchor.
+  final DateTime effectiveStartDate;
   final int totalDays;
 
-  const PlanMetadata({required this.startedAt, required this.totalDays});
+  const PlanMetadata({
+    required this.effectiveStartDate,
+    required this.totalDays,
+  });
 
   @override
   String toString() =>
-      'PlanMetadata(startedAt: ${startedAt.toIso8601String()}, totalDays: $totalDays)';
+      'PlanMetadata(effectiveStartDate: ${effectiveStartDate.toIso8601String()}, totalDays: $totalDays)';
 }
 
-/// Synchronous-read store for enrolled plan metadata (startedAt + totalDays).
+/// Synchronous-read store for enrolled plan metadata (effectiveStartDate + totalDays).
 ///
 /// The notification scheduler is a non-Riverpod singleton invoked from
 /// background contexts, so it cannot await SharedPreferences each time.
@@ -41,34 +49,45 @@ class PlanMetadataStore {
     final prefs = _prefs;
     if (prefs == null) return null;
 
-    final rawDate = prefs.getString(_startedAtKey(planId));
+    final rawDate = prefs.getString(_anchorKey(planId));
     final totalDays = prefs.getInt(_totalDaysKey(planId));
     if (rawDate == null || totalDays == null) return null;
 
-    final startedAt = DateTime.tryParse(rawDate);
-    if (startedAt == null) {
-      _logger.warning('Failed to parse startedAt for $planId: "$rawDate"');
+    final effectiveStartDate = DateTime.tryParse(rawDate);
+    if (effectiveStartDate == null) {
+      _logger.warning(
+        '[NOTIF-META] failed to parse effectiveStartDate for $planId: "$rawDate"',
+      );
       return null;
     }
-    return PlanMetadata(startedAt: startedAt, totalDays: totalDays);
+    return PlanMetadata(
+      effectiveStartDate: effectiveStartDate,
+      totalDays: totalDays,
+    );
   }
 
-  /// Persists [startedAt] and [totalDays] for [planId].
+  /// Persists [effectiveStartDate] (plan day-1 anchor) and [totalDays] for [planId].
   static Future<void> setMetadata(
     String planId, {
-    required DateTime startedAt,
+    required DateTime effectiveStartDate,
     required int totalDays,
   }) async {
     final prefs = await _ensurePrefs();
-    await prefs.setString(_startedAtKey(planId), startedAt.toIso8601String());
+    await prefs.setString(
+      _anchorKey(planId),
+      effectiveStartDate.toIso8601String(),
+    );
     await prefs.setInt(_totalDaysKey(planId), totalDays);
+    _logger.info(
+      '[NOTIF-META] stored $planId anchor=${effectiveStartDate.toIso8601String()} totalDays=$totalDays',
+    );
   }
 
   /// Removes all metadata and shown flags for [planId]. Call when the user
   /// removes the plan from their routine so a re-enrol starts fresh.
   static Future<void> clear(String planId) async {
     final prefs = await _ensurePrefs();
-    await prefs.remove(_startedAtKey(planId));
+    await prefs.remove(_anchorKey(planId));
     await prefs.remove(_totalDaysKey(planId));
     for (final key in prefs.getKeys().where(_isShownFlagForPlan(planId)).toList()) {
       await prefs.remove(key);
@@ -116,7 +135,10 @@ class PlanMetadataStore {
 
   // ─── Private helpers ──────────────────────────────────────────────────────
 
-  static String _startedAtKey(String planId) =>
+  // Storage key is kept as `planStartedAtPrefix` for backwards compatibility
+  // with previously stored values. Semantically it now holds the plan day-1
+  // anchor (effectiveStartDate), not the user's enrollment timestamp.
+  static String _anchorKey(String planId) =>
       '${StorageKeys.planStartedAtPrefix}$planId';
 
   static String _totalDaysKey(String planId) =>

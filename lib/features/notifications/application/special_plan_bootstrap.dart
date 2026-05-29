@@ -37,6 +37,13 @@ final specialPlanBootstrapProvider = Provider<void>((ref) {
 });
 
 Future<void> _bootstrap(Ref ref, UserPlansModel plan) async {
+  _logger.info(
+    '[ENROLL-NOTIF-SP] bootstrap ${plan.id} '
+    'startDate=${plan.startDate?.toIso8601String()} '
+    'startedAt=${plan.startedAt.toIso8601String()} '
+    'effective=${plan.effectiveStartDate.toIso8601String()}',
+  );
+
   // Determine whether the plan is in the user's current local routine.
   final routineBlocks = ref.read(routineProvider).blocks;
 
@@ -44,7 +51,12 @@ Future<void> _bootstrap(Ref ref, UserPlansModel plan) async {
   // before routineProvider has loaded its Hive data. An empty routine is
   // ambiguous (might mean "not yet loaded"), so skip the cleanup to avoid
   // incorrectly wiping metadata; the next bootstrap fire will catch up.
-  if (routineBlocks.isEmpty) return;
+  if (routineBlocks.isEmpty) {
+    _logger.info(
+      '[ENROLL-NOTIF-SP] bootstrap ${plan.id} — routine empty/not loaded yet, skip',
+    );
+    return;
+  }
 
   final inRoutine = routineBlocks.any(
     (block) => block.items.any(
@@ -60,11 +72,21 @@ Future<void> _bootstrap(Ref ref, UserPlansModel plan) async {
     return;
   }
 
-  // Keep the cached startedAt in sync with server truth.
+  // Keep the cached anchor in sync with server truth. We store the plan's
+  // day-1 anchor (effectiveStartDate = startDate ?? startedAt) so that late
+  // joiners see the correct day-N notification (e.g. "Day 6" content), not
+  // Day 1 from their enrollment time.
+  final anchor = plan.effectiveStartDate;
   final cached = SpecialPlanStartedAtStore.getStartedAt(plan.id);
-  if (cached?.toIso8601String() != plan.startedAt.toIso8601String()) {
-    _logger.info('${plan.id} startedAt changed — updating cache');
-    await SpecialPlanStartedAtStore.setStartedAt(plan.id, plan.startedAt);
+  if (cached?.toIso8601String() != anchor.toIso8601String()) {
+    _logger.info(
+      '[ENROLL-NOTIF-SP] ${plan.id} anchor changed — updating cache '
+      '(cached=${cached?.toIso8601String()}, '
+      'anchor=${anchor.toIso8601String()}, '
+      'startDate=${plan.startDate?.toIso8601String()}, '
+      'startedAt=${plan.startedAt.toIso8601String()})',
+    );
+    await SpecialPlanStartedAtStore.setStartedAt(plan.id, anchor);
   }
 
   // Find the matching routine block to use its scheduled time.
@@ -76,6 +98,10 @@ Future<void> _bootstrap(Ref ref, UserPlansModel plan) async {
 
   // Reschedule is idempotent: cancels prior IDs first, then rebuilds the
   // future one-shot series. Survives reinstall and re-login.
+  _logger.info(
+    '[ENROLL-NOTIF-SP] bootstrap ${plan.id} — reschedule with '
+    'block=${matchingBlock.time.hour}:${matchingBlock.time.minute.toString().padLeft(2, '0')}',
+  );
   try {
     await ref.read(routineNotificationServiceProvider).rescheduleSpecialPlanSeries(
       planId: plan.id,
@@ -85,6 +111,6 @@ Future<void> _bootstrap(Ref ref, UserPlansModel plan) async {
       blockMinute: matchingBlock.time.minute,
     );
   } catch (e, st) {
-    _logger.error('Failed to reschedule ${plan.id}', e, st);
+    _logger.error('[ENROLL-NOTIF-SP] reschedule failed for ${plan.id}', e, st);
   }
 }
