@@ -928,6 +928,132 @@ abstract class AppLocalizations {
   /// **'Notification Settings'**
   String get notification_settings;
 
+  /// No description provided for @notification_section_notifications.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications'**
+  String get notification_section_notifications;
+
+  /// No description provided for @notification_section_categories.
+  ///
+  /// In en, this message translates to:
+  /// **'Categories'**
+  String get notification_section_categories;
+
+  /// No description provided for @notification_section_alarms.
+  ///
+  /// In en, this message translates to:
+  /// **'Alarms & Reminders'**
+  String get notification_section_alarms;
+
+  /// No description provided for @notification_section_battery.
+  ///
+  /// In en, this message translates to:
+  /// **'Battery  ·  Optional'**
+  String get notification_section_battery;
+
+  /// No description provided for @notification_allow_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow Notifications'**
+  String get notification_allow_title;
+
+  /// No description provided for @notification_allow_subtitle_enabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications are enabled for this app'**
+  String get notification_allow_subtitle_enabled;
+
+  /// No description provided for @notification_allow_subtitle_disabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to enable — shows system prompt or opens Settings'**
+  String get notification_allow_subtitle_disabled;
+
+  /// No description provided for @notification_routine_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Routine Reminders'**
+  String get notification_routine_title;
+
+  /// No description provided for @notification_routine_subtitle_enabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily reminders for your practice blocks'**
+  String get notification_routine_subtitle_enabled;
+
+  /// No description provided for @notification_routine_subtitle_disabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Muted — tap to re-enable in system settings'**
+  String get notification_routine_subtitle_disabled;
+
+  /// No description provided for @notification_alarms_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Exact Alarms'**
+  String get notification_alarms_title;
+
+  /// No description provided for @notification_alarms_subtitle_enabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications fire at the exact scheduled time'**
+  String get notification_alarms_subtitle_enabled;
+
+  /// No description provided for @notification_alarms_subtitle_disabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Required on Android 12+ — tap to grant'**
+  String get notification_alarms_subtitle_disabled;
+
+  /// No description provided for @notification_battery_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Unrestricted Battery'**
+  String get notification_battery_title;
+
+  /// No description provided for @notification_battery_subtitle_enabled.
+  ///
+  /// In en, this message translates to:
+  /// **'App is exempt from battery optimization — reminders will fire on time even when the app is closed or the phone is idle'**
+  String get notification_battery_subtitle_enabled;
+
+  /// No description provided for @notification_battery_subtitle_disabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Devices such as OnePlus, Xiaomi, Redmi etc may kill background apps. Enable this to keep notifications reliable.'**
+  String get notification_battery_subtitle_disabled;
+
+  /// No description provided for @notification_snack_permission_denied.
+  ///
+  /// In en, this message translates to:
+  /// **'Permission denied — opening App Settings.'**
+  String get notification_snack_permission_denied;
+
+  /// No description provided for @notification_snack_disable_in_settings.
+  ///
+  /// In en, this message translates to:
+  /// **'Opening App Settings — turn off notifications there.'**
+  String get notification_snack_disable_in_settings;
+
+  /// No description provided for @notification_snack_ios_manage_in_settings.
+  ///
+  /// In en, this message translates to:
+  /// **'Opening Settings — manage notifications there.'**
+  String get notification_snack_ios_manage_in_settings;
+
+  /// No description provided for @notification_snack_disable_alarms_in_settings.
+  ///
+  /// In en, this message translates to:
+  /// **'Opening App Settings — disable Alarms & Reminders there.'**
+  String get notification_snack_disable_alarms_in_settings;
+
+  /// No description provided for @notification_snack_battery_reenable.
+  ///
+  /// In en, this message translates to:
+  /// **'Opening App Settings — re-enable optimization under Battery.'**
+  String get notification_snack_battery_reenable;
+
   /// No description provided for @settings_account.
   ///
   /// In en, this message translates to:

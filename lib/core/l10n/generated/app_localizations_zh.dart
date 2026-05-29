@@ -426,6 +426,82 @@ class AppLocalizationsZh extends AppLocalizations {
   String get notification_settings => '通知設定';
 
   @override
+  String get notification_section_notifications => 'Notifications';
+
+  @override
+  String get notification_section_categories => 'Categories';
+
+  @override
+  String get notification_section_alarms => 'Alarms & Reminders';
+
+  @override
+  String get notification_section_battery => 'Battery  ·  Optional';
+
+  @override
+  String get notification_allow_title => 'Allow Notifications';
+
+  @override
+  String get notification_allow_subtitle_enabled =>
+      'Notifications are enabled for this app';
+
+  @override
+  String get notification_allow_subtitle_disabled =>
+      'Tap to enable — shows system prompt or opens Settings';
+
+  @override
+  String get notification_routine_title => 'Routine Reminders';
+
+  @override
+  String get notification_routine_subtitle_enabled =>
+      'Daily reminders for your practice blocks';
+
+  @override
+  String get notification_routine_subtitle_disabled =>
+      'Muted — tap to re-enable in system settings';
+
+  @override
+  String get notification_alarms_title => 'Exact Alarms';
+
+  @override
+  String get notification_alarms_subtitle_enabled =>
+      'Notifications fire at the exact scheduled time';
+
+  @override
+  String get notification_alarms_subtitle_disabled =>
+      'Required on Android 12+ — tap to grant';
+
+  @override
+  String get notification_battery_title => 'Unrestricted Battery';
+
+  @override
+  String get notification_battery_subtitle_enabled =>
+      'App is exempt from battery optimization — reminders will fire on time even when the app is closed or the phone is idle';
+
+  @override
+  String get notification_battery_subtitle_disabled =>
+      'Devices such as OnePlus, Xiaomi, Redmi etc may kill background apps. Enable this to keep notifications reliable.';
+
+  @override
+  String get notification_snack_permission_denied =>
+      'Permission denied — opening App Settings.';
+
+  @override
+  String get notification_snack_disable_in_settings =>
+      'Opening App Settings — turn off notifications there.';
+
+  @override
+  String get notification_snack_ios_manage_in_settings =>
+      'Opening Settings — manage notifications there.';
+
+  @override
+  String get notification_snack_disable_alarms_in_settings =>
+      'Opening App Settings — disable Alarms & Reminders there.';
+
+  @override
+  String get notification_snack_battery_reenable =>
+      'Opening App Settings — re-enable optimization under Battery.';
+
+  @override
   String get settings_account => '帳號';
 
   @override
