@@ -115,31 +115,31 @@ abstract class AppLocalizations {
   /// No description provided for @learnLiveShare.
   ///
   /// In en, this message translates to:
-  /// **'Learn, Live, and Share'**
+  /// **'Learn, practice, and connect'**
   String get learnLiveShare;
 
   /// No description provided for @themeLight.
   ///
   /// In en, this message translates to:
-  /// **'Light Mode'**
+  /// **'Light mode'**
   String get themeLight;
 
   /// No description provided for @themeDark.
   ///
   /// In en, this message translates to:
-  /// **'Dark Mode'**
+  /// **'Dark mode'**
   String get themeDark;
 
   /// No description provided for @switchToLight.
   ///
   /// In en, this message translates to:
-  /// **'Switch to Light Mode'**
+  /// **'Switch to light mode'**
   String get switchToLight;
 
   /// No description provided for @switchToDark.
   ///
   /// In en, this message translates to:
-  /// **'Switch to Dark Mode'**
+  /// **'Switch to dark mode'**
   String get switchToDark;
 
   /// No description provided for @sign_in.
@@ -151,7 +151,7 @@ abstract class AppLocalizations {
   /// No description provided for @logout.
   ///
   /// In en, this message translates to:
-  /// **'Logout'**
+  /// **'Log out'**
   String get logout;
 
   /// No description provided for @onboarding_welcome.
@@ -163,7 +163,7 @@ abstract class AppLocalizations {
   /// No description provided for @onboarding_description.
   ///
   /// In en, this message translates to:
-  /// **'Where we learn, live, and share Buddhist wisdom every day'**
+  /// **'Where we learn, practice, and share connect. Daily'**
   String get onboarding_description;
 
   /// No description provided for @onboarding_quote.
@@ -175,7 +175,7 @@ abstract class AppLocalizations {
   /// No description provided for @onboarding_find_peace.
   ///
   /// In en, this message translates to:
-  /// **'Get Started'**
+  /// **'Get started'**
   String get onboarding_find_peace;
 
   /// No description provided for @onboarding_continue.
@@ -193,7 +193,7 @@ abstract class AppLocalizations {
   /// No description provided for @onboarding_second_question.
   ///
   /// In en, this message translates to:
-  /// **'Which path or school do you feel drawn to?'**
+  /// **'Choose the traditions you\'re part of or want to explore:'**
   String get onboarding_second_question;
 
   /// No description provided for @onboarding_choose_option.
@@ -211,13 +211,13 @@ abstract class AppLocalizations {
   /// No description provided for @onboarding_all_set_description.
   ///
   /// In en, this message translates to:
-  /// **'We\'ve tailored your experience to your tradition. Show up each day — even for a moment — and watch your practice grow.'**
+  /// **'We\'ve tailored your experience to your tradition. Show up each day — even for a moment — and watch your practice grow'**
   String get onboarding_all_set_description;
 
   /// No description provided for @onboarding_begin_practice.
   ///
   /// In en, this message translates to:
-  /// **'Begin Your Practice'**
+  /// **'Begin your practice'**
   String get onboarding_begin_practice;
 
   /// No description provided for @home_today.
@@ -229,19 +229,19 @@ abstract class AppLocalizations {
   /// No description provided for @home_good_morning.
   ///
   /// In en, this message translates to:
-  /// **'Good Morning'**
+  /// **'Good morning'**
   String get home_good_morning;
 
   /// No description provided for @home_good_afternoon.
   ///
   /// In en, this message translates to:
-  /// **'Good Afternoon'**
+  /// **'Good afternoon'**
   String get home_good_afternoon;
 
   /// No description provided for @home_good_evening.
   ///
   /// In en, this message translates to:
-  /// **'Good Evening'**
+  /// **'Good evening'**
   String get home_good_evening;
 
   /// No description provided for @home_meditationTitle.
@@ -253,7 +253,7 @@ abstract class AppLocalizations {
   /// No description provided for @home_prayerTitle.
   ///
   /// In en, this message translates to:
-  /// **'Prayer of the Day'**
+  /// **'Prayer of the day'**
   String get home_prayerTitle;
 
   /// No description provided for @home_scripture.
@@ -265,19 +265,19 @@ abstract class AppLocalizations {
   /// No description provided for @home_meditation.
   ///
   /// In en, this message translates to:
-  /// **'Guided Meditation'**
+  /// **'Guided meditation'**
   String get home_meditation;
 
   /// No description provided for @home_goDeeper.
   ///
   /// In en, this message translates to:
-  /// **'Go Deeper'**
+  /// **'Go deeper'**
   String get home_goDeeper;
 
   /// No description provided for @home_intention.
   ///
   /// In en, this message translates to:
-  /// **'My Intention for Today'**
+  /// **'My intention for today'**
   String get home_intention;
 
   /// No description provided for @home_recitation.
@@ -355,7 +355,7 @@ abstract class AppLocalizations {
   /// No description provided for @text_browseTheLibrary.
   ///
   /// In en, this message translates to:
-  /// **'Browse The Library'**
+  /// **'Browse the library'**
   String get text_browseTheLibrary;
 
   /// No description provided for @text_search.
@@ -379,7 +379,7 @@ abstract class AppLocalizations {
   /// No description provided for @text_toc_continueReading.
   ///
   /// In en, this message translates to:
-  /// **'Continue Reading'**
+  /// **'Continue reading'**
   String get text_toc_continueReading;
 
   /// No description provided for @text_toc_content.
@@ -463,13 +463,13 @@ abstract class AppLocalizations {
   /// No description provided for @no_commentary.
   ///
   /// In en, this message translates to:
-  /// **'No commentary found'**
+  /// **'No commentaries found'**
   String get no_commentary;
 
   /// No description provided for @no_commentary_message.
   ///
   /// In en, this message translates to:
-  /// **'There are no commentaries available for this segment.'**
+  /// **'No commentaries available for this segment'**
   String get no_commentary_message;
 
   /// No description provided for @loading.
@@ -481,19 +481,19 @@ abstract class AppLocalizations {
   /// No description provided for @choose_image.
   ///
   /// In en, this message translates to:
-  /// **'Choose Image'**
+  /// **'Choose image'**
   String get choose_image;
 
   /// No description provided for @choose_bg_image.
   ///
   /// In en, this message translates to:
-  /// **'Choose Your Background Image'**
+  /// **'Choose a background image'**
   String get choose_bg_image;
 
   /// No description provided for @create_image.
   ///
   /// In en, this message translates to:
-  /// **'Create Image'**
+  /// **'Create image'**
   String get create_image;
 
   /// No description provided for @save.
@@ -517,7 +517,7 @@ abstract class AppLocalizations {
   /// No description provided for @download_image.
   ///
   /// In en, this message translates to:
-  /// **'Download Image'**
+  /// **'Download image'**
   String get download_image;
 
   /// No description provided for @no_images_available.
@@ -529,25 +529,25 @@ abstract class AppLocalizations {
   /// No description provided for @customise_text.
   ///
   /// In en, this message translates to:
-  /// **'Customise Text'**
+  /// **'Customize text'**
   String get customise_text;
 
   /// No description provided for @text_size.
   ///
   /// In en, this message translates to:
-  /// **'Text Size'**
+  /// **'Text size'**
   String get text_size;
 
   /// No description provided for @text_color.
   ///
   /// In en, this message translates to:
-  /// **'Text Color'**
+  /// **'Text color'**
   String get text_color;
 
   /// No description provided for @text_shadow.
   ///
   /// In en, this message translates to:
-  /// **'Text Shadow'**
+  /// **'Text shadow'**
   String get text_shadow;
 
   /// No description provided for @apply.
@@ -565,43 +565,43 @@ abstract class AppLocalizations {
   /// No description provided for @my_plans.
   ///
   /// In en, this message translates to:
-  /// **'My Plans'**
+  /// **'My plans'**
   String get my_plans;
 
   /// No description provided for @find_plans.
   ///
   /// In en, this message translates to:
-  /// **'Find Plans'**
+  /// **'Find plans'**
   String get find_plans;
 
   /// No description provided for @browse_plans.
   ///
   /// In en, this message translates to:
-  /// **'Browse Plans'**
+  /// **'Browse plans'**
   String get browse_plans;
 
   /// No description provided for @plan_info.
   ///
   /// In en, this message translates to:
-  /// **'Plan Info'**
+  /// **'Plan info'**
   String get plan_info;
 
   /// No description provided for @start_plan.
   ///
   /// In en, this message translates to:
-  /// **'Start Plan'**
+  /// **'Start plan'**
   String get start_plan;
 
   /// No description provided for @start_reading.
   ///
   /// In en, this message translates to:
-  /// **'Start Reading'**
+  /// **'Start reading'**
   String get start_reading;
 
   /// No description provided for @continue_plan.
   ///
   /// In en, this message translates to:
-  /// **'Continue Plan'**
+  /// **'Continue plan'**
   String get continue_plan;
 
   /// No description provided for @tibetan.
@@ -637,25 +637,25 @@ abstract class AppLocalizations {
   /// No description provided for @dailyPracticeNotificationTitle.
   ///
   /// In en, this message translates to:
-  /// **'Daily Practice Reminder'**
+  /// **'Daily practice reminder'**
   String get dailyPracticeNotificationTitle;
 
   /// No description provided for @timeForDailyPractice.
   ///
   /// In en, this message translates to:
-  /// **'It\'s time for your daily practice.'**
+  /// **'It\'s time for your practice session'**
   String get timeForDailyPractice;
 
   /// No description provided for @recitation_reminder.
   ///
   /// In en, this message translates to:
-  /// **'Recitations Reminder.'**
+  /// **'Recitations reminder'**
   String get recitation_reminder;
 
   /// No description provided for @moment_to_pray.
   ///
   /// In en, this message translates to:
-  /// **'Take a moment to pray.'**
+  /// **'Take a moment to pray'**
   String get moment_to_pray;
 
   /// No description provided for @plan_unenroll.
@@ -667,19 +667,19 @@ abstract class AppLocalizations {
   /// No description provided for @unenroll_confirmation.
   ///
   /// In en, this message translates to:
-  /// **'Are you sure you want to unenroll from'**
+  /// **'Are you sure you want to unenroll in'**
   String get unenroll_confirmation;
 
   /// No description provided for @unenroll_message.
   ///
   /// In en, this message translates to:
-  /// **'Your progress will be permanently lost and cannot be recovered.'**
+  /// **'Your progress will be permanently lost and cannot be recovered'**
   String get unenroll_message;
 
   /// No description provided for @practice_plan.
   ///
   /// In en, this message translates to:
-  /// **'Practice plans help you stay consistent with your practice. We have a variety of plans to choose from and for different durations.'**
+  /// **'Build a daily practice. Explore what fits you.'**
   String get practice_plan;
 
   /// No description provided for @search_plans.
@@ -709,49 +709,49 @@ abstract class AppLocalizations {
   /// No description provided for @notification_turn_on.
   ///
   /// In en, this message translates to:
-  /// **'Please turn on Notifications'**
+  /// **'Please turn on notifications'**
   String get notification_turn_on;
 
   /// No description provided for @notification_enable_message.
   ///
   /// In en, this message translates to:
-  /// **'Enable notifications to receive daily practice and recitation reminders.'**
+  /// **'Enable notifications to receive reminders'**
   String get notification_enable_message;
 
   /// No description provided for @enable_notification.
   ///
   /// In en, this message translates to:
-  /// **'Enable Notifications'**
+  /// **'Enable notifications'**
   String get enable_notification;
 
   /// No description provided for @notification_daily_practice.
   ///
   /// In en, this message translates to:
-  /// **'Daily Practice'**
+  /// **'Daily practice'**
   String get notification_daily_practice;
 
   /// No description provided for @notification_select_time.
   ///
   /// In en, this message translates to:
-  /// **'Select Time'**
+  /// **'Select time'**
   String get notification_select_time;
 
   /// No description provided for @reminderTime.
   ///
   /// In en, this message translates to:
-  /// **'Reminder Time'**
+  /// **'Reminder time'**
   String get reminderTime;
 
   /// No description provided for @notification_daily_recitation.
   ///
   /// In en, this message translates to:
-  /// **'Daily Recitation'**
+  /// **'Daily recitations'**
   String get notification_daily_recitation;
 
   /// No description provided for @text_noContent.
   ///
   /// In en, this message translates to:
-  /// **'No texts available in the selected language'**
+  /// **'No texts available in this language'**
   String get text_noContent;
 
   /// No description provided for @text_switchToTibetan.
@@ -769,19 +769,19 @@ abstract class AppLocalizations {
   /// No description provided for @recitations_my_recitations.
   ///
   /// In en, this message translates to:
-  /// **'My Recitations'**
+  /// **'My recitations'**
   String get recitations_my_recitations;
 
   /// No description provided for @browse_recitations.
   ///
   /// In en, this message translates to:
-  /// **'Browse Recitations'**
+  /// **'Browse recitations'**
   String get browse_recitations;
 
   /// No description provided for @recitations_search.
   ///
   /// In en, this message translates to:
-  /// **'Search recitation...'**
+  /// **'Search for recitations...'**
   String get recitations_search;
 
   /// No description provided for @recitations_search_for.
@@ -793,7 +793,7 @@ abstract class AppLocalizations {
   /// No description provided for @recitations_no_found.
   ///
   /// In en, this message translates to:
-  /// **'No recitations found'**
+  /// **'No recitations founds'**
   String get recitations_no_found;
 
   /// No description provided for @recitations_saved.
@@ -829,7 +829,7 @@ abstract class AppLocalizations {
   /// No description provided for @recitations_save.
   ///
   /// In en, this message translates to:
-  /// **'Save Recitation'**
+  /// **'Save recitation'**
   String get recitations_save;
 
   /// No description provided for @recitations_unsave.
@@ -853,7 +853,7 @@ abstract class AppLocalizations {
   /// No description provided for @recitations_no_data_message.
   ///
   /// In en, this message translates to:
-  /// **'No Recitation Found.'**
+  /// **'No recitations found'**
   String get recitations_no_data_message;
 
   /// No description provided for @recitations_show_translation.
@@ -925,7 +925,7 @@ abstract class AppLocalizations {
   /// No description provided for @notification_settings.
   ///
   /// In en, this message translates to:
-  /// **'Notification Settings'**
+  /// **'Notification settings'**
   String get notification_settings;
 
   /// No description provided for @notification_section_notifications.
@@ -943,19 +943,19 @@ abstract class AppLocalizations {
   /// No description provided for @notification_section_alarms.
   ///
   /// In en, this message translates to:
-  /// **'Alarms & Reminders'**
+  /// **'Alarms & reminders'**
   String get notification_section_alarms;
 
   /// No description provided for @notification_section_battery.
   ///
   /// In en, this message translates to:
-  /// **'Battery  ·  Optional'**
+  /// **'Battery'**
   String get notification_section_battery;
 
   /// No description provided for @notification_allow_title.
   ///
   /// In en, this message translates to:
-  /// **'Allow Notifications'**
+  /// **'Allow notifications'**
   String get notification_allow_title;
 
   /// No description provided for @notification_allow_subtitle_enabled.
@@ -967,13 +967,13 @@ abstract class AppLocalizations {
   /// No description provided for @notification_allow_subtitle_disabled.
   ///
   /// In en, this message translates to:
-  /// **'Tap to enable — shows system prompt or opens Settings'**
+  /// **'Tap to open system settings and enable'**
   String get notification_allow_subtitle_disabled;
 
   /// No description provided for @notification_routine_title.
   ///
   /// In en, this message translates to:
-  /// **'Routine Reminders'**
+  /// **'Routine reminders'**
   String get notification_routine_title;
 
   /// No description provided for @notification_routine_subtitle_enabled.
@@ -985,74 +985,614 @@ abstract class AppLocalizations {
   /// No description provided for @notification_routine_subtitle_disabled.
   ///
   /// In en, this message translates to:
-  /// **'Muted — tap to re-enable in system settings'**
+  /// **'Tap to turn back on in Settings'**
   String get notification_routine_subtitle_disabled;
 
   /// No description provided for @notification_alarms_title.
   ///
   /// In en, this message translates to:
-  /// **'Exact Alarms'**
+  /// **'Exact reminder times'**
   String get notification_alarms_title;
 
   /// No description provided for @notification_alarms_subtitle_enabled.
   ///
   /// In en, this message translates to:
-  /// **'Notifications fire at the exact scheduled time'**
+  /// **'Reminders are sent at the time you set'**
   String get notification_alarms_subtitle_enabled;
 
   /// No description provided for @notification_alarms_subtitle_disabled.
   ///
   /// In en, this message translates to:
-  /// **'Required on Android 12+ — tap to grant'**
+  /// **'Reminders may arrive late or be skipped. Tap to fix'**
   String get notification_alarms_subtitle_disabled;
 
   /// No description provided for @notification_battery_title.
   ///
   /// In en, this message translates to:
-  /// **'Unrestricted Battery'**
+  /// **'Background reminders'**
   String get notification_battery_title;
 
   /// No description provided for @notification_battery_subtitle_enabled.
   ///
   /// In en, this message translates to:
-  /// **'App is exempt from battery optimization — reminders will fire on time even when the app is closed or the phone is idle'**
+  /// **'Your reminders are sent on time, even when the app is closed.'**
   String get notification_battery_subtitle_enabled;
 
   /// No description provided for @notification_battery_subtitle_disabled.
   ///
   /// In en, this message translates to:
-  /// **'Devices such as OnePlus, Xiaomi, Redmi etc may kill background apps. Enable this to keep notifications reliable.'**
+  /// **'Some Android phones pause background apps to save battery, which can delay or skip your reminders. Tap to keep yours running.'**
   String get notification_battery_subtitle_disabled;
 
   /// No description provided for @notification_snack_permission_denied.
   ///
   /// In en, this message translates to:
-  /// **'Permission denied — opening App Settings.'**
+  /// **'Notifications are blocked. Turn them on in Settings'**
   String get notification_snack_permission_denied;
 
   /// No description provided for @notification_snack_disable_in_settings.
   ///
   /// In en, this message translates to:
-  /// **'Opening App Settings — turn off notifications there.'**
+  /// **'Turn off notifications in Settings.'**
   String get notification_snack_disable_in_settings;
 
   /// No description provided for @notification_snack_ios_manage_in_settings.
   ///
   /// In en, this message translates to:
-  /// **'Opening Settings — manage notifications there.'**
+  /// **'Manage notifications in Settings.'**
   String get notification_snack_ios_manage_in_settings;
 
   /// No description provided for @notification_snack_disable_alarms_in_settings.
   ///
   /// In en, this message translates to:
-  /// **'Opening App Settings — disable Alarms & Reminders there.'**
+  /// **'Turn off alarms & reminders in Settings.'**
   String get notification_snack_disable_alarms_in_settings;
 
   /// No description provided for @notification_snack_battery_reenable.
   ///
   /// In en, this message translates to:
-  /// **'Opening App Settings — re-enable optimization under Battery.'**
+  /// **'Restore battery optimization in Settings → Battery.'**
   String get notification_snack_battery_reenable;
+
+  /// No description provided for @profile_default_name.
+  ///
+  /// In en, this message translates to:
+  /// **'User'**
+  String get profile_default_name;
+
+  /// No description provided for @profile_default_bio.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome to WeBuddhist'**
+  String get profile_default_bio;
+
+  /// No description provided for @profile_guest_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Guest user'**
+  String get profile_guest_title;
+
+  /// No description provided for @profile_guest_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re browsing as a guest'**
+  String get profile_guest_subtitle;
+
+  /// No description provided for @profile_guest_benefits_header.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to unlock:'**
+  String get profile_guest_benefits_header;
+
+  /// No description provided for @profile_guest_benefit_save_progress.
+  ///
+  /// In en, this message translates to:
+  /// **'Save your progress'**
+  String get profile_guest_benefit_save_progress;
+
+  /// No description provided for @profile_guest_benefit_personalized.
+  ///
+  /// In en, this message translates to:
+  /// **'Personalized content'**
+  String get profile_guest_benefit_personalized;
+
+  /// No description provided for @profile_guest_benefit_notifications.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom notifications'**
+  String get profile_guest_benefit_notifications;
+
+  /// No description provided for @auth_drawer_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Log in to continue'**
+  String get auth_drawer_title;
+
+  /// No description provided for @auth_drawer_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue your practice on any device, wherever you go.'**
+  String get auth_drawer_subtitle;
+
+  /// No description provided for @routine_delete_block_message.
+  ///
+  /// In en, this message translates to:
+  /// **'This will remove the time block and all its items'**
+  String get routine_delete_block_message;
+
+  /// No description provided for @something_went_wrong.
+  ///
+  /// In en, this message translates to:
+  /// **'Something went wrong. Please try again'**
+  String get something_went_wrong;
+
+  /// No description provided for @onboarding_quote_citation.
+  ///
+  /// In en, this message translates to:
+  /// **'— Dhammapada 122'**
+  String get onboarding_quote_citation;
+
+  /// No description provided for @onboarding_traditions_question.
+  ///
+  /// In en, this message translates to:
+  /// **'Which traditions\ndo you follow?'**
+  String get onboarding_traditions_question;
+
+  /// No description provided for @onboarding_select_all.
+  ///
+  /// In en, this message translates to:
+  /// **'Select all'**
+  String get onboarding_select_all;
+
+  /// No description provided for @onboarding_event_enrollment_error.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to enroll you. Check your connection and try again'**
+  String get onboarding_event_enrollment_error;
+
+  /// No description provided for @onboarding_event_question.
+  ///
+  /// In en, this message translates to:
+  /// **'Join an\nevent?'**
+  String get onboarding_event_question;
+
+  /// No description provided for @onboarding_event_optional.
+  ///
+  /// In en, this message translates to:
+  /// **'Optional · Tap to enroll'**
+  String get onboarding_event_optional;
+
+  /// No description provided for @onboarding_event_duration.
+  ///
+  /// In en, this message translates to:
+  /// **'{description} · {days} days'**
+  String onboarding_event_duration(String description, int days);
+
+  /// No description provided for @onboarding_event_reminder_note.
+  ///
+  /// In en, this message translates to:
+  /// **'We\'ll send you a daily reminder at 7:30 AM. (Change anytime.)'**
+  String get onboarding_event_reminder_note;
+
+  /// No description provided for @tradition_theravada.
+  ///
+  /// In en, this message translates to:
+  /// **'Theravada'**
+  String get tradition_theravada;
+
+  /// No description provided for @tradition_zen.
+  ///
+  /// In en, this message translates to:
+  /// **'Zen'**
+  String get tradition_zen;
+
+  /// No description provided for @tradition_tibetan_buddhism.
+  ///
+  /// In en, this message translates to:
+  /// **'Tibetan Buddhism'**
+  String get tradition_tibetan_buddhism;
+
+  /// No description provided for @tradition_pure_land.
+  ///
+  /// In en, this message translates to:
+  /// **'Pure Land'**
+  String get tradition_pure_land;
+
+  /// No description provided for @tradition_ambedkar_buddhism.
+  ///
+  /// In en, this message translates to:
+  /// **'Ambedkar Buddhism'**
+  String get tradition_ambedkar_buddhism;
+
+  /// No description provided for @plan_go_to_practice.
+  ///
+  /// In en, this message translates to:
+  /// **'Go to practice'**
+  String get plan_go_to_practice;
+
+  /// No description provided for @plan_starts_soon_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Starts soon'**
+  String get plan_starts_soon_title;
+
+  /// No description provided for @plan_joining_late_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Joining after start date'**
+  String get plan_joining_late_title;
+
+  /// No description provided for @got_it.
+  ///
+  /// In en, this message translates to:
+  /// **'Got it'**
+  String get got_it;
+
+  /// No description provided for @plan_no_tasks_error.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to load tasks'**
+  String get plan_no_tasks_error;
+
+  /// No description provided for @plan_day_tasks_load_error.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to load tasks'**
+  String get plan_day_tasks_load_error;
+
+  /// No description provided for @plans_empty_title.
+  ///
+  /// In en, this message translates to:
+  /// **'More is on the way'**
+  String get plans_empty_title;
+
+  /// No description provided for @plans_empty_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Our library is growing. Check back soon.'**
+  String get plans_empty_subtitle;
+
+  /// No description provided for @find_plans_load_error.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to load.\nCheck your connection and try again'**
+  String get find_plans_load_error;
+
+  /// No description provided for @connect_coming_soon_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Teachers, communities, challenges, and events to support you on the path'**
+  String get connect_coming_soon_subtitle;
+
+  /// No description provided for @explore_coming_soon_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'A curated space to discover practices, teachings, and community events'**
+  String get explore_coming_soon_subtitle;
+
+  /// No description provided for @learn_coming_soon_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your personal study plans, designed to fit into everyday life'**
+  String get learn_coming_soon_subtitle;
+
+  /// No description provided for @creator_featured_plan.
+  ///
+  /// In en, this message translates to:
+  /// **'Featured plan'**
+  String get creator_featured_plan;
+
+  /// No description provided for @audio_init_error.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to initialize audio player. Check your connection and try again'**
+  String get audio_init_error;
+
+  /// No description provided for @meditation_audio_load_error.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to load. Check your connection and try again'**
+  String get meditation_audio_load_error;
+
+  /// No description provided for @prayer_audio_load_error.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to load audio. Check your connection and try again'**
+  String get prayer_audio_load_error;
+
+  /// No description provided for @home_no_series_found.
+  ///
+  /// In en, this message translates to:
+  /// **'No series found'**
+  String get home_no_series_found;
+
+  /// No description provided for @home_no_tags_found.
+  ///
+  /// In en, this message translates to:
+  /// **'No tags found'**
+  String get home_no_tags_found;
+
+  /// No description provided for @home_celebrated_by.
+  ///
+  /// In en, this message translates to:
+  /// **'Celebrated by: '**
+  String get home_celebrated_by;
+
+  /// No description provided for @home_default_duration.
+  ///
+  /// In en, this message translates to:
+  /// **'1-2 min'**
+  String get home_default_duration;
+
+  /// No description provided for @version.
+  ///
+  /// In en, this message translates to:
+  /// **'Version'**
+  String get version;
+
+  /// No description provided for @reader_settings_tooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Reader settings'**
+  String get reader_settings_tooltip;
+
+  /// No description provided for @reader_font_size_tooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Font size'**
+  String get reader_font_size_tooltip;
+
+  /// No description provided for @reader_about_version_tooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'About this version'**
+  String get reader_about_version_tooltip;
+
+  /// No description provided for @reader_version_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Version · {language}'**
+  String reader_version_title(String language);
+
+  /// No description provided for @reader_script_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Script · {language}'**
+  String reader_script_title(String language);
+
+  /// No description provided for @reader_versions_load_error.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load versions'**
+  String get reader_versions_load_error;
+
+  /// No description provided for @reader_scripts_load_error.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load scripts'**
+  String get reader_scripts_load_error;
+
+  /// No description provided for @reader_languages_load_error.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load languages'**
+  String get reader_languages_load_error;
+
+  /// No description provided for @reader_no_versions_in_language.
+  ///
+  /// In en, this message translates to:
+  /// **'No versions available in {language}'**
+  String reader_no_versions_in_language(String language);
+
+  /// No description provided for @reader_no_scripts_in_language.
+  ///
+  /// In en, this message translates to:
+  /// **'No scripts available in {language}'**
+  String reader_no_scripts_in_language(String language);
+
+  /// No description provided for @reader_no_languages.
+  ///
+  /// In en, this message translates to:
+  /// **'No languages available for this text'**
+  String get reader_no_languages;
+
+  /// No description provided for @reader_published_by.
+  ///
+  /// In en, this message translates to:
+  /// **'Published by'**
+  String get reader_published_by;
+
+  /// No description provided for @reader_published.
+  ///
+  /// In en, this message translates to:
+  /// **'Published'**
+  String get reader_published;
+
+  /// No description provided for @reader_license.
+  ///
+  /// In en, this message translates to:
+  /// **'License'**
+  String get reader_license;
+
+  /// No description provided for @reader_version_type.
+  ///
+  /// In en, this message translates to:
+  /// **'Type'**
+  String get reader_version_type;
+
+  /// No description provided for @reader_version_details_load_error.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to load version details'**
+  String get reader_version_details_load_error;
+
+  /// No description provided for @reader_no_version_info.
+  ///
+  /// In en, this message translates to:
+  /// **'No additional information is available for this version'**
+  String get reader_no_version_info;
+
+  /// No description provided for @recitation_unavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Recitation content is currently unavailable.\nTry again later or contact support'**
+  String get recitation_unavailable;
+
+  /// No description provided for @recitation_sign_in_required.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to access this recitation'**
+  String get recitation_sign_in_required;
+
+  /// No description provided for @my_recitations_load_error.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to load.\nCheck your connection and try again'**
+  String get my_recitations_load_error;
+
+  /// No description provided for @recitations_load_error.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to load recitations.\nTry again later'**
+  String get recitations_load_error;
+
+  /// No description provided for @story_audio_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Audio story'**
+  String get story_audio_label;
+
+  /// No description provided for @story_image_load_error.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to load image'**
+  String get story_image_load_error;
+
+  /// No description provided for @story_loading.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading story...'**
+  String get story_loading;
+
+  /// No description provided for @story_barrier_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Story'**
+  String get story_barrier_label;
+
+  /// No description provided for @text_search_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Type to search'**
+  String get text_search_hint;
+
+  /// No description provided for @text_search_press_button.
+  ///
+  /// In en, this message translates to:
+  /// **'Press search button to search'**
+  String get text_search_press_button;
+
+  /// No description provided for @text_search_error.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to perform search.\nPlease try again'**
+  String get text_search_error;
+
+  /// No description provided for @collections_load_error.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to load.\nCheck your connection and try again'**
+  String get collections_load_error;
+
+  /// No description provided for @failed_load_collections.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load collections'**
+  String get failed_load_collections;
+
+  /// No description provided for @unknown_error.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown error'**
+  String get unknown_error;
+
+  /// No description provided for @commentary_empty_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No commentaries are available for this segment'**
+  String get commentary_empty_subtitle;
+
+  /// No description provided for @image_share_error.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to share: {error}'**
+  String image_share_error(String error);
+
+  /// No description provided for @create_image_capture_error.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to create image. Please try again'**
+  String get create_image_capture_error;
+
+  /// No description provided for @create_image_share_error.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to share. Please try again'**
+  String get create_image_share_error;
+
+  /// No description provided for @create_image_save_success.
+  ///
+  /// In en, this message translates to:
+  /// **'Image saved'**
+  String get create_image_save_success;
+
+  /// No description provided for @create_image_save_error.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to save image. Check that the app has photo access, or try again'**
+  String get create_image_save_error;
+
+  /// No description provided for @create_image_download_error.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to download your image. Please try again'**
+  String get create_image_download_error;
+
+  /// No description provided for @create_image_customize_tooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Customize'**
+  String get create_image_customize_tooltip;
+
+  /// No description provided for @create_image_text_too_long.
+  ///
+  /// In en, this message translates to:
+  /// **'Text is too long to increase font size'**
+  String get create_image_text_too_long;
+
+  /// No description provided for @version_search_no_results.
+  ///
+  /// In en, this message translates to:
+  /// **'No versions found for \"{query}\"'**
+  String version_search_no_results(String query);
+
+  /// No description provided for @my_plans_sign_in_prompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to view your plans'**
+  String get my_plans_sign_in_prompt;
+
+  /// No description provided for @plan_starts_soon_message.
+  ///
+  /// In en, this message translates to:
+  /// **'Starts on {date}. You can browse the content now'**
+  String plan_starts_soon_message(String date);
+
+  /// No description provided for @plan_joining_late_message.
+  ///
+  /// In en, this message translates to:
+  /// **'Started on {date}. Feel free to complete previous days\' tasks'**
+  String plan_joining_late_message(String date);
 
   /// No description provided for @settings_account.
   ///
@@ -1063,7 +1603,7 @@ abstract class AppLocalizations {
   /// No description provided for @select_language.
   ///
   /// In en, this message translates to:
-  /// **'Select Language'**
+  /// **'Select language'**
   String get select_language;
 
   /// No description provided for @logout_confirmation.
@@ -1111,7 +1651,7 @@ abstract class AppLocalizations {
   /// No description provided for @feedback_wishlist.
   ///
   /// In en, this message translates to:
-  /// **'Feedback and Wishlist'**
+  /// **'Community hub'**
   String get feedback_wishlist;
 
   /// No description provided for @author.
@@ -1135,19 +1675,19 @@ abstract class AppLocalizations {
   /// No description provided for @ai_chat_history.
   ///
   /// In en, this message translates to:
-  /// **'Chat History'**
+  /// **'Chat history'**
   String get ai_chat_history;
 
   /// No description provided for @ai_buddhist_assistant.
   ///
   /// In en, this message translates to:
-  /// **'Buddhist AI Assistant'**
+  /// **'Build your daily rhythm. Set times, and we\'ll remind you to practice'**
   String get ai_buddhist_assistant;
 
   /// No description provided for @ai_new_chat.
   ///
   /// In en, this message translates to:
-  /// **'New Chat'**
+  /// **'New chat'**
   String get ai_new_chat;
 
   /// No description provided for @ai_retry.
@@ -1165,31 +1705,31 @@ abstract class AppLocalizations {
   /// No description provided for @ai_sign_in_prompt.
   ///
   /// In en, this message translates to:
-  /// **'Please sign in to access the Buddhist AI Assistant and start meaningful conversations'**
+  /// **'Sign in to use the Buddhist AI Assistant'**
   String get ai_sign_in_prompt;
 
   /// No description provided for @ai_explore_wisdom.
   ///
   /// In en, this message translates to:
-  /// **'Explore Buddhist Wisdom'**
+  /// **'Explore Buddhist wisdom'**
   String get ai_explore_wisdom;
 
   /// No description provided for @ai_suggestion_self.
   ///
   /// In en, this message translates to:
-  /// **'What is self ?'**
+  /// **'What is self?'**
   String get ai_suggestion_self;
 
   /// No description provided for @ai_suggestion_enlightenment.
   ///
   /// In en, this message translates to:
-  /// **'How one can attain enlightenment ?'**
+  /// **'How can you attain enlightenment?'**
   String get ai_suggestion_enlightenment;
 
   /// No description provided for @ai_ask_question.
   ///
   /// In en, this message translates to:
-  /// **'Ask a question ...'**
+  /// **'Ask a question...'**
   String get ai_ask_question;
 
   /// No description provided for @ai_loading_conversation.
@@ -1213,7 +1753,7 @@ abstract class AppLocalizations {
   /// No description provided for @ai_chat_deleted.
   ///
   /// In en, this message translates to:
-  /// **'Chat Deleted'**
+  /// **'Chat deleted'**
   String get ai_chat_deleted;
 
   /// No description provided for @ai_no_conversations.
@@ -1225,13 +1765,13 @@ abstract class AppLocalizations {
   /// No description provided for @ai_start_new_chat.
   ///
   /// In en, this message translates to:
-  /// **'Start a new chat to begin'**
+  /// **'Start a new chat to begin.'**
   String get ai_start_new_chat;
 
   /// No description provided for @ai_delete_chat.
   ///
   /// In en, this message translates to:
-  /// **'Delete Chat'**
+  /// **'Delete chat'**
   String get ai_delete_chat;
 
   /// No description provided for @ai_delete_confirmation.
@@ -1267,13 +1807,13 @@ abstract class AppLocalizations {
   /// No description provided for @ai_text_not_found.
   ///
   /// In en, this message translates to:
-  /// **'Text Not Found'**
+  /// **'Text not found.'**
   String get ai_text_not_found;
 
   /// No description provided for @ai_text_not_found_message.
   ///
   /// In en, this message translates to:
-  /// **'Could not find the text for \"{title}\".\n\nPlease try another source.'**
+  /// **'We don\'t have \"{title}\" in our library yet.\n\nTry a different title, or ask another way'**
   String ai_text_not_found_message(String title);
 
   /// No description provided for @ai_sources.
@@ -1297,7 +1837,7 @@ abstract class AppLocalizations {
   /// No description provided for @search_show_more.
   ///
   /// In en, this message translates to:
-  /// **'Show More'**
+  /// **'Show more'**
   String get search_show_more;
 
   /// No description provided for @search_contents.
@@ -1327,7 +1867,7 @@ abstract class AppLocalizations {
   /// No description provided for @search_tab_ai_mode.
   ///
   /// In en, this message translates to:
-  /// **'AI Mode'**
+  /// **'AI mode'**
   String get search_tab_ai_mode;
 
   /// No description provided for @search_error.
@@ -1363,7 +1903,7 @@ abstract class AppLocalizations {
   /// No description provided for @search_coming_soon.
   ///
   /// In en, this message translates to:
-  /// **'Coming Soon'**
+  /// **'Coming soon'**
   String get search_coming_soon;
 
   /// No description provided for @search_buddhist_texts.
@@ -1381,19 +1921,19 @@ abstract class AppLocalizations {
   /// No description provided for @comingSoonHeadline.
   ///
   /// In en, this message translates to:
-  /// **'Coming Soon'**
+  /// **'Coming soon'**
   String get comingSoonHeadline;
 
   /// No description provided for @routine_title.
   ///
   /// In en, this message translates to:
-  /// **'My Practice Routine'**
+  /// **'My practice routine'**
   String get routine_title;
 
   /// No description provided for @routine_empty_title.
   ///
   /// In en, this message translates to:
-  /// **'Practice Routine'**
+  /// **'Practice routine'**
   String get routine_empty_title;
 
   /// No description provided for @routine_edit.
@@ -1405,13 +1945,13 @@ abstract class AppLocalizations {
   /// No description provided for @routine_empty_description.
   ///
   /// In en, this message translates to:
-  /// **'Stay consistent in your prayer life by building your routine. Select times and sessions and we\'ll remind you to prayer!'**
+  /// **'Explore more teachings and practices to enroll in or add to your routine'**
   String get routine_empty_description;
 
   /// No description provided for @routine_build.
   ///
   /// In en, this message translates to:
-  /// **'Build your Routine'**
+  /// **'Build your routine'**
   String get routine_build;
 
   /// No description provided for @routine_session.
@@ -1435,7 +1975,7 @@ abstract class AppLocalizations {
   /// No description provided for @routine_save.
   ///
   /// In en, this message translates to:
-  /// **'Save Routine'**
+  /// **'Save routine'**
   String get routine_save;
 
   /// No description provided for @routine_morning.
@@ -1459,13 +1999,13 @@ abstract class AppLocalizations {
   /// No description provided for @routine_add_session.
   ///
   /// In en, this message translates to:
-  /// **'Add Session'**
+  /// **'Add session'**
   String get routine_add_session;
 
   /// No description provided for @routine_select_time.
   ///
   /// In en, this message translates to:
-  /// **'Select Time'**
+  /// **'Select time'**
   String get routine_select_time;
 
   /// No description provided for @routine_remind_me.
@@ -1477,109 +2017,109 @@ abstract class AppLocalizations {
   /// No description provided for @routine_edit_title.
   ///
   /// In en, this message translates to:
-  /// **'Edit Your Routine'**
+  /// **'Edit your routine'**
   String get routine_edit_title;
 
   /// No description provided for @routine_delete_block.
   ///
   /// In en, this message translates to:
-  /// **'Delete Block'**
+  /// **'Remove block'**
   String get routine_delete_block;
 
   /// No description provided for @routine_delete_time_block.
   ///
   /// In en, this message translates to:
-  /// **'Delete Time Block'**
+  /// **'Remove time block'**
   String get routine_delete_time_block;
 
   /// No description provided for @routine_add_plan.
   ///
   /// In en, this message translates to:
-  /// **'Add Plan'**
+  /// **'Add plan'**
   String get routine_add_plan;
 
   /// No description provided for @routine_add_recitation.
   ///
   /// In en, this message translates to:
-  /// **'Add Recitation'**
+  /// **'Add recitation'**
   String get routine_add_recitation;
 
   /// No description provided for @routine_add_plan_to_routine.
   ///
   /// In en, this message translates to:
-  /// **'Add to Routine'**
+  /// **'Add to routine'**
   String get routine_add_plan_to_routine;
 
   /// No description provided for @routine_go_to_practice.
   ///
   /// In en, this message translates to:
-  /// **'Go to Practice'**
+  /// **'Go to practice'**
   String get routine_go_to_practice;
 
   /// No description provided for @routine_load_error.
   ///
   /// In en, this message translates to:
-  /// **'Could not load your routine. Please try again.'**
+  /// **'Unable to load. Check your connection and try again'**
   String get routine_load_error;
 
   /// No description provided for @routine_empty_block_title_singular.
   ///
   /// In en, this message translates to:
-  /// **'Empty Time Block'**
+  /// **'Empty time block'**
   String get routine_empty_block_title_singular;
 
   /// No description provided for @routine_empty_block_title_plural.
   ///
   /// In en, this message translates to:
-  /// **'Empty Time Blocks ({count})'**
+  /// **'Empty time blocks ({count})'**
   String routine_empty_block_title_plural(int count);
 
   /// No description provided for @routine_empty_block_message_singular.
   ///
   /// In en, this message translates to:
-  /// **'This time block has no items. Would you like to add an item or delete the block?'**
+  /// **'This time block is empty. Add an item, or remove it from your routine?'**
   String get routine_empty_block_message_singular;
 
   /// No description provided for @routine_empty_block_message_plural.
   ///
   /// In en, this message translates to:
-  /// **'You have {count} time blocks without any items. Would you like to add items or delete these blocks?'**
+  /// **'{count} time blocks are empty. Add items, or remove them from your routine?'**
   String routine_empty_block_message_plural(int count);
 
   /// No description provided for @routine_empty_block_add_items.
   ///
   /// In en, this message translates to:
-  /// **'Add Items'**
+  /// **'Add items'**
   String get routine_empty_block_add_items;
 
   /// No description provided for @routine_empty_block_delete_singular.
   ///
   /// In en, this message translates to:
-  /// **'Delete Block'**
+  /// **'Remove block'**
   String get routine_empty_block_delete_singular;
 
   /// No description provided for @routine_empty_block_delete_plural.
   ///
   /// In en, this message translates to:
-  /// **'Delete Empty Blocks'**
+  /// **'Remove blocks'**
   String get routine_empty_block_delete_plural;
 
   /// No description provided for @routine_notification_title.
   ///
   /// In en, this message translates to:
-  /// **'Make Prayer Daily'**
+  /// **'Make practice a habit'**
   String get routine_notification_title;
 
   /// No description provided for @routine_notification_description.
   ///
   /// In en, this message translates to:
-  /// **'Allow notifications to receive your reminder to pray.'**
+  /// **'Allow notifications so we can remind you to practice'**
   String get routine_notification_description;
 
   /// No description provided for @routine_notification_enable.
   ///
   /// In en, this message translates to:
-  /// **'Enable Notifications'**
+  /// **'Enable notifications'**
   String get routine_notification_enable;
 
   /// No description provided for @routine_notification_skip.
@@ -1597,7 +2137,7 @@ abstract class AppLocalizations {
   /// No description provided for @routine_add_block_label.
   ///
   /// In en, this message translates to:
-  /// **'Time Block'**
+  /// **'Time block'**
   String get routine_add_block_label;
 
   /// No description provided for @continueWithGoogle.
@@ -1615,7 +2155,7 @@ abstract class AppLocalizations {
   /// No description provided for @continueAsGuest.
   ///
   /// In en, this message translates to:
-  /// **'Continue as Guest'**
+  /// **'Continue as guest'**
   String get continueAsGuest;
 
   /// No description provided for @signIn.
@@ -1669,7 +2209,7 @@ abstract class AppLocalizations {
   /// No description provided for @tryAgain.
   ///
   /// In en, this message translates to:
-  /// **'Try Again'**
+  /// **'Try again'**
   String get tryAgain;
 
   /// No description provided for @pleaseTryAgain.
@@ -1681,7 +2221,7 @@ abstract class AppLocalizations {
   /// No description provided for @successfully.
   ///
   /// In en, this message translates to:
-  /// **'Successfully'**
+  /// **'Success'**
   String get successfully;
 
   /// No description provided for @failedTo.
@@ -1729,7 +2269,7 @@ abstract class AppLocalizations {
   /// No description provided for @cannotOpenLink.
   ///
   /// In en, this message translates to:
-  /// **'Cannot open this link'**
+  /// **'Can\'t open this link'**
   String get cannotOpenLink;
 
   /// No description provided for @invalidUrlFormat.
@@ -1741,7 +2281,7 @@ abstract class AppLocalizations {
   /// No description provided for @cannotOpenEmail.
   ///
   /// In en, this message translates to:
-  /// **'Cannot open this email'**
+  /// **'Can\'t open this email'**
   String get cannotOpenEmail;
 
   /// No description provided for @invalidEmailFormat.
@@ -1753,13 +2293,13 @@ abstract class AppLocalizations {
   /// No description provided for @unableToLoad.
   ///
   /// In en, this message translates to:
-  /// **'Unable to load. Please try again.'**
+  /// **'Unable to load. Check your connection and try again'**
   String get unableToLoad;
 
   /// No description provided for @somethingWrong.
   ///
   /// In en, this message translates to:
-  /// **'Something went wrong. Please check your connection and try again.'**
+  /// **'Something went wrong. Check your connection and try again'**
   String get somethingWrong;
 
   /// No description provided for @typing.
@@ -1777,19 +2317,19 @@ abstract class AppLocalizations {
   /// No description provided for @searchResults.
   ///
   /// In en, this message translates to:
-  /// **'Search Results'**
+  /// **'Search results'**
   String get searchResults;
 
   /// No description provided for @deleteConversation.
   ///
   /// In en, this message translates to:
-  /// **'Delete Conversation?'**
+  /// **'Delete conversation?'**
   String get deleteConversation;
 
   /// No description provided for @errorOops.
   ///
   /// In en, this message translates to:
-  /// **'Oops. Please try again.'**
+  /// **'Oops. Please try again'**
   String get errorOops;
 
   /// No description provided for @tabAll.
@@ -1873,61 +2413,61 @@ abstract class AppLocalizations {
   /// No description provided for @enrollError.
   ///
   /// In en, this message translates to:
-  /// **'Unable to enroll in plan. Please try again.'**
+  /// **'Unable to enroll you. Check your connection and try again'**
   String get enrollError;
 
   /// No description provided for @enrollErrorDetail.
   ///
   /// In en, this message translates to:
-  /// **'Unable to enroll in plan. Please try again later'**
+  /// **'Unable to enroll you. Check your connection and try again'**
   String enrollErrorDetail(String error);
 
   /// No description provided for @unenrollSuccess.
   ///
   /// In en, this message translates to:
-  /// **'You have been unenrolled from {planTitle}'**
+  /// **'You have unenrolled in {planTitle}'**
   String unenrollSuccess(String planTitle);
 
   /// No description provided for @unenrollError.
   ///
   /// In en, this message translates to:
-  /// **'Unable to unenroll at this time. Please try again.'**
+  /// **'Unable to unenroll you. Check your connection and try again'**
   String get unenrollError;
 
   /// No description provided for @unenrollGenericError.
   ///
   /// In en, this message translates to:
-  /// **'Something went wrong. Please check your connection and try again.'**
+  /// **'Something went wrong. Check your connection and try again'**
   String get unenrollGenericError;
 
   /// No description provided for @notFound.
   ///
   /// In en, this message translates to:
-  /// **'Plan not found. Please try again.'**
+  /// **'This is no longer available. Edit your routine to update.'**
   String get notFound;
 
   /// No description provided for @noTimeSlot.
   ///
   /// In en, this message translates to:
-  /// **'No available time slot. Try removing a block first.'**
+  /// **'No available time slots. Try removing a block first'**
   String get noTimeSlot;
 
   /// No description provided for @maxBlocks.
   ///
   /// In en, this message translates to:
-  /// **'Maximum of {max} time blocks reached.'**
+  /// **'Maximum of {max} time blocks reached'**
   String maxBlocks(int max);
 
   /// No description provided for @duplicateItem.
   ///
   /// In en, this message translates to:
-  /// **'This item is already in the block.'**
+  /// **'This item is already in the block'**
   String get duplicateItem;
 
   /// No description provided for @removeItem.
   ///
   /// In en, this message translates to:
-  /// **'Remove Item'**
+  /// **'Remove item'**
   String get removeItem;
 
   /// No description provided for @removeConfirmation.
@@ -1939,13 +2479,13 @@ abstract class AppLocalizations {
   /// No description provided for @shareError.
   ///
   /// In en, this message translates to:
-  /// **'Unable to share your segment. Please try again later'**
+  /// **'Unable to share. Please try again'**
   String shareError(String error);
 
   /// No description provided for @updateOrderError.
   ///
   /// In en, this message translates to:
-  /// **'Unable to update order. Please try again.'**
+  /// **'Unable to update order. Please try again'**
   String get updateOrderError;
 
   /// No description provided for @noCollections.
@@ -1957,25 +2497,25 @@ abstract class AppLocalizations {
   /// No description provided for @loadCollectionsError.
   ///
   /// In en, this message translates to:
-  /// **'Unable to load collections'**
+  /// **'Unable to load. Check your connection and try again'**
   String get loadCollectionsError;
 
   /// No description provided for @loadFailed.
   ///
   /// In en, this message translates to:
-  /// **'Failed to load collections'**
+  /// **'Unable to load. Check your connection and try again'**
   String get loadFailed;
 
   /// No description provided for @captureError.
   ///
   /// In en, this message translates to:
-  /// **'Failed to capture QR code. Please try again.'**
+  /// **'Failed to capture QR code. Please try again'**
   String get captureError;
 
   /// No description provided for @qrShareError.
   ///
   /// In en, this message translates to:
-  /// **'Unable to share QR code. Please try again later.'**
+  /// **'Unable to share QR code. Try again later'**
   String get qrShareError;
 
   /// No description provided for @errorDetail.
@@ -1987,7 +2527,7 @@ abstract class AppLocalizations {
   /// No description provided for @text_qrCode.
   ///
   /// In en, this message translates to:
-  /// **'QR Code'**
+  /// **'QR code'**
   String get text_qrCode;
 
   /// No description provided for @missedDaysCount.

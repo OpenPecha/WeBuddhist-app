@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/features/reader/data/models/reader_script_option.dart';
 import 'package:flutter_pecha/features/reader/presentation/providers/reader_settings_providers.dart';
 import 'package:flutter_pecha/features/reader/presentation/widgets/reader_settings/picker_sheet_scaffold.dart';
@@ -24,21 +25,22 @@ class ScriptPickerSheet extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     final query = ReaderLanguageQuery(textId: textId, language: languageCode);
     final asyncScripts = ref.watch(readerScriptsProvider(query));
 
     return PickerSheetScaffold(
-      title: 'Script · $languageLabel',
+      title: l10n.reader_script_title(languageLabel),
       child: asyncScripts.when(
         loading: () => const PickerLoading(),
         error: (_, __) => PickerError(
-          message: 'Failed to load scripts.',
+          message: l10n.reader_scripts_load_error,
           onRetry: () => ref.invalidate(readerScriptsProvider(query)),
         ),
         data: (scripts) {
           if (scripts.isEmpty) {
             return PickerEmpty(
-              message: 'No scripts available in $languageLabel yet.',
+              message: l10n.reader_no_scripts_in_language(languageLabel),
             );
           }
           return ListView.separated(

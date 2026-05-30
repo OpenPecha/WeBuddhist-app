@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/features/onboarding/application/onboarding_provider.dart';
 import 'package:flutter_pecha/features/onboarding/domain/entities/onboarding_preferences.dart';
@@ -77,7 +78,7 @@ class _OnboardingScreenEventState extends ConsumerState<OnboardingScreenEvent> {
       if (mounted) {
         setState(() {
           _errorMessage =
-              'Could not enroll. Please check your connection and try again.';
+              AppLocalizations.of(context)!.onboarding_event_enrollment_error;
         });
       }
     } finally {
@@ -88,6 +89,7 @@ class _OnboardingScreenEventState extends ConsumerState<OnboardingScreenEvent> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
@@ -106,12 +108,12 @@ class _OnboardingScreenEventState extends ConsumerState<OnboardingScreenEvent> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const OnboardingQuestionTitle(
-                        title: 'Join an\nupcoming event?',
+                      OnboardingQuestionTitle(
+                        title: l10n.onboarding_event_question,
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'Optional · Tap to enroll',
+                        l10n.onboarding_event_optional,
                         style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w400,
@@ -246,7 +248,7 @@ class _EventCard extends StatelessWidget {
                     const SizedBox(height: 3),
                     // Description + duration
                     Text(
-                      '${event.description} · ${event.totalDays} days',
+                      AppLocalizations.of(context)!.onboarding_event_duration(event.description, event.totalDays),
                       style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w400,
@@ -315,7 +317,7 @@ class _ReminderNote extends StatelessWidget {
         const SizedBox(width: 6),
         Expanded(
           child: Text(
-            "We'll send you a daily reminder at 7:30 AM.(Change anytime.)",
+            AppLocalizations.of(context)!.onboarding_event_reminder_note,
             style: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w400,
@@ -362,9 +364,9 @@ class _ContinueButton extends StatelessWidget {
                     valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                   ),
                 )
-                : const Text(
-                  'Continue',
-                  style: TextStyle(
+                : Text(
+                  AppLocalizations.of(context)!.onboarding_continue,
+                  style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w600,
                     letterSpacing: -0.306,

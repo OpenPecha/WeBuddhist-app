@@ -430,7 +430,7 @@ class AppLocalizationsBo extends AppLocalizations {
   String get settings_notifications => 'གསལ་བརྡ།';
 
   @override
-  String get notification_settings => 'གསལ་བརྡ་སྒྲིག་འགོད།';
+  String get notification_settings => 'གསལ་བརྡའི་སྒྲིག་འགོད།';
 
   @override
   String get notification_section_notifications => 'Notifications';
@@ -507,6 +507,321 @@ class AppLocalizationsBo extends AppLocalizations {
   @override
   String get notification_snack_battery_reenable =>
       'Opening App Settings — re-enable optimization under Battery.';
+
+  @override
+  String get profile_default_name => 'User';
+
+  @override
+  String get profile_default_bio => 'Welcome to WeBuddhist';
+
+  @override
+  String get profile_guest_title => 'Guest User';
+
+  @override
+  String get profile_guest_subtitle => 'You\'re browsing as a guest';
+
+  @override
+  String get profile_guest_benefits_header => 'Sign in to unlock:';
+
+  @override
+  String get profile_guest_benefit_save_progress => 'Save your progress';
+
+  @override
+  String get profile_guest_benefit_personalized => 'Personalized content';
+
+  @override
+  String get profile_guest_benefit_notifications => 'Custom notifications';
+
+  @override
+  String get auth_drawer_title => 'Sign in to continue';
+
+  @override
+  String get auth_drawer_subtitle =>
+      'Access your practice plans and track your progress';
+
+  @override
+  String get routine_delete_block_message =>
+      'This will remove the time block and all its items.';
+
+  @override
+  String get something_went_wrong => 'Something went wrong. Please try again.';
+
+  @override
+  String get onboarding_quote_citation => '— Dhammapada 122';
+
+  @override
+  String get onboarding_traditions_question =>
+      'Which traditions\ndo you follow?';
+
+  @override
+  String get onboarding_select_all => 'Select all';
+
+  @override
+  String get onboarding_event_enrollment_error =>
+      'Could not enroll. Please check your connection and try again.';
+
+  @override
+  String get onboarding_event_question => 'Join an\nupcoming event?';
+
+  @override
+  String get onboarding_event_optional => 'Optional · Tap to enroll';
+
+  @override
+  String onboarding_event_duration(String description, int days) {
+    return '$description · $days days';
+  }
+
+  @override
+  String get onboarding_event_reminder_note =>
+      'We\'ll send you a daily reminder at 7:30 AM.(Change anytime.)';
+
+  @override
+  String get tradition_theravada => 'Theravada';
+
+  @override
+  String get tradition_zen => 'Zen';
+
+  @override
+  String get tradition_tibetan_buddhism => 'Tibetan Buddhism';
+
+  @override
+  String get tradition_pure_land => 'Pure Land';
+
+  @override
+  String get tradition_ambedkar_buddhism => 'Ambedkar Buddhism';
+
+  @override
+  String get plan_go_to_practice => 'Go to Practice';
+
+  @override
+  String get plan_starts_soon_title => 'Plan Starts Soon';
+
+  @override
+  String get plan_joining_late_title => 'Joining After Start Date';
+
+  @override
+  String get got_it => 'Got it';
+
+  @override
+  String get plan_no_tasks_error => 'Unable to load tasks';
+
+  @override
+  String get plan_day_tasks_load_error =>
+      'Unable to load the tasks for the day';
+
+  @override
+  String get plans_empty_title => 'No plans available';
+
+  @override
+  String get plans_empty_subtitle => 'Check back later for new practice plans';
+
+  @override
+  String get find_plans_load_error =>
+      'Unable to load plans.\nPlease try again later.';
+
+  @override
+  String get connect_coming_soon_subtitle =>
+      'Teachers, communities, challenges, and events to support you on the path.';
+
+  @override
+  String get explore_coming_soon_subtitle =>
+      'A curated space to discover practices, teachings, and community events.';
+
+  @override
+  String get learn_coming_soon_subtitle =>
+      'Your personal study plans, designed to fit into everyday life.';
+
+  @override
+  String get creator_featured_plan => 'Featured Plan';
+
+  @override
+  String get audio_init_error =>
+      'Unable to initialize audio player. Please try again later.';
+
+  @override
+  String get meditation_audio_load_error =>
+      'Unable to load meditation audio. Please try again later.';
+
+  @override
+  String get prayer_audio_load_error =>
+      'Unable to load audio. Please check your connection and try again.';
+
+  @override
+  String get home_no_series_found => 'No series found';
+
+  @override
+  String get home_no_tags_found => 'No tags found';
+
+  @override
+  String get home_celebrated_by => 'Celebrated by: ';
+
+  @override
+  String get home_default_duration => '1-2 min';
+
+  @override
+  String get version => 'Version';
+
+  @override
+  String get reader_settings_tooltip => 'Reader Settings';
+
+  @override
+  String get reader_font_size_tooltip => 'Font Size';
+
+  @override
+  String get reader_about_version_tooltip => 'About this version';
+
+  @override
+  String reader_version_title(String language) {
+    return 'Version · $language';
+  }
+
+  @override
+  String reader_script_title(String language) {
+    return 'Script · $language';
+  }
+
+  @override
+  String get reader_versions_load_error => 'Failed to load versions.';
+
+  @override
+  String get reader_scripts_load_error => 'Failed to load scripts.';
+
+  @override
+  String get reader_languages_load_error => 'Failed to load languages.';
+
+  @override
+  String reader_no_versions_in_language(String language) {
+    return 'No versions available in $language yet.';
+  }
+
+  @override
+  String reader_no_scripts_in_language(String language) {
+    return 'No scripts available in $language yet.';
+  }
+
+  @override
+  String get reader_no_languages => 'No languages available for this text yet.';
+
+  @override
+  String get reader_published_by => 'Published by';
+
+  @override
+  String get reader_published => 'Published';
+
+  @override
+  String get reader_license => 'License';
+
+  @override
+  String get reader_version_type => 'Type';
+
+  @override
+  String get reader_version_details_load_error =>
+      'Could not load version details.';
+
+  @override
+  String get reader_no_version_info =>
+      'No additional information is available for this version.';
+
+  @override
+  String get recitation_unavailable =>
+      'This recitation content is currently unavailable.\nPlease try again later or contact support.';
+
+  @override
+  String get recitation_sign_in_required =>
+      'Please sign in to access this recitation.';
+
+  @override
+  String get my_recitations_load_error =>
+      'Unable to load your saved recitations.\nPlease try again later.';
+
+  @override
+  String get recitations_load_error =>
+      'Unable to load recitations.\nPlease try again later.';
+
+  @override
+  String get story_audio_label => 'Audio Story';
+
+  @override
+  String get story_image_load_error => 'Unable to load image';
+
+  @override
+  String get story_loading => 'Loading story...';
+
+  @override
+  String get story_barrier_label => 'Story';
+
+  @override
+  String get text_search_hint => 'Type to search';
+
+  @override
+  String get text_search_press_button => 'Press search button to search';
+
+  @override
+  String get text_search_error =>
+      'Unable to perform search.\nPlease try again.';
+
+  @override
+  String get collections_load_error =>
+      'Unable to load collections.\nPlease try again.';
+
+  @override
+  String get failed_load_collections => 'Failed to load collections';
+
+  @override
+  String get unknown_error => 'Unknown error';
+
+  @override
+  String get commentary_empty_subtitle =>
+      'There are no commentaries available for this segment.';
+
+  @override
+  String image_share_error(String error) {
+    return 'Unable to share: $error';
+  }
+
+  @override
+  String get create_image_capture_error =>
+      'Failed to capture image. Please try again.';
+
+  @override
+  String get create_image_share_error =>
+      'Unable to share. Please try again later.';
+
+  @override
+  String get create_image_save_success => 'Image saved to gallery';
+
+  @override
+  String get create_image_save_error =>
+      'Unable to save image. Please try again later.';
+
+  @override
+  String get create_image_download_error =>
+      'Unable to download image. Please try again later.';
+
+  @override
+  String get create_image_customize_tooltip => 'Customize';
+
+  @override
+  String get create_image_text_too_long =>
+      'Text is too long to increase font size';
+
+  @override
+  String version_search_no_results(String query) {
+    return 'No versions found for \"$query\"';
+  }
+
+  @override
+  String get my_plans_sign_in_prompt => 'Sign in to view your plans';
+
+  @override
+  String plan_starts_soon_message(String date) {
+    return 'This plan starts on $date. You can browse the content now.';
+  }
+
+  @override
+  String plan_joining_late_message(String date) {
+    return 'This plan started on $date. You can complete past day tasks.';
+  }
 
   @override
   String get settings_account => 'མིང་ཐོ།';
@@ -694,20 +1009,20 @@ class AppLocalizationsBo extends AppLocalizations {
   String get comingSoonHeadline => ' མྱུར་དུ།';
 
   @override
-  String get routine_title => 'ཉམས་ལེན་གོམས་གཤིས།';
+  String get routine_title => 'འཆར་ཅན་ཉམས་ལེན།';
 
   @override
-  String get routine_empty_title => 'ཉམས་ལེན་གོམས་གཤིས།';
+  String get routine_empty_title => 'འཆར་ཅན་ཉམས་ལེན།';
 
   @override
   String get routine_edit => 'བཟོ་བཅོས།';
 
   @override
   String get routine_empty_description =>
-      'ཉམས་ལེན་གོམས་གཤིས་བཟོས་ནས་སྨོན་ལམ་གྱི་འཚོ་བར་རྒྱུན་མཐུད་གནས་རོགས། དུས་ཚོད་དང་ཉམས་ལེན་འདེམས་དང་ང་ཚོས་ཁྱེད་ལ་དྲན་སྐུལ་བྱེད་ཀྱི་ཡིན།';
+      'འཆར་ཅན་ཉམས་ལེན་འདེམས་སྒྲུག་བྱས་ཏེ་རང་གི་ཉམས་ལེན་གྱི་ལས་རིམ་ནང་སྣོན་སྒྲིག་བྱོས་དང་། ང་ཚོས་དུས་ལྟར་ཁྱེད་ལ་དྲན་གསོ་བྱེད་ཡོང་།';
 
   @override
-  String get routine_build => 'ཉམས་ལེན་གོམས་གཤིས་བཟོས།';
+  String get routine_build => 'ཉམས་ལེན་གསར་པ་སྣོན།';
 
   @override
   String get routine_session => 'ཉམས་ལེན།';

@@ -213,7 +213,7 @@ class _GuestLoginPrompt extends StatelessWidget {
             ),
             const SizedBox(height: 24),
             Text(
-              'Sign in to view your plans',
+              context.l10n.my_plans_sign_in_prompt,
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                 color: Theme.of(
                   context,

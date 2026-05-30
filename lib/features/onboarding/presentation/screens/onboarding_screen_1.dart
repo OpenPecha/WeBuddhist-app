@@ -99,7 +99,7 @@ class OnboardingScreen1 extends StatelessWidget {
         ),
         const SizedBox(height: 16),
         Text(
-          "— Dhammapada 122",
+          context.l10n.onboarding_quote_citation,
           textAlign: TextAlign.center,
           style: TextStyle(
             fontSize: 16,

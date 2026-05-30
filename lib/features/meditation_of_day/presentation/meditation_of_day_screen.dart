@@ -71,7 +71,7 @@ class _MeditationOfTheDayScreenState extends ConsumerState<MeditationOfTheDayScr
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              'Unable to initialize audio player. Please try again later.',
+              AppLocalizations.of(context)!.audio_init_error,
             ),
           ),
         );
@@ -109,7 +109,7 @@ class _MeditationOfTheDayScreenState extends ConsumerState<MeditationOfTheDayScr
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              'Unable to load meditation audio. Please try again later.',
+              AppLocalizations.of(context)!.meditation_audio_load_error,
             ),
           ),
         );
@@ -160,7 +160,7 @@ class _MeditationOfTheDayScreenState extends ConsumerState<MeditationOfTheDayScr
                 onPressed: () {
                   ref.read(meditationNotifierProvider.notifier).loadTodayMeditation();
                 },
-                child: const Text('Retry'),
+                child: Text(localizations.retry),
               ),
             ],
           ),

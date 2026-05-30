@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/features/reader/data/models/reader_slot_config.dart';
 
 /// When [enabled] is false, the whole card dims and rows are
@@ -26,6 +27,7 @@ class SlotConfigCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     return Opacity(
       opacity: enabled ? 1.0 : 0.45,
       child: Column(
@@ -53,14 +55,14 @@ class SlotConfigCard extends StatelessWidget {
             child: Column(
               children: [
                 _SlotRow(
-                  label: 'Language',
+                  label: l10n.language,
                   value: config.languageLabel,
                   enabled: enabled,
                   onTap: onLanguage,
                 ),
                 _rowDivider(theme),
                 _SlotRow(
-                  label: 'Version',
+                  label: l10n.version,
                   value: config.versionLabel ?? '—',
                   enabled: enabled,
                   onTap: onVersion,

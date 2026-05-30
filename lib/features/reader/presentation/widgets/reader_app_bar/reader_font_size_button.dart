@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 /// Font size adjustment button for the reader app bar
@@ -12,7 +13,7 @@ class ReaderFontSizeButton extends StatelessWidget {
     return IconButton(
       onPressed: onPressed,
       icon: const Icon(PhosphorIconsRegular.textAa),
-      tooltip: 'Font Size',
+      tooltip: AppLocalizations.of(context)!.reader_font_size_tooltip,
     );
   }
 }

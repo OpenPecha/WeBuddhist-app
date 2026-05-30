@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/features/reader/data/models/reader_version_detail.dart';
 import 'package:flutter_pecha/features/reader/presentation/providers/reader_settings_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -40,7 +41,7 @@ class VersionInfoDialog extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Could not load version details.',
+                    AppLocalizations.of(context)!.reader_version_details_load_error,
                     style: theme.textTheme.bodyMedium,
                   ),
                   const SizedBox(height: 12),
@@ -48,7 +49,7 @@ class VersionInfoDialog extends ConsumerWidget {
                     onPressed: () => ref.invalidate(
                       readerVersionInfoProvider(versionId),
                     ),
-                    child: const Text('Retry'),
+                    child: Text(AppLocalizations.of(context)!.retry),
                   ),
                 ],
               ),
@@ -118,25 +119,26 @@ class _VersionInfoBody extends StatelessWidget {
       color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
     );
 
+    final l10n = AppLocalizations.of(context)!;
     final rows = <Widget>[];
 
     if (info.publishedBy != null && info.publishedBy!.isNotEmpty) {
-      rows.add(_InfoRow(label: 'Published by', value: info.publishedBy!));
+      rows.add(_InfoRow(label: l10n.reader_published_by, value: info.publishedBy!));
     }
     if (info.publishedDate != null && info.publishedDate!.isNotEmpty) {
-      rows.add(_InfoRow(label: 'Published', value: info.publishedDate!));
+      rows.add(_InfoRow(label: l10n.reader_published, value: info.publishedDate!));
     }
     if (info.license != null && info.license!.isNotEmpty) {
-      rows.add(_InfoRow(label: 'License', value: info.license!));
+      rows.add(_InfoRow(label: l10n.reader_license, value: info.license!));
     }
     if (info.sourceLink != null && info.sourceLink!.isNotEmpty) {
-      rows.add(_InfoRow(label: 'Source', value: info.sourceLink!));
+      rows.add(_InfoRow(label: l10n.source, value: info.sourceLink!));
     }
     if (info.language.isNotEmpty) {
-      rows.add(_InfoRow(label: 'Language', value: info.language));
+      rows.add(_InfoRow(label: l10n.language, value: info.language));
     }
     if (info.type != null && info.type!.isNotEmpty) {
-      rows.add(_InfoRow(label: 'Type', value: info.type!));
+      rows.add(_InfoRow(label: l10n.reader_version_type, value: info.type!));
     }
 
     return Padding(
@@ -146,7 +148,7 @@ class _VersionInfoBody extends StatelessWidget {
         children: [
           if (rows.isEmpty)
             Text(
-              'No additional information is available for this version.',
+              l10n.reader_no_version_info,
               style: mutedStyle,
             )
           else

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
 import 'package:flutter_pecha/core/widgets/error_state_widget.dart';
 import 'package:flutter_pecha/features/texts/presentation/providers/texts_provider.dart';
@@ -86,10 +87,10 @@ class LibrarySearchDelegate extends SearchDelegate<Map<String, String>?> {
     if (query.isEmpty) {
       return Container(
         color: Theme.of(context).scaffoldBackgroundColor,
-        child: const Center(
+        child: Center(
           child: Text(
-            'Type to search',
-            style: TextStyle(fontSize: 16, color: Colors.grey),
+            AppLocalizations.of(context)!.text_search_hint,
+            style: const TextStyle(fontSize: 16, color: Colors.grey),
           ),
         ),
       );
@@ -99,10 +100,10 @@ class LibrarySearchDelegate extends SearchDelegate<Map<String, String>?> {
     if (!_hasSubmitted || _submittedQuery.isEmpty) {
       return Container(
         color: Theme.of(context).scaffoldBackgroundColor,
-        child: const Center(
+        child: Center(
           child: Text(
-            "Press search button to search",
-            style: TextStyle(fontSize: 16, color: Colors.grey),
+            AppLocalizations.of(context)!.text_search_press_button,
+            style: const TextStyle(fontSize: 16, color: Colors.grey),
           ),
         ),
       );
@@ -129,20 +130,20 @@ class LibrarySearchDelegate extends SearchDelegate<Map<String, String>?> {
           error: (error, stackTrace) {
             return ErrorStateWidget(
               error: error,
-              customMessage: 'Unable to perform search.\nPlease try again.',
+              customMessage: AppLocalizations.of(context)!.text_search_error,
             );
           },
           data: (searchResponseEither) {
             return searchResponseEither.fold(
               (failure) => ErrorStateWidget(
                 error: failure,
-                customMessage: 'Search failed.\nPlease try again.',
+                customMessage: AppLocalizations.of(context)!.text_search_error,
               ),
               (searchResponse) {
                 if (searchResponse.sources.isEmpty) {
                   return Center(
                     child: Text(
-                      'No results found for "$_submittedQuery"',
+                      AppLocalizations.of(context)!.search_no_results(_submittedQuery),
                       style: const TextStyle(fontSize: 16),
                     ),
                   );
@@ -169,7 +170,7 @@ class LibrarySearchDelegate extends SearchDelegate<Map<String, String>?> {
                 if (groupedResults.isEmpty) {
                   return Center(
                     child: Text(
-                      'No results found for "$_submittedQuery"',
+                      AppLocalizations.of(context)!.search_no_results(_submittedQuery),
                       style: const TextStyle(fontSize: 16),
                     ),
                   );
