@@ -28,11 +28,13 @@ class NavigationService {
     return getAdjacentText(context, direction) != null;
   }
 
-  /// Create a new navigation context for the adjacent text
+  /// Create a new navigation context for the adjacent text.
+  /// Pass [autoPlay] to trigger audio playback in the destination screen.
   NavigationContext? createNavigationContextForAdjacent(
     NavigationContext currentContext,
-    SwipeDirection direction,
-  ) {
+    SwipeDirection direction, {
+    bool autoPlay = false,
+  }) {
     final adjacentText = getAdjacentText(currentContext, direction);
     if (adjacentText == null) return null;
 
@@ -49,6 +51,8 @@ class NavigationService {
       planTextItems: currentContext.planTextItems,
       currentTextIndex: newIndex,
       navigationDirection: direction,
+      dayAudioUrl: currentContext.dayAudioUrl,
+      autoPlay: autoPlay,
     );
   }
 

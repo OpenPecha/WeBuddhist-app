@@ -75,9 +75,24 @@ class PlanTextItem {
   /// unenrolled plans.
   final String? subtaskId;
 
+  /// The parent task ID. Used to look up audio windows in
+  /// [PlanDayAudioNotifier] — null for preview (unenrolled) items.
+  final String? taskId;
+
   /// Whether the subtask is already completed. Prevents duplicate
   /// completion API calls.
   final bool isCompleted;
+
+  /// Audio segment start offset in milliseconds within the day audio track.
+  /// Null when this item has no mapped audio window.
+  final int? startMs;
+
+  /// Audio segment end offset in milliseconds within the day audio track.
+  /// Null when this item has no mapped audio window.
+  final int? endMs;
+
+  /// True when both [startMs] and [endMs] are present and form a valid window.
+  bool get hasAudioSegment => startMs != null && endMs != null;
 
   const PlanTextItem._({
     required this.contentType,
@@ -86,7 +101,10 @@ class PlanTextItem {
     this.segmentIds,
     this.inlineContent,
     this.subtaskId,
+    this.taskId,
     this.isCompleted = false,
+    this.startMs,
+    this.endMs,
   });
 
   /// Build a SOURCE_REFERENCE item. Throws if [textId] is empty.
@@ -95,7 +113,10 @@ class PlanTextItem {
     required String title,
     List<String>? segmentIds,
     String? subtaskId,
+    String? taskId,
     bool isCompleted = false,
+    int? startMs,
+    int? endMs,
   }) {
     assert(textId.isNotEmpty, 'sourceReference requires non-empty textId');
     return PlanTextItem._(
@@ -104,7 +125,10 @@ class PlanTextItem {
       title: title,
       segmentIds: segmentIds,
       subtaskId: subtaskId,
+      taskId: taskId,
       isCompleted: isCompleted,
+      startMs: startMs,
+      endMs: endMs,
     );
   }
 
@@ -113,7 +137,10 @@ class PlanTextItem {
     required String content,
     required String title,
     String? subtaskId,
+    String? taskId,
     bool isCompleted = false,
+    int? startMs,
+    int? endMs,
   }) {
     assert(content.trim().isNotEmpty, 'inlineText requires non-blank content');
     return PlanTextItem._(
@@ -122,7 +149,10 @@ class PlanTextItem {
       inlineContent: content,
       title: title,
       subtaskId: subtaskId,
+      taskId: taskId,
       isCompleted: isCompleted,
+      startMs: startMs,
+      endMs: endMs,
     );
   }
 
@@ -145,7 +175,10 @@ class PlanTextItem {
     String? inlineContent,
     String? title,
     String? subtaskId,
+    String? taskId,
     bool? isCompleted,
+    int? startMs,
+    int? endMs,
   }) {
     return PlanTextItem._(
       contentType: contentType ?? this.contentType,
@@ -154,7 +187,10 @@ class PlanTextItem {
       inlineContent: inlineContent ?? this.inlineContent,
       title: title ?? this.title,
       subtaskId: subtaskId ?? this.subtaskId,
+      taskId: taskId ?? this.taskId,
       isCompleted: isCompleted ?? this.isCompleted,
+      startMs: startMs ?? this.startMs,
+      endMs: endMs ?? this.endMs,
     );
   }
 
@@ -167,6 +203,7 @@ class PlanTextItem {
         other.title != title ||
         other.inlineContent != inlineContent ||
         other.subtaskId != subtaskId ||
+        other.taskId != taskId ||
         other.isCompleted != isCompleted) {
       return false;
     }
@@ -187,6 +224,7 @@ class PlanTextItem {
         inlineContent,
         title,
         subtaskId,
+        taskId,
         isCompleted,
       );
 
@@ -210,6 +248,10 @@ class NavigationContext {
   final List<PlanTextItem>? planTextItems;
   final int? currentTextIndex;
   final SwipeDirection? navigationDirection; // slide direction (left/right)
+  /// When true, the reader should auto-play this item's audio segment on open.
+  final bool autoPlay;
+  /// The day-level audio URL shared by all tasks in this plan day.
+  final String? dayAudioUrl;
 
   const NavigationContext({
     required this.source,
@@ -219,6 +261,8 @@ class NavigationContext {
     this.planTextItems,
     this.currentTextIndex,
     this.navigationDirection,
+    this.autoPlay = false,
+    this.dayAudioUrl,
   });
 
   /// Whether this context can navigate between plan items at all
@@ -269,6 +313,8 @@ class NavigationContext {
     List<PlanTextItem>? planTextItems,
     int? currentTextIndex,
     SwipeDirection? navigationDirection,
+    bool? autoPlay,
+    String? dayAudioUrl,
   }) {
     return NavigationContext(
       source: source ?? this.source,
@@ -278,6 +324,8 @@ class NavigationContext {
       planTextItems: planTextItems ?? this.planTextItems,
       currentTextIndex: currentTextIndex ?? this.currentTextIndex,
       navigationDirection: navigationDirection ?? this.navigationDirection,
+      autoPlay: autoPlay ?? this.autoPlay,
+      dayAudioUrl: dayAudioUrl ?? this.dayAudioUrl,
     );
   }
 
@@ -303,6 +351,6 @@ class NavigationContext {
 
   @override
   String toString() {
-    return 'NavigationContext(source: $source, planId: $planId, dayNumber: $dayNumber, targetSegmentId: $targetSegmentId, currentTextIndex: $currentTextIndex, navigationDirection: $navigationDirection)';
+    return 'NavigationContext(source: $source, planId: $planId, dayNumber: $dayNumber, targetSegmentId: $targetSegmentId, currentTextIndex: $currentTextIndex, navigationDirection: $navigationDirection, autoPlay: $autoPlay)';
   }
 }

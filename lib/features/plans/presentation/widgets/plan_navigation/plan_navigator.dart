@@ -40,15 +40,18 @@ class PlanNavigator {
 
   /// Move to the adjacent item in [direction]. Returns true if it navigated,
   /// false if there is no neighbour in that direction.
+  /// Pass [autoPlay] to begin audio playback immediately in the next screen.
   static bool navigateAdjacent(
     BuildContext context,
     NavigationContext currentContext,
-    SwipeDirection direction,
-  ) {
+    SwipeDirection direction, {
+    bool autoPlay = false,
+  }) {
     const service = NavigationService();
     final newContext = service.createNavigationContextForAdjacent(
       currentContext,
       direction,
+      autoPlay: autoPlay,
     );
     final adjacent = service.getAdjacentText(currentContext, direction);
     if (newContext == null || adjacent == null) return false;

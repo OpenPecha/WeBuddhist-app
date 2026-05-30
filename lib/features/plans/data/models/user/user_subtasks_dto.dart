@@ -8,6 +8,8 @@ class UserSubtasksDto {
   final String? sourceTextId;
   final String? pechaSegmentId;
   final List<String>? segmentIds;
+  final int? startMs;
+  final int? endMs;
 
   UserSubtasksDto({
     required this.id,
@@ -19,7 +21,11 @@ class UserSubtasksDto {
     this.sourceTextId,
     this.pechaSegmentId,
     this.segmentIds,
+    this.startMs,
+    this.endMs,
   });
+
+  bool get hasAudioWindow => startMs != null && endMs != null;
 
   factory UserSubtasksDto.fromJson(Map<String, dynamic> json) {
     return UserSubtasksDto(
@@ -31,10 +37,11 @@ class UserSubtasksDto {
       duration: json['duration'] as String?,
       sourceTextId: json['source_text_id'] as String?,
       pechaSegmentId: json['pecha_segment_id'] as String?,
-      segmentIds:
-          (json['segment_ids'] as List<dynamic>?)
-              ?.map((e) => e.toString())
-              .toList(),
+      segmentIds: (json['segment_ids'] as List<dynamic>?)
+          ?.map((e) => e.toString())
+          .toList(),
+      startMs: json['start_ms'] as int?,
+      endMs: json['end_ms'] as int?,
     );
   }
 
@@ -49,6 +56,8 @@ class UserSubtasksDto {
       'source_text_id': sourceTextId,
       'pecha_segment_id': pechaSegmentId,
       'segment_ids': segmentIds,
+      'start_ms': startMs,
+      'end_ms': endMs,
     };
   }
 }
