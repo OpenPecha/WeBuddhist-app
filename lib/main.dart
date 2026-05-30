@@ -15,6 +15,7 @@ import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/features/notifications/application/plan_notification_bootstrap.dart';
 import 'package:flutter_pecha/features/notifications/application/special_plan_bootstrap.dart';
 import 'package:flutter_pecha/features/notifications/data/services/notification_service.dart';
+import 'package:flutter_pecha/features/home/presentation/screens/main_navigation_screen.dart';
 import 'package:flutter_pecha/features/practice/data/datasource/routine_local_storage.dart';
 import 'package:flutter_pecha/features/practice/presentation/providers/practice_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -101,9 +102,25 @@ void main() async {
     _logger.warning('Error initializing routine local storage: $e');
   }
 
+  // Determine initial tab: Practice (1) if routines exist, Home (0) otherwise.
+  // Hive box is already open so this read is effectively free (~0 ms).
+  var initialTabIndex = 0;
+  try {
+    final routineData = await routineStorage.loadRoutine();
+    if (routineData.blocks.isNotEmpty) {
+      initialTabIndex = 1;
+      _logger.info('Routines found – opening Practice tab on launch');
+    }
+  } catch (e) {
+    _logger.warning('Error checking routines for initial tab: $e');
+  }
+
   // Create provider container for routine storage
   final container = ProviderContainer(
-    overrides: [routineLocalStorageProvider.overrideWithValue(routineStorage)],
+    overrides: [
+      routineLocalStorageProvider.overrideWithValue(routineStorage),
+      mainNavigationIndexProvider.overrideWith((ref) => initialTabIndex),
+    ],
   );
 
   // Set container reference for notification navigation
