@@ -1,3 +1,5 @@
+import 'package:flutter_pecha/core/services/analytics/analytics_events.dart';
+import 'package:flutter_pecha/core/services/analytics/analytics_providers.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/features/notifications/application/plan_enrollment_hook.dart';
 import 'package:flutter_pecha/features/notifications/application/special_plan_enrollment_hook.dart';
@@ -99,7 +101,13 @@ class EventEnrollmentService {
         // be enrolled from a previous onboarding attempt.
         _logger.warning('subscribe plan $planId: ${failure.message} (continuing)');
       },
-      (_) => _logger.info('Subscribed to plan $planId'),
+      (_) {
+        _logger.info('Subscribed to plan $planId');
+        _ref.read(analyticsServiceProvider).capture(
+          AnalyticsEvents.planStarted,
+          properties: {'plan_id': planId, 'source': 'onboarding'},
+        );
+      },
     );
   }
 

@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/config/router/app_routes.dart';
 import 'package:flutter_pecha/core/config/router/page_transitions.dart';
 import 'package:flutter_pecha/core/config/router/route_guard.dart';
+import 'package:flutter_pecha/core/services/analytics/analytics_providers.dart';
+import 'package:flutter_pecha/core/services/analytics/analytics_route_observer.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/features/ai/presentation/screens/ai_mode_screen.dart';
 import 'package:flutter_pecha/features/ai/presentation/screens/search_results_screen.dart';
@@ -56,6 +58,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(
     initialLocation: AppRoutes.home,
     debugLogDiagnostics: true,
+    observers: [AnalyticsRouteObserver(ref.read(analyticsServiceProvider))],
 
     // Re-evaluate redirect whenever auth state changes.
     refreshListenable: GoRouterRefreshStream(
