@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/features/plans/presentation/widgets/find_plan_tab.dart';
 import 'package:flutter_pecha/features/plans/presentation/widgets/my_plan_tab.dart';
@@ -39,7 +40,8 @@ class _PlansScreenState extends ConsumerState<PlansScreen>
       appBar: AppBar(
         title: Text(
           localizations.nav_practice,
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
+          strutStyle: context.tibetanStrutStyle(22.0),
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
         ),
         scrolledUnderElevation: 0,
         centerTitle: false,
