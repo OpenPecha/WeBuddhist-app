@@ -15,7 +15,7 @@ class AppLocalizationsBo extends AppLocalizations {
   String get pechaHeading => 'WeBuddhist';
 
   @override
-  String get learnLiveShare => 'Learn, Live, and Share';
+  String get learnLiveShare => 'Learn, practice, and connect';
 
   @override
   String get themeLight => 'འཆར་ངོས་དཀར་པོ།';
@@ -40,7 +40,7 @@ class AppLocalizationsBo extends AppLocalizations {
 
   @override
   String get onboarding_description =>
-      'Where we learn, live, and share Buddhist wisdom every day';
+      'Where we learn, practice, and share connect. Daily';
 
   @override
   String get onboarding_quote =>
@@ -57,7 +57,7 @@ class AppLocalizationsBo extends AppLocalizations {
 
   @override
   String get onboarding_second_question =>
-      'Which path or school do you feel drawn to?';
+      'Choose the traditions you\'re part of or want to explore:';
 
   @override
   String get onboarding_choose_option => 'གཅིག་ཡང་རུང་འདེམས་དགོས།';
@@ -85,28 +85,28 @@ class AppLocalizationsBo extends AppLocalizations {
   String get home_good_evening => 'དགོང་དྲོ་བདེ་ལེགས།';
 
   @override
-  String get home_meditationTitle => 'དངོས་གཞི་སྒོམ།';
+  String get home_meditationTitle => 'སྒོམ།';
 
   @override
-  String get home_prayerTitle => 'Prayer of the Day';
+  String get home_prayerTitle => 'Prayer of the day';
 
   @override
   String get home_scripture => 'Guided Scripture';
 
   @override
-  String get home_meditation => 'Guided Meditation';
+  String get home_meditation => 'ལམ་སྟོན་ཡོད་པའི་སྒོམ།';
 
   @override
   String get home_goDeeper => ' ཞིབ་གཟིགས།';
 
   @override
-  String get home_intention => 'ངའི་དེ་རིང་གི་དམིགས་པ།';
+  String get home_intention => 'ངའི་དེ་རིང་གི་སེམས་བསྐྱེད།';
 
   @override
   String get home_recitation => 'བཟླས་པ།';
 
   @override
-  String get home_bringing => 'བློ་སྦྱོང་གོམས་འདྲིས།';
+  String get home_bringing => 'འཚོ་བའི་ནང་ལོངས།';
 
   @override
   String get home_profile => 'ངོ་སྤྲོད་སྙིང་བསྡུས།';
@@ -175,7 +175,7 @@ class AppLocalizationsBo extends AppLocalizations {
   String get text_close_commentary => 'Close commentary';
 
   @override
-  String get commentary_total => 'Total';
+  String get commentary_total => 'ཁྱོན་བསྡོམས།';
 
   @override
   String get show_more => 'མང་བ་བསྟོན།';
@@ -197,16 +197,16 @@ class AppLocalizationsBo extends AppLocalizations {
 
   @override
   String get no_commentary_message =>
-      'There are no commentaries available for this segment.';
+      'No commentaries available for this segment';
 
   @override
   String get loading => 'ལེན་བཞིན་པ་་་';
 
   @override
-  String get choose_image => 'པར་འདེམས།';
+  String get choose_image => 'པར་རིས་འདེམས།';
 
   @override
-  String get choose_bg_image => 'རྒྱབས་ངོས་ཀྱི་པར་རིས་འདེམས།';
+  String get choose_bg_image => 'རྒྱབས་ལྗོངས་ཀྱི་པར་རིས་ཤིག་འདེམས།';
 
   @override
   String get create_image => 'པར་རིས་བཟོས།';
@@ -219,10 +219,10 @@ class AppLocalizationsBo extends AppLocalizations {
 
   @override
   String get customise_message =>
-      'ཡིག་གཟུགས་སྒྲིག་བཀོད་བྱེད་པར་སྒྲིག་བཀོད་ཀྱི་མཚོན་རྟགས་ལ་གནོན།';
+      'ཡིག་གཟུགས་སྒྲིག་བཀོད་བྱེད་པར་སྒྲིག་བཀོད་ཀྱི་མཚོན་རྟགས་སྒང་ལ་སྣུན།';
 
   @override
-  String get download_image => 'པར་རིས་ཕབ་ལེན་བྱེད།';
+  String get download_image => 'འདྲ་པར་ཕབ་ལེན།';
 
   @override
   String get no_images_available => 'འདྲ་པར་མི་འདུག';
@@ -240,7 +240,7 @@ class AppLocalizationsBo extends AppLocalizations {
   String get text_shadow => 'ཡི་གེའི་གྲིབ་གཟུགས།';
 
   @override
-  String get apply => 'ཉར་ཚགས།';
+  String get apply => 'ཞུ་འབུལ།';
 
   @override
   String get practice_nav_title => 'ཉིན་རེ་ཉམས་ལེན།';
@@ -252,7 +252,7 @@ class AppLocalizationsBo extends AppLocalizations {
   String get find_plans => 'ཉམས་ལེན་འཚོལ།';
 
   @override
-  String get browse_plans => 'ཉམས་ལེན་འཚོལ།';
+  String get browse_plans => 'ཉམས་ལེན་ལ་མིག་བཤེར་བྱོས།';
 
   @override
   String get plan_info => 'ཉམས་ལེན་ངོས་སྤྲོད།';
@@ -264,7 +264,7 @@ class AppLocalizationsBo extends AppLocalizations {
   String get start_reading => 'ཀློག་པ་འགོ་འཛུགས།';
 
   @override
-  String get continue_plan => 'ཉམས་ལེན་མུ་མཐུད་';
+  String get continue_plan => 'ཉམས་ལེན་མུ་མཐུད།';
 
   @override
   String get tibetan => 'བོད་ཡིག';
@@ -273,10 +273,10 @@ class AppLocalizationsBo extends AppLocalizations {
   String get sanskrit => 'ལེགས་སྦྱར་སྐད།';
 
   @override
-  String get english => 'ཨིན་ཇི།';
+  String get english => 'དབྱིན་ཡིག';
 
   @override
-  String get chinese => 'རྒྱ་ཡིག།';
+  String get chinese => 'རྒྱ་ཡིག';
 
   @override
   String get language => 'སྐད་ཡིག';
@@ -320,7 +320,7 @@ class AppLocalizationsBo extends AppLocalizations {
   String get no_days_available => 'རྙེད་མ་བྱུང།';
 
   @override
-  String get notification_turn_on => 'Please turn on Notifications';
+  String get notification_turn_on => 'Please turn on notifications';
 
   @override
   String get notification_enable_message =>
@@ -336,7 +336,7 @@ class AppLocalizationsBo extends AppLocalizations {
   String get notification_select_time => 'དུས་ཚོད་འདེམ།';
 
   @override
-  String get reminderTime => 'Reminder Time';
+  String get reminderTime => 'Reminder time';
 
   @override
   String get notification_daily_recitation => 'ཞལ་འདོན་དྲན་བརྡ།';
@@ -354,7 +354,7 @@ class AppLocalizationsBo extends AppLocalizations {
   String get recitations_my_recitations => 'ངའི་ཞལ་འདོན།';
 
   @override
-  String get browse_recitations => 'ཞལ་འདོན་འཚོལ།';
+  String get browse_recitations => 'ཞལ་འདོན་ལ་བཤེར་བྱོས།';
 
   @override
   String get recitations_search => 'ཞལ་འདོན་འཚོལ།';
@@ -439,13 +439,13 @@ class AppLocalizationsBo extends AppLocalizations {
   String get notification_section_categories => 'Categories';
 
   @override
-  String get notification_section_alarms => 'Alarms & Reminders';
+  String get notification_section_alarms => 'Alarms & reminders';
 
   @override
-  String get notification_section_battery => 'Battery  ·  Optional';
+  String get notification_section_battery => 'Battery';
 
   @override
-  String get notification_allow_title => 'Allow Notifications';
+  String get notification_allow_title => 'Allow notifications';
 
   @override
   String get notification_allow_subtitle_enabled =>
@@ -453,10 +453,10 @@ class AppLocalizationsBo extends AppLocalizations {
 
   @override
   String get notification_allow_subtitle_disabled =>
-      'Tap to enable — shows system prompt or opens Settings';
+      'Tap to open system settings and enable';
 
   @override
-  String get notification_routine_title => 'Routine Reminders';
+  String get notification_routine_title => 'Routine reminders';
 
   @override
   String get notification_routine_subtitle_enabled =>
@@ -464,49 +464,49 @@ class AppLocalizationsBo extends AppLocalizations {
 
   @override
   String get notification_routine_subtitle_disabled =>
-      'Muted — tap to re-enable in system settings';
+      'Tap to turn back on in Settings';
 
   @override
-  String get notification_alarms_title => 'Exact Alarms';
+  String get notification_alarms_title => 'Exact reminder times';
 
   @override
   String get notification_alarms_subtitle_enabled =>
-      'Notifications fire at the exact scheduled time';
+      'Reminders are sent at the time you set';
 
   @override
   String get notification_alarms_subtitle_disabled =>
-      'Required on Android 12+ — tap to grant';
+      'Reminders may arrive late or be skipped. Tap to fix';
 
   @override
-  String get notification_battery_title => 'Unrestricted Battery';
+  String get notification_battery_title => 'Background reminders';
 
   @override
   String get notification_battery_subtitle_enabled =>
-      'App is exempt from battery optimization — reminders will fire on time even when the app is closed or the phone is idle';
+      'Your reminders are sent on time, even when the app is closed.';
 
   @override
   String get notification_battery_subtitle_disabled =>
-      'Devices such as OnePlus, Xiaomi, Redmi etc may kill background apps. Enable this to keep notifications reliable.';
+      'Some Android phones pause background apps to save battery, which can delay or skip your reminders. Tap to keep yours running.';
 
   @override
   String get notification_snack_permission_denied =>
-      'Permission denied — opening App Settings.';
+      'Notifications are blocked. Turn them on in Settings';
 
   @override
   String get notification_snack_disable_in_settings =>
-      'Opening App Settings — turn off notifications there.';
+      'Turn off notifications in Settings.';
 
   @override
   String get notification_snack_ios_manage_in_settings =>
-      'Opening Settings — manage notifications there.';
+      'Manage notifications in Settings.';
 
   @override
   String get notification_snack_disable_alarms_in_settings =>
-      'Opening App Settings — disable Alarms & Reminders there.';
+      'Turn off alarms & reminders in Settings.';
 
   @override
   String get notification_snack_battery_reenable =>
-      'Opening App Settings — re-enable optimization under Battery.';
+      'Restore battery optimization in Settings → Battery.';
 
   @override
   String get profile_default_name => 'User';
@@ -515,7 +515,7 @@ class AppLocalizationsBo extends AppLocalizations {
   String get profile_default_bio => 'Welcome to WeBuddhist';
 
   @override
-  String get profile_guest_title => 'Guest User';
+  String get profile_guest_title => 'Guest user';
 
   @override
   String get profile_guest_subtitle => 'You\'re browsing as a guest';
@@ -533,18 +533,18 @@ class AppLocalizationsBo extends AppLocalizations {
   String get profile_guest_benefit_notifications => 'Custom notifications';
 
   @override
-  String get auth_drawer_title => 'Sign in to continue';
+  String get auth_drawer_title => 'མུ་མཐུད་དུ་འགྲོ་བར་ནང་འཛུལ་བྱོས།';
 
   @override
   String get auth_drawer_subtitle =>
-      'Access your practice plans and track your progress';
+      'ཁྱེད་ཀྱི་ཉམས་ལེན་འཆར་གཞི་ལ་གཟིགས་ཏེ་ཡར་རྒྱས་ཀྱི་གོ་རིམ་ལ་རྗེས་འདེད་བྱོས།';
 
   @override
   String get routine_delete_block_message =>
-      'This will remove the time block and all its items.';
+      'This will remove the time block and all its items';
 
   @override
-  String get something_went_wrong => 'Something went wrong. Please try again.';
+  String get something_went_wrong => 'Something went wrong. Please try again';
 
   @override
   String get onboarding_quote_citation => '— Dhammapada 122';
@@ -558,10 +558,10 @@ class AppLocalizationsBo extends AppLocalizations {
 
   @override
   String get onboarding_event_enrollment_error =>
-      'Could not enroll. Please check your connection and try again.';
+      'Unable to enroll you. Check your connection and try again';
 
   @override
-  String get onboarding_event_question => 'Join an\nupcoming event?';
+  String get onboarding_event_question => 'Join an\nevent?';
 
   @override
   String get onboarding_event_optional => 'Optional · Tap to enroll';
@@ -573,7 +573,7 @@ class AppLocalizationsBo extends AppLocalizations {
 
   @override
   String get onboarding_event_reminder_note =>
-      'We\'ll send you a daily reminder at 7:30 AM.(Change anytime.)';
+      'We\'ll send you a daily reminder at 7:30 AM. (Change anytime.)';
 
   @override
   String get tradition_theravada => 'Theravada';
@@ -591,81 +591,80 @@ class AppLocalizationsBo extends AppLocalizations {
   String get tradition_ambedkar_buddhism => 'Ambedkar Buddhism';
 
   @override
-  String get plan_go_to_practice => 'Go to Practice';
+  String get plan_go_to_practice => 'Go to practice';
 
   @override
-  String get plan_starts_soon_title => 'Plan Starts Soon';
+  String get plan_starts_soon_title => 'Starts soon';
 
   @override
-  String get plan_joining_late_title => 'Joining After Start Date';
+  String get plan_joining_late_title => 'Joining after start date';
 
   @override
-  String get got_it => 'Got it';
+  String get got_it => 'ལགས་སོ།།';
 
   @override
   String get plan_no_tasks_error => 'Unable to load tasks';
 
   @override
-  String get plan_day_tasks_load_error =>
-      'Unable to load the tasks for the day';
+  String get plan_day_tasks_load_error => 'Unable to load tasks';
 
   @override
-  String get plans_empty_title => 'No plans available';
+  String get plans_empty_title => 'More is on the way';
 
   @override
-  String get plans_empty_subtitle => 'Check back later for new practice plans';
+  String get plans_empty_subtitle => 'Our library is growing. Check back soon.';
 
   @override
   String get find_plans_load_error =>
-      'Unable to load plans.\nPlease try again later.';
+      'ཉམས་ལེན་ཁག་ལེན་ཐུབ་མ་སོང་། བསྐྱར་དུ་ཚོད་ལྟ་བྱེད་རོགས།';
 
   @override
   String get connect_coming_soon_subtitle =>
-      'Teachers, communities, challenges, and events to support you on the path.';
+      'Teachers, communities, challenges, and events to support you on the path';
 
   @override
   String get explore_coming_soon_subtitle =>
-      'A curated space to discover practices, teachings, and community events.';
+      'ཉམས་ལེན་དང་། གསུང་ཆོས། ལྷན་ཚོགས་ཀྱི་བྱེད་སྒོ་བཅས་འཆར་སྟོན་བྱེད་གནས།';
 
   @override
   String get learn_coming_soon_subtitle =>
-      'Your personal study plans, designed to fit into everyday life.';
+      'Your personal study plans, designed to fit into everyday life';
 
   @override
-  String get creator_featured_plan => 'Featured Plan';
+  String get creator_featured_plan => 'སྒྲིག་གཞི་ཡོད་པའི་ཉམས་ལེན།';
 
   @override
   String get audio_init_error =>
-      'Unable to initialize audio player. Please try again later.';
+      'སྒྲ་གཏོང་ཐུབ་མ་སོང་བས། རྗེས་ནས་ཚོད་ལྟ་བྱེད་རོགས།';
 
   @override
   String get meditation_audio_load_error =>
-      'Unable to load meditation audio. Please try again later.';
+      'Unable to load. Check your connection and try again';
 
   @override
   String get prayer_audio_load_error =>
-      'Unable to load audio. Please check your connection and try again.';
+      'Unable to load audio. Check your connection and try again';
 
   @override
-  String get home_no_series_found => 'No series found';
+  String get home_no_series_found => 'རིམ་པ་ཅན་རྙེད་མ་སོང་།';
 
   @override
   String get home_no_tags_found => 'No tags found';
 
   @override
-  String get home_celebrated_by => 'Celebrated by: ';
+  String get home_celebrated_by => 'སྤེལ་མཁན་ནི་ ';
 
   @override
-  String get home_default_duration => '1-2 min';
+  String get home_default_duration => 'སྐར་མ་ ༡-༢';
 
   @override
   String get version => 'Version';
 
   @override
-  String get reader_settings_tooltip => 'Reader Settings';
+  String get reader_settings_tooltip => 'Reader settings';
 
   @override
-  String get reader_font_size_tooltip => 'Font Size';
+  String get reader_font_size_tooltip => 'Font size';
 
   @override
   String get reader_about_version_tooltip => 'About this version';
@@ -681,26 +680,26 @@ class AppLocalizationsBo extends AppLocalizations {
   }
 
   @override
-  String get reader_versions_load_error => 'Failed to load versions.';
+  String get reader_versions_load_error => 'Failed to load versions';
 
   @override
-  String get reader_scripts_load_error => 'Failed to load scripts.';
+  String get reader_scripts_load_error => 'Failed to load scripts';
 
   @override
-  String get reader_languages_load_error => 'Failed to load languages.';
+  String get reader_languages_load_error => 'Failed to load languages';
 
   @override
   String reader_no_versions_in_language(String language) {
-    return 'No versions available in $language yet.';
+    return 'No versions available in $language';
   }
 
   @override
   String reader_no_scripts_in_language(String language) {
-    return 'No scripts available in $language yet.';
+    return 'No scripts available in $language';
   }
 
   @override
-  String get reader_no_languages => 'No languages available for this text yet.';
+  String get reader_no_languages => 'No languages available for this text';
 
   @override
   String get reader_published_by => 'Published by';
@@ -716,30 +715,29 @@ class AppLocalizationsBo extends AppLocalizations {
 
   @override
   String get reader_version_details_load_error =>
-      'Could not load version details.';
+      'Unable to load version details';
 
   @override
   String get reader_no_version_info =>
-      'No additional information is available for this version.';
+      'No additional information is available for this version';
 
   @override
   String get recitation_unavailable =>
-      'This recitation content is currently unavailable.\nPlease try again later or contact support.';
+      'Recitation content is currently unavailable.\nTry again later or contact support';
 
   @override
-  String get recitation_sign_in_required =>
-      'Please sign in to access this recitation.';
+  String get recitation_sign_in_required => 'Sign in to access this recitation';
 
   @override
   String get my_recitations_load_error =>
-      'Unable to load your saved recitations.\nPlease try again later.';
+      'Unable to load.\nCheck your connection and try again';
 
   @override
   String get recitations_load_error =>
-      'Unable to load recitations.\nPlease try again later.';
+      'Unable to load recitations.\nTry again later';
 
   @override
-  String get story_audio_label => 'Audio Story';
+  String get story_audio_label => 'Audio story';
 
   @override
   String get story_image_load_error => 'Unable to load image';
@@ -757,22 +755,20 @@ class AppLocalizationsBo extends AppLocalizations {
   String get text_search_press_button => 'Press search button to search';
 
   @override
-  String get text_search_error =>
-      'Unable to perform search.\nPlease try again.';
+  String get text_search_error => 'Unable to perform search.\nPlease try again';
 
   @override
   String get collections_load_error =>
-      'Unable to load collections.\nPlease try again.';
+      'ཕྱོགས་བསྒྲིགས་ཁག་ལེན་ཐུབ་མ་སོང་། བསྐྱར་དུ་ཚོད་ལྟ་བྱེད་རོགས།';
 
   @override
-  String get failed_load_collections => 'Failed to load collections';
+  String get failed_load_collections => 'ཕྱོགས་བསྒྲིགས་ཁག་ལེན་ཐུབ་མ་སོང་།';
 
   @override
   String get unknown_error => 'Unknown error';
 
   @override
-  String get commentary_empty_subtitle =>
-      'There are no commentaries available for this segment.';
+  String get commentary_empty_subtitle => 'ཚིག་དུམ་འདིའི་འགྲེལ་བ་མི་འདུག';
 
   @override
   String image_share_error(String error) {
@@ -781,29 +777,29 @@ class AppLocalizationsBo extends AppLocalizations {
 
   @override
   String get create_image_capture_error =>
-      'Failed to capture image. Please try again.';
+      'འདྲ་པར་ལེན་ཐུབ་མ་སོང་། བསྐྱར་དུ་ཚོད་ལྟ་བྱེད་རོགས།';
 
   @override
   String get create_image_share_error =>
-      'Unable to share. Please try again later.';
+      'མཉམ་སྤྱོད་བྱེད་ཐུབ་མ་སོང་། རྗེས་ནས་བསྐྱར་དུ་ཚོད་ལྟ་བྱེད་རོགས།';
 
   @override
-  String get create_image_save_success => 'Image saved to gallery';
+  String get create_image_save_success => 'འདྲ་པར་པར་མཛོད་ནང་ཉར་ཚགས་བྱས་ཡོད།';
 
   @override
   String get create_image_save_error =>
-      'Unable to save image. Please try again later.';
+      'འདྲ་པར་ཉར་ཚགས་བྱེད་ཐུབ་མ་སོང་། རྗེས་ནས་བསྐྱར་དུ་ཚོད་ལྟ་བྱེད་རོགས།';
 
   @override
   String get create_image_download_error =>
-      'Unable to download image. Please try again later.';
+      'འདྲ་པར་ཕབ་ལེན་བྱེད་ཐུབ་མ་སོང་། རྗེས་ནས་བསྐྱར་དུ་ཚོད་ལྟ་བྱེད་རོགས།';
 
   @override
   String get create_image_customize_tooltip => 'Customize';
 
   @override
   String get create_image_text_too_long =>
-      'Text is too long to increase font size';
+      'འགྲེལ་བཤད་རིང་དྲགས་འདུག ཡིག་གཟུགས་ཆེ་རུ་གཏོང་མི་ཐུབ།';
 
   @override
   String version_search_no_results(String query) {
@@ -815,12 +811,12 @@ class AppLocalizationsBo extends AppLocalizations {
 
   @override
   String plan_starts_soon_message(String date) {
-    return 'This plan starts on $date. You can browse the content now.';
+    return 'Starts on $date. You can browse the content now';
   }
 
   @override
   String plan_joining_late_message(String date) {
-    return 'This plan started on $date. You can complete past day tasks.';
+    return 'Started on $date. Feel free to complete previous days\' tasks';
   }
 
   @override
@@ -834,7 +830,7 @@ class AppLocalizationsBo extends AppLocalizations {
       'ཁྱེད་རང་ཕྱིར་འཐོན་བྱ་རྒྱུ་བཏན་འཁེལ་ཡིན་ནམ།';
 
   @override
-  String get cancel => 'རྩིས་མེད།';
+  String get cancel => 'ཕྱིར་མེད།';
 
   @override
   String get copy => 'ངོ་བཤུ།';
@@ -867,20 +863,20 @@ class AppLocalizationsBo extends AppLocalizations {
   String get ai_chat_history => 'ཁ་བརྡའི་ལོ་རྒྱུས།';
 
   @override
-  String get ai_buddhist_assistant => 'ནང་པའི་རིག་ནུས་ཕྱག་རོགས།';
+  String get ai_buddhist_assistant => 'ནང་པའི་རིག་ནུས་རམ་འདེགས།';
 
   @override
   String get ai_new_chat => 'ཁ་བརྡ་གསར་པ།';
 
   @override
-  String get ai_retry => 'བསྐྱར་དུ་འབད་པ།';
+  String get ai_retry => 'བསྐྱར་དུ་ཚོད་ལྟ་བྱེད།';
 
   @override
   String get ai_dismiss => 'ཕྱིར་འཐེན།';
 
   @override
   String get ai_sign_in_prompt =>
-      'ནང་པའི་རིག་ནུས་ཕྱག་རོགས་བེད་སྤྱོད་གཏོང་བ་དང་དོན་སྙིང་ལྡན་པའི་གླེང་མོལ་འགོ་འཛུགས་པར་དེབ་སྐྱེལ་གནང་རོགས།';
+      'ནང་པའི་རིག་ནུས་རམ་འདེགས་བེད་སྤྱོད་གཏོང་བ་དང་དོན་སྙིང་ལྡན་པའི་གླེང་མོལ་འགོ་འཛུགས་པར་ནང་འཛུལ་བྱེད་རོགས།';
 
   @override
   String get ai_explore_wisdom => 'ནང་ཆོས་ཀྱི་ཤེས་བྱ་འཚོལ་ཞིབ་བྱེད།';
@@ -893,13 +889,13 @@ class AppLocalizationsBo extends AppLocalizations {
       'བྱང་ཆུབ་ཀྱི་གོ་འཕང་ཇི་ལྟར་ཐོབ་ཐུབ་བམ།';
 
   @override
-  String get ai_ask_question => 'དྲི་བ་ཞིག་འདྲི་དང་། ...';
+  String get ai_ask_question => 'དྲི་བ་ཞིག་དྲིས་དང་། ...';
 
   @override
   String get ai_loading_conversation => 'ཁ་བརྡ་འཇུག་བཞིན་པ། ...';
 
   @override
-  String get ai_search_chats => 'ཁ་བརྡ་འཚོལ་བ།';
+  String get ai_search_chats => 'ཁ་བརྡ་འཚོལ།';
 
   @override
   String get ai_chats => 'ཁ་བརྡ།';
@@ -914,7 +910,7 @@ class AppLocalizationsBo extends AppLocalizations {
   String get ai_start_new_chat => 'འགོ་འཛུགས་པའི་ཆེད་ཁ་བརྡ་གསར་པ་ཞིག་བཟོ་རོགས།';
 
   @override
-  String get ai_delete_chat => 'ཁ་བརྡ་བསུབ་པ།';
+  String get ai_delete_chat => 'ཁ་བརྡ་བསུབ།';
 
   @override
   String get ai_delete_confirmation =>
@@ -931,23 +927,23 @@ class AppLocalizationsBo extends AppLocalizations {
 
   @override
   String ai_greeting(String name) {
-    return 'Hi $name';
+    return 'བཀྲ་ཤིས་བདེ་ལེགས། $name';
   }
 
   @override
-  String get ai_text_not_found => 'Text Not Found';
+  String get ai_text_not_found => 'ཡིག་ཆ་རྙེད་མ་སོང་།';
 
   @override
   String ai_text_not_found_message(String title) {
-    return 'Could not find the text for \"$title\".\n\nPlease try another source.';
+    return 'མཚན་བྱང་ \"$title\". འདི་འདྲ་ཞིག་རྙེད་མ་སོང་། ཁུངས་གཞན་ཞིག་སྤྱད་དེ་འཚོལ་རོགས།';
   }
 
   @override
-  String get ai_sources => 'Sources';
+  String get ai_sources => 'ཁུངས།';
 
   @override
   String ai_sources_count(int count) {
-    return '$count sources';
+    return '$count ཁུངས།';
   }
 
   @override
@@ -956,7 +952,7 @@ class AppLocalizationsBo extends AppLocalizations {
   }
 
   @override
-  String get search_show_more => 'Show More';
+  String get search_show_more => 'Show more';
 
   @override
   String get search_contents => 'Contents';
@@ -971,7 +967,7 @@ class AppLocalizationsBo extends AppLocalizations {
   String get search_author => 'Author';
 
   @override
-  String get search_tab_ai_mode => 'AI Mode';
+  String get search_tab_ai_mode => 'AI mode';
 
   @override
   String search_error(String message) {
@@ -1003,10 +999,10 @@ class AppLocalizationsBo extends AppLocalizations {
   String get search_buddhist_texts => 'Search Buddhist texts...';
 
   @override
-  String get common_ok => 'OK';
+  String get common_ok => 'འགྲིག';
 
   @override
-  String get comingSoonHeadline => ' མྱུར་དུ།';
+  String get comingSoonHeadline => 'ཐོན་ལ་ཉེ།';
 
   @override
   String get routine_title => 'འཆར་ཅན་ཉམས་ལེན།';
@@ -1070,50 +1066,50 @@ class AppLocalizationsBo extends AppLocalizations {
   String get routine_add_recitation => 'ཞལ་འདོན་ཁ་སྣོན།';
 
   @override
-  String get routine_add_plan_to_routine => 'Add to Routine';
+  String get routine_add_plan_to_routine => 'Add to routine';
 
   @override
-  String get routine_go_to_practice => 'Go to Practice';
+  String get routine_go_to_practice => 'Go to practice';
 
   @override
   String get routine_load_error =>
-      'Could not load your routine. Please try again.';
+      'Unable to load. Check your connection and try again';
 
   @override
-  String get routine_empty_block_title_singular => 'Empty Time Block';
+  String get routine_empty_block_title_singular => 'Empty time block';
 
   @override
   String routine_empty_block_title_plural(int count) {
-    return 'Empty Time Blocks ($count)';
+    return 'Empty time blocks ($count)';
   }
 
   @override
   String get routine_empty_block_message_singular =>
-      'This time block has no items. Would you like to add an item or delete the block?';
+      'This time block is empty. Add an item, or remove it from your routine?';
 
   @override
   String routine_empty_block_message_plural(int count) {
-    return 'You have $count time blocks without any items. Would you like to add items or delete these blocks?';
+    return '$count time blocks are empty. Add items, or remove them from your routine?';
   }
 
   @override
-  String get routine_empty_block_add_items => 'Add Items';
+  String get routine_empty_block_add_items => 'Add items';
 
   @override
-  String get routine_empty_block_delete_singular => 'Delete Block';
+  String get routine_empty_block_delete_singular => 'Remove block';
 
   @override
-  String get routine_empty_block_delete_plural => 'Delete Empty Blocks';
+  String get routine_empty_block_delete_plural => 'Remove blocks';
 
   @override
-  String get routine_notification_title => 'Make Prayer Daily';
+  String get routine_notification_title => 'Make practice a habit';
 
   @override
   String get routine_notification_description =>
-      'Allow notifications to receive your reminder to pray.';
+      'Allow notifications so we can remind you to practice';
 
   @override
-  String get routine_notification_enable => 'Enable Notifications';
+  String get routine_notification_enable => 'Enable notifications';
 
   @override
   String get routine_notification_skip => 'Skip';
@@ -1124,7 +1120,7 @@ class AppLocalizationsBo extends AppLocalizations {
   }
 
   @override
-  String get routine_add_block_label => 'Time Block';
+  String get routine_add_block_label => 'Time block';
 
   @override
   String get continueWithGoogle => 'Google བརྒྱུད་ནས་མུ་མཐུད།';
@@ -1133,7 +1129,7 @@ class AppLocalizationsBo extends AppLocalizations {
   String get continueWithApple => 'Apple བརྒྱུད་ནས་མུ་མཐུད།';
 
   @override
-  String get continueAsGuest => 'མགོ་ཚུགས་པ་བརྒྱུད་ནས་མུ་མཐུད།';
+  String get continueAsGuest => 'མགྲོན་པོའི་ངོ་བོའི་ཐོག་ནས་མུ་མཐུད།';
 
   @override
   String get signIn => 'ནང་བསྐྱོད།';
@@ -1151,13 +1147,13 @@ class AppLocalizationsBo extends AppLocalizations {
   String get retry => 'བསྐྱར་དུ་འབད་པ།';
 
   @override
-  String get back => 'རྒྱབ་ལོག';
+  String get back => 'ཕྱིར་ལོག';
 
   @override
-  String get delete => 'བཏོན་གཏང་';
+  String get delete => 'བསུབ།';
 
   @override
-  String get close => 'ཁ་བསྡམས།';
+  String get close => 'སྒོ་རྒྱོབས།';
 
   @override
   String get tryAgain => 'བསྐྱར་དུ་ཚུར་ཐེངས་གཅིག་འབད།';
@@ -1169,13 +1165,13 @@ class AppLocalizationsBo extends AppLocalizations {
   String get successfully => 'མཐར་འཁྱོལ་བྱུང་།';
 
   @override
-  String get failedTo => 'ལམ་འགྲོ་མ་བྱུང་།';
+  String get failedTo => 'ཐུབ་མ་སོང་།';
 
   @override
   String get unableTo => 'མི་ཐུབ།';
 
   @override
-  String get error => 'སྐྱོན།';
+  String get error => 'ནོར་འཛོལ།';
 
   @override
   String get anonymous => 'མིང་མེད།';
@@ -1190,13 +1186,13 @@ class AppLocalizationsBo extends AppLocalizations {
   String get invalidParameters => 'ཆ་རྐྱེན་ནོར་བ།';
 
   @override
-  String get cannotOpenLink => 'འབྲེལ་ལམ་ཁ་ཕྱེ་མི་ཐུབ།';
+  String get cannotOpenLink => 'དྲ་ཐག་འདི་ཁ་འབྱེད་མི་ཐུབ།';
 
   @override
   String get invalidUrlFormat => 'URL རྩོམ་སྒྲིག་ནོར་བ།';
 
   @override
-  String get cannotOpenEmail => 'པར་ལེ་སེ་ཁ་ཕྱེ་མི་ཐུབ།';
+  String get cannotOpenEmail => 'གློག་འཕྲིན་འདི་ཁ་འབྱེད་མི་ཐུབ།';
 
   @override
   String get invalidEmailFormat => 'པར་ལེ་སེ་རྩོམ་སྒྲིག་ནོར་བ།';
@@ -1217,10 +1213,10 @@ class AppLocalizationsBo extends AppLocalizations {
   String get searchResults => 'འཚོལ་ཞིབ་འབྲས་བུ།';
 
   @override
-  String get deleteConversation => 'གླེང་མོལ་བཏོན་གཏང་གི་ཡིན་ནམ།';
+  String get deleteConversation => 'གླེང་མོལ་བསུབ་རྒྱུ་ཡིན་ནམ།';
 
   @override
-  String get errorOops => 'ཨོ། ལོག་སྟེ་འབད་རོགས།';
+  String get errorOops => 'ཨོ་ཨོ། བསྐྱར་དུ་ཚོད་ལྟ་བྱེད་རོགས།';
 
   @override
   String get tabAll => 'ཆ་ཚང་།';
@@ -1260,15 +1256,15 @@ class AppLocalizationsBo extends AppLocalizations {
 
   @override
   String enrollSuccess(String planTitle) {
-    return '$planTitle ལ་མཐར་འཁྱོལ་བྱུང་།';
+    return '$planTitle ལ་ཞུགས་ཐོ་བཀོད་ཟིན།';
   }
 
   @override
-  String get enrollError => 'འཆར་གཞིར་ཞུགས་མི་ཐུབ། ལོག་སྟེ་འབད་རོགས།';
+  String get enrollError => 'ཞུགས་ཐོ་འགོད་ཐུབ་མ་སོང་། བསྐྱར་དུ་ཚོད་ལྟ་བྱོས།';
 
   @override
   String enrollErrorDetail(String error) {
-    return 'འཆར་གཞིར་ཞུགས་མི་ཐུབ།';
+    return 'ཞུགས་ཐོ་འགོད་ཐུབ་མ་སོང་། རྗེས་ནས་བསྐྱར་དུ་ཚོད་ལྟ་བྱེད་རོགས།';
   }
 
   @override
@@ -1295,7 +1291,7 @@ class AppLocalizationsBo extends AppLocalizations {
   }
 
   @override
-  String get duplicateItem => 'རྣམ་གྲངས་འདི་གནས་སུ་ཡོད་ཟིན།';
+  String get duplicateItem => 'དངོས་པོ་འདི་ཚན་པའི་ནང་བཞག་ཟིན་འདུག';
 
   @override
   String get removeItem => 'རྣམ་གྲངས་ཕྱིར་བཏོན།';
@@ -1323,7 +1319,8 @@ class AppLocalizationsBo extends AppLocalizations {
   String get loadFailed => 'བསྡུ་ཉར་བརྙན་འཁུར་བྱེད་མི་ཐུབ།';
 
   @override
-  String get captureError => 'QR གོམ་པ་བརྙན་འཕྲུལ་མི་ཐུབ། ལོག་སྟེ་འབད་རོགས།';
+  String get captureError =>
+      'QR བཤེར་རིས་འདི་བཤེར་ཐུབ་མ་སོང་། བསྐྱར་དུ་ཚོད་ལྟ་བྱེད་རོགས།';
 
   @override
   String get qrShareError =>
@@ -1331,7 +1328,7 @@ class AppLocalizationsBo extends AppLocalizations {
 
   @override
   String errorDetail(String error) {
-    return 'སྐྱོན། $error';
+    return 'ནོར་འཛོལ། $error';
   }
 
   @override
