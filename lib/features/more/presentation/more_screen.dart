@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
+import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/core/theme/theme_notifier.dart';
@@ -45,26 +46,12 @@ class MoreScreen extends ConsumerWidget {
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         elevation: 0,
-        title: Builder(
-          builder: (context) {
-            final isTibetan = Localizations.localeOf(context).languageCode == 
-                AppConfig.tibetanLanguageCode;
-            final fontSize = Theme.of(context).textTheme.headlineSmall?.fontSize ?? 24;
-            
-            return Text(
-              localizations.nav_settings,
-              strutStyle: isTibetan
-                  ? StrutStyle(
-                      fontSize: fontSize,
-                      height: 1.6,
-                      forceStrutHeight: true,
-                    )
-                  : null,
-              style: Theme.of(
-                context,
-              ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
-            );
-          },
+        title: Text(
+          localizations.nav_settings,
+          strutStyle: context.tibetanStrutStyle(
+            Theme.of(context).textTheme.headlineSmall?.fontSize ?? 24,
+          ),
+          style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
       ),
