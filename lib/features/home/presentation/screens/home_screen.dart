@@ -232,9 +232,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         title: Text(
           l10n.nav_home,
-          style: Theme.of(
-            context,
-          ).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
+          strutStyle: context.tibetanStrutStyle(
+            Theme.of(context).textTheme.headlineMedium?.fontSize ?? 28,
+          ),
+          style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
         ),
       ),
       body: SafeArea(

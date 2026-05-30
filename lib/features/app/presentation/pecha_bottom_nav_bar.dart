@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/constants/app_assets.dart';
+import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'skeleton_screen.dart';
@@ -101,7 +102,6 @@ class PechaBottomNavBar extends ConsumerWidget {
     final fontSize = 12.0;
     final theme = Theme.of(context);
     final isDarkMode = theme.brightness == Brightness.dark;
-
     // Active color uses primary color, inactive uses grey (dark mode friendly)
     final activeColor =
         theme.colorScheme.brightness == Brightness.dark
@@ -138,6 +138,7 @@ class PechaBottomNavBar extends ConsumerWidget {
                 ).copyWith(textScaler: TextScaler.linear(1.0)),
                 child: Text(
                   label,
+                  strutStyle: context.tibetanStrutStyle(fontSize),
                   style: TextStyle(
                     fontSize: fontSize,
                     fontWeight:
