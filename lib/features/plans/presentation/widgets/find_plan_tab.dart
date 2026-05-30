@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/core/widgets/error_state_widget.dart';
 import 'package:flutter_pecha/features/plans/presentation/providers/plans_providers.dart';
 import 'package:flutter_pecha/features/plans/presentation/providers/find_plans_paginated_provider.dart';
@@ -59,7 +60,7 @@ class _FindPlansTabState extends ConsumerState<FindPlansTab> {
       return ErrorStateWidget(
         error: plansState.error!,
         onRetry: () => ref.read(findPlansPaginatedProvider.notifier).retry(),
-        customMessage: 'Unable to load plans.\nPlease try again later.',
+        customMessage: context.l10n.find_plans_load_error,
       );
     }
 
@@ -67,8 +68,8 @@ class _FindPlansTabState extends ConsumerState<FindPlansTab> {
     if (plansState.plans.isEmpty && !plansState.isLoading) {
       return _EmptyState(
         icon: Icons.explore_outlined,
-        title: 'No plans available',
-        subtitle: 'Check back later for new practice plans',
+        title: context.l10n.plans_empty_title,
+        subtitle: context.l10n.plans_empty_subtitle,
       );
     }
 

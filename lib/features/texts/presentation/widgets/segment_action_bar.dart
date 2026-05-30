@@ -202,7 +202,7 @@ class _ShareButtonState extends ConsumerState<_ShareButton> {
       if (!mounted) return;
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text('Unable to share: $e')));
+      ).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.image_share_error(e.toString()))));
     } finally {
       if (mounted) {
         setState(() {

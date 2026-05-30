@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 
 class PickerLoading extends StatelessWidget {
   const PickerLoading({super.key});
@@ -59,7 +60,7 @@ class PickerError extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 12),
-          TextButton(onPressed: onRetry, child: const Text('Retry')),
+          TextButton(onPressed: onRetry, child: Text(AppLocalizations.of(context)!.retry)),
         ],
       ),
     );

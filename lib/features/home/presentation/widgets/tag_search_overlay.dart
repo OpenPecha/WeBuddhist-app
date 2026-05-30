@@ -115,7 +115,7 @@ class _TagSearchOverlayState extends ConsumerState<TagSearchOverlay> {
                           child: Padding(
                             padding: const EdgeInsets.all(32.0),
                             child: Text(
-                              'No tags found',
+                              AppLocalizations.of(context)!.home_no_tags_found,
                               style: TextStyle(
                                 fontSize: fontSize,
                                 fontFamily: fontFamily,

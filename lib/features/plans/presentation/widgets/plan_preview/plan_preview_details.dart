@@ -234,7 +234,7 @@ class _PlanPreviewDetailsState extends ConsumerState<PlanPreviewDetails> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Unable to load the tasks for the day',
+          context.l10n.plan_day_tasks_load_error,
           style: TextStyle(color: Colors.red[600]),
         ),
         const SizedBox(height: 8),

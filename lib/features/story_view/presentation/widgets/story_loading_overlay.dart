@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
 
 /// Loading overlay shown when first story item is not ready
@@ -55,8 +56,8 @@ class StoryLoadingOverlayState extends State<StoryLoadingOverlay>
               CircularProgressIndicator(color: Colors.white, strokeWidth: 3),
               SizedBox(height: 24),
               Text(
-                'Loading story...',
-                style: TextStyle(
+                AppLocalizations.of(context)!.story_loading,
+                style: const TextStyle(
                   color: Colors.white70,
                   fontSize: 16,
                   fontWeight: FontWeight.w500,

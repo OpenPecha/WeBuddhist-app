@@ -66,18 +66,18 @@ class RoutineTimeBlock extends StatelessWidget {
       builder:
           (context) => AlertDialog(
             title: Text(localizations.routine_delete_block),
-            content: const Text(
-              'This will remove the time block and all its items.',
+            content: Text(
+              localizations.routine_delete_block_message,
             ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.of(context).pop(false),
-                child: const Text('Cancel'),
+                child: Text(localizations.cancel),
               ),
               TextButton(
                 onPressed: () => Navigator.of(context).pop(true),
                 child: Text(
-                  'Delete',
+                  localizations.delete,
                   style: TextStyle(color: Colors.red.shade400),
                 ),
               ),

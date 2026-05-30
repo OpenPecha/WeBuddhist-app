@@ -149,7 +149,7 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
               ),
               const SizedBox(height: 8),
               Text(
-                state.errorMessage ?? 'Unknown error',
+                state.errorMessage ?? localizations.something_went_wrong,
                 style: Theme.of(context).textTheme.bodySmall,
                 textAlign: TextAlign.center,
               ),

@@ -62,11 +62,11 @@ class _NotificationSettingsScreenState
           .read(notificationProvider.notifier)
           .requestEnableNotifications();
       if (!granted) {
-        _snack('Permission denied — opening App Settings.');
+        _snack(AppLocalizations.of(context)!.notification_snack_permission_denied);
         await openAppSettings();
       }
     } else {
-      _snack('Opening App Settings — turn off notifications there.');
+      _snack(AppLocalizations.of(context)!.notification_snack_disable_in_settings);
       await openAppSettings();
     }
   }
@@ -79,7 +79,7 @@ class _NotificationSettingsScreenState
           .openChannelSettings(NotificationChannels.routineBlockId);
     } else {
       // iOS: no per-channel control — open the app notification settings page.
-      _snack('Opening Settings — manage notifications there.');
+      _snack(AppLocalizations.of(context)!.notification_snack_ios_manage_in_settings);
       await openAppSettings();
     }
   }
@@ -88,7 +88,7 @@ class _NotificationSettingsScreenState
     if (enable) {
       await ref.read(notificationServiceProvider).openExactAlarmSettings();
     } else {
-      _snack('Opening App Settings — disable Alarms & Reminders there.');
+      _snack(AppLocalizations.of(context)!.notification_snack_disable_alarms_in_settings);
       await openAppSettings();
     }
   }
@@ -101,7 +101,7 @@ class _NotificationSettingsScreenState
           .requestBatteryOptimizationExemption();
       ref.read(notificationProvider.notifier).refreshStatus();
     } else {
-      _snack('Opening App Settings — re-enable optimization under Battery.');
+      _snack(AppLocalizations.of(context)!.notification_snack_battery_reenable);
       await openAppSettings();
     }
   }
@@ -162,15 +162,15 @@ class _NotificationSettingsScreenState
                   const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
               children: [
                 // ── 1. Master (app-level notification permission) ─────
-                _label('Notifications', ts, context),
+                _label(localizations.notification_section_notifications, ts, context),
                 _SwitchTile(
                   icon: state.hasSystemPermission
                       ? Icons.notifications_active
                       : Icons.notifications_off,
-                  title: 'Allow Notifications',
+                  title: localizations.notification_allow_title,
                   subtitle: state.hasSystemPermission
-                      ? 'Notifications are enabled for this app'
-                      : 'Tap to enable — shows system prompt or opens Settings',
+                      ? localizations.notification_allow_subtitle_enabled
+                      : localizations.notification_allow_subtitle_disabled,
                   value: state.hasSystemPermission,
                   onChanged: _toggleMaster,
                   titleSize: ts,
@@ -181,13 +181,13 @@ class _NotificationSettingsScreenState
                   const SizedBox(height: 24),
 
                   // ── 2. Per-channel categories ──────────────────────
-                  _label('Categories', ts, context),
+                  _label(localizations.notification_section_categories, ts, context),
                   _SwitchTile(
                     icon: Icons.self_improvement,
-                    title: 'Routine Reminders',
+                    title: localizations.notification_routine_title,
                     subtitle: state.routineChannelEnabled
-                        ? 'Daily reminders for your practice blocks'
-                        : 'Muted — tap to re-enable in system settings',
+                        ? localizations.notification_routine_subtitle_enabled
+                        : localizations.notification_routine_subtitle_disabled,
                     value: state.routineChannelEnabled,
                     onChanged: _toggleRoutineChannel,
                     titleSize: ts,
@@ -197,13 +197,13 @@ class _NotificationSettingsScreenState
                   // ── 3. Alarms & Reminders (Android only) ───────────
                   if (Platform.isAndroid) ...[
                     const SizedBox(height: 24),
-                    _label('Alarms & Reminders', ts, context),
+                    _label(localizations.notification_section_alarms, ts, context),
                     _SwitchTile(
                       icon: Icons.alarm,
-                      title: 'Exact Alarms',
+                      title: localizations.notification_alarms_title,
                       subtitle: state.canScheduleExactAlarms
-                          ? 'Notifications fire at the exact scheduled time'
-                          : 'Required on Android 12+ — tap to grant',
+                          ? localizations.notification_alarms_subtitle_enabled
+                          : localizations.notification_alarms_subtitle_disabled,
                       value: state.canScheduleExactAlarms,
                       onChanged: _toggleExactAlarms,
                       titleSize: ts,
@@ -214,13 +214,13 @@ class _NotificationSettingsScreenState
                   // ── 4. Battery optimization (Android only) ─────────
                   if (Platform.isAndroid) ...[
                     const SizedBox(height: 24),
-                    _label('Battery  ·  Optional', ts, context),
+                    _label(localizations.notification_section_battery, ts, context),
                     _SwitchTile(
                       icon: Icons.battery_charging_full,
-                      title: 'Unrestricted Battery',
+                      title: localizations.notification_battery_title,
                       subtitle: state.isBatteryOptimizationExempt
-                          ? 'App is exempt from battery optimization — reminders will fire on time even when the app is closed or the phone is idle'
-                          : 'Devices such as OnePlus, Xiaomi, Redmi etc may kill background apps. Enable this to keep notifications reliable.',
+                          ? localizations.notification_battery_subtitle_enabled
+                          : localizations.notification_battery_subtitle_disabled,
                       value: state.isBatteryOptimizationExempt,
                       onChanged: _toggleBattery,
                       titleSize: ts,

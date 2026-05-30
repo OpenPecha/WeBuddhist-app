@@ -152,7 +152,7 @@ class MoreScreen extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                user?.fullName ?? 'User',
+                user?.fullName ?? AppLocalizations.of(context)!.profile_default_name,
                 style: Theme.of(
                   context,
                 ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600),

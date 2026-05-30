@@ -88,7 +88,7 @@ class _CommentaryAppBar extends StatelessWidget implements PreferredSizeWidget {
       leading: IconButton(
         onPressed: onBackPressed,
         icon: const Icon(Icons.arrow_back_ios),
-        tooltip: 'Back',
+        tooltip: context.l10n.back,
       ),
       bottom: PreferredSize(
         preferredSize: const Size.fromHeight(
@@ -323,7 +323,7 @@ class _CommentaryExpansionButton extends StatelessWidget {
       child: TextButton(
         onPressed: onPressed,
         child: Text(
-          isExpanded ? 'Show less' : 'Read more',
+          isExpanded ? context.l10n.show_less : context.l10n.read_more,
           style: Theme.of(context).textTheme.bodySmall,
         ),
       ),
@@ -354,7 +354,7 @@ class _EmptyState extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             Text(
-              'No commentary found',
+              context.l10n.no_commentary,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                 color: Theme.of(
                   context,
@@ -364,7 +364,7 @@ class _EmptyState extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              'There are no commentaries available for this segment.',
+              context.l10n.commentary_empty_subtitle,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 color: Theme.of(
                   context,
@@ -413,7 +413,7 @@ class _ErrorState extends StatelessWidget {
             ),
             const SizedBox(height: 24),
             Text(
-              'Something went wrong',
+              context.l10n.something_went_wrong,
               style: Theme.of(context).textTheme.titleLarge,
               textAlign: TextAlign.center,
             ),

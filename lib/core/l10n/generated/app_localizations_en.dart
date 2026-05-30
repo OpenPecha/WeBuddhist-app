@@ -15,39 +15,39 @@ class AppLocalizationsEn extends AppLocalizations {
   String get pechaHeading => 'WeBuddhist';
 
   @override
-  String get learnLiveShare => 'Learn, Live, and Share';
+  String get learnLiveShare => 'Learn, practice, and connect';
 
   @override
-  String get themeLight => 'Light Mode';
+  String get themeLight => 'Light mode';
 
   @override
-  String get themeDark => 'Dark Mode';
+  String get themeDark => 'Dark mode';
 
   @override
-  String get switchToLight => 'Switch to Light Mode';
+  String get switchToLight => 'Switch to light mode';
 
   @override
-  String get switchToDark => 'Switch to Dark Mode';
+  String get switchToDark => 'Switch to dark mode';
 
   @override
   String get sign_in => 'Sign in';
 
   @override
-  String get logout => 'Logout';
+  String get logout => 'Log out';
 
   @override
   String get onboarding_welcome => 'Welcome to';
 
   @override
   String get onboarding_description =>
-      'Where we learn, live, and share Buddhist wisdom every day';
+      'Where we learn, practice, and share connect. Daily';
 
   @override
   String get onboarding_quote =>
       'Drop by drop is the water pot filled. Likewise, the wise person, gathering it little by little, fills themselves with good.';
 
   @override
-  String get onboarding_find_peace => 'Get Started';
+  String get onboarding_find_peace => 'Get started';
 
   @override
   String get onboarding_continue => 'Continue';
@@ -57,7 +57,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get onboarding_second_question =>
-      'Which path or school do you feel drawn to?';
+      'Choose the traditions you\'re part of or want to explore:';
 
   @override
   String get onboarding_choose_option => 'Choose at least one:';
@@ -67,40 +67,40 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get onboarding_all_set_description =>
-      'We\'ve tailored your experience to your tradition. Show up each day — even for a moment — and watch your practice grow.';
+      'We\'ve tailored your experience to your tradition. Show up each day — even for a moment — and watch your practice grow';
 
   @override
-  String get onboarding_begin_practice => 'Begin Your Practice';
+  String get onboarding_begin_practice => 'Begin your practice';
 
   @override
   String get home_today => 'Today';
 
   @override
-  String get home_good_morning => 'Good Morning';
+  String get home_good_morning => 'Good morning';
 
   @override
-  String get home_good_afternoon => 'Good Afternoon';
+  String get home_good_afternoon => 'Good afternoon';
 
   @override
-  String get home_good_evening => 'Good Evening';
+  String get home_good_evening => 'Good evening';
 
   @override
   String get home_meditationTitle => 'Meditation';
 
   @override
-  String get home_prayerTitle => 'Prayer of the Day';
+  String get home_prayerTitle => 'Prayer of the day';
 
   @override
   String get home_scripture => 'Guided Scripture';
 
   @override
-  String get home_meditation => 'Guided Meditation';
+  String get home_meditation => 'Guided meditation';
 
   @override
-  String get home_goDeeper => 'Go Deeper';
+  String get home_goDeeper => 'Go deeper';
 
   @override
-  String get home_intention => 'My Intention for Today';
+  String get home_intention => 'My intention for today';
 
   @override
   String get home_recitation => 'Recitation';
@@ -139,7 +139,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get nav_me => 'Me';
 
   @override
-  String get text_browseTheLibrary => 'Browse The Library';
+  String get text_browseTheLibrary => 'Browse the library';
 
   @override
   String get text_search => 'Search';
@@ -151,7 +151,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get text_detail_commentaryText => 'Commentary';
 
   @override
-  String get text_toc_continueReading => 'Continue Reading';
+  String get text_toc_continueReading => 'Continue reading';
 
   @override
   String get text_toc_content => 'Contents';
@@ -193,23 +193,23 @@ class AppLocalizationsEn extends AppLocalizations {
   String get no_version => 'No versions found';
 
   @override
-  String get no_commentary => 'No commentary found';
+  String get no_commentary => 'No commentaries found';
 
   @override
   String get no_commentary_message =>
-      'There are no commentaries available for this segment.';
+      'No commentaries available for this segment';
 
   @override
   String get loading => 'Loading...';
 
   @override
-  String get choose_image => 'Choose Image';
+  String get choose_image => 'Choose image';
 
   @override
-  String get choose_bg_image => 'Choose Your Background Image';
+  String get choose_bg_image => 'Choose a background image';
 
   @override
-  String get create_image => 'Create Image';
+  String get create_image => 'Create image';
 
   @override
   String get save => 'Save';
@@ -221,22 +221,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get customise_message => 'Tap the customize icon to adjust text style';
 
   @override
-  String get download_image => 'Download Image';
+  String get download_image => 'Download image';
 
   @override
   String get no_images_available => 'No images available';
 
   @override
-  String get customise_text => 'Customise Text';
+  String get customise_text => 'Customize text';
 
   @override
-  String get text_size => 'Text Size';
+  String get text_size => 'Text size';
 
   @override
-  String get text_color => 'Text Color';
+  String get text_color => 'Text color';
 
   @override
-  String get text_shadow => 'Text Shadow';
+  String get text_shadow => 'Text shadow';
 
   @override
   String get apply => 'Apply';
@@ -245,25 +245,25 @@ class AppLocalizationsEn extends AppLocalizations {
   String get practice_nav_title => 'Practice';
 
   @override
-  String get my_plans => 'My Plans';
+  String get my_plans => 'My plans';
 
   @override
-  String get find_plans => 'Find Plans';
+  String get find_plans => 'Find plans';
 
   @override
-  String get browse_plans => 'Browse Plans';
+  String get browse_plans => 'Browse plans';
 
   @override
-  String get plan_info => 'Plan Info';
+  String get plan_info => 'Plan info';
 
   @override
-  String get start_plan => 'Start Plan';
+  String get start_plan => 'Start plan';
 
   @override
-  String get start_reading => 'Start Reading';
+  String get start_reading => 'Start reading';
 
   @override
-  String get continue_plan => 'Continue Plan';
+  String get continue_plan => 'Continue plan';
 
   @override
   String get tibetan => 'Tibetan';
@@ -281,30 +281,29 @@ class AppLocalizationsEn extends AppLocalizations {
   String get language => 'Language';
 
   @override
-  String get dailyPracticeNotificationTitle => 'Daily Practice Reminder';
+  String get dailyPracticeNotificationTitle => 'Daily practice reminder';
 
   @override
-  String get timeForDailyPractice => 'It\'s time for your daily practice.';
+  String get timeForDailyPractice => 'It\'s time for your practice session';
 
   @override
-  String get recitation_reminder => 'Recitations Reminder.';
+  String get recitation_reminder => 'Recitations reminder';
 
   @override
-  String get moment_to_pray => 'Take a moment to pray.';
+  String get moment_to_pray => 'Take a moment to pray';
 
   @override
   String get plan_unenroll => 'Unenroll';
 
   @override
-  String get unenroll_confirmation => 'Are you sure you want to unenroll from';
+  String get unenroll_confirmation => 'Are you sure you want to unenroll in';
 
   @override
   String get unenroll_message =>
-      'Your progress will be permanently lost and cannot be recovered.';
+      'Your progress will be permanently lost and cannot be recovered';
 
   @override
-  String get practice_plan =>
-      'Practice plans help you stay consistent with your practice. We have a variety of plans to choose from and for different durations.';
+  String get practice_plan => 'Build a daily practice. Explore what fits you.';
 
   @override
   String get search_plans => 'Search plans...';
@@ -319,29 +318,29 @@ class AppLocalizationsEn extends AppLocalizations {
   String get no_days_available => 'No days found';
 
   @override
-  String get notification_turn_on => 'Please turn on Notifications';
+  String get notification_turn_on => 'Please turn on notifications';
 
   @override
   String get notification_enable_message =>
-      'Enable notifications to receive daily practice and recitation reminders.';
+      'Enable notifications to receive reminders';
 
   @override
-  String get enable_notification => 'Enable Notifications';
+  String get enable_notification => 'Enable notifications';
 
   @override
-  String get notification_daily_practice => 'Daily Practice';
+  String get notification_daily_practice => 'Daily practice';
 
   @override
-  String get notification_select_time => 'Select Time';
+  String get notification_select_time => 'Select time';
 
   @override
-  String get reminderTime => 'Reminder Time';
+  String get reminderTime => 'Reminder time';
 
   @override
-  String get notification_daily_recitation => 'Daily Recitation';
+  String get notification_daily_recitation => 'Daily recitations';
 
   @override
-  String get text_noContent => 'No texts available in the selected language';
+  String get text_noContent => 'No texts available in this language';
 
   @override
   String get text_switchToTibetan => 'Switch to Tibetan';
@@ -350,19 +349,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get recitations_title => 'Recitations';
 
   @override
-  String get recitations_my_recitations => 'My Recitations';
+  String get recitations_my_recitations => 'My recitations';
 
   @override
-  String get browse_recitations => 'Browse Recitations';
+  String get browse_recitations => 'Browse recitations';
 
   @override
-  String get recitations_search => 'Search recitation...';
+  String get recitations_search => 'Search for recitations...';
 
   @override
   String get recitations_search_for => 'Search for recitations';
 
   @override
-  String get recitations_no_found => 'No recitations found';
+  String get recitations_no_found => 'No recitations founds';
 
   @override
   String get recitations_saved => 'Recitation saved';
@@ -381,7 +380,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Sign in to view your saved recitations';
 
   @override
-  String get recitations_save => 'Save Recitation';
+  String get recitations_save => 'Save recitation';
 
   @override
   String get recitations_unsave => 'Unsave recitation';
@@ -393,7 +392,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get no_available => 'Not available';
 
   @override
-  String get recitations_no_data_message => 'No Recitation Found.';
+  String get recitations_no_data_message => 'No recitations found';
 
   @override
   String get recitations_show_translation => 'Show translation';
@@ -429,13 +428,400 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settings_notifications => 'Notifications';
 
   @override
-  String get notification_settings => 'Notification Settings';
+  String get notification_settings => 'Notification settings';
+
+  @override
+  String get notification_section_notifications => 'Notifications';
+
+  @override
+  String get notification_section_categories => 'Categories';
+
+  @override
+  String get notification_section_alarms => 'Alarms & reminders';
+
+  @override
+  String get notification_section_battery => 'Battery';
+
+  @override
+  String get notification_allow_title => 'Allow notifications';
+
+  @override
+  String get notification_allow_subtitle_enabled =>
+      'Notifications are enabled for this app';
+
+  @override
+  String get notification_allow_subtitle_disabled =>
+      'Tap to open system settings and enable';
+
+  @override
+  String get notification_routine_title => 'Routine reminders';
+
+  @override
+  String get notification_routine_subtitle_enabled =>
+      'Daily reminders for your practice blocks';
+
+  @override
+  String get notification_routine_subtitle_disabled =>
+      'Tap to turn back on in Settings';
+
+  @override
+  String get notification_alarms_title => 'Exact reminder times';
+
+  @override
+  String get notification_alarms_subtitle_enabled =>
+      'Reminders are sent at the time you set';
+
+  @override
+  String get notification_alarms_subtitle_disabled =>
+      'Reminders may arrive late or be skipped. Tap to fix';
+
+  @override
+  String get notification_battery_title => 'Background reminders';
+
+  @override
+  String get notification_battery_subtitle_enabled =>
+      'Your reminders are sent on time, even when the app is closed.';
+
+  @override
+  String get notification_battery_subtitle_disabled =>
+      'Some Android phones pause background apps to save battery, which can delay or skip your reminders. Tap to keep yours running.';
+
+  @override
+  String get notification_snack_permission_denied =>
+      'Notifications are blocked. Turn them on in Settings';
+
+  @override
+  String get notification_snack_disable_in_settings =>
+      'Turn off notifications in Settings.';
+
+  @override
+  String get notification_snack_ios_manage_in_settings =>
+      'Manage notifications in Settings.';
+
+  @override
+  String get notification_snack_disable_alarms_in_settings =>
+      'Turn off alarms & reminders in Settings.';
+
+  @override
+  String get notification_snack_battery_reenable =>
+      'Restore battery optimization in Settings → Battery.';
+
+  @override
+  String get profile_default_name => 'User';
+
+  @override
+  String get profile_default_bio => 'Welcome to WeBuddhist';
+
+  @override
+  String get profile_guest_title => 'Guest user';
+
+  @override
+  String get profile_guest_subtitle => 'You\'re browsing as a guest';
+
+  @override
+  String get profile_guest_benefits_header => 'Sign in to unlock:';
+
+  @override
+  String get profile_guest_benefit_save_progress => 'Save your progress';
+
+  @override
+  String get profile_guest_benefit_personalized => 'Personalized content';
+
+  @override
+  String get profile_guest_benefit_notifications => 'Custom notifications';
+
+  @override
+  String get auth_drawer_title => 'Log in to continue';
+
+  @override
+  String get auth_drawer_subtitle =>
+      'Continue your practice on any device, wherever you go.';
+
+  @override
+  String get routine_delete_block_message =>
+      'This will remove the time block and all its items';
+
+  @override
+  String get something_went_wrong => 'Something went wrong. Please try again';
+
+  @override
+  String get onboarding_quote_citation => '— Dhammapada 122';
+
+  @override
+  String get onboarding_traditions_question =>
+      'Which traditions\ndo you follow?';
+
+  @override
+  String get onboarding_select_all => 'Select all';
+
+  @override
+  String get onboarding_event_enrollment_error =>
+      'Unable to enroll you. Check your connection and try again';
+
+  @override
+  String get onboarding_event_question => 'Join an\nevent?';
+
+  @override
+  String get onboarding_event_optional => 'Optional · Tap to enroll';
+
+  @override
+  String onboarding_event_duration(String description, int days) {
+    return '$description · $days days';
+  }
+
+  @override
+  String get onboarding_event_reminder_note =>
+      'We\'ll send you a daily reminder at 7:30 AM. (Change anytime.)';
+
+  @override
+  String get tradition_theravada => 'Theravada';
+
+  @override
+  String get tradition_zen => 'Zen';
+
+  @override
+  String get tradition_tibetan_buddhism => 'Tibetan Buddhism';
+
+  @override
+  String get tradition_pure_land => 'Pure Land';
+
+  @override
+  String get tradition_ambedkar_buddhism => 'Ambedkar Buddhism';
+
+  @override
+  String get plan_go_to_practice => 'Go to practice';
+
+  @override
+  String get plan_starts_soon_title => 'Starts soon';
+
+  @override
+  String get plan_joining_late_title => 'Joining after start date';
+
+  @override
+  String get got_it => 'Got it';
+
+  @override
+  String get plan_no_tasks_error => 'Unable to load tasks';
+
+  @override
+  String get plan_day_tasks_load_error => 'Unable to load tasks';
+
+  @override
+  String get plans_empty_title => 'More is on the way';
+
+  @override
+  String get plans_empty_subtitle => 'Our library is growing. Check back soon.';
+
+  @override
+  String get find_plans_load_error =>
+      'Unable to load.\nCheck your connection and try again';
+
+  @override
+  String get connect_coming_soon_subtitle =>
+      'Teachers, communities, challenges, and events to support you on the path';
+
+  @override
+  String get explore_coming_soon_subtitle =>
+      'A curated space to discover practices, teachings, and community events';
+
+  @override
+  String get learn_coming_soon_subtitle =>
+      'Your personal study plans, designed to fit into everyday life';
+
+  @override
+  String get creator_featured_plan => 'Featured plan';
+
+  @override
+  String get audio_init_error =>
+      'Unable to initialize audio player. Check your connection and try again';
+
+  @override
+  String get meditation_audio_load_error =>
+      'Unable to load. Check your connection and try again';
+
+  @override
+  String get prayer_audio_load_error =>
+      'Unable to load audio. Check your connection and try again';
+
+  @override
+  String get home_no_series_found => 'No series found';
+
+  @override
+  String get home_no_tags_found => 'No tags found';
+
+  @override
+  String get home_celebrated_by => 'Celebrated by: ';
+
+  @override
+  String get home_default_duration => '1-2 min';
+
+  @override
+  String get version => 'Version';
+
+  @override
+  String get reader_settings_tooltip => 'Reader settings';
+
+  @override
+  String get reader_font_size_tooltip => 'Font size';
+
+  @override
+  String get reader_about_version_tooltip => 'About this version';
+
+  @override
+  String reader_version_title(String language) {
+    return 'Version · $language';
+  }
+
+  @override
+  String reader_script_title(String language) {
+    return 'Script · $language';
+  }
+
+  @override
+  String get reader_versions_load_error => 'Failed to load versions';
+
+  @override
+  String get reader_scripts_load_error => 'Failed to load scripts';
+
+  @override
+  String get reader_languages_load_error => 'Failed to load languages';
+
+  @override
+  String reader_no_versions_in_language(String language) {
+    return 'No versions available in $language';
+  }
+
+  @override
+  String reader_no_scripts_in_language(String language) {
+    return 'No scripts available in $language';
+  }
+
+  @override
+  String get reader_no_languages => 'No languages available for this text';
+
+  @override
+  String get reader_published_by => 'Published by';
+
+  @override
+  String get reader_published => 'Published';
+
+  @override
+  String get reader_license => 'License';
+
+  @override
+  String get reader_version_type => 'Type';
+
+  @override
+  String get reader_version_details_load_error =>
+      'Unable to load version details';
+
+  @override
+  String get reader_no_version_info =>
+      'No additional information is available for this version';
+
+  @override
+  String get recitation_unavailable =>
+      'Recitation content is currently unavailable.\nTry again later or contact support';
+
+  @override
+  String get recitation_sign_in_required => 'Sign in to access this recitation';
+
+  @override
+  String get my_recitations_load_error =>
+      'Unable to load.\nCheck your connection and try again';
+
+  @override
+  String get recitations_load_error =>
+      'Unable to load recitations.\nTry again later';
+
+  @override
+  String get story_audio_label => 'Audio story';
+
+  @override
+  String get story_image_load_error => 'Unable to load image';
+
+  @override
+  String get story_loading => 'Loading story...';
+
+  @override
+  String get story_barrier_label => 'Story';
+
+  @override
+  String get text_search_hint => 'Type to search';
+
+  @override
+  String get text_search_press_button => 'Press search button to search';
+
+  @override
+  String get text_search_error => 'Unable to perform search.\nPlease try again';
+
+  @override
+  String get collections_load_error =>
+      'Unable to load.\nCheck your connection and try again';
+
+  @override
+  String get failed_load_collections => 'Failed to load collections';
+
+  @override
+  String get unknown_error => 'Unknown error';
+
+  @override
+  String get commentary_empty_subtitle =>
+      'No commentaries are available for this segment';
+
+  @override
+  String image_share_error(String error) {
+    return 'Unable to share: $error';
+  }
+
+  @override
+  String get create_image_capture_error =>
+      'Failed to create image. Please try again';
+
+  @override
+  String get create_image_share_error => 'Unable to share. Please try again';
+
+  @override
+  String get create_image_save_success => 'Image saved';
+
+  @override
+  String get create_image_save_error =>
+      'Unable to save image. Check that the app has photo access, or try again';
+
+  @override
+  String get create_image_download_error =>
+      'Unable to download your image. Please try again';
+
+  @override
+  String get create_image_customize_tooltip => 'Customize';
+
+  @override
+  String get create_image_text_too_long =>
+      'Text is too long to increase font size';
+
+  @override
+  String version_search_no_results(String query) {
+    return 'No versions found for \"$query\"';
+  }
+
+  @override
+  String get my_plans_sign_in_prompt => 'Sign in to view your plans';
+
+  @override
+  String plan_starts_soon_message(String date) {
+    return 'Starts on $date. You can browse the content now';
+  }
+
+  @override
+  String plan_joining_late_message(String date) {
+    return 'Started on $date. Feel free to complete previous days\' tasks';
+  }
 
   @override
   String get settings_account => 'Account';
 
   @override
-  String get select_language => 'Select Language';
+  String get select_language => 'Select language';
 
   @override
   String get logout_confirmation => 'Are you sure you want to log out?';
@@ -459,7 +845,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get feedback => 'Feedback';
 
   @override
-  String get feedback_wishlist => 'Feedback and Wishlist';
+  String get feedback_wishlist => 'Community hub';
 
   @override
   String get author => 'Author';
@@ -471,13 +857,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get ask_ai => 'Ask AI';
 
   @override
-  String get ai_chat_history => 'Chat History';
+  String get ai_chat_history => 'Chat history';
 
   @override
-  String get ai_buddhist_assistant => 'Buddhist AI Assistant';
+  String get ai_buddhist_assistant =>
+      'Build your daily rhythm. Set times, and we\'ll remind you to practice';
 
   @override
-  String get ai_new_chat => 'New Chat';
+  String get ai_new_chat => 'New chat';
 
   @override
   String get ai_retry => 'Retry';
@@ -486,21 +873,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get ai_dismiss => 'Dismiss';
 
   @override
-  String get ai_sign_in_prompt =>
-      'Please sign in to access the Buddhist AI Assistant and start meaningful conversations';
+  String get ai_sign_in_prompt => 'Sign in to use the Buddhist AI Assistant';
 
   @override
-  String get ai_explore_wisdom => 'Explore Buddhist Wisdom';
+  String get ai_explore_wisdom => 'Explore Buddhist wisdom';
 
   @override
-  String get ai_suggestion_self => 'What is self ?';
+  String get ai_suggestion_self => 'What is self?';
 
   @override
-  String get ai_suggestion_enlightenment =>
-      'How one can attain enlightenment ?';
+  String get ai_suggestion_enlightenment => 'How can you attain enlightenment?';
 
   @override
-  String get ai_ask_question => 'Ask a question ...';
+  String get ai_ask_question => 'Ask a question...';
 
   @override
   String get ai_loading_conversation => 'Loading conversation...';
@@ -512,16 +897,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get ai_chats => 'Chats';
 
   @override
-  String get ai_chat_deleted => 'Chat Deleted';
+  String get ai_chat_deleted => 'Chat deleted';
 
   @override
   String get ai_no_conversations => 'No conversations yet';
 
   @override
-  String get ai_start_new_chat => 'Start a new chat to begin';
+  String get ai_start_new_chat => 'Start a new chat to begin.';
 
   @override
-  String get ai_delete_chat => 'Delete Chat';
+  String get ai_delete_chat => 'Delete chat';
 
   @override
   String get ai_delete_confirmation =>
@@ -542,11 +927,11 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get ai_text_not_found => 'Text Not Found';
+  String get ai_text_not_found => 'Text not found.';
 
   @override
   String ai_text_not_found_message(String title) {
-    return 'Could not find the text for \"$title\".\n\nPlease try another source.';
+    return 'We don\'t have \"$title\" in our library yet.\n\nTry a different title, or ask another way';
   }
 
   @override
@@ -563,7 +948,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get search_show_more => 'Show More';
+  String get search_show_more => 'Show more';
 
   @override
   String get search_contents => 'Contents';
@@ -578,7 +963,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get search_author => 'Author';
 
   @override
-  String get search_tab_ai_mode => 'AI Mode';
+  String get search_tab_ai_mode => 'AI mode';
 
   @override
   String search_error(String message) {
@@ -604,7 +989,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get search_coming_soon => 'Coming Soon';
+  String get search_coming_soon => 'Coming soon';
 
   @override
   String get search_buddhist_texts => 'Search Buddhist texts...';
@@ -613,23 +998,23 @@ class AppLocalizationsEn extends AppLocalizations {
   String get common_ok => 'OK';
 
   @override
-  String get comingSoonHeadline => 'Coming Soon';
+  String get comingSoonHeadline => 'Coming soon';
 
   @override
-  String get routine_title => 'My Practice Routine';
+  String get routine_title => 'My practice routine';
 
   @override
-  String get routine_empty_title => 'Practice Routine';
+  String get routine_empty_title => 'Practice routine';
 
   @override
   String get routine_edit => 'Edit';
 
   @override
   String get routine_empty_description =>
-      'Stay consistent in your prayer life by building your routine. Select times and sessions and we\'ll remind you to prayer!';
+      'Explore more teachings and practices to enroll in or add to your routine';
 
   @override
-  String get routine_build => 'Build your Routine';
+  String get routine_build => 'Build your routine';
 
   @override
   String get routine_session => 'Session';
@@ -641,7 +1026,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get routine_notification => 'Notification';
 
   @override
-  String get routine_save => 'Save Routine';
+  String get routine_save => 'Save routine';
 
   @override
   String get routine_morning => 'Morning';
@@ -653,74 +1038,74 @@ class AppLocalizationsEn extends AppLocalizations {
   String get routine_evening => 'Evening';
 
   @override
-  String get routine_add_session => 'Add Session';
+  String get routine_add_session => 'Add session';
 
   @override
-  String get routine_select_time => 'Select Time';
+  String get routine_select_time => 'Select time';
 
   @override
   String get routine_remind_me => 'Remind me';
 
   @override
-  String get routine_edit_title => 'Edit Your Routine';
+  String get routine_edit_title => 'Edit your routine';
 
   @override
-  String get routine_delete_block => 'Delete Block';
+  String get routine_delete_block => 'Remove block';
 
   @override
-  String get routine_delete_time_block => 'Delete Time Block';
+  String get routine_delete_time_block => 'Remove time block';
 
   @override
-  String get routine_add_plan => 'Add Plan';
+  String get routine_add_plan => 'Add plan';
 
   @override
-  String get routine_add_recitation => 'Add Recitation';
+  String get routine_add_recitation => 'Add recitation';
 
   @override
-  String get routine_add_plan_to_routine => 'Add to Routine';
+  String get routine_add_plan_to_routine => 'Add to routine';
 
   @override
-  String get routine_go_to_practice => 'Go to Practice';
+  String get routine_go_to_practice => 'Go to practice';
 
   @override
   String get routine_load_error =>
-      'Could not load your routine. Please try again.';
+      'Unable to load. Check your connection and try again';
 
   @override
-  String get routine_empty_block_title_singular => 'Empty Time Block';
+  String get routine_empty_block_title_singular => 'Empty time block';
 
   @override
   String routine_empty_block_title_plural(int count) {
-    return 'Empty Time Blocks ($count)';
+    return 'Empty time blocks ($count)';
   }
 
   @override
   String get routine_empty_block_message_singular =>
-      'This time block has no items. Would you like to add an item or delete the block?';
+      'This time block is empty. Add an item, or remove it from your routine?';
 
   @override
   String routine_empty_block_message_plural(int count) {
-    return 'You have $count time blocks without any items. Would you like to add items or delete these blocks?';
+    return '$count time blocks are empty. Add items, or remove them from your routine?';
   }
 
   @override
-  String get routine_empty_block_add_items => 'Add Items';
+  String get routine_empty_block_add_items => 'Add items';
 
   @override
-  String get routine_empty_block_delete_singular => 'Delete Block';
+  String get routine_empty_block_delete_singular => 'Remove block';
 
   @override
-  String get routine_empty_block_delete_plural => 'Delete Empty Blocks';
+  String get routine_empty_block_delete_plural => 'Remove blocks';
 
   @override
-  String get routine_notification_title => 'Make Prayer Daily';
+  String get routine_notification_title => 'Make practice a habit';
 
   @override
   String get routine_notification_description =>
-      'Allow notifications to receive your reminder to pray.';
+      'Allow notifications so we can remind you to practice';
 
   @override
-  String get routine_notification_enable => 'Enable Notifications';
+  String get routine_notification_enable => 'Enable notifications';
 
   @override
   String get routine_notification_skip => 'Skip';
@@ -731,7 +1116,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get routine_add_block_label => 'Time Block';
+  String get routine_add_block_label => 'Time block';
 
   @override
   String get continueWithGoogle => 'Continue with Google';
@@ -740,7 +1125,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get continueWithApple => 'Continue with Apple';
 
   @override
-  String get continueAsGuest => 'Continue as Guest';
+  String get continueAsGuest => 'Continue as guest';
 
   @override
   String get signIn => 'Sign In';
@@ -767,13 +1152,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get close => 'Close';
 
   @override
-  String get tryAgain => 'Try Again';
+  String get tryAgain => 'Try again';
 
   @override
   String get pleaseTryAgain => 'Please try again';
 
   @override
-  String get successfully => 'Successfully';
+  String get successfully => 'Success';
 
   @override
   String get failedTo => 'Failed to';
@@ -797,23 +1182,24 @@ class AppLocalizationsEn extends AppLocalizations {
   String get invalidParameters => 'Invalid parameters';
 
   @override
-  String get cannotOpenLink => 'Cannot open this link';
+  String get cannotOpenLink => 'Can\'t open this link';
 
   @override
   String get invalidUrlFormat => 'Invalid URL format';
 
   @override
-  String get cannotOpenEmail => 'Cannot open this email';
+  String get cannotOpenEmail => 'Can\'t open this email';
 
   @override
   String get invalidEmailFormat => 'Invalid email format';
 
   @override
-  String get unableToLoad => 'Unable to load. Please try again.';
+  String get unableToLoad =>
+      'Unable to load. Check your connection and try again';
 
   @override
   String get somethingWrong =>
-      'Something went wrong. Please check your connection and try again.';
+      'Something went wrong. Check your connection and try again';
 
   @override
   String get typing => 'typing...';
@@ -822,13 +1208,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get source => 'Source';
 
   @override
-  String get searchResults => 'Search Results';
+  String get searchResults => 'Search results';
 
   @override
-  String get deleteConversation => 'Delete Conversation?';
+  String get deleteConversation => 'Delete conversation?';
 
   @override
-  String get errorOops => 'Oops. Please try again.';
+  String get errorOops => 'Oops. Please try again';
 
   @override
   String get tabAll => 'All';
@@ -872,43 +1258,45 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get enrollError => 'Unable to enroll in plan. Please try again.';
+  String get enrollError =>
+      'Unable to enroll you. Check your connection and try again';
 
   @override
   String enrollErrorDetail(String error) {
-    return 'Unable to enroll in plan. Please try again later';
+    return 'Unable to enroll you. Check your connection and try again';
   }
 
   @override
   String unenrollSuccess(String planTitle) {
-    return 'You have been unenrolled from $planTitle';
+    return 'You have unenrolled in $planTitle';
   }
 
   @override
   String get unenrollError =>
-      'Unable to unenroll at this time. Please try again.';
+      'Unable to unenroll you. Check your connection and try again';
 
   @override
   String get unenrollGenericError =>
-      'Something went wrong. Please check your connection and try again.';
+      'Something went wrong. Check your connection and try again';
 
   @override
-  String get notFound => 'Plan not found. Please try again.';
+  String get notFound =>
+      'This is no longer available. Edit your routine to update.';
 
   @override
   String get noTimeSlot =>
-      'No available time slot. Try removing a block first.';
+      'No available time slots. Try removing a block first';
 
   @override
   String maxBlocks(int max) {
-    return 'Maximum of $max time blocks reached.';
+    return 'Maximum of $max time blocks reached';
   }
 
   @override
-  String get duplicateItem => 'This item is already in the block.';
+  String get duplicateItem => 'This item is already in the block';
 
   @override
-  String get removeItem => 'Remove Item';
+  String get removeItem => 'Remove item';
 
   @override
   String removeConfirmation(String itemName) {
@@ -917,26 +1305,28 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String shareError(String error) {
-    return 'Unable to share your segment. Please try again later';
+    return 'Unable to share. Please try again';
   }
 
   @override
-  String get updateOrderError => 'Unable to update order. Please try again.';
+  String get updateOrderError => 'Unable to update order. Please try again';
 
   @override
   String get noCollections => 'No collections available';
 
   @override
-  String get loadCollectionsError => 'Unable to load collections';
+  String get loadCollectionsError =>
+      'Unable to load. Check your connection and try again';
 
   @override
-  String get loadFailed => 'Failed to load collections';
+  String get loadFailed =>
+      'Unable to load. Check your connection and try again';
 
   @override
-  String get captureError => 'Failed to capture QR code. Please try again.';
+  String get captureError => 'Failed to capture QR code. Please try again';
 
   @override
-  String get qrShareError => 'Unable to share QR code. Please try again later.';
+  String get qrShareError => 'Unable to share QR code. Try again later';
 
   @override
   String errorDetail(String error) {
@@ -944,7 +1334,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get text_qrCode => 'QR Code';
+  String get text_qrCode => 'QR code';
 
   @override
   String missedDaysCount(int count) {

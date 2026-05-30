@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:just_audio/just_audio.dart';
 
 /// Custom widget for audio-only stories
@@ -68,9 +69,9 @@ class _CustomAudioStoryState extends State<CustomAudioStory> {
               size: 80,
             ),
           const SizedBox(height: 24),
-          const Text(
-            'Audio Story',
-            style: TextStyle(
+          Text(
+            AppLocalizations.of(context)!.story_audio_label,
+            style: const TextStyle(
               color: Colors.white,
               fontSize: 20,
               fontWeight: FontWeight.w600,

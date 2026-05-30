@@ -273,7 +273,7 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
   String _mapError(Object e) {
     if (e is Failure) return e.message;
     if (e is Exception) return e.toString().replaceFirst('Exception: ', '');
-    return 'Something went wrong. Please try again.';
+    return AppLocalizations.of(context)!.something_went_wrong;
   }
 
   void _showErrorSnackBar(String message) {
@@ -1028,7 +1028,7 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
                   const SizedBox(height: 16),
                   FilledButton(
                     onPressed: () => ref.invalidate(userRoutineProvider),
-                    child: const Text('Retry'),
+                    child: Text(localizations.retry),
                   ),
                 ],
               ),

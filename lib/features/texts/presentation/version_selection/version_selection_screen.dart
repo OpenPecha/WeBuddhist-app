@@ -67,8 +67,8 @@ class VersionSelectionScreen extends ConsumerWidget {
                     Icon(Icons.error_outline, size: 48, color: Colors.grey),
                     SizedBox(height: 16),
                     Text(
-                      'Failed to load versions',
-                      style: TextStyle(fontSize: 16),
+                      localizations.reader_versions_load_error,
+                      style: const TextStyle(fontSize: 16),
                     ),
                   ],
                 ),
@@ -122,8 +122,8 @@ class VersionSelectionScreen extends ConsumerWidget {
                 Icon(Icons.error_outline, size: 48, color: Colors.grey),
                 SizedBox(height: 16),
                 Text(
-                  'Failed to load versions',
-                  style: TextStyle(fontSize: 16),
+                  localizations.reader_versions_load_error,
+                  style: const TextStyle(fontSize: 16),
                 ),
               ],
             ),
@@ -267,7 +267,7 @@ class VersionSearchDelegate extends SearchDelegate<Version?> {
     if (filteredVersions.isEmpty) {
       return Center(
         child: Text(
-          'No versions found for "$query"',
+          AppLocalizations.of(context)!.version_search_no_results(query),
           style: TextStyle(fontSize: 16, color: Colors.grey[600]),
         ),
       );

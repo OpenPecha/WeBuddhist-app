@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/features/plans/presentation/widgets/plan_navigation/plan_navigation_bottom_bar.dart';
 import 'package:flutter_pecha/features/plans/presentation/widgets/plan_navigation/plan_navigator.dart';
 import 'package:flutter_pecha/features/plans/presentation/widgets/plan_navigation/plan_subtask_completion.dart';
@@ -397,7 +398,7 @@ class _PlanTextScreenState extends ConsumerState<PlanTextScreen>
           onPressed: () => context.pop(),
         ),
       ),
-      body: const Center(child: Text('No content available')),
+      body: Center(child: Text(context.l10n.no_content)),
     );
   }
 

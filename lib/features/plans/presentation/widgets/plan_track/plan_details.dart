@@ -288,7 +288,7 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Unable to load tasks', style: TextStyle(color: Colors.red[600])),
+        Text(context.l10n.plan_no_tasks_error, style: TextStyle(color: Colors.red[600])),
         const SizedBox(height: 8),
         ElevatedButton(
           onPressed: () {
