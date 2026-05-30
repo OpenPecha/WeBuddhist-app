@@ -43,7 +43,7 @@ class SeriesCard extends ConsumerWidget {
                     Colors.transparent,
                     Colors.black.withValues(alpha: 0.8),
                   ],
-                  stops: const [0.5, 1.0],
+                  stops: const [0.8, 1.0],
                 ),
               ),
             ),
@@ -55,7 +55,7 @@ class SeriesCard extends ConsumerWidget {
                 series.title,
                 style: TextStyle(
                   fontSize: fontSize,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w900,
                   height: 1.3,
                   color: Colors.white,
                   shadows: [
