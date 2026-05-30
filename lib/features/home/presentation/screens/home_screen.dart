@@ -186,7 +186,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
     // Switch bottom-nav to Practice so popping back from plan details
     // lands on the Practice tab rather than Home.
-    ref.read(mainNavigationIndexProvider.notifier).state = 2;
+    ref.read(mainNavigationIndexProvider.notifier).state =
+        MainTab.practice.index;
   }
 
   /// Manual refetch/retry method that can be called from UI
@@ -235,7 +236,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           strutStyle: context.tibetanStrutStyle(
             Theme.of(context).textTheme.headlineMedium?.fontSize ?? 28,
           ),
-          style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
+          style: Theme.of(
+            context,
+          ).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
         ),
       ),
       body: SafeArea(
