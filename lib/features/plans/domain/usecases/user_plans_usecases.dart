@@ -22,6 +22,7 @@ class GetUserPlansUseCase extends UseCase<UserPlanListResponseModel, GetUserPlan
       language: params.language,
       skip: params.skip,
       limit: params.limit,
+      seriesId: params.seriesId,
     );
   }
 }
@@ -30,15 +31,17 @@ class GetUserPlansParams extends Equatable {
   final String language;
   final int? skip;
   final int? limit;
+  final String? seriesId;
 
   const GetUserPlansParams({
     required this.language,
     this.skip,
     this.limit,
+    this.seriesId,
   });
 
   @override
-  List<Object?> get props => [language, skip, limit];
+  List<Object?> get props => [language, skip, limit, seriesId];
 }
 
 /// Use case for subscribing to a plan.

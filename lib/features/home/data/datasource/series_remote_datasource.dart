@@ -56,6 +56,76 @@ class SeriesRemoteDatasource {
     }
   }
 
+  /// Endpoint: POST /users/me/series
+  /// Enrolls the authenticated user in a series. Backend auto-enrolls the
+  /// user in every plan that belongs to the series.
+  Future<void> enrollInSeries(String seriesId) async {
+    try {
+      final response = await dio.post(
+        '/users/me/series',
+        data: {'series_id': seriesId},
+      );
+      final status = response.statusCode ?? 0;
+      if (status < 200 || status >= 300) {
+        _logger.error('Failed to enroll in series $seriesId: $status');
+        throw _statusToException(status, 'Failed to enroll in series');
+      }
+    } on DioException catch (e) {
+      _logger.error('Dio error in enrollInSeries', e);
+      throw _dioToException(e, 'Failed to enroll in series');
+    }
+  }
+
+  /// Endpoint: GET /users/me/series
+  /// Returns the set of series IDs the authenticated user is enrolled in.
+  ///
+  /// The response shape is parsed defensively: it accepts either a top-level
+  /// list, a `{ "series": [...] }` envelope, or a `{ "enrollments": [...] }`
+  /// envelope, and pulls the series id from either `series_id` or `id` on
+  /// each item.
+  Future<Set<String>> fetchUserSeriesEnrollments() async {
+    try {
+      final response = await dio.get('/users/me/series');
+
+      if (response.statusCode == 200) {
+        return _extractSeriesIds(response.data);
+      } else {
+        _logger.error(
+          'Failed to load user series enrollments: ${response.statusCode}',
+        );
+        throw _statusToException(
+          response.statusCode,
+          'Failed to load user series enrollments',
+        );
+      }
+    } on DioException catch (e) {
+      _logger.error('Dio error in fetchUserSeriesEnrollments', e);
+      throw _dioToException(e, 'Failed to load user series enrollments');
+    }
+  }
+
+  Set<String> _extractSeriesIds(dynamic data) {
+    List<dynamic>? items;
+    if (data is List) {
+      items = data;
+    } else if (data is Map<String, dynamic>) {
+      items = (data['series'] as List<dynamic>?) ??
+          (data['enrollments'] as List<dynamic>?);
+    }
+    if (items == null) return const <String>{};
+
+    final ids = <String>{};
+    for (final raw in items) {
+      if (raw is String && raw.isNotEmpty) {
+        ids.add(raw);
+      } else if (raw is Map<String, dynamic>) {
+        final id = (raw['series_id'] ?? raw['id']);
+        if (id is String && id.isNotEmpty) ids.add(id);
+      }
+    }
+    return ids;
+  }
+
   Exception _statusToException(int? statusCode, String label) {
     if (statusCode == 401) {
       return const AuthenticationException('Unauthorized');

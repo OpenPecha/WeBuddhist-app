@@ -54,4 +54,44 @@ class SeriesRepository implements SeriesRepositoryInterface {
       return Left(UnknownFailure('Failed to load series: $e'));
     }
   }
+
+  @override
+  Future<Either<Failure, Unit>> enrollInSeries(String seriesId) async {
+    try {
+      await remote.enrollInSeries(seriesId);
+      return const Right(unit);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(e.message));
+    } on AuthenticationException catch (e) {
+      return Left(AuthenticationFailure(e.message));
+    } on NotFoundException catch (e) {
+      return Left(NotFoundFailure(e.message));
+    } on RateLimitException catch (e) {
+      return Left(RateLimitFailure(e.message));
+    } catch (e) {
+      return Left(UnknownFailure('Failed to enroll in series: $e'));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Set<String>>> getUserSeriesEnrollments() async {
+    try {
+      final ids = await remote.fetchUserSeriesEnrollments();
+      return Right(ids);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(e.message));
+    } on AuthenticationException catch (e) {
+      return Left(AuthenticationFailure(e.message));
+    } on NotFoundException catch (e) {
+      return Left(NotFoundFailure(e.message));
+    } on RateLimitException catch (e) {
+      return Left(RateLimitFailure(e.message));
+    } catch (e) {
+      return Left(UnknownFailure('Failed to load user series enrollments: $e'));
+    }
+  }
 }

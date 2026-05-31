@@ -3,6 +3,8 @@ import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/core/widgets/cached_network_image_widget.dart';
 import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
+import 'package:flutter_pecha/features/auth/presentation/widgets/login_drawer.dart';
+import 'package:flutter_pecha/features/home/presentation/providers/series_enrollment_provider.dart';
 import 'package:flutter_pecha/features/plans/data/models/user/user_plans_model.dart';
 import 'package:flutter_pecha/features/plans/domain/entities/plan.dart';
 import 'package:flutter_pecha/features/plans/presentation/providers/user_plans_provider.dart';
@@ -17,10 +19,14 @@ import 'package:intl/intl.dart';
 /// Renders a non-empty list of [Plan]s as a featured card on top and a scrolling
 /// list below — used by both `PlanListScreen` (tag-filtered) and
 /// `SeriesDetailScreen` (series-filtered). Caller must guard against empty input.
+///
+/// When [seriesId] is provided, the featured card shows a series-level Enroll
+/// button that enrolls the user in the whole series in one call.
 class PlanListView extends StatelessWidget {
   final List<Plan> plans;
+  final String? seriesId;
 
-  const PlanListView({super.key, required this.plans});
+  const PlanListView({super.key, required this.plans, this.seriesId});
 
   @override
   Widget build(BuildContext context) {
@@ -41,7 +47,7 @@ class PlanListView extends StatelessWidget {
         SliverToBoxAdapter(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: FeaturedPlanCard(plan: sorted.first),
+            child: FeaturedPlanCard(plan: sorted.first, seriesId: seriesId),
           ),
         ),
         const SliverToBoxAdapter(child: SizedBox(height: 16)),
@@ -63,7 +69,12 @@ class PlanListView extends StatelessWidget {
 class FeaturedPlanCard extends ConsumerWidget {
   final Plan plan;
 
-  const FeaturedPlanCard({super.key, required this.plan});
+  /// When provided, the Enroll button enrolls the user in this series
+  /// (single API call covers every plan in the series). When null, the
+  /// button falls back to the per-plan preview navigation.
+  final String? seriesId;
+
+  const FeaturedPlanCard({super.key, required this.plan, this.seriesId});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -79,6 +90,21 @@ class FeaturedPlanCard extends ConsumerWidget {
     final isEnrolledInfoPending =
         isEnrolled && enrolledInfo == null && myPlansState.isLoading;
     final isFlexible = plan.startDate == null;
+    final hasDescription = plan.description.trim().isNotEmpty;
+
+    final enrollmentState = seriesId != null
+        ? ref.watch(seriesEnrollmentProvider(seriesId!))
+        : null;
+    final isEnrolling = enrollmentState is SeriesEnrollmentLoading;
+
+    // Series-level enrolled check: true when the current screen represents a
+    // series and the user is already enrolled in it. Empty set for guests.
+    final isSeriesEnrolled = seriesId != null &&
+        (ref.watch(userSeriesEnrollmentsProvider).valueOrNull?.contains(
+              seriesId!,
+            ) ??
+            false);
+    final hideEnrollButton = isEnrolled || isSeriesEnrolled;
 
     return InkWell(
       onTap:
@@ -87,47 +113,38 @@ class FeaturedPlanCard extends ConsumerWidget {
               : () => _navigateToPlan(context, plan, enrolledInfo),
       borderRadius: BorderRadius.circular(16),
       child: Container(
-        height: MediaQuery.of(context).size.height * 0.3,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
-          color: Theme.of(context).colorScheme.surfaceContainer,
+          color: Colors.transparent,
         ),
         clipBehavior: Clip.antiAlias,
-        child: Stack(
-          fit: StackFit.expand,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            PlanCoverImage(
-              imageUrl: plan.coverImageUrl,
-              placeholderIconSize: 48,
-              placeholderAlphaMin: 0.4,
-              placeholderAlphaMax: 0.7,
-            ),
-            Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    Colors.transparent,
-                    Colors.black.withValues(alpha: 0.7),
-                  ],
-                  stops: const [0.4, 1.0],
-                ),
+            AspectRatio(
+              aspectRatio: 16 / 9,
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  PlanCoverImage(
+                    imageUrl: plan.coverImageUrl,
+                    placeholderIconSize: 48,
+                    placeholderAlphaMin: 0.4,
+                    placeholderAlphaMax: 0.7,
+                  ),
+                  if (isEnrolled || isSeriesEnrolled)
+                    Positioned(
+                      top: 12,
+                      right: 12,
+                      child: EnrolledBadge(label: context.l10n.plan_enrolled),
+                    ),
+                ],
               ),
             ),
-            if (isEnrolled)
-              Positioned(
-                top: 12,
-                right: 12,
-                child: EnrolledBadge(label: context.l10n.plan_enrolled),
-              ),
-            Positioned(
-              left: 16,
-              right: 16,
-              bottom: 16,
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
                     plan.title,
@@ -135,44 +152,76 @@ class FeaturedPlanCard extends ConsumerWidget {
                       fontSize: titleFontSize,
                       fontWeight: FontWeight.bold,
                       height: lineHeight,
-                      color: Colors.white,
-                      shadows: [
-                        Shadow(
-                          offset: const Offset(0, 1),
-                          blurRadius: 4,
-                          color: Colors.black.withValues(alpha: 0.5),
-                        ),
-                      ],
                     ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    plan.description,
-                    style: TextStyle(
-                      fontSize: subtitleFontSize,
-                      height: lineHeight,
-                      color: Colors.white.withValues(alpha: 0.9),
+                  if (hasDescription) ...[
+                    const SizedBox(height: 6),
+                    Text(
+                      plan.description,
+                      style: TextStyle(
+                        fontSize: subtitleFontSize,
+                        height: lineHeight,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  if (_showFeaturedChipRow(isEnrolled, isFlexible, plan)) ...[
+                  ],
+                  if (_showFeaturedChipRow(
+                    isEnrolled || isSeriesEnrolled,
+                    isFlexible,
+                    plan,
+                  )) ...[
                     const SizedBox(height: 10),
-                    Row(
-                      children: [
-                        RoutineItemChip(
-                          label:
-                              isFlexible
-                                  ? context.l10n.start_now
-                                  : context.l10n.plan_starts_on(
-                                    DateFormat(
-                                      'MMM d',
-                                    ).format(plan.startDate!.toLocal()),
-                                  ),
+                    RoutineItemChip(
+                      label:
+                          isFlexible
+                              ? context.l10n.start_now
+                              : context.l10n.plan_starts_on(
+                                DateFormat(
+                                  'MMM d',
+                                ).format(plan.startDate!.toLocal()),
+                              ),
+                    ),
+                  ],
+                  if (!hideEnrollButton) ...[
+                    const SizedBox(height: 14),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: (isEnrolledInfoPending || isEnrolling)
+                            ? null
+                            : () => _onEnrollTap(context, ref),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.black,
+                          foregroundColor: Colors.white,
+                          disabledBackgroundColor: Colors.black26,
+                          disabledForegroundColor: Colors.white70,
+                          minimumSize: const Size.fromHeight(46),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          elevation: 0,
                         ),
-                      ],
+                        child: isEnrolling
+                            ? const SizedBox(
+                                height: 20,
+                                width: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    Colors.white,
+                                  ),
+                                ),
+                              )
+                            : Text(
+                                context.l10n.plan_enroll,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                      ),
                     ),
                   ],
                 ],
@@ -182,6 +231,49 @@ class FeaturedPlanCard extends ConsumerWidget {
         ),
       ),
     );
+  }
+
+  /// Handles a tap on the Enroll button.
+  /// - Guests: opens login drawer (same guard as Add to Routine).
+  /// - When [seriesId] is null: navigates to the per-plan preview screen.
+  /// - When [seriesId] is set: enrolls in the series via API, then navigates
+  ///   to edit-routine with the series id so all newly enrolled plans are
+  ///   prefilled at the default 8:00 AM block.
+  Future<void> _onEnrollTap(BuildContext context, WidgetRef ref) async {
+    final isGuest = ref.read(authProvider).isGuest;
+    if (isGuest) {
+      LoginDrawer.show(context, ref);
+      return;
+    }
+
+    final id = seriesId;
+    if (id == null) {
+      _navigateToPlan(context, plan, null);
+      return;
+    }
+
+    // Defensive no-op: a stale render could allow a tap after the user is
+    // already enrolled. Honor that latest state rather than re-POSTing.
+    final alreadyEnrolled =
+        ref.read(userSeriesEnrollmentsProvider).valueOrNull?.contains(id) ??
+            false;
+    if (alreadyEnrolled) return;
+
+    final notifier = ref.read(seriesEnrollmentProvider(id).notifier);
+    final ok = await notifier.enroll();
+    if (!context.mounted) return;
+
+    if (ok) {
+      context.pushNamed('edit-routine', extra: {'enrollSeriesId': id});
+    } else {
+      final state = ref.read(seriesEnrollmentProvider(id));
+      final message = state is SeriesEnrollmentFailure
+          ? state.failure.message
+          : 'Failed to enroll in series';
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(message), backgroundColor: Colors.red),
+      );
+    }
   }
 }
 

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
 import 'package:flutter_pecha/core/error/failures.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
@@ -10,7 +11,10 @@ import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/features/notifications/data/services/notification_service.dart';
 import 'package:flutter_pecha/features/notifications/data/special_plan_notifications.dart';
+import 'package:flutter_pecha/features/plans/domain/usecases/user_plans_usecases.dart';
 import 'package:flutter_pecha/features/plans/plans.dart';
+import 'package:flutter_pecha/features/plans/presentation/providers/use_case_providers.dart'
+    show getUserPlansUseCaseProvider;
 import 'package:flutter_pecha/features/practice/data/models/routine_model.dart';
 import 'package:flutter_pecha/features/practice/data/models/session_selection.dart';
 import 'package:flutter_pecha/features/practice/data/utils/routine_api_mapper.dart';
@@ -48,7 +52,16 @@ class _EditableBlock {
 class EditRoutineScreen extends ConsumerStatefulWidget {
   final Plan? initialPlan;
 
-  const EditRoutineScreen({super.key, this.initialPlan});
+  /// When provided, after hydration the screen fetches all currently-active
+  /// plans from the given series and injects them into the routine at the
+  /// default 8:00 AM block. Backend filters out future plans by start date.
+  final String? enrollSeriesId;
+
+  const EditRoutineScreen({
+    super.key,
+    this.initialPlan,
+    this.enrollSeriesId,
+  });
 
   @override
   ConsumerState<EditRoutineScreen> createState() => _EditRoutineScreenState();
@@ -61,6 +74,15 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
   String? _apiRoutineId;
 
   bool _hydratedFromApi = false;
+
+  /// Guard so series-enrollment prefill runs exactly once after hydration.
+  bool _seriesEnrollmentHydrated = false;
+
+  /// Default time used when prefilling a routine block from series enrollment.
+  static const TimeOfDay _seriesEnrollDefaultTime = TimeOfDay(
+    hour: 8,
+    minute: 0,
+  );
 
   /// Sequential queue so API calls never overlap or race.
   Future<void> _opQueue = Future.value();
@@ -162,6 +184,134 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
         break;
       }
     }
+  }
+
+  /// Fetches all currently active plans for the just-enrolled series and
+  /// injects them into the routine. Plans whose start date is in the future
+  /// are excluded by the backend (`GET /users/me/plans?series_id=`), so the
+  /// client just trusts the result. Plans already in the routine are skipped.
+  Future<void> _hydrateSeriesEnrollment(String seriesId) async {
+    final locale = ref.read(localeProvider);
+    final useCase = ref.read(getUserPlansUseCaseProvider);
+    final result = await useCase(
+      GetUserPlansParams(
+        language: locale.languageCode,
+        seriesId: seriesId,
+      ),
+    );
+
+    if (!mounted) return;
+
+    result.fold(
+      (failure) {
+        _logger.warning(
+          '[SERIES-ENROLL-PREFILL] failed to fetch series plans: '
+          '${failure.message}',
+        );
+        _showErrorSnackBar(failure.message);
+      },
+      (response) {
+        if (response.userPlans.isEmpty) {
+          _logger.info(
+            '[SERIES-ENROLL-PREFILL] no active plans returned for series '
+            '$seriesId',
+          );
+          return;
+        }
+        final injectedBlock = _injectSeriesUserPlans(response.userPlans);
+        if (injectedBlock != null) {
+          _syncBlock(injectedBlock).catchError((e) {
+            if (mounted) _showErrorSnackBar(_mapError(e));
+          });
+        }
+      },
+    );
+  }
+
+  /// Adds [plans] into the routine at the default 8:00 AM block.
+  ///
+  /// Behavior:
+  /// - If the only block is the empty 12:00 PM default, it is replaced with
+  ///   an 8:00 AM block instead of adding another one.
+  /// - If a block at exactly 8:00 AM already exists, plans are appended there.
+  /// - Otherwise a new block is created; the time is shifted if 8:00 AM would
+  ///   collide with an existing block (using the same min-gap rules).
+  /// - Plans that already exist in any block (by id + plan type) are skipped.
+  ///
+  /// Returns the affected block (to drive a follow-up server sync) or null
+  /// if there is nothing new to inject.
+  _EditableBlock? _injectSeriesUserPlans(List<UserPlansModel> plans) {
+    final _EditableBlock targetBlock;
+    bool replaceDefault = false;
+    bool isNewBlock = false;
+
+    if (_blocks.length == 1 && _blocks.first.items.isEmpty) {
+      targetBlock = _EditableBlock(
+        time: _seriesEnrollDefaultTime,
+        notificationEnabled: true,
+      );
+      replaceDefault = true;
+    } else {
+      _EditableBlock? existing;
+      for (final b in _blocks) {
+        if (b.time == _seriesEnrollDefaultTime) {
+          existing = b;
+          break;
+        }
+      }
+      if (existing != null) {
+        targetBlock = existing;
+      } else {
+        final otherTimes = _blocks.map((b) => b.time).toList();
+        final adjusted = adjustTimeForMinimumGap(
+          _seriesEnrollDefaultTime,
+          otherTimes,
+        );
+        targetBlock = _EditableBlock(
+          time: adjusted ?? _seriesEnrollDefaultTime,
+          notificationEnabled: true,
+        );
+        isNewBlock = true;
+      }
+    }
+
+    final existingPlanIds = <String>{};
+    for (final b in _blocks) {
+      for (final item in b.items) {
+        if (item.type == RoutineItemType.plan) {
+          existingPlanIds.add(item.id);
+        }
+      }
+    }
+
+    final newItems = <RoutineItem>[];
+    for (final p in plans) {
+      if (existingPlanIds.contains(p.id)) continue;
+      newItems.add(
+        RoutineItem(
+          id: p.id,
+          title: p.title,
+          imageUrl: p.imageUrl,
+          type: RoutineItemType.plan,
+          enrolledAt: DateTime.now(),
+        ),
+      );
+      existingPlanIds.add(p.id);
+    }
+
+    if (newItems.isEmpty && !replaceDefault && !isNewBlock) return null;
+
+    setState(() {
+      if (replaceDefault) {
+        _blocks[0] = targetBlock;
+      } else if (isNewBlock) {
+        _blocks.add(targetBlock);
+      }
+      targetBlock.items.addAll(newItems);
+      _sortBlocks();
+    });
+
+    return newItems.isEmpty ? null : targetBlock;
   }
 
   RoutineBlock _toRoutineBlock(_EditableBlock b) {
@@ -915,6 +1065,11 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
             });
             if (widget.initialPlan != null) {
               _syncInjectedPlan(widget.initialPlan!);
+            }
+            if (widget.enrollSeriesId != null &&
+                !_seriesEnrollmentHydrated) {
+              _seriesEnrollmentHydrated = true;
+              _hydrateSeriesEnrollment(widget.enrollSeriesId!);
             }
           });
           return _buildLoadingScaffold(localizations);
