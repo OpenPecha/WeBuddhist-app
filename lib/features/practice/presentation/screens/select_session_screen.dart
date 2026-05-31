@@ -6,19 +6,26 @@ import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/core/widgets/cached_network_image_widget.dart';
 import 'package:flutter_pecha/core/widgets/error_state_widget.dart';
 import 'package:flutter_pecha/core/widgets/skeletons/skeletons.dart';
-import 'package:flutter_pecha/features/plans/presentation/providers/plans_providers.dart';
+import 'package:flutter_pecha/features/home/presentation/providers/series_enrollment_provider.dart';
 import 'package:flutter_pecha/features/practice/data/models/session_selection.dart';
+import 'package:flutter_pecha/features/practice/domain/entities/practice_item.dart';
+import 'package:flutter_pecha/features/practice/domain/entities/practice_items_tab.dart';
+import 'package:flutter_pecha/features/practice/presentation/providers/practice_items_paginated_provider.dart';
 import 'package:flutter_pecha/features/recitation/presentation/providers/recitations_providers.dart';
 import 'package:flutter_pecha/features/recitation/presentation/widgets/recitation_list_skeleton.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final _logger = AppLogger('SelectSessionScreen');
 
-/// Combined screen for selecting either a Plan or Recitation to add to routine.
-/// Returns [SessionSelection] - either [PlanSessionSelection] or [RecitationSessionSelection].
+/// Combined screen for selecting either a Plan, Series, or Recitation to add
+/// to the routine. Returns a [SessionSelection] subtype that the caller
+/// (`EditRoutineScreen`) dispatches on.
 ///
-/// Automatically enrolls plans / saves recitations on selection.
-/// Filters out already enrolled/saved items and items already in the routine.
+/// Plans/series come from `GET /practice/items` (page-based). Recitations
+/// remain on their own list endpoint. The plans tab filters out:
+///   - plan IDs already in the routine (`excludedPlanIds`)
+///   - series IDs the user is already enrolled in
+///     (`userSeriesEnrollmentsProvider`)
 class SelectSessionScreen extends ConsumerStatefulWidget {
   /// IDs of plans already in the routine (across all blocks).
   final Set<String> excludedPlanIds;
@@ -32,11 +39,17 @@ class SelectSessionScreen extends ConsumerStatefulWidget {
 
 class _SelectSessionScreenState extends ConsumerState<SelectSessionScreen>
     with SingleTickerProviderStateMixin {
+  /// Tab used by the practice picker. Both plans and series live on the same
+  /// "Add Plan" tab; recitations get their own tab.
+  static const PracticeItemsTab _practiceTab = PracticeItemsTab.all;
+
   late TabController _tabController;
   final ScrollController _plansScrollController = ScrollController();
 
   /// ID of the item currently being enrolled/saved (null if idle).
-  String? _enrollingItemId;
+  /// Reserved for future inline-loading affordances; today's flow pops
+  /// immediately, so this stays null in normal use.
+  final String? _enrollingItemId = null;
 
   @override
   void initState() {
@@ -57,13 +70,19 @@ class _SelectSessionScreenState extends ConsumerState<SelectSessionScreen>
   void _onPlansScroll() {
     if (_plansScrollController.position.pixels >=
         _plansScrollController.position.maxScrollExtent - 200) {
-      ref.read(findPlansPaginatedProvider.notifier).loadMore();
+      ref
+          .read(practiceItemsPaginatedProvider(_practiceTab).notifier)
+          .loadMore();
     }
   }
 
-  void _onPlanSelected(dynamic plan) {
+  void _onPracticeItemSelected(PracticeItem item) {
     if (_enrollingItemId != null) return;
-    Navigator.of(context).pop(PlanSessionSelection(plan));
+    final selection = switch (item) {
+      PracticePlanItem(:final plan) => PlanSessionSelection(plan),
+      PracticeSeriesItem(:final series) => SeriesSessionSelection(series),
+    };
+    Navigator.of(context).pop<SessionSelection>(selection);
   }
 
   Future<void> _onRecitationSelected(dynamic recitation) async {
@@ -76,9 +95,7 @@ class _SelectSessionScreenState extends ConsumerState<SelectSessionScreen>
     _logger.debug('🎨 ===== BUILD STARTED =====');
     final localizations = AppLocalizations.of(context)!;
 
-    // Plans: only exclude items already in routine blocks (enrollment handled by backend)
     final allExcludedPlanIds = widget.excludedPlanIds;
-
     _logger.debug('📊 Excluded Plan IDs: ${allExcludedPlanIds.length}');
 
     return Scaffold(
@@ -103,24 +120,23 @@ class _SelectSessionScreenState extends ConsumerState<SelectSessionScreen>
             fontWeight: FontWeight.normal,
             fontSize: 16,
           ),
-          labelColor:
-              Theme.of(context).brightness == Brightness.dark
-                  ? Colors.white
-                  : Colors.black,
-          unselectedLabelColor:
-              Theme.of(context).brightness == Brightness.dark
-                  ? Colors.white.withValues(alpha: 0.5)
-                  : Colors.black.withValues(alpha: 0.5),
+          labelColor: Theme.of(context).brightness == Brightness.dark
+              ? Colors.white
+              : Colors.black,
+          unselectedLabelColor: Theme.of(context).brightness == Brightness.dark
+              ? Colors.white.withValues(alpha: 0.5)
+              : Colors.black.withValues(alpha: 0.5),
         ),
       ),
       body: TabBarView(
         controller: _tabController,
         children: [
-          _PlansTab(
+          _PracticeItemsTab(
+            tab: _practiceTab,
             scrollController: _plansScrollController,
             excludedPlanIds: allExcludedPlanIds,
             enrollingItemId: _enrollingItemId,
-            onPlanSelected: _onPlanSelected,
+            onItemSelected: _onPracticeItemSelected,
           ),
           _RecitationsTab(
             enrollingItemId: _enrollingItemId,
@@ -132,58 +148,96 @@ class _SelectSessionScreenState extends ConsumerState<SelectSessionScreen>
   }
 }
 
-/// Tab content for displaying and selecting plans.
-/// Filters out plans that are already enrolled or in the routine.
-class _PlansTab extends ConsumerWidget {
+/// Tab content for the practice picker (plans + series).
+///
+/// Filtering rules:
+///   - plan rows whose id is in [excludedPlanIds] are dropped (already in
+///     the routine);
+///   - series rows whose id is in [userSeriesEnrollmentsProvider] are
+///     dropped (user is already enrolled — re-enrolling would be a no-op).
+class _PracticeItemsTab extends ConsumerWidget {
+  final PracticeItemsTab tab;
   final ScrollController scrollController;
   final Set<String> excludedPlanIds;
   final String? enrollingItemId;
-  final void Function(dynamic plan) onPlanSelected;
+  final void Function(PracticeItem item) onItemSelected;
 
-  const _PlansTab({
+  const _PracticeItemsTab({
+    required this.tab,
     required this.scrollController,
     required this.excludedPlanIds,
     required this.enrollingItemId,
-    required this.onPlanSelected,
+    required this.onItemSelected,
   });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final localizations = AppLocalizations.of(context)!;
-    final plansState = ref.watch(findPlansPaginatedProvider);
+    final itemsState = ref.watch(practiceItemsPaginatedProvider(tab));
+
+    // Defensive fallback: if the enrolled-series fetch is still loading or
+    // failed, hide nothing — matching the home enrollment flow's
+    // `valueOrNull ?? {}` semantics so the list stays usable.
+    final enrolledSeriesIds =
+        ref.watch(userSeriesEnrollmentsProvider).valueOrNull ??
+            const <String>{};
 
     _logger.debug(
-      '📋 _PlansTab BUILD: ${plansState.plans.length} plans, isLoading: ${plansState.isLoading}, error: ${plansState.error}',
+      '📋 _PracticeItemsTab BUILD: ${itemsState.items.length} items, '
+      'isLoading: ${itemsState.isLoading}, error: ${itemsState.error}',
     );
-    _logger.debug('🚫 Excluded IDs: ${excludedPlanIds.length}');
 
-    if (plansState.isLoading && plansState.plans.isEmpty) {
-      _logger.debug('⏳ SHOWING: Loading skeleton');
+    if (itemsState.isLoading && itemsState.items.isEmpty) {
       return const PlanListSkeleton();
     }
 
-    if (plansState.error != null && plansState.plans.isEmpty) {
-      _logger.debug('❌ SHOWING: Error - ${plansState.error}');
+    if (itemsState.error != null && itemsState.items.isEmpty) {
       return ErrorStateWidget(
-        error: plansState.error!,
-        onRetry: () => ref.read(findPlansPaginatedProvider.notifier).retry(),
+        error: itemsState.error!,
+        onRetry: () =>
+            ref.read(practiceItemsPaginatedProvider(tab).notifier).retry(),
         customMessage: 'Unable to load plans.\nPlease try again later.',
       );
     }
 
-    // Filter out ONLY plans already in routine (not enrolled plans)
-    // Users should be able to add enrolled plans to their routine
-    final availablePlans =
-        plansState.plans
-            .where((plan) => !excludedPlanIds.contains(plan.id))
-            .toList();
+    final availableItems = itemsState.items.where((item) {
+      switch (item) {
+        case PracticePlanItem(:final plan):
+          return !excludedPlanIds.contains(plan.id);
+        case PracticeSeriesItem(:final series):
+          return !enrolledSeriesIds.contains(series.id);
+      }
+    }).toList();
 
     _logger.debug(
-      '✅ Available plans after filtering (routine only): ${availablePlans.length}',
+      '✅ Available practice items after filtering: ${availableItems.length}',
     );
 
-    if (availablePlans.isEmpty && !plansState.isLoading) {
-      _logger.debug('📭 SHOWING: Empty state (no available plans)');
+    if (availableItems.isEmpty && !itemsState.isLoading) {
+      // Edge case: after filtering (already-in-routine plans + enrolled
+      // series), the current loaded pages may all be hidden while the API
+      // still has more pages that could contain visible items. Keep advancing
+      // pagination instead of showing a false empty-state.
+      if (itemsState.hasMore) {
+        if (itemsState.error != null) {
+          return ErrorStateWidget(
+            error: itemsState.error!,
+            onRetry: () =>
+                ref.read(practiceItemsPaginatedProvider(tab).notifier).retry(),
+            customMessage: 'Unable to load more plans.\nPlease try again.',
+          );
+        }
+
+        if (!itemsState.isLoadingMore) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (!context.mounted) return;
+            ref.read(practiceItemsPaginatedProvider(tab).notifier).loadMore();
+          });
+        }
+
+        return const Center(child: CircularProgressIndicator());
+      }
+
       return Center(
         child: Text(
           localizations.no_plans_found,
@@ -192,39 +246,52 @@ class _PlansTab extends ConsumerWidget {
       );
     }
 
-    _logger.debug('🎯 SHOWING: ListView with ${availablePlans.length} plans');
     return ListView.separated(
       controller: scrollController,
       padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
-      itemCount: availablePlans.length + (plansState.hasMore ? 1 : 0),
+      itemCount: availableItems.length + (itemsState.hasMore ? 1 : 0),
       separatorBuilder: (_, __) => const Divider(height: 1),
       itemBuilder: (context, index) {
-        if (index == availablePlans.length) {
+        if (index == availableItems.length) {
           return Padding(
             padding: const EdgeInsets.symmetric(vertical: 16.0),
             child: Center(
-              child:
-                  plansState.isLoadingMore
-                      ? const CircularProgressIndicator()
-                      : const SizedBox.shrink(),
+              child: itemsState.isLoadingMore
+                  ? const CircularProgressIndicator()
+                  : const SizedBox.shrink(),
             ),
           );
         }
 
-        final plan = availablePlans[index];
-        final authorName = plan.authorName;
-        final isEnrolling = enrollingItemId == plan.id;
+        final item = availableItems[index];
+        return _buildItemTile(item);
+      },
+    );
+  }
 
+  Widget _buildItemTile(PracticeItem item) {
+    switch (item) {
+      case PracticePlanItem(:final plan):
+        final isEnrolling = enrollingItemId == plan.id;
         return _SessionListTile(
           title: plan.title,
           subtitle: null,
           imageUrl: plan.coverImageUrl,
           isLoading: isEnrolling,
           isDisabled: enrollingItemId != null,
-          onTap: () => onPlanSelected(plan),
+          onTap: () => onItemSelected(item),
         );
-      },
-    );
+      case PracticeSeriesItem(:final series):
+        final isEnrolling = enrollingItemId == series.id;
+        return _SessionListTile(
+          title: series.title,
+          subtitle: series.description.isNotEmpty ? series.description : null,
+          imageUrl: series.imageUrl,
+          isLoading: isEnrolling,
+          isDisabled: enrollingItemId != null,
+          onTap: () => onItemSelected(item),
+        );
+    }
   }
 }
 
@@ -299,7 +366,7 @@ class _RecitationsTab extends ConsumerWidget {
   }
 }
 
-/// Reusable list tile for session selection (plans and recitations).
+/// Reusable list tile for session selection (plans, series, recitations).
 /// Supports loading and disabled states for enrollment/save feedback.
 class _SessionListTile extends StatelessWidget {
   final String title;

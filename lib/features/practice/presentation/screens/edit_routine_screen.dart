@@ -11,12 +11,17 @@ import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/features/notifications/data/services/notification_service.dart';
 import 'package:flutter_pecha/features/notifications/data/special_plan_notifications.dart';
+import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
+import 'package:flutter_pecha/features/auth/presentation/widgets/login_drawer.dart';
+import 'package:flutter_pecha/features/home/domain/entities/series.dart';
+import 'package:flutter_pecha/features/home/presentation/providers/series_enrollment_provider.dart';
 import 'package:flutter_pecha/features/plans/domain/usecases/user_plans_usecases.dart';
 import 'package:flutter_pecha/features/plans/plans.dart';
 import 'package:flutter_pecha/features/plans/presentation/providers/use_case_providers.dart'
     show getUserPlansUseCaseProvider;
 import 'package:flutter_pecha/features/practice/data/models/routine_model.dart';
 import 'package:flutter_pecha/features/practice/data/models/session_selection.dart';
+import 'package:flutter_pecha/features/recitation/data/models/recitation_model.dart';
 import 'package:flutter_pecha/features/practice/data/utils/routine_api_mapper.dart';
 import 'package:flutter_pecha/features/practice/data/utils/routine_time_utils.dart';
 import 'package:flutter_pecha/features/practice/presentation/providers/practice_providers.dart';
@@ -971,65 +976,140 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
         ),
       );
 
-      if (result != null && mounted) {
-        final (newItemId, newItemType) = switch (result) {
-          PlanSessionSelection(:final plan) => (plan.id, RoutineItemType.plan),
-          RecitationSessionSelection(:final recitation) => (
-            recitation.textId,
-            RoutineItemType.recitation,
-          ),
-        };
+      if (result == null || !mounted) return;
 
-        final isDuplicate = _blocks[blockIndex].items.any(
-          (item) => item.id == newItemId && item.type == newItemType,
-        );
-
-        if (isDuplicate) {
-          _logger.warning('Duplicate item prevented: $newItemId');
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(context.l10n.duplicateItem),
-                duration: const Duration(seconds: 2),
-              ),
-            );
-          }
-          return;
-        }
-
-        final RoutineItem newItem;
-        switch (result) {
-          case PlanSessionSelection(:final plan):
-            newItem = RoutineItem(
-              id: plan.id,
-              title: plan.title,
-              imageUrl: plan.coverImageUrl,
-              type: RoutineItemType.plan,
-              enrolledAt: DateTime.now(),
-            );
-          case RecitationSessionSelection(:final recitation):
-            newItem = RoutineItem(
-              id: recitation.textId,
-              title: recitation.title,
-              type: RoutineItemType.recitation,
-            );
-        }
-
-        final block = _blocks[blockIndex];
-        setState(() => block.items.add(newItem));
-
-        try {
-          await _syncBlock(block);
-        } catch (e) {
-          if (mounted) {
-            setState(() => block.items.remove(newItem));
-            _showErrorSnackBar(_mapError(e));
-          }
-        }
+      switch (result) {
+        case PlanSessionSelection(:final plan):
+          await _addPlanToBlock(blockIndex, plan);
+        case RecitationSessionSelection(:final recitation):
+          await _addRecitationToBlock(blockIndex, recitation);
+        case SeriesSessionSelection(:final series):
+          await _handleSeriesEnrollmentFromSelection(series);
       }
     } finally {
       _isSelectingSession = false;
     }
+  }
+
+  Future<void> _addPlanToBlock(int blockIndex, Plan plan) async {
+    final isDuplicate = _blocks[blockIndex].items.any(
+      (item) => item.id == plan.id && item.type == RoutineItemType.plan,
+    );
+    if (isDuplicate) {
+      _logger.warning('Duplicate item prevented: ${plan.id}');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(context.l10n.duplicateItem),
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
+      return;
+    }
+
+    final newItem = RoutineItem(
+      id: plan.id,
+      title: plan.title,
+      imageUrl: plan.coverImageUrl,
+      type: RoutineItemType.plan,
+      enrolledAt: DateTime.now(),
+    );
+    final block = _blocks[blockIndex];
+    setState(() => block.items.add(newItem));
+
+    try {
+      await _syncBlock(block);
+    } catch (e) {
+      if (mounted) {
+        setState(() => block.items.remove(newItem));
+        _showErrorSnackBar(_mapError(e));
+      }
+    }
+  }
+
+  Future<void> _addRecitationToBlock(
+    int blockIndex,
+    RecitationModel recitation,
+  ) async {
+    final isDuplicate = _blocks[blockIndex].items.any(
+      (item) =>
+          item.id == recitation.textId &&
+          item.type == RoutineItemType.recitation,
+    );
+    if (isDuplicate) {
+      _logger.warning('Duplicate item prevented: ${recitation.textId}');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(context.l10n.duplicateItem),
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
+      return;
+    }
+
+    final newItem = RoutineItem(
+      id: recitation.textId,
+      title: recitation.title,
+      type: RoutineItemType.recitation,
+    );
+    final block = _blocks[blockIndex];
+    setState(() => block.items.add(newItem));
+
+    try {
+      await _syncBlock(block);
+    } catch (e) {
+      if (mounted) {
+        setState(() => block.items.remove(newItem));
+        _showErrorSnackBar(_mapError(e));
+      }
+    }
+  }
+
+  /// Enrolls the user in [series], then routes to `edit-routine` with
+  /// `enrollSeriesId` so the existing one-time prefill handoff runs through
+  /// the same entrypoint as Home.
+  ///
+  /// Auth guard: guests get the login drawer instead of an enroll attempt.
+  /// Re-enrollment guard: if the user is somehow already enrolled (e.g. a
+  /// stale list slipped through `userSeriesEnrollmentsProvider`), skip the
+  /// POST and just rehydrate. `_isSelectingSession` already serializes taps
+  /// at the caller, so no extra in-flight flag is needed here.
+  Future<void> _handleSeriesEnrollmentFromSelection(Series series) async {
+    final auth = ref.read(authProvider);
+    if (auth.isGuest) {
+      if (mounted) LoginDrawer.show(context, ref);
+      return;
+    }
+
+    final seriesId = series.id;
+    final alreadyEnrolled = ref
+            .read(userSeriesEnrollmentsProvider)
+            .valueOrNull
+            ?.contains(seriesId) ??
+        false;
+
+    if (!alreadyEnrolled) {
+      final notifier = ref.read(seriesEnrollmentProvider(seriesId).notifier);
+      final ok = await notifier.enroll();
+      if (!mounted) return;
+
+      if (!ok) {
+        final state = ref.read(seriesEnrollmentProvider(seriesId));
+        final message = state is SeriesEnrollmentFailure
+            ? state.failure.message
+            : 'Failed to enroll in series';
+        _showErrorSnackBar(message);
+        return;
+      }
+    }
+
+    if (!mounted) return;
+    unawaited(
+      context.pushNamed('edit-routine', extra: {'enrollSeriesId': seriesId}),
+    );
   }
 
   // ─── Build ───
