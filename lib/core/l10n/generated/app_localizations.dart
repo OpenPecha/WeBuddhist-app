@@ -1876,6 +1876,12 @@ abstract class AppLocalizations {
   /// **'Enrolled'**
   String get plan_enrolled;
 
+  /// No description provided for @plan_status_on_track.
+  ///
+  /// In en, this message translates to:
+  /// **'On Track!'**
+  String get plan_status_on_track;
+
   /// No description provided for @start_now.
   ///
   /// In en, this message translates to:

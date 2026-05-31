@@ -962,6 +962,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get plan_enrolled => 'Enrolled';
 
   @override
+  String get plan_status_on_track => 'On Track!';
+
+  @override
   String get start_now => 'Start now';
 
   @override

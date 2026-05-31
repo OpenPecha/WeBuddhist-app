@@ -6,8 +6,11 @@ import 'package:flutter_pecha/features/auth/presentation/providers/state_provide
 import 'package:flutter_pecha/features/auth/presentation/widgets/login_drawer.dart';
 import 'package:flutter_pecha/features/home/presentation/providers/series_enrollment_provider.dart';
 import 'package:flutter_pecha/features/plans/data/models/user/user_plans_model.dart';
+import 'package:flutter_pecha/features/plans/data/utils/plan_utils.dart';
 import 'package:flutter_pecha/features/plans/domain/entities/plan.dart';
 import 'package:flutter_pecha/features/plans/presentation/providers/user_plans_provider.dart';
+import 'package:flutter_pecha/features/plans/presentation/widgets/plan_track/missed_days_badge.dart';
+import 'package:flutter_pecha/features/plans/presentation/widgets/plan_track/on_track_badge.dart';
 import 'package:flutter_pecha/features/practice/data/models/routine_model.dart';
 import 'package:flutter_pecha/features/practice/presentation/providers/routine_api_providers.dart';
 import 'package:flutter_pecha/features/practice/presentation/widgets/routine_item_chip.dart';
@@ -89,7 +92,6 @@ class FeaturedPlanCard extends ConsumerWidget {
     final enrolledInfo = isEnrolled ? _getEnrolledInfo(ref, plan.id) : null;
     final isEnrolledInfoPending =
         isEnrolled && enrolledInfo == null && myPlansState.isLoading;
-    final isFlexible = plan.startDate == null;
     final hasDescription = plan.description.trim().isNotEmpty;
 
     final enrollmentState = seriesId != null
@@ -123,22 +125,11 @@ class FeaturedPlanCard extends ConsumerWidget {
           children: [
             AspectRatio(
               aspectRatio: 16 / 9,
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  PlanCoverImage(
-                    imageUrl: plan.coverImageUrl,
-                    placeholderIconSize: 48,
-                    placeholderAlphaMin: 0.4,
-                    placeholderAlphaMax: 0.7,
-                  ),
-                  if (isEnrolled || isSeriesEnrolled)
-                    Positioned(
-                      top: 12,
-                      right: 12,
-                      child: EnrolledBadge(label: context.l10n.plan_enrolled),
-                    ),
-                ],
+              child: PlanCoverImage(
+                imageUrl: plan.coverImageUrl,
+                placeholderIconSize: 48,
+                placeholderAlphaMin: 0.4,
+                placeholderAlphaMax: 0.7,
               ),
             ),
             Padding(
@@ -166,23 +157,6 @@ class FeaturedPlanCard extends ConsumerWidget {
                       ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                  if (_showFeaturedChipRow(
-                    isEnrolled || isSeriesEnrolled,
-                    isFlexible,
-                    plan,
-                  )) ...[
-                    const SizedBox(height: 10),
-                    RoutineItemChip(
-                      label:
-                          isFlexible
-                              ? context.l10n.start_now
-                              : context.l10n.plan_starts_on(
-                                DateFormat(
-                                  'MMM d',
-                                ).format(plan.startDate!.toLocal()),
-                              ),
                     ),
                   ],
                   if (!hideEnrollButton) ...[
@@ -294,7 +268,11 @@ class PlanListItem extends ConsumerWidget {
     final enrolledInfo = isEnrolled ? _getEnrolledInfo(ref, plan.id) : null;
     final isEnrolledInfoPending =
         isEnrolled && enrolledInfo == null && myPlansState.isLoading;
-    final isFlexible = plan.startDate == null;
+    final dateRange = _PlanDateRange.tryCreate(plan);
+    final userPlan =
+        isEnrolled ? _findUserPlan(myPlansState.plans, plan.id) : null;
+    final canShowStatus =
+        isEnrolled && userPlan != null && dateRange != null;
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 12.0),
@@ -338,24 +316,26 @@ class PlanListItem extends ConsumerWidget {
                   ),
                   const SizedBox(height: 6),
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      if (isFlexible && !isEnrolled)
-                        RoutineItemChip(label: context.l10n.start_now)
-                      else if (!isFlexible &&
-                          (!isEnrolled ||
-                              DateTime.now().isBefore(plan.startDate!)))
-                        RoutineItemChip(
-                          label: context.l10n.plan_starts_on(
-                            DateFormat(
-                              'MMM d',
-                            ).format(plan.startDate!.toLocal()),
+                      Expanded(
+                        child: _buildDateLine(
+                          context,
+                          plan: plan,
+                          dateRange: dateRange,
+                          isEnrolled: isEnrolled,
+                          lineHeight: lineHeight,
+                        ),
+                      ),
+                      if (canShowStatus)
+                        Padding(
+                          padding: const EdgeInsets.only(left: 8),
+                          child: _EnrolledPlanStatusIndicator(
+                            plan: plan,
+                            userPlan: userPlan,
+                            dateRange: dateRange,
                           ),
-                        )
-                      else
-                        const SizedBox.shrink(),
-                      if (isEnrolled)
-                        EnrolledBadge(label: context.l10n.plan_enrolled),
+                        ),
                     ],
                   ),
                 ],
@@ -366,6 +346,208 @@ class PlanListItem extends ConsumerWidget {
       ),
     );
   }
+
+  /// Builds the left-side date display for the row.
+  ///
+  /// - Flexible plans without enrollment: keeps the existing "Start now" chip.
+  /// - Fixed-date plans whose range includes today: black filled pill, to
+  ///   match the active-plan highlight in the design.
+  /// - Otherwise (including past or future ranges): plain subtitle text.
+  Widget _buildDateLine(
+    BuildContext context, {
+    required Plan plan,
+    required _PlanDateRange? dateRange,
+    required bool isEnrolled,
+    required double? lineHeight,
+  }) {
+    if (dateRange == null) {
+      if (!isEnrolled) {
+        return Align(
+          alignment: Alignment.centerLeft,
+          child: RoutineItemChip(label: context.l10n.start_now),
+        );
+      }
+      return const SizedBox.shrink();
+    }
+
+    if (dateRange.isCurrent) {
+      return Align(
+        alignment: Alignment.centerLeft,
+        child: _ActiveDateRangeChip(label: dateRange.formatted),
+      );
+    }
+
+    return Text(
+      dateRange.formatted,
+      style: TextStyle(
+        fontSize: 13,
+        height: lineHeight,
+        color: Theme.of(
+          context,
+        ).colorScheme.onSurface.withValues(alpha: 0.65),
+      ),
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+    );
+  }
+}
+
+/// Black filled pill chip used to highlight the plan whose date range
+/// contains the user's current date (see [_PlanDateRange.isCurrent]).
+class _ActiveDateRangeChip extends StatelessWidget {
+  final String label;
+  const _ActiveDateRangeChip({required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: Colors.black,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Text(
+        label,
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 13,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    );
+  }
+}
+
+/// Encapsulates a plan's `[startDate, endDate]` window and pre-formats the
+/// "MMM d - MMM d" label. Returns null for flexible (no start date) or
+/// non-positive-length plans, so callers can branch on a single null check.
+class _PlanDateRange {
+  final DateTime start;
+  final DateTime end;
+  final bool isCurrent;
+  final String formatted;
+
+  const _PlanDateRange({
+    required this.start,
+    required this.end,
+    required this.isCurrent,
+    required this.formatted,
+  });
+
+  static _PlanDateRange? tryCreate(Plan plan) {
+    final startDate = plan.startDate;
+    if (startDate == null) return null;
+    final totalDays = plan.totalDays;
+    if (totalDays <= 0) return null;
+
+    final start = DateUtils.dateOnly(startDate.toLocal());
+    final end = DateUtils.dateOnly(start.add(Duration(days: totalDays - 1)));
+    final today = DateUtils.dateOnly(DateTime.now());
+    final isCurrent =
+        !today.isBefore(start) && !today.isAfter(end);
+
+    final formatter = DateFormat('MMM dd');
+    final formatted = '${formatter.format(start)} - ${formatter.format(end)}';
+
+    return _PlanDateRange(
+      start: start,
+      end: end,
+      isCurrent: isCurrent,
+      formatted: formatted,
+    );
+  }
+}
+
+/// Right-side status indicator shown for an enrolled plan in the list:
+///
+/// - All days complete -> compact check icon.
+/// - Today within range, zero missed -> [OnTrackBadge].
+/// - Today within range with missed days OR range fully in the past with
+///   missed days -> [MissedDaysBadge] (self-hides when count is 0).
+/// - Future range (today before start) -> nothing.
+///
+/// Watches [userPlanDaysCompletionStatusProvider] per plan. Loading/error
+/// states render nothing so the row stays stable instead of flashing
+/// placeholders for what is decorative state.
+class _EnrolledPlanStatusIndicator extends ConsumerWidget {
+  final Plan plan;
+  final UserPlansModel userPlan;
+  final _PlanDateRange dateRange;
+
+  const _EnrolledPlanStatusIndicator({
+    required this.plan,
+    required this.userPlan,
+    required this.dateRange,
+  });
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final today = DateUtils.dateOnly(DateTime.now());
+    if (today.isBefore(dateRange.start)) return const SizedBox.shrink();
+
+    final asyncStatus = ref.watch(
+      userPlanDaysCompletionStatusProvider(plan.id),
+    );
+
+    return asyncStatus.when(
+      data: (either) => either.fold(
+        (_) => const SizedBox.shrink(),
+        (completion) => _resolveBadge(completion),
+      ),
+      loading: () => const SizedBox.shrink(),
+      error: (_, __) => const SizedBox.shrink(),
+    );
+  }
+
+  Widget _resolveBadge(Map<int, bool> completion) {
+    final totalDays = plan.totalDays;
+    final allCompleted = List<int>.generate(
+      totalDays,
+      (i) => i + 1,
+    ).every((d) => completion[d] == true);
+    if (allCompleted) return const _CompletedTickIcon();
+
+    final missed = PlanUtils.calculateMissedDays(
+      dateRange.start,
+      userPlan.startedAt,
+      totalDays,
+      completion,
+    );
+
+    if (dateRange.isCurrent && missed == 0) return const OnTrackBadge();
+
+    return MissedDaysBadge(
+      planStartDate: dateRange.start,
+      userJoinDate: userPlan.startedAt,
+      totalDays: totalDays,
+      completionStatus: completion,
+    );
+  }
+}
+
+/// Compact check icon shown when every day of an enrolled plan is complete.
+class _CompletedTickIcon extends StatelessWidget {
+  const _CompletedTickIcon();
+
+  @override
+  Widget build(BuildContext context) {
+    return Icon(
+      Icons.check,
+      size: 18,
+      color: Theme.of(context).colorScheme.onSurfaceVariant,
+    );
+  }
+}
+
+/// Returns the [UserPlansModel] for [planId] from the user's plans list,
+/// or null if the plan isn't enrolled / not yet hydrated. Pulled out so the
+/// list item can share the lookup with the status indicator without doing
+/// it twice.
+UserPlansModel? _findUserPlan(List<UserPlansModel> plans, String planId) {
+  for (final p in plans) {
+    if (p.id == planId) return p;
+  }
+  return null;
 }
 
 class PlanCoverImage extends StatelessWidget {
@@ -417,35 +599,6 @@ class PlanCoverImage extends StatelessWidget {
           size: placeholderIconSize,
           color: Colors.white.withValues(alpha: 0.5),
         ),
-      ),
-    );
-  }
-}
-
-class EnrolledBadge extends StatelessWidget {
-  final String label;
-  const EnrolledBadge({super.key, required this.label});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: const Color(0xFF4CAF50),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            label,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ],
       ),
     );
   }
@@ -541,8 +694,3 @@ _EnrolledPlanInfo? _getEnrolledInfo(WidgetRef ref, String planId) {
   );
 }
 
-bool _showFeaturedChipRow(bool isEnrolled, bool isFlexible, Plan plan) {
-  if (!isEnrolled) return true;
-  if (isFlexible) return false;
-  return DateTime.now().isBefore(plan.startDate!);
-}

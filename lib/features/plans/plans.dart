@@ -88,6 +88,8 @@ export 'presentation/widgets/plan_preview/plan_preview_details.dart';
 export 'presentation/widgets/plan_preview/preview_activity_list.dart';
 export 'presentation/widgets/plan_track/plan_details.dart';
 export 'presentation/widgets/plan_track/activity_list.dart';
+export 'presentation/widgets/plan_track/missed_days_badge.dart';
+export 'presentation/widgets/plan_track/on_track_badge.dart';
 export 'presentation/widgets/plan_cover_image.dart';
 
 // Presentation - Search
