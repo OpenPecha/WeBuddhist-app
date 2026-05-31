@@ -5,6 +5,8 @@ import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/features/notifications/data/models/notification_nav.dart';
 import 'package:flutter_pecha/features/plans/data/models/user/user_plans_model.dart';
 import 'package:flutter_pecha/features/plans/presentation/providers/user_plans_provider.dart';
+import 'package:flutter_pecha/features/plans/presentation/widgets/plan_track/enrolled_plan_status_indicator.dart';
+import 'package:flutter_pecha/features/plans/presentation/widgets/plan_track/plan_date_range_label.dart';
 import 'package:flutter_pecha/features/practice/data/models/routine_model.dart';
 import 'package:flutter_pecha/features/practice/presentation/widgets/routine_item_card.dart';
 import 'package:flutter_pecha/features/reader/data/models/navigation_context.dart';
@@ -250,17 +252,15 @@ class _RoutineBlockSection extends ConsumerWidget {
     return userPlan;
   }
 
-  String? _startDateLabel(
-    BuildContext context,
+  /// Resolves the enrolled [UserPlansModel] for a plan-type routine item from
+  /// the cached `myPlansPaginatedProvider`. Returns null for recitations or
+  /// when the plan hasn't been hydrated yet.
+  UserPlansModel? _resolveUserPlanForItem(
     RoutineItem item,
     List<UserPlansModel> plans,
   ) {
     if (item.type != RoutineItemType.plan) return null;
-    final userPlan = plans.where((p) => p.id == item.id).firstOrNull;
-    final startDate = userPlan?.startDate;
-    if (startDate == null) return null;
-    if (!DateTime.now().isBefore(DateUtils.dateOnly(startDate))) return null;
-    return context.l10n.plan_starts_on(DateFormat('MMM d').format(startDate));
+    return plans.where((p) => p.id == item.id).firstOrNull;
   }
 
   @override
@@ -282,13 +282,7 @@ class _RoutineBlockSection extends ConsumerWidget {
         ),
         const SizedBox(height: 8),
         for (int i = 0; i < block.items.length; i++) ...[
-          RoutineItemCard(
-            title: block.items[i].title,
-            imageUrl: block.items[i].imageUrl,
-            type: block.items[i].type,
-            onTap: () => _onItemTap(context, ref, block.items[i]),
-            startDateLabel: _startDateLabel(context, block.items[i], plans),
-          ),
+          _buildItemCard(context, ref, block.items[i], plans),
           if (i < block.items.length - 1) const Divider(height: 1, indent: 80),
         ],
         if (block.items.isNotEmpty)
@@ -297,6 +291,41 @@ class _RoutineBlockSection extends ConsumerWidget {
             child: Divider(height: 1),
           ),
       ],
+    );
+  }
+
+  /// Builds a [RoutineItemCard] augmented, for enrolled plan items, with the
+  /// shared date-range subtitle and the per-plan status indicator (tick /
+  /// On Track! / N Missed Days). Recitation items render with no subtitle
+  /// or trailing — same behavior as before.
+  Widget _buildItemCard(
+    BuildContext context,
+    WidgetRef ref,
+    RoutineItem item,
+    List<UserPlansModel> plans,
+  ) {
+    final userPlan = _resolveUserPlanForItem(item, plans);
+    final dateRange =
+        userPlan == null
+            ? null
+            : PlanDateRange.tryCreate(
+              startDate: userPlan.effectiveStartDate,
+              totalDays: userPlan.totalDays,
+            );
+
+    return RoutineItemCard(
+      title: item.title,
+      imageUrl: item.imageUrl,
+      type: item.type,
+      onTap: () => _onItemTap(context, ref, item),
+      subtitle: dateRange == null ? null : PlanDateRangeLabel(dateRange: dateRange),
+      trailing: dateRange == null || userPlan == null
+          ? null
+          : EnrolledPlanStatusIndicator(
+            planId: userPlan.id,
+            dateRange: dateRange,
+            userJoinDate: userPlan.startedAt,
+          ),
     );
   }
 }

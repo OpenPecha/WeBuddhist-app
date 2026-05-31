@@ -90,6 +90,8 @@ export 'presentation/widgets/plan_track/plan_details.dart';
 export 'presentation/widgets/plan_track/activity_list.dart';
 export 'presentation/widgets/plan_track/missed_days_badge.dart';
 export 'presentation/widgets/plan_track/on_track_badge.dart';
+export 'presentation/widgets/plan_track/plan_date_range_label.dart';
+export 'presentation/widgets/plan_track/enrolled_plan_status_indicator.dart';
 export 'presentation/widgets/plan_cover_image.dart';
 
 // Presentation - Search

@@ -6,18 +6,16 @@ import 'package:flutter_pecha/features/auth/presentation/providers/state_provide
 import 'package:flutter_pecha/features/auth/presentation/widgets/login_drawer.dart';
 import 'package:flutter_pecha/features/home/presentation/providers/series_enrollment_provider.dart';
 import 'package:flutter_pecha/features/plans/data/models/user/user_plans_model.dart';
-import 'package:flutter_pecha/features/plans/data/utils/plan_utils.dart';
 import 'package:flutter_pecha/features/plans/domain/entities/plan.dart';
 import 'package:flutter_pecha/features/plans/presentation/providers/user_plans_provider.dart';
-import 'package:flutter_pecha/features/plans/presentation/widgets/plan_track/missed_days_badge.dart';
-import 'package:flutter_pecha/features/plans/presentation/widgets/plan_track/on_track_badge.dart';
+import 'package:flutter_pecha/features/plans/presentation/widgets/plan_track/enrolled_plan_status_indicator.dart';
+import 'package:flutter_pecha/features/plans/presentation/widgets/plan_track/plan_date_range_label.dart';
 import 'package:flutter_pecha/features/practice/data/models/routine_model.dart';
 import 'package:flutter_pecha/features/practice/presentation/providers/routine_api_providers.dart';
 import 'package:flutter_pecha/features/practice/presentation/widgets/routine_item_chip.dart';
 import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
 
 /// Renders a non-empty list of [Plan]s as a featured card on top and a scrolling
 /// list below — used by both `PlanListScreen` (tag-filtered) and
@@ -268,7 +266,10 @@ class PlanListItem extends ConsumerWidget {
     final enrolledInfo = isEnrolled ? _getEnrolledInfo(ref, plan.id) : null;
     final isEnrolledInfoPending =
         isEnrolled && enrolledInfo == null && myPlansState.isLoading;
-    final dateRange = _PlanDateRange.tryCreate(plan);
+    final dateRange = PlanDateRange.tryCreate(
+      startDate: plan.startDate,
+      totalDays: plan.totalDays,
+    );
     final userPlan =
         isEnrolled ? _findUserPlan(myPlansState.plans, plan.id) : null;
     final canShowStatus =
@@ -330,10 +331,10 @@ class PlanListItem extends ConsumerWidget {
                       if (canShowStatus)
                         Padding(
                           padding: const EdgeInsets.only(left: 8),
-                          child: _EnrolledPlanStatusIndicator(
-                            plan: plan,
-                            userPlan: userPlan,
+                          child: EnrolledPlanStatusIndicator(
+                            planId: plan.id,
                             dateRange: dateRange,
+                            userJoinDate: userPlan.startedAt,
                           ),
                         ),
                     ],
@@ -350,13 +351,13 @@ class PlanListItem extends ConsumerWidget {
   /// Builds the left-side date display for the row.
   ///
   /// - Flexible plans without enrollment: keeps the existing "Start now" chip.
-  /// - Fixed-date plans whose range includes today: black filled pill, to
-  ///   match the active-plan highlight in the design.
-  /// - Otherwise (including past or future ranges): plain subtitle text.
+  /// - Fixed-date plans: delegates to the shared [PlanDateRangeLabel] which
+  ///   picks the active black pill or the muted text variant based on whether
+  ///   today falls inside the range.
   Widget _buildDateLine(
     BuildContext context, {
     required Plan plan,
-    required _PlanDateRange? dateRange,
+    required PlanDateRange? dateRange,
     required bool isEnrolled,
     required double? lineHeight,
   }) {
@@ -370,172 +371,7 @@ class PlanListItem extends ConsumerWidget {
       return const SizedBox.shrink();
     }
 
-    if (dateRange.isCurrent) {
-      return Align(
-        alignment: Alignment.centerLeft,
-        child: _ActiveDateRangeChip(label: dateRange.formatted),
-      );
-    }
-
-    return Text(
-      dateRange.formatted,
-      style: TextStyle(
-        fontSize: 13,
-        height: lineHeight,
-        color: Theme.of(
-          context,
-        ).colorScheme.onSurface.withValues(alpha: 0.65),
-      ),
-      maxLines: 1,
-      overflow: TextOverflow.ellipsis,
-    );
-  }
-}
-
-/// Black filled pill chip used to highlight the plan whose date range
-/// contains the user's current date (see [_PlanDateRange.isCurrent]).
-class _ActiveDateRangeChip extends StatelessWidget {
-  final String label;
-  const _ActiveDateRangeChip({required this.label});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-        color: Colors.black,
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Text(
-        label,
-        style: const TextStyle(
-          color: Colors.white,
-          fontSize: 13,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
-    );
-  }
-}
-
-/// Encapsulates a plan's `[startDate, endDate]` window and pre-formats the
-/// "MMM d - MMM d" label. Returns null for flexible (no start date) or
-/// non-positive-length plans, so callers can branch on a single null check.
-class _PlanDateRange {
-  final DateTime start;
-  final DateTime end;
-  final bool isCurrent;
-  final String formatted;
-
-  const _PlanDateRange({
-    required this.start,
-    required this.end,
-    required this.isCurrent,
-    required this.formatted,
-  });
-
-  static _PlanDateRange? tryCreate(Plan plan) {
-    final startDate = plan.startDate;
-    if (startDate == null) return null;
-    final totalDays = plan.totalDays;
-    if (totalDays <= 0) return null;
-
-    final start = DateUtils.dateOnly(startDate.toLocal());
-    final end = DateUtils.dateOnly(start.add(Duration(days: totalDays - 1)));
-    final today = DateUtils.dateOnly(DateTime.now());
-    final isCurrent =
-        !today.isBefore(start) && !today.isAfter(end);
-
-    final formatter = DateFormat('MMM dd');
-    final formatted = '${formatter.format(start)} - ${formatter.format(end)}';
-
-    return _PlanDateRange(
-      start: start,
-      end: end,
-      isCurrent: isCurrent,
-      formatted: formatted,
-    );
-  }
-}
-
-/// Right-side status indicator shown for an enrolled plan in the list:
-///
-/// - All days complete -> compact check icon.
-/// - Today within range, zero missed -> [OnTrackBadge].
-/// - Today within range with missed days OR range fully in the past with
-///   missed days -> [MissedDaysBadge] (self-hides when count is 0).
-/// - Future range (today before start) -> nothing.
-///
-/// Watches [userPlanDaysCompletionStatusProvider] per plan. Loading/error
-/// states render nothing so the row stays stable instead of flashing
-/// placeholders for what is decorative state.
-class _EnrolledPlanStatusIndicator extends ConsumerWidget {
-  final Plan plan;
-  final UserPlansModel userPlan;
-  final _PlanDateRange dateRange;
-
-  const _EnrolledPlanStatusIndicator({
-    required this.plan,
-    required this.userPlan,
-    required this.dateRange,
-  });
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final today = DateUtils.dateOnly(DateTime.now());
-    if (today.isBefore(dateRange.start)) return const SizedBox.shrink();
-
-    final asyncStatus = ref.watch(
-      userPlanDaysCompletionStatusProvider(plan.id),
-    );
-
-    return asyncStatus.when(
-      data: (either) => either.fold(
-        (_) => const SizedBox.shrink(),
-        (completion) => _resolveBadge(completion),
-      ),
-      loading: () => const SizedBox.shrink(),
-      error: (_, __) => const SizedBox.shrink(),
-    );
-  }
-
-  Widget _resolveBadge(Map<int, bool> completion) {
-    final totalDays = plan.totalDays;
-    final allCompleted = List<int>.generate(
-      totalDays,
-      (i) => i + 1,
-    ).every((d) => completion[d] == true);
-    if (allCompleted) return const _CompletedTickIcon();
-
-    final missed = PlanUtils.calculateMissedDays(
-      dateRange.start,
-      userPlan.startedAt,
-      totalDays,
-      completion,
-    );
-
-    if (dateRange.isCurrent && missed == 0) return const OnTrackBadge();
-
-    return MissedDaysBadge(
-      planStartDate: dateRange.start,
-      userJoinDate: userPlan.startedAt,
-      totalDays: totalDays,
-      completionStatus: completion,
-    );
-  }
-}
-
-/// Compact check icon shown when every day of an enrolled plan is complete.
-class _CompletedTickIcon extends StatelessWidget {
-  const _CompletedTickIcon();
-
-  @override
-  Widget build(BuildContext context) {
-    return Icon(
-      Icons.check,
-      size: 18,
-      color: Theme.of(context).colorScheme.onSurfaceVariant,
-    );
+    return PlanDateRangeLabel(dateRange: dateRange, lineHeight: lineHeight);
   }
 }
 

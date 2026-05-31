@@ -4,7 +4,6 @@ import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/core/widgets/cached_network_image_widget.dart';
 import 'package:flutter_pecha/features/practice/data/models/routine_model.dart';
-import 'package:flutter_pecha/features/practice/presentation/widgets/routine_item_chip.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 class RoutineItemCard extends StatelessWidget {
@@ -14,7 +13,13 @@ class RoutineItemCard extends StatelessWidget {
   final VoidCallback? onDelete;
   final int? reorderIndex;
   final RoutineItemType? type;
-  final String? startDateLabel;
+
+  /// Optional widget rendered below the title (e.g. a date-range label).
+  final Widget? subtitle;
+
+  /// Optional widget rendered on the right of the subtitle row (e.g. a
+  /// status indicator). Only visible when [subtitle] is also provided.
+  final Widget? trailing;
 
   const RoutineItemCard({
     super.key,
@@ -24,7 +29,8 @@ class RoutineItemCard extends StatelessWidget {
     this.onDelete,
     this.reorderIndex,
     this.type,
-    this.startDateLabel,
+    this.subtitle,
+    this.trailing,
   });
 
   @override
@@ -97,9 +103,19 @@ class RoutineItemCard extends StatelessWidget {
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  if (startDateLabel != null) ...[
+                  if (subtitle != null) ...[
                     const SizedBox(height: 8),
-                    RoutineItemChip(label: startDateLabel!),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Expanded(child: subtitle!),
+                        if (trailing != null)
+                          Padding(
+                            padding: const EdgeInsets.only(left: 8),
+                            child: trailing!,
+                          ),
+                      ],
+                    ),
                   ],
                 ],
               ),
