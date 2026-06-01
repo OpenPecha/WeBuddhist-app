@@ -192,7 +192,7 @@ class FeaturedPlanCard extends ConsumerWidget {
                         ),
                         child:
                             isEnrolling
-                                ? SizedBox(
+                                ? const SizedBox(
                                   height: 20,
                                   width: 20,
                                   child: CircularProgressIndicator(
@@ -503,26 +503,10 @@ bool _isPlanEnrolled(WidgetRef ref, String planId) {
   );
 }
 
-/// Returns the data needed to navigate to `/practice/details`. Requires the
-/// plan to be present in [myPlansPaginatedProvider] (the canonical source for
-/// `UserPlansModel`). If the plan is only known via the routine, this returns
-/// null and the caller should fall back to the preview screen.
+/// Returns the data needed to navigate to `/practice/details`.
+/// The plan must be present in [myPlansPaginatedProvider]; routine membership
+/// is not required (a user may be enrolled without adding the plan to a routine).
 _EnrolledPlanInfo? _getEnrolledInfo(WidgetRef ref, String planId) {
-  final routineData = ref.watch(userRoutineProvider).valueOrNull;
-  if (routineData == null) return null;
-
-  RoutineItem? routinePlanItem;
-  for (final block in routineData.blocks) {
-    for (final item in block.items) {
-      if (item.id == planId && item.type == RoutineItemType.plan) {
-        routinePlanItem = item;
-        break;
-      }
-    }
-    if (routinePlanItem != null) break;
-  }
-  if (routinePlanItem == null) return null;
-
   final myPlansState = ref.watch(myPlansPaginatedProvider);
   UserPlansModel? userPlan;
   for (final p in myPlansState.plans) {

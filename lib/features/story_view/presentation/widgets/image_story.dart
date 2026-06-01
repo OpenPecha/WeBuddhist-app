@@ -67,7 +67,7 @@ class _ImageStoryState extends State<ImageStory> {
                       WidgetsBinding.instance.addPostFrameCallback((_) {
                         widget.controller.play();
                       });
-                      return const Center(
+                      return Center(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
@@ -78,7 +78,9 @@ class _ImageStoryState extends State<ImageStory> {
                             ),
                             SizedBox(height: 16),
                             Text(
-                              AppLocalizations.of(context)!.story_image_load_error,
+                              AppLocalizations.of(
+                                context,
+                              )!.story_image_load_error,
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 16,
