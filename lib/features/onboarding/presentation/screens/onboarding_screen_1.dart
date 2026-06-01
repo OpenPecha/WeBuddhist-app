@@ -19,22 +19,25 @@ class OnboardingScreen1 extends StatelessWidget {
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 32.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const SizedBox(height: 60),
-              // Title: "Welcome to WeBuddhist"
-              _buildTitle(context),
-              const Spacer(),
-              // Center logo with concentric circles
-              _buildLogoSection(size),
-              const Spacer(),
-              // Quote text
-              _buildQuote(context),
-              const SizedBox(height: 32),
-              // CTA Button
-              _buildCTAButton(context),
-              const SizedBox(height: 24),
+          child: CustomScrollView(
+            slivers: [
+              SliverFillRemaining(
+                hasScrollBody: false,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    const SizedBox(height: 60),
+                    _buildTitle(context),
+                    const Spacer(),
+                    _buildLogoSection(size),
+                    const Spacer(),
+                    _buildQuote(context),
+                    const SizedBox(height: 32),
+                    _buildCTAButton(context),
+                    const SizedBox(height: 24),
+                  ],
+                ),
+              ),
             ],
           ),
         ),

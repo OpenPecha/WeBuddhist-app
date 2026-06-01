@@ -36,39 +36,36 @@ class OnboardingScreen3 extends ConsumerWidget {
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 24),
-              OnboardingBackButton(onBack: onBack),
-              const SizedBox(height: 40),
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      OnboardingQuestionTitle(
-                        title: appLocalizations!.onboarding_first_question,
+        child: CustomScrollView(
+          slivers: [
+            SliverFillRemaining(
+              hasScrollBody: false,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 32.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 24),
+                    OnboardingBackButton(onBack: onBack),
+                    const SizedBox(height: 40),
+                    OnboardingQuestionTitle(
+                      title: appLocalizations!.onboarding_first_question,
+                    ),
+                    const SizedBox(height: 50),
+                    _buildLanguageOptions(ref, selectedLanguage),
+                    const Spacer(),
+                    Center(
+                      child: OnboardingContinueButton(
+                        onPressed: () => _handleContinue(ref),
+                        isEnabled: selectedLanguage.isNotEmpty,
                       ),
-                      const SizedBox(height: 50),
-                      _buildLanguageOptions(ref, selectedLanguage),
-                      const Spacer(),
-                      Center(
-                        child: OnboardingContinueButton(
-                          onPressed: () => _handleContinue(ref),
-                          isEnabled: selectedLanguage.isNotEmpty,
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-                    ],
-                  ),
+                    ),
+                    const SizedBox(height: 24),
+                  ],
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

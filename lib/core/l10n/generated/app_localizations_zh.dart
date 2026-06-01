@@ -1018,7 +1018,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get routine_add_recitation => '添加持誦';
 
   @override
-  String get routine_add_plan_to_routine => '新增至常規';
+  String get routine_add_plan_to_routine => '新增至日常修持';
 
   @override
   String get routine_go_to_practice => '前往修持';

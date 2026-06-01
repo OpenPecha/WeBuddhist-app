@@ -55,39 +55,36 @@ class OnboardingScreen4 extends ConsumerWidget {
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 24),
-              OnboardingBackButton(onBack: onBack),
-              const SizedBox(height: 40),
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      OnboardingQuestionTitle(
-                        title: AppLocalizations.of(context)!.onboarding_traditions_question,
+        child: CustomScrollView(
+          slivers: [
+            SliverFillRemaining(
+              hasScrollBody: false,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 32.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 24),
+                    OnboardingBackButton(onBack: onBack),
+                    const SizedBox(height: 40),
+                    OnboardingQuestionTitle(
+                      title: AppLocalizations.of(context)!.onboarding_traditions_question,
+                    ),
+                    const SizedBox(height: 44),
+                    _buildPathOptions(context, ref, selectedPaths),
+                    const Spacer(),
+                    Center(
+                      child: OnboardingContinueButton(
+                        onPressed: () => _handleContinue(ref),
+                        isEnabled: selectedPaths.isNotEmpty,
                       ),
-                      const SizedBox(height: 44),
-                      _buildPathOptions(context, ref, selectedPaths),
-                      const Spacer(),
-                      Center(
-                        child: OnboardingContinueButton(
-                          onPressed: () => _handleContinue(ref),
-                          isEnabled: selectedPaths.isNotEmpty,
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-                    ],
-                  ),
+                    ),
+                    const SizedBox(height: 24),
+                  ],
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

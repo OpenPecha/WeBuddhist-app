@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
+import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/core/widgets/cached_network_image_widget.dart';
 import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
@@ -108,6 +109,13 @@ class FeaturedPlanCard extends ConsumerWidget {
                 ?.contains(seriesId!) ??
             false);
     final hideEnrollButton = isEnrolled || isSeriesEnrolled;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final enrollBackgroundColor =
+        isDark
+            ? AppColors.scaffoldBackgroundLight
+            : AppColors.scaffoldBackgroundDark;
+    final enrollForegroundColor =
+        isDark ? AppColors.textPrimary : AppColors.textPrimaryDark;
 
     return InkWell(
       onTap:
@@ -170,10 +178,12 @@ class FeaturedPlanCard extends ConsumerWidget {
                                 ? null
                                 : () => _onEnrollTap(context, ref),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.black,
-                          foregroundColor: Colors.white,
-                          disabledBackgroundColor: Colors.black26,
-                          disabledForegroundColor: Colors.white70,
+                          backgroundColor: enrollBackgroundColor,
+                          foregroundColor: enrollForegroundColor,
+                          disabledBackgroundColor: enrollBackgroundColor
+                              .withValues(alpha: 0.5),
+                          disabledForegroundColor: enrollForegroundColor
+                              .withValues(alpha: 0.5),
                           minimumSize: const Size.fromHeight(46),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
@@ -182,13 +192,13 @@ class FeaturedPlanCard extends ConsumerWidget {
                         ),
                         child:
                             isEnrolling
-                                ? const SizedBox(
+                                ? SizedBox(
                                   height: 20,
                                   width: 20,
                                   child: CircularProgressIndicator(
                                     strokeWidth: 2,
                                     valueColor: AlwaysStoppedAnimation<Color>(
-                                      Colors.white,
+                                      enrollForegroundColor,
                                     ),
                                   ),
                                 )

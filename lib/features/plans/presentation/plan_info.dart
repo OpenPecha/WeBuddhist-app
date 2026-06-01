@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
+import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/core/widgets/cached_network_image_widget.dart';
 import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
 import 'package:flutter_pecha/features/onboarding/presentation/providers/event_enrollment_providers.dart';
@@ -169,6 +170,16 @@ class _PlanInfoState extends ConsumerState<PlanInfo> {
     AppLocalizations localizations,
   ) {
     final isSubscribed = enrolledPlanIds.contains(widget.plan.id);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final enrollBackgroundColor =
+        isDark
+            ? AppColors.scaffoldBackgroundLight
+            : AppColors.scaffoldBackgroundDark;
+    final enrollForegroundColor =
+        isDark ? AppColors.textPrimary : AppColors.textPrimaryDark;
+    final subscribedBackgroundColor =
+        isDark ? AppColors.grey800 : Colors.grey;
+    final subscribedForegroundColor = AppColors.onPrimary;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -203,8 +214,20 @@ class _PlanInfoState extends ConsumerState<PlanInfo> {
                       }
                     },
             style: FilledButton.styleFrom(
-              backgroundColor: isSubscribed ? Colors.grey : Colors.black,
-              foregroundColor: Colors.white,
+              backgroundColor:
+                  isSubscribed
+                      ? subscribedBackgroundColor
+                      : enrollBackgroundColor,
+              foregroundColor:
+                  isSubscribed
+                      ? subscribedForegroundColor
+                      : enrollForegroundColor,
+              disabledBackgroundColor: enrollBackgroundColor.withValues(
+                alpha: 0.5,
+              ),
+              disabledForegroundColor: enrollForegroundColor.withValues(
+                alpha: 0.5,
+              ),
               padding: const EdgeInsets.symmetric(vertical: 16),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
@@ -212,16 +235,18 @@ class _PlanInfoState extends ConsumerState<PlanInfo> {
             ),
             child:
                 _isEnrolling
-                    ? const SizedBox(
+                    ? SizedBox(
                       height: 20,
                       width: 20,
                       child: CircularProgressIndicator(
                         strokeWidth: 2,
-                        color: Colors.white,
+                        color: enrollForegroundColor,
                       ),
                     )
                     : Text(
-                      isSubscribed ? localizations.plan_go_to_practice : localizations.plan_enroll,
+                      isSubscribed
+                          ? localizations.plan_go_to_practice
+                          : localizations.plan_enroll,
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
@@ -287,9 +312,9 @@ class _PlanInfoState extends ConsumerState<PlanInfo> {
       }
     } catch (e) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(localizations.enrollError)),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(localizations.enrollError)));
       }
     } finally {
       if (mounted) setState(() => _isEnrolling = false);
