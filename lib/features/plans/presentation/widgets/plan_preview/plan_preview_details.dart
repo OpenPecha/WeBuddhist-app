@@ -74,6 +74,19 @@ class _PlanPreviewDetailsState extends ConsumerState<PlanPreviewDetails> {
     );
   }
 
+  /// True when the plan has a fixed start date that is strictly after today's
+  /// local calendar date. The backend blocks enrolling in future-dated plans,
+  /// so the bottom "Add to Routine" button is hidden in that case to avoid a
+  /// guaranteed-failure tap and the downstream "Plan not found" snackbar in
+  /// the routine screen. Flexible plans (`startDate == null`) are unaffected.
+  bool _isFuturePlan() {
+    final startDate = widget.plan.startDate;
+    if (startDate == null) return false;
+    final today = DateUtils.dateOnly(DateTime.now());
+    final start = DateUtils.dateOnly(startDate.toLocal());
+    return start.isAfter(today);
+  }
+
   void _handleAddToRoutine() {
     final isGuest = ref.read(authProvider).isGuest;
     if (isGuest) {
@@ -89,6 +102,7 @@ class _PlanPreviewDetailsState extends ConsumerState<PlanPreviewDetails> {
     final authState = ref.watch(authProvider);
     final isGuest = authState.isGuest;
     final alreadyInRoutine = _isCurrentlyInRoutine();
+    final isFuturePlan = _isFuturePlan();
 
     return Scaffold(
       appBar: _buildAppBar(context, alreadyInRoutine),
@@ -106,7 +120,8 @@ class _PlanPreviewDetailsState extends ConsumerState<PlanPreviewDetails> {
               ),
             ),
           ),
-          if (!alreadyInRoutine) _buildBottomButton(context, isGuest),
+          if (!alreadyInRoutine && !isFuturePlan)
+            _buildBottomButton(context, isGuest),
         ],
       ),
     );

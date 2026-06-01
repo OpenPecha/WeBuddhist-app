@@ -21,10 +21,12 @@ class UserPlansRemoteDatasource {
     required String language,
     int? skip,
     int? limit,
+    String? seriesId,
   }) async {
     final queryParams = <String, dynamic>{'language': language};
     if (skip != null) queryParams['skip'] = skip;
     if (limit != null) queryParams['limit'] = limit;
+    if (seriesId != null) queryParams['series_id'] = seriesId;
 
     final response = await dio.get(
       '/users/me/plans',

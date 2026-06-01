@@ -1297,6 +1297,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get plan_enrolled => '已加入';
 
   @override
+  String get plan_status_on_track => '進度正常！';
+
+  @override
   String get start_now => '立即開始';
 
   @override

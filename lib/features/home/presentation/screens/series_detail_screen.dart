@@ -12,17 +12,15 @@ import 'package:go_router/go_router.dart';
 
 class SeriesDetailScreen extends ConsumerWidget {
   final String seriesId;
-  final Series? initialSeries;
+  final Series? series;
 
-  const SeriesDetailScreen({
-    super.key,
-    required this.seriesId,
-    this.initialSeries,
-  });
+  const SeriesDetailScreen({super.key, required this.seriesId, this.series});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    ref.watch(myPlansPaginatedProvider); // pre-warm so enrolled state is ready when list items render
+    ref.watch(
+      myPlansPaginatedProvider,
+    ); // pre-warm so enrolled state is ready when list items render
     final seriesAsync = ref.watch(seriesByIdProvider(seriesId));
     final localizations = AppLocalizations.of(context)!;
 
@@ -33,13 +31,10 @@ class SeriesDetailScreen extends ConsumerWidget {
           children: [
             _buildAppBar(
               context,
-              seriesAsync
-                  .whenOrNull(
-                    data:
-                        (either) =>
-                            either.fold((_) => null, (s) => s.title),
+              seriesAsync.whenOrNull(
+                    data: (either) => either.fold((_) => null, (s) => s.title),
                   ) ??
-                  initialSeries?.title ??
+                  series?.title ??
                   '',
             ),
             Expanded(
@@ -54,7 +49,10 @@ class SeriesDetailScreen extends ConsumerWidget {
                       if (series.plans.isEmpty) {
                         return _buildEmptyState(context, localizations, ref);
                       }
-                      return PlanListView(plans: series.plans);
+                      return PlanListView(
+                        plans: series.plans,
+                        seriesId: seriesId,
+                      );
                     },
                   );
                 },

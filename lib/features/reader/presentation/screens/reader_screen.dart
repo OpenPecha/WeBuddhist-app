@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/config/router/app_router.dart';
+import 'package:flutter_pecha/core/config/router/app_routes.dart';
 import 'package:flutter_pecha/features/plans/presentation/providers/plan_days_providers.dart';
 import 'package:flutter_pecha/features/plans/presentation/providers/user_plans_provider.dart';
 import 'package:flutter_pecha/features/reader/constants/reader_constants.dart';
@@ -20,6 +21,7 @@ import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/core/utils/get_language.dart';
 import 'package:flutter_pecha/features/texts/data/models/text_detail.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 /// Main reader screen - thin orchestrator that composes child widgets
 class ReaderScreen extends ConsumerStatefulWidget {
@@ -116,58 +118,36 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
     final textDetail = state.textDetail;
     // Loading state
     if (state.isLoading) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const CircularProgressIndicator(),
-            const SizedBox(height: 16),
-            Text(localizations.loading),
-          ],
-        ),
-      );
-    }
-
-    // Error state
-    if (state.isError) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
+      return _buildStatusView(
+        context,
+        child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(
-                Icons.error_outline,
-                size: 64,
-                color: Theme.of(context).colorScheme.error,
-              ),
+              const CircularProgressIndicator(),
               const SizedBox(height: 16),
-              Text(
-                localizations.no_content,
-                style: Theme.of(context).textTheme.titleMedium,
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 8),
-              Text(
-                state.errorMessage ?? localizations.something_went_wrong,
-                style: Theme.of(context).textTheme.bodySmall,
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 24),
-              ElevatedButton.icon(
-                onPressed: () => notifier.reload(),
-                icon: const Icon(Icons.refresh),
-                label: Text(localizations.retry),
-              ),
+              Text(localizations.loading),
             ],
           ),
         ),
       );
     }
 
-    // Content
-    if (state.textDetail == null) {
-      return const Center(child: CircularProgressIndicator());
+    // Error / empty content state — always reachable back navigation so the
+    // user is never trapped on a dead-end screen. Technical exception text is
+    // never surfaced; we show a friendly, localized message instead.
+    if (state.isError || state.textDetail == null) {
+      return _buildStatusView(
+        context,
+        child: _ReaderErrorView(
+          title: localizations.no_content,
+          message: localizations.noContentAvailable,
+          retryLabel: localizations.retry,
+          backLabel: localizations.back,
+          onRetry: () => notifier.reload(),
+          onBack: () => _navigateBack(context),
+        ),
+      );
     }
 
     return Stack(
@@ -269,6 +249,40 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
     );
   }
 
+  /// Wraps a status view (loading / error / empty) in a [SafeArea] with a
+  /// minimal app bar that always exposes a back button. This guarantees the
+  /// user can leave the screen even when content fails to load.
+  Widget _buildStatusView(BuildContext context, {required Widget child}) {
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+        child: Column(
+          children: [
+            Align(
+              alignment: Alignment.centerLeft,
+              child: IconButton(
+                icon: const Icon(Icons.arrow_back_ios),
+                tooltip: context.l10n.back,
+                onPressed: () => _navigateBack(context),
+              ),
+            ),
+            Expanded(child: child),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Pops back if possible, otherwise falls back to the home route so the user
+  /// is never stranded (e.g. when arriving via a deep link with no history).
+  void _navigateBack(BuildContext context) {
+    if (context.canPop()) {
+      context.pop();
+    } else {
+      context.go(AppRoutes.home);
+    }
+  }
+
   Future<void> _handleSearch(BuildContext context, ReaderState state) async {
     final notifier = ref.read(readerNotifierProvider(_params).notifier);
     final router = ref.read(appRouterProvider);
@@ -329,6 +343,72 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
       context,
       textId: widget.textId,
       initialPrimaryDisplay: initialPrimaryDisplay,
+    );
+  }
+}
+
+/// Friendly, centered error/empty state for the reader with retry and back
+/// actions. Intentionally hides raw exception details from the user.
+class _ReaderErrorView extends StatelessWidget {
+  final String title;
+  final String message;
+  final String retryLabel;
+  final String backLabel;
+  final VoidCallback onRetry;
+  final VoidCallback onBack;
+
+  const _ReaderErrorView({
+    required this.title,
+    required this.message,
+    required this.retryLabel,
+    required this.backLabel,
+    required this.onRetry,
+    required this.onBack,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Center(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.menu_book_outlined,
+              size: 64,
+              color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              title,
+              style: theme.textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton.icon(
+              onPressed: onRetry,
+              icon: const Icon(Icons.refresh),
+              label: Text(retryLabel),
+              style: ElevatedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 12,
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+            TextButton.icon(
+              onPressed: onBack,
+              icon: const Icon(Icons.arrow_back),
+              label: Text(backLabel),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

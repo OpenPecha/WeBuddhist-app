@@ -45,6 +45,9 @@ class ProtectedRoutes {
     '/routines/{routineId}/time-blocks/{timeBlockId}',
     '/users/me/routine',
 
+    // Series enrollment
+    '/users/me/series',
+
     // Plans (public endpoints but may need auth for user-specific data)
     '/plans/{planId}',
     '/plans/{planId}/days/{dayNumber}',

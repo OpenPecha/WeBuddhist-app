@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/features/reader/data/models/navigation_context.dart';
 
 /// Shared bottom navigation strip used by both `ReaderScreen` (for
@@ -155,11 +156,14 @@ class _TitleText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final fontSize = Theme.of(context).textTheme.titleMedium?.fontSize ?? 16;
+
     return Text(
       text,
       overflow: TextOverflow.ellipsis,
       maxLines: 1,
       textAlign: TextAlign.center,
+      strutStyle: context.tibetanStrutStyle(fontSize),
       style: Theme.of(context).textTheme.titleMedium?.copyWith(
             fontFamily: fontFamily,
             fontWeight: FontWeight.bold,

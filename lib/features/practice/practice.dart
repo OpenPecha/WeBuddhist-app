@@ -10,10 +10,14 @@ library;
 export 'domain/entities/routine.dart';
 export 'domain/entities/practice_session.dart';
 export 'domain/entities/practice_progress.dart';
+export 'domain/entities/practice_item.dart';
+export 'domain/entities/practice_items_page.dart';
+export 'domain/entities/practice_items_tab.dart';
 
 // Domain - Repositories
 export 'domain/repositories/practice_repository.dart';
 export 'domain/repositories/routine_api_repository.dart';
+export 'domain/repositories/practice_items_repository.dart';
 
 // Domain - Use Cases (local storage)
 export 'domain/usecases/get_routines_usecase.dart';
@@ -22,11 +26,13 @@ export 'domain/usecases/complete_practice_usecase.dart';
 
 // Domain - Use Cases (remote API)
 export 'domain/usecases/routine_api_usecases.dart';
+export 'domain/usecases/get_practice_items_usecase.dart';
 
 // Data - Models
 export 'data/models/routine_model.dart';
 export 'data/models/routine_api_models.dart';
 export 'data/models/session_selection.dart';
+export 'data/models/practice_item_model.dart';
 
 // Data - Services
 export 'package:flutter_pecha/features/notifications/data/services/routine_notification_service.dart';
@@ -37,12 +43,14 @@ export 'data/utils/routine_api_mapper.dart';
 
 // Data - Datasources
 export 'data/datasource/routine_local_storage.dart';
+export 'data/datasource/practice_items_remote_datasource.dart';
 
 // Presentation - Providers
 export 'presentation/providers/practice_providers.dart';
 export 'presentation/providers/use_case_providers.dart';
 export 'presentation/providers/routine_api_providers.dart';
 export 'presentation/providers/routine_provider.dart';
+export 'presentation/providers/practice_items_paginated_provider.dart';
 
 // Presentation - Screens
 export 'presentation/screens/practice_screen.dart';

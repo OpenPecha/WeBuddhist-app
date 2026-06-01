@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
 import 'package:flutter_pecha/core/error/failures.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
@@ -10,9 +11,17 @@ import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/features/notifications/data/services/notification_service.dart';
 import 'package:flutter_pecha/features/notifications/data/special_plan_notifications.dart';
+import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
+import 'package:flutter_pecha/features/auth/presentation/widgets/login_drawer.dart';
+import 'package:flutter_pecha/features/home/domain/entities/series.dart';
+import 'package:flutter_pecha/features/home/presentation/providers/series_enrollment_provider.dart';
+import 'package:flutter_pecha/features/plans/domain/usecases/user_plans_usecases.dart';
 import 'package:flutter_pecha/features/plans/plans.dart';
+import 'package:flutter_pecha/features/plans/presentation/providers/use_case_providers.dart'
+    show getUserPlansUseCaseProvider;
 import 'package:flutter_pecha/features/practice/data/models/routine_model.dart';
 import 'package:flutter_pecha/features/practice/data/models/session_selection.dart';
+import 'package:flutter_pecha/features/recitation/data/models/recitation_model.dart';
 import 'package:flutter_pecha/features/practice/data/utils/routine_api_mapper.dart';
 import 'package:flutter_pecha/features/practice/data/utils/routine_time_utils.dart';
 import 'package:flutter_pecha/features/practice/presentation/providers/practice_providers.dart';
@@ -48,7 +57,18 @@ class _EditableBlock {
 class EditRoutineScreen extends ConsumerStatefulWidget {
   final Plan? initialPlan;
 
-  const EditRoutineScreen({super.key, this.initialPlan});
+  /// When provided, after hydration the screen fetches all currently-active
+  /// plans from the given series and injects them into the routine, reusing
+  /// any existing empty block or creating a new one at the user's current
+  /// local time (with the standard 10-minute gap). Backend filters out future
+  /// plans by start date.
+  final String? enrollSeriesId;
+
+  const EditRoutineScreen({
+    super.key,
+    this.initialPlan,
+    this.enrollSeriesId,
+  });
 
   @override
   ConsumerState<EditRoutineScreen> createState() => _EditRoutineScreenState();
@@ -61,6 +81,9 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
   String? _apiRoutineId;
 
   bool _hydratedFromApi = false;
+
+  /// Guard so series-enrollment prefill runs exactly once after hydration.
+  bool _seriesEnrollmentHydrated = false;
 
   /// Sequential queue so API calls never overlap or race.
   Future<void> _opQueue = Future.value();
@@ -109,6 +132,43 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
     }
   }
 
+  /// Resolves where to place auto-injected items (plan deep-link or series
+  /// enrollment prefill). Prefers the earliest existing empty block, re-timed
+  /// to the user's current local time (with the standard 10-minute gap from
+  /// other blocks). Falls back to a brand-new block at the current local
+  /// time, and finally to `_blocks.first` if no valid slot is available.
+  ///
+  /// Mutates `block.time` and reorders `_blocks` (via `_sortBlocks`), so the
+  /// caller must wrap this in `setState` when called outside the build phase.
+  ({_EditableBlock target, bool isNewBlock}) _resolveInjectionTarget() {
+    _sortBlocks();
+
+    for (final block in _blocks) {
+      if (block.items.isEmpty) {
+        final otherTimes = _blocks
+            .where((b) => !identical(b, block))
+            .map((b) => b.time)
+            .toList();
+        final adjusted = adjustTimeForMinimumGap(TimeOfDay.now(), otherTimes);
+        if (adjusted != null) {
+          block.time = adjusted;
+        }
+        return (target: block, isNewBlock: false);
+      }
+    }
+
+    final allTimes = _blocks.map((b) => b.time).toList();
+    final adjusted = adjustTimeForMinimumGap(TimeOfDay.now(), allTimes);
+    if (adjusted == null) {
+      return (target: _blocks.first, isNewBlock: false);
+    }
+    final newBlock = _EditableBlock(
+      time: adjusted,
+      notificationEnabled: true,
+    );
+    return (target: newBlock, isNewBlock: true);
+  }
+
   void _injectInitialPlan(Plan plan) {
     final alreadyExists = _blocks.any(
       (b) => b.items.any(
@@ -125,28 +185,11 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
       enrolledAt: DateTime.now(),
     );
 
-    // If we have exactly one empty default block, add the plan there
-    if (_blocks.length == 1 && _blocks.first.items.isEmpty) {
-      _blocks.first.items.add(newItem);
-      return;
+    final resolved = _resolveInjectionTarget();
+    resolved.target.items.add(newItem);
+    if (resolved.isNewBlock) {
+      _blocks.add(resolved.target);
     }
-
-    // Otherwise create a new time block at the user's current local time
-    final otherTimes = _blocks.map((b) => b.time).toList();
-    final adjusted = adjustTimeForMinimumGap(TimeOfDay.now(), otherTimes);
-    if (adjusted == null) {
-      // Fallback: add to the first block if no time slot available
-      _blocks.first.items.add(newItem);
-      return;
-    }
-
-    _blocks.add(
-      _EditableBlock(
-        time: adjusted,
-        notificationEnabled: true,
-        items: [newItem],
-      ),
-    );
     _sortBlocks();
   }
 
@@ -162,6 +205,96 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
         break;
       }
     }
+  }
+
+  /// Fetches all currently active plans for the just-enrolled series and
+  /// injects them into the routine. Plans whose start date is in the future
+  /// are excluded by the backend (`GET /users/me/plans?series_id=`), so the
+  /// client just trusts the result. Plans already in the routine are skipped.
+  Future<void> _hydrateSeriesEnrollment(String seriesId) async {
+    final locale = ref.read(localeProvider);
+    final useCase = ref.read(getUserPlansUseCaseProvider);
+    final result = await useCase(
+      GetUserPlansParams(
+        language: locale.languageCode,
+        seriesId: seriesId,
+      ),
+    );
+
+    if (!mounted) return;
+
+    result.fold(
+      (failure) {
+        _logger.warning(
+          '[SERIES-ENROLL-PREFILL] failed to fetch series plans: '
+          '${failure.message}',
+        );
+        _showErrorSnackBar(failure.message);
+      },
+      (response) {
+        if (response.userPlans.isEmpty) {
+          _logger.info(
+            '[SERIES-ENROLL-PREFILL] no active plans returned for series '
+            '$seriesId',
+          );
+          return;
+        }
+        final injectedBlock = _injectSeriesUserPlans(response.userPlans);
+        if (injectedBlock != null) {
+          _syncBlock(injectedBlock).catchError((e) {
+            if (mounted) _showErrorSnackBar(_mapError(e));
+          });
+        }
+      },
+    );
+  }
+
+  /// Adds [plans] into the routine, reusing the earliest empty block (re-timed
+  /// to the user's current local time) or creating a new block at that time
+  /// with the standard 10-minute gap. Plans that already exist in any block
+  /// (by id + plan type) are skipped.
+  ///
+  /// Returns the affected block (to drive a follow-up server sync) or null
+  /// if every plan was already present.
+  _EditableBlock? _injectSeriesUserPlans(List<UserPlansModel> plans) {
+    final existingPlanIds = <String>{};
+    for (final b in _blocks) {
+      for (final item in b.items) {
+        if (item.type == RoutineItemType.plan) {
+          existingPlanIds.add(item.id);
+        }
+      }
+    }
+
+    final newItems = <RoutineItem>[];
+    for (final p in plans) {
+      if (existingPlanIds.contains(p.id)) continue;
+      newItems.add(
+        RoutineItem(
+          id: p.id,
+          title: p.title,
+          imageUrl: p.imageUrl,
+          type: RoutineItemType.plan,
+          enrolledAt: DateTime.now(),
+        ),
+      );
+      existingPlanIds.add(p.id);
+    }
+
+    if (newItems.isEmpty) return null;
+
+    late _EditableBlock target;
+    setState(() {
+      final resolved = _resolveInjectionTarget();
+      target = resolved.target;
+      if (resolved.isNewBlock) {
+        _blocks.add(target);
+      }
+      target.items.addAll(newItems);
+      _sortBlocks();
+    });
+
+    return target;
   }
 
   RoutineBlock _toRoutineBlock(_EditableBlock b) {
@@ -698,10 +831,7 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
     }
 
     final otherTimes = _blocks.map((b) => b.time).toList();
-    final adjusted = adjustTimeForMinimumGap(
-      const TimeOfDay(hour: 12, minute: 0),
-      otherTimes,
-    );
+    final adjusted = adjustTimeForMinimumGap(TimeOfDay.now(), otherTimes);
 
     if (adjusted == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -821,65 +951,140 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
         ),
       );
 
-      if (result != null && mounted) {
-        final (newItemId, newItemType) = switch (result) {
-          PlanSessionSelection(:final plan) => (plan.id, RoutineItemType.plan),
-          RecitationSessionSelection(:final recitation) => (
-            recitation.textId,
-            RoutineItemType.recitation,
-          ),
-        };
+      if (result == null || !mounted) return;
 
-        final isDuplicate = _blocks[blockIndex].items.any(
-          (item) => item.id == newItemId && item.type == newItemType,
-        );
-
-        if (isDuplicate) {
-          _logger.warning('Duplicate item prevented: $newItemId');
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(context.l10n.duplicateItem),
-                duration: const Duration(seconds: 2),
-              ),
-            );
-          }
-          return;
-        }
-
-        final RoutineItem newItem;
-        switch (result) {
-          case PlanSessionSelection(:final plan):
-            newItem = RoutineItem(
-              id: plan.id,
-              title: plan.title,
-              imageUrl: plan.coverImageUrl,
-              type: RoutineItemType.plan,
-              enrolledAt: DateTime.now(),
-            );
-          case RecitationSessionSelection(:final recitation):
-            newItem = RoutineItem(
-              id: recitation.textId,
-              title: recitation.title,
-              type: RoutineItemType.recitation,
-            );
-        }
-
-        final block = _blocks[blockIndex];
-        setState(() => block.items.add(newItem));
-
-        try {
-          await _syncBlock(block);
-        } catch (e) {
-          if (mounted) {
-            setState(() => block.items.remove(newItem));
-            _showErrorSnackBar(_mapError(e));
-          }
-        }
+      switch (result) {
+        case PlanSessionSelection(:final plan):
+          await _addPlanToBlock(blockIndex, plan);
+        case RecitationSessionSelection(:final recitation):
+          await _addRecitationToBlock(blockIndex, recitation);
+        case SeriesSessionSelection(:final series):
+          await _handleSeriesEnrollmentFromSelection(series);
       }
     } finally {
       _isSelectingSession = false;
     }
+  }
+
+  Future<void> _addPlanToBlock(int blockIndex, Plan plan) async {
+    final isDuplicate = _blocks[blockIndex].items.any(
+      (item) => item.id == plan.id && item.type == RoutineItemType.plan,
+    );
+    if (isDuplicate) {
+      _logger.warning('Duplicate item prevented: ${plan.id}');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(context.l10n.duplicateItem),
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
+      return;
+    }
+
+    final newItem = RoutineItem(
+      id: plan.id,
+      title: plan.title,
+      imageUrl: plan.coverImageUrl,
+      type: RoutineItemType.plan,
+      enrolledAt: DateTime.now(),
+    );
+    final block = _blocks[blockIndex];
+    setState(() => block.items.add(newItem));
+
+    try {
+      await _syncBlock(block);
+    } catch (e) {
+      if (mounted) {
+        setState(() => block.items.remove(newItem));
+        _showErrorSnackBar(_mapError(e));
+      }
+    }
+  }
+
+  Future<void> _addRecitationToBlock(
+    int blockIndex,
+    RecitationModel recitation,
+  ) async {
+    final isDuplicate = _blocks[blockIndex].items.any(
+      (item) =>
+          item.id == recitation.textId &&
+          item.type == RoutineItemType.recitation,
+    );
+    if (isDuplicate) {
+      _logger.warning('Duplicate item prevented: ${recitation.textId}');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(context.l10n.duplicateItem),
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
+      return;
+    }
+
+    final newItem = RoutineItem(
+      id: recitation.textId,
+      title: recitation.title,
+      type: RoutineItemType.recitation,
+    );
+    final block = _blocks[blockIndex];
+    setState(() => block.items.add(newItem));
+
+    try {
+      await _syncBlock(block);
+    } catch (e) {
+      if (mounted) {
+        setState(() => block.items.remove(newItem));
+        _showErrorSnackBar(_mapError(e));
+      }
+    }
+  }
+
+  /// Enrolls the user in [series], then routes to `edit-routine` with
+  /// `enrollSeriesId` so the existing one-time prefill handoff runs through
+  /// the same entrypoint as Home.
+  ///
+  /// Auth guard: guests get the login drawer instead of an enroll attempt.
+  /// Re-enrollment guard: if the user is somehow already enrolled (e.g. a
+  /// stale list slipped through `userSeriesEnrollmentsProvider`), skip the
+  /// POST and just rehydrate. `_isSelectingSession` already serializes taps
+  /// at the caller, so no extra in-flight flag is needed here.
+  Future<void> _handleSeriesEnrollmentFromSelection(Series series) async {
+    final auth = ref.read(authProvider);
+    if (auth.isGuest) {
+      if (mounted) LoginDrawer.show(context, ref);
+      return;
+    }
+
+    final seriesId = series.id;
+    final alreadyEnrolled = ref
+            .read(userSeriesEnrollmentsProvider)
+            .valueOrNull
+            ?.contains(seriesId) ??
+        false;
+
+    if (!alreadyEnrolled) {
+      final notifier = ref.read(seriesEnrollmentProvider(seriesId).notifier);
+      final ok = await notifier.enroll();
+      if (!mounted) return;
+
+      if (!ok) {
+        final state = ref.read(seriesEnrollmentProvider(seriesId));
+        final message = state is SeriesEnrollmentFailure
+            ? state.failure.message
+            : 'Failed to enroll in series';
+        _showErrorSnackBar(message);
+        return;
+      }
+    }
+
+    if (!mounted) return;
+    unawaited(
+      context.pushNamed('edit-routine', extra: {'enrollSeriesId': seriesId}),
+    );
   }
 
   // ─── Build ───
@@ -915,6 +1120,11 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
             });
             if (widget.initialPlan != null) {
               _syncInjectedPlan(widget.initialPlan!);
+            }
+            if (widget.enrollSeriesId != null &&
+                !_seriesEnrollmentHydrated) {
+              _seriesEnrollmentHydrated = true;
+              _hydrateSeriesEnrollment(widget.enrollSeriesId!);
             }
           });
           return _buildLoadingScaffold(localizations);

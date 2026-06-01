@@ -380,7 +380,8 @@ class NotificationService {
     }
 
     // Navigate to the practice tab — RoutineFilledState will push the detail screen.
-    _container!.read(mainNavigationIndexProvider.notifier).state = 2;
+    _container!.read(mainNavigationIndexProvider.notifier).state =
+        MainTab.practice.index;
     _router!.go('/home');
   }
 }

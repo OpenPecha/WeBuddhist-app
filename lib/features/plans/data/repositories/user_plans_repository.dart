@@ -18,15 +18,18 @@ class UserPlansRepository implements UserPlansRepositoryInterface {
     required String language,
     int? skip,
     int? limit,
+    String? seriesId,
   }) async {
     debugPrint('getUserPlans language:::::: $language');
     debugPrint('getUserPlans skip:::::: $skip');
     debugPrint('getUserPlans limit:::::: $limit');
+    debugPrint('getUserPlans seriesId:::::: $seriesId');
     try {
       final result = await userPlansRemoteDatasource.fetchUserPlans(
         language: language,
         skip: skip,
         limit: limit,
+        seriesId: seriesId,
       );
       debugPrint('getUserPlans result:::::: $result');
       return Right(result);

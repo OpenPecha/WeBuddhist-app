@@ -609,6 +609,7 @@
     }
   },
   "plan_enrolled": "Enrolled",
+  "plan_status_on_track": "On Track!",
   "start_now": "Start now",
   "plan_enroll": "Enroll",
   "plan_starts_on": "Starts {date}",
