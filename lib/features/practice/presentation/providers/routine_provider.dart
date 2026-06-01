@@ -1,3 +1,6 @@
+import 'package:flutter_pecha/core/analytics/analytics_events.dart';
+import 'package:flutter_pecha/core/analytics/analytics_providers.dart';
+import 'package:flutter_pecha/core/analytics/analytics_service.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/features/practice/data/datasource/routine_local_storage.dart';
 import 'package:flutter_pecha/features/practice/data/models/routine_model.dart';
@@ -14,21 +17,26 @@ final _logger = AppLogger('RoutineNotifier');
 final routineProvider = StateNotifierProvider<RoutineNotifier, RoutineData>((ref) {
   final localStorage = ref.watch(routineLocalStorageProvider);
   final notificationService = ref.watch(routineNotificationServiceProvider);
+  final analyticsService = ref.watch(analyticsServiceProvider);
   return RoutineNotifier(
     localStorage: localStorage,
     notificationService: notificationService,
+    analyticsService: analyticsService,
   );
 });
 
 class RoutineNotifier extends StateNotifier<RoutineData> {
   final RoutineLocalStorage _localStorage;
   final RoutineNotificationService _notificationService;
+  final AnalyticsService _analyticsService;
 
   RoutineNotifier({
     required RoutineLocalStorage localStorage,
     required RoutineNotificationService notificationService,
+    required AnalyticsService analyticsService,
   })  : _localStorage = localStorage,
         _notificationService = notificationService,
+        _analyticsService = analyticsService,
         super(const RoutineData()) {
     _loadRoutines();
   }
@@ -84,6 +92,18 @@ class RoutineNotifier extends StateNotifier<RoutineData> {
       if (mounted) {
         state = data;
       }
+
+      final int itemCount = data.blocks.fold<int>(
+        0,
+        (int sum, RoutineBlock block) => sum + block.items.length,
+      );
+      await _analyticsService.track(
+        AnalyticsEvents.routineSaved,
+        properties: {
+          AnalyticsProperties.blockCount: data.blocks.length,
+          AnalyticsProperties.itemCount: itemCount,
+        },
+      );
     } catch (e) {
       _logger.error('[ROUTINE-SAVE] local persist failed', e);
       rethrow;

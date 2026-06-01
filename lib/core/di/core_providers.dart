@@ -192,3 +192,4 @@ final aiDioProvider = Provider<Dio>((ref) {
 final cacheServiceProvider = Provider<CacheService>((ref) {
   return CacheService.instance;
 });
+
