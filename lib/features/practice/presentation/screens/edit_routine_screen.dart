@@ -98,7 +98,7 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
     super.initState();
     _blocks = [
       _EditableBlock(
-        time: const TimeOfDay(hour: 12, minute: 0),
+        time: TimeOfDay.now(),
         notificationEnabled: true,
       ),
     ];
@@ -125,7 +125,7 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
     } else {
       _blocks = [
         _EditableBlock(
-          time: const TimeOfDay(hour: 12, minute: 0),
+          time: TimeOfDay.now(),
           notificationEnabled: true,
         ),
       ];
