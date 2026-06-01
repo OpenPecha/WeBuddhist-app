@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
+import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/core/widgets/cached_network_image_widget.dart';
 import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
@@ -92,19 +93,29 @@ class FeaturedPlanCard extends ConsumerWidget {
         isEnrolled && enrolledInfo == null && myPlansState.isLoading;
     final hasDescription = plan.description.trim().isNotEmpty;
 
-    final enrollmentState = seriesId != null
-        ? ref.watch(seriesEnrollmentProvider(seriesId!))
-        : null;
+    final enrollmentState =
+        seriesId != null
+            ? ref.watch(seriesEnrollmentProvider(seriesId!))
+            : null;
     final isEnrolling = enrollmentState is SeriesEnrollmentLoading;
 
     // Series-level enrolled check: true when the current screen represents a
     // series and the user is already enrolled in it. Empty set for guests.
-    final isSeriesEnrolled = seriesId != null &&
-        (ref.watch(userSeriesEnrollmentsProvider).valueOrNull?.contains(
-              seriesId!,
-            ) ??
+    final isSeriesEnrolled =
+        seriesId != null &&
+        (ref
+                .watch(userSeriesEnrollmentsProvider)
+                .valueOrNull
+                ?.contains(seriesId!) ??
             false);
     final hideEnrollButton = isEnrolled || isSeriesEnrolled;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final enrollBackgroundColor =
+        isDark
+            ? AppColors.scaffoldBackgroundLight
+            : AppColors.scaffoldBackgroundDark;
+    final enrollForegroundColor =
+        isDark ? AppColors.textPrimary : AppColors.textPrimaryDark;
 
     return InkWell(
       onTap:
@@ -162,37 +173,41 @@ class FeaturedPlanCard extends ConsumerWidget {
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
-                        onPressed: (isEnrolledInfoPending || isEnrolling)
-                            ? null
-                            : () => _onEnrollTap(context, ref),
+                        onPressed:
+                            (isEnrolledInfoPending || isEnrolling)
+                                ? null
+                                : () => _onEnrollTap(context, ref),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.black,
-                          foregroundColor: Colors.white,
-                          disabledBackgroundColor: Colors.black26,
-                          disabledForegroundColor: Colors.white70,
+                          backgroundColor: enrollBackgroundColor,
+                          foregroundColor: enrollForegroundColor,
+                          disabledBackgroundColor: enrollBackgroundColor
+                              .withValues(alpha: 0.5),
+                          disabledForegroundColor: enrollForegroundColor
+                              .withValues(alpha: 0.5),
                           minimumSize: const Size.fromHeight(46),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
                           elevation: 0,
                         ),
-                        child: isEnrolling
-                            ? const SizedBox(
-                                height: 20,
-                                width: 20,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  valueColor: AlwaysStoppedAnimation<Color>(
-                                    Colors.white,
+                        child:
+                            isEnrolling
+                                ? SizedBox(
+                                  height: 20,
+                                  width: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                      enrollForegroundColor,
+                                    ),
+                                  ),
+                                )
+                                : Text(
+                                  context.l10n.plan_enroll,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.w600,
                                   ),
                                 ),
-                              )
-                            : Text(
-                                context.l10n.plan_enroll,
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
                       ),
                     ),
                   ],
@@ -228,7 +243,7 @@ class FeaturedPlanCard extends ConsumerWidget {
     // already enrolled. Honor that latest state rather than re-POSTing.
     final alreadyEnrolled =
         ref.read(userSeriesEnrollmentsProvider).valueOrNull?.contains(id) ??
-            false;
+        false;
     if (alreadyEnrolled) return;
 
     final notifier = ref.read(seriesEnrollmentProvider(id).notifier);
@@ -239,9 +254,10 @@ class FeaturedPlanCard extends ConsumerWidget {
       context.pushNamed('edit-routine', extra: {'enrollSeriesId': id});
     } else {
       final state = ref.read(seriesEnrollmentProvider(id));
-      final message = state is SeriesEnrollmentFailure
-          ? state.failure.message
-          : 'Failed to enroll in series';
+      final message =
+          state is SeriesEnrollmentFailure
+              ? state.failure.message
+              : 'Failed to enroll in series';
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(message), backgroundColor: Colors.red),
       );
@@ -272,8 +288,7 @@ class PlanListItem extends ConsumerWidget {
     );
     final userPlan =
         isEnrolled ? _findUserPlan(myPlansState.plans, plan.id) : null;
-    final canShowStatus =
-        isEnrolled && userPlan != null && dateRange != null;
+    final canShowStatus = isEnrolled && userPlan != null && dateRange != null;
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 12.0),
@@ -529,4 +544,3 @@ _EnrolledPlanInfo? _getEnrolledInfo(WidgetRef ref, String planId) {
     startDate: startDate,
   );
 }
-
