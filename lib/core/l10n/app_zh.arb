@@ -563,5 +563,12 @@
         "type": "String"
       }
     }
-  }
+  },
+  "reader_settings": "讀者偏好設定",
+  "show_second_version": "顯示第二種版本",
+  "enable_add_msg": "開啟以同時對讀主文的其他翻譯或音譯",
+  "main_text": "主文",
+  "second_version": "第二種版本",
+  "second_version_msg": "第二種翻譯版本會逐句出現在主文的下方",
+  "version": "版本"
 }
