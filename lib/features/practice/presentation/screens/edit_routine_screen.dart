@@ -925,17 +925,6 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
     }
   }
 
-  ({Set<String> planIds, Set<String> recitationIds}) _collectRoutineItemIds() {
-    final planIds = <String>{};
-    final recitationIds = <String>{};
-    for (final block in _blocks) {
-      for (final item in block.items) {
-        if (item.type == RoutineItemType.plan) planIds.add(item.id);
-      }
-    }
-    return (planIds: planIds, recitationIds: recitationIds);
-  }
-
   bool _isSelectingSession = false;
 
   Future<void> _navigateToSelectSession(int blockIndex) async {
@@ -943,12 +932,8 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
     _isSelectingSession = true;
 
     try {
-      final excluded = _collectRoutineItemIds();
       final result = await Navigator.of(context).push<SessionSelection>(
-        MaterialPageRoute(
-          builder:
-              (_) => SelectSessionScreen(excludedPlanIds: excluded.planIds),
-        ),
+        MaterialPageRoute(builder: (_) => const SelectSessionScreen()),
       );
 
       if (result == null || !mounted) return;
@@ -959,7 +944,7 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
         case RecitationSessionSelection(:final recitation):
           await _addRecitationToBlock(blockIndex, recitation);
         case SeriesSessionSelection(:final series):
-          await _handleSeriesEnrollmentFromSelection(series);
+          await _handleSeriesEnrollmentFromSelection(blockIndex, series);
       }
     } finally {
       _isSelectingSession = false;
@@ -1043,16 +1028,22 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
     }
   }
 
-  /// Enrolls the user in [series], then routes to `edit-routine` with
-  /// `enrollSeriesId` so the existing one-time prefill handoff runs through
-  /// the same entrypoint as Home.
+  /// Enrolls the user in [series] (if not already enrolled) and injects the
+  /// series' currently-active plans (started, not future — the backend excludes
+  /// future plans by start date) into the tapped [blockIndex].
+  ///
+  /// Per-timeblock rule: if that block already contains every active plan of
+  /// the series, nothing is added and the user sees a duplicate notice. The
+  /// same series can still be added to other blocks that are missing plans.
   ///
   /// Auth guard: guests get the login drawer instead of an enroll attempt.
-  /// Re-enrollment guard: if the user is somehow already enrolled (e.g. a
-  /// stale list slipped through `userSeriesEnrollmentsProvider`), skip the
-  /// POST and just rehydrate. `_isSelectingSession` already serializes taps
-  /// at the caller, so no extra in-flight flag is needed here.
-  Future<void> _handleSeriesEnrollmentFromSelection(Series series) async {
+  /// Re-enrollment guard: if the user is already enrolled, skip the POST and
+  /// go straight to injecting plans. `_isSelectingSession` already serializes
+  /// taps at the caller, so no extra in-flight flag is needed here.
+  Future<void> _handleSeriesEnrollmentFromSelection(
+    int blockIndex,
+    Series series,
+  ) async {
     final auth = ref.read(authProvider);
     if (auth.isGuest) {
       if (mounted) LoginDrawer.show(context, ref);
@@ -1081,10 +1072,74 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
       }
     }
 
-    if (!mounted) return;
-    unawaited(
-      context.pushNamed('edit-routine', extra: {'enrollSeriesId': seriesId}),
+    // Fetch the series' active plans (backend excludes future plans by start
+    // date) and inject the ones missing from the tapped block.
+    final locale = ref.read(localeProvider);
+    final result = await ref.read(getUserPlansUseCaseProvider)(
+      GetUserPlansParams(language: locale.languageCode, seriesId: seriesId),
     );
+    if (!mounted) return;
+
+    result.fold(
+      (failure) => _showErrorSnackBar(failure.message),
+      (response) => _injectSeriesPlansIntoBlock(blockIndex, response.userPlans),
+    );
+  }
+
+  /// Adds the series' active [plans] that are missing from the block at
+  /// [blockIndex]. If the block already holds all of them, shows a duplicate
+  /// notice and adds nothing (the series can still be added to other blocks).
+  Future<void> _injectSeriesPlansIntoBlock(
+    int blockIndex,
+    List<UserPlansModel> plans,
+  ) async {
+    if (plans.isEmpty) return;
+    if (blockIndex < 0 || blockIndex >= _blocks.length) return;
+    final block = _blocks[blockIndex];
+
+    final existingPlanIds = block.items
+        .where((i) => i.type == RoutineItemType.plan)
+        .map((i) => i.id)
+        .toSet();
+
+    final newItems = <RoutineItem>[];
+    for (final p in plans) {
+      if (existingPlanIds.contains(p.id)) continue;
+      newItems.add(
+        RoutineItem(
+          id: p.id,
+          title: p.title,
+          imageUrl: p.imageUrl,
+          type: RoutineItemType.plan,
+          enrolledAt: DateTime.now(),
+        ),
+      );
+    }
+
+    if (newItems.isEmpty) {
+      // Block already holds every active plan of the series → block re-add to
+      // THIS block. Mirrors the per-block duplicate guard used for plans.
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(context.l10n.duplicateItem),
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
+      return;
+    }
+
+    setState(() => block.items.addAll(newItems));
+
+    try {
+      await _syncBlock(block);
+    } catch (e) {
+      if (mounted) {
+        setState(() => block.items.removeWhere(newItems.contains));
+        _showErrorSnackBar(_mapError(e));
+      }
+    }
   }
 
   // ─── Build ───

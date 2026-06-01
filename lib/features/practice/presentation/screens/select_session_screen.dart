@@ -6,7 +6,6 @@ import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/core/widgets/cached_network_image_widget.dart';
 import 'package:flutter_pecha/core/widgets/error_state_widget.dart';
 import 'package:flutter_pecha/core/widgets/skeletons/skeletons.dart';
-import 'package:flutter_pecha/features/home/presentation/providers/series_enrollment_provider.dart';
 import 'package:flutter_pecha/features/practice/data/models/session_selection.dart';
 import 'package:flutter_pecha/features/practice/domain/entities/practice_item.dart';
 import 'package:flutter_pecha/features/practice/domain/entities/practice_items_tab.dart';
@@ -22,15 +21,13 @@ final _logger = AppLogger('SelectSessionScreen');
 /// (`EditRoutineScreen`) dispatches on.
 ///
 /// Plans/series come from `GET /practice/items` (page-based). Recitations
-/// remain on their own list endpoint. The plans tab filters out:
-///   - plan IDs already in the routine (`excludedPlanIds`)
-///   - series IDs the user is already enrolled in
-///     (`userSeriesEnrollmentsProvider`)
+/// remain on their own list endpoint. Every item is always shown — there is no
+/// list-level filtering. Per-timeblock duplicate rules (a plan can't be added
+/// twice to the same block; a series can't be added to a block that already
+/// holds all of its active plans) are enforced by the caller
+/// (`EditRoutineScreen`) when an item is selected.
 class SelectSessionScreen extends ConsumerStatefulWidget {
-  /// IDs of plans already in the routine (across all blocks).
-  final Set<String> excludedPlanIds;
-
-  const SelectSessionScreen({super.key, this.excludedPlanIds = const {}});
+  const SelectSessionScreen({super.key});
 
   @override
   ConsumerState<SelectSessionScreen> createState() =>
@@ -95,9 +92,6 @@ class _SelectSessionScreenState extends ConsumerState<SelectSessionScreen>
     _logger.debug('🎨 ===== BUILD STARTED =====');
     final localizations = AppLocalizations.of(context)!;
 
-    final allExcludedPlanIds = widget.excludedPlanIds;
-    _logger.debug('📊 Excluded Plan IDs: ${allExcludedPlanIds.length}');
-
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -136,7 +130,6 @@ class _SelectSessionScreenState extends ConsumerState<SelectSessionScreen>
           _PracticeItemsTab(
             tab: _practiceTab,
             scrollController: _plansScrollController,
-            excludedPlanIds: allExcludedPlanIds,
             enrollingItemId: _enrollingItemId,
             onItemSelected: _onPracticeItemSelected,
           ),
@@ -152,22 +145,18 @@ class _SelectSessionScreenState extends ConsumerState<SelectSessionScreen>
 
 /// Tab content for the practice picker (plans + series).
 ///
-/// Filtering rules:
-///   - plan rows whose id is in [excludedPlanIds] are dropped (already in
-///     the routine);
-///   - series rows whose id is in [userSeriesEnrollmentsProvider] are
-///     dropped (user is already enrolled — re-enrolling would be a no-op).
+/// No list-level filtering: every plan and series the API returns is shown.
+/// Whether an item can actually be added to the chosen timeblock is decided by
+/// the caller (`EditRoutineScreen`) on selection.
 class _PracticeItemsTab extends ConsumerWidget {
   final PracticeItemsTab tab;
   final ScrollController scrollController;
-  final Set<String> excludedPlanIds;
   final String? enrollingItemId;
   final void Function(PracticeItem item) onItemSelected;
 
   const _PracticeItemsTab({
     required this.tab,
     required this.scrollController,
-    required this.excludedPlanIds,
     required this.enrollingItemId,
     required this.onItemSelected,
   });
@@ -176,13 +165,6 @@ class _PracticeItemsTab extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final localizations = AppLocalizations.of(context)!;
     final itemsState = ref.watch(practiceItemsPaginatedProvider(tab));
-
-    // Defensive fallback: if the enrolled-series fetch is still loading or
-    // failed, hide nothing — matching the home enrollment flow's
-    // `valueOrNull ?? {}` semantics so the list stays usable.
-    final enrolledSeriesIds =
-        ref.watch(userSeriesEnrollmentsProvider).valueOrNull ??
-        const <String>{};
 
     _logger.debug(
       '📋 _PracticeItemsTab BUILD: ${itemsState.items.length} items, '
@@ -203,48 +185,9 @@ class _PracticeItemsTab extends ConsumerWidget {
       );
     }
 
-    final availableItems =
-        itemsState.items.where((item) {
-          switch (item) {
-            case PracticePlanItem(:final plan):
-              return !excludedPlanIds.contains(plan.id);
-            case PracticeSeriesItem(:final series):
-              return !enrolledSeriesIds.contains(series.id);
-          }
-        }).toList();
+    final items = itemsState.items;
 
-    _logger.debug(
-      '✅ Available practice items after filtering: ${availableItems.length}',
-    );
-
-    if (availableItems.isEmpty && !itemsState.isLoading) {
-      // Edge case: after filtering (already-in-routine plans + enrolled
-      // series), the current loaded pages may all be hidden while the API
-      // still has more pages that could contain visible items. Keep advancing
-      // pagination instead of showing a false empty-state.
-      if (itemsState.hasMore) {
-        if (itemsState.error != null) {
-          return ErrorStateWidget(
-            error: itemsState.error!,
-            onRetry:
-                () =>
-                    ref
-                        .read(practiceItemsPaginatedProvider(tab).notifier)
-                        .retry(),
-            customMessage: 'Unable to load more plans.\nPlease try again.',
-          );
-        }
-
-        if (!itemsState.isLoadingMore) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (!context.mounted) return;
-            ref.read(practiceItemsPaginatedProvider(tab).notifier).loadMore();
-          });
-        }
-
-        return const Center(child: CircularProgressIndicator());
-      }
-
+    if (items.isEmpty && !itemsState.isLoading) {
       return Center(
         child: Text(
           localizations.no_plans_found,
@@ -256,10 +199,10 @@ class _PracticeItemsTab extends ConsumerWidget {
     return ListView.separated(
       controller: scrollController,
       padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
-      itemCount: availableItems.length + (itemsState.hasMore ? 1 : 0),
+      itemCount: items.length + (itemsState.hasMore ? 1 : 0),
       separatorBuilder: (_, __) => const Divider(height: 1),
       itemBuilder: (context, index) {
-        if (index == availableItems.length) {
+        if (index == items.length) {
           return Padding(
             padding: const EdgeInsets.symmetric(vertical: 16.0),
             child: Center(
@@ -271,7 +214,7 @@ class _PracticeItemsTab extends ConsumerWidget {
           );
         }
 
-        final item = availableItems[index];
+        final item = items[index];
         return _buildItemTile(item);
       },
     );

@@ -49,7 +49,7 @@ class StoryLoadingOverlayState extends State<StoryLoadingOverlay>
         width: double.infinity,
         height: double.infinity,
         color: Colors.black,
-        child: const Center(
+        child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
