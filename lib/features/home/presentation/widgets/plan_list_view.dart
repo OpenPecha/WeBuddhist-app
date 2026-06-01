@@ -92,17 +92,20 @@ class FeaturedPlanCard extends ConsumerWidget {
         isEnrolled && enrolledInfo == null && myPlansState.isLoading;
     final hasDescription = plan.description.trim().isNotEmpty;
 
-    final enrollmentState = seriesId != null
-        ? ref.watch(seriesEnrollmentProvider(seriesId!))
-        : null;
+    final enrollmentState =
+        seriesId != null
+            ? ref.watch(seriesEnrollmentProvider(seriesId!))
+            : null;
     final isEnrolling = enrollmentState is SeriesEnrollmentLoading;
 
     // Series-level enrolled check: true when the current screen represents a
     // series and the user is already enrolled in it. Empty set for guests.
-    final isSeriesEnrolled = seriesId != null &&
-        (ref.watch(userSeriesEnrollmentsProvider).valueOrNull?.contains(
-              seriesId!,
-            ) ??
+    final isSeriesEnrolled =
+        seriesId != null &&
+        (ref
+                .watch(userSeriesEnrollmentsProvider)
+                .valueOrNull
+                ?.contains(seriesId!) ??
             false);
     final hideEnrollButton = isEnrolled || isSeriesEnrolled;
 
@@ -162,9 +165,10 @@ class FeaturedPlanCard extends ConsumerWidget {
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
-                        onPressed: (isEnrolledInfoPending || isEnrolling)
-                            ? null
-                            : () => _onEnrollTap(context, ref),
+                        onPressed:
+                            (isEnrolledInfoPending || isEnrolling)
+                                ? null
+                                : () => _onEnrollTap(context, ref),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.black,
                           foregroundColor: Colors.white,
@@ -176,23 +180,24 @@ class FeaturedPlanCard extends ConsumerWidget {
                           ),
                           elevation: 0,
                         ),
-                        child: isEnrolling
-                            ? const SizedBox(
-                                height: 20,
-                                width: 20,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  valueColor: AlwaysStoppedAnimation<Color>(
-                                    Colors.white,
+                        child:
+                            isEnrolling
+                                ? const SizedBox(
+                                  height: 20,
+                                  width: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                      Colors.white,
+                                    ),
+                                  ),
+                                )
+                                : Text(
+                                  context.l10n.plan_enroll,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.w600,
                                   ),
                                 ),
-                              )
-                            : Text(
-                                context.l10n.plan_enroll,
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
                       ),
                     ),
                   ],
@@ -228,7 +233,7 @@ class FeaturedPlanCard extends ConsumerWidget {
     // already enrolled. Honor that latest state rather than re-POSTing.
     final alreadyEnrolled =
         ref.read(userSeriesEnrollmentsProvider).valueOrNull?.contains(id) ??
-            false;
+        false;
     if (alreadyEnrolled) return;
 
     final notifier = ref.read(seriesEnrollmentProvider(id).notifier);
@@ -239,9 +244,10 @@ class FeaturedPlanCard extends ConsumerWidget {
       context.pushNamed('edit-routine', extra: {'enrollSeriesId': id});
     } else {
       final state = ref.read(seriesEnrollmentProvider(id));
-      final message = state is SeriesEnrollmentFailure
-          ? state.failure.message
-          : 'Failed to enroll in series';
+      final message =
+          state is SeriesEnrollmentFailure
+              ? state.failure.message
+              : 'Failed to enroll in series';
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(message), backgroundColor: Colors.red),
       );
@@ -272,8 +278,7 @@ class PlanListItem extends ConsumerWidget {
     );
     final userPlan =
         isEnrolled ? _findUserPlan(myPlansState.plans, plan.id) : null;
-    final canShowStatus =
-        isEnrolled && userPlan != null && dateRange != null;
+    final canShowStatus = isEnrolled && userPlan != null && dateRange != null;
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 12.0),
@@ -488,26 +493,10 @@ bool _isPlanEnrolled(WidgetRef ref, String planId) {
   );
 }
 
-/// Returns the data needed to navigate to `/practice/details`. Requires the
-/// plan to be present in [myPlansPaginatedProvider] (the canonical source for
-/// `UserPlansModel`). If the plan is only known via the routine, this returns
-/// null and the caller should fall back to the preview screen.
+/// Returns the data needed to navigate to `/practice/details`.
+/// The plan must be present in [myPlansPaginatedProvider]; routine membership
+/// is not required (a user may be enrolled without adding the plan to a routine).
 _EnrolledPlanInfo? _getEnrolledInfo(WidgetRef ref, String planId) {
-  final routineData = ref.watch(userRoutineProvider).valueOrNull;
-  if (routineData == null) return null;
-
-  RoutineItem? routinePlanItem;
-  for (final block in routineData.blocks) {
-    for (final item in block.items) {
-      if (item.id == planId && item.type == RoutineItemType.plan) {
-        routinePlanItem = item;
-        break;
-      }
-    }
-    if (routinePlanItem != null) break;
-  }
-  if (routinePlanItem == null) return null;
-
   final myPlansState = ref.watch(myPlansPaginatedProvider);
   UserPlansModel? userPlan;
   for (final p in myPlansState.plans) {
@@ -529,4 +518,3 @@ _EnrolledPlanInfo? _getEnrolledInfo(WidgetRef ref, String planId) {
     startDate: startDate,
   );
 }
-
