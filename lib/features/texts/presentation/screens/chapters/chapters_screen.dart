@@ -349,7 +349,7 @@ class _ChaptersScreenState extends ConsumerState<ChaptersScreen> {
               ),
               const SizedBox(height: 8),
               Text(
-                infiniteQuery.error?.toString() ?? 'Unknown error',
+                infiniteQuery.error?.toString() ?? localizations.unknown_error,
                 style: Theme.of(context).textTheme.bodySmall,
                 textAlign: TextAlign.center,
               ),

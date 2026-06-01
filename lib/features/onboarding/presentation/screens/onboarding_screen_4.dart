@@ -19,16 +19,30 @@ class OnboardingScreen4 extends ConsumerWidget {
   final VoidCallback onNext;
   final VoidCallback onBack;
 
-  static const List<_PathOption> _paths = [
-    _PathOption(id: BuddhistPath.theravada, label: 'Theravada'),
-    _PathOption(id: BuddhistPath.zen, label: 'Zen'),
-    _PathOption(id: BuddhistPath.tibetanBuddhism, label: 'Tibetan Buddhism'),
-    _PathOption(id: BuddhistPath.pureLand, label: 'Pure Land'),
-    _PathOption(id: BuddhistPath.ambedkarBuddhism, label: 'Ambedkar Buddhism'),
+  static const List<String> _allPathIds = [
+    BuddhistPath.theravada,
+    BuddhistPath.zen,
+    BuddhistPath.tibetanBuddhism,
+    BuddhistPath.pureLand,
+    BuddhistPath.ambedkarBuddhism,
   ];
 
-  static final List<String> _allPathIds =
-      _paths.map((p) => p.id).toList();
+  String _pathLabel(AppLocalizations l10n, String id) {
+    switch (id) {
+      case BuddhistPath.theravada:
+        return l10n.tradition_theravada;
+      case BuddhistPath.zen:
+        return l10n.tradition_zen;
+      case BuddhistPath.tibetanBuddhism:
+        return l10n.tradition_tibetan_buddhism;
+      case BuddhistPath.pureLand:
+        return l10n.tradition_pure_land;
+      case BuddhistPath.ambedkarBuddhism:
+        return l10n.tradition_ambedkar_buddhism;
+      default:
+        return id;
+    }
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -55,8 +69,8 @@ class OnboardingScreen4 extends ConsumerWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const OnboardingQuestionTitle(
-                        title: 'Which traditions\ndo you follow?',
+                      OnboardingQuestionTitle(
+                        title: AppLocalizations.of(context)!.onboarding_traditions_question,
                       ),
                       const SizedBox(height: 44),
                       _buildPathOptions(context, ref, selectedPaths),
@@ -103,19 +117,19 @@ class OnboardingScreen4 extends ConsumerWidget {
           const SizedBox(height: 16),
           OnboardingCheckboxOption(
             id: 'select_all',
-            label: 'Select all',
+            label: l10n.onboarding_select_all,
             isSelected: allSelected,
             isEnabled: true,
             onTap: () => _toggleSelectAll(ref, selectedPaths, allSelected),
           ),
-          ..._paths.map((path) {
-            final isSelected = selectedPaths.contains(path.id);
+          ..._allPathIds.map((pathId) {
+            final isSelected = selectedPaths.contains(pathId);
             return OnboardingCheckboxOption(
-              id: path.id,
-              label: path.label,
+              id: pathId,
+              label: _pathLabel(l10n, pathId),
               isSelected: isSelected,
               isEnabled: true,
-              onTap: () => _togglePath(ref, path.id, selectedPaths),
+              onTap: () => _togglePath(ref, pathId, selectedPaths),
             );
           }),
         ],
@@ -151,9 +165,3 @@ class OnboardingScreen4 extends ConsumerWidget {
   }
 }
 
-class _PathOption {
-  const _PathOption({required this.id, required this.label});
-
-  final String id;
-  final String label;
-}

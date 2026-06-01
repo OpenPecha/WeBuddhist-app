@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_pecha/core/widgets/error_state_widget.dart';
 import 'package:flutter_pecha/features/texts/data/models/text/reader_response.dart';
@@ -81,10 +82,10 @@ class TextSearchDelegate extends SearchDelegate<String?> {
     if (query.isEmpty) {
       return Container(
         color: Theme.of(context).scaffoldBackgroundColor,
-        child: const Center(
+        child: Center(
           child: Text(
-            'Type to search',
-            style: TextStyle(fontSize: 16, color: Colors.grey),
+            AppLocalizations.of(context)!.text_search_hint,
+            style: const TextStyle(fontSize: 16, color: Colors.grey),
           ),
         ),
       );
@@ -94,10 +95,10 @@ class TextSearchDelegate extends SearchDelegate<String?> {
     if (!_hasSubmitted || _submittedQuery.isEmpty) {
       return Container(
         color: Theme.of(context).scaffoldBackgroundColor,
-        child: const Center(
+        child: Center(
           child: Text(
-            "Press search button to search",
-            style: TextStyle(fontSize: 16, color: Colors.grey),
+            AppLocalizations.of(context)!.text_search_press_button,
+            style: const TextStyle(fontSize: 16, color: Colors.grey),
           ),
         ),
       );
@@ -120,21 +121,21 @@ class TextSearchDelegate extends SearchDelegate<String?> {
           error: (error, stackTrace) {
             return ErrorStateWidget(
               error: error,
-              customMessage: 'Unable to perform search.\nPlease try again.',
+              customMessage: AppLocalizations.of(context)!.text_search_error,
             );
           },
           data: (eitherResponse) {
             return eitherResponse.fold(
               (failure) => ErrorStateWidget(
                 error: failure,
-                customMessage: 'Unable to perform search.\nPlease try again.',
+                customMessage: AppLocalizations.of(context)!.text_search_error,
               ),
               (searchResponse) {
                 if (searchResponse.sources == null ||
                     searchResponse.sources!.isEmpty) {
                   return Center(
                     child: Text(
-                      'No results found for "$_submittedQuery"',
+                      AppLocalizations.of(context)!.search_no_results(_submittedQuery),
                       style: const TextStyle(fontSize: 16),
                     ),
                   );
@@ -149,7 +150,7 @@ class TextSearchDelegate extends SearchDelegate<String?> {
                 if (allSegmentMatches.isEmpty) {
                   return Center(
                     child: Text(
-                      'No results found for "$_submittedQuery"',
+                      AppLocalizations.of(context)!.search_no_results(_submittedQuery),
                       style: const TextStyle(fontSize: 16),
                     ),
                   );

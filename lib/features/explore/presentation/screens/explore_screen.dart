@@ -35,7 +35,7 @@ class ExploreScreen extends StatelessWidget {
               ),
               const SizedBox(height: 6),
               Text(
-                'A curated space to discover practices, teachings, and community events.',
+                l10n.explore_coming_soon_subtitle,
                 textAlign: TextAlign.center,
               ),
             ],

@@ -111,7 +111,7 @@ class _CreateImageState extends State<CreateImage> {
     try {
       final imageBytes = await _screenshotController.capture();
       if (imageBytes == null) {
-        _showErrorSnackBar('Failed to capture image. Please try again.');
+        _showErrorSnackBar(AppLocalizations.of(context)!.create_image_capture_error);
         return;
       }
 
@@ -123,7 +123,7 @@ class _CreateImageState extends State<CreateImage> {
       }
     } catch (e) {
       if (mounted) {
-        _showErrorSnackBar('Failed to capture image. Please try again.');
+        _showErrorSnackBar(AppLocalizations.of(context)!.create_image_capture_error);
       }
     } finally {
       if (mounted) {
@@ -163,7 +163,7 @@ class _CreateImageState extends State<CreateImage> {
       );
     } catch (e) {
       if (mounted) {
-        _showErrorSnackBar('Unable to share. Please try again later.');
+        _showErrorSnackBar(AppLocalizations.of(context)!.create_image_share_error);
       }
     } finally {
       // Clean up temp file
@@ -199,15 +199,15 @@ class _CreateImageState extends State<CreateImage> {
 
       if (mounted) {
         if (result['isSuccess'] == true) {
-          _showSuccessSnackBar('Image saved to gallery');
+          _showSuccessSnackBar(AppLocalizations.of(context)!.create_image_save_success);
         } else {
-          _showErrorSnackBar('Unable to save image. Please try again later.');
+          _showErrorSnackBar(AppLocalizations.of(context)!.create_image_save_error);
         }
       }
     } catch (e) {
       _logger.error('Error downloading image', e);
       if (mounted) {
-        _showErrorSnackBar('Unable to download image. Please try again later.');
+        _showErrorSnackBar(AppLocalizations.of(context)!.create_image_download_error);
       }
     } finally {
       if (mounted) {
@@ -362,7 +362,7 @@ class _CreateImageState extends State<CreateImage> {
             IconButton(
               icon: const Icon(Icons.palette_outlined),
               onPressed: _showCustomizationSheet,
-              tooltip: 'Customize',
+              tooltip: AppLocalizations.of(context)!.create_image_customize_tooltip,
             ),
             // Save button
             ElevatedButton(
@@ -629,7 +629,7 @@ class _CustomizationSheetState extends State<_CustomizationSheet> {
                   Padding(
                     padding: const EdgeInsets.only(top: 4),
                     child: Text(
-                      'Text is too long to increase font size',
+                      AppLocalizations.of(context)!.create_image_text_too_long,
                       style: TextStyle(
                         fontSize: 12,
                         color: Colors.orange[700],

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 
 /// Search button for the reader app bar
 class ReaderSearchButton extends StatelessWidget {
@@ -14,7 +15,7 @@ class ReaderSearchButton extends StatelessWidget {
     return IconButton(
       onPressed: onPressed,
       icon: const Icon(Icons.search),
-      tooltip: 'Search',
+      tooltip: AppLocalizations.of(context)!.text_search,
     );
   }
 }

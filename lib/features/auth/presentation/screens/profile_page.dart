@@ -40,7 +40,7 @@ class ProfilePage extends ConsumerWidget {
     final pictureUrl = user.avatarUrl;
     final fullName = user.fullName;
     final email = user.email ?? '';
-    final bio = user.aboutMe ?? "Welcome to WeBuddhist";
+    final bio = user.aboutMe ?? l10n.profile_default_bio;
 
     return Scaffold(
       appBar: AppBar(title: Text(l10n.profileTitle)),
@@ -148,7 +148,7 @@ class ProfilePage extends ConsumerWidget {
             const SizedBox(height: 16),
             // Guest Title
             Text(
-              'Guest User',
+              l10n.profile_guest_title,
               style: Theme.of(
                 context,
               ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
@@ -156,7 +156,7 @@ class ProfilePage extends ConsumerWidget {
             const SizedBox(height: 8),
             // Guest Description
             Text(
-              'You\'re browsing as a guest',
+              l10n.profile_guest_subtitle,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
               ),
@@ -190,7 +190,7 @@ class ProfilePage extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Sign in to unlock:',
+                      l10n.profile_guest_benefits_header,
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                         color: Theme.of(context).textTheme.titleMedium?.color,
@@ -200,19 +200,19 @@ class ProfilePage extends ConsumerWidget {
                     _buildBenefitItem(
                       context,
                       Icons.bookmark,
-                      'Save your progress',
+                      l10n.profile_guest_benefit_save_progress,
                       isDarkMode,
                     ),
                     _buildBenefitItem(
                       context,
                       Icons.favorite,
-                      'Personalized content',
+                      l10n.profile_guest_benefit_personalized,
                       isDarkMode,
                     ),
                     _buildBenefitItem(
                       context,
                       Icons.notifications,
-                      'Custom notifications',
+                      l10n.profile_guest_benefit_notifications,
                       isDarkMode,
                     ),
                   ],

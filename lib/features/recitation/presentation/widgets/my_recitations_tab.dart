@@ -52,7 +52,7 @@ class _MyRecitationsTabState extends ConsumerState<MyRecitationsTab> {
         return recitationsEither.fold(
           (failure) => ErrorStateWidget(
             error: failure,
-            customMessage: 'Unable to load your saved recitations.\nPlease try again later.',
+            customMessage: localizations.my_recitations_load_error,
           ),
           (recitations) => _buildDataView(context, recitations),
         );
@@ -68,7 +68,7 @@ class _MyRecitationsTabState extends ConsumerState<MyRecitationsTab> {
           (error, stack) => ErrorStateWidget(
             error: error,
             customMessage:
-                'Unable to load your saved recitations.\nPlease try again later.',
+                localizations.my_recitations_load_error,
           ),
     );
   }

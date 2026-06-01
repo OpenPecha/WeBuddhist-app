@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/utils/get_language.dart';
 import 'package:flutter_pecha/features/reader/data/models/reader_language_option.dart';
 import 'package:flutter_pecha/features/reader/presentation/providers/reader_settings_providers.dart';
@@ -12,31 +13,32 @@ class LanguagePickerSheet extends ConsumerWidget {
     required this.textId,
     required this.selectedCode,
     required this.onSelected,
-    this.title = 'Language',
+    this.title,
   });
 
   final String textId;
   final String selectedCode;
   final ValueChanged<ReaderLanguageOption> onSelected;
-  final String title;
+  final String? title;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     final asyncLangs = ref.watch(readerLanguagesProvider(textId));
 
     return PickerSheetScaffold(
-      title: title,
+      title: title ?? l10n.language,
       child: asyncLangs.when(
         loading: () => const PickerLoading(),
         error: (err, _) => PickerError(
-          message: 'Failed to load languages.',
+          message: l10n.reader_languages_load_error,
           onRetry: () => ref.invalidate(readerLanguagesProvider(textId)),
         ),
         data: (langs) {
           if (langs.isEmpty) {
-            return const PickerEmpty(
-              message: 'No languages available for this text yet.',
+            return PickerEmpty(
+              message: l10n.reader_no_languages,
             );
           }
           return ListView.separated(
@@ -128,7 +130,7 @@ Future<void> showLanguagePickerSheet(
   required String textId,
   required String selectedCode,
   required ValueChanged<ReaderLanguageOption> onSelected,
-  String title = 'Language',
+  String? title,
 }) {
   return showModalBottomSheet(
     context: context,

@@ -351,7 +351,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         padding: const EdgeInsets.all(32.0),
                         child: Center(
                           child: Text(
-                            'No series found',
+                            localizations.home_no_series_found,
                             style: TextStyle(
                               fontSize: fontSize,
                               height: lineHeight,

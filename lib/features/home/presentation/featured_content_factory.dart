@@ -73,13 +73,13 @@ class FeaturedContentFactory {
                   ? _buildNextCardData(
                     planItem: nextPlanItem,
                     heading: localizations.home_scripture,
-                    subtitle: HomeScreenConstants.defaultDuration,
+                    subtitle: localizations.home_default_duration,
                     nextNextCard:
                         index + 2 < allPlanItems.length
                             ? _buildNextCardData(
                               planItem: allPlanItems[index + 2],
                               heading: localizations.home_meditation,
-                              subtitle: HomeScreenConstants.defaultDuration,
+                              subtitle: localizations.home_default_duration,
                             )
                             : null,
                   )
@@ -100,7 +100,7 @@ class FeaturedContentFactory {
       children: [
         ActionOfTheDayCard(
           title: planItem.title,
-          duration: HomeScreenConstants.defaultDuration,
+          duration: localizations.home_default_duration,
           iconWidget: getVideoThumbnail(planItem.subtasks[0].content),
           onTap:
               () => showStoryDialog(
@@ -111,7 +111,7 @@ class FeaturedContentFactory {
                         ? _buildNextCardData(
                           planItem: nextPlanItem,
                           heading: localizations.home_meditation,
-                          subtitle: HomeScreenConstants.defaultDuration,
+                          subtitle: localizations.home_default_duration,
                         )
                         : null,
               ),
@@ -130,7 +130,7 @@ class FeaturedContentFactory {
       children: [
         ActionOfTheDayCard(
           title: planItem.title,
-          duration: HomeScreenConstants.defaultDuration,
+          duration: localizations.home_default_duration,
           iconWidget: getVideoThumbnail(planItem.subtasks[0].content),
           onTap:
               () => showStoryDialog(

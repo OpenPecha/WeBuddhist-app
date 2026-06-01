@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/widgets/error_state_widget.dart';
 import 'package:flutter_pecha/features/texts/presentation/providers/collections_providers.dart';
 import 'package:flutter_pecha/features/texts/data/models/collections/collections.dart';
@@ -75,7 +76,7 @@ class CategoryScreen extends ConsumerWidget {
         loading: () => const Center(child: CircularProgressIndicator()),
         error:
             (error, stackTrace) =>
-                const Center(child: Text('Failed to load collections')),
+                Center(child: Text(AppLocalizations.of(context)!.failed_load_collections)),
       ),
     );
   }

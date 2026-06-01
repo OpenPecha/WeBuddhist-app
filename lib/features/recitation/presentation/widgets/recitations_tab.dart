@@ -24,7 +24,7 @@ class RecitationsTab extends ConsumerWidget {
         return recitationsEither.fold(
           (failure) => ErrorStateWidget(
             error: failure,
-            customMessage: 'Unable to load recitations.\nPlease try again later.',
+            customMessage: localizations.recitations_load_error,
           ),
           (recitations) {
             if (recitations.isEmpty) {
@@ -39,7 +39,7 @@ class RecitationsTab extends ConsumerWidget {
           (error, stack) => ErrorStateWidget(
             error: error,
             customMessage:
-                'Unable to load recitations.\nPlease try again later.',
+                localizations.recitations_load_error,
           ),
     );
   }
