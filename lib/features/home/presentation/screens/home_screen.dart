@@ -254,6 +254,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             Column(
               children: [
                 _buildSearchSection(l10n, seriesAsync),
+                SizedBox(height: HomeScreenConstants.bodyVerticalPadding),
                 _buildBody(context, l10n),
               ],
             ),
@@ -279,6 +280,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 
+  TextStyle _searchHintTextStyle(BuildContext context) {
+    final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    return TextStyle(
+      fontSize: 16,
+      color: isDarkMode ? AppColors.textTertiaryDark : AppColors.textSecondary,
+    );
+  }
+
   Widget _buildSearchSection(
     AppLocalizations localizations,
     AsyncValue<Either<Failure, List<Series>>> seriesAsync,
@@ -286,9 +295,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final locale = ref.watch(localeProvider);
     final lineHeight = getLineHeight(locale.languageCode);
     final fontSize = locale.languageCode == 'bo' ? 18.0 : 16.0;
+    final TextStyle searchHintStyle = _searchHintTextStyle(context);
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
       child: seriesAsync.when(
         data: (seriesEither) {
           return seriesEither.fold(
@@ -305,8 +315,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 builder: (BuildContext context, SearchController controller) {
                   return SearchBar(
                     controller: controller,
+                    constraints: HomeScreenConstants.searchBarConstraints,
                     padding: const WidgetStatePropertyAll<EdgeInsets>(
-                      EdgeInsets.symmetric(horizontal: 16.0),
+                      EdgeInsets.symmetric(
+                        horizontal:
+                            HomeScreenConstants.searchBarHorizontalPadding,
+                      ),
                     ),
                     elevation: const WidgetStatePropertyAll(0.0),
                     shadowColor: const WidgetStatePropertyAll(
@@ -323,12 +337,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
                     hintText: localizations.text_search,
-                    hintStyle: WidgetStatePropertyAll(
-                      TextStyle(
-                        fontSize: 16,
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
-                    ),
+                    hintStyle: WidgetStatePropertyAll(searchHintStyle),
                   );
                 },
                 viewLeading: IconButton(
@@ -408,8 +417,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         },
         loading:
             () => SearchBar(
+              constraints: HomeScreenConstants.searchBarConstraints,
               padding: const WidgetStatePropertyAll<EdgeInsets>(
-                EdgeInsets.symmetric(horizontal: 16.0),
+                EdgeInsets.symmetric(
+                  horizontal: HomeScreenConstants.searchBarHorizontalPadding,
+                ),
               ),
               enabled: false,
               elevation: const WidgetStatePropertyAll(0.0),
@@ -418,14 +430,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
               hintText: localizations.text_search,
-              hintStyle: WidgetStatePropertyAll(
-                TextStyle(fontSize: 16, color: AppColors.textPrimaryLight),
-              ),
+              hintStyle: WidgetStatePropertyAll(searchHintStyle),
             ),
         error:
             (_, __) => SearchBar(
+              constraints: HomeScreenConstants.searchBarConstraints,
               padding: const WidgetStatePropertyAll<EdgeInsets>(
-                EdgeInsets.symmetric(horizontal: 16.0),
+                EdgeInsets.symmetric(
+                  horizontal: HomeScreenConstants.searchBarHorizontalPadding,
+                ),
               ),
               enabled: false,
               leading: Icon(
@@ -433,12 +446,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
               hintText: localizations.text_search,
-              hintStyle: WidgetStatePropertyAll(
-                TextStyle(
-                  fontSize: 16,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
-              ),
+              hintStyle: WidgetStatePropertyAll(searchHintStyle),
             ),
       ),
     );
