@@ -1327,7 +1327,7 @@ abstract class AppLocalizations {
   /// No description provided for @version.
   ///
   /// In en, this message translates to:
-  /// **'Version'**
+  /// **'Versions'**
   String get version;
 
   /// No description provided for @reader_settings_tooltip.
@@ -2565,6 +2565,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Starts {date}'**
   String plan_starts_on(String date);
+
+  /// No description provided for @reader_settings.
+  ///
+  /// In en, this message translates to:
+  /// **'Reader Settings'**
+  String get reader_settings;
+
+  /// No description provided for @show_second_version.
+  ///
+  /// In en, this message translates to:
+  /// **'Show Second Version'**
+  String get show_second_version;
+
+  /// No description provided for @enable_add_msg.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable to add a translation or transliteration alongside the main text.'**
+  String get enable_add_msg;
+
+  /// No description provided for @main_text.
+  ///
+  /// In en, this message translates to:
+  /// **'Main Text'**
+  String get main_text;
+
+  /// No description provided for @second_version.
+  ///
+  /// In en, this message translates to:
+  /// **'Second Version'**
+  String get second_version;
+
+  /// No description provided for @second_version_msg.
+  ///
+  /// In en, this message translates to:
+  /// **'The second version will appear below each verse of the main text.'**
+  String get second_version_msg;
 }
 
 class _AppLocalizationsDelegate
