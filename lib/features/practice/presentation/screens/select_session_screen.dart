@@ -120,12 +120,14 @@ class _SelectSessionScreenState extends ConsumerState<SelectSessionScreen>
             fontWeight: FontWeight.normal,
             fontSize: 16,
           ),
-          labelColor: Theme.of(context).brightness == Brightness.dark
-              ? Colors.white
-              : Colors.black,
-          unselectedLabelColor: Theme.of(context).brightness == Brightness.dark
-              ? Colors.white.withValues(alpha: 0.5)
-              : Colors.black.withValues(alpha: 0.5),
+          labelColor:
+              Theme.of(context).brightness == Brightness.dark
+                  ? Colors.white
+                  : Colors.black,
+          unselectedLabelColor:
+              Theme.of(context).brightness == Brightness.dark
+                  ? Colors.white.withValues(alpha: 0.5)
+                  : Colors.black.withValues(alpha: 0.5),
         ),
       ),
       body: TabBarView(
@@ -180,7 +182,7 @@ class _PracticeItemsTab extends ConsumerWidget {
     // `valueOrNull ?? {}` semantics so the list stays usable.
     final enrolledSeriesIds =
         ref.watch(userSeriesEnrollmentsProvider).valueOrNull ??
-            const <String>{};
+        const <String>{};
 
     _logger.debug(
       '📋 _PracticeItemsTab BUILD: ${itemsState.items.length} items, '
@@ -194,20 +196,22 @@ class _PracticeItemsTab extends ConsumerWidget {
     if (itemsState.error != null && itemsState.items.isEmpty) {
       return ErrorStateWidget(
         error: itemsState.error!,
-        onRetry: () =>
-            ref.read(practiceItemsPaginatedProvider(tab).notifier).retry(),
+        onRetry:
+            () =>
+                ref.read(practiceItemsPaginatedProvider(tab).notifier).retry(),
         customMessage: 'Unable to load plans.\nPlease try again later.',
       );
     }
 
-    final availableItems = itemsState.items.where((item) {
-      switch (item) {
-        case PracticePlanItem(:final plan):
-          return !excludedPlanIds.contains(plan.id);
-        case PracticeSeriesItem(:final series):
-          return !enrolledSeriesIds.contains(series.id);
-      }
-    }).toList();
+    final availableItems =
+        itemsState.items.where((item) {
+          switch (item) {
+            case PracticePlanItem(:final plan):
+              return !excludedPlanIds.contains(plan.id);
+            case PracticeSeriesItem(:final series):
+              return !enrolledSeriesIds.contains(series.id);
+          }
+        }).toList();
 
     _logger.debug(
       '✅ Available practice items after filtering: ${availableItems.length}',
@@ -222,8 +226,11 @@ class _PracticeItemsTab extends ConsumerWidget {
         if (itemsState.error != null) {
           return ErrorStateWidget(
             error: itemsState.error!,
-            onRetry: () =>
-                ref.read(practiceItemsPaginatedProvider(tab).notifier).retry(),
+            onRetry:
+                () =>
+                    ref
+                        .read(practiceItemsPaginatedProvider(tab).notifier)
+                        .retry(),
             customMessage: 'Unable to load more plans.\nPlease try again.',
           );
         }
@@ -256,9 +263,10 @@ class _PracticeItemsTab extends ConsumerWidget {
           return Padding(
             padding: const EdgeInsets.symmetric(vertical: 16.0),
             child: Center(
-              child: itemsState.isLoadingMore
-                  ? const CircularProgressIndicator()
-                  : const SizedBox.shrink(),
+              child:
+                  itemsState.isLoadingMore
+                      ? const CircularProgressIndicator()
+                      : const SizedBox.shrink(),
             ),
           );
         }

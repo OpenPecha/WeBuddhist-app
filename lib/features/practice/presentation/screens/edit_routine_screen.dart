@@ -58,8 +58,10 @@ class EditRoutineScreen extends ConsumerStatefulWidget {
   final Plan? initialPlan;
 
   /// When provided, after hydration the screen fetches all currently-active
-  /// plans from the given series and injects them into the routine at the
-  /// default 8:00 AM block. Backend filters out future plans by start date.
+  /// plans from the given series and injects them into the routine, reusing
+  /// any existing empty block or creating a new one at the user's current
+  /// local time (with the standard 10-minute gap). Backend filters out future
+  /// plans by start date.
   final String? enrollSeriesId;
 
   const EditRoutineScreen({
@@ -82,12 +84,6 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
 
   /// Guard so series-enrollment prefill runs exactly once after hydration.
   bool _seriesEnrollmentHydrated = false;
-
-  /// Default time used when prefilling a routine block from series enrollment.
-  static const TimeOfDay _seriesEnrollDefaultTime = TimeOfDay(
-    hour: 8,
-    minute: 0,
-  );
 
   /// Sequential queue so API calls never overlap or race.
   Future<void> _opQueue = Future.value();
@@ -136,6 +132,43 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
     }
   }
 
+  /// Resolves where to place auto-injected items (plan deep-link or series
+  /// enrollment prefill). Prefers the earliest existing empty block, re-timed
+  /// to the user's current local time (with the standard 10-minute gap from
+  /// other blocks). Falls back to a brand-new block at the current local
+  /// time, and finally to `_blocks.first` if no valid slot is available.
+  ///
+  /// Mutates `block.time` and reorders `_blocks` (via `_sortBlocks`), so the
+  /// caller must wrap this in `setState` when called outside the build phase.
+  ({_EditableBlock target, bool isNewBlock}) _resolveInjectionTarget() {
+    _sortBlocks();
+
+    for (final block in _blocks) {
+      if (block.items.isEmpty) {
+        final otherTimes = _blocks
+            .where((b) => !identical(b, block))
+            .map((b) => b.time)
+            .toList();
+        final adjusted = adjustTimeForMinimumGap(TimeOfDay.now(), otherTimes);
+        if (adjusted != null) {
+          block.time = adjusted;
+        }
+        return (target: block, isNewBlock: false);
+      }
+    }
+
+    final allTimes = _blocks.map((b) => b.time).toList();
+    final adjusted = adjustTimeForMinimumGap(TimeOfDay.now(), allTimes);
+    if (adjusted == null) {
+      return (target: _blocks.first, isNewBlock: false);
+    }
+    final newBlock = _EditableBlock(
+      time: adjusted,
+      notificationEnabled: true,
+    );
+    return (target: newBlock, isNewBlock: true);
+  }
+
   void _injectInitialPlan(Plan plan) {
     final alreadyExists = _blocks.any(
       (b) => b.items.any(
@@ -152,28 +185,11 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
       enrolledAt: DateTime.now(),
     );
 
-    // If we have exactly one empty default block, add the plan there
-    if (_blocks.length == 1 && _blocks.first.items.isEmpty) {
-      _blocks.first.items.add(newItem);
-      return;
+    final resolved = _resolveInjectionTarget();
+    resolved.target.items.add(newItem);
+    if (resolved.isNewBlock) {
+      _blocks.add(resolved.target);
     }
-
-    // Otherwise create a new time block at the user's current local time
-    final otherTimes = _blocks.map((b) => b.time).toList();
-    final adjusted = adjustTimeForMinimumGap(TimeOfDay.now(), otherTimes);
-    if (adjusted == null) {
-      // Fallback: add to the first block if no time slot available
-      _blocks.first.items.add(newItem);
-      return;
-    }
-
-    _blocks.add(
-      _EditableBlock(
-        time: adjusted,
-        notificationEnabled: true,
-        items: [newItem],
-      ),
-    );
     _sortBlocks();
   }
 
@@ -233,53 +249,14 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
     );
   }
 
-  /// Adds [plans] into the routine at the default 8:00 AM block.
-  ///
-  /// Behavior:
-  /// - If the only block is the empty 12:00 PM default, it is replaced with
-  ///   an 8:00 AM block instead of adding another one.
-  /// - If a block at exactly 8:00 AM already exists, plans are appended there.
-  /// - Otherwise a new block is created; the time is shifted if 8:00 AM would
-  ///   collide with an existing block (using the same min-gap rules).
-  /// - Plans that already exist in any block (by id + plan type) are skipped.
+  /// Adds [plans] into the routine, reusing the earliest empty block (re-timed
+  /// to the user's current local time) or creating a new block at that time
+  /// with the standard 10-minute gap. Plans that already exist in any block
+  /// (by id + plan type) are skipped.
   ///
   /// Returns the affected block (to drive a follow-up server sync) or null
-  /// if there is nothing new to inject.
+  /// if every plan was already present.
   _EditableBlock? _injectSeriesUserPlans(List<UserPlansModel> plans) {
-    final _EditableBlock targetBlock;
-    bool replaceDefault = false;
-    bool isNewBlock = false;
-
-    if (_blocks.length == 1 && _blocks.first.items.isEmpty) {
-      targetBlock = _EditableBlock(
-        time: _seriesEnrollDefaultTime,
-        notificationEnabled: true,
-      );
-      replaceDefault = true;
-    } else {
-      _EditableBlock? existing;
-      for (final b in _blocks) {
-        if (b.time == _seriesEnrollDefaultTime) {
-          existing = b;
-          break;
-        }
-      }
-      if (existing != null) {
-        targetBlock = existing;
-      } else {
-        final otherTimes = _blocks.map((b) => b.time).toList();
-        final adjusted = adjustTimeForMinimumGap(
-          _seriesEnrollDefaultTime,
-          otherTimes,
-        );
-        targetBlock = _EditableBlock(
-          time: adjusted ?? _seriesEnrollDefaultTime,
-          notificationEnabled: true,
-        );
-        isNewBlock = true;
-      }
-    }
-
     final existingPlanIds = <String>{};
     for (final b in _blocks) {
       for (final item in b.items) {
@@ -304,19 +281,20 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
       existingPlanIds.add(p.id);
     }
 
-    if (newItems.isEmpty && !replaceDefault && !isNewBlock) return null;
+    if (newItems.isEmpty) return null;
 
+    late _EditableBlock target;
     setState(() {
-      if (replaceDefault) {
-        _blocks[0] = targetBlock;
-      } else if (isNewBlock) {
-        _blocks.add(targetBlock);
+      final resolved = _resolveInjectionTarget();
+      target = resolved.target;
+      if (resolved.isNewBlock) {
+        _blocks.add(target);
       }
-      targetBlock.items.addAll(newItems);
+      target.items.addAll(newItems);
       _sortBlocks();
     });
 
-    return newItems.isEmpty ? null : targetBlock;
+    return target;
   }
 
   RoutineBlock _toRoutineBlock(_EditableBlock b) {
@@ -853,10 +831,7 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
     }
 
     final otherTimes = _blocks.map((b) => b.time).toList();
-    final adjusted = adjustTimeForMinimumGap(
-      const TimeOfDay(hour: 12, minute: 0),
-      otherTimes,
-    );
+    final adjusted = adjustTimeForMinimumGap(TimeOfDay.now(), otherTimes);
 
     if (adjusted == null) {
       ScaffoldMessenger.of(context).showSnackBar(
