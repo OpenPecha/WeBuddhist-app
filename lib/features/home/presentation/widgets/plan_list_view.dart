@@ -192,7 +192,7 @@ class FeaturedPlanCard extends ConsumerWidget {
                         ),
                         child:
                             isEnrolling
-                                ? const SizedBox(
+                                ? SizedBox(
                                   height: 20,
                                   width: 20,
                                   child: CircularProgressIndicator(

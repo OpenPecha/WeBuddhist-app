@@ -62,74 +62,76 @@ class _OnboardingScreen5State extends ConsumerState<OnboardingScreen5>
             opacity: _fadeAnimation,
             child: SlideTransition(
               position: _slideAnimation,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  const Spacer(),
-                  // App logo
-                  Image.asset(AppAssets.weBuddhistLogo, height: 80),
-                  const SizedBox(height: 16),
-                  // App name
-                  Text(
-                    l10n.pechaHeading,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 32,
-                      fontWeight: FontWeight.w600,
-                      fontFamily: getFontFamily('en'),
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  // "You're all set up" in cursive
-                  Text(
-                    l10n.onboarding_all_set,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.w400,
-                      fontStyle: FontStyle.italic,
-                      fontFamily: getFontFamily('en'),
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  // Description
-                  Text(
-                    l10n.onboarding_all_set_description,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                      letterSpacing: -0.2,
-                      height: 1.6,
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.onSurface.withValues(alpha: 0.65),
-                    ),
-                  ),
-                  const Spacer(),
-                  // Begin Your Practice button
-                  SizedBox(
-                    width: double.infinity,
-                    child: FilledButton(
-                      onPressed: widget.onComplete,
-                      style: FilledButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+              child: CustomScrollView(
+                slivers: [
+                  SliverFillRemaining(
+                    hasScrollBody: false,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        const Spacer(),
+                        Image.asset(AppAssets.weBuddhistLogo, height: 80),
+                        const SizedBox(height: 16),
+                        Text(
+                          l10n.pechaHeading,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 32,
+                            fontWeight: FontWeight.w600,
+                            fontFamily: getFontFamily('en'),
+                          ),
                         ),
-                      ),
-                      child: Text(
-                        l10n.onboarding_begin_practice,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          letterSpacing: -0.2,
+                        const SizedBox(height: 20),
+                        Text(
+                          l10n.onboarding_all_set,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 28,
+                            fontWeight: FontWeight.w400,
+                            fontStyle: FontStyle.italic,
+                            fontFamily: getFontFamily('en'),
+                          ),
                         ),
-                      ),
+                        const SizedBox(height: 20),
+                        Text(
+                          l10n.onboarding_all_set_description,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                            letterSpacing: -0.2,
+                            height: 1.6,
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurface.withValues(alpha: 0.65),
+                          ),
+                        ),
+                        const Spacer(),
+                        SizedBox(
+                          width: double.infinity,
+                          child: FilledButton(
+                            onPressed: widget.onComplete,
+                            style: FilledButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                            child: Text(
+                              l10n.onboarding_begin_practice,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                letterSpacing: -0.2,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 32),
+                      ],
                     ),
                   ),
-                  const SizedBox(height: 32),
                 ],
               ),
             ),

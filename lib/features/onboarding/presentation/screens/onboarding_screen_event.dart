@@ -94,71 +94,68 @@ class _OnboardingScreenEventState extends ConsumerState<OnboardingScreenEvent> {
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 24),
-              OnboardingBackButton(onBack: widget.onBack),
-              const SizedBox(height: 40),
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      OnboardingQuestionTitle(
-                        title: l10n.onboarding_event_question,
+        child: CustomScrollView(
+          slivers: [
+            SliverFillRemaining(
+              hasScrollBody: false,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 32.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 24),
+                    OnboardingBackButton(onBack: widget.onBack),
+                    const SizedBox(height: 40),
+                    OnboardingQuestionTitle(
+                      title: l10n.onboarding_event_question,
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      l10n.onboarding_event_optional,
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w400,
+                        letterSpacing: -0.2,
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withValues(alpha: 0.5),
                       ),
-                      const SizedBox(height: 8),
-                      Text(
-                        l10n.onboarding_event_optional,
-                        style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w400,
-                          letterSpacing: -0.2,
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.onSurface.withValues(alpha: 0.5),
-                        ),
+                    ),
+                    const SizedBox(height: 36),
+                    ...kOnboardingEvents.map(
+                      (event) => _EventCard(
+                        event: event,
+                        isSelected: _checkedPlanIds.contains(event.planId),
+                        isDark: isDark,
+                        onTap: () => _toggleEvent(event.planId),
                       ),
-                      const SizedBox(height: 36),
-                      ...kOnboardingEvents.map(
-                        (event) => _EventCard(
-                          event: event,
-                          isSelected: _checkedPlanIds.contains(event.planId),
-                          isDark: isDark,
-                          onTap: () => _toggleEvent(event.planId),
-                        ),
-                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    _ReminderNote(isDark: isDark),
+                    if (_errorMessage != null) ...[
                       const SizedBox(height: 16),
-                      _ReminderNote(isDark: isDark),
-                      if (_errorMessage != null) ...[
-                        const SizedBox(height: 16),
-                        Text(
-                          _errorMessage!,
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Theme.of(context).colorScheme.error,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ],
-                      const Spacer(),
-                      Center(
-                        child: _ContinueButton(
-                          isLoading: _isLoading,
-                          onPressed: _handleContinue,
+                      Text(
+                        _errorMessage!,
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Theme.of(context).colorScheme.error,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
-                      const SizedBox(height: 24),
                     ],
-                  ),
+                    const Spacer(),
+                    Center(
+                      child: _ContinueButton(
+                        isLoading: _isLoading,
+                        onPressed: _handleContinue,
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                  ],
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
