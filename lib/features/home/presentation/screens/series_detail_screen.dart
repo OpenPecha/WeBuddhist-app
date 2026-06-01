@@ -12,17 +12,20 @@ import 'package:go_router/go_router.dart';
 
 class SeriesDetailScreen extends ConsumerWidget {
   final String seriesId;
-  final Series? initialSeries;
+  final Series? series;
 
-  const SeriesDetailScreen({
-    super.key,
-    required this.seriesId,
-    this.initialSeries,
-  });
+  const SeriesDetailScreen({super.key, required this.seriesId, this.series});
+
+  Future<void> _onRefresh(WidgetRef ref) async {
+    ref.invalidate(seriesByIdProvider(seriesId));
+    await ref.read(seriesByIdProvider(seriesId).future);
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    ref.watch(myPlansPaginatedProvider); // pre-warm so enrolled state is ready when list items render
+    ref.watch(
+      myPlansPaginatedProvider,
+    ); // pre-warm so enrolled state is ready when list items render
     final seriesAsync = ref.watch(seriesByIdProvider(seriesId));
     final localizations = AppLocalizations.of(context)!;
 
@@ -33,37 +36,46 @@ class SeriesDetailScreen extends ConsumerWidget {
           children: [
             _buildAppBar(
               context,
-              seriesAsync
-                  .whenOrNull(
-                    data:
-                        (either) =>
-                            either.fold((_) => null, (s) => s.title),
+              seriesAsync.whenOrNull(
+                    data: (either) => either.fold((_) => null, (s) => s.title),
                   ) ??
-                  initialSeries?.title ??
+                  series?.title ??
                   '',
             ),
             Expanded(
-              child: seriesAsync.when(
-                data: (either) {
-                  return either.fold(
-                    (failure) => ErrorStateWidget(
-                      error: failure,
-                      onRetry: () => ref.refresh(seriesByIdProvider(seriesId)),
-                    ),
-                    (series) {
-                      if (series.plans.isEmpty) {
-                        return _buildEmptyState(context, localizations, ref);
-                      }
-                      return PlanListView(plans: series.plans);
-                    },
-                  );
-                },
-                loading: () => const PlanListSkeleton(),
-                error:
-                    (error, stackTrace) => ErrorStateWidget(
-                      error: error,
-                      onRetry: () => ref.refresh(seriesByIdProvider(seriesId)),
-                    ),
+              child: RefreshIndicator(
+                onRefresh: () => _onRefresh(ref),
+                child: seriesAsync.when(
+                  data: (either) {
+                    return either.fold(
+                      (failure) => _buildScrollableMessage(
+                        ErrorStateWidget(
+                          error: failure,
+                          onRetry: () => _onRefresh(ref),
+                        ),
+                      ),
+                      (series) {
+                        if (series.plans.isEmpty) {
+                          return _buildScrollableMessage(
+                            _buildEmptyState(context, localizations, ref),
+                          );
+                        }
+                        return PlanListView(
+                          plans: series.plans,
+                          seriesId: seriesId,
+                        );
+                      },
+                    );
+                  },
+                  loading: () => const PlanListSkeleton(),
+                  error:
+                      (error, stackTrace) => _buildScrollableMessage(
+                        ErrorStateWidget(
+                          error: error,
+                          onRetry: () => _onRefresh(ref),
+                        ),
+                      ),
+                ),
               ),
             ),
           ],
@@ -108,14 +120,27 @@ class SeriesDetailScreen extends ConsumerWidget {
     final locale = ref.watch(localeProvider);
     final fontSize = locale.languageCode == 'bo' ? 22.0 : 18.0;
 
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32.0),
-        child: Text(
-          localizations.no_feature_content,
-          style: TextStyle(fontSize: fontSize),
-        ),
+    return Padding(
+      padding: const EdgeInsets.all(32.0),
+      child: Text(
+        localizations.no_feature_content,
+        style: TextStyle(fontSize: fontSize),
+        textAlign: TextAlign.center,
       ),
+    );
+  }
+
+  Widget _buildScrollableMessage(Widget child) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(minHeight: constraints.maxHeight),
+            child: Center(child: child),
+          ),
+        );
+      },
     );
   }
 }

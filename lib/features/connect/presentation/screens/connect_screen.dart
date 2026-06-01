@@ -35,7 +35,7 @@ class ConnectScreen extends StatelessWidget {
               ),
               const SizedBox(height: 6),
               Text(
-                'Teachers, communities, challenges, and events to support you on the path.',
+                l10n.connect_coming_soon_subtitle,
                 textAlign: TextAlign.center,
               ),
             ],

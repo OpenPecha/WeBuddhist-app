@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/widgets/cached_network_image_widget.dart';
 import 'package:story_view/story_view.dart';
 
@@ -77,8 +78,8 @@ class _ImageStoryState extends State<ImageStory> {
                             ),
                             SizedBox(height: 16),
                             Text(
-                              'Unable to load image',
-                              style: TextStyle(
+                              AppLocalizations.of(context)!.story_image_load_error,
+                              style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 16,
                               ),

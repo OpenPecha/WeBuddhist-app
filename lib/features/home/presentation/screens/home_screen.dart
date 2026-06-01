@@ -17,6 +17,7 @@ import 'package:flutter_pecha/features/home/presentation/home_screen_constants.d
 import 'package:flutter_pecha/features/home/presentation/widgets/series_card.dart';
 import 'package:flutter_pecha/features/notifications/application/plan_enrollment_hook.dart';
 import 'package:flutter_pecha/features/notifications/application/special_plan_enrollment_hook.dart';
+import 'package:flutter_pecha/features/plans/data/utils/plan_utils.dart';
 import 'package:flutter_pecha/features/practice/presentation/providers/routine_provider.dart';
 import 'package:flutter_pecha/features/plans/presentation/providers/user_plans_provider.dart';
 import 'package:flutter_pecha/shared/utils/helper_functions.dart';
@@ -165,20 +166,41 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     // Push plan details FIRST while HomeScreen is still mounted.
     // Switching the tab index BEFORE the push would unmount HomeScreen,
     // making the subsequent context.push a no-op.
+    final anchor = plan.effectiveStartDate;
+    final selectedDay = PlanUtils.dayNumberFor(
+      anchor,
+      DateTime.now(),
+      plan.totalDays,
+    ).clamp(1, plan.totalDays);
+    _log.info(
+      '[ENROLL-NAV] onboarding open ${plan.id} '
+      'anchor=${anchor.toIso8601String()} '
+      'startDate=${plan.startDate?.toIso8601String()} '
+      'startedAt=${plan.startedAt.toIso8601String()} '
+      'selectedDay=$selectedDay/${plan.totalDays}',
+    );
     context.push(
       '/practice/details',
-      extra: {'plan': plan, 'selectedDay': 1, 'startDate': plan.startedAt},
+      extra: {'plan': plan, 'selectedDay': selectedDay, 'startDate': anchor},
     );
 
     // Switch bottom-nav to Practice so popping back from plan details
     // lands on the Practice tab rather than Home.
-    ref.read(mainNavigationIndexProvider.notifier).state = 2;
+    ref.read(mainNavigationIndexProvider.notifier).state =
+        MainTab.practice.index;
   }
 
-  /// Manual refetch/retry method that can be called from UI
+  /// Pull-to-refresh handler. Invalidates the series list and awaits the
+  /// refreshed result so the RefreshIndicator spinner stays until data lands.
+  Future<void> _onRefresh() async {
+    ref.invalidate(seriesListFutureProvider);
+    await ref.read(seriesListFutureProvider.future);
+  }
+
+  /// Manual refetch/retry method that can be called from UI.
+  /// Reuses the same logic as pull-to-refresh for consistent behavior.
   void _refetchSeries() {
-    // ignore: unused_result
-    ref.refresh(seriesListFutureProvider);
+    _onRefresh();
   }
 
   void _navigateToSeries(Series series) {
@@ -218,6 +240,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         title: Text(
           l10n.nav_home,
+          strutStyle: context.tibetanStrutStyle(
+            Theme.of(context).textTheme.headlineMedium?.fontSize ?? 28,
+          ),
           style: Theme.of(
             context,
           ).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
@@ -229,6 +254,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             Column(
               children: [
                 _buildSearchSection(l10n, seriesAsync),
+                SizedBox(height: HomeScreenConstants.bodyVerticalPadding),
                 _buildBody(context, l10n),
               ],
             ),
@@ -254,6 +280,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 
+  TextStyle _searchHintTextStyle(BuildContext context) {
+    final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    return TextStyle(
+      fontSize: 16,
+      color: isDarkMode ? AppColors.textTertiaryDark : AppColors.textSecondary,
+    );
+  }
+
   Widget _buildSearchSection(
     AppLocalizations localizations,
     AsyncValue<Either<Failure, List<Series>>> seriesAsync,
@@ -261,9 +295,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final locale = ref.watch(localeProvider);
     final lineHeight = getLineHeight(locale.languageCode);
     final fontSize = locale.languageCode == 'bo' ? 18.0 : 16.0;
+    final TextStyle searchHintStyle = _searchHintTextStyle(context);
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
       child: seriesAsync.when(
         data: (seriesEither) {
           return seriesEither.fold(
@@ -280,8 +315,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 builder: (BuildContext context, SearchController controller) {
                   return SearchBar(
                     controller: controller,
+                    constraints: HomeScreenConstants.searchBarConstraints,
                     padding: const WidgetStatePropertyAll<EdgeInsets>(
-                      EdgeInsets.symmetric(horizontal: 16.0),
+                      EdgeInsets.symmetric(
+                        horizontal:
+                            HomeScreenConstants.searchBarHorizontalPadding,
+                      ),
                     ),
                     elevation: const WidgetStatePropertyAll(0.0),
                     shadowColor: const WidgetStatePropertyAll(
@@ -298,12 +337,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
                     hintText: localizations.text_search,
-                    hintStyle: WidgetStatePropertyAll(
-                      TextStyle(
-                        fontSize: 16,
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
-                    ),
+                    hintStyle: WidgetStatePropertyAll(searchHintStyle),
                   );
                 },
                 viewLeading: IconButton(
@@ -333,7 +367,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         padding: const EdgeInsets.all(32.0),
                         child: Center(
                           child: Text(
-                            'No series found',
+                            localizations.home_no_series_found,
                             style: TextStyle(
                               fontSize: fontSize,
                               height: lineHeight,
@@ -383,8 +417,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         },
         loading:
             () => SearchBar(
+              constraints: HomeScreenConstants.searchBarConstraints,
               padding: const WidgetStatePropertyAll<EdgeInsets>(
-                EdgeInsets.symmetric(horizontal: 16.0),
+                EdgeInsets.symmetric(
+                  horizontal: HomeScreenConstants.searchBarHorizontalPadding,
+                ),
               ),
               enabled: false,
               elevation: const WidgetStatePropertyAll(0.0),
@@ -393,14 +430,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
               hintText: localizations.text_search,
-              hintStyle: WidgetStatePropertyAll(
-                TextStyle(fontSize: 16, color: AppColors.textPrimaryLight),
-              ),
+              hintStyle: WidgetStatePropertyAll(searchHintStyle),
             ),
         error:
             (_, __) => SearchBar(
+              constraints: HomeScreenConstants.searchBarConstraints,
               padding: const WidgetStatePropertyAll<EdgeInsets>(
-                EdgeInsets.symmetric(horizontal: 16.0),
+                EdgeInsets.symmetric(
+                  horizontal: HomeScreenConstants.searchBarHorizontalPadding,
+                ),
               ),
               enabled: false,
               leading: Icon(
@@ -408,12 +446,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
               hintText: localizations.text_search,
-              hintStyle: WidgetStatePropertyAll(
-                TextStyle(
-                  fontSize: 16,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
-              ),
+              hintStyle: WidgetStatePropertyAll(searchHintStyle),
             ),
       ),
     );
@@ -425,57 +458,80 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final fontSize = language == 'bo' ? 22.0 : 18.0;
 
     return Expanded(
-      child: seriesAsync.when(
-        data: (seriesEither) {
-          return seriesEither.fold(
-            (failure) =>
+      child: RefreshIndicator(
+        onRefresh: _onRefresh,
+        child: seriesAsync.when(
+          data: (seriesEither) {
+            return seriesEither.fold(
+              (failure) => _buildScrollableMessage(
                 ErrorStateWidget(error: failure, onRetry: _refetchSeries),
-            (seriesList) {
-              if (seriesList.isEmpty) {
-                return Center(
-                  child: Padding(
-                    padding: const EdgeInsets.all(
-                      HomeScreenConstants.emptyStatePadding,
+              ),
+              (seriesList) {
+                if (seriesList.isEmpty) {
+                  return _buildScrollableMessage(
+                    Padding(
+                      padding: const EdgeInsets.all(
+                        HomeScreenConstants.emptyStatePadding,
+                      ),
+                      child: Text(
+                        localizations.no_feature_content,
+                        style: TextStyle(fontSize: fontSize),
+                        textAlign: TextAlign.center,
+                      ),
                     ),
-                    child: Text(
-                      localizations.no_feature_content,
-                      style: TextStyle(fontSize: fontSize),
-                    ),
-                  ),
-                );
-              }
-
-              return GridView.builder(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: HomeScreenConstants.bodyHorizontalPadding,
-                  vertical: HomeScreenConstants.bodyVerticalPadding,
-                ),
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 8,
-                  mainAxisSpacing: 8,
-                  childAspectRatio: 1.4,
-                ),
-                itemCount: seriesList.length,
-                itemBuilder: (context, index) {
-                  final series = seriesList[index];
-                  return SeriesCard(
-                    series: series,
-                    onTap: () {
-                      _log.info('Series tapped: ${series.id}');
-                      _navigateToSeries(series);
-                    },
                   );
-                },
-              );
-            },
-          );
-        },
-        loading: () => const TagGridSkeleton(),
-        error:
-            (error, stackTrace) =>
+                }
+
+                return GridView.builder(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: HomeScreenConstants.bodyHorizontalPadding,
+                    vertical: HomeScreenConstants.bodyVerticalPadding,
+                  ),
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    crossAxisSpacing: 8,
+                    mainAxisSpacing: 8,
+                    childAspectRatio: 1.3,
+                  ),
+                  itemCount: seriesList.length,
+                  itemBuilder: (context, index) {
+                    final series = seriesList[index];
+                    return SeriesCard(
+                      series: series,
+                      onTap: () {
+                        _log.info('Series tapped: ${series.id}');
+                        _navigateToSeries(series);
+                      },
+                    );
+                  },
+                );
+              },
+            );
+          },
+          loading: () => const TagGridSkeleton(),
+          error:
+              (error, stackTrace) => _buildScrollableMessage(
                 ErrorStateWidget(error: error, onRetry: _refetchSeries),
+              ),
+        ),
       ),
+    );
+  }
+
+  /// Wraps a non-scrollable state (empty / error) in an always-scrollable
+  /// viewport so pull-to-refresh works even when there is no grid content.
+  Widget _buildScrollableMessage(Widget child) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(minHeight: constraints.maxHeight),
+            child: Center(child: child),
+          ),
+        );
+      },
     );
   }
 }

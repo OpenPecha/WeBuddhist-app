@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/constants/app_assets.dart';
+import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
 import 'social_login_button.dart';
@@ -56,6 +57,7 @@ class _LoginDrawerState extends ConsumerState<LoginDrawer>
   Widget build(BuildContext context) {
     final authState = ref.watch(authProvider);
     final isIOS = Platform.isIOS;
+    final l10n = context.l10n;
 
     // Auto-close when user successfully authenticates
     if (!authState.isGuest && authState.isLoggedIn) {
@@ -104,7 +106,7 @@ class _LoginDrawerState extends ConsumerState<LoginDrawer>
                 const SizedBox(height: 24),
                 // Title
                 Text(
-                  'Sign in to continue',
+                  l10n.auth_drawer_title,
                   style: Theme.of(
                     context,
                   ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
@@ -113,7 +115,7 @@ class _LoginDrawerState extends ConsumerState<LoginDrawer>
                 const SizedBox(height: 4),
                 // Subtitle
                 Text(
-                  'Access your practice plans and track your progress',
+                  l10n.auth_drawer_subtitle,
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: Theme.of(
                       context,
@@ -137,7 +139,7 @@ class _LoginDrawerState extends ConsumerState<LoginDrawer>
                           connection: 'google',
                           icon: Icons.g_mobiledata,
                           iconColor: Colors.black,
-                          label: 'Continue with Google',
+                          label: l10n.continueWithGoogle,
                           backgroundColor: Colors.white,
                           foregroundColor: Colors.black,
                           iconWidget: Image.asset(
@@ -156,7 +158,7 @@ class _LoginDrawerState extends ConsumerState<LoginDrawer>
                             connection: 'apple',
                             icon: Icons.apple,
                             iconColor: Colors.white,
-                            label: 'Continue with Apple',
+                            label: l10n.continueWithApple,
                             backgroundColor: Colors.black,
                             foregroundColor: Colors.white,
                             iconWidget: const Icon(

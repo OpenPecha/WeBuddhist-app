@@ -126,6 +126,11 @@ class RoutineNotificationService {
           return NotificationResult.success(block.notificationId);
         }
 
+        _logger.info(
+          '[SP-CHECK] planId=${firstItem.id} title="${firstItem.title}" '
+          'NOT in kSpecialPlanNotifications — falling through to general-plan path',
+        );
+
         final metadata = PlanMetadataStore.getMetadata(firstItem.id);
         if (metadata != null) {
           await reschedulePlanDurationSeries(
@@ -335,13 +340,19 @@ class RoutineNotificationService {
     }
     final startedAt = SpecialPlanStartedAtStore.getStartedAt(planId);
     if (startedAt == null) {
-      _logger.warning('rescheduleSpecialPlanSeries: no cached startedAt for $planId');
+      _logger.warning('[NOTIF-SCHEDULE-SP] no cached startedAt for $planId');
       return;
     }
 
     await _cancelSpecialPlanSeries(planId);
 
     final startedLocal = startedAt.toLocal();
+    _logger.info(
+      '[NOTIF-SCHEDULE-SP] $planId begin — cachedAnchor=${startedAt.toIso8601String()} '
+      'startedLocal=${startedLocal.toIso8601String()} '
+      'block=$blockHour:${blockMinute.toString().padLeft(2, '0')} '
+      'entries=${entries.length}',
+    );
     final pseudoItem = RoutineItem(
       id: planId,
       title: planTitle,
@@ -368,10 +379,25 @@ class RoutineNotificationService {
       blockMinute,
     );
 
+    _logger.info(
+      '[NOTIF-SCHEDULE-SP] $planId seriesStart=${seriesStart.toIso8601String()} '
+      'now=${now.toIso8601String()}',
+    );
+
     var scheduledCount = 0;
+    var skippedPast = 0;
     for (var day = 1; day <= entries.length; day++) {
       final fireDate = seriesStart.add(Duration(days: day - 1));
-      if (!fireDate.isAfter(now)) continue; // past — skip
+      if (!fireDate.isAfter(now)) {
+        skippedPast++;
+        _logger.info(
+          '[NOTIF-SCHEDULE-SP] $planId day=$day fireDate=${fireDate.toIso8601String()} — PAST, skipping',
+        );
+        continue;
+      }
+      _logger.info(
+        '[NOTIF-SCHEDULE-SP] $planId day=$day fireDate=${fireDate.toIso8601String()} — scheduling',
+      );
 
       final dayContent = entries[day - 1];
       final notifId = _specialPlanSeriesNotifId(planId, day);
@@ -403,8 +429,8 @@ class RoutineNotificationService {
     }
 
     _logger.info(
-      'rescheduleSpecialPlanSeries: $planId — $scheduledCount future days scheduled '
-      '(${entries.length - scheduledCount} in the past)',
+      '[NOTIF-SCHEDULE-SP] $planId DONE — scheduled=$scheduledCount past=$skippedPast '
+      'total=${entries.length}',
     );
 
     // Immediate catch-up: if today's scheduled fire has already passed and
@@ -439,12 +465,34 @@ class RoutineNotificationService {
       startedLocal.day,
     );
     final daysSince = today.difference(startedDay).inDays;
+    _logger.info(
+      '[NOTIF-SCHEDULE-SP] $planId overdue check — '
+      'today=${today.toIso8601String()} startedDay=${startedDay.toIso8601String()} '
+      'daysSince=$daysSince entries=${entries.length}',
+    );
 
-    if (daysSince < 0 || daysSince >= entries.length) return; // outside series
-    if (SpecialPlanStartedAtStore.wasShownOn(planId, today)) return; // already shown
+    if (daysSince < 0 || daysSince >= entries.length) {
+      _logger.info(
+        '[NOTIF-SCHEDULE-SP] $planId overdue: outside series — skip',
+      );
+      return;
+    }
+    if (SpecialPlanStartedAtStore.wasShownOn(planId, today)) {
+      _logger.info('[NOTIF-SCHEDULE-SP] $planId overdue: already shown today — skip');
+      return;
+    }
 
     final todayFireTz = seriesStart.add(Duration(days: daysSince));
-    if (todayFireTz.isAfter(tz.TZDateTime.now(tz.local))) return; // not yet due
+    if (todayFireTz.isAfter(tz.TZDateTime.now(tz.local))) {
+      _logger.info(
+        '[NOTIF-SCHEDULE-SP] $planId overdue: not yet due '
+        '(fireAt=${todayFireTz.toIso8601String()}) — skip',
+      );
+      return;
+    }
+    _logger.info(
+      '[NOTIF-SCHEDULE-SP] $planId overdue: firing immediate day=${daysSince + 1}',
+    );
 
     await showSpecialPlanCurrentDayImmediate(
       planId: planId,
@@ -477,21 +525,38 @@ class RoutineNotificationService {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
 
-    if (SpecialPlanStartedAtStore.wasShownOn(planId, today)) return null;
+    if (SpecialPlanStartedAtStore.wasShownOn(planId, today)) {
+      _logger.info(
+        '[ENROLL-NOTIF-SP] showImmediate $planId — already shown today, skip',
+      );
+      return null;
+    }
 
     final dayContent = resolveSpecialPlanNotification(
       planId: planId,
       startedAt: startedAt,
       now: now,
     );
-    if (dayContent == null) return null;
+    if (dayContent == null) {
+      _logger.warning(
+        '[ENROLL-NOTIF-SP] showImmediate $planId — no day content resolved '
+        '(anchor=${startedAt.toIso8601String()} now=${now.toIso8601String()})',
+      );
+      return null;
+    }
 
     final dayIndex = specialPlanDayIndex(
       planId: planId,
       startedAt: startedAt,
       now: now,
     );
-    if (dayIndex == null) return null;
+    if (dayIndex == null) {
+      _logger.warning('[ENROLL-NOTIF-SP] showImmediate $planId — dayIndex null');
+      return null;
+    }
+    _logger.info(
+      '[ENROLL-NOTIF-SP] showImmediate $planId day=$dayIndex title="${dayContent.title}"',
+    );
 
     // Guard: if permission is not yet granted, _plugin.show() silently no-ops
     // on Android 13+ and iOS. Do NOT mark wasShownOn in that case — the
@@ -633,7 +698,11 @@ class RoutineNotificationService {
 
     await _cancelPlanDurationSeries(planId);
 
-    final startedLocal = metadata.startedAt.toLocal();
+    // Anchor day-numbering to the plan's day-1 (effectiveStartDate).
+    // For fixed-date plans where the user joined late, this is the plan's
+    // scheduled start, NOT the user's enrollment timestamp — so they see
+    // the correct day-N notification (e.g. "Day 5 of 10") instead of Day 1.
+    final startedLocal = metadata.effectiveStartDate.toLocal();
     final nowTz = tz.TZDateTime.now(tz.local);
     final pseudoItem = RoutineItem(
       id: planId,
@@ -692,12 +761,15 @@ class RoutineNotificationService {
     }
 
     _logger.info(
-      'reschedulePlanDurationSeries: $planId — $scheduledCount future days scheduled '
-      'of ${metadata.totalDays} total',
+      '[NOTIF-SCHEDULE] $planId — anchor=${startedLocal.toIso8601String()} '
+      'block=$blockHour:${blockMinute.toString().padLeft(2, '0')} '
+      '$scheduledCount future days scheduled of ${metadata.totalDays} total',
     );
 
     // Immediate catch-up: fire today's notification if the block time has
-    // already passed and it hasn't been shown yet.
+    // already passed and it hasn't been shown yet. Day-N is computed from
+    // the plan anchor (effectiveStartDate) so late joiners see the correct
+    // day number.
     final nowLocal = DateTime.now();
     final today = DateTime(nowLocal.year, nowLocal.month, nowLocal.day);
     final startedDay = DateTime(startedLocal.year, startedLocal.month, startedLocal.day);
@@ -718,7 +790,7 @@ class RoutineNotificationService {
         );
         if (id != null) {
           await PlanMetadataStore.markImmediateShownOn(planId, today);
-          _logger.info('reschedulePlanDurationSeries: fired immediate day=$todayDayNumber for $planId id=$id');
+          _logger.info('[NOTIF-SCHEDULE] fired immediate day=$todayDayNumber for $planId id=$id');
         }
       }
     }

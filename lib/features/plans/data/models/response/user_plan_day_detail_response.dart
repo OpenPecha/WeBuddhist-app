@@ -5,12 +5,16 @@ class UserPlanDayDetailResponse {
   final int dayNumber;
   final List<UserTasksDto> tasks;
   final bool isCompleted;
+  final String? audioUrl;
+  final int? audioDurationMs;
 
   UserPlanDayDetailResponse({
     required this.id,
     required this.dayNumber,
     required this.tasks,
     required this.isCompleted,
+    this.audioUrl,
+    this.audioDurationMs,
   });
 
   factory UserPlanDayDetailResponse.fromJson(Map<String, dynamic> json) {
@@ -24,6 +28,8 @@ class UserPlanDayDetailResponse {
               )
               .toList(),
       isCompleted: json['is_completed'] as bool,
+      audioUrl: json['audio_url'] as String?,
+      audioDurationMs: json['audio_duration_ms'] as int?,
     );
   }
 
@@ -33,6 +39,8 @@ class UserPlanDayDetailResponse {
       'day_number': dayNumber,
       'tasks': tasks.map((e) => e.toJson()).toList(),
       'is_completed': isCompleted,
+      'audio_url': audioUrl,
+      'audio_duration_ms': audioDurationMs,
     };
   }
 }

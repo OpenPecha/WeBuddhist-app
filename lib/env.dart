@@ -47,4 +47,34 @@ class Env {
 
   /// Enable verbose logging
   static bool get enableVerboseLogging => isDebug;
+
+  /// PostHog project API key (optional — analytics disabled when absent)
+  static String? get posthogApiKey => dotenv.env['POSTHOG_API_KEY'];
+
+  /// PostHog ingest host
+  static String get posthogHost =>
+      dotenv.env['POSTHOG_HOST'] ?? 'https://us.i.posthog.com';
+
+  /// Whether PostHog analytics is enabled for this build
+  static bool get posthogEnabled {
+    final String? enabledFlag = dotenv.env['POSTHOG_ENABLED'];
+    if (enabledFlag != null) {
+      return enabledFlag.toLowerCase() == 'true';
+    }
+    final String? apiKey = posthogApiKey;
+    return apiKey != null && apiKey.isNotEmpty;
+  }
+
+  /// Normalized flavor label for analytics super properties
+  static String get appFlavor {
+    final String env = environment.toLowerCase();
+    if (env.contains('prod')) {
+      return 'prod';
+    }
+    if (env.contains('stag')) {
+      return 'staging';
+    }
+    return 'dev';
+  }
+
 }

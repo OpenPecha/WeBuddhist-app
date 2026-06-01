@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/features/reader/data/models/reader_version_detail.dart';
 import 'package:flutter_pecha/features/reader/presentation/providers/reader_settings_providers.dart';
 import 'package:flutter_pecha/features/reader/presentation/widgets/reader_settings/picker_sheet_scaffold.dart';
@@ -25,21 +26,22 @@ class VersionPickerSheet extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     final query = ReaderLanguageQuery(textId: textId, language: languageCode);
     final asyncVersions = ref.watch(readerVersionsProvider(query));
 
     return PickerSheetScaffold(
-      title: 'Version · $languageLabel',
+      title: l10n.reader_version_title(languageLabel),
       child: asyncVersions.when(
         loading: () => const PickerLoading(),
         error: (_, __) => PickerError(
-          message: 'Failed to load versions.',
+          message: l10n.reader_versions_load_error,
           onRetry: () => ref.invalidate(readerVersionsProvider(query)),
         ),
         data: (versions) {
           if (versions.isEmpty) {
             return PickerEmpty(
-              message: 'No versions available in $languageLabel yet.',
+              message: l10n.reader_no_versions_in_language(languageLabel),
             );
           }
           return ListView.separated(

@@ -10,6 +10,7 @@ abstract class UserPlansRepositoryInterface {
     required String language,
     int? skip,
     int? limit,
+    String? seriesId,
   });
 
   Future<Either<Failure, bool>> subscribeToPlan(String planId);

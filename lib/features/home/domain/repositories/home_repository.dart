@@ -21,4 +21,12 @@ abstract class TagsRepositoryInterface extends Repository {
 abstract class SeriesRepositoryInterface extends Repository {
   Future<Either<Failure, List<Series>>> getSeriesList({required String language});
   Future<Either<Failure, Series>> getSeriesById(String id, {required String language});
+
+  /// Enrolls the authenticated user in the given series.
+  /// Backend auto-enrolls the user in all plans that belong to the series.
+  Future<Either<Failure, Unit>> enrollInSeries(String seriesId);
+
+  /// Returns the set of series IDs the authenticated user is enrolled in.
+  /// Used to suppress the Enroll button for already-enrolled series.
+  Future<Either<Failure, Set<String>>> getUserSeriesEnrollments();
 }

@@ -221,7 +221,7 @@ class _PlanInfoState extends ConsumerState<PlanInfo> {
                       ),
                     )
                     : Text(
-                      isSubscribed ? 'Go to Practice' : 'Enroll',
+                      isSubscribed ? localizations.plan_go_to_practice : localizations.plan_enroll,
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
@@ -234,6 +234,7 @@ class _PlanInfoState extends ConsumerState<PlanInfo> {
   }
 
   Future<void> _handleEnroll(BuildContext context) async {
+    final localizations = context.l10n;
     setState(() => _isEnrolling = true);
     try {
       final service = ref.read(eventEnrollmentServiceProvider);
@@ -253,14 +254,14 @@ class _PlanInfoState extends ConsumerState<PlanInfo> {
             context: context,
             builder:
                 (ctx) => AlertDialog(
-                  title: const Text('Plan Starts Soon'),
+                  title: Text(localizations.plan_starts_soon_title),
                   content: Text(
-                    'This plan starts on $formattedDate. You can browse the content now.',
+                    localizations.plan_starts_soon_message(formattedDate),
                   ),
                   actions: [
                     TextButton(
                       onPressed: () => Navigator.pop(ctx),
-                      child: const Text('Got it'),
+                      child: Text(localizations.got_it),
                     ),
                   ],
                 ),
@@ -270,14 +271,14 @@ class _PlanInfoState extends ConsumerState<PlanInfo> {
             context: context,
             builder:
                 (ctx) => AlertDialog(
-                  title: const Text('Joining After Start Date'),
+                  title: Text(localizations.plan_joining_late_title),
                   content: Text(
-                    'This plan started on $formattedDate. You can complete past day tasks.',
+                    localizations.plan_joining_late_message(formattedDate),
                   ),
                   actions: [
                     TextButton(
                       onPressed: () => Navigator.pop(ctx),
-                      child: const Text('Got it'),
+                      child: Text(localizations.got_it),
                     ),
                   ],
                 ),
@@ -287,7 +288,7 @@ class _PlanInfoState extends ConsumerState<PlanInfo> {
     } catch (e) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Enrollment failed. Please try again.')),
+          SnackBar(content: Text(localizations.enrollError)),
         );
       }
     } finally {

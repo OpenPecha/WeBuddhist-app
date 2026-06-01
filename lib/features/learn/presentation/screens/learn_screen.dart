@@ -35,7 +35,7 @@ class LearnScreen extends StatelessWidget {
               ),
               const SizedBox(height: 6),
               Text(
-                'Your personal study plans, designed to fit into everyday life.',
+                l10n.learn_coming_soon_subtitle,
                 textAlign: TextAlign.center,
               ),
             ],

@@ -187,7 +187,7 @@ class _CollectionsListView extends ConsumerWidget {
         return eitherResponse.fold(
           (failure) => ErrorStateWidget(
             error: failure,
-            customMessage: 'Unable to load collections.\nPlease try again.',
+            customMessage: l10n.collections_load_error,
           ),
           (response) {
             final collections = response.collections;
@@ -224,7 +224,7 @@ class _CollectionsListView extends ConsumerWidget {
       loading: () => const LoadingStateWidget(),
       error: (error, stackTrace) => ErrorStateWidget(
         error: error,
-        customMessage: 'Unable to load collections.\nPlease try again.',
+        customMessage: l10n.collections_load_error,
       ),
     );
   }
@@ -262,23 +262,23 @@ class _SearchResultsView extends ConsumerWidget {
       error:
           (error, stackTrace) => ErrorStateWidget(
             error: error,
-            customMessage: 'Unable to perform search.\nPlease try again.',
+            customMessage: context.l10n.text_search_error,
           ),
       data: (eitherResponse) {
         return eitherResponse.fold(
           (failure) => ErrorStateWidget(
             error: failure,
-            customMessage: 'Unable to perform search.\nPlease try again.',
+            customMessage: context.l10n.text_search_error,
           ),
           (searchResponse) {
             if (searchResponse.sources.isEmpty) {
-              return _buildNoResults(query);
+              return _buildNoResults(context, query);
             }
 
             final groupedResults = _groupSearchResults(searchResponse.sources);
 
             if (groupedResults.isEmpty) {
-              return _buildNoResults(query);
+              return _buildNoResults(context, query);
             }
 
             return _buildSearchResultsList(groupedResults, query, ref);
@@ -288,10 +288,10 @@ class _SearchResultsView extends ConsumerWidget {
     );
   }
 
-  Widget _buildNoResults(String query) {
+  Widget _buildNoResults(BuildContext context, String query) {
     return Center(
       child: Text(
-        'No results found for "$query"',
+        context.l10n.search_no_results(query),
         style: const TextStyle(fontSize: TextScreenConstants.bodyFontSize),
       ),
     );

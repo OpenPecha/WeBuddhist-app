@@ -100,6 +100,8 @@ class PlanSubtaskNavigation {
           segmentIds: subtask.segmentIds,
           subtaskId: subtask.id,
           isCompleted: subtask.isCompleted,
+          startMs: subtask.startMs,
+          endMs: subtask.endMs,
         );
       case PlanItemContentType.inlineText:
         if (!_hasInlineContent(subtask.content)) return null;
@@ -108,6 +110,8 @@ class PlanSubtaskNavigation {
           title: title,
           subtaskId: subtask.id,
           isCompleted: subtask.isCompleted,
+          startMs: subtask.startMs,
+          endMs: subtask.endMs,
         );
       case null:
         return null;
@@ -126,12 +130,16 @@ class PlanSubtaskNavigation {
           textId: subtask.sourceTextId!,
           title: title,
           segmentIds: subtask.segmentIds,
+          startMs: subtask.startMs,
+          endMs: subtask.endMs,
         );
       case PlanItemContentType.inlineText:
         if (!_hasInlineContent(subtask.content)) return null;
         return PlanTextItem.inlineText(
           content: subtask.content!,
           title: title,
+          startMs: subtask.startMs,
+          endMs: subtask.endMs,
         );
       case null:
         return null;

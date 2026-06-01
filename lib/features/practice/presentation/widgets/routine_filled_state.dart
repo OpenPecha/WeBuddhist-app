@@ -1,15 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
+import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/features/notifications/data/models/notification_nav.dart';
 import 'package:flutter_pecha/features/plans/data/models/user/user_plans_model.dart';
 import 'package:flutter_pecha/features/plans/presentation/providers/user_plans_provider.dart';
+import 'package:flutter_pecha/features/plans/presentation/widgets/plan_track/enrolled_plan_status_indicator.dart';
+import 'package:flutter_pecha/features/plans/presentation/widgets/plan_track/plan_date_range_label.dart';
 import 'package:flutter_pecha/features/practice/data/models/routine_model.dart';
+import 'package:flutter_pecha/features/practice/presentation/providers/routine_api_providers.dart';
 import 'package:flutter_pecha/features/practice/presentation/widgets/routine_item_card.dart';
 import 'package:flutter_pecha/features/reader/data/models/navigation_context.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+
+final _logger = AppLogger('RoutineFilledState');
 
 class RoutineFilledState extends ConsumerWidget {
   final RoutineData routineData;
@@ -52,10 +58,17 @@ class RoutineFilledState extends ConsumerWidget {
             return; // plans not loaded yet — wait for next build
           }
           ref.read(pendingNotificationNavProvider.notifier).state = null;
-          final startDate = userPlan.startedAt;
+          final startDate = userPlan.effectiveStartDate;
           final daysSince =
               DateTime.now().difference(DateUtils.dateOnly(startDate)).inDays;
           final selectedDay = (daysSince + 1).clamp(1, userPlan.totalDays);
+          _logger.info(
+            '[ENROLL-NAV] deep-link open ${userPlan.id} '
+            'anchor=${startDate.toIso8601String()} '
+            'startDate=${userPlan.startDate?.toIso8601String()} '
+            'startedAt=${userPlan.startedAt.toIso8601String()} '
+            'selectedDay=$selectedDay/${userPlan.totalDays}',
+          );
           context.push(
             '/practice/details',
             extra: {
@@ -100,12 +113,23 @@ class RoutineFilledState extends ConsumerWidget {
         ),
         // Routine blocks
         Expanded(
-          child: ListView.builder(
-            padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 12),
-            itemCount: routineData.blocks.length,
-            itemBuilder: (context, index) {
-              return _RoutineBlockSection(block: routineData.blocks[index]);
+          child: RefreshIndicator(
+            onRefresh: () async {
+              ref.invalidate(userRoutineProvider);
+              await ref.read(userRoutineProvider.future);
+              await ref.read(myPlansPaginatedProvider.notifier).refresh();
             },
+            child: ListView.builder(
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 20.0,
+                vertical: 12,
+              ),
+              itemCount: routineData.blocks.length,
+              itemBuilder: (context, index) {
+                return _RoutineBlockSection(block: routineData.blocks[index]);
+              },
+            ),
           ),
         ),
       ],
@@ -203,10 +227,16 @@ class _RoutineBlockSection extends ConsumerWidget {
 
     final startDate =
         userPlan.startDate ?? item.enrolledAt ?? userPlan.startedAt;
-    debugPrint(':::::::::::::::: $startDate');
     final daysSinceEnrollment =
         DateTime.now().difference(DateUtils.dateOnly(startDate)).inDays;
     final selectedDay = (daysSinceEnrollment + 1).clamp(1, userPlan.totalDays);
+    _logger.info(
+      '[ENROLL-NAV] open plan ${userPlan.id} '
+      'anchor=${startDate.toIso8601String()} '
+      'startDate=${userPlan.startDate?.toIso8601String()} '
+      'startedAt=${userPlan.startedAt.toIso8601String()} '
+      'selectedDay=$selectedDay/${userPlan.totalDays}',
+    );
 
     context.push(
       '/practice/details',
@@ -234,17 +264,15 @@ class _RoutineBlockSection extends ConsumerWidget {
     return userPlan;
   }
 
-  String? _startDateLabel(
-    BuildContext context,
+  /// Resolves the enrolled [UserPlansModel] for a plan-type routine item from
+  /// the cached `myPlansPaginatedProvider`. Returns null for recitations or
+  /// when the plan hasn't been hydrated yet.
+  UserPlansModel? _resolveUserPlanForItem(
     RoutineItem item,
     List<UserPlansModel> plans,
   ) {
     if (item.type != RoutineItemType.plan) return null;
-    final userPlan = plans.where((p) => p.id == item.id).firstOrNull;
-    final startDate = userPlan?.startDate;
-    if (startDate == null) return null;
-    if (!DateTime.now().isBefore(DateUtils.dateOnly(startDate))) return null;
-    return context.l10n.plan_starts_on(DateFormat('MMM d').format(startDate));
+    return plans.where((p) => p.id == item.id).firstOrNull;
   }
 
   @override
@@ -266,13 +294,7 @@ class _RoutineBlockSection extends ConsumerWidget {
         ),
         const SizedBox(height: 8),
         for (int i = 0; i < block.items.length; i++) ...[
-          RoutineItemCard(
-            title: block.items[i].title,
-            imageUrl: block.items[i].imageUrl,
-            type: block.items[i].type,
-            onTap: () => _onItemTap(context, ref, block.items[i]),
-            startDateLabel: _startDateLabel(context, block.items[i], plans),
-          ),
+          _buildItemCard(context, ref, block.items[i], plans),
           if (i < block.items.length - 1) const Divider(height: 1, indent: 80),
         ],
         if (block.items.isNotEmpty)
@@ -281,6 +303,41 @@ class _RoutineBlockSection extends ConsumerWidget {
             child: Divider(height: 1),
           ),
       ],
+    );
+  }
+
+  /// Builds a [RoutineItemCard] augmented, for enrolled plan items, with the
+  /// shared date-range subtitle and the per-plan status indicator (tick /
+  /// On Track! / N Missed Days). Recitation items render with no subtitle
+  /// or trailing — same behavior as before.
+  Widget _buildItemCard(
+    BuildContext context,
+    WidgetRef ref,
+    RoutineItem item,
+    List<UserPlansModel> plans,
+  ) {
+    final userPlan = _resolveUserPlanForItem(item, plans);
+    final dateRange =
+        userPlan == null
+            ? null
+            : PlanDateRange.tryCreate(
+              startDate: userPlan.effectiveStartDate,
+              totalDays: userPlan.totalDays,
+            );
+
+    return RoutineItemCard(
+      title: item.title,
+      imageUrl: item.imageUrl,
+      type: item.type,
+      onTap: () => _onItemTap(context, ref, item),
+      subtitle: dateRange == null ? null : PlanDateRangeLabel(dateRange: dateRange),
+      trailing: dateRange == null || userPlan == null
+          ? null
+          : EnrolledPlanStatusIndicator(
+            planId: userPlan.id,
+            dateRange: dateRange,
+            userJoinDate: userPlan.startedAt,
+          ),
     );
   }
 }

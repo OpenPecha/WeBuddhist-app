@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/widgets/error_state_widget.dart';
 
 /// A widget that displays an error state for recitation loading failures.
@@ -18,16 +19,17 @@ class RecitationErrorState extends StatelessWidget {
     return ErrorStateWidget(
       error: error,
       onRetry: onRetry,
-      customMessage: _getRecitationSpecificMessage(error.toString()),
+      customMessage: _getRecitationSpecificMessage(context, error.toString()),
     );
   }
 
   /// Returns recitation-specific error messages for known error types
-  String? _getRecitationSpecificMessage(String error) {
+  String? _getRecitationSpecificMessage(BuildContext context, String error) {
+    final l10n = AppLocalizations.of(context)!;
     if (error.contains('404')) {
-      return 'This recitation content is currently unavailable.\nPlease try again later or contact support.';
+      return l10n.recitation_unavailable;
     } else if (error.contains('401')) {
-      return 'Please sign in to access this recitation.';
+      return l10n.recitation_sign_in_required;
     }
     return ErrorStateWidget(error: error, onRetry: onRetry).customMessage;
   }

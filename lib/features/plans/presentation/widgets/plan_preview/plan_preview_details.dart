@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
+import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/core/widgets/skeletons/skeletons.dart';
 import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
 import 'package:flutter_pecha/features/auth/presentation/widgets/login_drawer.dart';
+import 'package:flutter_pecha/features/plans/data/utils/plan_utils.dart';
 import 'package:flutter_pecha/features/plans/domain/entities/plan.dart';
 import 'package:flutter_pecha/features/plans/presentation/providers/plan_days_providers.dart';
 import 'package:flutter_pecha/features/plans/data/models/plan_days_model.dart';
@@ -30,8 +32,38 @@ class PlanPreviewDetails extends ConsumerStatefulWidget {
   ConsumerState<PlanPreviewDetails> createState() => _PlanPreviewDetailsState();
 }
 
+final _logger = AppLogger('PlanPreviewDetails');
+
 class _PlanPreviewDetailsState extends ConsumerState<PlanPreviewDetails> {
-  int selectedDay = 1;
+  late int selectedDay;
+
+  @override
+  void initState() {
+    super.initState();
+    selectedDay = _defaultSelectedDay();
+  }
+
+  /// For fixed-date plans that have already started, default the carousel
+  /// to today's plan day so an unenrolled visitor sees they'd be joining
+  /// mid-stream. Before the start date (or for flexible plans without a
+  /// start date), default to Day 1. After the plan has ended, clamp to the
+  /// final day.
+  int _defaultSelectedDay() {
+    final startDate = widget.plan.startDate;
+    if (startDate == null) return 1;
+    final day = PlanUtils.dayNumberFor(
+      startDate,
+      DateTime.now(),
+      widget.plan.totalDays,
+    );
+    final selected = day < 1 ? 1 : day;
+    _logger.info(
+      '[ENROLL-DAY] preview ${widget.plan.id} '
+      'startDate=${startDate.toIso8601String()} '
+      'totalDays=${widget.plan.totalDays} default=$selected',
+    );
+    return selected;
+  }
 
   bool _isPlanInRoutine(RoutineData routineData) {
     return routineData.blocks.any(
@@ -40,6 +72,19 @@ class _PlanPreviewDetailsState extends ConsumerState<PlanPreviewDetails> {
             item.id == widget.plan.id && item.type == RoutineItemType.plan,
       ),
     );
+  }
+
+  /// True when the plan has a fixed start date that is strictly after today's
+  /// local calendar date. The backend blocks enrolling in future-dated plans,
+  /// so the bottom "Add to Routine" button is hidden in that case to avoid a
+  /// guaranteed-failure tap and the downstream "Plan not found" snackbar in
+  /// the routine screen. Flexible plans (`startDate == null`) are unaffected.
+  bool _isFuturePlan() {
+    final startDate = widget.plan.startDate;
+    if (startDate == null) return false;
+    final today = DateUtils.dateOnly(DateTime.now());
+    final start = DateUtils.dateOnly(startDate.toLocal());
+    return start.isAfter(today);
   }
 
   void _handleAddToRoutine() {
@@ -57,6 +102,7 @@ class _PlanPreviewDetailsState extends ConsumerState<PlanPreviewDetails> {
     final authState = ref.watch(authProvider);
     final isGuest = authState.isGuest;
     final alreadyInRoutine = _isCurrentlyInRoutine();
+    final isFuturePlan = _isFuturePlan();
 
     return Scaffold(
       appBar: _buildAppBar(context, alreadyInRoutine),
@@ -74,7 +120,8 @@ class _PlanPreviewDetailsState extends ConsumerState<PlanPreviewDetails> {
               ),
             ),
           ),
-          if (!alreadyInRoutine) _buildBottomButton(context, isGuest),
+          if (!alreadyInRoutine && !isFuturePlan)
+            _buildBottomButton(context, isGuest),
         ],
       ),
     );
@@ -202,7 +249,7 @@ class _PlanPreviewDetailsState extends ConsumerState<PlanPreviewDetails> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Unable to load the tasks for the day',
+          context.l10n.plan_day_tasks_load_error,
           style: TextStyle(color: Colors.red[600]),
         ),
         const SizedBox(height: 8),

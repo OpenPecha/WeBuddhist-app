@@ -2,14 +2,16 @@ class PlanSubtasksModel {
   final String id;
   final String? label;
   final String contentType;
-  final String? content; // Made nullable as per schema
+  final String? content;
   final int? displayOrder;
   final String? duration;
   final String? sourceTextId;
   final String? pechaSegmentId;
   final List<String>? segmentIds;
+  final int? startMs;
+  final int? endMs;
 
-  PlanSubtasksModel({
+  const PlanSubtasksModel({
     required this.id,
     this.label,
     required this.contentType,
@@ -19,7 +21,11 @@ class PlanSubtasksModel {
     this.sourceTextId,
     this.pechaSegmentId,
     this.segmentIds,
+    this.startMs,
+    this.endMs,
   });
+
+  bool get hasAudioWindow => startMs != null && endMs != null;
 
   factory PlanSubtasksModel.fromJson(Map<String, dynamic> json) {
     return PlanSubtasksModel(
@@ -31,10 +37,11 @@ class PlanSubtasksModel {
       duration: json['duration'] as String?,
       sourceTextId: json['source_text_id'] as String?,
       pechaSegmentId: json['pecha_segment_id'] as String?,
-      segmentIds:
-          (json['segment_ids'] as List<dynamic>?)
-              ?.map((e) => e.toString())
-              .toList(),
+      segmentIds: (json['segment_ids'] as List<dynamic>?)
+          ?.map((e) => e.toString())
+          .toList(),
+      startMs: json['start_ms'] as int?,
+      endMs: json['end_ms'] as int?,
     );
   }
 
@@ -49,10 +56,11 @@ class PlanSubtasksModel {
       'source_text_id': sourceTextId,
       'pecha_segment_id': pechaSegmentId,
       'segment_ids': segmentIds,
+      'start_ms': startMs,
+      'end_ms': endMs,
     };
   }
 
-  /// Create a copy of this plan subtask with optional field updates
   PlanSubtasksModel copyWith({
     String? id,
     String? label,
@@ -63,6 +71,8 @@ class PlanSubtasksModel {
     String? sourceTextId,
     String? pechaSegmentId,
     List<String>? segmentIds,
+    int? startMs,
+    int? endMs,
   }) {
     return PlanSubtasksModel(
       id: id ?? this.id,
@@ -74,6 +84,8 @@ class PlanSubtasksModel {
       sourceTextId: sourceTextId ?? this.sourceTextId,
       pechaSegmentId: pechaSegmentId ?? this.pechaSegmentId,
       segmentIds: segmentIds ?? this.segmentIds,
+      startMs: startMs ?? this.startMs,
+      endMs: endMs ?? this.endMs,
     );
   }
 }

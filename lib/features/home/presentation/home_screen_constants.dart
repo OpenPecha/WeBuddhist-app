@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 /// Constants used in the HomeScreen
 class HomeScreenConstants {
   // UI Dimensions
@@ -10,6 +12,14 @@ class HomeScreenConstants {
   static const double profileIconSize = 32.0;
   static const double bodyHorizontalPadding = 16.0;
   static const double bodyVerticalPadding = 8.0;
+
+  /// Material 3 [SearchBar] default height (min 48dp touch target for UX).
+  static const double searchBarHeight = 56.0;
+  static const double searchBarHorizontalPadding = 16.0;
+  static const BoxConstraints searchBarConstraints = BoxConstraints(
+    minHeight: searchBarHeight,
+    maxHeight: searchBarHeight,
+  );
   static const double cardSpacing = 16.0;
   static const double emptyStatePadding = 32.0;
   static const double errorIconSize = 48.0;

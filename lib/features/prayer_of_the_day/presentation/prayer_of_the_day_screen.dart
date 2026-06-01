@@ -195,9 +195,9 @@ class _PrayerOfTheDayScreenState extends ConsumerState<PrayerOfTheDayScreen> {
       _logger.error('Error initializing audio player', e);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
+          SnackBar(
             content: Text(
-              'Unable to load audio. Please check your connection and try again.',
+              AppLocalizations.of(context)!.prayer_audio_load_error,
             ),
           ),
         );

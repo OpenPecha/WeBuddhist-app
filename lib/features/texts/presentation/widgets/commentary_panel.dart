@@ -411,7 +411,7 @@ class _ErrorState extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             Text(
-              'Something went wrong',
+              context.l10n.something_went_wrong,
               style: Theme.of(context).textTheme.titleSmall,
               textAlign: TextAlign.center,
             ),

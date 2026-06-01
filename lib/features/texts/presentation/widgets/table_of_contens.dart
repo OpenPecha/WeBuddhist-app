@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/features/reader/data/models/navigation_context.dart';
 import 'package:flutter_pecha/features/texts/data/models/section.dart';
 import 'package:flutter_pecha/features/texts/data/models/text/toc_response.dart';
@@ -28,7 +29,7 @@ class _TableOfContentsState extends ConsumerState<TableOfContents> {
   Widget build(BuildContext context) {
     final contents = widget.toc.contents;
     if (contents.isEmpty) {
-      return const Center(child: Text('No content found'));
+      return Center(child: Text(AppLocalizations.of(context)!.no_content));
     }
     return ListView(
       children: [

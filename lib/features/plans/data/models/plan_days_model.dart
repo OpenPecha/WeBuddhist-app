@@ -5,27 +5,32 @@ class PlanDaysModel {
   final int dayNumber;
   final String? title;
   final List<PlanTasksModel>? tasks;
+  final String? audioUrl;
+  final int? audioDurationMs;
 
   PlanDaysModel({
     required this.id,
     required this.dayNumber,
     this.title,
     this.tasks,
+    this.audioUrl,
+    this.audioDurationMs,
   });
+
+  bool get hasAudio => audioUrl != null;
 
   factory PlanDaysModel.fromJson(Map<String, dynamic> json) {
     return PlanDaysModel(
       id: json['id'] as String,
       dayNumber: json['day_number'] as int,
       title: json['title'] as String?,
-      tasks:
-          json['tasks'] != null
-              ? (json['tasks'] as List<dynamic>)
-                  .map(
-                    (e) => PlanTasksModel.fromJson(e as Map<String, dynamic>),
-                  )
-                  .toList()
-              : null,
+      tasks: json['tasks'] != null
+          ? (json['tasks'] as List<dynamic>)
+              .map((e) => PlanTasksModel.fromJson(e as Map<String, dynamic>))
+              .toList()
+          : null,
+      audioUrl: json['audio_url'] as String?,
+      audioDurationMs: json['audio_duration_ms'] as int?,
     );
   }
 
@@ -35,37 +40,33 @@ class PlanDaysModel {
       'day_number': dayNumber,
       'title': title,
       'tasks': tasks?.map((e) => e.toJson()).toList(),
+      'audio_url': audioUrl,
+      'audio_duration_ms': audioDurationMs,
     };
   }
 
-  /// Create a copy of this plan item with optional field updates
   PlanDaysModel copyWith({
     String? id,
     int? dayNumber,
     String? title,
     List<PlanTasksModel>? tasks,
+    String? audioUrl,
+    int? audioDurationMs,
   }) {
     return PlanDaysModel(
       id: id ?? this.id,
       dayNumber: dayNumber ?? this.dayNumber,
       title: title ?? this.title,
       tasks: tasks ?? this.tasks,
+      audioUrl: audioUrl ?? this.audioUrl,
+      audioDurationMs: audioDurationMs ?? this.audioDurationMs,
     );
   }
 
-  /// Check if this plan item is soft deleted
   bool get isDeleted => false;
-
-  /// Check if this plan item is active (not deleted)
   bool get isActive => !isDeleted;
-
-  /// Get a human-readable day label (e.g., "Day 1", "Day 2")
   String get dayLabel => 'Day $dayNumber';
-
-  /// Check if this is the first day of the plan
   bool get isFirstDay => dayNumber == 1;
-
-  /// Validate that day number is positive
   bool get isValidDayNumber => dayNumber > 0;
 
   @override
@@ -80,7 +81,6 @@ class PlanDaysModel {
   int get hashCode => Object.hash(id, dayNumber);
 
   @override
-  String toString() {
-    return 'PlanDaysModel(id: $id, dayNumber: $dayNumber, isDeleted: $isDeleted)';
-  }
+  String toString() =>
+      'PlanDaysModel(id: $id, dayNumber: $dayNumber, hasAudio: $hasAudio)';
 }

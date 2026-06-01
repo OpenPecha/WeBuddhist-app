@@ -37,6 +37,7 @@ import 'package:flutter_pecha/features/texts/presentation/version_selection/lang
 import 'package:flutter_pecha/features/texts/presentation/version_selection/version_selection_screen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:posthog_flutter/posthog_flutter.dart';
 
 final _logger = AppLogger('AppRouter');
 
@@ -56,6 +57,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(
     initialLocation: AppRoutes.home,
     debugLogDiagnostics: true,
+    observers: [PosthogObserver()],
 
     // Re-evaluate redirect whenever auth state changes.
     refreshListenable: GoRouterRefreshStream(
@@ -71,8 +73,8 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         ref.read(authProvider),
         onboardingRepo,
         getPendingRoute: () => ref.read(pendingRouteProvider),
-        setPendingRoute: (route) =>
-            ref.read(pendingRouteProvider.notifier).state = route,
+        setPendingRoute:
+            (route) => ref.read(pendingRouteProvider.notifier).state = route,
       );
     },
 
@@ -128,11 +130,8 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             builder: (context, state) {
               final id = state.pathParameters['id'] ?? '';
               final extra = state.extra as Map<String, dynamic>?;
-              final initialSeries = extra?['series'] as Series?;
-              return SeriesDetailScreen(
-                seriesId: id,
-                initialSeries: initialSeries,
-              );
+              final series = extra?['series'] as Series?;
+              return SeriesDetailScreen(seriesId: id, series: series);
             },
           ),
           // settings route
@@ -187,7 +186,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             builder: (context, state) {
               final extra = state.extra as Map<String, dynamic>?;
               final plan = extra?['initialPlan'] as Plan?;
-              return EditRoutineScreen(initialPlan: plan);
+              final enrollSeriesId = extra?['enrollSeriesId'] as String?;
+              return EditRoutineScreen(
+                initialPlan: plan,
+                enrollSeriesId: enrollSeriesId,
+              );
             },
             routes: [
               GoRoute(
@@ -323,11 +326,16 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             );
             return const MaterialPage(child: MainNavigationScreen());
           }
-          
+
           return CustomTransitionPage(
             key: state.pageKey,
             child: PlanTextScreen(navigationContext: extra),
-            transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            transitionsBuilder: (
+              context,
+              animation,
+              secondaryAnimation,
+              child,
+            ) {
               return buildPlanNavigationTransition(
                 context,
                 animation,
@@ -385,13 +393,18 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           );
 
           // Use directional transition for plan navigation
-          if (navigationContext != null && 
+          if (navigationContext != null &&
               navigationContext.source == NavigationSource.plan) {
             final direction = navigationContext.navigationDirection;
             return CustomTransitionPage(
               key: state.pageKey,
               child: screen,
-              transitionsBuilder: (context, animation, secondaryAnimation, child) {
+              transitionsBuilder: (
+                context,
+                animation,
+                secondaryAnimation,
+                child,
+              ) {
                 return buildPlanNavigationTransition(
                   context,
                   animation,
@@ -404,10 +417,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           }
 
           // Default MaterialPage for non-plan navigation
-          return MaterialPage(
-            key: state.pageKey,
-            child: screen,
-          );
+          return MaterialPage(key: state.pageKey, child: screen);
         },
         routes: [
           // route - /reader/:textId/versions (version selection)
