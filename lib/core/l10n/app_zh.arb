@@ -390,7 +390,7 @@
   "routine_delete_time_block": "刪除時段",
   "routine_add_plan": "添加計畫",
   "routine_add_recitation": "添加持誦",
-  "routine_add_plan_to_routine": "新增至常規",
+  "routine_add_plan_to_routine": "新增至日常修持",
   "routine_go_to_practice": "前往修持",
   "routine_load_error": "無法載入。請檢查您的網路連線，然後再試一次。",
   "routine_empty_block_title_singular": "空白時段",
