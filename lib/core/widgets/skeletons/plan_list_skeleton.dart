@@ -48,6 +48,10 @@ class PlanListSkeleton extends StatelessWidget {
   }
 
   int _calculateListItemCount(BoxConstraints constraints) {
+    if (!constraints.maxHeight.isFinite) {
+      return 4;
+    }
+
     // Featured card is ~200 height + 16 spacing
     // Each list item is ~86 height + 12 bottom margin
     final availableForList = constraints.maxHeight - 200 - 16 - 24;

@@ -11,6 +11,11 @@ import 'package:go_router/go_router.dart';
 class PracticeScreen extends ConsumerWidget {
   const PracticeScreen({super.key});
 
+  Future<void> _refreshRoutine(WidgetRef ref) async {
+    ref.invalidate(userRoutineProvider);
+    await ref.read(userRoutineProvider.future);
+  }
+
   void _onBuildRoutine(BuildContext context, WidgetRef ref) {
     final isGuest = ref.read(authProvider).isGuest;
     if (isGuest) {
@@ -57,32 +62,47 @@ class PracticeScreen extends ConsumerWidget {
       error:
           (error, _) => Scaffold(
             body: SafeArea(
-              child: Center(
-                child: Padding(
-                  padding: const EdgeInsets.all(24),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        localizations.routine_load_error,
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w600,
+              child: RefreshIndicator(
+                onRefresh: () => _refreshRoutine(ref),
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    return SingleChildScrollView(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(
+                          minHeight: constraints.maxHeight,
+                        ),
+                        child: Center(
+                          child: Padding(
+                            padding: const EdgeInsets.all(24),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  localizations.routine_load_error,
+                                  textAlign: TextAlign.center,
+                                  style: const TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                                const SizedBox(height: 12),
+                                Text(
+                                  _friendlyErrorMessage(error, localizations),
+                                  textAlign: TextAlign.center,
+                                ),
+                                const SizedBox(height: 24),
+                                FilledButton(
+                                  onPressed: () => _refreshRoutine(ref),
+                                  child: Text(localizations.retry),
+                                ),
+                              ],
+                            ),
+                          ),
                         ),
                       ),
-                      const SizedBox(height: 12),
-                      Text(
-                        _friendlyErrorMessage(error, localizations),
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: 24),
-                      FilledButton(
-                        onPressed: () => ref.invalidate(userRoutineProvider),
-                        child: Text(localizations.retry),
-                      ),
-                    ],
-                  ),
+                    );
+                  },
                 ),
               ),
             ),
@@ -137,10 +157,7 @@ class PracticeScreen extends ConsumerWidget {
             ),
             Expanded(
               child: RefreshIndicator(
-                onRefresh: () async {
-                  ref.invalidate(userRoutineProvider);
-                  await ref.read(userRoutineProvider.future);
-                },
+                onRefresh: () => _refreshRoutine(ref),
                 child: RoutineEmptyState(
                   onBuildRoutine: () => _onBuildRoutine(context, ref),
                 ),

@@ -190,17 +190,17 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         MainTab.practice.index;
   }
 
-  /// Manual refetch/retry method that can be called from UI
-  void _refetchSeries() {
-    // ignore: unused_result
-    ref.refresh(seriesListFutureProvider);
-  }
-
   /// Pull-to-refresh handler. Invalidates the series list and awaits the
   /// refreshed result so the RefreshIndicator spinner stays until data lands.
   Future<void> _onRefresh() async {
     ref.invalidate(seriesListFutureProvider);
     await ref.read(seriesListFutureProvider.future);
+  }
+
+  /// Manual refetch/retry method that can be called from UI.
+  /// Reuses the same logic as pull-to-refresh for consistent behavior.
+  void _refetchSeries() {
+    _onRefresh();
   }
 
   void _navigateToSeries(Series series) {
