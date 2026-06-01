@@ -656,7 +656,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get home_default_duration => '1-2 min';
 
   @override
-  String get version => 'Version';
+  String get version => 'Versions';
 
   @override
   String get reader_settings_tooltip => 'Reader settings';
@@ -1364,4 +1364,24 @@ class AppLocalizationsEn extends AppLocalizations {
   String plan_starts_on(String date) {
     return 'Starts $date';
   }
+
+  @override
+  String get reader_settings => 'Reader Settings';
+
+  @override
+  String get show_second_version => 'Show Second Version';
+
+  @override
+  String get enable_add_msg =>
+      'Enable to add a translation or transliteration alongside the main text.';
+
+  @override
+  String get main_text => 'Main Text';
+
+  @override
+  String get second_version => 'Second Version';
+
+  @override
+  String get second_version_msg =>
+      'The second version will appear below each verse of the main text.';
 }

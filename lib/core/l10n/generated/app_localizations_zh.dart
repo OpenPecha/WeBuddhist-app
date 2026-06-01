@@ -1309,4 +1309,22 @@ class AppLocalizationsZh extends AppLocalizations {
   String plan_starts_on(String date) {
     return '開始於 $date';
   }
+
+  @override
+  String get reader_settings => '讀者偏好設定';
+
+  @override
+  String get show_second_version => '顯示第二種版本';
+
+  @override
+  String get enable_add_msg => '開啟以同時對讀主文的其他翻譯或音譯';
+
+  @override
+  String get main_text => '主文';
+
+  @override
+  String get second_version => '第二種版本';
+
+  @override
+  String get second_version_msg => '第二種翻譯版本會逐句出現在主文的下方';
 }

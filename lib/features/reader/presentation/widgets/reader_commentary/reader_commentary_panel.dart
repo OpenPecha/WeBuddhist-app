@@ -190,7 +190,7 @@ class _CommentaryCard extends StatelessWidget {
           const SizedBox(height: _CommentaryPanelConstants.contentSpacing),
           // Content
           ...commentary.segments.map((segment) {
-            final content = segment.content;
+            final content = segment.content.replaceAll('⤵', '\n');
             final isTruncated =
                 !isExpanded &&
                 content.length > _CommentaryPanelConstants.previewMaxLength;
