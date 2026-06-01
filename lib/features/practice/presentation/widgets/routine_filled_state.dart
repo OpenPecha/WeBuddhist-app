@@ -8,6 +8,7 @@ import 'package:flutter_pecha/features/plans/presentation/providers/user_plans_p
 import 'package:flutter_pecha/features/plans/presentation/widgets/plan_track/enrolled_plan_status_indicator.dart';
 import 'package:flutter_pecha/features/plans/presentation/widgets/plan_track/plan_date_range_label.dart';
 import 'package:flutter_pecha/features/practice/data/models/routine_model.dart';
+import 'package:flutter_pecha/features/practice/presentation/providers/routine_api_providers.dart';
 import 'package:flutter_pecha/features/practice/presentation/widgets/routine_item_card.dart';
 import 'package:flutter_pecha/features/reader/data/models/navigation_context.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -112,12 +113,23 @@ class RoutineFilledState extends ConsumerWidget {
         ),
         // Routine blocks
         Expanded(
-          child: ListView.builder(
-            padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 12),
-            itemCount: routineData.blocks.length,
-            itemBuilder: (context, index) {
-              return _RoutineBlockSection(block: routineData.blocks[index]);
+          child: RefreshIndicator(
+            onRefresh: () async {
+              ref.invalidate(userRoutineProvider);
+              await ref.read(userRoutineProvider.future);
+              await ref.read(myPlansPaginatedProvider.notifier).refresh();
             },
+            child: ListView.builder(
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 20.0,
+                vertical: 12,
+              ),
+              itemCount: routineData.blocks.length,
+              itemBuilder: (context, index) {
+                return _RoutineBlockSection(block: routineData.blocks[index]);
+              },
+            ),
           ),
         ),
       ],

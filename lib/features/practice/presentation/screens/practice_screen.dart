@@ -136,8 +136,14 @@ class PracticeScreen extends ConsumerWidget {
               child: Divider(height: 1),
             ),
             Expanded(
-              child: RoutineEmptyState(
-                onBuildRoutine: () => _onBuildRoutine(context, ref),
+              child: RefreshIndicator(
+                onRefresh: () async {
+                  ref.invalidate(userRoutineProvider);
+                  await ref.read(userRoutineProvider.future);
+                },
+                child: RoutineEmptyState(
+                  onBuildRoutine: () => _onBuildRoutine(context, ref),
+                ),
               ),
             ),
           ],
