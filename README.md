@@ -32,6 +32,14 @@ cp .env.example .env.prod
 ```
 Edit each file with the appropriate values for that environment.
 
+Each flavor should use its own PostHog project token:
+
+| Variable | Description |
+|----------|-------------|
+| `POSTHOG_API_KEY` | PostHog project API key for this flavor |
+| `POSTHOG_HOST` | PostHog ingest host (default `https://us.i.posthog.com`) |
+| `POSTHOG_ENABLED` | Set to `false` to disable analytics locally |
+
 ### 4. Run the App
 
 **Android**

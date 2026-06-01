@@ -37,6 +37,7 @@ import 'package:flutter_pecha/features/texts/presentation/version_selection/lang
 import 'package:flutter_pecha/features/texts/presentation/version_selection/version_selection_screen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:posthog_flutter/posthog_flutter.dart';
 
 final _logger = AppLogger('AppRouter');
 
@@ -56,6 +57,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(
     initialLocation: AppRoutes.home,
     debugLogDiagnostics: true,
+    observers: [PosthogObserver()],
 
     // Re-evaluate redirect whenever auth state changes.
     refreshListenable: GoRouterRefreshStream(

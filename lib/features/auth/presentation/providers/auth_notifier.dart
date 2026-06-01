@@ -1,4 +1,5 @@
 // Riverpod provider and logic for authentication state.
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter_pecha/core/storage/plan_metadata_store.dart';
@@ -17,6 +18,9 @@ import 'package:flutter_pecha/features/auth/domain/usecases/initialize_auth_usec
 import 'package:flutter_pecha/features/auth/domain/usecases/is_guest_mode_usecase.dart';
 import 'package:flutter_pecha/features/auth/domain/usecases/login_usecase.dart';
 import 'package:flutter_pecha/features/auth/domain/usecases/logout_usecase.dart';
+import 'package:flutter_pecha/core/analytics/analytics_events.dart';
+import 'package:flutter_pecha/core/analytics/analytics_service.dart';
+import 'package:flutter_pecha/core/analytics/analytics_providers.dart';
 import 'package:flutter_pecha/core/config/router/pending_route_provider.dart';
 import 'package:flutter_pecha/features/onboarding/presentation/providers/onboarding_datasource_providers.dart';
 import 'package:flutter_pecha/shared/domain/base_classes/usecase.dart';
@@ -137,6 +141,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
           .read(localStorageServiceProvider)
           .set(StorageKeys.currentUserId, userId);
       _logger.debug('Restored currentUserId for onboarding tracking');
+      await _identifyAuthenticatedUser(userId: userId, isGuest: false);
     }
 
     state = state.copyWith(
@@ -173,6 +178,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
             errorMessage: null,
           );
           _logger.info('Guest mode restored from preferences');
+          unawaited(_markGuestSession());
         } else {
           // No credentials and not guest mode, user needs to log in
           _setLoggedOutState();
@@ -211,18 +217,27 @@ class AuthNotifier extends StateNotifier<AuthState> {
     loginResult.fold(
       (failure) {
         _logger.error('Login failed: ${failure.message}');
+        unawaited(
+          _trackAuthLoginFailed(
+            connection: connection,
+            reason: failure.message,
+          ),
+        );
         state = state.copyWith(
           isLoading: false,
           errorMessage: 'Login failed: ${failure.message}',
         );
       },
       (credentials) {
-        _handleSuccessfulLogin(credentials);
+        unawaited(_handleSuccessfulLogin(credentials, connection: connection));
       },
     );
   }
 
-  Future<void> _handleSuccessfulLogin(AuthCredentials credentials) async {
+  Future<void> _handleSuccessfulLogin(
+    AuthCredentials credentials, {
+    String? connection,
+  }) async {
     // 1. Clear the guest mode flag from storage before the router fires.
     await _clearGuestMode();
 
@@ -235,7 +250,10 @@ class AuthNotifier extends StateNotifier<AuthState> {
           .read(localStorageServiceProvider)
           .set(StorageKeys.currentUserId, userId);
       _logger.debug('Stored currentUserId for onboarding tracking');
+      await _identifyAuthenticatedUser(userId: userId, isGuest: false);
     }
+
+    await _trackAuthLoginSucceeded(connection: connection);
 
     // 3. Update auth state — triggers the router refresh.
     state = state.copyWith(
@@ -302,6 +320,8 @@ class AuthNotifier extends StateNotifier<AuthState> {
           isGuest: true,
         );
         _logger.info('Guest mode activated and persisted');
+        unawaited(_analytics.track(AnalyticsEvents.authGuestStarted));
+        unawaited(_markGuestSession());
       },
     );
   }
@@ -344,6 +364,8 @@ class AuthNotifier extends StateNotifier<AuthState> {
       _logger.warning('Failed to cancel plan schedules on logout: $e');
     }
 
+    await _analytics.reset();
+
     state = state.copyWith(isLoggedIn: false, isLoading: false, isGuest: false);
     _logger.info('User logged out, auth and user state cleared');
   }
@@ -357,6 +379,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
       final onboardingRepo = ref.read(onboardingRepositoryProvider);
       await onboardingRepo.clearPreferences();
 
+      await _analytics.reset();
       _logger.info('All user data and onboarding preferences cleared');
     } catch (e) {
       _logger.warning('Failed to clear user data: $e');
@@ -373,4 +396,46 @@ class AuthNotifier extends StateNotifier<AuthState> {
       _logger.warning('Failed to reset onboarding: $e');
     }
   }
+  AnalyticsService get _analytics => ref.read(analyticsServiceProvider);
+
+  Future<void> _identifyAuthenticatedUser({
+    required String userId,
+    required bool isGuest,
+  }) async {
+    await _analytics.identify(
+      userId: userId,
+      properties: {
+        AnalyticsProperties.isGuest: isGuest,
+      },
+    );
+  }
+
+  Future<void> _markGuestSession() async {
+    await _analytics.setSuperProperties({
+      AnalyticsProperties.isGuest: true,
+    });
+  }
+
+  Future<void> _trackAuthLoginSucceeded({String? connection}) async {
+    await _analytics.track(
+      AnalyticsEvents.authLoginSucceeded,
+      properties: {
+        AnalyticsProperties.method: connection ?? 'default',
+      },
+    );
+  }
+
+  Future<void> _trackAuthLoginFailed({
+    String? connection,
+    required String reason,
+  }) async {
+    await _analytics.track(
+      AnalyticsEvents.authLoginFailed,
+      properties: {
+        AnalyticsProperties.method: connection ?? 'default',
+        AnalyticsProperties.reason: reason,
+      },
+    );
+  }
+
 }

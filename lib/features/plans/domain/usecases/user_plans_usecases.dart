@@ -5,6 +5,8 @@ import 'package:flutter_pecha/features/plans/data/models/plan_progress_model.dar
 import 'package:flutter_pecha/features/plans/data/models/response/user_plan_day_detail_response.dart';
 import 'package:flutter_pecha/features/plans/data/models/response/user_plan_list_response_model.dart';
 import 'package:flutter_pecha/features/plans/domain/repositories/user_plans_repository.dart';
+import 'package:flutter_pecha/core/analytics/analytics_events.dart';
+import 'package:flutter_pecha/core/analytics/analytics_service.dart';
 import 'package:flutter_pecha/shared/domain/base_classes/usecase.dart';
 
 /// Use case for getting user's enrolled plans with pagination.
@@ -47,15 +49,29 @@ class GetUserPlansParams extends Equatable {
 /// Use case for subscribing to a plan.
 class SubscribeToPlanUseCase extends UseCase<bool, SubscribeToPlanParams> {
   final UserPlansRepositoryInterface _repository;
+  final AnalyticsService _analytics;
 
-  SubscribeToPlanUseCase(this._repository);
+  SubscribeToPlanUseCase(this._repository, this._analytics);
 
   @override
   Future<Either<Failure, bool>> call(SubscribeToPlanParams params) async {
     if (params.planId.isEmpty) {
       return const Left(ValidationFailure('Plan ID cannot be empty'));
     }
-    return await _repository.subscribeToPlan(params.planId);
+
+    final Either<Failure, bool> result =
+        await _repository.subscribeToPlan(params.planId);
+
+    result.fold((_) => null, (bool success) {
+      if (success) {
+        _analytics.track(
+          AnalyticsEvents.planEnrolled,
+          properties: {AnalyticsProperties.planId: params.planId},
+        );
+      }
+    });
+
+    return result;
   }
 }
 
