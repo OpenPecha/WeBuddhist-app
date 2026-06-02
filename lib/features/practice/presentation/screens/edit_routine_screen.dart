@@ -559,10 +559,12 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
   /// Shows a Cupertino wheel time picker in a modal bottom sheet and returns
   /// the selected [TimeOfDay], or null if dismissed.
   Future<TimeOfDay?> _showCupertinoTimePicker({
-    required BuildContext context,
     required TimeOfDay initialTime,
   }) async {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    // Follow the device's clock setting so the wheel matches the system
+    // 12h/24h preference (consistent with Material's showTimePicker).
+    final use24hFormat = MediaQuery.of(context).alwaysUse24HourFormat;
     // Resolve l10n before entering the modal — the popup's builder context
     // does not inherit AppLocalizations from the route.
     final l10n = context.l10n;
@@ -578,56 +580,70 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
     final confirmed = await showCupertinoModalPopup<bool>(
       context: context,
       builder: (ctx) {
-        return Container(
-          height: 300,
-          decoration: BoxDecoration(
-            color: isDark ? AppColors.cardBackgroundDark : AppColors.surfaceWhite,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+        // CupertinoDatePicker reads its text color from the ambient
+        // CupertinoTheme, which defaults to light. Force the brightness to
+        // match the app theme so the wheel digits stay legible in dark mode.
+        return CupertinoTheme(
+          data: CupertinoThemeData(
+            brightness: isDark ? Brightness.dark : Brightness.light,
           ),
-          child: Column(
-            children: [
-              // Handle bar
-              Container(
-                margin: const EdgeInsets.only(top: 10),
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: isDark ? AppColors.textTertiaryDark : AppColors.grey100,
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-              // Confirm / Cancel row
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          child: Container(
+            height: 300,
+            decoration: BoxDecoration(
+              color: isDark ? AppColors.cardBackgroundDark : AppColors.surfaceWhite,
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+            ),
+            child: SafeArea(
+              top: false,
+              child: Column(
                 children: [
-                  CupertinoButton(
-                    onPressed: () => Navigator.of(ctx).pop(false),
-                    child: Text(
-                      l10n.cancel,
-                      style: TextStyle(
-                        color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondary,
-                      ),
+                  // Handle bar
+                  Container(
+                    margin: const EdgeInsets.only(top: 10),
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: isDark ? AppColors.textTertiaryDark : AppColors.grey100,
+                      borderRadius: BorderRadius.circular(2),
                     ),
                   ),
-                  CupertinoButton(
-                    onPressed: () {
-                      HapticFeedback.mediumImpact();
-                      Navigator.of(ctx).pop(true);
-                    },
-                    child: Text(l10n.done),
+                  // Confirm / Cancel row
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      CupertinoButton(
+                        onPressed: () {
+                          HapticFeedback.lightImpact();
+                          Navigator.of(ctx).pop(false);
+                        },
+                        child: Text(
+                          l10n.cancel,
+                          style: TextStyle(
+                            color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondary,
+                          ),
+                        ),
+                      ),
+                      CupertinoButton(
+                        onPressed: () {
+                          HapticFeedback.mediumImpact();
+                          Navigator.of(ctx).pop(true);
+                        },
+                        child: Text(l10n.done),
+                      ),
+                    ],
+                  ),
+                  // Picker wheel
+                  Expanded(
+                    child: CupertinoDatePicker(
+                      mode: CupertinoDatePickerMode.time,
+                      initialDateTime: selected,
+                      use24hFormat: use24hFormat,
+                      onDateTimeChanged: (dt) => selected = dt,
+                    ),
                   ),
                 ],
               ),
-              // Picker wheel
-              Expanded(
-                child: CupertinoDatePicker(
-                  mode: CupertinoDatePickerMode.time,
-                  initialDateTime: selected,
-                  use24hFormat: false,
-                  onDateTimeChanged: (dt) => selected = dt,
-                ),
-              ),
-            ],
+            ),
           ),
         );
       },
@@ -640,7 +656,6 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
   Future<void> _pickTime(int index) async {
     final picked = Platform.isIOS
         ? await _showCupertinoTimePicker(
-            context: context,
             initialTime: _blocks[index].time,
           )
         : await showTimePicker(
