@@ -72,6 +72,6 @@ class RecitationTextSection extends StatelessWidget {
   /// Processes the text by replacing HTML break tags with newlines.
   /// Handles both <br> and <br/> tags.
   String _processText(String text) {
-    return text.replaceAll('<br>', '\n').replaceAll('<br/>', '\n');
+    return text.replaceAll('⤵', '<br>').replaceAll('<br>', '\n').replaceAll('<br/>', '\n');
   }
 }

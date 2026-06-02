@@ -595,7 +595,7 @@ abstract class AppLocalizations {
   /// No description provided for @start_reading.
   ///
   /// In en, this message translates to:
-  /// **'Start reading'**
+  /// **'Practice now'**
   String get start_reading;
 
   /// No description provided for @continue_plan.

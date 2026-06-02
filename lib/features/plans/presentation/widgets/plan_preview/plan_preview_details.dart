@@ -138,39 +138,7 @@ class _PlanPreviewDetailsState extends ConsumerState<PlanPreviewDetails> {
     return AppBar(
       title: Text(widget.plan.title, style: const TextStyle(fontSize: 20)),
       elevation: 0,
-      actions: [
-        if (alreadyInRoutine)
-          Padding(
-            padding: const EdgeInsets.only(right: 12),
-            child: Center(
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 5,
-                ),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF4CAF50),
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      context.l10n.plan_enrolled,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    const SizedBox(width: 4),
-                    const Icon(Icons.check, color: Colors.white, size: 14),
-                  ],
-                ),
-              ),
-            ),
-          ),
-      ],
+      actions: const [],
     );
   }
 
