@@ -260,7 +260,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get start_plan => 'Start plan';
 
   @override
-  String get start_reading => 'Start reading';
+  String get start_reading => 'Practice now';
 
   @override
   String get continue_plan => 'Continue plan';
@@ -1364,9 +1364,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String plan_starts_on(String date) {
     return 'Starts $date';
   }
-
-  @override
-  String get reader_settings => 'Reader Settings';
 
   @override
   String get show_second_version => 'Show Second Version';

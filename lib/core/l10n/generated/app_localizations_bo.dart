@@ -261,7 +261,7 @@ class AppLocalizationsBo extends AppLocalizations {
   String get start_plan => 'ཉམས་ལེན་འགོ་འཛུགས།';
 
   @override
-  String get start_reading => 'ཀློག་པ་འགོ་འཛུགས།';
+  String get start_reading => 'ཉམས་ལེན་བྱེད།';
 
   @override
   String get continue_plan => 'ཉམས་ལེན་མུ་མཐུད།';
@@ -1362,9 +1362,6 @@ class AppLocalizationsBo extends AppLocalizations {
   String plan_starts_on(String date) {
     return 'འགོ་འཛུགས། $date';
   }
-
-  @override
-  String get reader_settings => 'Reader Settings';
 
   @override
   String get show_second_version => 'Show Second Version';

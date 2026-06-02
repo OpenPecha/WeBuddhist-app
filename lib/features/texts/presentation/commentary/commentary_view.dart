@@ -208,7 +208,7 @@ class _CommentaryCard extends StatelessWidget {
           const _CommentaryDivider(),
           const SizedBox(height: _CommentaryViewConstants.contentSpacing),
           _CommentaryContentText(
-            content: commentary.segments.map((e) => e.content).toList(),
+            content: commentary.segments.map((e) => normalizeSegmentText(e.content)).toList(),
             isExpanded: isExpanded,
             language: commentary.language,
           ),

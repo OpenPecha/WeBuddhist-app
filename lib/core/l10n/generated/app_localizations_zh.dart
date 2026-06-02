@@ -256,7 +256,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get start_plan => '開始計畫';
 
   @override
-  String get start_reading => '開始閱讀';
+  String get start_reading => '立即修持';
 
   @override
   String get continue_plan => '繼續計畫';
@@ -1309,9 +1309,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String plan_starts_on(String date) {
     return '開始於 $date';
   }
-
-  @override
-  String get reader_settings => '讀者偏好設定';
 
   @override
   String get show_second_version => '顯示第二種版本';

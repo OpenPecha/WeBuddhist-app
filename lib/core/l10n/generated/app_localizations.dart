@@ -595,7 +595,7 @@ abstract class AppLocalizations {
   /// No description provided for @start_reading.
   ///
   /// In en, this message translates to:
-  /// **'Start reading'**
+  /// **'Practice now'**
   String get start_reading;
 
   /// No description provided for @continue_plan.
@@ -2565,12 +2565,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Starts {date}'**
   String plan_starts_on(String date);
-
-  /// No description provided for @reader_settings.
-  ///
-  /// In en, this message translates to:
-  /// **'Reader Settings'**
-  String get reader_settings;
 
   /// No description provided for @show_second_version.
   ///

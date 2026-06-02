@@ -82,7 +82,7 @@
   "browse_plans": "Browse plans",
   "plan_info": "Plan info",
   "start_plan": "Start plan",
-  "start_reading": "Start reading",
+  "start_reading": "Practice now",
   "continue_plan": "Continue plan",
   "tibetan": "Tibetan",
   "sanskrit": "Sanskrit",
@@ -620,7 +620,6 @@
       }
     }
   },
-  "reader_settings": "Reader Settings",
   "show_second_version": "Show Second Version",
   "enable_add_msg": "Enable to add a translation or transliteration alongside the main text.",
   "main_text": "Main Text",
