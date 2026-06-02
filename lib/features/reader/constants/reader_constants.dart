@@ -47,6 +47,9 @@ class ReaderConstants {
   static const double segmentNumberWidth = 28.0;
   static const double segmentBorderRadius = 8.0;
 
+  /// Segment numbers render at a fraction of the segment's content font size.
+  static const double segmentNumberFontScale = 0.6;
+
   // Font sizes
   static const double tibetanBaseFontSize = 22.0;
   static const double defaultBaseFontSize = 22.0;
