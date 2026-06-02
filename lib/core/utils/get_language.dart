@@ -204,6 +204,7 @@ String getLanguageName(String code) {
     'yo': 'Yoruba',
     'za': 'Zhuang',
     'zh': 'Chinese',
+    'lzh': 'Classical Chinese',
     'zu': 'Zulu',
   };
   return languages[code.toLowerCase()] ?? code;

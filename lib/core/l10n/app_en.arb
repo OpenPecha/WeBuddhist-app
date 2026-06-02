@@ -620,7 +620,6 @@
       }
     }
   },
-  "reader_settings": "Reader Settings",
   "show_second_version": "Show Second Version",
   "enable_add_msg": "Enable to add a translation or transliteration alongside the main text.",
   "main_text": "Main Text",

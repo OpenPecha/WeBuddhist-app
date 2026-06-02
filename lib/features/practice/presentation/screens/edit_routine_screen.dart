@@ -948,7 +948,7 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
     }
 
     setState(() {
-      _blocks.add(_EditableBlock(time: adjusted, notificationEnabled: false));
+      _blocks.add(_EditableBlock(time: adjusted, notificationEnabled: true));
       _sortBlocks();
     });
     // No API call — block is local-only until the first session is added.
