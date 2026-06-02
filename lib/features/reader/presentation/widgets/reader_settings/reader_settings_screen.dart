@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/extensions/context_ext.dart';
+import 'package:flutter_pecha/core/l10n/l10n.dart';
 import 'package:flutter_pecha/core/utils/get_language.dart';
 import 'package:flutter_pecha/features/reader/data/models/reader_slot_config.dart';
 import 'package:flutter_pecha/features/reader/presentation/providers/reader_dual_settings_provider.dart';
@@ -43,7 +45,7 @@ class ReaderSettingsScreen extends ConsumerWidget {
           onPressed: () => Navigator.of(context).maybePop(),
         ),
         title: Text(
-          'Reader Settings',
+          context.l10n.version,
           style: theme.textTheme.titleLarge?.copyWith(
             fontWeight: FontWeight.w700,
           ),
@@ -61,7 +63,7 @@ class ReaderSettingsScreen extends ConsumerWidget {
               ),
               const SizedBox(height: 20),
               SlotConfigCard(
-                headerLabel: 'Main text',
+                headerLabel: context.l10n.main_text,
                 config: primaryDisplay,
                 enabled: true,
                 onLanguage: () => _pickLanguage(context, ref, isPrimary: true),
@@ -70,7 +72,7 @@ class ReaderSettingsScreen extends ConsumerWidget {
               ),
               const SizedBox(height: 18),
               SlotConfigCard(
-                headerLabel: 'Second version',
+                headerLabel: context.l10n.second_version,
                 config: settings.secondary,
                 enabled: settings.secondaryEnabled,
                 showScriptRow: false,
@@ -83,11 +85,9 @@ class ReaderSettingsScreen extends ConsumerWidget {
                 Padding(
                   padding: const EdgeInsets.only(left: 4),
                   child: Text(
-                    'The second version will appear below each verse of the main text.',
+                    context.l10n.second_version_msg,
                     style: theme.textTheme.bodySmall?.copyWith(
-                      color: theme.colorScheme.onSurface.withValues(
-                        alpha: 0.6,
-                      ),
+                      color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
                     ),
                   ),
                 ),
@@ -114,9 +114,7 @@ class ReaderSettingsScreen extends ConsumerWidget {
 
   ReaderSlotConfig _currentSlotFor(WidgetRef ref, {required bool isPrimary}) {
     final settings = ref.read(readerDualSettingsProvider(textId));
-    return isPrimary
-        ? _primaryDisplay(ref, settings)
-        : settings.secondary;
+    return isPrimary ? _primaryDisplay(ref, settings) : settings.secondary;
   }
 
   Future<void> _pickLanguage(
@@ -227,7 +225,7 @@ class _SecondaryToggle extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'SHOW SECOND VERSION',
+                      context.l10n.show_second_version,
                       style: theme.textTheme.labelLarge?.copyWith(
                         fontWeight: FontWeight.w700,
                         letterSpacing: 0.6,
@@ -235,8 +233,7 @@ class _SecondaryToggle extends StatelessWidget {
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      'Enable to add a translation or transliteration '
-                      'alongside the main text.',
+                      context.l10n.enable_add_msg,
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: theme.colorScheme.onSurface.withValues(
                           alpha: 0.6,
@@ -264,10 +261,11 @@ Future<void> openReaderSettings(
   return Navigator.of(context).push(
     MaterialPageRoute(
       fullscreenDialog: false,
-      builder: (_) => ReaderSettingsScreen(
-        textId: textId,
-        initialPrimaryDisplay: initialPrimaryDisplay,
-      ),
+      builder:
+          (_) => ReaderSettingsScreen(
+            textId: textId,
+            initialPrimaryDisplay: initialPrimaryDisplay,
+          ),
     ),
   );
 }
