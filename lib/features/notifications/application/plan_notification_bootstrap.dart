@@ -79,6 +79,13 @@ Future<void> _bootstrap(Ref ref, UserPlansModel plan) async {
     );
   }
 
+  // Respect the user's per-block notification toggle. If disabled, cancel any
+  // existing schedule rather than re-scheduling.
+  if (!matchingBlockOrNull.notificationEnabled) {
+    _logger.info('[ENROLL-NOTIF] ${plan.id} notificationEnabled=false — skipping reschedule');
+    return;
+  }
+
   // Reschedule is idempotent: cancels prior IDs first, then rebuilds the
   // future one-shot series. Survives reinstall and re-login.
   try {
