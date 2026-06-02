@@ -489,6 +489,15 @@ class AppLocalizationsZh extends AppLocalizations {
   String get notification_snack_battery_reenable => '在「設定 → 電池」中還原「電池最佳化設定」';
 
   @override
+  String get notification_open_settings_title => '前往設定中啟用';
+
+  @override
+  String get notification_open_settings_body => '點擊「開啟設定」，並為 WeBuddhist 啟用通知。';
+
+  @override
+  String get notification_open_settings_cta => '開啟設定';
+
+  @override
   String get profile_default_name => '用戶';
 
   @override

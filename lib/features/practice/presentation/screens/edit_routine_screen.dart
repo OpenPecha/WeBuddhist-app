@@ -11,6 +11,8 @@ import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/features/notifications/data/services/notification_service.dart';
 import 'package:flutter_pecha/features/notifications/data/special_plan_notifications.dart';
+import 'package:flutter_pecha/features/notifications/presentation/providers/notification_provider.dart';
+import 'package:flutter_pecha/features/notifications/presentation/widgets/notification_permission_sheet.dart';
 import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
 import 'package:flutter_pecha/features/auth/presentation/widgets/login_drawer.dart';
 import 'package:flutter_pecha/features/home/domain/entities/series.dart';
@@ -467,6 +469,20 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
     //    refetch happens lazily when the next screen reads the provider.
     ref.invalidate(userRoutineProvider);
     ref.invalidate(userPlansFutureProvider);
+
+    // After saving the first block ever, prompt for notification permission if
+    // not already granted. We await the sheet so context remains valid for pop.
+    if (blocks.length == 1 && mounted) {
+      final hasPermission = await NotificationService().areNotificationsEnabled();
+      if (!hasPermission && mounted) {
+        final allow = await NotificationPermissionSheet.show(context);
+        if (allow && mounted) {
+          await ref
+              .read(notificationProvider.notifier)
+              .requestEnableNotifications();
+        }
+      }
+    }
 
     if (mounted) {
       _logger.info('[EDIT-SAVE] popping (background tasks continuing)');

@@ -5,6 +5,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
 import 'package:flutter_pecha/features/notifications/data/channels/notification_channels.dart';
 import 'package:flutter_pecha/features/notifications/presentation/providers/notification_provider.dart';
+import 'package:flutter_pecha/features/notifications/presentation/widgets/notification_permission_sheet.dart';
 import 'package:flutter_pecha/features/practice/presentation/providers/routine_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
@@ -58,29 +59,39 @@ class _NotificationSettingsScreenState
 
   Future<void> _toggleMaster(bool enable) async {
     if (enable) {
+      // Show in-app rationale before triggering the OS dialog.
+      if (!mounted) return;
+      final shouldRequest = await NotificationPermissionSheet.show(context);
+      if (!shouldRequest || !mounted) return;
+
       final granted = await ref
           .read(notificationProvider.notifier)
           .requestEnableNotifications();
-      if (!granted) {
-        _snack(AppLocalizations.of(context)!.notification_snack_permission_denied);
-        await openAppSettings();
+      // If the OS declined (either denied or permanently blocked), direct
+      // the user to app settings with an explanation.
+      if (!granted && mounted) {
+        await _showOpenSettingsDialog(
+          AppLocalizations.of(context)!.notification_open_settings_body,
+        );
       }
     } else {
-      _snack(AppLocalizations.of(context)!.notification_snack_disable_in_settings);
-      await openAppSettings();
+      await _showOpenSettingsDialog(
+        AppLocalizations.of(context)!.notification_snack_disable_in_settings,
+      );
     }
   }
 
   Future<void> _toggleRoutineChannel(bool _) async {
     if (Platform.isAndroid) {
-      // Android: open the exact notification channel page.
+      // Android: open the exact channel settings page directly — no dialog needed.
       await ref
           .read(notificationServiceProvider)
           .openChannelSettings(NotificationChannels.routineBlockId);
     } else {
-      // iOS: no per-channel control — open the app notification settings page.
-      _snack(AppLocalizations.of(context)!.notification_snack_ios_manage_in_settings);
-      await openAppSettings();
+      // iOS: no per-channel control — explain before redirecting to app settings.
+      await _showOpenSettingsDialog(
+        AppLocalizations.of(context)!.notification_snack_ios_manage_in_settings,
+      );
     }
   }
 
@@ -88,8 +99,9 @@ class _NotificationSettingsScreenState
     if (enable) {
       await ref.read(notificationServiceProvider).openExactAlarmSettings();
     } else {
-      _snack(AppLocalizations.of(context)!.notification_snack_disable_alarms_in_settings);
-      await openAppSettings();
+      await _showOpenSettingsDialog(
+        AppLocalizations.of(context)!.notification_snack_disable_alarms_in_settings,
+      );
     }
   }
 
@@ -101,9 +113,42 @@ class _NotificationSettingsScreenState
           .requestBatteryOptimizationExemption();
       ref.read(notificationProvider.notifier).refreshStatus();
     } else {
-      _snack(AppLocalizations.of(context)!.notification_snack_battery_reenable);
-      await openAppSettings();
+      await _showOpenSettingsDialog(
+        AppLocalizations.of(context)!.notification_snack_battery_reenable,
+      );
     }
+  }
+
+  /// Shows an AlertDialog explaining the action and offering an "Open Settings"
+  /// CTA. Returns after the user dismisses or navigates away.
+  Future<void> _showOpenSettingsDialog(String body) async {
+    if (!mounted) return;
+    final l10n = AppLocalizations.of(context)!;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: Theme.of(ctx).scaffoldBackgroundColor,
+        title: Text(
+          l10n.notification_open_settings_title,
+          style: Theme.of(ctx)
+              .textTheme
+              .titleLarge
+              ?.copyWith(fontWeight: FontWeight.w600),
+        ),
+        content: Text(body, style: Theme.of(ctx).textTheme.bodyMedium),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(l10n.cancel),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(l10n.notification_open_settings_cta),
+          ),
+        ],
+      ),
+    );
+    if (confirmed == true) await openAppSettings();
   }
 
   Future<void> _scheduleTestNotification() async {
@@ -135,8 +180,7 @@ class _NotificationSettingsScreenState
 
   void _snack(String msg) {
     if (!mounted) return;
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(msg)));
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
   }
 
   String _hhmm(tz.TZDateTime t) =>

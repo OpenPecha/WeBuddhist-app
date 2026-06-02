@@ -1054,6 +1054,24 @@ abstract class AppLocalizations {
   /// **'Restore battery optimization in Settings → Battery.'**
   String get notification_snack_battery_reenable;
 
+  /// No description provided for @notification_open_settings_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable in Settings'**
+  String get notification_open_settings_title;
+
+  /// No description provided for @notification_open_settings_body.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap \'Open Settings\' and enable notifications for WeBuddhist.'**
+  String get notification_open_settings_body;
+
+  /// No description provided for @notification_open_settings_cta.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Settings'**
+  String get notification_open_settings_cta;
+
   /// No description provided for @profile_default_name.
   ///
   /// In en, this message translates to:

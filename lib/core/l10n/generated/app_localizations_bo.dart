@@ -509,6 +509,16 @@ class AppLocalizationsBo extends AppLocalizations {
       'Restore battery optimization in Settings → Battery.';
 
   @override
+  String get notification_open_settings_title => 'གསལ་བརྡ་སྒྲིག་འཇུག';
+
+  @override
+  String get notification_open_settings_body =>
+      '\'སྒྲིག་འཇུག་ཁ་ཕྱེ་བ\' ལ་གནོན་ནས་WeBuddhist་ཀྱི་གསལ་བརྡ་ལག་ལེན་འཁྱེར་རོགས།';
+
+  @override
+  String get notification_open_settings_cta => 'སྒྲིག་འཇུག་ཁ་ཕྱེ་བ།';
+
+  @override
   String get profile_default_name => 'User';
 
   @override

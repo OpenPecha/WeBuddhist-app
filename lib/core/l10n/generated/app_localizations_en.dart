@@ -507,6 +507,16 @@ class AppLocalizationsEn extends AppLocalizations {
       'Restore battery optimization in Settings → Battery.';
 
   @override
+  String get notification_open_settings_title => 'Enable in Settings';
+
+  @override
+  String get notification_open_settings_body =>
+      'Tap \'Open Settings\' and enable notifications for WeBuddhist.';
+
+  @override
+  String get notification_open_settings_cta => 'Open Settings';
+
+  @override
   String get profile_default_name => 'User';
 
   @override
