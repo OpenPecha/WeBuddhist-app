@@ -298,7 +298,7 @@ class _ContentsChapterState extends ConsumerState<ContentsChapter> {
     final language = widget.textDetail.language;
     final segment = section.segments[segmentIndex];
     final segmentNumber = segment.segmentNumber.toString().padLeft(2);
-    final content = segment.content;
+    final content = normalizeSegmentHtml(segment.content);
     final selectedSegment = ref.watch(selectedSegmentProvider);
     final isSelected = selectedSegment?.segmentId == segment.segmentId;
     final fontSize = ref.watch(fontSizeProvider);

@@ -171,7 +171,7 @@ class TextSearchDelegate extends SearchDelegate<String?> {
                       final segmentMatch = allSegmentMatches[index];
                       return ListTile(
                         title: Text(
-                          segmentMatch.content.replaceAll(RegExp(r'<[^>]*>'), ''),
+                          segmentMatch.content.replaceAll('⤵', '\n').replaceAll(RegExp(r'<[^>]*>'), ''),
                         ),
                         contentPadding: const EdgeInsets.symmetric(
                           horizontal: 20,

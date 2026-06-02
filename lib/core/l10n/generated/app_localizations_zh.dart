@@ -256,7 +256,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get start_plan => '開始計畫';
 
   @override
-  String get start_reading => '開始閱讀';
+  String get start_reading => '立即修持';
 
   @override
   String get continue_plan => '繼續計畫';

@@ -52,6 +52,19 @@ double? getFontSize(String language) {
   }
 }
 
+/// Soft line-break marker embedded in segment content by the backend.
+/// Replaced with a renderer-appropriate break by [normalizeSegmentHtml] /
+/// [normalizeSegmentText].
+const String kSegmentSoftBreak = '⤵';
+
+/// Converts [kSegmentSoftBreak] to <br> for content passed to an HTML renderer.
+String normalizeSegmentHtml(String? raw) =>
+    raw?.replaceAll(kSegmentSoftBreak, '<br>') ?? '';
+
+/// Converts [kSegmentSoftBreak] to \n for content displayed in a plain Text widget.
+String normalizeSegmentText(String? raw) =>
+    raw?.replaceAll(kSegmentSoftBreak, '\n') ?? '';
+
 /// Calculates the share position origin for share_plus ShareParams.
 ///
 /// Tries to get the position from the provided [context] or [globalKey].
