@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_pecha/features/reader/constants/reader_constants.dart';
 import 'package:flutter_pecha/features/reader/data/models/navigation_context.dart';
 import 'package:flutter_pecha/features/reader/data/models/reader_slot_config.dart';
+import 'package:flutter_pecha/features/reader/presentation/widgets/reader_content/segment_number.dart';
 import 'package:flutter_pecha/features/texts/data/models/segment.dart';
 import 'package:flutter_pecha/features/texts/presentation/providers/font_size_notifier.dart';
 import 'package:flutter_pecha/features/texts/presentation/segment_html_widget.dart';
@@ -44,7 +45,6 @@ class InterlinearSegmentItem extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final fontSize = ref.watch(fontSizeProvider);
     final primaryHtml = normalizeSegmentHtml(segment.content);
-    final segmentNumber = segment.segmentNumber.toString().padLeft(2);
     final secondary = _resolveSecondaryContent();
 
     return AnimatedOpacity(
@@ -68,9 +68,9 @@ class InterlinearSegmentItem extends ConsumerWidget {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _SegmentNumber(
-                  number: segmentNumber,
-                  fontSize: fontSize * 0.6,
+                SegmentNumber(
+                  segmentNumber: segment.segmentNumber,
+                  fontSize: fontSize,
                   language: primaryLanguage,
                 ),
                 Expanded(
@@ -117,38 +117,6 @@ class InterlinearSegmentItem extends ConsumerWidget {
     return _SecondaryResolved(
       text: 'Translation in ${secondarySlot.languageLabel} unavailable',
       isPlaceholder: true,
-    );
-  }
-}
-
-class _SegmentNumber extends StatelessWidget {
-  const _SegmentNumber({
-    required this.number,
-    required this.fontSize,
-    required this.language,
-  });
-
-  final String number;
-  final double fontSize;
-  final String language;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 6),
-      child: SizedBox(
-        width: ReaderConstants.segmentNumberWidth,
-        child: Text(
-          number,
-          textAlign: TextAlign.left,
-          style: TextStyle(
-            fontSize: fontSize,
-            fontWeight: FontWeight.w500,
-            fontFamily: getFontFamily(language),
-            color: Theme.of(context).textTheme.bodySmall?.color,
-          ),
-        ),
-      ),
     );
   }
 }
