@@ -27,7 +27,7 @@ class SegmentItem extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final fontSize = ref.watch(fontSizeProvider);
-    final segmentHtmlContent = segment.content?.replaceAll('⤵', '<br>') ?? '';
+    final segmentHtmlContent = normalizeSegmentHtml(segment.content);
     final segmentNumber = segment.segmentNumber.toString().padLeft(2);
 
     return AnimatedOpacity(

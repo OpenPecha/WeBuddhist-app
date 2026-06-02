@@ -52,6 +52,12 @@ double? getFontSize(String language) {
   }
 }
 
+/// Converts ⤵ to <br> for content passed to an HTML renderer.
+String normalizeSegmentHtml(String? raw) => raw?.replaceAll('⤵', '<br>') ?? '';
+
+/// Converts ⤵ to \n for content displayed in a plain Text widget.
+String normalizeSegmentText(String? raw) => raw?.replaceAll('⤵', '\n') ?? '';
+
 /// Calculates the share position origin for share_plus ShareParams.
 ///
 /// Tries to get the position from the provided [context] or [globalKey].
