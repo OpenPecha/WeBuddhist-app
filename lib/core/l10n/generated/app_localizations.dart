@@ -2566,12 +2566,6 @@ abstract class AppLocalizations {
   /// **'Starts {date}'**
   String plan_starts_on(String date);
 
-  /// No description provided for @reader_settings.
-  ///
-  /// In en, this message translates to:
-  /// **'Reader Settings'**
-  String get reader_settings;
-
   /// No description provided for @show_second_version.
   ///
   /// In en, this message translates to:

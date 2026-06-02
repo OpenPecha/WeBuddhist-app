@@ -1364,9 +1364,6 @@ class AppLocalizationsBo extends AppLocalizations {
   }
 
   @override
-  String get reader_settings => 'Reader Settings';
-
-  @override
   String get show_second_version => 'Show Second Version';
 
   @override

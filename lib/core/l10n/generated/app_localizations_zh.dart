@@ -1311,9 +1311,6 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get reader_settings => 'Reader Settings';
-
-  @override
   String get show_second_version => '顯示第二種版本';
 
   @override
