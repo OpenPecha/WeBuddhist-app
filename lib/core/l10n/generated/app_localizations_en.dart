@@ -260,7 +260,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get start_plan => 'Start plan';
 
   @override
-  String get start_reading => 'Start reading';
+  String get start_reading => 'Practice now';
 
   @override
   String get continue_plan => 'Continue plan';
