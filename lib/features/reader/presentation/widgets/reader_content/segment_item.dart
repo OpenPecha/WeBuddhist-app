@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/features/reader/constants/reader_constants.dart';
+import 'package:flutter_pecha/features/reader/presentation/widgets/reader_content/segment_number.dart';
 import 'package:flutter_pecha/features/texts/presentation/providers/font_size_notifier.dart';
 import 'package:flutter_pecha/features/texts/data/models/segment.dart';
 import 'package:flutter_pecha/features/texts/presentation/segment_html_widget.dart';
@@ -27,8 +28,7 @@ class SegmentItem extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final fontSize = ref.watch(fontSizeProvider);
-    final segmentHtmlContent = segment.content?.replaceAll('⤵', '<br>') ?? '';
-    final segmentNumber = segment.segmentNumber.toString().padLeft(2);
+    final segmentHtmlContent = normalizeSegmentHtml(segment.content);
 
     return AnimatedOpacity(
       opacity: isGreyedOut ? 0.3 : 1.0,
@@ -60,22 +60,10 @@ class SegmentItem extends ConsumerWidget {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Segment number
-                  Padding(
-                    padding: const EdgeInsets.only(top: 6),
-                    child: SizedBox(
-                      width: ReaderConstants.segmentNumberWidth,
-                      child: Text(
-                        segmentNumber,
-                        textAlign: TextAlign.left,
-                        style: TextStyle(
-                          fontSize: fontSize * 0.6,
-                          fontWeight: FontWeight.w500,
-                          fontFamily: getFontFamily(language),
-                          color: Theme.of(context).textTheme.bodySmall?.color,
-                        ),
-                      ),
-                    ),
+                  SegmentNumber(
+                    segmentNumber: segment.segmentNumber,
+                    fontSize: fontSize,
+                    language: language,
                   ),
                   // Segment content
                   Expanded(

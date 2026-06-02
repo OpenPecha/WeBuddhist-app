@@ -160,7 +160,7 @@ class _TranslationCard extends StatelessWidget {
     final fontSize = translation.language == 'bo' ? 20.0 : 16.0;
     final titleFontSize = translation.language == 'bo' ? 16.0 : 14.0;
 
-    final content = translation.content.replaceAll('⤵', '\n');
+    final content = normalizeSegmentText(translation.content);
     final isTruncated = !isExpanded && content.length > _previewMaxLength;
     final displayContent =
         isExpanded
