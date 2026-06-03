@@ -361,7 +361,7 @@ class _ContentsChapterState extends ConsumerState<ContentsChapter> {
                 // Segment content
                 Expanded(
                   child: SegmentHtmlWidget(
-                    htmlContent: content ?? '',
+                    htmlContent: content,
                     segmentIndex: segment.segmentNumber,
                     fontSize: fontSize,
                     language: language,
