@@ -100,7 +100,13 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
     return PopScope(
       canPop: true,
       onPopInvokedWithResult: (didPop, _) {
-        if (didPop) _invalidatePlanProviders();
+        if (!didPop) return;
+        // Clear transient reader state so panels don't linger if the user
+        // navigates back to this textId again later in the session.
+        notifier.selectSegment(null);
+        notifier.closeCommentary();
+        notifier.closeTranslation();
+        _invalidatePlanProviders();
       },
       child: Scaffold(
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
@@ -290,6 +296,7 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
     // Close selection before search
     notifier.selectSegment(null);
     notifier.closeCommentary();
+    notifier.closeTranslation();
 
     final result = await showSearch<Map<String, String>?>(
       context: context,
@@ -323,6 +330,7 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
     final notifier = ref.read(readerNotifierProvider(_params).notifier);
     notifier.selectSegment(null);
     notifier.closeCommentary();
+    notifier.closeTranslation();
 
     // Pass the currently-loaded primary display so the settings screen can
     // show it under "Main text" without the reader notifier having to write

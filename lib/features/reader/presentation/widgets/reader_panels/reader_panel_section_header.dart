@@ -17,7 +17,7 @@ class ReaderPanelSectionHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final label = getLanguageLabel(languageCode, context);
-    final dividerColor = theme.dividerColor.withValues(alpha: 0.4);
+    final dividerColor = ReaderPanelConstants.dividerColor(context);
 
     return Padding(
       padding: const EdgeInsets.only(top: ReaderPanelConstants.sectionSpacing),

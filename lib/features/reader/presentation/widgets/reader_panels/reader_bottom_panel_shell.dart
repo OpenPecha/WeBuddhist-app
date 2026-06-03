@@ -64,7 +64,7 @@ class _ReaderBottomPanelShellState
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final dividerColor = theme.dividerColor.withValues(alpha: 0.4);
+    final dividerColor = ReaderPanelConstants.dividerColor(context);
 
     return Material(
       color: theme.scaffoldBackgroundColor,

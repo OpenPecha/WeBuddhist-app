@@ -18,4 +18,14 @@ class ReaderPanelConstants {
   static const double dragHandleHeight = 4.0;
   static const Radius cardCornerRadius = Radius.circular(cardRadius);
   static const Radius topCornerRadius = Radius.circular(topRadius);
+
+  /// Theme-aware divider color tuned for visibility on both light and dark
+  /// reader panel backgrounds. Material's default `dividerColor` is too
+  /// subtle on the off-white scaffold background used here.
+  static Color dividerColor(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return isDark
+        ? Colors.white.withValues(alpha: 0.18)
+        : Colors.black.withValues(alpha: 0.14);
+  }
 }
