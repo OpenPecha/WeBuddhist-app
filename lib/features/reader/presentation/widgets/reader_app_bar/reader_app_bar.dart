@@ -47,6 +47,7 @@ class ReaderAppBarOverlay extends ConsumerWidget {
               // Clear selection states before navigating back
               notifier.selectSegment(null);
               notifier.closeCommentary();
+              notifier.closeTranslation();
               context.pop();
             },
           ),
@@ -113,6 +114,7 @@ class ReaderAppBar extends ConsumerWidget {
           // Clear selection states before navigating back
           notifier.selectSegment(null);
           notifier.closeCommentary();
+          notifier.closeTranslation();
           context.pop();
         },
       ),
@@ -149,6 +151,7 @@ class ReaderAppBar extends ConsumerWidget {
 
     // Close split view and selection before search
     notifier.closeCommentary();
+    notifier.closeTranslation();
     notifier.selectSegment(null);
   }
 
