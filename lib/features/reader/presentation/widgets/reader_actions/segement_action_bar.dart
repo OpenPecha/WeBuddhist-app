@@ -70,6 +70,7 @@ class SegmentActionBar extends ConsumerWidget {
             icon: PhosphorIconsRegular.translate,
             label: localizations.version,
             onTap: () {
+              HapticFeedback.lightImpact();
               notifier.toggleTranslation(segment.segmentId);
               if (!state.isTranslationOpen) {
                 onOpenTranslation?.call();
@@ -81,6 +82,7 @@ class SegmentActionBar extends ConsumerWidget {
             icon: PhosphorIconsRegular.chatText,
             label: localizations.text_commentary,
             onTap: () {
+              HapticFeedback.lightImpact();
               notifier.toggleCommentary(segment.segmentId);
               if (!state.isCommentaryOpen) {
                 onOpenCommentary?.call();
@@ -91,7 +93,10 @@ class SegmentActionBar extends ConsumerWidget {
           _ActionCard(
             icon: PhosphorIconsRegular.copy,
             label: localizations.copy,
-            onTap: () => _handleCopy(context, content),
+            onTap: () {
+              HapticFeedback.lightImpact();
+              _handleCopy(context, content);
+            },
           ),
           // Share button
           _ShareButton(
@@ -278,6 +283,7 @@ class _ShareButtonState extends ConsumerState<_ShareButton> {
   bool _isLoading = false;
 
   Future<void> _handleShare() async {
+    HapticFeedback.lightImpact();
     if (_isLoading) return;
 
     setState(() {
