@@ -1,3 +1,7 @@
+import 'dart:async';
+
+import 'package:flutter_pecha/core/analytics/analytics_events.dart';
+import 'package:flutter_pecha/core/analytics/analytics_service.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/features/onboarding/application/onboarding_state.dart';
 import 'package:flutter_pecha/features/onboarding/domain/usecases/onboarding_usecases.dart';
@@ -16,10 +20,12 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
     required SaveOnboardingPreferencesUseCase saveOnboardingPreferencesUseCase,
     required CompleteOnboardingUseCase completeOnboardingUseCase,
     required ClearOnboardingPreferencesUseCase clearOnboardingPreferencesUseCase,
+    required AnalyticsService analyticsService,
   })  : _loadSavedPreferencesUseCase = loadSavedPreferencesUseCase,
         _saveOnboardingPreferencesUseCase = saveOnboardingPreferencesUseCase,
         _completeOnboardingUseCase = completeOnboardingUseCase,
         _clearOnboardingPreferencesUseCase = clearOnboardingPreferencesUseCase,
+        _analytics = analyticsService,
         super(OnboardingState.initial()) {
     loadSavedPreferences();
   }
@@ -28,6 +34,7 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
   final SaveOnboardingPreferencesUseCase _saveOnboardingPreferencesUseCase;
   final CompleteOnboardingUseCase _completeOnboardingUseCase;
   final ClearOnboardingPreferencesUseCase _clearOnboardingPreferencesUseCase;
+  final AnalyticsService _analytics;
 
   /// Load saved preferences from local storage on initialization.
   Future<void> loadSavedPreferences() async {
@@ -123,6 +130,10 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
           completed = true;
         },
       );
+
+      if (completed) {
+        unawaited(_analytics.track(AnalyticsEvents.onboardingCompleted));
+      }
 
       state = state.copyWithLoading(false);
       return completed;

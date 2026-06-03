@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/features/reader/constants/reader_constants.dart';
 import 'package:flutter_pecha/features/reader/data/models/flattened_item.dart';
@@ -227,9 +228,7 @@ class _ReaderContentPartState extends ConsumerState<ReaderContentPart> {
     final positions = _itemPositionsListener.itemPositions.value;
     if (positions.isNotEmpty) {
       final topIndex = positions
-          .where(
-            (pos) => pos.itemLeadingEdge >= 0 && pos.itemLeadingEdge < 1.0,
-          )
+          .where((pos) => pos.itemLeadingEdge >= 0 && pos.itemLeadingEdge < 1.0)
           .map((pos) => pos.index)
           .fold<int?>(
             null,
@@ -254,7 +253,9 @@ class _ReaderContentPartState extends ConsumerState<ReaderContentPart> {
   /// is respected on the next page boundary.
   void _maybeExtendSecondary({required PaginationDirection direction}) {
     if (!mounted) return;
-    final dualSettings = ref.read(readerDualSettingsProvider(widget.params.textId));
+    final dualSettings = ref.read(
+      readerDualSettingsProvider(widget.params.textId),
+    );
     final versionId = dualSettings.secondary.versionId;
     if (!dualSettings.secondaryEnabled || versionId == null) return;
 
@@ -356,7 +357,9 @@ class _ReaderContentPartState extends ConsumerState<ReaderContentPart> {
   Widget build(BuildContext context) {
     final state = ref.watch(readerNotifierProvider(widget.params));
     final notifier = ref.read(readerNotifierProvider(widget.params).notifier);
-    final dualSettings = ref.watch(readerDualSettingsProvider(widget.params.textId));
+    final dualSettings = ref.watch(
+      readerDualSettingsProvider(widget.params.textId),
+    );
 
     // Subscribe to the secondary provider only when the user has enabled
     // the secondary AND picked a version. The autoDispose family means we
@@ -537,7 +540,10 @@ class _ReaderContentPartState extends ConsumerState<ReaderContentPart> {
           language: widget.language,
           isSelected: isSelected,
           isGreyedOut: isGreyedOut,
-          onTap: () => onSegmentTap(segment),
+          onTap: () {
+            HapticFeedback.lightImpact();
+            onSegmentTap(segment);
+          },
         );
       },
     );

@@ -184,6 +184,12 @@ class AppLocalizationsBo extends AppLocalizations {
   String get show_less => 'ཉུང་བ་བསྟོན།';
 
   @override
+  String get more => 'མང་བ།';
+
+  @override
+  String get less => 'ཉུང་བ།';
+
+  @override
   String get read_more => 'མང་ཙམ་ཀློགས།';
 
   @override
@@ -656,9 +662,6 @@ class AppLocalizationsBo extends AppLocalizations {
 
   @override
   String get home_default_duration => 'སྐར་མ་ ༡-༢';
-
-  @override
-  String get version => 'Versions';
 
   @override
   String get reader_settings_tooltip => 'Reader settings';
@@ -1379,4 +1382,7 @@ class AppLocalizationsBo extends AppLocalizations {
   @override
   String get second_version_msg =>
       'The second version will appear below each verse of the main text.';
+
+  @override
+  String get version => 'Versions';
 }

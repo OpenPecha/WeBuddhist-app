@@ -14,7 +14,6 @@ import 'package:flutter_pecha/features/plans/domain/repositories/user_plans_repo
 import 'package:flutter_pecha/features/plans/domain/usecases/plan_days_usecases.dart';
 import 'package:flutter_pecha/features/plans/domain/usecases/plans_usecases.dart';
 import 'package:flutter_pecha/features/plans/domain/usecases/tasks_usecases.dart';
-import 'package:flutter_pecha/core/analytics/analytics_providers.dart';
 import 'package:flutter_pecha/features/plans/domain/usecases/user_plans_usecases.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -95,10 +94,7 @@ final getUserPlansUseCaseProvider = Provider<GetUserPlansUseCase>((ref) {
 
 /// Provider for SubscribeToPlanUseCase.
 final subscribeToPlanUseCaseProvider = Provider<SubscribeToPlanUseCase>((ref) {
-  return SubscribeToPlanUseCase(
-    ref.watch(userPlansDomainRepositoryProvider),
-    ref.watch(analyticsServiceProvider),
-  );
+  return SubscribeToPlanUseCase(ref.watch(userPlansDomainRepositoryProvider));
 });
 
 /// Provider for UnsubscribeFromPlanUseCase.
