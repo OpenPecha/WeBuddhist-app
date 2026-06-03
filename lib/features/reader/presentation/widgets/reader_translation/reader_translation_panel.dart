@@ -1,21 +1,22 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_pecha/core/theme/app_colors.dart';
+import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/features/reader/presentation/providers/reader_notifier.dart';
 import 'package:flutter_pecha/features/reader/presentation/widgets/reader_commentary/commentary_skeleton.dart';
-import 'package:flutter_pecha/features/reader/presentation/widgets/reader_translation/translation_panel_header.dart';
+import 'package:flutter_pecha/features/reader/presentation/widgets/reader_panels/reader_bottom_panel_shell.dart';
+import 'package:flutter_pecha/features/reader/presentation/widgets/reader_panels/reader_panel_constants.dart';
+import 'package:flutter_pecha/features/reader/presentation/widgets/reader_panels/reader_panel_content_block.dart';
+import 'package:flutter_pecha/features/reader/presentation/widgets/reader_panels/reader_panel_metadata_tile.dart';
+import 'package:flutter_pecha/features/reader/presentation/widgets/reader_panels/reader_panel_section_header.dart';
 import 'package:flutter_pecha/features/texts/data/models/translation/segment_translation.dart';
 import 'package:flutter_pecha/features/texts/presentation/providers/segment_provider.dart';
 import 'package:flutter_pecha/shared/utils/helper_functions.dart';
-import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-const double _horizontalPadding = 16.0;
-const double _cardSpacing = 16.0;
-const double _dividerHeight = 1.0;
-const double _contentSpacing = 8.0;
-const int _previewMaxLength = 150;
+final _expandedContentIndexProvider = StateProvider.family<int?, String>(
+  (ref, segmentId) => null,
+);
 
-final _expandedTranslationIndexProvider = StateProvider.family<int?, String>(
+final _expandedMetadataIndexProvider = StateProvider.family<int?, String>(
   (ref, segmentId) => null,
 );
 
@@ -33,175 +34,165 @@ class ReaderTranslationPanel extends ConsumerWidget {
     required this.availableHeight,
   });
 
+  void _resetExpansion(WidgetRef ref) {
+    ref.read(_expandedContentIndexProvider(segmentId).notifier).state = null;
+    ref.read(_expandedMetadataIndexProvider(segmentId).notifier).state = null;
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final expandedIndex = ref.watch(
-      _expandedTranslationIndexProvider(segmentId),
-    );
+    final localizations = context.l10n;
+    final notifier = ref.read(readerNotifierProvider(params).notifier);
     final segmentTranslations = ref.watch(
       segmentTranslationsFutureProvider(segmentId),
     );
-    final notifier = ref.read(readerNotifierProvider(params).notifier);
 
-    return Container(
-      decoration: BoxDecoration(
-        color: Theme.of(context).scaffoldBackgroundColor,
-      ),
-      child: Column(
-        children: [
-          TranslationPanelHeader(
-            params: params,
-            availableHeight: availableHeight,
-            onClose: () {
-              notifier.closeTranslation();
-              ref
-                  .read(_expandedTranslationIndexProvider(segmentId).notifier)
-                  .state = null;
-            },
-          ),
-          Expanded(
-            child: segmentTranslations.when(
-              data:
-                  (data) => _TranslationPanelContent(
-                    translations: data.translations,
-                    expandedIndex: expandedIndex,
-                    segmentId: segmentId,
-                    textLanguage: textLanguage,
-                    onExpansionChanged: (index) {
-                      ref
-                          .read(
-                            _expandedTranslationIndexProvider(
-                              segmentId,
-                            ).notifier,
-                          )
-                          .state = index;
-                    },
-                  ),
-              error:
-                  (error, _) => _ErrorState(
-                    error: error,
-                    onRetry: () {
-                      ref.invalidate(
-                        segmentTranslationsFutureProvider(segmentId),
-                      );
-                    },
-                  ),
-              loading: () => const CommentarySkeleton(),
-            ),
-          ),
-        ],
+    return ReaderBottomPanelShell(
+      title: localizations.version,
+      params: params,
+      availableHeight: availableHeight,
+      onDismiss: () {
+        notifier.closeTranslation();
+        _resetExpansion(ref);
+      },
+      child: segmentTranslations.when(
+        data: (data) => _TranslationList(
+          translations: data.translations,
+          segmentId: segmentId,
+          textLanguage: textLanguage,
+        ),
+        error: (error, _) => _ErrorState(
+          error: error,
+          onRetry: () =>
+              ref.invalidate(segmentTranslationsFutureProvider(segmentId)),
+        ),
+        loading: () => const CommentarySkeleton(),
       ),
     );
   }
 }
 
-class _TranslationPanelContent extends StatelessWidget {
-  final List<SegmentTranslation> translations;
-  final int? expandedIndex;
-  final String segmentId;
-  final String textLanguage;
-  final ValueChanged<int?> onExpansionChanged;
-
-  const _TranslationPanelContent({
+class _TranslationList extends ConsumerWidget {
+  const _TranslationList({
     required this.translations,
-    required this.expandedIndex,
     required this.segmentId,
     required this.textLanguage,
-    required this.onExpansionChanged,
   });
 
+  final List<SegmentTranslation> translations;
+  final String segmentId;
+  final String textLanguage;
+
+  /// Groups translations by language code, preserving original order within
+  /// each group, and emits the current text language first.
+  List<MapEntry<String, List<SegmentTranslation>>> _grouped() {
+    final grouped = <String, List<SegmentTranslation>>{};
+    for (final t in translations) {
+      grouped.putIfAbsent(t.language, () => []).add(t);
+    }
+    final entries = grouped.entries.toList();
+    entries.sort((a, b) {
+      final aFirst = a.key == textLanguage ? 0 : 1;
+      final bFirst = b.key == textLanguage ? 0 : 1;
+      if (aFirst != bFirst) return aFirst.compareTo(bFirst);
+      return a.key.compareTo(b.key);
+    });
+    return entries;
+  }
+
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     if (translations.isEmpty) {
       return const _EmptyState();
     }
 
-    final sorted = List<SegmentTranslation>.from(translations)..sort((a, b) {
-      final aFirst = a.language == textLanguage ? 0 : 1;
-      final bFirst = b.language == textLanguage ? 0 : 1;
-      return aFirst.compareTo(bFirst);
-    });
+    final groups = _grouped();
+    final expandedContent = ref.watch(_expandedContentIndexProvider(segmentId));
+    final expandedMetadata = ref.watch(
+      _expandedMetadataIndexProvider(segmentId),
+    );
 
-    return ListView.builder(
-      padding: const EdgeInsets.symmetric(horizontal: _horizontalPadding),
-      itemCount: sorted.length,
-      itemBuilder: (context, index) {
-        final translation = sorted[index];
-        final isExpanded = expandedIndex == index;
-
-        return _TranslationCard(
-          translation: translation,
-          isExpanded: isExpanded,
-          index: index,
-          onExpansionChanged: onExpansionChanged,
+    final children = <Widget>[];
+    var globalIndex = 0;
+    for (final entry in groups) {
+      children.add(
+        ReaderPanelSectionHeader(
+          languageCode: entry.key,
+          count: entry.value.length,
+        ),
+      );
+      for (final translation in entry.value) {
+        final index = globalIndex++;
+        children.add(
+          _TranslationItem(
+            translation: translation,
+            index: index,
+            segmentId: segmentId,
+            isContentExpanded: expandedContent == index,
+            isMetadataExpanded: expandedMetadata == index,
+          ),
         );
-      },
+      }
+    }
+
+    return ListView(
+      padding: const EdgeInsets.only(bottom: 24),
+      children: children,
     );
   }
 }
 
-class _TranslationCard extends StatelessWidget {
-  final SegmentTranslation translation;
-  final bool isExpanded;
-  final int index;
-  final ValueChanged<int?> onExpansionChanged;
-
-  const _TranslationCard({
+class _TranslationItem extends ConsumerWidget {
+  const _TranslationItem({
     required this.translation,
-    required this.isExpanded,
     required this.index,
-    required this.onExpansionChanged,
+    required this.segmentId,
+    required this.isContentExpanded,
+    required this.isMetadataExpanded,
   });
 
+  final SegmentTranslation translation;
+  final int index;
+  final String segmentId;
+  final bool isContentExpanded;
+  final bool isMetadataExpanded;
+
   @override
-  Widget build(BuildContext context) {
-    final fontFamily = getFontFamily(translation.language);
-    final lineHeight = getLineHeight(translation.language);
-    final fontSize = translation.language == 'bo' ? 20.0 : 16.0;
-    final titleFontSize = translation.language == 'bo' ? 16.0 : 14.0;
-
+  Widget build(BuildContext context, WidgetRef ref) {
     final content = normalizeSegmentText(translation.content);
-    final isTruncated = !isExpanded && content.length > _previewMaxLength;
-    final displayContent =
-        isExpanded
-            ? content
-            : content.length <= _previewMaxLength
-            ? content
-            : content.substring(0, _previewMaxLength);
 
-    return Container(
-      margin: const EdgeInsets.only(top: _cardSpacing),
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+        ReaderPanelConstants.horizontalPadding,
+        ReaderPanelConstants.contentSpacing,
+        ReaderPanelConstants.horizontalPadding,
+        ReaderPanelConstants.itemSpacing,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            translation.title,
-            style: TextStyle(
-              fontFamily: fontFamily,
-              fontSize: titleFontSize,
-              color: Colors.grey[600],
-            ),
-          ),
-          const SizedBox(height: _contentSpacing),
-          InkWell(
-            onTap: () {
-              onExpansionChanged(isExpanded ? null : index);
+          ReaderPanelContentBlock(
+            content: content,
+            language: translation.language,
+            isExpanded: isContentExpanded,
+            onToggle: () {
+              ref
+                  .read(_expandedContentIndexProvider(segmentId).notifier)
+                  .state = isContentExpanded ? null : index;
             },
-            child: Text(
-              isTruncated ? '$displayContent...' : displayContent,
-              style: TextStyle(
-                fontFamily: fontFamily,
-                height: lineHeight,
-                fontSize: fontSize,
-              ),
-            ),
           ),
-          Container(
-            height: _dividerHeight,
-            color:
-                Theme.of(context).brightness == Brightness.dark
-                    ? AppColors.greyDark
-                    : AppColors.greyLight,
+          const SizedBox(height: ReaderPanelConstants.contentSpacing),
+          ReaderPanelMetadataTile(
+            title: translation.title,
+            language: translation.language,
+            source: translation.source,
+            license: translation.license,
+            isExpanded: isMetadataExpanded,
+            onToggle: () {
+              ref
+                  .read(_expandedMetadataIndexProvider(segmentId).notifier)
+                  .state = isMetadataExpanded ? null : index;
+            },
           ),
         ],
       ),
@@ -215,22 +206,25 @@ class _EmptyState extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final localizations = context.l10n;
-    return Center(
+    final theme = Theme.of(context);
+    return SingleChildScrollView(
       child: Padding(
-        padding: const EdgeInsets.all(_horizontalPadding * 2),
+        padding: const EdgeInsets.all(
+          ReaderPanelConstants.horizontalPadding * 2,
+        ),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
           children: [
             Icon(
               Icons.translate_outlined,
               size: 48,
-              color: Theme.of(context).colorScheme.onSurface.withAlpha(128),
+              color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
             ),
             const SizedBox(height: 12),
             Text(
               localizations.no_translation,
-              style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                color: Theme.of(context).colorScheme.onSurface.withAlpha(179),
+              style: theme.textTheme.titleSmall?.copyWith(
+                color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
               ),
               textAlign: TextAlign.center,
             ),
@@ -250,28 +244,27 @@ class _ErrorState extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final localizations = context.l10n;
-    return Center(
+    final theme = Theme.of(context);
+    return SingleChildScrollView(
       child: Padding(
-        padding: const EdgeInsets.all(_horizontalPadding * 2),
+        padding: const EdgeInsets.all(
+          ReaderPanelConstants.horizontalPadding * 2,
+        ),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              Icons.error_outline,
-              size: 48,
-              color: Theme.of(context).colorScheme.error,
-            ),
+            Icon(Icons.error_outline, size: 48, color: theme.colorScheme.error),
             const SizedBox(height: 16),
             Text(
               localizations.something_went_wrong,
-              style: Theme.of(context).textTheme.titleSmall,
+              style: theme.textTheme.titleSmall,
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 8),
             Text(
               error.toString(),
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Theme.of(context).colorScheme.onSurface.withAlpha(179),
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
               ),
               textAlign: TextAlign.center,
               maxLines: 3,

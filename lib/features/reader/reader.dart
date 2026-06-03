@@ -50,7 +50,6 @@ export 'presentation/widgets/reader_actions/segement_action_bar.dart';
 export 'presentation/widgets/reader_controls/reader_chapter_header.dart';
 export 'presentation/widgets/reader_commentary/reader_commentary_panel.dart';
 export 'presentation/widgets/reader_commentary/reader_commentary_split_view.dart';
-export 'presentation/widgets/reader_commentary/commentary_panel_header.dart';
 export 'presentation/widgets/reader_search/reader_search_delegate.dart';
 export 'presentation/widgets/reader_gestures/swipe_navigation_wrapper.dart';
 

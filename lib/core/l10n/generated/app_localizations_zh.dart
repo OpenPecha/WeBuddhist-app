@@ -181,6 +181,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get show_less => '顯示較少';
 
   @override
+  String get more => '更多';
+
+  @override
+  String get less => '較少';
+
+  @override
   String get read_more => '閱讀更多';
 
   @override
@@ -624,9 +630,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get home_default_duration => '1-2 分鐘';
-
-  @override
-  String get version => '版本';
 
   @override
   String get reader_settings_tooltip => '閱讀器設定';
@@ -1324,4 +1327,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get second_version_msg => '第二種翻譯版本會逐句出現在主文的下方';
+
+  @override
+  String get version => '版本';
 }
