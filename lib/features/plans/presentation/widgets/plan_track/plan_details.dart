@@ -1,5 +1,9 @@
+import 'dart:async';
+
 import 'package:fpdart/fpdart.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/analytics/analytics_events.dart';
+import 'package:flutter_pecha/core/analytics/analytics_providers.dart';
 import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
 import 'package:flutter_pecha/core/error/failures.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
@@ -49,6 +53,16 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
     super.initState();
     selectedDay = widget.selectedDay;
     _logger.info('PlanDetails opened — id: ${widget.plan.id} | title: "${widget.plan.title}"');
+    unawaited(
+      ref.read(analyticsServiceProvider).track(
+        AnalyticsEvents.planViewed,
+        properties: {
+          AnalyticsProperties.planId: widget.plan.id,
+          AnalyticsProperties.planName: widget.plan.title,
+          AnalyticsProperties.totalDays: widget.plan.totalDays,
+        },
+      ),
+    );
   }
 
   @override
@@ -134,6 +148,19 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
         },
         (completionStatus) {
           final completedDays = completionStatus.values.where((v) => v).length;
+
+          unawaited(
+            ref.read(analyticsServiceProvider).track(
+              AnalyticsEvents.planDayCompleted,
+              properties: {
+                AnalyticsProperties.planId: widget.plan.id,
+                AnalyticsProperties.planName: widget.plan.title,
+                AnalyticsProperties.dayNumber: dayNumber,
+                AnalyticsProperties.totalDays: widget.plan.totalDays,
+                AnalyticsProperties.completedDays: completedDays,
+              },
+            ),
+          );
 
           if (!mounted) return;
 

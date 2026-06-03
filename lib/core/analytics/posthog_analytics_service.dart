@@ -1,9 +1,12 @@
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_pecha/core/analytics/analytics_service.dart';
 import 'package:flutter_pecha/core/analytics/no_op_analytics_service.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/env.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:posthog_flutter/posthog_flutter.dart';
 
 final _logger = AppLogger('PostHogAnalytics');
@@ -28,9 +31,7 @@ class PostHogAnalyticsService implements AnalyticsService {
 
   @override
   Future<void> initialize() async {
-    if (_isInitialized || !Env.posthogEnabled) {
-      return;
-    }
+    if (_isInitialized || !Env.posthogEnabled) return;
 
     final String? apiKey = Env.posthogApiKey;
     if (apiKey == null || apiKey.isEmpty) {
@@ -44,6 +45,12 @@ class PostHogAnalyticsService implements AnalyticsService {
     config.personProfiles = PostHogPersonProfiles.identifiedOnly;
     config.beforeSend = [_redactPii];
 
+    if (kReleaseMode) {
+      config.sessionReplay = true;
+      config.sessionReplayConfig.maskAllTexts = true;
+      config.sessionReplayConfig.maskAllImages = false;
+    }
+
     await Posthog().setup(config);
     await _registerDefaultSuperProperties();
 
@@ -56,9 +63,7 @@ class PostHogAnalyticsService implements AnalyticsService {
     required String userId,
     Map<String, Object?>? properties,
   }) async {
-    if (!_isInitialized) {
-      return;
-    }
+    if (!_isInitialized) return;
 
     await Posthog().identify(
       userId: userId,
@@ -68,9 +73,7 @@ class PostHogAnalyticsService implements AnalyticsService {
 
   @override
   Future<void> reset() async {
-    if (!_isInitialized) {
-      return;
-    }
+    if (!_isInitialized) return;
 
     await Posthog().reset();
     await _registerDefaultSuperProperties();
@@ -81,9 +84,7 @@ class PostHogAnalyticsService implements AnalyticsService {
     String event, {
     Map<String, Object?>? properties,
   }) async {
-    if (!_isInitialized) {
-      return;
-    }
+    if (!_isInitialized) return;
 
     await Posthog().capture(
       eventName: event,
@@ -93,9 +94,7 @@ class PostHogAnalyticsService implements AnalyticsService {
 
   @override
   Future<void> setSuperProperties(Map<String, Object?> properties) async {
-    if (!_isInitialized) {
-      return;
-    }
+    if (!_isInitialized) return;
 
     for (final MapEntry<String, Object?> entry in properties.entries) {
       final Object? value = entry.value;
@@ -105,11 +104,23 @@ class PostHogAnalyticsService implements AnalyticsService {
     }
   }
 
+  @override
+  NavigatorObserver get routeObserver => PosthogObserver();
+
   Future<void> _registerDefaultSuperProperties() async {
+    PackageInfo? packageInfo;
+    try {
+      packageInfo = await PackageInfo.fromPlatform();
+    } catch (_) {
+      // Unavailable in test environments — version properties skipped.
+    }
+
     await setSuperProperties({
       'environment': Env.environment,
       'app_flavor': Env.appFlavor,
       'platform': Platform.operatingSystem,
+      if (packageInfo != null) 'app_version': packageInfo.version,
+      if (packageInfo != null) 'build_number': packageInfo.buildNumber,
     });
   }
 

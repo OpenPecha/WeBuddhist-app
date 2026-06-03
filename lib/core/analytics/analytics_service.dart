@@ -1,3 +1,5 @@
+import 'package:flutter/widgets.dart';
+
 /// Product analytics abstraction. Features depend on this interface, not PostHog.
 abstract class AnalyticsService {
   Future<void> initialize();
@@ -15,4 +17,7 @@ abstract class AnalyticsService {
   });
 
   Future<void> setSuperProperties(Map<String, Object?> properties);
+
+  /// Navigator observer wired into GoRouter so screen transitions are tracked.
+  NavigatorObserver get routeObserver;
 }

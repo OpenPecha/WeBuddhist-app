@@ -1,3 +1,4 @@
+import 'package:flutter/widgets.dart';
 import 'package:flutter_pecha/core/analytics/analytics_service.dart';
 
 /// No-op analytics used when PostHog is disabled or not configured.
@@ -24,4 +25,9 @@ class NoOpAnalyticsService implements AnalyticsService {
 
   @override
   Future<void> setSuperProperties(Map<String, Object?> properties) async {}
+
+  @override
+  NavigatorObserver get routeObserver => _NoOpNavigatorObserver();
 }
+
+class _NoOpNavigatorObserver extends NavigatorObserver {}
