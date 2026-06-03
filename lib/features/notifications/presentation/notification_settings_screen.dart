@@ -40,12 +40,9 @@ class _NotificationSettingsScreenState
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
-      // Re-read every OS-level setting the moment the user returns.
       ref.read(notificationProvider.notifier).refreshStatus().then((_) {
-        // If the routine channel is on, make sure every block is scheduled.
-        // If it's off, Android simply won't show fires — no cleanup needed.
         final s = ref.read(notificationProvider);
-        if (s.hasSystemPermission && s.routineChannelEnabled) {
+        if (s.appMasterEnabled && s.hasSystemPermission) {
           ref
               .read(notificationProvider.notifier)
               .resyncRoutineNotifications(ref.read(routineProvider).blocks);
@@ -57,30 +54,35 @@ class _NotificationSettingsScreenState
   // ── Toggle handlers ────────────────────────────────────────────────────────
 
   Future<void> _toggleMaster(bool enable) async {
-    if (enable) {
-      final granted = await ref
-          .read(notificationProvider.notifier)
-          .requestEnableNotifications();
-      if (!granted) {
+    final result =
+        await ref.read(notificationProvider.notifier).toggleMaster(enable);
+    if (!mounted) return;
+    switch (result) {
+      case NotificationToggleResult.permissionDenied:
         _snack(AppLocalizations.of(context)!.notification_snack_permission_denied);
         await openAppSettings();
-      }
-    } else {
-      _snack(AppLocalizations.of(context)!.notification_snack_disable_in_settings);
-      await openAppSettings();
+      case NotificationToggleResult.error:
+        _snack(AppLocalizations.of(context)!.something_went_wrong);
+      case NotificationToggleResult.success:
+        break;
     }
   }
 
-  Future<void> _toggleRoutineChannel(bool _) async {
-    if (Platform.isAndroid) {
-      // Android: open the exact notification channel page.
-      await ref
-          .read(notificationServiceProvider)
-          .openChannelSettings(NotificationChannels.routineBlockId);
-    } else {
-      // iOS: no per-channel control — open the app notification settings page.
-      _snack(AppLocalizations.of(context)!.notification_snack_ios_manage_in_settings);
-      await openAppSettings();
+  Future<void> _toggleRoutine(bool enable) async {
+    final result =
+        await ref.read(notificationProvider.notifier).toggleRoutine(enable);
+    if (!mounted) return;
+    if (result == NotificationToggleResult.error) {
+      _snack(AppLocalizations.of(context)!.something_went_wrong);
+    }
+  }
+
+  Future<void> _toggleRecitation(bool enable) async {
+    final result =
+        await ref.read(notificationProvider.notifier).toggleRecitation(enable);
+    if (!mounted) return;
+    if (result == NotificationToggleResult.error) {
+      _snack(AppLocalizations.of(context)!.something_went_wrong);
     }
   }
 
@@ -95,7 +97,6 @@ class _NotificationSettingsScreenState
 
   Future<void> _toggleBattery(bool exempt) async {
     if (exempt) {
-      // REQUEST_IGNORE_BATTERY_OPTIMIZATIONS shows a system dialog directly.
       await ref
           .read(notificationServiceProvider)
           .requestBatteryOptimizationExemption();
@@ -133,6 +134,23 @@ class _NotificationSettingsScreenState
     }
   }
 
+  void _showInfoDialog(String title, String body) {
+    if (!mounted) return;
+    showDialog<void>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(title),
+        content: Text(body),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: Text(AppLocalizations.of(context)!.got_it),
+          ),
+        ],
+      ),
+    );
+  }
+
   void _snack(String msg) {
     if (!mounted) return;
     ScaffoldMessenger.of(context)
@@ -161,55 +179,78 @@ class _NotificationSettingsScreenState
               padding:
                   const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
               children: [
-                // ── 1. Master (app-level notification permission) ─────
+                // ── 1. Master toggle ──────────────────────────────────
                 _label(localizations.notification_section_notifications, ts, context),
                 _SwitchTile(
-                  icon: state.hasSystemPermission
+                  icon: state.appMasterEnabled
                       ? Icons.notifications_active
                       : Icons.notifications_off,
                   title: localizations.notification_allow_title,
-                  subtitle: state.hasSystemPermission
-                      ? localizations.notification_allow_subtitle_enabled
-                      : localizations.notification_allow_subtitle_disabled,
-                  value: state.hasSystemPermission,
+                  subtitle: !state.appMasterEnabled
+                      ? localizations.notification_allow_subtitle_paused
+                      : state.hasSystemPermission
+                          ? localizations.notification_allow_subtitle_enabled
+                          : localizations.notification_allow_subtitle_disabled,
+                  value: state.appMasterEnabled,
                   onChanged: _toggleMaster,
                   titleSize: ts,
                   subtitleSize: ss,
                 ),
 
-                if (state.hasSystemPermission) ...[
+                if (state.appMasterEnabled && state.hasSystemPermission) ...[
                   const SizedBox(height: 24),
 
-                  // ── 2. Per-channel categories ──────────────────────
+                  // ── 2. Sub-toggles ────────────────────────────────
                   _label(localizations.notification_section_categories, ts, context),
+
+                  // Routine (plan) reminders
                   _SwitchTile(
                     icon: Icons.self_improvement,
                     title: localizations.notification_routine_title,
-                    subtitle: state.routineChannelEnabled
+                    subtitle: state.appRoutineEnabled
                         ? localizations.notification_routine_subtitle_enabled
                         : localizations.notification_routine_subtitle_disabled,
-                    value: state.routineChannelEnabled,
-                    onChanged: _toggleRoutineChannel,
+                    value: state.appRoutineEnabled,
+                    onChanged: _toggleRoutine,
+                    titleSize: ts,
+                    subtitleSize: ss,
+                  ),
+
+                  const SizedBox(height: 8),
+
+                  // Recitation reminders
+                  _SwitchTile(
+                    icon: Icons.menu_book_outlined,
+                    title: localizations.notification_recitation_title,
+                    subtitle: state.appRecitationEnabled
+                        ? localizations.notification_recitation_subtitle_enabled
+                        : localizations.notification_recitation_subtitle_disabled,
+                    value: state.appRecitationEnabled,
+                    onChanged: _toggleRecitation,
                     titleSize: ts,
                     subtitleSize: ss,
                   ),
 
                   // ── 3. Alarms & Reminders (Android only) ───────────
-                  if (Platform.isAndroid) ...[
-                    const SizedBox(height: 24),
-                    _label(localizations.notification_section_alarms, ts, context),
-                    _SwitchTile(
-                      icon: Icons.alarm,
-                      title: localizations.notification_alarms_title,
-                      subtitle: state.canScheduleExactAlarms
-                          ? localizations.notification_alarms_subtitle_enabled
-                          : localizations.notification_alarms_subtitle_disabled,
-                      value: state.canScheduleExactAlarms,
-                      onChanged: _toggleExactAlarms,
-                      titleSize: ts,
-                      subtitleSize: ss,
-                    ),
-                  ],
+                  // if (Platform.isAndroid) ...[
+                  //   const SizedBox(height: 24),
+                  //   _label(localizations.notification_section_alarms, ts, context),
+                  //   _SwitchTile(
+                  //     icon: Icons.alarm,
+                  //     title: localizations.notification_alarms_title,
+                  //     subtitle: state.canScheduleExactAlarms
+                  //         ? localizations.notification_alarms_subtitle_enabled
+                  //         : localizations.notification_alarms_subtitle_disabled,
+                  //     value: state.canScheduleExactAlarms,
+                  //     onChanged: _toggleExactAlarms,
+                  //     titleSize: ts,
+                  //     subtitleSize: ss,
+                  //     onInfo: () => _showInfoDialog(
+                  //       localizations.notification_alarms_info_title,
+                  //       localizations.notification_alarms_info_body,
+                  //     ),
+                  //   ),
+                  // ],
 
                   // ── 4. Battery optimization (Android only) ─────────
                   if (Platform.isAndroid) ...[
@@ -225,48 +266,15 @@ class _NotificationSettingsScreenState
                       onChanged: _toggleBattery,
                       titleSize: ts,
                       subtitleSize: ss,
+                      onInfo: () => _showInfoDialog(
+                        localizations.notification_battery_info_title,
+                        localizations.notification_battery_info_body,
+                      ),
                     ),
                   ],
 
-                  const SizedBox(height: 24),
-
-                  // ── 5. Test ────────────────────────────────────────
-                  // _label('Diagnostics', ts, context),
-                  // Card(
-                  //   margin: EdgeInsets.zero,
-                  //   child: ListTile(
-                  //     leading: _isSchedulingTest
-                  //         ? const SizedBox(
-                  //             width: 24,
-                  //             height: 24,
-                  //             child:
-                  //                 CircularProgressIndicator(strokeWidth: 2),
-                  //           )
-                  //         : Icon(
-                  //             Icons.notifications_active,
-                  //             color: Theme.of(context).colorScheme.primary,
-                  //           ),
-                  //     title: Text(
-                  //       'Send Test Notification',
-                  //       style: TextStyle(
-                  //           fontSize: ts, fontWeight: FontWeight.w500),
-                  //     ),
-                  //     subtitle: Text(
-                  //       'Fires in 4 minutes — close the app to verify',
-                  //       style: TextStyle(fontSize: ss),
-                  //     ),
-                  //     trailing: _isSchedulingTest
-                  //         ? null
-                  //         : const Icon(Icons.chevron_right),
-                  //     onTap:
-                  //         _isSchedulingTest ? null : _scheduleTestNotification,
-                  //     contentPadding: const EdgeInsets.symmetric(
-                  //         horizontal: 16, vertical: 4),
-                  //   ),
-                  // ),
+                  const SizedBox(height: 32),
                 ],
-
-                const SizedBox(height: 32),
               ],
             ),
     );
@@ -296,6 +304,7 @@ class _SwitchTile extends StatelessWidget {
     required this.onChanged,
     required this.titleSize,
     required this.subtitleSize,
+    this.onInfo,
   });
 
   final IconData icon;
@@ -305,6 +314,8 @@ class _SwitchTile extends StatelessWidget {
   final ValueChanged<bool> onChanged;
   final double titleSize;
   final double subtitleSize;
+  /// When provided an ⓘ icon button appears next to the title.
+  final VoidCallback? onInfo;
 
   @override
   Widget build(BuildContext context) {
@@ -314,12 +325,31 @@ class _SwitchTile extends StatelessWidget {
       child: SwitchListTile(
         secondary: Icon(
           icon,
-          color:
-              value ? cs.primary : cs.onSurface.withValues(alpha: 0.4),
+          color: value ? cs.primary : cs.onSurface.withValues(alpha: 0.4),
         ),
-        title: Text(
-          title,
-          style: TextStyle(fontSize: titleSize, fontWeight: FontWeight.w500),
+        title: Row(
+          children: [
+            Expanded(
+              child: Text(
+                title,
+                style: TextStyle(
+                    fontSize: titleSize, fontWeight: FontWeight.w500),
+              ),
+            ),
+            if (onInfo != null)
+              InkWell(
+                onTap: onInfo,
+                borderRadius: BorderRadius.circular(12),
+                child: Padding(
+                  padding: const EdgeInsets.all(4),
+                  child: Icon(
+                    Icons.info_outline,
+                    size: 17,
+                    color: cs.onSurface.withValues(alpha: 0.45),
+                  ),
+                ),
+              ),
+          ],
         ),
         subtitle: Text(subtitle, style: TextStyle(fontSize: subtitleSize)),
         value: value,
