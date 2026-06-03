@@ -85,6 +85,56 @@ class RoutineNotificationService {
 
   bool get _isReady => NotificationService().isInitialized;
 
+  // ─── iOS global pending-notification budget ───────────────────────────────
+
+  /// iOS hard cap on pending scheduled notifications app-wide. iOS keeps the
+  /// 64 with the soonest fire dates and silently drops the rest.
+  static const int _iosHardPendingLimit = 64;
+
+  /// Slots we allow ourselves to occupy, leaving headroom below the hard limit
+  /// for immediate (catch-up) notifications and any other first-party alerts.
+  static const int kIosPendingBudget = 60;
+
+  /// Remaining iOS scheduling slots, or `null` when there is effectively no
+  /// limit to enforce (Android's ~500 cap is not a practical concern here, and
+  /// macOS is unconstrained for our volumes).
+  ///
+  /// Call this AFTER cancelling the current series' own IDs so the slots it is
+  /// about to reuse are counted as available. Schedulers run sequentially and
+  /// awaited, so reading the live OS count naturally coordinates the budget
+  /// across every plan/recitation without a shared in-memory counter.
+  ///
+  /// Fails OPEN (returns `null`) on read error: iOS itself drops the furthest
+  /// requests if we over-schedule, so attempting is safer than silently
+  /// skipping reminders on a small, valid setup.
+  Future<int?> _remainingPendingBudget() async {
+    if (!Platform.isIOS) return null;
+    try {
+      final pending = await _plugin.pendingNotificationRequests();
+      final remaining = kIosPendingBudget - pending.length;
+      _logger.info(
+        '[NOTIF-BUDGET] iOS pending=${pending.length}/$_iosHardPendingLimit '
+        'remaining=$remaining',
+      );
+      return remaining < 0 ? 0 : remaining;
+    } catch (e) {
+      _logger.warning('[NOTIF-BUDGET] failed to read pending count: $e');
+      return null;
+    }
+  }
+
+  /// Number of series notifications we may schedule in one pass: the smaller of
+  /// the lookahead [window] and any [remainingBudget]. A `null` budget means no
+  /// limit to enforce (non-iOS), so the full window is used.
+  ///
+  /// Pure function — kept separate from the I/O above so the budgeting policy
+  /// is unit-testable without the iOS runtime.
+  @visibleForTesting
+  static int effectiveScheduleLimit(int window, int? remainingBudget) {
+    if (remainingBudget == null) return window;
+    return remainingBudget < window ? remainingBudget : window;
+  }
+
   // ─── Block-level scheduling ───────────────────────────────────────────────
 
   /// Schedules a notification for [block].
@@ -384,6 +434,18 @@ class RoutineNotificationService {
       'now=${now.toIso8601String()}',
     );
 
+    // Read remaining iOS budget once (after the cancel above freed this
+    // series' own slots). `null` ⇒ no limit to enforce (Android/macOS).
+    final budget = await _remainingPendingBudget();
+    final scheduleLimit = effectiveScheduleLimit(entries.length, budget);
+    if (budget != null && scheduleLimit < entries.length) {
+      _logger.warning(
+        '[NOTIF-SCHEDULE-SP] $planId — iOS budget limits this pass to '
+        '$scheduleLimit of ${entries.length} days; '
+        'remaining deferred to next launch',
+      );
+    }
+
     var scheduledCount = 0;
     var skippedPast = 0;
     for (var day = 1; day <= entries.length; day++) {
@@ -395,6 +457,7 @@ class RoutineNotificationService {
         );
         continue;
       }
+      if (scheduledCount >= scheduleLimit) break;
       _logger.info(
         '[NOTIF-SCHEDULE-SP] $planId day=$day fireDate=${fireDate.toIso8601String()} — scheduling',
       );
@@ -619,10 +682,28 @@ class RoutineNotificationService {
   // Well above routine-block hashes (1000–999999) and special-plan IDs, so
   // they never collide.
   //
-  // iOS allows at most 64 pending scheduled notifications. We cap the lookahead
-  // window at [kPlanSeriesMaxScheduledDays]. The bootstrap re-runs on every app
-  // launch so the window slides forward automatically.
-  static const int kPlanSeriesMaxScheduledDays = 60;
+  // iOS allows at most 64 pending scheduled notifications app-wide; exceeding
+  // this makes iOS silently drop the requests with the furthest fire dates.
+  // Two guards keep us safe:
+  //   1. A short per-plan lookahead window ([kPlanSeriesMaxScheduledDays]) so
+  //      a single long plan cannot monopolise the budget. The bootstrap
+  //      re-runs on every app launch, sliding the window forward, so users who
+  //      open the app at least once per window never miss a day.
+  //   2. A global pending-count budget ([kIosPendingBudget]) enforced on the
+  //      multi-day series schedulers (general + special plans) via
+  //      [_remainingPendingBudget]. Recitation blocks are intentionally not
+  //      guarded: each is a single daily-repeat slot refreshed in place, so
+  //      they are bounded and small, and guarding them could drop an in-place
+  //      refresh. With a 14-day window and a 60-slot budget, ~4 plan blocks can
+  //      coexist before the budget bites.
+  static const int kPlanSeriesMaxScheduledDays = 14;
+
+  // Cancellation must sweep the LARGEST window any shipped version ever used,
+  // not the current [kPlanSeriesMaxScheduledDays]. Otherwise lowering the
+  // window would orphan day-15..60 alarms scheduled by a prior install. Keep
+  // this >= every historical window value.
+  static const int _planSeriesCancelSweepDays = 60;
+
   static const int kPlanSeriesDefaultHour = 9;
   static const int _planSeriesIdBase = 10000000;
   static const int _planSeriesSlotSize = 500;
@@ -640,7 +721,9 @@ class RoutineNotificationService {
       'Day $dayNumber of $totalDays — check out $planTitle.';
 
   Future<void> _cancelPlanDurationSeries(String planId) async {
-    for (var day = 1; day <= kPlanSeriesMaxScheduledDays; day++) {
+    // Sweep the historical-max range, not the current (smaller) schedule
+    // window, so day-15..60 alarms left by older installs are also cleared.
+    for (var day = 1; day <= _planSeriesCancelSweepDays; day++) {
       await _plugin.cancel(_planDaySeriesNotifId(planId, day));
     }
     await _plugin.cancel(_planOneShotNotifId(planId));
@@ -727,11 +810,26 @@ class RoutineNotificationService {
       blockMinute,
     );
 
+    // Read remaining iOS budget once (after the cancel above freed this
+    // plan's own slots). `null` ⇒ no limit to enforce (Android/macOS).
+    final budget = await _remainingPendingBudget();
+    final scheduleLimit = effectiveScheduleLimit(
+      kPlanSeriesMaxScheduledDays,
+      budget,
+    );
+    if (budget != null && scheduleLimit < kPlanSeriesMaxScheduledDays) {
+      _logger.warning(
+        '[NOTIF-BUDGET] $planId — iOS budget limits this pass to '
+        '$scheduleLimit of $kPlanSeriesMaxScheduledDays days; '
+        'remaining deferred to next launch',
+      );
+    }
+
     var scheduledCount = 0;
     for (var day = 1; day <= metadata.totalDays; day++) {
       final fireDate = seriesStart.add(Duration(days: day - 1));
       if (!fireDate.isAfter(nowTz)) continue; // past — skip
-      if (scheduledCount >= kPlanSeriesMaxScheduledDays) break;
+      if (scheduledCount >= scheduleLimit) break;
 
       final body = _planDayBody(planTitle, day, metadata.totalDays);
       final androidStyle = await _buildBigPictureStyle(

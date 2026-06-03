@@ -79,6 +79,22 @@ Future<void> _bootstrap(Ref ref, UserPlansModel plan) async {
     );
   }
 
+  // Respect the user's per-block notification toggle. If disabled, cancel any
+  // existing schedule rather than re-scheduling, so a stale series from a
+  // previously-enabled state never lingers (the bootstrap may run after the
+  // routine-save sync, so we cannot rely on that path having cleaned up).
+  if (!matchingBlockOrNull.notificationEnabled) {
+    _logger.info('[ENROLL-NOTIF] ${plan.id} notificationEnabled=false — cancelling any schedule');
+    try {
+      await ref
+          .read(routineNotificationServiceProvider)
+          .cancelBlockNotification(matchingBlockOrNull);
+    } catch (e, st) {
+      _logger.error('[ENROLL-NOTIF] Failed to cancel ${plan.id}', e, st);
+    }
+    return;
+  }
+
   // Reschedule is idempotent: cancels prior IDs first, then rebuilds the
   // future one-shot series. Survives reinstall and re-login.
   try {

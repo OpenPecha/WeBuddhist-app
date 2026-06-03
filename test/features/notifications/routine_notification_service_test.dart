@@ -230,4 +230,30 @@ void main() {
       expect(result.isFullySuccessful, isFalse);
     });
   });
+
+  // ── effectiveScheduleLimit (iOS pending-budget policy) ────────────────────
+
+  group('effectiveScheduleLimit', () {
+    test('returns full window when budget is null (no limit to enforce)', () {
+      // null budget ⇒ non-iOS platform; the window is the only cap.
+      expect(RoutineNotificationService.effectiveScheduleLimit(14, null), 14);
+    });
+
+    test('returns the window when budget exceeds it', () {
+      expect(RoutineNotificationService.effectiveScheduleLimit(14, 60), 14);
+    });
+
+    test('returns the budget when it is smaller than the window', () {
+      // e.g. other plans already consumed most of the iOS budget.
+      expect(RoutineNotificationService.effectiveScheduleLimit(14, 5), 5);
+    });
+
+    test('returns zero when no budget remains (schedules nothing)', () {
+      expect(RoutineNotificationService.effectiveScheduleLimit(14, 0), 0);
+    });
+
+    test('equal window and budget returns that value', () {
+      expect(RoutineNotificationService.effectiveScheduleLimit(8, 8), 8);
+    });
+  });
 }
