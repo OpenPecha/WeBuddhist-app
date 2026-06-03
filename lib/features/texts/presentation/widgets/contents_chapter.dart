@@ -277,7 +277,7 @@ class _ContentsChapterState extends ConsumerState<ContentsChapter> {
     return const SizedBox.shrink();
   }
 
-  Widget _buildSectionTitle(Section section) {
+Widget _buildSectionTitle(Section section) {
     final language = widget.textDetail.language;
     final fontSize = language == 'bo' ? 26.0 : 22.0;
     return Padding(
@@ -365,6 +365,7 @@ class _ContentsChapterState extends ConsumerState<ContentsChapter> {
                     segmentIndex: segment.segmentNumber,
                     fontSize: fontSize,
                     language: language,
+                    isSelected: isSelected,
                   ),
                 ),
               ],

@@ -137,7 +137,10 @@ class _BottomActionPanel extends StatelessWidget {
     return Dismissible(
       key: const ValueKey('segment_action_panel'),
       direction: DismissDirection.down,
-      onDismissed: (_) => onDismiss(),
+      onDismissed: (_) {
+        HapticFeedback.lightImpact();
+        onDismiss();
+      },
       child: Material(
         color: theme.scaffoldBackgroundColor,
         elevation: 0,
