@@ -85,12 +85,20 @@ class InterlinearSegmentItem extends ConsumerWidget {
                         isSelected: isSelected,
                       ),
                       const SizedBox(height: 4),
-                      _SecondaryLine(
-                        text: secondary.text,
-                        isPlaceholder: secondary.isPlaceholder,
-                        language: secondarySlot.languageCode,
-                        fontSize: fontSize * 0.78,
-                      ),
+                      if (secondary.isPlaceholder)
+                        _SecondaryPlaceholder(
+                          text: secondary.text,
+                          language: secondarySlot.languageCode,
+                          fontSize: fontSize,
+                        )
+                      else
+                        SegmentHtmlWidget(
+                          htmlContent: secondary.text,
+                          segmentIndex: segment.segmentNumber,
+                          fontSize: fontSize,
+                          language: secondarySlot.languageCode,
+                          isSelected: isSelected,
+                        ),
                       const SizedBox(height: 2),
                     ],
                   ),
@@ -107,7 +115,7 @@ class InterlinearSegmentItem extends ConsumerWidget {
     final fromMap = secondaryContentBySegmentNumber?[segment.segmentNumber];
     if (fromMap != null && fromMap.trim().isNotEmpty) {
       return _SecondaryResolved(
-        text: normalizeSegmentText(fromMap),
+        text: normalizeSegmentHtml(fromMap),
         isPlaceholder: false,
       );
     }
@@ -127,16 +135,14 @@ class _SecondaryResolved {
   const _SecondaryResolved({required this.text, required this.isPlaceholder});
 }
 
-class _SecondaryLine extends StatelessWidget {
-  const _SecondaryLine({
+class _SecondaryPlaceholder extends StatelessWidget {
+  const _SecondaryPlaceholder({
     required this.text,
-    required this.isPlaceholder,
     required this.language,
     required this.fontSize,
   });
 
   final String text;
-  final bool isPlaceholder;
   final String language;
   final double fontSize;
 
@@ -148,7 +154,7 @@ class _SecondaryLine extends StatelessWidget {
         fontSize: fontSize,
         fontFamily: getFontFamily(language),
         fontWeight: FontWeight.w400,
-        fontStyle: isPlaceholder ? FontStyle.italic : FontStyle.normal,
+        fontStyle: FontStyle.italic,
         color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.55),
         height: 1.4,
       ),
