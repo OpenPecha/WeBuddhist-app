@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
+import 'package:flutter_pecha/core/config/router/app_routes.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/core/theme/theme_notifier.dart';
-import 'package:flutter_pecha/core/widgets/cached_network_image_widget.dart';
+import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
 import 'package:flutter_pecha/features/auth/presentation/widgets/login_drawer.dart';
 import 'package:flutter_pecha/features/notifications/presentation/notification_settings_screen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
 import 'package:go_router/go_router.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -51,7 +51,9 @@ class MoreScreen extends ConsumerWidget {
           strutStyle: context.tibetanStrutStyle(
             Theme.of(context).textTheme.headlineSmall?.fontSize ?? 24,
           ),
-          style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
+          style: Theme.of(
+            context,
+          ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
       ),
@@ -59,37 +61,50 @@ class MoreScreen extends ConsumerWidget {
         child: ListView(
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
           children: [
-            // Profile Section
-            if (authState.isLoggedIn && !authState.isGuest) ...[
-              _buildProfileSection(context, ref),
-              const SizedBox(height: 32),
-            ],
-
-            // Appearance Section
-            _buildSectionHeader(context, localizations.settings_appearance),
+            // Personalisation Section
+            _buildSectionHeader(context, 'PERSONALISATION'),
             const SizedBox(height: 12),
-            _buildThemeToggleRow(context, ref, isDarkMode, localizations),
-            const SizedBox(height: 24),
-
-            // Language Section
-            _buildSectionHeader(context, localizations.language),
-            const SizedBox(height: 12),
+            if (authState.isLoggedIn && !authState.isGuest)
+              _buildSettingsRow(
+                context,
+                icon: PhosphorIconsRegular.user,
+                title: 'Edit profile',
+                onTap: () => context.push(AppRoutes.profile),
+              ),
             _buildLanguageRow(context, ref, locale),
+            _buildNotificationRow(context),
+            _buildThemeToggleRow(context, ref, isDarkMode),
             const SizedBox(height: 24),
 
-            // Notifications Section
-            _buildSectionHeader(context, localizations.notification_settings),
+            // More Section
+            _buildSectionHeader(context, 'MORE'),
             const SizedBox(height: 12),
             _buildSettingsRow(
               context,
-              icon: PhosphorIconsRegular.bell,
-              title: localizations.notification_settings,
-              onTap: () => context.push(NotificationSettingsScreen.routeName),
+              icon: PhosphorIconsRegular.info,
+              title: 'About',
+              onTap: () => context.push(AppRoutes.about),
+            ),
+            _buildSettingsRow(
+              context,
+              icon: PhosphorIconsRegular.shieldCheck,
+              title: 'Privacy policy',
+              onTap: () => context.push(AppRoutes.privacyPolicy),
+            ),
+            _buildSettingsRow(
+              context,
+              icon: PhosphorIconsRegular.chatCircleText,
+              title: 'Feedback',
+              onTap: () async {
+                final url =
+                    "https://app-webuddhist.ideas.userback.io/p/5omSMHB8A9VMUrD6vLrE";
+                await launchUrl(Uri.parse(url));
+              },
             ),
             const SizedBox(height: 24),
 
             // Account Section
-            _buildSectionHeader(context, localizations.settings_account),
+            _buildSectionHeader(context, 'ACCOUNT'),
             const SizedBox(height: 12),
             if (!authState.isLoggedIn || authState.isGuest) ...[
               _buildSettingsRow(
@@ -104,72 +119,12 @@ class MoreScreen extends ConsumerWidget {
                 icon: PhosphorIconsRegular.signOut,
                 title: localizations.logout,
                 onTap: () => _showLogoutDialog(context, ref),
+                isDestructive: true,
               ),
             ],
-            const SizedBox(height: 16),
-            _buildSettingsRow(
-              context,
-              icon: PhosphorIconsRegular.chatCircleText,
-              title: localizations.feedback_wishlist,
-              onTap: () async {
-                final url =
-                    "https://app-webuddhist.ideas.userback.io/p/5omSMHB8A9VMUrD6vLrE";
-                await launchUrl(Uri.parse(url));
-              },
-            ),
           ],
         ),
       ),
-    );
-  }
-
-  Widget _buildProfileSection(BuildContext context, WidgetRef ref) {
-    final user = ref.watch(userProvider).user;
-    final avatarUrl = user?.avatarUrl ?? '';
-
-    return Row(
-      children: [
-        Hero(
-          tag: 'profile-avatar',
-          child: CircleAvatar(
-            radius: 48,
-            backgroundColor: AppColors.grey300,
-            backgroundImage:
-                avatarUrl.isNotEmpty
-                    ? avatarUrl.cachedNetworkImageProvider
-                    : null,
-            child:
-                avatarUrl.isEmpty
-                    ? Icon(
-                      PhosphorIconsRegular.user,
-                      size: 40,
-                      color: AppColors.grey600,
-                    )
-                    : null,
-          ),
-        ),
-        const SizedBox(width: 16),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                user?.fullName ?? AppLocalizations.of(context)!.profile_default_name,
-                style: Theme.of(
-                  context,
-                ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                user?.email ?? '',
-                style: Theme.of(
-                  context,
-                ).textTheme.bodyMedium?.copyWith(color: AppColors.grey600),
-              ),
-            ],
-          ),
-        ),
-      ],
     );
   }
 
@@ -177,33 +132,43 @@ class MoreScreen extends ConsumerWidget {
     BuildContext context,
     WidgetRef ref,
     bool isDarkMode,
-    AppLocalizations localizations,
   ) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          isDarkMode ? localizations.themeDark : localizations.themeLight,
-          style: Theme.of(context).textTheme.bodyLarge,
-        ),
-        _ThemeToggle(
-          isDarkMode: isDarkMode,
-          onChanged: (value) {
-            ref
-                .read(themeModeProvider.notifier)
-                .setTheme(value ? ThemeMode.dark : ThemeMode.light);
-          },
-        ),
-      ],
+    return _buildSettingsRow(
+      context,
+      icon: PhosphorIconsRegular.moon,
+      title: 'Theme',
+      onTap: () {
+        ref
+            .read(themeModeProvider.notifier)
+            .setTheme(isDarkMode ? ThemeMode.light : ThemeMode.dark);
+      },
+      trailing: _ThemeToggle(
+        isDarkMode: isDarkMode,
+        onChanged: (value) {
+          ref
+              .read(themeModeProvider.notifier)
+              .setTheme(value ? ThemeMode.dark : ThemeMode.light);
+        },
+      ),
+    );
+  }
+
+  Widget _buildNotificationRow(BuildContext context) {
+    return _buildSettingsRow(
+      context,
+      icon: PhosphorIconsRegular.bell,
+      title: 'Notification',
+      onTap: () => context.push(NotificationSettingsScreen.routeName),
     );
   }
 
   Widget _buildLanguageRow(BuildContext context, WidgetRef ref, Locale locale) {
+    final currentLanguageName = _getLanguageName(locale);
     return InkWell(
       onTap: () => _showLanguageBottomSheet(context, ref, locale),
       borderRadius: BorderRadius.circular(8),
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8),
+        padding: const EdgeInsets.symmetric(vertical: 12),
         child: Row(
           children: [
             Icon(
@@ -214,7 +179,7 @@ class MoreScreen extends ConsumerWidget {
             const SizedBox(width: 12),
             Expanded(
               child: Text(
-                _getLanguageName(locale),
+                currentLanguageName,
                 style: Theme.of(context).textTheme.bodyLarge,
               ),
             ),
@@ -234,21 +199,50 @@ class MoreScreen extends ConsumerWidget {
     required IconData icon,
     required String title,
     required VoidCallback onTap,
+    Widget? trailing,
+    bool isDestructive = false,
   }) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(8),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 12),
-        child: Row(
-          children: [
-            Icon(icon, size: 24, color: Theme.of(context).iconTheme.color),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(title, style: Theme.of(context).textTheme.bodyLarge),
-            ),
-          ],
+    final color =
+        isDestructive
+            ? Colors.red.shade600
+            : Theme.of(context).iconTheme.color;
+    final textColor =
+        isDestructive ? Colors.red.shade600 : null;
+
+    final rowContent = Row(
+      children: [
+        Icon(icon, size: 24, color: color),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Text(
+            title,
+            style: Theme.of(
+              context,
+            ).textTheme.bodyLarge?.copyWith(color: textColor),
+          ),
         ),
+        if (trailing == null)
+          Icon(
+            PhosphorIconsRegular.caretRight,
+            size: 20,
+            color: isDestructive ? Colors.red.shade600 : AppColors.grey600,
+          ),
+      ],
+    );
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 12),
+      child: Row(
+        children: [
+          Expanded(
+            child: InkWell(
+              onTap: onTap,
+              borderRadius: BorderRadius.circular(8),
+              child: rowContent,
+            ),
+          ),
+          if (trailing != null) trailing,
+        ],
       ),
     );
   }
