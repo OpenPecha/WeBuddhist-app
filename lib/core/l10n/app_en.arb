@@ -64,6 +64,14 @@
   "no_version": "No versions found",
   "no_commentary": "No commentaries found",
   "no_commentary_message": "No commentaries available for this segment",
+  "commentary_not_available_for_language": "{language} commentary not available",
+  "@commentary_not_available_for_language": {
+    "placeholders": {
+      "language": {
+        "type": "String"
+      }
+    }
+  },
   "loading": "Loading...",
   "choose_image": "Choose image",
   "choose_bg_image": "Choose a background image",

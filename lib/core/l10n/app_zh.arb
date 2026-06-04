@@ -64,6 +64,14 @@
   "no_version": "尚無相關版本",
   "no_commentary": "尚無相關注釋",
   "no_commentary_message": "此偈誦尚無相關注釋",
+  "commentary_not_available_for_language": "{language} commentary not available",
+  "@commentary_not_available_for_language": {
+    "placeholders": {
+      "language": {
+        "type": "String"
+      }
+    }
+  },
   "loading": "加載中...",
   "choose_image": "選擇圖片",
   "choose_bg_image": "選擇背景圖片",

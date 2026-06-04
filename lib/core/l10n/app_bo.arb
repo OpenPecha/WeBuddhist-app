@@ -64,6 +64,14 @@
   "no_version": "རྙེད་མ་བྱུང།",
   "no_commentary": "རྙེད་མ་བྱུང།",
   "no_commentary_message": "No commentaries available for this segment",
+  "commentary_not_available_for_language": "{language} commentary not available",
+  "@commentary_not_available_for_language": {
+    "placeholders": {
+      "language": {
+        "type": "String"
+      }
+    }
+  },
   "loading": "ལེན་བཞིན་པ་་་",
   "choose_image": "པར་རིས་འདེམས།",
   "choose_bg_image": "རྒྱབས་ལྗོངས་ཀྱི་པར་རིས་ཤིག་འདེམས།",
