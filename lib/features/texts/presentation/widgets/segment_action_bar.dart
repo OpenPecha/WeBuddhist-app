@@ -110,7 +110,7 @@ class SegmentActionBar extends ConsumerWidget {
                     icon: Icons.copy,
                     label: localizations.copy,
                     onTap: () {
-                      final textWithLineBreaks = text.replaceAll("<br>", "\n");
+                      final textWithLineBreaks = text.replaceAll('⤵', '<br>').replaceAll("<br>", "\n");
                       final plainText = htmlToPlainText(textWithLineBreaks);
                       Clipboard.setData(ClipboardData(text: plainText));
                       ScaffoldMessenger.of(context).showSnackBar(
@@ -129,7 +129,7 @@ class SegmentActionBar extends ConsumerWidget {
                     icon: Icons.image_outlined,
                     label: localizations.image,
                     onTap: () {
-                      final textWithLineBreaks = text.replaceAll("<br>", "\n");
+                      final textWithLineBreaks = text.replaceAll('⤵', '<br>').replaceAll("<br>", "\n");
                       final plainText = htmlToPlainText(textWithLineBreaks);
                       context.push(
                         '/texts/segment_image/choose_image',

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ui' show VoidCallback;
 
 import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/features/reader/constants/reader_constants.dart';
@@ -446,6 +447,26 @@ class ReaderNotifier extends StateNotifier<ReaderState> {
       ReaderConstants.maxSplitRatio,
     );
     state = state.copyWith(splitRatio: clampedRatio);
+  }
+
+  /// Update split ratio while dragging a panel handle. If the resulting panel
+  /// height shrinks below [ReaderConstants.minPanelHeightBeforeDismiss], the
+  /// caller is asked to dismiss the panel via [onDismiss] instead of resizing.
+  /// Returns `true` when a dismiss was triggered so callers can stop emitting
+  /// further drag updates for this gesture.
+  bool updateSplitRatioOrDismiss({
+    required double ratio,
+    required double availableHeight,
+    required VoidCallback onDismiss,
+  }) {
+    if (_isDisposed) return false;
+    final panelHeight = availableHeight * (1 - ratio);
+    if (panelHeight < ReaderConstants.minPanelHeightBeforeDismiss) {
+      onDismiss();
+      return true;
+    }
+    updateSplitRatio(ratio);
+    return false;
   }
 
   /// Trigger highlight for a segment

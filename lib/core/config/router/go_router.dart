@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/features/auth/presentation/screens/login_page.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
-import 'package:flutter_pecha/features/auth/presentation/screens/profile_page.dart';
+import 'package:flutter_pecha/features/more/presentation/edit_profile_screen.dart';
 import 'package:flutter_pecha/features/app/presentation/skeleton_screen.dart';
 import 'package:flutter_pecha/features/creator_info/presentation/creator_info_screen.dart';
 import 'package:flutter_pecha/features/onboarding/presentation/screens/onboarding_wrapper.dart';
@@ -76,34 +76,7 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: RouteConfig.profile,
-        pageBuilder: (context, state) {
-          return CustomTransitionPage(
-            key: state.pageKey,
-            child: const ProfilePage(),
-            transitionsBuilder: (
-              context,
-              animation,
-              secondaryAnimation,
-              child,
-            ) {
-              final fade = CurvedAnimation(
-                parent: animation,
-                curve: Curves.easeInOut,
-              );
-              final offsetTween = Tween<Offset>(
-                begin: const Offset(0.0, 0.03),
-                end: Offset.zero,
-              ).chain(CurveTween(curve: Curves.easeOutCubic));
-              return FadeTransition(
-                opacity: fade,
-                child: SlideTransition(
-                  position: animation.drive(offsetTween),
-                  child: child,
-                ),
-              );
-            },
-          );
-        },
+        builder: (context, state) => const EditProfileScreen(),
       ),
       GoRoute(
         path: RouteConfig.creatorInfo,

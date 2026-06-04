@@ -1,6 +1,9 @@
 import 'dart:async';
+import 'dart:io';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
 import 'package:flutter_pecha/core/error/failures.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
@@ -553,11 +556,112 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
 
   // ─── Block operations ───
 
-  Future<void> _pickTime(int index) async {
-    final picked = await showTimePicker(
-      context: context,
-      initialTime: _blocks[index].time,
+  /// Shows a Cupertino wheel time picker in a modal bottom sheet and returns
+  /// the selected [TimeOfDay], or null if dismissed.
+  Future<TimeOfDay?> _showCupertinoTimePicker({
+    required TimeOfDay initialTime,
+  }) async {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    // Follow the device's clock setting so the wheel matches the system
+    // 12h/24h preference (consistent with Material's showTimePicker).
+    final use24hFormat = MediaQuery.of(context).alwaysUse24HourFormat;
+    // Resolve l10n before entering the modal — the popup's builder context
+    // does not inherit AppLocalizations from the route.
+    final l10n = context.l10n;
+    final now = DateTime.now();
+    var selected = DateTime(
+      now.year,
+      now.month,
+      now.day,
+      initialTime.hour,
+      initialTime.minute,
     );
+
+    final confirmed = await showCupertinoModalPopup<bool>(
+      context: context,
+      builder: (ctx) {
+        // CupertinoDatePicker reads its text color from the ambient
+        // CupertinoTheme, which defaults to light. Force the brightness to
+        // match the app theme so the wheel digits stay legible in dark mode.
+        return CupertinoTheme(
+          data: CupertinoThemeData(
+            brightness: isDark ? Brightness.dark : Brightness.light,
+          ),
+          child: Container(
+            height: 300,
+            decoration: BoxDecoration(
+              color: isDark ? AppColors.cardBackgroundDark : AppColors.surfaceWhite,
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+            ),
+            child: SafeArea(
+              top: false,
+              child: Column(
+                children: [
+                  // Handle bar
+                  Container(
+                    margin: const EdgeInsets.only(top: 10),
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: isDark ? AppColors.textTertiaryDark : AppColors.grey100,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                  // Confirm / Cancel row
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      CupertinoButton(
+                        onPressed: () {
+                          HapticFeedback.lightImpact();
+                          Navigator.of(ctx).pop(false);
+                        },
+                        child: Text(
+                          l10n.cancel,
+                          style: TextStyle(
+                            color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondary,
+                          ),
+                        ),
+                      ),
+                      CupertinoButton(
+                        onPressed: () {
+                          HapticFeedback.mediumImpact();
+                          Navigator.of(ctx).pop(true);
+                        },
+                        child: Text(l10n.done),
+                      ),
+                    ],
+                  ),
+                  // Picker wheel
+                  Expanded(
+                    child: CupertinoDatePicker(
+                      mode: CupertinoDatePickerMode.time,
+                      initialDateTime: selected,
+                      use24hFormat: use24hFormat,
+                      onDateTimeChanged: (dt) => selected = dt,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+
+    if (confirmed != true) return null;
+    return TimeOfDay(hour: selected.hour, minute: selected.minute);
+  }
+
+  Future<void> _pickTime(int index) async {
+    final picked = Platform.isIOS
+        ? await _showCupertinoTimePicker(
+            initialTime: _blocks[index].time,
+          )
+        : await showTimePicker(
+            context: context,
+            initialTime: _blocks[index].time,
+          );
     if (picked != null) {
       final otherTimes =
           _blocks
@@ -844,7 +948,7 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
     }
 
     setState(() {
-      _blocks.add(_EditableBlock(time: adjusted, notificationEnabled: false));
+      _blocks.add(_EditableBlock(time: adjusted, notificationEnabled: true));
       _sortBlocks();
     });
     // No API call — block is local-only until the first session is added.

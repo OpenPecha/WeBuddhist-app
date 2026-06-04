@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_pecha/features/reader/presentation/providers/reader_notifier.dart';
-import 'package:flutter_pecha/features/reader/presentation/widgets/reader_actions/action_button.dart';
 import 'package:flutter_pecha/features/texts/presentation/providers/share_provider.dart';
 import 'package:flutter_pecha/features/texts/data/models/segment.dart';
 import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -63,89 +61,60 @@ class SegmentActionBar extends ConsumerWidget {
     return Positioned(
       left: 0,
       right: 0,
-      bottom: 24,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20.0),
-        child: Material(
-          elevation: 8,
-          borderRadius: BorderRadius.circular(18),
-          color: Theme.of(context).cardColor,
-          child: Center(
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  // Translations button
-                  ActionButton(
-                    icon: PhosphorIconsRegular.translate,
-                    label: localizations.text_translations,
-                    onTap: () {
-                      notifier.toggleTranslation(segment.segmentId);
-                      if (!state.isTranslationOpen) {
-                        onOpenTranslation?.call();
-                      }
-                    },
-                  ),
-                  // Commentary button
-                  ActionButton(
-                    icon: PhosphorIconsRegular.chatText,
-                    label: localizations.text_commentary,
-                    onTap: () {
-                      notifier.toggleCommentary(segment.segmentId);
-                      if (!state.isCommentaryOpen) {
-                        onOpenCommentary?.call();
-                      }
-                    },
-                  ),
-                  // // AI button
-                  // ActionButton(
-                  //   icon: PhosphorIconsRegular.sparkle,
-                  //   label: localizations.ask_ai,
-                  //   onTap:
-                  //       () => {
-                  //         // show a comming soon snackbar
-                  //         ScaffoldMessenger.of(context).showSnackBar(
-                  //           SnackBar(
-                  //             content: Text(localizations.comingSoonHeadline),
-                  //             duration: Duration(seconds: 2),
-                  //           ),
-                  //         ),
-                  //       },
-                  // ),
-                  // Copy button
-                  ActionButton(
-                    icon: Icons.copy,
-                    label: localizations.copy,
-                    onTap: () => _handleCopy(context, content),
-                  ),
-                  // Share button
-                  _ShareButton(
-                    textId: params.textId,
-                    segmentId: segment.segmentId,
-                    language: state.textDetail?.language ?? 'en',
-                    onClose: onClose,
-                  ),
-                  // Image button
-                  // ActionButton(
-                  //   icon: Icons.image_outlined,
-                  //   label: localizations.image,
-                  //   onTap: () => _handleImage(context, content),
-                  // ),
-                ],
-              ),
-            ),
+      bottom: 0,
+      child: _BottomActionPanel(
+        onDismiss: onClose,
+        children: [
+          // Versions button
+          _ActionCard(
+            icon: PhosphorIconsRegular.translate,
+            label: localizations.version,
+            onTap: () {
+              HapticFeedback.lightImpact();
+              notifier.toggleTranslation(segment.segmentId);
+              if (!state.isTranslationOpen) {
+                onOpenTranslation?.call();
+              }
+            },
           ),
-        ),
+          // Commentary button
+          _ActionCard(
+            icon: PhosphorIconsRegular.chatText,
+            label: localizations.text_commentary,
+            onTap: () {
+              HapticFeedback.lightImpact();
+              notifier.toggleCommentary(segment.segmentId);
+              if (!state.isCommentaryOpen) {
+                onOpenCommentary?.call();
+              }
+            },
+          ),
+          // Copy button
+          _ActionCard(
+            icon: PhosphorIconsRegular.copy,
+            label: localizations.copy,
+            onTap: () {
+              HapticFeedback.lightImpact();
+              _handleCopy(context, content);
+            },
+          ),
+          // Share button
+          _ShareButton(
+            textId: params.textId,
+            segmentId: segment.segmentId,
+            language: state.textDetail?.language ?? 'en',
+            onClose: onClose,
+          ),
+        ],
       ),
     );
   }
 
   void _handleCopy(BuildContext context, String content) {
     final localizations = context.l10n;
-    final textWithLineBreaks = content.replaceAll('⤵', '<br>').replaceAll("<br>", "\n");
+    final textWithLineBreaks = normalizeSegmentHtml(
+      content,
+    ).replaceAll('<br>', '\n');
     final plainText = _htmlToPlainText(textWithLineBreaks);
     Clipboard.setData(ClipboardData(text: plainText));
     ScaffoldMessenger.of(
@@ -153,12 +122,142 @@ class SegmentActionBar extends ConsumerWidget {
     ).showSnackBar(SnackBar(content: Text(localizations.copied)));
     onClose();
   }
+}
 
-  void _handleImage(BuildContext context, String content) {
-    final textWithLineBreaks = content.replaceAll('⤵', '<br>').replaceAll("<br>", "\n");
-    final plainText = _htmlToPlainText(textWithLineBreaks);
-    context.pushNamed('choose-image', extra: plainText);
-    onClose();
+/// Bottom-sheet-style panel that hosts the segment action cards. Anchored to
+/// the bottom edge with rounded top corners and a drag handle, it can be
+/// dismissed by swiping downwards (via [onDismiss]) and respects the home
+/// indicator through [SafeArea]. Children are laid out as equal-width cards.
+class _BottomActionPanel extends StatelessWidget {
+  final List<Widget> children;
+  final VoidCallback onDismiss;
+
+  const _BottomActionPanel({required this.children, required this.onDismiss});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    const radius = Radius.circular(20);
+
+    return Dismissible(
+      key: const ValueKey('segment_action_panel'),
+      direction: DismissDirection.down,
+      onDismissed: (_) {
+        HapticFeedback.lightImpact();
+        onDismiss();
+      },
+      child: Material(
+        color: theme.scaffoldBackgroundColor,
+        elevation: 0,
+        shadowColor: Colors.black.withValues(alpha: 0.2),
+        borderRadius: const BorderRadius.only(
+          topLeft: radius,
+          topRight: radius,
+        ),
+        child: SafeArea(
+          top: false,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Drag handle
+              Padding(
+                padding: const EdgeInsets.only(top: 10, bottom: 6),
+                child: Container(
+                  width: 36,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.onSurface.withValues(alpha: 0.25),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.fromLTRB(16, 6, 16, 12),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    for (var i = 0; i < children.length; i++) ...[
+                      if (i > 0) const SizedBox(width: 12),
+                      children[i],
+                    ],
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// A single filled action card: icon over label inside a rounded surface.
+/// Shows a spinner in place of the icon while [isLoading].
+class _ActionCard extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+  final bool isLoading;
+
+  const _ActionCard({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+    this.isLoading = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final cardColor =
+        isDark
+            ? Colors.white.withValues(alpha: 0.08)
+            : Colors.black.withValues(alpha: 0.04);
+    final foreground = theme.colorScheme.onSurface;
+
+    return Material(
+      color: cardColor,
+      borderRadius: BorderRadius.circular(14),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: isLoading ? null : onTap,
+        // Size to the label so it is never truncated; a min width keeps
+        // short-label cards (Copy/Share) from looking cramped.
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minWidth: 72),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (isLoading)
+                  SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: foreground,
+                    ),
+                  )
+                else
+                  Icon(icon, size: 24, color: foreground),
+                const SizedBox(height: 8),
+                Text(
+                  label,
+                  maxLines: 1,
+                  textAlign: TextAlign.center,
+                  style: theme.textTheme.labelMedium?.copyWith(
+                    color: foreground,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }
 
@@ -184,6 +283,7 @@ class _ShareButtonState extends ConsumerState<_ShareButton> {
   bool _isLoading = false;
 
   Future<void> _handleShare() async {
+    HapticFeedback.lightImpact();
     if (_isLoading) return;
 
     setState(() {
@@ -228,7 +328,7 @@ class _ShareButtonState extends ConsumerState<_ShareButton> {
   @override
   Widget build(BuildContext context) {
     final localizations = context.l10n;
-    return ActionButton(
+    return _ActionCard(
       icon: PhosphorIconsRegular.shareNetwork,
       label: localizations.share,
       onTap: _handleShare,

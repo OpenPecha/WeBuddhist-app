@@ -57,11 +57,21 @@
   "commentary_total": "ཁྱོན་བསྡོམས།",
   "show_more": "མང་བ་བསྟོན།",
   "show_less": "ཉུང་བ་བསྟོན།",
+  "more": "མང་བ།",
+  "less": "ཉུང་བ།",
   "read_more": "མང་ཙམ་ཀློགས།",
   "no_content": "རྙེད་མ་བྱུང།",
   "no_version": "རྙེད་མ་བྱུང།",
   "no_commentary": "རྙེད་མ་བྱུང།",
   "no_commentary_message": "No commentaries available for this segment",
+  "commentary_not_available_for_language": "{language} commentary not available",
+  "@commentary_not_available_for_language": {
+    "placeholders": {
+      "language": {
+        "type": "String"
+      }
+    }
+  },
   "loading": "ལེན་བཞིན་པ་་་",
   "choose_image": "པར་རིས་འདེམས།",
   "choose_bg_image": "རྒྱབས་ལྗོངས་ཀྱི་པར་རིས་ཤིག་འདེམས།",
@@ -82,7 +92,7 @@
   "browse_plans": "ཉམས་ལེན་ལ་མིག་བཤེར་བྱོས།",
   "plan_info": "ཉམས་ལེན་ངོས་སྤྲོད།",
   "start_plan": "ཉམས་ལེན་འགོ་འཛུགས།",
-  "start_reading": "ཀློག་པ་འགོ་འཛུགས།",
+  "start_reading": "ཉམས་ལེན་བྱེད།",
   "continue_plan": "ཉམས་ལེན་མུ་མཐུད།",
   "tibetan": "བོད་ཡིག",
   "sanskrit": "ལེགས་སྦྱར་སྐད།",
@@ -222,7 +232,6 @@
   "home_no_tags_found": "No tags found",
   "home_celebrated_by": "སྤེལ་མཁན་ནི་ ",
   "home_default_duration": "སྐར་མ་ ༡-༢",
-  "version": "Version",
   "reader_settings_tooltip": "Reader settings",
   "reader_font_size_tooltip": "Font size",
   "reader_about_version_tooltip": "About this version",
@@ -572,7 +581,6 @@
       }
     }
   },
-  "reader_settings": "Reader Settings",
   "show_second_version": "Show Second Version",
   "enable_add_msg": "Enable to add a translation or transliteration alongside the main text.",
   "main_text": "Main Text",

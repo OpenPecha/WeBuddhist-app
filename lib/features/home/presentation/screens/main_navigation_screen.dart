@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
-import 'package:flutter_pecha/features/more/presentation/more_screen.dart';
+import 'package:flutter_pecha/features/more/presentation/me_screen.dart';
 import 'package:flutter_pecha/features/plans/data/models/user/user_plans_model.dart';
 import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
@@ -57,7 +57,7 @@ class MainNavigationScreen extends ConsumerWidget {
       AppBottomBarItemModel(
         type: 2,
         label: localizations.nav_me,
-        selectedWidget: const MoreScreen(),
+        selectedWidget: const MeScreen(),
         selectedIconData: AppAssets.meSelected,
         unSelectedIconData: AppAssets.meUnselected,
       ),

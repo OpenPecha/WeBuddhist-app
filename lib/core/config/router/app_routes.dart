@@ -18,7 +18,10 @@ class AppRoutes {
   static const String texts = "/ai-mode";
   static const String practice = "/practice";
   static const String more = "/more";
+  static const String settings = '/settings';
   static const String profile = '/profile';
+  static const String about = '/about';
+  static const String privacyPolicy = '/privacy-policy';
   static const String creatorInfo = '/creator_info';
   static const String notifications = '/notifications';
 

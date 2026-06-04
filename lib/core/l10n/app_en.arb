@@ -57,11 +57,21 @@
   "commentary_total": "Total",
   "show_more": "Show more",
   "show_less": "Show less",
+  "more": "More",
+  "less": "Less",
   "read_more": "Read more",
   "no_content": "No content found",
   "no_version": "No versions found",
   "no_commentary": "No commentaries found",
   "no_commentary_message": "No commentaries available for this segment",
+  "commentary_not_available_for_language": "{language} commentary not available",
+  "@commentary_not_available_for_language": {
+    "placeholders": {
+      "language": {
+        "type": "String"
+      }
+    }
+  },
   "loading": "Loading...",
   "choose_image": "Choose image",
   "choose_bg_image": "Choose a background image",
@@ -82,7 +92,7 @@
   "browse_plans": "Browse plans",
   "plan_info": "Plan info",
   "start_plan": "Start plan",
-  "start_reading": "Start reading",
+  "start_reading": "Practice now",
   "continue_plan": "Continue plan",
   "tibetan": "Tibetan",
   "sanskrit": "Sanskrit",
@@ -222,7 +232,6 @@
   "home_no_tags_found": "No tags found",
   "home_celebrated_by": "Celebrated by: ",
   "home_default_duration": "1-2 min",
-  "version": "Version",
   "reader_settings_tooltip": "Reader settings",
   "reader_font_size_tooltip": "Font size",
   "reader_about_version_tooltip": "About this version",
@@ -628,7 +637,6 @@
       }
     }
   },
-  "reader_settings": "Reader Settings",
   "show_second_version": "Show Second Version",
   "enable_add_msg": "Enable to add a translation or transliteration alongside the main text.",
   "main_text": "Main Text",

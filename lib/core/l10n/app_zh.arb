@@ -57,11 +57,21 @@
   "commentary_total": "總計",
   "show_more": "顯示更多",
   "show_less": "顯示較少",
+  "more": "更多",
+  "less": "較少",
   "read_more": "閱讀更多",
   "no_content": "尚無相關內容",
   "no_version": "尚無相關版本",
   "no_commentary": "尚無相關注釋",
   "no_commentary_message": "此偈誦尚無相關注釋",
+  "commentary_not_available_for_language": "{language} commentary not available",
+  "@commentary_not_available_for_language": {
+    "placeholders": {
+      "language": {
+        "type": "String"
+      }
+    }
+  },
   "loading": "加載中...",
   "choose_image": "選擇圖片",
   "choose_bg_image": "選擇背景圖片",
@@ -82,7 +92,7 @@
   "browse_plans": "瀏覽修持計畫",
   "plan_info": "修持計畫內容",
   "start_plan": "開始計畫",
-  "start_reading": "開始閱讀",
+  "start_reading": "立即修持",
   "continue_plan": "繼續計畫",
   "tibetan": "藏文",
   "sanskrit": "梵文",
@@ -222,7 +232,6 @@
   "home_no_tags_found": "找不到該標籤",
   "home_celebrated_by": "慶祝者：",
   "home_default_duration": "1-2 分鐘",
-  "version": "版本",
   "reader_settings_tooltip": "閱讀器設定",
   "reader_font_size_tooltip": "字體大小",
   "reader_about_version_tooltip": "關於此版本",
@@ -572,7 +581,6 @@
       }
     }
   },
-  "reader_settings": "讀者偏好設定",
   "show_second_version": "顯示第二種版本",
   "enable_add_msg": "開啟以同時對讀主文的其他翻譯或音譯",
   "main_text": "主文",

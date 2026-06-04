@@ -112,6 +112,7 @@ class _SwipeNavigationWrapperState
     final notifier = ref.read(readerNotifierProvider(widget.params).notifier);
     notifier.selectSegment(null);
     notifier.closeCommentary();
+    notifier.closeTranslation();
 
     final didNavigate = PlanNavigator.navigateAdjacent(
       context,

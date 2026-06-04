@@ -442,6 +442,18 @@ abstract class AppLocalizations {
   /// **'Show less'**
   String get show_less;
 
+  /// No description provided for @more.
+  ///
+  /// In en, this message translates to:
+  /// **'More'**
+  String get more;
+
+  /// No description provided for @less.
+  ///
+  /// In en, this message translates to:
+  /// **'Less'**
+  String get less;
+
   /// No description provided for @read_more.
   ///
   /// In en, this message translates to:
@@ -471,6 +483,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No commentaries available for this segment'**
   String get no_commentary_message;
+
+  /// No description provided for @commentary_not_available_for_language.
+  ///
+  /// In en, this message translates to:
+  /// **'{language} commentary not available'**
+  String commentary_not_available_for_language(String language);
 
   /// No description provided for @loading.
   ///
@@ -595,7 +613,7 @@ abstract class AppLocalizations {
   /// No description provided for @start_reading.
   ///
   /// In en, this message translates to:
-  /// **'Start reading'**
+  /// **'Practice now'**
   String get start_reading;
 
   /// No description provided for @continue_plan.
@@ -1371,12 +1389,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'1-2 min'**
   String get home_default_duration;
-
-  /// No description provided for @version.
-  ///
-  /// In en, this message translates to:
-  /// **'Versions'**
-  String get version;
 
   /// No description provided for @reader_settings_tooltip.
   ///
@@ -2614,12 +2626,6 @@ abstract class AppLocalizations {
   /// **'Starts {date}'**
   String plan_starts_on(String date);
 
-  /// No description provided for @reader_settings.
-  ///
-  /// In en, this message translates to:
-  /// **'Reader Settings'**
-  String get reader_settings;
-
   /// No description provided for @show_second_version.
   ///
   /// In en, this message translates to:
@@ -2649,6 +2655,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The second version will appear below each verse of the main text.'**
   String get second_version_msg;
+
+  /// No description provided for @version.
+  ///
+  /// In en, this message translates to:
+  /// **'Versions'**
+  String get version;
 }
 
 class _AppLocalizationsDelegate

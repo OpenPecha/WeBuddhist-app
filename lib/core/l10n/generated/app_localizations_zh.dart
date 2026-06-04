@@ -181,6 +181,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get show_less => '顯示較少';
 
   @override
+  String get more => '更多';
+
+  @override
+  String get less => '較少';
+
+  @override
   String get read_more => '閱讀更多';
 
   @override
@@ -194,6 +200,11 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get no_commentary_message => '此偈誦尚無相關注釋';
+
+  @override
+  String commentary_not_available_for_language(String language) {
+    return '$language commentary not available';
+  }
 
   @override
   String get loading => '加載中...';
@@ -256,7 +267,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get start_plan => '開始計畫';
 
   @override
-  String get start_reading => '開始閱讀';
+  String get start_reading => '立即修持';
 
   @override
   String get continue_plan => '繼續計畫';
@@ -650,9 +661,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get home_default_duration => '1-2 分鐘';
-
-  @override
-  String get version => '版本';
 
   @override
   String get reader_settings_tooltip => '閱讀器設定';
@@ -1337,9 +1345,6 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get reader_settings => '讀者偏好設定';
-
-  @override
   String get show_second_version => '顯示第二種版本';
 
   @override
@@ -1353,4 +1358,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get second_version_msg => '第二種翻譯版本會逐句出現在主文的下方';
+
+  @override
+  String get version => '版本';
 }

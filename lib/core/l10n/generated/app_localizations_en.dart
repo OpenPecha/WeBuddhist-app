@@ -184,6 +184,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get show_less => 'Show less';
 
   @override
+  String get more => 'More';
+
+  @override
+  String get less => 'Less';
+
+  @override
   String get read_more => 'Read more';
 
   @override
@@ -198,6 +204,11 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get no_commentary_message =>
       'No commentaries available for this segment';
+
+  @override
+  String commentary_not_available_for_language(String language) {
+    return '$language commentary not available';
+  }
 
   @override
   String get loading => 'Loading...';
@@ -260,7 +271,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get start_plan => 'Start plan';
 
   @override
-  String get start_reading => 'Start reading';
+  String get start_reading => 'Practice now';
 
   @override
   String get continue_plan => 'Continue plan';
@@ -683,9 +694,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get home_default_duration => '1-2 min';
-
-  @override
-  String get version => 'Versions';
 
   @override
   String get reader_settings_tooltip => 'Reader settings';
@@ -1395,9 +1403,6 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get reader_settings => 'Reader Settings';
-
-  @override
   String get show_second_version => 'Show Second Version';
 
   @override
@@ -1413,4 +1418,7 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get second_version_msg =>
       'The second version will appear below each verse of the main text.';
+
+  @override
+  String get version => 'Versions';
 }
