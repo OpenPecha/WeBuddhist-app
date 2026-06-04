@@ -1,7 +1,10 @@
+import 'dart:io';
+
 import 'package:fpdart/fpdart.dart';
 import 'package:flutter_pecha/core/error/failures.dart';
 import 'package:flutter_pecha/features/auth/domain/entities/auth_credentials.dart';
 import 'package:flutter_pecha/features/auth/domain/entities/user.dart';
+import 'package:flutter_pecha/features/auth/domain/entities/username_update_result.dart';
 
 /// Auth repository interface (Domain Layer)
 ///
@@ -54,4 +57,23 @@ abstract class AuthRepository {
 
   /// Get current user profile from backend
   Future<Either<Failure, User>> getCurrentUser();
+
+  /// Update user profile on the backend (POST /users/info)
+  Future<Either<Failure, User>> updateUserInfo({
+    String? firstName,
+    String? lastName,
+    String? title,
+    String? organization,
+    String? location,
+    String? aboutMe,
+    String? avatarUrl,
+    List<String>? educations,
+    List<Map<String, String>>? socialProfiles,
+  });
+
+  /// PATCH /users/username — saves username; returns conflict with suggestions on 409.
+  Future<Either<Failure, UsernameUpdateResult>> updateUsername(String username);
+
+  /// POST /users/upload — uploads [file] as avatar and returns the hosted URL.
+  Future<Either<Failure, String>> uploadAvatar(File file);
 }

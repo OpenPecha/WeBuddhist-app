@@ -14,7 +14,10 @@ import 'package:flutter_pecha/features/home/domain/entities/series.dart';
 import 'package:flutter_pecha/features/home/presentation/screens/main_navigation_screen.dart';
 import 'package:flutter_pecha/features/home/presentation/screens/plan_list_screen.dart';
 import 'package:flutter_pecha/features/home/presentation/screens/series_detail_screen.dart';
+import 'package:flutter_pecha/features/more/presentation/about_screen.dart';
+import 'package:flutter_pecha/features/more/presentation/edit_profile_screen.dart';
 import 'package:flutter_pecha/features/more/presentation/more_screen.dart';
+import 'package:flutter_pecha/features/more/presentation/privacy_policy_screen.dart';
 import 'package:flutter_pecha/features/onboarding/presentation/providers/onboarding_datasource_providers.dart';
 import 'package:flutter_pecha/features/onboarding/presentation/screens/onboarding_wrapper.dart';
 import 'package:flutter_pecha/features/plans/domain/entities/plan.dart';
@@ -312,6 +315,34 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: AppRoutes.notifications,
         name: "notifications",
         builder: (context, state) => const NotificationSettingsScreen(),
+      ),
+
+      // settings route (Me tab → gear icon)
+      GoRoute(
+        path: AppRoutes.settings,
+        name: "settings",
+        builder: (context, state) => const MoreScreen(),
+      ),
+
+      // profile / edit-profile route
+      GoRoute(
+        path: AppRoutes.profile,
+        name: "profile",
+        builder: (context, state) => const EditProfileScreen(),
+      ),
+
+      // about route
+      GoRoute(
+        path: AppRoutes.about,
+        name: "about",
+        builder: (context, state) => const AboutScreen(),
+      ),
+
+      // privacy policy route
+      GoRoute(
+        path: AppRoutes.privacyPolicy,
+        name: "privacy-policy",
+        builder: (context, state) => const PrivacyPolicyScreen(),
       ),
 
       // plan text route - inline TEXT subtasks (sibling to /reader)
