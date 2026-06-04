@@ -299,8 +299,11 @@ class NotificationNotifier extends StateNotifier<NotificationState> {
     await svc.cancelAllBlockNotifications(blocks);
     await svc.cancelAllSpecialPlanSchedules();
     await svc.cancelAllPlanDurationSchedules();
+    await _service.notificationsPlugin.cancel(_kDiagnosticTestNotifId);
     _logger.info('[CANCEL-ALL] DONE');
   }
+
+  static const int _kDiagnosticTestNotifId = 9999;
 
   Future<bool> _loadBool(String key, {required bool defaultValue}) async {
     final prefs = await SharedPreferences.getInstance();

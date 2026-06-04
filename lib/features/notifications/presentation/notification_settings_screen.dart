@@ -24,6 +24,7 @@ class _NotificationSettingsScreenState
     extends ConsumerState<NotificationSettingsScreen>
     with WidgetsBindingObserver {
   bool _isSchedulingTest = false;
+  static const int _testNotifId = 9999;
 
   @override
   void initState() {
@@ -108,6 +109,10 @@ class _NotificationSettingsScreenState
   }
 
   Future<void> _scheduleTestNotification() async {
+    if (!ref.read(notificationProvider).appMasterEnabled) {
+      _snack('Notifications are disabled — turn them on first.');
+      return;
+    }
     final service = ref.read(notificationServiceProvider);
     if (!service.isInitialized) {
       _snack('Notification service not ready.');
@@ -115,11 +120,10 @@ class _NotificationSettingsScreenState
     }
     setState(() => _isSchedulingTest = true);
     try {
-      const testId = 9999;
-      await service.notificationsPlugin.cancel(testId);
+      await service.notificationsPlugin.cancel(_testNotifId);
       final at = tz.TZDateTime.now(tz.local).add(const Duration(minutes: 4));
       await service.notificationsPlugin.zonedSchedule(
-        testId,
+        _testNotifId,
         'Routine Notification Test',
         'Fires at ${_hhmm(at)} — custom sound test',
         at,
@@ -272,7 +276,42 @@ class _NotificationSettingsScreenState
                       ),
                     ),
                   ],
+                  const SizedBox(height: 24),
 
+                  // ── 5. Test ────────────────────────────────────────
+                  // _label('Diagnostics', ts, context),
+                  // Card(
+                  //   margin: EdgeInsets.zero,
+                  //   child: ListTile(
+                  //     leading: _isSchedulingTest
+                  //         ? const SizedBox(
+                  //             width: 24,
+                  //             height: 24,
+                  //             child:
+                  //                 CircularProgressIndicator(strokeWidth: 2),
+                  //           )
+                  //         : Icon(
+                  //             Icons.notifications_active,
+                  //             color: Theme.of(context).colorScheme.primary,
+                  //           ),
+                  //     title: Text(
+                  //       'Send Test Notification',
+                  //       style: TextStyle(
+                  //           fontSize: ts, fontWeight: FontWeight.w500),
+                  //     ),
+                  //     subtitle: Text(
+                  //       'Fires in 4 minutes — close the app to verify',
+                  //       style: TextStyle(fontSize: ss),
+                  //     ),
+                  //     trailing: _isSchedulingTest
+                  //         ? null
+                  //         : const Icon(Icons.chevron_right),
+                  //     onTap:
+                  //         _isSchedulingTest ? null : _scheduleTestNotification,
+                  //     contentPadding: const EdgeInsets.symmetric(
+                  //         horizontal: 16, vertical: 4),
+                  //   ),
+                  // ),
                   const SizedBox(height: 32),
                 ],
               ],
