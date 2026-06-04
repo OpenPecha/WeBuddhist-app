@@ -4,6 +4,8 @@ class SegmentCommentary {
   final List<MappedSegmentDTO> segments;
   final String language;
   final int count;
+  final String? source;
+  final String? license;
 
   SegmentCommentary({
     required this.textId,
@@ -11,12 +13,14 @@ class SegmentCommentary {
     required this.segments,
     required this.language,
     required this.count,
+    this.source,
+    this.license,
   });
 
   factory SegmentCommentary.fromJson(Map<String, dynamic> json) {
     return SegmentCommentary(
-      textId: json['text_id'],
-      title: json['title'],
+      textId: json['text_id'] as String? ?? '',
+      title: json['title'] as String? ?? '',
       segments:
           json['segments'] != null
               ? (json['segments'] as List<dynamic>)
@@ -25,8 +29,10 @@ class SegmentCommentary {
                   )
                   .toList()
               : <MappedSegmentDTO>[],
-      language: json['language'],
-      count: json['count'],
+      language: json['language'] as String? ?? '',
+      count: json['count'] as int? ?? 0,
+      source: json['source'] as String?,
+      license: json['license'] as String?,
     );
   }
 
@@ -37,6 +43,8 @@ class SegmentCommentary {
       'segments': segments.map((e) => e.toJson()).toList(),
       'language': language,
       'count': count,
+      'source': source,
+      'license': license,
     };
   }
 }
@@ -49,8 +57,8 @@ class MappedSegmentDTO {
 
   factory MappedSegmentDTO.fromJson(Map<String, dynamic> json) {
     return MappedSegmentDTO(
-      segmentId: json['segment_id'],
-      content: json['content'],
+      segmentId: json['segment_id'] as String? ?? '',
+      content: json['content'] as String? ?? '',
     );
   }
 

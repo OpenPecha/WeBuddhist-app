@@ -184,6 +184,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get show_less => 'Show less';
 
   @override
+  String get more => 'More';
+
+  @override
+  String get less => 'Less';
+
+  @override
   String get read_more => 'Read more';
 
   @override
@@ -654,9 +660,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get home_default_duration => '1-2 min';
-
-  @override
-  String get version => 'Versions';
 
   @override
   String get reader_settings_tooltip => 'Reader settings';
@@ -1381,4 +1384,7 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get second_version_msg =>
       'The second version will appear below each verse of the main text.';
+
+  @override
+  String get version => 'Versions';
 }

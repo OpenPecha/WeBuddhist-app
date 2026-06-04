@@ -519,8 +519,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 
-  /// Wraps a non-scrollable state (empty / error) in an always-scrollable
-  /// viewport so pull-to-refresh works even when there is no grid content.
   Widget _buildScrollableMessage(Widget child) {
     return LayoutBuilder(
       builder: (context, constraints) {
