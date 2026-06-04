@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
+import 'package:flutter_pecha/core/utils/get_language.dart';
 import 'package:flutter_pecha/features/reader/presentation/providers/reader_notifier.dart';
 import 'package:flutter_pecha/features/reader/presentation/widgets/reader_commentary/commentary_skeleton.dart';
 import 'package:flutter_pecha/features/reader/presentation/widgets/reader_panels/reader_bottom_panel_shell.dart';
@@ -56,16 +57,20 @@ class ReaderCommentaryPanel extends ConsumerWidget {
         _resetExpansion(ref);
       },
       child: segmentCommentaries.when(
-        data: (data) => _CommentaryList(
-          commentaries: data.commentaries,
-          segmentId: segmentId,
-          textLanguage: textLanguage,
-        ),
-        error: (error, _) => _ErrorState(
-          error: error,
-          onRetry: () =>
-              ref.invalidate(segmentCommentaryFutureProvider(segmentId)),
-        ),
+        data:
+            (data) => _CommentaryList(
+              commentaries: data.commentaries,
+              segmentId: segmentId,
+              textLanguage: textLanguage,
+            ),
+        error:
+            (error, _) => _ErrorState(
+              error: error,
+              onRetry:
+                  () => ref.invalidate(
+                    segmentCommentaryFutureProvider(segmentId),
+                  ),
+            ),
         loading: () => const CommentarySkeleton(),
       ),
     );
@@ -83,29 +88,28 @@ class _CommentaryList extends ConsumerWidget {
   final String segmentId;
   final String textLanguage;
 
-  /// Groups commentaries by language code, current text language first.
-  List<MapEntry<String, List<SegmentCommentary>>> _grouped() {
-    final grouped = <String, List<SegmentCommentary>>{};
-    for (final c in commentaries) {
-      grouped.putIfAbsent(c.language, () => []).add(c);
-    }
-    final entries = grouped.entries.toList();
-    entries.sort((a, b) {
-      final aFirst = a.key == textLanguage ? 0 : 1;
-      final bFirst = b.key == textLanguage ? 0 : 1;
-      if (aFirst != bFirst) return aFirst.compareTo(bFirst);
-      return a.key.compareTo(b.key);
-    });
-    return entries;
+  /// Builds the ordered list of language sections to render. The current
+  /// text's language always appears first \u2014 with a "not available"
+  /// placeholder when no commentary in that language exists. Other languages
+  /// follow only when they have commentaries, sorted by language code.
+  List<String> _orderedLanguageCodes(
+    Map<String, List<SegmentCommentary>> byLanguage,
+  ) {
+    final ordered = <String>[textLanguage];
+    final others =
+        byLanguage.keys.where((l) => l != textLanguage).toList()..sort();
+    ordered.addAll(others);
+    return ordered;
   }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    if (commentaries.isEmpty) {
-      return const _EmptyState();
+    final byLanguage = <String, List<SegmentCommentary>>{};
+    for (final c in commentaries) {
+      byLanguage.putIfAbsent(c.language, () => []).add(c);
     }
+    final orderedLanguages = _orderedLanguageCodes(byLanguage);
 
-    final groups = _grouped();
     final expandedContent = ref.watch(_expandedContentIndexProvider(segmentId));
     final expandedMetadata = ref.watch(
       _expandedMetadataIndexProvider(segmentId),
@@ -113,14 +117,17 @@ class _CommentaryList extends ConsumerWidget {
 
     final children = <Widget>[];
     var globalIndex = 0;
-    for (final entry in groups) {
+    for (final code in orderedLanguages) {
+      final items = byLanguage[code] ?? const <SegmentCommentary>[];
+      if (items.isEmpty) {
+        children.add(ReaderPanelSectionHeader(languageCode: code));
+        children.add(_LanguageUnavailable(languageCode: code));
+        continue;
+      }
       children.add(
-        ReaderPanelSectionHeader(
-          languageCode: entry.key,
-          count: entry.value.length,
-        ),
+        ReaderPanelSectionHeader(languageCode: code, count: items.length),
       );
-      for (final commentary in entry.value) {
+      for (final commentary in items) {
         final index = globalIndex++;
         children.add(
           _CommentaryItem(
@@ -137,6 +144,35 @@ class _CommentaryList extends ConsumerWidget {
     return ListView(
       padding: const EdgeInsets.only(bottom: 24),
       children: children,
+    );
+  }
+}
+
+/// Placeholder rendered under a language section header when no commentary in
+/// that language is available for the current segment.
+class _LanguageUnavailable extends StatelessWidget {
+  const _LanguageUnavailable({required this.languageCode});
+
+  final String languageCode;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final localizations = context.l10n;
+    final label = getLanguageLabel(languageCode, context);
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+        ReaderPanelConstants.horizontalPadding,
+        ReaderPanelConstants.itemSpacing,
+        ReaderPanelConstants.horizontalPadding,
+        ReaderPanelConstants.itemSpacing,
+      ),
+      child: Text(
+        localizations.commentary_not_available_for_language(label),
+        style: theme.textTheme.bodyMedium?.copyWith(
+          color: theme.colorScheme.onSurface.withValues(alpha: 0.55),
+        ),
+      ),
     );
   }
 }
@@ -197,41 +233,6 @@ class _CommentaryItem extends ConsumerWidget {
             },
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _EmptyState extends StatelessWidget {
-  const _EmptyState();
-
-  @override
-  Widget build(BuildContext context) {
-    final localizations = context.l10n;
-    final theme = Theme.of(context);
-    return SingleChildScrollView(
-      child: Padding(
-        padding: const EdgeInsets.all(
-          ReaderPanelConstants.horizontalPadding * 2,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              Icons.comment_outlined,
-              size: 48,
-              color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
-            ),
-            const SizedBox(height: 12),
-            Text(
-              localizations.no_commentary,
-              style: theme.textTheme.titleSmall?.copyWith(
-                color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
       ),
     );
   }

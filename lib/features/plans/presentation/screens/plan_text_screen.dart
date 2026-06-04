@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
+import 'package:flutter_pecha/features/plans/presentation/widgets/plan_inline_markdown_view.dart';
 import 'package:flutter_pecha/features/plans/presentation/widgets/plan_navigation/plan_navigation_bottom_bar.dart';
 import 'package:flutter_pecha/features/plans/presentation/widgets/plan_navigation/plan_navigator.dart';
 import 'package:flutter_pecha/features/plans/presentation/widgets/plan_navigation/plan_subtask_completion.dart';
@@ -17,6 +18,10 @@ import 'package:just_audio/just_audio.dart';
 enum _ButtonState { play, loading, pause }
 
 /// Lightweight reading screen for plan subtasks where `content_type == "TEXT"`.
+///
+/// The subtask `content` is treated as markdown and rendered via
+/// [PlanInlineMarkdownView]. Plain text remains valid markdown so callers
+/// without formatting need no changes.
 ///
 /// Audio behaviour:
 /// - A floating play/pause button appears when the task has an audio segment.
@@ -291,9 +296,9 @@ class _PlanTextScreenState extends ConsumerState<PlanTextScreen>
                         padding: EdgeInsets.fromLTRB(
                           20, 16, 20, _hasAudio ? 88 : 16,
                         ),
-                        child: SelectableText(
-                          currentItem.inlineContent!,
-                          style: TextStyle(fontSize: fontSize, height: 1.6),
+                        child: PlanInlineMarkdownView(
+                          content: currentItem.inlineContent!,
+                          fontSize: fontSize,
                         ),
                       ),
                       // Floating play/pause — overlaid, zero layout footprint.

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:auth0_flutter/auth0_flutter.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:flutter_pecha/core/error/exception_mapper.dart';
@@ -5,6 +7,7 @@ import 'package:flutter_pecha/core/error/failures.dart';
 import 'package:flutter_pecha/features/auth/data/datasource/auth_remote_datasource.dart';
 import 'package:flutter_pecha/features/auth/domain/entities/auth_credentials.dart';
 import 'package:flutter_pecha/features/auth/domain/entities/user.dart';
+import 'package:flutter_pecha/features/auth/domain/entities/username_update_result.dart';
 import 'package:flutter_pecha/features/auth/domain/repositories/auth_repository.dart';
 import 'package:flutter_pecha/features/auth/auth_service.dart';
 
@@ -20,8 +23,8 @@ class AuthRepositoryImpl implements AuthRepository {
   AuthRepositoryImpl({
     required AuthService authService,
     required AuthRemoteDataSource remoteDataSource,
-  })  : _authService = authService,
-        _remoteDataSource = remoteDataSource;
+  }) : _authService = authService,
+       _remoteDataSource = remoteDataSource;
 
   /// Convert Auth0 Credentials to domain AuthCredentials
   AuthCredentials _toAuthCredentials(Credentials credentials) {
@@ -183,7 +186,10 @@ class AuthRepositoryImpl implements AuthRepository {
     // Get valid ID token for the API request
     final idTokenResult = await getValidIdToken();
     if (idTokenResult.isLeft()) {
-      return idTokenResult.fold((failure) => Left(failure), (_) => const Left(UnknownFailure('Unknown error')));
+      return idTokenResult.fold(
+        (failure) => Left(failure),
+        (_) => const Left(UnknownFailure('Unknown error')),
+      );
     }
 
     final idToken = idTokenResult.getOrElse((_) => '');
@@ -193,6 +199,90 @@ class AuthRepositoryImpl implements AuthRepository {
       return Right(userModel.toEntity());
     } catch (e) {
       return Left(ExceptionMapper.map(e, context: 'getCurrentUser'));
+    }
+  }
+
+  @override
+  Future<Either<Failure, User>> updateUserInfo({
+    String? firstName,
+    String? lastName,
+    String? title,
+    String? organization,
+    String? location,
+    String? aboutMe,
+    String? avatarUrl,
+    List<String>? educations,
+    List<Map<String, String>>? socialProfiles,
+  }) async {
+    final idTokenResult = await getValidIdToken();
+    if (idTokenResult.isLeft()) {
+      return idTokenResult.fold(
+        (failure) => Left(failure),
+        (_) => const Left(UnknownFailure('Unknown error')),
+      );
+    }
+
+    final idToken = idTokenResult.getOrElse((_) => '');
+
+    final body = <String, dynamic>{
+      if (firstName != null) 'firstname': firstName,
+      if (lastName != null) 'lastname': lastName,
+      if (title != null) 'title': title,
+      if (organization != null) 'organization': organization,
+      if (location != null) 'location': location,
+      if (aboutMe != null) 'about_me': aboutMe,
+      if (avatarUrl != null) 'avatar_url': avatarUrl,
+      'educations': educations ?? [],
+      'social_profiles': socialProfiles ?? [],
+    };
+
+    try {
+      final userModel = await _remoteDataSource.updateUserInfo(idToken, body);
+      return Right(userModel.toEntity());
+    } catch (e) {
+      return Left(ExceptionMapper.map(e, context: 'updateUserInfo'));
+    }
+  }
+
+  @override
+  Future<Either<Failure, UsernameUpdateResult>> updateUsername(
+    String username,
+  ) async {
+    final idTokenResult = await getValidIdToken();
+    if (idTokenResult.isLeft()) {
+      return idTokenResult.fold(
+        (failure) => Left(failure),
+        (_) => const Left(UnknownFailure('Unknown error')),
+      );
+    }
+
+    final idToken = idTokenResult.getOrElse((_) => '');
+
+    try {
+      final result = await _remoteDataSource.updateUsername(idToken, username);
+      return Right(result);
+    } catch (e) {
+      return Left(ExceptionMapper.map(e, context: 'updateUsername'));
+    }
+  }
+
+  @override
+  Future<Either<Failure, String>> uploadAvatar(File file) async {
+    final idTokenResult = await getValidIdToken();
+    if (idTokenResult.isLeft()) {
+      return idTokenResult.fold(
+        (failure) => Left(failure),
+        (_) => const Left(UnknownFailure('Unknown error')),
+      );
+    }
+
+    final idToken = idTokenResult.getOrElse((_) => '');
+
+    try {
+      final url = await _remoteDataSource.uploadAvatar(idToken, file);
+      return Right(url);
+    } catch (e) {
+      return Left(ExceptionMapper.map(e, context: 'uploadAvatar'));
     }
   }
 }

@@ -45,6 +45,10 @@
 	<string>WeBuddhist does not use the microphone. This permission is required by audio playback libraries for App Store compliance.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>WeBuddhist needs access to photo library to save the image</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>WeBuddhist needs access to your photo library to let you choose a profile picture.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>WeBuddhist needs camera access to let you take a profile picture.</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UIBackgroundModes</key>

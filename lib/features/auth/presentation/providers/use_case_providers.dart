@@ -10,6 +10,9 @@ import 'package:flutter_pecha/features/auth/domain/usecases/is_guest_mode_usecas
 import 'package:flutter_pecha/features/auth/domain/usecases/login_usecase.dart';
 import 'package:flutter_pecha/features/auth/domain/usecases/logout_usecase.dart';
 import 'package:flutter_pecha/features/auth/domain/usecases/refresh_id_token_usecase.dart';
+import 'package:flutter_pecha/features/auth/domain/usecases/update_user_info_usecase.dart';
+import 'package:flutter_pecha/features/auth/domain/usecases/update_username_usecase.dart';
+import 'package:flutter_pecha/features/auth/domain/usecases/upload_avatar_usecase.dart';
 import 'package:flutter_pecha/features/auth/presentation/providers/auth_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -89,4 +92,22 @@ final clearGuestModeAndOnboardingUseCaseProvider = Provider<ClearGuestModeAndOnb
     clearGuestModeUseCase,
     isGuestModeUseCase,
   );
+});
+
+/// Provider for UpdateUserInfoUseCase.
+final updateUserInfoUseCaseProvider = Provider<UpdateUserInfoUseCase>((ref) {
+  final repository = ref.watch(authRepositoryProvider);
+  return UpdateUserInfoUseCase(repository);
+});
+
+/// Provider for UpdateUsernameUseCase.
+final updateUsernameUseCaseProvider = Provider<UpdateUsernameUseCase>((ref) {
+  final repository = ref.watch(authRepositoryProvider);
+  return UpdateUsernameUseCase(repository);
+});
+
+/// Provider for UploadAvatarUseCase.
+final uploadAvatarUseCaseProvider = Provider<UploadAvatarUseCase>((ref) {
+  final repository = ref.watch(authRepositoryProvider);
+  return UploadAvatarUseCase(repository);
 });

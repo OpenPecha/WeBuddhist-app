@@ -13,8 +13,8 @@ class AuthorDtoModel {
     this.image,
   });
 
-  String? get authorImageUrl => image?.medium ?? image?.original;
-  String? get authorImageThumbnail => image?.thumbnail ?? image?.medium;
+  String? get authorImageUrl => image?.displayUrl;
+  String? get authorImageThumbnail => image?.displayUrl;
 
   factory AuthorDtoModel.fromJson(Map<String, dynamic> json) {
     return AuthorDtoModel(

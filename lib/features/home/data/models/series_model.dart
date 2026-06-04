@@ -27,9 +27,11 @@ class SeriesMetadataModel {
 class SeriesModel {
   final String id;
   final List<SeriesMetadataModel> metadata;
-  final String? image;
+  final ImageModel? image;
+  final String authorId;
   final bool featured;
   final String? status;
+  final int? planCount;
   final List<PlansModel> plans;
   final int totalDays;
 
@@ -37,11 +39,15 @@ class SeriesModel {
     required this.id,
     required this.metadata,
     this.image,
+    this.authorId = '',
     this.featured = false,
     this.status,
+    this.planCount,
     this.plans = const [],
     this.totalDays = 0,
   });
+
+  String? get imageUrl => image?.displayUrl;
 
   factory SeriesModel.fromJson(Map<String, dynamic> json) {
     final metadataList =
@@ -54,14 +60,37 @@ class SeriesModel {
             .map((p) => PlansModel.fromJson(p as Map<String, dynamic>))
             .toList();
 
+    ImageModel? imageModel;
+    final dynamic imageJson = json['image'];
+    if (imageJson is Map<String, dynamic>) {
+      imageModel = ImageModel.fromJson(imageJson);
+    } else if (imageJson is String && imageJson.isNotEmpty) {
+      imageModel = ImageModel(
+        thumbnail: imageJson,
+        medium: imageJson,
+        original: imageJson,
+      );
+    } else {
+      final String? legacyUrl = json['image_url'] as String?;
+      if (legacyUrl != null && legacyUrl.isNotEmpty) {
+        imageModel = ImageModel(
+          thumbnail: legacyUrl,
+          medium: legacyUrl,
+          original: legacyUrl,
+        );
+      }
+    }
+
     return SeriesModel(
       id: json['id'] as String,
       metadata: metadataList,
-      image: json['image'] as String?,
+      image: imageModel,
+      authorId: json['author_id'] as String? ?? '',
       featured: json['featured'] as bool? ?? false,
       status: json['status'] as String?,
+      planCount: (json['plan_count'] as num?)?.toInt(),
       plans: plansList,
-      totalDays: json['total_days'] as int? ?? 0,
+      totalDays: (json['total_days'] as num?)?.toInt() ?? 0,
     );
   }
 
@@ -86,7 +115,7 @@ class SeriesModel {
       id: id,
       title: picked?.title ?? '',
       description: picked?.description ?? '',
-      imageUrl: image,
+      imageUrl: imageUrl,
       featured: featured,
       totalDays: totalDays,
       plans: plans.map((p) => p.toEntity()).toList(),
