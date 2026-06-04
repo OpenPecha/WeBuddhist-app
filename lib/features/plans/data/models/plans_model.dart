@@ -29,6 +29,9 @@ class ImageModel {
   Map<String, dynamic> toJson() {
     return {'thumbnail': thumbnail, 'medium': medium, 'original': original};
   }
+
+  /// Preferred URL for UI display: smallest available size first.
+  String? get displayUrl => thumbnail ?? medium ?? original;
 }
 
 class PlansModel {
@@ -58,9 +61,8 @@ class PlansModel {
     this.displayOrder,
   });
 
-  /// Backward compatibility getter - returns medium image or original as fallback
-  String? get imageUrl => image?.medium ?? image?.original;
-  String? get imageThumbnail => image?.thumbnail ?? image?.medium;
+  String? get imageUrl => image?.displayUrl;
+  String? get imageThumbnail => image?.displayUrl;
 
   factory PlansModel.fromJson(Map<String, dynamic> json) {
     try {

@@ -109,7 +109,8 @@ class SeriesRemoteDatasource {
     if (data is List) {
       items = data;
     } else if (data is Map<String, dynamic>) {
-      items = (data['series'] as List<dynamic>?) ??
+      items =
+          (data['series'] as List<dynamic>?) ??
           (data['enrollments'] as List<dynamic>?);
     }
     if (items == null) return const <String>{};
