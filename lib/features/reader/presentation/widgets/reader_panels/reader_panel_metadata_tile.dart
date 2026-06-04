@@ -119,6 +119,7 @@ class _MetadataCard extends StatelessWidget {
     final hasLicense = license != null && license!.trim().isNotEmpty;
 
     return Container(
+      width: double.infinity,
       margin: const EdgeInsets.only(top: 6, bottom: 6),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
       decoration: BoxDecoration(

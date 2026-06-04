@@ -206,6 +206,11 @@ class AppLocalizationsBo extends AppLocalizations {
       'No commentaries available for this segment';
 
   @override
+  String commentary_not_available_for_language(String language) {
+    return '$language commentary not available';
+  }
+
+  @override
   String get loading => 'ལེན་བཞིན་པ་་་';
 
   @override

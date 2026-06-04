@@ -484,6 +484,12 @@ abstract class AppLocalizations {
   /// **'No commentaries available for this segment'**
   String get no_commentary_message;
 
+  /// No description provided for @commentary_not_available_for_language.
+  ///
+  /// In en, this message translates to:
+  /// **'{language} commentary not available'**
+  String commentary_not_available_for_language(String language);
+
   /// No description provided for @loading.
   ///
   /// In en, this message translates to:

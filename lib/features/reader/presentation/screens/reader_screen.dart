@@ -185,7 +185,6 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
                                       textDetail,
                                     ),
                               ),
-                              ReaderMetadataSubtitle(params: _params),
                             ],
                           )
                           : const SizedBox.shrink(),

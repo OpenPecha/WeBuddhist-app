@@ -202,6 +202,11 @@ class AppLocalizationsZh extends AppLocalizations {
   String get no_commentary_message => '此偈誦尚無相關注釋';
 
   @override
+  String commentary_not_available_for_language(String language) {
+    return '$language commentary not available';
+  }
+
+  @override
   String get loading => '加載中...';
 
   @override
