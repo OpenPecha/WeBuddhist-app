@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
 import 'package:flutter_pecha/features/auth/presentation/state/user_state.dart';
@@ -10,6 +11,7 @@ import 'package:flutter_pecha/features/more/presentation/widgets/profile_avatar_
 import 'package:flutter_pecha/features/more/presentation/widgets/username_form_field.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 class EditProfileScreen extends ConsumerStatefulWidget {
@@ -196,12 +198,35 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
       return;
     }
 
+    // Refresh user data in the background so me_screen immediately shows the
+    // latest avatar and profile fields from the server (the POST /users/info
+    // response may omit avatar_url, which would otherwise wipe it from state).
+    unawaited(ref.read(userProvider.notifier).refreshUser());
+
     Navigator.of(context).pop();
   }
 
   // ── Avatar picker + upload ────────────────────────────────────────────────
 
   static const int _maxAvatarBytes = 1024 * 1024; // 1 MB — matches server limit
+
+  /// Returns a new [File] whose pixels are physically rotated to match the
+  /// EXIF orientation and whose EXIF orientation tag is stripped/set to 1.
+  ///
+  /// This ensures the file stored on S3 always has correct upright pixels,
+  /// regardless of which iOS version or image renderer fetches it later.
+  Future<File> _normalizeOrientation(String sourcePath) async {
+    final tmpDir = await getTemporaryDirectory();
+    final destPath =
+        '${tmpDir.path}/avatar_normalized_${DateTime.now().millisecondsSinceEpoch}.jpg';
+    final result = await FlutterImageCompress.compressAndGetFile(
+      sourcePath,
+      destPath,
+      quality: 90,
+      autoCorrectionAngle: true,
+    );
+    return result != null ? File(result.path) : File(sourcePath);
+  }
 
   Future<void> _pickAndUploadAvatar(ImageSource source) async {
     final picker = ImagePicker();
@@ -214,7 +239,12 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
 
     if (xFile == null || !mounted) return;
 
-    final file = File(xFile.path);
+    // Physically bake the EXIF orientation into the pixel data before upload.
+    // Without this, some iOS versions store the image with pixels in sensor
+    // orientation (e.g. landscape) and only an EXIF tag to indicate rotation.
+    // CachedNetworkImage and other renderers handle that tag inconsistently,
+    // causing the avatar to appear rotated on a subset of devices.
+    final file = await _normalizeOrientation(xFile.path);
 
     // Guard against files that are still over the server limit even after
     // picker compression. Skips the network call entirely.
