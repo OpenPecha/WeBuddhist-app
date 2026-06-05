@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
@@ -11,36 +10,34 @@ class AboutScreen extends StatelessWidget {
 
   static final _socialLinks = [
     _SocialLink(
-      icon: FontAwesomeIcons.globe,
+      icon: PhosphorIconsRegular.globe,
       title: 'Website',
       subtitle: 'www.webuddhist.com',
       url: 'https://webuddhist.com/collections',
-      useCircleBorder: true,
     ),
     _SocialLink(
-      icon: FontAwesomeIcons.instagram,
+      icon: PhosphorIconsRegular.instagramLogo,
       title: 'Instagram',
       subtitle: '@webuddhist',
       url: 'https://www.instagram.com/webuddhist_?igsh=MXEwajM5dmxkbmYyYQ==',
     ),
     _SocialLink(
-      icon: FontAwesomeIcons.facebook,
+      icon: PhosphorIconsRegular.facebookLogo,
       title: 'Facebook',
       subtitle: 'facebook.com/webuddhist',
-      url: 'https://www.facebook.com/webuddhist',
-      filledBackground: true,
+      url: 'https://www.facebook.com/share/1D9u6rMCsy/',
     ),
     _SocialLink(
-      icon: FontAwesomeIcons.xTwitter,
+      icon: PhosphorIconsRegular.xLogo,
       title: 'X (Twitter)',
       subtitle: '@webuddhist',
-      url: 'https://www.x.com/webuddhist',
+      url: 'https://x.com/WeBuddhist_',
     ),
     _SocialLink(
-      icon: FontAwesomeIcons.youtube,
+      icon: PhosphorIconsRegular.youtubeLogo,
       title: 'YouTube',
       subtitle: '@webuddhist',
-      url: 'https://www.youtube.com/@webuddhist',
+      url: 'https://youtube.com/@we_buddhist?si=Re1GiaGDJIEypIva',
     ),
   ];
 
@@ -66,7 +63,7 @@ class AboutScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildHeader(context),
-              const SizedBox(height: 28),
+              const SizedBox(height: 16),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Column(
@@ -77,7 +74,7 @@ class AboutScreen extends StatelessWidget {
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: AppColors.grey600,
                         fontWeight: FontWeight.w500,
-                        fontSize: 14,
+                        fontSize: 16,
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -101,8 +98,8 @@ class AboutScreen extends StatelessWidget {
           Center(
             child: Image.asset(
               'assets/images/webuddhist_gold.png',
-              width: 80,
-              height: 80,
+              width: 96,
+              height: 96,
             ),
           ),
           const SizedBox(height: 16),
@@ -111,7 +108,7 @@ class AboutScreen extends StatelessWidget {
               'WeBuddhist',
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
                 fontWeight: FontWeight.bold,
-                fontSize: 22,
+                fontSize: 23,
               ),
             ),
           ),
@@ -129,20 +126,11 @@ class AboutScreen extends StatelessWidget {
   }
 
   Widget _buildSocialList(BuildContext context, bool isDarkMode) {
-    return Container(
-      decoration: BoxDecoration(
-        border: Border(
-          top: BorderSide(
-            color: isDarkMode ? AppColors.cardBorderDark : AppColors.grey100,
-          ),
-        ),
-      ),
-      child: Column(
-        children:
-            _socialLinks.map((link) {
-              return _SocialLinkTile(link: link, isDarkMode: isDarkMode);
-            }).toList(),
-      ),
+    return Column(
+      children:
+          _socialLinks.map((link) {
+            return _SocialLinkTile(link: link, isDarkMode: isDarkMode);
+          }).toList(),
     );
   }
 }
@@ -170,7 +158,7 @@ class _SocialLinkTile extends StatelessWidget {
             padding: const EdgeInsets.symmetric(vertical: 14),
             child: Row(
               children: [
-                _buildIconContainer(),
+                Icon(link.icon, size: 36),
                 const SizedBox(width: 14),
                 Expanded(
                   child: Column(
@@ -209,62 +197,18 @@ class _SocialLinkTile extends StatelessWidget {
     );
   }
 
-  Widget _buildIconContainer() {
-    const double size = 44;
-    const double iconSize = 20;
-
-    if (link.filledBackground) {
-      return Container(
-        width: size,
-        height: size,
-        decoration: const BoxDecoration(
-          color: Colors.black,
-          shape: BoxShape.circle,
-        ),
-        child: Center(
-          child: FaIcon(link.icon, size: iconSize, color: Colors.white),
-        ),
-      );
-    }
-
-    if (link.useCircleBorder) {
-      return Container(
-        width: size,
-        height: size,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          border: Border.all(color: AppColors.grey300, width: 1.5),
-        ),
-        child: Center(child: FaIcon(link.icon, size: iconSize)),
-      );
-    }
-
-    return Container(
-      width: size,
-      height: size,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: AppColors.grey300, width: 1.5),
-      ),
-      child: Center(child: FaIcon(link.icon, size: iconSize)),
-    );
-  }
 }
 
 class _SocialLink {
-  final FaIconData icon;
+  final IconData icon;
   final String title;
   final String subtitle;
   final String url;
-  final bool filledBackground;
-  final bool useCircleBorder;
 
   _SocialLink({
     required this.icon,
     required this.title,
     required this.subtitle,
     required this.url,
-    this.filledBackground = false,
-    this.useCircleBorder = false,
   });
 }
