@@ -8,10 +8,6 @@ import 'package:flutter_pecha/features/practice/data/models/routine_model.dart';
 
 final _logger = AppLogger('PlanEnrollmentHook');
 
-/// Default hour for the routine block created during event enrollment.
-/// Mirrors [kRoutineBlockHourThreshold] in special_plan_enrollment_hook.dart.
-const int kPlanBlockHour = 9;
-const int kPlanBlockMinute = 0;
 
 /// Caches the plan's day-1 anchor (`plan.effectiveStartDate`) and totalDays
 /// into [PlanMetadataStore] so the notification scheduler can compute fire
@@ -89,7 +85,9 @@ Future<void> tryFirePendingPlanDayNotifications(
       continue;
     }
 
-    // Look up the actual scheduled time from the routine block.
+    // Only fire for plans that are in a routine block with a user-set time.
+    // Enrolled plans (subscriptions) with no routine block must not trigger
+    // notifications — notifications are tied to routine blocks, not enrollments.
     final matchingBlock = routineBlocks.cast<RoutineBlock?>().firstWhere(
       (block) => block!.items.any(
         (item) => item.id == plan.id && item.type == RoutineItemType.plan,
@@ -97,8 +95,15 @@ Future<void> tryFirePendingPlanDayNotifications(
       orElse: () => null,
     );
 
-    final blockHour = matchingBlock?.time.hour ?? kPlanBlockHour;
-    final blockMinute = matchingBlock?.time.minute ?? kPlanBlockMinute;
+    if (matchingBlock == null) {
+      _logger.info(
+        '[ENROLL-NOTIF] tryFirePending skip ${plan.id}: not in any routine block',
+      );
+      continue;
+    }
+
+    final blockHour = matchingBlock.time.hour;
+    final blockMinute = matchingBlock.time.minute;
     final blockTimePassed =
         now.hour > blockHour || (now.hour == blockHour && now.minute >= blockMinute);
 

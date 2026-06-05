@@ -116,6 +116,17 @@ class PlanMetadataStore {
     await prefs.setBool(_immediateShownKey(planId, date), true);
   }
 
+  /// Removes all per-date "immediate shown" flags for [planId] without
+  /// touching the anchor/totalDays metadata. Call when the user removes the
+  /// plan from a routine block so that re-adding treats it as fresh and
+  /// re-fires today's immediate.
+  static Future<void> clearShownFlags(String planId) async {
+    final prefs = await _ensurePrefs();
+    for (final key in prefs.getKeys().where(_isShownFlagForPlan(planId)).toList()) {
+      await prefs.remove(key);
+    }
+  }
+
   // ─── Cleanup ─────────────────────────────────────────────────────────────
 
   /// Removes all plan metadata and shown flags. Call on logout so a new
