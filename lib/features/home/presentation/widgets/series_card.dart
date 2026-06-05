@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
-import 'package:flutter_pecha/core/widgets/cached_network_image_widget.dart';
+import 'package:flutter_pecha/core/widgets/responsive_cover_image.dart';
 import 'package:flutter_pecha/features/home/domain/entities/series.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -27,8 +27,8 @@ class SeriesCard extends ConsumerWidget {
         child: Stack(
           fit: StackFit.expand,
           children: [
-            CachedNetworkImageWidget(
-              imageUrl: series.imageUrl,
+            ResponsiveCoverImage(
+              image: series.coverImage,
               fallbackAsset: 'assets/images/tag_cover/cover_image.jpg',
               fit: BoxFit.cover,
               placeholder: _buildPlaceholder(context),

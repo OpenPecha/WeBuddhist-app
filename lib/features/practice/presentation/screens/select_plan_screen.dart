@@ -5,7 +5,8 @@ import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/core/widgets/error_state_widget.dart';
 import 'package:flutter_pecha/features/plans/presentation/providers/plans_providers.dart';
 import 'package:flutter_pecha/features/plans/presentation/providers/find_plans_paginated_provider.dart';
-import 'package:flutter_pecha/core/widgets/cached_network_image_widget.dart';
+import 'package:flutter_pecha/core/widgets/responsive_cover_image.dart';
+import 'package:flutter_pecha/shared/domain/value_objects/responsive_image.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final _logger = AppLogger('SelectPlanScreen');
@@ -128,7 +129,7 @@ class _SelectPlanScreenState extends ConsumerState<SelectPlanScreen> {
         return _SelectablePlanCard(
           title: plan.title,
           subtitle: '${plan.totalDays} Days',
-          imageUrl: plan.coverImageUrl,
+          coverImage: plan.coverImage,
           onTap: () => Navigator.of(context).pop(plan),
         );
       },
@@ -139,13 +140,13 @@ class _SelectPlanScreenState extends ConsumerState<SelectPlanScreen> {
 class _SelectablePlanCard extends StatelessWidget {
   final String title;
   final String subtitle;
-  final String? imageUrl;
+  final ResponsiveImage? coverImage;
   final VoidCallback onTap;
 
   const _SelectablePlanCard({
     required this.title,
     required this.subtitle,
-    required this.imageUrl,
+    required this.coverImage,
     required this.onTap,
   });
 
@@ -163,8 +164,8 @@ class _SelectablePlanCard extends StatelessWidget {
           padding: const EdgeInsets.all(8.0),
           child: Row(
             children: [
-              CachedNetworkImageWidget(
-                imageUrl: imageUrl ?? '',
+              ResponsiveCoverImage(
+                image: coverImage,
                 width: 60,
                 height: 60,
                 fit: BoxFit.cover,

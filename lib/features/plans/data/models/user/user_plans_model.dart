@@ -1,6 +1,7 @@
 import 'package:flutter_pecha/features/plans/data/models/plan_tag_model.dart';
 import 'package:flutter_pecha/features/plans/data/models/plans_model.dart';
 import 'package:flutter_pecha/features/plans/data/utils/plan_utils.dart';
+import 'package:flutter_pecha/shared/domain/value_objects/responsive_image.dart';
 
 export 'package:flutter_pecha/features/plans/data/models/plan_tag_model.dart';
 
@@ -31,7 +32,10 @@ class UserPlansModel {
 
   DateTime get effectiveStartDate => startDate ?? startedAt;
 
-  String? get imageUrl => image?.displayUrl;
+  ResponsiveImage? get coverImage => image?.toResponsiveImage();
+
+  /// Smallest cover URL — notifications and legacy callers.
+  String? get imageUrl => coverImage?.displayUrl;
 
   factory UserPlansModel.fromJson(Map<String, dynamic> json) {
     return UserPlansModel(

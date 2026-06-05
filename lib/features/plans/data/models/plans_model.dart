@@ -4,6 +4,7 @@ import 'package:flutter_pecha/features/plans/data/models/plan_tag_model.dart';
 import 'package:flutter_pecha/features/plans/data/utils/plan_utils.dart';
 import 'package:flutter_pecha/features/plans/domain/entities/plan.dart'
     as domain;
+import 'package:flutter_pecha/shared/domain/value_objects/responsive_image.dart';
 
 final _logger = AppLogger('PlansModel');
 
@@ -31,7 +32,26 @@ class ImageModel {
   }
 
   /// Preferred URL for UI display: smallest available size first.
-  String? get displayUrl => thumbnail ?? medium ?? original;
+  String? get displayUrl => toResponsiveImage()?.displayUrl;
+
+  ResponsiveImage? toResponsiveImage() {
+    if (thumbnail == null && medium == null && original == null) {
+      return null;
+    }
+    return ResponsiveImage(
+      thumbnail: thumbnail,
+      medium: medium,
+      original: original,
+    );
+  }
+
+  factory ImageModel.fromResponsiveImage(ResponsiveImage image) {
+    return ImageModel(
+      thumbnail: image.thumbnail,
+      medium: image.medium,
+      original: image.original,
+    );
+  }
 
   /// Parses `image` (object or legacy string) with optional `image_url` fallback.
   static ImageModel? fromFields({dynamic image, String? imageUrl}) {
@@ -208,7 +228,7 @@ class PlansModel {
       description: description,
       authorId: author?.id ?? '',
       authorName: author?.firstName ?? 'Unknown',
-      coverImageUrl: imageUrl,
+      coverImage: image?.toResponsiveImage(),
       totalDays: totalDays ?? 0,
       difficulty: difficulty,
       tags: tags?.map((t) => t.name).toList() ?? [],
@@ -245,12 +265,8 @@ class PlansModel {
       language: entity.language,
       difficultyLevel: difficultyLevelStr,
       image:
-          entity.coverImageUrl != null
-              ? ImageModel(
-                thumbnail: entity.coverImageUrl,
-                medium: entity.coverImageUrl,
-                original: entity.coverImageUrl,
-              )
+          entity.coverImage != null
+              ? ImageModel.fromResponsiveImage(entity.coverImage!)
               : null,
       totalDays: entity.totalDays,
       tags: entity.tags.map((name) => PlanTag(id: '', name: name)).toList(),

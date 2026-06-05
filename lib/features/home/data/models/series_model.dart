@@ -94,7 +94,7 @@ class SeriesModel {
       id: id,
       title: picked?.title ?? '',
       description: picked?.description ?? '',
-      imageUrl: imageUrl,
+      coverImage: image?.toResponsiveImage(),
       featured: featured,
       totalDays: totalDays,
       plans: plans.map((p) => p.toEntity()).toList(),
