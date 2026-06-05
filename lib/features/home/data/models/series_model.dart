@@ -4,12 +4,14 @@ import 'package:flutter_pecha/features/plans/data/models/plans_model.dart';
 class SeriesMetadataModel {
   final String id;
   final String title;
+  final String? subTitle;
   final String description;
   final String language;
 
   SeriesMetadataModel({
     required this.id,
     required this.title,
+    this.subTitle,
     required this.description,
     required this.language,
   });
@@ -18,6 +20,7 @@ class SeriesMetadataModel {
     return SeriesMetadataModel(
       id: (json['id'] as String?) ?? '',
       title: (json['title'] as String?) ?? '',
+      subTitle: json['sub_title'] as String?,
       description: (json['description'] as String?) ?? '',
       language: (json['language'] as String?) ?? '',
     );
@@ -26,7 +29,7 @@ class SeriesMetadataModel {
 
 class SeriesModel {
   final String id;
-  final List<SeriesMetadataModel> metadata;
+  final SeriesMetadataModel? metadata;
   final ImageModel? image;
   final String authorId;
   final bool featured;
@@ -37,7 +40,7 @@ class SeriesModel {
 
   SeriesModel({
     required this.id,
-    required this.metadata,
+    this.metadata,
     this.image,
     this.authorId = '',
     this.featured = false,
@@ -50,41 +53,21 @@ class SeriesModel {
   String? get imageUrl => image?.displayUrl;
 
   factory SeriesModel.fromJson(Map<String, dynamic> json) {
-    final metadataList =
-        (json['metadata'] as List<dynamic>? ?? [])
-            .map((m) => SeriesMetadataModel.fromJson(m as Map<String, dynamic>))
-            .toList();
+    final metadataJson = json['metadata'];
+    final SeriesMetadataModel? metadata =
+        metadataJson is Map<String, dynamic>
+            ? SeriesMetadataModel.fromJson(metadataJson)
+            : null;
 
     final plansList =
         (json['plans'] as List<dynamic>? ?? [])
             .map((p) => PlansModel.fromJson(p as Map<String, dynamic>))
             .toList();
 
-    ImageModel? imageModel;
-    final dynamic imageJson = json['image'];
-    if (imageJson is Map<String, dynamic>) {
-      imageModel = ImageModel.fromJson(imageJson);
-    } else if (imageJson is String && imageJson.isNotEmpty) {
-      imageModel = ImageModel(
-        thumbnail: imageJson,
-        medium: imageJson,
-        original: imageJson,
-      );
-    } else {
-      final String? legacyUrl = json['image_url'] as String?;
-      if (legacyUrl != null && legacyUrl.isNotEmpty) {
-        imageModel = ImageModel(
-          thumbnail: legacyUrl,
-          medium: legacyUrl,
-          original: legacyUrl,
-        );
-      }
-    }
-
     return SeriesModel(
       id: json['id'] as String,
-      metadata: metadataList,
-      image: imageModel,
+      metadata: metadata,
+      image: ImageModel.fromJsonMap(json),
       authorId: json['author_id'] as String? ?? '',
       featured: json['featured'] as bool? ?? false,
       status: json['status'] as String?,
@@ -94,28 +77,12 @@ class SeriesModel {
     );
   }
 
-  /// Pick metadata for [activeLanguageCode] (e.g. 'en' → 'EN'), falling back
-  /// to 'EN', then to the first available entry. Returns empty strings if
-  /// no metadata exists at all.
-  SeriesMetadataModel? _pickMetadata(String activeLanguageCode) {
-    if (metadata.isEmpty) return null;
-    final target = activeLanguageCode.toUpperCase();
-    for (final m in metadata) {
-      if (m.language.toUpperCase() == target) return m;
-    }
-    for (final m in metadata) {
-      if (m.language.toUpperCase() == 'EN') return m;
-    }
-    return metadata.first;
-  }
-
-  Series toEntity(String activeLanguageCode) {
-    final picked = _pickMetadata(activeLanguageCode);
+  Series toEntity() {
     return Series(
       id: id,
-      title: picked?.title ?? '',
-      description: picked?.description ?? '',
-      imageUrl: imageUrl,
+      title: metadata?.title ?? '',
+      description: metadata?.description ?? '',
+      coverImage: image?.toResponsiveImage(),
       featured: featured,
       totalDays: totalDays,
       plans: plans.map((p) => p.toEntity()).toList(),

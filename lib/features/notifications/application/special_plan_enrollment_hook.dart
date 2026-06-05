@@ -1,3 +1,4 @@
+import 'package:flutter_pecha/core/storage/plan_metadata_store.dart';
 import 'package:flutter_pecha/core/storage/special_plan_started_at_store.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/features/notifications/data/services/routine_notification_service.dart';
@@ -23,10 +24,15 @@ Future<void> onSpecialPlanEnrolled(UserPlansModel plan) async {
 
   final anchor = plan.effectiveStartDate;
   await SpecialPlanStartedAtStore.setStartedAt(plan.id, anchor);
+  await PlanMetadataStore.setMetadata(
+    plan.id,
+    effectiveStartDate: anchor,
+    totalDays: plan.totalDays,
+  );
   _logger.info(
     '[ENROLL-NOTIF-SP] cached ${plan.id} anchor=${anchor.toIso8601String()} '
     'startDate=${plan.startDate?.toIso8601String()} '
-    'startedAt=${plan.startedAt.toIso8601String()}',
+    'startedAt=${plan.startedAt.toIso8601String()} totalDays=${plan.totalDays}',
   );
 }
 
@@ -108,13 +114,35 @@ Future<void> tryFirePendingSpecialPlanNotifications(
       );
     }
 
-    _logger.info(
-      '[ENROLL-NOTIF-SP] firing ${plan.id} day=$dayNumber anchor=${anchorDay.toIso8601String()}',
-    );
-    await RoutineNotificationService().showSpecialPlanCurrentDayImmediate(
-      planId: plan.id,
-      planTitle: plan.title,
-      planImageUrl: plan.imageUrl,
-    );
+    final entries = kSpecialPlanNotifications[plan.id]!;
+    if (daysSince < entries.length) {
+      _logger.info(
+        '[ENROLL-NOTIF-SP] firing ${plan.id} day=$dayNumber (custom series) anchor=${anchorDay.toIso8601String()}',
+      );
+      await RoutineNotificationService().showSpecialPlanCurrentDayImmediate(
+        planId: plan.id,
+        planTitle: plan.title,
+        planImageUrl: plan.imageUrl,
+      );
+    } else if (daysSince < plan.totalDays &&
+        !PlanMetadataStore.wasImmediateShownOn(plan.id, today)) {
+      _logger.info(
+        '[ENROLL-NOTIF-SP] firing ${plan.id} day=$dayNumber/${plan.totalDays} (general fallback) anchor=${anchorDay.toIso8601String()}',
+      );
+      final id = await RoutineNotificationService().showPlanDayImmediate(
+        planId: plan.id,
+        planTitle: plan.title,
+        planImageUrl: plan.imageUrl,
+        dayNumber: dayNumber,
+        totalDays: plan.totalDays,
+      );
+      if (id != null) {
+        await PlanMetadataStore.markImmediateShownOn(plan.id, today);
+      }
+    } else {
+      _logger.info(
+        '[ENROLL-NOTIF-SP] skip ${plan.id}: past plan end or already shown day=$dayNumber/${plan.totalDays}',
+      );
+    }
   }
 }

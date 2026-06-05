@@ -11,10 +11,16 @@ import 'package:flutter_pecha/features/notifications/data/channels/notification_
 import 'package:flutter_pecha/features/notifications/data/services/notification_service.dart';
 import 'package:flutter_pecha/features/notifications/data/special_plan_notifications.dart';
 import 'package:flutter_pecha/features/practice/data/models/routine_model.dart';
+import 'package:flutter_pecha/shared/domain/value_objects/responsive_image.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:timezone/timezone.dart' as tz;
 
 final _logger = AppLogger('RoutineNotificationService');
+
+ResponsiveImage? _coverImageFromUrl(String? url) {
+  if (url == null || url.isEmpty) return null;
+  return ResponsiveImage.uniform(url);
+}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Result types
@@ -201,9 +207,17 @@ class RoutineNotificationService {
       if (firstItem != null && firstItem.type == RoutineItemType.plan) {
         if (isSpecialPlan(firstItem.id)) {
           await _cancelSpecialPlanSeries(firstItem.id);
+          await SpecialPlanStartedAtStore.clearShownFlags(firstItem.id);
         } else {
           await _cancelPlanDurationSeries(firstItem.id);
         }
+        // Treat a routine-block removal as "start fresh on re-add" — clear
+        // today's immediate-shown flag so the next add re-fires today's
+        // notification instead of being skipped as "already shown today".
+        await PlanMetadataStore.clearShownFlags(firstItem.id);
+        _logger.info(
+          '[NOTIF-CANCEL-BLOCK] cleared shown flags for ${firstItem.id} — re-add will re-fire immediate',
+        );
       }
     } catch (e) {
       _logger.warning('cancelBlockNotification failed for block ${block.notificationId}: $e');
@@ -290,13 +304,28 @@ class RoutineNotificationService {
     return _specialPlanSeriesIdBase + (slot * _specialPlanSeriesSlotSize) + (dayIndex - 1);
   }
 
-  Future<void> _cancelSpecialPlanSeries(String planId) async {
+  /// Cancels schedules for [planId].
+  ///
+  /// When [cancelVisibleImmediates] is true (default), also cancels the
+  /// visible immediate notifications. Pass `false` from the reschedule path
+  /// so a second reschedule call within the same session does not clear a
+  /// notification that the user is currently seeing in the tray.
+  Future<void> _cancelSpecialPlanSeries(
+    String planId, {
+    bool cancelVisibleImmediates = true,
+  }) async {
     final entries = kSpecialPlanNotifications[planId];
     if (entries == null) return;
     for (var day = 1; day <= entries.length; day++) {
       await _plugin.cancel(_specialPlanSeriesNotifId(planId, day));
-      await _plugin.cancel(_specialPlanOneShotIdBase + (day - 1));
+      if (cancelVisibleImmediates) {
+        await _plugin.cancel(_specialPlanOneShotIdBase + (day - 1));
+      }
     }
+    await _cancelPlanDurationSeries(
+      planId,
+      cancelVisibleImmediates: cancelVisibleImmediates,
+    );
   }
 
   /// Cancels all scheduled special-plan notifications across every plan.
@@ -344,7 +373,10 @@ class RoutineNotificationService {
       return;
     }
 
-    await _cancelSpecialPlanSeries(planId);
+    // Soft cancel: clear future schedules but preserve any visible immediate
+    // notification. A previous call in this session may have just shown one,
+    // and we don't want to wipe it from the tray.
+    await _cancelSpecialPlanSeries(planId, cancelVisibleImmediates: false);
 
     final startedLocal = startedAt.toLocal();
     _logger.info(
@@ -356,7 +388,7 @@ class RoutineNotificationService {
     final pseudoItem = RoutineItem(
       id: planId,
       title: planTitle,
-      imageUrl: planImageUrl,
+      coverImage: _coverImageFromUrl(planImageUrl),
       type: RoutineItemType.plan,
     );
     final iosDetails = await _buildIOSNotificationDetails(pseudoItem);
@@ -433,6 +465,50 @@ class RoutineNotificationService {
       'total=${entries.length}',
     );
 
+    // General fallback: schedule "Day N of total" one-shots for days beyond
+    // the custom series, up to the plan's full duration.
+    final metadata = PlanMetadataStore.getMetadata(planId);
+    if (metadata != null && metadata.totalDays > entries.length) {
+      for (var day = entries.length + 1; day <= metadata.totalDays; day++) {
+        final fireDate = seriesStart.add(Duration(days: day - 1));
+        if (!fireDate.isAfter(now)) continue;
+        if (scheduledCount >= kPlanSeriesMaxScheduledDays) break;
+
+        final body = _planDayBody(planTitle, day, metadata.totalDays);
+        final dayStyle = await _buildBigPictureStyle(
+          pseudoItem,
+          overrideTitle: planTitle,
+          overrideBody: body,
+        );
+        try {
+          await _plugin.zonedSchedule(
+            _planDaySeriesNotifId(planId, day),
+            planTitle,
+            body,
+            fireDate,
+            NotificationChannels.routineBlockDetails(
+              styleInformation: dayStyle,
+              largeIcon: largeIcon,
+              iOSDetails: iosDetails,
+            ),
+            androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+            payload: payload,
+          );
+          scheduledCount++;
+        } catch (e, st) {
+          _logger.error(
+            'rescheduleSpecialPlanSeries: failed general day=$day for $planId',
+            e,
+            st,
+          );
+        }
+      }
+      _logger.info(
+        '[NOTIF-SCHEDULE-SP] $planId general fallback — days ${entries.length + 1}–${metadata.totalDays} '
+        'scheduledTotal=$scheduledCount',
+      );
+    }
+
     // Immediate catch-up: if today's scheduled fire has already passed and
     // the notification hasn't been shown yet, fire it now. This covers:
     //   - Enrol after 09:00 on Day 1.
@@ -472,9 +548,42 @@ class RoutineNotificationService {
     );
 
     if (daysSince < 0 || daysSince >= entries.length) {
-      _logger.info(
-        '[NOTIF-SCHEDULE-SP] $planId overdue: outside series — skip',
-      );
+      // Past the custom series — fall back to general "Day N of total" immediate.
+      if (daysSince >= 0) {
+        final metadata = PlanMetadataStore.getMetadata(planId);
+        if (metadata != null && daysSince < metadata.totalDays) {
+          if (PlanMetadataStore.wasImmediateShownOn(planId, today)) {
+            _logger.info(
+              '[NOTIF-SCHEDULE-SP] $planId past custom series: already shown today — skip',
+            );
+          } else {
+            final todayFireTz = seriesStart.add(Duration(days: daysSince));
+            if (!todayFireTz.isAfter(tz.TZDateTime.now(tz.local))) {
+              _logger.info(
+                '[NOTIF-SCHEDULE-SP] $planId past custom series: firing general day=${daysSince + 1}/${metadata.totalDays}',
+              );
+              final id = await showPlanDayImmediate(
+                planId: planId,
+                planTitle: planTitle,
+                planImageUrl: planImageUrl,
+                dayNumber: daysSince + 1,
+                totalDays: metadata.totalDays,
+              );
+              if (id != null) {
+                await PlanMetadataStore.markImmediateShownOn(planId, today);
+              }
+            }
+          }
+        } else {
+          _logger.info(
+            '[NOTIF-SCHEDULE-SP] $planId overdue: outside series and plan — skip',
+          );
+        }
+      } else {
+        _logger.info(
+          '[NOTIF-SCHEDULE-SP] $planId overdue: outside series — skip',
+        );
+      }
       return;
     }
     if (SpecialPlanStartedAtStore.wasShownOn(planId, today)) {
@@ -571,7 +680,7 @@ class RoutineNotificationService {
       final pseudoItem = RoutineItem(
         id: planId,
         title: planTitle,
-        imageUrl: planImageUrl,
+        coverImage: _coverImageFromUrl(planImageUrl),
         type: RoutineItemType.plan,
       );
       final androidStyle = await _buildBigPictureStyle(
@@ -639,11 +748,16 @@ class RoutineNotificationService {
   String _planDayBody(String planTitle, int dayNumber, int totalDays) =>
       'Day $dayNumber of $totalDays — check out $planTitle.';
 
-  Future<void> _cancelPlanDurationSeries(String planId) async {
+  Future<void> _cancelPlanDurationSeries(
+    String planId, {
+    bool cancelVisibleImmediates = true,
+  }) async {
     for (var day = 1; day <= kPlanSeriesMaxScheduledDays; day++) {
       await _plugin.cancel(_planDaySeriesNotifId(planId, day));
     }
-    await _plugin.cancel(_planOneShotNotifId(planId));
+    if (cancelVisibleImmediates) {
+      await _plugin.cancel(_planOneShotNotifId(planId));
+    }
   }
 
   /// Cancels all pending duration-series schedules across every enrolled plan.
@@ -696,7 +810,9 @@ class RoutineNotificationService {
       return;
     }
 
-    await _cancelPlanDurationSeries(planId);
+    // Soft cancel: preserve any visible immediate that an earlier call in
+    // this session may have shown.
+    await _cancelPlanDurationSeries(planId, cancelVisibleImmediates: false);
 
     // Anchor day-numbering to the plan's day-1 (effectiveStartDate).
     // For fixed-date plans where the user joined late, this is the plan's
@@ -707,7 +823,7 @@ class RoutineNotificationService {
     final pseudoItem = RoutineItem(
       id: planId,
       title: planTitle,
-      imageUrl: planImageUrl,
+      coverImage: _coverImageFromUrl(planImageUrl),
       type: RoutineItemType.plan,
     );
     final iosDetails = await _buildIOSNotificationDetails(pseudoItem);
@@ -824,7 +940,7 @@ class RoutineNotificationService {
       final pseudoItem = RoutineItem(
         id: planId,
         title: planTitle,
-        imageUrl: planImageUrl,
+        coverImage: _coverImageFromUrl(planImageUrl),
         type: RoutineItemType.plan,
       );
       final androidStyle = await _buildBigPictureStyle(
@@ -848,6 +964,9 @@ class RoutineNotificationService {
           iOSDetails: await _buildIOSNotificationDetails(pseudoItem),
         ),
         payload: payload,
+      );
+      _logger.info(
+        '[NOTIF-IMMEDIATE] showPlanDayImmediate SENT: $planId day=$dayNumber/$totalDays id=$notifId',
       );
       return notifId;
     } catch (e, st) {

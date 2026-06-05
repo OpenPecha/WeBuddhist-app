@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
-import 'package:flutter_pecha/core/widgets/cached_network_image_widget.dart';
+import 'package:flutter_pecha/core/widgets/responsive_cover_image.dart';
 import 'package:flutter_pecha/features/plans/data/models/user/user_plans_model.dart';
 import 'package:flutter_pecha/shared/extensions/typography_extensions.dart';
 
@@ -94,8 +94,8 @@ class UserPlanCard extends StatelessWidget {
 }
 
 Widget _buildPlanImage(UserPlansModel plan) {
-  return CachedNetworkImageWidget(
-    imageUrl: plan.imageUrl ?? '',
+  return ResponsiveCoverImage(
+    image: plan.coverImage,
     width: 90,
     height: 90,
     fit: BoxFit.cover,

@@ -27,7 +27,7 @@ RoutineItem routineItemFromSessionDto(SessionDTO s) {
   return RoutineItem(
     id: s.sourceId,
     title: s.title,
-    imageUrl: s.imageUrl,
+    coverImage: s.coverImage,
     type: switch (s.sessionType) {
       SessionType.plan => RoutineItemType.plan,
       SessionType.recitation => RoutineItemType.recitation,

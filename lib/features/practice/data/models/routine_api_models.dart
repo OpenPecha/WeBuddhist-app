@@ -1,3 +1,6 @@
+import 'package:flutter_pecha/features/plans/data/models/plans_model.dart';
+import 'package:flutter_pecha/shared/domain/value_objects/responsive_image.dart';
+
 enum SessionType {
   plan,
   recitation;
@@ -65,7 +68,7 @@ class SessionDTO {
   final String sourceId;
   final String title;
   final String language;
-  final String? imageUrl;
+  final ImageModel? image;
   final int displayOrder;
 
   const SessionDTO({
@@ -74,9 +77,13 @@ class SessionDTO {
     required this.sourceId,
     required this.title,
     required this.language,
-    this.imageUrl,
+    this.image,
     required this.displayOrder,
   });
+
+  String? get imageUrl => image?.displayUrl;
+
+  ResponsiveImage? get coverImage => image?.toResponsiveImage();
 
   factory SessionDTO.fromJson(Map<String, dynamic> json) {
     return SessionDTO(
@@ -85,7 +92,7 @@ class SessionDTO {
       sourceId: json['source_id'] as String,
       title: json['title'] as String,
       language: json['language'] as String,
-      imageUrl: json['image_url'] as String?,
+      image: ImageModel.fromJsonMap(json),
       displayOrder: json['display_order'] as int,
     );
   }

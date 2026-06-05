@@ -56,6 +56,14 @@ class StorageKeys {
   static const String dailyReminderTime = 'daily_reminder_time';
   /// Daily reminder enabled flag
   static const String dailyReminderEnabled = 'daily_reminder_enabled';
+  /// App-level master notification toggle. When false the app cancels all
+  /// scheduled notifications without touching OS permission. Re-enabling
+  /// re-schedules from the stored routine. Default: true.
+  static const String notificationMasterEnabled = 'notification_master_enabled';
+  /// App-level toggle for routine (plan) block notifications. Default: true.
+  static const String notificationRoutineEnabled = 'notification_routine_enabled';
+  /// App-level toggle for recitation block notifications. Default: true.
+  static const String notificationRecitationEnabled = 'notification_recitation_enabled';
 
   // Special-plan (ITCC and similar) keys — hardcoded per-day content series.
   /// Per-plan startedAt prefix. Full key: `special_plan_started_at_<planId>` → ISO8601 string.

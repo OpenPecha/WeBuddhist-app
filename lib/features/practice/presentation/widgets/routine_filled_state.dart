@@ -327,7 +327,7 @@ class _RoutineBlockSection extends ConsumerWidget {
 
     return RoutineItemCard(
       title: item.title,
-      imageUrl: item.imageUrl,
+      coverImage: item.coverImage,
       type: item.type,
       onTap: () => _onItemTap(context, ref, item),
       subtitle: dateRange == null ? null : PlanDateRangeLabel(dateRange: dateRange),

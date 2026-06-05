@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
-import 'package:flutter_pecha/core/widgets/cached_network_image_widget.dart';
+import 'package:flutter_pecha/core/widgets/responsive_cover_image.dart';
+import 'package:flutter_pecha/shared/domain/value_objects/responsive_image.dart';
 import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
 import 'package:flutter_pecha/features/auth/presentation/widgets/login_drawer.dart';
 import 'package:flutter_pecha/features/home/presentation/providers/series_enrollment_provider.dart';
@@ -134,8 +135,8 @@ class FeaturedPlanCard extends ConsumerWidget {
           children: [
             AspectRatio(
               aspectRatio: 16 / 9,
-              child: PlanCoverImage(
-                imageUrl: plan.coverImageUrl,
+              child: _PlanCoverImage(
+                image: plan.coverImage,
                 placeholderIconSize: 48,
                 placeholderAlphaMin: 0.4,
                 placeholderAlphaMax: 0.7,
@@ -309,8 +310,8 @@ class PlanListItem extends ConsumerWidget {
                 color: Theme.of(context).colorScheme.surfaceContainer,
               ),
               clipBehavior: Clip.antiAlias,
-              child: PlanCoverImage(
-                imageUrl: plan.coverImageUrl,
+              child: _PlanCoverImage(
+                image: plan.coverImage,
                 placeholderIconSize: 24,
                 placeholderAlphaMin: 0.3,
                 placeholderAlphaMax: 0.5,
@@ -401,15 +402,14 @@ UserPlansModel? _findUserPlan(List<UserPlansModel> plans, String planId) {
   return null;
 }
 
-class PlanCoverImage extends StatelessWidget {
-  final String? imageUrl;
+class _PlanCoverImage extends StatelessWidget {
+  final ResponsiveImage? image;
   final double placeholderIconSize;
   final double placeholderAlphaMin;
   final double placeholderAlphaMax;
 
-  const PlanCoverImage({
-    super.key,
-    required this.imageUrl,
+  const _PlanCoverImage({
+    required this.image,
     required this.placeholderIconSize,
     required this.placeholderAlphaMin,
     required this.placeholderAlphaMax,
@@ -417,15 +417,12 @@ class PlanCoverImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (imageUrl != null && imageUrl!.isNotEmpty) {
-      return CachedNetworkImageWidget(
-        imageUrl: imageUrl,
-        fit: BoxFit.cover,
-        placeholder: _buildPlaceholder(context),
-        errorWidget: _buildPlaceholder(context),
-      );
-    }
-    return _buildPlaceholder(context);
+    return ResponsiveCoverImage(
+      image: image,
+      fit: BoxFit.cover,
+      placeholder: _buildPlaceholder(context),
+      errorWidget: _buildPlaceholder(context),
+    );
   }
 
   Widget _buildPlaceholder(BuildContext context) {

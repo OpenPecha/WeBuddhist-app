@@ -1,5 +1,7 @@
 import 'package:flutter_pecha/features/plans/data/models/plan_tag_model.dart';
+import 'package:flutter_pecha/features/plans/data/models/plans_model.dart';
 import 'package:flutter_pecha/features/plans/data/utils/plan_utils.dart';
+import 'package:flutter_pecha/shared/domain/value_objects/responsive_image.dart';
 
 export 'package:flutter_pecha/features/plans/data/models/plan_tag_model.dart';
 
@@ -9,7 +11,7 @@ class UserPlansModel {
   final String description;
   final String language;
   final String? difficultyLevel;
-  final String? imageUrl;
+  final ImageModel? image;
   final DateTime startedAt;
   final int totalDays;
   final List<PlanTag>? tags;
@@ -21,7 +23,7 @@ class UserPlansModel {
     required this.description,
     required this.language,
     required this.difficultyLevel,
-    required this.imageUrl,
+    this.image,
     required this.startedAt,
     required this.totalDays,
     required this.tags,
@@ -30,6 +32,11 @@ class UserPlansModel {
 
   DateTime get effectiveStartDate => startDate ?? startedAt;
 
+  ResponsiveImage? get coverImage => image?.toResponsiveImage();
+
+  /// Smallest cover URL — notifications and legacy callers.
+  String? get imageUrl => coverImage?.displayUrl;
+
   factory UserPlansModel.fromJson(Map<String, dynamic> json) {
     return UserPlansModel(
       id: json['id'] as String,
@@ -37,7 +44,7 @@ class UserPlansModel {
       description: json['description'] as String,
       language: json['language'] as String,
       difficultyLevel: json['difficulty_level'] as String?,
-      imageUrl: json['image_url'] as String?,
+      image: ImageModel.fromJsonMap(json),
       startedAt:
           json['started_at'] != null
               ? DateTime.parse(json['started_at'] as String)
@@ -60,6 +67,7 @@ class UserPlansModel {
       'description': description,
       'language': language,
       'difficulty_level': difficultyLevel,
+      'image': image?.toJson(),
       'image_url': imageUrl,
       'started_at': startedAt.toIso8601String(),
       'total_days': totalDays,

@@ -3,7 +3,8 @@ import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
-import 'package:flutter_pecha/core/widgets/cached_network_image_widget.dart';
+import 'package:flutter_pecha/core/widgets/responsive_cover_image.dart';
+import 'package:flutter_pecha/shared/domain/value_objects/responsive_image.dart';
 import 'package:flutter_pecha/core/widgets/error_state_widget.dart';
 import 'package:flutter_pecha/core/widgets/skeletons/skeletons.dart';
 import 'package:flutter_pecha/features/practice/data/models/session_selection.dart';
@@ -227,7 +228,7 @@ class _PracticeItemsTab extends ConsumerWidget {
         return _SessionListTile(
           title: plan.title,
           subtitle: null,
-          imageUrl: plan.coverImageUrl,
+          coverImage: plan.coverImage,
           isLoading: isEnrolling,
           isDisabled: enrollingItemId != null,
           onTap: () => onItemSelected(item),
@@ -237,7 +238,7 @@ class _PracticeItemsTab extends ConsumerWidget {
         return _SessionListTile(
           title: series.title,
           subtitle: series.description.isNotEmpty ? series.description : null,
-          imageUrl: series.imageUrl,
+          coverImage: series.coverImage,
           isLoading: isEnrolling,
           isDisabled: enrollingItemId != null,
           onTap: () => onItemSelected(item),
@@ -322,6 +323,7 @@ class _RecitationsTab extends ConsumerWidget {
 class _SessionListTile extends StatelessWidget {
   final String title;
   final String? subtitle;
+  final ResponsiveImage? coverImage;
   final String? imageUrl;
   final VoidCallback onTap;
   final bool isLoading;
@@ -330,7 +332,8 @@ class _SessionListTile extends StatelessWidget {
   const _SessionListTile({
     required this.title,
     required this.subtitle,
-    required this.imageUrl,
+    this.coverImage,
+    this.imageUrl,
     required this.onTap,
     this.isLoading = false,
     this.isDisabled = false,
@@ -350,9 +353,17 @@ class _SessionListTile extends StatelessWidget {
               ClipRRect(
                 borderRadius: BorderRadius.circular(8),
                 child:
-                    imageUrl?.trim().isNotEmpty == true
-                        ? CachedNetworkImageWidget(
-                          imageUrl: imageUrl,
+                    coverImage != null && !coverImage!.isEmpty
+                        ? ResponsiveCoverImage(
+                          image: coverImage,
+                          width: 56,
+                          height: 56,
+                          fit: BoxFit.cover,
+                          borderRadius: BorderRadius.circular(8),
+                        )
+                        : imageUrl?.trim().isNotEmpty == true
+                        ? ResponsiveCoverImage(
+                          image: ResponsiveImage.uniform(imageUrl!),
                           width: 56,
                           height: 56,
                           fit: BoxFit.cover,

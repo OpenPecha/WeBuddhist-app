@@ -453,7 +453,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get notification_allow_subtitle_enabled => '此應用程式已啟用通知';
 
   @override
-  String get notification_allow_subtitle_disabled => '點此開啟系統設定並啟用';
+  String get notification_allow_subtitle_disabled => '需要權限。請點此前往「設定」授權。';
+
+  @override
+  String get notification_allow_subtitle_paused => '提醒已暫停。點此恢復。';
 
   @override
   String get notification_routine_title => '日常提醒';
@@ -462,7 +465,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get notification_routine_subtitle_enabled => '您的每日修持時段提醒';
 
   @override
-  String get notification_routine_subtitle_disabled => '已靜音。點此前往系統設定以啟用。';
+  String get notification_routine_subtitle_disabled => '日常提醒已暫停。點此恢復。';
 
   @override
   String get notification_alarms_title => '精確的提醒時間';
@@ -483,6 +486,29 @@ class AppLocalizationsZh extends AppLocalizations {
   @override
   String get notification_battery_subtitle_disabled =>
       '部分 Android 手機會暫停背景應用程式以節省電池使用量，這可能導致提醒通知延遲或遺漏。點此確保應用程式持續運行。';
+
+  @override
+  String get notification_recitation_title => '持誦提醒';
+
+  @override
+  String get notification_recitation_subtitle_enabled => '每日持誦提醒';
+
+  @override
+  String get notification_recitation_subtitle_disabled => '持誦提醒已暫停。點此恢復。';
+
+  @override
+  String get notification_alarms_info_title => '關於精確提醒時間';
+
+  @override
+  String get notification_alarms_info_body =>
+      '此權限可讓應用程式在您設定的確切時間發送提醒。若未授予，提醒可能在手機閒置時延遲或完全遺漏。';
+
+  @override
+  String get notification_battery_info_title => '關於背景提醒';
+
+  @override
+  String get notification_battery_info_body =>
+      '部分 Android 手機會暫停背景應用程式以節省電池，這可能導致已排程的提醒延遲或取消。豁免應用程式可讓您的提醒準時可靠地發送。';
 
   @override
   String get notification_snack_permission_denied => '通知已被封鎖。請在「設定」中開啟';
@@ -1334,5 +1360,14 @@ class AppLocalizationsZh extends AppLocalizations {
   String get second_version_msg => '第二種翻譯版本會逐句出現在主文的下方';
 
   @override
-  String get version => '版本';
+  String get version => 'Versions';
+
+  @override
+  String get read_full_text => 'Read Full Text';
+
+  @override
+  String get reader_source_label => 'Source';
+
+  @override
+  String get reader_license_label => 'License';
 }
