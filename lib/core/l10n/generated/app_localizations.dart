@@ -2661,6 +2661,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Versions'**
   String get version;
+
+  /// No description provided for @read_full_text.
+  ///
+  /// In en, this message translates to:
+  /// **'Read Full Text'**
+  String get read_full_text;
+
+  /// No description provided for @reader_source_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Source'**
+  String get reader_source_label;
+
+  /// No description provided for @reader_license_label.
+  ///
+  /// In en, this message translates to:
+  /// **'License'**
+  String get reader_license_label;
 }
 
 class _AppLocalizationsDelegate
