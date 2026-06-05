@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_pecha/features/plans/data/models/plan_days_model.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 
 class DayCarousel extends StatefulWidget {
   final String language;
@@ -82,22 +83,38 @@ class _DayCarouselState extends State<DayCarousel> {
   Widget build(BuildContext context) {
     final localStartDate = DateUtils.dateOnly(widget.startDate.toLocal());
     final today = DateUtils.dateOnly(DateTime.now());
+    final l10n = AppLocalizations.of(context)!;
+    final totalDays = widget.days.length;
+    final primaryColor = Theme.of(context).colorScheme.primary;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return SizedBox(
-      height: 80,
+      height: 88,
       child: ListView.builder(
         controller: _scrollController,
         scrollDirection: Axis.horizontal,
         physics: const BouncingScrollPhysics(),
         padding: const EdgeInsets.symmetric(horizontal: 12),
-        itemCount: widget.days.length,
+        itemCount: totalDays,
         itemBuilder: (context, index) {
           final day = widget.days[index];
           final dayDate = localStartDate.add(Duration(days: day.dayNumber - 1));
-          final dayDateString = DateFormat('dd MMM').format(dayDate);
           final isSelected = widget.selectedDay == day.dayNumber;
           final isCompleted = widget.dayCompletionStatus?[day.dayNumber] ?? false;
           final isToday = dayDate.isAtSameMomentAs(today);
+          final isLastDay = day.dayNumber == totalDays;
+
+          // Sub-label: "Last day" for final day, "dd MMM" otherwise.
+          final subLabel = isLastDay
+              ? l10n.plan_status_last_day
+              : DateFormat('dd MMM').format(dayDate);
+
+          final borderColor = isSelected ? primaryColor : Colors.transparent;
+          final cardColor = isSelected
+              ? (isDark
+                  ? primaryColor.withValues(alpha: 0.15)
+                  : primaryColor.withValues(alpha: 0.08))
+              : Theme.of(context).cardColor;
 
           return GestureDetector(
             onTap: () {
@@ -107,26 +124,12 @@ class _DayCarouselState extends State<DayCarousel> {
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 200),
               curve: Curves.easeInOut,
-              width: 80,
-              margin: const EdgeInsets.symmetric(horizontal: 4),
+              width: 72,
+              margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
               decoration: BoxDecoration(
-                color: Theme.of(context).cardColor,
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(
-                  color: isSelected
-                      ? const Color(0xFF1E3A8A)
-                      : Theme.of(context).cardColor,
-                  width: 2,
-                ),
-                boxShadow: isSelected
-                    ? [
-                        BoxShadow(
-                          color: const Color(0xFF1E3A8A).withValues(alpha: 0.2),
-                          blurRadius: 8,
-                          offset: const Offset(0, 2),
-                        ),
-                      ]
-                    : null,
+                color: cardColor,
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: borderColor, width: 1.5),
               ),
               child: Stack(
                 alignment: Alignment.center,
@@ -134,11 +137,11 @@ class _DayCarouselState extends State<DayCarousel> {
                   if (isCompleted)
                     Positioned(
                       top: 4,
-                      right: 4,
+                      right: 6,
                       child: Icon(
                         Icons.check,
-                        size: 14,
-                        color: Theme.of(context).colorScheme.primary,
+                        size: 13,
+                        color: primaryColor,
                       ),
                     ),
                   Column(
@@ -146,31 +149,39 @@ class _DayCarouselState extends State<DayCarousel> {
                     children: [
                       Text(
                         '${day.dayNumber}',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
+                          color: isSelected ? primaryColor : null,
                         ),
                       ),
                       const SizedBox(height: 4),
                       Container(
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
+                          horizontal: 6,
                           vertical: 2,
                         ),
-                        decoration: isToday
+                        decoration: isToday && !isSelected
                             ? BoxDecoration(
-                                color: Theme.of(context).brightness == Brightness.dark
+                                color: isDark
                                     ? Colors.white.withValues(alpha: 0.2)
                                     : const Color(0xFF1A1A1A),
-                                borderRadius: BorderRadius.circular(12),
+                                borderRadius: BorderRadius.circular(10),
                               )
                             : null,
                         child: Text(
-                          dayDateString,
+                          subLabel,
                           style: TextStyle(
-                            fontSize: 11,
-                            color: isToday ? Colors.white : null,
+                            fontSize: 10,
+                            color: isLastDay
+                                ? primaryColor
+                                : isToday && !isSelected
+                                    ? Colors.white
+                                    : null,
+                            fontWeight: isLastDay ? FontWeight.w600 : null,
                           ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
                     ],

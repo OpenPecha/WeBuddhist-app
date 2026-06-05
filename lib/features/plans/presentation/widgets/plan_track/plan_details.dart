@@ -1,10 +1,25 @@
+import 'dart:io';
+
 import 'package:fpdart/fpdart.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
+import 'package:flutter/services.dart';
+import 'package:go_router/go_router.dart';
+// locale_notifier removed — localeProvider no longer used in this file
 import 'package:flutter_pecha/core/error/failures.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
+import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/core/widgets/skeletons/skeletons.dart';
+import 'package:flutter_pecha/features/home/domain/entities/series.dart';
+import 'package:flutter_pecha/features/home/presentation/providers/series_provider.dart';
+import 'package:flutter_pecha/features/home/presentation/screens/main_navigation_screen.dart';
+import 'package:flutter_pecha/features/plans/domain/entities/plan.dart';
+// routine_api_models not needed directly — TimeBlockRequest inferred via routineBlockToRequest
+import 'package:flutter_pecha/features/practice/data/models/routine_model.dart';
+import 'package:flutter_pecha/features/practice/data/utils/routine_api_mapper.dart';
+import 'package:flutter_pecha/features/practice/data/utils/routine_time_utils.dart';
+import 'package:flutter_pecha/features/practice/presentation/providers/routine_api_providers.dart';
 import 'package:flutter_pecha/features/plans/presentation/providers/plan_days_providers.dart';
 import 'package:flutter_pecha/features/plans/presentation/providers/plans_providers.dart';
 import 'package:flutter_pecha/features/plans/presentation/providers/user_plans_provider.dart';
@@ -16,11 +31,14 @@ import 'package:flutter_pecha/features/plans/presentation/widgets/plan_navigatio
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/features/reader/data/models/navigation_context.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import '../day_completion_bottom_sheet.dart';
-import '../plan_cover_image.dart';
+import 'package:flutter_pecha/features/plans/data/utils/plan_utils.dart';
+import '../celebration/day_celebration_modal.dart';
+import '../celebration/plan_celebration_modal.dart';
+import '../celebration/series_celebration_modal.dart';
 import '../day_carousel.dart';
 import 'activity_list.dart';
 import 'missed_days_badge.dart';
+import 'on_track_badge.dart';
 
 final _logger = AppLogger('PlanDetails');
 
@@ -67,7 +85,7 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  PlanCoverImage(imageUrl: widget.plan.imageUrl ?? ''),
+                  _buildSeriesBreadcrumb(context),
                   _buildDayCarouselSection(language),
                   _buildDayContentSection(context, language),
                 ],
@@ -76,6 +94,41 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
           ),
           _buildStartReadingButton(context, localizations),
         ],
+      ),
+    );
+  }
+
+  /// Looks up which series (if any) this plan belongs to and returns a
+  /// breadcrumb like "FOUR NOBLE TRUTHS · PLAN 2 OF 4". Returns an empty
+  /// widget when the plan is standalone.
+  Widget _buildSeriesBreadcrumb(BuildContext context) {
+    final seriesAsync = ref.watch(seriesListFutureProvider);
+    final seriesEntry = seriesAsync.whenOrNull(
+      data: (either) => either.fold((_) => null, (list) {
+        for (final s in list) {
+          final idx = s.plans.indexWhere((p) => p.id == widget.plan.id);
+          if (idx >= 0) return (series: s, index: idx);
+        }
+        return null;
+      }),
+    );
+
+    if (seriesEntry == null) return const SizedBox.shrink();
+
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final color = isDark ? AppColors.textTertiaryDark : AppColors.textSecondary;
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+      child: Text(
+        '${seriesEntry.series.title.toUpperCase()} · PLAN ${seriesEntry.index + 1} OF ${seriesEntry.series.plans.length}',
+        style: Theme.of(context).textTheme.labelSmall?.copyWith(
+          color: color,
+          fontWeight: FontWeight.w600,
+          letterSpacing: 0.8,
+        ),
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
       ),
     );
   }
@@ -123,38 +176,124 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
   }
 
   Future<void> _onDayCompleted(int dayNumber) async {
-    try {
-      final completionStatusEither = await ref.read(
-        userPlanDaysCompletionStatusProvider(widget.plan.id).future,
-      );
+    if (!mounted) return;
+    final isLastDay = dayNumber == widget.plan.totalDays;
 
-      completionStatusEither.fold(
-        (failure) {
-          _logger.error('Error fetching completion status: ${failure.message}');
-        },
-        (completionStatus) {
-          final completedDays = completionStatus.values.where((v) => v).length;
-
-          if (!mounted) return;
-
-          showModalBottomSheet(
-            context: context,
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            builder:
-                (_) => DayCompletionBottomSheet(
-                  dayNumber: dayNumber,
-                  totalDays: widget.plan.totalDays,
-                  completedDays: completedDays,
-                  imageUrl: widget.plan.imageUrl,
-                  planTitle: widget.plan.title,
-                ),
-          );
-        },
-      );
-    } catch (e) {
-      _logger.error('Error showing day completion', e);
+    if (!isLastDay) {
+      _showDailyCelebration(dayNumber);
+      return;
     }
+
+    // Last day — determine series context. Await ensures data is loaded
+    // even if the user navigated here directly from the Practice tab.
+    ({Series series, int planIndex})? seriesEntry;
+    try {
+      final seriesResult = await ref.read(seriesListFutureProvider.future);
+      seriesResult.fold((_) {}, (list) {
+        for (final s in list) {
+          final idx = s.plans.indexWhere((p) => p.id == widget.plan.id);
+          if (idx >= 0) {
+            seriesEntry = (series: s, planIndex: idx);
+            break;
+          }
+        }
+      });
+    } catch (_) {}
+
+    if (seriesEntry == null) {
+      // Standalone plan — plan done, no next plan.
+      _showPlanCelebration(nextPlanTitle: null, onContinue: () {
+        if (mounted) Navigator.of(context).pop();
+      });
+      return;
+    }
+
+    final series = seriesEntry!.series;
+    final planIndex = seriesEntry!.planIndex;
+    final isLastPlan = planIndex >= series.plans.length - 1;
+
+    if (isLastPlan) {
+      _showSeriesCelebration(series);
+    } else {
+      final nextPlan = series.plans[planIndex + 1];
+      // Resolve the enrolled UserPlan for the next plan.
+      UserPlansModel? nextUserPlan;
+      try {
+        final result = await ref.read(userPlansFutureProvider.future);
+        result.fold((_) {}, (response) {
+          final matches =
+              response.userPlans.where((p) => p.id == nextPlan.id).toList();
+          if (matches.isNotEmpty) nextUserPlan = matches.first;
+        });
+      } catch (_) {}
+
+      if (!mounted) return;
+      _showPlanCelebration(
+        nextPlanTitle: nextPlan.title,
+        onContinue: () {
+          Navigator.of(context).pop(); // dismiss modal
+          if (nextUserPlan != null) {
+            final startDate =
+                nextUserPlan!.startDate ?? nextUserPlan!.startedAt;
+            context.push(
+              '/practice/details',
+              extra: {
+                'plan': nextUserPlan,
+                'selectedDay': 1,
+                'startDate': startDate,
+              },
+            );
+            // Refresh routine so it auto-advances to the next plan.
+            ref.invalidate(userRoutineProvider);
+          }
+        },
+      );
+    }
+  }
+
+  void _showDailyCelebration(int dayNumber) {
+    showDialog<void>(
+      context: context,
+      barrierDismissible: true,
+      builder: (_) => DayCelebrationModal(
+        dayNumber: dayNumber,
+        totalDays: widget.plan.totalDays,
+        onDismiss: () => Navigator.of(context).pop(),
+      ),
+    );
+  }
+
+  void _showPlanCelebration({
+    required String? nextPlanTitle,
+    required VoidCallback onContinue,
+  }) {
+    showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => PlanCelebrationModal(
+        planTitle: widget.plan.title,
+        totalDays: widget.plan.totalDays,
+        nextPlanTitle: nextPlanTitle,
+        onContinue: onContinue,
+      ),
+    );
+  }
+
+  void _showSeriesCelebration(Series series) {
+    showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => SeriesCelebrationModal(
+        series: series,
+        onFindAnotherSeries: () {
+          Navigator.of(context).pop();
+          // Switch to Home tab so user can discover more series.
+          ref.read(mainNavigationIndexProvider.notifier).state =
+              MainTab.home.index;
+        },
+        onStay: () => Navigator.of(context).pop(),
+      ),
+    );
   }
 
   AppBar _buildAppBar(
@@ -163,8 +302,22 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
     AppLocalizations localizations,
   ) {
     return AppBar(
-      title: Text(widget.plan.title, style: TextStyle(fontSize: 20)),
+      title: Text(
+        widget.plan.title,
+        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+      ),
+      centerTitle: true,
       elevation: 0,
+      scrolledUnderElevation: 0,
+      actions: [
+        IconButton(
+          icon: const Icon(Icons.more_horiz),
+          tooltip: 'Options',
+          onPressed: () => _showOptionsSheet(context),
+        ),
+      ],
     );
   }
 
@@ -258,6 +411,8 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
             selectedDay,
             completionStatus.valueOrNull,
           ),
+          if (selectedDay == 1 && widget.plan.description.trim().isNotEmpty)
+            _buildAboutThisPlan(context),
           userPlanDayContent.when(
             data: (dayContentEither) {
               return dayContentEither.fold(
@@ -309,36 +464,89 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
     );
   }
 
+  Widget _buildAboutThisPlan(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final labelColor = isDark ? AppColors.textTertiaryDark : AppColors.textSecondary;
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 20, bottom: 4),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            context.l10n.about_this_plan.toUpperCase(),
+            style: Theme.of(context).textTheme.labelSmall?.copyWith(
+              color: labelColor,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 0.8,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            widget.plan.description,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: isDark ? Colors.white70 : Colors.black87,
+              height: 1.5,
+            ),
+          ),
+          const SizedBox(height: 20),
+        ],
+      ),
+    );
+  }
+
   Widget _buildDayTitle(
     BuildContext context,
     String language,
     int day,
     Either<Failure, Map<int, bool>>? completionStatusEither,
   ) {
-    // Extract Map from Either, or null if not available
     final completionStatus = completionStatusEither?.fold(
-      (failure) => null,
+      (_) => null,
       (status) => status,
     );
+    final l10n = context.l10n;
+    final totalDays = widget.plan.totalDays;
+    final isLastDay = day == totalDays;
+    final isFirstDay = day == 1;
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
-          "Day $day of ${widget.plan.totalDays}",
-          style: TextStyle(
+          'Day $day of $totalDays',
+          style: const TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
-            fontFamily: "Inter",
+            fontFamily: 'Inter',
           ),
         ),
-        if (completionStatus != null)
-          MissedDaysBadge(
-            planStartDate: widget.startDate,
-            userJoinDate: widget.plan.startedAt,
-            totalDays: widget.plan.totalDays,
-            completionStatus: completionStatus,
-          ),
+        if (isLastDay)
+          _StatusBadge(
+            label: l10n.plan_status_last_day,
+            color: Theme.of(context).colorScheme.primary,
+          )
+        else if (isFirstDay)
+          _StatusBadge(
+            label: l10n.plan_status_just_started,
+            color: Colors.green,
+          )
+        else if (completionStatus != null)
+          if (PlanUtils.calculateMissedDays(
+                widget.startDate,
+                widget.plan.startedAt,
+                totalDays,
+                completionStatus,
+              ) >
+              0)
+            MissedDaysBadge(
+              planStartDate: widget.startDate,
+              userJoinDate: widget.plan.startedAt,
+              totalDays: totalDays,
+              completionStatus: completionStatus,
+            )
+          else
+            const OnTrackBadge(),
       ],
     );
   }
@@ -415,31 +623,449 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
     }
   }
 
-  // TODO: Wire up this dialog to a menu button in the AppBar
-  // ignore: unused_element
+  // ─── 3-dot options sheet ─────────────────────────────────────────────────
+
+  void _showOptionsSheet(BuildContext context) {
+    final l10n = context.l10n;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    // Resolve series membership so "About" can navigate immediately.
+    final seriesAsync = ref.read(seriesListFutureProvider);
+    ({Series series, int index})? seriesEntry;
+    seriesAsync.whenOrNull(
+      data: (either) => either.fold((_) => null, (list) {
+        for (final s in list) {
+          final idx = s.plans.indexWhere((p) => p.id == widget.plan.id);
+          if (idx >= 0) {
+            seriesEntry = (series: s, index: idx);
+            return;
+          }
+        }
+      }),
+    );
+
+    // Resolve reminder time for the subtitle on the Reminders row.
+    final routineAsync = ref.read(userRoutineProvider);
+    RoutineBlock? planBlock;
+    routineAsync.whenOrNull(
+      data: (data) {
+        if (data == null) return;
+        for (final b in data.blocks) {
+          if (b.items.any((i) => i.id == widget.plan.id)) {
+            planBlock = b;
+            break;
+          }
+        }
+      },
+    );
+    final reminderSubtitle = planBlock == null
+        ? null
+        : planBlock!.notificationEnabled
+            ? formatRoutineTime(planBlock!.time)
+            : l10n.reminders_turned_off;
+
+    showModalBottomSheet<void>(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (sheetCtx) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(height: 8),
+              Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: (isDark ? Colors.white : Colors.black)
+                      .withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              const SizedBox(height: 8),
+              // About
+              ListTile(
+                leading: const Icon(Icons.info_outline),
+                title: Text(l10n.plan_options_about),
+                onTap: () {
+                  Navigator.of(sheetCtx).pop();
+                  if (seriesEntry != null) {
+                    context.pushNamed(
+                      'home-series-detail',
+                      pathParameters: {'id': seriesEntry!.series.id},
+                      extra: {'series': seriesEntry!.series},
+                    );
+                  } else {
+                    final plan = Plan(
+                      id: widget.plan.id,
+                      title: widget.plan.title,
+                      description: widget.plan.description,
+                      language: widget.plan.language,
+                      authorId: '',
+                      totalDays: widget.plan.totalDays,
+                      difficulty: DifficultyLevel.beginner,
+                      coverImageUrl: widget.plan.imageUrl,
+                      startDate: widget.plan.startDate,
+                    );
+                    context.pushNamed(
+                      'practice-plan-info',
+                      extra: {'plan': plan},
+                    );
+                  }
+                },
+              ),
+              // Reminders
+              ListTile(
+                leading: const Icon(Icons.notifications_outlined),
+                title: Text(l10n.plan_options_reminders),
+                subtitle: reminderSubtitle != null
+                    ? Text(reminderSubtitle)
+                    : null,
+                onTap: () {
+                  Navigator.of(sheetCtx).pop();
+                  _showRemindersSheet(context);
+                },
+              ),
+              // Unenroll
+              ListTile(
+                leading: Icon(
+                  Icons.exit_to_app,
+                  color: Theme.of(context).colorScheme.error,
+                ),
+                title: Text(
+                  l10n.plan_unenroll,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.error,
+                  ),
+                ),
+                onTap: () {
+                  Navigator.of(sheetCtx).pop();
+                  _showUnenrollDialog(context);
+                },
+              ),
+              const SizedBox(height: 8),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  // ─── Reminders sheet ─────────────────────────────────────────────────────
+
+  void _showRemindersSheet(BuildContext context) {
+    final l10n = context.l10n;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    final routineData = ref.read(userRoutineProvider).valueOrNull;
+    if (routineData == null ||
+        routineData.apiRoutineId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.reminders_not_in_routine)),
+      );
+      return;
+    }
+
+    RoutineBlock? planBlock;
+    for (final b in routineData.blocks) {
+      if (b.items.any((i) => i.id == widget.plan.id)) {
+        planBlock = b;
+        break;
+      }
+    }
+
+    if (planBlock == null || planBlock.apiTimeBlockId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.reminders_not_in_routine)),
+      );
+      return;
+    }
+
+    final block = planBlock;
+    final routineId = routineData.apiRoutineId!;
+
+    TimeOfDay selectedTime = block.time;
+    bool reminderEnabled = block.notificationEnabled;
+    bool isSaving = false;
+
+    final use24h = MediaQuery.of(context).alwaysUse24HourFormat;
+
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (sheetCtx) {
+        return StatefulBuilder(
+          builder: (ctx, setSheetState) {
+            Future<void> pickTime() async {
+              TimeOfDay? picked;
+              if (Platform.isIOS) {
+                final now = DateTime.now();
+                var selected = DateTime(
+                  now.year,
+                  now.month,
+                  now.day,
+                  selectedTime.hour,
+                  selectedTime.minute,
+                );
+                final confirmed = await showCupertinoModalPopup<bool>(
+                  context: ctx,
+                  builder: (popupCtx) => CupertinoTheme(
+                    data: CupertinoThemeData(
+                      brightness:
+                          isDark ? Brightness.dark : Brightness.light,
+                    ),
+                    child: Container(
+                      height: 300,
+                      decoration: BoxDecoration(
+                        color: isDark
+                            ? const Color(0xFF1C1C1E)
+                            : Colors.white,
+                        borderRadius: const BorderRadius.vertical(
+                          top: Radius.circular(20),
+                        ),
+                      ),
+                      child: SafeArea(
+                        top: false,
+                        child: Column(
+                          children: [
+                            Container(
+                              margin: const EdgeInsets.only(top: 10),
+                              width: 40,
+                              height: 4,
+                              decoration: BoxDecoration(
+                                color: Colors.grey.withValues(alpha: 0.4),
+                                borderRadius: BorderRadius.circular(2),
+                              ),
+                            ),
+                            Row(
+                              mainAxisAlignment:
+                                  MainAxisAlignment.spaceBetween,
+                              children: [
+                                CupertinoButton(
+                                  onPressed: () =>
+                                      Navigator.of(popupCtx).pop(false),
+                                  child: Text(l10n.cancel),
+                                ),
+                                CupertinoButton(
+                                  onPressed: () {
+                                    HapticFeedback.mediumImpact();
+                                    Navigator.of(popupCtx).pop(true);
+                                  },
+                                  child: Text(l10n.done),
+                                ),
+                              ],
+                            ),
+                            Expanded(
+                              child: CupertinoDatePicker(
+                                mode: CupertinoDatePickerMode.time,
+                                initialDateTime: selected,
+                                use24hFormat: use24h,
+                                onDateTimeChanged: (dt) => selected = dt,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+                if (confirmed == true) {
+                  picked = TimeOfDay(
+                    hour: selected.hour,
+                    minute: selected.minute,
+                  );
+                }
+              } else {
+                picked = await showTimePicker(
+                  context: ctx,
+                  initialTime: selectedTime,
+                );
+              }
+              if (picked != null) {
+                setSheetState(() => selectedTime = picked!);
+              }
+            }
+
+            Future<void> save() async {
+              setSheetState(() => isSaving = true);
+              final updated = block.copyWith(
+                time: selectedTime,
+                notificationEnabled: reminderEnabled,
+              );
+              final request = routineBlockToRequest(updated);
+              final result = await ref.read(updateTimeBlockUseCaseProvider)(
+                routineId,
+                block.apiTimeBlockId!,
+                request,
+              );
+              if (!mounted) return;
+              result.fold(
+                (_) {
+                  setSheetState(() => isSaving = false);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(l10n.unenrollError)),
+                  );
+                },
+                (_) {
+                  Navigator.of(sheetCtx).pop();
+                  ref.invalidate(userRoutineProvider);
+                  final msg = reminderEnabled
+                      ? l10n.reminders_updated(
+                          formatRoutineTime(selectedTime),
+                        )
+                      : l10n.reminders_turned_off;
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(msg),
+                      behavior: SnackBarBehavior.floating,
+                    ),
+                  );
+                },
+              );
+            }
+
+            return Padding(
+              padding: EdgeInsets.only(
+                bottom: MediaQuery.of(ctx).viewInsets.bottom,
+              ),
+              child: SafeArea(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Center(
+                        child: Container(
+                          width: 40,
+                          height: 4,
+                          decoration: BoxDecoration(
+                            color: (isDark ? Colors.white : Colors.black)
+                                .withValues(alpha: 0.2),
+                            borderRadius: BorderRadius.circular(2),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        l10n.reminders_daily_title,
+                        style: Theme.of(ctx).textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        l10n.reminders_subtitle,
+                        style: Theme.of(ctx).textTheme.bodySmall?.copyWith(
+                          color: isDark ? Colors.white60 : Colors.black54,
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      // Time tap row
+                      InkWell(
+                        onTap: reminderEnabled ? pickTime : null,
+                        borderRadius: BorderRadius.circular(12),
+                        child: Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 14,
+                          ),
+                          decoration: BoxDecoration(
+                            color: isDark
+                                ? Colors.white.withValues(alpha: 0.07)
+                                : Colors.black.withValues(alpha: 0.04),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Text(
+                            formatRoutineTime(selectedTime),
+                            style: Theme.of(ctx)
+                                .textTheme
+                                .headlineSmall
+                                ?.copyWith(
+                              fontWeight: FontWeight.w600,
+                              color: reminderEnabled
+                                  ? null
+                                  : (isDark
+                                      ? Colors.white38
+                                      : Colors.black26),
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      // Remind me toggle
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            l10n.reminders_remind_me,
+                            style: Theme.of(ctx).textTheme.bodyLarge,
+                          ),
+                          Switch(
+                            value: reminderEnabled,
+                            onChanged: (v) =>
+                                setSheetState(() => reminderEnabled = v),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 24),
+                      // Save button
+                      SizedBox(
+                        width: double.infinity,
+                        child: FilledButton(
+                          onPressed: isSaving ? null : save,
+                          style: FilledButton.styleFrom(
+                            backgroundColor: isDark
+                                ? Colors.white
+                                : Colors.black,
+                            foregroundColor: isDark
+                                ? Colors.black
+                                : Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          child: isSaving
+                              ? const SizedBox(
+                                  height: 20,
+                                  width: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                  ),
+                                )
+                              : Text(l10n.save),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
   void _showUnenrollDialog(BuildContext context) {
-    final localizations = context.l10n;
-    final locale = ref.watch(localeProvider);
-    final language = locale.languageCode;
-    final fontSize = language == 'bo' || language == 'BO' ? 16.0 : 14.0;
+    final l10n = context.l10n;
     showDialog(
       context: context,
       builder: (BuildContext dialogContext) {
         return AlertDialog(
-          title: Text(localizations.plan_unenroll),
-          content: Text(
-            language == 'bo' || language == 'BO'
-                ? '${widget.plan.title} ${localizations.unenroll_confirmation}\n\n ${localizations.unenroll_message}'
-                : '${localizations.unenroll_confirmation} "${widget.plan.title}"?\n\n ${localizations.unenroll_message}',
-            style: TextStyle(fontSize: fontSize),
-          ),
+          title: Text(l10n.plan_unenroll_title),
+          content: Text(l10n.plan_unenroll_body),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(dialogContext).pop(),
-              child: Text(
-                localizations.cancel,
-                style: TextStyle(fontSize: fontSize),
-              ),
+              child: Text(l10n.cancel),
             ),
             FilledButton(
               onPressed: () {
@@ -449,10 +1075,7 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
               style: FilledButton.styleFrom(
                 backgroundColor: Theme.of(context).colorScheme.error,
               ),
-              child: Text(
-                localizations.plan_unenroll,
-                style: TextStyle(fontSize: fontSize),
-              ),
+              child: Text(l10n.plan_unenroll),
             ),
           ],
         );
@@ -460,7 +1083,6 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
     );
   }
 
-  // ignore: unused_element
   Future<void> _handleUnenroll() async {
     try {
       final resultEither = await ref.read(
@@ -591,6 +1213,34 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
               ),
             ),
           ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Small outlined pill badge used for plan day-status labels
+/// ("Just started", "Last day", etc.).
+class _StatusBadge extends StatelessWidget {
+  const _StatusBadge({required this.label, required this.color});
+
+  final String label;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: color.withValues(alpha: 0.6)),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          fontSize: 12,
+          color: color,
+          fontWeight: FontWeight.w500,
         ),
       ),
     );

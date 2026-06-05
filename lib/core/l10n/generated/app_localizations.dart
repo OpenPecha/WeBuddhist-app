@@ -676,6 +676,150 @@ abstract class AppLocalizations {
   /// **'Your progress will be permanently lost and cannot be recovered'**
   String get unenroll_message;
 
+  /// No description provided for @plan_options_about.
+  ///
+  /// In en, this message translates to:
+  /// **'About'**
+  String get plan_options_about;
+
+  /// No description provided for @plan_options_reminders.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminders'**
+  String get plan_options_reminders;
+
+  /// No description provided for @reminders_daily_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily reminder'**
+  String get reminders_daily_title;
+
+  /// No description provided for @reminders_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Change when we remind you, or turn reminders off.'**
+  String get reminders_subtitle;
+
+  /// No description provided for @reminders_remind_me.
+  ///
+  /// In en, this message translates to:
+  /// **'Remind me'**
+  String get reminders_remind_me;
+
+  /// No description provided for @reminders_not_in_routine.
+  ///
+  /// In en, this message translates to:
+  /// **'Add this plan to your routine first to set a reminder.'**
+  String get reminders_not_in_routine;
+
+  /// No description provided for @reminders_updated.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminder updated to {time}'**
+  String reminders_updated(String time);
+
+  /// No description provided for @reminders_turned_off.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminders turned off'**
+  String get reminders_turned_off;
+
+  /// No description provided for @series_unenroll_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Unenroll from this series?'**
+  String get series_unenroll_title;
+
+  /// No description provided for @series_unenroll_body.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'ll lose all your progress in this series. You can re-enroll any time.'**
+  String get series_unenroll_body;
+
+  /// No description provided for @plan_unenroll_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Unenroll from this plan?'**
+  String get plan_unenroll_title;
+
+  /// No description provided for @plan_unenroll_body.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'ll lose all your progress in this plan. You can re-enroll any time.'**
+  String get plan_unenroll_body;
+
+  /// No description provided for @about_this_plan.
+  ///
+  /// In en, this message translates to:
+  /// **'About this plan'**
+  String get about_this_plan;
+
+  /// No description provided for @celebration_day_done.
+  ///
+  /// In en, this message translates to:
+  /// **'DAY DONE'**
+  String get celebration_day_done;
+
+  /// No description provided for @celebration_day_complete.
+  ///
+  /// In en, this message translates to:
+  /// **'Day {day} of {total} complete.'**
+  String celebration_day_complete(int day, int total);
+
+  /// No description provided for @celebration_day_body.
+  ///
+  /// In en, this message translates to:
+  /// **'You showed up. Same time tomorrow.'**
+  String get celebration_day_body;
+
+  /// No description provided for @celebration_back_to_home.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to home'**
+  String get celebration_back_to_home;
+
+  /// No description provided for @celebration_plan_done.
+  ///
+  /// In en, this message translates to:
+  /// **'PLAN DONE'**
+  String get celebration_plan_done;
+
+  /// No description provided for @celebration_plan_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'The next begins when you\'re ready.'**
+  String get celebration_plan_subtitle;
+
+  /// No description provided for @celebration_plan_days.
+  ///
+  /// In en, this message translates to:
+  /// **'{days, plural, =1{1 day} other{{days} days}}'**
+  String celebration_plan_days(int days);
+
+  /// No description provided for @celebration_continue_to.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue to {title} →'**
+  String celebration_continue_to(String title);
+
+  /// No description provided for @celebration_series_done.
+  ///
+  /// In en, this message translates to:
+  /// **'SERIES DONE'**
+  String get celebration_series_done;
+
+  /// No description provided for @celebration_series_find_another.
+  ///
+  /// In en, this message translates to:
+  /// **'Find another series'**
+  String get celebration_series_find_another;
+
+  /// No description provided for @celebration_series_stay.
+  ///
+  /// In en, this message translates to:
+  /// **'Stay & revisit any plan'**
+  String get celebration_series_stay;
+
   /// No description provided for @practice_plan.
   ///
   /// In en, this message translates to:
@@ -1299,6 +1443,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Unable to load audio. Check your connection and try again'**
   String get prayer_audio_load_error;
+
+  /// No description provided for @home_featured.
+  ///
+  /// In en, this message translates to:
+  /// **'Featured'**
+  String get home_featured;
+
+  /// No description provided for @home_continue_today.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue today'**
+  String get home_continue_today;
+
+  /// No description provided for @home_explore_more.
+  ///
+  /// In en, this message translates to:
+  /// **'Browse Buddhist content'**
+  String get home_explore_more;
+
+  /// No description provided for @home_series_n_plans.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 plan} other{{count} plans}}'**
+  String home_series_n_plans(int count);
+
+  /// No description provided for @home_series_n_days.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 day} other{{count} days}}'**
+  String home_series_n_days(int count);
+
+  /// No description provided for @home_series_progress.
+  ///
+  /// In en, this message translates to:
+  /// **'{percent}% complete'**
+  String home_series_progress(int percent);
+
+  /// No description provided for @home_series_in_progress.
+  ///
+  /// In en, this message translates to:
+  /// **'In progress'**
+  String get home_series_in_progress;
+
+  /// No description provided for @home_series_about_creator.
+  ///
+  /// In en, this message translates to:
+  /// **'About the creator'**
+  String get home_series_about_creator;
+
+  /// No description provided for @home_series_included_plans.
+  ///
+  /// In en, this message translates to:
+  /// **'Included plans'**
+  String get home_series_included_plans;
+
+  /// No description provided for @home_series_view_creator_page.
+  ///
+  /// In en, this message translates to:
+  /// **'View {name}\'s page →'**
+  String home_series_view_creator_page(String name);
 
   /// No description provided for @home_no_series_found.
   ///
@@ -2547,6 +2751,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'On Track!'**
   String get plan_status_on_track;
+
+  /// No description provided for @plan_status_just_started.
+  ///
+  /// In en, this message translates to:
+  /// **'Just started'**
+  String get plan_status_just_started;
+
+  /// No description provided for @plan_status_last_day.
+  ///
+  /// In en, this message translates to:
+  /// **'Last day'**
+  String get plan_status_last_day;
 
   /// No description provided for @start_now.
   ///

@@ -96,6 +96,51 @@
   "plan_unenroll": "ཉམས་ལེན་ནས་ཕྱིར་ཐོན།",
   "unenroll_confirmation": "ནས་ཕྱིར་འཐེན་བྱེད་རྒྱུ་གཏན་ཁེལ་ཡིན་ནམ།",
   "unenroll_message": "ཉམས་ལེན་ནས་ཕྱིར་ཐོན་ཚེ་དེ་དང་འབྲེལ་ཡོད་གནས་ཚུལ་མེད་པར་འགྱུར་གྱི་རེད།",
+  "plan_options_about": "About",
+  "plan_options_reminders": "Reminders",
+  "reminders_daily_title": "Daily reminder",
+  "reminders_subtitle": "Change when we remind you, or turn reminders off.",
+  "reminders_remind_me": "Remind me",
+  "reminders_not_in_routine": "Add this plan to your routine first to set a reminder.",
+  "reminders_updated": "Reminder updated to {time}",
+  "@reminders_updated": {
+    "placeholders": {
+      "time": { "type": "String" }
+    }
+  },
+  "reminders_turned_off": "Reminders turned off",
+  "series_unenroll_title": "Unenroll from this series?",
+  "series_unenroll_body": "You'll lose all your progress in this series. You can re-enroll any time.",
+  "plan_unenroll_title": "Unenroll from this plan?",
+  "plan_unenroll_body": "You'll lose all your progress in this plan. You can re-enroll any time.",
+  "about_this_plan": "About this plan",
+  "celebration_day_done": "DAY DONE",
+  "celebration_day_complete": "Day {day} of {total} complete.",
+  "@celebration_day_complete": {
+    "placeholders": {
+      "day": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "celebration_day_body": "You showed up. Same time tomorrow.",
+  "celebration_back_to_home": "Back to home",
+  "celebration_plan_done": "PLAN DONE",
+  "celebration_plan_subtitle": "The next begins when you're ready.",
+  "celebration_plan_days": "{days, plural, =1{1 day} other{{days} days}}",
+  "@celebration_plan_days": {
+    "placeholders": {
+      "days": { "type": "int" }
+    }
+  },
+  "celebration_continue_to": "Continue to {title} →",
+  "@celebration_continue_to": {
+    "placeholders": {
+      "title": { "type": "String" }
+    }
+  },
+  "celebration_series_done": "SERIES DONE",
+  "celebration_series_find_another": "Find another series",
+  "celebration_series_stay": "Stay & revisit any plan",
   "practice_plan": "ཉམས་ལེན་འཆར་གཞི་ཡིས་ཁྱེད་རང་ཉམས་ལེན་ལ་རྒྱུན་མཐུད་ནས་གནས་པར་རོགས་རམ་བྱེད་ཀྱི་ཡོད། ང་ཚོར་འདེམས་རྒྱུའི་འཆར་གཞི་སྣ་ཚོགས་ཡོད་པ་དང་དུས་ཡུན་མི་འདྲ་བ་ཡོད།",
   "search_plans": "ཉམས་ལེན་འཚོལ།",
   "search_for_plans": "ཉམས་ལེན་འཚོལ་ཞིབ་བྱེད།",
@@ -210,6 +255,36 @@
   "audio_init_error": "སྒྲ་གཏོང་ཐུབ་མ་སོང་བས། རྗེས་ནས་ཚོད་ལྟ་བྱེད་རོགས།",
   "meditation_audio_load_error": "Unable to load. Check your connection and try again",
   "prayer_audio_load_error": "Unable to load audio. Check your connection and try again",
+  "home_featured": "Featured",
+  "home_continue_today": "Continue today",
+  "home_explore_more": "Browse Buddhist content",
+  "home_series_n_plans": "{count, plural, =1{1 plan} other{{count} plans}}",
+  "@home_series_n_plans": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "home_series_n_days": "{count, plural, =1{1 day} other{{count} days}}",
+  "@home_series_n_days": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "home_series_progress": "{percent}% complete",
+  "@home_series_progress": {
+    "placeholders": {
+      "percent": { "type": "int" }
+    }
+  },
+  "home_series_in_progress": "In progress",
+  "home_series_about_creator": "About the creator",
+  "home_series_included_plans": "Included plans",
+  "home_series_view_creator_page": "View {name}'s page →",
+  "@home_series_view_creator_page": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
   "home_no_series_found": "རིམ་པ་ཅན་རྙེད་མ་སོང་།",
   "home_no_tags_found": "No tags found",
   "home_celebrated_by": "སྤེལ་མཁན་ནི་ ",
@@ -554,6 +629,8 @@
   },
   "plan_enrolled": "Enrolled",
   "plan_status_on_track": "On Track!",
+  "plan_status_just_started": "Just started",
+  "plan_status_last_day": "Last day",
   "start_now": "ད་ལྟ་འགོ་འཛུགས།",
   "plan_enroll": "ཞུགས་སྒྲིག",
   "plan_starts_on": "འགོ་འཛུགས། {date}",

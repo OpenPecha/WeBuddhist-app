@@ -11,16 +11,20 @@ import 'package:flutter_pecha/core/services/upgrade/upgrade_provider.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/core/widgets/error_state_widget.dart';
 import 'package:flutter_pecha/core/widgets/skeletons/skeletons.dart';
+import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
 import 'package:flutter_pecha/features/home/domain/entities/series.dart';
+import 'package:flutter_pecha/features/home/presentation/providers/series_enrollment_provider.dart';
 import 'package:flutter_pecha/features/home/presentation/providers/series_provider.dart';
 import 'package:flutter_pecha/features/home/presentation/home_screen_constants.dart';
+import 'package:flutter_pecha/features/home/presentation/widgets/continue_today_card.dart';
+import 'package:flutter_pecha/features/home/presentation/widgets/featured_series_card.dart';
 import 'package:flutter_pecha/features/home/presentation/widgets/series_card.dart';
 import 'package:flutter_pecha/features/notifications/application/plan_enrollment_hook.dart';
 import 'package:flutter_pecha/features/notifications/application/special_plan_enrollment_hook.dart';
 import 'package:flutter_pecha/features/plans/data/utils/plan_utils.dart';
-import 'package:flutter_pecha/features/practice/presentation/providers/routine_provider.dart';
+import 'package:flutter_pecha/features/plans/presentation/providers/my_plans_paginated_provider.dart';
 import 'package:flutter_pecha/features/plans/presentation/providers/user_plans_provider.dart';
-import 'package:flutter_pecha/shared/utils/helper_functions.dart';
+import 'package:flutter_pecha/features/practice/presentation/providers/routine_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:logging/logging.dart';
@@ -38,14 +42,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   bool _hasRequestedPermissions = false;
   bool _showUpdateBanner = false;
 
-  // For proper keyboard dismissal with SearchAnchor
   final FocusScopeNode _searchFocusScopeNode = FocusScopeNode();
   bool _didJustDismissSearch = false;
 
   @override
   void initState() {
     super.initState();
-    // Request notification permissions when home screen loads
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _requestNotificationPermissionsIfNeeded();
     });
@@ -75,7 +77,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     }
 
     try {
-      // Check if permissions are already granted
       final alreadyEnabled =
           await notificationService.areNotificationsEnabled();
       _log.info('[HOME-SCREEN] alreadyEnabled=$alreadyEnabled');
@@ -90,20 +91,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       );
     }
 
-    // Permission flow has run — fire any pending special-plan Day 1
-    // notifications now (e.g. user just enrolled in ITCC during onboarding
-    // after 09:00). Without permission, `_plugin.show()` silently no-ops, so
-    // this MUST run after the permission request above.
     await _firePendingSpecialPlanDay1IfNeeded();
-
-    // After the permission flow (dialog shown or already granted), check
-    // whether onboarding left a plan waiting to be opened in Practice.
     _navigateToPendingPlanIfNeeded();
   }
 
   Future<void> _firePendingSpecialPlanDay1IfNeeded() async {
-    // Invalidate first — the provider may have been evaluated pre-login
-    // (no auth header) and cached a Forbidden failure. We need a fresh read.
     _log.info('invalidating userPlansFutureProvider for fresh fetch');
     ref.invalidate(userPlansFutureProvider);
 
@@ -153,19 +145,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     _log.info('_firePendingSpecialPlanDay1IfNeeded EXIT');
   }
 
-  /// Consumes [pendingOnboardingPlanProvider] and navigates to the Practice
-  /// tab + plan detail screen. Called once, right after notification setup.
   void _navigateToPendingPlanIfNeeded() {
     if (!mounted) return;
     final plan = ref.read(pendingOnboardingPlanProvider);
     if (plan == null) return;
 
-    // Clear immediately so back-navigation never re-triggers this.
     ref.read(pendingOnboardingPlanProvider.notifier).state = null;
 
-    // Push plan details FIRST while HomeScreen is still mounted.
-    // Switching the tab index BEFORE the push would unmount HomeScreen,
-    // making the subsequent context.push a no-op.
     final anchor = plan.effectiveStartDate;
     final selectedDay = PlanUtils.dayNumberFor(
       anchor,
@@ -184,23 +170,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       extra: {'plan': plan, 'selectedDay': selectedDay, 'startDate': anchor},
     );
 
-    // Switch bottom-nav to Practice so popping back from plan details
-    // lands on the Practice tab rather than Home.
     ref.read(mainNavigationIndexProvider.notifier).state =
         MainTab.practice.index;
   }
 
-  /// Pull-to-refresh handler. Invalidates the series list and awaits the
-  /// refreshed result so the RefreshIndicator spinner stays until data lands.
   Future<void> _onRefresh() async {
     ref.invalidate(seriesListFutureProvider);
     await ref.read(seriesListFutureProvider.future);
-  }
-
-  /// Manual refetch/retry method that can be called from UI.
-  /// Reuses the same logic as pull-to-refresh for consistent behavior.
-  void _refetchSeries() {
-    _onRefresh();
   }
 
   void _navigateToSeries(Series series) {
@@ -211,12 +187,17 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 
+  String _buildGreeting(AppLocalizations l10n) {
+    final hour = DateTime.now().hour;
+    if (hour < 12) return l10n.home_good_morning;
+    if (hour < 17) return l10n.home_good_afternoon;
+    return l10n.home_good_evening;
+  }
+
   @override
   Widget build(BuildContext context) {
-    final seriesAsync = ref.watch(seriesListFutureProvider);
     final l10n = context.l10n;
 
-    // Check for app updates (only show once per app session)
     final updateAvailable = ref.watch(updateAvailableProvider);
     final bannerAlreadyShown = ref.watch(updateBannerShownProvider);
 
@@ -225,52 +206,35 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (mounted) {
             setState(() => _showUpdateBanner = true);
-            // Mark as shown so it won't appear again this session
             ref.read(updateBannerShownProvider.notifier).state = true;
           }
         });
       }
     });
 
+    final seriesAsync = ref.watch(seriesListFutureProvider);
+    final userState = ref.watch(userProvider);
+    final firstName = userState.user?.firstName?.trim() ?? '';
+    final greeting =
+        firstName.isNotEmpty
+            ? '${_buildGreeting(l10n)}, $firstName'
+            : _buildGreeting(l10n);
+
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      appBar: AppBar(
-        scrolledUnderElevation: 0,
-        centerTitle: false,
-        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-        title: Text(
-          l10n.nav_home,
-          strutStyle: context.tibetanStrutStyle(
-            Theme.of(context).textTheme.headlineMedium?.fontSize ?? 28,
-          ),
-          style: Theme.of(
-            context,
-          ).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
-        ),
-      ),
       body: SafeArea(
         child: Stack(
           children: [
-            Column(
-              children: [
-                _buildSearchSection(l10n, seriesAsync),
-                SizedBox(height: HomeScreenConstants.bodyVerticalPadding),
-                _buildBody(context, l10n),
-              ],
-            ),
+            _buildScrollBody(context, l10n, greeting, seriesAsync),
             if (_showUpdateBanner)
               Positioned(
                 left: 0,
                 right: 0,
                 bottom: 0,
                 child: UpdateBanner(
-                  onUpdateTap: () {
-                    ref.read(openAppStoreProvider)();
-                  },
+                  onUpdateTap: () => ref.read(openAppStoreProvider)(),
                   onDismissed: () {
-                    if (mounted) {
-                      setState(() => _showUpdateBanner = false);
-                    }
+                    if (mounted) setState(() => _showUpdateBanner = false);
                   },
                 ),
               ),
@@ -280,258 +244,383 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 
-  TextStyle _searchHintTextStyle(BuildContext context) {
-    final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
-    return TextStyle(
-      fontSize: 16,
-      color: isDarkMode ? AppColors.textTertiaryDark : AppColors.textSecondary,
-    );
-  }
-
-  Widget _buildSearchSection(
-    AppLocalizations localizations,
+  Widget _buildScrollBody(
+    BuildContext context,
+    AppLocalizations l10n,
+    String greeting,
     AsyncValue<Either<Failure, List<Series>>> seriesAsync,
   ) {
-    final locale = ref.watch(localeProvider);
-    final lineHeight = getLineHeight(locale.languageCode);
-    final fontSize = locale.languageCode == 'bo' ? 18.0 : 16.0;
-    final TextStyle searchHintStyle = _searchHintTextStyle(context);
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-      child: seriesAsync.when(
-        data: (seriesEither) {
-          return seriesEither.fold(
-            (failure) => const SizedBox.shrink(),
-            (seriesList) => FocusScope(
-              node: _searchFocusScopeNode,
-              onFocusChange: (isFocused) {
-                if (_didJustDismissSearch && isFocused) {
-                  _didJustDismissSearch = false;
-                  _searchFocusScopeNode.unfocus();
-                }
-              },
-              child: SearchAnchor(
-                builder: (BuildContext context, SearchController controller) {
-                  return SearchBar(
-                    controller: controller,
-                    constraints: HomeScreenConstants.searchBarConstraints,
-                    padding: const WidgetStatePropertyAll<EdgeInsets>(
-                      EdgeInsets.symmetric(
-                        horizontal:
-                            HomeScreenConstants.searchBarHorizontalPadding,
-                      ),
-                    ),
-                    elevation: const WidgetStatePropertyAll(0.0),
-                    shadowColor: const WidgetStatePropertyAll(
-                      Colors.transparent,
-                    ),
-                    onTap: () {
-                      controller.openView();
-                    },
-                    onChanged: (_) {
-                      controller.openView();
-                    },
-                    leading: Icon(
-                      Icons.search,
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
-                    hintText: localizations.text_search,
-                    hintStyle: WidgetStatePropertyAll(searchHintStyle),
-                  );
-                },
-                viewLeading: IconButton(
-                  icon: const Icon(Icons.arrow_back_ios),
-                  onPressed: () {
-                    _didJustDismissSearch = true;
-                    Navigator.of(context).pop();
-                  },
-                ),
-                suggestionsBuilder: (
-                  BuildContext context,
-                  SearchController controller,
-                ) {
-                  final query = controller.text.toLowerCase();
-                  final filtered =
-                      query.isEmpty
-                          ? seriesList
-                          : seriesList
-                              .where(
-                                (s) => s.title.toLowerCase().contains(query),
-                              )
-                              .toList();
-
-                  if (filtered.isEmpty) {
-                    return [
-                      Padding(
-                        padding: const EdgeInsets.all(32.0),
-                        child: Center(
-                          child: Text(
-                            localizations.home_no_series_found,
-                            style: TextStyle(
-                              fontSize: fontSize,
-                              height: lineHeight,
-                              color:
-                                  Theme.of(
-                                    context,
-                                  ).colorScheme.onSurfaceVariant,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ];
-                  }
-
-                  return filtered.map((series) {
-                    return ListTile(
-                      leading: Icon(
-                        Icons.tag,
-                        size: 20,
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
-                      title: Text(
-                        series.title,
-                        style: TextStyle(
-                          fontSize: fontSize,
-                          fontWeight: FontWeight.w500,
-                          height: lineHeight,
-                        ),
-                      ),
-                      trailing: Icon(
-                        Icons.arrow_forward_ios,
-                        size: 16,
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
-                      onTap: () {
-                        _didJustDismissSearch = true;
-                        controller.closeView(series.title);
-                        _log.info('Series selected from search: ${series.id}');
-                        _navigateToSeries(series);
-                      },
-                    );
-                  }).toList();
-                },
+    return RefreshIndicator(
+      onRefresh: _onRefresh,
+      child: CustomScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        slivers: [
+          // ── Greeting app bar ──────────────────────────────────────────
+          SliverAppBar(
+            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+            scrolledUnderElevation: 0,
+            pinned: false,
+            floating: true,
+            snap: true,
+            title: Text(
+              greeting,
+              strutStyle: context.tibetanStrutStyle(
+                Theme.of(context).textTheme.headlineSmall?.fontSize ?? 24,
+              ),
+              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                fontWeight: FontWeight.bold,
               ),
             ),
-          );
-        },
-        loading:
-            () => SearchBar(
-              constraints: HomeScreenConstants.searchBarConstraints,
-              padding: const WidgetStatePropertyAll<EdgeInsets>(
-                EdgeInsets.symmetric(
-                  horizontal: HomeScreenConstants.searchBarHorizontalPadding,
+            actions: [
+              _buildSearchAction(l10n, seriesAsync),
+              const SizedBox(width: 4),
+            ],
+          ),
+
+          // ── Content body ─────────────────────────────────────────────
+          seriesAsync.when(
+            data: (seriesEither) => seriesEither.fold(
+              (failure) => SliverFillRemaining(
+                child: ErrorStateWidget(
+                  error: failure,
+                  onRetry: _onRefresh,
                 ),
               ),
-              enabled: false,
-              elevation: const WidgetStatePropertyAll(0.0),
-              leading: Icon(
-                Icons.search,
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
-              hintText: localizations.text_search,
-              hintStyle: WidgetStatePropertyAll(searchHintStyle),
+              (seriesList) => _buildSeriesSections(context, l10n, seriesList),
             ),
-        error:
-            (_, __) => SearchBar(
-              constraints: HomeScreenConstants.searchBarConstraints,
-              padding: const WidgetStatePropertyAll<EdgeInsets>(
-                EdgeInsets.symmetric(
-                  horizontal: HomeScreenConstants.searchBarHorizontalPadding,
-                ),
-              ),
-              enabled: false,
-              leading: Icon(
-                Icons.search,
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
-              hintText: localizations.text_search,
-              hintStyle: WidgetStatePropertyAll(searchHintStyle),
+            loading: () => const SliverFillRemaining(
+              child: TagGridSkeleton(),
             ),
+            error: (error, _) => SliverFillRemaining(
+              child: ErrorStateWidget(
+                error: error,
+                onRetry: _onRefresh,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
 
-  Widget _buildBody(BuildContext context, AppLocalizations localizations) {
-    final seriesAsync = ref.watch(seriesListFutureProvider);
-    final language = ref.watch(localeProvider).languageCode;
-    final fontSize = language == 'bo' ? 22.0 : 18.0;
+  Widget _buildSeriesSections(
+    BuildContext context,
+    AppLocalizations l10n,
+    List<Series> seriesList,
+  ) {
+    if (seriesList.isEmpty) {
+      return SliverFillRemaining(
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(HomeScreenConstants.emptyStatePadding),
+            child: Text(
+              l10n.no_feature_content,
+              style: const TextStyle(fontSize: 18),
+              textAlign: TextAlign.center,
+            ),
+          ),
+        ),
+      );
+    }
 
-    return Expanded(
-      child: RefreshIndicator(
-        onRefresh: _onRefresh,
-        child: seriesAsync.when(
-          data: (seriesEither) {
-            return seriesEither.fold(
-              (failure) => _buildScrollableMessage(
-                ErrorStateWidget(error: failure, onRetry: _refetchSeries),
+    final enrolledIds =
+        ref.watch(userSeriesEnrollmentsProvider).valueOrNull ?? const <String>{};
+    final myPlansState = ref.watch(myPlansPaginatedProvider);
+
+    // Split series into featured, enrolled (continue today), and explore more.
+    final featured = seriesList.where((s) => s.featured).toList();
+    final featuredSeries = featured.isNotEmpty ? featured.first : seriesList.first;
+
+    final enrolledSeries =
+        seriesList.where((s) => enrolledIds.contains(s.id)).toList();
+
+    final exploreSeries =
+        seriesList
+            .where((s) => !enrolledIds.contains(s.id) && s.id != featuredSeries.id)
+            .toList();
+    // If the featured series is enrolled, include it in explore only if not enrolled.
+    final exploreSeriesWithFeatured =
+        enrolledIds.contains(featuredSeries.id)
+            ? exploreSeries
+            : [
+                if (!exploreSeries.any((s) => s.id == featuredSeries.id))
+                  // featured already shown above; don't duplicate in grid
+                  ...exploreSeries
+                else
+                  ...exploreSeries,
+              ];
+
+    return SliverList(
+      delegate: SliverChildListDelegate([
+        // ── Search bar ─────────────────────────────────────────────────
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: _buildSearchBar(l10n, seriesList),
+        ),
+
+        // ── Featured ───────────────────────────────────────────────────
+        if (!enrolledIds.contains(featuredSeries.id)) ...[
+          _buildSectionHeader(context, l10n.home_featured),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: FeaturedSeriesCard(
+              series: featuredSeries,
+              onTap: () => _navigateToSeries(featuredSeries),
+              creatorName: _creatorNameFor(featuredSeries),
+            ),
+          ),
+        ],
+
+        // ── Continue today ─────────────────────────────────────────────
+        if (enrolledSeries.isNotEmpty) ...[
+          _buildSectionHeader(context, l10n.home_continue_today),
+          ...enrolledSeries.map((series) {
+            final progress = _computeProgress(series, myPlansState);
+            return Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+              child: ContinueTodayCard(
+                series: series,
+                onTap: () => _navigateToSeries(series),
+                creatorName: _creatorNameFor(series),
+                progressPercent: progress?.percent,
+                currentPlanLabel: progress?.label,
               ),
-              (seriesList) {
-                if (seriesList.isEmpty) {
-                  return _buildScrollableMessage(
-                    Padding(
-                      padding: const EdgeInsets.all(
-                        HomeScreenConstants.emptyStatePadding,
-                      ),
-                      child: Text(
-                        localizations.no_feature_content,
-                        style: TextStyle(fontSize: fontSize),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                  );
-                }
+            );
+          }),
+        ],
 
-                return GridView.builder(
-                  physics: const AlwaysScrollableScrollPhysics(),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: HomeScreenConstants.bodyHorizontalPadding,
-                    vertical: HomeScreenConstants.bodyVerticalPadding,
-                  ),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 8,
-                    mainAxisSpacing: 8,
-                    childAspectRatio: 1.3,
-                  ),
-                  itemCount: seriesList.length,
-                  itemBuilder: (context, index) {
-                    final series = seriesList[index];
-                    return SeriesCard(
-                      series: series,
-                      onTap: () {
-                        _log.info('Series tapped: ${series.id}');
-                        _navigateToSeries(series);
-                      },
-                    );
-                  },
+        // ── Explore more ───────────────────────────────────────────────
+        if (exploreSeriesWithFeatured.isNotEmpty) ...[
+          _buildSectionHeader(context, l10n.home_explore_more),
+          Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: HomeScreenConstants.bodyHorizontalPadding,
+            ),
+            child: GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                crossAxisSpacing: 8,
+                mainAxisSpacing: 8,
+                childAspectRatio: 1.3,
+              ),
+              itemCount: exploreSeriesWithFeatured.length,
+              itemBuilder: (context, index) {
+                final series = exploreSeriesWithFeatured[index];
+                return SeriesCard(
+                  series: series,
+                  onTap: () => _navigateToSeries(series),
                 );
               },
-            );
-          },
-          loading: () => const TagGridSkeleton(),
-          error:
-              (error, stackTrace) => _buildScrollableMessage(
-                ErrorStateWidget(error: error, onRetry: _refetchSeries),
-              ),
+            ),
+          ),
+        ],
+
+        const SizedBox(height: 32),
+      ]),
+    );
+  }
+
+  Widget _buildSectionHeader(BuildContext context, String title) {
+    final locale = ref.watch(localeProvider);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final labelColor =
+        isDark ? AppColors.textTertiaryDark : AppColors.textSecondary;
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 24, 16, 12),
+      child: Text(
+        title.toUpperCase(),
+        strutStyle: context.tibetanStrutStyle(
+          Theme.of(context).textTheme.labelMedium?.fontSize ?? 12,
+        ),
+        style: Theme.of(context).textTheme.labelMedium?.copyWith(
+          color: labelColor,
+          fontWeight: FontWeight.w600,
+          letterSpacing: locale.languageCode == 'bo' ? 0 : 1.2,
         ),
       ),
     );
   }
 
-  /// Wraps a non-scrollable state (empty / error) in an always-scrollable
-  /// viewport so pull-to-refresh works even when there is no grid content.
-  Widget _buildScrollableMessage(Widget child) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        return SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          child: ConstrainedBox(
-            constraints: BoxConstraints(minHeight: constraints.maxHeight),
-            child: Center(child: child),
-          ),
-        );
-      },
+  // ── Search ──────────────────────────────────────────────────────────────
+
+  Widget _buildSearchAction(
+    AppLocalizations l10n,
+    AsyncValue<Either<Failure, List<Series>>> seriesAsync,
+  ) {
+    final seriesList =
+        seriesAsync.whenOrNull(data: (e) => e.fold((_) => null, (l) => l)) ??
+        <Series>[];
+    return IconButton(
+      icon: const Icon(Icons.search),
+      tooltip: l10n.text_search,
+      onPressed: () => _showSearchSheet(context, l10n, seriesList),
     );
   }
+
+  Widget _buildSearchBar(AppLocalizations l10n, List<Series> seriesList) {
+    final locale = ref.watch(localeProvider);
+    final fontSize = locale.languageCode == 'bo' ? 18.0 : 16.0;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final hintColor =
+        isDark ? AppColors.textTertiaryDark : AppColors.textSecondary;
+
+    return FocusScope(
+      node: _searchFocusScopeNode,
+      onFocusChange: (isFocused) {
+        if (_didJustDismissSearch && isFocused) {
+          _didJustDismissSearch = false;
+          _searchFocusScopeNode.unfocus();
+        }
+      },
+      child: SearchAnchor(
+        builder: (context, controller) => SearchBar(
+          controller: controller,
+          constraints: HomeScreenConstants.searchBarConstraints,
+          padding: const WidgetStatePropertyAll<EdgeInsets>(
+            EdgeInsets.symmetric(
+              horizontal: HomeScreenConstants.searchBarHorizontalPadding,
+            ),
+          ),
+          elevation: const WidgetStatePropertyAll(0.0),
+          shadowColor: const WidgetStatePropertyAll(Colors.transparent),
+          onTap: controller.openView,
+          onChanged: (_) => controller.openView(),
+          leading: Icon(
+            Icons.search,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
+          hintText: l10n.text_search,
+          hintStyle: WidgetStatePropertyAll(
+            TextStyle(fontSize: fontSize, color: hintColor),
+          ),
+        ),
+        viewLeading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios),
+          onPressed: () {
+            _didJustDismissSearch = true;
+            Navigator.of(context).pop();
+          },
+        ),
+        suggestionsBuilder: (context, controller) {
+          final query = controller.text.toLowerCase();
+          final filtered =
+              query.isEmpty
+                  ? seriesList
+                  : seriesList
+                      .where((s) => s.title.toLowerCase().contains(query))
+                      .toList();
+
+          if (filtered.isEmpty) {
+            return [
+              Padding(
+                padding: const EdgeInsets.all(32),
+                child: Center(
+                  child: Text(
+                    l10n.home_no_series_found,
+                    style: TextStyle(
+                      fontSize: fontSize,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                ),
+              ),
+            ];
+          }
+
+          return filtered.map((series) => ListTile(
+            leading: Icon(
+              Icons.tag,
+              size: 20,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+            title: Text(
+              series.title,
+              style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.w500),
+            ),
+            trailing: Icon(
+              Icons.arrow_forward_ios,
+              size: 16,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+            onTap: () {
+              _didJustDismissSearch = true;
+              controller.closeView(series.title);
+              _navigateToSeries(series);
+            },
+          )).toList();
+        },
+      ),
+    );
+  }
+
+  void _showSearchSheet(
+    BuildContext context,
+    AppLocalizations l10n,
+    List<Series> seriesList,
+  ) {
+    // Handled inline by SearchAnchor in the bar — no separate sheet needed.
+  }
+
+  // ── Helpers ─────────────────────────────────────────────────────────────
+
+  /// Returns the author name from the first plan in the series, if available.
+  String? _creatorNameFor(Series series) {
+    if (series.plans.isEmpty) return null;
+    return series.plans.first.authorName;
+  }
+
+  /// Computes rough series progress from enrolled plan data.
+  _SeriesProgress? _computeProgress(
+    Series series,
+    MyPlansState myPlansState,
+  ) {
+    if (series.plans.isEmpty || series.totalDays <= 0) return null;
+
+    // Match series plans against user's enrolled plans.
+    final seriesPlanIds = series.plans.map((p) => p.id).toSet();
+    final enrolledUserPlans =
+        myPlansState.plans
+            .where((up) => seriesPlanIds.contains(up.id))
+            .toList();
+
+    if (enrolledUserPlans.isEmpty) return null;
+
+    // Compute total completed days across all enrolled plans.
+    int completedDays = 0;
+    for (final userPlan in enrolledUserPlans) {
+      final anchor = userPlan.effectiveStartDate;
+      final dayNum = PlanUtils.dayNumberFor(anchor, DateTime.now(), userPlan.totalDays);
+      // Days completed = current day - 1 (don't count today as "done" yet).
+      completedDays += (dayNum - 1).clamp(0, userPlan.totalDays);
+    }
+
+    final percent = ((completedDays / series.totalDays) * 100).round().clamp(0, 100);
+
+    // Find the current active plan (last enrolled plan that isn't fully done).
+    String? planLabel;
+    final sortedByStart =
+        [...enrolledUserPlans]..sort(
+          (a, b) => a.effectiveStartDate.compareTo(b.effectiveStartDate),
+        );
+    for (var i = 0; i < sortedByStart.length; i++) {
+      final up = sortedByStart[i];
+      final anchor = up.effectiveStartDate;
+      final dayNum = PlanUtils.dayNumberFor(anchor, DateTime.now(), up.totalDays);
+      if (dayNum <= up.totalDays) {
+        planLabel = 'Plan ${i + 1} · Day $dayNum';
+        break;
+      }
+    }
+
+    return _SeriesProgress(percent: percent, label: planLabel);
+  }
+}
+
+class _SeriesProgress {
+  final int percent;
+  final String? label;
+  const _SeriesProgress({required this.percent, this.label});
 }

@@ -96,6 +96,51 @@
   "plan_unenroll": "退出計畫",
   "unenroll_confirmation": "確定要退出嗎",
   "unenroll_message": "您的進度將被永久刪除，且無法復原",
+  "plan_options_about": "About",
+  "plan_options_reminders": "Reminders",
+  "reminders_daily_title": "Daily reminder",
+  "reminders_subtitle": "Change when we remind you, or turn reminders off.",
+  "reminders_remind_me": "Remind me",
+  "reminders_not_in_routine": "Add this plan to your routine first to set a reminder.",
+  "reminders_updated": "Reminder updated to {time}",
+  "@reminders_updated": {
+    "placeholders": {
+      "time": { "type": "String" }
+    }
+  },
+  "reminders_turned_off": "Reminders turned off",
+  "series_unenroll_title": "Unenroll from this series?",
+  "series_unenroll_body": "You'll lose all your progress in this series. You can re-enroll any time.",
+  "plan_unenroll_title": "Unenroll from this plan?",
+  "plan_unenroll_body": "You'll lose all your progress in this plan. You can re-enroll any time.",
+  "about_this_plan": "About this plan",
+  "celebration_day_done": "DAY DONE",
+  "celebration_day_complete": "Day {day} of {total} complete.",
+  "@celebration_day_complete": {
+    "placeholders": {
+      "day": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "celebration_day_body": "You showed up. Same time tomorrow.",
+  "celebration_back_to_home": "Back to home",
+  "celebration_plan_done": "PLAN DONE",
+  "celebration_plan_subtitle": "The next begins when you're ready.",
+  "celebration_plan_days": "{days, plural, =1{1 day} other{{days} days}}",
+  "@celebration_plan_days": {
+    "placeholders": {
+      "days": { "type": "int" }
+    }
+  },
+  "celebration_continue_to": "Continue to {title} →",
+  "@celebration_continue_to": {
+    "placeholders": {
+      "title": { "type": "String" }
+    }
+  },
+  "celebration_series_done": "SERIES DONE",
+  "celebration_series_find_another": "Find another series",
+  "celebration_series_stay": "Stay & revisit any plan",
   "practice_plan": "建立每日修持。探索適合您的內容",
   "search_plans": "搜尋計畫...",
   "search_for_plans": "搜尋計畫",
@@ -210,6 +255,36 @@
   "audio_init_error": "無法啟動播放器。請再試一次。",
   "meditation_audio_load_error": "無法載入。請檢查您的網路連線，然後再試一次。",
   "prayer_audio_load_error": "無法載入語音檔。請檢查您的網路連線後再試。",
+  "home_featured": "精選",
+  "home_continue_today": "繼續今日",
+  "home_explore_more": "瀏覽佛教內容",
+  "home_series_n_plans": "{count, plural, =1{1 個計畫} other{{count} 個計畫}}",
+  "@home_series_n_plans": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "home_series_n_days": "{count, plural, =1{1 天} other{{count} 天}}",
+  "@home_series_n_days": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "home_series_progress": "{percent}% 完成",
+  "@home_series_progress": {
+    "placeholders": {
+      "percent": { "type": "int" }
+    }
+  },
+  "home_series_in_progress": "進行中",
+  "home_series_about_creator": "關於創作者",
+  "home_series_included_plans": "包含的計畫",
+  "home_series_view_creator_page": "查看 {name} 的頁面 →",
+  "@home_series_view_creator_page": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
   "home_no_series_found": "找不到該系列",
   "home_no_tags_found": "找不到該標籤",
   "home_celebrated_by": "慶祝者：",
@@ -554,6 +629,8 @@
   },
   "plan_enrolled": "已加入",
   "plan_status_on_track": "進度正常！",
+  "plan_status_just_started": "剛開始",
+  "plan_status_last_day": "最後一天",
   "start_now": "立即開始",
   "plan_enroll": "加入",
   "plan_starts_on": "開始於 {date}",

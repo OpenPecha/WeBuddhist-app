@@ -304,6 +304,96 @@ class AppLocalizationsBo extends AppLocalizations {
       'ཉམས་ལེན་ནས་ཕྱིར་ཐོན་ཚེ་དེ་དང་འབྲེལ་ཡོད་གནས་ཚུལ་མེད་པར་འགྱུར་གྱི་རེད།';
 
   @override
+  String get plan_options_about => 'About';
+
+  @override
+  String get plan_options_reminders => 'Reminders';
+
+  @override
+  String get reminders_daily_title => 'Daily reminder';
+
+  @override
+  String get reminders_subtitle =>
+      'Change when we remind you, or turn reminders off.';
+
+  @override
+  String get reminders_remind_me => 'Remind me';
+
+  @override
+  String get reminders_not_in_routine =>
+      'Add this plan to your routine first to set a reminder.';
+
+  @override
+  String reminders_updated(String time) {
+    return 'Reminder updated to $time';
+  }
+
+  @override
+  String get reminders_turned_off => 'Reminders turned off';
+
+  @override
+  String get series_unenroll_title => 'Unenroll from this series?';
+
+  @override
+  String get series_unenroll_body =>
+      'You\'ll lose all your progress in this series. You can re-enroll any time.';
+
+  @override
+  String get plan_unenroll_title => 'Unenroll from this plan?';
+
+  @override
+  String get plan_unenroll_body =>
+      'You\'ll lose all your progress in this plan. You can re-enroll any time.';
+
+  @override
+  String get about_this_plan => 'About this plan';
+
+  @override
+  String get celebration_day_done => 'DAY DONE';
+
+  @override
+  String celebration_day_complete(int day, int total) {
+    return 'Day $day of $total complete.';
+  }
+
+  @override
+  String get celebration_day_body => 'You showed up. Same time tomorrow.';
+
+  @override
+  String get celebration_back_to_home => 'Back to home';
+
+  @override
+  String get celebration_plan_done => 'PLAN DONE';
+
+  @override
+  String get celebration_plan_subtitle => 'The next begins when you\'re ready.';
+
+  @override
+  String celebration_plan_days(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: '$days days',
+      one: '1 day',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String celebration_continue_to(String title) {
+    return 'Continue to $title →';
+  }
+
+  @override
+  String get celebration_series_done => 'SERIES DONE';
+
+  @override
+  String get celebration_series_find_another => 'Find another series';
+
+  @override
+  String get celebration_series_stay => 'Stay & revisit any plan';
+
+  @override
   String get practice_plan =>
       'ཉམས་ལེན་འཆར་གཞི་ཡིས་ཁྱེད་རང་ཉམས་ལེན་ལ་རྒྱུན་མཐུད་ནས་གནས་པར་རོགས་རམ་བྱེད་ཀྱི་ཡོད། ང་ཚོར་འདེམས་རྒྱུའི་འཆར་གཞི་སྣ་ཚོགས་ཡོད་པ་དང་དུས་ཡུན་མི་འདྲ་བ་ཡོད།';
 
@@ -644,6 +734,56 @@ class AppLocalizationsBo extends AppLocalizations {
   @override
   String get prayer_audio_load_error =>
       'Unable to load audio. Check your connection and try again';
+
+  @override
+  String get home_featured => 'Featured';
+
+  @override
+  String get home_continue_today => 'Continue today';
+
+  @override
+  String get home_explore_more => 'Browse Buddhist content';
+
+  @override
+  String home_series_n_plans(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count plans',
+      one: '1 plan',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String home_series_n_days(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count days',
+      one: '1 day',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String home_series_progress(int percent) {
+    return '$percent% complete';
+  }
+
+  @override
+  String get home_series_in_progress => 'In progress';
+
+  @override
+  String get home_series_about_creator => 'About the creator';
+
+  @override
+  String get home_series_included_plans => 'Included plans';
+
+  @override
+  String home_series_view_creator_page(String name) {
+    return 'View $name\'s page →';
+  }
 
   @override
   String get home_no_series_found => 'རིམ་པ་ཅན་རྙེད་མ་སོང་།';
@@ -1351,6 +1491,12 @@ class AppLocalizationsBo extends AppLocalizations {
 
   @override
   String get plan_status_on_track => 'On Track!';
+
+  @override
+  String get plan_status_just_started => 'Just started';
+
+  @override
+  String get plan_status_last_day => 'Last day';
 
   @override
   String get start_now => 'ད་ལྟ་འགོ་འཛུགས།';
