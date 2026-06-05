@@ -135,7 +135,7 @@ class MoreScreen extends ConsumerWidget {
   ) {
     return _buildSettingsRow(
       context,
-      icon: PhosphorIconsRegular.moon,
+      icon: PhosphorIconsRegular.sun,
       title: 'Theme',
       onTap: () {
         ref
@@ -203,11 +203,8 @@ class MoreScreen extends ConsumerWidget {
     bool isDestructive = false,
   }) {
     final color =
-        isDestructive
-            ? Colors.red.shade600
-            : Theme.of(context).iconTheme.color;
-    final textColor =
-        isDestructive ? Colors.red.shade600 : null;
+        isDestructive ? Colors.red.shade600 : Theme.of(context).iconTheme.color;
+    final textColor = isDestructive ? Colors.red.shade600 : null;
 
     final rowContent = Row(
       children: [
@@ -423,61 +420,17 @@ class _ThemeToggle extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
           color: isDarkMode ? AppColors.grey800 : AppColors.goldAccent,
         ),
-        child: Stack(
-          children: [
-            // Sun icon (visible in light mode, on the left)
-            AnimatedPositioned(
-              duration: const Duration(milliseconds: 200),
-              left: isDarkMode ? 32 : 0,
-              top: 0,
-              bottom: 0,
-              child: AnimatedOpacity(
-                duration: const Duration(milliseconds: 200),
-                opacity: isDarkMode ? 0.0 : 1.0,
-                child: Container(
-                  width: 28,
-                  height: 28,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: AppColors.surfaceWhite,
-                  ),
-                  child: Center(
-                    child: Icon(
-                      PhosphorIconsRegular.sun,
-                      size: 18,
-                      color: Colors.amber.shade600,
-                    ),
-                  ),
-                ),
-              ),
+        child: AnimatedAlign(
+          duration: const Duration(milliseconds: 200),
+          alignment: isDarkMode ? Alignment.centerRight : Alignment.centerLeft,
+          child: Container(
+            width: 28,
+            height: 28,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: isDarkMode ? AppColors.grey600 : AppColors.surfaceWhite,
             ),
-            // Moon icon (visible in dark mode, on the right)
-            AnimatedPositioned(
-              duration: const Duration(milliseconds: 200),
-              right: isDarkMode ? 0 : 32,
-              top: 0,
-              bottom: 0,
-              child: AnimatedOpacity(
-                duration: const Duration(milliseconds: 200),
-                opacity: isDarkMode ? 1.0 : 0.0,
-                child: Container(
-                  width: 28,
-                  height: 28,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: AppColors.grey600,
-                  ),
-                  child: Center(
-                    child: Icon(
-                      PhosphorIconsFill.cloudMoon,
-                      size: 18,
-                      color: AppColors.surfaceDark,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ],
+          ),
         ),
       ),
     );
