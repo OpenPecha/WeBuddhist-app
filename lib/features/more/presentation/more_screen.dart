@@ -87,14 +87,15 @@ class MoreScreen extends ConsumerWidget {
             ),
             _buildSettingsRow(
               context,
-              icon: PhosphorIconsRegular.shieldCheck,
-              title: 'Privacy policy',
+              icon: PhosphorIconsRegular.gavel,
+              title: 'Legal',
               onTap: () => context.push(AppRoutes.privacyPolicy),
             ),
             _buildSettingsRow(
               context,
-              icon: PhosphorIconsRegular.chatCircleText,
+              icon: PhosphorIconsRegular.chatText,
               title: 'Feedback',
+              trailingIcon: PhosphorIconsRegular.arrowSquareOut,
               onTap: () async {
                 final url =
                     "https://app-webuddhist.ideas.userback.io/p/5omSMHB8A9VMUrD6vLrE";
@@ -156,7 +157,7 @@ class MoreScreen extends ConsumerWidget {
   Widget _buildNotificationRow(BuildContext context) {
     return _buildSettingsRow(
       context,
-      icon: PhosphorIconsRegular.bell,
+      icon: PhosphorIconsRegular.bellRinging,
       title: 'Notification',
       onTap: () => context.push(NotificationSettingsScreen.routeName),
     );
@@ -185,7 +186,7 @@ class MoreScreen extends ConsumerWidget {
             ),
             Icon(
               PhosphorIconsRegular.caretRight,
-              size: 20,
+              size: 24,
               color: AppColors.grey600,
             ),
           ],
@@ -200,6 +201,7 @@ class MoreScreen extends ConsumerWidget {
     required String title,
     required VoidCallback onTap,
     Widget? trailing,
+    IconData? trailingIcon,
     bool isDestructive = false,
   }) {
     final color =
@@ -220,8 +222,8 @@ class MoreScreen extends ConsumerWidget {
         ),
         if (trailing == null)
           Icon(
-            PhosphorIconsRegular.caretRight,
-            size: 20,
+            trailingIcon ?? PhosphorIconsRegular.caretRight,
+            size: 24,
             color: isDestructive ? Colors.red.shade600 : AppColors.grey600,
           ),
       ],
