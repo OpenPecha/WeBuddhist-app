@@ -4,6 +4,7 @@ import 'package:flutter_pecha/features/plans/data/models/plan_tag_model.dart';
 import 'package:flutter_pecha/features/plans/data/utils/plan_utils.dart';
 import 'package:flutter_pecha/features/plans/domain/entities/plan.dart'
     as domain;
+import 'package:flutter_pecha/shared/domain/value_objects/responsive_image.dart';
 
 final _logger = AppLogger('PlansModel');
 
@@ -28,6 +29,58 @@ class ImageModel {
 
   Map<String, dynamic> toJson() {
     return {'thumbnail': thumbnail, 'medium': medium, 'original': original};
+  }
+
+  /// Preferred URL for UI display: smallest available size first.
+  String? get displayUrl => toResponsiveImage()?.displayUrl;
+
+  ResponsiveImage? toResponsiveImage() {
+    if (thumbnail == null && medium == null && original == null) {
+      return null;
+    }
+    return ResponsiveImage(
+      thumbnail: thumbnail,
+      medium: medium,
+      original: original,
+    );
+  }
+
+  factory ImageModel.fromResponsiveImage(ResponsiveImage image) {
+    return ImageModel(
+      thumbnail: image.thumbnail,
+      medium: image.medium,
+      original: image.original,
+    );
+  }
+
+  /// Parses `image` (object or legacy string) with optional `image_url` fallback.
+  static ImageModel? fromFields({dynamic image, String? imageUrl}) {
+    if (image is Map<String, dynamic>) {
+      return ImageModel.fromJson(image);
+    }
+    if (image is String && image.isNotEmpty) {
+      return ImageModel(
+        thumbnail: image,
+        medium: image,
+        original: image,
+      );
+    }
+    if (imageUrl != null && imageUrl.isNotEmpty) {
+      return ImageModel(
+        thumbnail: imageUrl,
+        medium: imageUrl,
+        original: imageUrl,
+      );
+    }
+    return null;
+  }
+
+  /// Parses image fields from a JSON map (`image` + `image_url`).
+  static ImageModel? fromJsonMap(Map<String, dynamic> json) {
+    return fromFields(
+      image: json['image'],
+      imageUrl: json['image_url'] as String?,
+    );
   }
 }
 
@@ -58,37 +111,18 @@ class PlansModel {
     this.displayOrder,
   });
 
-  /// Backward compatibility getter - returns medium image or original as fallback
-  String? get imageUrl => image?.medium ?? image?.original;
-  String? get imageThumbnail => image?.thumbnail ?? image?.medium;
+  String? get imageUrl => image?.displayUrl;
+  String? get imageThumbnail => image?.displayUrl;
 
   factory PlansModel.fromJson(Map<String, dynamic> json) {
     try {
-      // Handle both old format (image_url) and new format (image object)
-      ImageModel? imageModel;
-      if (json['image'] != null) {
-        imageModel = ImageModel.fromJson(
-          json['image'] as Map<String, dynamic>?,
-        );
-      } else if (json['image_url'] != null) {
-        // Backward compatibility: convert old string format to new model
-        final imageUrl = json['image_url'] as String?;
-        if (imageUrl != null) {
-          imageModel = ImageModel(
-            thumbnail: imageUrl,
-            medium: imageUrl,
-            original: imageUrl,
-          );
-        }
-      }
-
       return PlansModel(
         id: json['id'] as String,
         title: json['title'] as String,
         description: json['description'] as String,
         language: json['language'] as String,
         difficultyLevel: json['difficulty_level'] as String?,
-        image: imageModel,
+        image: ImageModel.fromJsonMap(json),
         totalDays: json['total_days'] as int?,
         tags:
             json['tags'] != null
@@ -194,7 +228,7 @@ class PlansModel {
       description: description,
       authorId: author?.id ?? '',
       authorName: author?.firstName ?? 'Unknown',
-      coverImageUrl: imageUrl,
+      coverImage: image?.toResponsiveImage(),
       totalDays: totalDays ?? 0,
       difficulty: difficulty,
       tags: tags?.map((t) => t.name).toList() ?? [],
@@ -231,12 +265,8 @@ class PlansModel {
       language: entity.language,
       difficultyLevel: difficultyLevelStr,
       image:
-          entity.coverImageUrl != null
-              ? ImageModel(
-                thumbnail: entity.coverImageUrl,
-                medium: entity.coverImageUrl,
-                original: entity.coverImageUrl,
-              )
+          entity.coverImage != null
+              ? ImageModel.fromResponsiveImage(entity.coverImage!)
               : null,
       totalDays: entity.totalDays,
       tags: entity.tags.map((name) => PlanTag(id: '', name: name)).toList(),

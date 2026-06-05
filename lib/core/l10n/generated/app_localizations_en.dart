@@ -206,6 +206,11 @@ class AppLocalizationsEn extends AppLocalizations {
       'No commentaries available for this segment';
 
   @override
+  String commentary_not_available_for_language(String language) {
+    return '$language commentary not available';
+  }
+
+  @override
   String get loading => 'Loading...';
 
   @override
@@ -457,7 +462,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get notification_allow_subtitle_disabled =>
-      'Tap to open system settings and enable';
+      'Permission needed. Tap to grant in Settings.';
+
+  @override
+  String get notification_allow_subtitle_paused =>
+      'Reminders are paused. Tap to resume.';
 
   @override
   String get notification_routine_title => 'Routine reminders';
@@ -468,7 +477,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get notification_routine_subtitle_disabled =>
-      'Tap to turn back on in Settings';
+      'Routine reminders are paused. Tap to resume.';
 
   @override
   String get notification_alarms_title => 'Exact reminder times';
@@ -491,6 +500,31 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get notification_battery_subtitle_disabled =>
       'Some Android phones pause background apps to save battery, which can delay or skip your reminders. Tap to keep yours running.';
+
+  @override
+  String get notification_recitation_title => 'Recitation reminders';
+
+  @override
+  String get notification_recitation_subtitle_enabled =>
+      'Daily reminders for your recitations';
+
+  @override
+  String get notification_recitation_subtitle_disabled =>
+      'Recitation reminders are paused. Tap to resume.';
+
+  @override
+  String get notification_alarms_info_title => 'About exact reminder times';
+
+  @override
+  String get notification_alarms_info_body =>
+      'This permission lets the app fire reminders at the exact time you set. Without it, your reminders may arrive late or be skipped entirely when your phone is idle.';
+
+  @override
+  String get notification_battery_info_title => 'About background reminders';
+
+  @override
+  String get notification_battery_info_body =>
+      'Some Android phones pause background apps to save battery, which can delay or cancel your scheduled reminders. Exempting the app keeps your reminders reliably on time.';
 
   @override
   String get notification_snack_permission_denied =>
@@ -1387,4 +1421,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get version => 'Versions';
+
+  @override
+  String get read_full_text => 'Read Full Text';
+
+  @override
+  String get reader_source_label => 'Source';
+
+  @override
+  String get reader_license_label => 'License';
 }

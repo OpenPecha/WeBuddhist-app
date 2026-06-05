@@ -40,7 +40,7 @@ class DayCompletionBottomSheet extends StatelessWidget {
           _buildPlanImageCard(context),
           const SizedBox(height: 30),
           _buildProgressBar(context, progress),
-          const SizedBox(height: 25)
+          const SizedBox(height: 25),
         ],
       ),
     );
@@ -51,9 +51,9 @@ class DayCompletionBottomSheet extends StatelessWidget {
       width: 40,
       height: 4,
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(
-          alpha: 0.4,
-        ),
+        color: Theme.of(
+          context,
+        ).colorScheme.onSurfaceVariant.withValues(alpha: 0.4),
         borderRadius: BorderRadius.circular(2),
       ),
     );
@@ -100,7 +100,7 @@ class DayCompletionBottomSheet extends StatelessWidget {
     return CachedNetworkImageWidget(
       imageUrl: imageUrl!,
       width: imageWidth,
-      height: 160,
+      height: 180,
       fit: BoxFit.cover,
       borderRadius: BorderRadius.circular(12),
     );
@@ -109,7 +109,7 @@ class DayCompletionBottomSheet extends StatelessWidget {
   Widget _buildPlaceholderImage(BuildContext context, double width) {
     return Container(
       width: width,
-      height: 160,
+      height: 180,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
         gradient: LinearGradient(

@@ -1,3 +1,4 @@
+import 'package:flutter_pecha/core/storage/plan_metadata_store.dart';
 import 'package:flutter_pecha/core/storage/special_plan_started_at_store.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/features/notifications/data/special_plan_notifications.dart';
@@ -69,6 +70,7 @@ Future<void> _bootstrap(Ref ref, UserPlansModel plan) async {
     // re-enrolment is treated as fresh.
     _logger.info('${plan.id} not in routine — clearing cached metadata');
     await SpecialPlanStartedAtStore.clear(plan.id);
+    await PlanMetadataStore.clear(plan.id);
     return;
   }
 
@@ -88,6 +90,14 @@ Future<void> _bootstrap(Ref ref, UserPlansModel plan) async {
     );
     await SpecialPlanStartedAtStore.setStartedAt(plan.id, anchor);
   }
+
+  // Keep PlanMetadataStore in sync so the general fallback scheduler can
+  // read totalDays when the plan is past its custom notification series.
+  await PlanMetadataStore.setMetadata(
+    plan.id,
+    effectiveStartDate: anchor,
+    totalDays: plan.totalDays,
+  );
 
   // Find the matching routine block to use its scheduled time.
   final matchingBlock = routineBlocks.firstWhere(

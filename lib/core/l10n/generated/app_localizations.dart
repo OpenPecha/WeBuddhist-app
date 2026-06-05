@@ -484,6 +484,12 @@ abstract class AppLocalizations {
   /// **'No commentaries available for this segment'**
   String get no_commentary_message;
 
+  /// No description provided for @commentary_not_available_for_language.
+  ///
+  /// In en, this message translates to:
+  /// **'{language} commentary not available'**
+  String commentary_not_available_for_language(String language);
+
   /// No description provided for @loading.
   ///
   /// In en, this message translates to:
@@ -979,8 +985,14 @@ abstract class AppLocalizations {
   /// No description provided for @notification_allow_subtitle_disabled.
   ///
   /// In en, this message translates to:
-  /// **'Tap to open system settings and enable'**
+  /// **'Permission needed. Tap to grant in Settings.'**
   String get notification_allow_subtitle_disabled;
+
+  /// No description provided for @notification_allow_subtitle_paused.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminders are paused. Tap to resume.'**
+  String get notification_allow_subtitle_paused;
 
   /// No description provided for @notification_routine_title.
   ///
@@ -997,7 +1009,7 @@ abstract class AppLocalizations {
   /// No description provided for @notification_routine_subtitle_disabled.
   ///
   /// In en, this message translates to:
-  /// **'Tap to turn back on in Settings'**
+  /// **'Routine reminders are paused. Tap to resume.'**
   String get notification_routine_subtitle_disabled;
 
   /// No description provided for @notification_alarms_title.
@@ -1035,6 +1047,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Some Android phones pause background apps to save battery, which can delay or skip your reminders. Tap to keep yours running.'**
   String get notification_battery_subtitle_disabled;
+
+  /// No description provided for @notification_recitation_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Recitation reminders'**
+  String get notification_recitation_title;
+
+  /// No description provided for @notification_recitation_subtitle_enabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily reminders for your recitations'**
+  String get notification_recitation_subtitle_enabled;
+
+  /// No description provided for @notification_recitation_subtitle_disabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Recitation reminders are paused. Tap to resume.'**
+  String get notification_recitation_subtitle_disabled;
+
+  /// No description provided for @notification_alarms_info_title.
+  ///
+  /// In en, this message translates to:
+  /// **'About exact reminder times'**
+  String get notification_alarms_info_title;
+
+  /// No description provided for @notification_alarms_info_body.
+  ///
+  /// In en, this message translates to:
+  /// **'This permission lets the app fire reminders at the exact time you set. Without it, your reminders may arrive late or be skipped entirely when your phone is idle.'**
+  String get notification_alarms_info_body;
+
+  /// No description provided for @notification_battery_info_title.
+  ///
+  /// In en, this message translates to:
+  /// **'About background reminders'**
+  String get notification_battery_info_title;
+
+  /// No description provided for @notification_battery_info_body.
+  ///
+  /// In en, this message translates to:
+  /// **'Some Android phones pause background apps to save battery, which can delay or cancel your scheduled reminders. Exempting the app keeps your reminders reliably on time.'**
+  String get notification_battery_info_body;
 
   /// No description provided for @notification_snack_permission_denied.
   ///
@@ -2607,6 +2661,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Versions'**
   String get version;
+
+  /// No description provided for @read_full_text.
+  ///
+  /// In en, this message translates to:
+  /// **'Read Full Text'**
+  String get read_full_text;
+
+  /// No description provided for @reader_source_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Source'**
+  String get reader_source_label;
+
+  /// No description provided for @reader_license_label.
+  ///
+  /// In en, this message translates to:
+  /// **'License'**
+  String get reader_license_label;
 }
 
 class _AppLocalizationsDelegate

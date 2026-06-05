@@ -113,7 +113,7 @@ class _PlanPreviewDetailsState extends ConsumerState<PlanPreviewDetails> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  PlanCoverImage(imageUrl: widget.plan.coverImageUrl ?? ''),
+                  PlanCoverImage(image: widget.plan.coverImage),
                   _buildDayCarouselSection(language),
                   _buildDayContentSection(context, language),
                 ],

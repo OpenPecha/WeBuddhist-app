@@ -81,6 +81,16 @@ class SpecialPlanStartedAtStore {
     await prefs.setBool(_shownOnKey(planId, date), true);
   }
 
+  /// Removes all per-date shown flags for [planId] without touching the
+  /// cached anchor. Call when the user removes the plan from a routine
+  /// block so re-adding treats it as fresh and re-fires today's immediate.
+  static Future<void> clearShownFlags(String planId) async {
+    final prefs = await _ensurePrefs();
+    for (final key in prefs.getKeys().where(_isShownFlagForPlan(planId)).toList()) {
+      await prefs.remove(key);
+    }
+  }
+
   // ─── Private helpers ──────────────────────────────────────────────────────
 
   static String _startedAtKey(String planId) =>

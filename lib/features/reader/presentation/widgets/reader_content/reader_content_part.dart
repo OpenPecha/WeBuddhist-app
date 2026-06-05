@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/features/reader/constants/reader_constants.dart';
+import 'package:flutter_pecha/features/reader/data/models/flattened_content.dart';
 import 'package:flutter_pecha/features/reader/data/models/flattened_item.dart';
 import 'package:flutter_pecha/features/reader/data/models/navigation_context.dart';
 import 'package:flutter_pecha/features/reader/data/models/reader_slot_config.dart';
@@ -14,6 +15,7 @@ import 'package:flutter_pecha/features/reader/presentation/providers/reader_noti
 import 'package:flutter_pecha/features/reader/presentation/providers/reader_providers.dart';
 import 'package:flutter_pecha/features/reader/presentation/providers/reader_secondary_content_provider.dart';
 import 'package:flutter_pecha/features/reader/presentation/widgets/reader_content/interlinear_segment_item.dart';
+import 'package:flutter_pecha/features/reader/presentation/widgets/reader_content/read_full_text_footer.dart';
 import 'package:flutter_pecha/features/reader/presentation/widgets/reader_content/section_header.dart';
 import 'package:flutter_pecha/features/reader/presentation/widgets/reader_content/segment_item.dart';
 import 'package:flutter_pecha/features/reader/presentation/widgets/reader_content/segment_skeleton.dart';
@@ -66,8 +68,29 @@ class _ReaderContentPartState extends ConsumerState<ReaderContentPart> {
   bool _hasUserInteracted = false;
   bool _isProgrammaticScroll = false;
 
-  // Grey-out feature: show only initial segment, disable on first user scroll
-  final bool _enableGreyOut = true;
+  // Collapsed view: when the reader opens pointing at a set of "active"
+  // segments (plan subtask / deep-link / search target), it first renders ONLY
+  // those segments followed by a "Read Full Text" footer. Tapping the footer
+  // expands to the full text for the rest of the session — there is no way back
+  // to the collapsed view without leaving and re-entering the reader.
+  bool _isExpanded = false;
+
+  /// Ordered list of segment ids considered "active" for this navigation: the
+  /// plan subtask's segment range, or the single target segment.
+  List<String> get _activeSegmentIds {
+    final visible = widget.visibleSegmentIds;
+    if (visible != null && visible.isNotEmpty) return visible;
+    final initial = widget.initialSegmentId;
+    if (initial != null) return [initial];
+    return const [];
+  }
+
+  /// True when the reader was opened pointing at specific segments, so the
+  /// collapsed "active segments only" view applies.
+  bool get _hasActiveSegments => _activeSegmentIds.isNotEmpty;
+
+  /// True while only the active segments are shown (before "Read Full Text").
+  bool get _isCollapsed => _hasActiveSegments && !_isExpanded;
 
   // Initial alignment segment for the secondary stream. Computed lazily the
   // first time the secondary is needed, then frozen — the secondary notifier
@@ -148,6 +171,10 @@ class _ReaderContentPartState extends ConsumerState<ReaderContentPart> {
   }
 
   void _checkPaginationThresholds() {
+    // No pagination while collapsed — only the active segments are on screen,
+    // so the short list would otherwise immediately trip the next-page
+    // threshold and fetch segments the user hasn't asked to see yet.
+    if (_isCollapsed) return;
     // Skip pagination during programmatic scroll (e.g. initial scroll animation)
     // to prevent false triggers from stale visible positions
     if (_isProgrammaticScroll) return;
@@ -353,6 +380,32 @@ class _ReaderContentPartState extends ConsumerState<ReaderContentPart> {
     }
   }
 
+  /// Expand from the collapsed (active-segments-only) view to the full text.
+  /// Keeps the active block in view by jumping to the first active segment in
+  /// the now-full list, and re-enables normal pagination/scroll behaviour.
+  void _expandFullText() {
+    if (_isExpanded) return;
+    final firstActiveId =
+        _activeSegmentIds.isNotEmpty ? _activeSegmentIds.first : null;
+
+    setState(() => _isExpanded = true);
+
+    if (firstActiveId == null) return;
+    // Suppress the one-shot initial-scroll effect so it doesn't also fire.
+    _hasScrolledToInitial = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!_itemScrollController.isAttached) return;
+      final content = ref.read(readerNotifierProvider(widget.params)).content;
+      final index = content?.getSegmentIndex(firstActiveId);
+      if (index == null) return;
+      _isProgrammaticScroll = true;
+      _itemScrollController.jumpTo(index: index);
+      Future.delayed(const Duration(milliseconds: 100), () {
+        _isProgrammaticScroll = false;
+      });
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(readerNotifierProvider(widget.params));
@@ -385,8 +438,11 @@ class _ReaderContentPartState extends ConsumerState<ReaderContentPart> {
             )
             : null;
 
-    // Handle initial scroll to segment
-    if (!_hasScrolledToInitial &&
+    // Handle initial scroll to segment. Skipped while collapsed — the active
+    // segments already sit at the top of the collapsed list, and the content
+    // indices used for scrolling don't line up with the filtered list anyway.
+    if (!_isCollapsed &&
+        !_hasScrolledToInitial &&
         state.content != null &&
         state.content!.isNotEmpty &&
         widget.initialSegmentId != null) {
@@ -430,10 +486,18 @@ class _ReaderContentPartState extends ConsumerState<ReaderContentPart> {
       return const Center(child: CircularProgressIndicator());
     }
 
+    // Collapsed view: render only the active segments + a "Read Full Text"
+    // footer. The extra trailing item is the footer.
+    final bool isCollapsed = _isCollapsed;
+    final List<FlattenedItem> collapsedItems =
+        isCollapsed ? _buildCollapsedItems(content) : const [];
+    final int listItemCount =
+        isCollapsed ? collapsedItems.length + 1 : content.itemCount;
+
     return Column(
       children: [
-        // Loading previous indicator
-        if (state.isLoadingPrevious)
+        // Loading previous indicator (never while collapsed)
+        if (!isCollapsed && state.isLoadingPrevious)
           const SegmentSkeletonList(count: 1, linesPerSegment: 2),
         // Main content list with user gesture detection
         Expanded(
@@ -453,9 +517,28 @@ class _ReaderContentPartState extends ConsumerState<ReaderContentPart> {
             child: ScrollablePositionedList.builder(
               itemScrollController: _itemScrollController,
               itemPositionsListener: _itemPositionsListener,
-              itemCount: content.itemCount,
+              itemCount: listItemCount,
               padding: const EdgeInsets.only(bottom: 60),
               itemBuilder: (context, index) {
+                if (isCollapsed) {
+                  // Trailing item is the "Read Full Text" footer.
+                  if (index >= collapsedItems.length) {
+                    return ReadFullTextFooter(
+                      textDetail: state.textDetail,
+                      onReadFullText: _expandFullText,
+                    );
+                  }
+                  return _buildItem(
+                    item: collapsedItems[index],
+                    state: state,
+                    dualSecondaryEnabled: dualSettings.secondaryEnabled,
+                    secondarySlot: dualSettings.secondary,
+                    secondaryState: secondaryState,
+                    onSegmentTap:
+                        (segment) => notifier.toggleSegmentSelection(segment),
+                  );
+                }
+
                 final item = content.getItemAt(index);
                 if (item == null) return const SizedBox.shrink();
 
@@ -473,22 +556,25 @@ class _ReaderContentPartState extends ConsumerState<ReaderContentPart> {
           ),
         ),
 
-        // Loading next indicator
-        if (state.isLoadingNext)
+        // Loading next indicator (never while collapsed)
+        if (!isCollapsed && state.isLoadingNext)
           const SegmentSkeletonList(count: 1, linesPerSegment: 2),
       ],
     );
   }
 
-  bool _isSegmentGreyedOut(String segmentId) {
-    if (widget.visibleSegmentIds != null &&
-        widget.visibleSegmentIds!.isNotEmpty) {
-      return !widget.visibleSegmentIds!.contains(segmentId);
-    }
-    if (widget.initialSegmentId != null) {
-      return widget.initialSegmentId != segmentId;
-    }
-    return false;
+  /// The subset of loaded items that are active segments, in reading order.
+  /// Used to render the collapsed view before "Read Full Text" is tapped.
+  List<FlattenedItem> _buildCollapsedItems(FlattenedContent content) {
+    final activeSet = _activeSegmentIds.toSet();
+    return content.items
+        .where(
+          (item) =>
+              item.isSegment &&
+              item.segmentId != null &&
+              activeSet.contains(item.segmentId),
+        )
+        .toList();
   }
 
   Widget _buildItem({
@@ -514,8 +600,6 @@ class _ReaderContentPartState extends ConsumerState<ReaderContentPart> {
         final isSelected =
             state.selectedSegment?.segmentId == segment.segmentId;
         final isHighlighted = state.highlightedSegmentId == segment.segmentId;
-        final isGreyedOut =
-            _enableGreyOut && _isSegmentGreyedOut(segment.segmentId);
 
         if (dualSecondaryEnabled) {
           return InterlinearSegmentItem(
@@ -529,7 +613,6 @@ class _ReaderContentPartState extends ConsumerState<ReaderContentPart> {
             isSelected: isSelected,
             isHighlighted: isHighlighted,
             highlightSource: state.highlightSource,
-            isGreyedOut: isGreyedOut,
             onTap: () => onSegmentTap(segment),
           );
         }
@@ -539,7 +622,6 @@ class _ReaderContentPartState extends ConsumerState<ReaderContentPart> {
           depth: depth,
           language: widget.language,
           isSelected: isSelected,
-          isGreyedOut: isGreyedOut,
           onTap: () {
             HapticFeedback.lightImpact();
             onSegmentTap(segment);
