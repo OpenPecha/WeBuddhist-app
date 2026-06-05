@@ -60,31 +60,10 @@ class SeriesModel {
             .map((p) => PlansModel.fromJson(p as Map<String, dynamic>))
             .toList();
 
-    ImageModel? imageModel;
-    final dynamic imageJson = json['image'];
-    if (imageJson is Map<String, dynamic>) {
-      imageModel = ImageModel.fromJson(imageJson);
-    } else if (imageJson is String && imageJson.isNotEmpty) {
-      imageModel = ImageModel(
-        thumbnail: imageJson,
-        medium: imageJson,
-        original: imageJson,
-      );
-    } else {
-      final String? legacyUrl = json['image_url'] as String?;
-      if (legacyUrl != null && legacyUrl.isNotEmpty) {
-        imageModel = ImageModel(
-          thumbnail: legacyUrl,
-          medium: legacyUrl,
-          original: legacyUrl,
-        );
-      }
-    }
-
     return SeriesModel(
       id: json['id'] as String,
       metadata: metadataList,
-      image: imageModel,
+      image: ImageModel.fromJsonMap(json),
       authorId: json['author_id'] as String? ?? '',
       featured: json['featured'] as bool? ?? false,
       status: json['status'] as String?,
