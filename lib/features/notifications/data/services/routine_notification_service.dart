@@ -11,10 +11,16 @@ import 'package:flutter_pecha/features/notifications/data/channels/notification_
 import 'package:flutter_pecha/features/notifications/data/services/notification_service.dart';
 import 'package:flutter_pecha/features/notifications/data/special_plan_notifications.dart';
 import 'package:flutter_pecha/features/practice/data/models/routine_model.dart';
+import 'package:flutter_pecha/shared/domain/value_objects/responsive_image.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:timezone/timezone.dart' as tz;
 
 final _logger = AppLogger('RoutineNotificationService');
+
+ResponsiveImage? _coverImageFromUrl(String? url) {
+  if (url == null || url.isEmpty) return null;
+  return ResponsiveImage.uniform(url);
+}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Result types
@@ -356,7 +362,7 @@ class RoutineNotificationService {
     final pseudoItem = RoutineItem(
       id: planId,
       title: planTitle,
-      imageUrl: planImageUrl,
+      coverImage: _coverImageFromUrl(planImageUrl),
       type: RoutineItemType.plan,
     );
     final iosDetails = await _buildIOSNotificationDetails(pseudoItem);
@@ -571,7 +577,7 @@ class RoutineNotificationService {
       final pseudoItem = RoutineItem(
         id: planId,
         title: planTitle,
-        imageUrl: planImageUrl,
+        coverImage: _coverImageFromUrl(planImageUrl),
         type: RoutineItemType.plan,
       );
       final androidStyle = await _buildBigPictureStyle(
@@ -707,7 +713,7 @@ class RoutineNotificationService {
     final pseudoItem = RoutineItem(
       id: planId,
       title: planTitle,
-      imageUrl: planImageUrl,
+      coverImage: _coverImageFromUrl(planImageUrl),
       type: RoutineItemType.plan,
     );
     final iosDetails = await _buildIOSNotificationDetails(pseudoItem);
@@ -824,7 +830,7 @@ class RoutineNotificationService {
       final pseudoItem = RoutineItem(
         id: planId,
         title: planTitle,
-        imageUrl: planImageUrl,
+        coverImage: _coverImageFromUrl(planImageUrl),
         type: RoutineItemType.plan,
       );
       final androidStyle = await _buildBigPictureStyle(

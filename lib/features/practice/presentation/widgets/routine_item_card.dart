@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
-import 'package:flutter_pecha/core/widgets/cached_network_image_widget.dart';
+import 'package:flutter_pecha/core/widgets/responsive_cover_image.dart';
+import 'package:flutter_pecha/shared/domain/value_objects/responsive_image.dart';
 import 'package:flutter_pecha/features/practice/data/models/routine_model.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 class RoutineItemCard extends StatelessWidget {
   final String title;
+  final ResponsiveImage? coverImage;
   final String? imageUrl;
   final VoidCallback? onTap;
   final VoidCallback? onDelete;
@@ -24,6 +26,7 @@ class RoutineItemCard extends StatelessWidget {
   const RoutineItemCard({
     super.key,
     required this.title,
+    this.coverImage,
     this.imageUrl,
     this.onTap,
     this.onDelete,
@@ -77,8 +80,10 @@ class RoutineItemCard extends StatelessWidget {
                     fit: BoxFit.cover,
                   ),
                 )
-                : CachedNetworkImageWidget(
-                  imageUrl: imageUrl ?? '',
+                : ResponsiveCoverImage(
+                  image: coverImage ?? (imageUrl != null && imageUrl!.isNotEmpty
+                      ? ResponsiveImage.uniform(imageUrl!)
+                      : null),
                   width: 74,
                   height: 74,
                   fit: BoxFit.cover,

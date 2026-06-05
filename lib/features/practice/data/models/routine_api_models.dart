@@ -1,4 +1,5 @@
 import 'package:flutter_pecha/features/plans/data/models/plans_model.dart';
+import 'package:flutter_pecha/shared/domain/value_objects/responsive_image.dart';
 
 enum SessionType {
   plan,
@@ -81,6 +82,8 @@ class SessionDTO {
   });
 
   String? get imageUrl => image?.displayUrl;
+
+  ResponsiveImage? get coverImage => image?.toResponsiveImage();
 
   factory SessionDTO.fromJson(Map<String, dynamic> json) {
     return SessionDTO(

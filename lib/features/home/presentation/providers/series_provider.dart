@@ -7,7 +7,7 @@ import 'package:flutter_pecha/features/home/presentation/providers/use_case_prov
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fpdart/fpdart.dart';
 
-// Watches localeProvider so metadata selection refreshes on language change.
+// Watches localeProvider so series refetches when the app language changes.
 final seriesListFutureProvider =
     FutureProvider<Either<Failure, List<Series>>>((ref) async {
   final locale = ref.watch(localeProvider);

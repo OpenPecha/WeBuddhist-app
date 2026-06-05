@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/features/practice/data/utils/routine_time_utils.dart';
+import 'package:flutter_pecha/shared/domain/value_objects/responsive_image.dart';
 import 'package:uuid/uuid.dart';
 
 const _uuid = Uuid();
@@ -9,21 +10,25 @@ enum RoutineItemType { plan, recitation }
 class RoutineItem {
   final String id;
   final String title;
-  final String? imageUrl;
+  final ResponsiveImage? coverImage;
   final RoutineItemType type;
   final DateTime? enrolledAt;
 
   const RoutineItem({
     required this.id,
     required this.title,
-    this.imageUrl,
+    this.coverImage,
     required this.type,
     this.enrolledAt,
   });
 
+  /// Smallest cover URL — legacy persistence and notifications.
+  String? get imageUrl => coverImage?.displayUrl;
+
   Map<String, dynamic> toJson() => {
     'id': id,
     'title': title,
+    if (coverImage != null) 'coverImage': coverImage!.toJson(),
     'imageUrl': imageUrl,
     'type': type.name,
     'enrolledAt': enrolledAt?.toIso8601String(),
@@ -44,10 +49,22 @@ class RoutineItem {
     return RoutineItem(
       id: id,
       title: title,
-      imageUrl: json['imageUrl'] as String?,
+      coverImage: _parseCoverImage(json),
       type: _parseRoutineItemType(json['type']),
       enrolledAt: _parseDateTime(json['enrolledAt']),
     );
+  }
+
+  static ResponsiveImage? _parseCoverImage(Map<String, dynamic> json) {
+    final dynamic rawCover = json['coverImage'];
+    if (rawCover is Map<String, dynamic>) {
+      return ResponsiveImage.fromJson(rawCover);
+    }
+    final String? legacyUrl = json['imageUrl'] as String?;
+    if (legacyUrl != null && legacyUrl.isNotEmpty) {
+      return ResponsiveImage.uniform(legacyUrl);
+    }
+    return null;
   }
 
   factory RoutineItem.fromJson(Map<String, dynamic> json) {
