@@ -15,10 +15,8 @@ import 'package:flutter_pecha/features/home/domain/entities/series.dart';
 import 'package:flutter_pecha/features/home/presentation/providers/series_provider.dart';
 import 'package:flutter_pecha/features/home/presentation/home_screen_constants.dart';
 import 'package:flutter_pecha/features/home/presentation/widgets/series_card.dart';
-import 'package:flutter_pecha/features/notifications/application/plan_enrollment_hook.dart';
-import 'package:flutter_pecha/features/notifications/application/special_plan_enrollment_hook.dart';
+import 'package:flutter_pecha/features/notifications/application/notification_sync_engine.dart';
 import 'package:flutter_pecha/features/plans/data/utils/plan_utils.dart';
-import 'package:flutter_pecha/features/practice/presentation/providers/routine_provider.dart';
 import 'package:flutter_pecha/features/plans/presentation/providers/user_plans_provider.dart';
 import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -132,13 +130,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           (response) async {
             _log.info(
               'user plans loaded count=${response.userPlans.length} '
-              'on attempt=$attempt — firing pending day notifications',
+              'on attempt=$attempt — triggering engine sync (permissionChanged)',
             );
-            await tryFirePendingSpecialPlanNotifications(response.userPlans);
-            await tryFirePendingPlanDayNotifications(
-              response.userPlans,
-              ref.read(routineProvider).blocks,
-            );
+            // Permission may have just been granted; trigger a sync so
+            // catch-up immediates fire now that `plugin.show()` works.
+            await ref
+                .read(notificationSyncEngineProvider)
+                .sync(trigger: SyncTrigger.permissionChanged);
           },
         );
         break;

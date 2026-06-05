@@ -3,9 +3,9 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
+import 'package:flutter_pecha/features/notifications/application/notification_sync_engine.dart';
 import 'package:flutter_pecha/features/notifications/data/channels/notification_channels.dart';
 import 'package:flutter_pecha/features/notifications/presentation/providers/notification_provider.dart';
-import 'package:flutter_pecha/features/practice/presentation/providers/routine_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -42,12 +42,10 @@ class _NotificationSettingsScreenState
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
       ref.read(notificationProvider.notifier).refreshStatus().then((_) {
-        final s = ref.read(notificationProvider);
-        if (s.appMasterEnabled && s.hasSystemPermission) {
-          ref
-              .read(notificationProvider.notifier)
-              .resyncRoutineNotifications(ref.read(routineProvider).blocks);
-        }
+        // Engine short-circuits when master is off or permission is missing.
+        ref
+            .read(notificationSyncEngineProvider)
+            .sync(trigger: SyncTrigger.appResume);
       });
     }
   }

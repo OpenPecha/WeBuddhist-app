@@ -894,6 +894,9 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
       }
     }
 
+    // Cancel immediately so the user doesn't receive a notification for a
+    // block they just removed, even if they back out without pressing Done.
+    // Full reconciliation runs on Done / cold-start via the engine.
     final routineBlock = _toRoutineBlock(block);
     await ref
         .read(routineNotificationServiceProvider)

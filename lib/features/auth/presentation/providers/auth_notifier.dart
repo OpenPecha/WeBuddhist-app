@@ -356,12 +356,12 @@ class AuthNotifier extends StateNotifier<AuthState> {
     await SpecialPlanStartedAtStore.clearAll();
     await PlanMetadataStore.clearAll();
 
-    // Cancel all pending one-shot notifications (special and general plans).
+    // Cancel every pending notification so a different signing-in user
+    // does not inherit this user's schedule.
     try {
-      await RoutineNotificationService().cancelAllSpecialPlanSchedules();
-      await RoutineNotificationService().cancelAllPlanDurationSchedules();
+      await RoutineNotificationService().cancelAll();
     } catch (e) {
-      _logger.warning('Failed to cancel plan schedules on logout: $e');
+      _logger.warning('Failed to cancel notifications on logout: $e');
     }
 
     await _analytics.reset();

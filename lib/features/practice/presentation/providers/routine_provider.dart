@@ -2,10 +2,11 @@ import 'package:flutter_pecha/core/analytics/analytics_events.dart';
 import 'package:flutter_pecha/core/analytics/analytics_providers.dart';
 import 'package:flutter_pecha/core/analytics/analytics_service.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
+import 'package:flutter_pecha/features/notifications/application/notification_sync_engine.dart';
 import 'package:flutter_pecha/features/practice/data/datasource/routine_local_storage.dart';
 import 'package:flutter_pecha/features/practice/data/models/routine_model.dart';
-import 'package:flutter_pecha/features/notifications/data/services/routine_notification_service.dart';
-import 'package:flutter_pecha/features/practice/presentation/providers/practice_providers.dart';
+import 'package:flutter_pecha/features/practice/presentation/providers/practice_providers.dart'
+    show routineLocalStorageProvider;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final _logger = AppLogger('RoutineNotifier');
@@ -13,29 +14,28 @@ final _logger = AppLogger('RoutineNotifier');
 /// Provider for RoutineNotifier with persistent storage.
 ///
 /// Uses RoutineLocalStorage (Hive) for persistence and
-/// RoutineNotificationService for notification scheduling.
+/// [NotificationSyncEngine] for notification scheduling.
 final routineProvider = StateNotifierProvider<RoutineNotifier, RoutineData>((ref) {
   final localStorage = ref.watch(routineLocalStorageProvider);
-  final notificationService = ref.watch(routineNotificationServiceProvider);
   final analyticsService = ref.watch(analyticsServiceProvider);
   return RoutineNotifier(
     localStorage: localStorage,
-    notificationService: notificationService,
+    syncEngine: () => ref.read(notificationSyncEngineProvider),
     analyticsService: analyticsService,
   );
 });
 
 class RoutineNotifier extends StateNotifier<RoutineData> {
   final RoutineLocalStorage _localStorage;
-  final RoutineNotificationService _notificationService;
+  final NotificationSyncEngine Function() _syncEngine;
   final AnalyticsService _analyticsService;
 
   RoutineNotifier({
     required RoutineLocalStorage localStorage,
-    required RoutineNotificationService notificationService,
+    required NotificationSyncEngine Function() syncEngine,
     required AnalyticsService analyticsService,
   })  : _localStorage = localStorage,
-        _notificationService = notificationService,
+        _syncEngine = syncEngine,
         _analyticsService = analyticsService,
         super(const RoutineData()) {
     _loadRoutines();
@@ -52,11 +52,9 @@ class RoutineNotifier extends StateNotifier<RoutineData> {
         _logger.info('[ROUTINE-LOAD] Loaded ${data.blocks.length} blocks from storage');
         if (data.blocks.isNotEmpty) {
           _logger.info('[ROUTINE-LOAD] Re-syncing ${data.blocks.length} notifications on startup...');
-          final result = await _notificationService.syncNotifications(data.blocks);
-          _logger.info(
-            '[ROUTINE-LOAD] Startup sync done: scheduled=${result.scheduled} '
-            'cancelled=${result.cancelled} failed=${result.failed}',
-          );
+          final report =
+              await _syncEngine().sync(trigger: SyncTrigger.coldStart);
+          _logger.info('[ROUTINE-LOAD] Startup sync done: $report');
         }
       }
     } catch (e) {
@@ -110,36 +108,34 @@ class RoutineNotifier extends StateNotifier<RoutineData> {
     }
   }
 
-  /// Reschedules OS notifications to match [blocks].
+  /// Reschedules OS notifications to match the current routine.
   ///
-  /// Can be slow on plan blocks (60+ sequential platform-channel
-  /// cancel/schedule calls per plan). Safe to run unawaited from UI flows;
-  /// the startup bootstrap re-syncs on next launch so failures here are
-  /// recoverable.
+  /// The `blocks` argument is accepted for backwards-compatibility with
+  /// existing callers (e.g. [`EditRoutineScreen._saveAndPop`]); the engine
+  /// reads routine state from [routineProvider] internally, so the argument
+  /// is intentionally unused — the caller's earlier `saveRoutineLocalOnly`
+  /// call has already written the new state.
   Future<void> syncNotifications(List<RoutineBlock> blocks) async {
-    _logger.info('[ROUTINE-SAVE] syncing notifications for ${blocks.length} blocks');
-    final result = await _notificationService.syncNotifications(blocks);
-    _logger.info(
-      '[ROUTINE-SAVE] sync done: scheduled=${result.scheduled} '
-      'cancelled=${result.cancelled} failed=${result.failed} '
-      'errors=${result.errors}',
-    );
+    _logger.info('[ROUTINE-SAVE] delegating to NotificationSyncEngine');
+    final report = await _syncEngine().sync(trigger: SyncTrigger.routineSaved);
+    _logger.info('[ROUTINE-SAVE] sync done: $report');
   }
 
   /// Clear all routine data from storage and cancel notifications.
   Future<void> clearRoutine() async {
     try {
-      // 1. Cancel all notifications first
-      await _notificationService.cancelAllBlockNotifications(state.blocks);
-
-      // 2. Clear from Hive storage
+      // 1. Clear from Hive storage so the engine sees empty routine.
       await _localStorage.clearRoutine();
       _logger.info('Cleared all routine data from storage');
 
-      // 3. Update in-memory state
+      // 2. Update in-memory state.
       if (mounted) {
         state = const RoutineData();
       }
+
+      // 3. Run reconciliation — pending IDs go away because the desired set
+      //    is now empty.
+      await _syncEngine().sync(trigger: SyncTrigger.routineSaved);
     } catch (e) {
       _logger.error('Failed to clear routine', e);
       rethrow;
