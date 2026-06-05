@@ -49,7 +49,7 @@ class ReaderConstants {
   static const double segmentHorizontalPadding = 12.0;
   static const double segmentVerticalPadding = 6.0;
   static const double segmentNumberWidth = 28.0;
-  static const double segmentBorderRadius = 8.0;
+  static const double segmentBorderRadius = 16.0;
 
   /// Segment numbers render at a fraction of the segment's content font size.
   static const double segmentNumberFontScale = 0.6;

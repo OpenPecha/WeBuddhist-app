@@ -642,5 +642,8 @@
   "main_text": "Main Text",
   "second_version": "Second Version",
   "second_version_msg": "The second version will appear below each verse of the main text.",
-  "version": "Versions"
+  "version": "Versions",
+  "read_full_text": "Read Full Text",
+  "reader_source_label": "Source",
+  "reader_license_label": "License"
 }
