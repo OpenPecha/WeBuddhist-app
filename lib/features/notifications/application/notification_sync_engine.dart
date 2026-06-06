@@ -189,6 +189,7 @@ class NotificationSyncEngine {
 
     final routineBlocks = _ref.read(routineProvider).blocks;
     final plansById = await _readPlansById();
+    final plansResolved = plansById != null;
     final now = DateTime.now();
 
     final desired = <int, DesiredNotification>{};
@@ -200,6 +201,14 @@ class NotificationSyncEngine {
       );
       if (!masterOn) bumpCase('5a');
     } else {
+      if (!plansResolved) {
+        _logger.warning(
+          '[NOTIFICATION_NEW_FLOW] trigger=${trigger.name} userPlans state '
+          'unknown (offline / loading / failure) — falling back to '
+          'PlanMetadataStore and skipping cancel pass to avoid wiping a '
+          'valid schedule',
+        );
+      }
       for (final block in routineBlocks) {
         if (block.items.isEmpty || !block.notificationEnabled) continue;
         final firstItem = block.items.first;
@@ -217,11 +226,20 @@ class NotificationSyncEngine {
         } else {
           // Plan block — every plan item produces its own desired notifications.
           for (final item in block.items.where((i) => i.type == RoutineItemType.plan)) {
-            final plan = plansById[item.id];
+            var plan = plansById?[item.id];
             if (plan == null) {
+              final cached = PlanMetadataStore.getMetadata(item.id);
+              if (cached != null) {
+                plan = _synthesizePlanFromMetadata(item, cached);
+              }
+            }
+            if (plan == null) {
+              final reason = plansResolved
+                  ? 'no enrolment / not in userPlans'
+                  : 'userPlans not loaded; no cached metadata';
               _logger.info(
                 '[NOTIFICATION_NEW_FLOW] trigger=${trigger.name} block=${block.id} '
-                'plan=${item.id} case=1 action=skip reason="no enrolment / not in userPlans"',
+                'plan=${item.id} case=1 action=skip reason="$reason"',
               );
               bumpCase('1');
               continue;
@@ -254,9 +272,24 @@ class NotificationSyncEngine {
 
     // Cancel: anything owned that is no longer desired.
     // We preserve the diagnostic test ID untouched (user explicitly schedules it).
+    //
+    // When `plansResolved` is false we cannot prove whether a pending plan ID is
+    // stale or just unverified, so we skip cancellation entirely. The next
+    // successful userPlans refresh re-runs sync with a known enrollment set
+    // and reconciles any true orphans then. Master-off still cancels because
+    // its desired set is intentionally empty.
+    final canCancel = plansResolved || !masterOn || !osGranted;
     for (final p in ownedPending) {
       if (p.id == NotificationIdScheme.kDiagnosticTestId) continue;
       if (desired.containsKey(p.id)) continue;
+      if (!canCancel) {
+        skipped++;
+        _logger.info(
+          '[NOTIFICATION_NEW_FLOW] trigger=${trigger.name} action=skip-cancel '
+          'id=${p.id} reason="plans state unknown — additive-only mode"',
+        );
+        continue;
+      }
       try {
         await _plugin.cancel(p.id);
         cancelled++;
@@ -308,19 +341,58 @@ class NotificationSyncEngine {
     );
   }
 
-  Future<Map<String, UserPlansModel>> _readPlansById() async {
+  /// Returns the server-known plans keyed by id, or `null` if
+  /// `userPlansFutureProvider` is not in a resolved success state
+  /// (AsyncLoading, AsyncError, or `AsyncData(Left(failure))` — the common
+  /// offline outcome since the use case wraps network failures in `Left`).
+  ///
+  /// Callers MUST treat `null` as "unknown" — not as "empty" — and fall back
+  /// to [PlanMetadataStore] or skip cancellation. Conflating the two states
+  /// silently wipes every scheduled plan/special-plan notification on the
+  /// first sync that runs in the unknown window (e.g. a toggle change while
+  /// offline).
+  Future<Map<String, UserPlansModel>?> _readPlansById() async {
     try {
       final asyncValue = _ref.read(userPlansFutureProvider);
       final value = asyncValue.valueOrNull;
-      if (value == null) return const {};
+      if (value == null) return null;
       return value.fold(
-        (_) => const {},
+        (failure) {
+          _logger.warning(
+            '[NOTIFICATION_NEW_FLOW] userPlansFutureProvider resolved to '
+            'Left($failure) — treating plans state as unknown',
+          );
+          return null;
+        },
         (response) => {for (final p in response.userPlans) p.id: p},
       );
     } catch (e) {
       _logger.warning('readPlansById failed: $e');
-      return const {};
+      return null;
     }
+  }
+
+  /// Builds a minimal [UserPlansModel] from locally-cached enrollment
+  /// metadata. Only [UserPlansModel.effectiveStartDate] and
+  /// [UserPlansModel.totalDays] are consumed by [computeForPlanBlock]; the
+  /// other fields are placeholders.
+  ///
+  /// Used when `userPlansFutureProvider` cannot deliver a Right(response)
+  /// (offline / loading) so the schedule survives transient unknown windows.
+  UserPlansModel _synthesizePlanFromMetadata(
+    RoutineItem item,
+    PlanMetadata metadata,
+  ) {
+    return UserPlansModel(
+      id: item.id,
+      title: item.title,
+      description: '',
+      language: '',
+      difficultyLevel: null,
+      startedAt: metadata.effectiveStartDate,
+      totalDays: metadata.totalDays,
+      tags: null,
+    );
   }
 
   // ─── Pure compute (testable) ────────────────────────────────────────────────
