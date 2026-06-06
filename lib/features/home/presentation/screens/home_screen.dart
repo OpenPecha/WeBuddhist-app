@@ -63,12 +63,18 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     if (_hasRequestedPermissions) return;
     _hasRequestedPermissions = true;
 
-    final notificationService = ref.read(notificationServiceProvider);
+    // Capture the root ProviderContainer BEFORE any await. The OS permission
+    // dialog backgrounds the app and may dispose this State by the time we
+    // resume — `ref` becomes unusable but the container lives for the whole
+    // app, so post-permission scheduling still fires either way.
+    final container = ProviderScope.containerOf(context, listen: false);
+
+    final notificationService = container.read(notificationServiceProvider);
     if (notificationService == null) {
       _log.warning(
         '[HOME-SCREEN] NotificationService not initialized, skipping permission request',
       );
-      _navigateToPendingPlanIfNeeded();
+      if (mounted) _navigateToPendingPlanIfNeeded();
       return;
     }
 
@@ -92,24 +98,30 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     // notifications now (e.g. user just enrolled in ITCC during onboarding
     // after 09:00). Without permission, `_plugin.show()` silently no-ops, so
     // this MUST run after the permission request above.
-    await _firePendingSpecialPlanDay1IfNeeded();
+    await _firePendingSpecialPlanDay1IfNeeded(container);
+
+    if (!mounted) return;
 
     // After the permission flow (dialog shown or already granted), check
     // whether onboarding left a plan waiting to be opened in Practice.
     _navigateToPendingPlanIfNeeded();
   }
 
-  Future<void> _firePendingSpecialPlanDay1IfNeeded() async {
+  Future<void> _firePendingSpecialPlanDay1IfNeeded(
+    ProviderContainer container,
+  ) async {
+    // Use [container], NOT `this.ref` — see the comment in the caller.
     // Invalidate first — the provider may have been evaluated pre-login
     // (no auth header) and cached a Forbidden failure. We need a fresh read.
     _log.info('invalidating userPlansFutureProvider for fresh fetch');
-    ref.invalidate(userPlansFutureProvider);
+    container.invalidate(userPlansFutureProvider);
 
     const maxAttempts = 3;
     for (var attempt = 1; attempt <= maxAttempts; attempt++) {
       _log.info('fetch attempt $attempt/$maxAttempts');
       try {
-        final userPlansAsync = await ref.read(userPlansFutureProvider.future);
+        final userPlansAsync =
+            await container.read(userPlansFutureProvider.future);
         final isFailure = userPlansAsync.isLeft();
         _log.info('attempt $attempt resolved isFailure=$isFailure');
         if (isFailure && attempt < maxAttempts) {
@@ -117,7 +129,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             'attempt $attempt failed — invalidating and retrying: '
             '${userPlansAsync.fold((f) => f, (_) => "")}',
           );
-          ref.invalidate(userPlansFutureProvider);
+          container.invalidate(userPlansFutureProvider);
           await Future.delayed(const Duration(milliseconds: 400));
           continue;
         }
@@ -130,20 +142,20 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           (response) async {
             _log.info(
               'user plans loaded count=${response.userPlans.length} '
-              'on attempt=$attempt — triggering engine sync (permissionChanged)',
+              'on attempt=$attempt — triggering engine sync (appLaunch)',
             );
             // Permission may have just been granted; trigger a sync so
             // catch-up immediates fire now that `plugin.show()` works.
-            await ref
+            await container
                 .read(notificationSyncEngineProvider)
-                .sync(trigger: SyncTrigger.permissionChanged);
+                .sync(trigger: SyncTrigger.appLaunch);
           },
         );
         break;
       } catch (e, st) {
         _log.warning('attempt $attempt threw: $e\n$st');
         if (attempt < maxAttempts) {
-          ref.invalidate(userPlansFutureProvider);
+          container.invalidate(userPlansFutureProvider);
           await Future.delayed(const Duration(milliseconds: 400));
         }
       }

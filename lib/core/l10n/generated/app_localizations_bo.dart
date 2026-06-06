@@ -1419,4 +1419,13 @@ class AppLocalizationsBo extends AppLocalizations {
 
   @override
   String get version => 'Versions';
+
+  @override
+  String get read_full_text => 'Read Full Text';
+
+  @override
+  String get reader_source_label => 'Source';
+
+  @override
+  String get reader_license_label => 'License';
 }

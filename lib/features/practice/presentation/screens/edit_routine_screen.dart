@@ -183,7 +183,7 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
     final newItem = RoutineItem(
       id: plan.id,
       title: plan.title,
-      imageUrl: plan.coverImageUrl,
+      coverImage: plan.coverImage,
       type: RoutineItemType.plan,
       enrolledAt: DateTime.now(),
     );
@@ -276,7 +276,7 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
         RoutineItem(
           id: p.id,
           title: p.title,
-          imageUrl: p.imageUrl,
+          coverImage: p.coverImage,
           type: RoutineItemType.plan,
           enrolledAt: DateTime.now(),
         ),
@@ -1078,7 +1078,7 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
     final newItem = RoutineItem(
       id: plan.id,
       title: plan.title,
-      imageUrl: plan.coverImageUrl,
+      coverImage: plan.coverImage,
       type: RoutineItemType.plan,
       enrolledAt: DateTime.now(),
     );
@@ -1216,7 +1216,7 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
         RoutineItem(
           id: p.id,
           title: p.title,
-          imageUrl: p.imageUrl,
+          coverImage: p.coverImage,
           type: RoutineItemType.plan,
           enrolledAt: DateTime.now(),
         ),

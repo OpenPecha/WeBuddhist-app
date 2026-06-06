@@ -1,5 +1,6 @@
 import 'package:flutter_pecha/shared/domain/entities/base_entity.dart';
 import 'package:flutter_pecha/features/plans/domain/entities/week_plan.dart';
+import 'package:flutter_pecha/shared/domain/value_objects/responsive_image.dart';
 
 /// Plan entity for meditation practice plans.
 class Plan extends BaseEntity {
@@ -9,7 +10,7 @@ class Plan extends BaseEntity {
   final String description;
   final String authorId;
   final String? authorName;
-  final String? coverImageUrl;
+  final ResponsiveImage? coverImage;
   final int totalDays;
   final DifficultyLevel difficulty;
   final List<String> tags;
@@ -25,7 +26,7 @@ class Plan extends BaseEntity {
     required this.description,
     required this.authorId,
     this.authorName,
-    this.coverImageUrl,
+    this.coverImage,
     required this.totalDays,
     required this.difficulty,
     this.tags = const [],
@@ -34,6 +35,9 @@ class Plan extends BaseEntity {
     this.startDate,
     this.displayOrder,
   });
+
+  /// Smallest cover URL — notifications and legacy string-only callers.
+  String? get coverImageUrl => coverImage?.displayUrl;
 
   /// Get display title based on language preference.
   String getDisplayTitle(bool preferTibetan) {
@@ -51,6 +55,7 @@ class Plan extends BaseEntity {
     String? description,
     String? authorId,
     String? authorName,
+    ResponsiveImage? coverImage,
     String? coverImageUrl,
     int? totalDays,
     DifficultyLevel? difficulty,
@@ -67,7 +72,10 @@ class Plan extends BaseEntity {
       description: description ?? this.description,
       authorId: authorId ?? this.authorId,
       authorName: authorName ?? this.authorName,
-      coverImageUrl: coverImageUrl ?? this.coverImageUrl,
+      coverImage:
+          coverImageUrl != null
+              ? ResponsiveImage.uniform(coverImageUrl)
+              : (coverImage ?? this.coverImage),
       totalDays: totalDays ?? this.totalDays,
       difficulty: difficulty ?? this.difficulty,
       tags: tags ?? this.tags,
@@ -86,7 +94,7 @@ class Plan extends BaseEntity {
     description,
     authorId,
     authorName,
-    coverImageUrl,
+    coverImage,
     totalDays,
     difficulty,
     tags,

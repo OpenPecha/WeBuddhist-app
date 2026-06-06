@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_pecha/core/analytics/analytics_events.dart';
 import 'package:flutter_pecha/core/analytics/analytics_providers.dart';
 import 'package:flutter_pecha/core/analytics/analytics_service.dart';
@@ -41,6 +43,14 @@ class RoutineNotifier extends StateNotifier<RoutineData> {
     _loadRoutines();
   }
 
+  final Completer<void> _loadCompleter = Completer<void>();
+
+  /// Completes once `_loadRoutines` has finished (success or failure). Callers
+  /// that need to read [state.blocks] meaningfully at startup — e.g. the
+  /// notification bootstrap deciding whether to clear stale plan metadata —
+  /// should `await` this first.
+  Future<void> get whenLoaded => _loadCompleter.future;
+
   /// Load routines from local storage (Hive) and re-sync notifications.
   /// Re-syncing on startup ensures alarms are registered even after app
   /// updates or edge cases where AlarmManager entries were cleared.
@@ -61,6 +71,10 @@ class RoutineNotifier extends StateNotifier<RoutineData> {
       _logger.error('[ROUTINE-LOAD] Failed to load routines', e);
       if (mounted) {
         state = const RoutineData();
+      }
+    } finally {
+      if (!_loadCompleter.isCompleted) {
+        _loadCompleter.complete();
       }
     }
   }

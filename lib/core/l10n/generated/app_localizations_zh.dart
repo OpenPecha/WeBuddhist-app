@@ -1360,5 +1360,14 @@ class AppLocalizationsZh extends AppLocalizations {
   String get second_version_msg => '第二種翻譯版本會逐句出現在主文的下方';
 
   @override
-  String get version => '版本';
+  String get version => 'Versions';
+
+  @override
+  String get read_full_text => 'Read Full Text';
+
+  @override
+  String get reader_source_label => 'Source';
+
+  @override
+  String get reader_license_label => 'License';
 }

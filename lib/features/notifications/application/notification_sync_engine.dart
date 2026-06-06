@@ -30,6 +30,7 @@ final _logger = AppLogger('NotificationSyncEngine');
 enum SyncTrigger {
   coldStart,
   appResume,
+  appLaunch,
   userPlansRefreshed,
   routineSaved,
   blockDeleted,
@@ -378,6 +379,18 @@ class NotificationSyncEngine {
       blockHour,
       blockMinute,
     );
+    // Wall-clock twin of seriesStart used for "has today's slot passed?"
+    // comparisons against the caller's local `now`. Avoids mixing the
+    // wall-clock TZDateTime with `tz.TZDateTime.from(now, ...)` which uses
+    // `now`'s instant and goes wrong when `tz.local` ≠ system local
+    // (notably in tests where `tz.local = UTC`).
+    final seriesStartWall = DateTime(
+      anchorDay.year,
+      anchorDay.month,
+      anchorDay.day,
+      blockHour,
+      blockMinute,
+    );
 
     final payload = jsonEncode({
       'itemId': item.id,
@@ -394,7 +407,8 @@ class NotificationSyncEngine {
         break;
       }
       final fireDate = seriesStart.add(Duration(days: day - 1));
-      if (!fireDate.isAfter(tz.TZDateTime.from(now, tz.local))) continue;
+      final fireWall = seriesStartWall.add(Duration(days: day - 1));
+      if (!fireWall.isAfter(now)) continue;
 
       final dayLabel = isSpecial && specialEntries != null && day <= specialEntries.length
           ? '2a'
@@ -456,8 +470,8 @@ class NotificationSyncEngine {
     // hasn't been shown, fire immediately. Idempotency is enforced by the
     // shown-flag stores (see [_fireImmediate]).
     if (!today.isBefore(anchorDay) && daysSinceAnchor < totalDays) {
-      final todayFire = seriesStart.add(Duration(days: daysSinceAnchor));
-      final isPast = !todayFire.isAfter(tz.TZDateTime.from(now, tz.local));
+      final todayFireWall = seriesStartWall.add(Duration(days: daysSinceAnchor));
+      final isPast = !todayFireWall.isAfter(now);
       final dayNumber = daysSinceAnchor + 1;
       if (isPast) {
         String title;

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
-import 'package:flutter_pecha/core/widgets/cached_network_image_widget.dart';
+import 'package:flutter_pecha/core/widgets/responsive_cover_image.dart';
 import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
 import 'package:flutter_pecha/features/onboarding/presentation/providers/event_enrollment_providers.dart';
 import 'package:flutter_pecha/features/plans/domain/entities/plan.dart';
@@ -83,8 +83,8 @@ class _PlanInfoState extends ConsumerState<PlanInfo> {
   }
 
   Widget _buildPlanImage(BuildContext context) {
-    return CachedNetworkImageWidget(
-      imageUrl: widget.plan.coverImageUrl ?? '',
+    return ResponsiveCoverImage(
+      image: widget.plan.coverImage,
       width: double.infinity,
       height: MediaQuery.of(context).size.height * 0.25,
       fit: BoxFit.cover,

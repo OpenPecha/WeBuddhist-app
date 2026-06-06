@@ -75,7 +75,7 @@ class PracticeItemsRepositoryImpl implements PracticeItemsRepository {
           // shared model.
           final normalized = Map<String, dynamic>.from(model.raw);
           normalized['image'] ??= normalized['image_url'];
-          final series = SeriesModel.fromJson(normalized).toEntity(language);
+          final series = SeriesModel.fromJson(normalized).toEntity();
           return PracticeSeriesItem(series);
         } catch (e) {
           _logger.warning('Skipping malformed series item ${model.id}: $e');

@@ -72,7 +72,6 @@ void main() {
         description: '',
         language: 'en',
         difficultyLevel: null,
-        imageUrl: null,
         startedAt: startedAt ?? DateTime(2026, 6, 1),
         totalDays: totalDays,
         tags: null,
