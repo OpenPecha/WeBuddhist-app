@@ -142,10 +142,7 @@ class FeaturedPlanCard extends ConsumerWidget {
         isDark ? AppColors.textPrimary : AppColors.textPrimaryDark;
 
     return InkWell(
-      onTap:
-          isEnrolledInfoPending
-              ? null
-              : () => _navigateToPlan(context, plan, enrolledInfo),
+      onTap: () => _navigateToSeriesInfo(context),
       borderRadius: BorderRadius.circular(16),
       child: Container(
         decoration: BoxDecoration(
@@ -161,7 +158,7 @@ class FeaturedPlanCard extends ConsumerWidget {
               child: AspectRatio(
                 aspectRatio: 16 / 9,
                 child: _PlanCoverImage(
-                  image: plan.coverImage,
+                  image: displayImage,
                   placeholderIconSize: 48,
                   placeholderAlphaMin: 0.4,
                   placeholderAlphaMax: 0.7,
@@ -301,6 +298,14 @@ class FeaturedPlanCard extends ConsumerWidget {
         SnackBar(content: Text(message), backgroundColor: Colors.red),
       );
     }
+  }
+
+  void _navigateToSeriesInfo(BuildContext context) {
+    if (series == null) return;
+    context.push(
+      '/home/series/${series!.id}/info',
+      extra: {'series': series!},
+    );
   }
 }
 

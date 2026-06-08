@@ -14,6 +14,7 @@ import 'package:flutter_pecha/features/home/domain/entities/series.dart';
 import 'package:flutter_pecha/features/home/presentation/screens/main_navigation_screen.dart';
 import 'package:flutter_pecha/features/home/presentation/screens/plan_list_screen.dart';
 import 'package:flutter_pecha/features/home/presentation/screens/series_detail_screen.dart';
+import 'package:flutter_pecha/features/home/presentation/screens/series_info_screen.dart';
 import 'package:flutter_pecha/features/more/presentation/about_screen.dart';
 import 'package:flutter_pecha/features/more/presentation/edit_profile_screen.dart';
 import 'package:flutter_pecha/features/more/presentation/more_screen.dart';
@@ -136,6 +137,17 @@ final appRouterProvider = Provider<GoRouter>((ref) {
               final series = extra?['series'] as Series?;
               return SeriesDetailScreen(seriesId: id, series: series);
             },
+            routes: [
+              GoRoute(
+                path: "info",
+                name: "home-series-info",
+                builder: (context, state) {
+                  final extra = state.extra as Map<String, dynamic>?;
+                  final series = extra?['series'] as Series;
+                  return SeriesInfoScreen(series: series);
+                },
+              ),
+            ],
           ),
           // settings route
           GoRoute(

@@ -37,6 +37,7 @@ class SeriesModel {
   final int? planCount;
   final List<PlansModel> plans;
   final int totalDays;
+  final Map<String, dynamic>? groupJson;
 
   SeriesModel({
     required this.id,
@@ -48,6 +49,7 @@ class SeriesModel {
     this.planCount,
     this.plans = const [],
     this.totalDays = 0,
+    this.groupJson,
   });
 
   String? get imageUrl => image?.displayUrl;
@@ -95,6 +97,9 @@ class SeriesModel {
       planCount: (json['plan_count'] as num?)?.toInt(),
       plans: plansList,
       totalDays: (json['total_days'] as num?)?.toInt() ?? 0,
+      groupJson: json['group'] is Map<String, dynamic>
+          ? json['group'] as Map<String, dynamic>
+          : null,
     );
   }
 
@@ -108,6 +113,41 @@ class SeriesModel {
       featured: featured,
       totalDays: totalDays,
       plans: plans.map((p) => p.toEntity()).toList(),
+      group: _parseGroup(language),
+    );
+  }
+
+  SeriesGroup? _parseGroup(String language) {
+    if (groupJson == null) return null;
+    final g = groupJson!;
+    final rawMeta = g['metadata'];
+
+    Map<String, dynamic>? resolvedMeta;
+    if (rawMeta is Map<String, dynamic>) {
+      resolvedMeta = rawMeta;
+    } else if (rawMeta is List) {
+      final upper = language.toUpperCase();
+      for (final m in rawMeta) {
+        if (m is Map<String, dynamic>) {
+          final lang = (m['language'] as String? ?? '').toUpperCase();
+          if (lang == upper) {
+            resolvedMeta = m;
+            break;
+          }
+        }
+      }
+      resolvedMeta ??=
+          rawMeta.whereType<Map<String, dynamic>>().firstOrNull;
+    }
+
+    return SeriesGroup(
+      id: g['id'] as String? ?? '',
+      slug: g['slug'] as String? ?? '',
+      isPublic: g['is_public'] as bool? ?? false,
+      title: resolvedMeta?['title'] as String? ?? '',
+      description: resolvedMeta?['description'] as String?,
+      avatarUrl: g['avatar_url'] as String?,
+      bannerUrl: g['banner_url'] as String?,
     );
   }
 }
