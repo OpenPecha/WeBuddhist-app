@@ -4,12 +4,14 @@ import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
+import 'package:flutter_pecha/core/config/router/app_routes.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
 import 'package:flutter_pecha/features/auth/presentation/state/user_state.dart';
 import 'package:flutter_pecha/features/more/presentation/widgets/profile_avatar_section.dart';
 import 'package:flutter_pecha/features/more/presentation/widgets/username_form_field.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
@@ -380,36 +382,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   }
 
   void _showDeleteAccountDialog() {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    showDialog<void>(
-      context: context,
-      builder:
-          (_) => AlertDialog(
-            backgroundColor:
-                isDark ? AppColors.surfaceDark : AppColors.surfaceWhite,
-            title: const Text('Delete account'),
-            content: const Text(
-              'Are you sure you want to permanently delete your account? '
-              'This action cannot be undone.',
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: const Text('Cancel'),
-              ),
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                  // TODO: wire to auth delete account use-case
-                },
-                style: TextButton.styleFrom(
-                  foregroundColor: Colors.red.shade600,
-                ),
-                child: const Text('Delete'),
-              ),
-            ],
-          ),
-    );
+    context.push(AppRoutes.deleteAccount);
   }
 
   bool get _canSave =>

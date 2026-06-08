@@ -127,25 +127,15 @@ class _LoggedInProfile extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: 16),
-          // Name
-          if (user?.fullName != null && user!.fullName.isNotEmpty)
+          // Username
+          if (user?.username != null && user!.username!.isNotEmpty)
             Text(
-              user.fullName,
+              user.username!,
               style: Theme.of(
                 context,
               ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600),
             ),
-          const SizedBox(height: 4),
-          // Email
-          if (user?.email != null && user!.email!.isNotEmpty)
-            Text(
-              user.email!,
-              style: Theme.of(
-                context,
-              ).textTheme.bodyMedium?.copyWith(color: AppColors.grey600),
-            ),
           const SizedBox(height: 8),
-          // Bio
           if (user?.aboutMe != null && user!.aboutMe!.isNotEmpty)
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 32),

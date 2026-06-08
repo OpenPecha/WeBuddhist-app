@@ -26,6 +26,7 @@ class AppRoutes {
   static const String privacyPolicy = '/privacy-policy';
   static const String creatorInfo = '/creator_info';
   static const String notifications = '/notifications';
+  static const String deleteAccount = '/delete-account';
 
   // ========== HOME SUB ROUTES ==========
   static const String homeVideoPlayer = '/home/video_player';

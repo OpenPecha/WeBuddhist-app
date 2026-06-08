@@ -177,7 +177,7 @@ class MoreScreen extends ConsumerWidget {
         child: Row(
           children: [
             Icon(
-              PhosphorIconsRegular.globe,
+              PhosphorIconsRegular.translate,
               size: 24,
               color: Theme.of(context).iconTheme.color,
             ),

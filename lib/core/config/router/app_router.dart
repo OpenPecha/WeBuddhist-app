@@ -19,6 +19,7 @@ import 'package:flutter_pecha/features/more/presentation/edit_profile_screen.dar
 import 'package:flutter_pecha/features/more/presentation/more_screen.dart';
 import 'package:flutter_pecha/features/more/presentation/legal.dart';
 import 'package:flutter_pecha/features/more/presentation/privacy_policy_screen.dart';
+import 'package:flutter_pecha/features/more/presentation/delete_account_screen.dart';
 import 'package:flutter_pecha/features/more/presentation/terms_of_service_screen.dart';
 import 'package:flutter_pecha/features/onboarding/presentation/providers/onboarding_datasource_providers.dart';
 import 'package:flutter_pecha/features/onboarding/presentation/screens/onboarding_wrapper.dart';
@@ -359,6 +360,13 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: AppRoutes.privacyPolicy,
         name: "privacy-policy",
         builder: (context, state) => const PrivacyPolicyScreen(),
+      ),
+
+      // delete account route
+      GoRoute(
+        path: AppRoutes.deleteAccount,
+        name: "delete-account",
+        builder: (context, state) => const DeleteAccountScreen(),
       ),
 
       // plan text route - inline TEXT subtasks (sibling to /reader)

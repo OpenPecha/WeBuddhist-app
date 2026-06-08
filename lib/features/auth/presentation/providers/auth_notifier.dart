@@ -12,6 +12,7 @@ import 'package:flutter_pecha/features/auth/domain/entities/auth_credentials.dar
 import 'package:flutter_pecha/features/auth/domain/usecases/clear_guest_mode_and_onboarding_usecase.dart';
 import 'package:flutter_pecha/features/auth/domain/usecases/clear_guest_mode_usecase.dart';
 import 'package:flutter_pecha/features/auth/domain/usecases/continue_as_guest_usecase.dart';
+import 'package:flutter_pecha/features/auth/presentation/providers/use_case_providers.dart';
 import 'package:flutter_pecha/features/auth/domain/usecases/get_credentials_usecase.dart';
 import 'package:flutter_pecha/features/auth/domain/usecases/has_valid_credentials_usecase.dart';
 import 'package:flutter_pecha/features/auth/domain/usecases/initialize_auth_usecase.dart';
@@ -368,6 +369,32 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
     state = state.copyWith(isLoggedIn: false, isLoading: false, isGuest: false);
     _logger.info('User logged out, auth and user state cleared');
+  }
+
+  /// Permanently deletes the user's account via DELETE /users/info, then clears
+  /// all local data and logs out.
+  ///
+  /// Returns `null` on success or an error message string on failure.
+  Future<String?> deleteAccount() async {
+    state = state.copyWith(isLoading: true, errorMessage: null);
+
+    final deleteResult = await ref
+        .read(deleteAccountUseCaseProvider)
+        .call(const NoParams());
+
+    return deleteResult.fold(
+      (failure) {
+        state = state.copyWith(isLoading: false, errorMessage: failure.message);
+        _logger.error('Failed to delete account: ${failure.message}');
+        return failure.message;
+      },
+      (_) async {
+        _logger.info('Account deleted — clearing local data and logging out');
+        await clearAllUserData();
+        await logout();
+        return null;
+      },
+    );
   }
 
   /// Completely clear all user data (account deletion or privacy reset).
