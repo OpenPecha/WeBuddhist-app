@@ -145,6 +145,7 @@ class SeriesModel {
       slug: g['slug'] as String? ?? '',
       isPublic: g['is_public'] as bool? ?? false,
       title: resolvedMeta?['title'] as String? ?? '',
+      subTitle: resolvedMeta?['sub_title'] as String?,
       description: resolvedMeta?['description'] as String?,
       avatarUrl: g['avatar_url'] as String?,
       bannerUrl: g['banner_url'] as String?,

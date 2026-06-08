@@ -3,6 +3,7 @@ import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/core/widgets/responsive_cover_image.dart';
 import 'package:flutter_pecha/features/home/domain/entities/series.dart';
+import 'package:flutter_pecha/features/plans/presentation/widgets/plan_inline_markdown_view.dart';
 import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -19,8 +20,6 @@ class SeriesInfoScreen extends ConsumerWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final titleFontSize = locale.languageCode == 'bo' ? 24.0 : 20.0;
     final bodyFontSize = locale.languageCode == 'bo' ? 18.0 : 15.0;
-    final sectionHeaderColor =
-        isDark ? AppColors.textTertiaryDark : AppColors.textSecondary;
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
@@ -63,15 +62,19 @@ class SeriesInfoScreen extends ConsumerWidget {
                     ),
                     if (series.group != null) ...[
                       const SizedBox(height: 16),
-                      _buildGroupRow(context, series.group!, isDark, lineHeight),
+                      _buildGroupRow(
+                        context,
+                        series.group!,
+                        isDark,
+                        lineHeight,
+                      ),
                     ],
-                    if (series.description.trim().isNotEmpty) ...[
+                    if (series.group?.description != null &&
+                        series.group!.description!.trim().isNotEmpty) ...[
                       const SizedBox(height: 24),
                       _buildSection(
                         context,
-                        header: 'INTRODUCTION',
-                        body: series.description,
-                        headerColor: sectionHeaderColor,
+                        body: series.group!.description!,
                         bodyFontSize: bodyFontSize,
                         lineHeight: lineHeight,
                         isDark: isDark,
@@ -150,10 +153,9 @@ class SeriesInfoScreen extends ConsumerWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
-                if (group.description != null &&
-                    group.description!.trim().isNotEmpty)
+                if (group.subTitle != null && group.subTitle!.trim().isNotEmpty)
                   Text(
-                    group.description!,
+                    group.subTitle!,
                     style: TextStyle(
                       fontSize: 13,
                       color: subtitleColor,
@@ -176,40 +178,16 @@ class SeriesInfoScreen extends ConsumerWidget {
 
   Widget _buildSection(
     BuildContext context, {
-    required String header,
     required String body,
-    required Color headerColor,
     required double bodyFontSize,
     required double? lineHeight,
     required bool isDark,
   }) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            header,
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              letterSpacing: 1.2,
-              color: headerColor,
-            ),
-          ),
-          const SizedBox(height: 10),
-          Text(
-            body,
-            style: TextStyle(
-              fontSize: bodyFontSize,
-              height: lineHeight,
-              color:
-                  isDark
-                      ? AppColors.textSecondaryDark
-                      : AppColors.textPrimary,
-            ),
-          ),
-        ],
+      child: PlanInlineMarkdownView(
+        content: body,
+        fontSize: bodyFontSize,
       ),
     );
   }

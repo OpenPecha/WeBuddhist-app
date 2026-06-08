@@ -6,6 +6,7 @@ class SeriesGroup {
   final String slug;
   final bool isPublic;
   final String title;
+  final String? subTitle;
   final String? description;
   final String? avatarUrl;
   final String? bannerUrl;
@@ -15,6 +16,7 @@ class SeriesGroup {
     this.slug = '',
     this.isPublic = false,
     this.title = '',
+    this.subTitle,
     this.description,
     this.avatarUrl,
     this.bannerUrl,
