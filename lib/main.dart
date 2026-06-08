@@ -25,6 +25,7 @@ import 'package:fquery/fquery.dart';
 import 'core/theme/app_theme.dart';
 import 'core/localization/material_localizations_bo.dart';
 import 'core/localization/cupertino_localizations_bo.dart';
+import 'package:flutter_pecha/core/services/upgrade/force_update_gate.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 final _logger = AppLogger('Main');
@@ -174,6 +175,8 @@ class MyApp extends ConsumerWidget {
         debugShowCheckedModeBanner: false,
         // routerConfig: router,
         routerConfig: router,
+        builder: (context, child) =>
+            ForceUpdateGate(child: child ?? const SizedBox.shrink()),
       ),
     );
   }
