@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
 import 'package:flutter_pecha/core/config/router/app_routes.dart';
+import 'package:flutter_pecha/core/di/core_providers.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
@@ -123,6 +124,9 @@ class MoreScreen extends ConsumerWidget {
                 isDestructive: true,
               ),
             ],
+            const SizedBox(height: 32),
+            _buildVersionFooter(context, ref),
+            const SizedBox(height: 8),
           ],
         ),
       ),
@@ -242,6 +246,19 @@ class MoreScreen extends ConsumerWidget {
           ),
           if (trailing != null) trailing,
         ],
+      ),
+    );
+  }
+
+  Widget _buildVersionFooter(BuildContext context, WidgetRef ref) {
+    final versionLabel = ref.watch(appVersionLabelProvider);
+    if (versionLabel.isEmpty) return const SizedBox.shrink();
+    return Center(
+      child: Text(
+        versionLabel,
+        style: Theme.of(
+          context,
+        ).textTheme.bodySmall?.copyWith(color: AppColors.grey600),
       ),
     );
   }
