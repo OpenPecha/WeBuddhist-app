@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_pecha/core/cache/cache_service.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:flutter_pecha/core/config/api_config.dart';
 import 'package:flutter_pecha/core/network/ai_dio_client.dart';
 import 'package:flutter_pecha/core/network/auth_service_token_provider.dart';
@@ -191,5 +192,31 @@ final aiDioProvider = Provider<Dio>((ref) {
 /// Provider for CacheService (singleton)
 final cacheServiceProvider = Provider<CacheService>((ref) {
   return CacheService.instance;
+});
+
+// ============ App Info ============
+
+/// Resolves once and caches the result for the lifetime of the app.
+/// Callers that only need the version string can use [appVersionLabelProvider].
+final packageInfoProvider = FutureProvider<PackageInfo>((ref) async {
+  try {
+    return await PackageInfo.fromPlatform();
+  } catch (_) {
+    return PackageInfo(
+      appName: '',
+      packageName: '',
+      version: '',
+      buildNumber: '',
+    );
+  }
+});
+
+/// Human-readable label, e.g. "Version 2.5.5".
+/// Returns an empty string until the info is available or on failure.
+final appVersionLabelProvider = Provider<String>((ref) {
+  return ref.watch(packageInfoProvider).maybeWhen(
+    data: (info) => info.version.isNotEmpty ? 'Version ${info.version}' : '',
+    orElse: () => '',
+  );
 });
 

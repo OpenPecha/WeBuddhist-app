@@ -125,9 +125,9 @@ class SegmentActionBar extends ConsumerWidget {
 }
 
 /// Bottom-sheet-style panel that hosts the segment action cards. Anchored to
-/// the bottom edge with rounded top corners and a drag handle, it can be
-/// dismissed by swiping downwards (via [onDismiss]) and respects the home
-/// indicator through [SafeArea]. Children are laid out as equal-width cards.
+/// the bottom edge with rounded top corners, it can be dismissed by swiping
+/// downwards (via [onDismiss]) and respects the home indicator through
+/// [SafeArea]. Children are laid out as a horizontally scrollable row of cards.
 class _BottomActionPanel extends StatelessWidget {
   final List<Widget> children;
   final VoidCallback onDismiss;
@@ -137,7 +137,15 @@ class _BottomActionPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
     const radius = Radius.circular(20);
+
+    // Slightly offset from the reader background so the panel reads as a
+    // distinct surface without a hard border.
+    final panelColor = Color.alphaBlend(
+      (isDark ? Colors.white : Colors.black).withValues(alpha: 0.05),
+      theme.scaffoldBackgroundColor,
+    );
 
     return Dismissible(
       key: const ValueKey('segment_action_panel'),
@@ -147,7 +155,7 @@ class _BottomActionPanel extends StatelessWidget {
         onDismiss();
       },
       child: Material(
-        color: theme.scaffoldBackgroundColor,
+        color: panelColor,
         elevation: 0,
         shadowColor: Colors.black.withValues(alpha: 0.2),
         borderRadius: const BorderRadius.only(
@@ -156,35 +164,18 @@ class _BottomActionPanel extends StatelessWidget {
         ),
         child: SafeArea(
           top: false,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Drag handle
-              Padding(
-                padding: const EdgeInsets.only(top: 10, bottom: 6),
-                child: Container(
-                  width: 36,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: theme.colorScheme.onSurface.withValues(alpha: 0.25),
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-              ),
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.fromLTRB(16, 6, 16, 12),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    for (var i = 0; i < children.length; i++) ...[
-                      if (i > 0) const SizedBox(width: 12),
-                      children[i],
-                    ],
-                  ],
-                ),
-              ),
-            ],
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                for (var i = 0; i < children.length; i++) ...[
+                  if (i > 0) const SizedBox(width: 12),
+                  children[i],
+                ],
+              ],
+            ),
           ),
         ),
       ),

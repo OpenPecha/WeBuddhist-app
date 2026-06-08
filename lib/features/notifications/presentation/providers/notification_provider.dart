@@ -2,24 +2,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_pecha/core/storage/storage_keys.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
+import 'package:flutter_pecha/features/notifications/application/notification_sync_engine.dart';
 import 'package:flutter_pecha/features/notifications/data/services/notification_service.dart';
-import 'package:flutter_pecha/features/notifications/data/services/routine_notification_service.dart';
 import 'package:flutter_pecha/features/practice/data/models/routine_model.dart';
-import 'package:flutter_pecha/features/practice/presentation/providers/routine_provider.dart';
 
 final _logger = AppLogger('NotificationProvider');
 
 enum NotificationToggleResult { success, permissionDenied, error }
-
-// ─── Block-type helpers ───────────────────────────────────────────────────────
-
-bool _isRoutineBlock(RoutineBlock block) =>
-    block.items.firstOrNull?.type == RoutineItemType.plan;
-
-bool _isRecitationBlock(RoutineBlock block) =>
-    block.items.firstOrNull?.type == RoutineItemType.recitation;
-
-// ─────────────────────────────────────────────────────────────────────────────
 
 /// Three app-level flags (master / routine / recitation) are stored in
 /// SharedPreferences and never touch OS permission. OS-level checks
@@ -138,15 +127,13 @@ class NotificationNotifier extends StateNotifier<NotificationState> {
           state = state.copyWith(hasSystemPermission: true);
         }
         await prefs.setBool(StorageKeys.notificationMasterEnabled, true);
-        final blocks = _ref.read(routineProvider).blocks;
-        _logger.info('[TOGGLE] master ON — syncing ${blocks.length} block(s) by sub-toggle state');
-        await _syncBySubToggles(blocks);
       } else {
         await prefs.setBool(StorageKeys.notificationMasterEnabled, false);
-        final blocks = _ref.read(routineProvider).blocks;
-        _logger.info('[TOGGLE] master OFF — cancelling all notifications (${blocks.length} block(s))');
-        await _cancelAll(blocks);
       }
+
+      await _ref
+          .read(notificationSyncEngineProvider)
+          .sync(trigger: SyncTrigger.masterToggle);
 
       _logger.info('[TOGGLE] master → $enable COMPLETE');
       return NotificationToggleResult.success;
@@ -166,10 +153,9 @@ class NotificationNotifier extends StateNotifier<NotificationState> {
 
   /// Toggles routine (plan) block notifications independently.
   ///
-  /// ON  → re-schedules only plan blocks (includes special-plan and
-  ///        duration series via [syncNotifications]).
-  /// OFF → cancels plan block notifications, special-plan series, and
-  ///        duration series. Routine blocks are NOT affected.
+  /// ON  → engine reschedules plan blocks (incl. special-plan and duration series).
+  /// OFF → engine cancels plan block notifications and series. Recitation
+  ///        blocks are not affected.
   Future<NotificationToggleResult> toggleRoutine(bool enable) async {
     _logger.info('[TOGGLE] routine → $enable');
     final previous = state;
@@ -179,20 +165,9 @@ class NotificationNotifier extends StateNotifier<NotificationState> {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool(StorageKeys.notificationRoutineEnabled, enable);
 
-      final allBlocks = _ref.read(routineProvider).blocks;
-      final routineBlocks = allBlocks.where(_isRoutineBlock).toList();
-      _logger.info('[TOGGLE] routine — ${routineBlocks.length} plan block(s) found');
-      final svc = RoutineNotificationService();
-
-      if (enable) {
-        _logger.info('[TOGGLE] routine ON — scheduling plan blocks + series');
-        await svc.syncNotifications(routineBlocks);
-      } else {
-        _logger.info('[TOGGLE] routine OFF — cancelling plan blocks, special-plan series, duration series');
-        await svc.cancelAllBlockNotifications(routineBlocks);
-        await svc.cancelAllSpecialPlanSchedules();
-        await svc.cancelAllPlanDurationSchedules();
-      }
+      await _ref
+          .read(notificationSyncEngineProvider)
+          .sync(trigger: SyncTrigger.routineToggle);
 
       _logger.info('[TOGGLE] routine → $enable COMPLETE');
       return NotificationToggleResult.success;
@@ -221,18 +196,9 @@ class NotificationNotifier extends StateNotifier<NotificationState> {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool(StorageKeys.notificationRecitationEnabled, enable);
 
-      final allBlocks = _ref.read(routineProvider).blocks;
-      final recitationBlocks = allBlocks.where(_isRecitationBlock).toList();
-      _logger.info('[TOGGLE] recitation — ${recitationBlocks.length} recitation block(s) found');
-      final svc = RoutineNotificationService();
-
-      if (enable) {
-        _logger.info('[TOGGLE] recitation ON — scheduling recitation blocks');
-        await svc.syncNotifications(recitationBlocks);
-      } else {
-        _logger.info('[TOGGLE] recitation OFF — cancelling recitation blocks');
-        await svc.cancelAllBlockNotifications(recitationBlocks);
-      }
+      await _ref
+          .read(notificationSyncEngineProvider)
+          .sync(trigger: SyncTrigger.recitationToggle);
 
       _logger.info('[TOGGLE] recitation → $enable COMPLETE');
       return NotificationToggleResult.success;
@@ -250,60 +216,14 @@ class NotificationNotifier extends StateNotifier<NotificationState> {
 
   // ── Resume sync ─────────────────────────────────────────────────────────────
 
-  /// Called when the app resumes from system settings. Re-syncs only if the
-  /// master toggle is on, respecting each sub-toggle's saved state.
+  /// Called when the app resumes from system settings. Always delegates to
+  /// the sync engine; the engine itself short-circuits when master is OFF
+  /// or OS permission is missing.
   Future<void> resyncRoutineNotifications(List<RoutineBlock> blocks) async {
-    if (!state.appMasterEnabled) return;
-    await _syncBySubToggles(blocks);
+    await _ref
+        .read(notificationSyncEngineProvider)
+        .sync(trigger: SyncTrigger.appResume);
   }
-
-  // ── Private helpers ─────────────────────────────────────────────────────────
-
-  /// Schedules/cancels each block category according to its sub-toggle state.
-  Future<void> _syncBySubToggles(List<RoutineBlock> blocks) async {
-    final svc = RoutineNotificationService();
-    final routineBlocks = blocks.where(_isRoutineBlock).toList();
-    final recitationBlocks = blocks.where(_isRecitationBlock).toList();
-
-    _logger.info(
-      '[SYNC] _syncBySubToggles — '
-      'routineBlocks=${routineBlocks.length} appRoutineEnabled=${state.appRoutineEnabled} | '
-      'recitationBlocks=${recitationBlocks.length} appRecitationEnabled=${state.appRecitationEnabled}',
-    );
-
-    if (state.appRoutineEnabled) {
-      _logger.info('[SYNC] scheduling ${routineBlocks.length} routine block(s)');
-      await svc.syncNotifications(routineBlocks);
-    } else {
-      _logger.info('[SYNC] routine disabled — cancelling plan blocks + series');
-      await svc.cancelAllBlockNotifications(routineBlocks);
-      await svc.cancelAllSpecialPlanSchedules();
-      await svc.cancelAllPlanDurationSchedules();
-    }
-
-    if (state.appRecitationEnabled) {
-      _logger.info('[SYNC] scheduling ${recitationBlocks.length} recitation block(s)');
-      await svc.syncNotifications(recitationBlocks);
-    } else {
-      _logger.info('[SYNC] recitation disabled — cancelling recitation blocks');
-      await svc.cancelAllBlockNotifications(recitationBlocks);
-    }
-
-    _logger.info('[SYNC] _syncBySubToggles DONE');
-  }
-
-  /// Cancels every scheduled notification regardless of sub-toggle states.
-  Future<void> _cancelAll(List<RoutineBlock> blocks) async {
-    _logger.info('[CANCEL-ALL] cancelling ${blocks.length} block(s) + all series');
-    final svc = RoutineNotificationService();
-    await svc.cancelAllBlockNotifications(blocks);
-    await svc.cancelAllSpecialPlanSchedules();
-    await svc.cancelAllPlanDurationSchedules();
-    await _service.notificationsPlugin.cancel(_kDiagnosticTestNotifId);
-    _logger.info('[CANCEL-ALL] DONE');
-  }
-
-  static const int _kDiagnosticTestNotifId = 9999;
 
   Future<bool> _loadBool(String key, {required bool defaultValue}) async {
     final prefs = await SharedPreferences.getInstance();
