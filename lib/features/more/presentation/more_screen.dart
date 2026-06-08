@@ -437,7 +437,9 @@ class _ThemeToggle extends StatelessWidget {
         padding: const EdgeInsets.all(2),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
-          color: isDarkMode ? AppColors.grey800 : AppColors.goldAccent,
+          color: isDarkMode
+              ? const Color(0xFF196BF1)
+              : const Color(0xFFADADAD),
         ),
         child: AnimatedAlign(
           duration: const Duration(milliseconds: 200),
