@@ -76,4 +76,7 @@ abstract class AuthRepository {
 
   /// POST /users/upload — uploads [file] as avatar and returns the hosted URL.
   Future<Either<Failure, String>> uploadAvatar(File file);
+
+  /// DELETE /users/info — permanently deletes the authenticated user's account.
+  Future<Either<Failure, void>> deleteAccount();
 }

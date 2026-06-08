@@ -1,8 +1,8 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/config/router/app_routes.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
-import 'package:flutter_pecha/core/widgets/cached_network_image_widget.dart';
 import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
 import 'package:flutter_pecha/features/auth/presentation/widgets/login_drawer.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -69,43 +69,73 @@ class _LoggedInProfile extends ConsumerWidget {
           // Avatar
           Hero(
             tag: 'profile-avatar',
-            child: CircleAvatar(
-              radius: 52,
-              backgroundColor: AppColors.grey300,
-              backgroundImage:
-                  avatarUrl.isNotEmpty
-                      ? avatarUrl.cachedNetworkImageProvider
-                      : null,
-              child:
-                  avatarUrl.isEmpty
-                      ? Icon(
-                        PhosphorIconsRegular.user,
-                        size: 44,
-                        color: AppColors.grey600,
-                      )
-                      : null,
+            child: SizedBox(
+              width: 104,
+              height: 104,
+              child: ClipOval(
+                child:
+                    avatarUrl.isNotEmpty
+                        ? CachedNetworkImage(
+                          imageUrl: avatarUrl,
+                          // Strip presigned query params so S3 signature rotations
+                          // resolve to the same cache entry.
+                          cacheKey:
+                              Uri.tryParse(
+                                avatarUrl,
+                              )?.replace(query: '', fragment: '').toString() ??
+                              avatarUrl,
+                          width: 104,
+                          height: 104,
+                          fit: BoxFit.cover,
+                          placeholder:
+                              (context, url) => ColoredBox(
+                                color: AppColors.grey300,
+                                child: Center(
+                                  child: SizedBox(
+                                    width: 24,
+                                    height: 24,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      color: AppColors.grey600,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                          errorWidget:
+                              (context, url, error) => ColoredBox(
+                                color: AppColors.grey300,
+                                child: Center(
+                                  child: Icon(
+                                    PhosphorIconsRegular.user,
+                                    size: 44,
+                                    color: AppColors.grey600,
+                                  ),
+                                ),
+                              ),
+                        )
+                        : ColoredBox(
+                          color: AppColors.grey300,
+                          child: Center(
+                            child: Icon(
+                              PhosphorIconsRegular.user,
+                              size: 44,
+                              color: AppColors.grey600,
+                            ),
+                          ),
+                        ),
+              ),
             ),
           ),
           const SizedBox(height: 16),
-          // Name
-          if (user?.fullName != null && user!.fullName.isNotEmpty)
+          // Username
+          if (user?.username != null && user!.username!.isNotEmpty)
             Text(
-              user.fullName,
+              user.username!,
               style: Theme.of(
                 context,
               ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600),
             ),
-          const SizedBox(height: 4),
-          // Email
-          if (user?.email != null && user!.email!.isNotEmpty)
-            Text(
-              user.email!,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: AppColors.grey600,
-              ),
-            ),
           const SizedBox(height: 8),
-          // Bio
           if (user?.aboutMe != null && user!.aboutMe!.isNotEmpty)
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 32),
@@ -124,10 +154,7 @@ class _LoggedInProfile extends ConsumerWidget {
 }
 
 class _GuestView extends StatelessWidget {
-  const _GuestView({
-    required this.onSignIn,
-    required this.localizations,
-  });
+  const _GuestView({required this.onSignIn, required this.localizations});
 
   final VoidCallback onSignIn;
   final AppLocalizations localizations;
@@ -160,9 +187,9 @@ class _GuestView extends StatelessWidget {
             Text(
               localizations.profile_guest_subtitle,
               textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: AppColors.grey600,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(color: AppColors.grey600),
             ),
             const SizedBox(height: 32),
             FilledButton(

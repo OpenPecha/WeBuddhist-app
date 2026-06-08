@@ -21,6 +21,9 @@ abstract class AuthRemoteDataSource {
   /// POST /users/upload — uploads [file] as multipart/form-data and returns the
   /// presigned S3 URL of the uploaded avatar.
   Future<String> uploadAvatar(String idToken, File file);
+
+  /// DELETE /users/info — permanently deletes the authenticated user's account.
+  Future<void> deleteUser(String idToken);
 }
 
 class AuthRemoteDatasourceImpl extends AuthRemoteDataSource {
@@ -116,5 +119,18 @@ class AuthRemoteDatasourceImpl extends AuthRemoteDataSource {
     final raw = response.data;
     if (raw is String) return raw;
     return raw.toString();
+  }
+
+  @override
+  Future<void> deleteUser(String idToken) async {
+    await _dio.delete(
+      '/users/info',
+      options: Options(
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $idToken',
+        },
+      ),
+    );
   }
 }

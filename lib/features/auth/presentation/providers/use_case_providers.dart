@@ -1,4 +1,5 @@
 import 'package:flutter_pecha/features/auth/domain/usecases/clear_guest_mode_and_onboarding_usecase.dart';
+import 'package:flutter_pecha/features/auth/domain/usecases/delete_account_usecase.dart';
 import 'package:flutter_pecha/features/auth/domain/usecases/clear_guest_mode_usecase.dart';
 import 'package:flutter_pecha/features/auth/domain/usecases/continue_as_guest_usecase.dart';
 import 'package:flutter_pecha/features/auth/domain/usecases/get_credentials_usecase.dart';
@@ -110,4 +111,10 @@ final updateUsernameUseCaseProvider = Provider<UpdateUsernameUseCase>((ref) {
 final uploadAvatarUseCaseProvider = Provider<UploadAvatarUseCase>((ref) {
   final repository = ref.watch(authRepositoryProvider);
   return UploadAvatarUseCase(repository);
+});
+
+/// Provider for DeleteAccountUseCase.
+final deleteAccountUseCaseProvider = Provider<DeleteAccountUseCase>((ref) {
+  final repository = ref.watch(authRepositoryProvider);
+  return DeleteAccountUseCase(repository);
 });

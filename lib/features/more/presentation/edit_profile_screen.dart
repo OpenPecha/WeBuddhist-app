@@ -3,15 +3,18 @@ import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
+import 'package:flutter_pecha/core/config/router/app_routes.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
-import 'package:flutter_pecha/core/widgets/cached_network_image_widget.dart';
 import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
 import 'package:flutter_pecha/features/auth/presentation/state/user_state.dart';
+import 'package:flutter_pecha/features/more/presentation/widgets/profile_avatar_section.dart';
+import 'package:flutter_pecha/features/more/presentation/widgets/username_form_field.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
-
-enum _UsernameState { idle, checking, available, conflict, error }
 
 class EditProfileScreen extends ConsumerStatefulWidget {
   const EditProfileScreen({super.key});
@@ -30,8 +33,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
 
   String? _originalUsername;
 
-  // Username availability state
-  _UsernameState _usernameState = _UsernameState.idle;
+  UsernameState _usernameState = UsernameState.idle;
   List<String> _usernameSuggestions = [];
   Timer? _usernameDebounce;
 
@@ -87,14 +89,14 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
 
     if (trimmed.isEmpty || trimmed == _originalUsername) {
       setState(() {
-        _usernameState = _UsernameState.idle;
+        _usernameState = UsernameState.idle;
         _usernameSuggestions = [];
       });
       return;
     }
 
     setState(() {
-      _usernameState = _UsernameState.checking;
+      _usernameState = UsernameState.checking;
       _usernameSuggestions = [];
     });
 
@@ -103,7 +105,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
 
   Future<void> _checkUsername(String username) async {
     if (!mounted) return;
-    setState(() => _usernameState = _UsernameState.checking);
+    setState(() => _usernameState = UsernameState.checking);
 
     final result = await ref
         .read(userProvider.notifier)
@@ -113,7 +115,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
 
     if (result == null) {
       setState(() {
-        _usernameState = _UsernameState.error;
+        _usernameState = UsernameState.error;
         _usernameSuggestions = [];
       });
       return;
@@ -122,12 +124,12 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     if (result.isAvailable) {
       _originalUsername = result.updatedUsername;
       setState(() {
-        _usernameState = _UsernameState.available;
+        _usernameState = UsernameState.available;
         _usernameSuggestions = [];
       });
     } else {
       setState(() {
-        _usernameState = _UsernameState.conflict;
+        _usernameState = UsernameState.conflict;
         _usernameSuggestions = result.suggestions;
       });
     }
@@ -146,10 +148,10 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
 
   Future<void> _onSave() async {
     // If a username check is pending, wait for it first.
-    if (_usernameState == _UsernameState.checking) return;
+    if (_usernameState == UsernameState.checking) return;
 
     // Block save if username has a conflict.
-    if (_usernameState == _UsernameState.conflict) return;
+    if (_usernameState == UsernameState.conflict) return;
 
     // If the username debounce hasn't fired yet, run it synchronously.
     final pendingUsername = _usernameCtrl.text.trim();
@@ -159,8 +161,8 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
       _usernameDebounce!.cancel();
       await _checkUsername(pendingUsername);
       if (!mounted) return;
-      if (_usernameState == _UsernameState.conflict ||
-          _usernameState == _UsernameState.error) {
+      if (_usernameState == UsernameState.conflict ||
+          _usernameState == UsernameState.error) {
         return;
       }
     }
@@ -198,12 +200,35 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
       return;
     }
 
+    // Refresh user data in the background so me_screen immediately shows the
+    // latest avatar and profile fields from the server (the POST /users/info
+    // response may omit avatar_url, which would otherwise wipe it from state).
+    unawaited(ref.read(userProvider.notifier).refreshUser());
+
     Navigator.of(context).pop();
   }
 
   // ── Avatar picker + upload ────────────────────────────────────────────────
 
   static const int _maxAvatarBytes = 1024 * 1024; // 1 MB — matches server limit
+
+  /// Returns a new [File] whose pixels are physically rotated to match the
+  /// EXIF orientation and whose EXIF orientation tag is stripped/set to 1.
+  ///
+  /// This ensures the file stored on S3 always has correct upright pixels,
+  /// regardless of which iOS version or image renderer fetches it later.
+  Future<File> _normalizeOrientation(String sourcePath) async {
+    final tmpDir = await getTemporaryDirectory();
+    final destPath =
+        '${tmpDir.path}/avatar_normalized_${DateTime.now().millisecondsSinceEpoch}.jpg';
+    final result = await FlutterImageCompress.compressAndGetFile(
+      sourcePath,
+      destPath,
+      quality: 90,
+      autoCorrectionAngle: true,
+    );
+    return result != null ? File(result.path) : File(sourcePath);
+  }
 
   Future<void> _pickAndUploadAvatar(ImageSource source) async {
     final picker = ImagePicker();
@@ -216,7 +241,12 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
 
     if (xFile == null || !mounted) return;
 
-    final file = File(xFile.path);
+    // Physically bake the EXIF orientation into the pixel data before upload.
+    // Without this, some iOS versions store the image with pixels in sensor
+    // orientation (e.g. landscape) and only an EXIF tag to indicate rotation.
+    // CachedNetworkImage and other renderers handle that tag inconsistently,
+    // causing the avatar to appear rotated on a subset of devices.
+    final file = await _normalizeOrientation(xFile.path);
 
     // Guard against files that are still over the server limit even after
     // picker compression. Skips the network call entirely.
@@ -352,44 +382,15 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   }
 
   void _showDeleteAccountDialog() {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    showDialog<void>(
-      context: context,
-      builder:
-          (_) => AlertDialog(
-            backgroundColor:
-                isDark ? AppColors.surfaceDark : AppColors.surfaceWhite,
-            title: const Text('Delete account'),
-            content: const Text(
-              'Are you sure you want to permanently delete your account? '
-              'This action cannot be undone.',
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: const Text('Cancel'),
-              ),
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                  // TODO: wire to auth delete account use-case
-                },
-                style: TextButton.styleFrom(
-                  foregroundColor: Colors.red.shade600,
-                ),
-                child: const Text('Delete'),
-              ),
-            ],
-          ),
-    );
+    context.push(AppRoutes.deleteAccount);
   }
 
   bool get _canSave =>
       !_isRefreshing &&
       !_isSaving &&
       !_isUploadingAvatar &&
-      _usernameState != _UsernameState.checking &&
-      _usernameState != _UsernameState.conflict;
+      _usernameState != UsernameState.checking &&
+      _usernameState != UsernameState.conflict;
 
   @override
   Widget build(BuildContext context) {
@@ -435,10 +436,6 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
         color: isDark ? AppColors.grey600 : AppColors.grey900,
         width: 1.5,
       ),
-    );
-    final errorBorder = OutlineInputBorder(
-      borderRadius: BorderRadius.circular(12),
-      borderSide: BorderSide(color: Colors.red.shade400),
     );
 
     return Scaffold(
@@ -506,75 +503,11 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               // ── Avatar ────────────────────────────────────────────────
-              Center(
-                child: Stack(
-                  clipBehavior: Clip.none,
-                  children: [
-                    Hero(
-                      tag: 'profile-avatar',
-                      child: CircleAvatar(
-                        radius: 52,
-                        backgroundColor: AppColors.grey300,
-                        backgroundImage:
-                            _pickedAvatarFile != null
-                                ? FileImage(_pickedAvatarFile!)
-                                : avatarUrl.isNotEmpty
-                                ? avatarUrl.cachedNetworkImageProvider
-                                : null,
-                        child:
-                            avatarUrl.isEmpty && _pickedAvatarFile == null
-                                ? Icon(
-                                  PhosphorIconsRegular.user,
-                                  size: 44,
-                                  color: AppColors.grey600,
-                                )
-                                : null,
-                      ),
-                    ),
-                    if (_isUploadingAvatar)
-                      Positioned.fill(
-                        child: DecoratedBox(
-                          decoration: BoxDecoration(
-                            color: Colors.black38,
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Center(
-                            child: SizedBox(
-                              width: 28,
-                              height: 28,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2.5,
-                                valueColor: AlwaysStoppedAnimation<Color>(
-                                  Colors.white,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    Positioned(
-                      bottom: 0,
-                      right: 0,
-                      child: GestureDetector(
-                        onTap:
-                            _isUploadingAvatar ? null : _showAvatarSourceSheet,
-                        child: Container(
-                          width: 28,
-                          height: 28,
-                          decoration: const BoxDecoration(
-                            color: Colors.black,
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Icon(
-                            Icons.add,
-                            color: Colors.white,
-                            size: 18,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+              ProfileAvatarSection(
+                avatarUrl: avatarUrl,
+                isUploadingAvatar: _isUploadingAvatar,
+                pickedAvatarFile: _pickedAvatarFile,
+                onEditTap: _showAvatarSourceSheet,
               ),
 
               const SizedBox(height: 32),
@@ -615,36 +548,14 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
               ],
 
               // ── Username ──────────────────────────────────────────────
-              TextField(
+              UsernameFormField(
                 controller: _usernameCtrl,
+                usernameState: _usernameState,
+                usernameSuggestions: _usernameSuggestions,
                 onChanged: _onUsernameChanged,
-                decoration: InputDecoration(
-                  labelText: 'Username',
-                  labelStyle: TextStyle(color: AppColors.grey500),
-                  filled: true,
-                  fillColor:
-                      isDark
-                          ? AppColors.surfaceVariantDark
-                          : AppColors.surfaceWhite,
-                  border: inputBorder,
-                  enabledBorder:
-                      _usernameState == _UsernameState.conflict
-                          ? errorBorder
-                          : inputBorder,
-                  focusedBorder:
-                      _usernameState == _UsernameState.conflict
-                          ? errorBorder
-                          : focusedBorder,
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 14,
-                  ),
-                  suffixIcon: _buildUsernameStatusIcon(),
-                ),
+                onSuggestionTap: _applySuggestion,
+                isDark: isDark,
               ),
-
-              // ── Username feedback ─────────────────────────────────────
-              _buildUsernameFeedback(isDark),
 
               const SizedBox(height: 20),
 
@@ -773,102 +684,5 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
         ),
       ),
     );
-  }
-
-  Widget? _buildUsernameStatusIcon() {
-    switch (_usernameState) {
-      case _UsernameState.checking:
-        return Padding(
-          padding: const EdgeInsets.all(14),
-          child: SizedBox(
-            width: 16,
-            height: 16,
-            child: CircularProgressIndicator(
-              strokeWidth: 2,
-              valueColor: AlwaysStoppedAnimation<Color>(AppColors.grey600),
-            ),
-          ),
-        );
-      case _UsernameState.available:
-        return Icon(
-          PhosphorIconsRegular.checkCircle,
-          color: Colors.green.shade600,
-          size: 20,
-        );
-      case _UsernameState.conflict:
-        return Icon(
-          PhosphorIconsRegular.warningCircle,
-          color: Colors.red.shade600,
-          size: 20,
-        );
-      case _UsernameState.error:
-        return Icon(
-          PhosphorIconsRegular.warningCircle,
-          color: Colors.orange.shade600,
-          size: 20,
-        );
-      case _UsernameState.idle:
-        return null;
-    }
-  }
-
-  Widget _buildUsernameFeedback(bool isDark) {
-    switch (_usernameState) {
-      case _UsernameState.conflict:
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 6),
-            Text(
-              'Someone already used this name',
-              style: TextStyle(color: Colors.red.shade600, fontSize: 13),
-            ),
-            if (_usernameSuggestions.isNotEmpty) ...[
-              const SizedBox(height: 4),
-              Wrap(
-                children: [
-                  Text(
-                    'Available : ',
-                    style: TextStyle(
-                      color: isDark ? AppColors.grey400 : AppColors.grey600,
-                      fontSize: 13,
-                    ),
-                  ),
-                  for (int i = 0; i < _usernameSuggestions.length; i++) ...[
-                    GestureDetector(
-                      onTap: () => _applySuggestion(_usernameSuggestions[i]),
-                      child: Text(
-                        _usernameSuggestions[i],
-                        style: TextStyle(
-                          color: isDark ? AppColors.grey400 : AppColors.grey600,
-                          fontSize: 13,
-                        ),
-                      ),
-                    ),
-                    if (i < _usernameSuggestions.length - 1)
-                      Text(
-                        ', ',
-                        style: TextStyle(
-                          color: isDark ? AppColors.grey400 : AppColors.grey600,
-                          fontSize: 13,
-                        ),
-                      ),
-                  ],
-                ],
-              ),
-            ],
-          ],
-        );
-      case _UsernameState.error:
-        return Padding(
-          padding: const EdgeInsets.only(top: 6),
-          child: Text(
-            'Could not check username. Try again.',
-            style: TextStyle(color: Colors.orange.shade700, fontSize: 13),
-          ),
-        );
-      default:
-        return const SizedBox.shrink();
-    }
   }
 }
