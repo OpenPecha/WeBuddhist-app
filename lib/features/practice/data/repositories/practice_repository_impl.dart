@@ -4,7 +4,6 @@ import 'package:uuid/uuid.dart';
 import 'package:flutter_pecha/core/error/failures.dart';
 import 'package:flutter_pecha/features/practice/data/datasource/routine_local_storage.dart';
 import 'package:flutter_pecha/features/practice/data/models/routine_model.dart';
-import 'package:flutter_pecha/features/notifications/data/services/routine_notification_service.dart';
 import 'package:flutter_pecha/features/practice/domain/entities/practice_progress.dart';
 import 'package:flutter_pecha/features/practice/domain/entities/practice_session.dart';
 import 'package:flutter_pecha/features/practice/domain/entities/routine.dart';
@@ -16,15 +15,16 @@ const _uuid = Uuid();
 ///
 /// Bridges the domain layer with the data layer, handling conversion
 /// between RoutineData (data model) and Routine (domain entity).
+///
+/// Notification scheduling lives on `NotificationSyncEngine`; this repo only
+/// persists state. Callers that want the OS schedule rebuilt should trigger
+/// a sync separately.
 class PracticeRepositoryImpl implements PracticeRepository {
   final RoutineLocalStorage _localStorage;
-  final RoutineNotificationService _notificationService;
 
   PracticeRepositoryImpl({
     required RoutineLocalStorage localStorage,
-    required RoutineNotificationService notificationService,
-  })  : _localStorage = localStorage,
-        _notificationService = notificationService;
+  }) : _localStorage = localStorage;
 
   // ========== Routine Operations ==========
 
@@ -69,7 +69,6 @@ class PracticeRepositoryImpl implements PracticeRepository {
       final newData = RoutineData(blocks: newBlocks).sortedByTime;
 
       await _localStorage.saveRoutine(newData);
-      await _notificationService.syncNotifications(newData.blocks);
 
       return Right(_blockToRoutine(block));
     } catch (e) {
@@ -92,7 +91,6 @@ class PracticeRepositoryImpl implements PracticeRepository {
       final newData = RoutineData(blocks: newBlocks).sortedByTime;
 
       await _localStorage.saveRoutine(newData);
-      await _notificationService.syncNotifications(newData.blocks);
 
       return Right(_blockToRoutine(block));
     } catch (e) {
@@ -109,9 +107,6 @@ class PracticeRepositoryImpl implements PracticeRepository {
       if (index == -1) {
         return Left(NotFoundFailure('Routine not found: $id'));
       }
-
-      final block = data.blocks[index];
-      await _notificationService.cancelBlockNotification(block);
 
       final newBlocks = data.blocks.where((b) => b.id != id).toList();
       final newData = RoutineData(blocks: newBlocks);

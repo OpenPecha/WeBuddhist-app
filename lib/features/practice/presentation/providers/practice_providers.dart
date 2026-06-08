@@ -34,10 +34,10 @@ final routineNotificationServiceProvider =
 });
 
 /// Provider for [PracticeRepository] — the domain interface for local
-/// routine storage and session operations.
+/// routine storage and session operations. Notification scheduling lives
+/// on `NotificationSyncEngine`, not on this repository.
 final practiceRepositoryProvider = Provider<PracticeRepository>((ref) {
   return PracticeRepositoryImpl(
     localStorage: ref.watch(routineLocalStorageProvider),
-    notificationService: ref.watch(routineNotificationServiceProvider),
   );
 });
