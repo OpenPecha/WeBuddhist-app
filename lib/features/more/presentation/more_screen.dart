@@ -90,7 +90,7 @@ class MoreScreen extends ConsumerWidget {
               context,
               icon: PhosphorIconsRegular.gavel,
               title: 'Legal',
-              onTap: () => context.push(AppRoutes.privacyPolicy),
+              onTap: () => context.push(AppRoutes.legal),
             ),
             _buildSettingsRow(
               context,

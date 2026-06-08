@@ -21,6 +21,8 @@ class AppRoutes {
   static const String settings = '/settings';
   static const String profile = '/profile';
   static const String about = '/about';
+  static const String legal = '/legal';
+  static const String termsOfService = '/terms-of-service';
   static const String privacyPolicy = '/privacy-policy';
   static const String creatorInfo = '/creator_info';
   static const String notifications = '/notifications';

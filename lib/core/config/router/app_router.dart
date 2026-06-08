@@ -17,7 +17,9 @@ import 'package:flutter_pecha/features/home/presentation/screens/series_detail_s
 import 'package:flutter_pecha/features/more/presentation/about_screen.dart';
 import 'package:flutter_pecha/features/more/presentation/edit_profile_screen.dart';
 import 'package:flutter_pecha/features/more/presentation/more_screen.dart';
+import 'package:flutter_pecha/features/more/presentation/legal.dart';
 import 'package:flutter_pecha/features/more/presentation/privacy_policy_screen.dart';
+import 'package:flutter_pecha/features/more/presentation/terms_of_service_screen.dart';
 import 'package:flutter_pecha/features/onboarding/presentation/providers/onboarding_datasource_providers.dart';
 import 'package:flutter_pecha/features/onboarding/presentation/screens/onboarding_wrapper.dart';
 import 'package:flutter_pecha/features/plans/domain/entities/plan.dart';
@@ -336,6 +338,20 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: AppRoutes.about,
         name: "about",
         builder: (context, state) => const AboutScreen(),
+      ),
+
+      // legal route
+      GoRoute(
+        path: AppRoutes.legal,
+        name: "legal",
+        builder: (context, state) => const LegalScreen(),
+      ),
+
+      // terms of service route
+      GoRoute(
+        path: AppRoutes.termsOfService,
+        name: "terms-of-service",
+        builder: (context, state) => const TermsOfServiceScreen(),
       ),
 
       // privacy policy route

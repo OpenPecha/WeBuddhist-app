@@ -131,6 +131,9 @@ dependencies:
   # Network connectivity
   connectivity_plus: ^6.1.1
   upgrader: ^13.5.0
+  
+  # WebView
+  webview_flutter: ^4.10.0
   # QR code generation
   qr_flutter: ^4.1.0
   skeletonizer: ^2.1.2
