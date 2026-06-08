@@ -74,7 +74,7 @@ class SeriesInfoScreen extends ConsumerWidget {
                       const SizedBox(height: 24),
                       _buildSection(
                         context,
-                        body: series.group!.description!,
+                        body: series!.description!,
                         bodyFontSize: bodyFontSize,
                         lineHeight: lineHeight,
                         isDark: isDark,
@@ -185,10 +185,7 @@ class SeriesInfoScreen extends ConsumerWidget {
   }) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
-      child: PlanInlineMarkdownView(
-        content: body,
-        fontSize: bodyFontSize,
-      ),
+      child: PlanInlineMarkdownView(content: body, fontSize: bodyFontSize),
     );
   }
 }
