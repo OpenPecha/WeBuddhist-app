@@ -1430,4 +1430,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get reader_license_label => 'License';
+
+  @override
+  String get know_more => 'Know More';
 }

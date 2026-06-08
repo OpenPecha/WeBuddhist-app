@@ -1370,4 +1370,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get reader_license_label => 'License';
+
+  @override
+  String get know_more => '了解更多';
 }

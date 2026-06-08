@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
+import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/core/widgets/responsive_cover_image.dart';
@@ -106,9 +107,9 @@ class FeaturedPlanCard extends ConsumerWidget {
     final titleFontSize = locale.languageCode == 'bo' ? 22.0 : 18.0;
     final subtitleFontSize = locale.languageCode == 'bo' ? 18.0 : 14.0;
 
-    final displayTitle = series?.title ?? plan.title;
     final displayDescription = series?.description ?? plan.description;
     final displayImage = series?.coverImage ?? plan.coverImage;
+    final localizations = AppLocalizations.of(context)!;
 
     final myPlansState = ref.watch(myPlansPaginatedProvider);
     final isGuest = ref.watch(authProvider).isGuest;
@@ -155,13 +156,16 @@ class FeaturedPlanCard extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            AspectRatio(
-              aspectRatio: 16 / 9,
-              child: _PlanCoverImage(
-                image: displayImage,
-                placeholderIconSize: 48,
-                placeholderAlphaMin: 0.4,
-                placeholderAlphaMax: 0.7,
+            ClipRRect(
+              borderRadius: BorderRadius.circular(16),
+              child: AspectRatio(
+                aspectRatio: 16 / 9,
+                child: _PlanCoverImage(
+                  image: plan.coverImage,
+                  placeholderIconSize: 48,
+                  placeholderAlphaMin: 0.4,
+                  placeholderAlphaMax: 0.7,
+                ),
               ),
             ),
             Padding(
@@ -169,28 +173,40 @@ class FeaturedPlanCard extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    displayTitle,
-                    style: TextStyle(
-                      fontSize: titleFontSize,
-                      fontWeight: FontWeight.bold,
-                      height: lineHeight,
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  if (hasDescription) ...[
-                    const SizedBox(height: 6),
-                    Text(
-                      displayDescription,
-                      style: TextStyle(
-                        fontSize: subtitleFontSize,
-                        height: lineHeight,
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              localizations.know_more,
+                              style: TextStyle(
+                                fontSize: titleFontSize,
+                                fontWeight: FontWeight.bold,
+                                height: lineHeight,
+                              ),
+                            ),
+                            if (hasDescription) ...[
+                              Text(
+                                displayDescription,
+                                style: TextStyle(
+                                  fontSize: subtitleFontSize,
+                                  height: lineHeight,
+                                ),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              const SizedBox(height: 6),
+                            ],
+                          ],
+                        ),
                       ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
+                      Icon(Icons.arrow_forward, size: titleFontSize),
+                    ],
+                  ),
                   if (!hideEnrollButton) ...[
                     const SizedBox(height: 14),
                     SizedBox(

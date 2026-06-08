@@ -2679,6 +2679,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'License'**
   String get reader_license_label;
+
+  /// No description provided for @know_more.
+  ///
+  /// In en, this message translates to:
+  /// **'Know More'**
+  String get know_more;
 }
 
 class _AppLocalizationsDelegate
