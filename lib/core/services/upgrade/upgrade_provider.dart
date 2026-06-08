@@ -14,7 +14,7 @@ final _logger = AppLogger('UpgradeProvider');
 /// even when no actual update is available.
 final updateAvailableProvider = FutureProvider<bool>((ref) async {
   try {
-    // Set to true to test the update banner UI
+    // Set to true to test the forced-update modal UI; revert before shipping
     const debugDisplayAlways = false;
 
     await AppUpgradeService.initialize(debugDisplayAlways: debugDisplayAlways);

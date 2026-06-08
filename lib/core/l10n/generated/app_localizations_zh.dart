@@ -1370,4 +1370,13 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get reader_license_label => 'License';
+
+  @override
+  String get force_update_title => '需要更新';
+
+  @override
+  String get force_update_message => '有新版本可用，請更新後繼續使用。';
+
+  @override
+  String get force_update_button => '立即更新';
 }

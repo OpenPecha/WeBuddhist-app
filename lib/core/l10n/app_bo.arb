@@ -589,5 +589,8 @@
   "version": "Versions",
   "read_full_text": "Read Full Text",
   "reader_source_label": "Source",
-  "reader_license_label": "License"
+  "reader_license_label": "License",
+  "force_update_title": "གསར་བསྒྱུར་དགོས་མཁོ།",
+  "force_update_message": "མཉེན་ཆས་ཀྱི་པར་གཞི་གསར་པ་ཞིག་ཡོད་པས། མུ་མཐུད་སྤྱོད་རོགས་གནང་བར་གསར་བསྒྱུར་མཛད་རོགས།",
+  "force_update_button": "གསར་བསྒྱུར།"
 }
