@@ -29,7 +29,7 @@ class SeriesMetadataModel {
 
 class SeriesModel {
   final String id;
-  final SeriesMetadataModel? metadata;
+  final List<SeriesMetadataModel> metadataList;
   final ImageModel? image;
   final String authorId;
   final bool featured;
@@ -40,7 +40,7 @@ class SeriesModel {
 
   SeriesModel({
     required this.id,
-    this.metadata,
+    this.metadataList = const [],
     this.image,
     this.authorId = '',
     this.featured = false,
@@ -52,12 +52,33 @@ class SeriesModel {
 
   String? get imageUrl => image?.displayUrl;
 
+  SeriesMetadataModel? resolveMetadata(String language) {
+    if (metadataList.isEmpty) return null;
+    final upper = language.toUpperCase();
+    return metadataList.cast<SeriesMetadataModel?>().firstWhere(
+          (m) => m!.language.toUpperCase() == upper,
+          orElse: () =>
+              metadataList.cast<SeriesMetadataModel?>().firstWhere(
+                (m) => m!.language.toUpperCase() == 'EN',
+                orElse: () => metadataList.first,
+              ),
+        );
+  }
+
   factory SeriesModel.fromJson(Map<String, dynamic> json) {
     final metadataJson = json['metadata'];
-    final SeriesMetadataModel? metadata =
-        metadataJson is Map<String, dynamic>
-            ? SeriesMetadataModel.fromJson(metadataJson)
-            : null;
+    final List<SeriesMetadataModel> metadataList;
+    if (metadataJson is List) {
+      metadataList =
+          metadataJson
+              .whereType<Map<String, dynamic>>()
+              .map(SeriesMetadataModel.fromJson)
+              .toList();
+    } else if (metadataJson is Map<String, dynamic>) {
+      metadataList = [SeriesMetadataModel.fromJson(metadataJson)];
+    } else {
+      metadataList = const [];
+    }
 
     final plansList =
         (json['plans'] as List<dynamic>? ?? [])
@@ -66,7 +87,7 @@ class SeriesModel {
 
     return SeriesModel(
       id: json['id'] as String,
-      metadata: metadata,
+      metadataList: metadataList,
       image: ImageModel.fromJsonMap(json),
       authorId: json['author_id'] as String? ?? '',
       featured: json['featured'] as bool? ?? false,
@@ -77,11 +98,12 @@ class SeriesModel {
     );
   }
 
-  Series toEntity() {
+  Series toEntity({String language = 'en'}) {
+    final resolved = resolveMetadata(language);
     return Series(
       id: id,
-      title: metadata?.title ?? '',
-      description: metadata?.description ?? '',
+      title: resolved?.title ?? '',
+      description: resolved?.description ?? '',
       coverImage: image?.toResponsiveImage(),
       featured: featured,
       totalDays: totalDays,

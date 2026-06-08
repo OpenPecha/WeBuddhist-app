@@ -63,6 +63,7 @@ class SeriesDetailScreen extends ConsumerWidget {
                         return PlanListView(
                           plans: series.plans,
                           seriesId: seriesId,
+                          series: series,
                         );
                       },
                     );
