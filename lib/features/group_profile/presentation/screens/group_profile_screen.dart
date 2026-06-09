@@ -7,8 +7,8 @@ import 'package:flutter_pecha/features/group_profile/presentation/providers/grou
 import 'package:flutter_pecha/features/plans/presentation/widgets/plan_inline_markdown_view.dart';
 import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class GroupProfileScreen extends ConsumerWidget {
@@ -65,7 +65,7 @@ class GroupProfileScreen extends ConsumerWidget {
       child: Row(
         children: [
           IconButton(
-            icon: const Icon(Icons.arrow_back_ios),
+            icon: const Icon(PhosphorIconsRegular.arrowLeft),
             onPressed: () => context.pop(),
           ),
           const Spacer(),
@@ -169,13 +169,10 @@ class _GroupProfileBodyState extends State<_GroupProfileBody> {
     bool isDark,
     double? lineHeight,
   ) {
-    final subtitleColor =
-        isDark ? AppColors.textTertiaryDark : AppColors.textSecondary;
-
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           CircleAvatar(
             radius: 22,
@@ -188,7 +185,7 @@ class _GroupProfileBodyState extends State<_GroupProfileBody> {
             child:
                 (profile.avatarUrl == null || profile.avatarUrl!.isEmpty)
                     ? Icon(
-                      Icons.group,
+                      PhosphorIconsRegular.usersThree,
                       size: 22,
                       color: isDark ? AppColors.grey500 : AppColors.grey600,
                     )
@@ -208,19 +205,6 @@ class _GroupProfileBodyState extends State<_GroupProfileBody> {
                       height: lineHeight,
                     ),
                   ),
-                if (profile.subTitle != null &&
-                    profile.subTitle!.trim().isNotEmpty)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 2),
-                    child: Text(
-                      profile.subTitle!,
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: subtitleColor,
-                        height: lineHeight,
-                      ),
-                    ),
-                  ),
               ],
             ),
           ),
@@ -237,23 +221,12 @@ class _GroupProfileBodyState extends State<_GroupProfileBody> {
         runSpacing: 6,
         children:
             tags.map((tag) {
-              return Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 4,
-                ),
-                decoration: BoxDecoration(
+              return Text(
+                tag,
+                style: TextStyle(
+                  fontSize: 12,
                   color:
-                      isDark ? AppColors.surfaceVariantDark : AppColors.grey100,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Text(
-                  tag,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color:
-                        isDark ? AppColors.textTertiaryDark : AppColors.grey800,
-                  ),
+                      isDark ? AppColors.textTertiaryDark : AppColors.grey800,
                 ),
               );
             }).toList(),
@@ -336,7 +309,7 @@ class _GroupProfileBodyState extends State<_GroupProfileBody> {
         child: Row(
           children: [
             Icon(
-              Icons.link,
+              PhosphorIconsRegular.link,
               size: 18,
               color: isDark ? AppColors.textTertiaryDark : AppColors.grey800,
             ),
@@ -372,7 +345,7 @@ class _GroupProfileBodyState extends State<_GroupProfileBody> {
                 padding: const EdgeInsets.only(right: 16),
                 child: GestureDetector(
                   onTap: () => _launchUrl(link.url),
-                  child: FaIcon(
+                  child: Icon(
                     _socialIcon(link.platform),
                     size: 22,
                     color: isDark ? AppColors.grey300 : AppColors.textPrimary,
@@ -467,7 +440,7 @@ class _GroupProfileBodyState extends State<_GroupProfileBody> {
                                 ? AppColors.surfaceVariantDark
                                 : AppColors.grey100,
                         child: Icon(
-                          Icons.self_improvement,
+                          PhosphorIconsRegular.bookOpenText,
                           color: isDark ? AppColors.grey500 : AppColors.grey600,
                         ),
                       ),
@@ -514,23 +487,23 @@ class _GroupProfileBodyState extends State<_GroupProfileBody> {
     );
   }
 
-  FaIconData _socialIcon(String platform) {
+  IconData _socialIcon(String platform) {
     switch (platform.toLowerCase()) {
       case 'instagram':
-        return FontAwesomeIcons.instagram;
+        return PhosphorIconsRegular.instagramLogo;
       case 'facebook':
-        return FontAwesomeIcons.facebook;
+        return PhosphorIconsRegular.facebookLogo;
       case 'twitter':
       case 'x':
-        return FontAwesomeIcons.xTwitter;
+        return PhosphorIconsRegular.xLogo;
       case 'youtube':
-        return FontAwesomeIcons.youtube;
+        return PhosphorIconsRegular.youtubeLogo;
       case 'tiktok':
-        return FontAwesomeIcons.tiktok;
+        return PhosphorIconsRegular.tiktokLogo;
       case 'linkedin':
-        return FontAwesomeIcons.linkedin;
+        return PhosphorIconsRegular.linkedinLogo;
       default:
-        return FontAwesomeIcons.link;
+        return PhosphorIconsRegular.link;
     }
   }
 
