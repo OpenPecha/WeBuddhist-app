@@ -308,21 +308,14 @@ class _GroupProfileBodyState extends State<_GroupProfileBody> {
         onTap: () => _launchUrl(link.url),
         child: Row(
           children: [
-            Icon(
-              PhosphorIconsRegular.link,
-              size: 18,
-              color: isDark ? AppColors.textTertiaryDark : AppColors.grey800,
-            ),
+            Icon(PhosphorIconsRegular.link, size: 18, color: AppColors.info),
             const SizedBox(width: 6),
             Flexible(
               child: Text(
                 link.url,
                 style: TextStyle(
                   fontSize: 14,
-                  color:
-                      isDark
-                          ? AppColors.textSecondaryDark
-                          : AppColors.textPrimary,
+                  color: AppColors.info,
                   decoration: TextDecoration.underline,
                 ),
                 maxLines: 1,
