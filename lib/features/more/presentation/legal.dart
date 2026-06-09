@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/config/router/app_routes.dart';
 import 'package:flutter_pecha/core/constants/app_assets.dart';
+import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 
 class LegalScreen extends StatelessWidget {
@@ -17,9 +18,10 @@ class LegalScreen extends StatelessWidget {
         elevation: 0,
         title: Text(
           l10n.legal_title,
-          style: Theme.of(
-            context,
-          ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700, fontSize: 20),
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+            fontWeight: FontWeight.w700,
+            fontSize: 20,
+          ),
         ),
         centerTitle: true,
       ),
