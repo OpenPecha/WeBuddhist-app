@@ -5,6 +5,8 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:flutter_pecha/core/config/router/app_routes.dart';
+import 'package:flutter_pecha/core/constants/app_assets.dart';
+import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
 import 'package:flutter_pecha/features/auth/presentation/state/user_state.dart';
@@ -14,7 +16,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 class EditProfileScreen extends ConsumerStatefulWidget {
   const EditProfileScreen({super.key});
@@ -35,6 +36,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
 
   UsernameState _usernameState = UsernameState.idle;
   List<String> _usernameSuggestions = [];
+  String? _usernameValidationMessage;
   Timer? _usernameDebounce;
 
   bool _isRefreshing = false;
@@ -83,6 +85,22 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
 
   // ── Username debounce ─────────────────────────────────────────────────────
 
+  static String? _validateUsername(String username, AppLocalizations l10n) {
+    if (username.length < 3) return l10n.username_min_length;
+    if (username.length > 30) return l10n.username_max_length;
+    if (username.contains(' ')) return l10n.username_no_spaces;
+    if (!RegExp(r'^[a-zA-Z0-9_.\-]+$').hasMatch(username)) {
+      return l10n.username_invalid_chars;
+    }
+    if (!RegExp(r'^[a-zA-Z0-9]').hasMatch(username)) {
+      return l10n.username_must_start_alphanumeric;
+    }
+    if (!RegExp(r'[a-zA-Z0-9]$').hasMatch(username)) {
+      return l10n.username_must_end_alphanumeric;
+    }
+    return null;
+  }
+
   void _onUsernameChanged(String value) {
     _usernameDebounce?.cancel();
     final trimmed = value.trim();
@@ -90,6 +108,20 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     if (trimmed.isEmpty || trimmed == _originalUsername) {
       setState(() {
         _usernameState = UsernameState.idle;
+        _usernameValidationMessage = null;
+        _usernameSuggestions = [];
+      });
+      return;
+    }
+
+    final formatError = _validateUsername(
+      trimmed,
+      AppLocalizations.of(context)!,
+    );
+    if (formatError != null) {
+      setState(() {
+        _usernameState = UsernameState.invalid;
+        _usernameValidationMessage = formatError;
         _usernameSuggestions = [];
       });
       return;
@@ -97,6 +129,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
 
     setState(() {
       _usernameState = UsernameState.checking;
+      _usernameValidationMessage = null;
       _usernameSuggestions = [];
     });
 
@@ -112,6 +145,9 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
         .updateUsername(username);
 
     if (!mounted) return;
+
+    // Discard stale response if the field changed while the request was in-flight.
+    if (_usernameCtrl.text.trim() != username) return;
 
     if (result == null) {
       setState(() {
@@ -150,8 +186,9 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     // If a username check is pending, wait for it first.
     if (_usernameState == UsernameState.checking) return;
 
-    // Block save if username has a conflict.
+    // Block save if username has a conflict or failed frontend validation.
     if (_usernameState == UsernameState.conflict) return;
+    if (_usernameState == UsernameState.invalid) return;
 
     // If the username debounce hasn't fired yet, run it synchronously.
     final pendingUsername = _usernameCtrl.text.trim();
@@ -159,10 +196,23 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
         pendingUsername != _originalUsername &&
         pendingUsername.isNotEmpty) {
       _usernameDebounce!.cancel();
+      final formatError = _validateUsername(
+        pendingUsername,
+        AppLocalizations.of(context)!,
+      );
+      if (formatError != null) {
+        setState(() {
+          _usernameState = UsernameState.invalid;
+          _usernameValidationMessage = formatError;
+          _usernameSuggestions = [];
+        });
+        return;
+      }
       await _checkUsername(pendingUsername);
       if (!mounted) return;
       if (_usernameState == UsernameState.conflict ||
-          _usernameState == UsernameState.error) {
+          _usernameState == UsernameState.error ||
+          _usernameState == UsernameState.invalid) {
         return;
       }
     }
@@ -304,9 +354,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     // Disk + flutter_cache_manager memory store
     unawaited(CachedNetworkImage.evictFromCache(url, cacheKey: stableKey));
     // Flutter's imageCache (decoded pixel store)
-    unawaited(
-      CachedNetworkImageProvider(url, cacheKey: stableKey).evict(),
-    );
+    unawaited(CachedNetworkImageProvider(url, cacheKey: stableKey).evict());
   }
 
   void _showAvatarUploadError(String? rawError) {
@@ -315,20 +363,21 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
         rawError == null ||
         rawError.contains('413') ||
         rawError.toLowerCase().contains('too large');
+    final l10n = AppLocalizations.of(context)!;
     showDialog<void>(
       context: context,
       builder:
           (ctx) => AlertDialog(
-            title: const Text('Photo not uploaded'),
+            title: Text(l10n.edit_profile_photo_not_uploaded),
             content: Text(
               isTooBig
-                  ? 'Image is too large. Please choose a photo under 1 MB and try again.'
-                  : 'Could not upload your photo. Please try again.',
+                  ? l10n.edit_profile_photo_too_large
+                  : l10n.edit_profile_photo_upload_failed,
             ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.of(ctx).pop(),
-                child: const Text('OK'),
+                child: Text(l10n.common_ok),
               ),
             ],
           ),
@@ -343,41 +392,43 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
-      builder:
-          (_) => SafeArea(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const SizedBox(height: 8),
-                Container(
-                  width: 40,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: AppColors.grey400,
-                    borderRadius: BorderRadius.circular(2),
-                  ),
+      builder: (_) {
+        final l10n = AppLocalizations.of(context)!;
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(height: 8),
+              Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: AppColors.grey400,
+                  borderRadius: BorderRadius.circular(2),
                 ),
-                const SizedBox(height: 16),
-                ListTile(
-                  leading: const Icon(Icons.photo_library_outlined),
-                  title: const Text('Choose from library'),
-                  onTap: () {
-                    Navigator.of(context).pop();
-                    _pickAndUploadAvatar(ImageSource.gallery);
-                  },
-                ),
-                ListTile(
-                  leading: const Icon(Icons.camera_alt_outlined),
-                  title: const Text('Take a photo'),
-                  onTap: () {
-                    Navigator.of(context).pop();
-                    _pickAndUploadAvatar(ImageSource.camera);
-                  },
-                ),
-                const SizedBox(height: 8),
-              ],
-            ),
+              ),
+              const SizedBox(height: 16),
+              ListTile(
+                leading: const Icon(Icons.photo_library_outlined),
+                title: Text(l10n.edit_profile_choose_from_library),
+                onTap: () {
+                  Navigator.of(context).pop();
+                  _pickAndUploadAvatar(ImageSource.gallery);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.camera_alt_outlined),
+                title: Text(l10n.edit_profile_take_photo),
+                onTap: () {
+                  Navigator.of(context).pop();
+                  _pickAndUploadAvatar(ImageSource.camera);
+                },
+              ),
+              const SizedBox(height: 8),
+            ],
           ),
+        );
+      },
     );
   }
 
@@ -390,7 +441,8 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
       !_isSaving &&
       !_isUploadingAvatar &&
       _usernameState != UsernameState.checking &&
-      _usernameState != UsernameState.conflict;
+      _usernameState != UsernameState.conflict &&
+      _usernameState != UsernameState.invalid;
 
   @override
   Widget build(BuildContext context) {
@@ -445,13 +497,13 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         leading: IconButton(
           icon: Icon(
-            PhosphorIconsRegular.arrowLeft,
+            AppAssets.arrowLeft,
             color: Theme.of(context).iconTheme.color,
           ),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
-          'Edit profile',
+          AppLocalizations.of(context)!.edit_profile_title,
           style: Theme.of(
             context,
           ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
@@ -476,8 +528,16 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
             child: TextButton(
               onPressed: _canSave ? _onSave : null,
               style: TextButton.styleFrom(
-                backgroundColor: _canSave ? Colors.black : AppColors.grey300,
-                foregroundColor: Colors.white,
+                backgroundColor:
+                    isDark
+                        ? AppColors.scaffoldBackgroundLight
+                        : AppColors.scaffoldBackgroundDark,
+                foregroundColor:
+                    isDark ? AppColors.textPrimary : AppColors.textPrimaryDark,
+                disabledBackgroundColor:
+                    isDark ? AppColors.grey800 : AppColors.grey300,
+                disabledForegroundColor:
+                    isDark ? AppColors.grey600 : AppColors.grey500,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20),
                 ),
@@ -488,9 +548,12 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                 minimumSize: Size.zero,
                 tapTargetSize: MaterialTapTargetSize.shrinkWrap,
               ),
-              child: const Text(
-                'Save',
-                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+              child: Text(
+                AppLocalizations.of(context)!.edit_profile_save,
+                style: const TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 14,
+                ),
               ),
             ),
           ),
@@ -555,6 +618,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                 onChanged: _onUsernameChanged,
                 onSuggestionTap: _applySuggestion,
                 isDark: isDark,
+                validationMessage: _usernameValidationMessage,
               ),
 
               const SizedBox(height: 20),
@@ -566,8 +630,11 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                     child: TextField(
                       controller: _firstNameCtrl,
                       decoration: InputDecoration(
-                        hintText: 'First Name',
-                        hintStyle: TextStyle(color: AppColors.grey500),
+                        labelText:
+                            AppLocalizations.of(
+                              context,
+                            )!.edit_profile_first_name,
+                        labelStyle: TextStyle(color: AppColors.grey500),
                         filled: true,
                         fillColor:
                             isDark
@@ -588,8 +655,11 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                     child: TextField(
                       controller: _lastNameCtrl,
                       decoration: InputDecoration(
-                        hintText: 'Last Name',
-                        hintStyle: TextStyle(color: AppColors.grey500),
+                        labelText:
+                            AppLocalizations.of(
+                              context,
+                            )!.edit_profile_last_name,
+                        labelStyle: TextStyle(color: AppColors.grey500),
                         filled: true,
                         fillColor:
                             isDark
@@ -627,8 +697,10 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                   );
                 },
                 decoration: InputDecoration(
-                  hintText: 'Bio\nShare a little about yourself',
-                  hintStyle: TextStyle(color: AppColors.grey500, height: 1.6),
+                  labelText: AppLocalizations.of(context)!.edit_profile_bio,
+                  labelStyle: TextStyle(color: AppColors.grey500),
+                  hintText: AppLocalizations.of(context)!.edit_profile_bio_hint,
+                  hintStyle: TextStyle(color: AppColors.grey500),
                   filled: true,
                   fillColor:
                       isDark
@@ -655,14 +727,16 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                   child: Row(
                     children: [
                       Icon(
-                        PhosphorIconsRegular.trash,
+                        AppAssets.trash,
                         size: 22,
                         color: Colors.red.shade600,
                       ),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Text(
-                          'Delete account',
+                          AppLocalizations.of(
+                            context,
+                          )!.edit_profile_delete_account,
                           style: TextStyle(
                             color: Colors.red.shade600,
                             fontSize: 16,
@@ -671,7 +745,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                         ),
                       ),
                       Icon(
-                        PhosphorIconsRegular.caretRight,
+                        AppAssets.caretRight,
                         size: 20,
                         color: AppColors.grey600,
                       ),

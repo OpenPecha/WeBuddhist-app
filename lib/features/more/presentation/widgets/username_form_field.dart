@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/constants/app_assets.dart';
+import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
-enum UsernameState { idle, checking, available, conflict, error }
+enum UsernameState { idle, checking, available, conflict, error, invalid }
 
 /// A self-contained username input that shows a real-time availability status
 /// icon and inline feedback (conflict message + tappable suggestions).
@@ -15,6 +17,7 @@ class UsernameFormField extends StatelessWidget {
     required this.onChanged,
     required this.onSuggestionTap,
     required this.isDark,
+    this.validationMessage,
   });
 
   final TextEditingController controller;
@@ -26,29 +29,35 @@ class UsernameFormField extends StatelessWidget {
   final ValueChanged<String> onSuggestionTap;
   final bool isDark;
 
+  /// Shown below the field when [usernameState] is [UsernameState.invalid].
+  final String? validationMessage;
+
   InputBorder get _inputBorder => OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide(
-          color: isDark ? AppColors.grey800 : AppColors.grey300,
-        ),
-      );
+    borderRadius: BorderRadius.circular(12),
+    borderSide: BorderSide(
+      color: isDark ? AppColors.grey800 : AppColors.grey300,
+    ),
+  );
 
   InputBorder get _focusedBorder => OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide(
-          color: isDark ? AppColors.grey600 : AppColors.grey900,
-          width: 1.5,
-        ),
-      );
+    borderRadius: BorderRadius.circular(12),
+    borderSide: BorderSide(
+      color: isDark ? AppColors.grey600 : AppColors.grey900,
+      width: 1.5,
+    ),
+  );
 
   InputBorder get _errorBorder => OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide(color: Colors.red.shade400),
-      );
+    borderRadius: BorderRadius.circular(12),
+    borderSide: BorderSide(color: Colors.red.shade400),
+  );
 
   @override
   Widget build(BuildContext context) {
-    final isConflict = usernameState == UsernameState.conflict;
+    final l10n = AppLocalizations.of(context)!;
+    final isError =
+        usernameState == UsernameState.conflict ||
+        usernameState == UsernameState.invalid;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -57,14 +66,14 @@ class UsernameFormField extends StatelessWidget {
           controller: controller,
           onChanged: onChanged,
           decoration: InputDecoration(
-            labelText: 'Username',
+            labelText: l10n.username_label,
             labelStyle: TextStyle(color: AppColors.grey500),
             filled: true,
             fillColor:
                 isDark ? AppColors.surfaceVariantDark : AppColors.surfaceWhite,
             border: _inputBorder,
-            enabledBorder: isConflict ? _errorBorder : _inputBorder,
-            focusedBorder: isConflict ? _errorBorder : _focusedBorder,
+            enabledBorder: isError ? _errorBorder : _inputBorder,
+            focusedBorder: isError ? _errorBorder : _focusedBorder,
             contentPadding: const EdgeInsets.symmetric(
               horizontal: 16,
               vertical: 14,
@@ -72,7 +81,7 @@ class UsernameFormField extends StatelessWidget {
             suffixIcon: _buildStatusIcon(),
           ),
         ),
-        _buildFeedback(),
+        _buildFeedback(l10n),
       ],
     );
   }
@@ -93,20 +102,26 @@ class UsernameFormField extends StatelessWidget {
         );
       case UsernameState.available:
         return Icon(
-          PhosphorIconsRegular.checkCircle,
+          AppAssets.checkCircle,
           color: Colors.green.shade600,
           size: 20,
         );
       case UsernameState.conflict:
         return Icon(
-          PhosphorIconsRegular.warningCircle,
+          AppAssets.warningCircle,
           color: Colors.red.shade600,
           size: 20,
         );
       case UsernameState.error:
         return Icon(
-          PhosphorIconsRegular.warningCircle,
+          AppAssets.warningCircle,
           color: Colors.orange.shade600,
+          size: 20,
+        );
+      case UsernameState.invalid:
+        return Icon(
+          PhosphorIconsRegular.warningCircle,
+          color: Colors.red.shade600,
           size: 20,
         );
       case UsernameState.idle:
@@ -114,7 +129,7 @@ class UsernameFormField extends StatelessWidget {
     }
   }
 
-  Widget _buildFeedback() {
+  Widget _buildFeedback(AppLocalizations l10n) {
     switch (usernameState) {
       case UsernameState.conflict:
         return Column(
@@ -122,7 +137,7 @@ class UsernameFormField extends StatelessWidget {
           children: [
             const SizedBox(height: 6),
             Text(
-              'Someone already used this name',
+              l10n.username_taken,
               style: TextStyle(color: Colors.red.shade600, fontSize: 13),
             ),
             if (usernameSuggestions.isNotEmpty) ...[
@@ -130,7 +145,7 @@ class UsernameFormField extends StatelessWidget {
               Wrap(
                 children: [
                   Text(
-                    'Available : ',
+                    l10n.username_available_label,
                     style: TextStyle(
                       color: isDark ? AppColors.grey400 : AppColors.grey600,
                       fontSize: 13,
@@ -165,8 +180,16 @@ class UsernameFormField extends StatelessWidget {
         return Padding(
           padding: const EdgeInsets.only(top: 6),
           child: Text(
-            'Could not check username. Try again.',
+            l10n.username_check_error,
             style: TextStyle(color: Colors.orange.shade700, fontSize: 13),
+          ),
+        );
+      case UsernameState.invalid:
+        return Padding(
+          padding: const EdgeInsets.only(top: 6),
+          child: Text(
+            validationMessage ?? l10n.username_invalid_format,
+            style: TextStyle(color: Colors.red.shade600, fontSize: 13),
           ),
         );
       default:

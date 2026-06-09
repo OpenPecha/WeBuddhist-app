@@ -289,6 +289,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get chinese => 'Chinese';
 
   @override
+  String get classicalChinese => 'Classical Chinese';
+
+  @override
+  String get pali => 'Pali';
+
+  @override
   String get language => 'Language';
 
   @override
@@ -1423,6 +1429,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get version => 'Versions';
 
   @override
+  String get parallel_version => 'Parallel version';
+
+  @override
+  String get main_version => 'Main version';
+
+  @override
+  String get version_not_available => 'Not available';
+
+  @override
   String get read_full_text => 'Read Full Text';
 
   @override
@@ -1430,6 +1445,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get reader_license_label => 'License';
+
+  @override
+  String get know_more => 'Know More';
 
   @override
   String get force_update_title => 'Update required';
@@ -1440,4 +1458,150 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get force_update_button => 'Update now';
+
+  @override
+  String get settings_section_personalisation => 'PERSONALISATION';
+
+  @override
+  String get settings_section_more => 'MORE';
+
+  @override
+  String get settings_section_account => 'ACCOUNT';
+
+  @override
+  String get settings_edit_profile => 'Edit profile';
+
+  @override
+  String get settings_theme => 'Theme';
+
+  @override
+  String get settings_notification_row => 'Notification';
+
+  @override
+  String get edit_profile_title => 'Edit profile';
+
+  @override
+  String get edit_profile_save => 'Save';
+
+  @override
+  String get edit_profile_first_name => 'First Name';
+
+  @override
+  String get edit_profile_last_name => 'Last Name';
+
+  @override
+  String get edit_profile_bio => 'Bio';
+
+  @override
+  String get edit_profile_bio_hint => 'Share a little about yourself';
+
+  @override
+  String get edit_profile_delete_account => 'Delete account';
+
+  @override
+  String get edit_profile_photo_not_uploaded => 'Photo not uploaded';
+
+  @override
+  String get edit_profile_photo_too_large =>
+      'Image is too large. Please choose a photo under 1 MB and try again.';
+
+  @override
+  String get edit_profile_photo_upload_failed =>
+      'Could not upload your photo. Please try again.';
+
+  @override
+  String get edit_profile_choose_from_library => 'Choose from library';
+
+  @override
+  String get edit_profile_take_photo => 'Take a photo';
+
+  @override
+  String get username_label => 'Username';
+
+  @override
+  String get username_taken => 'Someone already used this name';
+
+  @override
+  String get username_available_label => 'Available : ';
+
+  @override
+  String get username_check_error => 'Could not check username. Try again.';
+
+  @override
+  String get username_invalid_format => 'Invalid username format.';
+
+  @override
+  String get username_min_length => 'Username must be at least 3 characters';
+
+  @override
+  String get username_max_length => 'Username must be at most 30 characters';
+
+  @override
+  String get username_no_spaces => 'Username cannot contain spaces';
+
+  @override
+  String get username_invalid_chars =>
+      'Only letters, numbers, _ . - are allowed';
+
+  @override
+  String get username_must_start_alphanumeric =>
+      'Username must start with a letter or number';
+
+  @override
+  String get username_must_end_alphanumeric =>
+      'Username must end with a letter or number';
+
+  @override
+  String get about_title => 'About';
+
+  @override
+  String get about_connect_with_us => 'Connect with us';
+
+  @override
+  String get about_description =>
+      'We help Buddhists do less harm, more good, and know their own mind better by learning, practicing and connecting daily so that all beings become free from suffering and find lasting happiness.';
+
+  @override
+  String get about_social_website => 'Website';
+
+  @override
+  String get about_social_instagram => 'Instagram';
+
+  @override
+  String get about_social_facebook => 'Facebook';
+
+  @override
+  String get about_social_x_twitter => 'X (Twitter)';
+
+  @override
+  String get about_social_youtube => 'YouTube';
+
+  @override
+  String get me_guest_headline => 'Access the full experience';
+
+  @override
+  String get me_guest_subtitle => 'Create a free account to access plans';
+
+  @override
+  String get delete_account_title => 'Delete account';
+
+  @override
+  String get delete_account_description =>
+      'If you delete your account, all your information, history, and personalized settings within WeBuddhist will be permanently eliminated. This action will also end any recurring contributions, if applicable. Please note that this action is irreversible. To proceed, tap the button below.';
+
+  @override
+  String get delete_account_button => 'Delete account';
+
+  @override
+  String get delete_account_confirm_message =>
+      'Are you sure you want to delete your WeBuddhist account?';
+
+  @override
+  String get legal_title => 'Legal';
+
+  @override
+  String get legal_terms_of_service => 'Terms of Service';
+
+  @override
+  String get legal_privacy_policy => 'Privacy policy';
 }

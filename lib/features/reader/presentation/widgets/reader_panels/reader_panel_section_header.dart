@@ -20,7 +20,7 @@ class ReaderPanelSectionHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final label = getLanguageLabel(languageCode, context);
+    final label = getLanguageName(languageCode, context);
     final dividerColor = ReaderPanelConstants.dividerColor(context);
     final title = count == null ? label : '$label ($count)';
 

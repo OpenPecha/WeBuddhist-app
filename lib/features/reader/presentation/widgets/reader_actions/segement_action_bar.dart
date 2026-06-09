@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_pecha/features/reader/presentation/providers/reader_notifier.dart';
-import 'package:flutter_pecha/features/texts/presentation/providers/share_provider.dart';
-import 'package:flutter_pecha/features/texts/data/models/segment.dart';
-import 'package:flutter_pecha/shared/utils/helper_functions.dart';
+import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
+import 'package:flutter_pecha/features/reader/presentation/providers/reader_notifier.dart';
+import 'package:flutter_pecha/features/texts/data/models/segment.dart';
+import 'package:flutter_pecha/features/texts/presentation/providers/share_provider.dart';
+import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:share_plus/share_plus.dart';
 
 /// Converts HTML to plain text, removing specified elements using regex
@@ -67,7 +67,7 @@ class SegmentActionBar extends ConsumerWidget {
         children: [
           // Versions button
           _ActionCard(
-            icon: PhosphorIconsRegular.translate,
+            icon: AppAssets.readerVersion,
             label: localizations.version,
             onTap: () {
               HapticFeedback.lightImpact();
@@ -79,7 +79,7 @@ class SegmentActionBar extends ConsumerWidget {
           ),
           // Commentary button
           _ActionCard(
-            icon: PhosphorIconsRegular.chatText,
+            icon: AppAssets.readerCommentary,
             label: localizations.text_commentary,
             onTap: () {
               HapticFeedback.lightImpact();
@@ -91,7 +91,7 @@ class SegmentActionBar extends ConsumerWidget {
           ),
           // Copy button
           _ActionCard(
-            icon: PhosphorIconsRegular.copy,
+            icon: AppAssets.readerCopy,
             label: localizations.copy,
             onTap: () {
               HapticFeedback.lightImpact();
@@ -320,7 +320,7 @@ class _ShareButtonState extends ConsumerState<_ShareButton> {
   Widget build(BuildContext context) {
     final localizations = context.l10n;
     return _ActionCard(
-      icon: PhosphorIconsRegular.shareNetwork,
+      icon: AppAssets.readerShare,
       label: localizations.share,
       onTap: _handleShare,
       isLoading: _isLoading,

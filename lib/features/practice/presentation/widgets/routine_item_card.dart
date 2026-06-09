@@ -3,9 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/core/widgets/responsive_cover_image.dart';
-import 'package:flutter_pecha/shared/domain/value_objects/responsive_image.dart';
 import 'package:flutter_pecha/features/practice/data/models/routine_model.dart';
-import 'package:phosphor_flutter/phosphor_flutter.dart';
+import 'package:flutter_pecha/shared/domain/value_objects/responsive_image.dart';
 
 class RoutineItemCard extends StatelessWidget {
   final String title;
@@ -62,7 +61,7 @@ class RoutineItemCard extends StatelessWidget {
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Icon(
-                    PhosphorIconsRegular.minus,
+                    AppAssets.minus,
                     size: 16,
                     fontWeight: FontWeight.w600,
                   ),
@@ -132,7 +131,7 @@ class RoutineItemCard extends StatelessWidget {
                 child: GestureDetector(
                   onTapDown: (_) => HapticFeedback.heavyImpact(),
                   child: Icon(
-                    PhosphorIconsRegular.list,
+                    AppAssets.list,
                     size: 22,
                     color:
                         isDark

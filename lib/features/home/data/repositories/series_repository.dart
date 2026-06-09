@@ -16,7 +16,9 @@ class SeriesRepository implements SeriesRepositoryInterface {
   }) async {
     try {
       final models = await remote.fetchSeriesList(language: language);
-      return Right(models.map((m) => m.toEntity()).toList());
+      return Right(
+        models.map((m) => m.toEntity(language: language)).toList(),
+      );
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
     } on NetworkException catch (e) {
@@ -39,7 +41,7 @@ class SeriesRepository implements SeriesRepositoryInterface {
   }) async {
     try {
       final model = await remote.fetchSeriesById(id, language: language);
-      return Right(model.toEntity());
+      return Right(model.toEntity(language: language));
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
     } on NetworkException catch (e) {

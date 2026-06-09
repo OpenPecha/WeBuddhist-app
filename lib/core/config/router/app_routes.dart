@@ -85,6 +85,9 @@ class AppRoutes {
   // ========== NOTIFICATIONS SUB ROUTES ==========
   static const String notificationSettings = '/notifications/settings';
 
+  // ========== GROUP PROFILE ROUTES ==========
+  static const String groupProfile = '/group-profile';
+
   // ========== SEARCH ROUTES ==========
   static const String searchResults = '/search-results';
 
@@ -107,6 +110,7 @@ class AppRoutes {
   static const Set<String> guestAccessibleRoutes = {
     home,
     more,
+    settings, // Guests can access settings (theme, language, notifications)
     texts,
     practice, // Guests can see empty practice screen
     practicePlanPreview, // Allow guests to browse/preview plans

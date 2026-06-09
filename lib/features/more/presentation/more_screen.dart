@@ -1,19 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
 import 'package:flutter_pecha/core/config/router/app_routes.dart';
+import 'package:flutter_pecha/core/constants/app_assets.dart';
+import 'package:flutter_pecha/core/constants/app_config.dart';
 import 'package:flutter_pecha/core/di/core_providers.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/core/theme/theme_notifier.dart';
+import 'package:flutter_pecha/shared/widgets/app_toggle_switch.dart';
 import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
 import 'package:flutter_pecha/features/auth/presentation/widgets/login_drawer.dart';
 import 'package:flutter_pecha/features/notifications/presentation/notification_settings_screen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:flutter_pecha/core/constants/app_config.dart';
 
 class MoreScreen extends ConsumerWidget {
   const MoreScreen({super.key});
@@ -63,40 +64,40 @@ class MoreScreen extends ConsumerWidget {
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
           children: [
             // Personalisation Section
-            _buildSectionHeader(context, 'PERSONALISATION'),
+            _buildSectionHeader(context, localizations.settings_section_personalisation),
             const SizedBox(height: 12),
             if (authState.isLoggedIn && !authState.isGuest)
               _buildSettingsRow(
                 context,
-                icon: PhosphorIconsRegular.user,
+                icon: AppAssets.profile,
                 title: 'Edit profile',
                 onTap: () => context.push(AppRoutes.profile),
               ),
             _buildLanguageRow(context, ref, locale),
-            _buildNotificationRow(context),
-            _buildThemeToggleRow(context, ref, isDarkMode),
+            _buildNotificationRow(context, localizations),
+            _buildThemeToggleRow(context, ref, isDarkMode, localizations),
             const SizedBox(height: 24),
 
             // More Section
-            _buildSectionHeader(context, 'MORE'),
+            _buildSectionHeader(context, localizations.settings_section_more),
             const SizedBox(height: 12),
             _buildSettingsRow(
               context,
-              icon: PhosphorIconsRegular.info,
+              icon: AppAssets.about,
               title: 'About',
               onTap: () => context.push(AppRoutes.about),
             ),
             _buildSettingsRow(
               context,
-              icon: PhosphorIconsRegular.gavel,
+              icon: AppAssets.legal,
               title: 'Legal',
               onTap: () => context.push(AppRoutes.legal),
             ),
             _buildSettingsRow(
               context,
-              icon: PhosphorIconsRegular.chatText,
+              icon: AppAssets.feedback,
               title: 'Feedback',
-              trailingIcon: PhosphorIconsRegular.arrowSquareOut,
+              trailingIcon: AppAssets.arrowSquareOut,
               onTap: () async {
                 final url =
                     "https://app-webuddhist.ideas.userback.io/p/5omSMHB8A9VMUrD6vLrE";
@@ -106,19 +107,19 @@ class MoreScreen extends ConsumerWidget {
             const SizedBox(height: 24),
 
             // Account Section
-            _buildSectionHeader(context, 'ACCOUNT'),
+            _buildSectionHeader(context, localizations.settings_section_account),
             const SizedBox(height: 12),
             if (!authState.isLoggedIn || authState.isGuest) ...[
               _buildSettingsRow(
                 context,
-                icon: PhosphorIconsRegular.signIn,
+                icon: AppAssets.signIn,
                 title: localizations.sign_in,
                 onTap: () => LoginDrawer.show(context, ref),
               ),
             ] else ...[
               _buildSettingsRow(
                 context,
-                icon: PhosphorIconsRegular.signOut,
+                icon: AppAssets.signOut,
                 title: localizations.logout,
                 onTap: () => _showLogoutDialog(context, ref),
                 isDestructive: true,
@@ -137,10 +138,11 @@ class MoreScreen extends ConsumerWidget {
     BuildContext context,
     WidgetRef ref,
     bool isDarkMode,
+    AppLocalizations localizations,
   ) {
     return _buildSettingsRow(
       context,
-      icon: PhosphorIconsRegular.sun,
+      icon: AppAssets.theme,
       title: 'Theme',
       onTap: () {
         ref
@@ -158,10 +160,10 @@ class MoreScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildNotificationRow(BuildContext context) {
+  Widget _buildNotificationRow(BuildContext context, AppLocalizations localizations) {
     return _buildSettingsRow(
       context,
-      icon: PhosphorIconsRegular.bellRinging,
+      icon: AppAssets.notification,
       title: 'Notification',
       onTap: () => context.push(NotificationSettingsScreen.routeName),
     );
@@ -177,7 +179,7 @@ class MoreScreen extends ConsumerWidget {
         child: Row(
           children: [
             Icon(
-              PhosphorIconsRegular.translate,
+              AppAssets.language,
               size: 24,
               color: Theme.of(context).iconTheme.color,
             ),
@@ -189,7 +191,7 @@ class MoreScreen extends ConsumerWidget {
               ),
             ),
             Icon(
-              PhosphorIconsRegular.caretRight,
+              AppAssets.caretRight,
               size: 24,
               color: AppColors.grey600,
             ),
@@ -226,7 +228,7 @@ class MoreScreen extends ConsumerWidget {
         ),
         if (trailing == null)
           Icon(
-            trailingIcon ?? PhosphorIconsRegular.caretRight,
+            trailingIcon ?? AppAssets.caretRight,
             size: 24,
             color: isDestructive ? Colors.red.shade600 : AppColors.grey600,
           ),
@@ -278,69 +280,79 @@ class MoreScreen extends ConsumerWidget {
     WidgetRef ref,
     Locale? currentLocale,
   ) {
-    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
-
+    final l10n = AppLocalizations.of(context)!;
     showModalBottomSheet(
       context: context,
-      backgroundColor: Colors.transparent,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder:
-          (context) => SafeArea(
-            child: Container(
-              margin: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color:
-                    isDarkMode ? AppColors.surfaceDark : AppColors.surfaceWhite,
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // Handle bar
-                  Padding(
-                    padding: const EdgeInsets.only(top: 12, bottom: 24),
-                    child: Container(
-                      width: 80,
-                      height: 4,
-                      decoration: BoxDecoration(
-                        color: isDarkMode ? AppColors.grey600 : Colors.black,
-                        borderRadius: BorderRadius.circular(2),
-                      ),
-                    ),
-                  ),
-                  // Language options container
-                  Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 16),
+      isScrollControlled: true,
+      builder: (sheetContext) {
+        final theme = Theme.of(sheetContext);
+        final selected =
+            currentLocale ?? Localizations.localeOf(sheetContext);
+        return SafeArea(
+          top: false,
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              maxHeight: MediaQuery.of(sheetContext).size.height * 0.7,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 8),
+                Center(
+                  child: Container(
+                    width: 40,
+                    height: 4,
                     decoration: BoxDecoration(
-                      color:
-                          isDarkMode ? AppColors.cardDark : AppColors.grey100,
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children:
-                          _supportedLocales.map((localeItem) {
-                            final isSelected =
-                                (currentLocale ??
-                                    Localizations.localeOf(context)) ==
-                                localeItem;
-                            return _buildLanguageOption(
-                              context,
-                              ref,
-                              localeItem,
-                              isSelected,
-                              isDarkMode,
-                            );
-                          }).toList(),
+                      color: theme.colorScheme.onSurface
+                          .withValues(alpha: 0.2),
+                      borderRadius: BorderRadius.circular(2),
                     ),
                   ),
-                  const SizedBox(height: 24),
-                ],
-              ),
+                ),
+                const SizedBox(height: 12),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: Text(
+                    l10n.language,
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+                ListView.separated(
+                  shrinkWrap: true,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 8,
+                  ),
+                  itemCount: _supportedLocales.length,
+                  separatorBuilder: (_, __) => Divider(
+                    height: 1,
+                    color: theme.dividerColor.withValues(alpha: 0.4),
+                  ),
+                  itemBuilder: (_, index) {
+                    final localeItem = _supportedLocales[index];
+                    final isSelected = selected == localeItem;
+                    return _buildLanguageOption(
+                      sheetContext,
+                      ref,
+                      localeItem,
+                      isSelected,
+                      theme,
+                    );
+                  },
+                ),
+                const SizedBox(height: 8),
+              ],
             ),
           ),
+        );
+      },
     );
   }
 
@@ -349,30 +361,40 @@ class MoreScreen extends ConsumerWidget {
     WidgetRef ref,
     Locale localeItem,
     bool isSelected,
-    bool isDarkMode,
+    ThemeData theme,
   ) {
-    return InkWell(
-      onTap: () {
-        ref.read(localeProvider.notifier).setLocale(localeItem);
-        Navigator.pop(context);
-      },
-      borderRadius: BorderRadius.circular(12),
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-        decoration: BoxDecoration(
-          color:
-              isSelected
-                  ? (isDarkMode
-                      ? AppColors.surfaceVariantDark
-                      : AppColors.goldAccent)
-                  : Colors.transparent,
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Text(
-          _getLanguageName(localeItem),
-          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-            fontWeight: isSelected ? FontWeight.w500 : FontWeight.normal,
+    final activeColor = theme.colorScheme.primary;
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () {
+          ref.read(localeProvider.notifier).setLocale(localeItem);
+          Navigator.pop(context);
+        },
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  _getLanguageName(localeItem),
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    color: isSelected
+                        ? activeColor
+                        : theme.textTheme.titleMedium?.color,
+                    fontWeight:
+                        isSelected ? FontWeight.w700 : FontWeight.w500,
+                  ),
+                ),
+              ),
+              SizedBox(
+                width: 18,
+                child: isSelected
+                    ? Icon(Icons.check, size: 18, color: activeColor)
+                    : const SizedBox.shrink(),
+              ),
+            ],
           ),
         ),
       ),
@@ -428,32 +450,11 @@ class _ThemeToggle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () => onChanged(!isDarkMode),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        width: 64,
-        height: 32,
-        padding: const EdgeInsets.all(2),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(16),
-          color: isDarkMode
-              ? const Color(0xFF196BF1)
-              : const Color(0xFFADADAD),
-        ),
-        child: AnimatedAlign(
-          duration: const Duration(milliseconds: 200),
-          alignment: isDarkMode ? Alignment.centerRight : Alignment.centerLeft,
-          child: Container(
-            width: 28,
-            height: 28,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: isDarkMode ? AppColors.grey600 : AppColors.surfaceWhite,
-            ),
-          ),
-        ),
-      ),
+    return AppToggleSwitch(
+      value: isDarkMode,
+      onChanged: onChanged,
+      thumbOnColor: AppColors.grey600,
+      thumbOffColor: AppColors.surfaceWhite,
     );
   }
 }

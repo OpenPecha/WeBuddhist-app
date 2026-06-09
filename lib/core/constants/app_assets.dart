@@ -1,8 +1,9 @@
 import 'package:flutter/widgets.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
-/// Application asset paths
-/// Contains all asset file paths used throughout the app
+/// Application asset paths and icon constants
+/// Contains all asset file paths and PhosphorIcons used throughout the app
+/// Following Clean Architecture: Single source of truth for all visual assets
 class AppAssets {
   AppAssets._();
 
@@ -14,28 +15,70 @@ class AppAssets {
   // ========== LOGOS ==========
   static const String weBuddhistLogo = 'assets/images/webuddhist_gold.png';
 
-  // Bottom Navigation icons
+  // ========== BOTTOM NAVIGATION ICONS ==========
   static const IconData homeSelected = PhosphorIconsFill.house;
   static const IconData homeUnselected = PhosphorIconsRegular.house;
-  static const IconData exploreSelected =
-      PhosphorIconsFill.magnifyingGlass;
+  static const IconData exploreSelected = PhosphorIconsFill.magnifyingGlass;
   static const IconData exploreUnselected =
       PhosphorIconsRegular.magnifyingGlass;
-  static const IconData textsSelected =
-      PhosphorIconsFill.bookOpenText;
-  static const IconData textsUnselected =
-      PhosphorIconsRegular.bookOpenText;
+  static const IconData textsSelected = PhosphorIconsFill.bookOpenText;
+  static const IconData textsUnselected = PhosphorIconsRegular.bookOpenText;
   static const IconData practiceSelected = PhosphorIconsFill.bell;
-  static const IconData practiceUnselected =
-      PhosphorIconsRegular.bell;
-  static const IconData settingsSelected =
-      PhosphorIconsFill.gearSix;
-  static const IconData settingsUnselected =
-      PhosphorIconsRegular.gearSix;
-  static const IconData connectSelected =
-      PhosphorIconsFill.usersThree;
-  static const IconData connectUnselected =
-      PhosphorIconsRegular.usersThree;
+  static const IconData practiceUnselected = PhosphorIconsRegular.bell;
+  static const IconData settingsSelected = PhosphorIconsFill.gearSix;
+  static const IconData settingsUnselected = PhosphorIconsRegular.gearSix;
+  static const IconData connectSelected = PhosphorIconsFill.usersThree;
+  static const IconData connectUnselected = PhosphorIconsRegular.usersThree;
   static const IconData meSelected = PhosphorIconsFill.userCircle;
   static const IconData meUnselected = PhosphorIconsRegular.userCircle;
+
+  // ========== READER ICONS ==========
+  static const IconData readerVersionSettings = PhosphorIconsRegular.globe;
+  static const IconData readerFontSize = PhosphorIconsRegular.textAa;
+  static const IconData readerVersion = PhosphorIconsRegular.globe;
+  static const IconData readerCommentary = PhosphorIconsRegular.chatText;
+  static const IconData readerCopy = PhosphorIconsRegular.copy;
+  static const IconData readerShare = PhosphorIconsRegular.shareNetwork;
+  static const IconData readerChevronRight = PhosphorIconsRegular.caretRight;
+
+  // ========== SETTINGS & PROFILE ICONS ==========
+  static const IconData profile = PhosphorIconsRegular.user;
+  static const IconData language = PhosphorIconsRegular.translate;
+  static const IconData notification = PhosphorIconsRegular.bellRinging;
+  static const IconData theme = PhosphorIconsRegular.sun;
+  static const IconData about = PhosphorIconsRegular.info;
+  static const IconData legal = PhosphorIconsRegular.gavel;
+  static const IconData feedback = PhosphorIconsRegular.chatText;
+  static const IconData signIn = PhosphorIconsRegular.signIn;
+  static const IconData signOut = PhosphorIconsRegular.signOut;
+  static const IconData settings = PhosphorIconsRegular.gear;
+
+  // ========== COMMON UI ICONS ==========
+  static const IconData caretRight = PhosphorIconsRegular.caretRight;
+  static const IconData caretDown = PhosphorIconsRegular.caretDown;
+  static const IconData arrowSquareOut = PhosphorIconsRegular.arrowSquareOut;
+  static const IconData arrowLeft = PhosphorIconsRegular.arrowLeft;
+
+  // ========== ACTION ICONS ==========
+  static const IconData plus = PhosphorIconsRegular.plus;
+  static const IconData minus = PhosphorIconsRegular.minus;
+  static const IconData list = PhosphorIconsRegular.list;
+  static const IconData trash = PhosphorIconsRegular.trash;
+  static const IconData fileText = PhosphorIconsRegular.fileText;
+
+  // ========== NOTIFICATION ICONS ==========
+  static const IconData bell = PhosphorIconsRegular.bell;
+  static const IconData bellSlash = PhosphorIconsRegular.bellSlash;
+
+  // ========== STATUS ICONS ==========
+  static const IconData checkCircle = PhosphorIconsRegular.checkCircle;
+  static const IconData warningCircle = PhosphorIconsRegular.warningCircle;
+  static const IconData check = PhosphorIconsBold.check;
+
+  // ========== SOCIAL MEDIA ICONS ==========
+  static const IconData instagram = PhosphorIconsRegular.instagramLogo;
+  static const IconData facebook = PhosphorIconsRegular.facebookLogo;
+  static const IconData twitter = PhosphorIconsRegular.xLogo;
+  static const IconData youtube = PhosphorIconsRegular.youtubeLogo;
+  static const IconData globe = PhosphorIconsRegular.globe;
 }

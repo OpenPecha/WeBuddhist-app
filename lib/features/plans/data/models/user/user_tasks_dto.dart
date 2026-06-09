@@ -44,4 +44,22 @@ class UserTasksDto {
       'sub_tasks': subTasks.map((e) => e.toJson()).toList(),
     };
   }
+
+  UserTasksDto copyWith({
+    String? id,
+    String? title,
+    int? estimatedTime,
+    int? displayOrder,
+    bool? isCompleted,
+    List<UserSubtasksDto>? subTasks,
+  }) {
+    return UserTasksDto(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      estimatedTime: estimatedTime ?? this.estimatedTime,
+      displayOrder: displayOrder ?? this.displayOrder,
+      isCompleted: isCompleted ?? this.isCompleted,
+      subTasks: subTasks ?? this.subTasks,
+    );
+  }
 }

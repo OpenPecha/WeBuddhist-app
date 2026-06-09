@@ -13,7 +13,6 @@ import 'package:flutter_pecha/features/reader/presentation/widgets/reader_app_ba
 import 'package:flutter_pecha/features/reader/presentation/widgets/reader_commentary/reader_commentary_split_view.dart';
 import 'package:flutter_pecha/features/reader/presentation/widgets/reader_translation/reader_translation_split_view.dart';
 import 'package:flutter_pecha/features/reader/presentation/widgets/reader_content/reader_content_part.dart';
-import 'package:flutter_pecha/features/reader/presentation/widgets/reader_content/reader_metadata_subtitle.dart';
 import 'package:flutter_pecha/features/reader/presentation/widgets/reader_gestures/swipe_navigation_wrapper.dart';
 import 'package:flutter_pecha/features/reader/presentation/widgets/reader_search/reader_search_delegate.dart';
 import 'package:flutter_pecha/features/reader/presentation/widgets/reader_settings/reader_settings_screen.dart';
@@ -341,7 +340,7 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
     final languageCode = textDetail?.language ?? 'en';
     final initialPrimaryDisplay = ReaderSlotConfig(
       languageCode: languageCode,
-      languageLabel: getLanguageName(languageCode),
+      languageLabel: getLanguageName(languageCode, context),
       versionId: textDetail?.id,
       versionLabel: textDetail?.title,
     );

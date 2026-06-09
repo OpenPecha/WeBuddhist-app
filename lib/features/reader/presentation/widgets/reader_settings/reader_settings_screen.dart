@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
-import 'package:flutter_pecha/core/utils/get_language.dart';
 import 'package:flutter_pecha/features/reader/data/models/reader_slot_config.dart';
+import 'package:flutter_pecha/features/reader/data/models/reader_version_detail.dart';
 import 'package:flutter_pecha/features/reader/presentation/providers/reader_dual_settings_provider.dart';
+import 'package:flutter_pecha/features/reader/presentation/providers/reader_settings_providers.dart';
 import 'package:flutter_pecha/features/reader/presentation/widgets/reader_settings/language_picker_sheet.dart';
 import 'package:flutter_pecha/features/reader/presentation/widgets/reader_settings/script_picker_sheet.dart';
 import 'package:flutter_pecha/features/reader/presentation/widgets/reader_settings/slot_config_card.dart';
 import 'package:flutter_pecha/features/reader/presentation/widgets/reader_settings/version_picker_sheet.dart';
+import 'package:flutter_pecha/shared/widgets/app_toggle_switch.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_pecha/core/utils/get_language.dart';
 
 class ReaderSettingsScreen extends ConsumerWidget {
   const ReaderSettingsScreen({
@@ -29,6 +32,8 @@ class ReaderSettingsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final settings = ref.watch(readerDualSettingsProvider(textId));
     final notifier = ref.read(readerDualSettingsProvider(textId).notifier);
+    final isResolvingVersion =
+        ref.watch(readerSecondaryResolvingProvider(textId));
     final theme = Theme.of(context);
 
     final primaryDisplay = _primaryDisplay(ref, settings);
@@ -44,7 +49,7 @@ class ReaderSettingsScreen extends ConsumerWidget {
           onPressed: () => Navigator.of(context).maybePop(),
         ),
         title: Text(
-          context.l10n.version,
+          context.l10n.parallel_version,
           style: theme.textTheme.titleLarge?.copyWith(
             fontWeight: FontWeight.w700,
           ),
@@ -60,14 +65,11 @@ class ReaderSettingsScreen extends ConsumerWidget {
                 enabled: settings.secondaryEnabled,
                 onChanged: notifier.setSecondaryEnabled,
               ),
-              const SizedBox(height: 20),
-              SlotConfigCard(
-                headerLabel: context.l10n.main_text,
+              const Divider(height: 32),
+              _StaticVersionSection(
+                headerLabel: context.l10n.main_version,
                 config: primaryDisplay,
-                enabled: true,
-                onLanguage: () => _pickLanguage(context, ref, isPrimary: true),
-                onVersion: () => _pickVersion(context, ref, isPrimary: true),
-                onScript: () => _pickScript(context, ref, isPrimary: true),
+                theme: theme,
               ),
               const SizedBox(height: 18),
               SlotConfigCard(
@@ -75,13 +77,15 @@ class ReaderSettingsScreen extends ConsumerWidget {
                 config: settings.secondary,
                 enabled: settings.secondaryEnabled,
                 showScriptRow: false,
-                onLanguage: () => _pickLanguage(context, ref, isPrimary: false),
-                onVersion: () => _pickVersion(context, ref, isPrimary: false),
+                isVersionLoading: isResolvingVersion,
+                onLanguage: () => _pickLanguage(context, ref, primaryDisplay),
+                onVersion: () => _pickVersion(context, ref),
                 onScript: () => _pickScript(context, ref, isPrimary: false),
               ),
               const SizedBox(height: 16),
-              if (settings.secondaryEnabled)
-                Padding(
+              Opacity(
+                opacity: settings.secondaryEnabled ? 1.0 : 0.45,
+                child: Padding(
                   padding: const EdgeInsets.only(left: 4),
                   child: Text(
                     context.l10n.second_version_msg,
@@ -90,6 +94,7 @@ class ReaderSettingsScreen extends ConsumerWidget {
                     ),
                   ),
                 ),
+              ),
             ],
           ),
         ),
@@ -111,18 +116,17 @@ class ReaderSettingsScreen extends ConsumerWidget {
     return initialPrimaryDisplay ?? settings.primary;
   }
 
-  ReaderSlotConfig _currentSlotFor(WidgetRef ref, {required bool isPrimary}) {
-    final settings = ref.read(readerDualSettingsProvider(textId));
-    return isPrimary ? _primaryDisplay(ref, settings) : settings.secondary;
+  ReaderSlotConfig _secondarySlot(WidgetRef ref) {
+    return ref.read(readerDualSettingsProvider(textId)).secondary;
   }
 
   Future<void> _pickLanguage(
     BuildContext context,
-    WidgetRef ref, {
-    required bool isPrimary,
-  }) async {
+    WidgetRef ref,
+    ReaderSlotConfig mainConfig,
+  ) async {
     final notifier = ref.read(readerDualSettingsProvider(textId).notifier);
-    final current = _currentSlotFor(ref, isPrimary: isPrimary);
+    final current = _secondarySlot(ref);
 
     await showLanguagePickerSheet(
       context,
@@ -130,26 +134,85 @@ class ReaderSettingsScreen extends ConsumerWidget {
       selectedCode: current.languageCode,
       onSelected: (option) {
         if (option.code == current.languageCode) return;
-        final next = ReaderSlotConfig(
-          languageCode: option.code,
-          languageLabel: getLanguageName(option.code),
+        // Set the language right away (version cleared); the version is then
+        // auto-resolved below once the picker sheet closes.
+        notifier.replaceSecondary(
+          ReaderSlotConfig(
+            languageCode: option.code,
+            languageLabel: getLanguageName(option.code, context),
+          ),
         );
-        if (isPrimary) {
-          notifier.replacePrimary(next);
-        } else {
-          notifier.replaceSecondary(next);
-        }
       },
     );
+
+    // Auto-select a version for the freshly picked language. Skip if the slot
+    // is still unset (sheet dismissed) or already has a version.
+    final picked = _secondarySlot(ref);
+    if (picked.isUnset || picked.versionId != null) return;
+
+    final resolving = ref.read(readerSecondaryResolvingProvider(textId).notifier);
+    resolving.state = true;
+    try {
+      await _autoSelectSecondaryVersion(ref, picked, mainConfig);
+    } finally {
+      resolving.state = false;
+    }
   }
 
-  Future<void> _pickVersion(
-    BuildContext context,
-    WidgetRef ref, {
-    required bool isPrimary,
-  }) async {
+  /// Resolves the version for a just-picked secondary language:
+  /// - different language than Main → first available version,
+  /// - same language as Main → first version whose id differs from Main's,
+  /// - nothing usable → mark the slot [ReaderSlotConfig.versionUnavailable].
+  Future<void> _autoSelectSecondaryVersion(
+    WidgetRef ref,
+    ReaderSlotConfig slot,
+    ReaderSlotConfig mainConfig,
+  ) async {
     final notifier = ref.read(readerDualSettingsProvider(textId).notifier);
-    final current = _currentSlotFor(ref, isPrimary: isPrimary);
+    final query = ReaderLanguageQuery(
+      textId: textId,
+      language: slot.languageCode,
+    );
+
+    try {
+      final versions = await ref.read(readerVersionsProvider(query).future);
+      final bool sameLanguageAsMain =
+          slot.languageCode == mainConfig.languageCode;
+
+      ReaderVersionDetail? chosen;
+      for (final version in versions) {
+        if (sameLanguageAsMain && version.id == mainConfig.versionId) continue;
+        chosen = version;
+        break;
+      }
+
+      // The slot may have changed again while awaiting (user picked another
+      // language). Only apply if it still matches what we resolved for.
+      final latest = _secondarySlot(ref);
+      if (latest.languageCode != slot.languageCode ||
+          latest.versionId != null) {
+        return;
+      }
+
+      if (chosen == null) {
+        notifier.replaceSecondary(slot.copyWith(versionUnavailable: true));
+        return;
+      }
+      notifier.replaceSecondary(
+        slot.copyWith(
+          versionId: chosen.id,
+          versionLabel: chosen.title,
+          versionUnavailable: false,
+        ),
+      );
+    } catch (_) {
+      notifier.replaceSecondary(slot.copyWith(versionUnavailable: true));
+    }
+  }
+
+  Future<void> _pickVersion(BuildContext context, WidgetRef ref) async {
+    final notifier = ref.read(readerDualSettingsProvider(textId).notifier);
+    final current = _secondarySlot(ref);
 
     await showVersionPickerSheet(
       context,
@@ -161,12 +224,9 @@ class ReaderSettingsScreen extends ConsumerWidget {
         final next = current.copyWith(
           versionId: option.id,
           versionLabel: option.title,
+          versionUnavailable: false,
         );
-        if (isPrimary) {
-          notifier.replacePrimary(next);
-        } else {
-          notifier.replaceSecondary(next);
-        }
+        notifier.replaceSecondary(next);
       },
     );
   }
@@ -177,7 +237,7 @@ class ReaderSettingsScreen extends ConsumerWidget {
     required bool isPrimary,
   }) async {
     final notifier = ref.read(readerDualSettingsProvider(textId).notifier);
-    final current = _currentSlotFor(ref, isPrimary: isPrimary);
+    final current = _secondarySlot(ref);
 
     await showScriptPickerSheet(
       context,
@@ -190,11 +250,7 @@ class ReaderSettingsScreen extends ConsumerWidget {
           scriptId: option.id,
           scriptLabel: option.label,
         );
-        if (isPrimary) {
-          notifier.replacePrimary(next);
-        } else {
-          notifier.replaceSecondary(next);
-        }
+        notifier.replaceSecondary(next);
       },
     );
   }
@@ -243,10 +299,98 @@ class _SecondaryToggle extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 12),
-              Switch.adaptive(value: enabled, onChanged: onChanged),
+              AppToggleSwitch(value: enabled, onChanged: onChanged),
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// Non-tappable display section for the primary/main version.
+/// Shows plain label/value rows with no card border, background, or chevrons.
+class _StaticVersionSection extends StatelessWidget {
+  const _StaticVersionSection({
+    required this.headerLabel,
+    required this.config,
+    required this.theme,
+  });
+
+  final String headerLabel;
+  final ReaderSlotConfig config;
+  final ThemeData theme;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(4, 8, 4, 8),
+          child: Text(
+            headerLabel.toUpperCase(),
+            style: theme.textTheme.labelSmall?.copyWith(
+              letterSpacing: 1.3,
+              color: theme.colorScheme.onSurface.withValues(alpha: 0.55),
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+        _StaticRow(
+          label: l10n.language,
+          value: config.languageLabel,
+          theme: theme,
+        ),
+        _StaticRow(
+          label: l10n.version,
+          value: config.versionLabel ?? '—',
+          theme: theme,
+        ),
+      ],
+    );
+  }
+}
+
+class _StaticRow extends StatelessWidget {
+  const _StaticRow({
+    required this.label,
+    required this.value,
+    required this.theme,
+  });
+
+  final String label;
+  final String value;
+  final ThemeData theme;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            child: Text(
+              label,
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+          Flexible(
+            child: Text(
+              value,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.left,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

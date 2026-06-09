@@ -20,8 +20,9 @@ class CacheInterceptor extends Interceptor {
     RequestOptions options,
     RequestInterceptorHandler handler,
   ) {
-    // Only cache GET requests
-    if (options.method.toUpperCase() == 'GET') {
+    // Only cache GET requests (unless explicitly opted out)
+    if (options.method.toUpperCase() == 'GET' &&
+        options.extra['no_cache'] != true) {
       final cacheKey = _generateCacheKey(options);
       final cached = _cache[cacheKey];
 
