@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_pecha/core/di/core_providers.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class AboutScreen extends ConsumerWidget {
+class AboutScreen extends StatelessWidget {
   const AboutScreen({super.key});
 
   static const String routeName = '/about';
@@ -44,9 +42,8 @@ class AboutScreen extends ConsumerWidget {
   ];
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
-    final versionLabel = ref.watch(appVersionLabelProvider);
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
@@ -65,7 +62,7 @@ class AboutScreen extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildHeader(context, versionLabel),
+              _buildHeader(context),
               const SizedBox(height: 16),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -93,7 +90,7 @@ class AboutScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildHeader(BuildContext context, String versionLabel) {
+  Widget _buildHeader(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
       child: Column(
@@ -115,15 +112,6 @@ class AboutScreen extends ConsumerWidget {
               ),
             ),
           ),
-          if (versionLabel.isNotEmpty) ...[
-            const SizedBox(height: 4),
-            Text(
-              versionLabel,
-              style: Theme.of(
-                context,
-              ).textTheme.bodySmall?.copyWith(color: AppColors.grey600),
-            ),
-          ],
           const SizedBox(height: 12),
           Text(
             'We help Buddhists do less harm, more good, and know their own mind better by learning, practicing and connecting daily so that all beings become free from suffering and find lasting happiness.',
