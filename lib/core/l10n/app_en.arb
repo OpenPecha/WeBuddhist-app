@@ -643,6 +643,8 @@
   "second_version": "Second Version",
   "second_version_msg": "The second version will appear below each verse of the main text.",
   "version": "Versions",
+  "parallel_version": "Parallel version",
+  "main_version": "Main version",
   "read_full_text": "Read Full Text",
   "reader_source_label": "Source",
   "reader_license_label": "License",

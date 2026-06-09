@@ -2662,6 +2662,18 @@ abstract class AppLocalizations {
   /// **'Versions'**
   String get version;
 
+  /// No description provided for @parallel_version.
+  ///
+  /// In en, this message translates to:
+  /// **'Parallel version'**
+  String get parallel_version;
+
+  /// No description provided for @main_version.
+  ///
+  /// In en, this message translates to:
+  /// **'Main version'**
+  String get main_version;
+
   /// No description provided for @read_full_text.
   ///
   /// In en, this message translates to:

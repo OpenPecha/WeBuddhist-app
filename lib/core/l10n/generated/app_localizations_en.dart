@@ -1423,6 +1423,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get version => 'Versions';
 
   @override
+  String get parallel_version => 'Parallel version';
+
+  @override
+  String get main_version => 'Main version';
+
+  @override
   String get read_full_text => 'Read Full Text';
 
   @override

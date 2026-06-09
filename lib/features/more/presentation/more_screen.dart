@@ -8,6 +8,7 @@ import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/core/theme/theme_notifier.dart';
+import 'package:flutter_pecha/shared/widgets/app_toggle_switch.dart';
 import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
 import 'package:flutter_pecha/features/auth/presentation/widgets/login_drawer.dart';
 import 'package:flutter_pecha/features/notifications/presentation/notification_settings_screen.dart';
@@ -428,32 +429,11 @@ class _ThemeToggle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () => onChanged(!isDarkMode),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        width: 64,
-        height: 32,
-        padding: const EdgeInsets.all(2),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(16),
-          color: isDarkMode
-              ? const Color(0xFF196BF1)
-              : const Color(0xFFADADAD),
-        ),
-        child: AnimatedAlign(
-          duration: const Duration(milliseconds: 200),
-          alignment: isDarkMode ? Alignment.centerRight : Alignment.centerLeft,
-          child: Container(
-            width: 28,
-            height: 28,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: isDarkMode ? AppColors.grey600 : AppColors.surfaceWhite,
-            ),
-          ),
-        ),
-      ),
+    return AppToggleSwitch(
+      value: isDarkMode,
+      onChanged: onChanged,
+      thumbOnColor: AppColors.grey600,
+      thumbOffColor: AppColors.surfaceWhite,
     );
   }
 }

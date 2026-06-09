@@ -1363,13 +1363,19 @@ class AppLocalizationsZh extends AppLocalizations {
   String get version => 'Versions';
 
   @override
-  String get read_full_text => 'Read Full Text';
+  String get parallel_version => '對讀版本';
 
   @override
-  String get reader_source_label => 'Source';
+  String get main_version => '主要版本';
 
   @override
-  String get reader_license_label => 'License';
+  String get read_full_text => '閱讀完整文本';
+
+  @override
+  String get reader_source_label => '來源';
+
+  @override
+  String get reader_license_label => '授權';
 
   @override
   String get force_update_title => '需要更新';
