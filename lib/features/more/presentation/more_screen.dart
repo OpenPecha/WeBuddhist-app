@@ -140,7 +140,7 @@ class MoreScreen extends ConsumerWidget {
   ) {
     return _buildSettingsRow(
       context,
-      icon: PhosphorIconsRegular.sun,
+      icon: isDarkMode ? PhosphorIconsRegular.moon : PhosphorIconsRegular.sun,
       title: 'Theme',
       onTap: () {
         ref
