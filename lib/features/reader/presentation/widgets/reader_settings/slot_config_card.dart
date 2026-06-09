@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/core.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/features/reader/data/models/reader_slot_config.dart';
 
@@ -109,6 +110,9 @@ class _SlotRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final mutedColor = theme.colorScheme.onSurface.withValues(alpha: 0.7);
+    final chevronColor = theme.colorScheme.onSurface.withValues(alpha: 0.55);
+
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -117,6 +121,7 @@ class _SlotRow extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
           child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(
                 child: Text(
@@ -126,21 +131,22 @@ class _SlotRow extends StatelessWidget {
                   ),
                 ),
               ),
-              Flexible(
+              Expanded(
                 child: Text(
                   value,
+                  maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  textAlign: TextAlign.left,
+                  textAlign: TextAlign.start,
                   style: theme.textTheme.bodyMedium?.copyWith(
-                    color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+                    color: mutedColor,
                   ),
                 ),
               ),
               const SizedBox(width: 4),
               Icon(
-                Icons.chevron_right,
-                size: 20,
-                color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
+                AppAssets.readerChevronRight,
+                size: 24,
+                color: chevronColor,
               ),
             ],
           ),

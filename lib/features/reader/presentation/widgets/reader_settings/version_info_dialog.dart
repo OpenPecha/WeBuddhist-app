@@ -26,39 +26,45 @@ class VersionInfoDialog extends ConsumerWidget {
       child: Padding(
         padding: const EdgeInsets.fromLTRB(20, 20, 12, 20),
         child: asyncInfo.when(
-          loading: () => _DialogShell(
-            title: fallbackTitle,
-            child: const Padding(
-              padding: EdgeInsets.symmetric(vertical: 24),
-              child: Center(child: CircularProgressIndicator()),
-            ),
-          ),
-          error: (_, __) => _DialogShell(
-            title: fallbackTitle,
-            child: Padding(
-              padding: const EdgeInsets.all(8),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    AppLocalizations.of(context)!.reader_version_details_load_error,
-                    style: theme.textTheme.bodyMedium,
-                  ),
-                  const SizedBox(height: 12),
-                  TextButton(
-                    onPressed: () => ref.invalidate(
-                      readerVersionInfoProvider(versionId),
-                    ),
-                    child: Text(AppLocalizations.of(context)!.retry),
-                  ),
-                ],
+          loading:
+              () => _DialogShell(
+                title: fallbackTitle,
+                child: const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 24),
+                  child: Center(child: CircularProgressIndicator()),
+                ),
               ),
-            ),
-          ),
-          data: (info) => _DialogShell(
-            title: info.title.isNotEmpty ? info.title : fallbackTitle,
-            child: _VersionInfoBody(info: info),
-          ),
+          error:
+              (_, __) => _DialogShell(
+                title: fallbackTitle,
+                child: Padding(
+                  padding: const EdgeInsets.all(8),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        AppLocalizations.of(
+                          context,
+                        )!.reader_version_details_load_error,
+                        style: theme.textTheme.bodyMedium,
+                      ),
+                      const SizedBox(height: 12),
+                      TextButton(
+                        onPressed:
+                            () => ref.invalidate(
+                              readerVersionInfoProvider(versionId),
+                            ),
+                        child: Text(AppLocalizations.of(context)!.retry),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+          data:
+              (info) => _DialogShell(
+                title: info.title.isNotEmpty ? info.title : fallbackTitle,
+                child: _VersionInfoBody(info: info),
+              ),
         ),
       ),
     );
@@ -122,23 +128,11 @@ class _VersionInfoBody extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
     final rows = <Widget>[];
 
-    if (info.publishedBy != null && info.publishedBy!.isNotEmpty) {
-      rows.add(_InfoRow(label: l10n.reader_published_by, value: info.publishedBy!));
-    }
-    if (info.publishedDate != null && info.publishedDate!.isNotEmpty) {
-      rows.add(_InfoRow(label: l10n.reader_published, value: info.publishedDate!));
-    }
-    if (info.license != null && info.license!.isNotEmpty) {
-      rows.add(_InfoRow(label: l10n.reader_license, value: info.license!));
-    }
     if (info.sourceLink != null && info.sourceLink!.isNotEmpty) {
       rows.add(_InfoRow(label: l10n.source, value: info.sourceLink!));
     }
-    if (info.language.isNotEmpty) {
-      rows.add(_InfoRow(label: l10n.language, value: info.language));
-    }
-    if (info.type != null && info.type!.isNotEmpty) {
-      rows.add(_InfoRow(label: l10n.reader_version_type, value: info.type!));
+    if (info.license != null && info.license!.isNotEmpty) {
+      rows.add(_InfoRow(label: l10n.reader_license, value: info.license!));
     }
 
     return Padding(
@@ -147,10 +141,7 @@ class _VersionInfoBody extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (rows.isEmpty)
-            Text(
-              l10n.reader_no_version_info,
-              style: mutedStyle,
-            )
+            Text(l10n.reader_no_version_info, style: mutedStyle)
           else
             ...rows,
         ],
@@ -203,9 +194,10 @@ Future<void> showVersionInfoDialog(
   return showDialog(
     context: context,
     barrierColor: Colors.black54,
-    builder: (_) => VersionInfoDialog(
-      versionId: versionId,
-      fallbackTitle: fallbackTitle,
-    ),
+    builder:
+        (_) => VersionInfoDialog(
+          versionId: versionId,
+          fallbackTitle: fallbackTitle,
+        ),
   );
 }

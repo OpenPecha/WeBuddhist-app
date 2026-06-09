@@ -39,6 +39,7 @@ class AppAssets {
   static const IconData readerCommentary = PhosphorIconsRegular.chatText;
   static const IconData readerCopy = PhosphorIconsRegular.copy;
   static const IconData readerShare = PhosphorIconsRegular.shareNetwork;
+  static const IconData readerChevronRight = PhosphorIconsRegular.caretRight;
 
   // ========== SETTINGS & PROFILE ICONS ==========
   static const IconData profile = PhosphorIconsRegular.user;
