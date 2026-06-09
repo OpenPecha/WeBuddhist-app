@@ -67,11 +67,7 @@ class EditRoutineScreen extends ConsumerStatefulWidget {
   /// plans by start date.
   final String? enrollSeriesId;
 
-  const EditRoutineScreen({
-    super.key,
-    this.initialPlan,
-    this.enrollSeriesId,
-  });
+  const EditRoutineScreen({super.key, this.initialPlan, this.enrollSeriesId});
 
   @override
   ConsumerState<EditRoutineScreen> createState() => _EditRoutineScreenState();
@@ -100,10 +96,7 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
   void initState() {
     super.initState();
     _blocks = [
-      _EditableBlock(
-        time: TimeOfDay.now(),
-        notificationEnabled: true,
-      ),
+      _EditableBlock(time: TimeOfDay.now(), notificationEnabled: true),
     ];
   }
 
@@ -127,10 +120,7 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
               .toList();
     } else {
       _blocks = [
-        _EditableBlock(
-          time: TimeOfDay.now(),
-          notificationEnabled: true,
-        ),
+        _EditableBlock(time: TimeOfDay.now(), notificationEnabled: true),
       ];
     }
   }
@@ -148,10 +138,11 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
 
     for (final block in _blocks) {
       if (block.items.isEmpty) {
-        final otherTimes = _blocks
-            .where((b) => !identical(b, block))
-            .map((b) => b.time)
-            .toList();
+        final otherTimes =
+            _blocks
+                .where((b) => !identical(b, block))
+                .map((b) => b.time)
+                .toList();
         final adjusted = adjustTimeForMinimumGap(TimeOfDay.now(), otherTimes);
         if (adjusted != null) {
           block.time = adjusted;
@@ -165,10 +156,7 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
     if (adjusted == null) {
       return (target: _blocks.first, isNewBlock: false);
     }
-    final newBlock = _EditableBlock(
-      time: adjusted,
-      notificationEnabled: true,
-    );
+    final newBlock = _EditableBlock(time: adjusted, notificationEnabled: true);
     return (target: newBlock, isNewBlock: true);
   }
 
@@ -218,10 +206,7 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
     final locale = ref.read(localeProvider);
     final useCase = ref.read(getUserPlansUseCaseProvider);
     final result = await useCase(
-      GetUserPlansParams(
-        language: locale.languageCode,
-        seriesId: seriesId,
-      ),
+      GetUserPlansParams(language: locale.languageCode, seriesId: seriesId),
     );
 
     if (!mounted) return;
@@ -590,8 +575,13 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
           child: Container(
             height: 300,
             decoration: BoxDecoration(
-              color: isDark ? AppColors.cardBackgroundDark : AppColors.surfaceWhite,
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+              color:
+                  isDark
+                      ? AppColors.cardBackgroundDark
+                      : AppColors.surfaceWhite,
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(20),
+              ),
             ),
             child: SafeArea(
               top: false,
@@ -603,7 +593,10 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
                     width: 40,
                     height: 4,
                     decoration: BoxDecoration(
-                      color: isDark ? AppColors.textTertiaryDark : AppColors.grey100,
+                      color:
+                          isDark
+                              ? AppColors.textTertiaryDark
+                              : AppColors.grey100,
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
@@ -619,7 +612,10 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
                         child: Text(
                           l10n.cancel,
                           style: TextStyle(
-                            color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondary,
+                            color:
+                                isDark
+                                    ? AppColors.textSecondaryDark
+                                    : AppColors.textSecondary,
                           ),
                         ),
                       ),
@@ -654,14 +650,13 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
   }
 
   Future<void> _pickTime(int index) async {
-    final picked = Platform.isIOS
-        ? await _showCupertinoTimePicker(
-            initialTime: _blocks[index].time,
-          )
-        : await showTimePicker(
-            context: context,
-            initialTime: _blocks[index].time,
-          );
+    final picked =
+        Platform.isIOS
+            ? await _showCupertinoTimePicker(initialTime: _blocks[index].time)
+            : await showTimePicker(
+              context: context,
+              initialTime: _blocks[index].time,
+            );
     if (picked != null) {
       final otherTimes =
           _blocks
@@ -894,6 +889,9 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
       }
     }
 
+    // Cancel immediately so the user doesn't receive a notification for a
+    // block they just removed, even if they back out without pressing Done.
+    // Full reconciliation runs on Done / cold-start via the engine.
     final routineBlock = _toRoutineBlock(block);
     await ref
         .read(routineNotificationServiceProvider)
@@ -1155,7 +1153,8 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
     }
 
     final seriesId = series.id;
-    final alreadyEnrolled = ref
+    final alreadyEnrolled =
+        ref
             .read(userSeriesEnrollmentsProvider)
             .valueOrNull
             ?.contains(seriesId) ??
@@ -1168,9 +1167,10 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
 
       if (!ok) {
         final state = ref.read(seriesEnrollmentProvider(seriesId));
-        final message = state is SeriesEnrollmentFailure
-            ? state.failure.message
-            : 'Failed to enroll in series';
+        final message =
+            state is SeriesEnrollmentFailure
+                ? state.failure.message
+                : 'Failed to enroll in series';
         _showErrorSnackBar(message);
         return;
       }
@@ -1201,10 +1201,11 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
     if (blockIndex < 0 || blockIndex >= _blocks.length) return;
     final block = _blocks[blockIndex];
 
-    final existingPlanIds = block.items
-        .where((i) => i.type == RoutineItemType.plan)
-        .map((i) => i.id)
-        .toSet();
+    final existingPlanIds =
+        block.items
+            .where((i) => i.type == RoutineItemType.plan)
+            .map((i) => i.id)
+            .toSet();
 
     final newItems = <RoutineItem>[];
     for (final p in plans) {
@@ -1280,8 +1281,7 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
             if (widget.initialPlan != null) {
               _syncInjectedPlan(widget.initialPlan!);
             }
-            if (widget.enrollSeriesId != null &&
-                !_seriesEnrollmentHydrated) {
+            if (widget.enrollSeriesId != null && !_seriesEnrollmentHydrated) {
               _seriesEnrollmentHydrated = true;
               _hydrateSeriesEnrollment(widget.enrollSeriesId!);
             }

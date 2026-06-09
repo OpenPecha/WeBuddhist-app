@@ -2,16 +2,16 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
-class PrivacyPolicyScreen extends StatefulWidget {
-  const PrivacyPolicyScreen({super.key});
+class TermsOfServiceScreen extends StatefulWidget {
+  const TermsOfServiceScreen({super.key});
 
-  static const String routeName = '/privacy-policy';
+  static const String routeName = '/terms-of-service';
 
   @override
-  State<PrivacyPolicyScreen> createState() => _PrivacyPolicyScreenState();
+  State<TermsOfServiceScreen> createState() => _TermsOfServiceScreenState();
 }
 
-class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen> {
+class _TermsOfServiceScreenState extends State<TermsOfServiceScreen> {
   late final WebViewController controller;
   bool isLoading = true;
   bool hasError = false;
@@ -38,44 +38,46 @@ class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen> {
         setState(() {
           isLoading = false;
           hasError = true;
-          errorMessage = 'Page took too long to load. Please check your internet connection.';
+          errorMessage =
+              'Page took too long to load. Please check your internet connection.';
         });
       }
     });
 
-    controller = WebViewController()
-      ..setJavaScriptMode(JavaScriptMode.unrestricted)
-      ..setBackgroundColor(Colors.white)
-      ..setNavigationDelegate(
-        NavigationDelegate(
-          onPageStarted: (String url) {
-            setState(() {
-              isLoading = true;
-              hasError = false;
-            });
-          },
-          onPageFinished: (String url) {
-            loadingTimeout?.cancel();
-            setState(() {
-              isLoading = false;
-              hasError = false;
-            });
-          },
-          onWebResourceError: (WebResourceError error) {
-            loadingTimeout?.cancel();
-            debugPrint('WebView error: ${error.description}');
-            setState(() {
-              isLoading = false;
-              hasError = true;
-              errorMessage = error.description;
-            });
-          },
-          onNavigationRequest: (NavigationRequest request) {
-            return NavigationDecision.navigate;
-          },
-        ),
-      )
-      ..loadRequest(Uri.parse('https://webuddhist.com/privacy-policy'));
+    controller =
+        WebViewController()
+          ..setJavaScriptMode(JavaScriptMode.unrestricted)
+          ..setBackgroundColor(Colors.white)
+          ..setNavigationDelegate(
+            NavigationDelegate(
+              onPageStarted: (String url) {
+                setState(() {
+                  isLoading = true;
+                  hasError = false;
+                });
+              },
+              onPageFinished: (String url) {
+                loadingTimeout?.cancel();
+                setState(() {
+                  isLoading = false;
+                  hasError = false;
+                });
+              },
+              onWebResourceError: (WebResourceError error) {
+                loadingTimeout?.cancel();
+                debugPrint('WebView error: ${error.description}');
+                setState(() {
+                  isLoading = false;
+                  hasError = true;
+                  errorMessage = error.description;
+                });
+              },
+              onNavigationRequest: (NavigationRequest request) {
+                return NavigationDecision.navigate;
+              },
+            ),
+          )
+          ..loadRequest(Uri.parse('https://webuddhist.com/terms-of-service'));
   }
 
   @override
@@ -95,7 +97,7 @@ class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen> {
       appBar: AppBar(
         elevation: 0,
         title: Text(
-          'Privacy policy',
+          'Terms of Service',
           style: Theme.of(
             context,
           ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
@@ -133,7 +135,8 @@ class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen> {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        errorMessage ?? 'Unable to load the privacy policy page.',
+                        errorMessage ??
+                            'Unable to load the terms of service page.',
                         textAlign: TextAlign.center,
                         style: Theme.of(context).textTheme.bodyMedium,
                       ),
@@ -149,7 +152,9 @@ class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen> {
               ),
             if (isLoading)
               Container(
-                color: Theme.of(context).scaffoldBackgroundColor.withOpacity(0.8),
+                color: Theme.of(
+                  context,
+                ).scaffoldBackgroundColor.withOpacity(0.8),
                 child: Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,

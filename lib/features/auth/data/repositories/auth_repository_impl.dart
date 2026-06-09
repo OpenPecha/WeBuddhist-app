@@ -285,4 +285,24 @@ class AuthRepositoryImpl implements AuthRepository {
       return Left(ExceptionMapper.map(e, context: 'uploadAvatar'));
     }
   }
+
+  @override
+  Future<Either<Failure, void>> deleteAccount() async {
+    final idTokenResult = await getValidIdToken();
+    if (idTokenResult.isLeft()) {
+      return idTokenResult.fold(
+        (failure) => Left(failure),
+        (_) => const Left(UnknownFailure('Unknown error')),
+      );
+    }
+
+    final idToken = idTokenResult.getOrElse((_) => '');
+
+    try {
+      await _remoteDataSource.deleteUser(idToken);
+      return const Right(null);
+    } catch (e) {
+      return Left(ExceptionMapper.map(e, context: 'deleteAccount'));
+    }
+  }
 }

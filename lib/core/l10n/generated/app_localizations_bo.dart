@@ -1431,4 +1431,14 @@ class AppLocalizationsBo extends AppLocalizations {
 
   @override
   String get know_more => 'ཞིབ་ཕྲ་གཟིགས།';
+
+  @override
+  String get force_update_title => 'གསར་བསྒྱུར་དགོས་མཁོ།';
+
+  @override
+  String get force_update_message =>
+      'མཉེན་ཆས་ཀྱི་པར་གཞི་གསར་པ་ཞིག་ཡོད་པས། མུ་མཐུད་སྤྱོད་རོགས་གནང་བར་གསར་བསྒྱུར་མཛད་རོགས།';
+
+  @override
+  String get force_update_button => 'གསར་བསྒྱུར།';
 }

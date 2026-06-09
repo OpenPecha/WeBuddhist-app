@@ -1433,4 +1433,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get know_more => 'Know More';
+
+  @override
+  String get force_update_title => 'Update required';
+
+  @override
+  String get force_update_message =>
+      'A new version of the app is available. Please update to continue.';
+
+  @override
+  String get force_update_button => 'Update now';
 }
