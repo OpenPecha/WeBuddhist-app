@@ -304,9 +304,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     // Disk + flutter_cache_manager memory store
     unawaited(CachedNetworkImage.evictFromCache(url, cacheKey: stableKey));
     // Flutter's imageCache (decoded pixel store)
-    unawaited(
-      CachedNetworkImageProvider(url, cacheKey: stableKey).evict(),
-    );
+    unawaited(CachedNetworkImageProvider(url, cacheKey: stableKey).evict());
   }
 
   void _showAvatarUploadError(String? rawError) {
@@ -566,8 +564,8 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                     child: TextField(
                       controller: _firstNameCtrl,
                       decoration: InputDecoration(
-                        hintText: 'First Name',
-                        hintStyle: TextStyle(color: AppColors.grey500),
+                        labelText: 'First Name',
+                        labelStyle: TextStyle(color: AppColors.grey500),
                         filled: true,
                         fillColor:
                             isDark
@@ -588,8 +586,8 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                     child: TextField(
                       controller: _lastNameCtrl,
                       decoration: InputDecoration(
-                        hintText: 'Last Name',
-                        hintStyle: TextStyle(color: AppColors.grey500),
+                        labelText: 'Last Name',
+                        labelStyle: TextStyle(color: AppColors.grey500),
                         filled: true,
                         fillColor:
                             isDark
@@ -627,8 +625,10 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                   );
                 },
                 decoration: InputDecoration(
-                  hintText: 'Bio\nShare a little about yourself',
-                  hintStyle: TextStyle(color: AppColors.grey500, height: 1.6),
+                  labelText: 'Bio',
+                  labelStyle: TextStyle(color: AppColors.grey500),
+                  hintText: 'Share a little about yourself',
+                  hintStyle: TextStyle(color: AppColors.grey500),
                   filled: true,
                   fillColor:
                       isDark
