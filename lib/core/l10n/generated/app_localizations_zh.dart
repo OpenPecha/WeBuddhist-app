@@ -1372,6 +1372,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get reader_license_label => 'License';
 
   @override
+  String get know_more => '了解更多';
+
+  @override
   String get force_update_title => '需要更新';
 
   @override

@@ -646,6 +646,7 @@
   "read_full_text": "Read Full Text",
   "reader_source_label": "Source",
   "reader_license_label": "License",
+  "know_more": "Know More",
   "force_update_title": "Update required",
   "force_update_message": "A new version of the app is available. Please update to continue.",
   "force_update_button": "Update now"

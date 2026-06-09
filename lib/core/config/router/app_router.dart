@@ -10,10 +10,12 @@ import 'package:flutter_pecha/core/config/router/pending_route_provider.dart';
 import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
 import 'package:flutter_pecha/features/auth/presentation/screens/login_page.dart';
 import 'package:flutter_pecha/features/auth/presentation/screens/splash_screen.dart';
+import 'package:flutter_pecha/features/group_profile/presentation/screens/group_profile_screen.dart';
 import 'package:flutter_pecha/features/home/domain/entities/series.dart';
 import 'package:flutter_pecha/features/home/presentation/screens/main_navigation_screen.dart';
 import 'package:flutter_pecha/features/home/presentation/screens/plan_list_screen.dart';
 import 'package:flutter_pecha/features/home/presentation/screens/series_detail_screen.dart';
+import 'package:flutter_pecha/features/home/presentation/screens/series_info_screen.dart';
 import 'package:flutter_pecha/features/more/presentation/about_screen.dart';
 import 'package:flutter_pecha/features/more/presentation/edit_profile_screen.dart';
 import 'package:flutter_pecha/features/more/presentation/more_screen.dart';
@@ -145,6 +147,26 @@ final appRouterProvider = Provider<GoRouter>((ref) {
               final extra = state.extra as Map<String, dynamic>?;
               final series = extra?['series'] as Series?;
               return SeriesDetailScreen(seriesId: id, series: series);
+            },
+            routes: [
+              GoRoute(
+                path: "info",
+                name: "home-series-info",
+                builder: (context, state) {
+                  final extra = state.extra as Map<String, dynamic>?;
+                  final series = extra?['series'] as Series;
+                  return SeriesInfoScreen(series: series);
+                },
+              ),
+            ],
+          ),
+          // group profile route
+          GoRoute(
+            path: "group/:groupId",
+            name: "home-group-profile",
+            builder: (context, state) {
+              final groupId = state.pathParameters['groupId'] ?? '';
+              return GroupProfileScreen(groupId: groupId);
             },
           ),
           // settings route

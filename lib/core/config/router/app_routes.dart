@@ -85,6 +85,9 @@ class AppRoutes {
   // ========== NOTIFICATIONS SUB ROUTES ==========
   static const String notificationSettings = '/notifications/settings';
 
+  // ========== GROUP PROFILE ROUTES ==========
+  static const String groupProfile = '/group-profile';
+
   // ========== SEARCH ROUTES ==========
   static const String searchResults = '/search-results';
 

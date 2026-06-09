@@ -2680,6 +2680,12 @@ abstract class AppLocalizations {
   /// **'License'**
   String get reader_license_label;
 
+  /// No description provided for @know_more.
+  ///
+  /// In en, this message translates to:
+  /// **'Know More'**
+  String get know_more;
+
   /// No description provided for @force_update_title.
   ///
   /// In en, this message translates to:

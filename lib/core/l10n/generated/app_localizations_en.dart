@@ -1432,6 +1432,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get reader_license_label => 'License';
 
   @override
+  String get know_more => 'Know More';
+
+  @override
   String get force_update_title => 'Update required';
 
   @override
