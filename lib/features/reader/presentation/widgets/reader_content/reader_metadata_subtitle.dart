@@ -54,7 +54,7 @@ class ReaderMetadataSubtitle extends ConsumerWidget {
     final primary = settings.primary;
     final loadedLanguage = _resolvePrimaryLanguageLabel(primary, state);
 
-    if (settings.secondaryEnabled) {
+    if (settings.secondaryEnabled && !settings.secondary.isUnset) {
       return '$loadedLanguage + ${settings.secondary.languageLabel}';
     }
     final parts = <String>[

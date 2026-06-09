@@ -589,6 +589,7 @@
   "version": "Versions",
   "parallel_version": "對讀版本",
   "main_version": "主要版本",
+  "version_not_available": "無可用版本",
   "read_full_text": "閱讀完整文本",
   "reader_source_label": "來源",
   "reader_license_label": "授權",

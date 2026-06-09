@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/features/reader/data/models/reader_slot_config.dart';
+import 'package:flutter_pecha/features/reader/data/models/reader_version_detail.dart';
 import 'package:flutter_pecha/features/reader/presentation/providers/reader_dual_settings_provider.dart';
+import 'package:flutter_pecha/features/reader/presentation/providers/reader_settings_providers.dart';
 import 'package:flutter_pecha/features/reader/presentation/widgets/reader_settings/language_picker_sheet.dart';
 import 'package:flutter_pecha/features/reader/presentation/widgets/reader_settings/script_picker_sheet.dart';
 import 'package:flutter_pecha/features/reader/presentation/widgets/reader_settings/slot_config_card.dart';
@@ -30,6 +32,8 @@ class ReaderSettingsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final settings = ref.watch(readerDualSettingsProvider(textId));
     final notifier = ref.read(readerDualSettingsProvider(textId).notifier);
+    final isResolvingVersion =
+        ref.watch(readerSecondaryResolvingProvider(textId));
     final theme = Theme.of(context);
 
     final primaryDisplay = _primaryDisplay(ref, settings);
@@ -73,7 +77,8 @@ class ReaderSettingsScreen extends ConsumerWidget {
                 config: settings.secondary,
                 enabled: settings.secondaryEnabled,
                 showScriptRow: false,
-                onLanguage: () => _pickLanguage(context, ref),
+                isVersionLoading: isResolvingVersion,
+                onLanguage: () => _pickLanguage(context, ref, primaryDisplay),
                 onVersion: () => _pickVersion(context, ref),
                 onScript: () => _pickScript(context, ref, isPrimary: false),
               ),
@@ -115,7 +120,11 @@ class ReaderSettingsScreen extends ConsumerWidget {
     return ref.read(readerDualSettingsProvider(textId)).secondary;
   }
 
-  Future<void> _pickLanguage(BuildContext context, WidgetRef ref) async {
+  Future<void> _pickLanguage(
+    BuildContext context,
+    WidgetRef ref,
+    ReaderSlotConfig mainConfig,
+  ) async {
     final notifier = ref.read(readerDualSettingsProvider(textId).notifier);
     final current = _secondarySlot(ref);
 
@@ -125,13 +134,80 @@ class ReaderSettingsScreen extends ConsumerWidget {
       selectedCode: current.languageCode,
       onSelected: (option) {
         if (option.code == current.languageCode) return;
-        final next = ReaderSlotConfig(
-          languageCode: option.code,
-          languageLabel: getLanguageName(option.code),
+        // Set the language right away (version cleared); the version is then
+        // auto-resolved below once the picker sheet closes.
+        notifier.replaceSecondary(
+          ReaderSlotConfig(
+            languageCode: option.code,
+            languageLabel: getLanguageName(option.code),
+          ),
         );
-        notifier.replaceSecondary(next);
       },
     );
+
+    // Auto-select a version for the freshly picked language. Skip if the slot
+    // is still unset (sheet dismissed) or already has a version.
+    final picked = _secondarySlot(ref);
+    if (picked.isUnset || picked.versionId != null) return;
+
+    final resolving = ref.read(readerSecondaryResolvingProvider(textId).notifier);
+    resolving.state = true;
+    try {
+      await _autoSelectSecondaryVersion(ref, picked, mainConfig);
+    } finally {
+      resolving.state = false;
+    }
+  }
+
+  /// Resolves the version for a just-picked secondary language:
+  /// - different language than Main → first available version,
+  /// - same language as Main → first version whose id differs from Main's,
+  /// - nothing usable → mark the slot [ReaderSlotConfig.versionUnavailable].
+  Future<void> _autoSelectSecondaryVersion(
+    WidgetRef ref,
+    ReaderSlotConfig slot,
+    ReaderSlotConfig mainConfig,
+  ) async {
+    final notifier = ref.read(readerDualSettingsProvider(textId).notifier);
+    final query = ReaderLanguageQuery(
+      textId: textId,
+      language: slot.languageCode,
+    );
+
+    try {
+      final versions = await ref.read(readerVersionsProvider(query).future);
+      final bool sameLanguageAsMain =
+          slot.languageCode == mainConfig.languageCode;
+
+      ReaderVersionDetail? chosen;
+      for (final version in versions) {
+        if (sameLanguageAsMain && version.id == mainConfig.versionId) continue;
+        chosen = version;
+        break;
+      }
+
+      // The slot may have changed again while awaiting (user picked another
+      // language). Only apply if it still matches what we resolved for.
+      final latest = _secondarySlot(ref);
+      if (latest.languageCode != slot.languageCode ||
+          latest.versionId != null) {
+        return;
+      }
+
+      if (chosen == null) {
+        notifier.replaceSecondary(slot.copyWith(versionUnavailable: true));
+        return;
+      }
+      notifier.replaceSecondary(
+        slot.copyWith(
+          versionId: chosen.id,
+          versionLabel: chosen.title,
+          versionUnavailable: false,
+        ),
+      );
+    } catch (_) {
+      notifier.replaceSecondary(slot.copyWith(versionUnavailable: true));
+    }
   }
 
   Future<void> _pickVersion(BuildContext context, WidgetRef ref) async {
@@ -148,6 +224,7 @@ class ReaderSettingsScreen extends ConsumerWidget {
         final next = current.copyWith(
           versionId: option.id,
           versionLabel: option.title,
+          versionUnavailable: false,
         );
         notifier.replaceSecondary(next);
       },

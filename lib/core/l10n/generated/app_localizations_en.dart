@@ -1429,6 +1429,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get main_version => 'Main version';
 
   @override
+  String get version_not_available => 'Not available';
+
+  @override
   String get read_full_text => 'Read Full Text';
 
   @override

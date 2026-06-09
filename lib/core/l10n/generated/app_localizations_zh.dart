@@ -1369,6 +1369,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get main_version => '主要版本';
 
   @override
+  String get version_not_available => '無可用版本';
+
+  @override
   String get read_full_text => '閱讀完整文本';
 
   @override

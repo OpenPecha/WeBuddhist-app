@@ -2674,6 +2674,12 @@ abstract class AppLocalizations {
   /// **'Main version'**
   String get main_version;
 
+  /// No description provided for @version_not_available.
+  ///
+  /// In en, this message translates to:
+  /// **'Not available'**
+  String get version_not_available;
+
   /// No description provided for @read_full_text.
   ///
   /// In en, this message translates to:

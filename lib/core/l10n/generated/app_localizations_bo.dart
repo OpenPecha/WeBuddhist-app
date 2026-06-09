@@ -1427,6 +1427,9 @@ class AppLocalizationsBo extends AppLocalizations {
   String get main_version => 'Main version';
 
   @override
+  String get version_not_available => 'མི་འདུག';
+
+  @override
   String get read_full_text => 'Read Full Text';
 
   @override

@@ -15,6 +15,7 @@ class SlotConfigCard extends StatelessWidget {
     required this.onScript,
     this.enabled = true,
     this.showScriptRow = true,
+    this.isVersionLoading = false,
   });
 
   final String headerLabel;
@@ -24,6 +25,10 @@ class SlotConfigCard extends StatelessWidget {
   final VoidCallback onScript;
   final bool enabled;
   final bool showScriptRow;
+
+  /// While true, the version is being auto-resolved: the version row shows a
+  /// spinner and the language row is locked to prevent re-triggering.
+  final bool isVersionLoading;
 
   @override
   Widget build(BuildContext context) {
@@ -57,15 +62,22 @@ class SlotConfigCard extends StatelessWidget {
               children: [
                 _SlotRow(
                   label: l10n.language,
-                  value: config.languageLabel,
-                  enabled: enabled,
+                  value: config.isUnset
+                      ? l10n.select_language
+                      : config.languageLabel,
+                  // Lock the language while a version is being resolved.
+                  enabled: enabled && !isVersionLoading,
                   onTap: onLanguage,
                 ),
                 _rowDivider(theme),
                 _SlotRow(
                   label: l10n.version,
-                  value: config.versionLabel ?? '—',
-                  enabled: enabled,
+                  value: config.versionUnavailable
+                      ? l10n.version_not_available
+                      : (config.versionLabel ?? '—'),
+                  // Require a language before a version can be picked.
+                  enabled: enabled && !config.isUnset && !isVersionLoading,
+                  isLoading: isVersionLoading,
                   onTap: onVersion,
                 ),
                 // Script row hidden for now — keep callback wiring intact.
@@ -100,12 +112,14 @@ class _SlotRow extends StatelessWidget {
     required this.value,
     required this.enabled,
     required this.onTap,
+    this.isLoading = false,
   });
 
   final String label;
   final String value;
   final bool enabled;
   final VoidCallback onTap;
+  final bool isLoading;
 
   @override
   Widget build(BuildContext context) {
@@ -132,15 +146,27 @@ class _SlotRow extends StatelessWidget {
                 ),
               ),
               Expanded(
-                child: Text(
-                  value,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  textAlign: TextAlign.start,
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: mutedColor,
-                  ),
-                ),
+                child: isLoading
+                    ? Align(
+                        alignment: Alignment.centerLeft,
+                        child: SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: chevronColor,
+                          ),
+                        ),
+                      )
+                    : Text(
+                        value,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        textAlign: TextAlign.start,
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: mutedColor,
+                        ),
+                      ),
               ),
               const SizedBox(width: 4),
               Icon(
