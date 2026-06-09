@@ -447,72 +447,75 @@ class _GroupProfileBodyState extends ConsumerState<_GroupProfileBody> {
     bool isDark,
     double? lineHeight,
   ) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 6),
-      child: Row(
-        children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(10),
-            child: SizedBox(
-              width: 56,
-              height: 56,
-              child:
-                  series.image != null && !series.image!.isEmpty
-                      ? ResponsiveCoverImage(
-                        image: series.image,
-                        fit: BoxFit.cover,
-                        width: 56,
-                        height: 56,
-                      )
-                      : Container(
-                        color:
-                            isDark
-                                ? AppColors.surfaceVariantDark
-                                : AppColors.grey100,
-                        child: Icon(
-                          PhosphorIconsRegular.bookOpenText,
-                          color: isDark ? AppColors.grey500 : AppColors.grey600,
+    return InkWell(
+      onTap: () => context.push('/home/series/${series.id}'),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 6),
+        child: Row(
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: SizedBox(
+                width: 56,
+                height: 56,
+                child:
+                    series.image != null && !series.image!.isEmpty
+                        ? ResponsiveCoverImage(
+                          image: series.image,
+                          fit: BoxFit.cover,
+                          width: 56,
+                          height: 56,
+                        )
+                        : Container(
+                          color:
+                              isDark
+                                  ? AppColors.surfaceVariantDark
+                                  : AppColors.grey100,
+                          child: Icon(
+                            PhosphorIconsRegular.bookOpenText,
+                            color: isDark ? AppColors.grey500 : AppColors.grey600,
+                          ),
                         ),
-                      ),
+              ),
             ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  series.title,
-                  style: TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w600,
-                    height: lineHeight,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                if (series.description != null &&
-                    series.description!.trim().isNotEmpty)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 2),
-                    child: Text(
-                      series.description!,
-                      style: TextStyle(
-                        fontSize: 13,
-                        color:
-                            isDark
-                                ? AppColors.textTertiaryDark
-                                : AppColors.textSecondary,
-                        height: lineHeight,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    series.title,
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                      height: lineHeight,
                     ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
-              ],
+                  if (series.description != null &&
+                      series.description!.trim().isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 2),
+                      child: Text(
+                        series.description!,
+                        style: TextStyle(
+                          fontSize: 13,
+                          color:
+                              isDark
+                                  ? AppColors.textTertiaryDark
+                                  : AppColors.textSecondary,
+                          height: lineHeight,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
