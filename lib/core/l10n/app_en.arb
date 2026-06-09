@@ -98,6 +98,8 @@
   "sanskrit": "Sanskrit",
   "english": "English",
   "chinese": "Chinese",
+  "classicalChinese": "Classical Chinese",
+  "pali": "Pali",
   "language": "Language",
   "dailyPracticeNotificationTitle": "Daily practice reminder",
   "timeForDailyPractice": "It's time for your practice session",

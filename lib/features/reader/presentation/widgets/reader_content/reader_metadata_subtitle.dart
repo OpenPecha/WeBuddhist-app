@@ -18,7 +18,7 @@ class ReaderMetadataSubtitle extends ConsumerWidget {
     if (state.textDetail == null) return const SizedBox.shrink();
 
     final theme = Theme.of(context);
-    final text = _composeLabel(settings, state);
+    final text = _composeLabel(context, settings, state);
 
     if (text.isEmpty) return const SizedBox.shrink();
 
@@ -48,11 +48,12 @@ class ReaderMetadataSubtitle extends ConsumerWidget {
   /// `/texts/{id}/details` response does not echo those, and they are pure
   /// display sugar that the user explicitly selected.
   String _composeLabel(
+    BuildContext context,
     ReaderDualLayoutSettings settings,
     ReaderState state,
   ) {
     final primary = settings.primary;
-    final loadedLanguage = _resolvePrimaryLanguageLabel(primary, state);
+    final loadedLanguage = _resolvePrimaryLanguageLabel(context, primary, state);
 
     if (settings.secondaryEnabled && !settings.secondary.isUnset) {
       return '$loadedLanguage + ${settings.secondary.languageLabel}';
@@ -66,6 +67,7 @@ class ReaderMetadataSubtitle extends ConsumerWidget {
   }
 
   String _resolvePrimaryLanguageLabel(
+    BuildContext context,
     ReaderSlotConfig primary,
     ReaderState state,
   ) {
@@ -80,6 +82,6 @@ class ReaderMetadataSubtitle extends ConsumerWidget {
         primary.languageCode.toLowerCase() == loaded.toLowerCase()) {
       return primary.languageLabel;
     }
-    return getLanguageName(loaded);
+    return getLanguageName(loaded, context);
   }
 }

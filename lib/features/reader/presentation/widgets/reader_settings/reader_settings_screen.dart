@@ -139,7 +139,7 @@ class ReaderSettingsScreen extends ConsumerWidget {
         notifier.replaceSecondary(
           ReaderSlotConfig(
             languageCode: option.code,
-            languageLabel: getLanguageName(option.code),
+            languageLabel: getLanguageName(option.code, context),
           ),
         );
       },

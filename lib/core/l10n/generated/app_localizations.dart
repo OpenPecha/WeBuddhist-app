@@ -646,6 +646,18 @@ abstract class AppLocalizations {
   /// **'Chinese'**
   String get chinese;
 
+  /// No description provided for @classicalChinese.
+  ///
+  /// In en, this message translates to:
+  /// **'Classical Chinese'**
+  String get classicalChinese;
+
+  /// No description provided for @pali.
+  ///
+  /// In en, this message translates to:
+  /// **'Pali'**
+  String get pali;
+
   /// No description provided for @language.
   ///
   /// In en, this message translates to:

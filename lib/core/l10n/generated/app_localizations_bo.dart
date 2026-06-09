@@ -287,7 +287,13 @@ class AppLocalizationsBo extends AppLocalizations {
   String get english => 'དབྱིན་ཡིག';
 
   @override
-  String get chinese => 'རྒྱ་ཡིག';
+  String get chinese => 'རྒྱ་ཡིག་གསར་མ།';
+
+  @override
+  String get classicalChinese => 'རྒྱ་ཡིག་རྙིང་པ།';
+
+  @override
+  String get pali => 'པཱ་ལིའི་སྐད།';
 
   @override
   String get language => 'སྐད་ཡིག';

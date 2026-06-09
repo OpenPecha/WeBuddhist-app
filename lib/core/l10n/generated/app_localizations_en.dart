@@ -289,6 +289,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get chinese => 'Chinese';
 
   @override
+  String get classicalChinese => 'Classical Chinese';
+
+  @override
+  String get pali => 'Pali';
+
+  @override
   String get language => 'Language';
 
   @override
