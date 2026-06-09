@@ -14,6 +14,7 @@ import 'package:flutter_pecha/features/texts/presentation/providers/font_size_no
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 enum _ButtonState { play, loading, pause }
 
@@ -139,8 +140,9 @@ class _PlanTextScreenState extends ConsumerState<PlanTextScreen>
       // skip(1) discards the BehaviorSubject's stale initial emit
       // (playing: false, ready) which would otherwise race with
       // the setState(pause) below and incorrectly reset the button.
-      _playerStateSub =
-          _player!.playerStateStream.skip(1).listen(_onPlayerState);
+      _playerStateSub = _player!.playerStateStream
+          .skip(1)
+          .listen(_onPlayerState);
       _positionSub = _player!.positionStream.listen(_onPosition);
 
       // Fire-and-forget: play() completes only when playback stops.
@@ -224,13 +226,13 @@ class _PlanTextScreenState extends ConsumerState<PlanTextScreen>
   /// Increments [_audioSessionId] so any in-flight [_startAudio] aborts
   /// before it can call [play()] on a session that has been cancelled.
   void _cancelAudio() {
-    _audioSessionId++;       // invalidate any in-flight _startAudio
+    _audioSessionId++; // invalidate any in-flight _startAudio
     _hasAutoAdvanced = true; // prevent late-firing position callbacks
     _playerStateSub?.cancel();
     _positionSub?.cancel();
     _playerStateSub = null;
     _positionSub = null;
-    _player?.stop();         // fire-and-forget; dispose() cleans up the player
+    _player?.stop(); // fire-and-forget; dispose() cleans up the player
   }
 
   /// Called by [_onPosition] when the segment boundary is reached.
@@ -294,7 +296,10 @@ class _PlanTextScreenState extends ConsumerState<PlanTextScreen>
                       // space so the last line stays above the floating button.
                       SingleChildScrollView(
                         padding: EdgeInsets.fromLTRB(
-                          20, 16, 20, _hasAudio ? 88 : 16,
+                          20,
+                          16,
+                          20,
+                          _hasAudio ? 88 : 16,
                         ),
                         child: PlanInlineMarkdownView(
                           content: currentItem.inlineContent!,
@@ -332,7 +337,7 @@ class _PlanTextScreenState extends ConsumerState<PlanTextScreen>
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       elevation: 0,
       leading: IconButton(
-        icon: const Icon(Icons.arrow_back_ios),
+        icon: const Icon(PhosphorIconsRegular.arrowLeft),
         onPressed: () {
           _cancelAudio();
           context.pop();
@@ -340,9 +345,9 @@ class _PlanTextScreenState extends ConsumerState<PlanTextScreen>
       ),
       title: Text(
         title,
-        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
+        style: Theme.of(
+          context,
+        ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
         overflow: TextOverflow.ellipsis,
       ),
       centerTitle: true,
@@ -375,21 +380,22 @@ class _PlanTextScreenState extends ConsumerState<PlanTextScreen>
             border: Border.all(color: color.withAlpha(100), width: 1.5),
           ),
           alignment: Alignment.center,
-          child: isLoading
-              ? SizedBox(
-                  width: 24,
-                  height: 24,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2.5,
+          child:
+              isLoading
+                  ? SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2.5,
+                      color: color,
+                    ),
+                  )
+                  : AnimatedIcon(
+                    icon: AnimatedIcons.play_pause,
+                    progress: _iconController,
+                    size: 28,
                     color: color,
                   ),
-                )
-              : AnimatedIcon(
-                  icon: AnimatedIcons.play_pause,
-                  progress: _iconController,
-                  size: 28,
-                  color: color,
-                ),
         ),
       ),
     );

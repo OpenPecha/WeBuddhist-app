@@ -2680,6 +2680,12 @@ abstract class AppLocalizations {
   /// **'License'**
   String get reader_license_label;
 
+  /// No description provided for @know_more.
+  ///
+  /// In en, this message translates to:
+  /// **'Know More'**
+  String get know_more;
+
   /// No description provided for @force_update_title.
   ///
   /// In en, this message translates to:
@@ -2697,6 +2703,282 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Update now'**
   String get force_update_button;
+
+  /// No description provided for @settings_section_personalisation.
+  ///
+  /// In en, this message translates to:
+  /// **'PERSONALISATION'**
+  String get settings_section_personalisation;
+
+  /// No description provided for @settings_section_more.
+  ///
+  /// In en, this message translates to:
+  /// **'MORE'**
+  String get settings_section_more;
+
+  /// No description provided for @settings_section_account.
+  ///
+  /// In en, this message translates to:
+  /// **'ACCOUNT'**
+  String get settings_section_account;
+
+  /// No description provided for @settings_edit_profile.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit profile'**
+  String get settings_edit_profile;
+
+  /// No description provided for @settings_theme.
+  ///
+  /// In en, this message translates to:
+  /// **'Theme'**
+  String get settings_theme;
+
+  /// No description provided for @settings_notification_row.
+  ///
+  /// In en, this message translates to:
+  /// **'Notification'**
+  String get settings_notification_row;
+
+  /// No description provided for @edit_profile_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit profile'**
+  String get edit_profile_title;
+
+  /// No description provided for @edit_profile_save.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get edit_profile_save;
+
+  /// No description provided for @edit_profile_first_name.
+  ///
+  /// In en, this message translates to:
+  /// **'First Name'**
+  String get edit_profile_first_name;
+
+  /// No description provided for @edit_profile_last_name.
+  ///
+  /// In en, this message translates to:
+  /// **'Last Name'**
+  String get edit_profile_last_name;
+
+  /// No description provided for @edit_profile_bio.
+  ///
+  /// In en, this message translates to:
+  /// **'Bio'**
+  String get edit_profile_bio;
+
+  /// No description provided for @edit_profile_bio_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Share a little about yourself'**
+  String get edit_profile_bio_hint;
+
+  /// No description provided for @edit_profile_delete_account.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete account'**
+  String get edit_profile_delete_account;
+
+  /// No description provided for @edit_profile_photo_not_uploaded.
+  ///
+  /// In en, this message translates to:
+  /// **'Photo not uploaded'**
+  String get edit_profile_photo_not_uploaded;
+
+  /// No description provided for @edit_profile_photo_too_large.
+  ///
+  /// In en, this message translates to:
+  /// **'Image is too large. Please choose a photo under 1 MB and try again.'**
+  String get edit_profile_photo_too_large;
+
+  /// No description provided for @edit_profile_photo_upload_failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not upload your photo. Please try again.'**
+  String get edit_profile_photo_upload_failed;
+
+  /// No description provided for @edit_profile_choose_from_library.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose from library'**
+  String get edit_profile_choose_from_library;
+
+  /// No description provided for @edit_profile_take_photo.
+  ///
+  /// In en, this message translates to:
+  /// **'Take a photo'**
+  String get edit_profile_take_photo;
+
+  /// No description provided for @username_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Username'**
+  String get username_label;
+
+  /// No description provided for @username_taken.
+  ///
+  /// In en, this message translates to:
+  /// **'Someone already used this name'**
+  String get username_taken;
+
+  /// No description provided for @username_available_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Available : '**
+  String get username_available_label;
+
+  /// No description provided for @username_check_error.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not check username. Try again.'**
+  String get username_check_error;
+
+  /// No description provided for @username_invalid_format.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid username format.'**
+  String get username_invalid_format;
+
+  /// No description provided for @username_min_length.
+  ///
+  /// In en, this message translates to:
+  /// **'Username must be at least 3 characters'**
+  String get username_min_length;
+
+  /// No description provided for @username_max_length.
+  ///
+  /// In en, this message translates to:
+  /// **'Username must be at most 30 characters'**
+  String get username_max_length;
+
+  /// No description provided for @username_no_spaces.
+  ///
+  /// In en, this message translates to:
+  /// **'Username cannot contain spaces'**
+  String get username_no_spaces;
+
+  /// No description provided for @username_invalid_chars.
+  ///
+  /// In en, this message translates to:
+  /// **'Only letters, numbers, _ . - are allowed'**
+  String get username_invalid_chars;
+
+  /// No description provided for @username_must_start_alphanumeric.
+  ///
+  /// In en, this message translates to:
+  /// **'Username must start with a letter or number'**
+  String get username_must_start_alphanumeric;
+
+  /// No description provided for @username_must_end_alphanumeric.
+  ///
+  /// In en, this message translates to:
+  /// **'Username must end with a letter or number'**
+  String get username_must_end_alphanumeric;
+
+  /// No description provided for @about_title.
+  ///
+  /// In en, this message translates to:
+  /// **'About'**
+  String get about_title;
+
+  /// No description provided for @about_connect_with_us.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect with us'**
+  String get about_connect_with_us;
+
+  /// No description provided for @about_description.
+  ///
+  /// In en, this message translates to:
+  /// **'We help Buddhists do less harm, more good, and know their own mind better by learning, practicing and connecting daily so that all beings become free from suffering and find lasting happiness.'**
+  String get about_description;
+
+  /// No description provided for @about_social_website.
+  ///
+  /// In en, this message translates to:
+  /// **'Website'**
+  String get about_social_website;
+
+  /// No description provided for @about_social_instagram.
+  ///
+  /// In en, this message translates to:
+  /// **'Instagram'**
+  String get about_social_instagram;
+
+  /// No description provided for @about_social_facebook.
+  ///
+  /// In en, this message translates to:
+  /// **'Facebook'**
+  String get about_social_facebook;
+
+  /// No description provided for @about_social_x_twitter.
+  ///
+  /// In en, this message translates to:
+  /// **'X (Twitter)'**
+  String get about_social_x_twitter;
+
+  /// No description provided for @about_social_youtube.
+  ///
+  /// In en, this message translates to:
+  /// **'YouTube'**
+  String get about_social_youtube;
+
+  /// No description provided for @me_guest_headline.
+  ///
+  /// In en, this message translates to:
+  /// **'Access the full experience'**
+  String get me_guest_headline;
+
+  /// No description provided for @me_guest_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Create a free account to access plans'**
+  String get me_guest_subtitle;
+
+  /// No description provided for @delete_account_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete account'**
+  String get delete_account_title;
+
+  /// No description provided for @delete_account_description.
+  ///
+  /// In en, this message translates to:
+  /// **'If you delete your account, all your information, history, and personalized settings within WeBuddhist will be permanently eliminated. This action will also end any recurring contributions, if applicable. Please note that this action is irreversible. To proceed, tap the button below.'**
+  String get delete_account_description;
+
+  /// No description provided for @delete_account_button.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete account'**
+  String get delete_account_button;
+
+  /// No description provided for @delete_account_confirm_message.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete your WeBuddhist account?'**
+  String get delete_account_confirm_message;
+
+  /// No description provided for @legal_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Legal'**
+  String get legal_title;
+
+  /// No description provided for @legal_terms_of_service.
+  ///
+  /// In en, this message translates to:
+  /// **'Terms of Service'**
+  String get legal_terms_of_service;
+
+  /// No description provided for @legal_privacy_policy.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy policy'**
+  String get legal_privacy_policy;
 }
 
 class _AppLocalizationsDelegate

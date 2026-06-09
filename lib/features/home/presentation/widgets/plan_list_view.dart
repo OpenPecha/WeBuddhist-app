@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
+import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/core/widgets/responsive_cover_image.dart';
 import 'package:flutter_pecha/shared/domain/value_objects/responsive_image.dart';
 import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
 import 'package:flutter_pecha/features/auth/presentation/widgets/login_drawer.dart';
+import 'package:flutter_pecha/features/home/domain/entities/series.dart';
 import 'package:flutter_pecha/features/home/presentation/providers/series_enrollment_provider.dart';
 import 'package:flutter_pecha/features/plans/data/models/user/user_plans_model.dart';
 import 'package:flutter_pecha/features/plans/domain/entities/plan.dart';
@@ -28,8 +30,14 @@ import 'package:go_router/go_router.dart';
 class PlanListView extends StatelessWidget {
   final List<Plan> plans;
   final String? seriesId;
+  final Series? series;
 
-  const PlanListView({super.key, required this.plans, this.seriesId});
+  const PlanListView({
+    super.key,
+    required this.plans,
+    this.seriesId,
+    this.series,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -50,7 +58,11 @@ class PlanListView extends StatelessWidget {
         SliverToBoxAdapter(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: FeaturedPlanCard(plan: sorted.first, seriesId: seriesId),
+            child: FeaturedPlanCard(
+              plan: sorted.first,
+              seriesId: seriesId,
+              series: series,
+            ),
           ),
         ),
         const SliverToBoxAdapter(child: SizedBox(height: 16)),
@@ -58,8 +70,8 @@ class PlanListView extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
           sliver: SliverList(
             delegate: SliverChildBuilderDelegate(
-              (context, index) => PlanListItem(plan: sorted[index + 1]),
-              childCount: sorted.length - 1,
+              (context, index) => PlanListItem(plan: sorted[index]),
+              childCount: sorted.length,
             ),
           ),
         ),
@@ -77,7 +89,16 @@ class FeaturedPlanCard extends ConsumerWidget {
   /// button falls back to the per-plan preview navigation.
   final String? seriesId;
 
-  const FeaturedPlanCard({super.key, required this.plan, this.seriesId});
+  /// When provided, the card displays the series-level title, description
+  /// and cover image instead of the first plan's data.
+  final Series? series;
+
+  const FeaturedPlanCard({
+    super.key,
+    required this.plan,
+    this.seriesId,
+    this.series,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -86,13 +107,17 @@ class FeaturedPlanCard extends ConsumerWidget {
     final titleFontSize = locale.languageCode == 'bo' ? 22.0 : 18.0;
     final subtitleFontSize = locale.languageCode == 'bo' ? 18.0 : 14.0;
 
+    final displayDescription = series?.description ?? plan.description;
+    final displayImage = series?.coverImage ?? plan.coverImage;
+    final localizations = AppLocalizations.of(context)!;
+
     final myPlansState = ref.watch(myPlansPaginatedProvider);
     final isGuest = ref.watch(authProvider).isGuest;
     final isEnrolled = !isGuest && _isPlanEnrolled(ref, plan.id);
     final enrolledInfo = isEnrolled ? _getEnrolledInfo(ref, plan.id) : null;
     final isEnrolledInfoPending =
         isEnrolled && enrolledInfo == null && myPlansState.isLoading;
-    final hasDescription = plan.description.trim().isNotEmpty;
+    final hasDescription = displayDescription.trim().isNotEmpty;
 
     final enrollmentState =
         seriesId != null
@@ -100,16 +125,19 @@ class FeaturedPlanCard extends ConsumerWidget {
             : null;
     final isEnrolling = enrollmentState is SeriesEnrollmentLoading;
 
-    // Series-level enrolled check: true when the current screen represents a
-    // series and the user is already enrolled in it. Empty set for guests.
+    final seriesEnrollmentAsync =
+        seriesId != null ? ref.watch(userSeriesEnrollmentsProvider) : null;
     final isSeriesEnrolled =
         seriesId != null &&
-        (ref
-                .watch(userSeriesEnrollmentsProvider)
-                .valueOrNull
-                ?.contains(seriesId!) ??
-            false);
-    final hideEnrollButton = isEnrolled || isSeriesEnrolled;
+        (seriesEnrollmentAsync?.valueOrNull?.contains(seriesId!) ?? false);
+
+    // Hide button during initial load to prevent flickering
+    final isLoadingEnrollmentData =
+        myPlansState.isLoading ||
+        (seriesId != null && seriesEnrollmentAsync?.isLoading == true);
+
+    final hideEnrollButton =
+        isEnrolled || isSeriesEnrolled || isLoadingEnrollmentData;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final enrollBackgroundColor =
         isDark
@@ -119,10 +147,7 @@ class FeaturedPlanCard extends ConsumerWidget {
         isDark ? AppColors.textPrimary : AppColors.textPrimaryDark;
 
     return InkWell(
-      onTap:
-          isEnrolledInfoPending
-              ? null
-              : () => _navigateToPlan(context, plan, enrolledInfo),
+      onTap: () => _navigateToSeriesInfo(context),
       borderRadius: BorderRadius.circular(16),
       child: Container(
         decoration: BoxDecoration(
@@ -133,13 +158,16 @@ class FeaturedPlanCard extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            AspectRatio(
-              aspectRatio: 16 / 9,
-              child: _PlanCoverImage(
-                image: plan.coverImage,
-                placeholderIconSize: 48,
-                placeholderAlphaMin: 0.4,
-                placeholderAlphaMax: 0.7,
+            ClipRRect(
+              borderRadius: BorderRadius.circular(16),
+              child: AspectRatio(
+                aspectRatio: 16 / 9,
+                child: _PlanCoverImage(
+                  image: displayImage,
+                  placeholderIconSize: 48,
+                  placeholderAlphaMin: 0.4,
+                  placeholderAlphaMax: 0.7,
+                ),
               ),
             ),
             Padding(
@@ -147,28 +175,40 @@ class FeaturedPlanCard extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    plan.title,
-                    style: TextStyle(
-                      fontSize: titleFontSize,
-                      fontWeight: FontWeight.bold,
-                      height: lineHeight,
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  if (hasDescription) ...[
-                    const SizedBox(height: 6),
-                    Text(
-                      plan.description,
-                      style: TextStyle(
-                        fontSize: subtitleFontSize,
-                        height: lineHeight,
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              localizations.know_more,
+                              style: TextStyle(
+                                fontSize: titleFontSize,
+                                fontWeight: FontWeight.bold,
+                                height: lineHeight,
+                              ),
+                            ),
+                            if (hasDescription) ...[
+                              Text(
+                                displayDescription,
+                                style: TextStyle(
+                                  fontSize: subtitleFontSize,
+                                  height: lineHeight,
+                                ),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              const SizedBox(height: 6),
+                            ],
+                          ],
+                        ),
                       ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
+                      Icon(Icons.arrow_forward, size: titleFontSize),
+                    ],
+                  ),
                   if (!hideEnrollButton) ...[
                     const SizedBox(height: 14),
                     SizedBox(
@@ -263,6 +303,14 @@ class FeaturedPlanCard extends ConsumerWidget {
         SnackBar(content: Text(message), backgroundColor: Colors.red),
       );
     }
+  }
+
+  void _navigateToSeriesInfo(BuildContext context) {
+    if (series == null) return;
+    context.push(
+      '/home/series/${series!.id}/info',
+      extra: {'series': series!},
+    );
   }
 }
 

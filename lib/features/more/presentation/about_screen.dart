@@ -5,15 +5,15 @@ import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class AboutScreen extends ConsumerWidget {
+class AboutScreen extends StatelessWidget {
   const AboutScreen({super.key});
 
   static const String routeName = '/about';
 
-  static final _socialLinks = [
+  List<_SocialLink> _buildSocialLinks(AppLocalizations l10n) => [
     _SocialLink(
-      icon: AppAssets.globe,
-      title: 'Website',
+      icon: PhosphorIconsRegular.linkSimple,
+      title: l10n.about_social_website,
       subtitle: 'www.webuddhist.com',
       url: 'https://webuddhist.com/collections',
     ),
@@ -44,16 +44,16 @@ class AboutScreen extends ConsumerWidget {
   ];
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
-    final versionLabel = ref.watch(appVersionLabelProvider);
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         elevation: 0,
         title: Text(
-          'About',
+          l10n.about_title,
           style: Theme.of(
             context,
           ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
@@ -65,7 +65,7 @@ class AboutScreen extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildHeader(context, versionLabel),
+              _buildHeader(context, l10n),
               const SizedBox(height: 16),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -73,7 +73,7 @@ class AboutScreen extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Connect with us',
+                      l10n.about_connect_with_us,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: AppColors.grey600,
                         fontWeight: FontWeight.w500,
@@ -81,7 +81,7 @@ class AboutScreen extends ConsumerWidget {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    _buildSocialList(context, isDarkMode),
+                    _buildSocialList(context, isDarkMode, l10n),
                   ],
                 ),
               ),
@@ -93,7 +93,7 @@ class AboutScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildHeader(BuildContext context, String versionLabel) {
+  Widget _buildHeader(BuildContext context, AppLocalizations l10n) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
       child: Column(
@@ -108,25 +108,16 @@ class AboutScreen extends ConsumerWidget {
           const SizedBox(height: 16),
           Center(
             child: Text(
-              'WeBuddhist',
+              l10n.appTitle,
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
                 fontWeight: FontWeight.bold,
                 fontSize: 23,
               ),
             ),
           ),
-          if (versionLabel.isNotEmpty) ...[
-            const SizedBox(height: 4),
-            Text(
-              versionLabel,
-              style: Theme.of(
-                context,
-              ).textTheme.bodySmall?.copyWith(color: AppColors.grey600),
-            ),
-          ],
           const SizedBox(height: 12),
           Text(
-            'We help Buddhists do less harm, more good, and know their own mind better by learning, practicing and connecting daily so that all beings become free from suffering and find lasting happiness.',
+            l10n.about_description,
             textAlign: TextAlign.justify,
             style: Theme.of(
               context,
@@ -137,10 +128,10 @@ class AboutScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildSocialList(BuildContext context, bool isDarkMode) {
+  Widget _buildSocialList(BuildContext context, bool isDarkMode, AppLocalizations l10n) {
     return Column(
       children:
-          _socialLinks.map((link) {
+          _buildSocialLinks(l10n).map((link) {
             return _SocialLinkTile(link: link, isDarkMode: isDarkMode);
           }).toList(),
     );
