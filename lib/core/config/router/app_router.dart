@@ -47,6 +47,12 @@ import 'package:go_router/go_router.dart';
 
 final _logger = AppLogger('AppRouter');
 
+/// Root navigator key for the GoRouter instance.
+///
+/// Exposed so widgets above the navigator tree (e.g. ForceUpdateGate)
+/// can call showDialog on a context that is actually inside the navigator.
+final rootNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'root');
+
 /// Provider for the application router with authentication and route protection
 ///
 /// This provider creates a GoRouter instance that:
@@ -61,6 +67,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
   final onboardingRepo = ref.read(onboardingRepositoryProvider);
 
   return GoRouter(
+    navigatorKey: rootNavigatorKey,
     initialLocation: AppRoutes.home,
     debugLogDiagnostics: true,
     observers: [ref.read(analyticsServiceProvider).routeObserver],

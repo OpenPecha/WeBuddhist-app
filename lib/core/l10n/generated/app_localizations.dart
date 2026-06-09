@@ -2679,6 +2679,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'License'**
   String get reader_license_label;
+
+  /// No description provided for @force_update_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Update required'**
+  String get force_update_title;
+
+  /// No description provided for @force_update_message.
+  ///
+  /// In en, this message translates to:
+  /// **'A new version of the app is available. Please update to continue.'**
+  String get force_update_message;
+
+  /// No description provided for @force_update_button.
+  ///
+  /// In en, this message translates to:
+  /// **'Update now'**
+  String get force_update_button;
 }
 
 class _AppLocalizationsDelegate

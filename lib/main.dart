@@ -13,8 +13,7 @@ import 'package:flutter_pecha/core/storage/plan_metadata_store.dart';
 import 'package:flutter_pecha/core/storage/special_plan_started_at_store.dart';
 import 'package:flutter_pecha/core/theme/theme_notifier.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
-import 'package:flutter_pecha/features/notifications/application/plan_notification_bootstrap.dart';
-import 'package:flutter_pecha/features/notifications/application/special_plan_bootstrap.dart';
+import 'package:flutter_pecha/features/notifications/application/notification_sync_bootstrap.dart';
 import 'package:flutter_pecha/features/notifications/data/services/notification_service.dart';
 import 'package:flutter_pecha/features/practice/data/datasource/routine_local_storage.dart';
 import 'package:flutter_pecha/features/practice/presentation/providers/practice_providers.dart';
@@ -26,6 +25,7 @@ import 'package:fquery/fquery.dart';
 import 'core/theme/app_theme.dart';
 import 'core/localization/material_localizations_bo.dart';
 import 'core/localization/cupertino_localizations_bo.dart';
+import 'package:flutter_pecha/core/services/upgrade/force_update_gate.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 final _logger = AppLogger('Main');
@@ -136,11 +136,11 @@ class MyApp extends ConsumerWidget {
     // Initialize services in background via providers
     ref.watch(audioHandlerProvider);
     ref.watch(notificationServiceProvider);
-    // Bootstrap listeners — watched here so they stay alive for the app lifetime.
-    // specialPlanBootstrapProvider: mirrors startedAt for ITCC and other hardcoded series.
-    // planNotificationBootstrapProvider: mirrors startedAt + totalDays for all other plans.
-    ref.watch(specialPlanBootstrapProvider);
-    ref.watch(planNotificationBootstrapProvider);
+    // Bootstrap listener — kept alive for the app lifetime.
+    // Mirrors server-truth plan metadata into PlanMetadataStore +
+    // SpecialPlanStartedAtStore, then delegates to NotificationSyncEngine
+    // for full reconciliation on every userPlansFutureProvider resolution.
+    ref.watch(notificationSyncBootstrapProvider);
     NotificationService.setRouter(router);
     NotificationService().consumeLaunchNotification();
 
@@ -175,6 +175,8 @@ class MyApp extends ConsumerWidget {
         debugShowCheckedModeBanner: false,
         // routerConfig: router,
         routerConfig: router,
+        builder: (context, child) =>
+            ForceUpdateGate(child: child ?? const SizedBox.shrink()),
       ),
     );
   }

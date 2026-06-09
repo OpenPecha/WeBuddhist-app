@@ -26,7 +26,7 @@ class AppUpgradeService {
       countryCode: _getCountryCode(),
       debugLogging: debugDisplayAlways,
       debugDisplayAlways: debugDisplayAlways,
-      durationUntilAlertAgain: const Duration(days: 1),
+      durationUntilAlertAgain: Duration.zero,
       storeController: UpgraderStoreController(
         onAndroid: () => UpgraderPlayStore(),
         oniOS: () => UpgraderAppStore(),
