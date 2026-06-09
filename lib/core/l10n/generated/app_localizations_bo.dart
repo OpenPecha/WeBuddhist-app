@@ -287,7 +287,13 @@ class AppLocalizationsBo extends AppLocalizations {
   String get english => 'དབྱིན་ཡིག';
 
   @override
-  String get chinese => 'རྒྱ་ཡིག';
+  String get chinese => 'རྒྱ་ཡིག་གསར་མ།';
+
+  @override
+  String get classicalChinese => 'རྒྱ་ཡིག་རྙིང་པ།';
+
+  @override
+  String get pali => 'པཱ་ལིའི་སྐད།';
 
   @override
   String get language => 'སྐད་ཡིག';
@@ -1421,6 +1427,15 @@ class AppLocalizationsBo extends AppLocalizations {
   String get version => 'Versions';
 
   @override
+  String get parallel_version => 'ཀློག་མཁན་གྱི་སྒྲིག་འགོད།';
+
+  @override
+  String get main_version => 'Main version';
+
+  @override
+  String get version_not_available => 'མི་འདུག';
+
+  @override
   String get read_full_text => 'Read Full Text';
 
   @override
@@ -1428,6 +1443,9 @@ class AppLocalizationsBo extends AppLocalizations {
 
   @override
   String get reader_license_label => 'License';
+
+  @override
+  String get know_more => 'ཞིབ་ཕྲ་གཟིགས།';
 
   @override
   String get force_update_title => 'གསར་བསྒྱུར་དགོས་མཁོ།';

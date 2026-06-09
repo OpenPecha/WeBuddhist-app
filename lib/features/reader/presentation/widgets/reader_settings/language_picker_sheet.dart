@@ -94,7 +94,7 @@ class _LanguageTile extends StatelessWidget {
             children: [
               Expanded(
                 child: Text(
-                  getLanguageName(option.code),
+                  getLanguageName(option.code, context),
                   style: theme.textTheme.titleMedium?.copyWith(
                     color: isSelected
                         ? activeColor

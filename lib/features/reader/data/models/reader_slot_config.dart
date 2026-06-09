@@ -8,6 +8,13 @@ class ReaderSlotConfig {
   final String? scriptId;
   final String? scriptLabel;
 
+  /// True when a language is selected but no usable version could be
+  /// auto-selected for it (e.g. the same language as the main version with no
+  /// alternate version, or a language with zero versions). Distinguishes
+  /// "resolved: nothing available" from "not yet resolved" (both have a null
+  /// [versionId]) so the UI can show a "Not available" message.
+  final bool versionUnavailable;
+
   const ReaderSlotConfig({
     required this.languageCode,
     required this.languageLabel,
@@ -15,7 +22,22 @@ class ReaderSlotConfig {
     this.versionLabel,
     this.scriptId,
     this.scriptLabel,
+    this.versionUnavailable = false,
   });
+
+  /// An unselected slot — no language and no version. Used as the secondary
+  /// slot's initial state so it shows placeholders instead of a default.
+  const ReaderSlotConfig.empty()
+      : languageCode = '',
+        languageLabel = '',
+        versionId = null,
+        versionLabel = null,
+        scriptId = null,
+        scriptLabel = null,
+        versionUnavailable = false;
+
+  /// Whether no language has been picked yet.
+  bool get isUnset => languageCode.isEmpty;
 
   ReaderSlotConfig copyWith({
     String? languageCode,
@@ -24,6 +46,7 @@ class ReaderSlotConfig {
     String? versionLabel,
     String? scriptId,
     String? scriptLabel,
+    bool? versionUnavailable,
   }) {
     return ReaderSlotConfig(
       languageCode: languageCode ?? this.languageCode,
@@ -32,6 +55,7 @@ class ReaderSlotConfig {
       versionLabel: versionLabel ?? this.versionLabel,
       scriptId: scriptId ?? this.scriptId,
       scriptLabel: scriptLabel ?? this.scriptLabel,
+      versionUnavailable: versionUnavailable ?? this.versionUnavailable,
     );
   }
 
@@ -42,6 +66,7 @@ class ReaderSlotConfig {
         'versionLabel': versionLabel,
         'scriptId': scriptId,
         'scriptLabel': scriptLabel,
+        'versionUnavailable': versionUnavailable,
       };
 
   factory ReaderSlotConfig.fromJson(Map<String, dynamic> json) {
@@ -52,6 +77,7 @@ class ReaderSlotConfig {
       versionLabel: json['versionLabel'] as String?,
       scriptId: json['scriptId'] as String?,
       scriptLabel: json['scriptLabel'] as String?,
+      versionUnavailable: json['versionUnavailable'] as bool? ?? false,
     );
   }
 
@@ -61,11 +87,13 @@ class ReaderSlotConfig {
     return other is ReaderSlotConfig &&
         other.languageCode == languageCode &&
         other.versionId == versionId &&
-        other.scriptId == scriptId;
+        other.scriptId == scriptId &&
+        other.versionUnavailable == versionUnavailable;
   }
 
   @override
-  int get hashCode => Object.hash(languageCode, versionId, scriptId);
+  int get hashCode =>
+      Object.hash(languageCode, versionId, scriptId, versionUnavailable);
 }
 
 class ReaderDualLayoutSettings {
@@ -86,10 +114,7 @@ class ReaderDualLayoutSettings {
         languageCode: 'en',
         languageLabel: 'English',
       ),
-      secondary: ReaderSlotConfig(
-        languageCode: 'en',
-        languageLabel: 'English',
-      ),
+      secondary: ReaderSlotConfig.empty(),
     );
   }
 

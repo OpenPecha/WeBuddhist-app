@@ -49,7 +49,7 @@ class LanguageSelectionScreen extends ConsumerWidget {
             title: Row(
               children: [
                 Text(
-                  getLanguageName(language),
+                  getLanguageName(language, context),
                   style: const TextStyle(fontSize: 16),
                 ),
               ],

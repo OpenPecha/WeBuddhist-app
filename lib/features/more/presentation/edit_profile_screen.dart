@@ -5,6 +5,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:flutter_pecha/core/config/router/app_routes.dart';
+import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
@@ -15,7 +16,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 class EditProfileScreen extends ConsumerStatefulWidget {
   const EditProfileScreen({super.key});
@@ -114,7 +114,10 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
       return;
     }
 
-    final formatError = _validateUsername(trimmed, AppLocalizations.of(context)!);
+    final formatError = _validateUsername(
+      trimmed,
+      AppLocalizations.of(context)!,
+    );
     if (formatError != null) {
       setState(() {
         _usernameState = UsernameState.invalid;
@@ -193,7 +196,10 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
         pendingUsername != _originalUsername &&
         pendingUsername.isNotEmpty) {
       _usernameDebounce!.cancel();
-      final formatError = _validateUsername(pendingUsername, AppLocalizations.of(context)!);
+      final formatError = _validateUsername(
+        pendingUsername,
+        AppLocalizations.of(context)!,
+      );
       if (formatError != null) {
         setState(() {
           _usernameState = UsernameState.invalid;
@@ -357,7 +363,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
         rawError == null ||
         rawError.contains('413') ||
         rawError.toLowerCase().contains('too large');
-      final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context)!;
     showDialog<void>(
       context: context,
       builder:
@@ -386,44 +392,43 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
-      builder:
-          (_) {
-            final l10n = AppLocalizations.of(context)!;
-            return SafeArea(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const SizedBox(height: 8),
-                  Container(
-                    width: 40,
-                    height: 4,
-                    decoration: BoxDecoration(
-                      color: AppColors.grey400,
-                      borderRadius: BorderRadius.circular(2),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  ListTile(
-                    leading: const Icon(Icons.photo_library_outlined),
-                    title: Text(l10n.edit_profile_choose_from_library),
-                    onTap: () {
-                      Navigator.of(context).pop();
-                      _pickAndUploadAvatar(ImageSource.gallery);
-                    },
-                  ),
-                  ListTile(
-                    leading: const Icon(Icons.camera_alt_outlined),
-                    title: Text(l10n.edit_profile_take_photo),
-                    onTap: () {
-                      Navigator.of(context).pop();
-                      _pickAndUploadAvatar(ImageSource.camera);
-                    },
-                  ),
-                  const SizedBox(height: 8),
-                ],
+      builder: (_) {
+        final l10n = AppLocalizations.of(context)!;
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(height: 8),
+              Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: AppColors.grey400,
+                  borderRadius: BorderRadius.circular(2),
+                ),
               ),
-            );
-          },
+              const SizedBox(height: 16),
+              ListTile(
+                leading: const Icon(Icons.photo_library_outlined),
+                title: Text(l10n.edit_profile_choose_from_library),
+                onTap: () {
+                  Navigator.of(context).pop();
+                  _pickAndUploadAvatar(ImageSource.gallery);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.camera_alt_outlined),
+                title: Text(l10n.edit_profile_take_photo),
+                onTap: () {
+                  Navigator.of(context).pop();
+                  _pickAndUploadAvatar(ImageSource.camera);
+                },
+              ),
+              const SizedBox(height: 8),
+            ],
+          ),
+        );
+      },
     );
   }
 
@@ -492,7 +497,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         leading: IconButton(
           icon: Icon(
-            PhosphorIconsRegular.arrowLeft,
+            AppAssets.arrowLeft,
             color: Theme.of(context).iconTheme.color,
           ),
           onPressed: () => Navigator.of(context).pop(),
@@ -545,7 +550,10 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
               ),
               child: Text(
                 AppLocalizations.of(context)!.edit_profile_save,
-                style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+                style: const TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 14,
+                ),
               ),
             ),
           ),
@@ -622,7 +630,10 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                     child: TextField(
                       controller: _firstNameCtrl,
                       decoration: InputDecoration(
-                        labelText: AppLocalizations.of(context)!.edit_profile_first_name,
+                        labelText:
+                            AppLocalizations.of(
+                              context,
+                            )!.edit_profile_first_name,
                         labelStyle: TextStyle(color: AppColors.grey500),
                         filled: true,
                         fillColor:
@@ -644,7 +655,10 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                     child: TextField(
                       controller: _lastNameCtrl,
                       decoration: InputDecoration(
-                        labelText: AppLocalizations.of(context)!.edit_profile_last_name,
+                        labelText:
+                            AppLocalizations.of(
+                              context,
+                            )!.edit_profile_last_name,
                         labelStyle: TextStyle(color: AppColors.grey500),
                         filled: true,
                         fillColor:
@@ -713,14 +727,16 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                   child: Row(
                     children: [
                       Icon(
-                        PhosphorIconsRegular.trash,
+                        AppAssets.trash,
                         size: 22,
                         color: Colors.red.shade600,
                       ),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Text(
-                          AppLocalizations.of(context)!.edit_profile_delete_account,
+                          AppLocalizations.of(
+                            context,
+                          )!.edit_profile_delete_account,
                           style: TextStyle(
                             color: Colors.red.shade600,
                             fontSize: 16,
@@ -729,7 +745,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                         ),
                       ),
                       Icon(
-                        PhosphorIconsRegular.caretRight,
+                        AppAssets.caretRight,
                         size: 20,
                         color: AppColors.grey600,
                       ),

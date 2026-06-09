@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
@@ -32,24 +33,24 @@ class UsernameFormField extends StatelessWidget {
   final String? validationMessage;
 
   InputBorder get _inputBorder => OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide(
-          color: isDark ? AppColors.grey800 : AppColors.grey300,
-        ),
-      );
+    borderRadius: BorderRadius.circular(12),
+    borderSide: BorderSide(
+      color: isDark ? AppColors.grey800 : AppColors.grey300,
+    ),
+  );
 
   InputBorder get _focusedBorder => OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide(
-          color: isDark ? AppColors.grey600 : AppColors.grey900,
-          width: 1.5,
-        ),
-      );
+    borderRadius: BorderRadius.circular(12),
+    borderSide: BorderSide(
+      color: isDark ? AppColors.grey600 : AppColors.grey900,
+      width: 1.5,
+    ),
+  );
 
   InputBorder get _errorBorder => OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide(color: Colors.red.shade400),
-      );
+    borderRadius: BorderRadius.circular(12),
+    borderSide: BorderSide(color: Colors.red.shade400),
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -101,19 +102,19 @@ class UsernameFormField extends StatelessWidget {
         );
       case UsernameState.available:
         return Icon(
-          PhosphorIconsRegular.checkCircle,
+          AppAssets.checkCircle,
           color: Colors.green.shade600,
           size: 20,
         );
       case UsernameState.conflict:
         return Icon(
-          PhosphorIconsRegular.warningCircle,
+          AppAssets.warningCircle,
           color: Colors.red.shade600,
           size: 20,
         );
       case UsernameState.error:
         return Icon(
-          PhosphorIconsRegular.warningCircle,
+          AppAssets.warningCircle,
           color: Colors.orange.shade600,
           size: 20,
         );

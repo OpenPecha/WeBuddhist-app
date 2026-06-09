@@ -646,6 +646,18 @@ abstract class AppLocalizations {
   /// **'Chinese'**
   String get chinese;
 
+  /// No description provided for @classicalChinese.
+  ///
+  /// In en, this message translates to:
+  /// **'Classical Chinese'**
+  String get classicalChinese;
+
+  /// No description provided for @pali.
+  ///
+  /// In en, this message translates to:
+  /// **'Pali'**
+  String get pali;
+
   /// No description provided for @language.
   ///
   /// In en, this message translates to:
@@ -2662,6 +2674,24 @@ abstract class AppLocalizations {
   /// **'Versions'**
   String get version;
 
+  /// No description provided for @parallel_version.
+  ///
+  /// In en, this message translates to:
+  /// **'Parallel version'**
+  String get parallel_version;
+
+  /// No description provided for @main_version.
+  ///
+  /// In en, this message translates to:
+  /// **'Main version'**
+  String get main_version;
+
+  /// No description provided for @version_not_available.
+  ///
+  /// In en, this message translates to:
+  /// **'Not available'**
+  String get version_not_available;
+
   /// No description provided for @read_full_text.
   ///
   /// In en, this message translates to:
@@ -2679,6 +2709,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'License'**
   String get reader_license_label;
+
+  /// No description provided for @know_more.
+  ///
+  /// In en, this message translates to:
+  /// **'Know More'**
+  String get know_more;
 
   /// No description provided for @force_update_title.
   ///

@@ -13,6 +13,8 @@ class RoutineItem {
   final ResponsiveImage? coverImage;
   final RoutineItemType type;
   final DateTime? enrolledAt;
+  final String? language;
+  final DateTime? startDate;
 
   const RoutineItem({
     required this.id,
@@ -20,6 +22,8 @@ class RoutineItem {
     this.coverImage,
     required this.type,
     this.enrolledAt,
+    this.language,
+    this.startDate,
   });
 
   /// Smallest cover URL — legacy persistence and notifications.
@@ -32,6 +36,8 @@ class RoutineItem {
     'imageUrl': imageUrl,
     'type': type.name,
     'enrolledAt': enrolledAt?.toIso8601String(),
+    if (language != null) 'language': language,
+    if (startDate != null) 'startDate': startDate!.toIso8601String(),
   };
 
   /// Safely parses a [RoutineItem] from JSON with null checks and fallbacks.
@@ -52,6 +58,8 @@ class RoutineItem {
       coverImage: _parseCoverImage(json),
       type: _parseRoutineItemType(json['type']),
       enrolledAt: _parseDateTime(json['enrolledAt']),
+      language: json['language'] as String?,
+      startDate: _parseDateTime(json['startDate']),
     );
   }
 

@@ -8,6 +8,7 @@ import 'package:flutter_pecha/features/home/presentation/widgets/plan_list_view.
 import 'package:flutter_pecha/features/plans/presentation/providers/user_plans_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 class PlanListScreen extends ConsumerWidget {
   final String tag;
@@ -16,7 +17,9 @@ class PlanListScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    ref.watch(myPlansPaginatedProvider); // pre-warm so enrolled state is ready when list items render
+    ref.watch(
+      myPlansPaginatedProvider,
+    ); // pre-warm so enrolled state is ready when list items render
     final plansAsync = ref.watch(plansByTagProvider(tag));
     final localizations = AppLocalizations.of(context)!;
 
@@ -62,7 +65,7 @@ class PlanListScreen extends ConsumerWidget {
       child: Row(
         children: [
           IconButton(
-            icon: const Icon(Icons.arrow_back_ios),
+            icon: const Icon(PhosphorIconsRegular.arrowLeft),
             onPressed: () => context.pop(),
           ),
           Expanded(

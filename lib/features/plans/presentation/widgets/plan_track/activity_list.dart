@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_pecha/features/plans/data/models/author/author_dto_model.dart';
 import 'package:flutter_pecha/features/plans/domain/subtask_navigation.dart';
 import 'package:flutter_pecha/features/plans/plans.dart';
 import 'package:flutter_pecha/features/plans/presentation/widgets/plan_navigation/plan_navigator.dart';
 import 'package:flutter_pecha/features/reader/data/models/navigation_context.dart';
-import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 /// Activity list for the *enrolled* plan flow. Each row is one task; the row
 /// is enabled iff at least one subtask is navigable. Tapping the title opens
@@ -146,7 +146,7 @@ class _TaskCheckbox extends StatelessWidget {
                   ),
                   color: Colors.transparent,
                 ),
-          child: isCompleted ? Icon(PhosphorIconsBold.check, size: 20) : null,
+          child: isCompleted ? Icon(AppAssets.check, size: 20) : null,
         ),
       ),
     );

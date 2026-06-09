@@ -1,19 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
 import 'package:flutter_pecha/core/config/router/app_routes.dart';
+import 'package:flutter_pecha/core/constants/app_assets.dart';
+import 'package:flutter_pecha/core/constants/app_config.dart';
 import 'package:flutter_pecha/core/di/core_providers.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/core/theme/theme_notifier.dart';
+import 'package:flutter_pecha/shared/widgets/app_toggle_switch.dart';
 import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
 import 'package:flutter_pecha/features/auth/presentation/widgets/login_drawer.dart';
 import 'package:flutter_pecha/features/notifications/presentation/notification_settings_screen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:flutter_pecha/core/constants/app_config.dart';
 
 class MoreScreen extends ConsumerWidget {
   const MoreScreen({super.key});
@@ -68,8 +69,8 @@ class MoreScreen extends ConsumerWidget {
             if (authState.isLoggedIn && !authState.isGuest)
               _buildSettingsRow(
                 context,
-                icon: PhosphorIconsRegular.user,
-                title: localizations.settings_edit_profile,
+                icon: AppAssets.profile,
+                title: 'Edit profile',
                 onTap: () => context.push(AppRoutes.profile),
               ),
             _buildLanguageRow(context, ref, locale),
@@ -82,21 +83,21 @@ class MoreScreen extends ConsumerWidget {
             const SizedBox(height: 12),
             _buildSettingsRow(
               context,
-              icon: PhosphorIconsRegular.info,
-              title: localizations.about_title,
+              icon: AppAssets.about,
+              title: 'About',
               onTap: () => context.push(AppRoutes.about),
             ),
             _buildSettingsRow(
               context,
-              icon: PhosphorIconsRegular.gavel,
-              title: localizations.legal_title,
+              icon: AppAssets.legal,
+              title: 'Legal',
               onTap: () => context.push(AppRoutes.legal),
             ),
             _buildSettingsRow(
               context,
-              icon: PhosphorIconsRegular.chatText,
-              title: localizations.feedback,
-              trailingIcon: PhosphorIconsRegular.arrowSquareOut,
+              icon: AppAssets.feedback,
+              title: 'Feedback',
+              trailingIcon: AppAssets.arrowSquareOut,
               onTap: () async {
                 final url =
                     "https://app-webuddhist.ideas.userback.io/p/5omSMHB8A9VMUrD6vLrE";
@@ -111,14 +112,14 @@ class MoreScreen extends ConsumerWidget {
             if (!authState.isLoggedIn || authState.isGuest) ...[
               _buildSettingsRow(
                 context,
-                icon: PhosphorIconsRegular.signIn,
+                icon: AppAssets.signIn,
                 title: localizations.sign_in,
                 onTap: () => LoginDrawer.show(context, ref),
               ),
             ] else ...[
               _buildSettingsRow(
                 context,
-                icon: PhosphorIconsRegular.signOut,
+                icon: AppAssets.signOut,
                 title: localizations.logout,
                 onTap: () => _showLogoutDialog(context, ref),
                 isDestructive: true,
@@ -141,8 +142,8 @@ class MoreScreen extends ConsumerWidget {
   ) {
     return _buildSettingsRow(
       context,
-      icon: isDarkMode ? PhosphorIconsRegular.moon : PhosphorIconsRegular.sun,
-      title: localizations.settings_theme,
+      icon: AppAssets.theme,
+      title: 'Theme',
       onTap: () {
         ref
             .read(themeModeProvider.notifier)
@@ -162,43 +163,39 @@ class MoreScreen extends ConsumerWidget {
   Widget _buildNotificationRow(BuildContext context, AppLocalizations localizations) {
     return _buildSettingsRow(
       context,
-      icon: PhosphorIconsRegular.bellRinging,
-      title: localizations.settings_notification_row,
+      icon: AppAssets.notification,
+      title: 'Notification',
       onTap: () => context.push(NotificationSettingsScreen.routeName),
     );
   }
 
   Widget _buildLanguageRow(BuildContext context, WidgetRef ref, Locale locale) {
     final currentLanguageName = _getLanguageName(locale);
-    final theme = Theme.of(context);
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: () => _showLanguageBottomSheet(context, ref, locale),
-        borderRadius: BorderRadius.circular(14),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          child: Row(
-            children: [
-              Icon(
-                PhosphorIconsRegular.translate,
-                size: 24,
-                color: theme.iconTheme.color,
+    return InkWell(
+      onTap: () => _showLanguageBottomSheet(context, ref, locale),
+      borderRadius: BorderRadius.circular(8),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        child: Row(
+          children: [
+            Icon(
+              AppAssets.language,
+              size: 24,
+              color: Theme.of(context).iconTheme.color,
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                currentLanguageName,
+                style: Theme.of(context).textTheme.bodyLarge,
               ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  currentLanguageName,
-                  style: theme.textTheme.bodyLarge,
-                ),
-              ),
-              Icon(
-                PhosphorIconsRegular.caretRight,
-                size: 24,
-                color: AppColors.grey600,
-              ),
-            ],
-          ),
+            ),
+            Icon(
+              AppAssets.caretRight,
+              size: 24,
+              color: AppColors.grey600,
+            ),
+          ],
         ),
       ),
     );
@@ -231,7 +228,7 @@ class MoreScreen extends ConsumerWidget {
         ),
         if (trailing == null)
           Icon(
-            trailingIcon ?? PhosphorIconsRegular.caretRight,
+            trailingIcon ?? AppAssets.caretRight,
             size: 24,
             color: isDestructive ? Colors.red.shade600 : AppColors.grey600,
           ),
@@ -453,32 +450,11 @@ class _ThemeToggle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () => onChanged(!isDarkMode),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        width: 64,
-        height: 32,
-        padding: const EdgeInsets.all(2),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(16),
-          color: isDarkMode
-              ? const Color(0xFF196BF1)
-              : const Color(0xFFADADAD),
-        ),
-        child: AnimatedAlign(
-          duration: const Duration(milliseconds: 200),
-          alignment: isDarkMode ? Alignment.centerRight : Alignment.centerLeft,
-          child: Container(
-            width: 28,
-            height: 28,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: isDarkMode ? AppColors.grey600 : AppColors.surfaceWhite,
-            ),
-          ),
-        ),
-      ),
+    return AppToggleSwitch(
+      value: isDarkMode,
+      onChanged: onChanged,
+      thumbOnColor: AppColors.grey600,
+      thumbOffColor: AppColors.surfaceWhite,
     );
   }
 }

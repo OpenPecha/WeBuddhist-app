@@ -10,6 +10,7 @@ import 'package:flutter_pecha/features/ai/presentation/widgets/titles_tab_view.d
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 class SearchResultsScreen extends ConsumerStatefulWidget {
   final String initialQuery;
@@ -136,7 +137,7 @@ class _SearchResultsScreenState extends ConsumerState<SearchResultsScreen>
       leading: Padding(
         padding: const EdgeInsets.only(left: 8.0),
         child: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, size: 20),
+          icon: const Icon(PhosphorIconsRegular.arrowLeft, size: 20),
           onPressed: () => context.pop(),
           color: isDarkMode ? AppColors.surfaceWhite : AppColors.textPrimary,
         ),

@@ -189,6 +189,9 @@ PODS:
   - OrderedSet (6.0.3)
   - package_info_plus (0.4.5):
     - Flutter
+  - path_provider_foundation (0.0.1):
+    - Flutter
+    - FlutterMacOS
   - permission_handler_apple (9.4.8):
     - Flutter
   - PostHog (3.59.3)
@@ -241,6 +244,7 @@ DEPENDENCIES:
   - image_picker_ios (from `.symlinks/plugins/image_picker_ios/ios`)
   - just_audio (from `.symlinks/plugins/just_audio/darwin`)
   - package_info_plus (from `.symlinks/plugins/package_info_plus/ios`)
+  - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/darwin`)
   - permission_handler_apple (from `.symlinks/plugins/permission_handler_apple/ios`)
   - posthog_flutter (from `.symlinks/plugins/posthog_flutter/darwin`)
   - share_plus (from `.symlinks/plugins/share_plus/ios`)
@@ -313,6 +317,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/just_audio/darwin"
   package_info_plus:
     :path: ".symlinks/plugins/package_info_plus/ios"
+  path_provider_foundation:
+    :path: ".symlinks/plugins/path_provider_foundation/darwin"
   permission_handler_apple:
     :path: ".symlinks/plugins/permission_handler_apple/ios"
   posthog_flutter:
@@ -331,8 +337,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/webview_flutter_wkwebview/darwin"
 
 SPEC CHECKSUMS:
-  audio_service: aa99a6ba2ae7565996015322b0bb024e1d25c6fd
-  audio_session: 9bb7f6c970f21241b19f5a3658097ae459681ba0
+  audio_service: cab6c1a0eaf01b5a35b567e11fa67d3cc1956910
+  audio_session: 19e9480dbdd4e5f6c4543826b2e8b0e4ab6145fe
   Auth0: 2876d0c36857422eda9cb580a6cc896c7d14cb36
   auth0_flutter: 031042ca6cf84f1b21611062b33ea7ec4bf3bc52
   connectivity_plus: cb623214f4e1f6ef8fe7403d580fdad517d2f7dd

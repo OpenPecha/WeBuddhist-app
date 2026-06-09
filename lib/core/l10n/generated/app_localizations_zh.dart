@@ -282,7 +282,13 @@ class AppLocalizationsZh extends AppLocalizations {
   String get english => '英文';
 
   @override
-  String get chinese => '中文';
+  String get chinese => '白話中文';
+
+  @override
+  String get classicalChinese => '佛經文體';
+
+  @override
+  String get pali => '巴利文';
 
   @override
   String get language => '語言';
@@ -1363,13 +1369,25 @@ class AppLocalizationsZh extends AppLocalizations {
   String get version => 'Versions';
 
   @override
-  String get read_full_text => 'Read Full Text';
+  String get parallel_version => '對讀版本';
 
   @override
-  String get reader_source_label => 'Source';
+  String get main_version => '主要版本';
 
   @override
-  String get reader_license_label => 'License';
+  String get version_not_available => '無可用版本';
+
+  @override
+  String get read_full_text => '閱讀完整文本';
+
+  @override
+  String get reader_source_label => '來源';
+
+  @override
+  String get reader_license_label => '授權';
+
+  @override
+  String get know_more => 'Know More';
 
   @override
   String get force_update_title => '需要更新';
