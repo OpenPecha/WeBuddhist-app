@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_pecha/core/constants/app_assets.dart';
+import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/features/practice/data/models/routine_model.dart';
 import 'package:flutter_pecha/features/practice/data/utils/routine_time_utils.dart';
 import 'package:flutter_pecha/features/practice/presentation/widgets/routine_item_card.dart';
-import 'package:flutter_pecha/core/extensions/context_ext.dart';
-import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 class RoutineTimeBlock extends StatelessWidget {
   final TimeOfDay time;
@@ -209,7 +209,7 @@ class _TimeSelector extends StatelessWidget {
             ),
             const SizedBox(width: 12),
             Icon(
-              PhosphorIconsRegular.caretDown,
+              AppAssets.caretDown,
               size: 18,
               fontWeight: FontWeight.w600,
               color:
@@ -249,7 +249,7 @@ class _NotificationIcon extends StatelessWidget {
           ),
         ),
         child: Icon(
-          enabled ? PhosphorIconsRegular.bell : PhosphorIconsRegular.bellSlash,
+          enabled ? AppAssets.bell : AppAssets.bellSlash,
           size: 20,
           color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimary,
         ),
@@ -313,7 +313,7 @@ class _AddSessionButton extends StatelessWidget {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Icon(
-                  PhosphorIconsRegular.plus,
+                  AppAssets.plus,
                   size: 24,
                   color:
                       isDark

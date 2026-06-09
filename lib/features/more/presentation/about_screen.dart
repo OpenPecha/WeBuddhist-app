@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_pecha/core/di/core_providers.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class AboutScreen extends ConsumerWidget {
@@ -12,31 +12,31 @@ class AboutScreen extends ConsumerWidget {
 
   static final _socialLinks = [
     _SocialLink(
-      icon: PhosphorIconsRegular.globe,
+      icon: AppAssets.globe,
       title: 'Website',
       subtitle: 'www.webuddhist.com',
       url: 'https://webuddhist.com/collections',
     ),
     _SocialLink(
-      icon: PhosphorIconsRegular.instagramLogo,
+      icon: AppAssets.instagram,
       title: 'Instagram',
       subtitle: '@webuddhist',
       url: 'https://www.instagram.com/webuddhist_?igsh=MXEwajM5dmxkbmYyYQ==',
     ),
     _SocialLink(
-      icon: PhosphorIconsRegular.facebookLogo,
+      icon: AppAssets.facebook,
       title: 'Facebook',
       subtitle: 'facebook.com/webuddhist',
       url: 'https://www.facebook.com/share/1D9u6rMCsy/',
     ),
     _SocialLink(
-      icon: PhosphorIconsRegular.xLogo,
+      icon: AppAssets.twitter,
       title: 'X (Twitter)',
       subtitle: '@webuddhist',
       url: 'https://x.com/WeBuddhist_',
     ),
     _SocialLink(
-      icon: PhosphorIconsRegular.youtubeLogo,
+      icon: AppAssets.youtube,
       title: 'YouTube',
       subtitle: '@webuddhist',
       url: 'https://youtube.com/@we_buddhist?si=Re1GiaGDJIEypIva',
@@ -193,7 +193,7 @@ class _SocialLinkTile extends StatelessWidget {
                   ),
                 ),
                 Icon(
-                  PhosphorIconsRegular.arrowSquareOut,
+                  AppAssets.arrowSquareOut,
                   size: 20,
                   color: AppColors.grey600,
                 ),

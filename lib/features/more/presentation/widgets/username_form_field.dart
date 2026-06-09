@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
-import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 enum UsernameState { idle, checking, available, conflict, error }
 
@@ -93,19 +93,19 @@ class UsernameFormField extends StatelessWidget {
         );
       case UsernameState.available:
         return Icon(
-          PhosphorIconsRegular.checkCircle,
+          AppAssets.checkCircle,
           color: Colors.green.shade600,
           size: 20,
         );
       case UsernameState.conflict:
         return Icon(
-          PhosphorIconsRegular.warningCircle,
+          AppAssets.warningCircle,
           color: Colors.red.shade600,
           size: 20,
         );
       case UsernameState.error:
         return Icon(
-          PhosphorIconsRegular.warningCircle,
+          AppAssets.warningCircle,
           color: Colors.orange.shade600,
           size: 20,
         );

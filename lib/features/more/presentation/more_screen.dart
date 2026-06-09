@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
 import 'package:flutter_pecha/core/config/router/app_routes.dart';
+import 'package:flutter_pecha/core/constants/app_assets.dart';
+import 'package:flutter_pecha/core/constants/app_config.dart';
 import 'package:flutter_pecha/core/di/core_providers.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
@@ -11,9 +13,7 @@ import 'package:flutter_pecha/features/auth/presentation/widgets/login_drawer.da
 import 'package:flutter_pecha/features/notifications/presentation/notification_settings_screen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:flutter_pecha/core/constants/app_config.dart';
 
 class MoreScreen extends ConsumerWidget {
   const MoreScreen({super.key});
@@ -68,7 +68,7 @@ class MoreScreen extends ConsumerWidget {
             if (authState.isLoggedIn && !authState.isGuest)
               _buildSettingsRow(
                 context,
-                icon: PhosphorIconsRegular.user,
+                icon: AppAssets.profile,
                 title: 'Edit profile',
                 onTap: () => context.push(AppRoutes.profile),
               ),
@@ -82,21 +82,21 @@ class MoreScreen extends ConsumerWidget {
             const SizedBox(height: 12),
             _buildSettingsRow(
               context,
-              icon: PhosphorIconsRegular.info,
+              icon: AppAssets.about,
               title: 'About',
               onTap: () => context.push(AppRoutes.about),
             ),
             _buildSettingsRow(
               context,
-              icon: PhosphorIconsRegular.gavel,
+              icon: AppAssets.legal,
               title: 'Legal',
               onTap: () => context.push(AppRoutes.legal),
             ),
             _buildSettingsRow(
               context,
-              icon: PhosphorIconsRegular.chatText,
+              icon: AppAssets.feedback,
               title: 'Feedback',
-              trailingIcon: PhosphorIconsRegular.arrowSquareOut,
+              trailingIcon: AppAssets.arrowSquareOut,
               onTap: () async {
                 final url =
                     "https://app-webuddhist.ideas.userback.io/p/5omSMHB8A9VMUrD6vLrE";
@@ -111,14 +111,14 @@ class MoreScreen extends ConsumerWidget {
             if (!authState.isLoggedIn || authState.isGuest) ...[
               _buildSettingsRow(
                 context,
-                icon: PhosphorIconsRegular.signIn,
+                icon: AppAssets.signIn,
                 title: localizations.sign_in,
                 onTap: () => LoginDrawer.show(context, ref),
               ),
             ] else ...[
               _buildSettingsRow(
                 context,
-                icon: PhosphorIconsRegular.signOut,
+                icon: AppAssets.signOut,
                 title: localizations.logout,
                 onTap: () => _showLogoutDialog(context, ref),
                 isDestructive: true,
@@ -140,7 +140,7 @@ class MoreScreen extends ConsumerWidget {
   ) {
     return _buildSettingsRow(
       context,
-      icon: PhosphorIconsRegular.sun,
+      icon: AppAssets.theme,
       title: 'Theme',
       onTap: () {
         ref
@@ -161,7 +161,7 @@ class MoreScreen extends ConsumerWidget {
   Widget _buildNotificationRow(BuildContext context) {
     return _buildSettingsRow(
       context,
-      icon: PhosphorIconsRegular.bellRinging,
+      icon: AppAssets.notification,
       title: 'Notification',
       onTap: () => context.push(NotificationSettingsScreen.routeName),
     );
@@ -177,7 +177,7 @@ class MoreScreen extends ConsumerWidget {
         child: Row(
           children: [
             Icon(
-              PhosphorIconsRegular.translate,
+              AppAssets.language,
               size: 24,
               color: Theme.of(context).iconTheme.color,
             ),
@@ -189,7 +189,7 @@ class MoreScreen extends ConsumerWidget {
               ),
             ),
             Icon(
-              PhosphorIconsRegular.caretRight,
+              AppAssets.caretRight,
               size: 24,
               color: AppColors.grey600,
             ),
@@ -226,7 +226,7 @@ class MoreScreen extends ConsumerWidget {
         ),
         if (trailing == null)
           Icon(
-            trailingIcon ?? PhosphorIconsRegular.caretRight,
+            trailingIcon ?? AppAssets.caretRight,
             size: 24,
             color: isDestructive ? Colors.red.shade600 : AppColors.grey600,
           ),
