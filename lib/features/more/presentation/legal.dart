@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/config/router/app_routes.dart';
-import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
+import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:go_router/go_router.dart';
-import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 class LegalScreen extends StatelessWidget {
   const LegalScreen({super.key});
@@ -30,13 +29,13 @@ class LegalScreen extends StatelessWidget {
           children: [
             _buildLegalRow(
               context,
-              icon: PhosphorIconsRegular.fileText,
-              title: l10n.legal_terms_of_service,
+              icon: AppAssets.fileText,
+              title: 'Terms of Service',
             ),
             _buildLegalRow(
               context,
-              icon: PhosphorIconsRegular.fileText,
-              title: l10n.legal_privacy_policy,
+              icon: AppAssets.fileText,
+              title: 'Privacy policy',
               onTap: () => context.push(AppRoutes.privacyPolicy),
             ),
           ],
@@ -67,7 +66,7 @@ class LegalScreen extends StatelessWidget {
               child: Text(title, style: Theme.of(context).textTheme.bodyLarge),
             ),
             Icon(
-              PhosphorIconsRegular.arrowSquareOut,
+              AppAssets.arrowSquareOut,
               size: 24,
               color: Theme.of(context).textTheme.bodyMedium?.color,
             ),

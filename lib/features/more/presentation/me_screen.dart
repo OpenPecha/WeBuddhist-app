@@ -3,12 +3,12 @@ import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/config/router/app_routes.dart';
+import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 class MeScreen extends ConsumerWidget {
   const MeScreen({super.key});
@@ -31,7 +31,7 @@ class MeScreen extends ConsumerWidget {
         actions: [
           IconButton(
             icon: Icon(
-              PhosphorIconsRegular.gear,
+              AppAssets.settings,
               size: 24,
               color: Theme.of(context).iconTheme.color,
             ),
@@ -104,7 +104,7 @@ class _LoggedInProfile extends ConsumerWidget {
                                 color: AppColors.grey300,
                                 child: Center(
                                   child: Icon(
-                                    PhosphorIconsRegular.user,
+                                    AppAssets.profile,
                                     size: 44,
                                     color: AppColors.grey600,
                                   ),
@@ -115,7 +115,7 @@ class _LoggedInProfile extends ConsumerWidget {
                           color: AppColors.grey300,
                           child: Center(
                             child: Icon(
-                              PhosphorIconsRegular.user,
+                              AppAssets.profile,
                               size: 44,
                               color: AppColors.grey600,
                             ),
@@ -169,6 +169,16 @@ class _GuestView extends ConsumerWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            CircleAvatar(
+              radius: 52,
+              backgroundColor: AppColors.grey300,
+              child: Icon(
+                AppAssets.profile,
+                size: 44,
+                color: AppColors.grey600,
+              ),
+            ),
+            const SizedBox(height: 20),
             Text(
               localizations.me_guest_headline,
               textAlign: TextAlign.center,

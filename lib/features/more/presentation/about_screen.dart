@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
+import 'package:flutter_pecha/core/constants/app_assets.dart';
+import 'package:flutter_pecha/core/di/core_providers.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
-import 'package:phosphor_flutter/phosphor_flutter.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class AboutScreen extends StatelessWidget {
@@ -17,26 +18,26 @@ class AboutScreen extends StatelessWidget {
       url: 'https://webuddhist.com/collections',
     ),
     _SocialLink(
-      icon: PhosphorIconsRegular.instagramLogo,
-      title: l10n.about_social_instagram,
+      icon: AppAssets.instagram,
+      title: 'Instagram',
       subtitle: '@webuddhist',
       url: 'https://www.instagram.com/webuddhist_?igsh=MXEwajM5dmxkbmYyYQ==',
     ),
     _SocialLink(
-      icon: PhosphorIconsRegular.facebookLogo,
-      title: l10n.about_social_facebook,
+      icon: AppAssets.facebook,
+      title: 'Facebook',
       subtitle: 'facebook.com/webuddhist',
       url: 'https://www.facebook.com/share/1D9u6rMCsy/',
     ),
     _SocialLink(
-      icon: PhosphorIconsRegular.xLogo,
-      title: l10n.about_social_x_twitter,
+      icon: AppAssets.twitter,
+      title: 'X (Twitter)',
       subtitle: '@webuddhist',
       url: 'https://x.com/WeBuddhist_',
     ),
     _SocialLink(
-      icon: PhosphorIconsRegular.youtubeLogo,
-      title: l10n.about_social_youtube,
+      icon: AppAssets.youtube,
+      title: 'YouTube',
       subtitle: '@webuddhist',
       url: 'https://youtube.com/@we_buddhist?si=Re1GiaGDJIEypIva',
     ),
@@ -183,7 +184,7 @@ class _SocialLinkTile extends StatelessWidget {
                   ),
                 ),
                 Icon(
-                  PhosphorIconsRegular.arrowSquareOut,
+                  AppAssets.arrowSquareOut,
                   size: 20,
                   color: AppColors.grey600,
                 ),

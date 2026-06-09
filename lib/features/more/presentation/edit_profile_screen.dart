@@ -5,7 +5,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:flutter_pecha/core/config/router/app_routes.dart';
-import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
+import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
 import 'package:flutter_pecha/features/auth/presentation/state/user_state.dart';
@@ -15,7 +15,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 class EditProfileScreen extends ConsumerStatefulWidget {
   const EditProfileScreen({super.key});
@@ -492,7 +491,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         leading: IconButton(
           icon: Icon(
-            PhosphorIconsRegular.arrowLeft,
+            AppAssets.arrowLeft,
             color: Theme.of(context).iconTheme.color,
           ),
           onPressed: () => Navigator.of(context).pop(),
@@ -713,7 +712,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                   child: Row(
                     children: [
                       Icon(
-                        PhosphorIconsRegular.trash,
+                        AppAssets.trash,
                         size: 22,
                         color: Colors.red.shade600,
                       ),
@@ -729,7 +728,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                         ),
                       ),
                       Icon(
-                        PhosphorIconsRegular.caretRight,
+                        AppAssets.caretRight,
                         size: 20,
                         color: AppColors.grey600,
                       ),

@@ -1,9 +1,9 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/core/widgets/cached_network_image_widget.dart';
-import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 /// Displays the circular profile avatar with an upload-in-progress overlay
 /// and a small edit button in the bottom-right corner.
@@ -37,7 +37,7 @@ class ProfileAvatarSection extends StatelessWidget {
               backgroundImage: _resolveImage(),
               child: avatarUrl.isEmpty && pickedAvatarFile == null
                   ? Icon(
-                      PhosphorIconsRegular.user,
+                      AppAssets.profile,
                       size: 44,
                       color: AppColors.grey600,
                     )
