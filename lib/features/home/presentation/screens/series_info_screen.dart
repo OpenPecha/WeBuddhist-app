@@ -74,7 +74,7 @@ class SeriesInfoScreen extends ConsumerWidget {
                       const SizedBox(height: 24),
                       _buildSection(
                         context,
-                        body: series!.description!,
+                        body: series.description,
                         bodyFontSize: bodyFontSize,
                         lineHeight: lineHeight,
                         isDark: isDark,
@@ -116,62 +116,65 @@ class SeriesInfoScreen extends ConsumerWidget {
     final subtitleColor =
         isDark ? AppColors.textTertiaryDark : AppColors.textSecondary;
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-      child: Row(
-        children: [
-          CircleAvatar(
-            radius: 20,
-            backgroundColor:
-                isDark ? AppColors.surfaceVariantDark : AppColors.grey100,
-            backgroundImage:
-                group.avatarUrl != null && group.avatarUrl!.isNotEmpty
-                    ? NetworkImage(group.avatarUrl!)
-                    : null,
-            child:
-                (group.avatarUrl == null || group.avatarUrl!.isEmpty)
-                    ? Icon(
-                      Icons.group,
-                      size: 20,
-                      color: isDark ? AppColors.grey500 : AppColors.grey600,
-                    )
-                    : null,
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if (group.title.isNotEmpty)
-                  Text(
-                    group.title,
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      height: lineHeight,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                if (group.subTitle != null && group.subTitle!.trim().isNotEmpty)
-                  Text(
-                    group.subTitle!,
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: subtitleColor,
-                      height: lineHeight,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-              ],
+    return GestureDetector(
+      onTap: () => context.push('/home/group/${group.id}'),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+        child: Row(
+          children: [
+            CircleAvatar(
+              radius: 20,
+              backgroundColor:
+                  isDark ? AppColors.surfaceVariantDark : AppColors.grey100,
+              backgroundImage:
+                  group.avatarUrl != null && group.avatarUrl!.isNotEmpty
+                      ? NetworkImage(group.avatarUrl!)
+                      : null,
+              child:
+                  (group.avatarUrl == null || group.avatarUrl!.isEmpty)
+                      ? Icon(
+                        Icons.group,
+                        size: 20,
+                        color: isDark ? AppColors.grey500 : AppColors.grey600,
+                      )
+                      : null,
             ),
-          ),
-          Icon(
-            Icons.chevron_right,
-            color: isDark ? AppColors.grey500 : AppColors.grey600,
-          ),
-        ],
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (group.title.isNotEmpty)
+                    Text(
+                      group.title,
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        height: lineHeight,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  if (group.subTitle != null && group.subTitle!.trim().isNotEmpty)
+                    Text(
+                      group.subTitle!,
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: subtitleColor,
+                        height: lineHeight,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                ],
+              ),
+            ),
+            Icon(
+              Icons.chevron_right,
+              color: isDark ? AppColors.grey500 : AppColors.grey600,
+            ),
+          ],
+        ),
       ),
     );
   }
