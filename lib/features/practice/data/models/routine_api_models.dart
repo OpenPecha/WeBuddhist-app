@@ -70,6 +70,8 @@ class SessionDTO {
   final String language;
   final ImageModel? image;
   final int displayOrder;
+  final DateTime? startDate;
+  final DateTime? startedAt;
 
   const SessionDTO({
     required this.id,
@@ -79,6 +81,8 @@ class SessionDTO {
     required this.language,
     this.image,
     required this.displayOrder,
+    this.startDate,
+    this.startedAt,
   });
 
   String? get imageUrl => image?.displayUrl;
@@ -94,6 +98,12 @@ class SessionDTO {
       language: json['language'] as String,
       image: ImageModel.fromJsonMap(json),
       displayOrder: json['display_order'] as int,
+      startDate: json['start_date'] != null
+          ? DateTime.tryParse(json['start_date'] as String)
+          : null,
+      startedAt: json['started_at'] != null
+          ? DateTime.tryParse(json['started_at'] as String)
+          : null,
     );
   }
 }
