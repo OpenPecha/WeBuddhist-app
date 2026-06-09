@@ -9,6 +9,7 @@ import 'package:flutter_pecha/features/home/presentation/widgets/plan_list_view.
 import 'package:flutter_pecha/features/plans/presentation/providers/user_plans_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 class SeriesDetailScreen extends ConsumerWidget {
   final String seriesId;
@@ -63,6 +64,7 @@ class SeriesDetailScreen extends ConsumerWidget {
                         return PlanListView(
                           plans: series.plans,
                           seriesId: seriesId,
+                          series: series,
                         );
                       },
                     );
@@ -90,7 +92,7 @@ class SeriesDetailScreen extends ConsumerWidget {
       child: Row(
         children: [
           IconButton(
-            icon: const Icon(Icons.arrow_back_ios),
+            icon: const Icon(PhosphorIconsRegular.arrowLeft),
             onPressed: () => context.pop(),
           ),
           Expanded(

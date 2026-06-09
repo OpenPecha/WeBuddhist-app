@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/config/router/app_routes.dart';
@@ -5,7 +7,6 @@ import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
-import 'package:flutter_pecha/features/auth/presentation/widgets/login_drawer.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -42,10 +43,7 @@ class MeScreen extends ConsumerWidget {
         child:
             (authState.isLoggedIn && !authState.isGuest)
                 ? _LoggedInProfile(ref: ref)
-                : _GuestView(
-                  onSignIn: () => LoginDrawer.show(context, ref),
-                  localizations: localizations,
-                ),
+                : const _GuestView(),
       ),
     );
   }
@@ -153,14 +151,18 @@ class _LoggedInProfile extends ConsumerWidget {
   }
 }
 
-class _GuestView extends StatelessWidget {
-  const _GuestView({required this.onSignIn, required this.localizations});
-
-  final VoidCallback onSignIn;
-  final AppLocalizations localizations;
+class _GuestView extends ConsumerWidget {
+  const _GuestView();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final authState = ref.watch(authProvider);
+    final authNotifier = ref.read(authProvider.notifier);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isIOS = Platform.isIOS;
+
+    final localizations = AppLocalizations.of(context)!;
+
     return Center(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 32),
@@ -178,23 +180,104 @@ class _GuestView extends StatelessWidget {
             ),
             const SizedBox(height: 20),
             Text(
-              localizations.profile_guest_title,
-              style: Theme.of(
-                context,
-              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              localizations.profile_guest_subtitle,
+              localizations.me_guest_headline,
               textAlign: TextAlign.center,
-              style: Theme.of(
-                context,
-              ).textTheme.bodyMedium?.copyWith(color: AppColors.grey600),
+              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                fontWeight: FontWeight.bold,
+                fontSize: 34,
+              ),
             ),
-            const SizedBox(height: 32),
-            FilledButton(
-              onPressed: onSignIn,
-              child: Text(localizations.sign_in),
+            const SizedBox(height: 12),
+            Text(
+              localizations.me_guest_subtitle,
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: AppColors.grey600,
+              ),
+            ),
+            const SizedBox(height: 40),
+            if (authState.isLoading)
+              const SizedBox(
+                height: 52,
+                child: Center(child: CircularProgressIndicator()),
+              )
+            else ...[
+              _SocialButton(
+                onTap: () => authNotifier.login(connection: 'google'),
+                backgroundColor: isDark ? AppColors.cardDark : Colors.white,
+                foregroundColor: isDark ? Colors.white : Colors.black87,
+                borderColor: isDark ? AppColors.cardBorderDark : AppColors.grey300,
+                label: localizations.continueWithGoogle,
+                icon: Image.asset(
+                  'assets/images/google-icon.png',
+                  width: 23,
+                  height: 23,
+                ),
+              ),
+              if (isIOS) ...[
+                const SizedBox(height: 14),
+                _SocialButton(
+                  onTap: () => authNotifier.login(connection: 'apple'),
+                  backgroundColor: Colors.black,
+                  foregroundColor: Colors.white,
+                  borderColor: Colors.transparent,
+                  label: localizations.continueWithApple,
+                  icon: const Icon(Icons.apple, color: Colors.white, size: 30),
+                ),
+              ],
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _SocialButton extends StatelessWidget {
+  const _SocialButton({
+    required this.onTap,
+    required this.backgroundColor,
+    required this.foregroundColor,
+    required this.borderColor,
+    required this.label,
+    required this.icon,
+  });
+
+  final VoidCallback onTap;
+  final Color backgroundColor;
+  final Color foregroundColor;
+  final Color borderColor;
+  final String label;
+  final Widget icon;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: double.infinity,
+      height: 52,
+      child: OutlinedButton(
+        onPressed: onTap,
+        style: OutlinedButton.styleFrom(
+          backgroundColor: backgroundColor,
+          foregroundColor: foregroundColor,
+          side: BorderSide(color: borderColor),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            icon,
+            const SizedBox(width: 12),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+                color: foregroundColor,
+              ),
             ),
           ],
         ),

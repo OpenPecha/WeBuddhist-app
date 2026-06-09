@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
@@ -68,7 +69,7 @@ class _DeleteAccountScreenState extends ConsumerState<DeleteAccountScreen> {
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
-          'Delete account',
+          AppLocalizations.of(context)!.delete_account_title,
           style: GoogleFonts.inter(
             textStyle: Theme.of(context).textTheme.titleMedium?.copyWith(
               fontWeight: FontWeight.w700,
@@ -85,11 +86,7 @@ class _DeleteAccountScreenState extends ConsumerState<DeleteAccountScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'If you delete your account, all your information, history, and '
-              'personalized settings within WeBuddhist will be permanently '
-              'eliminated. This action will also end any recurring contributions, '
-              'if applicable. Please note that this action is irreversible. '
-              'To proceed, tap the button below.',
+              AppLocalizations.of(context)!.delete_account_description,
               style: TextStyle(
                 fontSize: 15,
                 height: 1.55,
@@ -119,9 +116,9 @@ class _DeleteAccountScreenState extends ConsumerState<DeleteAccountScreen> {
                           color: Colors.white,
                         ),
                       )
-                    : const Text(
-                        'Delete account',
-                        style: TextStyle(
+                    : Text(
+                        AppLocalizations.of(context)!.delete_account_button,
+                        style: const TextStyle(
                           fontSize: 16,
                         ),
                       ),
@@ -170,7 +167,7 @@ class _DeleteConfirmationDialogState extends State<_DeleteConfirmationDialog> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Delete account',
+              AppLocalizations.of(context)!.delete_account_title,
               style: GoogleFonts.inter(
                 textStyle: Theme.of(context).textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.w900,
@@ -180,9 +177,9 @@ class _DeleteConfirmationDialogState extends State<_DeleteConfirmationDialog> {
               ),
             ),
             const SizedBox(height: 12),
-            const Text(
-              'Are you sure you want to delete your WeBuddhist account?',
-              style: TextStyle(fontSize: 14, height: 1.5),
+            Text(
+              AppLocalizations.of(context)!.delete_account_confirm_message,
+              style: const TextStyle(fontSize: 14, height: 1.5),
             ),
             const SizedBox(height: 24),
             SizedBox(
@@ -206,9 +203,9 @@ class _DeleteConfirmationDialogState extends State<_DeleteConfirmationDialog> {
                           color: Colors.red.shade600,
                         ),
                       )
-                    : const Text(
-                        'Delete account',
-                        style: TextStyle(fontSize: 15),
+                    : Text(
+                        AppLocalizations.of(context)!.delete_account_button,
+                        style: const TextStyle(fontSize: 15),
                       ),
               ),
             ),
@@ -228,7 +225,7 @@ class _DeleteConfirmationDialogState extends State<_DeleteConfirmationDialog> {
                   ),
                 ),
                 child: Text(
-                  'Cancel',
+                  AppLocalizations.of(context)!.cancel,
                   style: TextStyle(
                     fontSize: 15,
                     color:

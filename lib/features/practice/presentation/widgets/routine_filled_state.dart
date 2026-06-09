@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/features/notifications/data/models/notification_nav.dart';
 import 'package:flutter_pecha/features/plans/data/models/user/user_plans_model.dart';
+import 'package:flutter_pecha/features/plans/presentation/providers/use_case_providers.dart';
 import 'package:flutter_pecha/features/plans/presentation/providers/user_plans_provider.dart';
 import 'package:flutter_pecha/features/plans/presentation/widgets/plan_track/enrolled_plan_status_indicator.dart';
 import 'package:flutter_pecha/features/plans/presentation/widgets/plan_track/plan_date_range_label.dart';
@@ -212,7 +214,11 @@ class _RoutineBlockSection extends ConsumerWidget {
     WidgetRef ref,
     RoutineItem item,
   ) async {
-    final userPlan = await _resolveUserPlan(ref, item.id);
+    final userPlan = await _resolveUserPlan(
+      ref,
+      item.id,
+      language: item.language,
+    );
 
     if (userPlan == null) {
       if (context.mounted) {
@@ -248,20 +254,41 @@ class _RoutineBlockSection extends ConsumerWidget {
     );
   }
 
-  /// Resolves the user plan from cached state, with a fallback refresh.
-  Future<dynamic> _resolveUserPlan(WidgetRef ref, String planId) async {
-    var plans = ref.read(myPlansPaginatedProvider).plans;
-    var userPlan = plans.where((p) => p.id == planId).firstOrNull;
+  /// Resolves the [UserPlansModel] for a routine plan item.
+  ///
+  /// When the plan's language matches the current app locale the cached
+  /// [myPlansPaginatedProvider] is used (instant, no network). Otherwise the
+  /// plan is fetched directly from the API in its own language.
+  Future<UserPlansModel?> _resolveUserPlan(
+    WidgetRef ref,
+    String planId, {
+    String? language,
+  }) async {
+    final currentLocale = ref.read(localeProvider).languageCode;
+    final isSameLanguage = language == null ||
+        language.toLowerCase() == currentLocale.toLowerCase();
 
-    // Safety net: refresh if plan not found (handles edge cases like
-    // enrollment via different flow or stale cache)
-    if (userPlan == null) {
-      await ref.read(myPlansPaginatedProvider.notifier).refresh();
-      plans = ref.read(myPlansPaginatedProvider).plans;
-      userPlan = plans.where((p) => p.id == planId).firstOrNull;
+    if (isSameLanguage) {
+      var plans = ref.read(myPlansPaginatedProvider).plans;
+      var userPlan = plans.where((p) => p.id == planId).firstOrNull;
+
+      if (userPlan == null) {
+        await ref.read(myPlansPaginatedProvider.notifier).refresh();
+        plans = ref.read(myPlansPaginatedProvider).plans;
+        userPlan = plans.where((p) => p.id == planId).firstOrNull;
+      }
+
+      return userPlan;
     }
 
-    return userPlan;
+    // Plan was enrolled in a different language — fetch directly.
+    final repo = ref.read(userPlansDomainRepositoryProvider);
+    final result = await repo.getUserPlans(language: language);
+    return result.fold(
+      (_) => null,
+      (response) =>
+          response.userPlans.where((p) => p.id == planId).firstOrNull,
+    );
   }
 
   /// Resolves the enrolled [UserPlansModel] for a plan-type routine item from
