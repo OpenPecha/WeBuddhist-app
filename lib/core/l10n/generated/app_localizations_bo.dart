@@ -1430,6 +1430,9 @@ class AppLocalizationsBo extends AppLocalizations {
   String get reader_license_label => 'License';
 
   @override
+  String get know_more => 'ཞིབ་ཕྲ་གཟིགས།';
+
+  @override
   String get force_update_title => 'གསར་བསྒྱུར་དགོས་མཁོ།';
 
   @override

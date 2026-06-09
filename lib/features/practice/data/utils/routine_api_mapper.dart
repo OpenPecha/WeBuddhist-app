@@ -32,6 +32,9 @@ RoutineItem routineItemFromSessionDto(SessionDTO s) {
       SessionType.plan => RoutineItemType.plan,
       SessionType.recitation => RoutineItemType.recitation,
     },
+    enrolledAt: s.startedAt,
+    language: s.language,
+    startDate: s.startDate,
   );
 }
 

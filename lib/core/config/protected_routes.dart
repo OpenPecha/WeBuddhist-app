@@ -48,6 +48,9 @@ class ProtectedRoutes {
     // Series enrollment
     '/users/me/series',
 
+    // Group follow
+    '/author/groups/{groupId}/follow',
+
     // Plans (public endpoints but may need auth for user-specific data)
     '/plans/{planId}',
     '/plans/{planId}/days/{dayNumber}',

@@ -47,6 +47,7 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
   late int selectedDay;
   final Set<String> _togglingTaskIds = {};
   final Map<int, bool> _dayCompletionTracker = {};
+  final Map<String, bool> _optimisticCompletions = {};
 
   @override
   void initState() {
@@ -289,18 +290,21 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
             data: (dayContentEither) {
               return dayContentEither.fold(
                 (failure) => _buildDayContentError(),
-                (dayContent) => ActivityList(
-                  language: language,
-                  tasks: dayContent.tasks,
-                  today: selectedDay,
-                  totalDays: dayContent.tasks.length,
-                  planId: widget.plan.id,
-                  dayNumber: selectedDay,
-                  dayAudioUrl: dayContent.audioUrl,
-                  onActivityToggled:
-                      (taskId) => _handleTaskToggle(taskId, dayContent.tasks),
-                  onReaderClosed: _onReaderClosed,
-                ),
+                (dayContent) {
+                  final tasks = _applyOptimisticState(dayContent.tasks);
+                  return ActivityList(
+                    language: language,
+                    tasks: tasks,
+                    today: selectedDay,
+                    totalDays: tasks.length,
+                    planId: widget.plan.id,
+                    dayNumber: selectedDay,
+                    dayAudioUrl: dayContent.audioUrl,
+                    onActivityToggled:
+                        (taskId) => _handleTaskToggle(taskId, dayContent.tasks),
+                    onReaderClosed: _onReaderClosed,
+                  );
+                },
               );
             },
             loading: () => const DayContentSkeleton(),
@@ -374,12 +378,8 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
     String taskId,
     List<UserTasksDto> tasks,
   ) async {
-    // Prevent race condition: Check if task is already being toggled
-    if (_togglingTaskIds.contains(taskId)) {
-      return;
-    }
+    if (_togglingTaskIds.contains(taskId)) return;
 
-    // Safely find the task - return early if not found or list is empty
     if (tasks.isEmpty) {
       _showErrorSnackbar(context.l10n.noTasks);
       return;
@@ -392,22 +392,23 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
     }
 
     final task = tasks[taskIndex];
+    final newValue = !task.isCompleted;
 
-    // Mark task as being toggled
     setState(() {
       _togglingTaskIds.add(taskId);
+      _optimisticCompletions[taskId] = newValue;
     });
 
     try {
-      final resultEither =
-          task.isCompleted
-              ? await ref.read(deleteTaskFutureProvider(taskId).future)
-              : await ref.read(completeTaskFutureProvider(taskId).future);
+      final resultEither = newValue
+          ? await ref.read(completeTaskFutureProvider(taskId).future)
+          : await ref.read(deleteTaskFutureProvider(taskId).future);
 
       resultEither.fold(
         (failure) {
           _logger.error('Error toggling task: ${failure.message}');
           if (mounted) {
+            setState(() => _optimisticCompletions.remove(taskId));
             _showErrorSnackbar(context.l10n.updateTaskError);
           }
         },
@@ -418,11 +419,11 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
                 PlanDaysParams(planId: widget.plan.id, dayNumber: selectedDay),
               ),
             );
-            // Also invalidate completion status to refresh checkmarks
             ref.invalidate(
               userPlanDaysCompletionStatusProvider(widget.plan.id),
             );
           } else if (!success && mounted) {
+            setState(() => _optimisticCompletions.remove(taskId));
             _showErrorSnackbar(context.l10n.updateTaskError);
           }
         },
@@ -430,16 +431,41 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
     } catch (e) {
       _logger.error('Error toggling task', e);
       if (mounted) {
+        setState(() => _optimisticCompletions.remove(taskId));
         _showErrorSnackbar(context.l10n.errorDetail(e.toString()));
       }
     } finally {
-      // Always remove task from toggling set
       if (mounted) {
-        setState(() {
-          _togglingTaskIds.remove(taskId);
-        });
+        setState(() => _togglingTaskIds.remove(taskId));
       }
     }
+  }
+
+  List<UserTasksDto> _applyOptimisticState(List<UserTasksDto> tasks) {
+    if (_optimisticCompletions.isEmpty) return tasks;
+    final keysToRemove = <String>[];
+    final result = tasks.map((task) {
+      if (_optimisticCompletions.containsKey(task.id)) {
+        if (task.isCompleted == _optimisticCompletions[task.id]) {
+          keysToRemove.add(task.id);
+          return task;
+        }
+        return task.copyWith(isCompleted: _optimisticCompletions[task.id]!);
+      }
+      return task;
+    }).toList();
+    if (keysToRemove.isNotEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          setState(() {
+            for (final key in keysToRemove) {
+              _optimisticCompletions.remove(key);
+            }
+          });
+        }
+      });
+    }
+    return result;
   }
 
   // TODO: Wire up this dialog to a menu button in the AppBar
