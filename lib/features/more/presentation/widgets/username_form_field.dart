@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
-enum UsernameState { idle, checking, available, conflict, error }
+enum UsernameState { idle, checking, available, conflict, error, invalid }
 
 /// A self-contained username input that shows a real-time availability status
 /// icon and inline feedback (conflict message + tappable suggestions).
@@ -15,6 +15,7 @@ class UsernameFormField extends StatelessWidget {
     required this.onChanged,
     required this.onSuggestionTap,
     required this.isDark,
+    this.validationMessage,
   });
 
   final TextEditingController controller;
@@ -25,6 +26,9 @@ class UsernameFormField extends StatelessWidget {
   /// Called when the user taps one of the suggested available usernames.
   final ValueChanged<String> onSuggestionTap;
   final bool isDark;
+
+  /// Shown below the field when [usernameState] is [UsernameState.invalid].
+  final String? validationMessage;
 
   InputBorder get _inputBorder => OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
@@ -48,7 +52,9 @@ class UsernameFormField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isConflict = usernameState == UsernameState.conflict;
+    final isError =
+        usernameState == UsernameState.conflict ||
+        usernameState == UsernameState.invalid;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -63,8 +69,8 @@ class UsernameFormField extends StatelessWidget {
             fillColor:
                 isDark ? AppColors.surfaceVariantDark : AppColors.surfaceWhite,
             border: _inputBorder,
-            enabledBorder: isConflict ? _errorBorder : _inputBorder,
-            focusedBorder: isConflict ? _errorBorder : _focusedBorder,
+            enabledBorder: isError ? _errorBorder : _inputBorder,
+            focusedBorder: isError ? _errorBorder : _focusedBorder,
             contentPadding: const EdgeInsets.symmetric(
               horizontal: 16,
               vertical: 14,
@@ -107,6 +113,12 @@ class UsernameFormField extends StatelessWidget {
         return Icon(
           PhosphorIconsRegular.warningCircle,
           color: Colors.orange.shade600,
+          size: 20,
+        );
+      case UsernameState.invalid:
+        return Icon(
+          PhosphorIconsRegular.warningCircle,
+          color: Colors.red.shade600,
           size: 20,
         );
       case UsernameState.idle:
@@ -167,6 +179,14 @@ class UsernameFormField extends StatelessWidget {
           child: Text(
             'Could not check username. Try again.',
             style: TextStyle(color: Colors.orange.shade700, fontSize: 13),
+          ),
+        );
+      case UsernameState.invalid:
+        return Padding(
+          padding: const EdgeInsets.only(top: 6),
+          child: Text(
+            validationMessage ?? 'Invalid username format.',
+            style: TextStyle(color: Colors.red.shade600, fontSize: 13),
           ),
         );
       default:

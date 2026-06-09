@@ -35,6 +35,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
 
   UsernameState _usernameState = UsernameState.idle;
   List<String> _usernameSuggestions = [];
+  String? _usernameValidationMessage;
   Timer? _usernameDebounce;
 
   bool _isRefreshing = false;
@@ -83,6 +84,22 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
 
   // ── Username debounce ─────────────────────────────────────────────────────
 
+  static String? _validateUsername(String username) {
+    if (username.length < 3) return 'Username must be at least 3 characters';
+    if (username.length > 30) return 'Username must be at most 30 characters';
+    if (username.contains(' ')) return 'Username cannot contain spaces';
+    if (!RegExp(r'^[a-zA-Z0-9_.\-]+$').hasMatch(username)) {
+      return 'Only letters, numbers, _ . - are allowed';
+    }
+    if (!RegExp(r'^[a-zA-Z0-9]').hasMatch(username)) {
+      return 'Username must start with a letter or number';
+    }
+    if (!RegExp(r'[a-zA-Z0-9]$').hasMatch(username)) {
+      return 'Username must end with a letter or number';
+    }
+    return null;
+  }
+
   void _onUsernameChanged(String value) {
     _usernameDebounce?.cancel();
     final trimmed = value.trim();
@@ -90,6 +107,17 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     if (trimmed.isEmpty || trimmed == _originalUsername) {
       setState(() {
         _usernameState = UsernameState.idle;
+        _usernameValidationMessage = null;
+        _usernameSuggestions = [];
+      });
+      return;
+    }
+
+    final formatError = _validateUsername(trimmed);
+    if (formatError != null) {
+      setState(() {
+        _usernameState = UsernameState.invalid;
+        _usernameValidationMessage = formatError;
         _usernameSuggestions = [];
       });
       return;
@@ -97,6 +125,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
 
     setState(() {
       _usernameState = UsernameState.checking;
+      _usernameValidationMessage = null;
       _usernameSuggestions = [];
     });
 
@@ -112,6 +141,9 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
         .updateUsername(username);
 
     if (!mounted) return;
+
+    // Discard stale response if the field changed while the request was in-flight.
+    if (_usernameCtrl.text.trim() != username) return;
 
     if (result == null) {
       setState(() {
@@ -150,8 +182,9 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     // If a username check is pending, wait for it first.
     if (_usernameState == UsernameState.checking) return;
 
-    // Block save if username has a conflict.
+    // Block save if username has a conflict or failed frontend validation.
     if (_usernameState == UsernameState.conflict) return;
+    if (_usernameState == UsernameState.invalid) return;
 
     // If the username debounce hasn't fired yet, run it synchronously.
     final pendingUsername = _usernameCtrl.text.trim();
@@ -159,10 +192,20 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
         pendingUsername != _originalUsername &&
         pendingUsername.isNotEmpty) {
       _usernameDebounce!.cancel();
+      final formatError = _validateUsername(pendingUsername);
+      if (formatError != null) {
+        setState(() {
+          _usernameState = UsernameState.invalid;
+          _usernameValidationMessage = formatError;
+          _usernameSuggestions = [];
+        });
+        return;
+      }
       await _checkUsername(pendingUsername);
       if (!mounted) return;
       if (_usernameState == UsernameState.conflict ||
-          _usernameState == UsernameState.error) {
+          _usernameState == UsernameState.error ||
+          _usernameState == UsernameState.invalid) {
         return;
       }
     }
@@ -388,7 +431,8 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
       !_isSaving &&
       !_isUploadingAvatar &&
       _usernameState != UsernameState.checking &&
-      _usernameState != UsernameState.conflict;
+      _usernameState != UsernameState.conflict &&
+      _usernameState != UsernameState.invalid;
 
   @override
   Widget build(BuildContext context) {
@@ -553,6 +597,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                 onChanged: _onUsernameChanged,
                 onSuggestionTap: _applySuggestion,
                 isDark: isDark,
+                validationMessage: _usernameValidationMessage,
               ),
 
               const SizedBox(height: 20),
