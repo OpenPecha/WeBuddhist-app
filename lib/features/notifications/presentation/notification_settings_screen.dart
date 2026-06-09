@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
 import 'package:flutter_pecha/features/notifications/application/notification_sync_engine.dart';
 import 'package:flutter_pecha/features/notifications/data/channels/notification_channels.dart';
@@ -174,167 +175,128 @@ class _NotificationSettingsScreenState
     final ss = isbo ? 17.0 : 13.5;
 
     return Scaffold(
-      appBar: AppBar(title: Text(localizations.notification_settings)),
-      body: state.isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : ListView(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-              children: [
-                // ── 1. Master toggle ──────────────────────────────────
-                _label(localizations.notification_section_notifications, ts, context),
-                _SwitchTile(
-                  icon: state.appMasterEnabled
-                      ? Icons.notifications_active
-                      : Icons.notifications_off,
-                  title: localizations.notification_allow_title,
-                  subtitle: !state.appMasterEnabled
-                      ? localizations.notification_allow_subtitle_paused
-                      : state.hasSystemPermission
-                          ? localizations.notification_allow_subtitle_enabled
-                          : localizations.notification_allow_subtitle_disabled,
-                  value: state.appMasterEnabled,
-                  onChanged: _toggleMaster,
-                  titleSize: ts,
-                  subtitleSize: ss,
-                ),
-
-                if (state.appMasterEnabled && state.hasSystemPermission) ...[
-                  const SizedBox(height: 24),
-
-                  // ── 2. Sub-toggles ────────────────────────────────
-                  _label(localizations.notification_section_categories, ts, context),
-
-                  // Routine (plan) reminders
-                  _SwitchTile(
-                    icon: Icons.self_improvement,
-                    title: localizations.notification_routine_title,
-                    subtitle: state.appRoutineEnabled
-                        ? localizations.notification_routine_subtitle_enabled
-                        : localizations.notification_routine_subtitle_disabled,
-                    value: state.appRoutineEnabled,
-                    onChanged: _toggleRoutine,
-                    titleSize: ts,
-                    subtitleSize: ss,
-                  ),
-
-                  const SizedBox(height: 8),
-
-                  // Recitation reminders
-                  _SwitchTile(
-                    icon: Icons.menu_book_outlined,
-                    title: localizations.notification_recitation_title,
-                    subtitle: state.appRecitationEnabled
-                        ? localizations.notification_recitation_subtitle_enabled
-                        : localizations.notification_recitation_subtitle_disabled,
-                    value: state.appRecitationEnabled,
-                    onChanged: _toggleRecitation,
-                    titleSize: ts,
-                    subtitleSize: ss,
-                  ),
-
-                  // ── 3. Alarms & Reminders (Android only) ───────────
-                  // if (Platform.isAndroid) ...[
-                  //   const SizedBox(height: 24),
-                  //   _label(localizations.notification_section_alarms, ts, context),
-                  //   _SwitchTile(
-                  //     icon: Icons.alarm,
-                  //     title: localizations.notification_alarms_title,
-                  //     subtitle: state.canScheduleExactAlarms
-                  //         ? localizations.notification_alarms_subtitle_enabled
-                  //         : localizations.notification_alarms_subtitle_disabled,
-                  //     value: state.canScheduleExactAlarms,
-                  //     onChanged: _toggleExactAlarms,
-                  //     titleSize: ts,
-                  //     subtitleSize: ss,
-                  //     onInfo: () => _showInfoDialog(
-                  //       localizations.notification_alarms_info_title,
-                  //       localizations.notification_alarms_info_body,
-                  //     ),
-                  //   ),
-                  // ],
-
-                  // ── 4. Battery optimization (Android only) ─────────
-                  if (Platform.isAndroid) ...[
-                    const SizedBox(height: 24),
-                    _label(localizations.notification_section_battery, ts, context),
-                    _SwitchTile(
-                      icon: Icons.battery_charging_full,
-                      title: localizations.notification_battery_title,
-                      subtitle: state.isBatteryOptimizationExempt
-                          ? localizations.notification_battery_subtitle_enabled
-                          : localizations.notification_battery_subtitle_disabled,
-                      value: state.isBatteryOptimizationExempt,
-                      onChanged: _toggleBattery,
-                      titleSize: ts,
-                      subtitleSize: ss,
-                      onInfo: () => _showInfoDialog(
-                        localizations.notification_battery_info_title,
-                        localizations.notification_battery_info_body,
-                      ),
-                    ),
-                  ],
-                  const SizedBox(height: 24),
-
-                  // ── 5. Test ────────────────────────────────────────
-                  // _label('Diagnostics', ts, context),
-                  // Card(
-                  //   margin: EdgeInsets.zero,
-                  //   child: ListTile(
-                  //     leading: _isSchedulingTest
-                  //         ? const SizedBox(
-                  //             width: 24,
-                  //             height: 24,
-                  //             child:
-                  //                 CircularProgressIndicator(strokeWidth: 2),
-                  //           )
-                  //         : Icon(
-                  //             Icons.notifications_active,
-                  //             color: Theme.of(context).colorScheme.primary,
-                  //           ),
-                  //     title: Text(
-                  //       'Send Test Notification',
-                  //       style: TextStyle(
-                  //           fontSize: ts, fontWeight: FontWeight.w500),
-                  //     ),
-                  //     subtitle: Text(
-                  //       'Fires in 4 minutes — close the app to verify',
-                  //       style: TextStyle(fontSize: ss),
-                  //     ),
-                  //     trailing: _isSchedulingTest
-                  //         ? null
-                  //         : const Icon(Icons.chevron_right),
-                  //     onTap:
-                  //         _isSchedulingTest ? null : _scheduleTestNotification,
-                  //     contentPadding: const EdgeInsets.symmetric(
-                  //         horizontal: 16, vertical: 4),
-                  //   ),
-                  // ),
-                  const SizedBox(height: 32),
-                ],
-              ],
-            ),
-    );
-  }
-
-  Widget _label(String text, double fontSize, BuildContext context) => Padding(
-        padding: const EdgeInsets.only(left: 4, bottom: 8),
-        child: Text(
-          text.toUpperCase(),
-          style: TextStyle(
-            fontSize: fontSize - 3,
+      appBar: AppBar(
+        elevation: 0,
+        centerTitle: true,
+        title: Text(
+          localizations.notification_settings,
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(
             fontWeight: FontWeight.w600,
-            letterSpacing: 0.8,
-            color:
-                Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
+            fontSize: 20,
           ),
         ),
-      );
+      ),
+      body: state.isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : SafeArea(
+              child: ListView(
+                padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
+                children: [
+                  // ── 1. Master toggle ──────────────────────────────────
+                  _SwitchTile(
+                    title: localizations.notification_allow_title,
+                    subtitle: !state.appMasterEnabled
+                        ? localizations.notification_allow_subtitle_paused
+                        : state.hasSystemPermission
+                            ? localizations.notification_allow_subtitle_enabled
+                            : localizations.notification_allow_subtitle_disabled,
+                    value: state.appMasterEnabled,
+                    onChanged: _toggleMaster,
+                    titleSize: ts,
+                    subtitleSize: ss,
+                  ),
+
+                  if (state.appMasterEnabled && state.hasSystemPermission) ...[
+                    // ── 2. Sub-toggles ────────────────────────────────
+
+                    // Routine (plan) reminders
+                    _SwitchTile(
+                      title: localizations.notification_routine_title,
+                      subtitle: state.appRoutineEnabled
+                          ? localizations.notification_routine_subtitle_enabled
+                          : localizations.notification_routine_subtitle_disabled,
+                      value: state.appRoutineEnabled,
+                      onChanged: _toggleRoutine,
+                      titleSize: ts,
+                      subtitleSize: ss,
+                    ),
+
+                    // Recitation reminders
+                    _SwitchTile(
+                      title: localizations.notification_recitation_title,
+                      subtitle: state.appRecitationEnabled
+                          ? localizations.notification_recitation_subtitle_enabled
+                          : localizations.notification_recitation_subtitle_disabled,
+                      value: state.appRecitationEnabled,
+                      onChanged: _toggleRecitation,
+                      titleSize: ts,
+                      subtitleSize: ss,
+                    ),
+
+                    // ── 3. Battery optimization (Android only) ─────────
+                    if (Platform.isAndroid)
+                      _SwitchTile(
+                        title: localizations.notification_battery_title,
+                        subtitle: state.isBatteryOptimizationExempt
+                            ? localizations.notification_battery_subtitle_enabled
+                            : localizations.notification_battery_subtitle_disabled,
+                        value: state.isBatteryOptimizationExempt,
+                        onChanged: _toggleBattery,
+                        titleSize: ts,
+                        subtitleSize: ss,
+                        onInfo: () => _showInfoDialog(
+                          localizations.notification_battery_info_title,
+                          localizations.notification_battery_info_body,
+                        ),
+                      ),
+                  ],
+                ],
+        ),
+      ),
+    );
+  }
+}
+
+class _AppToggle extends StatelessWidget {
+  const _AppToggle({required this.value, required this.onChanged});
+
+  final bool value;
+  final ValueChanged<bool> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () => onChanged(!value),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        width: 64,
+        height: 32,
+        padding: const EdgeInsets.all(2),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+          color: value
+              ? const Color(0xFF196BF1)
+              : const Color(0xFFADADAD),
+        ),
+        child: AnimatedAlign(
+          duration: const Duration(milliseconds: 200),
+          alignment: value ? Alignment.centerRight : Alignment.centerLeft,
+          child: Container(
+            width: 28,
+            height: 28,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: value ? AppColors.grey600 : AppColors.surfaceWhite,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 class _SwitchTile extends StatelessWidget {
   const _SwitchTile({
-    required this.icon,
     required this.title,
     required this.subtitle,
     required this.value,
@@ -344,55 +306,68 @@ class _SwitchTile extends StatelessWidget {
     this.onInfo,
   });
 
-  final IconData icon;
   final String title;
   final String subtitle;
   final bool value;
   final ValueChanged<bool> onChanged;
   final double titleSize;
   final double subtitleSize;
-  /// When provided an ⓘ icon button appears next to the title.
   final VoidCallback? onInfo;
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    return Card(
-      margin: EdgeInsets.zero,
-      child: SwitchListTile(
-        secondary: Icon(
-          icon,
-          color: value ? cs.primary : cs.onSurface.withValues(alpha: 0.4),
-        ),
-        title: Row(
-          children: [
-            Expanded(
-              child: Text(
-                title,
-                style: TextStyle(
-                    fontSize: titleSize, fontWeight: FontWeight.w500),
-              ),
-            ),
-            if (onInfo != null)
-              InkWell(
-                onTap: onInfo,
-                borderRadius: BorderRadius.circular(12),
-                child: Padding(
-                  padding: const EdgeInsets.all(4),
-                  child: Icon(
-                    Icons.info_outline,
-                    size: 17,
-                    color: cs.onSurface.withValues(alpha: 0.45),
+    final theme = Theme.of(context);
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 16),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        title,
+                        style: TextStyle(
+                          fontSize: titleSize,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                    if (onInfo != null)
+                      GestureDetector(
+                        onTap: onInfo,
+                        child: Padding(
+                          padding: const EdgeInsets.only(left: 4),
+                          child: Icon(
+                            Icons.info_outline,
+                            size: 17,
+                            color: theme.colorScheme.onSurface
+                                .withValues(alpha: 0.45),
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+                const SizedBox(height: 3),
+                Text(
+                  subtitle,
+                  style: TextStyle(
+                    fontSize: subtitleSize,
+                    color: theme.colorScheme.onSurface.withValues(alpha: 0.55),
+                    height: 1.4,
                   ),
                 ),
-              ),
-          ],
-        ),
-        subtitle: Text(subtitle, style: TextStyle(fontSize: subtitleSize)),
-        value: value,
-        onChanged: onChanged,
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+              ],
+            ),
+          ),
+          const SizedBox(width: 16),
+          _AppToggle(value: value, onChanged: onChanged),
+        ],
       ),
     );
   }

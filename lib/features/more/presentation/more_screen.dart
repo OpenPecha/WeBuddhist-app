@@ -63,39 +63,39 @@ class MoreScreen extends ConsumerWidget {
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
           children: [
             // Personalisation Section
-            _buildSectionHeader(context, 'PERSONALISATION'),
+            _buildSectionHeader(context, localizations.settings_section_personalisation),
             const SizedBox(height: 12),
             if (authState.isLoggedIn && !authState.isGuest)
               _buildSettingsRow(
                 context,
                 icon: PhosphorIconsRegular.user,
-                title: 'Edit profile',
+                title: localizations.settings_edit_profile,
                 onTap: () => context.push(AppRoutes.profile),
               ),
             _buildLanguageRow(context, ref, locale),
-            _buildNotificationRow(context),
-            _buildThemeToggleRow(context, ref, isDarkMode),
+            _buildNotificationRow(context, localizations),
+            _buildThemeToggleRow(context, ref, isDarkMode, localizations),
             const SizedBox(height: 24),
 
             // More Section
-            _buildSectionHeader(context, 'MORE'),
+            _buildSectionHeader(context, localizations.settings_section_more),
             const SizedBox(height: 12),
             _buildSettingsRow(
               context,
               icon: PhosphorIconsRegular.info,
-              title: 'About',
+              title: localizations.about_title,
               onTap: () => context.push(AppRoutes.about),
             ),
             _buildSettingsRow(
               context,
               icon: PhosphorIconsRegular.gavel,
-              title: 'Legal',
+              title: localizations.legal_title,
               onTap: () => context.push(AppRoutes.legal),
             ),
             _buildSettingsRow(
               context,
               icon: PhosphorIconsRegular.chatText,
-              title: 'Feedback',
+              title: localizations.feedback,
               trailingIcon: PhosphorIconsRegular.arrowSquareOut,
               onTap: () async {
                 final url =
@@ -106,7 +106,7 @@ class MoreScreen extends ConsumerWidget {
             const SizedBox(height: 24),
 
             // Account Section
-            _buildSectionHeader(context, 'ACCOUNT'),
+            _buildSectionHeader(context, localizations.settings_section_account),
             const SizedBox(height: 12),
             if (!authState.isLoggedIn || authState.isGuest) ...[
               _buildSettingsRow(
@@ -137,11 +137,12 @@ class MoreScreen extends ConsumerWidget {
     BuildContext context,
     WidgetRef ref,
     bool isDarkMode,
+    AppLocalizations localizations,
   ) {
     return _buildSettingsRow(
       context,
-      icon: PhosphorIconsRegular.sun,
-      title: 'Theme',
+      icon: isDarkMode ? PhosphorIconsRegular.moon : PhosphorIconsRegular.sun,
+      title: localizations.settings_theme,
       onTap: () {
         ref
             .read(themeModeProvider.notifier)
@@ -158,42 +159,46 @@ class MoreScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildNotificationRow(BuildContext context) {
+  Widget _buildNotificationRow(BuildContext context, AppLocalizations localizations) {
     return _buildSettingsRow(
       context,
       icon: PhosphorIconsRegular.bellRinging,
-      title: 'Notification',
+      title: localizations.settings_notification_row,
       onTap: () => context.push(NotificationSettingsScreen.routeName),
     );
   }
 
   Widget _buildLanguageRow(BuildContext context, WidgetRef ref, Locale locale) {
     final currentLanguageName = _getLanguageName(locale);
-    return InkWell(
-      onTap: () => _showLanguageBottomSheet(context, ref, locale),
-      borderRadius: BorderRadius.circular(8),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 12),
-        child: Row(
-          children: [
-            Icon(
-              PhosphorIconsRegular.translate,
-              size: 24,
-              color: Theme.of(context).iconTheme.color,
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                currentLanguageName,
-                style: Theme.of(context).textTheme.bodyLarge,
+    final theme = Theme.of(context);
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () => _showLanguageBottomSheet(context, ref, locale),
+        borderRadius: BorderRadius.circular(14),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          child: Row(
+            children: [
+              Icon(
+                PhosphorIconsRegular.translate,
+                size: 24,
+                color: theme.iconTheme.color,
               ),
-            ),
-            Icon(
-              PhosphorIconsRegular.caretRight,
-              size: 24,
-              color: AppColors.grey600,
-            ),
-          ],
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  currentLanguageName,
+                  style: theme.textTheme.bodyLarge,
+                ),
+              ),
+              Icon(
+                PhosphorIconsRegular.caretRight,
+                size: 24,
+                color: AppColors.grey600,
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -278,69 +283,79 @@ class MoreScreen extends ConsumerWidget {
     WidgetRef ref,
     Locale? currentLocale,
   ) {
-    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
-
+    final l10n = AppLocalizations.of(context)!;
     showModalBottomSheet(
       context: context,
-      backgroundColor: Colors.transparent,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder:
-          (context) => SafeArea(
-            child: Container(
-              margin: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color:
-                    isDarkMode ? AppColors.surfaceDark : AppColors.surfaceWhite,
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // Handle bar
-                  Padding(
-                    padding: const EdgeInsets.only(top: 12, bottom: 24),
-                    child: Container(
-                      width: 80,
-                      height: 4,
-                      decoration: BoxDecoration(
-                        color: isDarkMode ? AppColors.grey600 : Colors.black,
-                        borderRadius: BorderRadius.circular(2),
-                      ),
-                    ),
-                  ),
-                  // Language options container
-                  Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 16),
+      isScrollControlled: true,
+      builder: (sheetContext) {
+        final theme = Theme.of(sheetContext);
+        final selected =
+            currentLocale ?? Localizations.localeOf(sheetContext);
+        return SafeArea(
+          top: false,
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              maxHeight: MediaQuery.of(sheetContext).size.height * 0.7,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 8),
+                Center(
+                  child: Container(
+                    width: 40,
+                    height: 4,
                     decoration: BoxDecoration(
-                      color:
-                          isDarkMode ? AppColors.cardDark : AppColors.grey100,
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children:
-                          _supportedLocales.map((localeItem) {
-                            final isSelected =
-                                (currentLocale ??
-                                    Localizations.localeOf(context)) ==
-                                localeItem;
-                            return _buildLanguageOption(
-                              context,
-                              ref,
-                              localeItem,
-                              isSelected,
-                              isDarkMode,
-                            );
-                          }).toList(),
+                      color: theme.colorScheme.onSurface
+                          .withValues(alpha: 0.2),
+                      borderRadius: BorderRadius.circular(2),
                     ),
                   ),
-                  const SizedBox(height: 24),
-                ],
-              ),
+                ),
+                const SizedBox(height: 12),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: Text(
+                    l10n.language,
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+                ListView.separated(
+                  shrinkWrap: true,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 8,
+                  ),
+                  itemCount: _supportedLocales.length,
+                  separatorBuilder: (_, __) => Divider(
+                    height: 1,
+                    color: theme.dividerColor.withValues(alpha: 0.4),
+                  ),
+                  itemBuilder: (_, index) {
+                    final localeItem = _supportedLocales[index];
+                    final isSelected = selected == localeItem;
+                    return _buildLanguageOption(
+                      sheetContext,
+                      ref,
+                      localeItem,
+                      isSelected,
+                      theme,
+                    );
+                  },
+                ),
+                const SizedBox(height: 8),
+              ],
             ),
           ),
+        );
+      },
     );
   }
 
@@ -349,30 +364,40 @@ class MoreScreen extends ConsumerWidget {
     WidgetRef ref,
     Locale localeItem,
     bool isSelected,
-    bool isDarkMode,
+    ThemeData theme,
   ) {
-    return InkWell(
-      onTap: () {
-        ref.read(localeProvider.notifier).setLocale(localeItem);
-        Navigator.pop(context);
-      },
-      borderRadius: BorderRadius.circular(12),
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-        decoration: BoxDecoration(
-          color:
-              isSelected
-                  ? (isDarkMode
-                      ? AppColors.surfaceVariantDark
-                      : AppColors.goldAccent)
-                  : Colors.transparent,
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Text(
-          _getLanguageName(localeItem),
-          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-            fontWeight: isSelected ? FontWeight.w500 : FontWeight.normal,
+    final activeColor = theme.colorScheme.primary;
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () {
+          ref.read(localeProvider.notifier).setLocale(localeItem);
+          Navigator.pop(context);
+        },
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  _getLanguageName(localeItem),
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    color: isSelected
+                        ? activeColor
+                        : theme.textTheme.titleMedium?.color,
+                    fontWeight:
+                        isSelected ? FontWeight.w700 : FontWeight.w500,
+                  ),
+                ),
+              ),
+              SizedBox(
+                width: 18,
+                child: isSelected
+                    ? Icon(Icons.check, size: 18, color: activeColor)
+                    : const SizedBox.shrink(),
+              ),
+            ],
           ),
         ),
       ),

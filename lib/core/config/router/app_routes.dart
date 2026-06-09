@@ -110,6 +110,7 @@ class AppRoutes {
   static const Set<String> guestAccessibleRoutes = {
     home,
     more,
+    settings, // Guests can access settings (theme, language, notifications)
     texts,
     practice, // Guests can see empty practice screen
     practicePlanPreview, // Allow guests to browse/preview plans
