@@ -38,6 +38,35 @@ class GroupProfileRemoteDatasource {
     }
   }
 
+  Future<void> followGroup(String groupId) async {
+    try {
+      final response = await dio.post('/author/groups/$groupId/follow');
+      if (response.statusCode != 200 &&
+          response.statusCode != 201 &&
+          response.statusCode != 204) {
+        throw _statusToException(response.statusCode, 'Failed to follow group');
+      }
+    } on DioException catch (e) {
+      _logger.error('Dio error in followGroup', e);
+      throw _dioToException(e, 'Failed to follow group');
+    }
+  }
+
+  Future<void> unfollowGroup(String groupId) async {
+    try {
+      final response = await dio.delete('/author/groups/$groupId/follow');
+      if (response.statusCode != 200 && response.statusCode != 204) {
+        throw _statusToException(
+          response.statusCode,
+          'Failed to unfollow group',
+        );
+      }
+    } on DioException catch (e) {
+      _logger.error('Dio error in unfollowGroup', e);
+      throw _dioToException(e, 'Failed to unfollow group');
+    }
+  }
+
   Exception _statusToException(int? statusCode, String label) {
     if (statusCode == 401) {
       return const AuthenticationException('Unauthorized');

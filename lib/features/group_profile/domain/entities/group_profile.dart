@@ -43,6 +43,7 @@ class GroupProfile {
   final String? description;
   final String? avatarUrl;
   final String? bannerUrl;
+  final bool isFollowing;
   final List<String> tags;
   final List<GroupProfileSocialLink> socialLinks;
   final List<GroupProfileSeries> series;
@@ -56,8 +57,26 @@ class GroupProfile {
     this.description,
     this.avatarUrl,
     this.bannerUrl,
+    this.isFollowing = false,
     this.tags = const [],
     this.socialLinks = const [],
     this.series = const [],
   });
+
+  GroupProfile copyWith({bool? isFollowing}) {
+    return GroupProfile(
+      id: id,
+      slug: slug,
+      isPublic: isPublic,
+      title: title,
+      subTitle: subTitle,
+      description: description,
+      avatarUrl: avatarUrl,
+      bannerUrl: bannerUrl,
+      isFollowing: isFollowing ?? this.isFollowing,
+      tags: tags,
+      socialLinks: socialLinks,
+      series: series,
+    );
+  }
 }

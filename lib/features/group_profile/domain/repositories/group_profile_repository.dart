@@ -7,4 +7,8 @@ abstract class GroupProfileRepositoryInterface {
     String groupId, {
     required String language,
   });
+
+  Future<Either<Failure, void>> followGroup(String groupId);
+
+  Future<Either<Failure, void>> unfollowGroup(String groupId);
 }

@@ -35,4 +35,36 @@ class GroupProfileRepositoryImpl implements GroupProfileRepositoryInterface {
       return Left(UnknownFailure('Failed to load group profile: $e'));
     }
   }
+
+  @override
+  Future<Either<Failure, void>> followGroup(String groupId) async {
+    try {
+      await remote.followGroup(groupId);
+      return const Right(null);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(e.message));
+    } on AuthenticationException catch (e) {
+      return Left(AuthenticationFailure(e.message));
+    } catch (e) {
+      return Left(UnknownFailure('Failed to follow group: $e'));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> unfollowGroup(String groupId) async {
+    try {
+      await remote.unfollowGroup(groupId);
+      return const Right(null);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(e.message));
+    } on AuthenticationException catch (e) {
+      return Left(AuthenticationFailure(e.message));
+    } catch (e) {
+      return Left(UnknownFailure('Failed to unfollow group: $e'));
+    }
+  }
 }

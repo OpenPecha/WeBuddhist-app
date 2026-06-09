@@ -7,6 +7,7 @@ class GroupProfileModel {
   final bool isPublic;
   final String? avatarUrl;
   final String? bannerUrl;
+  final bool isFollowing;
   final Map<String, dynamic>? metadata;
   final List<String> tags;
   final List<Map<String, dynamic>> socialLinksJson;
@@ -18,6 +19,7 @@ class GroupProfileModel {
     this.isPublic = false,
     this.avatarUrl,
     this.bannerUrl,
+    this.isFollowing = false,
     this.metadata,
     this.tags = const [],
     this.socialLinksJson = const [],
@@ -31,6 +33,7 @@ class GroupProfileModel {
       isPublic: json['is_public'] as bool? ?? false,
       avatarUrl: json['avatar_url'] as String?,
       bannerUrl: json['banner_url'] as String?,
+      isFollowing: json['is_following'] as bool? ?? false,
       metadata: json['metadata'] as Map<String, dynamic>?,
       tags: (json['tags'] as List<dynamic>?)
               ?.map((t) => t.toString())
@@ -57,6 +60,7 @@ class GroupProfileModel {
       description: metadata?['description'] as String?,
       avatarUrl: avatarUrl,
       bannerUrl: bannerUrl,
+      isFollowing: isFollowing,
       tags: tags,
       socialLinks: socialLinksJson.map(_parseSocialLink).toList(),
       series: seriesJson.map(_parseSeries).toList(),

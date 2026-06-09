@@ -35,3 +35,89 @@ final groupProfileProvider = FutureProvider.autoDispose
     GetGroupProfileParams(groupId: groupId, language: locale.languageCode),
   );
 });
+
+sealed class GroupFollowState {
+  const GroupFollowState();
+}
+
+class GroupFollowIdle extends GroupFollowState {
+  const GroupFollowIdle();
+}
+
+class GroupFollowLoading extends GroupFollowState {
+  const GroupFollowLoading();
+}
+
+class GroupFollowSuccess extends GroupFollowState {
+  final bool isFollowing;
+  const GroupFollowSuccess({required this.isFollowing});
+}
+
+class GroupFollowFailure extends GroupFollowState {
+  final Failure failure;
+  const GroupFollowFailure(this.failure);
+}
+
+class GroupFollowNotifier extends StateNotifier<GroupFollowState> {
+  final GroupProfileRepositoryInterface _repository;
+  final Ref _ref;
+  final String _groupId;
+
+  GroupFollowNotifier({
+    required GroupProfileRepositoryInterface repository,
+    required Ref ref,
+    required String groupId,
+  }) : _repository = repository,
+       _ref = ref,
+       _groupId = groupId,
+       super(const GroupFollowIdle());
+
+  Future<bool> follow() async {
+    if (state is GroupFollowLoading) return false;
+    state = const GroupFollowLoading();
+
+    final result = await _repository.followGroup(_groupId);
+    if (!mounted) return false;
+
+    return result.fold(
+      (failure) {
+        state = GroupFollowFailure(failure);
+        return false;
+      },
+      (_) {
+        state = const GroupFollowSuccess(isFollowing: true);
+        _ref.invalidate(groupProfileProvider(_groupId));
+        return true;
+      },
+    );
+  }
+
+  Future<bool> unfollow() async {
+    if (state is GroupFollowLoading) return false;
+    state = const GroupFollowLoading();
+
+    final result = await _repository.unfollowGroup(_groupId);
+    if (!mounted) return false;
+
+    return result.fold(
+      (failure) {
+        state = GroupFollowFailure(failure);
+        return false;
+      },
+      (_) {
+        state = const GroupFollowSuccess(isFollowing: false);
+        _ref.invalidate(groupProfileProvider(_groupId));
+        return true;
+      },
+    );
+  }
+}
+
+final groupFollowProvider = StateNotifierProvider.autoDispose
+    .family<GroupFollowNotifier, GroupFollowState, String>((ref, groupId) {
+  return GroupFollowNotifier(
+    repository: ref.watch(groupProfileRepositoryProvider),
+    ref: ref,
+    groupId: groupId,
+  );
+});

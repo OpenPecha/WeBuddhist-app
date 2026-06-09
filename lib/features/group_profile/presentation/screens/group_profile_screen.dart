@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/core/widgets/error_state_widget.dart';
 import 'package:flutter_pecha/core/widgets/responsive_cover_image.dart';
+import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
+import 'package:flutter_pecha/features/auth/presentation/widgets/login_drawer.dart';
 import 'package:flutter_pecha/features/group_profile/domain/entities/group_profile.dart';
 import 'package:flutter_pecha/features/group_profile/presentation/providers/group_profile_providers.dart';
 import 'package:flutter_pecha/features/plans/presentation/widgets/plan_inline_markdown_view.dart';
@@ -76,17 +78,17 @@ class GroupProfileScreen extends ConsumerWidget {
   }
 }
 
-class _GroupProfileBody extends StatefulWidget {
+class _GroupProfileBody extends ConsumerStatefulWidget {
   final GroupProfile profile;
   final bool isDark;
 
   const _GroupProfileBody({required this.profile, required this.isDark});
 
   @override
-  State<_GroupProfileBody> createState() => _GroupProfileBodyState();
+  ConsumerState<_GroupProfileBody> createState() => _GroupProfileBodyState();
 }
 
-class _GroupProfileBodyState extends State<_GroupProfileBody> {
+class _GroupProfileBodyState extends ConsumerState<_GroupProfileBody> {
   bool _isDescriptionExpanded = false;
 
   @override
@@ -351,30 +353,65 @@ class _GroupProfileBodyState extends State<_GroupProfileBody> {
   }
 
   Widget _buildFollowButton(bool isDark) {
+    final groupId = widget.profile.id;
+    final followState = ref.watch(groupFollowProvider(groupId));
+
+    final isFollowing = switch (followState) {
+      GroupFollowSuccess(isFollowing: final f) => f,
+      _ => widget.profile.isFollowing,
+    };
+    final isLoading = followState is GroupFollowLoading;
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
       child: SizedBox(
         width: double.infinity,
         height: 48,
         child: ElevatedButton(
-          onPressed: () {},
+          onPressed: isLoading ? null : () => _onFollowPressed(groupId, isFollowing),
           style: ElevatedButton.styleFrom(
-            backgroundColor:
-                isDark ? AppColors.surfaceWhite : AppColors.textPrimary,
-            foregroundColor:
-                isDark ? AppColors.textPrimary : AppColors.surfaceWhite,
+            backgroundColor: isFollowing
+                ? (isDark ? AppColors.surfaceVariantDark : AppColors.grey100)
+                : (isDark ? AppColors.surfaceWhite : AppColors.textPrimary),
+            foregroundColor: isFollowing
+                ? (isDark ? AppColors.surfaceWhite : AppColors.textPrimary)
+                : (isDark ? AppColors.textPrimary : AppColors.surfaceWhite),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(24),
             ),
             elevation: 0,
           ),
-          child: const Text(
-            'Follow',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-          ),
+          child: isLoading
+              ? const SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              : Text(
+                  isFollowing ? 'Following' : 'Follow',
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
         ),
       ),
     );
+  }
+
+  void _onFollowPressed(String groupId, bool isCurrentlyFollowing) {
+    final authState = ref.read(authProvider);
+    if (authState.isGuest || !authState.isLoggedIn) {
+      LoginDrawer.show(context, ref);
+      return;
+    }
+
+    final notifier = ref.read(groupFollowProvider(groupId).notifier);
+    if (isCurrentlyFollowing) {
+      notifier.unfollow();
+    } else {
+      notifier.follow();
+    }
   }
 
   Widget _buildPracticesSection(
