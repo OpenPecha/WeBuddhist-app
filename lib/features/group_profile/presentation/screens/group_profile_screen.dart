@@ -358,7 +358,7 @@ class _GroupProfileBodyState extends ConsumerState<_GroupProfileBody> {
 
     final isFollowing = switch (followState) {
       GroupFollowSuccess(isFollowing: final f) => f,
-      _ => widget.profile.isFollowing,
+      _ => false,
     };
     final isLoading = followState is GroupFollowLoading;
 

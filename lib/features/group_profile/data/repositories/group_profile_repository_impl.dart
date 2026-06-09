@@ -37,6 +37,20 @@ class GroupProfileRepositoryImpl implements GroupProfileRepositoryInterface {
   }
 
   @override
+  Future<Either<Failure, bool>> checkFollowStatus(String groupId) async {
+    try {
+      final isFollowing = await remote.checkFollowStatus(groupId);
+      return Right(isFollowing);
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(e.message));
+    } on AuthenticationException catch (e) {
+      return Left(AuthenticationFailure(e.message));
+    } catch (e) {
+      return Left(UnknownFailure('Failed to check follow status: $e'));
+    }
+  }
+
+  @override
   Future<Either<Failure, void>> followGroup(String groupId) async {
     try {
       await remote.followGroup(groupId);

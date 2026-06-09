@@ -8,6 +8,8 @@ abstract class GroupProfileRepositoryInterface {
     required String language,
   });
 
+  Future<Either<Failure, bool>> checkFollowStatus(String groupId);
+
   Future<Either<Failure, void>> followGroup(String groupId);
 
   Future<Either<Failure, void>> unfollowGroup(String groupId);

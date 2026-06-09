@@ -52,6 +52,27 @@ class GroupProfileRemoteDatasource {
     }
   }
 
+  Future<bool> checkFollowStatus(String groupId) async {
+    try {
+      final response = await dio.get(
+        '/users/me/following/author/groups',
+        queryParameters: {'group_id': groupId, 'skip': 0, 'limit': 20},
+        options: Options(extra: {'no_cache': true}),
+      );
+
+      if (response.statusCode == 200) {
+        return true;
+      }
+      return false;
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 404) {
+        return false;
+      }
+      _logger.error('Dio error in checkFollowStatus', e);
+      throw _dioToException(e, 'Failed to check follow status');
+    }
+  }
+
   Future<void> unfollowGroup(String groupId) async {
     try {
       final response = await dio.delete('/author/groups/$groupId/follow');
