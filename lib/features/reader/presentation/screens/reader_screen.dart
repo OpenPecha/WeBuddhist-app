@@ -340,7 +340,7 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
     final languageCode = textDetail?.language ?? 'en';
     final initialPrimaryDisplay = ReaderSlotConfig(
       languageCode: languageCode,
-      languageLabel: getLanguageName(languageCode),
+      languageLabel: getLanguageName(languageCode, context),
       versionId: textDetail?.id,
       versionLabel: textDetail?.title,
     );

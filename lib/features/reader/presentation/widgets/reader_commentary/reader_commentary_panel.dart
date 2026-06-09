@@ -159,7 +159,7 @@ class _LanguageUnavailable extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final localizations = context.l10n;
-    final label = getLanguageLabel(languageCode, context);
+    final label = getLanguageName(languageCode, context);
     return Padding(
       padding: const EdgeInsets.fromLTRB(
         ReaderPanelConstants.horizontalPadding,

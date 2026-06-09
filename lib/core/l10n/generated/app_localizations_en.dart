@@ -289,6 +289,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get chinese => 'Chinese';
 
   @override
+  String get classicalChinese => 'Classical Chinese';
+
+  @override
+  String get pali => 'Pali';
+
+  @override
   String get language => 'Language';
 
   @override
@@ -1421,6 +1427,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get version => 'Versions';
+
+  @override
+  String get parallel_version => 'Parallel version';
+
+  @override
+  String get main_version => 'Main version';
+
+  @override
+  String get version_not_available => 'Not available';
 
   @override
   String get read_full_text => 'Read Full Text';

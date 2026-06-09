@@ -111,3 +111,9 @@ final readerDualSettingsProvider = StateNotifierProvider.autoDispose
     .family<ReaderDualSettingsNotifier, ReaderDualLayoutSettings, String>(
   (ref, _) => ReaderDualSettingsNotifier(ref: ref),
 );
+
+/// Transient (not persisted): true while the secondary slot's version is being
+/// auto-resolved after a language change. Drives the version row's loading
+/// state and blocks language edits until resolution completes.
+final readerSecondaryResolvingProvider =
+    StateProvider.autoDispose.family<bool, String>((ref, _) => false);
