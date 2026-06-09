@@ -125,14 +125,19 @@ class FeaturedPlanCard extends ConsumerWidget {
             : null;
     final isEnrolling = enrollmentState is SeriesEnrollmentLoading;
 
+    final seriesEnrollmentAsync =
+        seriesId != null ? ref.watch(userSeriesEnrollmentsProvider) : null;
     final isSeriesEnrolled =
         seriesId != null &&
-        (ref
-                .watch(userSeriesEnrollmentsProvider)
-                .valueOrNull
-                ?.contains(seriesId!) ??
-            false);
-    final hideEnrollButton = isEnrolled || isSeriesEnrolled;
+        (seriesEnrollmentAsync?.valueOrNull?.contains(seriesId!) ?? false);
+
+    // Hide button during initial load to prevent flickering
+    final isLoadingEnrollmentData =
+        myPlansState.isLoading ||
+        (seriesId != null && seriesEnrollmentAsync?.isLoading == true);
+
+    final hideEnrollButton =
+        isEnrolled || isSeriesEnrolled || isLoadingEnrollmentData;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final enrollBackgroundColor =
         isDark
