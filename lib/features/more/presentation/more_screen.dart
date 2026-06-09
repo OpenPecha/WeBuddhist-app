@@ -63,39 +63,39 @@ class MoreScreen extends ConsumerWidget {
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
           children: [
             // Personalisation Section
-            _buildSectionHeader(context, 'PERSONALISATION'),
+            _buildSectionHeader(context, localizations.settings_section_personalisation),
             const SizedBox(height: 12),
             if (authState.isLoggedIn && !authState.isGuest)
               _buildSettingsRow(
                 context,
                 icon: PhosphorIconsRegular.user,
-                title: 'Edit profile',
+                title: localizations.settings_edit_profile,
                 onTap: () => context.push(AppRoutes.profile),
               ),
             _buildLanguageRow(context, ref, locale),
-            _buildNotificationRow(context),
-            _buildThemeToggleRow(context, ref, isDarkMode),
+            _buildNotificationRow(context, localizations),
+            _buildThemeToggleRow(context, ref, isDarkMode, localizations),
             const SizedBox(height: 24),
 
             // More Section
-            _buildSectionHeader(context, 'MORE'),
+            _buildSectionHeader(context, localizations.settings_section_more),
             const SizedBox(height: 12),
             _buildSettingsRow(
               context,
               icon: PhosphorIconsRegular.info,
-              title: 'About',
+              title: localizations.about_title,
               onTap: () => context.push(AppRoutes.about),
             ),
             _buildSettingsRow(
               context,
               icon: PhosphorIconsRegular.gavel,
-              title: 'Legal',
+              title: localizations.legal_title,
               onTap: () => context.push(AppRoutes.legal),
             ),
             _buildSettingsRow(
               context,
               icon: PhosphorIconsRegular.chatText,
-              title: 'Feedback',
+              title: localizations.feedback,
               trailingIcon: PhosphorIconsRegular.arrowSquareOut,
               onTap: () async {
                 final url =
@@ -106,7 +106,7 @@ class MoreScreen extends ConsumerWidget {
             const SizedBox(height: 24),
 
             // Account Section
-            _buildSectionHeader(context, 'ACCOUNT'),
+            _buildSectionHeader(context, localizations.settings_section_account),
             const SizedBox(height: 12),
             if (!authState.isLoggedIn || authState.isGuest) ...[
               _buildSettingsRow(
@@ -137,11 +137,12 @@ class MoreScreen extends ConsumerWidget {
     BuildContext context,
     WidgetRef ref,
     bool isDarkMode,
+    AppLocalizations localizations,
   ) {
     return _buildSettingsRow(
       context,
       icon: isDarkMode ? PhosphorIconsRegular.moon : PhosphorIconsRegular.sun,
-      title: 'Theme',
+      title: localizations.settings_theme,
       onTap: () {
         ref
             .read(themeModeProvider.notifier)
@@ -158,11 +159,11 @@ class MoreScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildNotificationRow(BuildContext context) {
+  Widget _buildNotificationRow(BuildContext context, AppLocalizations localizations) {
     return _buildSettingsRow(
       context,
       icon: PhosphorIconsRegular.bellRinging,
-      title: 'Notification',
+      title: localizations.settings_notification_row,
       onTap: () => context.push(NotificationSettingsScreen.routeName),
     );
   }

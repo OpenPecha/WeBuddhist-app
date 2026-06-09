@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -8,34 +9,34 @@ class AboutScreen extends StatelessWidget {
 
   static const String routeName = '/about';
 
-  static final _socialLinks = [
+  List<_SocialLink> _buildSocialLinks(AppLocalizations l10n) => [
     _SocialLink(
-      icon: PhosphorIconsRegular.globe,
-      title: 'Website',
+      icon: PhosphorIconsRegular.linkSimple,
+      title: l10n.about_social_website,
       subtitle: 'www.webuddhist.com',
       url: 'https://webuddhist.com/collections',
     ),
     _SocialLink(
       icon: PhosphorIconsRegular.instagramLogo,
-      title: 'Instagram',
+      title: l10n.about_social_instagram,
       subtitle: '@webuddhist',
       url: 'https://www.instagram.com/webuddhist_?igsh=MXEwajM5dmxkbmYyYQ==',
     ),
     _SocialLink(
       icon: PhosphorIconsRegular.facebookLogo,
-      title: 'Facebook',
+      title: l10n.about_social_facebook,
       subtitle: 'facebook.com/webuddhist',
       url: 'https://www.facebook.com/share/1D9u6rMCsy/',
     ),
     _SocialLink(
       icon: PhosphorIconsRegular.xLogo,
-      title: 'X (Twitter)',
+      title: l10n.about_social_x_twitter,
       subtitle: '@webuddhist',
       url: 'https://x.com/WeBuddhist_',
     ),
     _SocialLink(
       icon: PhosphorIconsRegular.youtubeLogo,
-      title: 'YouTube',
+      title: l10n.about_social_youtube,
       subtitle: '@webuddhist',
       url: 'https://youtube.com/@we_buddhist?si=Re1GiaGDJIEypIva',
     ),
@@ -44,13 +45,14 @@ class AboutScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         elevation: 0,
         title: Text(
-          'About',
+          l10n.about_title,
           style: Theme.of(
             context,
           ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
@@ -62,7 +64,7 @@ class AboutScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildHeader(context),
+              _buildHeader(context, l10n),
               const SizedBox(height: 16),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -70,7 +72,7 @@ class AboutScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Connect with us',
+                      l10n.about_connect_with_us,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: AppColors.grey600,
                         fontWeight: FontWeight.w500,
@@ -78,7 +80,7 @@ class AboutScreen extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    _buildSocialList(context, isDarkMode),
+                    _buildSocialList(context, isDarkMode, l10n),
                   ],
                 ),
               ),
@@ -90,7 +92,7 @@ class AboutScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildHeader(BuildContext context) {
+  Widget _buildHeader(BuildContext context, AppLocalizations l10n) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
       child: Column(
@@ -105,7 +107,7 @@ class AboutScreen extends StatelessWidget {
           const SizedBox(height: 16),
           Center(
             child: Text(
-              'WeBuddhist',
+              l10n.appTitle,
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
                 fontWeight: FontWeight.bold,
                 fontSize: 23,
@@ -114,7 +116,7 @@ class AboutScreen extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           Text(
-            'We help Buddhists do less harm, more good, and know their own mind better by learning, practicing and connecting daily so that all beings become free from suffering and find lasting happiness.',
+            l10n.about_description,
             textAlign: TextAlign.justify,
             style: Theme.of(
               context,
@@ -125,10 +127,10 @@ class AboutScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildSocialList(BuildContext context, bool isDarkMode) {
+  Widget _buildSocialList(BuildContext context, bool isDarkMode, AppLocalizations l10n) {
     return Column(
       children:
-          _socialLinks.map((link) {
+          _buildSocialLinks(l10n).map((link) {
             return _SocialLinkTile(link: link, isDarkMode: isDarkMode);
           }).toList(),
     );

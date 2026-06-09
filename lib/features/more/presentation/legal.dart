@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/config/router/app_routes.dart';
+import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
@@ -10,12 +11,13 @@ class LegalScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         elevation: 0,
         title: Text(
-          'Legal',
+          l10n.legal_title,
           style: Theme.of(
             context,
           ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700, fontSize: 20),
@@ -29,12 +31,12 @@ class LegalScreen extends StatelessWidget {
             _buildLegalRow(
               context,
               icon: PhosphorIconsRegular.fileText,
-              title: 'Terms of Service',
+              title: l10n.legal_terms_of_service,
             ),
             _buildLegalRow(
               context,
               icon: PhosphorIconsRegular.fileText,
-              title: 'Privacy policy',
+              title: l10n.legal_privacy_policy,
               onTap: () => context.push(AppRoutes.privacyPolicy),
             ),
           ],

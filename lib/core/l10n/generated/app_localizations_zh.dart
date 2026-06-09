@@ -1379,4 +1379,150 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get force_update_button => '立即更新';
+
+  @override
+  String get settings_section_personalisation => '個人化';
+
+  @override
+  String get settings_section_more => '更多';
+
+  @override
+  String get settings_section_account => '帳號';
+
+  @override
+  String get settings_edit_profile => '編輯個人檔案';
+
+  @override
+  String get settings_theme => '主題';
+
+  @override
+  String get settings_notification_row => '通知';
+
+  @override
+  String get edit_profile_title => '編輯個人檔案';
+
+  @override
+  String get edit_profile_save => '儲存';
+
+  @override
+  String get edit_profile_first_name => '名字';
+
+  @override
+  String get edit_profile_last_name => '姓氏';
+
+  @override
+  String get edit_profile_bio => '自我介紹';
+
+  @override
+  String get edit_profile_bio_hint => '向大家介紹一下自己';
+
+  @override
+  String get edit_profile_delete_account => 'Delete account';
+
+  @override
+  String get edit_profile_photo_not_uploaded => 'Photo not uploaded';
+
+  @override
+  String get edit_profile_photo_too_large =>
+      'Image is too large. Please choose a photo under 1 MB and try again.';
+
+  @override
+  String get edit_profile_photo_upload_failed =>
+      'Could not upload your photo. Please try again.';
+
+  @override
+  String get edit_profile_choose_from_library => 'Choose from library';
+
+  @override
+  String get edit_profile_take_photo => 'Take a photo';
+
+  @override
+  String get username_label => '使用者名稱';
+
+  @override
+  String get username_taken => 'Someone already used this name';
+
+  @override
+  String get username_available_label => 'Available : ';
+
+  @override
+  String get username_check_error => 'Could not check username. Try again.';
+
+  @override
+  String get username_invalid_format => 'Invalid username format.';
+
+  @override
+  String get username_min_length => 'Username must be at least 3 characters';
+
+  @override
+  String get username_max_length => 'Username must be at most 30 characters';
+
+  @override
+  String get username_no_spaces => 'Username cannot contain spaces';
+
+  @override
+  String get username_invalid_chars =>
+      'Only letters, numbers, _ . - are allowed';
+
+  @override
+  String get username_must_start_alphanumeric =>
+      'Username must start with a letter or number';
+
+  @override
+  String get username_must_end_alphanumeric =>
+      'Username must end with a letter or number';
+
+  @override
+  String get about_title => '關於';
+
+  @override
+  String get about_connect_with_us => '與我們交流';
+
+  @override
+  String get about_description =>
+      '我們協助佛教徒透過每日的學習、修持與交流，減少惡行、增長善行，更深入地了解自己的心。並希望藉此，讓一切眾生皆能離苦得樂。';
+
+  @override
+  String get about_social_website => '網頁';
+
+  @override
+  String get about_social_instagram => 'Instagram';
+
+  @override
+  String get about_social_facebook => 'Facebook';
+
+  @override
+  String get about_social_x_twitter => 'X (Twitter)';
+
+  @override
+  String get about_social_youtube => 'YouTube';
+
+  @override
+  String get me_guest_headline => 'Access the full experience';
+
+  @override
+  String get me_guest_subtitle => 'Create a free account to access plans';
+
+  @override
+  String get delete_account_title => 'Delete account';
+
+  @override
+  String get delete_account_description =>
+      'If you delete your account, all your information, history, and personalized settings within WeBuddhist will be permanently eliminated. This action will also end any recurring contributions, if applicable. Please note that this action is irreversible. To proceed, tap the button below.';
+
+  @override
+  String get delete_account_button => 'Delete account';
+
+  @override
+  String get delete_account_confirm_message =>
+      'Are you sure you want to delete your WeBuddhist account?';
+
+  @override
+  String get legal_title => '法律資訊';
+
+  @override
+  String get legal_terms_of_service => '使用條款';
+
+  @override
+  String get legal_privacy_policy => '隱私政策';
 }

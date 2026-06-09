@@ -161,6 +161,8 @@ class _GuestView extends ConsumerWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final isIOS = Platform.isIOS;
 
+    final localizations = AppLocalizations.of(context)!;
+
     return Center(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 32),
@@ -168,7 +170,7 @@ class _GuestView extends ConsumerWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              'Access the full experience',
+              localizations.me_guest_headline,
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                 fontWeight: FontWeight.bold,
@@ -177,7 +179,7 @@ class _GuestView extends ConsumerWidget {
             ),
             const SizedBox(height: 12),
             Text(
-              'Create a free account to access plans',
+              localizations.me_guest_subtitle,
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 color: AppColors.grey600,
@@ -195,7 +197,7 @@ class _GuestView extends ConsumerWidget {
                 backgroundColor: isDark ? AppColors.cardDark : Colors.white,
                 foregroundColor: isDark ? Colors.white : Colors.black87,
                 borderColor: isDark ? AppColors.cardBorderDark : AppColors.grey300,
-                label: 'Continue with Google',
+                label: localizations.continueWithGoogle,
                 icon: Image.asset(
                   'assets/images/google-icon.png',
                   width: 23,
@@ -209,7 +211,7 @@ class _GuestView extends ConsumerWidget {
                   backgroundColor: Colors.black,
                   foregroundColor: Colors.white,
                   borderColor: Colors.transparent,
-                  label: 'Continue with Apple',
+                  label: localizations.continueWithApple,
                   icon: const Icon(Icons.apple, color: Colors.white, size: 30),
                 ),
               ],

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
@@ -52,6 +53,7 @@ class UsernameFormField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final isError =
         usernameState == UsernameState.conflict ||
         usernameState == UsernameState.invalid;
@@ -63,7 +65,7 @@ class UsernameFormField extends StatelessWidget {
           controller: controller,
           onChanged: onChanged,
           decoration: InputDecoration(
-            labelText: 'Username',
+            labelText: l10n.username_label,
             labelStyle: TextStyle(color: AppColors.grey500),
             filled: true,
             fillColor:
@@ -78,7 +80,7 @@ class UsernameFormField extends StatelessWidget {
             suffixIcon: _buildStatusIcon(),
           ),
         ),
-        _buildFeedback(),
+        _buildFeedback(l10n),
       ],
     );
   }
@@ -126,7 +128,7 @@ class UsernameFormField extends StatelessWidget {
     }
   }
 
-  Widget _buildFeedback() {
+  Widget _buildFeedback(AppLocalizations l10n) {
     switch (usernameState) {
       case UsernameState.conflict:
         return Column(
@@ -134,7 +136,7 @@ class UsernameFormField extends StatelessWidget {
           children: [
             const SizedBox(height: 6),
             Text(
-              'Someone already used this name',
+              l10n.username_taken,
               style: TextStyle(color: Colors.red.shade600, fontSize: 13),
             ),
             if (usernameSuggestions.isNotEmpty) ...[
@@ -142,7 +144,7 @@ class UsernameFormField extends StatelessWidget {
               Wrap(
                 children: [
                   Text(
-                    'Available : ',
+                    l10n.username_available_label,
                     style: TextStyle(
                       color: isDark ? AppColors.grey400 : AppColors.grey600,
                       fontSize: 13,
@@ -177,7 +179,7 @@ class UsernameFormField extends StatelessWidget {
         return Padding(
           padding: const EdgeInsets.only(top: 6),
           child: Text(
-            'Could not check username. Try again.',
+            l10n.username_check_error,
             style: TextStyle(color: Colors.orange.shade700, fontSize: 13),
           ),
         );
@@ -185,7 +187,7 @@ class UsernameFormField extends StatelessWidget {
         return Padding(
           padding: const EdgeInsets.only(top: 6),
           child: Text(
-            validationMessage ?? 'Invalid username format.',
+            validationMessage ?? l10n.username_invalid_format,
             style: TextStyle(color: Colors.red.shade600, fontSize: 13),
           ),
         );
