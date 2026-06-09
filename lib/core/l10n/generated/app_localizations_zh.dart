@@ -1387,7 +1387,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get reader_license_label => '授權';
 
   @override
-  String get know_more => '了解更多';
+  String get know_more => 'Know More';
 
   @override
   String get force_update_title => '需要更新';
