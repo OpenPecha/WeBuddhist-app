@@ -7,6 +7,7 @@ import 'package:flutter_pecha/features/plans/presentation/widgets/plan_inline_ma
 import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 class SeriesInfoScreen extends ConsumerWidget {
   final Series series;
@@ -97,7 +98,7 @@ class SeriesInfoScreen extends ConsumerWidget {
       child: Row(
         children: [
           IconButton(
-            icon: const Icon(Icons.arrow_back_ios),
+            icon: const Icon(PhosphorIconsRegular.arrowLeft),
             onPressed: () => context.pop(),
           ),
           const Spacer(),
@@ -155,7 +156,8 @@ class SeriesInfoScreen extends ConsumerWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
-                  if (group.subTitle != null && group.subTitle!.trim().isNotEmpty)
+                  if (group.subTitle != null &&
+                      group.subTitle!.trim().isNotEmpty)
                     Text(
                       group.subTitle!,
                       style: TextStyle(

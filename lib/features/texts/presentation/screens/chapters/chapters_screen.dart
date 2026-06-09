@@ -26,6 +26,7 @@ import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:fquery/fquery.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 /// Screen for reading chapter content with infinite scroll pagination
@@ -109,12 +110,11 @@ class _ChaptersScreenState extends ConsumerState<ChaptersScreen> {
           direction: direction,
         );
 
-        final result = await ref.read(
-          textDetailsFutureProvider(params).future,
-        );
+        final result = await ref.read(textDetailsFutureProvider(params).future);
 
         return result.fold(
-          (failure) => throw Exception('Failed to fetch content: ${failure.message}'),
+          (failure) =>
+              throw Exception('Failed to fetch content: ${failure.message}'),
           (response) {
             newPageSections.value = response.content.sections;
             return response;
@@ -221,7 +221,7 @@ class _ChaptersScreenState extends ConsumerState<ChaptersScreen> {
       scrolledUnderElevation: TextScreenConstants.appBarElevation,
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       leading: IconButton(
-        icon: const Icon(Icons.arrow_back_ios),
+        icon: const Icon(PhosphorIconsRegular.arrowLeft),
         onPressed: () {
           ref.read(selectedSegmentProvider.notifier).state = null;
           ref.read(commentarySplitSegmentProvider.notifier).state = null;

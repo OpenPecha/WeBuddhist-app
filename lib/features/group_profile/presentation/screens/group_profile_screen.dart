@@ -368,32 +368,38 @@ class _GroupProfileBodyState extends ConsumerState<_GroupProfileBody> {
         width: double.infinity,
         height: 48,
         child: ElevatedButton(
-          onPressed: isLoading ? null : () => _onFollowPressed(groupId, isFollowing),
+          onPressed:
+              isLoading ? null : () => _onFollowPressed(groupId, isFollowing),
           style: ElevatedButton.styleFrom(
-            backgroundColor: isFollowing
-                ? (isDark ? AppColors.surfaceVariantDark : AppColors.grey100)
-                : (isDark ? AppColors.surfaceWhite : AppColors.textPrimary),
-            foregroundColor: isFollowing
-                ? (isDark ? AppColors.surfaceWhite : AppColors.textPrimary)
-                : (isDark ? AppColors.textPrimary : AppColors.surfaceWhite),
+            backgroundColor:
+                isFollowing
+                    ? (isDark
+                        ? AppColors.surfaceVariantDark
+                        : AppColors.grey100)
+                    : (isDark ? AppColors.surfaceWhite : AppColors.textPrimary),
+            foregroundColor:
+                isFollowing
+                    ? (isDark ? AppColors.surfaceWhite : AppColors.textPrimary)
+                    : (isDark ? AppColors.textPrimary : AppColors.surfaceWhite),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(24),
             ),
             elevation: 0,
           ),
-          child: isLoading
-              ? const SizedBox(
-                  width: 20,
-                  height: 20,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                )
-              : Text(
-                  isFollowing ? 'Following' : 'Follow',
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
+          child:
+              isLoading
+                  ? const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                  : Text(
+                    isFollowing ? 'Following' : 'Follow',
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
-                ),
         ),
       ),
     );
@@ -473,7 +479,8 @@ class _GroupProfileBodyState extends ConsumerState<_GroupProfileBody> {
                                   : AppColors.grey100,
                           child: Icon(
                             PhosphorIconsRegular.bookOpenText,
-                            color: isDark ? AppColors.grey500 : AppColors.grey600,
+                            color:
+                                isDark ? AppColors.grey500 : AppColors.grey600,
                           ),
                         ),
               ),
