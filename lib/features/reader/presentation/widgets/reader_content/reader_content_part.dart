@@ -351,7 +351,7 @@ class _ReaderContentPartState extends ConsumerState<ReaderContentPart> {
       return;
     }
 
-    final index = content.getSegmentIndex(segmentId);
+    final index = _renderedIndexForSegment(segmentId, content);
     if (index == null) {
       _logger.debug('Segment $segmentId not found in content');
       return;
@@ -378,6 +378,22 @@ class _ReaderContentPartState extends ConsumerState<ReaderContentPart> {
         },
       );
     }
+  }
+
+  /// Resolves a segment id to its index in the list that is *currently
+  /// rendered*. In the expanded view this is the full content index. In the
+  /// collapsed ("Read Full Text") view only the active segments are rendered,
+  /// so the full content index would point far past the short collapsed list
+  /// and make [ScrollablePositionedList] overshoot/clamp — here we map to the
+  /// segment's position within the collapsed list instead.
+  int? _renderedIndexForSegment(String segmentId, FlattenedContent content) {
+    if (!_isCollapsed) return content.getSegmentIndex(segmentId);
+
+    final collapsedItems = _buildCollapsedItems(content);
+    final index = collapsedItems.indexWhere(
+      (item) => item.segmentId == segmentId,
+    );
+    return index >= 0 ? index : null;
   }
 
   /// Expand from the collapsed (active-segments-only) view to the full text.
@@ -531,7 +547,7 @@ class _ReaderContentPartState extends ConsumerState<ReaderContentPart> {
                   return _buildItem(
                     item: collapsedItems[index],
                     state: state,
-                    dualSecondaryEnabled: dualSettings.secondaryEnabled,
+                    dualSecondaryEnabled: secondaryActive,
                     secondarySlot: dualSettings.secondary,
                     secondaryState: secondaryState,
                     onSegmentTap:
@@ -545,7 +561,7 @@ class _ReaderContentPartState extends ConsumerState<ReaderContentPart> {
                 return _buildItem(
                   item: item,
                   state: state,
-                  dualSecondaryEnabled: dualSettings.secondaryEnabled,
+                  dualSecondaryEnabled: secondaryActive,
                   secondarySlot: dualSettings.secondary,
                   secondaryState: secondaryState,
                   onSegmentTap:

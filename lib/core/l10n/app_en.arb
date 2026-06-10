@@ -167,7 +167,7 @@
   "notification_battery_title": "Background reminders",
   "notification_battery_subtitle_enabled": "Your reminders are sent on time, even when the app is closed.",
   "notification_battery_subtitle_disabled": "Some Android phones pause background apps to save battery, which can delay or skip your reminders. Tap to keep yours running.",
-  "notification_recitation_title": "Recitation reminders",
+  "notification_recitation_title": "Recitations reminder",
   "notification_recitation_subtitle_enabled": "Daily reminders for your recitations",
   "notification_recitation_subtitle_disabled": "Recitation reminders are paused. Tap to resume.",
   "notification_alarms_info_title": "About exact reminder times",
@@ -652,6 +652,17 @@
   "reader_source_label": "Source",
   "reader_license_label": "License",
   "know_more": "Know More",
+  "series_stats": "{planCount} PLANS · {totalDays} DAYS",
+  "@series_stats": {
+    "placeholders": {
+      "planCount": {
+        "type": "int"
+      },
+      "totalDays": {
+        "type": "int"
+      }
+    }
+  },
   "force_update_title": "Update required",
   "force_update_message": "A new version of the app is available. Please update to continue.",
   "force_update_button": "Update now",
@@ -662,6 +673,7 @@
   "settings_edit_profile": "Edit profile",
   "settings_theme": "Theme",
   "settings_notification_row": "Notification",
+  "settings_feedback_row":"Feedback",
 
   "edit_profile_title": "Edit profile",
   "edit_profile_save": "Save",

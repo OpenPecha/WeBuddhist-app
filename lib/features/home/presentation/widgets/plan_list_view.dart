@@ -104,7 +104,6 @@ class FeaturedPlanCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final locale = ref.watch(localeProvider);
     final lineHeight = getLineHeight(locale.languageCode);
-    final titleFontSize = locale.languageCode == 'bo' ? 22.0 : 18.0;
     final subtitleFontSize = locale.languageCode == 'bo' ? 18.0 : 14.0;
 
     final displayDescription = series?.description ?? plan.description;
@@ -152,14 +151,16 @@ class FeaturedPlanCard extends ConsumerWidget {
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
-          color: Colors.transparent,
+          color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
         ),
         clipBehavior: Clip.antiAlias,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             ClipRRect(
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(16),
+              ),
               child: AspectRatio(
                 aspectRatio: 16 / 9,
                 child: _PlanCoverImage(
@@ -175,40 +176,31 @@ class FeaturedPlanCard extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              localizations.know_more,
-                              style: TextStyle(
-                                fontSize: titleFontSize,
-                                fontWeight: FontWeight.bold,
-                                height: lineHeight,
-                              ),
-                            ),
-                            if (hasDescription) ...[
-                              Text(
-                                displayDescription,
-                                style: TextStyle(
-                                  fontSize: subtitleFontSize,
-                                  height: lineHeight,
-                                ),
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                              const SizedBox(height: 6),
-                            ],
-                          ],
-                        ),
+                  if (series != null)
+                    Text(
+                      localizations.series_stats(
+                        series!.plans.length,
+                        series!.totalDays,
                       ),
-                      Icon(Icons.arrow_forward, size: titleFontSize),
-                    ],
-                  ),
+                      style: TextStyle(
+                        fontSize: subtitleFontSize,
+                        fontWeight: FontWeight.w500,
+                        height: lineHeight,
+                      ),
+                    ),
+                  if (hasDescription) ...[
+                    if (series != null) const SizedBox(height: 6),
+                    Text(
+                      displayDescription,
+                      style: TextStyle(
+                        fontSize: subtitleFontSize,
+                        height: lineHeight,
+                        fontWeight: FontWeight.w600,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
                   if (!hideEnrollButton) ...[
                     const SizedBox(height: 14),
                     SizedBox(
@@ -280,12 +272,10 @@ class FeaturedPlanCard extends ConsumerWidget {
       return;
     }
 
-    // Defensive no-op: a stale render could allow a tap after the user is
-    // already enrolled. Honor that latest state rather than re-POSTing.
-    final alreadyEnrolled =
-        ref.read(userSeriesEnrollmentsProvider).valueOrNull?.contains(id) ??
-        false;
-    if (alreadyEnrolled) return;
+    final enrollments =
+        await ref.read(userSeriesEnrollmentsProvider.future);
+    if (!context.mounted) return;
+    if (enrollments.contains(id)) return;
 
     final notifier = ref.read(seriesEnrollmentProvider(id).notifier);
     final ok = await notifier.enroll();
@@ -307,10 +297,7 @@ class FeaturedPlanCard extends ConsumerWidget {
 
   void _navigateToSeriesInfo(BuildContext context) {
     if (series == null) return;
-    context.push(
-      '/home/series/${series!.id}/info',
-      extra: {'series': series!},
-    );
+    context.push('/home/series/${series!.id}/info', extra: {'series': series!});
   }
 }
 

@@ -508,7 +508,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Some Android phones pause background apps to save battery, which can delay or skip your reminders. Tap to keep yours running.';
 
   @override
-  String get notification_recitation_title => 'Recitation reminders';
+  String get notification_recitation_title => 'Recitations reminder';
 
   @override
   String get notification_recitation_subtitle_enabled =>
@@ -1450,6 +1450,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get know_more => 'Know More';
 
   @override
+  String series_stats(int planCount, int totalDays) {
+    return '$planCount PLANS · $totalDays DAYS';
+  }
+
+  @override
   String get force_update_title => 'Update required';
 
   @override
@@ -1476,6 +1481,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settings_notification_row => 'Notification';
+
+  @override
+  String get settings_feedback_row => 'Feedback';
 
   @override
   String get edit_profile_title => 'Edit profile';

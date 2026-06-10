@@ -71,6 +71,7 @@ class SeriesRemoteDatasource {
         throw _statusToException(status, 'Failed to enroll in series');
       }
     } on DioException catch (e) {
+      if (e.response?.statusCode == 409) return;
       _logger.error('Dio error in enrollInSeries', e);
       throw _dioToException(e, 'Failed to enroll in series');
     }

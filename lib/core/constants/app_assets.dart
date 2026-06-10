@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart' show Icons;
 import 'package:flutter/widgets.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
@@ -14,6 +15,10 @@ class AppAssets {
 
   // ========== LOGOS ==========
   static const String weBuddhistLogo = 'assets/images/webuddhist_gold.png';
+  static const String googleIcon = 'assets/images/google-icon.png';
+
+  // ========== AUTH ICONS ==========
+  static const IconData apple = Icons.apple;
 
   // ========== BOTTOM NAVIGATION ICONS ==========
   static const IconData homeSelected = PhosphorIconsFill.house;
@@ -46,12 +51,15 @@ class AppAssets {
   static const IconData language = PhosphorIconsRegular.translate;
   static const IconData notification = PhosphorIconsRegular.bellRinging;
   static const IconData theme = PhosphorIconsRegular.sun;
+  static const IconData themeMoon = PhosphorIconsRegular.moon;
   static const IconData about = PhosphorIconsRegular.info;
   static const IconData legal = PhosphorIconsRegular.gavel;
   static const IconData feedback = PhosphorIconsRegular.chatText;
   static const IconData signIn = PhosphorIconsRegular.signIn;
   static const IconData signOut = PhosphorIconsRegular.signOut;
   static const IconData settings = PhosphorIconsRegular.gear;
+  static const IconData photoLibrary = PhosphorIconsRegular.images;
+  static const IconData camera = PhosphorIconsRegular.camera;
 
   // ========== COMMON UI ICONS ==========
   static const IconData caretRight = PhosphorIconsRegular.caretRight;
@@ -76,9 +84,17 @@ class AppAssets {
   static const IconData check = PhosphorIconsBold.check;
 
   // ========== SOCIAL MEDIA ICONS ==========
+  static const IconData linkSimple = PhosphorIconsRegular.linkSimple;
   static const IconData instagram = PhosphorIconsRegular.instagramLogo;
   static const IconData facebook = PhosphorIconsRegular.facebookLogo;
   static const IconData twitter = PhosphorIconsRegular.xLogo;
   static const IconData youtube = PhosphorIconsRegular.youtubeLogo;
+  static const IconData tiktok = PhosphorIconsRegular.tiktokLogo;
+  static const IconData linkedin = PhosphorIconsRegular.linkedinLogo;
+  static const IconData link = PhosphorIconsRegular.link;
   static const IconData globe = PhosphorIconsRegular.globe;
+
+  // ========== GROUP & SERIES ICONS ==========
+  static const IconData usersThree = PhosphorIconsRegular.usersThree;
+  static const IconData bookOpenText = PhosphorIconsRegular.bookOpenText;
 }

@@ -32,12 +32,12 @@ class LegalScreen extends StatelessWidget {
             _buildLegalRow(
               context,
               icon: AppAssets.fileText,
-              title: 'Terms of Service',
+              title: l10n.legal_terms_of_service,
             ),
             _buildLegalRow(
               context,
               icon: AppAssets.fileText,
-              title: 'Privacy policy',
+              title: l10n.legal_privacy_policy,
               onTap: () => context.push(AppRoutes.privacyPolicy),
             ),
           ],

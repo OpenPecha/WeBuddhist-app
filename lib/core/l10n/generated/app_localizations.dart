@@ -1063,7 +1063,7 @@ abstract class AppLocalizations {
   /// No description provided for @notification_recitation_title.
   ///
   /// In en, this message translates to:
-  /// **'Recitation reminders'**
+  /// **'Recitations reminder'**
   String get notification_recitation_title;
 
   /// No description provided for @notification_recitation_subtitle_enabled.
@@ -2716,6 +2716,12 @@ abstract class AppLocalizations {
   /// **'Know More'**
   String get know_more;
 
+  /// No description provided for @series_stats.
+  ///
+  /// In en, this message translates to:
+  /// **'{planCount} PLANS · {totalDays} DAYS'**
+  String series_stats(int planCount, int totalDays);
+
   /// No description provided for @force_update_title.
   ///
   /// In en, this message translates to:
@@ -2769,6 +2775,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Notification'**
   String get settings_notification_row;
+
+  /// No description provided for @settings_feedback_row.
+  ///
+  /// In en, this message translates to:
+  /// **'Feedback'**
+  String get settings_feedback_row;
 
   /// No description provided for @edit_profile_title.
   ///
