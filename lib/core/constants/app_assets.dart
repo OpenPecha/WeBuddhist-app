@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart' show Icons;
 import 'package:flutter/widgets.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
@@ -14,6 +15,10 @@ class AppAssets {
 
   // ========== LOGOS ==========
   static const String weBuddhistLogo = 'assets/images/webuddhist_gold.png';
+  static const String googleIcon = 'assets/images/google-icon.png';
+
+  // ========== AUTH ICONS ==========
+  static const IconData apple = Icons.apple;
 
   // ========== BOTTOM NAVIGATION ICONS ==========
   static const IconData homeSelected = PhosphorIconsFill.house;
@@ -53,6 +58,8 @@ class AppAssets {
   static const IconData signIn = PhosphorIconsRegular.signIn;
   static const IconData signOut = PhosphorIconsRegular.signOut;
   static const IconData settings = PhosphorIconsRegular.gear;
+  static const IconData photoLibrary = PhosphorIconsRegular.images;
+  static const IconData camera = PhosphorIconsRegular.camera;
 
   // ========== COMMON UI ICONS ==========
   static const IconData caretRight = PhosphorIconsRegular.caretRight;
@@ -77,6 +84,7 @@ class AppAssets {
   static const IconData check = PhosphorIconsBold.check;
 
   // ========== SOCIAL MEDIA ICONS ==========
+  static const IconData linkSimple = PhosphorIconsRegular.linkSimple;
   static const IconData instagram = PhosphorIconsRegular.instagramLogo;
   static const IconData facebook = PhosphorIconsRegular.facebookLogo;
   static const IconData twitter = PhosphorIconsRegular.xLogo;

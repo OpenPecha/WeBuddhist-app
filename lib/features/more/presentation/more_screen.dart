@@ -391,7 +391,7 @@ class MoreScreen extends ConsumerWidget {
               SizedBox(
                 width: 18,
                 child: isSelected
-                    ? Icon(Icons.check, size: 18, color: activeColor)
+                    ? Icon(AppAssets.check, size: 18, color: activeColor)
                     : const SizedBox.shrink(),
               ),
             ],

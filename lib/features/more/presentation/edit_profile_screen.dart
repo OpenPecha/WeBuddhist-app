@@ -409,7 +409,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
               ),
               const SizedBox(height: 16),
               ListTile(
-                leading: const Icon(Icons.photo_library_outlined),
+                leading: const Icon(AppAssets.photoLibrary),
                 title: Text(l10n.edit_profile_choose_from_library),
                 onTap: () {
                   Navigator.of(context).pop();
@@ -417,7 +417,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                 },
               ),
               ListTile(
-                leading: const Icon(Icons.camera_alt_outlined),
+                leading: const Icon(AppAssets.camera),
                 title: Text(l10n.edit_profile_take_photo),
                 onTap: () {
                   Navigator.of(context).pop();
@@ -590,7 +590,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                   child: Row(
                     children: [
                       Icon(
-                        Icons.error_outline,
+                        AppAssets.warningCircle,
                         size: 18,
                         color: Colors.red.shade700,
                       ),

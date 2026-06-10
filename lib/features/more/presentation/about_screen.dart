@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
-import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class AboutScreen extends StatelessWidget {
@@ -12,7 +11,7 @@ class AboutScreen extends StatelessWidget {
 
   List<_SocialLink> _buildSocialLinks(AppLocalizations l10n) => [
     _SocialLink(
-      icon: PhosphorIconsRegular.linkSimple,
+      icon: AppAssets.linkSimple,
       title: l10n.about_social_website,
       subtitle: 'www.webuddhist.com',
       url: 'https://webuddhist.com/collections',
@@ -100,7 +99,7 @@ class AboutScreen extends StatelessWidget {
         children: [
           Center(
             child: Image.asset(
-              'assets/images/webuddhist_gold.png',
+              AppAssets.weBuddhistLogo,
               width: 96,
               height: 96,
             ),

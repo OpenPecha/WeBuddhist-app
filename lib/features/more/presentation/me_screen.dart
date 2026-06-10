@@ -209,7 +209,7 @@ class _GuestView extends ConsumerWidget {
                 borderColor: isDark ? AppColors.cardBorderDark : AppColors.grey300,
                 label: localizations.continueWithGoogle,
                 icon: Image.asset(
-                  'assets/images/google-icon.png',
+                  AppAssets.googleIcon,
                   width: 23,
                   height: 23,
                 ),
@@ -222,7 +222,11 @@ class _GuestView extends ConsumerWidget {
                   foregroundColor: Colors.white,
                   borderColor: Colors.transparent,
                   label: localizations.continueWithApple,
-                  icon: const Icon(Icons.apple, color: Colors.white, size: 30),
+                  icon: const Icon(
+                    AppAssets.apple,
+                    color: Colors.white,
+                    size: 30,
+                  ),
                 ),
               ],
             ],
