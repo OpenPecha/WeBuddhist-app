@@ -547,7 +547,7 @@ class _ReaderContentPartState extends ConsumerState<ReaderContentPart> {
                   return _buildItem(
                     item: collapsedItems[index],
                     state: state,
-                    dualSecondaryEnabled: dualSettings.secondaryEnabled,
+                    dualSecondaryEnabled: secondaryActive,
                     secondarySlot: dualSettings.secondary,
                     secondaryState: secondaryState,
                     onSegmentTap:
@@ -561,7 +561,7 @@ class _ReaderContentPartState extends ConsumerState<ReaderContentPart> {
                 return _buildItem(
                   item: item,
                   state: state,
-                  dualSecondaryEnabled: dualSettings.secondaryEnabled,
+                  dualSecondaryEnabled: secondaryActive,
                   secondarySlot: dualSettings.secondary,
                   secondaryState: secondaryState,
                   onSegmentTap:

@@ -122,10 +122,9 @@ class InterlinearSegmentItem extends ConsumerWidget {
     if (secondaryIsLoading) {
       return const _SecondaryResolved(text: 'Loading…', isPlaceholder: true);
     }
-    return _SecondaryResolved(
-      text: 'Translation in ${secondarySlot.languageLabel} unavailable',
-      isPlaceholder: true,
-    );
+    // A version is selected but this particular segment has no translation.
+    // Show a quiet centered em-dash rather than a verbose error line.
+    return const _SecondaryResolved(text: '—', isPlaceholder: true);
   }
 }
 
@@ -148,15 +147,21 @@ class _SecondaryPlaceholder extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Text(
-      text,
-      style: TextStyle(
-        fontSize: fontSize,
-        fontFamily: getFontFamily(language),
-        fontWeight: FontWeight.w400,
-        fontStyle: FontStyle.italic,
-        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.55),
-        height: 1.4,
+    return SizedBox(
+      width: double.infinity,
+      child: Text(
+        text,
+        textAlign: TextAlign.center,
+        style: TextStyle(
+          fontSize: fontSize,
+          fontFamily: getFontFamily(language),
+          fontWeight: FontWeight.w400,
+          fontStyle: FontStyle.italic,
+          color: Theme.of(
+            context,
+          ).colorScheme.onSurface.withValues(alpha: 0.55),
+          height: 1.4,
+        ),
       ),
     );
   }
