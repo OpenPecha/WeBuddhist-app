@@ -47,6 +47,12 @@ class InterlinearSegmentItem extends ConsumerWidget {
     final primaryHtml = normalizeSegmentHtml(segment.content);
     final secondary = _resolveSecondaryContent();
 
+    // Per Figma: the secondary (parallel) version uses a fixed muted tone that
+    // differs per theme so it reads as supporting text beneath the primary.
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color secondaryColor =
+        isDark ? const Color(0xFFE0E0E0) : const Color(0xFF707070);
+
     return AnimatedOpacity(
       opacity: isGreyedOut ? 0.3 : 1.0,
       duration: const Duration(milliseconds: 300),
@@ -84,12 +90,13 @@ class InterlinearSegmentItem extends ConsumerWidget {
                         language: primaryLanguage,
                         isSelected: isSelected,
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 16),
                       if (secondary.isPlaceholder)
                         _SecondaryPlaceholder(
                           text: secondary.text,
                           language: secondarySlot.languageCode,
                           fontSize: fontSize,
+                          color: secondaryColor,
                         )
                       else
                         SegmentHtmlWidget(
@@ -98,6 +105,7 @@ class InterlinearSegmentItem extends ConsumerWidget {
                           fontSize: fontSize,
                           language: secondarySlot.languageCode,
                           isSelected: isSelected,
+                          textColor: secondaryColor,
                         ),
                       const SizedBox(height: 2),
                     ],
@@ -139,11 +147,13 @@ class _SecondaryPlaceholder extends StatelessWidget {
     required this.text,
     required this.language,
     required this.fontSize,
+    required this.color,
   });
 
   final String text;
   final String language;
   final double fontSize;
+  final Color color;
 
   @override
   Widget build(BuildContext context) {
@@ -157,9 +167,7 @@ class _SecondaryPlaceholder extends StatelessWidget {
           fontFamily: getFontFamily(language),
           fontWeight: FontWeight.w400,
           fontStyle: FontStyle.italic,
-          color: Theme.of(
-            context,
-          ).colorScheme.onSurface.withValues(alpha: 0.55),
+          color: color,
           height: 1.4,
         ),
       ),
