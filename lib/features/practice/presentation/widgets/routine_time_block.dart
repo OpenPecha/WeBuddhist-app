@@ -5,6 +5,7 @@ import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/features/practice/data/models/routine_model.dart';
 import 'package:flutter_pecha/features/practice/data/utils/routine_time_utils.dart';
+import 'package:flutter_pecha/core/widgets/destructive_confirmation_dialog.dart';
 import 'package:flutter_pecha/features/practice/presentation/widgets/routine_item_card.dart';
 
 class RoutineTimeBlock extends StatelessWidget {
@@ -33,26 +34,10 @@ class RoutineTimeBlock extends StatelessWidget {
 
   Future<void> _confirmDeleteItem(BuildContext context, int index) async {
     final l10n = context.l10n;
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder:
-          (context) => AlertDialog(
-            title: Text(l10n.removeItem),
-            content: Text(l10n.removeConfirmation(items[index].title)),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(false),
-                child: Text(l10n.cancel),
-              ),
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(true),
-                child: Text(
-                  l10n.delete,
-                  style: TextStyle(color: Colors.red.shade400),
-                ),
-              ),
-            ],
-          ),
+    final confirmed = await showDestructiveConfirmationDialog(
+      context,
+      title: l10n.removeItem,
+      message: l10n.removeConfirmation(items[index].title),
     );
     if (confirmed == true) {
       onDeleteItem(index);
@@ -61,28 +46,10 @@ class RoutineTimeBlock extends StatelessWidget {
 
   Future<void> _confirmDeleteBlock(BuildContext context) async {
     final localizations = context.l10n;
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder:
-          (context) => AlertDialog(
-            title: Text(localizations.routine_delete_block),
-            content: Text(
-              localizations.routine_delete_block_message,
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(false),
-                child: Text(localizations.cancel),
-              ),
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(true),
-                child: Text(
-                  localizations.delete,
-                  style: TextStyle(color: Colors.red.shade400),
-                ),
-              ),
-            ],
-          ),
+    final confirmed = await showDestructiveConfirmationDialog(
+      context,
+      title: localizations.routine_delete_block,
+      message: localizations.routine_delete_block_message,
     );
     if (confirmed == true) {
       await onDelete();
