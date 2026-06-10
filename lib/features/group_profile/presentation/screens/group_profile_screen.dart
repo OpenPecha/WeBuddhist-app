@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/core/widgets/error_state_widget.dart';
 import 'package:flutter_pecha/core/widgets/responsive_cover_image.dart';
@@ -6,11 +7,10 @@ import 'package:flutter_pecha/features/auth/presentation/providers/state_provide
 import 'package:flutter_pecha/features/auth/presentation/widgets/login_drawer.dart';
 import 'package:flutter_pecha/features/group_profile/domain/entities/group_profile.dart';
 import 'package:flutter_pecha/features/group_profile/presentation/providers/group_profile_providers.dart';
-import 'package:flutter_pecha/features/plans/presentation/widgets/plan_inline_markdown_view.dart';
+import 'package:flutter_pecha/features/home/presentation/screens/main_navigation_screen.dart';
 import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class GroupProfileScreen extends ConsumerWidget {
@@ -26,6 +26,7 @@ class GroupProfileScreen extends ConsumerWidget {
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
+        bottom: false,
         child: Column(
           children: [
             _buildAppBar(context),
@@ -58,6 +59,9 @@ class GroupProfileScreen extends ConsumerWidget {
           ],
         ),
       ),
+      bottomNavigationBar: MainNavigationBottomBar(
+        onTabChanged: (_) => context.go('/home'),
+      ),
     );
   }
 
@@ -67,7 +71,7 @@ class GroupProfileScreen extends ConsumerWidget {
       child: Row(
         children: [
           IconButton(
-            icon: const Icon(PhosphorIconsRegular.arrowLeft),
+            icon: const Icon(AppAssets.arrowLeft),
             onPressed: () => context.pop(),
           ),
           const Spacer(),
@@ -187,7 +191,7 @@ class _GroupProfileBodyState extends ConsumerState<_GroupProfileBody> {
             child:
                 (profile.avatarUrl == null || profile.avatarUrl!.isEmpty)
                     ? Icon(
-                      PhosphorIconsRegular.usersThree,
+                      AppAssets.usersThree,
                       size: 22,
                       color: isDark ? AppColors.grey500 : AppColors.grey600,
                     )
@@ -239,66 +243,21 @@ class _GroupProfileBodyState extends ConsumerState<_GroupProfileBody> {
   Widget _buildDescription(String description, bool isDark) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          AnimatedCrossFade(
-            firstChild: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(
-                  height: 120,
-                  child: ClipRect(
-                    child: SingleChildScrollView(
-                      physics: const NeverScrollableScrollPhysics(),
-                      child: PlanInlineMarkdownView(
-                        content: description,
-                        fontSize: 14,
-                      ),
-                    ),
-                  ),
-                ),
-                GestureDetector(
-                  onTap: () => setState(() => _isDescriptionExpanded = true),
-                  child: const Padding(
-                    padding: EdgeInsets.only(top: 2),
-                    child: Text(
-                      'more',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
+      child: GestureDetector(
+        onTap:
+            () => setState(
+              () => _isDescriptionExpanded = !_isDescriptionExpanded,
             ),
-            secondChild: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                PlanInlineMarkdownView(content: description, fontSize: 14),
-                GestureDetector(
-                  onTap: () => setState(() => _isDescriptionExpanded = false),
-                  child: const Padding(
-                    padding: EdgeInsets.only(top: 4),
-                    child: Text(
-                      'less',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            crossFadeState:
-                _isDescriptionExpanded
-                    ? CrossFadeState.showSecond
-                    : CrossFadeState.showFirst,
-            duration: const Duration(milliseconds: 200),
+        behavior: HitTestBehavior.opaque,
+        child: Text(
+          description,
+          style: TextStyle(
+            fontSize: 15,
+            color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimary,
           ),
-        ],
+          maxLines: _isDescriptionExpanded ? null : 6,
+          overflow: _isDescriptionExpanded ? null : TextOverflow.ellipsis,
+        ),
       ),
     );
   }
@@ -310,15 +269,18 @@ class _GroupProfileBodyState extends ConsumerState<_GroupProfileBody> {
         onTap: () => _launchUrl(link.url),
         child: Row(
           children: [
-            Icon(PhosphorIconsRegular.link, size: 18, color: AppColors.info),
+            Icon(
+              AppAssets.linkSimple,
+              size: 18,
+              color: isDark ? AppColors.blueDark : AppColors.blue,
+            ),
             const SizedBox(width: 6),
             Flexible(
               child: Text(
                 link.url,
                 style: TextStyle(
                   fontSize: 14,
-                  color: AppColors.info,
-                  decoration: TextDecoration.underline,
+                  color: isDark ? AppColors.blueDark : AppColors.blue,
                 ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
@@ -478,7 +440,7 @@ class _GroupProfileBodyState extends ConsumerState<_GroupProfileBody> {
                                   ? AppColors.surfaceVariantDark
                                   : AppColors.grey100,
                           child: Icon(
-                            PhosphorIconsRegular.bookOpenText,
+                            AppAssets.bookOpenText,
                             color:
                                 isDark ? AppColors.grey500 : AppColors.grey600,
                           ),
@@ -530,20 +492,20 @@ class _GroupProfileBodyState extends ConsumerState<_GroupProfileBody> {
   IconData _socialIcon(String platform) {
     switch (platform.toLowerCase()) {
       case 'instagram':
-        return PhosphorIconsRegular.instagramLogo;
+        return AppAssets.instagram;
       case 'facebook':
-        return PhosphorIconsRegular.facebookLogo;
+        return AppAssets.facebook;
       case 'twitter':
       case 'x':
-        return PhosphorIconsRegular.xLogo;
+        return AppAssets.twitter;
       case 'youtube':
-        return PhosphorIconsRegular.youtubeLogo;
+        return AppAssets.youtube;
       case 'tiktok':
-        return PhosphorIconsRegular.tiktokLogo;
+        return AppAssets.tiktok;
       case 'linkedin':
-        return PhosphorIconsRegular.linkedinLogo;
+        return AppAssets.linkedin;
       default:
-        return PhosphorIconsRegular.link;
+        return AppAssets.link;
     }
   }
 

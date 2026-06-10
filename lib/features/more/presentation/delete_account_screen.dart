@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
+import 'package:flutter_pecha/core/widgets/destructive_confirmation_dialog.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -19,15 +20,15 @@ class _DeleteAccountScreenState extends ConsumerState<DeleteAccountScreen> {
   bool _isDeleting = false;
 
   Future<void> _confirmDelete() async {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final l10n = AppLocalizations.of(context)!;
 
-    await showDialog<void>(
-      context: context,
+    await showDestructiveConfirmationDialog(
+      context,
+      title: l10n.delete_account_title,
+      message: l10n.delete_account_confirm_message,
+      confirmLabel: l10n.delete_account_button,
       barrierDismissible: false,
-      builder: (_) => _DeleteConfirmationDialog(
-        isDark: isDark,
-        onConfirm: _deleteAccount,
-      ),
+      onConfirmed: _deleteAccount,
     );
   }
 
@@ -123,116 +124,6 @@ class _DeleteAccountScreenState extends ConsumerState<DeleteAccountScreen> {
                           fontSize: 16,
                         ),
                       ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _DeleteConfirmationDialog extends StatefulWidget {
-  const _DeleteConfirmationDialog({
-    required this.isDark,
-    required this.onConfirm,
-  });
-
-  final bool isDark;
-  final Future<void> Function() onConfirm;
-
-  @override
-  State<_DeleteConfirmationDialog> createState() =>
-      _DeleteConfirmationDialogState();
-}
-
-class _DeleteConfirmationDialogState extends State<_DeleteConfirmationDialog> {
-  bool _isLoading = false;
-
-  Future<void> _handleConfirm() async {
-    setState(() => _isLoading = true);
-    Navigator.of(context).pop();
-    await widget.onConfirm();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Dialog(
-      backgroundColor:
-          widget.isDark ? AppColors.surfaceDark : AppColors.surfaceWhite,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(24, 28, 24, 20),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              AppLocalizations.of(context)!.delete_account_title,
-              style: GoogleFonts.inter(
-                textStyle: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w900,
-                  fontSize: 17,
-                  letterSpacing: -0.3,
-                ),
-              ),
-            ),
-            const SizedBox(height: 12),
-            Text(
-              AppLocalizations.of(context)!.delete_account_confirm_message,
-              style: const TextStyle(fontSize: 14, height: 1.5),
-            ),
-            const SizedBox(height: 24),
-            SizedBox(
-              width: double.infinity,
-              height: 48,
-              child: OutlinedButton(
-                onPressed: _isLoading ? null : _handleConfirm,
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: Colors.red.shade600,
-                  side: const BorderSide(color: AppColors.grey300),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30),
-                  ),
-                ),
-                child: _isLoading
-                    ? SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: Colors.red.shade600,
-                        ),
-                      )
-                    : Text(
-                        AppLocalizations.of(context)!.delete_account_button,
-                        style: const TextStyle(fontSize: 15),
-                      ),
-              ),
-            ),
-            const SizedBox(height: 12),
-            SizedBox(
-              width: double.infinity,
-              height: 48,
-              child: OutlinedButton(
-                onPressed:
-                    _isLoading ? null : () => Navigator.of(context).pop(),
-                style: OutlinedButton.styleFrom(
-                  foregroundColor:
-                      widget.isDark ? AppColors.textPrimaryDark : Colors.black,
-                  side: const BorderSide(color: AppColors.grey300),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30),
-                  ),
-                ),
-                child: Text(
-                  AppLocalizations.of(context)!.cancel,
-                  style: TextStyle(
-                    fontSize: 15,
-                    color:
-                        widget.isDark ? AppColors.textPrimaryDark : Colors.black,
-                  ),
-                ),
               ),
             ),
           ],

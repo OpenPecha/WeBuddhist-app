@@ -1390,6 +1390,11 @@ class AppLocalizationsZh extends AppLocalizations {
   String get know_more => 'Know More';
 
   @override
+  String series_stats(int planCount, int totalDays) {
+    return '$planCount 個計劃 · $totalDays 天';
+  }
+
+  @override
   String get force_update_title => '需要更新';
 
   @override

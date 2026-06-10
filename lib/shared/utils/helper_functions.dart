@@ -14,6 +14,11 @@ String? getFontFamily(String language) {
   return AppFontConfig.getFontFamily(language, FontType.content);
 }
 
+// Helper function to get the system/UI font family (sans-serif for EN/ZH)
+String? getSystemFontFamily(String language) {
+  return AppFontConfig.getFontFamily(language, FontType.system);
+}
+
 // Helper function to get TextStyle for content with appropriate font
 // Use this for content widgets that need Google Fonts or local fonts
 TextStyle? getContentTextStyle(String? language, TextStyle? baseStyle) {

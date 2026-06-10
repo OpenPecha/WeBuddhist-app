@@ -2716,6 +2716,12 @@ abstract class AppLocalizations {
   /// **'Know More'**
   String get know_more;
 
+  /// No description provided for @series_stats.
+  ///
+  /// In en, this message translates to:
+  /// **'{planCount} PLANS · {totalDays} DAYS'**
+  String series_stats(int planCount, int totalDays);
+
   /// No description provided for @force_update_title.
   ///
   /// In en, this message translates to:
