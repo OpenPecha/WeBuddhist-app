@@ -70,7 +70,7 @@ class MoreScreen extends ConsumerWidget {
               _buildSettingsRow(
                 context,
                 icon: AppAssets.profile,
-                title: 'Edit profile',
+                title: localizations.settings_edit_profile,
                 onTap: () => context.push(AppRoutes.profile),
               ),
             _buildLanguageRow(context, ref, locale),
@@ -84,19 +84,19 @@ class MoreScreen extends ConsumerWidget {
             _buildSettingsRow(
               context,
               icon: AppAssets.about,
-              title: 'About',
+              title: localizations.about_title,
               onTap: () => context.push(AppRoutes.about),
             ),
             _buildSettingsRow(
               context,
               icon: AppAssets.legal,
-              title: 'Legal',
+              title: localizations.legal_title,
               onTap: () => context.push(AppRoutes.legal),
             ),
             _buildSettingsRow(
               context,
               icon: AppAssets.feedback,
-              title: 'Feedback',
+              title: localizations.settings_feedback_row,
               trailingIcon: AppAssets.arrowSquareOut,
               onTap: () async {
                 final url =
@@ -142,8 +142,8 @@ class MoreScreen extends ConsumerWidget {
   ) {
     return _buildSettingsRow(
       context,
-      icon: AppAssets.theme,
-      title: 'Theme',
+      icon: isDarkMode ? AppAssets.themeMoon : AppAssets.theme,
+      title: localizations.settings_theme,
       onTap: () {
         ref
             .read(themeModeProvider.notifier)
@@ -164,7 +164,7 @@ class MoreScreen extends ConsumerWidget {
     return _buildSettingsRow(
       context,
       icon: AppAssets.notification,
-      title: 'Notification',
+      title: localizations.settings_notification_row,
       onTap: () => context.push(NotificationSettingsScreen.routeName),
     );
   }
@@ -391,7 +391,7 @@ class MoreScreen extends ConsumerWidget {
               SizedBox(
                 width: 18,
                 child: isSelected
-                    ? Icon(Icons.check, size: 18, color: activeColor)
+                    ? Icon(AppAssets.check, size: 18, color: activeColor)
                     : const SizedBox.shrink(),
               ),
             ],

@@ -1417,6 +1417,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get settings_notification_row => '通知';
 
   @override
+  String get settings_feedback_row => '意見回饋';
+
+  @override
   String get edit_profile_title => '編輯個人檔案';
 
   @override

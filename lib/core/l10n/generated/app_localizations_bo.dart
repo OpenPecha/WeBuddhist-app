@@ -462,11 +462,11 @@ class AppLocalizationsBo extends AppLocalizations {
   String get notification_section_battery => 'Battery';
 
   @override
-  String get notification_allow_title => 'Allow notifications';
+  String get notification_allow_title => 'གསར་བརྡ་གཏོང་ཆོག';
 
   @override
   String get notification_allow_subtitle_enabled =>
-      'Notifications are enabled for this app';
+      'མཉེན་ཆས་འདིའི་ནང་གསར་བརྡའི་སྒོ་ཕྱེས་འདུག';
 
   @override
   String get notification_allow_subtitle_disabled =>
@@ -477,11 +477,11 @@ class AppLocalizationsBo extends AppLocalizations {
       'Reminders are paused. Tap to resume.';
 
   @override
-  String get notification_routine_title => 'Routine reminders';
+  String get notification_routine_title => 'འཆར་ཅན་དྲན་སྐུལ།';
 
   @override
   String get notification_routine_subtitle_enabled =>
-      'Daily reminders for your practice blocks';
+      'ཉམས་ལེན་དུས་མཚམས་ཀྱི་ཉིན་རེའི་དྲན་སྐུལ།';
 
   @override
   String get notification_routine_subtitle_disabled =>
@@ -510,11 +510,11 @@ class AppLocalizationsBo extends AppLocalizations {
       'Some Android phones pause background apps to save battery, which can delay or skip your reminders. Tap to keep yours running.';
 
   @override
-  String get notification_recitation_title => 'Recitation reminders';
+  String get notification_recitation_title => 'ཉིན་རེའི་ཞལ་འདོན་དྲན་སྐུལ།';
 
   @override
   String get notification_recitation_subtitle_enabled =>
-      'Daily reminders for your recitations';
+      'ཉམས་ལེན་དུས་མཚམས་ཀྱི་ཉིན་རེའི་དྲན་སྐུལ།';
 
   @override
   String get notification_recitation_subtitle_disabled =>
@@ -1467,16 +1467,19 @@ class AppLocalizationsBo extends AppLocalizations {
   String get settings_section_account => 'མིང་ཐོ།';
 
   @override
-  String get settings_edit_profile => 'ངོ་སྤྲོད་སྙིང་བསྡུས་བཟོ་བཅོས།';
+  String get settings_edit_profile => 'ངོ་སྤྲོད་བཟོ་བཅོས།';
 
   @override
-  String get settings_theme => 'བཀོད་པ།';
+  String get settings_theme => 'རྣམ་པ།';
 
   @override
   String get settings_notification_row => 'གསར་བརྡ།';
 
   @override
-  String get edit_profile_title => 'ངོ་སྤྲོད་སྙིང་བསྡུས་བཟོ་བཅོས།';
+  String get settings_feedback_row => 'བསམ་འཆར།';
+
+  @override
+  String get edit_profile_title => 'ངོ་སྤྲོད་བཟོ་བཅོས།';
 
   @override
   String get edit_profile_save => 'ཉར་ཚགས།';
@@ -1494,7 +1497,7 @@ class AppLocalizationsBo extends AppLocalizations {
   String get edit_profile_bio_hint => 'ཁྱེད་ཀྱི་ངོ་སྤྲོད་སྙིང་བསྡུས་ཤིག་ཕྲིས།';
 
   @override
-  String get edit_profile_delete_account => 'Delete account';
+  String get edit_profile_delete_account => 'མིང་ཐོ་བསུབ།';
 
   @override
   String get edit_profile_photo_not_uploaded => 'Photo not uploaded';
@@ -1553,11 +1556,11 @@ class AppLocalizationsBo extends AppLocalizations {
   String get about_title => 'སྐོར།';
 
   @override
-  String get about_connect_with_us => 'Connect with us';
+  String get about_connect_with_us => 'ང་ཚོར་འབྲེལ་བ་གནང་རོགས།';
 
   @override
   String get about_description =>
-      'We help Buddhists do less harm, more good, and know their own mind better by learning, practicing and connecting daily so that all beings become free from suffering and find lasting happiness.';
+      'ངེད་ཅག་གིས་ནང་པ་སངས་རྒྱས་པ་རྣམས་ལ། ཉིན་རེའི་སློབ་གཉེར་དང་། ཉམས་ལེན། ཆོས་ཀྱི་བགྲོ་གླེང་བཅས་ཀྱི་ལམ་ནས། སྡིག་པ་སྤོང་བ་དང་། དགེ་བ་སྒྲུབ་པ། སེམས་རྒྱུད་ཇེ་ལེགས་སུ་གཏོང་བའི་མཐུན་རྐྱེན་སྦྱོར་བཞིན་ཡོད། མཐུན་རྐྱེན་འདི་ལ་བརྟེན་ནས་མཁའ་མཉམ་གྱི་སེམས་ཅན་ཐམས་ཅད་སྡུག་བསྔལ་ལས་ཐར་ཞིང་། གཏན་གྱི་བདེ་བ་བསྒྲུབ་པར་རམ་འདེགས་བྱེད་བཞིན་ཡོད།';
 
   @override
   String get about_social_website => 'Website';
@@ -1581,24 +1584,24 @@ class AppLocalizationsBo extends AppLocalizations {
   String get me_guest_subtitle => 'Create a free account to access plans';
 
   @override
-  String get delete_account_title => 'Delete account';
+  String get delete_account_title => 'མིང་ཐོ་བསུབ།';
 
   @override
   String get delete_account_description =>
-      'If you delete your account, all your information, history, and personalized settings within WeBuddhist will be permanently eliminated. This action will also end any recurring contributions, if applicable. Please note that this action is irreversible. To proceed, tap the button below.';
+      'གལ་ཏེ་ཁྱེད་ཀྱིས་རང་གི་མིང་ཐོ་འདི་གསུབ་ན། WeBuddhist ནང་གི་ཁྱེད་ཀྱི་གནས་ཚུལ་དང་། ལོ་རྒྱུས་ཀྱི་ཐོ། སྒེར་གྱི་སྒྲིག་བཀོད་བཅས་གཏན་དུ་བསུབ་འགྲོ་བ་དང་། དེ་བཞིན་འདིའི་ནང་རྒྱུན་ལྡན་གྱི་བྱེད་སྒོ་ཁག་ལ་མཉམ་ཞུགས་དང་འཆར་གཞི། ཞལ་འདེབས་རིགས་གང་ཡོད་རྣམས་ཀྱང་རྦད་དེ་བསུབ་རྒྱུ་རེད། བསུབ་རྗེས་བསྐྱར་གསོ་བྱེད་ཐབས་མེད་པས་ཐུགས་གཟབ་གནང་རོགས། བསུབ་རྒྱུ་ཡིན་ན་གཤམ་གྱི་གནོན་ཐེབས་དེར་སྣུན།';
 
   @override
-  String get delete_account_button => 'Delete account';
+  String get delete_account_button => 'མིང་ཐོ་བསུབ།';
 
   @override
   String get delete_account_confirm_message =>
-      'Are you sure you want to delete your WeBuddhist account?';
+      'ཁྱེད་ཀྱིས་རང་གི་ WeBuddhist ཡི་མིང་ཐོ་བསུབ་གཏན་འཁེལ་ཡིན་ནམ།';
 
   @override
-  String get legal_title => 'Legal';
+  String get legal_title => 'ཁྲིམས་དོན།';
 
   @override
-  String get legal_terms_of_service => 'Terms of Service';
+  String get legal_terms_of_service => 'ཞབས་ཞུའི་ཆ་རྐྱེན།';
 
   @override
   String get legal_privacy_policy => 'སྒེར་དོན་གསང་རྒྱ།';

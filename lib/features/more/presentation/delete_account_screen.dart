@@ -100,20 +100,21 @@ class _DeleteAccountScreenState extends ConsumerState<DeleteAccountScreen> {
               child: ElevatedButton(
                 onPressed: _isDeleting ? null : _confirmDelete,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.black,
-                  foregroundColor: Colors.white,
-                  disabledBackgroundColor: Colors.black54,
+                  backgroundColor: isDark ? Colors.white : Colors.black,
+                  foregroundColor: isDark ? Colors.black : Colors.white,
+                  disabledBackgroundColor:
+                      isDark ? Colors.white54 : Colors.black54,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(30),
                   ),
                 ),
                 child: _isDeleting
-                    ? const SizedBox(
+                    ? SizedBox(
                         width: 22,
                         height: 22,
                         child: CircularProgressIndicator(
                           strokeWidth: 2.5,
-                          color: Colors.white,
+                          color: isDark ? Colors.black : Colors.white,
                         ),
                       )
                     : Text(
