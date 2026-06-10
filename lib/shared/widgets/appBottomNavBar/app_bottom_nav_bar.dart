@@ -18,21 +18,24 @@ class AppBottomNavBar<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Container(
-        padding: const EdgeInsets.only(top: 8),
-        decoration: BoxDecoration(color: Theme.of(context).cardColor),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: List.generate(
-            items.length,
-            (index) => Expanded(
-              child: GestureDetector(
-                behavior: HitTestBehavior.opaque,
-                onTap: () => onChanged.call(items[index].type),
-                child: AppBottomNavItem(
-                  model: items[index],
-                  selectedType: type,
+    return Container(
+      decoration: BoxDecoration(color: Theme.of(context).cardColor),
+      child: SafeArea(
+        top: false,
+        child: Padding(
+          padding: const EdgeInsets.only(top: 8),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: List.generate(
+              items.length,
+              (index) => Expanded(
+                child: GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: () => onChanged.call(items[index].type),
+                  child: AppBottomNavItem(
+                    model: items[index],
+                    selectedType: type,
+                  ),
                 ),
               ),
             ),

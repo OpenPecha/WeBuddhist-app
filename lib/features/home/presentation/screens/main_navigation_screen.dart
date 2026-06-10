@@ -13,7 +13,7 @@ import 'package:flutter_pecha/shared/widgets/appBottomNavBar/app_bottom_nav_item
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Bottom-nav tabs in display order. The enum index matches the position in
-/// [MainNavigationScreen._getItems] and the int value stored in
+/// [mainNavigationItems] and the int value stored in
 /// [mainNavigationIndexProvider]; prefer `MainTab.x.index` over raw numbers.
 enum MainTab { home, practice, me }
 
@@ -34,10 +34,7 @@ final pendingOnboardingPlanProvider = StateProvider<UserPlansModel?>(
   (ref) => null,
 );
 
-class MainNavigationScreen extends ConsumerWidget {
-  const MainNavigationScreen({super.key});
-
-  List<AppBottomBarItemModel<int>> _getItems(BuildContext context) {
+List<AppBottomBarItemModel<int>> mainNavigationItems(BuildContext context) {
     final localizations = AppLocalizations.of(context)!;
     return [
       AppBottomBarItemModel(
@@ -83,11 +80,36 @@ class MainNavigationScreen extends ConsumerWidget {
       //   unSelectedIconData: AppAssets.exploreUnselected,
       // ),
     ];
-  }
+}
+
+class MainNavigationBottomBar extends ConsumerWidget {
+  const MainNavigationBottomBar({super.key, this.onTabChanged});
+
+  final ValueChanged<int>? onTabChanged;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final items = _getItems(context);
+    final items = mainNavigationItems(context);
+    final selectedIndex = ref.watch(mainNavigationIndexProvider);
+
+    return AppBottomNavBar(
+      items: items,
+      onChanged: (index) {
+        ref.read(initialPracticeTabResolvedProvider.notifier).state = true;
+        ref.read(mainNavigationIndexProvider.notifier).state = index;
+        onTabChanged?.call(index);
+      },
+      type: selectedIndex,
+    );
+  }
+}
+
+class MainNavigationScreen extends ConsumerWidget {
+  const MainNavigationScreen({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final items = mainNavigationItems(context);
     final selectedIndex = ref.watch(mainNavigationIndexProvider);
 
     // Open Practice on launch if the logged-in user already has a routine.
@@ -110,14 +132,7 @@ class MainNavigationScreen extends ConsumerWidget {
     return Scaffold(
       backgroundColor: Theme.of(context).cardColor,
       body: items[selectedIndex].selectedWidget,
-      bottomNavigationBar: AppBottomNavBar(
-        items: items,
-        onChanged: (index) {
-          ref.read(initialPracticeTabResolvedProvider.notifier).state = true;
-          ref.read(mainNavigationIndexProvider.notifier).state = index;
-        },
-        type: selectedIndex,
-      ),
+      bottomNavigationBar: const MainNavigationBottomBar(),
     );
   }
 }
