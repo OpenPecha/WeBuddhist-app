@@ -8,7 +8,6 @@ import 'package:flutter_pecha/features/auth/presentation/widgets/login_drawer.da
 import 'package:flutter_pecha/features/group_profile/domain/entities/group_profile.dart';
 import 'package:flutter_pecha/features/group_profile/presentation/providers/group_profile_providers.dart';
 import 'package:flutter_pecha/features/home/presentation/screens/main_navigation_screen.dart';
-import 'package:flutter_pecha/features/plans/presentation/widgets/plan_inline_markdown_view.dart';
 import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -244,75 +243,21 @@ class _GroupProfileBodyState extends ConsumerState<_GroupProfileBody> {
   Widget _buildDescription(String description, bool isDark) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          AnimatedCrossFade(
-            firstChild: GestureDetector(
-              onTap: () => setState(() => _isDescriptionExpanded = true),
-              behavior: HitTestBehavior.opaque,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizedBox(
-                    height: 120,
-                    child: ClipRect(
-                      child: IgnorePointer(
-                        child: SingleChildScrollView(
-                          physics: const NeverScrollableScrollPhysics(),
-                          child: PlanInlineMarkdownView(
-                            content: description,
-                            fontSize: 14,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  const Padding(
-                    padding: EdgeInsets.only(top: 2),
-                    child: Text(
-                      'more',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+      child: GestureDetector(
+        onTap:
+            () => setState(
+              () => _isDescriptionExpanded = !_isDescriptionExpanded,
             ),
-            secondChild: GestureDetector(
-              onTap: () => setState(() => _isDescriptionExpanded = false),
-              behavior: HitTestBehavior.opaque,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  IgnorePointer(
-                    child: PlanInlineMarkdownView(
-                      content: description,
-                      fontSize: 14,
-                    ),
-                  ),
-                  const Padding(
-                    padding: EdgeInsets.only(top: 4),
-                    child: Text(
-                      'less',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            crossFadeState:
-                _isDescriptionExpanded
-                    ? CrossFadeState.showSecond
-                    : CrossFadeState.showFirst,
-            duration: const Duration(milliseconds: 200),
+        behavior: HitTestBehavior.opaque,
+        child: Text(
+          description,
+          style: TextStyle(
+            fontSize: 15,
+            color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimary,
           ),
-        ],
+          maxLines: _isDescriptionExpanded ? null : 6,
+          overflow: _isDescriptionExpanded ? null : TextOverflow.ellipsis,
+        ),
       ),
     );
   }
