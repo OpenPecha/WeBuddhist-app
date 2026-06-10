@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../shared/widgets/reusable_youtube_player.dart';
@@ -13,7 +14,7 @@ class MeditationVideo extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios),
+          icon: const Icon(AppAssets.arrowLeft),
           onPressed: () {
             context.pop();
           },

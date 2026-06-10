@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/widgets/audio_controls.dart';
 import 'package:flutter_pecha/core/widgets/audio_progress_bar.dart';
@@ -132,7 +133,7 @@ class _MeditationOfTheDayScreenState extends ConsumerState<MeditationOfTheDayScr
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios),
+          icon: const Icon(AppAssets.arrowLeft),
           onPressed: () {
             _audioPlayer.stop();
             context.pop();

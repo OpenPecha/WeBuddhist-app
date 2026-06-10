@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
@@ -8,6 +9,7 @@ import 'package:flutter_pecha/features/plans/presentation/providers/find_plans_p
 import 'package:flutter_pecha/core/widgets/responsive_cover_image.dart';
 import 'package:flutter_pecha/shared/domain/value_objects/responsive_image.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 final _logger = AppLogger('SelectPlanScreen');
 
@@ -60,6 +62,10 @@ class _SelectPlanScreenState extends ConsumerState<SelectPlanScreen> {
 
       final scaffold = Scaffold(
         appBar: AppBar(
+          leading: IconButton(
+            icon: const Icon(AppAssets.arrowLeft),
+            onPressed: () => context.pop(),
+          ),
           title: Text(
             localizations.routine_add_plan,
             style: const TextStyle(
