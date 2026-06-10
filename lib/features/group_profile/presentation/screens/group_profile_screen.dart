@@ -248,24 +248,27 @@ class _GroupProfileBodyState extends ConsumerState<_GroupProfileBody> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           AnimatedCrossFade(
-            firstChild: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(
-                  height: 120,
-                  child: ClipRect(
-                    child: SingleChildScrollView(
-                      physics: const NeverScrollableScrollPhysics(),
-                      child: PlanInlineMarkdownView(
-                        content: description,
-                        fontSize: 14,
+            firstChild: GestureDetector(
+              onTap: () => setState(() => _isDescriptionExpanded = true),
+              behavior: HitTestBehavior.opaque,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(
+                    height: 120,
+                    child: ClipRect(
+                      child: IgnorePointer(
+                        child: SingleChildScrollView(
+                          physics: const NeverScrollableScrollPhysics(),
+                          child: PlanInlineMarkdownView(
+                            content: description,
+                            fontSize: 14,
+                          ),
+                        ),
                       ),
                     ),
                   ),
-                ),
-                GestureDetector(
-                  onTap: () => setState(() => _isDescriptionExpanded = true),
-                  child: const Padding(
+                  const Padding(
                     padding: EdgeInsets.only(top: 2),
                     child: Text(
                       'more',
@@ -275,16 +278,22 @@ class _GroupProfileBodyState extends ConsumerState<_GroupProfileBody> {
                       ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-            secondChild: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                PlanInlineMarkdownView(content: description, fontSize: 14),
-                GestureDetector(
-                  onTap: () => setState(() => _isDescriptionExpanded = false),
-                  child: const Padding(
+            secondChild: GestureDetector(
+              onTap: () => setState(() => _isDescriptionExpanded = false),
+              behavior: HitTestBehavior.opaque,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  IgnorePointer(
+                    child: PlanInlineMarkdownView(
+                      content: description,
+                      fontSize: 14,
+                    ),
+                  ),
+                  const Padding(
                     padding: EdgeInsets.only(top: 4),
                     child: Text(
                       'less',
@@ -294,8 +303,8 @@ class _GroupProfileBodyState extends ConsumerState<_GroupProfileBody> {
                       ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
             crossFadeState:
                 _isDescriptionExpanded
