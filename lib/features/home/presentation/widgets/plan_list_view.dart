@@ -20,6 +20,7 @@ import 'package:flutter_pecha/features/practice/presentation/widgets/routine_ite
 import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 /// Renders a non-empty list of [Plan]s as a featured card on top and a scrolling
 /// list below — used by both `PlanListScreen` (tag-filtered) and
@@ -177,7 +178,7 @@ class FeaturedPlanCard extends ConsumerWidget {
                 children: [
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Expanded(
                         child: Column(
@@ -191,7 +192,7 @@ class FeaturedPlanCard extends ConsumerWidget {
                                 height: lineHeight,
                               ),
                             ),
-                            if (hasDescription) ...[
+                            if (hasDescription)
                               Text(
                                 displayDescription,
                                 style: TextStyle(
@@ -201,14 +202,13 @@ class FeaturedPlanCard extends ConsumerWidget {
                                 maxLines: 2,
                                 overflow: TextOverflow.ellipsis,
                               ),
-                              const SizedBox(height: 6),
-                            ],
                           ],
                         ),
                       ),
-                      Icon(Icons.arrow_forward, size: titleFontSize),
+                      Icon(PhosphorIcons.caretRight(), size: 24),
                     ],
                   ),
+                  if (hasDescription) const SizedBox(height: 6),
                   if (!hideEnrollButton) ...[
                     const SizedBox(height: 14),
                     SizedBox(
@@ -307,10 +307,7 @@ class FeaturedPlanCard extends ConsumerWidget {
 
   void _navigateToSeriesInfo(BuildContext context) {
     if (series == null) return;
-    context.push(
-      '/home/series/${series!.id}/info',
-      extra: {'series': series!},
-    );
+    context.push('/home/series/${series!.id}/info', extra: {'series': series!});
   }
 }
 

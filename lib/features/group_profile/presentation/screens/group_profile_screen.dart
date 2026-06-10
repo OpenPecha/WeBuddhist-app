@@ -310,15 +310,18 @@ class _GroupProfileBodyState extends ConsumerState<_GroupProfileBody> {
         onTap: () => _launchUrl(link.url),
         child: Row(
           children: [
-            Icon(PhosphorIconsRegular.link, size: 18, color: AppColors.info),
+            Icon(
+              PhosphorIconsRegular.linkSimple,
+              size: 18,
+              color: isDark ? AppColors.blueDark : AppColors.blue,
+            ),
             const SizedBox(width: 6),
             Flexible(
               child: Text(
                 link.url,
                 style: TextStyle(
                   fontSize: 14,
-                  color: AppColors.info,
-                  decoration: TextDecoration.underline,
+                  color: isDark ? AppColors.blueDark : AppColors.blue,
                 ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,

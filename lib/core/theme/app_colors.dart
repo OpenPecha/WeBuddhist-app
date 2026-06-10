@@ -67,6 +67,10 @@ class AppColors {
   static const Color textSubtleDark = Color(0xFFA1A1A1); // Subtle
   static const Color textLabelDark = Color(0xFFDADADA); // Labels
 
+  // ============ Blue Colors ============
+  static const Color blue = Color(0xFF0C53C5); // Light mode
+  static const Color blueDark = Color(0xFF8CB5F8); // Dark mode
+
   // ============ Semantic Colors (for compatibility) ============
   static const Color onPrimary = Color(0xFFFFFFFF);
   static const Color error = Color(0xFFD32F2F);

@@ -6,7 +6,7 @@ import 'package:url_launcher/url_launcher.dart';
 /// Renders markdown content for plan TEXT subtasks.
 ///
 /// - Selectable text (matches the previous `SelectableText` behaviour).
-/// - Locale-aware font family and line height for Tibetan / EN / ZH.
+/// - Locale-aware system (sans-serif) font and line height for Tibetan / EN / ZH.
 /// - Headings, lists, emphasis and blockquotes scale off [fontSize] so the
 ///   reader font-size bottom sheet still drives the whole document.
 /// - `[label](url)` opens in the external browser via `url_launcher`.
@@ -39,7 +39,7 @@ class PlanInlineMarkdownView extends StatelessWidget {
   MarkdownStyleSheet _buildStyleSheet(BuildContext context, String language) {
     final theme = Theme.of(context);
     final onSurface = theme.colorScheme.onSurface;
-    final fontFamily = getFontFamily(language);
+    final fontFamily = getSystemFontFamily(language);
     final lineHeight = getLineHeight(language) ?? 1.6;
 
     TextStyle text(double size, {FontWeight? weight}) {
