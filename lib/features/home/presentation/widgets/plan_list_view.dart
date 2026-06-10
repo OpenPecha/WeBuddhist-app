@@ -272,12 +272,10 @@ class FeaturedPlanCard extends ConsumerWidget {
       return;
     }
 
-    // Defensive no-op: a stale render could allow a tap after the user is
-    // already enrolled. Honor that latest state rather than re-POSTing.
-    final alreadyEnrolled =
-        ref.read(userSeriesEnrollmentsProvider).valueOrNull?.contains(id) ??
-        false;
-    if (alreadyEnrolled) return;
+    final enrollments =
+        await ref.read(userSeriesEnrollmentsProvider.future);
+    if (!context.mounted) return;
+    if (enrollments.contains(id)) return;
 
     final notifier = ref.read(seriesEnrollmentProvider(id).notifier);
     final ok = await notifier.enroll();

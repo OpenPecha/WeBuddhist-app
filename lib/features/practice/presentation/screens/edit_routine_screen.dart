@@ -1153,12 +1153,10 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
     }
 
     final seriesId = series.id;
-    final alreadyEnrolled =
-        ref
-            .read(userSeriesEnrollmentsProvider)
-            .valueOrNull
-            ?.contains(seriesId) ??
-        false;
+    final enrollments =
+        await ref.read(userSeriesEnrollmentsProvider.future);
+    if (!mounted) return;
+    final alreadyEnrolled = enrollments.contains(seriesId);
 
     if (!alreadyEnrolled) {
       final notifier = ref.read(seriesEnrollmentProvider(seriesId).notifier);
