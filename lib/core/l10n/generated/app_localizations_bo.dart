@@ -1448,6 +1448,11 @@ class AppLocalizationsBo extends AppLocalizations {
   String get know_more => 'ཞིབ་ཕྲ་གཟིགས།';
 
   @override
+  String series_stats(int planCount, int totalDays) {
+    return 'འཆར་གཞི་ $planCount · ཉིན་ $totalDays';
+  }
+
+  @override
   String get force_update_title => 'གསར་བསྒྱུར་དགོས་མཁོ།';
 
   @override

@@ -652,6 +652,17 @@
   "reader_source_label": "Source",
   "reader_license_label": "License",
   "know_more": "Know More",
+  "series_stats": "{planCount} PLANS · {totalDays} DAYS",
+  "@series_stats": {
+    "placeholders": {
+      "planCount": {
+        "type": "int"
+      },
+      "totalDays": {
+        "type": "int"
+      }
+    }
+  },
   "force_update_title": "Update required",
   "force_update_message": "A new version of the app is available. Please update to continue.",
   "force_update_button": "Update now",

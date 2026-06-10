@@ -20,7 +20,6 @@ import 'package:flutter_pecha/features/practice/presentation/widgets/routine_ite
 import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 /// Renders a non-empty list of [Plan]s as a featured card on top and a scrolling
 /// list below — used by both `PlanListScreen` (tag-filtered) and
@@ -105,7 +104,6 @@ class FeaturedPlanCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final locale = ref.watch(localeProvider);
     final lineHeight = getLineHeight(locale.languageCode);
-    final titleFontSize = locale.languageCode == 'bo' ? 22.0 : 18.0;
     final subtitleFontSize = locale.languageCode == 'bo' ? 18.0 : 14.0;
 
     final displayDescription = series?.description ?? plan.description;
@@ -153,14 +151,16 @@ class FeaturedPlanCard extends ConsumerWidget {
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
-          color: Colors.transparent,
+          color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
         ),
         clipBehavior: Clip.antiAlias,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             ClipRRect(
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(16),
+              ),
               child: AspectRatio(
                 aspectRatio: 16 / 9,
                 child: _PlanCoverImage(
@@ -176,39 +176,31 @@ class FeaturedPlanCard extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              localizations.know_more,
-                              style: TextStyle(
-                                fontSize: titleFontSize,
-                                fontWeight: FontWeight.bold,
-                                height: lineHeight,
-                              ),
-                            ),
-                            if (hasDescription)
-                              Text(
-                                displayDescription,
-                                style: TextStyle(
-                                  fontSize: subtitleFontSize,
-                                  height: lineHeight,
-                                ),
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                          ],
-                        ),
+                  if (series != null)
+                    Text(
+                      localizations.series_stats(
+                        series!.plans.length,
+                        series!.totalDays,
                       ),
-                      Icon(PhosphorIcons.caretRight(), size: 24),
-                    ],
-                  ),
-                  if (hasDescription) const SizedBox(height: 6),
+                      style: TextStyle(
+                        fontSize: subtitleFontSize,
+                        fontWeight: FontWeight.w500,
+                        height: lineHeight,
+                      ),
+                    ),
+                  if (hasDescription) ...[
+                    if (series != null) const SizedBox(height: 6),
+                    Text(
+                      displayDescription,
+                      style: TextStyle(
+                        fontSize: subtitleFontSize,
+                        height: lineHeight,
+                        fontWeight: FontWeight.w600,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
                   if (!hideEnrollButton) ...[
                     const SizedBox(height: 14),
                     SizedBox(

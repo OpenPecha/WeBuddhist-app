@@ -1450,6 +1450,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get know_more => 'Know More';
 
   @override
+  String series_stats(int planCount, int totalDays) {
+    return '$planCount PLANS · $totalDays DAYS';
+  }
+
+  @override
   String get force_update_title => 'Update required';
 
   @override
