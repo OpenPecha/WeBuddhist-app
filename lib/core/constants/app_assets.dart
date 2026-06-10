@@ -92,7 +92,6 @@ class AppAssets {
   static const IconData tiktok = PhosphorIconsRegular.tiktokLogo;
   static const IconData linkedin = PhosphorIconsRegular.linkedinLogo;
   static const IconData link = PhosphorIconsRegular.link;
-  static const IconData linkSimple = PhosphorIconsRegular.linkSimple;
   static const IconData globe = PhosphorIconsRegular.globe;
 
   // ========== GROUP & SERIES ICONS ==========
