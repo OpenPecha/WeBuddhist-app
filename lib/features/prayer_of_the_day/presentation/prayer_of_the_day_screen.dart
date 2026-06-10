@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/services/audio/audio_handler.dart';
 import 'package:flutter_pecha/core/services/service_providers.dart';
@@ -220,7 +221,7 @@ class _PrayerOfTheDayScreenState extends ConsumerState<PrayerOfTheDayScreen> {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios),
+          icon: const Icon(AppAssets.arrowLeft),
           onPressed: () {
             _audioHandler!.stop();
             context.pop();

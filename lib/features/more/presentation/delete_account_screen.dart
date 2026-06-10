@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/core/widgets/destructive_confirmation_dialog.dart';
@@ -66,7 +67,7 @@ class _DeleteAccountScreenState extends ConsumerState<DeleteAccountScreen> {
             isDark ? AppColors.surfaceDark : AppColors.surfaceWhite,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+          icon: const Icon(AppAssets.arrowLeft),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(

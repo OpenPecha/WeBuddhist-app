@@ -15,6 +15,10 @@ class LegalScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(AppAssets.arrowLeft),
+          onPressed: () => context.pop(),
+        ),
         elevation: 0,
         title: Text(
           l10n.legal_title,

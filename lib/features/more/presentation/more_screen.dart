@@ -47,6 +47,10 @@ class MoreScreen extends ConsumerWidget {
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(AppAssets.arrowLeft),
+          onPressed: () => context.pop(),
+        ),
         elevation: 0,
         title: Text(
           localizations.nav_settings,

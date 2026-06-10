@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
@@ -10,6 +11,7 @@ import 'package:flutter_pecha/features/notifications/presentation/providers/noti
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:go_router/go_router.dart';
 import 'package:timezone/timezone.dart' as tz;
 
 class NotificationSettingsScreen extends ConsumerStatefulWidget {
@@ -176,6 +178,10 @@ class _NotificationSettingsScreenState
 
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(AppAssets.arrowLeft),
+          onPressed: () => context.pop(),
+        ),
         elevation: 0,
         centerTitle: true,
         title: Text(

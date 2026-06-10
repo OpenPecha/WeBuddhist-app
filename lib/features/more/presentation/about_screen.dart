@@ -3,6 +3,7 @@ import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:go_router/go_router.dart';
 
 class AboutScreen extends StatelessWidget {
   const AboutScreen({super.key});
@@ -50,6 +51,10 @@ class AboutScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(AppAssets.arrowLeft),
+          onPressed: () => context.pop(),
+        ),
         elevation: 0,
         title: Text(
           l10n.about_title,

@@ -6,6 +6,7 @@ import 'package:flutter_pecha/core/analytics/analytics_events.dart';
 import 'package:flutter_pecha/core/analytics/analytics_providers.dart';
 import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
 import 'package:flutter_pecha/core/error/failures.dart';
+import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/core/widgets/skeletons/skeletons.dart';
@@ -20,6 +21,7 @@ import 'package:flutter_pecha/features/plans/presentation/widgets/plan_navigatio
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/features/reader/data/models/navigation_context.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../day_completion_bottom_sheet.dart';
 import '../plan_cover_image.dart';
 import '../day_carousel.dart';
@@ -191,6 +193,10 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
     AppLocalizations localizations,
   ) {
     return AppBar(
+      leading: IconButton(
+        icon: const Icon(AppAssets.arrowLeft),
+        onPressed: () => context.pop(),
+      ),
       title: Text(widget.plan.title, style: TextStyle(fontSize: 20)),
       elevation: 0,
     );

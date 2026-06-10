@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/core/widgets/skeletons/skeletons.dart';
@@ -136,6 +137,10 @@ class _PlanPreviewDetailsState extends ConsumerState<PlanPreviewDetails> {
 
   AppBar _buildAppBar(BuildContext context, bool alreadyInRoutine) {
     return AppBar(
+      leading: IconButton(
+        icon: const Icon(AppAssets.arrowLeft),
+        onPressed: () => context.pop(),
+      ),
       title: Text(widget.plan.title, style: const TextStyle(fontSize: 20)),
       elevation: 0,
       actions: const [],
