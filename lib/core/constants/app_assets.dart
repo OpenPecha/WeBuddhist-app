@@ -80,5 +80,13 @@ class AppAssets {
   static const IconData facebook = PhosphorIconsRegular.facebookLogo;
   static const IconData twitter = PhosphorIconsRegular.xLogo;
   static const IconData youtube = PhosphorIconsRegular.youtubeLogo;
+  static const IconData tiktok = PhosphorIconsRegular.tiktokLogo;
+  static const IconData linkedin = PhosphorIconsRegular.linkedinLogo;
+  static const IconData link = PhosphorIconsRegular.link;
+  static const IconData linkSimple = PhosphorIconsRegular.linkSimple;
   static const IconData globe = PhosphorIconsRegular.globe;
+
+  // ========== GROUP & SERIES ICONS ==========
+  static const IconData usersThree = PhosphorIconsRegular.usersThree;
+  static const IconData bookOpenText = PhosphorIconsRegular.bookOpenText;
 }

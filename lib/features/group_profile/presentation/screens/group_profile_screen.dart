@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/core/widgets/error_state_widget.dart';
 import 'package:flutter_pecha/core/widgets/responsive_cover_image.dart';
@@ -11,7 +12,6 @@ import 'package:flutter_pecha/features/plans/presentation/widgets/plan_inline_ma
 import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class GroupProfileScreen extends ConsumerWidget {
@@ -72,7 +72,7 @@ class GroupProfileScreen extends ConsumerWidget {
       child: Row(
         children: [
           IconButton(
-            icon: const Icon(PhosphorIconsRegular.arrowLeft),
+            icon: const Icon(AppAssets.arrowLeft),
             onPressed: () => context.pop(),
           ),
           const Spacer(),
@@ -192,7 +192,7 @@ class _GroupProfileBodyState extends ConsumerState<_GroupProfileBody> {
             child:
                 (profile.avatarUrl == null || profile.avatarUrl!.isEmpty)
                     ? Icon(
-                      PhosphorIconsRegular.usersThree,
+                      AppAssets.usersThree,
                       size: 22,
                       color: isDark ? AppColors.grey500 : AppColors.grey600,
                     )
@@ -325,7 +325,7 @@ class _GroupProfileBodyState extends ConsumerState<_GroupProfileBody> {
         child: Row(
           children: [
             Icon(
-              PhosphorIconsRegular.linkSimple,
+              AppAssets.linkSimple,
               size: 18,
               color: isDark ? AppColors.blueDark : AppColors.blue,
             ),
@@ -495,7 +495,7 @@ class _GroupProfileBodyState extends ConsumerState<_GroupProfileBody> {
                                   ? AppColors.surfaceVariantDark
                                   : AppColors.grey100,
                           child: Icon(
-                            PhosphorIconsRegular.bookOpenText,
+                            AppAssets.bookOpenText,
                             color:
                                 isDark ? AppColors.grey500 : AppColors.grey600,
                           ),
@@ -547,20 +547,20 @@ class _GroupProfileBodyState extends ConsumerState<_GroupProfileBody> {
   IconData _socialIcon(String platform) {
     switch (platform.toLowerCase()) {
       case 'instagram':
-        return PhosphorIconsRegular.instagramLogo;
+        return AppAssets.instagram;
       case 'facebook':
-        return PhosphorIconsRegular.facebookLogo;
+        return AppAssets.facebook;
       case 'twitter':
       case 'x':
-        return PhosphorIconsRegular.xLogo;
+        return AppAssets.twitter;
       case 'youtube':
-        return PhosphorIconsRegular.youtubeLogo;
+        return AppAssets.youtube;
       case 'tiktok':
-        return PhosphorIconsRegular.tiktokLogo;
+        return AppAssets.tiktok;
       case 'linkedin':
-        return PhosphorIconsRegular.linkedinLogo;
+        return AppAssets.linkedin;
       default:
-        return PhosphorIconsRegular.link;
+        return AppAssets.link;
     }
   }
 

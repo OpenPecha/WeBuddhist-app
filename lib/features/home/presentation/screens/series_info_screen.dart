@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/core/widgets/responsive_cover_image.dart';
@@ -7,7 +8,6 @@ import 'package:flutter_pecha/features/plans/presentation/widgets/plan_inline_ma
 import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 class SeriesInfoScreen extends ConsumerWidget {
   final Series series;
@@ -98,7 +98,7 @@ class SeriesInfoScreen extends ConsumerWidget {
       child: Row(
         children: [
           IconButton(
-            icon: const Icon(PhosphorIconsRegular.arrowLeft),
+            icon: const Icon(AppAssets.arrowLeft),
             onPressed: () => context.pop(),
           ),
           const Spacer(),
@@ -134,7 +134,7 @@ class SeriesInfoScreen extends ConsumerWidget {
               child:
                   (group.avatarUrl == null || group.avatarUrl!.isEmpty)
                       ? Icon(
-                        Icons.group,
+                        AppAssets.usersThree,
                         size: 20,
                         color: isDark ? AppColors.grey500 : AppColors.grey600,
                       )
@@ -172,7 +172,7 @@ class SeriesInfoScreen extends ConsumerWidget {
               ),
             ),
             Icon(
-              Icons.chevron_right,
+              AppAssets.caretRight,
               color: isDark ? AppColors.grey500 : AppColors.grey600,
             ),
           ],
