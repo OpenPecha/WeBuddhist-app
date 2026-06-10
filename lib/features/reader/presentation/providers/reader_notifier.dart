@@ -396,7 +396,12 @@ class ReaderNotifier extends StateNotifier<ReaderState> {
   /// Open commentary panel for a segment
   void openCommentary(String segmentId) {
     if (_isDisposed) return;
-    state = state.copyWith(commentarySegmentId: segmentId);
+    final isOpening = !state.isCommentaryOpen;
+    state = state.copyWith(
+      commentarySegmentId: segmentId,
+      splitRatio:
+          isOpening ? ReaderConstants.defaultSplitRatio : state.splitRatio,
+    );
   }
 
   /// Close commentary panel
@@ -419,7 +424,12 @@ class ReaderNotifier extends StateNotifier<ReaderState> {
   /// Open translation panel for a segment
   void openTranslation(String segmentId) {
     if (_isDisposed) return;
-    state = state.copyWith(translationSegmentId: segmentId);
+    final isOpening = !state.isTranslationOpen;
+    state = state.copyWith(
+      translationSegmentId: segmentId,
+      splitRatio:
+          isOpening ? ReaderConstants.defaultSplitRatio : state.splitRatio,
+    );
   }
 
   /// Close translation panel

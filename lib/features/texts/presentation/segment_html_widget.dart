@@ -9,6 +9,11 @@ class SegmentHtmlWidget extends ConsumerStatefulWidget {
   final double fontSize;
   final String language;
   final bool isSelected;
+
+  /// Optional override for the body text color. Used to render the secondary
+  /// (parallel) version in a muted tone so it reads as supporting text. When
+  /// null, the text inherits the default theme color.
+  final Color? textColor;
   const SegmentHtmlWidget({
     super.key,
     required this.htmlContent,
@@ -16,6 +21,7 @@ class SegmentHtmlWidget extends ConsumerStatefulWidget {
     required this.fontSize,
     required this.language,
     this.isSelected = false,
+    this.textColor,
   });
 
   @override
@@ -48,6 +54,7 @@ class _SegmentHtmlWidgetState extends ConsumerState<SegmentHtmlWidget> {
         "body": Style(
           fontSize: FontSize(widget.fontSize),
           margin: Margins.zero,
+          color: widget.textColor,
           fontFamily: getFontFamily(widget.language),
           padding: HtmlPaddings.zero,
           textDecoration: widget.isSelected ? TextDecoration.underline : null,
