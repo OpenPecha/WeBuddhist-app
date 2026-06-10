@@ -46,6 +46,7 @@ class AppAssets {
   static const IconData language = PhosphorIconsRegular.translate;
   static const IconData notification = PhosphorIconsRegular.bellRinging;
   static const IconData theme = PhosphorIconsRegular.sun;
+  static const IconData themeMoon = PhosphorIconsRegular.moon;
   static const IconData about = PhosphorIconsRegular.info;
   static const IconData legal = PhosphorIconsRegular.gavel;
   static const IconData feedback = PhosphorIconsRegular.chatText;

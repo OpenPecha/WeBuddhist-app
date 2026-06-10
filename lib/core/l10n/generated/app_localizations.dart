@@ -1063,7 +1063,7 @@ abstract class AppLocalizations {
   /// No description provided for @notification_recitation_title.
   ///
   /// In en, this message translates to:
-  /// **'Recitation reminders'**
+  /// **'Recitations reminder'**
   String get notification_recitation_title;
 
   /// No description provided for @notification_recitation_subtitle_enabled.
@@ -2769,6 +2769,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Notification'**
   String get settings_notification_row;
+
+  /// No description provided for @settings_feedback_row.
+  ///
+  /// In en, this message translates to:
+  /// **'Feedback'**
+  String get settings_feedback_row;
 
   /// No description provided for @edit_profile_title.
   ///
