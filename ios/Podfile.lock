@@ -337,8 +337,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/webview_flutter_wkwebview/darwin"
 
 SPEC CHECKSUMS:
-  audio_service: cab6c1a0eaf01b5a35b567e11fa67d3cc1956910
-  audio_session: 19e9480dbdd4e5f6c4543826b2e8b0e4ab6145fe
+  audio_service: aa99a6ba2ae7565996015322b0bb024e1d25c6fd
+  audio_session: 9bb7f6c970f21241b19f5a3658097ae459681ba0
   Auth0: 2876d0c36857422eda9cb580a6cc896c7d14cb36
   auth0_flutter: 031042ca6cf84f1b21611062b33ea7ec4bf3bc52
   connectivity_plus: cb623214f4e1f6ef8fe7403d580fdad517d2f7dd
@@ -373,6 +373,7 @@ SPEC CHECKSUMS:
   nanopb: fad817b59e0457d11a5dfbde799381cd727c1275
   OrderedSet: e539b66b644ff081c73a262d24ad552a69be3a94
   package_info_plus: af8e2ca6888548050f16fa2f1938db7b5a5df499
+  path_provider_foundation: bb55f6dbba17d0dccd6737fe6f7f34fbd0376880
   permission_handler_apple: 92d754bbaa7361d436db2d6c3c1c2a0fdcec462e
   PostHog: 6c74cc84f3872f4335108ff363aecdeb7c278052
   posthog_flutter: 343db84a70d44b12fa0fe2fc35bbb58098074bd4
@@ -385,7 +386,7 @@ SPEC CHECKSUMS:
   SimpleKeychain: 768cf43ae778b1c21816e94dddf01bb8ee96a075
   sqflite_darwin: 20b2a3a3b70e43edae938624ce550a3cbf66a3d0
   url_launcher_ios: 7a95fa5b60cc718a708b8f2966718e93db0cef1b
-  video_player_avfoundation: 3453f792138786248960ca029747fcd9f318ef52
+  video_player_avfoundation: dd410b52df6d2466a42d28550e33e4146928280a
   webview_flutter_wkwebview: 8ebf4fded22593026f7dbff1fbff31ea98573c8d
 
 PODFILE CHECKSUM: d93c32cc7d677c987ce520e85932c4ff335f3ec2
