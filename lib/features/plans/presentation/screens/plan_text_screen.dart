@@ -1,11 +1,11 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/features/plans/presentation/widgets/plan_inline_markdown_view.dart';
+import 'package:flutter_pecha/features/plans/presentation/widgets/plan_navigation/plan_audio_button.dart';
 import 'package:flutter_pecha/features/plans/presentation/widgets/plan_navigation/plan_navigation_bottom_bar.dart';
 import 'package:flutter_pecha/features/plans/presentation/widgets/plan_navigation/plan_navigator.dart';
+import 'package:flutter_pecha/features/plans/presentation/widgets/plan_navigation/plan_segment_audio_controller.dart';
 import 'package:flutter_pecha/features/plans/presentation/widgets/plan_navigation/plan_subtask_completion.dart';
 import 'package:flutter_pecha/features/reader/constants/reader_constants.dart';
 import 'package:flutter_pecha/features/reader/data/models/navigation_context.dart';
@@ -14,9 +14,6 @@ import 'package:flutter_pecha/features/reader/presentation/widgets/reader_app_ba
 import 'package:flutter_pecha/features/texts/presentation/providers/font_size_notifier.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:just_audio/just_audio.dart';
-
-enum _ButtonState { play, loading, pause }
 
 /// Lightweight reading screen for plan subtasks where `content_type == "TEXT"`.
 ///
@@ -24,8 +21,10 @@ enum _ButtonState { play, loading, pause }
 /// [PlanInlineMarkdownView]. Plain text remains valid markdown so callers
 /// without formatting need no changes.
 ///
-/// Audio behaviour:
-/// - A floating play/pause button appears when the task has an audio segment.
+/// Audio behaviour (shared with `ReaderScreen` via
+/// [PlanSegmentAudioController]):
+/// - A floating play/pause button appears when the task has resolvable audio
+///   (its own `audioUrl`, or the day-level track as fallback).
 /// - Tapping it plays the task's segment. When the segment ends the screen
 ///   auto-advances to the next task with auto-play.
 /// - Audio stops on any manual navigation or back press — no leaks.
@@ -37,211 +36,59 @@ class PlanTextScreen extends ConsumerStatefulWidget {
   ConsumerState<PlanTextScreen> createState() => _PlanTextScreenState();
 }
 
-class _PlanTextScreenState extends ConsumerState<PlanTextScreen>
-    with SingleTickerProviderStateMixin {
+class _PlanTextScreenState extends ConsumerState<PlanTextScreen> {
   // ─── Navigation state ──────────────────────────────────────────────────
   bool _isNavigating = false;
   double _dragOffset = 0.0;
   bool _isDragging = false;
 
-  // ─── Audio resources ───────────────────────────────────────────────────
-  AudioPlayer? _player;
-  StreamSubscription<PlayerState>? _playerStateSub;
-  StreamSubscription<Duration>? _positionSub;
+  // ─── Audio ─────────────────────────────────────────────────────────────
+  PlanSegmentAudioController? _audioController;
 
-  // ─── Audio state ───────────────────────────────────────────────────────
-  _ButtonState _buttonState = _ButtonState.play;
-
-  /// Drives the play↔pause icon morph. At 0.0 = play ▶, at 1.0 = pause ⏸.
-  late final AnimationController _iconController;
-
-  /// Incremented by [_cancelAudio] so any in-flight [_startAudio] can detect
-  /// it has been superseded and abort before calling play().
-  int _audioSessionId = 0;
-
-  /// Guards against [_onPosition] triggering auto-advance more than once.
-  bool _hasAutoAdvanced = false;
-
-  // ─── Resolved audio window ─────────────────────────────────────────────
-  String? _audioUrl;
-  int? _startMs;
-  int? _endMs;
-
-  bool get _hasAudio => _audioUrl != null;
+  bool get _hasAudio => _audioController?.hasAudio ?? false;
 
   // ─── Lifecycle ─────────────────────────────────────────────────────────
 
   @override
   void initState() {
     super.initState();
-    _iconController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 300),
-    );
-    _resolveAudioWindow();
+    _initAudio();
     if (widget.navigationContext.autoPlay && _hasAudio) {
-      WidgetsBinding.instance.addPostFrameCallback((_) => _startAudio());
+      WidgetsBinding.instance.addPostFrameCallback(
+        (_) => _audioController?.maybeAutoPlay(),
+      );
     }
   }
 
-  void _resolveAudioWindow() {
+  /// Resolve the audio for the current item (subtask audio wins over the
+  /// day-level track) and create the controller if any audio is available.
+  void _initAudio() {
     final ctx = widget.navigationContext;
     final item = ctx.currentItem;
-    if (ctx.dayAudioUrl != null && item != null && item.hasAudioSegment) {
-      _audioUrl = ctx.dayAudioUrl;
-      _startMs = item.startMs;
-      _endMs = item.endMs;
-    }
+    if (item == null) return;
+    final url = ctx.effectiveAudioUrlFor(item);
+    if (url == null) return;
+    _audioController = PlanSegmentAudioController(
+      url: url,
+      startMs: item.startMs,
+      endMs: item.endMs,
+      onSegmentComplete: _autoAdvance,
+    );
   }
 
   @override
   void dispose() {
-    _cancelAudio();
-    _player?.dispose();
-    _iconController.dispose();
+    _audioController?.dispose();
     super.dispose();
   }
 
-  // ─── Audio control ─────────────────────────────────────────────────────
-
-  /// Load [_audioUrl], seek to [_startMs], and begin playback.
-  ///
-  /// **Never awaits [play()]** — in just_audio, [play()] only completes when
-  /// playback *stops*; awaiting it would block the UI for the full duration.
-  ///
-  /// **Session guard**: captures [_audioSessionId] at entry. If [_cancelAudio]
-  /// is called while this method is suspended on an `await`, it increments the
-  /// session id, and the guard aborts before subscribing or calling play —
-  /// preventing phantom audio during the page-exit animation.
-  Future<void> _startAudio() async {
-    if (!_hasAudio || _buttonState == _ButtonState.loading) return;
-
-    final sessionId = ++_audioSessionId;
-    setState(() => _buttonState = _ButtonState.loading);
-
-    try {
-      _player ??= AudioPlayer();
-
-      // Tear down stale subscriptions before rebinding
-      _playerStateSub?.cancel();
-      _positionSub?.cancel();
-      _playerStateSub = null;
-      _positionSub = null;
-
-      await _player!.setUrl(_audioUrl!);
-      if (!mounted || sessionId != _audioSessionId) return;
-
-      await _player!.seek(Duration(milliseconds: _startMs ?? 0));
-      if (!mounted || sessionId != _audioSessionId) return;
-
-      _hasAutoAdvanced = false;
-
-      // Subscribe *before* play so no events are missed.
-      // skip(1) discards the BehaviorSubject's stale initial emit
-      // (playing: false, ready) which would otherwise race with
-      // the setState(pause) below and incorrectly reset the button.
-      _playerStateSub = _player!.playerStateStream
-          .skip(1)
-          .listen(_onPlayerState);
-      _positionSub = _player!.positionStream.listen(_onPosition);
-
-      // Fire-and-forget: play() completes only when playback stops.
-      _player!.play();
-
-      if (mounted) {
-        setState(() => _buttonState = _ButtonState.pause);
-        _iconController.forward();
-      }
-    } catch (_) {
-      // Presigned URL expired, network failure, etc. — reset to idle.
-      if (mounted) setState(() => _buttonState = _ButtonState.play);
-    }
-  }
-
-  /// Handles *unexpected* player stops (network drop, track ends before
-  /// [_endMs]). Normal pauses are driven explicitly; this is the safety net.
-  ///
-  /// The skip(1) on the subscription means the first BehaviorSubject emit
-  /// (which is stale) never reaches this handler.
-  void _onPlayerState(PlayerState state) {
-    if (!mounted || _buttonState != _ButtonState.pause) return;
-    if (!state.playing &&
-        state.processingState != ProcessingState.loading &&
-        state.processingState != ProcessingState.buffering) {
-      setState(() => _buttonState = _ButtonState.play);
-      _iconController.reverse();
-    }
-  }
-
-  /// Position stream callback. Triggers auto-advance exactly once when the
-  /// segment boundary is reached. [_hasAutoAdvanced] prevents re-entry.
-  void _onPosition(Duration position) {
-    if (_hasAutoAdvanced) return;
-    final end = _endMs;
-    if (end == null) return;
-    if (position.inMilliseconds >= end) {
-      _hasAutoAdvanced = true;
-      _autoAdvance();
-    }
-  }
-
-  Future<void> _togglePlayPause() async {
-    switch (_buttonState) {
-      case _ButtonState.loading:
-        return; // ignore taps while loading
-
-      case _ButtonState.pause:
-        await _player?.pause();
-        if (mounted) {
-          setState(() => _buttonState = _ButtonState.play);
-          _iconController.reverse();
-        }
-
-      case _ButtonState.play:
-        if (_player == null) {
-          await _startAudio();
-          return;
-        }
-        final ps = _player!.processingState;
-        if (ps == ProcessingState.idle || ps == ProcessingState.completed) {
-          // Full restart — URL/seek needed again
-          await _startAudio();
-          return;
-        }
-        // Resume within the current segment
-        _hasAutoAdvanced = false;
-        _positionSub?.cancel();
-        _positionSub = _player!.positionStream.listen(_onPosition);
-        _player!.play(); // fire-and-forget
-        if (mounted) {
-          setState(() => _buttonState = _ButtonState.pause);
-          _iconController.forward();
-        }
-    }
-  }
-
-  /// Tears down all audio resources synchronously. Safe to call from
-  /// [dispose] or navigation handlers. Idempotent.
-  ///
-  /// Increments [_audioSessionId] so any in-flight [_startAudio] aborts
-  /// before it can call [play()] on a session that has been cancelled.
-  void _cancelAudio() {
-    _audioSessionId++; // invalidate any in-flight _startAudio
-    _hasAutoAdvanced = true; // prevent late-firing position callbacks
-    _playerStateSub?.cancel();
-    _positionSub?.cancel();
-    _playerStateSub = null;
-    _positionSub = null;
-    _player?.stop(); // fire-and-forget; dispose() cleans up the player
-  }
-
-  /// Called by [_onPosition] when the segment boundary is reached.
-  /// Marks the current subtask complete and navigates to the next task
-  /// with auto-play. Falls through to [_finish] on the last task.
+  /// Called by the audio controller when the segment finishes. Marks the
+  /// current subtask complete and navigates to the next task with auto-play.
+  /// Falls through to [_finish] on the last task.
   void _autoAdvance() {
     if (!mounted || _isNavigating) return;
 
-    _cancelAudio();
+    _audioController?.cancel();
     ref
         .read(planSubtaskCompletionProvider)
         .completeCurrent(widget.navigationContext);
@@ -312,7 +159,11 @@ class _PlanTextScreenState extends ConsumerState<PlanTextScreen>
                           left: 0,
                           right: 0,
                           bottom: 8,
-                          child: Center(child: _buildAudioButton(context)),
+                          child: Center(
+                            child: PlanAudioButton(
+                              controller: _audioController!,
+                            ),
+                          ),
                         ),
                     ],
                   ),
@@ -339,7 +190,7 @@ class _PlanTextScreenState extends ConsumerState<PlanTextScreen>
       leading: IconButton(
         icon: const Icon(AppAssets.arrowLeft),
         onPressed: () {
-          _cancelAudio();
+          _audioController?.cancel();
           context.pop();
         },
       ),
@@ -355,49 +206,6 @@ class _PlanTextScreenState extends ConsumerState<PlanTextScreen>
         ReaderFontSizeButton(onPressed: () => showFontSizeBottomSheet(context)),
         const SizedBox(width: 12),
       ],
-    );
-  }
-
-  /// Floating play/pause/loading button with smooth icon morph.
-  Widget _buildAudioButton(BuildContext context) {
-    final color = Theme.of(context).colorScheme.onSurface;
-    final bgColor = Theme.of(context).scaffoldBackgroundColor;
-    final isLoading = _buttonState == _ButtonState.loading;
-
-    return Material(
-      color: bgColor.withAlpha(235),
-      shape: const CircleBorder(),
-      elevation: 4,
-      shadowColor: Colors.black38,
-      child: InkWell(
-        onTap: isLoading ? null : _togglePlayPause,
-        customBorder: const CircleBorder(),
-        child: Container(
-          width: 56,
-          height: 56,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            border: Border.all(color: color.withAlpha(100), width: 1.5),
-          ),
-          alignment: Alignment.center,
-          child:
-              isLoading
-                  ? SizedBox(
-                    width: 24,
-                    height: 24,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2.5,
-                      color: color,
-                    ),
-                  )
-                  : AnimatedIcon(
-                    icon: AnimatedIcons.play_pause,
-                    progress: _iconController,
-                    size: 28,
-                    color: color,
-                  ),
-        ),
-      ),
     );
   }
 
@@ -464,7 +272,7 @@ class _PlanTextScreenState extends ConsumerState<PlanTextScreen>
           .read(planSubtaskCompletionProvider)
           .completeCurrent(widget.navigationContext);
     }
-    _cancelAudio();
+    _audioController?.cancel();
     final didNavigate = PlanNavigator.navigateAdjacent(
       context,
       widget.navigationContext,
@@ -480,7 +288,7 @@ class _PlanTextScreenState extends ConsumerState<PlanTextScreen>
   void _finish() async {
     if (_isNavigating) return;
     setState(() => _isNavigating = true);
-    _cancelAudio();
+    _audioController?.cancel();
     await ref
         .read(planSubtaskCompletionProvider)
         .completeCurrent(widget.navigationContext);
