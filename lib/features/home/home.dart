@@ -52,8 +52,6 @@ export 'presentation/widgets/action_of_the_day_card.dart';
 export 'presentation/widgets/stat_button.dart';
 export 'presentation/widgets/calendar_banner_card.dart';
 export 'presentation/widgets/tag_search_overlay.dart';
-export 'presentation/widgets/view_illustration.dart';
-export 'presentation/widgets/meditation_video.dart';
 export 'presentation/widgets/youtube_video_player.dart';
 
 // Presentation - Utils
