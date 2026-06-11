@@ -3,6 +3,10 @@ import 'package:flutter_pecha/core/config/router/app_router.dart';
 import 'package:flutter_pecha/core/config/router/app_routes.dart';
 import 'package:flutter_pecha/features/plans/presentation/providers/plan_days_providers.dart';
 import 'package:flutter_pecha/features/plans/presentation/providers/user_plans_provider.dart';
+import 'package:flutter_pecha/features/plans/presentation/widgets/plan_navigation/plan_audio_button.dart';
+import 'package:flutter_pecha/features/plans/presentation/widgets/plan_navigation/plan_navigator.dart';
+import 'package:flutter_pecha/features/plans/presentation/widgets/plan_navigation/plan_segment_audio_controller.dart';
+import 'package:flutter_pecha/features/plans/presentation/widgets/plan_navigation/plan_subtask_completion.dart';
 import 'package:flutter_pecha/features/reader/constants/reader_constants.dart';
 import 'package:flutter_pecha/features/reader/data/models/navigation_context.dart';
 import 'package:flutter_pecha/features/reader/data/models/reader_slot_config.dart';
@@ -50,6 +54,14 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
   // Scroll controller callback
   void Function(String segmentId, {double? alignment})? _scrollToSegment;
 
+  // ─── Audio ─────────────────────────────────────────────────────────────
+  // Plays the current SOURCE_REFERENCE subtask's audio when the reader is
+  // opened from a plan. Shares the engine with PlanTextScreen.
+  PlanSegmentAudioController? _audioController;
+  bool _isAdvancing = false;
+
+  bool get _hasAudio => _audioController?.hasAudio ?? false;
+
   @override
   void initState() {
     super.initState();
@@ -58,6 +70,70 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
       segmentId: widget.segmentId,
       navigationContext: widget.navigationContext,
     );
+    _initAudio();
+  }
+
+  /// Create the audio controller when the reader was opened from a plan and the
+  /// current item has resolvable audio (its own `audioUrl` wins over the
+  /// day-level track). Auto-plays when the navigation requested it.
+  void _initAudio() {
+    final ctx = widget.navigationContext;
+    if (ctx == null || ctx.source != NavigationSource.plan) return;
+    final item = ctx.currentItem;
+    if (item == null) return;
+    final url = ctx.effectiveAudioUrlFor(item);
+    if (url == null) return;
+
+    _audioController = PlanSegmentAudioController(
+      url: url,
+      startMs: item.startMs,
+      endMs: item.endMs,
+      onSegmentComplete: _onAudioSegmentComplete,
+    );
+
+    if (ctx.autoPlay) {
+      WidgetsBinding.instance.addPostFrameCallback(
+        (_) => _audioController?.maybeAutoPlay(),
+      );
+    }
+  }
+
+  @override
+  void dispose() {
+    _audioController?.dispose();
+    super.dispose();
+  }
+
+  /// Called when the current item's audio finishes. Mirrors
+  /// [SwipeNavigationWrapper]'s forward navigation: mark the subtask complete,
+  /// clear transient reader UI, then advance to the next task with auto-play.
+  /// Pops the sequence when there is no next task.
+  void _onAudioSegmentComplete() {
+    if (!mounted || _isAdvancing) return;
+    final navContext = widget.navigationContext;
+    if (navContext == null) return;
+
+    _audioController?.cancel();
+    ref.read(planSubtaskCompletionProvider).completeCurrent(navContext);
+
+    final notifier = ref.read(readerNotifierProvider(_params).notifier);
+    notifier.selectSegment(null);
+    notifier.closeCommentary();
+    notifier.closeTranslation();
+
+    final didNavigate = PlanNavigator.navigateAdjacent(
+      context,
+      navContext,
+      SwipeDirection.next,
+      autoPlay: true,
+    );
+
+    if (didNavigate) {
+      _isAdvancing = true;
+    } else if (context.canPop()) {
+      // Last task in the day — close the sequence.
+      context.pop();
+    }
   }
 
   void _onScrollDirectionChanged(bool isScrollingDown) {
@@ -100,6 +176,8 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
       canPop: true,
       onPopInvokedWithResult: (didPop, _) {
         if (!didPop) return;
+        // Stop audio immediately so nothing plays during the exit animation.
+        _audioController?.cancel();
         // Clear transient reader state so panels don't linger if the user
         // navigates back to this textId again later in the session.
         notifier.selectSegment(null);
@@ -249,6 +327,16 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
             ],
           ),
         ),
+        // Floating play/pause for plan audio — sits above the navigation
+        // bottom bar. Only present when the reader was opened from a plan and
+        // the current item resolves to a playable audio track.
+        if (_hasAudio)
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: MediaQuery.of(context).padding.bottom + 76,
+            child: Center(child: PlanAudioButton(controller: _audioController!)),
+          ),
       ],
     );
   }
