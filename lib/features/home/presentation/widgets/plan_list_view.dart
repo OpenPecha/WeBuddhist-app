@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
+import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
@@ -326,74 +327,86 @@ class PlanListItem extends ConsumerWidget {
         isEnrolled ? _findUserPlan(myPlansState.plans, plan.id) : null;
     final canShowStatus = isEnrolled && userPlan != null && dateRange != null;
 
+    final isLocked =
+        plan.startDate != null &&
+        plan.startDate!.isAfter(DateTime.now());
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 12.0),
-      child: InkWell(
-        onTap:
-            isEnrolledInfoPending
-                ? null
-                : () => _navigateToPlan(context, plan, enrolledInfo),
-        borderRadius: BorderRadius.circular(12),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Container(
-              width: 86,
-              height: 86,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
-                color: Theme.of(context).colorScheme.surfaceContainer,
+      child: Opacity(
+        opacity: isLocked ? 0.45 : 1.0,
+        child: InkWell(
+          onTap:
+              (isLocked || isEnrolledInfoPending)
+                  ? null
+                  : () => _navigateToPlan(context, plan, enrolledInfo),
+          borderRadius: BorderRadius.circular(12),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Container(
+                width: 86,
+                height: 86,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                  color: Theme.of(context).colorScheme.surfaceContainer,
+                ),
+                clipBehavior: Clip.antiAlias,
+                child: _PlanCoverImage(
+                  image: plan.coverImage,
+                  placeholderIconSize: 24,
+                  placeholderAlphaMin: 0.3,
+                  placeholderAlphaMax: 0.5,
+                ),
               ),
-              clipBehavior: Clip.antiAlias,
-              child: _PlanCoverImage(
-                image: plan.coverImage,
-                placeholderIconSize: 24,
-                placeholderAlphaMin: 0.3,
-                placeholderAlphaMax: 0.5,
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    plan.title,
-                    style: TextStyle(
-                      fontSize: titleFontSize,
-                      fontWeight: FontWeight.w600,
-                      height: lineHeight,
-                    ),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 6),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Expanded(
-                        child: _buildDateLine(
-                          context,
-                          plan: plan,
-                          dateRange: dateRange,
-                          isEnrolled: isEnrolled,
-                          lineHeight: lineHeight,
-                        ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      plan.title,
+                      style: TextStyle(
+                        fontSize: titleFontSize,
+                        fontWeight: FontWeight.w600,
+                        height: lineHeight,
                       ),
-                      if (canShowStatus)
-                        Padding(
-                          padding: const EdgeInsets.only(left: 8),
-                          child: EnrolledPlanStatusIndicator(
-                            planId: plan.id,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 6),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Expanded(
+                          child: _buildDateLine(
+                            context,
+                            plan: plan,
                             dateRange: dateRange,
-                            userJoinDate: userPlan.startedAt,
+                            isEnrolled: isEnrolled,
+                            lineHeight: lineHeight,
                           ),
                         ),
-                    ],
-                  ),
-                ],
+                        if (isLocked)
+                          const Padding(
+                            padding: EdgeInsets.only(left: 8),
+                            child: Icon(AppAssets.lock, size: 20),
+                          )
+                        else if (canShowStatus)
+                          Padding(
+                            padding: const EdgeInsets.only(left: 8),
+                            child: EnrolledPlanStatusIndicator(
+                              planId: plan.id,
+                              dateRange: dateRange,
+                              userJoinDate: userPlan.startedAt,
+                            ),
+                          ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
