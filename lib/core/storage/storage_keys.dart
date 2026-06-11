@@ -81,6 +81,11 @@ class StorageKeys {
   /// Idempotency flag preventing duplicate immediate fires.
   /// Full key: `plan_immediate_shown_<planId>_<yyyy-MM-dd>` → bool.
   static const String planImmediateShownPrefix = 'plan_immediate_shown_';
+  /// Marker recording that today's plan-series notification was handed to the
+  /// OS ahead of its fire time, so the catch-up immediate must not re-fire
+  /// after the OS delivers it in the background.
+  /// Full key: `plan_series_scheduled_<planId>` → `<yyyy-MM-dd>|<notificationId>`.
+  static const String planSeriesScheduledPrefix = 'plan_series_scheduled_';
 
   // ========== FEATURES ==========
   /// Profile data JSON

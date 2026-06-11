@@ -1,13 +1,16 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart' show PlatformException;
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_pecha/core/config/app_feature_flags.dart';
 import 'package:flutter_pecha/core/storage/plan_metadata_store.dart';
 import 'package:flutter_pecha/core/storage/special_plan_started_at_store.dart';
 import 'package:flutter_pecha/core/storage/storage_keys.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
+import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
 import 'package:flutter_pecha/features/notifications/data/channels/notification_channels.dart';
 import 'package:flutter_pecha/features/notifications/data/notification_id_scheme.dart';
 import 'package:flutter_pecha/features/notifications/data/services/notification_service.dart';
@@ -40,6 +43,8 @@ enum SyncTrigger {
   routineToggle,
   recitationToggle,
   permissionChanged,
+  loggedIn,
+  loggedOut,
 }
 
 /// A single notification the engine has decided should exist.
@@ -140,24 +145,43 @@ class NotificationSyncEngine {
 
   // ─── Public API ─────────────────────────────────────────────────────────────
 
-  Future<NotificationSyncReport> sync({required SyncTrigger trigger}) async {
-    // Chain onto the in-flight tail so concurrent triggers serialise.
+  /// The queued-but-not-yet-started sync, if any. A sync that has not
+  /// started observes every state change made before `sync()` was called,
+  /// so additional triggers can share its result instead of queueing
+  /// another full pass: N back-to-back triggers collapse into the running
+  /// pass plus exactly one trailing pass.
+  Future<NotificationSyncReport>? _queued;
+
+  Future<NotificationSyncReport> sync({required SyncTrigger trigger}) {
+    final queued = _queued;
+    if (queued != null) {
+      _logger.info(
+        '[NOTIFICATION_NEW_FLOW] trigger=${trigger.name} '
+        'coalesced into already-queued sync',
+      );
+      return queued;
+    }
+
     final completer = Completer<NotificationSyncReport>();
+    _queued = completer.future;
     final previous = _inFlight;
     _inFlight = completer.future.then<void>((_) {}, onError: (_) {});
 
-    try {
-      await previous;
-    } catch (_) {}
+    unawaited(() async {
+      try {
+        await previous;
+      } catch (_) {}
+      // Starting now — triggers arriving from here on must queue a fresh
+      // pass so they observe state written after this point.
+      _queued = null;
+      try {
+        completer.complete(await _runSync(trigger));
+      } catch (e, st) {
+        completer.completeError(e, st);
+      }
+    }());
 
-    try {
-      final report = await _runSync(trigger);
-      completer.complete(report);
-      return report;
-    } catch (e, st) {
-      completer.completeError(e, st);
-      rethrow;
-    }
+    return completer.future;
   }
 
   // ─── Engine core ────────────────────────────────────────────────────────────
@@ -181,6 +205,44 @@ class NotificationSyncEngine {
       );
     }
 
+    // Auth gate: while auth is still restoring we know nothing — touching the
+    // schedule could wipe a valid one. The bootstrap re-triggers a sync as
+    // soon as auth settles, so skipping here loses nothing.
+    final auth = _ref.read(authProvider);
+    if (auth.isLoading) {
+      _logger.info(
+        '[NOTIFICATION_NEW_FLOW] trigger=${trigger.name} skip=auth-loading',
+      );
+      return NotificationSyncReport(
+        scheduled: 0,
+        cancelled: 0,
+        skipped: 0,
+        durationMs: stopwatch.elapsedMilliseconds,
+        perCase: perCase,
+      );
+    }
+    // Guests cannot have routines, so for scheduling purposes a guest
+    // session is signed-out: desired set stays empty and any leftover
+    // pending notifications (e.g. from a previous account) get cancelled.
+    final loggedIn = auth.isLoggedIn && !auth.isGuest;
+
+    // Routine gate: a failed Hive load must read as "unknown", not "empty" —
+    // otherwise the cancel pass would wipe the schedule of a user who still
+    // has a routine.
+    final routineNotifier = _ref.read(routineProvider.notifier);
+    if (routineNotifier.loadFailed) {
+      _logger.warning(
+        '[NOTIFICATION_NEW_FLOW] trigger=${trigger.name} skip=routine-load-failed',
+      );
+      return NotificationSyncReport(
+        scheduled: 0,
+        cancelled: 0,
+        skipped: 0,
+        durationMs: stopwatch.elapsedMilliseconds,
+        perCase: perCase,
+      );
+    }
+
     final togglePrefs = await SharedPreferences.getInstance();
     final masterOn = togglePrefs.getBool(StorageKeys.notificationMasterEnabled) ?? true;
     final routineOn = togglePrefs.getBool(StorageKeys.notificationRoutineEnabled) ?? true;
@@ -188,17 +250,35 @@ class NotificationSyncEngine {
     final osGranted = await _notificationService.areNotificationsEnabled();
 
     final routineBlocks = _ref.read(routineProvider).blocks;
-    final plansById = await _readPlansById();
+    // Only consult the plans provider when this sync might schedule
+    // something. Reading it mounts/rebuilds the FutureProvider, and doing
+    // that while logged out fires an unauthenticated GET /users/me/plans
+    // (403 noise on every logged-out cold start). In the cancel-all branch
+    // the desired set is empty and cancellation is already permitted, so
+    // plans are irrelevant.
+    final mightSchedule = loggedIn && masterOn && osGranted;
+    final plansById = mightSchedule ? await _readPlansById() : null;
     final plansResolved = plansById != null;
     final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+
+    final pending = await _plugin.pendingNotificationRequests();
+    final ownedPending =
+        pending.where((p) => NotificationIdScheme.isOurs(p.id)).toList();
+    // planId → notification ID for every "series handed to OS today" marker.
+    final todayMarkerByPlan = <String, int>{
+      for (final e in PlanMetadataStore.seriesScheduledIdsOn(today).entries)
+        e.value: e.key,
+    };
 
     final desired = <int, DesiredNotification>{};
 
-    if (!masterOn || !osGranted) {
+    if (!loggedIn || !masterOn || !osGranted) {
       _logger.info(
-        '[NOTIFICATION_NEW_FLOW] trigger=${trigger.name} masterOn=$masterOn '
-        'osGranted=$osGranted -> cancel-all (empty desired)',
+        '[NOTIFICATION_NEW_FLOW] trigger=${trigger.name} loggedIn=$loggedIn '
+        'masterOn=$masterOn osGranted=$osGranted -> cancel-all (empty desired)',
       );
+      if (!loggedIn) bumpCase('logged-out');
       if (!masterOn) bumpCase('5a');
     } else {
       if (!plansResolved) {
@@ -211,8 +291,11 @@ class NotificationSyncEngine {
       }
       for (final block in routineBlocks) {
         if (block.items.isEmpty || !block.notificationEnabled) continue;
-        final firstItem = block.items.first;
-        if (firstItem.type == RoutineItemType.recitation) {
+        // A block may in principle hold both kinds of items — handle each by
+        // its own type instead of branching on the first item only.
+        final hasRecitation =
+            block.items.any((i) => i.type == RoutineItemType.recitation);
+        if (hasRecitation) {
           final entries = computeForRecitationBlock(
             block,
             now,
@@ -223,11 +306,17 @@ class NotificationSyncEngine {
             desired[e.id] = e;
             bumpCase(e.debugCase);
           }
-        } else {
-          // Plan block — every plan item produces its own desired notifications.
+        }
+        {
+          // Plan items — every plan item produces its own desired notifications.
           for (final item in block.items.where((i) => i.type == RoutineItemType.plan)) {
             var plan = plansById?[item.id];
-            if (plan == null) {
+            // Cached-metadata fallback is for the UNKNOWN state only
+            // (offline / loading). When the server list resolved and the
+            // plan is absent, the user unenrolled — falling back to stale
+            // cache here would keep scheduling ghost notifications for a
+            // plan they left, even though it still sits in a routine block.
+            if (plan == null && !plansResolved) {
               final cached = PlanMetadataStore.getMetadata(item.id);
               if (cached != null) {
                 plan = _synthesizePlanFromMetadata(item, cached);
@@ -251,6 +340,8 @@ class NotificationSyncEngine {
               now,
               masterOn: masterOn,
               routineOn: routineOn,
+              seriesScheduledTodayByOS:
+                  todayMarkerByPlan.containsKey(item.id),
             );
             for (final e in entries) {
               desired[e.id] = e;
@@ -261,14 +352,24 @@ class NotificationSyncEngine {
       }
     }
 
-    // ── Diff against currently pending ──
-    final pending = await _plugin.pendingNotificationRequests();
-    final ownedPending = pending.where((p) => NotificationIdScheme.isOurs(p.id)).toList();
-    final ownedPendingIds = ownedPending.map((p) => p.id).toSet();
+    // ── Global cap (iOS allows at most 64 pending requests) ──
+    // Daily repeats (one per recitation block) and immediates always survive;
+    // dated plan-series entries are capped to the soonest remaining slots so
+    // iOS never silently drops the notifications that matter most.
+    applyGlobalCap(desired, bumpCase);
 
+    // ── Diff against the pending snapshot taken above ──
     var scheduled = 0;
     var cancelled = 0;
     var skipped = 0;
+
+    // Reverse map (notification ID → planId) for every "series handed to OS
+    // today" marker, so cancelling today's pending entry also clears its
+    // marker — otherwise a later sync would wrongly assume the OS delivered
+    // it and suppress the catch-up immediate.
+    final todayMarkerIds = {
+      for (final e in todayMarkerByPlan.entries) e.value: e.key,
+    };
 
     // Cancel: anything owned that is no longer desired.
     // We preserve the diagnostic test ID untouched (user explicitly schedules it).
@@ -276,9 +377,10 @@ class NotificationSyncEngine {
     // When `plansResolved` is false we cannot prove whether a pending plan ID is
     // stale or just unverified, so we skip cancellation entirely. The next
     // successful userPlans refresh re-runs sync with a known enrollment set
-    // and reconciles any true orphans then. Master-off still cancels because
-    // its desired set is intentionally empty.
-    final canCancel = plansResolved || !masterOn || !osGranted;
+    // and reconciles any true orphans then. Master-off, logged-out, and
+    // permission-revoked still cancel because their desired sets are
+    // intentionally empty.
+    final canCancel = plansResolved || !loggedIn || !masterOn || !osGranted;
     for (final p in ownedPending) {
       if (p.id == NotificationIdScheme.kDiagnosticTestId) continue;
       if (desired.containsKey(p.id)) continue;
@@ -293,6 +395,10 @@ class NotificationSyncEngine {
       try {
         await _plugin.cancel(p.id);
         cancelled++;
+        final markerPlanId = todayMarkerIds[p.id];
+        if (markerPlanId != null) {
+          await PlanMetadataStore.clearSeriesScheduledMarker(markerPlanId);
+        }
         _logger.info(
           '[NOTIFICATION_NEW_FLOW] trigger=${trigger.name} action=cancel id=${p.id} '
           'reason="not in desired set"',
@@ -302,7 +408,13 @@ class NotificationSyncEngine {
       }
     }
 
-    // Schedule: anything desired that isn't already pending (or is immediate).
+    // Schedule: every desired entry is (re-)scheduled unconditionally.
+    // zonedSchedule with the same ID atomically replaces the existing request,
+    // so this is idempotent — and it is the only way to pick up fire-time
+    // changes (block time edits, timezone moves) and to re-register alarms
+    // that Android dropped (force-stop), since the plugin's pending list
+    // exposes IDs but not fire times.
+    final scheduleMode = await _resolveAndroidScheduleMode();
     for (final d in desired.values) {
       if (d.isImmediate) {
         final fired = await _fireImmediate(d, trigger);
@@ -313,13 +425,22 @@ class NotificationSyncEngine {
         }
         continue;
       }
-      if (ownedPendingIds.contains(d.id)) {
-        skipped++;
-        continue;
-      }
-      final ok = await _scheduleOne(d, trigger);
+      final ok = await _scheduleOne(d, trigger, scheduleMode);
       if (ok) {
         scheduled++;
+        // Stamp same-day plan entries so the next sync knows the OS owns
+        // today's delivery and the catch-up immediate must stay silent.
+        final fireAt = d.fireAt;
+        if (!d.isDailyRepeat &&
+            d.sourceItem != null &&
+            fireAt != null &&
+            DateTime(fireAt.year, fireAt.month, fireAt.day) == today) {
+          await PlanMetadataStore.markSeriesScheduledOn(
+            d.sourceItem!.id,
+            today,
+            d.id,
+          );
+        }
       } else {
         skipped++;
       }
@@ -339,6 +460,53 @@ class NotificationSyncEngine {
       durationMs: stopwatch.elapsedMilliseconds,
       perCase: perCase,
     );
+  }
+
+  /// Global ceiling on scheduled (non-immediate) requests. iOS keeps only
+  /// the soonest-firing 64 pending requests and silently discards the rest;
+  /// staying under that with headroom makes the behaviour deterministic on
+  /// both platforms. The window slides forward on every sync.
+  static const int kMaxTotalScheduled = 60;
+
+  /// Drops the farthest-out dated entries when the desired set exceeds
+  /// [kMaxTotalScheduled]. Daily repeats (recitations) and immediates are
+  /// never dropped — they are few and time-critical.
+  @visibleForTesting
+  void applyGlobalCap(
+    Map<int, DesiredNotification> desired,
+    void Function(String) bumpCase,
+  ) {
+    final reserved = desired.values
+        .where((d) => d.isDailyRepeat || d.isImmediate)
+        .length;
+    final dated = desired.values
+        .where((d) => !d.isDailyRepeat && !d.isImmediate && d.fireAt != null)
+        .toList()
+      ..sort((a, b) => a.fireAt!.compareTo(b.fireAt!));
+    final budget = kMaxTotalScheduled - reserved;
+    if (dated.length <= budget) return;
+    final overflow = dated.sublist(budget < 0 ? 0 : budget);
+    for (final d in overflow) {
+      desired.remove(d.id);
+      bumpCase('cap-dropped');
+    }
+    _logger.info(
+      '[NOTIFICATION_NEW_FLOW] global cap: dropped ${overflow.length} '
+      'far-future entries (reserved=$reserved budget=$budget)',
+    );
+  }
+
+  /// Exact when the OS permits it; otherwise degrade to inexact so the user
+  /// still gets the notification (slightly late) instead of nothing at all.
+  /// Always exact-capable on iOS/macOS and Android < 12.
+  Future<AndroidScheduleMode> _resolveAndroidScheduleMode() async {
+    final canExact = await _notificationService.canScheduleExactNotifications();
+    if (canExact) return AndroidScheduleMode.exactAllowWhileIdle;
+    _logger.warning(
+      '[NOTIFICATION_NEW_FLOW] exact alarms not permitted — '
+      'scheduling inexact so notifications still fire',
+    );
+    return AndroidScheduleMode.inexactAllowWhileIdle;
   }
 
   /// Returns the server-known plans keyed by id, or `null` if
@@ -407,6 +575,16 @@ class NotificationSyncEngine {
   /// Otherwise emits one [DesiredNotification] per future day within the
   /// 60-day lookahead window, plus an optional immediate catch-up entry for
   /// today when block time has already passed (case 3b immediate-catchup).
+  ///
+  /// [seriesScheduledTodayByOS] must be `true` when today's series
+  /// notification was already handed to the OS ahead of its fire time (see
+  /// [PlanMetadataStore.wasSeriesScheduledOn]). In that case the OS delivered
+  /// it (or will) — emitting a catch-up too would duplicate the notification
+  /// the user already received in the background. It only suppresses the
+  /// catch-up immediate: a future same-day series entry is always honored,
+  /// because a past slot can only become future again through an explicit
+  /// user action (block re-added or re-timed) — and a deliberately scheduled
+  /// fire must fire.
   @visibleForTesting
   List<DesiredNotification> computeForPlanBlock(
     RoutineBlock block,
@@ -415,6 +593,7 @@ class NotificationSyncEngine {
     DateTime now, {
     required bool masterOn,
     required bool routineOn,
+    bool seriesScheduledTodayByOS = false,
   }) {
     if (!masterOn) return const [];
     if (!routineOn) return const [];
@@ -540,11 +719,22 @@ class NotificationSyncEngine {
     // Case 3b immediate-catch-up:
     // If today's block time has already passed and today's notification
     // hasn't been shown, fire immediately. Idempotency is enforced by the
-    // shown-flag stores (see [_fireImmediate]).
+    // shown-flag stores (see [_fireImmediate]). When the OS already owned
+    // today's delivery (notification was scheduled before its fire time and
+    // never cancelled), stay silent — the user already got it in the
+    // background; one notification per plan per day, from either path.
     if (!today.isBefore(anchorDay) && daysSinceAnchor < totalDays) {
       final todayFireWall = seriesStartWall.add(Duration(days: daysSinceAnchor));
       final isPast = !todayFireWall.isAfter(now);
       final dayNumber = daysSinceAnchor + 1;
+      if (isPast && seriesScheduledTodayByOS) {
+        _logger.info(
+          '[NOTIFICATION_NEW_FLOW] block=${block.id} plan=${item.id} '
+          'case=3b action=skip-catchup reason="today\'s series notification '
+          'was scheduled with the OS — background delivery owns today"',
+        );
+        return entries;
+      }
       if (isPast) {
         String title;
         String body;
@@ -630,34 +820,65 @@ class NotificationSyncEngine {
 
   // ─── Scheduling primitives ──────────────────────────────────────────────────
 
-  Future<bool> _scheduleOne(DesiredNotification d, SyncTrigger trigger) async {
+  Future<bool> _scheduleOne(
+    DesiredNotification d,
+    SyncTrigger trigger,
+    AndroidScheduleMode scheduleMode,
+  ) async {
     final fireAt = d.fireAt;
     if (fireAt == null) return false;
     try {
-      final androidStyle = await _service.buildBigPictureStyle(
-        d.sourceItem,
-        overrideTitle: d.title,
-        overrideBody: d.body,
-      );
-      final iosDetails = await _service.buildIOSNotificationDetails(d.sourceItem);
-      final largeIcon = await _service.getLargeIcon(d.sourceItem);
+      // Build only the platform-relevant pieces — each unused style is a
+      // wasted image download/disk hit per notification.
+      final isApple = Platform.isIOS || Platform.isMacOS;
+      final androidStyle = isApple
+          ? null
+          : await _service.buildBigPictureStyle(
+              d.sourceItem,
+              overrideTitle: d.title,
+              overrideBody: d.body,
+            );
+      final largeIcon =
+          isApple ? null : await _service.getLargeIcon(d.sourceItem);
+      final iosDetails = isApple
+          ? await _service.buildIOSNotificationDetails(d.sourceItem)
+          : null;
 
-      await _plugin.zonedSchedule(
-        d.id,
-        d.title,
-        d.body,
-        fireAt,
-        NotificationChannels.routineBlockDetails(
-          styleInformation: androidStyle,
-          largeIcon: largeIcon,
-          iOSDetails: iosDetails,
-          androidActionButtonText: d.androidActionButtonText,
-        ),
-        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-        matchDateTimeComponents:
-            d.isDailyRepeat ? DateTimeComponents.time : null,
-        payload: d.payload,
+      final details = NotificationChannels.routineBlockDetails(
+        styleInformation: androidStyle,
+        largeIcon: largeIcon,
+        iOSDetails: iosDetails,
+        androidActionButtonText: d.androidActionButtonText,
       );
+
+      Future<void> schedule(AndroidScheduleMode mode) => _plugin.zonedSchedule(
+            d.id,
+            d.title,
+            d.body,
+            fireAt,
+            details,
+            androidScheduleMode: mode,
+            matchDateTimeComponents:
+                d.isDailyRepeat ? DateTimeComponents.time : null,
+            payload: d.payload,
+          );
+
+      try {
+        await schedule(scheduleMode);
+      } on PlatformException catch (e) {
+        // Permission can be revoked between the per-sync check and this call
+        // (or the check itself can be unreliable on some OEMs). Degrade to
+        // inexact rather than dropping the notification entirely.
+        if (scheduleMode == AndroidScheduleMode.exactAllowWhileIdle) {
+          _logger.warning(
+            '[NOTIFICATION_NEW_FLOW] exact schedule failed for id=${d.id} '
+            '(${e.code}) — retrying inexact',
+          );
+          await schedule(AndroidScheduleMode.inexactAllowWhileIdle);
+        } else {
+          rethrow;
+        }
+      }
       _logger.info(
         '[NOTIFICATION_NEW_FLOW] trigger=${trigger.name} action=schedule '
         'id=${d.id} case=${d.debugCase} fireAt=${fireAt.toIso8601String()}',
@@ -698,13 +919,17 @@ class NotificationSyncEngine {
     }
 
     try {
-      final androidStyle = await _service.buildBigPictureStyle(
-        item,
-        overrideTitle: d.title,
-        overrideBody: d.body,
-      );
-      final iosDetails = await _service.buildIOSNotificationDetails(item);
-      final largeIcon = await _service.getLargeIcon(item);
+      final isApple = Platform.isIOS || Platform.isMacOS;
+      final androidStyle = isApple
+          ? null
+          : await _service.buildBigPictureStyle(
+              item,
+              overrideTitle: d.title,
+              overrideBody: d.body,
+            );
+      final largeIcon = isApple ? null : await _service.getLargeIcon(item);
+      final iosDetails =
+          isApple ? await _service.buildIOSNotificationDetails(item) : null;
 
       await _plugin.show(
         d.id,

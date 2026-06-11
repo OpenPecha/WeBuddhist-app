@@ -41,6 +41,14 @@ class SpecialPlanStartedAtStore {
     await prefs.setString(_startedAtKey(planId), startedAt.toIso8601String());
   }
 
+  /// Removes only the cached startedAt, preserving per-date shown flags so a
+  /// same-day re-add cannot duplicate today's already-received notification.
+  /// startedAt is re-mirrored from server truth on the next plans refresh.
+  static Future<void> clearStartedAtOnly(String planId) async {
+    final prefs = await _ensurePrefs();
+    await prefs.remove(_startedAtKey(planId));
+  }
+
   /// Removes the startedAt entry and all per-date shown flags for [planId].
   /// Call when the user removes the plan from their routine so a subsequent
   /// re-enrol is treated as fresh.
