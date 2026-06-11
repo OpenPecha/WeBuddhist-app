@@ -343,13 +343,6 @@ class _PlanTextScreenState extends ConsumerState<PlanTextScreen>
           context.pop();
         },
       ),
-      title: Text(
-        title,
-        style: Theme.of(
-          context,
-        ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-        overflow: TextOverflow.ellipsis,
-      ),
       centerTitle: true,
       actions: [
         ReaderFontSizeButton(onPressed: () => showFontSizeBottomSheet(context)),
