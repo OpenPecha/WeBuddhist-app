@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/features/plans/presentation/widgets/plan_inline_markdown_view.dart';
 import 'package:flutter_pecha/features/plans/presentation/widgets/plan_navigation/plan_navigation_bottom_bar.dart';
@@ -14,7 +15,6 @@ import 'package:flutter_pecha/features/texts/presentation/providers/font_size_no
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:just_audio/just_audio.dart';
-import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 enum _ButtonState { play, loading, pause }
 
@@ -337,7 +337,7 @@ class _PlanTextScreenState extends ConsumerState<PlanTextScreen>
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       elevation: 0,
       leading: IconButton(
-        icon: const Icon(PhosphorIconsRegular.arrowLeft),
+        icon: const Icon(AppAssets.arrowLeft),
         onPressed: () {
           _cancelAudio();
           context.pop();
@@ -405,7 +405,7 @@ class _PlanTextScreenState extends ConsumerState<PlanTextScreen>
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios),
+          icon: const Icon(AppAssets.arrowLeft),
           onPressed: () => context.pop(),
         ),
       ),

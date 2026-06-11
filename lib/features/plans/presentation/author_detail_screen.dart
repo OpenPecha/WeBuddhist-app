@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
 import 'package:flutter_pecha/core/widgets/cached_network_image_widget.dart';
 import 'package:flutter_pecha/core/widgets/error_state_widget.dart';
@@ -10,6 +11,7 @@ import 'package:flutter_pecha/features/plans/presentation/widgets/plan_card.dart
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class AuthorDetailScreen extends ConsumerWidget {
@@ -26,6 +28,10 @@ class AuthorDetailScreen extends ConsumerWidget {
     final localizations = context.l10n;
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(AppAssets.arrowLeft),
+          onPressed: () => context.pop(),
+        ),
         centerTitle: false,
         title: Text(
           localizations.author,

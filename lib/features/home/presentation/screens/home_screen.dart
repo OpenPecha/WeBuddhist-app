@@ -2,6 +2,7 @@ import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/features/home/presentation/screens/main_navigation_screen.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
 import 'package:flutter_pecha/core/error/failures.dart';
 import 'package:flutter_pecha/core/services/service_providers.dart';
@@ -312,7 +313,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   );
                 },
                 viewLeading: IconButton(
-                  icon: const Icon(Icons.arrow_back_ios),
+                  icon: const Icon(AppAssets.arrowLeft),
                   onPressed: () {
                     _didJustDismissSearch = true;
                     Navigator.of(context).pop();

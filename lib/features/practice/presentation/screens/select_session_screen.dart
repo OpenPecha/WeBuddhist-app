@@ -14,6 +14,7 @@ import 'package:flutter_pecha/features/practice/presentation/providers/practice_
 import 'package:flutter_pecha/features/recitation/presentation/providers/recitations_providers.dart';
 import 'package:flutter_pecha/features/recitation/presentation/widgets/recitation_list_skeleton.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 final _logger = AppLogger('SelectSessionScreen');
 
@@ -95,6 +96,10 @@ class _SelectSessionScreenState extends ConsumerState<SelectSessionScreen>
 
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(AppAssets.arrowLeft),
+          onPressed: () => context.pop(),
+        ),
         title: Text(
           localizations.routine_add_session,
           style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
