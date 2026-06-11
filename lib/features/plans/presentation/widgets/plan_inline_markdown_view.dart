@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
+import 'package:flutter_pecha/features/group_profile/presentation/widgets/group_profile_drawer.dart';
 import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -94,6 +95,15 @@ class PlanInlineMarkdownView extends StatelessWidget {
     if (href == null || href.isEmpty) return;
     try {
       final uri = Uri.parse(href);
+
+      if (uri.scheme == 'drawer' && uri.host == 'group') {
+        final groupId = uri.pathSegments.isNotEmpty ? uri.pathSegments.first : null;
+        if (groupId != null && groupId.isNotEmpty && context.mounted) {
+          GroupProfileDrawer.show(context, groupId);
+        }
+        return;
+      }
+
       if (await canLaunchUrl(uri)) {
         await launchUrl(uri, mode: LaunchMode.externalApplication);
         return;
