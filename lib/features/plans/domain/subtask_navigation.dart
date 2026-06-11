@@ -100,6 +100,7 @@ class PlanSubtaskNavigation {
           segmentIds: subtask.segmentIds,
           subtaskId: subtask.id,
           isCompleted: subtask.isCompleted,
+          audioUrl: subtask.audioUrl,
           startMs: subtask.startMs,
           endMs: subtask.endMs,
         );
@@ -110,6 +111,7 @@ class PlanSubtaskNavigation {
           title: title,
           subtaskId: subtask.id,
           isCompleted: subtask.isCompleted,
+          audioUrl: subtask.audioUrl,
           startMs: subtask.startMs,
           endMs: subtask.endMs,
         );
@@ -130,6 +132,7 @@ class PlanSubtaskNavigation {
           textId: subtask.sourceTextId!,
           title: title,
           segmentIds: subtask.segmentIds,
+          audioUrl: subtask.audioUrl,
           startMs: subtask.startMs,
           endMs: subtask.endMs,
         );
@@ -138,6 +141,7 @@ class PlanSubtaskNavigation {
         return PlanTextItem.inlineText(
           content: subtask.content!,
           title: title,
+          audioUrl: subtask.audioUrl,
           startMs: subtask.startMs,
           endMs: subtask.endMs,
         );

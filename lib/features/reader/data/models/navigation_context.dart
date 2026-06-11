@@ -83,16 +83,20 @@ class PlanTextItem {
   /// completion API calls.
   final bool isCompleted;
 
-  /// Audio segment start offset in milliseconds within the day audio track.
-  /// Null when this item has no mapped audio window.
+  /// This subtask's own audio file URL, if any. When present it takes
+  /// precedence over the day-level audio track (see
+  /// [NavigationContext.effectiveAudioUrlFor]). Null when the subtask has no
+  /// dedicated audio.
+  final String? audioUrl;
+
+  /// Audio segment start offset in milliseconds. For a subtask-level
+  /// [audioUrl] this is an offset within that file; for the day-level track
+  /// it is an offset within the day audio. Defaults to 0 when null.
   final int? startMs;
 
-  /// Audio segment end offset in milliseconds within the day audio track.
-  /// Null when this item has no mapped audio window.
+  /// Audio segment end offset in milliseconds. When null, playback runs to the
+  /// natural end of the resolved file (the common case for per-subtask audio).
   final int? endMs;
-
-  /// True when both [startMs] and [endMs] are present and form a valid window.
-  bool get hasAudioSegment => startMs != null && endMs != null;
 
   const PlanTextItem._({
     required this.contentType,
@@ -103,6 +107,7 @@ class PlanTextItem {
     this.subtaskId,
     this.taskId,
     this.isCompleted = false,
+    this.audioUrl,
     this.startMs,
     this.endMs,
   });
@@ -115,6 +120,7 @@ class PlanTextItem {
     String? subtaskId,
     String? taskId,
     bool isCompleted = false,
+    String? audioUrl,
     int? startMs,
     int? endMs,
   }) {
@@ -127,6 +133,7 @@ class PlanTextItem {
       subtaskId: subtaskId,
       taskId: taskId,
       isCompleted: isCompleted,
+      audioUrl: audioUrl,
       startMs: startMs,
       endMs: endMs,
     );
@@ -139,6 +146,7 @@ class PlanTextItem {
     String? subtaskId,
     String? taskId,
     bool isCompleted = false,
+    String? audioUrl,
     int? startMs,
     int? endMs,
   }) {
@@ -151,6 +159,7 @@ class PlanTextItem {
       subtaskId: subtaskId,
       taskId: taskId,
       isCompleted: isCompleted,
+      audioUrl: audioUrl,
       startMs: startMs,
       endMs: endMs,
     );
@@ -177,6 +186,7 @@ class PlanTextItem {
     String? subtaskId,
     String? taskId,
     bool? isCompleted,
+    String? audioUrl,
     int? startMs,
     int? endMs,
   }) {
@@ -189,6 +199,7 @@ class PlanTextItem {
       subtaskId: subtaskId ?? this.subtaskId,
       taskId: taskId ?? this.taskId,
       isCompleted: isCompleted ?? this.isCompleted,
+      audioUrl: audioUrl ?? this.audioUrl,
       startMs: startMs ?? this.startMs,
       endMs: endMs ?? this.endMs,
     );
@@ -204,7 +215,10 @@ class PlanTextItem {
         other.inlineContent != inlineContent ||
         other.subtaskId != subtaskId ||
         other.taskId != taskId ||
-        other.isCompleted != isCompleted) {
+        other.isCompleted != isCompleted ||
+        other.audioUrl != audioUrl ||
+        other.startMs != startMs ||
+        other.endMs != endMs) {
       return false;
     }
     if (segmentIds == null && other.segmentIds == null) return true;
@@ -226,6 +240,9 @@ class PlanTextItem {
         subtaskId,
         taskId,
         isCompleted,
+        audioUrl,
+        startMs,
+        endMs,
       );
 
   @override
@@ -304,6 +321,21 @@ class NavigationContext {
 
   /// Get the current text item's segment IDs for visibility control
   List<String>? get currentSegmentIds => currentItem?.segmentIds;
+
+  /// Resolve the audio URL for [item], applying precedence: a subtask's own
+  /// [PlanTextItem.audioUrl] wins over the shared [dayAudioUrl] fallback.
+  /// Returns null when neither is available.
+  String? effectiveAudioUrlFor(PlanTextItem item) =>
+      item.audioUrl ?? dayAudioUrl;
+
+  /// Whether [item] has any playable audio once precedence is applied.
+  bool hasAudioFor(PlanTextItem item) => effectiveAudioUrlFor(item) != null;
+
+  /// The resolved audio URL for the current item, if any.
+  String? get currentAudioUrl {
+    final item = currentItem;
+    return item == null ? null : effectiveAudioUrlFor(item);
+  }
 
   NavigationContext copyWith({
     NavigationSource? source,

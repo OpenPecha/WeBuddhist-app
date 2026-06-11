@@ -263,6 +263,7 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
       selectedDay: selectedDay,
       startDate: widget.startDate,
       dayCompletionStatus: completionStatus,
+      lockFutureDays: true,
       onDaySelected: (day) {
         setState(() {
           selectedDay = day;
