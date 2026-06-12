@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:flutter_pecha/core/config/router/app_routes.dart';
 import 'package:flutter_pecha/core/constants/app_assets.dart';
@@ -526,7 +527,13 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
           Padding(
             padding: const EdgeInsets.only(right: 16),
             child: TextButton(
-              onPressed: _canSave ? _onSave : null,
+              onPressed:
+                  _canSave
+                      ? () {
+                        HapticFeedback.lightImpact();
+                        _onSave();
+                      }
+                      : null,
               style: TextButton.styleFrom(
                 backgroundColor:
                     isDark

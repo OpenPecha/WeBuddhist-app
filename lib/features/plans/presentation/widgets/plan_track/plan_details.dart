@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/services.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/analytics/analytics_events.dart';
@@ -55,16 +56,20 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
   void initState() {
     super.initState();
     selectedDay = widget.selectedDay;
-    _logger.info('PlanDetails opened — id: ${widget.plan.id} | title: "${widget.plan.title}"');
+    _logger.info(
+      'PlanDetails opened — id: ${widget.plan.id} | title: "${widget.plan.title}"',
+    );
     unawaited(
-      ref.read(analyticsServiceProvider).track(
-        AnalyticsEvents.planViewed,
-        properties: {
-          AnalyticsProperties.planId: widget.plan.id,
-          AnalyticsProperties.planName: widget.plan.title,
-          AnalyticsProperties.totalDays: widget.plan.totalDays,
-        },
-      ),
+      ref
+          .read(analyticsServiceProvider)
+          .track(
+            AnalyticsEvents.planViewed,
+            properties: {
+              AnalyticsProperties.planId: widget.plan.id,
+              AnalyticsProperties.planName: widget.plan.title,
+              AnalyticsProperties.totalDays: widget.plan.totalDays,
+            },
+          ),
     );
   }
 
@@ -153,16 +158,18 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
           final completedDays = completionStatus.values.where((v) => v).length;
 
           unawaited(
-            ref.read(analyticsServiceProvider).track(
-              AnalyticsEvents.planDayCompleted,
-              properties: {
-                AnalyticsProperties.planId: widget.plan.id,
-                AnalyticsProperties.planName: widget.plan.title,
-                AnalyticsProperties.dayNumber: dayNumber,
-                AnalyticsProperties.totalDays: widget.plan.totalDays,
-                AnalyticsProperties.completedDays: completedDays,
-              },
-            ),
+            ref
+                .read(analyticsServiceProvider)
+                .track(
+                  AnalyticsEvents.planDayCompleted,
+                  properties: {
+                    AnalyticsProperties.planId: widget.plan.id,
+                    AnalyticsProperties.planName: widget.plan.title,
+                    AnalyticsProperties.dayNumber: dayNumber,
+                    AnalyticsProperties.totalDays: widget.plan.totalDays,
+                    AnalyticsProperties.completedDays: completedDays,
+                  },
+                ),
           );
 
           if (!mounted) return;
@@ -326,7 +333,10 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(context.l10n.plan_no_tasks_error, style: TextStyle(color: Colors.red[600])),
+        Text(
+          context.l10n.plan_no_tasks_error,
+          style: TextStyle(color: Colors.red[600]),
+        ),
         const SizedBox(height: 8),
         ElevatedButton(
           onPressed: () {
@@ -376,6 +386,7 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
             totalDays: widget.plan.totalDays,
             completionStatus: completionStatus,
             onTap: (firstMissedDay) {
+              HapticFeedback.lightImpact();
               setState(() {
                 selectedDay = firstMissedDay;
               });
@@ -411,9 +422,10 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
     });
 
     try {
-      final resultEither = newValue
-          ? await ref.read(completeTaskFutureProvider(taskId).future)
-          : await ref.read(deleteTaskFutureProvider(taskId).future);
+      final resultEither =
+          newValue
+              ? await ref.read(completeTaskFutureProvider(taskId).future)
+              : await ref.read(deleteTaskFutureProvider(taskId).future);
 
       resultEither.fold(
         (failure) {
@@ -455,16 +467,17 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
   List<UserTasksDto> _applyOptimisticState(List<UserTasksDto> tasks) {
     if (_optimisticCompletions.isEmpty) return tasks;
     final keysToRemove = <String>[];
-    final result = tasks.map((task) {
-      if (_optimisticCompletions.containsKey(task.id)) {
-        if (task.isCompleted == _optimisticCompletions[task.id]) {
-          keysToRemove.add(task.id);
+    final result =
+        tasks.map((task) {
+          if (_optimisticCompletions.containsKey(task.id)) {
+            if (task.isCompleted == _optimisticCompletions[task.id]) {
+              keysToRemove.add(task.id);
+              return task;
+            }
+            return task.copyWith(isCompleted: _optimisticCompletions[task.id]!);
+          }
           return task;
-        }
-        return task.copyWith(isCompleted: _optimisticCompletions[task.id]!);
-      }
-      return task;
-    }).toList();
+        }).toList();
     if (keysToRemove.isNotEmpty) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) {
@@ -601,8 +614,11 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
       dayAudioUrl: audioUrl,
     );
 
-    PlanNavigator.push(context, target, navigationContext)
-        .then((_) => _onReaderClosed());
+    PlanNavigator.push(
+      context,
+      target,
+      navigationContext,
+    ).then((_) => _onReaderClosed());
   }
 
   Widget _buildStartReadingButton(
@@ -616,15 +632,13 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
     );
 
     // Extract tasks and audioUrl from Either type
-    final dayData = dayContent.valueOrNull?.fold(
-      (failure) => null,
-      (d) => d,
-    );
+    final dayData = dayContent.valueOrNull?.fold((failure) => null, (d) => d);
     final tasks = dayData?.tasks ?? <UserTasksDto>[];
     final audioUrl = dayData?.audioUrl;
 
     final hasReadableContent =
-        tasks.isNotEmpty && tasks.any(PlanSubtaskNavigation.isUserTaskNavigable);
+        tasks.isNotEmpty &&
+        tasks.any(PlanSubtaskNavigation.isUserTaskNavigable);
 
     return SafeArea(
       child: Padding(
@@ -632,9 +646,10 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
         child: SizedBox(
           width: double.infinity,
           child: FilledButton(
-            onPressed: hasReadableContent
-                ? () => _startReading(tasks, audioUrl: audioUrl)
-                : null,
+            onPressed:
+                hasReadableContent
+                    ? () => _startReading(tasks, audioUrl: audioUrl)
+                    : null,
             style: FilledButton.styleFrom(
               backgroundColor: Theme.of(context).colorScheme.onSurface,
               foregroundColor: Theme.of(context).colorScheme.surface,
