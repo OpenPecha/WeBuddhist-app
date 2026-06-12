@@ -72,35 +72,28 @@ class PlanUtils {
     return diff;
   }
 
-  /// Counts past scheduled days the user has not completed.
+  /// Counts past scheduled days (from Day 1) the user has not completed.
   ///
-  /// Skips days before [userJoinDate] — those happened before the user
-  /// enrolled and can never count as missed. Excludes today — user still
-  /// has time to finish it.
+  /// Always counts from Day 1 regardless of when the user enrolled, so late
+  /// joiners see the full backlog they need to catch up on. Excludes today —
+  /// the user still has time to finish it.
   ///
   /// [planStartDate]: Day 1 anchor (= `plan.startDate ?? plan.startedAt`).
-  /// [userJoinDate]: when the user actually enrolled (= `plan.startedAt`).
   static int calculateMissedDays(
     DateTime planStartDate,
-    DateTime userJoinDate,
     int totalDays,
     Map<int, bool> completionStatus,
   ) {
     final todayDayNumber = dayNumberFor(planStartDate, DateTime.now(), totalDays);
-    final joinDayNumberRaw = dayNumberFor(planStartDate, userJoinDate, totalDays);
-    // Clamp join day to >= 1: if the user enrolled before the plan started,
-    // treat their effective first day as Day 1.
-    final joinDayNumber = joinDayNumberRaw < 1 ? 1 : joinDayNumberRaw;
 
     int missedCount = 0;
-    for (int day = joinDayNumber; day < todayDayNumber; day++) {
+    for (int day = 1; day < todayDayNumber; day++) {
       if (completionStatus[day] != true) missedCount++;
     }
 
     _logger.info(
       '[ENROLL-MISSED] planStart=${planStartDate.toIso8601String()} '
-      'userJoin=${userJoinDate.toIso8601String()} '
-      'todayDay=$todayDayNumber joinDay=$joinDayNumber missed=$missedCount',
+      'todayDay=$todayDayNumber missed=$missedCount',
     );
     return missedCount;
   }

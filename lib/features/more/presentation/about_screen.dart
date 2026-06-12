@@ -15,7 +15,7 @@ class AboutScreen extends StatelessWidget {
       icon: AppAssets.linkSimple,
       title: l10n.about_social_website,
       subtitle: 'www.webuddhist.com',
-      url: 'https://webuddhist.com/collections',
+      url: 'https://webuddhist.com',
     ),
     _SocialLink(
       icon: AppAssets.instagram,
@@ -51,6 +51,8 @@ class AboutScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
+        scrolledUnderElevation: 0,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         leading: IconButton(
           icon: const Icon(AppAssets.arrowLeft),
           onPressed: () => context.pop(),
@@ -103,11 +105,7 @@ class AboutScreen extends StatelessWidget {
       child: Column(
         children: [
           Center(
-            child: Image.asset(
-              AppAssets.weBuddhistLogo,
-              width: 96,
-              height: 96,
-            ),
+            child: Image.asset(AppAssets.weBuddhistLogo, width: 96, height: 96),
           ),
           const SizedBox(height: 16),
           Center(

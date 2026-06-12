@@ -687,6 +687,8 @@
   "edit_profile_photo_upload_failed": "Could not upload your photo. Please try again.",
   "edit_profile_choose_from_library": "Choose from library",
   "edit_profile_take_photo": "Take a photo",
+  "edit_profile_offline": "You're offline. Connect to the internet and try again.",
+  "edit_profile_save_failed": "Couldn't save your changes. Please try again.",
 
   "username_label": "Username",
   "username_taken": "Someone already used this name",

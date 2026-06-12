@@ -3,7 +3,6 @@ import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_pecha/core/widgets/error_state_widget.dart';
 import 'package:flutter_pecha/features/group_profile/presentation/providers/group_profile_providers.dart';
 import 'package:flutter_pecha/features/group_profile/presentation/widgets/group_profile_body.dart';
-import 'package:flutter_pecha/features/home/presentation/screens/main_navigation_screen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -52,9 +51,6 @@ class GroupProfileScreen extends ConsumerWidget {
             ),
           ],
         ),
-      ),
-      bottomNavigationBar: MainNavigationBottomBar(
-        onTabChanged: (_) => context.go('/home'),
       ),
     );
   }

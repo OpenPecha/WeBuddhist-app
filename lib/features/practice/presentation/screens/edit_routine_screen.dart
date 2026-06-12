@@ -8,12 +8,9 @@ import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
 import 'package:flutter_pecha/core/error/failures.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
-import 'package:flutter_pecha/core/storage/plan_metadata_store.dart';
-import 'package:flutter_pecha/core/storage/special_plan_started_at_store.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/features/notifications/data/services/notification_service.dart';
-import 'package:flutter_pecha/features/notifications/data/special_plan_notifications.dart';
 import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
 import 'package:flutter_pecha/features/auth/presentation/widgets/login_drawer.dart';
 import 'package:flutter_pecha/features/home/domain/entities/series.dart';
@@ -878,16 +875,11 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
     final block = _blocks[index];
     final apiId = block.apiTimeBlockId;
 
-    // Clean up metadata for all plan items in this block
-    for (final item in block.items) {
-      if (item.type == RoutineItemType.plan) {
-        if (isSpecialPlan(item.id)) {
-          await SpecialPlanStartedAtStore.clear(item.id);
-        } else {
-          await PlanMetadataStore.clear(item.id);
-        }
-      }
-    }
+    // Deliberately NO metadata/shown-flag clearing here. The deletion is not
+    // committed until Done, and wiping the per-day delivery records at
+    // delete-tap let a mid-edit sync re-fire today's already-delivered
+    // notification (ghost duplicate). Committed removals are reconciled by
+    // `_syncMetadata` on the next plans refresh.
 
     // Cancel immediately so the user doesn't receive a notification for a
     // block they just removed, even if they back out without pressing Done.
@@ -983,15 +975,9 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
 
     setState(() => block.items.removeAt(itemIndex));
 
-    // Await cleanup so re-enrollment never races with stale metadata or
-    // stale "already shown" flags.
-    if (removedItem.type == RoutineItemType.plan) {
-      if (isSpecialPlan(removedItem.id)) {
-        await SpecialPlanStartedAtStore.clear(removedItem.id);
-      } else {
-        await PlanMetadataStore.clear(removedItem.id);
-      }
-    }
+    // Deliberately NO metadata/shown-flag clearing here — see _deleteBlock.
+    // Per-day delivery records must survive uncommitted edits so a same-day
+    // re-add cannot duplicate today's notification.
 
     if (wasNotEmpty && block.items.isEmpty) {
       final routineBlock = RoutineBlock(
@@ -1425,7 +1411,10 @@ class _DoneButton extends StatelessWidget {
     return Align(
       alignment: Alignment.centerRight,
       child: GestureDetector(
-        onTap: onTap,
+        onTap: () {
+          HapticFeedback.lightImpact();
+          onTap();
+        },
         child: Text(
           label,
           style: TextStyle(

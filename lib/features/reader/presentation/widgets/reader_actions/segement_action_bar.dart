@@ -58,55 +58,52 @@ class SegmentActionBar extends ConsumerWidget {
       return const SizedBox.shrink();
     }
 
-    return Positioned(
-      left: 0,
-      right: 0,
-      bottom: 0,
-      child: _BottomActionPanel(
-        onDismiss: onClose,
-        children: [
-          // Versions button
-          _ActionCard(
-            icon: AppAssets.readerVersion,
-            label: localizations.version,
-            onTap: () {
-              HapticFeedback.lightImpact();
-              notifier.toggleTranslation(segment.segmentId);
-              if (!state.isTranslationOpen) {
-                onOpenTranslation?.call();
-              }
-            },
-          ),
-          // Commentary button
-          _ActionCard(
-            icon: AppAssets.readerCommentary,
-            label: localizations.text_commentary,
-            onTap: () {
-              HapticFeedback.lightImpact();
-              notifier.toggleCommentary(segment.segmentId);
-              if (!state.isCommentaryOpen) {
-                onOpenCommentary?.call();
-              }
-            },
-          ),
-          // Copy button
-          _ActionCard(
-            icon: AppAssets.readerCopy,
-            label: localizations.copy,
-            onTap: () {
-              HapticFeedback.lightImpact();
-              _handleCopy(context, content);
-            },
-          ),
-          // Share button
-          _ShareButton(
-            textId: params.textId,
-            segmentId: segment.segmentId,
-            language: state.textDetail?.language ?? 'en',
-            onClose: onClose,
-          ),
-        ],
-      ),
+    // Positioning is owned by the parent so the action bar can share a
+    // bottom-anchored column with the floating plan audio button.
+    return _BottomActionPanel(
+      onDismiss: onClose,
+      children: [
+        // Versions button
+        _ActionCard(
+          icon: AppAssets.readerVersion,
+          label: localizations.version,
+          onTap: () {
+            HapticFeedback.lightImpact();
+            notifier.toggleTranslation(segment.segmentId);
+            if (!state.isTranslationOpen) {
+              onOpenTranslation?.call();
+            }
+          },
+        ),
+        // Commentary button
+        _ActionCard(
+          icon: AppAssets.readerCommentary,
+          label: localizations.text_commentary,
+          onTap: () {
+            HapticFeedback.lightImpact();
+            notifier.toggleCommentary(segment.segmentId);
+            if (!state.isCommentaryOpen) {
+              onOpenCommentary?.call();
+            }
+          },
+        ),
+        // Copy button
+        _ActionCard(
+          icon: AppAssets.readerCopy,
+          label: localizations.copy,
+          onTap: () {
+            HapticFeedback.lightImpact();
+            _handleCopy(context, content);
+          },
+        ),
+        // Share button
+        _ShareButton(
+          textId: params.textId,
+          segmentId: segment.segmentId,
+          language: state.textDetail?.language ?? 'en',
+          onClose: onClose,
+        ),
+      ],
     );
   }
 

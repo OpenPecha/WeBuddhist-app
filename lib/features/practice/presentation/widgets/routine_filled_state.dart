@@ -363,7 +363,6 @@ class _RoutineBlockSection extends ConsumerWidget {
           : EnrolledPlanStatusIndicator(
             planId: userPlan.id,
             dateRange: dateRange,
-            userJoinDate: userPlan.startedAt,
           ),
     );
   }

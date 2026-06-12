@@ -49,6 +49,19 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
     with SingleTickerProviderStateMixin {
   late ReaderParams _params;
 
+  /// Gap kept below the floating audio button when it sits over the bare
+  /// reader content (no action bar). Matches the original floating offset.
+  static const double _audioBottomGap = 76;
+
+  /// Tighter gap used when the audio button sits directly above the segment
+  /// action bar, so the button hugs the bar instead of leaving a large empty
+  /// band of background between them.
+  static const double _audioActionBarGap = 16;
+
+  /// Lets the audio button keep its state when it is reparented between the
+  /// behind-panel slot and the bottom overlay.
+  final GlobalKey _audioButtonKey = GlobalKey();
+
   // App bar visibility state
   bool _isAppBarVisible = true;
   // Scroll controller callback
@@ -233,8 +246,22 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
       );
     }
 
+    final isPanelOpen = state.isCommentaryOpen || state.isTranslationOpen;
+    final isActionBarVisible = state.hasSelection && !isPanelOpen;
+    final bottomInset = MediaQuery.of(context).padding.bottom;
+
     return Stack(
       children: [
+        // Audio in the background of an open panel: keep the button alive
+        // (playing or paused) but paint it *under* the content so the opaque
+        // panel covers it. Rendered first so it sits behind everything.
+        if (_hasAudio && isPanelOpen)
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: bottomInset + _audioBottomGap,
+            child: Center(child: _buildAudioButton()),
+          ),
         // Main content area
         SafeArea(
           child: Column(
@@ -275,50 +302,21 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
                   isAppBarVisible: _isAppBarVisible,
                   child: ReaderTranslationSplitView(
                     params: _params,
+                    // Reader content with scroll detection. The segment action
+                    // bar is hosted in the screen-level bottom overlay so it
+                    // can share a fixed gap with the floating audio button.
                     mainContent: ReaderCommentarySplitView(
                       params: _params,
-                      mainContent: Stack(
-                        children: [
-                          // Reader content with scroll detection
-                          ReaderContentPart(
-                            params: _params,
-                            language: state.textDetail!.language,
-                            initialSegmentId: widget.segmentId,
-                            visibleSegmentIds:
-                                widget.navigationContext?.currentSegmentIds,
-                            onScrollDirectionChanged: _onScrollDirectionChanged,
-                            onScrollControllerReady: (scrollFn) {
-                              _scrollToSegment = scrollFn;
-                            },
-                          ),
-                          // Segment action bar (when segment selected and no panel open)
-                          if (state.hasSelection &&
-                              !state.isCommentaryOpen &&
-                              !state.isTranslationOpen)
-                            SegmentActionBar(
-                              segment: state.selectedSegment!,
-                              params: _params,
-                              onClose: () => notifier.selectSegment(null),
-                              onOpenCommentary: () {
-                                if (_scrollToSegment != null &&
-                                    state.selectedSegment != null) {
-                                  _scrollToSegment!(
-                                    state.selectedSegment!.segmentId,
-                                    alignment: 0.0,
-                                  );
-                                }
-                              },
-                              onOpenTranslation: () {
-                                if (_scrollToSegment != null &&
-                                    state.selectedSegment != null) {
-                                  _scrollToSegment!(
-                                    state.selectedSegment!.segmentId,
-                                    alignment: 0.0,
-                                  );
-                                }
-                              },
-                            ),
-                        ],
+                      mainContent: ReaderContentPart(
+                        params: _params,
+                        language: state.textDetail!.language,
+                        initialSegmentId: widget.segmentId,
+                        visibleSegmentIds:
+                            widget.navigationContext?.currentSegmentIds,
+                        onScrollDirectionChanged: _onScrollDirectionChanged,
+                        onScrollControllerReady: (scrollFn) {
+                          _scrollToSegment = scrollFn;
+                        },
                       ),
                     ),
                   ),
@@ -327,17 +325,64 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
             ],
           ),
         ),
-        // Floating play/pause for plan audio — sits above the navigation
-        // bottom bar. Only present when the reader was opened from a plan and
-        // the current item resolves to a playable audio track.
-        if (_hasAudio)
+        // Bottom overlay (only when no panel is open): the floating audio
+        // button sits above the segment action bar, sharing a fixed gap so
+        // the two never overlap. When neither is present this branch is
+        // skipped entirely.
+        if (!isPanelOpen && (_hasAudio || isActionBarVisible))
           Positioned(
             left: 0,
             right: 0,
-            bottom: MediaQuery.of(context).padding.bottom + 76,
-            child: Center(child: PlanAudioButton(controller: _audioController!)),
+            bottom: 0,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              // Stretch so the action bar spans full width; the audio button
+              // is centered explicitly.
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                if (_hasAudio)
+                  Padding(
+                    // Hug the action bar with a tight gap when it is open;
+                    // otherwise keep the original floating offset above bottom.
+                    padding: EdgeInsets.only(
+                      bottom:
+                          isActionBarVisible
+                              ? _audioActionBarGap
+                              : bottomInset + _audioBottomGap,
+                    ),
+                    child: Center(child: _buildAudioButton()),
+                  ),
+                if (isActionBarVisible) _buildSegmentActionBar(state, notifier),
+              ],
+            ),
           ),
       ],
+    );
+  }
+
+  /// The floating plan audio play/pause control. Keyed so its animation state
+  /// survives reparenting between the behind-panel slot and the bottom overlay.
+  Widget _buildAudioButton() {
+    return PlanAudioButton(key: _audioButtonKey, controller: _audioController!);
+  }
+
+  /// Segment action bar wired to the reader notifier. Scrolls the selected
+  /// segment to the top when a commentary/translation panel is opened.
+  Widget _buildSegmentActionBar(ReaderState state, ReaderNotifier notifier) {
+    return SegmentActionBar(
+      segment: state.selectedSegment!,
+      params: _params,
+      onClose: () => notifier.selectSegment(null),
+      onOpenCommentary: () {
+        if (_scrollToSegment != null && state.selectedSegment != null) {
+          _scrollToSegment!(state.selectedSegment!.segmentId, alignment: 0.0);
+        }
+      },
+      onOpenTranslation: () {
+        if (_scrollToSegment != null && state.selectedSegment != null) {
+          _scrollToSegment!(state.selectedSegment!.segmentId, alignment: 0.0);
+        }
+      },
     );
   }
 
