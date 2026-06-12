@@ -107,7 +107,7 @@ class FeaturedPlanCard extends ConsumerWidget {
     final lineHeight = getLineHeight(locale.languageCode);
     final subtitleFontSize = locale.languageCode == 'bo' ? 18.0 : 14.0;
 
-    final displayDescription = series?.description ?? plan.description;
+    final displayDescription = series?.subTitle ?? plan.description;
     final displayImage = series?.coverImage ?? plan.coverImage;
     final localizations = AppLocalizations.of(context)!;
 

@@ -108,6 +108,7 @@ class SeriesModel {
     return Series(
       id: id,
       title: resolved?.title ?? '',
+      subTitle: resolved?.subTitle,
       description: resolved?.description ?? '',
       coverImage: image?.toResponsiveImage(),
       featured: featured,
