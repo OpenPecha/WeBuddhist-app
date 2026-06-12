@@ -6,7 +6,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:flutter_pecha/core/config/router/app_routes.dart';
 import 'package:flutter_pecha/core/constants/app_assets.dart';
+import 'package:flutter_pecha/core/error/error_message_mapper.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
+import 'package:flutter_pecha/core/network/connectivity_service.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
 import 'package:flutter_pecha/features/auth/presentation/state/user_state.dart';
@@ -190,6 +192,18 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     if (_usernameState == UsernameState.conflict) return;
     if (_usernameState == UsernameState.invalid) return;
 
+    final l10n = AppLocalizations.of(context)!;
+
+    // Fail fast when offline so the user gets a clear message instead of a
+    // raw token-refresh error from the network layer.
+    final isOnline =
+        await ref.read(connectivityServiceProvider).checkConnectivity();
+    if (!mounted) return;
+    if (!isOnline) {
+      setState(() => _saveError = l10n.edit_profile_offline);
+      return;
+    }
+
     // If the username debounce hasn't fired yet, run it synchronously.
     final pendingUsername = _usernameCtrl.text.trim();
     if (_usernameDebounce?.isActive == true &&
@@ -246,7 +260,16 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     setState(() => _isSaving = false);
 
     if (error != null) {
-      setState(() => _saveError = error);
+      // Never surface the raw error string (it can be a low-level NSURLError /
+      // token-refresh dump). Connectivity can drop between the pre-check and
+      // the request, so detect network failures by content here too — note the
+      // offline case is wrapped as an auth failure, so type-based mapping is
+      // unreliable and we must inspect the message.
+      final friendly =
+          ErrorMessageMapper.isNetworkError(error)
+              ? l10n.edit_profile_offline
+              : l10n.edit_profile_save_failed;
+      setState(() => _saveError = friendly);
       return;
     }
 

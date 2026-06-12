@@ -190,9 +190,9 @@ class _GuestView extends ConsumerWidget {
             Text(
               localizations.me_guest_subtitle,
               textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: AppColors.grey600,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(color: AppColors.grey600),
             ),
             const SizedBox(height: 40),
             if (authState.isLoading)
@@ -205,13 +205,10 @@ class _GuestView extends ConsumerWidget {
                 onTap: () => authNotifier.login(connection: 'google'),
                 backgroundColor: isDark ? AppColors.cardDark : Colors.white,
                 foregroundColor: isDark ? Colors.white : Colors.black87,
-                borderColor: isDark ? AppColors.cardBorderDark : AppColors.grey300,
+                borderColor:
+                    isDark ? AppColors.cardBorderDark : AppColors.grey300,
                 label: localizations.continueWithGoogle,
-                icon: Image.asset(
-                  AppAssets.googleIcon,
-                  width: 23,
-                  height: 23,
-                ),
+                icon: Image.asset(AppAssets.googleIcon, width: 23, height: 23),
               ),
               if (isIOS) ...[
                 const SizedBox(height: 14),
