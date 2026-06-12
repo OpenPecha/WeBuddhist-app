@@ -373,7 +373,6 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
         if (completionStatus != null)
           MissedDaysBadge(
             planStartDate: widget.startDate,
-            userJoinDate: widget.plan.startedAt,
             totalDays: widget.plan.totalDays,
             completionStatus: completionStatus,
           ),

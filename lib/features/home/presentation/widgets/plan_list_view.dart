@@ -397,7 +397,6 @@ class PlanListItem extends ConsumerWidget {
                             child: EnrolledPlanStatusIndicator(
                               planId: plan.id,
                               dateRange: dateRange,
-                              userJoinDate: userPlan.startedAt,
                             ),
                           ),
                       ],

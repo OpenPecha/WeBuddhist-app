@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/widgets/responsive_cover_image.dart';
 import 'package:flutter_pecha/features/plans/data/models/user/user_plans_model.dart';
+import 'package:flutter_pecha/features/plans/presentation/widgets/plan_track/enrolled_plan_status_indicator.dart';
+import 'package:flutter_pecha/features/plans/presentation/widgets/plan_track/plan_date_range_label.dart';
 import 'package:flutter_pecha/shared/extensions/typography_extensions.dart';
 
 class UserPlanCard extends StatelessWidget {
@@ -27,6 +29,7 @@ class UserPlanCard extends StatelessWidget {
           _buildPlanImage(plan),
           const SizedBox(width: 24),
           Expanded(child: _buildPlanInfo(context, plan)),
+          _buildStatusIndicator(),
         ],
       ),
     );
@@ -43,6 +46,32 @@ class UserPlanCard extends StatelessWidget {
     }
 
     return card;
+  }
+
+  /// Trailing missed-days / on-track status, vertically centered against the
+  /// 90px cover image. Anchored to the user's enrollment date
+  /// ([UserPlansModel.effectiveStartDate]) so flexible plans (no fixed start
+  /// date) also surface status. The indicator self-hides for future ranges and
+  /// fully-completed plans, so this renders nothing in those cases.
+  Widget _buildStatusIndicator() {
+    final dateRange = PlanDateRange.tryCreate(
+      startDate: plan.effectiveStartDate,
+      totalDays: plan.totalDays,
+    );
+    if (dateRange == null) return const SizedBox.shrink();
+
+    return Padding(
+      padding: const EdgeInsets.only(left: 8),
+      child: SizedBox(
+        height: 90,
+        child: Center(
+          child: EnrolledPlanStatusIndicator(
+            planId: plan.id,
+            dateRange: dateRange,
+          ),
+        ),
+      ),
+    );
   }
 
   Future<bool?> _showConfirmationDialog(BuildContext context) {

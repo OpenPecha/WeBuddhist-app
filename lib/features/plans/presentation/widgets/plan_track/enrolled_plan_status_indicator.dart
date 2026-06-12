@@ -8,11 +8,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Right-side status indicator for an enrolled plan. Decision tree:
 ///
-/// - Future range (today < `dateRange.start`) -> nothing.
-/// - All days complete -> compact check icon.
-/// - Today within range, zero missed -> [OnTrackBadge].
-/// - Today within range with missed days OR range fully in the past with
-///   missed days -> [MissedDaysBadge] (self-hides when count is 0).
+/// - Future range (today < `dateRange.start`) → nothing.
+/// - All days complete → nothing.
+/// - Ongoing (today within range) + zero missed → [OnTrackBadge].
+/// - Ongoing with missed days OR past with missed days → [MissedDaysBadge]
+///   (self-hides when count is 0).
+///
+/// Missed days are counted from Day 1 of the plan, so late joiners see the
+/// full backlog they need to catch up on.
 ///
 /// Watches [userPlanDaysCompletionStatusProvider] per [planId]. Loading
 /// and error states render nothing so the host row stays stable — this is
@@ -21,15 +24,10 @@ class EnrolledPlanStatusIndicator extends ConsumerWidget {
   final String planId;
   final PlanDateRange dateRange;
 
-  /// When the user enrolled in the plan (= `userPlan.startedAt`). Used to
-  /// skip pre-enrollment days when counting missed days.
-  final DateTime userJoinDate;
-
   const EnrolledPlanStatusIndicator({
     super.key,
     required this.planId,
     required this.dateRange,
-    required this.userJoinDate,
   });
 
   @override
@@ -57,11 +55,10 @@ class EnrolledPlanStatusIndicator extends ConsumerWidget {
       totalDays,
       (i) => i + 1,
     ).every((d) => completion[d] == true);
-    if (allCompleted) return const _CompletedTickIcon();
+    if (allCompleted) return const SizedBox.shrink();
 
     final missed = PlanUtils.calculateMissedDays(
       dateRange.start,
-      userJoinDate,
       totalDays,
       completion,
     );
@@ -70,23 +67,8 @@ class EnrolledPlanStatusIndicator extends ConsumerWidget {
 
     return MissedDaysBadge(
       planStartDate: dateRange.start,
-      userJoinDate: userJoinDate,
       totalDays: totalDays,
       completionStatus: completion,
-    );
-  }
-}
-
-/// Compact check icon shown when every day of an enrolled plan is complete.
-class _CompletedTickIcon extends StatelessWidget {
-  const _CompletedTickIcon();
-
-  @override
-  Widget build(BuildContext context) {
-    return Icon(
-      Icons.check,
-      size: 18,
-      color: Theme.of(context).colorScheme.onSurfaceVariant,
     );
   }
 }
