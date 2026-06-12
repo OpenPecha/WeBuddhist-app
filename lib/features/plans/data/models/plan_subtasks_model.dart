@@ -5,6 +5,7 @@ class PlanSubtasksModel {
   final String? content;
   final int? displayOrder;
   final String? duration;
+  final String? audioUrl;
   final String? sourceTextId;
   final String? pechaSegmentId;
   final List<String>? segmentIds;
@@ -18,6 +19,7 @@ class PlanSubtasksModel {
     this.content,
     this.displayOrder,
     this.duration,
+    this.audioUrl,
     this.sourceTextId,
     this.pechaSegmentId,
     this.segmentIds,
@@ -25,7 +27,9 @@ class PlanSubtasksModel {
     this.endMs,
   });
 
-  bool get hasAudioWindow => startMs != null && endMs != null;
+  /// True when this subtask carries its own audio file. A subtask-level
+  /// [audioUrl] takes precedence over the day-level audio track.
+  bool get hasOwnAudio => audioUrl != null;
 
   factory PlanSubtasksModel.fromJson(Map<String, dynamic> json) {
     return PlanSubtasksModel(
@@ -35,6 +39,7 @@ class PlanSubtasksModel {
       content: json['content'] as String?,
       displayOrder: json['display_order'] as int?,
       duration: json['duration'] as String?,
+      audioUrl: json['audio_url'] as String?,
       sourceTextId: json['source_text_id'] as String?,
       pechaSegmentId: json['pecha_segment_id'] as String?,
       segmentIds: (json['segment_ids'] as List<dynamic>?)
@@ -53,6 +58,7 @@ class PlanSubtasksModel {
       'content': content,
       'display_order': displayOrder,
       'duration': duration,
+      'audio_url': audioUrl,
       'source_text_id': sourceTextId,
       'pecha_segment_id': pechaSegmentId,
       'segment_ids': segmentIds,
@@ -68,6 +74,7 @@ class PlanSubtasksModel {
     String? content,
     int? displayOrder,
     String? duration,
+    String? audioUrl,
     String? sourceTextId,
     String? pechaSegmentId,
     List<String>? segmentIds,
@@ -81,6 +88,7 @@ class PlanSubtasksModel {
       content: content ?? this.content,
       displayOrder: displayOrder ?? this.displayOrder,
       duration: duration ?? this.duration,
+      audioUrl: audioUrl ?? this.audioUrl,
       sourceTextId: sourceTextId ?? this.sourceTextId,
       pechaSegmentId: pechaSegmentId ?? this.pechaSegmentId,
       segmentIds: segmentIds ?? this.segmentIds,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
 import 'package:flutter_pecha/features/auth/presentation/widgets/login_drawer.dart';
@@ -115,7 +116,10 @@ class PracticeScreen extends ConsumerWidget {
             body: SafeArea(
               child: RoutineFilledState(
                 routineData: routineData,
-                onEdit: () => _onBuildRoutine(context, ref),
+                onEdit: () {
+                  HapticFeedback.lightImpact();
+                  _onBuildRoutine(context, ref);
+                },
               ),
             ),
           );

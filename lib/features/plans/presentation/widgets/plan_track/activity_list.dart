@@ -81,8 +81,10 @@ class ActivityList extends StatelessWidget {
   }
 
   bool _taskHasAudio(UserTasksDto task) {
-    if (dayAudioUrl == null) return false;
-    return task.subTasks.any((s) => s.hasAudioWindow);
+    // A subtask plays audio when it has its own audio file, or the day-level
+    // track is available as a fallback. Subtask audio takes precedence.
+    if (dayAudioUrl != null) return true;
+    return task.subTasks.any((s) => s.hasOwnAudio);
   }
 
   void _handleActivityTap(

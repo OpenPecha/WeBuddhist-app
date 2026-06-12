@@ -66,6 +66,7 @@ class AppAssets {
   static const IconData caretDown = PhosphorIconsRegular.caretDown;
   static const IconData arrowSquareOut = PhosphorIconsRegular.arrowSquareOut;
   static const IconData arrowLeft = PhosphorIconsRegular.arrowLeft;
+  static const IconData lock = PhosphorIconsRegular.lock;
 
   // ========== ACTION ICONS ==========
   static const IconData plus = PhosphorIconsRegular.plus;

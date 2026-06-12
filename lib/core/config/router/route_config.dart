@@ -12,7 +12,6 @@ class RouteConfig {
   static const String login = AppRoutes.login;
   static const String home = AppRoutes.home;
   static const String profile = AppRoutes.profile;
-  static const String creatorInfo = AppRoutes.creatorInfo;
   static const String plans = '/plans';
   static const String texts = AppRoutes.texts;
 

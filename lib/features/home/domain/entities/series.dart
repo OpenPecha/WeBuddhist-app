@@ -26,6 +26,7 @@ class SeriesGroup {
 class Series {
   final String id;
   final String title;
+  final String? subTitle;
   final String description;
   final ResponsiveImage? coverImage;
   final bool featured;
@@ -36,6 +37,7 @@ class Series {
   const Series({
     required this.id,
     required this.title,
+    this.subTitle,
     required this.description,
     this.coverImage,
     this.featured = false,

@@ -10,6 +10,7 @@ class DayCarousel extends StatefulWidget {
   final int selectedDay;
   final Function(int) onDaySelected;
   final Map<int, bool>? dayCompletionStatus;
+  final bool lockFutureDays;
 
   const DayCarousel({
     super.key,
@@ -19,6 +20,7 @@ class DayCarousel extends StatefulWidget {
     required this.selectedDay,
     required this.onDaySelected,
     this.dayCompletionStatus,
+    this.lockFutureDays = false,
   });
 
   @override
@@ -98,84 +100,103 @@ class _DayCarouselState extends State<DayCarousel> {
           final isSelected = widget.selectedDay == day.dayNumber;
           final isCompleted = widget.dayCompletionStatus?[day.dayNumber] ?? false;
           final isToday = dayDate.isAtSameMomentAs(today);
+          final isFuture = dayDate.isAfter(today);
+          final isDisabled = widget.lockFutureDays && isFuture;
+          final isEffectivelySelected = isSelected && !isDisabled;
+          final theme = Theme.of(context);
+          final disabledColor = theme.disabledColor;
 
-          return GestureDetector(
-            onTap: () {
-              HapticFeedback.selectionClick();
-              widget.onDaySelected(day.dayNumber);
-            },
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 200),
-              curve: Curves.easeInOut,
-              width: 80,
-              margin: const EdgeInsets.symmetric(horizontal: 4),
-              decoration: BoxDecoration(
-                color: Theme.of(context).cardColor,
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(
-                  color: isSelected
-                      ? const Color(0xFF1E3A8A)
-                      : Theme.of(context).cardColor,
-                  width: 2,
+          return Opacity(
+            opacity: isDisabled ? 0.45 : 1,
+            child: GestureDetector(
+              onTap: isDisabled
+                  ? null
+                  : () {
+                      HapticFeedback.selectionClick();
+                      widget.onDaySelected(day.dayNumber);
+                    },
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                curve: Curves.easeInOut,
+                width: 80,
+                margin: const EdgeInsets.symmetric(horizontal: 4),
+                decoration: BoxDecoration(
+                  color: isDisabled
+                      ? theme.cardColor.withValues(alpha: 0.6)
+                      : theme.cardColor,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(
+                    color: isEffectivelySelected
+                        ? const Color(0xFF1E3A8A)
+                        : theme.cardColor,
+                    width: 2,
+                  ),
+                  boxShadow: isEffectivelySelected
+                      ? [
+                          BoxShadow(
+                            color: const Color(0xFF1E3A8A).withValues(alpha: 0.2),
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
+                          ),
+                        ]
+                      : null,
                 ),
-                boxShadow: isSelected
-                    ? [
-                        BoxShadow(
-                          color: const Color(0xFF1E3A8A).withValues(alpha: 0.2),
-                          blurRadius: 8,
-                          offset: const Offset(0, 2),
-                        ),
-                      ]
-                    : null,
-              ),
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  if (isCompleted)
-                    Positioned(
-                      top: 4,
-                      right: 4,
-                      child: Icon(
-                        Icons.check,
-                        size: 14,
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
-                    ),
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        '${day.dayNumber}',
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    if (isCompleted)
+                      Positioned(
+                        top: 4,
+                        right: 4,
+                        child: Icon(
+                          Icons.check,
+                          size: 14,
+                          color: isDisabled
+                              ? disabledColor
+                              : theme.colorScheme.primary,
                         ),
                       ),
-                      const SizedBox(height: 4),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 2,
-                        ),
-                        decoration: isToday
-                            ? BoxDecoration(
-                                color: Theme.of(context).brightness == Brightness.dark
-                                    ? Colors.white.withValues(alpha: 0.2)
-                                    : const Color(0xFF1A1A1A),
-                                borderRadius: BorderRadius.circular(12),
-                              )
-                            : null,
-                        child: Text(
-                          dayDateString,
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          '${day.dayNumber}',
                           style: TextStyle(
-                            fontSize: 11,
-                            color: isToday ? Colors.white : null,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: isDisabled ? disabledColor : null,
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                ],
+                        const SizedBox(height: 4),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 2,
+                          ),
+                          decoration: isToday && !isDisabled
+                              ? BoxDecoration(
+                                  color: theme.brightness == Brightness.dark
+                                      ? Colors.white.withValues(alpha: 0.2)
+                                      : const Color(0xFF1A1A1A),
+                                  borderRadius: BorderRadius.circular(12),
+                                )
+                              : null,
+                          child: Text(
+                            dayDateString,
+                            style: TextStyle(
+                              fontSize: 11,
+                              color: isDisabled
+                                  ? disabledColor
+                                  : isToday
+                                      ? Colors.white
+                                      : null,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
           );

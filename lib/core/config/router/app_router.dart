@@ -55,6 +55,9 @@ final _logger = AppLogger('AppRouter');
 /// can call showDialog on a context that is actually inside the navigator.
 final rootNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'root');
 
+/// Shell navigator key for routes that share the persistent bottom nav bar.
+final _shellNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'shell');
+
 /// Provider for the application router with authentication and route protection
 ///
 /// This provider creates a GoRouter instance that:
@@ -111,69 +114,111 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const OnboardingWrapper(),
       ),
 
-      // home route
-      GoRoute(
-        path: "/home",
-        name: "home",
-        builder: (context, state) => const MainNavigationScreen(),
+      ShellRoute(
+        navigatorKey: _shellNavigatorKey,
+        builder: (context, state, child) {
+          return HomeShellScaffold(child: child);
+        },
         routes: [
           GoRoute(
-            path: "plans/:tag", // route - /home/plans/:tag
-            name: "home-plans",
-            builder: (context, state) {
-              final tag = state.pathParameters['tag'] ?? '';
-              return PlanListScreen(tag: tag);
-            },
+            path: "/home",
+            name: "home",
+            builder: (context, state) => const MainNavigationScreen(),
             routes: [
               GoRoute(
-                path: "preview", // route - /home/plans/:tag/preview
-                name: "home-plan-preview",
+                path: "plans/:tag",
+                name: "home-plans",
                 builder: (context, state) {
-                  final extra = state.extra as Map<String, dynamic>?;
-                  final plan = extra?['plan'] as Plan?;
-                  if (plan == null) {
-                    throw Exception('Missing required parameters');
-                  }
-                  return PlanPreviewDetails(plan: plan);
+                  final tag = state.pathParameters['tag'] ?? '';
+                  return PlanListScreen(tag: tag);
                 },
+                routes: [
+                  GoRoute(
+                    parentNavigatorKey: rootNavigatorKey,
+                    path: "preview",
+                    name: "home-plan-preview",
+                    builder: (context, state) {
+                      final extra = state.extra as Map<String, dynamic>?;
+                      final plan = extra?['plan'] as Plan?;
+                      if (plan == null) {
+                        throw Exception('Missing required parameters');
+                      }
+                      return PlanPreviewDetails(plan: plan);
+                    },
+                  ),
+                ],
+              ),
+              GoRoute(
+                path: "series/:id",
+                name: "home-series-detail",
+                builder: (context, state) {
+                  final id = state.pathParameters['id'] ?? '';
+                  final extra = state.extra as Map<String, dynamic>?;
+                  final series = extra?['series'] as Series?;
+                  return SeriesDetailScreen(seriesId: id, series: series);
+                },
+                routes: [
+                  GoRoute(
+                    path: "info",
+                    name: "home-series-info",
+                    builder: (context, state) {
+                      final extra = state.extra as Map<String, dynamic>?;
+                      final series = extra?['series'] as Series;
+                      return SeriesInfoScreen(series: series);
+                    },
+                  ),
+                ],
+              ),
+              GoRoute(
+                path: "group/:groupId",
+                name: "home-group-profile",
+                builder: (context, state) {
+                  final groupId = state.pathParameters['groupId'] ?? '';
+                  return GroupProfileScreen(groupId: groupId);
+                },
+              ),
+              // settings route
+              GoRoute(
+                path: "settings",
+                name: "home-settings",
+                builder: (context, state) => const MoreScreen(),
               ),
             ],
           ),
           GoRoute(
-            path: "series/:id", // route - /home/series/:id
-            name: "home-series-detail",
-            builder: (context, state) {
-              final id = state.pathParameters['id'] ?? '';
-              final extra = state.extra as Map<String, dynamic>?;
-              final series = extra?['series'] as Series?;
-              return SeriesDetailScreen(seriesId: id, series: series);
-            },
-            routes: [
-              GoRoute(
-                path: "info",
-                name: "home-series-info",
-                builder: (context, state) {
-                  final extra = state.extra as Map<String, dynamic>?;
-                  final series = extra?['series'] as Series;
-                  return SeriesInfoScreen(series: series);
-                },
-              ),
-            ],
+            path: AppRoutes.notifications,
+            name: "notifications",
+            builder: (context, state) => const NotificationSettingsScreen(),
           ),
-          // group profile route
           GoRoute(
-            path: "group/:groupId",
-            name: "home-group-profile",
-            builder: (context, state) {
-              final groupId = state.pathParameters['groupId'] ?? '';
-              return GroupProfileScreen(groupId: groupId);
-            },
+            path: AppRoutes.profile,
+            name: "profile",
+            builder: (context, state) => const EditProfileScreen(),
           ),
-          // settings route
           GoRoute(
-            path: "settings",
-            name: "home-settings",
-            builder: (context, state) => const MoreScreen(),
+            path: AppRoutes.about,
+            name: "about",
+            builder: (context, state) => const AboutScreen(),
+          ),
+          GoRoute(
+            path: AppRoutes.legal,
+            name: "legal",
+            builder: (context, state) => const LegalScreen(),
+          ),
+          GoRoute(
+            path: AppRoutes.termsOfService,
+            name: "terms-of-service",
+            builder: (context, state) => const TermsOfServiceScreen(),
+          ),
+          GoRoute(
+            path: AppRoutes.privacyPolicy,
+            name: "privacy-policy",
+            builder: (context, state) => const PrivacyPolicyScreen(),
+          ),
+          GoRoute(
+            path: AppRoutes.deleteAccount,
+            name: "delete-account",
+            builder: (context, state) => const DeleteAccountScreen(),
           ),
         ],
       ),
@@ -340,62 +385,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             imagePath: extra?['imagePath'] as String,
           );
         },
-      ),
-
-      // notifications route
-      GoRoute(
-        path: AppRoutes.notifications,
-        name: "notifications",
-        builder: (context, state) => const NotificationSettingsScreen(),
-      ),
-
-      // settings route (Me tab → gear icon)
-      GoRoute(
-        path: AppRoutes.settings,
-        name: "settings",
-        builder: (context, state) => const MoreScreen(),
-      ),
-
-      // profile / edit-profile route
-      GoRoute(
-        path: AppRoutes.profile,
-        name: "profile",
-        builder: (context, state) => const EditProfileScreen(),
-      ),
-
-      // about route
-      GoRoute(
-        path: AppRoutes.about,
-        name: "about",
-        builder: (context, state) => const AboutScreen(),
-      ),
-
-      // legal route
-      GoRoute(
-        path: AppRoutes.legal,
-        name: "legal",
-        builder: (context, state) => const LegalScreen(),
-      ),
-
-      // terms of service route
-      GoRoute(
-        path: AppRoutes.termsOfService,
-        name: "terms-of-service",
-        builder: (context, state) => const TermsOfServiceScreen(),
-      ),
-
-      // privacy policy route
-      GoRoute(
-        path: AppRoutes.privacyPolicy,
-        name: "privacy-policy",
-        builder: (context, state) => const PrivacyPolicyScreen(),
-      ),
-
-      // delete account route
-      GoRoute(
-        path: AppRoutes.deleteAccount,
-        name: "delete-account",
-        builder: (context, state) => const DeleteAccountScreen(),
       ),
 
       // plan text route - inline TEXT subtasks (sibling to /reader)

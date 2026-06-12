@@ -4,7 +4,6 @@ import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/core/widgets/responsive_cover_image.dart';
 import 'package:flutter_pecha/features/home/domain/entities/series.dart';
-import 'package:flutter_pecha/features/home/presentation/screens/main_navigation_screen.dart';
 import 'package:flutter_pecha/features/plans/presentation/widgets/plan_inline_markdown_view.dart';
 import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -71,8 +70,7 @@ class SeriesInfoScreen extends ConsumerWidget {
                         lineHeight,
                       ),
                     ],
-                    if (series.group?.description != null &&
-                        series.group!.description!.trim().isNotEmpty) ...[
+                    if (series.description.trim().isNotEmpty) ...[
                       const SizedBox(height: 24),
                       _buildSection(
                         context,
@@ -89,9 +87,6 @@ class SeriesInfoScreen extends ConsumerWidget {
             ),
           ],
         ),
-      ),
-      bottomNavigationBar: MainNavigationBottomBar(
-        onTabChanged: (_) => context.go('/home'),
       ),
     );
   }

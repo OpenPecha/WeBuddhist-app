@@ -38,7 +38,6 @@ export 'presentation/controllers/recitation_save_controller.dart';
 
 // Presentation - Screens
 export 'presentation/screens/recitations_screen.dart';
-export 'presentation/screens/recitation_detail_screen.dart';
 
 // Presentation - Widgets
 export 'presentation/widgets/recitation_card.dart';

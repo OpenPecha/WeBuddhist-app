@@ -1411,7 +1411,10 @@ class _DoneButton extends StatelessWidget {
     return Align(
       alignment: Alignment.centerRight,
       child: GestureDetector(
-        onTap: onTap,
+        onTap: () {
+          HapticFeedback.lightImpact();
+          onTap();
+        },
         child: Text(
           label,
           style: TextStyle(
