@@ -105,11 +105,11 @@ class _CommentaryList extends ConsumerWidget {
     Map<String, List<SegmentCommentary>> byLanguage,
   ) {
     if (_chinesePair.contains(textLanguage)) {
-      // Chinese text: pin Chinese variants at the top — text language first,
-      // partner second only if the backend actually returned content for it.
+      // Chinese text: pin both Chinese variants at the top — text language
+      // first, partner always second (shows "not available" when empty).
       final partner = textLanguage == 'zh' ? 'lzh' : 'zh';
       final ordered = <String>[textLanguage];
-      if (byLanguage.containsKey(partner)) ordered.add(partner);
+      ordered.add(partner);
       final others =
           byLanguage.keys.where((l) => !_chinesePair.contains(l)).toList()
             ..sort();
