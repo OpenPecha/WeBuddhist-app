@@ -1522,6 +1522,14 @@ class AppLocalizationsBo extends AppLocalizations {
   String get edit_profile_take_photo => 'Take a photo';
 
   @override
+  String get edit_profile_offline =>
+      'You\'re offline. Connect to the internet and try again.';
+
+  @override
+  String get edit_profile_save_failed =>
+      'Couldn\'t save your changes. Please try again.';
+
+  @override
   String get username_label => 'སྤྱོད་མིང་།';
 
   @override
