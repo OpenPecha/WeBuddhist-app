@@ -6,7 +6,6 @@ import 'package:flutter_pecha/core/widgets/error_state_widget.dart';
 import 'package:flutter_pecha/core/widgets/skeletons/skeletons.dart';
 import 'package:flutter_pecha/features/home/domain/entities/series.dart';
 import 'package:flutter_pecha/features/home/presentation/providers/series_provider.dart';
-import 'package:flutter_pecha/features/home/presentation/screens/main_navigation_screen.dart';
 import 'package:flutter_pecha/features/home/presentation/widgets/plan_list_view.dart';
 import 'package:flutter_pecha/features/plans/presentation/providers/user_plans_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -83,9 +82,6 @@ class SeriesDetailScreen extends ConsumerWidget {
             ),
           ],
         ),
-      ),
-      bottomNavigationBar: MainNavigationBottomBar(
-        onTabChanged: (_) => context.go('/home'),
       ),
     );
   }

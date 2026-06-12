@@ -11,6 +11,7 @@ import 'package:flutter_pecha/features/practice/presentation/screens/practice_sc
 import 'package:flutter_pecha/shared/widgets/appBottomNavBar/app_bottom_nav_bar.dart';
 import 'package:flutter_pecha/shared/widgets/appBottomNavBar/app_bottom_nav_item.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 /// Bottom-nav tabs in display order. The enum index matches the position in
 /// [mainNavigationItems] and the int value stored in
@@ -104,6 +105,30 @@ class MainNavigationBottomBar extends ConsumerWidget {
   }
 }
 
+/// Shell scaffold used by the [ShellRoute] in the router.
+/// Provides a persistent bottom navigation bar that stays fixed across
+/// route transitions — the Flutter equivalent of React's layout.tsx.
+class HomeShellScaffold extends ConsumerWidget {
+  const HomeShellScaffold({super.key, required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Scaffold(
+      body: child,
+      bottomNavigationBar: MainNavigationBottomBar(
+        onTabChanged: (_) {
+          final location = GoRouterState.of(context).uri.toString();
+          if (location != '/home') {
+            context.go('/home');
+          }
+        },
+      ),
+    );
+  }
+}
+
 class MainNavigationScreen extends ConsumerWidget {
   const MainNavigationScreen({super.key});
 
@@ -112,11 +137,6 @@ class MainNavigationScreen extends ConsumerWidget {
     final items = mainNavigationItems(context);
     final selectedIndex = ref.watch(mainNavigationIndexProvider);
 
-    // Open Practice on launch if the logged-in user already has a routine.
-    // userRoutineProvider returns null for guests / not-logged-in / auth still
-    // loading, so those cases fall through to Home with no side effects. The
-    // resolved flag makes this fire at most once per session and prevents it
-    // from clobbering a manual tab tap that landed first.
     ref.listen<AsyncValue<RoutineData?>>(userRoutineProvider, (prev, next) {
       if (ref.read(initialPracticeTabResolvedProvider)) return;
       if (ref.read(authProvider).isLoading) return;
@@ -129,10 +149,6 @@ class MainNavigationScreen extends ConsumerWidget {
       });
     });
 
-    return Scaffold(
-      backgroundColor: Theme.of(context).cardColor,
-      body: items[selectedIndex].selectedWidget,
-      bottomNavigationBar: const MainNavigationBottomBar(),
-    );
+    return items[selectedIndex].selectedWidget ?? const SizedBox.shrink();
   }
 }

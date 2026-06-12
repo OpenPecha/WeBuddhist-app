@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_pecha/core/config/router/app_routes.dart';
 import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
@@ -35,7 +34,7 @@ class MeScreen extends ConsumerWidget {
               size: 24,
               color: Theme.of(context).iconTheme.color,
             ),
-            onPressed: () => context.push(AppRoutes.settings),
+            onPressed: () => context.push('/home/settings'),
           ),
         ],
       ),
