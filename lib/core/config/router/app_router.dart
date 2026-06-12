@@ -177,14 +177,49 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                   return GroupProfileScreen(groupId: groupId);
                 },
               ),
-              // settings route (breaks out of shell — no bottom nav)
+              // settings route
               GoRoute(
-                parentNavigatorKey: rootNavigatorKey,
                 path: "settings",
                 name: "home-settings",
                 builder: (context, state) => const MoreScreen(),
               ),
             ],
+          ),
+          // Settings-related routes (inside shell for persistent bottom nav)
+          GoRoute(
+            path: AppRoutes.notifications,
+            name: "notifications",
+            builder: (context, state) => const NotificationSettingsScreen(),
+          ),
+          GoRoute(
+            path: AppRoutes.profile,
+            name: "profile",
+            builder: (context, state) => const EditProfileScreen(),
+          ),
+          GoRoute(
+            path: AppRoutes.about,
+            name: "about",
+            builder: (context, state) => const AboutScreen(),
+          ),
+          GoRoute(
+            path: AppRoutes.legal,
+            name: "legal",
+            builder: (context, state) => const LegalScreen(),
+          ),
+          GoRoute(
+            path: AppRoutes.termsOfService,
+            name: "terms-of-service",
+            builder: (context, state) => const TermsOfServiceScreen(),
+          ),
+          GoRoute(
+            path: AppRoutes.privacyPolicy,
+            name: "privacy-policy",
+            builder: (context, state) => const PrivacyPolicyScreen(),
+          ),
+          GoRoute(
+            path: AppRoutes.deleteAccount,
+            name: "delete-account",
+            builder: (context, state) => const DeleteAccountScreen(),
           ),
         ],
       ),
@@ -351,62 +386,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             imagePath: extra?['imagePath'] as String,
           );
         },
-      ),
-
-      // notifications route
-      GoRoute(
-        path: AppRoutes.notifications,
-        name: "notifications",
-        builder: (context, state) => const NotificationSettingsScreen(),
-      ),
-
-      // settings route (Me tab → gear icon)
-      GoRoute(
-        path: AppRoutes.settings,
-        name: "settings",
-        builder: (context, state) => const MoreScreen(),
-      ),
-
-      // profile / edit-profile route
-      GoRoute(
-        path: AppRoutes.profile,
-        name: "profile",
-        builder: (context, state) => const EditProfileScreen(),
-      ),
-
-      // about route
-      GoRoute(
-        path: AppRoutes.about,
-        name: "about",
-        builder: (context, state) => const AboutScreen(),
-      ),
-
-      // legal route
-      GoRoute(
-        path: AppRoutes.legal,
-        name: "legal",
-        builder: (context, state) => const LegalScreen(),
-      ),
-
-      // terms of service route
-      GoRoute(
-        path: AppRoutes.termsOfService,
-        name: "terms-of-service",
-        builder: (context, state) => const TermsOfServiceScreen(),
-      ),
-
-      // privacy policy route
-      GoRoute(
-        path: AppRoutes.privacyPolicy,
-        name: "privacy-policy",
-        builder: (context, state) => const PrivacyPolicyScreen(),
-      ),
-
-      // delete account route
-      GoRoute(
-        path: AppRoutes.deleteAccount,
-        name: "delete-account",
-        builder: (context, state) => const DeleteAccountScreen(),
       ),
 
       // plan text route - inline TEXT subtasks (sibling to /reader)
