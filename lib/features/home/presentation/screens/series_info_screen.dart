@@ -71,8 +71,7 @@ class SeriesInfoScreen extends ConsumerWidget {
                         lineHeight,
                       ),
                     ],
-                    if (series.group?.description != null &&
-                        series.group!.description!.trim().isNotEmpty) ...[
+                    if (series.description.trim().isNotEmpty) ...[
                       const SizedBox(height: 24),
                       _buildSection(
                         context,
