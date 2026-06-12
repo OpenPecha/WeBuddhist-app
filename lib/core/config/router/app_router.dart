@@ -55,6 +55,9 @@ final _logger = AppLogger('AppRouter');
 /// can call showDialog on a context that is actually inside the navigator.
 final rootNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'root');
 
+/// Shell navigator key for routes that share the persistent bottom nav bar.
+final _shellNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'shell');
+
 /// Provider for the application router with authentication and route protection
 ///
 /// This provider creates a GoRouter instance that:
@@ -111,69 +114,77 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const OnboardingWrapper(),
       ),
 
-      // home route
-      GoRoute(
-        path: "/home",
-        name: "home",
-        builder: (context, state) => const MainNavigationScreen(),
+      ShellRoute(
+        navigatorKey: _shellNavigatorKey,
+        builder: (context, state, child) {
+          return HomeShellScaffold(child: child);
+        },
         routes: [
           GoRoute(
-            path: "plans/:tag", // route - /home/plans/:tag
-            name: "home-plans",
-            builder: (context, state) {
-              final tag = state.pathParameters['tag'] ?? '';
-              return PlanListScreen(tag: tag);
-            },
+            path: "/home",
+            name: "home",
+            builder: (context, state) => const MainNavigationScreen(),
             routes: [
               GoRoute(
-                path: "preview", // route - /home/plans/:tag/preview
-                name: "home-plan-preview",
+                path: "plans/:tag",
+                name: "home-plans",
                 builder: (context, state) {
-                  final extra = state.extra as Map<String, dynamic>?;
-                  final plan = extra?['plan'] as Plan?;
-                  if (plan == null) {
-                    throw Exception('Missing required parameters');
-                  }
-                  return PlanPreviewDetails(plan: plan);
+                  final tag = state.pathParameters['tag'] ?? '';
+                  return PlanListScreen(tag: tag);
                 },
+                routes: [
+                  GoRoute(
+                    parentNavigatorKey: rootNavigatorKey,
+                    path: "preview",
+                    name: "home-plan-preview",
+                    builder: (context, state) {
+                      final extra = state.extra as Map<String, dynamic>?;
+                      final plan = extra?['plan'] as Plan?;
+                      if (plan == null) {
+                        throw Exception('Missing required parameters');
+                      }
+                      return PlanPreviewDetails(plan: plan);
+                    },
+                  ),
+                ],
               ),
-            ],
-          ),
-          GoRoute(
-            path: "series/:id", // route - /home/series/:id
-            name: "home-series-detail",
-            builder: (context, state) {
-              final id = state.pathParameters['id'] ?? '';
-              final extra = state.extra as Map<String, dynamic>?;
-              final series = extra?['series'] as Series?;
-              return SeriesDetailScreen(seriesId: id, series: series);
-            },
-            routes: [
               GoRoute(
-                path: "info",
-                name: "home-series-info",
+                path: "series/:id",
+                name: "home-series-detail",
                 builder: (context, state) {
+                  final id = state.pathParameters['id'] ?? '';
                   final extra = state.extra as Map<String, dynamic>?;
-                  final series = extra?['series'] as Series;
-                  return SeriesInfoScreen(series: series);
+                  final series = extra?['series'] as Series?;
+                  return SeriesDetailScreen(seriesId: id, series: series);
+                },
+                routes: [
+                  GoRoute(
+                    path: "info",
+                    name: "home-series-info",
+                    builder: (context, state) {
+                      final extra = state.extra as Map<String, dynamic>?;
+                      final series = extra?['series'] as Series;
+                      return SeriesInfoScreen(series: series);
+                    },
+                  ),
+                ],
+              ),
+              GoRoute(
+                path: "group/:groupId",
+                name: "home-group-profile",
+                builder: (context, state) {
+                  final groupId = state.pathParameters['groupId'] ?? '';
+                  return GroupProfileScreen(groupId: groupId);
                 },
               ),
+              // settings route (breaks out of shell — no bottom nav)
+              GoRoute(
+                parentNavigatorKey: rootNavigatorKey,
+                path: "settings",
+                name: "home-settings",
+                builder: (context, state) => const MoreScreen(),
+              ),
             ],
-          ),
-          // group profile route
-          GoRoute(
-            path: "group/:groupId",
-            name: "home-group-profile",
-            builder: (context, state) {
-              final groupId = state.pathParameters['groupId'] ?? '';
-              return GroupProfileScreen(groupId: groupId);
-            },
-          ),
-          // settings route
-          GoRoute(
-            path: "settings",
-            name: "home-settings",
-            builder: (context, state) => const MoreScreen(),
           ),
         ],
       ),
