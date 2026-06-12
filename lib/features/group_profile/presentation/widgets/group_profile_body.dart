@@ -403,12 +403,12 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody> {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  if (series.description != null &&
-                      series.description!.trim().isNotEmpty)
+                  if (series.subTitle != null &&
+                      series.subTitle!.trim().isNotEmpty)
                     Padding(
                       padding: const EdgeInsets.only(top: 2),
                       child: Text(
-                        series.description!,
+                        series.subTitle!,
                         style: TextStyle(
                           fontSize: 13,
                           color:
