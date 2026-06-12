@@ -375,6 +375,11 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
             planStartDate: widget.startDate,
             totalDays: widget.plan.totalDays,
             completionStatus: completionStatus,
+            onTap: (firstMissedDay) {
+              setState(() {
+                selectedDay = firstMissedDay;
+              });
+            },
           ),
       ],
     );

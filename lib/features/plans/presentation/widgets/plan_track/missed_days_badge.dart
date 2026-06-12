@@ -8,12 +8,28 @@ class MissedDaysBadge extends StatelessWidget {
   final int totalDays;
   final Map<int, bool> completionStatus;
 
+  /// Called when the badge is tapped. Receives the first missed day number.
+  final void Function(int firstMissedDay)? onTap;
+
   const MissedDaysBadge({
     super.key,
     required this.planStartDate,
     required this.totalDays,
     required this.completionStatus,
+    this.onTap,
   });
+
+  int? _findFirstMissedDay() {
+    final todayDayNumber = PlanUtils.dayNumberFor(
+      planStartDate,
+      DateTime.now(),
+      totalDays,
+    );
+    for (int day = 1; day < todayDayNumber; day++) {
+      if (completionStatus[day] != true) return day;
+    }
+    return null;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -26,19 +42,35 @@ class MissedDaysBadge extends StatelessWidget {
     if (missedDays <= 0) return const SizedBox.shrink();
 
     final color = Theme.of(context).colorScheme.onSurfaceVariant;
+    final firstMissedDay = _findFirstMissedDay();
 
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: color.withValues(alpha: 0.5)),
-      ),
-      child: Text(
-        context.l10n.missedDaysCount(missedDays),
-        style: TextStyle(
-          fontSize: 9,
-          color: color,
-          fontFamily: "Inter",
+    return GestureDetector(
+      onTap: firstMissedDay != null ? () => onTap?.call(firstMissedDay) : null,
+      child: Container(
+        padding: EdgeInsets.symmetric(
+          horizontal: onTap != null ? 10 : 12,
+          vertical: 4,
+        ),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: color.withValues(alpha: 0.5)),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (onTap != null) ...[
+              Icon(Icons.arrow_back, size: 10, color: color),
+              const SizedBox(width: 4),
+            ],
+            Text(
+              context.l10n.missedDaysCount(missedDays),
+              style: TextStyle(
+                fontSize: 9,
+                color: color,
+                fontFamily: "Inter",
+              ),
+            ),
+          ],
         ),
       ),
     );
