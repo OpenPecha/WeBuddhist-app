@@ -185,7 +185,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
               ),
             ],
           ),
-          // Settings-related routes (inside shell for persistent bottom nav)
           GoRoute(
             path: AppRoutes.notifications,
             name: "notifications",
