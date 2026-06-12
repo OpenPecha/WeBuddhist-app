@@ -88,18 +88,46 @@ class _CommentaryList extends ConsumerWidget {
   final String segmentId;
   final String textLanguage;
 
-  /// Builds the ordered list of language sections to render. The current
-  /// text's language always appears first \u2014 with a "not available"
-  /// placeholder when no commentary in that language exists. Other languages
-  /// follow only when they have commentaries, sorted by language code.
+  /// `zh` and `lzh` are treated as a family pair and always placed adjacent.
+  static const _chinesePair = {'zh', 'lzh'};
+
+  /// Builds the ordered list of language sections to render.
+  ///
+  /// **Chinese text (`zh` / `lzh`):** Both Chinese variants are pinned at the
+  /// top — the text's language first, the partner second. The partner section
+  /// always appears (showing "not available" when empty). All other languages
+  /// that have commentaries follow, sorted A→Z.
+  ///
+  /// **Non-Chinese text:** Text language is first. Remaining languages are
+  /// sorted A→Z, but `zh` is moved to immediately follow `lzh` so the Chinese
+  /// family always appears together.
   List<String> _orderedLanguageCodes(
     Map<String, List<SegmentCommentary>> byLanguage,
   ) {
-    final ordered = <String>[textLanguage];
-    final others =
-        byLanguage.keys.where((l) => l != textLanguage).toList()..sort();
-    ordered.addAll(others);
-    return ordered;
+    if (_chinesePair.contains(textLanguage)) {
+      // Chinese text: pin Chinese variants at the top — text language first,
+      // partner second only if the backend actually returned content for it.
+      final partner = textLanguage == 'zh' ? 'lzh' : 'zh';
+      final ordered = <String>[textLanguage];
+      if (byLanguage.containsKey(partner)) ordered.add(partner);
+      final others =
+          byLanguage.keys.where((l) => !_chinesePair.contains(l)).toList()
+            ..sort();
+      ordered.addAll(others);
+      return ordered;
+    } else {
+      // Non-Chinese text: text language first, rest A→Z with zh kept right
+      // after lzh so the Chinese pair is always adjacent.
+      final ordered = <String>[textLanguage];
+      final allOthers =
+          byLanguage.keys.where((l) => l != textLanguage).toList()..sort();
+      if (allOthers.contains('lzh') && allOthers.contains('zh')) {
+        allOthers.remove('zh');
+        allOthers.insert(allOthers.indexOf('lzh') + 1, 'zh');
+      }
+      ordered.addAll(allOthers);
+      return ordered;
+    }
   }
 
   @override
