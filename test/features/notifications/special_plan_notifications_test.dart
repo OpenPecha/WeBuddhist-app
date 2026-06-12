@@ -34,25 +34,30 @@ void main() {
           now: DateTime(2026, 1, 2, 9, 1),
         );
         expect(result, isNotNull);
-        expect(result!.title, 'Abhidhamma in a Year');
+        expect(result!.title, 'ITCC: Days 1-6');
         expect(result.buttonText, 'START');
       });
 
-      test('returns day-8 content 7 days after enrollment', () {
+      test('returns last-day content on the final series day', () {
+        final lastDay = kSpecialPlanNotifications[kItccPlanId]!.length;
         final result = resolveSpecialPlanNotification(
           planId: kItccPlanId,
           startedAt: startedAt,
-          now: DateTime(2026, 1, 8, 9, 0),
+          now: DateTime(2026, 1, lastDay, 9, 0),
         );
         expect(result, isNotNull);
-        expect(result!.title, "You're almost there");
+        expect(
+          result!.title,
+          kSpecialPlanNotifications[kItccPlanId]!.last.title,
+        );
       });
 
-      test('returns null on day 9 (series ended)', () {
+      test('returns null the day after the series ends', () {
+        final lastDay = kSpecialPlanNotifications[kItccPlanId]!.length;
         final result = resolveSpecialPlanNotification(
           planId: kItccPlanId,
           startedAt: startedAt,
-          now: DateTime(2026, 1, 9, 9, 0),
+          now: DateTime(2026, 1, lastDay + 1, 9, 0),
         );
         expect(result, isNull);
       });
@@ -86,7 +91,7 @@ void main() {
           now: earlyMorning,
         );
         expect(result, isNotNull);
-        expect(result!.title, 'Abhidhamma in a Year');
+        expect(result!.title, 'ITCC: Days 1-6');
       });
     });
 
@@ -102,23 +107,25 @@ void main() {
         );
       });
 
-      test('false on day 8', () {
+      test('false on the final series day', () {
+        final lastDay = kSpecialPlanNotifications[kItccPlanId]!.length;
         expect(
           isSpecialPlanSeriesEnded(
             planId: kItccPlanId,
             startedAt: startedAt,
-            now: DateTime(2026, 1, 8, 9, 0),
+            now: DateTime(2026, 1, lastDay, 9, 0),
           ),
           isFalse,
         );
       });
 
-      test('true on day 9', () {
+      test('true the day after the series ends', () {
+        final lastDay = kSpecialPlanNotifications[kItccPlanId]!.length;
         expect(
           isSpecialPlanSeriesEnded(
             planId: kItccPlanId,
             startedAt: startedAt,
-            now: DateTime(2026, 1, 9, 0, 1),
+            now: DateTime(2026, 1, lastDay + 1, 0, 1),
           ),
           isTrue,
         );
@@ -172,8 +179,13 @@ void main() {
     });
 
     group('kSpecialPlanNotifications shape', () {
-      test('ITCC has exactly 8 days', () {
-        expect(kSpecialPlanNotifications[kItccPlanId]!.length, 8);
+      test('every series is non-empty and fits its 10-wide ID slot', () {
+        // specialPlanSeriesId allocates 10 IDs per plan (slot * 10 + day-1);
+        // a series longer than 10 days would bleed into the next plan's slot.
+        for (final entry in kSpecialPlanNotifications.entries) {
+          expect(entry.value, isNotEmpty, reason: entry.key);
+          expect(entry.value.length, lessThanOrEqualTo(10), reason: entry.key);
+        }
       });
 
       test('every entry has non-empty title and body', () {
