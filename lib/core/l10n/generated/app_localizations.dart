@@ -2854,6 +2854,18 @@ abstract class AppLocalizations {
   /// **'Take a photo'**
   String get edit_profile_take_photo;
 
+  /// No description provided for @edit_profile_offline.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re offline. Connect to the internet and try again.'**
+  String get edit_profile_offline;
+
+  /// No description provided for @edit_profile_save_failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t save your changes. Please try again.'**
+  String get edit_profile_save_failed;
+
   /// No description provided for @username_label.
   ///
   /// In en, this message translates to:
