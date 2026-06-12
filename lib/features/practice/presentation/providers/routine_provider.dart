@@ -51,12 +51,21 @@ class RoutineNotifier extends StateNotifier<RoutineData> {
   /// should `await` this first.
   Future<void> get whenLoaded => _loadCompleter.future;
 
+  bool _loadFailed = false;
+
+  /// True when the last Hive load threw — [state.blocks] is then an empty
+  /// placeholder, NOT the user's real routine. The notification engine must
+  /// treat this as "routine unknown" and skip reconciliation; otherwise an
+  /// empty desired set would cancel every valid scheduled notification.
+  bool get loadFailed => _loadFailed;
+
   /// Load routines from local storage (Hive) and re-sync notifications.
   /// Re-syncing on startup ensures alarms are registered even after app
   /// updates or edge cases where AlarmManager entries were cleared.
   Future<void> _loadRoutines() async {
     try {
       final data = await _localStorage.loadRoutine();
+      _loadFailed = false;
       if (mounted) {
         state = data;
         _logger.info('[ROUTINE-LOAD] Loaded ${data.blocks.length} blocks from storage');
@@ -69,6 +78,7 @@ class RoutineNotifier extends StateNotifier<RoutineData> {
       }
     } catch (e) {
       _logger.error('[ROUTINE-LOAD] Failed to load routines', e);
+      _loadFailed = true;
       if (mounted) {
         state = const RoutineData();
       }
@@ -101,6 +111,9 @@ class RoutineNotifier extends StateNotifier<RoutineData> {
     _logger.info('[ROUTINE-SAVE] persisting ${data.blocks.length} blocks (local only)');
     try {
       await _localStorage.saveRoutine(data);
+      // A successful save makes in-memory state authoritative again even if
+      // the initial load had failed.
+      _loadFailed = false;
       if (mounted) {
         state = data;
       }
@@ -133,6 +146,26 @@ class RoutineNotifier extends StateNotifier<RoutineData> {
     _logger.info('[ROUTINE-SAVE] delegating to NotificationSyncEngine');
     final report = await _syncEngine().sync(trigger: SyncTrigger.routineSaved);
     _logger.info('[ROUTINE-SAVE] sync done: $report');
+  }
+
+  /// Mirrors the server-truth routine into local storage and in-memory state.
+  ///
+  /// Called after login so a fresh install or a new device restores the
+  /// user's notification schedule without requiring a visit to the Practice
+  /// tab (the engine reads the LOCAL routine — before this hydration a fresh
+  /// install had zero local blocks and silently scheduled nothing). Server
+  /// truth wins: every routine edit is pushed to the API at save time, so
+  /// overwriting local state here cannot lose edits.
+  Future<void> hydrateFromServer(RoutineData data) async {
+    final sorted = data.sortedByTime;
+    _logger.info(
+      '[ROUTINE-HYDRATE] mirroring server routine (${sorted.blocks.length} blocks) into local storage',
+    );
+    await _localStorage.saveRoutine(sorted);
+    _loadFailed = false;
+    if (mounted) {
+      state = sorted;
+    }
   }
 
   /// Clear all routine data from storage and cancel notifications.
