@@ -56,9 +56,10 @@ class PlanNavigationBottomBar extends StatelessWidget {
       ),
       child: SafeArea(
         top: false,
-        child: canSwipe
-            ? _buildFullControls(context, ctx)
-            : isPlanNavigation
+        child:
+            canSwipe
+                ? _buildFullControls(context, ctx)
+                : isPlanNavigation
                 ? _buildSingleItemControls(context, ctx)
                 : _buildMinimalTitle(context),
       ),
@@ -78,21 +79,15 @@ class PlanNavigationBottomBar extends StatelessWidget {
 
   Widget _buildSingleItemControls(BuildContext context, NavigationContext ctx) {
     final title = ctx.currentItem?.title ?? fallbackTitle;
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Expanded(
-          child: _TitleText(
-            text: title,
-            fontFamily: fallbackTitleFontFamily,
+    final onFinish = onFinishedTap ?? () => Navigator.of(context).maybePop();
+    return _buildBalancedRow(
+      center: _TitleText(text: title, fontFamily: fallbackTitleFontFamily),
+      trailing:
+          () => _NavigationButton(
+            icon: Icons.check,
+            isEnabled: true,
+            onTap: onFinish,
           ),
-        ),
-        _NavigationButton(
-          icon: Icons.check,
-          isEnabled: true,
-          onTap: onFinishedTap ?? () => Navigator.of(context).maybePop(),
-        ),
-      ],
     );
   }
 
@@ -102,49 +97,76 @@ class PlanNavigationBottomBar extends StatelessWidget {
     final progress =
         '${(ctx.currentTextIndex ?? 0) + 1} of ${ctx.planTextItems!.length}';
     final title = ctx.currentItem?.title ?? fallbackTitle;
+    void onPop() => Navigator.of(context).maybePop();
+
+    return _buildBalancedRow(
+      center: Column(
+        children: [
+          _TitleText(text: title),
+          Text(
+            progress,
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              color: Theme.of(
+                context,
+              ).textTheme.bodySmall?.color?.withAlpha(180),
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
+      ),
+      leading:
+          hasPrevious
+              ? () => _NavigationButton(
+                icon: Icons.chevron_left,
+                isEnabled: true,
+                onTap: onPreviousTap ?? onPop,
+              )
+              : null,
+      trailing:
+          () =>
+              hasNext
+                  ? _NavigationButton(
+                    icon: Icons.chevron_right,
+                    isEnabled: true,
+                    onTap: onNextTap ?? onPop,
+                  )
+                  : _NavigationButton(
+                    icon: Icons.check,
+                    isEnabled: true,
+                    onTap: onFinishedTap ?? onPop,
+                  ),
+    );
+  }
+
+  /// Keeps [center] visually centred by mirroring whichever side slot is empty
+  /// with an invisible copy of the opposite navigation button.
+  Widget _buildBalancedRow({
+    required Widget center,
+    Widget Function()? leading,
+    Widget Function()? trailing,
+  }) {
+    assert(
+      leading != null || trailing != null,
+      'At least one side slot is required for balance',
+    );
+
+    final leadingWidget =
+        leading?.call() ?? _invisibleSlot(trailing!.call());
+    final trailingWidget =
+        trailing?.call() ?? _invisibleSlot(leading!.call());
 
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        if (hasPrevious)
-          _NavigationButton(
-            icon: Icons.chevron_left,
-            isEnabled: true,
-            onTap: onPreviousTap ?? () => Navigator.of(context).maybePop(),
-          ),
-        Expanded(
-          child: Column(
-            children: [
-              _TitleText(text: title),
-              Text(
-                progress,
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Theme.of(context)
-                          .textTheme
-                          .bodySmall
-                          ?.color
-                          ?.withAlpha(180),
-                      fontWeight: FontWeight.w500,
-                    ),
-              ),
-            ],
-          ),
-        ),
-        if (hasNext)
-          _NavigationButton(
-            icon: Icons.chevron_right,
-            isEnabled: true,
-            onTap: onNextTap ?? () => Navigator.of(context).maybePop(),
-          )
-        else
-          _NavigationButton(
-            icon: Icons.check,
-            isEnabled: true,
-            onTap: onFinishedTap ?? () => Navigator.of(context).maybePop(),
-          ),
+        leadingWidget,
+        Expanded(child: center),
+        trailingWidget,
       ],
     );
+  }
+
+  Widget _invisibleSlot(Widget child) {
+    return Opacity(opacity: 0, child: IgnorePointer(child: child));
   }
 }
 
@@ -165,9 +187,9 @@ class _TitleText extends StatelessWidget {
       textAlign: TextAlign.center,
       strutStyle: context.tibetanStrutStyle(fontSize),
       style: Theme.of(context).textTheme.titleMedium?.copyWith(
-            fontFamily: fontFamily,
-            fontWeight: FontWeight.bold,
-          ),
+        fontFamily: fontFamily,
+        fontWeight: FontWeight.bold,
+      ),
     );
   }
 }
@@ -185,9 +207,10 @@ class _NavigationButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = isEnabled
-        ? Theme.of(context).colorScheme.onSurface
-        : Theme.of(context).colorScheme.onSurface.withAlpha(80);
+    final color =
+        isEnabled
+            ? Theme.of(context).colorScheme.onSurface
+            : Theme.of(context).colorScheme.onSurface.withAlpha(80);
 
     return Material(
       color: Colors.transparent,
