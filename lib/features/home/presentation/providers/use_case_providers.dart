@@ -2,9 +2,11 @@ import 'package:flutter_pecha/core/di/core_providers.dart';
 import 'package:flutter_pecha/features/home/data/datasource/featured_day_remote_datasource.dart';
 import 'package:flutter_pecha/features/home/data/datasource/series_remote_datasource.dart';
 import 'package:flutter_pecha/features/home/data/datasource/tags_remote_datasource.dart';
+import 'package:flutter_pecha/features/home/data/datasource/verse_of_day_remote_datasource.dart';
 import 'package:flutter_pecha/features/home/data/repositories/featured_day_repository.dart';
 import 'package:flutter_pecha/features/home/data/repositories/series_repository.dart';
 import 'package:flutter_pecha/features/home/data/repositories/tags_repository.dart';
+import 'package:flutter_pecha/features/home/data/repositories/verse_of_day_repository.dart';
 import 'package:flutter_pecha/features/home/domain/repositories/home_repository.dart';
 import 'package:flutter_pecha/features/home/domain/usecases/enroll_in_series_usecase.dart';
 import 'package:flutter_pecha/features/home/domain/usecases/get_featured_day_usecase.dart';
@@ -12,6 +14,7 @@ import 'package:flutter_pecha/features/home/domain/usecases/get_series_by_id_use
 import 'package:flutter_pecha/features/home/domain/usecases/get_series_list_usecase.dart';
 import 'package:flutter_pecha/features/home/domain/usecases/get_tags_usecase.dart';
 import 'package:flutter_pecha/features/home/domain/usecases/get_user_series_enrollments_usecase.dart';
+import 'package:flutter_pecha/features/home/domain/usecases/get_verse_of_day_usecase.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 // ============ Datasources ============
@@ -79,4 +82,23 @@ final getUserSeriesEnrollmentsUseCaseProvider =
     Provider<GetUserSeriesEnrollmentsUseCase>((ref) {
   final repository = ref.watch(seriesDomainRepositoryProvider);
   return GetUserSeriesEnrollmentsUseCase(repository.getUserSeriesEnrollments);
+});
+
+// ============ Verse of the Day ============
+
+final verseOfDayRemoteDatasourceProvider =
+    Provider<VerseOfDayRemoteDatasource>((ref) {
+  return VerseOfDayRemoteDatasource();
+});
+
+final verseOfDayDomainRepositoryProvider =
+    Provider<VerseOfDayRepositoryInterface>((ref) {
+  return VerseOfDayRepository(
+    remote: ref.watch(verseOfDayRemoteDatasourceProvider),
+  );
+});
+
+final getVerseOfDayUseCaseProvider = Provider<GetVerseOfDayUseCase>((ref) {
+  final repository = ref.watch(verseOfDayDomainRepositoryProvider);
+  return GetVerseOfDayUseCase(repository.getVerseOfDay);
 });

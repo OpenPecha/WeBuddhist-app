@@ -12,8 +12,11 @@ import 'package:flutter_pecha/core/widgets/error_state_widget.dart';
 import 'package:flutter_pecha/core/widgets/skeletons/skeletons.dart';
 import 'package:flutter_pecha/features/home/domain/entities/series.dart';
 import 'package:flutter_pecha/features/home/presentation/providers/series_provider.dart';
+import 'package:flutter_pecha/features/home/presentation/providers/verse_of_day_provider.dart';
 import 'package:flutter_pecha/features/home/presentation/home_screen_constants.dart';
 import 'package:flutter_pecha/features/home/presentation/widgets/series_card.dart';
+import 'package:flutter_pecha/features/home/presentation/widgets/verse_of_day_card.dart';
+import 'package:flutter_pecha/features/home/presentation/widgets/verse_of_day_skeleton.dart';
 import 'package:flutter_pecha/features/notifications/application/notification_sync_engine.dart';
 import 'package:flutter_pecha/features/plans/data/utils/plan_utils.dart';
 import 'package:flutter_pecha/features/plans/presentation/providers/user_plans_provider.dart';
@@ -198,11 +201,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         MainTab.practice.index;
   }
 
-  /// Pull-to-refresh handler. Invalidates the series list and awaits the
-  /// refreshed result so the RefreshIndicator spinner stays until data lands.
+  /// Pull-to-refresh handler. Invalidates the series list and verse of day,
+  /// then awaits the refreshed results so the spinner stays until data lands.
   Future<void> _onRefresh() async {
     ref.invalidate(seriesListFutureProvider);
-    await ref.read(seriesListFutureProvider.future);
+    ref.invalidate(verseOfDayFutureProvider);
+    await Future.wait([
+      ref.read(seriesListFutureProvider.future),
+      ref.read(verseOfDayFutureProvider.future),
+    ]);
   }
 
   /// Manual refetch/retry method that can be called from UI.
@@ -424,6 +431,21 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 
+  Widget _buildVerseOfDaySection() {
+    final verseAsync = ref.watch(verseOfDayFutureProvider);
+
+    return verseAsync.when(
+      data: (verseEither) {
+        return verseEither.fold(
+          (_) => const SizedBox.shrink(),
+          (verse) => VerseOfDayCard(verseOfDay: verse),
+        );
+      },
+      loading: () => const VerseOfDaySkeleton(),
+      error: (_, __) => const SizedBox.shrink(),
+    );
+  }
+
   Widget _buildBody(BuildContext context, AppLocalizations localizations) {
     final seriesAsync = ref.watch(seriesListFutureProvider);
     final language = ref.watch(localeProvider).languageCode;
@@ -454,29 +476,41 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   );
                 }
 
-                return GridView.builder(
+                return CustomScrollView(
                   physics: const AlwaysScrollableScrollPhysics(),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: HomeScreenConstants.bodyHorizontalPadding,
-                    vertical: HomeScreenConstants.bodyVerticalPadding,
-                  ),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 8,
-                    mainAxisSpacing: 8,
-                    childAspectRatio: 1.3,
-                  ),
-                  itemCount: seriesList.length,
-                  itemBuilder: (context, index) {
-                    final series = seriesList[index];
-                    return SeriesCard(
-                      series: series,
-                      onTap: () {
-                        _log.info('Series tapped: ${series.id}');
-                        _navigateToSeries(series);
-                      },
-                    );
-                  },
+                  slivers: [
+                    SliverToBoxAdapter(
+                      child: _buildVerseOfDaySection(),
+                    ),
+                    SliverPadding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: HomeScreenConstants.bodyHorizontalPadding,
+                        vertical: HomeScreenConstants.bodyVerticalPadding,
+                      ),
+                      sliver: SliverGrid(
+                        delegate: SliverChildBuilderDelegate(
+                          (context, index) {
+                            final series = seriesList[index];
+                            return SeriesCard(
+                              series: series,
+                              onTap: () {
+                                _log.info('Series tapped: ${series.id}');
+                                _navigateToSeries(series);
+                              },
+                            );
+                          },
+                          childCount: seriesList.length,
+                        ),
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          crossAxisSpacing: 8,
+                          mainAxisSpacing: 8,
+                          childAspectRatio: 1.3,
+                        ),
+                      ),
+                    ),
+                  ],
                 );
               },
             );
