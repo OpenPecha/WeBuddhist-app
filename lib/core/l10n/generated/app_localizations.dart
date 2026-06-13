@@ -169,7 +169,7 @@ abstract class AppLocalizations {
   /// No description provided for @onboarding_quote.
   ///
   /// In en, this message translates to:
-  /// **'Drop by drop is the water pot filled. Likewise, the wise person, gathering it little by little, fills themselves with good.'**
+  /// **'Drop by drop the water pot is filled. Likewise, the wise person, gathering it little by little, fills themselves with good.'**
   String get onboarding_quote;
 
   /// No description provided for @onboarding_find_peace.
@@ -259,7 +259,7 @@ abstract class AppLocalizations {
   /// No description provided for @home_scripture.
   ///
   /// In en, this message translates to:
-  /// **'Guided Scripture'**
+  /// **'Guided scripture'**
   String get home_scripture;
 
   /// No description provided for @home_meditation.
@@ -1195,7 +1195,7 @@ abstract class AppLocalizations {
   /// No description provided for @routine_delete_block_message.
   ///
   /// In en, this message translates to:
-  /// **'This will remove the time block and all its items'**
+  /// **'The time block and all its items will be removed'**
   String get routine_delete_block_message;
 
   /// No description provided for @something_went_wrong.
@@ -1999,13 +1999,13 @@ abstract class AppLocalizations {
   /// No description provided for @routine_title.
   ///
   /// In en, this message translates to:
-  /// **'My practice routine'**
+  /// **'My practices'**
   String get routine_title;
 
   /// No description provided for @routine_empty_title.
   ///
   /// In en, this message translates to:
-  /// **'Practice routine'**
+  /// **'Practices'**
   String get routine_empty_title;
 
   /// No description provided for @routine_edit.
@@ -2017,7 +2017,7 @@ abstract class AppLocalizations {
   /// No description provided for @routine_empty_description.
   ///
   /// In en, this message translates to:
-  /// **'Explore more teachings and practices to enroll in or add to your routine'**
+  /// **'Explore more teachings and practices to add to your routine'**
   String get routine_empty_description;
 
   /// No description provided for @routine_build.
@@ -2071,7 +2071,7 @@ abstract class AppLocalizations {
   /// No description provided for @routine_add_session.
   ///
   /// In en, this message translates to:
-  /// **'Add session'**
+  /// **'Add to session'**
   String get routine_add_session;
 
   /// No description provided for @routine_select_time.
@@ -2095,7 +2095,7 @@ abstract class AppLocalizations {
   /// No description provided for @routine_delete_block.
   ///
   /// In en, this message translates to:
-  /// **'Remove block'**
+  /// **'Remove block?'**
   String get routine_delete_block;
 
   /// No description provided for @routine_delete_time_block.
@@ -2377,7 +2377,7 @@ abstract class AppLocalizations {
   /// No description provided for @typing.
   ///
   /// In en, this message translates to:
-  /// **'typing...'**
+  /// **'Typing...'**
   String get typing;
 
   /// No description provided for @source.
@@ -2539,13 +2539,13 @@ abstract class AppLocalizations {
   /// No description provided for @removeItem.
   ///
   /// In en, this message translates to:
-  /// **'Remove item'**
+  /// **'Remove item?'**
   String get removeItem;
 
   /// No description provided for @removeConfirmation.
   ///
   /// In en, this message translates to:
-  /// **'Remove \"{itemName}\" from this block?'**
+  /// **'\"{itemName}\" will be removed from this block'**
   String removeConfirmation(String itemName);
 
   /// No description provided for @shareError.
@@ -2617,7 +2617,7 @@ abstract class AppLocalizations {
   /// No description provided for @plan_status_on_track.
   ///
   /// In en, this message translates to:
-  /// **'On Track!'**
+  /// **'On track!'**
   String get plan_status_on_track;
 
   /// No description provided for @start_now.
@@ -2641,31 +2641,31 @@ abstract class AppLocalizations {
   /// No description provided for @show_second_version.
   ///
   /// In en, this message translates to:
-  /// **'Show Second Version'**
+  /// **'Show second version'**
   String get show_second_version;
 
   /// No description provided for @enable_add_msg.
   ///
   /// In en, this message translates to:
-  /// **'Enable to add a translation or transliteration alongside the main text.'**
+  /// **'Enable to add a translation or transliteration alongside the main text'**
   String get enable_add_msg;
 
-  /// No description provided for @main_text.
+  /// No description provided for @main_version.
   ///
   /// In en, this message translates to:
-  /// **'Main Text'**
-  String get main_text;
+  /// **'Main version'**
+  String get main_version;
 
   /// No description provided for @second_version.
   ///
   /// In en, this message translates to:
-  /// **'Second Version'**
+  /// **'Second version'**
   String get second_version;
 
   /// No description provided for @second_version_msg.
   ///
   /// In en, this message translates to:
-  /// **'The second version will appear below each verse of the main text.'**
+  /// **'The second version will appear below each verse of the main text'**
   String get second_version_msg;
 
   /// No description provided for @version.
@@ -2680,12 +2680,6 @@ abstract class AppLocalizations {
   /// **'Parallel version'**
   String get parallel_version;
 
-  /// No description provided for @main_version.
-  ///
-  /// In en, this message translates to:
-  /// **'Main version'**
-  String get main_version;
-
   /// No description provided for @version_not_available.
   ///
   /// In en, this message translates to:
@@ -2695,7 +2689,7 @@ abstract class AppLocalizations {
   /// No description provided for @read_full_text.
   ///
   /// In en, this message translates to:
-  /// **'Read Full Text'**
+  /// **'Read full text'**
   String get read_full_text;
 
   /// No description provided for @reader_source_label.
@@ -2713,7 +2707,7 @@ abstract class AppLocalizations {
   /// No description provided for @know_more.
   ///
   /// In en, this message translates to:
-  /// **'Know More'**
+  /// **'Know more'**
   String get know_more;
 
   /// No description provided for @series_stats.
@@ -2731,7 +2725,7 @@ abstract class AppLocalizations {
   /// No description provided for @force_update_message.
   ///
   /// In en, this message translates to:
-  /// **'A new version of the app is available. Please update to continue.'**
+  /// **'A new version of the app is available. Please update to continue'**
   String get force_update_message;
 
   /// No description provided for @force_update_button.
@@ -2743,7 +2737,7 @@ abstract class AppLocalizations {
   /// No description provided for @settings_section_personalisation.
   ///
   /// In en, this message translates to:
-  /// **'PERSONALISATION'**
+  /// **'PERSONALIZATION'**
   String get settings_section_personalisation;
 
   /// No description provided for @settings_section_more.
@@ -2773,7 +2767,7 @@ abstract class AppLocalizations {
   /// No description provided for @settings_notification_row.
   ///
   /// In en, this message translates to:
-  /// **'Notification'**
+  /// **'Notifications'**
   String get settings_notification_row;
 
   /// No description provided for @settings_feedback_row.
@@ -2797,13 +2791,13 @@ abstract class AppLocalizations {
   /// No description provided for @edit_profile_first_name.
   ///
   /// In en, this message translates to:
-  /// **'First Name'**
+  /// **'First name'**
   String get edit_profile_first_name;
 
   /// No description provided for @edit_profile_last_name.
   ///
   /// In en, this message translates to:
-  /// **'Last Name'**
+  /// **'Last name'**
   String get edit_profile_last_name;
 
   /// No description provided for @edit_profile_bio.
@@ -2833,13 +2827,13 @@ abstract class AppLocalizations {
   /// No description provided for @edit_profile_photo_too_large.
   ///
   /// In en, this message translates to:
-  /// **'Image is too large. Please choose a photo under 1 MB and try again.'**
+  /// **'Image is too large. Please choose a photo under 1 MB and try again'**
   String get edit_profile_photo_too_large;
 
   /// No description provided for @edit_profile_photo_upload_failed.
   ///
   /// In en, this message translates to:
-  /// **'Could not upload your photo. Please try again.'**
+  /// **'Could not upload your photo. Please try again'**
   String get edit_profile_photo_upload_failed;
 
   /// No description provided for @edit_profile_choose_from_library.
@@ -2857,13 +2851,13 @@ abstract class AppLocalizations {
   /// No description provided for @edit_profile_offline.
   ///
   /// In en, this message translates to:
-  /// **'You\'re offline. Connect to the internet and try again.'**
+  /// **'You\'re offline. Connect to the internet and try again'**
   String get edit_profile_offline;
 
   /// No description provided for @edit_profile_save_failed.
   ///
   /// In en, this message translates to:
-  /// **'Couldn\'t save your changes. Please try again.'**
+  /// **'Couldn\'t save your changes. Please try again'**
   String get edit_profile_save_failed;
 
   /// No description provided for @username_label.
@@ -2881,19 +2875,19 @@ abstract class AppLocalizations {
   /// No description provided for @username_available_label.
   ///
   /// In en, this message translates to:
-  /// **'Available : '**
+  /// **'Available: '**
   String get username_available_label;
 
   /// No description provided for @username_check_error.
   ///
   /// In en, this message translates to:
-  /// **'Could not check username. Try again.'**
+  /// **'Unable to check username. Try again'**
   String get username_check_error;
 
   /// No description provided for @username_invalid_format.
   ///
   /// In en, this message translates to:
-  /// **'Invalid username format.'**
+  /// **'Invalid username format'**
   String get username_invalid_format;
 
   /// No description provided for @username_min_length.
@@ -2905,7 +2899,7 @@ abstract class AppLocalizations {
   /// No description provided for @username_max_length.
   ///
   /// In en, this message translates to:
-  /// **'Username must be at most 30 characters'**
+  /// **'Username must be 30 characters or less'**
   String get username_max_length;
 
   /// No description provided for @username_no_spaces.
@@ -2989,7 +2983,7 @@ abstract class AppLocalizations {
   /// No description provided for @me_guest_subtitle.
   ///
   /// In en, this message translates to:
-  /// **'Create a free account to access plans'**
+  /// **'Create a free account to save your progress'**
   String get me_guest_subtitle;
 
   /// No description provided for @delete_account_title.
@@ -3001,7 +2995,7 @@ abstract class AppLocalizations {
   /// No description provided for @delete_account_description.
   ///
   /// In en, this message translates to:
-  /// **'If you delete your account, all your information, history, and personalized settings within WeBuddhist will be permanently eliminated. This action will also end any recurring contributions, if applicable. Please note that this action is irreversible. To proceed, tap the button below.'**
+  /// **'If you delete your account, all your information, history, and personalized settings within WeBuddhist will be permanently eliminated. Please note that this action is irreversible. To proceed, tap the button below.'**
   String get delete_account_description;
 
   /// No description provided for @delete_account_button.
@@ -3025,7 +3019,7 @@ abstract class AppLocalizations {
   /// No description provided for @legal_terms_of_service.
   ///
   /// In en, this message translates to:
-  /// **'Terms of Service'**
+  /// **'Terms of service'**
   String get legal_terms_of_service;
 
   /// No description provided for @legal_privacy_policy.
@@ -3033,6 +3027,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Privacy policy'**
   String get legal_privacy_policy;
+
+  /// No description provided for @follow.
+  ///
+  /// In en, this message translates to:
+  /// **'Follow'**
+  String get follow;
+
+  /// No description provided for @following.
+  ///
+  /// In en, this message translates to:
+  /// **'Following'**
+  String get following;
 }
 
 class _AppLocalizationsDelegate

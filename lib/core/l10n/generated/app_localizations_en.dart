@@ -44,7 +44,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get onboarding_quote =>
-      'Drop by drop is the water pot filled. Likewise, the wise person, gathering it little by little, fills themselves with good.';
+      'Drop by drop the water pot is filled. Likewise, the wise person, gathering it little by little, fills themselves with good.';
 
   @override
   String get onboarding_find_peace => 'Get started';
@@ -91,7 +91,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get home_prayerTitle => 'Prayer of the day';
 
   @override
-  String get home_scripture => 'Guided Scripture';
+  String get home_scripture => 'Guided scripture';
 
   @override
   String get home_meditation => 'Guided meditation';
@@ -585,7 +585,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get routine_delete_block_message =>
-      'This will remove the time block and all its items';
+      'The time block and all its items will be removed';
 
   @override
   String get something_went_wrong => 'Something went wrong. Please try again';
@@ -1044,17 +1044,17 @@ class AppLocalizationsEn extends AppLocalizations {
   String get comingSoonHeadline => 'Coming soon';
 
   @override
-  String get routine_title => 'My practice routine';
+  String get routine_title => 'My practices';
 
   @override
-  String get routine_empty_title => 'Practice routine';
+  String get routine_empty_title => 'Practices';
 
   @override
   String get routine_edit => 'Edit';
 
   @override
   String get routine_empty_description =>
-      'Explore more teachings and practices to enroll in or add to your routine';
+      'Explore more teachings and practices to add to your routine';
 
   @override
   String get routine_build => 'Build your routine';
@@ -1081,7 +1081,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get routine_evening => 'Evening';
 
   @override
-  String get routine_add_session => 'Add session';
+  String get routine_add_session => 'Add to session';
 
   @override
   String get routine_select_time => 'Select time';
@@ -1093,7 +1093,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get routine_edit_title => 'Edit your routine';
 
   @override
-  String get routine_delete_block => 'Remove block';
+  String get routine_delete_block => 'Remove block?';
 
   @override
   String get routine_delete_time_block => 'Remove time block';
@@ -1245,7 +1245,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Something went wrong. Check your connection and try again';
 
   @override
-  String get typing => 'typing...';
+  String get typing => 'Typing...';
 
   @override
   String get source => 'Source';
@@ -1339,11 +1339,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get duplicateItem => 'This item is already in the block';
 
   @override
-  String get removeItem => 'Remove item';
+  String get removeItem => 'Remove item?';
 
   @override
   String removeConfirmation(String itemName) {
-    return 'Remove \"$itemName\" from this block?';
+    return '\"$itemName\" will be removed from this block';
   }
 
   @override
@@ -1395,7 +1395,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get plan_enrolled => 'Enrolled';
 
   @override
-  String get plan_status_on_track => 'On Track!';
+  String get plan_status_on_track => 'On track!';
 
   @override
   String get start_now => 'Start now';
@@ -1409,21 +1409,21 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get show_second_version => 'Show Second Version';
+  String get show_second_version => 'Show second version';
 
   @override
   String get enable_add_msg =>
-      'Enable to add a translation or transliteration alongside the main text.';
+      'Enable to add a translation or transliteration alongside the main text';
 
   @override
-  String get main_text => 'Main Text';
+  String get main_version => 'Main version';
 
   @override
-  String get second_version => 'Second Version';
+  String get second_version => 'Second version';
 
   @override
   String get second_version_msg =>
-      'The second version will appear below each verse of the main text.';
+      'The second version will appear below each verse of the main text';
 
   @override
   String get version => 'Versions';
@@ -1432,13 +1432,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get parallel_version => 'Parallel version';
 
   @override
-  String get main_version => 'Main version';
-
-  @override
   String get version_not_available => 'Not available';
 
   @override
-  String get read_full_text => 'Read Full Text';
+  String get read_full_text => 'Read full text';
 
   @override
   String get reader_source_label => 'Source';
@@ -1447,7 +1444,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get reader_license_label => 'License';
 
   @override
-  String get know_more => 'Know More';
+  String get know_more => 'Know more';
 
   @override
   String series_stats(int planCount, int totalDays) {
@@ -1459,13 +1456,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get force_update_message =>
-      'A new version of the app is available. Please update to continue.';
+      'A new version of the app is available. Please update to continue';
 
   @override
   String get force_update_button => 'Update now';
 
   @override
-  String get settings_section_personalisation => 'PERSONALISATION';
+  String get settings_section_personalisation => 'PERSONALIZATION';
 
   @override
   String get settings_section_more => 'MORE';
@@ -1480,7 +1477,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settings_theme => 'Theme';
 
   @override
-  String get settings_notification_row => 'Notification';
+  String get settings_notification_row => 'Notifications';
 
   @override
   String get settings_feedback_row => 'Feedback';
@@ -1492,10 +1489,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get edit_profile_save => 'Save';
 
   @override
-  String get edit_profile_first_name => 'First Name';
+  String get edit_profile_first_name => 'First name';
 
   @override
-  String get edit_profile_last_name => 'Last Name';
+  String get edit_profile_last_name => 'Last name';
 
   @override
   String get edit_profile_bio => 'Bio';
@@ -1511,11 +1508,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get edit_profile_photo_too_large =>
-      'Image is too large. Please choose a photo under 1 MB and try again.';
+      'Image is too large. Please choose a photo under 1 MB and try again';
 
   @override
   String get edit_profile_photo_upload_failed =>
-      'Could not upload your photo. Please try again.';
+      'Could not upload your photo. Please try again';
 
   @override
   String get edit_profile_choose_from_library => 'Choose from library';
@@ -1525,11 +1522,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get edit_profile_offline =>
-      'You\'re offline. Connect to the internet and try again.';
+      'You\'re offline. Connect to the internet and try again';
 
   @override
   String get edit_profile_save_failed =>
-      'Couldn\'t save your changes. Please try again.';
+      'Couldn\'t save your changes. Please try again';
 
   @override
   String get username_label => 'Username';
@@ -1538,19 +1535,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get username_taken => 'Someone already used this name';
 
   @override
-  String get username_available_label => 'Available : ';
+  String get username_available_label => 'Available: ';
 
   @override
-  String get username_check_error => 'Could not check username. Try again.';
+  String get username_check_error => 'Unable to check username. Try again';
 
   @override
-  String get username_invalid_format => 'Invalid username format.';
+  String get username_invalid_format => 'Invalid username format';
 
   @override
   String get username_min_length => 'Username must be at least 3 characters';
 
   @override
-  String get username_max_length => 'Username must be at most 30 characters';
+  String get username_max_length => 'Username must be 30 characters or less';
 
   @override
   String get username_no_spaces => 'Username cannot contain spaces';
@@ -1596,14 +1593,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get me_guest_headline => 'Access the full experience';
 
   @override
-  String get me_guest_subtitle => 'Create a free account to access plans';
+  String get me_guest_subtitle => 'Create a free account to save your progress';
 
   @override
   String get delete_account_title => 'Delete account';
 
   @override
   String get delete_account_description =>
-      'If you delete your account, all your information, history, and personalized settings within WeBuddhist will be permanently eliminated. This action will also end any recurring contributions, if applicable. Please note that this action is irreversible. To proceed, tap the button below.';
+      'If you delete your account, all your information, history, and personalized settings within WeBuddhist will be permanently eliminated. Please note that this action is irreversible. To proceed, tap the button below.';
 
   @override
   String get delete_account_button => 'Delete account';
@@ -1616,8 +1613,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get legal_title => 'Legal';
 
   @override
-  String get legal_terms_of_service => 'Terms of Service';
+  String get legal_terms_of_service => 'Terms of service';
 
   @override
   String get legal_privacy_policy => 'Privacy policy';
+
+  @override
+  String get follow => 'Follow';
+
+  @override
+  String get following => 'Following';
 }

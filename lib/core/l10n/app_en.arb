@@ -641,12 +641,11 @@
   },
   "show_second_version": "Show second version",
   "enable_add_msg": "Enable to add a translation or transliteration alongside the main text",
-  "main_text": "Main Text",
+  "main_version": "Main version",
   "second_version": "Second version",
   "second_version_msg": "The second version will appear below each verse of the main text",
   "version": "Versions",
   "parallel_version": "Parallel version",
-  "main_version": "Main version",
   "version_not_available": "Not available",
   "read_full_text": "Read full text",
   "reader_source_label": "Source",
@@ -721,5 +720,8 @@
 
   "legal_title": "Legal",
   "legal_terms_of_service": "Terms of service",
-  "legal_privacy_policy": "Privacy policy"
+  "legal_privacy_policy": "Privacy policy",
+
+  "follow": "Follow",
+  "following": "Following"
 }

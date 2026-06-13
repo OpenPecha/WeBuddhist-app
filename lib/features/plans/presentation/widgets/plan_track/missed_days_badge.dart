@@ -64,11 +64,7 @@ class MissedDaysBadge extends StatelessWidget {
             ],
             Text(
               context.l10n.missedDaysCount(missedDays),
-              style: TextStyle(
-                fontSize: 9,
-                color: color,
-                fontFamily: "Inter",
-              ),
+              style: TextStyle(fontSize: 9, color: color),
             ),
           ],
         ),

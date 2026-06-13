@@ -189,7 +189,7 @@
   "profile_guest_benefit_notifications": "Custom notifications",
   "auth_drawer_title": "མུ་མཐུད་དུ་འགྲོ་བར་ནང་འཛུལ་བྱོས།",
   "auth_drawer_subtitle": "ཁྱེད་ཀྱི་ཉམས་ལེན་འཆར་གཞི་ལ་གཟིགས་ཏེ་ཡར་རྒྱས་ཀྱི་གོ་རིམ་ལ་རྗེས་འདེད་བྱོས།",
-  "routine_delete_block_message": "This will remove the time block and all its items",
+  "routine_delete_block_message": "འདི་དང་འབྲེལ་བའི་དུས་ཚོད་དང་ནང་དོན་བཅས་པ་ཚང་མ་བསྲུབ་རྒྱུ་ཡིན།",
   "something_went_wrong": "Something went wrong. Please try again",
   "onboarding_quote_citation": "— Dhammapada 122",
   "onboarding_traditions_question": "Which traditions\ndo you follow?",
@@ -275,7 +275,7 @@
   "reader_no_languages": "No languages available for this text",
   "reader_published_by": "Published by",
   "reader_published": "Published",
-  "reader_license": "License",
+  "reader_license": "ཆོག་མཆན།",
   "reader_version_type": "Type",
   "reader_version_details_load_error": "Unable to load version details",
   "reader_no_version_info": "No additional information is available for this version",
@@ -371,8 +371,8 @@
   "ai_greeting": "བཀྲ་ཤིས་བདེ་ལེགས། {name}",
   "ai_text_not_found": "ཡིག་ཆ་རྙེད་མ་སོང་།",
   "ai_text_not_found_message": "མཚན་བྱང་ \"{title}\". འདི་འདྲ་ཞིག་རྙེད་མ་སོང་། ཁུངས་གཞན་ཞིག་སྤྱད་དེ་འཚོལ་རོགས།",
-  "ai_sources": "ཁུངས།",
-  "ai_sources_count": "{count} ཁུངས།",
+  "ai_sources": "ཡོང་ཁུངས།",
+  "ai_sources_count": "{count} ཡོང་ཁུངས།",
   "search_no_results": "No results found for \"{query}\"",
   "search_show_more": "Show more",
   "search_contents": "Contents",
@@ -448,7 +448,7 @@
       }
     }
   },
-  "routine_add_block_label": "Time block",
+  "routine_add_block_label": "དུས་ཚོད་སྒྲིག་གནས།",
   "continueWithGoogle": "Google བརྒྱུད་ནས་མུ་མཐུད།",
   "continueWithApple": "Apple བརྒྱུད་ནས་མུ་མཐུད།",
   "continueAsGuest": "མགྲོན་པོའི་ངོ་བོའི་ཐོག་ནས་མུ་མཐུད།",
@@ -477,7 +477,7 @@
   "unableToLoad": "བརྙན་འཁུར་བྱེད་མི་ཐུབ། འདི་གནས་ནས་ཚུར་འབད།",
   "somethingWrong": "ཅི་ཞིག་ནོར་འདུག ཁེ་ལེ་ལག་ལེན་རྒྱུགས་པར་གྱིས།",
   "typing": "འབྲི་བཞིན་འདུག...",
-  "source": "འབྱུང་ཁུངས།",
+  "source": "ཡོང་ཁུངས།",
   "searchResults": "འཚོལ་ཞིབ་འབྲས་བུ།",
   "deleteConversation": "གླེང་མོལ་བསུབ་རྒྱུ་ཡིན་ནམ།",
   "errorOops": "ཨོ་ཨོ། བསྐྱར་དུ་ཚོད་ལྟ་བྱེད་རོགས།",
@@ -563,7 +563,7 @@
     }
   },
   "text_qrCode": "QR གོམ་པ།",
-  "missedDaysCount": "{count, plural, =0{0 missed days} =1{1 missed day} other{{count} missed days}}",
+  "missedDaysCount": "{count, plural, =0{ཞག་མ་ ༠ ཆད་པ།} =1{ཞག་མ་ ༡ ཆད་པ།} other{ཞག་མ་ {count} ཆད་པ།}}",
   "@missedDaysCount": {
     "placeholders": {
       "count": {
@@ -572,7 +572,7 @@
     }
   },
   "plan_enrolled": "Enrolled",
-  "plan_status_on_track": "On Track!",
+  "plan_status_on_track": "On Track",
   "start_now": "ད་ལྟ་འགོ་འཛུགས།",
   "plan_enroll": "ཞུགས་སྒྲིག",
   "plan_starts_on": "འགོ་འཛུགས། {date}",
@@ -583,18 +583,17 @@
       }
     }
   },
-  "show_second_version": "Show Second Version",
-  "enable_add_msg": "Enable to add a translation or transliteration alongside the main text.",
-  "main_text": "Main Text",
-  "second_version": "Second Version",
-  "second_version_msg": "The second version will appear below each verse of the main text.",
-  "version": "Versions",
+  "show_second_version": "འགྱུར་མ་གཞན་དང་མཉམ་སྒྲིག་སྟོན།",
+  "enable_add_msg": "རྩ་བ་གཙོ་བོ་དང་ལྷན་དུ་འགྱུར་མ་དང་སྒྲ་སྦྱོར་གང་རུང་མཉམ་སྟོན་སྒོ་ཕྱེས།",
+  "main_version": "རྩ་བ་གཙོ་བོ།",
+  "second_version": "འགྱུར་གཞན།",
+  "second_version_msg": "འགྱུར་གཞན་འདི་རྩ་བ་གཙོ་བོའི་འོག་རང་ལ་འཆར་ཡོང་།",
+  "version": "པར་གཞི་ཁག།",
   "parallel_version": "ཀློག་མཁན་གྱི་སྒྲིག་འགོད།",
-  "main_version": "Main version",
   "version_not_available": "མི་འདུག",
-  "read_full_text": "Read Full Text",
-  "reader_source_label": "Source",
-  "reader_license_label": "License",
+  "read_full_text": "ཆ་ཚང་ཀློག",
+  "reader_source_label": "ཡོང་ཁུངས།",
+  "reader_license_label": "ཆོག་མཆན།",
   "know_more": "ཞིབ་ཕྲ་གཟིགས།",
   "series_stats": "འཆར་གཞི་ {planCount} · ཉིན་ {totalDays}",
   "force_update_title": "གསར་བསྒྱུར་དགོས་མཁོ།",
@@ -655,5 +654,8 @@
 
   "legal_title": "ཁྲིམས་དོན།",
   "legal_terms_of_service": "ཞབས་ཞུའི་ཆ་རྐྱེན།",
-  "legal_privacy_policy": "སྒེར་དོན་གསང་རྒྱ།"
+  "legal_privacy_policy": "སྒེར་དོན་གསང་རྒྱ།",
+
+  "follow": "Follow",
+  "following": "Following"
 }
