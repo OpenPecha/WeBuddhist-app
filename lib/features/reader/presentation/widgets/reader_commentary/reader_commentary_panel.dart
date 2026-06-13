@@ -223,9 +223,9 @@ class _CommentaryItem extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final content = commentary.segments
-        .map((s) => normalizeSegmentText(s.content))
+        .map((s) => normalizeSegmentHtml(s.content))
         .where((s) => s.isNotEmpty)
-        .join('\n\n');
+        .join('<br><br>');
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(
@@ -240,6 +240,7 @@ class _CommentaryItem extends ConsumerWidget {
           ReaderPanelContentBlock(
             content: content,
             language: commentary.language,
+            segmentIndex: index,
             isExpanded: isContentExpanded,
             onToggle: () {
               ref
