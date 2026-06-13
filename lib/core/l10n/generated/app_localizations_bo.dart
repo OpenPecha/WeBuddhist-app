@@ -9,7 +9,7 @@ class AppLocalizationsBo extends AppLocalizations {
   AppLocalizationsBo([String locale = 'bo']) : super(locale);
 
   @override
-  String get appTitle => 'པེ་ཆ་འཇུག';
+  String get appTitle => 'WeBuddhist';
 
   @override
   String get pechaHeading => 'WeBuddhist';
@@ -587,7 +587,7 @@ class AppLocalizationsBo extends AppLocalizations {
 
   @override
   String get routine_delete_block_message =>
-      'This will remove the time block and all its items';
+      'འདི་དང་འབྲེལ་བའི་དུས་ཚོད་དང་ནང་དོན་བཅས་པ་ཚང་མ་བསྲུབ་རྒྱུ་ཡིན།';
 
   @override
   String get something_went_wrong => 'Something went wrong. Please try again';
@@ -751,7 +751,7 @@ class AppLocalizationsBo extends AppLocalizations {
   String get reader_published => 'Published';
 
   @override
-  String get reader_license => 'License';
+  String get reader_license => 'ཆོག་མཆན།';
 
   @override
   String get reader_version_type => 'Type';
@@ -982,11 +982,11 @@ class AppLocalizationsBo extends AppLocalizations {
   }
 
   @override
-  String get ai_sources => 'ཁུངས།';
+  String get ai_sources => 'ཡོང་ཁུངས།';
 
   @override
   String ai_sources_count(int count) {
-    return '$count ཁུངས།';
+    return '$count ཡོང་ཁུངས།';
   }
 
   @override
@@ -1163,7 +1163,7 @@ class AppLocalizationsBo extends AppLocalizations {
   }
 
   @override
-  String get routine_add_block_label => 'Time block';
+  String get routine_add_block_label => 'དུས་ཚོད་སྒྲིག་གནས།';
 
   @override
   String get continueWithGoogle => 'Google བརྒྱུད་ནས་མུ་མཐུད།';
@@ -1250,7 +1250,7 @@ class AppLocalizationsBo extends AppLocalizations {
   String get typing => 'འབྲི་བཞིན་འདུག...';
 
   @override
-  String get source => 'འབྱུང་ཁུངས།';
+  String get source => 'ཡོང་ཁུངས།';
 
   @override
   String get searchResults => 'འཚོལ་ཞིབ་འབྲས་བུ།';
@@ -1382,9 +1382,9 @@ class AppLocalizationsBo extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count missed days',
-      one: '1 missed day',
-      zero: '0 missed days',
+      other: 'ཞག་མ་ $count ཆད་པ།',
+      one: 'ཞག་མ་ ༡ ཆད་པ།',
+      zero: 'ཞག་མ་ ༠ ཆད་པ།',
     );
     return '$_temp0';
   }
@@ -1393,7 +1393,7 @@ class AppLocalizationsBo extends AppLocalizations {
   String get plan_enrolled => 'Enrolled';
 
   @override
-  String get plan_status_on_track => 'On Track!';
+  String get plan_status_on_track => 'On Track';
 
   @override
   String get start_now => 'ད་ལྟ་འགོ་འཛུགས།';
@@ -1407,42 +1407,39 @@ class AppLocalizationsBo extends AppLocalizations {
   }
 
   @override
-  String get show_second_version => 'Show Second Version';
+  String get show_second_version => 'འགྱུར་མ་གཞན་དང་མཉམ་སྒྲིག་སྟོན།';
 
   @override
   String get enable_add_msg =>
-      'Enable to add a translation or transliteration alongside the main text.';
+      'རྩ་བ་གཙོ་བོ་དང་ལྷན་དུ་འགྱུར་མ་དང་སྒྲ་སྦྱོར་གང་རུང་མཉམ་སྟོན་སྒོ་ཕྱེས།';
 
   @override
-  String get main_text => 'Main Text';
+  String get main_version => 'རྩ་བ་གཙོ་བོ།';
 
   @override
-  String get second_version => 'Second Version';
+  String get second_version => 'འགྱུར་གཞན།';
 
   @override
   String get second_version_msg =>
-      'The second version will appear below each verse of the main text.';
+      'འགྱུར་གཞན་འདི་རྩ་བ་གཙོ་བོའི་འོག་རང་ལ་འཆར་ཡོང་།';
 
   @override
-  String get version => 'Versions';
+  String get version => 'པར་གཞི་ཁག།';
 
   @override
   String get parallel_version => 'ཀློག་མཁན་གྱི་སྒྲིག་འགོད།';
 
   @override
-  String get main_version => 'Main version';
-
-  @override
   String get version_not_available => 'མི་འདུག';
 
   @override
-  String get read_full_text => 'Read Full Text';
+  String get read_full_text => 'ཆ་ཚང་ཀློག';
 
   @override
-  String get reader_source_label => 'Source';
+  String get reader_source_label => 'ཡོང་ཁུངས།';
 
   @override
-  String get reader_license_label => 'License';
+  String get reader_license_label => 'ཆོག་མཆན།';
 
   @override
   String get know_more => 'ཞིབ་ཕྲ་གཟིགས།';
@@ -1618,4 +1615,10 @@ class AppLocalizationsBo extends AppLocalizations {
 
   @override
   String get legal_privacy_policy => 'སྒེར་དོན་གསང་རྒྱ།';
+
+  @override
+  String get follow => 'Follow';
+
+  @override
+  String get following => 'Following';
 }

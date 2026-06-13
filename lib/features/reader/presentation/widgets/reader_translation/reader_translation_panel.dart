@@ -159,7 +159,7 @@ class _TranslationItem extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final content = normalizeSegmentText(translation.content);
+    final content = normalizeSegmentHtml(translation.content);
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(
@@ -174,6 +174,7 @@ class _TranslationItem extends ConsumerWidget {
           ReaderPanelContentBlock(
             content: content,
             language: translation.language,
+            segmentIndex: index,
             isExpanded: isContentExpanded,
             onToggle: () {
               ref
