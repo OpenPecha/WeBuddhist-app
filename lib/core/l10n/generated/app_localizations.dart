@@ -328,6 +328,18 @@ abstract class AppLocalizations {
   /// **'min'**
   String get timer_min;
 
+  /// No description provided for @timer_start.
+  ///
+  /// In en, this message translates to:
+  /// **'Start'**
+  String get timer_start;
+
+  /// No description provided for @timer_finish.
+  ///
+  /// In en, this message translates to:
+  /// **'Finish'**
+  String get timer_finish;
+
   /// No description provided for @home_bringing.
   ///
   /// In en, this message translates to:

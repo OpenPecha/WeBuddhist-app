@@ -127,6 +127,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get timer_min => 'min';
 
   @override
+  String get timer_start => 'Start';
+
+  @override
+  String get timer_finish => 'Finish';
+
+  @override
   String get home_bringing => 'Bringing it to life';
 
   @override

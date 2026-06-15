@@ -38,6 +38,8 @@
   "home_timer": "དུས་ཚོད།",
   "preset_timers": "སྔོན་སྒྲིག་དུས་ཚོད།",
   "timer_min": "སྐར་མ",
+  "timer_start": "འགོ་འཛུགས",
+  "timer_finish": "མཇུག་སྒྲིལ",
   "home_bringing": "འཚོ་བའི་ནང་ལོངས།",
   "home_profile": "ངོ་སྤྲོད་སྙིང་བསྡུས།",
   "home_hello_prefix": "བཀྲ་ཤིས་བདེ་ལེགས། ",

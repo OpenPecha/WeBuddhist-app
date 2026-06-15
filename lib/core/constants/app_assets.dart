@@ -74,6 +74,8 @@ class AppAssets {
   // ========== ACTION ICONS ==========
   static const IconData plus = PhosphorIconsRegular.plus;
   static const IconData minus = PhosphorIconsRegular.minus;
+  static const IconData play = PhosphorIconsFill.play;
+  static const IconData pause = PhosphorIconsFill.pause;
   static const IconData list = PhosphorIconsRegular.list;
   static const IconData trash = PhosphorIconsRegular.trash;
   static const IconData fileText = PhosphorIconsRegular.fileText;

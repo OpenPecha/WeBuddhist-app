@@ -128,6 +128,7 @@ class _PresetTimersGrid extends StatelessWidget {
           return PresetTimerCard(
             timer: timer,
             minLabel: minLabel,
+            onTap: () => context.push('/home/timers/active', extra: timer),
           );
         },
       ),

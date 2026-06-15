@@ -127,6 +127,12 @@ class AppLocalizationsBo extends AppLocalizations {
   String get timer_min => 'སྐར་མ';
 
   @override
+  String get timer_start => 'འགོ་འཛུགས';
+
+  @override
+  String get timer_finish => 'མཇུག་སྒྲིལ';
+
+  @override
   String get home_bringing => 'འཚོ་བའི་ནང་ལོངས།';
 
   @override
