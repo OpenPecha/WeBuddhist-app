@@ -118,6 +118,17 @@ class AppLocalizationsBo extends AppLocalizations {
   String get home_profile => 'ངོ་སྤྲོད་སྙིང་བསྡུས།';
 
   @override
+  String get home_hello_prefix => 'བཀྲ་ཤིས་བདེ་ལེགས། ';
+
+  @override
+  String get home_greeting_fallback_name => 'གྲོགས་པོ།';
+
+  @override
+  String home_share_prompt(String appName) {
+    return '$appName ལ་དགའ་པོ་ཡོད་དམ།';
+  }
+
+  @override
   String get no_feature_content => 'རྒྱུ་ཆ་མིན་འདུག';
 
   @override

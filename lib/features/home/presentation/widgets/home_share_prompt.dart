@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/services/app_share/app_share_service.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -35,12 +36,15 @@ class _PromptLabel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Text(
-      'Enjoying WeBuddhist?',
+      localizations.home_share_prompt(localizations.appTitle),
       textAlign: TextAlign.center,
       style: Theme.of(context).textTheme.bodyLarge?.copyWith(
         fontWeight: FontWeight.w400,
-        color: AppColors.textPrimaryLight,
+        color: colorScheme.onSurfaceVariant,
       ),
     );
   }
@@ -53,8 +57,14 @@ class _ShareButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
+    final colorScheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final buttonColor =
+        isDark ? AppColors.surfaceVariantDark : AppColors.greyLight;
+
     return Material(
-      color: AppColors.greyLight,
+      color: buttonColor,
       borderRadius: BorderRadius.circular(999.0),
       child: InkWell(
         onTap: onTap,
@@ -68,16 +78,16 @@ class _ShareButton extends StatelessWidget {
               PhosphorIcon(
                 PhosphorIconsBold.export,
                 size: 22.0,
-                color: Theme.of(context).colorScheme.onSurface,
+                color: colorScheme.onSurface,
               ),
               const SizedBox(width: 8.0),
               Text(
-                'Share',
+                localizations.share,
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
                   fontWeight: FontWeight.w700,
                   fontFamily: 'Inter',
                   fontSize: 16.0,
-                  color: Theme.of(context).colorScheme.onSurface,
+                  color: colorScheme.onSurface,
                 ),
               ),
             ],

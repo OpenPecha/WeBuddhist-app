@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
@@ -19,8 +20,12 @@ class HomeHeader extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final localizations = AppLocalizations.of(context)!;
     final user = ref.watch(userProvider).user;
-    final firstName = user?.firstName ?? user?.username ?? 'there';
+    final firstName =
+        user?.firstName ??
+        user?.username ??
+        localizations.home_greeting_fallback_name;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 12.0),
@@ -47,24 +52,23 @@ class _Greeting extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
+    final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
+    final greetingStyle = textTheme.headlineMedium?.copyWith(
+      color: colorScheme.onSurface,
+    );
 
     return RichText(
       text: TextSpan(
         children: [
           TextSpan(
-            text: 'Hello, ',
-            style: textTheme.headlineMedium?.copyWith(
-              fontWeight: FontWeight.w400,
-              color: Theme.of(context).colorScheme.onSurface,
-            ),
+            text: localizations.home_hello_prefix,
+            style: greetingStyle?.copyWith(fontWeight: FontWeight.w400),
           ),
           TextSpan(
             text: firstName,
-            style: textTheme.headlineMedium?.copyWith(
-              fontWeight: FontWeight.w700,
-              color: Theme.of(context).colorScheme.onSurface,
-            ),
+            style: greetingStyle?.copyWith(fontWeight: FontWeight.w700),
           ),
         ],
       ),

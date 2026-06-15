@@ -35,6 +35,16 @@
   "home_plans": "ཉམས་ལེན",
   "home_bringing": "འཚོ་བའི་ནང་ལོངས།",
   "home_profile": "ངོ་སྤྲོད་སྙིང་བསྡུས།",
+  "home_hello_prefix": "བཀྲ་ཤིས་བདེ་ལེགས། ",
+  "home_greeting_fallback_name": "གྲོགས་པོ།",
+  "home_share_prompt": "{appName} ལ་དགའ་པོ་ཡོད་དམ།",
+  "@home_share_prompt": {
+    "placeholders": {
+      "appName": {
+        "type": "String"
+      }
+    }
+  },
   "no_feature_content": "རྒྱུ་ཆ་མིན་འདུག",
   "nav_home": "འདུན་ངོས།",
   "nav_explore": "འཚོལ་ཞིབ།",

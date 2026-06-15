@@ -118,6 +118,17 @@ class AppLocalizationsEn extends AppLocalizations {
   String get home_profile => 'Profile';
 
   @override
+  String get home_hello_prefix => 'Hello, ';
+
+  @override
+  String get home_greeting_fallback_name => 'there';
+
+  @override
+  String home_share_prompt(String appName) {
+    return 'Enjoying $appName?';
+  }
+
+  @override
   String get no_feature_content => 'No featured content available';
 
   @override

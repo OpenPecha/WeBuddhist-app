@@ -310,6 +310,24 @@ abstract class AppLocalizations {
   /// **'Profile'**
   String get home_profile;
 
+  /// No description provided for @home_hello_prefix.
+  ///
+  /// In en, this message translates to:
+  /// **'Hello, '**
+  String get home_hello_prefix;
+
+  /// No description provided for @home_greeting_fallback_name.
+  ///
+  /// In en, this message translates to:
+  /// **'there'**
+  String get home_greeting_fallback_name;
+
+  /// No description provided for @home_share_prompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Enjoying {appName}?'**
+  String home_share_prompt(String appName);
+
   /// No description provided for @no_feature_content.
   ///
   /// In en, this message translates to:

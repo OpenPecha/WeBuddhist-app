@@ -115,6 +115,17 @@ class AppLocalizationsZh extends AppLocalizations {
   String get home_profile => '個人資料';
 
   @override
+  String get home_hello_prefix => '你好，';
+
+  @override
+  String get home_greeting_fallback_name => '朋友';
+
+  @override
+  String home_share_prompt(String appName) {
+    return '喜歡 $appName 嗎？';
+  }
+
+  @override
   String get no_feature_content => '尚無精選內容';
 
   @override

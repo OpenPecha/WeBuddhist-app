@@ -35,6 +35,16 @@
   "home_plans": "Plans",
   "home_bringing": "Bringing it to life",
   "home_profile": "Profile",
+  "home_hello_prefix": "Hello, ",
+  "home_greeting_fallback_name": "there",
+  "home_share_prompt": "Enjoying {appName}?",
+  "@home_share_prompt": {
+    "placeholders": {
+      "appName": {
+        "type": "String"
+      }
+    }
+  },
   "no_feature_content": "No featured content available",
   "nav_home": "Home",
   "nav_explore": "Explore",
