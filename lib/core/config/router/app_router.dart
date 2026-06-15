@@ -43,6 +43,7 @@ import 'package:flutter_pecha/features/texts/presentation/segment_image/choose_i
 import 'package:flutter_pecha/features/texts/presentation/segment_image/create_image.dart';
 import 'package:flutter_pecha/features/texts/presentation/version_selection/language_selection.dart';
 import 'package:flutter_pecha/features/texts/presentation/version_selection/version_selection_screen.dart';
+import 'package:flutter_pecha/features/timer/presentation/screens/preset_timers_screen.dart';
 import 'package:flutter_pecha/core/analytics/analytics_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -176,6 +177,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                   final groupId = state.pathParameters['groupId'] ?? '';
                   return GroupProfileScreen(groupId: groupId);
                 },
+              ),
+              GoRoute(
+                path: "timers",
+                name: "home-timers",
+                builder: (context, state) => const PresetTimersScreen(),
               ),
               // settings route
               GoRoute(

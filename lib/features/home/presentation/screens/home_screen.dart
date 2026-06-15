@@ -333,7 +333,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           const SizedBox(
                             height: HomeScreenConstants.cardSpacing,
                           ),
-                          HomeShortcutsRow(),
+                          HomeShortcutsRow(
+                            onTimerTap: () => context.push('/home/timers'),
+                          ),
                           const SizedBox(
                             height: HomeScreenConstants.cardSpacing,
                           ),

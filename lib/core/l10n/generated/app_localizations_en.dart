@@ -121,6 +121,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get home_timer => 'Timer';
 
   @override
+  String get preset_timers => 'Preset timers';
+
+  @override
+  String get timer_min => 'min';
+
+  @override
   String get home_bringing => 'Bringing it to life';
 
   @override

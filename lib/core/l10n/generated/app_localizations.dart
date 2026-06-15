@@ -316,6 +316,18 @@ abstract class AppLocalizations {
   /// **'Timer'**
   String get home_timer;
 
+  /// No description provided for @preset_timers.
+  ///
+  /// In en, this message translates to:
+  /// **'Preset timers'**
+  String get preset_timers;
+
+  /// No description provided for @timer_min.
+  ///
+  /// In en, this message translates to:
+  /// **'min'**
+  String get timer_min;
+
   /// No description provided for @home_bringing.
   ///
   /// In en, this message translates to:

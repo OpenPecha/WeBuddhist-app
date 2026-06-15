@@ -36,6 +36,8 @@
   "home_chants": "Chants",
   "home_mala": "Mala",
   "home_timer": "Timer",
+  "preset_timers": "Preset timers",
+  "timer_min": "min",
   "home_bringing": "Bringing it to life",
   "home_profile": "Profile",
   "home_hello_prefix": "Hello, ",

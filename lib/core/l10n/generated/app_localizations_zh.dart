@@ -118,6 +118,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get home_timer => '計時';
 
   @override
+  String get preset_timers => '預設計時';
+
+  @override
+  String get timer_min => '分鐘';
+
+  @override
   String get home_bringing => '融入生活';
 
   @override
