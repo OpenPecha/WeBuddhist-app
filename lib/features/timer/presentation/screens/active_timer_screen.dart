@@ -24,14 +24,10 @@ class _ActiveTimerScreenState extends State<ActiveTimerScreen> {
   static const _ringSize = 280.0;
   static const _controlsSpacing = 48.0;
   static const _controlsHeight = 56.0;
-  static const _bottomBarHeight = 80.0;
   static const _centerTextHeight = 48.0;
-  static const _centerTextStyle = TextStyle(
-    fontSize: 40,
-    fontWeight: FontWeight.w600,
-    height: 1,
-    letterSpacing: 1,
-  );
+  static const _durationFontSize = 40.0;
+  static const _startLabelFontSize = 40.0;
+  static const _tibetanStartLabelFontSize = 32.0;
 
   _TimerPhase _phase = _TimerPhase.countdown;
   int _countdownValue = _countdownStart;
@@ -129,7 +125,9 @@ class _ActiveTimerScreenState extends State<ActiveTimerScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
+    final textTheme = Theme.of(context).textTheme;
     final textColor = Theme.of(context).colorScheme.onSurface;
+    final finishFontSize = textTheme.labelLarge?.fontSize ?? 16.0;
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
@@ -174,41 +172,34 @@ class _ActiveTimerScreenState extends State<ActiveTimerScreen> {
                 ),
               ),
             ),
-            SizedBox(
-              height: _bottomBarHeight,
-              child: _phase != _TimerPhase.countdown
-                  ? Padding(
-                      padding: const EdgeInsets.fromLTRB(24, 0, 24, 32),
-                      child: Align(
-                        alignment: Alignment.bottomCenter,
-                        child: SizedBox(
-                          width: double.infinity,
-                          child: OutlinedButton(
-                            onPressed: _finish,
-                            style: OutlinedButton.styleFrom(
-                              foregroundColor: textColor,
-                              side: BorderSide(color: textColor),
-                              padding: const EdgeInsets.symmetric(vertical: 16),
-                              shape: const StadiumBorder(),
-                              backgroundColor:
-                                  Theme.of(context).brightness ==
-                                          Brightness.dark
-                                      ? AppColors.surfaceDark
-                                      : AppColors.surfaceWhite,
-                            ),
-                            child: Text(
-                              l10n.timer_finish,
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ),
-                        ),
+            if (_phase != _TimerPhase.countdown)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(24, 0, 24, 32),
+                child: SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton(
+                    onPressed: _finish,
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: textColor,
+                      side: BorderSide(color: textColor),
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: const StadiumBorder(),
+                      backgroundColor:
+                          Theme.of(context).brightness == Brightness.dark
+                              ? AppColors.surfaceDark
+                              : AppColors.surfaceWhite,
+                    ),
+                    child: Text(
+                      l10n.timer_finish,
+                      strutStyle: context.tibetanStrutStyle(finishFontSize),
+                      style: textTheme.labelLarge?.copyWith(
+                        color: textColor,
+                        fontWeight: FontWeight.w500,
                       ),
-                    )
-                  : null,
-            ),
+                    ),
+                  ),
+                ),
+              ),
           ],
         ),
       ),
@@ -216,17 +207,45 @@ class _ActiveTimerScreenState extends State<ActiveTimerScreen> {
   }
 
   Widget _buildCenterContent(Color textColor, String startLabel) {
+    final textTheme = Theme.of(context).textTheme;
+    final isStartLabel =
+        _phase == _TimerPhase.countdown && _showStartLabel;
     final text =
         _phase == _TimerPhase.countdown
-            ? (_showStartLabel ? startLabel : '$_countdownValue')
+            ? (isStartLabel ? startLabel : '$_countdownValue')
             : _formatDuration(_remainingMs);
+
+    if (isStartLabel) {
+      final fontSize =
+          context.isTibetanLocale
+              ? _tibetanStartLabelFontSize
+              : _startLabelFontSize;
+
+      return Text(
+        text,
+        textAlign: TextAlign.center,
+        strutStyle: context.tibetanStrutStyle(fontSize),
+        style: textTheme.headlineMedium?.copyWith(
+          fontSize: fontSize,
+          fontWeight: FontWeight.w600,
+          color: textColor,
+          letterSpacing: context.isTibetanLocale ? 0 : 1,
+        ),
+      );
+    }
 
     return SizedBox(
       height: _centerTextHeight,
       child: Center(
         child: Text(
           text,
-          style: _centerTextStyle.copyWith(color: textColor),
+          style: textTheme.displaySmall?.copyWith(
+            fontSize: _durationFontSize,
+            fontWeight: FontWeight.w600,
+            height: 1,
+            letterSpacing: 1,
+            color: textColor,
+          ),
         ),
       ),
     );
