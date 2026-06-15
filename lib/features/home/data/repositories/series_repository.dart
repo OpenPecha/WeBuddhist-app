@@ -11,6 +11,34 @@ class SeriesRepository implements SeriesRepositoryInterface {
   SeriesRepository({required this.remote});
 
   @override
+  Future<Either<Failure, List<Series>>> getFeaturedSeries({
+    required String language,
+    int limit = 10,
+  }) async {
+    try {
+      final models = await remote.fetchFeaturedSeries(
+        language: language,
+        limit: limit,
+      );
+      return Right(
+        models.map((m) => m.toEntity(language: language)).toList(),
+      );
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(e.message));
+    } on AuthenticationException catch (e) {
+      return Left(AuthenticationFailure(e.message));
+    } on NotFoundException catch (e) {
+      return Left(NotFoundFailure(e.message));
+    } on RateLimitException catch (e) {
+      return Left(RateLimitFailure(e.message));
+    } catch (e) {
+      return Left(UnknownFailure('Failed to load featured series: $e'));
+    }
+  }
+
+  @override
   Future<Either<Failure, List<Series>>> getSeriesList({
     required String language,
   }) async {

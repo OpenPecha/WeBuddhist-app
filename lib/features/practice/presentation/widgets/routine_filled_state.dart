@@ -265,7 +265,8 @@ class _RoutineBlockSection extends ConsumerWidget {
     String? language,
   }) async {
     final currentLocale = ref.read(localeProvider).languageCode;
-    final isSameLanguage = language == null ||
+    final isSameLanguage =
+        language == null ||
         language.toLowerCase() == currentLocale.toLowerCase();
 
     if (isSameLanguage) {
@@ -286,8 +287,7 @@ class _RoutineBlockSection extends ConsumerWidget {
     final result = await repo.getUserPlans(language: language);
     return result.fold(
       (_) => null,
-      (response) =>
-          response.userPlans.where((p) => p.id == planId).firstOrNull,
+      (response) => response.userPlans.where((p) => p.id == planId).firstOrNull,
     );
   }
 
@@ -357,13 +357,15 @@ class _RoutineBlockSection extends ConsumerWidget {
       coverImage: item.coverImage,
       type: item.type,
       onTap: () => _onItemTap(context, ref, item),
-      subtitle: dateRange == null ? null : PlanDateRangeLabel(dateRange: dateRange),
-      trailing: dateRange == null || userPlan == null
-          ? null
-          : EnrolledPlanStatusIndicator(
-            planId: userPlan.id,
-            dateRange: dateRange,
-          ),
+      subtitle:
+          dateRange == null ? null : PlanDateRangeLabel(dateRange: dateRange),
+      trailing:
+          dateRange == null || userPlan == null
+              ? null
+              : EnrolledPlanStatusIndicator(
+                planId: userPlan.id,
+                dateRange: dateRange,
+              ),
     );
   }
 }
