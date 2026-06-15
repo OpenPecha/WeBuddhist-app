@@ -669,5 +669,9 @@
   "legal_privacy_policy": "隱私政策",
 
   "follow": "Follow",
-  "following": "Following"
+  "following": "Following",
+
+  "share_this_quote": "分享这句话",
+  "shared_from": "分享自",
+  "verse_share_error": "无法分享引文，请重试"
 }

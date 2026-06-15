@@ -1640,4 +1640,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get following => 'Following';
+
+  @override
+  String get share_this_quote => 'Share this quote';
+
+  @override
+  String get shared_from => 'Shared from';
+
+  @override
+  String get verse_share_error => 'Unable to share quote. Please try again';
 }

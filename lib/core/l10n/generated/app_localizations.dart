@@ -3069,6 +3069,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Following'**
   String get following;
+
+  /// No description provided for @share_this_quote.
+  ///
+  /// In en, this message translates to:
+  /// **'Share this quote'**
+  String get share_this_quote;
+
+  /// No description provided for @shared_from.
+  ///
+  /// In en, this message translates to:
+  /// **'Shared from'**
+  String get shared_from;
+
+  /// No description provided for @verse_share_error.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to share quote. Please try again'**
+  String get verse_share_error;
 }
 
 class _AppLocalizationsDelegate

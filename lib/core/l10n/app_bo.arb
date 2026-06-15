@@ -669,5 +669,9 @@
   "legal_privacy_policy": "སྒེར་དོན་གསང་རྒྱ།",
 
   "follow": "Follow",
-  "following": "Following"
+  "following": "Following",
+
+  "share_this_quote": "Share this quote",
+  "shared_from": "Shared from",
+  "verse_share_error": "Unable to share quote. Please try again"
 }

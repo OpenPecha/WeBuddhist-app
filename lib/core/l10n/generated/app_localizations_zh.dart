@@ -1579,4 +1579,13 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get following => 'Following';
+
+  @override
+  String get share_this_quote => '分享这句话';
+
+  @override
+  String get shared_from => '分享自';
+
+  @override
+  String get verse_share_error => '无法分享引文，请重试';
 }
