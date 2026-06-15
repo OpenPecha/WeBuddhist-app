@@ -44,17 +44,18 @@ class _FeaturedPlanContent extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
     final locale = ref.watch(localeProvider);
-    final titleFontSize = locale.languageCode == 'bo' ? 18.0 : 16.0;
-    final subtitleFontSize = locale.languageCode == 'bo' ? 14.0 : 13.0;
+    final titleFontSize = locale.languageCode == 'bo' ? 16.0 : 16.0;
+    final subtitleFontSize = locale.languageCode == 'bo' ? 12.0 : 13.0;
     final sectionTitleSize = locale.languageCode == 'bo' ? 20.0 : 18.0;
     final colorScheme = Theme.of(context).colorScheme;
     final hasStatsCard = ref
         .watch(routineInfoFutureProvider)
         .maybeWhen(
-          data: (infoEither) => infoEither.fold(
-            (_) => false,
-            (info) => info.seriesCount > 0 || info.recitationCount > 0,
-          ),
+          data:
+              (infoEither) => infoEither.fold(
+                (_) => false,
+                (info) => info.seriesCount > 0 || info.recitationCount > 0,
+              ),
           orElse: () => false,
         );
     final allSeries = [layout.featured, ...layout.others];

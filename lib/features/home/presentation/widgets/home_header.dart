@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
 import 'package:flutter_pecha/features/home/presentation/providers/streak_provider.dart';
@@ -19,10 +20,12 @@ class HomeHeader extends ConsumerWidget {
         user?.username ??
         localizations.home_greeting_fallback_name;
 
-    final streakCount = ref.watch(streakFutureProvider).maybeWhen(
-      data: (either) => either.getOrElse((_) => 0),
-      orElse: () => 0,
-    );
+    final streakCount = ref
+        .watch(streakFutureProvider)
+        .maybeWhen(
+          data: (either) => either.getOrElse((_) => 0),
+          orElse: () => 0,
+        );
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 12.0),
@@ -52,11 +55,15 @@ class _Greeting extends StatelessWidget {
     final localizations = AppLocalizations.of(context)!;
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
+    final greetingFontSize = context.isTibetanLocale ? 18.0 : 24.0;
     final greetingStyle = textTheme.headlineMedium?.copyWith(
       color: colorScheme.onSurface,
+      fontSize: greetingFontSize,
+      height: context.isTibetanLocale ? 1.2 : null,
     );
 
     return RichText(
+      strutStyle: context.tibetanStrutStyle(greetingFontSize),
       text: TextSpan(
         children: [
           TextSpan(
