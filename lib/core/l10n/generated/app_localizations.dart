@@ -3039,6 +3039,84 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Following'**
   String get following;
+
+  /// No description provided for @calendar_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Calendar'**
+  String get calendar_title;
+
+  /// No description provided for @calendar_upcoming_events.
+  ///
+  /// In en, this message translates to:
+  /// **'Upcoming events'**
+  String get calendar_upcoming_events;
+
+  /// No description provided for @calendar_day_short.
+  ///
+  /// In en, this message translates to:
+  /// **'DAY'**
+  String get calendar_day_short;
+
+  /// No description provided for @calendar_day_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Day'**
+  String get calendar_day_label;
+
+  /// No description provided for @calendar_lunar_month.
+  ///
+  /// In en, this message translates to:
+  /// **'{ordinal} lunar month'**
+  String calendar_lunar_month(String ordinal);
+
+  /// No description provided for @moon_phase_new_moon.
+  ///
+  /// In en, this message translates to:
+  /// **'New moon'**
+  String get moon_phase_new_moon;
+
+  /// No description provided for @moon_phase_waxing_crescent.
+  ///
+  /// In en, this message translates to:
+  /// **'Waxing crescent'**
+  String get moon_phase_waxing_crescent;
+
+  /// No description provided for @moon_phase_first_quarter.
+  ///
+  /// In en, this message translates to:
+  /// **'First quarter'**
+  String get moon_phase_first_quarter;
+
+  /// No description provided for @moon_phase_waxing_gibbous.
+  ///
+  /// In en, this message translates to:
+  /// **'Waxing gibbous'**
+  String get moon_phase_waxing_gibbous;
+
+  /// No description provided for @moon_phase_full_moon.
+  ///
+  /// In en, this message translates to:
+  /// **'Full moon'**
+  String get moon_phase_full_moon;
+
+  /// No description provided for @moon_phase_waning_gibbous.
+  ///
+  /// In en, this message translates to:
+  /// **'Waning gibbous'**
+  String get moon_phase_waning_gibbous;
+
+  /// No description provided for @moon_phase_last_quarter.
+  ///
+  /// In en, this message translates to:
+  /// **'Last quarter'**
+  String get moon_phase_last_quarter;
+
+  /// No description provided for @moon_phase_waning_crescent.
+  ///
+  /// In en, this message translates to:
+  /// **'Waning crescent'**
+  String get moon_phase_waning_crescent;
 }
 
 class _AppLocalizationsDelegate

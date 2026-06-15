@@ -37,6 +37,10 @@ dependencies:
     sdk: flutter
   intl: ^0.20.2
 
+  # Tibetan calendar (date conversion) + calendar grid UI
+  tibetan_calendar: ^2.0.0
+  table_calendar: ^3.1.2
+
   # Routing
   go_router: ^15.1.1
 
@@ -176,6 +180,7 @@ flutter:
     - assets/audios/
     - assets/audios/routine.caf
     - assets/audios/routine.ogg
+    - assets/images/moon/
     - .env.dev
     - .env.staging
     - .env.prod

@@ -1621,4 +1621,45 @@ class AppLocalizationsBo extends AppLocalizations {
 
   @override
   String get following => 'Following';
+
+  @override
+  String get calendar_title => 'ཟླ་ཐོ།';
+
+  @override
+  String get calendar_upcoming_events => 'Upcoming events';
+
+  @override
+  String get calendar_day_short => 'ཚེས།';
+
+  @override
+  String get calendar_day_label => 'ཚེས།';
+
+  @override
+  String calendar_lunar_month(String ordinal) {
+    return 'ཟླ་བ་$ordinalཔ།';
+  }
+
+  @override
+  String get moon_phase_new_moon => 'New moon';
+
+  @override
+  String get moon_phase_waxing_crescent => 'Waxing crescent';
+
+  @override
+  String get moon_phase_first_quarter => 'First quarter';
+
+  @override
+  String get moon_phase_waxing_gibbous => 'Waxing gibbous';
+
+  @override
+  String get moon_phase_full_moon => 'Full moon';
+
+  @override
+  String get moon_phase_waning_gibbous => 'Waning gibbous';
+
+  @override
+  String get moon_phase_last_quarter => 'Last quarter';
+
+  @override
+  String get moon_phase_waning_crescent => 'Waning crescent';
 }

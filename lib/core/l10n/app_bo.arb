@@ -657,5 +657,26 @@
   "legal_privacy_policy": "སྒེར་དོན་གསང་རྒྱ།",
 
   "follow": "Follow",
-  "following": "Following"
+  "following": "Following",
+
+  "calendar_title": "ཟླ་ཐོ།",
+  "calendar_upcoming_events": "Upcoming events",
+  "calendar_day_short": "ཚེས།",
+  "calendar_day_label": "ཚེས།",
+  "calendar_lunar_month": "ཟླ་བ་{ordinal}པ།",
+  "@calendar_lunar_month": {
+    "placeholders": {
+      "ordinal": {
+        "type": "String"
+      }
+    }
+  },
+  "moon_phase_new_moon": "New moon",
+  "moon_phase_waxing_crescent": "Waxing crescent",
+  "moon_phase_first_quarter": "First quarter",
+  "moon_phase_waxing_gibbous": "Waxing gibbous",
+  "moon_phase_full_moon": "Full moon",
+  "moon_phase_waning_gibbous": "Waning gibbous",
+  "moon_phase_last_quarter": "Last quarter",
+  "moon_phase_waning_crescent": "Waning crescent"
 }

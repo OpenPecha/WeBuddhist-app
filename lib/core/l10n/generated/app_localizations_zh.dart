@@ -1562,4 +1562,45 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get following => 'Following';
+
+  @override
+  String get calendar_title => '日历';
+
+  @override
+  String get calendar_upcoming_events => '近期活动';
+
+  @override
+  String get calendar_day_short => '日';
+
+  @override
+  String get calendar_day_label => '日';
+
+  @override
+  String calendar_lunar_month(String ordinal) {
+    return '藏历$ordinal月';
+  }
+
+  @override
+  String get moon_phase_new_moon => '新月';
+
+  @override
+  String get moon_phase_waxing_crescent => '蛾眉月';
+
+  @override
+  String get moon_phase_first_quarter => '上弦月';
+
+  @override
+  String get moon_phase_waxing_gibbous => '盈凸月';
+
+  @override
+  String get moon_phase_full_moon => '满月';
+
+  @override
+  String get moon_phase_waning_gibbous => '亏凸月';
+
+  @override
+  String get moon_phase_last_quarter => '下弦月';
+
+  @override
+  String get moon_phase_waning_crescent => '残月';
 }
