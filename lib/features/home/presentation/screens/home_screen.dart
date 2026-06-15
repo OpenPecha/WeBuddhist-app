@@ -16,6 +16,7 @@ import 'package:flutter_pecha/features/home/presentation/home_screen_constants.d
 import 'package:flutter_pecha/features/home/presentation/widgets/featured_plan_section.dart';
 import 'package:flutter_pecha/features/home/presentation/widgets/home_header.dart';
 import 'package:flutter_pecha/features/home/presentation/widgets/home_share_prompt.dart';
+import 'package:flutter_pecha/features/home/presentation/widgets/home_shortcuts_row.dart';
 import 'package:flutter_pecha/features/home/presentation/widgets/my_practices_stats_card.dart';
 import 'package:flutter_pecha/features/home/presentation/widgets/my_practices_stats_card_skeleton.dart';
 import 'package:flutter_pecha/features/home/presentation/widgets/verse_of_day_card.dart';
@@ -329,6 +330,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           _buildVerseOfDaySection(),
+                          const SizedBox(
+                            height: HomeScreenConstants.cardSpacing,
+                          ),
+                          HomeShortcutsRow(),
                           const SizedBox(
                             height: HomeScreenConstants.cardSpacing,
                           ),

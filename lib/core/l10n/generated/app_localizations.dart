@@ -298,6 +298,24 @@ abstract class AppLocalizations {
   /// **'Plans'**
   String get home_plans;
 
+  /// No description provided for @home_chants.
+  ///
+  /// In en, this message translates to:
+  /// **'Chants'**
+  String get home_chants;
+
+  /// No description provided for @home_mala.
+  ///
+  /// In en, this message translates to:
+  /// **'Mala'**
+  String get home_mala;
+
+  /// No description provided for @home_timer.
+  ///
+  /// In en, this message translates to:
+  /// **'Timer'**
+  String get home_timer;
+
   /// No description provided for @home_bringing.
   ///
   /// In en, this message translates to:

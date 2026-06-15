@@ -10,6 +10,7 @@ class AppAssets {
 
   // ========== IMAGES ==========
   static const String routineCalendar = 'assets/images/routine_calendar.png';
+  static const String homeMalaIcon = 'assets/images/mala-icon.png';
   static const String recitationCoverDefault =
       'assets/images/recitation_cover/recitation_05.jpg';
 
@@ -96,6 +97,11 @@ class AppAssets {
   static const IconData linkedin = PhosphorIconsRegular.linkedinLogo;
   static const IconData link = PhosphorIconsRegular.link;
   static const IconData globe = PhosphorIconsRegular.globe;
+
+  // ========== HOME SHORTCUT ICONS ==========
+  static const IconData homePlans = PhosphorIconsRegular.calendarDots;
+  static const IconData homeChants = PhosphorIconsRegular.bookOpenText;
+  static const IconData homeTimer = PhosphorIconsRegular.timer;
 
   // ========== GROUP & SERIES ICONS ==========
   static const IconData usersThree = PhosphorIconsRegular.usersThree;

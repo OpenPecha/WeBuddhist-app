@@ -112,6 +112,15 @@ class AppLocalizationsBo extends AppLocalizations {
   String get home_plans => 'ཉམས་ལེན';
 
   @override
+  String get home_chants => 'བཟླས་པ།';
+
+  @override
+  String get home_mala => 'ཕྲེང་བ';
+
+  @override
+  String get home_timer => 'དུས་ཚོད།';
+
+  @override
   String get home_bringing => 'འཚོ་བའི་ནང་ལོངས།';
 
   @override

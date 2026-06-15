@@ -112,6 +112,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get home_plans => 'Plans';
 
   @override
+  String get home_chants => 'Chants';
+
+  @override
+  String get home_mala => 'Mala';
+
+  @override
+  String get home_timer => 'Timer';
+
+  @override
   String get home_bringing => 'Bringing it to life';
 
   @override
