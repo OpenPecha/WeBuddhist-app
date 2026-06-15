@@ -5,6 +5,7 @@ import 'package:flutter_pecha/features/plans/data/models/user/user_plans_model.d
 import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/features/home/presentation/screens/home_screen.dart';
+import 'package:flutter_pecha/features/home/presentation/screens/new_home_screen.dart'; // DEV: swapped to NewHomeScreen for local preview. Revert to HomeScreen before PR.
 import 'package:flutter_pecha/features/practice/data/models/routine_model.dart';
 import 'package:flutter_pecha/features/practice/presentation/providers/routine_api_providers.dart';
 import 'package:flutter_pecha/features/practice/presentation/screens/practice_screen.dart';
@@ -41,7 +42,9 @@ List<AppBottomBarItemModel<int>> mainNavigationItems(BuildContext context) {
       AppBottomBarItemModel(
         type: 0,
         label: localizations.nav_home,
-        selectedWidget: const HomeScreen(),
+        // DEV: swapped to NewHomeScreen for local preview. Revert to HomeScreen before PR.
+        selectedWidget: const NewHomeScreen(),
+        // selectedWidget: const HomeScreen(),
         selectedIconData: AppAssets.homeSelected,
         unSelectedIconData: AppAssets.homeUnselected,
       ),
