@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/services/app_share/app_share_service.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
@@ -75,17 +76,12 @@ class _ShareButton extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              PhosphorIcon(
-                PhosphorIconsBold.export,
-                size: 22.0,
-                color: colorScheme.onSurface,
-              ),
+              Icon(AppAssets.share, size: 22.0, color: colorScheme.onSurface),
               const SizedBox(width: 8.0),
               Text(
                 localizations.share,
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
                   fontWeight: FontWeight.w700,
-                  fontFamily: 'Inter',
                   fontSize: 16.0,
                   color: colorScheme.onSurface,
                 ),

@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/constants/app_assets.dart';
+import 'package:flutter_pecha/core/constants/app_config.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
 import 'package:flutter_pecha/features/home/presentation/providers/streak_provider.dart';
+import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 /// Home screen header that shows a personalised greeting and the user's
 /// current streak count.
@@ -92,14 +94,16 @@ class _StreakBadge extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        PhosphorIcon(PhosphorIconsFill.fire, size: 24.0, color: _flameColor),
+        Icon(AppAssets.flame, size: 24.0, color: _flameColor),
         const SizedBox(width: 4.0),
         Text(
           '$count',
-          style: Theme.of(context).textTheme.labelLarge?.copyWith(
+          style: TextStyle(
+            fontFamily: getSystemFontFamily(AppConfig.englishLanguageCode),
             fontWeight: FontWeight.w700,
             color: Theme.of(context).colorScheme.onSurface,
             fontSize: 20.0,
+            height: 1.0,
           ),
         ),
       ],

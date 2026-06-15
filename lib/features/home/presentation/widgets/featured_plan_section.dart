@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
 import 'package:flutter_pecha/core/constants/app_assets.dart';
+import 'package:flutter_pecha/core/constants/app_config.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/core/widgets/responsive_cover_image.dart';
 import 'package:flutter_pecha/features/home/domain/entities/series.dart';
 import 'package:flutter_pecha/features/home/presentation/providers/featured_series_provider.dart';
 import 'package:flutter_pecha/features/home/presentation/providers/routine_info_provider.dart';
 import 'package:flutter_pecha/features/home/presentation/widgets/featured_plan_section_skeleton.dart';
+import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class FeaturedPlanSection extends ConsumerWidget {
@@ -43,10 +44,17 @@ class _FeaturedPlanContent extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
-    final locale = ref.watch(localeProvider);
-    final titleFontSize = locale.languageCode == 'bo' ? 16.0 : 16.0;
-    final subtitleFontSize = locale.languageCode == 'bo' ? 12.0 : 13.0;
-    final sectionTitleSize = locale.languageCode == 'bo' ? 20.0 : 18.0;
+    final isTibetan = context.isTibetanLocale;
+    final sectionTitleSize = isTibetan ? 16.0 : 18.0;
+    final titleFontSize = isTibetan ? 14.0 : 16.0;
+    final subtitleFontSize = isTibetan ? 12.0 : 13.0;
+    final sectionContentGap = isTibetan ? 16.0 : 12.0;
+    final itemBottomGap = isTibetan ? 16.0 : 12.0;
+    final heroOthersGap = isTibetan ? 20.0 : 16.0;
+    final contentPadding = isTibetan ? 16.0 : 12.0;
+    final titleSubtitleGap = isTibetan ? 8.0 : 4.0;
+    final statsTopGap = isTibetan ? 12.0 : 8.0;
+    final imageTextGap = isTibetan ? 16.0 : 12.0;
     final colorScheme = Theme.of(context).colorScheme;
     final hasStatsCard = ref
         .watch(routineInfoFutureProvider)
@@ -80,15 +88,19 @@ class _FeaturedPlanContent extends ConsumerWidget {
               height: 1.2,
             ),
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: sectionContentGap),
           if (hasStatsCard)
             ...allSeries.map(
               (series) => Padding(
-                padding: const EdgeInsets.only(bottom: 12),
+                padding: EdgeInsets.only(bottom: itemBottomGap),
                 child: _FeaturedPlanListItem(
                   series: series,
                   titleFontSize: titleFontSize,
                   subtitleFontSize: subtitleFontSize,
+                  contentPadding: contentPadding,
+                  titleSubtitleGap: titleSubtitleGap,
+                  statsTopGap: statsTopGap,
+                  imageTextGap: imageTextGap,
                   onTap: () => onSeriesTap(series),
                 ),
               ),
@@ -98,17 +110,24 @@ class _FeaturedPlanContent extends ConsumerWidget {
               series: layout.featured,
               titleFontSize: titleFontSize,
               subtitleFontSize: subtitleFontSize,
+              contentPadding: contentPadding,
+              titleSubtitleGap: titleSubtitleGap,
+              statsTopGap: statsTopGap,
               onTap: () => onSeriesTap(layout.featured),
             ),
             if (layout.others.isNotEmpty) ...[
-              const SizedBox(height: 16),
+              SizedBox(height: heroOthersGap),
               ...layout.others.map(
                 (series) => Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
+                  padding: EdgeInsets.only(bottom: itemBottomGap),
                   child: _FeaturedPlanListItem(
                     series: series,
                     titleFontSize: titleFontSize,
                     subtitleFontSize: subtitleFontSize,
+                    contentPadding: contentPadding,
+                    titleSubtitleGap: titleSubtitleGap,
+                    statsTopGap: statsTopGap,
+                    imageTextGap: imageTextGap,
                     onTap: () => onSeriesTap(series),
                   ),
                 ),
@@ -126,12 +145,18 @@ class _FeaturedPlanHeroCard extends StatelessWidget {
     required this.series,
     required this.titleFontSize,
     required this.subtitleFontSize,
+    required this.contentPadding,
+    required this.titleSubtitleGap,
+    required this.statsTopGap,
     required this.onTap,
   });
 
   final Series series;
   final double titleFontSize;
   final double subtitleFontSize;
+  final double contentPadding;
+  final double titleSubtitleGap;
+  final double statsTopGap;
   final VoidCallback onTap;
 
   @override
@@ -158,12 +183,18 @@ class _FeaturedPlanHeroCard extends StatelessWidget {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.fromLTRB(12, 12, 12, 16),
+              padding: EdgeInsets.fromLTRB(
+                contentPadding,
+                contentPadding,
+                contentPadding,
+                contentPadding + 4,
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     series.title,
+                    strutStyle: context.tibetanStrutStyle(titleFontSize),
                     style: TextStyle(
                       fontSize: titleFontSize,
                       fontWeight: FontWeight.w700,
@@ -175,9 +206,10 @@ class _FeaturedPlanHeroCard extends StatelessWidget {
                   ),
                   if (series.subTitle != null &&
                       series.subTitle!.isNotEmpty) ...[
-                    const SizedBox(height: 4),
+                    SizedBox(height: titleSubtitleGap),
                     Text(
                       series.subTitle!,
+                      strutStyle: context.tibetanStrutStyle(subtitleFontSize),
                       style: TextStyle(
                         fontSize: subtitleFontSize,
                         fontWeight: FontWeight.w400,
@@ -188,7 +220,7 @@ class _FeaturedPlanHeroCard extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                     ),
                   ],
-                  const SizedBox(height: 8),
+                  SizedBox(height: statsTopGap),
                   _FeaturedPlanStatsRow(
                     planCount: series.planCount,
                     enrolledCount: series.enrolledCount,
@@ -261,7 +293,13 @@ class _FeaturedPlanStatItem extends StatelessWidget {
       children: [
         Icon(icon, size: 18, color: style.color),
         const SizedBox(width: 6),
-        Text('$value', style: style),
+        Text(
+          '$value',
+          style: style.copyWith(
+            fontFamily: getSystemFontFamily(AppConfig.englishLanguageCode),
+            height: 1.0,
+          ),
+        ),
       ],
     );
   }
@@ -272,12 +310,20 @@ class _FeaturedPlanListItem extends StatelessWidget {
     required this.series,
     required this.titleFontSize,
     required this.subtitleFontSize,
+    required this.contentPadding,
+    required this.titleSubtitleGap,
+    required this.statsTopGap,
+    required this.imageTextGap,
     required this.onTap,
   });
 
   final Series series;
   final double titleFontSize;
   final double subtitleFontSize;
+  final double contentPadding;
+  final double titleSubtitleGap;
+  final double statsTopGap;
+  final double imageTextGap;
   final VoidCallback onTap;
 
   @override
@@ -292,7 +338,7 @@ class _FeaturedPlanListItem extends StatelessWidget {
       child: InkWell(
         onTap: onTap,
         child: Padding(
-          padding: const EdgeInsets.all(12),
+          padding: EdgeInsets.all(contentPadding),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -310,13 +356,14 @@ class _FeaturedPlanListItem extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: imageTextGap),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       series.title,
+                      strutStyle: context.tibetanStrutStyle(titleFontSize),
                       style: TextStyle(
                         fontSize: titleFontSize,
                         fontWeight: FontWeight.w600,
@@ -328,9 +375,10 @@ class _FeaturedPlanListItem extends StatelessWidget {
                     ),
                     if (series.subTitle != null &&
                         series.subTitle!.isNotEmpty) ...[
-                      const SizedBox(height: 4),
+                      SizedBox(height: titleSubtitleGap),
                       Text(
                         series.subTitle!,
+                        strutStyle: context.tibetanStrutStyle(subtitleFontSize),
                         style: TextStyle(
                           fontSize: subtitleFontSize,
                           fontWeight: FontWeight.w400,
@@ -341,7 +389,7 @@ class _FeaturedPlanListItem extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                       ),
                     ],
-                    const SizedBox(height: 8),
+                    SizedBox(height: statsTopGap),
                     _FeaturedPlanStatsRow(
                       planCount: series.planCount,
                       enrolledCount: series.enrolledCount,
