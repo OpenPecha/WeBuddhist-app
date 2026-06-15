@@ -29,6 +29,11 @@ abstract class RoutineInfoRepositoryInterface extends Repository {
   Future<Either<Failure, RoutineInfo>> getRoutineInfo();
 }
 
+/// User streak repository interface.
+abstract class StreakRepositoryInterface extends Repository {
+  Future<Either<Failure, int>> getStreak();
+}
+
 /// Series repository interface.
 abstract class SeriesRepositoryInterface extends Repository {
   Future<Either<Failure, List<Series>>> getFeaturedSeries({

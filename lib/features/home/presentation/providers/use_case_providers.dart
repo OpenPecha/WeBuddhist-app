@@ -1,11 +1,13 @@
 import 'package:flutter_pecha/core/di/core_providers.dart';
 import 'package:flutter_pecha/features/home/data/datasource/featured_day_remote_datasource.dart';
 import 'package:flutter_pecha/features/home/data/datasource/routine_info_remote_datasource.dart';
+import 'package:flutter_pecha/features/home/data/datasource/streak_remote_datasource.dart';
 import 'package:flutter_pecha/features/home/data/datasource/series_remote_datasource.dart';
 import 'package:flutter_pecha/features/home/data/datasource/tags_remote_datasource.dart';
 import 'package:flutter_pecha/features/home/data/datasource/verse_of_day_remote_datasource.dart';
 import 'package:flutter_pecha/features/home/data/repositories/featured_day_repository.dart';
 import 'package:flutter_pecha/features/home/data/repositories/routine_info_repository.dart';
+import 'package:flutter_pecha/features/home/data/repositories/streak_repository.dart';
 import 'package:flutter_pecha/features/home/data/repositories/series_repository.dart';
 import 'package:flutter_pecha/features/home/data/repositories/tags_repository.dart';
 import 'package:flutter_pecha/features/home/data/repositories/verse_of_day_repository.dart';
@@ -15,6 +17,7 @@ import 'package:flutter_pecha/features/home/domain/usecases/get_featured_day_use
 import 'package:flutter_pecha/features/home/domain/usecases/get_featured_series_usecase.dart';
 import 'package:flutter_pecha/features/home/domain/usecases/get_series_by_id_usecase.dart';
 import 'package:flutter_pecha/features/home/domain/usecases/get_routine_info_usecase.dart';
+import 'package:flutter_pecha/features/home/domain/usecases/get_streak_usecase.dart';
 import 'package:flutter_pecha/features/home/domain/usecases/get_series_list_usecase.dart';
 import 'package:flutter_pecha/features/home/domain/usecases/get_tags_usecase.dart';
 import 'package:flutter_pecha/features/home/domain/usecases/get_user_series_enrollments_usecase.dart';
@@ -129,4 +132,20 @@ final routineInfoDomainRepositoryProvider =
 final getRoutineInfoUseCaseProvider = Provider<GetRoutineInfoUseCase>((ref) {
   final repository = ref.watch(routineInfoDomainRepositoryProvider);
   return GetRoutineInfoUseCase(repository.getRoutineInfo);
+});
+
+// ============ Streak ============
+
+final streakRemoteDatasourceProvider = Provider<StreakRemoteDatasource>((ref) {
+  return StreakRemoteDatasource(dio: ref.watch(dioProvider));
+});
+
+final streakDomainRepositoryProvider =
+    Provider<StreakRepositoryInterface>((ref) {
+  return StreakRepository(remote: ref.watch(streakRemoteDatasourceProvider));
+});
+
+final getStreakUseCaseProvider = Provider<GetStreakUseCase>((ref) {
+  final repository = ref.watch(streakDomainRepositoryProvider);
+  return GetStreakUseCase(repository.getStreak);
 });

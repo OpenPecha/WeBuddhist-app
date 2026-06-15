@@ -1,22 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
+import 'package:flutter_pecha/features/home/presentation/providers/streak_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 /// Home screen header that shows a personalised greeting and the user's
 /// current streak count.
-///
-/// Streak data will be wired up once the API endpoint is ready.
-/// For now the count is a placeholder.
 class HomeHeader extends ConsumerWidget {
-  /// The user's current streak count.
-  ///
-  /// TODO: replace with a real provider once the streak API endpoint is
-  /// integrated. For now pass a hardcoded value from the parent.
-  final int streakCount;
-
-  const HomeHeader({super.key, this.streakCount = 0});
+  const HomeHeader({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -26,6 +18,11 @@ class HomeHeader extends ConsumerWidget {
         user?.firstName ??
         user?.username ??
         localizations.home_greeting_fallback_name;
+
+    final streakCount = ref.watch(streakFutureProvider).maybeWhen(
+      data: (either) => either.getOrElse((_) => 0),
+      orElse: () => 0,
+    );
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 12.0),

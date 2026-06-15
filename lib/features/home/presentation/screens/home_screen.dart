@@ -9,6 +9,7 @@ import 'package:flutter_pecha/core/widgets/skeletons/skeletons.dart';
 import 'package:flutter_pecha/features/home/domain/entities/series.dart';
 import 'package:flutter_pecha/features/home/presentation/providers/featured_series_provider.dart';
 import 'package:flutter_pecha/features/home/presentation/providers/routine_info_provider.dart';
+import 'package:flutter_pecha/features/home/presentation/providers/streak_provider.dart';
 import 'package:flutter_pecha/features/home/presentation/providers/series_provider.dart';
 import 'package:flutter_pecha/features/home/presentation/providers/verse_of_day_provider.dart';
 import 'package:flutter_pecha/features/home/presentation/home_screen_constants.dart';
@@ -209,6 +210,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     ref.invalidate(featuredSeriesFutureProvider);
     ref.invalidate(verseOfDayFutureProvider);
     ref.invalidate(routineInfoFutureProvider);
+    ref.invalidate(streakFutureProvider);
     await Future.wait([
       ref.read(seriesListFutureProvider.future),
       ref.read(featuredSeriesFutureProvider.future),
