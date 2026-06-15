@@ -21,6 +21,10 @@ class _OfflineCalendarRepository implements CalendarRepository {
     int year,
     int month,
   ) async => const Left(NetworkFailure('offline test'));
+
+  @override
+  Future<Either<Failure, TibetanCalendarDay>> getToday() async =>
+      const Left(NetworkFailure('offline test'));
 }
 
 void main() {

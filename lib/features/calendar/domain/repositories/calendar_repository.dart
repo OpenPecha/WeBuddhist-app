@@ -11,4 +11,7 @@ abstract class CalendarRepository {
     int year,
     int month,
   );
+
+  /// Today's Tibetan calendar day (`GET /calendar/today`).
+  Future<Either<Failure, TibetanCalendarDay>> getToday();
 }

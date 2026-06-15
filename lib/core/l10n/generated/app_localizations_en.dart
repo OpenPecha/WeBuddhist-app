@@ -1675,6 +1675,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get calendar_day_label => 'Day';
 
   @override
+  String calendar_day_month(int day, int month) {
+    return 'Day $day · Month $month';
+  }
+
+  @override
   String calendar_lunar_month(String ordinal) {
     return '$ordinal lunar month';
   }

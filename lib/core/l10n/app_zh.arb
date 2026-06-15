@@ -682,6 +682,17 @@
   "calendar_upcoming_events": "近期活动",
   "calendar_day_short": "日",
   "calendar_day_label": "日",
+  "calendar_day_month": "藏历{month}月{day}日",
+  "@calendar_day_month": {
+    "placeholders": {
+      "day": {
+        "type": "int"
+      },
+      "month": {
+        "type": "int"
+      }
+    }
+  },
   "calendar_lunar_month": "藏历{ordinal}月",
   "@calendar_lunar_month": {
     "placeholders": {

@@ -1614,6 +1614,11 @@ class AppLocalizationsZh extends AppLocalizations {
   String get calendar_day_label => '日';
 
   @override
+  String calendar_day_month(int day, int month) {
+    return '藏历$month月$day日';
+  }
+
+  @override
   String calendar_lunar_month(String ordinal) {
     return '藏历$ordinal月';
   }

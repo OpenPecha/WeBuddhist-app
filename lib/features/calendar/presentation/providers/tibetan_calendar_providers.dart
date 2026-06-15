@@ -8,6 +8,8 @@ import 'package:flutter_pecha/features/calendar/domain/models/moon_phase.dart';
 import 'package:flutter_pecha/features/calendar/domain/repositories/calendar_repository.dart';
 import 'package:flutter_pecha/features/calendar/domain/tibetan_calendar_service.dart';
 import 'package:flutter_pecha/features/calendar/domain/usecases/get_calendar_month_usecase.dart';
+import 'package:flutter_pecha/features/calendar/domain/usecases/get_today_calendar_usecase.dart';
+import 'package:flutter_pecha/shared/domain/base_classes/usecase.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 // ============ Engine (offline fallback + lunar-month mapping) ============
@@ -32,6 +34,10 @@ final calendarRepositoryProvider = Provider<CalendarRepository>(
 
 final getCalendarMonthUseCaseProvider = Provider<GetCalendarMonthUseCase>(
   (ref) => GetCalendarMonthUseCase(ref.watch(calendarRepositoryProvider)),
+);
+
+final getTodayCalendarUseCaseProvider = Provider<GetTodayCalendarUseCase>(
+  (ref) => GetTodayCalendarUseCase(ref.watch(calendarRepositoryProvider)),
 );
 
 // ============ Selection / navigation state ============
@@ -159,6 +165,22 @@ final resolvedDayProvider = Provider.family<TibetanCalendarDay, DateTime>((
         dateOnly(date),
         ref.watch(tibetanCalendarServiceProvider),
       );
+});
+
+/// Today's Tibetan calendar day from `GET /calendar/today`, with a silent
+/// engine fallback on failure. Used by the home-screen summary card. While the
+/// request is in flight the card can show the engine value (see the card's
+/// `asData ?? engine` pattern) so there's no spinner.
+final todayCalendarDayProvider = FutureProvider<TibetanCalendarDay>((ref) async {
+  final useCase = ref.watch(getTodayCalendarUseCaseProvider);
+  final result = await useCase(const NoParams());
+  return result.fold(
+    (_) => TibetanCalendarDay.fromEngine(
+      dateOnly(DateTime.now()),
+      ref.read(tibetanCalendarServiceProvider),
+    ),
+    (day) => day,
+  );
 });
 
 // ============ Events (moon phases only, derived from resolved days) ============

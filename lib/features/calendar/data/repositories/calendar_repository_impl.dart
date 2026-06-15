@@ -23,4 +23,14 @@ class CalendarRepositoryImpl implements CalendarRepository {
       return Left(ExceptionMapper.map(e, context: 'Calendar'));
     }
   }
+
+  @override
+  Future<Either<Failure, TibetanCalendarDay>> getToday() async {
+    try {
+      final model = await _datasource.fetchToday();
+      return Right(model.toEntity());
+    } catch (e) {
+      return Left(ExceptionMapper.map(e, context: 'Calendar'));
+    }
+  }
 }

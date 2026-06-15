@@ -682,6 +682,17 @@
   "calendar_upcoming_events": "Upcoming events",
   "calendar_day_short": "ཚེས།",
   "calendar_day_label": "ཚེས།",
+  "calendar_day_month": "ཟླ་བ་{month} ཚེས་{day}",
+  "@calendar_day_month": {
+    "placeholders": {
+      "day": {
+        "type": "int"
+      },
+      "month": {
+        "type": "int"
+      }
+    }
+  },
   "calendar_lunar_month": "ཟླ་བ་{ordinal}པ།",
   "@calendar_lunar_month": {
     "placeholders": {

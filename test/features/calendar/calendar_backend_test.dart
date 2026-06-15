@@ -135,6 +135,10 @@ class _RealisticFakeRepo implements CalendarRepository {
     }
     return const Left(NetworkFailure('no data'));
   }
+
+  @override
+  Future<Either<Failure, TibetanCalendarDay>> getToday() async =>
+      const Left(NetworkFailure('no data'));
 }
 
 class _OfflineRepo implements CalendarRepository {
@@ -143,4 +147,8 @@ class _OfflineRepo implements CalendarRepository {
     int year,
     int month,
   ) async => const Left(NetworkFailure('offline'));
+
+  @override
+  Future<Either<Failure, TibetanCalendarDay>> getToday() async =>
+      const Left(NetworkFailure('offline'));
 }

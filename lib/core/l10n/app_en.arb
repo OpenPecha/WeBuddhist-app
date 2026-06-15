@@ -748,6 +748,17 @@
   "calendar_upcoming_events": "Upcoming events",
   "calendar_day_short": "DAY",
   "calendar_day_label": "Day",
+  "calendar_day_month": "Day {day} · Month {month}",
+  "@calendar_day_month": {
+    "placeholders": {
+      "day": {
+        "type": "int"
+      },
+      "month": {
+        "type": "int"
+      }
+    }
+  },
   "calendar_lunar_month": "{ordinal} lunar month",
   "@calendar_lunar_month": {
     "placeholders": {

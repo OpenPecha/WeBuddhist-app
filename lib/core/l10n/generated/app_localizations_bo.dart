@@ -1673,6 +1673,11 @@ class AppLocalizationsBo extends AppLocalizations {
   String get calendar_day_label => 'ཚེས།';
 
   @override
+  String calendar_day_month(int day, int month) {
+    return 'ཟླ་བ་$month ཚེས་$day';
+  }
+
+  @override
   String calendar_lunar_month(String ordinal) {
     return 'ཟླ་བ་$ordinalཔ།';
   }

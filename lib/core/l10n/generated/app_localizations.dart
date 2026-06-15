@@ -3136,6 +3136,12 @@ abstract class AppLocalizations {
   /// **'Day'**
   String get calendar_day_label;
 
+  /// No description provided for @calendar_day_month.
+  ///
+  /// In en, this message translates to:
+  /// **'Day {day} · Month {month}'**
+  String calendar_day_month(int day, int month);
+
   /// No description provided for @calendar_lunar_month.
   ///
   /// In en, this message translates to:
