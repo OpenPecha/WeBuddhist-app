@@ -98,4 +98,6 @@ class AppAssets {
   // ========== GROUP & SERIES ICONS ==========
   static const IconData usersThree = PhosphorIconsRegular.usersThree;
   static const IconData bookOpenText = PhosphorIconsRegular.bookOpenText;
+  static const IconData calendarDots = PhosphorIconsRegular.calendarDots;
+  static const IconData arrowRight = PhosphorIconsRegular.arrowRight;
 }

@@ -106,6 +106,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get home_recitation => 'Recitation';
 
   @override
+  String get home_overall_stats => 'Overall stats';
+
+  @override
+  String get home_plans => 'Plans';
+
+  @override
   String get home_bringing => 'Bringing it to life';
 
   @override

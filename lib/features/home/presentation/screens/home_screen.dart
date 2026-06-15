@@ -11,9 +11,12 @@ import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/core/widgets/error_state_widget.dart';
 import 'package:flutter_pecha/core/widgets/skeletons/skeletons.dart';
 import 'package:flutter_pecha/features/home/domain/entities/series.dart';
+import 'package:flutter_pecha/features/home/presentation/providers/routine_info_provider.dart';
 import 'package:flutter_pecha/features/home/presentation/providers/series_provider.dart';
 import 'package:flutter_pecha/features/home/presentation/providers/verse_of_day_provider.dart';
 import 'package:flutter_pecha/features/home/presentation/home_screen_constants.dart';
+import 'package:flutter_pecha/features/home/presentation/widgets/my_practices_stats_card.dart';
+import 'package:flutter_pecha/features/home/presentation/widgets/my_practices_stats_card_skeleton.dart';
 import 'package:flutter_pecha/features/home/presentation/widgets/series_card.dart';
 import 'package:flutter_pecha/features/home/presentation/widgets/verse_of_day_card.dart';
 import 'package:flutter_pecha/features/home/presentation/widgets/verse_of_day_skeleton.dart';
@@ -121,8 +124,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     for (var attempt = 1; attempt <= maxAttempts; attempt++) {
       _log.info('fetch attempt $attempt/$maxAttempts');
       try {
-        final userPlansAsync =
-            await container.read(userPlansFutureProvider.future);
+        final userPlansAsync = await container.read(
+          userPlansFutureProvider.future,
+        );
         final isFailure = userPlansAsync.isLeft();
         _log.info('attempt $attempt resolved isFailure=$isFailure');
         if (isFailure && attempt < maxAttempts) {
@@ -206,9 +210,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   Future<void> _onRefresh() async {
     ref.invalidate(seriesListFutureProvider);
     ref.invalidate(verseOfDayFutureProvider);
+    ref.invalidate(routineInfoFutureProvider);
     await Future.wait([
       ref.read(seriesListFutureProvider.future),
       ref.read(verseOfDayFutureProvider.future),
+      ref.read(routineInfoFutureProvider.future),
     ]);
   }
 
@@ -431,6 +437,29 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 
+  void _navigateToPracticeTab() {
+    ref.read(mainNavigationIndexProvider.notifier).state =
+        MainTab.practice.index;
+  }
+
+  Widget _buildMyPracticesSection() {
+    final routineInfoAsync = ref.watch(routineInfoFutureProvider);
+
+    return routineInfoAsync.when(
+      data: (infoEither) {
+        return infoEither.fold(
+          (_) => const SizedBox.shrink(),
+          (info) => MyPracticesStatsCard(
+            routineInfo: info,
+            onTap: _navigateToPracticeTab,
+          ),
+        );
+      },
+      loading: () => const MyPracticesStatsCardSkeleton(),
+      error: (_, __) => const SizedBox.shrink(),
+    );
+  }
+
   Widget _buildVerseOfDaySection() {
     final verseAsync = ref.watch(verseOfDayFutureProvider);
 
@@ -479,35 +508,31 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 return CustomScrollView(
                   physics: const AlwaysScrollableScrollPhysics(),
                   slivers: [
-                    SliverToBoxAdapter(
-                      child: _buildVerseOfDaySection(),
-                    ),
+                    SliverToBoxAdapter(child: _buildVerseOfDaySection()),
+                    SliverToBoxAdapter(child: _buildMyPracticesSection()),
                     SliverPadding(
                       padding: const EdgeInsets.symmetric(
                         horizontal: HomeScreenConstants.bodyHorizontalPadding,
                         vertical: HomeScreenConstants.bodyVerticalPadding,
                       ),
                       sliver: SliverGrid(
-                        delegate: SliverChildBuilderDelegate(
-                          (context, index) {
-                            final series = seriesList[index];
-                            return SeriesCard(
-                              series: series,
-                              onTap: () {
-                                _log.info('Series tapped: ${series.id}');
-                                _navigateToSeries(series);
-                              },
-                            );
-                          },
-                          childCount: seriesList.length,
-                        ),
+                        delegate: SliverChildBuilderDelegate((context, index) {
+                          final series = seriesList[index];
+                          return SeriesCard(
+                            series: series,
+                            onTap: () {
+                              _log.info('Series tapped: ${series.id}');
+                              _navigateToSeries(series);
+                            },
+                          );
+                        }, childCount: seriesList.length),
                         gridDelegate:
                             const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
-                          crossAxisSpacing: 8,
-                          mainAxisSpacing: 8,
-                          childAspectRatio: 1.3,
-                        ),
+                              crossAxisCount: 2,
+                              crossAxisSpacing: 8,
+                              mainAxisSpacing: 8,
+                              childAspectRatio: 1.3,
+                            ),
                       ),
                     ),
                   ],

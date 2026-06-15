@@ -1,9 +1,11 @@
 import 'package:flutter_pecha/core/di/core_providers.dart';
 import 'package:flutter_pecha/features/home/data/datasource/featured_day_remote_datasource.dart';
+import 'package:flutter_pecha/features/home/data/datasource/routine_info_remote_datasource.dart';
 import 'package:flutter_pecha/features/home/data/datasource/series_remote_datasource.dart';
 import 'package:flutter_pecha/features/home/data/datasource/tags_remote_datasource.dart';
 import 'package:flutter_pecha/features/home/data/datasource/verse_of_day_remote_datasource.dart';
 import 'package:flutter_pecha/features/home/data/repositories/featured_day_repository.dart';
+import 'package:flutter_pecha/features/home/data/repositories/routine_info_repository.dart';
 import 'package:flutter_pecha/features/home/data/repositories/series_repository.dart';
 import 'package:flutter_pecha/features/home/data/repositories/tags_repository.dart';
 import 'package:flutter_pecha/features/home/data/repositories/verse_of_day_repository.dart';
@@ -11,6 +13,7 @@ import 'package:flutter_pecha/features/home/domain/repositories/home_repository.
 import 'package:flutter_pecha/features/home/domain/usecases/enroll_in_series_usecase.dart';
 import 'package:flutter_pecha/features/home/domain/usecases/get_featured_day_usecase.dart';
 import 'package:flutter_pecha/features/home/domain/usecases/get_series_by_id_usecase.dart';
+import 'package:flutter_pecha/features/home/domain/usecases/get_routine_info_usecase.dart';
 import 'package:flutter_pecha/features/home/domain/usecases/get_series_list_usecase.dart';
 import 'package:flutter_pecha/features/home/domain/usecases/get_tags_usecase.dart';
 import 'package:flutter_pecha/features/home/domain/usecases/get_user_series_enrollments_usecase.dart';
@@ -101,4 +104,23 @@ final verseOfDayDomainRepositoryProvider =
 final getVerseOfDayUseCaseProvider = Provider<GetVerseOfDayUseCase>((ref) {
   final repository = ref.watch(verseOfDayDomainRepositoryProvider);
   return GetVerseOfDayUseCase(repository.getVerseOfDay);
+});
+
+// ============ Routine Info ============
+
+final routineInfoRemoteDatasourceProvider =
+    Provider<RoutineInfoRemoteDatasource>((ref) {
+  return RoutineInfoRemoteDatasource(dio: ref.watch(dioProvider));
+});
+
+final routineInfoDomainRepositoryProvider =
+    Provider<RoutineInfoRepositoryInterface>((ref) {
+  return RoutineInfoRepository(
+    remote: ref.watch(routineInfoRemoteDatasourceProvider),
+  );
+});
+
+final getRoutineInfoUseCaseProvider = Provider<GetRoutineInfoUseCase>((ref) {
+  final repository = ref.watch(routineInfoDomainRepositoryProvider);
+  return GetRoutineInfoUseCase(repository.getRoutineInfo);
 });

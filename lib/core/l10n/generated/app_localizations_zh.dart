@@ -103,6 +103,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get home_recitation => '持誦';
 
   @override
+  String get home_overall_stats => '整體統計';
+
+  @override
+  String get home_plans => '計劃';
+
+  @override
   String get home_bringing => '融入生活';
 
   @override

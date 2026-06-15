@@ -286,6 +286,18 @@ abstract class AppLocalizations {
   /// **'Recitation'**
   String get home_recitation;
 
+  /// No description provided for @home_overall_stats.
+  ///
+  /// In en, this message translates to:
+  /// **'Overall stats'**
+  String get home_overall_stats;
+
+  /// No description provided for @home_plans.
+  ///
+  /// In en, this message translates to:
+  /// **'Plans'**
+  String get home_plans;
+
   /// No description provided for @home_bringing.
   ///
   /// In en, this message translates to:

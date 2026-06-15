@@ -106,6 +106,12 @@ class AppLocalizationsBo extends AppLocalizations {
   String get home_recitation => 'བཟླས་པ།';
 
   @override
+  String get home_overall_stats => 'སྤྱིའི་གྲངས་ཀ';
+
+  @override
+  String get home_plans => 'ཉམས་ལེན';
+
+  @override
   String get home_bringing => 'འཚོ་བའི་ནང་ལོངས།';
 
   @override
