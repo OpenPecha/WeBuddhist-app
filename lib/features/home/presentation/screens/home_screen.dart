@@ -17,6 +17,8 @@ import 'package:flutter_pecha/features/home/presentation/providers/series_provid
 import 'package:flutter_pecha/features/home/presentation/providers/verse_of_day_provider.dart';
 import 'package:flutter_pecha/features/home/presentation/home_screen_constants.dart';
 import 'package:flutter_pecha/features/home/presentation/widgets/featured_plan_section.dart';
+import 'package:flutter_pecha/features/home/presentation/widgets/home_header.dart';
+import 'package:flutter_pecha/features/home/presentation/widgets/home_share_prompt.dart';
 import 'package:flutter_pecha/features/home/presentation/widgets/my_practices_stats_card.dart';
 import 'package:flutter_pecha/features/home/presentation/widgets/my_practices_stats_card_skeleton.dart';
 import 'package:flutter_pecha/features/home/presentation/widgets/series_card.dart';
@@ -243,24 +245,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      appBar: AppBar(
-        scrolledUnderElevation: 0,
-        centerTitle: false,
-        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-        title: Text(
-          l10n.nav_home,
-          strutStyle: context.tibetanStrutStyle(
-            Theme.of(context).textTheme.headlineMedium?.fontSize ?? 28,
-          ),
-          style: Theme.of(
-            context,
-          ).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
-        ),
-      ),
       body: SafeArea(
         child: Column(
           children: [
-            _buildSearchSection(l10n, seriesAsync),
+            const HomeHeader(),
             SizedBox(height: HomeScreenConstants.bodyVerticalPadding),
             _buildBody(context, l10n),
           ],
@@ -560,6 +548,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                             ),
                       ),
                     ),
+                    const SliverToBoxAdapter(child: HomeSharePrompt()),
                   ],
                 );
               },
