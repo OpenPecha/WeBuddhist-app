@@ -24,7 +24,7 @@ class VerseOfDayCard extends ConsumerWidget {
     final colorScheme = Theme.of(context).colorScheme;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 12),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(_borderRadius),
         child: ColoredBox(
@@ -42,35 +42,43 @@ class VerseOfDayCard extends ConsumerWidget {
               ),
               Padding(
                 padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
-                child: Column(
+                child: Stack(
                   children: [
-                    Text(
-                      '"${verseOfDay.verse}"',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: verseFontSize,
-                        fontWeight: FontWeight.w400,
-                        fontFamily: contentFont,
-                        color: colorScheme.onSurface,
-                        height: 1.55,
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 32),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Text(
+                            '"${verseOfDay.verse}"',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: verseFontSize,
+                              fontWeight: FontWeight.w400,
+                              fontFamily: contentFont,
+                              color: colorScheme.onSurface,
+                              height: 1.55,
+                            ),
+                          ),
+                          if (verseOfDay.groupTitle != null) ...[
+                            const SizedBox(height: 16),
+                            Text(
+                              '~ ${verseOfDay.groupTitle}',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: attributionFontSize,
+                                fontWeight: FontWeight.w400,
+                                fontFamily: systemFont,
+                                color: colorScheme.onSurfaceVariant,
+                              ),
+                            ),
+                          ],
+                        ],
                       ),
                     ),
-                    if (verseOfDay.groupTitle != null) ...[
-                      const SizedBox(height: 16),
-                      Text(
-                        '~ ${verseOfDay.groupTitle}',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: attributionFontSize,
-                          fontWeight: FontWeight.w400,
-                          fontFamily: systemFont,
-                          color: colorScheme.onSurfaceVariant,
-                        ),
-                      ),
-                    ],
-                    const SizedBox(height: 8),
-                    Align(
-                      alignment: Alignment.centerRight,
+                    Positioned(
+                      right: 0,
+                      bottom: 0,
                       child: IconButton(
                         onPressed: null,
                         icon: const Icon(Icons.share_outlined),
