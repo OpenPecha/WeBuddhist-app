@@ -11,6 +11,7 @@ import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/core/widgets/skeletons/skeletons.dart';
+import 'package:flutter_pecha/features/home/presentation/providers/routine_info_provider.dart';
 import 'package:flutter_pecha/features/plans/presentation/providers/plan_days_providers.dart';
 import 'package:flutter_pecha/features/plans/presentation/providers/plans_providers.dart';
 import 'package:flutter_pecha/features/plans/presentation/providers/user_plans_provider.dart';
@@ -553,10 +554,11 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
         },
         (success) {
           if (success) {
-            // Invalidate plans to refresh the list
+            // Invalidate plans to refresh the list and home stats
             ref.invalidate(myPlansPaginatedProvider);
             ref.invalidate(findPlansPaginatedProvider);
             ref.invalidate(userPlansFutureProvider);
+            ref.invalidate(routineInfoFutureProvider);
 
             if (mounted) {
               // Pop back to plans list

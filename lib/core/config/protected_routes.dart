@@ -39,6 +39,9 @@ class ProtectedRoutes {
     '/threads/{threadId}',
     '/threads/{threadId}/', // Catch-all for thread sub-paths
 
+    // Timers
+    '/timers',
+
     // Routines
     '/routines',
     '/routines/{routineId}/time-blocks',

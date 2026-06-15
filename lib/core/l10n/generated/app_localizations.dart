@@ -286,6 +286,60 @@ abstract class AppLocalizations {
   /// **'Recitation'**
   String get home_recitation;
 
+  /// No description provided for @home_overall_stats.
+  ///
+  /// In en, this message translates to:
+  /// **'Overall stats'**
+  String get home_overall_stats;
+
+  /// No description provided for @home_plans.
+  ///
+  /// In en, this message translates to:
+  /// **'Plans'**
+  String get home_plans;
+
+  /// No description provided for @home_chants.
+  ///
+  /// In en, this message translates to:
+  /// **'Chants'**
+  String get home_chants;
+
+  /// No description provided for @home_mala.
+  ///
+  /// In en, this message translates to:
+  /// **'Mala'**
+  String get home_mala;
+
+  /// No description provided for @home_timer.
+  ///
+  /// In en, this message translates to:
+  /// **'Timer'**
+  String get home_timer;
+
+  /// No description provided for @preset_timers.
+  ///
+  /// In en, this message translates to:
+  /// **'Preset timers'**
+  String get preset_timers;
+
+  /// No description provided for @timer_min.
+  ///
+  /// In en, this message translates to:
+  /// **'min'**
+  String get timer_min;
+
+  /// No description provided for @timer_start.
+  ///
+  /// In en, this message translates to:
+  /// **'Start'**
+  String get timer_start;
+
+  /// No description provided for @timer_finish.
+  ///
+  /// In en, this message translates to:
+  /// **'Finish'**
+  String get timer_finish;
+
   /// No description provided for @home_bringing.
   ///
   /// In en, this message translates to:
@@ -297,6 +351,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Profile'**
   String get home_profile;
+
+  /// No description provided for @home_hello_prefix.
+  ///
+  /// In en, this message translates to:
+  /// **'Hello, '**
+  String get home_hello_prefix;
+
+  /// No description provided for @home_greeting_fallback_name.
+  ///
+  /// In en, this message translates to:
+  /// **'there'**
+  String get home_greeting_fallback_name;
+
+  /// No description provided for @home_share_prompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Enjoying {appName}?'**
+  String home_share_prompt(String appName);
 
   /// No description provided for @no_feature_content.
   ///
@@ -3117,6 +3189,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Waning crescent'**
   String get moon_phase_waning_crescent;
+
+  /// No description provided for @share_this_quote.
+  ///
+  /// In en, this message translates to:
+  /// **'Share this quote'**
+  String get share_this_quote;
+
+  /// No description provided for @shared_from.
+  ///
+  /// In en, this message translates to:
+  /// **'Shared from'**
+  String get shared_from;
+
+  /// No description provided for @verse_share_error.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to share quote. Please try again'**
+  String get verse_share_error;
 }
 
 class _AppLocalizationsDelegate

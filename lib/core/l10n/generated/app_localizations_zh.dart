@@ -103,10 +103,48 @@ class AppLocalizationsZh extends AppLocalizations {
   String get home_recitation => '持誦';
 
   @override
+  String get home_overall_stats => '整體統計';
+
+  @override
+  String get home_plans => '計劃';
+
+  @override
+  String get home_chants => '持誦';
+
+  @override
+  String get home_mala => '念珠';
+
+  @override
+  String get home_timer => '計時';
+
+  @override
+  String get preset_timers => '預設計時';
+
+  @override
+  String get timer_min => '分鐘';
+
+  @override
+  String get timer_start => '開始';
+
+  @override
+  String get timer_finish => '完成';
+
+  @override
   String get home_bringing => '融入生活';
 
   @override
   String get home_profile => '個人資料';
+
+  @override
+  String get home_hello_prefix => '你好，';
+
+  @override
+  String get home_greeting_fallback_name => '朋友';
+
+  @override
+  String home_share_prompt(String appName) {
+    return '喜歡 $appName 嗎？';
+  }
 
   @override
   String get no_feature_content => '尚無精選內容';
@@ -1603,4 +1641,13 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get moon_phase_waning_crescent => '残月';
+
+  @override
+  String get share_this_quote => '分享这句话';
+
+  @override
+  String get shared_from => '分享自';
+
+  @override
+  String get verse_share_error => '无法分享引文，请重试';
 }

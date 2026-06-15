@@ -31,6 +31,8 @@ class Series {
   final ResponsiveImage? coverImage;
   final bool featured;
   final int totalDays;
+  final int planCount;
+  final int enrolledCount;
   final List<Plan> plans;
   final SeriesGroup? group;
 
@@ -42,6 +44,8 @@ class Series {
     this.coverImage,
     this.featured = false,
     this.totalDays = 0,
+    this.planCount = 0,
+    this.enrolledCount = 0,
     this.plans = const [],
     this.group,
   });
