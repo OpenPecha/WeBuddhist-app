@@ -9,6 +9,35 @@ class SeriesRemoteDatasource {
 
   SeriesRemoteDatasource({required this.dio});
 
+  Future<List<SeriesModel>> fetchFeaturedSeries({
+    required String language,
+    int limit = 10,
+  }) async {
+    try {
+      final response = await dio.get(
+        '/series/featured',
+        queryParameters: {'language': language, 'limit': limit},
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> seriesJson =
+            (response.data['series'] as List<dynamic>?) ?? [];
+        return seriesJson
+            .map((s) => SeriesModel.fromJson(s as Map<String, dynamic>))
+            .toList();
+      } else {
+        _logger.error('Failed to load featured series: ${response.statusCode}');
+        throw _statusToException(
+          response.statusCode,
+          'Failed to load featured series',
+        );
+      }
+    } on DioException catch (e) {
+      _logger.error('Dio error in fetchFeaturedSeries', e);
+      throw _dioToException(e, 'Failed to load featured series');
+    }
+  }
+
   /// Endpoint: GET /series?language={language}
   Future<List<SeriesModel>> fetchSeriesList({required String language}) async {
     try {

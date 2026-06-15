@@ -31,8 +31,27 @@
   "home_goDeeper": "深入了解",
   "home_intention": "今日心願",
   "home_recitation": "持誦",
+  "home_overall_stats": "整體統計",
+  "home_plans": "計劃",
+  "home_chants": "持誦",
+  "home_mala": "念珠",
+  "home_timer": "計時",
+  "preset_timers": "預設計時",
+  "timer_min": "分鐘",
+  "timer_start": "開始",
+  "timer_finish": "完成",
   "home_bringing": "融入生活",
   "home_profile": "個人資料",
+  "home_hello_prefix": "你好，",
+  "home_greeting_fallback_name": "朋友",
+  "home_share_prompt": "喜歡 {appName} 嗎？",
+  "@home_share_prompt": {
+    "placeholders": {
+      "appName": {
+        "type": "String"
+      }
+    }
+  },
   "no_feature_content": "尚無精選內容",
   "nav_home": "首頁",
   "nav_explore": "探索",
@@ -657,5 +676,9 @@
   "legal_privacy_policy": "隱私政策",
 
   "follow": "Follow",
-  "following": "Following"
+  "following": "Following",
+
+  "share_this_quote": "分享这句话",
+  "shared_from": "分享自",
+  "verse_share_error": "无法分享引文，请重试"
 }
