@@ -508,8 +508,18 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 return CustomScrollView(
                   physics: const AlwaysScrollableScrollPhysics(),
                   slivers: [
-                    SliverToBoxAdapter(child: _buildVerseOfDaySection()),
-                    SliverToBoxAdapter(child: _buildMyPracticesSection()),
+                    SliverToBoxAdapter(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          _buildVerseOfDaySection(),
+                          const SizedBox(
+                            height: HomeScreenConstants.cardSpacing,
+                          ),
+                          _buildMyPracticesSection(),
+                        ],
+                      ),
+                    ),
                     SliverPadding(
                       padding: const EdgeInsets.symmetric(
                         horizontal: HomeScreenConstants.bodyHorizontalPadding,
