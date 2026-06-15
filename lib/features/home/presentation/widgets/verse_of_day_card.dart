@@ -76,21 +76,21 @@ class VerseOfDayCard extends ConsumerWidget {
                         ],
                       ),
                     ),
-                    Positioned(
-                      right: 0,
-                      bottom: 0,
-                      child: IconButton(
-                        onPressed: null,
-                        icon: const Icon(Icons.share_outlined),
-                        color: colorScheme.onSurfaceVariant,
-                        iconSize: 22,
-                        padding: EdgeInsets.zero,
-                        constraints: const BoxConstraints(
-                          minWidth: 32,
-                          minHeight: 32,
-                        ),
-                      ),
-                    ),
+                    // Positioned(
+                    //   right: 0,
+                    //   bottom: 0,
+                    //   child: IconButton(
+                    //     onPressed: null,
+                    //     icon: const Icon(Icons.share_outlined),
+                    //     color: colorScheme.onSurfaceVariant,
+                    //     iconSize: 22,
+                    //     padding: EdgeInsets.zero,
+                    //     constraints: const BoxConstraints(
+                    //       minWidth: 32,
+                    //       minHeight: 32,
+                    //     ),
+                    //   ),
+                    // ),
                   ],
                 ),
               ),
