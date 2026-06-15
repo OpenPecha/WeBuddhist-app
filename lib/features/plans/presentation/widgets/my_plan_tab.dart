@@ -4,6 +4,7 @@ import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
 import 'package:flutter_pecha/core/widgets/error_state_widget.dart';
 import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
 import 'package:flutter_pecha/features/auth/presentation/widgets/login_drawer.dart';
+import 'package:flutter_pecha/features/home/presentation/providers/routine_info_provider.dart';
 import 'package:flutter_pecha/features/plans/presentation/providers/plans_providers.dart';
 import 'package:flutter_pecha/features/plans/presentation/providers/user_plans_provider.dart';
 import 'package:flutter_pecha/features/plans/data/utils/plan_utils.dart';
@@ -62,10 +63,11 @@ class _MyPlansTabState extends ConsumerState<MyPlansTab> {
       );
 
       if (success) {
-        // Refresh the plans list
+        // Refresh the plans list and home stats
         ref.invalidate(myPlansPaginatedProvider);
         ref.invalidate(findPlansPaginatedProvider);
         ref.invalidate(userPlansFutureProvider);
+        ref.invalidate(routineInfoFutureProvider);
 
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(

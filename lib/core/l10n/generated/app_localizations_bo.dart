@@ -106,10 +106,48 @@ class AppLocalizationsBo extends AppLocalizations {
   String get home_recitation => 'བཟླས་པ།';
 
   @override
+  String get home_overall_stats => 'སྤྱིའི་གྲངས་ཀ';
+
+  @override
+  String get home_plans => 'ཉམས་ལེན';
+
+  @override
+  String get home_chants => 'བཟླས་པ།';
+
+  @override
+  String get home_mala => 'ཕྲེང་བ';
+
+  @override
+  String get home_timer => 'དུས་ཚོད།';
+
+  @override
+  String get preset_timers => 'སྔོན་སྒྲིག་དུས་ཚོད།';
+
+  @override
+  String get timer_min => 'སྐར་མ';
+
+  @override
+  String get timer_start => 'འགོ་འཛུགས';
+
+  @override
+  String get timer_finish => 'མཇུག་སྒྲིལ';
+
+  @override
   String get home_bringing => 'འཚོ་བའི་ནང་ལོངས།';
 
   @override
   String get home_profile => 'ངོ་སྤྲོད་སྙིང་བསྡུས།';
+
+  @override
+  String get home_hello_prefix => 'བཀྲ་ཤིས་བདེ་ལེགས། ';
+
+  @override
+  String get home_greeting_fallback_name => 'གྲོགས་པོ།';
+
+  @override
+  String home_share_prompt(String appName) {
+    return '$appName ལ་དགའ་པོ་ཡོད་དམ།';
+  }
 
   @override
   String get no_feature_content => 'རྒྱུ་ཆ་མིན་འདུག';
@@ -1662,4 +1700,11 @@ class AppLocalizationsBo extends AppLocalizations {
 
   @override
   String get moon_phase_waning_crescent => 'Waning crescent';
+  String get share_this_quote => 'Share this quote';
+
+  @override
+  String get shared_from => 'Shared from';
+
+  @override
+  String get verse_share_error => 'Unable to share quote. Please try again';
 }

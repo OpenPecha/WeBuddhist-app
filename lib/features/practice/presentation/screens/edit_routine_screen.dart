@@ -14,6 +14,7 @@ import 'package:flutter_pecha/features/notifications/data/services/notification_
 import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
 import 'package:flutter_pecha/features/auth/presentation/widgets/login_drawer.dart';
 import 'package:flutter_pecha/features/home/domain/entities/series.dart';
+import 'package:flutter_pecha/features/home/presentation/providers/routine_info_provider.dart';
 import 'package:flutter_pecha/features/home/presentation/providers/series_enrollment_provider.dart';
 import 'package:flutter_pecha/features/plans/domain/usecases/user_plans_usecases.dart';
 import 'package:flutter_pecha/features/plans/plans.dart';
@@ -452,6 +453,7 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
     //    refetch happens lazily when the next screen reads the provider.
     ref.invalidate(userRoutineProvider);
     ref.invalidate(userPlansFutureProvider);
+    ref.invalidate(routineInfoFutureProvider);
 
     if (mounted) {
       _logger.info('[EDIT-SAVE] popping (background tasks continuing)');

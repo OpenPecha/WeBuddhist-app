@@ -31,8 +31,27 @@
   "home_goDeeper": "Go deeper",
   "home_intention": "My intention for today",
   "home_recitation": "Recitation",
+  "home_overall_stats": "Overall stats",
+  "home_plans": "Plans",
+  "home_chants": "Chants",
+  "home_mala": "Mala",
+  "home_timer": "Timer",
+  "preset_timers": "Preset timers",
+  "timer_min": "min",
+  "timer_start": "Start",
+  "timer_finish": "Finish",
   "home_bringing": "Bringing it to life",
   "home_profile": "Profile",
+  "home_hello_prefix": "Hello, ",
+  "home_greeting_fallback_name": "there",
+  "home_share_prompt": "Enjoying {appName}?",
+  "@home_share_prompt": {
+    "placeholders": {
+      "appName": {
+        "type": "String"
+      }
+    }
+  },
   "no_feature_content": "No featured content available",
   "nav_home": "Home",
   "nav_explore": "Explore",
@@ -745,4 +764,7 @@
   "moon_phase_waning_gibbous": "Waning gibbous",
   "moon_phase_last_quarter": "Last quarter",
   "moon_phase_waning_crescent": "Waning crescent"
+  "share_this_quote": "Share this quote",
+  "shared_from": "Shared from",
+  "verse_share_error": "Unable to share quote. Please try again"
 }
