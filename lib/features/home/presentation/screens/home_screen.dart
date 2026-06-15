@@ -1,13 +1,9 @@
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/features/home/presentation/screens/main_navigation_screen.dart';
-import 'package:fpdart/fpdart.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
-import 'package:flutter_pecha/core/error/failures.dart';
 import 'package:flutter_pecha/core/services/service_providers.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
-import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/core/widgets/error_state_widget.dart';
 import 'package:flutter_pecha/core/widgets/skeletons/skeletons.dart';
 import 'package:flutter_pecha/features/home/domain/entities/series.dart';
@@ -21,13 +17,11 @@ import 'package:flutter_pecha/features/home/presentation/widgets/home_header.dar
 import 'package:flutter_pecha/features/home/presentation/widgets/home_share_prompt.dart';
 import 'package:flutter_pecha/features/home/presentation/widgets/my_practices_stats_card.dart';
 import 'package:flutter_pecha/features/home/presentation/widgets/my_practices_stats_card_skeleton.dart';
-import 'package:flutter_pecha/features/home/presentation/widgets/series_card.dart';
 import 'package:flutter_pecha/features/home/presentation/widgets/verse_of_day_card.dart';
 import 'package:flutter_pecha/features/home/presentation/widgets/verse_of_day_skeleton.dart';
 import 'package:flutter_pecha/features/notifications/application/notification_sync_engine.dart';
 import 'package:flutter_pecha/features/plans/data/utils/plan_utils.dart';
 import 'package:flutter_pecha/features/plans/presentation/providers/user_plans_provider.dart';
-import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:logging/logging.dart';
@@ -46,7 +40,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   // For proper keyboard dismissal with SearchAnchor
   final FocusScopeNode _searchFocusScopeNode = FocusScopeNode();
-  bool _didJustDismissSearch = false;
 
   @override
   void initState() {
@@ -240,7 +233,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final seriesAsync = ref.watch(seriesListFutureProvider);
     final l10n = context.l10n;
 
     return Scaffold(
@@ -253,178 +245,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             _buildBody(context, l10n),
           ],
         ),
-      ),
-    );
-  }
-
-  TextStyle _searchHintTextStyle(BuildContext context) {
-    final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
-    return TextStyle(
-      fontSize: 16,
-      color: isDarkMode ? AppColors.textTertiaryDark : AppColors.textSecondary,
-    );
-  }
-
-  Widget _buildSearchSection(
-    AppLocalizations localizations,
-    AsyncValue<Either<Failure, List<Series>>> seriesAsync,
-  ) {
-    final locale = ref.watch(localeProvider);
-    final lineHeight = getLineHeight(locale.languageCode);
-    final fontSize = locale.languageCode == 'bo' ? 18.0 : 16.0;
-    final TextStyle searchHintStyle = _searchHintTextStyle(context);
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-      child: seriesAsync.when(
-        data: (seriesEither) {
-          return seriesEither.fold(
-            (failure) => const SizedBox.shrink(),
-            (seriesList) => FocusScope(
-              node: _searchFocusScopeNode,
-              onFocusChange: (isFocused) {
-                if (_didJustDismissSearch && isFocused) {
-                  _didJustDismissSearch = false;
-                  _searchFocusScopeNode.unfocus();
-                }
-              },
-              child: SearchAnchor(
-                builder: (BuildContext context, SearchController controller) {
-                  return SearchBar(
-                    controller: controller,
-                    constraints: HomeScreenConstants.searchBarConstraints,
-                    padding: const WidgetStatePropertyAll<EdgeInsets>(
-                      EdgeInsets.symmetric(
-                        horizontal:
-                            HomeScreenConstants.searchBarHorizontalPadding,
-                      ),
-                    ),
-                    elevation: const WidgetStatePropertyAll(0.0),
-                    shadowColor: const WidgetStatePropertyAll(
-                      Colors.transparent,
-                    ),
-                    onTap: () {
-                      controller.openView();
-                    },
-                    onChanged: (_) {
-                      controller.openView();
-                    },
-                    leading: Icon(
-                      Icons.search,
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
-                    hintText: localizations.text_search,
-                    hintStyle: WidgetStatePropertyAll(searchHintStyle),
-                  );
-                },
-                viewLeading: IconButton(
-                  icon: const Icon(AppAssets.arrowLeft),
-                  onPressed: () {
-                    _didJustDismissSearch = true;
-                    Navigator.of(context).pop();
-                  },
-                ),
-                suggestionsBuilder: (
-                  BuildContext context,
-                  SearchController controller,
-                ) {
-                  final query = controller.text.toLowerCase();
-                  final filtered =
-                      query.isEmpty
-                          ? seriesList
-                          : seriesList
-                              .where(
-                                (s) => s.title.toLowerCase().contains(query),
-                              )
-                              .toList();
-
-                  if (filtered.isEmpty) {
-                    return [
-                      Padding(
-                        padding: const EdgeInsets.all(32.0),
-                        child: Center(
-                          child: Text(
-                            localizations.home_no_series_found,
-                            style: TextStyle(
-                              fontSize: fontSize,
-                              height: lineHeight,
-                              color:
-                                  Theme.of(
-                                    context,
-                                  ).colorScheme.onSurfaceVariant,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ];
-                  }
-
-                  return filtered.map((series) {
-                    return ListTile(
-                      leading: Icon(
-                        Icons.tag,
-                        size: 20,
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
-                      title: Text(
-                        series.title,
-                        style: TextStyle(
-                          fontSize: fontSize,
-                          fontWeight: FontWeight.w500,
-                          height: lineHeight,
-                        ),
-                      ),
-                      trailing: Icon(
-                        Icons.arrow_forward_ios,
-                        size: 16,
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
-                      onTap: () {
-                        _didJustDismissSearch = true;
-                        controller.closeView(series.title);
-                        _log.info('Series selected from search: ${series.id}');
-                        _navigateToSeries(series);
-                      },
-                    );
-                  }).toList();
-                },
-              ),
-            ),
-          );
-        },
-        loading:
-            () => SearchBar(
-              constraints: HomeScreenConstants.searchBarConstraints,
-              padding: const WidgetStatePropertyAll<EdgeInsets>(
-                EdgeInsets.symmetric(
-                  horizontal: HomeScreenConstants.searchBarHorizontalPadding,
-                ),
-              ),
-              enabled: false,
-              elevation: const WidgetStatePropertyAll(0.0),
-              leading: Icon(
-                Icons.search,
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
-              hintText: localizations.text_search,
-              hintStyle: WidgetStatePropertyAll(searchHintStyle),
-            ),
-        error:
-            (_, __) => SearchBar(
-              constraints: HomeScreenConstants.searchBarConstraints,
-              padding: const WidgetStatePropertyAll<EdgeInsets>(
-                EdgeInsets.symmetric(
-                  horizontal: HomeScreenConstants.searchBarHorizontalPadding,
-                ),
-              ),
-              enabled: false,
-              leading: Icon(
-                Icons.search,
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
-              hintText: localizations.text_search,
-              hintStyle: WidgetStatePropertyAll(searchHintStyle),
-            ),
       ),
     );
   }
@@ -521,31 +341,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                             },
                           ),
                         ],
-                      ),
-                    ),
-                    SliverPadding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: HomeScreenConstants.bodyHorizontalPadding,
-                        vertical: HomeScreenConstants.bodyVerticalPadding,
-                      ),
-                      sliver: SliverGrid(
-                        delegate: SliverChildBuilderDelegate((context, index) {
-                          final series = seriesList[index];
-                          return SeriesCard(
-                            series: series,
-                            onTap: () {
-                              _log.info('Series tapped: ${series.id}');
-                              _navigateToSeries(series);
-                            },
-                          );
-                        }, childCount: seriesList.length),
-                        gridDelegate:
-                            const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 2,
-                              crossAxisSpacing: 8,
-                              mainAxisSpacing: 8,
-                              childAspectRatio: 1.3,
-                            ),
                       ),
                     ),
                     const SliverToBoxAdapter(child: HomeSharePrompt()),
