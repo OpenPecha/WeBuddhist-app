@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/constants/app_assets.dart';
+import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/core/widgets/responsive_cover_image.dart';
 import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
@@ -294,7 +295,7 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody> {
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
                   : Text(
-                    isFollowing ? 'Following' : 'Follow',
+                    isFollowing ? context.l10n.following : context.l10n.follow,
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
@@ -331,7 +332,7 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody> {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
           child: Text(
-            'PRACTICES',
+            context.l10n.nav_practice,
             style: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w600,

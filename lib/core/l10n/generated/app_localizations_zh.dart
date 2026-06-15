@@ -1351,28 +1351,25 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get show_second_version => '顯示第二種版本';
+  String get show_second_version => '顯示次要版本';
 
   @override
   String get enable_add_msg => '開啟以同時對讀主文的其他翻譯或音譯';
 
   @override
-  String get main_text => '主文';
+  String get main_version => '主要版本';
 
   @override
-  String get second_version => '第二種版本';
+  String get second_version => '次要版本';
 
   @override
-  String get second_version_msg => '第二種翻譯版本會逐句出現在主文的下方';
+  String get second_version_msg => '次要版本將會顯示在主要版本的內文下方';
 
   @override
-  String get version => 'Versions';
+  String get version => '所有版本';
 
   @override
   String get parallel_version => '對讀版本';
-
-  @override
-  String get main_version => '主要版本';
 
   @override
   String get version_not_available => '無可用版本';
@@ -1387,11 +1384,11 @@ class AppLocalizationsZh extends AppLocalizations {
   String get reader_license_label => '授權';
 
   @override
-  String get know_more => 'Know More';
+  String get know_more => 'Know more';
 
   @override
   String series_stats(int planCount, int totalDays) {
-    return '$planCount 個計劃 · $totalDays 天';
+    return '$planCount 個修持計畫 · $totalDays 天';
   }
 
   @override
@@ -1559,4 +1556,10 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get legal_privacy_policy => '隱私政策';
+
+  @override
+  String get follow => 'Follow';
+
+  @override
+  String get following => 'Following';
 }
