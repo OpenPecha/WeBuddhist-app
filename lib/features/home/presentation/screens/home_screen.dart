@@ -11,10 +11,12 @@ import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/core/widgets/error_state_widget.dart';
 import 'package:flutter_pecha/core/widgets/skeletons/skeletons.dart';
 import 'package:flutter_pecha/features/home/domain/entities/series.dart';
+import 'package:flutter_pecha/features/home/presentation/providers/featured_series_provider.dart';
 import 'package:flutter_pecha/features/home/presentation/providers/routine_info_provider.dart';
 import 'package:flutter_pecha/features/home/presentation/providers/series_provider.dart';
 import 'package:flutter_pecha/features/home/presentation/providers/verse_of_day_provider.dart';
 import 'package:flutter_pecha/features/home/presentation/home_screen_constants.dart';
+import 'package:flutter_pecha/features/home/presentation/widgets/featured_plan_section.dart';
 import 'package:flutter_pecha/features/home/presentation/widgets/my_practices_stats_card.dart';
 import 'package:flutter_pecha/features/home/presentation/widgets/my_practices_stats_card_skeleton.dart';
 import 'package:flutter_pecha/features/home/presentation/widgets/series_card.dart';
@@ -209,10 +211,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   /// then awaits the refreshed results so the spinner stays until data lands.
   Future<void> _onRefresh() async {
     ref.invalidate(seriesListFutureProvider);
+    ref.invalidate(featuredSeriesFutureProvider);
     ref.invalidate(verseOfDayFutureProvider);
     ref.invalidate(routineInfoFutureProvider);
     await Future.wait([
       ref.read(seriesListFutureProvider.future),
+      ref.read(featuredSeriesFutureProvider.future),
       ref.read(verseOfDayFutureProvider.future),
       ref.read(routineInfoFutureProvider.future),
     ]);
@@ -447,13 +451,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
     return routineInfoAsync.when(
       data: (infoEither) {
-        return infoEither.fold(
-          (_) => const SizedBox.shrink(),
-          (info) => MyPracticesStatsCard(
+        return infoEither.fold((_) => const SizedBox.shrink(), (info) {
+          if (info.seriesCount == 0 && info.recitationCount == 0) {
+            return const SizedBox.shrink();
+          }
+          return MyPracticesStatsCard(
             routineInfo: info,
             onTap: _navigateToPracticeTab,
-          ),
-        );
+          );
+        });
       },
       loading: () => const MyPracticesStatsCardSkeleton(),
       error: (_, __) => const SizedBox.shrink(),
@@ -517,6 +523,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                             height: HomeScreenConstants.cardSpacing,
                           ),
                           _buildMyPracticesSection(),
+                          const SizedBox(
+                            height: HomeScreenConstants.cardSpacing,
+                          ),
+                          FeaturedPlanSection(
+                            onSeriesTap: (series) {
+                              _log.info('Featured series tapped: ${series.id}');
+                              _navigateToSeries(series);
+                            },
+                          ),
                         ],
                       ),
                     ),

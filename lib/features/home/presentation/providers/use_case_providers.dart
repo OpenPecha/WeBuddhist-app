@@ -12,6 +12,7 @@ import 'package:flutter_pecha/features/home/data/repositories/verse_of_day_repos
 import 'package:flutter_pecha/features/home/domain/repositories/home_repository.dart';
 import 'package:flutter_pecha/features/home/domain/usecases/enroll_in_series_usecase.dart';
 import 'package:flutter_pecha/features/home/domain/usecases/get_featured_day_usecase.dart';
+import 'package:flutter_pecha/features/home/domain/usecases/get_featured_series_usecase.dart';
 import 'package:flutter_pecha/features/home/domain/usecases/get_series_by_id_usecase.dart';
 import 'package:flutter_pecha/features/home/domain/usecases/get_routine_info_usecase.dart';
 import 'package:flutter_pecha/features/home/domain/usecases/get_series_list_usecase.dart';
@@ -64,6 +65,11 @@ final getFeaturedDayUseCaseProvider = Provider<GetFeaturedDayUseCase>((ref) {
 final getTagsUseCaseProvider = Provider<GetTagsUseCase>((ref) {
   final repository = ref.watch(tagsDomainRepositoryProvider);
   return GetTagsUseCase(repository.getTags);
+});
+
+final getFeaturedSeriesUseCaseProvider = Provider<GetFeaturedSeriesUseCase>((ref) {
+  final repository = ref.watch(seriesDomainRepositoryProvider);
+  return GetFeaturedSeriesUseCase(repository.getFeaturedSeries);
 });
 
 final getSeriesListUseCaseProvider = Provider<GetSeriesListUseCase>((ref) {

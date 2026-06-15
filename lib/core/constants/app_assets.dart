@@ -100,4 +100,8 @@ class AppAssets {
   static const IconData bookOpenText = PhosphorIconsRegular.bookOpenText;
   static const IconData calendarDots = PhosphorIconsRegular.calendarDots;
   static const IconData arrowRight = PhosphorIconsRegular.arrowRight;
+  static const IconData featuredSeriesPlanCount =
+      PhosphorIconsRegular.calendarDots;
+  static const IconData featuredSeriesEnrolledCount =
+      PhosphorIconsRegular.usersThree;
 }

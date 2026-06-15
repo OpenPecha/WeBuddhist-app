@@ -31,6 +31,10 @@ abstract class RoutineInfoRepositoryInterface extends Repository {
 
 /// Series repository interface.
 abstract class SeriesRepositoryInterface extends Repository {
+  Future<Either<Failure, List<Series>>> getFeaturedSeries({
+    required String language,
+    int limit = 10,
+  });
   Future<Either<Failure, List<Series>>> getSeriesList({required String language});
   Future<Either<Failure, Series>> getSeriesById(String id, {required String language});
 
