@@ -7,8 +7,7 @@ import 'package:flutter_pecha/features/plans/presentation/providers/use_case_pro
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final plansByTagProvider = FutureProvider.family<Either<Failure, List<Plan>>, String>((ref, tag) async {
-  final locale = ref.watch(localeProvider);
-  final languageCode = locale.languageCode;
+  final languageCode = ref.watch(contentLanguageProvider);
   final getPlansUseCase = ref.watch(getPlansUseCaseProvider);
 
   return getPlansUseCase(GetPlansParams(

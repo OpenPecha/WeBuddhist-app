@@ -12,8 +12,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final userPlansFutureProvider =
     FutureProvider<Either<Failure, UserPlanListResponseModel>>((ref) {
-      final locale = ref.watch(localeProvider);
-      final languageCode = locale.languageCode;
+      final languageCode = ref.watch(contentLanguageProvider);
       final useCase = ref.watch(getUserPlansUseCaseProvider);
       return useCase(GetUserPlansParams(language: languageCode));
     });
@@ -58,10 +57,10 @@ final completeSubTaskFutureProvider = FutureProvider.autoDispose
 final myPlansPaginatedProvider =
     StateNotifierProvider<MyPlansNotifier, MyPlansState>((ref) {
       final repository = ref.watch(userPlansDomainRepositoryProvider);
-      final locale = ref.watch(localeProvider);
+      final languageCode = ref.watch(contentLanguageProvider);
       return MyPlansNotifier(
         repository: repository,
-        languageCode: locale.languageCode,
+        languageCode: languageCode,
       );
     });
 

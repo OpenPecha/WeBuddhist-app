@@ -62,8 +62,7 @@ final recitationsRepositoryProvider = Provider<RecitationsRepository>((ref) {
 
 // Get all recitations provider
 final recitationsFutureProvider = FutureProvider<Either<Failure, List<RecitationModel>>>((ref) {
-  final locale = ref.watch(localeProvider);
-  final languageCode = locale.languageCode;
+  final languageCode = ref.watch(contentLanguageProvider);
   return ref
       .watch(recitationsRepositoryProvider)
       .getRecitations(language: languageCode);
@@ -97,8 +96,7 @@ final recitationContentProvider =
 // Search recitations provider
 final searchRecitationsProvider =
     FutureProvider.family<Either<Failure, List<RecitationModel>>, String>((ref, searchQuery) {
-      final locale = ref.watch(localeProvider);
-      final languageCode = locale.languageCode;
+      final languageCode = ref.watch(contentLanguageProvider);
       return ref
           .watch(recitationsRepositoryProvider)
           .getRecitations(language: languageCode, searchQuery: searchQuery);
@@ -110,10 +108,10 @@ final recitationSearchProvider =
       ref,
     ) {
       final repository = ref.watch(recitationsRepositoryProvider);
-      final locale = ref.watch(localeProvider);
+      final languageCode = ref.watch(contentLanguageProvider);
       return RecitationSearchNotifier(
         repository: repository,
-        languageCode: locale.languageCode,
+        languageCode: languageCode,
       );
     });
 

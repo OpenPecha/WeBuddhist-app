@@ -30,10 +30,10 @@ final getGroupProfileUseCaseProvider =
 
 final groupProfileProvider = FutureProvider.autoDispose
     .family<Either<Failure, GroupProfile>, String>((ref, groupId) async {
-  final locale = ref.watch(localeProvider);
+  final language = ref.watch(contentLanguageProvider);
   final useCase = ref.watch(getGroupProfileUseCaseProvider);
   return useCase(
-    GetGroupProfileParams(groupId: groupId, language: locale.languageCode),
+    GetGroupProfileParams(groupId: groupId, language: language),
   );
 });
 
