@@ -185,6 +185,7 @@ void showVerseShareSheet(BuildContext context, VerseOfDay verseOfDay) {
     context: context,
     backgroundColor: Colors.transparent,
     isScrollControlled: true,
+    useRootNavigator: true,
     builder: (_) => VerseShareSheet(verseOfDay: verseOfDay),
   );
 }
