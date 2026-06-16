@@ -283,7 +283,7 @@ abstract class AppLocalizations {
   /// No description provided for @home_recitation.
   ///
   /// In en, this message translates to:
-  /// **'Recitation'**
+  /// **'recitations'**
   String get home_recitation;
 
   /// No description provided for @home_overall_stats.
@@ -295,7 +295,7 @@ abstract class AppLocalizations {
   /// No description provided for @home_plans.
   ///
   /// In en, this message translates to:
-  /// **'Plans'**
+  /// **'plans'**
   String get home_plans;
 
   /// No description provided for @home_chants.
@@ -1435,7 +1435,7 @@ abstract class AppLocalizations {
   /// No description provided for @creator_featured_plan.
   ///
   /// In en, this message translates to:
-  /// **'Featured plan'**
+  /// **'Featured plans'**
   String get creator_featured_plan;
 
   /// No description provided for @audio_init_error.

@@ -103,13 +103,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get home_intention => 'My intention for today';
 
   @override
-  String get home_recitation => 'Recitation';
+  String get home_recitation => 'recitations';
 
   @override
   String get home_overall_stats => 'Overall stats';
 
   @override
-  String get home_plans => 'Plans';
+  String get home_plans => 'plans';
 
   @override
   String get home_chants => 'Chants';
@@ -716,7 +716,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Your personal study plans, designed to fit into everyday life';
 
   @override
-  String get creator_featured_plan => 'Featured plan';
+  String get creator_featured_plan => 'Featured plans';
 
   @override
   String get audio_init_error =>
