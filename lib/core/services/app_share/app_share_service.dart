@@ -7,6 +7,10 @@ import 'package:share_plus/share_plus.dart';
 class AppShareService {
   final _logger = AppLogger('AppShareService');
 
+  /// Universal link — opens the app when installed, redirects to the
+  /// correct store (via your hosted /open page) when not installed.
+  static const String _deepLinkUrl = 'https://webuddhist.com/open';
+
   static const String _iosAppStoreUrl =
       'https://apps.apple.com/app/webuddhist/id6745810914';
   static const String _androidPlayStoreUrl =
@@ -14,6 +18,8 @@ class AppShareService {
 
   String generateShareMessage() {
     return '''I'm using WeBuddhist to learn and practice Buddhism. Join me!
+
+👉 $_deepLinkUrl
 
 📲 Download:
 iOS: $_iosAppStoreUrl

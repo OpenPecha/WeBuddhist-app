@@ -105,6 +105,15 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         name: 'splash',
         builder: (context, state) => const SplashScreen(),
       ),
+
+      // Universal / App Link entry point shared from the home screen.
+      // Handled by DeepLinkService for cold-start; this route is the
+      // warm-start fallback in case go_router intercepts the URI directly.
+      GoRoute(
+        path: '/open',
+        name: 'open',
+        redirect: (_, __) => AppRoutes.home,
+      ),
       GoRoute(
         path: "/login",
         name: "login",

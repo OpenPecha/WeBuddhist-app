@@ -12,6 +12,7 @@ class AppRoutes {
   static const String splash = '/splash';
   static const String onboarding = '/onboarding';
   static const String login = '/login';
+  static const String open = '/open';
 
 // ========== MAIN ROUTES ==========
   static const String home = '/home';
@@ -52,7 +53,7 @@ class AppRoutes {
   // ========== ROUTE CATEGORIES ==========
 
   /// Routes that don't require any authentication
-  static const Set<String> publicRoutes = {splash, login};
+  static const Set<String> publicRoutes = {splash, login, open};
 
   /// Routes accessible to guest users.
   ///

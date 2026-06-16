@@ -6,6 +6,7 @@ import 'package:flutter_pecha/core/analytics/posthog_analytics_service.dart';
 import 'package:flutter_pecha/core/cache/cache_service.dart';
 import 'package:flutter_pecha/core/config/app_feature_flags.dart';
 import 'package:flutter_pecha/core/config/router/app_router.dart';
+import 'package:flutter_pecha/core/deep_linking/deep_link_service.dart';
 import 'package:flutter_pecha/core/network/connectivity_service.dart';
 import 'package:flutter_pecha/core/l10n/l10n.dart';
 import 'package:flutter_pecha/core/services/service_providers.dart';
@@ -119,6 +120,10 @@ void main() async {
   // Set container reference for notification navigation
   NotificationService.setContainer(container);
 
+  // Initialise deep link listener early so cold-start links are captured
+  // before runApp. The pending URI is held until the router is ready.
+  await DeepLinkService.instance.initialize();
+
   runApp(UncontrolledProviderScope(container: container, child: const MyApp()));
 }
 
@@ -174,6 +179,7 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
     ref.watch(notificationSyncBootstrapProvider);
     NotificationService.setRouter(router);
     NotificationService().consumeLaunchNotification();
+    DeepLinkService.instance.setRouter(router);
 
     // Add QueryClient provider wrapper
     return QueryClientProvider(
