@@ -15,12 +15,8 @@ class HomeHeader extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final localizations = AppLocalizations.of(context)!;
     final user = ref.watch(userProvider).user;
-    final firstName =
-        user?.firstName ??
-        user?.username ??
-        localizations.home_greeting_fallback_name;
+    final firstName = user?.firstName ?? user?.username;
 
     final streakCount = ref
         .watch(streakFutureProvider)
@@ -35,7 +31,8 @@ class HomeHeader extends ConsumerWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          _Greeting(firstName: firstName),
+          Expanded(child: _Greeting(firstName: firstName)),
+          const SizedBox(width: 12),
           _StreakBadge(count: streakCount),
         ],
       ),
@@ -48,7 +45,7 @@ class HomeHeader extends ConsumerWidget {
 // ---------------------------------------------------------------------------
 
 class _Greeting extends StatelessWidget {
-  final String firstName;
+  final String? firstName;
 
   const _Greeting({required this.firstName});
 
@@ -72,10 +69,11 @@ class _Greeting extends StatelessWidget {
             text: localizations.home_hello_prefix,
             style: greetingStyle?.copyWith(fontWeight: FontWeight.w400),
           ),
-          TextSpan(
-            text: firstName,
-            style: greetingStyle?.copyWith(fontWeight: FontWeight.w700),
-          ),
+          if (firstName != null && firstName!.isNotEmpty)
+            TextSpan(
+              text: firstName,
+              style: greetingStyle?.copyWith(fontWeight: FontWeight.w700),
+            ),
         ],
       ),
     );
