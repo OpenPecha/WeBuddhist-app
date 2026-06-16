@@ -1,0 +1,8 @@
+{
+    "sdkEnabled": true,
+    "logLevel": "info",
+    "autoStartTrackingEnabled": true,
+    "sessionTimeoutInSecond": 300,
+    "hashUserInformationEnabled": false,
+    "trackAirbridgeDeeplinkOnlyEnabled": true
+}

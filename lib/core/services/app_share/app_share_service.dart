@@ -7,29 +7,19 @@ import 'package:share_plus/share_plus.dart';
 class AppShareService {
   final _logger = AppLogger('AppShareService');
 
-  static const String _iosAppStoreUrl =
-      'https://apps.apple.com/app/webuddhist/id6745810914';
-  static const String _androidPlayStoreUrl =
-      'https://play.google.com/store/apps/details?id=org.pecha.app';
-
-  String generateShareMessage() {
-    return '''I'm using WeBuddhist to learn and practice Buddhism. Join me!
-
-📲 Download:
-iOS: $_iosAppStoreUrl
-Android: $_androidPlayStoreUrl''';
-  }
+  /// Airbridge tracking link that handles attribution and deep linking
+  /// This link automatically redirects to the appropriate app store
+  /// and tracks install/re-engagement conversions
+  /// Airbridge provides the link preview with images and metadata
+  static const String _airbridgeTrackingLink = 'https://abr.ge/dsw7tl';
 
   Future<void> shareApp() async {
     try {
-      _logger.info('Sharing WeBuddhist app');
-
-      final message = generateShareMessage();
+      _logger.info('Sharing WeBuddhist app with Airbridge tracking link');
 
       await SharePlus.instance.share(
         ShareParams(
-          text: message,
-          subject: 'Join me on WeBuddhist',
+          text: _airbridgeTrackingLink,
         ),
       );
 

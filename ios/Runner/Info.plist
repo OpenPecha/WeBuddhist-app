@@ -34,6 +34,16 @@
 				<string>$(AUTH0_SCHEME)</string>
 			</array>
 		</dict>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>webuddhist</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>webuddhist</string>
+			</array>
+		</dict>
 	</array>
 	<key>CFBundleVersion</key>
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
@@ -71,6 +81,8 @@
     	<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
 	<key>com.posthog.posthog.AUTO_INIT</key>
+	<false/>
+	<key>FlutterDeepLinkingEnabled</key>
 	<false/>
 </dict>
 </plist>
