@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/features/calendar/presentation/calendar_l10n_utils.dart';
 import 'package:flutter_pecha/features/calendar/presentation/providers/tibetan_calendar_providers.dart';
 import 'package:flutter_pecha/features/calendar/presentation/widgets/calendar_day_cell.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -47,7 +48,7 @@ class TibetanCalendarGrid extends ConsumerWidget {
         availableGestures: AvailableGestures.horizontalSwipe,
         rowHeight: 58,
         daysOfWeekHeight: 28,
-        locale: Localizations.localeOf(context).toString(),
+        locale: dateFormatLocale(context),
         selectedDayPredicate: (day) => isSameDay(day, selectedDay),
         // TODO: Uncomment this when we have a way to select a day.
         // onDaySelected: (selected, focused) {
@@ -79,8 +80,8 @@ class TibetanCalendarGrid extends ConsumerWidget {
         calendarBuilders: CalendarBuilders<void>(
           dowBuilder: (context, day) {
             // Uppercase short weekday name (MON, TUE, …), localized via intl.
-            final locale = Localizations.localeOf(context).toString();
-            final label = DateFormat.E(locale).format(day).toUpperCase();
+            final label =
+                DateFormat.E(dateFormatLocale(context)).format(day).toUpperCase();
             return Center(
               child: Text(
                 label,

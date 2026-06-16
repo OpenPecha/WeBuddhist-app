@@ -16,9 +16,9 @@ class CalendarMonthNav extends ConsumerWidget {
     final l10n = context.l10n;
     final focusedMonth = ref.watch(focusedCalendarMonthProvider);
     final service = ref.watch(tibetanCalendarServiceProvider);
-    final locale = Localizations.localeOf(context).toString();
 
-    final monthTitle = DateFormat.yMMMM(locale).format(focusedMonth);
+    final monthTitle =
+        DateFormat.yMMMM(dateFormatLocale(context)).format(focusedMonth);
     // Lunar month label for the focused month, sampled at its mid-point so a
     // lunar-month boundary near the start/end doesn't mislabel the page.
     final midLunar = service.fromWestern(

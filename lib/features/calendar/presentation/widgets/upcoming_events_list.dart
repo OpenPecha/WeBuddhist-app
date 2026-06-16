@@ -142,8 +142,8 @@ class _EventCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final l10n = context.l10n;
-    final locale = Localizations.localeOf(context).toString();
-    final weekday = DateFormat.E(locale).format(event.date).toUpperCase();
+    final weekday =
+        DateFormat.E(dateFormatLocale(context)).format(event.date).toUpperCase();
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),

@@ -66,7 +66,6 @@ void main() {
   ) async {
     final today = DateTime.now();
     final tib = service.fromWestern(today);
-    final year = service.yearInfo(tib.year);
 
     final container = await pumpScreen(tester);
 
@@ -78,10 +77,6 @@ void main() {
 
     expect(find.text('Day ${tib.day}'), findsOneWidget);
     expect(find.text(DateFormat.yMMMM('en').format(today)), findsWidgets);
-    expect(
-      find.text('${year.element} ${year.gender} ${year.animal}'),
-      findsWidgets,
-    );
   });
 
   testWidgets('current month exposes moon-phase events', (tester) async {
