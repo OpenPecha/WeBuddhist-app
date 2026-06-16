@@ -74,7 +74,7 @@ class _OnboardingScreen5State extends ConsumerState<OnboardingScreen5>
                         Image.asset(AppAssets.weBuddhistLogo, height: 80),
                         const SizedBox(height: 16),
                         Text(
-                          l10n.pechaHeading,
+                          l10n.appTitle,
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: 32,

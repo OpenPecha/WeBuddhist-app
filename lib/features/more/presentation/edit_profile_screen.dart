@@ -15,6 +15,7 @@ import 'package:flutter_pecha/features/auth/presentation/providers/state_provide
 import 'package:flutter_pecha/features/auth/presentation/state/user_state.dart';
 import 'package:flutter_pecha/features/more/presentation/widgets/profile_avatar_section.dart';
 import 'package:flutter_pecha/features/more/presentation/widgets/username_form_field.dart';
+import 'package:flutter_pecha/shared/domain/validators/person_name_validator.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
@@ -40,6 +41,8 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   UsernameState _usernameState = UsernameState.idle;
   List<String> _usernameSuggestions = [];
   String? _usernameValidationMessage;
+  String? _firstNameValidationMessage;
+  String? _lastNameValidationMessage;
   Timer? _usernameDebounce;
 
   bool _isRefreshing = false;
@@ -102,6 +105,33 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
       return l10n.username_must_end_alphanumeric;
     }
     return null;
+  }
+
+  static String? _validatePersonName(String name, AppLocalizations l10n) {
+    return switch (PersonNameValidator.validate(name)) {
+      PersonNameValidationError.tooShort => l10n.person_name_min_length,
+      PersonNameValidationError.tooLong => l10n.person_name_max_length,
+      PersonNameValidationError.invalidCharacters => l10n.person_name_invalid_chars,
+      null => null,
+    };
+  }
+
+  void _onFirstNameChanged(String value) {
+    setState(
+      () => _firstNameValidationMessage = _validatePersonName(
+        value,
+        AppLocalizations.of(context)!,
+      ),
+    );
+  }
+
+  void _onLastNameChanged(String value) {
+    setState(
+      () => _lastNameValidationMessage = _validatePersonName(
+        value,
+        AppLocalizations.of(context)!,
+      ),
+    );
   }
 
   void _onUsernameChanged(String value) {
@@ -192,8 +222,22 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     // Block save if username has a conflict or failed frontend validation.
     if (_usernameState == UsernameState.conflict) return;
     if (_usernameState == UsernameState.invalid) return;
+    if (_firstNameValidationMessage != null ||
+        _lastNameValidationMessage != null) {
+      return;
+    }
 
     final l10n = AppLocalizations.of(context)!;
+
+    final firstNameError = _validatePersonName(_firstNameCtrl.text, l10n);
+    final lastNameError = _validatePersonName(_lastNameCtrl.text, l10n);
+    if (firstNameError != null || lastNameError != null) {
+      setState(() {
+        _firstNameValidationMessage = firstNameError;
+        _lastNameValidationMessage = lastNameError;
+      });
+      return;
+    }
 
     // Fail fast when offline so the user gets a clear message instead of a
     // raw token-refresh error from the network layer.
@@ -245,14 +289,8 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     final error = await ref
         .read(userProvider.notifier)
         .saveProfile(
-          firstName:
-              _firstNameCtrl.text.trim().isEmpty
-                  ? null
-                  : _firstNameCtrl.text.trim(),
-          lastName:
-              _lastNameCtrl.text.trim().isEmpty
-                  ? null
-                  : _lastNameCtrl.text.trim(),
+          firstName: PersonNameValidator.sanitize(_firstNameCtrl.text),
+          lastName: PersonNameValidator.sanitize(_lastNameCtrl.text),
           aboutMe: _bioCtrl.text.trim().isEmpty ? null : _bioCtrl.text.trim(),
           avatarUrl: avatarUrlToSend,
         );
@@ -466,7 +504,9 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
       !_isUploadingAvatar &&
       _usernameState != UsernameState.checking &&
       _usernameState != UsernameState.conflict &&
-      _usernameState != UsernameState.invalid;
+      _usernameState != UsernameState.invalid &&
+      _firstNameValidationMessage == null &&
+      _lastNameValidationMessage == null;
 
   @override
   Widget build(BuildContext context) {
@@ -655,54 +695,33 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
 
               // ── First / Last Name row ─────────────────────────────────
               Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Expanded(
-                    child: TextField(
+                    child: _buildNameField(
                       controller: _firstNameCtrl,
-                      decoration: InputDecoration(
-                        labelText:
-                            AppLocalizations.of(
-                              context,
-                            )!.edit_profile_first_name,
-                        labelStyle: TextStyle(color: AppColors.grey500),
-                        filled: true,
-                        fillColor:
-                            isDark
-                                ? AppColors.surfaceVariantDark
-                                : AppColors.surfaceWhite,
-                        border: inputBorder,
-                        enabledBorder: inputBorder,
-                        focusedBorder: focusedBorder,
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 14,
-                        ),
-                      ),
+                      label: AppLocalizations.of(
+                        context,
+                      )!.edit_profile_first_name,
+                      validationMessage: _firstNameValidationMessage,
+                      onChanged: _onFirstNameChanged,
+                      isDark: isDark,
+                      inputBorder: inputBorder,
+                      focusedBorder: focusedBorder,
                     ),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
-                    child: TextField(
+                    child: _buildNameField(
                       controller: _lastNameCtrl,
-                      decoration: InputDecoration(
-                        labelText:
-                            AppLocalizations.of(
-                              context,
-                            )!.edit_profile_last_name,
-                        labelStyle: TextStyle(color: AppColors.grey500),
-                        filled: true,
-                        fillColor:
-                            isDark
-                                ? AppColors.surfaceVariantDark
-                                : AppColors.surfaceWhite,
-                        border: inputBorder,
-                        enabledBorder: inputBorder,
-                        focusedBorder: focusedBorder,
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 14,
-                        ),
-                      ),
+                      label: AppLocalizations.of(
+                        context,
+                      )!.edit_profile_last_name,
+                      validationMessage: _lastNameValidationMessage,
+                      onChanged: _onLastNameChanged,
+                      isDark: isDark,
+                      inputBorder: inputBorder,
+                      focusedBorder: focusedBorder,
                     ),
                   ),
                 ],
@@ -787,6 +806,62 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildNameField({
+    required TextEditingController controller,
+    required String label,
+    required String? validationMessage,
+    required ValueChanged<String> onChanged,
+    required bool isDark,
+    required InputBorder inputBorder,
+    required InputBorder focusedBorder,
+  }) {
+    final hasError = validationMessage != null;
+    final errorBorder = OutlineInputBorder(
+      borderRadius: BorderRadius.circular(12),
+      borderSide: BorderSide(color: Colors.red.shade400),
+    );
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        TextField(
+          controller: controller,
+          onChanged: onChanged,
+          maxLength: PersonNameValidator.maxLength,
+          buildCounter: (
+            context, {
+            required currentLength,
+            required isFocused,
+            required maxLength,
+          }) =>
+              const SizedBox.shrink(),
+          decoration: InputDecoration(
+            labelText: label,
+            labelStyle: TextStyle(color: AppColors.grey500),
+            filled: true,
+            fillColor:
+                isDark ? AppColors.surfaceVariantDark : AppColors.surfaceWhite,
+            border: inputBorder,
+            enabledBorder: hasError ? errorBorder : inputBorder,
+            focusedBorder: hasError ? errorBorder : focusedBorder,
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 14,
+            ),
+          ),
+        ),
+        if (hasError)
+          Padding(
+            padding: const EdgeInsets.only(top: 6),
+            child: Text(
+              validationMessage,
+              style: TextStyle(color: Colors.red.shade600, fontSize: 13),
+            ),
+          ),
+      ],
     );
   }
 }

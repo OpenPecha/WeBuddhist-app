@@ -17,7 +17,7 @@ class LogoLabel extends StatelessWidget {
           child: Image.asset(AppAssets.weBuddhistLogo, height: 150),
         ),
         Text(
-          localizations.pechaHeading,
+          localizations.appTitle,
           style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
         ),
       ],

@@ -10,6 +10,7 @@ import 'package:flutter_pecha/core/config/router/pending_route_provider.dart';
 import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
 import 'package:flutter_pecha/features/auth/presentation/screens/login_page.dart';
 import 'package:flutter_pecha/features/auth/presentation/screens/splash_screen.dart';
+import 'package:flutter_pecha/features/calendar/presentation/screens/tibetan_calendar_screen.dart';
 import 'package:flutter_pecha/features/group_profile/presentation/screens/group_profile_screen.dart';
 import 'package:flutter_pecha/features/home/domain/entities/series.dart';
 import 'package:flutter_pecha/features/home/presentation/screens/main_navigation_screen.dart';
@@ -203,6 +204,12 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                 path: "settings",
                 name: "home-settings",
                 builder: (context, state) => const MoreScreen(),
+              ),
+              // calendar route
+              GoRoute(
+                path: "calendar",
+                name: "home-calendar",
+                builder: (context, state) => const TibetanCalendarScreen(),
               ),
             ],
           ),
