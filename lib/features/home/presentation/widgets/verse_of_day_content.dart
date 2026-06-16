@@ -39,6 +39,7 @@ class VerseOfDayContent extends StatelessWidget {
     required this.attributionColor,
     this.imageAspectRatio = 1.65,
     this.showBranding = false,
+    this.useContentFontForAttribution = false,
     this.textPadding = const EdgeInsets.fromLTRB(24, 24, 24, 16),
     this.brandingBottomPadding = 0,
     this.footerAction,
@@ -50,6 +51,7 @@ class VerseOfDayContent extends StatelessWidget {
   final Color attributionColor;
   final double imageAspectRatio;
   final bool showBranding;
+  final bool useContentFontForAttribution;
   final EdgeInsets textPadding;
   final double brandingBottomPadding;
   final Widget? footerAction;
@@ -95,7 +97,10 @@ class VerseOfDayContent extends StatelessWidget {
                         style: TextStyle(
                           fontSize: typography.attributionFontSize,
                           fontWeight: FontWeight.w400,
-                          fontFamily: typography.systemFont,
+                          fontFamily:
+                              useContentFontForAttribution
+                                  ? typography.contentFont
+                                  : typography.systemFont,
                           color: attributionColor,
                         ),
                       ),

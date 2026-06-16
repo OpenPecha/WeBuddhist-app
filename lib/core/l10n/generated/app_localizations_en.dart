@@ -103,13 +103,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get home_intention => 'My intention for today';
 
   @override
-  String get home_recitation => 'Recitation';
+  String get home_recitation => 'recitations';
 
   @override
   String get home_overall_stats => 'Overall stats';
 
   @override
-  String get home_plans => 'Plans';
+  String get home_plans => 'plans';
 
   @override
   String get home_chants => 'Chants';
@@ -122,6 +122,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get preset_timers => 'Preset timers';
+
+  @override
+  String get meditation_timer => 'Meditation Timer';
 
   @override
   String get timer_min => 'min';
@@ -713,7 +716,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Your personal study plans, designed to fit into everyday life';
 
   @override
-  String get creator_featured_plan => 'Featured plan';
+  String get creator_featured_plan => 'Featured plans';
 
   @override
   String get audio_init_error =>
@@ -1131,7 +1134,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get routine_edit_title => 'Edit your routine';
 
   @override
-  String get routine_delete_block => 'Remove block?';
+  String get routine_delete_block => 'Remove block';
 
   @override
   String get routine_delete_time_block => 'Remove time block';
@@ -1657,10 +1660,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get legal_privacy_policy => 'Privacy policy';
 
   @override
-  String get follow => 'Follow';
+  String get join => 'Join';
 
   @override
-  String get following => 'Following';
+  String get joined => 'Joined';
+
+  @override
+  String get group_member => 'member';
+
+  @override
+  String get group_members => 'members';
 
   @override
   String get share_this_quote => 'Share this quote';

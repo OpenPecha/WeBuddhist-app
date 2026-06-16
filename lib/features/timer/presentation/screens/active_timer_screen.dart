@@ -4,40 +4,45 @@ import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
+import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/features/timer/domain/entities/preset_timer.dart';
+import 'package:flutter_pecha/features/timer/domain/usecases/stop_user_timer_usecase.dart';
+import 'package:flutter_pecha/features/timer/presentation/providers/timers_providers.dart';
 import 'package:flutter_pecha/features/timer/presentation/widgets/timer_progress_ring.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 enum _TimerPhase { countdown, running, finished }
 
-class ActiveTimerScreen extends StatefulWidget {
+class ActiveTimerScreen extends ConsumerStatefulWidget {
   const ActiveTimerScreen({super.key, required this.presetTimer});
 
   final PresetTimer presetTimer;
 
   @override
-  State<ActiveTimerScreen> createState() => _ActiveTimerScreenState();
+  ConsumerState<ActiveTimerScreen> createState() => _ActiveTimerScreenState();
 }
 
-class _ActiveTimerScreenState extends State<ActiveTimerScreen> {
-  static const _countdownStart = 3;
+class _ActiveTimerScreenState extends ConsumerState<ActiveTimerScreen> {
+  static const _countdownStart = 5;
   static const _ringSize = 280.0;
   static const _controlsSpacing = 48.0;
   static const _controlsHeight = 56.0;
   static const _centerTextHeight = 48.0;
   static const _durationFontSize = 40.0;
-  static const _startLabelFontSize = 40.0;
-  static const _tibetanStartLabelFontSize = 32.0;
+
+  final _logger = AppLogger('ActiveTimerScreen');
 
   _TimerPhase _phase = _TimerPhase.countdown;
   int _countdownValue = _countdownStart;
-  bool _showStartLabel = false;
   int _remainingMs = 0;
   bool _isPaused = false;
 
   Timer? _timer;
 
   int get _totalMs => widget.presetTimer.durationMs;
+
+  int get _elapsedMs => _totalMs - _remainingMs;
 
   double get _elapsedProgress {
     if (_totalMs <= 0) return 1;
@@ -60,27 +65,22 @@ class _ActiveTimerScreenState extends State<ActiveTimerScreen> {
 
   void _startCountdown() {
     _timer?.cancel();
-    _timer = Timer.periodic(const Duration(seconds: 1), (_) => _onCountdownTick());
+    _timer = Timer.periodic(
+      const Duration(seconds: 1),
+      (_) => _onCountdownTick(),
+    );
   }
 
   void _onCountdownTick() {
     if (!mounted) return;
 
-    if (_showStartLabel) {
+    if (_countdownValue <= 1) {
       _timer?.cancel();
       _startMainTimer();
       return;
     }
 
-    if (_countdownValue > 1) {
-      setState(() => _countdownValue--);
-      return;
-    }
-
-    setState(() {
-      _countdownValue = 0;
-      _showStartLabel = true;
-    });
+    setState(() => _countdownValue--);
   }
 
   void _startMainTimer() {
@@ -88,11 +88,13 @@ class _ActiveTimerScreenState extends State<ActiveTimerScreen> {
       _phase = _TimerPhase.running;
       _remainingMs = _totalMs;
       _isPaused = false;
-      _showStartLabel = false;
     });
 
     _timer?.cancel();
-    _timer = Timer.periodic(const Duration(seconds: 1), (_) => _onMainTimerTick());
+    _timer = Timer.periodic(
+      const Duration(seconds: 1),
+      (_) => _onMainTimerTick(),
+    );
   }
 
   void _onMainTimerTick() {
@@ -104,22 +106,43 @@ class _ActiveTimerScreenState extends State<ActiveTimerScreen> {
         _remainingMs = 0;
         _phase = _TimerPhase.finished;
         _timer?.cancel();
+        _reportTimerStop();
       }
     });
   }
 
   void _togglePause() {
-    if (_phase != _TimerPhase.running && _phase != _TimerPhase.finished) {
-      return;
-    }
-    if (_phase == _TimerPhase.finished) return;
+    if (_phase != _TimerPhase.running) return;
 
+    final enteringPause = !_isPaused;
     setState(() => _isPaused = !_isPaused);
+
+    if (enteringPause) {
+      _reportTimerStop();
+    }
   }
 
   void _finish() {
     _timer?.cancel();
+    if (_phase == _TimerPhase.running) {
+      _reportTimerStop();
+    }
     context.pop();
+  }
+
+  void _reportTimerStop() {
+    final useCase = ref.read(stopUserTimerUseCaseProvider);
+    useCase(
+      StopUserTimerParams(
+        timerId: widget.presetTimer.id,
+        durationMs: _elapsedMs,
+      ),
+    ).then((result) {
+      result.fold(
+        (failure) => _logger.warning('Failed to report timer stop: $failure'),
+        (_) {},
+      );
+    });
   }
 
   @override
@@ -142,47 +165,54 @@ class _ActiveTimerScreenState extends State<ActiveTimerScreen> {
                     TimerProgressRing(
                       size: _ringSize,
                       progress: _elapsedProgress,
-                      child: _buildCenterContent(textColor, l10n.timer_start),
+                      child: _buildCenterContent(textColor),
                     ),
                     const SizedBox(height: _controlsSpacing),
                     SizedBox(
                       height: _controlsHeight,
-                      child: _phase != _TimerPhase.countdown
-                          ? IconButton(
-                              onPressed:
-                                  _phase == _TimerPhase.finished
-                                      ? null
-                                      : _togglePause,
-                              iconSize: 40,
-                              padding: EdgeInsets.zero,
-                              constraints: const BoxConstraints(
-                                minWidth: _controlsHeight,
-                                minHeight: _controlsHeight,
-                              ),
-                              icon: Icon(
-                                _isPaused || _phase == _TimerPhase.finished
-                                    ? AppAssets.play
-                                    : AppAssets.pause,
-                                color: textColor,
-                              ),
-                            )
-                          : null,
+                      child:
+                          _phase != _TimerPhase.countdown
+                              ? IconButton(
+                                onPressed:
+                                    _phase == _TimerPhase.finished
+                                        ? null
+                                        : _togglePause,
+                                iconSize: 40,
+                                padding: EdgeInsets.zero,
+                                constraints: const BoxConstraints(
+                                  minWidth: _controlsHeight,
+                                  minHeight: _controlsHeight,
+                                ),
+                                icon: Icon(
+                                  _isPaused || _phase == _TimerPhase.finished
+                                      ? AppAssets.play
+                                      : AppAssets.pause,
+                                  color: textColor,
+                                ),
+                              )
+                              : null,
                     ),
                   ],
                 ),
               ),
             ),
-            if (_phase != _TimerPhase.countdown)
-              Padding(
+            Visibility(
+              visible: _phase != _TimerPhase.countdown,
+              maintainSize: true,
+              maintainAnimation: true,
+              maintainState: true,
+              child: Padding(
                 padding: const EdgeInsets.fromLTRB(24, 0, 24, 32),
-                child: SizedBox(
-                  width: double.infinity,
+                child: Center(
                   child: OutlinedButton(
                     onPressed: _finish,
                     style: OutlinedButton.styleFrom(
                       foregroundColor: textColor,
                       side: BorderSide(color: textColor),
-                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 46,
+                        vertical: 16,
+                      ),
                       shape: const StadiumBorder(),
                       backgroundColor:
                           Theme.of(context).brightness == Brightness.dark
@@ -200,39 +230,19 @@ class _ActiveTimerScreenState extends State<ActiveTimerScreen> {
                   ),
                 ),
               ),
+            ),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildCenterContent(Color textColor, String startLabel) {
+  Widget _buildCenterContent(Color textColor) {
     final textTheme = Theme.of(context).textTheme;
-    final isStartLabel =
-        _phase == _TimerPhase.countdown && _showStartLabel;
     final text =
         _phase == _TimerPhase.countdown
-            ? (isStartLabel ? startLabel : '$_countdownValue')
+            ? '$_countdownValue'
             : _formatDuration(_remainingMs);
-
-    if (isStartLabel) {
-      final fontSize =
-          context.isTibetanLocale
-              ? _tibetanStartLabelFontSize
-              : _startLabelFontSize;
-
-      return Text(
-        text,
-        textAlign: TextAlign.center,
-        strutStyle: context.tibetanStrutStyle(fontSize),
-        style: textTheme.headlineMedium?.copyWith(
-          fontSize: fontSize,
-          fontWeight: FontWeight.w600,
-          color: textColor,
-          letterSpacing: context.isTibetanLocale ? 0 : 1,
-        ),
-      );
-    }
 
     return SizedBox(
       height: _centerTextHeight,

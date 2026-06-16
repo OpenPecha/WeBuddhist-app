@@ -37,6 +37,7 @@
   "home_mala": "念珠",
   "home_timer": "計時",
   "preset_timers": "預設計時",
+  "meditation_timer": "禪修計時",
   "timer_min": "分鐘",
   "timer_start": "開始",
   "timer_finish": "完成",
@@ -675,8 +676,10 @@
   "legal_terms_of_service": "使用條款",
   "legal_privacy_policy": "隱私政策",
 
-  "follow": "Follow",
-  "following": "Following",
+  "join": "加入",
+  "joined": "已加入",
+  "group_member": "位成員",
+  "group_members": "位成員",
 
   "share_this_quote": "分享这句话",
   "shared_from": "分享自",
