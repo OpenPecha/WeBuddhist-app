@@ -34,11 +34,19 @@ class GroupProfileBody extends ConsumerStatefulWidget {
 class _GroupProfileBodyState extends ConsumerState<GroupProfileBody> {
   bool _isDescriptionExpanded = false;
 
+  GroupProfile _resolveProfile() {
+    final refreshed = ref.watch(groupProfileProvider(widget.profile.id));
+    return refreshed.maybeWhen(
+      data: (either) => either.fold((_) => widget.profile, (profile) => profile),
+      orElse: () => widget.profile,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final locale = Localizations.localeOf(context);
     final lineHeight = getLineHeight(locale.languageCode);
-    final profile = widget.profile;
+    final profile = _resolveProfile();
     final isDark = widget.isDark;
 
     final websiteLink =
