@@ -264,10 +264,10 @@ class _RoutineBlockSection extends ConsumerWidget {
     String planId, {
     String? language,
   }) async {
-    final currentLocale = ref.read(localeProvider).languageCode;
+    final contentLanguage = ref.read(contentLanguageProvider);
     final isSameLanguage =
         language == null ||
-        language.toLowerCase() == currentLocale.toLowerCase();
+        language.toLowerCase() == contentLanguage.toLowerCase();
 
     if (isSameLanguage) {
       var plans = ref.read(myPlansPaginatedProvider).plans;

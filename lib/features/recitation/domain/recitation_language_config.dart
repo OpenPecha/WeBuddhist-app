@@ -1,4 +1,5 @@
 import 'package:flutter_pecha/features/recitation/domain/content_type.dart';
+import 'package:flutter_pecha/core/constants/app_config.dart';
 import 'package:flutter_pecha/features/recitation/presentation/providers/recitations_providers.dart';
 
 /// Configuration class for handling language-specific recitation display logic.
@@ -31,11 +32,12 @@ class RecitationLanguageConfig {
     String language,
     String textId,
   ) {
-    switch (language) {
+    final resolved = AppConfig.resolveContentLanguage(language);
+    switch (resolved) {
       case tibetan:
         return RecitationContentParams(
           textId: textId,
-          language: language,
+          language: resolved,
           recitations: [tibetan],
           adaptations: [tibetanAdaptation],
           translations: [english],
@@ -44,7 +46,7 @@ class RecitationLanguageConfig {
       case english:
         return RecitationContentParams(
           textId: textId,
-          language: language,
+          language: resolved,
           translations: [english],
           recitations: [tibetan],
           transliterations: [tibetanTransliteration],
@@ -53,7 +55,7 @@ class RecitationLanguageConfig {
       case chinese:
         return RecitationContentParams(
           textId: textId,
-          language: language,
+          language: resolved,
           translations: [chinese],
           recitations: [tibetan],
           transliterations: [tibetanTransliteration],
@@ -63,7 +65,7 @@ class RecitationLanguageConfig {
         // Default configuration for unsupported languages
         return RecitationContentParams(
           textId: textId,
-          language: language,
+          language: resolved,
           recitations: [tibetan],
           translations: [english],
         );
@@ -83,12 +85,13 @@ class RecitationLanguageConfig {
     bool includeSecondary = false,
     bool includeTertiary = false,
   }) {
-    switch (language) {
+    final resolved = AppConfig.resolveContentLanguage(language);
+    switch (resolved) {
       case tibetan:
         // Tibetan order: recitation (primary) + adaptation (secondary) + translation (tertiary)
         return RecitationContentParams(
           textId: textId,
-          language: language,
+          language: resolved,
           recitations: [tibetan],
           adaptations: includeSecondary ? [tibetanAdaptation] : null,
           translations: includeTertiary ? [english] : null,
@@ -98,7 +101,7 @@ class RecitationLanguageConfig {
         // English order: translation (primary) + recitation (secondary) + transliteration (tertiary)
         return RecitationContentParams(
           textId: textId,
-          language: language,
+          language: resolved,
           translations: [english],
           recitations: includeSecondary ? [tibetan] : null,
           transliterations: includeTertiary ? [tibetanTransliteration] : null,
@@ -108,7 +111,7 @@ class RecitationLanguageConfig {
         // Chinese order: translation (primary) + recitation (secondary) + transliteration (tertiary)
         return RecitationContentParams(
           textId: textId,
-          language: language,
+          language: resolved,
           translations: [chinese],
           recitations: includeSecondary ? [tibetan] : null,
           transliterations: includeTertiary ? [tibetanTransliteration] : null,
@@ -118,7 +121,7 @@ class RecitationLanguageConfig {
         // Default order: recitation (primary) + translation (secondary) + transliteration (tertiary)
         return RecitationContentParams(
           textId: textId,
-          language: language,
+          language: resolved,
           recitations: [tibetan],
           translations: includeSecondary ? [english] : null,
           transliterations: includeTertiary ? [tibetanTransliteration] : null,
@@ -160,7 +163,8 @@ class RecitationLanguageConfig {
   /// - Chinese users see: Translation → Transliteration
   /// - Others see: Recitation → Translation → Transliteration → Adaptation
   static List<ContentType> getContentOrder(String languageCode) {
-    return switch (languageCode) {
+    final resolved = AppConfig.resolveContentLanguage(languageCode);
+    return switch (resolved) {
       tibetan => _tibetanOrder,
       english => _englishOrder,
       chinese => _chineseOrder,

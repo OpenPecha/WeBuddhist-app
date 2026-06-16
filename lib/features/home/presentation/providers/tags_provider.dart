@@ -8,8 +8,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 // Tags provider - returns Either<Failure, List<String>>
 // Watches localeProvider to refresh when language changes
 final tagsFutureProvider = FutureProvider<Either<Failure, List<String>>>((ref) async {
-  final locale = ref.watch(localeProvider);
+  final language = ref.watch(contentLanguageProvider);
   final useCase = ref.watch(getTagsUseCaseProvider);
 
-  return useCase(GetTagsParams(language: locale.languageCode));
+  return useCase(GetTagsParams(language: language));
 });
