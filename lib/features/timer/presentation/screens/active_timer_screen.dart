@@ -124,7 +124,7 @@ class _ActiveTimerScreenState extends ConsumerState<ActiveTimerScreen> {
 
   void _finish() {
     _timer?.cancel();
-    if (_phase == _TimerPhase.running && !_isPaused) {
+    if (_phase == _TimerPhase.running) {
       _reportTimerStop();
     }
     context.pop();
