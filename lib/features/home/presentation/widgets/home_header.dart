@@ -67,7 +67,7 @@ class _Greeting extends StatelessWidget {
         children: [
           TextSpan(
             text: localizations.home_hello_prefix,
-            style: greetingStyle?.copyWith(fontWeight: FontWeight.w400),
+            style: greetingStyle?.copyWith(fontWeight: FontWeight.w700),
           ),
           if (firstName != null && firstName!.isNotEmpty)
             TextSpan(
