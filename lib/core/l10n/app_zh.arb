@@ -678,6 +678,8 @@
 
   "join": "加入",
   "joined": "已加入",
+  "group_member": "位成員",
+  "group_members": "位成員",
 
   "share_this_quote": "分享这句话",
   "shared_from": "分享自",

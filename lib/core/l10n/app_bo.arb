@@ -678,6 +678,8 @@
 
   "join": "Join",
   "joined": "Joined",
+  "group_member": "member",
+  "group_members": "members",
 
   "share_this_quote": "Share this quote",
   "shared_from": "Shared from",

@@ -1605,6 +1605,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get joined => '已加入';
 
   @override
+  String get group_member => '位成員';
+
+  @override
+  String get group_members => '位成員';
+
+  @override
   String get share_this_quote => '分享这句话';
 
   @override
