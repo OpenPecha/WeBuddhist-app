@@ -481,7 +481,7 @@
   "routine_select_time": "Select time",
   "routine_remind_me": "Remind me",
   "routine_edit_title": "Edit your routine",
-  "routine_delete_block": "Remove block?",
+  "routine_delete_block": "Remove block",
   "routine_delete_time_block": "Remove time block",
   "routine_add_plan": "Add plan",
   "routine_add_recitation": "Add recitation",

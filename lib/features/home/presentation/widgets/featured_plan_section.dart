@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_pecha/core/constants/app_assets.dart';
-import 'package:flutter_pecha/core/constants/app_config.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/core/widgets/responsive_cover_image.dart';
 import 'package:flutter_pecha/features/home/domain/entities/series.dart';
 import 'package:flutter_pecha/features/home/presentation/providers/featured_series_provider.dart';
 import 'package:flutter_pecha/features/home/presentation/providers/routine_info_provider.dart';
 import 'package:flutter_pecha/features/home/presentation/widgets/featured_plan_section_skeleton.dart';
-import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 
 class FeaturedPlanSection extends ConsumerWidget {
   const FeaturedPlanSection({super.key, required this.onSeriesTap});
@@ -47,13 +45,12 @@ class _FeaturedPlanContent extends ConsumerWidget {
     final isTibetan = context.isTibetanLocale;
     final sectionTitleSize = isTibetan ? 16.0 : 18.0;
     final titleFontSize = isTibetan ? 14.0 : 16.0;
-    final subtitleFontSize = isTibetan ? 12.0 : 13.0;
+    final dateFontSize = isTibetan ? 12.0 : 13.0;
     final sectionContentGap = isTibetan ? 16.0 : 12.0;
     final itemBottomGap = isTibetan ? 16.0 : 12.0;
     final heroOthersGap = isTibetan ? 20.0 : 16.0;
     final contentPadding = isTibetan ? 16.0 : 12.0;
-    final titleSubtitleGap = isTibetan ? 8.0 : 4.0;
-    final statsTopGap = isTibetan ? 12.0 : 8.0;
+    final titleDateGap = isTibetan ? 8.0 : 4.0;
     final imageTextGap = isTibetan ? 16.0 : 12.0;
     final colorScheme = Theme.of(context).colorScheme;
     final hasStatsCard = ref
@@ -96,10 +93,9 @@ class _FeaturedPlanContent extends ConsumerWidget {
                 child: _FeaturedPlanListItem(
                   series: series,
                   titleFontSize: titleFontSize,
-                  subtitleFontSize: subtitleFontSize,
+                  dateFontSize: dateFontSize,
                   contentPadding: contentPadding,
-                  titleSubtitleGap: titleSubtitleGap,
-                  statsTopGap: statsTopGap,
+                  titleDateGap: titleDateGap,
                   imageTextGap: imageTextGap,
                   onTap: () => onSeriesTap(series),
                 ),
@@ -109,10 +105,9 @@ class _FeaturedPlanContent extends ConsumerWidget {
             _FeaturedPlanHeroCard(
               series: layout.featured,
               titleFontSize: titleFontSize,
-              subtitleFontSize: subtitleFontSize,
+              dateFontSize: dateFontSize,
               contentPadding: contentPadding,
-              titleSubtitleGap: titleSubtitleGap,
-              statsTopGap: statsTopGap,
+              titleDateGap: titleDateGap,
               onTap: () => onSeriesTap(layout.featured),
             ),
             if (layout.others.isNotEmpty) ...[
@@ -123,10 +118,9 @@ class _FeaturedPlanContent extends ConsumerWidget {
                   child: _FeaturedPlanListItem(
                     series: series,
                     titleFontSize: titleFontSize,
-                    subtitleFontSize: subtitleFontSize,
+                    dateFontSize: dateFontSize,
                     contentPadding: contentPadding,
-                    titleSubtitleGap: titleSubtitleGap,
-                    statsTopGap: statsTopGap,
+                    titleDateGap: titleDateGap,
                     imageTextGap: imageTextGap,
                     onTap: () => onSeriesTap(series),
                   ),
@@ -140,28 +134,69 @@ class _FeaturedPlanContent extends ConsumerWidget {
   }
 }
 
+String? _formatSeriesDateRange(Series series) {
+  final startDate = series.startDate;
+  final endDate = series.endDate;
+  if (startDate == null || endDate == null) return null;
+
+  final formatter = DateFormat('MMM dd');
+  final start = DateUtils.dateOnly(startDate.toLocal());
+  final end = DateUtils.dateOnly(endDate.toLocal());
+  return '${formatter.format(start)} - ${formatter.format(end)}';
+}
+
+class _FeaturedPlanDateRangeLabel extends StatelessWidget {
+  const _FeaturedPlanDateRangeLabel({
+    required this.series,
+    required this.fontSize,
+    this.textAlign,
+  });
+
+  final Series series;
+  final double fontSize;
+  final TextAlign? textAlign;
+
+  @override
+  Widget build(BuildContext context) {
+    final dateRange = _formatSeriesDateRange(series);
+    if (dateRange == null) return const SizedBox.shrink();
+
+    return Text(
+      dateRange,
+      textAlign: textAlign,
+      style: TextStyle(
+        fontSize: fontSize,
+        fontWeight: FontWeight.w500,
+        color: Theme.of(context).colorScheme.onSurfaceVariant,
+        height: 1.2,
+      ),
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+    );
+  }
+}
+
 class _FeaturedPlanHeroCard extends StatelessWidget {
   const _FeaturedPlanHeroCard({
     required this.series,
     required this.titleFontSize,
-    required this.subtitleFontSize,
+    required this.dateFontSize,
     required this.contentPadding,
-    required this.titleSubtitleGap,
-    required this.statsTopGap,
+    required this.titleDateGap,
     required this.onTap,
   });
 
   final Series series;
   final double titleFontSize;
-  final double subtitleFontSize;
+  final double dateFontSize;
   final double contentPadding;
-  final double titleSubtitleGap;
-  final double statsTopGap;
+  final double titleDateGap;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final dateRange = _formatSeriesDateRange(series);
 
     return Material(
       borderRadius: BorderRadius.circular(
@@ -189,44 +224,34 @@ class _FeaturedPlanHeroCard extends StatelessWidget {
                 contentPadding,
                 contentPadding + 4,
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    series.title,
-                    strutStyle: context.tibetanStrutStyle(titleFontSize),
-                    style: TextStyle(
-                      fontSize: titleFontSize,
-                      fontWeight: FontWeight.w700,
-                      color: colorScheme.onSurface,
-                      height: 1.3,
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  if (series.subTitle != null &&
-                      series.subTitle!.isNotEmpty) ...[
-                    SizedBox(height: titleSubtitleGap),
+              child: SizedBox(
+                width: double.infinity,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
                     Text(
-                      series.subTitle!,
-                      strutStyle: context.tibetanStrutStyle(subtitleFontSize),
+                      series.title,
+                      textAlign: TextAlign.center,
+                      strutStyle: context.tibetanStrutStyle(titleFontSize),
                       style: TextStyle(
-                        fontSize: subtitleFontSize,
-                        fontWeight: FontWeight.w400,
-                        color: colorScheme.onSurfaceVariant,
-                        height: 1.35,
+                        fontSize: titleFontSize,
+                        fontWeight: FontWeight.w700,
+                        color: colorScheme.onSurface,
+                        height: 1.3,
                       ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
+                    if (dateRange != null) ...[
+                      SizedBox(height: titleDateGap),
+                      _FeaturedPlanDateRangeLabel(
+                        series: series,
+                        fontSize: dateFontSize,
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
                   ],
-                  SizedBox(height: statsTopGap),
-                  _FeaturedPlanStatsRow(
-                    planCount: series.planCount,
-                    enrolledCount: series.enrolledCount,
-                    fontSize: subtitleFontSize,
-                  ),
-                ],
+                ),
               ),
             ),
           ],
@@ -236,99 +261,29 @@ class _FeaturedPlanHeroCard extends StatelessWidget {
   }
 }
 
-class _FeaturedPlanStatsRow extends StatelessWidget {
-  const _FeaturedPlanStatsRow({
-    required this.planCount,
-    required this.enrolledCount,
-    required this.fontSize,
-  });
-
-  final int planCount;
-  final int enrolledCount;
-  final double fontSize;
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final statStyle = TextStyle(
-      fontSize: fontSize,
-      fontWeight: FontWeight.w500,
-      color: colorScheme.onSurfaceVariant,
-      height: 1.2,
-    );
-
-    return Row(
-      children: [
-        _FeaturedPlanStatItem(
-          icon: AppAssets.featuredSeriesPlanCount,
-          value: planCount,
-          style: statStyle,
-        ),
-        const SizedBox(width: 16),
-        _FeaturedPlanStatItem(
-          icon: AppAssets.featuredSeriesEnrolledCount,
-          value: enrolledCount,
-          style: statStyle,
-        ),
-      ],
-    );
-  }
-}
-
-class _FeaturedPlanStatItem extends StatelessWidget {
-  const _FeaturedPlanStatItem({
-    required this.icon,
-    required this.value,
-    required this.style,
-  });
-
-  final IconData icon;
-  final int value;
-  final TextStyle style;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(icon, size: 18, color: style.color),
-        const SizedBox(width: 6),
-        Text(
-          '$value',
-          style: style.copyWith(
-            fontFamily: getSystemFontFamily(AppConfig.englishLanguageCode),
-            height: 1.0,
-          ),
-        ),
-      ],
-    );
-  }
-}
-
 class _FeaturedPlanListItem extends StatelessWidget {
   const _FeaturedPlanListItem({
     required this.series,
     required this.titleFontSize,
-    required this.subtitleFontSize,
+    required this.dateFontSize,
     required this.contentPadding,
-    required this.titleSubtitleGap,
-    required this.statsTopGap,
+    required this.titleDateGap,
     required this.imageTextGap,
     required this.onTap,
   });
 
   final Series series;
   final double titleFontSize;
-  final double subtitleFontSize;
+  final double dateFontSize;
   final double contentPadding;
-  final double titleSubtitleGap;
-  final double statsTopGap;
+  final double titleDateGap;
   final double imageTextGap;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final dateRange = _formatSeriesDateRange(series);
 
     return Material(
       borderRadius: BorderRadius.circular(
@@ -340,7 +295,7 @@ class _FeaturedPlanListItem extends StatelessWidget {
         child: Padding(
           padding: EdgeInsets.all(contentPadding),
           child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               ClipRRect(
                 borderRadius: BorderRadius.circular(12),
@@ -373,28 +328,13 @@ class _FeaturedPlanListItem extends StatelessWidget {
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    if (series.subTitle != null &&
-                        series.subTitle!.isNotEmpty) ...[
-                      SizedBox(height: titleSubtitleGap),
-                      Text(
-                        series.subTitle!,
-                        strutStyle: context.tibetanStrutStyle(subtitleFontSize),
-                        style: TextStyle(
-                          fontSize: subtitleFontSize,
-                          fontWeight: FontWeight.w400,
-                          color: colorScheme.onSurfaceVariant,
-                          height: 1.35,
-                        ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
+                    if (dateRange != null) ...[
+                      SizedBox(height: titleDateGap),
+                      _FeaturedPlanDateRangeLabel(
+                        series: series,
+                        fontSize: dateFontSize,
                       ),
                     ],
-                    SizedBox(height: statsTopGap),
-                    _FeaturedPlanStatsRow(
-                      planCount: series.planCount,
-                      enrolledCount: series.enrolledCount,
-                      fontSize: subtitleFontSize,
-                    ),
                   ],
                 ),
               ),

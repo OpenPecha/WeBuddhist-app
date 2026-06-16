@@ -36,6 +36,8 @@ class SeriesModel {
   final String? status;
   final int? planCount;
   final int? enrolledCount;
+  final DateTime? startDate;
+  final DateTime? endDate;
   final List<PlansModel> plans;
   final int totalDays;
   final Map<String, dynamic>? groupJson;
@@ -49,6 +51,8 @@ class SeriesModel {
     this.status,
     this.planCount,
     this.enrolledCount,
+    this.startDate,
+    this.endDate,
     this.plans = const [],
     this.totalDays = 0,
     this.groupJson,
@@ -98,6 +102,8 @@ class SeriesModel {
       status: json['status'] as String?,
       planCount: (json['plan_count'] as num?)?.toInt(),
       enrolledCount: (json['enrolled_count'] as num?)?.toInt(),
+      startDate: _parseDate(json['start_date']),
+      endDate: _parseDate(json['end_date']),
       plans: plansList,
       totalDays: (json['total_days'] as num?)?.toInt() ?? 0,
       groupJson: json['group'] is Map<String, dynamic>
@@ -118,9 +124,16 @@ class SeriesModel {
       totalDays: totalDays,
       planCount: planCount ?? plans.length,
       enrolledCount: enrolledCount ?? 0,
+      startDate: startDate,
+      endDate: endDate,
       plans: plans.map((p) => p.toEntity()).toList(),
       group: _parseGroup(language),
     );
+  }
+
+  static DateTime? _parseDate(Object? value) {
+    if (value is! String || value.isEmpty) return null;
+    return DateTime.tryParse(value);
   }
 
   SeriesGroup? _parseGroup(String language) {

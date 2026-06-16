@@ -28,12 +28,21 @@ class FeaturedPlanSectionSkeleton extends StatelessWidget {
               borderRadius: BorderRadius.circular(16),
             ),
             const SizedBox(height: 12),
-            Bone.text(words: 3, fontSize: 16),
-            const SizedBox(height: 8),
-            Bone.text(words: 6, fontSize: 13),
+            SizedBox(
+              width: double.infinity,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Bone.text(words: 3, fontSize: 16),
+                  const SizedBox(height: 8),
+                  Bone.text(words: 3, fontSize: 13),
+                ],
+              ),
+            ),
             const SizedBox(height: 16),
             for (var i = 0; i < 2; i++) ...[
               Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Bone(
                     width: 72,
@@ -47,7 +56,7 @@ class FeaturedPlanSectionSkeleton extends StatelessWidget {
                       children: [
                         Bone.text(words: 3, fontSize: 16),
                         const SizedBox(height: 8),
-                        Bone.text(words: 4, fontSize: 13),
+                        Bone.text(words: 3, fontSize: 13),
                       ],
                     ),
                   ),
