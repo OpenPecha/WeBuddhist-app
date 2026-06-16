@@ -295,7 +295,7 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody> {
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
                   : Text(
-                    isFollowing ? context.l10n.following : context.l10n.follow,
+                    isFollowing ? context.l10n.joined : context.l10n.join,
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,

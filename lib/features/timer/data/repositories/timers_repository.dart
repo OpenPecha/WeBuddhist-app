@@ -11,6 +11,29 @@ class TimersRepository implements TimersRepositoryInterface {
   final TimersRemoteDatasource remote;
 
   @override
+  Future<Either<Failure, void>> stopUserTimer({
+    required String timerId,
+    required int durationMs,
+  }) async {
+    try {
+      await remote.stopUserTimer(timerId: timerId, durationMs: durationMs);
+      return const Right(null);
+    } on AuthenticationException catch (e) {
+      return Left(AuthenticationFailure(e.message));
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(e.message));
+    } on NotFoundException catch (e) {
+      return Left(NotFoundFailure(e.message));
+    } on RateLimitException catch (e) {
+      return Left(RateLimitFailure(e.message));
+    } catch (e) {
+      return Left(UnknownFailure('Failed to stop timer: $e'));
+    }
+  }
+
+  @override
   Future<Either<Failure, List<PresetTimer>>> getPresetTimers({
     int skip = 0,
     int limit = 20,

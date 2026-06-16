@@ -283,7 +283,7 @@ abstract class AppLocalizations {
   /// No description provided for @home_recitation.
   ///
   /// In en, this message translates to:
-  /// **'Recitation'**
+  /// **'recitations'**
   String get home_recitation;
 
   /// No description provided for @home_overall_stats.
@@ -295,7 +295,7 @@ abstract class AppLocalizations {
   /// No description provided for @home_plans.
   ///
   /// In en, this message translates to:
-  /// **'Plans'**
+  /// **'plans'**
   String get home_plans;
 
   /// No description provided for @home_chants.
@@ -321,6 +321,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Preset timers'**
   String get preset_timers;
+
+  /// No description provided for @meditation_timer.
+  ///
+  /// In en, this message translates to:
+  /// **'Meditation Timer'**
+  String get meditation_timer;
 
   /// No description provided for @timer_min.
   ///
@@ -1429,7 +1435,7 @@ abstract class AppLocalizations {
   /// No description provided for @creator_featured_plan.
   ///
   /// In en, this message translates to:
-  /// **'Featured plan'**
+  /// **'Featured plans'**
   String get creator_featured_plan;
 
   /// No description provided for @audio_init_error.
@@ -2167,7 +2173,7 @@ abstract class AppLocalizations {
   /// No description provided for @routine_delete_block.
   ///
   /// In en, this message translates to:
-  /// **'Remove block?'**
+  /// **'Remove block'**
   String get routine_delete_block;
 
   /// No description provided for @routine_delete_time_block.
@@ -3100,17 +3106,17 @@ abstract class AppLocalizations {
   /// **'Privacy policy'**
   String get legal_privacy_policy;
 
-  /// No description provided for @follow.
+  /// No description provided for @join.
   ///
   /// In en, this message translates to:
-  /// **'Follow'**
-  String get follow;
+  /// **'Join'**
+  String get join;
 
-  /// No description provided for @following.
+  /// No description provided for @joined.
   ///
   /// In en, this message translates to:
-  /// **'Following'**
-  String get following;
+  /// **'Joined'**
+  String get joined;
 
   /// No description provided for @share_this_quote.
   ///

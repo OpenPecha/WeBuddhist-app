@@ -112,7 +112,7 @@ class AppLocalizationsBo extends AppLocalizations {
   String get home_plans => 'ཉམས་ལེན';
 
   @override
-  String get home_chants => 'བཟླས་པ།';
+  String get home_chants => 'ཞལ་འདོན';
 
   @override
   String get home_mala => 'ཕྲེང་བ';
@@ -122,6 +122,9 @@ class AppLocalizationsBo extends AppLocalizations {
 
   @override
   String get preset_timers => 'སྔོན་སྒྲིག་དུས་ཚོད།';
+
+  @override
+  String get meditation_timer => 'སྒོམ་དུས་ཚོད།';
 
   @override
   String get timer_min => 'སྐར་མ';
@@ -1655,10 +1658,10 @@ class AppLocalizationsBo extends AppLocalizations {
   String get legal_privacy_policy => 'སྒེར་དོན་གསང་རྒྱ།';
 
   @override
-  String get follow => 'Follow';
+  String get join => 'Join';
 
   @override
-  String get following => 'Following';
+  String get joined => 'Joined';
 
   @override
   String get share_this_quote => 'Share this quote';
