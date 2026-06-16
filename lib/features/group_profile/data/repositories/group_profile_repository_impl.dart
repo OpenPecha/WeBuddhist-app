@@ -46,7 +46,7 @@ class GroupProfileRepositoryImpl implements GroupProfileRepositoryInterface {
     } on AuthenticationException catch (e) {
       return Left(AuthenticationFailure(e.message));
     } catch (e) {
-      return Left(UnknownFailure('Failed to check follow status: $e'));
+      return Left(UnknownFailure('Failed to check join status: $e'));
     }
   }
 

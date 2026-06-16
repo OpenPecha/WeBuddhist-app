@@ -10,6 +10,7 @@ import 'package:flutter_pecha/features/group_profile/presentation/providers/grou
 import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class GroupProfileBody extends ConsumerStatefulWidget {
@@ -33,11 +34,19 @@ class GroupProfileBody extends ConsumerStatefulWidget {
 class _GroupProfileBodyState extends ConsumerState<GroupProfileBody> {
   bool _isDescriptionExpanded = false;
 
+  GroupProfile _resolveProfile() {
+    final refreshed = ref.watch(groupProfileProvider(widget.profile.id));
+    return refreshed.maybeWhen(
+      data: (either) => either.fold((_) => widget.profile, (profile) => profile),
+      orElse: () => widget.profile,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final locale = Localizations.localeOf(context);
     final lineHeight = getLineHeight(locale.languageCode);
-    final profile = widget.profile;
+    final profile = _resolveProfile();
     final isDark = widget.isDark;
 
     final websiteLink =
@@ -114,6 +123,17 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody> {
     bool isDark,
     double? lineHeight,
   ) {
+    final locale = Localizations.localeOf(context);
+    final formattedJoinerCount = NumberFormat.decimalPattern(
+      locale.toString(),
+    ).format(profile.joinerCount);
+    final memberLabel =
+        profile.joinerCount == 1
+            ? context.l10n.group_member
+            : context.l10n.group_members;
+    final secondaryColor =
+        isDark ? AppColors.textTertiaryDark : AppColors.textSecondary;
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
       child: Row(
@@ -150,6 +170,38 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody> {
                       height: lineHeight,
                     ),
                   ),
+                if (profile.subTitle != null &&
+                    profile.subTitle!.trim().isNotEmpty) ...[
+                  const SizedBox(height: 2),
+                  Text(
+                    profile.subTitle!,
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: secondaryColor,
+                      height: lineHeight,
+                    ),
+                  ),
+                ],
+                const SizedBox(height: 4),
+                RichText(
+                  text: TextSpan(
+                    style: TextStyle(
+                      fontSize: 14,
+                      color:
+                          isDark
+                              ? AppColors.textPrimaryDark
+                              : AppColors.textPrimary,
+                      height: lineHeight,
+                    ),
+                    children: [
+                      TextSpan(
+                        text: formattedJoinerCount,
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      TextSpan(text: ' $memberLabel'),
+                    ],
+                  ),
+                ),
               ],
             ),
           ),

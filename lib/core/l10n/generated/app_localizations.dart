@@ -3118,6 +3118,18 @@ abstract class AppLocalizations {
   /// **'Joined'**
   String get joined;
 
+  /// No description provided for @group_member.
+  ///
+  /// In en, this message translates to:
+  /// **'member'**
+  String get group_member;
+
+  /// No description provided for @group_members.
+  ///
+  /// In en, this message translates to:
+  /// **'members'**
+  String get group_members;
+
   /// No description provided for @share_this_quote.
   ///
   /// In en, this message translates to:

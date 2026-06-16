@@ -1664,6 +1664,12 @@ class AppLocalizationsBo extends AppLocalizations {
   String get joined => 'Joined';
 
   @override
+  String get group_member => 'member';
+
+  @override
+  String get group_members => 'members';
+
+  @override
   String get share_this_quote => 'Share this quote';
 
   @override
