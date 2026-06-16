@@ -121,6 +121,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get preset_timers => '預設計時';
 
   @override
+  String get meditation_timer => '禪修計時';
+
+  @override
   String get timer_min => '分鐘';
 
   @override

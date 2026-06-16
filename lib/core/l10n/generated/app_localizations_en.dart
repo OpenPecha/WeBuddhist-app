@@ -124,6 +124,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get preset_timers => 'Preset timers';
 
   @override
+  String get meditation_timer => 'Meditation timer';
+
+  @override
   String get timer_min => 'min';
 
   @override

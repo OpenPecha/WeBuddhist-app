@@ -322,6 +322,12 @@ abstract class AppLocalizations {
   /// **'Preset timers'**
   String get preset_timers;
 
+  /// No description provided for @meditation_timer.
+  ///
+  /// In en, this message translates to:
+  /// **'Meditation timer'**
+  String get meditation_timer;
+
   /// No description provided for @timer_min.
   ///
   /// In en, this message translates to:

@@ -124,6 +124,9 @@ class AppLocalizationsBo extends AppLocalizations {
   String get preset_timers => 'སྔོན་སྒྲིག་དུས་ཚོད།';
 
   @override
+  String get meditation_timer => 'སྒོམ་དུས་ཚོད།';
+
+  @override
   String get timer_min => 'སྐར་མ';
 
   @override
