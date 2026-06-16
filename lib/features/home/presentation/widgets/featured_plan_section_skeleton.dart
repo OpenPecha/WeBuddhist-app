@@ -28,17 +28,9 @@ class FeaturedPlanSectionSkeleton extends StatelessWidget {
               borderRadius: BorderRadius.circular(16),
             ),
             const SizedBox(height: 12),
-            SizedBox(
-              width: double.infinity,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Bone.text(words: 3, fontSize: 16),
-                  const SizedBox(height: 8),
-                  Bone.text(words: 3, fontSize: 13),
-                ],
-              ),
-            ),
+            Bone.text(words: 3, fontSize: 16),
+            const SizedBox(height: 8),
+            Bone.text(words: 3, fontSize: 13),
             const SizedBox(height: 16),
             for (var i = 0; i < 2; i++) ...[
               Row(

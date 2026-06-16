@@ -149,12 +149,10 @@ class _FeaturedPlanDateRangeLabel extends StatelessWidget {
   const _FeaturedPlanDateRangeLabel({
     required this.series,
     required this.fontSize,
-    this.textAlign,
   });
 
   final Series series;
   final double fontSize;
-  final TextAlign? textAlign;
 
   @override
   Widget build(BuildContext context) {
@@ -163,7 +161,6 @@ class _FeaturedPlanDateRangeLabel extends StatelessWidget {
 
     return Text(
       dateRange,
-      textAlign: textAlign,
       style: TextStyle(
         fontSize: fontSize,
         fontWeight: FontWeight.w500,
@@ -224,34 +221,29 @@ class _FeaturedPlanHeroCard extends StatelessWidget {
                 contentPadding,
                 contentPadding + 4,
               ),
-              child: SizedBox(
-                width: double.infinity,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Text(
-                      series.title,
-                      textAlign: TextAlign.center,
-                      strutStyle: context.tibetanStrutStyle(titleFontSize),
-                      style: TextStyle(
-                        fontSize: titleFontSize,
-                        fontWeight: FontWeight.w700,
-                        color: colorScheme.onSurface,
-                        height: 1.3,
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    series.title,
+                    strutStyle: context.tibetanStrutStyle(titleFontSize),
+                    style: TextStyle(
+                      fontSize: titleFontSize,
+                      fontWeight: FontWeight.w700,
+                      color: colorScheme.onSurface,
+                      height: 1.3,
                     ),
-                    if (dateRange != null) ...[
-                      SizedBox(height: titleDateGap),
-                      _FeaturedPlanDateRangeLabel(
-                        series: series,
-                        fontSize: dateFontSize,
-                        textAlign: TextAlign.center,
-                      ),
-                    ],
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  if (dateRange != null) ...[
+                    SizedBox(height: titleDateGap),
+                    _FeaturedPlanDateRangeLabel(
+                      series: series,
+                      fontSize: dateFontSize,
+                    ),
                   ],
-                ),
+                ],
               ),
             ),
           ],
