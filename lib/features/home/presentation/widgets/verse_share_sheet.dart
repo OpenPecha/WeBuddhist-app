@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
+import 'package:flutter_pecha/core/theme/app_theme.dart';
 import 'package:flutter_pecha/features/home/domain/entities/verse_of_day.dart';
 import 'package:flutter_pecha/features/home/presentation/widgets/verse_of_day_content.dart';
 import 'package:flutter_pecha/shared/utils/helper_functions.dart';
@@ -86,6 +87,9 @@ class _VerseShareSheetState extends State<VerseShareSheet> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final languageCode = Localizations.localeOf(context).languageCode;
     final typography = VerseOfDayTypography.fromLanguageCode(languageCode);
+    final locale = Localizations.localeOf(context);
+    final lightTheme = AppTheme.lightTheme(locale);
+    final lightColorScheme = lightTheme.colorScheme;
 
     return Container(
       decoration: BoxDecoration(
@@ -109,23 +113,51 @@ class _VerseShareSheetState extends State<VerseShareSheet> {
             const SizedBox(height: 24),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 12),
-              child: Screenshot(
-                controller: _screenshotController,
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(24),
-                  ),
-                  clipBehavior: Clip.antiAlias,
-                  child: VerseOfDayContent(
-                    verseOfDay: widget.verseOfDay,
-                    typography: typography,
-                    verseColor: Colors.black87,
-                    attributionColor: Colors.black54,
-                    imageAspectRatio: 1.5,
-                    showBranding: true,
-                    textPadding: const EdgeInsets.fromLTRB(24, 28, 24, 24),
-                    brandingBottomPadding: 0,
+              child: Theme(
+                data: lightTheme,
+                child: Screenshot(
+                  controller: _screenshotController,
+                  child: Container(
+                    color: lightColorScheme.surface,
+                    padding: const EdgeInsets.fromLTRB(14, 20, 14, 24),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(28),
+                        ),
+                        clipBehavior: Clip.antiAlias,
+                        child: VerseOfDayContent(
+                          verseOfDay: widget.verseOfDay,
+                          typography: VerseOfDayTypography(
+                            contentFont: typography.contentFont,
+                            systemFont: typography.systemFont,
+                            verseFontSize: languageCode == 'bo' ? 20.0 : 18.0,
+                            attributionFontSize:
+                                languageCode == 'bo' ? 16.0 : 15.0,
+                          ),
+                          verseColor: Colors.black87,
+                          attributionColor: Colors.black87,
+                          imageAspectRatio: 1.15,
+                          useContentFontForAttribution: true,
+                          textPadding: const EdgeInsets.fromLTRB(
+                            28,
+                            32,
+                            28,
+                            36,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                      const VerseShareBranding(
+                        logoSize: 32,
+                        sharedFromFontSize: 12,
+                        appTitleFontSize: 14,
+                      ),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -185,6 +217,7 @@ void showVerseShareSheet(BuildContext context, VerseOfDay verseOfDay) {
     context: context,
     backgroundColor: Colors.transparent,
     isScrollControlled: true,
+    useRootNavigator: true,
     builder: (_) => VerseShareSheet(verseOfDay: verseOfDay),
   );
 }

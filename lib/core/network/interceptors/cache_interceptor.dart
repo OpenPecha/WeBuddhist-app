@@ -127,13 +127,28 @@ class CacheInterceptor extends Interceptor {
       paths.add('/users/me/routine');
       paths.add('/users/me/plans');
     }
+
+    // Join/leave group mutations should refresh the cached group profile
+    final groupJoinMatch = RegExp(
+      r'/author/groups/([^/]+)/join',
+    ).firstMatch(path);
+    if (groupJoinMatch != null) {
+      paths.add('/author/groups/${groupJoinMatch.group(1)}');
+    }
     
     return paths;
   }
 
   /// Check if a segment is an action (not data to be cached)
   bool _isActionSegment(String value) {
-    const actions = ['complete', 'incomplete', 'toggle', 'delete', 'archive'];
+    const actions = [
+      'complete',
+      'incomplete',
+      'toggle',
+      'delete',
+      'archive',
+      'join',
+    ];
     return actions.contains(value.toLowerCase());
   }
 

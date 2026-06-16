@@ -41,6 +41,7 @@ class ProtectedRoutes {
 
     // Timers
     '/timers',
+    '/timers/', // Catch-all for timer sub-paths like /timers/user/timer_stop
 
     // Routines
     '/routines',
@@ -51,8 +52,8 @@ class ProtectedRoutes {
     // Series enrollment
     '/users/me/series',
 
-    // Group follow
-    '/author/groups/{groupId}/follow',
+    // Group join
+    '/author/groups/{groupId}/join',
 
     // Plans (public endpoints but may need auth for user-specific data)
     '/plans/{planId}',

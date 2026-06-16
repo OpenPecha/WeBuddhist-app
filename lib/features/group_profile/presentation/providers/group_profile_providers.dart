@@ -57,18 +57,26 @@ class GroupFollowFailure extends GroupFollowState {
 
 class GroupFollowNotifier extends StateNotifier<GroupFollowState> {
   final GroupProfileRepositoryInterface _repository;
+  final Ref _ref;
   final String _groupId;
   final bool _isAuthenticated;
 
   GroupFollowNotifier({
     required GroupProfileRepositoryInterface repository,
+    required Ref ref,
     required String groupId,
     required bool isAuthenticated,
   }) : _repository = repository,
+       _ref = ref,
        _groupId = groupId,
        _isAuthenticated = isAuthenticated,
        super(const GroupFollowLoading()) {
     _loadInitialStatus();
+  }
+
+  Future<void> _refreshGroupProfile() async {
+    _ref.invalidate(groupProfileProvider(_groupId));
+    await _ref.read(groupProfileProvider(_groupId).future);
   }
 
   Future<void> _loadInitialStatus() async {
@@ -93,13 +101,14 @@ class GroupFollowNotifier extends StateNotifier<GroupFollowState> {
     final result = await _repository.followGroup(_groupId);
     if (!mounted) return false;
 
-    return result.fold(
-      (failure) {
+    return await result.fold(
+      (failure) async {
         state = GroupFollowFailure(failure);
         return false;
       },
-      (_) {
+      (_) async {
         state = const GroupFollowSuccess(isFollowing: true);
+        await _refreshGroupProfile();
         return true;
       },
     );
@@ -112,13 +121,14 @@ class GroupFollowNotifier extends StateNotifier<GroupFollowState> {
     final result = await _repository.unfollowGroup(_groupId);
     if (!mounted) return false;
 
-    return result.fold(
-      (failure) {
+    return await result.fold(
+      (failure) async {
         state = GroupFollowFailure(failure);
         return false;
       },
-      (_) {
+      (_) async {
         state = const GroupFollowSuccess(isFollowing: false);
+        await _refreshGroupProfile();
         return true;
       },
     );
@@ -132,6 +142,7 @@ final groupFollowProvider = StateNotifierProvider.autoDispose
 
   return GroupFollowNotifier(
     repository: ref.watch(groupProfileRepositoryProvider),
+    ref: ref,
     groupId: groupId,
     isAuthenticated: isAuthenticated,
   );

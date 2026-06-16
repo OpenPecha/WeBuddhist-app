@@ -19,6 +19,7 @@
   "home_mala": "念珠",
   "home_timer": "計時",
   "preset_timers": "預設計時",
+  "meditation_timer": "禪修計時",
   "timer_min": "分鐘",
   "timer_start": "開始",
   "timer_finish": "完成",
@@ -536,6 +537,12 @@
   "moon_phase_waning_gibbous": "亏凸月",
   "moon_phase_last_quarter": "下弦月",
   "moon_phase_waning_crescent": "残月",
+
+  "join": "加入",
+  "joined": "已加入",
+  "group_member": "位成員",
+  "group_members": "位成員",
+
   "share_this_quote": "分享这句话",
   "shared_from": "分享自",
   "verse_share_error": "无法分享引文，请重试"

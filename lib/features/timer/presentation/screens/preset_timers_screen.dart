@@ -24,7 +24,7 @@ class PresetTimersScreen extends ConsumerWidget {
       body: SafeArea(
         child: Column(
           children: [
-            _buildAppBar(context, l10n.preset_timers),
+            _buildAppBar(context, l10n.meditation_timer),
             Expanded(
               child: timersAsync.when(
                 data: (timersEither) {

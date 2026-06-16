@@ -6,6 +6,7 @@ import 'package:flutter_pecha/features/timer/data/repositories/timers_repository
 import 'package:flutter_pecha/features/timer/domain/entities/preset_timer.dart';
 import 'package:flutter_pecha/features/timer/domain/repositories/timers_repository.dart';
 import 'package:flutter_pecha/features/timer/domain/usecases/get_preset_timers_usecase.dart';
+import 'package:flutter_pecha/features/timer/domain/usecases/stop_user_timer_usecase.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fpdart/fpdart.dart';
 
@@ -21,6 +22,11 @@ final timersDomainRepositoryProvider =
 final getPresetTimersUseCaseProvider = Provider<GetPresetTimersUseCase>((ref) {
   final repository = ref.watch(timersDomainRepositoryProvider);
   return GetPresetTimersUseCase(repository.getPresetTimers);
+});
+
+final stopUserTimerUseCaseProvider = Provider<StopUserTimerUseCase>((ref) {
+  final repository = ref.watch(timersDomainRepositoryProvider);
+  return StopUserTimerUseCase(repository.stopUserTimer);
 });
 
 final presetTimersFutureProvider =

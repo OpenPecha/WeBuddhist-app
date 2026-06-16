@@ -15,10 +15,11 @@
   "home_recitation": "བཟླས་པ།",
   "home_overall_stats": "སྤྱིའི་གྲངས་ཀ",
   "home_plans": "ཉམས་ལེན",
-  "home_chants": "བཟླས་པ།",
+  "home_chants": "ཞལ་འདོན",
   "home_mala": "ཕྲེང་བ",
   "home_timer": "དུས་ཚོད།",
   "preset_timers": "སྔོན་སྒྲིག་དུས་ཚོད།",
+  "meditation_timer": "སྒོམ་དུས་ཚོད།",
   "timer_min": "སྐར་མ",
   "timer_start": "འགོ་འཛུགས",
   "timer_finish": "མཇུག་སྒྲིལ",
@@ -536,6 +537,12 @@
   "moon_phase_waning_gibbous": "Waning gibbous",
   "moon_phase_last_quarter": "Last quarter",
   "moon_phase_waning_crescent": "Waning crescent",
+
+  "join": "Join",
+  "joined": "Joined",
+  "group_member": "member",
+  "group_members": "members",
+
   "share_this_quote": "Share this quote",
   "shared_from": "Shared from",
   "verse_share_error": "Unable to share quote. Please try again"
