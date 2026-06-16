@@ -57,7 +57,10 @@ class _ActiveTimerScreenState extends State<ActiveTimerScreen> {
 
   void _startCountdown() {
     _timer?.cancel();
-    _timer = Timer.periodic(const Duration(seconds: 1), (_) => _onCountdownTick());
+    _timer = Timer.periodic(
+      const Duration(seconds: 1),
+      (_) => _onCountdownTick(),
+    );
   }
 
   void _onCountdownTick() {
@@ -80,7 +83,10 @@ class _ActiveTimerScreenState extends State<ActiveTimerScreen> {
     });
 
     _timer?.cancel();
-    _timer = Timer.periodic(const Duration(seconds: 1), (_) => _onMainTimerTick());
+    _timer = Timer.periodic(
+      const Duration(seconds: 1),
+      (_) => _onMainTimerTick(),
+    );
   }
 
   void _onMainTimerTick() {
@@ -135,26 +141,27 @@ class _ActiveTimerScreenState extends State<ActiveTimerScreen> {
                     const SizedBox(height: _controlsSpacing),
                     SizedBox(
                       height: _controlsHeight,
-                      child: _phase != _TimerPhase.countdown
-                          ? IconButton(
-                              onPressed:
-                                  _phase == _TimerPhase.finished
-                                      ? null
-                                      : _togglePause,
-                              iconSize: 40,
-                              padding: EdgeInsets.zero,
-                              constraints: const BoxConstraints(
-                                minWidth: _controlsHeight,
-                                minHeight: _controlsHeight,
-                              ),
-                              icon: Icon(
-                                _isPaused || _phase == _TimerPhase.finished
-                                    ? AppAssets.play
-                                    : AppAssets.pause,
-                                color: textColor,
-                              ),
-                            )
-                          : null,
+                      child:
+                          _phase != _TimerPhase.countdown
+                              ? IconButton(
+                                onPressed:
+                                    _phase == _TimerPhase.finished
+                                        ? null
+                                        : _togglePause,
+                                iconSize: 40,
+                                padding: EdgeInsets.zero,
+                                constraints: const BoxConstraints(
+                                  minWidth: _controlsHeight,
+                                  minHeight: _controlsHeight,
+                                ),
+                                icon: Icon(
+                                  _isPaused || _phase == _TimerPhase.finished
+                                      ? AppAssets.play
+                                      : AppAssets.pause,
+                                  color: textColor,
+                                ),
+                              )
+                              : null,
                     ),
                   ],
                 ),
@@ -167,14 +174,16 @@ class _ActiveTimerScreenState extends State<ActiveTimerScreen> {
               maintainState: true,
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(24, 0, 24, 32),
-                child: SizedBox(
-                  width: double.infinity,
+                child: Center(
                   child: OutlinedButton(
                     onPressed: _finish,
                     style: OutlinedButton.styleFrom(
                       foregroundColor: textColor,
                       side: BorderSide(color: textColor),
-                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 46,
+                        vertical: 16,
+                      ),
                       shape: const StadiumBorder(),
                       backgroundColor:
                           Theme.of(context).brightness == Brightness.dark

@@ -105,16 +105,21 @@ class HomeShellScaffold extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final location = GoRouterState.of(context).uri.toString();
+    final hideBottomNav = location.startsWith('/home/timers');
+
     return Scaffold(
       body: child,
-      bottomNavigationBar: MainNavigationBottomBar(
-        onTabChanged: (_) {
-          final location = GoRouterState.of(context).uri.toString();
-          if (location != '/home') {
-            context.go('/home');
-          }
-        },
-      ),
+      bottomNavigationBar:
+          hideBottomNav
+              ? null
+              : MainNavigationBottomBar(
+                onTabChanged: (_) {
+                  if (location != '/home') {
+                    context.go('/home');
+                  }
+                },
+              ),
     );
   }
 }
