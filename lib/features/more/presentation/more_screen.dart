@@ -22,6 +22,9 @@ class MoreScreen extends ConsumerWidget {
     Locale(AppConfig.englishLanguageCode),
     Locale(AppConfig.chineseLanguageCode),
     Locale(AppConfig.tibetanLanguageCode),
+    Locale(AppConfig.hindiLanguageCode),
+    Locale(AppConfig.mongolianLanguageCode),
+    Locale(AppConfig.nepaliLanguageCode),
   ];
 
   String _getLanguageName(Locale locale) {
@@ -32,6 +35,12 @@ class MoreScreen extends ConsumerWidget {
         return '中文';
       case AppConfig.tibetanLanguageCode:
         return 'བོད་ཡིག';
+      case AppConfig.hindiLanguageCode:
+        return 'हिन्दी';
+      case AppConfig.mongolianLanguageCode:
+        return 'Монгол';
+      case AppConfig.nepaliLanguageCode:
+        return 'नेपाली';
       default:
         return locale.languageCode;
     }

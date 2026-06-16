@@ -47,6 +47,7 @@ class GroupProfile {
   final List<String> tags;
   final List<GroupProfileSocialLink> socialLinks;
   final List<GroupProfileSeries> series;
+  final int joinerCount;
 
   const GroupProfile({
     required this.id,
@@ -61,6 +62,7 @@ class GroupProfile {
     this.tags = const [],
     this.socialLinks = const [],
     this.series = const [],
+    this.joinerCount = 0,
   });
 
   GroupProfile copyWith({bool? isFollowing}) {
@@ -77,6 +79,7 @@ class GroupProfile {
       tags: tags,
       socialLinks: socialLinks,
       series: series,
+      joinerCount: joinerCount,
     );
   }
 }

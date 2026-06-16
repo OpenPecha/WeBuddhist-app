@@ -7,4 +7,9 @@ abstract class TimersRepositoryInterface {
     int skip,
     int limit,
   });
+
+  Future<Either<Failure, void>> stopUserTimer({
+    required String timerId,
+    required int durationMs,
+  });
 }

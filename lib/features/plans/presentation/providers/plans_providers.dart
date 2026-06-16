@@ -13,8 +13,7 @@ final _logger = AppLogger('PlansProviders');
 
 // Get all plans provider
 final plansFutureProvider = FutureProvider<Either<Failure, List<Plan>>>((ref) async {
-  final locale = ref.watch(localeProvider);
-  final languageCode = locale.languageCode;
+  final languageCode = ref.watch(contentLanguageProvider);
   final getPlansUseCase = ref.watch(getPlansUseCaseProvider);
 
   return getPlansUseCase(GetPlansParams(
@@ -36,11 +35,11 @@ final findPlansPaginatedProvider =
     StateNotifierProvider<FindPlansNotifier, FindPlansState>((ref) {
       _logger.debug('🏗️ Creating FindPlansNotifier instance...');
       final getPlansUseCase = ref.watch(getPlansUseCaseProvider);
-      final locale = ref.watch(localeProvider);
-      _logger.debug('📝 Locale: ${locale.languageCode}');
+      final languageCode = ref.watch(contentLanguageProvider);
+      _logger.debug('📝 Content language: $languageCode');
       final notifier = FindPlansNotifier(
         getPlansUseCase: getPlansUseCase,
-        languageCode: locale.languageCode,
+        languageCode: languageCode,
       );
       _logger.debug('✅ FindPlansNotifier instance created');
       return notifier;
@@ -50,9 +49,9 @@ final findPlansPaginatedProvider =
 final planSearchProvider =
     StateNotifierProvider<PlanSearchNotifier, PlanSearchState>((ref) {
       final getPlansUseCase = ref.watch(getPlansUseCaseProvider);
-      final locale = ref.watch(localeProvider);
+      final languageCode = ref.watch(contentLanguageProvider);
       return PlanSearchNotifier(
         getPlansUseCase: getPlansUseCase,
-        languageCode: locale.languageCode,
+        languageCode: languageCode,
       );
     });

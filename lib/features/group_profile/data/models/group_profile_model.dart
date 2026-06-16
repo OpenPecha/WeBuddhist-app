@@ -12,6 +12,7 @@ class GroupProfileModel {
   final List<String> tags;
   final List<Map<String, dynamic>> socialLinksJson;
   final List<Map<String, dynamic>> seriesJson;
+  final int joinerCount;
 
   GroupProfileModel({
     required this.id,
@@ -24,6 +25,7 @@ class GroupProfileModel {
     this.tags = const [],
     this.socialLinksJson = const [],
     this.seriesJson = const [],
+    this.joinerCount = 0,
   });
 
   factory GroupProfileModel.fromJson(Map<String, dynamic> json) {
@@ -47,6 +49,7 @@ class GroupProfileModel {
               ?.whereType<Map<String, dynamic>>()
               .toList() ??
           const [],
+      joinerCount: (json['joiner_count'] as num?)?.toInt() ?? 0,
     );
   }
 
@@ -64,6 +67,7 @@ class GroupProfileModel {
       tags: tags,
       socialLinks: socialLinksJson.map(_parseSocialLink).toList(),
       series: seriesJson.map(_parseSeries).toList(),
+      joinerCount: joinerCount,
     );
   }
 

@@ -9,7 +9,7 @@ import 'package:fpdart/fpdart.dart';
 /// Re-fetches automatically when the app language changes.
 final verseOfDayFutureProvider =
     FutureProvider<Either<Failure, VerseOfDay>>((ref) async {
-  final locale = ref.watch(localeProvider);
+  final language = ref.watch(contentLanguageProvider);
   final useCase = ref.watch(getVerseOfDayUseCaseProvider);
-  return useCase(GetVerseOfDayParams(language: locale.languageCode));
+  return useCase(GetVerseOfDayParams(language: language));
 });

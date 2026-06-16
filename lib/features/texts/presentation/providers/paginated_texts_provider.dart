@@ -60,11 +60,11 @@ class PaginatedTextsNotifier extends StateNotifier<PaginatedTextsState> {
   Future<void> loadInitialTexts() async {
     state = state.copyWith(isLoading: true, error: null);
     try {
-      final locale = ref.read(localeProvider);
+      final language = ref.read(contentLanguageProvider);
       final repository = ref.read(textsRepositoryProvider);
       final responseEither = await repository.getTexts(
         termId: collectionId,
-        language: locale.languageCode,
+        language: language,
         skip: 0,
         limit: state.limit,
       );
@@ -93,13 +93,13 @@ class PaginatedTextsNotifier extends StateNotifier<PaginatedTextsState> {
 
     state = state.copyWith(isLoading: true, error: null);
     try {
-      final locale = ref.read(localeProvider);
+      final language = ref.read(contentLanguageProvider);
       final repository = ref.read(textsRepositoryProvider);
       final nextSkip = state.texts.length;
 
       final responseEither = await repository.getTexts(
         termId: collectionId,
-        language: locale.languageCode,
+        language: language,
         skip: nextSkip,
         limit: state.limit,
       );

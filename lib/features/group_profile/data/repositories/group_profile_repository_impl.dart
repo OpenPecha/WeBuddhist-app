@@ -46,7 +46,7 @@ class GroupProfileRepositoryImpl implements GroupProfileRepositoryInterface {
     } on AuthenticationException catch (e) {
       return Left(AuthenticationFailure(e.message));
     } catch (e) {
-      return Left(UnknownFailure('Failed to check follow status: $e'));
+      return Left(UnknownFailure('Failed to check join status: $e'));
     }
   }
 
@@ -62,7 +62,7 @@ class GroupProfileRepositoryImpl implements GroupProfileRepositoryInterface {
     } on AuthenticationException catch (e) {
       return Left(AuthenticationFailure(e.message));
     } catch (e) {
-      return Left(UnknownFailure('Failed to follow group: $e'));
+      return Left(UnknownFailure('Failed to join group: $e'));
     }
   }
 
@@ -78,7 +78,7 @@ class GroupProfileRepositoryImpl implements GroupProfileRepositoryInterface {
     } on AuthenticationException catch (e) {
       return Left(AuthenticationFailure(e.message));
     } catch (e) {
-      return Left(UnknownFailure('Failed to unfollow group: $e'));
+      return Left(UnknownFailure('Failed to leave group: $e'));
     }
   }
 }
