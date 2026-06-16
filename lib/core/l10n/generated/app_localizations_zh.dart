@@ -1599,10 +1599,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get legal_privacy_policy => '隱私政策';
 
   @override
-  String get follow => 'Follow';
+  String get join => '加入';
 
   @override
-  String get following => 'Following';
+  String get joined => '已加入';
 
   @override
   String get share_this_quote => '分享这句话';

@@ -3106,17 +3106,17 @@ abstract class AppLocalizations {
   /// **'Privacy policy'**
   String get legal_privacy_policy;
 
-  /// No description provided for @follow.
+  /// No description provided for @join.
   ///
   /// In en, this message translates to:
-  /// **'Follow'**
-  String get follow;
+  /// **'Join'**
+  String get join;
 
-  /// No description provided for @following.
+  /// No description provided for @joined.
   ///
   /// In en, this message translates to:
-  /// **'Following'**
-  String get following;
+  /// **'Joined'**
+  String get joined;
 
   /// No description provided for @share_this_quote.
   ///

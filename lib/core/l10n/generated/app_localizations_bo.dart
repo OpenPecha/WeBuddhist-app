@@ -1658,10 +1658,10 @@ class AppLocalizationsBo extends AppLocalizations {
   String get legal_privacy_policy => 'སྒེར་དོན་གསང་རྒྱ།';
 
   @override
-  String get follow => 'Follow';
+  String get join => 'Join';
 
   @override
-  String get following => 'Following';
+  String get joined => 'Joined';
 
   @override
   String get share_this_quote => 'Share this quote';

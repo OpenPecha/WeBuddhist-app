@@ -742,8 +742,8 @@
   "legal_terms_of_service": "Terms of service",
   "legal_privacy_policy": "Privacy policy",
 
-  "follow": "Follow",
-  "following": "Following",
+  "join": "Join",
+  "joined": "Joined",
 
   "share_this_quote": "Share this quote",
   "shared_from": "Shared from",
