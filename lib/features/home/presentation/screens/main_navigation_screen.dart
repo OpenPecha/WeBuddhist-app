@@ -1,12 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
 import 'package:flutter_pecha/features/more/presentation/me_screen.dart';
 import 'package:flutter_pecha/features/plans/data/models/user/user_plans_model.dart';
 import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/features/home/presentation/screens/home_screen.dart';
-import 'package:flutter_pecha/features/practice/data/models/routine_model.dart';
-import 'package:flutter_pecha/features/practice/presentation/providers/routine_api_providers.dart';
 import 'package:flutter_pecha/features/practice/presentation/screens/practice_screen.dart';
 import 'package:flutter_pecha/shared/widgets/appBottomNavBar/app_bottom_nav_bar.dart';
 import 'package:flutter_pecha/shared/widgets/appBottomNavBar/app_bottom_nav_item.dart';
@@ -21,12 +18,6 @@ enum MainTab { home, practice, me }
 final mainNavigationIndexProvider = StateProvider<int>(
   (ref) => MainTab.home.index,
 );
-
-/// One-shot guard for the launch-time auto-switch to the Practice tab. Set to
-/// true the first time [userRoutineProvider] resolves OR the user manually
-/// taps a tab, ensuring the auto-switch never fights a deliberate choice and
-/// never re-fires on later provider invalidations within the same session.
-final initialPracticeTabResolvedProvider = StateProvider<bool>((ref) => false);
 
 /// Holds an enrolled plan that should be opened after the home screen's
 /// notification-permission flow completes. Set during onboarding completion,
@@ -96,7 +87,6 @@ class MainNavigationBottomBar extends ConsumerWidget {
     return AppBottomNavBar(
       items: items,
       onChanged: (index) {
-        ref.read(initialPracticeTabResolvedProvider.notifier).state = true;
         ref.read(mainNavigationIndexProvider.notifier).state = index;
         onTabChanged?.call(index);
       },
@@ -136,18 +126,6 @@ class MainNavigationScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final items = mainNavigationItems(context);
     final selectedIndex = ref.watch(mainNavigationIndexProvider);
-
-    ref.listen<AsyncValue<RoutineData?>>(userRoutineProvider, (prev, next) {
-      if (ref.read(initialPracticeTabResolvedProvider)) return;
-      if (ref.read(authProvider).isLoading) return;
-      next.whenData((routine) {
-        ref.read(initialPracticeTabResolvedProvider.notifier).state = true;
-        if (routine != null && routine.hasItems) {
-          ref.read(mainNavigationIndexProvider.notifier).state =
-              MainTab.practice.index;
-        }
-      });
-    });
 
     return items[selectedIndex].selectedWidget ?? const SizedBox.shrink();
   }
