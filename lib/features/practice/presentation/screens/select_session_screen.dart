@@ -242,7 +242,8 @@ class _PracticeItemsTab extends ConsumerWidget {
         final isEnrolling = enrollingItemId == series.id;
         return _SessionListTile(
           title: series.title,
-          subtitle: series.description.isNotEmpty ? series.description : null,
+          subtitle:
+              series.subTitle?.isNotEmpty == true ? series.subTitle : null,
           coverImage: series.coverImage,
           isLoading: isEnrolling,
           isDisabled: enrollingItemId != null,
