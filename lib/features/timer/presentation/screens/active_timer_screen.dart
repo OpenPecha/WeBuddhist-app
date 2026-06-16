@@ -20,18 +20,15 @@ class ActiveTimerScreen extends StatefulWidget {
 }
 
 class _ActiveTimerScreenState extends State<ActiveTimerScreen> {
-  static const _countdownStart = 3;
+  static const _countdownStart = 5;
   static const _ringSize = 280.0;
   static const _controlsSpacing = 48.0;
   static const _controlsHeight = 56.0;
   static const _centerTextHeight = 48.0;
   static const _durationFontSize = 40.0;
-  static const _startLabelFontSize = 40.0;
-  static const _tibetanStartLabelFontSize = 32.0;
 
   _TimerPhase _phase = _TimerPhase.countdown;
   int _countdownValue = _countdownStart;
-  bool _showStartLabel = false;
   int _remainingMs = 0;
   bool _isPaused = false;
 
@@ -66,21 +63,13 @@ class _ActiveTimerScreenState extends State<ActiveTimerScreen> {
   void _onCountdownTick() {
     if (!mounted) return;
 
-    if (_showStartLabel) {
+    if (_countdownValue <= 1) {
       _timer?.cancel();
       _startMainTimer();
       return;
     }
 
-    if (_countdownValue > 1) {
-      setState(() => _countdownValue--);
-      return;
-    }
-
-    setState(() {
-      _countdownValue = 0;
-      _showStartLabel = true;
-    });
+    setState(() => _countdownValue--);
   }
 
   void _startMainTimer() {
@@ -88,7 +77,6 @@ class _ActiveTimerScreenState extends State<ActiveTimerScreen> {
       _phase = _TimerPhase.running;
       _remainingMs = _totalMs;
       _isPaused = false;
-      _showStartLabel = false;
     });
 
     _timer?.cancel();
@@ -142,7 +130,7 @@ class _ActiveTimerScreenState extends State<ActiveTimerScreen> {
                     TimerProgressRing(
                       size: _ringSize,
                       progress: _elapsedProgress,
-                      child: _buildCenterContent(textColor, l10n.timer_start),
+                      child: _buildCenterContent(textColor),
                     ),
                     const SizedBox(height: _controlsSpacing),
                     SizedBox(
@@ -172,8 +160,12 @@ class _ActiveTimerScreenState extends State<ActiveTimerScreen> {
                 ),
               ),
             ),
-            if (_phase != _TimerPhase.countdown)
-              Padding(
+            Visibility(
+              visible: _phase != _TimerPhase.countdown,
+              maintainSize: true,
+              maintainAnimation: true,
+              maintainState: true,
+              child: Padding(
                 padding: const EdgeInsets.fromLTRB(24, 0, 24, 32),
                 child: SizedBox(
                   width: double.infinity,
@@ -200,39 +192,19 @@ class _ActiveTimerScreenState extends State<ActiveTimerScreen> {
                   ),
                 ),
               ),
+            ),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildCenterContent(Color textColor, String startLabel) {
+  Widget _buildCenterContent(Color textColor) {
     final textTheme = Theme.of(context).textTheme;
-    final isStartLabel =
-        _phase == _TimerPhase.countdown && _showStartLabel;
     final text =
         _phase == _TimerPhase.countdown
-            ? (isStartLabel ? startLabel : '$_countdownValue')
+            ? '$_countdownValue'
             : _formatDuration(_remainingMs);
-
-    if (isStartLabel) {
-      final fontSize =
-          context.isTibetanLocale
-              ? _tibetanStartLabelFontSize
-              : _startLabelFontSize;
-
-      return Text(
-        text,
-        textAlign: TextAlign.center,
-        strutStyle: context.tibetanStrutStyle(fontSize),
-        style: textTheme.headlineMedium?.copyWith(
-          fontSize: fontSize,
-          fontWeight: FontWeight.w600,
-          color: textColor,
-          letterSpacing: context.isTibetanLocale ? 0 : 1,
-        ),
-      );
-    }
 
     return SizedBox(
       height: _centerTextHeight,
