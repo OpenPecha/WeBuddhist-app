@@ -1108,6 +1108,15 @@ class AppLocalizationsZh extends AppLocalizations {
       'Username must end with a letter or number';
 
   @override
+  String get person_name_min_length => '至少需要 1 個字元';
+
+  @override
+  String get person_name_max_length => '不得超過 50 個字元';
+
+  @override
+  String get person_name_invalid_chars => '僅允許字母、空格、連字號和撇號';
+
+  @override
   String get about_title => '關於';
 
   @override

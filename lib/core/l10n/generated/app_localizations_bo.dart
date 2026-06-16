@@ -1155,6 +1155,16 @@ class AppLocalizationsBo extends AppLocalizations {
       'Username must end with a letter or number';
 
   @override
+  String get person_name_min_length => 'Must be at least 1 character';
+
+  @override
+  String get person_name_max_length => 'Must be 50 characters or less';
+
+  @override
+  String get person_name_invalid_chars =>
+      'Only letters, spaces, hyphens, and apostrophes are allowed';
+
+  @override
   String get about_title => 'སྐོར།';
 
   @override

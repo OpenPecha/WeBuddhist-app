@@ -2146,6 +2146,24 @@ abstract class AppLocalizations {
   /// **'Username must end with a letter or number'**
   String get username_must_end_alphanumeric;
 
+  /// No description provided for @person_name_min_length.
+  ///
+  /// In en, this message translates to:
+  /// **'Must be at least 1 character'**
+  String get person_name_min_length;
+
+  /// No description provided for @person_name_max_length.
+  ///
+  /// In en, this message translates to:
+  /// **'Must be 50 characters or less'**
+  String get person_name_max_length;
+
+  /// No description provided for @person_name_invalid_chars.
+  ///
+  /// In en, this message translates to:
+  /// **'Only letters, spaces, hyphens, and apostrophes are allowed'**
+  String get person_name_invalid_chars;
+
   /// No description provided for @about_title.
   ///
   /// In en, this message translates to:
