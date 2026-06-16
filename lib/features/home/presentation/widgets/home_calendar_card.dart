@@ -32,10 +32,13 @@ class HomeCalendarCard extends ConsumerWidget {
     final phase = moonPhaseForLunarDay(day.lunarDay);
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Material(
         color: theme.colorScheme.surface,
-        borderRadius: BorderRadius.circular(24),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(24),
+          side: BorderSide(color: theme.colorScheme.outline),
+        ),
         child: InkWell(
           borderRadius: BorderRadius.circular(16),
           onTap: () => context.push(AppRoutes.calendar),
@@ -66,7 +69,7 @@ class HomeCalendarCard extends ConsumerWidget {
                           theme.textTheme.bodyMedium?.fontSize ?? 14,
                         ),
                         style: theme.textTheme.bodyMedium?.copyWith(
-                          color: theme.colorScheme.onSurfaceVariant,
+                          color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
                         ),
                       ),
                     ],

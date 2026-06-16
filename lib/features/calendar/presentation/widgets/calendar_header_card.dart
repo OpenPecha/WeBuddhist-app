@@ -21,7 +21,7 @@ class CalendarHeaderCard extends ConsumerWidget {
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 22),
+      padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
       decoration: BoxDecoration(
         color: theme.cardTheme.color,
         border: Border.all(color: theme.colorScheme.outline),
@@ -36,31 +36,22 @@ class CalendarHeaderCard extends ConsumerWidget {
                 Text(
                   '${l10n.calendar_day_label} ${day.lunarDay}',
                   strutStyle: context.tibetanStrutStyle(
-                    theme.textTheme.headlineSmall?.fontSize ?? 24,
+                    theme.textTheme.headlineSmall?.fontSize ?? 20,
                   ),
                   style: theme.textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.w700,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   lunarMonthLabel(context, l10n, day.lunarMonth),
                   strutStyle: context.tibetanStrutStyle(
-                    theme.textTheme.bodyMedium?.fontSize ?? 14,
+                    theme.textTheme.bodyMedium?.fontSize ?? 16,
                   ),
                   style: theme.textTheme.bodyMedium?.copyWith(
                     color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
                   ),
                 ),
-                if (day.yearDesignation.isNotEmpty) ...[
-                  const SizedBox(height: 2),
-                  Text(
-                    day.yearDesignation,
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
-                    ),
-                  ),
-                ],
               ],
             ),
           ),

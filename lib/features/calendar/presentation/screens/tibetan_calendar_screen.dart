@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_pecha/core/config/router/app_routes.dart';
+import 'package:flutter_pecha/core/core.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/features/calendar/presentation/providers/tibetan_calendar_providers.dart';
 import 'package:flutter_pecha/features/calendar/presentation/widgets/calendar_header_card.dart';
@@ -81,7 +81,7 @@ class _TibetanCalendarScreenState extends ConsumerState<TibetanCalendarScreen>
         centerTitle: true,
         backgroundColor: theme.scaffoldBackgroundColor,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, size: 20),
+          icon: const Icon(AppAssets.arrowLeft, size: 24),
           tooltip: l10n.back,
           onPressed: () {
             if (context.canPop()) {
