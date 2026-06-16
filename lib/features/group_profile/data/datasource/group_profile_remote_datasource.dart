@@ -55,7 +55,7 @@ class GroupProfileRemoteDatasource {
   Future<bool> checkFollowStatus(String groupId) async {
     try {
       final response = await dio.get(
-        '/users/me/following/author/groups',
+        '/users/me/joined/author/groups',
         queryParameters: {'group_id': groupId, 'skip': 0, 'limit': 20},
         options: Options(extra: {'no_cache': true}),
       );
@@ -69,7 +69,7 @@ class GroupProfileRemoteDatasource {
         return false;
       }
       _logger.error('Dio error in checkFollowStatus', e);
-      throw _dioToException(e, 'Failed to check follow status');
+      throw _dioToException(e, 'Failed to check join status');
     }
   }
 
