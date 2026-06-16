@@ -4,28 +4,34 @@ import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
+import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/features/timer/domain/entities/preset_timer.dart';
+import 'package:flutter_pecha/features/timer/domain/usecases/stop_user_timer_usecase.dart';
+import 'package:flutter_pecha/features/timer/presentation/providers/timers_providers.dart';
 import 'package:flutter_pecha/features/timer/presentation/widgets/timer_progress_ring.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 enum _TimerPhase { countdown, running, finished }
 
-class ActiveTimerScreen extends StatefulWidget {
+class ActiveTimerScreen extends ConsumerStatefulWidget {
   const ActiveTimerScreen({super.key, required this.presetTimer});
 
   final PresetTimer presetTimer;
 
   @override
-  State<ActiveTimerScreen> createState() => _ActiveTimerScreenState();
+  ConsumerState<ActiveTimerScreen> createState() => _ActiveTimerScreenState();
 }
 
-class _ActiveTimerScreenState extends State<ActiveTimerScreen> {
+class _ActiveTimerScreenState extends ConsumerState<ActiveTimerScreen> {
   static const _countdownStart = 5;
   static const _ringSize = 280.0;
   static const _controlsSpacing = 48.0;
   static const _controlsHeight = 56.0;
   static const _centerTextHeight = 48.0;
   static const _durationFontSize = 40.0;
+
+  final _logger = AppLogger('ActiveTimerScreen');
 
   _TimerPhase _phase = _TimerPhase.countdown;
   int _countdownValue = _countdownStart;
@@ -35,6 +41,8 @@ class _ActiveTimerScreenState extends State<ActiveTimerScreen> {
   Timer? _timer;
 
   int get _totalMs => widget.presetTimer.durationMs;
+
+  int get _elapsedMs => _totalMs - _remainingMs;
 
   double get _elapsedProgress {
     if (_totalMs <= 0) return 1;
@@ -98,22 +106,43 @@ class _ActiveTimerScreenState extends State<ActiveTimerScreen> {
         _remainingMs = 0;
         _phase = _TimerPhase.finished;
         _timer?.cancel();
+        _reportTimerStop();
       }
     });
   }
 
   void _togglePause() {
-    if (_phase != _TimerPhase.running && _phase != _TimerPhase.finished) {
-      return;
-    }
-    if (_phase == _TimerPhase.finished) return;
+    if (_phase != _TimerPhase.running) return;
 
+    final enteringPause = !_isPaused;
     setState(() => _isPaused = !_isPaused);
+
+    if (enteringPause) {
+      _reportTimerStop();
+    }
   }
 
   void _finish() {
     _timer?.cancel();
+    if (_phase == _TimerPhase.running && !_isPaused) {
+      _reportTimerStop();
+    }
     context.pop();
+  }
+
+  void _reportTimerStop() {
+    final useCase = ref.read(stopUserTimerUseCaseProvider);
+    useCase(
+      StopUserTimerParams(
+        timerId: widget.presetTimer.id,
+        durationMs: _elapsedMs,
+      ),
+    ).then((result) {
+      result.fold(
+        (failure) => _logger.warning('Failed to report timer stop: $failure'),
+        (_) {},
+      );
+    });
   }
 
   @override

@@ -41,6 +41,7 @@ class ProtectedRoutes {
 
     // Timers
     '/timers',
+    '/timers/', // Catch-all for timer sub-paths like /timers/user/timer_stop
 
     // Routines
     '/routines',
