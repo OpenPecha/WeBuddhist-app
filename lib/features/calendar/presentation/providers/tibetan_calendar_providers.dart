@@ -124,9 +124,16 @@ final backendMonthOverlayProvider =
         keys.add((year: d.year, month: d.month));
       }
 
+      // Register every subscription *before* awaiting. In Riverpod, `ref.watch`
+      // calls after the first `await` don't create reactive subscriptions, so
+      // collect all the month futures synchronously, then await them together.
+      final futures = [
+        for (final key in keys) ref.watch(calendarMonthProvider(key).future),
+      ];
+      final months = await Future.wait(futures);
+
       final overlay = <DateTime, TibetanCalendarDay>{};
-      for (final key in keys) {
-        final days = await ref.watch(calendarMonthProvider(key).future);
+      for (final days in months) {
         for (final day in days) {
           final g = day.gregorianDate;
           if (g == null) continue; // omitted day — no grid cell

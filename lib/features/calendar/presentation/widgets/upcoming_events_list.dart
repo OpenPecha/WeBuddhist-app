@@ -101,9 +101,7 @@ class _ShowMoreButton extends StatelessWidget {
           child: Container(
             padding: const EdgeInsets.symmetric(vertical: 8),
             decoration: BoxDecoration(
-              border: Border.all(
-                color: theme.colorScheme.onSurface.withValues(alpha: 0.15),
-              ),
+              border: Border.all(color: theme.colorScheme.outline),
               borderRadius: BorderRadius.circular(14),
             ),
             child: Row(
@@ -143,7 +141,9 @@ class _EventCard extends StatelessWidget {
     final theme = Theme.of(context);
     final l10n = context.l10n;
     final weekday =
-        DateFormat.E(dateFormatLocale(context)).format(event.date).toUpperCase();
+        DateFormat.E(
+          dateFormatLocale(context),
+        ).format(event.date).toUpperCase();
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),

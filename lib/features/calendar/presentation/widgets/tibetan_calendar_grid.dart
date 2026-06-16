@@ -34,7 +34,6 @@ class TibetanCalendarGrid extends ConsumerWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
       decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: theme.colorScheme.outline),
       ),
@@ -81,7 +80,9 @@ class TibetanCalendarGrid extends ConsumerWidget {
           dowBuilder: (context, day) {
             // Uppercase short weekday name (MON, TUE, …), localized via intl.
             final label =
-                DateFormat.E(dateFormatLocale(context)).format(day).toUpperCase();
+                DateFormat.E(
+                  dateFormatLocale(context),
+                ).format(day).toUpperCase();
             return Center(
               child: Text(
                 label,
