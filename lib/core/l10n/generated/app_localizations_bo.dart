@@ -520,6 +520,15 @@ class AppLocalizationsBo extends AppLocalizations {
       'Check back soon for new communities to join';
 
   @override
+  String get search_groups => 'Search groups';
+
+  @override
+  String get search_for_groups => 'Search for groups';
+
+  @override
+  String get no_groups_found => 'No groups found';
+
+  @override
   String get explore_coming_soon_subtitle =>
       'ཉམས་ལེན་དང་། གསུང་ཆོས། ལྷན་ཚོགས་ཀྱི་བྱེད་སྒོ་བཅས་འཆར་སྟོན་བྱེད་གནས།';
 

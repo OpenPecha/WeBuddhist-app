@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
+import 'package:flutter_pecha/features/connect/presentation/screens/group_search_screen.dart';
 
 class ConnectHeader extends StatelessWidget {
   const ConnectHeader({super.key});
@@ -31,7 +32,13 @@ class ConnectHeader extends StatelessWidget {
                 ),
               ),
               IconButton(
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      builder: (_) => const GroupSearchScreen(),
+                    ),
+                  );
+                },
                 icon: Icon(
                   AppAssets.exploreUnselected,
                   color: theme.colorScheme.onSurface,

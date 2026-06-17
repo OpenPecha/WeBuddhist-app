@@ -14,16 +14,22 @@ class ConnectRemoteDatasource {
     required String language,
     int skip = 0,
     int limit = 20,
+    String? search,
   }) async {
     try {
+      final queryParameters = <String, dynamic>{
+        'language': language,
+        'group_type': 'COMMUNITY',
+        'skip': skip,
+        'limit': limit,
+      };
+      if (search != null && search.trim().isNotEmpty) {
+        queryParameters['search'] = search.trim();
+      }
+
       final response = await dio.get(
         '/author/groups',
-        queryParameters: {
-          'language': language,
-          'group_type': 'COMMUNITY',
-          'skip': skip,
-          'limit': limit,
-        },
+        queryParameters: queryParameters,
       );
 
       if (response.statusCode != 200) {

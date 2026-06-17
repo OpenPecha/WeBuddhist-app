@@ -497,6 +497,15 @@ class AppLocalizationsZh extends AppLocalizations {
       'Check back soon for new communities to join';
 
   @override
+  String get search_groups => 'Search groups';
+
+  @override
+  String get search_for_groups => 'Search for groups';
+
+  @override
+  String get no_groups_found => 'No groups found';
+
+  @override
   String get explore_coming_soon_subtitle => '探索修持、教法與社群活動的精選空間。';
 
   @override

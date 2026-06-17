@@ -1060,6 +1060,24 @@ abstract class AppLocalizations {
   /// **'Check back soon for new communities to join'**
   String get connect_groups_empty_subtitle;
 
+  /// No description provided for @search_groups.
+  ///
+  /// In en, this message translates to:
+  /// **'Search groups'**
+  String get search_groups;
+
+  /// No description provided for @search_for_groups.
+  ///
+  /// In en, this message translates to:
+  /// **'Search for groups'**
+  String get search_for_groups;
+
+  /// No description provided for @no_groups_found.
+  ///
+  /// In en, this message translates to:
+  /// **'No groups found'**
+  String get no_groups_found;
+
   /// No description provided for @explore_coming_soon_subtitle.
   ///
   /// In en, this message translates to:

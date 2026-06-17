@@ -7,6 +7,7 @@ abstract class ConnectRepository {
     required String language,
     int skip = 0,
     int limit = 20,
+    String? search,
   });
 
   Future<Either<Failure, DiscoverGroupsPage>> getMyGroups({

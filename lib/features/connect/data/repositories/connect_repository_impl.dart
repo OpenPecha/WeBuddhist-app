@@ -15,12 +15,14 @@ class ConnectRepositoryImpl implements ConnectRepository {
     required String language,
     int skip = 0,
     int limit = 20,
+    String? search,
   }) async {
     try {
       final page = await remote.fetchDiscoverGroups(
         language: language,
         skip: skip,
         limit: limit,
+        search: search,
       );
       return Right(page);
     } on ServerException catch (e) {

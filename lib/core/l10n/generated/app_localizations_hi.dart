@@ -523,6 +523,15 @@ class AppLocalizationsHi extends AppLocalizations {
       'Check back soon for new communities to join';
 
   @override
+  String get search_groups => 'Search groups';
+
+  @override
+  String get search_for_groups => 'Search for groups';
+
+  @override
+  String get no_groups_found => 'No groups found';
+
+  @override
   String get explore_coming_soon_subtitle =>
       'अभ्यास, शिक्षाओं और सामुदायिक आयोजनों को खोजने के लिए एक चयनित स्थान';
 
