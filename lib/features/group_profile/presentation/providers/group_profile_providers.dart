@@ -47,7 +47,12 @@ class GroupFollowLoading extends GroupFollowState {
 
 class GroupFollowSuccess extends GroupFollowState {
   final bool isFollowing;
-  const GroupFollowSuccess({required this.isFollowing});
+  final int joinerCountDelta;
+
+  const GroupFollowSuccess({
+    required this.isFollowing,
+    this.joinerCountDelta = 0,
+  });
 }
 
 class GroupFollowFailure extends GroupFollowState {
@@ -57,26 +62,23 @@ class GroupFollowFailure extends GroupFollowState {
 
 class GroupFollowNotifier extends StateNotifier<GroupFollowState> {
   final GroupProfileRepositoryInterface _repository;
-  final Ref _ref;
   final String _groupId;
   final bool _isAuthenticated;
 
   GroupFollowNotifier({
     required GroupProfileRepositoryInterface repository,
-    required Ref ref,
     required String groupId,
     required bool isAuthenticated,
   }) : _repository = repository,
-       _ref = ref,
        _groupId = groupId,
        _isAuthenticated = isAuthenticated,
        super(const GroupFollowLoading()) {
     _loadInitialStatus();
   }
 
-  Future<void> _refreshGroupProfile() async {
-    _ref.invalidate(groupProfileProvider(_groupId));
-    await _ref.read(groupProfileProvider(_groupId).future);
+  int _currentJoinerCountDelta() {
+    final current = state;
+    return current is GroupFollowSuccess ? current.joinerCountDelta : 0;
   }
 
   Future<void> _loadInitialStatus() async {
@@ -96,6 +98,7 @@ class GroupFollowNotifier extends StateNotifier<GroupFollowState> {
 
   Future<bool> follow() async {
     if (state is GroupFollowLoading) return false;
+    final previousDelta = _currentJoinerCountDelta();
     state = const GroupFollowLoading();
 
     final result = await _repository.followGroup(_groupId);
@@ -107,8 +110,10 @@ class GroupFollowNotifier extends StateNotifier<GroupFollowState> {
         return false;
       },
       (_) async {
-        state = const GroupFollowSuccess(isFollowing: true);
-        await _refreshGroupProfile();
+        state = GroupFollowSuccess(
+          isFollowing: true,
+          joinerCountDelta: previousDelta + 1,
+        );
         return true;
       },
     );
@@ -116,6 +121,7 @@ class GroupFollowNotifier extends StateNotifier<GroupFollowState> {
 
   Future<bool> unfollow() async {
     if (state is GroupFollowLoading) return false;
+    final previousDelta = _currentJoinerCountDelta();
     state = const GroupFollowLoading();
 
     final result = await _repository.unfollowGroup(_groupId);
@@ -127,8 +133,10 @@ class GroupFollowNotifier extends StateNotifier<GroupFollowState> {
         return false;
       },
       (_) async {
-        state = const GroupFollowSuccess(isFollowing: false);
-        await _refreshGroupProfile();
+        state = GroupFollowSuccess(
+          isFollowing: false,
+          joinerCountDelta: previousDelta - 1,
+        );
         return true;
       },
     );
@@ -142,7 +150,6 @@ final groupFollowProvider = StateNotifierProvider.autoDispose
 
   return GroupFollowNotifier(
     repository: ref.watch(groupProfileRepositoryProvider),
-    ref: ref,
     groupId: groupId,
     isAuthenticated: isAuthenticated,
   );

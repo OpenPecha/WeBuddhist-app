@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
+import 'package:flutter_pecha/core/widgets/cached_network_image_widget.dart';
 import 'package:flutter_pecha/core/widgets/responsive_cover_image.dart';
 import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
 import 'package:flutter_pecha/features/auth/presentation/widgets/login_drawer.dart';
@@ -50,20 +51,11 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
     super.dispose();
   }
 
-  GroupProfile _resolveProfile() {
-    final refreshed = ref.watch(groupProfileProvider(widget.profile.id));
-    return refreshed.maybeWhen(
-      data:
-          (either) => either.fold((_) => widget.profile, (profile) => profile),
-      orElse: () => widget.profile,
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final locale = Localizations.localeOf(context);
     final lineHeight = getLineHeight(locale.languageCode);
-    final profile = _resolveProfile();
+    final profile = widget.profile;
     final isDark = widget.isDark;
 
     final orderedLinks = GroupProfileLinksDrawer.orderedLinks(
@@ -85,16 +77,16 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
                 borderRadius: BorderRadius.circular(16),
                 child: AspectRatio(
                   aspectRatio: 16 / 9,
-                  child: Image.network(
-                    profile.bannerUrl!,
+                  child: CachedNetworkImageWidget(
+                    key: ValueKey(profile.bannerUrl),
+                    imageUrl: profile.bannerUrl,
                     fit: BoxFit.cover,
-                    errorBuilder:
-                        (_, __, ___) => Container(
-                          color:
-                              isDark
-                                  ? AppColors.surfaceVariantDark
-                                  : AppColors.grey100,
-                        ),
+                    errorWidget: Container(
+                      color:
+                          isDark
+                              ? AppColors.surfaceVariantDark
+                              : AppColors.grey100,
+                    ),
                   ),
                 ),
               ),
@@ -115,7 +107,7 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
             _buildLinksSummary(orderedLinks, isDark, lineHeight),
           ],
           const SizedBox(height: 20),
-          _buildFollowButton(isDark),
+          _GroupFollowButton(groupId: profile.id, isDark: isDark),
           const SizedBox(height: 24),
           _buildTabBar(isDark),
           const SizedBox(height: 16),
@@ -139,14 +131,6 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
     bool isDark,
     double? lineHeight,
   ) {
-    final locale = Localizations.localeOf(context);
-    final formattedJoinerCount = NumberFormat.decimalPattern(
-      locale.toString(),
-    ).format(profile.joinerCount);
-    final memberLabel =
-        profile.joinerCount == 1
-            ? context.l10n.group_member
-            : context.l10n.group_members;
     final secondaryColor =
         isDark ? AppColors.textTertiaryDark : AppColors.textSecondary;
 
@@ -155,22 +139,22 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          CircleAvatar(
-            radius: 22,
-            backgroundColor:
-                isDark ? AppColors.surfaceVariantDark : AppColors.grey100,
-            backgroundImage:
-                profile.avatarUrl != null && profile.avatarUrl!.isNotEmpty
-                    ? NetworkImage(profile.avatarUrl!)
-                    : null,
-            child:
-                (profile.avatarUrl == null || profile.avatarUrl!.isEmpty)
-                    ? Icon(
-                      AppAssets.usersThree,
-                      size: 22,
-                      color: isDark ? AppColors.grey500 : AppColors.grey600,
-                    )
-                    : null,
+          ClipOval(
+            child: SizedBox(
+              width: 44,
+              height: 44,
+              child:
+                  profile.avatarUrl != null && profile.avatarUrl!.isNotEmpty
+                      ? CachedNetworkImageWidget(
+                        key: ValueKey(profile.avatarUrl),
+                        imageUrl: profile.avatarUrl,
+                        width: 44,
+                        height: 44,
+                        fit: BoxFit.cover,
+                        errorWidget: _buildAvatarFallback(isDark),
+                      )
+                      : _buildAvatarFallback(isDark),
+            ),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -199,29 +183,27 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
                   ),
                 ],
                 const SizedBox(height: 4),
-                RichText(
-                  text: TextSpan(
-                    style: TextStyle(
-                      fontSize: 14,
-                      color:
-                          isDark
-                              ? AppColors.textPrimaryDark
-                              : AppColors.textPrimary,
-                      height: lineHeight,
-                    ),
-                    children: [
-                      TextSpan(
-                        text: formattedJoinerCount,
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      TextSpan(text: ' $memberLabel'),
-                    ],
-                  ),
+                _GroupJoinerCountText(
+                  groupId: profile.id,
+                  baseJoinerCount: profile.joinerCount,
+                  isDark: isDark,
+                  lineHeight: lineHeight,
                 ),
               ],
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildAvatarFallback(bool isDark) {
+    return ColoredBox(
+      color: isDark ? AppColors.surfaceVariantDark : AppColors.grey100,
+      child: Icon(
+        AppAssets.usersThree,
+        size: 22,
+        color: isDark ? AppColors.grey500 : AppColors.grey600,
       ),
     );
   }
@@ -323,74 +305,6 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
         ),
       ),
     );
-  }
-
-  Widget _buildFollowButton(bool isDark) {
-    final groupId = widget.profile.id;
-    final followState = ref.watch(groupFollowProvider(groupId));
-
-    final isFollowing = switch (followState) {
-      GroupFollowSuccess(isFollowing: final f) => f,
-      _ => false,
-    };
-    final isLoading = followState is GroupFollowLoading;
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-      child: SizedBox(
-        width: double.infinity,
-        height: 48,
-        child: ElevatedButton(
-          onPressed:
-              isLoading ? null : () => _onFollowPressed(groupId, isFollowing),
-          style: ElevatedButton.styleFrom(
-            backgroundColor:
-                isFollowing
-                    ? (isDark
-                        ? AppColors.surfaceVariantDark
-                        : AppColors.grey100)
-                    : (isDark ? AppColors.surfaceWhite : AppColors.textPrimary),
-            foregroundColor:
-                isFollowing
-                    ? (isDark ? AppColors.surfaceWhite : AppColors.textPrimary)
-                    : (isDark ? AppColors.textPrimary : AppColors.surfaceWhite),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(24),
-            ),
-            elevation: 0,
-          ),
-          child:
-              isLoading
-                  ? const SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
-                  : Text(
-                    isFollowing ? context.l10n.joined : context.l10n.join,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-        ),
-      ),
-    );
-  }
-
-  void _onFollowPressed(String groupId, bool isCurrentlyFollowing) {
-    final authState = ref.read(authProvider);
-    if (authState.isGuest || !authState.isLoggedIn) {
-      LoginDrawer.show(context, ref);
-      return;
-    }
-
-    final notifier = ref.read(groupFollowProvider(groupId).notifier);
-    if (isCurrentlyFollowing) {
-      notifier.unfollow();
-    } else {
-      notifier.follow();
-    }
   }
 
   Widget _buildTabBar(bool isDark) {
@@ -553,5 +467,141 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
         await launchUrl(uri, mode: LaunchMode.externalApplication);
       }
     } catch (_) {}
+  }
+}
+
+class _GroupJoinerCountText extends ConsumerWidget {
+  final String groupId;
+  final int baseJoinerCount;
+  final bool isDark;
+  final double? lineHeight;
+
+  const _GroupJoinerCountText({
+    required this.groupId,
+    required this.baseJoinerCount,
+    required this.isDark,
+    this.lineHeight,
+  });
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final followState = ref.watch(groupFollowProvider(groupId));
+    final delta = switch (followState) {
+      GroupFollowSuccess(joinerCountDelta: final d) => d,
+      _ => 0,
+    };
+    final joinerCount = (baseJoinerCount + delta).clamp(0, 1 << 31);
+    final locale = Localizations.localeOf(context);
+    final formattedJoinerCount = NumberFormat.decimalPattern(
+      locale.toString(),
+    ).format(joinerCount);
+    final memberLabel =
+        joinerCount == 1
+            ? context.l10n.group_member
+            : context.l10n.group_members;
+
+    return RichText(
+      text: TextSpan(
+        style: TextStyle(
+          fontSize: 14,
+          color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimary,
+          height: lineHeight,
+        ),
+        children: [
+          TextSpan(
+            text: formattedJoinerCount,
+            style: const TextStyle(fontWeight: FontWeight.bold),
+          ),
+          TextSpan(text: ' $memberLabel'),
+        ],
+      ),
+    );
+  }
+}
+
+class _GroupFollowButton extends ConsumerWidget {
+  final String groupId;
+  final bool isDark;
+
+  const _GroupFollowButton({required this.groupId, required this.isDark});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final followState = ref.watch(groupFollowProvider(groupId));
+
+    final isFollowing = switch (followState) {
+      GroupFollowSuccess(isFollowing: final f) => f,
+      _ => false,
+    };
+    final isLoading = followState is GroupFollowLoading;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      child: SizedBox(
+        width: double.infinity,
+        height: 48,
+        child: ElevatedButton(
+          onPressed:
+              isLoading
+                  ? null
+                  : () => _onFollowPressed(
+                    context,
+                    ref,
+                    groupId,
+                    isFollowing,
+                  ),
+          style: ElevatedButton.styleFrom(
+            backgroundColor:
+                isFollowing
+                    ? (isDark
+                        ? AppColors.surfaceVariantDark
+                        : AppColors.grey100)
+                    : (isDark ? AppColors.surfaceWhite : AppColors.textPrimary),
+            foregroundColor:
+                isFollowing
+                    ? (isDark ? AppColors.surfaceWhite : AppColors.textPrimary)
+                    : (isDark ? AppColors.textPrimary : AppColors.surfaceWhite),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(24),
+            ),
+            elevation: 0,
+          ),
+          child:
+              isLoading
+                  ? const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                  : Text(
+                    isFollowing ? context.l10n.joined : context.l10n.join,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+        ),
+      ),
+    );
+  }
+
+  void _onFollowPressed(
+    BuildContext context,
+    WidgetRef ref,
+    String groupId,
+    bool isCurrentlyFollowing,
+  ) {
+    final authState = ref.read(authProvider);
+    if (authState.isGuest || !authState.isLoggedIn) {
+      LoginDrawer.show(context, ref);
+      return;
+    }
+
+    final notifier = ref.read(groupFollowProvider(groupId).notifier);
+    if (isCurrentlyFollowing) {
+      notifier.unfollow();
+    } else {
+      notifier.follow();
+    }
   }
 }
