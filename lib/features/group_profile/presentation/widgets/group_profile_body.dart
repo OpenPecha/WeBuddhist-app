@@ -7,6 +7,7 @@ import 'package:flutter_pecha/features/auth/presentation/providers/state_provide
 import 'package:flutter_pecha/features/auth/presentation/widgets/login_drawer.dart';
 import 'package:flutter_pecha/features/group_profile/domain/entities/group_profile.dart';
 import 'package:flutter_pecha/features/group_profile/presentation/providers/group_profile_providers.dart';
+import 'package:flutter_pecha/features/group_profile/presentation/widgets/group_profile_links_drawer.dart';
 import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -49,14 +50,9 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody> {
     final profile = _resolveProfile();
     final isDark = widget.isDark;
 
-    final websiteLink =
-        profile.socialLinks
-            .where((l) => l.platform.toLowerCase() == 'website')
-            .toList();
-    final socialIcons =
-        profile.socialLinks
-            .where((l) => l.platform.toLowerCase() != 'website')
-            .toList();
+    final orderedLinks = GroupProfileLinksDrawer.orderedLinks(
+      profile.socialLinks,
+    );
 
     return SingleChildScrollView(
       controller: widget.scrollController,
@@ -98,13 +94,9 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody> {
             const SizedBox(height: 12),
             _buildDescription(profile.description!, isDark),
           ],
-          if (websiteLink.isNotEmpty) ...[
+          if (orderedLinks.isNotEmpty) ...[
             const SizedBox(height: 12),
-            _buildWebsiteLink(websiteLink.first, isDark),
-          ],
-          if (socialIcons.isNotEmpty) ...[
-            const SizedBox(height: 16),
-            _buildSocialIcons(socialIcons, isDark),
+            _buildLinksSummary(orderedLinks, isDark, lineHeight),
           ],
           const SizedBox(height: 20),
           _buildFollowButton(isDark),
@@ -253,25 +245,55 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody> {
     );
   }
 
-  Widget _buildWebsiteLink(GroupProfileSocialLink link, bool isDark) {
+  Widget _buildLinksSummary(
+    List<GroupProfileSocialLink> links,
+    bool isDark,
+    double? lineHeight,
+  ) {
+    final primaryLink = links.first;
+    final moreCount = links.length - 1;
+    final secondaryColor =
+        isDark ? AppColors.textTertiaryDark : AppColors.textSecondary;
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
       child: GestureDetector(
-        onTap: () => _launchUrl(link.url),
+        onTap: () {
+          if (moreCount > 0) {
+            GroupProfileLinksDrawer.show(context, links);
+          } else {
+            _launchUrl(primaryLink.url);
+          }
+        },
+        behavior: HitTestBehavior.opaque,
         child: Row(
           children: [
             Icon(
               AppAssets.linkSimple,
               size: 18,
-              color: isDark ? AppColors.blueDark : AppColors.blue,
+              color: secondaryColor,
             ),
             const SizedBox(width: 6),
-            Flexible(
-              child: Text(
-                link.url,
-                style: TextStyle(
-                  fontSize: 14,
-                  color: isDark ? AppColors.blueDark : AppColors.blue,
+            Expanded(
+              child: Text.rich(
+                TextSpan(
+                  style: TextStyle(
+                    fontSize: 14,
+                    color:
+                        isDark
+                            ? AppColors.textPrimaryDark
+                            : AppColors.textPrimary,
+                    height: lineHeight,
+                  ),
+                  children: [
+                    TextSpan(text: primaryLink.url),
+                    if (moreCount > 0)
+                      TextSpan(
+                        text:
+                            ' ${context.l10n.group_and_more_links(moreCount)}',
+                        style: TextStyle(color: secondaryColor),
+                      ),
+                  ],
                 ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
@@ -279,28 +301,6 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody> {
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildSocialIcons(List<GroupProfileSocialLink> links, bool isDark) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-      child: Row(
-        children:
-            links.map((link) {
-              return Padding(
-                padding: const EdgeInsets.only(right: 16),
-                child: GestureDetector(
-                  onTap: () => _launchUrl(link.url),
-                  child: Icon(
-                    _socialIcon(link.platform),
-                    size: 22,
-                    color: isDark ? AppColors.grey300 : AppColors.textPrimary,
-                  ),
-                ),
-              );
-            }).toList(),
       ),
     );
   }
@@ -481,26 +481,6 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody> {
         ),
       ),
     );
-  }
-
-  IconData _socialIcon(String platform) {
-    switch (platform.toLowerCase()) {
-      case 'instagram':
-        return AppAssets.instagram;
-      case 'facebook':
-        return AppAssets.facebook;
-      case 'twitter':
-      case 'x':
-        return AppAssets.twitter;
-      case 'youtube':
-        return AppAssets.youtube;
-      case 'tiktok':
-        return AppAssets.tiktok;
-      case 'linkedin':
-        return AppAssets.linkedin;
-      default:
-        return AppAssets.link;
-    }
   }
 
   Future<void> _launchUrl(String url) async {

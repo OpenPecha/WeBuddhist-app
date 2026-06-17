@@ -47,7 +47,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get onboarding_begin_practice => 'Begin your practice';
 
   @override
-  String get home_recitation => 'Recitation';
+  String get home_recitation => 'recitations';
+
+  @override
   String get home_today => 'Today';
 
   @override
@@ -76,9 +78,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get home_intention => 'My intention for today';
-
-  @override
-  String get home_recitation => 'recitations';
 
   @override
   String get home_overall_stats => 'Overall stats';
@@ -504,6 +503,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String get creator_featured_plan => 'Featured plans';
 
   @override
+  String get audio_init_error =>
+      'Unable to initialize audio player. Check your connection and try again';
+
+  @override
+  String get meditation_audio_load_error =>
+      'Unable to load. Check your connection and try again';
+
+  @override
+  String get prayer_audio_load_error =>
+      'Unable to load audio. Check your connection and try again';
+
+  @override
+  String get home_no_series_found => 'No series found';
+
+  @override
   String get home_no_tags_found => 'No tags found';
 
   @override
@@ -819,6 +833,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get routine_delete_block => 'Remove block';
+
+  @override
+  String get routine_delete_time_block => 'Remove time block';
 
   @override
   String get routine_add_plan => 'Add plan';
@@ -1242,16 +1259,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get legal_privacy_policy => 'Privacy policy';
 
   @override
-  String get join => 'Join';
+  String get follow => 'Follow';
 
   @override
-  String get joined => 'Joined';
-
-  @override
-  String get group_member => 'member';
-
-  @override
-  String get group_members => 'members';
+  String get following => 'Following';
 
   @override
   String get calendar_title => 'Calendar';
@@ -1298,6 +1309,26 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get moon_phase_waning_crescent => 'Waning crescent';
+
+  @override
+  String get join => 'Join';
+
+  @override
+  String get joined => 'Joined';
+
+  @override
+  String get group_member => 'member';
+
+  @override
+  String get group_members => 'members';
+
+  @override
+  String get group_links_title => 'Links';
+
+  @override
+  String group_and_more_links(int count) {
+    return 'and $count more links';
+  }
 
   @override
   String get share_this_quote => 'Share this quote';

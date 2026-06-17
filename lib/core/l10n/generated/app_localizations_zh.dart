@@ -49,6 +49,36 @@ class AppLocalizationsZh extends AppLocalizations {
   String get home_recitation => '持誦';
 
   @override
+  String get home_today => 'Today';
+
+  @override
+  String get home_good_morning => 'Good morning';
+
+  @override
+  String get home_good_afternoon => 'Good afternoon';
+
+  @override
+  String get home_good_evening => 'Good evening';
+
+  @override
+  String get home_meditationTitle => 'Meditation';
+
+  @override
+  String get home_prayerTitle => 'Prayer of the day';
+
+  @override
+  String get home_scripture => 'Guided scripture';
+
+  @override
+  String get home_meditation => 'Guided meditation';
+
+  @override
+  String get home_goDeeper => 'Go deeper';
+
+  @override
+  String get home_intention => 'My intention for today';
+
+  @override
   String get home_overall_stats => '整體統計';
 
   @override
@@ -450,6 +480,21 @@ class AppLocalizationsZh extends AppLocalizations {
   String get creator_featured_plan => '精選計畫';
 
   @override
+  String get audio_init_error =>
+      'Unable to initialize audio player. Check your connection and try again';
+
+  @override
+  String get meditation_audio_load_error =>
+      'Unable to load. Check your connection and try again';
+
+  @override
+  String get prayer_audio_load_error =>
+      'Unable to load audio. Check your connection and try again';
+
+  @override
+  String get home_no_series_found => 'No series found';
+
+  @override
   String get home_no_tags_found => '找不到該標籤';
 
   @override
@@ -753,6 +798,9 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get routine_delete_block => '刪除時段';
+
+  @override
+  String get routine_delete_time_block => 'Remove time block';
 
   @override
   String get routine_add_plan => '添加計畫';
@@ -1162,16 +1210,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get legal_privacy_policy => '隱私政策';
 
   @override
-  String get join => '加入';
+  String get follow => 'Follow';
 
   @override
-  String get joined => '已加入';
-
-  @override
-  String get group_member => '位成員';
-
-  @override
-  String get group_members => '位成員';
+  String get following => 'Following';
 
   @override
   String get calendar_title => '日历';
@@ -1218,6 +1260,26 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get moon_phase_waning_crescent => '残月';
+
+  @override
+  String get join => '加入';
+
+  @override
+  String get joined => '已加入';
+
+  @override
+  String get group_member => '位成員';
+
+  @override
+  String get group_members => '位成員';
+
+  @override
+  String get group_links_title => '連結';
+
+  @override
+  String group_and_more_links(int count) {
+    return '及另外 $count 個連結';
+  }
 
   @override
   String get share_this_quote => '分享这句话';

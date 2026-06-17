@@ -542,6 +542,8 @@
   "joined": "Joined",
   "group_member": "member",
   "group_members": "members",
+  "group_links_title": "Links",
+  "group_and_more_links": "and {count} more links",
 
   "share_this_quote": "Share this quote",
   "shared_from": "Shared from",
