@@ -19,9 +19,6 @@ class ConnectScreen extends ConsumerStatefulWidget {
 }
 
 class _ConnectScreenState extends ConsumerState<ConnectScreen> {
-  static const _heroImagePath =
-      'assets/images/tag_cover/ultimate_reality.png';
-
   final ScrollController _scrollController = ScrollController();
 
   @override
@@ -60,9 +57,10 @@ class _ConnectScreenState extends ConsumerState<ConnectScreen> {
 
     // Hide groups the user already belongs to from the discover section.
     final myGroupIds = myGroupsState.groups.map((g) => g.id).toSet();
-    final discoverGroups = discoverState.groups
-        .where((group) => !myGroupIds.contains(group.id))
-        .toList();
+    final discoverGroups =
+        discoverState.groups
+            .where((group) => !myGroupIds.contains(group.id))
+            .toList();
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
@@ -114,9 +112,7 @@ class _ConnectScreenState extends ConsumerState<ConnectScreen> {
     }
 
     if (myGroupsState.isLoading) {
-      return const [
-        SliverToBoxAdapter(child: MyGroupsSectionSkeleton()),
-      ];
+      return const [SliverToBoxAdapter(child: MyGroupsSectionSkeleton())];
     }
 
     return [
@@ -127,10 +123,7 @@ class _ConnectScreenState extends ConsumerState<ConnectScreen> {
             borderRadius: BorderRadius.circular(20),
             child: AspectRatio(
               aspectRatio: 16 / 10,
-              child: Image.asset(
-                _heroImagePath,
-                fit: BoxFit.cover,
-              ),
+              child: Image.asset(AppAssets.connect, fit: BoxFit.cover),
             ),
           ),
         ),
@@ -222,26 +215,22 @@ class _EmptyState extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 32),
       child: Column(
         children: [
-          Icon(
-            AppAssets.connectUnselected,
-            size: 48,
-            color: subtitleColor,
-          ),
+          Icon(AppAssets.connectUnselected, size: 48, color: subtitleColor),
           const SizedBox(height: 16),
           Text(
             context.l10n.connect_groups_empty_title,
             textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.w700,
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 8),
           Text(
             context.l10n.connect_groups_empty_subtitle,
             textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: subtitleColor,
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.bodyMedium?.copyWith(color: subtitleColor),
           ),
         ],
       ),
