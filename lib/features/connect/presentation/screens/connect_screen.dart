@@ -7,6 +7,7 @@ import 'package:flutter_pecha/features/connect/presentation/providers/connect_pr
 import 'package:flutter_pecha/features/connect/presentation/widgets/connect_header.dart';
 import 'package:flutter_pecha/features/connect/presentation/widgets/discover_group_card.dart';
 import 'package:flutter_pecha/features/connect/presentation/widgets/my_groups_section.dart';
+import 'package:flutter_pecha/features/connect/presentation/widgets/my_groups_section_skeleton.dart';
 import 'package:flutter_pecha/features/group_profile/domain/entities/group_profile.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -109,6 +110,12 @@ class _ConnectScreenState extends ConsumerState<ConnectScreen> {
             total: myGroupsState.total,
           ),
         ),
+      ];
+    }
+
+    if (myGroupsState.isLoading) {
+      return const [
+        SliverToBoxAdapter(child: MyGroupsSectionSkeleton()),
       ];
     }
 
