@@ -500,10 +500,16 @@ class AppLocalizationsHi extends AppLocalizations {
       'मार्ग पर आपका साथ देने के लिए शिक्षक, समुदाय, चुनौतियाँ और आयोजन';
 
   @override
-  String get connect_subtitle => 'Find your groups and practice together';
+  String get connect_subtitle => 'Find groups and practice together';
 
   @override
   String get discover_groups => 'Discover groups';
+
+  @override
+  String get my_groups => 'My groups';
+
+  @override
+  String get see_all => 'See all';
 
   @override
   String get connect_groups_load_error =>

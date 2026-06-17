@@ -504,10 +504,16 @@ class AppLocalizationsNe extends AppLocalizations {
       'मार्गमा तपाईंलाई सहयोग गर्न शिक्षकहरू, समुदायहरू, चुनौतीहरू र कार्यक्रमहरू';
 
   @override
-  String get connect_subtitle => 'Find your groups and practice together';
+  String get connect_subtitle => 'Find groups and practice together';
 
   @override
   String get discover_groups => 'Discover groups';
+
+  @override
+  String get my_groups => 'My groups';
+
+  @override
+  String get see_all => 'See all';
 
   @override
   String get connect_groups_load_error =>

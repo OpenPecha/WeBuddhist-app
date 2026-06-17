@@ -8,4 +8,10 @@ abstract class ConnectRepository {
     int skip = 0,
     int limit = 20,
   });
+
+  Future<Either<Failure, DiscoverGroupsPage>> getMyGroups({
+    required String language,
+    int skip = 0,
+    int limit = 20,
+  });
 }

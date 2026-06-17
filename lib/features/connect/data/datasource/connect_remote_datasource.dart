@@ -36,25 +36,70 @@ class ConnectRemoteDatasource {
         );
       }
 
-      final data = response.data as Map<String, dynamic>;
-      final groupsJson = data['groups'] as List<dynamic>? ?? const [];
-      final groups =
-          groupsJson
-              .whereType<Map<String, dynamic>>()
-              .map(GroupProfileModel.fromJson)
-              .map((model) => model.toEntity())
-              .toList();
-
-      return DiscoverGroupsPage(
-        groups: groups,
-        skip: (data['skip'] as num?)?.toInt() ?? skip,
-        limit: (data['limit'] as num?)?.toInt() ?? limit,
-        total: (data['total'] as num?)?.toInt() ?? groups.length,
+      return _parseGroupsPage(
+        response.data as Map<String, dynamic>,
+        skip: skip,
+        limit: limit,
       );
     } on DioException catch (e) {
       _logger.error('Dio error in fetchDiscoverGroups', e);
       throw _dioToException(e, 'Failed to load discover groups');
     }
+  }
+
+  Future<DiscoverGroupsPage> fetchMyGroups({
+    required String language,
+    int skip = 0,
+    int limit = 20,
+  }) async {
+    try {
+      final response = await dio.get(
+        '/users/me/joined/author/groups',
+        queryParameters: {
+          'language': language,
+          'skip': skip,
+          'limit': limit,
+        },
+      );
+
+      if (response.statusCode != 200) {
+        _logger.error('Failed to load my groups: ${response.statusCode}');
+        throw _statusToException(
+          response.statusCode,
+          'Failed to load my groups',
+        );
+      }
+
+      return _parseGroupsPage(
+        response.data as Map<String, dynamic>,
+        skip: skip,
+        limit: limit,
+      );
+    } on DioException catch (e) {
+      _logger.error('Dio error in fetchMyGroups', e);
+      throw _dioToException(e, 'Failed to load my groups');
+    }
+  }
+
+  DiscoverGroupsPage _parseGroupsPage(
+    Map<String, dynamic> data, {
+    required int skip,
+    required int limit,
+  }) {
+    final groupsJson = data['groups'] as List<dynamic>? ?? const [];
+    final groups =
+        groupsJson
+            .whereType<Map<String, dynamic>>()
+            .map(GroupProfileModel.fromJson)
+            .map((model) => model.toEntity())
+            .toList();
+
+    return DiscoverGroupsPage(
+      groups: groups,
+      skip: (data['skip'] as num?)?.toInt() ?? skip,
+      limit: (data['limit'] as num?)?.toInt() ?? limit,
+      total: (data['total'] as num?)?.toInt() ?? groups.length,
+    );
   }
 
   Exception _statusToException(int? statusCode, String label) {

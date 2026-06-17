@@ -1,3 +1,4 @@
+import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
 import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
 import 'package:flutter_pecha/core/di/core_providers.dart';
 import 'package:flutter_pecha/features/connect/data/datasource/connect_remote_datasource.dart';
@@ -149,3 +150,151 @@ final discoverGroupsProvider =
         );
       },
     );
+
+class MyGroupsState {
+  final List<GroupProfile> groups;
+  final int total;
+  final bool isLoading;
+  final String? error;
+
+  const MyGroupsState({
+    this.groups = const [],
+    this.total = 0,
+    this.isLoading = false,
+    this.error,
+  });
+
+  bool get hasGroups => groups.isNotEmpty;
+
+  MyGroupsState copyWith({
+    List<GroupProfile>? groups,
+    int? total,
+    bool? isLoading,
+    String? error,
+    bool clearError = false,
+  }) {
+    return MyGroupsState(
+      groups: groups ?? this.groups,
+      total: total ?? this.total,
+      isLoading: isLoading ?? this.isLoading,
+      error: clearError ? null : error ?? this.error,
+    );
+  }
+}
+
+class MyGroupsNotifier extends StateNotifier<MyGroupsState> {
+  MyGroupsNotifier({
+    required this.repository,
+    required this.language,
+    required this.isAuthenticated,
+  }) : super(const MyGroupsState()) {
+    load();
+  }
+
+  final ConnectRepository repository;
+  final String language;
+  final bool isAuthenticated;
+  static const int _limit = 20;
+
+  Future<void> load() async {
+    if (!isAuthenticated) {
+      state = const MyGroupsState();
+      return;
+    }
+
+    if (state.isLoading) return;
+
+    state = state.copyWith(isLoading: true, clearError: true);
+
+    final result = await repository.getMyGroups(
+      language: language,
+      skip: 0,
+      limit: _limit,
+    );
+
+    if (!mounted) return;
+
+    result.fold(
+      (failure) {
+        state = state.copyWith(isLoading: false, error: failure.message);
+      },
+      (page) {
+        state = state.copyWith(
+          groups: page.groups,
+          total: page.total,
+          isLoading: false,
+          clearError: true,
+        );
+      },
+    );
+  }
+
+  Future<void> refresh() async {
+    if (!isAuthenticated) {
+      state = const MyGroupsState();
+      return;
+    }
+
+    state = state.copyWith(isLoading: true, clearError: true);
+
+    final result = await repository.getMyGroups(
+      language: language,
+      skip: 0,
+      limit: _limit,
+    );
+
+    if (!mounted) return;
+
+    result.fold(
+      (failure) {
+        state = state.copyWith(isLoading: false, error: failure.message);
+      },
+      (page) {
+        state = state.copyWith(
+          groups: page.groups,
+          total: page.total,
+          isLoading: false,
+          clearError: true,
+        );
+      },
+    );
+  }
+
+  /// Optimistically adds a freshly joined group so the "My groups" section
+  /// updates immediately, without waiting for the (eventually consistent)
+  /// server to return it on the next fetch.
+  void addGroup(GroupProfile group) {
+    if (!isAuthenticated) return;
+    if (state.groups.any((g) => g.id == group.id)) return;
+
+    state = state.copyWith(
+      groups: [group, ...state.groups],
+      total: state.total + 1,
+      clearError: true,
+    );
+  }
+
+  /// Optimistically removes a group the user just left/unfollowed.
+  void removeGroup(String groupId) {
+    if (!state.groups.any((g) => g.id == groupId)) return;
+
+    state = state.copyWith(
+      groups: state.groups.where((g) => g.id != groupId).toList(),
+      total: (state.total - 1).clamp(0, 1 << 31),
+      clearError: true,
+    );
+  }
+}
+
+final myGroupsProvider =
+    StateNotifierProvider.autoDispose<MyGroupsNotifier, MyGroupsState>((ref) {
+      final authState = ref.watch(authProvider);
+      final isAuthenticated = !authState.isGuest && authState.isLoggedIn;
+      final language = ref.watch(contentLanguageProvider);
+
+      return MyGroupsNotifier(
+        repository: ref.watch(connectRepositoryProvider),
+        language: language,
+        isAuthenticated: isAuthenticated,
+      );
+    });

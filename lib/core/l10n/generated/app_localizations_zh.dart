@@ -474,10 +474,16 @@ class AppLocalizationsZh extends AppLocalizations {
   String get connect_coming_soon_subtitle => '在修行路上支持您前行的良師、社群、修持挑戰與相關活動';
 
   @override
-  String get connect_subtitle => 'Find your groups and practice together';
+  String get connect_subtitle => 'Find groups and practice together';
 
   @override
   String get discover_groups => 'Discover groups';
+
+  @override
+  String get my_groups => 'My groups';
+
+  @override
+  String get see_all => 'See all';
 
   @override
   String get connect_groups_load_error =>

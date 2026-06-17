@@ -37,4 +37,32 @@ class ConnectRepositoryImpl implements ConnectRepository {
       return Left(UnknownFailure('Failed to load discover groups: $e'));
     }
   }
+
+  @override
+  Future<Either<Failure, DiscoverGroupsPage>> getMyGroups({
+    required String language,
+    int skip = 0,
+    int limit = 20,
+  }) async {
+    try {
+      final page = await remote.fetchMyGroups(
+        language: language,
+        skip: skip,
+        limit: limit,
+      );
+      return Right(page);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(e.message));
+    } on AuthenticationException catch (e) {
+      return Left(AuthenticationFailure(e.message));
+    } on NotFoundException catch (e) {
+      return Left(NotFoundFailure(e.message));
+    } on RateLimitException catch (e) {
+      return Left(RateLimitFailure(e.message));
+    } catch (e) {
+      return Left(UnknownFailure('Failed to load my groups: $e'));
+    }
+  }
 }

@@ -6,6 +6,8 @@ import 'package:flutter_pecha/core/widgets/error_state_widget.dart';
 import 'package:flutter_pecha/features/connect/presentation/providers/connect_providers.dart';
 import 'package:flutter_pecha/features/connect/presentation/widgets/connect_header.dart';
 import 'package:flutter_pecha/features/connect/presentation/widgets/discover_group_card.dart';
+import 'package:flutter_pecha/features/connect/presentation/widgets/my_groups_section.dart';
+import 'package:flutter_pecha/features/group_profile/domain/entities/group_profile.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class ConnectScreen extends ConsumerStatefulWidget {
@@ -41,39 +43,39 @@ class _ConnectScreenState extends ConsumerState<ConnectScreen> {
     }
   }
 
+  Future<void> _onRefresh() async {
+    await Future.wait([
+      ref.read(discoverGroupsProvider.notifier).refresh(),
+      ref.read(myGroupsProvider.notifier).refresh(),
+    ]);
+  }
+
   @override
   Widget build(BuildContext context) {
-    final groupsState = ref.watch(discoverGroupsProvider);
+    final discoverState = ref.watch(discoverGroupsProvider);
+    final myGroupsState = ref.watch(myGroupsProvider);
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+
+    // Hide groups the user already belongs to from the discover section.
+    final myGroupIds = myGroupsState.groups.map((g) => g.id).toSet();
+    final discoverGroups = discoverState.groups
+        .where((group) => !myGroupIds.contains(group.id))
+        .toList();
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
       body: SafeArea(
         child: RefreshIndicator(
-          onRefresh: () => ref.read(discoverGroupsProvider.notifier).refresh(),
+          onRefresh: _onRefresh,
           child: CustomScrollView(
             controller: _scrollController,
             physics: const AlwaysScrollableScrollPhysics(),
             slivers: [
               const SliverToBoxAdapter(child: ConnectHeader()),
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 20, 20, 24),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(20),
-                    child: AspectRatio(
-                      aspectRatio: 16 / 10,
-                      child: Image.asset(
-                        _heroImagePath,
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
+              ..._buildTopSectionSlivers(myGroupsState),
               SliverPadding(
-                padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
+                padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
                 sliver: SliverToBoxAdapter(
                   child: Text(
                     context.l10n.discover_groups,
@@ -84,7 +86,12 @@ class _ConnectScreenState extends ConsumerState<ConnectScreen> {
                   ),
                 ),
               ),
-              ..._buildGroupsSlivers(context, groupsState, isDark),
+              ..._buildDiscoverGroupsSlivers(
+                context,
+                discoverState,
+                discoverGroups,
+                isDark,
+              ),
               const SliverToBoxAdapter(child: SizedBox(height: 24)),
             ],
           ),
@@ -93,38 +100,76 @@ class _ConnectScreenState extends ConsumerState<ConnectScreen> {
     );
   }
 
-  List<Widget> _buildGroupsSlivers(
-    BuildContext context,
-    DiscoverGroupsState groupsState,
-    bool isDark,
-  ) {
-    if (groupsState.isLoading && groupsState.groups.isEmpty) {
-      return const [
-        SliverFillRemaining(
-          hasScrollBody: false,
-          child: Center(child: CircularProgressIndicator()),
-        ),
-      ];
-    }
-
-    if (groupsState.error != null && groupsState.groups.isEmpty) {
+  List<Widget> _buildTopSectionSlivers(MyGroupsState myGroupsState) {
+    if (myGroupsState.hasGroups) {
       return [
-        SliverFillRemaining(
-          hasScrollBody: false,
-          child: ErrorStateWidget(
-            error: groupsState.error!,
-            onRetry: () => ref.read(discoverGroupsProvider.notifier).retry(),
-            customMessage: context.l10n.connect_groups_load_error,
+        SliverToBoxAdapter(
+          child: MyGroupsSection(
+            groups: myGroupsState.groups,
+            total: myGroupsState.total,
           ),
         ),
       ];
     }
 
-    if (groupsState.groups.isEmpty && !groupsState.isLoading) {
+    return [
+      SliverToBoxAdapter(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 20, 20, 8),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(20),
+            child: AspectRatio(
+              aspectRatio: 16 / 10,
+              child: Image.asset(
+                _heroImagePath,
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
+        ),
+      ),
+    ];
+  }
+
+  List<Widget> _buildDiscoverGroupsSlivers(
+    BuildContext context,
+    DiscoverGroupsState groupsState,
+    List<GroupProfile> groups,
+    bool isDark,
+  ) {
+    if (groupsState.isLoading && groups.isEmpty) {
+      return const [
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: EdgeInsets.symmetric(vertical: 48),
+            child: Center(child: CircularProgressIndicator()),
+          ),
+        ),
+      ];
+    }
+
+    if (groupsState.error != null && groups.isEmpty) {
       return [
-        SliverFillRemaining(
-          hasScrollBody: false,
-          child: _EmptyState(isDark: isDark),
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 32),
+            child: ErrorStateWidget(
+              error: groupsState.error!,
+              onRetry: () => ref.read(discoverGroupsProvider.notifier).retry(),
+              customMessage: context.l10n.connect_groups_load_error,
+            ),
+          ),
+        ),
+      ];
+    }
+
+    if (groups.isEmpty && !groupsState.isLoading) {
+      return [
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 32),
+            child: _EmptyState(isDark: isDark),
+          ),
         ),
       ];
     }
@@ -133,11 +178,10 @@ class _ConnectScreenState extends ConsumerState<ConnectScreen> {
       SliverPadding(
         padding: const EdgeInsets.fromLTRB(20, 8, 20, 0),
         sliver: SliverList.separated(
-          itemCount:
-              groupsState.groups.length + (groupsState.hasMore ? 1 : 0),
+          itemCount: groups.length + (groupsState.hasMore ? 1 : 0),
           separatorBuilder: (_, __) => const SizedBox(height: 12),
           itemBuilder: (context, index) {
-            if (index == groupsState.groups.length) {
+            if (index == groups.length) {
               return Padding(
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 child: Center(
@@ -149,7 +193,7 @@ class _ConnectScreenState extends ConsumerState<ConnectScreen> {
               );
             }
 
-            return DiscoverGroupCard(group: groupsState.groups[index]);
+            return DiscoverGroupCard(group: groups[index]);
           },
         ),
       ),
@@ -170,7 +214,6 @@ class _EmptyState extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 32),
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(
             AppAssets.connectUnselected,

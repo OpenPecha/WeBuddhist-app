@@ -7,6 +7,7 @@ import 'package:flutter_pecha/core/widgets/cached_network_image_widget.dart';
 import 'package:flutter_pecha/core/widgets/responsive_cover_image.dart';
 import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
 import 'package:flutter_pecha/features/auth/presentation/widgets/login_drawer.dart';
+import 'package:flutter_pecha/features/connect/presentation/providers/connect_providers.dart';
 import 'package:flutter_pecha/features/group_profile/domain/entities/group_profile.dart';
 import 'package:flutter_pecha/features/group_profile/presentation/providers/group_profile_providers.dart';
 import 'package:flutter_pecha/features/group_profile/presentation/widgets/group_profile_links_drawer.dart';
@@ -109,8 +110,7 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
           ],
           const SizedBox(height: 20),
           _GroupFollowButton(
-            groupId: profile.id,
-            groupType: profile.groupType,
+            profile: profile,
             isDark: isDark,
           ),
           const SizedBox(height: 24),
@@ -523,19 +523,17 @@ class _GroupMemberCountText extends StatelessWidget {
 }
 
 class _GroupFollowButton extends ConsumerWidget {
-  final String groupId;
-  final GroupType groupType;
+  final GroupProfile profile;
   final bool isDark;
 
   const _GroupFollowButton({
-    required this.groupId,
-    required this.groupType,
+    required this.profile,
     required this.isDark,
   });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final followKey = GroupFollowKey(groupId: groupId, groupType: groupType);
+    final followKey = GroupFollowKey(groupId: profile.id, groupType: profile.groupType);
     final followState = ref.watch(groupFollowProvider(followKey));
 
     final isFollowing = switch (followState) {
@@ -543,7 +541,7 @@ class _GroupFollowButton extends ConsumerWidget {
       _ => false,
     };
     final isLoading = followState is GroupFollowLoading;
-    final isPage = groupType.isPage;
+    final isPage = profile.groupType.isPage;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -597,12 +595,12 @@ class _GroupFollowButton extends ConsumerWidget {
     );
   }
 
-  void _onFollowPressed(
+  Future<void> _onFollowPressed(
     BuildContext context,
     WidgetRef ref,
     GroupFollowKey followKey,
     bool isCurrentlyFollowing,
-  ) {
+  ) async {
     final authState = ref.read(authProvider);
     if (authState.isGuest || !authState.isLoggedIn) {
       LoginDrawer.show(context, ref);
@@ -610,10 +608,16 @@ class _GroupFollowButton extends ConsumerWidget {
     }
 
     final notifier = ref.read(groupFollowProvider(followKey).notifier);
+    final myGroups = ref.read(myGroupsProvider.notifier);
+    final success =
+        isCurrentlyFollowing ? await notifier.unfollow() : await notifier.follow();
+
+    if (!success) return;
+
     if (isCurrentlyFollowing) {
-      notifier.unfollow();
+      myGroups.removeGroup(profile.id);
     } else {
-      notifier.follow();
+      myGroups.addGroup(profile);
     }
   }
 }

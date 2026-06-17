@@ -7,6 +7,7 @@ import 'package:flutter_pecha/core/widgets/cached_network_image_widget.dart';
 import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
 import 'package:flutter_pecha/features/auth/presentation/widgets/login_drawer.dart';
 import 'package:flutter_pecha/features/group_profile/domain/entities/group_profile.dart';
+import 'package:flutter_pecha/features/connect/presentation/providers/connect_providers.dart';
 import 'package:flutter_pecha/features/group_profile/presentation/providers/group_profile_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -178,7 +179,7 @@ class _JoinButton extends ConsumerWidget {
         style: TextButton.styleFrom(
           backgroundColor:
               isDark ? AppColors.surfaceVariantDark : AppColors.grey100,
-          foregroundColor: themeColor(context, isJoined),
+          foregroundColor: Theme.of(context).colorScheme.onSurface,
           padding: const EdgeInsets.symmetric(horizontal: 16),
           minimumSize: Size.zero,
           tapTargetSize: MaterialTapTargetSize.shrinkWrap,
@@ -193,7 +194,7 @@ class _JoinButton extends ConsumerWidget {
                   height: 14,
                   child: CircularProgressIndicator(
                     strokeWidth: 2,
-                    color: themeColor(context, isJoined),
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                 )
                 : Text(
@@ -207,16 +208,12 @@ class _JoinButton extends ConsumerWidget {
     );
   }
 
-  Color themeColor(BuildContext context, bool isJoined) {
-    return Theme.of(context).colorScheme.onSurface;
-  }
-
-  void _onJoinPressed(
+  Future<void> _onJoinPressed(
     BuildContext context,
     WidgetRef ref,
     GroupFollowKey followKey,
     bool isJoined,
-  ) {
+  ) async {
     final authState = ref.read(authProvider);
     if (authState.isGuest || !authState.isLoggedIn) {
       LoginDrawer.show(context, ref);
@@ -224,10 +221,17 @@ class _JoinButton extends ConsumerWidget {
     }
 
     final notifier = ref.read(groupFollowProvider(followKey).notifier);
+    final myGroups = ref.read(myGroupsProvider.notifier);
+    final success =
+        isJoined ? await notifier.unfollow() : await notifier.follow();
+
+    if (!success) return;
+
+    // Reflect the change in the "My groups" section right away.
     if (isJoined) {
-      notifier.unfollow();
+      myGroups.removeGroup(group.id);
     } else {
-      notifier.follow();
+      myGroups.addGroup(group);
     }
   }
 }

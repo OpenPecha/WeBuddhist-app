@@ -1021,7 +1021,7 @@ abstract class AppLocalizations {
   /// No description provided for @connect_subtitle.
   ///
   /// In en, this message translates to:
-  /// **'Find your groups and practice together'**
+  /// **'Find groups and practice together'**
   String get connect_subtitle;
 
   /// No description provided for @discover_groups.
@@ -1029,6 +1029,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Discover groups'**
   String get discover_groups;
+
+  /// No description provided for @my_groups.
+  ///
+  /// In en, this message translates to:
+  /// **'My groups'**
+  String get my_groups;
+
+  /// No description provided for @see_all.
+  ///
+  /// In en, this message translates to:
+  /// **'See all'**
+  String get see_all;
 
   /// No description provided for @connect_groups_load_error.
   ///
