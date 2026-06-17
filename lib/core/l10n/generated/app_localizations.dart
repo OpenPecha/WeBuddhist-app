@@ -256,6 +256,12 @@ abstract class AppLocalizations {
   /// **'plans'**
   String get home_plans;
 
+  /// No description provided for @home_shortcut_plans.
+  ///
+  /// In en, this message translates to:
+  /// **'Plans'**
+  String get home_shortcut_plans;
+
   /// No description provided for @home_chants.
   ///
   /// In en, this message translates to:

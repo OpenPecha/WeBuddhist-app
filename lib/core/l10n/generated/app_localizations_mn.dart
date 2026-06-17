@@ -86,6 +86,9 @@ class AppLocalizationsMn extends AppLocalizations {
   String get home_plans => 'Төлөвлөгөө';
 
   @override
+  String get home_shortcut_plans => 'Төлөвлөгөө';
+
+  @override
   String get home_chants => 'Магтаал';
 
   @override

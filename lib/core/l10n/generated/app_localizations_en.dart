@@ -86,6 +86,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get home_plans => 'plans';
 
   @override
+  String get home_shortcut_plans => 'Plans';
+
+  @override
   String get home_chants => 'Chants';
 
   @override

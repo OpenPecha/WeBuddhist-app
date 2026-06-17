@@ -86,6 +86,9 @@ class AppLocalizationsBo extends AppLocalizations {
   String get home_plans => 'ཉམས་ལེན';
 
   @override
+  String get home_shortcut_plans => 'ཉམས་ལེན';
+
+  @override
   String get home_chants => 'ཞལ་འདོན';
 
   @override

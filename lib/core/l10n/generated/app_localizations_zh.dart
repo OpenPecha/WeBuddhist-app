@@ -85,6 +85,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get home_plans => '計劃';
 
   @override
+  String get home_shortcut_plans => '計劃';
+
+  @override
   String get home_chants => '持誦';
 
   @override
