@@ -41,6 +41,7 @@ class GroupProfile {
   final String title;
   final String? subTitle;
   final String? description;
+  final String? descriptionLong;
   final String? avatarUrl;
   final String? bannerUrl;
   final bool isFollowing;
@@ -56,6 +57,7 @@ class GroupProfile {
     this.title = '',
     this.subTitle,
     this.description,
+    this.descriptionLong,
     this.avatarUrl,
     this.bannerUrl,
     this.isFollowing = false,
@@ -73,6 +75,7 @@ class GroupProfile {
       title: title,
       subTitle: subTitle,
       description: description,
+      descriptionLong: descriptionLong,
       avatarUrl: avatarUrl,
       bannerUrl: bannerUrl,
       isFollowing: isFollowing ?? this.isFollowing,

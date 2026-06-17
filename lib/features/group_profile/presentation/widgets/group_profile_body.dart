@@ -8,6 +8,7 @@ import 'package:flutter_pecha/features/auth/presentation/widgets/login_drawer.da
 import 'package:flutter_pecha/features/group_profile/domain/entities/group_profile.dart';
 import 'package:flutter_pecha/features/group_profile/presentation/providers/group_profile_providers.dart';
 import 'package:flutter_pecha/features/group_profile/presentation/widgets/group_profile_links_drawer.dart';
+import 'package:flutter_pecha/features/plans/presentation/widgets/plan_inline_markdown_view.dart';
 import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -32,13 +33,28 @@ class GroupProfileBody extends ConsumerStatefulWidget {
   ConsumerState<GroupProfileBody> createState() => _GroupProfileBodyState();
 }
 
-class _GroupProfileBodyState extends ConsumerState<GroupProfileBody> {
+class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
+    with SingleTickerProviderStateMixin {
   bool _isDescriptionExpanded = false;
+  late TabController _tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 2, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
 
   GroupProfile _resolveProfile() {
     final refreshed = ref.watch(groupProfileProvider(widget.profile.id));
     return refreshed.maybeWhen(
-      data: (either) => either.fold((_) => widget.profile, (profile) => profile),
+      data:
+          (either) => either.fold((_) => widget.profile, (profile) => profile),
       orElse: () => widget.profile,
     );
   }
@@ -100,10 +116,18 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody> {
           ],
           const SizedBox(height: 20),
           _buildFollowButton(isDark),
-          if (profile.series.isNotEmpty) ...[
-            const SizedBox(height: 24),
-            _buildPracticesSection(profile.series, isDark, lineHeight),
-          ],
+          const SizedBox(height: 24),
+          _buildTabBar(isDark),
+          const SizedBox(height: 16),
+          AnimatedBuilder(
+            animation: _tabController,
+            builder: (context, _) {
+              if (_tabController.index == 0) {
+                return _buildPracticesTab(profile, isDark, lineHeight);
+              }
+              return _buildAboutTab(profile, isDark, locale.languageCode);
+            },
+          ),
           const SizedBox(height: 32),
         ],
       ),
@@ -268,11 +292,7 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody> {
         behavior: HitTestBehavior.opaque,
         child: Row(
           children: [
-            Icon(
-              AppAssets.linkSimple,
-              size: 18,
-              color: secondaryColor,
-            ),
+            Icon(AppAssets.linkSimple, size: 18, color: secondaryColor),
             const SizedBox(width: 6),
             Expanded(
               child: Text.rich(
@@ -373,31 +393,74 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody> {
     }
   }
 
-  Widget _buildPracticesSection(
-    List<GroupProfileSeries> seriesList,
+  Widget _buildTabBar(bool isDark) {
+    final labelColor =
+        isDark ? AppColors.textPrimaryDark : AppColors.textPrimary;
+    final unselectedColor =
+        isDark ? AppColors.textTertiaryDark : AppColors.textSecondary;
+    final dividerColor = isDark ? AppColors.grey800 : AppColors.grey300;
+
+    return Column(
+      children: [
+        TabBar(
+          controller: _tabController,
+          isScrollable: true,
+          tabAlignment: TabAlignment.start,
+          labelColor: labelColor,
+          dividerColor: Colors.transparent,
+          labelStyle: const TextStyle(
+            fontSize: 15,
+            fontWeight: FontWeight.bold,
+          ),
+          unselectedLabelStyle: const TextStyle(
+            fontSize: 15,
+            fontWeight: FontWeight.w500,
+          ),
+          tabs: [
+            Tab(text: context.l10n.nav_practice),
+            Tab(text: context.l10n.about_title),
+          ],
+        ),
+        Divider(height: 1, thickness: 1, color: dividerColor),
+      ],
+    );
+  }
+
+  Widget _buildPracticesTab(
+    GroupProfile profile,
     bool isDark,
     double? lineHeight,
   ) {
+    if (profile.series.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-          child: Text(
-            context.l10n.nav_practice,
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-              color: isDark ? AppColors.textTertiaryDark : AppColors.grey800,
-              letterSpacing: 0.5,
-            ),
-          ),
-        ),
-        const SizedBox(height: 12),
-        ...seriesList.map(
-          (series) => _buildSeriesRow(series, isDark, lineHeight),
-        ),
-      ],
+      children:
+          profile.series
+              .map((series) => _buildSeriesRow(series, isDark, lineHeight))
+              .toList(),
+    );
+  }
+
+  Widget _buildAboutTab(
+    GroupProfile profile,
+    bool isDark,
+    String languageCode,
+  ) {
+    final descriptionLong = profile.descriptionLong?.trim();
+    if (descriptionLong == null || descriptionLong.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    final bodyFontSize = languageCode == 'bo' ? 18.0 : 15.0;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      child: PlanInlineMarkdownView(
+        content: descriptionLong,
+        fontSize: bodyFontSize,
+      ),
     );
   }
 

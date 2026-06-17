@@ -77,10 +77,7 @@ class GroupProfileRemoteDatasource {
     try {
       final response = await dio.delete('/author/groups/$groupId/join');
       if (response.statusCode != 200 && response.statusCode != 204) {
-        throw _statusToException(
-          response.statusCode,
-          'Failed to leave group',
-        );
+        throw _statusToException(response.statusCode, 'Failed to leave group');
       }
     } on DioException catch (e) {
       _logger.error('Dio error in unfollowGroup', e);

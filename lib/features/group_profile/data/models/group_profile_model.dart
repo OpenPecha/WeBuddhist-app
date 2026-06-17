@@ -37,15 +37,16 @@ class GroupProfileModel {
       bannerUrl: json['banner_url'] as String?,
       isFollowing: json['is_following'] as bool? ?? false,
       metadata: json['metadata'] as Map<String, dynamic>?,
-      tags: (json['tags'] as List<dynamic>?)
-              ?.map((t) => t.toString())
-              .toList() ??
+      tags:
+          (json['tags'] as List<dynamic>?)?.map((t) => t.toString()).toList() ??
           const [],
-      socialLinksJson: (json['social_links'] as List<dynamic>?)
+      socialLinksJson:
+          (json['social_links'] as List<dynamic>?)
               ?.whereType<Map<String, dynamic>>()
               .toList() ??
           const [],
-      seriesJson: (json['series'] as List<dynamic>?)
+      seriesJson:
+          (json['series'] as List<dynamic>?)
               ?.whereType<Map<String, dynamic>>()
               .toList() ??
           const [],
@@ -61,6 +62,7 @@ class GroupProfileModel {
       title: metadata?['title'] as String? ?? '',
       subTitle: metadata?['sub_title'] as String?,
       description: metadata?['description'] as String?,
+      descriptionLong: metadata?['description_long'] as String?,
       avatarUrl: avatarUrl,
       bannerUrl: bannerUrl,
       isFollowing: isFollowing,
