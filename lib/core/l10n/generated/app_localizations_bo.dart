@@ -50,34 +50,34 @@ class AppLocalizationsBo extends AppLocalizations {
   String get home_recitation => 'བཟླས་པ།';
 
   @override
-  String get home_today => 'Today';
+  String get home_today => 'ད་རིང་';
 
   @override
-  String get home_good_morning => 'Good morning';
+  String get home_good_morning => 'སྔ་དྲོ་བདེ་ལེགས།';
 
   @override
-  String get home_good_afternoon => 'Good afternoon';
+  String get home_good_afternoon => 'ཕྱི་དྲོ་བདེ་ལེགས།';
 
   @override
-  String get home_good_evening => 'Good evening';
+  String get home_good_evening => 'དགོང་དྲོ་བདེ་ལེགས།';
 
   @override
-  String get home_meditationTitle => 'Meditation';
+  String get home_meditationTitle => 'སྒོམ་པ།';
 
   @override
-  String get home_prayerTitle => 'Prayer of the day';
+  String get home_prayerTitle => 'དེ་རིང་གི་སྨོན་ལམ།';
 
   @override
-  String get home_scripture => 'Guided scripture';
+  String get home_scripture => 'ལམ་སྟོན་ཤེས་རབ།';
 
   @override
-  String get home_meditation => 'Guided meditation';
+  String get home_meditation => 'ལམ་སྟོན་སྒོམ་པ།';
 
   @override
-  String get home_goDeeper => 'Go deeper';
+  String get home_goDeeper => 'ཟབ་ཚད་ཆེ་རུ་གཏོང་།';
 
   @override
-  String get home_intention => 'My intention for today';
+  String get home_intention => 'དེ་རིང་ངའི་བསམ་པ།';
 
   @override
   String get home_overall_stats => 'སྤྱིའི་གྲངས་ཀ';
@@ -876,7 +876,7 @@ class AppLocalizationsBo extends AppLocalizations {
   String get routine_delete_block => 'སུབ།';
 
   @override
-  String get routine_delete_time_block => 'Remove time block';
+  String get routine_delete_time_block => 'དུས་ཚོད་སྡུབ།';
 
   @override
   String get routine_add_plan => 'ཉམས་ལེན་ཁ་སྣོན།';
