@@ -107,7 +107,6 @@ class _MyGroupTile extends StatelessWidget {
               decoration: BoxDecoration(
                 color: tileColor,
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: borderColor),
               ),
               clipBehavior: Clip.antiAlias,
               child: _GroupAvatar(group: group, isDark: isDark),
@@ -140,12 +139,7 @@ class _GroupAvatar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (group.avatarUrl != null && group.avatarUrl!.isNotEmpty) {
-      return CachedNetworkImageWidget(
-        imageUrl: group.avatarUrl!,
-        fit: BoxFit.cover,
-        width: MyGroupsSection._tileSize,
-        height: MyGroupsSection._tileSize,
-      );
+      return CachedNetworkImageWidget(imageUrl: group.avatarUrl!);
     }
 
     return ColoredBox(
