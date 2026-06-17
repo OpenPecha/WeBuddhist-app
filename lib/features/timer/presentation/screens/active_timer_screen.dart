@@ -160,7 +160,9 @@ class _ActiveTimerScreenState extends ConsumerState<ActiveTimerScreen> {
     final textColor = Theme.of(context).colorScheme.onSurface;
     final finishFontSize = textTheme.labelLarge?.fontSize ?? 16.0;
 
-    return Scaffold(
+    return PopScope(
+      canPop: false,
+      child: Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: Column(
@@ -241,6 +243,7 @@ class _ActiveTimerScreenState extends ConsumerState<ActiveTimerScreen> {
             ),
           ],
         ),
+      ),
       ),
     );
   }
