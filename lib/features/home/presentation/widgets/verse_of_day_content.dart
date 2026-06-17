@@ -79,7 +79,7 @@ class VerseOfDayContent extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     Text(
-                      '"${verseOfDay.verse}"',
+                      verseOfDay.verse,
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: typography.verseFontSize,
@@ -149,14 +149,21 @@ class VerseShareBranding extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Image.asset(AppAssets.weBuddhistLogo, width: logoSize, height: logoSize),
+        Image.asset(
+          AppAssets.weBuddhistLogo,
+          width: logoSize,
+          height: logoSize,
+        ),
         const SizedBox(width: 8),
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               localizations.shared_from,
-              style: TextStyle(fontSize: sharedFromFontSize, color: sharedFromColor),
+              style: TextStyle(
+                fontSize: sharedFromFontSize,
+                color: sharedFromColor,
+              ),
             ),
             Text(
               localizations.appTitle,
