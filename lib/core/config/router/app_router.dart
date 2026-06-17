@@ -36,6 +36,7 @@ import 'package:flutter_pecha/features/practice/presentation/screens/edit_routin
 import 'package:flutter_pecha/features/practice/presentation/screens/practice_screen.dart';
 import 'package:flutter_pecha/features/practice/presentation/screens/select_plan_screen.dart';
 import 'package:flutter_pecha/features/practice/presentation/screens/select_recitation_screen.dart';
+import 'package:flutter_pecha/features/mala/presentation/screens/mala_screen.dart';
 import 'package:flutter_pecha/features/notifications/presentation/notification_settings_screen.dart';
 import 'package:flutter_pecha/features/reader/data/models/navigation_context.dart';
 import 'package:flutter_pecha/features/reader/presentation/screens/reader_screen.dart';
@@ -280,6 +281,18 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             ],
           ),
         ],
+      ),
+
+      // mala route (login-gated digital prayer beads)
+      GoRoute(
+        path: AppRoutes.mala,
+        name: "mala",
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>?;
+          return MalaScreen(
+            initialPresetId: extra?['presetId'] as String?,
+          );
+        },
       ),
 
       // practice route

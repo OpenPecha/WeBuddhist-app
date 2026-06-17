@@ -181,6 +181,7 @@ flutter:
     - assets/audios/routine.caf
     - assets/audios/routine.ogg
     - assets/images/moon/
+    - assets/images/beads/
     - .env.dev
     - .env.staging
     - .env.prod
