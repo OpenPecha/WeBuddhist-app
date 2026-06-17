@@ -44,8 +44,12 @@ class _DiscoverGroupCardState extends ConsumerState<DiscoverGroupCard> {
     }
 
     setState(() => _isJoining = true);
+    final followKey = GroupFollowKey(
+      groupId: widget.group.id,
+      groupType: widget.group.groupType,
+    );
     final success = await ref
-        .read(groupFollowProvider(widget.group.id).notifier)
+        .read(groupFollowProvider(followKey).notifier)
         .follow();
     if (!mounted) return;
 
