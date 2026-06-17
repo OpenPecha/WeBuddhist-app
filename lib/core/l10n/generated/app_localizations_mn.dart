@@ -50,34 +50,34 @@ class AppLocalizationsMn extends AppLocalizations {
   String get home_recitation => 'Уншлага';
 
   @override
-  String get home_today => 'Today';
+  String get home_today => 'Өнөөдөр';
 
   @override
-  String get home_good_morning => 'Good morning';
+  String get home_good_morning => 'Өглөөний мэнд';
 
   @override
-  String get home_good_afternoon => 'Good afternoon';
+  String get home_good_afternoon => 'Өдрийн мэнд';
 
   @override
-  String get home_good_evening => 'Good evening';
+  String get home_good_evening => 'Оройн мэнд';
 
   @override
-  String get home_meditationTitle => 'Meditation';
+  String get home_meditationTitle => 'Бясалгал';
 
   @override
-  String get home_prayerTitle => 'Prayer of the day';
+  String get home_prayerTitle => 'Өнөөдрийн залбирал';
 
   @override
-  String get home_scripture => 'Guided scripture';
+  String get home_scripture => 'Удирдамжтай бичиг';
 
   @override
-  String get home_meditation => 'Guided meditation';
+  String get home_meditation => 'Удирдамжтай бясалгал';
 
   @override
-  String get home_goDeeper => 'Go deeper';
+  String get home_goDeeper => 'Илүү гүнзгий орно уу';
 
   @override
-  String get home_intention => 'My intention for today';
+  String get home_intention => 'Өнөөдрийн миний зорилго';
 
   @override
   String get home_overall_stats => 'Нийт статистик';
@@ -101,7 +101,7 @@ class AppLocalizationsMn extends AppLocalizations {
   String get preset_timers => 'Бэлэн тохируулсан цаг';
 
   @override
-  String get meditation_timer => 'Meditation Timer';
+  String get meditation_timer => 'Бясалгалын цаг хэмжигч';
 
   @override
   String get timer_min => 'мин';
@@ -511,18 +511,18 @@ class AppLocalizationsMn extends AppLocalizations {
 
   @override
   String get audio_init_error =>
-      'Unable to initialize audio player. Check your connection and try again';
+      'Дуу тоглуулагчийг эхлүүлэх боломжгүй. Холболтоо шалгаад дахин оролдоно уу';
 
   @override
   String get meditation_audio_load_error =>
-      'Unable to load. Check your connection and try again';
+      'Ачаалах боломжгүй. Холболтоо шалгаад дахин оролдоно уу';
 
   @override
   String get prayer_audio_load_error =>
-      'Unable to load audio. Check your connection and try again';
+      'Дуу ачаалах боломжгүй. Холболтоо шалгаад дахин оролдоно уу';
 
   @override
-  String get home_no_series_found => 'No series found';
+  String get home_no_series_found => 'Цуврал олдсонгүй';
 
   @override
   String get home_no_tags_found => 'Шошго олдсонгүй';
@@ -845,7 +845,7 @@ class AppLocalizationsMn extends AppLocalizations {
   String get routine_delete_block => 'Блокыг устгах уу?';
 
   @override
-  String get routine_delete_time_block => 'Remove time block';
+  String get routine_delete_time_block => 'Цагийн блокыг устгах';
 
   @override
   String get routine_add_plan => 'Төлөвлөгөө нэмэх';
@@ -1328,29 +1328,29 @@ class AppLocalizationsMn extends AppLocalizations {
   String get moon_phase_waning_crescent => 'Хорогдох хавирган сар';
 
   @override
-  String get join => 'Join';
+  String get join => 'Нэгдэх';
 
   @override
-  String get joined => 'Joined';
+  String get joined => 'Нэгдсэн';
 
   @override
-  String get group_member => 'member';
+  String get group_member => 'гишүүн';
 
   @override
-  String get group_members => 'members';
+  String get group_members => 'гишүүд';
 
   @override
-  String get group_follower => 'follower';
+  String get group_follower => 'дагагч';
 
   @override
-  String get group_followers => 'followers';
+  String get group_followers => 'дагагчид';
 
   @override
-  String get group_links_title => 'Links';
+  String get group_links_title => 'Холбоосууд';
 
   @override
   String group_and_more_links(int count) {
-    return 'and $count more links';
+    return 'болон дахиад $count холбоос';
   }
 
   @override

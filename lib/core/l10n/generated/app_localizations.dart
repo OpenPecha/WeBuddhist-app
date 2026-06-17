@@ -1603,7 +1603,7 @@ abstract class AppLocalizations {
   /// No description provided for @routine_delete_block.
   ///
   /// In en, this message translates to:
-  /// **'Remove block'**
+  /// **'Remove block?'**
   String get routine_delete_block;
 
   /// No description provided for @routine_delete_time_block.
