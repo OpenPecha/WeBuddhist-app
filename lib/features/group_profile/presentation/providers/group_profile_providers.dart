@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
 import 'package:flutter_pecha/core/di/core_providers.dart';
 import 'package:flutter_pecha/core/error/failures.dart';
@@ -30,12 +31,33 @@ final getGroupProfileUseCaseProvider =
 
 final groupProfileProvider = FutureProvider.autoDispose
     .family<Either<Failure, GroupProfile>, String>((ref, groupId) async {
-  final locale = ref.watch(localeProvider);
+  final language = ref.watch(contentLanguageProvider);
   final useCase = ref.watch(getGroupProfileUseCaseProvider);
   return useCase(
-    GetGroupProfileParams(groupId: groupId, language: locale.languageCode),
+    GetGroupProfileParams(groupId: groupId, language: language),
   );
 });
+
+@immutable
+class GroupFollowKey {
+  final String groupId;
+  final GroupType groupType;
+
+  const GroupFollowKey({
+    required this.groupId,
+    required this.groupType,
+  });
+
+  @override
+  bool operator ==(Object other) {
+    return other is GroupFollowKey &&
+        other.groupId == groupId &&
+        other.groupType == groupType;
+  }
+
+  @override
+  int get hashCode => Object.hash(groupId, groupType);
+}
 
 sealed class GroupFollowState {
   const GroupFollowState();
@@ -47,6 +69,7 @@ class GroupFollowLoading extends GroupFollowState {
 
 class GroupFollowSuccess extends GroupFollowState {
   final bool isFollowing;
+
   const GroupFollowSuccess({required this.isFollowing});
 }
 
@@ -57,18 +80,25 @@ class GroupFollowFailure extends GroupFollowState {
 
 class GroupFollowNotifier extends StateNotifier<GroupFollowState> {
   final GroupProfileRepositoryInterface _repository;
-  final String _groupId;
+  final Ref _ref;
+  final GroupFollowKey _key;
   final bool _isAuthenticated;
 
   GroupFollowNotifier({
     required GroupProfileRepositoryInterface repository,
-    required String groupId,
+    required Ref ref,
+    required GroupFollowKey key,
     required bool isAuthenticated,
   }) : _repository = repository,
-       _groupId = groupId,
+       _ref = ref,
+       _key = key,
        _isAuthenticated = isAuthenticated,
        super(const GroupFollowLoading()) {
     _loadInitialStatus();
+  }
+
+  void _invalidateGroupProfile() {
+    _ref.invalidate(groupProfileProvider(_key.groupId));
   }
 
   Future<void> _loadInitialStatus() async {
@@ -77,7 +107,10 @@ class GroupFollowNotifier extends StateNotifier<GroupFollowState> {
       return;
     }
 
-    final result = await _repository.checkFollowStatus(_groupId);
+    final result = await _repository.checkFollowStatus(
+      _key.groupId,
+      _key.groupType,
+    );
     if (!mounted) return;
 
     result.fold(
@@ -90,16 +123,20 @@ class GroupFollowNotifier extends StateNotifier<GroupFollowState> {
     if (state is GroupFollowLoading) return false;
     state = const GroupFollowLoading();
 
-    final result = await _repository.followGroup(_groupId);
+    final result = await _repository.followGroup(
+      _key.groupId,
+      _key.groupType,
+    );
     if (!mounted) return false;
 
-    return result.fold(
-      (failure) {
+    return await result.fold(
+      (failure) async {
         state = GroupFollowFailure(failure);
         return false;
       },
-      (_) {
+      (_) async {
         state = const GroupFollowSuccess(isFollowing: true);
+        _invalidateGroupProfile();
         return true;
       },
     );
@@ -109,16 +146,20 @@ class GroupFollowNotifier extends StateNotifier<GroupFollowState> {
     if (state is GroupFollowLoading) return false;
     state = const GroupFollowLoading();
 
-    final result = await _repository.unfollowGroup(_groupId);
+    final result = await _repository.unfollowGroup(
+      _key.groupId,
+      _key.groupType,
+    );
     if (!mounted) return false;
 
-    return result.fold(
-      (failure) {
+    return await result.fold(
+      (failure) async {
         state = GroupFollowFailure(failure);
         return false;
       },
-      (_) {
+      (_) async {
         state = const GroupFollowSuccess(isFollowing: false);
+        _invalidateGroupProfile();
         return true;
       },
     );
@@ -126,13 +167,14 @@ class GroupFollowNotifier extends StateNotifier<GroupFollowState> {
 }
 
 final groupFollowProvider = StateNotifierProvider.autoDispose
-    .family<GroupFollowNotifier, GroupFollowState, String>((ref, groupId) {
+    .family<GroupFollowNotifier, GroupFollowState, GroupFollowKey>((ref, key) {
   final authState = ref.watch(authProvider);
   final isAuthenticated = !authState.isGuest && authState.isLoggedIn;
 
   return GroupFollowNotifier(
     repository: ref.watch(groupProfileRepositoryProvider),
-    groupId: groupId,
+    ref: ref,
+    key: key,
     isAuthenticated: isAuthenticated,
   );
 });

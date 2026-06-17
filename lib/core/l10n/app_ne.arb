@@ -1,0 +1,609 @@
+{
+  "@@locale": "ne",
+  "appTitle": "WeBuddhist",
+  "sign_in": "साइन इन गर्नुहोस्",
+  "logout": "लग आउट गर्नुहोस्",
+  "onboarding_welcome": "स्वागत छ",
+  "onboarding_quote": "थोपा-थोपा गरेर पानीको भाँडो भरिन्छ। त्यसै गरी, बुद्धिमान् व्यक्तिले अलिअलि सङ्ग्रह गर्दै आफूलाई असल गुणले भर्दछ।",
+  "onboarding_find_peace": "सुरु गर्नुहोस्",
+  "onboarding_continue": "जारी राख्नुहोस्",
+  "onboarding_first_question": "आफ्नो भाषा छान्नुहोस्:",
+  "onboarding_choose_option": "कम्तीमा एउटा छान्नुहोस्:",
+  "onboarding_all_set": "तपाईं पूर्ण रूपमा तयार हुनुभयो",
+  "onboarding_all_set_description": "हामीले तपाईंको परम्पराअनुसार तपाईंको अनुभवलाई मिलाएका छौँ। हरेक दिन — एक छिनका लागि भए पनि — उपस्थित हुनुहोस् र आफ्नो अभ्यास बढ्दै गएको हेर्नुहोस्",
+  "onboarding_begin_practice": "आफ्नो अभ्यास सुरु गर्नुहोस्",
+  "home_recitation": "पाठ",
+  "home_overall_stats": "समग्र तथ्याङ्क",
+  "home_plans": "योजनाहरू",
+  "home_shortcut_plans": "योजनाहरू",
+  "home_chants": "जप",
+  "home_mala": "माला",
+  "home_timer": "टाइमर",
+  "preset_timers": "पूर्वनिर्धारित टाइमरहरू",
+  "timer_min": "मिनेट",
+  "timer_start": "सुरु",
+  "timer_finish": "समाप्त",
+  "home_hello_prefix": "नमस्ते, ",
+  "home_greeting_fallback_name": "साथी",
+  "home_share_prompt": "{appName} मन परिरहेको छ?",
+  "@home_share_prompt": {
+    "placeholders": {
+      "appName": {
+        "type": "String"
+      }
+    }
+  },
+  "no_feature_content": "कुनै विशेष सामग्री उपलब्ध छैन",
+  "nav_home": "गृह",
+  "nav_explore": "अन्वेषण",
+  "nav_learn": "सिक्नुहोस्",
+  "nav_practice": "अभ्यास",
+  "nav_settings": "सेटिङ",
+  "nav_connect": "जोडिनुहोस्",
+  "nav_me": "म",
+  "text_search": "खोज्नुहोस्",
+  "text_toc_versions": "संस्करणहरू",
+  "text_commentary": "टीकाहरू",
+  "no_translation": "कुनै अनुवाद फेला परेन",
+  "text_close_commentary": "टीका बन्द गर्नुहोस्",
+  "show_more": "थप देखाउनुहोस्",
+  "show_less": "कम देखाउनुहोस्",
+  "more": "थप",
+  "less": "कम",
+  "no_content": "कुनै सामग्री फेला परेन",
+  "no_commentary": "कुनै टीका फेला परेन",
+  "commentary_not_available_for_language": "{language} टीका उपलब्ध छैन",
+  "@commentary_not_available_for_language": {
+    "placeholders": {
+      "language": {
+        "type": "String"
+      }
+    }
+  },
+  "loading": "लोड हुँदैछ...",
+  "choose_image": "तस्बिर छान्नुहोस्",
+  "choose_bg_image": "पृष्ठभूमि तस्बिर छान्नुहोस्",
+  "create_image": "तस्बिर सिर्जना गर्नुहोस्",
+  "save": "सेभ गर्नुहोस्",
+  "done": "भयो",
+  "customise_message": "पाठको शैली मिलाउन कस्टमाइज आइकनमा ट्याप गर्नुहोस्",
+  "download_image": "तस्बिर डाउनलोड गर्नुहोस्",
+  "no_images_available": "कुनै तस्बिर उपलब्ध छैन",
+  "customise_text": "पाठ कस्टमाइज गर्नुहोस्",
+  "text_size": "पाठको आकार",
+  "text_color": "पाठको रङ",
+  "text_shadow": "पाठको छाया",
+  "apply": "लागू गर्नुहोस्",
+  "my_plans": "मेरा योजनाहरू",
+  "browse_plans": "योजनाहरू हेर्नुहोस्",
+  "plan_info": "योजना जानकारी",
+  "start_reading": "अहिले अभ्यास गर्नुहोस्",
+  "tibetan": "तिब्बती",
+  "sanskrit": "संस्कृत",
+  "english": "अङ्ग्रेजी",
+  "chinese": "चिनियाँ",
+  "classicalChinese": "शास्त्रीय चिनियाँ",
+  "pali": "पाली",
+  "language": "भाषा",
+  "plan_unenroll": "नामांकन रद्द गर्नुहोस्",
+  "unenroll_confirmation": "के तपाईं यसमा नामांकन रद्द गर्न निश्चित हुनुहुन्छ",
+  "unenroll_message": "तपाईंको प्रगति स्थायी रूपमा हराउनेछ र पुनः प्राप्त गर्न सकिँदैन",
+  "practice_plan": "दैनिक अभ्यास बनाउनुहोस्। तपाईंलाई सुहाउने कुरा अन्वेषण गर्नुहोस्।",
+  "search_plans": "योजनाहरू खोज्नुहोस्...",
+  "search_for_plans": "योजनाहरू खोज्नुहोस्",
+  "no_plans_found": "कुनै योजना फेला परेन",
+  "no_days_available": "कुनै दिन फेला परेन",
+  "recitations_title": "पाठहरू",
+  "recitations_my_recitations": "मेरा पाठहरू",
+  "browse_recitations": "पाठहरू हेर्नुहोस्",
+  "recitations_search": "पाठहरू खोज्नुहोस्...",
+  "recitations_search_for": "पाठहरू खोज्नुहोस्",
+  "recitations_no_found": "कुनै पाठ फेला परेन",
+  "recitations_no_content": "कुनै पाठ उपलब्ध छैन",
+  "recitations_no_saved": "कुनै सेभ गरिएको पाठ छैन",
+  "recitations_login_prompt": "आफ्ना सेभ गरिएका पाठहरू हेर्न साइन इन गर्नुहोस्",
+  "notification_settings": "सूचना सेटिङ",
+  "notification_allow_title": "सूचनाहरू अनुमति दिनुहोस्",
+  "notification_allow_subtitle_enabled": "यस एपका लागि सूचनाहरू सक्षम छन्",
+  "notification_allow_subtitle_disabled": "अनुमति आवश्यक छ। सेटिङमा गएर दिन ट्याप गर्नुहोस्।",
+  "notification_allow_subtitle_paused": "रिमाइन्डरहरू रोकिएका छन्। पुनः सुरु गर्न ट्याप गर्नुहोस्।",
+  "notification_routine_title": "दिनचर्या रिमाइन्डरहरू",
+  "notification_routine_subtitle_enabled": "तपाईंका अभ्यास ब्लकहरूका लागि दैनिक रिमाइन्डरहरू",
+  "notification_routine_subtitle_disabled": "दिनचर्या रिमाइन्डरहरू रोकिएका छन्। पुनः सुरु गर्न ट्याप गर्नुहोस्।",
+  "notification_battery_title": "पृष्ठभूमि रिमाइन्डरहरू",
+  "notification_battery_subtitle_enabled": "एप बन्द भएको बेलामा पनि तपाईंका रिमाइन्डरहरू समयमै पठाइन्छन्।",
+  "notification_battery_subtitle_disabled": "केही एन्ड्रोइड फोनहरूले ब्याट्री बचाउन पृष्ठभूमि एपहरू रोक्छन्, जसले तपाईंका रिमाइन्डरहरू ढिलो गराउन वा छुटाउन सक्छ। चालु राख्न ट्याप गर्नुहोस्।",
+  "notification_recitation_title": "पाठ रिमाइन्डर",
+  "notification_recitation_subtitle_enabled": "तपाईंका पाठहरूका लागि दैनिक रिमाइन्डरहरू",
+  "notification_recitation_subtitle_disabled": "पाठ रिमाइन्डरहरू रोकिएका छन्। पुनः सुरु गर्न ट्याप गर्नुहोस्।",
+  "notification_battery_info_title": "पृष्ठभूमि रिमाइन्डरहरूको बारेमा",
+  "notification_battery_info_body": "केही एन्ड्रोइड फोनहरूले ब्याट्री बचाउन पृष्ठभूमि एपहरू रोक्छन्, जसले तपाईंका निर्धारित रिमाइन्डरहरू ढिलो गराउन वा रद्द गर्न सक्छ। एपलाई छुट दिँदा तपाईंका रिमाइन्डरहरू भरपर्दो रूपमा समयमै आउँछन्।",
+  "notification_snack_permission_denied": "सूचनाहरू रोकिएका छन्। सेटिङमा गएर अन गर्नुहोस्",
+  "notification_snack_disable_alarms_in_settings": "सेटिङमा अलार्म र रिमाइन्डरहरू बन्द गर्नुहोस्।",
+  "notification_snack_battery_reenable": "सेटिङ → ब्याट्रीमा गएर ब्याट्री अप्टिमाइजेसन पुनर्स्थापना गर्नुहोस्।",
+  "profile_default_bio": "WeBuddhist मा स्वागत छ",
+  "profile_guest_title": "अतिथि प्रयोगकर्ता",
+  "profile_guest_subtitle": "तपाईं अतिथिको रूपमा ब्राउज गर्दै हुनुहुन्छ",
+  "profile_guest_benefits_header": "अनलक गर्न साइन इन गर्नुहोस्:",
+  "profile_guest_benefit_save_progress": "आफ्नो प्रगति सेभ गर्नुहोस्",
+  "profile_guest_benefit_personalized": "वैयक्तिकृत सामग्री",
+  "profile_guest_benefit_notifications": "अनुकूलित सूचनाहरू",
+  "auth_drawer_title": "जारी राख्न लग इन गर्नुहोस्",
+  "auth_drawer_subtitle": "जहाँ गए पनि, कुनै पनि डिभाइसमा आफ्नो अभ्यास जारी राख्नुहोस्।",
+  "routine_delete_block_message": "समय ब्लक र यसका सबै वस्तुहरू हटाइनेछन्",
+  "something_went_wrong": "केही गडबड भयो। कृपया फेरि प्रयास गर्नुहोस्",
+  "onboarding_quote_citation": "— धम्मपद 122",
+  "onboarding_traditions_question": "तपाईं कुन परम्पराहरू\nपालना गर्नुहुन्छ?",
+  "onboarding_select_all": "सबै चयन गर्नुहोस्",
+  "onboarding_event_enrollment_error": "तपाईंलाई नामांकन गर्न सकिएन। आफ्नो जडान जाँच गरी फेरि प्रयास गर्नुहोस्",
+  "onboarding_event_question": "कुनै कार्यक्रममा\nसहभागी हुनुहुन्छ?",
+  "onboarding_event_optional": "वैकल्पिक · नामांकन गर्न ट्याप गर्नुहोस्",
+  "onboarding_event_duration": "{description} · {days} दिन",
+  "@onboarding_event_duration": {
+    "placeholders": {
+      "description": {
+        "type": "String"
+      },
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "onboarding_event_reminder_note": "हामी तपाईंलाई हरेक दिन बिहान 7:30 बजे रिमाइन्डर पठाउनेछौँ। (जहिलेसुकै परिवर्तन गर्न सकिन्छ।)",
+  "tradition_theravada": "थेरवाद",
+  "tradition_zen": "जेन",
+  "tradition_tibetan_buddhism": "तिब्बती बौद्ध धर्म",
+  "tradition_pure_land": "शुद्ध भूमि",
+  "tradition_ambedkar_buddhism": "आम्बेडकर बौद्ध धर्म",
+  "plan_go_to_practice": "अभ्यासमा जानुहोस्",
+  "plan_starts_soon_title": "चाँडै सुरु हुन्छ",
+  "plan_joining_late_title": "सुरु मितिपछि सहभागी हुँदै",
+  "got_it": "बुझेँ",
+  "plan_no_tasks_error": "कार्यहरू लोड गर्न सकिएन",
+  "plan_day_tasks_load_error": "कार्यहरू लोड गर्न सकिएन",
+  "plans_empty_title": "थप आउँदैछ",
+  "plans_empty_subtitle": "हाम्रो पुस्तकालय बढ्दैछ। चाँडै फेरि हेर्नुहोस्।",
+  "find_plans_load_error": "लोड गर्न सकिएन।\nआफ्नो जडान जाँच गरी फेरि प्रयास गर्नुहोस्",
+  "connect_coming_soon_subtitle": "मार्गमा तपाईंलाई सहयोग गर्न शिक्षकहरू, समुदायहरू, चुनौतीहरू र कार्यक्रमहरू",
+  "explore_coming_soon_subtitle": "अभ्यास, शिक्षा र सामुदायिक कार्यक्रमहरू पत्ता लगाउने एक चयनित स्थान",
+  "learn_coming_soon_subtitle": "तपाईंको दैनिक जीवनमा मिल्ने गरी डिजाइन गरिएका तपाईंका व्यक्तिगत अध्ययन योजनाहरू",
+  "creator_featured_plan": "विशेष योजना",
+  "home_no_tags_found": "कुनै ट्याग फेला परेन",
+  "home_celebrated_by": "मनाउनेहरू: ",
+  "reader_settings_tooltip": "रिडर सेटिङ",
+  "reader_font_size_tooltip": "फन्ट आकार",
+  "reader_version_title": "संस्करण · {language}",
+  "@reader_version_title": {
+    "placeholders": {
+      "language": {
+        "type": "String"
+      }
+    }
+  },
+  "reader_script_title": "लिपि · {language}",
+  "@reader_script_title": {
+    "placeholders": {
+      "language": {
+        "type": "String"
+      }
+    }
+  },
+  "reader_versions_load_error": "संस्करणहरू लोड गर्न सकिएन",
+  "reader_scripts_load_error": "लिपिहरू लोड गर्न सकिएन",
+  "reader_languages_load_error": "भाषाहरू लोड गर्न सकिएन",
+  "reader_no_versions_in_language": "{language} मा कुनै संस्करण उपलब्ध छैन",
+  "@reader_no_versions_in_language": {
+    "placeholders": {
+      "language": {
+        "type": "String"
+      }
+    }
+  },
+  "reader_no_scripts_in_language": "{language} मा कुनै लिपि उपलब्ध छैन",
+  "@reader_no_scripts_in_language": {
+    "placeholders": {
+      "language": {
+        "type": "String"
+      }
+    }
+  },
+  "reader_no_languages": "यस पाठका लागि कुनै भाषा उपलब्ध छैन",
+  "reader_license": "लाइसेन्स",
+  "reader_version_details_load_error": "संस्करण विवरण लोड गर्न सकिएन",
+  "reader_no_version_info": "यस संस्करणका लागि कुनै थप जानकारी उपलब्ध छैन",
+  "recitation_unavailable": "पाठ सामग्री हाल उपलब्ध छैन।\nपछि फेरि प्रयास गर्नुहोस् वा सहयोगलाई सम्पर्क गर्नुहोस्",
+  "recitation_sign_in_required": "यो पाठ प्रयोग गर्न साइन इन गर्नुहोस्",
+  "my_recitations_load_error": "लोड गर्न सकिएन।\nआफ्नो जडान जाँच गरी फेरि प्रयास गर्नुहोस्",
+  "recitations_load_error": "पाठहरू लोड गर्न सकिएन।\nपछि फेरि प्रयास गर्नुहोस्",
+  "text_search_hint": "खोज्न टाइप गर्नुहोस्",
+  "text_search_press_button": "खोज्न खोज बटन थिच्नुहोस्",
+  "text_search_error": "खोज गर्न सकिएन।\nकृपया फेरि प्रयास गर्नुहोस्",
+  "unknown_error": "अज्ञात त्रुटि",
+  "image_share_error": "साझा गर्न सकिएन: {error}",
+  "@image_share_error": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "create_image_capture_error": "तस्बिर सिर्जना गर्न सकिएन। कृपया फेरि प्रयास गर्नुहोस्",
+  "create_image_share_error": "साझा गर्न सकिएन। कृपया फेरि प्रयास गर्नुहोस्",
+  "create_image_save_success": "तस्बिर सेभ भयो",
+  "create_image_save_error": "तस्बिर सेभ गर्न सकिएन। एपसँग फोटो पहुँच छ कि छैन जाँच गर्नुहोस्, वा फेरि प्रयास गर्नुहोस्",
+  "create_image_download_error": "तपाईंको तस्बिर डाउनलोड गर्न सकिएन। कृपया फेरि प्रयास गर्नुहोस्",
+  "create_image_customize_tooltip": "कस्टमाइज गर्नुहोस्",
+  "create_image_text_too_long": "फन्ट आकार बढाउन पाठ धेरै लामो छ",
+  "version_search_no_results": "\"{query}\" का लागि कुनै संस्करण फेला परेन",
+  "@version_search_no_results": {
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
+  "my_plans_sign_in_prompt": "आफ्ना योजनाहरू हेर्न साइन इन गर्नुहोस्",
+  "plan_starts_soon_message": "{date} मा सुरु हुन्छ। तपाईं अहिले सामग्री हेर्न सक्नुहुन्छ",
+  "@plan_starts_soon_message": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "plan_joining_late_message": "{date} मा सुरु भयो। अघिल्ला दिनहरूका कार्यहरू पूरा गर्न सक्नुहुन्छ",
+  "@plan_joining_late_message": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "select_language": "भाषा चयन गर्नुहोस्",
+  "logout_confirmation": "के तपाईं लग आउट गर्न निश्चित हुनुहुन्छ?",
+  "cancel": "रद्द गर्नुहोस्",
+  "copy": "कपी गर्नुहोस्",
+  "copied": "कपी भयो",
+  "share": "साझा गर्नुहोस्",
+  "image": "तस्बिर",
+  "feedback": "प्रतिक्रिया",
+  "author": "लेखक",
+  "plans_created": "योजना सिर्जना भयो",
+  "ai_chat_history": "च्याट इतिहास",
+  "ai_buddhist_assistant": "आफ्नो दैनिक लय बनाउनुहोस्। समय तोक्नुहोस्, र हामी तपाईंलाई अभ्यास गर्न सम्झाउनेछौँ",
+  "ai_new_chat": "नयाँ च्याट",
+  "ai_retry": "पुनः प्रयास गर्नुहोस्",
+  "ai_dismiss": "खारेज गर्नुहोस्",
+  "ai_sign_in_prompt": "बौद्ध AI सहायक प्रयोग गर्न साइन इन गर्नुहोस्",
+  "ai_explore_wisdom": "बौद्ध ज्ञान अन्वेषण गर्नुहोस्",
+  "ai_ask_question": "प्रश्न सोध्नुहोस्...",
+  "ai_search_chats": "च्याटहरू खोज्नुहोस्",
+  "ai_chats": "च्याटहरू",
+  "ai_chat_deleted": "च्याट मेटियो",
+  "ai_no_conversations": "अहिलेसम्म कुनै कुराकानी छैन",
+  "ai_start_new_chat": "सुरु गर्न नयाँ च्याट सुरु गर्नुहोस्।",
+  "ai_delete_chat": "च्याट मेट्नुहोस्",
+  "ai_delete_confirmation": "के तपाईं यो च्याट मेट्न निश्चित हुनुहुन्छ?",
+  "ai_delete_warning": "यो कार्य पूर्ववत् गर्न सकिँदैन।",
+  "ai_confirm": "पुष्टि गर्नुहोस्",
+  "ai_delete": "मेट्नुहोस्",
+  "ai_greeting": "नमस्ते {name}",
+  "@ai_greeting": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "ai_text_not_found": "पाठ फेला परेन।",
+  "ai_text_not_found_message": "हाम्रो पुस्तकालयमा अहिलेसम्म \"{title}\" छैन।\n\nफरक शीर्षक प्रयास गर्नुहोस्, वा अर्को तरिकाले सोध्नुहोस्",
+  "@ai_text_not_found_message": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "ai_sources": "स्रोतहरू",
+  "ai_sources_count": "{count} स्रोतहरू",
+  "@ai_sources_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "search_no_results": "\"{query}\" का लागि कुनै परिणाम फेला परेन",
+  "@search_no_results": {
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
+  "search_show_more": "थप देखाउनुहोस्",
+  "search_contents": "सामग्रीहरू",
+  "search_titles": "शीर्षकहरू",
+  "search_all": "सबै",
+  "search_author": "लेखक",
+  "search_tab_ai_mode": "AI मोड",
+  "search_error": "त्रुटि: {message}",
+  "@search_error": {
+    "placeholders": {
+      "message": {
+        "type": "String"
+      }
+    }
+  },
+  "search_retrying": "पुनः प्रयास गर्दै...",
+  "search_no_titles_found": "\"{query}\" का लागि कुनै शीर्षक फेला परेन",
+  "@search_no_titles_found": {
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
+  "search_no_contents_found": "\"{query}\" का लागि कुनै सामग्री फेला परेन",
+  "@search_no_contents_found": {
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
+  "search_no_authors_found": "\"{query}\" का लागि कुनै लेखक फेला परेन",
+  "@search_no_authors_found": {
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
+  "search_buddhist_texts": "बौद्ध ग्रन्थहरू खोज्नुहोस्...",
+  "common_ok": "ठीक छ",
+  "comingSoonHeadline": "चाँडै आउँदैछ",
+  "routine_title": "मेरा अभ्यासहरू",
+  "routine_empty_title": "अभ्यासहरू",
+  "routine_edit": "सम्पादन गर्नुहोस्",
+  "routine_empty_description": "आफ्नो दिनचर्यामा थप्न थप शिक्षा र अभ्यासहरू अन्वेषण गर्नुहोस्",
+  "routine_build": "आफ्नो दिनचर्या बनाउनुहोस्",
+  "routine_add_session": "सत्रमा थप्नुहोस्",
+  "routine_edit_title": "आफ्नो दिनचर्या सम्पादन गर्नुहोस्",
+  "routine_delete_block": "ब्लक हटाउने?",
+  "routine_add_plan": "योजना थप्नुहोस्",
+  "routine_add_recitation": "पाठ थप्नुहोस्",
+  "routine_add_plan_to_routine": "दिनचर्यामा थप्नुहोस्",
+  "routine_load_error": "लोड गर्न सकिएन। आफ्नो जडान जाँच गरी फेरि प्रयास गर्नुहोस्",
+  "routine_empty_block_title_singular": "खाली समय ब्लक",
+  "routine_empty_block_title_plural": "खाली समय ब्लकहरू ({count})",
+  "@routine_empty_block_title_plural": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "routine_empty_block_message_singular": "यो समय ब्लक खाली छ। एउटा वस्तु थप्नुहोस्, वा यसलाई आफ्नो दिनचर्याबाट हटाउने?",
+  "routine_empty_block_message_plural": "{count} समय ब्लकहरू खाली छन्। वस्तुहरू थप्नुहोस्, वा तिनलाई आफ्नो दिनचर्याबाट हटाउने?",
+  "@routine_empty_block_message_plural": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "routine_empty_block_add_items": "वस्तुहरू थप्नुहोस्",
+  "routine_empty_block_delete_singular": "ब्लक हटाउनुहोस्",
+  "routine_empty_block_delete_plural": "ब्लकहरू हटाउनुहोस्",
+  "routine_notification_title": "अभ्यासलाई बानी बनाउनुहोस्",
+  "routine_notification_description": "हामीले तपाईंलाई अभ्यास गर्न सम्झाउन सकौँ भनेर सूचनाहरूलाई अनुमति दिनुहोस्",
+  "routine_notification_enable": "सूचनाहरू सक्षम गर्नुहोस्",
+  "routine_notification_skip": "छाड्नुहोस्",
+  "routine_time_adjusted": "{time} मा मिलाइयो ({gap}-मिनेट न्यूनतम अन्तर)",
+  "@routine_time_adjusted": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      },
+      "gap": {
+        "type": "int"
+      }
+    }
+  },
+  "routine_add_block_label": "समय ब्लक",
+  "continueWithGoogle": "Google सँग जारी राख्नुहोस्",
+  "continueWithApple": "Apple सँग जारी राख्नुहोस्",
+  "continueAsGuest": "अतिथिको रूपमा जारी राख्नुहोस्",
+  "signIn": "साइन इन गर्नुहोस्",
+  "profileError": "प्रोफाइल लोड गर्दा त्रुटि भयो",
+  "profileTitle": "प्रोफाइल",
+  "notLoggedIn": "लग इन गरिएको छैन",
+  "retry": "पुनः प्रयास गर्नुहोस्",
+  "back": "पछाडि",
+  "delete": "मेट्नुहोस्",
+  "close": "बन्द गर्नुहोस्",
+  "tryAgain": "फेरि प्रयास गर्नुहोस्",
+  "pleaseTryAgain": "कृपया फेरि प्रयास गर्नुहोस्",
+  "error": "त्रुटि",
+  "anonymous": "अज्ञात",
+  "noContentAvailable": "कुनै सामग्री उपलब्ध छैन",
+  "unableToLoad": "लोड गर्न सकिएन। आफ्नो जडान जाँच गरी फेरि प्रयास गर्नुहोस्",
+  "somethingWrong": "केही गडबड भयो। आफ्नो जडान जाँच गरी फेरि प्रयास गर्नुहोस्",
+  "source": "स्रोत",
+  "searchResults": "खोज परिणामहरू",
+  "noTasks": "कुनै कार्य उपलब्ध छैन",
+  "taskNotFound": "कार्य फेला परेन",
+  "updateTaskError": "कार्यको स्थिति अद्यावधिक गर्न सकिएन",
+  "enrollError": "तपाईंलाई नामांकन गर्न सकिएन। आफ्नो जडान जाँच गरी फेरि प्रयास गर्नुहोस्",
+  "unenrollSuccess": "तपाईंले {planTitle} को नामांकन रद्द गर्नुभयो",
+  "unenrollError": "तपाईंको नामांकन रद्द गर्न सकिएन। आफ्नो जडान जाँच गरी फेरि प्रयास गर्नुहोस्",
+  "unenrollGenericError": "केही गडबड भयो। आफ्नो जडान जाँच गरी फेरि प्रयास गर्नुहोस्",
+  "notFound": "यो अब उपलब्ध छैन। अद्यावधिक गर्न आफ्नो दिनचर्या सम्पादन गर्नुहोस्।",
+  "noTimeSlot": "कुनै समय स्लट उपलब्ध छैन। पहिले एउटा ब्लक हटाउने प्रयास गर्नुहोस्",
+  "maxBlocks": "अधिकतम {max} समय ब्लकमा पुगियो",
+  "duplicateItem": "यो वस्तु पहिले नै ब्लकमा छ",
+  "removeItem": "वस्तु हटाउने?",
+  "removeConfirmation": "\"{itemName}\" यो ब्लकबाट हटाइनेछ",
+  "shareError": "साझा गर्न सकिएन। कृपया फेरि प्रयास गर्नुहोस्",
+  "updateOrderError": "क्रम अद्यावधिक गर्न सकिएन। कृपया फेरि प्रयास गर्नुहोस्",
+  "loadFailed": "लोड गर्न सकिएन। आफ्नो जडान जाँच गरी फेरि प्रयास गर्नुहोस्",
+  "captureError": "QR कोड क्याप्चर गर्न सकिएन। कृपया फेरि प्रयास गर्नुहोस्",
+  "qrShareError": "QR कोड साझा गर्न सकिएन। पछि फेरि प्रयास गर्नुहोस्",
+  "errorDetail": "त्रुटि: {error}",
+  "@errorDetail": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "@unenrollSuccess": {
+    "placeholders": {
+      "planTitle": {
+        "type": "String"
+      }
+    }
+  },
+  "@maxBlocks": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "@removeConfirmation": {
+    "placeholders": {
+      "itemName": {
+        "type": "String"
+      }
+    }
+  },
+  "@shareError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "missedDaysCount": "{count, plural, =0{0 छुटेका दिन} =1{1 छुटेको दिन} other{{count} छुटेका दिन}}",
+  "@missedDaysCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "plan_status_on_track": "सही बाटोमा!",
+  "start_now": "अहिले सुरु गर्नुहोस्",
+  "plan_enroll": "नामांकन गर्नुहोस्",
+  "show_second_version": "दोस्रो संस्करण देखाउनुहोस्",
+  "enable_add_msg": "मुख्य पाठसँगै अनुवाद वा लिप्यन्तरण थप्न सक्षम गर्नुहोस्",
+  "main_version": "मुख्य संस्करण",
+  "second_version": "दोस्रो संस्करण",
+  "second_version_msg": "दोस्रो संस्करण मुख्य पाठको हरेक श्लोकमुनि देखिनेछ",
+  "version": "संस्करणहरू",
+  "parallel_version": "समानान्तर संस्करण",
+  "version_not_available": "उपलब्ध छैन",
+  "read_full_text": "पूरा पाठ पढ्नुहोस्",
+  "reader_source_label": "स्रोत",
+  "reader_license_label": "लाइसेन्स",
+  "series_stats": "{planCount} योजना · {totalDays} दिन",
+  "@series_stats": {
+    "placeholders": {
+      "planCount": {
+        "type": "int"
+      },
+      "totalDays": {
+        "type": "int"
+      }
+    }
+  },
+  "force_update_title": "अद्यावधिक आवश्यक",
+  "force_update_message": "एपको नयाँ संस्करण उपलब्ध छ। जारी राख्न कृपया अद्यावधिक गर्नुहोस्",
+  "force_update_button": "अहिले अद्यावधिक गर्नुहोस्",
+  "settings_section_personalisation": "वैयक्तिकरण",
+  "settings_section_more": "थप",
+  "settings_section_account": "खाता",
+  "settings_edit_profile": "प्रोफाइल सम्पादन गर्नुहोस्",
+  "settings_theme": "थिम",
+  "settings_notification_row": "सूचनाहरू",
+  "settings_feedback_row": "प्रतिक्रिया",
+  "edit_profile_title": "प्रोफाइल सम्पादन गर्नुहोस्",
+  "edit_profile_save": "सेभ गर्नुहोस्",
+  "edit_profile_first_name": "पहिलो नाम",
+  "edit_profile_last_name": "थर",
+  "edit_profile_bio": "परिचय",
+  "edit_profile_bio_hint": "आफ्नो बारेमा अलिकति बताउनुहोस्",
+  "edit_profile_delete_account": "खाता मेट्नुहोस्",
+  "edit_profile_photo_not_uploaded": "फोटो अपलोड भएन",
+  "edit_profile_photo_too_large": "तस्बिर धेरै ठूलो छ। कृपया 1 MB भन्दा सानो फोटो छानेर फेरि प्रयास गर्नुहोस्",
+  "edit_profile_photo_upload_failed": "तपाईंको फोटो अपलोड गर्न सकिएन। कृपया फेरि प्रयास गर्नुहोस्",
+  "edit_profile_choose_from_library": "लाइब्रेरीबाट छान्नुहोस्",
+  "edit_profile_take_photo": "फोटो खिच्नुहोस्",
+  "edit_profile_offline": "तपाईं अफलाइन हुनुहुन्छ। इन्टरनेटमा जडान गरी फेरि प्रयास गर्नुहोस्",
+  "edit_profile_save_failed": "तपाईंका परिवर्तनहरू सेभ गर्न सकिएन। कृपया फेरि प्रयास गर्नुहोस्",
+  "username_label": "प्रयोगकर्ता नाम",
+  "username_taken": "यो नाम कसैले पहिले नै प्रयोग गरिसकेको छ",
+  "username_available_label": "उपलब्ध: ",
+  "username_check_error": "प्रयोगकर्ता नाम जाँच गर्न सकिएन। फेरि प्रयास गर्नुहोस्",
+  "username_invalid_format": "अमान्य प्रयोगकर्ता नाम ढाँचा",
+  "username_min_length": "प्रयोगकर्ता नाम कम्तीमा 3 वर्णको हुनुपर्छ",
+  "username_max_length": "प्रयोगकर्ता नाम 30 वर्ण वा सोभन्दा कम हुनुपर्छ",
+  "username_no_spaces": "प्रयोगकर्ता नाममा खाली ठाउँ हुन सक्दैन",
+  "username_invalid_chars": "केवल अक्षर, अंक, _ . - मात्र अनुमति छ",
+  "username_must_start_alphanumeric": "प्रयोगकर्ता नाम अक्षर वा अंकबाट सुरु हुनुपर्छ",
+  "username_must_end_alphanumeric": "प्रयोगकर्ता नाम अक्षर वा अंकमा अन्त्य हुनुपर्छ",
+  "person_name_min_length": "कम्तिमा 1 अक्षर हुनुपर्छ",
+  "person_name_max_length": "50 अक्षर वा सो भन्दा कम हुनुपर्छ",
+  "person_name_invalid_chars": "अक्षर, खाली ठाउँ, हाइफन (-) र उच्च कोमा (') मात्र अनुमति छ",
+  "about_title": "बारेमा",
+  "about_connect_with_us": "हामीसँग जोडिनुहोस्",
+  "about_description": "हामी बौद्धहरूलाई कम हानि, बढी हित गर्न र दैनिक रूपमा सिक्दै, अभ्यास गर्दै र जोडिँदै आफ्नै मनलाई राम्ररी चिन्न सहयोग गर्छौँ, ताकि सबै प्राणी दुःखबाट मुक्त भई स्थायी सुख प्राप्त गरून्।",
+  "about_social_website": "वेबसाइट",
+  "me_guest_headline": "पूर्ण अनुभव प्राप्त गर्नुहोस्",
+  "me_guest_subtitle": "आफ्नो प्रगति सेभ गर्न निःशुल्क खाता सिर्जना गर्नुहोस्",
+  "delete_account_title": "खाता मेट्नुहोस्",
+  "delete_account_description": "यदि तपाईंले आफ्नो खाता मेट्नुभयो भने, WeBuddhist भित्रका तपाईंका सबै जानकारी, इतिहास र वैयक्तिकृत सेटिङहरू स्थायी रूपमा हटाइनेछन्। कृपया ध्यान दिनुहोस् कि यो कार्य अपरिवर्तनीय छ। अगाडि बढ्न, तलको बटन ट्याप गर्नुहोस्।",
+  "delete_account_button": "खाता मेट्नुहोस्",
+  "delete_account_confirm_message": "के तपाईं आफ्नो WeBuddhist खाता मेट्न निश्चित हुनुहुन्छ?",
+  "legal_title": "कानुनी",
+  "legal_terms_of_service": "सेवाका सर्तहरू",
+  "legal_privacy_policy": "गोपनीयता नीति",
+  "follow": "फलो गर्नुहोस्",
+  "following": "फलो गरिँदै",
+  "calendar_title": "क्यालेन्डर",
+  "calendar_upcoming_events": "आगामी कार्यक्रमहरू",
+  "calendar_day_short": "दिन",
+  "calendar_day_label": "दिन",
+  "calendar_day_month": "दिन {day} · महिना {month}",
+  "@calendar_day_month": {
+    "placeholders": {
+      "day": {
+        "type": "int"
+      },
+      "month": {
+        "type": "int"
+      }
+    }
+  },
+  "calendar_lunar_month": "{ordinal} चन्द्र महिना",
+  "@calendar_lunar_month": {
+    "placeholders": {
+      "ordinal": {
+        "type": "String"
+      }
+    }
+  },
+  "moon_phase_new_moon": "औंसी",
+  "moon_phase_waxing_crescent": "बढ्दो अर्धचन्द्र",
+  "moon_phase_first_quarter": "पहिलो चौथाइ",
+  "moon_phase_waxing_gibbous": "बढ्दो उत्तल चन्द्र",
+  "moon_phase_full_moon": "पूर्णिमा",
+  "moon_phase_waning_gibbous": "घट्दो उत्तल चन्द्र",
+  "moon_phase_last_quarter": "अन्तिम चौथाइ",
+  "moon_phase_waning_crescent": "घट्दो अर्धचन्द्र",
+  "share_this_quote": "यो उद्धरण साझा गर्नुहोस्",
+  "shared_from": "बाट साझा गरिएको",
+  "verse_share_error": "उद्धरण साझा गर्न सकिएन। कृपया फेरि प्रयास गर्नुहोस्"
+}

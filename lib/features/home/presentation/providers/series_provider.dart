@@ -10,14 +10,14 @@ import 'package:fpdart/fpdart.dart';
 // Watches localeProvider so series refetches when the app language changes.
 final seriesListFutureProvider =
     FutureProvider<Either<Failure, List<Series>>>((ref) async {
-  final locale = ref.watch(localeProvider);
+  final language = ref.watch(contentLanguageProvider);
   final useCase = ref.watch(getSeriesListUseCaseProvider);
-  return useCase(GetSeriesListParams(language: locale.languageCode));
+  return useCase(GetSeriesListParams(language: language));
 });
 
 final seriesByIdProvider = FutureProvider.autoDispose
     .family<Either<Failure, Series>, String>((ref, id) async {
-  final locale = ref.watch(localeProvider);
+  final language = ref.watch(contentLanguageProvider);
   final useCase = ref.watch(getSeriesByIdUseCaseProvider);
-  return useCase(GetSeriesByIdParams(id: id, language: locale.languageCode));
+  return useCase(GetSeriesByIdParams(id: id, language: language));
 });

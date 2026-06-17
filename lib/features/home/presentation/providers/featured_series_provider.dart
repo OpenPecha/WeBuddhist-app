@@ -22,10 +22,10 @@ class FeaturedSeriesLayout {
 /// Picks one random series as the hero card so no single series is favored.
 final featuredSeriesFutureProvider =
     FutureProvider<Either<Failure, FeaturedSeriesLayout?>>((ref) async {
-  final locale = ref.watch(localeProvider);
+  final language = ref.watch(contentLanguageProvider);
   final useCase = ref.watch(getFeaturedSeriesUseCaseProvider);
   final result = await useCase(
-    GetFeaturedSeriesParams(language: locale.languageCode),
+    GetFeaturedSeriesParams(language: language),
   );
 
   return result.map((seriesList) {

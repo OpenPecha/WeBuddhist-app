@@ -9,6 +9,29 @@ class TimersRemoteDatasource {
   final Dio dio;
   final _logger = AppLogger('TimersRemoteDatasource');
 
+  Future<void> stopUserTimer({
+    required String timerId,
+    required int durationMs,
+  }) async {
+    try {
+      final response = await dio.post(
+        '/timers/user/timer_stop',
+        data: {
+          'timer_id': timerId,
+          'duration': durationMs,
+        },
+      );
+
+      if (response.statusCode == 201) return;
+
+      _logger.error('Failed to stop timer: ${response.statusCode}');
+      throw _statusToException(response.statusCode, 'Failed to stop timer');
+    } on DioException catch (e) {
+      _logger.error('Dio error in stopUserTimer', e);
+      throw _dioToException(e, 'Failed to stop timer');
+    }
+  }
+
   Future<List<PresetTimerModel>> fetchPresetTimers({
     int skip = 0,
     int limit = 20,

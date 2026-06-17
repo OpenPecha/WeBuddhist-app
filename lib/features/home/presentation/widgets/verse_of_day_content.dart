@@ -39,6 +39,7 @@ class VerseOfDayContent extends StatelessWidget {
     required this.attributionColor,
     this.imageAspectRatio = 1.65,
     this.showBranding = false,
+    this.useContentFontForAttribution = false,
     this.textPadding = const EdgeInsets.fromLTRB(24, 24, 24, 16),
     this.brandingBottomPadding = 0,
     this.footerAction,
@@ -50,6 +51,7 @@ class VerseOfDayContent extends StatelessWidget {
   final Color attributionColor;
   final double imageAspectRatio;
   final bool showBranding;
+  final bool useContentFontForAttribution;
   final EdgeInsets textPadding;
   final double brandingBottomPadding;
   final Widget? footerAction;
@@ -77,7 +79,7 @@ class VerseOfDayContent extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     Text(
-                      '"${verseOfDay.verse}"',
+                      verseOfDay.verse,
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: typography.verseFontSize,
@@ -95,7 +97,10 @@ class VerseOfDayContent extends StatelessWidget {
                         style: TextStyle(
                           fontSize: typography.attributionFontSize,
                           fontWeight: FontWeight.w400,
-                          fontFamily: typography.systemFont,
+                          fontFamily:
+                              useContentFontForAttribution
+                                  ? typography.contentFont
+                                  : typography.systemFont,
                           color: attributionColor,
                         ),
                       ),
@@ -144,14 +149,21 @@ class VerseShareBranding extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Image.asset(AppAssets.weBuddhistLogo, width: logoSize, height: logoSize),
+        Image.asset(
+          AppAssets.weBuddhistLogo,
+          width: logoSize,
+          height: logoSize,
+        ),
         const SizedBox(width: 8),
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               localizations.shared_from,
-              style: TextStyle(fontSize: sharedFromFontSize, color: sharedFromColor),
+              style: TextStyle(
+                fontSize: sharedFromFontSize,
+                color: sharedFromColor,
+              ),
             ),
             Text(
               localizations.appTitle,

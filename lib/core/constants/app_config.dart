@@ -26,9 +26,34 @@ class AppConfig {
   static const String tibetanLanguageCode = 'bo';
   static const String englishLanguageCode = 'en';
   static const String chineseLanguageCode = 'zh';
+  static const String hindiLanguageCode = 'hi';
+  static const String mongolianLanguageCode = 'mn';
+  static const String nepaliLanguageCode = 'ne';
   static const String tibetanAdaptationLanguageCode = 'tib';
   static const String tibetanTransliterationLanguageCode = 'tibphono';
-  static const List<String> supportedLanguages = ['en', 'zh', 'bo'];
+  static const List<String> supportedLanguages = [
+    'en',
+    'zh',
+    'bo',
+    'hi',
+    'mn',
+    'ne',
+  ];
+
+  /// Languages the backend can serve translatable content in.
+  static const List<String> backendContentLanguages = [
+    englishLanguageCode,
+    chineseLanguageCode,
+    tibetanLanguageCode,
+  ];
+
+  /// Maps a UI locale to the language code sent to content APIs.
+  /// Falls back to English when the backend does not support the locale.
+  static String resolveContentLanguage(String localeCode) {
+    final code = localeCode.toLowerCase();
+    if (backendContentLanguages.contains(code)) return code;
+    return englishLanguageCode;
+  }
 
   // Theme configuration
   static const String defaultLanguage = 'en';

@@ -20,22 +20,26 @@ class VerseOfDayCard extends ConsumerWidget {
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 12),
-      child: ClipRRect(
+      child: Material(
+        color: colorScheme.surface,
         borderRadius: BorderRadius.circular(_borderRadius),
-        child: ColoredBox(
-          color: colorScheme.surface,
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: () => showVerseShareSheet(context, verseOfDay),
+          borderRadius: BorderRadius.circular(_borderRadius),
           child: VerseOfDayContent(
             verseOfDay: verseOfDay,
             typography: typography,
             verseColor: colorScheme.onSurface,
             attributionColor: colorScheme.onSurfaceVariant,
-            footerAction: IconButton(
-              onPressed: () => showVerseShareSheet(context, verseOfDay),
-              icon: const Icon(Icons.share_outlined),
-              color: colorScheme.onSurfaceVariant,
-              iconSize: 22,
-              padding: EdgeInsets.zero,
-              constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+            footerAction: SizedBox(
+              width: 32,
+              height: 32,
+              child: Icon(
+                Icons.share_outlined,
+                color: colorScheme.onSurfaceVariant,
+                size: 22,
+              ),
             ),
           ),
         ),

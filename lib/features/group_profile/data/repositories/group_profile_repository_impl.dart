@@ -37,23 +37,35 @@ class GroupProfileRepositoryImpl implements GroupProfileRepositoryInterface {
   }
 
   @override
-  Future<Either<Failure, bool>> checkFollowStatus(String groupId) async {
+  Future<Either<Failure, bool>> checkFollowStatus(
+    String groupId,
+    GroupType groupType,
+  ) async {
     try {
-      final isFollowing = await remote.checkFollowStatus(groupId);
+      final isFollowing = await remote.checkFollowStatus(groupId, groupType);
       return Right(isFollowing);
     } on NetworkException catch (e) {
       return Left(NetworkFailure(e.message));
     } on AuthenticationException catch (e) {
       return Left(AuthenticationFailure(e.message));
     } catch (e) {
-      return Left(UnknownFailure('Failed to check follow status: $e'));
+      return Left(
+        UnknownFailure(
+          groupType.isPage
+              ? 'Failed to check follow status: $e'
+              : 'Failed to check join status: $e',
+        ),
+      );
     }
   }
 
   @override
-  Future<Either<Failure, void>> followGroup(String groupId) async {
+  Future<Either<Failure, void>> followGroup(
+    String groupId,
+    GroupType groupType,
+  ) async {
     try {
-      await remote.followGroup(groupId);
+      await remote.followGroup(groupId, groupType);
       return const Right(null);
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
@@ -62,14 +74,21 @@ class GroupProfileRepositoryImpl implements GroupProfileRepositoryInterface {
     } on AuthenticationException catch (e) {
       return Left(AuthenticationFailure(e.message));
     } catch (e) {
-      return Left(UnknownFailure('Failed to follow group: $e'));
+      return Left(
+        UnknownFailure(
+          groupType.isPage ? 'Failed to follow group: $e' : 'Failed to join group: $e',
+        ),
+      );
     }
   }
 
   @override
-  Future<Either<Failure, void>> unfollowGroup(String groupId) async {
+  Future<Either<Failure, void>> unfollowGroup(
+    String groupId,
+    GroupType groupType,
+  ) async {
     try {
-      await remote.unfollowGroup(groupId);
+      await remote.unfollowGroup(groupId, groupType);
       return const Right(null);
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
@@ -78,7 +97,13 @@ class GroupProfileRepositoryImpl implements GroupProfileRepositoryInterface {
     } on AuthenticationException catch (e) {
       return Left(AuthenticationFailure(e.message));
     } catch (e) {
-      return Left(UnknownFailure('Failed to unfollow group: $e'));
+      return Left(
+        UnknownFailure(
+          groupType.isPage
+              ? 'Failed to unfollow group: $e'
+              : 'Failed to leave group: $e',
+        ),
+      );
     }
   }
 }

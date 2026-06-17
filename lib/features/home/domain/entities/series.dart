@@ -33,6 +33,8 @@ class Series {
   final int totalDays;
   final int planCount;
   final int enrolledCount;
+  final DateTime? startDate;
+  final DateTime? endDate;
   final List<Plan> plans;
   final SeriesGroup? group;
 
@@ -46,6 +48,8 @@ class Series {
     this.totalDays = 0,
     this.planCount = 0,
     this.enrolledCount = 0,
+    this.startDate,
+    this.endDate,
     this.plans = const [],
     this.group,
   });

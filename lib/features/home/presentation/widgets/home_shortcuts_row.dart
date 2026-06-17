@@ -33,7 +33,7 @@ class HomeShortcutsRow extends StatelessWidget {
     final shortcuts = [
       _HomeShortcutItem(
         icon: AppAssets.homePlans,
-        label: l10n.home_plans,
+        label: l10n.home_shortcut_plans,
         onTap: onPlansTap,
       ),
       _HomeShortcutItem(
@@ -101,17 +101,21 @@ class _HomeShortcutItem {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 _buildIcon(iconColor),
-                const SizedBox(height: 8),
-                Text(
-                  label,
-                  textAlign: TextAlign.center,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                    height: 1.2,
-                    color: iconColor,
+                const SizedBox(height: 6),
+                Expanded(
+                  child: Center(
+                    child: Text(
+                      label,
+                      textAlign: TextAlign.center,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w500,
+                        height: 1.15,
+                        color: iconColor,
+                      ),
+                    ),
                   ),
                 ),
               ],
@@ -133,10 +137,6 @@ class _HomeShortcutItem {
       );
     }
 
-    return Icon(
-      icon,
-      size: HomeShortcutsRow._iconSize,
-      color: iconColor,
-    );
+    return Icon(icon, size: HomeShortcutsRow._iconSize, color: iconColor);
   }
 }

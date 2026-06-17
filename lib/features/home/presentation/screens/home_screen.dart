@@ -13,6 +13,7 @@ import 'package:flutter_pecha/features/home/presentation/providers/series_provid
 import 'package:flutter_pecha/features/home/presentation/providers/verse_of_day_provider.dart';
 import 'package:flutter_pecha/features/home/presentation/home_screen_constants.dart';
 import 'package:flutter_pecha/features/home/presentation/widgets/featured_plan_section.dart';
+import 'package:flutter_pecha/features/home/presentation/widgets/home_calendar_card.dart';
 import 'package:flutter_pecha/features/home/presentation/widgets/home_header.dart';
 import 'package:flutter_pecha/features/home/presentation/widgets/home_share_prompt.dart';
 import 'package:flutter_pecha/features/home/presentation/widgets/home_shortcuts_row.dart';
@@ -328,6 +329,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
+                          const HomeCalendarCard(),
+                          const SizedBox(
+                            height: HomeScreenConstants.cardSpacing,
+                          ),
                           _buildVerseOfDaySection(),
                           const SizedBox(
                             height: HomeScreenConstants.cardSpacing,

@@ -1,0 +1,36 @@
+import 'package:flutter_pecha/core/constants/app_assets.dart';
+import 'package:flutter_pecha/core/utils/app_logger.dart';
+import 'package:just_audio/just_audio.dart';
+
+/// Plays the meditation bell for timer countdown ticks and completion.
+class TimerSoundPlayer {
+  TimerSoundPlayer() : _logger = AppLogger('TimerSoundPlayer');
+
+  final AppLogger _logger;
+  AudioPlayer? _player;
+  bool _isLoaded = false;
+
+  Future<void> init() async {
+    try {
+      final player = AudioPlayer();
+      await player.setAsset(AppAssets.meditationSound);
+      _player = player;
+      _isLoaded = true;
+    } catch (e) {
+      _logger.warning('Failed to load timer sound: $e');
+    }
+  }
+
+  void play() {
+    final player = _player;
+    if (!_isLoaded || player == null) return;
+
+    player.seek(Duration.zero).then((_) => player.play());
+  }
+
+  Future<void> dispose() async {
+    await _player?.dispose();
+    _player = null;
+    _isLoaded = false;
+  }
+}
