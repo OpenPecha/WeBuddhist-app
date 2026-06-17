@@ -11,19 +11,11 @@ class AppShareService {
   /// correct store (via your hosted /open page) when not installed.
   static const String _deepLinkUrl = 'https://webuddhist.com/open';
 
-  static const String _iosAppStoreUrl =
-      'https://apps.apple.com/app/webuddhist/id6745810914';
-  static const String _androidPlayStoreUrl =
-      'https://play.google.com/store/apps/details?id=org.pecha.app';
-
   String generateShareMessage() {
     return '''I'm using WeBuddhist to learn and practice Buddhism. Join me!
 
 👉 $_deepLinkUrl
-
-📲 Download:
-iOS: $_iosAppStoreUrl
-Android: $_androidPlayStoreUrl''';
+''';
   }
 
   Future<void> shareApp() async {
