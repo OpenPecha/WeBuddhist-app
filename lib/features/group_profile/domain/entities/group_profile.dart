@@ -65,6 +65,7 @@ class GroupProfile {
   final List<GroupProfileSeries> series;
   final int joinerCount;
   final int followerCount;
+  final int memberCount;
 
   const GroupProfile({
     required this.id,
@@ -83,6 +84,7 @@ class GroupProfile {
     this.series = const [],
     this.joinerCount = 0,
     this.followerCount = 0,
+    this.memberCount = 0,
   });
 
   int get memberOrFollowerCount =>
@@ -106,6 +108,7 @@ class GroupProfile {
       series: series,
       joinerCount: joinerCount,
       followerCount: followerCount,
+      memberCount: memberCount,
     );
   }
 }

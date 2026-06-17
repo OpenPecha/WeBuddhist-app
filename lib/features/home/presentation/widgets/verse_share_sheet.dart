@@ -197,7 +197,7 @@ class _VerseShareSheetState extends State<VerseShareSheet> {
                               color: colorScheme.onSurface,
                             ),
                           )
-                          : Icon(AppAssets.share, size: 22),
+                          : Icon(AppAssets.readerShare, size: 22),
                   label: Text(
                     localizations.share_this_quote,
                     style: const TextStyle(

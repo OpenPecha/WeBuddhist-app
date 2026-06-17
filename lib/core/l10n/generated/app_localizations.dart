@@ -310,6 +310,12 @@ abstract class AppLocalizations {
   /// **'Finish'**
   String get timer_finish;
 
+  /// No description provided for @timer_discard_session.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard session'**
+  String get timer_discard_session;
+
   /// No description provided for @home_hello_prefix.
   ///
   /// In en, this message translates to:
@@ -1017,6 +1023,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Teachers, communities, challenges, and events to support you on the path'**
   String get connect_coming_soon_subtitle;
+
+  /// No description provided for @connect_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Find groups and practice together'**
+  String get connect_subtitle;
+
+  /// No description provided for @discover_groups.
+  ///
+  /// In en, this message translates to:
+  /// **'Discover groups'**
+  String get discover_groups;
+
+  /// No description provided for @my_groups.
+  ///
+  /// In en, this message translates to:
+  /// **'My groups'**
+  String get my_groups;
+
+  /// No description provided for @see_all.
+  ///
+  /// In en, this message translates to:
+  /// **'See all'**
+  String get see_all;
+
+  /// No description provided for @connect_groups_load_error.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to load groups.\nCheck your connection and try again'**
+  String get connect_groups_load_error;
+
+  /// No description provided for @connect_groups_empty_title.
+  ///
+  /// In en, this message translates to:
+  /// **'No groups yet'**
+  String get connect_groups_empty_title;
+
+  /// No description provided for @connect_groups_empty_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'no more groups to join'**
+  String get connect_groups_empty_subtitle;
+
+  /// No description provided for @search_groups.
+  ///
+  /// In en, this message translates to:
+  /// **'Search groups'**
+  String get search_groups;
+
+  /// No description provided for @search_for_groups.
+  ///
+  /// In en, this message translates to:
+  /// **'Search for groups'**
+  String get search_for_groups;
+
+  /// No description provided for @no_groups_found.
+  ///
+  /// In en, this message translates to:
+  /// **'No groups found'**
+  String get no_groups_found;
 
   /// No description provided for @explore_coming_soon_subtitle.
   ///

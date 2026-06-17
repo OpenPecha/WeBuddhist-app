@@ -113,6 +113,9 @@ class AppLocalizationsNe extends AppLocalizations {
   String get timer_finish => 'समाप्त';
 
   @override
+  String get timer_discard_session => 'सत्र खारेज गर्नुहोस्';
+
+  @override
   String get home_hello_prefix => 'नमस्ते, ';
 
   @override
@@ -502,6 +505,37 @@ class AppLocalizationsNe extends AppLocalizations {
   @override
   String get connect_coming_soon_subtitle =>
       'मार्गमा तपाईंलाई सहयोग गर्न शिक्षकहरू, समुदायहरू, चुनौतीहरू र कार्यक्रमहरू';
+
+  @override
+  String get connect_subtitle => 'Find groups and practice together';
+
+  @override
+  String get discover_groups => 'Discover groups';
+
+  @override
+  String get my_groups => 'My groups';
+
+  @override
+  String get see_all => 'See all';
+
+  @override
+  String get connect_groups_load_error =>
+      'Unable to load groups.\nCheck your connection and try again';
+
+  @override
+  String get connect_groups_empty_title => 'No groups yet';
+
+  @override
+  String get connect_groups_empty_subtitle => 'no more groups to join';
+
+  @override
+  String get search_groups => 'Search groups';
+
+  @override
+  String get search_for_groups => 'Search for groups';
+
+  @override
+  String get no_groups_found => 'No groups found';
 
   @override
   String get explore_coming_soon_subtitle =>

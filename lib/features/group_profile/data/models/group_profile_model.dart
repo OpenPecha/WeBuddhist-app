@@ -15,6 +15,7 @@ class GroupProfileModel {
   final List<Map<String, dynamic>> seriesJson;
   final int joinerCount;
   final int followerCount;
+  final int memberCount;
 
   GroupProfileModel({
     required this.id,
@@ -30,6 +31,7 @@ class GroupProfileModel {
     this.seriesJson = const [],
     this.joinerCount = 0,
     this.followerCount = 0,
+    this.memberCount = 0,
   });
 
   factory GroupProfileModel.fromJson(Map<String, dynamic> json) {
@@ -57,6 +59,7 @@ class GroupProfileModel {
           const [],
       joinerCount: (json['joiner_count'] as num?)?.toInt() ?? 0,
       followerCount: (json['follower_count'] as num?)?.toInt() ?? 0,
+      memberCount: (json['member_count'] as num?)?.toInt() ?? 0,
     );
   }
 
@@ -78,6 +81,7 @@ class GroupProfileModel {
       series: seriesJson.map(_parseSeries).toList(),
       joinerCount: joinerCount,
       followerCount: followerCount,
+      memberCount: memberCount,
     );
   }
 

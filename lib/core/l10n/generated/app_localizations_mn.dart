@@ -113,6 +113,9 @@ class AppLocalizationsMn extends AppLocalizations {
   String get timer_finish => 'Дуусгах';
 
   @override
+  String get timer_discard_session => 'Хичээл цуцлах';
+
+  @override
   String get home_hello_prefix => 'Сайн байна уу, ';
 
   @override
@@ -497,6 +500,37 @@ class AppLocalizationsMn extends AppLocalizations {
   @override
   String get connect_coming_soon_subtitle =>
       'Замд тань туслах багш нар, нийгэмлэгүүд, сорилт болон арга хэмжээнүүд';
+
+  @override
+  String get connect_subtitle => 'Find groups and practice together';
+
+  @override
+  String get discover_groups => 'Discover groups';
+
+  @override
+  String get my_groups => 'My groups';
+
+  @override
+  String get see_all => 'See all';
+
+  @override
+  String get connect_groups_load_error =>
+      'Unable to load groups.\nCheck your connection and try again';
+
+  @override
+  String get connect_groups_empty_title => 'No groups yet';
+
+  @override
+  String get connect_groups_empty_subtitle => 'no more groups to join';
+
+  @override
+  String get search_groups => 'Search groups';
+
+  @override
+  String get search_for_groups => 'Search for groups';
+
+  @override
+  String get no_groups_found => 'No groups found';
 
   @override
   String get explore_coming_soon_subtitle =>
