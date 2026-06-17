@@ -310,6 +310,12 @@ abstract class AppLocalizations {
   /// **'Finish'**
   String get timer_finish;
 
+  /// No description provided for @timer_discard_session.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard session'**
+  String get timer_discard_session;
+
   /// No description provided for @home_hello_prefix.
   ///
   /// In en, this message translates to:

@@ -24,6 +24,7 @@
   "timer_min": "分鐘",
   "timer_start": "開始",
   "timer_finish": "完成",
+  "timer_discard_session": "放弃练习",
   "home_hello_prefix": "你好，",
   "home_greeting_fallback_name": "朋友",
   "home_share_prompt": "喜歡 {appName} 嗎？",

@@ -23,6 +23,7 @@
   "timer_min": "мин",
   "timer_start": "Эхлэх",
   "timer_finish": "Дуусгах",
+  "timer_discard_session": "Хичээл цуцлах",
   "home_hello_prefix": "Сайн байна уу, ",
   "home_greeting_fallback_name": "найз минь",
   "home_share_prompt": "{appName} танд таалагдаж байна уу?",

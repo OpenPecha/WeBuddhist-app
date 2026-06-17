@@ -35,6 +35,7 @@
   "timer_min": "min",
   "timer_start": "Start",
   "timer_finish": "Finish",
+  "timer_discard_session": "Discard session",
   "home_hello_prefix": "Hello, ",
   "home_greeting_fallback_name": "there",
   "home_share_prompt": "Enjoying {appName}?",

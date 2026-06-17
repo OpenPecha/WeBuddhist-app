@@ -113,6 +113,9 @@ class AppLocalizationsNe extends AppLocalizations {
   String get timer_finish => 'समाप्त';
 
   @override
+  String get timer_discard_session => 'सत्र खारेज गर्नुहोस्';
+
+  @override
   String get home_hello_prefix => 'नमस्ते, ';
 
   @override

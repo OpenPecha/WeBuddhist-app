@@ -113,6 +113,9 @@ class AppLocalizationsHi extends AppLocalizations {
   String get timer_finish => 'समाप्त करें';
 
   @override
+  String get timer_discard_session => 'सत्र छोड़ें';
+
+  @override
   String get home_hello_prefix => 'नमस्ते, ';
 
   @override

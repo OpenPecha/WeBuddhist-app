@@ -112,6 +112,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get timer_finish => '完成';
 
   @override
+  String get timer_discard_session => '放弃练习';
+
+  @override
   String get home_hello_prefix => '你好，';
 
   @override

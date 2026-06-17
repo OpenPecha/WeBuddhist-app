@@ -113,6 +113,9 @@ class AppLocalizationsBo extends AppLocalizations {
   String get timer_finish => 'མཇུག་སྒྲིལ';
 
   @override
+  String get timer_discard_session => 'སྒྲུབ་སྡེ་མེད་པར་བཏང་';
+
+  @override
   String get home_hello_prefix => 'བཀྲ་ཤིས་བདེ་ལེགས། ';
 
   @override

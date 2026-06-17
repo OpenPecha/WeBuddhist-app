@@ -113,6 +113,9 @@ class AppLocalizationsMn extends AppLocalizations {
   String get timer_finish => 'Дуусгах';
 
   @override
+  String get timer_discard_session => 'Хичээл цуцлах';
+
+  @override
   String get home_hello_prefix => 'Сайн байна уу, ';
 
   @override
