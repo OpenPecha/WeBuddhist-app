@@ -14,6 +14,9 @@ class AppAssets {
   static const String recitationCoverDefault =
       'assets/images/recitation_cover/recitation_05.jpg';
 
+  // ========== AUDIO ==========
+  static const String meditationSound = 'assets/audios/meditation.mp3';
+
   // ========== LOGOS ==========
   static const String weBuddhistLogo = 'assets/images/webuddhist_gold.png';
   static const String googleIcon = 'assets/images/google-icon.png';

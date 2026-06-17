@@ -123,39 +123,39 @@ class _VerseShareSheetState extends State<VerseShareSheet> {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                      Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(28),
-                        ),
-                        clipBehavior: Clip.antiAlias,
-                        child: VerseOfDayContent(
-                          verseOfDay: widget.verseOfDay,
-                          typography: VerseOfDayTypography(
-                            contentFont: typography.contentFont,
-                            systemFont: typography.systemFont,
-                            verseFontSize: languageCode == 'bo' ? 20.0 : 18.0,
-                            attributionFontSize:
-                                languageCode == 'bo' ? 16.0 : 15.0,
+                        Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12),
                           ),
-                          verseColor: Colors.black87,
-                          attributionColor: Colors.black87,
-                          imageAspectRatio: 1.15,
-                          useContentFontForAttribution: true,
-                          textPadding: const EdgeInsets.fromLTRB(
-                            28,
-                            32,
-                            28,
-                            36,
+                          clipBehavior: Clip.antiAlias,
+                          child: VerseOfDayContent(
+                            verseOfDay: widget.verseOfDay,
+                            typography: VerseOfDayTypography(
+                              contentFont: typography.contentFont,
+                              systemFont: typography.systemFont,
+                              verseFontSize: languageCode == 'bo' ? 20.0 : 18.0,
+                              attributionFontSize:
+                                  languageCode == 'bo' ? 16.0 : 15.0,
+                            ),
+                            verseColor: Colors.black87,
+                            attributionColor: Colors.black87,
+                            imageAspectRatio: 1.15,
+                            useContentFontForAttribution: true,
+                            textPadding: const EdgeInsets.fromLTRB(
+                              28,
+                              32,
+                              28,
+                              36,
+                            ),
                           ),
                         ),
-                      ),
-                      const SizedBox(height: 24),
-                      const VerseShareBranding(
-                        logoSize: 32,
-                        sharedFromFontSize: 12,
-                        appTitleFontSize: 14,
-                      ),
+                        const SizedBox(height: 24),
+                        const VerseShareBranding(
+                          logoSize: 32,
+                          sharedFromFontSize: 12,
+                          appTitleFontSize: 14,
+                        ),
                       ],
                     ),
                   ),
@@ -174,14 +174,19 @@ class _VerseShareSheetState extends State<VerseShareSheet> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor:
                         isDark
-                            ? AppColors.surfaceVariantDark
-                            : AppColors.greyLight,
+                            ? AppColors.cardBorderDark
+                            : AppColors.surfaceWhite,
                     foregroundColor: colorScheme.onSurface,
                     elevation: 0,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(999),
+                      side: BorderSide(
+                        color: colorScheme.onSurface.withValues(alpha: 0.12),
+                        width: 1,
+                      ),
                     ),
                   ),
+
                   icon:
                       _isSharing
                           ? SizedBox(

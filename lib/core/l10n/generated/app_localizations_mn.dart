@@ -50,10 +50,43 @@ class AppLocalizationsMn extends AppLocalizations {
   String get home_recitation => 'Уншлага';
 
   @override
+  String get home_today => 'Today';
+
+  @override
+  String get home_good_morning => 'Good morning';
+
+  @override
+  String get home_good_afternoon => 'Good afternoon';
+
+  @override
+  String get home_good_evening => 'Good evening';
+
+  @override
+  String get home_meditationTitle => 'Meditation';
+
+  @override
+  String get home_prayerTitle => 'Prayer of the day';
+
+  @override
+  String get home_scripture => 'Guided scripture';
+
+  @override
+  String get home_meditation => 'Guided meditation';
+
+  @override
+  String get home_goDeeper => 'Go deeper';
+
+  @override
+  String get home_intention => 'My intention for today';
+
+  @override
   String get home_overall_stats => 'Нийт статистик';
 
   @override
   String get home_plans => 'Төлөвлөгөө';
+
+  @override
+  String get home_shortcut_plans => 'Төлөвлөгөө';
 
   @override
   String get home_chants => 'Магтаал';
@@ -66,6 +99,9 @@ class AppLocalizationsMn extends AppLocalizations {
 
   @override
   String get preset_timers => 'Бэлэн тохируулсан цаг';
+
+  @override
+  String get meditation_timer => 'Meditation Timer';
 
   @override
   String get timer_min => 'мин';
@@ -474,6 +510,21 @@ class AppLocalizationsMn extends AppLocalizations {
   String get creator_featured_plan => 'Онцлох төлөвлөгөө';
 
   @override
+  String get audio_init_error =>
+      'Unable to initialize audio player. Check your connection and try again';
+
+  @override
+  String get meditation_audio_load_error =>
+      'Unable to load. Check your connection and try again';
+
+  @override
+  String get prayer_audio_load_error =>
+      'Unable to load audio. Check your connection and try again';
+
+  @override
+  String get home_no_series_found => 'No series found';
+
+  @override
   String get home_no_tags_found => 'Шошго олдсонгүй';
 
   @override
@@ -792,6 +843,9 @@ class AppLocalizationsMn extends AppLocalizations {
 
   @override
   String get routine_delete_block => 'Блокыг устгах уу?';
+
+  @override
+  String get routine_delete_time_block => 'Remove time block';
 
   @override
   String get routine_add_plan => 'Төлөвлөгөө нэмэх';
@@ -1272,6 +1326,32 @@ class AppLocalizationsMn extends AppLocalizations {
 
   @override
   String get moon_phase_waning_crescent => 'Хорогдох хавирган сар';
+
+  @override
+  String get join => 'Join';
+
+  @override
+  String get joined => 'Joined';
+
+  @override
+  String get group_member => 'member';
+
+  @override
+  String get group_members => 'members';
+
+  @override
+  String get group_follower => 'follower';
+
+  @override
+  String get group_followers => 'followers';
+
+  @override
+  String get group_links_title => 'Links';
+
+  @override
+  String group_and_more_links(int count) {
+    return 'and $count more links';
+  }
 
   @override
   String get share_this_quote => 'Энэ ишлэлийг хуваалцах';

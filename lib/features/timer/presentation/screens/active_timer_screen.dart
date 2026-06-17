@@ -8,6 +8,7 @@ import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/features/timer/domain/entities/preset_timer.dart';
 import 'package:flutter_pecha/features/timer/domain/usecases/stop_user_timer_usecase.dart';
 import 'package:flutter_pecha/features/timer/presentation/providers/timers_providers.dart';
+import 'package:flutter_pecha/features/timer/presentation/services/timer_sound_player.dart';
 import 'package:flutter_pecha/features/timer/presentation/widgets/timer_progress_ring.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -39,6 +40,7 @@ class _ActiveTimerScreenState extends ConsumerState<ActiveTimerScreen> {
   bool _isPaused = false;
 
   Timer? _timer;
+  late final TimerSoundPlayer _soundPlayer;
 
   int get _totalMs => widget.presetTimer.durationMs;
 
@@ -54,12 +56,15 @@ class _ActiveTimerScreenState extends ConsumerState<ActiveTimerScreen> {
   void initState() {
     super.initState();
     _remainingMs = _totalMs;
+    _soundPlayer = TimerSoundPlayer();
+    _soundPlayer.init();
     _startCountdown();
   }
 
   @override
   void dispose() {
     _timer?.cancel();
+    _soundPlayer.dispose();
     super.dispose();
   }
 
@@ -84,6 +89,8 @@ class _ActiveTimerScreenState extends ConsumerState<ActiveTimerScreen> {
   }
 
   void _startMainTimer() {
+    _soundPlayer.play();
+
     setState(() {
       _phase = _TimerPhase.running;
       _remainingMs = _totalMs;
@@ -106,6 +113,7 @@ class _ActiveTimerScreenState extends ConsumerState<ActiveTimerScreen> {
         _remainingMs = 0;
         _phase = _TimerPhase.finished;
         _timer?.cancel();
+        _soundPlayer.play();
         _reportTimerStop();
       }
     });

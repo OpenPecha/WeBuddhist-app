@@ -1,5 +1,19 @@
 import 'package:flutter_pecha/shared/domain/value_objects/responsive_image.dart';
 
+enum GroupType {
+  community,
+  page;
+
+  static GroupType fromApi(String? value) {
+    return switch (value?.toUpperCase()) {
+      'PAGE' => GroupType.page,
+      _ => GroupType.community,
+    };
+  }
+
+  bool get isPage => this == GroupType.page;
+}
+
 class GroupProfileSocialLink {
   final String id;
   final String platform;
@@ -37,10 +51,12 @@ class GroupProfileSeries {
 class GroupProfile {
   final String id;
   final String slug;
+  final GroupType groupType;
   final bool isPublic;
   final String title;
   final String? subTitle;
   final String? description;
+  final String? descriptionLong;
   final String? avatarUrl;
   final String? bannerUrl;
   final bool isFollowing;
@@ -48,14 +64,17 @@ class GroupProfile {
   final List<GroupProfileSocialLink> socialLinks;
   final List<GroupProfileSeries> series;
   final int joinerCount;
+  final int followerCount;
 
   const GroupProfile({
     required this.id,
     this.slug = '',
+    this.groupType = GroupType.community,
     this.isPublic = false,
     this.title = '',
     this.subTitle,
     this.description,
+    this.descriptionLong,
     this.avatarUrl,
     this.bannerUrl,
     this.isFollowing = false,
@@ -63,16 +82,22 @@ class GroupProfile {
     this.socialLinks = const [],
     this.series = const [],
     this.joinerCount = 0,
+    this.followerCount = 0,
   });
+
+  int get memberOrFollowerCount =>
+      groupType.isPage ? followerCount : joinerCount;
 
   GroupProfile copyWith({bool? isFollowing}) {
     return GroupProfile(
       id: id,
       slug: slug,
+      groupType: groupType,
       isPublic: isPublic,
       title: title,
       subTitle: subTitle,
       description: description,
+      descriptionLong: descriptionLong,
       avatarUrl: avatarUrl,
       bannerUrl: bannerUrl,
       isFollowing: isFollowing ?? this.isFollowing,
@@ -80,6 +105,7 @@ class GroupProfile {
       socialLinks: socialLinks,
       series: series,
       joinerCount: joinerCount,
+      followerCount: followerCount,
     );
   }
 }

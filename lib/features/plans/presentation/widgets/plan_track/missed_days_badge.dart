@@ -51,10 +51,6 @@ class MissedDaysBadge extends StatelessWidget {
           horizontal: onTap != null ? 10 : 12,
           vertical: 4,
         ),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: color.withValues(alpha: 0.5)),
-        ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -64,7 +60,7 @@ class MissedDaysBadge extends StatelessWidget {
             ],
             Text(
               context.l10n.missedDaysCount(missedDays),
-              style: TextStyle(fontSize: 9, color: color),
+              style: TextStyle(fontSize: 10, color: color),
             ),
           ],
         ),
