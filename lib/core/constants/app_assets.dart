@@ -13,6 +13,8 @@ class AppAssets {
   static const String homeMalaIcon = 'assets/images/mala-icon.png';
   static const String recitationCoverDefault =
       'assets/images/recitation_cover/recitation_05.jpg';
+  static const String connectHero =
+      'assets/images/tag_cover/ultimate_reality.png';
 
   // ========== LOGOS ==========
   static const String weBuddhistLogo = 'assets/images/webuddhist_gold.png';

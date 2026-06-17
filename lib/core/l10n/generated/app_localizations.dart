@@ -184,6 +184,66 @@ abstract class AppLocalizations {
   /// **'recitations'**
   String get home_recitation;
 
+  /// No description provided for @home_today.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get home_today;
+
+  /// No description provided for @home_good_morning.
+  ///
+  /// In en, this message translates to:
+  /// **'Good morning'**
+  String get home_good_morning;
+
+  /// No description provided for @home_good_afternoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Good afternoon'**
+  String get home_good_afternoon;
+
+  /// No description provided for @home_good_evening.
+  ///
+  /// In en, this message translates to:
+  /// **'Good evening'**
+  String get home_good_evening;
+
+  /// No description provided for @home_meditationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Meditation'**
+  String get home_meditationTitle;
+
+  /// No description provided for @home_prayerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Prayer of the day'**
+  String get home_prayerTitle;
+
+  /// No description provided for @home_scripture.
+  ///
+  /// In en, this message translates to:
+  /// **'Guided scripture'**
+  String get home_scripture;
+
+  /// No description provided for @home_meditation.
+  ///
+  /// In en, this message translates to:
+  /// **'Guided meditation'**
+  String get home_meditation;
+
+  /// No description provided for @home_goDeeper.
+  ///
+  /// In en, this message translates to:
+  /// **'Go deeper'**
+  String get home_goDeeper;
+
+  /// No description provided for @home_intention.
+  ///
+  /// In en, this message translates to:
+  /// **'My intention for today'**
+  String get home_intention;
+
   /// No description provided for @home_overall_stats.
   ///
   /// In en, this message translates to:
@@ -952,6 +1012,36 @@ abstract class AppLocalizations {
   /// **'Teachers, communities, challenges, and events to support you on the path'**
   String get connect_coming_soon_subtitle;
 
+  /// No description provided for @connect_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Find your groups and practice together'**
+  String get connect_subtitle;
+
+  /// No description provided for @connect_discover_groups.
+  ///
+  /// In en, this message translates to:
+  /// **'Discover groups'**
+  String get connect_discover_groups;
+
+  /// No description provided for @connect_my_groups.
+  ///
+  /// In en, this message translates to:
+  /// **'My groups'**
+  String get connect_my_groups;
+
+  /// No description provided for @connect_no_groups.
+  ///
+  /// In en, this message translates to:
+  /// **'No groups to discover right now'**
+  String get connect_no_groups;
+
+  /// No description provided for @see_all.
+  ///
+  /// In en, this message translates to:
+  /// **'See all'**
+  String get see_all;
+
   /// No description provided for @explore_coming_soon_subtitle.
   ///
   /// In en, this message translates to:
@@ -969,6 +1059,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Featured plans'**
   String get creator_featured_plan;
+
+  /// No description provided for @audio_init_error.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to initialize audio player. Check your connection and try again'**
+  String get audio_init_error;
+
+  /// No description provided for @meditation_audio_load_error.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to load. Check your connection and try again'**
+  String get meditation_audio_load_error;
+
+  /// No description provided for @prayer_audio_load_error.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to load audio. Check your connection and try again'**
+  String get prayer_audio_load_error;
+
+  /// No description provided for @home_no_series_found.
+  ///
+  /// In en, this message translates to:
+  /// **'No series found'**
+  String get home_no_series_found;
 
   /// No description provided for @home_no_tags_found.
   ///
@@ -1515,6 +1629,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Remove block'**
   String get routine_delete_block;
+
+  /// No description provided for @routine_delete_time_block.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove time block'**
+  String get routine_delete_time_block;
 
   /// No description provided for @routine_add_plan.
   ///
@@ -2254,29 +2374,17 @@ abstract class AppLocalizations {
   /// **'Privacy policy'**
   String get legal_privacy_policy;
 
-  /// No description provided for @join.
+  /// No description provided for @follow.
   ///
   /// In en, this message translates to:
-  /// **'Join'**
-  String get join;
+  /// **'Follow'**
+  String get follow;
 
-  /// No description provided for @joined.
+  /// No description provided for @following.
   ///
   /// In en, this message translates to:
-  /// **'Joined'**
-  String get joined;
-
-  /// No description provided for @group_member.
-  ///
-  /// In en, this message translates to:
-  /// **'member'**
-  String get group_member;
-
-  /// No description provided for @group_members.
-  ///
-  /// In en, this message translates to:
-  /// **'members'**
-  String get group_members;
+  /// **'Following'**
+  String get following;
 
   /// No description provided for @calendar_title.
   ///
@@ -2361,6 +2469,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Waning crescent'**
   String get moon_phase_waning_crescent;
+
+  /// No description provided for @join.
+  ///
+  /// In en, this message translates to:
+  /// **'Join'**
+  String get join;
+
+  /// No description provided for @joined.
+  ///
+  /// In en, this message translates to:
+  /// **'Joined'**
+  String get joined;
+
+  /// No description provided for @group_member.
+  ///
+  /// In en, this message translates to:
+  /// **'member'**
+  String get group_member;
+
+  /// No description provided for @group_members.
+  ///
+  /// In en, this message translates to:
+  /// **'members'**
+  String get group_members;
 
   /// No description provided for @share_this_quote.
   ///

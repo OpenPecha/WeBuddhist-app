@@ -50,6 +50,36 @@ class AppLocalizationsHi extends AppLocalizations {
   String get home_recitation => 'पाठ';
 
   @override
+  String get home_today => 'Today';
+
+  @override
+  String get home_good_morning => 'Good morning';
+
+  @override
+  String get home_good_afternoon => 'Good afternoon';
+
+  @override
+  String get home_good_evening => 'Good evening';
+
+  @override
+  String get home_meditationTitle => 'Meditation';
+
+  @override
+  String get home_prayerTitle => 'Prayer of the day';
+
+  @override
+  String get home_scripture => 'Guided scripture';
+
+  @override
+  String get home_meditation => 'Guided meditation';
+
+  @override
+  String get home_goDeeper => 'Go deeper';
+
+  @override
+  String get home_intention => 'My intention for today';
+
+  @override
   String get home_overall_stats => 'समग्र आँकड़े';
 
   @override
@@ -66,6 +96,9 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get preset_timers => 'पूर्व-निर्धारित टाइमर';
+
+  @override
+  String get meditation_timer => 'Meditation Timer';
 
   @override
   String get timer_min => 'मिनट';
@@ -464,6 +497,21 @@ class AppLocalizationsHi extends AppLocalizations {
       'मार्ग पर आपका साथ देने के लिए शिक्षक, समुदाय, चुनौतियाँ और आयोजन';
 
   @override
+  String get connect_subtitle => 'Find your groups and practice together';
+
+  @override
+  String get connect_discover_groups => 'Discover groups';
+
+  @override
+  String get connect_my_groups => 'My groups';
+
+  @override
+  String get connect_no_groups => 'No groups to discover right now';
+
+  @override
+  String get see_all => 'See all';
+
+  @override
   String get explore_coming_soon_subtitle =>
       'अभ्यास, शिक्षाओं और सामुदायिक आयोजनों को खोजने के लिए एक चयनित स्थान';
 
@@ -473,6 +521,21 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get creator_featured_plan => 'विशेष योजना';
+
+  @override
+  String get audio_init_error =>
+      'Unable to initialize audio player. Check your connection and try again';
+
+  @override
+  String get meditation_audio_load_error =>
+      'Unable to load. Check your connection and try again';
+
+  @override
+  String get prayer_audio_load_error =>
+      'Unable to load audio. Check your connection and try again';
+
+  @override
+  String get home_no_series_found => 'No series found';
 
   @override
   String get home_no_tags_found => 'कोई टैग नहीं मिला';
@@ -794,6 +857,9 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get routine_delete_block => 'खंड हटाएँ?';
+
+  @override
+  String get routine_delete_time_block => 'Remove time block';
 
   @override
   String get routine_add_plan => 'योजना जोड़ें';
@@ -1275,6 +1341,18 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get moon_phase_waning_crescent => 'घटता अर्धचंद्र';
+
+  @override
+  String get join => 'Join';
+
+  @override
+  String get joined => 'Joined';
+
+  @override
+  String get group_member => 'member';
+
+  @override
+  String get group_members => 'members';
 
   @override
   String get share_this_quote => 'इस उद्धरण को साझा करें';

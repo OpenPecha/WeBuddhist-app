@@ -8,3 +8,6 @@ library;
 
 // Presentation - Screens
 export 'presentation/screens/connect_screen.dart';
+
+// Presentation - Providers
+export 'presentation/providers/connect_providers.dart';

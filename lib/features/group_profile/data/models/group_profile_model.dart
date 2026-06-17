@@ -36,7 +36,7 @@ class GroupProfileModel {
       avatarUrl: json['avatar_url'] as String?,
       bannerUrl: json['banner_url'] as String?,
       isFollowing: json['is_following'] as bool? ?? false,
-      metadata: json['metadata'] as Map<String, dynamic>?,
+      metadata: _parseMetadata(json['metadata']),
       tags: (json['tags'] as List<dynamic>?)
               ?.map((t) => t.toString())
               .toList() ??
@@ -51,6 +51,11 @@ class GroupProfileModel {
           const [],
       joinerCount: (json['joiner_count'] as num?)?.toInt() ?? 0,
     );
+  }
+
+  static Map<String, dynamic>? _parseMetadata(dynamic value) {
+    if (value is Map<String, dynamic>) return value;
+    return null;
   }
 
   GroupProfile toEntity() {
