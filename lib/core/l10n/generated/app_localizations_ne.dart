@@ -523,8 +523,7 @@ class AppLocalizationsNe extends AppLocalizations {
   String get connect_groups_empty_title => 'No groups yet';
 
   @override
-  String get connect_groups_empty_subtitle =>
-      'Check back soon for new communities to join';
+  String get connect_groups_empty_subtitle => 'no more groups to join';
 
   @override
   String get search_groups => 'Search groups';

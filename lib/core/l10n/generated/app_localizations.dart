@@ -1057,7 +1057,7 @@ abstract class AppLocalizations {
   /// No description provided for @connect_groups_empty_subtitle.
   ///
   /// In en, this message translates to:
-  /// **'Check back soon for new communities to join'**
+  /// **'no more groups to join'**
   String get connect_groups_empty_subtitle;
 
   /// No description provided for @search_groups.

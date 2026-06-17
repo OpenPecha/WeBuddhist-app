@@ -183,7 +183,7 @@
   "see_all": "See all",
   "connect_groups_load_error": "Unable to load groups.\nCheck your connection and try again",
   "connect_groups_empty_title": "No groups yet",
-  "connect_groups_empty_subtitle": "Check back soon for new communities to join",
+  "connect_groups_empty_subtitle": "no more groups to join",
   "search_groups": "Search groups",
   "search_for_groups": "Search for groups",
   "no_groups_found": "No groups found",

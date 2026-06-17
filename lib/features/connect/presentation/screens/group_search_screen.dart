@@ -115,7 +115,9 @@ class _GroupSearchScreenState extends ConsumerState<GroupSearchScreen> {
                                 : null,
                         filled: true,
                         fillColor:
-                            isDark ? AppColors.surfaceDark : AppColors.surfaceWhite,
+                            isDark
+                                ? AppColors.surfaceDark
+                                : AppColors.surfaceWhite,
                         contentPadding: const EdgeInsets.symmetric(
                           horizontal: 16,
                           vertical: 12,
@@ -226,9 +228,9 @@ class _EmptySearchState extends StatelessWidget {
             const SizedBox(height: 16),
             Text(
               title,
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                color: subtitleColor,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyLarge?.copyWith(color: subtitleColor),
               textAlign: TextAlign.center,
             ),
           ],
@@ -260,10 +262,7 @@ class _ErrorSearchState extends StatelessWidget {
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: onRetry,
-              child: Text(context.l10n.retry),
-            ),
+            ElevatedButton(onPressed: onRetry, child: Text(context.l10n.retry)),
           ],
         ),
       ),
