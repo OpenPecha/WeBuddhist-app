@@ -126,7 +126,7 @@ class _VerseShareSheetState extends State<VerseShareSheet> {
                         Container(
                           decoration: BoxDecoration(
                             color: Colors.white,
-                            borderRadius: BorderRadius.circular(16),
+                            borderRadius: BorderRadius.circular(12),
                           ),
                           clipBehavior: Clip.antiAlias,
                           child: VerseOfDayContent(
@@ -174,14 +174,19 @@ class _VerseShareSheetState extends State<VerseShareSheet> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor:
                         isDark
-                            ? AppColors.surfaceVariantDark
-                            : AppColors.greyLight,
+                            ? AppColors.cardBorderDark
+                            : AppColors.surfaceWhite,
                     foregroundColor: colorScheme.onSurface,
                     elevation: 0,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(999),
+                      side: BorderSide(
+                        color: colorScheme.onSurface.withValues(alpha: 0.12),
+                        width: 1,
+                      ),
                     ),
                   ),
+
                   icon:
                       _isSharing
                           ? SizedBox(
