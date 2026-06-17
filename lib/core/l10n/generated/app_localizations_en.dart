@@ -47,7 +47,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get onboarding_begin_practice => 'Begin your practice';
 
   @override
-  String get home_recitation => 'Recitation';
+  String get home_recitation => 'recitations';
+
+  @override
   String get home_today => 'Today';
 
   @override
@@ -78,13 +80,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get home_intention => 'My intention for today';
 
   @override
-  String get home_recitation => 'recitations';
-
-  @override
   String get home_overall_stats => 'Overall stats';
 
   @override
   String get home_plans => 'plans';
+
+  @override
+  String get home_shortcut_plans => 'Plans';
 
   @override
   String get home_chants => 'Chants';
@@ -109,6 +111,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get timer_finish => 'Finish';
+
+  @override
+  String get timer_discard_session => 'Discard session';
 
   @override
   String get home_hello_prefix => 'Hello, ';
@@ -493,6 +498,37 @@ class AppLocalizationsEn extends AppLocalizations {
       'Teachers, communities, challenges, and events to support you on the path';
 
   @override
+  String get connect_subtitle => 'Find groups and practice together';
+
+  @override
+  String get discover_groups => 'Discover groups';
+
+  @override
+  String get my_groups => 'My groups';
+
+  @override
+  String get see_all => 'See all';
+
+  @override
+  String get connect_groups_load_error =>
+      'Unable to load groups.\nCheck your connection and try again';
+
+  @override
+  String get connect_groups_empty_title => 'No groups yet';
+
+  @override
+  String get connect_groups_empty_subtitle => 'no more groups to join';
+
+  @override
+  String get search_groups => 'Search groups';
+
+  @override
+  String get search_for_groups => 'Search for groups';
+
+  @override
+  String get no_groups_found => 'No groups found';
+
+  @override
   String get explore_coming_soon_subtitle =>
       'A curated space to discover practices, teachings, and community events';
 
@@ -502,6 +538,21 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get creator_featured_plan => 'Featured plans';
+
+  @override
+  String get audio_init_error =>
+      'Unable to initialize audio player. Check your connection and try again';
+
+  @override
+  String get meditation_audio_load_error =>
+      'Unable to load. Check your connection and try again';
+
+  @override
+  String get prayer_audio_load_error =>
+      'Unable to load audio. Check your connection and try again';
+
+  @override
+  String get home_no_series_found => 'No series found';
 
   @override
   String get home_no_tags_found => 'No tags found';
@@ -818,7 +869,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get routine_edit_title => 'Edit your routine';
 
   @override
-  String get routine_delete_block => 'Remove block';
+  String get routine_delete_block => 'Remove block?';
+
+  @override
+  String get routine_delete_time_block => 'Remove time block';
 
   @override
   String get routine_add_plan => 'Add plan';
@@ -1242,16 +1296,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get legal_privacy_policy => 'Privacy policy';
 
   @override
-  String get join => 'Join';
+  String get follow => 'Follow';
 
   @override
-  String get joined => 'Joined';
-
-  @override
-  String get group_member => 'member';
-
-  @override
-  String get group_members => 'members';
+  String get following => 'Following';
 
   @override
   String get calendar_title => 'Calendar';
@@ -1298,6 +1346,32 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get moon_phase_waning_crescent => 'Waning crescent';
+
+  @override
+  String get join => 'Join';
+
+  @override
+  String get joined => 'Joined';
+
+  @override
+  String get group_member => 'member';
+
+  @override
+  String get group_members => 'members';
+
+  @override
+  String get group_follower => 'follower';
+
+  @override
+  String get group_followers => 'followers';
+
+  @override
+  String get group_links_title => 'Links';
+
+  @override
+  String group_and_more_links(int count) {
+    return 'and $count more links';
+  }
 
   @override
   String get share_this_quote => 'Share this quote';

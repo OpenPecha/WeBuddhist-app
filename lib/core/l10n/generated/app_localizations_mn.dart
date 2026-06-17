@@ -50,10 +50,43 @@ class AppLocalizationsMn extends AppLocalizations {
   String get home_recitation => 'Уншлага';
 
   @override
+  String get home_today => 'Өнөөдөр';
+
+  @override
+  String get home_good_morning => 'Өглөөний мэнд';
+
+  @override
+  String get home_good_afternoon => 'Өдрийн мэнд';
+
+  @override
+  String get home_good_evening => 'Оройн мэнд';
+
+  @override
+  String get home_meditationTitle => 'Бясалгал';
+
+  @override
+  String get home_prayerTitle => 'Өнөөдрийн залбирал';
+
+  @override
+  String get home_scripture => 'Удирдамжтай бичиг';
+
+  @override
+  String get home_meditation => 'Удирдамжтай бясалгал';
+
+  @override
+  String get home_goDeeper => 'Илүү гүнзгий орно уу';
+
+  @override
+  String get home_intention => 'Өнөөдрийн миний зорилго';
+
+  @override
   String get home_overall_stats => 'Нийт статистик';
 
   @override
   String get home_plans => 'Төлөвлөгөө';
+
+  @override
+  String get home_shortcut_plans => 'Төлөвлөгөө';
 
   @override
   String get home_chants => 'Магтаал';
@@ -68,6 +101,9 @@ class AppLocalizationsMn extends AppLocalizations {
   String get preset_timers => 'Бэлэн тохируулсан цаг';
 
   @override
+  String get meditation_timer => 'Бясалгалын цаг хэмжигч';
+
+  @override
   String get timer_min => 'мин';
 
   @override
@@ -75,6 +111,9 @@ class AppLocalizationsMn extends AppLocalizations {
 
   @override
   String get timer_finish => 'Дуусгах';
+
+  @override
+  String get timer_discard_session => 'Хичээл цуцлах';
 
   @override
   String get home_hello_prefix => 'Сайн байна уу, ';
@@ -463,6 +502,37 @@ class AppLocalizationsMn extends AppLocalizations {
       'Замд тань туслах багш нар, нийгэмлэгүүд, сорилт болон арга хэмжээнүүд';
 
   @override
+  String get connect_subtitle => 'Find groups and practice together';
+
+  @override
+  String get discover_groups => 'Discover groups';
+
+  @override
+  String get my_groups => 'My groups';
+
+  @override
+  String get see_all => 'See all';
+
+  @override
+  String get connect_groups_load_error =>
+      'Unable to load groups.\nCheck your connection and try again';
+
+  @override
+  String get connect_groups_empty_title => 'No groups yet';
+
+  @override
+  String get connect_groups_empty_subtitle => 'no more groups to join';
+
+  @override
+  String get search_groups => 'Search groups';
+
+  @override
+  String get search_for_groups => 'Search for groups';
+
+  @override
+  String get no_groups_found => 'No groups found';
+
+  @override
   String get explore_coming_soon_subtitle =>
       'Дадлага, сургаал, нийгэмлэгийн арга хэмжээг нээх онцгой орчин';
 
@@ -472,6 +542,21 @@ class AppLocalizationsMn extends AppLocalizations {
 
   @override
   String get creator_featured_plan => 'Онцлох төлөвлөгөө';
+
+  @override
+  String get audio_init_error =>
+      'Дуу тоглуулагчийг эхлүүлэх боломжгүй. Холболтоо шалгаад дахин оролдоно уу';
+
+  @override
+  String get meditation_audio_load_error =>
+      'Ачаалах боломжгүй. Холболтоо шалгаад дахин оролдоно уу';
+
+  @override
+  String get prayer_audio_load_error =>
+      'Дуу ачаалах боломжгүй. Холболтоо шалгаад дахин оролдоно уу';
+
+  @override
+  String get home_no_series_found => 'Цуврал олдсонгүй';
 
   @override
   String get home_no_tags_found => 'Шошго олдсонгүй';
@@ -792,6 +877,9 @@ class AppLocalizationsMn extends AppLocalizations {
 
   @override
   String get routine_delete_block => 'Блокыг устгах уу?';
+
+  @override
+  String get routine_delete_time_block => 'Цагийн блокыг устгах';
 
   @override
   String get routine_add_plan => 'Төлөвлөгөө нэмэх';
@@ -1272,6 +1360,32 @@ class AppLocalizationsMn extends AppLocalizations {
 
   @override
   String get moon_phase_waning_crescent => 'Хорогдох хавирган сар';
+
+  @override
+  String get join => 'Нэгдэх';
+
+  @override
+  String get joined => 'Нэгдсэн';
+
+  @override
+  String get group_member => 'гишүүн';
+
+  @override
+  String get group_members => 'гишүүд';
+
+  @override
+  String get group_follower => 'дагагч';
+
+  @override
+  String get group_followers => 'дагагчид';
+
+  @override
+  String get group_links_title => 'Холбоосууд';
+
+  @override
+  String group_and_more_links(int count) {
+    return 'болон дахиад $count холбоос';
+  }
 
   @override
   String get share_this_quote => 'Энэ ишлэлийг хуваалцах';

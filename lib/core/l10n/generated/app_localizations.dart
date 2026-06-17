@@ -184,6 +184,66 @@ abstract class AppLocalizations {
   /// **'recitations'**
   String get home_recitation;
 
+  /// No description provided for @home_today.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get home_today;
+
+  /// No description provided for @home_good_morning.
+  ///
+  /// In en, this message translates to:
+  /// **'Good morning'**
+  String get home_good_morning;
+
+  /// No description provided for @home_good_afternoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Good afternoon'**
+  String get home_good_afternoon;
+
+  /// No description provided for @home_good_evening.
+  ///
+  /// In en, this message translates to:
+  /// **'Good evening'**
+  String get home_good_evening;
+
+  /// No description provided for @home_meditationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Meditation'**
+  String get home_meditationTitle;
+
+  /// No description provided for @home_prayerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Prayer of the day'**
+  String get home_prayerTitle;
+
+  /// No description provided for @home_scripture.
+  ///
+  /// In en, this message translates to:
+  /// **'Guided scripture'**
+  String get home_scripture;
+
+  /// No description provided for @home_meditation.
+  ///
+  /// In en, this message translates to:
+  /// **'Guided meditation'**
+  String get home_meditation;
+
+  /// No description provided for @home_goDeeper.
+  ///
+  /// In en, this message translates to:
+  /// **'Go deeper'**
+  String get home_goDeeper;
+
+  /// No description provided for @home_intention.
+  ///
+  /// In en, this message translates to:
+  /// **'My intention for today'**
+  String get home_intention;
+
   /// No description provided for @home_overall_stats.
   ///
   /// In en, this message translates to:
@@ -195,6 +255,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'plans'**
   String get home_plans;
+
+  /// No description provided for @home_shortcut_plans.
+  ///
+  /// In en, this message translates to:
+  /// **'Plans'**
+  String get home_shortcut_plans;
 
   /// No description provided for @home_chants.
   ///
@@ -243,6 +309,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Finish'**
   String get timer_finish;
+
+  /// No description provided for @timer_discard_session.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard session'**
+  String get timer_discard_session;
 
   /// No description provided for @home_hello_prefix.
   ///
@@ -952,6 +1024,66 @@ abstract class AppLocalizations {
   /// **'Teachers, communities, challenges, and events to support you on the path'**
   String get connect_coming_soon_subtitle;
 
+  /// No description provided for @connect_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Find groups and practice together'**
+  String get connect_subtitle;
+
+  /// No description provided for @discover_groups.
+  ///
+  /// In en, this message translates to:
+  /// **'Discover groups'**
+  String get discover_groups;
+
+  /// No description provided for @my_groups.
+  ///
+  /// In en, this message translates to:
+  /// **'My groups'**
+  String get my_groups;
+
+  /// No description provided for @see_all.
+  ///
+  /// In en, this message translates to:
+  /// **'See all'**
+  String get see_all;
+
+  /// No description provided for @connect_groups_load_error.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to load groups.\nCheck your connection and try again'**
+  String get connect_groups_load_error;
+
+  /// No description provided for @connect_groups_empty_title.
+  ///
+  /// In en, this message translates to:
+  /// **'No groups yet'**
+  String get connect_groups_empty_title;
+
+  /// No description provided for @connect_groups_empty_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'no more groups to join'**
+  String get connect_groups_empty_subtitle;
+
+  /// No description provided for @search_groups.
+  ///
+  /// In en, this message translates to:
+  /// **'Search groups'**
+  String get search_groups;
+
+  /// No description provided for @search_for_groups.
+  ///
+  /// In en, this message translates to:
+  /// **'Search for groups'**
+  String get search_for_groups;
+
+  /// No description provided for @no_groups_found.
+  ///
+  /// In en, this message translates to:
+  /// **'No groups found'**
+  String get no_groups_found;
+
   /// No description provided for @explore_coming_soon_subtitle.
   ///
   /// In en, this message translates to:
@@ -969,6 +1101,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Featured plans'**
   String get creator_featured_plan;
+
+  /// No description provided for @audio_init_error.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to initialize audio player. Check your connection and try again'**
+  String get audio_init_error;
+
+  /// No description provided for @meditation_audio_load_error.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to load. Check your connection and try again'**
+  String get meditation_audio_load_error;
+
+  /// No description provided for @prayer_audio_load_error.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to load audio. Check your connection and try again'**
+  String get prayer_audio_load_error;
+
+  /// No description provided for @home_no_series_found.
+  ///
+  /// In en, this message translates to:
+  /// **'No series found'**
+  String get home_no_series_found;
 
   /// No description provided for @home_no_tags_found.
   ///
@@ -1513,8 +1669,14 @@ abstract class AppLocalizations {
   /// No description provided for @routine_delete_block.
   ///
   /// In en, this message translates to:
-  /// **'Remove block'**
+  /// **'Remove block?'**
   String get routine_delete_block;
+
+  /// No description provided for @routine_delete_time_block.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove time block'**
+  String get routine_delete_time_block;
 
   /// No description provided for @routine_add_plan.
   ///
@@ -2254,29 +2416,17 @@ abstract class AppLocalizations {
   /// **'Privacy policy'**
   String get legal_privacy_policy;
 
-  /// No description provided for @join.
+  /// No description provided for @follow.
   ///
   /// In en, this message translates to:
-  /// **'Join'**
-  String get join;
+  /// **'Follow'**
+  String get follow;
 
-  /// No description provided for @joined.
+  /// No description provided for @following.
   ///
   /// In en, this message translates to:
-  /// **'Joined'**
-  String get joined;
-
-  /// No description provided for @group_member.
-  ///
-  /// In en, this message translates to:
-  /// **'member'**
-  String get group_member;
-
-  /// No description provided for @group_members.
-  ///
-  /// In en, this message translates to:
-  /// **'members'**
-  String get group_members;
+  /// **'Following'**
+  String get following;
 
   /// No description provided for @calendar_title.
   ///
@@ -2361,6 +2511,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Waning crescent'**
   String get moon_phase_waning_crescent;
+
+  /// No description provided for @join.
+  ///
+  /// In en, this message translates to:
+  /// **'Join'**
+  String get join;
+
+  /// No description provided for @joined.
+  ///
+  /// In en, this message translates to:
+  /// **'Joined'**
+  String get joined;
+
+  /// No description provided for @group_member.
+  ///
+  /// In en, this message translates to:
+  /// **'member'**
+  String get group_member;
+
+  /// No description provided for @group_members.
+  ///
+  /// In en, this message translates to:
+  /// **'members'**
+  String get group_members;
+
+  /// No description provided for @group_follower.
+  ///
+  /// In en, this message translates to:
+  /// **'follower'**
+  String get group_follower;
+
+  /// No description provided for @group_followers.
+  ///
+  /// In en, this message translates to:
+  /// **'followers'**
+  String get group_followers;
+
+  /// No description provided for @group_links_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Links'**
+  String get group_links_title;
+
+  /// No description provided for @group_and_more_links.
+  ///
+  /// In en, this message translates to:
+  /// **'and {count} more links'**
+  String group_and_more_links(int count);
 
   /// No description provided for @share_this_quote.
   ///

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
 import 'package:flutter_pecha/core/di/core_providers.dart';
 import 'package:flutter_pecha/core/error/failures.dart';
@@ -37,6 +38,27 @@ final groupProfileProvider = FutureProvider.autoDispose
   );
 });
 
+@immutable
+class GroupFollowKey {
+  final String groupId;
+  final GroupType groupType;
+
+  const GroupFollowKey({
+    required this.groupId,
+    required this.groupType,
+  });
+
+  @override
+  bool operator ==(Object other) {
+    return other is GroupFollowKey &&
+        other.groupId == groupId &&
+        other.groupType == groupType;
+  }
+
+  @override
+  int get hashCode => Object.hash(groupId, groupType);
+}
+
 sealed class GroupFollowState {
   const GroupFollowState();
 }
@@ -47,6 +69,7 @@ class GroupFollowLoading extends GroupFollowState {
 
 class GroupFollowSuccess extends GroupFollowState {
   final bool isFollowing;
+
   const GroupFollowSuccess({required this.isFollowing});
 }
 
@@ -58,25 +81,24 @@ class GroupFollowFailure extends GroupFollowState {
 class GroupFollowNotifier extends StateNotifier<GroupFollowState> {
   final GroupProfileRepositoryInterface _repository;
   final Ref _ref;
-  final String _groupId;
+  final GroupFollowKey _key;
   final bool _isAuthenticated;
 
   GroupFollowNotifier({
     required GroupProfileRepositoryInterface repository,
     required Ref ref,
-    required String groupId,
+    required GroupFollowKey key,
     required bool isAuthenticated,
   }) : _repository = repository,
        _ref = ref,
-       _groupId = groupId,
+       _key = key,
        _isAuthenticated = isAuthenticated,
        super(const GroupFollowLoading()) {
     _loadInitialStatus();
   }
 
-  Future<void> _refreshGroupProfile() async {
-    _ref.invalidate(groupProfileProvider(_groupId));
-    await _ref.read(groupProfileProvider(_groupId).future);
+  void _invalidateGroupProfile() {
+    _ref.invalidate(groupProfileProvider(_key.groupId));
   }
 
   Future<void> _loadInitialStatus() async {
@@ -85,7 +107,10 @@ class GroupFollowNotifier extends StateNotifier<GroupFollowState> {
       return;
     }
 
-    final result = await _repository.checkFollowStatus(_groupId);
+    final result = await _repository.checkFollowStatus(
+      _key.groupId,
+      _key.groupType,
+    );
     if (!mounted) return;
 
     result.fold(
@@ -98,7 +123,10 @@ class GroupFollowNotifier extends StateNotifier<GroupFollowState> {
     if (state is GroupFollowLoading) return false;
     state = const GroupFollowLoading();
 
-    final result = await _repository.followGroup(_groupId);
+    final result = await _repository.followGroup(
+      _key.groupId,
+      _key.groupType,
+    );
     if (!mounted) return false;
 
     return await result.fold(
@@ -108,7 +136,7 @@ class GroupFollowNotifier extends StateNotifier<GroupFollowState> {
       },
       (_) async {
         state = const GroupFollowSuccess(isFollowing: true);
-        await _refreshGroupProfile();
+        _invalidateGroupProfile();
         return true;
       },
     );
@@ -118,7 +146,10 @@ class GroupFollowNotifier extends StateNotifier<GroupFollowState> {
     if (state is GroupFollowLoading) return false;
     state = const GroupFollowLoading();
 
-    final result = await _repository.unfollowGroup(_groupId);
+    final result = await _repository.unfollowGroup(
+      _key.groupId,
+      _key.groupType,
+    );
     if (!mounted) return false;
 
     return await result.fold(
@@ -128,7 +159,7 @@ class GroupFollowNotifier extends StateNotifier<GroupFollowState> {
       },
       (_) async {
         state = const GroupFollowSuccess(isFollowing: false);
-        await _refreshGroupProfile();
+        _invalidateGroupProfile();
         return true;
       },
     );
@@ -136,14 +167,14 @@ class GroupFollowNotifier extends StateNotifier<GroupFollowState> {
 }
 
 final groupFollowProvider = StateNotifierProvider.autoDispose
-    .family<GroupFollowNotifier, GroupFollowState, String>((ref, groupId) {
+    .family<GroupFollowNotifier, GroupFollowState, GroupFollowKey>((ref, key) {
   final authState = ref.watch(authProvider);
   final isAuthenticated = !authState.isGuest && authState.isLoggedIn;
 
   return GroupFollowNotifier(
     repository: ref.watch(groupProfileRepositoryProvider),
     ref: ref,
-    groupId: groupId,
+    key: key,
     isAuthenticated: isAuthenticated,
   );
 });

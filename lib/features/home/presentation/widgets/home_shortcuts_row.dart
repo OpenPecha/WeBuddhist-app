@@ -33,7 +33,7 @@ class HomeShortcutsRow extends StatelessWidget {
     final shortcuts = [
       _HomeShortcutItem(
         icon: AppAssets.homePlans,
-        label: l10n.home_plans,
+        label: l10n.home_shortcut_plans,
         onTap: onPlansTap,
       ),
       _HomeShortcutItem(
@@ -137,10 +137,6 @@ class _HomeShortcutItem {
       );
     }
 
-    return Icon(
-      icon,
-      size: HomeShortcutsRow._iconSize,
-      color: iconColor,
-    );
+    return Icon(icon, size: HomeShortcutsRow._iconSize, color: iconColor);
   }
 }

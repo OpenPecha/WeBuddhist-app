@@ -128,9 +128,9 @@ class CacheInterceptor extends Interceptor {
       paths.add('/users/me/plans');
     }
 
-    // Join/leave group mutations should refresh the cached group profile
+    // Join/leave or follow/unfollow group mutations should refresh the cached group profile
     final groupJoinMatch = RegExp(
-      r'/author/groups/([^/]+)/join',
+      r'/author/groups/([^/]+)/(join|follow)',
     ).firstMatch(path);
     if (groupJoinMatch != null) {
       paths.add('/author/groups/${groupJoinMatch.group(1)}');
@@ -148,6 +148,7 @@ class CacheInterceptor extends Interceptor {
       'delete',
       'archive',
       'join',
+      'follow',
     ];
     return actions.contains(value.toLowerCase());
   }

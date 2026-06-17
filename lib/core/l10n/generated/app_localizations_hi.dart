@@ -50,10 +50,43 @@ class AppLocalizationsHi extends AppLocalizations {
   String get home_recitation => 'पाठ';
 
   @override
+  String get home_today => 'आज';
+
+  @override
+  String get home_good_morning => 'सुप्रभात';
+
+  @override
+  String get home_good_afternoon => 'नमस्कार';
+
+  @override
+  String get home_good_evening => 'शुभ संध्या';
+
+  @override
+  String get home_meditationTitle => 'ध्यान';
+
+  @override
+  String get home_prayerTitle => 'आज की प्रार्थना';
+
+  @override
+  String get home_scripture => 'मार्गदर्शित शास्त्र';
+
+  @override
+  String get home_meditation => 'मार्गदर्शित ध्यान';
+
+  @override
+  String get home_goDeeper => 'गहराई से जाएँ';
+
+  @override
+  String get home_intention => 'आज का मेरा संकल्प';
+
+  @override
   String get home_overall_stats => 'समग्र आँकड़े';
 
   @override
   String get home_plans => 'योजनाएँ';
+
+  @override
+  String get home_shortcut_plans => 'योजनाएँ';
 
   @override
   String get home_chants => 'जप';
@@ -68,6 +101,9 @@ class AppLocalizationsHi extends AppLocalizations {
   String get preset_timers => 'पूर्व-निर्धारित टाइमर';
 
   @override
+  String get meditation_timer => 'ध्यान टाइमर';
+
+  @override
   String get timer_min => 'मिनट';
 
   @override
@@ -75,6 +111,9 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get timer_finish => 'समाप्त करें';
+
+  @override
+  String get timer_discard_session => 'सत्र छोड़ें';
 
   @override
   String get home_hello_prefix => 'नमस्ते, ';
@@ -464,6 +503,37 @@ class AppLocalizationsHi extends AppLocalizations {
       'मार्ग पर आपका साथ देने के लिए शिक्षक, समुदाय, चुनौतियाँ और आयोजन';
 
   @override
+  String get connect_subtitle => 'Find groups and practice together';
+
+  @override
+  String get discover_groups => 'Discover groups';
+
+  @override
+  String get my_groups => 'My groups';
+
+  @override
+  String get see_all => 'See all';
+
+  @override
+  String get connect_groups_load_error =>
+      'Unable to load groups.\nCheck your connection and try again';
+
+  @override
+  String get connect_groups_empty_title => 'No groups yet';
+
+  @override
+  String get connect_groups_empty_subtitle => 'no more groups to join';
+
+  @override
+  String get search_groups => 'Search groups';
+
+  @override
+  String get search_for_groups => 'Search for groups';
+
+  @override
+  String get no_groups_found => 'No groups found';
+
+  @override
   String get explore_coming_soon_subtitle =>
       'अभ्यास, शिक्षाओं और सामुदायिक आयोजनों को खोजने के लिए एक चयनित स्थान';
 
@@ -473,6 +543,21 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get creator_featured_plan => 'विशेष योजना';
+
+  @override
+  String get audio_init_error =>
+      'ऑडियो प्लेयर प्रारंभ नहीं हो सका। अपना कनेक्शन जाँचें और पुनः प्रयास करें';
+
+  @override
+  String get meditation_audio_load_error =>
+      'लोड नहीं हो सका। अपना कनेक्शन जाँचें और पुनः प्रयास करें';
+
+  @override
+  String get prayer_audio_load_error =>
+      'ऑडियो लोड नहीं हो सका। अपना कनेक्शन जाँचें और पुनः प्रयास करें';
+
+  @override
+  String get home_no_series_found => 'कोई श्रृंखला नहीं मिली';
 
   @override
   String get home_no_tags_found => 'कोई टैग नहीं मिला';
@@ -794,6 +879,9 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get routine_delete_block => 'खंड हटाएँ?';
+
+  @override
+  String get routine_delete_time_block => 'समय खंड हटाएँ';
 
   @override
   String get routine_add_plan => 'योजना जोड़ें';
@@ -1275,6 +1363,32 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get moon_phase_waning_crescent => 'घटता अर्धचंद्र';
+
+  @override
+  String get join => 'शामिल हों';
+
+  @override
+  String get joined => 'शामिल';
+
+  @override
+  String get group_member => 'सदस्य';
+
+  @override
+  String get group_members => 'सदस्य';
+
+  @override
+  String get group_follower => 'अनुयायी';
+
+  @override
+  String get group_followers => 'अनुयायी';
+
+  @override
+  String get group_links_title => 'लिंक';
+
+  @override
+  String group_and_more_links(int count) {
+    return 'और $count और लिंक';
+  }
 
   @override
   String get share_this_quote => 'इस उद्धरण को साझा करें';

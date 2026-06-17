@@ -49,10 +49,43 @@ class AppLocalizationsZh extends AppLocalizations {
   String get home_recitation => '持誦';
 
   @override
+  String get home_today => '今天';
+
+  @override
+  String get home_good_morning => '早上好';
+
+  @override
+  String get home_good_afternoon => '下午好';
+
+  @override
+  String get home_good_evening => '晚上好';
+
+  @override
+  String get home_meditationTitle => '禪修';
+
+  @override
+  String get home_prayerTitle => '今日祈願';
+
+  @override
+  String get home_scripture => '導讀經典';
+
+  @override
+  String get home_meditation => '導引禪修';
+
+  @override
+  String get home_goDeeper => '深入學習';
+
+  @override
+  String get home_intention => '我今日的意願';
+
+  @override
   String get home_overall_stats => '整體統計';
 
   @override
   String get home_plans => '計劃';
+
+  @override
+  String get home_shortcut_plans => '計劃';
 
   @override
   String get home_chants => '持誦';
@@ -77,6 +110,9 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get timer_finish => '完成';
+
+  @override
+  String get timer_discard_session => '放弃练习';
 
   @override
   String get home_hello_prefix => '你好，';
@@ -441,6 +477,37 @@ class AppLocalizationsZh extends AppLocalizations {
   String get connect_coming_soon_subtitle => '在修行路上支持您前行的良師、社群、修持挑戰與相關活動';
 
   @override
+  String get connect_subtitle => 'Find groups and practice together';
+
+  @override
+  String get discover_groups => 'Discover groups';
+
+  @override
+  String get my_groups => 'My groups';
+
+  @override
+  String get see_all => 'See all';
+
+  @override
+  String get connect_groups_load_error =>
+      'Unable to load groups.\nCheck your connection and try again';
+
+  @override
+  String get connect_groups_empty_title => 'No groups yet';
+
+  @override
+  String get connect_groups_empty_subtitle => 'no more groups to join';
+
+  @override
+  String get search_groups => 'Search groups';
+
+  @override
+  String get search_for_groups => 'Search for groups';
+
+  @override
+  String get no_groups_found => 'No groups found';
+
+  @override
   String get explore_coming_soon_subtitle => '探索修持、教法與社群活動的精選空間。';
 
   @override
@@ -448,6 +515,18 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get creator_featured_plan => '精選計畫';
+
+  @override
+  String get audio_init_error => '無法初始化音訊播放器。請檢查網路連線後重試';
+
+  @override
+  String get meditation_audio_load_error => '無法載入。請檢查網路連線後重試';
+
+  @override
+  String get prayer_audio_load_error => '無法載入音訊。請檢查網路連線後重試';
+
+  @override
+  String get home_no_series_found => '未找到系列';
 
   @override
   String get home_no_tags_found => '找不到該標籤';
@@ -753,6 +832,9 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get routine_delete_block => '刪除時段';
+
+  @override
+  String get routine_delete_time_block => '移除時段';
 
   @override
   String get routine_add_plan => '添加計畫';
@@ -1162,16 +1244,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get legal_privacy_policy => '隱私政策';
 
   @override
-  String get join => '加入';
+  String get follow => 'Follow';
 
   @override
-  String get joined => '已加入';
-
-  @override
-  String get group_member => '位成員';
-
-  @override
-  String get group_members => '位成員';
+  String get following => 'Following';
 
   @override
   String get calendar_title => '日历';
@@ -1218,6 +1294,32 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get moon_phase_waning_crescent => '残月';
+
+  @override
+  String get join => '加入';
+
+  @override
+  String get joined => '已加入';
+
+  @override
+  String get group_member => '位成員';
+
+  @override
+  String get group_members => '位成員';
+
+  @override
+  String get group_follower => '位追蹤者';
+
+  @override
+  String get group_followers => '位追蹤者';
+
+  @override
+  String get group_links_title => '連結';
+
+  @override
+  String group_and_more_links(int count) {
+    return '及另外 $count 個連結';
+  }
 
   @override
   String get share_this_quote => '分享这句话';
