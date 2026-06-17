@@ -497,6 +497,23 @@ class AppLocalizationsBo extends AppLocalizations {
       'Teachers, communities, challenges, and events to support you on the path';
 
   @override
+  String get connect_subtitle => 'Find your groups and practice together';
+
+  @override
+  String get discover_groups => 'Discover groups';
+
+  @override
+  String get connect_groups_load_error =>
+      'Unable to load groups.\nCheck your connection and try again';
+
+  @override
+  String get connect_groups_empty_title => 'No groups yet';
+
+  @override
+  String get connect_groups_empty_subtitle =>
+      'Check back soon for new communities to join';
+
+  @override
   String get explore_coming_soon_subtitle =>
       'ཉམས་ལེན་དང་། གསུང་ཆོས། ལྷན་ཚོགས་ཀྱི་བྱེད་སྒོ་བཅས་འཆར་སྟོན་བྱེད་གནས།';
 

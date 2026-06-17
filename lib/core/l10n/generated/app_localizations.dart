@@ -1018,6 +1018,36 @@ abstract class AppLocalizations {
   /// **'Teachers, communities, challenges, and events to support you on the path'**
   String get connect_coming_soon_subtitle;
 
+  /// No description provided for @connect_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Find your groups and practice together'**
+  String get connect_subtitle;
+
+  /// No description provided for @discover_groups.
+  ///
+  /// In en, this message translates to:
+  /// **'Discover groups'**
+  String get discover_groups;
+
+  /// No description provided for @connect_groups_load_error.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to load groups.\nCheck your connection and try again'**
+  String get connect_groups_load_error;
+
+  /// No description provided for @connect_groups_empty_title.
+  ///
+  /// In en, this message translates to:
+  /// **'No groups yet'**
+  String get connect_groups_empty_title;
+
+  /// No description provided for @connect_groups_empty_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Check back soon for new communities to join'**
+  String get connect_groups_empty_subtitle;
+
   /// No description provided for @explore_coming_soon_subtitle.
   ///
   /// In en, this message translates to:
