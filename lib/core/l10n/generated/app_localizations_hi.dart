@@ -1343,6 +1343,12 @@ class AppLocalizationsHi extends AppLocalizations {
   String get group_members => 'members';
 
   @override
+  String get group_follower => 'follower';
+
+  @override
+  String get group_followers => 'followers';
+
+  @override
   String get group_links_title => 'Links';
 
   @override

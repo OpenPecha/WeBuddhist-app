@@ -1277,6 +1277,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get group_members => '位成員';
 
   @override
+  String get group_follower => '位追蹤者';
+
+  @override
+  String get group_followers => '位追蹤者';
+
+  @override
   String get group_links_title => '連結';
 
   @override

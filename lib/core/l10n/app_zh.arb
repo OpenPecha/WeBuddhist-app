@@ -543,6 +543,8 @@
   "joined": "已加入",
   "group_member": "位成員",
   "group_members": "位成員",
+  "group_follower": "位追蹤者",
+  "group_followers": "位追蹤者",
   "group_links_title": "連結",
   "group_and_more_links": "及另外 {count} 個連結",
 

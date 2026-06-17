@@ -107,7 +107,11 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
             _buildLinksSummary(orderedLinks, isDark, lineHeight),
           ],
           const SizedBox(height: 20),
-          _GroupFollowButton(groupId: profile.id, isDark: isDark),
+          _GroupFollowButton(
+            groupId: profile.id,
+            groupType: profile.groupType,
+            isDark: isDark,
+          ),
           const SizedBox(height: 24),
           _buildTabBar(isDark),
           const SizedBox(height: 16),
@@ -183,9 +187,9 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
                   ),
                 ],
                 const SizedBox(height: 4),
-                _GroupJoinerCountText(
-                  groupId: profile.id,
-                  baseJoinerCount: profile.joinerCount,
+                _GroupMemberCountText(
+                  groupType: profile.groupType,
+                  baseCount: profile.memberOrFollowerCount,
                   isDark: isDark,
                   lineHeight: lineHeight,
                 ),
@@ -470,35 +474,34 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
   }
 }
 
-class _GroupJoinerCountText extends ConsumerWidget {
-  final String groupId;
-  final int baseJoinerCount;
+class _GroupMemberCountText extends StatelessWidget {
+  final GroupType groupType;
+  final int baseCount;
   final bool isDark;
   final double? lineHeight;
 
-  const _GroupJoinerCountText({
-    required this.groupId,
-    required this.baseJoinerCount,
+  const _GroupMemberCountText({
+    required this.groupType,
+    required this.baseCount,
     required this.isDark,
     this.lineHeight,
   });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final followState = ref.watch(groupFollowProvider(groupId));
-    final delta = switch (followState) {
-      GroupFollowSuccess(joinerCountDelta: final d) => d,
-      _ => 0,
-    };
-    final joinerCount = (baseJoinerCount + delta).clamp(0, 1 << 31);
+  Widget build(BuildContext context) {
+    final count = baseCount.clamp(0, 1 << 31);
     final locale = Localizations.localeOf(context);
-    final formattedJoinerCount = NumberFormat.decimalPattern(
+    final formattedCount = NumberFormat.decimalPattern(
       locale.toString(),
-    ).format(joinerCount);
-    final memberLabel =
-        joinerCount == 1
-            ? context.l10n.group_member
-            : context.l10n.group_members;
+    ).format(count);
+    final countLabel =
+        groupType.isPage
+            ? (count == 1
+                ? context.l10n.group_follower
+                : context.l10n.group_followers)
+            : (count == 1
+                ? context.l10n.group_member
+                : context.l10n.group_members);
 
     return RichText(
       text: TextSpan(
@@ -509,10 +512,10 @@ class _GroupJoinerCountText extends ConsumerWidget {
         ),
         children: [
           TextSpan(
-            text: formattedJoinerCount,
+            text: formattedCount,
             style: const TextStyle(fontWeight: FontWeight.bold),
           ),
-          TextSpan(text: ' $memberLabel'),
+          TextSpan(text: ' $countLabel'),
         ],
       ),
     );
@@ -521,19 +524,26 @@ class _GroupJoinerCountText extends ConsumerWidget {
 
 class _GroupFollowButton extends ConsumerWidget {
   final String groupId;
+  final GroupType groupType;
   final bool isDark;
 
-  const _GroupFollowButton({required this.groupId, required this.isDark});
+  const _GroupFollowButton({
+    required this.groupId,
+    required this.groupType,
+    required this.isDark,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final followState = ref.watch(groupFollowProvider(groupId));
+    final followKey = GroupFollowKey(groupId: groupId, groupType: groupType);
+    final followState = ref.watch(groupFollowProvider(followKey));
 
     final isFollowing = switch (followState) {
       GroupFollowSuccess(isFollowing: final f) => f,
       _ => false,
     };
     final isLoading = followState is GroupFollowLoading;
+    final isPage = groupType.isPage;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -547,7 +557,7 @@ class _GroupFollowButton extends ConsumerWidget {
                   : () => _onFollowPressed(
                     context,
                     ref,
-                    groupId,
+                    followKey,
                     isFollowing,
                   ),
           style: ElevatedButton.styleFrom(
@@ -574,7 +584,9 @@ class _GroupFollowButton extends ConsumerWidget {
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
                   : Text(
-                    isFollowing ? context.l10n.joined : context.l10n.join,
+                    isFollowing
+                        ? (isPage ? context.l10n.following : context.l10n.joined)
+                        : (isPage ? context.l10n.follow : context.l10n.join),
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
@@ -588,7 +600,7 @@ class _GroupFollowButton extends ConsumerWidget {
   void _onFollowPressed(
     BuildContext context,
     WidgetRef ref,
-    String groupId,
+    GroupFollowKey followKey,
     bool isCurrentlyFollowing,
   ) {
     final authState = ref.read(authProvider);
@@ -597,7 +609,7 @@ class _GroupFollowButton extends ConsumerWidget {
       return;
     }
 
-    final notifier = ref.read(groupFollowProvider(groupId).notifier);
+    final notifier = ref.read(groupFollowProvider(followKey).notifier);
     if (isCurrentlyFollowing) {
       notifier.unfollow();
     } else {

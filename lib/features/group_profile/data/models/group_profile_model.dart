@@ -4,6 +4,7 @@ import 'package:flutter_pecha/shared/domain/value_objects/responsive_image.dart'
 class GroupProfileModel {
   final String id;
   final String slug;
+  final GroupType groupType;
   final bool isPublic;
   final String? avatarUrl;
   final String? bannerUrl;
@@ -13,10 +14,12 @@ class GroupProfileModel {
   final List<Map<String, dynamic>> socialLinksJson;
   final List<Map<String, dynamic>> seriesJson;
   final int joinerCount;
+  final int followerCount;
 
   GroupProfileModel({
     required this.id,
     this.slug = '',
+    this.groupType = GroupType.community,
     this.isPublic = false,
     this.avatarUrl,
     this.bannerUrl,
@@ -26,12 +29,14 @@ class GroupProfileModel {
     this.socialLinksJson = const [],
     this.seriesJson = const [],
     this.joinerCount = 0,
+    this.followerCount = 0,
   });
 
   factory GroupProfileModel.fromJson(Map<String, dynamic> json) {
     return GroupProfileModel(
       id: json['id'] as String? ?? '',
       slug: json['slug'] as String? ?? '',
+      groupType: GroupType.fromApi(json['group_type'] as String?),
       isPublic: json['is_public'] as bool? ?? false,
       avatarUrl: json['avatar_url'] as String?,
       bannerUrl: json['banner_url'] as String?,
@@ -51,6 +56,7 @@ class GroupProfileModel {
               .toList() ??
           const [],
       joinerCount: (json['joiner_count'] as num?)?.toInt() ?? 0,
+      followerCount: (json['follower_count'] as num?)?.toInt() ?? 0,
     );
   }
 
@@ -58,6 +64,7 @@ class GroupProfileModel {
     return GroupProfile(
       id: id,
       slug: slug,
+      groupType: groupType,
       isPublic: isPublic,
       title: metadata?['title'] as String? ?? '',
       subTitle: metadata?['sub_title'] as String?,
@@ -70,6 +77,7 @@ class GroupProfileModel {
       socialLinks: socialLinksJson.map(_parseSocialLink).toList(),
       series: seriesJson.map(_parseSeries).toList(),
       joinerCount: joinerCount,
+      followerCount: followerCount,
     );
   }
 

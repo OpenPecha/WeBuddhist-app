@@ -2470,6 +2470,18 @@ abstract class AppLocalizations {
   /// **'members'**
   String get group_members;
 
+  /// No description provided for @group_follower.
+  ///
+  /// In en, this message translates to:
+  /// **'follower'**
+  String get group_follower;
+
+  /// No description provided for @group_followers.
+  ///
+  /// In en, this message translates to:
+  /// **'followers'**
+  String get group_followers;
+
   /// No description provided for @group_links_title.
   ///
   /// In en, this message translates to:
