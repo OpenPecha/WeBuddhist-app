@@ -86,6 +86,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get home_plans => 'plans';
 
   @override
+  String get home_shortcut_plans => 'Plans';
+
+  @override
   String get home_chants => 'Chants';
 
   @override
@@ -1336,6 +1339,20 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get group_members => 'members';
+
+  @override
+  String get group_follower => 'follower';
+
+  @override
+  String get group_followers => 'followers';
+
+  @override
+  String get group_links_title => 'Links';
+
+  @override
+  String group_and_more_links(int count) {
+    return 'and $count more links';
+  }
 
   @override
   String get share_this_quote => 'Share this quote';

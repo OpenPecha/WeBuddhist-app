@@ -256,6 +256,12 @@ abstract class AppLocalizations {
   /// **'plans'**
   String get home_plans;
 
+  /// No description provided for @home_shortcut_plans.
+  ///
+  /// In en, this message translates to:
+  /// **'Plans'**
+  String get home_shortcut_plans;
+
   /// No description provided for @home_chants.
   ///
   /// In en, this message translates to:
@@ -2493,6 +2499,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'members'**
   String get group_members;
+
+  /// No description provided for @group_follower.
+  ///
+  /// In en, this message translates to:
+  /// **'follower'**
+  String get group_follower;
+
+  /// No description provided for @group_followers.
+  ///
+  /// In en, this message translates to:
+  /// **'followers'**
+  String get group_followers;
+
+  /// No description provided for @group_links_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Links'**
+  String get group_links_title;
+
+  /// No description provided for @group_and_more_links.
+  ///
+  /// In en, this message translates to:
+  /// **'and {count} more links'**
+  String group_and_more_links(int count);
 
   /// No description provided for @share_this_quote.
   ///

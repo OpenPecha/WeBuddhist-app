@@ -26,6 +26,7 @@
   "home_recitation": "recitations",
   "home_overall_stats": "Overall stats",
   "home_plans": "plans",
+  "home_shortcut_plans": "Plans",
   "home_chants": "Chants",
   "home_mala": "Mala",
   "home_timer": "Timer",
@@ -631,6 +632,17 @@
   "joined": "Joined",
   "group_member": "member",
   "group_members": "members",
+  "group_follower": "follower",
+  "group_followers": "followers",
+  "group_links_title": "Links",
+  "group_and_more_links": "and {count} more links",
+  "@group_and_more_links": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
 
   "share_this_quote": "Share this quote",
   "shared_from": "Shared from",

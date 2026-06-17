@@ -15,6 +15,7 @@
   "home_recitation": "བཟླས་པ།",
   "home_overall_stats": "སྤྱིའི་གྲངས་ཀ",
   "home_plans": "ཉམས་ལེན",
+  "home_shortcut_plans": "ཉམས་ལེན",
   "home_chants": "ཞལ་འདོན",
   "home_mala": "ཕྲེང་བ",
   "home_timer": "དུས་ཚོད།",
@@ -547,6 +548,10 @@
   "joined": "Joined",
   "group_member": "member",
   "group_members": "members",
+  "group_follower": "follower",
+  "group_followers": "followers",
+  "group_links_title": "Links",
+  "group_and_more_links": "and {count} more links",
 
   "share_this_quote": "Share this quote",
   "shared_from": "Shared from",

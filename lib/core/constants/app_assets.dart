@@ -16,6 +16,9 @@ class AppAssets {
   static const String connectHero =
       'assets/images/tag_cover/ultimate_reality.png';
 
+  // ========== AUDIO ==========
+  static const String meditationSound = 'assets/audios/meditation.mp3';
+
   // ========== LOGOS ==========
   static const String weBuddhistLogo = 'assets/images/webuddhist_gold.png';
   static const String googleIcon = 'assets/images/google-icon.png';

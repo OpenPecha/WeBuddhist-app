@@ -85,6 +85,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get home_plans => '計劃';
 
   @override
+  String get home_shortcut_plans => '計劃';
+
+  @override
   String get home_chants => '持誦';
 
   @override
@@ -1289,6 +1292,21 @@ class AppLocalizationsZh extends AppLocalizations {
   String get group_members => '位成員';
 
   @override
+  String get group_follower => '位追蹤者';
+
+  @override
+  String get group_followers => '位追蹤者';
+
+  @override
+  String get group_links_title => '連結';
+
+  @override
+  String group_and_more_links(int count) {
+    return '及另外 $count 個連結';
+  }
+
+  @override
+
   String get share_this_quote => '分享这句话';
 
   @override
