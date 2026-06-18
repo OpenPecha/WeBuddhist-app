@@ -1,0 +1,440 @@
+import 'package:flutter_pecha/core/extensions/context_ext.dart';
+import 'package:fpdart/fpdart.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
+import 'package:flutter_pecha/core/error/failures.dart';
+import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
+import 'package:flutter_pecha/core/services/service_providers.dart';
+import 'package:flutter_pecha/core/services/upgrade/update_banner.dart';
+import 'package:flutter_pecha/core/services/upgrade/upgrade_provider.dart';
+import 'package:flutter_pecha/core/theme/app_colors.dart';
+import 'package:flutter_pecha/core/widgets/error_state_widget.dart';
+import 'package:flutter_pecha/core/widgets/skeletons/skeletons.dart';
+import 'package:flutter_pecha/features/home/presentation/providers/tags_provider.dart';
+import 'package:flutter_pecha/features/home/presentation/home_screen_constants.dart';
+import 'package:flutter_pecha/features/home/presentation/widgets/tag_card.dart';
+import 'package:flutter_pecha/shared/utils/helper_functions.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:logging/logging.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
+
+final _log = Logger('HomeScreen');
+
+class HomeScreen extends ConsumerStatefulWidget {
+  const HomeScreen({super.key});
+
+  @override
+  ConsumerState<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends ConsumerState<HomeScreen> {
+  bool _hasRequestedPermissions = false;
+  bool _showUpdateBanner = false;
+
+  // For proper keyboard dismissal with SearchAnchor
+  final FocusScopeNode _searchFocusScopeNode = FocusScopeNode();
+  bool _didJustDismissSearch = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Request notification permissions when home screen loads
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _requestNotificationPermissionsIfNeeded();
+    });
+  }
+
+  @override
+  void dispose() {
+    _searchFocusScopeNode.dispose();
+    super.dispose();
+  }
+
+  Future<void> _requestNotificationPermissionsIfNeeded() async {
+    if (_hasRequestedPermissions) return;
+    _hasRequestedPermissions = true;
+
+    final notificationService = ref.read(notificationServiceProvider);
+    if (notificationService == null) {
+      _log.warning(
+        'NotificationService not initialized, skipping permission request',
+      );
+      return;
+    }
+
+    try {
+      // Check if permissions are already granted
+      final alreadyEnabled =
+          await notificationService.areNotificationsEnabled();
+      if (!alreadyEnabled) {
+        _log.info('Requesting notification permissions...');
+        final granted = await notificationService.requestPermission();
+        if (granted) {
+          _log.info('Notification permissions granted');
+        } else {
+          _log.info('Notification permissions denied');
+        }
+      }
+    } catch (e) {
+      _log.warning('Error requesting notification permissions: $e');
+    }
+  }
+
+  /// Manual refetch/retry method that can be called from UI
+  void _refetchTags() {
+    // Refresh the provider to immediately fetch fresh data
+    // ignore: unused_result
+    ref.refresh(tagsFutureProvider);
+  }
+
+  void _navigateToPlans(String tag) {
+    context.pushNamed('home-plans', pathParameters: {'tag': tag});
+  }
+
+  String? _getTagImagePath(String tag) {
+    final tagLower = tag.toLowerCase();
+    if (tagLower == 'abhidhamma in a year') {
+      return 'assets/images/tag_cover/abhidhamma.png';
+    } else if (tagLower == 'ultimate reality') {
+      return 'assets/images/tag_cover/ultimate_reality.png';
+    } else if (tagLower == 'anger') {
+      return 'assets/images/tag_cover/anger.jpg';
+    } else if (tagLower == 'jealousy') {
+      return 'assets/images/tag_cover/jealousy.jpg';
+    } else if (tagLower == 'prayer & praise') {
+      return 'assets/images/tag_cover/prayer_praise.jpg';
+    } else if (tagLower == 'end-of-life') {
+      return 'assets/images/tag_cover/eol.jpg';
+    } else if (tagLower == 'patience') {
+      return 'assets/images/tag_cover/patience.png';
+    } else if (tagLower == 'fear') {
+      return 'assets/images/tag_cover/fear.jpg';
+    } else if (tagLower == 'anxiety') {
+      return 'assets/images/tag_cover/anxiety.jpg';
+    } else if (tagLower == 'aspiration') {
+      return 'assets/images/tag_cover/aspiration.jpg';
+    } else if (tagLower == 'joy') {
+      return 'assets/images/tag_cover/joy.jpg';
+    } else if (tagLower == 'loneliness') {
+      return 'assets/images/tag_cover/loneliness.jpg';
+    } else {
+      return 'assets/images/tag_cover/cover_image.jpg';
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final tagsAsync = ref.watch(tagsFutureProvider);
+    final l10n = context.l10n;
+
+    // Check for app updates (only show once per app session)
+    final updateAvailable = ref.watch(updateAvailableProvider);
+    final bannerAlreadyShown = ref.watch(updateBannerShownProvider);
+
+    updateAvailable.whenData((isAvailable) {
+      if (isAvailable && !bannerAlreadyShown && !_showUpdateBanner) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) {
+            setState(() => _showUpdateBanner = true);
+            // Mark as shown so it won't appear again this session
+            ref.read(updateBannerShownProvider.notifier).state = true;
+          }
+        });
+      }
+    });
+
+    return Scaffold(
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      appBar: AppBar(
+        scrolledUnderElevation: 0,
+        centerTitle: false,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        title: Text(
+          l10n.nav_home,
+          style: Theme.of(
+            context,
+          ).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
+        ),
+        actions: [
+          GestureDetector(
+            onTap: () {
+              context.pushNamed('home-settings');
+            },
+            child: Padding(
+              padding: const EdgeInsets.only(right: 16.0),
+              child: CircleAvatar(
+                backgroundColor: Theme.of(context).cardColor,
+                radius: 20,
+                child: Icon(
+                  PhosphorIconsFill.userCircle,
+                  size: 26,
+                  color: const Color(0xFF7E7683),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+      body: SafeArea(
+        child: Stack(
+          children: [
+            Column(
+              children: [
+                _buildSearchSection(l10n, tagsAsync),
+                _buildBody(context, l10n),
+              ],
+            ),
+            if (_showUpdateBanner)
+              Positioned(
+                left: 0,
+                right: 0,
+                bottom: 0,
+                child: UpdateBanner(
+                  onUpdateTap: () {
+                    ref.read(openAppStoreProvider)();
+                  },
+                  onDismissed: () {
+                    if (mounted) {
+                      setState(() => _showUpdateBanner = false);
+                    }
+                  },
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSearchSection(
+    AppLocalizations localizations,
+    AsyncValue<Either<Failure, List<String>>> tagsAsync,
+  ) {
+    final locale = ref.watch(localeProvider);
+    final lineHeight = getLineHeight(locale.languageCode);
+    final fontSize = locale.languageCode == 'bo' ? 18.0 : 16.0;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+      child: tagsAsync.when(
+        data: (tagsEither) {
+          return tagsEither.fold(
+            (failure) => const SizedBox.shrink(),
+            (tags) => FocusScope(
+              node: _searchFocusScopeNode,
+              onFocusChange: (isFocused) {
+                // When search view closes and focus returns to SearchBar, unfocus it
+                if (_didJustDismissSearch && isFocused) {
+                  _didJustDismissSearch = false;
+                  _searchFocusScopeNode.unfocus();
+                }
+              },
+              child: SearchAnchor(
+                builder: (BuildContext context, SearchController controller) {
+                  return SearchBar(
+                    controller: controller,
+                    padding: const WidgetStatePropertyAll<EdgeInsets>(
+                      EdgeInsets.symmetric(horizontal: 16.0),
+                    ),
+                    elevation: const WidgetStatePropertyAll(0.0),
+                    shadowColor: const WidgetStatePropertyAll(
+                      Colors.transparent,
+                    ),
+                    onTap: () {
+                      controller.openView();
+                    },
+                    onChanged: (_) {
+                      controller.openView();
+                    },
+                    leading: Icon(
+                      Icons.search,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+                    hintText: localizations.text_search,
+                    hintStyle: WidgetStatePropertyAll(
+                      TextStyle(
+                        fontSize: 16,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  );
+                },
+                viewLeading: IconButton(
+                  icon: const Icon(Icons.arrow_back_ios),
+                  onPressed: () {
+                    _didJustDismissSearch = true;
+                    Navigator.of(context).pop();
+                  },
+                ),
+                suggestionsBuilder: (
+                  BuildContext context,
+                  SearchController controller,
+                ) {
+                  final query = controller.text.toLowerCase();
+                  final filteredTags =
+                      query.isEmpty
+                          ? tags
+                          : tags
+                              .where((tag) => tag.toLowerCase().contains(query))
+                              .toList();
+
+                  if (filteredTags.isEmpty) {
+                    return [
+                      Padding(
+                        padding: const EdgeInsets.all(32.0),
+                        child: Center(
+                          child: Text(
+                            'No tags found',
+                            style: TextStyle(
+                              fontSize: fontSize,
+                              height: lineHeight,
+                              color:
+                                  Theme.of(
+                                    context,
+                                  ).colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ];
+                  }
+
+                  return filteredTags.map((tag) {
+                    return ListTile(
+                      leading: Icon(
+                        Icons.tag,
+                        size: 20,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                      title: Text(
+                        _capitalizeFirstLetter(tag),
+                        style: TextStyle(
+                          fontSize: fontSize,
+                          fontWeight: FontWeight.w500,
+                          height: lineHeight,
+                        ),
+                      ),
+                      trailing: Icon(
+                        Icons.arrow_forward_ios,
+                        size: 16,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                      onTap: () {
+                        _didJustDismissSearch = true;
+                        controller.closeView(tag);
+                        _log.info('Tag selected from search: $tag');
+                        _navigateToPlans(tag);
+                      },
+                    );
+                  }).toList();
+                },
+              ),
+            ),
+          );
+        },
+        loading:
+            () => SearchBar(
+              padding: const WidgetStatePropertyAll<EdgeInsets>(
+                EdgeInsets.symmetric(horizontal: 16.0),
+              ),
+              enabled: false,
+              elevation: const WidgetStatePropertyAll(0.0),
+              leading: Icon(
+                Icons.search,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+              hintText: localizations.text_search,
+              hintStyle: WidgetStatePropertyAll(
+                TextStyle(fontSize: 16, color: AppColors.textPrimaryLight),
+              ),
+            ),
+        error:
+            (_, __) => SearchBar(
+              padding: const WidgetStatePropertyAll<EdgeInsets>(
+                EdgeInsets.symmetric(horizontal: 16.0),
+              ),
+              enabled: false,
+              leading: Icon(
+                Icons.search,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+              hintText: localizations.text_search,
+              hintStyle: WidgetStatePropertyAll(
+                TextStyle(
+                  fontSize: 16,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ),
+      ),
+    );
+  }
+
+  String _capitalizeFirstLetter(String text) {
+    if (text.isEmpty) return text;
+    return text[0].toUpperCase() + text.substring(1);
+  }
+
+  Widget _buildBody(BuildContext context, AppLocalizations localizations) {
+    final tagsAsync = ref.watch(tagsFutureProvider);
+    final language = ref.watch(localeProvider).languageCode;
+    final fontSize = language == 'bo' ? 22.0 : 18.0;
+
+    return Expanded(
+      child: tagsAsync.when(
+        data: (tagsEither) {
+          return tagsEither.fold(
+            (failure) =>
+                ErrorStateWidget(error: failure, onRetry: _refetchTags),
+            (tags) {
+              if (tags.isEmpty) {
+                return Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(
+                      HomeScreenConstants.emptyStatePadding,
+                    ),
+                    child: Text(
+                      localizations.no_feature_content,
+                      style: TextStyle(fontSize: fontSize),
+                    ),
+                  ),
+                );
+              }
+
+              // 2-column grid layout, only the grid is scrollable
+              return GridView.builder(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: HomeScreenConstants.bodyHorizontalPadding,
+                  vertical: HomeScreenConstants.bodyVerticalPadding,
+                ),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 8,
+                  mainAxisSpacing: 8,
+                  childAspectRatio: 1.4,
+                ),
+                itemCount: tags.length,
+                itemBuilder: (context, index) {
+                  final tag = tags[index];
+                  return TagCard(
+                    tag: tag,
+                    imageUrl: _getTagImagePath(tag),
+                    onTap: () {
+                      _log.info('Tag tapped: $tag');
+                      _navigateToPlans(tag);
+                    },
+                  );
+                },
+              );
+            },
+          );
+        },
+        loading: () => const TagGridSkeleton(),
+        error:
+            (error, stackTrace) =>
+                ErrorStateWidget(error: error, onRetry: _refetchTags),
+      ),
+    );
+  }
+}

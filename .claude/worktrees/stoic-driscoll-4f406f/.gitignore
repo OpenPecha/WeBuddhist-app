@@ -1,0 +1,73 @@
+# Miscellaneous
+*.class
+*.log
+*.pyc
+*.swp
+.DS_Store
+.atom/
+.build/
+.buildlog/
+.history
+.svn/
+.swiftpm/
+migrate_working_dir/
+
+# IntelliJ related
+*.iml
+*.ipr
+*.iws
+.idea/
+
+# The .vscode folder contains launch configuration and tasks you configure in
+# VS Code which you may wish to be included in version control, so this line
+# is commented out by default.
+#.vscode/
+
+# Flutter/Dart/Pub related
+**/doc/api/
+**/ios/Flutter/.last_build_id
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.pub-cache/
+.pub/
+/build/
+
+# Symbolication related
+app.*.symbols
+
+# Obfuscation related
+app.*.map.json
+
+# Android Studio will place build artifacts here
+/android/app/debug
+/android/app/profile
+/android/app/release
+
+
+# Ignore generated entitlements
+ios/Runner/Runner.entitlements
+
+# env
+.env
+.env.*
+
+*.todo
+
+# warp
+warp.md
+
+# cursor rules
+.cursor/
+
+# Google Fonts (managed by google_fonts package, not needed in repo)
+google_fonts/
+/android/ key.properties
+/ENV_SETUP.md
+/WeBhddhist0-improvement-plan.pdf
+
+# Local documentation (not for git)
+CLEAN_ARCHITECTURE_VERIFICATION.md
+DEVELOPER_ARCHITECTURE_GUIDE.docx
+/WeBhuddhist_Architecture_Guide.pdf
+lib/features/practice/specs/routines-openapi.yaml

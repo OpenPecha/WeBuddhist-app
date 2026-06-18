@@ -1,0 +1,353 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/services/app_share/app_share.dart';
+import 'package:flutter_pecha/core/widgets/error_state_widget.dart';
+import 'package:flutter_pecha/features/texts/constants/text_screen_constants.dart';
+import 'package:flutter_pecha/features/texts/constants/text_routes.dart';
+import 'package:flutter_pecha/features/texts/presentation/providers/collections_providers.dart';
+import 'package:flutter_pecha/features/texts/presentation/providers/texts_provider.dart';
+import 'package:flutter_pecha/features/texts/presentation/providers/library_search_state_provider.dart';
+import 'package:flutter_pecha/features/texts/data/models/collections/collections_response.dart';
+import 'package:flutter_pecha/features/texts/presentation/widgets/collections_section.dart';
+import 'package:flutter_pecha/features/texts/presentation/widgets/loading_state_widget.dart';
+import 'package:flutter_pecha/features/texts/presentation/widgets/search_result_card.dart';
+import 'package:flutter_pecha/core/extensions/context_ext.dart';
+import 'package:flutter_pecha/core/error/failures.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:fpdart/fpdart.dart';
+
+class CollectionsScreen extends ConsumerWidget {
+  const CollectionsScreen({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final collectionsListResponse = ref.watch(collectionsListFutureProvider);
+    final searchState = ref.watch(librarySearchStateProvider);
+
+    return Scaffold(
+      body: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildHeader(context),
+            _SearchField(),
+            Expanded(
+              child:
+                  searchState.hasSubmitted &&
+                          searchState.submittedQuery.isNotEmpty
+                      ? _SearchResultsView(query: searchState.submittedQuery)
+                      : _CollectionsListView(
+                        collectionsResponse: collectionsListResponse,
+                      ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHeader(BuildContext context) {
+    return Padding(
+      padding: TextScreenConstants.screenPadding,
+      child: Text(
+        context.l10n.text_browseTheLibrary,
+        style: const TextStyle(
+          fontWeight: FontWeight.bold,
+          fontSize: TextScreenConstants.headerFontSize,
+        ),
+      ),
+    );
+  }
+}
+
+/// Shared share and QR code buttons widget
+class _ShareButtonsWidget extends ConsumerWidget {
+  const _ShareButtonsWidget();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+      child: Builder(
+        builder: (context) {
+          final textColor = Theme.of(context).brightness == Brightness.dark
+              ? Colors.white
+              : Colors.black;
+          const fontSize = 17.0;
+          const fontSizeIcon = 20.0;
+          return Row(
+            children: [
+              Expanded(
+                child: TextButton.icon(
+                  onPressed: () {
+                    ref.read(appShareServiceProvider).shareApp();
+                  },
+                  icon: Icon(Icons.share, color: textColor, size: fontSizeIcon),
+                  label: Text(
+                    l10n.share,
+                    style: TextStyle(color: textColor, fontSize: fontSize),
+                  ),
+                  style: TextButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: TextButton.icon(
+                  onPressed: () {
+                    QrCodeBottomSheet.show(context);
+                  },
+                  icon: Icon(Icons.qr_code_2, color: textColor, size: fontSizeIcon),
+                  label: Text(
+                    l10n.text_qrCode,
+                    style: TextStyle(color: textColor, fontSize: fontSize),
+                  ),
+                  style: TextButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+}
+
+/// Search field widget with state management
+class _SearchField extends ConsumerStatefulWidget {
+  @override
+  ConsumerState<_SearchField> createState() => _SearchFieldState();
+}
+
+class _SearchFieldState extends ConsumerState<_SearchField> {
+  late final TextEditingController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final localizations = context.l10n;
+    final searchNotifier = ref.read(librarySearchStateProvider.notifier);
+
+    return Padding(
+      padding: TextScreenConstants.screenPadding,
+      child: TextField(
+        controller: _controller,
+        onChanged: (value) => searchNotifier.updateSearchQuery(value),
+        onSubmitted: (value) {
+          if (value.isNotEmpty) {
+            searchNotifier.submitSearch(value);
+          }
+        },
+        decoration: InputDecoration(
+          fillColor: Theme.of(context).colorScheme.surface,
+          hintText: localizations.text_search,
+          prefixIcon: const Icon(Icons.search),
+          suffixIcon:
+              _controller.text.isNotEmpty
+                  ? IconButton(
+                    icon: const Icon(Icons.clear),
+                    onPressed: () {
+                      _controller.clear();
+                      searchNotifier.clearSearch();
+                    },
+                  )
+                  : null,
+        ),
+      ),
+    );
+  }
+}
+
+/// Collections list view
+class _CollectionsListView extends ConsumerWidget {
+  final AsyncValue<Either<Failure, CollectionsResponse>> collectionsResponse;
+
+  const _CollectionsListView({required this.collectionsResponse});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
+    return collectionsResponse.when(
+      data: (eitherResponse) {
+        return eitherResponse.fold(
+          (failure) => ErrorStateWidget(
+            error: failure,
+            customMessage: 'Unable to load collections.\nPlease try again.',
+          ),
+          (response) {
+            final collections = response.collections;
+            if (collections.isEmpty) {
+              return Center(child: Text(l10n.noCollections));
+            }
+            return ListView.builder(
+              itemCount: collections.length + 1, // +1 for share button
+              itemBuilder: (context, index) {
+                // If this is the last item, show share button
+                if (index == collections.length) {
+                  return const _ShareButtonsWidget();
+                }
+                final collection = collections[index];
+                final colorIndex = index % 9;
+                return GestureDetector(
+                  onTap: () {
+                    context.push(
+                      TextRoutes.works,
+                      extra: {'collection': collection, 'colorIndex': colorIndex},
+                    );
+                  },
+                  child: CollectionsSection(
+                    collection: collection,
+                    dividerColor:
+                        TextScreenConstants.collectionCyclingColors[colorIndex],
+                  ),
+                );
+              },
+            );
+          },
+        );
+      },
+      loading: () => const LoadingStateWidget(),
+      error: (error, stackTrace) => ErrorStateWidget(
+        error: error,
+        customMessage: 'Unable to load collections.\nPlease try again.',
+      ),
+    );
+  }
+}
+
+/// Search results view
+class _SearchResultsView extends ConsumerWidget {
+  final String query;
+
+  const _SearchResultsView({required this.query});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    if (query.isEmpty) {
+      return Center(
+        child: Text(
+          context.l10n.text_search,
+          style: const TextStyle(
+            fontSize: TextScreenConstants.bodyFontSize,
+            color: Colors.grey,
+          ),
+        ),
+      );
+    }
+
+    final searchParams = LibrarySearchParams(query: query, textId: null);
+    // final searchResults = ref.watch(librarySearchProvider(searchParams));
+    final multilingualSearchResults = ref.watch(
+      multilingualSearchProvider(searchParams),
+    );
+
+    // return searchResults.when(
+    return multilingualSearchResults.when(
+      loading: () => const LoadingStateWidget(),
+      error:
+          (error, stackTrace) => ErrorStateWidget(
+            error: error,
+            customMessage: 'Unable to perform search.\nPlease try again.',
+          ),
+      data: (eitherResponse) {
+        return eitherResponse.fold(
+          (failure) => ErrorStateWidget(
+            error: failure,
+            customMessage: 'Unable to perform search.\nPlease try again.',
+          ),
+          (searchResponse) {
+            if (searchResponse.sources.isEmpty) {
+              return _buildNoResults(query);
+            }
+
+            final groupedResults = _groupSearchResults(searchResponse.sources);
+
+            if (groupedResults.isEmpty) {
+              return _buildNoResults(query);
+            }
+
+            return _buildSearchResultsList(groupedResults, query, ref);
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildNoResults(String query) {
+    return Center(
+      child: Text(
+        'No results found for "$query"',
+        style: const TextStyle(fontSize: TextScreenConstants.bodyFontSize),
+      ),
+    );
+  }
+
+  /// Group segment matches by textId
+  Map<String, Map<String, dynamic>> _groupSearchResults(List<dynamic> sources) {
+    final groupedResults = <String, Map<String, dynamic>>{};
+
+    for (final source in sources) {
+      if (!groupedResults.containsKey(source.text.textId)) {
+        groupedResults[source.text.textId] = {
+          'textId': source.text.textId,
+          'textTitle': source.text.title,
+          'segments': <Map<String, String>>[],
+        };
+      }
+      for (final segmentMatch in source.segmentMatches) {
+        (groupedResults[source.text.textId]!['segments']
+                as List<Map<String, String>>)
+            .add({
+              'segmentId': segmentMatch.segmentId as String,
+              'content': segmentMatch.content as String,
+            });
+      }
+    }
+
+    return groupedResults;
+  }
+
+  Widget _buildSearchResultsList(
+    Map<String, Map<String, dynamic>> groupedResults,
+    String query,
+    WidgetRef ref,
+  ) {
+    final groupedList = groupedResults.values.toList();
+
+    return ListView.builder(
+      itemCount: groupedList.length + 1, // +1 for share button
+      itemBuilder: (context, index) {
+        // If this is the last item, show share button
+        if (index == groupedList.length) {
+          return const _ShareButtonsWidget();
+        }
+        final textGroup = groupedList[index];
+        final textId = textGroup['textId'] as String;
+        final textTitle = textGroup['textTitle'] as String;
+        final segments = textGroup['segments'] as List<Map<String, String>>;
+
+        return SearchResultCard(
+          textId: textId,
+          textTitle: textTitle,
+          segments: segments,
+          searchQuery: query,
+        );
+      },
+    );
+  }
+}
