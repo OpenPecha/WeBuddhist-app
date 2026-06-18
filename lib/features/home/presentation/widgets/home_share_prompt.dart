@@ -65,10 +65,10 @@ class _ShareButton extends StatelessWidget {
 
     return Material(
       color: buttonColor,
-      borderRadius: BorderRadius.circular(999.0),
+      borderRadius: BorderRadius.circular(12),
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(999.0),
+        borderRadius: BorderRadius.circular(12),
         child: SizedBox(
           width: double.infinity,
           height: 52.0,
