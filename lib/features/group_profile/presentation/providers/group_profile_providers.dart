@@ -3,6 +3,7 @@ import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
 import 'package:flutter_pecha/core/di/core_providers.dart';
 import 'package:flutter_pecha/core/error/failures.dart';
 import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
+import 'package:flutter_pecha/features/connect/presentation/providers/connect_providers.dart';
 import 'package:flutter_pecha/features/group_profile/data/datasource/group_profile_remote_datasource.dart';
 import 'package:flutter_pecha/features/group_profile/data/repositories/group_profile_repository_impl.dart';
 import 'package:flutter_pecha/features/group_profile/domain/entities/group_profile.dart';
@@ -101,6 +102,37 @@ class GroupFollowNotifier extends StateNotifier<GroupFollowState> {
     _ref.invalidate(groupProfileProvider(_key.groupId));
   }
 
+  void _invalidateConnectProviders() {
+    _ref.invalidate(myGroupsProvider);
+    _ref.invalidate(discoverGroupsProvider);
+  }
+
+  void _addPendingJoinedGroup(GroupProfile group) {
+    _ref.read(pendingJoinedGroupsProvider.notifier).update((groups) {
+      if (groups.any((g) => g.id == group.id)) return groups;
+      return [group, ...groups];
+    });
+    _clearPendingUnjoined(group.id);
+  }
+
+  void _removePendingJoinedGroup(String groupId) {
+    _ref.read(pendingJoinedGroupsProvider.notifier).update(
+      (groups) => groups.where((g) => g.id != groupId).toList(),
+    );
+  }
+
+  void _markPendingUnjoined(String groupId) {
+    _ref.read(pendingUnjoinedGroupIdsProvider.notifier).update(
+      (ids) => {...ids, groupId},
+    );
+  }
+
+  void _clearPendingUnjoined(String groupId) {
+    _ref.read(pendingUnjoinedGroupIdsProvider.notifier).update(
+      (ids) => {...ids}..remove(groupId),
+    );
+  }
+
   Future<void> _loadInitialStatus() async {
     if (!_isAuthenticated) {
       if (mounted) state = const GroupFollowSuccess(isFollowing: false);
@@ -119,7 +151,7 @@ class GroupFollowNotifier extends StateNotifier<GroupFollowState> {
     );
   }
 
-  Future<bool> follow() async {
+  Future<bool> follow({GroupProfile? connectGroup}) async {
     if (state is GroupFollowLoading) return false;
     state = const GroupFollowLoading();
 
@@ -137,12 +169,16 @@ class GroupFollowNotifier extends StateNotifier<GroupFollowState> {
       (_) async {
         state = const GroupFollowSuccess(isFollowing: true);
         _invalidateGroupProfile();
+        _invalidateConnectProviders();
+        if (connectGroup != null) {
+          _addPendingJoinedGroup(connectGroup);
+        }
         return true;
       },
     );
   }
 
-  Future<bool> unfollow() async {
+  Future<bool> unfollow({GroupProfile? connectGroup}) async {
     if (state is GroupFollowLoading) return false;
     state = const GroupFollowLoading();
 
@@ -160,6 +196,11 @@ class GroupFollowNotifier extends StateNotifier<GroupFollowState> {
       (_) async {
         state = const GroupFollowSuccess(isFollowing: false);
         _invalidateGroupProfile();
+        _invalidateConnectProviders();
+        if (connectGroup != null) {
+          _removePendingJoinedGroup(connectGroup.id);
+          _markPendingUnjoined(connectGroup.id);
+        }
         return true;
       },
     );

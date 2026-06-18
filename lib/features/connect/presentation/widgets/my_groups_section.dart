@@ -91,7 +91,6 @@ class _MyGroupTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final tileColor = isDark ? AppColors.surfaceDark : AppColors.surfaceWhite;
-    final borderColor = isDark ? AppColors.cardBorderDark : AppColors.grey300;
     final subtitleColor =
         isDark ? AppColors.textSecondaryDark : AppColors.textSecondary;
 

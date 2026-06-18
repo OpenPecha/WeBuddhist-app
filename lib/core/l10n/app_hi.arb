@@ -580,6 +580,49 @@
   "about_social_website": "वेबसाइट",
   "me_guest_headline": "पूर्ण अनुभव प्राप्त करें",
   "me_guest_subtitle": "अपनी प्रगति सहेजने के लिए एक निःशुल्क खाता बनाएँ",
+  "me_my_stats": "My stats",
+  "me_day_streak": "{count}-day streak",
+  "@me_day_streak": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "me_best_streak": "Best streak: {count} days",
+  "@me_best_streak": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "me_accumulation": "Accumulation",
+  "me_counts": "counts",
+  "me_minutes": "minutes",
+  "me_days_plan_practiced_suffix": "days plan practiced",
+  "me_streak_share_message": "I'm on a {count}-day streak on {appName}!",
+  "@me_streak_share_message": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "appName": {
+        "type": "String"
+      }
+    }
+  },
+  "me_streak_share_quote": "My daily practice is growing",
+  "me_streak_days_count": "{count} days",
+  "@me_streak_days_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "share_this_streak": "Share this streak",
+  "me_streak_share_error": "Unable to share streak. Please try again",
   "delete_account_title": "खाता हटाएँ",
   "delete_account_description": "यदि आप अपना खाता हटाते हैं, तो WeBuddhist के भीतर आपकी सभी जानकारी, इतिहास और वैयक्तिकृत सेटिंग्स स्थायी रूप से समाप्त हो जाएँगी। कृपया ध्यान दें कि यह क्रिया अपरिवर्तनीय है। आगे बढ़ने के लिए, नीचे दिए गए बटन को टैप करें।",
   "delete_account_button": "खाता हटाएँ",

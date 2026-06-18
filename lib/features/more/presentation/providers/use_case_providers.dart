@@ -1,0 +1,25 @@
+import 'package:flutter_pecha/core/di/core_providers.dart';
+import 'package:flutter_pecha/features/more/data/datasource/user_stats_remote_datasource.dart';
+import 'package:flutter_pecha/features/more/data/repositories/user_stats_repository_impl.dart';
+import 'package:flutter_pecha/features/more/domain/repositories/user_stats_repository.dart';
+import 'package:flutter_pecha/features/more/domain/usecases/get_user_stats_usecase.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+final userStatsRemoteDatasourceProvider = Provider<UserStatsRemoteDatasource>((
+  ref,
+) {
+  return UserStatsRemoteDatasource(dio: ref.watch(dioProvider));
+});
+
+final userStatsRepositoryProvider = Provider<UserStatsRepositoryInterface>((
+  ref,
+) {
+  return UserStatsRepositoryImpl(
+    remote: ref.watch(userStatsRemoteDatasourceProvider),
+  );
+});
+
+final getUserStatsUseCaseProvider = Provider<GetUserStatsUseCase>((ref) {
+  final repository = ref.watch(userStatsRepositoryProvider);
+  return GetUserStatsUseCase(repository.getUserStats);
+});

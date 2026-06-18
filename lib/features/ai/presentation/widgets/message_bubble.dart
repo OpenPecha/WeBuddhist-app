@@ -311,7 +311,7 @@ class _MessageBubbleState extends ConsumerState<MessageBubble> {
             color:
                 isDarkMode
                     ? AppColors.surfaceVariantDark
-                    : AppColors.surfaceLight,
+                    : AppColors.surfaceWhite,
             borderRadius: BorderRadius.circular(30),
             border: Border.all(
               color: isDarkMode ? AppColors.cardBorderDark : AppColors.grey100,
@@ -420,7 +420,7 @@ class _MessageBubbleState extends ConsumerState<MessageBubble> {
                                 color:
                                     isDarkMode
                                         ? AppColors.surfaceVariantDark
-                                        : AppColors.surfaceLight,
+                                        : AppColors.surfaceWhite,
                                 borderRadius: BorderRadius.circular(8),
                                 border: Border.all(
                                   color:

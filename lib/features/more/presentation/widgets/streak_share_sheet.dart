@@ -6,28 +6,29 @@ import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/core/theme/app_theme.dart';
-import 'package:flutter_pecha/features/home/domain/entities/verse_of_day.dart';
 import 'package:flutter_pecha/features/home/presentation/widgets/verse_of_day_content.dart';
+import 'package:flutter_pecha/features/more/domain/entities/user_stats.dart';
+import 'package:flutter_pecha/features/more/presentation/widgets/streak_share_content.dart';
 import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:screenshot/screenshot.dart';
 import 'package:share_plus/share_plus.dart';
 
-class VerseShareSheet extends StatefulWidget {
-  const VerseShareSheet({super.key, required this.verseOfDay});
+class StreakShareSheet extends StatefulWidget {
+  const StreakShareSheet({super.key, required this.streak});
 
-  final VerseOfDay verseOfDay;
+  final StreakStats streak;
 
   @override
-  State<VerseShareSheet> createState() => _VerseShareSheetState();
+  State<StreakShareSheet> createState() => _StreakShareSheetState();
 }
 
-class _VerseShareSheetState extends State<VerseShareSheet> {
+class _StreakShareSheetState extends State<StreakShareSheet> {
   final ScreenshotController _screenshotController = ScreenshotController();
   final GlobalKey _shareButtonKey = GlobalKey();
   bool _isSharing = false;
 
-  Future<void> _shareQuote() async {
+  Future<void> _shareStreak() async {
     if (_isSharing) return;
 
     setState(() => _isSharing = true);
@@ -43,7 +44,7 @@ class _VerseShareSheetState extends State<VerseShareSheet> {
 
       final directory = await getTemporaryDirectory();
       final imagePath =
-          '${directory.path}/verse_share_${DateTime.now().millisecondsSinceEpoch}.png';
+          '${directory.path}/streak_share_${DateTime.now().millisecondsSinceEpoch}.png';
       tempFile = File(imagePath);
       await tempFile.writeAsBytes(imageBytes);
 
@@ -64,7 +65,7 @@ class _VerseShareSheetState extends State<VerseShareSheet> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(AppLocalizations.of(context)!.verse_share_error),
+            content: Text(AppLocalizations.of(context)!.me_streak_share_error),
             behavior: SnackBarBehavior.floating,
             backgroundColor: Colors.red[700],
           ),
@@ -85,8 +86,6 @@ class _VerseShareSheetState extends State<VerseShareSheet> {
     final localizations = AppLocalizations.of(context)!;
     final colorScheme = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final languageCode = Localizations.localeOf(context).languageCode;
-    final typography = VerseOfDayTypography.fromLanguageCode(languageCode);
     final locale = Localizations.localeOf(context);
     final lightTheme = AppTheme.lightTheme(locale);
 
@@ -123,31 +122,13 @@ class _VerseShareSheetState extends State<VerseShareSheet> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Container(
+                          width: double.infinity,
                           decoration: BoxDecoration(
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(12),
                           ),
-                          clipBehavior: Clip.antiAlias,
-                          child: VerseOfDayContent(
-                            verseOfDay: widget.verseOfDay,
-                            typography: VerseOfDayTypography(
-                              contentFont: typography.contentFont,
-                              systemFont: typography.systemFont,
-                              verseFontSize: languageCode == 'bo' ? 20.0 : 18.0,
-                              attributionFontSize:
-                                  languageCode == 'bo' ? 16.0 : 15.0,
-                            ),
-                            verseColor: Colors.black87,
-                            attributionColor: Colors.black87,
-                            imageAspectRatio: 1.15,
-                            useContentFontForAttribution: true,
-                            textPadding: const EdgeInsets.fromLTRB(
-                              28,
-                              32,
-                              28,
-                              36,
-                            ),
-                          ),
+                          padding: const EdgeInsets.fromLTRB(24, 32, 24, 28),
+                          child: StreakShareContent(streak: widget.streak),
                         ),
                         const SizedBox(height: 24),
                         const VerseShareBranding(
@@ -169,7 +150,7 @@ class _VerseShareSheetState extends State<VerseShareSheet> {
                 height: 52,
                 child: ElevatedButton.icon(
                   key: _shareButtonKey,
-                  onPressed: _isSharing ? null : _shareQuote,
+                  onPressed: _isSharing ? null : _shareStreak,
                   style: ElevatedButton.styleFrom(
                     backgroundColor:
                         isDark
@@ -185,7 +166,6 @@ class _VerseShareSheetState extends State<VerseShareSheet> {
                       ),
                     ),
                   ),
-
                   icon:
                       _isSharing
                           ? SizedBox(
@@ -198,7 +178,7 @@ class _VerseShareSheetState extends State<VerseShareSheet> {
                           )
                           : Icon(AppAssets.readerShare, size: 22),
                   label: Text(
-                    localizations.share_this_quote,
+                    localizations.share_this_streak,
                     style: const TextStyle(
                       fontWeight: FontWeight.w700,
                       fontSize: 16,
@@ -215,13 +195,12 @@ class _VerseShareSheetState extends State<VerseShareSheet> {
   }
 }
 
-/// Shows the verse share bottom sheet.
-void showVerseShareSheet(BuildContext context, VerseOfDay verseOfDay) {
+void showStreakShareSheet(BuildContext context, StreakStats streak) {
   showModalBottomSheet(
     context: context,
     backgroundColor: Colors.transparent,
     isScrollControlled: true,
     useRootNavigator: true,
-    builder: (_) => VerseShareSheet(verseOfDay: verseOfDay),
+    builder: (_) => StreakShareSheet(streak: streak),
   );
 }
