@@ -1,52 +1,164 @@
 import 'package:flutter_pecha/features/mala/domain/entities/mala_count.dart';
+import 'package:flutter_pecha/features/mala/domain/entities/mantra.dart';
 
-/// Maps the API's accumulator DTOs — both `PublicAccumulatorDTO`
-/// (`GET /accumulators`, presets) and `AccumulatorDTO`
-/// (`GET/POST/PUT /accumulators/user`, the user's own).
+/// `AccumulatorMetadataDTO` — `{language, name, description}`.
+class AccumulatorMetadataModel {
+  const AccumulatorMetadataModel({
+    required this.language,
+    required this.name,
+    this.description,
+  });
+
+  final String language;
+  final String name;
+  final String? description;
+
+  factory AccumulatorMetadataModel.fromJson(Map<String, dynamic> json) {
+    return AccumulatorMetadataModel(
+      language: (json['language'] as String?) ?? '',
+      name: (json['name'] as String?) ?? '',
+      description: json['description'] as String?,
+    );
+  }
+
+  AccumulatorMetadata toEntity() => AccumulatorMetadata(
+        language: language,
+        name: name,
+        description: description,
+      );
+}
+
+List<AccumulatorMetadataModel> _parseMetadata(Object? raw) {
+  final list = (raw as List<dynamic>?) ?? const [];
+  return list
+      .map((e) => AccumulatorMetadataModel.fromJson(e as Map<String, dynamic>))
+      .toList();
+}
+
+/// `PresetMantraDTO` — mantra content embedded in a preset.
+class PresetMantraModel {
+  const PresetMantraModel({
+    required this.id,
+    required this.mantra,
+    this.title,
+    this.pronunciation,
+    this.audioUrl,
+    this.beadImageUrl,
+  });
+
+  final String id;
+  final String mantra;
+  final String? title;
+  final String? pronunciation;
+  final String? audioUrl;
+  final String? beadImageUrl;
+
+  factory PresetMantraModel.fromJson(Map<String, dynamic> json) {
+    return PresetMantraModel(
+      id: (json['id'] as String?) ?? '',
+      mantra: (json['mantra'] as String?) ?? '',
+      title: json['title'] as String?,
+      pronunciation: json['pronunciation'] as String?,
+      audioUrl: json['audio_url'] as String?,
+      beadImageUrl: json['mala_image_url'] as String?,
+    );
+  }
+
+  MantraText toEntity() => MantraText(
+        id: id,
+        text: mantra,
+        title: title,
+        pronunciation: pronunciation,
+        audioUrl: audioUrl,
+        beadImageUrl: beadImageUrl,
+      );
+}
+
+/// `PublicAccumulatorDTO` (`GET /accumulators/presets`).
+class PresetAccumulatorModel {
+  const PresetAccumulatorModel({
+    required this.id,
+    this.targetCount,
+    this.beadImageUrl,
+    this.metadata = const [],
+    this.mantra,
+  });
+
+  final String id;
+  final int? targetCount;
+  final String? beadImageUrl;
+  final List<AccumulatorMetadataModel> metadata;
+  final PresetMantraModel? mantra;
+
+  factory PresetAccumulatorModel.fromJson(Map<String, dynamic> json) {
+    final mantraJson = json['mantra'];
+    return PresetAccumulatorModel(
+      id: (json['id'] as String?) ?? '',
+      targetCount: (json['target_count'] as num?)?.toInt(),
+      beadImageUrl: json['mala_image_url'] as String?,
+      metadata: _parseMetadata(json['metadata']),
+      mantra: mantraJson is Map<String, dynamic>
+          ? PresetMantraModel.fromJson(mantraJson)
+          : null,
+    );
+  }
+
+  Mantra toEntity() => Mantra(
+        presetId: id,
+        targetCount: targetCount,
+        // Prefer the accumulator-level bead image; fall back to the mantra's.
+        beadImageUrl: beadImageUrl ?? mantra?.beadImageUrl,
+        metadata: metadata.map((m) => m.toEntity()).toList(),
+        mantra: mantra?.toEntity(),
+      );
+}
+
+/// Wrapper for `PublicAccumulatorsResponse`.
+class PresetAccumulatorsResponseModel {
+  const PresetAccumulatorsResponseModel({
+    required this.accumulators,
+    required this.total,
+  });
+
+  final List<PresetAccumulatorModel> accumulators;
+  final int total;
+
+  factory PresetAccumulatorsResponseModel.fromJson(Map<String, dynamic> json) {
+    final list = (json['accumulators'] as List<dynamic>?) ?? const [];
+    return PresetAccumulatorsResponseModel(
+      accumulators: list
+          .map((e) => PresetAccumulatorModel.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      total: (json['total'] as num?)?.toInt() ?? list.length,
+    );
+  }
+}
+
+/// `AccumulatorDTO` — the user's own accumulator (`POST`/`PUT` responses).
 class AccumulatorModel {
   const AccumulatorModel({
     required this.id,
-    this.userId,
-    this.type,
-    required this.name,
-    this.description,
-    this.targetCount,
-    this.currentCount = 0,
-    this.textId,
+    this.parentId,
     this.mantraId,
+    this.currentCount = 0,
     this.beadImageUrl,
     this.updatedAt,
   });
 
   final String id;
-  final String? userId;
-  final String? type;
-  final String name;
-  final String? description;
-  final int? targetCount;
-  final int currentCount;
-  final String? textId;
+  final String? parentId;
   final String? mantraId;
-
-  /// Bead artwork URL — the backend will add this to `GET /accumulators`.
-  /// Read defensively across likely key names until the contract is final.
+  final int currentCount;
   final String? beadImageUrl;
   final DateTime? updatedAt;
 
   factory AccumulatorModel.fromJson(Map<String, dynamic> json) {
     return AccumulatorModel(
       id: (json['id'] as String?) ?? '',
-      userId: json['user_id'] as String?,
-      type: json['type'] as String?,
-      name: (json['name'] as String?) ?? '',
-      description: json['description'] as String?,
-      targetCount: (json['target_count'] as num?)?.toInt(),
-      currentCount: (json['current_count'] as num?)?.toInt() ?? 0,
-      textId: json['text_id'] as String?,
+      parentId: json['parent_id'] as String?,
       mantraId: json['mantra_id'] as String?,
-      beadImageUrl: (json['bead_image_url'] ??
-          json['bead_image'] ??
-          json['image_url']) as String?,
+      currentCount: (json['current_count'] as num?)?.toInt() ?? 0,
+      beadImageUrl: json['mala_image_url'] as String?,
       updatedAt: _parseDate(json['updated_at']),
     );
   }
@@ -57,37 +169,44 @@ class AccumulatorModel {
         total: currentCount,
         updatedAt: updatedAt,
       );
-
-  static DateTime? _parseDate(Object? v) {
-    if (v is String && v.isNotEmpty) return DateTime.tryParse(v);
-    return null;
-  }
 }
 
-/// Wrapper for the paginated accumulator list responses
-/// (`PublicAccumulatorsResponse` / `AccumulatorsResponse`).
-class AccumulatorsResponseModel {
-  const AccumulatorsResponseModel({
-    required this.accumulators,
-    required this.total,
-    required this.skip,
-    required this.limit,
+/// `AccumulatorHistoryDTO` — the user's detail for one preset
+/// (`GET /accumulators/{parent_id}`). [accumulatorId] is null when the user has
+/// no accumulator for this preset yet.
+class AccumulatorDetailModel {
+  const AccumulatorDetailModel({
+    this.accumulatorId,
+    this.parentId,
+    this.currentCount = 0,
+    this.totalCounted = 0,
+    this.beadImageUrl,
   });
 
-  final List<AccumulatorModel> accumulators;
-  final int total;
-  final int skip;
-  final int limit;
+  final String? accumulatorId;
+  final String? parentId;
+  final int currentCount;
+  final int totalCounted;
+  final String? beadImageUrl;
 
-  factory AccumulatorsResponseModel.fromJson(Map<String, dynamic> json) {
-    final list = (json['accumulators'] as List<dynamic>?) ?? [];
-    return AccumulatorsResponseModel(
-      accumulators: list
-          .map((e) => AccumulatorModel.fromJson(e as Map<String, dynamic>))
-          .toList(),
-      total: (json['total'] as num?)?.toInt() ?? list.length,
-      skip: (json['skip'] as num?)?.toInt() ?? 0,
-      limit: (json['limit'] as num?)?.toInt() ?? list.length,
+  factory AccumulatorDetailModel.fromJson(Map<String, dynamic> json) {
+    return AccumulatorDetailModel(
+      accumulatorId: json['accumulator_id'] as String?,
+      parentId: json['parent_id'] as String?,
+      currentCount: (json['current_count'] as num?)?.toInt() ?? 0,
+      totalCounted: (json['total_counted'] as num?)?.toInt() ?? 0,
+      beadImageUrl: json['mala_image_url'] as String?,
     );
   }
+
+  MalaCount toMalaCount() => MalaCount(
+        accumulatorId: accumulatorId,
+        total: currentCount,
+        beadImageUrl: beadImageUrl,
+      );
+}
+
+DateTime? _parseDate(Object? v) {
+  if (v is String && v.isNotEmpty) return DateTime.tryParse(v);
+  return null;
 }

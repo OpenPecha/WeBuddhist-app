@@ -5,11 +5,10 @@ import 'package:flutter_pecha/core/analytics/analytics_events.dart';
 import 'package:flutter_pecha/core/analytics/analytics_service.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/features/mala/data/datasources/mala_local_datasource.dart';
-import 'package:flutter_pecha/features/mala/domain/entities/mala_count.dart';
 import 'package:flutter_pecha/features/mala/domain/entities/mantra.dart';
 import 'package:flutter_pecha/features/mala/domain/usecases/mala_usecases.dart';
 import 'package:flutter_pecha/features/mala/presentation/providers/mala_sync_manager.dart';
-import 'package:flutter_pecha/shared/domain/base_classes/usecase.dart';
+import 'package:flutter_pecha/features/mala/presentation/services/mala_sound_player.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class MalaCounterState {
@@ -18,10 +17,15 @@ class MalaCounterState {
     this.beadsPerRound = kBeadsPerRound,
     this.isSeeding = true,
     this.seedFailed = false,
+    this.beadImageUrl,
   });
 
   final int total;
   final int beadsPerRound;
+
+  /// Per-user bead artwork from the accumulator detail. Null falls back to the
+  /// preset/mantra image (see the screen's `?? mantra.beadImageUrl`).
+  final String? beadImageUrl;
 
   /// True until the server seed completes — taps are blocked while seeding.
   final bool isSeeding;
@@ -39,12 +43,14 @@ class MalaCounterState {
     int? beadsPerRound,
     bool? isSeeding,
     bool? seedFailed,
+    String? beadImageUrl,
   }) =>
       MalaCounterState(
         total: total ?? this.total,
         beadsPerRound: beadsPerRound ?? this.beadsPerRound,
         isSeeding: isSeeding ?? this.isSeeding,
         seedFailed: seedFailed ?? this.seedFailed,
+        beadImageUrl: beadImageUrl ?? this.beadImageUrl,
       );
 }
 
@@ -55,42 +61,60 @@ class MalaCounterNotifier extends StateNotifier<MalaCounterState> {
   MalaCounterNotifier({
     required Mantra mantra,
     required MalaLocalDataSource local,
-    required GetUserTotalsUseCase getUserTotals,
+    required GetAccumulatorDetailUseCase getAccumulatorDetail,
     required MalaSyncManager sync,
-    required String? Function() currentUserId,
+    required Future<String?> Function() currentUserId,
     AnalyticsService? analytics,
+    MalaSoundPlayer? sound,
   })  : _mantra = mantra,
         _local = local,
-        _getUserTotals = getUserTotals,
+        _getAccumulatorDetail = getAccumulatorDetail,
         _sync = sync,
         _currentUserId = currentUserId,
         _analytics = analytics,
+        _sound = sound,
         super(MalaCounterState(beadsPerRound: mantra.beadsPerRound)) {
     seed();
   }
 
   final Mantra _mantra;
   final MalaLocalDataSource _local;
-  final GetUserTotalsUseCase _getUserTotals;
+  final GetAccumulatorDetailUseCase _getAccumulatorDetail;
   final MalaSyncManager _sync;
-  final String? Function() _currentUserId;
+  final Future<String?> Function() _currentUserId;
   final AnalyticsService? _analytics;
+  final MalaSoundPlayer? _sound;
 
   final _logger = AppLogger('MalaCounterNotifier');
+
+  /// The user id resolved during a successful seed. Cached so the synchronous
+  /// [incrementBead] can persist taps without re-resolving — taps are blocked
+  /// until seeding completes, so this is always set by the time it's read.
+  String? _userId;
 
   String get _presetId => _mantra.presetId;
 
   /// Fetch the server total and seed local before allowing any taps.
   Future<void> seed() async {
-    final userId = _currentUserId();
+    state = state.copyWith(isSeeding: true, seedFailed: false);
+
+    final userId = await _currentUserId();
+    if (!mounted) return; // screen left mid-seed
     if (userId == null || userId.isEmpty) {
       // Not authenticated — the route is login-gated, so treat as transient.
       state = state.copyWith(isSeeding: true, seedFailed: true);
       return;
     }
-    state = state.copyWith(isSeeding: true, seedFailed: false);
+    _userId = userId;
 
-    final result = await _getUserTotals(const NoParams());
+    // Surface the cached bead image right away so the strand renders correctly
+    // offline / before the network seed returns.
+    final cachedImage = _local.read(userId, _presetId).beadImageUrl;
+    if (cachedImage != null && cachedImage.isNotEmpty) {
+      state = state.copyWith(beadImageUrl: cachedImage);
+    }
+
+    final result = await _getAccumulatorDetail(_presetId);
     if (!mounted) return; // screen left mid-seed
     result.fold(
       (failure) {
@@ -98,16 +122,10 @@ class MalaCounterNotifier extends StateNotifier<MalaCounterState> {
         // Prefer blocking with a retry over risking a low send.
         state = state.copyWith(isSeeding: true, seedFailed: true);
       },
-      (totals) {
-        MalaCount? match;
-        for (final t in totals) {
-          if (_matches(t)) {
-            match = t;
-            break;
-          }
-        }
-        final serverTotal = match?.total ?? 0;
-        final serverAccId = match?.accumulatorId;
+      (detail) {
+        // detail.accumulatorId is null when the user has no accumulator yet.
+        final serverTotal = detail.total;
+        final serverAccId = detail.accumulatorId;
 
         final localState = _local.read(userId, _presetId);
         final total = max(localState.total, serverTotal);
@@ -119,8 +137,7 @@ class MalaCounterNotifier extends StateNotifier<MalaCounterState> {
             total: total,
             syncedTotal: serverTotal,
             accumulatorId: serverAccId ?? localState.accumulatorId,
-            name: _mantra.name,
-            mantraId: _mantra.mantraId,
+            beadImageUrl: detail.beadImageUrl,
           ),
         );
 
@@ -128,6 +145,7 @@ class MalaCounterNotifier extends StateNotifier<MalaCounterState> {
           total: total,
           isSeeding: false,
           seedFailed: false,
+          beadImageUrl: detail.beadImageUrl,
         );
 
         // Push any offline tail captured before this seed.
@@ -136,15 +154,11 @@ class MalaCounterNotifier extends StateNotifier<MalaCounterState> {
     );
   }
 
-  /// A user accumulator belongs to this preset when their mantra ids match.
-  bool _matches(MalaCount count) =>
-      _mantra.mantraId != null && count.mantraId == _mantra.mantraId;
-
   /// +1 recitation. No-op while seeding. Monotonic — never decrements.
   void incrementBead() {
     if (state.isSeeding) return;
 
-    final userId = _currentUserId();
+    final userId = _userId;
     if (userId == null || userId.isEmpty) return;
 
     final newTotal = state.total + 1;
@@ -153,6 +167,7 @@ class MalaCounterNotifier extends StateNotifier<MalaCounterState> {
     state = state.copyWith(total: newTotal);
     _local.recordTap(userId, _presetId);
 
+    _sound?.play();
     HapticFeedback.lightImpact();
     if (roundComplete) {
       HapticFeedback.mediumImpact();

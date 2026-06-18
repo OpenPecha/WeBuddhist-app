@@ -103,70 +103,72 @@ class _MalaScreenState extends ConsumerState<MalaScreen> {
     final language = Localizations.localeOf(context).languageCode;
     final counter = ref.watch(malaCounterProvider(mantra));
     final notifier = ref.read(malaCounterProvider(mantra).notifier);
-    final theme = Theme.of(context);
 
     return Column(
       children: [
-        _MalaAppBar(title: mantra.name),
+        _MalaAppBar(title: mantra.localizedName(language)),
         Expanded(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const SizedBox(height: 24),
-                // Tibetan script (large).
-                if (mantra.tibetan != null)
-                  Semantics(
-                    label: 'Mantra',
-                    child: Text(
-                      mantra.tibetan!,
-                      textAlign: TextAlign.center,
-                      style: theme.textTheme.headlineMedium?.copyWith(
-                        fontFamily: AppConfig.tibetanContentFont,
-                        height: 1.4,
-                      ),
-                    ),
-                  ),
-                // Transliteration with chevron switcher.
-                MantraSwitcher(
-                  transliteration:
-                      mantra.transliteration(language) ?? mantra.name,
-                  canGoPrevious: _index > 0,
-                  canGoNext: _index < mantras.length - 1,
-                  onPrevious: () => _switch(mantras, _index - 1),
-                  onNext: () => _switch(mantras, _index + 1),
-                ),
-                const SizedBox(height: 32),
-                // Counter block (left-aligned).
-                _CounterBlock(
-                  beadInRound: counter.beadInRound,
-                  beadsPerRound: counter.beadsPerRound,
-                  rounds: counter.rounds,
-                  dimmed: counter.isSeeding,
-                ),
-                const Spacer(),
-                // Bead arc.
+                // Mantra + transliteration switcher: 40% of the space below
+                // the header, with the text centered between the chevrons.
                 Expanded(
-                  flex: 2,
-                  child:
-                      counter.seedFailed
-                          ? _ErrorView(
-                            message: 'Could not load your count',
-                            onRetry: notifier.seed,
-                          )
-                          : MalaBeads(
-                            total: counter.total,
-                            beadInRound: counter.beadInRound,
-                            beadsPerRound: counter.beadsPerRound,
-                            enabled: !counter.isSeeding,
-                            beadImageUrl: mantra.beadImageUrl,
-                            beadColor: const Color(0xFF8D6E63),
-                            threadColor: const Color(0xFFC62828),
-                            onTap: notifier.incrementBead,
-                          ),
+                  flex: 40,
+                  child: MantraSwitcher(
+                    tibetan: mantra.tibetan,
+                    tibetanFontFamily: AppConfig.tibetanContentFont,
+                    transliteration:
+                        mantra.transliteration(language) ??
+                        mantra.localizedName(language),
+                    canGoPrevious: _index > 0,
+                    canGoNext: _index < mantras.length - 1,
+                    onPrevious: () => _switch(mantras, _index - 1),
+                    onNext: () => _switch(mantras, _index + 1),
+                  ),
                 ),
-                const SizedBox(height: 24),
+                // Counter + bead arc: the remaining 60%.
+                Expanded(
+                  flex: 60,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      // Counter block (left-aligned).
+                      _CounterBlock(
+                        beadInRound: counter.beadInRound,
+                        beadsPerRound: counter.beadsPerRound,
+                        rounds: counter.rounds,
+                        dimmed: counter.isSeeding,
+                      ),
+                      const SizedBox(height: 16),
+                      // Bead arc.
+                      Expanded(
+                        child:
+                            counter.seedFailed
+                                ? _ErrorView(
+                                  message: 'Could not load your count',
+                                  onRetry: notifier.seed,
+                                )
+                                : MalaBeads(
+                                  total: counter.total,
+                                  beadInRound: counter.beadInRound,
+                                  beadsPerRound: counter.beadsPerRound,
+                                  enabled: !counter.isSeeding,
+                                  // Per-user image from the accumulator detail
+                                  // wins; fall back to the preset's image.
+                                  beadImageUrl:
+                                      counter.beadImageUrl ?? mantra.beadImageUrl,
+                                  beadColor: const Color(0xFF8D6E63),
+                                  threadColor: const Color(0xFFC62828),
+                                  onTap: notifier.incrementBead,
+                                ),
+                      ),
+                      const SizedBox(height: 24),
+                    ],
+                  ),
+                ),
               ],
             ),
           ),

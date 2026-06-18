@@ -1,16 +1,23 @@
 import 'package:flutter/material.dart';
 
-/// Chevron + transliteration header row used to switch the active mantra.
+/// Mantra display + chevron switcher. The Tibetan script (when present) and the
+/// transliteration are stacked and centered between the previous/next chevrons,
+/// vertically centered within whatever space the parent allocates.
 class MantraSwitcher extends StatelessWidget {
   const MantraSwitcher({
     super.key,
     required this.transliteration,
     required this.onPrevious,
     required this.onNext,
+    this.tibetan,
+    this.tibetanFontFamily,
     this.canGoPrevious = true,
     this.canGoNext = true,
   });
 
+  /// Tibetan script for the mantra, shown above the transliteration. Optional.
+  final String? tibetan;
+  final String? tibetanFontFamily;
   final String transliteration;
   final VoidCallback onPrevious;
   final VoidCallback onNext;
@@ -21,7 +28,7 @@ class MantraSwitcher extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         _Chevron(
           icon: Icons.chevron_left,
@@ -30,14 +37,34 @@ class MantraSwitcher extends StatelessWidget {
         Expanded(
           child: AnimatedSwitcher(
             duration: const Duration(milliseconds: 200),
-            child: Text(
-              transliteration,
+            child: Column(
               key: ValueKey(transliteration),
-              textAlign: TextAlign.center,
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w600,
-                letterSpacing: 0.3,
-              ),
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (tibetan != null) ...[
+                  Semantics(
+                    label: 'Mantra',
+                    child: Text(
+                      tibetan!,
+                      textAlign: TextAlign.center,
+                      style: theme.textTheme.headlineMedium?.copyWith(
+                        fontFamily: tibetanFontFamily,
+                        height: 1.4,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                ],
+                Text(
+                  transliteration,
+                  textAlign: TextAlign.center,
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 0.3,
+                  ),
+                ),
+              ],
             ),
           ),
         ),

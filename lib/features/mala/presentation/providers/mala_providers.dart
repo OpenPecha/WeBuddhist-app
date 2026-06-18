@@ -1,6 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter_pecha/core/analytics/analytics_providers.dart';
+import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
 import 'package:flutter_pecha/core/di/core_providers.dart';
 import 'package:flutter_pecha/core/error/failures.dart';
+import 'package:flutter_pecha/core/storage/storage_keys.dart';
+import 'package:flutter_pecha/core/utils/local_storage_service.dart';
 import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
 import 'package:flutter_pecha/features/mala/data/datasources/mala_local_datasource.dart';
 import 'package:flutter_pecha/features/mala/data/datasources/mala_remote_datasource.dart';
@@ -10,7 +15,7 @@ import 'package:flutter_pecha/features/mala/domain/repositories/mala_repository.
 import 'package:flutter_pecha/features/mala/domain/usecases/mala_usecases.dart';
 import 'package:flutter_pecha/features/mala/presentation/providers/mala_counter_notifier.dart';
 import 'package:flutter_pecha/features/mala/presentation/providers/mala_sync_manager.dart';
-import 'package:flutter_pecha/shared/domain/base_classes/usecase.dart';
+import 'package:flutter_pecha/features/mala/presentation/services/mala_sound_player.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fpdart/fpdart.dart';
 
@@ -37,8 +42,9 @@ final getCatalogueUseCaseProvider = Provider<GetCatalogueUseCase>((ref) {
   return GetCatalogueUseCase(ref.watch(malaRepositoryProvider));
 });
 
-final getUserTotalsUseCaseProvider = Provider<GetUserTotalsUseCase>((ref) {
-  return GetUserTotalsUseCase(ref.watch(malaRepositoryProvider));
+final getAccumulatorDetailUseCaseProvider =
+    Provider<GetAccumulatorDetailUseCase>((ref) {
+  return GetAccumulatorDetailUseCase(ref.watch(malaRepositoryProvider));
 });
 
 final createUserAccumulatorUseCaseProvider =
@@ -58,7 +64,19 @@ bool _isAuthenticated(Ref ref) {
   return auth.isLoggedIn && !auth.isGuest;
 }
 
-String? _currentUserId(Ref ref) => ref.read(userProvider).user?.id;
+/// Resolves the current user id for mala storage/sync.
+///
+/// Prefers the id persisted at login ([StorageKeys.currentUserId]) — it is
+/// written before auth state flips to logged-in and does not depend on the
+/// async (and possibly failing) user-profile fetch, so it's available the
+/// moment the login-gated mala route is reachable. Falls back to the profile.
+Future<String?> _resolveUserId(Ref ref) async {
+  final stored = await ref
+      .read(localStorageServiceProvider)
+      .get<String>(StorageKeys.currentUserId);
+  if (stored != null && stored.isNotEmpty) return stored;
+  return ref.read(userProvider).user?.id;
+}
 
 // ============ Sync manager (app-scoped, kept alive) ============
 
@@ -70,7 +88,7 @@ final malaSyncManagerProvider = Provider<MalaSyncManager>((ref) {
     createAccumulator: ref.watch(createUserAccumulatorUseCaseProvider),
     updateAccumulator: ref.watch(updateUserAccumulatorUseCaseProvider),
     isLoggedIn: () => _isAuthenticated(ref),
-    currentUserId: () => _currentUserId(ref),
+    currentUserId: () => _resolveUserId(ref),
     connectivityStream:
         ref.watch(connectivityServiceProvider).onConnectivityChanged,
     analytics: ref.watch(analyticsServiceProvider),
@@ -86,7 +104,20 @@ final malaCatalogueProvider =
   if (!_isAuthenticated(ref)) {
     return const Left(AuthenticationFailure('Not authenticated'));
   }
-  return ref.watch(getCatalogueUseCaseProvider)(const NoParams());
+  // Re-fetches when the app language changes so mantra content is localized.
+  final language = ref.watch(localeProvider).languageCode;
+  return ref.watch(getCatalogueUseCaseProvider)(language);
+});
+
+// ============ Bead-tap sound ============
+
+/// Short click played on each bead count. Loaded once; lives as long as a mala
+/// counter is active and is disposed with the screen.
+final malaSoundPlayerProvider = Provider.autoDispose<MalaSoundPlayer>((ref) {
+  final player = MalaSoundPlayer();
+  unawaited(player.init());
+  ref.onDispose(player.dispose);
+  return player;
 });
 
 // ============ Per-mantra counter ============
@@ -96,9 +127,10 @@ final malaCounterProvider = StateNotifierProvider.autoDispose
   return MalaCounterNotifier(
     mantra: mantra,
     local: ref.watch(malaLocalDataSourceProvider),
-    getUserTotals: ref.watch(getUserTotalsUseCaseProvider),
+    getAccumulatorDetail: ref.watch(getAccumulatorDetailUseCaseProvider),
     sync: ref.watch(malaSyncManagerProvider),
-    currentUserId: () => _currentUserId(ref),
+    currentUserId: () => _resolveUserId(ref),
     analytics: ref.watch(analyticsServiceProvider),
+    sound: ref.watch(malaSoundPlayerProvider),
   );
 });

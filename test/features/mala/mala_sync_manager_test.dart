@@ -37,7 +37,7 @@ void main() {
       createAccumulator: create,
       updateAccumulator: update,
       isLoggedIn: () => loggedIn,
-      currentUserId: () => userId,
+      currentUserId: () async => userId,
     );
   }
 
@@ -56,20 +56,15 @@ void main() {
     tempDir.deleteSync(recursive: true);
   });
 
-  test('flush updates an existing accumulator with the absolute total', () async {
+  test('existing accumulator updates with the absolute total (no create)',
+      () async {
     await local.write(
       userA,
       presetId,
-      const LocalMalaState(
-        total: 50,
-        syncedTotal: 40,
-        accumulatorId: 'acc-1',
-        name: 'Chenrezig',
-        mantraId: 'm1',
-      ),
+      const LocalMalaState(total: 50, syncedTotal: 40, accumulatorId: 'acc-1'),
     );
     when(update(any)).thenAnswer(
-      (_) async => Right(MalaCount(accumulatorId: 'acc-1', total: 50)),
+      (_) async => const Right(MalaCount(accumulatorId: 'acc-1', total: 50)),
     );
 
     await buildManager().flush(SyncReason.debounce);
@@ -78,54 +73,67 @@ void main() {
         verify(update(captureAny)).captured.single as UpdateUserAccumulatorParams;
     expect(captured.accumulatorId, 'acc-1');
     expect(captured.currentCount, 50); // absolute total, not a delta
-    verifyNever(create(any));
+    verifyNever(create(any)); // never creates when an id already exists
 
     final after = local.read(userA, presetId);
     expect(after.syncedTotal, 50);
     expect(after.isDirty, isFalse);
   });
 
-  test('flush lazily creates an accumulator on first sync', () async {
+  test('first sync creates once (parent_id) then updates the absolute total',
+      () async {
     await local.write(
       userA,
       presetId,
-      const LocalMalaState(
-        total: 12,
-        syncedTotal: 0,
-        name: 'Chenrezig',
-        mantraId: 'm1',
-      ),
+      const LocalMalaState(total: 12, syncedTotal: 0), // no accumulatorId yet
     );
     when(create(any)).thenAnswer(
-      (_) async => Right(MalaCount(accumulatorId: 'new-acc', total: 12)),
+      (_) async => const Right(MalaCount(accumulatorId: 'new-acc', total: 0)),
+    );
+    when(update(any)).thenAnswer(
+      (_) async => const Right(MalaCount(accumulatorId: 'new-acc', total: 12)),
     );
 
     await buildManager().flush(SyncReason.launch);
 
-    final captured =
-        verify(create(captureAny)).captured.single as CreateUserAccumulatorParams;
-    expect(captured.name, 'Chenrezig');
-    expect(captured.mantraId, 'm1');
-    expect(captured.currentCount, 12);
+    // Created exactly once, with the preset id as parent_id.
+    expect(verify(create(captureAny)).captured.single, presetId);
+    // Then pushed the absolute total to the new id.
+    final put =
+        verify(update(captureAny)).captured.single as UpdateUserAccumulatorParams;
+    expect(put.accumulatorId, 'new-acc');
+    expect(put.currentCount, 12);
 
     final after = local.read(userA, presetId);
     expect(after.accumulatorId, 'new-acc'); // id stored for future PUTs
     expect(after.syncedTotal, 12);
   });
 
+  test('does not create again once an id is stored', () async {
+    await local.write(
+      userA,
+      presetId,
+      const LocalMalaState(total: 5, syncedTotal: 0, accumulatorId: 'acc-1'),
+    );
+    when(update(any)).thenAnswer(
+      (_) async => const Right(MalaCount(accumulatorId: 'acc-1', total: 5)),
+    );
+
+    await buildManager().flush(SyncReason.launch);
+
+    verifyNever(create(any));
+    verify(update(any)).called(1);
+  });
+
   test('server ahead is adopted via max() into total and syncedTotal', () async {
     await local.write(
       userA,
       presetId,
-      const LocalMalaState(
-        total: 30,
-        syncedTotal: 20,
-        accumulatorId: 'acc-1',
-      ),
+      const LocalMalaState(total: 30, syncedTotal: 20, accumulatorId: 'acc-1'),
     );
     // Another device pushed the server to 100.
     when(update(any)).thenAnswer(
-      (_) async => Right(MalaCount(accumulatorId: 'acc-1', total: 100)),
+      (_) async => const Right(MalaCount(accumulatorId: 'acc-1', total: 100)),
     );
 
     await buildManager().flush(SyncReason.reconnect);
@@ -177,7 +185,7 @@ void main() {
       const LocalMalaState(total: 9, syncedTotal: 0, accumulatorId: 'acc-b'),
     );
     when(update(any)).thenAnswer(
-      (_) async => Right(MalaCount(accumulatorId: 'acc-a', total: 5)),
+      (_) async => const Right(MalaCount(accumulatorId: 'acc-a', total: 5)),
     );
 
     await buildManager(userId: userA).flush(SyncReason.launch);

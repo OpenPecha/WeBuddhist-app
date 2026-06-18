@@ -15,32 +15,32 @@ import 'package:mockito/mockito.dart';
 
 import 'mala_counter_notifier_test.mocks.dart';
 
-@GenerateMocks([GetUserTotalsUseCase, MalaSyncManager])
+@GenerateMocks([GetAccumulatorDetailUseCase, MalaSyncManager])
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  provideDummy<Either<Failure, List<MalaCount>>>(
+  provideDummy<Either<Failure, MalaCount>>(
     const Left(UnknownFailure('dummy')),
   );
 
   late Directory tempDir;
   late MalaLocalDataSource local;
-  late MockGetUserTotalsUseCase getUserTotals;
+  late MockGetAccumulatorDetailUseCase getDetail;
   late MockMalaSyncManager sync;
 
   const userId = 'user-1';
   const mantra = Mantra(
     presetId: 'chenrezig',
-    name: 'Chenrezig',
-    mantraId: 'm1',
+    metadata: [AccumulatorMetadata(language: 'en', name: 'Chenrezig')],
+    mantra: MantraText(id: 'm1', text: 'ༀ་མ་ཎི་པདྨེ་ཧཱུྃ', pronunciation: 'Om Mani Padme Hum'),
   );
 
   MalaCounterNotifier buildNotifier() => MalaCounterNotifier(
         mantra: mantra,
         local: local,
-        getUserTotals: getUserTotals,
+        getAccumulatorDetail: getDetail,
         sync: sync,
-        currentUserId: () => userId,
+        currentUserId: () async => userId,
       );
 
   setUp(() async {
@@ -48,7 +48,7 @@ void main() {
     Hive.init(tempDir.path);
     await MalaLocalDataSource.init();
     local = MalaLocalDataSource();
-    getUserTotals = MockGetUserTotalsUseCase();
+    getDetail = MockGetAccumulatorDetailUseCase();
     sync = MockMalaSyncManager();
   });
 
@@ -59,10 +59,8 @@ void main() {
   });
 
   test('seed adopts the server total when the server is ahead', () async {
-    when(getUserTotals(any)).thenAnswer(
-      (_) async => Right([
-        MalaCount(accumulatorId: 'acc-1', mantraId: 'm1', total: 4212),
-      ]),
+    when(getDetail(any)).thenAnswer(
+      (_) async => const Right(MalaCount(accumulatorId: 'acc-1', total: 4212)),
     );
 
     final notifier = buildNotifier();
@@ -70,7 +68,9 @@ void main() {
 
     expect(notifier.state.isSeeding, isFalse);
     expect(notifier.state.total, 4212);
-    expect(local.read(userId, 'chenrezig').syncedTotal, 4212);
+    final s = local.read(userId, 'chenrezig');
+    expect(s.syncedTotal, 4212);
+    expect(s.accumulatorId, 'acc-1');
     notifier.dispose();
   });
 
@@ -81,10 +81,8 @@ void main() {
       'chenrezig',
       const LocalMalaState(total: 20, syncedTotal: 10, accumulatorId: 'acc-1'),
     );
-    when(getUserTotals(any)).thenAnswer(
-      (_) async => Right([
-        MalaCount(accumulatorId: 'acc-1', mantraId: 'm1', total: 10),
-      ]),
+    when(getDetail(any)).thenAnswer(
+      (_) async => const Right(MalaCount(accumulatorId: 'acc-1', total: 10)),
     );
 
     final notifier = buildNotifier();
@@ -96,10 +94,8 @@ void main() {
   });
 
   test('incrementBead is a no-op while seeding', () {
-    when(getUserTotals(any)).thenAnswer(
-      (_) async => Right([
-        MalaCount(accumulatorId: 'acc-1', mantraId: 'm1', total: 0),
-      ]),
+    when(getDetail(any)).thenAnswer(
+      (_) async => const Right(MalaCount(accumulatorId: 'acc-1', total: 0)),
     );
 
     final notifier = buildNotifier(); // seed still pending (async)
@@ -112,10 +108,8 @@ void main() {
   });
 
   test('incrementBead increments monotonically and notifies sync', () async {
-    when(getUserTotals(any)).thenAnswer(
-      (_) async => Right([
-        MalaCount(accumulatorId: 'acc-1', mantraId: 'm1', total: 0),
-      ]),
+    when(getDetail(any)).thenAnswer(
+      (_) async => const Right(MalaCount(accumulatorId: 'acc-1', total: 0)),
     );
 
     final notifier = buildNotifier();
@@ -134,10 +128,9 @@ void main() {
   });
 
   test('round completes at a multiple of beadsPerRound', () async {
-    when(getUserTotals(any)).thenAnswer(
-      (_) async => Right([
-        MalaCount(accumulatorId: 'acc-1', mantraId: 'm1', total: kBeadsPerRound - 1),
-      ]),
+    when(getDetail(any)).thenAnswer(
+      (_) async =>
+          const Right(MalaCount(accumulatorId: 'acc-1', total: kBeadsPerRound - 1)),
     );
 
     final notifier = buildNotifier();
@@ -153,14 +146,16 @@ void main() {
     notifier.dispose();
   });
 
-  test('fresh install with empty local seeds from server total', () async {
-    when(getUserTotals(any)).thenAnswer((_) async => const Right([]));
+  test('fresh install with no accumulator seeds at 0', () async {
+    // No user accumulator yet → detail returns count 0 with a null id.
+    when(getDetail(any)).thenAnswer((_) async => const Right(MalaCount(total: 0)));
 
     final notifier = buildNotifier();
     await Future.delayed(Duration.zero);
 
     expect(notifier.state.total, 0);
     expect(notifier.state.isSeeding, isFalse);
+    expect(local.read(userId, 'chenrezig').accumulatorId, isNull);
     // Nothing to push when local and server agree at 0.
     verifyNever(sync.flush(any));
     notifier.dispose();

@@ -2,7 +2,6 @@ import 'package:dio/dio.dart';
 import 'package:flutter_pecha/core/error/exceptions.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/features/mala/data/models/accumulator_model.dart';
-import 'package:flutter_pecha/features/mala/data/models/mantra_model.dart';
 
 class MalaRemoteDataSource {
   MalaRemoteDataSource({required this.dio});
@@ -12,49 +11,68 @@ class MalaRemoteDataSource {
 
   static const int _pageSize = 100;
 
-  /// `GET /accumulators` — preset accumulators (templates). Pages through all.
-  Future<List<AccumulatorModel>> fetchPresetAccumulators() =>
-      _fetchAllPages('/accumulators');
-
-  /// `GET /accumulators/user` — the current user's own accumulators.
-  Future<List<AccumulatorModel>> fetchUserAccumulators() =>
-      _fetchAllPages('/accumulators/user');
-
-  /// `GET /mantra` — localized mantra content.
-  Future<List<MantraContentModel>> fetchMantras({String? language}) async {
+  /// `GET /accumulators/presets` — preset accumulators (catalogue). Pages all.
+  /// [language] localizes the embedded mantra title/text/pronunciation.
+  Future<List<PresetAccumulatorModel>> fetchPresets({String? language}) async {
     try {
-      final response = await dio.get(
-        '/mantra',
-        queryParameters: {if (language != null) 'language': language},
-      );
-      if (response.statusCode == 200) {
-        return MantraResponseModel.fromJson(
+      final all = <PresetAccumulatorModel>[];
+      var skip = 0;
+      while (true) {
+        final response = await dio.get(
+          '/accumulators/presets',
+          queryParameters: {
+            'skip': skip,
+            'limit': _pageSize,
+            if (language != null) 'language': language,
+          },
+        );
+        if (response.statusCode != 200) {
+          throw _statusToException(response.statusCode, 'Failed to load presets');
+        }
+        final page = PresetAccumulatorsResponseModel.fromJson(
           response.data as Map<String, dynamic>,
-        ).mantras;
+        );
+        all.addAll(page.accumulators);
+        skip += _pageSize;
+        if (page.accumulators.length < _pageSize || all.length >= page.total) {
+          break;
+        }
       }
-      throw _statusToException(response.statusCode, 'Failed to load mantras');
+      return all;
     } on DioException catch (e) {
-      _logger.error('Dio error in fetchMantras', e);
-      throw _dioToException(e, 'Failed to load mantras');
+      _logger.error('Dio error in fetchPresets', e);
+      throw _dioToException(e, 'Failed to load presets');
+    }
+  }
+
+  /// `GET /accumulators/{parent_id}` — the user's detail for one preset.
+  ///
+  /// Returns `null` when the user has no accumulator for this preset yet
+  /// (the endpoint 404s), so the caller can seed at 0 and lazily create.
+  Future<AccumulatorDetailModel?> fetchAccumulatorDetail(String parentId) async {
+    try {
+      final response = await dio.get('/accumulators/$parentId');
+      if (response.statusCode == 200) {
+        return AccumulatorDetailModel.fromJson(
+          response.data as Map<String, dynamic>,
+        );
+      }
+      if (response.statusCode == 404) return null;
+      throw _statusToException(response.statusCode, 'Failed to load detail');
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 404) return null;
+      _logger.error('Dio error in fetchAccumulatorDetail', e);
+      throw _dioToException(e, 'Failed to load detail');
     }
   }
 
   /// `POST /accumulators/user` — create the user's accumulator for a preset.
-  Future<AccumulatorModel> createUserAccumulator({
-    required String name,
-    String? mantraId,
-    String? textId,
-    required int currentCount,
-  }) async {
+  /// Body is just `{parent_id}`; the new accumulator starts at count 0.
+  Future<AccumulatorModel> createUserAccumulator(String parentId) async {
     try {
       final response = await dio.post(
         '/accumulators/user',
-        data: {
-          'name': name,
-          'current_count': currentCount,
-          if (mantraId != null) 'mantra_id': mantraId,
-          if (textId != null) 'text_id': textId,
-        },
+        data: {'parent_id': parentId},
       );
       if (response.statusCode == 200 || response.statusCode == 201) {
         return AccumulatorModel.fromJson(response.data as Map<String, dynamic>);
@@ -89,34 +107,6 @@ class MalaRemoteDataSource {
     } on DioException catch (e) {
       _logger.error('Dio error in updateUserAccumulator', e);
       throw _dioToException(e, 'Failed to update accumulator');
-    }
-  }
-
-  Future<List<AccumulatorModel>> _fetchAllPages(String path) async {
-    try {
-      final all = <AccumulatorModel>[];
-      var skip = 0;
-      while (true) {
-        final response = await dio.get(
-          path,
-          queryParameters: {'skip': skip, 'limit': _pageSize},
-        );
-        if (response.statusCode != 200) {
-          throw _statusToException(response.statusCode, 'Failed to load $path');
-        }
-        final page = AccumulatorsResponseModel.fromJson(
-          response.data as Map<String, dynamic>,
-        );
-        all.addAll(page.accumulators);
-        skip += _pageSize;
-        if (page.accumulators.length < _pageSize || all.length >= page.total) {
-          break;
-        }
-      }
-      return all;
-    } on DioException catch (e) {
-      _logger.error('Dio error loading $path', e);
-      throw _dioToException(e, 'Failed to load $path');
     }
   }
 

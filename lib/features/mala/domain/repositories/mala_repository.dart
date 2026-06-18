@@ -4,23 +4,21 @@ import 'package:flutter_pecha/features/mala/domain/entities/mala_count.dart';
 import 'package:flutter_pecha/features/mala/domain/entities/mantra.dart';
 
 abstract class MalaRepository {
-  /// Preset accumulators joined with their localized mantra content,
-  /// from `GET /accumulators` + `GET /mantra`.
-  Future<Either<Failure, List<Mantra>>> getCatalogue();
+  /// Preset accumulators (catalogue), from `GET /accumulators/presets`.
+  /// [language] localizes the embedded mantra title/text/pronunciation.
+  Future<Either<Failure, List<Mantra>>> getCatalogue({String? language});
 
-  /// All of the current user's accumulators with their lifetime counts,
-  /// from `GET /accumulators/user`. Used to seed before counting.
-  Future<Either<Failure, List<MalaCount>>> getUserTotals();
+  /// The user's detail for one preset, from `GET /accumulators/{parent_id}`.
+  /// Returns a count of 0 with a null `accumulatorId` when the user has no
+  /// accumulator for this preset yet. Used to seed before counting.
+  Future<Either<Failure, MalaCount>> getAccumulatorDetail(String parentId);
 
-  /// Lazily create the user's own accumulator for a preset
-  /// (`POST /accumulators/user`). Returns the created count with its new id.
-  Future<Either<Failure, MalaCount>> createUserAccumulator({
-    required String name,
-    String? mantraId,
-    required int currentCount,
-  });
+  /// Create the user's accumulator for a preset (`POST /accumulators/user`,
+  /// body `{parent_id}`). The new accumulator starts at count 0; the caller
+  /// then pushes the absolute total via [updateUserAccumulator].
+  Future<Either<Failure, MalaCount>> createUserAccumulator(String parentId);
 
-  /// Send the absolute lifetime [currentCount] for an existing user
+  /// Push the absolute lifetime [currentCount] for an existing user
   /// accumulator (`PUT /accumulators/user/{id}`). Returns the stored count.
   Future<Either<Failure, MalaCount>> updateUserAccumulator({
     required String accumulatorId,

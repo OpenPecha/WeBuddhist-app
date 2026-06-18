@@ -32,7 +32,7 @@ class MalaSyncManager with WidgetsBindingObserver {
     required CreateUserAccumulatorUseCase createAccumulator,
     required UpdateUserAccumulatorUseCase updateAccumulator,
     required bool Function() isLoggedIn,
-    required String? Function() currentUserId,
+    required Future<String?> Function() currentUserId,
     Stream<bool>? connectivityStream,
     AnalyticsService? analytics,
   })  : _local = local,
@@ -47,7 +47,7 @@ class MalaSyncManager with WidgetsBindingObserver {
   final CreateUserAccumulatorUseCase _createAccumulator;
   final UpdateUserAccumulatorUseCase _updateAccumulator;
   final bool Function() _isLoggedIn;
-  final String? Function() _currentUserId;
+  final Future<String?> Function() _currentUserId;
   final Stream<bool>? _connectivityStream;
   final AnalyticsService? _analytics;
 
@@ -107,7 +107,7 @@ class MalaSyncManager with WidgetsBindingObserver {
   /// absolute total is a no-op on the server, so retries are always safe.
   Future<void> flush(SyncReason reason) async {
     if (!_isLoggedIn()) return;
-    final userId = _currentUserId();
+    final userId = await _currentUserId();
     if (userId == null || userId.isEmpty) return;
 
     if (_isSyncing) {
@@ -122,21 +122,37 @@ class MalaSyncManager with WidgetsBindingObserver {
         final s = _local.read(userId, presetId);
         if (!s.isDirty) continue;
 
-        final sending = s.total; // capture before the network round-trip
-        final result = s.accumulatorId == null
-            ? await _createAccumulator(
-                CreateUserAccumulatorParams(
-                  name: s.name ?? presetId,
-                  mantraId: s.mantraId,
-                  currentCount: sending,
-                ),
-              )
-            : await _updateAccumulator(
-                UpdateUserAccumulatorParams(
-                  accumulatorId: s.accumulatorId!,
-                  currentCount: sending,
-                ),
+        // First time only: mint the accumulator once via POST {parent_id}.
+        // The new accumulator starts at 0; the absolute total is pushed by the
+        // PUT below. Thereafter accumulatorId is non-null and we PUT only.
+        var accumulatorId = s.accumulatorId;
+        if (accumulatorId == null) {
+          final created = await _createAccumulator(presetId);
+          accumulatorId = created.fold(
+            (failure) => throw Exception(failure.message), // keep dirty; retry
+            (count) {
+              _local.write(
+                userId,
+                presetId,
+                _local.read(userId, presetId).copyWith(
+                      accumulatorId: count.accumulatorId,
+                    ),
               );
+              return count.accumulatorId;
+            },
+          );
+          if (accumulatorId == null) {
+            throw Exception('Create returned no accumulator id');
+          }
+        }
+
+        final sending = s.total; // capture before the network round-trip
+        final result = await _updateAccumulator(
+          UpdateUserAccumulatorParams(
+            accumulatorId: accumulatorId,
+            currentCount: sending,
+          ),
+        );
 
         result.fold(
           (failure) => throw Exception(failure.message), // keep dirty; retry
@@ -149,13 +165,13 @@ class MalaSyncManager with WidgetsBindingObserver {
               after.copyWith(
                 total: max(after.total, count.total),
                 syncedTotal: max(count.total, sending),
-                accumulatorId: count.accumulatorId,
+                accumulatorId: count.accumulatorId ?? accumulatorId,
               ),
             );
             _analytics?.track(
               AnalyticsEvents.malaSynced,
               properties: {
-                'accumulatorId': count.accumulatorId,
+                'accumulatorId': count.accumulatorId ?? accumulatorId,
                 'total': max(count.total, sending),
               },
             );

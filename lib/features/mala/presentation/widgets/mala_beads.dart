@@ -1,18 +1,21 @@
 import 'dart:ui' as ui;
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 /// Default bead artwork bundled with the app, used until/unless the backend
 /// supplies a per-mantra bead image on the accumulator.
-const String kFallbackBeadAsset = 'assets/beads/bead-1.png';
+const String kFallbackBeadAsset = 'assets/images/beads/bead-1.png';
 
-/// A tappable arc of prayer beads that advances **forward only**.
+/// A tappable strand of prayer beads that advances **forward only**.
 ///
-/// The whole region is tappable (`HitTestBehavior.opaque`). Each increment
-/// runs one short forward animation — the strand slides one slot along the
-/// arc and the apex bead pulses. Because counting is monotonic, the animation
-/// never plays in reverse; on a round wrap the [total] keeps growing, so the
-/// strand simply keeps sliding forward.
+/// The strand bends from the top-right down to the bottom-left along a red
+/// thread, with one fixed gap (the counting point, right-of-centre) where the
+/// thread shows through. The whole region is tappable
+/// (`HitTestBehavior.opaque`). Each increment slides the strand one bead from
+/// **right to left**: the front bead on the right crosses the gap to join the
+/// left pile and a new bead enters from the top-right. Counting is monotonic,
+/// so the motion never reverses.
 ///
 /// Beads render the [beadImageUrl] image when present, otherwise the bundled
 /// [kFallbackBeadAsset]; a drawn gradient bead shows while the image loads.
@@ -84,7 +87,8 @@ class _MalaBeadsState extends State<MalaBeads>
   void _resolveBeadImage({bool forceAsset = false}) {
     final ImageProvider provider =
         (!forceAsset && (widget.beadImageUrl?.isNotEmpty ?? false))
-            ? NetworkImage(widget.beadImageUrl!)
+            // Cached on disk so the bead renders offline on later launches.
+            ? CachedNetworkImageProvider(widget.beadImageUrl!)
             : const AssetImage(kFallbackBeadAsset);
 
     final stream = provider.resolve(ImageConfiguration.empty);
@@ -134,14 +138,10 @@ class _MalaBeadsState extends State<MalaBeads>
         builder: (context, _) {
           final curved = Curves.easeOut.transform(_controller.value);
           final phase = _phaseFrom + (_phaseTo - _phaseFrom) * curved;
-          // Pulse the apex bead near the start of the step.
-          final pulse =
-              (1 - _controller.value) * (_phaseTo - _phaseFrom).clamp(0, 1);
           return CustomPaint(
             size: Size.infinite,
             painter: _MalaBeadsPainter(
               phase: phase,
-              pulse: pulse.toDouble(),
               beadColor: widget.beadColor,
               threadColor: widget.threadColor,
               beadImage: _beadImage,
@@ -156,7 +156,6 @@ class _MalaBeadsState extends State<MalaBeads>
 class _MalaBeadsPainter extends CustomPainter {
   _MalaBeadsPainter({
     required this.phase,
-    required this.pulse,
     required this.beadColor,
     required this.threadColor,
     this.beadImage,
@@ -164,71 +163,138 @@ class _MalaBeadsPainter extends CustomPainter {
 
   /// Continuous slot position (the absolute count, eased).
   final double phase;
-
-  /// 0..1 emphasis applied to the apex bead right after a tap.
-  final double pulse;
   final Color beadColor;
   final Color threadColor;
 
   /// Bead artwork (network or bundled asset). Null while loading.
   final ui.Image? beadImage;
 
-  /// Beads drawn across the arc (odd, so one sits at the apex).
-  static const int _visible = 9;
+  /// Candidate beads laid out along the strand; off-strand ones are skipped and
+  /// any overflow past the edges is clipped.
+  static const int _from = -9;
+  static const int _to = 9;
+
+  /// Arc position (0..1) of the gap's left edge — keeps the gap right-of-centre.
+  static const double _focalT = 0.56;
+
+  /// Bead radius as a fraction of the available width.
+  static const double _radiusFactor = 0.075;
+
+  /// Centre-to-centre spacing as a multiple of the radius (≈ touching).
+  static const double _spacingFactor = 1.95;
+
+  /// Extra empty bead-steps of thread at the single gap.
+  static const double _gap = 1.0;
+
+  static double _smoothstep(double x) {
+    final t = x.clamp(0.0, 1.0);
+    return t * t * (3 - 2 * t);
+  }
 
   @override
   void paint(Canvas canvas, Size size) {
     final w = size.width;
     final h = size.height;
 
-    // A gentle downward arc (a "smile") the beads ride along.
-    final p0 = Offset(w * 0.04, h * 0.30);
-    final p1 = Offset(w * 0.5, h * 0.95);
-    final p2 = Offset(w * 0.96, h * 0.30);
+    // Cut any overflow at the edges, like the design (no overlap-clustering).
+    canvas.clipRect(Offset.zero & size);
+
+    // Strand sweeps from bottom-left (t=0) up to top-right (t=1). The control
+    // point sits above the chord so the arc bows *outward* (convex toward the
+    // bottom-right), matching the design — flat near the top-right, steepening
+    // toward the bottom-left.
+    final a = Offset(w * -0.06, h * 0.88); // bottom-left, off-screen
+    final c = Offset(w * 0.40, h * 0.40); // control (outward bow)
+    final b = Offset(w * 1.06, h * 0.34); // top-right, off-screen
 
     Offset bezier(double t) {
       final mt = 1 - t;
-      final x = mt * mt * p0.dx + 2 * mt * t * p1.dx + t * t * p2.dx;
-      final y = mt * mt * p0.dy + 2 * mt * t * p1.dy + t * t * p2.dy;
-      return Offset(x, y);
+      return Offset(
+        mt * mt * a.dx + 2 * mt * t * c.dx + t * t * b.dx,
+        mt * mt * a.dy + 2 * mt * t * c.dy + t * t * b.dy,
+      );
     }
 
-    // Thread.
+    // Red mala thread.
     final threadPaint = Paint()
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 2.5
-      ..color = threadColor.withValues(alpha: 0.6)
+      ..strokeWidth = 3
+      ..color = threadColor.withValues(alpha: 0.9)
       ..strokeCap = StrokeCap.round;
-    final threadPath = Path()
-      ..moveTo(p0.dx, p0.dy)
-      ..quadraticBezierTo(p1.dx, p1.dy, p2.dx, p2.dy);
-    canvas.drawPath(threadPath, threadPaint);
+    canvas.drawPath(
+      Path()
+        ..moveTo(a.dx, a.dy)
+        ..quadraticBezierTo(c.dx, c.dy, b.dx, b.dy),
+      threadPaint,
+    );
 
-    final frac = phase - phase.floorToDouble(); // continuous slide within a slot
-    const apex = _visible ~/ 2;
+    // Arc-length table over an extended range. A Bézier isn't uniform in t, so
+    // stepping beads in t bunches them where the curve is "slow" (the ends).
+    // Spacing by arc length instead keeps even on-screen gaps, and the extended
+    // range lets beads fill out to (and past) the clipped edges.
+    const int samples = 240;
+    const double tMin = -0.4;
+    const double tMax = 1.4;
+    final ts = List<double>.filled(samples + 1, 0);
+    final cum = List<double>.filled(samples + 1, 0);
+    var prev = bezier(tMin);
+    var len = 0.0;
+    ts[0] = tMin;
+    for (var k = 1; k <= samples; k++) {
+      final t = tMin + (tMax - tMin) * k / samples;
+      final pt = bezier(t);
+      len += (pt - prev).distance;
+      ts[k] = t;
+      cum[k] = len;
+      prev = pt;
+    }
+    final totalLen = len;
 
-    // Draw from the edges inward so the apex bead paints on top.
-    final order = List<int>.generate(_visible + 2, (i) => i - 1);
-    order.sort((a, b) => (b - apex).abs().compareTo((a - apex).abs()));
+    // Binary-search the table to convert between arc length and t.
+    double tAtLength(double s) {
+      if (s <= 0) return tMin;
+      if (s >= totalLen) return tMax;
+      var lo = 0, hi = samples;
+      while (lo + 1 < hi) {
+        final mid = (lo + hi) >> 1;
+        if (cum[mid] <= s) {
+          lo = mid;
+        } else {
+          hi = mid;
+        }
+      }
+      final span = cum[hi] - cum[lo];
+      final f = span <= 0 ? 0.0 : (s - cum[lo]) / span;
+      return ts[lo] + (ts[hi] - ts[lo]) * f;
+    }
 
-    for (final i in order) {
-      // Slide the whole strand by the fractional phase for continuous motion.
-      final slot = i + (1 - frac);
-      final t = slot / (_visible - 1);
-      if (t < -0.05 || t > 1.05) continue;
+    double lengthAtT(double t) {
+      final f = ((t - tMin) / (tMax - tMin) * samples).clamp(0.0, samples * 1.0);
+      final lo = f.floor();
+      final hi = (lo + 1).clamp(0, samples);
+      return cum[lo] + (cum[hi] - cum[lo]) * (f - lo);
+    }
 
-      final center = bezier(t.clamp(0.0, 1.0));
-      final distFromApex = (slot - apex).abs();
-      // Apex beads largest; taper toward the ends.
-      final scale = (1.0 - (distFromApex / (_visible)) * 0.55).clamp(0.4, 1.0);
-      final isApex = distFromApex < 0.5;
-      final radius = (h * 0.16) * scale * (isApex ? 1 + 0.18 * pulse : 1);
+    final radius = w * _radiusFactor;
+    final spacing = radius * _spacingFactor;
+    final sFocal = lengthAtT(_focalT);
+    final frac = phase - phase.floorToDouble(); // continuous slide within a step
 
-      _drawBead(canvas, center, radius, isApex);
+    // Draw right (far, top) first so left (near, bottom) beads layer on top.
+    for (var i = _to; i >= _from; i--) {
+      // Slot slides left as [frac] grows → right-to-left motion, forward only.
+      final slot = i - frac;
+      // Insert one gap right of slot 0: beads at slot>=1 sit a full [_gap] to
+      // the right; a crossing bead (0<slot<1) glides smoothly through it.
+      final p = slot + _gap * _smoothstep(slot);
+      final s = sFocal + p * spacing;
+      if (s < -spacing || s > totalLen + spacing) continue;
+
+      _drawBead(canvas, bezier(tAtLength(s)), radius);
     }
   }
 
-  void _drawBead(Canvas canvas, Offset center, double radius, bool isApex) {
+  void _drawBead(Canvas canvas, Offset center, double radius) {
     // Drop shadow.
     canvas.drawCircle(
       center.translate(0, radius * 0.18),
@@ -242,18 +308,7 @@ class _MalaBeadsPainter extends CustomPainter {
     if (image != null) {
       _drawBeadImage(canvas, image, center, radius);
     } else {
-      _drawDrawnBead(canvas, center, radius, isApex);
-    }
-
-    if (isApex) {
-      canvas.drawCircle(
-        center,
-        radius,
-        Paint()
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = 1.5
-          ..color = Colors.white.withValues(alpha: 0.7),
-      );
+      _drawDrawnBead(canvas, center, radius);
     }
   }
 
@@ -282,8 +337,8 @@ class _MalaBeadsPainter extends CustomPainter {
   }
 
   /// Gradient fallback bead, shown only while the image is loading.
-  void _drawDrawnBead(Canvas canvas, Offset center, double radius, bool isApex) {
-    final base = isApex ? beadColor : beadColor.withValues(alpha: 0.85);
+  void _drawDrawnBead(Canvas canvas, Offset center, double radius) {
+    final base = beadColor;
     final gradient = RadialGradient(
       center: const Alignment(-0.4, -0.5),
       colors: [
@@ -309,7 +364,6 @@ class _MalaBeadsPainter extends CustomPainter {
   @override
   bool shouldRepaint(covariant _MalaBeadsPainter old) =>
       old.phase != phase ||
-      old.pulse != pulse ||
       old.beadColor != beadColor ||
       old.threadColor != threadColor ||
       old.beadImage != beadImage;

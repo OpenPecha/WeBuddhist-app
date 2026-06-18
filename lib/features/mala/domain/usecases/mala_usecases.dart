@@ -5,52 +5,35 @@ import 'package:flutter_pecha/features/mala/domain/entities/mantra.dart';
 import 'package:flutter_pecha/features/mala/domain/repositories/mala_repository.dart';
 import 'package:flutter_pecha/shared/domain/base_classes/usecase.dart';
 
-/// Loads the preset catalogue (mantras joined with content).
-class GetCatalogueUseCase extends UseCase<List<Mantra>, NoParams> {
+/// Loads the preset catalogue. The parameter is the language code used to
+/// localize the embedded mantra content (null = server default).
+class GetCatalogueUseCase extends UseCase<List<Mantra>, String?> {
   GetCatalogueUseCase(this._repository);
   final MalaRepository _repository;
 
   @override
-  Future<Either<Failure, List<Mantra>>> call(NoParams params) =>
-      _repository.getCatalogue();
+  Future<Either<Failure, List<Mantra>>> call(String? language) =>
+      _repository.getCatalogue(language: language);
 }
 
-/// Loads all of the current user's accumulator totals (for seeding).
-class GetUserTotalsUseCase extends UseCase<List<MalaCount>, NoParams> {
-  GetUserTotalsUseCase(this._repository);
+/// Seeds the user's count for one preset (`GET /accumulators/{parent_id}`).
+class GetAccumulatorDetailUseCase extends UseCase<MalaCount, String> {
+  GetAccumulatorDetailUseCase(this._repository);
   final MalaRepository _repository;
 
   @override
-  Future<Either<Failure, List<MalaCount>>> call(NoParams params) =>
-      _repository.getUserTotals();
+  Future<Either<Failure, MalaCount>> call(String parentId) =>
+      _repository.getAccumulatorDetail(parentId);
 }
 
-class CreateUserAccumulatorParams {
-  const CreateUserAccumulatorParams({
-    required this.name,
-    this.mantraId,
-    required this.currentCount,
-  });
-  final String name;
-  final String? mantraId;
-  final int currentCount;
-}
-
-/// Lazily creates the user's accumulator for a preset on first sync.
-class CreateUserAccumulatorUseCase
-    extends UseCase<MalaCount, CreateUserAccumulatorParams> {
+/// Lazily creates the user's accumulator for a preset (once, on first sync).
+class CreateUserAccumulatorUseCase extends UseCase<MalaCount, String> {
   CreateUserAccumulatorUseCase(this._repository);
   final MalaRepository _repository;
 
   @override
-  Future<Either<Failure, MalaCount>> call(
-    CreateUserAccumulatorParams params,
-  ) =>
-      _repository.createUserAccumulator(
-        name: params.name,
-        mantraId: params.mantraId,
-        currentCount: params.currentCount,
-      );
+  Future<Either<Failure, MalaCount>> call(String parentId) =>
+      _repository.createUserAccumulator(parentId);
 }
 
 class UpdateUserAccumulatorParams {

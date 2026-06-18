@@ -1,64 +1,117 @@
 import 'package:equatable/equatable.dart';
-import 'package:flutter_pecha/features/mala/domain/entities/mantra_content.dart';
 
 /// Standard beads in one mala round. Not exposed by the API, so it is fixed
 /// here. (`target_count` on the accumulator is a separate lifetime goal.)
 const int kBeadsPerRound = 108;
 
-/// A mantra the user can accumulate — a **preset accumulator**
-/// (`GET /accumulators`) joined with its localized [content] (`GET /mantra`).
-///
-/// [presetId] is the preset accumulator's id; it is used as the local
-/// namespacing key and as the source for lazily creating the user's own
-/// accumulator on first tap. The user-owned accumulator id (needed for
-/// PUT/DELETE) is tracked separately in the local store, not here.
-class Mantra extends Equatable {
-  final String presetId;
+/// One localized rendering of an accumulator's display text
+/// (`AccumulatorMetadataDTO` — `{language, name, description}`).
+class AccumulatorMetadata extends Equatable {
+  final String language;
   final String name;
   final String? description;
-  final String? mantraId;
-  final int? targetCount;
 
-  /// Bead artwork URL. The backend will add this to `GET /accumulators`;
-  /// null-safe until then (UI falls back to a drawn bead).
-  final String? beadImageUrl;
-
-  /// Localized mantra text, joined by [mantraId]. Null if no match.
-  final MantraContent? content;
-
-  const Mantra({
-    required this.presetId,
+  const AccumulatorMetadata({
+    required this.language,
     required this.name,
     this.description,
-    this.mantraId,
-    this.targetCount,
-    this.beadImageUrl,
-    this.content,
   });
 
-  int get beadsPerRound => kBeadsPerRound;
+  @override
+  List<Object?> get props => [language, name, description];
+}
 
-  /// Large Tibetan script for the mantra, if available.
-  String? get tibetan => content?.tibetan?.text;
+/// The mantra content embedded in a preset (`PresetMantraDTO`). The server
+/// localizes [text]/[title]/[pronunciation] by the `language` query param.
+class MantraText extends Equatable {
+  final String id;
 
-  /// Transliteration in [language] (falls back to English, then anything).
-  String? transliteration(String language) =>
-      content?.localized(language)?.transliteration;
+  /// The mantra script itself (e.g. the stacked Tibetan glyphs).
+  final String text;
 
-  /// Meaning in [language] (falls back to English, then anything).
-  String? meaning(String language) => content?.localized(language)?.meaning;
+  final String? title;
 
-  Mantra copyWith({MantraContent? content}) => Mantra(
-        presetId: presetId,
-        name: name,
-        description: description,
-        mantraId: mantraId,
-        targetCount: targetCount,
-        beadImageUrl: beadImageUrl,
-        content: content ?? this.content,
-      );
+  /// Transliteration line (e.g. "Om Mani Padme Hum").
+  final String? pronunciation;
+
+  final String? audioUrl;
+  final String? beadImageUrl;
+
+  const MantraText({
+    required this.id,
+    required this.text,
+    this.title,
+    this.pronunciation,
+    this.audioUrl,
+    this.beadImageUrl,
+  });
 
   @override
   List<Object?> get props =>
-      [presetId, name, description, mantraId, targetCount, beadImageUrl, content];
+      [id, text, title, pronunciation, audioUrl, beadImageUrl];
+}
+
+/// A mantra the user can accumulate — a **preset accumulator**
+/// (`GET /accumulators/presets`).
+///
+/// [presetId] is the preset's id, used as the local namespacing key and as the
+/// `parent_id` when lazily creating the user's own accumulator. The user-owned
+/// accumulator id (needed for PUT) is tracked separately in the local store.
+///
+/// The localized display name/description come from [metadata]; the large
+/// mantra script and transliteration come from the embedded [mantra]
+/// (`PresetMantraDTO`), already localized by the catalogue's `language` query.
+class Mantra extends Equatable {
+  final String presetId;
+  final int? targetCount;
+
+  /// Bead artwork URL (`mala_image_url`). Null-safe — UI falls back to the
+  /// bundled bead asset.
+  final String? beadImageUrl;
+
+  final List<AccumulatorMetadata> metadata;
+
+  /// Embedded mantra content (script, transliteration, audio).
+  final MantraText? mantra;
+
+  const Mantra({
+    required this.presetId,
+    this.targetCount,
+    this.beadImageUrl,
+    this.metadata = const [],
+    this.mantra,
+  });
+
+  String? get mantraId => mantra?.id;
+
+  int get beadsPerRound => kBeadsPerRound;
+
+  /// Localized display name (falls back to English, then anything, then id).
+  String localizedName(String language) =>
+      (_byLanguage(language) ?? _byLanguage('en') ??
+              (metadata.isNotEmpty ? metadata.first : null))
+          ?.name ??
+      mantra?.title ??
+      presetId;
+
+  String? description(String language) =>
+      (_byLanguage(language) ?? _byLanguage('en'))?.description;
+
+  /// The large mantra script (e.g. stacked Tibetan glyphs).
+  String? get tibetan => mantra?.text;
+
+  /// Transliteration line. Already localized server-side via the catalogue's
+  /// `language` query, so [language] is accepted for API symmetry but unused.
+  String? transliteration(String language) => mantra?.pronunciation;
+
+  AccumulatorMetadata? _byLanguage(String language) {
+    for (final m in metadata) {
+      if (m.language.toLowerCase() == language.toLowerCase()) return m;
+    }
+    return null;
+  }
+
+  @override
+  List<Object?> get props =>
+      [presetId, targetCount, beadImageUrl, metadata, mantra];
 }

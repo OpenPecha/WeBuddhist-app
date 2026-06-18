@@ -4,21 +4,20 @@
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'dart:async' as _i3;
-import 'dart:ui' as _i10;
+import 'dart:ui' as _i9;
 
-import 'package:flutter/services.dart' as _i11;
-import 'package:flutter/widgets.dart' as _i12;
+import 'package:flutter/services.dart' as _i10;
+import 'package:flutter/widgets.dart' as _i11;
 import 'package:flutter_pecha/core/error/failures.dart' as _i5;
 import 'package:flutter_pecha/features/mala/domain/entities/mala_count.dart'
     as _i6;
 import 'package:flutter_pecha/features/mala/domain/usecases/mala_usecases.dart'
     as _i2;
 import 'package:flutter_pecha/features/mala/presentation/providers/mala_sync_manager.dart'
-    as _i9;
-import 'package:flutter_pecha/shared/domain/base_classes/usecase.dart' as _i7;
+    as _i8;
 import 'package:fpdart/fpdart.dart' as _i4;
 import 'package:mockito/mockito.dart' as _i1;
-import 'package:mockito/src/dummies.dart' as _i8;
+import 'package:mockito/src/dummies.dart' as _i7;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -35,36 +34,34 @@ import 'package:mockito/src/dummies.dart' as _i8;
 // ignore_for_file: subtype_of_sealed_class
 // ignore_for_file: invalid_use_of_internal_member
 
-/// A class which mocks [GetUserTotalsUseCase].
+/// A class which mocks [GetAccumulatorDetailUseCase].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockGetUserTotalsUseCase extends _i1.Mock
-    implements _i2.GetUserTotalsUseCase {
-  MockGetUserTotalsUseCase() {
+class MockGetAccumulatorDetailUseCase extends _i1.Mock
+    implements _i2.GetAccumulatorDetailUseCase {
+  MockGetAccumulatorDetailUseCase() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i3.Future<_i4.Either<_i5.Failure, List<_i6.MalaCount>>> call(
-    _i7.NoParams? params,
-  ) =>
+  _i3.Future<_i4.Either<_i5.Failure, _i6.MalaCount>> call(String? parentId) =>
       (super.noSuchMethod(
-            Invocation.method(#call, [params]),
+            Invocation.method(#call, [parentId]),
             returnValue:
-                _i3.Future<_i4.Either<_i5.Failure, List<_i6.MalaCount>>>.value(
-                  _i8.dummyValue<_i4.Either<_i5.Failure, List<_i6.MalaCount>>>(
+                _i3.Future<_i4.Either<_i5.Failure, _i6.MalaCount>>.value(
+                  _i7.dummyValue<_i4.Either<_i5.Failure, _i6.MalaCount>>(
                     this,
-                    Invocation.method(#call, [params]),
+                    Invocation.method(#call, [parentId]),
                   ),
                 ),
           )
-          as _i3.Future<_i4.Either<_i5.Failure, List<_i6.MalaCount>>>);
+          as _i3.Future<_i4.Either<_i5.Failure, _i6.MalaCount>>);
 }
 
 /// A class which mocks [MalaSyncManager].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockMalaSyncManager extends _i1.Mock implements _i9.MalaSyncManager {
+class MockMalaSyncManager extends _i1.Mock implements _i8.MalaSyncManager {
   MockMalaSyncManager() {
     _i1.throwOnMissingStub(this);
   }
@@ -88,14 +85,14 @@ class MockMalaSyncManager extends _i1.Mock implements _i9.MalaSyncManager {
   );
 
   @override
-  void didChangeAppLifecycleState(_i10.AppLifecycleState? state) =>
+  void didChangeAppLifecycleState(_i9.AppLifecycleState? state) =>
       super.noSuchMethod(
         Invocation.method(#didChangeAppLifecycleState, [state]),
         returnValueForMissingStub: null,
       );
 
   @override
-  _i3.Future<void> flush(_i9.SyncReason? reason) =>
+  _i3.Future<void> flush(_i8.SyncReason? reason) =>
       (super.noSuchMethod(
             Invocation.method(#flush, [reason]),
             returnValue: _i3.Future<void>.value(),
@@ -112,7 +109,7 @@ class MockMalaSyncManager extends _i1.Mock implements _i9.MalaSyncManager {
           as _i3.Future<bool>);
 
   @override
-  bool handleStartBackGesture(_i11.PredictiveBackEvent? backEvent) =>
+  bool handleStartBackGesture(_i10.PredictiveBackEvent? backEvent) =>
       (super.noSuchMethod(
             Invocation.method(#handleStartBackGesture, [backEvent]),
             returnValue: false,
@@ -120,7 +117,7 @@ class MockMalaSyncManager extends _i1.Mock implements _i9.MalaSyncManager {
           as bool);
 
   @override
-  void handleUpdateBackGestureProgress(_i11.PredictiveBackEvent? backEvent) =>
+  void handleUpdateBackGestureProgress(_i10.PredictiveBackEvent? backEvent) =>
       super.noSuchMethod(
         Invocation.method(#handleUpdateBackGestureProgress, [backEvent]),
         returnValueForMissingStub: null,
@@ -148,7 +145,7 @@ class MockMalaSyncManager extends _i1.Mock implements _i9.MalaSyncManager {
 
   @override
   _i3.Future<bool> didPushRouteInformation(
-    _i12.RouteInformation? routeInformation,
+    _i11.RouteInformation? routeInformation,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#didPushRouteInformation, [routeInformation]),
@@ -175,26 +172,26 @@ class MockMalaSyncManager extends _i1.Mock implements _i9.MalaSyncManager {
   );
 
   @override
-  void didChangeLocales(List<_i10.Locale>? locales) => super.noSuchMethod(
+  void didChangeLocales(List<_i9.Locale>? locales) => super.noSuchMethod(
     Invocation.method(#didChangeLocales, [locales]),
     returnValueForMissingStub: null,
   );
 
   @override
-  void didChangeViewFocus(_i10.ViewFocusEvent? event) => super.noSuchMethod(
+  void didChangeViewFocus(_i9.ViewFocusEvent? event) => super.noSuchMethod(
     Invocation.method(#didChangeViewFocus, [event]),
     returnValueForMissingStub: null,
   );
 
   @override
-  _i3.Future<_i10.AppExitResponse> didRequestAppExit() =>
+  _i3.Future<_i9.AppExitResponse> didRequestAppExit() =>
       (super.noSuchMethod(
             Invocation.method(#didRequestAppExit, []),
-            returnValue: _i3.Future<_i10.AppExitResponse>.value(
-              _i10.AppExitResponse.exit,
+            returnValue: _i3.Future<_i9.AppExitResponse>.value(
+              _i9.AppExitResponse.exit,
             ),
           )
-          as _i3.Future<_i10.AppExitResponse>);
+          as _i3.Future<_i9.AppExitResponse>);
 
   @override
   void didHaveMemoryPressure() => super.noSuchMethod(

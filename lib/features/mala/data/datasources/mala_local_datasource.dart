@@ -9,23 +9,23 @@ final _logger = AppLogger('MalaLocalDataSource');
 ///
 /// Numbers: the monotonic local [total] and the server-confirmed
 /// [syncedTotal]. [accumulatorId] is the user-owned accumulator id (null until
-/// it has been created on the backend). [name] and [mantraId] are cached so a
-/// background flush can lazily POST-create the accumulator without needing the
-/// catalogue loaded.
+/// it has been created on the backend). A background flush only needs the
+/// preset id (the Hive key) to create, so nothing else is cached here.
 class LocalMalaState {
   const LocalMalaState({
     this.total = 0,
     this.syncedTotal = 0,
     this.accumulatorId,
-    this.name,
-    this.mantraId,
+    this.beadImageUrl,
   });
 
   final int total;
   final int syncedTotal;
   final String? accumulatorId;
-  final String? name;
-  final String? mantraId;
+
+  /// Cached bead-image URL so the strand can render offline on a cold start,
+  /// before the seed network call returns.
+  final String? beadImageUrl;
 
   bool get isDirty => total > syncedTotal;
 
@@ -33,31 +33,27 @@ class LocalMalaState {
     int? total,
     int? syncedTotal,
     String? accumulatorId,
-    String? name,
-    String? mantraId,
+    String? beadImageUrl,
   }) =>
       LocalMalaState(
         total: total ?? this.total,
         syncedTotal: syncedTotal ?? this.syncedTotal,
         accumulatorId: accumulatorId ?? this.accumulatorId,
-        name: name ?? this.name,
-        mantraId: mantraId ?? this.mantraId,
+        beadImageUrl: beadImageUrl ?? this.beadImageUrl,
       );
 
   Map<String, dynamic> toJson() => {
         'total': total,
         'syncedTotal': syncedTotal,
         if (accumulatorId != null) 'accumulatorId': accumulatorId,
-        if (name != null) 'name': name,
-        if (mantraId != null) 'mantraId': mantraId,
+        if (beadImageUrl != null) 'beadImageUrl': beadImageUrl,
       };
 
   factory LocalMalaState.fromJson(Map<String, dynamic> j) => LocalMalaState(
         total: (j['total'] as num?)?.toInt() ?? 0,
         syncedTotal: (j['syncedTotal'] as num?)?.toInt() ?? 0,
         accumulatorId: j['accumulatorId'] as String?,
-        name: j['name'] as String?,
-        mantraId: j['mantraId'] as String?,
+        beadImageUrl: j['beadImageUrl'] as String?,
       );
 }
 

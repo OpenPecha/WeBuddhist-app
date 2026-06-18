@@ -16,15 +16,21 @@ class MalaCount extends Equatable {
   /// Lifetime `current_count`.
   final int total;
 
+  /// Per-user bead artwork (`mala_image_url`), when the user has customized it.
+  /// Null falls back to the preset/mantra image.
+  final String? beadImageUrl;
+
   final DateTime? updatedAt;
 
   const MalaCount({
     this.accumulatorId,
     this.mantraId,
     required this.total,
+    this.beadImageUrl,
     this.updatedAt,
   });
 
   @override
-  List<Object?> get props => [accumulatorId, mantraId, total, updatedAt];
+  List<Object?> get props =>
+      [accumulatorId, mantraId, total, beadImageUrl, updatedAt];
 }

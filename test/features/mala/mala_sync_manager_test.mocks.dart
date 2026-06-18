@@ -39,16 +39,14 @@ class MockCreateUserAccumulatorUseCase extends _i1.Mock
   }
 
   @override
-  _i3.Future<_i4.Either<_i5.Failure, _i6.MalaCount>> call(
-    _i2.CreateUserAccumulatorParams? params,
-  ) =>
+  _i3.Future<_i4.Either<_i5.Failure, _i6.MalaCount>> call(String? parentId) =>
       (super.noSuchMethod(
-            Invocation.method(#call, [params]),
+            Invocation.method(#call, [parentId]),
             returnValue:
                 _i3.Future<_i4.Either<_i5.Failure, _i6.MalaCount>>.value(
                   _i7.dummyValue<_i4.Either<_i5.Failure, _i6.MalaCount>>(
                     this,
-                    Invocation.method(#call, [params]),
+                    Invocation.method(#call, [parentId]),
                   ),
                 ),
           )
