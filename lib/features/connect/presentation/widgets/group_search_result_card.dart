@@ -17,7 +17,8 @@ class GroupSearchResultCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    final borderColor = isDark ? AppColors.cardBorderDark : AppColors.grey300;
+    final cardColor =
+        isDark ? AppColors.cardBackgroundDark : AppColors.cardBackgroundLight;
     final subtitleColor =
         isDark ? AppColors.textSecondaryDark : AppColors.textSecondary;
 
@@ -30,7 +31,7 @@ class GroupSearchResultCard extends StatelessWidget {
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: borderColor),
+            color: cardColor,
           ),
           child: Row(
             children: [

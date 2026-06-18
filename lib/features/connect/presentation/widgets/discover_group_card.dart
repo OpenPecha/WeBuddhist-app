@@ -21,10 +21,11 @@ class DiscoverGroupCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    final borderColor =
-        isDark ? AppColors.cardBorderDark : AppColors.grey300;
+    final borderColor = isDark ? AppColors.cardBorderDark : AppColors.grey300;
     final subtitleColor =
         isDark ? AppColors.textSecondaryDark : AppColors.textSecondary;
+    final cardColor =
+        isDark ? AppColors.cardBackgroundDark : AppColors.cardBackgroundLight;
 
     return Material(
       color: Colors.transparent,
@@ -34,8 +35,8 @@ class DiscoverGroupCard extends ConsumerWidget {
         child: Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
+            color: cardColor,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: borderColor),
           ),
           child: Row(
             children: [
@@ -177,7 +178,7 @@ class _JoinButton extends ConsumerWidget {
                 : () => _onJoinPressed(context, ref, followKey, isJoined),
         style: TextButton.styleFrom(
           backgroundColor:
-              isDark ? AppColors.surfaceVariantDark : AppColors.grey100,
+              isDark ? AppColors.cardBorderDark : AppColors.grey100,
           foregroundColor: Theme.of(context).colorScheme.onSurface,
           padding: const EdgeInsets.symmetric(horizontal: 16),
           minimumSize: Size.zero,
