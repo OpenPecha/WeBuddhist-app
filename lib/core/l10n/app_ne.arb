@@ -612,6 +612,17 @@
       }
     }
   },
+  "me_streak_share_quote": "My daily practice is growing",
+  "me_streak_days_count": "{count} days",
+  "@me_streak_days_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "share_this_streak": "Share this streak",
+  "me_streak_share_error": "Unable to share streak. Please try again",
   "delete_account_title": "खाता मेट्नुहोस्",
   "delete_account_description": "यदि तपाईंले आफ्नो खाता मेट्नुभयो भने, WeBuddhist भित्रका तपाईंका सबै जानकारी, इतिहास र वैयक्तिकृत सेटिङहरू स्थायी रूपमा हटाइनेछन्। कृपया ध्यान दिनुहोस् कि यो कार्य अपरिवर्तनीय छ। अगाडि बढ्न, तलको बटन ट्याप गर्नुहोस्।",
   "delete_account_button": "खाता मेट्नुहोस्",

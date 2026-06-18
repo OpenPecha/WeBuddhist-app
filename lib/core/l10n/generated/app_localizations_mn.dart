@@ -1317,6 +1317,21 @@ class AppLocalizationsMn extends AppLocalizations {
   }
 
   @override
+  String get me_streak_share_quote => 'My daily practice is growing';
+
+  @override
+  String me_streak_days_count(int count) {
+    return '$count days';
+  }
+
+  @override
+  String get share_this_streak => 'Share this streak';
+
+  @override
+  String get me_streak_share_error =>
+      'Unable to share streak. Please try again';
+
+  @override
   String get delete_account_title => 'Бүртгэл устгах';
 
   @override

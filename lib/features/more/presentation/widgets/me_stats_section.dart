@@ -6,7 +6,7 @@ import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/features/more/domain/entities/user_stats.dart';
 import 'package:flutter_pecha/features/more/presentation/widgets/me_streak_card.dart';
 import 'package:intl/intl.dart';
-import 'package:share_plus/share_plus.dart';
+import 'package:flutter_pecha/features/more/presentation/widgets/streak_share_sheet.dart';
 
 class MeStatsSection extends StatelessWidget {
   const MeStatsSection({super.key, required this.stats});
@@ -36,14 +36,16 @@ class MeStatsSection extends StatelessWidget {
         children: [
           Text(
             l10n.me_my_stats,
-            style: Theme.of(
-              context,
-            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+              fontWeight: FontWeight.w800,
+              fontSize: 20,
+            ),
           ),
+
           const SizedBox(height: 12),
           MeStreakCard(
             streak: stats.streak,
-            onShare: () => _shareStreak(context),
+            onTap: () => showStreakShareSheet(context, stats.streak),
           ),
           const SizedBox(height: _cardSpacing),
           Row(
@@ -73,7 +75,8 @@ class MeStatsSection extends StatelessWidget {
                     color: Theme.of(context).colorScheme.onSurface,
                   ),
                   value: _formatCompactCount(
-                    (stats.totalTimerSeconds / 60).round(),
+                    // API field is named total_timer_seconds but value is ms.
+                    (stats.totalTimerSeconds / 60000).round(),
                     locale,
                   ),
                   unit: l10n.me_minutes,
@@ -88,15 +91,6 @@ class MeStatsSection extends StatelessWidget {
             cardColor: cardColor,
           ),
         ],
-      ),
-    );
-  }
-
-  void _shareStreak(BuildContext context) {
-    final l10n = context.l10n;
-    SharePlus.instance.share(
-      ShareParams(
-        text: l10n.me_streak_share_message(stats.streak.current, l10n.appTitle),
       ),
     );
   }
@@ -175,9 +169,9 @@ class _StatCard extends StatelessWidget {
                   ),
                   TextSpan(
                     text: ' $unit',
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: AppColors.grey600,
-                    ),
+                    style: Theme.of(
+                      context,
+                    ).textTheme.bodySmall?.copyWith(color: AppColors.grey600),
                   ),
                 ],
               ),

@@ -2422,6 +2422,30 @@ abstract class AppLocalizations {
   /// **'I\'m on a {count}-day streak on {appName}!'**
   String me_streak_share_message(int count, String appName);
 
+  /// No description provided for @me_streak_share_quote.
+  ///
+  /// In en, this message translates to:
+  /// **'My daily practice is growing'**
+  String get me_streak_share_quote;
+
+  /// No description provided for @me_streak_days_count.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} days'**
+  String me_streak_days_count(int count);
+
+  /// No description provided for @share_this_streak.
+  ///
+  /// In en, this message translates to:
+  /// **'Share this streak'**
+  String get share_this_streak;
+
+  /// No description provided for @me_streak_share_error.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to share streak. Please try again'**
+  String get me_streak_share_error;
+
   /// No description provided for @delete_account_title.
   ///
   /// In en, this message translates to:

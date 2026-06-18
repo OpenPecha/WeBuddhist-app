@@ -612,6 +612,17 @@
       }
     }
   },
+  "me_streak_share_quote": "My daily practice is growing",
+  "me_streak_days_count": "{count} days",
+  "@me_streak_days_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "share_this_streak": "Share this streak",
+  "me_streak_share_error": "Unable to share streak. Please try again",
   "delete_account_title": "Бүртгэл устгах",
   "delete_account_description": "Хэрэв та бүртгэлээ устгавал WeBuddhist доторх таны бүх мэдээлэл, түүх, хувийн тохиргоо бүрмөсөн устгагдана. Энэ үйлдлийг буцаах боломжгүйг анхаарна уу. Үргэлжлүүлэхийн тулд доорх товчийг дарна уу.",
   "delete_account_button": "Бүртгэл устгах",
