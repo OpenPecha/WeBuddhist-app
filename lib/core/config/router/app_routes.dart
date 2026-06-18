@@ -27,6 +27,10 @@ class AppRoutes {
   static const String notifications = '/notifications';
   static const String deleteAccount = '/delete-account';
 
+  // ========== MALA ROUTE ==========
+  /// Digital prayer-bead mala. Login-gated (see [_protectedBasePaths]).
+  static const String mala = '/mala';
+
   // ========== PRACTICE SUB ROUTES ==========
   static const String practiceEditRoutine = '/practice/edit-routine';
   static const String practicePlanPreview = '/practice/plans/preview';
@@ -87,6 +91,7 @@ class AppRoutes {
     profile,
     plansInfo,
     recitationDetail,
+    mala, // Mala counting is login-gated (no guest mode)
   };
 
   // ========== HELPER METHODS ==========
