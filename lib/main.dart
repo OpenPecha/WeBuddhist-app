@@ -16,6 +16,8 @@ import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/features/notifications/application/notification_sync_bootstrap.dart';
 import 'package:flutter_pecha/features/notifications/application/notification_sync_engine.dart';
 import 'package:flutter_pecha/features/notifications/data/services/notification_service.dart';
+import 'package:flutter_pecha/features/mala/data/datasources/mala_local_datasource.dart';
+import 'package:flutter_pecha/features/mala/presentation/providers/mala_providers.dart';
 import 'package:flutter_pecha/features/practice/data/datasource/routine_local_storage.dart';
 import 'package:flutter_pecha/features/practice/presentation/providers/practice_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -111,6 +113,14 @@ void main() async {
     _logger.warning('Error initializing routine local storage: $e');
   }
 
+  // Initialize mala counts local storage (per-user namespaced, not cache)
+  try {
+    await MalaLocalDataSource.init();
+    _logger.info('Mala local storage initialized');
+  } catch (e) {
+    _logger.warning('Error initializing mala local storage: $e');
+  }
+
   // Create provider container for routine storage
   final container = ProviderContainer(
     overrides: [routineLocalStorageProvider.overrideWithValue(routineStorage)],
@@ -172,6 +182,9 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
     // SpecialPlanStartedAtStore, then delegates to NotificationSyncEngine
     // for full reconciliation on every userPlansFutureProvider resolution.
     ref.watch(notificationSyncBootstrapProvider);
+    // Mala background sync — kept alive for the app lifetime so offline counts
+    // flush on lifecycle/connectivity triggers even off the mala screen.
+    ref.watch(malaSyncManagerProvider);
     NotificationService.setRouter(router);
     NotificationService().consumeLaunchNotification();
 

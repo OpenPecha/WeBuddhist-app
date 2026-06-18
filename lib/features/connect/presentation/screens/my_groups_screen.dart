@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
-import 'package:flutter_pecha/core/l10n/intl_format_locale.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/core/widgets/cached_network_image_widget.dart';
 import 'package:flutter_pecha/features/connect/presentation/providers/connect_providers.dart';
 import 'package:flutter_pecha/features/group_profile/domain/entities/group_profile.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
 
 class MyGroupsScreen extends ConsumerWidget {
   const MyGroupsScreen({super.key});
@@ -17,21 +15,42 @@ class MyGroupsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    final groups = ref.watch(myGroupsProvider).groups;
+    final myGroupsAsync = ref.watch(myGroupsProvider);
+    final pendingGroups = ref.watch(pendingJoinedGroupsProvider);
+    final pendingUnjoinedIds = ref.watch(pendingUnjoinedGroupIdsProvider);
+    final apiGroups = myGroupsAsync.valueOrNull?.groups ?? const [];
+    final groups = mergeMyGroupsWithPending(
+      apiGroups: apiGroups,
+      pendingGroups: pendingGroups,
+      pendingUnjoinedIds: pendingUnjoinedIds,
+    );
 
     return Scaffold(
       appBar: AppBar(
         scrolledUnderElevation: 0,
         title: Text(context.l10n.my_groups),
       ),
-      body: ListView.separated(
-        padding: const EdgeInsets.all(20),
-        itemCount: groups.length,
-        separatorBuilder: (_, __) => const SizedBox(height: 12),
-        itemBuilder: (context, index) {
-          return _MyGroupListTile(group: groups[index], isDark: isDark);
+      body: myGroupsAsync.when(
+        loading: () {
+          if (groups.isEmpty) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          return _buildGroupsList(groups, isDark);
         },
+        error: (error, _) => Center(child: Text('$error')),
+        data: (_) => _buildGroupsList(groups, isDark),
       ),
+    );
+  }
+
+  Widget _buildGroupsList(List<GroupProfile> groups, bool isDark) {
+    return ListView.separated(
+      padding: const EdgeInsets.all(20),
+      itemCount: groups.length,
+      separatorBuilder: (_, __) => const SizedBox(height: 12),
+      itemBuilder: (context, index) {
+        return _MyGroupListTile(group: groups[index], isDark: isDark);
+      },
     );
   }
 }
@@ -45,9 +64,10 @@ class _MyGroupListTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final borderColor = isDark ? AppColors.cardBorderDark : AppColors.grey300;
     final subtitleColor =
         isDark ? AppColors.textSecondaryDark : AppColors.textSecondary;
+    final cardColor =
+        isDark ? AppColors.cardBackgroundDark : AppColors.cardBackgroundLight;
 
     return Material(
       color: Colors.transparent,
@@ -58,7 +78,7 @@ class _MyGroupListTile extends StatelessWidget {
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: borderColor),
+            color: cardColor,
           ),
           child: Row(
             children: [

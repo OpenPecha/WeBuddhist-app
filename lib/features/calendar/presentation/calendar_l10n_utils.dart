@@ -12,21 +12,28 @@ String moonPhaseLabel(AppLocalizations l10n, MoonPhase phase) {
   switch (phase) {
     case MoonPhase.newMoon:
       return l10n.moon_phase_new_moon;
-    case MoonPhase.waxingCrescent:
-      return l10n.moon_phase_waxing_crescent;
     case MoonPhase.firstQuarter:
       return l10n.moon_phase_first_quarter;
-    case MoonPhase.waxingGibbous:
-      return l10n.moon_phase_waxing_gibbous;
     case MoonPhase.fullMoon:
       return l10n.moon_phase_full_moon;
-    case MoonPhase.waningGibbous:
-      return l10n.moon_phase_waning_gibbous;
-    case MoonPhase.lastQuarter:
-      return l10n.moon_phase_last_quarter;
-    case MoonPhase.waningCrescent:
-      return l10n.moon_phase_waning_crescent;
+    default:
+      return "";
   }
+}
+
+/// Whether a moon phase should be surfaced in the UI (home card, events list).
+bool showsMoonPhaseLabel(MoonPhase phase) {
+  return switch (phase) {
+    MoonPhase.newMoon || MoonPhase.firstQuarter || MoonPhase.fullMoon => true,
+    _ => false,
+  };
+}
+
+/// Whether an event should appear in the upcoming-events list.
+bool showsInUpcomingEvents(CalendarEvent event) {
+  if (event.kind != CalendarEventKind.lunarPhase) return true;
+  final phase = event.phase;
+  return phase != null && showsMoonPhaseLabel(phase);
 }
 
 /// Display title for an event: a localized phase name for computed lunar-phase

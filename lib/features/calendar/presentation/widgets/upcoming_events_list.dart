@@ -30,7 +30,11 @@ class _UpcomingEventsListState extends ConsumerState<UpcomingEventsList> {
     final theme = Theme.of(context);
     final l10n = context.l10n;
     final focusedMonth = ref.watch(focusedCalendarMonthProvider);
-    final events = ref.watch(monthEventsProvider(focusedMonth));
+    final events =
+        ref
+            .watch(monthEventsProvider(focusedMonth))
+            .where(showsInUpcomingEvents)
+            .toList();
     if (events.isEmpty) return const SizedBox.shrink();
 
     final canToggle = events.length > _kCollapsedEventCount;

@@ -7,7 +7,6 @@ import 'package:flutter_pecha/core/widgets/cached_network_image_widget.dart';
 import 'package:flutter_pecha/core/widgets/responsive_cover_image.dart';
 import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
 import 'package:flutter_pecha/features/auth/presentation/widgets/login_drawer.dart';
-import 'package:flutter_pecha/features/connect/presentation/providers/connect_providers.dart';
 import 'package:flutter_pecha/features/group_profile/domain/entities/group_profile.dart';
 import 'package:flutter_pecha/features/group_profile/presentation/providers/group_profile_providers.dart';
 import 'package:flutter_pecha/features/group_profile/presentation/widgets/group_profile_links_drawer.dart';
@@ -95,10 +94,6 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
             ),
           const SizedBox(height: 16),
           _buildProfileHeader(profile, isDark, lineHeight),
-          if (profile.tags.isNotEmpty) ...[
-            const SizedBox(height: 12),
-            _buildTags(profile.tags, isDark),
-          ],
           if (profile.description != null &&
               profile.description!.trim().isNotEmpty) ...[
             const SizedBox(height: 12),
@@ -109,10 +104,7 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
             _buildLinksSummary(orderedLinks, isDark, lineHeight),
           ],
           const SizedBox(height: 20),
-          _GroupFollowButton(
-            profile: profile,
-            isDark: isDark,
-          ),
+          _GroupFollowButton(profile: profile, isDark: isDark),
           const SizedBox(height: 24),
           _buildTabBar(isDark),
           const SizedBox(height: 16),
@@ -213,27 +205,6 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
     );
   }
 
-  Widget _buildTags(List<String> tags, bool isDark) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-      child: Wrap(
-        spacing: 8,
-        runSpacing: 6,
-        children:
-            tags.map((tag) {
-              return Text(
-                tag,
-                style: TextStyle(
-                  fontSize: 12,
-                  color:
-                      isDark ? AppColors.textTertiaryDark : AppColors.grey800,
-                ),
-              );
-            }).toList(),
-      ),
-    );
-  }
-
   Widget _buildDescription(String description, bool isDark) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -315,8 +286,6 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
   Widget _buildTabBar(bool isDark) {
     final labelColor =
         isDark ? AppColors.textPrimaryDark : AppColors.textPrimary;
-    final unselectedColor =
-        isDark ? AppColors.textTertiaryDark : AppColors.textSecondary;
     final dividerColor = isDark ? AppColors.grey800 : AppColors.grey300;
 
     return Column(
@@ -526,14 +495,14 @@ class _GroupFollowButton extends ConsumerWidget {
   final GroupProfile profile;
   final bool isDark;
 
-  const _GroupFollowButton({
-    required this.profile,
-    required this.isDark,
-  });
+  const _GroupFollowButton({required this.profile, required this.isDark});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final followKey = GroupFollowKey(groupId: profile.id, groupType: profile.groupType);
+    final followKey = GroupFollowKey(
+      groupId: profile.id,
+      groupType: profile.groupType,
+    );
     final followState = ref.watch(groupFollowProvider(followKey));
 
     final isFollowing = switch (followState) {
@@ -552,12 +521,8 @@ class _GroupFollowButton extends ConsumerWidget {
           onPressed:
               isLoading
                   ? null
-                  : () => _onFollowPressed(
-                    context,
-                    ref,
-                    followKey,
-                    isFollowing,
-                  ),
+                  : () =>
+                      _onFollowPressed(context, ref, followKey, isFollowing),
           style: ElevatedButton.styleFrom(
             backgroundColor:
                 isFollowing
@@ -583,7 +548,9 @@ class _GroupFollowButton extends ConsumerWidget {
                   )
                   : Text(
                     isFollowing
-                        ? (isPage ? context.l10n.following : context.l10n.joined)
+                        ? (isPage
+                            ? context.l10n.following
+                            : context.l10n.joined)
                         : (isPage ? context.l10n.follow : context.l10n.join),
                     style: const TextStyle(
                       fontSize: 16,
@@ -608,16 +575,8 @@ class _GroupFollowButton extends ConsumerWidget {
     }
 
     final notifier = ref.read(groupFollowProvider(followKey).notifier);
-    final myGroups = ref.read(myGroupsProvider.notifier);
-    final success =
-        isCurrentlyFollowing ? await notifier.unfollow() : await notifier.follow();
-
-    if (!success) return;
-
-    if (isCurrentlyFollowing) {
-      myGroups.removeGroup(profile.id);
-    } else {
-      myGroups.addGroup(profile);
-    }
+    isCurrentlyFollowing
+        ? await notifier.unfollow(connectGroup: profile)
+        : await notifier.follow(connectGroup: profile);
   }
 }
