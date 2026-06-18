@@ -1,0 +1,7 @@
+#include? "Pods/Target Support Files/Pods-Runner/Pods-Runner.release.xcconfig"
+#include "Generated.xcconfig"
+
+FLUTTER_TARGET=lib/main_dev.dart
+BUNDLE_ID=org.pecha.app.dev
+APP_NAME=[Dev] WeBuddhist
+AUTH0_SCHEME=org.pecha.app.dev
