@@ -7,7 +7,6 @@ import 'package:flutter_pecha/core/widgets/cached_network_image_widget.dart';
 import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
 import 'package:flutter_pecha/features/auth/presentation/widgets/login_drawer.dart';
 import 'package:flutter_pecha/features/group_profile/domain/entities/group_profile.dart';
-import 'package:flutter_pecha/features/connect/presentation/providers/connect_providers.dart';
 import 'package:flutter_pecha/features/group_profile/presentation/providers/group_profile_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -221,19 +220,8 @@ class _JoinButton extends ConsumerWidget {
     }
 
     final notifier = ref.read(groupFollowProvider(followKey).notifier);
-    final myGroups = ref.read(myGroupsProvider.notifier);
-    final discoverGroups = ref.read(discoverGroupsProvider.notifier);
-    final success =
-        isJoined ? await notifier.unfollow() : await notifier.follow();
-
-    if (!success) return;
-
-    if (isJoined) {
-      myGroups.removeGroup(group.id);
-      discoverGroups.addBackGroup(group);
-    } else {
-      myGroups.addGroup(group);
-      discoverGroups.removeGroup(group.id);
-    }
+    isJoined
+        ? await notifier.unfollow(connectGroup: group)
+        : await notifier.follow(connectGroup: group);
   }
 }

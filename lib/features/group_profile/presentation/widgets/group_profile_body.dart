@@ -7,7 +7,6 @@ import 'package:flutter_pecha/core/widgets/cached_network_image_widget.dart';
 import 'package:flutter_pecha/core/widgets/responsive_cover_image.dart';
 import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
 import 'package:flutter_pecha/features/auth/presentation/widgets/login_drawer.dart';
-import 'package:flutter_pecha/features/connect/presentation/providers/connect_providers.dart';
 import 'package:flutter_pecha/features/group_profile/domain/entities/group_profile.dart';
 import 'package:flutter_pecha/features/group_profile/presentation/providers/group_profile_providers.dart';
 import 'package:flutter_pecha/features/group_profile/presentation/widgets/group_profile_links_drawer.dart';
@@ -608,19 +607,8 @@ class _GroupFollowButton extends ConsumerWidget {
     }
 
     final notifier = ref.read(groupFollowProvider(followKey).notifier);
-    final myGroups = ref.read(myGroupsProvider.notifier);
-    final discoverGroups = ref.read(discoverGroupsProvider.notifier);
-    final success =
-        isCurrentlyFollowing ? await notifier.unfollow() : await notifier.follow();
-
-    if (!success) return;
-
-    if (isCurrentlyFollowing) {
-      myGroups.removeGroup(profile.id);
-      discoverGroups.addBackGroup(profile);
-    } else {
-      myGroups.addGroup(profile);
-      discoverGroups.removeGroup(profile.id);
-    }
+    isCurrentlyFollowing
+        ? await notifier.unfollow(connectGroup: profile)
+        : await notifier.follow(connectGroup: profile);
   }
 }
