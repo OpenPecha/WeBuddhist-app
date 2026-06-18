@@ -600,7 +600,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
               style: TextButton.styleFrom(
                 backgroundColor:
                     isDark
-                        ? AppColors.scaffoldBackgroundLight
+                        ? AppColors.surfaceWhite
                         : AppColors.scaffoldBackgroundDark,
                 foregroundColor:
                     isDark ? AppColors.textPrimary : AppColors.textPrimaryDark,

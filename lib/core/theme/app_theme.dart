@@ -30,7 +30,7 @@ class AppTheme {
       brightness: Brightness.light,
       fontFamily: systemFontFamily,
       textTheme: fontConfig.textTheme,
-      scaffoldBackgroundColor: AppColors.surfaceWhite,
+      scaffoldBackgroundColor: AppColors.surfaceLight,
 
       // Color scheme based on Figma design
       colorScheme: const ColorScheme.light(
@@ -40,15 +40,15 @@ class AppTheme {
         secondary: AppColors.primary,
         onSecondary: AppColors.onPrimary,
         error: AppColors.error,
-        surface: AppColors.surfaceLight,
+        surface: AppColors.surfaceWhite,
         onSurface: AppColors.textPrimary,
-        surfaceContainer: AppColors.goldAccent, // used for container bgcolor
-        outline: AppColors.goldAccent, // used for container border color
+        surfaceContainer: AppColors.surfaceWhite, // used for container bgcolor
+        outline: AppColors.greyLight, // used for container border color
       ),
 
-      // AppBar with light background
+      // AppBar with cream background matching scaffold
       appBarTheme: AppBarTheme(
-        backgroundColor: AppColors.surfaceWhite,
+        backgroundColor: AppColors.surfaceLight,
         foregroundColor: AppColors.textPrimary,
         elevation: 0,
         iconTheme: const IconThemeData(color: AppColors.textPrimary),
@@ -60,13 +60,13 @@ class AppTheme {
             ),
       ),
 
-      // Card theme with gold accent colors
+      // Card theme with white cards on cream background
       cardTheme: CardThemeData(
-        color: AppColors.goldLight,
+        color: AppColors.surfaceWhite,
         elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
-          side: const BorderSide(color: AppColors.goldAccent, width: 1),
+          side: const BorderSide(color: AppColors.greyLight, width: 1),
         ),
         margin: const EdgeInsets.all(8),
       ),

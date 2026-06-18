@@ -32,7 +32,7 @@ class CalendarDayCell extends StatelessWidget {
     } else if (isOutside) {
       fill = Colors.transparent;
     } else {
-      fill = dark ? AppColors.surfaceVariantDark : AppColors.goldAccent;
+      fill = dark ? AppColors.surfaceVariantDark : AppColors.surfaceWhite;
     }
 
     final Color primaryText =
