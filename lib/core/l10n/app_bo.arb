@@ -514,6 +514,38 @@
   "about_social_website": "Website",
   "me_guest_headline": "Access the full experience",
   "me_guest_subtitle": "Create a free account to access plans",
+  "me_my_stats": "My stats",
+  "me_day_streak": "{count}-day streak",
+  "@me_day_streak": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "me_best_streak": "Best streak: {count} days",
+  "@me_best_streak": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "me_accumulation": "Accumulation",
+  "me_counts": "counts",
+  "me_minutes": "minutes",
+  "me_days_plan_practiced_suffix": "days plan practiced",
+  "me_streak_share_message": "I'm on a {count}-day streak on {appName}!",
+  "@me_streak_share_message": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "appName": {
+        "type": "String"
+      }
+    }
+  },
   "delete_account_title": "མིང་ཐོ་བསུབ།",
   "delete_account_description": "གལ་ཏེ་ཁྱེད་ཀྱིས་རང་གི་མིང་ཐོ་འདི་གསུབ་ན། WeBuddhist ནང་གི་ཁྱེད་ཀྱི་གནས་ཚུལ་དང་། ལོ་རྒྱུས་ཀྱི་ཐོ། སྒེར་གྱི་སྒྲིག་བཀོད་བཅས་གཏན་དུ་བསུབ་འགྲོ་བ་དང་། དེ་བཞིན་འདིའི་ནང་རྒྱུན་ལྡན་གྱི་བྱེད་སྒོ་ཁག་ལ་མཉམ་ཞུགས་དང་འཆར་གཞི། ཞལ་འདེབས་རིགས་གང་ཡོད་རྣམས་ཀྱང་རྦད་དེ་བསུབ་རྒྱུ་རེད། བསུབ་རྗེས་བསྐྱར་གསོ་བྱེད་ཐབས་མེད་པས་ཐུགས་གཟབ་གནང་རོགས། བསུབ་རྒྱུ་ཡིན་ན་གཤམ་གྱི་གནོན་ཐེབས་དེར་སྣུན།",
   "delete_account_button": "མིང་ཐོ་བསུབ།",

@@ -580,6 +580,38 @@
   "about_social_website": "Вэбсайт",
   "me_guest_headline": "Бүрэн боломжийг нээ",
   "me_guest_subtitle": "Ахицаа хадгалахын тулд үнэгүй бүртгэл үүсгэнэ үү",
+  "me_my_stats": "My stats",
+  "me_day_streak": "{count}-day streak",
+  "@me_day_streak": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "me_best_streak": "Best streak: {count} days",
+  "@me_best_streak": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "me_accumulation": "Accumulation",
+  "me_counts": "counts",
+  "me_minutes": "minutes",
+  "me_days_plan_practiced_suffix": "days plan practiced",
+  "me_streak_share_message": "I'm on a {count}-day streak on {appName}!",
+  "@me_streak_share_message": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "appName": {
+        "type": "String"
+      }
+    }
+  },
   "delete_account_title": "Бүртгэл устгах",
   "delete_account_description": "Хэрэв та бүртгэлээ устгавал WeBuddhist доторх таны бүх мэдээлэл, түүх, хувийн тохиргоо бүрмөсөн устгагдана. Энэ үйлдлийг буцаах боломжгүйг анхаарна уу. Үргэлжлүүлэхийн тулд доорх товчийг дарна уу.",
   "delete_account_button": "Бүртгэл устгах",
