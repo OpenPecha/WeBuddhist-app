@@ -109,6 +109,7 @@ class AppAssets {
   static const IconData homePlans = PhosphorIconsRegular.calendarDots;
   static const IconData homeChants = PhosphorIconsRegular.bookOpenText;
   static const IconData homeTimer = PhosphorIconsRegular.timer;
+  static const IconData homeList = PhosphorIconsRegular.listChecks;
 
   // ========== GROUP & SERIES ICONS ==========
   static const IconData usersThree = PhosphorIconsRegular.usersThree;

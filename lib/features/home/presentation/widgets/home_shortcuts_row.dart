@@ -32,7 +32,7 @@ class HomeShortcutsRow extends StatelessWidget {
 
     final shortcuts = [
       _HomeShortcutItem(
-        icon: AppAssets.homePlans,
+        icon: AppAssets.homeList,
         label: l10n.home_shortcut_plans,
         onTap: onPlansTap,
       ),
@@ -96,12 +96,12 @@ class _HomeShortcutItem {
         child: AspectRatio(
           aspectRatio: 1,
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 _buildIcon(iconColor),
-                const SizedBox(height: 6),
+                const SizedBox(),
                 Expanded(
                   child: Center(
                     child: Text(
@@ -110,9 +110,9 @@ class _HomeShortcutItem {
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w500,
-                        height: 1.15,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        height: 1,
                         color: iconColor,
                       ),
                     ),
