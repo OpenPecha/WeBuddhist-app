@@ -159,7 +159,8 @@ class _MalaScreenState extends ConsumerState<MalaScreen> {
                                   // Per-user image from the accumulator detail
                                   // wins; fall back to the preset's image.
                                   beadImageUrl:
-                                      counter.beadImageUrl ?? mantra.beadImageUrl,
+                                      counter.beadImageUrl ??
+                                      mantra.beadImageUrl,
                                   beadColor: const Color(0xFF8D6E63),
                                   threadColor: const Color(0xFFC62828),
                                   onTap: notifier.incrementBead,
@@ -213,7 +214,7 @@ class _CounterBlock extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             rounds == 1 ? '1 round' : '$rounds rounds',
-            style: theme.textTheme.titleMedium?.copyWith(
+            style: theme.textTheme.titleLarge?.copyWith(
               color: color.withValues(alpha: dimmed ? 0.35 : 0.7),
             ),
           ),
@@ -242,9 +243,7 @@ class _MalaAppBar extends StatelessWidget {
             child: Center(
               child: Text(
                 title,
-                style: Theme.of(
-                  context,
-                ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600),
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
               ),
             ),
           ),

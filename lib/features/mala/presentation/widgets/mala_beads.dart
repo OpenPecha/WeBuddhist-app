@@ -181,7 +181,7 @@ class _MalaBeadsPainter extends CustomPainter {
   static const double _radiusFactor = 0.075;
 
   /// Centre-to-centre spacing as a multiple of the radius (≈ touching).
-  static const double _spacingFactor = 1.95;
+  static const double _spacingFactor = 2.0;
 
   /// Extra empty bead-steps of thread at the single gap.
   static const double _gap = 1.0;
@@ -197,7 +197,7 @@ class _MalaBeadsPainter extends CustomPainter {
     final h = size.height;
 
     // Cut any overflow at the edges, like the design (no overlap-clustering).
-    canvas.clipRect(Offset.zero & size);
+    // canvas.clipRect(Offset.zero & size);
 
     // Strand sweeps from bottom-left (t=0) up to top-right (t=1). The control
     // point sits above the chord so the arc bows *outward* (convex toward the
