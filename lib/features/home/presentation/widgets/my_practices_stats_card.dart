@@ -65,7 +65,7 @@ class MyPracticesStatsCard extends StatelessWidget {
                   children: [
                     Expanded(
                       child: _StatItem(
-                        icon: AppAssets.calendarDots,
+                        icon: AppAssets.homeList,
                         count: routineInfo.seriesCount,
                         label: l10n.home_plans,
                       ),

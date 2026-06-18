@@ -75,7 +75,11 @@ class _ShareButton extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(AppAssets.share, size: 22.0, color: colorScheme.onSurface),
+              Icon(
+                AppAssets.readerShare,
+                size: 22.0,
+                color: colorScheme.onSurface,
+              ),
               const SizedBox(width: 8.0),
               Text(
                 localizations.share,
