@@ -75,8 +75,8 @@ class MeStatsSection extends StatelessWidget {
                     color: Theme.of(context).colorScheme.onSurface,
                   ),
                   value: _formatCompactCount(
-                    // API field is named total_timer_seconds but value is ms.
-                    (stats.totalTimerSeconds / 60000).round(),
+                    // total_timer is milliseconds.
+                    (stats.totalTimer / 60000).round(),
                     locale,
                   ),
                   unit: l10n.me_minutes,

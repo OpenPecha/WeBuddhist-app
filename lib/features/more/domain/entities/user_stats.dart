@@ -17,20 +17,20 @@ class StreakStats extends Equatable {
 
 class UserStats extends Equatable {
   final StreakStats streak;
-  final int totalTimerSeconds;
+  final int totalTimer;
   final int totalAccumulated;
   final int totalPracticeDays;
 
   const UserStats({
     required this.streak,
-    required this.totalTimerSeconds,
+    required this.totalTimer,
     required this.totalAccumulated,
     required this.totalPracticeDays,
   });
 
   static const empty = UserStats(
     streak: StreakStats(current: 0, highest: 0, week: []),
-    totalTimerSeconds: 0,
+    totalTimer: 0,
     totalAccumulated: 0,
     totalPracticeDays: 0,
   );
@@ -38,7 +38,7 @@ class UserStats extends Equatable {
   @override
   List<Object?> get props => [
     streak,
-    totalTimerSeconds,
+    totalTimer,
     totalAccumulated,
     totalPracticeDays,
   ];

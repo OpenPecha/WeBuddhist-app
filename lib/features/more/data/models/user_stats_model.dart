@@ -2,13 +2,13 @@ import 'package:flutter_pecha/features/more/domain/entities/user_stats.dart';
 
 class UserStatsModel {
   final StreakStatsModel streak;
-  final int totalTimerSeconds;
+  final int totalTimer;
   final int totalAccumulated;
   final int totalPracticeDays;
 
   const UserStatsModel({
     required this.streak,
-    required this.totalTimerSeconds,
+    required this.totalTimer,
     required this.totalAccumulated,
     required this.totalPracticeDays,
   });
@@ -18,7 +18,7 @@ class UserStatsModel {
       streak: StreakStatsModel.fromJson(
         json['streak'] as Map<String, dynamic>? ?? const {},
       ),
-      totalTimerSeconds: (json['total_timer_seconds'] as num?)?.toInt() ?? 0,
+      totalTimer: (json['total_timer'] as num?)?.toInt() ?? 0,
       totalAccumulated: (json['total_accumulated'] as num?)?.toInt() ?? 0,
       totalPracticeDays: (json['total_practice_days'] as num?)?.toInt() ?? 0,
     );
@@ -27,7 +27,7 @@ class UserStatsModel {
   UserStats toEntity() {
     return UserStats(
       streak: streak.toEntity(),
-      totalTimerSeconds: totalTimerSeconds,
+      totalTimer: totalTimer,
       totalAccumulated: totalAccumulated,
       totalPracticeDays: totalPracticeDays,
     );
