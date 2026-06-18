@@ -6,7 +6,7 @@ class AppConfig {
   
   /// Airbridge tracking link that handles attribution and deep linking
   /// Automatically redirects to the appropriate app store (iOS/Android)
-  static const String airbridgeTrackingLink = 'https://abr.ge/dsw7tl';
+  static const String airbridgeTrackingLink = 'https://join.webuddhist.com/get-app';
   
   // Direct store URLs (kept for reference, use airbridgeTrackingLink for sharing)
   static const String appStoreUrl =
