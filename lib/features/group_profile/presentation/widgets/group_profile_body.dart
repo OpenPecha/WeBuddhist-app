@@ -609,6 +609,7 @@ class _GroupFollowButton extends ConsumerWidget {
 
     final notifier = ref.read(groupFollowProvider(followKey).notifier);
     final myGroups = ref.read(myGroupsProvider.notifier);
+    final discoverGroups = ref.read(discoverGroupsProvider.notifier);
     final success =
         isCurrentlyFollowing ? await notifier.unfollow() : await notifier.follow();
 
@@ -616,8 +617,10 @@ class _GroupFollowButton extends ConsumerWidget {
 
     if (isCurrentlyFollowing) {
       myGroups.removeGroup(profile.id);
+      discoverGroups.addBackGroup(profile);
     } else {
       myGroups.addGroup(profile);
+      discoverGroups.removeGroup(profile.id);
     }
   }
 }

@@ -138,10 +138,23 @@ class DiscoverGroupsNotifier extends StateNotifier<DiscoverGroupsState> {
       loadMore();
     }
   }
+
+  void removeGroup(String groupId) {
+    state = state.copyWith(
+      groups: state.groups.where((g) => g.id != groupId).toList(),
+    );
+  }
+
+  void addBackGroup(GroupProfile group) {
+    if (state.groups.any((g) => g.id == group.id)) return;
+    state = state.copyWith(
+      groups: [...state.groups, group],
+    );
+  }
 }
 
 final discoverGroupsProvider =
-    StateNotifierProvider.autoDispose<DiscoverGroupsNotifier, DiscoverGroupsState>(
+    StateNotifierProvider<DiscoverGroupsNotifier, DiscoverGroupsState>(
       (ref) {
         final language = ref.watch(contentLanguageProvider);
         return DiscoverGroupsNotifier(
@@ -287,7 +300,7 @@ class MyGroupsNotifier extends StateNotifier<MyGroupsState> {
 }
 
 final myGroupsProvider =
-    StateNotifierProvider.autoDispose<MyGroupsNotifier, MyGroupsState>((ref) {
+    StateNotifierProvider<MyGroupsNotifier, MyGroupsState>((ref) {
       final authState = ref.watch(authProvider);
       final isAuthenticated = !authState.isGuest && authState.isLoggedIn;
       final language = ref.watch(contentLanguageProvider);

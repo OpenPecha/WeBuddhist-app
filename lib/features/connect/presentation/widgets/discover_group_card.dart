@@ -222,16 +222,18 @@ class _JoinButton extends ConsumerWidget {
 
     final notifier = ref.read(groupFollowProvider(followKey).notifier);
     final myGroups = ref.read(myGroupsProvider.notifier);
+    final discoverGroups = ref.read(discoverGroupsProvider.notifier);
     final success =
         isJoined ? await notifier.unfollow() : await notifier.follow();
 
     if (!success) return;
 
-    // Reflect the change in the "My groups" section right away.
     if (isJoined) {
       myGroups.removeGroup(group.id);
+      discoverGroups.addBackGroup(group);
     } else {
       myGroups.addGroup(group);
+      discoverGroups.removeGroup(group.id);
     }
   }
 }
