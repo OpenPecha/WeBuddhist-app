@@ -89,7 +89,6 @@ class _VerseShareSheetState extends State<VerseShareSheet> {
     final typography = VerseOfDayTypography.fromLanguageCode(languageCode);
     final locale = Localizations.localeOf(context);
     final lightTheme = AppTheme.lightTheme(locale);
-    final lightColorScheme = lightTheme.colorScheme;
 
     return Container(
       decoration: BoxDecoration(

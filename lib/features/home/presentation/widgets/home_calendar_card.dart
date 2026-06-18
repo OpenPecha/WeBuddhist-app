@@ -64,17 +64,17 @@ class HomeCalendarCard extends ConsumerWidget {
                         ),
                       ),
                       const SizedBox(height: 2),
-                      Text(
-                        moonPhaseLabel(l10n, phase),
-                        strutStyle: context.tibetanStrutStyle(
-                          theme.textTheme.bodyMedium?.fontSize ?? 14,
-                        ),
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          color: theme.colorScheme.onSurface.withValues(
-                            alpha: 0.5,
-                          ),
-                        ),
-                      ),
+                      // Text(
+                      //   moonPhaseLabel(l10n, phase),
+                      //   strutStyle: context.tibetanStrutStyle(
+                      //     theme.textTheme.bodyMedium?.fontSize ?? 14,
+                      //   ),
+                      //   style: theme.textTheme.bodyMedium?.copyWith(
+                      //     color: theme.colorScheme.onSurface.withValues(
+                      //       alpha: 0.5,
+                      //     ),
+                      //   ),
+                      // ),
                     ],
                   ),
                 ),

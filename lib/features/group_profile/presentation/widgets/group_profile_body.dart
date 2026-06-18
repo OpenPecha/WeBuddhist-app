@@ -286,8 +286,6 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
   Widget _buildTabBar(bool isDark) {
     final labelColor =
         isDark ? AppColors.textPrimaryDark : AppColors.textPrimary;
-    final unselectedColor =
-        isDark ? AppColors.textTertiaryDark : AppColors.textSecondary;
     final dividerColor = isDark ? AppColors.grey800 : AppColors.grey300;
 
     return Column(

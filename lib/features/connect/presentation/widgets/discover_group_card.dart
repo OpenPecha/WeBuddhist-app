@@ -21,7 +21,6 @@ class DiscoverGroupCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    final borderColor = isDark ? AppColors.cardBorderDark : AppColors.grey300;
     final subtitleColor =
         isDark ? AppColors.textSecondaryDark : AppColors.textSecondary;
     final cardColor =
