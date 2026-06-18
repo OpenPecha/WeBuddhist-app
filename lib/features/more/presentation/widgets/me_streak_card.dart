@@ -9,11 +9,7 @@ import 'package:intl/intl.dart';
 enum _WeekDayCellState { today, practiced, missed, future }
 
 class MeStreakCard extends StatelessWidget {
-  const MeStreakCard({
-    super.key,
-    required this.streak,
-    this.onShare,
-  });
+  const MeStreakCard({super.key, required this.streak, this.onShare});
 
   final StreakStats streak;
   final VoidCallback? onShare;
@@ -25,14 +21,18 @@ class MeStreakCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final cardColor =
-        isDark ? AppColors.cardDark : AppColors.surfaceWhite;
+    final cardColor = isDark ? AppColors.cardDark : AppColors.surfaceWhite;
     final todayWeekday = DateTime.now().weekday;
     final practicedDays = streak.week.toSet();
 
     return Material(
       color: cardColor,
-      borderRadius: BorderRadius.circular(_borderRadius),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(_borderRadius),
+        side: BorderSide(
+          color: isDark ? AppColors.cardBorderDark : AppColors.grey300,
+        ),
+      ),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -45,7 +45,7 @@ class MeStreakCard extends StatelessWidget {
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
                 icon: Icon(
-                  AppAssets.share,
+                  AppAssets.readerShare,
                   size: 20,
                   color: AppColors.grey600,
                 ),
@@ -55,6 +55,7 @@ class MeStreakCard extends StatelessWidget {
             Transform.translate(
               offset: const Offset(0, -8),
               child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const Icon(AppAssets.flame, size: 28, color: _flameColor),
                   const SizedBox(width: 8),
@@ -68,10 +69,12 @@ class MeStreakCard extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 4),
-            Text(
-              l10n.me_best_streak(streak.highest),
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: AppColors.grey600,
+            Center(
+              child: Text(
+                l10n.me_best_streak(streak.highest),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodySmall?.copyWith(color: AppColors.grey600),
               ),
             ),
             const SizedBox(height: 20),
@@ -124,9 +127,8 @@ class _WeekDayColumn extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final weekdayLabel = DateFormat.E(
-      locale,
-    ).format(DateTime(2024, 1, dayIndex)).toUpperCase();
+    final weekdayLabel =
+        DateFormat.E(locale).format(DateTime(2024, 1, dayIndex)).toUpperCase();
 
     return Column(
       children: [
@@ -156,12 +158,10 @@ class _WeekDayCell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final surfaceColor =
-        isDark ? AppColors.cardDark : AppColors.surfaceWhite;
+    final surfaceColor = isDark ? AppColors.cardDark : AppColors.surfaceWhite;
     final missedColor =
         isDark ? AppColors.surfaceVariantDark : AppColors.grey300;
-    final todayBorderColor =
-        isDark ? AppColors.grey300 : AppColors.grey900;
+    final todayBorderColor = isDark ? AppColors.grey300 : AppColors.grey900;
 
     return SizedBox(
       width: _cellSize,

@@ -22,8 +22,7 @@ class MeStatsSection extends StatelessWidget {
     final l10n = context.l10n;
     final locale = intlFormatLocaleOf(context);
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final cardColor =
-        isDark ? AppColors.cardDark : AppColors.surfaceWhite;
+    final cardColor = isDark ? AppColors.cardDark : AppColors.surfaceWhite;
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(
@@ -37,9 +36,9 @@ class MeStatsSection extends StatelessWidget {
         children: [
           Text(
             l10n.me_my_stats,
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.w700,
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 12),
           MeStreakCard(
@@ -136,45 +135,52 @@ class _StatCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Material(
       color: cardColor,
-      borderRadius: BorderRadius.circular(MeStatsSection._borderRadius),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(MeStatsSection._borderRadius),
+        side: BorderSide(
+          color: isDark ? AppColors.cardBorderDark : AppColors.grey300,
+        ),
+      ),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              label,
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: AppColors.grey600,
-              ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  label,
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodySmall?.copyWith(color: AppColors.grey600),
+                ),
+                icon,
+              ],
             ),
             const SizedBox(height: 12),
-            Row(
-              children: [
-                icon,
-                const SizedBox(width: 8),
-                Expanded(
-                  child: RichText(
-                    text: TextSpan(
-                      style: DefaultTextStyle.of(context).style,
-                      children: [
-                        TextSpan(
-                          text: value,
-                          style: Theme.of(context).textTheme.titleLarge
-                              ?.copyWith(fontWeight: FontWeight.w700),
-                        ),
-                        TextSpan(
-                          text: ' $unit',
-                          style: Theme.of(context).textTheme.bodySmall
-                              ?.copyWith(color: AppColors.grey600),
-                        ),
-                      ],
+            RichText(
+              text: TextSpan(
+                style: DefaultTextStyle.of(context).style,
+                children: [
+                  TextSpan(
+                    text: value,
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
-                ),
-              ],
+                  TextSpan(
+                    text: ' $unit',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: AppColors.grey600,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ],
         ),
@@ -192,10 +198,16 @@ class _PracticeDaysCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Material(
       color: cardColor,
-      borderRadius: BorderRadius.circular(MeStatsSection._borderRadius),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(MeStatsSection._borderRadius),
+        side: BorderSide(
+          color: isDark ? AppColors.cardBorderDark : AppColors.grey300,
+        ),
+      ),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
         child: Row(

@@ -122,8 +122,11 @@ class _Avatar extends StatelessWidget {
                         ),
                       ),
                 )
-                : ColoredBox(
-                  color: AppColors.grey300,
+                : DecoratedBox(
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(color: AppColors.grey300, width: 1.5),
+                  ),
                   child: Icon(
                     AppAssets.profile,
                     size: 36,
