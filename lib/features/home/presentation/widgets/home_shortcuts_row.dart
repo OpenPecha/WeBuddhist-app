@@ -28,7 +28,7 @@ class HomeShortcutsRow extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final cardColor =
-        isDark ? colorScheme.surfaceContainerHigh : AppColors.surfaceWhite;
+        isDark ? colorScheme.surfaceContainerHigh : AppColors.grey100;
 
     final shortcuts = [
       _HomeShortcutItem(
