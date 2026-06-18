@@ -1,20 +1,11 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
+import 'package:flutter_pecha/core/l10n/intl_format_locale.dart';
 import 'package:flutter_pecha/features/calendar/domain/models/calendar_event.dart';
 import 'package:flutter_pecha/features/calendar/domain/models/moon_phase.dart';
-import 'package:intl/intl.dart';
 
 /// A locale name safe to pass to `intl`'s [DateFormat] (and `table_calendar`).
-///
-/// `intl` ships no date-symbol data for some app locales (notably `bo`,
-/// Tibetan), so `DateFormat.E('bo')` throws `Invalid locale "bo"`. We fall back
-/// to `en` for date/number formatting when the active locale is unsupported —
-/// mirroring what [MaterialLocalizationsBo] already does for Material widgets.
-String dateFormatLocale(BuildContext context) {
-  final locale = Localizations.localeOf(context).toString();
-  final canonical = Intl.canonicalizedLocale(locale);
-  return DateFormat.localeExists(canonical) ? canonical : 'en';
-}
+String dateFormatLocale(BuildContext context) => intlFormatLocaleOf(context);
 
 /// Localized display name for a [MoonPhase].
 String moonPhaseLabel(AppLocalizations l10n, MoonPhase phase) {

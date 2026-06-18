@@ -20,12 +20,18 @@ class MissedDaysBadge extends StatelessWidget {
   });
 
   int? _findFirstMissedDay() {
-    final todayDayNumber = PlanUtils.dayNumberFor(
-      planStartDate,
-      DateTime.now(),
-      totalDays,
-    );
-    for (int day = 1; day < todayDayNumber; day++) {
+    final now = DateTime.now();
+    final normalizedToday = DateTime(now.year, now.month, now.day);
+    final todayDayNumber = PlanUtils.dayNumberFor(planStartDate, now, totalDays);
+
+    final start = planStartDate.toLocal();
+    final normalizedStart = DateTime(start.year, start.month, start.day);
+    final lastPlanDay = normalizedStart.add(Duration(days: totalDays - 1));
+
+    final isPlanOver = normalizedToday.isAfter(lastPlanDay);
+    final upperBound = isPlanOver ? totalDays : todayDayNumber - 1;
+
+    for (int day = 1; day <= upperBound; day++) {
       if (completionStatus[day] != true) return day;
     }
     return null;

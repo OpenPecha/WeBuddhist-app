@@ -3,6 +3,7 @@ import 'package:flutter_pecha/features/more/presentation/me_screen.dart';
 import 'package:flutter_pecha/features/plans/data/models/user/user_plans_model.dart';
 import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
+import 'package:flutter_pecha/features/connect/presentation/screens/connect_screen.dart';
 import 'package:flutter_pecha/features/home/presentation/screens/home_screen.dart';
 import 'package:flutter_pecha/features/practice/presentation/screens/practice_screen.dart';
 import 'package:flutter_pecha/shared/widgets/appBottomNavBar/app_bottom_nav_bar.dart';
@@ -13,7 +14,7 @@ import 'package:go_router/go_router.dart';
 /// Bottom-nav tabs in display order. The enum index matches the position in
 /// [mainNavigationItems] and the int value stored in
 /// [mainNavigationIndexProvider]; prefer `MainTab.x.index` over raw numbers.
-enum MainTab { home, practice, me }
+enum MainTab { home, practice, connect, me }
 
 final mainNavigationIndexProvider = StateProvider<int>(
   (ref) => MainTab.home.index,
@@ -45,6 +46,13 @@ List<AppBottomBarItemModel<int>> mainNavigationItems(BuildContext context) {
       ),
       AppBottomBarItemModel(
         type: 2,
+        label: localizations.nav_connect,
+        selectedWidget: const ConnectScreen(),
+        selectedIconData: AppAssets.connectSelected,
+        unSelectedIconData: AppAssets.connectUnselected,
+      ),
+      AppBottomBarItemModel(
+        type: 3,
         label: localizations.nav_me,
         selectedWidget: const MeScreen(),
         selectedIconData: AppAssets.meSelected,

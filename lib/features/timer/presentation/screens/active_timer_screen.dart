@@ -52,6 +52,13 @@ class _ActiveTimerScreenState extends ConsumerState<ActiveTimerScreen> {
     return ((_totalMs - _remainingMs) / _totalMs).clamp(0.0, 1.0);
   }
 
+  bool get _showFinish =>
+      _phase == _TimerPhase.finished ||
+      (_phase == _TimerPhase.running && _isPaused);
+
+  bool get _showDiscard =>
+      _phase == _TimerPhase.running && _isPaused;
+
   @override
   void initState() {
     super.initState();
@@ -138,6 +145,11 @@ class _ActiveTimerScreenState extends ConsumerState<ActiveTimerScreen> {
     context.pop();
   }
 
+  void _discardSession() {
+    _timer?.cancel();
+    context.pop();
+  }
+
   void _reportTimerStop() {
     final useCase = ref.read(stopUserTimerUseCaseProvider);
     useCase(
@@ -160,86 +172,130 @@ class _ActiveTimerScreenState extends ConsumerState<ActiveTimerScreen> {
     final textColor = Theme.of(context).colorScheme.onSurface;
     final finishFontSize = textTheme.labelLarge?.fontSize ?? 16.0;
 
-    return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      body: SafeArea(
-        child: Column(
-          children: [
-            Expanded(
-              child: Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    TimerProgressRing(
-                      size: _ringSize,
-                      progress: _elapsedProgress,
-                      child: _buildCenterContent(textColor),
-                    ),
-                    const SizedBox(height: _controlsSpacing),
-                    SizedBox(
-                      height: _controlsHeight,
-                      child:
-                          _phase != _TimerPhase.countdown
-                              ? IconButton(
-                                onPressed:
-                                    _phase == _TimerPhase.finished
-                                        ? null
-                                        : _togglePause,
-                                iconSize: 40,
-                                padding: EdgeInsets.zero,
-                                constraints: const BoxConstraints(
-                                  minWidth: _controlsHeight,
-                                  minHeight: _controlsHeight,
-                                ),
-                                icon: Icon(
-                                  _isPaused || _phase == _TimerPhase.finished
-                                      ? AppAssets.play
-                                      : AppAssets.pause,
-                                  color: textColor,
-                                ),
-                              )
-                              : null,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            Visibility(
-              visible: _phase != _TimerPhase.countdown,
-              maintainSize: true,
-              maintainAnimation: true,
-              maintainState: true,
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(24, 0, 24, 32),
+    return PopScope(
+      canPop: false,
+      child: Scaffold(
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        body: SafeArea(
+          child: Column(
+            children: [
+              Expanded(
                 child: Center(
-                  child: OutlinedButton(
-                    onPressed: _finish,
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: textColor,
-                      side: BorderSide(color: textColor),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 46,
-                        vertical: 16,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      TimerProgressRing(
+                        size: _ringSize,
+                        progress: _elapsedProgress,
+                        child: _buildCenterContent(textColor),
                       ),
-                      shape: const StadiumBorder(),
-                      backgroundColor:
-                          Theme.of(context).brightness == Brightness.dark
-                              ? AppColors.surfaceDark
-                              : AppColors.surfaceWhite,
-                    ),
-                    child: Text(
-                      l10n.timer_finish,
-                      strutStyle: context.tibetanStrutStyle(finishFontSize),
-                      style: textTheme.labelLarge?.copyWith(
-                        color: textColor,
-                        fontWeight: FontWeight.w500,
+                      const SizedBox(height: _controlsSpacing),
+                      SizedBox(
+                        height: _controlsHeight,
+                        child:
+                            _phase != _TimerPhase.countdown
+                                ? IconButton(
+                                  onPressed:
+                                      _phase == _TimerPhase.finished
+                                          ? null
+                                          : _togglePause,
+                                  iconSize: 40,
+                                  padding: EdgeInsets.zero,
+                                  constraints: const BoxConstraints(
+                                    minWidth: _controlsHeight,
+                                    minHeight: _controlsHeight,
+                                  ),
+                                  icon: Icon(
+                                    _isPaused || _phase == _TimerPhase.finished
+                                        ? AppAssets.play
+                                        : AppAssets.pause,
+                                    color: textColor,
+                                  ),
+                                )
+                                : null,
                       ),
-                    ),
+                    ],
                   ),
                 ),
               ),
-            ),
-          ],
+              Visibility(
+                visible: _phase != _TimerPhase.countdown,
+                maintainSize: true,
+                maintainAnimation: true,
+                maintainState: true,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(24, 0, 24, 32),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IgnorePointer(
+                        ignoring: !_showFinish,
+                        child: Opacity(
+                          opacity: _showFinish ? 1 : 0,
+                          child: Center(
+                            child: OutlinedButton(
+                              onPressed: _finish,
+                              style: OutlinedButton.styleFrom(
+                                foregroundColor: textColor,
+                                side: BorderSide(color: textColor),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 46,
+                                  vertical: 16,
+                                ),
+                                shape: const StadiumBorder(),
+                                backgroundColor:
+                                    Theme.of(context).brightness ==
+                                            Brightness.dark
+                                        ? AppColors.surfaceDark
+                                        : AppColors.surfaceWhite,
+                              ),
+                              child: Text(
+                                l10n.timer_finish,
+                                strutStyle: context.tibetanStrutStyle(
+                                  finishFontSize,
+                                ),
+                                style: textTheme.labelLarge?.copyWith(
+                                  color: textColor,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      IgnorePointer(
+                        ignoring: !_showDiscard,
+                        child: Opacity(
+                          opacity: _showDiscard ? 1 : 0,
+                          child: TextButton(
+                            onPressed: _discardSession,
+                            style: TextButton.styleFrom(
+                              foregroundColor: textColor,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 8,
+                              ),
+                            ),
+                            child: Text(
+                              l10n.timer_discard_session,
+                              strutStyle: context.tibetanStrutStyle(
+                                finishFontSize,
+                              ),
+                              style: textTheme.labelLarge?.copyWith(
+                                color: textColor,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

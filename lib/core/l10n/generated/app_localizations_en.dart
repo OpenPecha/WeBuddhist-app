@@ -113,6 +113,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get timer_finish => 'Finish';
 
   @override
+  String get timer_discard_session => 'Discard session';
+
+  @override
   String get home_hello_prefix => 'Hello, ';
 
   @override
@@ -495,6 +498,37 @@ class AppLocalizationsEn extends AppLocalizations {
       'Teachers, communities, challenges, and events to support you on the path';
 
   @override
+  String get connect_subtitle => 'Find groups and practice together';
+
+  @override
+  String get discover_groups => 'Discover groups';
+
+  @override
+  String get my_groups => 'My groups';
+
+  @override
+  String get see_all => 'See all';
+
+  @override
+  String get connect_groups_load_error =>
+      'Unable to load groups.\nCheck your connection and try again';
+
+  @override
+  String get connect_groups_empty_title => 'No groups yet';
+
+  @override
+  String get connect_groups_empty_subtitle => 'no more groups to join';
+
+  @override
+  String get search_groups => 'Search groups';
+
+  @override
+  String get search_for_groups => 'Search for groups';
+
+  @override
+  String get no_groups_found => 'No groups found';
+
+  @override
   String get explore_coming_soon_subtitle =>
       'A curated space to discover practices, teachings, and community events';
 
@@ -835,7 +869,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get routine_edit_title => 'Edit your routine';
 
   @override
-  String get routine_delete_block => 'Remove block';
+  String get routine_delete_block => 'Remove block?';
 
   @override
   String get routine_delete_time_block => 'Remove time block';

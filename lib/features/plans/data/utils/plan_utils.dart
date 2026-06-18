@@ -75,8 +75,9 @@ class PlanUtils {
   /// Counts past scheduled days (from Day 1) the user has not completed.
   ///
   /// Always counts from Day 1 regardless of when the user enrolled, so late
-  /// joiners see the full backlog they need to catch up on. Excludes today —
-  /// the user still has time to finish it.
+  /// joiners see the full backlog they need to catch up on. Excludes today
+  /// while the plan is still active (the user still has time to finish it),
+  /// but includes the last day once the plan has fully ended.
   ///
   /// [planStartDate]: Day 1 anchor (= `plan.startDate ?? plan.startedAt`).
   static int calculateMissedDays(
@@ -84,16 +85,27 @@ class PlanUtils {
     int totalDays,
     Map<int, bool> completionStatus,
   ) {
-    final todayDayNumber = dayNumberFor(planStartDate, DateTime.now(), totalDays);
+    final now = DateTime.now();
+    final normalizedToday = DateTime(now.year, now.month, now.day);
+    final todayDayNumber = dayNumberFor(planStartDate, now, totalDays);
+
+    final start = planStartDate.toLocal();
+    final normalizedStart = DateTime(start.year, start.month, start.day);
+    final lastPlanDay = normalizedStart.add(Duration(days: totalDays - 1));
+
+    // When today is past the plan's last day, every incomplete day is missed.
+    // While the plan is active, today is excluded (user still has time).
+    final isPlanOver = normalizedToday.isAfter(lastPlanDay);
+    final upperBound = isPlanOver ? totalDays : todayDayNumber - 1;
 
     int missedCount = 0;
-    for (int day = 1; day < todayDayNumber; day++) {
+    for (int day = 1; day <= upperBound; day++) {
       if (completionStatus[day] != true) missedCount++;
     }
 
     _logger.info(
       '[ENROLL-MISSED] planStart=${planStartDate.toIso8601String()} '
-      'todayDay=$todayDayNumber missed=$missedCount',
+      'todayDay=$todayDayNumber isPlanOver=$isPlanOver missed=$missedCount',
     );
     return missedCount;
   }

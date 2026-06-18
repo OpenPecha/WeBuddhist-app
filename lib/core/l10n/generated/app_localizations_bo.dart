@@ -50,34 +50,34 @@ class AppLocalizationsBo extends AppLocalizations {
   String get home_recitation => 'བཟླས་པ།';
 
   @override
-  String get home_today => 'Today';
+  String get home_today => 'ད་རིང་';
 
   @override
-  String get home_good_morning => 'Good morning';
+  String get home_good_morning => 'སྔ་དྲོ་བདེ་ལེགས།';
 
   @override
-  String get home_good_afternoon => 'Good afternoon';
+  String get home_good_afternoon => 'ཕྱི་དྲོ་བདེ་ལེགས།';
 
   @override
-  String get home_good_evening => 'Good evening';
+  String get home_good_evening => 'དགོང་དྲོ་བདེ་ལེགས།';
 
   @override
-  String get home_meditationTitle => 'Meditation';
+  String get home_meditationTitle => 'སྒོམ་པ།';
 
   @override
-  String get home_prayerTitle => 'Prayer of the day';
+  String get home_prayerTitle => 'དེ་རིང་གི་སྨོན་ལམ།';
 
   @override
-  String get home_scripture => 'Guided scripture';
+  String get home_scripture => 'ལམ་སྟོན་ཤེས་རབ།';
 
   @override
-  String get home_meditation => 'Guided meditation';
+  String get home_meditation => 'ལམ་སྟོན་སྒོམ་པ།';
 
   @override
-  String get home_goDeeper => 'Go deeper';
+  String get home_goDeeper => 'ཟབ་ཚད་ཆེ་རུ་གཏོང་།';
 
   @override
-  String get home_intention => 'My intention for today';
+  String get home_intention => 'དེ་རིང་ངའི་བསམ་པ།';
 
   @override
   String get home_overall_stats => 'སྤྱིའི་གྲངས་ཀ';
@@ -111,6 +111,9 @@ class AppLocalizationsBo extends AppLocalizations {
 
   @override
   String get timer_finish => 'མཇུག་སྒྲིལ';
+
+  @override
+  String get timer_discard_session => 'སྒྲུབ་སྡེ་མེད་པར་བཏང་';
 
   @override
   String get home_hello_prefix => 'བཀྲ་ཤིས་བདེ་ལེགས། ';
@@ -497,6 +500,37 @@ class AppLocalizationsBo extends AppLocalizations {
       'Teachers, communities, challenges, and events to support you on the path';
 
   @override
+  String get connect_subtitle => 'Find groups and practice together';
+
+  @override
+  String get discover_groups => 'Discover groups';
+
+  @override
+  String get my_groups => 'My groups';
+
+  @override
+  String get see_all => 'See all';
+
+  @override
+  String get connect_groups_load_error =>
+      'Unable to load groups.\nCheck your connection and try again';
+
+  @override
+  String get connect_groups_empty_title => 'No groups yet';
+
+  @override
+  String get connect_groups_empty_subtitle => 'no more groups to join';
+
+  @override
+  String get search_groups => 'Search groups';
+
+  @override
+  String get search_for_groups => 'Search for groups';
+
+  @override
+  String get no_groups_found => 'No groups found';
+
+  @override
   String get explore_coming_soon_subtitle =>
       'ཉམས་ལེན་དང་། གསུང་ཆོས། ལྷན་ཚོགས་ཀྱི་བྱེད་སྒོ་བཅས་འཆར་སྟོན་བྱེད་གནས།';
 
@@ -842,7 +876,7 @@ class AppLocalizationsBo extends AppLocalizations {
   String get routine_delete_block => 'སུབ།';
 
   @override
-  String get routine_delete_time_block => 'Remove time block';
+  String get routine_delete_time_block => 'དུས་ཚོད་སྡུབ།';
 
   @override
   String get routine_add_plan => 'ཉམས་ལེན་ཁ་སྣོན།';

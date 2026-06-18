@@ -50,34 +50,34 @@ class AppLocalizationsNe extends AppLocalizations {
   String get home_recitation => 'पाठ';
 
   @override
-  String get home_today => 'Today';
+  String get home_today => 'आज';
 
   @override
-  String get home_good_morning => 'Good morning';
+  String get home_good_morning => 'शुभ प्रभात';
 
   @override
-  String get home_good_afternoon => 'Good afternoon';
+  String get home_good_afternoon => 'शुभ दिउँसो';
 
   @override
-  String get home_good_evening => 'Good evening';
+  String get home_good_evening => 'शुभ साँझ';
 
   @override
-  String get home_meditationTitle => 'Meditation';
+  String get home_meditationTitle => 'ध्यान';
 
   @override
-  String get home_prayerTitle => 'Prayer of the day';
+  String get home_prayerTitle => 'आजको प्रार्थना';
 
   @override
-  String get home_scripture => 'Guided scripture';
+  String get home_scripture => 'मार्गदर्शित शास्त्र';
 
   @override
-  String get home_meditation => 'Guided meditation';
+  String get home_meditation => 'मार्गदर्शित ध्यान';
 
   @override
-  String get home_goDeeper => 'Go deeper';
+  String get home_goDeeper => 'गहिरो जानुहोस्';
 
   @override
-  String get home_intention => 'My intention for today';
+  String get home_intention => 'आजको मेरो संकल्प';
 
   @override
   String get home_overall_stats => 'समग्र तथ्याङ्क';
@@ -101,7 +101,7 @@ class AppLocalizationsNe extends AppLocalizations {
   String get preset_timers => 'पूर्वनिर्धारित टाइमरहरू';
 
   @override
-  String get meditation_timer => 'Meditation Timer';
+  String get meditation_timer => 'ध्यान टाइमर';
 
   @override
   String get timer_min => 'मिनेट';
@@ -111,6 +111,9 @@ class AppLocalizationsNe extends AppLocalizations {
 
   @override
   String get timer_finish => 'समाप्त';
+
+  @override
+  String get timer_discard_session => 'सत्र खारेज गर्नुहोस्';
 
   @override
   String get home_hello_prefix => 'नमस्ते, ';
@@ -504,6 +507,37 @@ class AppLocalizationsNe extends AppLocalizations {
       'मार्गमा तपाईंलाई सहयोग गर्न शिक्षकहरू, समुदायहरू, चुनौतीहरू र कार्यक्रमहरू';
 
   @override
+  String get connect_subtitle => 'Find groups and practice together';
+
+  @override
+  String get discover_groups => 'Discover groups';
+
+  @override
+  String get my_groups => 'My groups';
+
+  @override
+  String get see_all => 'See all';
+
+  @override
+  String get connect_groups_load_error =>
+      'Unable to load groups.\nCheck your connection and try again';
+
+  @override
+  String get connect_groups_empty_title => 'No groups yet';
+
+  @override
+  String get connect_groups_empty_subtitle => 'no more groups to join';
+
+  @override
+  String get search_groups => 'Search groups';
+
+  @override
+  String get search_for_groups => 'Search for groups';
+
+  @override
+  String get no_groups_found => 'No groups found';
+
+  @override
   String get explore_coming_soon_subtitle =>
       'अभ्यास, शिक्षा र सामुदायिक कार्यक्रमहरू पत्ता लगाउने एक चयनित स्थान';
 
@@ -516,18 +550,18 @@ class AppLocalizationsNe extends AppLocalizations {
 
   @override
   String get audio_init_error =>
-      'Unable to initialize audio player. Check your connection and try again';
+      'अडियो प्लेयर सुरु गर्न सकिएन। आफ्नो जडान जाँच गरी फेरि प्रयास गर्नुहोस्';
 
   @override
   String get meditation_audio_load_error =>
-      'Unable to load. Check your connection and try again';
+      'लोड गर्न सकिएन। आफ्नो जडान जाँच गरी फेरि प्रयास गर्नुहोस्';
 
   @override
   String get prayer_audio_load_error =>
-      'Unable to load audio. Check your connection and try again';
+      'अडियो लोड गर्न सकिएन। आफ्नो जडान जाँच गरी फेरि प्रयास गर्नुहोस्';
 
   @override
-  String get home_no_series_found => 'No series found';
+  String get home_no_series_found => 'कुनै श्रृङ्खला फेला परेन';
 
   @override
   String get home_no_tags_found => 'कुनै ट्याग फेला परेन';
@@ -851,7 +885,7 @@ class AppLocalizationsNe extends AppLocalizations {
   String get routine_delete_block => 'ब्लक हटाउने?';
 
   @override
-  String get routine_delete_time_block => 'Remove time block';
+  String get routine_delete_time_block => 'समय ब्लक हटाउनुहोस्';
 
   @override
   String get routine_add_plan => 'योजना थप्नुहोस्';
@@ -1332,29 +1366,29 @@ class AppLocalizationsNe extends AppLocalizations {
   String get moon_phase_waning_crescent => 'घट्दो अर्धचन्द्र';
 
   @override
-  String get join => 'Join';
+  String get join => 'सामेल हुनुहोस्';
 
   @override
-  String get joined => 'Joined';
+  String get joined => 'सामेल भयो';
 
   @override
-  String get group_member => 'member';
+  String get group_member => 'सदस्य';
 
   @override
-  String get group_members => 'members';
+  String get group_members => 'सदस्यहरू';
 
   @override
-  String get group_follower => 'follower';
+  String get group_follower => 'अनुयायी';
 
   @override
-  String get group_followers => 'followers';
+  String get group_followers => 'अनुयायीहरू';
 
   @override
-  String get group_links_title => 'Links';
+  String get group_links_title => 'लिङ्कहरू';
 
   @override
   String group_and_more_links(int count) {
-    return 'and $count more links';
+    return 'र अरू $count लिङ्कहरू';
   }
 
   @override
