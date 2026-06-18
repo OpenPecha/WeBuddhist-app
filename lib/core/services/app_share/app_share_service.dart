@@ -11,7 +11,7 @@ class AppShareService {
   /// This link automatically redirects to the appropriate app store
   /// and tracks install/re-engagement conversions
   /// Airbridge provides the link preview with images and metadata
-  static const String _airbridgeTrackingLink = 'https://abr.ge/dsw7tl';
+  static const String _airbridgeTrackingLink = 'https://join.webuddhist.com/get-app';
 
   Future<void> shareApp() async {
     try {

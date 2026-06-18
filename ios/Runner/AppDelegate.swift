@@ -32,7 +32,7 @@ import airbridge_flutter_sdk
     open url: URL,
     options: [UIApplication.OpenURLOptionsKey : Any] = [:]
   ) -> Bool {
-    AirbridgeFlutter.trackDeeplink(url)
+    AirbridgeFlutter.trackDeeplink(url: url)
     return super.application(app, open: url, options: options)
   }
   
@@ -41,7 +41,7 @@ import airbridge_flutter_sdk
     continue userActivity: NSUserActivity,
     restorationHandler: @escaping ([UIUserActivityRestoring]?) -> Void
   ) -> Bool {
-    AirbridgeFlutter.trackDeeplink(userActivity)
+    AirbridgeFlutter.trackDeeplink(userActivity: userActivity)
     return super.application(application, continue: userActivity, restorationHandler: restorationHandler)
   }
 }

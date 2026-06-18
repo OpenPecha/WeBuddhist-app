@@ -249,6 +249,8 @@
 				4F0890AAC5805753D772F35A /* [CP] Embed Pods Frameworks */,
 				D9A06C095248D4046E79B764 /* FlutterFire: "flutterfire upload-crashlytics-symbols" */,
 				29B92F03AEE57D480EFB3723 /* [CP] Copy Pods Resources */,
+				5648DFD272CD388FA396A53C /* [Airbridge] Copy airbridge.json */,
+				B34D2527A1AA1FDF1D8BDE84 /* [Airbridge] Create LibraryInfo.json */,
 			);
 			buildRules = (
 			);
@@ -378,6 +380,24 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Runner/Pods-Runner-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
+		5648DFD272CD388FA396A53C /* [Airbridge] Copy airbridge.json */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "[Airbridge] Copy airbridge.json";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "ENVIRONMENT=$(echo \"${AIRBRIDGE_ENVIRONMENT:-}\" | tr '[:upper:]' '[:lower:]')\nENVIRONMENT=$(echo \"$ENVIRONMENT\" | grep -Eq '^[A-Za-z0-9_-]*$' && echo \"$ENVIRONMENT\" || echo \"\")\nFILENAME=\"${SRCROOT}/../airbridge.json\"\n\nCANDIDATE=\"${SRCROOT}/../airbridge.${ENVIRONMENT}.json\"\nif [ -r \"$CANDIDATE\" ]; then\n    FILENAME=\"$CANDIDATE\"\nfi\n\nif [ -r \"$FILENAME\" ]; then\n    cp \"$FILENAME\" \"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/airbridge.json\"\nfi";
+		};
 		749839B9E8131652EE1F24DD /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -414,6 +434,24 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "/bin/sh \"$FLUTTER_ROOT/packages/flutter_tools/bin/xcode_backend.sh\" build\n";
+		};
+		B34D2527A1AA1FDF1D8BDE84 /* [Airbridge] Create LibraryInfo.json */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "[Airbridge] Create LibraryInfo.json";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "echo '{\"wrapperName\": \"airbridge-flutter-sdk\", \"wrapperVersion\": \"4.9.0\"}' > \"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/LibraryInfo.json\"\n";
 		};
 		BFA8C18C2E52F9B40027D47D /* Generate Entitlements */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -844,7 +882,7 @@
 				AUTH0_DOMAIN_BUILD_SETTING = "dev-vz6o17motc18g45h.us.auth0.com";
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ALLOW_ENTITLEMENTS_MODIFICATION = YES;
-				CODE_SIGN_ENTITLEMENTS = Runner/Runner-dev.entitlements;
+				CODE_SIGN_ENTITLEMENTS = "Runner/Runner-dev.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = "$(FLUTTER_BUILD_NUMBER)";
@@ -876,7 +914,7 @@
 				AUTH0_DOMAIN_BUILD_SETTING = "dev-vz6o17motc18g45h.us.auth0.com";
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ALLOW_ENTITLEMENTS_MODIFICATION = YES;
-				CODE_SIGN_ENTITLEMENTS = Runner/Runner-dev.entitlements;
+				CODE_SIGN_ENTITLEMENTS = "Runner/Runner-dev.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = "$(FLUTTER_BUILD_NUMBER)";

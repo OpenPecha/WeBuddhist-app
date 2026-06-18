@@ -1,4 +1,8 @@
 PODS:
+  - airbridge-ios-sdk (4.9.3)
+  - airbridge_flutter_sdk (4.9.0):
+    - airbridge-ios-sdk (= 4.9.3)
+    - Flutter
   - audio_service (0.0.1):
     - Flutter
     - FlutterMacOS
@@ -224,6 +228,7 @@ PODS:
     - FlutterMacOS
 
 DEPENDENCIES:
+  - airbridge_flutter_sdk (from `.symlinks/plugins/airbridge_flutter_sdk/ios`)
   - audio_service (from `.symlinks/plugins/audio_service/darwin`)
   - audio_session (from `.symlinks/plugins/audio_session/ios`)
   - auth0_flutter (from `.symlinks/plugins/auth0_flutter/darwin`)
@@ -252,6 +257,7 @@ DEPENDENCIES:
 
 SPEC REPOS:
   trunk:
+    - airbridge-ios-sdk
     - Auth0
     - Firebase
     - FirebaseAnalytics
@@ -279,6 +285,8 @@ SPEC REPOS:
     - SimpleKeychain
 
 EXTERNAL SOURCES:
+  airbridge_flutter_sdk:
+    :path: ".symlinks/plugins/airbridge_flutter_sdk/ios"
   audio_service:
     :path: ".symlinks/plugins/audio_service/darwin"
   audio_session:
@@ -331,6 +339,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/webview_flutter_wkwebview/darwin"
 
 SPEC CHECKSUMS:
+  airbridge-ios-sdk: 6049688ddcfafa85da5ab35b943430c3309ca97b
+  airbridge_flutter_sdk: 31632f81cacf04d55acc4e6ef17f536e389a8d0c
   audio_service: aa99a6ba2ae7565996015322b0bb024e1d25c6fd
   audio_session: 9bb7f6c970f21241b19f5a3658097ae459681ba0
   Auth0: 2876d0c36857422eda9cb580a6cc896c7d14cb36
