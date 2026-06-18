@@ -8,6 +8,7 @@ import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/features/timer/domain/entities/preset_timer.dart';
 import 'package:flutter_pecha/features/timer/domain/usecases/stop_user_timer_usecase.dart';
 import 'package:flutter_pecha/features/timer/presentation/providers/timers_providers.dart';
+import 'package:flutter_pecha/features/timer/presentation/services/timer_sound_player.dart';
 import 'package:flutter_pecha/features/timer/presentation/widgets/timer_progress_ring.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -39,6 +40,7 @@ class _ActiveTimerScreenState extends ConsumerState<ActiveTimerScreen> {
   bool _isPaused = false;
 
   Timer? _timer;
+  late final TimerSoundPlayer _soundPlayer;
 
   int get _totalMs => widget.presetTimer.durationMs;
 
@@ -50,16 +52,26 @@ class _ActiveTimerScreenState extends ConsumerState<ActiveTimerScreen> {
     return ((_totalMs - _remainingMs) / _totalMs).clamp(0.0, 1.0);
   }
 
+  bool get _showFinish =>
+      _phase == _TimerPhase.finished ||
+      (_phase == _TimerPhase.running && _isPaused);
+
+  bool get _showDiscard =>
+      _phase == _TimerPhase.running && _isPaused;
+
   @override
   void initState() {
     super.initState();
     _remainingMs = _totalMs;
+    _soundPlayer = TimerSoundPlayer();
+    _soundPlayer.init();
     _startCountdown();
   }
 
   @override
   void dispose() {
     _timer?.cancel();
+    _soundPlayer.dispose();
     super.dispose();
   }
 
@@ -84,6 +96,8 @@ class _ActiveTimerScreenState extends ConsumerState<ActiveTimerScreen> {
   }
 
   void _startMainTimer() {
+    _soundPlayer.play();
+
     setState(() {
       _phase = _TimerPhase.running;
       _remainingMs = _totalMs;
@@ -106,6 +120,7 @@ class _ActiveTimerScreenState extends ConsumerState<ActiveTimerScreen> {
         _remainingMs = 0;
         _phase = _TimerPhase.finished;
         _timer?.cancel();
+        _soundPlayer.play();
         _reportTimerStop();
       }
     });
@@ -127,6 +142,11 @@ class _ActiveTimerScreenState extends ConsumerState<ActiveTimerScreen> {
     if (_phase == _TimerPhase.running) {
       _reportTimerStop();
     }
+    context.pop();
+  }
+
+  void _discardSession() {
+    _timer?.cancel();
     context.pop();
   }
 
@@ -152,86 +172,130 @@ class _ActiveTimerScreenState extends ConsumerState<ActiveTimerScreen> {
     final textColor = Theme.of(context).colorScheme.onSurface;
     final finishFontSize = textTheme.labelLarge?.fontSize ?? 16.0;
 
-    return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      body: SafeArea(
-        child: Column(
-          children: [
-            Expanded(
-              child: Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    TimerProgressRing(
-                      size: _ringSize,
-                      progress: _elapsedProgress,
-                      child: _buildCenterContent(textColor),
-                    ),
-                    const SizedBox(height: _controlsSpacing),
-                    SizedBox(
-                      height: _controlsHeight,
-                      child:
-                          _phase != _TimerPhase.countdown
-                              ? IconButton(
-                                onPressed:
-                                    _phase == _TimerPhase.finished
-                                        ? null
-                                        : _togglePause,
-                                iconSize: 40,
-                                padding: EdgeInsets.zero,
-                                constraints: const BoxConstraints(
-                                  minWidth: _controlsHeight,
-                                  minHeight: _controlsHeight,
-                                ),
-                                icon: Icon(
-                                  _isPaused || _phase == _TimerPhase.finished
-                                      ? AppAssets.play
-                                      : AppAssets.pause,
-                                  color: textColor,
-                                ),
-                              )
-                              : null,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            Visibility(
-              visible: _phase != _TimerPhase.countdown,
-              maintainSize: true,
-              maintainAnimation: true,
-              maintainState: true,
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(24, 0, 24, 32),
+    return PopScope(
+      canPop: false,
+      child: Scaffold(
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        body: SafeArea(
+          child: Column(
+            children: [
+              Expanded(
                 child: Center(
-                  child: OutlinedButton(
-                    onPressed: _finish,
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: textColor,
-                      side: BorderSide(color: textColor),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 46,
-                        vertical: 16,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      TimerProgressRing(
+                        size: _ringSize,
+                        progress: _elapsedProgress,
+                        child: _buildCenterContent(textColor),
                       ),
-                      shape: const StadiumBorder(),
-                      backgroundColor:
-                          Theme.of(context).brightness == Brightness.dark
-                              ? AppColors.surfaceDark
-                              : AppColors.surfaceWhite,
-                    ),
-                    child: Text(
-                      l10n.timer_finish,
-                      strutStyle: context.tibetanStrutStyle(finishFontSize),
-                      style: textTheme.labelLarge?.copyWith(
-                        color: textColor,
-                        fontWeight: FontWeight.w500,
+                      const SizedBox(height: _controlsSpacing),
+                      SizedBox(
+                        height: _controlsHeight,
+                        child:
+                            _phase != _TimerPhase.countdown
+                                ? IconButton(
+                                  onPressed:
+                                      _phase == _TimerPhase.finished
+                                          ? null
+                                          : _togglePause,
+                                  iconSize: 40,
+                                  padding: EdgeInsets.zero,
+                                  constraints: const BoxConstraints(
+                                    minWidth: _controlsHeight,
+                                    minHeight: _controlsHeight,
+                                  ),
+                                  icon: Icon(
+                                    _isPaused || _phase == _TimerPhase.finished
+                                        ? AppAssets.play
+                                        : AppAssets.pause,
+                                    color: textColor,
+                                  ),
+                                )
+                                : null,
                       ),
-                    ),
+                    ],
                   ),
                 ),
               ),
-            ),
-          ],
+              Visibility(
+                visible: _phase != _TimerPhase.countdown,
+                maintainSize: true,
+                maintainAnimation: true,
+                maintainState: true,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(24, 0, 24, 32),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IgnorePointer(
+                        ignoring: !_showFinish,
+                        child: Opacity(
+                          opacity: _showFinish ? 1 : 0,
+                          child: Center(
+                            child: OutlinedButton(
+                              onPressed: _finish,
+                              style: OutlinedButton.styleFrom(
+                                foregroundColor: textColor,
+                                side: BorderSide(color: textColor),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 46,
+                                  vertical: 16,
+                                ),
+                                shape: const StadiumBorder(),
+                                backgroundColor:
+                                    Theme.of(context).brightness ==
+                                            Brightness.dark
+                                        ? AppColors.surfaceDark
+                                        : AppColors.surfaceWhite,
+                              ),
+                              child: Text(
+                                l10n.timer_finish,
+                                strutStyle: context.tibetanStrutStyle(
+                                  finishFontSize,
+                                ),
+                                style: textTheme.labelLarge?.copyWith(
+                                  color: textColor,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      IgnorePointer(
+                        ignoring: !_showDiscard,
+                        child: Opacity(
+                          opacity: _showDiscard ? 1 : 0,
+                          child: TextButton(
+                            onPressed: _discardSession,
+                            style: TextButton.styleFrom(
+                              foregroundColor: textColor,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 8,
+                              ),
+                            ),
+                            child: Text(
+                              l10n.timer_discard_session,
+                              strutStyle: context.tibetanStrutStyle(
+                                finishFontSize,
+                              ),
+                              style: textTheme.labelLarge?.copyWith(
+                                color: textColor,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

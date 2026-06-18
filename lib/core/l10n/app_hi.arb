@@ -1,0 +1,636 @@
+{
+  "@@locale": "hi",
+  "appTitle": "WeBuddhist",
+  "sign_in": "साइन इन करें",
+  "logout": "लॉग आउट",
+  "onboarding_welcome": "आपका स्वागत है",
+  "onboarding_quote": "बूँद-बूँद से घड़ा भर जाता है। इसी प्रकार बुद्धिमान व्यक्ति थोड़ा-थोड़ा करके पुण्य संचित करता है और स्वयं को भलाई से भर लेता है।",
+  "onboarding_find_peace": "आरंभ करें",
+  "onboarding_continue": "जारी रखें",
+  "onboarding_first_question": "अपनी भाषा चुनें:",
+  "onboarding_choose_option": "कम से कम एक चुनें:",
+  "onboarding_all_set": "सब कुछ तैयार है",
+  "onboarding_all_set_description": "हमने आपके अनुभव को आपकी परंपरा के अनुरूप ढाला है। हर दिन आएँ — चाहे एक पल के लिए ही — और अपने अभ्यास को बढ़ते हुए देखें",
+  "onboarding_begin_practice": "अपना अभ्यास शुरू करें",
+  "home_today": "आज",
+  "home_good_morning": "सुप्रभात",
+  "home_good_afternoon": "नमस्कार",
+  "home_good_evening": "शुभ संध्या",
+  "home_meditationTitle": "ध्यान",
+  "home_prayerTitle": "आज की प्रार्थना",
+  "home_scripture": "मार्गदर्शित शास्त्र",
+  "home_meditation": "मार्गदर्शित ध्यान",
+  "home_goDeeper": "गहराई से जाएँ",
+  "home_intention": "आज का मेरा संकल्प",
+  "home_recitation": "पाठ",
+  "home_overall_stats": "समग्र आँकड़े",
+  "home_plans": "योजनाएँ",
+  "home_shortcut_plans": "योजनाएँ",
+  "home_chants": "जप",
+  "home_mala": "माला",
+  "home_timer": "टाइमर",
+  "preset_timers": "पूर्व-निर्धारित टाइमर",
+  "meditation_timer": "ध्यान टाइमर",
+  "timer_min": "मिनट",
+  "timer_start": "शुरू करें",
+  "timer_finish": "समाप्त करें",
+  "timer_discard_session": "सत्र छोड़ें",
+  "home_hello_prefix": "नमस्ते, ",
+  "home_greeting_fallback_name": "मित्र",
+  "home_share_prompt": "{appName} पसंद आ रहा है?",
+  "@home_share_prompt": {
+    "placeholders": {
+      "appName": {
+        "type": "String"
+      }
+    }
+  },
+  "no_feature_content": "कोई विशेष सामग्री उपलब्ध नहीं है",
+  "nav_home": "होम",
+  "nav_explore": "खोजें",
+  "nav_learn": "सीखें",
+  "nav_practice": "अभ्यास",
+  "nav_settings": "सेटिंग्स",
+  "nav_connect": "जुड़ें",
+  "nav_me": "मैं",
+  "text_search": "खोजें",
+  "text_toc_versions": "संस्करण",
+  "text_commentary": "टीकाएँ",
+  "no_translation": "कोई अनुवाद नहीं मिला",
+  "text_close_commentary": "टीका बंद करें",
+  "show_more": "और दिखाएँ",
+  "show_less": "कम दिखाएँ",
+  "more": "अधिक",
+  "less": "कम",
+  "no_content": "कोई सामग्री नहीं मिली",
+  "no_commentary": "कोई टीका नहीं मिली",
+  "commentary_not_available_for_language": "{language} में टीका उपलब्ध नहीं है",
+  "@commentary_not_available_for_language": {
+    "placeholders": {
+      "language": {
+        "type": "String"
+      }
+    }
+  },
+  "loading": "लोड हो रहा है...",
+  "choose_image": "छवि चुनें",
+  "choose_bg_image": "पृष्ठभूमि छवि चुनें",
+  "create_image": "छवि बनाएँ",
+  "save": "सहेजें",
+  "done": "हो गया",
+  "customise_message": "टेक्स्ट शैली समायोजित करने के लिए कस्टमाइज़ आइकन पर टैप करें",
+  "download_image": "छवि डाउनलोड करें",
+  "no_images_available": "कोई छवि उपलब्ध नहीं है",
+  "customise_text": "टेक्स्ट कस्टमाइज़ करें",
+  "text_size": "टेक्स्ट का आकार",
+  "text_color": "टेक्स्ट का रंग",
+  "text_shadow": "टेक्स्ट की छाया",
+  "apply": "लागू करें",
+  "my_plans": "मेरी योजनाएँ",
+  "browse_plans": "योजनाएँ ब्राउज़ करें",
+  "plan_info": "योजना जानकारी",
+  "start_reading": "अभी अभ्यास करें",
+  "tibetan": "तिब्बती",
+  "sanskrit": "संस्कृत",
+  "english": "अंग्रेज़ी",
+  "chinese": "चीनी",
+  "classicalChinese": "शास्त्रीय चीनी",
+  "pali": "पालि",
+  "language": "भाषा",
+  "plan_unenroll": "नामांकन रद्द करें",
+  "unenroll_confirmation": "क्या आप वाकई इससे नामांकन रद्द करना चाहते हैं",
+  "unenroll_message": "आपकी प्रगति स्थायी रूप से खो जाएगी और इसे पुनर्प्राप्त नहीं किया जा सकता",
+  "practice_plan": "एक दैनिक अभ्यास बनाएँ। जानें कि आपके लिए क्या उपयुक्त है।",
+  "search_plans": "योजनाएँ खोजें...",
+  "search_for_plans": "योजनाओं के लिए खोजें",
+  "no_plans_found": "कोई योजना नहीं मिली",
+  "no_days_available": "कोई दिन नहीं मिला",
+  "recitations_title": "पाठ",
+  "recitations_my_recitations": "मेरे पाठ",
+  "browse_recitations": "पाठ ब्राउज़ करें",
+  "recitations_search": "पाठ खोजें...",
+  "recitations_search_for": "पाठों के लिए खोजें",
+  "recitations_no_found": "कोई पाठ नहीं मिला",
+  "recitations_no_content": "कोई पाठ उपलब्ध नहीं है",
+  "recitations_no_saved": "कोई सहेजा गया पाठ नहीं",
+  "recitations_login_prompt": "अपने सहेजे गए पाठ देखने के लिए साइन इन करें",
+  "notification_settings": "सूचना सेटिंग्स",
+  "notification_allow_title": "सूचनाओं की अनुमति दें",
+  "notification_allow_subtitle_enabled": "इस ऐप के लिए सूचनाएँ सक्षम हैं",
+  "notification_allow_subtitle_disabled": "अनुमति आवश्यक है। सेटिंग्स में देने के लिए टैप करें।",
+  "notification_allow_subtitle_paused": "अनुस्मारक रुके हुए हैं। फिर से शुरू करने के लिए टैप करें।",
+  "notification_routine_title": "नियमित अनुस्मारक",
+  "notification_routine_subtitle_enabled": "आपके अभ्यास खंडों के लिए दैनिक अनुस्मारक",
+  "notification_routine_subtitle_disabled": "नियमित अनुस्मारक रुके हुए हैं। फिर से शुरू करने के लिए टैप करें।",
+  "notification_battery_title": "पृष्ठभूमि अनुस्मारक",
+  "notification_battery_subtitle_enabled": "आपके अनुस्मारक समय पर भेजे जाते हैं, भले ही ऐप बंद हो।",
+  "notification_battery_subtitle_disabled": "कुछ Android फ़ोन बैटरी बचाने के लिए पृष्ठभूमि ऐप्स को रोक देते हैं, जिससे आपके अनुस्मारक में देरी हो सकती है या वे छूट सकते हैं। अपने अनुस्मारक चालू रखने के लिए टैप करें।",
+  "notification_recitation_title": "पाठ अनुस्मारक",
+  "notification_recitation_subtitle_enabled": "आपके पाठ के लिए दैनिक अनुस्मारक",
+  "notification_recitation_subtitle_disabled": "पाठ अनुस्मारक रुके हुए हैं। फिर से शुरू करने के लिए टैप करें।",
+  "notification_battery_info_title": "पृष्ठभूमि अनुस्मारक के बारे में",
+  "notification_battery_info_body": "कुछ Android फ़ोन बैटरी बचाने के लिए पृष्ठभूमि ऐप्स को रोक देते हैं, जिससे आपके निर्धारित अनुस्मारक में देरी हो सकती है या वे रद्द हो सकते हैं। ऐप को छूट देने से आपके अनुस्मारक विश्वसनीय रूप से समय पर रहते हैं।",
+  "notification_snack_permission_denied": "सूचनाएँ अवरुद्ध हैं। उन्हें सेटिंग्स में चालू करें",
+  "notification_snack_disable_alarms_in_settings": "सेटिंग्स में अलार्म और अनुस्मारक बंद करें।",
+  "notification_snack_battery_reenable": "सेटिंग्स → बैटरी में बैटरी अनुकूलन पुनर्स्थापित करें।",
+  "profile_default_bio": "WeBuddhist में आपका स्वागत है",
+  "profile_guest_title": "अतिथि उपयोगकर्ता",
+  "profile_guest_subtitle": "आप अतिथि के रूप में ब्राउज़ कर रहे हैं",
+  "profile_guest_benefits_header": "अनलॉक करने के लिए साइन इन करें:",
+  "profile_guest_benefit_save_progress": "अपनी प्रगति सहेजें",
+  "profile_guest_benefit_personalized": "वैयक्तिकृत सामग्री",
+  "profile_guest_benefit_notifications": "कस्टम सूचनाएँ",
+  "auth_drawer_title": "जारी रखने के लिए लॉग इन करें",
+  "auth_drawer_subtitle": "जहाँ भी जाएँ, किसी भी डिवाइस पर अपना अभ्यास जारी रखें।",
+  "routine_delete_block_message": "समय खंड और उसके सभी आइटम हटा दिए जाएँगे",
+  "something_went_wrong": "कुछ गलत हो गया। कृपया पुनः प्रयास करें",
+  "onboarding_quote_citation": "— धम्मपद 122",
+  "onboarding_traditions_question": "आप किन परंपराओं\nका पालन करते हैं?",
+  "onboarding_select_all": "सभी चुनें",
+  "onboarding_event_enrollment_error": "आपका नामांकन नहीं हो सका। अपना कनेक्शन जाँचें और पुनः प्रयास करें",
+  "audio_init_error": "ऑडियो प्लेयर प्रारंभ नहीं हो सका। अपना कनेक्शन जाँचें और पुनः प्रयास करें",
+  "meditation_audio_load_error": "लोड नहीं हो सका। अपना कनेक्शन जाँचें और पुनः प्रयास करें",
+  "prayer_audio_load_error": "ऑडियो लोड नहीं हो सका। अपना कनेक्शन जाँचें और पुनः प्रयास करें",
+  "home_no_series_found": "कोई श्रृंखला नहीं मिली",
+  "onboarding_event_question": "किसी आयोजन में\nशामिल हों?",
+  "onboarding_event_optional": "वैकल्पिक · नामांकन के लिए टैप करें",
+  "onboarding_event_duration": "{description} · {days} दिन",
+  "@onboarding_event_duration": {
+    "placeholders": {
+      "description": {
+        "type": "String"
+      },
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "onboarding_event_reminder_note": "हम आपको प्रतिदिन सुबह 7:30 बजे एक अनुस्मारक भेजेंगे। (कभी भी बदलें।)",
+  "tradition_theravada": "थेरवाद",
+  "tradition_zen": "ज़ेन",
+  "tradition_tibetan_buddhism": "तिब्बती बौद्ध धर्म",
+  "tradition_pure_land": "शुद्ध भूमि",
+  "tradition_ambedkar_buddhism": "नवयान",
+  "plan_go_to_practice": "अभ्यास पर जाएँ",
+  "plan_starts_soon_title": "जल्द ही शुरू होगा",
+  "plan_joining_late_title": "प्रारंभ तिथि के बाद शामिल हो रहे हैं",
+  "got_it": "समझ गया",
+  "plan_no_tasks_error": "कार्य लोड नहीं हो सके",
+  "plan_day_tasks_load_error": "कार्य लोड नहीं हो सके",
+  "plans_empty_title": "और भी आने वाला है",
+  "plans_empty_subtitle": "हमारी लाइब्रेरी बढ़ रही है। जल्द ही फिर देखें।",
+  "find_plans_load_error": "लोड नहीं हो सका।\nअपना कनेक्शन जाँचें और पुनः प्रयास करें",
+  "connect_coming_soon_subtitle": "मार्ग पर आपका साथ देने के लिए शिक्षक, समुदाय, चुनौतियाँ और आयोजन",
+  "explore_coming_soon_subtitle": "अभ्यास, शिक्षाओं और सामुदायिक आयोजनों को खोजने के लिए एक चयनित स्थान",
+  "learn_coming_soon_subtitle": "आपकी व्यक्तिगत अध्ययन योजनाएँ, रोज़मर्रा के जीवन में ढलने के लिए बनाई गईं",
+  "creator_featured_plan": "विशेष योजना",
+  "home_no_tags_found": "कोई टैग नहीं मिला",
+  "home_celebrated_by": "द्वारा मनाया गया: ",
+  "reader_settings_tooltip": "रीडर सेटिंग्स",
+  "reader_font_size_tooltip": "फ़ॉन्ट आकार",
+  "reader_version_title": "संस्करण · {language}",
+  "@reader_version_title": {
+    "placeholders": {
+      "language": {
+        "type": "String"
+      }
+    }
+  },
+  "reader_script_title": "लिपि · {language}",
+  "@reader_script_title": {
+    "placeholders": {
+      "language": {
+        "type": "String"
+      }
+    }
+  },
+  "reader_versions_load_error": "संस्करण लोड करने में विफल",
+  "reader_scripts_load_error": "लिपियाँ लोड करने में विफल",
+  "reader_languages_load_error": "भाषाएँ लोड करने में विफल",
+  "reader_no_versions_in_language": "{language} में कोई संस्करण उपलब्ध नहीं है",
+  "@reader_no_versions_in_language": {
+    "placeholders": {
+      "language": {
+        "type": "String"
+      }
+    }
+  },
+  "reader_no_scripts_in_language": "{language} में कोई लिपि उपलब्ध नहीं है",
+  "@reader_no_scripts_in_language": {
+    "placeholders": {
+      "language": {
+        "type": "String"
+      }
+    }
+  },
+  "reader_no_languages": "इस पाठ के लिए कोई भाषा उपलब्ध नहीं है",
+  "reader_license": "लाइसेंस",
+  "reader_version_details_load_error": "संस्करण विवरण लोड नहीं हो सका",
+  "reader_no_version_info": "इस संस्करण के लिए कोई अतिरिक्त जानकारी उपलब्ध नहीं है",
+  "recitation_unavailable": "पाठ सामग्री वर्तमान में उपलब्ध नहीं है।\nबाद में पुनः प्रयास करें या सहायता से संपर्क करें",
+  "recitation_sign_in_required": "इस पाठ तक पहुँचने के लिए साइन इन करें",
+  "my_recitations_load_error": "लोड नहीं हो सका।\nअपना कनेक्शन जाँचें और पुनः प्रयास करें",
+  "recitations_load_error": "पाठ लोड नहीं हो सके।\nबाद में पुनः प्रयास करें",
+  "text_search_hint": "खोजने के लिए टाइप करें",
+  "text_search_press_button": "खोजने के लिए खोज बटन दबाएँ",
+  "text_search_error": "खोज नहीं की जा सकी।\nकृपया पुनः प्रयास करें",
+  "unknown_error": "अज्ञात त्रुटि",
+  "image_share_error": "साझा नहीं किया जा सका: {error}",
+  "@image_share_error": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "create_image_capture_error": "छवि बनाने में विफल। कृपया पुनः प्रयास करें",
+  "create_image_share_error": "साझा नहीं किया जा सका। कृपया पुनः प्रयास करें",
+  "create_image_save_success": "छवि सहेजी गई",
+  "create_image_save_error": "छवि सहेजी नहीं जा सकी। जाँचें कि ऐप के पास फ़ोटो एक्सेस है, या पुनः प्रयास करें",
+  "create_image_download_error": "आपकी छवि डाउनलोड नहीं की जा सकी। कृपया पुनः प्रयास करें",
+  "create_image_customize_tooltip": "कस्टमाइज़ करें",
+  "create_image_text_too_long": "फ़ॉन्ट आकार बढ़ाने के लिए टेक्स्ट बहुत लंबा है",
+  "version_search_no_results": "\"{query}\" के लिए कोई संस्करण नहीं मिला",
+  "@version_search_no_results": {
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
+  "my_plans_sign_in_prompt": "अपनी योजनाएँ देखने के लिए साइन इन करें",
+  "plan_starts_soon_message": "{date} को शुरू होगा। आप अभी सामग्री ब्राउज़ कर सकते हैं",
+  "@plan_starts_soon_message": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "plan_joining_late_message": "{date} को शुरू हुआ। आप बेझिझक पिछले दिनों के कार्य पूरे कर सकते हैं",
+  "@plan_joining_late_message": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "select_language": "भाषा चुनें",
+  "logout_confirmation": "क्या आप वाकई लॉग आउट करना चाहते हैं?",
+  "cancel": "रद्द करें",
+  "copy": "कॉपी करें",
+  "copied": "कॉपी किया गया",
+  "share": "साझा करें",
+  "image": "छवि",
+  "feedback": "प्रतिक्रिया",
+  "author": "लेखक",
+  "plans_created": "योजना बनाई गई",
+  "ai_chat_history": "चैट इतिहास",
+  "ai_buddhist_assistant": "अपनी दैनिक लय बनाएँ। समय निर्धारित करें, और हम आपको अभ्यास की याद दिलाएँगे",
+  "ai_new_chat": "नई चैट",
+  "ai_retry": "पुनः प्रयास करें",
+  "ai_dismiss": "खारिज करें",
+  "ai_sign_in_prompt": "बौद्ध AI सहायक का उपयोग करने के लिए साइन इन करें",
+  "ai_explore_wisdom": "बौद्ध ज्ञान का अन्वेषण करें",
+  "ai_ask_question": "एक प्रश्न पूछें...",
+  "ai_search_chats": "चैट खोजें",
+  "ai_chats": "चैट",
+  "ai_chat_deleted": "चैट हटा दी गई",
+  "ai_no_conversations": "अभी तक कोई बातचीत नहीं",
+  "ai_start_new_chat": "शुरू करने के लिए एक नई चैट आरंभ करें।",
+  "ai_delete_chat": "चैट हटाएँ",
+  "ai_delete_confirmation": "क्या आप वाकई इस चैट को हटाना चाहते हैं?",
+  "ai_delete_warning": "यह क्रिया पूर्ववत नहीं की जा सकती।",
+  "ai_confirm": "पुष्टि करें",
+  "ai_delete": "हटाएँ",
+  "ai_greeting": "नमस्ते {name}",
+  "@ai_greeting": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "ai_text_not_found": "पाठ नहीं मिला।",
+  "ai_text_not_found_message": "हमारी लाइब्रेरी में अभी \"{title}\" उपलब्ध नहीं है।\n\nकोई अन्य शीर्षक आज़माएँ, या किसी और तरीके से पूछें",
+  "@ai_text_not_found_message": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "ai_sources": "स्रोत",
+  "ai_sources_count": "{count} स्रोत",
+  "@ai_sources_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "search_no_results": "\"{query}\" के लिए कोई परिणाम नहीं मिला",
+  "@search_no_results": {
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
+  "search_show_more": "और दिखाएँ",
+  "search_contents": "सामग्री",
+  "search_titles": "शीर्षक",
+  "search_all": "सभी",
+  "search_author": "लेखक",
+  "search_tab_ai_mode": "AI मोड",
+  "search_error": "त्रुटि: {message}",
+  "@search_error": {
+    "placeholders": {
+      "message": {
+        "type": "String"
+      }
+    }
+  },
+  "search_retrying": "पुनः प्रयास हो रहा है...",
+  "search_no_titles_found": "\"{query}\" के लिए कोई शीर्षक नहीं मिला",
+  "@search_no_titles_found": {
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
+  "search_no_contents_found": "\"{query}\" के लिए कोई सामग्री नहीं मिली",
+  "@search_no_contents_found": {
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
+  "search_no_authors_found": "\"{query}\" के लिए कोई लेखक नहीं मिला",
+  "@search_no_authors_found": {
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
+  "search_buddhist_texts": "बौद्ध ग्रंथ खोजें...",
+  "common_ok": "ठीक है",
+  "comingSoonHeadline": "जल्द ही आ रहा है",
+  "routine_title": "मेरे अभ्यास",
+  "routine_empty_title": "अभ्यास",
+  "routine_edit": "संपादित करें",
+  "routine_empty_description": "अपनी दिनचर्या में जोड़ने के लिए और अधिक शिक्षाओं और अभ्यासों का अन्वेषण करें",
+  "routine_build": "अपनी दिनचर्या बनाएँ",
+  "routine_add_session": "सत्र में जोड़ें",
+  "routine_edit_title": "अपनी दिनचर्या संपादित करें",
+  "routine_delete_block": "खंड हटाएँ?",
+  "routine_delete_time_block": "समय खंड हटाएँ",
+  "routine_add_plan": "योजना जोड़ें",
+  "routine_add_recitation": "पाठ जोड़ें",
+  "routine_add_plan_to_routine": "दिनचर्या में जोड़ें",
+  "routine_load_error": "लोड नहीं हो सका। अपना कनेक्शन जाँचें और पुनः प्रयास करें",
+  "routine_empty_block_title_singular": "खाली समय खंड",
+  "routine_empty_block_title_plural": "खाली समय खंड ({count})",
+  "@routine_empty_block_title_plural": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "routine_empty_block_message_singular": "यह समय खंड खाली है। कोई आइटम जोड़ें, या इसे अपनी दिनचर्या से हटाएँ?",
+  "routine_empty_block_message_plural": "{count} समय खंड खाली हैं। आइटम जोड़ें, या उन्हें अपनी दिनचर्या से हटाएँ?",
+  "@routine_empty_block_message_plural": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "routine_empty_block_add_items": "आइटम जोड़ें",
+  "routine_empty_block_delete_singular": "खंड हटाएँ",
+  "routine_empty_block_delete_plural": "खंड हटाएँ",
+  "routine_notification_title": "अभ्यास को आदत बनाएँ",
+  "routine_notification_description": "सूचनाओं की अनुमति दें ताकि हम आपको अभ्यास की याद दिला सकें",
+  "routine_notification_enable": "सूचनाएँ सक्षम करें",
+  "routine_notification_skip": "छोड़ें",
+  "routine_time_adjusted": "{time} पर समायोजित ({gap}-मिनट का न्यूनतम अंतराल)",
+  "@routine_time_adjusted": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      },
+      "gap": {
+        "type": "int"
+      }
+    }
+  },
+  "routine_add_block_label": "समय खंड",
+  "continueWithGoogle": "Google के साथ जारी रखें",
+  "continueWithApple": "Apple के साथ जारी रखें",
+  "continueAsGuest": "अतिथि के रूप में जारी रखें",
+  "signIn": "साइन इन करें",
+  "profileError": "प्रोफ़ाइल लोड करने में त्रुटि",
+  "profileTitle": "प्रोफ़ाइल",
+  "notLoggedIn": "लॉग इन नहीं किया गया",
+  "retry": "पुनः प्रयास करें",
+  "back": "वापस",
+  "delete": "हटाएँ",
+  "close": "बंद करें",
+  "tryAgain": "पुनः प्रयास करें",
+  "pleaseTryAgain": "कृपया पुनः प्रयास करें",
+  "error": "त्रुटि",
+  "anonymous": "अनाम",
+  "noContentAvailable": "कोई सामग्री उपलब्ध नहीं है",
+  "unableToLoad": "लोड नहीं हो सका। अपना कनेक्शन जाँचें और पुनः प्रयास करें",
+  "somethingWrong": "कुछ गलत हो गया। अपना कनेक्शन जाँचें और पुनः प्रयास करें",
+  "source": "स्रोत",
+  "searchResults": "खोज परिणाम",
+  "noTasks": "कोई कार्य उपलब्ध नहीं है",
+  "taskNotFound": "कार्य नहीं मिला",
+  "updateTaskError": "कार्य स्थिति अपडेट नहीं की जा सकी",
+  "enrollError": "आपका नामांकन नहीं हो सका। अपना कनेक्शन जाँचें और पुनः प्रयास करें",
+  "unenrollSuccess": "आपने {planTitle} से नामांकन रद्द कर दिया है",
+  "unenrollError": "आपका नामांकन रद्द नहीं हो सका। अपना कनेक्शन जाँचें और पुनः प्रयास करें",
+  "unenrollGenericError": "कुछ गलत हो गया। अपना कनेक्शन जाँचें और पुनः प्रयास करें",
+  "notFound": "यह अब उपलब्ध नहीं है। अपडेट करने के लिए अपनी दिनचर्या संपादित करें।",
+  "noTimeSlot": "कोई उपलब्ध समय स्लॉट नहीं है। पहले एक खंड हटाने का प्रयास करें",
+  "maxBlocks": "अधिकतम {max} समय खंड की सीमा पहुँच गई",
+  "duplicateItem": "यह आइटम पहले से ही खंड में है",
+  "removeItem": "आइटम हटाएँ?",
+  "removeConfirmation": "\"{itemName}\" को इस खंड से हटा दिया जाएगा",
+  "shareError": "साझा नहीं किया जा सका। कृपया पुनः प्रयास करें",
+  "updateOrderError": "क्रम अपडेट नहीं किया जा सका। कृपया पुनः प्रयास करें",
+  "loadFailed": "लोड नहीं हो सका। अपना कनेक्शन जाँचें और पुनः प्रयास करें",
+  "captureError": "QR कोड कैप्चर करने में विफल। कृपया पुनः प्रयास करें",
+  "qrShareError": "QR कोड साझा नहीं किया जा सका। बाद में पुनः प्रयास करें",
+  "errorDetail": "त्रुटि: {error}",
+  "@errorDetail": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "@unenrollSuccess": {
+    "placeholders": {
+      "planTitle": {
+        "type": "String"
+      }
+    }
+  },
+  "@maxBlocks": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "@removeConfirmation": {
+    "placeholders": {
+      "itemName": {
+        "type": "String"
+      }
+    }
+  },
+  "@shareError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "missedDaysCount": "{count, plural, =0{0 छूटे हुए दिन} =1{1 छूटा हुआ दिन} other{{count} छूटे हुए दिन}}",
+  "@missedDaysCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "plan_status_on_track": "सही राह पर!",
+  "start_now": "अभी शुरू करें",
+  "plan_enroll": "नामांकन करें",
+  "show_second_version": "दूसरा संस्करण दिखाएँ",
+  "enable_add_msg": "मुख्य पाठ के साथ अनुवाद या लिप्यंतरण जोड़ने के लिए सक्षम करें",
+  "main_version": "मुख्य संस्करण",
+  "second_version": "दूसरा संस्करण",
+  "second_version_msg": "दूसरा संस्करण मुख्य पाठ के प्रत्येक पद के नीचे दिखाई देगा",
+  "version": "संस्करण",
+  "parallel_version": "समानांतर संस्करण",
+  "version_not_available": "उपलब्ध नहीं",
+  "read_full_text": "पूरा पाठ पढ़ें",
+  "reader_source_label": "स्रोत",
+  "reader_license_label": "लाइसेंस",
+  "series_stats": "{planCount} योजनाएँ · {totalDays} दिन",
+  "@series_stats": {
+    "placeholders": {
+      "planCount": {
+        "type": "int"
+      },
+      "totalDays": {
+        "type": "int"
+      }
+    }
+  },
+  "force_update_title": "अपडेट आवश्यक",
+  "force_update_message": "ऐप का एक नया संस्करण उपलब्ध है। जारी रखने के लिए कृपया अपडेट करें",
+  "force_update_button": "अभी अपडेट करें",
+  "settings_section_personalisation": "वैयक्तिकरण",
+  "settings_section_more": "अधिक",
+  "settings_section_account": "खाता",
+  "settings_edit_profile": "प्रोफ़ाइल संपादित करें",
+  "settings_theme": "थीम",
+  "settings_notification_row": "सूचनाएँ",
+  "settings_feedback_row": "प्रतिक्रिया",
+  "edit_profile_title": "प्रोफ़ाइल संपादित करें",
+  "edit_profile_save": "सहेजें",
+  "edit_profile_first_name": "पहला नाम",
+  "edit_profile_last_name": "उपनाम",
+  "edit_profile_bio": "परिचय",
+  "edit_profile_bio_hint": "अपने बारे में थोड़ा साझा करें",
+  "edit_profile_delete_account": "खाता हटाएँ",
+  "edit_profile_photo_not_uploaded": "फ़ोटो अपलोड नहीं हुई",
+  "edit_profile_photo_too_large": "छवि बहुत बड़ी है। कृपया 1 MB से कम की फ़ोटो चुनें और पुनः प्रयास करें",
+  "edit_profile_photo_upload_failed": "आपकी फ़ोटो अपलोड नहीं हो सकी। कृपया पुनः प्रयास करें",
+  "edit_profile_choose_from_library": "लाइब्रेरी से चुनें",
+  "edit_profile_take_photo": "फ़ोटो लें",
+  "edit_profile_offline": "आप ऑफ़लाइन हैं। इंटरनेट से कनेक्ट करें और पुनः प्रयास करें",
+  "edit_profile_save_failed": "आपके परिवर्तन सहेजे नहीं जा सके। कृपया पुनः प्रयास करें",
+  "username_label": "उपयोगकर्ता नाम",
+  "username_taken": "यह नाम पहले से ही किसी ने उपयोग कर लिया है",
+  "username_available_label": "उपलब्ध: ",
+  "username_check_error": "उपयोगकर्ता नाम जाँचा नहीं जा सका। पुनः प्रयास करें",
+  "username_invalid_format": "अमान्य उपयोगकर्ता नाम प्रारूप",
+  "username_min_length": "उपयोगकर्ता नाम कम से कम 3 अक्षरों का होना चाहिए",
+  "username_max_length": "उपयोगकर्ता नाम 30 अक्षरों या उससे कम का होना चाहिए",
+  "username_no_spaces": "उपयोगकर्ता नाम में रिक्त स्थान नहीं हो सकते",
+  "username_invalid_chars": "केवल अक्षर, संख्याएँ, _ . - की अनुमति है",
+  "username_must_start_alphanumeric": "उपयोगकर्ता नाम किसी अक्षर या संख्या से शुरू होना चाहिए",
+  "username_must_end_alphanumeric": "उपयोगकर्ता नाम किसी अक्षर या संख्या से समाप्त होना चाहिए",
+  "person_name_min_length": "कम से कम 1 अक्षर होना चाहिए",
+  "person_name_max_length": "50 अक्षर या उससे कम होना चाहिए",
+  "person_name_invalid_chars": "केवल अक्षर, रिक्त स्थान, हाइफ़न (-) और उच्चकोटि (') की अनुमति है",
+  "about_title": "हमारे बारे में",
+  "about_connect_with_us": "हमसे जुड़ें",
+  "about_description": "हम बौद्धों को कम हानि और अधिक भलाई करने में, तथा प्रतिदिन सीखने, अभ्यास करने और जुड़ने के माध्यम से अपने मन को बेहतर ढंग से जानने में मदद करते हैं, ताकि सभी प्राणी दुख से मुक्त हों और स्थायी सुख पाएँ।",
+  "about_social_website": "वेबसाइट",
+  "me_guest_headline": "पूर्ण अनुभव प्राप्त करें",
+  "me_guest_subtitle": "अपनी प्रगति सहेजने के लिए एक निःशुल्क खाता बनाएँ",
+  "delete_account_title": "खाता हटाएँ",
+  "delete_account_description": "यदि आप अपना खाता हटाते हैं, तो WeBuddhist के भीतर आपकी सभी जानकारी, इतिहास और वैयक्तिकृत सेटिंग्स स्थायी रूप से समाप्त हो जाएँगी। कृपया ध्यान दें कि यह क्रिया अपरिवर्तनीय है। आगे बढ़ने के लिए, नीचे दिए गए बटन को टैप करें।",
+  "delete_account_button": "खाता हटाएँ",
+  "delete_account_confirm_message": "क्या आप वाकई अपना WeBuddhist खाता हटाना चाहते हैं?",
+  "legal_title": "कानूनी",
+  "legal_terms_of_service": "सेवा की शर्तें",
+  "legal_privacy_policy": "गोपनीयता नीति",
+  "follow": "फ़ॉलो करें",
+  "following": "फ़ॉलो किया जा रहा है",
+  "calendar_title": "कैलेंडर",
+  "calendar_upcoming_events": "आगामी आयोजन",
+  "calendar_day_short": "दिन",
+  "calendar_day_label": "दिन",
+  "calendar_day_month": "दिन {day} · माह {month}",
+  "@calendar_day_month": {
+    "placeholders": {
+      "day": {
+        "type": "int"
+      },
+      "month": {
+        "type": "int"
+      }
+    }
+  },
+  "calendar_lunar_month": "{ordinal} चंद्र मास",
+  "@calendar_lunar_month": {
+    "placeholders": {
+      "ordinal": {
+        "type": "String"
+      }
+    }
+  },
+  "moon_phase_new_moon": "अमावस्या",
+  "moon_phase_waxing_crescent": "बढ़ता अर्धचंद्र",
+  "moon_phase_first_quarter": "प्रथम चतुर्थांश",
+  "moon_phase_waxing_gibbous": "बढ़ता उपपूर्ण चंद्र",
+  "moon_phase_full_moon": "पूर्णिमा",
+  "moon_phase_waning_gibbous": "घटता उपपूर्ण चंद्र",
+  "moon_phase_last_quarter": "अंतिम चतुर्थांश",
+  "moon_phase_waning_crescent": "घटता अर्धचंद्र",
+
+  "join": "शामिल हों",
+  "joined": "शामिल",
+  "group_member": "सदस्य",
+  "group_members": "सदस्य",
+  "group_follower": "अनुयायी",
+  "group_followers": "अनुयायी",
+  "group_links_title": "लिंक",
+  "group_and_more_links": "और {count} और लिंक",
+
+  "share_this_quote": "इस उद्धरण को साझा करें",
+  "shared_from": "यहाँ से साझा किया गया",
+  "verse_share_error": "उद्धरण साझा नहीं किया जा सका। कृपया पुनः प्रयास करें"
+}

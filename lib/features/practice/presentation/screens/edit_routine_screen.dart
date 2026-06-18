@@ -201,10 +201,10 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
   /// are excluded by the backend (`GET /users/me/plans?series_id=`), so the
   /// client just trusts the result. Plans already in the routine are skipped.
   Future<void> _hydrateSeriesEnrollment(String seriesId) async {
-    final locale = ref.read(localeProvider);
+    final language = ref.read(contentLanguageProvider);
     final useCase = ref.read(getUserPlansUseCaseProvider);
     final result = await useCase(
-      GetUserPlansParams(language: locale.languageCode, seriesId: seriesId),
+      GetUserPlansParams(language: language, seriesId: seriesId),
     );
 
     if (!mounted) return;
@@ -1164,9 +1164,8 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
 
     // Fetch the series' active plans (backend excludes future plans by start
     // date) and inject the ones missing from the tapped block.
-    final locale = ref.read(localeProvider);
     final result = await ref.read(getUserPlansUseCaseProvider)(
-      GetUserPlansParams(language: locale.languageCode, seriesId: seriesId),
+      GetUserPlansParams(language: ref.read(contentLanguageProvider), seriesId: seriesId),
     );
     if (!mounted) return;
 

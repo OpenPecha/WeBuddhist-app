@@ -14,11 +14,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 final featuredDayFutureProvider = FutureProvider<Either<Failure, List<FeaturedDayTask>>>((
   ref,
 ) async {
-  final locale = ref.watch(localeProvider);
+  final language = ref.watch(contentLanguageProvider);
   final repository = ref.watch(featuredDayDomainRepositoryProvider);
   final useCase = ref.watch(getFeaturedDayUseCaseProvider);
 
-  final result = await useCase(GetFeaturedDayParams(language: locale.languageCode));
+  final result = await useCase(GetFeaturedDayParams(language: language));
 
   // Map the successful response to FeaturedDayTask list
   return result.fold(

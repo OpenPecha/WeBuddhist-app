@@ -6,5 +6,8 @@ class L10n {
     const Locale(AppConfig.englishLanguageCode),
     const Locale(AppConfig.tibetanLanguageCode),
     const Locale(AppConfig.chineseLanguageCode),
+    const Locale(AppConfig.hindiLanguageCode),
+    const Locale(AppConfig.mongolianLanguageCode),
+    const Locale(AppConfig.nepaliLanguageCode),
   ];
 }

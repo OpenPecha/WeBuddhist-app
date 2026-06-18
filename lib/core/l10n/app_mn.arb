@@ -1,0 +1,636 @@
+{
+  "@@locale": "mn",
+  "appTitle": "WeBuddhist",
+  "sign_in": "Нэвтрэх",
+  "logout": "Гарах",
+  "onboarding_welcome": "Тавтай морил",
+  "onboarding_quote": "Дусал дуслаар ус сав дүүрдэгийн адил, ухаант хүн ч багаахан багаахнаар хуримтлуулж, өөрийгөө буянаар дүүргэдэг.",
+  "onboarding_find_peace": "Эхлэх",
+  "onboarding_continue": "Үргэлжлүүлэх",
+  "onboarding_first_question": "Хэлээ сонгоно уу:",
+  "onboarding_choose_option": "Дор хаяж нэгийг сонгоно уу:",
+  "onboarding_all_set": "Бүх зүйл бэлэн боллоо",
+  "onboarding_all_set_description": "Бид таны уламжлалд тохируулан туршлагыг тань бэлдлээ. Өдөр бүр — багахан хором ч гэсэн — хичээллэж, дадлага тань хэрхэн өсөхийг ажиглаарай",
+  "onboarding_begin_practice": "Дадлагаа эхлүүлэх",
+  "home_today": "Өнөөдөр",
+  "home_good_morning": "Өглөөний мэнд",
+  "home_good_afternoon": "Өдрийн мэнд",
+  "home_good_evening": "Оройн мэнд",
+  "home_meditationTitle": "Бясалгал",
+  "home_prayerTitle": "Өнөөдрийн залбирал",
+  "home_scripture": "Удирдамжтай бичиг",
+  "home_meditation": "Удирдамжтай бясалгал",
+  "home_goDeeper": "Илүү гүнзгий орно уу",
+  "home_intention": "Өнөөдрийн миний зорилго",
+  "home_recitation": "Уншлага",
+  "home_overall_stats": "Нийт статистик",
+  "home_plans": "Төлөвлөгөө",
+  "home_shortcut_plans": "Төлөвлөгөө",
+  "home_chants": "Магтаал",
+  "home_mala": "Эрх",
+  "home_timer": "Цаг хэмжигч",
+  "preset_timers": "Бэлэн тохируулсан цаг",
+  "meditation_timer": "Бясалгалын цаг хэмжигч",
+  "timer_min": "мин",
+  "timer_start": "Эхлэх",
+  "timer_finish": "Дуусгах",
+  "timer_discard_session": "Хичээл цуцлах",
+  "home_hello_prefix": "Сайн байна уу, ",
+  "home_greeting_fallback_name": "найз минь",
+  "home_share_prompt": "{appName} танд таалагдаж байна уу?",
+  "@home_share_prompt": {
+    "placeholders": {
+      "appName": {
+        "type": "String"
+      }
+    }
+  },
+  "no_feature_content": "Онцлох агуулга байхгүй байна",
+  "nav_home": "Нүүр",
+  "nav_explore": "Судлах",
+  "nav_learn": "Суралцах",
+  "nav_practice": "Дадлага",
+  "nav_settings": "Тохиргоо",
+  "nav_connect": "Холбогдох",
+  "nav_me": "Би",
+  "text_search": "Хайх",
+  "text_toc_versions": "Хувилбарууд",
+  "text_commentary": "Тайлбар",
+  "no_translation": "Орчуулга олдсонгүй",
+  "text_close_commentary": "Тайлбар хаах",
+  "show_more": "Илүү ихийг харах",
+  "show_less": "Хураах",
+  "more": "Илүү",
+  "less": "Бага",
+  "no_content": "Агуулга олдсонгүй",
+  "no_commentary": "Тайлбар олдсонгүй",
+  "commentary_not_available_for_language": "{language} хэл дээрх тайлбар байхгүй",
+  "@commentary_not_available_for_language": {
+    "placeholders": {
+      "language": {
+        "type": "String"
+      }
+    }
+  },
+  "loading": "Ачааллаж байна...",
+  "choose_image": "Зураг сонгох",
+  "choose_bg_image": "Дэвсгэр зураг сонгох",
+  "create_image": "Зураг үүсгэх",
+  "save": "Хадгалах",
+  "done": "Болсон",
+  "customise_message": "Бичвэрийн загварыг тохируулахын тулд тохируулах дүрс дээр дарна уу",
+  "download_image": "Зураг татах",
+  "no_images_available": "Зураг байхгүй байна",
+  "customise_text": "Бичвэр тохируулах",
+  "text_size": "Бичвэрийн хэмжээ",
+  "text_color": "Бичвэрийн өнгө",
+  "text_shadow": "Бичвэрийн сүүдэр",
+  "apply": "Хэрэглэх",
+  "my_plans": "Миний төлөвлөгөө",
+  "browse_plans": "Төлөвлөгөө үзэх",
+  "plan_info": "Төлөвлөгөөний мэдээлэл",
+  "start_reading": "Одоо дадлага хийх",
+  "tibetan": "Төвд",
+  "sanskrit": "Санскрит",
+  "english": "Англи",
+  "chinese": "Хятад",
+  "classicalChinese": "Сонгодог хятад",
+  "pali": "Пали",
+  "language": "Хэл",
+  "plan_unenroll": "Бүртгэл цуцлах",
+  "unenroll_confirmation": "Та дараахаас бүртгэлээ цуцлахдаа итгэлтэй байна уу",
+  "unenroll_message": "Таны ахиц бүрмөсөн устах бөгөөд сэргээх боломжгүй",
+  "practice_plan": "Өдөр тутмын дадлага бий болго. Өөрт тохирохыг олж судал.",
+  "search_plans": "Төлөвлөгөө хайх...",
+  "search_for_plans": "Төлөвлөгөө хайх",
+  "no_plans_found": "Төлөвлөгөө олдсонгүй",
+  "no_days_available": "Өдөр олдсонгүй",
+  "recitations_title": "Уншлагууд",
+  "recitations_my_recitations": "Миний уншлага",
+  "browse_recitations": "Уншлага үзэх",
+  "recitations_search": "Уншлага хайх...",
+  "recitations_search_for": "Уншлага хайх",
+  "recitations_no_found": "Уншлага олдсонгүй",
+  "recitations_no_content": "Уншлага байхгүй байна",
+  "recitations_no_saved": "Хадгалсан уншлага байхгүй",
+  "recitations_login_prompt": "Хадгалсан уншлагаа харахын тулд нэвтэрнэ үү",
+  "notification_settings": "Мэдэгдлийн тохиргоо",
+  "notification_allow_title": "Мэдэгдэл зөвшөөрөх",
+  "notification_allow_subtitle_enabled": "Энэ аппликейшнд мэдэгдэл идэвхжсэн байна",
+  "notification_allow_subtitle_disabled": "Зөвшөөрөл шаардлагатай. Тохиргоо хэсэгт олгохын тулд дарна уу.",
+  "notification_allow_subtitle_paused": "Сануулга түр зогссон. Үргэлжлүүлэхийн тулд дарна уу.",
+  "notification_routine_title": "Дадлагын сануулга",
+  "notification_routine_subtitle_enabled": "Таны дадлагын цаг хугацааны өдөр тутмын сануулга",
+  "notification_routine_subtitle_disabled": "Дадлагын сануулга түр зогссон. Үргэлжлүүлэхийн тулд дарна уу.",
+  "notification_battery_title": "Дэвсгэр сануулга",
+  "notification_battery_subtitle_enabled": "Апп хаалттай байсан ч таны сануулга цагтаа илгээгдэнэ.",
+  "notification_battery_subtitle_disabled": "Зарим Android утас батерей хэмнэхийн тулд дэвсгэр аппуудыг түр зогсоодог нь таны сануулгыг хойшлуулах буюу алгасах магадлалтай. Үргэлжлүүлэн ажиллуулахын тулд дарна уу.",
+  "notification_recitation_title": "Уншлагын сануулга",
+  "notification_recitation_subtitle_enabled": "Таны уншлагын өдөр тутмын сануулга",
+  "notification_recitation_subtitle_disabled": "Уншлагын сануулга түр зогссон. Үргэлжлүүлэхийн тулд дарна уу.",
+  "notification_battery_info_title": "Дэвсгэр сануулгын тухай",
+  "notification_battery_info_body": "Зарим Android утас батерей хэмнэхийн тулд дэвсгэр аппуудыг түр зогсоодог нь таны товлосон сануулгыг хойшлуулах буюу цуцлах магадлалтай. Энэ аппыг чөлөөлснөөр таны сануулга цагтаа найдвартай ирнэ.",
+  "notification_snack_permission_denied": "Мэдэгдэл хаагдсан байна. Тохиргоо хэсэгт идэвхжүүлнэ үү",
+  "notification_snack_disable_alarms_in_settings": "Тохиргоо хэсэгт сэрүүлэг ба сануулгыг унтраана уу.",
+  "notification_snack_battery_reenable": "Тохиргоо → Батерей хэсэгт батерей оновчлолыг сэргээнэ үү.",
+  "profile_default_bio": "WeBuddhist-д тавтай морил",
+  "profile_guest_title": "Зочин хэрэглэгч",
+  "profile_guest_subtitle": "Та зочноор үзэж байна",
+  "profile_guest_benefits_header": "Нээхийн тулд нэвтэрнэ үү:",
+  "profile_guest_benefit_save_progress": "Ахицаа хадгалах",
+  "profile_guest_benefit_personalized": "Хувийн тохируулсан агуулга",
+  "profile_guest_benefit_notifications": "Тусгай мэдэгдэл",
+  "auth_drawer_title": "Үргэлжлүүлэхийн тулд нэвтэрнэ үү",
+  "auth_drawer_subtitle": "Хаана ч явсан, аль ч төхөөрөмж дээр дадлагаа үргэлжлүүл.",
+  "routine_delete_block_message": "Цагийн блок болон доторх бүх зүйл устгагдана",
+  "something_went_wrong": "Алдаа гарлаа. Дахин оролдоно уу",
+  "onboarding_quote_citation": "— Дхаммапада 122",
+  "onboarding_traditions_question": "Та ямар уламжлал\nдагадаг вэ?",
+  "onboarding_select_all": "Бүгдийг сонгох",
+  "onboarding_event_enrollment_error": "Бүртгэх боломжгүй байна. Холболтоо шалгаад дахин оролдоно уу",
+  "audio_init_error": "Дуу тоглуулагчийг эхлүүлэх боломжгүй. Холболтоо шалгаад дахин оролдоно уу",
+  "meditation_audio_load_error": "Ачаалах боломжгүй. Холболтоо шалгаад дахин оролдоно уу",
+  "prayer_audio_load_error": "Дуу ачаалах боломжгүй. Холболтоо шалгаад дахин оролдоно уу",
+  "home_no_series_found": "Цуврал олдсонгүй",
+  "onboarding_event_question": "Арга хэмжээнд\nнэгдэх үү?",
+  "onboarding_event_optional": "Сонголтоор · Бүртгүүлэхийн тулд дарна уу",
+  "onboarding_event_duration": "{description} · {days} өдөр",
+  "@onboarding_event_duration": {
+    "placeholders": {
+      "description": {
+        "type": "String"
+      },
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "onboarding_event_reminder_note": "Бид өглөөний 7:30 цагт өдөр тутмын сануулга илгээнэ. (Хүссэн үедээ өөрчилж болно.)",
+  "tradition_theravada": "Теравада",
+  "tradition_zen": "Зэн",
+  "tradition_tibetan_buddhism": "Төвдийн бурханы шашин",
+  "tradition_pure_land": "Цэвэр газар",
+  "tradition_ambedkar_buddhism": "Амбедкарын бурханы шашин",
+  "plan_go_to_practice": "Дадлага руу очих",
+  "plan_starts_soon_title": "Удахгүй эхэлнэ",
+  "plan_joining_late_title": "Эхлэх огнооны дараа нэгдэж байна",
+  "got_it": "Ойлголоо",
+  "plan_no_tasks_error": "Даалгавруудыг ачаалах боломжгүй",
+  "plan_day_tasks_load_error": "Даалгавруудыг ачаалах боломжгүй",
+  "plans_empty_title": "Удахгүй илүү ихийг нэмнэ",
+  "plans_empty_subtitle": "Манай сан өргөжиж байна. Удахгүй дахин шалгаарай.",
+  "find_plans_load_error": "Ачаалах боломжгүй.\nХолболтоо шалгаад дахин оролдоно уу",
+  "connect_coming_soon_subtitle": "Замд тань туслах багш нар, нийгэмлэгүүд, сорилт болон арга хэмжээнүүд",
+  "explore_coming_soon_subtitle": "Дадлага, сургаал, нийгэмлэгийн арга хэмжээг нээх онцгой орчин",
+  "learn_coming_soon_subtitle": "Өдөр тутмын амьдралд тохируулан зохиосон таны хувийн судлах төлөвлөгөө",
+  "creator_featured_plan": "Онцлох төлөвлөгөө",
+  "home_no_tags_found": "Шошго олдсонгүй",
+  "home_celebrated_by": "Тэмдэглэдэг: ",
+  "reader_settings_tooltip": "Уншигчийн тохиргоо",
+  "reader_font_size_tooltip": "Үсгийн хэмжээ",
+  "reader_version_title": "Хувилбар · {language}",
+  "@reader_version_title": {
+    "placeholders": {
+      "language": {
+        "type": "String"
+      }
+    }
+  },
+  "reader_script_title": "Бичиг · {language}",
+  "@reader_script_title": {
+    "placeholders": {
+      "language": {
+        "type": "String"
+      }
+    }
+  },
+  "reader_versions_load_error": "Хувилбаруудыг ачаалж чадсангүй",
+  "reader_scripts_load_error": "Бичгүүдийг ачаалж чадсангүй",
+  "reader_languages_load_error": "Хэлүүдийг ачаалж чадсангүй",
+  "reader_no_versions_in_language": "{language} хэл дээр хувилбар байхгүй",
+  "@reader_no_versions_in_language": {
+    "placeholders": {
+      "language": {
+        "type": "String"
+      }
+    }
+  },
+  "reader_no_scripts_in_language": "{language} хэл дээр бичиг байхгүй",
+  "@reader_no_scripts_in_language": {
+    "placeholders": {
+      "language": {
+        "type": "String"
+      }
+    }
+  },
+  "reader_no_languages": "Энэ бичвэрт хэл байхгүй",
+  "reader_license": "Лиценз",
+  "reader_version_details_load_error": "Хувилбарын дэлгэрэнгүйг ачаалах боломжгүй",
+  "reader_no_version_info": "Энэ хувилбарт нэмэлт мэдээлэл байхгүй",
+  "recitation_unavailable": "Уншлагын агуулга одоогоор байхгүй байна.\nДараа дахин оролдох эсвэл дэмжлэгтэй холбогдоно уу",
+  "recitation_sign_in_required": "Энэ уншлагыг үзэхийн тулд нэвтэрнэ үү",
+  "my_recitations_load_error": "Ачаалах боломжгүй.\nХолболтоо шалгаад дахин оролдоно уу",
+  "recitations_load_error": "Уншлагуудыг ачаалах боломжгүй.\nДараа дахин оролдоно уу",
+  "text_search_hint": "Хайхын тулд бичнэ үү",
+  "text_search_press_button": "Хайхын тулд хайх товчийг дарна уу",
+  "text_search_error": "Хайлт хийх боломжгүй.\nДахин оролдоно уу",
+  "unknown_error": "Тодорхойгүй алдаа",
+  "image_share_error": "Хуваалцах боломжгүй: {error}",
+  "@image_share_error": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "create_image_capture_error": "Зураг үүсгэж чадсангүй. Дахин оролдоно уу",
+  "create_image_share_error": "Хуваалцах боломжгүй. Дахин оролдоно уу",
+  "create_image_save_success": "Зураг хадгалагдлаа",
+  "create_image_save_error": "Зургийг хадгалах боломжгүй. Аппд зургийн хандалт байгаа эсэхийг шалгах эсвэл дахин оролдоно уу",
+  "create_image_download_error": "Зургаа татах боломжгүй. Дахин оролдоно уу",
+  "create_image_customize_tooltip": "Тохируулах",
+  "create_image_text_too_long": "Үсгийн хэмжээг томруулахад бичвэр хэт урт байна",
+  "version_search_no_results": "\"{query}\"-д тохирох хувилбар олдсонгүй",
+  "@version_search_no_results": {
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
+  "my_plans_sign_in_prompt": "Төлөвлөгөөгөө харахын тулд нэвтэрнэ үү",
+  "plan_starts_soon_message": "{date}-нд эхэлнэ. Та одоо агуулгыг үзэж болно",
+  "@plan_starts_soon_message": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "plan_joining_late_message": "{date}-нд эхэлсэн. Өмнөх өдрүүдийн даалгавруудыг чөлөөтэй гүйцэтгэж болно",
+  "@plan_joining_late_message": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "select_language": "Хэл сонгох",
+  "logout_confirmation": "Та гарахдаа итгэлтэй байна уу?",
+  "cancel": "Цуцлах",
+  "copy": "Хуулах",
+  "copied": "Хууллаа",
+  "share": "Хуваалцах",
+  "image": "Зураг",
+  "feedback": "Санал хүсэлт",
+  "author": "Зохиогч",
+  "plans_created": "Төлөвлөгөө үүсгэсэн",
+  "ai_chat_history": "Чатын түүх",
+  "ai_buddhist_assistant": "Өдөр тутмын хэмнэлээ бий болго. Цагаа тохируул, бид танд дадлага хийхийг сануулна",
+  "ai_new_chat": "Шинэ чат",
+  "ai_retry": "Дахин оролдох",
+  "ai_dismiss": "Хаах",
+  "ai_sign_in_prompt": "Бурханы шашны AI туслахыг ашиглахын тулд нэвтэрнэ үү",
+  "ai_explore_wisdom": "Бурханы шашны ухааныг судлах",
+  "ai_ask_question": "Асуулт асуух...",
+  "ai_search_chats": "Чат хайх",
+  "ai_chats": "Чатууд",
+  "ai_chat_deleted": "Чат устгагдлаа",
+  "ai_no_conversations": "Одоогоор яриа байхгүй",
+  "ai_start_new_chat": "Эхлэхийн тулд шинэ чат эхлүүлнэ үү.",
+  "ai_delete_chat": "Чат устгах",
+  "ai_delete_confirmation": "Та энэ чатыг устгахдаа итгэлтэй байна уу?",
+  "ai_delete_warning": "Энэ үйлдлийг буцаах боломжгүй.",
+  "ai_confirm": "Баталгаажуулах",
+  "ai_delete": "Устгах",
+  "ai_greeting": "Сайн уу {name}",
+  "@ai_greeting": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "ai_text_not_found": "Бичвэр олдсонгүй.",
+  "ai_text_not_found_message": "Манай санд \"{title}\" одоогоор байхгүй байна.\n\nӨөр гарчиг туршиж үзэх, эсвэл өөрөөр асууна уу",
+  "@ai_text_not_found_message": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "ai_sources": "Эх сурвалжууд",
+  "ai_sources_count": "{count} эх сурвалж",
+  "@ai_sources_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "search_no_results": "\"{query}\"-д тохирох үр дүн олдсонгүй",
+  "@search_no_results": {
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
+  "search_show_more": "Илүү ихийг харах",
+  "search_contents": "Агуулга",
+  "search_titles": "Гарчиг",
+  "search_all": "Бүгд",
+  "search_author": "Зохиогч",
+  "search_tab_ai_mode": "AI горим",
+  "search_error": "Алдаа: {message}",
+  "@search_error": {
+    "placeholders": {
+      "message": {
+        "type": "String"
+      }
+    }
+  },
+  "search_retrying": "Дахин оролдож байна...",
+  "search_no_titles_found": "\"{query}\"-д тохирох гарчиг олдсонгүй",
+  "@search_no_titles_found": {
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
+  "search_no_contents_found": "\"{query}\"-д тохирох агуулга олдсонгүй",
+  "@search_no_contents_found": {
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
+  "search_no_authors_found": "\"{query}\"-д тохирох зохиогч олдсонгүй",
+  "@search_no_authors_found": {
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
+  "search_buddhist_texts": "Бурханы шашны бичвэр хайх...",
+  "common_ok": "За",
+  "comingSoonHeadline": "Удахгүй",
+  "routine_title": "Миний дадлагууд",
+  "routine_empty_title": "Дадлагууд",
+  "routine_edit": "Засах",
+  "routine_empty_description": "Хэвшилдээ нэмэхийн тулд илүү олон сургаал, дадлагыг судал",
+  "routine_build": "Хэвшлээ бий болго",
+  "routine_add_session": "Дадлагад нэмэх",
+  "routine_edit_title": "Хэвшлээ засах",
+  "routine_delete_block": "Блокыг устгах уу?",
+  "routine_delete_time_block": "Цагийн блокыг устгах",
+  "routine_add_plan": "Төлөвлөгөө нэмэх",
+  "routine_add_recitation": "Уншлага нэмэх",
+  "routine_add_plan_to_routine": "Хэвшилд нэмэх",
+  "routine_load_error": "Ачаалах боломжгүй. Холболтоо шалгаад дахин оролдоно уу",
+  "routine_empty_block_title_singular": "Хоосон цагийн блок",
+  "routine_empty_block_title_plural": "Хоосон цагийн блокууд ({count})",
+  "@routine_empty_block_title_plural": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "routine_empty_block_message_singular": "Энэ цагийн блок хоосон байна. Зүйл нэмэх үү, эсвэл хэвшлээсээ хасах уу?",
+  "routine_empty_block_message_plural": "{count} цагийн блок хоосон байна. Зүйл нэмэх үү, эсвэл хэвшлээсээ хасах уу?",
+  "@routine_empty_block_message_plural": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "routine_empty_block_add_items": "Зүйл нэмэх",
+  "routine_empty_block_delete_singular": "Блок хасах",
+  "routine_empty_block_delete_plural": "Блокууд хасах",
+  "routine_notification_title": "Дадлагыг зуршил болго",
+  "routine_notification_description": "Бид танд дадлага хийхийг сануулахын тулд мэдэгдэл зөвшөөрнө үү",
+  "routine_notification_enable": "Мэдэгдэл идэвхжүүлэх",
+  "routine_notification_skip": "Алгасах",
+  "routine_time_adjusted": "{time} болгон тохируулсан ({gap} мин доод зай)",
+  "@routine_time_adjusted": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      },
+      "gap": {
+        "type": "int"
+      }
+    }
+  },
+  "routine_add_block_label": "Цагийн блок",
+  "continueWithGoogle": "Google-ээр үргэлжлүүлэх",
+  "continueWithApple": "Apple-ээр үргэлжлүүлэх",
+  "continueAsGuest": "Зочноор үргэлжлүүлэх",
+  "signIn": "Нэвтрэх",
+  "profileError": "Профайл ачаалахад алдаа гарлаа",
+  "profileTitle": "Профайл",
+  "notLoggedIn": "Нэвтрээгүй байна",
+  "retry": "Дахин оролдох",
+  "back": "Буцах",
+  "delete": "Устгах",
+  "close": "Хаах",
+  "tryAgain": "Дахин оролдох",
+  "pleaseTryAgain": "Дахин оролдоно уу",
+  "error": "Алдаа",
+  "anonymous": "Нэргүй",
+  "noContentAvailable": "Агуулга байхгүй байна",
+  "unableToLoad": "Ачаалах боломжгүй. Холболтоо шалгаад дахин оролдоно уу",
+  "somethingWrong": "Алдаа гарлаа. Холболтоо шалгаад дахин оролдоно уу",
+  "source": "Эх сурвалж",
+  "searchResults": "Хайлтын үр дүн",
+  "noTasks": "Даалгавар байхгүй байна",
+  "taskNotFound": "Даалгавар олдсонгүй",
+  "updateTaskError": "Даалгаврын төлөвийг шинэчлэх боломжгүй",
+  "enrollError": "Бүртгэх боломжгүй байна. Холболтоо шалгаад дахин оролдоно уу",
+  "unenrollSuccess": "Та {planTitle}-аас бүртгэлээ цуцаллаа",
+  "unenrollError": "Бүртгэл цуцлах боломжгүй байна. Холболтоо шалгаад дахин оролдоно уу",
+  "unenrollGenericError": "Алдаа гарлаа. Холболтоо шалгаад дахин оролдоно уу",
+  "notFound": "Энэ нь цаашид байхгүй болсон. Шинэчлэхийн тулд хэвшлээ засна уу.",
+  "noTimeSlot": "Сул цагийн зай байхгүй. Эхлээд блок хасаж үзнэ үү",
+  "maxBlocks": "Дээд тал нь {max} цагийн блокт хүрсэн",
+  "duplicateItem": "Энэ зүйл аль хэдийн блокт байна",
+  "removeItem": "Зүйл хасах уу?",
+  "removeConfirmation": "\"{itemName}\" энэ блокоос хасагдана",
+  "shareError": "Хуваалцах боломжгүй. Дахин оролдоно уу",
+  "updateOrderError": "Дарааллыг шинэчлэх боломжгүй. Дахин оролдоно уу",
+  "loadFailed": "Ачаалах боломжгүй. Холболтоо шалгаад дахин оролдоно уу",
+  "captureError": "QR кодыг авч чадсангүй. Дахин оролдоно уу",
+  "qrShareError": "QR кодыг хуваалцах боломжгүй. Дараа дахин оролдоно уу",
+  "errorDetail": "Алдаа: {error}",
+  "@errorDetail": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "@unenrollSuccess": {
+    "placeholders": {
+      "planTitle": {
+        "type": "String"
+      }
+    }
+  },
+  "@maxBlocks": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "@removeConfirmation": {
+    "placeholders": {
+      "itemName": {
+        "type": "String"
+      }
+    }
+  },
+  "@shareError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "missedDaysCount": "{count, plural, =0{0 өдөр алгассан} =1{1 өдөр алгассан} other{{count} өдөр алгассан}}",
+  "@missedDaysCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "plan_status_on_track": "Хэвийн явж байна!",
+  "start_now": "Одоо эхлэх",
+  "plan_enroll": "Бүртгүүлэх",
+  "show_second_version": "Хоёр дахь хувилбарыг харах",
+  "enable_add_msg": "Үндсэн бичвэрийн хажууд орчуулга эсвэл галиглал нэмэхийн тулд идэвхжүүлнэ үү",
+  "main_version": "Үндсэн хувилбар",
+  "second_version": "Хоёр дахь хувилбар",
+  "second_version_msg": "Хоёр дахь хувилбар нь үндсэн бичвэрийн бадаг бүрийн доор гарч ирнэ",
+  "version": "Хувилбарууд",
+  "parallel_version": "Зэрэгцээ хувилбар",
+  "version_not_available": "Байхгүй",
+  "read_full_text": "Бүтэн бичвэрийг унших",
+  "reader_source_label": "Эх сурвалж",
+  "reader_license_label": "Лиценз",
+  "series_stats": "{planCount} ТӨЛӨВЛӨГӨӨ · {totalDays} ӨДӨР",
+  "@series_stats": {
+    "placeholders": {
+      "planCount": {
+        "type": "int"
+      },
+      "totalDays": {
+        "type": "int"
+      }
+    }
+  },
+  "force_update_title": "Шинэчлэл шаардлагатай",
+  "force_update_message": "Аппын шинэ хувилбар гарсан. Үргэлжлүүлэхийн тулд шинэчлэнэ үү",
+  "force_update_button": "Одоо шинэчлэх",
+  "settings_section_personalisation": "ХУВИЙН ТОХИРГОО",
+  "settings_section_more": "БУСАД",
+  "settings_section_account": "БҮРТГЭЛ",
+  "settings_edit_profile": "Профайл засах",
+  "settings_theme": "Загвар",
+  "settings_notification_row": "Мэдэгдэл",
+  "settings_feedback_row": "Санал хүсэлт",
+  "edit_profile_title": "Профайл засах",
+  "edit_profile_save": "Хадгалах",
+  "edit_profile_first_name": "Нэр",
+  "edit_profile_last_name": "Овог",
+  "edit_profile_bio": "Танилцуулга",
+  "edit_profile_bio_hint": "Өөрийнхөө тухай бага зэрэг хуваалцана уу",
+  "edit_profile_delete_account": "Бүртгэл устгах",
+  "edit_profile_photo_not_uploaded": "Зураг байршуулаагүй",
+  "edit_profile_photo_too_large": "Зураг хэт том байна. 1 МБ-аас бага зураг сонгоод дахин оролдоно уу",
+  "edit_profile_photo_upload_failed": "Зургийг тань байршуулж чадсангүй. Дахин оролдоно уу",
+  "edit_profile_choose_from_library": "Сангаас сонгох",
+  "edit_profile_take_photo": "Зураг авах",
+  "edit_profile_offline": "Та офлайн байна. Интернэтэд холбогдоод дахин оролдоно уу",
+  "edit_profile_save_failed": "Таны өөрчлөлтийг хадгалж чадсангүй. Дахин оролдоно уу",
+  "username_label": "Хэрэглэгчийн нэр",
+  "username_taken": "Энэ нэрийг хэн нэгэн аль хэдийн ашигласан байна",
+  "username_available_label": "Боломжтой: ",
+  "username_check_error": "Хэрэглэгчийн нэрийг шалгах боломжгүй. Дахин оролдоно уу",
+  "username_invalid_format": "Хэрэглэгчийн нэрийн формат буруу",
+  "username_min_length": "Хэрэглэгчийн нэр дор хаяж 3 тэмдэгт байх ёстой",
+  "username_max_length": "Хэрэглэгчийн нэр 30 тэмдэгт буюу түүнээс бага байх ёстой",
+  "username_no_spaces": "Хэрэглэгчийн нэр зай агуулж болохгүй",
+  "username_invalid_chars": "Зөвхөн үсэг, тоо, _ . - зөвшөөрөгдөнө",
+  "username_must_start_alphanumeric": "Хэрэглэгчийн нэр үсэг эсвэл тоогоор эхлэх ёстой",
+  "username_must_end_alphanumeric": "Хэрэглэгчийн нэр үсэг эсвэл тоогоор төгсөх ёстой",
+  "person_name_min_length": "Дор хаяж 1 тэмдэгт байх ёстой",
+  "person_name_max_length": "50 тэмдэгт эсвэл түүнээс бага байх ёстой",
+  "person_name_invalid_chars": "Зөвхөн үсэг, зай, зурааст (-) ба апостроф (') зөвшөөрнө",
+  "about_title": "Тухай",
+  "about_connect_with_us": "Бидэнтэй холбогдох",
+  "about_description": "Бид буддистуудад өдөр бүр суралцаж, дадлага хийж, бусадтай холбогдох замаар бага хор хөнөөл учруулж, илүү их буян хураж, өөрийн сэтгэлээ улам сайн таньж мэдэхэд тусалдаг. Ингэснээр бүх амьтан зовлонгоос ангижирч, мөнхийн жаргалыг олох болтугай.",
+  "about_social_website": "Вэбсайт",
+  "me_guest_headline": "Бүрэн боломжийг нээ",
+  "me_guest_subtitle": "Ахицаа хадгалахын тулд үнэгүй бүртгэл үүсгэнэ үү",
+  "delete_account_title": "Бүртгэл устгах",
+  "delete_account_description": "Хэрэв та бүртгэлээ устгавал WeBuddhist доторх таны бүх мэдээлэл, түүх, хувийн тохиргоо бүрмөсөн устгагдана. Энэ үйлдлийг буцаах боломжгүйг анхаарна уу. Үргэлжлүүлэхийн тулд доорх товчийг дарна уу.",
+  "delete_account_button": "Бүртгэл устгах",
+  "delete_account_confirm_message": "Та WeBuddhist бүртгэлээ устгахдаа итгэлтэй байна уу?",
+  "legal_title": "Хууль эрх зүй",
+  "legal_terms_of_service": "Үйлчилгээний нөхцөл",
+  "legal_privacy_policy": "Нууцлалын бодлого",
+  "follow": "Дагах",
+  "following": "Дагаж байна",
+  "calendar_title": "Хуанли",
+  "calendar_upcoming_events": "Удахгүй болох арга хэмжээ",
+  "calendar_day_short": "ӨДӨР",
+  "calendar_day_label": "Өдөр",
+  "calendar_day_month": "{day}-р өдөр · {month}-р сар",
+  "@calendar_day_month": {
+    "placeholders": {
+      "day": {
+        "type": "int"
+      },
+      "month": {
+        "type": "int"
+      }
+    }
+  },
+  "calendar_lunar_month": "{ordinal} билгийн сар",
+  "@calendar_lunar_month": {
+    "placeholders": {
+      "ordinal": {
+        "type": "String"
+      }
+    }
+  },
+  "moon_phase_new_moon": "Шинэ сар",
+  "moon_phase_waxing_crescent": "Өсөх хавирган сар",
+  "moon_phase_first_quarter": "Тэргүүн улирал",
+  "moon_phase_waxing_gibbous": "Өсөх дугуйвтар сар",
+  "moon_phase_full_moon": "Тэргэл сар",
+  "moon_phase_waning_gibbous": "Хорогдох дугуйвтар сар",
+  "moon_phase_last_quarter": "Эцсийн улирал",
+  "moon_phase_waning_crescent": "Хорогдох хавирган сар",
+
+  "join": "Нэгдэх",
+  "joined": "Нэгдсэн",
+  "group_member": "гишүүн",
+  "group_members": "гишүүд",
+  "group_follower": "дагагч",
+  "group_followers": "дагагчид",
+  "group_links_title": "Холбоосууд",
+  "group_and_more_links": "болон дахиад {count} холбоос",
+
+  "share_this_quote": "Энэ ишлэлийг хуваалцах",
+  "shared_from": "Хуваалцсан:",
+  "verse_share_error": "Ишлэлийг хуваалцах боломжгүй. Дахин оролдоно уу"
+}

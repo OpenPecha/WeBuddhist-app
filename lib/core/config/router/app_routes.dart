@@ -50,6 +50,10 @@ class AppRoutes {
   // ========== SEARCH ROUTES ==========
   static const String searchResults = '/search-results';
 
+  // ========== CALENDAR ROUTES ==========
+  /// Tibetan calendar screen. Nested under /home so the bottom nav persists.
+  static const String calendar = '/home/calendar';
+
   // ========== ROUTE CATEGORIES ==========
 
   /// Routes that don't require any authentication

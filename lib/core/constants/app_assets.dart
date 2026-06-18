@@ -13,6 +13,10 @@ class AppAssets {
   static const String homeMalaIcon = 'assets/images/mala-icon.png';
   static const String recitationCoverDefault =
       'assets/images/recitation_cover/recitation_05.jpg';
+  static const String connect = 'assets/images/connect.png';
+
+  // ========== AUDIO ==========
+  static const String meditationSound = 'assets/audios/meditation.mp3';
 
   // ========== LOGOS ==========
   static const String weBuddhistLogo = 'assets/images/webuddhist_gold.png';
@@ -65,6 +69,7 @@ class AppAssets {
   // ========== COMMON UI ICONS ==========
   static const IconData caretRight = PhosphorIconsRegular.caretRight;
   static const IconData caretDown = PhosphorIconsRegular.caretDown;
+  static const IconData caretUp = PhosphorIconsRegular.caretUp;
   static const IconData arrowSquareOut = PhosphorIconsRegular.arrowSquareOut;
   static const IconData arrowLeft = PhosphorIconsRegular.arrowLeft;
   static const IconData lock = PhosphorIconsRegular.lock;

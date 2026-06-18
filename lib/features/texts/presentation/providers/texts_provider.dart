@@ -46,15 +46,13 @@ class TextDetailsParams {
 }
 
 final textsFutureProvider = FutureProvider.family<Either<Failure, TextDetailResponse>, String>((ref, String termId) {
-  final locale = ref.watch(localeProvider);
-  final languageCode = locale.languageCode;
+  final languageCode = ref.watch(contentLanguageProvider);
   final repository = ref.watch(textsRepositoryProvider);
   return repository.getTexts(termId: termId, language: languageCode);
 });
 
 final textContentFutureProvider = FutureProvider.family<Either<Failure, TocResponse>, String>((ref, String textId) async {
-  final locale = ref.watch(localeProvider);
-  final languageCode = locale.languageCode;
+  final languageCode = ref.watch(contentLanguageProvider);
   final getTextContentUseCase = ref.watch(getTextContentUseCaseProvider);
 
   return getTextContentUseCase(GetTextContentParams(
@@ -64,8 +62,7 @@ final textContentFutureProvider = FutureProvider.family<Either<Failure, TocRespo
 });
 
 final textVersionFutureProvider = FutureProvider.family<Either<Failure, VersionResponse>, String>((ref, String textId) async {
-  final locale = ref.watch(localeProvider);
-  final languageCode = locale.languageCode;
+  final languageCode = ref.watch(contentLanguageProvider);
   final getTextVersionUseCase = ref.watch(getTextVersionUseCaseProvider);
 
   return getTextVersionUseCase(GetTextVersionParams(
@@ -78,8 +75,7 @@ final commentaryTextFutureProvider = FutureProvider.family<Either<Failure, Comme
   ref,
   String textId,
 ) async {
-  final locale = ref.watch(localeProvider);
-  final languageCode = locale.languageCode;
+  final languageCode = ref.watch(contentLanguageProvider);
   final getCommentaryTextUseCase = ref.watch(getCommentaryTextUseCaseProvider);
 
   return getCommentaryTextUseCase(GetCommentaryTextParams(
@@ -169,7 +165,7 @@ final multilingualSearchProvider = FutureProvider.family<Either<Failure, Multili
 ) async {
   final multilingualSearchUseCase = ref.watch(multilingualSearchUseCaseProvider);
   // Use provided language parameter, otherwise fall back to locale
-  final language = params.language ?? ref.watch(localeProvider).languageCode;
+  final language = params.language ?? ref.watch(contentLanguageProvider);
 
   return multilingualSearchUseCase(MultilingualSearchParams(
     query: params.query,

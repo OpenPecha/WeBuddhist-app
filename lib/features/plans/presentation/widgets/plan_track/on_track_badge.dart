@@ -13,10 +13,6 @@ class OnTrackBadge extends StatelessWidget {
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: color.withValues(alpha: 0.5)),
-      ),
       child: Text(
         context.l10n.plan_status_on_track,
         style: TextStyle(fontSize: 12, color: color),
