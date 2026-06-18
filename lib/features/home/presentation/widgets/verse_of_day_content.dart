@@ -86,7 +86,6 @@ class VerseOfDayContent extends StatelessWidget {
                         fontWeight: FontWeight.w400,
                         fontFamily: typography.contentFont,
                         color: verseColor,
-                        height: 1.55,
                       ),
                     ),
                     if (verseOfDay.groupTitle != null) ...[
@@ -107,6 +106,7 @@ class VerseOfDayContent extends StatelessWidget {
                     ],
                     if (showBranding) ...[
                       const SizedBox(height: 16),
+
                       Padding(
                         padding: EdgeInsets.only(bottom: brandingBottomPadding),
                         child: const VerseShareBranding(),

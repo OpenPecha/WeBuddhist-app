@@ -93,7 +93,7 @@ class _VerseShareSheetState extends State<VerseShareSheet> {
 
     return Container(
       decoration: BoxDecoration(
-        color: colorScheme.surface,
+        color: isDark ? AppColors.cardBackgroundDark : AppColors.goldLight,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
       ),
       child: SafeArea(
@@ -118,7 +118,7 @@ class _VerseShareSheetState extends State<VerseShareSheet> {
                 child: Screenshot(
                   controller: _screenshotController,
                   child: Container(
-                    color: lightColorScheme.surface,
+                    color: AppColors.goldLight,
                     padding: const EdgeInsets.fromLTRB(14, 20, 14, 24),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
