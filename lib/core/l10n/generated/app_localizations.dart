@@ -2667,6 +2667,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Unable to share quote. Please try again'**
   String get verse_share_error;
+
+  /// No description provided for @weekday_monday.
+  ///
+  /// In en, this message translates to:
+  /// **'MON'**
+  String get weekday_monday;
+
+  /// No description provided for @weekday_tuesday.
+  ///
+  /// In en, this message translates to:
+  /// **'TUE'**
+  String get weekday_tuesday;
+
+  /// No description provided for @weekday_wednesday.
+  ///
+  /// In en, this message translates to:
+  /// **'WED'**
+  String get weekday_wednesday;
+
+  /// No description provided for @weekday_thursday.
+  ///
+  /// In en, this message translates to:
+  /// **'THU'**
+  String get weekday_thursday;
+
+  /// No description provided for @weekday_friday.
+  ///
+  /// In en, this message translates to:
+  /// **'FRI'**
+  String get weekday_friday;
+
+  /// No description provided for @weekday_saturday.
+  ///
+  /// In en, this message translates to:
+  /// **'SAT'**
+  String get weekday_saturday;
+
+  /// No description provided for @weekday_sunday.
+  ///
+  /// In en, this message translates to:
+  /// **'SUN'**
+  String get weekday_sunday;
 }
 
 class _AppLocalizationsDelegate

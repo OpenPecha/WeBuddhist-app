@@ -517,8 +517,7 @@ class AppLocalizationsBo extends AppLocalizations {
       'Teachers, communities, challenges, and events to support you on the path';
 
   @override
-  String get connect_subtitle =>
-      'ཁྱེད་ཀྱི་ཚོགས་པ་འཚོལ་ཞིང་མཉམ་དུ་ཉམས་ལེན་བྱོས།';
+  String get connect_subtitle => 'ཁྱེད་ཀྱི་ཚོགས་པ་བཙལ་ཏེ་མཉམ་དུ་ཉམས་ལེན་བྱོས།';
 
   @override
   String get discover_groups => 'ཚོགས་པ་འཚོལ།';
@@ -1324,14 +1323,14 @@ class AppLocalizationsBo extends AppLocalizations {
   String get me_minutes => 'སྐར་མ།';
 
   @override
-  String get me_total_meditation_time => 'སྒོམ་སྒྲུབ་དུས་ཚོད་ཁྱོན་བསྡོམས།';
+  String get me_total_meditation_time => 'སྒོམ་ཡུན་ཁྱོན་བསྡོམས།';
 
   @override
   String get me_days_plan_practiced_suffix => 'འཆར་གཞིའི་ཉིན་གྲངས་ཆ་ཚང་ཟིན་པ';
 
   @override
   String me_streak_share_message(int count, String appName) {
-    return 'ང་ $appName སྟེང་ཉིན་ $count རྒྱུན་མཐུད་བྱས་ཡོད།';
+    return 'ངས་ $appName སྟེང་ཉིན་ $count རྒྱུན་མཐུད་བྱས་ཡོད།';
   }
 
   @override
@@ -1458,4 +1457,25 @@ class AppLocalizationsBo extends AppLocalizations {
 
   @override
   String get verse_share_error => 'Unable to share quote. Please try again';
+
+  @override
+  String get weekday_monday => 'ཟླ།';
+
+  @override
+  String get weekday_tuesday => 'དམར།';
+
+  @override
+  String get weekday_wednesday => 'ལྷག';
+
+  @override
+  String get weekday_thursday => 'ཕུར།';
+
+  @override
+  String get weekday_friday => 'སངས།';
+
+  @override
+  String get weekday_saturday => 'སྤེན།';
+
+  @override
+  String get weekday_sunday => 'ཉི།';
 }

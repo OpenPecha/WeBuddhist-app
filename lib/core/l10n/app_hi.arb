@@ -702,5 +702,12 @@
   "no_groups_found": "कोई मिलता-जुलता समूह नहीं मिला",
   "connect_groups_empty_title": "अभी कोई समूह नहीं",
   "connect_groups_empty_subtitle": "बधाई हो, आप हमारे सभी समूहों में शामिल हो चुके हैं! जल्द फिर देखें। नए समूह जल्द आ रहे हैं",
-  "connect_groups_load_error": "समूह लोड नहीं हो सके।\nअपना कनेक्शन जाँचें और फिर से प्रयास करें"
+  "connect_groups_load_error": "समूह लोड नहीं हो सके।\nअपना कनेक्शन जाँचें और फिर से प्रयास करें",
+  "weekday_monday": "सोम",
+  "weekday_tuesday": "मंगल",
+  "weekday_wednesday": "बुध",
+  "weekday_thursday": "गुरु",
+  "weekday_friday": "शुक्र",
+  "weekday_saturday": "शनि",
+  "weekday_sunday": "रवि"
 }

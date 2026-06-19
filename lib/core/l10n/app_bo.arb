@@ -550,7 +550,7 @@
   "me_accumulation": "བསགས་གྲངས་ཁྱོན་བསྡོམས།",
   "me_counts": "ཐེངས།",
   "me_minutes": "སྐར་མ།",
-  "me_total_meditation_time": "སྒོམ་སྒྲུབ་དུས་ཚོད་ཁྱོན་བསྡོམས།",
+  "me_total_meditation_time": "སྒོམ་ཡུན་ཁྱོན་བསྡོམས།",
   "me_days_plan_practiced_suffix": "འཆར་གཞིའི་ཉིན་གྲངས་ཆ་ཚང་ཟིན་པ",
   "me_streak_share_message": "ངས་ {appName} སྟེང་ཉིན་ {count} རྒྱུན་མཐུད་བྱས་ཡོད།",
   "@me_streak_share_message": {
@@ -636,5 +636,12 @@
   "no_groups_found": "མཐུན་པའི་ཚོགས་པ་མ་རྙེད།",
   "connect_groups_empty_title": "ད་དུང་ཚོགས་པ་མེད།",
   "connect_groups_empty_subtitle": "འཚམས་འདྲི་ཞུ། ཁྱེད་ཀྱིས་ང་ཚོའི་ཚོགས་པ་ཚང་མར་ཞུགས་ཟིན། རྗེས་སུ་ཡང་བསྐྱར་གཟིགས་རོགས། གསར་པ་འབྱུང་མུས་ཡིན།",
-  "connect_groups_load_error": "ཚོགས་པ་ལེན་མ་ཐུབ།\nཁྱེད་ཀྱི་དྲ་རྒྱར་བསྐྱར་ཞིབ་བྱས་ཏེ་བསྐྱར་དུ་ཚོད་ལྟ་བྱོས།"
+  "connect_groups_load_error": "ཚོགས་པ་ལེན་མ་ཐུབ།\nཁྱེད་ཀྱི་དྲ་རྒྱར་བསྐྱར་ཞིབ་བྱས་ཏེ་བསྐྱར་དུ་ཚོད་ལྟ་བྱོས།",
+  "weekday_monday": "ཟླ།",
+  "weekday_tuesday": "དམར།",
+  "weekday_wednesday": "ལྷག",
+  "weekday_thursday": "ཕུར།",
+  "weekday_friday": "སངས།",
+  "weekday_saturday": "སྤེན།",
+  "weekday_sunday": "ཉི།"
 }

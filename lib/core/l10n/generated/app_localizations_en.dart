@@ -1440,4 +1440,25 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get verse_share_error => 'Unable to share quote. Please try again';
+
+  @override
+  String get weekday_monday => 'MON';
+
+  @override
+  String get weekday_tuesday => 'TUE';
+
+  @override
+  String get weekday_wednesday => 'WED';
+
+  @override
+  String get weekday_thursday => 'THU';
+
+  @override
+  String get weekday_friday => 'FRI';
+
+  @override
+  String get weekday_saturday => 'SAT';
+
+  @override
+  String get weekday_sunday => 'SUN';
 }
