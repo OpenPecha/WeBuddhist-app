@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/constants/app_assets.dart';
+import 'package:flutter_pecha/core/di/core_providers.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
@@ -51,11 +52,31 @@ class MeScreen extends ConsumerWidget {
   }
 }
 
-class _LoggedInProfile extends ConsumerWidget {
+class _LoggedInProfile extends ConsumerStatefulWidget {
   const _LoggedInProfile();
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<_LoggedInProfile> createState() => _LoggedInProfileState();
+}
+
+class _LoggedInProfileState extends ConsumerState<_LoggedInProfile> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      _refreshStats();
+    });
+  }
+
+  Future<void> _refreshStats() async {
+    ref.read(cacheInterceptorProvider).invalidate('/users/me/stats');
+    ref.invalidate(userStatsFutureProvider);
+    await ref.read(userStatsFutureProvider.future);
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final user = ref.watch(userProvider).user;
     final statsAsync = ref.watch(userStatsFutureProvider);
 
@@ -69,10 +90,7 @@ class _LoggedInProfile extends ConsumerWidget {
     );
 
     return RefreshIndicator(
-      onRefresh: () async {
-        ref.invalidate(userStatsFutureProvider);
-        await ref.read(userStatsFutureProvider.future);
-      },
+      onRefresh: _refreshStats,
       child: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
         child: Column(
