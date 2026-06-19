@@ -517,35 +517,37 @@ class AppLocalizationsBo extends AppLocalizations {
       'Teachers, communities, challenges, and events to support you on the path';
 
   @override
-  String get connect_subtitle => 'Find groups and practice together';
+  String get connect_subtitle =>
+      'ཁྱེད་ཀྱི་ཚོགས་པ་འཚོལ་ཞིང་མཉམ་དུ་ཉམས་ལེན་བྱོས།';
 
   @override
-  String get discover_groups => 'Discover groups';
+  String get discover_groups => 'ཚོགས་པ་འཚོལ།';
 
   @override
-  String get my_groups => 'My groups';
+  String get my_groups => 'ངའི་ཚོགས་པ།';
 
   @override
-  String get see_all => 'See all';
+  String get see_all => 'ཡོངས་ལ་གཟིགས།';
 
   @override
   String get connect_groups_load_error =>
-      'Unable to load groups.\nCheck your connection and try again';
+      'ཚོགས་པ་ལེན་མ་ཐུབ།\nཁྱེད་ཀྱི་དྲ་རྒྱར་བསྐྱར་ཞིབ་བྱས་ཏེ་བསྐྱར་དུ་ཚོད་ལྟ་བྱོས།';
 
   @override
-  String get connect_groups_empty_title => 'No groups yet';
+  String get connect_groups_empty_title => 'ད་དུང་ཚོགས་པ་མེད།';
 
   @override
-  String get connect_groups_empty_subtitle => 'no more groups to join';
+  String get connect_groups_empty_subtitle =>
+      'འཚམས་འདྲི་ཞུ། ཁྱེད་ཀྱིས་ང་ཚོའི་ཚོགས་པ་ཚང་མར་ཞུགས་ཟིན། རྗེས་སུ་ཡང་བསྐྱར་གཟིགས་རོགས། གསར་པ་འབྱུང་མུས་ཡིན།';
 
   @override
-  String get search_groups => 'Search groups';
+  String get search_groups => 'ཚོགས་པ་འཚོལ།';
 
   @override
-  String get search_for_groups => 'Search for groups';
+  String get search_for_groups => 'ཚོགས་པ་འཚོལ།';
 
   @override
-  String get no_groups_found => 'No groups found';
+  String get no_groups_found => 'མཐུན་པའི་ཚོགས་པ་མ་རྙེད།';
 
   @override
   String get explore_coming_soon_subtitle =>
@@ -1300,52 +1302,52 @@ class AppLocalizationsBo extends AppLocalizations {
   String get me_guest_subtitle => 'Create a free account to access plans';
 
   @override
-  String get me_my_stats => 'My stats';
+  String get me_my_stats => 'ངའི་གྲངས་ཐོ།';
 
   @override
   String me_day_streak(int count) {
-    return '$count-day streak';
+    return 'ཉིན་ $count རྒྱུན་མཐུད།';
   }
 
   @override
   String me_best_streak(int count) {
-    return 'Longest streak: $count days';
+    return 'རྒྱུན་མཐུད་རིང་ཤོས། ཉིན་ $count';
   }
 
   @override
-  String get me_accumulation => 'Total accumulations';
+  String get me_accumulation => 'བསགས་གྲངས་ཁྱོན་བསྡོམས།';
 
   @override
-  String get me_counts => 'counts';
+  String get me_counts => 'ཐེངས།';
 
   @override
-  String get me_minutes => 'minutes';
+  String get me_minutes => 'སྐར་མ།';
 
   @override
-  String get me_total_meditation_time => 'Total meditation';
+  String get me_total_meditation_time => 'སྒོམ་སྒྲུབ་དུས་ཚོད་ཁྱོན་བསྡོམས།';
 
   @override
-  String get me_days_plan_practiced_suffix => 'total plan days completed';
+  String get me_days_plan_practiced_suffix => 'འཆར་གཞིའི་ཉིན་གྲངས་ཆ་ཚང་ཟིན་པ';
 
   @override
   String me_streak_share_message(int count, String appName) {
-    return 'I\'m on a $count-day streak on $appName!';
+    return 'ང་ $appName སྟེང་ཉིན་ $count རྒྱུན་མཐུད་བྱས་ཡོད།';
   }
 
   @override
-  String get me_streak_share_quote => ' My current streak on WeBuddhist!';
+  String get me_streak_share_quote => 'WeBuddhist སྟེང་ངའི་ད་ལྟའི་རྒྱུན་མཐུད།';
 
   @override
   String me_streak_days_count(int count) {
-    return '$count days';
+    return 'ཉིན་ $count';
   }
 
   @override
-  String get share_this_streak => 'Share this streak';
+  String get share_this_streak => 'ངའི་རྒྱུན་མཐུད་སྤེལ།';
 
   @override
   String get me_streak_share_error =>
-      'Unable to share streak. Please try again';
+      'རྒྱུན་མཐུད་སྤེལ་མ་ཐུབ། བསྐྱར་དུ་ཚོད་ལྟ་བྱོས།';
 
   @override
   String get delete_account_title => 'མིང་ཐོ་བསུབ།';
@@ -1423,16 +1425,16 @@ class AppLocalizationsBo extends AppLocalizations {
   String get moon_phase_waning_crescent => 'Waning crescent';
 
   @override
-  String get join => 'Join';
+  String get join => 'ཞུགས།';
 
   @override
-  String get joined => 'Joined';
+  String get joined => 'ཞུགས་ཟིན།';
 
   @override
-  String get group_member => 'member';
+  String get group_member => 'ཚོགས་མི།';
 
   @override
-  String get group_members => 'members';
+  String get group_members => 'ཚོགས་མི།';
 
   @override
   String get group_follower => 'follower';
@@ -1452,7 +1454,7 @@ class AppLocalizationsBo extends AppLocalizations {
   String get share_this_quote => 'Share this quote';
 
   @override
-  String get shared_from => 'Shared from';
+  String get shared_from => 'སྤེལ་ཁུངས།';
 
   @override
   String get verse_share_error => 'Unable to share quote. Please try again';

@@ -1039,7 +1039,7 @@ abstract class AppLocalizations {
   /// No description provided for @connect_subtitle.
   ///
   /// In en, this message translates to:
-  /// **'Find groups and practice together'**
+  /// **'Find your groups and practice together'**
   String get connect_subtitle;
 
   /// No description provided for @discover_groups.
@@ -1075,7 +1075,7 @@ abstract class AppLocalizations {
   /// No description provided for @connect_groups_empty_subtitle.
   ///
   /// In en, this message translates to:
-  /// **'no more groups to join'**
+  /// **'Congratulations, you\'ve joined all our groups! Check back soon. New ones are on the way'**
   String get connect_groups_empty_subtitle;
 
   /// No description provided for @search_groups.
@@ -1093,7 +1093,7 @@ abstract class AppLocalizations {
   /// No description provided for @no_groups_found.
   ///
   /// In en, this message translates to:
-  /// **'No groups found'**
+  /// **'No matching groups found'**
   String get no_groups_found;
 
   /// No description provided for @explore_coming_soon_subtitle.
@@ -2425,7 +2425,7 @@ abstract class AppLocalizations {
   /// No description provided for @me_total_meditation_time.
   ///
   /// In en, this message translates to:
-  /// **'Total meditation'**
+  /// **'Total meditation time'**
   String get me_total_meditation_time;
 
   /// No description provided for @me_days_plan_practiced_suffix.
@@ -2455,7 +2455,7 @@ abstract class AppLocalizations {
   /// No description provided for @share_this_streak.
   ///
   /// In en, this message translates to:
-  /// **'Share this streak'**
+  /// **'Share my streak'**
   String get share_this_streak;
 
   /// No description provided for @me_streak_share_error.

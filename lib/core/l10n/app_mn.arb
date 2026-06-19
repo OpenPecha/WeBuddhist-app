@@ -596,8 +596,8 @@
   "about_social_website": "Вэбсайт",
   "me_guest_headline": "Бүрэн боломжийг нээ",
   "me_guest_subtitle": "Ахицаа хадгалахын тулд үнэгүй бүртгэл үүсгэнэ үү",
-  "me_my_stats": "My stats",
-  "me_day_streak": "{count}-day streak",
+  "me_my_stats": "Миний статистик",
+  "me_day_streak": "{count} өдрийн дараалал",
   "@me_day_streak": {
     "placeholders": {
       "count": {
@@ -605,7 +605,7 @@
       }
     }
   },
-  "me_best_streak": "Longest streak: {count} days",
+  "me_best_streak": "Хамгийн урт дараалал: {count} өдөр",
   "@me_best_streak": {
     "placeholders": {
       "count": {
@@ -613,12 +613,12 @@
       }
     }
   },
-  "me_accumulation": "Total accumulations",
-  "me_counts": "counts",
-  "me_minutes": "minutes",
-  "me_total_meditation_time": "Total meditation",
-  "me_days_plan_practiced_suffix": "total plan days completed",
-  "me_streak_share_message": "I'm on a {count}-day streak on {appName}!",
+  "me_accumulation": "Нийт хуримтлал",
+  "me_counts": "удаа",
+  "me_minutes": "минут",
+  "me_total_meditation_time": "Нийт бясалгалын хугацаа",
+  "me_days_plan_practiced_suffix": "нийт төлөвлөгөөт өдөр дуусгасан",
+  "me_streak_share_message": "Би {appName} дээр {count} өдрийн дараалалтай байна!",
   "@me_streak_share_message": {
     "placeholders": {
       "count": {
@@ -629,8 +629,8 @@
       }
     }
   },
-  "me_streak_share_quote": "My current streak on WeBuddhist!",
-  "me_streak_days_count": "{count} days",
+  "me_streak_share_quote": "WeBuddhist дээрх миний одоогийн дараалал!",
+  "me_streak_days_count": "{count} өдөр",
   "@me_streak_days_count": {
     "placeholders": {
       "count": {
@@ -638,8 +638,8 @@
       }
     }
   },
-  "share_this_streak": "Share this streak",
-  "me_streak_share_error": "Unable to share streak. Please try again",
+  "share_this_streak": "Дарааллаа хуваалцах",
+  "me_streak_share_error": "Дарааллыг хуваалцах боломжгүй. Дахин оролдоно уу",
   "delete_account_title": "Бүртгэл устгах",
   "delete_account_description": "Хэрэв та бүртгэлээ устгавал WeBuddhist доторх таны бүх мэдээлэл, түүх, хувийн тохиргоо бүрмөсөн устгагдана. Энэ үйлдлийг буцаах боломжгүйг анхаарна уу. Үргэлжлүүлэхийн тулд доорх товчийг дарна уу.",
   "delete_account_button": "Бүртгэл устгах",
@@ -692,5 +692,15 @@
 
   "share_this_quote": "Энэ ишлэлийг хуваалцах",
   "shared_from": "Хуваалцсан:",
-  "verse_share_error": "Ишлэлийг хуваалцах боломжгүй. Дахин оролдоно уу"
+  "verse_share_error": "Ишлэлийг хуваалцах боломжгүй. Дахин оролдоно уу",
+  "connect_subtitle": "Бүлгээ олж, хамтдаа дадлага хийгээрэй",
+  "discover_groups": "Бүлэг хайх",
+  "my_groups": "Миний бүлгүүд",
+  "see_all": "Бүгдийг харах",
+  "search_groups": "Бүлэг хайх",
+  "search_for_groups": "Бүлэг хайх",
+  "no_groups_found": "Тохирох бүлэг олдсонгүй",
+  "connect_groups_empty_title": "Одоогоор бүлэг алга",
+  "connect_groups_empty_subtitle": "Баяр хүргэе, та манай бүх бүлэгт нэгдсэн байна! Удахгүй дахин шалгаарай. Шинэ бүлгүүд удахгүй нэмэгдэнэ",
+  "connect_groups_load_error": "Бүлгүүдийг ачаалах боломжгүй.\nХолболтоо шалгаад дахин оролдоно уу"
 }

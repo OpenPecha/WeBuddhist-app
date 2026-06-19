@@ -512,35 +512,36 @@ class AppLocalizationsMn extends AppLocalizations {
       'Замд тань туслах багш нар, нийгэмлэгүүд, сорилт болон арга хэмжээнүүд';
 
   @override
-  String get connect_subtitle => 'Find groups and practice together';
+  String get connect_subtitle => 'Бүлгээ олж, хамтдаа дадлага хийгээрэй';
 
   @override
-  String get discover_groups => 'Discover groups';
+  String get discover_groups => 'Бүлэг хайх';
 
   @override
-  String get my_groups => 'My groups';
+  String get my_groups => 'Миний бүлгүүд';
 
   @override
-  String get see_all => 'See all';
+  String get see_all => 'Бүгдийг харах';
 
   @override
   String get connect_groups_load_error =>
-      'Unable to load groups.\nCheck your connection and try again';
+      'Бүлгүүдийг ачаалах боломжгүй.\nХолболтоо шалгаад дахин оролдоно уу';
 
   @override
-  String get connect_groups_empty_title => 'No groups yet';
+  String get connect_groups_empty_title => 'Одоогоор бүлэг алга';
 
   @override
-  String get connect_groups_empty_subtitle => 'no more groups to join';
+  String get connect_groups_empty_subtitle =>
+      'Баяр хүргэе, та манай бүх бүлэгт нэгдсэн байна! Удахгүй дахин шалгаарай. Шинэ бүлгүүд удахгүй нэмэгдэнэ';
 
   @override
-  String get search_groups => 'Search groups';
+  String get search_groups => 'Бүлэг хайх';
 
   @override
-  String get search_for_groups => 'Search for groups';
+  String get search_for_groups => 'Бүлэг хайх';
 
   @override
-  String get no_groups_found => 'No groups found';
+  String get no_groups_found => 'Тохирох бүлэг олдсонгүй';
 
   @override
   String get explore_coming_soon_subtitle =>
@@ -1297,52 +1298,53 @@ class AppLocalizationsMn extends AppLocalizations {
       'Ахицаа хадгалахын тулд үнэгүй бүртгэл үүсгэнэ үү';
 
   @override
-  String get me_my_stats => 'My stats';
+  String get me_my_stats => 'Миний статистик';
 
   @override
   String me_day_streak(int count) {
-    return '$count-day streak';
+    return '$count өдрийн дараалал';
   }
 
   @override
   String me_best_streak(int count) {
-    return 'Longest streak: $count days';
+    return 'Хамгийн урт дараалал: $count өдөр';
   }
 
   @override
-  String get me_accumulation => 'Total accumulations';
+  String get me_accumulation => 'Нийт хуримтлал';
 
   @override
-  String get me_counts => 'counts';
+  String get me_counts => 'удаа';
 
   @override
-  String get me_minutes => 'minutes';
+  String get me_minutes => 'минут';
 
   @override
-  String get me_total_meditation_time => 'Total meditation';
+  String get me_total_meditation_time => 'Нийт бясалгалын хугацаа';
 
   @override
-  String get me_days_plan_practiced_suffix => 'total plan days completed';
+  String get me_days_plan_practiced_suffix => 'нийт төлөвлөгөөт өдөр дуусгасан';
 
   @override
   String me_streak_share_message(int count, String appName) {
-    return 'I\'m on a $count-day streak on $appName!';
+    return 'Би $appName дээр $count өдрийн дараалалтай байна!';
   }
 
   @override
-  String get me_streak_share_quote => 'My current streak on WeBuddhist!';
+  String get me_streak_share_quote =>
+      'WeBuddhist дээрх миний одоогийн дараалал!';
 
   @override
   String me_streak_days_count(int count) {
-    return '$count days';
+    return '$count өдөр';
   }
 
   @override
-  String get share_this_streak => 'Share this streak';
+  String get share_this_streak => 'Дарааллаа хуваалцах';
 
   @override
   String get me_streak_share_error =>
-      'Unable to share streak. Please try again';
+      'Дарааллыг хуваалцах боломжгүй. Дахин оролдоно уу';
 
   @override
   String get delete_account_title => 'Бүртгэл устгах';

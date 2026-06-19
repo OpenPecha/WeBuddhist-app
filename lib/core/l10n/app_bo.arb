@@ -530,8 +530,8 @@
   "about_social_website": "Website",
   "me_guest_headline": "Access the full experience",
   "me_guest_subtitle": "Create a free account to access plans",
-  "me_my_stats": "My stats",
-  "me_day_streak": "{count}-day streak",
+  "me_my_stats": "ངའི་གྲངས་ཐོ།",
+  "me_day_streak": "ཉིན་ {count} རྒྱུན་མཐུད།",
   "@me_day_streak": {
     "placeholders": {
       "count": {
@@ -539,7 +539,7 @@
       }
     }
   },
-  "me_best_streak": "Longest streak: {count} days",
+  "me_best_streak": "རྒྱུན་མཐུད་རིང་ཤོས། ཉིན་ {count}",
   "@me_best_streak": {
     "placeholders": {
       "count": {
@@ -547,12 +547,12 @@
       }
     }
   },
-  "me_accumulation": "Total accumulations",
-  "me_counts": "counts",
-  "me_minutes": "minutes",
-  "me_total_meditation_time": "Total meditation",
-  "me_days_plan_practiced_suffix": "total plan days completed",
-  "me_streak_share_message": "I'm on a {count}-day streak on {appName}!",
+  "me_accumulation": "བསགས་གྲངས་ཁྱོན་བསྡོམས།",
+  "me_counts": "ཐེངས།",
+  "me_minutes": "སྐར་མ།",
+  "me_total_meditation_time": "སྒོམ་སྒྲུབ་དུས་ཚོད་ཁྱོན་བསྡོམས།",
+  "me_days_plan_practiced_suffix": "འཆར་གཞིའི་ཉིན་གྲངས་ཆ་ཚང་ཟིན་པ",
+  "me_streak_share_message": "ངས་ {appName} སྟེང་ཉིན་ {count} རྒྱུན་མཐུད་བྱས་ཡོད།",
   "@me_streak_share_message": {
     "placeholders": {
       "count": {
@@ -563,8 +563,8 @@
       }
     }
   },
-  "me_streak_share_quote": " My current streak on WeBuddhist!",
-  "me_streak_days_count": "{count} days",
+  "me_streak_share_quote": "WeBuddhist སྟེང་ངའི་ད་ལྟའི་རྒྱུན་མཐུད།",
+  "me_streak_days_count": "ཉིན་ {count}",
   "@me_streak_days_count": {
     "placeholders": {
       "count": {
@@ -572,8 +572,8 @@
       }
     }
   },
-  "share_this_streak": "Share this streak",
-  "me_streak_share_error": "Unable to share streak. Please try again",
+  "share_this_streak": "ངའི་རྒྱུན་མཐུད་སྤེལ།",
+  "me_streak_share_error": "རྒྱུན་མཐུད་སྤེལ་མ་ཐུབ། བསྐྱར་དུ་ཚོད་ལྟ་བྱོས།",
   "delete_account_title": "མིང་ཐོ་བསུབ།",
   "delete_account_description": "གལ་ཏེ་ཁྱེད་ཀྱིས་རང་གི་མིང་ཐོ་འདི་གསུབ་ན། WeBuddhist ནང་གི་ཁྱེད་ཀྱི་གནས་ཚུལ་དང་། ལོ་རྒྱུས་ཀྱི་ཐོ། སྒེར་གྱི་སྒྲིག་བཀོད་བཅས་གཏན་དུ་བསུབ་འགྲོ་བ་དང་། དེ་བཞིན་འདིའི་ནང་རྒྱུན་ལྡན་གྱི་བྱེད་སྒོ་ཁག་ལ་མཉམ་ཞུགས་དང་འཆར་གཞི། ཞལ་འདེབས་རིགས་གང་ཡོད་རྣམས་ཀྱང་རྦད་དེ་བསུབ་རྒྱུ་རེད། བསུབ་རྗེས་བསྐྱར་གསོ་བྱེད་ཐབས་མེད་པས་ཐུགས་གཟབ་གནང་རོགས། བསུབ་རྒྱུ་ཡིན་ན་གཤམ་གྱི་གནོན་ཐེབས་དེར་སྣུན།",
   "delete_account_button": "མིང་ཐོ་བསུབ།",
@@ -615,16 +615,26 @@
   "moon_phase_last_quarter": "Last quarter",
   "moon_phase_waning_crescent": "Waning crescent",
 
-  "join": "Join",
-  "joined": "Joined",
-  "group_member": "member",
-  "group_members": "members",
+  "join": "ཞུགས།",
+  "joined": "ཞུགས་ཟིན།",
+  "group_member": "ཚོགས་མི།",
+  "group_members": "ཚོགས་མི།",
   "group_follower": "follower",
   "group_followers": "followers",
   "group_links_title": "Links",
   "group_and_more_links": "and {count} more links",
 
   "share_this_quote": "Share this quote",
-  "shared_from": "Shared from",
-  "verse_share_error": "Unable to share quote. Please try again"
+  "shared_from": "སྤེལ་ཁུངས།",
+  "verse_share_error": "Unable to share quote. Please try again",
+  "connect_subtitle": "ཁྱེད་ཀྱི་ཚོགས་པ་བཙལ་ཏེ་མཉམ་དུ་ཉམས་ལེན་བྱོས།",
+  "discover_groups": "ཚོགས་པ་འཚོལ།",
+  "my_groups": "ངའི་ཚོགས་པ།",
+  "see_all": "ཡོངས་ལ་གཟིགས།",
+  "search_groups": "ཚོགས་པ་འཚོལ།",
+  "search_for_groups": "ཚོགས་པ་འཚོལ།",
+  "no_groups_found": "མཐུན་པའི་ཚོགས་པ་མ་རྙེད།",
+  "connect_groups_empty_title": "ད་དུང་ཚོགས་པ་མེད།",
+  "connect_groups_empty_subtitle": "འཚམས་འདྲི་ཞུ། ཁྱེད་ཀྱིས་ང་ཚོའི་ཚོགས་པ་ཚང་མར་ཞུགས་ཟིན། རྗེས་སུ་ཡང་བསྐྱར་གཟིགས་རོགས། གསར་པ་འབྱུང་མུས་ཡིན།",
+  "connect_groups_load_error": "ཚོགས་པ་ལེན་མ་ཐུབ།\nཁྱེད་ཀྱི་དྲ་རྒྱར་བསྐྱར་ཞིབ་བྱས་ཏེ་བསྐྱར་དུ་ཚོད་ལྟ་བྱོས།"
 }
