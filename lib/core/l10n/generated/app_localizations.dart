@@ -2374,6 +2374,78 @@ abstract class AppLocalizations {
   /// **'Create a free account to save your progress'**
   String get me_guest_subtitle;
 
+  /// No description provided for @me_my_stats.
+  ///
+  /// In en, this message translates to:
+  /// **'My stats'**
+  String get me_my_stats;
+
+  /// No description provided for @me_day_streak.
+  ///
+  /// In en, this message translates to:
+  /// **'{count}-day streak'**
+  String me_day_streak(int count);
+
+  /// No description provided for @me_best_streak.
+  ///
+  /// In en, this message translates to:
+  /// **'Best streak: {count} days'**
+  String me_best_streak(int count);
+
+  /// No description provided for @me_accumulation.
+  ///
+  /// In en, this message translates to:
+  /// **'Accumulation'**
+  String get me_accumulation;
+
+  /// No description provided for @me_counts.
+  ///
+  /// In en, this message translates to:
+  /// **'counts'**
+  String get me_counts;
+
+  /// No description provided for @me_minutes.
+  ///
+  /// In en, this message translates to:
+  /// **'minutes'**
+  String get me_minutes;
+
+  /// No description provided for @me_days_plan_practiced_suffix.
+  ///
+  /// In en, this message translates to:
+  /// **'days plan practiced'**
+  String get me_days_plan_practiced_suffix;
+
+  /// No description provided for @me_streak_share_message.
+  ///
+  /// In en, this message translates to:
+  /// **'I\'m on a {count}-day streak on {appName}!'**
+  String me_streak_share_message(int count, String appName);
+
+  /// No description provided for @me_streak_share_quote.
+  ///
+  /// In en, this message translates to:
+  /// **'My daily practice is growing'**
+  String get me_streak_share_quote;
+
+  /// No description provided for @me_streak_days_count.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} days'**
+  String me_streak_days_count(int count);
+
+  /// No description provided for @share_this_streak.
+  ///
+  /// In en, this message translates to:
+  /// **'Share this streak'**
+  String get share_this_streak;
+
+  /// No description provided for @me_streak_share_error.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to share streak. Please try again'**
+  String get me_streak_share_error;
+
   /// No description provided for @delete_account_title.
   ///
   /// In en, this message translates to:

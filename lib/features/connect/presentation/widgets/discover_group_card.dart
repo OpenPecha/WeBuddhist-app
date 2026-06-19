@@ -7,7 +7,6 @@ import 'package:flutter_pecha/core/widgets/cached_network_image_widget.dart';
 import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
 import 'package:flutter_pecha/features/auth/presentation/widgets/login_drawer.dart';
 import 'package:flutter_pecha/features/group_profile/domain/entities/group_profile.dart';
-import 'package:flutter_pecha/features/connect/presentation/providers/connect_providers.dart';
 import 'package:flutter_pecha/features/group_profile/presentation/providers/group_profile_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -22,10 +21,10 @@ class DiscoverGroupCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    final borderColor =
-        isDark ? AppColors.cardBorderDark : AppColors.grey300;
     final subtitleColor =
         isDark ? AppColors.textSecondaryDark : AppColors.textSecondary;
+    final cardColor =
+        isDark ? AppColors.cardBackgroundDark : AppColors.cardBackgroundLight;
 
     return Material(
       color: Colors.transparent,
@@ -35,8 +34,8 @@ class DiscoverGroupCard extends ConsumerWidget {
         child: Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
+            color: cardColor,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: borderColor),
           ),
           child: Row(
             children: [
@@ -178,7 +177,7 @@ class _JoinButton extends ConsumerWidget {
                 : () => _onJoinPressed(context, ref, followKey, isJoined),
         style: TextButton.styleFrom(
           backgroundColor:
-              isDark ? AppColors.surfaceVariantDark : AppColors.grey100,
+              isDark ? AppColors.cardBorderDark : AppColors.grey100,
           foregroundColor: Theme.of(context).colorScheme.onSurface,
           padding: const EdgeInsets.symmetric(horizontal: 16),
           minimumSize: Size.zero,
@@ -221,17 +220,8 @@ class _JoinButton extends ConsumerWidget {
     }
 
     final notifier = ref.read(groupFollowProvider(followKey).notifier);
-    final myGroups = ref.read(myGroupsProvider.notifier);
-    final success =
-        isJoined ? await notifier.unfollow() : await notifier.follow();
-
-    if (!success) return;
-
-    // Reflect the change in the "My groups" section right away.
-    if (isJoined) {
-      myGroups.removeGroup(group.id);
-    } else {
-      myGroups.addGroup(group);
-    }
+    isJoined
+        ? await notifier.unfollow(connectGroup: group)
+        : await notifier.follow(connectGroup: group);
   }
 }

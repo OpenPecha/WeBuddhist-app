@@ -80,9 +80,9 @@ class AppColors {
   static const Color danger = Color(0xFFD32F2F);
 
   // ============ Background Colors ============
-  static const Color scaffoldBackgroundLight = Color(0xFFFFFFFF);
+  static const Color scaffoldBackgroundLight = Color(0xFFFBF9F4);
   static const Color scaffoldBackgroundDark = Color(0xFF000000);
-  static const Color cardBackgroundLight = Color(0xFFF5F5F5);
+  static const Color cardBackgroundLight = Color(0xFFFFFFFF);
   static const Color cardBackgroundDark = Color(0xFF232121);
 
   // onboarding screen ring color

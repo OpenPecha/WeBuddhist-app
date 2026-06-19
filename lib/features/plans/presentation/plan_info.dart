@@ -178,7 +178,7 @@ class _PlanInfoState extends ConsumerState<PlanInfo> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final enrollBackgroundColor =
         isDark
-            ? AppColors.scaffoldBackgroundLight
+            ? AppColors.surfaceWhite
             : AppColors.scaffoldBackgroundDark;
     final enrollForegroundColor =
         isDark ? AppColors.textPrimary : AppColors.textPrimaryDark;

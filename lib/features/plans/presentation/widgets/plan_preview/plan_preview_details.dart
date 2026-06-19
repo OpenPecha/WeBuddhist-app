@@ -277,7 +277,7 @@ class _AddToRoutineButton extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final backgroundColor =
         isDark
-            ? AppColors.scaffoldBackgroundLight
+            ? AppColors.surfaceWhite
             : AppColors.scaffoldBackgroundDark;
     final foregroundColor =
         isDark ? AppColors.textPrimary : AppColors.textPrimaryDark;

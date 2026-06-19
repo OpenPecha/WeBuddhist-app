@@ -17,6 +17,7 @@ class AppAssets {
 
   // ========== AUDIO ==========
   static const String meditationSound = 'assets/audios/meditation.mp3';
+  static const String malaSound = 'assets/audios/mala-sound.wav';
 
   // ========== LOGOS ==========
   static const String weBuddhistLogo = 'assets/images/webuddhist_gold.png';
@@ -109,6 +110,7 @@ class AppAssets {
   static const IconData homePlans = PhosphorIconsRegular.calendarDots;
   static const IconData homeChants = PhosphorIconsRegular.bookOpenText;
   static const IconData homeTimer = PhosphorIconsRegular.timer;
+  static const IconData homeList = PhosphorIconsRegular.listChecks;
 
   // ========== GROUP & SERIES ICONS ==========
   static const IconData usersThree = PhosphorIconsRegular.usersThree;

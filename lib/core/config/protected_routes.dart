@@ -52,6 +52,12 @@ class ProtectedRoutes {
     // Series enrollment
     '/users/me/series',
 
+    // Mala accumulators (user-specific counts). The public preset catalogue
+    // (`/accumulators/presets`) is only ever fetched by authenticated users, so
+    // a catch-all is safe and also covers detail, create, and update — all of
+    // which are user-scoped and 403 without a token.
+    '/accumulators/', // Catch-all: detail, create (/user), update (/user/{id})
+
     // Group join / follow
     '/author/groups/{groupId}/join',
     '/author/groups/{groupId}/follow',

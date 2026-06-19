@@ -3,12 +3,14 @@ import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/core/widgets/error_state_widget.dart';
+import 'package:flutter_pecha/features/connect/domain/entities/discover_groups_page.dart';
 import 'package:flutter_pecha/features/connect/presentation/providers/connect_providers.dart';
 import 'package:flutter_pecha/features/connect/presentation/widgets/connect_header.dart';
 import 'package:flutter_pecha/features/connect/presentation/widgets/discover_group_card.dart';
 import 'package:flutter_pecha/features/connect/presentation/widgets/my_groups_section.dart';
 import 'package:flutter_pecha/features/connect/presentation/widgets/my_groups_section_skeleton.dart';
 import 'package:flutter_pecha/features/group_profile/domain/entities/group_profile.dart';
+import 'package:flutter_pecha/features/group_profile/presentation/providers/group_profile_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class ConnectScreen extends ConsumerStatefulWidget {
@@ -43,23 +45,31 @@ class _ConnectScreenState extends ConsumerState<ConnectScreen> {
 
   Future<void> _onRefresh() async {
     await Future.wait([
+      ref.refresh(myGroupsProvider.future),
       ref.read(discoverGroupsProvider.notifier).refresh(),
-      ref.read(myGroupsProvider.notifier).refresh(),
     ]);
   }
 
   @override
   Widget build(BuildContext context) {
     final discoverState = ref.watch(discoverGroupsProvider);
-    final myGroupsState = ref.watch(myGroupsProvider);
+    final myGroupsAsync = ref.watch(myGroupsProvider);
+    final pendingGroups = ref.watch(pendingJoinedGroupsProvider);
+    final pendingUnjoinedIds = ref.watch(pendingUnjoinedGroupIdsProvider);
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
-    // Hide groups the user already belongs to from the discover section.
-    final myGroupIds = myGroupsState.groups.map((g) => g.id).toSet();
+    final apiGroups = myGroupsAsync.valueOrNull?.groups ?? const [];
+    final displayedMyGroups = mergeMyGroupsWithPending(
+      apiGroups: apiGroups,
+      pendingGroups: pendingGroups,
+      pendingUnjoinedIds: pendingUnjoinedIds,
+    );
+    final excludedGroupIds = displayedMyGroups.map((g) => g.id).toSet();
+
     final discoverGroups =
         discoverState.groups
-            .where((group) => !myGroupIds.contains(group.id))
+            .where((group) => _shouldShowInDiscover(group, excludedGroupIds))
             .toList();
 
     return Scaffold(
@@ -72,7 +82,10 @@ class _ConnectScreenState extends ConsumerState<ConnectScreen> {
             physics: const AlwaysScrollableScrollPhysics(),
             slivers: [
               const SliverToBoxAdapter(child: ConnectHeader()),
-              ..._buildTopSectionSlivers(myGroupsState),
+              ..._buildTopSectionSlivers(
+                myGroupsAsync,
+                displayedMyGroups,
+              ),
               SliverPadding(
                 padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
                 sliver: SliverToBoxAdapter(
@@ -99,36 +112,62 @@ class _ConnectScreenState extends ConsumerState<ConnectScreen> {
     );
   }
 
-  List<Widget> _buildTopSectionSlivers(MyGroupsState myGroupsState) {
-    if (myGroupsState.hasGroups) {
-      return [
-        SliverToBoxAdapter(
-          child: MyGroupsSection(
-            groups: myGroupsState.groups,
-            total: myGroupsState.total,
-          ),
-        ),
+  bool _shouldShowInDiscover(GroupProfile group, Set<String> excludedGroupIds) {
+    if (excludedGroupIds.contains(group.id)) return false;
+
+    final followState = ref.watch(
+      groupFollowProvider(
+        GroupFollowKey(groupId: group.id, groupType: group.groupType),
+      ),
+    );
+
+    return switch (followState) {
+      GroupFollowSuccess(isFollowing: true) => false,
+      _ => true,
+    };
+  }
+
+  List<Widget> _buildTopSectionSlivers(
+    AsyncValue<DiscoverGroupsPage> myGroupsAsync,
+    List<GroupProfile> displayedMyGroups,
+  ) {
+    if (myGroupsAsync.isLoading && displayedMyGroups.isEmpty) {
+      return const [
+        SliverToBoxAdapter(child: MyGroupsSectionSkeleton()),
       ];
     }
 
-    if (myGroupsState.isLoading) {
-      return const [SliverToBoxAdapter(child: MyGroupsSectionSkeleton())];
+    if (displayedMyGroups.isEmpty) {
+      return [_buildStaticConnectImage()];
     }
+
+    final total = myGroupsAsync.valueOrNull?.total ?? displayedMyGroups.length;
 
     return [
       SliverToBoxAdapter(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(20, 20, 20, 8),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(20),
-            child: AspectRatio(
-              aspectRatio: 16 / 10,
-              child: Image.asset(AppAssets.connect, fit: BoxFit.cover),
-            ),
-          ),
+        child: MyGroupsSection(
+          groups: displayedMyGroups,
+          total: total < displayedMyGroups.length
+              ? displayedMyGroups.length
+              : total,
         ),
       ),
     ];
+  }
+
+  Widget _buildStaticConnectImage() {
+    return SliverToBoxAdapter(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(20, 20, 20, 8),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(20),
+          child: AspectRatio(
+            aspectRatio: 16 / 10,
+            child: Image.asset(AppAssets.connect, fit: BoxFit.cover),
+          ),
+        ),
+      ),
+    );
   }
 
   List<Widget> _buildDiscoverGroupsSlivers(

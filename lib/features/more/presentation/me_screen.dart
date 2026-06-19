@@ -1,11 +1,14 @@
 import 'dart:io';
 
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
+import 'package:flutter_pecha/features/more/domain/entities/user_stats.dart';
+import 'package:flutter_pecha/features/more/presentation/providers/user_stats_provider.dart';
+import 'package:flutter_pecha/features/more/presentation/widgets/me_profile_header.dart';
+import 'package:flutter_pecha/features/more/presentation/widgets/me_stats_section.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -41,7 +44,7 @@ class MeScreen extends ConsumerWidget {
       body: SafeArea(
         child:
             (authState.isLoggedIn && !authState.isGuest)
-                ? _LoggedInProfile(ref: ref)
+                ? const _LoggedInProfile()
                 : const _GuestView(),
       ),
     );
@@ -49,102 +52,42 @@ class MeScreen extends ConsumerWidget {
 }
 
 class _LoggedInProfile extends ConsumerWidget {
-  const _LoggedInProfile({required this.ref});
-
-  final WidgetRef ref;
+  const _LoggedInProfile();
 
   @override
-  Widget build(BuildContext context, WidgetRef widgetRef) {
-    final user = widgetRef.watch(userProvider).user;
-    final avatarUrl = user?.avatarUrl ?? '';
+  Widget build(BuildContext context, WidgetRef ref) {
+    final user = ref.watch(userProvider).user;
+    final statsAsync = ref.watch(userStatsFutureProvider);
 
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          const SizedBox(height: 40),
-          // Avatar
-          Hero(
-            tag: 'profile-avatar',
-            child: SizedBox(
-              width: 104,
-              height: 104,
-              child: ClipOval(
-                child:
-                    avatarUrl.isNotEmpty
-                        ? CachedNetworkImage(
-                          imageUrl: avatarUrl,
-                          // Strip presigned query params so S3 signature rotations
-                          // resolve to the same cache entry.
-                          cacheKey:
-                              Uri.tryParse(
-                                avatarUrl,
-                              )?.replace(query: '', fragment: '').toString() ??
-                              avatarUrl,
-                          width: 104,
-                          height: 104,
-                          fit: BoxFit.cover,
-                          placeholder:
-                              (context, url) => ColoredBox(
-                                color: AppColors.grey300,
-                                child: Center(
-                                  child: SizedBox(
-                                    width: 24,
-                                    height: 24,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                      color: AppColors.grey600,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                          errorWidget:
-                              (context, url, error) => ColoredBox(
-                                color: AppColors.grey300,
-                                child: Center(
-                                  child: Icon(
-                                    AppAssets.profile,
-                                    size: 44,
-                                    color: AppColors.grey600,
-                                  ),
-                                ),
-                              ),
-                        )
-                        : ColoredBox(
-                          color: AppColors.grey300,
-                          child: Center(
-                            child: Icon(
-                              AppAssets.profile,
-                              size: 44,
-                              color: AppColors.grey600,
-                            ),
-                          ),
-                        ),
-              ),
-            ),
-          ),
-          const SizedBox(height: 16),
-          // Username
-          if (user?.username != null && user!.username!.isNotEmpty)
-            Text(
-              user.username!,
-              style: Theme.of(
-                context,
-              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600),
-            ),
-          const SizedBox(height: 8),
-          if (user?.aboutMe != null && user!.aboutMe!.isNotEmpty)
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 32),
-              child: Text(
-                user.aboutMe!,
-                textAlign: TextAlign.center,
-                style: Theme.of(
-                  context,
-                ).textTheme.bodySmall?.copyWith(color: AppColors.grey600),
-              ),
-            ),
-        ],
+    if (user == null) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    final stats = statsAsync.maybeWhen(
+      data: (either) => either.fold((_) => UserStats.empty, (stats) => stats),
+      orElse: () => UserStats.empty,
+    );
+
+    return RefreshIndicator(
+      onRefresh: () async {
+        ref.invalidate(userStatsFutureProvider);
+        await ref.read(userStatsFutureProvider.future);
+      },
+      child: SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            MeProfileHeader(user: user),
+            if (statsAsync.isLoading)
+              const Padding(
+                padding: EdgeInsets.all(32),
+                child: Center(child: CircularProgressIndicator()),
+              )
+            else
+              MeStatsSection(stats: stats),
+          ],
+        ),
       ),
     );
   }
