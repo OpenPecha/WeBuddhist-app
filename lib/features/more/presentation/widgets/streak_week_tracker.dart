@@ -72,6 +72,7 @@ class _WeekDayColumn extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final weekdayLabel =
         DateFormat.E(locale).format(DateTime(2024, 1, dayIndex)).toUpperCase();
 
@@ -80,10 +81,9 @@ class _WeekDayColumn extends StatelessWidget {
         Text(
           weekdayLabel,
           style: TextStyle(
-            color: AppColors.grey600,
-            letterSpacing: 0.5,
-            fontSize: 10,
-            fontWeight: FontWeight.w500,
+            color: isDark ? AppColors.grey600 : AppColors.grey900,
+            fontSize: 12,
+            fontWeight: FontWeight.bold,
           ),
         ),
         const SizedBox(height: 8),
