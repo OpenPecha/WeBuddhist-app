@@ -71,10 +71,17 @@ class _MalaBeadsState extends State<MalaBeads>
       _resolveBeadImage();
     }
     if (widget.total != oldWidget.total) {
-      // Always animate forward from the previously settled phase.
-      _phaseFrom = _phaseTo;
-      _phaseTo = widget.total.toDouble();
-      _controller.forward(from: 0); // never reverse()
+      if (widget.total == oldWidget.total + 1) {
+        // A genuine +1 count — slide one bead from the previously settled phase.
+        _phaseFrom = _phaseTo;
+        _phaseTo = widget.total.toDouble();
+        _controller.forward(from: 0); // never reverse()
+      } else {
+        // Any other jump (switching mantra, or the initial seed load) is not a
+        // count — snap straight to the new total without the slide animation.
+        _phaseFrom = _phaseTo = widget.total.toDouble();
+        _controller.value = 1.0;
+      }
     }
   }
 

@@ -158,10 +158,13 @@ A `CustomPaint` strand that advances **forward only** (counting is monotonic).
   the red thread shows through. Implemented by pushing beads right of the focal
   slot by `_gap` bead-steps via a `_smoothstep`, so the front-right bead glides
   smoothly *through* the gap on a tap.
-- **Animation:** on each increment the strand slides one bead **right → left**
-  (the front-right bead crosses the gap to join the left pile, a new bead enters
-  from the top-right). `AnimationController` 280ms, `Curves.easeOut`, forward
-  only — never `reverse()`.
+- **Animation:** the slide plays **only on a genuine +1 count**
+  (`widget.total == oldWidget.total + 1`): the strand slides one bead
+  **right → left** (the front-right bead crosses the gap to join the left pile,
+  a new bead enters from the top-right). `AnimationController` 280ms,
+  `Curves.easeOut`, forward only — never `reverse()`. Any other total change —
+  **switching mantras** or the initial **seed load** — snaps straight to the new
+  count with no slide (`didUpdateWidget`).
 
 ### Tuning knobs (all in `_MalaBeadsPainter`)
 
