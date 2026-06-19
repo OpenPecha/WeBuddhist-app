@@ -97,6 +97,7 @@ class MainNavigationBottomBar extends ConsumerWidget {
     return AppBottomNavBar(
       items: items,
       onChanged: (index) {
+        if (index == selectedIndex) return;
         ref.read(mainNavigationIndexProvider.notifier).state = index;
         if (index == MainTab.me.index) {
           ref.read(cacheInterceptorProvider).invalidate('/users/me/stats');
