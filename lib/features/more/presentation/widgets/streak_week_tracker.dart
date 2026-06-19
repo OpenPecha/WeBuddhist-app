@@ -72,6 +72,7 @@ class _WeekDayColumn extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final weekdayLabel =
         DateFormat.E(locale).format(DateTime(2024, 1, dayIndex)).toUpperCase();
 
@@ -80,10 +81,9 @@ class _WeekDayColumn extends StatelessWidget {
         Text(
           weekdayLabel,
           style: TextStyle(
-            color: AppColors.grey600,
-            letterSpacing: 0.5,
-            fontSize: 10,
-            fontWeight: FontWeight.w500,
+            color: isDark ? Colors.white : Colors.black,
+            fontSize: 12,
+            fontWeight: FontWeight.bold,
           ),
         ),
         const SizedBox(height: 8),
@@ -106,9 +106,8 @@ class _WeekDayCell extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = !forShare && Theme.of(context).brightness == Brightness.dark;
     final surfaceColor = isDark ? AppColors.cardDark : AppColors.surfaceWhite;
-    final missedColor =
-        isDark ? AppColors.surfaceVariantDark : AppColors.grey300;
-    final todayBorderColor = isDark ? AppColors.grey300 : AppColors.grey900;
+    final missedColor = AppColors.grey300;
+    final todayBorderColor = AppColors.brandblue;
 
     return SizedBox(
       width: _cellSize,
@@ -126,15 +125,11 @@ class _WeekDayCell extends StatelessWidget {
         ),
         StreakWeekDayCellState.practiced => DecoratedBox(
           decoration: BoxDecoration(
-            color: isDark ? AppColors.grey300 : AppColors.grey900,
+            color: AppColors.brandblue,
             borderRadius: BorderRadius.circular(8),
           ),
           child: Center(
-            child: Icon(
-              AppAssets.check,
-              size: 16,
-              color: isDark ? AppColors.grey900 : Colors.white,
-            ),
+            child: Icon(AppAssets.check, size: 16, color: Colors.white),
           ),
         ),
         StreakWeekDayCellState.missed => DecoratedBox(

@@ -13,12 +13,15 @@ class MeProfileHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final textTheme = Theme.of(context).textTheme;
     final avatarUrl = user.avatarUrl ?? '';
     final displayName =
-        user.firstName?.isNotEmpty == true
-            ? user.firstName!
-            : user.displayName;
+        [
+          if (user.firstName?.isNotEmpty == true) user.firstName,
+          if (user.lastName?.isNotEmpty == true) user.lastName,
+        ].where((name) => name != null && name.isNotEmpty).join(' ').trim();
+
     final email = user.email ?? '';
     final bio = user.aboutMe ?? '';
 
@@ -30,10 +33,7 @@ class MeProfileHeader extends StatelessWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Hero(
-                tag: 'profile-avatar',
-                child: _Avatar(avatarUrl: avatarUrl),
-              ),
+              Hero(tag: 'profile-avatar', child: _Avatar(avatarUrl: avatarUrl)),
               const SizedBox(width: 16),
               Expanded(
                 child: Padding(
@@ -52,7 +52,8 @@ class MeProfileHeader extends StatelessWidget {
                         Text(
                           email,
                           style: textTheme.bodyMedium?.copyWith(
-                            color: AppColors.grey600,
+                            color:
+                                isDark ? AppColors.grey600 : AppColors.grey900,
                           ),
                         ),
                       ],
@@ -67,7 +68,7 @@ class MeProfileHeader extends StatelessWidget {
             Text(
               bio,
               style: textTheme.bodyMedium?.copyWith(
-                color: AppColors.grey900,
+                color: isDark ? AppColors.grey400 : AppColors.grey900,
                 height: 1.4,
               ),
             ),

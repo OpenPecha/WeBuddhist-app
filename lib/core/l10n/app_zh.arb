@@ -25,6 +25,22 @@
   "home_recitation": "持誦",
   "home_overall_stats": "整體統計",
   "home_plans": "計劃",
+  "home_plans_count": "{count} 計劃",
+  "@home_plans_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "home_recitation_count": "{count} 持誦",
+  "@home_recitation_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "home_shortcut_plans": "計劃",
   "home_chants": "持誦",
   "home_mala": "念珠",
@@ -523,7 +539,7 @@
       }
     }
   },
-  "me_best_streak": "Best streak: {count} days",
+  "me_best_streak": "Longest streak: {count} days",
   "@me_best_streak": {
     "placeholders": {
       "count": {
@@ -531,10 +547,11 @@
       }
     }
   },
-  "me_accumulation": "Accumulation",
+  "me_accumulation": "Total accumulations",
   "me_counts": "counts",
   "me_minutes": "minutes",
-  "me_days_plan_practiced_suffix": "days plan practiced",
+  "me_total_meditation_time": "Total meditation",
+  "me_days_plan_practiced_suffix": "total plan days completed",
   "me_streak_share_message": "I'm on a {count}-day streak on {appName}!",
   "@me_streak_share_message": {
     "placeholders": {
@@ -546,7 +563,7 @@
       }
     }
   },
-  "me_streak_share_quote": "My daily practice is growing",
+  "me_streak_share_quote": "My current streak on WeBuddhist!",
   "me_streak_days_count": "{count} days",
   "@me_streak_days_count": {
     "placeholders": {

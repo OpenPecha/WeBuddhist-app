@@ -11,7 +11,10 @@ class UserStatsRemoteDatasource {
 
   Future<UserStatsModel> fetchUserStats() async {
     try {
-      final response = await dio.get('/users/me/stats');
+      final response = await dio.get(
+        '/users/me/stats',
+        options: Options(extra: {'no_cache': true}),
+      );
 
       if (response.statusCode == 200) {
         return UserStatsModel.fromJson(response.data as Map<String, dynamic>);

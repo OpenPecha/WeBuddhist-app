@@ -70,6 +70,7 @@ class AppColors {
   // ============ Blue Colors ============
   static const Color blue = Color(0xFF0C53C5); // Light mode
   static const Color blueDark = Color(0xFF8CB5F8); // Dark mode
+  static const Color brandblue = Color(0xFF3382FD);
 
   // ============ Semantic Colors (for compatibility) ============
   static const Color onPrimary = Color(0xFFFFFFFF);

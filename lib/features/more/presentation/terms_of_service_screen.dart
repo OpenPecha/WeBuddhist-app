@@ -80,7 +80,9 @@ class _TermsOfServiceScreenState extends State<TermsOfServiceScreen> {
               },
             ),
           )
-          ..loadRequest(Uri.parse('https://webuddhist.com/terms-of-service'));
+          ..loadRequest(
+            Uri.parse('https://www.webuddhist.com/terms-of-service'),
+          );
   }
 
   @override

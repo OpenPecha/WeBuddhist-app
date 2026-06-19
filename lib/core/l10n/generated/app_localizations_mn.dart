@@ -86,6 +86,16 @@ class AppLocalizationsMn extends AppLocalizations {
   String get home_plans => 'Төлөвлөгөө';
 
   @override
+  String home_plans_count(int count) {
+    return '$count Төлөвлөгөө';
+  }
+
+  @override
+  String home_recitation_count(int count) {
+    return '$count Уншлага';
+  }
+
+  @override
   String get home_shortcut_plans => 'Төлөвлөгөө';
 
   @override
@@ -1296,11 +1306,11 @@ class AppLocalizationsMn extends AppLocalizations {
 
   @override
   String me_best_streak(int count) {
-    return 'Best streak: $count days';
+    return 'Longest streak: $count days';
   }
 
   @override
-  String get me_accumulation => 'Accumulation';
+  String get me_accumulation => 'Total accumulations';
 
   @override
   String get me_counts => 'counts';
@@ -1309,7 +1319,10 @@ class AppLocalizationsMn extends AppLocalizations {
   String get me_minutes => 'minutes';
 
   @override
-  String get me_days_plan_practiced_suffix => 'days plan practiced';
+  String get me_total_meditation_time => 'Total meditation';
+
+  @override
+  String get me_days_plan_practiced_suffix => 'total plan days completed';
 
   @override
   String me_streak_share_message(int count, String appName) {
@@ -1317,7 +1330,7 @@ class AppLocalizationsMn extends AppLocalizations {
   }
 
   @override
-  String get me_streak_share_quote => 'My daily practice is growing';
+  String get me_streak_share_quote => 'My current streak on WeBuddhist!';
 
   @override
   String me_streak_days_count(int count) {

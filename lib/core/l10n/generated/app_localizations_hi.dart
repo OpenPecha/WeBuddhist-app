@@ -22,10 +22,10 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get onboarding_quote =>
-      'बूँद-बूँद से घड़ा भर जाता है। इसी प्रकार बुद्धिमान व्यक्ति थोड़ा-थोड़ा करके पुण्य संचित करता है और स्वयं को भलाई से भर लेता है।';
+      'बूँद-बूँद से घड़ा भर जाता है। उसी प्रकार बुद्धिमान व्यक्ति थोड़ा-थोड़ा करके स्वयं को पुण्य से भर लेता है।';
 
   @override
-  String get onboarding_find_peace => 'आरंभ करें';
+  String get onboarding_find_peace => 'शुरू करें';
 
   @override
   String get onboarding_continue => 'जारी रखें';
@@ -37,11 +37,11 @@ class AppLocalizationsHi extends AppLocalizations {
   String get onboarding_choose_option => 'कम से कम एक चुनें:';
 
   @override
-  String get onboarding_all_set => 'सब कुछ तैयार है';
+  String get onboarding_all_set => 'सब तैयार है';
 
   @override
   String get onboarding_all_set_description =>
-      'हमने आपके अनुभव को आपकी परंपरा के अनुरूप ढाला है। हर दिन आएँ — चाहे एक पल के लिए ही — और अपने अभ्यास को बढ़ते हुए देखें';
+      'हमने आपके अनुभव को आपकी परंपरा के अनुसार ढाला है। हर दिन आएँ — चाहे एक पल के लिए ही — और अपने अभ्यास को बढ़ते देखें';
 
   @override
   String get onboarding_begin_practice => 'अपना अभ्यास शुरू करें';
@@ -53,13 +53,13 @@ class AppLocalizationsHi extends AppLocalizations {
   String get home_today => 'आज';
 
   @override
-  String get home_good_morning => 'सुप्रभात';
+  String get home_good_morning => 'नमस्कार';
 
   @override
   String get home_good_afternoon => 'नमस्कार';
 
   @override
-  String get home_good_evening => 'शुभ संध्या';
+  String get home_good_evening => 'नमस्कार';
 
   @override
   String get home_meditationTitle => 'ध्यान';
@@ -68,22 +68,32 @@ class AppLocalizationsHi extends AppLocalizations {
   String get home_prayerTitle => 'आज की प्रार्थना';
 
   @override
-  String get home_scripture => 'मार्गदर्शित शास्त्र';
+  String get home_scripture => 'निर्देशित ग्रंथ';
 
   @override
-  String get home_meditation => 'मार्गदर्शित ध्यान';
+  String get home_meditation => 'निर्देशित ध्यान';
 
   @override
-  String get home_goDeeper => 'गहराई से जाएँ';
+  String get home_goDeeper => 'और गहराई में जाएँ';
 
   @override
-  String get home_intention => 'आज का मेरा संकल्प';
+  String get home_intention => 'आज के लिए मेरा संकल्प';
 
   @override
-  String get home_overall_stats => 'समग्र आँकड़े';
+  String get home_overall_stats => 'संपूर्ण आँकड़े';
 
   @override
   String get home_plans => 'योजनाएँ';
+
+  @override
+  String home_plans_count(int count) {
+    return '$count योजनाएँ';
+  }
+
+  @override
+  String home_recitation_count(int count) {
+    return '$count पाठ';
+  }
 
   @override
   String get home_shortcut_plans => 'योजनाएँ';
@@ -127,13 +137,13 @@ class AppLocalizationsHi extends AppLocalizations {
   }
 
   @override
-  String get no_feature_content => 'कोई विशेष सामग्री उपलब्ध नहीं है';
+  String get no_feature_content => 'कोई विशेष सामग्री उपलब्ध नहीं';
 
   @override
   String get nav_home => 'होम';
 
   @override
-  String get nav_explore => 'खोजें';
+  String get nav_explore => 'एक्सप्लोर';
 
   @override
   String get nav_learn => 'सीखें';
@@ -145,7 +155,7 @@ class AppLocalizationsHi extends AppLocalizations {
   String get nav_settings => 'सेटिंग्स';
 
   @override
-  String get nav_connect => 'जुड़ें';
+  String get nav_connect => 'कनेक्ट';
 
   @override
   String get nav_me => 'मैं';
@@ -172,7 +182,7 @@ class AppLocalizationsHi extends AppLocalizations {
   String get show_less => 'कम दिखाएँ';
 
   @override
-  String get more => 'अधिक';
+  String get more => 'और';
 
   @override
   String get less => 'कम';
@@ -185,36 +195,36 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String commentary_not_available_for_language(String language) {
-    return '$language में टीका उपलब्ध नहीं है';
+    return '$language में टीका उपलब्ध नहीं';
   }
 
   @override
   String get loading => 'लोड हो रहा है...';
 
   @override
-  String get choose_image => 'छवि चुनें';
+  String get choose_image => 'इमेज चुनें';
 
   @override
-  String get choose_bg_image => 'पृष्ठभूमि छवि चुनें';
+  String get choose_bg_image => 'बैकग्राउंड इमेज चुनें';
 
   @override
-  String get create_image => 'छवि बनाएँ';
+  String get create_image => 'इमेज बनाएँ';
 
   @override
-  String get save => 'सहेजें';
+  String get save => 'सेव करें';
 
   @override
   String get done => 'हो गया';
 
   @override
   String get customise_message =>
-      'टेक्स्ट शैली समायोजित करने के लिए कस्टमाइज़ आइकन पर टैप करें';
+      'टेक्स्ट स्टाइल बदलने के लिए कस्टमाइज़ आइकन पर टैप करें';
 
   @override
-  String get download_image => 'छवि डाउनलोड करें';
+  String get download_image => 'इमेज डाउनलोड करें';
 
   @override
-  String get no_images_available => 'कोई छवि उपलब्ध नहीं है';
+  String get no_images_available => 'कोई इमेज उपलब्ध नहीं है';
 
   @override
   String get customise_text => 'टेक्स्ट कस्टमाइज़ करें';
@@ -226,7 +236,7 @@ class AppLocalizationsHi extends AppLocalizations {
   String get text_color => 'टेक्स्ट का रंग';
 
   @override
-  String get text_shadow => 'टेक्स्ट की छाया';
+  String get text_shadow => 'टेक्स्ट शैडो';
 
   @override
   String get apply => 'लागू करें';
@@ -235,10 +245,10 @@ class AppLocalizationsHi extends AppLocalizations {
   String get my_plans => 'मेरी योजनाएँ';
 
   @override
-  String get browse_plans => 'योजनाएँ ब्राउज़ करें';
+  String get browse_plans => 'योजनाएँ देखें';
 
   @override
-  String get plan_info => 'योजना जानकारी';
+  String get plan_info => 'योजना की जानकारी';
 
   @override
   String get start_reading => 'अभी अभ्यास करें';
@@ -269,21 +279,21 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get unenroll_confirmation =>
-      'क्या आप वाकई इससे नामांकन रद्द करना चाहते हैं';
+      'क्या आप वाकई इससे नामांकन रद्द करना चाहते हैं ';
 
   @override
   String get unenroll_message =>
-      'आपकी प्रगति स्थायी रूप से खो जाएगी और इसे पुनर्प्राप्त नहीं किया जा सकता';
+      'आपकी प्रगति स्थायी रूप से मिट जाएगी और पुनः प्राप्त नहीं की जा सकेगी';
 
   @override
   String get practice_plan =>
-      'एक दैनिक अभ्यास बनाएँ। जानें कि आपके लिए क्या उपयुक्त है।';
+      'एक दैनिक अभ्यास बनाएँ। जानें कि आपके लिए क्या सही है।';
 
   @override
   String get search_plans => 'योजनाएँ खोजें...';
 
   @override
-  String get search_for_plans => 'योजनाओं के लिए खोजें';
+  String get search_for_plans => 'योजनाएँ खोजें';
 
   @override
   String get no_plans_found => 'कोई योजना नहीं मिली';
@@ -298,97 +308,97 @@ class AppLocalizationsHi extends AppLocalizations {
   String get recitations_my_recitations => 'मेरे पाठ';
 
   @override
-  String get browse_recitations => 'पाठ ब्राउज़ करें';
+  String get browse_recitations => 'पाठ देखें';
 
   @override
   String get recitations_search => 'पाठ खोजें...';
 
   @override
-  String get recitations_search_for => 'पाठों के लिए खोजें';
+  String get recitations_search_for => 'पाठ खोजें';
 
   @override
   String get recitations_no_found => 'कोई पाठ नहीं मिला';
 
   @override
-  String get recitations_no_content => 'कोई पाठ उपलब्ध नहीं है';
+  String get recitations_no_content => 'कोई पाठ उपलब्ध नहीं';
 
   @override
-  String get recitations_no_saved => 'कोई सहेजा गया पाठ नहीं';
+  String get recitations_no_saved => 'कोई सेव किया हुआ पाठ नहीं है';
 
   @override
   String get recitations_login_prompt =>
-      'अपने सहेजे गए पाठ देखने के लिए साइन इन करें';
+      'अपने सेव किए गए पाठ देखने के लिए साइन इन करें';
 
   @override
-  String get notification_settings => 'सूचना सेटिंग्स';
+  String get notification_settings => 'नोटिफिकेशन सेटिंग्स';
 
   @override
-  String get notification_allow_title => 'सूचनाओं की अनुमति दें';
+  String get notification_allow_title => 'नोटिफिकेशन की अनुमति दें';
 
   @override
   String get notification_allow_subtitle_enabled =>
-      'इस ऐप के लिए सूचनाएँ सक्षम हैं';
+      'इस app के लिए नोटिफिकेशन चालू हैं';
 
   @override
   String get notification_allow_subtitle_disabled =>
-      'अनुमति आवश्यक है। सेटिंग्स में देने के लिए टैप करें।';
+      'अनुमति आवश्यक है। अनुमति देने के लिए सेटिंग्स में टैप करें।';
 
   @override
   String get notification_allow_subtitle_paused =>
-      'अनुस्मारक रुके हुए हैं। फिर से शुरू करने के लिए टैप करें।';
+      'रिमाइंडर रुके हुए हैं। फिर से शुरू करने के लिए टैप करें।';
 
   @override
-  String get notification_routine_title => 'नियमित अनुस्मारक';
+  String get notification_routine_title => 'रूटीन रिमाइंडर';
 
   @override
   String get notification_routine_subtitle_enabled =>
-      'आपके अभ्यास खंडों के लिए दैनिक अनुस्मारक';
+      'आपके अभ्यास ब्लॉक के लिए दैनिक रिमाइंडर';
 
   @override
   String get notification_routine_subtitle_disabled =>
-      'नियमित अनुस्मारक रुके हुए हैं। फिर से शुरू करने के लिए टैप करें।';
+      'रूटीन रिमाइंडर रुके हुए हैं। फिर से शुरू करने के लिए टैप करें।';
 
   @override
-  String get notification_battery_title => 'पृष्ठभूमि अनुस्मारक';
+  String get notification_battery_title => 'बैकग्राउंड रिमाइंडर';
 
   @override
   String get notification_battery_subtitle_enabled =>
-      'आपके अनुस्मारक समय पर भेजे जाते हैं, भले ही ऐप बंद हो।';
+      'आपके रिमाइंडर समय पर भेजे जाते हैं, भले ही app बंद हो।';
 
   @override
   String get notification_battery_subtitle_disabled =>
-      'कुछ Android फ़ोन बैटरी बचाने के लिए पृष्ठभूमि ऐप्स को रोक देते हैं, जिससे आपके अनुस्मारक में देरी हो सकती है या वे छूट सकते हैं। अपने अनुस्मारक चालू रखने के लिए टैप करें।';
+      'कुछ Android फ़ोन बैटरी बचाने के लिए बैकग्राउंड apps रोक देते हैं, जिससे आपके रिमाइंडर देर से आ सकते हैं या छूट सकते हैं। इन्हें चालू रखने के लिए टैप करें।';
 
   @override
-  String get notification_recitation_title => 'पाठ अनुस्मारक';
+  String get notification_recitation_title => 'पाठ रिमाइंडर';
 
   @override
   String get notification_recitation_subtitle_enabled =>
-      'आपके पाठ के लिए दैनिक अनुस्मारक';
+      'आपके पाठ के लिए दैनिक रिमाइंडर';
 
   @override
   String get notification_recitation_subtitle_disabled =>
-      'पाठ अनुस्मारक रुके हुए हैं। फिर से शुरू करने के लिए टैप करें।';
+      'पाठ रिमाइंडर रुके हुए हैं। फिर से शुरू करने के लिए टैप करें।';
 
   @override
   String get notification_battery_info_title =>
-      'पृष्ठभूमि अनुस्मारक के बारे में';
+      'बैकग्राउंड रिमाइंडर के बारे में';
 
   @override
   String get notification_battery_info_body =>
-      'कुछ Android फ़ोन बैटरी बचाने के लिए पृष्ठभूमि ऐप्स को रोक देते हैं, जिससे आपके निर्धारित अनुस्मारक में देरी हो सकती है या वे रद्द हो सकते हैं। ऐप को छूट देने से आपके अनुस्मारक विश्वसनीय रूप से समय पर रहते हैं।';
+      'कुछ Android फ़ोन बैटरी बचाने के लिए बैकग्राउंड apps रोक देते हैं, जिससे आपके निर्धारित रिमाइंडर देर से आ सकते हैं या रद्द हो सकते हैं। app को छूट देने से आपके रिमाइंडर भरोसेमंद रूप से समय पर रहते हैं।';
 
   @override
   String get notification_snack_permission_denied =>
-      'सूचनाएँ अवरुद्ध हैं। उन्हें सेटिंग्स में चालू करें';
+      'नोटिफिकेशन ब्लॉक हैं। उन्हें सेटिंग्स में चालू करें';
 
   @override
   String get notification_snack_disable_alarms_in_settings =>
-      'सेटिंग्स में अलार्म और अनुस्मारक बंद करें।';
+      'सेटिंग्स में अलार्म और रिमाइंडर बंद करें।';
 
   @override
   String get notification_snack_battery_reenable =>
-      'सेटिंग्स → बैटरी में बैटरी अनुकूलन पुनर्स्थापित करें।';
+      'सेटिंग्स → बैटरी में बैटरी ऑप्टिमाइज़ेशन पुनः चालू करें।';
 
   @override
   String get profile_default_bio => 'WeBuddhist में आपका स्वागत है';
@@ -403,30 +413,30 @@ class AppLocalizationsHi extends AppLocalizations {
   String get profile_guest_benefits_header => 'अनलॉक करने के लिए साइन इन करें:';
 
   @override
-  String get profile_guest_benefit_save_progress => 'अपनी प्रगति सहेजें';
+  String get profile_guest_benefit_save_progress => 'अपनी प्रगति सेव करें';
 
   @override
   String get profile_guest_benefit_personalized => 'वैयक्तिकृत सामग्री';
 
   @override
-  String get profile_guest_benefit_notifications => 'कस्टम सूचनाएँ';
+  String get profile_guest_benefit_notifications => 'कस्टम नोटिफिकेशन';
 
   @override
   String get auth_drawer_title => 'जारी रखने के लिए लॉग इन करें';
 
   @override
   String get auth_drawer_subtitle =>
-      'जहाँ भी जाएँ, किसी भी डिवाइस पर अपना अभ्यास जारी रखें।';
+      'किसी भी डिवाइस पर, जहाँ भी आप जाएँ, अपना अभ्यास जारी रखें।';
 
   @override
   String get routine_delete_block_message =>
-      'समय खंड और उसके सभी आइटम हटा दिए जाएँगे';
+      'टाइम ब्लॉक और उसकी सभी सामग्री हटा दी जाएगी';
 
   @override
-  String get something_went_wrong => 'कुछ गलत हो गया। कृपया पुनः प्रयास करें';
+  String get something_went_wrong => 'कुछ गलत हो गया। कृपया फिर से प्रयास करें';
 
   @override
-  String get onboarding_quote_citation => '— धम्मपद 122';
+  String get onboarding_quote_citation => '— Dhammapada 122';
 
   @override
   String get onboarding_traditions_question =>
@@ -437,10 +447,10 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get onboarding_event_enrollment_error =>
-      'आपका नामांकन नहीं हो सका। अपना कनेक्शन जाँचें और पुनः प्रयास करें';
+      'आपका नामांकन नहीं हो सका। अपना कनेक्शन जाँचें और फिर से प्रयास करें';
 
   @override
-  String get onboarding_event_question => 'किसी आयोजन में\nशामिल हों?';
+  String get onboarding_event_question => 'क्या आप किसी इवेंट से जुड़े हैं?';
 
   @override
   String get onboarding_event_optional => 'वैकल्पिक · नामांकन के लिए टैप करें';
@@ -452,7 +462,7 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get onboarding_event_reminder_note =>
-      'हम आपको प्रतिदिन सुबह 7:30 बजे एक अनुस्मारक भेजेंगे। (कभी भी बदलें।)';
+      'हम आपको रोज़ सुबह 7:30 बजे एक रिमाइंडर भेजेंगे। (कभी भी बदलें।)';
 
   @override
   String get tradition_theravada => 'थेरवाद';
@@ -467,13 +477,13 @@ class AppLocalizationsHi extends AppLocalizations {
   String get tradition_pure_land => 'शुद्ध भूमि';
 
   @override
-  String get tradition_ambedkar_buddhism => 'नवयान';
+  String get tradition_ambedkar_buddhism => 'आंबेडकर बौद्ध धर्म';
 
   @override
   String get plan_go_to_practice => 'अभ्यास पर जाएँ';
 
   @override
-  String get plan_starts_soon_title => 'जल्द ही शुरू होगा';
+  String get plan_starts_soon_title => 'जल्द शुरू होगा';
 
   @override
   String get plan_joining_late_title => 'प्रारंभ तिथि के बाद शामिल हो रहे हैं';
@@ -488,19 +498,19 @@ class AppLocalizationsHi extends AppLocalizations {
   String get plan_day_tasks_load_error => 'कार्य लोड नहीं हो सके';
 
   @override
-  String get plans_empty_title => 'और भी आने वाला है';
+  String get plans_empty_title => 'और भी आ रहा है';
 
   @override
   String get plans_empty_subtitle =>
-      'हमारी लाइब्रेरी बढ़ रही है। जल्द ही फिर देखें।';
+      'हमारी लाइब्रेरी बढ़ रही है। जल्द फिर देखें।';
 
   @override
   String get find_plans_load_error =>
-      'लोड नहीं हो सका।\nअपना कनेक्शन जाँचें और पुनः प्रयास करें';
+      'लोड नहीं हो सका।\nअपना कनेक्शन जाँचें और फिर से प्रयास करें';
 
   @override
   String get connect_coming_soon_subtitle =>
-      'मार्ग पर आपका साथ देने के लिए शिक्षक, समुदाय, चुनौतियाँ और आयोजन';
+      'मार्ग पर आपका साथ देने के लिए शिक्षक, समुदाय, चुनौतियाँ और इवेंट';
 
   @override
   String get connect_subtitle => 'Find groups and practice together';
@@ -535,35 +545,35 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get explore_coming_soon_subtitle =>
-      'अभ्यास, शिक्षाओं और सामुदायिक आयोजनों को खोजने के लिए एक चयनित स्थान';
+      'अभ्यास, शिक्षाएँ और सामुदायिक इवेंट खोजने के लिए एक चुनिंदा स्थान';
 
   @override
   String get learn_coming_soon_subtitle =>
-      'आपकी व्यक्तिगत अध्ययन योजनाएँ, रोज़मर्रा के जीवन में ढलने के लिए बनाई गईं';
+      'आपकी निजी अध्ययन योजनाएँ, रोज़मर्रा की ज़िंदगी में ढलने के लिए बनाई गईं';
 
   @override
-  String get creator_featured_plan => 'विशेष योजना';
+  String get creator_featured_plan => 'विशेष योजनाएँ';
 
   @override
   String get audio_init_error =>
-      'ऑडियो प्लेयर प्रारंभ नहीं हो सका। अपना कनेक्शन जाँचें और पुनः प्रयास करें';
+      'ऑडियो प्लेयर शुरू नहीं हो सका। अपना कनेक्शन जाँचें और फिर से प्रयास करें';
 
   @override
   String get meditation_audio_load_error =>
-      'लोड नहीं हो सका। अपना कनेक्शन जाँचें और पुनः प्रयास करें';
+      'लोड नहीं हो सका। अपना कनेक्शन जाँचें और फिर से प्रयास करें';
 
   @override
   String get prayer_audio_load_error =>
-      'ऑडियो लोड नहीं हो सका। अपना कनेक्शन जाँचें और पुनः प्रयास करें';
+      'ऑडियो लोड नहीं हो सका। अपना कनेक्शन जाँचें और फिर से प्रयास करें';
 
   @override
-  String get home_no_series_found => 'कोई श्रृंखला नहीं मिली';
+  String get home_no_series_found => 'कोई सीरीज़ नहीं मिली';
 
   @override
   String get home_no_tags_found => 'कोई टैग नहीं मिला';
 
   @override
-  String get home_celebrated_by => 'द्वारा मनाया गया: ';
+  String get home_celebrated_by => 'इनके द्वारा मनाया जाता है: ';
 
   @override
   String get reader_settings_tooltip => 'रीडर सेटिंग्स';
@@ -582,33 +592,33 @@ class AppLocalizationsHi extends AppLocalizations {
   }
 
   @override
-  String get reader_versions_load_error => 'संस्करण लोड करने में विफल';
+  String get reader_versions_load_error => 'संस्करण लोड नहीं हो सके';
 
   @override
-  String get reader_scripts_load_error => 'लिपियाँ लोड करने में विफल';
+  String get reader_scripts_load_error => 'लिपियाँ लोड नहीं हो सकीं';
 
   @override
-  String get reader_languages_load_error => 'भाषाएँ लोड करने में विफल';
+  String get reader_languages_load_error => 'भाषाएँ लोड नहीं हो सकीं';
 
   @override
   String reader_no_versions_in_language(String language) {
-    return '$language में कोई संस्करण उपलब्ध नहीं है';
+    return '$language में कोई संस्करण उपलब्ध नहीं';
   }
 
   @override
   String reader_no_scripts_in_language(String language) {
-    return '$language में कोई लिपि उपलब्ध नहीं है';
+    return '$language में कोई लिपि उपलब्ध नहीं';
   }
 
   @override
-  String get reader_no_languages => 'इस पाठ के लिए कोई भाषा उपलब्ध नहीं है';
+  String get reader_no_languages => 'इस पाठ के लिए कोई भाषा उपलब्ध नहीं';
 
   @override
   String get reader_license => 'लाइसेंस';
 
   @override
   String get reader_version_details_load_error =>
-      'संस्करण विवरण लोड नहीं हो सका';
+      'संस्करण विवरण लोड नहीं हो सके';
 
   @override
   String get reader_no_version_info =>
@@ -616,7 +626,7 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get recitation_unavailable =>
-      'पाठ सामग्री वर्तमान में उपलब्ध नहीं है।\nबाद में पुनः प्रयास करें या सहायता से संपर्क करें';
+      'पाठ सामग्री इस समय उपलब्ध नहीं है।\nबाद में फिर प्रयास करें या सहायता से संपर्क करें';
 
   @override
   String get recitation_sign_in_required =>
@@ -624,47 +634,47 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get my_recitations_load_error =>
-      'लोड नहीं हो सका।\nअपना कनेक्शन जाँचें और पुनः प्रयास करें';
+      'लोड नहीं हो सका।\nअपना कनेक्शन जाँचें और फिर से प्रयास करें';
 
   @override
   String get recitations_load_error =>
-      'पाठ लोड नहीं हो सके।\nबाद में पुनः प्रयास करें';
+      'पाठ लोड नहीं हो सके।\nबाद में फिर प्रयास करें';
 
   @override
   String get text_search_hint => 'खोजने के लिए टाइप करें';
 
   @override
-  String get text_search_press_button => 'खोजने के लिए खोज बटन दबाएँ';
+  String get text_search_press_button => 'खोजने के लिए सर्च बटन दबाएँ';
 
   @override
-  String get text_search_error => 'खोज नहीं की जा सकी।\nकृपया पुनः प्रयास करें';
+  String get text_search_error => 'खोज नहीं हो सकी।\nकृपया फिर से प्रयास करें';
 
   @override
   String get unknown_error => 'अज्ञात त्रुटि';
 
   @override
   String image_share_error(String error) {
-    return 'साझा नहीं किया जा सका: $error';
+    return 'शेयर नहीं हो सका: $error';
   }
 
   @override
   String get create_image_capture_error =>
-      'छवि बनाने में विफल। कृपया पुनः प्रयास करें';
+      'इमेज नहीं बन सकी। कृपया फिर से प्रयास करें';
 
   @override
   String get create_image_share_error =>
-      'साझा नहीं किया जा सका। कृपया पुनः प्रयास करें';
+      'शेयर नहीं हो सका। कृपया फिर से प्रयास करें';
 
   @override
-  String get create_image_save_success => 'छवि सहेजी गई';
+  String get create_image_save_success => 'इमेज सेव हो गई';
 
   @override
   String get create_image_save_error =>
-      'छवि सहेजी नहीं जा सकी। जाँचें कि ऐप के पास फ़ोटो एक्सेस है, या पुनः प्रयास करें';
+      'इमेज सेव नहीं हो सकी।  कृपया जांचें कि ऐप को फोटो एक्सेस मिला है या फिर दोबारा कोशिश करें';
 
   @override
   String get create_image_download_error =>
-      'आपकी छवि डाउनलोड नहीं की जा सकी। कृपया पुनः प्रयास करें';
+      'आपकी इमेज डाउनलोड नहीं हो सकी। कृपया फिर से प्रयास करें';
 
   @override
   String get create_image_customize_tooltip => 'कस्टमाइज़ करें';
@@ -684,12 +694,12 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String plan_starts_soon_message(String date) {
-    return '$date को शुरू होगा। आप अभी सामग्री ब्राउज़ कर सकते हैं';
+    return '$date को शुरू होगा। आप अभी सामग्री देख सकते हैं';
   }
 
   @override
   String plan_joining_late_message(String date) {
-    return '$date को शुरू हुआ। आप बेझिझक पिछले दिनों के कार्य पूरे कर सकते हैं';
+    return '$date को शुरू हुआ। आप पिछले दिनों के कार्य भी पूरे कर सकते हैं';
   }
 
   @override
@@ -705,16 +715,16 @@ class AppLocalizationsHi extends AppLocalizations {
   String get copy => 'कॉपी करें';
 
   @override
-  String get copied => 'कॉपी किया गया';
+  String get copied => 'कॉपी हो गया';
 
   @override
-  String get share => 'साझा करें';
+  String get share => 'शेयर करें';
 
   @override
-  String get image => 'छवि';
+  String get image => 'इमेज';
 
   @override
-  String get feedback => 'प्रतिक्रिया';
+  String get feedback => 'फ़ीडबैक';
 
   @override
   String get author => 'लेखक';
@@ -723,30 +733,30 @@ class AppLocalizationsHi extends AppLocalizations {
   String get plans_created => 'योजना बनाई गई';
 
   @override
-  String get ai_chat_history => 'चैट इतिहास';
+  String get ai_chat_history => 'चैट हिस्ट्री';
 
   @override
   String get ai_buddhist_assistant =>
-      'अपनी दैनिक लय बनाएँ। समय निर्धारित करें, और हम आपको अभ्यास की याद दिलाएँगे';
+      'अपनी दैनिक लय बनाएँ। समय तय करें, और हम आपको अभ्यास के लिए याद दिलाएँगे। ';
 
   @override
   String get ai_new_chat => 'नई चैट';
 
   @override
-  String get ai_retry => 'पुनः प्रयास करें';
+  String get ai_retry => 'फिर से प्रयास करें';
 
   @override
   String get ai_dismiss => 'खारिज करें';
 
   @override
   String get ai_sign_in_prompt =>
-      'बौद्ध AI सहायक का उपयोग करने के लिए साइन इन करें';
+      'बौद्ध AI असिस्टेंट का उपयोग करने के लिए साइन इन करें';
 
   @override
-  String get ai_explore_wisdom => 'बौद्ध ज्ञान का अन्वेषण करें';
+  String get ai_explore_wisdom => 'बौद्ध ज्ञान को जानें';
 
   @override
-  String get ai_ask_question => 'एक प्रश्न पूछें...';
+  String get ai_ask_question => 'कोई प्रश्न पूछें...';
 
   @override
   String get ai_search_chats => 'चैट खोजें';
@@ -755,13 +765,13 @@ class AppLocalizationsHi extends AppLocalizations {
   String get ai_chats => 'चैट';
 
   @override
-  String get ai_chat_deleted => 'चैट हटा दी गई';
+  String get ai_chat_deleted => 'चैट हटाई गई';
 
   @override
   String get ai_no_conversations => 'अभी तक कोई बातचीत नहीं';
 
   @override
-  String get ai_start_new_chat => 'शुरू करने के लिए एक नई चैट आरंभ करें।';
+  String get ai_start_new_chat => 'शुरू करने के लिए एक नई चैट शुरू करें।';
 
   @override
   String get ai_delete_chat => 'चैट हटाएँ';
@@ -789,7 +799,7 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String ai_text_not_found_message(String title) {
-    return 'हमारी लाइब्रेरी में अभी \"$title\" उपलब्ध नहीं है।\n\nकोई अन्य शीर्षक आज़माएँ, या किसी और तरीके से पूछें';
+    return 'हमारी लाइब्रेरी में अभी \"$title\" नहीं है।\n\nकोई दूसरा शीर्षक आज़माएँ, या किसी और तरह पूछें';
   }
 
   @override
@@ -829,7 +839,7 @@ class AppLocalizationsHi extends AppLocalizations {
   }
 
   @override
-  String get search_retrying => 'पुनः प्रयास हो रहा है...';
+  String get search_retrying => 'फिर से प्रयास हो रहा है...';
 
   @override
   String search_no_titles_found(String query) {
@@ -853,7 +863,7 @@ class AppLocalizationsHi extends AppLocalizations {
   String get common_ok => 'ठीक है';
 
   @override
-  String get comingSoonHeadline => 'जल्द ही आ रहा है';
+  String get comingSoonHeadline => 'जल्द आ रहा है';
 
   @override
   String get routine_title => 'मेरे अभ्यास';
@@ -862,11 +872,11 @@ class AppLocalizationsHi extends AppLocalizations {
   String get routine_empty_title => 'अभ्यास';
 
   @override
-  String get routine_edit => 'संपादित करें';
+  String get routine_edit => 'एडिट  करें';
 
   @override
   String get routine_empty_description =>
-      'अपनी दिनचर्या में जोड़ने के लिए और अधिक शिक्षाओं और अभ्यासों का अन्वेषण करें';
+      'अपनी दिनचर्या में जोड़ने के लिए और शिक्षाएँ व अभ्यास खोजें';
 
   @override
   String get routine_build => 'अपनी दिनचर्या बनाएँ';
@@ -875,13 +885,13 @@ class AppLocalizationsHi extends AppLocalizations {
   String get routine_add_session => 'सत्र में जोड़ें';
 
   @override
-  String get routine_edit_title => 'अपनी दिनचर्या संपादित करें';
+  String get routine_edit_title => 'अपनी दिनचर्या एडिट करें';
 
   @override
-  String get routine_delete_block => 'खंड हटाएँ?';
+  String get routine_delete_block => 'ब्लॉक हटाएँ';
 
   @override
-  String get routine_delete_time_block => 'समय खंड हटाएँ';
+  String get routine_delete_time_block => 'टाइम ब्लॉक हटाएँ';
 
   @override
   String get routine_add_plan => 'योजना जोड़ें';
@@ -894,54 +904,54 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get routine_load_error =>
-      'लोड नहीं हो सका। अपना कनेक्शन जाँचें और पुनः प्रयास करें';
+      'लोड नहीं हो सका। अपना कनेक्शन जाँचें और फिर से प्रयास करें';
 
   @override
-  String get routine_empty_block_title_singular => 'खाली समय खंड';
+  String get routine_empty_block_title_singular => 'खाली टाइम ब्लॉक';
 
   @override
   String routine_empty_block_title_plural(int count) {
-    return 'खाली समय खंड ($count)';
+    return 'खाली टाइम ब्लॉक ($count)';
   }
 
   @override
   String get routine_empty_block_message_singular =>
-      'यह समय खंड खाली है। कोई आइटम जोड़ें, या इसे अपनी दिनचर्या से हटाएँ?';
+      'यह टाइम ब्लॉक खाली है। कोई आइटम जोड़ें, या इसे अपनी दिनचर्या से हटाएँ?';
 
   @override
   String routine_empty_block_message_plural(int count) {
-    return '$count समय खंड खाली हैं। आइटम जोड़ें, या उन्हें अपनी दिनचर्या से हटाएँ?';
+    return '$count टाइम ब्लॉक खाली हैं। आइटम जोड़ें, या उन्हें अपनी दिनचर्या से हटाएँ?';
   }
 
   @override
   String get routine_empty_block_add_items => 'आइटम जोड़ें';
 
   @override
-  String get routine_empty_block_delete_singular => 'खंड हटाएँ';
+  String get routine_empty_block_delete_singular => 'ब्लॉक हटाएँ';
 
   @override
-  String get routine_empty_block_delete_plural => 'खंड हटाएँ';
+  String get routine_empty_block_delete_plural => 'ब्लॉक हटाएँ';
 
   @override
   String get routine_notification_title => 'अभ्यास को आदत बनाएँ';
 
   @override
   String get routine_notification_description =>
-      'सूचनाओं की अनुमति दें ताकि हम आपको अभ्यास की याद दिला सकें';
+      'नोटिफिकेशन की अनुमति दें ताकि हम आपको अभ्यास के लिए याद दिला सकें';
 
   @override
-  String get routine_notification_enable => 'सूचनाएँ सक्षम करें';
+  String get routine_notification_enable => 'नोटिफिकेशन चालू करें';
 
   @override
   String get routine_notification_skip => 'छोड़ें';
 
   @override
   String routine_time_adjusted(String time, int gap) {
-    return '$time पर समायोजित ($gap-मिनट का न्यूनतम अंतराल)';
+    return '$time पर समायोजित ($gap-मिनट का न्यूनतम अंतर)';
   }
 
   @override
-  String get routine_add_block_label => 'समय खंड';
+  String get routine_add_block_label => 'टाइम ब्लॉक';
 
   @override
   String get continueWithGoogle => 'Google के साथ जारी रखें';
@@ -953,7 +963,7 @@ class AppLocalizationsHi extends AppLocalizations {
   String get continueAsGuest => 'अतिथि के रूप में जारी रखें';
 
   @override
-  String get signIn => 'साइन इन करें';
+  String get signIn => 'साइन इन';
 
   @override
   String get profileError => 'प्रोफ़ाइल लोड करने में त्रुटि';
@@ -962,10 +972,10 @@ class AppLocalizationsHi extends AppLocalizations {
   String get profileTitle => 'प्रोफ़ाइल';
 
   @override
-  String get notLoggedIn => 'लॉग इन नहीं किया गया';
+  String get notLoggedIn => 'लॉग इन नहीं हैं';
 
   @override
-  String get retry => 'पुनः प्रयास करें';
+  String get retry => 'फिर से प्रयास करें';
 
   @override
   String get back => 'वापस';
@@ -977,10 +987,10 @@ class AppLocalizationsHi extends AppLocalizations {
   String get close => 'बंद करें';
 
   @override
-  String get tryAgain => 'पुनः प्रयास करें';
+  String get tryAgain => 'फिर से प्रयास करें';
 
   @override
-  String get pleaseTryAgain => 'कृपया पुनः प्रयास करें';
+  String get pleaseTryAgain => 'कृपया फिर से प्रयास करें';
 
   @override
   String get error => 'त्रुटि';
@@ -989,15 +999,15 @@ class AppLocalizationsHi extends AppLocalizations {
   String get anonymous => 'अनाम';
 
   @override
-  String get noContentAvailable => 'कोई सामग्री उपलब्ध नहीं है';
+  String get noContentAvailable => 'कोई सामग्री उपलब्ध नहीं';
 
   @override
   String get unableToLoad =>
-      'लोड नहीं हो सका। अपना कनेक्शन जाँचें और पुनः प्रयास करें';
+      'लोड नहीं हो सका। अपना कनेक्शन जाँचें और फिर से प्रयास करें';
 
   @override
   String get somethingWrong =>
-      'कुछ गलत हो गया। अपना कनेक्शन जाँचें और पुनः प्रयास करें';
+      'कुछ गलत हो गया। अपना कनेक्शन जाँचें और फिर से प्रयास करें';
 
   @override
   String get source => 'स्रोत';
@@ -1006,17 +1016,17 @@ class AppLocalizationsHi extends AppLocalizations {
   String get searchResults => 'खोज परिणाम';
 
   @override
-  String get noTasks => 'कोई कार्य उपलब्ध नहीं है';
+  String get noTasks => 'कोई कार्य उपलब्ध नहीं';
 
   @override
   String get taskNotFound => 'कार्य नहीं मिला';
 
   @override
-  String get updateTaskError => 'कार्य स्थिति अपडेट नहीं की जा सकी';
+  String get updateTaskError => 'कार्य की स्थिति अपडेट नहीं हो सकी';
 
   @override
   String get enrollError =>
-      'आपका नामांकन नहीं हो सका। अपना कनेक्शन जाँचें और पुनः प्रयास करें';
+      'आपका नामांकन नहीं हो सका। अपना कनेक्शन जाँचें और फिर से प्रयास करें';
 
   @override
   String unenrollSuccess(String planTitle) {
@@ -1025,56 +1035,55 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get unenrollError =>
-      'आपका नामांकन रद्द नहीं हो सका। अपना कनेक्शन जाँचें और पुनः प्रयास करें';
+      'आपका नामांकन रद्द नहीं हो सका। अपना कनेक्शन जाँचें और फिर से प्रयास करें';
 
   @override
   String get unenrollGenericError =>
-      'कुछ गलत हो गया। अपना कनेक्शन जाँचें और पुनः प्रयास करें';
+      'कुछ गलत हो गया। अपना कनेक्शन जाँचें और फिर से प्रयास करें';
 
   @override
   String get notFound =>
-      'यह अब उपलब्ध नहीं है। अपडेट करने के लिए अपनी दिनचर्या संपादित करें।';
+      'यह अब उपलब्ध नहीं है। अपडेट करने के लिए अपनी दिनचर्या एडिट करें।';
 
   @override
   String get noTimeSlot =>
-      'कोई उपलब्ध समय स्लॉट नहीं है। पहले एक खंड हटाने का प्रयास करें';
+      'कोई टाइम स्लॉट उपलब्ध नहीं। पहले कोई ब्लॉक हटाकर देखें';
 
   @override
   String maxBlocks(int max) {
-    return 'अधिकतम $max समय खंड की सीमा पहुँच गई';
+    return 'अधिकतम $max टाइम ब्लॉक की सीमा पूरी हुई';
   }
 
   @override
-  String get duplicateItem => 'यह आइटम पहले से ही खंड में है';
+  String get duplicateItem => 'यह आइटम पहले से ही ब्लॉक में है';
 
   @override
   String get removeItem => 'आइटम हटाएँ?';
 
   @override
   String removeConfirmation(String itemName) {
-    return '\"$itemName\" को इस खंड से हटा दिया जाएगा';
+    return '\"$itemName\" इस ब्लॉक से हटा दिया जाएगा';
   }
 
   @override
   String shareError(String error) {
-    return 'साझा नहीं किया जा सका। कृपया पुनः प्रयास करें';
+    return 'शेयर नहीं हो सका। कृपया फिर से प्रयास करें';
   }
 
   @override
   String get updateOrderError =>
-      'क्रम अपडेट नहीं किया जा सका। कृपया पुनः प्रयास करें';
+      'क्रम अपडेट नहीं हो सका। कृपया फिर से प्रयास करें';
 
   @override
   String get loadFailed =>
-      'लोड नहीं हो सका। अपना कनेक्शन जाँचें और पुनः प्रयास करें';
+      'लोड नहीं हो सका। अपना कनेक्शन जाँचें और फिर से प्रयास करें';
 
   @override
   String get captureError =>
-      'QR कोड कैप्चर करने में विफल। कृपया पुनः प्रयास करें';
+      'QR कोड कैप्चर नहीं हो सका। कृपया फिर से प्रयास करें';
 
   @override
-  String get qrShareError =>
-      'QR कोड साझा नहीं किया जा सका। बाद में पुनः प्रयास करें';
+  String get qrShareError => 'QR कोड शेयर नहीं हो सका। बाद में फिर प्रयास करें';
 
   @override
   String errorDetail(String error) {
@@ -1094,7 +1103,7 @@ class AppLocalizationsHi extends AppLocalizations {
   }
 
   @override
-  String get plan_status_on_track => 'सही राह पर!';
+  String get plan_status_on_track => 'सही राह पर';
 
   @override
   String get start_now => 'अभी शुरू करें';
@@ -1106,8 +1115,7 @@ class AppLocalizationsHi extends AppLocalizations {
   String get show_second_version => 'दूसरा संस्करण दिखाएँ';
 
   @override
-  String get enable_add_msg =>
-      'मुख्य पाठ के साथ अनुवाद या लिप्यंतरण जोड़ने के लिए सक्षम करें';
+  String get enable_add_msg => 'मुख्य पाठ के साथ अनुवाद या उच्चारण जोड़ें';
 
   @override
   String get main_version => 'मुख्य संस्करण';
@@ -1117,7 +1125,7 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get second_version_msg =>
-      'दूसरा संस्करण मुख्य पाठ के प्रत्येक पद के नीचे दिखाई देगा';
+      'दूसरा संस्करण मुख्य पाठ के हर श्लोक के नीचे दिखाई देगा';
 
   @override
   String get version => 'संस्करण';
@@ -1126,7 +1134,7 @@ class AppLocalizationsHi extends AppLocalizations {
   String get parallel_version => 'समानांतर संस्करण';
 
   @override
-  String get version_not_available => 'उपलब्ध नहीं';
+  String get version_not_available => 'उपलब्ध नहीं है';
 
   @override
   String get read_full_text => 'पूरा पाठ पढ़ें';
@@ -1147,7 +1155,7 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get force_update_message =>
-      'ऐप का एक नया संस्करण उपलब्ध है। जारी रखने के लिए कृपया अपडेट करें';
+      'app का एक नया संस्करण उपलब्ध है। जारी रखने के लिए कृपया अपडेट करें';
 
   @override
   String get force_update_button => 'अभी अपडेट करें';
@@ -1159,51 +1167,51 @@ class AppLocalizationsHi extends AppLocalizations {
   String get settings_section_more => 'अधिक';
 
   @override
-  String get settings_section_account => 'खाता';
+  String get settings_section_account => 'अकाउंट';
 
   @override
-  String get settings_edit_profile => 'प्रोफ़ाइल संपादित करें';
+  String get settings_edit_profile => ' प्रोफ़ाइल एडिट करें';
 
   @override
   String get settings_theme => 'थीम';
 
   @override
-  String get settings_notification_row => 'सूचनाएँ';
+  String get settings_notification_row => 'नोटिफिकेशन';
 
   @override
-  String get settings_feedback_row => 'प्रतिक्रिया';
+  String get settings_feedback_row => 'फ़ीडबैक';
 
   @override
-  String get edit_profile_title => 'प्रोफ़ाइल संपादित करें';
+  String get edit_profile_title => ' प्रोफ़ाइल एडिट करें';
 
   @override
-  String get edit_profile_save => 'सहेजें';
+  String get edit_profile_save => 'सेव करें';
 
   @override
   String get edit_profile_first_name => 'पहला नाम';
 
   @override
-  String get edit_profile_last_name => 'उपनाम';
+  String get edit_profile_last_name => 'अंतिम नाम';
 
   @override
-  String get edit_profile_bio => 'परिचय';
+  String get edit_profile_bio => 'बायो';
 
   @override
-  String get edit_profile_bio_hint => 'अपने बारे में थोड़ा साझा करें';
+  String get edit_profile_bio_hint => 'अपने बारे में थोड़ा बताएँ';
 
   @override
-  String get edit_profile_delete_account => 'खाता हटाएँ';
+  String get edit_profile_delete_account => 'अकाउंट हटाएँ';
 
   @override
   String get edit_profile_photo_not_uploaded => 'फ़ोटो अपलोड नहीं हुई';
 
   @override
   String get edit_profile_photo_too_large =>
-      'छवि बहुत बड़ी है। कृपया 1 MB से कम की फ़ोटो चुनें और पुनः प्रयास करें';
+      'इमेज बहुत बड़ी है। कृपया 1 MB से कम की फ़ोटो चुनें और फिर से प्रयास करें';
 
   @override
   String get edit_profile_photo_upload_failed =>
-      'आपकी फ़ोटो अपलोड नहीं हो सकी। कृपया पुनः प्रयास करें';
+      'आपकी फ़ोटो अपलोड नहीं हो सकी। कृपया फिर से प्रयास करें';
 
   @override
   String get edit_profile_choose_from_library => 'लाइब्रेरी से चुनें';
@@ -1213,39 +1221,37 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get edit_profile_offline =>
-      'आप ऑफ़लाइन हैं। इंटरनेट से कनेक्ट करें और पुनः प्रयास करें';
+      'आप ऑफ़लाइन हैं। इंटरनेट से कनेक्ट करें और फिर से प्रयास करें';
 
   @override
   String get edit_profile_save_failed =>
-      'आपके परिवर्तन सहेजे नहीं जा सके। कृपया पुनः प्रयास करें';
+      'आपके बदलाव सेव नहीं हो सके। कृपया फिर से प्रयास करें';
 
   @override
-  String get username_label => 'उपयोगकर्ता नाम';
+  String get username_label => 'यूज़रनेम';
 
   @override
-  String get username_taken => 'यह नाम पहले से ही किसी ने उपयोग कर लिया है';
+  String get username_taken => 'यह नाम पहले से किसी ने ले लिया है';
 
   @override
   String get username_available_label => 'उपलब्ध: ';
 
   @override
   String get username_check_error =>
-      'उपयोगकर्ता नाम जाँचा नहीं जा सका। पुनः प्रयास करें';
+      'यूज़रनेम जाँचा नहीं जा सका। फिर से प्रयास करें';
 
   @override
-  String get username_invalid_format => 'अमान्य उपयोगकर्ता नाम प्रारूप';
+  String get username_invalid_format => 'अमान्य यूज़रनेम प्रारूप';
 
   @override
-  String get username_min_length =>
-      'उपयोगकर्ता नाम कम से कम 3 अक्षरों का होना चाहिए';
+  String get username_min_length => 'यूज़रनेम कम से कम 3 अक्षरों का होना चाहिए';
 
   @override
   String get username_max_length =>
-      'उपयोगकर्ता नाम 30 अक्षरों या उससे कम का होना चाहिए';
+      'यूज़रनेम 30 अक्षरों या उससे कम का होना चाहिए';
 
   @override
-  String get username_no_spaces =>
-      'उपयोगकर्ता नाम में रिक्त स्थान नहीं हो सकते';
+  String get username_no_spaces => 'यूज़रनेम में स्पेस नहीं हो सकता';
 
   @override
   String get username_invalid_chars =>
@@ -1253,41 +1259,41 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get username_must_start_alphanumeric =>
-      'उपयोगकर्ता नाम किसी अक्षर या संख्या से शुरू होना चाहिए';
+      'यूज़रनेम अक्षर या संख्या से शुरू होना चाहिए';
 
   @override
   String get username_must_end_alphanumeric =>
-      'उपयोगकर्ता नाम किसी अक्षर या संख्या से समाप्त होना चाहिए';
+      'यूज़रनेम अक्षर या संख्या पर समाप्त होना चाहिए';
 
   @override
   String get person_name_min_length => 'कम से कम 1 अक्षर होना चाहिए';
 
   @override
-  String get person_name_max_length => '50 अक्षर या उससे कम होना चाहिए';
+  String get person_name_max_length => '50 अक्षरों या उससे कम का होना चाहिए';
 
   @override
   String get person_name_invalid_chars =>
-      'केवल अक्षर, रिक्त स्थान, हाइफ़न (-) और उच्चकोटि (\') की अनुमति है';
+      'केवल अक्षर, स्पेस, हाइफ़न और अपॉस्ट्रॉफ़ी की अनुमति है';
 
   @override
-  String get about_title => 'हमारे बारे में';
+  String get about_title => 'परिचय';
 
   @override
   String get about_connect_with_us => 'हमसे जुड़ें';
 
   @override
   String get about_description =>
-      'हम बौद्धों को कम हानि और अधिक भलाई करने में, तथा प्रतिदिन सीखने, अभ्यास करने और जुड़ने के माध्यम से अपने मन को बेहतर ढंग से जानने में मदद करते हैं, ताकि सभी प्राणी दुख से मुक्त हों और स्थायी सुख पाएँ।';
+      'हम बौद्धों को कम नुकसान करने, अधिक भला करने और अपने मन को बेहतर ढंग से जानने में मदद करते हैं — रोज़ सीखने, अभ्यास करने और जुड़ने के माध्यम से, ताकि सभी प्राणी दुख से मुक्त हों और स्थायी सुख पाएँ।';
 
   @override
   String get about_social_website => 'वेबसाइट';
 
   @override
-  String get me_guest_headline => 'पूर्ण अनुभव प्राप्त करें';
+  String get me_guest_headline => 'पूरा अनुभव पाएँ';
 
   @override
   String get me_guest_subtitle =>
-      'अपनी प्रगति सहेजने के लिए एक निःशुल्क खाता बनाएँ';
+      'अपनी प्रगति सेव करने के लिए मुफ्त अकाउंट बनाएँ।';
 
   @override
   String get me_my_stats => 'My stats';
@@ -1299,11 +1305,11 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String me_best_streak(int count) {
-    return 'Best streak: $count days';
+    return 'Longest streak: $count days';
   }
 
   @override
-  String get me_accumulation => 'Accumulation';
+  String get me_accumulation => 'Total accumulations';
 
   @override
   String get me_counts => 'counts';
@@ -1312,7 +1318,10 @@ class AppLocalizationsHi extends AppLocalizations {
   String get me_minutes => 'minutes';
 
   @override
-  String get me_days_plan_practiced_suffix => 'days plan practiced';
+  String get me_total_meditation_time => 'Total meditation';
+
+  @override
+  String get me_days_plan_practiced_suffix => 'total plan days completed';
 
   @override
   String me_streak_share_message(int count, String appName) {
@@ -1320,7 +1329,7 @@ class AppLocalizationsHi extends AppLocalizations {
   }
 
   @override
-  String get me_streak_share_quote => 'My daily practice is growing';
+  String get me_streak_share_quote => 'My current streak on WeBuddhist!';
 
   @override
   String me_streak_days_count(int count) {
@@ -1335,18 +1344,18 @@ class AppLocalizationsHi extends AppLocalizations {
       'Unable to share streak. Please try again';
 
   @override
-  String get delete_account_title => 'खाता हटाएँ';
+  String get delete_account_title => 'अकाउंट हटाएँ';
 
   @override
   String get delete_account_description =>
-      'यदि आप अपना खाता हटाते हैं, तो WeBuddhist के भीतर आपकी सभी जानकारी, इतिहास और वैयक्तिकृत सेटिंग्स स्थायी रूप से समाप्त हो जाएँगी। कृपया ध्यान दें कि यह क्रिया अपरिवर्तनीय है। आगे बढ़ने के लिए, नीचे दिए गए बटन को टैप करें।';
+      'यदि आप अपना अकाउंट हटाते हैं, तो WeBuddhist में आपकी सारी जानकारी, हिस्ट्री और वैयक्तिकृत सेटिंग्स स्थायी रूप से मिटा दी जाएँगी। कृपया ध्यान दें कि यह क्रिया अपरिवर्तनीय है। आगे बढ़ने के लिए, नीचे दिए गए बटन पर टैप करें।';
 
   @override
-  String get delete_account_button => 'खाता हटाएँ';
+  String get delete_account_button => 'अकाउंट हटाएँ';
 
   @override
   String get delete_account_confirm_message =>
-      'क्या आप वाकई अपना WeBuddhist खाता हटाना चाहते हैं?';
+      'क्या आप वाकई अपना WeBuddhist अकाउंट हटाना चाहते हैं?';
 
   @override
   String get legal_title => 'कानूनी';
@@ -1355,19 +1364,19 @@ class AppLocalizationsHi extends AppLocalizations {
   String get legal_terms_of_service => 'सेवा की शर्तें';
 
   @override
-  String get legal_privacy_policy => 'गोपनीयता नीति';
+  String get legal_privacy_policy => 'प्राइवेसी पॉलिसी';
 
   @override
   String get follow => 'फ़ॉलो करें';
 
   @override
-  String get following => 'फ़ॉलो किया जा रहा है';
+  String get following => 'फ़ॉलो कर रहे हैं';
 
   @override
   String get calendar_title => 'कैलेंडर';
 
   @override
-  String get calendar_upcoming_events => 'आगामी आयोजन';
+  String get calendar_upcoming_events => 'आगामी इवेंट';
 
   @override
   String get calendar_day_short => 'दिन';
@@ -1382,7 +1391,7 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String calendar_lunar_month(String ordinal) {
-    return '$ordinal चंद्र मास';
+    return '$ordinal चंद्र माह';
   }
 
   @override
@@ -1413,7 +1422,7 @@ class AppLocalizationsHi extends AppLocalizations {
   String get join => 'शामिल हों';
 
   @override
-  String get joined => 'शामिल';
+  String get joined => 'शामिल हो गए';
 
   @override
   String get group_member => 'सदस्य';
@@ -1436,12 +1445,12 @@ class AppLocalizationsHi extends AppLocalizations {
   }
 
   @override
-  String get share_this_quote => 'इस उद्धरण को साझा करें';
+  String get share_this_quote => 'यह उद्धरण शेयर करें';
 
   @override
-  String get shared_from => 'यहाँ से साझा किया गया';
+  String get shared_from => 'यहाँ से शेयर किया गया';
 
   @override
   String get verse_share_error =>
-      'उद्धरण साझा नहीं किया जा सका। कृपया पुनः प्रयास करें';
+      'उद्धरण शेयर नहीं हो सका। कृपया फिर से प्रयास करें';
 }
