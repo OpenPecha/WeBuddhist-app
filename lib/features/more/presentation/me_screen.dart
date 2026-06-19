@@ -10,6 +10,7 @@ import 'package:flutter_pecha/features/more/domain/entities/user_stats.dart';
 import 'package:flutter_pecha/features/more/presentation/providers/user_stats_provider.dart';
 import 'package:flutter_pecha/features/more/presentation/widgets/me_profile_header.dart';
 import 'package:flutter_pecha/features/more/presentation/widgets/me_stats_section.dart';
+import 'package:flutter_pecha/features/more/presentation/widgets/me_stats_section_skeleton.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -98,10 +99,7 @@ class _LoggedInProfileState extends ConsumerState<_LoggedInProfile> {
           children: [
             MeProfileHeader(user: user),
             if (statsAsync.isLoading)
-              const Padding(
-                padding: EdgeInsets.all(32),
-                child: Center(child: CircularProgressIndicator()),
-              )
+              const MeStatsSectionSkeleton()
             else
               MeStatsSection(stats: stats),
           ],

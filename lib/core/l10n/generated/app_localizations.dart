@@ -2395,7 +2395,7 @@ abstract class AppLocalizations {
   /// No description provided for @me_accumulation.
   ///
   /// In en, this message translates to:
-  /// **'Accumulation'**
+  /// **'Total accumulations'**
   String get me_accumulation;
 
   /// No description provided for @me_counts.
@@ -2409,6 +2409,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'minutes'**
   String get me_minutes;
+
+  /// No description provided for @me_total_meditation_time.
+  ///
+  /// In en, this message translates to:
+  /// **'Total meditation time'**
+  String get me_total_meditation_time;
 
   /// No description provided for @me_days_plan_practiced_suffix.
   ///

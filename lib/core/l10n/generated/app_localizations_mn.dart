@@ -1300,13 +1300,16 @@ class AppLocalizationsMn extends AppLocalizations {
   }
 
   @override
-  String get me_accumulation => 'Accumulation';
+  String get me_accumulation => 'Total accumulations';
 
   @override
   String get me_counts => 'counts';
 
   @override
   String get me_minutes => 'minutes';
+
+  @override
+  String get me_total_meditation_time => 'Total meditation time';
 
   @override
   String get me_days_plan_practiced_suffix => 'total plan days completed';

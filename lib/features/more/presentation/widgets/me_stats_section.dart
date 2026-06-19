@@ -72,7 +72,7 @@ class MeStatsSection extends StatelessWidget {
               const SizedBox(width: _cardSpacing),
               Expanded(
                 child: _StatCard(
-                  label: l10n.home_timer,
+                  label: l10n.me_total_meditation_time,
                   icon: Icon(
                     AppAssets.homeTimer,
                     size: 22,
@@ -150,30 +150,38 @@ class _StatCard extends StatelessWidget {
                   label,
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: isDark ? AppColors.grey300 : AppColors.grey900,
+                    fontSize: 13,
                   ),
                 ),
-                icon,
+                // Move icon beside value/unit instead of in the label row
               ],
             ),
             const SizedBox(height: 12),
-            RichText(
-              text: TextSpan(
-                style: DefaultTextStyle.of(context).style,
-                children: [
-                  TextSpan(
-                    text: value,
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.w700,
-                    ),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                icon,
+                const SizedBox(width: 4),
+                RichText(
+                  text: TextSpan(
+                    style: DefaultTextStyle.of(context).style,
+                    children: [
+                      TextSpan(
+                        text: value,
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      TextSpan(
+                        text: ' $unit',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: isDark ? Colors.white : Colors.black,
+                        ),
+                      ),
+                    ],
                   ),
-                  TextSpan(
-                    text: ' $unit',
-                    style: Theme.of(
-                      context,
-                    ).textTheme.bodySmall?.copyWith(color: AppColors.grey600),
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
           ],
         ),
