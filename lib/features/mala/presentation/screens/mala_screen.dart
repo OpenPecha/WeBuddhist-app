@@ -114,19 +114,16 @@ class _MalaScreenState extends ConsumerState<MalaScreen> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 // Mantra + transliteration switcher: 40% of the space below
-                // the header, with the text centered between the chevrons.
+                // the header. An infinite looping carousel — swipe or tap the
+                // chevrons; the text is centered between them.
                 Expanded(
                   flex: 40,
                   child: MantraSwitcher(
-                    tibetan: mantra.tibetan,
+                    mantras: mantras,
+                    language: language,
                     tibetanFontFamily: AppConfig.tibetanContentFont,
-                    transliteration:
-                        mantra.transliteration(language) ??
-                        mantra.localizedName(language),
-                    canGoPrevious: _index > 0,
-                    canGoNext: _index < mantras.length - 1,
-                    onPrevious: () => _switch(mantras, _index - 1),
-                    onNext: () => _switch(mantras, _index + 1),
+                    index: _index,
+                    onIndexChanged: (next) => _switch(mantras, next),
                   ),
                 ),
                 // Counter + bead arc: the remaining 60%.

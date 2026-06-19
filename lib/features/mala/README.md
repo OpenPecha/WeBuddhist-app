@@ -33,7 +33,7 @@ presentation/
   screens/mala_screen.dart        screen layout (40% switcher / 60% counter+beads)
   widgets/
     mala_beads.dart               the tappable bead-arc CustomPainter
-    mantra_switcher.dart          mantra script + transliteration + ‹ › chevrons
+    mantra_switcher.dart          infinite looping carousel (swipe + ‹ › chevrons)
     mala_skeleton.dart            loading placeholder
 ```
 
@@ -181,9 +181,12 @@ A `CustomPaint` strand that advances **forward only** (counting is monotonic).
 
 ## Screen layout (`MalaScreen`)
 
-Below the app bar: **40%** `MantraSwitcher` (Tibetan script + transliteration
-centred between the chevrons), **60%** `_CounterBlock` (`n/108`, rounds) above
-the `MalaBeads` arc. States: skeleton (loading), error+retry (catalogue or seed
+Below the app bar: **40%** `MantraSwitcher` — an **infinite looping carousel**
+(an unbounded `PageView` seeded at `_loopBase * length + index`, mapped back
+with `page % length`); swipe or tap the chevrons and it wraps endlessly
+(last → first, first → last). The screen owns `_index`; the carousel reports
+settles via `onIndexChanged`. With one mantra it locks (no swipe, chevrons
+disabled). **60%** `_CounterBlock` (`n/108`, rounds) above the `MalaBeads` arc. States: skeleton (loading), error+retry (catalogue or seed
 failure), data.
 
 ## Analytics
