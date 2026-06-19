@@ -15,9 +15,12 @@ class AuthService {
   late final Auth0 _auth0;
   final _logger = AppLogger('AuthService');
 
-  // Serialize concurrent refresh attempts
-  Future<String?>? _ongoingIdTokenRefresh;
   bool _isInitialized = false;
+
+  /// Minimum lifetime (seconds) a token must have left before we proactively
+  /// renew it through the credentials manager. Matches the 2-minute buffer in
+  /// [isIdTokenExpired].
+  static const int _kMinTokenTtlSeconds = 120;
 
   // SharedPreferences key for guest mode
   static const String _guestModeKey = 'is_guest_mode';
@@ -136,93 +139,37 @@ class AuthService {
     }
   }
 
-  /// Force refresh ID token using refresh token (internal, no concurrency control)
-  Future<String?> _refreshIdTokenInternal() async {
-    _logger.debug('Refreshing ID token using refresh token');
-    try {
-      final storedCreds = await _auth0.credentialsManager.credentials();
-
-      if (storedCreds.refreshToken == null) {
-        _logger.warning('No refresh token available');
-        throw AuthException("No refresh token available");
-      }
-
-      final newCreds = await _auth0.api.renewCredentials(
-        refreshToken: storedCreds.refreshToken!,
-      );
-
-      await _auth0.credentialsManager.storeCredentials(newCreds);
-      _logger.info('ID token refreshed successfully');
-
-      return newCreds.idToken;
-    } on ApiException catch (e) {
-      _logger.error('Auth0 API error during token refresh: ${e.message}');
-      throw AuthException('Token refresh failed: ${e.message}');
-    } catch (e) {
-      _logger.error('Unexpected error during token refresh', e);
-      throw AuthException('Token refresh failed: $e');
-    }
-  }
-
-  /// Public method to force refresh ID token with concurrency control
-  Future<String?> refreshIdToken() async {
-    // If a refresh is already in progress, wait for it
-    if (_ongoingIdTokenRefresh != null) {
-      _logger.debug('Waiting for ongoing ID token refresh');
-      return await _ongoingIdTokenRefresh!;
-    }
-
-    // Start new refresh
-    _logger.debug('Starting new ID token refresh');
-    _ongoingIdTokenRefresh = _refreshIdTokenInternal();
-
-    try {
-      final newToken = await _ongoingIdTokenRefresh!;
-      return newToken;
-    } finally {
-      _ongoingIdTokenRefresh = null;
-    }
-  }
-
-  /// Public method to always return a valid ID token with concurrency control
+  /// Returns a valid ID token, letting the Auth0 credentials manager renew it
+  /// (and rotate the refresh token) when it is within [_kMinTokenTtlSeconds] of
+  /// expiry.
+  ///
+  /// The credentials manager is the **single** refresh path: it serializes its
+  /// own renewals and stores the rotated refresh token atomically, so a
+  /// single-use refresh token can never be consumed by two racing callers.
+  /// Do not call `_auth0.api.renewCredentials` directly anywhere.
   Future<String?> getValidIdToken() async {
-    // If a refresh is already in progress, wait for it
-    final ongoing = _ongoingIdTokenRefresh;
-    if (ongoing != null) {
-      _logger.debug('Waiting for ongoing ID token refresh');
-      await ongoing;
-      // After waiting, get fresh credentials and return
-      final creds = await _auth0.credentialsManager.credentials();
-      return creds.idToken;
-    }
+    final creds = await _auth0.credentialsManager.credentials(
+      minTtl: _kMinTokenTtlSeconds,
+    );
+    return creds.idToken;
+  }
 
-    // Get current credentials
-    final creds = await _auth0.credentialsManager.credentials();
+  /// Fetches a valid ID token for the 401-retry path. Delegates to
+  /// [getValidIdToken] so there is exactly one renewal path (see above) and no
+  /// separate manual refresh that could double-spend a rotated refresh token.
+  Future<String?> refreshIdToken() => getValidIdToken();
 
-    // Check if ID token is still valid after waiting
-    if (!isIdTokenExpired(creds.idToken)) {
-      return creds.idToken;
-    }
-
-    // Token is expired, need to refresh
-    // Double-check if another thread started refresh while we were checking
-    if (_ongoingIdTokenRefresh != null) {
-      _logger.debug('Another thread started refresh, waiting for completion');
-      await _ongoingIdTokenRefresh!;
-      final freshCreds = await _auth0.credentialsManager.credentials();
-      return freshCreds.idToken;
-    }
-
-    // Start the refresh (we're the first thread to need it)
-    _logger.debug('ID token expired, starting refresh');
-    _ongoingIdTokenRefresh = _refreshIdTokenInternal();
-
-    try {
-      final newToken = await _ongoingIdTokenRefresh!;
-      return newToken;
-    } finally {
-      _ongoingIdTokenRefresh = null;
-    }
+  /// Whether [error] from a credentials operation means the session is truly
+  /// gone and the user must sign in again — as opposed to a transient/offline
+  /// failure we should tolerate (keep the user signed in and renew later).
+  ///
+  /// Only a missing credential or a missing refresh token is treated as
+  /// permanent. `RENEW_FAILED` is treated as transient: at app open it is
+  /// almost always a connectivity problem, and wiping a valid session for that
+  /// is the bug we are fixing.
+  static bool isSessionPermanentlyLost(Object error) {
+    return error is CredentialsManagerException &&
+        (error.isNoCredentialsFound || error.isNoRefreshTokenFound);
   }
 
   /// Check if credentials exist and are valid

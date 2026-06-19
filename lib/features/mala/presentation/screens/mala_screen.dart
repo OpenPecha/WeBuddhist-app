@@ -56,25 +56,33 @@ class _MalaScreenState extends ConsumerState<MalaScreen> {
     final catalogue = ref.watch(malaCatalogueProvider);
 
     return Scaffold(
-      body: SafeArea(
-        child: catalogue.when(
-          loading: () => const _MalaAppBarScaffold(child: MalaSkeleton()),
-          error:
-              (e, _) => _MalaAppBarScaffold(
-                child: _ErrorView(
-                  onRetry: () => ref.invalidate(malaCatalogueProvider),
-                ),
-              ),
-          data:
-              (either) => either.fold(
-                (failure) => _MalaAppBarScaffold(
+      // Clip the page content to its bounds. The bead strand is drawn with an
+      // intentional overflow past the arc edges (relied on being clipped); the
+      // device-edge clip normally hides it, but during the iOS pop transition
+      // the page is composited into a sliding layer where that overflow would
+      // otherwise flash onto the incoming screen. This contains it without
+      // changing the bead appearance.
+      body: ClipRect(
+        child: SafeArea(
+          child: catalogue.when(
+            loading: () => const _MalaAppBarScaffold(child: MalaSkeleton()),
+            error:
+                (e, _) => _MalaAppBarScaffold(
                   child: _ErrorView(
-                    message: failure.message,
                     onRetry: () => ref.invalidate(malaCatalogueProvider),
                   ),
                 ),
-                (mantras) => _buildLoaded(context, mantras),
-              ),
+            data:
+                (either) => either.fold(
+                  (failure) => _MalaAppBarScaffold(
+                    child: _ErrorView(
+                      message: failure.message,
+                      onRetry: () => ref.invalidate(malaCatalogueProvider),
+                    ),
+                  ),
+                  (mantras) => _buildLoaded(context, mantras),
+                ),
+          ),
         ),
       ),
     );
@@ -106,7 +114,7 @@ class _MalaScreenState extends ConsumerState<MalaScreen> {
 
     return Column(
       children: [
-        _MalaAppBar(title: mantra.localizedName(language)),
+        _MalaAppBar(title: mantra.displayTitle(language)),
         Expanded(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -114,19 +122,16 @@ class _MalaScreenState extends ConsumerState<MalaScreen> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 // Mantra + transliteration switcher: 40% of the space below
-                // the header, with the text centered between the chevrons.
+                // the header. An infinite looping carousel — swipe or tap the
+                // chevrons; the text is centered between them.
                 Expanded(
                   flex: 40,
                   child: MantraSwitcher(
-                    tibetan: mantra.tibetan,
+                    mantras: mantras,
+                    language: language,
                     tibetanFontFamily: AppConfig.tibetanContentFont,
-                    transliteration:
-                        mantra.transliteration(language) ??
-                        mantra.localizedName(language),
-                    canGoPrevious: _index > 0,
-                    canGoNext: _index < mantras.length - 1,
-                    onPrevious: () => _switch(mantras, _index - 1),
-                    onNext: () => _switch(mantras, _index + 1),
+                    index: _index,
+                    onIndexChanged: (next) => _switch(mantras, next),
                   ),
                 ),
                 // Counter + bead arc: the remaining 60%.
@@ -152,6 +157,11 @@ class _MalaScreenState extends ConsumerState<MalaScreen> {
                                   onRetry: notifier.seed,
                                 )
                                 : MalaBeads(
+                                  // Per-mantra identity: switching mantras gives
+                                  // a fresh state (no carried-over slide), so the
+                                  // strand snaps to the new count instead of
+                                  // animating between mantras.
+                                  key: ValueKey(mantra.presetId),
                                   total: counter.total,
                                   beadInRound: counter.beadInRound,
                                   beadsPerRound: counter.beadsPerRound,

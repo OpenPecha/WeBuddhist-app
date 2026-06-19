@@ -40,10 +40,18 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
   bool _isDescriptionExpanded = false;
   late TabController _tabController;
 
+  bool _hasAboutContent(GroupProfile profile) {
+    final descriptionLong = profile.descriptionLong?.trim();
+    return descriptionLong != null && descriptionLong.isNotEmpty;
+  }
+
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(
+      length: _hasAboutContent(widget.profile) ? 2 : 1,
+      vsync: this,
+    );
   }
 
   @override
@@ -106,7 +114,7 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
           const SizedBox(height: 20),
           _GroupFollowButton(profile: profile, isDark: isDark),
           const SizedBox(height: 24),
-          _buildTabBar(isDark),
+          _buildTabBar(isDark, _hasAboutContent(profile)),
           const SizedBox(height: 16),
           AnimatedBuilder(
             animation: _tabController,
@@ -283,7 +291,7 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
     );
   }
 
-  Widget _buildTabBar(bool isDark) {
+  Widget _buildTabBar(bool isDark, bool hasAbout) {
     final labelColor =
         isDark ? AppColors.textPrimaryDark : AppColors.textPrimary;
     final dividerColor = isDark ? AppColors.grey800 : AppColors.grey300;
@@ -306,7 +314,7 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
           ),
           tabs: [
             Tab(text: context.l10n.nav_practice),
-            Tab(text: context.l10n.about_title),
+            if (hasAbout) Tab(text: context.l10n.about_title),
           ],
         ),
         Divider(height: 1, thickness: 1, color: dividerColor),
