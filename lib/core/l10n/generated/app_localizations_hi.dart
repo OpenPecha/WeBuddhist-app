@@ -513,35 +513,36 @@ class AppLocalizationsHi extends AppLocalizations {
       'मार्ग पर आपका साथ देने के लिए शिक्षक, समुदाय, चुनौतियाँ और इवेंट';
 
   @override
-  String get connect_subtitle => 'Find groups and practice together';
+  String get connect_subtitle => 'अपने समूह खोजें और साथ मिलकर अभ्यास करें';
 
   @override
-  String get discover_groups => 'Discover groups';
+  String get discover_groups => 'समूह खोजें';
 
   @override
-  String get my_groups => 'My groups';
+  String get my_groups => 'मेरे समूह';
 
   @override
-  String get see_all => 'See all';
+  String get see_all => 'सभी देखें';
 
   @override
   String get connect_groups_load_error =>
-      'Unable to load groups.\nCheck your connection and try again';
+      'समूह लोड नहीं हो सके।\nअपना कनेक्शन जाँचें और फिर से प्रयास करें';
 
   @override
-  String get connect_groups_empty_title => 'No groups yet';
+  String get connect_groups_empty_title => 'अभी कोई समूह नहीं';
 
   @override
-  String get connect_groups_empty_subtitle => 'no more groups to join';
+  String get connect_groups_empty_subtitle =>
+      'बधाई हो, आप हमारे सभी समूहों में शामिल हो चुके हैं! जल्द फिर देखें। नए समूह जल्द आ रहे हैं';
 
   @override
-  String get search_groups => 'Search groups';
+  String get search_groups => 'समूह खोजें';
 
   @override
-  String get search_for_groups => 'Search for groups';
+  String get search_for_groups => 'समूहों की खोज करें';
 
   @override
-  String get no_groups_found => 'No groups found';
+  String get no_groups_found => 'कोई मिलता-जुलता समूह नहीं मिला';
 
   @override
   String get explore_coming_soon_subtitle =>
@@ -1296,52 +1297,52 @@ class AppLocalizationsHi extends AppLocalizations {
       'अपनी प्रगति सेव करने के लिए मुफ्त अकाउंट बनाएँ।';
 
   @override
-  String get me_my_stats => 'My stats';
+  String get me_my_stats => 'मेरे आँकड़े';
 
   @override
   String me_day_streak(int count) {
-    return '$count-day streak';
+    return '$count दिन की स्ट्रीक';
   }
 
   @override
   String me_best_streak(int count) {
-    return 'Longest streak: $count days';
+    return 'सबसे लंबी स्ट्रीक: $count दिन';
   }
 
   @override
-  String get me_accumulation => 'Total accumulations';
+  String get me_accumulation => 'कुल संचय';
 
   @override
-  String get me_counts => 'counts';
+  String get me_counts => 'बार';
 
   @override
-  String get me_minutes => 'minutes';
+  String get me_minutes => 'मिनट';
 
   @override
-  String get me_total_meditation_time => 'Total meditation';
+  String get me_total_meditation_time => 'कुल ध्यान समय';
 
   @override
-  String get me_days_plan_practiced_suffix => 'total plan days completed';
+  String get me_days_plan_practiced_suffix => 'कुल योजना दिवस पूरे किए';
 
   @override
   String me_streak_share_message(int count, String appName) {
-    return 'I\'m on a $count-day streak on $appName!';
+    return 'मैं $appName पर $count दिन की स्ट्रीक पर हूँ!';
   }
 
   @override
-  String get me_streak_share_quote => 'My current streak on WeBuddhist!';
+  String get me_streak_share_quote => 'WeBuddhist पर मेरी मौजूदा स्ट्रीक!';
 
   @override
   String me_streak_days_count(int count) {
-    return '$count days';
+    return '$count दिन';
   }
 
   @override
-  String get share_this_streak => 'Share this streak';
+  String get share_this_streak => 'मेरी स्ट्रीक शेयर करें';
 
   @override
   String get me_streak_share_error =>
-      'Unable to share streak. Please try again';
+      'स्ट्रीक शेयर नहीं हो सकी। कृपया फिर से प्रयास करें';
 
   @override
   String get delete_account_title => 'अकाउंट हटाएँ';

@@ -596,8 +596,8 @@
   "about_social_website": "वेबसाइट",
   "me_guest_headline": "पूरा अनुभव पाएँ",
   "me_guest_subtitle": "अपनी प्रगति सेव करने के लिए मुफ्त अकाउंट बनाएँ।",
-  "me_my_stats": "My stats",
-  "me_day_streak": "{count}-day streak",
+  "me_my_stats": "मेरे आँकड़े",
+  "me_day_streak": "{count} दिन की स्ट्रीक",
   "@me_day_streak": {
     "placeholders": {
       "count": {
@@ -605,7 +605,7 @@
       }
     }
   },
-  "me_best_streak": "Longest streak: {count} days",
+  "me_best_streak": "सबसे लंबी स्ट्रीक: {count} दिन",
   "@me_best_streak": {
     "placeholders": {
       "count": {
@@ -613,12 +613,12 @@
       }
     }
   },
-  "me_accumulation": "Total accumulations",
-  "me_counts": "counts",
-  "me_minutes": "minutes",
-  "me_total_meditation_time": "Total meditation",
-  "me_days_plan_practiced_suffix": "total plan days completed",
-  "me_streak_share_message": "I'm on a {count}-day streak on {appName}!",
+  "me_accumulation": "कुल संचय",
+  "me_counts": "बार",
+  "me_minutes": "मिनट",
+  "me_total_meditation_time": "कुल ध्यान समय",
+  "me_days_plan_practiced_suffix": "कुल योजना दिवस पूरे किए",
+  "me_streak_share_message": "मैं {appName} पर {count} दिन की स्ट्रीक पर हूँ!",
   "@me_streak_share_message": {
     "placeholders": {
       "count": {
@@ -629,8 +629,8 @@
       }
     }
   },
-  "me_streak_share_quote": "My current streak on WeBuddhist!",
-  "me_streak_days_count": "{count} days",
+  "me_streak_share_quote": "WeBuddhist पर मेरी मौजूदा स्ट्रीक!",
+  "me_streak_days_count": "{count} दिन",
   "@me_streak_days_count": {
     "placeholders": {
       "count": {
@@ -638,8 +638,8 @@
       }
     }
   },
-  "share_this_streak": "Share this streak",
-  "me_streak_share_error": "Unable to share streak. Please try again",
+  "share_this_streak": "मेरी स्ट्रीक शेयर करें",
+  "me_streak_share_error": "स्ट्रीक शेयर नहीं हो सकी। कृपया फिर से प्रयास करें",
   "delete_account_title": "अकाउंट हटाएँ",
   "delete_account_description": "यदि आप अपना अकाउंट हटाते हैं, तो WeBuddhist में आपकी सारी जानकारी, हिस्ट्री और वैयक्तिकृत सेटिंग्स स्थायी रूप से मिटा दी जाएँगी। कृपया ध्यान दें कि यह क्रिया अपरिवर्तनीय है। आगे बढ़ने के लिए, नीचे दिए गए बटन पर टैप करें।",
   "delete_account_button": "अकाउंट हटाएँ",
@@ -692,5 +692,15 @@
 
   "share_this_quote": "यह उद्धरण शेयर करें",
   "shared_from": "यहाँ से शेयर किया गया",
-  "verse_share_error": "उद्धरण शेयर नहीं हो सका। कृपया फिर से प्रयास करें"
+  "verse_share_error": "उद्धरण शेयर नहीं हो सका। कृपया फिर से प्रयास करें",
+  "connect_subtitle": "अपने समूह खोजें और साथ मिलकर अभ्यास करें",
+  "discover_groups": "समूह खोजें",
+  "my_groups": "मेरे समूह",
+  "see_all": "सभी देखें",
+  "search_groups": "समूह खोजें",
+  "search_for_groups": "समूहों की खोज करें",
+  "no_groups_found": "कोई मिलता-जुलता समूह नहीं मिला",
+  "connect_groups_empty_title": "अभी कोई समूह नहीं",
+  "connect_groups_empty_subtitle": "बधाई हो, आप हमारे सभी समूहों में शामिल हो चुके हैं! जल्द फिर देखें। नए समूह जल्द आ रहे हैं",
+  "connect_groups_load_error": "समूह लोड नहीं हो सके।\nअपना कनेक्शन जाँचें और फिर से प्रयास करें"
 }
