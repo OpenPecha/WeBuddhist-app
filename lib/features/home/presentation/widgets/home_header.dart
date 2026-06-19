@@ -5,6 +5,8 @@ import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
 import 'package:flutter_pecha/features/home/presentation/providers/streak_provider.dart';
+import 'package:flutter_pecha/features/more/presentation/providers/user_stats_provider.dart';
+import 'package:flutter_pecha/features/more/presentation/widgets/streak_share_sheet.dart';
 import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -80,31 +82,45 @@ class _Greeting extends StatelessWidget {
   }
 }
 
-class _StreakBadge extends StatelessWidget {
+class _StreakBadge extends ConsumerWidget {
   final int count;
 
   const _StreakBadge({required this.count});
 
   static const _flameColor = Color(0xFFE8630A);
 
+  Future<void> _onStreakTap(BuildContext context, WidgetRef ref) async {
+    final either = await ref.read(userStatsFutureProvider.future);
+    if (!context.mounted) return;
+
+    either.fold(
+      (_) {},
+      (stats) => showStreakShareSheet(context, stats.streak),
+    );
+  }
+
   @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(AppAssets.flame, size: 24.0, color: _flameColor),
-        const SizedBox(width: 4.0),
-        Text(
-          '$count',
-          style: TextStyle(
-            fontFamily: getSystemFontFamily(AppConfig.englishLanguageCode),
-            fontWeight: FontWeight.w700,
-            color: Theme.of(context).colorScheme.onSurface,
-            fontSize: 20.0,
-            height: 1.0,
+  Widget build(BuildContext context, WidgetRef ref) {
+    return GestureDetector(
+      onTap: () => _onStreakTap(context, ref),
+      behavior: HitTestBehavior.opaque,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(AppAssets.flame, size: 24.0, color: _flameColor),
+          const SizedBox(width: 4.0),
+          Text(
+            '$count',
+            style: TextStyle(
+              fontFamily: getSystemFontFamily(AppConfig.englishLanguageCode),
+              fontWeight: FontWeight.w700,
+              color: Theme.of(context).colorScheme.onSurface,
+              fontSize: 20.0,
+              height: 1.0,
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

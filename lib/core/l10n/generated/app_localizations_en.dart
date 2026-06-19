@@ -86,6 +86,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get home_plans => 'plans';
 
   @override
+  String home_plans_count(int count) {
+    return '$count plans';
+  }
+
+  @override
+  String home_recitation_count(int count) {
+    return '$count recitations';
+  }
+
+  @override
   String get home_shortcut_plans => 'Plans';
 
   @override
@@ -498,7 +508,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Teachers, communities, challenges, and events to support you on the path';
 
   @override
-  String get connect_subtitle => 'Find groups and practice together';
+  String get connect_subtitle => 'Find your groups and practice together';
 
   @override
   String get discover_groups => 'Discover groups';
@@ -517,7 +527,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get connect_groups_empty_title => 'No groups yet';
 
   @override
-  String get connect_groups_empty_subtitle => 'no more groups to join';
+  String get connect_groups_empty_subtitle =>
+      'Congratulations, you\'ve joined all our groups! Check back soon. New ones are on the way';
 
   @override
   String get search_groups => 'Search groups';
@@ -526,7 +537,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get search_for_groups => 'Search for groups';
 
   @override
-  String get no_groups_found => 'No groups found';
+  String get no_groups_found => 'No matching groups found';
 
   @override
   String get explore_coming_soon_subtitle =>
@@ -1282,11 +1293,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String me_best_streak(int count) {
-    return 'Best streak: $count days';
+    return 'Longest streak: $count days';
   }
 
   @override
-  String get me_accumulation => 'Accumulation';
+  String get me_accumulation => 'Total accumulations';
 
   @override
   String get me_counts => 'counts';
@@ -1295,7 +1306,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get me_minutes => 'minutes';
 
   @override
-  String get me_days_plan_practiced_suffix => 'days plan practiced';
+  String get me_total_meditation_time => 'Total meditation time';
+
+  @override
+  String get me_days_plan_practiced_suffix => 'total plan days completed';
 
   @override
   String me_streak_share_message(int count, String appName) {
@@ -1303,7 +1317,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get me_streak_share_quote => 'My daily practice is growing';
+  String get me_streak_share_quote => 'My current streak on WeBuddhist!';
 
   @override
   String me_streak_days_count(int count) {
@@ -1311,7 +1325,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get share_this_streak => 'Share this streak';
+  String get share_this_streak => 'Share my streak';
 
   @override
   String get me_streak_share_error =>
@@ -1426,4 +1440,25 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get verse_share_error => 'Unable to share quote. Please try again';
+
+  @override
+  String get weekday_monday => 'MON';
+
+  @override
+  String get weekday_tuesday => 'TUE';
+
+  @override
+  String get weekday_wednesday => 'WED';
+
+  @override
+  String get weekday_thursday => 'THU';
+
+  @override
+  String get weekday_friday => 'FRI';
+
+  @override
+  String get weekday_saturday => 'SAT';
+
+  @override
+  String get weekday_sunday => 'SUN';
 }

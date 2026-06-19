@@ -61,7 +61,8 @@ final _logger = AppLogger('AppRouter');
 final rootNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'root');
 
 /// Shell navigator key for routes that share the persistent bottom nav bar.
-final _shellNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'shell');
+/// Public so [HomeShellScaffold] can pop imperatively-pushed screens on tab switch.
+final shellNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'shell');
 
 /// Provider for the application router with authentication and route protection
 ///
@@ -120,7 +121,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       ),
 
       ShellRoute(
-        navigatorKey: _shellNavigatorKey,
+        navigatorKey: shellNavigatorKey,
         builder: (context, state, child) {
           return HomeShellScaffold(child: child);
         },

@@ -126,6 +126,12 @@ class _StreakShareSheetState extends State<StreakShareSheet> {
                           decoration: BoxDecoration(
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color:
+                                  isDark
+                                      ? AppColors.grey300
+                                      : Colors.grey[400]!,
+                            ),
                           ),
                           padding: const EdgeInsets.fromLTRB(24, 32, 24, 28),
                           child: StreakShareContent(streak: widget.streak),

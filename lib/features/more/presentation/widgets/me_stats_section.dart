@@ -48,6 +48,11 @@ class MeStatsSection extends StatelessWidget {
             onTap: () => showStreakShareSheet(context, stats.streak),
           ),
           const SizedBox(height: _cardSpacing),
+          _PracticeDaysCard(
+            days: stats.totalPracticeDays,
+            cardColor: cardColor,
+          ),
+          const SizedBox(height: _cardSpacing),
           Row(
             children: [
               Expanded(
@@ -58,37 +63,25 @@ class MeStatsSection extends StatelessWidget {
                     width: 22,
                     height: 22,
                     color: Theme.of(context).colorScheme.onSurface,
-                    colorBlendMode: BlendMode.srcIn,
                   ),
                   value: _formatCompactCount(stats.totalAccumulated, locale),
-                  unit: l10n.me_counts,
                   cardColor: cardColor,
                 ),
               ),
               const SizedBox(width: _cardSpacing),
               Expanded(
                 child: _StatCard(
-                  label: l10n.home_timer,
+                  label: l10n.me_total_meditation_time,
                   icon: Icon(
                     AppAssets.homeTimer,
                     size: 22,
                     color: Theme.of(context).colorScheme.onSurface,
                   ),
-                  value: _formatCompactCount(
-                    // total_timer is milliseconds.
-                    (stats.totalTimer / 60000).round(),
-                    locale,
-                  ),
-                  unit: l10n.me_minutes,
+                  value: _formatDuration(stats.totalTimer),
                   cardColor: cardColor,
                 ),
               ),
             ],
-          ),
-          const SizedBox(height: _cardSpacing),
-          _PracticeDaysCard(
-            days: stats.totalPracticeDays,
-            cardColor: cardColor,
           ),
         ],
       ),
@@ -107,6 +100,15 @@ class MeStatsSection extends StatelessWidget {
     return NumberFormat.decimalPattern(locale).format(count);
   }
 
+  String _formatDuration(int milliseconds) {
+    final totalMinutes = (milliseconds / 60000).round();
+    if (totalMinutes < 60) return '${totalMinutes}m';
+    final hours = totalMinutes ~/ 60;
+    final minutes = totalMinutes % 60;
+    if (minutes == 0) return '${hours}hr';
+    return '${hours}hr ${minutes}m';
+  }
+
   String _trimTrailingZero(String value) {
     return value.endsWith('.0') ? value.substring(0, value.length - 2) : value;
   }
@@ -117,14 +119,12 @@ class _StatCard extends StatelessWidget {
     required this.label,
     required this.icon,
     required this.value,
-    required this.unit,
     required this.cardColor,
   });
 
   final String label;
   final Widget icon;
   final String value;
-  final String unit;
   final Color cardColor;
 
   @override
@@ -149,32 +149,27 @@ class _StatCard extends StatelessWidget {
               children: [
                 Text(
                   label,
-                  style: Theme.of(
-                    context,
-                  ).textTheme.bodySmall?.copyWith(color: AppColors.grey600),
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: isDark ? AppColors.grey300 : AppColors.grey900,
+                    fontSize: 13,
+                  ),
                 ),
-                icon,
+                // Move icon beside value/unit instead of in the label row
               ],
             ),
             const SizedBox(height: 12),
-            RichText(
-              text: TextSpan(
-                style: DefaultTextStyle.of(context).style,
-                children: [
-                  TextSpan(
-                    text: value,
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.w700,
-                    ),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                icon,
+                const SizedBox(width: 4),
+                Text(
+                  value,
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.w700,
                   ),
-                  TextSpan(
-                    text: ' $unit',
-                    style: Theme.of(
-                      context,
-                    ).textTheme.bodySmall?.copyWith(color: AppColors.grey600),
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
           ],
         ),
@@ -206,6 +201,12 @@ class _PracticeDaysCard extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
         child: Row(
           children: [
+            Icon(
+              AppAssets.homeList,
+              size: 24,
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
+            const SizedBox(width: 12),
             Expanded(
               child: Text.rich(
                 TextSpan(
@@ -224,11 +225,6 @@ class _PracticeDaysCard extends StatelessWidget {
                   ],
                 ),
               ),
-            ),
-            Icon(
-              AppAssets.homeList,
-              size: 24,
-              color: Theme.of(context).colorScheme.onSurface,
             ),
           ],
         ),
