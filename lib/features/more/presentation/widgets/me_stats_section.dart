@@ -65,7 +65,6 @@ class MeStatsSection extends StatelessWidget {
                     color: Theme.of(context).colorScheme.onSurface,
                   ),
                   value: _formatCompactCount(stats.totalAccumulated, locale),
-                  unit: l10n.me_counts,
                   cardColor: cardColor,
                 ),
               ),
@@ -78,12 +77,7 @@ class MeStatsSection extends StatelessWidget {
                     size: 22,
                     color: Theme.of(context).colorScheme.onSurface,
                   ),
-                  value: _formatCompactCount(
-                    // total_timer is milliseconds.
-                    (stats.totalTimer / 60000).round(),
-                    locale,
-                  ),
-                  unit: l10n.me_minutes,
+                  value: _formatDuration(stats.totalTimer),
                   cardColor: cardColor,
                 ),
               ),
@@ -106,6 +100,15 @@ class MeStatsSection extends StatelessWidget {
     return NumberFormat.decimalPattern(locale).format(count);
   }
 
+  String _formatDuration(int milliseconds) {
+    final totalMinutes = (milliseconds / 60000).round();
+    if (totalMinutes < 60) return '${totalMinutes}m';
+    final hours = totalMinutes ~/ 60;
+    final minutes = totalMinutes % 60;
+    if (minutes == 0) return '${hours}hr';
+    return '${hours}hr ${minutes}m';
+  }
+
   String _trimTrailingZero(String value) {
     return value.endsWith('.0') ? value.substring(0, value.length - 2) : value;
   }
@@ -116,14 +119,12 @@ class _StatCard extends StatelessWidget {
     required this.label,
     required this.icon,
     required this.value,
-    required this.unit,
     required this.cardColor,
   });
 
   final String label;
   final Widget icon;
   final String value;
-  final String unit;
   final Color cardColor;
 
   @override
@@ -162,23 +163,10 @@ class _StatCard extends StatelessWidget {
               children: [
                 icon,
                 const SizedBox(width: 4),
-                RichText(
-                  text: TextSpan(
-                    style: DefaultTextStyle.of(context).style,
-                    children: [
-                      TextSpan(
-                        text: value,
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                      TextSpan(
-                        text: ' $unit',
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: isDark ? Colors.white : Colors.black,
-                        ),
-                      ),
-                    ],
+                Text(
+                  value,
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
               ],
