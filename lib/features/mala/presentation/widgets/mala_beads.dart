@@ -124,8 +124,23 @@ class _MalaBeadsState extends State<MalaBeads>
     super.dispose();
   }
 
+  /// Net horizontal drag distance of the in-progress gesture (negative = left).
+  double _dragDx = 0;
+
+  /// A drag this far left (px), or a leftward fling this fast (px/s), counts as
+  /// one bead — matching the right→left motion of the strand.
+  static const double _kSwipeDistance = 24;
+  static const double _kFlingVelocity = 200;
+
   void _handleTap() {
     if (widget.enabled) widget.onTap();
+  }
+
+  void _handleDragEnd(DragEndDetails details) {
+    final velocity = details.primaryVelocity ?? 0;
+    // Right → left only (monotonic: a left → right swipe never decrements).
+    final leftward = _dragDx <= -_kSwipeDistance || velocity <= -_kFlingVelocity;
+    if (leftward) _handleTap(); // one +1 per swipe, same as a tap
   }
 
   @override
@@ -133,6 +148,9 @@ class _MalaBeadsState extends State<MalaBeads>
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: _handleTap,
+      onHorizontalDragStart: (_) => _dragDx = 0,
+      onHorizontalDragUpdate: (d) => _dragDx += d.delta.dx,
+      onHorizontalDragEnd: _handleDragEnd,
       child: AnimatedBuilder(
         animation: _controller,
         builder: (context, _) {

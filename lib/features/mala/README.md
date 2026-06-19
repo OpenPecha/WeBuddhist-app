@@ -105,19 +105,10 @@ tails). Opened once in app bootstrap via `MalaLocalDataSource.init()`.
 ## Bead artwork & caching
 
 Resolution order in `MalaScreen`:
-**accumulator detail `beadImageUrl` → preset/mantra `beadImageUrl`**. There is
-**no placeholder bead** — `MalaBeads` only ever renders the real artwork:
-
-- **Loading** (URL present, image resolving): a subtle full-area shimmer
-  (`Skeletonizer`). The strand isn't tappable until the image is ready.
-- **Loaded:** the bead strand, painted from the network image.
-- **No image** (no URL, or the load failed): a friendly message
-  ("We couldn't load your mala beads") with a **Retry** that re-attempts the
-  load. No bundled asset and no drawn-gradient fallback.
-
-These three states live in `MalaBeads` (`_BeadImageStatus`). A test-only
-`debugInitialImage` lets widget tests reach the loaded/tappable state without a
-network fetch.
+**accumulator detail `beadImageUrl` → preset/mantra `beadImageUrl` → bundled
+`kFallbackBeadAsset`** (`assets/images/beads/bead-1.png`), and the asset is also
+used if a network image fails to load. While the image is still loading the
+painter draws a gradient bead (`_drawDrawnBead`).
 
 - **Preset preview source.** `Mantra.beadImageUrl` resolves to the
   **mantra-level** `mala_image_url` (`PresetMantraModel`) first, falling back to
@@ -134,7 +125,14 @@ network fetch.
 - `MalaBeads` loads via **`CachedNetworkImageProvider`** (on-disk cache), so the
   image bytes survive across launches and load offline.
 
-## Bead-tap feedback
+## Bead input & feedback
+
+Counting is triggered two ways over the bead region (`HitTestBehavior.opaque`),
+both +1 and both blocked while seeding:
+- **Tap** anywhere on the strand.
+- **Right-to-left swipe** — a leftward drag past `_kSwipeDistance` (24px) or a
+  leftward fling past `_kFlingVelocity` (200px/s), matching the strand's right→
+  left motion. Left-to-right is ignored (counting is monotonic).
 
 Each `incrementBead`:
 1. `_sound?.play()` — `MalaSoundPlayer` plays `AppAssets.malaSound`
@@ -201,9 +199,8 @@ failure), data.
   seed-at-0.
 - `mala_sync_manager_test.dart` — create-once-then-update, absolute-total PUT,
   `max()` adoption, dirty-on-failure, logged-out no-op, per-user namespacing.
-- `mala_beads_test.dart` — tap increments, disabled beads don't, and the
-  no-image state shows the friendly retry message (uses `debugInitialImage` to
-  reach the loaded/tappable state).
+- `mala_beads_test.dart` — tap increments, right-to-left swipe increments,
+  left-to-right doesn't, and disabled beads ignore both.
 
 `currentUserId` callbacks are async (`Future<String?> Function()`) in both the
 notifier and sync manager.
