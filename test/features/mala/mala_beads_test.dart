@@ -3,8 +3,8 @@ import 'package:flutter_pecha/features/mala/presentation/widgets/mala_beads.dart
 import 'package:flutter_test/flutter_test.dart';
 
 /// Minimal harness: a counter driving [MalaBeads], so we can assert that
-/// tapping the bead area increments the displayed count and the strand only
-/// ever advances forward.
+/// tapping or swiping the bead area increments the displayed count and the
+/// strand only ever advances forward.
 class _Harness extends StatefulWidget {
   const _Harness();
   @override
@@ -53,7 +53,32 @@ void main() {
     expect(find.text('count:2'), findsOneWidget);
   });
 
-  testWidgets('disabled beads do not increment', (tester) async {
+  testWidgets('a right-to-left swipe increments by one', (tester) async {
+    await tester.pumpWidget(const _Harness());
+    expect(find.text('count:0'), findsOneWidget);
+
+    // Leftward drag past the distance threshold = one bead.
+    await tester.drag(find.byType(MalaBeads), const Offset(-60, 0));
+    await tester.pumpAndSettle();
+    expect(find.text('count:1'), findsOneWidget);
+
+    // A leftward fling also counts once.
+    await tester.fling(find.byType(MalaBeads), const Offset(-200, 0), 1000);
+    await tester.pumpAndSettle();
+    expect(find.text('count:2'), findsOneWidget);
+  });
+
+  testWidgets('a left-to-right swipe does not change the count',
+      (tester) async {
+    await tester.pumpWidget(const _Harness());
+
+    await tester.drag(find.byType(MalaBeads), const Offset(60, 0));
+    await tester.pumpAndSettle();
+    expect(find.text('count:0'), findsOneWidget);
+  });
+
+  testWidgets('disabled beads do not increment on tap or swipe',
+      (tester) async {
     var taps = 0;
     await tester.pumpWidget(
       MaterialApp(
@@ -72,6 +97,8 @@ void main() {
     );
 
     await tester.tap(find.byType(MalaBeads));
+    await tester.pump();
+    await tester.drag(find.byType(MalaBeads), const Offset(-60, 0));
     await tester.pump();
     expect(taps, 0);
   });

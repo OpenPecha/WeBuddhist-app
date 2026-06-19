@@ -99,8 +99,16 @@ class RetryInterceptor extends Interceptor {
             _processQueue(error: err);
           }
         } catch (e) {
-          _logger.error('Token refresh failed', e);
-          onAuthExpired?.call();
+          // Only force re-authentication when the session is permanently gone
+          // (no credentials / no refresh token). A transient or offline refresh
+          // failure must NOT wipe a valid session — surface the error and let
+          // the caller retry once connectivity returns.
+          if (AuthService.isSessionPermanentlyLost(e)) {
+            _logger.warning('Token refresh failed permanently - re-authentication required');
+            onAuthExpired?.call();
+          } else {
+            _logger.warning('Token refresh failed transiently - keeping session: $e');
+          }
           _processQueue(error: err);
         } finally {
           _isRefreshing = false;

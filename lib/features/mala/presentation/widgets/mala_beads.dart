@@ -3,10 +3,6 @@ import 'dart:ui' as ui;
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
-/// Default bead artwork bundled with the app, used until/unless the backend
-/// supplies a per-mantra bead image on the accumulator.
-const String kFallbackBeadAsset = 'assets/images/beads/bead-1.png';
-
 /// A tappable strand of prayer beads that advances **forward only**.
 ///
 /// The strand bends from the top-right down to the bottom-left along a red
@@ -17,8 +13,8 @@ const String kFallbackBeadAsset = 'assets/images/beads/bead-1.png';
 /// left pile and a new bead enters from the top-right. Counting is monotonic,
 /// so the motion never reverses.
 ///
-/// Beads render the [beadImageUrl] image when present, otherwise the bundled
-/// [kFallbackBeadAsset]; a drawn gradient bead shows while the image loads.
+/// Beads render the [beadImageUrl] image when present; a drawn gradient bead
+/// shows while that image loads, and whenever there's no URL or it fails.
 class MalaBeads extends StatefulWidget {
   const MalaBeads({
     super.key,
@@ -75,23 +71,35 @@ class _MalaBeadsState extends State<MalaBeads>
       _resolveBeadImage();
     }
     if (widget.total != oldWidget.total) {
-      // Always animate forward from the previously settled phase.
-      _phaseFrom = _phaseTo;
-      _phaseTo = widget.total.toDouble();
-      _controller.forward(from: 0); // never reverse()
+      if (widget.total == oldWidget.total + 1) {
+        // A genuine +1 count — slide one bead from the previously settled phase.
+        _phaseFrom = _phaseTo;
+        _phaseTo = widget.total.toDouble();
+        _controller.forward(from: 0); // never reverse()
+      } else {
+        // Any other jump (switching mantra, or the initial seed load) is not a
+        // count — snap straight to the new total without the slide animation.
+        _phaseFrom = _phaseTo = widget.total.toDouble();
+        _controller.value = 1.0;
+      }
     }
   }
 
-  /// Load the network bead image when provided, falling back to the bundled
-  /// asset (also used if the network image fails to load).
-  void _resolveBeadImage({bool forceAsset = false}) {
-    final ImageProvider provider =
-        (!forceAsset && (widget.beadImageUrl?.isNotEmpty ?? false))
-            // Cached on disk so the bead renders offline on later launches.
-            ? CachedNetworkImageProvider(widget.beadImageUrl!)
-            : const AssetImage(kFallbackBeadAsset);
+  /// Load the network bead image when provided (cached on disk so it renders
+  /// offline on later launches). With no URL — or if it fails to load — the
+  /// painter falls back to the drawn gradient bead.
+  void _resolveBeadImage() {
+    final url = widget.beadImageUrl;
+    if (url == null || url.isEmpty) {
+      _detachImageListener();
+      _imageStream = null;
+      if (_beadImage != null && mounted) setState(() => _beadImage = null);
+      return;
+    }
 
-    final stream = provider.resolve(ImageConfiguration.empty);
+    final stream = CachedNetworkImageProvider(
+      url,
+    ).resolve(ImageConfiguration.empty);
     if (stream.key == _imageStream?.key) return;
 
     _detachImageListener();
@@ -101,8 +109,8 @@ class _MalaBeadsState extends State<MalaBeads>
         setState(() => _beadImage = info.image);
       },
       onError: (_, __) {
-        // Network image failed — fall back to the bundled asset.
-        if (!forceAsset) _resolveBeadImage(forceAsset: true);
+        // Network image failed — fall back to the drawn gradient bead.
+        if (mounted) setState(() => _beadImage = null);
       },
     );
     _imageStream = stream;
@@ -124,8 +132,23 @@ class _MalaBeadsState extends State<MalaBeads>
     super.dispose();
   }
 
+  /// Net horizontal drag distance of the in-progress gesture (negative = left).
+  double _dragDx = 0;
+
+  /// A drag this far left (px), or a leftward fling this fast (px/s), counts as
+  /// one bead — matching the right→left motion of the strand.
+  static const double _kSwipeDistance = 24;
+  static const double _kFlingVelocity = 200;
+
   void _handleTap() {
     if (widget.enabled) widget.onTap();
+  }
+
+  void _handleDragEnd(DragEndDetails details) {
+    final velocity = details.primaryVelocity ?? 0;
+    // Right → left only (monotonic: a left → right swipe never decrements).
+    final leftward = _dragDx <= -_kSwipeDistance || velocity <= -_kFlingVelocity;
+    if (leftward) _handleTap(); // one +1 per swipe, same as a tap
   }
 
   @override
@@ -133,6 +156,9 @@ class _MalaBeadsState extends State<MalaBeads>
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: _handleTap,
+      onHorizontalDragStart: (_) => _dragDx = 0,
+      onHorizontalDragUpdate: (d) => _dragDx += d.delta.dx,
+      onHorizontalDragEnd: _handleDragEnd,
       child: AnimatedBuilder(
         animation: _controller,
         builder: (context, _) {
@@ -336,7 +362,8 @@ class _MalaBeadsPainter extends CustomPainter {
     canvas.restore();
   }
 
-  /// Gradient fallback bead, shown only while the image is loading.
+  /// Gradient fallback bead — shown while the image loads, and whenever there
+  /// is no bead image (no URL / load failed).
   void _drawDrawnBead(Canvas canvas, Offset center, double radius) {
     final base = beadColor;
     final gradient = RadialGradient(

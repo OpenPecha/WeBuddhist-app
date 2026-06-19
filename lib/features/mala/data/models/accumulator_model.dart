@@ -106,8 +106,11 @@ class PresetAccumulatorModel {
   Mantra toEntity() => Mantra(
         presetId: id,
         targetCount: targetCount,
-        // Prefer the accumulator-level bead image; fall back to the mantra's.
-        beadImageUrl: beadImageUrl ?? mantra?.beadImageUrl,
+        // Prefer the mantra-level bead image — it mirrors the per-user detail's
+        // `mala_image_url`, so the preview shown before the seed matches what
+        // the accumulator detail returns (no second fetch / no bead flicker).
+        // Fall back to the accumulator-level image if the mantra has none.
+        beadImageUrl: mantra?.beadImageUrl ?? beadImageUrl,
         metadata: metadata.map((m) => m.toEntity()).toList(),
         mantra: mantra?.toEntity(),
       );

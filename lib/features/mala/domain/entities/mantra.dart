@@ -94,6 +94,16 @@ class Mantra extends Equatable {
       mantra?.title ??
       presetId;
 
+  /// Title for the header. Prefers the embedded mantra [title]
+  /// (`PresetMantraModel.title`), which the backend already localizes via the
+  /// catalogue's `language` query — unlike [localizedName], which matches the
+  /// metadata list client-side. Falls back to [localizedName] when absent.
+  String displayTitle(String language) {
+    final title = mantra?.title;
+    if (title != null && title.isNotEmpty) return title;
+    return localizedName(language);
+  }
+
   String? description(String language) =>
       (_byLanguage(language) ?? _byLanguage('en'))?.description;
 
