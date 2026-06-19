@@ -23,6 +23,8 @@ import 'package:flutter_pecha/core/analytics/analytics_events.dart';
 import 'package:flutter_pecha/core/analytics/analytics_service.dart';
 import 'package:flutter_pecha/core/analytics/analytics_providers.dart';
 import 'package:flutter_pecha/core/config/router/pending_route_provider.dart';
+import 'package:flutter_pecha/features/mala/presentation/providers/mala_providers.dart';
+import 'package:flutter_pecha/features/mala/presentation/providers/mala_sync_manager.dart';
 import 'package:flutter_pecha/features/onboarding/presentation/providers/onboarding_datasource_providers.dart';
 import 'package:flutter_pecha/shared/domain/base_classes/usecase.dart';
 import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
@@ -328,6 +330,15 @@ class AuthNotifier extends StateNotifier<AuthState> {
   }
 
   Future<void> logout() async {
+    // Best-effort flush of any unsynced mala counts while the token is still
+    // valid. Local data is namespaced by user id and is NOT deleted here, so
+    // any remaining tail flushes on next login.
+    try {
+      await ref.read(malaSyncManagerProvider).flush(SyncReason.logout);
+    } catch (e) {
+      _logger.warning('Mala flush on logout failed (ignored): $e');
+    }
+
     final logoutResult = await _localLogoutUseCase(const NoParams());
     logoutResult.fold(
       (failure) {

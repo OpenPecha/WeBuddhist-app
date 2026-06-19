@@ -192,8 +192,8 @@ final todayCalendarDayProvider = FutureProvider<TibetanCalendarDay>((ref) async 
 
 // ============ Events (moon phases only, derived from resolved days) ============
 
-/// Lunar days that mark the four principal moon phases.
-const _phaseDays = <int>{8, 15, 22, 30};
+/// Lunar days that mark new moon, first quarter, and full moon.
+const _phaseDays = <int>{1, 8, 15, 30};
 
 /// Moon-phase events within the Gregorian [month], derived from the resolved
 /// days so they always match what the grid shows. (Festival/custom events will

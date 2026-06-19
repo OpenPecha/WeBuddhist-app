@@ -1272,6 +1272,51 @@ class AppLocalizationsBo extends AppLocalizations {
   String get me_guest_subtitle => 'Create a free account to access plans';
 
   @override
+  String get me_my_stats => 'My stats';
+
+  @override
+  String me_day_streak(int count) {
+    return '$count-day streak';
+  }
+
+  @override
+  String me_best_streak(int count) {
+    return 'Best streak: $count days';
+  }
+
+  @override
+  String get me_accumulation => 'Accumulation';
+
+  @override
+  String get me_counts => 'counts';
+
+  @override
+  String get me_minutes => 'minutes';
+
+  @override
+  String get me_days_plan_practiced_suffix => 'days plan practiced';
+
+  @override
+  String me_streak_share_message(int count, String appName) {
+    return 'I\'m on a $count-day streak on $appName!';
+  }
+
+  @override
+  String get me_streak_share_quote => 'My daily practice is growing';
+
+  @override
+  String me_streak_days_count(int count) {
+    return '$count days';
+  }
+
+  @override
+  String get share_this_streak => 'Share this streak';
+
+  @override
+  String get me_streak_share_error =>
+      'Unable to share streak. Please try again';
+
+  @override
   String get delete_account_title => 'མིང་ཐོ་བསུབ།';
 
   @override

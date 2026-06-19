@@ -141,7 +141,7 @@ class FeaturedPlanCard extends ConsumerWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final enrollBackgroundColor =
         isDark
-            ? AppColors.scaffoldBackgroundLight
+            ? AppColors.surfaceWhite
             : AppColors.scaffoldBackgroundDark;
     final enrollForegroundColor =
         isDark ? AppColors.textPrimary : AppColors.textPrimaryDark;
@@ -152,7 +152,7 @@ class FeaturedPlanCard extends ConsumerWidget {
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
-          color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
+          color: isDark ? AppColors.surfaceDark : AppColors.surfaceWhite,
         ),
         clipBehavior: Clip.antiAlias,
         child: Column(

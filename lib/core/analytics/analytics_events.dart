@@ -15,6 +15,12 @@ abstract final class AnalyticsEvents {
 
   // Practice / Routine
   static const String routineSaved = 'routine_saved';
+
+  // Mala
+  static const String malaScreenOpened = 'mala_screen_opened';
+  static const String malaRoundCompleted = 'mala_round_completed';
+  static const String malaSynced = 'mala_synced';
+  static const String malaMantraSwitched = 'mala_mantra_switched';
 }
 
 /// Shared analytics property keys.

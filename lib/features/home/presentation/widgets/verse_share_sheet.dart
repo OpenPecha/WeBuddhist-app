@@ -89,11 +89,10 @@ class _VerseShareSheetState extends State<VerseShareSheet> {
     final typography = VerseOfDayTypography.fromLanguageCode(languageCode);
     final locale = Localizations.localeOf(context);
     final lightTheme = AppTheme.lightTheme(locale);
-    final lightColorScheme = lightTheme.colorScheme;
 
     return Container(
       decoration: BoxDecoration(
-        color: colorScheme.surface,
+        color: isDark ? AppColors.cardBackgroundDark : AppColors.goldLight,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
       ),
       child: SafeArea(
@@ -118,7 +117,7 @@ class _VerseShareSheetState extends State<VerseShareSheet> {
                 child: Screenshot(
                   controller: _screenshotController,
                   child: Container(
-                    color: lightColorScheme.surface,
+                    color: AppColors.goldLight,
                     padding: const EdgeInsets.fromLTRB(14, 20, 14, 24),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
