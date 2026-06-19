@@ -30,58 +30,58 @@ final pendingOnboardingPlanProvider = StateProvider<UserPlansModel?>(
 );
 
 List<AppBottomBarItemModel<int>> mainNavigationItems(BuildContext context) {
-    final localizations = AppLocalizations.of(context)!;
-    return [
-      AppBottomBarItemModel(
-        type: 0,
-        label: localizations.nav_home,
-        selectedWidget: const HomeScreen(),
-        selectedIconData: AppAssets.homeSelected,
-        unSelectedIconData: AppAssets.homeUnselected,
-      ),
-      AppBottomBarItemModel(
-        type: 1,
-        label: localizations.nav_practice,
-        selectedWidget: const PracticeScreen(),
-        selectedIconData: AppAssets.practiceSelected,
-        unSelectedIconData: AppAssets.practiceUnselected,
-      ),
-      AppBottomBarItemModel(
-        type: 2,
-        label: localizations.nav_connect,
-        selectedWidget: const ConnectScreen(),
-        selectedIconData: AppAssets.connectSelected,
-        unSelectedIconData: AppAssets.connectUnselected,
-      ),
-      AppBottomBarItemModel(
-        type: 3,
-        label: localizations.nav_me,
-        selectedWidget: const MeScreen(),
-        selectedIconData: AppAssets.meSelected,
-        unSelectedIconData: AppAssets.meUnselected,
-      ),
-      //  AppBottomBarItemModel(
-      //   type: 1,
-      //   label: localizations.nav_learn,
-      //   selectedWidget: const LearnScreen(),
-      //   selectedIconData: AppAssets.textsSelected,
-      //   unSelectedIconData: AppAssets.textsUnselected,
-      // ),
-      //    AppBottomBarItemModel(
-      //   type: 3,
-      //   label: localizations.nav_connect,
-      //   selectedWidget: const ConnectScreen(),
-      //   selectedIconData: AppAssets.connectSelected,
-      //   unSelectedIconData: AppAssets.connectUnselected,
-      // ),
-      // AppBottomBarItemModel(
-      //   type: 4,
-      //   label: localizations.nav_explore,
-      //   selectedWidget: const ExploreScreen(),
-      //   selectedIconData: AppAssets.exploreSelected,
-      //   unSelectedIconData: AppAssets.exploreUnselected,
-      // ),
-    ];
+  final localizations = AppLocalizations.of(context)!;
+  return [
+    AppBottomBarItemModel(
+      type: 0,
+      label: localizations.nav_home,
+      selectedWidget: const HomeScreen(),
+      selectedIconData: AppAssets.homeSelected,
+      unSelectedIconData: AppAssets.homeUnselected,
+    ),
+    AppBottomBarItemModel(
+      type: 1,
+      label: localizations.nav_practice,
+      selectedWidget: const PracticeScreen(),
+      selectedIconData: AppAssets.practiceSelected,
+      unSelectedIconData: AppAssets.practiceUnselected,
+    ),
+    AppBottomBarItemModel(
+      type: 2,
+      label: localizations.nav_connect,
+      selectedWidget: const ConnectScreen(),
+      selectedIconData: AppAssets.connectSelected,
+      unSelectedIconData: AppAssets.connectUnselected,
+    ),
+    AppBottomBarItemModel(
+      type: 3,
+      label: localizations.nav_me,
+      selectedWidget: const MeScreen(),
+      selectedIconData: AppAssets.meSelected,
+      unSelectedIconData: AppAssets.meUnselected,
+    ),
+    //  AppBottomBarItemModel(
+    //   type: 1,
+    //   label: localizations.nav_learn,
+    //   selectedWidget: const LearnScreen(),
+    //   selectedIconData: AppAssets.textsSelected,
+    //   unSelectedIconData: AppAssets.textsUnselected,
+    // ),
+    //    AppBottomBarItemModel(
+    //   type: 3,
+    //   label: localizations.nav_connect,
+    //   selectedWidget: const ConnectScreen(),
+    //   selectedIconData: AppAssets.connectSelected,
+    //   unSelectedIconData: AppAssets.connectUnselected,
+    // ),
+    // AppBottomBarItemModel(
+    //   type: 4,
+    //   label: localizations.nav_explore,
+    //   selectedWidget: const ExploreScreen(),
+    //   selectedIconData: AppAssets.exploreSelected,
+    //   unSelectedIconData: AppAssets.exploreUnselected,
+    // ),
+  ];
 }
 
 class MainNavigationBottomBar extends ConsumerWidget {
@@ -97,12 +97,7 @@ class MainNavigationBottomBar extends ConsumerWidget {
     return AppBottomNavBar(
       items: items,
       onChanged: (index) {
-        if (index == selectedIndex) return;
         ref.read(mainNavigationIndexProvider.notifier).state = index;
-        if (index == MainTab.me.index) {
-          ref.read(cacheInterceptorProvider).invalidate('/users/me/stats');
-          ref.invalidate(userStatsFutureProvider);
-        }
         onTabChanged?.call(index);
       },
       type: selectedIndex,
