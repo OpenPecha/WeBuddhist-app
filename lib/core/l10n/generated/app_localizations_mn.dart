@@ -86,6 +86,16 @@ class AppLocalizationsMn extends AppLocalizations {
   String get home_plans => 'Төлөвлөгөө';
 
   @override
+  String home_plans_count(int count) {
+    return '$count Төлөвлөгөө';
+  }
+
+  @override
+  String home_recitation_count(int count) {
+    return '$count Уншлага';
+  }
+
+  @override
   String get home_shortcut_plans => 'Төлөвлөгөө';
 
   @override
@@ -1309,7 +1319,7 @@ class AppLocalizationsMn extends AppLocalizations {
   String get me_minutes => 'minutes';
 
   @override
-  String get me_total_meditation_time => 'Total meditation time';
+  String get me_total_meditation_time => 'Total meditation';
 
   @override
   String get me_days_plan_practiced_suffix => 'total plan days completed';

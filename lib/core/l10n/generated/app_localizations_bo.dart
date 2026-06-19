@@ -86,6 +86,16 @@ class AppLocalizationsBo extends AppLocalizations {
   String get home_plans => 'ཉམས་ལེན';
 
   @override
+  String home_plans_count(int count) {
+    return 'ཉམས་ལེན $count';
+  }
+
+  @override
+  String home_recitation_count(int count) {
+    return 'བཟླས་པ། $count';
+  }
+
+  @override
   String get home_shortcut_plans => 'ཉམས་ལེན';
 
   @override
@@ -1294,7 +1304,7 @@ class AppLocalizationsBo extends AppLocalizations {
   String get me_minutes => 'minutes';
 
   @override
-  String get me_total_meditation_time => 'Total meditation time';
+  String get me_total_meditation_time => 'Total meditation';
 
   @override
   String get me_days_plan_practiced_suffix => 'total plan days completed';

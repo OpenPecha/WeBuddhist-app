@@ -86,6 +86,16 @@ class AppLocalizationsNe extends AppLocalizations {
   String get home_plans => 'योजनाहरू';
 
   @override
+  String home_plans_count(int count) {
+    return '$count योजनाहरू';
+  }
+
+  @override
+  String home_recitation_count(int count) {
+    return '$count पाठ';
+  }
+
+  @override
   String get home_shortcut_plans => 'योजनाहरू';
 
   @override
@@ -1313,7 +1323,7 @@ class AppLocalizationsNe extends AppLocalizations {
   String get me_minutes => 'minutes';
 
   @override
-  String get me_total_meditation_time => 'Total meditation time';
+  String get me_total_meditation_time => 'Total meditation';
 
   @override
   String get me_days_plan_practiced_suffix => 'total plan days completed';

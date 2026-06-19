@@ -256,6 +256,18 @@ abstract class AppLocalizations {
   /// **'plans'**
   String get home_plans;
 
+  /// No description provided for @home_plans_count.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} plans'**
+  String home_plans_count(int count);
+
+  /// No description provided for @home_recitation_count.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} recitations'**
+  String home_recitation_count(int count);
+
   /// No description provided for @home_shortcut_plans.
   ///
   /// In en, this message translates to:
@@ -2413,7 +2425,7 @@ abstract class AppLocalizations {
   /// No description provided for @me_total_meditation_time.
   ///
   /// In en, this message translates to:
-  /// **'Total meditation time'**
+  /// **'Total meditation'**
   String get me_total_meditation_time;
 
   /// No description provided for @me_days_plan_practiced_suffix.
