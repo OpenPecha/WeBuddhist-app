@@ -40,7 +40,7 @@ class StreakShareContent extends StatelessWidget {
               style: const TextStyle(
                 fontSize: 28,
                 fontWeight: FontWeight.w700,
-                color: Colors.black87,
+                color: AppColors.brandblue,
               ),
             ),
           ],
@@ -50,7 +50,7 @@ class StreakShareContent extends StatelessWidget {
           l10n.me_best_streak(streak.highest),
           style: TextStyle(
             fontSize: 14,
-            color: isDark ? AppColors.grey600 : AppColors.grey900,
+            color: isDark ? AppColors.grey600 : Colors.black,
           ),
         ),
         const SizedBox(height: 28),

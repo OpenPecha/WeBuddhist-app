@@ -108,7 +108,7 @@ class _WeekDayCell extends StatelessWidget {
     final surfaceColor = isDark ? AppColors.cardDark : AppColors.surfaceWhite;
     final missedColor =
         isDark ? AppColors.surfaceVariantDark : AppColors.grey300;
-    final todayBorderColor = isDark ? AppColors.grey300 : AppColors.grey900;
+    final todayBorderColor = isDark ? AppColors.grey300 : AppColors.brandblue;
 
     return SizedBox(
       width: _cellSize,
@@ -126,7 +126,7 @@ class _WeekDayCell extends StatelessWidget {
         ),
         StreakWeekDayCellState.practiced => DecoratedBox(
           decoration: BoxDecoration(
-            color: isDark ? AppColors.grey300 : AppColors.grey900,
+            color: isDark ? AppColors.grey300 : AppColors.brandblue,
             borderRadius: BorderRadius.circular(8),
           ),
           child: Center(

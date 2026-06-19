@@ -600,7 +600,7 @@
       }
     }
   },
-  "me_best_streak": "Best streak: {count} days",
+  "me_best_streak": "Longest streak: {count} days",
   "@me_best_streak": {
     "placeholders": {
       "count": {
@@ -611,7 +611,7 @@
   "me_accumulation": "Accumulation",
   "me_counts": "counts",
   "me_minutes": "minutes",
-  "me_days_plan_practiced_suffix": "days plan practiced",
+  "me_days_plan_practiced_suffix": "total plan days completed",
   "me_streak_share_message": "I'm on a {count}-day streak on {appName}!",
   "@me_streak_share_message": {
     "placeholders": {
@@ -623,7 +623,7 @@
       }
     }
   },
-  "me_streak_share_quote": "My daily practice is growing",
+  "me_streak_share_quote": "My current streak on WeBuddhist!",
   "me_streak_days_count": "{count} days",
   "@me_streak_days_count": {
     "placeholders": {

@@ -1281,7 +1281,7 @@ class AppLocalizationsBo extends AppLocalizations {
 
   @override
   String me_best_streak(int count) {
-    return 'Best streak: $count days';
+    return 'Longest streak: $count days';
   }
 
   @override
@@ -1294,7 +1294,7 @@ class AppLocalizationsBo extends AppLocalizations {
   String get me_minutes => 'minutes';
 
   @override
-  String get me_days_plan_practiced_suffix => 'days plan practiced';
+  String get me_days_plan_practiced_suffix => 'total plan days completed';
 
   @override
   String me_streak_share_message(int count, String appName) {
@@ -1302,7 +1302,7 @@ class AppLocalizationsBo extends AppLocalizations {
   }
 
   @override
-  String get me_streak_share_quote => 'My daily practice is growing';
+  String get me_streak_share_quote => ' My current streak on WeBuddhist!';
 
   @override
   String me_streak_days_count(int count) {

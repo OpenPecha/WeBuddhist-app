@@ -2389,7 +2389,7 @@ abstract class AppLocalizations {
   /// No description provided for @me_best_streak.
   ///
   /// In en, this message translates to:
-  /// **'Best streak: {count} days'**
+  /// **'Longest streak: {count} days'**
   String me_best_streak(int count);
 
   /// No description provided for @me_accumulation.
@@ -2413,7 +2413,7 @@ abstract class AppLocalizations {
   /// No description provided for @me_days_plan_practiced_suffix.
   ///
   /// In en, this message translates to:
-  /// **'days plan practiced'**
+  /// **'total plan days completed'**
   String get me_days_plan_practiced_suffix;
 
   /// No description provided for @me_streak_share_message.
@@ -2425,7 +2425,7 @@ abstract class AppLocalizations {
   /// No description provided for @me_streak_share_quote.
   ///
   /// In en, this message translates to:
-  /// **'My daily practice is growing'**
+  /// **'My current streak on WeBuddhist!'**
   String get me_streak_share_quote;
 
   /// No description provided for @me_streak_days_count.

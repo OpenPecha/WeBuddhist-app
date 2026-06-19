@@ -48,6 +48,11 @@ class MeStatsSection extends StatelessWidget {
             onTap: () => showStreakShareSheet(context, stats.streak),
           ),
           const SizedBox(height: _cardSpacing),
+          _PracticeDaysCard(
+            days: stats.totalPracticeDays,
+            cardColor: cardColor,
+          ),
+          const SizedBox(height: _cardSpacing),
           Row(
             children: [
               Expanded(
@@ -83,11 +88,6 @@ class MeStatsSection extends StatelessWidget {
                 ),
               ),
             ],
-          ),
-          const SizedBox(height: _cardSpacing),
-          _PracticeDaysCard(
-            days: stats.totalPracticeDays,
-            cardColor: cardColor,
           ),
         ],
       ),
@@ -205,6 +205,12 @@ class _PracticeDaysCard extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
         child: Row(
           children: [
+            Icon(
+              AppAssets.homeList,
+              size: 24,
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
+            const SizedBox(width: 12),
             Expanded(
               child: Text.rich(
                 TextSpan(
@@ -223,11 +229,6 @@ class _PracticeDaysCard extends StatelessWidget {
                   ],
                 ),
               ),
-            ),
-            Icon(
-              AppAssets.homeList,
-              size: 24,
-              color: Theme.of(context).colorScheme.onSurface,
             ),
           ],
         ),
