@@ -96,16 +96,16 @@ class AppLocalizationsBo extends AppLocalizations {
   }
 
   @override
-  String get home_shortcut_plans => 'ཉམས་ལེན';
+  String get home_shortcut_plans => 'ཉམས་ལེན།';
 
   @override
-  String get home_chants => 'ཞལ་འདོན';
+  String get home_chants => 'ཞལ་འདོན།';
 
   @override
-  String get home_mala => 'ཕྲེང་བ';
+  String get home_mala => 'ཕྲེང་བ།';
 
   @override
-  String get home_timer => 'དུས་ཚོད།';
+  String get home_timer => 'སྒོམ་ཐུན།';
 
   @override
   String get preset_timers => 'སྔོན་སྒྲིག་དུས་ཚོད།';
@@ -114,16 +114,16 @@ class AppLocalizationsBo extends AppLocalizations {
   String get meditation_timer => 'སྒོམ་དུས་ཚོད།';
 
   @override
-  String get timer_min => 'སྐར་མ';
+  String get timer_min => 'སྐར་མ།';
 
   @override
-  String get timer_start => 'འགོ་འཛུགས';
+  String get timer_start => 'འགོ་འཛུགས།';
 
   @override
-  String get timer_finish => 'མཇུག་སྒྲིལ';
+  String get timer_finish => 'མཇུག་སྒྲིལ།';
 
   @override
-  String get timer_discard_session => 'སྒྲུབ་སྡེ་མེད་པར་བཏང་';
+  String get timer_discard_session => 'སྒྲུབ་སྡེ་མེད་པར་བཏང་།';
 
   @override
   String get home_hello_prefix => 'བཀྲ་ཤིས་བདེ་ལེགས། ';
@@ -251,7 +251,7 @@ class AppLocalizationsBo extends AppLocalizations {
   String get plan_info => 'ཉམས་ལེན་ངོ་སྤྲོད།';
 
   @override
-  String get start_reading => 'ཀློག་འདོན་འགོ་རྩོམ།';
+  String get start_reading => 'ཉམས་ལེན་འགོ་རྩོམ།';
 
   @override
   String get tibetan => 'བོད་ཡིག';
