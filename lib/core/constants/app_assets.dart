@@ -17,7 +17,7 @@ class AppAssets {
 
   // ========== AUDIO ==========
   static const String meditationSound = 'assets/audios/meditation.mp3';
-  static const String malaSound = 'assets/audios/mala-sound.wav';
+  static const String malaSound = 'assets/audios/mala.wav';
 
   // ========== LOGOS ==========
   static const String weBuddhistLogo = 'assets/images/webuddhist_gold.png';

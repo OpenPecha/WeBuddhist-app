@@ -105,10 +105,27 @@ tails). Opened once in app bootstrap via `MalaLocalDataSource.init()`.
 ## Bead artwork & caching
 
 Resolution order in `MalaScreen`:
-**accumulator detail `beadImageUrl` → preset/mantra `beadImageUrl` → bundled
-`kFallbackBeadAsset`** (`assets/images/beads/bead-1.png`), and the asset is also
-used if a network image fails to load.
+**accumulator detail `beadImageUrl` → preset/mantra `beadImageUrl`**. There is
+**no placeholder bead** — `MalaBeads` only ever renders the real artwork:
 
+- **Loading** (URL present, image resolving): a subtle full-area shimmer
+  (`Skeletonizer`). The strand isn't tappable until the image is ready.
+- **Loaded:** the bead strand, painted from the network image.
+- **No image** (no URL, or the load failed): a friendly message
+  ("We couldn't load your mala beads") with a **Retry** that re-attempts the
+  load. No bundled asset and no drawn-gradient fallback.
+
+These three states live in `MalaBeads` (`_BeadImageStatus`). A test-only
+`debugInitialImage` lets widget tests reach the loaded/tappable state without a
+network fetch.
+
+- **Preset preview source.** `Mantra.beadImageUrl` resolves to the
+  **mantra-level** `mala_image_url` (`PresetMantraModel`) first, falling back to
+  the accumulator-level one (`PresetAccumulatorModel`). The mantra-level image
+  mirrors what the detail endpoint (`AccumulatorDetailModel.mala_image_url`)
+  returns, so the pre-seed preview and the post-seed image share one URL — the
+  URL doesn't change after seeding, so `MalaBeads` skips a second fetch and the
+  bead doesn't flicker. (See `PresetAccumulatorModel.toEntity()`.)
 - The detail image is threaded through `MalaCount → MalaCounterState →
   MalaBeads` so per-user bead customization works.
 - It is **persisted** in `LocalMalaState.beadImageUrl` and surfaced into state at
@@ -181,7 +198,9 @@ failure), data.
   seed-at-0.
 - `mala_sync_manager_test.dart` — create-once-then-update, absolute-total PUT,
   `max()` adoption, dirty-on-failure, logged-out no-op, per-user namespacing.
-- `mala_beads_test.dart` — tap increments, disabled beads don't.
+- `mala_beads_test.dart` — tap increments, disabled beads don't, and the
+  no-image state shows the friendly retry message (uses `debugInitialImage` to
+  reach the loaded/tappable state).
 
 `currentUserId` callbacks are async (`Future<String?> Function()`) in both the
 notifier and sync manager.
