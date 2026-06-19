@@ -67,13 +67,6 @@ List<AppBottomBarItemModel<int>> mainNavigationItems(BuildContext context) {
     //   selectedIconData: AppAssets.textsSelected,
     //   unSelectedIconData: AppAssets.textsUnselected,
     // ),
-    //    AppBottomBarItemModel(
-    //   type: 3,
-    //   label: localizations.nav_connect,
-    //   selectedWidget: const ConnectScreen(),
-    //   selectedIconData: AppAssets.connectSelected,
-    //   unSelectedIconData: AppAssets.connectUnselected,
-    // ),
     // AppBottomBarItemModel(
     //   type: 4,
     //   label: localizations.nav_explore,
