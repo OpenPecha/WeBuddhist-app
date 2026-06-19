@@ -9,6 +9,7 @@ import 'package:flutter_pecha/features/practice/presentation/screens/practice_sc
 import 'package:flutter_pecha/shared/widgets/appBottomNavBar/app_bottom_nav_bar.dart';
 import 'package:flutter_pecha/shared/widgets/appBottomNavBar/app_bottom_nav_item.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_pecha/core/config/router/app_router.dart';
 import 'package:go_router/go_router.dart';
 
 /// Bottom-nav tabs in display order. The enum index matches the position in
@@ -116,6 +117,10 @@ class HomeShellScaffold extends ConsumerWidget {
               ? null
               : MainNavigationBottomBar(
                 onTabChanged: (_) {
+                  final shell = shellNavigatorKey.currentState;
+                  if (shell != null && shell.canPop()) {
+                    shell.popUntil((route) => route.isFirst);
+                  }
                   if (location != '/home') {
                     context.go('/home');
                   }
