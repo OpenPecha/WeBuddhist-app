@@ -9,7 +9,7 @@ class PersonNameValidator {
   static const int maxLength = 50;
 
   static final RegExp _allowedPattern = RegExp(
-    r"^[\p{L}'\-\s]+$",
+    r"^[\p{L}\u0F00-\u0FFF'\-\s]+$",
     unicode: true,
   );
 
