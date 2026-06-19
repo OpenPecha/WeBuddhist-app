@@ -99,8 +99,13 @@ final malaSyncManagerProvider = Provider<MalaSyncManager>((ref) {
 
 // ============ Catalogue ============
 
+/// Mantra catalogue. `autoDispose` so it re-fetches each time the Mala screen
+/// is (re)opened rather than caching for the whole session — backend edits to
+/// titles/content reflect on the next open. The presets HTTP call also bypasses
+/// the 5-minute response cache (see `MalaRemoteDataSource.fetchPresets`), so the
+/// re-fetch is genuinely fresh.
 final malaCatalogueProvider =
-    FutureProvider<Either<Failure, List<Mantra>>>((ref) async {
+    FutureProvider.autoDispose<Either<Failure, List<Mantra>>>((ref) async {
   if (!_isAuthenticated(ref)) {
     return const Left(AuthenticationFailure('Not authenticated'));
   }

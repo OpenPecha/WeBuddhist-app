@@ -114,7 +114,7 @@ class _MalaScreenState extends ConsumerState<MalaScreen> {
 
     return Column(
       children: [
-        _MalaAppBar(title: mantra.localizedName(language)),
+        _MalaAppBar(title: mantra.displayTitle(language)),
         Expanded(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -157,6 +157,11 @@ class _MalaScreenState extends ConsumerState<MalaScreen> {
                                   onRetry: notifier.seed,
                                 )
                                 : MalaBeads(
+                                  // Per-mantra identity: switching mantras gives
+                                  // a fresh state (no carried-over slide), so the
+                                  // strand snaps to the new count instead of
+                                  // animating between mantras.
+                                  key: ValueKey(mantra.presetId),
                                   total: counter.total,
                                   beadInRound: counter.beadInRound,
                                   beadsPerRound: counter.beadsPerRound,

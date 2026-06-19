@@ -47,7 +47,7 @@ fetched by authenticated users, so the catch-all is safe.
 
 | Method | Path | Purpose |
 | --- | --- | --- |
-| `GET` | `/accumulators/presets` | Catalogue of preset mantras (paged, `language`). |
+| `GET` | `/accumulators/presets` | Catalogue of preset mantras (paged, `language`). Sent with `no_cache` so it skips the 5-min HTTP cache and always returns the latest titles/images. |
 | `GET` | `/accumulators/{parent_id}` | The user's detail for one preset. **404 ⇒ no accumulator yet ⇒ seed at 0.** |
 | `POST` | `/accumulators/user` | Lazily create the user's accumulator (`{parent_id}`, starts at 0). |
 | `PUT` | `/accumulators/user/{id}` | Push the absolute `current_count`. |
