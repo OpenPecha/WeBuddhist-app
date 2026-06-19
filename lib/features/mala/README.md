@@ -105,10 +105,10 @@ tails). Opened once in app bootstrap via `MalaLocalDataSource.init()`.
 ## Bead artwork & caching
 
 Resolution order in `MalaScreen`:
-**accumulator detail `beadImageUrl` → preset/mantra `beadImageUrl` → bundled
-`kFallbackBeadAsset`** (`assets/images/beads/bead-1.png`), and the asset is also
-used if a network image fails to load. While the image is still loading the
-painter draws a gradient bead (`_drawDrawnBead`).
+**accumulator detail `beadImageUrl` → preset/mantra `beadImageUrl` → drawn
+gradient bead**. There is no bundled asset fallback: while the network image
+loads, or whenever there's no URL or it fails to load, the painter draws a
+gradient bead (`_drawDrawnBead`).
 
 - **Preset preview source.** `Mantra.beadImageUrl` resolves to the
   **mantra-level** `mala_image_url` (`PresetMantraModel`) first, falling back to

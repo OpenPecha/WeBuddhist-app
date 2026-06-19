@@ -56,25 +56,33 @@ class _MalaScreenState extends ConsumerState<MalaScreen> {
     final catalogue = ref.watch(malaCatalogueProvider);
 
     return Scaffold(
-      body: SafeArea(
-        child: catalogue.when(
-          loading: () => const _MalaAppBarScaffold(child: MalaSkeleton()),
-          error:
-              (e, _) => _MalaAppBarScaffold(
-                child: _ErrorView(
-                  onRetry: () => ref.invalidate(malaCatalogueProvider),
-                ),
-              ),
-          data:
-              (either) => either.fold(
-                (failure) => _MalaAppBarScaffold(
+      // Clip the page content to its bounds. The bead strand is drawn with an
+      // intentional overflow past the arc edges (relied on being clipped); the
+      // device-edge clip normally hides it, but during the iOS pop transition
+      // the page is composited into a sliding layer where that overflow would
+      // otherwise flash onto the incoming screen. This contains it without
+      // changing the bead appearance.
+      body: ClipRect(
+        child: SafeArea(
+          child: catalogue.when(
+            loading: () => const _MalaAppBarScaffold(child: MalaSkeleton()),
+            error:
+                (e, _) => _MalaAppBarScaffold(
                   child: _ErrorView(
-                    message: failure.message,
                     onRetry: () => ref.invalidate(malaCatalogueProvider),
                   ),
                 ),
-                (mantras) => _buildLoaded(context, mantras),
-              ),
+            data:
+                (either) => either.fold(
+                  (failure) => _MalaAppBarScaffold(
+                    child: _ErrorView(
+                      message: failure.message,
+                      onRetry: () => ref.invalidate(malaCatalogueProvider),
+                    ),
+                  ),
+                  (mantras) => _buildLoaded(context, mantras),
+                ),
+          ),
         ),
       ),
     );
