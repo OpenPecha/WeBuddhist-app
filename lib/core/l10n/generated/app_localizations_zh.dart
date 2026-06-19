@@ -1385,4 +1385,25 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get verse_share_error => '无法分享引文，请重试';
+
+  @override
+  String get weekday_monday => '週一';
+
+  @override
+  String get weekday_tuesday => '週二';
+
+  @override
+  String get weekday_wednesday => '週三';
+
+  @override
+  String get weekday_thursday => '週四';
+
+  @override
+  String get weekday_friday => '週五';
+
+  @override
+  String get weekday_saturday => '週六';
+
+  @override
+  String get weekday_sunday => '週日';
 }

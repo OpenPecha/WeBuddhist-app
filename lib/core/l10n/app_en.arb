@@ -710,5 +710,12 @@
 
   "share_this_quote": "Share this quote",
   "shared_from": "Shared from",
-  "verse_share_error": "Unable to share quote. Please try again"
+  "verse_share_error": "Unable to share quote. Please try again",
+  "weekday_monday": "MON",
+  "weekday_tuesday": "TUE",
+  "weekday_wednesday": "WED",
+  "weekday_thursday": "THU",
+  "weekday_friday": "FRI",
+  "weekday_saturday": "SAT",
+  "weekday_sunday": "SUN"
 }

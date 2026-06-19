@@ -1456,4 +1456,25 @@ class AppLocalizationsMn extends AppLocalizations {
   @override
   String get verse_share_error =>
       'Ишлэлийг хуваалцах боломжгүй. Дахин оролдоно уу';
+
+  @override
+  String get weekday_monday => 'Дав';
+
+  @override
+  String get weekday_tuesday => 'Мяг';
+
+  @override
+  String get weekday_wednesday => 'Лха';
+
+  @override
+  String get weekday_thursday => 'Пүр';
+
+  @override
+  String get weekday_friday => 'Баа';
+
+  @override
+  String get weekday_saturday => 'Бям';
+
+  @override
+  String get weekday_sunday => 'Ням';
 }

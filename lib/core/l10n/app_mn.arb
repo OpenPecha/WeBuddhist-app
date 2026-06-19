@@ -702,5 +702,12 @@
   "no_groups_found": "Тохирох бүлэг олдсонгүй",
   "connect_groups_empty_title": "Одоогоор бүлэг алга",
   "connect_groups_empty_subtitle": "Баяр хүргэе, та манай бүх бүлэгт нэгдсэн байна! Удахгүй дахин шалгаарай. Шинэ бүлгүүд удахгүй нэмэгдэнэ",
-  "connect_groups_load_error": "Бүлгүүдийг ачаалах боломжгүй.\nХолболтоо шалгаад дахин оролдоно уу"
+  "connect_groups_load_error": "Бүлгүүдийг ачаалах боломжгүй.\nХолболтоо шалгаад дахин оролдоно уу",
+  "weekday_monday": "Дав",
+  "weekday_tuesday": "Мяг",
+  "weekday_wednesday": "Лха",
+  "weekday_thursday": "Пүр",
+  "weekday_friday": "Баа",
+  "weekday_saturday": "Бям",
+  "weekday_sunday": "Ням"
 }

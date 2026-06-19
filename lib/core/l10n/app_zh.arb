@@ -636,5 +636,12 @@
   "no_groups_found": "找不到符合的社群",
   "connect_groups_empty_title": "尚無社群",
   "connect_groups_empty_subtitle": "恭喜，你已加入我們所有的社群！請稍後再來，更多社群即將推出",
-  "connect_groups_load_error": "無法載入社群，\n請檢查網路連線後重試"
+  "connect_groups_load_error": "無法載入社群，\n請檢查網路連線後重試",
+  "weekday_monday": "週一",
+  "weekday_tuesday": "週二",
+  "weekday_wednesday": "週三",
+  "weekday_thursday": "週四",
+  "weekday_friday": "週五",
+  "weekday_saturday": "週六",
+  "weekday_sunday": "週日"
 }

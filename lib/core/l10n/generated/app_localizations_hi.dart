@@ -1454,4 +1454,25 @@ class AppLocalizationsHi extends AppLocalizations {
   @override
   String get verse_share_error =>
       'उद्धरण शेयर नहीं हो सका। कृपया फिर से प्रयास करें';
+
+  @override
+  String get weekday_monday => 'सोम';
+
+  @override
+  String get weekday_tuesday => 'मंगल';
+
+  @override
+  String get weekday_wednesday => 'बुध';
+
+  @override
+  String get weekday_thursday => 'गुरु';
+
+  @override
+  String get weekday_friday => 'शुक्र';
+
+  @override
+  String get weekday_saturday => 'शनि';
+
+  @override
+  String get weekday_sunday => 'रवि';
 }
