@@ -65,9 +65,9 @@ class MeStreakCard extends StatelessWidget {
               Center(
                 child: Text(
                   l10n.me_best_streak(streak.highest),
-                  style: Theme.of(
-                    context,
-                  ).textTheme.bodySmall?.copyWith(color: AppColors.grey600),
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: isDark ? AppColors.grey300 : AppColors.grey900,
+                  ),
                 ),
               ),
               const SizedBox(height: 20),

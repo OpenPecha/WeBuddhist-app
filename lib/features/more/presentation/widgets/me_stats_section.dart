@@ -58,7 +58,6 @@ class MeStatsSection extends StatelessWidget {
                     width: 22,
                     height: 22,
                     color: Theme.of(context).colorScheme.onSurface,
-                    colorBlendMode: BlendMode.srcIn,
                   ),
                   value: _formatCompactCount(stats.totalAccumulated, locale),
                   unit: l10n.me_counts,
@@ -149,9 +148,9 @@ class _StatCard extends StatelessWidget {
               children: [
                 Text(
                   label,
-                  style: Theme.of(
-                    context,
-                  ).textTheme.bodySmall?.copyWith(color: AppColors.grey600),
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: isDark ? AppColors.grey300 : AppColors.grey900,
+                  ),
                 ),
                 icon,
               ],
