@@ -26,12 +26,18 @@ class MeScreen extends ConsumerWidget {
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         elevation: 0,
-        title: Text(
-          localizations.nav_me,
-          style: Theme.of(
-            context,
-          ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
+        automaticallyImplyLeading: false,
+        centerTitle: false,
+        title: Align(
+          alignment: Alignment.centerLeft,
+          child: Text(
+            localizations.nav_me,
+            style: Theme.of(
+              context,
+            ).textTheme.headlineLarge?.copyWith(fontWeight: FontWeight.bold),
+          ),
         ),
+
         actions: [
           IconButton(
             icon: Icon(
