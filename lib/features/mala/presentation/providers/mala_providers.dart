@@ -44,18 +44,18 @@ final getCatalogueUseCaseProvider = Provider<GetCatalogueUseCase>((ref) {
 
 final getAccumulatorDetailUseCaseProvider =
     Provider<GetAccumulatorDetailUseCase>((ref) {
-  return GetAccumulatorDetailUseCase(ref.watch(malaRepositoryProvider));
-});
+      return GetAccumulatorDetailUseCase(ref.watch(malaRepositoryProvider));
+    });
 
 final createUserAccumulatorUseCaseProvider =
     Provider<CreateUserAccumulatorUseCase>((ref) {
-  return CreateUserAccumulatorUseCase(ref.watch(malaRepositoryProvider));
-});
+      return CreateUserAccumulatorUseCase(ref.watch(malaRepositoryProvider));
+    });
 
 final updateUserAccumulatorUseCaseProvider =
     Provider<UpdateUserAccumulatorUseCase>((ref) {
-  return UpdateUserAccumulatorUseCase(ref.watch(malaRepositoryProvider));
-});
+      return UpdateUserAccumulatorUseCase(ref.watch(malaRepositoryProvider));
+    });
 
 // ============ Auth helpers ============
 
@@ -99,13 +99,9 @@ final malaSyncManagerProvider = Provider<MalaSyncManager>((ref) {
 
 // ============ Catalogue ============
 
-/// Mantra catalogue. `autoDispose` so it re-fetches each time the Mala screen
-/// is (re)opened rather than caching for the whole session — backend edits to
-/// titles/content reflect on the next open. The presets HTTP call also bypasses
-/// the 5-minute response cache (see `MalaRemoteDataSource.fetchPresets`), so the
-/// re-fetch is genuinely fresh.
-final malaCatalogueProvider =
-    FutureProvider.autoDispose<Either<Failure, List<Mantra>>>((ref) async {
+final malaCatalogueProvider = FutureProvider<Either<Failure, List<Mantra>>>((
+  ref,
+) async {
   if (!_isAuthenticated(ref)) {
     return const Left(AuthenticationFailure('Not authenticated'));
   }
@@ -129,13 +125,13 @@ final malaSoundPlayerProvider = Provider.autoDispose<MalaSoundPlayer>((ref) {
 
 final malaCounterProvider = StateNotifierProvider.autoDispose
     .family<MalaCounterNotifier, MalaCounterState, Mantra>((ref, mantra) {
-  return MalaCounterNotifier(
-    mantra: mantra,
-    local: ref.watch(malaLocalDataSourceProvider),
-    getAccumulatorDetail: ref.watch(getAccumulatorDetailUseCaseProvider),
-    sync: ref.watch(malaSyncManagerProvider),
-    currentUserId: () => _resolveUserId(ref),
-    analytics: ref.watch(analyticsServiceProvider),
-    sound: ref.watch(malaSoundPlayerProvider),
-  );
-});
+      return MalaCounterNotifier(
+        mantra: mantra,
+        local: ref.watch(malaLocalDataSourceProvider),
+        getAccumulatorDetail: ref.watch(getAccumulatorDetailUseCaseProvider),
+        sync: ref.watch(malaSyncManagerProvider),
+        currentUserId: () => _resolveUserId(ref),
+        analytics: ref.watch(analyticsServiceProvider),
+        sound: ref.watch(malaSoundPlayerProvider),
+      );
+    });
