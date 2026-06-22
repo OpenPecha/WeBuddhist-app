@@ -239,24 +239,28 @@ class AuthService {
   }
 
   Future<Credentials> _fetchCredentials({required bool force}) async {
-    // To FORCE a renewal we ask for more TTL than the current access token can
-    // possibly have left, which obliges the manager to renew. This keeps the
-    // credentials manager as the single, rotation-safe refresh path (there is
-    // no `forceRefresh` flag on `credentials()` in auth0_flutter 1.14.0).
-    var minTtl = _kMinTokenTtlSeconds;
+    final Credentials creds;
     if (force) {
-      final current = await _auth0.credentialsManager.credentials();
-      // Use the manager's OWN expiry clock, not a JWT `exp` parse. Opaque
-      // access tokens (pre-audience sessions) aren't JWTs, so parsing would
-      // yield 0 remaining and an under-budget `minTtl` that the manager
-      // happily satisfies with the *same* stale token — no renewal. Deriving
-      // the remaining lifetime from `expiresAt` works for both opaque and JWT
-      // tokens, so `minTtl > remaining` always obliges a renewal.
-      final remaining = current.expiresAt.difference(DateTime.now()).inSeconds;
-      final safeRemaining = remaining > 0 ? remaining : 0;
-      minTtl = safeRemaining + _kMinTokenTtlSeconds; // > remaining ⇒ forced renew
+      // Forced (reactive 401) renewal. `renewCredentials()` unconditionally
+      // fetches a fresh credential set and stores the rotated refresh token
+      // atomically, so it renews even when the current access token still has
+      // lifetime left — and it stays inside the credentials manager (the
+      // single, rotation-safe refresh path).
+      //
+      // We previously forced via `credentials(minTtl: remaining + buffer)`, but
+      // the SDK rejects a `minTtl` greater than the token's configured lifetime
+      // ("minTTL requested … is greater than the lifetime of the renewed access
+      // token"); and capping `minTtl` at that lifetime is satisfied by a fresh
+      // token, so it would not force a renewal at all.
+      creds = await _auth0.credentialsManager.renewCredentials();
+    } else {
+      // Proactive: return the cached token, renewing only when it is within the
+      // skew buffer of expiry.
+      creds = await _auth0.credentialsManager.credentials(
+        minTtl: _kMinTokenTtlSeconds,
+      );
     }
-    return _auth0.credentialsManager.credentials(minTtl: minTtl);
+    return creds;
   }
 
   /// API bearer. Proactive renewal happens inside the credentials manager when
