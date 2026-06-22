@@ -6,6 +6,8 @@ import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/features/more/domain/entities/user_stats.dart';
 import 'package:flutter_pecha/features/more/presentation/widgets/me_streak_card.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter_pecha/features/more/presentation/widgets/accumulation_sheet.dart';
+import 'package:flutter_pecha/features/more/presentation/widgets/practice_days_sheet.dart';
 import 'package:flutter_pecha/features/more/presentation/widgets/streak_share_sheet.dart';
 
 class MeStatsSection extends StatelessWidget {
@@ -51,6 +53,10 @@ class MeStatsSection extends StatelessWidget {
           _PracticeDaysCard(
             days: stats.totalPracticeDays,
             cardColor: cardColor,
+            onTap: () => showPracticeDaysSheet(
+              context,
+              totalDays: stats.totalPracticeDays,
+            ),
           ),
           const SizedBox(height: _cardSpacing),
           Row(
@@ -66,6 +72,13 @@ class MeStatsSection extends StatelessWidget {
                   ),
                   value: _formatCompactCount(stats.totalAccumulated, locale),
                   cardColor: cardColor,
+                  onTap: () => showAccumulationSheet(
+                    context,
+                    formattedTotal: _formatCompactCount(
+                      stats.totalAccumulated,
+                      locale,
+                    ),
+                  ),
                 ),
               ),
               const SizedBox(width: _cardSpacing),
@@ -120,12 +133,14 @@ class _StatCard extends StatelessWidget {
     required this.icon,
     required this.value,
     required this.cardColor,
+    this.onTap,
   });
 
   final String label;
   final Widget icon;
   final String value;
   final Color cardColor;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -139,39 +154,43 @@ class _StatCard extends StatelessWidget {
           color: isDark ? AppColors.cardBorderDark : AppColors.grey300,
         ),
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  label,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: isDark ? AppColors.grey300 : AppColors.grey900,
-                    fontSize: 13,
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(MeStatsSection._borderRadius),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    label,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: isDark ? AppColors.grey300 : AppColors.grey900,
+                      fontSize: 13,
+                    ),
                   ),
-                ),
-                // Move icon beside value/unit instead of in the label row
-              ],
-            ),
-            const SizedBox(height: 12),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                icon,
-                const SizedBox(width: 4),
-                Text(
-                  value,
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.w700,
+                ],
+              ),
+              const SizedBox(height: 12),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  icon,
+                  const SizedBox(width: 4),
+                  Text(
+                    value,
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
-                ),
-              ],
-            ),
-          ],
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -179,10 +198,15 @@ class _StatCard extends StatelessWidget {
 }
 
 class _PracticeDaysCard extends StatelessWidget {
-  const _PracticeDaysCard({required this.days, required this.cardColor});
+  const _PracticeDaysCard({
+    required this.days,
+    required this.cardColor,
+    this.onTap,
+  });
 
   final int days;
   final Color cardColor;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -197,36 +221,41 @@ class _PracticeDaysCard extends StatelessWidget {
           color: isDark ? AppColors.cardBorderDark : AppColors.grey300,
         ),
       ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-        child: Row(
-          children: [
-            Icon(
-              AppAssets.homeList,
-              size: 24,
-              color: Theme.of(context).colorScheme.onSurface,
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text.rich(
-                TextSpan(
-                  style: DefaultTextStyle.of(context).style,
-                  children: [
-                    TextSpan(
-                      text: '$days',
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.w700,
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(MeStatsSection._borderRadius),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+          child: Row(
+            children: [
+              Icon(
+                AppAssets.homeList,
+                size: 24,
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text.rich(
+                  TextSpan(
+                    style: DefaultTextStyle.of(context).style,
+                    children: [
+                      TextSpan(
+                        text: '$days',
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
-                    ),
-                    TextSpan(
-                      text: ' ${l10n.me_days_plan_practiced_suffix}',
-                      style: Theme.of(context).textTheme.bodyMedium,
-                    ),
-                  ],
+                      TextSpan(
+                        text: ' ${l10n.me_days_plan_practiced_suffix}',
+                        style: Theme.of(context).textTheme.bodyMedium,
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

@@ -82,11 +82,18 @@ class RoutineNotificationService {
       // Every plan item in the block owns its own series — cancel them all,
       // not just the first (blocks may hold several plans, case 3d).
       for (final item
-          in block.items.where((i) => i.type == RoutineItemType.plan)) {
+          in block.items.where((i) => i.type == RoutineItemType.series)) {
         if (isSpecialPlan(item.id)) {
           await _cancelSpecialPlanSeries(item.id);
         } else {
           await _cancelPlanDurationSeries(item.id);
+        }
+        if (item.currentPlanId != null && item.currentPlanId != item.id) {
+          if (isSpecialPlan(item.currentPlanId!)) {
+            await _cancelSpecialPlanSeries(item.currentPlanId!);
+          } else {
+            await _cancelPlanDurationSeries(item.currentPlanId!);
+          }
         }
         final markerEntry = todayMarkers.entries
             .where((e) => e.value == item.id)

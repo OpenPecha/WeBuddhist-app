@@ -5,10 +5,10 @@ import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/features/notifications/data/models/notification_nav.dart';
 import 'package:flutter_pecha/features/plans/data/models/user/user_plans_model.dart';
+import 'package:flutter_pecha/features/plans/data/utils/plan_utils.dart';
+import 'package:flutter_pecha/features/plans/presentation/providers/my_plans_paginated_provider.dart';
 import 'package:flutter_pecha/features/plans/presentation/providers/use_case_providers.dart';
 import 'package:flutter_pecha/features/plans/presentation/providers/user_plans_provider.dart';
-import 'package:flutter_pecha/features/plans/presentation/widgets/plan_track/enrolled_plan_status_indicator.dart';
-import 'package:flutter_pecha/features/plans/presentation/widgets/plan_track/plan_date_range_label.dart';
 import 'package:flutter_pecha/features/practice/data/models/routine_model.dart';
 import 'package:flutter_pecha/features/practice/presentation/providers/routine_api_providers.dart';
 import 'package:flutter_pecha/features/practice/presentation/widgets/routine_item_card.dart';
@@ -16,6 +16,37 @@ import 'package:flutter_pecha/features/reader/data/models/navigation_context.dar
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+
+Future<UserPlansModel?> resolveRoutineUserPlan(
+  WidgetRef ref,
+  String planId, {
+  String? language,
+}) async {
+  final contentLanguage = ref.read(contentLanguageProvider);
+  final isSameLanguage =
+      language == null ||
+      language.toLowerCase() == contentLanguage.toLowerCase();
+
+  if (isSameLanguage) {
+    var plans = ref.read(myPlansPaginatedProvider).plans;
+    var userPlan = plans.where((p) => p.id == planId).firstOrNull;
+
+    if (userPlan == null) {
+      await ref.read(myPlansPaginatedProvider.notifier).refresh();
+      plans = ref.read(myPlansPaginatedProvider).plans;
+      userPlan = plans.where((p) => p.id == planId).firstOrNull;
+    }
+
+    return userPlan;
+  }
+
+  final repo = ref.read(userPlansDomainRepositoryProvider);
+  final result = await repo.getUserPlans(language: language);
+  return result.fold(
+    (_) => null,
+    (response) => response.userPlans.where((p) => p.id == planId).firstOrNull,
+  );
+}
 
 final _logger = AppLogger('RoutineFilledState');
 
@@ -37,13 +68,12 @@ class RoutineFilledState extends ConsumerWidget {
 
     // Handle deep-link from notification tap.
     final pendingNav = ref.watch(pendingNotificationNavProvider);
-    final myPlansState = ref.watch(myPlansPaginatedProvider);
     if (pendingNav != null) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
         if (!context.mounted) return;
         final itemType = RoutineItemType.values.firstWhere(
           (e) => e.name == pendingNav.itemType,
-          orElse: () => RoutineItemType.plan,
+          orElse: () => RoutineItemType.series,
         );
         if (itemType == RoutineItemType.recitation) {
           ref.read(pendingNotificationNavProvider.notifier).state = null;
@@ -51,35 +81,44 @@ class RoutineFilledState extends ConsumerWidget {
             '/reader/${pendingNav.itemId}',
             extra: NavigationContext(source: NavigationSource.normal),
           );
-        } else {
-          final userPlan =
-              myPlansState.plans
-                  .where((p) => p.id == pendingNav.itemId)
-                  .firstOrNull;
-          if (userPlan == null) {
-            return; // plans not loaded yet — wait for next build
-          }
-          ref.read(pendingNotificationNavProvider.notifier).state = null;
-          final startDate = userPlan.effectiveStartDate;
-          final daysSince =
-              DateTime.now().difference(DateUtils.dateOnly(startDate)).inDays;
-          final selectedDay = (daysSince + 1).clamp(1, userPlan.totalDays);
-          _logger.info(
-            '[ENROLL-NAV] deep-link open ${userPlan.id} '
-            'anchor=${startDate.toIso8601String()} '
-            'startDate=${userPlan.startDate?.toIso8601String()} '
-            'startedAt=${userPlan.startedAt.toIso8601String()} '
-            'selectedDay=$selectedDay/${userPlan.totalDays}',
-          );
-          context.push(
-            '/practice/details',
-            extra: {
-              'plan': userPlan,
-              'selectedDay': selectedDay,
-              'startDate': startDate,
-            },
-          );
+          return;
         }
+
+        final planId = pendingNav.planId ?? pendingNav.itemId;
+        final routineItem = _findRoutineItem(routineData, pendingNav.itemId);
+        var userPlan = ref
+            .read(myPlansPaginatedProvider)
+            .plans
+            .where((p) => p.id == planId)
+            .firstOrNull;
+        userPlan ??= await resolveRoutineUserPlan(
+          ref,
+          planId,
+          language: routineItem?.language,
+        );
+        if (userPlan == null) {
+          return;
+        }
+
+        ref.read(pendingNotificationNavProvider.notifier).state = null;
+        final startDate = userPlan.effectiveStartDate;
+        final selectedDay = PlanUtils.dayNumberFor(
+          startDate,
+          DateTime.now(),
+          userPlan.totalDays,
+        ).clamp(1, userPlan.totalDays);
+        _logger.info(
+          '[ENROLL-NAV] notification open ${userPlan.id} '
+          'seriesId=${pendingNav.itemId} selectedDay=$selectedDay/${userPlan.totalDays}',
+        );
+        context.push(
+          '/practice/details',
+          extra: {
+            'plan': userPlan,
+            'selectedDay': selectedDay,
+            'startDate': startDate,
+          },
+        );
       });
     }
 
@@ -197,9 +236,20 @@ class _RoutineBlockSection extends ConsumerWidget {
     switch (item.type) {
       case RoutineItemType.recitation:
         _navigateToReader(context, item.id);
-      case RoutineItemType.plan:
-        await _navigateToPlanDetails(context, ref, item);
+      case RoutineItemType.series:
+        if (!context.mounted) return;
+        context.push('/home/series/${item.id}');
     }
+  }
+
+  Future<void> _onPlanArrowTap(
+    BuildContext context,
+    WidgetRef ref,
+    RoutineItem item,
+  ) async {
+    final planId = item.currentPlanId;
+    if (planId == null) return;
+    await _navigateToPlanDetails(context, ref, item, planId: planId);
   }
 
   void _navigateToReader(BuildContext context, String textId) {
@@ -212,11 +262,13 @@ class _RoutineBlockSection extends ConsumerWidget {
   Future<void> _navigateToPlanDetails(
     BuildContext context,
     WidgetRef ref,
-    RoutineItem item,
-  ) async {
-    final userPlan = await _resolveUserPlan(
+    RoutineItem item, {
+    required String planId,
+    UserPlansModel? userPlan,
+  }) async {
+    userPlan ??= await resolveRoutineUserPlan(
       ref,
-      item.id,
+      planId,
       language: item.language,
     );
 
@@ -232,7 +284,7 @@ class _RoutineBlockSection extends ConsumerWidget {
     if (!context.mounted) return;
 
     final startDate =
-        userPlan.startDate ?? item.enrolledAt ?? userPlan.startedAt;
+        userPlan.startDate ?? item.startDate ?? item.enrolledAt ?? userPlan.startedAt;
     final daysSinceEnrollment =
         DateTime.now().difference(DateUtils.dateOnly(startDate)).inDays;
     final selectedDay = (daysSinceEnrollment + 1).clamp(1, userPlan.totalDays);
@@ -254,58 +306,9 @@ class _RoutineBlockSection extends ConsumerWidget {
     );
   }
 
-  /// Resolves the [UserPlansModel] for a routine plan item.
-  ///
-  /// When the plan's language matches the current app locale the cached
-  /// [myPlansPaginatedProvider] is used (instant, no network). Otherwise the
-  /// plan is fetched directly from the API in its own language.
-  Future<UserPlansModel?> _resolveUserPlan(
-    WidgetRef ref,
-    String planId, {
-    String? language,
-  }) async {
-    final contentLanguage = ref.read(contentLanguageProvider);
-    final isSameLanguage =
-        language == null ||
-        language.toLowerCase() == contentLanguage.toLowerCase();
-
-    if (isSameLanguage) {
-      var plans = ref.read(myPlansPaginatedProvider).plans;
-      var userPlan = plans.where((p) => p.id == planId).firstOrNull;
-
-      if (userPlan == null) {
-        await ref.read(myPlansPaginatedProvider.notifier).refresh();
-        plans = ref.read(myPlansPaginatedProvider).plans;
-        userPlan = plans.where((p) => p.id == planId).firstOrNull;
-      }
-
-      return userPlan;
-    }
-
-    // Plan was enrolled in a different language — fetch directly.
-    final repo = ref.read(userPlansDomainRepositoryProvider);
-    final result = await repo.getUserPlans(language: language);
-    return result.fold(
-      (_) => null,
-      (response) => response.userPlans.where((p) => p.id == planId).firstOrNull,
-    );
-  }
-
-  /// Resolves the enrolled [UserPlansModel] for a plan-type routine item from
-  /// the cached `myPlansPaginatedProvider`. Returns null for recitations or
-  /// when the plan hasn't been hydrated yet.
-  UserPlansModel? _resolveUserPlanForItem(
-    RoutineItem item,
-    List<UserPlansModel> plans,
-  ) {
-    if (item.type != RoutineItemType.plan) return null;
-    return plans.where((p) => p.id == item.id).firstOrNull;
-  }
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final plans = ref.watch(myPlansPaginatedProvider).plans;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -321,7 +324,7 @@ class _RoutineBlockSection extends ConsumerWidget {
         ),
         const SizedBox(height: 8),
         for (int i = 0; i < block.items.length; i++) ...[
-          _buildItemCard(context, ref, block.items[i], plans),
+          _buildItemCard(context, ref, block.items[i]),
           if (i < block.items.length - 1) const Divider(height: 1, indent: 80),
         ],
         if (block.items.isNotEmpty)
@@ -333,39 +336,30 @@ class _RoutineBlockSection extends ConsumerWidget {
     );
   }
 
-  /// Builds a [RoutineItemCard] augmented, for enrolled plan items, with the
-  /// shared date-range subtitle and the per-plan status indicator (tick /
-  /// On Track! / N Missed Days). Recitation items render with no subtitle
-  /// or trailing — same behavior as before.
   Widget _buildItemCard(
     BuildContext context,
     WidgetRef ref,
     RoutineItem item,
-    List<UserPlansModel> plans,
   ) {
-    final userPlan = _resolveUserPlanForItem(item, plans);
-    final dateRange =
-        userPlan == null
-            ? null
-            : PlanDateRange.tryCreate(
-              startDate: userPlan.effectiveStartDate,
-              totalDays: userPlan.totalDays,
-            );
-
     return RoutineItemCard(
       title: item.title,
       coverImage: item.coverImage,
       type: item.type,
+      planTitle: item.currentPlanTitle,
       onTap: () => _onItemTap(context, ref, item),
-      subtitle:
-          dateRange == null ? null : PlanDateRangeLabel(dateRange: dateRange),
-      trailing:
-          dateRange == null || userPlan == null
-              ? null
-              : EnrolledPlanStatusIndicator(
-                planId: userPlan.id,
-                dateRange: dateRange,
-              ),
+      onPlanTap:
+          item.currentPlanId != null
+              ? () => _onPlanArrowTap(context, ref, item)
+              : null,
     );
   }
+}
+
+RoutineItem? _findRoutineItem(RoutineData routineData, String itemId) {
+  for (final block in routineData.blocks) {
+    for (final item in block.items) {
+      if (item.id == itemId) return item;
+    }
+  }
+  return null;
 }
