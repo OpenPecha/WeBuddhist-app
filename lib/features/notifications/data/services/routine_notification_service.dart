@@ -88,6 +88,13 @@ class RoutineNotificationService {
         } else {
           await _cancelPlanDurationSeries(item.id);
         }
+        if (item.currentPlanId != null && item.currentPlanId != item.id) {
+          if (isSpecialPlan(item.currentPlanId!)) {
+            await _cancelSpecialPlanSeries(item.currentPlanId!);
+          } else {
+            await _cancelPlanDurationSeries(item.currentPlanId!);
+          }
+        }
         final markerEntry = todayMarkers.entries
             .where((e) => e.value == item.id)
             .firstOrNull;

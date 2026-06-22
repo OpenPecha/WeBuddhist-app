@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart' show PlatformException;
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_pecha/core/config/app_feature_flags.dart';
+import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
 import 'package:flutter_pecha/core/storage/plan_metadata_store.dart';
 import 'package:flutter_pecha/core/storage/special_plan_started_at_store.dart';
 import 'package:flutter_pecha/core/storage/storage_keys.dart';
@@ -16,7 +17,11 @@ import 'package:flutter_pecha/features/notifications/data/notification_id_scheme
 import 'package:flutter_pecha/features/notifications/data/services/notification_service.dart';
 import 'package:flutter_pecha/features/notifications/data/services/routine_notification_service.dart';
 import 'package:flutter_pecha/features/notifications/data/special_plan_notifications.dart';
+import 'package:flutter_pecha/features/notifications/domain/series_plan_schedule.dart';
 import 'package:flutter_pecha/features/plans/data/models/user/user_plans_model.dart';
+import 'package:flutter_pecha/features/plans/data/utils/plan_utils.dart';
+import 'package:flutter_pecha/features/plans/domain/usecases/user_plans_usecases.dart';
+import 'package:flutter_pecha/features/plans/presentation/providers/use_case_providers.dart';
 import 'package:flutter_pecha/features/plans/presentation/providers/user_plans_provider.dart';
 import 'package:flutter_pecha/features/practice/data/models/routine_model.dart';
 import 'package:flutter_pecha/features/practice/presentation/providers/practice_providers.dart'
@@ -68,6 +73,10 @@ class DesiredNotification {
   /// big-picture style and iOS attachment.
   final RoutineItem? sourceItem;
 
+  /// Enrolled plan id when [sourceItem] is a series routine row. Used for
+  /// idempotency stores and special-plan detection on the active plan.
+  final String? enrollmentPlanId;
+
   /// True for recitation: schedule with `matchDateTimeComponents.time`
   /// so it repeats daily forever until cancelled.
   final bool isDailyRepeat;
@@ -88,6 +97,7 @@ class DesiredNotification {
     required this.payload,
     required this.sourceItem,
     required this.debugCase,
+    this.enrollmentPlanId,
     this.androidActionButtonText,
     this.isDailyRepeat = false,
     this.isImmediate = false,
@@ -272,6 +282,15 @@ class NotificationSyncEngine {
     };
 
     final desired = <int, DesiredNotification>{};
+    final seriesPlansCache = <String, List<UserPlansModel>>{};
+
+    Future<List<UserPlansModel>> seriesPlansFor(String seriesId) async {
+      final cached = seriesPlansCache[seriesId];
+      if (cached != null) return cached;
+      final fetched = await _fetchPlansForSeries(seriesId);
+      seriesPlansCache[seriesId] = fetched;
+      return fetched;
+    }
 
     if (!loggedIn || !masterOn || !osGranted) {
       _logger.info(
@@ -310,6 +329,61 @@ class NotificationSyncEngine {
         {
           // Plan items — every plan item produces its own desired notifications.
           for (final item in block.items.where((i) => i.type == RoutineItemType.series)) {
+            final isSeriesItem = plansById != null
+                ? isSeriesRoutineItem(item.id, plansById)
+                : item.currentPlanId != null ||
+                    PlanMetadataStore.getMetadata(item.id) == null;
+            if (isSeriesItem) {
+              var seriesPlans = await seriesPlansFor(item.id);
+              if (seriesPlans.isEmpty &&
+                  item.currentPlanId != null &&
+                  plansById != null) {
+                final current = plansById[item.currentPlanId!];
+                if (current != null) seriesPlans = [current];
+              }
+              if (seriesPlans.isEmpty && !plansResolved) {
+                final cachedPlanId = item.currentPlanId;
+                if (cachedPlanId != null) {
+                  final cached = PlanMetadataStore.getMetadata(cachedPlanId);
+                  if (cached != null) {
+                    seriesPlans = [
+                      _synthesizePlanFromMetadata(
+                        RoutineItem(
+                          id: cachedPlanId,
+                          title: item.title,
+                          type: RoutineItemType.series,
+                        ),
+                        cached,
+                      ),
+                    ];
+                  }
+                }
+              }
+              if (seriesPlans.isEmpty) {
+                _logger.info(
+                  '[NOTIFICATION_NEW_FLOW] trigger=${trigger.name} block=${block.id} '
+                  'series=${item.id} case=1 action=skip reason="no enrolled plans for series"',
+                );
+                bumpCase('1');
+                continue;
+              }
+              final entries = computeForSeriesBlock(
+                block,
+                item,
+                seriesPlans,
+                now,
+                masterOn: masterOn,
+                routineOn: routineOn,
+                seriesScheduledTodayByOS:
+                    todayMarkerByPlan.containsKey(item.id),
+              );
+              for (final e in entries) {
+                desired[e.id] = e;
+                bumpCase(e.debugCase);
+              }
+              continue;
+            }
+
             var plan = plansById?[item.id];
             // Cached-metadata fallback is for the UNKNOWN state only
             // (offline / loading). When the server list resolved and the
@@ -540,6 +614,29 @@ class NotificationSyncEngine {
     }
   }
 
+  /// Fetches enrolled plans for [seriesId] via `GET /users/me/plans?series_id=`.
+  Future<List<UserPlansModel>> _fetchPlansForSeries(String seriesId) async {
+    try {
+      final language = _ref.read(contentLanguageProvider);
+      final result = await _ref.read(getUserPlansUseCaseProvider)(
+        GetUserPlansParams(language: language, seriesId: seriesId),
+      );
+      return result.fold(
+        (failure) {
+          _logger.warning(
+            '[NOTIFICATION_NEW_FLOW] fetchPlansForSeries($seriesId) failed: '
+            '$failure',
+          );
+          return <UserPlansModel>[];
+        },
+        (response) => response.userPlans,
+      );
+    } catch (e) {
+      _logger.warning('fetchPlansForSeries($seriesId) threw: $e');
+      return <UserPlansModel>[];
+    }
+  }
+
   /// Builds a minimal [UserPlansModel] from locally-cached enrollment
   /// metadata. Only [UserPlansModel.effectiveStartDate] and
   /// [UserPlansModel.totalDays] are consumed by [computeForPlanBlock]; the
@@ -600,8 +697,8 @@ class NotificationSyncEngine {
     if (block.items.isEmpty || !block.notificationEnabled) return const [];
 
     final entries = <DesiredNotification>[];
-    final isSpecial = isSpecialPlan(item.id);
-    final specialEntries = kSpecialPlanNotifications[item.id];
+    final isSpecial = isSpecialPlan(plan.id);
+    final specialEntries = kSpecialPlanNotifications[plan.id];
     final anchorLocal = plan.effectiveStartDate.toLocal();
     final anchorDay = DateTime(anchorLocal.year, anchorLocal.month, anchorLocal.day);
     final today = DateTime(now.year, now.month, now.day);
@@ -643,10 +740,10 @@ class NotificationSyncEngine {
       blockMinute,
     );
 
-    final payload = jsonEncode({
-      'itemId': item.id,
-      'itemType': RoutineItemType.series.name,
-    });
+    final payload = _encodeRoutinePayload(
+      routineItemId: item.id,
+      planId: plan.id,
+    );
 
     var scheduledCount = 0;
 
@@ -690,8 +787,8 @@ class NotificationSyncEngine {
       }
 
       final id = isSpecial && specialEntries != null && day <= specialEntries.length
-          ? NotificationIdScheme.specialPlanSeriesId(item.id, day)
-          : NotificationIdScheme.planSeriesId(item.id, day);
+          ? NotificationIdScheme.specialPlanSeriesId(plan.id, day)
+          : NotificationIdScheme.planSeriesId(plan.id, day);
 
       entries.add(DesiredNotification(
         id: id,
@@ -700,6 +797,7 @@ class NotificationSyncEngine {
         body: body,
         payload: payload,
         sourceItem: item,
+        enrollmentPlanId: plan.id,
         androidActionButtonText: buttonText,
         debugCase: dayLabel,
       ));
@@ -747,9 +845,9 @@ class NotificationSyncEngine {
           buttonText = content.buttonText;
           id = NotificationIdScheme.specialPlanOneShotId(dayNumber);
         } else if (AppFeatureFlags.kSchedulePlanNotifications || isSpecial) {
-          title = item.title;
-          body = _planDayBody(item.title, dayNumber, totalDays);
-          id = NotificationIdScheme.planOneShotId(item.id);
+          title = plan.title;
+          body = _planDayBody(plan.title, dayNumber, totalDays);
+          id = NotificationIdScheme.planOneShotId(plan.id);
         } else {
           // Feature flag off and not a special plan → nothing to fire.
           return entries;
@@ -762,10 +860,173 @@ class NotificationSyncEngine {
           body: body,
           payload: payload,
           sourceItem: item,
+          enrollmentPlanId: plan.id,
           androidActionButtonText: buttonText,
           isImmediate: true,
           debugCase: '3b immediate-catchup',
         ));
+      }
+    }
+
+    return entries;
+  }
+
+  /// Computes desired notifications for a **series** routine item.
+  ///
+  /// For each upcoming calendar day, resolves which enrolled plan in the
+  /// series is active on that date, then schedules a notification for that
+  /// plan's day number at [block]'s time.
+  @visibleForTesting
+  List<DesiredNotification> computeForSeriesBlock(
+    RoutineBlock block,
+    RoutineItem seriesItem,
+    List<UserPlansModel> seriesPlans,
+    DateTime now, {
+    required bool masterOn,
+    required bool routineOn,
+    bool seriesScheduledTodayByOS = false,
+  }) {
+    if (!masterOn) return const [];
+    if (!routineOn) return const [];
+    if (block.items.isEmpty || !block.notificationEnabled) return const [];
+    if (seriesPlans.isEmpty) return const [];
+
+    final entries = <DesiredNotification>[];
+    final today = DateTime(now.year, now.month, now.day);
+    final blockHour = block.time.hour;
+    final blockMinute = block.time.minute;
+
+    final slots = buildUpcomingSeriesSlots(
+      enrolledPlans: seriesPlans,
+      now: now,
+      maxSlots: RoutineNotificationService.kPlanSeriesMaxScheduledDays,
+      preferredPlanIdForToday: seriesItem.currentPlanId,
+    );
+
+    for (final slot in slots) {
+      final plan = slot.plan;
+      final day = slot.dayNumber;
+      final cal = slot.calendarDate;
+      final fireWall = DateTime(cal.year, cal.month, cal.day, blockHour, blockMinute);
+      if (!fireWall.isAfter(now)) continue;
+
+      final isSpecial = isSpecialPlan(plan.id);
+      final specialEntries = kSpecialPlanNotifications[plan.id];
+      final dayLabel = isSpecial && specialEntries != null && day <= specialEntries.length
+          ? '2a'
+          : (isSpecial ? '2b' : (cal.isAfter(today) ? '3a' : '3b'));
+
+      String title;
+      String body;
+      String? buttonText;
+      if (isSpecial && specialEntries != null && day <= specialEntries.length) {
+        final content = specialEntries[day - 1];
+        title = content.title;
+        body = content.body;
+        buttonText = content.buttonText;
+      } else {
+        if (!AppFeatureFlags.kSchedulePlanNotifications && !isSpecial) continue;
+        title = plan.title;
+        body = _planDayBody(plan.title, day, plan.totalDays);
+      }
+
+      final id = isSpecial && specialEntries != null && day <= specialEntries.length
+          ? NotificationIdScheme.specialPlanSeriesId(plan.id, day)
+          : NotificationIdScheme.planSeriesId(plan.id, day);
+
+      final fireDate = tz.TZDateTime(
+        tz.local,
+        cal.year,
+        cal.month,
+        cal.day,
+        blockHour,
+        blockMinute,
+      );
+
+      entries.add(DesiredNotification(
+        id: id,
+        fireAt: fireDate,
+        title: title,
+        body: body,
+        payload: _encodeRoutinePayload(
+          routineItemId: seriesItem.id,
+          planId: plan.id,
+        ),
+        sourceItem: seriesItem,
+        enrollmentPlanId: plan.id,
+        androidActionButtonText: buttonText,
+        debugCase: dayLabel,
+      ));
+    }
+
+    // Immediate catch-up for today's active plan.
+    final todayPlan = resolveActivePlanForDate(
+      seriesPlans,
+      today,
+      preferredPlanId: seriesItem.currentPlanId,
+    );
+    if (todayPlan != null) {
+      final dayNumber = PlanUtils.dayNumberFor(
+        todayPlan.effectiveStartDate,
+        today,
+        todayPlan.totalDays,
+      );
+      if (dayNumber >= 1) {
+        final todayFireWall = DateTime(
+          today.year,
+          today.month,
+          today.day,
+          blockHour,
+          blockMinute,
+        );
+        final isPast = !todayFireWall.isAfter(now);
+        if (isPast && seriesScheduledTodayByOS) {
+          _logger.info(
+            '[NOTIFICATION_NEW_FLOW] block=${block.id} series=${seriesItem.id} '
+            'plan=${todayPlan.id} case=3b action=skip-catchup reason="today\'s '
+            'notification was scheduled with the OS"',
+          );
+          return entries;
+        }
+        if (isPast) {
+          final isSpecial = isSpecialPlan(todayPlan.id);
+          final specialEntries = kSpecialPlanNotifications[todayPlan.id];
+          String title;
+          String body;
+          String? buttonText;
+          int id;
+          if (isSpecial &&
+              specialEntries != null &&
+              dayNumber <= specialEntries.length) {
+            final content = specialEntries[dayNumber - 1];
+            title = content.title;
+            body = content.body;
+            buttonText = content.buttonText;
+            id = NotificationIdScheme.specialPlanOneShotId(dayNumber);
+          } else if (AppFeatureFlags.kSchedulePlanNotifications || isSpecial) {
+            title = todayPlan.title;
+            body = _planDayBody(todayPlan.title, dayNumber, todayPlan.totalDays);
+            id = NotificationIdScheme.planOneShotId(todayPlan.id);
+          } else {
+            return entries;
+          }
+
+          entries.add(DesiredNotification(
+            id: id,
+            fireAt: null,
+            title: title,
+            body: body,
+            payload: _encodeRoutinePayload(
+              routineItemId: seriesItem.id,
+              planId: todayPlan.id,
+            ),
+            sourceItem: seriesItem,
+            enrollmentPlanId: todayPlan.id,
+            androidActionButtonText: buttonText,
+            isImmediate: true,
+            debugCase: '3b immediate-catchup',
+          ));
+        }
       }
     }
 
@@ -898,10 +1159,11 @@ class NotificationSyncEngine {
 
     final today = DateTime.now();
     final todayDate = DateTime(today.year, today.month, today.day);
+    final planId = d.enrollmentPlanId ?? item.id;
 
-    final isSpecial = isSpecialPlan(item.id);
+    final isSpecial = isSpecialPlan(planId);
     if (isSpecial) {
-      if (SpecialPlanStartedAtStore.wasShownOn(item.id, todayDate)) {
+      if (SpecialPlanStartedAtStore.wasShownOn(planId, todayDate)) {
         _logger.info(
           '[NOTIFICATION_NEW_FLOW] action=skip case=${d.debugCase} id=${d.id} '
           'reason="special-plan already shown today"',
@@ -909,7 +1171,7 @@ class NotificationSyncEngine {
         return false;
       }
     } else {
-      if (PlanMetadataStore.wasImmediateShownOn(item.id, todayDate)) {
+      if (PlanMetadataStore.wasImmediateShownOn(planId, todayDate)) {
         _logger.info(
           '[NOTIFICATION_NEW_FLOW] action=skip case=${d.debugCase} id=${d.id} '
           'reason="plan already shown today"',
@@ -944,9 +1206,9 @@ class NotificationSyncEngine {
         payload: d.payload,
       );
       if (isSpecial) {
-        await SpecialPlanStartedAtStore.markShownOn(item.id, todayDate);
+        await SpecialPlanStartedAtStore.markShownOn(planId, todayDate);
       } else {
-        await PlanMetadataStore.markImmediateShownOn(item.id, todayDate);
+        await PlanMetadataStore.markImmediateShownOn(planId, todayDate);
       }
       _logger.info(
         '[NOTIFICATION_NEW_FLOW] trigger=${trigger.name} action=schedule-immediate '
@@ -963,6 +1225,16 @@ class NotificationSyncEngine {
 
   String _planDayBody(String planTitle, int day, int totalDays) =>
       'Day $day of $totalDays — check out $planTitle.';
+
+  String _encodeRoutinePayload({
+    required String routineItemId,
+    required String planId,
+  }) =>
+      jsonEncode({
+        'itemId': routineItemId,
+        'itemType': RoutineItemType.series.name,
+        'planId': planId,
+      });
 
   String _recitationBody(RoutineBlock block) {
     if (block.items.isEmpty) return 'Check your daily routine';

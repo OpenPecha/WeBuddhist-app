@@ -300,6 +300,62 @@ void main() {
     });
   });
 
+  // ─── Series routine items ──────────────────────────────────────────────────
+
+  group('computeForSeriesBlock', () {
+    RoutineItem seriesItem({String id = 'series-1', String? currentPlanId}) =>
+        RoutineItem(
+          id: id,
+          title: 'My Series',
+          type: RoutineItemType.series,
+          currentPlanId: currentPlanId,
+        );
+
+    test('schedules notifications for the active plan on each upcoming day', () {
+      final entries = engine.computeForSeriesBlock(
+        planBlock(hour: 9),
+        seriesItem(currentPlanId: 'plan-1'),
+        [
+          makePlan(
+            id: 'plan-1',
+            startedAt: DateTime(2026, 6, 1),
+            totalDays: 30,
+          ),
+        ],
+        DateTime(2026, 6, 5, 8),
+        masterOn: true,
+        routineOn: true,
+      );
+      expect(entries, isNotEmpty);
+      expect(entries.every((e) => e.enrollmentPlanId == 'plan-1'), isTrue);
+      expect(
+        entries.any((e) => e.body.contains('Day 5')),
+        isTrue,
+        reason: 'Jun 5 is day 5 of the plan',
+      );
+    });
+
+    test('immediate catch-up uses today active plan day', () {
+      final entries = engine.computeForSeriesBlock(
+        planBlock(hour: 7),
+        seriesItem(currentPlanId: 'plan-1'),
+        [
+          makePlan(
+            id: 'plan-1',
+            startedAt: DateTime(2026, 6, 1),
+            totalDays: 30,
+          ),
+        ],
+        DateTime(2026, 6, 5, 9),
+        masterOn: true,
+        routineOn: true,
+      );
+      final immediates = entries.where((e) => e.isImmediate).toList();
+      expect(immediates, hasLength(1));
+      expect(immediates.first.body, contains('Day 5'));
+    });
+  });
+
   // ─── Recitation ────────────────────────────────────────────────────────────
 
   group('case 4: recitation daily-repeat', () {
