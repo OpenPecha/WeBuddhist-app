@@ -19,11 +19,15 @@ class AuthService {
 
   /// Minimum lifetime (seconds) a token must have left before we proactively
   /// renew it through the credentials manager. Matches the 2-minute buffer in
-  /// [isIdTokenExpired].
+  /// [isJwtExpired].
   static const int _kMinTokenTtlSeconds = 120;
 
   // SharedPreferences key for guest mode
   static const String _guestModeKey = 'is_guest_mode';
+
+  /// Single-flight guard so concurrent proactive/reactive callers share one
+  /// in-flight renewal instead of each hitting the credentials manager.
+  Future<Credentials>? _inflightCredentials;
 
   Future<void> initialize() async {
     if (_isInitialized) return;
@@ -52,6 +56,10 @@ class AuthService {
           .webAuthentication(scheme: ConfigService.instance.auth0Scheme ?? 'org.pecha.app')
           .login(
             useHTTPS: defaultTargetPlatform != TargetPlatform.macOS,
+            // Requesting the API audience yields a verifiable JWT access token
+            // (instead of an opaque /userinfo token). This access token — not
+            // the ID token — is the bearer we send to our backend.
+            audience: ConfigService.instance.auth0Audience,
             parameters: parameters,
             scopes: {"openid", "profile", "email", "offline_access"},
           );
@@ -115,10 +123,13 @@ class AuthService {
     }
   }
 
-  /// Decode and check if ID token is expired
-  bool isIdTokenExpired(String idToken) {
+  /// Decode a JWT and report whether it is expired (or within [bufferSeconds]
+  /// of expiry). Returns true on any parse failure (treat as expired).
+  ///
+  /// Token-agnostic: works for both access and ID tokens.
+  bool isJwtExpired(String jwt, {int bufferSeconds = _kMinTokenTtlSeconds}) {
     try {
-      final parts = idToken.split('.');
+      final parts = jwt.split('.');
       if (parts.length != 3) return true;
 
       final payload = utf8.decode(
@@ -129,35 +140,88 @@ class AuthService {
       if (exp == null) return true;
       final expiryDate = DateTime.fromMillisecondsSinceEpoch(exp * 1000);
 
-      // Consider token expired 2 minutes before actual expiry
       return DateTime.now().isAfter(
-        expiryDate.subtract(const Duration(minutes: 2)),
+        expiryDate.subtract(Duration(seconds: bufferSeconds)),
       );
     } catch (e) {
-      _logger.warning('Failed to parse idToken exp: $e');
+      _logger.warning('Failed to parse jwt exp: $e');
       return true;
     }
   }
 
-  /// Returns a valid ID token, letting the Auth0 credentials manager renew it
-  /// (and rotate the refresh token) when it is within [_kMinTokenTtlSeconds] of
-  /// expiry.
+  /// Decode and check if an ID token is expired. Retained for ID-token
+  /// (identity) call sites; delegates to the token-agnostic [isJwtExpired].
+  bool isIdTokenExpired(String idToken) => isJwtExpired(idToken);
+
+  /// Seconds of remaining lifetime for [jwt]; 0 if expired/unparseable.
+  int jwtRemainingTtlSeconds(String jwt) {
+    try {
+      final parts = jwt.split('.');
+      if (parts.length != 3) return 0;
+
+      final payload = utf8.decode(
+        base64Url.decode(base64Url.normalize(parts[1])),
+      );
+      final claims = jsonDecode(payload) as Map<String, dynamic>;
+      final exp = (claims['exp'] as num?)?.toInt();
+      if (exp == null) return 0;
+      final secs = exp - (DateTime.now().millisecondsSinceEpoch ~/ 1000);
+      return secs > 0 ? secs : 0;
+    } catch (_) {
+      return 0;
+    }
+  }
+
+  /// Returns valid credentials, renewing via the credentials manager when the
+  /// access token is within [_kMinTokenTtlSeconds] of expiry. All concurrent
+  /// callers (proactive + reactive, across both Dio clients) share one
+  /// in-flight renewal.
   ///
   /// The credentials manager is the **single** refresh path: it serializes its
   /// own renewals and stores the rotated refresh token atomically, so a
   /// single-use refresh token can never be consumed by two racing callers.
   /// Do not call `_auth0.api.renewCredentials` directly anywhere.
-  Future<String?> getValidIdToken() async {
-    final creds = await _auth0.credentialsManager.credentials(
-      minTtl: _kMinTokenTtlSeconds,
-    );
-    return creds.idToken;
+  Future<Credentials> _validCredentials({bool force = false}) {
+    if (_inflightCredentials != null) return _inflightCredentials!;
+    final future = _fetchCredentials(force: force)
+        .whenComplete(() => _inflightCredentials = null);
+    _inflightCredentials = future;
+    return future;
   }
 
-  /// Fetches a valid ID token for the 401-retry path. Delegates to
-  /// [getValidIdToken] so there is exactly one renewal path (see above) and no
-  /// separate manual refresh that could double-spend a rotated refresh token.
-  Future<String?> refreshIdToken() => getValidIdToken();
+  Future<Credentials> _fetchCredentials({required bool force}) async {
+    // To FORCE a renewal we ask for more TTL than the current access token can
+    // possibly have left, which obliges the manager to renew. This keeps the
+    // credentials manager as the single, rotation-safe refresh path (there is
+    // no `forceRefresh` flag on `credentials()` in auth0_flutter 1.14.0).
+    var minTtl = _kMinTokenTtlSeconds;
+    if (force) {
+      final current = await _auth0.credentialsManager.credentials();
+      final remaining = jwtRemainingTtlSeconds(current.accessToken);
+      minTtl = remaining + _kMinTokenTtlSeconds; // > remaining ⇒ forced renew
+    }
+    return _auth0.credentialsManager.credentials(minTtl: minTtl);
+  }
+
+  /// API bearer. Proactive renewal happens inside the credentials manager when
+  /// the access token is within [_kMinTokenTtlSeconds] of expiry.
+  Future<String?> getValidAccessToken() async {
+    final creds = await _validCredentials();
+    return creds.accessToken;
+  }
+
+  /// Reactive 401 path: force a renewal and return a fresh access token.
+  Future<String?> forceRefreshAccessToken() async {
+    final creds = await _validCredentials(force: true);
+    return creds.accessToken;
+  }
+
+  /// Identity only (client-side). Profile claims (email/name/sub) live in the
+  /// ID token. Used at login/restore for identity — NEVER as an API bearer.
+  Future<String?> getIdTokenForIdentity() async {
+    final creds = await _validCredentials();
+    return creds.idToken;
+  }
 
   /// Whether [error] from a credentials operation means the session is truly
   /// gone and the user must sign in again — as opposed to a transient/offline

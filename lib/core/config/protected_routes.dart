@@ -13,6 +13,7 @@ class ProtectedRoutes {
     // User profile
     '/users/info',
     '/users/upload',
+    '/users/username',
 
     // User progress - all /users/me routes require auth
     '/users/me',

@@ -13,9 +13,9 @@ class AuthServiceTokenProvider implements TokenProvider {
   @override
   Future<String?> getToken() async {
     try {
-      return await _authService.getValidIdToken();
+      return await _authService.getValidAccessToken();
     } catch (e) {
-      _logger.warning('Failed to get valid ID token: $e');
+      _logger.warning('Failed to get valid access token: $e');
       return null;
     }
   }

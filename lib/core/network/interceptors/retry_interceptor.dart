@@ -54,63 +54,54 @@ class RetryInterceptor extends Interceptor {
       // Check if user has valid credentials (refresh token available via CredentialsManager)
       final hasValidCreds = await _authService.hasValidCredentials();
       if (hasValidCreds) {
-        // If already refreshing, add to queue
+        // Queue every 401'd request — including the one that triggers the
+        // refresh. Each request lives in exactly one place (the queue) and is
+        // removed before its handler is called, so a handler can never be
+        // completed twice.
+        _refreshQueue.add(_RetryRequest(err, handler));
+
+        // A refresh is already running; this request will be drained when it
+        // completes.
         if (_isRefreshing) {
           _logger.debug('Adding request to refresh queue');
-          _refreshQueue.add(_RetryRequest(err, handler));
           return;
         }
 
-        // Start token refresh
+        // Start token refresh.
         _isRefreshing = true;
 
+        String? newAccessToken;
+        var permanentlyLost = false;
         try {
           _logger.info('Attempting to refresh token');
-          final newIdToken = await _authService.refreshIdToken();
-
-          if (newIdToken != null) {
-            _logger.info('Token refreshed successfully, retrying queued requests');
-
-            // Retry all queued requests with new token
-            for (final request in _refreshQueue) {
-              final opts = request.error.requestOptions;
-              opts.headers['Authorization'] = 'Bearer $newIdToken';
-              try {
-                final response = await _retryDio.fetch(opts);
-                request.handler.resolve(response);
-              } on DioException catch (e) {
-                request.handler.next(e);
-              }
-            }
-            _refreshQueue.clear();
-
-            // Also retry the original request
-            final originalOpts = err.requestOptions;
-            originalOpts.headers['Authorization'] = 'Bearer $newIdToken';
-            try {
-              final response = await _retryDio.fetch(originalOpts);
-              handler.resolve(response);
-            } on DioException catch (e) {
-              handler.next(e);
-            }
-          } else {
-            _logger.warning('Token refresh returned null - user needs to re-authenticate');
-            onAuthExpired?.call();
-            _processQueue(error: err);
-          }
+          newAccessToken = await _authService.forceRefreshAccessToken();
         } catch (e) {
           // Only force re-authentication when the session is permanently gone
           // (no credentials / no refresh token). A transient or offline refresh
           // failure must NOT wipe a valid session — surface the error and let
           // the caller retry once connectivity returns.
-          if (AuthService.isSessionPermanentlyLost(e)) {
+          permanentlyLost = AuthService.isSessionPermanentlyLost(e);
+          if (permanentlyLost) {
             _logger.warning('Token refresh failed permanently - re-authentication required');
-            onAuthExpired?.call();
           } else {
             _logger.warning('Token refresh failed transiently - keeping session: $e');
           }
-          _processQueue(error: err);
+        }
+
+        try {
+          if (newAccessToken != null) {
+            _logger.info(
+              'Token refreshed successfully, replaying '
+              '${_refreshQueue.length} queued request(s)',
+            );
+            await _replayQueue(newAccessToken);
+          } else {
+            if (permanentlyLost) onAuthExpired?.call();
+            _failQueue();
+          }
         } finally {
+          // No `await` between the drain loop seeing an empty queue and this
+          // line, so no request can be stranded.
           _isRefreshing = false;
         }
         return;
@@ -149,6 +140,15 @@ class RetryInterceptor extends Interceptor {
     handler.next(err);
   }
 
+  /// A [FormData] body's underlying file streams are consumed on the first
+  /// send, so replaying the same instance after a refresh would fail (multipart
+  /// avatar upload). Clone it so the replay has fresh, unread streams.
+  void _cloneFormDataIfNeeded(RequestOptions opts) {
+    if (opts.data is FormData) {
+      opts.data = (opts.data as FormData).clone();
+    }
+  }
+
   /// Check if error should be retried
   bool _shouldRetry(DioException error) {
     return error.type == DioExceptionType.connectionTimeout ||
@@ -157,12 +157,39 @@ class RetryInterceptor extends Interceptor {
         error.type == DioExceptionType.connectionError;
   }
 
-  /// Process all queued requests after token refresh
-  void _processQueue({required DioException error}) {
-    for (final request in _refreshQueue) {
-      request.handler.next(error);
+  /// Replay every queued request with the refreshed [accessToken].
+  ///
+  /// Drains via [List.removeAt] (not a `for-in` iterator) so requests that get
+  /// queued while we `await` a replay are picked up in the same drain instead
+  /// of throwing a concurrent-modification error. Every handler is completed
+  /// exactly once.
+  Future<void> _replayQueue(String accessToken) async {
+    while (_refreshQueue.isNotEmpty) {
+      final request = _refreshQueue.removeAt(0);
+      final opts = request.error.requestOptions;
+      opts.headers['Authorization'] = 'Bearer $accessToken';
+      _cloneFormDataIfNeeded(opts);
+      try {
+        final response = await _retryDio.fetch(opts);
+        request.handler.resolve(response);
+      } on DioException catch (e) {
+        request.handler.next(e);
+      } catch (_) {
+        // A non-Dio failure while replaying must still complete the handler
+        // exactly once — surface the original 401 error.
+        request.handler.next(request.error);
+      }
     }
-    _refreshQueue.clear();
+  }
+
+  /// Complete every queued request with its own original error (refresh failed
+  /// or was not possible). Drains via [List.removeAt] for the same
+  /// concurrent-safety reason as [_replayQueue].
+  void _failQueue() {
+    while (_refreshQueue.isNotEmpty) {
+      final request = _refreshQueue.removeAt(0);
+      request.handler.next(request.error);
+    }
   }
 }
 

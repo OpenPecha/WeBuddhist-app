@@ -228,6 +228,20 @@ class AuthNotifier extends StateNotifier<AuthState> {
     _logger.info('No valid credentials or guest mode found, showing login');
   }
 
+  /// Called when a renewal fails *permanently* mid-session (refresh token gone
+  /// or revoked). Clears local credentials and flips to logged-out so the
+  /// router redirects to login. Does NOT fire for transient/offline failures —
+  /// those keep the session (see [AuthService.isSessionPermanentlyLost]).
+  ///
+  /// The router reacts to auth state via `refreshListenable`, and the route
+  /// guard preserves the intended route, so after re-login the user returns
+  /// where they were. No additional navigation here.
+  Future<void> handleSessionExpired() async {
+    _logger.info('Session permanently expired — routing to login');
+    await _localLogoutUseCase(const NoParams());
+    state = state.copyWith(isLoggedIn: false, isLoading: false, isGuest: false);
+  }
+
   Future<void> _handleAuthFailure() async {
     final logoutResult = await _localLogoutUseCase(const NoParams());
     logoutResult.fold(
