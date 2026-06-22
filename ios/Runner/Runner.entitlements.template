@@ -5,6 +5,8 @@
 	<key>com.apple.developer.associated-domains</key>
 	<array>
 		<string>webcredentials:${AUTH0_DOMAIN}</string>
+		<string>applinks:${AIRBRIDGE_APP_NAME}.airbridge.io</string>
+		<string>applinks:join.webuddhist.com</string>
 	</array>
 </dict>
 </plist>
