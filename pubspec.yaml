@@ -28,6 +28,9 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  
+  airbridge_flutter_sdk: ^4.9.0  # check latest at pub.dev
+
 
   # Audio
   just_audio: ^0.9.36
