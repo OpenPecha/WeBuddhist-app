@@ -230,8 +230,7 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
   _EditableBlock? _injectSeries(Series series) {
     final alreadyExists = _blocks.any(
       (b) => b.items.any(
-        (item) =>
-            item.id == series.id && item.type == RoutineItemType.series,
+        (item) => item.id == series.id && item.type == RoutineItemType.series,
       ),
     );
     if (alreadyExists) return null;
@@ -1110,8 +1109,7 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
     }
 
     final seriesId = series.id;
-    final enrollments =
-        await ref.read(userSeriesEnrollmentsProvider.future);
+    final enrollments = await ref.read(userSeriesEnrollmentsProvider.future);
     if (!mounted) return;
     final alreadyEnrolled = enrollments.contains(seriesId);
 
@@ -1135,9 +1133,9 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
   }
 
   Future<void> _addSeriesToBlock(int blockIndex, Series series) async {
+    if (blockIndex < 0 || blockIndex >= _blocks.length) return;
     final isDuplicate = _blocks[blockIndex].items.any(
-      (item) =>
-          item.id == series.id && item.type == RoutineItemType.series,
+      (item) => item.id == series.id && item.type == RoutineItemType.series,
     );
     if (isDuplicate) {
       _logger.warning('Duplicate item prevented: ${series.id}');
