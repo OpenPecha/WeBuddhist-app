@@ -35,7 +35,6 @@ class RoutineFilledState extends ConsumerWidget {
 
     // Handle deep-link from notification tap.
     final pendingNav = ref.watch(pendingNotificationNavProvider);
-    final myPlansState = ref.watch(myPlansPaginatedProvider);
     if (pendingNav != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!context.mounted) return;
@@ -43,40 +42,14 @@ class RoutineFilledState extends ConsumerWidget {
           (e) => e.name == pendingNav.itemType,
           orElse: () => RoutineItemType.series,
         );
+        ref.read(pendingNotificationNavProvider.notifier).state = null;
         if (itemType == RoutineItemType.recitation) {
-          ref.read(pendingNotificationNavProvider.notifier).state = null;
           context.push(
             '/reader/${pendingNav.itemId}',
             extra: NavigationContext(source: NavigationSource.normal),
           );
         } else {
-          final userPlan =
-              myPlansState.plans
-                  .where((p) => p.id == pendingNav.itemId)
-                  .firstOrNull;
-          if (userPlan == null) {
-            return; // plans not loaded yet — wait for next build
-          }
-          ref.read(pendingNotificationNavProvider.notifier).state = null;
-          final startDate = userPlan.effectiveStartDate;
-          final daysSince =
-              DateTime.now().difference(DateUtils.dateOnly(startDate)).inDays;
-          final selectedDay = (daysSince + 1).clamp(1, userPlan.totalDays);
-          _logger.info(
-            '[ENROLL-NAV] deep-link open ${userPlan.id} '
-            'anchor=${startDate.toIso8601String()} '
-            'startDate=${userPlan.startDate?.toIso8601String()} '
-            'startedAt=${userPlan.startedAt.toIso8601String()} '
-            'selectedDay=$selectedDay/${userPlan.totalDays}',
-          );
-          context.push(
-            '/practice/details',
-            extra: {
-              'plan': userPlan,
-              'selectedDay': selectedDay,
-              'startDate': startDate,
-            },
-          );
+          context.push('/home/series/${pendingNav.itemId}');
         }
       });
     }
