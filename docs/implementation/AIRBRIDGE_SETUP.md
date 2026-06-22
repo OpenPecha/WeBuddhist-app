@@ -58,8 +58,14 @@ AIRBRIDGE_APP_NAME=webuddhist
 AIRBRIDGE_SDK_TOKEN=<prod token from dashboard>
 ```
 
+Codemagic pre-build script (before `flutter build ipa`):
+
+```bash
+./ios/scripts/prepare_ci_secrets.sh
+```
+
 - **Android:** `build.gradle.kts` reads `AIRBRIDGE_APP_NAME` and `AIRBRIDGE_SDK_TOKEN` from the environment first, then falls back to `android/local.properties`. No extra steps required.
-- **iOS:** The *Generate Entitlements* Xcode build phase reads `AIRBRIDGE_APP_NAME` from the environment (or from `Secrets.xcconfig` as a fallback). Set the variable in the Codemagic environment and no local file is needed on the CI runner.
+- **iOS:** `AIRBRIDGE_APP_NAME` is set per flavor in `ios/Flutter/*-release.xcconfig` (not secret). For `AIRBRIDGE_SDK_TOKEN`, run `ios/scripts/prepare_ci_secrets.sh` **before** `flutter build ipa` in CI, or copy `Secrets.xcconfig` locally for development.
 
 ---
 
