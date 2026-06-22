@@ -33,9 +33,7 @@ class ConnectRemoteDatasource {
       );
 
       if (response.statusCode != 200) {
-        _logger.error(
-          'Failed to load discover groups: ${response.statusCode}',
-        );
+        _logger.error('Failed to load discover groups: ${response.statusCode}');
         throw _statusToException(
           response.statusCode,
           'Failed to load discover groups',
@@ -61,11 +59,7 @@ class ConnectRemoteDatasource {
     try {
       final response = await dio.get(
         '/users/me/joined/author/groups',
-        queryParameters: {
-          'language': language,
-          'skip': skip,
-          'limit': limit,
-        },
+        queryParameters: {'language': language, 'skip': skip, 'limit': limit},
       );
 
       if (response.statusCode != 200) {
