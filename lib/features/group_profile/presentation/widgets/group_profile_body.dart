@@ -141,33 +141,33 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          ClipOval(
-            child: SizedBox(
-              width: 44,
-              height: 44,
-              child:
-                  profile.avatarUrl != null && profile.avatarUrl!.isNotEmpty
-                      ? CachedNetworkImageWidget(
-                        key: ValueKey(profile.avatarUrl),
-                        imageUrl: profile.avatarUrl,
-                        width: 44,
-                        height: 44,
-                        fit: BoxFit.cover,
-                        errorWidget: _buildAvatarFallback(isDark),
-                      )
-                      : _buildAvatarFallback(isDark),
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if (profile.title.isNotEmpty)
-                  Text(
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              ClipOval(
+                child: SizedBox(
+                  width: 44,
+                  height: 44,
+                  child:
+                      profile.avatarUrl != null && profile.avatarUrl!.isNotEmpty
+                          ? CachedNetworkImageWidget(
+                            key: ValueKey(profile.avatarUrl),
+                            imageUrl: profile.avatarUrl,
+                            width: 44,
+                            height: 44,
+                            fit: BoxFit.cover,
+                            errorWidget: _buildAvatarFallback(isDark),
+                          )
+                          : _buildAvatarFallback(isDark),
+                ),
+              ),
+              const SizedBox(width: 12),
+              if (profile.title.isNotEmpty)
+                Expanded(
+                  child: Text(
                     profile.title,
                     style: TextStyle(
                       fontSize: 18,
@@ -175,27 +175,28 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
                       height: lineHeight,
                     ),
                   ),
-                if (profile.subTitle != null &&
-                    profile.subTitle!.trim().isNotEmpty) ...[
-                  const SizedBox(height: 2),
-                  Text(
-                    profile.subTitle!,
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: secondaryColor,
-                      height: lineHeight,
-                    ),
-                  ),
-                ],
-                const SizedBox(height: 4),
-                _GroupMemberCountText(
-                  groupType: profile.groupType,
-                  baseCount: profile.memberOrFollowerCount,
-                  isDark: isDark,
-                  lineHeight: lineHeight,
                 ),
-              ],
+            ],
+          ),
+          if (profile.subTitle != null &&
+              profile.subTitle!.trim().isNotEmpty) ...[
+            const SizedBox(height: 8),
+            Text(
+              profile.subTitle!,
+              style: TextStyle(
+                fontSize: 14,
+                color: secondaryColor,
+                height: lineHeight,
+              ),
             ),
+            const SizedBox(height: 4),
+          ] else
+            const SizedBox(height: 8),
+          _GroupMemberCountText(
+            groupType: profile.groupType,
+            baseCount: profile.memberOrFollowerCount,
+            isDark: isDark,
+            lineHeight: lineHeight,
           ),
         ],
       ),

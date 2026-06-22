@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/constants/app_assets.dart';
+import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/features/plans/data/models/author/author_dto_model.dart';
 import 'package:flutter_pecha/features/plans/domain/subtask_navigation.dart';
 import 'package:flutter_pecha/features/plans/plans.dart';
@@ -64,13 +65,15 @@ class ActivityList extends StatelessWidget {
                   title: task.title,
                   hasNavigableContent: isNavigable,
                   hasAudio: hasAudio,
-                  onTap: () => _handleActivityTap(context, task, autoPlay: false),
+                  onTap:
+                      () => _handleActivityTap(context, task, autoPlay: false),
                 ),
               ),
               if (isNavigable && hasAudio) ...[
                 const SizedBox(width: 8),
                 _PlayButton(
-                  onTap: () => _handleActivityTap(context, task, autoPlay: true),
+                  onTap:
+                      () => _handleActivityTap(context, task, autoPlay: true),
                 ),
               ],
             ],
@@ -116,8 +119,11 @@ class ActivityList extends StatelessWidget {
       dayAudioUrl: effectiveAudioUrl,
     );
 
-    PlanNavigator.push(context, target, navigationContext)
-        .then((_) => onReaderClosed?.call());
+    PlanNavigator.push(
+      context,
+      target,
+      navigationContext,
+    ).then((_) => onReaderClosed?.call());
   }
 }
 
@@ -138,16 +144,17 @@ class _TaskCheckbox extends StatelessWidget {
         child: Container(
           width: 24,
           height: 24,
-          decoration: isCompleted
-              ? null
-              : BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: Theme.of(context).iconTheme.color!,
-                    width: 1,
+          decoration:
+              isCompleted
+                  ? null
+                  : BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: Theme.of(context).iconTheme.color!,
+                      width: 1,
+                    ),
+                    color: Colors.transparent,
                   ),
-                  color: Colors.transparent,
-                ),
           child: isCompleted ? Icon(AppAssets.check, size: 20) : null,
         ),
       ),
@@ -174,6 +181,7 @@ class _TaskTitleButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -188,16 +196,31 @@ class _TaskTitleButton extends StatelessWidget {
                   title,
                   overflow: TextOverflow.ellipsis,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w500,
-                      ),
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
               ),
               if (hasNavigableContent && !hasAudio) ...[
                 const SizedBox(width: 8),
-                Icon(
-                  Icons.arrow_forward_ios,
-                  size: 20,
-                  color: Theme.of(context).iconTheme.color,
+                Container(
+                  width: 36,
+                  height: 36,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: isDark
+                          ? AppColors.textPrimaryDark
+                          : AppColors.textPrimary,
+                      width: 1,
+                    ),
+                  ),
+                  child: Icon(
+                    AppAssets.caretRight,
+                    size: 16,
+                    color: isDark
+                        ? AppColors.textPrimaryDark
+                        : AppColors.textPrimary,
+                  ),
                 ),
               ],
             ],

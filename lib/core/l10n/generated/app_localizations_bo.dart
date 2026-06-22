@@ -195,7 +195,7 @@ class AppLocalizationsBo extends AppLocalizations {
 
   @override
   String commentary_not_available_for_language(String language) {
-    return '$language commentary not available';
+    return '$language ཡི་འགྲེལ་བ་མི་འདུག';
   }
 
   @override
@@ -242,10 +242,10 @@ class AppLocalizationsBo extends AppLocalizations {
   String get apply => 'ཞུ་འབུལ།';
 
   @override
-  String get my_plans => 'ངའི་ཉམས་ལེན་འཆར་གཞི།';
+  String get my_plans => 'ངའི་ཉམས་ལེན་ཐུན་འཆར།';
 
   @override
-  String get browse_plans => 'ཉམས་ལེན་འཆར་གཞི་ལ་མིག་བཤེར་བྱོས།';
+  String get browse_plans => 'ཉམས་ལེན་ཐུན་འཆར་ལ་མིག་བཤེར་བྱོས།';
 
   @override
   String get plan_info => 'ཉམས་ལེན་ངོ་སྤྲོད།';
@@ -344,7 +344,7 @@ class AppLocalizationsBo extends AppLocalizations {
 
   @override
   String get notification_allow_subtitle_paused =>
-      'Reminders are paused. Tap to resume.';
+      'དྲན་སྐུལ་མཚམས་བཞག་ཡོད། བསྐྱར་སློང་བྱེད་ན་འདིར་སྣུན།';
 
   @override
   String get notification_routine_title => 'འཆར་ཅན་ཉམས་ལེན་དྲན་སྐུལ།';
@@ -377,14 +377,14 @@ class AppLocalizationsBo extends AppLocalizations {
 
   @override
   String get notification_recitation_subtitle_disabled =>
-      'Recitation reminders are paused. Tap to resume.';
+      'ཁ་འདོན་དྲན་སྐུལ་མཚམས་བཞག་ཡོད། བསྐྱར་སློང་བྱེད་ན་འདིར་སྣུན།';
 
   @override
-  String get notification_battery_info_title => 'About background reminders';
+  String get notification_battery_info_title => 'རྒྱབ་ལྗོངས་དྲན་སྐུལ་གྱི་སྐོར།';
 
   @override
   String get notification_battery_info_body =>
-      'Some Android phones pause background apps to save battery, which can delay or cancel your scheduled reminders. Exempting the app keeps your reminders reliably on time.';
+      'Android ཁ་པར་འགའ་ཤས་ཀྱིས་གློག་ཁུངས་ཉར་ཚགས་སླད་རྒྱབ་ལྗོངས་ཀྱི་མཉེན་ཆས་མཚམས་འཇོག་བྱེད་པས། ཁྱེད་ཀྱི་འཆར་ཅན་དྲན་སྐུལ་ཕྱིར་འགྱངས་སམ་འཕྲོ་བརླག་ཏུ་འགྲོ་སྲིད། མཉེན་ཆས་འདི་ལ་དམིགས་བསལ་གནང་ན་དྲན་སྐུལ་རྣམས་དུས་ཐོག་ཏུ་ཡིད་བརྟན་ཐུབ་པར་ཡོང་ངེས།';
 
   @override
   String get notification_snack_permission_denied =>
@@ -514,7 +514,7 @@ class AppLocalizationsBo extends AppLocalizations {
 
   @override
   String get connect_coming_soon_subtitle =>
-      'Teachers, communities, challenges, and events to support you on the path';
+      'ལམ་བགྲོད་ལ་རོགས་རམ་བྱེད་པའི་དགེ་རྒན། སྤྱི་ཚོགས། དཀའ་སྤྱད་དང་བྱེད་སྒོ་བཅས།';
 
   @override
   String get connect_subtitle => 'ཁྱེད་ཀྱི་ཚོགས་པ་བཙལ་ཏེ་མཉམ་དུ་ཉམས་ལེན་བྱོས།';
@@ -554,25 +554,25 @@ class AppLocalizationsBo extends AppLocalizations {
 
   @override
   String get learn_coming_soon_subtitle =>
-      'སྐུ་ཉིད་ཀྱི་ཉིན་རེའི་འཚོ་བ་དང་འཚམ་པའི་སྒེར་གྱི་སློབ་གཉེར་འཆར་གཞི།';
+      'སྐུ་ཉིད་ཀྱི་ཉིན་རེའི་འཚོ་བ་དང་འཚམ་པའི་སྒེར་གྱི་སློབ་གཉེར་ཐུན་འཆར།';
 
   @override
   String get creator_featured_plan => 'སྒྲིག་གཞི་ཡོད་པའི་ཉམས་ལེན།';
 
   @override
   String get audio_init_error =>
-      'Unable to initialize audio player. Check your connection and try again';
+      'སྒྲ་གཏོང་ཐུབ་ཀྱི་མི་འདུག ཁྱེད་ཀྱི་དྲ་རྒྱར་བསྐྱབ་ཞིབ་ཅིག་བྱས་ཏེ་བསྐྱར་དུ་ཚོད་ལྟ་བྱེད་རོགས།';
 
   @override
   String get meditation_audio_load_error =>
-      'Unable to load. Check your connection and try again';
+      'ལེན་ཐུབ་མ་སོང་། ཁྱེད་ཀྱིས་རང་གི་དྲ་རྒྱར་བསྐྱར་ཞིབ་བྱས་ཏེ། བསྐྱར་དུ་ཚོད་ལྟ་བྱོས།';
 
   @override
   String get prayer_audio_load_error =>
-      'Unable to load audio. Check your connection and try again';
+      'སྒྲ་ལེན་ཐུབ་མ་སོང་། ཁྱེད་ཀྱིས་རང་གི་དྲ་རྒྱར་བསྐྱར་ཞིབ་བྱས་ཏེ། བསྐྱར་དུ་ཚོད་ལྟ་བྱོས།';
 
   @override
-  String get home_no_series_found => 'No series found';
+  String get home_no_series_found => 'དཔེ་ཚོགས་རྙེད་མ་སོང་།';
 
   @override
   String get home_no_tags_found => 'ཁ་བྱང་རྙེད་མ་སོང་།';
@@ -593,7 +593,7 @@ class AppLocalizationsBo extends AppLocalizations {
 
   @override
   String reader_script_title(String language) {
-    return 'Script · $language';
+    return 'ཡིག་གཟུགས · $language';
   }
 
   @override
@@ -682,7 +682,7 @@ class AppLocalizationsBo extends AppLocalizations {
       'འདྲ་པར་ཕབ་ལེན་བྱེད་ཐུབ་མ་སོང་། བསྐྱར་དུ་ཚོད་ལྟ་བྱེད་རོགས།';
 
   @override
-  String get create_image_customize_tooltip => 'Customize';
+  String get create_image_customize_tooltip => 'རང་མོས་སྒྲིག';
 
   @override
   String get create_image_text_too_long =>
@@ -695,7 +695,7 @@ class AppLocalizationsBo extends AppLocalizations {
 
   @override
   String get my_plans_sign_in_prompt =>
-      'ཁྱེད་ཀྱི་ཉམས་ལེན་འཆར་གཞིར་གཟིགས་ན་ནང་འཛུལ་བྱོས།';
+      'ཁྱེད་ཀྱི་ཉམས་ལེན་ཐུན་འཆར་ལ་གཟིགས་ན་ནང་འཛུལ་བྱོས།';
 
   @override
   String plan_starts_soon_message(String date) {
@@ -735,7 +735,7 @@ class AppLocalizationsBo extends AppLocalizations {
   String get author => 'རྩོམ་སྒྲིག་པ།';
 
   @override
-  String get plans_created => 'ཉམས་ལེན་འཆར་གཞི་བཟོས་ཟིན།';
+  String get plans_created => 'ཉམས་ལེན་ཐུན་འཆར་བཟོས་ཟིན།';
 
   @override
   String get ai_chat_history => 'ཁ་བརྡའི་ལོ་རྒྱུས།';
@@ -1049,7 +1049,7 @@ class AppLocalizationsBo extends AppLocalizations {
 
   @override
   String get notFound =>
-      'ཉམས་ལེན་རྫོགས་འདུག ཁྱེད་ཀྱི་ཉམས་ལེན་འཆར་གཞིའི་ཐོན་རིམ་གསར་སྒྲིག་བྱོས།';
+      'ཉམས་ལེན་རྫོགས་འདུག ཁྱེད་ཀྱི་ཉམས་ལེན་ཐུན་འཆར་གྱི་ཐོན་རིམ་གསར་སྒྲིག་བྱོས།';
 
   @override
   String get noTimeSlot =>
@@ -1110,7 +1110,7 @@ class AppLocalizationsBo extends AppLocalizations {
   }
 
   @override
-  String get plan_status_on_track => 'On Track';
+  String get plan_status_on_track => 'དུས་ཐོག་ལ་ཡོད!';
 
   @override
   String get start_now => 'མྱུར་ཏུ་འགོ་རྩོམ།';
@@ -1155,7 +1155,7 @@ class AppLocalizationsBo extends AppLocalizations {
 
   @override
   String series_stats(int planCount, int totalDays) {
-    return 'འཆར་གཞི་ $planCount · ཉིན་ $totalDays';
+    return 'ཐུན་འཆར་ $planCount · ཉིན་ $totalDays';
   }
 
   @override
@@ -1202,7 +1202,7 @@ class AppLocalizationsBo extends AppLocalizations {
   String get edit_profile_last_name => 'རུས་མིང་།';
 
   @override
-  String get edit_profile_bio => 'Bio';
+  String get edit_profile_bio => 'རང་ངོ་སྤྲོད།';
 
   @override
   String get edit_profile_bio_hint => 'ཁྱེད་ཀྱི་ངོ་སྤྲོད་སྙིང་བསྡུས་ཤིག་ཕྲིས།';
@@ -1211,75 +1211,75 @@ class AppLocalizationsBo extends AppLocalizations {
   String get edit_profile_delete_account => 'མིང་ཐོ་བསུབ།';
 
   @override
-  String get edit_profile_photo_not_uploaded => 'Photo not uploaded';
+  String get edit_profile_photo_not_uploaded => 'འདྲ་པར་ཡར་འཇུག་མ་བྱས།';
 
   @override
   String get edit_profile_photo_too_large =>
-      'Image is too large. Please choose a photo under 1 MB and try again.';
+      'འདྲ་པར་ཆེ་དྲགས་འདུག MB 1 ཡན་མན་གྱི་འདྲ་པར་ཞིག་འདེམས་ཏེ་བསྐྱར་དུ་ཚོད་ལྟ་བྱོས།';
 
   @override
   String get edit_profile_photo_upload_failed =>
-      'Could not upload your photo. Please try again.';
+      'ཁྱེད་ཀྱི་འདྲ་པར་ཡར་འཇུག་བྱེད་མ་ཐུབ། བསྐྱར་དུ་ཚོད་ལྟ་བྱོས།';
 
   @override
-  String get edit_profile_choose_from_library => 'Choose from library';
+  String get edit_profile_choose_from_library => 'འདྲ་པར་མཛོད་ནས་འདེམས།';
 
   @override
-  String get edit_profile_take_photo => 'Take a photo';
+  String get edit_profile_take_photo => 'འདྲ་པར་རྒྱོབ།';
 
   @override
   String get edit_profile_offline =>
-      'You\'re offline. Connect to the internet and try again.';
+      'ཁྱེད་རང་དྲ་ཐོག་མིན། དྲ་རྒྱ་དང་སྦྲེལ་ཏེ་བསྐྱར་དུ་ཚོད་ལྟ་བྱོས།';
 
   @override
   String get edit_profile_save_failed =>
-      'Couldn\'t save your changes. Please try again.';
+      'ཁྱེད་ཀྱི་བཟོ་བཅོས་ཉར་ཚགས་བྱེད་མ་ཐུབ། བསྐྱར་དུ་ཚོད་ལྟ་བྱོས།';
 
   @override
   String get username_label => 'སྤྱོད་མིང་།';
 
   @override
-  String get username_taken => 'Someone already used this name';
+  String get username_taken => 'མིང་འདི་གཞན་གྱིས་བེད་སྤྱོད་ཟིན་འདུག';
 
   @override
-  String get username_available_label => 'Available : ';
+  String get username_available_label => 'ཐོབ་རུང་: ';
 
   @override
-  String get username_check_error => 'Could not check username. Try again.';
+  String get username_check_error =>
+      'མིང་ཞིབ་བཤེར་བྱེད་མ་ཐུབ། བསྐྱར་དུ་ཚོད་ལྟ་བྱོས།';
 
   @override
-  String get username_invalid_format => 'Invalid username format.';
+  String get username_invalid_format => 'མིང་གི་རྣམ་གཞག་ནོར་འདུག';
 
   @override
-  String get username_min_length => 'Username must be at least 3 characters';
+  String get username_min_length => 'མིང་ལ་ཉུང་མཐར་ཡིག་འབྲུ་ 3 དགོས།';
 
   @override
-  String get username_max_length => 'Username must be at most 30 characters';
+  String get username_max_length => 'མིང་ལ་ཡིག་འབྲུ་ 30 ལས་མི་མང་བ་དགོས།';
 
   @override
-  String get username_no_spaces => 'Username cannot contain spaces';
+  String get username_no_spaces => 'མིང་ནང་བར་སྟོང་ཡོད་མི་ཆོག';
 
   @override
-  String get username_invalid_chars =>
-      'Only letters, numbers, _ . - are allowed';
+  String get username_invalid_chars => 'ཡི་གེ ཨང་ཀི། _ . - འདི་དག་ཁོ་ན་ཆོག';
 
   @override
   String get username_must_start_alphanumeric =>
-      'Username must start with a letter or number';
+      'མིང་ནི་ཡི་གེ་འམ་ཨང་ཀིས་འགོ་འཛུགས་དགོས།';
 
   @override
   String get username_must_end_alphanumeric =>
-      'Username must end with a letter or number';
+      'མིང་ནི་ཡི་གེ་འམ་ཨང་ཀིས་མཇུག་སྡོམ་དགོས།';
 
   @override
-  String get person_name_min_length => 'Must be at least 1 character';
+  String get person_name_min_length => 'ཉུང་མཐར་ཡིག་འབྲུ་ 1 དགོས།';
 
   @override
-  String get person_name_max_length => 'Must be 50 characters or less';
+  String get person_name_max_length => 'ཡིག་འབྲུ་ 50 ལས་མི་མང་བ་དགོས།';
 
   @override
   String get person_name_invalid_chars =>
-      'Only letters, spaces, hyphens, and apostrophes are allowed';
+      'ཡི་གེ བར་སྟོང་། ཐིག་ཕྲན་དང་ཚེག་འགུག་ཁོ་ན་ཆོག';
 
   @override
   String get about_title => 'སྐོར།';
@@ -1292,13 +1292,14 @@ class AppLocalizationsBo extends AppLocalizations {
       'ངེད་ཅག་གིས་ནང་པ་སངས་རྒྱས་པ་རྣམས་ལ། ཉིན་རེའི་སློབ་གཉེར་དང་། ཉམས་ལེན། ཆོས་ཀྱི་བགྲོ་གླེང་བཅས་ཀྱི་ལམ་ནས། སྡིག་པ་སྤོང་བ་དང་། དགེ་བ་སྒྲུབ་པ། སེམས་རྒྱུད་ཇེ་ལེགས་སུ་གཏོང་བའི་མཐུན་རྐྱེན་སྦྱོར་བཞིན་ཡོད། མཐུན་རྐྱེན་འདི་ལ་བརྟེན་ནས་མཁའ་མཉམ་གྱི་སེམས་ཅན་ཐམས་ཅད་སྡུག་བསྔལ་ལས་ཐར་ཞིང་། གཏན་གྱི་བདེ་བ་བསྒྲུབ་པར་རམ་འདེགས་བྱེད་བཞིན་ཡོད།';
 
   @override
-  String get about_social_website => 'Website';
+  String get about_social_website => 'དྲ་ཚིགས།';
 
   @override
-  String get me_guest_headline => 'Access the full experience';
+  String get me_guest_headline => 'ཉམས་མྱོང་ཡོངས་རྫོགས་ལ་ལོངས་སུ་སྤྱོད།';
 
   @override
-  String get me_guest_subtitle => 'Create a free account to access plans';
+  String get me_guest_subtitle =>
+      'ཁྱེད་ཀྱི་ཡར་ཐོན་ཉར་ཚགས་སླད་རིན་མེད་རྩིས་ཐོ་ཞིག་གསར་འཛུགས་གྱིས།';
 
   @override
   String get me_my_stats => 'ངའི་གྲངས་ཐོ།';
@@ -1326,7 +1327,7 @@ class AppLocalizationsBo extends AppLocalizations {
   String get me_total_meditation_time => 'སྒོམ་ཡུན་ཁྱོན་བསྡོམས།';
 
   @override
-  String get me_days_plan_practiced_suffix => 'འཆར་གཞིའི་ཉིན་གྲངས་ཆ་ཚང་ཟིན་པ';
+  String get me_days_plan_practiced_suffix => 'ཉམས་ལེན་བྱས་པའི་ཉིན་གྲངས།';
 
   @override
   String me_streak_share_message(int count, String appName) {
@@ -1372,16 +1373,16 @@ class AppLocalizationsBo extends AppLocalizations {
   String get legal_privacy_policy => 'སྒེར་དོན་གསང་རྒྱ།';
 
   @override
-  String get follow => 'Follow';
+  String get follow => 'རྗེས་འབྲང་།';
 
   @override
-  String get following => 'Following';
+  String get following => 'རྗེས་འབྲང་ཟིན།';
 
   @override
   String get calendar_title => 'ཟླ་ཐོ།';
 
   @override
-  String get calendar_upcoming_events => 'Upcoming events';
+  String get calendar_upcoming_events => 'འབྱུང་འགྱུར་བྱེད་སྒོ།';
 
   @override
   String get calendar_day_short => 'ཚེས།';
@@ -1400,28 +1401,28 @@ class AppLocalizationsBo extends AppLocalizations {
   }
 
   @override
-  String get moon_phase_new_moon => 'New moon';
+  String get moon_phase_new_moon => 'གནམ་སྟོང་།';
 
   @override
-  String get moon_phase_waxing_crescent => 'Waxing crescent';
+  String get moon_phase_waxing_crescent => 'ཡར་ངོའི་ཟླ་གུག';
 
   @override
-  String get moon_phase_first_quarter => 'First quarter';
+  String get moon_phase_first_quarter => 'ཡར་ངོའི་ཟླ་ཕྱེད།';
 
   @override
-  String get moon_phase_waxing_gibbous => 'Waxing gibbous';
+  String get moon_phase_waxing_gibbous => 'ཡར་ངོའི་ཟླ་སྒང་།';
 
   @override
-  String get moon_phase_full_moon => 'Full moon';
+  String get moon_phase_full_moon => 'ཟླ་ཉ།';
 
   @override
-  String get moon_phase_waning_gibbous => 'Waning gibbous';
+  String get moon_phase_waning_gibbous => 'མར་ངོའི་ཟླ་སྒང་།';
 
   @override
-  String get moon_phase_last_quarter => 'Last quarter';
+  String get moon_phase_last_quarter => 'མར་ངོའི་ཟླ་ཕྱེད།';
 
   @override
-  String get moon_phase_waning_crescent => 'Waning crescent';
+  String get moon_phase_waning_crescent => 'མར་ངོའི་ཟླ་གུག';
 
   @override
   String get join => 'ཞུགས།';
@@ -1436,27 +1437,27 @@ class AppLocalizationsBo extends AppLocalizations {
   String get group_members => 'ཚོགས་མི།';
 
   @override
-  String get group_follower => 'follower';
+  String get group_follower => 'རྗེས་འབྲང་པ།';
 
   @override
-  String get group_followers => 'followers';
+  String get group_followers => 'རྗེས་འབྲང་པ།';
 
   @override
-  String get group_links_title => 'Links';
+  String get group_links_title => 'འབྲེལ་ཐག';
 
   @override
   String group_and_more_links(int count) {
-    return 'and $count more links';
+    return 'དང་འབྲེལ་ཐག་གཞན་ $count';
   }
 
   @override
-  String get share_this_quote => 'Share this quote';
+  String get share_this_quote => 'གསུང་ཚིག་འདི་སྤེལ།';
 
   @override
   String get shared_from => 'སྤེལ་ཁུངས།';
 
   @override
-  String get verse_share_error => 'Unable to share quote. Please try again';
+  String get verse_share_error => 'གསུང་ཚིག་སྤེལ་མ་ཐུབ། བསྐྱར་དུ་ཚོད་ལྟ་བྱོས།';
 
   @override
   String get weekday_monday => 'ཟླ།';

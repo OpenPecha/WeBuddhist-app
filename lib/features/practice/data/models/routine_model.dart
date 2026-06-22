@@ -5,7 +5,7 @@ import 'package:uuid/uuid.dart';
 
 const _uuid = Uuid();
 
-enum RoutineItemType { plan, recitation }
+enum RoutineItemType { series, recitation }
 
 class RoutineItem {
   final String id;
@@ -15,6 +15,8 @@ class RoutineItem {
   final DateTime? enrolledAt;
   final String? language;
   final DateTime? startDate;
+  final String? currentPlanId;
+  final String? currentPlanTitle;
 
   const RoutineItem({
     required this.id,
@@ -24,6 +26,8 @@ class RoutineItem {
     this.enrolledAt,
     this.language,
     this.startDate,
+    this.currentPlanId,
+    this.currentPlanTitle,
   });
 
   /// Smallest cover URL — legacy persistence and notifications.
@@ -38,6 +42,8 @@ class RoutineItem {
     'enrolledAt': enrolledAt?.toIso8601String(),
     if (language != null) 'language': language,
     if (startDate != null) 'startDate': startDate!.toIso8601String(),
+    if (currentPlanId != null) 'currentPlanId': currentPlanId,
+    if (currentPlanTitle != null) 'currentPlanTitle': currentPlanTitle,
   };
 
   /// Safely parses a [RoutineItem] from JSON with null checks and fallbacks.
@@ -60,6 +66,8 @@ class RoutineItem {
       enrolledAt: _parseDateTime(json['enrolledAt']),
       language: json['language'] as String?,
       startDate: _parseDateTime(json['startDate']),
+      currentPlanId: json['currentPlanId'] as String?,
+      currentPlanTitle: json['currentPlanTitle'] as String?,
     );
   }
 
@@ -83,13 +91,15 @@ class RoutineItem {
     return item;
   }
 
-  /// Safely parses [RoutineItemType] with fallback to [RoutineItemType.plan].
+  /// Safely parses [RoutineItemType] with fallback to [RoutineItemType.series].
   static RoutineItemType _parseRoutineItemType(dynamic value) {
-    if (value is! String) return RoutineItemType.plan;
-    return RoutineItemType.values.firstWhere(
-      (e) => e.name == value,
-      orElse: () => RoutineItemType.plan,
-    );
+    if (value is! String) return RoutineItemType.series;
+    return switch (value) {
+      'plan' => RoutineItemType.series,
+      'series' => RoutineItemType.series,
+      'recitation' => RoutineItemType.recitation,
+      _ => RoutineItemType.series,
+    };
   }
 
   /// Safely parses a [DateTime] from an ISO 8601 string.

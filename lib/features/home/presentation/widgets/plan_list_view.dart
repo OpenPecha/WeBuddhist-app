@@ -542,7 +542,7 @@ bool _isPlanEnrolled(WidgetRef ref, String planId) {
   if (routineData == null) return false;
   return routineData.blocks.any(
     (block) => block.items.any(
-      (item) => item.id == planId && item.type == RoutineItemType.plan,
+      (item) => item.id == planId && item.type == RoutineItemType.series,
     ),
   );
 }

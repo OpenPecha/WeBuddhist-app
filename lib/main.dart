@@ -30,6 +30,8 @@ import 'core/localization/material_localizations_bo.dart';
 import 'core/localization/cupertino_localizations_bo.dart';
 import 'package:flutter_pecha/core/services/upgrade/force_update_gate.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:airbridge_flutter_sdk/airbridge_flutter_sdk.dart';
+import 'package:flutter_pecha/core/services/deep_link_service.dart';
 
 final _logger = AppLogger('Main');
 
@@ -129,6 +131,17 @@ void main() async {
   // Set container reference for notification navigation
   NotificationService.setContainer(container);
 
+  // Initialize Airbridge deep link handler
+  try {
+    Airbridge.setOnDeeplinkReceived((url) {
+      _logger.info('Airbridge deep link received: $url');
+      DeepLinkService.storePendingDeepLink(url);
+    });
+    _logger.info('Airbridge deep link handler initialized');
+  } catch (e) {
+    _logger.warning('Error initializing Airbridge deep link handler: $e');
+  }
+
   runApp(UncontrolledProviderScope(container: container, child: const MyApp()));
 }
 
@@ -140,6 +153,8 @@ class MyApp extends ConsumerStatefulWidget {
 }
 
 class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
+  bool _hasProcessedDeepLink = false;
+
   @override
   void initState() {
     super.initState();
@@ -173,6 +188,17 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
     // Get the singleton router instance - same instance is reused across rebuilds
     // final router = AppRouter().router;
     final router = ref.watch(appRouterProvider);
+
+    // Register the router with DeepLinkService on the first build so that:
+    //   a) any cold-start link buffered before the first frame is drained, and
+    //   b) links arriving while the app is already running are dispatched
+    //      immediately (handled inside storePendingDeepLink).
+    if (!_hasProcessedDeepLink) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        DeepLinkService.setRouter(router);
+      });
+      _hasProcessedDeepLink = true;
+    }
 
     // Initialize services in background via providers
     ref.watch(audioHandlerProvider);
