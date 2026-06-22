@@ -6,3 +6,4 @@ FLUTTER_TARGET=lib/main_prod.dart
 BUNDLE_ID=org.pecha.app
 APP_NAME=WeBuddhist
 AUTH0_SCHEME=org.pecha.app
+AIRBRIDGE_APP_NAME=webuddhist
