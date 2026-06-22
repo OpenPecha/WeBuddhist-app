@@ -37,7 +37,7 @@ class RoutineFilledState extends ConsumerWidget {
     final pendingNav = ref.watch(pendingNotificationNavProvider);
     final myPlansState = ref.watch(myPlansPaginatedProvider);
     if (pendingNav != null) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
         if (!context.mounted) return;
         final itemType = RoutineItemType.values.firstWhere(
           (e) => e.name == pendingNav.itemType,
@@ -49,35 +49,59 @@ class RoutineFilledState extends ConsumerWidget {
             '/reader/${pendingNav.itemId}',
             extra: NavigationContext(source: NavigationSource.normal),
           );
-        } else {
-          final userPlan =
-              myPlansState.plans
-                  .where((p) => p.id == pendingNav.itemId)
-                  .firstOrNull;
-          if (userPlan == null) {
-            return; // plans not loaded yet — wait for next build
-          }
+          return;
+        }
+
+        // Series notifications carry the series id; resolve the enrolled plan
+        // via the routine item's current_plan_id (legacy payloads may still
+        // carry a plan id directly).
+        final routineItem = _findRoutineItem(routineData, pendingNav.itemId);
+        final planId = routineItem?.currentPlanId ?? pendingNav.itemId;
+
+        if (routineItem != null && routineItem.currentPlanId == null) {
           ref.read(pendingNotificationNavProvider.notifier).state = null;
-          final startDate = userPlan.effectiveStartDate;
-          final daysSince =
-              DateTime.now().difference(DateUtils.dateOnly(startDate)).inDays;
-          final selectedDay = (daysSince + 1).clamp(1, userPlan.totalDays);
-          _logger.info(
-            '[ENROLL-NAV] deep-link open ${userPlan.id} '
-            'anchor=${startDate.toIso8601String()} '
-            'startDate=${userPlan.startDate?.toIso8601String()} '
-            'startedAt=${userPlan.startedAt.toIso8601String()} '
-            'selectedDay=$selectedDay/${userPlan.totalDays}',
-          );
-          context.push(
-            '/practice/details',
-            extra: {
-              'plan': userPlan,
-              'selectedDay': selectedDay,
-              'startDate': startDate,
-            },
+          context.push('/home/series/${routineItem.id}');
+          return;
+        }
+
+        var userPlan =
+            myPlansState.plans.where((p) => p.id == planId).firstOrNull;
+        if (userPlan == null) {
+          userPlan = await _resolveRoutineUserPlan(
+            ref,
+            planId,
+            language: routineItem?.language,
           );
         }
+        if (userPlan == null) {
+          return; // plans not loaded yet — wait for next build
+        }
+
+        ref.read(pendingNotificationNavProvider.notifier).state = null;
+        final startDate =
+            userPlan.startDate ??
+            routineItem?.startDate ??
+            routineItem?.enrolledAt ??
+            userPlan.effectiveStartDate;
+        final daysSince =
+            DateTime.now().difference(DateUtils.dateOnly(startDate)).inDays;
+        final selectedDay = (daysSince + 1).clamp(1, userPlan.totalDays);
+        _logger.info(
+          '[ENROLL-NAV] deep-link open ${userPlan.id} '
+          'seriesId=${routineItem?.id} '
+          'anchor=${startDate.toIso8601String()} '
+          'startDate=${userPlan.startDate?.toIso8601String()} '
+          'startedAt=${userPlan.startedAt.toIso8601String()} '
+          'selectedDay=$selectedDay/${userPlan.totalDays}',
+        );
+        context.push(
+          '/practice/details',
+          extra: {
+            'plan': userPlan,
+            'selectedDay': selectedDay,
+            'startDate': startDate,
+          },
+        );
       });
     }
 
@@ -225,7 +249,7 @@ class _RoutineBlockSection extends ConsumerWidget {
     required String planId,
     UserPlansModel? userPlan,
   }) async {
-    userPlan ??= await _resolveUserPlan(
+    userPlan ??= await _resolveRoutineUserPlan(
       ref,
       planId,
       language: item.language,
@@ -243,7 +267,10 @@ class _RoutineBlockSection extends ConsumerWidget {
     if (!context.mounted) return;
 
     final startDate =
-        userPlan.startDate ?? item.startDate ?? item.enrolledAt ?? userPlan.startedAt;
+        userPlan.startDate ??
+        item.startDate ??
+        item.enrolledAt ??
+        userPlan.startedAt;
     final daysSinceEnrollment =
         DateTime.now().difference(DateUtils.dateOnly(startDate)).inDays;
     final selectedDay = (daysSinceEnrollment + 1).clamp(1, userPlan.totalDays);
@@ -262,43 +289,6 @@ class _RoutineBlockSection extends ConsumerWidget {
         'selectedDay': selectedDay,
         'startDate': startDate,
       },
-    );
-  }
-
-  /// Resolves the [UserPlansModel] for a routine plan item.
-  ///
-  /// When the plan's language matches the current app locale the cached
-  /// [myPlansPaginatedProvider] is used (instant, no network). Otherwise the
-  /// plan is fetched directly from the API in its own language.
-  Future<UserPlansModel?> _resolveUserPlan(
-    WidgetRef ref,
-    String planId, {
-    String? language,
-  }) async {
-    final contentLanguage = ref.read(contentLanguageProvider);
-    final isSameLanguage =
-        language == null ||
-        language.toLowerCase() == contentLanguage.toLowerCase();
-
-    if (isSameLanguage) {
-      var plans = ref.read(myPlansPaginatedProvider).plans;
-      var userPlan = plans.where((p) => p.id == planId).firstOrNull;
-
-      if (userPlan == null) {
-        await ref.read(myPlansPaginatedProvider.notifier).refresh();
-        plans = ref.read(myPlansPaginatedProvider).plans;
-        userPlan = plans.where((p) => p.id == planId).firstOrNull;
-      }
-
-      return userPlan;
-    }
-
-    // Plan was enrolled in a different language — fetch directly.
-    final repo = ref.read(userPlansDomainRepositoryProvider);
-    final result = await repo.getUserPlans(language: language);
-    return result.fold(
-      (_) => null,
-      (response) => response.userPlans.where((p) => p.id == planId).firstOrNull,
     );
   }
 
@@ -332,11 +322,7 @@ class _RoutineBlockSection extends ConsumerWidget {
     );
   }
 
-  Widget _buildItemCard(
-    BuildContext context,
-    WidgetRef ref,
-    RoutineItem item,
-  ) {
+  Widget _buildItemCard(BuildContext context, WidgetRef ref, RoutineItem item) {
     return RoutineItemCard(
       title: item.title,
       coverImage: item.coverImage,
@@ -349,4 +335,45 @@ class _RoutineBlockSection extends ConsumerWidget {
               : null,
     );
   }
+}
+
+RoutineItem? _findRoutineItem(RoutineData routineData, String itemId) {
+  for (final block in routineData.blocks) {
+    for (final item in block.items) {
+      if (item.id == itemId) return item;
+    }
+  }
+  return null;
+}
+
+Future<UserPlansModel?> _resolveRoutineUserPlan(
+  WidgetRef ref,
+  String planId, {
+  String? language,
+}) async {
+  final contentLanguage = ref.read(contentLanguageProvider);
+  final isSameLanguage =
+      language == null ||
+      language.toLowerCase() == contentLanguage.toLowerCase();
+
+  if (isSameLanguage) {
+    var plans = ref.read(myPlansPaginatedProvider).plans;
+    var userPlan = plans.where((p) => p.id == planId).firstOrNull;
+
+    if (userPlan == null) {
+      await ref.read(myPlansPaginatedProvider.notifier).refresh();
+      plans = ref.read(myPlansPaginatedProvider).plans;
+      userPlan = plans.where((p) => p.id == planId).firstOrNull;
+    }
+
+    return userPlan;
+  }
+
+  // Plan was enrolled in a different language — fetch directly.
+  final repo = ref.read(userPlansDomainRepositoryProvider);
+  final result = await repo.getUserPlans(language: language);
+  return result.fold(
+    (_) => null,
+    (response) => response.userPlans.where((p) => p.id == planId).firstOrNull,
+  );
 }
