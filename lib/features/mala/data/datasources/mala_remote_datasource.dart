@@ -25,12 +25,12 @@ class MalaRemoteDataSource {
             'limit': _pageSize,
             if (language != null) 'language': language,
           },
-          // Skip the in-memory GET cache so the catalogue (titles, bead images,
-          // etc.) always reflects the latest backend state on each fetch.
-          options: Options(extra: const {'no_cache': true}),
         );
         if (response.statusCode != 200) {
-          throw _statusToException(response.statusCode, 'Failed to load presets');
+          throw _statusToException(
+            response.statusCode,
+            'Failed to load presets',
+          );
         }
         final page = PresetAccumulatorsResponseModel.fromJson(
           response.data as Map<String, dynamic>,
@@ -52,7 +52,9 @@ class MalaRemoteDataSource {
   ///
   /// Returns `null` when the user has no accumulator for this preset yet
   /// (the endpoint 404s), so the caller can seed at 0 and lazily create.
-  Future<AccumulatorDetailModel?> fetchAccumulatorDetail(String parentId) async {
+  Future<AccumulatorDetailModel?> fetchAccumulatorDetail(
+    String parentId,
+  ) async {
     try {
       final response = await dio.get('/accumulators/$parentId');
       if (response.statusCode == 200) {
