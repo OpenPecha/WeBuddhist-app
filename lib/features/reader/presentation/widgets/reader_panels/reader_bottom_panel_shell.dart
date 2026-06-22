@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_pecha/features/reader/presentation/providers/reader_notifier.dart';
 import 'package:flutter_pecha/features/reader/presentation/widgets/reader_panels/reader_panel_constants.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 /// Bottom-sheet-style shell for reader panels (Versions, Commentary).
 ///
@@ -97,19 +98,33 @@ class _ReaderBottomPanelShellState
                 ),
                 Padding(
                   padding: const EdgeInsets.fromLTRB(
-                    ReaderPanelConstants.horizontalPadding,
+                    8,
                     4,
                     ReaderPanelConstants.horizontalPadding,
                     12,
                   ),
-                  child: Align(
-                    alignment: AlignmentDirectional.centerStart,
-                    child: Text(
-                      widget.title,
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
+                  child: Row(
+                    children: [
+                      IconButton(
+                        icon: const Icon(PhosphorIconsRegular.arrowLeft, size: 20),
+                        onPressed: () {
+                          HapticFeedback.lightImpact();
+                          widget.onDismiss();
+                        },
+                        padding: const EdgeInsets.all(8),
+                        constraints: const BoxConstraints(),
+                        tooltip: 'Back',
                       ),
-                    ),
+                      const SizedBox(width: 4),
+                      Expanded(
+                        child: Text(
+                          widget.title,
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
                 Container(height: 1, color: dividerColor),
