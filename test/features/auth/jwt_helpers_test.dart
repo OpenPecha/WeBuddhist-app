@@ -64,4 +64,36 @@ void main() {
       expect(auth.jwtRemainingTtlSeconds(_jwtWithExp(null)), 0);
     });
   });
+
+  group('isUsableApiAccessToken', () {
+    test('accepts a JWT (three dot-separated segments)', () {
+      expect(
+        AuthService.isUsableApiAccessToken(_jwtWithExp(_nowSecs() + 3600)),
+        isTrue,
+      );
+    });
+
+    test('rejects an opaque token (no JWT structure)', () {
+      // Opaque /userinfo access tokens from pre-audience sessions.
+      expect(AuthService.isUsableApiAccessToken('v1.MnHB3a...opaque'), isFalse);
+      expect(AuthService.isUsableApiAccessToken('opaquetoken'), isFalse);
+    });
+  });
+
+  group('isSessionPermanentlyLost', () {
+    test('treats an opaque-access-token AuthException as permanent', () {
+      final error = AuthException(
+        'Opaque access token; re-authentication required',
+        code: AuthService.opaqueAccessTokenCode,
+      );
+      expect(AuthService.isSessionPermanentlyLost(error), isTrue);
+    });
+
+    test('treats an unrelated AuthException as transient', () {
+      expect(
+        AuthService.isSessionPermanentlyLost(AuthException('network blip')),
+        isFalse,
+      );
+    });
+  });
 }

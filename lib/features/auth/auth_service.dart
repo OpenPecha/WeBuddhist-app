@@ -25,6 +25,11 @@ class AuthService {
   // SharedPreferences key for guest mode
   static const String _guestModeKey = 'is_guest_mode';
 
+  /// [AuthException.code] used when the access token is opaque (not a JWT) and
+  /// therefore unusable as our API bearer. Recognised by
+  /// [isSessionPermanentlyLost] so the session is treated as terminal.
+  static const String opaqueAccessTokenCode = 'opaque_access_token';
+
   /// Single-flight guard so concurrent proactive/reactive callers share one
   /// in-flight renewal instead of each hitting the credentials manager.
   Future<Credentials>? _inflightCredentials;
@@ -197,8 +202,15 @@ class AuthService {
     var minTtl = _kMinTokenTtlSeconds;
     if (force) {
       final current = await _auth0.credentialsManager.credentials();
-      final remaining = jwtRemainingTtlSeconds(current.accessToken);
-      minTtl = remaining + _kMinTokenTtlSeconds; // > remaining ⇒ forced renew
+      // Use the manager's OWN expiry clock, not a JWT `exp` parse. Opaque
+      // access tokens (pre-audience sessions) aren't JWTs, so parsing would
+      // yield 0 remaining and an under-budget `minTtl` that the manager
+      // happily satisfies with the *same* stale token — no renewal. Deriving
+      // the remaining lifetime from `expiresAt` works for both opaque and JWT
+      // tokens, so `minTtl > remaining` always obliges a renewal.
+      final remaining = current.expiresAt.difference(DateTime.now()).inSeconds;
+      final safeRemaining = remaining > 0 ? remaining : 0;
+      minTtl = safeRemaining + _kMinTokenTtlSeconds; // > remaining ⇒ forced renew
     }
     return _auth0.credentialsManager.credentials(minTtl: minTtl);
   }
@@ -210,10 +222,35 @@ class AuthService {
     return creds.accessToken;
   }
 
+  /// Whether [token] is usable as our API bearer. The backend verifies a JWT
+  /// access token (minted only when the API `audience` is requested at login),
+  /// so an opaque `/userinfo` token — issued for sessions created before the
+  /// audience was configured — is not a JWT and can never authenticate API
+  /// calls. Such sessions cannot be salvaged by refresh (the refresh token is
+  /// not bound to the audience), so the only resolution is to sign in again.
+  static bool isUsableApiAccessToken(String token) =>
+      token.split('.').length == 3;
+
   /// Reactive 401 path: force a renewal and return a fresh access token.
+  ///
+  /// Throws an [AuthException] with [opaqueAccessTokenCode] when the renewed
+  /// token is still opaque (a pre-audience session). That surfaces as a
+  /// permanent session loss so the caller redirects to login, where a fresh
+  /// audience-scoped login mints a verifiable JWT.
   Future<String?> forceRefreshAccessToken() async {
     final creds = await _validCredentials(force: true);
-    return creds.accessToken;
+    final accessToken = creds.accessToken;
+    if (!isUsableApiAccessToken(accessToken)) {
+      _logger.warning(
+        'Access token is opaque (not a JWT) — pre-audience session cannot be '
+        'refreshed into an API bearer; re-authentication required.',
+      );
+      throw AuthException(
+        'Opaque access token; re-authentication required',
+        code: opaqueAccessTokenCode,
+      );
+    }
+    return accessToken;
   }
 
   /// Identity only (client-side). Profile claims (email/name/sub) live in the
@@ -227,11 +264,14 @@ class AuthService {
   /// gone and the user must sign in again — as opposed to a transient/offline
   /// failure we should tolerate (keep the user signed in and renew later).
   ///
-  /// Only a missing credential or a missing refresh token is treated as
-  /// permanent. `RENEW_FAILED` is treated as transient: at app open it is
-  /// almost always a connectivity problem, and wiping a valid session for that
-  /// is the bug we are fixing.
+  /// Only a missing credential, a missing refresh token, or an opaque
+  /// (non-JWT) access token is treated as permanent. `RENEW_FAILED` is treated
+  /// as transient: at app open it is almost always a connectivity problem, and
+  /// wiping a valid session for that is the bug we are fixing.
   static bool isSessionPermanentlyLost(Object error) {
+    if (error is AuthException && error.code == opaqueAccessTokenCode) {
+      return true;
+    }
     return error is CredentialsManagerException &&
         (error.isNoCredentialsFound || error.isNoRefreshTokenFound);
   }
