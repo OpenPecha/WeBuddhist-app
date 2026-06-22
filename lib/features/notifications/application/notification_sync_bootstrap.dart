@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
 import 'package:flutter_pecha/core/storage/plan_metadata_store.dart';
 import 'package:flutter_pecha/core/storage/special_plan_started_at_store.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
@@ -7,7 +8,10 @@ import 'package:flutter_pecha/features/auth/presentation/providers/state_provide
 import 'package:flutter_pecha/features/auth/presentation/state/auth_state.dart';
 import 'package:flutter_pecha/features/notifications/application/notification_sync_engine.dart';
 import 'package:flutter_pecha/features/notifications/data/special_plan_notifications.dart';
+import 'package:flutter_pecha/features/notifications/domain/series_plan_schedule.dart';
 import 'package:flutter_pecha/features/plans/data/models/user/user_plans_model.dart';
+import 'package:flutter_pecha/features/plans/domain/usecases/user_plans_usecases.dart';
+import 'package:flutter_pecha/features/plans/presentation/providers/use_case_providers.dart';
 import 'package:flutter_pecha/features/plans/presentation/providers/user_plans_provider.dart';
 import 'package:flutter_pecha/features/practice/data/models/routine_model.dart';
 import 'package:flutter_pecha/features/practice/presentation/providers/routine_api_providers.dart';
@@ -145,7 +149,7 @@ void _attachUserPlansListener(Ref ref) {
         (response) async {
           await ref.read(routineProvider.notifier).whenLoaded;
           final routineBlocks = ref.read(routineProvider).blocks;
-          await _syncMetadata(response.userPlans, routineBlocks);
+          await _syncMetadata(ref, response.userPlans, routineBlocks);
           await ref.read(notificationSyncEngineProvider).sync(
                 trigger: SyncTrigger.userPlansRefreshed,
               );
@@ -162,9 +166,13 @@ void _attachUserPlansListener(Ref ref) {
 /// - For plans NOT in the routine: clear cached metadata so a re-add starts
 ///   fresh, matching the legacy bootstrap behaviour.
 Future<void> _syncMetadata(
+  Ref ref,
   List<UserPlansModel> plans,
   List<RoutineBlock> routineBlocks,
 ) async {
+  final plansById = {for (final p in plans) p.id: p};
+  final linkedPlanIds = await _collectLinkedPlanIds(ref, plansById, routineBlocks);
+
   // Drop cached metadata for plans the user is no longer enrolled in
   // (unenrolled on this or another device). The response is the full,
   // un-paginated enrollment list, so absence here is authoritative.
@@ -185,11 +193,7 @@ Future<void> _syncMetadata(
   }
 
   for (final plan in plans) {
-    final inRoutine = routineBlocks.any(
-      (block) => block.items.any(
-        (item) => item.id == plan.id && item.type == RoutineItemType.plan,
-      ),
-    );
+    final inRoutine = linkedPlanIds.contains(plan.id);
     if (!inRoutine) {
       // Metadata only — see above. A committed block removal followed by a
       // same-day re-add must not re-fire today's notification.
@@ -211,5 +215,44 @@ Future<void> _syncMetadata(
     if (isSpecialPlan(plan.id)) {
       await SpecialPlanStartedAtStore.setStartedAt(plan.id, anchor);
     }
+  }
+}
+
+Future<Set<String>> _collectLinkedPlanIds(
+  Ref ref,
+  Map<String, UserPlansModel> plansById,
+  List<RoutineBlock> routineBlocks,
+) async {
+  final linked = <String>{};
+  final seriesIds = <String>{};
+  for (final block in routineBlocks) {
+    for (final item in block.items.where((i) => i.type == RoutineItemType.series)) {
+      if (isSeriesRoutineItem(item.id, plansById)) {
+        seriesIds.add(item.id);
+      } else {
+        linked.add(item.id);
+      }
+    }
+  }
+  for (final seriesId in seriesIds) {
+    final seriesPlans = await _fetchPlansForSeries(ref, seriesId);
+    linked.addAll(seriesPlans.map((p) => p.id));
+  }
+  return linked;
+}
+
+Future<List<UserPlansModel>> _fetchPlansForSeries(
+  Ref ref,
+  String seriesId,
+) async {
+  try {
+    final language = ref.read(contentLanguageProvider);
+    final result = await ref.read(getUserPlansUseCaseProvider)(
+      GetUserPlansParams(language: language, seriesId: seriesId),
+    );
+    return result.fold((_) => <UserPlansModel>[], (r) => r.userPlans);
+  } catch (e) {
+    _logger.warning('_fetchPlansForSeries($seriesId) threw: $e');
+    return <UserPlansModel>[];
   }
 }

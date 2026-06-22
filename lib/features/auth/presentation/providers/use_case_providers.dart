@@ -4,13 +4,13 @@ import 'package:flutter_pecha/features/auth/domain/usecases/clear_guest_mode_use
 import 'package:flutter_pecha/features/auth/domain/usecases/continue_as_guest_usecase.dart';
 import 'package:flutter_pecha/features/auth/domain/usecases/get_credentials_usecase.dart';
 import 'package:flutter_pecha/features/auth/domain/usecases/get_current_user_usecase.dart';
-import 'package:flutter_pecha/features/auth/domain/usecases/get_valid_id_token_usecase.dart';
+import 'package:flutter_pecha/features/auth/domain/usecases/get_valid_access_token_usecase.dart';
 import 'package:flutter_pecha/features/auth/domain/usecases/has_valid_credentials_usecase.dart';
 import 'package:flutter_pecha/features/auth/domain/usecases/initialize_auth_usecase.dart';
 import 'package:flutter_pecha/features/auth/domain/usecases/is_guest_mode_usecase.dart';
 import 'package:flutter_pecha/features/auth/domain/usecases/login_usecase.dart';
 import 'package:flutter_pecha/features/auth/domain/usecases/logout_usecase.dart';
-import 'package:flutter_pecha/features/auth/domain/usecases/refresh_id_token_usecase.dart';
+import 'package:flutter_pecha/features/auth/domain/usecases/force_refresh_access_token_usecase.dart';
 import 'package:flutter_pecha/features/auth/domain/usecases/update_user_info_usecase.dart';
 import 'package:flutter_pecha/features/auth/domain/usecases/update_username_usecase.dart';
 import 'package:flutter_pecha/features/auth/domain/usecases/upload_avatar_usecase.dart';
@@ -43,16 +43,18 @@ final getCredentialsUseCaseProvider = Provider<GetCredentialsUseCase>((ref) {
   return GetCredentialsUseCase(repository);
 });
 
-/// Provider for GetValidIdTokenUseCase.
-final getValidIdTokenUseCaseProvider = Provider<GetValidIdTokenUseCase>((ref) {
+/// Provider for GetValidAccessTokenUseCase.
+final getValidAccessTokenUseCaseProvider =
+    Provider<GetValidAccessTokenUseCase>((ref) {
   final repository = ref.watch(authRepositoryProvider);
-  return GetValidIdTokenUseCase(repository);
+  return GetValidAccessTokenUseCase(repository);
 });
 
-/// Provider for RefreshIdTokenUseCase.
-final refreshIdTokenUseCaseProvider = Provider<RefreshIdTokenUseCase>((ref) {
+/// Provider for ForceRefreshAccessTokenUseCase.
+final forceRefreshAccessTokenUseCaseProvider =
+    Provider<ForceRefreshAccessTokenUseCase>((ref) {
   final repository = ref.watch(authRepositoryProvider);
-  return RefreshIdTokenUseCase(repository);
+  return ForceRefreshAccessTokenUseCase(repository);
 });
 
 /// Provider for ContinueAsGuestUseCase.

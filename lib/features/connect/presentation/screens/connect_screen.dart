@@ -10,7 +10,6 @@ import 'package:flutter_pecha/features/connect/presentation/widgets/discover_gro
 import 'package:flutter_pecha/features/connect/presentation/widgets/my_groups_section.dart';
 import 'package:flutter_pecha/features/connect/presentation/widgets/my_groups_section_skeleton.dart';
 import 'package:flutter_pecha/features/group_profile/domain/entities/group_profile.dart';
-import 'package:flutter_pecha/features/group_profile/presentation/providers/group_profile_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class ConnectScreen extends ConsumerStatefulWidget {
@@ -65,12 +64,6 @@ class _ConnectScreenState extends ConsumerState<ConnectScreen> {
       pendingGroups: pendingGroups,
       pendingUnjoinedIds: pendingUnjoinedIds,
     );
-    final excludedGroupIds = displayedMyGroups.map((g) => g.id).toSet();
-
-    final discoverGroups =
-        discoverState.groups
-            .where((group) => _shouldShowInDiscover(group, excludedGroupIds))
-            .toList();
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
@@ -101,7 +94,7 @@ class _ConnectScreenState extends ConsumerState<ConnectScreen> {
               ..._buildDiscoverGroupsSlivers(
                 context,
                 discoverState,
-                discoverGroups,
+                discoverState.groups,
                 isDark,
               ),
               const SliverToBoxAdapter(child: SizedBox(height: 24)),
@@ -110,21 +103,6 @@ class _ConnectScreenState extends ConsumerState<ConnectScreen> {
         ),
       ),
     );
-  }
-
-  bool _shouldShowInDiscover(GroupProfile group, Set<String> excludedGroupIds) {
-    if (excludedGroupIds.contains(group.id)) return false;
-
-    final followState = ref.watch(
-      groupFollowProvider(
-        GroupFollowKey(groupId: group.id, groupType: group.groupType),
-      ),
-    );
-
-    return switch (followState) {
-      GroupFollowSuccess(isFollowing: true) => false,
-      _ => true,
-    };
   }
 
   List<Widget> _buildTopSectionSlivers(

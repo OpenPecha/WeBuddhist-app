@@ -34,6 +34,16 @@
 				<string>$(AUTH0_SCHEME)</string>
 			</array>
 		</dict>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>webuddhist</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>webuddhist</string>
+			</array>
+		</dict>
 	</array>
 	<key>CFBundleVersion</key>
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
@@ -72,5 +82,11 @@
 	</array>
 	<key>com.posthog.posthog.AUTO_INIT</key>
 	<false/>
+	<key>FlutterDeepLinkingEnabled</key>
+	<false/>
+	<key>AIRBRIDGE_APP_NAME</key>
+	<string>$(AIRBRIDGE_APP_NAME)</string>
+	<key>AIRBRIDGE_SDK_TOKEN</key>
+	<string>$(AIRBRIDGE_SDK_TOKEN)</string>
 </dict>
 </plist>

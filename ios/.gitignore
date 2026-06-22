@@ -27,6 +27,9 @@ Flutter/flutter_export_environment.sh
 ServiceDefinitions.json
 Runner/GeneratedPluginRegistrant.*
 
+# Airbridge (and any future) SDK secrets — inject at build/CI time, never commit.
+Flutter/Secrets.xcconfig
+
 # Exceptions to above rules.
 !default.mode1v3
 !default.mode2v3

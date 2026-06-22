@@ -26,7 +26,13 @@ class ConfigService {
       final data = jsonDecode(response.body);
       auth0Domain = data['domain'];
       auth0ClientId = data['client_id'];
-      auth0Audience = data['auth0Audience'];
+      // Prefer the audience advertised by /props; fall back to the env value so
+      // the client works even before the backend adds it to /props. Without an
+      // audience, Auth0 returns an opaque /userinfo token (not an API JWT).
+      final propsAudience = data['auth0Audience'] as String?;
+      auth0Audience = (propsAudience != null && propsAudience.isNotEmpty)
+          ? propsAudience
+          : dotenv.env['AUTH0_AUDIENCE'];
       _isLoaded = true;
     } else {
       throw Exception('Failed to fetch auth0 config');
