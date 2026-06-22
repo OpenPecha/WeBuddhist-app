@@ -7,8 +7,6 @@ import 'package:flutter_pecha/features/notifications/data/models/notification_na
 import 'package:flutter_pecha/features/plans/data/models/user/user_plans_model.dart';
 import 'package:flutter_pecha/features/plans/presentation/providers/use_case_providers.dart';
 import 'package:flutter_pecha/features/plans/presentation/providers/user_plans_provider.dart';
-import 'package:flutter_pecha/features/plans/presentation/widgets/plan_track/enrolled_plan_status_indicator.dart';
-import 'package:flutter_pecha/features/plans/presentation/widgets/plan_track/plan_date_range_label.dart';
 import 'package:flutter_pecha/features/practice/data/models/routine_model.dart';
 import 'package:flutter_pecha/features/practice/presentation/providers/routine_api_providers.dart';
 import 'package:flutter_pecha/features/practice/presentation/widgets/routine_item_card.dart';
@@ -198,8 +196,19 @@ class _RoutineBlockSection extends ConsumerWidget {
       case RoutineItemType.recitation:
         _navigateToReader(context, item.id);
       case RoutineItemType.series:
-        await _navigateToSeriesOrPlanDetails(context, ref, item);
+        if (!context.mounted) return;
+        context.push('/home/series/${item.id}');
     }
+  }
+
+  Future<void> _onPlanArrowTap(
+    BuildContext context,
+    WidgetRef ref,
+    RoutineItem item,
+  ) async {
+    final planId = item.currentPlanId;
+    if (planId == null) return;
+    await _navigateToPlanDetails(context, ref, item, planId: planId);
   }
 
   void _navigateToReader(BuildContext context, String textId) {
@@ -209,36 +218,16 @@ class _RoutineBlockSection extends ConsumerWidget {
     context.push('/reader/$textId', extra: navigationContext);
   }
 
-  Future<void> _navigateToSeriesOrPlanDetails(
-    BuildContext context,
-    WidgetRef ref,
-    RoutineItem item,
-  ) async {
-    final userPlan = await _resolveUserPlan(
-      ref,
-      item.id,
-      language: item.language,
-    );
-
-    if (userPlan != null) {
-      if (!context.mounted) return;
-      await _navigateToPlanDetails(context, ref, item, userPlan: userPlan);
-      return;
-    }
-
-    if (!context.mounted) return;
-    context.push('/home/series/${item.id}');
-  }
-
   Future<void> _navigateToPlanDetails(
     BuildContext context,
     WidgetRef ref,
     RoutineItem item, {
+    required String planId,
     UserPlansModel? userPlan,
   }) async {
     userPlan ??= await _resolveUserPlan(
       ref,
-      item.id,
+      planId,
       language: item.language,
     );
 
@@ -254,7 +243,7 @@ class _RoutineBlockSection extends ConsumerWidget {
     if (!context.mounted) return;
 
     final startDate =
-        userPlan.startDate ?? item.enrolledAt ?? userPlan.startedAt;
+        userPlan.startDate ?? item.startDate ?? item.enrolledAt ?? userPlan.startedAt;
     final daysSinceEnrollment =
         DateTime.now().difference(DateUtils.dateOnly(startDate)).inDays;
     final selectedDay = (daysSinceEnrollment + 1).clamp(1, userPlan.totalDays);
@@ -313,21 +302,9 @@ class _RoutineBlockSection extends ConsumerWidget {
     );
   }
 
-  /// Resolves the enrolled [UserPlansModel] for a plan-type routine item from
-  /// the cached `myPlansPaginatedProvider`. Returns null for recitations or
-  /// when the plan hasn't been hydrated yet.
-  UserPlansModel? _resolveUserPlanForItem(
-    RoutineItem item,
-    List<UserPlansModel> plans,
-  ) {
-    if (item.type != RoutineItemType.series) return null;
-    return plans.where((p) => p.id == item.id).firstOrNull;
-  }
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final plans = ref.watch(myPlansPaginatedProvider).plans;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -343,7 +320,7 @@ class _RoutineBlockSection extends ConsumerWidget {
         ),
         const SizedBox(height: 8),
         for (int i = 0; i < block.items.length; i++) ...[
-          _buildItemCard(context, ref, block.items[i], plans),
+          _buildItemCard(context, ref, block.items[i]),
           if (i < block.items.length - 1) const Divider(height: 1, indent: 80),
         ],
         if (block.items.isNotEmpty)
@@ -355,39 +332,21 @@ class _RoutineBlockSection extends ConsumerWidget {
     );
   }
 
-  /// Builds a [RoutineItemCard] augmented, for enrolled plan items, with the
-  /// shared date-range subtitle and the per-plan status indicator (tick /
-  /// On Track! / N Missed Days). Recitation items render with no subtitle
-  /// or trailing — same behavior as before.
   Widget _buildItemCard(
     BuildContext context,
     WidgetRef ref,
     RoutineItem item,
-    List<UserPlansModel> plans,
   ) {
-    final userPlan = _resolveUserPlanForItem(item, plans);
-    final dateRange =
-        userPlan == null
-            ? null
-            : PlanDateRange.tryCreate(
-              startDate: userPlan.effectiveStartDate,
-              totalDays: userPlan.totalDays,
-            );
-
     return RoutineItemCard(
       title: item.title,
       coverImage: item.coverImage,
       type: item.type,
+      planTitle: item.currentPlanTitle,
       onTap: () => _onItemTap(context, ref, item),
-      subtitle:
-          dateRange == null ? null : PlanDateRangeLabel(dateRange: dateRange),
-      trailing:
-          dateRange == null || userPlan == null
-              ? null
-              : EnrolledPlanStatusIndicator(
-                planId: userPlan.id,
-                dateRange: dateRange,
-              ),
+      onPlanTap:
+          item.currentPlanId != null
+              ? () => _onPlanArrowTap(context, ref, item)
+              : null,
     );
   }
 }

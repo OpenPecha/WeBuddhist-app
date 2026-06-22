@@ -74,6 +74,8 @@ class SessionDTO {
   final int displayOrder;
   final DateTime? startDate;
   final DateTime? startedAt;
+  final String? currentPlanId;
+  final String? currentPlanTitle;
 
   const SessionDTO({
     required this.id,
@@ -85,6 +87,8 @@ class SessionDTO {
     required this.displayOrder,
     this.startDate,
     this.startedAt,
+    this.currentPlanId,
+    this.currentPlanTitle,
   });
 
   String? get imageUrl => image?.displayUrl;
@@ -106,6 +110,8 @@ class SessionDTO {
       startedAt: json['started_at'] != null
           ? DateTime.tryParse(json['started_at'] as String)
           : null,
+      currentPlanId: json['current_plan_id'] as String?,
+      currentPlanTitle: json['current_plan_title'] as String?,
     );
   }
 }

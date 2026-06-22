@@ -35,6 +35,8 @@ RoutineItem routineItemFromSessionDto(SessionDTO s) {
     enrolledAt: s.startedAt,
     language: s.language,
     startDate: s.startDate,
+    currentPlanId: s.currentPlanId,
+    currentPlanTitle: s.currentPlanTitle,
   );
 }
 
