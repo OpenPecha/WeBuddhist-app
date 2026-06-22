@@ -6,6 +6,6 @@ import android.app.Application
 class MainApplication : Application() {
     override fun onCreate() {
         super.onCreate()
-        AirbridgeFlutter.initializeSDK(this, "webuddhistdev", "3f20a516a1ec42faa2ad9bd9a23fb9ec")
+        AirbridgeFlutter.initializeSDK(this, BuildConfig.AIRBRIDGE_APP_NAME, BuildConfig.AIRBRIDGE_SDK_TOKEN)
     }
 }

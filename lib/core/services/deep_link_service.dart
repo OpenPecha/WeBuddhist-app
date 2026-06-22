@@ -6,14 +6,33 @@ import 'package:go_router/go_router.dart';
 class DeepLinkService {
   static final _logger = AppLogger('DeepLinkService');
   static String? _pendingDeepLink;
-  
-  /// Store a deep link to be processed later when the app is ready
-  static void storePendingDeepLink(String url) {
-    _pendingDeepLink = url;
-    _logger.info('Stored pending deep link: $url');
+
+  /// Router reference kept alive after the first build so deep links arriving
+  /// while the app is already running can be dispatched immediately.
+  static GoRouter? _router;
+
+  /// Called once from the first post-frame callback in MyApp.build().
+  /// After this point [_router] is set and [storePendingDeepLink] will
+  /// dispatch future links straight to the router without buffering.
+  static void setRouter(GoRouter router) {
+    _router = router;
+    // Drain any link that arrived during cold start before the router existed.
+    processPendingDeepLink(router);
   }
-  
-  /// Process the pending deep link if one exists
+
+  /// Store a deep link to be processed when the router is ready.
+  /// If the router is already available (app running), dispatch immediately.
+  static void storePendingDeepLink(String url) {
+    if (_router != null) {
+      _logger.info('Router available, dispatching deep link immediately: $url');
+      handleDeepLink(url, _router!);
+    } else {
+      _pendingDeepLink = url;
+      _logger.info('Router not ready, stored pending deep link: $url');
+    }
+  }
+
+  /// Process the pending deep link if one exists.
   static void processPendingDeepLink(GoRouter router) {
     if (_pendingDeepLink != null) {
       final url = _pendingDeepLink!;

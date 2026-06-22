@@ -22,7 +22,9 @@ import airbridge_flutter_sdk
 
     GeneratedPluginRegistrant.register(with: self)
     
-    AirbridgeFlutter.initializeSDK(name: "webuddhistdev", token: "3f20a516a1ec42faa2ad9bd9a23fb9ec")
+    let airbridgeAppName = Bundle.main.object(forInfoDictionaryKey: "AIRBRIDGE_APP_NAME") as? String ?? ""
+    let airbridgeSdkToken = Bundle.main.object(forInfoDictionaryKey: "AIRBRIDGE_SDK_TOKEN") as? String ?? ""
+    AirbridgeFlutter.initializeSDK(name: airbridgeAppName, token: airbridgeSdkToken)
     
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }

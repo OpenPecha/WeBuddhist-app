@@ -84,5 +84,9 @@
 	<false/>
 	<key>FlutterDeepLinkingEnabled</key>
 	<false/>
+	<key>AIRBRIDGE_APP_NAME</key>
+	<string>$(AIRBRIDGE_APP_NAME)</string>
+	<key>AIRBRIDGE_SDK_TOKEN</key>
+	<string>$(AIRBRIDGE_SDK_TOKEN)</string>
 </dict>
 </plist>

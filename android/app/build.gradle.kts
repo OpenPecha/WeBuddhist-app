@@ -39,6 +39,10 @@ android {
         jvmTarget = JavaVersion.VERSION_17.toString()
     }
 
+    buildFeatures {
+        buildConfig = true
+    }
+
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId = "org.pecha.app"
@@ -48,6 +52,15 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+
+        // Airbridge credentials — read from local.properties (gitignored) or
+        // from CI environment variables so plaintext tokens never enter source.
+        val airbridgeName = System.getenv("AIRBRIDGE_APP_NAME")
+            ?: localProperties.getProperty("airbridge.app.name", "")
+        val airbridgeToken = System.getenv("AIRBRIDGE_SDK_TOKEN")
+            ?: localProperties.getProperty("airbridge.app.token", "")
+        buildConfigField("String", "AIRBRIDGE_APP_NAME", "\"$airbridgeName\"")
+        buildConfigField("String", "AIRBRIDGE_SDK_TOKEN", "\"$airbridgeToken\"")
     }
 
     val cmKeystorePath: String? = System.getenv("CM_KEYSTORE_PATH")

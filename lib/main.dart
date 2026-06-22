@@ -189,10 +189,13 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
     // final router = AppRouter().router;
     final router = ref.watch(appRouterProvider);
 
-    // Process pending deep link once router is available
+    // Register the router with DeepLinkService on the first build so that:
+    //   a) any cold-start link buffered before the first frame is drained, and
+    //   b) links arriving while the app is already running are dispatched
+    //      immediately (handled inside storePendingDeepLink).
     if (!_hasProcessedDeepLink) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        DeepLinkService.processPendingDeepLink(router);
+        DeepLinkService.setRouter(router);
       });
       _hasProcessedDeepLink = true;
     }
