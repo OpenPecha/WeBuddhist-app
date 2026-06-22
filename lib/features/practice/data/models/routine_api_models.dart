@@ -2,16 +2,18 @@ import 'package:flutter_pecha/features/plans/data/models/plans_model.dart';
 import 'package:flutter_pecha/shared/domain/value_objects/responsive_image.dart';
 
 enum SessionType {
-  plan,
+  series,
   recitation;
 
   String toJson() => switch (this) {
-    SessionType.plan => 'PLAN',
+    SessionType.series => 'SERIES',
     SessionType.recitation => 'RECITATION',
   };
 
   static SessionType fromJson(String value) => switch (value) {
-    'PLAN' => SessionType.plan,
+    'SERIES' => SessionType.series,
+    // Legacy API / cached payloads before the PLAN → SERIES rename.
+    'PLAN' => SessionType.series,
     'RECITATION' => SessionType.recitation,
     _ => throw FormatException('Unknown SessionType: $value'),
   };

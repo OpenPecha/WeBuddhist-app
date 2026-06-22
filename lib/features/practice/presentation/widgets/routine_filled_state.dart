@@ -43,7 +43,7 @@ class RoutineFilledState extends ConsumerWidget {
         if (!context.mounted) return;
         final itemType = RoutineItemType.values.firstWhere(
           (e) => e.name == pendingNav.itemType,
-          orElse: () => RoutineItemType.plan,
+          orElse: () => RoutineItemType.series,
         );
         if (itemType == RoutineItemType.recitation) {
           ref.read(pendingNotificationNavProvider.notifier).state = null;
@@ -197,8 +197,8 @@ class _RoutineBlockSection extends ConsumerWidget {
     switch (item.type) {
       case RoutineItemType.recitation:
         _navigateToReader(context, item.id);
-      case RoutineItemType.plan:
-        await _navigateToPlanDetails(context, ref, item);
+      case RoutineItemType.series:
+        await _navigateToSeriesOrPlanDetails(context, ref, item);
     }
   }
 
@@ -209,12 +209,34 @@ class _RoutineBlockSection extends ConsumerWidget {
     context.push('/reader/$textId', extra: navigationContext);
   }
 
-  Future<void> _navigateToPlanDetails(
+  Future<void> _navigateToSeriesOrPlanDetails(
     BuildContext context,
     WidgetRef ref,
     RoutineItem item,
   ) async {
     final userPlan = await _resolveUserPlan(
+      ref,
+      item.id,
+      language: item.language,
+    );
+
+    if (userPlan != null) {
+      if (!context.mounted) return;
+      await _navigateToPlanDetails(context, ref, item, userPlan: userPlan);
+      return;
+    }
+
+    if (!context.mounted) return;
+    context.push('/home/series/${item.id}');
+  }
+
+  Future<void> _navigateToPlanDetails(
+    BuildContext context,
+    WidgetRef ref,
+    RoutineItem item, {
+    UserPlansModel? userPlan,
+  }) async {
+    userPlan ??= await _resolveUserPlan(
       ref,
       item.id,
       language: item.language,
@@ -298,7 +320,7 @@ class _RoutineBlockSection extends ConsumerWidget {
     RoutineItem item,
     List<UserPlansModel> plans,
   ) {
-    if (item.type != RoutineItemType.plan) return null;
+    if (item.type != RoutineItemType.series) return null;
     return plans.where((p) => p.id == item.id).firstOrNull;
   }
 

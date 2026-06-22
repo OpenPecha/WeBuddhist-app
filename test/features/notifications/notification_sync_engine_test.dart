@@ -36,7 +36,7 @@ void main() {
   RoutineItem planItem(String id, {String title = 'Plan A'}) => RoutineItem(
         id: id,
         title: title,
-        type: RoutineItemType.plan,
+        type: RoutineItemType.series,
       );
 
   RoutineItem recitationItem({String id = 'r-1'}) => RoutineItem(

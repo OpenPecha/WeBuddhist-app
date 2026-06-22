@@ -309,7 +309,7 @@ class NotificationSyncEngine {
         }
         {
           // Plan items — every plan item produces its own desired notifications.
-          for (final item in block.items.where((i) => i.type == RoutineItemType.plan)) {
+          for (final item in block.items.where((i) => i.type == RoutineItemType.series)) {
             var plan = plansById?[item.id];
             // Cached-metadata fallback is for the UNKNOWN state only
             // (offline / loading). When the server list resolved and the
@@ -645,7 +645,7 @@ class NotificationSyncEngine {
 
     final payload = jsonEncode({
       'itemId': item.id,
-      'itemType': RoutineItemType.plan.name,
+      'itemType': RoutineItemType.series.name,
     });
 
     var scheduledCount = 0;

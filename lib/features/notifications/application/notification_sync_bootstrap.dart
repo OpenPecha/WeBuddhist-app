@@ -187,7 +187,7 @@ Future<void> _syncMetadata(
   for (final plan in plans) {
     final inRoutine = routineBlocks.any(
       (block) => block.items.any(
-        (item) => item.id == plan.id && item.type == RoutineItemType.plan,
+        (item) => item.id == plan.id && item.type == RoutineItemType.series,
       ),
     );
     if (!inRoutine) {

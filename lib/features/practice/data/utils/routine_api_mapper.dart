@@ -29,7 +29,7 @@ RoutineItem routineItemFromSessionDto(SessionDTO s) {
     title: s.title,
     coverImage: s.coverImage,
     type: switch (s.sessionType) {
-      SessionType.plan => RoutineItemType.plan,
+      SessionType.series => RoutineItemType.series,
       SessionType.recitation => RoutineItemType.recitation,
     },
     enrolledAt: s.startedAt,
@@ -44,8 +44,8 @@ List<SessionRequest> _sessionsForBlock(RoutineBlock block) {
     final item = block.items[i];
     sessions.add(
       SessionRequest(
-        sessionType: item.type == RoutineItemType.plan
-            ? SessionType.plan
+        sessionType: item.type == RoutineItemType.series
+            ? SessionType.series
             : SessionType.recitation,
         sourceId: item.id,
         displayOrder: i,

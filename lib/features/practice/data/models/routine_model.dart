@@ -5,7 +5,7 @@ import 'package:uuid/uuid.dart';
 
 const _uuid = Uuid();
 
-enum RoutineItemType { plan, recitation }
+enum RoutineItemType { series, recitation }
 
 class RoutineItem {
   final String id;
@@ -83,13 +83,15 @@ class RoutineItem {
     return item;
   }
 
-  /// Safely parses [RoutineItemType] with fallback to [RoutineItemType.plan].
+  /// Safely parses [RoutineItemType] with fallback to [RoutineItemType.series].
   static RoutineItemType _parseRoutineItemType(dynamic value) {
-    if (value is! String) return RoutineItemType.plan;
-    return RoutineItemType.values.firstWhere(
-      (e) => e.name == value,
-      orElse: () => RoutineItemType.plan,
-    );
+    if (value is! String) return RoutineItemType.series;
+    return switch (value) {
+      'plan' => RoutineItemType.series,
+      'series' => RoutineItemType.series,
+      'recitation' => RoutineItemType.recitation,
+      _ => RoutineItemType.series,
+    };
   }
 
   /// Safely parses a [DateTime] from an ISO 8601 string.
