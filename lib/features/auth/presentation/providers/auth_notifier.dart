@@ -2,6 +2,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:flutter_pecha/core/error/failures.dart';
 import 'package:flutter_pecha/core/storage/plan_metadata_store.dart';
 import 'package:flutter_pecha/core/storage/special_plan_started_at_store.dart';
 import 'package:flutter_pecha/core/storage/storage_keys.dart';
@@ -126,35 +127,67 @@ class AuthNotifier extends StateNotifier<AuthState> {
     // Extract result outside fold so we can await async operations below.
     // fpdart's fold() is synchronous and will not await returned Futures.
     AuthCredentials? credentials;
-    credentialsResult.fold((failure) {
-      _logger.error('Failed to get credentials: ${failure.message}');
-    }, (creds) => credentials = creds);
+    Failure? failure;
+    credentialsResult.fold((f) => failure = f, (creds) => credentials = creds);
 
-    if (credentials == null || credentials!.idToken.isEmpty) {
-      _logger.debug('Credentials check returned null or invalid credentials');
+    // Happy path: we have a fresh token.
+    if (credentials != null && credentials!.idToken.isNotEmpty) {
+      // Store currentUserId BEFORE updating auth state so the route guard
+      // can check the per-user onboarding key when the router refreshes.
+      final userId = _extractUserIdFromToken(credentials!.idToken);
+      if (userId != null) {
+        await ref
+            .read(localStorageServiceProvider)
+            .set(StorageKeys.currentUserId, userId);
+        _logger.debug('Restored currentUserId for onboarding tracking');
+        await _identifyAuthenticatedUser(userId: userId, isGuest: false);
+      }
+
+      state = state.copyWith(
+        isLoggedIn: true,
+        isLoading: false,
+        isGuest: false,
+        errorMessage: null,
+      );
+      _logger.info('Login state restored');
+
+      try {
+        ref.read(userProvider.notifier).initializeUser();
+      } catch (e) {
+        _logger.warning('Could not initialize user data', e);
+      }
+      return;
+    }
+
+    // No fresh token. Only sign the user out when the session is *permanently*
+    // gone (no credentials / no refresh token → AuthenticationFailure).
+    // hasValidCredentials() already confirmed a session exists, so a
+    // transient/offline renewal failure (NetworkFailure) must NOT wipe it —
+    // keep the user logged in and renew on the first authenticated request.
+    if (failure is AuthenticationFailure) {
+      _logger.info('Stored credentials permanently invalid — checking guest mode');
       _checkGuestMode();
       return;
     }
 
-    // Store currentUserId BEFORE updating auth state so the route guard
-    // can check the per-user onboarding key when the router refreshes.
-    final userId = _extractUserIdFromToken(credentials!.idToken);
-    if (userId != null) {
-      await ref
-          .read(localStorageServiceProvider)
-          .set(StorageKeys.currentUserId, userId);
-      _logger.debug('Restored currentUserId for onboarding tracking');
-      await _identifyAuthenticatedUser(userId: userId, isGuest: false);
-    }
-
+    _logger.warning(
+      'Could not refresh credentials at launch (transient/offline). '
+      'Keeping the existing session; it will renew on the next request.',
+    );
+    final storedUserId = await ref
+        .read(localStorageServiceProvider)
+        .get<String>(StorageKeys.currentUserId);
     state = state.copyWith(
       isLoggedIn: true,
       isLoading: false,
       isGuest: false,
       errorMessage: null,
     );
-    _logger.info('Login state restored');
-
+    if (storedUserId != null && storedUserId.isNotEmpty) {
+      unawaited(
+        _identifyAuthenticatedUser(userId: storedUserId, isGuest: false),
+      );
+    }
     try {
       ref.read(userProvider.notifier).initializeUser();
     } catch (e) {

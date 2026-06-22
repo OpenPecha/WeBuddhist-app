@@ -25,6 +25,22 @@
   "home_intention": "My intention for today",
   "home_overall_stats": "Overall stats",
   "home_plans": "plans",
+  "home_plans_count": "{count} plans",
+  "@home_plans_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "home_recitation_count": "{count} recitations",
+  "@home_recitation_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "home_shortcut_plans": "Plans",
   "home_chants": "Chants",
   "home_mala": "Mala",
@@ -177,16 +193,16 @@
   "plans_empty_subtitle": "Our library is growing. Check back soon.",
   "find_plans_load_error": "Unable to load.\nCheck your connection and try again",
   "connect_coming_soon_subtitle": "Teachers, communities, challenges, and events to support you on the path",
-  "connect_subtitle": "Find groups and practice together",
+  "connect_subtitle": "Find your groups and practice together",
   "discover_groups": "Discover groups",
   "my_groups": "My groups",
   "see_all": "See all",
   "connect_groups_load_error": "Unable to load groups.\nCheck your connection and try again",
   "connect_groups_empty_title": "No groups yet",
-  "connect_groups_empty_subtitle": "no more groups to join",
+  "connect_groups_empty_subtitle": "Congratulations, you've joined all our groups! Check back soon. New ones are on the way",
   "search_groups": "Search groups",
   "search_for_groups": "Search for groups",
-  "no_groups_found": "No groups found",
+  "no_groups_found": "No matching groups found",
   "explore_coming_soon_subtitle": "A curated space to discover practices, teachings, and community events",
   "learn_coming_soon_subtitle": "Your personal study plans, designed to fit into everyday life",
   "creator_featured_plan": "Featured plan",
@@ -600,7 +616,7 @@
       }
     }
   },
-  "me_best_streak": "Best streak: {count} days",
+  "me_best_streak": "Longest streak: {count} days",
   "@me_best_streak": {
     "placeholders": {
       "count": {
@@ -608,10 +624,11 @@
       }
     }
   },
-  "me_accumulation": "Accumulation",
+  "me_accumulation": "Total accumulations",
   "me_counts": "counts",
   "me_minutes": "minutes",
-  "me_days_plan_practiced_suffix": "days plan practiced",
+  "me_total_meditation_time": "Total meditation time",
+  "me_days_plan_practiced_suffix": "total plan days completed",
   "me_streak_share_message": "I'm on a {count}-day streak on {appName}!",
   "@me_streak_share_message": {
     "placeholders": {
@@ -623,7 +640,7 @@
       }
     }
   },
-  "me_streak_share_quote": "My daily practice is growing",
+  "me_streak_share_quote": "My current streak on WeBuddhist!",
   "me_streak_days_count": "{count} days",
   "@me_streak_days_count": {
     "placeholders": {
@@ -632,7 +649,7 @@
       }
     }
   },
-  "share_this_streak": "Share this streak",
+  "share_this_streak": "Share my streak",
   "me_streak_share_error": "Unable to share streak. Please try again",
   "delete_account_title": "Delete account",
   "delete_account_description": "If you delete your account, all your information, history, and personalized settings within WeBuddhist will be permanently eliminated. Please note that this action is irreversible. To proceed, tap the button below.",
@@ -693,5 +710,12 @@
 
   "share_this_quote": "Share this quote",
   "shared_from": "Shared from",
-  "verse_share_error": "Unable to share quote. Please try again"
+  "verse_share_error": "Unable to share quote. Please try again",
+  "weekday_monday": "MON",
+  "weekday_tuesday": "TUE",
+  "weekday_wednesday": "WED",
+  "weekday_thursday": "THU",
+  "weekday_friday": "FRI",
+  "weekday_saturday": "SAT",
+  "weekday_sunday": "SUN"
 }

@@ -112,8 +112,18 @@ class AuthRepositoryImpl implements AuthRepository {
       }
       return Right(_toAuthCredentials(credentials));
     } catch (e) {
-      return Left(AuthenticationFailure('Failed to get credentials: $e'));
+      return Left(_credentialFailure(e, 'Failed to get credentials'));
     }
+  }
+
+  /// Maps a credentials-operation error to a [Failure], distinguishing a
+  /// permanently-lost session ([AuthenticationFailure] → re-login) from a
+  /// transient/offline renewal failure ([NetworkFailure] → keep the session
+  /// and retry). See [AuthService.isSessionPermanentlyLost].
+  Failure _credentialFailure(Object error, String context) {
+    return AuthService.isSessionPermanentlyLost(error)
+        ? AuthenticationFailure('$context: $error')
+        : NetworkFailure('$context: $error');
   }
 
   @override
@@ -130,7 +140,7 @@ class AuthRepositoryImpl implements AuthRepository {
       }
       return Right(idToken);
     } catch (e) {
-      return Left(AuthenticationFailure('Failed to get valid ID token: $e'));
+      return Left(_credentialFailure(e, 'Failed to get valid ID token'));
     }
   }
 
@@ -143,7 +153,7 @@ class AuthRepositoryImpl implements AuthRepository {
       }
       return Right(idToken);
     } catch (e) {
-      return Left(AuthenticationFailure('Failed to refresh ID token: $e'));
+      return Left(_credentialFailure(e, 'Failed to refresh ID token'));
     }
   }
 

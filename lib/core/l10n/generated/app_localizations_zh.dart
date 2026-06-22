@@ -85,6 +85,16 @@ class AppLocalizationsZh extends AppLocalizations {
   String get home_plans => '計劃';
 
   @override
+  String home_plans_count(int count) {
+    return '$count 計劃';
+  }
+
+  @override
+  String home_recitation_count(int count) {
+    return '$count 持誦';
+  }
+
+  @override
   String get home_shortcut_plans => '計劃';
 
   @override
@@ -477,35 +487,34 @@ class AppLocalizationsZh extends AppLocalizations {
   String get connect_coming_soon_subtitle => '在修行路上支持您前行的良師、社群、修持挑戰與相關活動';
 
   @override
-  String get connect_subtitle => 'Find groups and practice together';
+  String get connect_subtitle => '尋找你的社群，一起修持';
 
   @override
-  String get discover_groups => 'Discover groups';
+  String get discover_groups => '探索社群';
 
   @override
-  String get my_groups => 'My groups';
+  String get my_groups => '我的社群';
 
   @override
-  String get see_all => 'See all';
+  String get see_all => '查看全部';
 
   @override
-  String get connect_groups_load_error =>
-      'Unable to load groups.\nCheck your connection and try again';
+  String get connect_groups_load_error => '無法載入社群，\n請檢查網路連線後重試';
 
   @override
-  String get connect_groups_empty_title => 'No groups yet';
+  String get connect_groups_empty_title => '尚無社群';
 
   @override
-  String get connect_groups_empty_subtitle => 'no more groups to join';
+  String get connect_groups_empty_subtitle => '恭喜，你已加入我們所有的社群！請稍後再來，更多社群即將推出';
 
   @override
-  String get search_groups => 'Search groups';
+  String get search_groups => '搜尋社群';
 
   @override
-  String get search_for_groups => 'Search for groups';
+  String get search_for_groups => '搜尋社群';
 
   @override
-  String get no_groups_found => 'No groups found';
+  String get no_groups_found => '找不到符合的社群';
 
   @override
   String get explore_coming_soon_subtitle => '探索修持、教法與社群活動的精選空間。';
@@ -1221,49 +1230,51 @@ class AppLocalizationsZh extends AppLocalizations {
   String get me_guest_subtitle => 'Create a free account to access plans';
 
   @override
-  String get me_my_stats => 'My stats';
+  String get me_my_stats => '我的統計';
 
   @override
   String me_day_streak(int count) {
-    return '$count-day streak';
+    return '連續 $count 天';
   }
 
   @override
   String me_best_streak(int count) {
-    return 'Best streak: $count days';
+    return '最長連續：$count 天';
   }
 
   @override
-  String get me_accumulation => 'Accumulation';
+  String get me_accumulation => '累積總數';
 
   @override
-  String get me_counts => 'counts';
+  String get me_counts => '次';
 
   @override
-  String get me_minutes => 'minutes';
+  String get me_minutes => '分鐘';
 
   @override
-  String get me_days_plan_practiced_suffix => 'days plan practiced';
+  String get me_total_meditation_time => '禪修總時間';
+
+  @override
+  String get me_days_plan_practiced_suffix => '天計畫已完成';
 
   @override
   String me_streak_share_message(int count, String appName) {
-    return 'I\'m on a $count-day streak on $appName!';
+    return '我在 $appName 已連續 $count 天！';
   }
 
   @override
-  String get me_streak_share_quote => 'My daily practice is growing';
+  String get me_streak_share_quote => '我在 WeBuddhist 的連續紀錄！';
 
   @override
   String me_streak_days_count(int count) {
-    return '$count days';
+    return '$count 天';
   }
 
   @override
-  String get share_this_streak => 'Share this streak';
+  String get share_this_streak => '分享我的連續紀錄';
 
   @override
-  String get me_streak_share_error =>
-      'Unable to share streak. Please try again';
+  String get me_streak_share_error => '無法分享連續紀錄，請重試';
 
   @override
   String get delete_account_title => 'Delete account';
@@ -1374,4 +1385,25 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get verse_share_error => '无法分享引文，请重试';
+
+  @override
+  String get weekday_monday => '週一';
+
+  @override
+  String get weekday_tuesday => '週二';
+
+  @override
+  String get weekday_wednesday => '週三';
+
+  @override
+  String get weekday_thursday => '週四';
+
+  @override
+  String get weekday_friday => '週五';
+
+  @override
+  String get weekday_saturday => '週六';
+
+  @override
+  String get weekday_sunday => '週日';
 }

@@ -5,6 +5,8 @@ import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
 import 'package:flutter_pecha/core/services/service_providers.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/widgets/error_state_widget.dart';
+import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
+import 'package:flutter_pecha/features/auth/presentation/widgets/login_drawer.dart';
 import 'package:flutter_pecha/features/home/domain/entities/series.dart';
 import 'package:flutter_pecha/features/home/presentation/providers/featured_series_provider.dart';
 import 'package:flutter_pecha/features/home/presentation/providers/routine_info_provider.dart';
@@ -226,6 +228,17 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     _onRefresh();
   }
 
+  /// Opens a login-only feature shortcut (Mala, Timer). Guests are prompted to
+  /// sign in via the login drawer instead of navigating, since these features
+  /// need an authenticated account to persist progress.
+  void _openGatedFeature(String route) {
+    if (ref.read(authProvider).isGuest) {
+      LoginDrawer.show(context, ref);
+      return;
+    }
+    context.push(route);
+  }
+
   void _navigateToSeries(Series series) {
     context.pushNamed(
       'home-series-detail',
@@ -338,8 +351,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                             height: HomeScreenConstants.cardSpacing,
                           ),
                           HomeShortcutsRow(
-                            onTimerTap: () => context.push('/home/timers'),
-                            onMalaTap: () => context.push('/mala'),
+                            onTimerTap: () => _openGatedFeature('/home/timers'),
+                            onMalaTap: () => _openGatedFeature('/mala'),
                           ),
                           const SizedBox(
                             height: HomeScreenConstants.cardSpacing,

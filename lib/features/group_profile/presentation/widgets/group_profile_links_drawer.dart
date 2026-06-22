@@ -97,7 +97,7 @@ class GroupProfileLinksDrawer extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: Theme.of(context).scaffoldBackgroundColor,
+        color: isDark ? AppColors.cardDark : AppColors.surfaceWhite,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
       ),
       child: Column(
@@ -110,9 +110,9 @@ class GroupProfileLinksDrawer extends StatelessWidget {
               alignment: Alignment.centerLeft,
               child: Text(
                 context.l10n.group_links_title,
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
               ),
             ),
           ),
@@ -154,8 +154,7 @@ class GroupProfileLinksDrawer extends StatelessWidget {
         width: 40,
         height: 4,
         decoration: BoxDecoration(
-          color:
-              Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3),
+          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3),
           borderRadius: BorderRadius.circular(2),
         ),
       ),

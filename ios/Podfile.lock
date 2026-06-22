@@ -346,7 +346,12 @@ SPEC CHECKSUMS:
   Auth0: 2876d0c36857422eda9cb580a6cc896c7d14cb36
   auth0_flutter: 031042ca6cf84f1b21611062b33ea7ec4bf3bc52
   connectivity_plus: cb623214f4e1f6ef8fe7403d580fdad517d2f7dd
+  auth0_flutter: 031042ca6cf84f1b21611062b33ea7ec4bf3bc52
+  connectivity_plus: cb623214f4e1f6ef8fe7403d580fdad517d2f7dd
   Firebase: 7cc10425300768ec86292688af5cb228f0604bde
+  firebase_analytics: 9ea6c22e60e1d37ee76772de57b4addddb03e276
+  firebase_core: 383e19b49a08df5d7a6cf5017616de6a357ed7af
+  firebase_crashlytics: 88273c8643a258ff74ee26203e319a782aa8b12c
   firebase_analytics: 9ea6c22e60e1d37ee76772de57b4addddb03e276
   firebase_core: 383e19b49a08df5d7a6cf5017616de6a357ed7af
   firebase_crashlytics: 88273c8643a258ff74ee26203e319a782aa8b12c

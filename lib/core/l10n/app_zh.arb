@@ -25,6 +25,22 @@
   "home_recitation": "持誦",
   "home_overall_stats": "整體統計",
   "home_plans": "計劃",
+  "home_plans_count": "{count} 計劃",
+  "@home_plans_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "home_recitation_count": "{count} 持誦",
+  "@home_recitation_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "home_shortcut_plans": "計劃",
   "home_chants": "持誦",
   "home_mala": "念珠",
@@ -514,8 +530,8 @@
   "about_social_website": "網頁",
   "me_guest_headline": "Access the full experience",
   "me_guest_subtitle": "Create a free account to access plans",
-  "me_my_stats": "My stats",
-  "me_day_streak": "{count}-day streak",
+  "me_my_stats": "我的統計",
+  "me_day_streak": "連續 {count} 天",
   "@me_day_streak": {
     "placeholders": {
       "count": {
@@ -523,7 +539,7 @@
       }
     }
   },
-  "me_best_streak": "Best streak: {count} days",
+  "me_best_streak": "最長連續：{count} 天",
   "@me_best_streak": {
     "placeholders": {
       "count": {
@@ -531,11 +547,12 @@
       }
     }
   },
-  "me_accumulation": "Accumulation",
-  "me_counts": "counts",
-  "me_minutes": "minutes",
-  "me_days_plan_practiced_suffix": "days plan practiced",
-  "me_streak_share_message": "I'm on a {count}-day streak on {appName}!",
+  "me_accumulation": "累積總數",
+  "me_counts": "次",
+  "me_minutes": "分鐘",
+  "me_total_meditation_time": "禪修總時間",
+  "me_days_plan_practiced_suffix": "天計畫已完成",
+  "me_streak_share_message": "我在 {appName} 已連續 {count} 天！",
   "@me_streak_share_message": {
     "placeholders": {
       "count": {
@@ -546,8 +563,8 @@
       }
     }
   },
-  "me_streak_share_quote": "My daily practice is growing",
-  "me_streak_days_count": "{count} days",
+  "me_streak_share_quote": "我在 WeBuddhist 的連續紀錄！",
+  "me_streak_days_count": "{count} 天",
   "@me_streak_days_count": {
     "placeholders": {
       "count": {
@@ -555,8 +572,8 @@
       }
     }
   },
-  "share_this_streak": "Share this streak",
-  "me_streak_share_error": "Unable to share streak. Please try again",
+  "share_this_streak": "分享我的連續紀錄",
+  "me_streak_share_error": "無法分享連續紀錄，請重試",
   "delete_account_title": "Delete account",
   "delete_account_description": "If you delete your account, all your information, history, and personalized settings within WeBuddhist will be permanently eliminated. This action will also end any recurring contributions, if applicable. Please note that this action is irreversible. To proceed, tap the button below.",
   "delete_account_button": "Delete account",
@@ -609,5 +626,22 @@
 
   "share_this_quote": "分享这句话",
   "shared_from": "分享自",
-  "verse_share_error": "无法分享引文，请重试"
+  "verse_share_error": "无法分享引文，请重试",
+  "connect_subtitle": "尋找你的社群，一起修持",
+  "discover_groups": "探索社群",
+  "my_groups": "我的社群",
+  "see_all": "查看全部",
+  "search_groups": "搜尋社群",
+  "search_for_groups": "搜尋社群",
+  "no_groups_found": "找不到符合的社群",
+  "connect_groups_empty_title": "尚無社群",
+  "connect_groups_empty_subtitle": "恭喜，你已加入我們所有的社群！請稍後再來，更多社群即將推出",
+  "connect_groups_load_error": "無法載入社群，\n請檢查網路連線後重試",
+  "weekday_monday": "週一",
+  "weekday_tuesday": "週二",
+  "weekday_wednesday": "週三",
+  "weekday_thursday": "週四",
+  "weekday_friday": "週五",
+  "weekday_saturday": "週六",
+  "weekday_sunday": "週日"
 }

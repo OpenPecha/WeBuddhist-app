@@ -7,7 +7,7 @@ import 'package:fpdart/fpdart.dart';
 import 'package:flutter_pecha/shared/domain/base_classes/usecase.dart';
 
 final userStatsFutureProvider =
-    FutureProvider<Either<Failure, UserStats>>((ref) async {
+    FutureProvider.autoDispose<Either<Failure, UserStats>>((ref) async {
       final auth = ref.watch(authProvider);
       if (auth.isLoading || !auth.isLoggedIn || auth.isGuest) {
         return const Left(AuthenticationFailure('Not authenticated'));

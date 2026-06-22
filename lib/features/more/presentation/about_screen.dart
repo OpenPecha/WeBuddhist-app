@@ -15,7 +15,7 @@ class AboutScreen extends StatelessWidget {
       icon: AppAssets.linkSimple,
       title: l10n.about_social_website,
       subtitle: 'www.webuddhist.com',
-      url: 'https://webuddhist.com',
+      url: 'https://www.webuddhist.com/?redirected=true',
     ),
     _SocialLink(
       icon: AppAssets.instagram,
