@@ -34,6 +34,11 @@ class AuthService {
   /// in-flight renewal instead of each hitting the credentials manager.
   Future<Credentials>? _inflightCredentials;
 
+  /// Whether [_inflightCredentials] is a *forced* renewal. A forced caller may
+  /// only share an in-flight call that is itself forced — otherwise it might
+  /// receive a plain cache read (the very token the server just rejected).
+  bool _inflightIsForced = false;
+
   Future<void> initialize() async {
     if (_isInitialized) return;
 
@@ -187,11 +192,46 @@ class AuthService {
   /// single-use refresh token can never be consumed by two racing callers.
   /// Do not call `_auth0.api.renewCredentials` directly anywhere.
   Future<Credentials> _validCredentials({bool force = false}) {
-    if (_inflightCredentials != null) return _inflightCredentials!;
-    final future = _fetchCredentials(force: force)
-        .whenComplete(() => _inflightCredentials = null);
+    final inflight = _inflightCredentials;
+    // Share the in-flight renewal when it satisfies us: a non-forced caller
+    // accepts any in-flight call; a forced caller only accepts one that is
+    // itself forced. A forced caller must NOT join a non-forced cache read, or
+    // it could be handed back the token the server just rejected.
+    if (inflight != null && (!force || _inflightIsForced)) return inflight;
+
+    // We need a (possibly forced) renewal that no in-flight call provides. If a
+    // non-forced call is currently running, sequence our forced fetch *after*
+    // it settles rather than racing it, so the credentials manager stays the
+    // single, rotation-safe refresh path (one renewal in flight at a time).
+    final previous = inflight;
+    final future = _runCredentialsFetch(force: force, after: previous);
     _inflightCredentials = future;
+    _inflightIsForced = force;
+    // Only clear if we're still the current in-flight; a later forced call may
+    // have already superseded us.
+    future.whenComplete(() {
+      if (identical(_inflightCredentials, future)) {
+        _inflightCredentials = null;
+        _inflightIsForced = false;
+      }
+    });
     return future;
+  }
+
+  Future<Credentials> _runCredentialsFetch({
+    required bool force,
+    Future<Credentials>? after,
+  }) async {
+    if (after != null) {
+      // Let the prior renewal finish (ignore its result/error) so two renewals
+      // never hit the rotating refresh token concurrently.
+      try {
+        await after;
+      } catch (_) {
+        // Ignored — we proceed to our own fetch regardless.
+      }
+    }
+    return _fetchCredentials(force: force);
   }
 
   Future<Credentials> _fetchCredentials({required bool force}) async {
