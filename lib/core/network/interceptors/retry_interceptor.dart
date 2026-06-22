@@ -76,11 +76,15 @@ class RetryInterceptor extends Interceptor {
           _logger.info('Attempting to refresh token');
           newAccessToken = await _authService.forceRefreshAccessToken();
         } catch (e) {
-          // Only force re-authentication when the session is permanently gone
-          // (no credentials / no refresh token). A transient or offline refresh
-          // failure must NOT wipe a valid session — surface the error and let
-          // the caller retry once connectivity returns.
-          permanentlyLost = AuthService.isSessionPermanentlyLost(e);
+          // Force re-authentication when the session is permanently gone (no
+          // credentials / no refresh token / opaque token) OR the renewal was
+          // rejected. We only reach here *after* the server answered our
+          // request with a 401, so we are provably online: a `RENEW_FAILED`
+          // here is a rejected refresh token, not an offline blip, and must end
+          // the session instead of looping 401s forever. (The app-open restore
+          // path stays tolerant of transient renewal failures.)
+          permanentlyLost = AuthService.isSessionPermanentlyLost(e) ||
+              AuthService.isTokenRenewalFailed(e);
           if (permanentlyLost) {
             _logger.warning('Token refresh failed permanently - re-authentication required');
           } else {

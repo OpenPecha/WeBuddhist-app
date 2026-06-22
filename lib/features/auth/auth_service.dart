@@ -204,18 +204,22 @@ class AuthService {
     // it settles rather than racing it, so the credentials manager stays the
     // single, rotation-safe refresh path (one renewal in flight at a time).
     final previous = inflight;
-    final future = _runCredentialsFetch(force: force, after: previous);
-    _inflightCredentials = future;
-    _inflightIsForced = force;
-    // Only clear if we're still the current in-flight; a later forced call may
-    // have already superseded us.
-    future.whenComplete(() {
-      if (identical(_inflightCredentials, future)) {
+    // `tracked` IS the future we store and return, so its error is delivered to
+    // the awaiting caller (handled). Do NOT drop a separate `whenComplete`
+    // future here — its error would have no listener and surface as an
+    // unhandled async exception when a renewal fails.
+    late final Future<Credentials> tracked;
+    tracked = _runCredentialsFetch(force: force, after: previous).whenComplete(() {
+      // Only clear if we're still the current in-flight; a later forced call
+      // may have already superseded us.
+      if (identical(_inflightCredentials, tracked)) {
         _inflightCredentials = null;
         _inflightIsForced = false;
       }
     });
-    return future;
+    _inflightCredentials = tracked;
+    _inflightIsForced = force;
+    return tracked;
   }
 
   Future<Credentials> _runCredentialsFetch({
@@ -315,6 +319,19 @@ class AuthService {
     return error is CredentialsManagerException &&
         (error.isNoCredentialsFound || error.isNoRefreshTokenFound);
   }
+
+  /// Whether [error] is a failed token *renewal* (`RENEW_FAILED` — the refresh
+  /// token could not be exchanged).
+  ///
+  /// Deliberately separate from [isSessionPermanentlyLost]: at **app open** a
+  /// renewal failure is usually transient/offline and must NOT wipe the
+  /// session. But in the **reactive 401 path** the server just answered us, so
+  /// we are provably online — a renewal failure there means the refresh token
+  /// is rejected (revoked/expired/rotated) and the session is terminal.
+  /// Without this, a dead refresh token traps the user in an endless 401 loop
+  /// with no prompt to re-authenticate.
+  static bool isTokenRenewalFailed(Object error) =>
+      error is CredentialsManagerException && error.isTokenRenewFailed;
 
   /// Check if credentials exist and are valid
   Future<bool> hasValidCredentials() async {

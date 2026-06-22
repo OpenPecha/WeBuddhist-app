@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:auth0_flutter/auth0_flutter.dart';
 import 'package:flutter_pecha/features/auth/auth_service.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -92,6 +93,29 @@ void main() {
     test('treats an unrelated AuthException as transient', () {
       expect(
         AuthService.isSessionPermanentlyLost(AuthException('network blip')),
+        isFalse,
+      );
+    });
+
+    test('a RENEW_FAILED is NOT permanent on its own (restore path tolerates it)',
+        () {
+      final error = CredentialsManagerException('RENEW_FAILED', 'msg', const {});
+      expect(AuthService.isSessionPermanentlyLost(error), isFalse);
+    });
+  });
+
+  group('isTokenRenewalFailed', () {
+    test('detects a RENEW_FAILED credentials-manager error', () {
+      final error = CredentialsManagerException('RENEW_FAILED', 'msg', const {});
+      expect(AuthService.isTokenRenewalFailed(error), isTrue);
+    });
+
+    test('is false for unrelated errors', () {
+      expect(AuthService.isTokenRenewalFailed(AuthException('x')), isFalse);
+      expect(
+        AuthService.isTokenRenewalFailed(
+          CredentialsManagerException('NO_REFRESH_TOKEN', 'm', const {}),
+        ),
         isFalse,
       );
     });
