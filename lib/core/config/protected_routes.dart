@@ -72,6 +72,8 @@ class ProtectedRoutes {
   /// The token is sent when the user is authenticated; silently skipped for guests.
   static const List<String> optionalPaths = [
     '/plans/{planId}/days',
+    // Authenticated users get joined groups excluded server-side.
+    '/author/groups',
   ];
 
   /// Check if a given path is protected (requires authentication).
