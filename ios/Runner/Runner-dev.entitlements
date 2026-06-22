@@ -6,6 +6,7 @@
 	<array>
 		<string>webcredentials:dev-vz6o17motc18g45h.us.auth0.com</string>
 		<string>applinks:webuddhistdev.airbridge.io</string>
+		<string>applinks:webuddhistdev.abr.ge</string>
 		<string>applinks:join.webuddhist.com</string>
 	</array>
 </dict>

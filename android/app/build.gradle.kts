@@ -61,6 +61,8 @@ android {
             ?: localProperties.getProperty("airbridge.app.token", "")
         buildConfigField("String", "AIRBRIDGE_APP_NAME", "\"$airbridgeName\"")
         buildConfigField("String", "AIRBRIDGE_SDK_TOKEN", "\"$airbridgeToken\"")
+        // Manifest placeholder so intent filters resolve the Airbridge domains at build time.
+        manifestPlaceholders["airbridgeAppName"] = airbridgeName
     }
 
     val cmKeystorePath: String? = System.getenv("CM_KEYSTORE_PATH")

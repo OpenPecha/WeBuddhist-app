@@ -6,6 +6,7 @@
 	<array>
 		<string>webcredentials:${AUTH0_DOMAIN}</string>
 		<string>applinks:${AIRBRIDGE_APP_NAME}.airbridge.io</string>
+		<string>applinks:${AIRBRIDGE_APP_NAME}.abr.ge</string>
 		<string>applinks:join.webuddhist.com</string>
 	</array>
 </dict>
