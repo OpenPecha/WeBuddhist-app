@@ -194,7 +194,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String commentary_not_available_for_language(String language) {
-    return '$language commentary not available';
+    return '暫無 $language 註釋';
   }
 
   @override
@@ -1138,68 +1138,61 @@ class AppLocalizationsZh extends AppLocalizations {
   String get edit_profile_bio_hint => '向大家介紹一下自己';
 
   @override
-  String get edit_profile_delete_account => 'Delete account';
+  String get edit_profile_delete_account => '刪除帳號';
 
   @override
-  String get edit_profile_photo_not_uploaded => 'Photo not uploaded';
+  String get edit_profile_photo_not_uploaded => '相片尚未上傳';
 
   @override
-  String get edit_profile_photo_too_large =>
-      'Image is too large. Please choose a photo under 1 MB and try again.';
+  String get edit_profile_photo_too_large => '圖片過大，請選擇 1 MB 以下的相片後再試一次';
 
   @override
-  String get edit_profile_photo_upload_failed =>
-      'Could not upload your photo. Please try again.';
+  String get edit_profile_photo_upload_failed => '無法上傳您的相片，請再試一次';
 
   @override
-  String get edit_profile_choose_from_library => 'Choose from library';
+  String get edit_profile_choose_from_library => '從相簿選擇';
 
   @override
-  String get edit_profile_take_photo => 'Take a photo';
+  String get edit_profile_take_photo => '拍照';
 
   @override
-  String get edit_profile_offline =>
-      'You\'re offline. Connect to the internet and try again.';
+  String get edit_profile_offline => '您目前離線，請連接網路後再試一次';
 
   @override
-  String get edit_profile_save_failed =>
-      'Couldn\'t save your changes. Please try again.';
+  String get edit_profile_save_failed => '無法儲存您的變更，請再試一次';
 
   @override
   String get username_label => '使用者名稱';
 
   @override
-  String get username_taken => 'Someone already used this name';
+  String get username_taken => '這個名稱已被使用';
 
   @override
-  String get username_available_label => 'Available : ';
+  String get username_available_label => '可使用：';
 
   @override
-  String get username_check_error => 'Could not check username. Try again.';
+  String get username_check_error => '無法檢查使用者名稱，請再試一次';
 
   @override
-  String get username_invalid_format => 'Invalid username format.';
+  String get username_invalid_format => '使用者名稱格式無效';
 
   @override
-  String get username_min_length => 'Username must be at least 3 characters';
+  String get username_min_length => '使用者名稱至少需 3 個字元';
 
   @override
-  String get username_max_length => 'Username must be at most 30 characters';
+  String get username_max_length => '使用者名稱不可超過 30 個字元';
 
   @override
-  String get username_no_spaces => 'Username cannot contain spaces';
+  String get username_no_spaces => '使用者名稱不可包含空格';
 
   @override
-  String get username_invalid_chars =>
-      'Only letters, numbers, _ . - are allowed';
+  String get username_invalid_chars => '僅允許字母、數字、_ . -';
 
   @override
-  String get username_must_start_alphanumeric =>
-      'Username must start with a letter or number';
+  String get username_must_start_alphanumeric => '使用者名稱須以字母或數字開頭';
 
   @override
-  String get username_must_end_alphanumeric =>
-      'Username must end with a letter or number';
+  String get username_must_end_alphanumeric => '使用者名稱須以字母或數字結尾';
 
   @override
   String get person_name_min_length => '至少需要 1 個字元';
@@ -1224,10 +1217,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get about_social_website => '網頁';
 
   @override
-  String get me_guest_headline => 'Access the full experience';
+  String get me_guest_headline => '體驗完整功能';
 
   @override
-  String get me_guest_subtitle => 'Create a free account to access plans';
+  String get me_guest_subtitle => '建立免費帳號以儲存您的進度';
 
   @override
   String get me_my_stats => '我的統計';
@@ -1277,18 +1270,17 @@ class AppLocalizationsZh extends AppLocalizations {
   String get me_streak_share_error => '無法分享連續紀錄，請重試';
 
   @override
-  String get delete_account_title => 'Delete account';
+  String get delete_account_title => '刪除帳號';
 
   @override
   String get delete_account_description =>
-      'If you delete your account, all your information, history, and personalized settings within WeBuddhist will be permanently eliminated. This action will also end any recurring contributions, if applicable. Please note that this action is irreversible. To proceed, tap the button below.';
+      '若您刪除帳號，您在 WeBuddhist 中的所有資料、紀錄與個人化設定將被永久刪除。請注意，此操作無法復原。如欲繼續，請點按下方按鈕。';
 
   @override
-  String get delete_account_button => 'Delete account';
+  String get delete_account_button => '刪除帳號';
 
   @override
-  String get delete_account_confirm_message =>
-      'Are you sure you want to delete your WeBuddhist account?';
+  String get delete_account_confirm_message => '您確定要刪除您的 WeBuddhist 帳號嗎？';
 
   @override
   String get legal_title => '法律資訊';
@@ -1300,10 +1292,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get legal_privacy_policy => '隱私政策';
 
   @override
-  String get follow => 'Follow';
+  String get follow => '追蹤';
 
   @override
-  String get following => 'Following';
+  String get following => '追蹤中';
 
   @override
   String get calendar_title => '日历';
