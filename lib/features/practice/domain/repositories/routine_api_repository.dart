@@ -14,6 +14,7 @@ abstract class RoutineApiRepository {
   /// Returns [Right(null)] when no routine has been created yet (404 / 400
   /// "no routine" from the backend).
   Future<Either<Failure, RoutineData?>> getUserRoutine({
+    required String language,
     int skip = 0,
     int limit = 20,
   });

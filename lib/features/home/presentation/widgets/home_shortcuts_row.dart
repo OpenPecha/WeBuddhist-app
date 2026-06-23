@@ -18,9 +18,9 @@ class HomeShortcutsRow extends StatelessWidget {
   final VoidCallback? onTimerTap;
 
   static const _horizontalPadding = 12.0;
-  static const _itemSpacing = 8.0;
+  static const _itemSpacing = 16.0;
   static const _borderRadius = 16.0;
-  static const _iconSize = 28.0;
+  static const _iconSize = 26.0;
 
   @override
   Widget build(BuildContext context) {
@@ -96,7 +96,7 @@ class _HomeShortcutItem {
         child: AspectRatio(
           aspectRatio: 1,
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 15),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -111,7 +111,7 @@ class _HomeShortcutItem {
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         fontSize: 14,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.bold,
                         height: 1,
                         color: iconColor,
                       ),

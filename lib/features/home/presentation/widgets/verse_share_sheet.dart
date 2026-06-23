@@ -13,6 +13,170 @@ import 'package:path_provider/path_provider.dart';
 import 'package:screenshot/screenshot.dart';
 import 'package:share_plus/share_plus.dart';
 
+/// Shareable verse preview rendered for screenshot capture.
+class VerseSharePreview extends StatelessWidget {
+  const VerseSharePreview({
+    super.key,
+    required this.verseOfDay,
+    required this.languageCode,
+    required this.locale,
+  });
+
+  final VerseOfDay verseOfDay;
+  final String languageCode;
+  final Locale locale;
+
+  @override
+  Widget build(BuildContext context) {
+    final typography = VerseOfDayTypography.fromLanguageCode(languageCode);
+    final lightTheme = AppTheme.lightTheme(locale);
+
+    return Theme(
+      data: lightTheme,
+      child: Container(
+        color: AppColors.goldLight,
+        padding: const EdgeInsets.fromLTRB(14, 20, 14, 24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              clipBehavior: Clip.antiAlias,
+              child: VerseOfDayContent(
+                verseOfDay: verseOfDay,
+                typography: VerseOfDayTypography(
+                  contentFont: typography.contentFont,
+                  systemFont: typography.systemFont,
+                  verseFontSize: languageCode == 'bo' ? 20.0 : 18.0,
+                  attributionFontSize: languageCode == 'bo' ? 16.0 : 15.0,
+                ),
+                verseColor: Colors.black87,
+                attributionColor: Colors.black87,
+                imageAspectRatio: 1.15,
+                useContentFontForAttribution: true,
+                textPadding: const EdgeInsets.fromLTRB(28, 32, 28, 36),
+              ),
+            ),
+            const SizedBox(height: 24),
+            const VerseShareBranding(
+              logoSize: 32,
+              sharedFromFontSize: 12,
+              appTitleFontSize: 14,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Captures and shares a verse-of-day quote image.
+Future<void> shareVerseOfDayQuote(
+  BuildContext context, {
+  required VerseOfDay verseOfDay,
+  GlobalKey? shareOriginKey,
+  ScreenshotController? screenshotController,
+}) async {
+  File? tempFile;
+  try {
+    final Uint8List? imageBytes =
+        screenshotController != null
+            ? await screenshotController.capture(
+              delay: const Duration(milliseconds: 100),
+              pixelRatio: 3.0,
+            )
+            : await _captureVerseShareImage(context, verseOfDay);
+
+    if (imageBytes == null || !context.mounted) return;
+
+    final directory = await getTemporaryDirectory();
+    final imagePath =
+        '${directory.path}/verse_share_${DateTime.now().millisecondsSinceEpoch}.png';
+    tempFile = File(imagePath);
+    await tempFile.writeAsBytes(imageBytes);
+
+    if (!context.mounted) return;
+
+    final sharePositionOrigin = getSharePositionOrigin(
+      context: context,
+      globalKey: shareOriginKey,
+    );
+
+    await SharePlus.instance.share(
+      ShareParams(
+        files: [XFile(tempFile.path)],
+        sharePositionOrigin: sharePositionOrigin,
+      ),
+    );
+  } catch (e) {
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.verse_share_error),
+          behavior: SnackBarBehavior.floating,
+          backgroundColor: Colors.red[700],
+        ),
+      );
+    }
+  } finally {
+    if (tempFile != null && await tempFile.exists()) {
+      try {
+        await tempFile.delete();
+      } catch (_) {}
+    }
+  }
+}
+
+Future<Uint8List?> _captureVerseShareImage(
+  BuildContext context,
+  VerseOfDay verseOfDay,
+) async {
+  final screenshotController = ScreenshotController();
+  final languageCode = Localizations.localeOf(context).languageCode;
+  final locale = Localizations.localeOf(context);
+  final previewWidth = MediaQuery.sizeOf(context).width - 24;
+
+  final overlayState = Overlay.of(context, rootOverlay: true);
+  late OverlayEntry overlayEntry;
+
+  overlayEntry = OverlayEntry(
+    builder: (_) {
+      return Positioned(
+        left: -previewWidth * 2,
+        top: 0,
+        width: previewWidth,
+        child: IgnorePointer(
+          child: Screenshot(
+            controller: screenshotController,
+            child: VerseSharePreview(
+              verseOfDay: verseOfDay,
+              languageCode: languageCode,
+              locale: locale,
+            ),
+          ),
+        ),
+      );
+    },
+  );
+
+  overlayState.insert(overlayEntry);
+
+  try {
+    await WidgetsBinding.instance.endOfFrame;
+    await Future.delayed(const Duration(milliseconds: 300));
+
+    return await screenshotController.capture(
+      delay: const Duration(milliseconds: 100),
+      pixelRatio: 3.0,
+    );
+  } finally {
+    overlayEntry.remove();
+  }
+}
+
 class VerseShareSheet extends StatefulWidget {
   const VerseShareSheet({super.key, required this.verseOfDay});
 
@@ -31,53 +195,13 @@ class _VerseShareSheetState extends State<VerseShareSheet> {
     if (_isSharing) return;
 
     setState(() => _isSharing = true);
-
-    File? tempFile;
-    try {
-      final Uint8List? imageBytes = await _screenshotController.capture(
-        delay: const Duration(milliseconds: 100),
-        pixelRatio: 3.0,
-      );
-
-      if (imageBytes == null || !mounted) return;
-
-      final directory = await getTemporaryDirectory();
-      final imagePath =
-          '${directory.path}/verse_share_${DateTime.now().millisecondsSinceEpoch}.png';
-      tempFile = File(imagePath);
-      await tempFile.writeAsBytes(imageBytes);
-
-      if (!mounted) return;
-
-      final sharePositionOrigin = getSharePositionOrigin(
-        context: context,
-        globalKey: _shareButtonKey,
-      );
-
-      await SharePlus.instance.share(
-        ShareParams(
-          files: [XFile(tempFile.path)],
-          sharePositionOrigin: sharePositionOrigin,
-        ),
-      );
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(AppLocalizations.of(context)!.verse_share_error),
-            behavior: SnackBarBehavior.floating,
-            backgroundColor: Colors.red[700],
-          ),
-        );
-      }
-    } finally {
-      if (tempFile != null && await tempFile.exists()) {
-        try {
-          await tempFile.delete();
-        } catch (_) {}
-      }
-      if (mounted) setState(() => _isSharing = false);
-    }
+    await shareVerseOfDayQuote(
+      context,
+      verseOfDay: widget.verseOfDay,
+      shareOriginKey: _shareButtonKey,
+      screenshotController: _screenshotController,
+    );
+    if (mounted) setState(() => _isSharing = false);
   }
 
   @override
@@ -86,9 +210,7 @@ class _VerseShareSheetState extends State<VerseShareSheet> {
     final colorScheme = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final languageCode = Localizations.localeOf(context).languageCode;
-    final typography = VerseOfDayTypography.fromLanguageCode(languageCode);
     final locale = Localizations.localeOf(context);
-    final lightTheme = AppTheme.lightTheme(locale);
 
     return Container(
       decoration: BoxDecoration(
@@ -112,52 +234,12 @@ class _VerseShareSheetState extends State<VerseShareSheet> {
             const SizedBox(height: 24),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 12),
-              child: Theme(
-                data: lightTheme,
-                child: Screenshot(
-                  controller: _screenshotController,
-                  child: Container(
-                    color: AppColors.goldLight,
-                    padding: const EdgeInsets.fromLTRB(14, 20, 14, 24),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Container(
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          clipBehavior: Clip.antiAlias,
-                          child: VerseOfDayContent(
-                            verseOfDay: widget.verseOfDay,
-                            typography: VerseOfDayTypography(
-                              contentFont: typography.contentFont,
-                              systemFont: typography.systemFont,
-                              verseFontSize: languageCode == 'bo' ? 20.0 : 18.0,
-                              attributionFontSize:
-                                  languageCode == 'bo' ? 16.0 : 15.0,
-                            ),
-                            verseColor: Colors.black87,
-                            attributionColor: Colors.black87,
-                            imageAspectRatio: 1.15,
-                            useContentFontForAttribution: true,
-                            textPadding: const EdgeInsets.fromLTRB(
-                              28,
-                              32,
-                              28,
-                              36,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 24),
-                        const VerseShareBranding(
-                          logoSize: 32,
-                          sharedFromFontSize: 12,
-                          appTitleFontSize: 14,
-                        ),
-                      ],
-                    ),
-                  ),
+              child: Screenshot(
+                controller: _screenshotController,
+                child: VerseSharePreview(
+                  verseOfDay: widget.verseOfDay,
+                  languageCode: languageCode,
+                  locale: locale,
                 ),
               ),
             ),

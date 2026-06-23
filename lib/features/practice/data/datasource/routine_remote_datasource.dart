@@ -81,13 +81,14 @@ class RoutineRemoteDatasource {
   /// GET /users/me/routine
   /// Fetches the authenticated user's routine, or null if none exists.
   Future<RoutineResponse?> getUserRoutine({
+    required String language,
     int skip = 0,
     int limit = 20,
   }) async {
     try {
       final response = await _dio.get(
         '/users/me/routine',
-        queryParameters: {'skip': skip, 'limit': limit},
+        queryParameters: {'skip': skip, 'limit': limit, 'language': language},
       );
       return RoutineResponse.fromJson(response.data as Map<String, dynamic>);
     } on DioException catch (e) {
