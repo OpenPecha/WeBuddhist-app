@@ -30,7 +30,7 @@ class HomeHeader extends ConsumerWidget {
         );
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 12.0),
+      padding: const EdgeInsets.symmetric(horizontal: 20.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -121,7 +121,10 @@ class _StreakBadgeState extends ConsumerState<_StreakBadge> {
       final either = await ref.read(userStatsFutureProvider.future);
       if (!mounted) return;
 
-      either.fold((_) {}, (stats) => showStreakShareSheet(context, stats.streak));
+      either.fold(
+        (_) {},
+        (stats) => showStreakShareSheet(context, stats.streak),
+      );
     } finally {
       if (mounted) setState(() => _isOpening = false);
     }
