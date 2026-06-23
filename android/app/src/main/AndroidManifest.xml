@@ -18,7 +18,7 @@
 
     <application
         android:label="@string/app_name"
-        android:name="${applicationName}"
+        android:name=".MainApplication"
         android:icon="@mipmap/launcher_icon"
         android:enableOnBackInvokedCallback="true">
         <activity
@@ -41,17 +41,37 @@
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
-            <intent-filter android:autoVerify="true">
+            <!-- Airbridge: custom URI scheme deep links -->
+            <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
-
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-
-                <data
-                    android:scheme="https"
-                    android:host="webuddhist.com"
-                    android:pathPrefix="/" />
-            </intent-filter>    
+                <data android:scheme="webuddhist" />
+            </intent-filter>
+            <!-- Airbridge: tracking link domain (join.webuddhist.com) -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="http" android:host="join.webuddhist.com" />
+                <data android:scheme="https" android:host="join.webuddhist.com" />
+            </intent-filter>
+            <!-- Airbridge: primary redirect domain ({APP_NAME}.airbridge.io) -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="http" android:host="${airbridgeAppName}.airbridge.io" />
+                <data android:scheme="https" android:host="${airbridgeAppName}.airbridge.io" />
+            </intent-filter>
+            <!-- Airbridge: secondary redirect domain ({APP_NAME}.abr.ge) -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="http" android:host="${airbridgeAppName}.abr.ge" />
+                <data android:scheme="https" android:host="${airbridgeAppName}.abr.ge" />
+            </intent-filter>
         </activity>
         <activity 
             android:name="com.auth0.android.provider.RedirectActivity"
@@ -86,6 +106,7 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
+        <meta-data android:name="flutter_deeplinking_enabled" android:value="false" />
         <receiver android:exported="false" android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationReceiver" />
         <receiver android:exported="false" android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationBootReceiver">
             <intent-filter>

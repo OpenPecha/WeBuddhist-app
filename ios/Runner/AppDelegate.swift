@@ -2,6 +2,7 @@ import Flutter
 import UIKit
 // This is required for calling FlutterLocalNotificationsPlugin.setPluginRegistrantCallback method.
 import flutter_local_notifications
+import airbridge_flutter_sdk
 
 
 @main
@@ -20,6 +21,29 @@ import flutter_local_notifications
     }
 
     GeneratedPluginRegistrant.register(with: self)
+    
+    let airbridgeAppName = Bundle.main.object(forInfoDictionaryKey: "AIRBRIDGE_APP_NAME") as? String ?? ""
+    let airbridgeSdkToken = Bundle.main.object(forInfoDictionaryKey: "AIRBRIDGE_SDK_TOKEN") as? String ?? ""
+    AirbridgeFlutter.initializeSDK(name: airbridgeAppName, token: airbridgeSdkToken)
+    
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
+  }
+  
+  override func application(
+    _ app: UIApplication,
+    open url: URL,
+    options: [UIApplication.OpenURLOptionsKey : Any] = [:]
+  ) -> Bool {
+    AirbridgeFlutter.trackDeeplink(url: url)
+    return super.application(app, open: url, options: options)
+  }
+  
+  override func application(
+    _ application: UIApplication,
+    continue userActivity: NSUserActivity,
+    restorationHandler: @escaping ([UIUserActivityRestoring]?) -> Void
+  ) -> Bool {
+    AirbridgeFlutter.trackDeeplink(userActivity: userActivity)
+    return super.application(application, continue: userActivity, restorationHandler: restorationHandler)
   }
 }

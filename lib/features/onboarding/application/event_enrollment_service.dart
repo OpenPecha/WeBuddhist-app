@@ -149,7 +149,7 @@ class EventEnrollmentService {
     if (routineData != null) {
       final alreadyInRoutine = routineData.blocks.any(
         (block) => block.items.any(
-          (item) => item.id == planId && item.type == RoutineItemType.plan,
+          (item) => item.id == planId && item.type == RoutineItemType.series,
         ),
       );
       if (alreadyInRoutine) {
@@ -164,7 +164,7 @@ class EventEnrollmentService {
       notificationEnabled: true,
       sessions: [
         SessionRequest(
-          sessionType: SessionType.plan,
+          sessionType: SessionType.series,
           sourceId: planId,
           displayOrder: 0,
         ),

@@ -7,23 +7,27 @@ import 'package:flutter_pecha/features/auth/domain/entities/username_update_resu
 
 /// Auth remote datasource.
 ///
+/// Authentication is centralized: [AuthInterceptor] attaches the bearer
+/// (access) token to every protected route (see [ProtectedRoutes]), so these
+/// methods never set an `Authorization` header themselves.
+///
 /// Error handling is centralized in ErrorInterceptor, which converts
 /// DioExceptions to typed AppExceptions. Exceptions propagate naturally
 /// to the repository layer for mapping to Failures.
 abstract class AuthRemoteDataSource {
-  Future<UserModel> getCurrentUser(String idToken);
-  Future<UserModel> updateUserInfo(String idToken, Map<String, dynamic> body);
+  Future<UserModel> getCurrentUser();
+  Future<UserModel> updateUserInfo(Map<String, dynamic> body);
 
   /// PATCH /users/username — saves [username] and returns availability result.
   /// Returns [UsernameUpdateResult.conflict] on HTTP 409 (suggestions included).
-  Future<UsernameUpdateResult> updateUsername(String idToken, String username);
+  Future<UsernameUpdateResult> updateUsername(String username);
 
   /// POST /users/upload — uploads [file] as multipart/form-data and returns the
   /// presigned S3 URL of the uploaded avatar.
-  Future<String> uploadAvatar(String idToken, File file);
+  Future<String> uploadAvatar(File file);
 
   /// DELETE /users/info — permanently deletes the authenticated user's account.
-  Future<void> deleteUser(String idToken);
+  Future<void> deleteUser();
 }
 
 class AuthRemoteDatasourceImpl extends AuthRemoteDataSource {
@@ -33,54 +37,25 @@ class AuthRemoteDatasourceImpl extends AuthRemoteDataSource {
   AuthRemoteDatasourceImpl({required Dio dio}) : _dio = dio;
 
   @override
-  Future<UserModel> getCurrentUser(String idToken) async {
-    final response = await _dio.get(
-      '/users/info',
-      options: Options(
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $idToken',
-        },
-      ),
-    );
+  Future<UserModel> getCurrentUser() async {
+    final response = await _dio.get('/users/info');
 
     return UserModel.fromJson(response.data);
   }
 
   @override
-  Future<UserModel> updateUserInfo(
-    String idToken,
-    Map<String, dynamic> body,
-  ) async {
-    final response = await _dio.post(
-      '/users/info',
-      data: body,
-      options: Options(
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $idToken',
-        },
-      ),
-    );
+  Future<UserModel> updateUserInfo(Map<String, dynamic> body) async {
+    final response = await _dio.post('/users/info', data: body);
 
     return UserModel.fromJson(response.data);
   }
 
   @override
-  Future<UsernameUpdateResult> updateUsername(
-    String idToken,
-    String username,
-  ) async {
+  Future<UsernameUpdateResult> updateUsername(String username) async {
     try {
       final response = await _dio.patch(
         '/users/username',
         data: {'username': username},
-        options: Options(
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer $idToken',
-          },
-        ),
       );
       final confirmed =
           response.data['username'] as String? ?? username;
@@ -99,7 +74,7 @@ class AuthRemoteDatasourceImpl extends AuthRemoteDataSource {
   }
 
   @override
-  Future<String> uploadAvatar(String idToken, File file) async {
+  Future<String> uploadAvatar(File file) async {
     final formData = FormData.fromMap({
       'file': await MultipartFile.fromFile(
         file.path,
@@ -107,13 +82,7 @@ class AuthRemoteDatasourceImpl extends AuthRemoteDataSource {
       ),
     });
 
-    final response = await _dio.post(
-      '/users/upload',
-      data: formData,
-      options: Options(
-        headers: {'Authorization': 'Bearer $idToken'},
-      ),
-    );
+    final response = await _dio.post('/users/upload', data: formData);
 
     // The API returns a plain JSON string (the presigned URL).
     final raw = response.data;
@@ -122,15 +91,7 @@ class AuthRemoteDatasourceImpl extends AuthRemoteDataSource {
   }
 
   @override
-  Future<void> deleteUser(String idToken) async {
-    await _dio.delete(
-      '/users/info',
-      options: Options(
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $idToken',
-        },
-      ),
-    );
+  Future<void> deleteUser() async {
+    await _dio.delete('/users/info');
   }
 }

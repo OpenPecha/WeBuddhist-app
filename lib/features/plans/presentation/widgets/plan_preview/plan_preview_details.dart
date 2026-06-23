@@ -70,7 +70,7 @@ class _PlanPreviewDetailsState extends ConsumerState<PlanPreviewDetails> {
     return routineData.blocks.any(
       (block) => block.items.any(
         (item) =>
-            item.id == widget.plan.id && item.type == RoutineItemType.plan,
+            item.id == widget.plan.id && item.type == RoutineItemType.series,
       ),
     );
   }
