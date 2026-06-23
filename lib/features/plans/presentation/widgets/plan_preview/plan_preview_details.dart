@@ -172,6 +172,7 @@ class _PlanPreviewDetailsState extends ConsumerState<PlanPreviewDetails> {
       language: language,
       days: days,
       selectedDay: selectedDay,
+      lockFutureDays: true,
       startDate: widget.plan.startDate ?? DateTime.now(),
       dayCompletionStatus: null, // No completion status in preview mode
       onDaySelected: (day) {
@@ -276,9 +277,7 @@ class _AddToRoutineButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final backgroundColor =
-        isDark
-            ? AppColors.surfaceWhite
-            : AppColors.scaffoldBackgroundDark;
+        isDark ? AppColors.surfaceWhite : AppColors.scaffoldBackgroundDark;
     final foregroundColor =
         isDark ? AppColors.textPrimary : AppColors.textPrimaryDark;
 

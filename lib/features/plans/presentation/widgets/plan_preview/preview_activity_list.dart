@@ -108,6 +108,8 @@ class _PreviewTaskItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final color = Theme.of(context).colorScheme.onSurface;
+
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -127,16 +129,13 @@ class _PreviewTaskItem extends StatelessWidget {
             if (hasNavigableContent) ...[
               const SizedBox(width: 8),
               Container(
-                width: 38,
-                height: 38,
+                width: 40,
+                height: 40,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  border: Border.all(
-                    color: Theme.of(context).iconTheme.color!,
-                    width: 1,
-                  ),
+                  border: Border.all(color: color.withAlpha(100), width: 1),
                 ),
-                child: Icon(AppAssets.caretRight, size: 16),
+                child: Icon(AppAssets.caretRight, size: 16, color: color),
               ),
             ],
           ],
