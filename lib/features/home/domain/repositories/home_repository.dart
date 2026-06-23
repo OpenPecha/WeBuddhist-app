@@ -2,6 +2,7 @@ import 'package:fpdart/fpdart.dart';
 import 'package:flutter_pecha/core/error/failures.dart';
 import 'package:flutter_pecha/features/home/domain/entities/routine_info.dart';
 import 'package:flutter_pecha/features/home/domain/entities/series.dart';
+import 'package:flutter_pecha/features/home/domain/entities/today_event.dart';
 import 'package:flutter_pecha/features/home/domain/entities/verse_of_day.dart';
 import 'package:flutter_pecha/features/plans/data/models/response/featured_day_response.dart';
 import 'package:flutter_pecha/shared/domain/base_classes/repository.dart';
@@ -22,6 +23,13 @@ abstract class TagsRepositoryInterface extends Repository {
 /// Verse of the Day repository interface.
 abstract class VerseOfDayRepositoryInterface extends Repository {
   Future<Either<Failure, VerseOfDay>> getVerseOfDay({required String language});
+}
+
+/// Today's events repository interface.
+abstract class TodayEventsRepositoryInterface extends Repository {
+  Future<Either<Failure, List<TodayEvent>>> getTodayEvents({
+    required String language,
+  });
 }
 
 /// Routine info repository interface.

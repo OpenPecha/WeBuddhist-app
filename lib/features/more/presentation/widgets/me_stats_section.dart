@@ -163,17 +163,14 @@ class _StatCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    label,
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: isDark ? AppColors.grey300 : AppColors.grey900,
-                      fontSize: 13,
-                    ),
-                  ),
-                ],
+              Text(
+                label,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: isDark ? AppColors.grey300 : AppColors.grey900,
+                  fontSize: 12,
+                ),
               ),
               const SizedBox(height: 12),
               Row(
@@ -248,7 +245,7 @@ class _PracticeDaysCard extends StatelessWidget {
                       ),
                       TextSpan(
                         text: ' ${l10n.me_days_plan_practiced_suffix}',
-                        style: Theme.of(context).textTheme.bodyMedium,
+                        style: Theme.of(context).textTheme.bodySmall,
                       ),
                     ],
                   ),

@@ -11,10 +11,11 @@ class GetUserRoutineUseCase {
   const GetUserRoutineUseCase(this._repository);
 
   Future<Either<Failure, RoutineData?>> call({
+    required String language,
     int skip = 0,
     int limit = 20,
   }) =>
-      _repository.getUserRoutine(skip: skip, limit: limit);
+      _repository.getUserRoutine(language: language, skip: skip, limit: limit);
 }
 
 /// Creates a new routine with its first time block.

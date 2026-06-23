@@ -146,10 +146,14 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                     builder: (context, state) {
                       final extra = state.extra as Map<String, dynamic>?;
                       final plan = extra?['plan'] as Plan?;
+                      final seriesId = extra?['seriesId'] as String?;
                       if (plan == null) {
                         throw Exception('Missing required parameters');
                       }
-                      return PlanPreviewDetails(plan: plan);
+                      return PlanPreviewDetails(
+                        plan: plan,
+                        seriesId: seriesId,
+                      );
                     },
                   ),
                 ],
@@ -355,10 +359,14 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             builder: (context, state) {
               final extra = state.extra as Map<String, dynamic>?;
               final plan = extra?['plan'] as Plan?;
+              final seriesId = extra?['seriesId'] as String?;
               if (plan == null) {
                 throw Exception('Missing required parameters');
               }
-              return PlanPreviewDetails(plan: plan);
+              return PlanPreviewDetails(
+                plan: plan,
+                seriesId: seriesId,
+              );
             },
           ),
           // route - /practice/plans/info

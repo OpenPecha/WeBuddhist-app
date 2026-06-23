@@ -116,7 +116,10 @@ final notificationSyncBootstrapProvider = Provider<void>((ref) {
 /// offline relaunch must not wipe a valid schedule.
 Future<void> _hydrateRoutineFromServer(Ref ref) async {
   try {
-    final result = await ref.read(getUserRoutineUseCaseProvider)();
+    final language = ref.read(contentLanguageProvider);
+    final result = await ref.read(getUserRoutineUseCaseProvider)(
+      language: language,
+    );
     await result.fold(
       (failure) async => _logger.warning(
         '[NOTIFICATION_NEW_FLOW] routine hydration failed: $failure — '

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter_pecha/core/analytics/analytics_events.dart';
+import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
 import 'package:flutter_pecha/core/analytics/analytics_providers.dart';
 import 'package:flutter_pecha/core/storage/plan_metadata_store.dart';
 import 'package:flutter_pecha/core/storage/special_plan_started_at_store.dart';
@@ -141,7 +142,8 @@ class EventEnrollmentService {
   // ─── Step 2: Add to routine at 07:30 ───
 
   Future<void> _addToRoutine(String planId) async {
-    final routineResult = await _getUserRoutineUseCase();
+    final language = _ref.read(contentLanguageProvider);
+    final routineResult = await _getUserRoutineUseCase(language: language);
     final routineData = routineResult.fold((_) => null, (data) => data);
     final routineId = routineData?.apiRoutineId;
 
@@ -204,7 +206,8 @@ class EventEnrollmentService {
   ///
   /// Also invalidates [userRoutineProvider] so any UI watching it refreshes.
   Future<void> _persistRoutineLocallyAndScheduleNotifications() async {
-    final routineResult = await _getUserRoutineUseCase();
+    final language = _ref.read(contentLanguageProvider);
+    final routineResult = await _getUserRoutineUseCase(language: language);
     final routineData = routineResult.fold((_) => null, (data) => data);
 
     if (routineData == null || routineData.blocks.isEmpty) {

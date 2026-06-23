@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:auth0_flutter/auth0_flutter.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_pecha/core/storage/storage_keys.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/features/auth/application/config_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -63,7 +64,9 @@ class AuthService {
       }
 
       final credentials = await _auth0
-          .webAuthentication(scheme: ConfigService.instance.auth0Scheme ?? 'org.pecha.app')
+          .webAuthentication(
+            scheme: ConfigService.instance.auth0Scheme ?? 'org.pecha.app',
+          )
           .login(
             useHTTPS: defaultTargetPlatform != TargetPlatform.macOS,
             // Requesting the API audience yields a verifiable JWT access token
@@ -96,8 +99,20 @@ class AuthService {
     }
   }
 
-  Future<Credentials?> getCredentials() async =>
-      await _auth0.credentialsManager.credentials(minTtl: 300);
+  Future<Credentials?> getCredentials() async {
+    try {
+      return await _auth0.credentialsManager.credentials(minTtl: 300);
+    } on CredentialsManagerException catch (e) {
+      // Surface the SDK code at the boundary for diagnostics, then rethrow so
+      // the repository maps it: no-credentials / no-refresh-token / opaque →
+      // AuthenticationFailure (re-login), everything else (incl. RENEW_FAILED,
+      // which at launch is almost always offline) → NetworkFailure (keep the
+      // session and renew on the next request). See
+      // [AuthRepositoryImpl._credentialFailure] and [isSessionPermanentlyLost].
+      _logger.warning('credentials() failed: ${e.code} ${e.message}');
+      rethrow;
+    }
+  }
 
   // Login with Google
   Future<Credentials?> loginWithGoogle() async {
@@ -113,7 +128,7 @@ class AuthService {
   Future<void> localLogout() async {
     try {
       await _auth0.credentialsManager.clearCredentials();
-      await clearGuestMode(); // Also clear guest mode on logout
+      await _clearLocalIdentity();
       _logger.info('Local logout successful');
     } catch (e) {
       _logger.error('Logout failed', e);
@@ -124,12 +139,32 @@ class AuthService {
   Future<void> globalLogout() async {
     try {
       await _auth0
-          .webAuthentication(scheme: ConfigService.instance.auth0Scheme ?? 'org.pecha.app')
+          .webAuthentication(
+            scheme: ConfigService.instance.auth0Scheme ?? 'org.pecha.app',
+          )
           .logout(useHTTPS: defaultTargetPlatform != TargetPlatform.macOS);
       await _auth0.credentialsManager.clearCredentials();
+      await _clearLocalIdentity();
       _logger.info('Global logout successful');
     } catch (e) {
       _logger.error('Logout failed', e);
+    }
+  }
+
+  /// Clears every local identity marker so a subsequent reinstall/login can't
+  /// read stale identity. Auth0 tokens (access/refresh/id) are NOT handled here
+  /// — the credentials manager owns that storage and is cleared via
+  /// `clearCredentials()`; we deliberately do not touch `flutter_secure_storage`
+  /// (it stores no tokens in this app). Per-user onboarding keys
+  /// (`onboarding_completed_<userId>`) are intentionally left durable.
+  Future<void> _clearLocalIdentity() async {
+    await clearGuestMode();
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove(StorageKeys.currentUserId);
+      await prefs.remove(StorageKeys.userData);
+    } catch (e) {
+      _logger.warning('Failed to clear local identity markers: $e');
     }
   }
 
@@ -209,14 +244,16 @@ class AuthService {
     // future here — its error would have no listener and surface as an
     // unhandled async exception when a renewal fails.
     late final Future<Credentials> tracked;
-    tracked = _runCredentialsFetch(force: force, after: previous).whenComplete(() {
-      // Only clear if we're still the current in-flight; a later forced call
-      // may have already superseded us.
-      if (identical(_inflightCredentials, tracked)) {
-        _inflightCredentials = null;
-        _inflightIsForced = false;
-      }
-    });
+    tracked = _runCredentialsFetch(force: force, after: previous).whenComplete(
+      () {
+        // Only clear if we're still the current in-flight; a later forced call
+        // may have already superseded us.
+        if (identical(_inflightCredentials, tracked)) {
+          _inflightCredentials = null;
+          _inflightIsForced = false;
+        }
+      },
+    );
     _inflightCredentials = tracked;
     _inflightIsForced = force;
     return tracked;

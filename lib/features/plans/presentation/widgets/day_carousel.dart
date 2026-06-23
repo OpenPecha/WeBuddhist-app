@@ -12,6 +12,10 @@ class DayCarousel extends StatefulWidget {
   final Map<int, bool>? dayCompletionStatus;
   final bool lockFutureDays;
 
+  /// When [lockFutureDays] is true, days `1..previewUnlockDayCount` stay
+  /// selectable even if their calendar date is in the future.
+  final int previewUnlockDayCount;
+
   const DayCarousel({
     super.key,
     required this.language,
@@ -21,6 +25,7 @@ class DayCarousel extends StatefulWidget {
     required this.onDaySelected,
     this.dayCompletionStatus,
     this.lockFutureDays = false,
+    this.previewUnlockDayCount = 0,
   });
 
   @override
@@ -101,7 +106,10 @@ class _DayCarouselState extends State<DayCarousel> {
           final isCompleted = widget.dayCompletionStatus?[day.dayNumber] ?? false;
           final isToday = dayDate.isAtSameMomentAs(today);
           final isFuture = dayDate.isAfter(today);
-          final isDisabled = widget.lockFutureDays && isFuture;
+          final isDisabled =
+              widget.lockFutureDays &&
+              isFuture &&
+              day.dayNumber > widget.previewUnlockDayCount;
           final isEffectivelySelected = isSelected && !isDisabled;
           final theme = Theme.of(context);
           final disabledColor = theme.disabledColor;

@@ -15,8 +15,10 @@ import 'package:flutter_pecha/features/home/presentation/providers/routine_info_
 import 'package:flutter_pecha/features/plans/presentation/providers/plan_days_providers.dart';
 import 'package:flutter_pecha/features/plans/presentation/providers/plans_providers.dart';
 import 'package:flutter_pecha/features/plans/presentation/providers/user_plans_provider.dart';
+import 'package:flutter_pecha/features/home/presentation/providers/series_provider.dart';
 import 'package:flutter_pecha/features/plans/data/models/plan_days_model.dart';
 import 'package:flutter_pecha/features/plans/data/models/user/user_plans_model.dart';
+import 'package:flutter_pecha/features/plans/data/utils/series_plan_utils.dart';
 import 'package:flutter_pecha/features/plans/data/models/user/user_tasks_dto.dart';
 import 'package:flutter_pecha/features/plans/domain/subtask_navigation.dart';
 import 'package:flutter_pecha/features/plans/presentation/widgets/plan_navigation/plan_navigator.dart';
@@ -272,11 +274,31 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
       startDate: widget.startDate,
       dayCompletionStatus: completionStatus,
       lockFutureDays: true,
+      previewUnlockDayCount: _firstPlanPreviewUnlockDayCount(ref),
       onDaySelected: (day) {
         setState(() {
           selectedDay = day;
         });
       },
+    );
+  }
+
+  int _firstPlanPreviewUnlockDayCount(WidgetRef ref) {
+    final seriesAsync = ref.watch(seriesListFutureProvider);
+    return seriesAsync.when(
+      data:
+          (either) => either.fold(
+            (_) => 0,
+            (seriesList) =>
+                SeriesPlanUtils.isFirstPlanInAnySeries(
+                      widget.plan.id,
+                      seriesList,
+                    )
+                    ? SeriesPlanUtils.firstPlanPreviewDayCount
+                    : 0,
+          ),
+      loading: () => 0,
+      error: (_, __) => 0,
     );
   }
 

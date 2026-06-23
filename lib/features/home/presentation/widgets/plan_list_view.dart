@@ -71,7 +71,10 @@ class PlanListView extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
           sliver: SliverList(
             delegate: SliverChildBuilderDelegate(
-              (context, index) => PlanListItem(plan: sorted[index]),
+              (context, index) => PlanListItem(
+                plan: sorted[index],
+                seriesId: seriesId,
+              ),
               childCount: sorted.length,
             ),
           ),
@@ -304,8 +307,9 @@ class FeaturedPlanCard extends ConsumerWidget {
 
 class PlanListItem extends ConsumerWidget {
   final Plan plan;
+  final String? seriesId;
 
-  const PlanListItem({super.key, required this.plan});
+  const PlanListItem({super.key, required this.plan, this.seriesId});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -339,7 +343,12 @@ class PlanListItem extends ConsumerWidget {
           onTap:
               (isLocked || isEnrolledInfoPending)
                   ? null
-                  : () => _navigateToPlan(context, plan, enrolledInfo),
+                  : () => _navigateToPlan(
+                    context,
+                    plan,
+                    enrolledInfo,
+                    seriesId: seriesId,
+                  ),
           borderRadius: BorderRadius.circular(12),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -514,8 +523,9 @@ class _EnrolledPlanInfo {
 void _navigateToPlan(
   BuildContext context,
   Plan plan,
-  _EnrolledPlanInfo? enrolledInfo,
-) {
+  _EnrolledPlanInfo? enrolledInfo, {
+  String? seriesId,
+}) {
   if (enrolledInfo != null) {
     context.push(
       '/practice/details',
@@ -526,7 +536,13 @@ void _navigateToPlan(
       },
     );
   } else {
-    context.push('/practice/plans/preview', extra: {'plan': plan});
+    context.push(
+      '/practice/plans/preview',
+      extra: {
+        'plan': plan,
+        if (seriesId != null) 'seriesId': seriesId,
+      },
+    );
   }
 }
 
