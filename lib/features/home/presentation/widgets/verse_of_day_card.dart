@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
+import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_pecha/features/home/domain/entities/verse_of_day.dart';
 import 'package:flutter_pecha/features/home/presentation/widgets/verse_of_day_content.dart';
 import 'package:flutter_pecha/features/home/presentation/widgets/verse_share_sheet.dart';
@@ -36,7 +37,7 @@ class VerseOfDayCard extends ConsumerWidget {
               width: 32,
               height: 32,
               child: Icon(
-                Icons.share_outlined,
+                AppAssets.readerShare,
                 color: colorScheme.onSurfaceVariant,
                 size: 22,
               ),

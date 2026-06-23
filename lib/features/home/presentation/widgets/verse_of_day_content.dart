@@ -24,7 +24,7 @@ class VerseOfDayTypography {
       contentFont: getFontFamily(languageCode),
       systemFont: getSystemFontFamily(languageCode),
       verseFontSize: languageCode == 'bo' ? 18.0 : 16.0,
-      attributionFontSize: languageCode == 'bo' ? 14.0 : 13.0,
+      attributionFontSize: languageCode == 'bo' ? 14.0 : 16.0,
     );
   }
 }
@@ -71,56 +71,96 @@ class VerseOfDayContent extends StatelessWidget {
         ),
         Padding(
           padding: textPadding,
-          child: Stack(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Padding(
-                padding: EdgeInsets.only(bottom: footerAction != null ? 32 : 0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Text(
-                      verseOfDay.verse,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: typography.verseFontSize,
-                        fontWeight: FontWeight.w400,
-                        fontFamily: typography.contentFont,
-                        color: verseColor,
-                      ),
-                    ),
-                    if (verseOfDay.groupTitle != null) ...[
-                      const SizedBox(height: 16),
-                      Text(
-                        '~ ${verseOfDay.groupTitle}',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: typography.attributionFontSize,
-                          fontWeight: FontWeight.w400,
-                          fontFamily:
-                              useContentFontForAttribution
-                                  ? typography.contentFont
-                                  : typography.systemFont,
-                          color: attributionColor,
-                        ),
-                      ),
-                    ],
-                    if (showBranding) ...[
-                      const SizedBox(height: 16),
-
-                      Padding(
-                        padding: EdgeInsets.only(bottom: brandingBottomPadding),
-                        child: const VerseShareBranding(),
-                      ),
-                    ],
-                  ],
+              Text(
+                verseOfDay.verse,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: typography.verseFontSize,
+                  fontWeight: FontWeight.w400,
+                  fontFamily: typography.contentFont,
+                  color: verseColor,
                 ),
               ),
-              if (footerAction != null)
-                Positioned(right: 0, bottom: 0, child: footerAction!),
+              if (verseOfDay.groupTitle != null || footerAction != null) ...[
+                const SizedBox(height: 16),
+                _AttributionFooterRow(
+                  attribution:
+                      verseOfDay.groupTitle != null
+                          ? '~ ${verseOfDay.groupTitle}'
+                          : null,
+                  typography: typography,
+                  attributionColor: attributionColor,
+                  useContentFontForAttribution: useContentFontForAttribution,
+                  footerAction: footerAction,
+                ),
+              ],
+              if (showBranding) ...[
+                const SizedBox(height: 16),
+                Padding(
+                  padding: EdgeInsets.only(bottom: brandingBottomPadding),
+                  child: const VerseShareBranding(),
+                ),
+              ],
             ],
           ),
         ),
       ],
+    );
+  }
+}
+
+class _AttributionFooterRow extends StatelessWidget {
+  const _AttributionFooterRow({
+    required this.typography,
+    required this.attributionColor,
+    required this.useContentFontForAttribution,
+    this.attribution,
+    this.footerAction,
+  });
+
+  final String? attribution;
+  final VerseOfDayTypography typography;
+  final Color attributionColor;
+  final bool useContentFontForAttribution;
+  final Widget? footerAction;
+
+  TextStyle get _attributionStyle => TextStyle(
+    fontSize: typography.attributionFontSize,
+    fontWeight: FontWeight.w600,
+    fontFamily:
+        useContentFontForAttribution
+            ? typography.contentFont
+            : typography.systemFont,
+    color: attributionColor,
+  );
+
+  @override
+  Widget build(BuildContext context) {
+    if (footerAction == null) {
+      return Text(
+        attribution!,
+        textAlign: TextAlign.center,
+        style: _attributionStyle,
+      );
+    }
+
+    return SizedBox(
+      height: 32,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          if (attribution != null)
+            Text(
+              attribution!,
+              textAlign: TextAlign.center,
+              style: _attributionStyle,
+            ),
+          Positioned(right: 0, child: footerAction!),
+        ],
+      ),
     );
   }
 }
