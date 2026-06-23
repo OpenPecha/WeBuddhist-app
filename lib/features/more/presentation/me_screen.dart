@@ -98,18 +98,26 @@ class _LoggedInProfileState extends ConsumerState<_LoggedInProfile> {
 
     return RefreshIndicator(
       onRefresh: _refreshStats,
-      child: SingleChildScrollView(
-        physics: const AlwaysScrollableScrollPhysics(),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            MeProfileHeader(user: user),
-            if (statsAsync.isLoading)
-              const MeStatsSectionSkeleton()
-            else
-              MeStatsSection(stats: stats),
-          ],
-        ),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          return SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            child: ConstrainedBox(
+              constraints: BoxConstraints(minHeight: constraints.maxHeight),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  MeProfileHeader(user: user),
+                  if (statsAsync.isLoading && !statsAsync.hasValue)
+                    const MeStatsSectionSkeleton()
+                  else
+                    MeStatsSection(stats: stats),
+                  const SizedBox(height: 32),
+                ],
+              ),
+            ),
+          );
+        },
       ),
     );
   }
