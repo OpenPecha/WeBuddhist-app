@@ -6,15 +6,35 @@ import 'package:flutter_pecha/features/home/presentation/widgets/verse_of_day_co
 import 'package:flutter_pecha/features/home/presentation/widgets/verse_share_sheet.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class VerseOfDayCard extends ConsumerWidget {
+class VerseOfDayCard extends ConsumerStatefulWidget {
   const VerseOfDayCard({super.key, required this.verseOfDay});
 
   final VerseOfDay verseOfDay;
 
+  @override
+  ConsumerState<VerseOfDayCard> createState() => _VerseOfDayCardState();
+}
+
+class _VerseOfDayCardState extends ConsumerState<VerseOfDayCard> {
   static const _borderRadius = 24.0;
 
+  final GlobalKey _shareIconKey = GlobalKey();
+  bool _isSharing = false;
+
+  Future<void> _onShareTap() async {
+    if (_isSharing) return;
+
+    setState(() => _isSharing = true);
+    await shareVerseOfDayQuote(
+      context,
+      verseOfDay: widget.verseOfDay,
+      shareOriginKey: _shareIconKey,
+    );
+    if (mounted) setState(() => _isSharing = false);
+  }
+
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final languageCode = ref.watch(localeProvider).languageCode;
     final typography = VerseOfDayTypography.fromLanguageCode(languageCode);
     final colorScheme = Theme.of(context).colorScheme;
@@ -26,20 +46,37 @@ class VerseOfDayCard extends ConsumerWidget {
         borderRadius: BorderRadius.circular(_borderRadius),
         clipBehavior: Clip.antiAlias,
         child: InkWell(
-          onTap: () => showVerseShareSheet(context, verseOfDay),
+          onTap: () => showVerseShareSheet(context, widget.verseOfDay),
           borderRadius: BorderRadius.circular(_borderRadius),
           child: VerseOfDayContent(
-            verseOfDay: verseOfDay,
+            verseOfDay: widget.verseOfDay,
             typography: typography,
             verseColor: colorScheme.onSurface,
             attributionColor: colorScheme.onSurfaceVariant,
-            footerAction: SizedBox(
-              width: 32,
-              height: 32,
-              child: Icon(
-                AppAssets.readerShare,
-                color: colorScheme.onSurfaceVariant,
-                size: 22,
+            footerAction: GestureDetector(
+              key: _shareIconKey,
+              onTap: _isSharing ? null : _onShareTap,
+              behavior: HitTestBehavior.opaque,
+              child: SizedBox(
+                width: 32,
+                height: 32,
+                child:
+                    _isSharing
+                        ? Center(
+                          child: SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+                        )
+                        : Icon(
+                          AppAssets.readerShare,
+                          color: colorScheme.onSurfaceVariant,
+                          size: 22,
+                        ),
               ),
             ),
           ),
