@@ -113,7 +113,7 @@ class _ReaderBottomPanelShellState
                         },
                         padding: const EdgeInsets.all(8),
                         constraints: const BoxConstraints(),
-                        tooltip: 'Back',
+                        tooltip: context.l10n.back,
                       ),
                       const SizedBox(width: 4),
                       Expanded(
