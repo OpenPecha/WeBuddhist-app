@@ -170,6 +170,9 @@ class AppLocalizationsBo extends AppLocalizations {
   String get text_commentary => 'འགྲེལ་བ་ཁག';
 
   @override
+  String get resources => 'ཐོབ་ཆ།';
+
+  @override
   String get no_translation => 'འགྱུར་མ་རྙེད་མ་བྱུང་།';
 
   @override

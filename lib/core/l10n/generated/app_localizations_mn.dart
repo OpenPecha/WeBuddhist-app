@@ -170,6 +170,9 @@ class AppLocalizationsMn extends AppLocalizations {
   String get text_commentary => 'Тайлбар';
 
   @override
+  String get resources => 'Нөөц';
+
+  @override
   String get no_translation => 'Орчуулга олдсонгүй';
 
   @override

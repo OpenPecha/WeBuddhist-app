@@ -412,6 +412,12 @@ abstract class AppLocalizations {
   /// **'Commentaries'**
   String get text_commentary;
 
+  /// No description provided for @resources.
+  ///
+  /// In en, this message translates to:
+  /// **'Resources'**
+  String get resources;
+
   /// No description provided for @no_translation.
   ///
   /// In en, this message translates to:

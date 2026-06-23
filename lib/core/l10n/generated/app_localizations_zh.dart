@@ -169,6 +169,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get text_commentary => '注釋';
 
   @override
+  String get resources => '資源';
+
+  @override
   String get no_translation => '尚無相關翻譯';
 
   @override

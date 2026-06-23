@@ -171,7 +171,7 @@ class _ResourcesPanel extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.fromLTRB(20, 10, 20, 8),
                 child: Text(
-                  'Resources',
+                  context.l10n.resources,
                   style: theme.textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.w600,
                   ),

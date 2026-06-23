@@ -170,6 +170,9 @@ class AppLocalizationsNe extends AppLocalizations {
   String get text_commentary => 'टीकाहरू';
 
   @override
+  String get resources => 'स्रोतहरू';
+
+  @override
   String get no_translation => 'कुनै अनुवाद फेला परेन';
 
   @override
