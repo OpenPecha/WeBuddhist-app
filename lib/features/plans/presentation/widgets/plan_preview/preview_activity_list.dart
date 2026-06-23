@@ -113,36 +113,33 @@ class _PreviewTaskItem extends StatelessWidget {
       child: InkWell(
         onTap: hasNavigableContent ? onTap : null,
         borderRadius: BorderRadius.circular(8),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-          child: Row(
-            children: [
-              Expanded(
-                child: Text(
-                  task.title,
-                  overflow: TextOverflow.ellipsis,
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(
+                task.title,
+                overflow: TextOverflow.ellipsis,
+                style: Theme.of(
+                  context,
+                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w500),
               ),
-              if (hasNavigableContent) ...[
-                const SizedBox(width: 8),
-                Container(
-                  width: 36,
-                  height: 36,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: Theme.of(context).iconTheme.color!,
-                      width: 1,
-                    ),
+            ),
+            if (hasNavigableContent) ...[
+              const SizedBox(width: 8),
+              Container(
+                width: 38,
+                height: 38,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: Theme.of(context).iconTheme.color!,
+                    width: 1,
                   ),
-                  child: Icon(AppAssets.caretRight, size: 16),
                 ),
-              ],
+                child: Icon(AppAssets.caretRight, size: 16),
+              ),
             ],
-          ),
+          ],
         ),
       ),
     );
