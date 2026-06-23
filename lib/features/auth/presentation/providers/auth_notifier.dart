@@ -2,6 +2,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_pecha/core/error/failures.dart';
 import 'package:flutter_pecha/core/storage/plan_metadata_store.dart';
 import 'package:flutter_pecha/core/storage/special_plan_started_at_store.dart';
@@ -73,20 +74,31 @@ class AuthNotifier extends StateNotifier<AuthState> {
   Future<void> _restoreLoginState() async {
     _logger.debug('Restoring login state');
 
-    // Detect fresh install or reinstall.
-    // iOS Keychain survives uninstall; SharedPreferences does not.
-    // If SP has no install marker, stale keychain tokens may exist from a
-    // previous install. Clear them so the user always sees the login screen
-    // on a clean install rather than being silently auto-logged in.
+    // Fresh-install handling.
+    // iOS: Keychain survives uninstall — we WANT that, so we never clear here.
+    //      The silent renewal in _restoreCredentials() decides logged-in state,
+    //      giving the seamless reinstall contract.
+    // Android: Auto Backup is disabled (manifest), so a reinstall is a genuine
+    //      clean slate. This clear is belt-and-suspenders for the edge case where
+    //      a residual credential exists (e.g. backup re-enabled by misconfig).
     final isKnownInstall = await ref
         .read(localStorageServiceProvider)
         .get<bool>(StorageKeys.firstLaunch);
+
     if (isKnownInstall == null) {
-      await _localLogoutUseCase(const NoParams());
+      if (defaultTargetPlatform == TargetPlatform.android) {
+        await _localLogoutUseCase(const NoParams());
+        _logger.info(
+          'Android fresh install — cleared any residual credentials',
+        );
+      } else {
+        _logger.info(
+          'iOS fresh install — preserving Keychain for seamless reinstall',
+        );
+      }
       await ref
           .read(localStorageServiceProvider)
           .set(StorageKeys.firstLaunch, true);
-      _logger.info('Fresh install detected — cleared stale keychain tokens');
     }
 
     // Initialize auth
@@ -165,7 +177,9 @@ class AuthNotifier extends StateNotifier<AuthState> {
     // transient/offline renewal failure (NetworkFailure) must NOT wipe it —
     // keep the user logged in and renew on the first authenticated request.
     if (failure is AuthenticationFailure) {
-      _logger.info('Stored credentials permanently invalid — checking guest mode');
+      _logger.info(
+        'Stored credentials permanently invalid — checking guest mode',
+      );
       _checkGuestMode();
       return;
     }
@@ -481,6 +495,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
       _logger.warning('Failed to reset onboarding: $e');
     }
   }
+
   AnalyticsService get _analytics => ref.read(analyticsServiceProvider);
 
   Future<void> _identifyAuthenticatedUser({
@@ -489,24 +504,18 @@ class AuthNotifier extends StateNotifier<AuthState> {
   }) async {
     await _analytics.identify(
       userId: userId,
-      properties: {
-        AnalyticsProperties.isGuest: isGuest,
-      },
+      properties: {AnalyticsProperties.isGuest: isGuest},
     );
   }
 
   Future<void> _markGuestSession() async {
-    await _analytics.setSuperProperties({
-      AnalyticsProperties.isGuest: true,
-    });
+    await _analytics.setSuperProperties({AnalyticsProperties.isGuest: true});
   }
 
   Future<void> _trackAuthLoginSucceeded({String? connection}) async {
     await _analytics.track(
       AnalyticsEvents.authLoginSucceeded,
-      properties: {
-        AnalyticsProperties.method: connection ?? 'default',
-      },
+      properties: {AnalyticsProperties.method: connection ?? 'default'},
     );
   }
 
@@ -522,5 +531,4 @@ class AuthNotifier extends StateNotifier<AuthState> {
       },
     );
   }
-
 }
