@@ -82,7 +82,7 @@ class _MeStreakCardState extends State<MeStreakCard> {
                             : Icon(
                               AppAssets.readerShare,
                               size: 20,
-                              color: Colors.black,
+                              color: isDark ? Colors.white : Colors.black,
                             ),
                   ),
                 ),
