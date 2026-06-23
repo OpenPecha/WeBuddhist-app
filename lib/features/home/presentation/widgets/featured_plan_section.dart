@@ -278,6 +278,7 @@ class _FeaturedPlanListItem extends StatelessWidget {
     final dateRange = _formatSeriesDateRange(series);
 
     return Material(
+      color: Colors.transparent,
       borderRadius: BorderRadius.circular(
         FeaturedPlanSection._imageBorderRadius,
       ),

@@ -6,7 +6,6 @@ import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/features/notifications/data/models/notification_nav.dart';
 import 'package:flutter_pecha/features/plans/data/models/user/user_plans_model.dart';
 import 'package:flutter_pecha/features/plans/data/utils/plan_utils.dart';
-import 'package:flutter_pecha/features/plans/presentation/providers/my_plans_paginated_provider.dart';
 import 'package:flutter_pecha/features/plans/presentation/providers/use_case_providers.dart';
 import 'package:flutter_pecha/features/plans/presentation/providers/user_plans_provider.dart';
 import 'package:flutter_pecha/features/practice/data/models/routine_model.dart';
@@ -86,11 +85,12 @@ class RoutineFilledState extends ConsumerWidget {
 
         final planId = pendingNav.planId ?? pendingNav.itemId;
         final routineItem = _findRoutineItem(routineData, pendingNav.itemId);
-        var userPlan = ref
-            .read(myPlansPaginatedProvider)
-            .plans
-            .where((p) => p.id == planId)
-            .firstOrNull;
+        var userPlan =
+            ref
+                .read(myPlansPaginatedProvider)
+                .plans
+                .where((p) => p.id == planId)
+                .firstOrNull;
         userPlan ??= await resolveRoutineUserPlan(
           ref,
           planId,
@@ -133,18 +133,6 @@ class RoutineFilledState extends ConsumerWidget {
             editLabel: localizations.routine_edit,
             onEdit: onEdit,
             isDark: isDark,
-          ),
-        ),
-        // Date
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20.0),
-          child: Text(
-            dateStr,
-            style: TextStyle(
-              fontSize: 15,
-              color:
-                  isDark ? AppColors.textTertiaryDark : AppColors.textSecondary,
-            ),
           ),
         ),
         const SizedBox(height: 8),
@@ -200,7 +188,7 @@ class _RoutineHeader extends StatelessWidget {
         Expanded(
           child: Text(
             title,
-            style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+            style: const TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
           ),
         ),
         GestureDetector(
@@ -284,7 +272,10 @@ class _RoutineBlockSection extends ConsumerWidget {
     if (!context.mounted) return;
 
     final startDate =
-        userPlan.startDate ?? item.startDate ?? item.enrolledAt ?? userPlan.startedAt;
+        userPlan.startDate ??
+        item.startDate ??
+        item.enrolledAt ??
+        userPlan.startedAt;
     final daysSinceEnrollment =
         DateTime.now().difference(DateUtils.dateOnly(startDate)).inDays;
     final selectedDay = (daysSinceEnrollment + 1).clamp(1, userPlan.totalDays);
@@ -336,11 +327,7 @@ class _RoutineBlockSection extends ConsumerWidget {
     );
   }
 
-  Widget _buildItemCard(
-    BuildContext context,
-    WidgetRef ref,
-    RoutineItem item,
-  ) {
+  Widget _buildItemCard(BuildContext context, WidgetRef ref, RoutineItem item) {
     return RoutineItemCard(
       title: item.title,
       coverImage: item.coverImage,
