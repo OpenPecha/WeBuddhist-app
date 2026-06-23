@@ -56,12 +56,15 @@ class _NotificationSettingsScreenState
   // ── Toggle handlers ────────────────────────────────────────────────────────
 
   Future<void> _toggleMaster(bool enable) async {
-    final result =
-        await ref.read(notificationProvider.notifier).toggleMaster(enable);
+    final result = await ref
+        .read(notificationProvider.notifier)
+        .toggleMaster(enable);
     if (!mounted) return;
     switch (result) {
       case NotificationToggleResult.permissionDenied:
-        _snack(AppLocalizations.of(context)!.notification_snack_permission_denied);
+        _snack(
+          AppLocalizations.of(context)!.notification_snack_permission_denied,
+        );
         await openAppSettings();
       case NotificationToggleResult.error:
         _snack(AppLocalizations.of(context)!.something_went_wrong);
@@ -71,8 +74,9 @@ class _NotificationSettingsScreenState
   }
 
   Future<void> _toggleRoutine(bool enable) async {
-    final result =
-        await ref.read(notificationProvider.notifier).toggleRoutine(enable);
+    final result = await ref
+        .read(notificationProvider.notifier)
+        .toggleRoutine(enable);
     if (!mounted) return;
     if (result == NotificationToggleResult.error) {
       _snack(AppLocalizations.of(context)!.something_went_wrong);
@@ -80,8 +84,9 @@ class _NotificationSettingsScreenState
   }
 
   Future<void> _toggleRecitation(bool enable) async {
-    final result =
-        await ref.read(notificationProvider.notifier).toggleRecitation(enable);
+    final result = await ref
+        .read(notificationProvider.notifier)
+        .toggleRecitation(enable);
     if (!mounted) return;
     if (result == NotificationToggleResult.error) {
       _snack(AppLocalizations.of(context)!.something_went_wrong);
@@ -92,7 +97,11 @@ class _NotificationSettingsScreenState
     if (enable) {
       await ref.read(notificationServiceProvider).openExactAlarmSettings();
     } else {
-      _snack(AppLocalizations.of(context)!.notification_snack_disable_alarms_in_settings);
+      _snack(
+        AppLocalizations.of(
+          context,
+        )!.notification_snack_disable_alarms_in_settings,
+      );
       await openAppSettings();
     }
   }
@@ -143,23 +152,23 @@ class _NotificationSettingsScreenState
     if (!mounted) return;
     showDialog<void>(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(title),
-        content: Text(body),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(),
-            child: Text(AppLocalizations.of(context)!.got_it),
+      builder:
+          (ctx) => AlertDialog(
+            title: Text(title),
+            content: Text(body),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(ctx).pop(),
+                child: Text(AppLocalizations.of(context)!.got_it),
+              ),
+            ],
           ),
-        ],
-      ),
     );
   }
 
   void _snack(String msg) {
     if (!mounted) return;
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(msg)));
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
   }
 
   String _hhmm(tz.TZDateTime t) =>
@@ -192,73 +201,88 @@ class _NotificationSettingsScreenState
           ),
         ),
       ),
-      body: state.isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : SafeArea(
-              child: ListView(
-                padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
-                children: [
-                  // ── 1. Master toggle ──────────────────────────────────
-                  _SwitchTile(
-                    title: localizations.notification_allow_title,
-                    subtitle: !state.appMasterEnabled
-                        ? localizations.notification_allow_subtitle_paused
-                        : state.hasSystemPermission
-                            ? localizations.notification_allow_subtitle_enabled
-                            : localizations.notification_allow_subtitle_disabled,
-                    value: state.appMasterEnabled,
-                    onChanged: _toggleMaster,
-                    titleSize: ts,
-                    subtitleSize: ss,
-                  ),
-
-                  if (state.appMasterEnabled && state.hasSystemPermission) ...[
-                    // ── 2. Sub-toggles ────────────────────────────────
-
-                    // Routine (plan) reminders
+      body:
+          state.isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : SafeArea(
+                child: ListView(
+                  padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
+                  children: [
+                    // ── 1. Master toggle ──────────────────────────────────
                     _SwitchTile(
-                      title: localizations.notification_routine_title,
-                      subtitle: state.appRoutineEnabled
-                          ? localizations.notification_routine_subtitle_enabled
-                          : localizations.notification_routine_subtitle_disabled,
-                      value: state.appRoutineEnabled,
-                      onChanged: _toggleRoutine,
+                      title: localizations.notification_allow_title,
+                      subtitle:
+                          !state.appMasterEnabled
+                              ? localizations.notification_allow_subtitle_paused
+                              : state.hasSystemPermission
+                              ? localizations
+                                  .notification_allow_subtitle_enabled
+                              : localizations
+                                  .notification_allow_subtitle_disabled,
+                      value: state.appMasterEnabled,
+                      onChanged: _toggleMaster,
                       titleSize: ts,
                       subtitleSize: ss,
                     ),
 
-                    // Recitation reminders
-                    _SwitchTile(
-                      title: localizations.notification_recitation_title,
-                      subtitle: state.appRecitationEnabled
-                          ? localizations.notification_recitation_subtitle_enabled
-                          : localizations.notification_recitation_subtitle_disabled,
-                      value: state.appRecitationEnabled,
-                      onChanged: _toggleRecitation,
-                      titleSize: ts,
-                      subtitleSize: ss,
-                    ),
+                    if (state.appMasterEnabled &&
+                        state.hasSystemPermission) ...[
+                      // ── 2. Sub-toggles ────────────────────────────────
 
-                    // ── 3. Battery optimization (Android only) ─────────
-                    if (Platform.isAndroid)
+                      // Routine (plan) reminders
                       _SwitchTile(
-                        title: localizations.notification_battery_title,
-                        subtitle: state.isBatteryOptimizationExempt
-                            ? localizations.notification_battery_subtitle_enabled
-                            : localizations.notification_battery_subtitle_disabled,
-                        value: state.isBatteryOptimizationExempt,
-                        onChanged: _toggleBattery,
+                        title: localizations.notification_routine_title,
+                        subtitle:
+                            state.appRoutineEnabled
+                                ? localizations
+                                    .notification_routine_subtitle_enabled
+                                : localizations
+                                    .notification_routine_subtitle_disabled,
+                        value: state.appRoutineEnabled,
+                        onChanged: _toggleRoutine,
                         titleSize: ts,
                         subtitleSize: ss,
-                        onInfo: () => _showInfoDialog(
-                          localizations.notification_battery_info_title,
-                          localizations.notification_battery_info_body,
-                        ),
                       ),
+
+                      // Recitation reminders
+                      _SwitchTile(
+                        title: localizations.notification_recitation_title,
+                        subtitle:
+                            state.appRecitationEnabled
+                                ? localizations
+                                    .notification_recitation_subtitle_enabled
+                                : localizations
+                                    .notification_recitation_subtitle_disabled,
+                        value: state.appRecitationEnabled,
+                        onChanged: _toggleRecitation,
+                        titleSize: ts,
+                        subtitleSize: ss,
+                      ),
+
+                      // ── 3. Battery optimization (Android only) ─────────
+                      if (Platform.isAndroid)
+                        _SwitchTile(
+                          title: localizations.notification_battery_title,
+                          subtitle:
+                              state.isBatteryOptimizationExempt
+                                  ? localizations
+                                      .notification_battery_subtitle_enabled
+                                  : localizations
+                                      .notification_battery_subtitle_disabled,
+                          value: state.isBatteryOptimizationExempt,
+                          onChanged: _toggleBattery,
+                          titleSize: ts,
+                          subtitleSize: ss,
+                          onInfo:
+                              () => _showInfoDialog(
+                                localizations.notification_battery_info_title,
+                                localizations.notification_battery_info_body,
+                              ),
+                        ),
+                    ],
                   ],
-                ],
-        ),
-      ),
+                ),
+              ),
     );
   }
 }
@@ -280,9 +304,7 @@ class _AppToggle extends StatelessWidget {
         padding: const EdgeInsets.all(2),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
-          color: value
-              ? const Color(0xFF196BF1)
-              : const Color(0xFFADADAD),
+          color: value ? const Color(0xFF196BF1) : const Color(0xFFADADAD),
         ),
         child: AnimatedAlign(
           duration: const Duration(milliseconds: 200),
@@ -292,7 +314,7 @@ class _AppToggle extends StatelessWidget {
             height: 28,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: value ? AppColors.grey600 : AppColors.surfaceWhite,
+              color: AppColors.surfaceWhite,
             ),
           ),
         ),
@@ -352,8 +374,9 @@ class _SwitchTile extends StatelessWidget {
                           child: Icon(
                             Icons.info_outline,
                             size: 17,
-                            color: theme.colorScheme.onSurface
-                                .withValues(alpha: 0.45),
+                            color: theme.colorScheme.onSurface.withValues(
+                              alpha: 0.45,
+                            ),
                           ),
                         ),
                       ),
