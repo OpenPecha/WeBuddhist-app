@@ -4,12 +4,14 @@ import 'package:flutter_pecha/features/home/data/datasource/routine_info_remote_
 import 'package:flutter_pecha/features/home/data/datasource/streak_remote_datasource.dart';
 import 'package:flutter_pecha/features/home/data/datasource/series_remote_datasource.dart';
 import 'package:flutter_pecha/features/home/data/datasource/tags_remote_datasource.dart';
+import 'package:flutter_pecha/features/home/data/datasource/today_events_remote_datasource.dart';
 import 'package:flutter_pecha/features/home/data/datasource/verse_of_day_remote_datasource.dart';
 import 'package:flutter_pecha/features/home/data/repositories/featured_day_repository.dart';
 import 'package:flutter_pecha/features/home/data/repositories/routine_info_repository.dart';
 import 'package:flutter_pecha/features/home/data/repositories/streak_repository.dart';
 import 'package:flutter_pecha/features/home/data/repositories/series_repository.dart';
 import 'package:flutter_pecha/features/home/data/repositories/tags_repository.dart';
+import 'package:flutter_pecha/features/home/data/repositories/today_events_repository.dart';
 import 'package:flutter_pecha/features/home/data/repositories/verse_of_day_repository.dart';
 import 'package:flutter_pecha/features/home/domain/repositories/home_repository.dart';
 import 'package:flutter_pecha/features/home/domain/usecases/enroll_in_series_usecase.dart';
@@ -21,6 +23,7 @@ import 'package:flutter_pecha/features/home/domain/usecases/get_streak_usecase.d
 import 'package:flutter_pecha/features/home/domain/usecases/get_series_list_usecase.dart';
 import 'package:flutter_pecha/features/home/domain/usecases/get_tags_usecase.dart';
 import 'package:flutter_pecha/features/home/domain/usecases/get_user_series_enrollments_usecase.dart';
+import 'package:flutter_pecha/features/home/domain/usecases/get_today_events_usecase.dart';
 import 'package:flutter_pecha/features/home/domain/usecases/get_verse_of_day_usecase.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -94,6 +97,25 @@ final getUserSeriesEnrollmentsUseCaseProvider =
     Provider<GetUserSeriesEnrollmentsUseCase>((ref) {
   final repository = ref.watch(seriesDomainRepositoryProvider);
   return GetUserSeriesEnrollmentsUseCase(repository.getUserSeriesEnrollments);
+});
+
+// ============ Today's Events ============
+
+final todayEventsRemoteDatasourceProvider =
+    Provider<TodayEventsRemoteDatasource>((ref) {
+  return TodayEventsRemoteDatasource(dio: ref.watch(dioProvider));
+});
+
+final todayEventsDomainRepositoryProvider =
+    Provider<TodayEventsRepositoryInterface>((ref) {
+  return TodayEventsRepository(
+    remote: ref.watch(todayEventsRemoteDatasourceProvider),
+  );
+});
+
+final getTodayEventsUseCaseProvider = Provider<GetTodayEventsUseCase>((ref) {
+  final repository = ref.watch(todayEventsDomainRepositoryProvider);
+  return GetTodayEventsUseCase(repository.getTodayEvents);
 });
 
 // ============ Verse of the Day ============

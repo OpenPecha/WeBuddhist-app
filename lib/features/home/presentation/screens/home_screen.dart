@@ -12,6 +12,7 @@ import 'package:flutter_pecha/features/home/presentation/providers/featured_seri
 import 'package:flutter_pecha/features/home/presentation/providers/routine_info_provider.dart';
 import 'package:flutter_pecha/features/home/presentation/providers/streak_provider.dart';
 import 'package:flutter_pecha/features/home/presentation/providers/series_provider.dart';
+import 'package:flutter_pecha/features/home/presentation/providers/today_events_provider.dart';
 import 'package:flutter_pecha/features/home/presentation/providers/verse_of_day_provider.dart';
 import 'package:flutter_pecha/features/home/presentation/home_screen_constants.dart';
 import 'package:flutter_pecha/features/home/presentation/widgets/featured_plan_section.dart';
@@ -211,12 +212,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     ref.invalidate(seriesListFutureProvider);
     ref.invalidate(featuredSeriesFutureProvider);
     ref.invalidate(verseOfDayFutureProvider);
+    ref.invalidate(todayEventsFutureProvider);
     ref.invalidate(routineInfoFutureProvider);
     ref.invalidate(streakFutureProvider);
     await Future.wait([
       ref.read(seriesListFutureProvider.future),
       ref.read(featuredSeriesFutureProvider.future),
       ref.read(verseOfDayFutureProvider.future),
+      ref.read(todayEventsFutureProvider.future),
       ref.read(routineInfoFutureProvider.future),
     ]);
   }

@@ -7,6 +7,8 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
 import 'package:flutter_pecha/features/home/presentation/providers/streak_provider.dart';
+import 'package:flutter_pecha/features/home/presentation/providers/today_events_provider.dart';
+import 'package:flutter_pecha/features/home/presentation/widgets/today_event_badge.dart';
 import 'package:flutter_pecha/features/more/presentation/providers/user_stats_provider.dart';
 import 'package:flutter_pecha/features/more/presentation/widgets/streak_share_sheet.dart';
 import 'package:flutter_pecha/shared/utils/helper_functions.dart';
@@ -29,30 +31,50 @@ class HomeHeader extends ConsumerWidget {
           orElse: () => 0,
         );
 
+    final todayEventName = ref
+        .watch(todayEventsFutureProvider)
+        .maybeWhen(
+          data:
+              (eventsEither) => eventsEither.fold(
+                (_) => null,
+                (events) => events.isNotEmpty ? events.first.name : null,
+              ),
+          orElse: () => null,
+        );
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.center,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Expanded(child: _Greeting(firstName: firstName)),
-          const SizedBox(width: 12),
           Row(
-            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              GestureDetector(
-                onTap: () => context.push(AppRoutes.calendar),
-                behavior: HitTestBehavior.opaque,
-                child: Icon(
-                  AppAssets.calendarDots,
-                  size: 24.0,
-                  color: Theme.of(context).colorScheme.onSurface,
-                ),
-              ),
+              Expanded(child: _Greeting(firstName: firstName)),
               const SizedBox(width: 12),
-              _StreakBadge(count: streakCount),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  GestureDetector(
+                    onTap: () => context.push(AppRoutes.calendar),
+                    behavior: HitTestBehavior.opaque,
+                    child: Icon(
+                      AppAssets.calendarDots,
+                      size: 24.0,
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  _StreakBadge(count: streakCount),
+                ],
+              ),
             ],
           ),
+          if (todayEventName != null) ...[
+            const SizedBox(height: 8),
+            TodayEventBadge(label: todayEventName),
+          ],
         ],
       ),
     );
