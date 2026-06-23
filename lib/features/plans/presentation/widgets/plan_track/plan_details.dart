@@ -310,6 +310,7 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
                   return ActivityList(
                     language: language,
                     tasks: tasks,
+                    videos: dayContent.videos,
                     today: selectedDay,
                     totalDays: tasks.length,
                     planId: widget.plan.id,

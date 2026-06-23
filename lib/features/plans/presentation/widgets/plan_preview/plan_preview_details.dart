@@ -202,6 +202,7 @@ class _PlanPreviewDetailsState extends ConsumerState<PlanPreviewDetails> {
                 (content) => PreviewActivityList(
                   language: language,
                   tasks: content.tasks ?? [],
+                  videos: content.videos,
                   today: selectedDay,
                   totalDays: widget.plan.totalDays,
                   planId: widget.plan.id,

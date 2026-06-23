@@ -6,6 +6,10 @@ class ReusableYoutubePlayer extends StatefulWidget {
   final double aspectRatio;
   final bool autoPlay;
   final bool mute;
+  final bool loop;
+  /// When true, the player expands to fill its parent instead of being
+  /// constrained by [aspectRatio]. Use this for true full-screen layouts.
+  final bool fillParent;
   final VoidCallback? onReady;
   final ValueChanged<bool>? onStateChanged;
   final ValueChanged<YoutubePlayerController>? onControllerCreated;
@@ -16,6 +20,8 @@ class ReusableYoutubePlayer extends StatefulWidget {
     this.aspectRatio = 16 / 9,
     this.autoPlay = false,
     this.mute = false,
+    this.loop = false,
+    this.fillParent = false,
     this.onReady,
     this.onStateChanged,
     this.onControllerCreated,
@@ -40,9 +46,10 @@ class _ReusableYoutubePlayerState extends State<ReusableYoutubePlayer> {
       flags: YoutubePlayerFlags(
         autoPlay: widget.autoPlay,
         mute: widget.mute,
-        hideControls: true, // Hide controls to reduce context menu triggers
+        loop: widget.loop,
+        hideControls: true,
         controlsVisibleAtStart: false,
-        useHybridComposition: true, // Better performance
+        useHybridComposition: true,
         enableCaption: false,
       ),
     );
@@ -57,7 +64,6 @@ class _ReusableYoutubePlayerState extends State<ReusableYoutubePlayer> {
   }
 
   void _onControllerUpdate() {
-    // Guard against callbacks after disposal
     if (_isDisposed || !mounted) return;
 
     // Handle onReady callback
@@ -68,6 +74,18 @@ class _ReusableYoutubePlayerState extends State<ReusableYoutubePlayer> {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted && !_isDisposed) {
           widget.onReady!();
+        }
+      });
+    }
+
+    // Safety-net loop: restart from the beginning when the video ends
+    if (widget.loop &&
+        _controller.value.isReady &&
+        _controller.value.playerState == PlayerState.ended) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted && !_isDisposed) {
+          _controller.seekTo(Duration.zero);
+          _controller.play();
         }
       });
     }
@@ -111,14 +129,19 @@ class _ReusableYoutubePlayerState extends State<ReusableYoutubePlayer> {
     // Don't render if disposed
     if (_isDisposed) return const SizedBox.shrink();
 
+    final player = YoutubePlayer(
+      controller: _controller,
+      aspectRatio: widget.aspectRatio,
+      showVideoProgressIndicator: false,
+    );
+
+    if (widget.fillParent) {
+      return SizedBox.expand(child: player);
+    }
+
     return AspectRatio(
       aspectRatio: widget.aspectRatio,
-      child: YoutubePlayer(
-        controller: _controller,
-        aspectRatio: widget.aspectRatio,
-        showVideoProgressIndicator: false, // Hide progress indicator
-        // Don't pass onReady here - handled in _onControllerUpdate with mounted checks
-      ),
+      child: player,
     );
   }
 }

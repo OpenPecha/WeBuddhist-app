@@ -3,6 +3,7 @@ import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_pecha/features/plans/domain/subtask_navigation.dart';
 import 'package:flutter_pecha/features/plans/plans.dart';
 import 'package:flutter_pecha/features/plans/presentation/widgets/plan_navigation/plan_navigator.dart';
+import 'package:flutter_pecha/features/plans/presentation/widgets/plan_shorts_section.dart';
 import 'package:flutter_pecha/features/reader/data/models/navigation_context.dart';
 
 /// A read-only activity list for previewing plan tasks before enrollment.
@@ -16,6 +17,7 @@ import 'package:flutter_pecha/features/reader/data/models/navigation_context.dar
 class PreviewActivityList extends StatelessWidget {
   final String language;
   final List<PlanTasksModel> tasks;
+  final List<PlanVideoModel> videos;
   final int today;
   final int totalDays;
   final String? planId;
@@ -25,6 +27,7 @@ class PreviewActivityList extends StatelessWidget {
     super.key,
     required this.language,
     required this.tasks,
+    this.videos = const [],
     required this.today,
     required this.totalDays,
     this.planId,
@@ -41,29 +44,35 @@ class PreviewActivityList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (tasks.isEmpty) {
+    if (tasks.isEmpty && videos.isEmpty) {
       return const SizedBox.shrink();
     }
 
     final sortedTasks = _sortedTasks;
 
-    return ListView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: sortedTasks.length,
-      itemBuilder: (context, index) {
-        final task = sortedTasks[index];
-        final isNavigable = PlanSubtaskNavigation.isPlanTaskNavigable(task);
-        return Container(
-          margin: const EdgeInsets.symmetric(vertical: 10),
-          child: _PreviewTaskItem(
-            language: language,
-            task: task,
-            hasNavigableContent: isNavigable,
-            onTap: () => _handleActivityTap(context, task),
-          ),
-        );
-      },
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        ListView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: sortedTasks.length,
+          itemBuilder: (context, index) {
+            final task = sortedTasks[index];
+            final isNavigable = PlanSubtaskNavigation.isPlanTaskNavigable(task);
+            return Container(
+              margin: const EdgeInsets.symmetric(vertical: 10),
+              child: _PreviewTaskItem(
+                language: language,
+                task: task,
+                hasNavigableContent: isNavigable,
+                onTap: () => _handleActivityTap(context, task),
+              ),
+            );
+          },
+        ),
+        PlanShortsSection(videos: videos),
+      ],
     );
   }
 

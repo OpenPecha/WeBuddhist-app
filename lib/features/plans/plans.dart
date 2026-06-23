@@ -32,6 +32,7 @@ export 'data/models/plan_tasks_model.dart';
 export 'data/models/plan_subtasks_model.dart';
 export 'data/models/plan_progress_model.dart';
 export 'data/models/plan_days_model.dart';
+export 'data/models/plan_video_model.dart';
 export 'data/models/author/author_model.dart';
 export 'data/models/user/user_plans_model.dart';
 export 'data/models/user/user_tasks_dto.dart';
