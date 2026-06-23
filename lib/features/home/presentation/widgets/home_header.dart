@@ -82,27 +82,38 @@ class _Greeting extends StatelessWidget {
   }
 }
 
-class _StreakBadge extends ConsumerWidget {
+class _StreakBadge extends ConsumerStatefulWidget {
   final int count;
 
   const _StreakBadge({required this.count});
 
+  @override
+  ConsumerState<_StreakBadge> createState() => _StreakBadgeState();
+}
+
+class _StreakBadgeState extends ConsumerState<_StreakBadge> {
   static const _flameColor = Color(0xFFE8630A);
+  bool _isOpening = false;
 
-  Future<void> _onStreakTap(BuildContext context, WidgetRef ref) async {
-    final either = await ref.read(userStatsFutureProvider.future);
-    if (!context.mounted) return;
+  Future<void> _onStreakTap() async {
+    if (_isOpening) return;
 
-    either.fold(
-      (_) {},
-      (stats) => showStreakShareSheet(context, stats.streak),
-    );
+    setState(() => _isOpening = true);
+
+    try {
+      final either = await ref.read(userStatsFutureProvider.future);
+      if (!mounted) return;
+
+      either.fold((_) {}, (stats) => showStreakShareSheet(context, stats.streak));
+    } finally {
+      if (mounted) setState(() => _isOpening = false);
+    }
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => _onStreakTap(context, ref),
+      onTap: _onStreakTap,
       behavior: HitTestBehavior.opaque,
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -110,7 +121,7 @@ class _StreakBadge extends ConsumerWidget {
           const Icon(AppAssets.flame, size: 24.0, color: _flameColor),
           const SizedBox(width: 4.0),
           Text(
-            '$count',
+            '${widget.count}',
             style: TextStyle(
               fontFamily: getSystemFontFamily(AppConfig.englishLanguageCode),
               fontWeight: FontWeight.w700,

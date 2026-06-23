@@ -201,12 +201,17 @@ class _StreakShareSheetState extends State<StreakShareSheet> {
   }
 }
 
+bool _isStreakShareSheetVisible = false;
+
 void showStreakShareSheet(BuildContext context, StreakStats streak) {
+  if (_isStreakShareSheetVisible) return;
+
+  _isStreakShareSheetVisible = true;
   showModalBottomSheet(
     context: context,
     backgroundColor: Colors.transparent,
     isScrollControlled: true,
     useRootNavigator: true,
     builder: (_) => StreakShareSheet(streak: streak),
-  );
+  ).whenComplete(() => _isStreakShareSheetVisible = false);
 }
