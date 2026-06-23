@@ -14,7 +14,6 @@ import 'package:flutter_pecha/features/practice/presentation/widgets/routine_ite
 import 'package:flutter_pecha/features/reader/data/models/navigation_context.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
 
 Future<UserPlansModel?> resolveRoutineUserPlan(
   WidgetRef ref,
@@ -63,7 +62,6 @@ class RoutineFilledState extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final localizations = context.l10n;
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final dateStr = DateFormat('EEE, MMM d').format(DateTime.now());
 
     // Handle deep-link from notification tap.
     final pendingNav = ref.watch(pendingNotificationNavProvider);
