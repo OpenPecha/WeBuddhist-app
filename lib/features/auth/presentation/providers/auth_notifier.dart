@@ -4,6 +4,7 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_pecha/core/error/failures.dart';
+import 'package:flutter_pecha/core/network/connectivity_service.dart';
 import 'package:flutter_pecha/core/storage/plan_metadata_store.dart';
 import 'package:flutter_pecha/core/storage/special_plan_started_at_store.dart';
 import 'package:flutter_pecha/core/storage/storage_keys.dart';
@@ -46,6 +47,14 @@ class AuthNotifier extends StateNotifier<AuthState> {
   final Ref ref;
   final _logger = AppLogger('AuthNotifier');
 
+  /// Subscription to connectivity changes, used to reconcile a session that was
+  /// restored offline once the network returns. Cancelled in [dispose].
+  StreamSubscription<bool>? _connectivitySub;
+
+  /// Guards [_reconcileOnReconnect] so overlapping connectivity events don't
+  /// fire concurrent profile refetches.
+  bool _reconciling = false;
+
   AuthNotifier({
     required LoginUseCase loginUseCase,
     required InitializeAuthUseCase initializeAuthUseCase,
@@ -69,6 +78,60 @@ class AuthNotifier extends StateNotifier<AuthState> {
        _clearGuestModeAndOnboardingUseCase = clearGuestModeAndOnboardingUseCase,
        super(const AuthState(isLoggedIn: false, isLoading: true)) {
     _restoreLoginState();
+    _listenForReconnect();
+  }
+
+  /// When the app launches offline, the session is kept ([_restoreCredentials]'s
+  /// transient branch) but the one-shot credential renewal and user-profile
+  /// fetch fail and are never retried — leaving a "logged in but empty profile"
+  /// state that, before this, only a relaunch could fix. Listen for the
+  /// offline→online transition and reconcile then.
+  void _listenForReconnect() {
+    _connectivitySub = ref
+        .read(connectivityServiceProvider)
+        .onConnectivityChanged
+        .listen((isOnline) {
+          if (isOnline) unawaited(_reconcileOnReconnect());
+        });
+  }
+
+  /// Reconcile auth/user state once connectivity returns after an offline
+  /// launch.
+  ///
+  /// Two cases:
+  /// - Real session already restored (`isLoggedIn && !isGuest`): just refresh
+  ///   the user profile. Uses [refreshUser] (not [initializeUser]) so an
+  ///   already-populated profile doesn't flash a loading state and a failed
+  ///   refetch keeps the current state. The refetch hits a protected endpoint
+  ///   so it also drives a silent token renewal via the interceptor; a dead
+  ///   session surfaces as a 401 handled by the reactive-401 path, not here.
+  /// - Not a confirmed real login (guest / logged out): the launch may have
+  ///   fallen through to guest because auth init (`ConfigService.loadConfig`)
+  ///   or `hasValidCredentials()` failed without a network. Re-run the restore
+  ///   now that we're online so a real stored session is recovered without a
+  ///   relaunch. A genuine guest with no credentials simply stays a guest.
+  Future<void> _reconcileOnReconnect() async {
+    if (_reconciling) return;
+    _reconciling = true;
+    try {
+      if (state.isLoggedIn && !state.isGuest) {
+        _logger.info('Connectivity restored — reconciling user profile');
+        await ref.read(userProvider.notifier).refreshUser();
+      } else {
+        _logger.info('Connectivity restored — re-running login restore');
+        await _restoreLoginState();
+      }
+    } catch (e) {
+      _logger.warning('Reconcile on reconnect failed (ignored): $e');
+    } finally {
+      _reconciling = false;
+    }
+  }
+
+  @override
+  void dispose() {
+    _connectivitySub?.cancel();
+    super.dispose();
   }
 
   Future<void> _restoreLoginState() async {
