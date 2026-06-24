@@ -59,15 +59,13 @@ class _YoutubeVideoPlayerState extends State<YoutubeVideoPlayer> {
           Positioned(
             top: MediaQuery.of(context).padding.top + 8,
             left: 8,
-            child: SafeArea(
-              child: IconButton(
-                icon: const Icon(AppAssets.arrowLeft, color: Colors.white),
-                style: IconButton.styleFrom(
-                  backgroundColor: Colors.black45,
-                  shape: const CircleBorder(),
-                ),
-                onPressed: () => context.pop(),
+            child: IconButton(
+              icon: const Icon(AppAssets.arrowLeft, color: Colors.white),
+              style: IconButton.styleFrom(
+                backgroundColor: Colors.black45,
+                shape: const CircleBorder(),
               ),
+              onPressed: () => context.pop(),
             ),
           ),
 

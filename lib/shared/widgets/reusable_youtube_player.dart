@@ -36,6 +36,9 @@ class _ReusableYoutubePlayerState extends State<ReusableYoutubePlayer> {
   bool _hasCalledOnReady = false;
   bool? _previousIsPlaying;
   bool _isDisposed = false;
+  // Prevents more than one seekTo callback from being queued at a time
+  // when the video reaches the end in loop mode.
+  bool _seekPending = false;
 
   @override
   void initState() {
@@ -78,11 +81,16 @@ class _ReusableYoutubePlayerState extends State<ReusableYoutubePlayer> {
       });
     }
 
-    // Safety-net loop: restart from the beginning when the video ends
+    // Safety-net loop: restart from the beginning when the video ends.
+    // The _seekPending flag ensures only one callback is ever queued per
+    // ended-state notification so rapid listener firings don't stack up.
     if (widget.loop &&
         _controller.value.isReady &&
-        _controller.value.playerState == PlayerState.ended) {
+        _controller.value.playerState == PlayerState.ended &&
+        !_seekPending) {
+      _seekPending = true;
       WidgetsBinding.instance.addPostFrameCallback((_) {
+        _seekPending = false;
         if (mounted && !_isDisposed) {
           _controller.seekTo(Duration.zero);
           _controller.play();
@@ -126,22 +134,33 @@ class _ReusableYoutubePlayerState extends State<ReusableYoutubePlayer> {
 
   @override
   Widget build(BuildContext context) {
-    // Don't render if disposed
     if (_isDisposed) return const SizedBox.shrink();
 
-    final player = YoutubePlayer(
-      controller: _controller,
-      aspectRatio: widget.aspectRatio,
-      showVideoProgressIndicator: false,
-    );
-
     if (widget.fillParent) {
-      return SizedBox.expand(child: player);
+      // YoutubePlayer's internal AspectRatio widget will always pick the
+      // largest size satisfying its ratio within the given constraints.
+      // To truly fill any screen (e.g. 9:19.5), we measure the available
+      // space via LayoutBuilder and feed that exact ratio back to the player,
+      // so AspectRatio resolves to the full bounds.
+      return LayoutBuilder(
+        builder: (context, constraints) {
+          final screenRatio = constraints.maxWidth / constraints.maxHeight;
+          return YoutubePlayer(
+            controller: _controller,
+            aspectRatio: screenRatio,
+            showVideoProgressIndicator: false,
+          );
+        },
+      );
     }
 
     return AspectRatio(
       aspectRatio: widget.aspectRatio,
-      child: player,
+      child: YoutubePlayer(
+        controller: _controller,
+        aspectRatio: widget.aspectRatio,
+        showVideoProgressIndicator: false,
+      ),
     );
   }
 }
