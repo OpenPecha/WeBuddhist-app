@@ -140,18 +140,6 @@ class RoutineFilledState extends ConsumerWidget {
             padding: EdgeInsets.symmetric(horizontal: 20.0),
             child: Divider(height: 1),
           ),
-        ] else ...[
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
-            child: Align(
-              alignment: Alignment.centerRight,
-              child: _EditLink(
-                editLabel: localizations.routine_edit,
-                onEdit: onEdit,
-                isDark: isDark,
-              ),
-            ),
-          ),
         ],
         // Routine blocks
         Expanded(

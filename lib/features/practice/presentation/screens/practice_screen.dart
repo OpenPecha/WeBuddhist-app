@@ -39,7 +39,11 @@ class PracticeScreen extends ConsumerWidget {
     return localizations.routine_load_error;
   }
 
-  PreferredSizeWidget? _appBar(AppLocalizations localizations) {
+  PreferredSizeWidget? _appBar(
+    AppLocalizations localizations, {
+    bool isDark = false,
+    VoidCallback? onEdit,
+  }) {
     if (!showAppBar) return null;
     return AppBar(
       title: Text(
@@ -48,6 +52,22 @@ class PracticeScreen extends ConsumerWidget {
       ),
       centerTitle: false,
       scrolledUnderElevation: 0,
+      actions:
+          onEdit == null
+              ? null
+              : [
+                TextButton(
+                  onPressed: onEdit,
+                  child: Text(
+                    localizations.routine_edit,
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      color: isDark ? Colors.white : Colors.black,
+                    ),
+                  ),
+                ),
+              ],
     );
   }
 
@@ -131,16 +151,24 @@ class PracticeScreen extends ConsumerWidget {
       // the screen never touches API models or mapper functions.
       data: (routineData) {
         if (routineData != null && routineData.hasItems) {
+          void handleEdit() {
+            HapticFeedback.lightImpact();
+            _onBuildRoutine(context, ref);
+          }
+
+          final isDark = Theme.of(context).brightness == Brightness.dark;
+
           return Scaffold(
-            appBar: _appBar(localizations),
+            appBar: _appBar(
+              localizations,
+              isDark: isDark,
+              onEdit: showAppBar ? handleEdit : null,
+            ),
             body: SafeArea(
               child: RoutineFilledState(
                 routineData: routineData,
                 showTitle: !showAppBar,
-                onEdit: () {
-                  HapticFeedback.lightImpact();
-                  _onBuildRoutine(context, ref);
-                },
+                onEdit: handleEdit,
               ),
             ),
           );
