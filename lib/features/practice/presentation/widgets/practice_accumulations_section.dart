@@ -21,29 +21,30 @@ class PracticeAccumulationsSection extends ConsumerWidget {
     final accumulatorsAsync = ref.watch(practiceExploreAccumulatorsProvider);
 
     return accumulatorsAsync.when(
-      data: (either) => either.fold(
-        (_) => const SizedBox.shrink(),
-        (mantras) {
-          if (mantras.isEmpty) return const SizedBox.shrink();
-          return PracticeSectionContainer(
-            title: l10n.me_accumulation,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Wrap(
-                spacing: 16,
-                runSpacing: 16,
-                children: mantras
-                    .map((m) => _AccumulationItem(
-                          mantra: m,
-                          language: language,
-                          onTap: () => _navigateToMala(context, ref, m),
-                        ))
-                    .toList(),
+      data:
+          (either) => either.fold((_) => const SizedBox.shrink(), (mantras) {
+            if (mantras.isEmpty) return const SizedBox.shrink();
+            return PracticeSectionContainer(
+              title: 'Accumulations',
+              child: SizedBox(
+                height: 100,
+                child: ListView.separated(
+                  scrollDirection: Axis.horizontal,
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  itemCount: mantras.length,
+                  separatorBuilder: (_, __) => const SizedBox(width: 16),
+                  itemBuilder: (context, index) {
+                    final mantra = mantras[index];
+                    return _AccumulationItem(
+                      mantra: mantra,
+                      language: language,
+                      onTap: () => _navigateToMala(context, ref, mantra),
+                    );
+                  },
+                ),
               ),
-            ),
-          );
-        },
-      ),
+            );
+          }),
       loading: () => const PracticeSectionSkeleton(height: 100),
       error: (_, __) => const SizedBox.shrink(),
     );
@@ -82,24 +83,26 @@ class _AccumulationItem extends StatelessWidget {
         child: Column(
           children: [
             ClipOval(
-              child: beadUrl != null && beadUrl.isNotEmpty
-                  ? CachedNetworkImageWidget(
-                      imageUrl: beadUrl,
-                      width: 56,
-                      height: 56,
-                      fit: BoxFit.cover,
-                    )
-                  : Container(
-                      width: 56,
-                      height: 56,
-                      decoration: BoxDecoration(
-                        color: Theme.of(context)
-                            .colorScheme
-                            .surfaceContainerHighest,
-                        shape: BoxShape.circle,
+              child:
+                  beadUrl != null && beadUrl.isNotEmpty
+                      ? CachedNetworkImageWidget(
+                        imageUrl: beadUrl,
+                        width: 56,
+                        height: 56,
+                        fit: BoxFit.cover,
+                      )
+                      : Container(
+                        width: 56,
+                        height: 56,
+                        decoration: BoxDecoration(
+                          color:
+                              Theme.of(
+                                context,
+                              ).colorScheme.surfaceContainerHighest,
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(Icons.spa, size: 24),
                       ),
-                      child: const Icon(Icons.spa, size: 24),
-                    ),
             ),
             const SizedBox(height: 6),
             Text(
