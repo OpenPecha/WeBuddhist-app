@@ -107,7 +107,7 @@ class _MeStreakCardState extends State<MeStreakCard> {
               Center(
                 child: Text(
                   l10n.me_best_streak(widget.streak.highest),
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
                     color: isDark ? AppColors.grey300 : Colors.black,
                   ),
                 ),
