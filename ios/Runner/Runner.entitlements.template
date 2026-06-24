@@ -5,6 +5,7 @@
 	<key>com.apple.developer.associated-domains</key>
 	<array>
 		<string>webcredentials:${AUTH0_DOMAIN}</string>
+		<string>applinks:webuddhist.com</string>
 	</array>
 </dict>
 </plist>
