@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
+import 'package:flutter_pecha/features/practice/presentation/controllers/bookmark_controller.dart';
 import 'package:flutter_pecha/features/reader/presentation/providers/reader_notifier.dart';
 import 'package:flutter_pecha/features/texts/data/models/segment.dart';
 import 'package:flutter_pecha/features/texts/presentation/providers/share_provider.dart';
@@ -30,7 +31,7 @@ String _removeHtmlElementsWithContent(String html, List<String> tagsToRemove) {
 
 /// "Resources" bottom panel: Copy/Share icon buttons + Commentaries/Versions
 /// list tiles. Appears when a segment is selected and no split panel is open.
-class SegmentActionBar extends ConsumerWidget {
+class SegmentActionBar extends ConsumerStatefulWidget {
   final Segment segment;
   final ReaderParams params;
   final VoidCallback onClose;
@@ -47,64 +48,22 @@ class SegmentActionBar extends ConsumerWidget {
   });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final localizations = context.l10n;
-    final state = ref.watch(readerNotifierProvider(params));
-    final notifier = ref.read(readerNotifierProvider(params).notifier);
+  ConsumerState<SegmentActionBar> createState() => _SegmentActionBarState();
+}
 
-    final content = segment.content;
-    if (content == null || content.isEmpty) {
-      return const SizedBox.shrink();
+class _SegmentActionBarState extends ConsumerState<SegmentActionBar> {
+  bool _isBookmarking = false;
+
+  Future<void> _handleBookmark() async {
+    if (_isBookmarking) return;
+    HapticFeedback.lightImpact();
+    setState(() => _isBookmarking = true);
+    try {
+      await BookmarkController(ref: ref, context: context)
+          .bookmarkVerse(widget.segment.segmentId);
+    } finally {
+      if (mounted) setState(() => _isBookmarking = false);
     }
-
-    return _ResourcesPanel(
-      onDismiss: onClose,
-      copyButton: _IconActionButton(
-        icon: AppAssets.readerCopy,
-        label: localizations.copy,
-        onTap: () {
-          HapticFeedback.lightImpact();
-          _handleCopy(context, content);
-        },
-      ),
-      shareButton: _ShareButton(
-        textId: params.textId,
-        segmentId: segment.segmentId,
-        language: state.textDetail?.language ?? 'en',
-        onClose: onClose,
-      ),
-      bookmarkButton: _IconActionButton(
-        icon: AppAssets.bookmarkSimple,
-        label: localizations.bookmark,
-        onTap: () {
-          HapticFeedback.lightImpact();
-        },
-      ),
-      tiles: [
-        _ResourceTile(
-          icon: AppAssets.readerCommentary,
-          label: localizations.text_commentary,
-          onTap: () {
-            HapticFeedback.lightImpact();
-            notifier.toggleCommentary(segment.segmentId);
-            if (!state.isCommentaryOpen) {
-              onOpenCommentary?.call();
-            }
-          },
-        ),
-        _ResourceTile(
-          icon: AppAssets.readerVersion,
-          label: localizations.version,
-          onTap: () {
-            HapticFeedback.lightImpact();
-            notifier.toggleTranslation(segment.segmentId);
-            if (!state.isTranslationOpen) {
-              onOpenTranslation?.call();
-            }
-          },
-        ),
-      ],
-    );
   }
 
   void _handleCopy(BuildContext context, String content) {
@@ -117,7 +76,67 @@ class SegmentActionBar extends ConsumerWidget {
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(SnackBar(content: Text(localizations.copied)));
-    onClose();
+    widget.onClose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final localizations = context.l10n;
+    final state = ref.watch(readerNotifierProvider(widget.params));
+    final notifier = ref.read(readerNotifierProvider(widget.params).notifier);
+
+    final content = widget.segment.content;
+    if (content == null || content.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    return _ResourcesPanel(
+      onDismiss: widget.onClose,
+      copyButton: _IconActionButton(
+        icon: AppAssets.readerCopy,
+        label: localizations.copy,
+        onTap: () {
+          HapticFeedback.lightImpact();
+          _handleCopy(context, content);
+        },
+      ),
+      shareButton: _ShareButton(
+        textId: widget.params.textId,
+        segmentId: widget.segment.segmentId,
+        language: state.textDetail?.language ?? 'en',
+        onClose: widget.onClose,
+      ),
+      bookmarkButton: _IconActionButton(
+        icon: AppAssets.bookmarkSimple,
+        label: localizations.bookmark,
+        isLoading: _isBookmarking,
+        onTap: _handleBookmark,
+      ),
+      tiles: [
+        _ResourceTile(
+          icon: AppAssets.readerCommentary,
+          label: localizations.text_commentary,
+          onTap: () {
+            HapticFeedback.lightImpact();
+            notifier.toggleCommentary(widget.segment.segmentId);
+            if (!state.isCommentaryOpen) {
+              widget.onOpenCommentary?.call();
+            }
+          },
+        ),
+        _ResourceTile(
+          icon: AppAssets.readerVersion,
+          label: localizations.version,
+          onTap: () {
+            HapticFeedback.lightImpact();
+            notifier.toggleTranslation(widget.segment.segmentId);
+            if (!state.isTranslationOpen) {
+              widget.onOpenTranslation?.call();
+            }
+          },
+        ),
+      ],
+    );
   }
 }
 
