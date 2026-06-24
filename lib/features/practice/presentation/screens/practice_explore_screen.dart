@@ -80,7 +80,7 @@ class _PracticeExploreScreenState extends ConsumerState<PracticeExploreScreen> {
               label: l10n.bookmarks,
               icon: Icons.bookmark_border,
               variant: PracticeActionButtonVariant.outlined,
-              onTap: () {},
+              onTap: () => context.pushNamed('bookmarks'),
             ),
           ),
         ],
