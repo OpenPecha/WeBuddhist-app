@@ -5,6 +5,7 @@ import 'package:flutter_pecha/features/practice/presentation/screens/all_recitat
 import 'package:flutter_pecha/features/practice/presentation/widgets/practice_chant_list_tile.dart';
 import 'package:flutter_pecha/features/practice/presentation/widgets/practice_section_container.dart';
 import 'package:flutter_pecha/features/practice/presentation/widgets/practice_section_skeleton.dart';
+import 'package:flutter_pecha/features/reader/data/models/navigation_context.dart';
 import 'package:flutter_pecha/features/recitation/data/models/recitation_model.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -46,7 +47,10 @@ class PracticeChantsSection extends ConsumerWidget {
   }
 
   void _navigateToRecitation(BuildContext context, RecitationModel recitation) {
-    context.push('/recitations/detail', extra: recitation);
+    final navigationContext = NavigationContext(
+      source: NavigationSource.normal,
+    );
+    context.push('/reader/${recitation.textId}', extra: navigationContext);
   }
 
   void _showAllRecitations(

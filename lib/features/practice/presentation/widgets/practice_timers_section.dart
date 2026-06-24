@@ -18,38 +18,41 @@ class PracticeTimersSection extends ConsumerWidget {
     final timersAsync = ref.watch(practiceExploreTimersProvider);
 
     return timersAsync.when(
-      data: (either) => either.fold(
-        (_) => const SizedBox.shrink(),
-        (timers) {
-          if (timers.isEmpty) return const SizedBox.shrink();
-          return PracticeSectionContainer(
-            title: l10n.meditation_timer,
-            child: SizedBox(
-              height: 88,
-              child: ListView.separated(
-                scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                itemCount: timers.length,
-                separatorBuilder: (_, __) => const SizedBox(width: 12),
-                itemBuilder: (context, index) {
-                  final timer = timers[index];
-                  return _TimerCard(
-                    timer: timer,
-                    minLabel: l10n.timer_min,
-                    onTap: () => _navigateToTimer(context, ref, timer),
-                  );
-                },
+      data:
+          (either) => either.fold((_) => const SizedBox.shrink(), (timers) {
+            if (timers.isEmpty) return const SizedBox.shrink();
+            return PracticeSectionContainer(
+              title: l10n.meditation_timer,
+              child: SizedBox(
+                height: 150,
+                width: double.infinity,
+                child: ListView.separated(
+                  scrollDirection: Axis.horizontal,
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  itemCount: timers.length,
+                  separatorBuilder: (_, __) => const SizedBox(width: 12),
+                  itemBuilder: (context, index) {
+                    final timer = timers[index];
+                    return _TimerCard(
+                      timer: timer,
+                      minLabel: l10n.timer_min,
+                      onTap: () => _navigateToTimer(context, ref, timer),
+                    );
+                  },
+                ),
               ),
-            ),
-          );
-        },
-      ),
+            );
+          }),
       loading: () => const PracticeSectionSkeleton(height: 100),
       error: (_, __) => const SizedBox.shrink(),
     );
   }
 
-  void _navigateToTimer(BuildContext context, WidgetRef ref, PresetTimer timer) {
+  void _navigateToTimer(
+    BuildContext context,
+    WidgetRef ref,
+    PresetTimer timer,
+  ) {
     final isGuest = ref.read(authProvider).isGuest;
     if (isGuest) {
       LoginDrawer.show(context, ref);
@@ -84,8 +87,8 @@ class _TimerCard extends StatelessWidget {
       ),
       clipBehavior: Clip.antiAlias,
       child: SizedBox(
-        width: 100,
-        height: 88,
+        width: 150,
+        height: 100,
         child: InkWell(
           onTap: onTap,
           child: Center(
