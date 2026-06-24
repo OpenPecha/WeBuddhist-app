@@ -286,6 +286,60 @@ abstract class AppLocalizations {
   /// **'Mala'**
   String get home_mala;
 
+  /// No description provided for @mala_add_to_practice.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to my practices'**
+  String get mala_add_to_practice;
+
+  /// No description provided for @mala_add_to_bookmark.
+  ///
+  /// In en, this message translates to:
+  /// **'Bookmark'**
+  String get mala_add_to_bookmark;
+
+  /// No description provided for @mala_sound.
+  ///
+  /// In en, this message translates to:
+  /// **'Sound'**
+  String get mala_sound;
+
+  /// No description provided for @mala_vibration.
+  ///
+  /// In en, this message translates to:
+  /// **'Vibration'**
+  String get mala_vibration;
+
+  /// No description provided for @mala_reset_count.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset count'**
+  String get mala_reset_count;
+
+  /// No description provided for @mala_reset_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset this mala?'**
+  String get mala_reset_title;
+
+  /// No description provided for @mala_reset_count_confirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Your current count will go back to zero, but your accumulations will stay in your lifetime total.'**
+  String get mala_reset_count_confirm;
+
+  /// No description provided for @mala_reset_confirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset'**
+  String get mala_reset_confirm;
+
+  /// No description provided for @mala_action_coming_soon.
+  ///
+  /// In en, this message translates to:
+  /// **'Coming soon'**
+  String get mala_action_coming_soon;
+
   /// No description provided for @home_timer.
   ///
   /// In en, this message translates to:

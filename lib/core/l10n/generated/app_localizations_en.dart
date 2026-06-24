@@ -105,6 +105,34 @@ class AppLocalizationsEn extends AppLocalizations {
   String get home_mala => 'Mala';
 
   @override
+  String get mala_add_to_practice => 'Add to my practices';
+
+  @override
+  String get mala_add_to_bookmark => 'Bookmark';
+
+  @override
+  String get mala_sound => 'Sound';
+
+  @override
+  String get mala_vibration => 'Vibration';
+
+  @override
+  String get mala_reset_count => 'Reset count';
+
+  @override
+  String get mala_reset_title => 'Reset this mala?';
+
+  @override
+  String get mala_reset_count_confirm =>
+      'Your current count will go back to zero, but your accumulations will stay in your lifetime total.';
+
+  @override
+  String get mala_reset_confirm => 'Reset';
+
+  @override
+  String get mala_action_coming_soon => 'Coming soon';
+
+  @override
   String get home_timer => 'Timer';
 
   @override
