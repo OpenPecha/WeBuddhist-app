@@ -1316,6 +1316,15 @@ class AppLocalizationsHi extends AppLocalizations {
   String get accumulations => 'संचय';
 
   @override
+  String get accumulations_search => 'संचय खोजें...';
+
+  @override
+  String get accumulations_search_for => 'संचय खोजें';
+
+  @override
+  String get accumulations_no_found => 'कोई संचय नहीं मिला';
+
+  @override
   String get me_accumulation => 'कुल संचय';
 
   @override

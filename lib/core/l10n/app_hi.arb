@@ -615,6 +615,9 @@
     }
   },
   "accumulations": "संचय",
+  "accumulations_search": "संचय खोजें...",
+  "accumulations_search_for": "संचय खोजें",
+  "accumulations_no_found": "कोई संचय नहीं मिला",
   "me_accumulation": "कुल संचय",
   "me_counts": "बार",
   "me_minutes": "मिनट",

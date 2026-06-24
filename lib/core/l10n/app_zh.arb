@@ -549,6 +549,9 @@
     }
   },
   "accumulations": "累積",
+  "accumulations_search": "搜索累積",
+  "accumulations_search_for": "尋找累積內容",
+  "accumulations_no_found": "尚無相關累積內容",
   "me_accumulation": "累積總數",
   "me_counts": "次",
   "me_minutes": "分鐘",

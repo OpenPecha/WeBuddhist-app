@@ -549,6 +549,9 @@
     }
   },
   "accumulations": "བསགས་གྲངས།",
+  "accumulations_search": "བསགས་གྲངས་འཚོལ།",
+  "accumulations_search_for": "བསགས་གྲངས་འཚོལ།",
+  "accumulations_no_found": "བསགས་གྲངས་རྙེད་མ་བྱུང་།",
   "me_accumulation": "བསགས་གྲངས་ཁྱོན་བསྡོམས།",
   "me_counts": "ཐེངས།",
   "me_minutes": "སྐར་མ།",

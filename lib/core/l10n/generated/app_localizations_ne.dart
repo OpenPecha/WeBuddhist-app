@@ -1322,6 +1322,15 @@ class AppLocalizationsNe extends AppLocalizations {
   String get accumulations => 'संचय';
 
   @override
+  String get accumulations_search => 'संचयहरू खोज्नुहोस्...';
+
+  @override
+  String get accumulations_search_for => 'संचयहरू खोज्नुहोस्';
+
+  @override
+  String get accumulations_no_found => 'कुनै संचय फेला परेन';
+
+  @override
   String get me_accumulation => 'कुल संचय';
 
   @override

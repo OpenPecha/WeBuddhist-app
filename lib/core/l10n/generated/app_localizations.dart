@@ -2416,6 +2416,24 @@ abstract class AppLocalizations {
   /// **'Accumulations'**
   String get accumulations;
 
+  /// No description provided for @accumulations_search.
+  ///
+  /// In en, this message translates to:
+  /// **'Search for accumulations...'**
+  String get accumulations_search;
+
+  /// No description provided for @accumulations_search_for.
+  ///
+  /// In en, this message translates to:
+  /// **'Search for accumulations'**
+  String get accumulations_search_for;
+
+  /// No description provided for @accumulations_no_found.
+  ///
+  /// In en, this message translates to:
+  /// **'No accumulations found'**
+  String get accumulations_no_found;
+
   /// No description provided for @me_accumulation.
   ///
   /// In en, this message translates to:

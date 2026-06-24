@@ -1303,6 +1303,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get accumulations => 'Accumulations';
 
   @override
+  String get accumulations_search => 'Search for accumulations...';
+
+  @override
+  String get accumulations_search_for => 'Search for accumulations';
+
+  @override
+  String get accumulations_no_found => 'No accumulations found';
+
+  @override
   String get me_accumulation => 'Total accumulations';
 
   @override

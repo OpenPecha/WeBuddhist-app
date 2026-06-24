@@ -1317,6 +1317,15 @@ class AppLocalizationsMn extends AppLocalizations {
   String get accumulations => 'Хуримтлал';
 
   @override
+  String get accumulations_search => 'Хуримтлал хайх...';
+
+  @override
+  String get accumulations_search_for => 'Хуримтлал хайх';
+
+  @override
+  String get accumulations_no_found => 'Хуримтлал олдсонгүй';
+
+  @override
   String get me_accumulation => 'Нийт хуримтлал';
 
   @override

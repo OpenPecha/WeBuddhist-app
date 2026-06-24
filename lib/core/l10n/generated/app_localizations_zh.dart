@@ -1242,6 +1242,15 @@ class AppLocalizationsZh extends AppLocalizations {
   String get accumulations => '累積';
 
   @override
+  String get accumulations_search => '搜索累積';
+
+  @override
+  String get accumulations_search_for => '尋找累積內容';
+
+  @override
+  String get accumulations_no_found => '尚無相關累積內容';
+
+  @override
   String get me_accumulation => '累積總數';
 
   @override

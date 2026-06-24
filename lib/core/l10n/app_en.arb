@@ -626,6 +626,9 @@
     }
   },
   "accumulations": "Accumulations",
+  "accumulations_search": "Search for accumulations...",
+  "accumulations_search_for": "Search for accumulations",
+  "accumulations_no_found": "No accumulations found",
   "me_accumulation": "Total accumulations",
   "me_counts": "counts",
   "me_minutes": "minutes",

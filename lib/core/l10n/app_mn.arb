@@ -615,6 +615,9 @@
     }
   },
   "accumulations": "Хуримтлал",
+  "accumulations_search": "Хуримтлал хайх...",
+  "accumulations_search_for": "Хуримтлал хайх",
+  "accumulations_no_found": "Хуримтлал олдсонгүй",
   "me_accumulation": "Нийт хуримтлал",
   "me_counts": "удаа",
   "me_minutes": "минут",
