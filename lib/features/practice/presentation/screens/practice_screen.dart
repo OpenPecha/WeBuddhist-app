@@ -10,7 +10,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 class PracticeScreen extends ConsumerWidget {
-  const PracticeScreen({super.key});
+  const PracticeScreen({super.key, this.showAppBar = false});
+
+  final bool showAppBar;
 
   Future<void> _refreshRoutine(WidgetRef ref) async {
     ref.invalidate(userRoutineProvider);
@@ -37,6 +39,18 @@ class PracticeScreen extends ConsumerWidget {
     return localizations.routine_load_error;
   }
 
+  PreferredSizeWidget? _appBar(AppLocalizations localizations) {
+    if (!showAppBar) return null;
+    return AppBar(
+      title: Text(
+        localizations.routine_title,
+        style: const TextStyle(fontWeight: FontWeight.bold),
+      ),
+      centerTitle: false,
+      scrolledUnderElevation: 0,
+    );
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final localizations = AppLocalizations.of(context)!;
@@ -48,8 +62,9 @@ class PracticeScreen extends ConsumerWidget {
     }
 
     if (authState.isLoading) {
-      return const Scaffold(
-        body: SafeArea(child: Center(child: CircularProgressIndicator())),
+      return Scaffold(
+        appBar: _appBar(localizations),
+        body: const SafeArea(child: Center(child: CircularProgressIndicator())),
       );
     }
 
@@ -57,11 +72,15 @@ class PracticeScreen extends ConsumerWidget {
 
     return routineAsync.when(
       loading:
-          () => const Scaffold(
-            body: SafeArea(child: Center(child: CircularProgressIndicator())),
+          () => Scaffold(
+            appBar: _appBar(localizations),
+            body: const SafeArea(
+              child: Center(child: CircularProgressIndicator()),
+            ),
           ),
       error:
           (error, _) => Scaffold(
+            appBar: _appBar(localizations),
             body: SafeArea(
               child: RefreshIndicator(
                 onRefresh: () => _refreshRoutine(ref),
@@ -113,9 +132,11 @@ class PracticeScreen extends ConsumerWidget {
       data: (routineData) {
         if (routineData != null && routineData.hasItems) {
           return Scaffold(
+            appBar: _appBar(localizations),
             body: SafeArea(
               child: RoutineFilledState(
                 routineData: routineData,
+                showTitle: !showAppBar,
                 onEdit: () {
                   HapticFeedback.lightImpact();
                   _onBuildRoutine(context, ref);
@@ -137,28 +158,31 @@ class PracticeScreen extends ConsumerWidget {
     AppLocalizations localizations,
   ) {
     return Scaffold(
+      appBar: _appBar(localizations),
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 16.0,
-                vertical: 8,
-              ),
-              child: Text(
-                localizations.routine_empty_title,
-                style: const TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
+            if (!showAppBar) ...[
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16.0,
+                  vertical: 8,
+                ),
+                child: Text(
+                  localizations.routine_empty_title,
+                  style: const TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(height: 12),
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20.0),
-              child: Divider(height: 1),
-            ),
+              const SizedBox(height: 12),
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 20.0),
+                child: Divider(height: 1),
+              ),
+            ],
             Expanded(
               child: RefreshIndicator(
                 onRefresh: () => _refreshRoutine(ref),
