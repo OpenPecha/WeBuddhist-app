@@ -407,6 +407,7 @@
   "common_ok": "OK",
   "comingSoonHeadline": "Coming soon",
   "routine_title": "My practices",
+  "bookmarks": "Bookmarks",
   "routine_empty_title": "Practices",
   "routine_edit": "Edit",
   "routine_empty_description": "Explore more teachings and practices to add to your routine",
@@ -624,6 +625,10 @@
       }
     }
   },
+  "accumulations": "Accumulations",
+  "accumulations_search": "Search for accumulations...",
+  "accumulations_search_for": "Search for accumulations",
+  "accumulations_no_found": "No accumulations found",
   "me_accumulation": "Total accumulations",
   "me_counts": "counts",
   "me_minutes": "minutes",

@@ -396,6 +396,7 @@
   "common_ok": "ठीक है",
   "comingSoonHeadline": "जल्द आ रहा है",
   "routine_title": "मेरे अभ्यास",
+  "bookmarks": "बुकमार्क",
   "routine_empty_title": "अभ्यास",
   "routine_edit": "एडिट  करें",
   "routine_empty_description": "अपनी दिनचर्या में जोड़ने के लिए और शिक्षाएँ व अभ्यास खोजें",
@@ -613,6 +614,10 @@
       }
     }
   },
+  "accumulations": "संचय",
+  "accumulations_search": "संचय खोजें...",
+  "accumulations_search_for": "संचय खोजें",
+  "accumulations_no_found": "कोई संचय नहीं मिला",
   "me_accumulation": "कुल संचय",
   "me_counts": "बार",
   "me_minutes": "मिनट",

@@ -875,6 +875,9 @@ class AppLocalizationsNe extends AppLocalizations {
   String get routine_title => 'मेरा अभ्यासहरू';
 
   @override
+  String get bookmarks => 'बुकमार्कहरू';
+
+  @override
   String get routine_empty_title => 'अभ्यासहरू';
 
   @override
@@ -1314,6 +1317,18 @@ class AppLocalizationsNe extends AppLocalizations {
   String me_best_streak(int count) {
     return 'सबैभन्दा लामो शृंखला: $count दिन';
   }
+
+  @override
+  String get accumulations => 'संचय';
+
+  @override
+  String get accumulations_search => 'संचयहरू खोज्नुहोस्...';
+
+  @override
+  String get accumulations_search_for => 'संचयहरू खोज्नुहोस्';
+
+  @override
+  String get accumulations_no_found => 'कुनै संचय फेला परेन';
 
   @override
   String get me_accumulation => 'कुल संचय';

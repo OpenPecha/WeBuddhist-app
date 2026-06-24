@@ -874,6 +874,9 @@ class AppLocalizationsBo extends AppLocalizations {
   String get routine_title => 'ངའི་འཆར་ཅན་ཉམས་ལེན།';
 
   @override
+  String get bookmarks => 'ས་ཚད།';
+
+  @override
   String get routine_empty_title => 'འཆར་ཅན་ཉམས་ལེན།';
 
   @override
@@ -1313,6 +1316,18 @@ class AppLocalizationsBo extends AppLocalizations {
   String me_best_streak(int count) {
     return 'རྒྱུན་མཐུད་རིང་ཤོས། ཉིན་ $count';
   }
+
+  @override
+  String get accumulations => 'བསགས་གྲངས།';
+
+  @override
+  String get accumulations_search => 'བསགས་གྲངས་འཚོལ།';
+
+  @override
+  String get accumulations_search_for => 'བསགས་གྲངས་འཚོལ།';
+
+  @override
+  String get accumulations_no_found => 'བསགས་གྲངས་རྙེད་མ་བྱུང་།';
 
   @override
   String get me_accumulation => 'བསགས་གྲངས་ཁྱོན་བསྡོམས།';

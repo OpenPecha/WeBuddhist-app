@@ -53,10 +53,11 @@ class MeStatsSection extends StatelessWidget {
           _PracticeDaysCard(
             days: stats.totalPracticeDays,
             cardColor: cardColor,
-            onTap: () => showPracticeDaysSheet(
-              context,
-              totalDays: stats.totalPracticeDays,
-            ),
+            onTap:
+                () => showPracticeDaysSheet(
+                  context,
+                  totalDays: stats.totalPracticeDays,
+                ),
           ),
           const SizedBox(height: _cardSpacing),
           Row(
@@ -72,13 +73,14 @@ class MeStatsSection extends StatelessWidget {
                   ),
                   value: _formatCompactCount(stats.totalAccumulated, locale),
                   cardColor: cardColor,
-                  onTap: () => showAccumulationSheet(
-                    context,
-                    formattedTotal: _formatCompactCount(
-                      stats.totalAccumulated,
-                      locale,
-                    ),
-                  ),
+                  onTap:
+                      () => showAccumulationSheet(
+                        context,
+                        formattedTotal: _formatCompactCount(
+                          stats.totalAccumulated,
+                          locale,
+                        ),
+                      ),
                 ),
               ),
               const SizedBox(width: _cardSpacing),
@@ -209,6 +211,11 @@ class _PracticeDaysCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isTibetan = Localizations.localeOf(context).languageCode == 'bo';
+    final daysStyle = Theme.of(
+      context,
+    ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700);
+    final suffixStyle = Theme.of(context).textTheme.titleMedium;
 
     return Material(
       color: cardColor,
@@ -233,23 +240,59 @@ class _PracticeDaysCard extends StatelessWidget {
               ),
               const SizedBox(width: 12),
               Expanded(
-                child: Text.rich(
-                  TextSpan(
-                    style: DefaultTextStyle.of(context).style,
-                    children: [
-                      TextSpan(
-                        text: '$days',
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.w700,
+                child:
+                    isTibetan
+                        ? Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            LayoutBuilder(
+                              builder: (context, constraints) {
+                                return SizedBox(
+                                  width: constraints.maxWidth,
+                                  child: FittedBox(
+                                    alignment: Alignment.centerLeft,
+                                    fit: BoxFit.scaleDown,
+                                    child: Text.rich(
+                                      TextSpan(
+                                        style: suffixStyle,
+                                        children: [
+                                          TextSpan(
+                                            text:
+                                                ' ${l10n.me_days_plan_practiced_suffix} ',
+                                          ),
+                                          TextSpan(
+                                            text: '$days',
+                                            style: suffixStyle?.copyWith(
+                                              fontWeight: FontWeight.w700,
+                                              fontSize:
+                                                  (suffixStyle.fontSize ?? 16) *
+                                                  1.2,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      maxLines: 1,
+                                      softWrap: false,
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          ],
+                        )
+                        : Text.rich(
+                          TextSpan(
+                            style: DefaultTextStyle.of(context).style,
+                            children: [
+                              TextSpan(text: '$days', style: daysStyle),
+                              TextSpan(
+                                text: ' ${l10n.me_days_plan_practiced_suffix}',
+                                style: suffixStyle,
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                      TextSpan(
-                        text: ' ${l10n.me_days_plan_practiced_suffix}',
-                        style: Theme.of(context).textTheme.bodySmall,
-                      ),
-                    ],
-                  ),
-                ),
               ),
             ],
           ),

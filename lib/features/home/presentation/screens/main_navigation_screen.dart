@@ -6,7 +6,7 @@ import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/features/connect/presentation/screens/connect_screen.dart';
 import 'package:flutter_pecha/features/home/presentation/screens/home_screen.dart';
-import 'package:flutter_pecha/features/practice/presentation/screens/practice_screen.dart';
+import 'package:flutter_pecha/features/practice/presentation/screens/practice_explore_screen.dart';
 import 'package:flutter_pecha/shared/widgets/appBottomNavBar/app_bottom_nav_bar.dart';
 import 'package:flutter_pecha/shared/widgets/appBottomNavBar/app_bottom_nav_item.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -45,7 +45,7 @@ List<AppBottomBarItemModel<int>> mainNavigationItems(
     AppBottomBarItemModel(
       type: 1,
       label: localizations.nav_practice,
-      selectedWidget: const PracticeScreen(),
+      selectedWidget: const PracticeExploreScreen(),
       selectedIconData: AppAssets.practiceSelected,
       unSelectedIconData: AppAssets.practiceUnselected,
     ),

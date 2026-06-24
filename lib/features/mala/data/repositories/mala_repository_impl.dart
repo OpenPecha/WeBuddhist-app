@@ -12,9 +12,15 @@ class MalaRepositoryImpl implements MalaRepository {
   final MalaRemoteDataSource remote;
 
   @override
-  Future<Either<Failure, List<Mantra>>> getCatalogue({String? language}) async {
+  Future<Either<Failure, List<Mantra>>> getCatalogue({
+    String? language,
+    String? search,
+  }) async {
     try {
-      final presets = await remote.fetchPresets(language: language);
+      final presets = await remote.fetchPresets(
+        language: language,
+        search: search,
+      );
       return Right(presets.map((p) => p.toEntity()).toList());
     } on AppException catch (e) {
       return Left(_toFailure(e));

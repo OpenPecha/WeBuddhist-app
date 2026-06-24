@@ -340,6 +340,7 @@
   "common_ok": "確定",
   "comingSoonHeadline": "即将推出",
   "routine_title": "日常修持",
+  "bookmarks": "书签",
   "routine_empty_title": "日常修持",
   "routine_edit": "編輯",
   "routine_empty_description": "探索更多課程與修持計畫，加入學習選單或新增至您的修持安排",
@@ -547,6 +548,10 @@
       }
     }
   },
+  "accumulations": "累積",
+  "accumulations_search": "搜索累積",
+  "accumulations_search_for": "尋找累積內容",
+  "accumulations_no_found": "尚無相關累積內容",
   "me_accumulation": "累積總數",
   "me_counts": "次",
   "me_minutes": "分鐘",
