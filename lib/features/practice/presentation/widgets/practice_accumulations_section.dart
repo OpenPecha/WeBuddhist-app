@@ -29,7 +29,7 @@ class PracticeAccumulationsSection extends ConsumerWidget {
             if (mantras.isEmpty) return const SizedBox.shrink();
             final preview = mantras.take(_previewCount).toList();
             return PracticeSectionContainer(
-              title: 'Accumulations',
+              title: l10n.accumulations,
               seeAllLabel:
                   mantras.length >= _previewCount ? l10n.see_all : null,
               onSeeAll:
