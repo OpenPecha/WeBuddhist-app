@@ -123,7 +123,9 @@ class _ShortVideoCardState extends State<_ShortVideoCard> {
     );
 
     // Signal every card in the section to resume
-    widget.resumeSignal.value++;
+    if (mounted) {
+      widget.resumeSignal.value++;
+    }
   }
 
   @override
