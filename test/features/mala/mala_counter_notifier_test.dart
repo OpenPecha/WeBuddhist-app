@@ -101,7 +101,7 @@ void main() {
     final notifier = buildNotifier(); // seed still pending (async)
     expect(notifier.state.isSeeding, isTrue);
 
-    notifier.incrementBead();
+    notifier.incrementBead(soundEnabled: true, vibrationEnabled: true);
 
     expect(notifier.state.total, 0);
     notifier.dispose();
@@ -115,9 +115,9 @@ void main() {
     final notifier = buildNotifier();
     await Future.delayed(Duration.zero);
 
-    notifier.incrementBead();
-    notifier.incrementBead();
-    notifier.incrementBead();
+    notifier.incrementBead(soundEnabled: true, vibrationEnabled: true);
+    notifier.incrementBead(soundEnabled: true, vibrationEnabled: true);
+    notifier.incrementBead(soundEnabled: true, vibrationEnabled: true);
 
     expect(notifier.state.total, 3);
     expect(notifier.state.beadInRound, 3);
@@ -137,7 +137,7 @@ void main() {
     await Future.delayed(Duration.zero);
 
     expect(notifier.state.total, kBeadsPerRound - 1);
-    notifier.incrementBead(); // lands on 108
+    notifier.incrementBead(soundEnabled: true, vibrationEnabled: true); // lands on 108
 
     expect(notifier.state.total, kBeadsPerRound);
     expect(notifier.state.beadInRound, 0);
