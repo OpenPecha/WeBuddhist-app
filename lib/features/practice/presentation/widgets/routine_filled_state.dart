@@ -48,7 +48,7 @@ Future<UserPlansModel?> resolveRoutineUserPlan(
 
 final _logger = AppLogger('RoutineFilledState');
 
-class RoutineFilledState extends ConsumerWidget {
+class RoutineFilledState extends ConsumerStatefulWidget {
   final RoutineData routineData;
   final VoidCallback onEdit;
   final bool showTitle;
@@ -61,77 +61,89 @@ class RoutineFilledState extends ConsumerWidget {
   });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<RoutineFilledState> createState() => _RoutineFilledStateState();
+}
+
+class _RoutineFilledStateState extends ConsumerState<RoutineFilledState> {
+  @override
+  void initState() {
+    super.initState();
+    ref.listenManual(pendingNotificationNavProvider, (previous, next) {
+      if (next != null) {
+        _handlePendingNotificationNav(next);
+      }
+    }, fireImmediately: true);
+  }
+
+  Future<void> _handlePendingNotificationNav(NotificationNav pendingNav) async {
+    if (!mounted) return;
+
+    final itemType = RoutineItemType.values.firstWhere(
+      (e) => e.name == pendingNav.itemType,
+      orElse: () => RoutineItemType.series,
+    );
+    if (itemType == RoutineItemType.recitation) {
+      ref.read(pendingNotificationNavProvider.notifier).state = null;
+      context.push(
+        '/reader/${pendingNav.itemId}',
+        extra: NavigationContext(source: NavigationSource.normal),
+      );
+      return;
+    }
+
+    final planId = pendingNav.planId ?? pendingNav.itemId;
+    final routineItem = _findRoutineItem(widget.routineData, pendingNav.itemId);
+    var userPlan =
+        ref
+            .read(myPlansPaginatedProvider)
+            .plans
+            .where((p) => p.id == planId)
+            .firstOrNull;
+    userPlan ??= await resolveRoutineUserPlan(
+      ref,
+      planId,
+      language: routineItem?.language,
+    );
+    if (!mounted || userPlan == null) {
+      return;
+    }
+
+    ref.read(pendingNotificationNavProvider.notifier).state = null;
+    final startDate = userPlan.effectiveStartDate;
+    final selectedDay = PlanUtils.dayNumberFor(
+      startDate,
+      DateTime.now(),
+      userPlan.totalDays,
+    ).clamp(1, userPlan.totalDays);
+    _logger.info(
+      '[ENROLL-NAV] notification open ${userPlan.id} '
+      'seriesId=${pendingNav.itemId} selectedDay=$selectedDay/${userPlan.totalDays}',
+    );
+    context.push(
+      '/practice/details',
+      extra: {
+        'plan': userPlan,
+        'selectedDay': selectedDay,
+        'startDate': startDate,
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final localizations = context.l10n;
     final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    // Handle deep-link from notification tap.
-    final pendingNav = ref.watch(pendingNotificationNavProvider);
-    if (pendingNav != null) {
-      WidgetsBinding.instance.addPostFrameCallback((_) async {
-        if (!context.mounted) return;
-        final itemType = RoutineItemType.values.firstWhere(
-          (e) => e.name == pendingNav.itemType,
-          orElse: () => RoutineItemType.series,
-        );
-        if (itemType == RoutineItemType.recitation) {
-          ref.read(pendingNotificationNavProvider.notifier).state = null;
-          context.push(
-            '/reader/${pendingNav.itemId}',
-            extra: NavigationContext(source: NavigationSource.normal),
-          );
-          return;
-        }
-
-        final planId = pendingNav.planId ?? pendingNav.itemId;
-        final routineItem = _findRoutineItem(routineData, pendingNav.itemId);
-        var userPlan =
-            ref
-                .read(myPlansPaginatedProvider)
-                .plans
-                .where((p) => p.id == planId)
-                .firstOrNull;
-        userPlan ??= await resolveRoutineUserPlan(
-          ref,
-          planId,
-          language: routineItem?.language,
-        );
-        if (userPlan == null) {
-          return;
-        }
-
-        ref.read(pendingNotificationNavProvider.notifier).state = null;
-        final startDate = userPlan.effectiveStartDate;
-        final selectedDay = PlanUtils.dayNumberFor(
-          startDate,
-          DateTime.now(),
-          userPlan.totalDays,
-        ).clamp(1, userPlan.totalDays);
-        _logger.info(
-          '[ENROLL-NAV] notification open ${userPlan.id} '
-          'seriesId=${pendingNav.itemId} selectedDay=$selectedDay/${userPlan.totalDays}',
-        );
-        context.push(
-          '/practice/details',
-          extra: {
-            'plan': userPlan,
-            'selectedDay': selectedDay,
-            'startDate': startDate,
-          },
-        );
-      });
-    }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (showTitle) ...[
+        if (widget.showTitle) ...[
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
             child: _RoutineHeader(
               title: localizations.routine_title,
               editLabel: localizations.routine_edit,
-              onEdit: onEdit,
+              onEdit: widget.onEdit,
               isDark: isDark,
             ),
           ),
@@ -155,9 +167,11 @@ class RoutineFilledState extends ConsumerWidget {
                 horizontal: 20.0,
                 vertical: 12,
               ),
-              itemCount: routineData.blocks.length,
+              itemCount: widget.routineData.blocks.length,
               itemBuilder: (context, index) {
-                return _RoutineBlockSection(block: routineData.blocks[index]);
+                return _RoutineBlockSection(
+                  block: widget.routineData.blocks[index],
+                );
               },
             ),
           ),
@@ -243,7 +257,10 @@ class _RoutineBlockSection extends ConsumerWidget {
         _navigateToReader(context, item.id);
       case RoutineItemType.series:
         if (!context.mounted) return;
-        context.push('/home/series/${item.id}');
+        context.pushNamed(
+          'home-series-detail',
+          pathParameters: {'id': item.id},
+        );
     }
   }
 
