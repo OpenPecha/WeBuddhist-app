@@ -23,7 +23,7 @@ class AllAccumulationsScreen extends StatelessWidget {
           AppLocalizations.of(context)!.accumulations,
           style: const TextStyle(fontWeight: FontWeight.bold),
         ),
-        centerTitle: false,
+        centerTitle: true,
         scrolledUnderElevation: 0,
       ),
       body: GridView.builder(
