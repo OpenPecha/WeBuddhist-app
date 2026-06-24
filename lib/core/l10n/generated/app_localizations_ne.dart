@@ -1319,6 +1319,9 @@ class AppLocalizationsNe extends AppLocalizations {
   }
 
   @override
+  String get accumulations => 'संचय';
+
+  @override
   String get me_accumulation => 'कुल संचय';
 
   @override

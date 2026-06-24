@@ -548,6 +548,7 @@
       }
     }
   },
+  "accumulations": "累積",
   "me_accumulation": "累積總數",
   "me_counts": "次",
   "me_minutes": "分鐘",

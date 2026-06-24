@@ -1314,6 +1314,9 @@ class AppLocalizationsMn extends AppLocalizations {
   }
 
   @override
+  String get accumulations => 'Хуримтлал';
+
+  @override
   String get me_accumulation => 'Нийт хуримтлал';
 
   @override

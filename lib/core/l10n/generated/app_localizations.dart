@@ -2410,6 +2410,12 @@ abstract class AppLocalizations {
   /// **'Longest streak: {count} days'**
   String me_best_streak(int count);
 
+  /// No description provided for @accumulations.
+  ///
+  /// In en, this message translates to:
+  /// **'Accumulations'**
+  String get accumulations;
+
   /// No description provided for @me_accumulation.
   ///
   /// In en, this message translates to:

@@ -1318,6 +1318,9 @@ class AppLocalizationsBo extends AppLocalizations {
   }
 
   @override
+  String get accumulations => 'བསགས་གྲངས།';
+
+  @override
   String get me_accumulation => 'བསགས་གྲངས་ཁྱོན་བསྡོམས།';
 
   @override

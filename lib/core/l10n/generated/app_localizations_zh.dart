@@ -1239,6 +1239,9 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
+  String get accumulations => '累積';
+
+  @override
   String get me_accumulation => '累積總數';
 
   @override

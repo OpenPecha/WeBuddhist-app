@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/features/mala/domain/entities/mantra.dart';
 import 'package:flutter_pecha/features/practice/presentation/widgets/practice_accumulation_item.dart';
 
@@ -18,9 +19,9 @@ class AllAccumulationsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'Accumulations',
-          style: TextStyle(fontWeight: FontWeight.bold),
+        title: Text(
+          AppLocalizations.of(context)!.accumulations,
+          style: const TextStyle(fontWeight: FontWeight.bold),
         ),
         centerTitle: false,
         scrolledUnderElevation: 0,

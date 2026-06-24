@@ -1300,6 +1300,9 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get accumulations => 'Accumulations';
+
+  @override
   String get me_accumulation => 'Total accumulations';
 
   @override

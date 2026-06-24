@@ -625,6 +625,7 @@
       }
     }
   },
+  "accumulations": "Accumulations",
   "me_accumulation": "Total accumulations",
   "me_counts": "counts",
   "me_minutes": "minutes",
