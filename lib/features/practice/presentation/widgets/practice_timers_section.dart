@@ -5,12 +5,15 @@ import 'package:flutter_pecha/features/auth/presentation/widgets/login_drawer.da
 import 'package:flutter_pecha/features/practice/presentation/providers/practice_explore_providers.dart';
 import 'package:flutter_pecha/features/practice/presentation/widgets/practice_section_container.dart';
 import 'package:flutter_pecha/features/practice/presentation/widgets/practice_section_skeleton.dart';
+import 'package:flutter_pecha/features/practice/presentation/widgets/practice_timer_card.dart';
 import 'package:flutter_pecha/features/timer/domain/entities/preset_timer.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 class PracticeTimersSection extends ConsumerWidget {
   const PracticeTimersSection({super.key});
+
+  static const _previewCount = 5;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -21,22 +24,33 @@ class PracticeTimersSection extends ConsumerWidget {
       data:
           (either) => either.fold((_) => const SizedBox.shrink(), (timers) {
             if (timers.isEmpty) return const SizedBox.shrink();
+            final preview = timers.take(_previewCount).toList();
             return PracticeSectionContainer(
               title: l10n.meditation_timer,
+              seeAllLabel:
+                  timers.length > _previewCount ? l10n.see_all : null,
+              onSeeAll:
+                  timers.length > _previewCount
+                      ? () => context.pushNamed('home-timers')
+                      : null,
               child: SizedBox(
                 height: 150,
                 width: double.infinity,
                 child: ListView.separated(
                   scrollDirection: Axis.horizontal,
                   padding: const EdgeInsets.symmetric(horizontal: 16),
-                  itemCount: timers.length,
+                  itemCount: preview.length,
                   separatorBuilder: (_, __) => const SizedBox(width: 12),
                   itemBuilder: (context, index) {
-                    final timer = timers[index];
-                    return _TimerCard(
-                      timer: timer,
-                      minLabel: l10n.timer_min,
-                      onTap: () => _navigateToTimer(context, ref, timer),
+                    final timer = preview[index];
+                    return SizedBox(
+                      width: 150,
+                      height: 100,
+                      child: PracticeTimerCard(
+                        timer: timer,
+                        minLabel: l10n.timer_min,
+                        onTap: () => _navigateToTimer(context, ref, timer),
+                      ),
                     );
                   },
                 ),
@@ -59,64 +73,5 @@ class PracticeTimersSection extends ConsumerWidget {
       return;
     }
     context.push('/home/timers/active', extra: timer);
-  }
-}
-
-class _TimerCard extends StatelessWidget {
-  const _TimerCard({
-    required this.timer,
-    required this.minLabel,
-    required this.onTap,
-  });
-
-  final PresetTimer timer;
-  final String minLabel;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final borderColor =
-        isDark ? const Color(0xFF353535) : const Color(0xFFE4E4E4);
-
-    return Material(
-      color: Theme.of(context).cardColor,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-        side: BorderSide(color: borderColor),
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: SizedBox(
-        width: 150,
-        height: 100,
-        child: InkWell(
-          onTap: onTap,
-          child: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  '${timer.displayMinutes}',
-                  style: TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.w600,
-                    height: 1,
-                    color: Theme.of(context).colorScheme.onSurface,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  minLabel,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Theme.of(context).colorScheme.onSurface,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
   }
 }

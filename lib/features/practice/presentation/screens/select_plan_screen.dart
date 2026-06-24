@@ -58,7 +58,9 @@ class _SelectPlanScreenState extends ConsumerState<SelectPlanScreen> {
       final localizations = AppLocalizations.of(context)!;
       final plansState = ref.watch(findPlansPaginatedProvider);
 
-      _logger.debug('🎨 UI BUILD: ${plansState.plans.length} plans, isLoading: ${plansState.isLoading}, error: ${plansState.error}');
+      _logger.debug(
+        '🎨 UI BUILD: ${plansState.plans.length} plans, isLoading: ${plansState.isLoading}, error: ${plansState.error}',
+      );
 
       final scaffold = Scaffold(
         appBar: AppBar(
@@ -68,9 +70,7 @@ class _SelectPlanScreenState extends ConsumerState<SelectPlanScreen> {
           ),
           title: Text(
             localizations.routine_add_plan,
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold),
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
           ),
           scrolledUnderElevation: 0,
           centerTitle: true,
@@ -88,7 +88,9 @@ class _SelectPlanScreenState extends ConsumerState<SelectPlanScreen> {
   }
 
   Widget _buildContent(BuildContext context, FindPlansState plansState) {
-    _logger.debug('🔍 _buildContent: ${plansState.plans.length} plans, isLoading: ${plansState.isLoading}');
+    _logger.debug(
+      '🔍 _buildContent: ${plansState.plans.length} plans, isLoading: ${plansState.isLoading}',
+    );
 
     if (plansState.isLoading && plansState.plans.isEmpty) {
       _logger.debug('⏳ SHOWING: Loading spinner');
@@ -124,9 +126,10 @@ class _SelectPlanScreenState extends ConsumerState<SelectPlanScreen> {
           return Padding(
             padding: const EdgeInsets.symmetric(vertical: 16.0),
             child: Center(
-              child: plansState.isLoadingMore
-                  ? const CircularProgressIndicator()
-                  : const SizedBox.shrink(),
+              child:
+                  plansState.isLoadingMore
+                      ? const CircularProgressIndicator()
+                      : const SizedBox.shrink(),
             ),
           );
         }

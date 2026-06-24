@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
-import 'package:flutter_pecha/core/widgets/cached_network_image_widget.dart';
 import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
 import 'package:flutter_pecha/features/auth/presentation/widgets/login_drawer.dart';
 import 'package:flutter_pecha/features/mala/domain/entities/mantra.dart';
 import 'package:flutter_pecha/features/practice/presentation/providers/practice_explore_providers.dart';
+import 'package:flutter_pecha/features/practice/presentation/screens/all_accumulations_screen.dart';
+import 'package:flutter_pecha/features/practice/presentation/widgets/practice_accumulation_item.dart';
 import 'package:flutter_pecha/features/practice/presentation/widgets/practice_section_container.dart';
 import 'package:flutter_pecha/features/practice/presentation/widgets/practice_section_skeleton.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -13,6 +14,8 @@ import 'package:go_router/go_router.dart';
 
 class PracticeAccumulationsSection extends ConsumerWidget {
   const PracticeAccumulationsSection({super.key});
+
+  static const _previewCount = 5;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -24,18 +27,26 @@ class PracticeAccumulationsSection extends ConsumerWidget {
       data:
           (either) => either.fold((_) => const SizedBox.shrink(), (mantras) {
             if (mantras.isEmpty) return const SizedBox.shrink();
+            final preview = mantras.take(_previewCount).toList();
             return PracticeSectionContainer(
               title: 'Accumulations',
+              seeAllLabel:
+                  mantras.length >= _previewCount ? l10n.see_all : null,
+              onSeeAll:
+                  mantras.length >= _previewCount
+                      ? () =>
+                          _showAllAccumulations(context, ref, mantras, language)
+                      : null,
               child: SizedBox(
                 height: 100,
                 child: ListView.separated(
                   scrollDirection: Axis.horizontal,
                   padding: const EdgeInsets.symmetric(horizontal: 16),
-                  itemCount: mantras.length,
+                  itemCount: preview.length,
                   separatorBuilder: (_, __) => const SizedBox(width: 16),
                   itemBuilder: (context, index) {
-                    final mantra = mantras[index];
-                    return _AccumulationItem(
+                    final mantra = preview[index];
+                    return PracticeAccumulationItem(
                       mantra: mantra,
                       language: language,
                       onTap: () => _navigateToMala(context, ref, mantra),
@@ -58,62 +69,21 @@ class PracticeAccumulationsSection extends ConsumerWidget {
     }
     context.push('/mala', extra: {'presetId': mantra.presetId});
   }
-}
 
-class _AccumulationItem extends StatelessWidget {
-  const _AccumulationItem({
-    required this.mantra,
-    required this.language,
-    required this.onTap,
-  });
-
-  final Mantra mantra;
-  final String language;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final beadUrl = mantra.mantra?.beadImageUrl ?? mantra.beadImageUrl;
-    final title = mantra.displayTitle(language);
-
-    return GestureDetector(
-      onTap: onTap,
-      child: SizedBox(
-        width: 72,
-        child: Column(
-          children: [
-            ClipOval(
-              child:
-                  beadUrl != null && beadUrl.isNotEmpty
-                      ? CachedNetworkImageWidget(
-                        imageUrl: beadUrl,
-                        width: 56,
-                        height: 56,
-                        fit: BoxFit.cover,
-                      )
-                      : Container(
-                        width: 56,
-                        height: 56,
-                        decoration: BoxDecoration(
-                          color:
-                              Theme.of(
-                                context,
-                              ).colorScheme.surfaceContainerHighest,
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(Icons.spa, size: 24),
-                      ),
+  void _showAllAccumulations(
+    BuildContext context,
+    WidgetRef ref,
+    List<Mantra> mantras,
+    String language,
+  ) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder:
+            (_) => AllAccumulationsScreen(
+              mantras: mantras,
+              language: language,
+              onTap: (mantra) => _navigateToMala(context, ref, mantra),
             ),
-            const SizedBox(height: 6),
-            Text(
-              title,
-              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
-              textAlign: TextAlign.center,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ],
-        ),
       ),
     );
   }

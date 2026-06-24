@@ -13,34 +13,40 @@ import 'package:go_router/go_router.dart';
 class PracticeChantsSection extends ConsumerWidget {
   const PracticeChantsSection({super.key});
 
+  static const _previewCount = 2;
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
     final recitationsAsync = ref.watch(practiceExploreRecitationsProvider);
 
     return recitationsAsync.when(
-      data: (either) => either.fold(
-        (_) => const SizedBox.shrink(),
-        (recitations) {
-          if (recitations.isEmpty) return const SizedBox.shrink();
-          final preview = recitations.take(2).toList();
-          return PracticeSectionContainer(
-            title: l10n.home_chants,
-            seeAllLabel: recitations.length > 2 ? l10n.see_all : null,
-            onSeeAll: recitations.length > 2
-                ? () => _showAllRecitations(context, recitations)
-                : null,
-            child: Column(
-              children: preview
-                  .map((r) => PracticeChantListTile(
-                        recitation: r,
-                        onTap: () => _navigateToRecitation(context, r),
-                      ))
-                  .toList(),
-            ),
-          );
-        },
-      ),
+      data:
+          (either) =>
+              either.fold((_) => const SizedBox.shrink(), (recitations) {
+                if (recitations.isEmpty) return const SizedBox.shrink();
+                final preview = recitations.take(_previewCount).toList();
+                return PracticeSectionContainer(
+                  title: l10n.home_chants,
+                  seeAllLabel:
+                      recitations.length > _previewCount ? l10n.see_all : null,
+                  onSeeAll:
+                      recitations.length > _previewCount
+                          ? () => _showAllRecitations(context, recitations)
+                          : null,
+                  child: Column(
+                    children:
+                        preview
+                            .map(
+                              (r) => PracticeChantListTile(
+                                recitation: r,
+                                onTap: () => _navigateToRecitation(context, r),
+                              ),
+                            )
+                            .toList(),
+                  ),
+                );
+              }),
       loading: () => const PracticeSectionSkeleton(height: 120),
       error: (_, __) => const SizedBox.shrink(),
     );
@@ -59,10 +65,11 @@ class PracticeChantsSection extends ConsumerWidget {
   ) {
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (_) => AllRecitationsScreen(
-          recitations: recitations,
-          onTap: (r) => _navigateToRecitation(context, r),
-        ),
+        builder:
+            (_) => AllRecitationsScreen(
+              recitations: recitations,
+              onTap: (r) => _navigateToRecitation(context, r),
+            ),
       ),
     );
   }
