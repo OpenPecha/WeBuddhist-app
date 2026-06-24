@@ -113,7 +113,7 @@ class MalaSettingsSheet extends ConsumerWidget {
     final l10n = context.l10n;
     final messenger = ScaffoldMessenger.of(context);
 
-    final confirmed = await showDestructiveConfirmationDialog(
+    final result = await showDestructiveConfirmationDialog(
       context,
       title: l10n.mala_reset_title,
       message: l10n.mala_reset_count_confirm,
@@ -122,20 +122,16 @@ class MalaSettingsSheet extends ConsumerWidget {
       barrierDismissible: false,
       onConfirmed: () async {
         HapticFeedback.mediumImpact();
-        final ok =
-            await ref.read(malaCounterProvider(mantra).notifier).resetCount();
-        if (!ok) {
-          if (context.mounted) {
-            messenger.showSnackBar(
-              SnackBar(content: Text(context.l10n.something_went_wrong)),
-            );
-          }
-          throw StateError('mala reset failed');
-        }
+        return ref.read(malaCounterProvider(mantra).notifier).resetCount();
       },
     );
-    if (confirmed == true && context.mounted) {
+    if (!context.mounted) return;
+    if (result == true) {
       Navigator.of(context).pop();
+    } else if (result == false) {
+      messenger.showSnackBar(
+        SnackBar(content: Text(l10n.something_went_wrong)),
+      );
     }
   }
 }

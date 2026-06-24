@@ -5,8 +5,10 @@ import 'package:google_fonts/google_fonts.dart';
 
 /// Shows a styled destructive confirmation dialog.
 ///
-/// Returns `true` if confirmed. When [onConfirmed] is provided, the dialog
-/// stays open with a loading spinner until the callback completes, then closes.
+/// Returns `true` when the action succeeds, `false` when [onConfirmed] returns
+/// `false` (show error feedback after the dialog closes), or `null` when
+/// cancelled or dismissed. With [onConfirmed], the dialog stays open with a
+/// loading spinner until the callback completes, then closes.
 Future<bool?> showDestructiveConfirmationDialog(
   BuildContext context, {
   required String title,
@@ -14,7 +16,7 @@ Future<bool?> showDestructiveConfirmationDialog(
   String? confirmLabel,
   String? cancelLabel,
   bool barrierDismissible = true,
-  Future<void> Function()? onConfirmed,
+  Future<bool> Function()? onConfirmed,
 }) {
   final isDark = Theme.of(context).brightness == Brightness.dark;
   final l10n = context.l10n;
@@ -50,7 +52,7 @@ class DestructiveConfirmationDialog extends StatefulWidget {
   final String confirmLabel;
   final String cancelLabel;
   final bool isDark;
-  final Future<void> Function()? onConfirmed;
+  final Future<bool> Function()? onConfirmed;
 
   @override
   State<DestructiveConfirmationDialog> createState() =>
@@ -65,9 +67,9 @@ class _DestructiveConfirmationDialogState
     if (widget.onConfirmed != null) {
       setState(() => _isLoading = true);
       try {
-        await widget.onConfirmed!();
+        final succeeded = await widget.onConfirmed!();
         if (!mounted) return;
-        Navigator.of(context).pop(true);
+        Navigator.of(context).pop(succeeded);
       } catch (_) {
         if (mounted) setState(() => _isLoading = false);
       }
@@ -141,7 +143,7 @@ class _DestructiveConfirmationDialogState
               height: 48,
               child: OutlinedButton(
                 onPressed:
-                    _isLoading ? null : () => Navigator.of(context).pop(false),
+                    _isLoading ? null : () => Navigator.of(context).pop(null),
                 style: OutlinedButton.styleFrom(
                   foregroundColor:
                       widget.isDark ? AppColors.textPrimaryDark : Colors.black,
