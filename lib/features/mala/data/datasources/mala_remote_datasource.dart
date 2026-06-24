@@ -52,6 +52,8 @@ class MalaRemoteDataSource {
   ///
   /// Returns `null` when the user has no accumulator for this preset yet
   /// (the endpoint 404s), so the caller can seed at 0 and lazily create.
+  /// After reset (soft-delete), expect `accumulator_id: null` and
+  /// `current_count: 0`; `total_counted` retains lifetime history only.
   Future<AccumulatorDetailModel?> fetchAccumulatorDetail(
     String parentId,
   ) async {

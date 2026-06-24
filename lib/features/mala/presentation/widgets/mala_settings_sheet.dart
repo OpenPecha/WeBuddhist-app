@@ -120,12 +120,14 @@ class MalaSettingsSheet extends ConsumerWidget {
     );
     if (confirmed != true || !context.mounted) return;
     HapticFeedback.mediumImpact();
+    final messenger = ScaffoldMessenger.of(context);
+    final l10nSnapshot = context.l10n;
     final ok = await ref.read(malaCounterProvider(mantra).notifier).resetCount();
     if (!context.mounted) return;
     Navigator.of(context).pop();
     if (!ok) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(context.l10n.something_went_wrong)),
+      messenger.showSnackBar(
+        SnackBar(content: Text(l10nSnapshot.something_went_wrong)),
       );
     }
   }

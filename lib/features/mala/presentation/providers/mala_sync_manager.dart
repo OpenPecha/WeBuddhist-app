@@ -55,6 +55,7 @@ class MalaSyncManager with WidgetsBindingObserver {
 
   static const Duration _debounceDelay = Duration(seconds: 5);
   static const Duration _maxBackoff = Duration(seconds: 60);
+  static const Duration _syncIdleTimeout = Duration(seconds: 30);
 
   bool _started = false;
   bool _isSyncing = false;
@@ -201,11 +202,21 @@ class MalaSyncManager with WidgetsBindingObserver {
       rethrow;
     } finally {
       _isSyncing = false;
+      // Unlike [flush], we do not re-sweep when [_dirty] is set: the session
+      // was cleared and any tap that landed mid-reset will create a fresh
+      // accumulator on the next normal flush.
+      if (_dirty) _dirty = false;
     }
   }
 
   Future<void> _awaitSyncIdle() async {
+    final deadline = DateTime.now().add(_syncIdleTimeout);
     while (_isSyncing) {
+      if (DateTime.now().isAfter(deadline)) {
+        throw TimeoutException(
+          'Timed out waiting for in-flight sync before reset',
+        );
+      }
       await Future<void>.delayed(const Duration(milliseconds: 50));
     }
   }

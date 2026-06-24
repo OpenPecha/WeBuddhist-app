@@ -126,19 +126,28 @@ class MalaCounterNotifier extends StateNotifier<MalaCounterState> {
         state = state.copyWith(isSeeding: true, seedFailed: true);
       },
       (detail) {
-        // detail.accumulatorId is null when the user has no accumulator yet.
+        // detail.accumulatorId is null when the user has no active accumulator
+        // (fresh install, or after reset soft-deletes the session record).
+        // detail.total maps to API `current_count` (active session), not
+        // `total_counted` (lifetime across soft-deleted sessions).
         final serverTotal = detail.total;
         final serverAccId = detail.accumulatorId;
 
         final localState = _local.read(userId, _presetId);
-        final total = max(localState.total, serverTotal);
+        // Reconcile with the server only when an active accumulator exists.
+        // Without one, ignore a stale current_count so a post-reset re-entry
+        // cannot resurrect the old on-screen tally.
+        final total = serverAccId != null
+            ? max(localState.total, serverTotal)
+            : localState.total;
+        final syncedTotal = serverAccId != null ? serverTotal : 0;
 
         _local.write(
           userId,
           _presetId,
           localState.copyWith(
             total: total,
-            syncedTotal: serverTotal,
+            syncedTotal: syncedTotal,
             accumulatorId: serverAccId ?? localState.accumulatorId,
             beadImageUrl: detail.beadImageUrl,
           ),
@@ -152,7 +161,7 @@ class MalaCounterNotifier extends StateNotifier<MalaCounterState> {
         );
 
         // Push any offline tail captured before this seed.
-        if (total > serverTotal) _sync.flush(SyncReason.launch);
+        if (total > syncedTotal) _sync.flush(SyncReason.launch);
       },
     );
   }
