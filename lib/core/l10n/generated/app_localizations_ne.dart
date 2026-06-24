@@ -173,6 +173,9 @@ class AppLocalizationsNe extends AppLocalizations {
   String get resources => 'स्रोतहरू';
 
   @override
+  String get tools => 'उपकरणहरू';
+
+  @override
   String get no_translation => 'कुनै अनुवाद फेला परेन';
 
   @override
@@ -728,6 +731,9 @@ class AppLocalizationsNe extends AppLocalizations {
 
   @override
   String get share => 'साझा गर्नुहोस्';
+
+  @override
+  String get bookmark => 'बुकमार्क';
 
   @override
   String get image => 'तस्बिर';

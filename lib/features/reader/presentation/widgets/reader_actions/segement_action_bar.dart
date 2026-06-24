@@ -73,6 +73,13 @@ class SegmentActionBar extends ConsumerWidget {
         language: state.textDetail?.language ?? 'en',
         onClose: onClose,
       ),
+      bookmarkButton: _IconActionButton(
+        icon: AppAssets.bookmarkSimple,
+        label: localizations.bookmark,
+        onTap: () {
+          HapticFeedback.lightImpact();
+        },
+      ),
       tiles: [
         _ResourceTile(
           icon: AppAssets.readerCommentary,
@@ -114,24 +121,29 @@ class SegmentActionBar extends ConsumerWidget {
   }
 }
 
-/// Bottom-sheet-style "Resources" panel. Dismissible by swiping downward.
-/// Layout: drag handle → title → [Copy | Share] row → divider → list tiles.
+/// Bottom-sheet-style panel. Dismissible by swiping downward.
+/// Layout: drag handle → Tools → [Copy | Share | Bookmark] → Resources → tiles.
 class _ResourcesPanel extends StatelessWidget {
   final VoidCallback onDismiss;
   final Widget copyButton;
   final Widget shareButton;
+  final Widget bookmarkButton;
   final List<Widget> tiles;
 
   const _ResourcesPanel({
     required this.onDismiss,
     required this.copyButton,
     required this.shareButton,
+    required this.bookmarkButton,
     required this.tiles,
   });
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final cardBackgroundColor = theme.colorScheme.onSurface.withValues(
+      alpha: 0.05,
+    );
     const radius = Radius.circular(20);
 
     return Dismissible(
@@ -155,44 +167,77 @@ class _ResourcesPanel extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Drag handle pill
-              Center(
-                child: Container(
-                  margin: const EdgeInsets.only(top: 10, bottom: 4),
-                  width: 36,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: theme.colorScheme.onSurface.withValues(alpha: 0.2),
-                    borderRadius: BorderRadius.circular(2),
+              ClipRRect(
+                borderRadius: const BorderRadius.only(
+                  topLeft: radius,
+                  topRight: radius,
+                ),
+                child: ColoredBox(
+                  color: cardBackgroundColor,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Drag handle pill
+                      Center(
+                        child: Container(
+                          margin: const EdgeInsets.only(top: 10, bottom: 4),
+                          width: 36,
+                          height: 4,
+                          decoration: BoxDecoration(
+                            color: theme.colorScheme.onSurface.withValues(
+                              alpha: 0.2,
+                            ),
+                            borderRadius: BorderRadius.circular(2),
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(20, 10, 20, 8),
+                        child: Text(
+                          context.l10n.tools,
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 18,
+                          ),
+                        ),
+                      ),
+                      Divider(
+                        height: 1,
+                        thickness: 1,
+                        color: theme.dividerColor,
+                      ),
+                    ],
                   ),
                 ),
               ),
-              // "Resources" title
+              // Copy / Share / Bookmark icon buttons aligned to start
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
+                child: Row(
+                  children: [
+                    copyButton,
+                    const SizedBox(width: 16),
+                    shareButton,
+                    const SizedBox(width: 16),
+                    bookmarkButton,
+                  ],
+                ),
+              ),
               Padding(
                 padding: const EdgeInsets.fromLTRB(20, 10, 20, 8),
                 child: Text(
                   context.l10n.resources,
                   style: theme.textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.w600,
+                    fontSize: 18,
                   ),
-                ),
-              ),
-              // Copy / Share icon buttons aligned to start
-              Padding(
-                padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
-                child: Row(
-                  children: [
-                    copyButton,
-                    const SizedBox(width: 16),
-                    shareButton,
-                  ],
                 ),
               ),
               Divider(height: 1, thickness: 1, color: theme.dividerColor),
               // Commentaries / Versions tiles with dividers
               for (final tile in tiles) ...[
                 tile,
-                Divider(height: 1, thickness: 1, color: theme.dividerColor),
+                // Divider(height: 1, thickness: 1, color: theme.dividerColor),
               ],
               const SizedBox(height: 8),
             ],
