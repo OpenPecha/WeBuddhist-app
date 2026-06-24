@@ -40,14 +40,14 @@ class PracticePlanCard extends StatelessWidget {
                 topRight: Radius.circular(12),
               ),
               child: SizedBox(
-                height: 140,
+                height: 150,
                 width: width,
                 child: ResponsiveCoverImage(
                   image: series.coverImage,
                   fallbackAsset: 'assets/images/tag_cover/cover_image.jpg',
                   fit: BoxFit.cover,
-                  width: 220,
-                  height: 140,
+                  width: 200,
+                  height: 120,
                 ),
               ),
             ),
