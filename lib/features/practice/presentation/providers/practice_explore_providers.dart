@@ -12,15 +12,14 @@ import 'package:flutter_pecha/features/timer/domain/entities/preset_timer.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fpdart/fpdart.dart';
 
-final practiceExploreFeaturedSeriesProvider =
+final practiceExploreSeriesProvider =
     FutureProvider<Either<Failure, List<Series>>>((ref) async {
   final language = ref.watch(contentLanguageProvider);
   final dio = ref.watch(dioProvider);
   final datasource = SeriesRemoteDatasource(dio: dio);
   try {
-    final models = await datasource.fetchFeaturedSeries(
-      language: language,
-      limit: 10,
+    final models = await datasource.fetchSeries(
+      params: SeriesQueryParams(language: language),
     );
     final entities =
         models.map((m) => m.toEntity(language: language)).toList();

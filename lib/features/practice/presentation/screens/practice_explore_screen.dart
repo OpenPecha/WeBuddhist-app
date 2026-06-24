@@ -19,12 +19,12 @@ class PracticeExploreScreen extends ConsumerStatefulWidget {
 
 class _PracticeExploreScreenState extends ConsumerState<PracticeExploreScreen> {
   Future<void> _refreshAll() async {
-    ref.invalidate(practiceExploreFeaturedSeriesProvider);
+    ref.invalidate(practiceExploreSeriesProvider);
     ref.invalidate(practiceExploreRecitationsProvider);
     ref.invalidate(practiceExploreAccumulatorsProvider);
     ref.invalidate(practiceExploreTimersProvider);
     await Future.wait([
-      ref.read(practiceExploreFeaturedSeriesProvider.future),
+      ref.read(practiceExploreSeriesProvider.future),
       ref.read(practiceExploreRecitationsProvider.future),
       ref.read(practiceExploreAccumulatorsProvider.future),
       ref.read(practiceExploreTimersProvider.future),

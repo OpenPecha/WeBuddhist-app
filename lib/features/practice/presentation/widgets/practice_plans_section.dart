@@ -17,7 +17,7 @@ class PracticePlansSection extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
-    final seriesAsync = ref.watch(practiceExploreFeaturedSeriesProvider);
+    final seriesAsync = ref.watch(practiceExploreSeriesProvider);
 
     return seriesAsync.when(
       data:
