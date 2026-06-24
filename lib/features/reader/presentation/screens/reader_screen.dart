@@ -14,6 +14,7 @@ import 'package:flutter_pecha/features/reader/data/models/reader_state.dart';
 import 'package:flutter_pecha/features/reader/presentation/providers/reader_notifier.dart';
 import 'package:flutter_pecha/features/reader/presentation/widgets/reader_actions/segement_action_bar.dart';
 import 'package:flutter_pecha/features/reader/presentation/widgets/reader_app_bar/reader_app_bar.dart';
+import 'package:flutter_pecha/features/reader/presentation/widgets/reader_app_bar/reader_more_bottom_sheet.dart';
 import 'package:flutter_pecha/features/reader/presentation/widgets/reader_commentary/reader_commentary_split_view.dart';
 import 'package:flutter_pecha/features/reader/presentation/widgets/reader_translation/reader_translation_split_view.dart';
 import 'package:flutter_pecha/features/reader/presentation/widgets/reader_content/reader_content_part.dart';
@@ -288,6 +289,8 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
                                       context,
                                       textDetail,
                                     ),
+                                onMorePressed:
+                                    () => _openMoreBottomSheet(context),
                               ),
                             ],
                           )
@@ -483,6 +486,15 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
       textId: widget.textId,
       initialPrimaryDisplay: initialPrimaryDisplay,
     );
+  }
+
+  void _openMoreBottomSheet(BuildContext context) {
+    final notifier = ref.read(readerNotifierProvider(_params).notifier);
+    notifier.selectSegment(null);
+    notifier.closeCommentary();
+    notifier.closeTranslation();
+
+    showReaderMoreBottomSheet(context, textId: widget.textId);
   }
 }
 
