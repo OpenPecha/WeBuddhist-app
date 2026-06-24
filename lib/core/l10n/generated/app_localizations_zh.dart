@@ -104,6 +104,50 @@ class AppLocalizationsZh extends AppLocalizations {
   String get home_mala => '念珠';
 
   @override
+  String get mala_add_to_practice => '加入我的修持';
+
+  @override
+  String get mala_add_to_bookmark => '書籤';
+
+  @override
+  String get mala_sound => '聲音';
+
+  @override
+  String get mala_vibration => '震動';
+
+  @override
+  String get mala_reset_count => '重設計數';
+
+  @override
+  String get mala_reset_title => '重設此念珠？';
+
+  @override
+  String get mala_reset_count_confirm => '目前的計數將歸零，但您的累積仍會保留在終身總數中。';
+
+  @override
+  String get mala_reset_confirm => '重設';
+
+  @override
+  String get mala_action_coming_soon => '即將推出';
+
+  @override
+  String mala_rounds_count(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count 遍',
+      one: '1 遍',
+      zero: '0 遍',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String mala_counter_semantics(int bead, int total, String rounds) {
+    return '計數 $bead/$total，$rounds';
+  }
+
+  @override
   String get home_timer => '計時';
 
   @override
@@ -822,6 +866,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get routine_title => '日常修持';
 
   @override
+  String get bookmarks => '书签';
+
+  @override
   String get routine_empty_title => '日常修持';
 
   @override
@@ -1234,6 +1281,18 @@ class AppLocalizationsZh extends AppLocalizations {
   String me_best_streak(int count) {
     return '最長連續：$count 天';
   }
+
+  @override
+  String get accumulations => '累積';
+
+  @override
+  String get accumulations_search => '搜索累積';
+
+  @override
+  String get accumulations_search_for => '尋找累積內容';
+
+  @override
+  String get accumulations_no_found => '尚無相關累積內容';
 
   @override
   String get me_accumulation => '累積總數';

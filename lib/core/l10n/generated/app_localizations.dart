@@ -286,6 +286,72 @@ abstract class AppLocalizations {
   /// **'Mala'**
   String get home_mala;
 
+  /// No description provided for @mala_add_to_practice.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to my practices'**
+  String get mala_add_to_practice;
+
+  /// No description provided for @mala_add_to_bookmark.
+  ///
+  /// In en, this message translates to:
+  /// **'Bookmark'**
+  String get mala_add_to_bookmark;
+
+  /// No description provided for @mala_sound.
+  ///
+  /// In en, this message translates to:
+  /// **'Sound'**
+  String get mala_sound;
+
+  /// No description provided for @mala_vibration.
+  ///
+  /// In en, this message translates to:
+  /// **'Vibration'**
+  String get mala_vibration;
+
+  /// No description provided for @mala_reset_count.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset count'**
+  String get mala_reset_count;
+
+  /// No description provided for @mala_reset_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset this mala?'**
+  String get mala_reset_title;
+
+  /// No description provided for @mala_reset_count_confirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Your current count will go back to zero, but your accumulations will stay in your lifetime total.'**
+  String get mala_reset_count_confirm;
+
+  /// No description provided for @mala_reset_confirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset'**
+  String get mala_reset_confirm;
+
+  /// No description provided for @mala_action_coming_soon.
+  ///
+  /// In en, this message translates to:
+  /// **'Coming soon'**
+  String get mala_action_coming_soon;
+
+  /// No description provided for @mala_rounds_count.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{0 rounds} =1{1 round} other{{count} rounds}}'**
+  String mala_rounds_count(int count);
+
+  /// No description provided for @mala_counter_semantics.
+  ///
+  /// In en, this message translates to:
+  /// **'Count {bead} of {total}, {rounds}'**
+  String mala_counter_semantics(int bead, int total, String rounds);
+
   /// No description provided for @home_timer.
   ///
   /// In en, this message translates to:
@@ -1642,6 +1708,12 @@ abstract class AppLocalizations {
   /// **'My practices'**
   String get routine_title;
 
+  /// No description provided for @bookmarks.
+  ///
+  /// In en, this message translates to:
+  /// **'Bookmarks'**
+  String get bookmarks;
+
   /// No description provided for @routine_empty_title.
   ///
   /// In en, this message translates to:
@@ -2403,6 +2475,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Longest streak: {count} days'**
   String me_best_streak(int count);
+
+  /// No description provided for @accumulations.
+  ///
+  /// In en, this message translates to:
+  /// **'Accumulations'**
+  String get accumulations;
+
+  /// No description provided for @accumulations_search.
+  ///
+  /// In en, this message translates to:
+  /// **'Search for accumulations...'**
+  String get accumulations_search;
+
+  /// No description provided for @accumulations_search_for.
+  ///
+  /// In en, this message translates to:
+  /// **'Search for accumulations'**
+  String get accumulations_search_for;
+
+  /// No description provided for @accumulations_no_found.
+  ///
+  /// In en, this message translates to:
+  /// **'No accumulations found'**
+  String get accumulations_no_found;
 
   /// No description provided for @me_accumulation.
   ///

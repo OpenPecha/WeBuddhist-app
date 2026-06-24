@@ -105,6 +105,51 @@ class AppLocalizationsBo extends AppLocalizations {
   String get home_mala => 'ཕྲེང་བ།';
 
   @override
+  String get mala_add_to_practice => 'ངའི་ཉམས་ལེན་ནང་སྣོན།';
+
+  @override
+  String get mala_add_to_bookmark => 'དཔེ་རྟགས།';
+
+  @override
+  String get mala_sound => 'སྒྲ།';
+
+  @override
+  String get mala_vibration => 'འདར་འགུལ།';
+
+  @override
+  String get mala_reset_count => 'གྲངས་ཀ་སླར་གསོ།';
+
+  @override
+  String get mala_reset_title => 'ཕྲེང་བ་འདིའི་གྲངས་ཀ་སླར་གསོ་དགོས་སམ།';
+
+  @override
+  String get mala_reset_count_confirm =>
+      'ད་ལྟའི་གྲངས་ཀ་ལྷག་མེད་དུ་འགྱུར་ཀྱང་། ཁྱེད་ཀྱི་བསགས་གྲངས་ཀ་ཚེ་རབས་ཡོངས་ཀྱི་གྲངས་ཀའི་ནང་དུ་ལུས་ངེས།';
+
+  @override
+  String get mala_reset_confirm => 'སླར་གསོ།';
+
+  @override
+  String get mala_action_coming_soon => 'ཐོན་ལ་ཉེ།';
+
+  @override
+  String mala_rounds_count(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ཕྲེང་འཁོར་',
+      one: '1 ཕྲེང་འཁོར་',
+      zero: '0 ཕྲེང་འཁོར་',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String mala_counter_semantics(int bead, int total, String rounds) {
+    return 'གྲངས་ཀ $bead/$total, $rounds';
+  }
+
+  @override
   String get home_timer => 'སྒོམ་ཐུན།';
 
   @override
@@ -874,6 +919,9 @@ class AppLocalizationsBo extends AppLocalizations {
   String get routine_title => 'ངའི་འཆར་ཅན་ཉམས་ལེན།';
 
   @override
+  String get bookmarks => 'དཔེ་རྟགས།';
+
+  @override
   String get routine_empty_title => 'འཆར་ཅན་ཉམས་ལེན།';
 
   @override
@@ -1313,6 +1361,18 @@ class AppLocalizationsBo extends AppLocalizations {
   String me_best_streak(int count) {
     return 'རྒྱུན་མཐུད་རིང་ཤོས། ཉིན་ $count';
   }
+
+  @override
+  String get accumulations => 'བསགས་གྲངས།';
+
+  @override
+  String get accumulations_search => 'བསགས་གྲངས་འཚོལ།';
+
+  @override
+  String get accumulations_search_for => 'བསགས་གྲངས་འཚོལ།';
+
+  @override
+  String get accumulations_no_found => 'བསགས་གྲངས་རྙེད་མ་བྱུང་།';
 
   @override
   String get me_accumulation => 'བསགས་གྲངས་ཁྱོན་བསྡོམས།';

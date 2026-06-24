@@ -105,6 +105,51 @@ class AppLocalizationsHi extends AppLocalizations {
   String get home_mala => 'माला';
 
   @override
+  String get mala_add_to_practice => 'मेरे अभ्यास में जोड़ें';
+
+  @override
+  String get mala_add_to_bookmark => 'बुकमार्क';
+
+  @override
+  String get mala_sound => 'ध्वनि';
+
+  @override
+  String get mala_vibration => 'कंपन';
+
+  @override
+  String get mala_reset_count => 'गिनती रीसेट करें';
+
+  @override
+  String get mala_reset_title => 'क्या इस माला को रीसेट करें?';
+
+  @override
+  String get mala_reset_count_confirm =>
+      'आपकी वर्तमान गिनती शून्य हो जाएगी, लेकिन आपके संचय आपके जीवनभर के कुल में बने रहेंगे।';
+
+  @override
+  String get mala_reset_confirm => 'रीसेट करें';
+
+  @override
+  String get mala_action_coming_soon => 'जल्द आ रहा है';
+
+  @override
+  String mala_rounds_count(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count राउंड',
+      one: '1 राउंड',
+      zero: '0 राउंड',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String mala_counter_semantics(int bead, int total, String rounds) {
+    return 'गिनती $bead/$total, $rounds';
+  }
+
+  @override
   String get home_timer => 'टाइमर';
 
   @override
@@ -870,6 +915,9 @@ class AppLocalizationsHi extends AppLocalizations {
   String get routine_title => 'मेरे अभ्यास';
 
   @override
+  String get bookmarks => 'बुकमार्क';
+
+  @override
   String get routine_empty_title => 'अभ्यास';
 
   @override
@@ -1308,6 +1356,18 @@ class AppLocalizationsHi extends AppLocalizations {
   String me_best_streak(int count) {
     return 'सबसे लंबी स्ट्रीक: $count दिन';
   }
+
+  @override
+  String get accumulations => 'संचय';
+
+  @override
+  String get accumulations_search => 'संचय खोजें...';
+
+  @override
+  String get accumulations_search_for => 'संचय खोजें';
+
+  @override
+  String get accumulations_no_found => 'कोई संचय नहीं मिला';
 
   @override
   String get me_accumulation => 'कुल संचय';

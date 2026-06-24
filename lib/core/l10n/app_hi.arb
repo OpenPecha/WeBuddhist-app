@@ -44,6 +44,37 @@
   "home_shortcut_plans": "योजनाएँ",
   "home_chants": "जप",
   "home_mala": "माला",
+  "mala_add_to_practice": "मेरे अभ्यास में जोड़ें",
+  "mala_add_to_bookmark": "बुकमार्क",
+  "mala_sound": "ध्वनि",
+  "mala_vibration": "कंपन",
+  "mala_reset_count": "गिनती रीसेट करें",
+  "mala_reset_title": "क्या इस माला को रीसेट करें?",
+  "mala_reset_count_confirm": "आपकी वर्तमान गिनती शून्य हो जाएगी, लेकिन आपके संचय आपके जीवनभर के कुल में बने रहेंगे।",
+  "mala_reset_confirm": "रीसेट करें",
+  "mala_action_coming_soon": "जल्द आ रहा है",
+  "mala_rounds_count": "{count, plural, =0{0 राउंड} =1{1 राउंड} other{{count} राउंड}}",
+  "@mala_rounds_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "mala_counter_semantics": "गिनती {bead}/{total}, {rounds}",
+  "@mala_counter_semantics": {
+    "placeholders": {
+      "bead": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      },
+      "rounds": {
+        "type": "String"
+      }
+    }
+  },
   "home_timer": "टाइमर",
   "preset_timers": "पूर्व-निर्धारित टाइमर",
   "meditation_timer": "ध्यान टाइमर",
@@ -396,6 +427,7 @@
   "common_ok": "ठीक है",
   "comingSoonHeadline": "जल्द आ रहा है",
   "routine_title": "मेरे अभ्यास",
+  "bookmarks": "बुकमार्क",
   "routine_empty_title": "अभ्यास",
   "routine_edit": "एडिट  करें",
   "routine_empty_description": "अपनी दिनचर्या में जोड़ने के लिए और शिक्षाएँ व अभ्यास खोजें",
@@ -613,6 +645,10 @@
       }
     }
   },
+  "accumulations": "संचय",
+  "accumulations_search": "संचय खोजें...",
+  "accumulations_search_for": "संचय खोजें",
+  "accumulations_no_found": "कोई संचय नहीं मिला",
   "me_accumulation": "कुल संचय",
   "me_counts": "बार",
   "me_minutes": "मिनट",

@@ -13,7 +13,12 @@ class MalaRemoteDataSource {
 
   /// `GET /accumulators/presets` — preset accumulators (catalogue). Pages all.
   /// [language] localizes the embedded mantra title/text/pronunciation.
-  Future<List<PresetAccumulatorModel>> fetchPresets({String? language}) async {
+  /// [search] filters presets server-side by name when non-empty.
+  Future<List<PresetAccumulatorModel>> fetchPresets({
+    String? language,
+    String? search,
+  }) async {
+    final query = search?.trim();
     try {
       final all = <PresetAccumulatorModel>[];
       var skip = 0;
@@ -24,6 +29,7 @@ class MalaRemoteDataSource {
             'skip': skip,
             'limit': _pageSize,
             if (language != null) 'language': language,
+            if (query != null && query.isNotEmpty) 'search': query,
           },
         );
         if (response.statusCode != 200) {
@@ -52,11 +58,16 @@ class MalaRemoteDataSource {
   ///
   /// Returns `null` when the user has no accumulator for this preset yet
   /// (the endpoint 404s), so the caller can seed at 0 and lazily create.
+  /// After reset (soft-delete), expect `accumulator_id: null` and
+  /// `current_count: 0`; `total_counted` retains lifetime history only.
   Future<AccumulatorDetailModel?> fetchAccumulatorDetail(
     String parentId,
   ) async {
     try {
-      final response = await dio.get('/accumulators/$parentId');
+      final response = await dio.get(
+        '/accumulators/$parentId',
+        options: Options(extra: {'no_cache': true}),
+      );
       if (response.statusCode == 200) {
         return AccumulatorDetailModel.fromJson(
           response.data as Map<String, dynamic>,
@@ -72,7 +83,7 @@ class MalaRemoteDataSource {
   }
 
   /// `POST /accumulators/user` — create the user's accumulator for a preset.
-  /// Body is just `{parent_id}`; the new accumulator starts at count 0.
+  /// Body is `{parent_id}`. Used lazily on first sync after counting starts.
   Future<AccumulatorModel> createUserAccumulator(String parentId) async {
     try {
       final response = await dio.post(
@@ -112,6 +123,25 @@ class MalaRemoteDataSource {
     } on DioException catch (e) {
       _logger.error('Dio error in updateUserAccumulator', e);
       throw _dioToException(e, 'Failed to update accumulator');
+    }
+  }
+
+  /// `DELETE /accumulators/user/{id}` — soft-delete the user's accumulator.
+  Future<void> deleteUserAccumulator(String accumulatorId) async {
+    try {
+      final response = await dio.delete('/accumulators/user/$accumulatorId');
+      if (response.statusCode == 200 ||
+          response.statusCode == 204 ||
+          response.statusCode == 202) {
+        return;
+      }
+      throw _statusToException(
+        response.statusCode,
+        'Failed to delete accumulator',
+      );
+    } on DioException catch (e) {
+      _logger.error('Dio error in deleteUserAccumulator', e);
+      throw _dioToException(e, 'Failed to delete accumulator');
     }
   }
 

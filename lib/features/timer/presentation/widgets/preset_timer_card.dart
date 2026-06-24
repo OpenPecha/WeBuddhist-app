@@ -15,6 +15,11 @@ class PresetTimerCard extends StatelessWidget {
   final VoidCallback? onTap;
 
   static const _borderRadius = 16.0;
+  static const _contentPadding = EdgeInsets.symmetric(
+    horizontal: 12,
+    vertical: 8,
+  );
+  static const _labelSpacing = 8.0;
 
   @override
   Widget build(BuildContext context) {
@@ -23,6 +28,26 @@ class PresetTimerCard extends StatelessWidget {
     final borderColor =
         isDark ? AppColors.cardBorderDark : const Color(0xFFE4E4E4);
     final textColor = Theme.of(context).colorScheme.onSurface;
+    final isTibetan = Localizations.localeOf(context).languageCode == 'bo';
+
+    final minuteText = Text(
+      '${timer.displayMinutes}',
+      style: TextStyle(
+        fontSize: 48,
+        fontWeight: FontWeight.w600,
+        color: textColor,
+      ),
+    );
+
+    final minLabelText = Text(
+      minLabel,
+      style: TextStyle(
+        fontSize: 16,
+        fontWeight: FontWeight.w400,
+        height: 1.2,
+        color: textColor,
+      ),
+    );
 
     return Material(
       color: cardColor,
@@ -36,29 +61,23 @@ class PresetTimerCard extends StatelessWidget {
         child: AspectRatio(
           aspectRatio: 1,
           child: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  '${timer.displayMinutes}',
-                  style: TextStyle(
-                    fontSize: 48,
-                    fontWeight: FontWeight.w600,
-                    height: 1,
-                    color: textColor,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  minLabel,
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w400,
-                    height: 1.2,
-                    color: textColor,
-                  ),
-                ),
-              ],
+            child: Padding(
+              padding: _contentPadding,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children:
+                    isTibetan
+                        ? [
+                          minLabelText,
+                          const SizedBox(height: _labelSpacing),
+                          minuteText,
+                        ]
+                        : [
+                          minuteText,
+                          const SizedBox(height: _labelSpacing),
+                          minLabelText,
+                        ],
+              ),
             ),
           ),
         ),

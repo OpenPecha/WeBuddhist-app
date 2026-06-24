@@ -33,6 +33,7 @@ import 'package:flutter_pecha/features/plans/presentation/widgets/plan_track/pla
 import 'package:flutter_pecha/features/plans/presentation/plan_info.dart';
 import 'package:flutter_pecha/features/plans/presentation/widgets/plan_preview/plan_preview_details.dart';
 import 'package:flutter_pecha/features/practice/presentation/screens/edit_routine_screen.dart';
+import 'package:flutter_pecha/features/practice/presentation/screens/practice_explore_screen.dart';
 import 'package:flutter_pecha/features/practice/presentation/screens/practice_screen.dart';
 import 'package:flutter_pecha/features/practice/presentation/screens/select_plan_screen.dart';
 import 'package:flutter_pecha/features/practice/presentation/screens/select_recitation_screen.dart';
@@ -304,8 +305,14 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: "/practice",
         name: "practice",
-        builder: (context, state) => const PracticeScreen(),
+        builder: (context, state) => const PracticeExploreScreen(),
         routes: [
+          GoRoute(
+            path: "my-practices",
+            name: "my-practices",
+            parentNavigatorKey: rootNavigatorKey,
+            builder: (context, state) => const PracticeScreen(showAppBar: true),
+          ),
           GoRoute(
             path: "edit-routine", // route - /practice/edit-routine
             name: "edit-routine",

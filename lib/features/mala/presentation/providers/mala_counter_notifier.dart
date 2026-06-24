@@ -62,6 +62,7 @@ class MalaCounterNotifier extends StateNotifier<MalaCounterState> {
     required Mantra mantra,
     required MalaLocalDataSource local,
     required GetAccumulatorDetailUseCase getAccumulatorDetail,
+    required DeleteUserAccumulatorUseCase deleteUserAccumulator,
     required MalaSyncManager sync,
     required Future<String?> Function() currentUserId,
     AnalyticsService? analytics,
@@ -69,6 +70,7 @@ class MalaCounterNotifier extends StateNotifier<MalaCounterState> {
   })  : _mantra = mantra,
         _local = local,
         _getAccumulatorDetail = getAccumulatorDetail,
+        _deleteUserAccumulator = deleteUserAccumulator,
         _sync = sync,
         _currentUserId = currentUserId,
         _analytics = analytics,
@@ -80,6 +82,7 @@ class MalaCounterNotifier extends StateNotifier<MalaCounterState> {
   final Mantra _mantra;
   final MalaLocalDataSource _local;
   final GetAccumulatorDetailUseCase _getAccumulatorDetail;
+  final DeleteUserAccumulatorUseCase _deleteUserAccumulator;
   final MalaSyncManager _sync;
   final Future<String?> Function() _currentUserId;
   final AnalyticsService? _analytics;
@@ -123,19 +126,28 @@ class MalaCounterNotifier extends StateNotifier<MalaCounterState> {
         state = state.copyWith(isSeeding: true, seedFailed: true);
       },
       (detail) {
-        // detail.accumulatorId is null when the user has no accumulator yet.
+        // detail.accumulatorId is null when the user has no active accumulator
+        // (fresh install, or after reset soft-deletes the session record).
+        // detail.total maps to API `current_count` (active session), not
+        // `total_counted` (lifetime across soft-deleted sessions).
         final serverTotal = detail.total;
         final serverAccId = detail.accumulatorId;
 
         final localState = _local.read(userId, _presetId);
-        final total = max(localState.total, serverTotal);
+        // Reconcile with the server only when an active accumulator exists.
+        // Without one, ignore a stale current_count so a post-reset re-entry
+        // cannot resurrect the old on-screen tally.
+        final total = serverAccId != null
+            ? max(localState.total, serverTotal)
+            : localState.total;
+        final syncedTotal = serverAccId != null ? serverTotal : 0;
 
         _local.write(
           userId,
           _presetId,
           localState.copyWith(
             total: total,
-            syncedTotal: serverTotal,
+            syncedTotal: syncedTotal,
             accumulatorId: serverAccId ?? localState.accumulatorId,
             beadImageUrl: detail.beadImageUrl,
           ),
@@ -149,13 +161,16 @@ class MalaCounterNotifier extends StateNotifier<MalaCounterState> {
         );
 
         // Push any offline tail captured before this seed.
-        if (total > serverTotal) _sync.flush(SyncReason.launch);
+        if (total > syncedTotal) _sync.flush(SyncReason.launch);
       },
     );
   }
 
   /// +1 recitation. No-op while seeding. Monotonic — never decrements.
-  void incrementBead() {
+  void incrementBead({
+    required bool soundEnabled,
+    required bool vibrationEnabled,
+  }) {
     if (state.isSeeding) return;
 
     final userId = _userId;
@@ -167,10 +182,12 @@ class MalaCounterNotifier extends StateNotifier<MalaCounterState> {
     state = state.copyWith(total: newTotal);
     _local.recordTap(userId, _presetId);
 
-    _sound?.play();
-    HapticFeedback.lightImpact();
+    if (soundEnabled) _sound?.play();
+    if (vibrationEnabled) {
+      HapticFeedback.lightImpact();
+      if (roundComplete) HapticFeedback.mediumImpact();
+    }
     if (roundComplete) {
-      HapticFeedback.mediumImpact();
       _analytics?.track(
         AnalyticsEvents.malaRoundCompleted,
         properties: {'accumulatorId': _presetId, 'rounds': state.rounds},
@@ -178,6 +195,33 @@ class MalaCounterNotifier extends StateNotifier<MalaCounterState> {
     }
 
     _sync.onTap(roundComplete: roundComplete);
+  }
+
+  /// Resets the on-screen session to zero by soft-deleting the active server
+  /// accumulator (`DELETE /accumulators/user/{id}`). Unsynced taps are flushed
+  /// first. Returns false on failure.
+  Future<bool> resetCount() async {
+    if (state.isSeeding) return false;
+
+    final userId = _userId;
+    if (userId == null || userId.isEmpty) return false;
+
+    try {
+      await _sync.resetAccumulator(
+        _presetId,
+        deleteAccumulator: _deleteUserAccumulator,
+      );
+      if (!mounted) return false;
+      final localState = _local.read(userId, _presetId);
+      state = state.copyWith(
+        total: 0,
+        beadImageUrl: localState.beadImageUrl ?? state.beadImageUrl,
+      );
+      return true;
+    } catch (e, st) {
+      _logger.warning('Reset failed: $e', e, st);
+      return false;
+    }
   }
 
   @override

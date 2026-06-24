@@ -13,6 +13,7 @@ import 'package:flutter_pecha/features/mala/data/repositories/mala_repository_im
 import 'package:flutter_pecha/features/mala/domain/entities/mantra.dart';
 import 'package:flutter_pecha/features/mala/domain/repositories/mala_repository.dart';
 import 'package:flutter_pecha/features/mala/domain/usecases/mala_usecases.dart';
+import 'package:flutter_pecha/features/mala/presentation/providers/accumulation_search_provider.dart';
 import 'package:flutter_pecha/features/mala/presentation/providers/mala_counter_notifier.dart';
 import 'package:flutter_pecha/features/mala/presentation/providers/mala_sync_manager.dart';
 import 'package:flutter_pecha/features/mala/presentation/services/mala_sound_player.dart';
@@ -55,6 +56,11 @@ final createUserAccumulatorUseCaseProvider =
 final updateUserAccumulatorUseCaseProvider =
     Provider<UpdateUserAccumulatorUseCase>((ref) {
       return UpdateUserAccumulatorUseCase(ref.watch(malaRepositoryProvider));
+    });
+
+final deleteUserAccumulatorUseCaseProvider =
+    Provider<DeleteUserAccumulatorUseCase>((ref) {
+      return DeleteUserAccumulatorUseCase(ref.watch(malaRepositoryProvider));
     });
 
 // ============ Auth helpers ============
@@ -110,6 +116,18 @@ final malaCatalogueProvider = FutureProvider<Either<Failure, List<Mantra>>>((
   return ref.watch(getCatalogueUseCaseProvider)(language);
 });
 
+// ============ Catalogue search (debounced, server-side) ============
+
+final accumulationSearchProvider = StateNotifierProvider<
+  AccumulationSearchNotifier,
+  AccumulationSearchState
+>((ref) {
+  return AccumulationSearchNotifier(
+    repository: ref.watch(malaRepositoryProvider),
+    languageCode: ref.watch(localeProvider).languageCode,
+  );
+});
+
 // ============ Bead-tap sound ============
 
 /// Short click played on each bead count. Loaded once; lives as long as a mala
@@ -129,6 +147,7 @@ final malaCounterProvider = StateNotifierProvider.autoDispose
         mantra: mantra,
         local: ref.watch(malaLocalDataSourceProvider),
         getAccumulatorDetail: ref.watch(getAccumulatorDetailUseCaseProvider),
+        deleteUserAccumulator: ref.watch(deleteUserAccumulatorUseCaseProvider),
         sync: ref.watch(malaSyncManagerProvider),
         currentUserId: () => _resolveUserId(ref),
         analytics: ref.watch(analyticsServiceProvider),

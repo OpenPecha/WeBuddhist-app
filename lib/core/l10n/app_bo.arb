@@ -44,6 +44,37 @@
   "home_shortcut_plans": "ཉམས་ལེན།",
   "home_chants": "ཞལ་འདོན།",
   "home_mala": "ཕྲེང་བ།",
+  "mala_add_to_practice": "ངའི་ཉམས་ལེན་ནང་སྣོན།",
+  "mala_add_to_bookmark": "དཔེ་རྟགས།",
+  "mala_sound": "སྒྲ།",
+  "mala_vibration": "འདར་འགུལ།",
+  "mala_reset_count": "གྲངས་ཀ་སླར་གསོ།",
+  "mala_reset_title": "ཕྲེང་བ་འདིའི་གྲངས་ཀ་སླར་གསོ་དགོས་སམ།",
+  "mala_reset_count_confirm": "ད་ལྟའི་གྲངས་ཀ་ལྷག་མེད་དུ་འགྱུར་ཀྱང་། ཁྱེད་ཀྱི་བསགས་གྲངས་ཀ་ཚེ་རབས་ཡོངས་ཀྱི་གྲངས་ཀའི་ནང་དུ་ལུས་ངེས།",
+  "mala_reset_confirm": "སླར་གསོ།",
+  "mala_action_coming_soon": "ཐོན་ལ་ཉེ།",
+  "mala_rounds_count": "{count, plural, =0{0 ཕྲེང་འཁོར་} =1{1 ཕྲེང་འཁོར་} other{{count} ཕྲེང་འཁོར་}}",
+  "@mala_rounds_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "mala_counter_semantics": "གྲངས་ཀ {bead}/{total}, {rounds}",
+  "@mala_counter_semantics": {
+    "placeholders": {
+      "bead": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      },
+      "rounds": {
+        "type": "String"
+      }
+    }
+  },
   "home_timer": "སྒོམ་ཐུན།",
   "preset_timers": "སྔོན་སྒྲིག་དུས་ཚོད།",
   "meditation_timer": "སྒོམ་དུས་ཚོད།",
@@ -340,6 +371,7 @@
   "common_ok": "འགྲིག",
   "comingSoonHeadline": "ཐོན་ལ་ཉེ།",
   "routine_title": "ངའི་འཆར་ཅན་ཉམས་ལེན།",
+  "bookmarks": "དཔེ་རྟགས།",
   "routine_empty_title": "འཆར་ཅན་ཉམས་ལེན།",
   "routine_edit": "བཟོ་བཅོས།",
   "routine_empty_description": "གསུང་ཆོས་དང་འཆར་ཅན་ཉམས་ལེན་གང་མང་འཚོལ་ཞིབ་བྱས་ཏེ། ཐོ་འགོད་དང་རང་གི་འཆར་ཅན་ཉམས་ལེན་གྱི་ལས་རིམ་ནང་སྣོན་སྒྲིག་བྱོས།",
@@ -547,6 +579,10 @@
       }
     }
   },
+  "accumulations": "བསགས་གྲངས།",
+  "accumulations_search": "བསགས་གྲངས་འཚོལ།",
+  "accumulations_search_for": "བསགས་གྲངས་འཚོལ།",
+  "accumulations_no_found": "བསགས་གྲངས་རྙེད་མ་བྱུང་།",
   "me_accumulation": "བསགས་གྲངས་ཁྱོན་བསྡོམས།",
   "me_counts": "ཐེངས།",
   "me_minutes": "སྐར་མ།",

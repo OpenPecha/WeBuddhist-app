@@ -51,9 +51,11 @@ export 'presentation/providers/use_case_providers.dart';
 export 'presentation/providers/routine_api_providers.dart';
 export 'presentation/providers/routine_provider.dart';
 export 'presentation/providers/practice_items_paginated_provider.dart';
+export 'presentation/providers/practice_explore_providers.dart';
 
 // Presentation - Screens
 export 'presentation/screens/practice_screen.dart';
+export 'presentation/screens/practice_explore_screen.dart';
 export 'presentation/screens/select_session_screen.dart';
 export 'presentation/screens/select_plan_screen.dart';
 export 'presentation/screens/select_recitation_screen.dart';

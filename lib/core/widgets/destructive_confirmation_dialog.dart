@@ -5,8 +5,10 @@ import 'package:google_fonts/google_fonts.dart';
 
 /// Shows a styled destructive confirmation dialog.
 ///
-/// Returns `true` if confirmed. When [onConfirmed] is provided, the dialog
-/// closes first and then runs the callback.
+/// Returns `true` when the action succeeds, `false` when [onConfirmed] returns
+/// `false` (show error feedback after the dialog closes), or `null` when
+/// cancelled or dismissed. With [onConfirmed], the dialog stays open with a
+/// loading spinner until the callback completes, then closes.
 Future<bool?> showDestructiveConfirmationDialog(
   BuildContext context, {
   required String title,
@@ -14,7 +16,7 @@ Future<bool?> showDestructiveConfirmationDialog(
   String? confirmLabel,
   String? cancelLabel,
   bool barrierDismissible = true,
-  Future<void> Function()? onConfirmed,
+  Future<bool> Function()? onConfirmed,
 }) {
   final isDark = Theme.of(context).brightness == Brightness.dark;
   final l10n = context.l10n;
@@ -22,14 +24,15 @@ Future<bool?> showDestructiveConfirmationDialog(
   return showDialog<bool>(
     context: context,
     barrierDismissible: barrierDismissible,
-    builder: (dialogContext) => DestructiveConfirmationDialog(
-      title: title,
-      message: message,
-      confirmLabel: confirmLabel ?? l10n.delete,
-      cancelLabel: cancelLabel ?? l10n.cancel,
-      isDark: isDark,
-      onConfirmed: onConfirmed,
-    ),
+    builder:
+        (dialogContext) => DestructiveConfirmationDialog(
+          title: title,
+          message: message,
+          confirmLabel: confirmLabel ?? l10n.delete,
+          cancelLabel: cancelLabel ?? l10n.cancel,
+          isDark: isDark,
+          onConfirmed: onConfirmed,
+        ),
   );
 }
 
@@ -49,7 +52,7 @@ class DestructiveConfirmationDialog extends StatefulWidget {
   final String confirmLabel;
   final String cancelLabel;
   final bool isDark;
-  final Future<void> Function()? onConfirmed;
+  final Future<bool> Function()? onConfirmed;
 
   @override
   State<DestructiveConfirmationDialog> createState() =>
@@ -63,8 +66,13 @@ class _DestructiveConfirmationDialogState
   Future<void> _handleConfirm() async {
     if (widget.onConfirmed != null) {
       setState(() => _isLoading = true);
-      Navigator.of(context).pop(true);
-      await widget.onConfirmed!();
+      try {
+        final succeeded = await widget.onConfirmed!();
+        if (!mounted) return;
+        Navigator.of(context).pop(succeeded);
+      } catch (_) {
+        if (mounted) setState(() => _isLoading = false);
+      }
       return;
     }
 
@@ -73,7 +81,9 @@ class _DestructiveConfirmationDialogState
 
   @override
   Widget build(BuildContext context) {
-    return Dialog(
+    return PopScope(
+      canPop: !_isLoading,
+      child: Dialog(
       backgroundColor:
           widget.isDark ? AppColors.surfaceDark : AppColors.surfaceWhite,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -87,8 +97,8 @@ class _DestructiveConfirmationDialogState
               widget.title,
               style: GoogleFonts.inter(
                 textStyle: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w900,
-                  fontSize: 17,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 18,
                   letterSpacing: -0.3,
                 ),
               ),
@@ -111,19 +121,20 @@ class _DestructiveConfirmationDialogState
                     borderRadius: BorderRadius.circular(30),
                   ),
                 ),
-                child: _isLoading
-                    ? SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: Colors.red.shade600,
+                child:
+                    _isLoading
+                        ? SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.red.shade600,
+                          ),
+                        )
+                        : Text(
+                          widget.confirmLabel,
+                          style: const TextStyle(fontSize: 15),
                         ),
-                      )
-                    : Text(
-                        widget.confirmLabel,
-                        style: const TextStyle(fontSize: 15),
-                      ),
               ),
             ),
             const SizedBox(height: 12),
@@ -132,7 +143,7 @@ class _DestructiveConfirmationDialogState
               height: 48,
               child: OutlinedButton(
                 onPressed:
-                    _isLoading ? null : () => Navigator.of(context).pop(false),
+                    _isLoading ? null : () => Navigator.of(context).pop(null),
                 style: OutlinedButton.styleFrom(
                   foregroundColor:
                       widget.isDark ? AppColors.textPrimaryDark : Colors.black,
@@ -145,9 +156,10 @@ class _DestructiveConfirmationDialogState
                   widget.cancelLabel,
                   style: TextStyle(
                     fontSize: 15,
-                    color: widget.isDark
-                        ? AppColors.textPrimaryDark
-                        : Colors.black,
+                    color:
+                        widget.isDark
+                            ? AppColors.textPrimaryDark
+                            : Colors.black,
                   ),
                 ),
               ),
@@ -155,6 +167,7 @@ class _DestructiveConfirmationDialogState
           ],
         ),
       ),
+    ),
     );
   }
 }

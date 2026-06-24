@@ -51,11 +51,13 @@ final _logger = AppLogger('RoutineFilledState');
 class RoutineFilledState extends ConsumerWidget {
   final RoutineData routineData;
   final VoidCallback onEdit;
+  final bool showTitle;
 
   const RoutineFilledState({
     super.key,
     required this.routineData,
     required this.onEdit,
+    this.showTitle = true,
   });
 
   @override
@@ -123,21 +125,22 @@ class RoutineFilledState extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Header with Edit button
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
-          child: _RoutineHeader(
-            title: localizations.routine_title,
-            editLabel: localizations.routine_edit,
-            onEdit: onEdit,
-            isDark: isDark,
+        if (showTitle) ...[
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
+            child: _RoutineHeader(
+              title: localizations.routine_title,
+              editLabel: localizations.routine_edit,
+              onEdit: onEdit,
+              isDark: isDark,
+            ),
           ),
-        ),
-        const SizedBox(height: 8),
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 20.0),
-          child: Divider(height: 1),
-        ),
+          const SizedBox(height: 8),
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 20.0),
+            child: Divider(height: 1),
+          ),
+        ],
         // Routine blocks
         Expanded(
           child: RefreshIndicator(
@@ -189,22 +192,38 @@ class _RoutineHeader extends StatelessWidget {
             style: const TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
           ),
         ),
-        GestureDetector(
-          onTap: onEdit,
-          child: Padding(
-            padding: const EdgeInsets.only(top: 8.0),
-            child: Text(
-              editLabel,
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
-                color:
-                    isDark ? AppColors.textPrimaryDark : AppColors.textPrimary,
-              ),
-            ),
+        _EditLink(editLabel: editLabel, onEdit: onEdit, isDark: isDark),
+      ],
+    );
+  }
+}
+
+class _EditLink extends StatelessWidget {
+  final String editLabel;
+  final VoidCallback onEdit;
+  final bool isDark;
+
+  const _EditLink({
+    required this.editLabel,
+    required this.onEdit,
+    required this.isDark,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onEdit,
+      child: Padding(
+        padding: const EdgeInsets.only(top: 8.0),
+        child: Text(
+          editLabel,
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w500,
+            color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimary,
           ),
         ),
-      ],
+      ),
     );
   }
 }

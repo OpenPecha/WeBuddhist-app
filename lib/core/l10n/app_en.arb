@@ -44,6 +44,37 @@
   "home_shortcut_plans": "Plans",
   "home_chants": "Chants",
   "home_mala": "Mala",
+  "mala_add_to_practice": "Add to my practices",
+  "mala_add_to_bookmark": "Bookmark",
+  "mala_sound": "Sound",
+  "mala_vibration": "Vibration",
+  "mala_reset_count": "Reset count",
+  "mala_reset_title": "Reset this mala?",
+  "mala_reset_count_confirm": "Your current count will go back to zero, but your accumulations will stay in your lifetime total.",
+  "mala_reset_confirm": "Reset",
+  "mala_action_coming_soon": "Coming soon",
+  "mala_rounds_count": "{count, plural, =0{0 rounds} =1{1 round} other{{count} rounds}}",
+  "@mala_rounds_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "mala_counter_semantics": "Count {bead} of {total}, {rounds}",
+  "@mala_counter_semantics": {
+    "placeholders": {
+      "bead": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      },
+      "rounds": {
+        "type": "String"
+      }
+    }
+  },
   "home_timer": "Timer",
   "preset_timers": "Preset timers",
   "meditation_timer": "Meditation Timer",
@@ -407,6 +438,7 @@
   "common_ok": "OK",
   "comingSoonHeadline": "Coming soon",
   "routine_title": "My practices",
+  "bookmarks": "Bookmarks",
   "routine_empty_title": "Practices",
   "routine_edit": "Edit",
   "routine_empty_description": "Explore more teachings and practices to add to your routine",
@@ -624,6 +656,10 @@
       }
     }
   },
+  "accumulations": "Accumulations",
+  "accumulations_search": "Search for accumulations...",
+  "accumulations_search_for": "Search for accumulations",
+  "accumulations_no_found": "No accumulations found",
   "me_accumulation": "Total accumulations",
   "me_counts": "counts",
   "me_minutes": "minutes",

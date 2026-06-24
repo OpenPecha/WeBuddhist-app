@@ -95,6 +95,10 @@ class StorageKeys {
   /// and live in memory only — they don't survive navigating to a different
   /// text because `versionId` is text-scoped and won't resolve elsewhere.
   static const String readerSecondaryEnabled = 'reader_secondary_enabled';
+  /// Bead-tap sound on the mala counter. Default: true.
+  static const String malaSoundEnabled = 'mala_sound_enabled';
+  /// Haptic feedback on the mala counter. Default: true.
+  static const String malaVibrationEnabled = 'mala_vibration_enabled';
 
   // ========== BUSINESS LOGIC ==========
   /// Last profile update timestamp

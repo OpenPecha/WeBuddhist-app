@@ -12,9 +12,15 @@ class MalaRepositoryImpl implements MalaRepository {
   final MalaRemoteDataSource remote;
 
   @override
-  Future<Either<Failure, List<Mantra>>> getCatalogue({String? language}) async {
+  Future<Either<Failure, List<Mantra>>> getCatalogue({
+    String? language,
+    String? search,
+  }) async {
     try {
-      final presets = await remote.fetchPresets(language: language);
+      final presets = await remote.fetchPresets(
+        language: language,
+        search: search,
+      );
       return Right(presets.map((p) => p.toEntity()).toList());
     } on AppException catch (e) {
       return Left(_toFailure(e));
@@ -67,6 +73,20 @@ class MalaRepositoryImpl implements MalaRepository {
       return Left(_toFailure(e));
     } catch (e) {
       return Left(UnknownFailure('Failed to update accumulator: $e'));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Unit>> deleteUserAccumulator(
+    String accumulatorId,
+  ) async {
+    try {
+      await remote.deleteUserAccumulator(accumulatorId);
+      return const Right(unit);
+    } on AppException catch (e) {
+      return Left(_toFailure(e));
+    } catch (e) {
+      return Left(UnknownFailure('Failed to delete accumulator: $e'));
     }
   }
 
