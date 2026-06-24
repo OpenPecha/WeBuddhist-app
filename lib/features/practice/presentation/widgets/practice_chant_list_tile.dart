@@ -33,7 +33,7 @@ class PracticeChantListTile extends StatelessWidget {
                   width: 3,
                   height: 32,
                   decoration: BoxDecoration(
-                    color: isDark ? Colors.white : AppColors.textPrimary,
+                    color: isDark ? Colors.white : AppColors.grey800,
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
@@ -43,7 +43,7 @@ class PracticeChantListTile extends StatelessWidget {
                     recitation.title,
                     style: const TextStyle(
                       fontSize: 15,
-                      fontWeight: FontWeight.w500,
+                      fontWeight: FontWeight.bold,
                     ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
