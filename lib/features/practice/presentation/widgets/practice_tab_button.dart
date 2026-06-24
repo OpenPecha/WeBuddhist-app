@@ -22,15 +22,15 @@ class PracticeTabButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final isFilled = variant == PracticeActionButtonVariant.filled;
     final foregroundColor = isFilled ? Colors.white : AppColors.textPrimary;
-    final borderColor =
-        Theme.of(context).brightness == Brightness.dark
-            ? AppColors.grey600
-            : AppColors.grey300;
+    final backgroundColor =
+        isDark ? AppColors.cardBackgroundDark : Colors.white;
+    final borderColor = isDark ? AppColors.cardBorderDark : AppColors.grey300;
 
     return Material(
-      color: isFilled ? AppColors.blue : Colors.white,
+      color: isFilled ? AppColors.blue : backgroundColor,
       borderRadius: BorderRadius.circular(_borderRadius),
       child: InkWell(
         onTap: onTap,
@@ -45,7 +45,11 @@ class PracticeTabButton extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               if (icon != null) ...[
-                Icon(icon, size: 18, color: foregroundColor),
+                Icon(
+                  icon,
+                  size: 18,
+                  color: isDark ? AppColors.textPrimaryDark : foregroundColor,
+                ),
                 const SizedBox(width: 6),
               ],
               Text(
@@ -53,7 +57,7 @@ class PracticeTabButton extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
-                  color: foregroundColor,
+                  color: isDark ? AppColors.textPrimaryDark : foregroundColor,
                 ),
               ),
             ],
