@@ -1,3 +1,4 @@
+import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
 import 'package:flutter_pecha/core/di/core_providers.dart';
 import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
 import 'package:flutter_pecha/features/practice/data/datasource/routine_remote_datasource.dart';
@@ -56,7 +57,10 @@ final userRoutineProvider = FutureProvider<RoutineData?>((ref) async {
   final auth = ref.watch(authProvider);
   if (auth.isLoading || !auth.isLoggedIn || auth.isGuest) return null;
 
-  final result = await ref.read(getUserRoutineUseCaseProvider)();
+  final language = ref.watch(contentLanguageProvider);
+  final result = await ref.read(getUserRoutineUseCaseProvider)(
+    language: language,
+  );
   return result.fold(
     (failure) => throw Exception(failure.message),
     (data) => data,

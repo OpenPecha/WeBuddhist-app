@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
 import 'package:flutter_pecha/features/more/presentation/me_screen.dart';
 import 'package:flutter_pecha/features/plans/data/models/user/user_plans_model.dart';
 import 'package:flutter_pecha/core/constants/app_assets.dart';
@@ -28,7 +29,10 @@ final pendingOnboardingPlanProvider = StateProvider<UserPlansModel?>(
   (ref) => null,
 );
 
-List<AppBottomBarItemModel<int>> mainNavigationItems(BuildContext context) {
+List<AppBottomBarItemModel<int>> mainNavigationItems(
+  BuildContext context, {
+  String? meAvatarUrl,
+}) {
   final localizations = AppLocalizations.of(context)!;
   return [
     AppBottomBarItemModel(
@@ -58,6 +62,7 @@ List<AppBottomBarItemModel<int>> mainNavigationItems(BuildContext context) {
       selectedWidget: const MeScreen(),
       selectedIconData: AppAssets.meSelected,
       unSelectedIconData: AppAssets.meUnselected,
+      avatarUrl: meAvatarUrl,
     ),
     //  AppBottomBarItemModel(
     //   type: 1,
@@ -83,7 +88,13 @@ class MainNavigationBottomBar extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final items = mainNavigationItems(context);
+    final authState = ref.watch(authProvider);
+    final user = ref.watch(userProvider).user;
+    final meAvatarUrl =
+        authState.isLoggedIn && !authState.isGuest
+            ? user?.avatarUrl
+            : null;
+    final items = mainNavigationItems(context, meAvatarUrl: meAvatarUrl);
     final selectedIndex = ref.watch(mainNavigationIndexProvider);
 
     return AppBottomNavBar(

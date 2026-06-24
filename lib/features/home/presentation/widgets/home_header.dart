@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/config/router/app_routes.dart';
 import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_pecha/core/constants/app_config.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
+import 'package:go_router/go_router.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
 import 'package:flutter_pecha/features/home/presentation/providers/streak_provider.dart';
+import 'package:flutter_pecha/features/home/presentation/providers/today_events_provider.dart';
+import 'package:flutter_pecha/features/home/presentation/widgets/today_event_badge.dart';
 import 'package:flutter_pecha/features/more/presentation/providers/user_stats_provider.dart';
 import 'package:flutter_pecha/features/more/presentation/widgets/streak_share_sheet.dart';
 import 'package:flutter_pecha/shared/utils/helper_functions.dart';
@@ -27,15 +31,50 @@ class HomeHeader extends ConsumerWidget {
           orElse: () => 0,
         );
 
+    final todayEventName = ref
+        .watch(todayEventsFutureProvider)
+        .maybeWhen(
+          data:
+              (eventsEither) => eventsEither.fold(
+                (_) => null,
+                (events) => events.isNotEmpty ? events.first.name : null,
+              ),
+          orElse: () => null,
+        );
+
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 12.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.center,
+      padding: const EdgeInsets.symmetric(horizontal: 20.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Expanded(child: _Greeting(firstName: firstName)),
-          const SizedBox(width: 12),
-          _StreakBadge(count: streakCount),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Expanded(child: _Greeting(firstName: firstName)),
+              const SizedBox(width: 12),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  GestureDetector(
+                    onTap: () => context.push(AppRoutes.calendar),
+                    behavior: HitTestBehavior.opaque,
+                    child: Icon(
+                      AppAssets.calendarDots,
+                      size: 24.0,
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  _StreakBadge(count: streakCount),
+                ],
+              ),
+            ],
+          ),
+          if (todayEventName != null) ...[
+            const SizedBox(height: 8),
+            TodayEventBadge(label: todayEventName),
+          ],
         ],
       ),
     );
@@ -82,27 +121,41 @@ class _Greeting extends StatelessWidget {
   }
 }
 
-class _StreakBadge extends ConsumerWidget {
+class _StreakBadge extends ConsumerStatefulWidget {
   final int count;
 
   const _StreakBadge({required this.count});
 
+  @override
+  ConsumerState<_StreakBadge> createState() => _StreakBadgeState();
+}
+
+class _StreakBadgeState extends ConsumerState<_StreakBadge> {
   static const _flameColor = Color(0xFFE8630A);
+  bool _isOpening = false;
 
-  Future<void> _onStreakTap(BuildContext context, WidgetRef ref) async {
-    final either = await ref.read(userStatsFutureProvider.future);
-    if (!context.mounted) return;
+  Future<void> _onStreakTap() async {
+    if (_isOpening) return;
 
-    either.fold(
-      (_) {},
-      (stats) => showStreakShareSheet(context, stats.streak),
-    );
+    setState(() => _isOpening = true);
+
+    try {
+      final either = await ref.read(userStatsFutureProvider.future);
+      if (!mounted) return;
+
+      either.fold(
+        (_) {},
+        (stats) => showStreakShareSheet(context, stats.streak),
+      );
+    } finally {
+      if (mounted) setState(() => _isOpening = false);
+    }
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => _onStreakTap(context, ref),
+      onTap: _onStreakTap,
       behavior: HitTestBehavior.opaque,
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -110,7 +163,7 @@ class _StreakBadge extends ConsumerWidget {
           const Icon(AppAssets.flame, size: 24.0, color: _flameColor),
           const SizedBox(width: 4.0),
           Text(
-            '$count',
+            '${widget.count}',
             style: TextStyle(
               fontFamily: getSystemFontFamily(AppConfig.englishLanguageCode),
               fontWeight: FontWeight.w700,

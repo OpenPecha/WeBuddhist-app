@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/constants/app_assets.dart';
-import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/features/plans/data/models/author/author_dto_model.dart';
 import 'package:flutter_pecha/features/plans/domain/subtask_navigation.dart';
 import 'package:flutter_pecha/features/plans/plans.dart';
@@ -181,50 +180,36 @@ class _TaskTitleButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final color = Theme.of(context).colorScheme.onSurface;
     return Material(
       color: Colors.transparent,
       child: InkWell(
         onTap: hasNavigableContent ? onTap : null,
         borderRadius: BorderRadius.circular(8),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-          child: Row(
-            children: [
-              Expanded(
-                child: Text(
-                  title,
-                  overflow: TextOverflow.ellipsis,
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(
+                title,
+                overflow: TextOverflow.ellipsis,
+                style: Theme.of(
+                  context,
+                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w500),
               ),
-              if (hasNavigableContent && !hasAudio) ...[
-                const SizedBox(width: 8),
-                Container(
-                  width: 36,
-                  height: 36,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: isDark
-                          ? AppColors.textPrimaryDark
-                          : AppColors.textPrimary,
-                      width: 1,
-                    ),
-                  ),
-                  child: Icon(
-                    AppAssets.caretRight,
-                    size: 16,
-                    color: isDark
-                        ? AppColors.textPrimaryDark
-                        : AppColors.textPrimary,
-                  ),
+            ),
+            if (hasNavigableContent && !hasAudio) ...[
+              const SizedBox(width: 8),
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(color: color.withAlpha(100), width: 1),
                 ),
-              ],
+                child: Icon(AppAssets.caretRight, size: 16, color: color),
+              ),
             ],
-          ),
+          ],
         ),
       ),
     );

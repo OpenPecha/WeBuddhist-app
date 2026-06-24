@@ -2,7 +2,9 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_pecha/core/error/failures.dart';
+import 'package:flutter_pecha/core/network/connectivity_service.dart';
 import 'package:flutter_pecha/core/storage/plan_metadata_store.dart';
 import 'package:flutter_pecha/core/storage/special_plan_started_at_store.dart';
 import 'package:flutter_pecha/core/storage/storage_keys.dart';
@@ -45,6 +47,14 @@ class AuthNotifier extends StateNotifier<AuthState> {
   final Ref ref;
   final _logger = AppLogger('AuthNotifier');
 
+  /// Subscription to connectivity changes, used to reconcile a session that was
+  /// restored offline once the network returns. Cancelled in [dispose].
+  StreamSubscription<bool>? _connectivitySub;
+
+  /// Guards [_reconcileOnReconnect] so overlapping connectivity events don't
+  /// fire concurrent profile refetches.
+  bool _reconciling = false;
+
   AuthNotifier({
     required LoginUseCase loginUseCase,
     required InitializeAuthUseCase initializeAuthUseCase,
@@ -68,25 +78,90 @@ class AuthNotifier extends StateNotifier<AuthState> {
        _clearGuestModeAndOnboardingUseCase = clearGuestModeAndOnboardingUseCase,
        super(const AuthState(isLoggedIn: false, isLoading: true)) {
     _restoreLoginState();
+    _listenForReconnect();
+  }
+
+  /// When the app launches offline, the session is kept ([_restoreCredentials]'s
+  /// transient branch) but the one-shot credential renewal and user-profile
+  /// fetch fail and are never retried — leaving a "logged in but empty profile"
+  /// state that, before this, only a relaunch could fix. Listen for the
+  /// offline→online transition and reconcile then.
+  void _listenForReconnect() {
+    _connectivitySub = ref
+        .read(connectivityServiceProvider)
+        .onConnectivityChanged
+        .listen((isOnline) {
+          if (isOnline) unawaited(_reconcileOnReconnect());
+        });
+  }
+
+  /// Reconcile auth/user state once connectivity returns after an offline
+  /// launch.
+  ///
+  /// Two cases:
+  /// - Real session already restored (`isLoggedIn && !isGuest`): just refresh
+  ///   the user profile. Uses [refreshUser] (not [initializeUser]) so an
+  ///   already-populated profile doesn't flash a loading state and a failed
+  ///   refetch keeps the current state. The refetch hits a protected endpoint
+  ///   so it also drives a silent token renewal via the interceptor; a dead
+  ///   session surfaces as a 401 handled by the reactive-401 path, not here.
+  /// - Not a confirmed real login (guest / logged out): the launch may have
+  ///   fallen through to guest because auth init (`ConfigService.loadConfig`)
+  ///   or `hasValidCredentials()` failed without a network. Re-run the restore
+  ///   now that we're online so a real stored session is recovered without a
+  ///   relaunch. A genuine guest with no credentials simply stays a guest.
+  Future<void> _reconcileOnReconnect() async {
+    if (_reconciling) return;
+    _reconciling = true;
+    try {
+      if (state.isLoggedIn && !state.isGuest) {
+        _logger.info('Connectivity restored — reconciling user profile');
+        await ref.read(userProvider.notifier).refreshUser();
+      } else {
+        _logger.info('Connectivity restored — re-running login restore');
+        await _restoreLoginState();
+      }
+    } catch (e) {
+      _logger.warning('Reconcile on reconnect failed (ignored): $e');
+    } finally {
+      _reconciling = false;
+    }
+  }
+
+  @override
+  void dispose() {
+    _connectivitySub?.cancel();
+    super.dispose();
   }
 
   Future<void> _restoreLoginState() async {
     _logger.debug('Restoring login state');
 
-    // Detect fresh install or reinstall.
-    // iOS Keychain survives uninstall; SharedPreferences does not.
-    // If SP has no install marker, stale keychain tokens may exist from a
-    // previous install. Clear them so the user always sees the login screen
-    // on a clean install rather than being silently auto-logged in.
+    // Fresh-install handling.
+    // iOS: Keychain survives uninstall — we WANT that, so we never clear here.
+    //      The silent renewal in _restoreCredentials() decides logged-in state,
+    //      giving the seamless reinstall contract.
+    // Android: Auto Backup is disabled (manifest), so a reinstall is a genuine
+    //      clean slate. This clear is belt-and-suspenders for the edge case where
+    //      a residual credential exists (e.g. backup re-enabled by misconfig).
     final isKnownInstall = await ref
         .read(localStorageServiceProvider)
         .get<bool>(StorageKeys.firstLaunch);
+
     if (isKnownInstall == null) {
-      await _localLogoutUseCase(const NoParams());
+      if (defaultTargetPlatform == TargetPlatform.android) {
+        await _localLogoutUseCase(const NoParams());
+        _logger.info(
+          'Android fresh install — cleared any residual credentials',
+        );
+      } else {
+        _logger.info(
+          'iOS fresh install — preserving Keychain for seamless reinstall',
+        );
+      }
       await ref
           .read(localStorageServiceProvider)
           .set(StorageKeys.firstLaunch, true);
-      _logger.info('Fresh install detected — cleared stale keychain tokens');
     }
 
     // Initialize auth
@@ -165,7 +240,9 @@ class AuthNotifier extends StateNotifier<AuthState> {
     // transient/offline renewal failure (NetworkFailure) must NOT wipe it —
     // keep the user logged in and renew on the first authenticated request.
     if (failure is AuthenticationFailure) {
-      _logger.info('Stored credentials permanently invalid — checking guest mode');
+      _logger.info(
+        'Stored credentials permanently invalid — checking guest mode',
+      );
       _checkGuestMode();
       return;
     }
@@ -481,6 +558,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
       _logger.warning('Failed to reset onboarding: $e');
     }
   }
+
   AnalyticsService get _analytics => ref.read(analyticsServiceProvider);
 
   Future<void> _identifyAuthenticatedUser({
@@ -489,24 +567,18 @@ class AuthNotifier extends StateNotifier<AuthState> {
   }) async {
     await _analytics.identify(
       userId: userId,
-      properties: {
-        AnalyticsProperties.isGuest: isGuest,
-      },
+      properties: {AnalyticsProperties.isGuest: isGuest},
     );
   }
 
   Future<void> _markGuestSession() async {
-    await _analytics.setSuperProperties({
-      AnalyticsProperties.isGuest: true,
-    });
+    await _analytics.setSuperProperties({AnalyticsProperties.isGuest: true});
   }
 
   Future<void> _trackAuthLoginSucceeded({String? connection}) async {
     await _analytics.track(
       AnalyticsEvents.authLoginSucceeded,
-      properties: {
-        AnalyticsProperties.method: connection ?? 'default',
-      },
+      properties: {AnalyticsProperties.method: connection ?? 'default'},
     );
   }
 
@@ -522,5 +594,4 @@ class AuthNotifier extends StateNotifier<AuthState> {
       },
     );
   }
-
 }
