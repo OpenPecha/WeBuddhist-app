@@ -6,7 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 /// Shows a styled destructive confirmation dialog.
 ///
 /// Returns `true` if confirmed. When [onConfirmed] is provided, the dialog
-/// closes first and then runs the callback.
+/// stays open with a loading spinner until the callback completes, then closes.
 Future<bool?> showDestructiveConfirmationDialog(
   BuildContext context, {
   required String title,
@@ -64,8 +64,13 @@ class _DestructiveConfirmationDialogState
   Future<void> _handleConfirm() async {
     if (widget.onConfirmed != null) {
       setState(() => _isLoading = true);
-      Navigator.of(context).pop(true);
-      await widget.onConfirmed!();
+      try {
+        await widget.onConfirmed!();
+        if (!mounted) return;
+        Navigator.of(context).pop(true);
+      } catch (_) {
+        if (mounted) setState(() => _isLoading = false);
+      }
       return;
     }
 
@@ -74,7 +79,9 @@ class _DestructiveConfirmationDialogState
 
   @override
   Widget build(BuildContext context) {
-    return Dialog(
+    return PopScope(
+      canPop: !_isLoading,
+      child: Dialog(
       backgroundColor:
           widget.isDark ? AppColors.surfaceDark : AppColors.surfaceWhite,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -158,6 +165,7 @@ class _DestructiveConfirmationDialogState
           ],
         ),
       ),
+    ),
     );
   }
 }
