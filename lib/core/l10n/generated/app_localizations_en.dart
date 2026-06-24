@@ -889,6 +889,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get routine_title => 'My practices';
 
   @override
+  String get bookmarks => 'Bookmarks';
+
+  @override
   String get routine_empty_title => 'Practices';
 
   @override
@@ -1323,6 +1326,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String me_best_streak(int count) {
     return 'Longest streak: $count days';
   }
+
+  @override
+  String get accumulations => 'Accumulations';
+
+  @override
+  String get accumulations_search => 'Search for accumulations...';
+
+  @override
+  String get accumulations_search_for => 'Search for accumulations';
+
+  @override
+  String get accumulations_no_found => 'No accumulations found';
 
   @override
   String get me_accumulation => 'Total accumulations';

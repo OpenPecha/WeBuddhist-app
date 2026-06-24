@@ -1696,6 +1696,12 @@ abstract class AppLocalizations {
   /// **'My practices'**
   String get routine_title;
 
+  /// No description provided for @bookmarks.
+  ///
+  /// In en, this message translates to:
+  /// **'Bookmarks'**
+  String get bookmarks;
+
   /// No description provided for @routine_empty_title.
   ///
   /// In en, this message translates to:
@@ -2457,6 +2463,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Longest streak: {count} days'**
   String me_best_streak(int count);
+
+  /// No description provided for @accumulations.
+  ///
+  /// In en, this message translates to:
+  /// **'Accumulations'**
+  String get accumulations;
+
+  /// No description provided for @accumulations_search.
+  ///
+  /// In en, this message translates to:
+  /// **'Search for accumulations...'**
+  String get accumulations_search;
+
+  /// No description provided for @accumulations_search_for.
+  ///
+  /// In en, this message translates to:
+  /// **'Search for accumulations'**
+  String get accumulations_search_for;
+
+  /// No description provided for @accumulations_no_found.
+  ///
+  /// In en, this message translates to:
+  /// **'No accumulations found'**
+  String get accumulations_no_found;
 
   /// No description provided for @me_accumulation.
   ///

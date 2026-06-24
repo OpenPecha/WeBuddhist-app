@@ -896,6 +896,9 @@ class AppLocalizationsMn extends AppLocalizations {
   String get routine_title => 'Миний дадлагууд';
 
   @override
+  String get bookmarks => 'Хавчуурга';
+
+  @override
   String get routine_empty_title => 'Дадлагууд';
 
   @override
@@ -1337,6 +1340,18 @@ class AppLocalizationsMn extends AppLocalizations {
   String me_best_streak(int count) {
     return 'Хамгийн урт дараалал: $count өдөр';
   }
+
+  @override
+  String get accumulations => 'Хуримтлал';
+
+  @override
+  String get accumulations_search => 'Хуримтлал хайх...';
+
+  @override
+  String get accumulations_search_for => 'Хуримтлал хайх';
+
+  @override
+  String get accumulations_no_found => 'Хуримтлал олдсонгүй';
 
   @override
   String get me_accumulation => 'Нийт хуримтлал';
