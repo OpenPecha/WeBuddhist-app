@@ -44,6 +44,37 @@
   "home_shortcut_plans": "Төлөвлөгөө",
   "home_chants": "Магтаал",
   "home_mala": "Эрх",
+  "mala_add_to_practice": "Миний дадлагад нэмэх",
+  "mala_add_to_bookmark": "Хавчуурга",
+  "mala_sound": "Дуу",
+  "mala_vibration": "Чичиргээ",
+  "mala_reset_count": "Тооллогыг дахин тохируулах",
+  "mala_reset_title": "Энэ эрхийг дахин тохируулах уу?",
+  "mala_reset_count_confirm": "Одоогийн тооллого тэг болно, гэхдээ таны хуримтлал амьдралын нийт тоонд хадгалагдана.",
+  "mala_reset_confirm": "Дахин тохируулах",
+  "mala_action_coming_soon": "Удахгүй",
+  "mala_rounds_count": "{count, plural, =0{0 ээлж} =1{1 ээлж} other{{count} ээлж}}",
+  "@mala_rounds_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "mala_counter_semantics": "Тоол {bead}/{total}, {rounds}",
+  "@mala_counter_semantics": {
+    "placeholders": {
+      "bead": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      },
+      "rounds": {
+        "type": "String"
+      }
+    }
+  },
   "home_timer": "Цаг хэмжигч",
   "preset_timers": "Бэлэн тохируулсан цаг",
   "meditation_timer": "Бясалгалын цаг хэмжигч",

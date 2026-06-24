@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/analytics/analytics_events.dart';
 import 'package:flutter_pecha/core/analytics/analytics_providers.dart';
-import 'package:flutter_pecha/core/constants/app_config.dart';
+import 'package:flutter_pecha/core/core.dart';
+import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/features/mala/domain/entities/mantra.dart';
 import 'package:flutter_pecha/features/mala/presentation/providers/mala_providers.dart';
+import 'package:flutter_pecha/features/mala/presentation/providers/mala_settings_provider.dart';
 import 'package:flutter_pecha/features/mala/presentation/widgets/mala_beads.dart';
 import 'package:flutter_pecha/features/mala/presentation/widgets/mala_skeleton.dart';
 import 'package:flutter_pecha/features/mala/presentation/widgets/mantra_switcher.dart';
+import 'package:flutter_pecha/features/mala/presentation/widgets/mala_settings_sheet.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -111,10 +114,14 @@ class _MalaScreenState extends ConsumerState<MalaScreen> {
     final language = Localizations.localeOf(context).languageCode;
     final counter = ref.watch(malaCounterProvider(mantra));
     final notifier = ref.read(malaCounterProvider(mantra).notifier);
+    final settings = ref.watch(malaSettingsProvider);
 
     return Column(
       children: [
-        _MalaAppBar(title: mantra.displayTitle(language)),
+        _MalaAppBar(
+          title: mantra.displayTitle(language),
+          onMorePressed: () => MalaSettingsSheet.show(context, mantra: mantra),
+        ),
         Expanded(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -173,7 +180,12 @@ class _MalaScreenState extends ConsumerState<MalaScreen> {
                                       mantra.beadImageUrl,
                                   beadColor: const Color(0xFF8D6E63),
                                   threadColor: const Color(0xFFC62828),
-                                  onTap: notifier.incrementBead,
+                                  onTap:
+                                      () => notifier.incrementBead(
+                                        soundEnabled: settings.soundEnabled,
+                                        vibrationEnabled:
+                                            settings.vibrationEnabled,
+                                      ),
                                 ),
                       ),
                       const SizedBox(height: 24),
@@ -205,11 +217,13 @@ class _CounterBlock extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = context.l10n;
+    final roundsLabel = l10n.mala_rounds_count(rounds);
     final color = theme.colorScheme.onSurface.withValues(
       alpha: dimmed ? 0.35 : 1.0,
     );
     return Semantics(
-      label: 'Count $beadInRound of $beadsPerRound, $rounds rounds',
+      label: l10n.mala_counter_semantics(beadInRound, beadsPerRound, roundsLabel),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
@@ -223,7 +237,7 @@ class _CounterBlock extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           Text(
-            rounds == 1 ? '1 round' : '$rounds rounds',
+            roundsLabel,
             style: theme.textTheme.titleLarge?.copyWith(
               color: color.withValues(alpha: dimmed ? 0.35 : 0.7),
             ),
@@ -236,8 +250,9 @@ class _CounterBlock extends StatelessWidget {
 
 /// App bar with a back button and the mantra name.
 class _MalaAppBar extends StatelessWidget {
-  const _MalaAppBar({required this.title});
+  const _MalaAppBar({required this.title, this.onMorePressed});
   final String title;
+  final VoidCallback? onMorePressed;
 
   @override
   Widget build(BuildContext context) {
@@ -246,7 +261,7 @@ class _MalaAppBar extends StatelessWidget {
       child: Row(
         children: [
           IconButton(
-            icon: const Icon(Icons.arrow_back),
+            icon: const Icon(AppAssets.arrowLeft),
             onPressed: () => context.pop(),
           ),
           Expanded(
@@ -257,7 +272,10 @@ class _MalaAppBar extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(width: 48),
+          IconButton(
+            icon: Icon(Icons.more_vert, size: 24),
+            onPressed: onMorePressed,
+          ),
         ],
       ),
     );

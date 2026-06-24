@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter_pecha/core/error/failures.dart';
@@ -15,7 +16,7 @@ import 'package:mockito/mockito.dart';
 
 import 'mala_counter_notifier_test.mocks.dart';
 
-@GenerateMocks([GetAccumulatorDetailUseCase, MalaSyncManager])
+@GenerateMocks([GetAccumulatorDetailUseCase, MalaSyncManager, DeleteUserAccumulatorUseCase])
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -27,6 +28,7 @@ void main() {
   late MalaLocalDataSource local;
   late MockGetAccumulatorDetailUseCase getDetail;
   late MockMalaSyncManager sync;
+  late MockDeleteUserAccumulatorUseCase delete;
 
   const userId = 'user-1';
   const mantra = Mantra(
@@ -39,6 +41,7 @@ void main() {
         mantra: mantra,
         local: local,
         getAccumulatorDetail: getDetail,
+        deleteUserAccumulator: delete,
         sync: sync,
         currentUserId: () async => userId,
       );
@@ -50,6 +53,7 @@ void main() {
     local = MalaLocalDataSource();
     getDetail = MockGetAccumulatorDetailUseCase();
     sync = MockMalaSyncManager();
+    delete = MockDeleteUserAccumulatorUseCase();
   });
 
   tearDown(() async {
@@ -101,7 +105,7 @@ void main() {
     final notifier = buildNotifier(); // seed still pending (async)
     expect(notifier.state.isSeeding, isTrue);
 
-    notifier.incrementBead();
+    notifier.incrementBead(soundEnabled: true, vibrationEnabled: true);
 
     expect(notifier.state.total, 0);
     notifier.dispose();
@@ -115,9 +119,9 @@ void main() {
     final notifier = buildNotifier();
     await Future.delayed(Duration.zero);
 
-    notifier.incrementBead();
-    notifier.incrementBead();
-    notifier.incrementBead();
+    notifier.incrementBead(soundEnabled: true, vibrationEnabled: true);
+    notifier.incrementBead(soundEnabled: true, vibrationEnabled: true);
+    notifier.incrementBead(soundEnabled: true, vibrationEnabled: true);
 
     expect(notifier.state.total, 3);
     expect(notifier.state.beadInRound, 3);
@@ -137,13 +141,122 @@ void main() {
     await Future.delayed(Duration.zero);
 
     expect(notifier.state.total, kBeadsPerRound - 1);
-    notifier.incrementBead(); // lands on 108
+    notifier.incrementBead(soundEnabled: true, vibrationEnabled: true); // lands on 108
 
     expect(notifier.state.total, kBeadsPerRound);
     expect(notifier.state.beadInRound, 0);
     expect(notifier.state.rounds, 1);
     verify(sync.onTap(roundComplete: true)).called(1);
     notifier.dispose();
+  });
+
+  test('seed ignores stale current_count when there is no active accumulator',
+      () async {
+    // Cleared session after reset — local is zero with no accumulator id.
+    await local.write(userId, 'chenrezig', const LocalMalaState());
+    when(getDetail(any)).thenAnswer(
+      (_) async => const Right(MalaCount(total: 10)),
+    );
+
+    final notifier = buildNotifier();
+    await Future.delayed(Duration.zero);
+
+    expect(notifier.state.total, 0);
+    expect(local.read(userId, 'chenrezig').syncedTotal, 0);
+    verifyNever(sync.flush(any));
+    notifier.dispose();
+  });
+
+  test('resetCount clears display total on success', () async {
+    when(getDetail(any)).thenAnswer(
+      (_) async => const Right(MalaCount(accumulatorId: 'acc-1', total: 10)),
+    );
+    when(
+      sync.resetAccumulator(
+        any,
+        deleteAccumulator: anyNamed('deleteAccumulator'),
+      ),
+    ).thenAnswer((_) async {});
+
+    final notifier = buildNotifier();
+    await Future.delayed(Duration.zero);
+    expect(notifier.state.total, 10);
+
+    final ok = await notifier.resetCount();
+
+    expect(ok, isTrue);
+    expect(notifier.state.total, 0);
+    verify(
+      sync.resetAccumulator(
+        'chenrezig',
+        deleteAccumulator: delete,
+      ),
+    ).called(1);
+    notifier.dispose();
+  });
+
+  test('resetCount returns false when sync throws', () async {
+    when(getDetail(any)).thenAnswer(
+      (_) async => const Right(MalaCount(accumulatorId: 'acc-1', total: 10)),
+    );
+    when(
+      sync.resetAccumulator(
+        any,
+        deleteAccumulator: anyNamed('deleteAccumulator'),
+      ),
+    ).thenThrow(Exception('network'));
+
+    final notifier = buildNotifier();
+    await Future.delayed(Duration.zero);
+
+    final ok = await notifier.resetCount();
+
+    expect(ok, isFalse);
+    expect(notifier.state.total, 10);
+    notifier.dispose();
+  });
+
+  test('resetCount returns false while seeding', () async {
+    when(getDetail(any)).thenAnswer((_) async {
+      await Future<void>.delayed(const Duration(milliseconds: 50));
+      return const Right(MalaCount(total: 0));
+    });
+
+    final notifier = buildNotifier();
+    expect(notifier.state.isSeeding, isTrue);
+
+    final ok = await notifier.resetCount();
+
+    expect(ok, isFalse);
+    verifyNever(
+      sync.resetAccumulator(
+        any,
+        deleteAccumulator: anyNamed('deleteAccumulator'),
+      ),
+    );
+    notifier.dispose();
+  });
+
+  test('resetCount returns false if disposed mid-reset', () async {
+    final gate = Completer<void>();
+    when(getDetail(any)).thenAnswer(
+      (_) async => const Right(MalaCount(accumulatorId: 'acc-1', total: 5)),
+    );
+    when(
+      sync.resetAccumulator(
+        any,
+        deleteAccumulator: anyNamed('deleteAccumulator'),
+      ),
+    ).thenAnswer((_) => gate.future);
+
+    final notifier = buildNotifier();
+    await Future.delayed(Duration.zero);
+
+    final future = notifier.resetCount();
+    notifier.dispose();
+    gate.complete();
+
+    expect(await future, isFalse);
   });
 
   test('fresh install with no accumulator seeds at 0', () async {

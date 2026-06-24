@@ -51,6 +51,7 @@ fetched by authenticated users, so the catch-all is safe.
 | `GET` | `/accumulators/{parent_id}` | The user's detail for one preset. **404 ⇒ no accumulator yet ⇒ seed at 0.** |
 | `POST` | `/accumulators/user` | Lazily create the user's accumulator (`{parent_id}`, starts at 0). |
 | `PUT` | `/accumulators/user/{id}` | Push the absolute `current_count`. |
+| `DELETE` | `/accumulators/user/{id}` | Soft-delete the active session accumulator (reset). |
 
 `mala_image_url` appears at both the accumulator and mantra level; it drives the
 bead artwork (see below).
@@ -62,7 +63,11 @@ bead artwork (see below).
   retries are always safe and counts reconcile across devices.
 - **Seed-before-send.** `MalaCounterNotifier.seed()` fetches the server total
   and `max()`-merges with the local total *before* taps are enabled
-  (`isSeeding`), so a stale low value is never sent.
+  (`isSeeding`), so a stale low value is never sent. Seed uses API
+  `current_count` (active session) via `GET /accumulators/{parent_id}`, not
+  `total_counted` (lifetime history). When `accumulator_id` is null — fresh
+  install or after reset — the client keeps the local session tally (0 after
+  reset) and ignores a stale `current_count`.
 - **`beadInRound = total % 108`, `rounds = total ~/ 108`** (`kBeadsPerRound`).
 - Taps are blocked while `isSeeding`; a failed seed shows a retry
   (`seedFailed`).
@@ -94,6 +99,17 @@ flushes even after the user leaves the screen.
   returned total into local `total`/`syncedTotal`.
 - **Failure:** entry stays dirty; exponential backoff retry (cap 60s).
 - Concurrent triggers collapse via an `_isSyncing`/`_dirty` guard.
+
+### Reset
+
+1. Optional **PUT** if `total > syncedTotal` (flush unsynced taps to the
+   active accumulator so lifetime totals on that record are preserved).
+2. **DELETE** `/accumulators/user/{id}` — soft-delete the active session.
+3. **`clearSession()`** locally — `total=0`, `syncedTotal=0`, `accumulatorId=null`.
+4. Next tap/sync: **POST** (lazy create) + **PUT** as on first use.
+
+Re-entry runs `seed()` again; with no active `accumulator_id`, the on-screen
+count stays at 0 even if the parent detail echoes a non-zero `current_count`.
 
 ## Local store (`MalaLocalDataSource`)
 
@@ -197,9 +213,9 @@ failure), data.
 
 ## Tests (`test/features/mala/`)
 
-- `mala_counter_notifier_test.dart` — seed merge, offline-tail preservation,
-  no-op while seeding, monotonic increment, round completion, fresh-install
-  seed-at-0.
+- `mala_counter_notifier_test.dart` — seed merge, post-reset stale-count guard,
+  offline-tail preservation, no-op while seeding, monotonic increment, round
+  completion, fresh-install seed-at-0, `resetCount()` success/failure/mounted.
 - `mala_sync_manager_test.dart` — create-once-then-update, absolute-total PUT,
   `max()` adoption, dirty-on-failure, logged-out no-op, per-user namespacing.
 - `mala_beads_test.dart` — tap increments, right-to-left swipe increments,
