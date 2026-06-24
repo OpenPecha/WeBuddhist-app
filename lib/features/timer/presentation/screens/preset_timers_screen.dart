@@ -103,10 +103,7 @@ class PresetTimersScreen extends ConsumerWidget {
 }
 
 class _PresetTimersGrid extends StatelessWidget {
-  const _PresetTimersGrid({
-    required this.timers,
-    required this.minLabel,
-  });
+  const _PresetTimersGrid({required this.timers, required this.minLabel});
 
   final List<PresetTimer> timers;
   final String minLabel;

@@ -343,6 +343,7 @@
   "common_ok": "འགྲིག",
   "comingSoonHeadline": "ཐོན་ལ་ཉེ།",
   "routine_title": "ངའི་འཆར་ཅན་ཉམས་ལེན།",
+  "bookmarks": "ས་ཚད།",
   "routine_empty_title": "འཆར་ཅན་ཉམས་ལེན།",
   "routine_edit": "བཟོ་བཅོས།",
   "routine_empty_description": "གསུང་ཆོས་དང་འཆར་ཅན་ཉམས་ལེན་གང་མང་འཚོལ་ཞིབ་བྱས་ཏེ། ཐོ་འགོད་དང་རང་གི་འཆར་ཅན་ཉམས་ལེན་གྱི་ལས་རིམ་ནང་སྣོན་སྒྲིག་བྱོས།",
@@ -550,6 +551,10 @@
       }
     }
   },
+  "accumulations": "བསགས་གྲངས།",
+  "accumulations_search": "བསགས་གྲངས་འཚོལ།",
+  "accumulations_search_for": "བསགས་གྲངས་འཚོལ།",
+  "accumulations_no_found": "བསགས་གྲངས་རྙེད་མ་བྱུང་།",
   "me_accumulation": "བསགས་གྲངས་ཁྱོན་བསྡོམས།",
   "me_counts": "ཐེངས།",
   "me_minutes": "སྐར་མ།",

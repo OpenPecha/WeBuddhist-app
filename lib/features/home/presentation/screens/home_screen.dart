@@ -267,11 +267,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 
-  void _navigateToPracticeTab() {
-    ref.read(mainNavigationIndexProvider.notifier).state =
-        MainTab.practice.index;
-  }
-
   Widget _buildMyPracticesSection() {
     final routineInfoAsync = ref.watch(routineInfoFutureProvider);
 
@@ -283,7 +278,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           }
           return MyPracticesStatsCard(
             routineInfo: info,
-            onTap: _navigateToPracticeTab,
+            onTap: () => context.pushNamed('my-practices'),
           );
         });
       },

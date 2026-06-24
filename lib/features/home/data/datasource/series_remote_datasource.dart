@@ -3,6 +3,32 @@ import 'package:flutter_pecha/core/error/exceptions.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/features/home/data/models/series_model.dart';
 
+class SeriesQueryParams {
+  final String language;
+  final int skip;
+  final int limit;
+  final String? search;
+
+  const SeriesQueryParams({
+    required this.language,
+    this.skip = 0,
+    this.limit = 10,
+    this.search,
+  });
+
+  Map<String, dynamic> toQueryParams() {
+    final params = <String, dynamic>{
+      'language': language,
+      'skip': skip,
+      'limit': limit,
+    };
+    if (search != null && search!.trim().isNotEmpty) {
+      params['search'] = search!.trim();
+    }
+    return params;
+  }
+}
+
 class SeriesRemoteDatasource {
   final Dio dio;
   final _logger = AppLogger('SeriesRemoteDatasource');
@@ -35,6 +61,32 @@ class SeriesRemoteDatasource {
     } on DioException catch (e) {
       _logger.error('Dio error in fetchFeaturedSeries', e);
       throw _dioToException(e, 'Failed to load featured series');
+    }
+  }
+
+  /// Endpoint: GET /series?language={language}&skip={skip}&limit={limit}&search={search}
+  Future<List<SeriesModel>> fetchSeries({
+    required SeriesQueryParams params,
+  }) async {
+    try {
+      final response = await dio.get(
+        '/series',
+        queryParameters: params.toQueryParams(),
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> seriesJson =
+            (response.data['series'] as List<dynamic>?) ?? [];
+        return seriesJson
+            .map((s) => SeriesModel.fromJson(s as Map<String, dynamic>))
+            .toList();
+      } else {
+        _logger.error('Failed to load series: ${response.statusCode}');
+        throw _statusToException(response.statusCode, 'Failed to load series');
+      }
+    } on DioException catch (e) {
+      _logger.error('Dio error in fetchSeries', e);
+      throw _dioToException(e, 'Failed to load series');
     }
   }
 

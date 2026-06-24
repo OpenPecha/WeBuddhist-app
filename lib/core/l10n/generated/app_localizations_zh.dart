@@ -831,6 +831,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get routine_title => '日常修持';
 
   @override
+  String get bookmarks => '书签';
+
+  @override
   String get routine_empty_title => '日常修持';
 
   @override
@@ -1243,6 +1246,18 @@ class AppLocalizationsZh extends AppLocalizations {
   String me_best_streak(int count) {
     return '最長連續：$count 天';
   }
+
+  @override
+  String get accumulations => '累積';
+
+  @override
+  String get accumulations_search => '搜索累積';
+
+  @override
+  String get accumulations_search_for => '尋找累積內容';
+
+  @override
+  String get accumulations_no_found => '尚無相關累積內容';
 
   @override
   String get me_accumulation => '累積總數';

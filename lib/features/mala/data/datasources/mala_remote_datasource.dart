@@ -13,7 +13,12 @@ class MalaRemoteDataSource {
 
   /// `GET /accumulators/presets` — preset accumulators (catalogue). Pages all.
   /// [language] localizes the embedded mantra title/text/pronunciation.
-  Future<List<PresetAccumulatorModel>> fetchPresets({String? language}) async {
+  /// [search] filters presets server-side by name when non-empty.
+  Future<List<PresetAccumulatorModel>> fetchPresets({
+    String? language,
+    String? search,
+  }) async {
+    final query = search?.trim();
     try {
       final all = <PresetAccumulatorModel>[];
       var skip = 0;
@@ -24,6 +29,7 @@ class MalaRemoteDataSource {
             'skip': skip,
             'limit': _pageSize,
             if (language != null) 'language': language,
+            if (query != null && query.isNotEmpty) 'search': query,
           },
         );
         if (response.statusCode != 200) {

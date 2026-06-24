@@ -33,40 +33,43 @@ class VerseSharePreview extends StatelessWidget {
 
     return Theme(
       data: lightTheme,
-      child: Container(
-        color: AppColors.goldLight,
-        padding: const EdgeInsets.fromLTRB(14, 20, 14, 24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              clipBehavior: Clip.antiAlias,
-              child: VerseOfDayContent(
-                verseOfDay: verseOfDay,
-                typography: VerseOfDayTypography(
-                  contentFont: typography.contentFont,
-                  systemFont: typography.systemFont,
-                  verseFontSize: languageCode == 'bo' ? 20.0 : 18.0,
-                  attributionFontSize: languageCode == 'bo' ? 16.0 : 15.0,
+      child: Material(
+        color: Colors.transparent,
+        child: Container(
+          color: AppColors.goldLight,
+          padding: const EdgeInsets.fromLTRB(14, 20, 14, 24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                verseColor: Colors.black87,
-                attributionColor: Colors.black87,
-                imageAspectRatio: 1.15,
-                useContentFontForAttribution: true,
-                textPadding: const EdgeInsets.fromLTRB(28, 32, 28, 36),
+                clipBehavior: Clip.antiAlias,
+                child: VerseOfDayContent(
+                  verseOfDay: verseOfDay,
+                  typography: VerseOfDayTypography(
+                    contentFont: typography.contentFont,
+                    systemFont: typography.systemFont,
+                    verseFontSize: languageCode == 'bo' ? 20.0 : 18.0,
+                    attributionFontSize: languageCode == 'bo' ? 16.0 : 15.0,
+                  ),
+                  verseColor: Colors.black87,
+                  attributionColor: Colors.black87,
+                  imageAspectRatio: 1.15,
+                  useContentFontForAttribution: true,
+                  textPadding: const EdgeInsets.fromLTRB(28, 32, 28, 36),
+                ),
               ),
-            ),
-            const SizedBox(height: 24),
-            const VerseShareBranding(
-              logoSize: 32,
-              sharedFromFontSize: 12,
-              appTitleFontSize: 14,
-            ),
-          ],
+              const SizedBox(height: 24),
+              const VerseShareBranding(
+                logoSize: 32,
+                sharedFromFontSize: 12,
+                appTitleFontSize: 14,
+              ),
+            ],
+          ),
         ),
       ),
     );
