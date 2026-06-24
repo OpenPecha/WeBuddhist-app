@@ -26,7 +26,7 @@ class AllRecitationsScreen extends StatelessWidget {
         scrolledUnderElevation: 0,
       ),
       body: ListView.builder(
-        padding: const EdgeInsets.symmetric(vertical: 8),
+        padding: const EdgeInsets.only(top: 8, bottom: 16),
         itemCount: recitations.length,
         itemBuilder: (context, index) {
           final r = recitations[index];
