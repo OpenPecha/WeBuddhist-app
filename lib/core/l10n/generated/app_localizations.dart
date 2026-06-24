@@ -340,6 +340,18 @@ abstract class AppLocalizations {
   /// **'Coming soon'**
   String get mala_action_coming_soon;
 
+  /// No description provided for @mala_rounds_count.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{0 rounds} =1{1 round} other{{count} rounds}}'**
+  String mala_rounds_count(int count);
+
+  /// No description provided for @mala_counter_semantics.
+  ///
+  /// In en, this message translates to:
+  /// **'Count {bead} of {total}, {rounds}'**
+  String mala_counter_semantics(int bead, int total, String rounds);
+
   /// No description provided for @home_timer.
   ///
   /// In en, this message translates to:

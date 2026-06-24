@@ -105,32 +105,49 @@ class AppLocalizationsMn extends AppLocalizations {
   String get home_mala => 'Эрх';
 
   @override
-  String get mala_add_to_practice => 'Add to my practices';
+  String get mala_add_to_practice => 'Миний дадлагад нэмэх';
 
   @override
-  String get mala_add_to_bookmark => 'Bookmark';
+  String get mala_add_to_bookmark => 'Хавчуурга';
 
   @override
-  String get mala_sound => 'Sound';
+  String get mala_sound => 'Дуу';
 
   @override
-  String get mala_vibration => 'Vibration';
+  String get mala_vibration => 'Чичиргээ';
 
   @override
-  String get mala_reset_count => 'Reset count';
+  String get mala_reset_count => 'Тооллогыг дахин тохируулах';
 
   @override
-  String get mala_reset_title => 'Reset this mala?';
+  String get mala_reset_title => 'Энэ эрхийг дахин тохируулах уу?';
 
   @override
   String get mala_reset_count_confirm =>
-      'Your current count will go back to zero, but your accumulations will stay in your lifetime total.';
+      'Одоогийн тооллого тэг болно, гэхдээ таны хуримтлал амьдралын нийт тоонд хадгалагдана.';
 
   @override
-  String get mala_reset_confirm => 'Reset';
+  String get mala_reset_confirm => 'Дахин тохируулах';
 
   @override
-  String get mala_action_coming_soon => 'Coming soon';
+  String get mala_action_coming_soon => 'Удахгүй';
+
+  @override
+  String mala_rounds_count(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ээлж',
+      one: '1 ээлж',
+      zero: '0 ээлж',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String mala_counter_semantics(int bead, int total, String rounds) {
+    return 'Тоол $bead/$total, $rounds';
+  }
 
   @override
   String get home_timer => 'Цаг хэмжигч';

@@ -133,6 +133,23 @@ class AppLocalizationsEn extends AppLocalizations {
   String get mala_action_coming_soon => 'Coming soon';
 
   @override
+  String mala_rounds_count(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count rounds',
+      one: '1 round',
+      zero: '0 rounds',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String mala_counter_semantics(int bead, int total, String rounds) {
+    return 'Count $bead of $total, $rounds';
+  }
+
+  @override
   String get home_timer => 'Timer';
 
   @override

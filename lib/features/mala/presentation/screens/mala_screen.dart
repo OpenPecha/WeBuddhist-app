@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/analytics/analytics_events.dart';
 import 'package:flutter_pecha/core/analytics/analytics_providers.dart';
 import 'package:flutter_pecha/core/core.dart';
+import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/features/mala/domain/entities/mantra.dart';
 import 'package:flutter_pecha/features/mala/presentation/providers/mala_providers.dart';
 import 'package:flutter_pecha/features/mala/presentation/providers/mala_settings_provider.dart';
@@ -216,11 +217,13 @@ class _CounterBlock extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = context.l10n;
+    final roundsLabel = l10n.mala_rounds_count(rounds);
     final color = theme.colorScheme.onSurface.withValues(
       alpha: dimmed ? 0.35 : 1.0,
     );
     return Semantics(
-      label: 'Count $beadInRound of $beadsPerRound, $rounds rounds',
+      label: l10n.mala_counter_semantics(beadInRound, beadsPerRound, roundsLabel),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
@@ -234,7 +237,7 @@ class _CounterBlock extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           Text(
-            rounds == 1 ? '1 round' : '$rounds rounds',
+            roundsLabel,
             style: theme.textTheme.titleLarge?.copyWith(
               color: color.withValues(alpha: dimmed ? 0.35 : 0.7),
             ),

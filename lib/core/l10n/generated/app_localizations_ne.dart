@@ -105,32 +105,49 @@ class AppLocalizationsNe extends AppLocalizations {
   String get home_mala => 'माला';
 
   @override
-  String get mala_add_to_practice => 'Add to my practices';
+  String get mala_add_to_practice => 'मेरा अभ्यासहरूमा थप्नुहोस्';
 
   @override
-  String get mala_add_to_bookmark => 'Bookmark';
+  String get mala_add_to_bookmark => 'बुकमार्क';
 
   @override
-  String get mala_sound => 'Sound';
+  String get mala_sound => 'ध्वनि';
 
   @override
-  String get mala_vibration => 'Vibration';
+  String get mala_vibration => 'कम्पन';
 
   @override
-  String get mala_reset_count => 'Reset count';
+  String get mala_reset_count => 'गणना रिसेट गर्नुहोस्';
 
   @override
-  String get mala_reset_title => 'Reset this mala?';
+  String get mala_reset_title => 'यो माला रिसेट गर्ने?';
 
   @override
   String get mala_reset_count_confirm =>
-      'Your current count will go back to zero, but your accumulations will stay in your lifetime total.';
+      'तपाईंको हालको गणना शून्यमा फर्कने छ, तर तपाईंका संचयहरू जीवनभरको कुलमा रहने छन्।';
 
   @override
-  String get mala_reset_confirm => 'Reset';
+  String get mala_reset_confirm => 'रिसेट';
 
   @override
-  String get mala_action_coming_soon => 'Coming soon';
+  String get mala_action_coming_soon => 'चाँडै आउँदैछ';
+
+  @override
+  String mala_rounds_count(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count चक्र',
+      one: '1 चक्र',
+      zero: '0 चक्र',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String mala_counter_semantics(int bead, int total, String rounds) {
+    return 'गणना $bead/$total, $rounds';
+  }
 
   @override
   String get home_timer => 'टाइमर';
