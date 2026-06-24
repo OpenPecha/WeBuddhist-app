@@ -27,12 +27,9 @@ class AllAccumulationsScreen extends StatelessWidget {
         scrolledUnderElevation: 0,
       ),
       body: GridView.builder(
-        padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 4,
-          mainAxisSpacing: 16,
-          crossAxisSpacing: 8,
-          childAspectRatio: 0.72,
+          crossAxisCount: 2,
+          childAspectRatio: 1.1,
         ),
         itemCount: mantras.length,
         itemBuilder: (context, index) {

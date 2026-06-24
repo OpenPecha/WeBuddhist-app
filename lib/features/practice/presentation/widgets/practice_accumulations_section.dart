@@ -6,7 +6,7 @@ import 'package:flutter_pecha/features/auth/presentation/widgets/login_drawer.da
 import 'package:flutter_pecha/features/mala/domain/entities/mantra.dart';
 import 'package:flutter_pecha/features/practice/presentation/providers/practice_explore_providers.dart';
 import 'package:flutter_pecha/features/practice/presentation/screens/all_accumulations_screen.dart';
-import 'package:flutter_pecha/features/practice/presentation/widgets/practice_accumulation_item.dart';
+import 'package:flutter_pecha/features/practice/presentation/widgets/practice_accumulation_circle_item.dart';
 import 'package:flutter_pecha/features/practice/presentation/widgets/practice_section_container.dart';
 import 'package:flutter_pecha/features/practice/presentation/widgets/practice_section_skeleton.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -38,7 +38,7 @@ class PracticeAccumulationsSection extends ConsumerWidget {
                           _showAllAccumulations(context, ref, mantras, language)
                       : null,
               child: SizedBox(
-                height: 100,
+                height: 120,
                 child: ListView.separated(
                   scrollDirection: Axis.horizontal,
                   padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -46,7 +46,7 @@ class PracticeAccumulationsSection extends ConsumerWidget {
                   separatorBuilder: (_, __) => const SizedBox(width: 16),
                   itemBuilder: (context, index) {
                     final mantra = preview[index];
-                    return PracticeAccumulationItem(
+                    return PracticeAccumulationCircleItem(
                       mantra: mantra,
                       language: language,
                       onTap: () => _navigateToMala(context, ref, mantra),
@@ -56,7 +56,7 @@ class PracticeAccumulationsSection extends ConsumerWidget {
               ),
             );
           }),
-      loading: () => const PracticeSectionSkeleton(height: 100),
+      loading: () => const PracticeSectionSkeleton(height: 120),
       error: (_, __) => const SizedBox.shrink(),
     );
   }

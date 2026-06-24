@@ -19,43 +19,51 @@ class PracticeAccumulationItem extends StatelessWidget {
     final beadUrl = mantra.mantra?.beadImageUrl ?? mantra.beadImageUrl;
     final title = mantra.displayTitle(language);
 
-    return GestureDetector(
-      onTap: onTap,
-      child: SizedBox(
-        width: 72,
-        child: Column(
-          children: [
-            ClipOval(
-              child:
-                  beadUrl != null && beadUrl.isNotEmpty
-                      ? CachedNetworkImageWidget(
-                        imageUrl: beadUrl,
-                        width: 56,
-                        height: 56,
-                        fit: BoxFit.cover,
-                      )
-                      : Container(
-                        width: 56,
-                        height: 56,
-                        decoration: BoxDecoration(
-                          color:
-                              Theme.of(
-                                context,
-                              ).colorScheme.surfaceContainerHighest,
-                          shape: BoxShape.circle,
+    return Card(
+      clipBehavior: Clip.antiAlias,
+      elevation: 0,
+      color: Colors.transparent,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              ClipOval(
+                child:
+                    beadUrl != null && beadUrl.isNotEmpty
+                        ? CachedNetworkImageWidget(
+                          imageUrl: beadUrl,
+                          width: 64,
+                          height: 64,
+                          fit: BoxFit.cover,
+                        )
+                        : Container(
+                          width: 64,
+                          height: 64,
+                          decoration: BoxDecoration(
+                            color:
+                                Theme.of(context).colorScheme.surfaceContainer,
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(Icons.spa, size: 28),
                         ),
-                        child: const Icon(Icons.spa, size: 24),
-                      ),
-            ),
-            const SizedBox(height: 6),
-            Text(
-              title,
-              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
-              textAlign: TextAlign.center,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ],
+              ),
+              const SizedBox(height: 12),
+              Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                ),
+                textAlign: TextAlign.center,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          ),
         ),
       ),
     );
