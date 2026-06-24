@@ -875,6 +875,9 @@ class AppLocalizationsNe extends AppLocalizations {
   String get routine_title => 'मेरा अभ्यासहरू';
 
   @override
+  String get bookmarks => 'बुकमार्कहरू';
+
+  @override
   String get routine_empty_title => 'अभ्यासहरू';
 
   @override

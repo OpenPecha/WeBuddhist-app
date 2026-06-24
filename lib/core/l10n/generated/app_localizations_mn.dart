@@ -868,6 +868,9 @@ class AppLocalizationsMn extends AppLocalizations {
   String get routine_title => 'Миний дадлагууд';
 
   @override
+  String get bookmarks => 'Хавчуурга';
+
+  @override
   String get routine_empty_title => 'Дадлагууд';
 
   @override

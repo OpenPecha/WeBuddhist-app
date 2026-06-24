@@ -870,6 +870,9 @@ class AppLocalizationsHi extends AppLocalizations {
   String get routine_title => 'मेरे अभ्यास';
 
   @override
+  String get bookmarks => 'बुकमार्क';
+
+  @override
   String get routine_empty_title => 'अभ्यास';
 
   @override

@@ -874,6 +874,9 @@ class AppLocalizationsBo extends AppLocalizations {
   String get routine_title => 'ངའི་འཆར་ཅན་ཉམས་ལེན།';
 
   @override
+  String get bookmarks => 'ས་ཚད།';
+
+  @override
   String get routine_empty_title => 'འཆར་ཅན་ཉམས་ལེན།';
 
   @override

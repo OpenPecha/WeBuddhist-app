@@ -1642,6 +1642,12 @@ abstract class AppLocalizations {
   /// **'My practices'**
   String get routine_title;
 
+  /// No description provided for @bookmarks.
+  ///
+  /// In en, this message translates to:
+  /// **'Bookmarks'**
+  String get bookmarks;
+
   /// No description provided for @routine_empty_title.
   ///
   /// In en, this message translates to:

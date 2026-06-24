@@ -77,7 +77,7 @@ class _PracticeExploreScreenState extends ConsumerState<PracticeExploreScreen> {
           const SizedBox(width: 12),
           Expanded(
             child: PracticeTabButton(
-              label: 'Bookmarks',
+              label: l10n.bookmarks,
               icon: Icons.bookmark_border,
               variant: PracticeActionButtonVariant.outlined,
               onTap: () {},

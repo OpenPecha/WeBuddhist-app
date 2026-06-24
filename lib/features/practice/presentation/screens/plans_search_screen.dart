@@ -19,10 +19,12 @@ class PlansSearchScreen extends ConsumerStatefulWidget {
 class _PlansSearchScreenState extends ConsumerState<PlansSearchScreen> {
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _focusNode = FocusNode();
+  late final SeriesSearchNotifier _searchNotifier;
 
   @override
   void initState() {
     super.initState();
+    _searchNotifier = ref.read(seriesSearchProvider.notifier);
     _searchController.addListener(_onSearchTextChanged);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _focusNode.requestFocus();
@@ -38,7 +40,7 @@ class _PlansSearchScreenState extends ConsumerState<PlansSearchScreen> {
     _searchController.removeListener(_onSearchTextChanged);
     _searchController.dispose();
     _focusNode.dispose();
-    ref.read(seriesSearchProvider.notifier).clear();
+    _searchNotifier.clear();
     super.dispose();
   }
 

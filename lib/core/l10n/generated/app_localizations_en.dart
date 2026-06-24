@@ -861,6 +861,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get routine_title => 'My practices';
 
   @override
+  String get bookmarks => 'Bookmarks';
+
+  @override
   String get routine_empty_title => 'Practices';
 
   @override

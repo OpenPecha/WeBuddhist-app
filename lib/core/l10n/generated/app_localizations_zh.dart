@@ -822,6 +822,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get routine_title => '日常修持';
 
   @override
+  String get bookmarks => '书签';
+
+  @override
   String get routine_empty_title => '日常修持';
 
   @override
