@@ -22,14 +22,15 @@ Future<bool?> showDestructiveConfirmationDialog(
   return showDialog<bool>(
     context: context,
     barrierDismissible: barrierDismissible,
-    builder: (dialogContext) => DestructiveConfirmationDialog(
-      title: title,
-      message: message,
-      confirmLabel: confirmLabel ?? l10n.delete,
-      cancelLabel: cancelLabel ?? l10n.cancel,
-      isDark: isDark,
-      onConfirmed: onConfirmed,
-    ),
+    builder:
+        (dialogContext) => DestructiveConfirmationDialog(
+          title: title,
+          message: message,
+          confirmLabel: confirmLabel ?? l10n.delete,
+          cancelLabel: cancelLabel ?? l10n.cancel,
+          isDark: isDark,
+          onConfirmed: onConfirmed,
+        ),
   );
 }
 
@@ -87,8 +88,8 @@ class _DestructiveConfirmationDialogState
               widget.title,
               style: GoogleFonts.inter(
                 textStyle: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w900,
-                  fontSize: 17,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 18,
                   letterSpacing: -0.3,
                 ),
               ),
@@ -111,19 +112,20 @@ class _DestructiveConfirmationDialogState
                     borderRadius: BorderRadius.circular(30),
                   ),
                 ),
-                child: _isLoading
-                    ? SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: Colors.red.shade600,
+                child:
+                    _isLoading
+                        ? SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.red.shade600,
+                          ),
+                        )
+                        : Text(
+                          widget.confirmLabel,
+                          style: const TextStyle(fontSize: 15),
                         ),
-                      )
-                    : Text(
-                        widget.confirmLabel,
-                        style: const TextStyle(fontSize: 15),
-                      ),
               ),
             ),
             const SizedBox(height: 12),
@@ -145,9 +147,10 @@ class _DestructiveConfirmationDialogState
                   widget.cancelLabel,
                   style: TextStyle(
                     fontSize: 15,
-                    color: widget.isDark
-                        ? AppColors.textPrimaryDark
-                        : Colors.black,
+                    color:
+                        widget.isDark
+                            ? AppColors.textPrimaryDark
+                            : Colors.black,
                   ),
                 ),
               ),

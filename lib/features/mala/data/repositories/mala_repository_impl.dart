@@ -70,6 +70,20 @@ class MalaRepositoryImpl implements MalaRepository {
     }
   }
 
+  @override
+  Future<Either<Failure, Unit>> deleteUserAccumulator(
+    String accumulatorId,
+  ) async {
+    try {
+      await remote.deleteUserAccumulator(accumulatorId);
+      return const Right(unit);
+    } on AppException catch (e) {
+      return Left(_toFailure(e));
+    } catch (e) {
+      return Left(UnknownFailure('Failed to delete accumulator: $e'));
+    }
+  }
+
   Failure _toFailure(AppException e) {
     if (e is AuthenticationException) return AuthenticationFailure(e.message);
     if (e is NotFoundException) return NotFoundFailure(e.message);

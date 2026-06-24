@@ -96,6 +96,17 @@ class MalaLocalDataSource {
     return next;
   }
 
+  /// Clears the on-screen session after a reset: count back to zero and no
+  /// active accumulator id. Preserves [beadImageUrl] for offline rendering.
+  Future<void> clearSession(String userId, String presetId) async {
+    final s = read(userId, presetId);
+    await write(
+      userId,
+      presetId,
+      LocalMalaState(beadImageUrl: s.beadImageUrl),
+    );
+  }
+
   /// Preset ids for [userId] whose local total is ahead of the server.
   List<String> dirtyPresetIds(String userId) {
     final prefix = '$userId:';

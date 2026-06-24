@@ -15,7 +15,7 @@ import 'package:mockito/mockito.dart';
 
 import 'mala_counter_notifier_test.mocks.dart';
 
-@GenerateMocks([GetAccumulatorDetailUseCase, MalaSyncManager])
+@GenerateMocks([GetAccumulatorDetailUseCase, MalaSyncManager, DeleteUserAccumulatorUseCase])
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -27,6 +27,7 @@ void main() {
   late MalaLocalDataSource local;
   late MockGetAccumulatorDetailUseCase getDetail;
   late MockMalaSyncManager sync;
+  late MockDeleteUserAccumulatorUseCase delete;
 
   const userId = 'user-1';
   const mantra = Mantra(
@@ -39,6 +40,7 @@ void main() {
         mantra: mantra,
         local: local,
         getAccumulatorDetail: getDetail,
+        deleteUserAccumulator: delete,
         sync: sync,
         currentUserId: () async => userId,
       );
@@ -50,6 +52,7 @@ void main() {
     local = MalaLocalDataSource();
     getDetail = MockGetAccumulatorDetailUseCase();
     sync = MockMalaSyncManager();
+    delete = MockDeleteUserAccumulatorUseCase();
   });
 
   tearDown(() async {

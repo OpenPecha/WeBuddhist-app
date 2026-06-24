@@ -62,6 +62,7 @@ class MalaCounterNotifier extends StateNotifier<MalaCounterState> {
     required Mantra mantra,
     required MalaLocalDataSource local,
     required GetAccumulatorDetailUseCase getAccumulatorDetail,
+    required DeleteUserAccumulatorUseCase deleteUserAccumulator,
     required MalaSyncManager sync,
     required Future<String?> Function() currentUserId,
     AnalyticsService? analytics,
@@ -69,6 +70,7 @@ class MalaCounterNotifier extends StateNotifier<MalaCounterState> {
   })  : _mantra = mantra,
         _local = local,
         _getAccumulatorDetail = getAccumulatorDetail,
+        _deleteUserAccumulator = deleteUserAccumulator,
         _sync = sync,
         _currentUserId = currentUserId,
         _analytics = analytics,
@@ -80,6 +82,7 @@ class MalaCounterNotifier extends StateNotifier<MalaCounterState> {
   final Mantra _mantra;
   final MalaLocalDataSource _local;
   final GetAccumulatorDetailUseCase _getAccumulatorDetail;
+  final DeleteUserAccumulatorUseCase _deleteUserAccumulator;
   final MalaSyncManager _sync;
   final Future<String?> Function() _currentUserId;
   final AnalyticsService? _analytics;
@@ -155,7 +158,10 @@ class MalaCounterNotifier extends StateNotifier<MalaCounterState> {
   }
 
   /// +1 recitation. No-op while seeding. Monotonic — never decrements.
-  void incrementBead() {
+  void incrementBead({
+    required bool soundEnabled,
+    required bool vibrationEnabled,
+  }) {
     if (state.isSeeding) return;
 
     final userId = _userId;
@@ -167,10 +173,12 @@ class MalaCounterNotifier extends StateNotifier<MalaCounterState> {
     state = state.copyWith(total: newTotal);
     _local.recordTap(userId, _presetId);
 
-    _sound?.play();
-    HapticFeedback.lightImpact();
+    if (soundEnabled) _sound?.play();
+    if (vibrationEnabled) {
+      HapticFeedback.lightImpact();
+      if (roundComplete) HapticFeedback.mediumImpact();
+    }
     if (roundComplete) {
-      HapticFeedback.mediumImpact();
       _analytics?.track(
         AnalyticsEvents.malaRoundCompleted,
         properties: {'accumulatorId': _presetId, 'rounds': state.rounds},
@@ -178,6 +186,33 @@ class MalaCounterNotifier extends StateNotifier<MalaCounterState> {
     }
 
     _sync.onTap(roundComplete: roundComplete);
+  }
+
+  /// Resets the on-screen session to zero by soft-deleting the active server
+  /// accumulator (`DELETE /accumulators/user/{id}`). Unsynced taps are flushed
+  /// first. Returns false on failure.
+  Future<bool> resetCount() async {
+    if (state.isSeeding) return false;
+
+    final userId = _userId;
+    if (userId == null || userId.isEmpty) return false;
+
+    try {
+      await _sync.resetAccumulator(
+        _presetId,
+        deleteAccumulator: _deleteUserAccumulator,
+      );
+      if (!mounted) return false;
+      final localState = _local.read(userId, _presetId);
+      state = state.copyWith(
+        total: 0,
+        beadImageUrl: localState.beadImageUrl ?? state.beadImageUrl,
+      );
+      return true;
+    } catch (e, st) {
+      _logger.warning('Reset failed: $e', e, st);
+      return false;
+    }
   }
 
   @override

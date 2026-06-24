@@ -121,62 +121,7 @@ class MalaSyncManager with WidgetsBindingObserver {
       for (final presetId in _local.dirtyPresetIds(userId)) {
         final s = _local.read(userId, presetId);
         if (!s.isDirty) continue;
-
-        // First time only: mint the accumulator once via POST {parent_id}.
-        // The new accumulator starts at 0; the absolute total is pushed by the
-        // PUT below. Thereafter accumulatorId is non-null and we PUT only.
-        var accumulatorId = s.accumulatorId;
-        if (accumulatorId == null) {
-          final created = await _createAccumulator(presetId);
-          accumulatorId = created.fold(
-            (failure) => throw Exception(failure.message), // keep dirty; retry
-            (count) {
-              _local.write(
-                userId,
-                presetId,
-                _local.read(userId, presetId).copyWith(
-                      accumulatorId: count.accumulatorId,
-                    ),
-              );
-              return count.accumulatorId;
-            },
-          );
-          if (accumulatorId == null) {
-            throw Exception('Create returned no accumulator id');
-          }
-        }
-
-        final sending = s.total; // capture before the network round-trip
-        final result = await _updateAccumulator(
-          UpdateUserAccumulatorParams(
-            accumulatorId: accumulatorId,
-            currentCount: sending,
-          ),
-        );
-
-        result.fold(
-          (failure) => throw Exception(failure.message), // keep dirty; retry
-          (count) {
-            // Re-read: taps may have landed during the round-trip.
-            final after = _local.read(userId, presetId);
-            _local.write(
-              userId,
-              presetId,
-              after.copyWith(
-                total: max(after.total, count.total),
-                syncedTotal: max(count.total, sending),
-                accumulatorId: count.accumulatorId ?? accumulatorId,
-              ),
-            );
-            _analytics?.track(
-              AnalyticsEvents.malaSynced,
-              properties: {
-                'accumulatorId': count.accumulatorId ?? accumulatorId,
-                'total': max(count.total, sending),
-              },
-            );
-          },
-        );
+        await _pushTotal(userId, presetId, s.total);
       }
       _retryAttempt = 0;
       _retry?.cancel();
@@ -190,6 +135,138 @@ class MalaSyncManager with WidgetsBindingObserver {
         unawaited(flush(reason)); // sweep taps that landed mid-flush
       }
     }
+  }
+
+  /// Resets the on-screen session by soft-deleting the active user accumulator
+  /// for [presetId]. Unsynced taps are flushed to the existing accumulator
+  /// first so lifetime totals on that record are preserved server-side. A new
+  /// accumulator is lazily created on the next sync after counting resumes.
+  ///
+  /// [deleteAccumulator] is passed per call (not stored on the manager) so
+  /// reset stays correct after hot reload of the app-scoped sync manager.
+  Future<void> resetAccumulator(
+    String presetId, {
+    required DeleteUserAccumulatorUseCase deleteAccumulator,
+  }) async {
+    if (!_isLoggedIn()) {
+      throw StateError('Cannot reset mala while logged out');
+    }
+    final userId = await _currentUserId();
+    if (userId == null || userId.isEmpty) {
+      throw StateError('Cannot reset mala without a user id');
+    }
+
+    await _awaitSyncIdle();
+    _isSyncing = true;
+    _debounce?.cancel();
+
+    try {
+      final before = _local.read(userId, presetId);
+      _logger.info(
+        'Reset start presetId=$presetId total=${before.total} '
+        'synced=${before.syncedTotal} accId=${before.accumulatorId}',
+      );
+
+      if (before.isDirty) {
+        _logger.info('Reset flushing dirty tail before DELETE');
+        await _pushTotal(userId, presetId, before.total);
+      }
+
+      final accumulatorId = _local.read(userId, presetId).accumulatorId;
+      if (accumulatorId != null && accumulatorId.isNotEmpty) {
+        _logger.info('Reset DELETE /accumulators/user/$accumulatorId');
+        final deleted = await deleteAccumulator(accumulatorId);
+        deleted.fold(
+          (failure) => throw Exception(failure.message),
+          (_) {},
+        );
+      } else {
+        _logger.info('Reset no active accumulator to delete presetId=$presetId');
+      }
+
+      await _local.clearSession(userId, presetId);
+
+      _logger.info('Reset complete presetId=$presetId');
+
+      _analytics?.track(
+        AnalyticsEvents.malaSynced,
+        properties: {
+          if (accumulatorId != null) 'accumulatorId': accumulatorId,
+          'total': 0,
+          'reset': true,
+        },
+      );
+    } catch (e, st) {
+      _logger.warning('Reset failed presetId=$presetId: $e', e, st);
+      rethrow;
+    } finally {
+      _isSyncing = false;
+    }
+  }
+
+  Future<void> _awaitSyncIdle() async {
+    while (_isSyncing) {
+      await Future<void>.delayed(const Duration(milliseconds: 50));
+    }
+  }
+
+  Future<void> _pushTotal(String userId, String presetId, int sending) async {
+    final s = _local.read(userId, presetId);
+
+    // First time only: mint the accumulator once via POST {parent_id}.
+    // The new accumulator starts at 0; the absolute total is pushed by the
+    // PUT below. Thereafter accumulatorId is non-null and we PUT only.
+    var accumulatorId = s.accumulatorId;
+    if (accumulatorId == null) {
+      final created = await _createAccumulator(presetId);
+      accumulatorId = created.fold(
+        (failure) => throw Exception(failure.message), // keep dirty; retry
+        (count) {
+          _local.write(
+            userId,
+            presetId,
+            _local.read(userId, presetId).copyWith(
+                  accumulatorId: count.accumulatorId,
+                ),
+          );
+          return count.accumulatorId;
+        },
+      );
+      if (accumulatorId == null) {
+        throw Exception('Create returned no accumulator id');
+      }
+    }
+
+    final result = await _updateAccumulator(
+      UpdateUserAccumulatorParams(
+        accumulatorId: accumulatorId,
+        currentCount: sending,
+      ),
+    );
+
+    result.fold(
+      (failure) => throw Exception(failure.message), // keep dirty; retry
+      (count) {
+        // Re-read: taps may have landed during the round-trip.
+        final after = _local.read(userId, presetId);
+        _local.write(
+          userId,
+          presetId,
+          after.copyWith(
+            total: max(after.total, count.total),
+            syncedTotal: max(count.total, sending),
+            accumulatorId: count.accumulatorId ?? accumulatorId,
+          ),
+        );
+        _analytics?.track(
+          AnalyticsEvents.malaSynced,
+          properties: {
+            'accumulatorId': count.accumulatorId ?? accumulatorId,
+            'total': max(count.total, sending),
+          },
+        );
+      },
+    );
   }
 
   void _scheduleRetry() {

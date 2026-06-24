@@ -119,9 +119,15 @@ class MalaSettingsSheet extends ConsumerWidget {
       cancelLabel: l10n.cancel,
     );
     if (confirmed != true || !context.mounted) return;
-    Navigator.of(context).pop();
     HapticFeedback.mediumImpact();
-    await ref.read(malaCounterProvider(mantra).notifier).resetCount();
+    final ok = await ref.read(malaCounterProvider(mantra).notifier).resetCount();
+    if (!context.mounted) return;
+    Navigator.of(context).pop();
+    if (!ok) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(context.l10n.something_went_wrong)),
+      );
+    }
   }
 }
 

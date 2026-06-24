@@ -26,7 +26,8 @@ class GetAccumulatorDetailUseCase extends UseCase<MalaCount, String> {
       _repository.getAccumulatorDetail(parentId);
 }
 
-/// Lazily creates the user's accumulator for a preset (once, on first sync).
+/// Lazily creates the user's accumulator for a preset on first sync
+/// (`POST /accumulators/user`).
 class CreateUserAccumulatorUseCase extends UseCase<MalaCount, String> {
   CreateUserAccumulatorUseCase(this._repository);
   final MalaRepository _repository;
@@ -59,4 +60,14 @@ class UpdateUserAccumulatorUseCase
         accumulatorId: params.accumulatorId,
         currentCount: params.currentCount,
       );
+}
+
+/// Soft-deletes a user accumulator (`DELETE /accumulators/user/{id}`).
+class DeleteUserAccumulatorUseCase extends UseCase<Unit, String> {
+  DeleteUserAccumulatorUseCase(this._repository);
+  final MalaRepository _repository;
+
+  @override
+  Future<Either<Failure, Unit>> call(String accumulatorId) =>
+      _repository.deleteUserAccumulator(accumulatorId);
 }
