@@ -1,5 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_pecha/core/analytics/posthog_analytics_service.dart';
@@ -17,6 +18,8 @@ import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/features/notifications/application/notification_sync_bootstrap.dart';
 import 'package:flutter_pecha/features/notifications/application/notification_sync_engine.dart';
 import 'package:flutter_pecha/features/notifications/data/services/notification_service.dart';
+import 'package:flutter_pecha/features/push_notifications/application/push_notification_service.dart';
+import 'package:flutter_pecha/features/push_notifications/presentation/providers/push_notification_providers.dart';
 import 'package:flutter_pecha/features/practice/data/datasource/routine_local_storage.dart';
 import 'package:flutter_pecha/features/practice/presentation/providers/practice_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -44,6 +47,11 @@ void main() async {
 
   await Firebase.initializeApp();
   FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
+
+  // Register the FCM background/terminated-state handler. Must be done before
+  // runApp and references a top-level function so it survives AOT and runs in
+  // its own isolate.
+  FirebaseMessaging.onBackgroundMessage(pushNotificationBackgroundHandler);
 
   // Setup environment-aware logging
   AppLogger.init();
@@ -177,6 +185,9 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
     // SpecialPlanStartedAtStore, then delegates to NotificationSyncEngine
     // for full reconciliation on every userPlansFutureProvider resolution.
     ref.watch(notificationSyncBootstrapProvider);
+    // Bootstrap FCM: capture/refresh token, register handlers, and register the
+    // device token with the backend once the user signs in.
+    ref.watch(pushNotificationBootstrapProvider);
     NotificationService.setRouter(router);
     NotificationService().consumeLaunchNotification();
     DeepLinkService.instance.setRouter(router);

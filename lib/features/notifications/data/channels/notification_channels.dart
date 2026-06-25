@@ -39,6 +39,42 @@ class NotificationChannels {
         enableVibration: true,
       );
 
+  // ── Push (Firebase Cloud Messaging) ─────────────────────────────────────────
+  static const String pushDefaultId = 'push_default';
+  static const String pushDefaultName = 'General Notifications';
+  static const String pushDefaultDescription =
+      'Announcements and updates from WeBuddhist';
+
+  /// Android channel for remote (FCM) notifications. Referenced from
+  /// AndroidManifest as `default_notification_channel_id` so background /
+  /// terminated FCM messages land here, and reused for foreground display.
+  static const AndroidNotificationChannel pushDefaultChannel =
+      AndroidNotificationChannel(
+        pushDefaultId,
+        pushDefaultName,
+        description: pushDefaultDescription,
+        importance: Importance.high,
+      );
+
+  /// Platform details used when displaying a foreground FCM message via
+  /// flutter_local_notifications (Android suppresses FCM auto-display while the
+  /// app is foregrounded).
+  static const NotificationDetails pushDefaultDetails = NotificationDetails(
+    android: AndroidNotificationDetails(
+      pushDefaultId,
+      pushDefaultName,
+      channelDescription: pushDefaultDescription,
+      importance: Importance.high,
+      priority: Priority.high,
+      icon: 'ic_notification',
+    ),
+    iOS: DarwinNotificationDetails(
+      presentAlert: true,
+      presentBadge: true,
+      presentSound: true,
+    ),
+  );
+
   /// Action ID used for the Android action button on special-plan day-N
   /// notifications. The tap handler treats this the same as a body tap.
   static const String specialPlanActionId = 'special_plan_action';

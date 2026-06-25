@@ -64,6 +64,8 @@ class StorageKeys {
   static const String notificationRoutineEnabled = 'notification_routine_enabled';
   /// App-level toggle for recitation block notifications. Default: true.
   static const String notificationRecitationEnabled = 'notification_recitation_enabled';
+  /// Latest Firebase Cloud Messaging registration token for this install.
+  static const String fcmToken = 'fcm_token';
 
   // Special-plan (ITCC and similar) keys — hardcoded per-day content series.
   /// Per-plan startedAt prefix. Full key: `special_plan_started_at_<planId>` → ISO8601 string.
