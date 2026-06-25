@@ -2,18 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
+import 'package:flutter_pecha/features/practice/presentation/providers/practice_explore_providers.dart';
+import 'package:flutter_pecha/features/practice/presentation/screens/all_recitations_screen.dart';
+import 'package:flutter_pecha/features/reader/data/models/navigation_context.dart';
+import 'package:flutter_pecha/features/recitation/data/models/recitation_model.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
-class HomeShortcutsRow extends StatelessWidget {
-  const HomeShortcutsRow({
-    super.key,
-    this.onPlansTap,
-    this.onChantsTap,
-    this.onMalaTap,
-    this.onTimerTap,
-  });
+class HomeShortcutsRow extends ConsumerWidget {
+  const HomeShortcutsRow({super.key, this.onMalaTap, this.onTimerTap});
 
-  final VoidCallback? onPlansTap;
-  final VoidCallback? onChantsTap;
   final VoidCallback? onMalaTap;
   final VoidCallback? onTimerTap;
 
@@ -22,8 +20,39 @@ class HomeShortcutsRow extends StatelessWidget {
   static const _borderRadius = 16.0;
   static const _iconSize = 26.0;
 
+  void _onPlansTap(BuildContext context) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(context.l10n.mala_action_coming_soon)),
+    );
+  }
+
+  void _navigateToRecitation(BuildContext context, RecitationModel recitation) {
+    final navigationContext = NavigationContext(
+      source: NavigationSource.normal,
+    );
+    context.push('/reader/${recitation.textId}', extra: navigationContext);
+  }
+
+  void _onChantsTap(BuildContext context, WidgetRef ref) {
+    final recitationsAsync = ref.read(practiceExploreRecitationsProvider);
+    recitationsAsync.whenData((either) {
+      either.fold((_) {}, (recitations) {
+        if (recitations.isEmpty) return;
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder:
+                (_) => AllRecitationsScreen(
+                  recitations: recitations,
+                  onTap: (r) => _navigateToRecitation(context, r),
+                ),
+          ),
+        );
+      });
+    });
+  }
+
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
     final colorScheme = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -34,12 +63,12 @@ class HomeShortcutsRow extends StatelessWidget {
       _HomeShortcutItem(
         icon: AppAssets.homeList,
         label: l10n.home_shortcut_plans,
-        onTap: onPlansTap,
+        onTap: () => _onPlansTap(context),
       ),
       _HomeShortcutItem(
         icon: AppAssets.homeChants,
         label: l10n.home_chants,
-        onTap: onChantsTap,
+        onTap: () => _onChantsTap(context, ref),
       ),
       _HomeShortcutItem(
         imageAsset: AppAssets.homeMalaIcon,
