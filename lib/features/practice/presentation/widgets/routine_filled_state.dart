@@ -257,10 +257,9 @@ class _RoutineBlockSection extends ConsumerWidget {
         _navigateToReader(context, item.id);
       case RoutineItemType.series:
         if (!context.mounted) return;
-        context.pushNamed(
-          'home-series-detail',
-          pathParameters: {'id': item.id},
-        );
+        // Use go (not push) so the shell route is reused instead of inserting
+        // a second /home page when navigating from this root-level route.
+        context.goNamed('home-series-detail', pathParameters: {'id': item.id});
     }
   }
 
