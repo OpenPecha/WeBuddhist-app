@@ -4,6 +4,8 @@ enum NavigationSource {
   search,
   plan,
   deepLink,
+  recitationList,
+  routine,
 }
 
 /// Discriminator for the kind of content a [PlanTextItem] carries.
@@ -12,10 +14,7 @@ enum NavigationSource {
 ///   and is rendered by `ReaderScreen`.
 /// - [inlineText] carries inline content via [PlanTextItem.inlineContent]
 ///   and is rendered by `PlanTextScreen`.
-enum PlanItemContentType {
-  sourceReference,
-  inlineText,
-}
+enum PlanItemContentType { sourceReference, inlineText }
 
 /// API-level content type strings used by the plan endpoints.
 class PlanContentTypes {
@@ -232,18 +231,18 @@ class PlanTextItem {
 
   @override
   int get hashCode => Object.hash(
-        contentType,
-        textId,
-        Object.hashAll(segmentIds ?? const []),
-        inlineContent,
-        title,
-        subtaskId,
-        taskId,
-        isCompleted,
-        audioUrl,
-        startMs,
-        endMs,
-      );
+    contentType,
+    textId,
+    Object.hashAll(segmentIds ?? const []),
+    inlineContent,
+    title,
+    subtaskId,
+    taskId,
+    isCompleted,
+    audioUrl,
+    startMs,
+    endMs,
+  );
 
   @override
   String toString() {
@@ -267,6 +266,7 @@ class NavigationContext {
   final SwipeDirection? navigationDirection; // slide direction (left/right)
   /// When true, the reader should auto-play this item's audio segment on open.
   final bool autoPlay;
+
   /// The day-level audio URL shared by all tasks in this plan day.
   final String? dayAudioUrl;
 
@@ -373,13 +373,8 @@ class NavigationContext {
   }
 
   @override
-  int get hashCode => Object.hash(
-        source,
-        planId,
-        dayNumber,
-        targetSegmentId,
-        currentTextIndex,
-      );
+  int get hashCode =>
+      Object.hash(source, planId, dayNumber, targetSegmentId, currentTextIndex);
 
   @override
   String toString() {

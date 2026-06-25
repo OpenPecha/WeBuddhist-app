@@ -57,13 +57,19 @@ class _EditableBlock {
 
 class EditRoutineScreen extends ConsumerStatefulWidget {
   final Plan? initialPlan;
+  final RecitationModel? initialRecitation;
 
   /// When provided, after hydration the screen adds the enrolled series to the
   /// routine, reusing any existing empty block or creating a new one at the
   /// user's current local time (with the standard 10-minute gap).
   final String? enrollSeriesId;
 
-  const EditRoutineScreen({super.key, this.initialPlan, this.enrollSeriesId});
+  const EditRoutineScreen({
+    super.key,
+    this.initialPlan,
+    this.initialRecitation,
+    this.enrollSeriesId,
+  });
 
   @override
   ConsumerState<EditRoutineScreen> createState() => _EditRoutineScreenState();
@@ -180,11 +186,50 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
     _sortBlocks();
   }
 
+  _EditableBlock? _injectInitialRecitation(RecitationModel recitation) {
+    final alreadyExists = _blocks.any(
+      (b) => b.items.any(
+        (item) =>
+            item.id == recitation.textId &&
+            item.type == RoutineItemType.recitation,
+      ),
+    );
+    if (alreadyExists) return null;
+
+    final newItem = RoutineItem(
+      id: recitation.textId,
+      title: recitation.title,
+      type: RoutineItemType.recitation,
+    );
+
+    final resolved = _resolveInjectionTarget();
+    resolved.target.items.add(newItem);
+    if (resolved.isNewBlock) {
+      _blocks.add(resolved.target);
+    }
+    _sortBlocks();
+    return resolved.target;
+  }
+
   /// Syncs the block that contains [plan] after deep-link injection.
   void _syncInjectedPlan(Plan plan) {
     for (final block in _blocks) {
       if (block.items.any(
         (i) => i.id == plan.id && i.type == RoutineItemType.series,
+      )) {
+        _syncBlock(block).catchError((e) {
+          if (mounted) _showErrorSnackBar(_mapError(e));
+        });
+        break;
+      }
+    }
+  }
+
+  void _syncInjectedRecitation(RecitationModel recitation) {
+    for (final block in _blocks) {
+      if (block.items.any(
+        (i) =>
+            i.id == recitation.textId && i.type == RoutineItemType.recitation,
       )) {
         _syncBlock(block).catchError((e) {
           if (mounted) _showErrorSnackBar(_mapError(e));
@@ -623,13 +668,14 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
   }
 
   Future<void> _pickTime(int index) async {
-    final picked =
-        Platform.isIOS
-            ? await _showCupertinoTimePicker(initialTime: _blocks[index].time)
-            : await showTimePicker(
-              context: context,
-              initialTime: _blocks[index].time,
-            );
+    final initialTime = _blocks[index].time;
+    final TimeOfDay? picked;
+    if (Platform.isIOS) {
+      picked = await _showCupertinoTimePicker(initialTime: initialTime);
+    } else {
+      if (!mounted) return;
+      picked = await showTimePicker(context: context, initialTime: initialTime);
+    }
     if (picked != null) {
       final otherTimes =
           _blocks
@@ -1200,9 +1246,15 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
               if (widget.initialPlan != null) {
                 _injectInitialPlan(widget.initialPlan!);
               }
+              if (widget.initialRecitation != null) {
+                _injectInitialRecitation(widget.initialRecitation!);
+              }
             });
             if (widget.initialPlan != null) {
               _syncInjectedPlan(widget.initialPlan!);
+            }
+            if (widget.initialRecitation != null) {
+              _syncInjectedRecitation(widget.initialRecitation!);
             }
             if (widget.enrollSeriesId != null && !_seriesEnrollmentHydrated) {
               _seriesEnrollmentHydrated = true;

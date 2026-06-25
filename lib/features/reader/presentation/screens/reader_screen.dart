@@ -7,6 +7,8 @@ import 'package:flutter_pecha/features/plans/presentation/widgets/plan_navigatio
 import 'package:flutter_pecha/features/plans/presentation/widgets/plan_navigation/plan_navigator.dart';
 import 'package:flutter_pecha/features/plans/presentation/widgets/plan_navigation/plan_segment_audio_controller.dart';
 import 'package:flutter_pecha/features/plans/presentation/widgets/plan_navigation/plan_subtask_completion.dart';
+import 'package:flutter_pecha/features/practice/data/models/routine_model.dart';
+import 'package:flutter_pecha/features/practice/presentation/providers/routine_api_providers.dart';
 import 'package:flutter_pecha/features/reader/constants/reader_constants.dart';
 import 'package:flutter_pecha/features/reader/data/models/navigation_context.dart';
 import 'package:flutter_pecha/features/reader/data/models/reader_slot_config.dart';
@@ -23,6 +25,7 @@ import 'package:flutter_pecha/features/reader/presentation/widgets/reader_search
 import 'package:flutter_pecha/features/reader/presentation/widgets/reader_settings/reader_settings_screen.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/core/utils/get_language.dart';
+import 'package:flutter_pecha/features/recitation/data/models/recitation_model.dart';
 import 'package:flutter_pecha/features/texts/data/models/text_detail.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -185,6 +188,10 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
   Widget build(BuildContext context) {
     final state = ref.watch(readerNotifierProvider(_params));
     final notifier = ref.read(readerNotifierProvider(_params).notifier);
+    final routineAsync =
+        widget.navigationContext?.source == NavigationSource.recitationList
+            ? ref.watch(userRoutineProvider)
+            : const AsyncData<RoutineData?>(null);
 
     return PopScope(
       canPop: true,
@@ -201,7 +208,7 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
       },
       child: Scaffold(
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-        body: _buildBody(context, state, notifier),
+        body: _buildBody(context, state, notifier, routineAsync),
       ),
     );
   }
@@ -210,6 +217,7 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
     BuildContext context,
     ReaderState state,
     ReaderNotifier notifier,
+    AsyncValue<RoutineData?> routineAsync,
   ) {
     final localizations = context.l10n;
     final textDetail = state.textDetail;
@@ -290,7 +298,11 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
                                       textDetail,
                                     ),
                                 onMorePressed:
-                                    () => _openMoreBottomSheet(context),
+                                    () => _openMoreBottomSheet(
+                                      context,
+                                      textDetail,
+                                      routineAsync,
+                                    ),
                               ),
                             ],
                           )
@@ -488,13 +500,55 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
     );
   }
 
-  void _openMoreBottomSheet(BuildContext context) {
+  void _openMoreBottomSheet(
+    BuildContext context,
+    TextDetail? textDetail,
+    AsyncValue<RoutineData?> routineAsync,
+  ) {
     final notifier = ref.read(readerNotifierProvider(_params).notifier);
     notifier.selectSegment(null);
     notifier.closeCommentary();
     notifier.closeTranslation();
 
-    showReaderMoreBottomSheet(context, textId: widget.textId);
+    final showAddToPractices =
+        widget.navigationContext?.source == NavigationSource.recitationList &&
+        textDetail != null;
+
+    showReaderMoreBottomSheet(
+      context,
+      textId: widget.textId,
+      showAddToPractices: showAddToPractices,
+      isInPractices: _isRecitationInRoutine(
+        routineAsync.valueOrNull,
+        widget.textId,
+      ),
+      onAddToPractices:
+          showAddToPractices
+              ? () => _openRoutineWithRecitation(context, textDetail)
+              : null,
+    );
+  }
+
+  bool _isRecitationInRoutine(RoutineData? routineData, String textId) {
+    if (routineData == null) return false;
+    return routineData.blocks.any(
+      (block) => block.items.any(
+        (item) => item.id == textId && item.type == RoutineItemType.recitation,
+      ),
+    );
+  }
+
+  void _openRoutineWithRecitation(BuildContext context, TextDetail textDetail) {
+    context.push(
+      AppRoutes.practiceEditRoutine,
+      extra: {
+        'initialRecitation': RecitationModel(
+          textId: widget.textId,
+          title: textDetail.title,
+          language: textDetail.language,
+        ),
+      },
+    );
   }
 }
 

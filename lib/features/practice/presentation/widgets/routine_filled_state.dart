@@ -78,7 +78,7 @@ class RoutineFilledState extends ConsumerWidget {
           ref.read(pendingNotificationNavProvider.notifier).state = null;
           context.push(
             '/reader/${pendingNav.itemId}',
-            extra: NavigationContext(source: NavigationSource.normal),
+            extra: NavigationContext(source: NavigationSource.routine),
           );
           return;
         }
@@ -96,6 +96,7 @@ class RoutineFilledState extends ConsumerWidget {
           planId,
           language: routineItem?.language,
         );
+        if (!context.mounted) return;
         if (userPlan == null) {
           return;
         }
@@ -259,7 +260,7 @@ class _RoutineBlockSection extends ConsumerWidget {
 
   void _navigateToReader(BuildContext context, String textId) {
     final navigationContext = NavigationContext(
-      source: NavigationSource.normal,
+      source: NavigationSource.routine,
     );
     context.push('/reader/$textId', extra: navigationContext);
   }

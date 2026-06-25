@@ -3,11 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_pecha/features/practice/presentation/controllers/bookmark_controller.dart';
 import 'package:flutter_pecha/features/reader/presentation/widgets/reader_app_bar/reader_font_size_bottom_sheet.dart';
-import 'package:flutter_pecha/features/recitation/presentation/controllers/recitation_save_controller.dart';
-import 'package:flutter_pecha/features/recitation/presentation/providers/recitations_providers.dart';
 import 'package:flutter_pecha/features/texts/presentation/providers/font_size_notifier.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 /// Bottom sheet opened from the reader's three-dot (⋮) button.
 ///
@@ -16,9 +13,18 @@ import 'package:phosphor_flutter/phosphor_flutter.dart';
 ///   • "+ Add to my practices" action
 ///   • Bookmark action
 class ReaderMoreBottomSheet extends ConsumerStatefulWidget {
-  const ReaderMoreBottomSheet({super.key, required this.textId});
+  const ReaderMoreBottomSheet({
+    super.key,
+    required this.textId,
+    required this.showAddToPractices,
+    required this.isInPractices,
+    this.onAddToPractices,
+  });
 
   final String textId;
+  final bool showAddToPractices;
+  final bool isInPractices;
+  final VoidCallback? onAddToPractices;
 
   @override
   ConsumerState<ReaderMoreBottomSheet> createState() =>
@@ -26,7 +32,6 @@ class ReaderMoreBottomSheet extends ConsumerStatefulWidget {
 }
 
 class _ReaderMoreBottomSheetState extends ConsumerState<ReaderMoreBottomSheet> {
-  bool _isSaving = false;
   bool _isBookmarking = false;
 
   // ── font size helpers ──────────────────────────────────────────────────────
@@ -55,33 +60,12 @@ class _ReaderMoreBottomSheetState extends ConsumerState<ReaderMoreBottomSheet> {
     if (_isBookmarking) return;
     setState(() => _isBookmarking = true);
     try {
-      await BookmarkController(ref: ref, context: context)
-          .bookmarkText(widget.textId);
-    } finally {
-      if (mounted) setState(() => _isBookmarking = false);
-    }
-  }
-
-  // ── add-to-practices ───────────────────────────────────────────────────────
-
-  Future<void> _toggleSave() async {
-    if (_isSaving) return;
-    setState(() => _isSaving = true);
-    try {
-      final savedAsync = ref.read(savedRecitationsFutureProvider);
-      final isSaved =
-          savedAsync.valueOrNull?.fold(
-            (_) => false,
-            (list) => list.any((r) => r.textId == widget.textId),
-          ) ??
-          false;
-
-      await RecitationSaveController(
+      await BookmarkController(
         ref: ref,
         context: context,
-      ).toggleSave(textId: widget.textId, isSaved: isSaved);
+      ).bookmarkText(widget.textId);
     } finally {
-      if (mounted) setState(() => _isSaving = false);
+      if (mounted) setState(() => _isBookmarking = false);
     }
   }
 
@@ -94,14 +78,6 @@ class _ReaderMoreBottomSheetState extends ConsumerState<ReaderMoreBottomSheet> {
     final canDecrease = stepIndex > 0;
     final canIncrease =
         stepIndex < ReaderFontSizeBottomSheet.fontSizeSteps.length - 1;
-
-    final savedAsync = ref.watch(savedRecitationsFutureProvider);
-    final isSaved =
-        savedAsync.valueOrNull?.fold(
-          (_) => false,
-          (list) => list.any((r) => r.textId == widget.textId),
-        ) ??
-        false;
 
     return SafeArea(
       top: false,
@@ -169,29 +145,30 @@ class _ReaderMoreBottomSheetState extends ConsumerState<ReaderMoreBottomSheet> {
             ),
           ),
 
-          // ── Add to my practices ────────────────────────────────────────
-          _SectionDivider(theme: theme),
-          ListTile(
-            leading:
-                _isSaving
-                    ? SizedBox(
-                      width: 22,
-                      height: 22,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: theme.colorScheme.onSurface,
-                      ),
-                    )
-                    : Icon(
-                      isSaved ? PhosphorIconsFill.checkCircle : AppAssets.plus,
-                      color: theme.colorScheme.onSurface,
-                    ),
-            title: Text(
-              isSaved ? 'Added to practices' : 'Add to my practices',
-              style: theme.textTheme.bodyLarge,
+          if (widget.showAddToPractices) ...[
+            // ── Add to my practices ──────────────────────────────────────
+            _SectionDivider(theme: theme),
+            ListTile(
+              leading: Icon(
+                widget.isInPractices ? AppAssets.checkCircle : AppAssets.plus,
+                color: theme.colorScheme.onSurface,
+              ),
+              title: Text(
+                widget.isInPractices
+                    ? 'Added to practices'
+                    : 'Add to my practices',
+                style: theme.textTheme.bodyLarge,
+              ),
+              onTap:
+                  widget.isInPractices
+                      ? null
+                      : () {
+                        HapticFeedback.lightImpact();
+                        Navigator.of(context).pop();
+                        widget.onAddToPractices?.call();
+                      },
             ),
-            onTap: _toggleSave,
-          ),
+          ],
 
           // ── Bookmark ───────────────────────────────────────────────────
           _SectionDivider(theme: theme),
@@ -287,13 +264,25 @@ class _FontSizeButton extends StatelessWidget {
 }
 
 /// Shows the reader "more" bottom sheet.
-void showReaderMoreBottomSheet(BuildContext context, {required String textId}) {
+void showReaderMoreBottomSheet(
+  BuildContext context, {
+  required String textId,
+  required bool showAddToPractices,
+  required bool isInPractices,
+  VoidCallback? onAddToPractices,
+}) {
   showModalBottomSheet(
     context: context,
     backgroundColor: Theme.of(context).scaffoldBackgroundColor,
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
     ),
-    builder: (_) => ReaderMoreBottomSheet(textId: textId),
+    builder:
+        (_) => ReaderMoreBottomSheet(
+          textId: textId,
+          showAddToPractices: showAddToPractices,
+          isInPractices: isInPractices,
+          onAddToPractices: onAddToPractices,
+        ),
   );
 }
