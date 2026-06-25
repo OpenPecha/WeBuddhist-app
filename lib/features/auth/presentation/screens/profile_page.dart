@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/config/router/app_routes.dart';
+import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_pecha/core/widgets/cached_network_image_widget.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -103,6 +105,8 @@ class ProfilePage extends ConsumerWidget {
                 ),
               ],
             ),
+            const SizedBox(height: 32),
+            _buildLegalSection(context, l10n),
           ],
         ),
       ),
@@ -116,6 +120,70 @@ class ProfilePage extends ConsumerWidget {
         parts.isNotEmpty && parts.first.isNotEmpty ? parts.first[0] : '';
     final last = parts.length > 1 && parts.last.isNotEmpty ? parts.last[0] : '';
     return (first + last).toUpperCase();
+  }
+
+  Widget _buildLegalSection(BuildContext context, dynamic l10n) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          l10n.legal_title,
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+            color: Colors.grey[600],
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        const SizedBox(height: 8),
+        _buildLegalRow(
+          context,
+          icon: AppAssets.fileText,
+          title: l10n.legal_terms_of_service,
+          onTap: () => context.push(AppRoutes.termsOfService),
+        ),
+        _buildLegalRow(
+          context,
+          icon: AppAssets.fileText,
+          title: l10n.legal_privacy_policy,
+          onTap: () => context.push(AppRoutes.privacyPolicy),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildLegalRow(
+    BuildContext context, {
+    required IconData icon,
+    required String title,
+    VoidCallback? onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(8),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 14),
+        child: Row(
+          children: [
+            Icon(
+              icon,
+              size: 22,
+              color: Theme.of(context).textTheme.bodyLarge?.color,
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Text(
+                title,
+                style: Theme.of(context).textTheme.bodyLarge,
+              ),
+            ),
+            Icon(
+              AppAssets.arrowSquareOut,
+              size: 20,
+              color: Theme.of(context).textTheme.bodyMedium?.color,
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   Widget _buildGuestProfile(BuildContext context, WidgetRef ref) {
@@ -219,6 +287,8 @@ class ProfilePage extends ConsumerWidget {
                 ),
               ),
             ),
+            const SizedBox(height: 32),
+            _buildLegalSection(context, l10n),
           ],
         ),
       ),
