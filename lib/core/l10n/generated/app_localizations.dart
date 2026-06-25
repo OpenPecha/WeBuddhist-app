@@ -2536,6 +2536,12 @@ abstract class AppLocalizations {
   /// **'minutes'**
   String get me_minutes;
 
+  /// No description provided for @me_hours.
+  ///
+  /// In en, this message translates to:
+  /// **'hours'**
+  String get me_hours;
+
   /// No description provided for @me_total_meditation_time.
   ///
   /// In en, this message translates to:
@@ -2545,7 +2551,7 @@ abstract class AppLocalizations {
   /// No description provided for @me_days_plan_practiced_suffix.
   ///
   /// In en, this message translates to:
-  /// **'total plan days completed'**
+  /// **'Total plan days completed'**
   String get me_days_plan_practiced_suffix;
 
   /// No description provided for @me_streak_share_message.

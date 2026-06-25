@@ -655,6 +655,7 @@
   "me_accumulation": "Нийт хуримтлал",
   "me_counts": "удаа",
   "me_minutes": "минут",
+  "me_hours": "цаг",
   "me_total_meditation_time": "Нийт бясалгалын хугацаа",
   "me_days_plan_practiced_suffix": "нийт төлөвлөгөөт өдөр дуусгасан",
   "me_streak_share_message": "Би {appName} дээр {count} өдрийн дараалалтай байна!",

@@ -57,6 +57,9 @@ class SeriesDetailScreen extends ConsumerWidget {
                       ),
                       (series) {
                         if (series.plans.isEmpty) {
+                          if (_isLoadingSeriesPlans(series)) {
+                            return const PlanListSkeleton();
+                          }
                           return _buildScrollableMessage(
                             _buildEmptyState(context, localizations, ref),
                           );
@@ -84,6 +87,17 @@ class SeriesDetailScreen extends ConsumerWidget {
         ),
       ),
     );
+  }
+
+  /// List endpoints cache series metadata without plan payloads. While the
+  /// detail refresh is in flight, [planCount] indicates plans exist even when
+  /// [plans] is still empty.
+  bool _isLoadingSeriesPlans(Series loaded) {
+    if (loaded.plans.isNotEmpty) return false;
+
+    final expectedPlanCount =
+        loaded.planCount > 0 ? loaded.planCount : (series?.planCount ?? 0);
+    return expectedPlanCount > 0;
   }
 
   Widget _buildAppBar(BuildContext context, String title) {

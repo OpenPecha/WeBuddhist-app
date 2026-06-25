@@ -1389,6 +1389,9 @@ class AppLocalizationsMn extends AppLocalizations {
   String get me_minutes => 'минут';
 
   @override
+  String get me_hours => 'цаг';
+
+  @override
   String get me_total_meditation_time => 'Нийт бясалгалын хугацаа';
 
   @override

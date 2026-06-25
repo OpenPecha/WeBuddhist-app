@@ -655,6 +655,7 @@
   "me_accumulation": "कुल संचय",
   "me_counts": "पटक",
   "me_minutes": "मिनेट",
+  "me_hours": "घण्टा",
   "me_total_meditation_time": "कुल ध्यान समय",
   "me_days_plan_practiced_suffix": "कुल योजना दिनहरू पूरा भयो",
   "me_streak_share_message": "म {appName} मा {count} दिनको शृंखलामा छु!",
