@@ -58,6 +58,11 @@ final updateUserAccumulatorUseCaseProvider =
       return UpdateUserAccumulatorUseCase(ref.watch(malaRepositoryProvider));
     });
 
+final deleteUserAccumulatorUseCaseProvider =
+    Provider<DeleteUserAccumulatorUseCase>((ref) {
+      return DeleteUserAccumulatorUseCase(ref.watch(malaRepositoryProvider));
+    });
+
 // ============ Auth helpers ============
 
 bool _isAuthenticated(Ref ref) {
@@ -142,6 +147,7 @@ final malaCounterProvider = StateNotifierProvider.autoDispose
         mantra: mantra,
         local: ref.watch(malaLocalDataSourceProvider),
         getAccumulatorDetail: ref.watch(getAccumulatorDetailUseCaseProvider),
+        deleteUserAccumulator: ref.watch(deleteUserAccumulatorUseCaseProvider),
         sync: ref.watch(malaSyncManagerProvider),
         currentUserId: () => _resolveUserId(ref),
         analytics: ref.watch(analyticsServiceProvider),

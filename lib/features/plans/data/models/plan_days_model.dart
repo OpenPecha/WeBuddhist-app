@@ -1,4 +1,5 @@
 import 'package:flutter_pecha/features/plans/data/models/plan_tasks_model.dart';
+import 'package:flutter_pecha/features/plans/data/models/plan_video_model.dart';
 
 class PlanDaysModel {
   final String id;
@@ -7,6 +8,7 @@ class PlanDaysModel {
   final List<PlanTasksModel>? tasks;
   final String? audioUrl;
   final int? audioDurationMs;
+  final List<PlanVideoModel> videos;
 
   PlanDaysModel({
     required this.id,
@@ -15,6 +17,7 @@ class PlanDaysModel {
     this.tasks,
     this.audioUrl,
     this.audioDurationMs,
+    this.videos = const [],
   });
 
   bool get hasAudio => audioUrl != null;
@@ -31,6 +34,13 @@ class PlanDaysModel {
           : null,
       audioUrl: json['audio_url'] as String?,
       audioDurationMs: json['audio_duration_ms'] as int?,
+      videos: json['videos'] != null
+          ? (json['videos'] as List<dynamic>)
+              .map(
+                (e) => PlanVideoModel.fromJson(e as Map<String, dynamic>),
+              )
+              .toList()
+          : const [],
     );
   }
 
@@ -42,6 +52,7 @@ class PlanDaysModel {
       'tasks': tasks?.map((e) => e.toJson()).toList(),
       'audio_url': audioUrl,
       'audio_duration_ms': audioDurationMs,
+      'videos': videos.map((e) => e.toJson()).toList(),
     };
   }
 
@@ -52,6 +63,7 @@ class PlanDaysModel {
     List<PlanTasksModel>? tasks,
     String? audioUrl,
     int? audioDurationMs,
+    List<PlanVideoModel>? videos,
   }) {
     return PlanDaysModel(
       id: id ?? this.id,
@@ -60,6 +72,7 @@ class PlanDaysModel {
       tasks: tasks ?? this.tasks,
       audioUrl: audioUrl ?? this.audioUrl,
       audioDurationMs: audioDurationMs ?? this.audioDurationMs,
+      videos: videos ?? this.videos,
     );
   }
 

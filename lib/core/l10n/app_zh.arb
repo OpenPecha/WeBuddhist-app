@@ -44,6 +44,37 @@
   "home_shortcut_plans": "計劃",
   "home_chants": "持誦",
   "home_mala": "念珠",
+  "mala_add_to_practice": "加入我的修持",
+  "mala_add_to_bookmark": "書籤",
+  "mala_sound": "聲音",
+  "mala_vibration": "震動",
+  "mala_reset_count": "重設計數",
+  "mala_reset_title": "重設此念珠？",
+  "mala_reset_count_confirm": "目前的計數將歸零，但您的累積仍會保留在終身總數中。",
+  "mala_reset_confirm": "重設",
+  "mala_action_coming_soon": "即將推出",
+  "mala_rounds_count": "{count, plural, =0{0 遍} =1{1 遍} other{{count} 遍}}",
+  "@mala_rounds_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "mala_counter_semantics": "計數 {bead}/{total}，{rounds}",
+  "@mala_counter_semantics": {
+    "placeholders": {
+      "bead": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      },
+      "rounds": {
+        "type": "String"
+      }
+    }
+  },
   "home_timer": "計時",
   "preset_timers": "預設計時",
   "meditation_timer": "禪修計時",

@@ -44,6 +44,37 @@
   "home_shortcut_plans": "योजनाहरू",
   "home_chants": "जप",
   "home_mala": "माला",
+  "mala_add_to_practice": "मेरा अभ्यासहरूमा थप्नुहोस्",
+  "mala_add_to_bookmark": "बुकमार्क",
+  "mala_sound": "ध्वनि",
+  "mala_vibration": "कम्पन",
+  "mala_reset_count": "गणना रिसेट गर्नुहोस्",
+  "mala_reset_title": "यो माला रिसेट गर्ने?",
+  "mala_reset_count_confirm": "तपाईंको हालको गणना शून्यमा फर्कने छ, तर तपाईंका संचयहरू जीवनभरको कुलमा रहने छन्।",
+  "mala_reset_confirm": "रिसेट",
+  "mala_action_coming_soon": "चाँडै आउँदैछ",
+  "mala_rounds_count": "{count, plural, =0{0 चक्र} =1{1 चक्र} other{{count} चक्र}}",
+  "@mala_rounds_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "mala_counter_semantics": "गणना {bead}/{total}, {rounds}",
+  "@mala_counter_semantics": {
+    "placeholders": {
+      "bead": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      },
+      "rounds": {
+        "type": "String"
+      }
+    }
+  },
   "home_timer": "टाइमर",
   "preset_timers": "पूर्वनिर्धारित टाइमरहरू",
   "meditation_timer": "ध्यान टाइमर",

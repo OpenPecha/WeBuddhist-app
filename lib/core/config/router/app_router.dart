@@ -162,6 +162,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 path: "series/:id",
                 name: "home-series-detail",
+                // Root navigator so this works when my-practices (or any
+                // root-pushed route) is already on the stack above /home.
+                // Without this, go_router inserts a second /home shell page
+                // and hits duplicate page keys.
+                parentNavigatorKey: rootNavigatorKey,
                 builder: (context, state) {
                   final id = state.pathParameters['id'] ?? '';
                   final extra = state.extra as Map<String, dynamic>?;
@@ -172,6 +177,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                   GoRoute(
                     path: "info",
                     name: "home-series-info",
+                    parentNavigatorKey: rootNavigatorKey,
                     builder: (context, state) {
                       final extra = state.extra as Map<String, dynamic>?;
                       final series = extra?['series'] as Series;
@@ -301,49 +307,94 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         },
       ),
 
-      // practice route
+      // Practice routes are flat top-level siblings (not nested under /practice)
+      // so child navigations do not also push a parent /practice page onto the
+      // root navigator — that duplicate page key caused crashes when returning
+      // from edit-routine to my-practices (RoutineFilledState transition).
       GoRoute(
         path: "/practice",
         name: "practice",
         builder: (context, state) => const PracticeExploreScreen(),
+      ),
+      GoRoute(
+        path: "/practice/my-practices",
+        name: "my-practices",
+        builder: (context, state) => const PracticeScreen(showAppBar: true),
+      ),
+      GoRoute(
+        path: "/practice/edit-routine",
+        name: "edit-routine",
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>?;
+          final plan = extra?['initialPlan'] as Plan?;
+          final enrollSeriesId = extra?['enrollSeriesId'] as String?;
+          return EditRoutineScreen(
+            initialPlan: plan,
+            enrollSeriesId: enrollSeriesId,
+          );
+        },
         routes: [
           GoRoute(
-            path: "my-practices",
-            name: "my-practices",
-            parentNavigatorKey: rootNavigatorKey,
-            builder: (context, state) => const PracticeScreen(showAppBar: true),
+            path: "select-plan",
+            name: "select-plan",
+            builder: (context, state) => const SelectPlanScreen(),
           ),
           GoRoute(
-            path: "edit-routine", // route - /practice/edit-routine
-            name: "edit-routine",
-            builder: (context, state) {
-              final extra = state.extra as Map<String, dynamic>?;
-              final plan = extra?['initialPlan'] as Plan?;
-              final enrollSeriesId = extra?['enrollSeriesId'] as String?;
-              return EditRoutineScreen(
-                initialPlan: plan,
-                enrollSeriesId: enrollSeriesId,
-              );
-            },
-            routes: [
-              GoRoute(
-                path:
-                    "select-plan", // route - /practice/edit-routine/select-plan
-                name: "select-plan",
-                builder: (context, state) => const SelectPlanScreen(),
-              ),
-              GoRoute(
-                path:
-                    "select-recitation", // route - /practice/edit-routine/select-recitation
-                name: "select-recitation",
-                builder: (context, state) => const SelectRecitationScreen(),
-              ),
-            ],
+            path: "select-recitation",
+            name: "select-recitation",
+            builder: (context, state) => const SelectRecitationScreen(),
           ),
-          // route - /practice/details
+        ],
+      ),
+      GoRoute(
+        path: "/practice/details",
+        name: "practice-plan-details",
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>?;
+          final plan = extra?['plan'] as UserPlansModel?;
+          final selectedDay = extra?['selectedDay'] as int?;
+          final startDate = extra?['startDate'] as DateTime?;
+          if (plan == null) {
+            throw Exception('Missing required parameters');
+          }
+          return PlanDetails(
+            plan: plan,
+            selectedDay: selectedDay ?? 1,
+            startDate: startDate ?? DateTime.now(),
+          );
+        },
+      ),
+      GoRoute(
+        path: "/practice/plans/preview",
+        name: "practice-plan-preview",
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>?;
+          final plan = extra?['plan'] as Plan?;
+          final seriesId = extra?['seriesId'] as String?;
+          if (plan == null) {
+            throw Exception('Missing required parameters');
+          }
+          return PlanPreviewDetails(
+            plan: plan,
+            seriesId: seriesId,
+          );
+        },
+      ),
+      GoRoute(
+        path: "/practice/plans/info",
+        name: "practice-plan-info",
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>?;
+          final plan = extra?['plan'] as Plan?;
+          if (plan == null) {
+            throw Exception('Missing required parameters');
+          }
+          return PlanInfo(plan: plan);
+        },
+        routes: [
           GoRoute(
             path: "details",
-            name: "practice-plan-details",
+            name: "practice-plan-info-details",
             builder: (context, state) {
               final extra = state.extra as Map<String, dynamic>?;
               final plan = extra?['plan'] as UserPlansModel?;
@@ -358,63 +409,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                 startDate: startDate ?? DateTime.now(),
               );
             },
-          ),
-          // route - /practice/plans/preview
-          GoRoute(
-            path: "plans/preview",
-            name: "practice-plan-preview",
-            builder: (context, state) {
-              final extra = state.extra as Map<String, dynamic>?;
-              final plan = extra?['plan'] as Plan?;
-              final seriesId = extra?['seriesId'] as String?;
-              if (plan == null) {
-                throw Exception('Missing required parameters');
-              }
-              return PlanPreviewDetails(
-                plan: plan,
-                seriesId: seriesId,
-              );
-            },
-          ),
-          // route - /practice/plans/info
-          GoRoute(
-            path: "plans/info",
-            name: "practice-plan-info",
-            builder: (context, state) {
-              final extra = state.extra as Map<String, dynamic>?;
-              final plan = extra?['plan'] as Plan?;
-              if (plan == null) {
-                throw Exception('Missing required parameters');
-              }
-              return PlanInfo(plan: plan);
-            },
-            routes: [
-              // route - /practice/plans/info/details
-              GoRoute(
-                path: "details",
-                name: "practice-plan-info-details",
-                builder: (context, state) {
-                  final extra = state.extra as Map<String, dynamic>?;
-                  final plan = extra?['plan'] as UserPlansModel?;
-                  final selectedDay = extra?['selectedDay'] as int?;
-                  final startDate = extra?['startDate'] as DateTime?;
-                  if (plan == null) {
-                    throw Exception('Missing required parameters');
-                  }
-                  return PlanDetails(
-                    plan: plan,
-                    selectedDay: selectedDay ?? 1,
-                    startDate: startDate ?? DateTime.now(),
-                  );
-                },
-              ),
-              // route - /practice/plans/info/author
-              // GoRoute(
-              //   path: "author",
-              //   name: "practice-plan-author",
-              //   builder: (context, state) => const AuthorDetailScreen(),
-              // ),
-            ],
           ),
         ],
       ),

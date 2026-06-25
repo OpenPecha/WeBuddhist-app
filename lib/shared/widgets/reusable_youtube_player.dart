@@ -6,6 +6,10 @@ class ReusableYoutubePlayer extends StatefulWidget {
   final double aspectRatio;
   final bool autoPlay;
   final bool mute;
+  final bool loop;
+  /// When true, the player expands to fill its parent instead of being
+  /// constrained by [aspectRatio]. Use this for true full-screen layouts.
+  final bool fillParent;
   final VoidCallback? onReady;
   final ValueChanged<bool>? onStateChanged;
   final ValueChanged<YoutubePlayerController>? onControllerCreated;
@@ -16,6 +20,8 @@ class ReusableYoutubePlayer extends StatefulWidget {
     this.aspectRatio = 16 / 9,
     this.autoPlay = false,
     this.mute = false,
+    this.loop = false,
+    this.fillParent = false,
     this.onReady,
     this.onStateChanged,
     this.onControllerCreated,
@@ -30,6 +36,9 @@ class _ReusableYoutubePlayerState extends State<ReusableYoutubePlayer> {
   bool _hasCalledOnReady = false;
   bool? _previousIsPlaying;
   bool _isDisposed = false;
+  // Prevents more than one seekTo callback from being queued at a time
+  // when the video reaches the end in loop mode.
+  bool _seekPending = false;
 
   @override
   void initState() {
@@ -40,9 +49,10 @@ class _ReusableYoutubePlayerState extends State<ReusableYoutubePlayer> {
       flags: YoutubePlayerFlags(
         autoPlay: widget.autoPlay,
         mute: widget.mute,
-        hideControls: true, // Hide controls to reduce context menu triggers
+        loop: widget.loop,
+        hideControls: true,
         controlsVisibleAtStart: false,
-        useHybridComposition: true, // Better performance
+        useHybridComposition: true,
         enableCaption: false,
       ),
     );
@@ -57,7 +67,6 @@ class _ReusableYoutubePlayerState extends State<ReusableYoutubePlayer> {
   }
 
   void _onControllerUpdate() {
-    // Guard against callbacks after disposal
     if (_isDisposed || !mounted) return;
 
     // Handle onReady callback
@@ -68,6 +77,23 @@ class _ReusableYoutubePlayerState extends State<ReusableYoutubePlayer> {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted && !_isDisposed) {
           widget.onReady!();
+        }
+      });
+    }
+
+    // Safety-net loop: restart from the beginning when the video ends.
+    // The _seekPending flag ensures only one callback is ever queued per
+    // ended-state notification so rapid listener firings don't stack up.
+    if (widget.loop &&
+        _controller.value.isReady &&
+        _controller.value.playerState == PlayerState.ended &&
+        !_seekPending) {
+      _seekPending = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _seekPending = false;
+        if (mounted && !_isDisposed) {
+          _controller.seekTo(Duration.zero);
+          _controller.play();
         }
       });
     }
@@ -108,16 +134,32 @@ class _ReusableYoutubePlayerState extends State<ReusableYoutubePlayer> {
 
   @override
   Widget build(BuildContext context) {
-    // Don't render if disposed
     if (_isDisposed) return const SizedBox.shrink();
+
+    if (widget.fillParent) {
+      // YoutubePlayer's internal AspectRatio widget will always pick the
+      // largest size satisfying its ratio within the given constraints.
+      // To truly fill any screen (e.g. 9:19.5), we measure the available
+      // space via LayoutBuilder and feed that exact ratio back to the player,
+      // so AspectRatio resolves to the full bounds.
+      return LayoutBuilder(
+        builder: (context, constraints) {
+          final screenRatio = constraints.maxWidth / constraints.maxHeight;
+          return YoutubePlayer(
+            controller: _controller,
+            aspectRatio: screenRatio,
+            showVideoProgressIndicator: false,
+          );
+        },
+      );
+    }
 
     return AspectRatio(
       aspectRatio: widget.aspectRatio,
       child: YoutubePlayer(
         controller: _controller,
         aspectRatio: widget.aspectRatio,
-        showVideoProgressIndicator: false, // Hide progress indicator
-        // Don't pass onReady here - handled in _onControllerUpdate with mounted checks
+        showVideoProgressIndicator: false,
       ),
     );
   }
