@@ -101,7 +101,7 @@ class _HomeShortcutItem {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 _buildIcon(iconColor),
-                const SizedBox(),
+                const SizedBox(height: 8),
                 Expanded(
                   child: Center(
                     child: Text(
