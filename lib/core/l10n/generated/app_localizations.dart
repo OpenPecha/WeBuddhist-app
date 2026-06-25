@@ -2533,7 +2533,7 @@ abstract class AppLocalizations {
   /// No description provided for @me_days_plan_practiced_suffix.
   ///
   /// In en, this message translates to:
-  /// **'total plan days completed'**
+  /// **'Total plan days completed'**
   String get me_days_plan_practiced_suffix;
 
   /// No description provided for @me_streak_share_message.
