@@ -145,6 +145,22 @@ class MalaRemoteDataSource {
     }
   }
 
+  Future<List<int>> fetchImageBytes(String url) async {
+    try {
+      final response = await dio.get<List<int>>(
+        url,
+        options: Options(responseType: ResponseType.bytes),
+      );
+      if (response.statusCode == 200 && response.data != null) {
+        return response.data!;
+      }
+      throw _statusToException(response.statusCode, 'Failed to load image');
+    } on DioException catch (e) {
+      _logger.error('Dio error in fetchImageBytes', e);
+      throw _dioToException(e, 'Failed to load image');
+    }
+  }
+
   Exception _statusToException(int? statusCode, String label) {
     if (statusCode == 401) {
       return const AuthenticationException('Unauthorized');

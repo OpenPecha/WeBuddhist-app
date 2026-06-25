@@ -25,6 +25,16 @@ class VerseOfDayGroupInfoModel {
     );
   }
 
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'title': title,
+      'sub_title': subTitle,
+      'description': description,
+      'language': language,
+    };
+  }
+
   VerseOfDayGroupInfo toEntity() {
     return VerseOfDayGroupInfo(
       id: id,
@@ -56,9 +66,12 @@ class VerseOfDayModel {
 
   factory VerseOfDayModel.fromJson(Map<String, dynamic> json) {
     final vodJson = json['verse_of_day'] as Map<String, dynamic>? ?? json;
-    final groupInfoList = (vodJson['group_info'] as List<dynamic>?)
-            ?.map((g) =>
-                VerseOfDayGroupInfoModel.fromJson(g as Map<String, dynamic>))
+    final groupInfoList =
+        (vodJson['group_info'] as List<dynamic>?)
+            ?.map(
+              (g) =>
+                  VerseOfDayGroupInfoModel.fromJson(g as Map<String, dynamic>),
+            )
             .toList() ??
         [];
 
@@ -71,6 +84,18 @@ class VerseOfDayModel {
       date: (vodJson['date'] as String?) ?? '',
       groupInfo: groupInfoList,
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'verse': verse,
+      'image_url': imageUrl,
+      'ref_id': refId,
+      'ref_type': refType,
+      'date': date,
+      'group_info': groupInfo.map((g) => g.toJson()).toList(),
+    };
   }
 
   VerseOfDay toEntity() {

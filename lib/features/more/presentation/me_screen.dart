@@ -1,12 +1,13 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/constants/app_assets.dart';
-import 'package:flutter_pecha/core/di/core_providers.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
 import 'package:flutter_pecha/features/more/domain/entities/user_stats.dart';
+import 'package:flutter_pecha/features/more/presentation/providers/use_case_providers.dart';
 import 'package:flutter_pecha/features/more/presentation/providers/user_stats_provider.dart';
 import 'package:flutter_pecha/features/more/presentation/widgets/me_profile_header.dart';
 import 'package:flutter_pecha/features/more/presentation/widgets/me_stats_section.dart';
@@ -66,20 +67,37 @@ class _LoggedInProfile extends ConsumerStatefulWidget {
   ConsumerState<_LoggedInProfile> createState() => _LoggedInProfileState();
 }
 
-class _LoggedInProfileState extends ConsumerState<_LoggedInProfile> {
+class _LoggedInProfileState extends ConsumerState<_LoggedInProfile>
+    with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      _refreshStats();
+      _refreshStatsInBackground();
     });
   }
 
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _refreshStatsInBackground();
+    }
+  }
+
+  void _refreshStatsInBackground() {
+    unawaited(ref.read(userStatsRepositoryProvider).refreshUserStats());
+  }
+
   Future<void> _refreshStats() async {
-    ref.read(cacheInterceptorProvider).invalidate('/users/me/stats');
-    ref.invalidate(userStatsFutureProvider);
-    await ref.read(userStatsFutureProvider.future);
+    await ref.read(userStatsRepositoryProvider).refreshUserStats();
   }
 
   @override

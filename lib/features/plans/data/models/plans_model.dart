@@ -59,11 +59,7 @@ class ImageModel {
       return ImageModel.fromJson(image);
     }
     if (image is String && image.isNotEmpty) {
-      return ImageModel(
-        thumbnail: image,
-        medium: image,
-        original: image,
-      );
+      return ImageModel(thumbnail: image, medium: image, original: image);
     }
     if (imageUrl != null && imageUrl.isNotEmpty) {
       return ImageModel(
@@ -155,6 +151,7 @@ class PlansModel {
       'image': image?.toJson(),
       'total_days': totalDays ?? 0,
       'tags': tags?.map((t) => t.toJson()).toList(),
+      'author': author?.toJson(),
       'start_date': startDate?.toIso8601String(),
       'display_order': displayOrder,
     };

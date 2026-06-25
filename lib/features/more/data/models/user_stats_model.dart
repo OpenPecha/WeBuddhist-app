@@ -24,6 +24,15 @@ class UserStatsModel {
     );
   }
 
+  Map<String, dynamic> toJson() {
+    return {
+      'streak': streak.toJson(),
+      'total_timer': totalTimer,
+      'total_accumulated': totalAccumulated,
+      'total_practice_days': totalPracticeDays,
+    };
+  }
+
   UserStats toEntity() {
     return UserStats(
       streak: streak.toEntity(),
@@ -55,6 +64,10 @@ class StreakStatsModel {
               .toList() ??
           const [],
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {'current': current, 'highest': highest, 'week': week};
   }
 
   StreakStats toEntity() {

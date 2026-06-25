@@ -25,6 +25,16 @@ class SeriesMetadataModel {
       language: (json['language'] as String?) ?? '',
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'title': title,
+      'sub_title': subTitle,
+      'description': description,
+      'language': language,
+    };
+  }
 }
 
 class SeriesModel {
@@ -64,13 +74,13 @@ class SeriesModel {
     if (metadataList.isEmpty) return null;
     final upper = language.toUpperCase();
     return metadataList.cast<SeriesMetadataModel?>().firstWhere(
-          (m) => m!.language.toUpperCase() == upper,
-          orElse: () =>
-              metadataList.cast<SeriesMetadataModel?>().firstWhere(
-                (m) => m!.language.toUpperCase() == 'EN',
-                orElse: () => metadataList.first,
-              ),
-        );
+      (m) => m!.language.toUpperCase() == upper,
+      orElse:
+          () => metadataList.cast<SeriesMetadataModel?>().firstWhere(
+            (m) => m!.language.toUpperCase() == 'EN',
+            orElse: () => metadataList.first,
+          ),
+    );
   }
 
   factory SeriesModel.fromJson(Map<String, dynamic> json) {
@@ -106,10 +116,29 @@ class SeriesModel {
       endDate: _parseDate(json['end_date']),
       plans: plansList,
       totalDays: (json['total_days'] as num?)?.toInt() ?? 0,
-      groupJson: json['group'] is Map<String, dynamic>
-          ? json['group'] as Map<String, dynamic>
-          : null,
+      groupJson:
+          json['group'] is Map<String, dynamic>
+              ? json['group'] as Map<String, dynamic>
+              : null,
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'metadata': metadataList.map((m) => m.toJson()).toList(),
+      'image': image?.toJson(),
+      'author_id': authorId,
+      'featured': featured,
+      'status': status,
+      'plan_count': planCount,
+      'enrolled_count': enrolledCount,
+      'start_date': startDate?.toIso8601String(),
+      'end_date': endDate?.toIso8601String(),
+      'plans': plans.map((p) => p.toJson()).toList(),
+      'total_days': totalDays,
+      'group': groupJson,
+    };
   }
 
   Series toEntity({String language = 'en'}) {
@@ -155,8 +184,7 @@ class SeriesModel {
           }
         }
       }
-      resolvedMeta ??=
-          rawMeta.whereType<Map<String, dynamic>>().firstOrNull;
+      resolvedMeta ??= rawMeta.whereType<Map<String, dynamic>>().firstOrNull;
     }
 
     return SeriesGroup(

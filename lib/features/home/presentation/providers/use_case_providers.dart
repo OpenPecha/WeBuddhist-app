@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:flutter_pecha/core/di/core_providers.dart';
+import 'package:flutter_pecha/features/home/data/datasource/home_local_datasource.dart';
 import 'package:flutter_pecha/features/home/data/datasource/featured_day_remote_datasource.dart';
 import 'package:flutter_pecha/features/home/data/datasource/routine_info_remote_datasource.dart';
 import 'package:flutter_pecha/features/home/data/datasource/streak_remote_datasource.dart';
@@ -29,9 +32,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 // ============ Datasources ============
 
-final featuredDayRemoteDatasourceProvider = Provider<FeaturedDayRemoteDatasource>((ref) {
-  return FeaturedDayRemoteDatasource(dio: ref.watch(dioProvider));
+final homeLocalDatasourceProvider = Provider<HomeLocalDatasource>((ref) {
+  return HomeLocalDatasource();
 });
+
+final featuredDayRemoteDatasourceProvider =
+    Provider<FeaturedDayRemoteDatasource>((ref) {
+      return FeaturedDayRemoteDatasource(dio: ref.watch(dioProvider));
+    });
 
 final tagsRemoteDatasourceProvider = Provider<TagsRemoteDatasource>((ref) {
   return TagsRemoteDatasource(dio: ref.watch(dioProvider));
@@ -43,21 +51,29 @@ final seriesRemoteDatasourceProvider = Provider<SeriesRemoteDatasource>((ref) {
 
 // ============ Domain Repositories ============
 
-final featuredDayDomainRepositoryProvider = Provider<FeaturedDayRepositoryInterface>((ref) {
-  return FeaturedDayRepository(
-    featuredDayRemoteDatasource: ref.watch(featuredDayRemoteDatasourceProvider),
-  );
-});
+final featuredDayDomainRepositoryProvider =
+    Provider<FeaturedDayRepositoryInterface>((ref) {
+      return FeaturedDayRepository(
+        featuredDayRemoteDatasource: ref.watch(
+          featuredDayRemoteDatasourceProvider,
+        ),
+        local: ref.watch(homeLocalDatasourceProvider),
+      );
+    });
 
 final tagsDomainRepositoryProvider = Provider<TagsRepositoryInterface>((ref) {
   return TagsRepository(
     tagsRemoteDatasource: ref.watch(tagsRemoteDatasourceProvider),
+    local: ref.watch(homeLocalDatasourceProvider),
   );
 });
 
-final seriesDomainRepositoryProvider = Provider<SeriesRepositoryInterface>((ref) {
+final seriesDomainRepositoryProvider = Provider<SeriesRepositoryInterface>((
+  ref,
+) {
   return SeriesRepository(
     remote: ref.watch(seriesRemoteDatasourceProvider),
+    local: ref.watch(homeLocalDatasourceProvider),
   );
 });
 
@@ -73,7 +89,9 @@ final getTagsUseCaseProvider = Provider<GetTagsUseCase>((ref) {
   return GetTagsUseCase(repository.getTags);
 });
 
-final getFeaturedSeriesUseCaseProvider = Provider<GetFeaturedSeriesUseCase>((ref) {
+final getFeaturedSeriesUseCaseProvider = Provider<GetFeaturedSeriesUseCase>((
+  ref,
+) {
   final repository = ref.watch(seriesDomainRepositoryProvider);
   return GetFeaturedSeriesUseCase(repository.getFeaturedSeries);
 });
@@ -95,23 +113,26 @@ final enrollInSeriesUseCaseProvider = Provider<EnrollInSeriesUseCase>((ref) {
 
 final getUserSeriesEnrollmentsUseCaseProvider =
     Provider<GetUserSeriesEnrollmentsUseCase>((ref) {
-  final repository = ref.watch(seriesDomainRepositoryProvider);
-  return GetUserSeriesEnrollmentsUseCase(repository.getUserSeriesEnrollments);
-});
+      final repository = ref.watch(seriesDomainRepositoryProvider);
+      return GetUserSeriesEnrollmentsUseCase(
+        repository.getUserSeriesEnrollments,
+      );
+    });
 
 // ============ Today's Events ============
 
 final todayEventsRemoteDatasourceProvider =
     Provider<TodayEventsRemoteDatasource>((ref) {
-  return TodayEventsRemoteDatasource(dio: ref.watch(dioProvider));
-});
+      return TodayEventsRemoteDatasource(dio: ref.watch(dioProvider));
+    });
 
 final todayEventsDomainRepositoryProvider =
     Provider<TodayEventsRepositoryInterface>((ref) {
-  return TodayEventsRepository(
-    remote: ref.watch(todayEventsRemoteDatasourceProvider),
-  );
-});
+      return TodayEventsRepository(
+        remote: ref.watch(todayEventsRemoteDatasourceProvider),
+        local: ref.watch(homeLocalDatasourceProvider),
+      );
+    });
 
 final getTodayEventsUseCaseProvider = Provider<GetTodayEventsUseCase>((ref) {
   final repository = ref.watch(todayEventsDomainRepositoryProvider);
@@ -120,17 +141,19 @@ final getTodayEventsUseCaseProvider = Provider<GetTodayEventsUseCase>((ref) {
 
 // ============ Verse of the Day ============
 
-final verseOfDayRemoteDatasourceProvider =
-    Provider<VerseOfDayRemoteDatasource>((ref) {
-  return VerseOfDayRemoteDatasource();
-});
+final verseOfDayRemoteDatasourceProvider = Provider<VerseOfDayRemoteDatasource>(
+  (ref) {
+    return VerseOfDayRemoteDatasource();
+  },
+);
 
 final verseOfDayDomainRepositoryProvider =
     Provider<VerseOfDayRepositoryInterface>((ref) {
-  return VerseOfDayRepository(
-    remote: ref.watch(verseOfDayRemoteDatasourceProvider),
-  );
-});
+      return VerseOfDayRepository(
+        remote: ref.watch(verseOfDayRemoteDatasourceProvider),
+        local: ref.watch(homeLocalDatasourceProvider),
+      );
+    });
 
 final getVerseOfDayUseCaseProvider = Provider<GetVerseOfDayUseCase>((ref) {
   final repository = ref.watch(verseOfDayDomainRepositoryProvider);
@@ -141,15 +164,16 @@ final getVerseOfDayUseCaseProvider = Provider<GetVerseOfDayUseCase>((ref) {
 
 final routineInfoRemoteDatasourceProvider =
     Provider<RoutineInfoRemoteDatasource>((ref) {
-  return RoutineInfoRemoteDatasource(dio: ref.watch(dioProvider));
-});
+      return RoutineInfoRemoteDatasource(dio: ref.watch(dioProvider));
+    });
 
 final routineInfoDomainRepositoryProvider =
     Provider<RoutineInfoRepositoryInterface>((ref) {
-  return RoutineInfoRepository(
-    remote: ref.watch(routineInfoRemoteDatasourceProvider),
-  );
-});
+      return RoutineInfoRepository(
+        remote: ref.watch(routineInfoRemoteDatasourceProvider),
+        local: ref.watch(homeLocalDatasourceProvider),
+      );
+    });
 
 final getRoutineInfoUseCaseProvider = Provider<GetRoutineInfoUseCase>((ref) {
   final repository = ref.watch(routineInfoDomainRepositoryProvider);
@@ -162,12 +186,33 @@ final streakRemoteDatasourceProvider = Provider<StreakRemoteDatasource>((ref) {
   return StreakRemoteDatasource(dio: ref.watch(dioProvider));
 });
 
-final streakDomainRepositoryProvider =
-    Provider<StreakRepositoryInterface>((ref) {
-  return StreakRepository(remote: ref.watch(streakRemoteDatasourceProvider));
+final streakDomainRepositoryProvider = Provider<StreakRepositoryInterface>((
+  ref,
+) {
+  return StreakRepository(
+    remote: ref.watch(streakRemoteDatasourceProvider),
+    local: ref.watch(homeLocalDatasourceProvider),
+  );
 });
 
 final getStreakUseCaseProvider = Provider<GetStreakUseCase>((ref) {
   final repository = ref.watch(streakDomainRepositoryProvider);
   return GetStreakUseCase(repository.getStreak);
+});
+
+/// Keeps home's pending local writes moving after connectivity returns.
+final homeSyncBootstrapProvider = Provider<void>((ref) {
+  final subscription = ref
+      .watch(connectivityServiceProvider)
+      .onConnectivityChanged
+      .listen((isOnline) {
+        if (isOnline) {
+          unawaited(
+            ref.read(seriesDomainRepositoryProvider).flushPendingEnrollments(),
+          );
+        }
+      });
+  ref.onDispose(() {
+    subscription.cancel();
+  });
 });

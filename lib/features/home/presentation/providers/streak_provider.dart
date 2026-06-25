@@ -3,14 +3,13 @@ import 'package:flutter_pecha/features/auth/presentation/providers/state_provide
 import 'package:flutter_pecha/features/home/presentation/providers/use_case_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fpdart/fpdart.dart';
-import 'package:flutter_pecha/shared/domain/base_classes/usecase.dart';
 
-final streakFutureProvider = FutureProvider<Either<Failure, int>>((ref) async {
+final streakFutureProvider = StreamProvider<Either<Failure, int>>((ref) {
   final auth = ref.watch(authProvider);
   if (auth.isLoading || !auth.isLoggedIn || auth.isGuest) {
-    return const Left(AuthenticationFailure('Not authenticated'));
+    return Stream.value(const Left(AuthenticationFailure('Not authenticated')));
   }
 
-  final useCase = ref.watch(getStreakUseCaseProvider);
-  return useCase(const NoParams());
+  final repository = ref.watch(streakDomainRepositoryProvider);
+  return repository.watchStreak();
 });

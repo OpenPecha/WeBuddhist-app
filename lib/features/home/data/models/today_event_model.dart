@@ -21,6 +21,15 @@ class TodayEventMetadataModel {
       language: (json['language'] as String?) ?? '',
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'name': name,
+      'description': description,
+      'language': language,
+    };
+  }
 }
 
 class TodayEventModel {
@@ -36,6 +45,10 @@ class TodayEventModel {
         json['metadata'] as Map<String, dynamic>? ?? const {},
       ),
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {'id': id, 'metadata': metadata.toJson()};
   }
 
   TodayEvent toEntity() {
@@ -65,5 +78,6 @@ class TodayEventsResponseModel {
     );
   }
 
-  List<TodayEvent> toEntities() => events.map((event) => event.toEntity()).toList();
+  List<TodayEvent> toEntities() =>
+      events.map((event) => event.toEntity()).toList();
 }
