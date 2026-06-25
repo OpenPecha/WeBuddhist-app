@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/core/l10n/intl_format_locale.dart';
+import 'package:flutter_pecha/core/utils/tibetan_numerals.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/features/more/domain/entities/user_stats.dart';
 import 'package:flutter_pecha/features/more/presentation/widgets/me_streak_card.dart';
@@ -92,7 +93,12 @@ class MeStatsSection extends StatelessWidget {
                     size: 22,
                     color: Theme.of(context).colorScheme.onSurface,
                   ),
-                  value: _formatDuration(stats.totalTimer),
+                  value: _formatDuration(
+                    stats.totalTimer,
+                    isTibetan: context.isTibetanLocale,
+                    minuteLabel: l10n.me_minutes,
+                    hourLabel: l10n.me_hours,
+                  ),
                   cardColor: cardColor,
                 ),
               ),
@@ -115,11 +121,28 @@ class MeStatsSection extends StatelessWidget {
     return NumberFormat.decimalPattern(locale).format(count);
   }
 
-  String _formatDuration(int milliseconds) {
+  String _formatDuration(
+    int milliseconds, {
+    required bool isTibetan,
+    required String minuteLabel,
+    required String hourLabel,
+  }) {
     final totalMinutes = (milliseconds / 60000).round();
-    if (totalMinutes < 60) return '${totalMinutes}m';
+    if (totalMinutes < 60) {
+      if (isTibetan) {
+        return '$minuteLabel ${toTibetanDigits(totalMinutes)}';
+      }
+      return '${totalMinutes}m';
+    }
     final hours = totalMinutes ~/ 60;
     final minutes = totalMinutes % 60;
+    if (isTibetan) {
+      if (minutes == 0) {
+        return '$hourLabel ${toTibetanDigits(hours)}';
+      }
+      return '$hourLabel ${toTibetanDigits(hours)} '
+          '$minuteLabel ${toTibetanDigits(minutes)}';
+    }
     if (minutes == 0) return '${hours}hr';
     return '${hours}hr ${minutes}m';
   }
@@ -147,6 +170,10 @@ class _StatCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isTibetan = context.isTibetanLocale;
+    final valueStyle = Theme.of(
+      context,
+    ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700);
 
     return Material(
       color: cardColor,
@@ -169,9 +196,11 @@ class _StatCard extends StatelessWidget {
                 label,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
+                strutStyle: context.tibetanStrutStyle(12),
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: isDark ? AppColors.grey300 : AppColors.grey900,
                   fontSize: 12,
+                  height: isTibetan ? 1.4 : null,
                 ),
               ),
               const SizedBox(height: 12),
@@ -180,11 +209,27 @@ class _StatCard extends StatelessWidget {
                 children: [
                   icon,
                   const SizedBox(width: 4),
-                  Text(
-                    value,
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.w700,
-                    ),
+                  Expanded(
+                    child:
+                        isTibetan
+                            ? FittedBox(
+                              alignment: Alignment.centerLeft,
+                              fit: BoxFit.scaleDown,
+                              child: Text(
+                                value,
+                                maxLines: 1,
+                                softWrap: false,
+                                strutStyle: context.tibetanStrutStyle(
+                                  valueStyle?.fontSize ?? 22,
+                                ),
+                                style: valueStyle,
+                              ),
+                            )
+                            : Text(
+                              value,
+                              overflow: TextOverflow.ellipsis,
+                              style: valueStyle,
+                            ),
                   ),
                 ],
               ),

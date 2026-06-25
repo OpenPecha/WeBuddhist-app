@@ -1304,6 +1304,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get me_minutes => '分鐘';
 
   @override
+  String get me_hours => '小時';
+
+  @override
   String get me_total_meditation_time => '禪修總時間';
 
   @override

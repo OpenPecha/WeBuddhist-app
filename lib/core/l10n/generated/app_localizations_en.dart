@@ -1366,6 +1366,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get me_minutes => 'minutes';
 
   @override
+  String get me_hours => 'hours';
+
+  @override
   String get me_total_meditation_time => 'Total meditation time';
 
   @override

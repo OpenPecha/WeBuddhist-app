@@ -2518,6 +2518,12 @@ abstract class AppLocalizations {
   /// **'minutes'**
   String get me_minutes;
 
+  /// No description provided for @me_hours.
+  ///
+  /// In en, this message translates to:
+  /// **'hours'**
+  String get me_hours;
+
   /// No description provided for @me_total_meditation_time.
   ///
   /// In en, this message translates to:
