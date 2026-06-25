@@ -187,15 +187,6 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
   }
 
   _EditableBlock? _injectInitialRecitation(RecitationModel recitation) {
-    final alreadyExists = _blocks.any(
-      (b) => b.items.any(
-        (item) =>
-            item.id == recitation.textId &&
-            item.type == RoutineItemType.recitation,
-      ),
-    );
-    if (alreadyExists) return null;
-
     final newItem = RoutineItem(
       id: recitation.textId,
       title: recitation.title,
@@ -216,20 +207,6 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
     for (final block in _blocks) {
       if (block.items.any(
         (i) => i.id == plan.id && i.type == RoutineItemType.series,
-      )) {
-        _syncBlock(block).catchError((e) {
-          if (mounted) _showErrorSnackBar(_mapError(e));
-        });
-        break;
-      }
-    }
-  }
-
-  void _syncInjectedRecitation(RecitationModel recitation) {
-    for (final block in _blocks) {
-      if (block.items.any(
-        (i) =>
-            i.id == recitation.textId && i.type == RoutineItemType.recitation,
       )) {
         _syncBlock(block).catchError((e) {
           if (mounted) _showErrorSnackBar(_mapError(e));
@@ -1102,24 +1079,6 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
     int blockIndex,
     RecitationModel recitation,
   ) async {
-    final isDuplicate = _blocks[blockIndex].items.any(
-      (item) =>
-          item.id == recitation.textId &&
-          item.type == RoutineItemType.recitation,
-    );
-    if (isDuplicate) {
-      _logger.warning('Duplicate item prevented: ${recitation.textId}');
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(context.l10n.duplicateItem),
-            duration: const Duration(seconds: 2),
-          ),
-        );
-      }
-      return;
-    }
-
     final newItem = RoutineItem(
       id: recitation.textId,
       title: recitation.title,
@@ -1240,6 +1199,7 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
           // fires (e.g., a quick re-watch before hydration completes).
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (!mounted || _hydratedFromApi) return;
+            _EditableBlock? injectedRecitationBlock;
             setState(() {
               _hydratedFromApi = true;
               _applyInitialData(routineData);
@@ -1247,14 +1207,18 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
                 _injectInitialPlan(widget.initialPlan!);
               }
               if (widget.initialRecitation != null) {
-                _injectInitialRecitation(widget.initialRecitation!);
+                injectedRecitationBlock = _injectInitialRecitation(
+                  widget.initialRecitation!,
+                );
               }
             });
             if (widget.initialPlan != null) {
               _syncInjectedPlan(widget.initialPlan!);
             }
-            if (widget.initialRecitation != null) {
-              _syncInjectedRecitation(widget.initialRecitation!);
+            if (injectedRecitationBlock != null) {
+              _syncBlock(injectedRecitationBlock!).catchError((e) {
+                if (mounted) _showErrorSnackBar(_mapError(e));
+              });
             }
             if (widget.enrollSeriesId != null && !_seriesEnrollmentHydrated) {
               _seriesEnrollmentHydrated = true;

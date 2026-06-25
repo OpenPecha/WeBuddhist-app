@@ -17,13 +17,11 @@ class ReaderMoreBottomSheet extends ConsumerStatefulWidget {
     super.key,
     required this.textId,
     required this.showAddToPractices,
-    required this.isInPractices,
     this.onAddToPractices,
   });
 
   final String textId;
   final bool showAddToPractices;
-  final bool isInPractices;
   final VoidCallback? onAddToPractices;
 
   @override
@@ -149,24 +147,16 @@ class _ReaderMoreBottomSheetState extends ConsumerState<ReaderMoreBottomSheet> {
             // ── Add to my practices ──────────────────────────────────────
             _SectionDivider(theme: theme),
             ListTile(
-              leading: Icon(
-                widget.isInPractices ? AppAssets.checkCircle : AppAssets.plus,
-                color: theme.colorScheme.onSurface,
-              ),
+              leading: Icon(AppAssets.plus, color: theme.colorScheme.onSurface),
               title: Text(
-                widget.isInPractices
-                    ? 'Added to practices'
-                    : 'Add to my practices',
+                'Add to my practices',
                 style: theme.textTheme.bodyLarge,
               ),
-              onTap:
-                  widget.isInPractices
-                      ? null
-                      : () {
-                        HapticFeedback.lightImpact();
-                        Navigator.of(context).pop();
-                        widget.onAddToPractices?.call();
-                      },
+              onTap: () {
+                HapticFeedback.lightImpact();
+                Navigator.of(context).pop();
+                widget.onAddToPractices?.call();
+              },
             ),
           ],
 
@@ -268,7 +258,6 @@ void showReaderMoreBottomSheet(
   BuildContext context, {
   required String textId,
   required bool showAddToPractices,
-  required bool isInPractices,
   VoidCallback? onAddToPractices,
 }) {
   showModalBottomSheet(
@@ -281,7 +270,6 @@ void showReaderMoreBottomSheet(
         (_) => ReaderMoreBottomSheet(
           textId: textId,
           showAddToPractices: showAddToPractices,
-          isInPractices: isInPractices,
           onAddToPractices: onAddToPractices,
         ),
   );

@@ -7,8 +7,6 @@ import 'package:flutter_pecha/features/plans/presentation/widgets/plan_navigatio
 import 'package:flutter_pecha/features/plans/presentation/widgets/plan_navigation/plan_navigator.dart';
 import 'package:flutter_pecha/features/plans/presentation/widgets/plan_navigation/plan_segment_audio_controller.dart';
 import 'package:flutter_pecha/features/plans/presentation/widgets/plan_navigation/plan_subtask_completion.dart';
-import 'package:flutter_pecha/features/practice/data/models/routine_model.dart';
-import 'package:flutter_pecha/features/practice/presentation/providers/routine_api_providers.dart';
 import 'package:flutter_pecha/features/reader/constants/reader_constants.dart';
 import 'package:flutter_pecha/features/reader/data/models/navigation_context.dart';
 import 'package:flutter_pecha/features/reader/data/models/reader_slot_config.dart';
@@ -188,10 +186,6 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
   Widget build(BuildContext context) {
     final state = ref.watch(readerNotifierProvider(_params));
     final notifier = ref.read(readerNotifierProvider(_params).notifier);
-    final routineAsync =
-        widget.navigationContext?.source == NavigationSource.recitationList
-            ? ref.watch(userRoutineProvider)
-            : const AsyncData<RoutineData?>(null);
 
     return PopScope(
       canPop: true,
@@ -208,7 +202,7 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
       },
       child: Scaffold(
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-        body: _buildBody(context, state, notifier, routineAsync),
+        body: _buildBody(context, state, notifier),
       ),
     );
   }
@@ -217,7 +211,6 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
     BuildContext context,
     ReaderState state,
     ReaderNotifier notifier,
-    AsyncValue<RoutineData?> routineAsync,
   ) {
     final localizations = context.l10n;
     final textDetail = state.textDetail;
@@ -301,7 +294,6 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
                                     () => _openMoreBottomSheet(
                                       context,
                                       textDetail,
-                                      routineAsync,
                                     ),
                               ),
                             ],
@@ -500,41 +492,25 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
     );
   }
 
-  void _openMoreBottomSheet(
-    BuildContext context,
-    TextDetail? textDetail,
-    AsyncValue<RoutineData?> routineAsync,
-  ) {
+  void _openMoreBottomSheet(BuildContext context, TextDetail? textDetail) {
     final notifier = ref.read(readerNotifierProvider(_params).notifier);
     notifier.selectSegment(null);
     notifier.closeCommentary();
     notifier.closeTranslation();
 
     final showAddToPractices =
-        widget.navigationContext?.source == NavigationSource.recitationList &&
+        (widget.navigationContext?.source == NavigationSource.recitationList ||
+            widget.navigationContext?.source == NavigationSource.routine) &&
         textDetail != null;
 
     showReaderMoreBottomSheet(
       context,
       textId: widget.textId,
       showAddToPractices: showAddToPractices,
-      isInPractices: _isRecitationInRoutine(
-        routineAsync.valueOrNull,
-        widget.textId,
-      ),
       onAddToPractices:
           showAddToPractices
               ? () => _openRoutineWithRecitation(context, textDetail)
               : null,
-    );
-  }
-
-  bool _isRecitationInRoutine(RoutineData? routineData, String textId) {
-    if (routineData == null) return false;
-    return routineData.blocks.any(
-      (block) => block.items.any(
-        (item) => item.id == textId && item.type == RoutineItemType.recitation,
-      ),
     );
   }
 
