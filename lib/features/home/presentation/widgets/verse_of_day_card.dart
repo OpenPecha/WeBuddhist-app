@@ -36,7 +36,7 @@ class _VerseOfDayCardState extends ConsumerState<VerseOfDayCard> {
   @override
   Widget build(BuildContext context) {
     final languageCode = ref.watch(localeProvider).languageCode;
-    final typography = VerseOfDayTypography.fromLanguageCode(languageCode);
+    final typography = VerseOfDayTypography.forCard(languageCode);
     final colorScheme = Theme.of(context).colorScheme;
 
     return Padding(
@@ -51,6 +51,7 @@ class _VerseOfDayCardState extends ConsumerState<VerseOfDayCard> {
           child: VerseOfDayContent(
             verseOfDay: widget.verseOfDay,
             typography: typography,
+            useContentFontForAttribution: typography.useContentFontForAttribution,
             verseColor: colorScheme.onSurface,
             attributionColor: colorScheme.onSurfaceVariant,
             footerAction: GestureDetector(

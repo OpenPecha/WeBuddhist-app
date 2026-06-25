@@ -28,7 +28,7 @@ class VerseSharePreview extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final typography = VerseOfDayTypography.fromLanguageCode(languageCode);
+    final typography = VerseOfDayTypography.forShare(languageCode);
     final lightTheme = AppTheme.lightTheme(locale);
 
     return Theme(
@@ -49,16 +49,12 @@ class VerseSharePreview extends StatelessWidget {
                 clipBehavior: Clip.antiAlias,
                 child: VerseOfDayContent(
                   verseOfDay: verseOfDay,
-                  typography: VerseOfDayTypography(
-                    contentFont: typography.contentFont,
-                    systemFont: typography.systemFont,
-                    verseFontSize: languageCode == 'bo' ? 20.0 : 18.0,
-                    attributionFontSize: languageCode == 'bo' ? 16.0 : 15.0,
-                  ),
+                  typography: typography,
                   verseColor: Colors.black87,
                   attributionColor: Colors.black87,
                   imageAspectRatio: 1.15,
-                  useContentFontForAttribution: true,
+                  useContentFontForAttribution:
+                      typography.useContentFontForAttribution,
                   textPadding: const EdgeInsets.fromLTRB(28, 32, 28, 36),
                 ),
               ),
@@ -225,7 +221,7 @@ class _VerseShareSheetState extends State<VerseShareSheet> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const SizedBox(height: 12),
+            const SizedBox(height: 6),
             Container(
               width: 40,
               height: 4,
@@ -234,7 +230,7 @@ class _VerseShareSheetState extends State<VerseShareSheet> {
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 12),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 12),
               child: Screenshot(
@@ -246,7 +242,7 @@ class _VerseShareSheetState extends State<VerseShareSheet> {
                 ),
               ),
             ),
-            const SizedBox(height: 32),
+            const SizedBox(height: 12),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 32),
               child: SizedBox(
@@ -292,7 +288,7 @@ class _VerseShareSheetState extends State<VerseShareSheet> {
                 ),
               ),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 12),
           ],
         ),
       ),
