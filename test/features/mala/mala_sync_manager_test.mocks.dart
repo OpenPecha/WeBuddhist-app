@@ -78,3 +78,26 @@ class MockUpdateUserAccumulatorUseCase extends _i1.Mock
           )
           as _i3.Future<_i4.Either<_i5.Failure, _i6.MalaCount>>);
 }
+
+/// A class which mocks [DeleteUserAccumulatorUseCase].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockDeleteUserAccumulatorUseCase extends _i1.Mock
+    implements _i2.DeleteUserAccumulatorUseCase {
+  MockDeleteUserAccumulatorUseCase() {
+    _i1.throwOnMissingStub(this);
+  }
+
+  @override
+  _i3.Future<_i4.Either<_i5.Failure, _i4.Unit>> call(String? accumulatorId) =>
+      (super.noSuchMethod(
+            Invocation.method(#call, [accumulatorId]),
+            returnValue: _i3.Future<_i4.Either<_i5.Failure, _i4.Unit>>.value(
+              _i7.dummyValue<_i4.Either<_i5.Failure, _i4.Unit>>(
+                this,
+                Invocation.method(#call, [accumulatorId]),
+              ),
+            ),
+          )
+          as _i3.Future<_i4.Either<_i5.Failure, _i4.Unit>>);
+}

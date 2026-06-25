@@ -28,4 +28,9 @@ abstract class MalaRepository {
     required String accumulatorId,
     required int currentCount,
   });
+
+  /// Soft-delete a user accumulator (`DELETE /accumulators/user/{id}`).
+  /// Used when resetting the on-screen session while preserving lifetime totals
+  /// on the deleted record server-side.
+  Future<Either<Failure, Unit>> deleteUserAccumulator(String accumulatorId);
 }

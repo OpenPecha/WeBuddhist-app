@@ -104,6 +104,50 @@ class AppLocalizationsZh extends AppLocalizations {
   String get home_mala => '念珠';
 
   @override
+  String get mala_add_to_practice => '加入我的修持';
+
+  @override
+  String get mala_add_to_bookmark => '書籤';
+
+  @override
+  String get mala_sound => '聲音';
+
+  @override
+  String get mala_vibration => '震動';
+
+  @override
+  String get mala_reset_count => '重設計數';
+
+  @override
+  String get mala_reset_title => '重設此念珠？';
+
+  @override
+  String get mala_reset_count_confirm => '目前的計數將歸零，但您的累積仍會保留在終身總數中。';
+
+  @override
+  String get mala_reset_confirm => '重設';
+
+  @override
+  String get mala_action_coming_soon => '即將推出';
+
+  @override
+  String mala_rounds_count(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count 遍',
+      one: '1 遍',
+      zero: '0 遍',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String mala_counter_semantics(int bead, int total, String rounds) {
+    return '計數 $bead/$total，$rounds';
+  }
+
+  @override
   String get home_timer => '計時';
 
   @override

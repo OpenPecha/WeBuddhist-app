@@ -1,3 +1,4 @@
+import 'package:flutter_pecha/features/plans/data/models/plan_video_model.dart';
 import 'package:flutter_pecha/features/plans/data/models/user/user_tasks_dto.dart';
 
 class UserPlanDayDetailResponse {
@@ -7,6 +8,7 @@ class UserPlanDayDetailResponse {
   final bool isCompleted;
   final String? audioUrl;
   final int? audioDurationMs;
+  final List<PlanVideoModel> videos;
 
   UserPlanDayDetailResponse({
     required this.id,
@@ -15,6 +17,7 @@ class UserPlanDayDetailResponse {
     required this.isCompleted,
     this.audioUrl,
     this.audioDurationMs,
+    this.videos = const [],
   });
 
   factory UserPlanDayDetailResponse.fromJson(Map<String, dynamic> json) {
@@ -30,6 +33,13 @@ class UserPlanDayDetailResponse {
       isCompleted: json['is_completed'] as bool,
       audioUrl: json['audio_url'] as String?,
       audioDurationMs: json['audio_duration_ms'] as int?,
+      videos: json['videos'] != null
+          ? (json['videos'] as List<dynamic>)
+              .map(
+                (e) => PlanVideoModel.fromJson(e as Map<String, dynamic>),
+              )
+              .toList()
+          : const [],
     );
   }
 
@@ -41,6 +51,7 @@ class UserPlanDayDetailResponse {
       'is_completed': isCompleted,
       'audio_url': audioUrl,
       'audio_duration_ms': audioDurationMs,
+      'videos': videos.map((e) => e.toJson()).toList(),
     };
   }
 }

@@ -101,6 +101,22 @@ class MockMalaSyncManager extends _i1.Mock implements _i8.MalaSyncManager {
           as _i3.Future<void>);
 
   @override
+  _i3.Future<void> resetAccumulator(
+    String? presetId, {
+    required _i2.DeleteUserAccumulatorUseCase? deleteAccumulator,
+  }) =>
+      (super.noSuchMethod(
+            Invocation.method(
+              #resetAccumulator,
+              [presetId],
+              {#deleteAccumulator: deleteAccumulator},
+            ),
+            returnValue: _i3.Future<void>.value(),
+            returnValueForMissingStub: _i3.Future<void>.value(),
+          )
+          as _i3.Future<void>);
+
+  @override
   _i3.Future<bool> didPopRoute() =>
       (super.noSuchMethod(
             Invocation.method(#didPopRoute, []),
@@ -204,4 +220,27 @@ class MockMalaSyncManager extends _i1.Mock implements _i8.MalaSyncManager {
     Invocation.method(#didChangeAccessibilityFeatures, []),
     returnValueForMissingStub: null,
   );
+}
+
+/// A class which mocks [DeleteUserAccumulatorUseCase].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockDeleteUserAccumulatorUseCase extends _i1.Mock
+    implements _i2.DeleteUserAccumulatorUseCase {
+  MockDeleteUserAccumulatorUseCase() {
+    _i1.throwOnMissingStub(this);
+  }
+
+  @override
+  _i3.Future<_i4.Either<_i5.Failure, _i4.Unit>> call(String? accumulatorId) =>
+      (super.noSuchMethod(
+            Invocation.method(#call, [accumulatorId]),
+            returnValue: _i3.Future<_i4.Either<_i5.Failure, _i4.Unit>>.value(
+              _i7.dummyValue<_i4.Either<_i5.Failure, _i4.Unit>>(
+                this,
+                Invocation.method(#call, [accumulatorId]),
+              ),
+            ),
+          )
+          as _i3.Future<_i4.Either<_i5.Failure, _i4.Unit>>);
 }

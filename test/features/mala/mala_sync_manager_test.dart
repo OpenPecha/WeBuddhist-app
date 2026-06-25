@@ -13,16 +13,22 @@ import 'package:mockito/mockito.dart';
 
 import 'mala_sync_manager_test.mocks.dart';
 
-@GenerateMocks([CreateUserAccumulatorUseCase, UpdateUserAccumulatorUseCase])
+@GenerateMocks([
+  CreateUserAccumulatorUseCase,
+  UpdateUserAccumulatorUseCase,
+  DeleteUserAccumulatorUseCase,
+])
 void main() {
   provideDummy<Either<Failure, MalaCount>>(
     const Left(UnknownFailure('dummy')),
   );
+  provideDummy<Either<Failure, Unit>>(const Left(UnknownFailure('dummy')));
 
   late Directory tempDir;
   late MalaLocalDataSource local;
   late MockCreateUserAccumulatorUseCase create;
   late MockUpdateUserAccumulatorUseCase update;
+  late MockDeleteUserAccumulatorUseCase delete;
 
   const userA = 'user-a';
   const userB = 'user-b';
@@ -48,6 +54,7 @@ void main() {
     local = MalaLocalDataSource();
     create = MockCreateUserAccumulatorUseCase();
     update = MockUpdateUserAccumulatorUseCase();
+    delete = MockDeleteUserAccumulatorUseCase();
   });
 
   tearDown(() async {
@@ -194,5 +201,81 @@ void main() {
         verify(update(captureAny)).captured.single as UpdateUserAccumulatorParams;
     expect(captured.accumulatorId, 'acc-a'); // never touches user B
     expect(local.read(userB, presetId).isDirty, isTrue);
+  });
+
+  test('reset flushes dirty tail then soft-deletes the active accumulator',
+      () async {
+    await local.write(
+      userA,
+      presetId,
+      const LocalMalaState(total: 50, syncedTotal: 40, accumulatorId: 'acc-old'),
+    );
+    when(update(any)).thenAnswer(
+      (_) async => const Right(MalaCount(accumulatorId: 'acc-old', total: 50)),
+    );
+    when(delete(any)).thenAnswer((_) async => const Right(unit));
+
+    await buildManager().resetAccumulator(
+      presetId,
+      deleteAccumulator: delete,
+    );
+
+    final put =
+        verify(update(captureAny)).captured.single as UpdateUserAccumulatorParams;
+    expect(put.accumulatorId, 'acc-old');
+    expect(put.currentCount, 50);
+    expect(verify(delete('acc-old')).callCount, 1);
+    verifyNever(create(any));
+
+    final after = local.read(userA, presetId);
+    expect(after.accumulatorId, isNull);
+    expect(after.total, 0);
+    expect(after.syncedTotal, 0);
+    expect(after.isDirty, isFalse);
+  });
+
+  test('reset skips PUT when fully synced then soft-deletes accumulator',
+      () async {
+    await local.write(
+      userA,
+      presetId,
+      const LocalMalaState(total: 50, syncedTotal: 50, accumulatorId: 'acc-old'),
+    );
+    when(delete(any)).thenAnswer((_) async => const Right(unit));
+
+    await buildManager().resetAccumulator(
+      presetId,
+      deleteAccumulator: delete,
+    );
+
+    verifyNever(update(any));
+    verify(delete('acc-old')).called(1);
+    verifyNever(create(any));
+
+    final after = local.read(userA, presetId);
+    expect(after.accumulatorId, isNull);
+    expect(after.total, 0);
+    expect(after.syncedTotal, 0);
+  });
+
+  test('reset with no server accumulator only clears local session', () async {
+    await local.write(
+      userA,
+      presetId,
+      const LocalMalaState(total: 0, syncedTotal: 0),
+    );
+
+    await buildManager().resetAccumulator(
+      presetId,
+      deleteAccumulator: delete,
+    );
+
+    verifyNever(update(any));
+    verifyNever(delete(any));
+    verifyNever(create(any));
+
+    final after = local.read(userA, presetId);
+    expect(after.accumulatorId, isNull);
+    expect(after.total, 0);
   });
 }
