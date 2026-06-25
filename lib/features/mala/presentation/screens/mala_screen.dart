@@ -178,6 +178,7 @@ class _MalaScreenState extends ConsumerState<MalaScreen> {
                                   beadImageUrl:
                                       counter.beadImageUrl ??
                                       mantra.beadImageUrl,
+                                  beadImageBytes: counter.beadImageBytes,
                                   beadColor: const Color(0xFF8D6E63),
                                   threadColor: const Color(0xFFC62828),
                                   onTap:
@@ -223,7 +224,11 @@ class _CounterBlock extends StatelessWidget {
       alpha: dimmed ? 0.35 : 1.0,
     );
     return Semantics(
-      label: l10n.mala_counter_semantics(beadInRound, beadsPerRound, roundsLabel),
+      label: l10n.mala_counter_semantics(
+        beadInRound,
+        beadsPerRound,
+        roundsLabel,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
