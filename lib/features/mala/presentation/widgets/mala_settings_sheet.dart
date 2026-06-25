@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
+import 'package:flutter_pecha/core/network/connectivity_service.dart' show connectivityNotifierProvider;
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/core/widgets/destructive_confirmation_dialog.dart';
 import 'package:flutter_pecha/features/mala/domain/entities/mantra.dart';
@@ -32,6 +33,7 @@ class MalaSettingsSheet extends ConsumerWidget {
     final isDark = theme.brightness == Brightness.dark;
     final settings = ref.watch(malaSettingsProvider);
     final settingsNotifier = ref.read(malaSettingsProvider.notifier);
+    final isOnline = ref.watch(connectivityNotifierProvider);
     final dividerColor =
         isDark ? AppColors.cardBorderDark : AppColors.grey300;
     const destructiveColor = Color(0xFFB03027);
@@ -86,6 +88,7 @@ class MalaSettingsSheet extends ConsumerWidget {
               label: l10n.mala_reset_count,
               labelColor: destructiveColor,
               iconColor: destructiveColor,
+              enabled: isOnline,
               onTap: () => _onResetCount(context, ref),
             ),
             const SizedBox(height: 8),
@@ -143,6 +146,7 @@ class _MalaSettingsTile extends StatelessWidget {
     required this.onTap,
     this.iconColor,
     this.labelColor,
+    this.enabled = true,
   });
 
   final IconData icon;
@@ -150,32 +154,36 @@ class _MalaSettingsTile extends StatelessWidget {
   final VoidCallback onTap;
   final Color? iconColor;
   final Color? labelColor;
+  final bool enabled;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final foreground = labelColor ?? theme.colorScheme.onSurface;
 
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-          child: Row(
-            children: [
-              Icon(icon, size: 24, color: iconColor ?? foreground),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Text(
-                  label,
-                  style: theme.textTheme.bodyLarge?.copyWith(
-                    fontWeight: FontWeight.w500,
-                    color: foreground,
+    return Opacity(
+      opacity: enabled ? 1.0 : 0.38,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: enabled ? onTap : null,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+            child: Row(
+              children: [
+                Icon(icon, size: 24, color: iconColor ?? foreground),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Text(
+                    label,
+                    style: theme.textTheme.bodyLarge?.copyWith(
+                      fontWeight: FontWeight.w500,
+                      color: foreground,
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
