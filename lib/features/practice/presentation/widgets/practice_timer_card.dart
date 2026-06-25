@@ -18,6 +18,23 @@ class PracticeTimerCard extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final borderColor =
         isDark ? const Color(0xFF353535) : const Color(0xFFE4E4E4);
+    final isTibetan = Localizations.localeOf(context).languageCode == 'bo';
+    final textColor = Theme.of(context).colorScheme.onSurface;
+
+    final minuteText = Text(
+      '${timer.displayMinutes}',
+      style: TextStyle(
+        fontSize: 28,
+        fontWeight: FontWeight.w600,
+        height: 2,
+        color: textColor,
+      ),
+    );
+
+    final minLabelText = Text(
+      minLabel,
+      style: TextStyle(fontSize: 14, color: textColor),
+    );
 
     return Material(
       color: Theme.of(context).cardColor,
@@ -31,25 +48,10 @@ class PracticeTimerCard extends StatelessWidget {
         child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                '${timer.displayMinutes}',
-                style: TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.w600,
-                  height: 1,
-                  color: Theme.of(context).colorScheme.onSurface,
-                ),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                minLabel,
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Theme.of(context).colorScheme.onSurface,
-                ),
-              ),
-            ],
+            children:
+                isTibetan
+                    ? [minLabelText, const SizedBox(height: 2), minuteText]
+                    : [minuteText, const SizedBox(height: 2), minLabelText],
           ),
         ),
       ),
