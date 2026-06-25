@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/features/reader/data/models/navigation_context.dart';
 import 'package:flutter_pecha/features/recitation/data/models/recitation_model.dart';
 import 'package:flutter_pecha/features/recitation/presentation/providers/recitations_providers.dart';
 import 'package:flutter_pecha/features/recitation/presentation/widgets/recitation_card.dart';
@@ -114,7 +115,12 @@ class _SearchResultsView extends ConsumerWidget {
           child: RecitationCard(
             recitation: recitation,
             onTap: () {
-              context.push('/recitations/detail', extra: recitation);
+              context.push(
+                '/reader/${recitation.textId}',
+                extra: const NavigationContext(
+                  source: NavigationSource.recitationList,
+                ),
+              );
             },
           ),
         );

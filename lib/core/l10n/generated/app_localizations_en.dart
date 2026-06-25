@@ -215,6 +215,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get text_commentary => 'Commentaries';
 
   @override
+  String get resources => 'Resources';
+
+  @override
+  String get tools => 'Tools';
+
+  @override
   String get no_translation => 'No translations found';
 
   @override
@@ -757,6 +763,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get share => 'Share';
+
+  @override
+  String get bookmark => 'Bookmark';
 
   @override
   String get image => 'Image';
