@@ -46,10 +46,13 @@ class PracticeAccumulationsSection extends ConsumerWidget {
                   separatorBuilder: (_, __) => const SizedBox(width: 16),
                   itemBuilder: (context, index) {
                     final mantra = preview[index];
-                    return PracticeAccumulationCircleItem(
-                      mantra: mantra,
-                      language: language,
-                      onTap: () => _navigateToMala(context, ref, mantra),
+                    return Align(
+                      alignment: Alignment.topCenter,
+                      child: PracticeAccumulationCircleItem(
+                        mantra: mantra,
+                        language: language,
+                        onTap: () => _navigateToMala(context, ref, mantra),
+                      ),
                     );
                   },
                 ),
