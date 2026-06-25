@@ -54,7 +54,7 @@ class PracticeChantsSection extends ConsumerWidget {
 
   void _navigateToRecitation(BuildContext context, RecitationModel recitation) {
     final navigationContext = NavigationContext(
-      source: NavigationSource.normal,
+      source: NavigationSource.recitationList,
     );
     context.push('/reader/${recitation.textId}', extra: navigationContext);
   }

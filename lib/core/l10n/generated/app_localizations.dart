@@ -478,6 +478,18 @@ abstract class AppLocalizations {
   /// **'Commentaries'**
   String get text_commentary;
 
+  /// No description provided for @resources.
+  ///
+  /// In en, this message translates to:
+  /// **'Resources'**
+  String get resources;
+
+  /// No description provided for @tools.
+  ///
+  /// In en, this message translates to:
+  /// **'Tools'**
+  String get tools;
+
   /// No description provided for @no_translation.
   ///
   /// In en, this message translates to:
@@ -1449,6 +1461,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Share'**
   String get share;
+
+  /// No description provided for @bookmark.
+  ///
+  /// In en, this message translates to:
+  /// **'Bookmark'**
+  String get bookmark;
 
   /// No description provided for @image.
   ///

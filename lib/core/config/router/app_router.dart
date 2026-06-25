@@ -33,6 +33,7 @@ import 'package:flutter_pecha/features/plans/presentation/widgets/plan_track/pla
 import 'package:flutter_pecha/features/plans/presentation/plan_info.dart';
 import 'package:flutter_pecha/features/plans/presentation/widgets/plan_preview/plan_preview_details.dart';
 import 'package:flutter_pecha/features/practice/presentation/screens/edit_routine_screen.dart';
+import 'package:flutter_pecha/features/practice/presentation/screens/bookmarks_screen.dart';
 import 'package:flutter_pecha/features/practice/presentation/screens/practice_explore_screen.dart';
 import 'package:flutter_pecha/features/practice/presentation/screens/practice_screen.dart';
 import 'package:flutter_pecha/features/practice/presentation/screens/select_plan_screen.dart';
@@ -41,6 +42,7 @@ import 'package:flutter_pecha/features/mala/presentation/screens/mala_screen.dar
 import 'package:flutter_pecha/features/notifications/presentation/notification_settings_screen.dart';
 import 'package:flutter_pecha/features/reader/data/models/navigation_context.dart';
 import 'package:flutter_pecha/features/reader/presentation/screens/reader_screen.dart';
+import 'package:flutter_pecha/features/recitation/data/models/recitation_model.dart';
 import 'package:flutter_pecha/features/texts/presentation/screens/chapters/chapters_screen.dart';
 import 'package:flutter_pecha/features/texts/presentation/segment_image/choose_image.dart';
 import 'package:flutter_pecha/features/texts/presentation/segment_image/create_image.dart';
@@ -151,10 +153,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                       if (plan == null) {
                         throw Exception('Missing required parameters');
                       }
-                      return PlanPreviewDetails(
-                        plan: plan,
-                        seriesId: seriesId,
-                      );
+                      return PlanPreviewDetails(plan: plan, seriesId: seriesId);
                     },
                   ),
                 ],
@@ -301,9 +300,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         name: "mala",
         builder: (context, state) {
           final extra = state.extra as Map<String, dynamic>?;
-          return MalaScreen(
-            initialPresetId: extra?['presetId'] as String?,
-          );
+          return MalaScreen(initialPresetId: extra?['presetId'] as String?);
         },
       ),
 
@@ -327,9 +324,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) {
           final extra = state.extra as Map<String, dynamic>?;
           final plan = extra?['initialPlan'] as Plan?;
+          final recitation = extra?['initialRecitation'] as RecitationModel?;
           final enrollSeriesId = extra?['enrollSeriesId'] as String?;
           return EditRoutineScreen(
             initialPlan: plan,
+            initialRecitation: recitation,
             enrollSeriesId: enrollSeriesId,
           );
         },
@@ -345,6 +344,12 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             builder: (context, state) => const SelectRecitationScreen(),
           ),
         ],
+      ),
+      GoRoute(
+        path: "/practice/bookmarks",
+        name: "bookmarks",
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (context, state) => const BookmarksScreen(),
       ),
       GoRoute(
         path: "/practice/details",
@@ -410,6 +415,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
               );
             },
           ),
+
         ],
       ),
 
@@ -500,6 +506,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
               source = NavigationSource.search;
             } else if (sourceStr == 'deepLink') {
               source = NavigationSource.deepLink;
+            } else if (sourceStr == 'recitationList') {
+              source = NavigationSource.recitationList;
+            } else if (sourceStr == 'routine') {
+              source = NavigationSource.routine;
             }
 
             navigationContext = NavigationContext(

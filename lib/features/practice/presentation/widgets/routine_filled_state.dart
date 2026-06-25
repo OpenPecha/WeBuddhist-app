@@ -276,7 +276,7 @@ class _RoutineBlockSection extends ConsumerWidget {
 
   void _navigateToReader(BuildContext context, String textId) {
     final navigationContext = NavigationContext(
-      source: NavigationSource.normal,
+      source: NavigationSource.routine,
     );
     context.push('/reader/$textId', extra: navigationContext);
   }

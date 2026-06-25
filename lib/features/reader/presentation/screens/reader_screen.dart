@@ -7,6 +7,7 @@ import 'package:flutter_pecha/features/plans/presentation/widgets/plan_navigatio
 import 'package:flutter_pecha/features/plans/presentation/widgets/plan_navigation/plan_navigator.dart';
 import 'package:flutter_pecha/features/plans/presentation/widgets/plan_navigation/plan_segment_audio_controller.dart';
 import 'package:flutter_pecha/features/plans/presentation/widgets/plan_navigation/plan_subtask_completion.dart';
+import 'package:flutter_pecha/features/practice/presentation/controllers/bookmark_controller.dart';
 import 'package:flutter_pecha/features/reader/constants/reader_constants.dart';
 import 'package:flutter_pecha/features/reader/data/models/navigation_context.dart';
 import 'package:flutter_pecha/features/reader/data/models/reader_slot_config.dart';
@@ -14,6 +15,7 @@ import 'package:flutter_pecha/features/reader/data/models/reader_state.dart';
 import 'package:flutter_pecha/features/reader/presentation/providers/reader_notifier.dart';
 import 'package:flutter_pecha/features/reader/presentation/widgets/reader_actions/segement_action_bar.dart';
 import 'package:flutter_pecha/features/reader/presentation/widgets/reader_app_bar/reader_app_bar.dart';
+import 'package:flutter_pecha/features/reader/presentation/widgets/reader_app_bar/reader_more_bottom_sheet.dart';
 import 'package:flutter_pecha/features/reader/presentation/widgets/reader_commentary/reader_commentary_split_view.dart';
 import 'package:flutter_pecha/features/reader/presentation/widgets/reader_translation/reader_translation_split_view.dart';
 import 'package:flutter_pecha/features/reader/presentation/widgets/reader_content/reader_content_part.dart';
@@ -22,6 +24,7 @@ import 'package:flutter_pecha/features/reader/presentation/widgets/reader_search
 import 'package:flutter_pecha/features/reader/presentation/widgets/reader_settings/reader_settings_screen.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/core/utils/get_language.dart';
+import 'package:flutter_pecha/features/recitation/data/models/recitation_model.dart';
 import 'package:flutter_pecha/features/texts/data/models/text_detail.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -288,6 +291,11 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
                                       context,
                                       textDetail,
                                     ),
+                                onMorePressed:
+                                    () => _openMoreBottomSheet(
+                                      context,
+                                      textDetail,
+                                    ),
                               ),
                             ],
                           )
@@ -482,6 +490,48 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
       context,
       textId: widget.textId,
       initialPrimaryDisplay: initialPrimaryDisplay,
+    );
+  }
+
+  void _openMoreBottomSheet(BuildContext context, TextDetail? textDetail) {
+    final notifier = ref.read(readerNotifierProvider(_params).notifier);
+    notifier.selectSegment(null);
+    notifier.closeCommentary();
+    notifier.closeTranslation();
+
+    final showAddToPractices =
+        (widget.navigationContext?.source == NavigationSource.recitationList ||
+            widget.navigationContext?.source == NavigationSource.routine) &&
+        textDetail != null;
+
+    showReaderMoreBottomSheet(
+      context,
+      showAddToPractices: showAddToPractices,
+      onAddToPractices:
+          showAddToPractices
+              ? () => _openRoutineWithRecitation(context, textDetail)
+              : null,
+      onBookmark: () => _bookmarkText(context),
+    );
+  }
+
+  /// Bookmarks the current text. Invoked after the "more" sheet has been
+  /// dismissed, using the reader's own context so the success/login feedback
+  /// isn't drawn behind the closing modal.
+  void _bookmarkText(BuildContext context) {
+    BookmarkController(ref: ref, context: context).bookmarkText(widget.textId);
+  }
+
+  void _openRoutineWithRecitation(BuildContext context, TextDetail textDetail) {
+    context.push(
+      AppRoutes.practiceEditRoutine,
+      extra: {
+        'initialRecitation': RecitationModel(
+          textId: widget.textId,
+          title: textDetail.title,
+          language: textDetail.language,
+        ),
+      },
     );
   }
 }

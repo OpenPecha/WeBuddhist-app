@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/features/reader/constants/reader_constants.dart';
 import 'package:flutter_pecha/features/reader/presentation/providers/reader_notifier.dart';
-import 'package:flutter_pecha/features/reader/presentation/widgets/reader_app_bar/reader_font_size_bottom_sheet.dart';
-import 'package:flutter_pecha/features/reader/presentation/widgets/reader_app_bar/reader_font_size_button.dart';
 import 'package:flutter_pecha/features/reader/presentation/widgets/reader_app_bar/reader_search_button.dart';
 import 'package:flutter_pecha/features/reader/presentation/widgets/reader_app_bar/reader_settings_button.dart';
 import 'package:flutter_pecha/features/texts/constants/text_screen_constants.dart';
@@ -14,7 +12,12 @@ class ReaderAppBarOverlay extends ConsumerWidget {
   final ReaderParams params;
   final int? colorIndex;
   final VoidCallback onSearchPressed;
+
+  /// Opens the reader settings screen (language / parallel version config).
   final VoidCallback onSettingsPressed;
+
+  /// Opens the "more" bottom sheet (font size, add-to-practices, bookmark…).
+  final VoidCallback onMorePressed;
 
   const ReaderAppBarOverlay({
     super.key,
@@ -22,6 +25,7 @@ class ReaderAppBarOverlay extends ConsumerWidget {
     this.colorIndex,
     required this.onSearchPressed,
     required this.onSettingsPressed,
+    required this.onMorePressed,
   });
 
   @override
@@ -55,12 +59,15 @@ class ReaderAppBarOverlay extends ConsumerWidget {
           actions: [
             ReaderSearchButton(onPressed: onSearchPressed),
             const SizedBox(width: 4),
-            ReaderFontSizeButton(
-              onPressed: () => _showFontSizeBottomSheet(context),
+            // Globe icon — opens parallel-version / language settings
+            ReaderSettingsButton(onPressed: onSettingsPressed),
+            const SizedBox(width: 4),
+            // Three-dot menu — opens more bottom sheet
+            IconButton(
+              icon: const Icon(Icons.more_vert),
+              onPressed: onMorePressed,
             ),
             const SizedBox(width: 4),
-            ReaderSettingsButton(onPressed: onSettingsPressed),
-            const SizedBox(width: 8),
           ],
         ),
         // Bottom border
@@ -71,10 +78,6 @@ class ReaderAppBarOverlay extends ConsumerWidget {
       ],
     );
   }
-
-  void _showFontSizeBottomSheet(BuildContext context) {
-    showFontSizeBottomSheet(context);
-  }
 }
 
 /// SliverAppBar version for use with CustomScrollView (kept for reference)
@@ -83,6 +86,7 @@ class ReaderAppBar extends ConsumerWidget {
   final int? colorIndex;
   final VoidCallback? onSearchPressed;
   final VoidCallback? onSettingsPressed;
+  final VoidCallback? onMorePressed;
 
   const ReaderAppBar({
     super.key,
@@ -90,6 +94,7 @@ class ReaderAppBar extends ConsumerWidget {
     this.colorIndex,
     this.onSearchPressed,
     this.onSettingsPressed,
+    this.onMorePressed,
   });
 
   @override
@@ -124,14 +129,17 @@ class ReaderAppBar extends ConsumerWidget {
           onPressed: onSearchPressed ?? () => _handleSearch(context, ref),
         ),
         const SizedBox(width: 4),
-        ReaderFontSizeButton(
-          onPressed: () => _showFontSizeBottomSheet(context),
-        ),
-        const SizedBox(width: 4),
+        // Globe icon — opens parallel-version / language settings
         ReaderSettingsButton(
           onPressed: onSettingsPressed ?? () {},
         ),
-        const SizedBox(width: 8),
+        const SizedBox(width: 4),
+        // Three-dot menu — opens more bottom sheet
+        IconButton(
+          icon: const Icon(Icons.more_vert),
+          onPressed: onMorePressed ?? () {},
+        ),
+        const SizedBox(width: 4),
       ],
       bottom: PreferredSize(
         preferredSize: const Size.fromHeight(
@@ -146,16 +154,11 @@ class ReaderAppBar extends ConsumerWidget {
   }
 
   void _handleSearch(BuildContext context, WidgetRef ref) {
-    // Default search implementation - can be overridden via callback
     final notifier = ref.read(readerNotifierProvider(params).notifier);
-
-    // Close split view and selection before search
     notifier.closeCommentary();
     notifier.closeTranslation();
     notifier.selectSegment(null);
   }
-
-  void _showFontSizeBottomSheet(BuildContext context) {
-    showFontSizeBottomSheet(context);
-  }
 }
+
+

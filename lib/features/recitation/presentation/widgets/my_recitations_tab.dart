@@ -3,6 +3,7 @@ import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/widgets/error_state_widget.dart';
 import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
 import 'package:flutter_pecha/features/auth/presentation/widgets/login_drawer.dart';
+import 'package:flutter_pecha/features/reader/data/models/navigation_context.dart';
 import 'package:flutter_pecha/features/recitation/data/models/recitation_model.dart';
 import 'package:flutter_pecha/features/recitation/presentation/providers/recitations_providers.dart';
 import 'package:flutter_pecha/features/recitation/presentation/widgets/recitation_card.dart';
@@ -67,8 +68,7 @@ class _MyRecitationsTabState extends ConsumerState<MyRecitationsTab> {
       error:
           (error, stack) => ErrorStateWidget(
             error: error,
-            customMessage:
-                localizations.my_recitations_load_error,
+            customMessage: localizations.my_recitations_load_error,
           ),
     );
   }
@@ -111,27 +111,18 @@ class _MyRecitationsTabState extends ConsumerState<MyRecitationsTab> {
     RecitationModel recitation,
     int index,
   ) {
-    // Get the display recitations for navigation context
-    final displayRecitations = _optimisticRecitations ??
-        ref.watch(savedRecitationsFutureProvider).valueOrNull?.fold(
-          (failure) => <RecitationModel>[],
-          (recitations) => recitations,
-        ) ??
-        [];
-
     return Container(
       key: ValueKey(recitation.textId),
       margin: const EdgeInsets.only(bottom: _itemBottomMargin),
       child: RecitationCard(
         recitation: recitation,
-        onTap: () => context.push(
-          '/recitations/detail',
-          extra: {
-            'recitation': recitation,
-            'allRecitations': displayRecitations,
-            'currentIndex': index,
-          },
-        ),
+        onTap:
+            () => context.push(
+              '/reader/${recitation.textId}',
+              extra: const NavigationContext(
+                source: NavigationSource.recitationList,
+              ),
+            ),
         dragIndex: index, // Use list index for drag handle, not displayOrder
       ),
     );
@@ -211,7 +202,9 @@ class _MyRecitationsTabState extends ConsumerState<MyRecitationsTab> {
     ScaffoldMessengerState messenger,
     String errorMessage,
   ) async {
-    final result = await ref.read(updateRecitationsOrderProvider(payload).future);
+    final result = await ref.read(
+      updateRecitationsOrderProvider(payload).future,
+    );
 
     result.fold(
       (failure) {
@@ -229,7 +222,10 @@ class _MyRecitationsTabState extends ConsumerState<MyRecitationsTab> {
   }
 
   /// Handles failed reorder operation
-  void _handleReorderFailure(ScaffoldMessengerState messenger, String errorMessage) {
+  void _handleReorderFailure(
+    ScaffoldMessengerState messenger,
+    String errorMessage,
+  ) {
     // Rollback to original order
     _clearOptimisticState();
 
