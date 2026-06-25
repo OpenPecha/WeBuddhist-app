@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_pecha/core/constants/app_assets.dart';
-import 'package:flutter_pecha/features/practice/presentation/controllers/bookmark_controller.dart';
 import 'package:flutter_pecha/features/reader/presentation/widgets/reader_app_bar/reader_font_size_bottom_sheet.dart';
 import 'package:flutter_pecha/features/texts/presentation/providers/font_size_notifier.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -15,14 +14,17 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 class ReaderMoreBottomSheet extends ConsumerStatefulWidget {
   const ReaderMoreBottomSheet({
     super.key,
-    required this.textId,
     required this.showAddToPractices,
     this.onAddToPractices,
+    this.onBookmark,
   });
 
-  final String textId;
   final bool showAddToPractices;
   final VoidCallback? onAddToPractices;
+
+  /// Invoked after the sheet is dismissed so any feedback (snackbar / login
+  /// drawer) is shown on the underlying screen rather than behind the modal.
+  final VoidCallback? onBookmark;
 
   @override
   ConsumerState<ReaderMoreBottomSheet> createState() =>
@@ -30,8 +32,6 @@ class ReaderMoreBottomSheet extends ConsumerStatefulWidget {
 }
 
 class _ReaderMoreBottomSheetState extends ConsumerState<ReaderMoreBottomSheet> {
-  bool _isBookmarking = false;
-
   // ── font size helpers ──────────────────────────────────────────────────────
 
   int _stepIndex(double fontSize) {
@@ -50,21 +50,6 @@ class _ReaderMoreBottomSheetState extends ConsumerState<ReaderMoreBottomSheet> {
       }
     }
     return closest;
-  }
-
-  // ── bookmark ───────────────────────────────────────────────────────────────
-
-  Future<void> _bookmark() async {
-    if (_isBookmarking) return;
-    setState(() => _isBookmarking = true);
-    try {
-      await BookmarkController(
-        ref: ref,
-        context: context,
-      ).bookmarkText(widget.textId);
-    } finally {
-      if (mounted) setState(() => _isBookmarking = false);
-    }
   }
 
   @override
@@ -163,24 +148,15 @@ class _ReaderMoreBottomSheetState extends ConsumerState<ReaderMoreBottomSheet> {
           // ── Bookmark ───────────────────────────────────────────────────
           _SectionDivider(theme: theme),
           ListTile(
-            leading:
-                _isBookmarking
-                    ? SizedBox(
-                      width: 22,
-                      height: 22,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: theme.colorScheme.onSurface,
-                      ),
-                    )
-                    : Icon(
-                      AppAssets.bookmarkSimple,
-                      color: theme.colorScheme.onSurface,
-                    ),
+            leading: Icon(
+              AppAssets.bookmarkSimple,
+              color: theme.colorScheme.onSurface,
+            ),
             title: Text('Bookmark', style: theme.textTheme.bodyLarge),
             onTap: () {
               HapticFeedback.lightImpact();
-              _bookmark();
+              Navigator.of(context).pop();
+              widget.onBookmark?.call();
             },
           ),
 
@@ -256,9 +232,9 @@ class _FontSizeButton extends StatelessWidget {
 /// Shows the reader "more" bottom sheet.
 void showReaderMoreBottomSheet(
   BuildContext context, {
-  required String textId,
   required bool showAddToPractices,
   VoidCallback? onAddToPractices,
+  VoidCallback? onBookmark,
 }) {
   showModalBottomSheet(
     context: context,
@@ -268,9 +244,9 @@ void showReaderMoreBottomSheet(
     ),
     builder:
         (_) => ReaderMoreBottomSheet(
-          textId: textId,
           showAddToPractices: showAddToPractices,
           onAddToPractices: onAddToPractices,
+          onBookmark: onBookmark,
         ),
   );
 }

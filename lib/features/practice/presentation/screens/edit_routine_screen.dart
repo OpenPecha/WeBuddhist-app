@@ -654,12 +654,12 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
   }
 
   Future<void> _pickTime(int index) async {
+    if (!mounted) return;
     final initialTime = _blocks[index].time;
     final TimeOfDay? picked;
     if (Platform.isIOS) {
       picked = await _showCupertinoTimePicker(initialTime: initialTime);
     } else {
-      if (!mounted) return;
       picked = await showTimePicker(context: context, initialTime: initialTime);
     }
     if (picked != null) {
