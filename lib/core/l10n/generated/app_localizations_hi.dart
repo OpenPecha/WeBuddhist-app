@@ -215,6 +215,12 @@ class AppLocalizationsHi extends AppLocalizations {
   String get text_commentary => 'टीकाएँ';
 
   @override
+  String get resources => 'संसाधन';
+
+  @override
+  String get tools => 'उपकरण';
+
+  @override
   String get no_translation => 'कोई अनुवाद नहीं मिला';
 
   @override
@@ -765,6 +771,9 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get share => 'शेयर करें';
+
+  @override
+  String get bookmark => 'बुकमार्क';
 
   @override
   String get image => 'इमेज';
@@ -1377,6 +1386,9 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get me_minutes => 'मिनट';
+
+  @override
+  String get me_hours => 'घंटे';
 
   @override
   String get me_total_meditation_time => 'कुल ध्यान समय';

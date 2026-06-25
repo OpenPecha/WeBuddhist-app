@@ -213,6 +213,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get text_commentary => '注釋';
 
   @override
+  String get resources => '資源';
+
+  @override
+  String get tools => '工具';
+
+  @override
   String get no_translation => '尚無相關翻譯';
 
   @override
@@ -719,6 +725,9 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get share => '分享';
+
+  @override
+  String get bookmark => '书签';
 
   @override
   String get image => '圖片';
@@ -1302,6 +1311,9 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get me_minutes => '分鐘';
+
+  @override
+  String get me_hours => '小時';
 
   @override
   String get me_total_meditation_time => '禪修總時間';

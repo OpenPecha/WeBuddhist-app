@@ -306,8 +306,9 @@ class ReaderNotifier extends StateNotifier<ReaderState> {
 
   /// Load the previous page of content
   Future<void> loadPreviousPage() async {
-    if (_isDisposed || state.isLoadingPrevious || !state.hasPreviousPage)
+    if (_isDisposed || state.isLoadingPrevious || !state.hasPreviousPage) {
       return;
+    }
 
     state = state.copyWith(isLoadingPrevious: true);
     final fetchVersionId = _activeVersionId;
@@ -497,6 +498,8 @@ class ReaderNotifier extends StateNotifier<ReaderState> {
       NavigationSource.search => ReaderConstants.searchHighlightDuration,
       NavigationSource.deepLink => ReaderConstants.deepLinkHighlightDuration,
       NavigationSource.normal => Duration.zero,
+      NavigationSource.recitationList => Duration.zero,
+      NavigationSource.routine => Duration.zero,
     };
 
     if (duration > Duration.zero) {

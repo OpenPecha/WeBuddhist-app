@@ -478,6 +478,18 @@ abstract class AppLocalizations {
   /// **'Commentaries'**
   String get text_commentary;
 
+  /// No description provided for @resources.
+  ///
+  /// In en, this message translates to:
+  /// **'Resources'**
+  String get resources;
+
+  /// No description provided for @tools.
+  ///
+  /// In en, this message translates to:
+  /// **'Tools'**
+  String get tools;
+
   /// No description provided for @no_translation.
   ///
   /// In en, this message translates to:
@@ -1449,6 +1461,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Share'**
   String get share;
+
+  /// No description provided for @bookmark.
+  ///
+  /// In en, this message translates to:
+  /// **'Bookmark'**
+  String get bookmark;
 
   /// No description provided for @image.
   ///
@@ -2518,6 +2536,12 @@ abstract class AppLocalizations {
   /// **'minutes'**
   String get me_minutes;
 
+  /// No description provided for @me_hours.
+  ///
+  /// In en, this message translates to:
+  /// **'hours'**
+  String get me_hours;
+
   /// No description provided for @me_total_meditation_time.
   ///
   /// In en, this message translates to:
@@ -2527,7 +2551,7 @@ abstract class AppLocalizations {
   /// No description provided for @me_days_plan_practiced_suffix.
   ///
   /// In en, this message translates to:
-  /// **'total plan days completed'**
+  /// **'Total plan days completed'**
   String get me_days_plan_practiced_suffix;
 
   /// No description provided for @me_streak_share_message.

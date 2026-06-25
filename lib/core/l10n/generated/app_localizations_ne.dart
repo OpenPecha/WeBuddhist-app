@@ -215,6 +215,12 @@ class AppLocalizationsNe extends AppLocalizations {
   String get text_commentary => 'टीकाहरू';
 
   @override
+  String get resources => 'स्रोतहरू';
+
+  @override
+  String get tools => 'उपकरणहरू';
+
+  @override
   String get no_translation => 'कुनै अनुवाद फेला परेन';
 
   @override
@@ -770,6 +776,9 @@ class AppLocalizationsNe extends AppLocalizations {
 
   @override
   String get share => 'साझा गर्नुहोस्';
+
+  @override
+  String get bookmark => 'बुकमार्क';
 
   @override
   String get image => 'तस्बिर';
@@ -1383,6 +1392,9 @@ class AppLocalizationsNe extends AppLocalizations {
 
   @override
   String get me_minutes => 'मिनेट';
+
+  @override
+  String get me_hours => 'घण्टा';
 
   @override
   String get me_total_meditation_time => 'कुल ध्यान समय';

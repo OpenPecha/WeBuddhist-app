@@ -156,7 +156,7 @@ class AppLocalizationsBo extends AppLocalizations {
   String get preset_timers => 'སྔོན་སྒྲིག་དུས་ཚོད།';
 
   @override
-  String get meditation_timer => 'སྒོམ་དུས་ཚོད།';
+  String get meditation_timer => 'སྒོམ་ཐུན།';
 
   @override
   String get timer_min => 'སྐར་མ།';
@@ -213,6 +213,12 @@ class AppLocalizationsBo extends AppLocalizations {
 
   @override
   String get text_commentary => 'འགྲེལ་བ་ཁག';
+
+  @override
+  String get resources => 'ཐོབ་ཆ།';
+
+  @override
+  String get tools => 'ལག་ཆ།';
 
   @override
   String get no_translation => 'འགྱུར་མ་རྙེད་མ་བྱུང་།';
@@ -769,6 +775,9 @@ class AppLocalizationsBo extends AppLocalizations {
 
   @override
   String get share => 'མཉམ་སྤྱོད།';
+
+  @override
+  String get bookmark => 'དཔེ་འཛར།';
 
   @override
   String get image => 'འདྲ་པར།';
@@ -1382,6 +1391,9 @@ class AppLocalizationsBo extends AppLocalizations {
 
   @override
   String get me_minutes => 'སྐར་མ།';
+
+  @override
+  String get me_hours => 'ཆུ་ཚོད';
 
   @override
   String get me_total_meditation_time => 'སྒོམ་ཡུན་ཁྱོན་བསྡོམས།';

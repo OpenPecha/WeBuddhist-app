@@ -57,7 +57,8 @@ class _ActiveTimerScreenState extends ConsumerState<ActiveTimerScreen> {
       (_phase == _TimerPhase.running && _isPaused);
 
   bool get _showDiscard =>
-      _phase == _TimerPhase.running && _isPaused;
+      _phase == _TimerPhase.finished ||
+      (_phase == _TimerPhase.running && _isPaused);
 
   @override
   void initState() {
@@ -193,12 +194,9 @@ class _ActiveTimerScreenState extends ConsumerState<ActiveTimerScreen> {
                       SizedBox(
                         height: _controlsHeight,
                         child:
-                            _phase != _TimerPhase.countdown
+                            _phase == _TimerPhase.running
                                 ? IconButton(
-                                  onPressed:
-                                      _phase == _TimerPhase.finished
-                                          ? null
-                                          : _togglePause,
+                                  onPressed: _togglePause,
                                   iconSize: 40,
                                   padding: EdgeInsets.zero,
                                   constraints: const BoxConstraints(
@@ -206,7 +204,7 @@ class _ActiveTimerScreenState extends ConsumerState<ActiveTimerScreen> {
                                     minHeight: _controlsHeight,
                                   ),
                                   icon: Icon(
-                                    _isPaused || _phase == _TimerPhase.finished
+                                    _isPaused
                                         ? AppAssets.play
                                         : AppAssets.pause,
                                     color: textColor,

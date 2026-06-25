@@ -16,8 +16,11 @@ import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/features/notifications/application/notification_sync_bootstrap.dart';
 import 'package:flutter_pecha/features/notifications/application/notification_sync_engine.dart';
 import 'package:flutter_pecha/features/notifications/data/services/notification_service.dart';
+import 'package:flutter_pecha/features/home/data/datasource/home_local_datasource.dart';
+import 'package:flutter_pecha/features/home/presentation/providers/use_case_providers.dart';
 import 'package:flutter_pecha/features/mala/data/datasources/mala_local_datasource.dart';
 import 'package:flutter_pecha/features/mala/presentation/providers/mala_providers.dart';
+import 'package:flutter_pecha/features/more/data/datasource/user_stats_local_datasource.dart';
 import 'package:flutter_pecha/features/practice/data/datasource/routine_local_storage.dart';
 import 'package:flutter_pecha/features/practice/presentation/providers/practice_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -123,6 +126,22 @@ void main() async {
     _logger.warning('Error initializing mala local storage: $e');
   }
 
+  // Initialize Home local storage (source of truth for local-first Home).
+  try {
+    await HomeLocalDatasource.init();
+    _logger.info('Home local storage initialized');
+  } catch (e) {
+    _logger.warning('Error initializing home local storage: $e');
+  }
+
+  // Initialize Me stats local storage (source of truth for local-first stats).
+  try {
+    await UserStatsLocalDatasource.init();
+    _logger.info('Me stats local storage initialized');
+  } catch (e) {
+    _logger.warning('Error initializing me stats local storage: $e');
+  }
+
   // Create provider container for routine storage
   final container = ProviderContainer(
     overrides: [routineLocalStorageProvider.overrideWithValue(routineStorage)],
@@ -211,6 +230,9 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
     // Mala background sync — kept alive for the app lifetime so offline counts
     // flush on lifecycle/connectivity triggers even off the mala screen.
     ref.watch(malaSyncManagerProvider);
+    // Home background sync — flushes pending local-first writes when
+    // connectivity returns.
+    ref.watch(homeSyncBootstrapProvider);
     NotificationService.setRouter(router);
     NotificationService().consumeLaunchNotification();
 
@@ -245,8 +267,9 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
         debugShowCheckedModeBanner: false,
         // routerConfig: router,
         routerConfig: router,
-        builder: (context, child) =>
-            ForceUpdateGate(child: child ?? const SizedBox.shrink()),
+        builder:
+            (context, child) =>
+                ForceUpdateGate(child: child ?? const SizedBox.shrink()),
       ),
     );
   }

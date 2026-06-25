@@ -51,9 +51,7 @@ class _PracticeExploreScreenState extends ConsumerState<PracticeExploreScreen> {
               ),
             ),
             const SizedBox(height: 12),
-            _buildActionButtons(context),
-            const SizedBox(height: 4),
-            Expanded(child: _buildExploreContent()),
+            Expanded(child: _buildExploreContent(context)),
           ],
         ),
       ),
@@ -80,7 +78,14 @@ class _PracticeExploreScreenState extends ConsumerState<PracticeExploreScreen> {
               label: l10n.bookmarks,
               icon: Icons.bookmark_border,
               variant: PracticeActionButtonVariant.outlined,
-              onTap: () {},
+              onTap: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(context.l10n.mala_action_coming_soon),
+                    duration: const Duration(seconds: 2),
+                  ),
+                );
+              },
             ),
           ),
         ],
@@ -88,17 +93,23 @@ class _PracticeExploreScreenState extends ConsumerState<PracticeExploreScreen> {
     );
   }
 
-  Widget _buildExploreContent() {
+  Widget _buildExploreContent(BuildContext context) {
     return RefreshIndicator(
       onRefresh: _refreshAll,
-      child: const CustomScrollView(
-        physics: AlwaysScrollableScrollPhysics(),
+      child: CustomScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
         slivers: [
-          SliverToBoxAdapter(child: PracticePlansSection()),
-          SliverToBoxAdapter(child: PracticeChantsSection()),
-          SliverToBoxAdapter(child: PracticeAccumulationsSection()),
-          SliverToBoxAdapter(child: PracticeTimersSection()),
-          SliverToBoxAdapter(child: SizedBox(height: 32)),
+          const SliverToBoxAdapter(child: PracticePlansSection()),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.only(top: 16, bottom: 4),
+              child: _buildActionButtons(context),
+            ),
+          ),
+          const SliverToBoxAdapter(child: PracticeChantsSection()),
+          const SliverToBoxAdapter(child: PracticeAccumulationsSection()),
+          const SliverToBoxAdapter(child: PracticeTimersSection()),
+          const SliverToBoxAdapter(child: SizedBox(height: 32)),
         ],
       ),
     );

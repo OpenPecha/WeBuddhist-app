@@ -8,6 +8,7 @@ docs/
 ├── SUMMARY.md                                   (This file)
 ├── architecture/
 │   ├── AUTH_IMPLEMENTATION.md                   (12.3 KB - Architecture overview)
+│   ├── LOCAL_FIRST_ARCHITECTURE.md              (Local-first screen architecture guide)
 │   ├── TOKEN_REFRESH_FLOW.md                   (19.6 KB - Technical deep dive)
 │   └── GUEST_MODE_PERSISTENCE.md               (13 KB - Guest mode technical docs)
 └── changelog/
@@ -61,7 +62,20 @@ docs/
 - Login/Logout/State restoration flows
 - API endpoints management
 
-### 3. TOKEN_REFRESH_FLOW.md
+### 3. LOCAL_FIRST_ARCHITECTURE.md
+
+**Purpose:** Reusable implementation guide for converting screens to local-first behavior  
+**Audience:** Developers converting API-first screens to Hive-backed local-first screens  
+**Contents:**
+
+- Core local-first read and write flows
+- Repository, provider, and screen templates
+- Current Home, Mala, and Me stats implementation references
+- Backend notification model for future server-driven refresh
+- Manual acceptance checklist
+- Conversion checklist for new screens
+
+### 4. TOKEN_REFRESH_FLOW.md
 
 **Purpose:** Technical deep dive into token refresh mechanism  
 **Size:** 19.6 KB  
@@ -92,7 +106,7 @@ docs/
 - Memory usage per request
 - Failure recovery strategies
 
-### 4. AUTH0_TOKEN_REFRESH_FIXES.md
+### 5. AUTH0_TOKEN_REFRESH_FIXES.md
 
 **Purpose:** Implementation review and production readiness  
 **Size:** 14.8 KB  
@@ -123,7 +137,7 @@ docs/
 - Proper resource management
 - Production checklist (all ✅)
 
-### 5. GUEST_MODE_PERSISTENCE.md ⭐ NEW
+### 6. GUEST_MODE_PERSISTENCE.md ⭐ NEW
 
 **Purpose:** Technical documentation for guest mode implementation  
 **Size:** 13 KB  
@@ -150,7 +164,7 @@ docs/
 - Guest vs authenticated user flows
 - Testing scenarios
 
-### 6. SPLASH_AND_GUEST_MODE_IMPROVEMENTS.md ⭐ NEW
+### 7. SPLASH_AND_GUEST_MODE_IMPROVEMENTS.md ⭐ NEW
 
 **Purpose:** Changelog for recent UX improvements  
 **Size:** 7.4 KB  

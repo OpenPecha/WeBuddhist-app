@@ -1,3 +1,4 @@
+import 'dart:typed_data';
 import 'dart:ui' as ui;
 
 import 'package:cached_network_image/cached_network_image.dart';
@@ -26,6 +27,7 @@ class MalaBeads extends StatefulWidget {
     required this.threadColor,
     this.enabled = true,
     this.beadImageUrl,
+    this.beadImageBytes,
   });
 
   /// Absolute lifetime count — drives continuous forward motion (no wrap jump).
@@ -37,6 +39,7 @@ class MalaBeads extends StatefulWidget {
   final Color threadColor;
   final bool enabled;
   final String? beadImageUrl;
+  final Uint8List? beadImageBytes;
 
   @override
   State<MalaBeads> createState() => _MalaBeadsState();
@@ -67,7 +70,8 @@ class _MalaBeadsState extends State<MalaBeads>
   @override
   void didUpdateWidget(covariant MalaBeads oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.beadImageUrl != oldWidget.beadImageUrl) {
+    if (widget.beadImageUrl != oldWidget.beadImageUrl ||
+        widget.beadImageBytes != oldWidget.beadImageBytes) {
       _resolveBeadImage();
     }
     if (widget.total != oldWidget.total) {
@@ -85,10 +89,15 @@ class _MalaBeadsState extends State<MalaBeads>
     }
   }
 
-  /// Load the network bead image when provided (cached on disk so it renders
-  /// offline on later launches). With no URL — or if it fails to load — the
-  /// painter falls back to the drawn gradient bead.
+  /// Load local Hive-backed image bytes first. With no local bytes, fall back
+  /// to the network URL. With neither — or if both fail — draw the gradient bead.
   void _resolveBeadImage() {
+    final bytes = widget.beadImageBytes;
+    if (bytes != null && bytes.isNotEmpty) {
+      _resolveImageProvider(MemoryImage(bytes));
+      return;
+    }
+
     final url = widget.beadImageUrl;
     if (url == null || url.isEmpty) {
       _detachImageListener();
@@ -97,9 +106,11 @@ class _MalaBeadsState extends State<MalaBeads>
       return;
     }
 
-    final stream = CachedNetworkImageProvider(
-      url,
-    ).resolve(ImageConfiguration.empty);
+    _resolveImageProvider(CachedNetworkImageProvider(url));
+  }
+
+  void _resolveImageProvider(ImageProvider provider) {
+    final stream = provider.resolve(ImageConfiguration.empty);
     if (stream.key == _imageStream?.key) return;
 
     _detachImageListener();
@@ -147,7 +158,8 @@ class _MalaBeadsState extends State<MalaBeads>
   void _handleDragEnd(DragEndDetails details) {
     final velocity = details.primaryVelocity ?? 0;
     // Right → left only (monotonic: a left → right swipe never decrements).
-    final leftward = _dragDx <= -_kSwipeDistance || velocity <= -_kFlingVelocity;
+    final leftward =
+        _dragDx <= -_kSwipeDistance || velocity <= -_kFlingVelocity;
     if (leftward) _handleTap(); // one +1 per swipe, same as a tap
   }
 
@@ -242,11 +254,12 @@ class _MalaBeadsPainter extends CustomPainter {
     }
 
     // Red mala thread.
-    final threadPaint = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 3
-      ..color = threadColor.withValues(alpha: 0.9)
-      ..strokeCap = StrokeCap.round;
+    final threadPaint =
+        Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 3
+          ..color = threadColor.withValues(alpha: 0.9)
+          ..strokeCap = StrokeCap.round;
     canvas.drawPath(
       Path()
         ..moveTo(a.dx, a.dy)
@@ -295,7 +308,10 @@ class _MalaBeadsPainter extends CustomPainter {
     }
 
     double lengthAtT(double t) {
-      final f = ((t - tMin) / (tMax - tMin) * samples).clamp(0.0, samples * 1.0);
+      final f = ((t - tMin) / (tMax - tMin) * samples).clamp(
+        0.0,
+        samples * 1.0,
+      );
       final lo = f.floor();
       final hi = (lo + 1).clamp(0, samples);
       return cum[lo] + (cum[hi] - cum[lo]) * (f - lo);
@@ -304,7 +320,8 @@ class _MalaBeadsPainter extends CustomPainter {
     final radius = w * _radiusFactor;
     final spacing = radius * _spacingFactor;
     final sFocal = lengthAtT(_focalT);
-    final frac = phase - phase.floorToDouble(); // continuous slide within a step
+    final frac =
+        phase - phase.floorToDouble(); // continuous slide within a step
 
     // Draw right (far, top) first so left (near, bottom) beads layer on top.
     for (var i = _to; i >= _from; i--) {

@@ -1,4 +1,5 @@
 import 'package:flutter_pecha/core/di/core_providers.dart';
+import 'package:flutter_pecha/features/more/data/datasource/user_stats_local_datasource.dart';
 import 'package:flutter_pecha/features/more/data/datasource/user_stats_remote_datasource.dart';
 import 'package:flutter_pecha/features/more/data/repositories/user_stats_repository_impl.dart';
 import 'package:flutter_pecha/features/more/domain/repositories/user_stats_repository.dart';
@@ -13,11 +14,18 @@ final userStatsRemoteDatasourceProvider = Provider<UserStatsRemoteDatasource>((
   return UserStatsRemoteDatasource(dio: ref.watch(dioProvider));
 });
 
+final userStatsLocalDatasourceProvider = Provider<UserStatsLocalDatasource>((
+  ref,
+) {
+  return UserStatsLocalDatasource();
+});
+
 final userStatsRepositoryProvider = Provider<UserStatsRepositoryInterface>((
   ref,
 ) {
   return UserStatsRepositoryImpl(
     remote: ref.watch(userStatsRemoteDatasourceProvider),
+    local: ref.watch(userStatsLocalDatasourceProvider),
   );
 });
 

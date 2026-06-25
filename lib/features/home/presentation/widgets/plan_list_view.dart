@@ -71,10 +71,8 @@ class PlanListView extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
           sliver: SliverList(
             delegate: SliverChildBuilderDelegate(
-              (context, index) => PlanListItem(
-                plan: sorted[index],
-                seriesId: seriesId,
-              ),
+              (context, index) =>
+                  PlanListItem(plan: sorted[index], seriesId: seriesId),
               childCount: sorted.length,
             ),
           ),
@@ -143,9 +141,7 @@ class FeaturedPlanCard extends ConsumerWidget {
         isEnrolled || isSeriesEnrolled || isLoadingEnrollmentData;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final enrollBackgroundColor =
-        isDark
-            ? AppColors.surfaceWhite
-            : AppColors.scaffoldBackgroundDark;
+        isDark ? AppColors.surfaceWhite : AppColors.scaffoldBackgroundDark;
     final enrollForegroundColor =
         isDark ? AppColors.textPrimary : AppColors.textPrimaryDark;
 
@@ -276,8 +272,7 @@ class FeaturedPlanCard extends ConsumerWidget {
       return;
     }
 
-    final enrollments =
-        await ref.read(userSeriesEnrollmentsProvider.future);
+    final enrollments = await ref.read(userSeriesEnrollmentsProvider.future);
     if (!context.mounted) return;
     if (enrollments.contains(id)) return;
 
@@ -332,8 +327,7 @@ class PlanListItem extends ConsumerWidget {
     final canShowStatus = isEnrolled && userPlan != null && dateRange != null;
 
     final isLocked =
-        plan.startDate != null &&
-        plan.startDate!.isAfter(DateTime.now());
+        plan.startDate != null && plan.startDate!.isAfter(DateTime.now());
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 12.0),
@@ -538,10 +532,7 @@ void _navigateToPlan(
   } else {
     context.push(
       '/practice/plans/preview',
-      extra: {
-        'plan': plan,
-        if (seriesId != null) 'seriesId': seriesId,
-      },
+      extra: {'plan': plan, if (seriesId != null) 'seriesId': seriesId},
     );
   }
 }

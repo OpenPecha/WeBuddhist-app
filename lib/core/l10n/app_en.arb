@@ -103,6 +103,8 @@
   "text_search": "Search",
   "text_toc_versions": "Versions",
   "text_commentary": "Commentaries",
+  "resources": "Resources",
+  "tools": "Tools",
   "no_translation": "No translations found",
   "text_close_commentary": "Close commentary",
   "show_more": "Show more",
@@ -339,6 +341,7 @@
   "copy": "Copy",
   "copied": "Copied",
   "share": "Share",
+  "bookmark": "Bookmark",
   "image": "Image",
   "feedback": "Feedback",
   "author": "Author",
@@ -663,8 +666,9 @@
   "me_accumulation": "Total accumulations",
   "me_counts": "counts",
   "me_minutes": "minutes",
+  "me_hours": "hours",
   "me_total_meditation_time": "Total meditation time",
-  "me_days_plan_practiced_suffix": "total plan days completed",
+  "me_days_plan_practiced_suffix": "Total plan days completed",
   "me_streak_share_message": "I'm on a {count}-day streak on {appName}!",
   "@me_streak_share_message": {
     "placeholders": {

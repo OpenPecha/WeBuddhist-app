@@ -215,6 +215,12 @@ class AppLocalizationsMn extends AppLocalizations {
   String get text_commentary => 'Тайлбар';
 
   @override
+  String get resources => 'Нөөц';
+
+  @override
+  String get tools => 'Хэрэгслүүд';
+
+  @override
   String get no_translation => 'Орчуулга олдсонгүй';
 
   @override
@@ -763,6 +769,9 @@ class AppLocalizationsMn extends AppLocalizations {
 
   @override
   String get share => 'Хуваалцах';
+
+  @override
+  String get bookmark => 'Хавчууруулга';
 
   @override
   String get image => 'Зураг';
@@ -1378,6 +1387,9 @@ class AppLocalizationsMn extends AppLocalizations {
 
   @override
   String get me_minutes => 'минут';
+
+  @override
+  String get me_hours => 'цаг';
 
   @override
   String get me_total_meditation_time => 'Нийт бясалгалын хугацаа';

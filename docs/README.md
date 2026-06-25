@@ -11,6 +11,7 @@ docs/
 ├── README.md (this file)
 ├── architecture/
 │   ├── AUTH_IMPLEMENTATION.md
+│   ├── LOCAL_FIRST_ARCHITECTURE.md
 │   └── TOKEN_REFRESH_FLOW.md
 └── changelog/
     └── AUTH0_TOKEN_REFRESH_FIXES.md
@@ -21,6 +22,9 @@ docs/
 ## 📚 Quick Links
 
 ### Architecture Documentation
+
+- **[Local-First Architecture Guide](./architecture/LOCAL_FIRST_ARCHITECTURE.md)**  
+  Practical pattern for Hive-backed local-first screens, including Home, Mala, and Me stats references.
 
 - **[Authentication Implementation](./architecture/AUTH_IMPLEMENTATION.md)**  
   Complete guide to the authentication architecture, design decisions, and component details.

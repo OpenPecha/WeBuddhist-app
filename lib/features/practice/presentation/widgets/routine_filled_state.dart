@@ -6,8 +6,11 @@ import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/features/notifications/data/models/notification_nav.dart';
 import 'package:flutter_pecha/features/plans/data/models/user/user_plans_model.dart';
 import 'package:flutter_pecha/features/plans/data/utils/plan_utils.dart';
+import 'package:flutter_pecha/features/plans/domain/subtask_navigation.dart';
+import 'package:flutter_pecha/features/plans/domain/usecases/user_plans_usecases.dart';
 import 'package:flutter_pecha/features/plans/presentation/providers/use_case_providers.dart';
 import 'package:flutter_pecha/features/plans/presentation/providers/user_plans_provider.dart';
+import 'package:flutter_pecha/features/plans/presentation/widgets/plan_navigation/plan_navigator.dart';
 import 'package:flutter_pecha/features/practice/data/models/routine_model.dart';
 import 'package:flutter_pecha/features/practice/presentation/providers/routine_api_providers.dart';
 import 'package:flutter_pecha/features/practice/presentation/widgets/routine_item_card.dart';
@@ -257,10 +260,9 @@ class _RoutineBlockSection extends ConsumerWidget {
         _navigateToReader(context, item.id);
       case RoutineItemType.series:
         if (!context.mounted) return;
-        context.pushNamed(
-          'home-series-detail',
-          pathParameters: {'id': item.id},
-        );
+        // Use go (not push) so the shell route is reused instead of inserting
+        // a second /home page when navigating from this root-level route.
+        context.goNamed('home-series-detail', pathParameters: {'id': item.id});
     }
   }
 
@@ -271,17 +273,17 @@ class _RoutineBlockSection extends ConsumerWidget {
   ) async {
     final planId = item.currentPlanId;
     if (planId == null) return;
-    await _navigateToPlanDetails(context, ref, item, planId: planId);
+    await _navigateToFirstPlanContent(context, ref, item, planId: planId);
   }
 
   void _navigateToReader(BuildContext context, String textId) {
     final navigationContext = NavigationContext(
-      source: NavigationSource.normal,
+      source: NavigationSource.routine,
     );
     context.push('/reader/$textId', extra: navigationContext);
   }
 
-  Future<void> _navigateToPlanDetails(
+  Future<void> _navigateToFirstPlanContent(
     BuildContext context,
     WidgetRef ref,
     RoutineItem item, {
@@ -321,14 +323,53 @@ class _RoutineBlockSection extends ConsumerWidget {
       'selectedDay=$selectedDay/${userPlan.totalDays}',
     );
 
-    context.push(
-      '/practice/details',
-      extra: {
-        'plan': userPlan,
-        'selectedDay': selectedDay,
-        'startDate': startDate,
-      },
+    final dayContentResult = await ref
+        .read(getUserPlanDayContentUseCaseProvider)
+        .call(
+          PlanDayContentParams(
+            planId: userPlan.id,
+            dayNumber: selectedDay,
+          ),
+        );
+
+    final dayData = dayContentResult.fold((_) => null, (data) => data);
+    if (dayData == null) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(context.l10n.notFound)));
+      }
+      return;
+    }
+
+    final planTextItems = PlanSubtaskNavigation.fromUserTasks(dayData.tasks);
+    if (planTextItems.isEmpty) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(context.l10n.notFound)));
+      }
+      return;
+    }
+
+    final targetIndex =
+        planTextItems.indexWhere((planItem) => !planItem.isCompleted);
+    final index = targetIndex >= 0 ? targetIndex : 0;
+    final target = planTextItems[index];
+
+    final navigationContext = NavigationContext(
+      source: NavigationSource.plan,
+      planId: userPlan.id,
+      dayNumber: selectedDay,
+      targetSegmentId: target.firstSegmentId,
+      planTextItems: planTextItems,
+      currentTextIndex: index,
+      dayAudioUrl: dayData.audioUrl,
     );
+
+    if (!context.mounted) return;
+
+    PlanNavigator.push(context, target, navigationContext);
   }
 
   @override

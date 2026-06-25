@@ -9,6 +9,8 @@ import 'package:flutter_pecha/shared/domain/base_classes/repository.dart';
 
 abstract class UserStatsRepositoryInterface extends Repository {
   Future<Either<Failure, UserStats>> getUserStats();
+  Stream<Either<Failure, UserStats>> watchUserStats();
+  Future<Either<Failure, UserStats>> refreshUserStats();
 
   Future<Either<Failure, SeriesDayCompletedPage>> getSeriesDayCompleted(
     GetSeriesDayCompletedParams params,

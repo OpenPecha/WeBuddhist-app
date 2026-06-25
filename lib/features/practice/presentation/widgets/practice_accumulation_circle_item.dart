@@ -19,14 +19,20 @@ class PracticeAccumulationCircleItem extends StatelessWidget {
     final beadUrl = mantra.mantra?.beadImageUrl ?? mantra.beadImageUrl;
     final title = mantra.displayTitle(language);
 
+    const titleStyle = TextStyle(
+      fontSize: 13,
+      fontWeight: FontWeight.bold,
+      height: 1.33,
+    );
+
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(12),
       child: SizedBox(
         width: 110,
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             ClipOval(
               child:
@@ -48,12 +54,15 @@ class PracticeAccumulationCircleItem extends StatelessWidget {
                       ),
             ),
             const SizedBox(height: 8),
-            Text(
-              title,
-              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
-              textAlign: TextAlign.center,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
+            SizedBox(
+              height: titleStyle.fontSize! * titleStyle.height! * 2,
+              child: Text(
+                title,
+                style: titleStyle,
+                textAlign: TextAlign.center,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
           ],
         ),

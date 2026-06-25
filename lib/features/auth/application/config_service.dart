@@ -41,7 +41,16 @@ class ConfigService {
       final data = jsonDecode(response.body) as Map<String, dynamic>;
       auth0Domain = data['domain'] as String?;
       auth0ClientId = data['client_id'] as String?;
-      auth0Audience = data['audience'] as String?;
+      // Accept both the new 'audience' key and the legacy 'auth0Audience' key
+      // so the app keeps working while the backend migrates. Fall back to the
+      // .env value so local dev / older server builds still issue JWTs.
+      final serverAudience =
+          (data['audience'] as String?)?.isNotEmpty == true
+              ? data['audience'] as String
+              : (data['auth0Audience'] as String?)?.isNotEmpty == true
+              ? data['auth0Audience'] as String
+              : null;
+      auth0Audience = serverAudience ?? dotenv.env['AUTH0_AUDIENCE'];
       await _cacheConfig();
       _isLoaded = true;
     } catch (_) {
