@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
+import 'package:flutter_pecha/features/home/domain/entities/series.dart';
 import 'package:flutter_pecha/features/practice/presentation/providers/practice_explore_providers.dart';
+import 'package:flutter_pecha/features/practice/presentation/screens/all_plans_screen.dart';
 import 'package:flutter_pecha/features/practice/presentation/screens/all_recitations_screen.dart';
 import 'package:flutter_pecha/features/reader/data/models/navigation_context.dart';
 import 'package:flutter_pecha/features/recitation/data/models/recitation_model.dart';
@@ -20,10 +22,30 @@ class HomeShortcutsRow extends ConsumerWidget {
   static const _borderRadius = 16.0;
   static const _iconSize = 26.0;
 
-  void _onPlansTap(BuildContext context) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(context.l10n.mala_action_coming_soon)),
+  void _navigateToSeries(BuildContext context, Series series) {
+    context.pushNamed(
+      'home-series-detail',
+      pathParameters: {'id': series.id},
+      extra: {'series': series},
     );
+  }
+
+  void _onPlansTap(BuildContext context, WidgetRef ref) {
+    final seriesAsync = ref.read(practiceExploreSeriesProvider);
+    seriesAsync.whenData((either) {
+      either.fold((_) {}, (seriesList) {
+        if (seriesList.isEmpty) return;
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder:
+                (_) => AllPlansScreen(
+                  seriesList: seriesList,
+                  onTap: (series) => _navigateToSeries(context, series),
+                ),
+          ),
+        );
+      });
+    });
   }
 
   void _navigateToRecitation(BuildContext context, RecitationModel recitation) {
@@ -63,7 +85,7 @@ class HomeShortcutsRow extends ConsumerWidget {
       _HomeShortcutItem(
         icon: AppAssets.homeList,
         label: l10n.home_shortcut_plans,
-        onTap: () => _onPlansTap(context),
+        onTap: () => _onPlansTap(context, ref),
       ),
       _HomeShortcutItem(
         icon: AppAssets.homeChants,

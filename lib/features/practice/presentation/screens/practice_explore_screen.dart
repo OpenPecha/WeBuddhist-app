@@ -78,7 +78,11 @@ class _PracticeExploreScreenState extends ConsumerState<PracticeExploreScreen> {
               label: l10n.bookmarks,
               icon: Icons.bookmark_border,
               variant: PracticeActionButtonVariant.outlined,
-              onTap: () {},
+              onTap: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text(context.l10n.mala_action_coming_soon)),
+                );
+              },
             ),
           ),
         ],
