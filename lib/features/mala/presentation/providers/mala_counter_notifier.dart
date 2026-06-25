@@ -19,6 +19,7 @@ class MalaCounterState {
     this.beadsPerRound = kBeadsPerRound,
     this.isSeeding = true,
     this.seedFailed = false,
+    this.isResetting = false,
     this.beadImageUrl,
     this.beadImageBytes,
   });
@@ -37,6 +38,10 @@ class MalaCounterState {
   /// User id could not be resolved; counting cannot be persisted safely.
   final bool seedFailed;
 
+  /// True while a reset is in progress. Blocks [incrementBead] so taps cannot
+  /// arrive between the server DELETE and the local clearSession wipe.
+  final bool isResetting;
+
   int get beadInRound => total % beadsPerRound;
 
   /// Completed rounds: 0 at start, 1 only once the 108th bead lands.
@@ -47,6 +52,7 @@ class MalaCounterState {
     int? beadsPerRound,
     bool? isSeeding,
     bool? seedFailed,
+    bool? isResetting,
     String? beadImageUrl,
     Uint8List? beadImageBytes,
   }) => MalaCounterState(
@@ -54,6 +60,7 @@ class MalaCounterState {
     beadsPerRound: beadsPerRound ?? this.beadsPerRound,
     isSeeding: isSeeding ?? this.isSeeding,
     seedFailed: seedFailed ?? this.seedFailed,
+    isResetting: isResetting ?? this.isResetting,
     beadImageUrl: beadImageUrl ?? this.beadImageUrl,
     beadImageBytes: beadImageBytes ?? this.beadImageBytes,
   );
@@ -210,12 +217,12 @@ class MalaCounterNotifier extends StateNotifier<MalaCounterState> {
     }
   }
 
-  /// +1 recitation. No-op while seeding. Monotonic — never decrements.
+  /// +1 recitation. No-op while seeding or resetting. Monotonic — never decrements.
   void incrementBead({
     required bool soundEnabled,
     required bool vibrationEnabled,
   }) {
-    if (state.isSeeding) return;
+    if (state.isSeeding || state.isResetting) return;
 
     final userId = _userId;
     if (userId == null || userId.isEmpty) return;
@@ -245,11 +252,12 @@ class MalaCounterNotifier extends StateNotifier<MalaCounterState> {
   /// accumulator (`DELETE /accumulators/user/{id}`). Unsynced taps are flushed
   /// first. Returns false on failure.
   Future<bool> resetCount() async {
-    if (state.isSeeding) return false;
+    if (state.isSeeding || state.isResetting) return false;
 
     final userId = _userId;
     if (userId == null || userId.isEmpty) return false;
 
+    state = state.copyWith(isResetting: true);
     try {
       await _sync.resetAccumulator(
         _presetId,
@@ -259,11 +267,13 @@ class MalaCounterNotifier extends StateNotifier<MalaCounterState> {
       final localState = _local.read(userId, _presetId);
       state = state.copyWith(
         total: 0,
+        isResetting: false,
         beadImageUrl: localState.beadImageUrl ?? state.beadImageUrl,
       );
       return true;
     } catch (e, st) {
       _logger.warning('Reset failed: $e', e, st);
+      if (mounted) state = state.copyWith(isResetting: false);
       return false;
     }
   }
