@@ -26,7 +26,7 @@ class PracticeTimerCard extends StatelessWidget {
       style: TextStyle(
         fontSize: 28,
         fontWeight: FontWeight.w600,
-        height: 2,
+        height: isTibetan ? 2 : 1,
         color: textColor,
       ),
     );
