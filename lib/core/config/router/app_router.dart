@@ -151,10 +151,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                       if (plan == null) {
                         throw Exception('Missing required parameters');
                       }
-                      return PlanPreviewDetails(
-                        plan: plan,
-                        seriesId: seriesId,
-                      );
+                      return PlanPreviewDetails(plan: plan, seriesId: seriesId);
                     },
                   ),
                 ],
@@ -189,6 +186,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 path: "group/:groupId",
                 name: "home-group-profile",
+                parentNavigatorKey: rootNavigatorKey,
                 builder: (context, state) {
                   final groupId = state.pathParameters['groupId'] ?? '';
                   return GroupProfileScreen(groupId: groupId);
@@ -301,9 +299,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         name: "mala",
         builder: (context, state) {
           final extra = state.extra as Map<String, dynamic>?;
-          return MalaScreen(
-            initialPresetId: extra?['presetId'] as String?,
-          );
+          return MalaScreen(initialPresetId: extra?['presetId'] as String?);
         },
       ),
 
@@ -374,10 +370,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           if (plan == null) {
             throw Exception('Missing required parameters');
           }
-          return PlanPreviewDetails(
-            plan: plan,
-            seriesId: seriesId,
-          );
+          return PlanPreviewDetails(plan: plan, seriesId: seriesId);
         },
       ),
       GoRoute(
