@@ -173,6 +173,9 @@ class _StatCard extends StatelessWidget {
     final isTibetan = context.isTibetanLocale;
     final valueStyle = Theme.of(
       context,
+    ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700);
+    final tibetanValueStyle = Theme.of(
+      context,
     ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700);
 
     return Material(
