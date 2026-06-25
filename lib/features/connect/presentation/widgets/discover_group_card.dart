@@ -3,6 +3,7 @@ import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/core/l10n/intl_format_locale.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
+import 'package:flutter_pecha/core/utils/tibetan_numerals.dart';
 import 'package:flutter_pecha/core/widgets/cached_network_image_widget.dart';
 import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
 import 'package:flutter_pecha/features/auth/presentation/widgets/login_drawer.dart';
@@ -92,6 +93,9 @@ class DiscoverGroupCard extends ConsumerWidget {
             ? context.l10n.group_member
             : context.l10n.group_members;
 
+    if (context.isTibetanLocale) {
+      return '$typeLabel · $memberLabel ${toTibetanDigits(formattedCount)}';
+    }
     return '$typeLabel · $formattedCount $memberLabel';
   }
 
