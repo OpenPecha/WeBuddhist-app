@@ -20,6 +20,7 @@ import 'package:flutter_pecha/features/home/data/datasource/home_local_datasourc
 import 'package:flutter_pecha/features/home/presentation/providers/use_case_providers.dart';
 import 'package:flutter_pecha/features/mala/data/datasources/mala_local_datasource.dart';
 import 'package:flutter_pecha/features/mala/presentation/providers/mala_providers.dart';
+import 'package:flutter_pecha/features/more/data/datasource/user_stats_local_datasource.dart';
 import 'package:flutter_pecha/features/practice/data/datasource/routine_local_storage.dart';
 import 'package:flutter_pecha/features/practice/presentation/providers/practice_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -131,6 +132,14 @@ void main() async {
     _logger.info('Home local storage initialized');
   } catch (e) {
     _logger.warning('Error initializing home local storage: $e');
+  }
+
+  // Initialize Me stats local storage (source of truth for local-first stats).
+  try {
+    await UserStatsLocalDatasource.init();
+    _logger.info('Me stats local storage initialized');
+  } catch (e) {
+    _logger.warning('Error initializing me stats local storage: $e');
   }
 
   // Create provider container for routine storage
