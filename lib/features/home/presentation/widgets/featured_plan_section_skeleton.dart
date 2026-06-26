@@ -5,6 +5,7 @@ class FeaturedPlanSectionSkeleton extends StatelessWidget {
   const FeaturedPlanSectionSkeleton({super.key});
 
   static const _horizontalPadding = 16.0;
+  static const _imageBorderRadius = 16.0;
 
   @override
   Widget build(BuildContext context) {
@@ -22,37 +23,64 @@ class FeaturedPlanSectionSkeleton extends StatelessWidget {
           children: [
             Bone.text(words: 2, fontSize: 18),
             const SizedBox(height: 12),
-            Bone(
-              width: double.infinity,
-              height: 180,
-              borderRadius: BorderRadius.circular(16),
-            ),
-            const SizedBox(height: 12),
-            Bone.text(words: 3, fontSize: 16),
-            const SizedBox(height: 8),
-            Bone.text(words: 3, fontSize: 13),
-            const SizedBox(height: 16),
-            for (var i = 0; i < 2; i++) ...[
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
+            Material(
+              borderRadius: BorderRadius.circular(_imageBorderRadius),
+              clipBehavior: Clip.antiAlias,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Bone(
-                    width: 72,
-                    height: 72,
-                    borderRadius: BorderRadius.circular(12),
+                  AspectRatio(
+                    aspectRatio: 16 / 9,
+                    child: Bone(
+                      width: double.infinity,
+                      height: double.infinity,
+                      borderRadius: BorderRadius.circular(0),
+                    ),
                   ),
-                  const SizedBox(width: 12),
-                  Expanded(
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(12, 12, 12, 16),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Bone.text(words: 3, fontSize: 16),
-                        const SizedBox(height: 8),
+                        const SizedBox(height: 4),
                         Bone.text(words: 3, fontSize: 13),
                       ],
                     ),
                   ),
                 ],
+              ),
+            ),
+            const SizedBox(height: 16),
+            for (var i = 0; i < 2; i++) ...[
+              Material(
+                color: Colors.transparent,
+                borderRadius: BorderRadius.circular(_imageBorderRadius),
+                clipBehavior: Clip.antiAlias,
+                child: Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Bone(
+                        width: 72,
+                        height: 72,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Bone.text(words: 3, fontSize: 16),
+                            const SizedBox(height: 4),
+                            Bone.text(words: 3, fontSize: 13),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ),
               if (i == 0) const SizedBox(height: 12),
             ],

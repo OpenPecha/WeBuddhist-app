@@ -30,6 +30,7 @@ class ConnectRemoteDatasource {
       final response = await dio.get(
         '/author/groups',
         queryParameters: queryParameters,
+        options: Options(extra: {'no_cache': true}),
       );
 
       if (response.statusCode != 200) {
@@ -60,6 +61,7 @@ class ConnectRemoteDatasource {
       final response = await dio.get(
         '/users/me/joined/author/groups',
         queryParameters: {'language': language, 'skip': skip, 'limit': limit},
+        options: Options(extra: {'no_cache': true}),
       );
 
       if (response.statusCode != 200) {

@@ -3,6 +3,7 @@ import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
 import 'package:flutter_pecha/core/widgets/responsive_cover_image.dart';
 import 'package:flutter_pecha/features/plans/domain/entities/plan.dart';
 import 'package:flutter_pecha/shared/extensions/typography_extensions.dart';
+import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class PlanCard extends ConsumerWidget {
@@ -49,7 +50,7 @@ Widget _buildPlanImage(Plan plan) {
 
 Widget _buildPlanInfo(BuildContext context, Plan plan, WidgetRef ref) {
   final languageCode = ref.watch(localeProvider).languageCode;
-  final fontSize = languageCode == 'bo' ? 16.0 : 14.0;
+  final fontSize = getLocalizedFontSize(AppTextSize.label);
 
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,

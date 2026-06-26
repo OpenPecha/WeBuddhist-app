@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/theme/font_config.dart';
 import 'package:flutter_pecha/core/constants/app_config.dart';
 
+export 'package:flutter_pecha/core/theme/font_config.dart' show AppTextSize;
+
 extension HelperFunctions on BuildContext {
   void showSnackBar(String message) {
     ScaffoldMessenger.of(this).showSnackBar(SnackBar(content: Text(message)));
@@ -27,26 +29,16 @@ TextStyle? getContentTextStyle(String? language, TextStyle? baseStyle) {
 
 // Helper function to get the line height for a given language
 double? getLineHeight(String language) {
-  switch (language) {
-    case AppConfig.tibetanLanguageCode ||
-        AppConfig.tibetanAdaptationLanguageCode:
-      return 2;
-    case AppConfig.englishLanguageCode ||
-        AppConfig.tibetanTransliterationLanguageCode:
-      return 1.5;
-    case AppConfig.chineseLanguageCode:
-      return 1.5;
-    default:
-      return 1.5;
-  }
+  return AppFontConfig.getLineHeight(language);
 }
 
 // Helper function to get the font size for a given language
 double? getFontSize(String language) {
+  if (AppFontConfig.isTibetanLanguage(language)) {
+    return AppFontConfig.tibetanContentFontSize;
+  }
+
   switch (language) {
-    case AppConfig.tibetanLanguageCode ||
-        AppConfig.tibetanAdaptationLanguageCode:
-      return 18;
     case AppConfig.englishLanguageCode ||
         AppConfig.tibetanTransliterationLanguageCode:
       return 20;
@@ -55,6 +47,10 @@ double? getFontSize(String language) {
     default:
       return null;
   }
+}
+
+double getLocalizedFontSize(AppTextSize size) {
+  return AppFontConfig.getTextSize(size);
 }
 
 /// Soft line-break marker embedded in segment content by the backend.

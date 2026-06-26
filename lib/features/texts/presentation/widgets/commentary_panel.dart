@@ -203,7 +203,10 @@ class _CommentaryCard extends StatelessWidget {
           const _CommentaryDivider(),
           const SizedBox(height: _CommentaryPanelConstants.contentSpacing),
           _CommentaryContentText(
-            content: commentary.segments.map((e) => normalizeSegmentText(e.content)).toList(),
+            content:
+                commentary.segments
+                    .map((e) => normalizeSegmentText(e.content))
+                    .toList(),
             isExpanded: isExpanded,
             language: commentary.language,
           ),
@@ -235,7 +238,7 @@ class _CommentaryTitle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final fontFamily = getFontFamily(language);
-    final fontSize = language == 'bo' ? 21.0 : 17.0;
+    final fontSize = getLocalizedFontSize(AppTextSize.title);
     return Text(
       '$title ($contentCount)',
       style: Theme.of(context).textTheme.titleSmall?.copyWith(
@@ -281,7 +284,7 @@ class _CommentaryContentText extends StatelessWidget {
   Widget build(BuildContext context) {
     final fontFamily = getFontFamily(language);
     final lineHeight = getLineHeight(language);
-    final fontSize = language == 'bo' ? 20.0 : 16.0;
+    final fontSize = getLocalizedFontSize(AppTextSize.content);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children:

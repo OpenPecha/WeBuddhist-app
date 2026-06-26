@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
+import 'package:flutter_pecha/core/theme/font_config.dart';
 import 'package:flutter_pecha/core/widgets/responsive_cover_image.dart';
 import 'package:flutter_pecha/features/home/domain/entities/series.dart';
 import 'package:flutter_pecha/features/home/presentation/providers/featured_series_provider.dart';
 import 'package:flutter_pecha/features/home/presentation/providers/routine_info_provider.dart';
 import 'package:flutter_pecha/features/home/presentation/widgets/featured_plan_section_skeleton.dart';
+import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
@@ -43,9 +45,9 @@ class _FeaturedPlanContent extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
     final isTibetan = context.isTibetanLocale;
-    final sectionTitleSize = isTibetan ? 16.0 : 18.0;
-    final titleFontSize = isTibetan ? 14.0 : 16.0;
-    final dateFontSize = isTibetan ? 12.0 : 13.0;
+    final sectionTitleSize = getLocalizedFontSize(AppTextSize.bodyLarge);
+    final titleFontSize = getLocalizedFontSize(AppTextSize.body);
+    final dateFontSize = getLocalizedFontSize(AppTextSize.caption);
     final sectionContentGap = isTibetan ? 16.0 : 12.0;
     final itemBottomGap = isTibetan ? 16.0 : 12.0;
     final heroOthersGap = isTibetan ? 20.0 : 16.0;
@@ -77,12 +79,17 @@ class _FeaturedPlanContent extends ConsumerWidget {
         children: [
           Text(
             l10n.creator_featured_plan,
-            strutStyle: context.tibetanStrutStyle(sectionTitleSize),
+            strutStyle: context.tibetanStrutStyle(
+              sectionTitleSize,
+              compact: true,
+            ),
             style: TextStyle(
               fontSize: sectionTitleSize,
               fontWeight: FontWeight.w700,
               color: colorScheme.onSurface,
-              height: 1.2,
+              height: isTibetan ? AppFontConfig.tibetanCompactLineHeight : 1.2,
+              leadingDistribution:
+                  isTibetan ? AppFontConfig.tibetanLeadingDistribution : null,
             ),
           ),
           SizedBox(height: sectionContentGap),
@@ -159,13 +166,16 @@ class _FeaturedPlanDateRangeLabel extends StatelessWidget {
     final dateRange = _formatSeriesDateRange(series);
     if (dateRange == null) return const SizedBox.shrink();
 
+    final isTibetan = context.isTibetanLocale;
     return Text(
       dateRange,
       style: TextStyle(
         fontSize: fontSize,
         fontWeight: FontWeight.w500,
         color: Theme.of(context).colorScheme.onSurfaceVariant,
-        height: 1.2,
+        height: isTibetan ? AppFontConfig.tibetanCompactLineHeight : 1.2,
+        leadingDistribution:
+            isTibetan ? AppFontConfig.tibetanLeadingDistribution : null,
       ),
       maxLines: 1,
       overflow: TextOverflow.ellipsis,
@@ -226,12 +236,22 @@ class _FeaturedPlanHeroCard extends StatelessWidget {
                 children: [
                   Text(
                     series.title,
-                    strutStyle: context.tibetanStrutStyle(titleFontSize),
+                    strutStyle: context.tibetanStrutStyle(
+                      titleFontSize,
+                      compact: true,
+                    ),
                     style: TextStyle(
                       fontSize: titleFontSize,
                       fontWeight: FontWeight.w700,
                       color: colorScheme.onSurface,
-                      height: 1.3,
+                      height:
+                          context.isTibetanLocale
+                              ? AppFontConfig.tibetanCompactLineHeight
+                              : 1.3,
+                      leadingDistribution:
+                          context.isTibetanLocale
+                              ? AppFontConfig.tibetanLeadingDistribution
+                              : null,
                     ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
@@ -311,12 +331,22 @@ class _FeaturedPlanListItem extends StatelessWidget {
                   children: [
                     Text(
                       series.title,
-                      strutStyle: context.tibetanStrutStyle(titleFontSize),
+                      strutStyle: context.tibetanStrutStyle(
+                        titleFontSize,
+                        compact: true,
+                      ),
                       style: TextStyle(
                         fontSize: titleFontSize,
                         fontWeight: FontWeight.w600,
                         color: colorScheme.onSurface,
-                        height: 1.3,
+                        height:
+                            context.isTibetanLocale
+                                ? AppFontConfig.tibetanCompactLineHeight
+                                : 1.3,
+                        leadingDistribution:
+                            context.isTibetanLocale
+                                ? AppFontConfig.tibetanLeadingDistribution
+                                : null,
                       ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,

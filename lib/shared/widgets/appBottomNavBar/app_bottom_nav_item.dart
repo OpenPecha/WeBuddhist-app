@@ -43,6 +43,7 @@ class AppBottomNavItem<T> extends StatelessWidget {
           model.label,
           strutStyle: context.tibetanStrutStyle(
             Theme.of(context).textTheme.bodySmall?.fontSize ?? 12,
+            compact: true,
           ),
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
             fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
@@ -124,11 +125,8 @@ class _NavProfileAvatar extends StatelessWidget {
           height: _size,
           fit: BoxFit.cover,
           errorWidget:
-              (context, url, error) => PhosphorIcon(
-                fallbackIcon,
-                size: _size,
-                color: iconColor,
-              ),
+              (context, url, error) =>
+                  PhosphorIcon(fallbackIcon, size: _size, color: iconColor),
         ),
       ),
     );

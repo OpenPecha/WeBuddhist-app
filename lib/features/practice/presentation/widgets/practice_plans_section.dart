@@ -50,7 +50,14 @@ class PracticePlansSection extends ConsumerWidget {
               ),
             );
           }),
-      loading: () => const PracticeSectionSkeleton(height: 200),
+      loading:
+          () => const PracticeSectionSkeleton(
+            height: 220,
+            axis: Axis.horizontal,
+            itemCount: 2,
+            itemWidth: 300,
+            cardBorderRadius: 12,
+          ),
       error: (_, __) => const SizedBox.shrink(),
     );
   }

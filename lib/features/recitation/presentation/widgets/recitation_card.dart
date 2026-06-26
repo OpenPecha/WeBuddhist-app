@@ -140,7 +140,7 @@ class RecitationCard extends ConsumerWidget {
             ? recitationLanguage
             : systemLanguage;
     final lineHeight = getLineHeight(language);
-    final fontSize = language == 'bo' ? 22.0 : 18.0;
+    final fontSize = getLocalizedFontSize(AppTextSize.title);
     return Text(
       recitation.title,
       style: TextStyle(

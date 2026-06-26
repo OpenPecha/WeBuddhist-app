@@ -1,6 +1,4 @@
-
 import 'package:flutter/material.dart';
-import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
 import 'package:flutter_pecha/core/widgets/error_state_widget.dart';
 import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
 import 'package:flutter_pecha/features/auth/presentation/widgets/login_drawer.dart';
@@ -12,6 +10,7 @@ import 'package:flutter_pecha/features/plans/data/models/user/user_plans_model.d
 import 'package:flutter_pecha/features/plans/presentation/providers/my_plans_paginated_provider.dart';
 import 'package:flutter_pecha/features/plans/presentation/widgets/user_plan_card.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
+import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -249,8 +248,7 @@ class _EmptyMyPlansState extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final language = ref.watch(localeProvider).languageCode;
-    final fontSize = language == 'bo' ? 18.0 : 16.0;
+    final fontSize = getLocalizedFontSize(AppTextSize.body);
     final localizations = context.l10n;
 
     return Center(

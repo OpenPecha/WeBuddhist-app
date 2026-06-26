@@ -28,8 +28,7 @@ class RecitationTextSection extends StatelessWidget {
 
     final fontFamily = getFontFamily(languageCode);
     final lineHeight = getLineHeight(languageCode);
-    final fontSize =
-        languageCode == 'bo' || languageCode == 'tib' ? 24.0 : 20.0;
+    final fontSize = getLocalizedFontSize(AppTextSize.content);
 
     final textColor = _getColorForTextIndex(context);
 
@@ -72,6 +71,9 @@ class RecitationTextSection extends StatelessWidget {
   /// Processes the text by replacing HTML break tags with newlines.
   /// Handles both <br> and <br/> tags.
   String _processText(String text) {
-    return text.replaceAll('⤵', '<br>').replaceAll('<br>', '\n').replaceAll('<br/>', '\n');
+    return text
+        .replaceAll('⤵', '<br>')
+        .replaceAll('<br>', '\n')
+        .replaceAll('<br/>', '\n');
   }
 }

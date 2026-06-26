@@ -22,6 +22,7 @@ class PreviewActivityList extends StatelessWidget {
   final int totalDays;
   final String? planId;
   final int? dayNumber;
+  final String? dayAudioUrl;
 
   const PreviewActivityList({
     super.key,
@@ -32,6 +33,7 @@ class PreviewActivityList extends StatelessWidget {
     required this.totalDays,
     this.planId,
     this.dayNumber,
+    this.dayAudioUrl,
   });
 
   List<PlanTasksModel> get _sortedTasks {
@@ -60,13 +62,34 @@ class PreviewActivityList extends StatelessWidget {
           itemBuilder: (context, index) {
             final task = sortedTasks[index];
             final isNavigable = PlanSubtaskNavigation.isPlanTaskNavigable(task);
+            final hasAudio = _taskHasAudio(task);
             return Container(
               margin: const EdgeInsets.symmetric(vertical: 10),
-              child: _PreviewTaskItem(
-                language: language,
-                task: task,
-                hasNavigableContent: isNavigable,
-                onTap: () => _handleActivityTap(context, task),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: _PreviewTaskItem(
+                      language: language,
+                      task: task,
+                      hasNavigableContent: isNavigable,
+                      hasAudio: hasAudio,
+                      onTap:
+                          () => _handleActivityTap(
+                            context,
+                            task,
+                            autoPlay: false,
+                          ),
+                    ),
+                  ),
+                  if (isNavigable && hasAudio) ...[
+                    const SizedBox(width: 8),
+                    _PlayButton(
+                      onTap:
+                          () =>
+                              _handleActivityTap(context, task, autoPlay: true),
+                    ),
+                  ],
+                ],
               ),
             );
           },
@@ -76,7 +99,16 @@ class PreviewActivityList extends StatelessWidget {
     );
   }
 
-  void _handleActivityTap(BuildContext context, PlanTasksModel task) {
+  bool _taskHasAudio(PlanTasksModel task) {
+    if (dayAudioUrl != null) return true;
+    return task.subtasks.any((s) => s.hasOwnAudio);
+  }
+
+  void _handleActivityTap(
+    BuildContext context,
+    PlanTasksModel task, {
+    required bool autoPlay,
+  }) {
     final planTextItems = PlanSubtaskNavigation.fromPlanTasks(tasks);
     if (planTextItems.isEmpty) return;
 
@@ -95,6 +127,8 @@ class PreviewActivityList extends StatelessWidget {
       targetSegmentId: target.firstSegmentId,
       planTextItems: planTextItems,
       currentTextIndex: index,
+      autoPlay: autoPlay,
+      dayAudioUrl: dayAudioUrl,
     );
 
     PlanNavigator.push(context, target, navigationContext);
@@ -107,12 +141,14 @@ class _PreviewTaskItem extends StatelessWidget {
     required this.language,
     required this.task,
     required this.hasNavigableContent,
+    required this.hasAudio,
     required this.onTap,
   });
 
   final String language;
   final PlanTasksModel task;
   final bool hasNavigableContent;
+  final bool hasAudio;
   final VoidCallback onTap;
 
   @override
@@ -135,7 +171,7 @@ class _PreviewTaskItem extends StatelessWidget {
                 ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w500),
               ),
             ),
-            if (hasNavigableContent) ...[
+            if (hasNavigableContent && !hasAudio) ...[
               const SizedBox(width: 8),
               Container(
                 width: 40,
@@ -148,6 +184,34 @@ class _PreviewTaskItem extends StatelessWidget {
               ),
             ],
           ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Circular play button shown on tasks that have an audio segment.
+class _PlayButton extends StatelessWidget {
+  const _PlayButton({required this.onTap});
+
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final color = Theme.of(context).colorScheme.onSurface;
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(24),
+        child: Container(
+          width: 40,
+          height: 40,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            border: Border.all(color: color.withAlpha(100), width: 1),
+          ),
+          child: Icon(Icons.play_arrow, size: 22, color: color),
         ),
       ),
     );

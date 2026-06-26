@@ -21,7 +21,7 @@ class CommentaryListItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final fontFamily = getFontFamily(language);
     final lineHeight = getLineHeight(language);
-    final fontSize = language == 'bo' ? 22.0 : 18.0;
+    final fontSize = getLocalizedFontSize(AppTextSize.title);
     return GestureDetector(
       onTap: onTap,
       child: Column(

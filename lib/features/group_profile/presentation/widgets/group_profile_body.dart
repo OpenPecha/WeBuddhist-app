@@ -350,7 +350,7 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
       return const SizedBox.shrink();
     }
 
-    final bodyFontSize = languageCode == 'bo' ? 18.0 : 15.0;
+    final bodyFontSize = getLocalizedFontSize(AppTextSize.body);
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),

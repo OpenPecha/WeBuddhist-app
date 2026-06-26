@@ -132,6 +132,16 @@ class DiscoverGroupsNotifier extends StateNotifier<DiscoverGroupsState> {
     await loadInitial();
   }
 
+  void removeGroups(Set<String> groupIds) {
+    if (groupIds.isEmpty || state.groups.isEmpty) return;
+
+    final filtered =
+        state.groups.where((group) => !groupIds.contains(group.id)).toList();
+    if (filtered.length == state.groups.length) return;
+
+    state = state.copyWith(groups: filtered);
+  }
+
   void retry() {
     if (state.groups.isEmpty) {
       loadInitial();
@@ -186,6 +196,17 @@ final myGroupsProvider = FutureProvider<DiscoverGroupsPage>((ref) async {
     },
   );
 });
+
+List<GroupProfile> filterDiscoverGroups({
+  required List<GroupProfile> discoverGroups,
+  required Set<String> joinedGroupIds,
+}) {
+  if (joinedGroupIds.isEmpty) return discoverGroups;
+
+  return discoverGroups
+      .where((group) => !joinedGroupIds.contains(group.id))
+      .toList();
+}
 
 List<GroupProfile> mergeMyGroupsWithPending({
   required List<GroupProfile> apiGroups,

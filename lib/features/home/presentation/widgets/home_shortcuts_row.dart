@@ -21,6 +21,11 @@ class HomeShortcutsRow extends ConsumerWidget {
   static const _itemSpacing = 16.0;
   static const _borderRadius = 16.0;
   static const _iconSize = 26.0;
+  static const _contentHorizontalPadding = 6.0;
+  static const _contentVerticalPadding = 10.0;
+  static const _iconLabelSpacing = 6.0;
+  static const _labelFontSize = 14.0;
+  static const _labelLineHeight = 1.2;
 
   void _navigateToSeries(BuildContext context, Series series) {
     context.pushNamed(
@@ -56,21 +61,14 @@ class HomeShortcutsRow extends ConsumerWidget {
   }
 
   void _onChantsTap(BuildContext context, WidgetRef ref) {
-    final recitationsAsync = ref.read(practiceExploreRecitationsProvider);
-    recitationsAsync.whenData((either) {
-      either.fold((_) {}, (recitations) {
-        if (recitations.isEmpty) return;
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder:
-                (_) => AllRecitationsScreen(
-                  recitations: recitations,
-                  onTap: (r) => _navigateToRecitation(context, r),
-                ),
-          ),
-        );
-      });
-    });
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder:
+            (_) => AllRecitationsScreen(
+              onTap: (r) => _navigateToRecitation(context, r),
+            ),
+      ),
+    );
   }
 
   @override
@@ -146,31 +144,46 @@ class _HomeShortcutItem {
         onTap: onTap,
         child: AspectRatio(
           aspectRatio: 1,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 15),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                _buildIcon(iconColor),
-                const SizedBox(height: 8),
-                Expanded(
-                  child: Center(
-                    child: Text(
-                      label,
-                      textAlign: TextAlign.center,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                        height: 1,
-                        color: iconColor,
-                      ),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final contentWidth =
+                  constraints.maxWidth -
+                  (HomeShortcutsRow._contentHorizontalPadding * 2);
+
+              return Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: HomeShortcutsRow._contentHorizontalPadding,
+                  vertical: HomeShortcutsRow._contentVerticalPadding,
+                ),
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: SizedBox(
+                    width: contentWidth,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        _buildIcon(iconColor),
+                        const SizedBox(
+                          height: HomeShortcutsRow._iconLabelSpacing,
+                        ),
+                        Text(
+                          label,
+                          textAlign: TextAlign.center,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: HomeShortcutsRow._labelFontSize,
+                            fontWeight: FontWeight.bold,
+                            height: HomeShortcutsRow._labelLineHeight,
+                            color: iconColor,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
-              ],
-            ),
+              );
+            },
           ),
         ),
       ),

@@ -29,7 +29,7 @@ class MeStatsSectionSkeleton extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Bone.text(words: 2, fontSize: 20),
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
             _SkeletonCard(
               cardColor: cardColor,
               borderColor: borderColor,
@@ -38,7 +38,11 @@ class MeStatsSectionSkeleton extends StatelessWidget {
                 children: [
                   const Align(
                     alignment: Alignment.centerRight,
-                    child: Bone(width: 20, height: 20),
+                    child: SizedBox(
+                      width: 32,
+                      height: 32,
+                      child: Center(child: Bone(width: 20, height: 20)),
+                    ),
                   ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,

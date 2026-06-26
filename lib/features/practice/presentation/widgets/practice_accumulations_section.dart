@@ -59,7 +59,15 @@ class PracticeAccumulationsSection extends ConsumerWidget {
               ),
             );
           }),
-      loading: () => const PracticeSectionSkeleton(height: 120),
+      loading:
+          () => const PracticeSectionSkeleton(
+            height: 120,
+            axis: Axis.horizontal,
+            itemCount: 5,
+            itemWidth: 84,
+            itemSpacing: 16,
+            cardBorderRadius: 42,
+          ),
       error: (_, __) => const SizedBox.shrink(),
     );
   }

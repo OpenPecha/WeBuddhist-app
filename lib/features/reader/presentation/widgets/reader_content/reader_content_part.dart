@@ -16,7 +16,7 @@ import 'package:flutter_pecha/features/reader/presentation/providers/reader_prov
 import 'package:flutter_pecha/features/reader/presentation/providers/reader_secondary_content_provider.dart';
 import 'package:flutter_pecha/features/reader/presentation/widgets/reader_content/interlinear_segment_item.dart';
 import 'package:flutter_pecha/features/reader/presentation/widgets/reader_content/read_full_text_footer.dart';
-import 'package:flutter_pecha/features/reader/presentation/widgets/reader_content/section_header.dart';
+// import 'package:flutter_pecha/features/reader/presentation/widgets/reader_content/section_header.dart';
 import 'package:flutter_pecha/features/reader/presentation/widgets/reader_content/segment_item.dart';
 import 'package:flutter_pecha/features/reader/presentation/widgets/reader_content/segment_skeleton.dart';
 import 'package:flutter_pecha/features/texts/data/models/segment.dart';
@@ -602,16 +602,17 @@ class _ReaderContentPartState extends ConsumerState<ReaderContentPart> {
     required void Function(Segment) onSegmentTap,
   }) {
     return item.when(
-      header: (section, depth) {
-        if (section.segments[0].segmentNumber == 1) {
-          return SectionHeader(
-            section: section,
-            depth: depth,
-            language: widget.language,
-          );
-        }
-        return const SizedBox.shrink();
-      },
+      header: (section, depth) => const SizedBox.shrink(),
+      // header: (section, depth) {
+      //   if (section.segments[0].segmentNumber == 1) {
+      //     return SectionHeader(
+      //       section: section,
+      //       depth: depth,
+      //       language: widget.language,
+      //     );
+      //   }
+      //   return const SizedBox.shrink();
+      // },
       segment: (segment, depth, sectionId) {
         final isSelected =
             state.selectedSegment?.segmentId == segment.segmentId;
