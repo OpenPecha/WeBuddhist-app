@@ -180,7 +180,7 @@ class _NotificationSettingsScreenState
   Widget build(BuildContext context) {
     final state = ref.watch(notificationProvider);
     final localizations = AppLocalizations.of(context)!;
-    final ts = getLocalizedFontSize(AppTextSize.title);
+    final ts = getLocalizedFontSize(AppTextSize.body);
     final ss = getLocalizedFontSize(AppTextSize.label);
 
     return Scaffold(
