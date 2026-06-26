@@ -66,6 +66,11 @@ class _ConnectScreenState extends ConsumerState<ConnectScreen> {
       pendingGroups: pendingGroups,
       pendingUnjoinedIds: pendingUnjoinedIds,
     );
+    final joinedGroupIds = displayedMyGroups.map((group) => group.id).toSet();
+    final displayedDiscoverGroups = filterDiscoverGroups(
+      discoverGroups: discoverState.groups,
+      joinedGroupIds: joinedGroupIds,
+    );
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
@@ -114,7 +119,7 @@ class _ConnectScreenState extends ConsumerState<ConnectScreen> {
               ..._buildDiscoverGroupsSlivers(
                 context,
                 discoverState,
-                discoverState.groups,
+                displayedDiscoverGroups,
                 isDark,
               ),
               const SliverToBoxAdapter(child: SizedBox(height: 24)),

@@ -133,12 +133,15 @@ class CacheInterceptor extends Interceptor {
       paths.add('/users/me/plans');
     }
 
-    // Join/leave or follow/unfollow group mutations should refresh the cached group profile
+    // Join/leave or follow/unfollow group mutations should refresh group lists.
     final groupJoinMatch = RegExp(
       r'/author/groups/([^/]+)/(join|follow)',
     ).firstMatch(path);
     if (groupJoinMatch != null) {
       paths.add('/author/groups/${groupJoinMatch.group(1)}');
+      paths.add('/author/groups');
+      paths.add('/users/me/joined/author/groups');
+      paths.add('/users/me/following/author/groups');
     }
 
     // Accumulator and timer sessions update aggregated user stats.

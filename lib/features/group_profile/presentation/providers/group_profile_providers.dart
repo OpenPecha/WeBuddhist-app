@@ -181,6 +181,9 @@ class GroupFollowNotifier extends StateNotifier<GroupFollowState> {
         _invalidateConnectProviders();
         if (connectGroup != null) {
           _addPendingJoinedGroup(connectGroup);
+          _ref
+              .read(discoverGroupsProvider.notifier)
+              .removeGroups({connectGroup.id});
         }
         return true;
       },
