@@ -122,7 +122,7 @@ class SeriesDetailScreen extends ConsumerWidget {
               ),
             ),
           ),
-          const SizedBox(width: 48, height: 48),
+          IconButton(icon: const Icon(Icons.more_vert), onPressed: () => {}),
         ],
       ),
     );

@@ -2,7 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_pecha/features/practice/data/models/bookmark_models.dart';
 
 /// Bookmark types supported by the API.
-enum BookmarkType { text, verse, timer }
+enum BookmarkType { text, verse, timer, accumulator }
 
 extension BookmarkTypeExt on BookmarkType {
   String get value {
@@ -13,6 +13,8 @@ extension BookmarkTypeExt on BookmarkType {
         return 'VERSE';
       case BookmarkType.timer:
         return 'TIMER';
+      case BookmarkType.accumulator:
+        return 'ACCUMULATOR';
     }
   }
 }
@@ -28,14 +30,18 @@ class BookmarkRemoteDatasource {
 
   /// POST /users/me/bookmarks
   ///
-  /// [type]     – one of [BookmarkType.text], [BookmarkType.verse], or [BookmarkType.timer]
-  /// [sourceId] – text ID (TEXT), segment ID (VERSE), or timer ID (TIMER)
+  /// [type]     – the bookmark kind (TEXT, VERSE, TIMER, ACCUMULATOR, …)
+  /// [sourceId] – text ID (TEXT), segment ID (VERSE), timer ID (TIMER), or
+  ///              preset-accumulator ID (ACCUMULATOR)
+  /// [name]     – optional display label stored alongside the bookmark so the
+  ///              list can show a meaningful title without a follow-up lookup.
   ///
   /// A 409 response means the item is already bookmarked, which is treated as
   /// success so callers see "Bookmark saved" regardless of duplication.
   Future<bool> createBookmark({
     required BookmarkType type,
     required String sourceId,
+    String? name,
   }) async {
     try {
       final response = await dio.post(
@@ -43,6 +49,7 @@ class BookmarkRemoteDatasource {
         data: {
           'type': type.value,
           'source_id': sourceId,
+          if (name != null && name.isNotEmpty) 'name': name,
         },
       );
       return response.statusCode == 200 || response.statusCode == 201;

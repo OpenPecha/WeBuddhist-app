@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
 import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/core/network/connectivity_service.dart' show connectivityNotifierProvider;
@@ -8,6 +9,7 @@ import 'package:flutter_pecha/core/widgets/destructive_confirmation_dialog.dart'
 import 'package:flutter_pecha/features/mala/domain/entities/mantra.dart';
 import 'package:flutter_pecha/features/mala/presentation/providers/mala_providers.dart';
 import 'package:flutter_pecha/features/mala/presentation/providers/mala_settings_provider.dart';
+import 'package:flutter_pecha/features/practice/presentation/controllers/bookmark_controller.dart';
 import 'package:flutter_pecha/shared/widgets/app_toggle_switch.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -66,7 +68,7 @@ class MalaSettingsSheet extends ConsumerWidget {
             _MalaSettingsTile(
               icon: AppAssets.bookmarkSimple,
               label: l10n.mala_add_to_bookmark,
-              onTap: () => _onAddToBookmark(context),
+              onTap: () => _onAddToBookmark(context, ref),
             ),
             Divider(height: 1, color: dividerColor),
             _MalaSettingsToggleTile(
@@ -105,11 +107,19 @@ class MalaSettingsSheet extends ConsumerWidget {
     );
   }
 
-  void _onAddToBookmark(BuildContext context) {
-    Navigator.of(context).pop();
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(context.l10n.mala_action_coming_soon)),
+  Future<void> _onAddToBookmark(BuildContext context, WidgetRef ref) async {
+    final language = ref.read(contentLanguageProvider);
+    final navigator = Navigator.of(context);
+
+    // The controller handles the guest → login-drawer flow and shows its own
+    // success/error snackbar, so it must run before the sheet is dismissed
+    // (its context drives both). The sheet is closed once the call resolves.
+    await BookmarkController(ref: ref, context: context).bookmarkMala(
+      mantra.presetId,
+      name: mantra.displayTitle(language),
     );
+
+    if (context.mounted) navigator.pop();
   }
 
   Future<void> _onResetCount(BuildContext context, WidgetRef ref) async {

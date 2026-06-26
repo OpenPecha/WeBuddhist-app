@@ -29,9 +29,21 @@ class BookmarkController {
   Future<void> bookmarkTimer(String timerId) =>
       _createBookmark(type: BookmarkType.timer, sourceId: timerId);
 
+  /// Create an ACCUMULATOR bookmark for a preset mala/mantra.
+  ///
+  /// [name] is the localized mantra title, stored so the bookmarks list can
+  /// label the entry without a follow-up lookup.
+  Future<void> bookmarkMala(String accumulatorId, {String? name}) =>
+      _createBookmark(
+        type: BookmarkType.accumulator,
+        sourceId: accumulatorId,
+        name: name,
+      );
+
   Future<void> _createBookmark({
     required BookmarkType type,
     required String sourceId,
+    String? name,
   }) async {
     final authState = ref.read(authProvider);
     if (authState.isGuest) {
@@ -43,6 +55,7 @@ class BookmarkController {
       final result = await ref.read(bookmarkRepositoryProvider).createBookmark(
             type: type,
             sourceId: sourceId,
+            name: name,
           );
       result.fold(
         (failure) => throw Exception(failure.message),

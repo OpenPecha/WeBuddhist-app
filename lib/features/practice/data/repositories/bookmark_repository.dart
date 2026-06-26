@@ -12,11 +12,13 @@ class BookmarkRepository {
   Future<Either<Failure, bool>> createBookmark({
     required BookmarkType type,
     required String sourceId,
+    String? name,
   }) async {
     try {
       final result = await remoteDatasource.createBookmark(
         type: type,
         sourceId: sourceId,
+        name: name,
       );
       return Right(result);
     } catch (e) {
