@@ -7,7 +7,9 @@ import 'package:flutter_pecha/core/widgets/skeletons/skeletons.dart';
 import 'package:flutter_pecha/features/home/domain/entities/series.dart';
 import 'package:flutter_pecha/features/home/presentation/providers/series_provider.dart';
 import 'package:flutter_pecha/features/home/presentation/widgets/plan_list_view.dart';
+import 'package:flutter_pecha/features/home/presentation/widgets/series_more_bottom_sheet.dart';
 import 'package:flutter_pecha/features/plans/presentation/providers/user_plans_provider.dart';
+import 'package:flutter_pecha/features/practice/presentation/controllers/bookmark_controller.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -30,6 +32,12 @@ class SeriesDetailScreen extends ConsumerWidget {
     final seriesAsync = ref.watch(seriesByIdProvider(seriesId));
     final localizations = AppLocalizations.of(context)!;
 
+    final resolvedSeries =
+        seriesAsync.whenOrNull(
+          data: (either) => either.fold((_) => null, (s) => s),
+        ) ??
+        series;
+
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
@@ -37,11 +45,9 @@ class SeriesDetailScreen extends ConsumerWidget {
           children: [
             _buildAppBar(
               context,
-              seriesAsync.whenOrNull(
-                    data: (either) => either.fold((_) => null, (s) => s.title),
-                  ) ??
-                  series?.title ??
-                  '',
+              ref,
+              resolvedSeries?.title ?? '',
+              resolvedSeries,
             ),
             Expanded(
               child: RefreshIndicator(
@@ -100,7 +106,12 @@ class SeriesDetailScreen extends ConsumerWidget {
     return expectedPlanCount > 0;
   }
 
-  Widget _buildAppBar(BuildContext context, String title) {
+  Widget _buildAppBar(
+    BuildContext context,
+    WidgetRef ref,
+    String title,
+    Series? series,
+  ) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
       child: Row(
@@ -122,9 +133,33 @@ class SeriesDetailScreen extends ConsumerWidget {
               ),
             ),
           ),
-          IconButton(icon: const Icon(Icons.more_vert), onPressed: () => {}),
+          IconButton(
+            icon: const Icon(Icons.more_vert),
+            // Disabled until the series is resolved (its id/title drive both
+            // actions).
+            onPressed:
+                series == null
+                    ? null
+                    : () => _openMoreSheet(context, ref, series),
+          ),
         ],
       ),
+    );
+  }
+
+  void _openMoreSheet(BuildContext context, WidgetRef ref, Series series) {
+    showSeriesMoreBottomSheet(
+      context,
+      onAddToPractices:
+          () => context.pushNamed(
+            'edit-routine',
+            extra: {'enrollSeriesId': series.id},
+          ),
+      onBookmark:
+          () => BookmarkController(
+            ref: ref,
+            context: context,
+          ).bookmarkSeries(series.id, name: series.title),
     );
   }
 

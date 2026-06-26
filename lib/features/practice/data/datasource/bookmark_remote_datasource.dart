@@ -2,7 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_pecha/features/practice/data/models/bookmark_models.dart';
 
 /// Bookmark types supported by the API.
-enum BookmarkType { text, verse, timer, accumulator }
+enum BookmarkType { text, verse, timer, accumulator, series }
 
 extension BookmarkTypeExt on BookmarkType {
   String get value {
@@ -15,6 +15,8 @@ extension BookmarkTypeExt on BookmarkType {
         return 'TIMER';
       case BookmarkType.accumulator:
         return 'ACCUMULATOR';
+      case BookmarkType.series:
+        return 'SERIES';
     }
   }
 }

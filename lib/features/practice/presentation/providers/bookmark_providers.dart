@@ -19,12 +19,14 @@ enum BookmarkTab { all, plans, mala, timers, texts }
 extension BookmarkTabFilter on BookmarkTab {
   /// Whether [bookmark] belongs under this tab.
   ///
+  /// `plans` merges PLAN + SERIES (in-app both are "series" routine items);
   /// `texts` merges TEXT + VERSE client-side (VERSE isn't a server filter
-  /// value); `mala` maps to ACCUMULATOR. SERIES bookmarks surface only under
-  /// `all`.
+  /// value); `mala` maps to ACCUMULATOR.
   bool matches(BookmarkDTO bookmark) => switch (this) {
     BookmarkTab.all => true,
-    BookmarkTab.plans => bookmark.type == BookmarkItemType.plan,
+    BookmarkTab.plans =>
+      bookmark.type == BookmarkItemType.plan ||
+          bookmark.type == BookmarkItemType.series,
     BookmarkTab.mala => bookmark.type == BookmarkItemType.accumulator,
     BookmarkTab.timers => bookmark.type == BookmarkItemType.timer,
     BookmarkTab.texts =>

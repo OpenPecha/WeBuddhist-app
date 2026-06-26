@@ -40,6 +40,17 @@ class BookmarkController {
         name: name,
       );
 
+  /// Create a SERIES bookmark.
+  ///
+  /// [name] is the series title, stored so the bookmarks list can label the
+  /// entry without a follow-up lookup.
+  Future<void> bookmarkSeries(String seriesId, {String? name}) =>
+      _createBookmark(
+        type: BookmarkType.series,
+        sourceId: seriesId,
+        name: name,
+      );
+
   Future<void> _createBookmark({
     required BookmarkType type,
     required String sourceId,
