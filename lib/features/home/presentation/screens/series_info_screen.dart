@@ -19,8 +19,8 @@ class SeriesInfoScreen extends ConsumerWidget {
     final locale = ref.watch(localeProvider);
     final lineHeight = getLineHeight(locale.languageCode);
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final titleFontSize = locale.languageCode == 'bo' ? 24.0 : 20.0;
-    final bodyFontSize = locale.languageCode == 'bo' ? 18.0 : 15.0;
+    final titleFontSize = getLocalizedFontSize(AppTextSize.titleLarge);
+    final bodyFontSize = getLocalizedFontSize(AppTextSize.body);
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,

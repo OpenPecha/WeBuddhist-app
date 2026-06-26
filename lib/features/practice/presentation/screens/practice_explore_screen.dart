@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
+import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 import 'package:flutter_pecha/features/practice/presentation/providers/practice_explore_providers.dart';
 import 'package:flutter_pecha/features/practice/presentation/widgets/practice_accumulations_section.dart';
 import 'package:flutter_pecha/features/practice/presentation/widgets/practice_chants_section.dart';
@@ -44,9 +45,9 @@ class _PracticeExploreScreenState extends ConsumerState<PracticeExploreScreen> {
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
               child: Text(
                 l10n.nav_practice,
-                style: const TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
+                style: TextStyle(
+                  fontSize: getLocalizedFontSize(AppTextSize.titleLarge),
+                  fontWeight: FontWeight.w700,
                 ),
               ),
             ),

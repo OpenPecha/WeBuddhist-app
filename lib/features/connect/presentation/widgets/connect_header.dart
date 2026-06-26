@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
+import 'package:flutter_pecha/core/theme/font_config.dart';
 import 'package:flutter_pecha/features/connect/presentation/screens/group_search_screen.dart';
+import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 
 class ConnectHeader extends StatelessWidget {
   const ConnectHeader({super.key});
@@ -11,6 +13,7 @@ class ConnectHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+    final titleFontSize = getLocalizedFontSize(AppTextSize.titleLarge);
     final subtitleColor =
         isDark ? AppColors.textSecondaryDark : AppColors.textSecondary;
 
@@ -26,8 +29,15 @@ class ConnectHeader extends StatelessWidget {
                   context.l10n.nav_connect,
                   style: theme.textTheme.headlineMedium?.copyWith(
                     fontWeight: FontWeight.w700,
-                    fontSize: context.isTibetanLocale ? 22 : 28,
-                    height: context.isTibetanLocale ? 1.2 : null,
+                    fontSize: titleFontSize,
+                    height:
+                        context.isTibetanLocale
+                            ? AppFontConfig.tibetanCompactLineHeight
+                            : null,
+                    leadingDistribution:
+                        context.isTibetanLocale
+                            ? AppFontConfig.tibetanLeadingDistribution
+                            : null,
                   ),
                 ),
               ),

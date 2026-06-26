@@ -3,6 +3,7 @@ import 'package:flutter_pecha/core/config/router/app_routes.dart';
 import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_pecha/core/constants/app_config.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
+import 'package:flutter_pecha/core/theme/font_config.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
@@ -95,11 +96,18 @@ class _Greeting extends StatelessWidget {
     final localizations = AppLocalizations.of(context)!;
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
-    final greetingFontSize = context.isTibetanLocale ? 18.0 : 24.0;
+    final greetingFontSize = getLocalizedFontSize(AppTextSize.titleLarge);
     final greetingStyle = textTheme.headlineMedium?.copyWith(
       color: colorScheme.onSurface,
       fontSize: greetingFontSize,
-      height: context.isTibetanLocale ? 1.2 : null,
+      height:
+          context.isTibetanLocale
+              ? AppFontConfig.tibetanCompactLineHeight
+              : null,
+      leadingDistribution:
+          context.isTibetanLocale
+              ? AppFontConfig.tibetanLeadingDistribution
+              : null,
     );
 
     return RichText(

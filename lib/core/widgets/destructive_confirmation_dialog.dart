@@ -146,6 +146,7 @@ class _DestructiveConfirmationDialogState
                             textAlign: TextAlign.center,
                             strutStyle: context.tibetanStrutStyle(
                               buttonFontSize,
+                              compact: true,
                             ),
                             style: textTheme.labelLarge?.copyWith(
                               fontSize: buttonFontSize,
@@ -177,7 +178,10 @@ class _DestructiveConfirmationDialogState
                   child: Text(
                     widget.cancelLabel,
                     textAlign: TextAlign.center,
-                    strutStyle: context.tibetanStrutStyle(buttonFontSize),
+                    strutStyle: context.tibetanStrutStyle(
+                      buttonFontSize,
+                      compact: true,
+                    ),
                     style: textTheme.labelLarge?.copyWith(
                       fontSize: buttonFontSize,
                       color:

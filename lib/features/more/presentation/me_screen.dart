@@ -6,6 +6,7 @@ import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
+import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 import 'package:flutter_pecha/features/more/domain/entities/user_stats.dart';
 import 'package:flutter_pecha/features/more/presentation/providers/use_case_providers.dart';
 import 'package:flutter_pecha/features/more/presentation/providers/user_stats_provider.dart';
@@ -33,9 +34,10 @@ class MeScreen extends ConsumerWidget {
           alignment: Alignment.centerLeft,
           child: Text(
             localizations.nav_me,
-            style: Theme.of(
-              context,
-            ).textTheme.headlineLarge?.copyWith(fontWeight: FontWeight.bold),
+            style: TextStyle(
+              fontSize: getLocalizedFontSize(AppTextSize.titleLarge),
+              fontWeight: FontWeight.w700,
+            ),
           ),
         ),
 

@@ -4,6 +4,7 @@ import 'package:flutter_pecha/features/ai/data/models/chat_message.dart';
 import 'package:flutter_pecha/features/ai/presentation/widgets/source_bottom_sheet.dart';
 import 'package:flutter_pecha/features/ai/presentation/providers/segment_url_resolver_provider.dart';
 import 'package:flutter_pecha/features/reader/data/models/navigation_context.dart';
+import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
@@ -536,8 +537,7 @@ class _MessageBubbleState extends ConsumerState<MessageBubble> {
   @override
   Widget build(BuildContext context) {
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
-    final locale = Localizations.localeOf(context);
-    final fontSize = locale.languageCode == 'bo' ? 18.0 : 16.0;
+    final fontSize = getLocalizedFontSize(AppTextSize.body);
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),

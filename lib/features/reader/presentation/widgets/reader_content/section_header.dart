@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/theme/font_config.dart';
 import 'package:flutter_pecha/features/reader/constants/reader_constants.dart';
 import 'package:flutter_pecha/features/texts/data/models/section.dart';
 import 'package:flutter_pecha/shared/utils/helper_functions.dart';
@@ -24,7 +25,7 @@ class SectionHeader extends StatelessWidget {
     }
 
     final fontSize =
-        language == 'bo'
+        AppFontConfig.isTibetanLanguage(language)
             ? ReaderConstants.sectionTitleFontSizeTibetan
             : ReaderConstants.sectionTitleFontSizeDefault;
 

@@ -44,15 +44,16 @@ class ReaderPanelContentBlock extends StatelessWidget {
     final localizations = context.l10n;
     final fontFamily = getFontFamily(language);
     final lineHeight = getLineHeight(language);
-    final fontSize = language == 'bo' ? 20.0 : 16.0;
+    final fontSize = getLocalizedFontSize(AppTextSize.content);
 
     final plainText = _plainTextFromHtml(content);
     final isToggleable =
         plainText.length > ReaderPanelConstants.previewMaxLength;
     final isTruncated = !isExpanded && isToggleable;
-    final displayContent = isTruncated
-        ? plainText.substring(0, ReaderPanelConstants.previewMaxLength)
-        : plainText;
+    final displayContent =
+        isTruncated
+            ? plainText.substring(0, ReaderPanelConstants.previewMaxLength)
+            : plainText;
 
     final bodyStyle = TextStyle(
       fontFamily: fontFamily,
@@ -93,10 +94,7 @@ class ReaderPanelContentBlock extends StatelessWidget {
           htmlWidget,
           Align(
             alignment: AlignmentDirectional.centerEnd,
-            child: Text(
-              localizations.less.toUpperCase(),
-              style: actionStyle,
-            ),
+            child: Text(localizations.less.toUpperCase(), style: actionStyle),
           ),
         ],
       );

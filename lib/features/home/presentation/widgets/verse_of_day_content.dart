@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_pecha/core/constants/app_config.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
+import 'package:flutter_pecha/core/theme/font_config.dart';
 import 'package:flutter_pecha/core/widgets/cached_network_image_widget.dart';
 import 'package:flutter_pecha/features/home/domain/entities/verse_of_day.dart';
 import 'package:flutter_pecha/shared/utils/helper_functions.dart';
@@ -26,13 +27,11 @@ class VerseOfDayTypography {
   final bool useGoogleJomolhari;
 
   factory VerseOfDayTypography.fromLanguageCode(String languageCode) {
-    final isTibetan = languageCode == AppConfig.tibetanLanguageCode;
-
     return VerseOfDayTypography(
       contentFont: getFontFamily(languageCode),
       systemFont: getSystemFontFamily(languageCode),
-      verseFontSize: isTibetan ? 18.0 : 16.0,
-      attributionFontSize: isTibetan ? 14.0 : 16.0,
+      verseFontSize: getLocalizedFontSize(AppTextSize.body),
+      attributionFontSize: getLocalizedFontSize(AppTextSize.label),
     );
   }
 
@@ -43,7 +42,7 @@ class VerseOfDayTypography {
     double? attributionFontSize,
   }) {
     final base = VerseOfDayTypography.fromLanguageCode(languageCode);
-    final isTibetan = languageCode == AppConfig.tibetanLanguageCode;
+    final isTibetan = AppFontConfig.isTibetanLanguage(languageCode);
 
     if (!isTibetan) return base;
 
@@ -60,13 +59,13 @@ class VerseOfDayTypography {
   /// Share preview typography. Larger sizes; Tibetan uses Google Jomolhari.
   factory VerseOfDayTypography.forShare(String languageCode) {
     final base = VerseOfDayTypography.fromLanguageCode(languageCode);
-    final isTibetan = languageCode == AppConfig.tibetanLanguageCode;
+    final isTibetan = AppFontConfig.isTibetanLanguage(languageCode);
 
     return VerseOfDayTypography(
       contentFont: base.contentFont,
       systemFont: base.systemFont,
-      verseFontSize: isTibetan ? 20.0 : 18.0,
-      attributionFontSize: isTibetan ? 16.0 : 15.0,
+      verseFontSize: getLocalizedFontSize(AppTextSize.title),
+      attributionFontSize: getLocalizedFontSize(AppTextSize.body),
       useContentFontForAttribution: true,
       useGoogleJomolhari: isTibetan,
     );
@@ -76,7 +75,10 @@ class VerseOfDayTypography {
     final baseStyle = TextStyle(
       fontSize: verseFontSize,
       fontWeight: FontWeight.w400,
-      height: useGoogleJomolhari ? getLineHeight(AppConfig.tibetanLanguageCode) : null,
+      height:
+          useGoogleJomolhari
+              ? getLineHeight(AppConfig.tibetanLanguageCode)
+              : null,
       color: color,
     );
 
@@ -106,8 +108,7 @@ class VerseOfDayTypography {
     }
 
     return baseStyle.copyWith(
-      fontFamily:
-          useContentFontForAttribution ? contentFont : systemFont,
+      fontFamily: useContentFontForAttribution ? contentFont : systemFont,
     );
   }
 }

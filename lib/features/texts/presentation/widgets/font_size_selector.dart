@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_pecha/core/theme/font_config.dart';
 import 'package:flutter_pecha/features/texts/presentation/providers/font_size_notifier.dart';
 
 class FontSizeSelector extends ConsumerWidget {
   const FontSizeSelector({super.key, required this.language});
   final String language;
 
-  // Base font size (100% = 16px)
-  double get baseFontSize => language == 'bo' ? 22.0 : 22.0;
+  double get baseFontSize =>
+      AppFontConfig.getTextSize(AppTextSize.contentLarge);
 
   // Industry standard font size percentages
   static const List<double> fontSizePercentages = [100, 150, 200, 250];

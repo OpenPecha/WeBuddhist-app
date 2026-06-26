@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
-import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
+import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 import 'package:flutter_pecha/features/notifications/application/notification_sync_engine.dart';
 import 'package:flutter_pecha/features/notifications/data/channels/notification_channels.dart';
 import 'package:flutter_pecha/features/notifications/presentation/providers/notification_provider.dart';
@@ -180,10 +180,8 @@ class _NotificationSettingsScreenState
   Widget build(BuildContext context) {
     final state = ref.watch(notificationProvider);
     final localizations = AppLocalizations.of(context)!;
-    final locale = ref.watch(localeProvider);
-    final isbo = locale.languageCode == 'bo';
-    final ts = isbo ? 20.0 : 16.0;
-    final ss = isbo ? 17.0 : 13.5;
+    final ts = getLocalizedFontSize(AppTextSize.title);
+    final ss = getLocalizedFontSize(AppTextSize.label);
 
     return Scaffold(
       appBar: AppBar(
