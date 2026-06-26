@@ -128,10 +128,9 @@ class _StatItem extends StatelessWidget {
     const labelFontSize = 14.0;
     final countText = '$count';
     final fullText = labelBuilder(count);
-    final baseStyle = DefaultTextStyle.of(context).style.copyWith(
-      color: Colors.white,
-      height: 1.2,
-    );
+    final baseStyle = DefaultTextStyle.of(
+      context,
+    ).style.copyWith(color: Colors.white, height: 1.2);
     final countStyle = baseStyle.copyWith(
       fontSize: countFontSize,
       fontWeight: FontWeight.w700,
@@ -176,10 +175,7 @@ List<InlineSpan> _styledStatSpans({
   final spans = <InlineSpan>[];
   if (countIndex > 0) {
     spans.add(
-      TextSpan(
-        text: fullText.substring(0, countIndex),
-        style: labelStyle,
-      ),
+      TextSpan(text: fullText.substring(0, countIndex), style: labelStyle),
     );
   }
   spans.add(TextSpan(text: countText, style: countStyle));
