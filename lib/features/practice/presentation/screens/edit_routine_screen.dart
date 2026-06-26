@@ -23,6 +23,7 @@ import 'package:flutter_pecha/features/plans/plans.dart';
 import 'package:flutter_pecha/features/practice/data/models/routine_model.dart';
 import 'package:flutter_pecha/features/practice/data/models/session_selection.dart';
 import 'package:flutter_pecha/features/recitation/data/models/recitation_model.dart';
+import 'package:flutter_pecha/features/timer/domain/entities/preset_timer.dart';
 import 'package:flutter_pecha/features/practice/data/utils/routine_api_mapper.dart';
 import 'package:flutter_pecha/features/practice/data/utils/routine_time_utils.dart';
 import 'package:flutter_pecha/features/practice/presentation/providers/practice_providers.dart';
@@ -58,6 +59,7 @@ class _EditableBlock {
 class EditRoutineScreen extends ConsumerStatefulWidget {
   final Plan? initialPlan;
   final RecitationModel? initialRecitation;
+  final PresetTimer? initialTimer;
 
   /// When provided, after hydration the screen adds the enrolled series to the
   /// routine, reusing any existing empty block or creating a new one at the
@@ -68,6 +70,7 @@ class EditRoutineScreen extends ConsumerStatefulWidget {
     super.key,
     this.initialPlan,
     this.initialRecitation,
+    this.initialTimer,
     this.enrollSeriesId,
   });
 
@@ -191,6 +194,23 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
       id: recitation.textId,
       title: recitation.title,
       type: RoutineItemType.recitation,
+    );
+
+    final resolved = _resolveInjectionTarget();
+    resolved.target.items.add(newItem);
+    if (resolved.isNewBlock) {
+      _blocks.add(resolved.target);
+    }
+    _sortBlocks();
+    return resolved.target;
+  }
+
+  _EditableBlock? _injectInitialTimer(PresetTimer timer) {
+    final newItem = RoutineItem(
+      id: timer.id,
+      title: '${timer.displayMinutes} min session',
+      type: RoutineItemType.timer,
+      durationMs: timer.durationMs,
     );
 
     final resolved = _resolveInjectionTarget();
@@ -1032,6 +1052,8 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
           await _addRecitationToBlock(blockIndex, recitation);
         case SeriesSessionSelection(:final series):
           await _handleSeriesEnrollmentFromSelection(blockIndex, series);
+        case TimerSessionSelection(:final timer):
+          await _addTimerToBlock(blockIndex, timer);
       }
     } finally {
       _isSelectingSession = false;
@@ -1083,6 +1105,26 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
       id: recitation.textId,
       title: recitation.title,
       type: RoutineItemType.recitation,
+    );
+    final block = _blocks[blockIndex];
+    setState(() => block.items.add(newItem));
+
+    try {
+      await _syncBlock(block);
+    } catch (e) {
+      if (mounted) {
+        setState(() => block.items.remove(newItem));
+        _showErrorSnackBar(_mapError(e));
+      }
+    }
+  }
+
+  Future<void> _addTimerToBlock(int blockIndex, PresetTimer timer) async {
+    final newItem = RoutineItem(
+      id: timer.id,
+      title: '${timer.displayMinutes} min session',
+      type: RoutineItemType.timer,
+      durationMs: timer.durationMs,
     );
     final block = _blocks[blockIndex];
     setState(() => block.items.add(newItem));
@@ -1200,6 +1242,7 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (!mounted || _hydratedFromApi) return;
             _EditableBlock? injectedRecitationBlock;
+            _EditableBlock? injectedTimerBlock;
             setState(() {
               _hydratedFromApi = true;
               _applyInitialData(routineData);
@@ -1211,12 +1254,22 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
                   widget.initialRecitation!,
                 );
               }
+              if (widget.initialTimer != null) {
+                injectedTimerBlock = _injectInitialTimer(
+                  widget.initialTimer!,
+                );
+              }
             });
             if (widget.initialPlan != null) {
               _syncInjectedPlan(widget.initialPlan!);
             }
             if (injectedRecitationBlock != null) {
               _syncBlock(injectedRecitationBlock!).catchError((e) {
+                if (mounted) _showErrorSnackBar(_mapError(e));
+              });
+            }
+            if (injectedTimerBlock != null) {
+              _syncBlock(injectedTimerBlock!).catchError((e) {
                 if (mounted) _showErrorSnackBar(_mapError(e));
               });
             }

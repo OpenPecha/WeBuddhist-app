@@ -201,6 +201,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                   GoRoute(
                     path: "active",
                     name: "home-timer-active",
+                    // Root navigator so this works when my-practices (or any
+                    // root-pushed route) is already on the stack above /home.
+                    // Without this, go_router inserts a second /home shell page
+                    // and hits duplicate page keys.
+                    parentNavigatorKey: rootNavigatorKey,
                     builder: (context, state) {
                       final timer = state.extra as PresetTimer?;
                       if (timer == null) {
@@ -326,9 +331,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           final plan = extra?['initialPlan'] as Plan?;
           final recitation = extra?['initialRecitation'] as RecitationModel?;
           final enrollSeriesId = extra?['enrollSeriesId'] as String?;
+          final timer = extra?['initialTimer'] as PresetTimer?;
           return EditRoutineScreen(
             initialPlan: plan,
             initialRecitation: recitation,
+            initialTimer: timer,
             enrollSeriesId: enrollSeriesId,
           );
         },

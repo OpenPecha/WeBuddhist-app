@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 
 /// Bookmark types supported by the API.
-enum BookmarkType { text, verse }
+enum BookmarkType { text, verse, timer }
 
 extension BookmarkTypeExt on BookmarkType {
   String get value {
@@ -10,6 +10,8 @@ extension BookmarkTypeExt on BookmarkType {
         return 'TEXT';
       case BookmarkType.verse:
         return 'VERSE';
+      case BookmarkType.timer:
+        return 'TIMER';
     }
   }
 }
@@ -25,19 +27,27 @@ class BookmarkRemoteDatasource {
 
   /// POST /users/me/bookmarks
   ///
-  /// [type]     – one of [BookmarkType.text] or [BookmarkType.verse]
-  /// [sourceId] – text ID (TEXT) or segment ID (VERSE)
+  /// [type]     – one of [BookmarkType.text], [BookmarkType.verse], or [BookmarkType.timer]
+  /// [sourceId] – text ID (TEXT), segment ID (VERSE), or timer ID (TIMER)
+  ///
+  /// A 409 response means the item is already bookmarked, which is treated as
+  /// success so callers see "Bookmark saved" regardless of duplication.
   Future<bool> createBookmark({
     required BookmarkType type,
     required String sourceId,
   }) async {
-    final response = await dio.post(
-      '/users/me/bookmarks',
-      data: {
-        'type': type.value,
-        'source_id': sourceId,
-      },
-    );
-    return response.statusCode == 200 || response.statusCode == 201;
+    try {
+      final response = await dio.post(
+        '/users/me/bookmarks',
+        data: {
+          'type': type.value,
+          'source_id': sourceId,
+        },
+      );
+      return response.statusCode == 200 || response.statusCode == 201;
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 409) return true;
+      rethrow;
+    }
   }
 }

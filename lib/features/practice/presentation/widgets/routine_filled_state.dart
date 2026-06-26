@@ -12,6 +12,7 @@ import 'package:flutter_pecha/features/practice/data/models/routine_model.dart';
 import 'package:flutter_pecha/features/practice/presentation/providers/routine_api_providers.dart';
 import 'package:flutter_pecha/features/practice/presentation/widgets/routine_item_card.dart';
 import 'package:flutter_pecha/features/reader/data/models/navigation_context.dart';
+import 'package:flutter_pecha/features/timer/domain/entities/preset_timer.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -261,6 +262,8 @@ class _RoutineBlockSection extends ConsumerWidget {
           'home-series-detail',
           pathParameters: {'id': item.id},
         );
+      case RoutineItemType.timer:
+        _navigateToTimer(context, item);
     }
   }
 
@@ -279,6 +282,21 @@ class _RoutineBlockSection extends ConsumerWidget {
       source: NavigationSource.routine,
     );
     context.push('/reader/$textId', extra: navigationContext);
+  }
+
+  void _navigateToTimer(BuildContext context, RoutineItem item) {
+    final durationMs = item.durationMs;
+    if (durationMs == null || durationMs <= 0) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(context.l10n.notFound)));
+      return;
+    }
+
+    context.push(
+      '/home/timers/active',
+      extra: PresetTimer(id: item.id, name: item.title, durationMs: durationMs),
+    );
   }
 
   Future<void> _navigateToPlanDetails(

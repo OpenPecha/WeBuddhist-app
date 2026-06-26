@@ -25,6 +25,10 @@ class BookmarkController {
   Future<void> bookmarkVerse(String segmentId) =>
       _createBookmark(type: BookmarkType.verse, sourceId: segmentId);
 
+  /// Create a TIMER bookmark for a preset timer.
+  Future<void> bookmarkTimer(String timerId) =>
+      _createBookmark(type: BookmarkType.timer, sourceId: timerId);
+
   Future<void> _createBookmark({
     required BookmarkType type,
     required String sourceId,
