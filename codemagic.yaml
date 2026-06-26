@@ -1,0 +1,197 @@
+# Codemagic CI/CD configuration for WeBuddhist (flutter_pecha)
+# ---------------------------------------------------------------------------
+# This file replaces the Workflow Editor so the Xcode scheme is named
+# EXPLICITLY (--flavor <env>) and never depends on Codemagic's cached scheme
+# detection — which is what caused: Scheme "prod" not found from repository.
+#
+# One-time setup in the Codemagic UI (Teams/App settings > Environment variables
+# and Integrations). Create these variable groups and connect integrations:
+#
+#   Group "app_store_connect"  (mark values as secure):
+#     - APP_STORE_CONNECT_ISSUER_ID
+#     - APP_STORE_CONNECT_KEY_IDENTIFIER
+#     - APP_STORE_CONNECT_PRIVATE_KEY
+#     - CERTIFICATE_PRIVATE_KEY        # PEM private key for the distribution cert
+#   Group "google_play":
+#     - GCLOUD_SERVICE_ACCOUNT_CREDENTIALS   # JSON for a Play service account
+#   Group "app_secrets"  (whatever ios/Flutter/Secrets.xcconfig + Android expect):
+#     - AIRBRIDGE_SDK_TOKEN
+#     - (any other secret build-time values)
+#
+# Android signing: upload your keystore under  App settings > Code signing identities
+# with the reference name "webuddhist_keystore". Codemagic then injects
+# CM_KEYSTORE_PATH / CM_KEYSTORE_PASSWORD / CM_KEY_ALIAS / CM_KEY_PASSWORD,
+# which android/app/build.gradle.kts already reads for CI builds.
+#
+# iOS signing: connect the App Store Connect integration named "AppStoreConnect"
+# (Team settings > Integrations) so ios_signing can fetch managed profiles.
+# ---------------------------------------------------------------------------
+
+definitions:
+  instance: &instance
+    instance_type: mac_mini_m2
+    max_build_duration: 90
+
+  cache: &cache
+    cache_paths:
+      - $HOME/.pub-cache
+      - $HOME/Library/Caches/CocoaPods
+      - $FLUTTER_ROOT/.pub-cache
+
+  scripts:
+    - &pub_get
+      name: Flutter pub get (generates ios/Flutter/Generated.xcconfig)
+      script: |
+        flutter pub get
+
+    - &pod_install
+      name: Pod install
+      script: |
+        find . -name "Podfile" -execdir pod install \;
+
+    - &flutter_doctor
+      name: Flutter doctor & versions
+      script: |
+        set -x
+        flutter --version
+        flutter doctor -v
+        # Sanity check: the flavor scheme must be visible to xcodebuild.
+        xcodebuild -workspace ios/Runner.xcworkspace -list
+
+    - &set_ios_profiles
+      name: Set up iOS code signing profiles
+      script: |
+        xcode-project use-profiles
+
+  artifacts: &artifacts
+    - build/**/outputs/**/*.aab
+    - build/**/outputs/**/mapping.txt
+    - build/ios/ipa/*.ipa
+    - "/tmp/xcodebuild_logs/*.log"
+    - flutter_drive.log
+
+workflows:
+  # ===========================================================================
+  # PRODUCTION  (org.pecha.app)
+  # ===========================================================================
+  prod-release:
+    name: Prod • iOS + Android release
+    <<: *instance
+    environment:
+      <<: *cache
+      flutter: stable
+      xcode: latest
+      cocoapods: default
+      groups:
+        - app_store_connect
+        - google_play
+        - app_secrets
+      android_signing:
+        - webuddhist_keystore
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: org.pecha.app
+      vars:
+        APP_FLAVOR: prod
+        APP_ENTRYPOINT: lib/main_prod.dart
+        APP_STORE_APPLE_ID: 0000000000   # TODO: replace with the prod App Store Apple ID
+    triggering:
+      events:
+        - tag
+      tag_patterns:
+        - pattern: 'v*'
+          include: true
+    scripts:
+      - *pub_get
+      - *pod_install
+      - *flutter_doctor
+      - *set_ios_profiles
+      - name: Build Android App Bundle
+        script: |
+          flutter build appbundle --release \
+            --flavor "$APP_FLAVOR" -t "$APP_ENTRYPOINT"
+      - name: Build iOS IPA
+        script: |
+          flutter build ipa --release \
+            --flavor "$APP_FLAVOR" -t "$APP_ENTRYPOINT" \
+            --export-options-plist=$HOME/export_options.plist
+    artifacts: *artifacts
+    publishing:
+      app_store_connect:
+        auth: integration
+        submit_to_testflight: true
+        # submit_to_app_store: false
+      google_play:
+        credentials: $GCLOUD_SERVICE_ACCOUNT_CREDENTIALS
+        track: internal                     # Android internal testing
+        submit_as_draft: false
+      email:
+        recipients:
+          - tamdin@esukhia.org
+        notify:
+          success: true
+          failure: true
+
+  # ===========================================================================
+  # DEV  (org.pecha.app.dev) — build + distribute to internal testing
+  # ===========================================================================
+  dev-release:
+    name: Dev • iOS TestFlight + Android internal
+    <<: *instance
+    environment:
+      <<: *cache
+      flutter: stable
+      xcode: latest
+      cocoapods: default
+      groups:
+        - app_store_connect
+        - google_play
+        - app_secrets
+      android_signing:
+        - webuddhist_keystore
+      ios_signing:
+        distribution_type: app_store        # required for TestFlight uploads
+        bundle_identifier: org.pecha.app.dev
+      vars:
+        APP_FLAVOR: dev
+        APP_ENTRYPOINT: lib/main_dev.dart
+    triggering:
+      events:
+        - push
+      branch_patterns:
+        - pattern: develop
+          include: true
+    scripts:
+      - *pub_get
+      - *pod_install
+      - *flutter_doctor
+      - name: Analyze
+        script: flutter analyze
+      - name: Unit tests
+        script: |
+          flutter test || echo "No tests / tests failed (non-blocking for dev)"
+      - *set_ios_profiles
+      - name: Build Android App Bundle (dev)
+        script: |
+          flutter build appbundle --release \
+            --flavor "$APP_FLAVOR" -t "$APP_ENTRYPOINT"
+      - name: Build iOS IPA (dev)
+        script: |
+          flutter build ipa --release \
+            --flavor "$APP_FLAVOR" -t "$APP_ENTRYPOINT" \
+            --export-options-plist=$HOME/export_options.plist
+    artifacts: *artifacts
+    publishing:
+      app_store_connect:
+        auth: integration
+        submit_to_testflight: true          # iOS internal testing
+      google_play:
+        credentials: $GCLOUD_SERVICE_ACCOUNT_CREDENTIALS
+        track: internal                     # Android internal testing
+        submit_as_draft: false
+      email:
+        recipients:
+          - tamdin@esukhia.org
+        notify:
+          success: true
+          failure: true
