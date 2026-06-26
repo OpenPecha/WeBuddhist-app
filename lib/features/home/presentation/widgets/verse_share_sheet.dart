@@ -6,6 +6,7 @@ import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/core/theme/app_theme.dart';
+import 'package:flutter_pecha/core/theme/font_config.dart';
 import 'package:flutter_pecha/features/home/domain/entities/verse_of_day.dart';
 import 'package:flutter_pecha/features/home/presentation/widgets/verse_of_day_content.dart';
 import 'package:flutter_pecha/shared/utils/helper_functions.dart';
@@ -210,6 +211,8 @@ class _VerseShareSheetState extends State<VerseShareSheet> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final languageCode = Localizations.localeOf(context).languageCode;
     final locale = Localizations.localeOf(context);
+    final shareLabelFontSize = getLocalizedFontSize(AppTextSize.body);
+    final isTibetan = AppFontConfig.isTibetanLanguage(languageCode);
 
     return Container(
       decoration: BoxDecoration(
@@ -280,9 +283,18 @@ class _VerseShareSheetState extends State<VerseShareSheet> {
                           : Icon(AppAssets.readerShare, size: 22),
                   label: Text(
                     localizations.share_this_quote,
-                    style: const TextStyle(
+                    strutStyle: AppFontConfig.tibetanStrutStyle(
+                      languageCode,
+                      shareLabelFontSize,
+                      compact: true,
+                    ),
+                    style: TextStyle(
+                      fontFamily: getSystemFontFamily(languageCode),
                       fontWeight: FontWeight.w700,
-                      fontSize: 16,
+                      fontSize: shareLabelFontSize,
+                      height: getLineHeight(languageCode),
+                      leadingDistribution:
+                          AppFontConfig.tibetanLeadingDistribution,
                     ),
                   ),
                 ),
