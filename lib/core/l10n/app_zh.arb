@@ -589,6 +589,7 @@
   "me_accumulation": "累積總數",
   "me_counts": "次",
   "me_minutes": "分鐘",
+  "me_hours": "小時",
   "me_total_meditation_time": "禪修總時間",
   "me_days_plan_practiced_suffix": "天計畫已完成",
   "me_streak_share_message": "我在 {appName} 已連續 {count} 天！",

@@ -4,7 +4,6 @@ import 'package:flutter_pecha/features/home/domain/usecases/enroll_in_series_use
 import 'package:flutter_pecha/features/home/presentation/providers/use_case_providers.dart';
 import 'package:flutter_pecha/features/plans/presentation/providers/user_plans_provider.dart';
 import 'package:flutter_pecha/features/practice/presentation/providers/routine_api_providers.dart';
-import 'package:flutter_pecha/shared/domain/base_classes/usecase.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// State for a single in-flight or completed series enrollment request.
@@ -91,12 +90,13 @@ final seriesEnrollmentProvider = StateNotifierProvider.autoDispose
 /// the network. Returns an empty set on failure too — the Enroll button stays
 /// usable and the user can retry by tapping it; a future call refreshes the
 /// cache. Invalidated after a successful series enrollment.
-final userSeriesEnrollmentsProvider = FutureProvider<Set<String>>((ref) async {
+final userSeriesEnrollmentsProvider = StreamProvider<Set<String>>((ref) {
   final auth = ref.watch(authProvider);
   if (auth.isLoading || !auth.isLoggedIn || auth.isGuest) {
-    return const <String>{};
+    return Stream.value(const <String>{});
   }
-  final useCase = ref.watch(getUserSeriesEnrollmentsUseCaseProvider);
-  final result = await useCase(const NoParams());
-  return result.fold((_) => const <String>{}, (ids) => ids);
+  final repository = ref.watch(seriesDomainRepositoryProvider);
+  return repository.watchUserSeriesEnrollments().map(
+    (result) => result.fold((_) => const <String>{}, (ids) => ids),
+  );
 });

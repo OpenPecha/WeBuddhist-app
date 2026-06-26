@@ -53,7 +53,10 @@ class PracticePlanCard extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 8.0,
+                vertical: 6.0,
+              ),
               child: Text(
                 series.title,
                 style: const TextStyle(

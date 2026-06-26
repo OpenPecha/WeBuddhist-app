@@ -143,7 +143,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                 },
                 routes: [
                   GoRoute(
-                    parentNavigatorKey: rootNavigatorKey,
                     path: "preview",
                     name: "home-plan-preview",
                     builder: (context, state) {
@@ -161,11 +160,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 path: "series/:id",
                 name: "home-series-detail",
-                // Root navigator so this works when my-practices (or any
-                // root-pushed route) is already on the stack above /home.
-                // Without this, go_router inserts a second /home shell page
-                // and hits duplicate page keys.
-                parentNavigatorKey: rootNavigatorKey,
                 builder: (context, state) {
                   final id = state.pathParameters['id'] ?? '';
                   final extra = state.extra as Map<String, dynamic>?;
@@ -176,7 +170,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                   GoRoute(
                     path: "info",
                     name: "home-series-info",
-                    parentNavigatorKey: rootNavigatorKey,
                     builder: (context, state) {
                       final extra = state.extra as Map<String, dynamic>?;
                       final series = extra?['series'] as Series;
@@ -386,10 +379,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           if (plan == null) {
             throw Exception('Missing required parameters');
           }
-          return PlanPreviewDetails(
-            plan: plan,
-            seriesId: seriesId,
-          );
+          return PlanPreviewDetails(plan: plan, seriesId: seriesId);
         },
       ),
       GoRoute(

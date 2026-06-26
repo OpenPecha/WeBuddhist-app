@@ -190,6 +190,15 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
   }
 
   _EditableBlock? _injectInitialRecitation(RecitationModel recitation) {
+    final alreadyExists = _blocks.any(
+      (b) => b.items.any(
+        (item) =>
+            item.id == recitation.textId &&
+            item.type == RoutineItemType.recitation,
+      ),
+    );
+    if (alreadyExists) return null;
+
     final newItem = RoutineItem(
       id: recitation.textId,
       title: recitation.title,
@@ -665,12 +674,12 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
   }
 
   Future<void> _pickTime(int index) async {
+    if (!mounted) return;
     final initialTime = _blocks[index].time;
     final TimeOfDay? picked;
     if (Platform.isIOS) {
       picked = await _showCupertinoTimePicker(initialTime: initialTime);
     } else {
-      if (!mounted) return;
       picked = await showTimePicker(context: context, initialTime: initialTime);
     }
     if (picked != null) {
@@ -1101,6 +1110,24 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
     int blockIndex,
     RecitationModel recitation,
   ) async {
+    final isDuplicate = _blocks[blockIndex].items.any(
+      (item) =>
+          item.id == recitation.textId &&
+          item.type == RoutineItemType.recitation,
+    );
+    if (isDuplicate) {
+      _logger.warning('Duplicate item prevented: ${recitation.textId}');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(context.l10n.duplicateItem),
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
+      return;
+    }
+
     final newItem = RoutineItem(
       id: recitation.textId,
       title: recitation.title,

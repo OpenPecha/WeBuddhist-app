@@ -34,7 +34,10 @@ final malaLocalDataSourceProvider = Provider<MalaLocalDataSource>((ref) {
 // ============ Repository ============
 
 final malaRepositoryProvider = Provider<MalaRepository>((ref) {
-  return MalaRepositoryImpl(remote: ref.watch(malaRemoteDataSourceProvider));
+  return MalaRepositoryImpl(
+    remote: ref.watch(malaRemoteDataSourceProvider),
+    local: ref.watch(malaLocalDataSourceProvider),
+  );
 });
 
 // ============ Use cases ============
@@ -118,15 +121,15 @@ final malaCatalogueProvider = FutureProvider<Either<Failure, List<Mantra>>>((
 
 // ============ Catalogue search (debounced, server-side) ============
 
-final accumulationSearchProvider = StateNotifierProvider<
-  AccumulationSearchNotifier,
-  AccumulationSearchState
->((ref) {
-  return AccumulationSearchNotifier(
-    repository: ref.watch(malaRepositoryProvider),
-    languageCode: ref.watch(localeProvider).languageCode,
-  );
-});
+final accumulationSearchProvider =
+    StateNotifierProvider<AccumulationSearchNotifier, AccumulationSearchState>((
+      ref,
+    ) {
+      return AccumulationSearchNotifier(
+        repository: ref.watch(malaRepositoryProvider),
+        languageCode: ref.watch(localeProvider).languageCode,
+      );
+    });
 
 // ============ Bead-tap sound ============
 
@@ -148,6 +151,8 @@ final malaCounterProvider = StateNotifierProvider.autoDispose
         local: ref.watch(malaLocalDataSourceProvider),
         getAccumulatorDetail: ref.watch(getAccumulatorDetailUseCaseProvider),
         deleteUserAccumulator: ref.watch(deleteUserAccumulatorUseCaseProvider),
+        downloadImageBytes:
+            ref.watch(malaRemoteDataSourceProvider).fetchImageBytes,
         sync: ref.watch(malaSyncManagerProvider),
         currentUserId: () => _resolveUserId(ref),
         analytics: ref.watch(analyticsServiceProvider),

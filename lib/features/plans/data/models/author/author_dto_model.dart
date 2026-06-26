@@ -31,8 +31,8 @@ class AuthorDtoModel {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'firstName': firstName,
-      'lastName': lastName,
+      'firstname': firstName,
+      'lastname': lastName,
       'image': image?.toJson(),
     };
   }

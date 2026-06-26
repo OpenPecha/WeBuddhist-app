@@ -520,12 +520,14 @@ class _GroupFollowButton extends ConsumerWidget {
     };
     final isLoading = followState is GroupFollowLoading;
     final isPage = profile.groupType.isPage;
+    const fontSize = 16.0;
+    final locale = Localizations.localeOf(context);
+    final isTibetan = context.isTibetanLocale;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
       child: SizedBox(
         width: double.infinity,
-        height: 48,
         child: ElevatedButton(
           onPressed:
               isLoading
@@ -533,6 +535,11 @@ class _GroupFollowButton extends ConsumerWidget {
                   : () =>
                       _onFollowPressed(context, ref, followKey, isFollowing),
           style: ElevatedButton.styleFrom(
+            minimumSize: Size(double.infinity, isTibetan ? 52 : 48),
+            padding: EdgeInsets.symmetric(
+              horizontal: 24,
+              vertical: isTibetan ? 10 : 12,
+            ),
             backgroundColor:
                 isFollowing
                     ? (isDark
@@ -561,9 +568,12 @@ class _GroupFollowButton extends ConsumerWidget {
                             ? context.l10n.following
                             : context.l10n.joined)
                         : (isPage ? context.l10n.follow : context.l10n.join),
-                    style: const TextStyle(
-                      fontSize: 16,
+                    textAlign: TextAlign.center,
+                    strutStyle: context.tibetanStrutStyle(fontSize),
+                    style: TextStyle(
+                      fontSize: fontSize,
                       fontWeight: FontWeight.w600,
+                      fontFamily: getSystemFontFamily(locale.languageCode),
                     ),
                   ),
         ),

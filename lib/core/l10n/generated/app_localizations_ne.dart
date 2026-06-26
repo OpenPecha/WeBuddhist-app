@@ -1394,6 +1394,9 @@ class AppLocalizationsNe extends AppLocalizations {
   String get me_minutes => 'मिनेट';
 
   @override
+  String get me_hours => 'घण्टा';
+
+  @override
   String get me_total_meditation_time => 'कुल ध्यान समय';
 
   @override

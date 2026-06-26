@@ -1,6 +1,8 @@
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:flutter_pecha/core/utils/app_logger.dart';
+import 'package:flutter_pecha/features/mala/data/models/accumulator_model.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 final _logger = AppLogger('MalaLocalDataSource');
@@ -17,6 +19,7 @@ class LocalMalaState {
     this.syncedTotal = 0,
     this.accumulatorId,
     this.beadImageUrl,
+    this.beadImageBase64,
   });
 
   final int total;
@@ -27,6 +30,20 @@ class LocalMalaState {
   /// before the seed network call returns.
   final String? beadImageUrl;
 
+  /// Actual bead artwork bytes, base64-encoded for Hive string storage.
+  /// The UI prefers this over the URL so the bead renders instantly offline.
+  final String? beadImageBase64;
+
+  Uint8List? get beadImageBytes {
+    final raw = beadImageBase64;
+    if (raw == null || raw.isEmpty) return null;
+    try {
+      return base64Decode(raw);
+    } catch (_) {
+      return null;
+    }
+  }
+
   bool get isDirty => total > syncedTotal;
 
   LocalMalaState copyWith({
@@ -34,27 +51,30 @@ class LocalMalaState {
     int? syncedTotal,
     String? accumulatorId,
     String? beadImageUrl,
-  }) =>
-      LocalMalaState(
-        total: total ?? this.total,
-        syncedTotal: syncedTotal ?? this.syncedTotal,
-        accumulatorId: accumulatorId ?? this.accumulatorId,
-        beadImageUrl: beadImageUrl ?? this.beadImageUrl,
-      );
+    String? beadImageBase64,
+  }) => LocalMalaState(
+    total: total ?? this.total,
+    syncedTotal: syncedTotal ?? this.syncedTotal,
+    accumulatorId: accumulatorId ?? this.accumulatorId,
+    beadImageUrl: beadImageUrl ?? this.beadImageUrl,
+    beadImageBase64: beadImageBase64 ?? this.beadImageBase64,
+  );
 
   Map<String, dynamic> toJson() => {
-        'total': total,
-        'syncedTotal': syncedTotal,
-        if (accumulatorId != null) 'accumulatorId': accumulatorId,
-        if (beadImageUrl != null) 'beadImageUrl': beadImageUrl,
-      };
+    'total': total,
+    'syncedTotal': syncedTotal,
+    if (accumulatorId != null) 'accumulatorId': accumulatorId,
+    if (beadImageUrl != null) 'beadImageUrl': beadImageUrl,
+    if (beadImageBase64 != null) 'beadImageBase64': beadImageBase64,
+  };
 
   factory LocalMalaState.fromJson(Map<String, dynamic> j) => LocalMalaState(
-        total: (j['total'] as num?)?.toInt() ?? 0,
-        syncedTotal: (j['syncedTotal'] as num?)?.toInt() ?? 0,
-        accumulatorId: j['accumulatorId'] as String?,
-        beadImageUrl: j['beadImageUrl'] as String?,
-      );
+    total: (j['total'] as num?)?.toInt() ?? 0,
+    syncedTotal: (j['syncedTotal'] as num?)?.toInt() ?? 0,
+    accumulatorId: j['accumulatorId'] as String?,
+    beadImageUrl: j['beadImageUrl'] as String?,
+    beadImageBase64: j['beadImageBase64'] as String?,
+  );
 }
 
 /// Hive-backed local store for mala counts, namespaced by user id so one
@@ -73,6 +93,33 @@ class MalaLocalDataSource {
   }
 
   String _key(String userId, String presetId) => '$userId:$presetId';
+  String _catalogueKey(String language) => 'catalogue:$language';
+
+  List<PresetAccumulatorModel>? readCatalogue(String language) {
+    final raw = _box.get(_catalogueKey(language));
+    if (raw == null) return null;
+    try {
+      return (jsonDecode(raw) as List<dynamic>)
+          .map(
+            (item) =>
+                PresetAccumulatorModel.fromJson(item as Map<String, dynamic>),
+          )
+          .toList();
+    } catch (e) {
+      _logger.error('Failed to parse local mala catalogue', e);
+      return null;
+    }
+  }
+
+  Future<void> writeCatalogue(
+    String language,
+    List<PresetAccumulatorModel> presets,
+  ) {
+    return _box.put(
+      _catalogueKey(language),
+      jsonEncode(presets.map((preset) => preset.toJson()).toList()),
+    );
+  }
 
   LocalMalaState read(String userId, String presetId) {
     final raw = _box.get(_key(userId, presetId));
@@ -103,7 +150,10 @@ class MalaLocalDataSource {
     await write(
       userId,
       presetId,
-      LocalMalaState(beadImageUrl: s.beadImageUrl),
+      LocalMalaState(
+        beadImageUrl: s.beadImageUrl,
+        beadImageBase64: s.beadImageBase64,
+      ),
     );
   }
 
@@ -132,18 +182,19 @@ class MalaLocalDataSource {
   /// devices). Dirty entries are retained so no unsynced tail is lost.
   Future<void> pruneSynced(String userId) async {
     final prefix = '$userId:';
-    final toDelete = _box.keys.cast<String>().where((k) {
-      if (!k.startsWith(prefix)) return false;
-      final raw = _box.get(k);
-      if (raw == null) return true;
-      try {
-        return !LocalMalaState.fromJson(
-          jsonDecode(raw) as Map<String, dynamic>,
-        ).isDirty;
-      } catch (_) {
-        return true;
-      }
-    }).toList();
+    final toDelete =
+        _box.keys.cast<String>().where((k) {
+          if (!k.startsWith(prefix)) return false;
+          final raw = _box.get(k);
+          if (raw == null) return true;
+          try {
+            return !LocalMalaState.fromJson(
+              jsonDecode(raw) as Map<String, dynamic>,
+            ).isDirty;
+          } catch (_) {
+            return true;
+          }
+        }).toList();
     await _box.deleteAll(toDelete);
   }
 }
