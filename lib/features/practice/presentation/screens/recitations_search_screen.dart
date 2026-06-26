@@ -139,9 +139,7 @@ class _RecitationsSearchScreenState
                 ],
               ),
             ),
-            Expanded(
-              child: _buildBody(context, searchState, subtitleColor),
-            ),
+            Expanded(child: _buildBody(context, searchState, subtitleColor)),
           ],
         ),
       ),
@@ -160,7 +158,9 @@ class _RecitationsSearchScreenState
     }
 
     if (searchState.isLoading && searchState.results.isEmpty) {
-      return const RecitationListSkeleton();
+      return const RecitationListSkeleton(
+        variant: RecitationListSkeletonVariant.chantTile,
+      );
     }
 
     if (searchState.error != null && searchState.results.isEmpty) {
@@ -179,8 +179,8 @@ class _RecitationsSearchScreenState
               ),
               const SizedBox(height: 16),
               ElevatedButton(
-                onPressed: () =>
-                    ref.read(recitationSearchProvider.notifier).retry(),
+                onPressed:
+                    () => ref.read(recitationSearchProvider.notifier).retry(),
                 child: Text(l10n.retry),
               ),
             ],

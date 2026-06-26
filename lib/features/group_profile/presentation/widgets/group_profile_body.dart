@@ -193,6 +193,7 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
           ] else
             const SizedBox(height: 8),
           _GroupMemberCountText(
+            groupId: profile.id,
             groupType: profile.groupType,
             baseCount: profile.memberOrFollowerCount,
             isDark: isDark,
@@ -350,7 +351,7 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
       return const SizedBox.shrink();
     }
 
-    final bodyFontSize = languageCode == 'bo' ? 18.0 : 15.0;
+    final bodyFontSize = getLocalizedFontSize(AppTextSize.body);
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -453,13 +454,15 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
   }
 }
 
-class _GroupMemberCountText extends StatelessWidget {
+class _GroupMemberCountText extends ConsumerWidget {
+  final String groupId;
   final GroupType groupType;
   final int baseCount;
   final bool isDark;
   final double? lineHeight;
 
   const _GroupMemberCountText({
+    required this.groupId,
     required this.groupType,
     required this.baseCount,
     required this.isDark,
@@ -467,8 +470,17 @@ class _GroupMemberCountText extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
-    final count = baseCount.clamp(0, 1 << 31);
+  Widget build(BuildContext context, WidgetRef ref) {
+    final followKey = GroupFollowKey(
+      groupId: groupId,
+      groupType: groupType,
+    );
+    final followState = ref.watch(groupFollowProvider(followKey));
+    final delta = switch (followState) {
+      GroupFollowSuccess(countDelta: final d) => d,
+      _ => 0,
+    };
+    final count = (baseCount + delta).clamp(0, 1 << 31);
     final formattedCount = NumberFormat.decimalPattern(
       intlFormatLocaleOf(context),
     ).format(count);

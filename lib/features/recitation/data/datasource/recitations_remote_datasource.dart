@@ -1,7 +1,8 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
-import 'package:flutter_pecha/features/recitation/data/models/recitation_model.dart';
 import 'package:flutter_pecha/features/recitation/data/models/recitation_content_model.dart';
+import 'package:flutter_pecha/features/recitation/data/models/recitation_model.dart';
+import 'package:flutter_pecha/features/recitation/data/models/recitations_page_response.dart';
 
 /// Recitations remote datasource.
 ///
@@ -11,13 +12,22 @@ import 'package:flutter_pecha/features/recitation/data/models/recitation_content
 class RecitationsQueryParams {
   final String? language;
   final String? search;
+  final int? skip;
+  final int? limit;
 
-  RecitationsQueryParams({this.language, this.search});
+  RecitationsQueryParams({
+    this.language,
+    this.search,
+    this.skip,
+    this.limit,
+  });
 
   Map<String, dynamic> toQueryParams() {
     final Map<String, dynamic> params = {};
     if (language != null) params['language'] = language!;
     if (search != null && search!.isNotEmpty) params['search'] = search!;
+    if (skip != null) params['skip'] = skip!;
+    if (limit != null) params['limit'] = limit!;
     return params;
   }
 }
@@ -28,8 +38,7 @@ class RecitationsRemoteDatasource {
 
   RecitationsRemoteDatasource({required this.dio});
 
-  // Get all recitations
-  Future<List<RecitationModel>> fetchRecitations({
+  Future<RecitationsPageResponse> fetchRecitationsPage({
     RecitationsQueryParams? queryParams,
   }) async {
     final response = await dio.get(
@@ -37,15 +46,17 @@ class RecitationsRemoteDatasource {
       queryParameters: queryParams?.toQueryParams(),
     );
 
-    final responseData = response.data as Map<String, dynamic>;
-    final List<dynamic> recitationsData =
-        responseData['recitations'] as List<dynamic>? ?? [];
+    return RecitationsPageResponse.fromJson(
+      response.data as Map<String, dynamic>,
+    );
+  }
 
-    return recitationsData
-        .map(
-          (json) => RecitationModel.fromJson(json as Map<String, dynamic>),
-        )
-        .toList();
+  // Get all recitations
+  Future<List<RecitationModel>> fetchRecitations({
+    RecitationsQueryParams? queryParams,
+  }) async {
+    final page = await fetchRecitationsPage(queryParams: queryParams);
+    return page.recitations;
   }
 
   // Get saved recitations

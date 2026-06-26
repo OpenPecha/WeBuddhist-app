@@ -1,6 +1,7 @@
 import 'package:flutter_pecha/features/home/domain/entities/series.dart';
 import 'package:flutter_pecha/features/plans/domain/entities/plan.dart';
 import 'package:flutter_pecha/features/recitation/data/models/recitation_model.dart';
+import 'package:flutter_pecha/features/timer/domain/entities/preset_timer.dart';
 
 /// Sealed class representing a session selection result.
 /// Used as return type from SelectSessionScreen for type-safe handling.
@@ -36,4 +37,12 @@ class SeriesSessionSelection extends SessionSelection {
   const SeriesSessionSelection(this.series);
 
   String get seriesId => series.id;
+}
+
+/// Represents a timer selection — carries the full [PresetTimer] entity so
+/// the routine screen can build the item without an extra fetch.
+class TimerSessionSelection extends SessionSelection {
+  final PresetTimer timer;
+
+  const TimerSessionSelection(this.timer);
 }

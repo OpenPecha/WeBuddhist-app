@@ -38,6 +38,7 @@ import 'package:flutter_pecha/features/practice/presentation/screens/practice_ex
 import 'package:flutter_pecha/features/practice/presentation/screens/practice_screen.dart';
 import 'package:flutter_pecha/features/practice/presentation/screens/select_plan_screen.dart';
 import 'package:flutter_pecha/features/practice/presentation/screens/select_recitation_screen.dart';
+import 'package:flutter_pecha/features/mala/domain/entities/mantra.dart';
 import 'package:flutter_pecha/features/mala/presentation/screens/mala_screen.dart';
 import 'package:flutter_pecha/features/notifications/presentation/notification_settings_screen.dart';
 import 'package:flutter_pecha/features/reader/data/models/navigation_context.dart';
@@ -111,6 +112,40 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         name: 'splash',
         builder: (context, state) => const SplashScreen(),
       ),
+
+      // Defensive fallback for the Airbridge tracking URL if it is ever handed
+      // to go_router after native Airbridge handling.
+      GoRoute(
+        path: AppRoutes.getApp,
+        name: 'get-app',
+        redirect: (_, __) => AppRoutes.home,
+      ),
+
+      // Compatibility fallback in case a platform sends the first-party app
+      // link directly to go_router instead of through AppLinksDeepLinkService.
+      GoRoute(
+        path: '/open/reader/:textId',
+        name: 'open-reader',
+        redirect: (_, state) {
+          final textId = state.pathParameters['textId'] ?? '';
+          final segmentId =
+              state.uri.queryParameters['segment'] ??
+              state.uri.queryParameters['segmentId'];
+          final language = state.uri.queryParameters['lang'];
+          return Uri(
+            pathSegments: ['reader', textId],
+            queryParameters: {
+              if (segmentId != null && segmentId.isNotEmpty)
+                'segment': segmentId,
+              if (language != null && language.isNotEmpty) 'lang': language,
+            },
+          ).toString();
+        },
+      ),
+      // First-party app entry point shared from the home screen.
+      // AppLinksDeepLinkService handles normal delivery; this is the home
+      // fallback in case go_router receives only /open directly.
+      GoRoute(path: '/open', name: 'open', redirect: (_, __) => AppRoutes.home),
       GoRoute(
         path: "/login",
         name: "login",
@@ -160,6 +195,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 path: "series/:id",
                 name: "home-series-detail",
+                // Root navigator so this full-screen detail can be pushed from
+                // root-level routes (e.g. /practice/bookmarks) without
+                // go_router inserting a second /home shell page and hitting a
+                // duplicate page key. Mirrors home-timer-active.
+                parentNavigatorKey: rootNavigatorKey,
                 builder: (context, state) {
                   final id = state.pathParameters['id'] ?? '';
                   final extra = state.extra as Map<String, dynamic>?;
@@ -170,6 +210,9 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                   GoRoute(
                     path: "info",
                     name: "home-series-info",
+                    // Must share the parent's (root) navigator so detail → info
+                    // stays on one navigator.
+                    parentNavigatorKey: rootNavigatorKey,
                     builder: (context, state) {
                       final extra = state.extra as Map<String, dynamic>?;
                       final series = extra?['series'] as Series;
@@ -194,6 +237,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                   GoRoute(
                     path: "active",
                     name: "home-timer-active",
+                    // Root navigator so this works when my-practices (or any
+                    // root-pushed route) is already on the stack above /home.
+                    // Without this, go_router inserts a second /home shell page
+                    // and hits duplicate page keys.
+                    parentNavigatorKey: rootNavigatorKey,
                     builder: (context, state) {
                       final timer = state.extra as PresetTimer?;
                       if (timer == null) {
@@ -318,10 +366,16 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           final extra = state.extra as Map<String, dynamic>?;
           final plan = extra?['initialPlan'] as Plan?;
           final recitation = extra?['initialRecitation'] as RecitationModel?;
+          final series = extra?['initialSeries'] as Series?;
+          final mantra = extra?['initialMantra'] as Mantra?;
           final enrollSeriesId = extra?['enrollSeriesId'] as String?;
+          final timer = extra?['initialTimer'] as PresetTimer?;
           return EditRoutineScreen(
             initialPlan: plan,
             initialRecitation: recitation,
+            initialTimer: timer,
+            initialSeries: series,
+            initialMantra: mantra,
             enrollSeriesId: enrollSeriesId,
           );
         },
@@ -405,7 +459,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
               );
             },
           ),
-
         ],
       ),
 
@@ -475,7 +528,9 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         pageBuilder: (context, state) {
           final textId = state.pathParameters['textId'] ?? '';
           final extra = state.extra;
-          String? segmentId;
+          String? segmentId =
+              state.uri.queryParameters['segment'] ??
+              state.uri.queryParameters['segmentId'];
 
           // Extract navigation context if provided
           NavigationContext? navigationContext;
@@ -507,6 +562,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
               targetSegmentId: segmentId,
               planTextItems: planTextItems,
               currentTextIndex: currentTextIndex ?? 0,
+            );
+          } else if (segmentId != null && segmentId.isNotEmpty) {
+            navigationContext = NavigationContext(
+              source: NavigationSource.deepLink,
+              targetSegmentId: segmentId,
             );
           }
 

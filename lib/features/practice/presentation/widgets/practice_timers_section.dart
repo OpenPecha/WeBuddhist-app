@@ -27,8 +27,7 @@ class PracticeTimersSection extends ConsumerWidget {
             final preview = timers.take(_previewCount).toList();
             return PracticeSectionContainer(
               title: l10n.meditation_timer,
-              seeAllLabel:
-                  timers.length > _previewCount ? l10n.see_all : null,
+              seeAllLabel: timers.length > _previewCount ? l10n.see_all : null,
               onSeeAll:
                   timers.length > _previewCount
                       ? () => context.pushNamed('home-timers')
@@ -57,7 +56,13 @@ class PracticeTimersSection extends ConsumerWidget {
               ),
             );
           }),
-      loading: () => const PracticeSectionSkeleton(height: 100),
+      loading:
+          () => const PracticeSectionSkeleton(
+            height: 150,
+            axis: Axis.horizontal,
+            itemCount: 5,
+            itemWidth: 150,
+          ),
       error: (_, __) => const SizedBox.shrink(),
     );
   }

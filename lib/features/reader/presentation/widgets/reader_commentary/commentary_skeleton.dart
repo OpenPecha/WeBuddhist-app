@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/features/reader/presentation/widgets/reader_panels/reader_panel_constants.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
 /// Skeleton loading widget for commentary panel content.
@@ -9,71 +10,90 @@ class CommentarySkeleton extends StatelessWidget {
   /// Number of skeleton commentary items to display.
   final int itemCount;
 
-  const CommentarySkeleton({
-    super.key,
-    this.itemCount = 3,
-  });
+  const CommentarySkeleton({super.key, this.itemCount = 3});
 
   @override
   Widget build(BuildContext context) {
     return Skeletonizer(
       enabled: true,
-      child: ListView.builder(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        itemCount: itemCount,
-        itemBuilder: (context, index) => _buildSkeletonItem(context),
+      child: ListView(
+        padding: const EdgeInsets.only(bottom: 24),
+        children: [
+          for (var index = 0; index < itemCount; index++) ...[
+            _buildSectionHeader(context, index),
+            _buildSkeletonItem(context, index),
+          ],
+        ],
       ),
     );
   }
 
-  Widget _buildSkeletonItem(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      decoration: BoxDecoration(
-        border: Border.all(
-          color: Theme.of(context).brightness == Brightness.dark
-              ? Colors.grey[700]!
-              : Colors.grey[300]!,
-          width: 1,
-        ),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: ExpansionTile(
-        tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Bone(
-              width: 200,
+  Widget _buildSectionHeader(BuildContext context, int index) {
+    return Padding(
+      padding: const EdgeInsets.only(top: ReaderPanelConstants.sectionSpacing),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(
+              ReaderPanelConstants.horizontalPadding,
+              0,
+              ReaderPanelConstants.horizontalPadding,
+              ReaderPanelConstants.contentSpacing,
+            ),
+            child: Bone(
+              width: index.isEven ? 112 : 88,
               height: 18,
               borderRadius: BorderRadius.circular(4),
             ),
-            const SizedBox(height: 8),
-            Bone(
-              width: 120,
-              height: 14,
-              borderRadius: BorderRadius.circular(4),
-            ),
-          ],
-        ),
+          ),
+          Container(
+            height: 1,
+            color: ReaderPanelConstants.dividerColor(context),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSkeletonItem(BuildContext context, int index) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+        ReaderPanelConstants.horizontalPadding,
+        ReaderPanelConstants.contentSpacing,
+        ReaderPanelConstants.horizontalPadding,
+        ReaderPanelConstants.itemSpacing,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Bone(
             width: double.infinity,
-            height: 14,
+            height: index.isEven ? 24 : 20,
             borderRadius: BorderRadius.circular(4),
           ),
           const SizedBox(height: 8),
           Bone(
-            width: double.infinity,
-            height: 14,
+            width: MediaQuery.sizeOf(context).width * 0.72,
+            height: index.isEven ? 24 : 20,
             borderRadius: BorderRadius.circular(4),
           ),
-          const SizedBox(height: 8),
-          Bone(
-            width: MediaQuery.of(context).size.width * 0.6,
-            height: 14,
-            borderRadius: BorderRadius.circular(4),
+          const SizedBox(height: ReaderPanelConstants.contentSpacing),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 6),
+            child: Row(
+              children: [
+                const Skeleton.ignore(child: Icon(Icons.expand_more, size: 18)),
+                const SizedBox(width: 4),
+                Expanded(
+                  child: Bone(
+                    width: 180,
+                    height: 16,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),

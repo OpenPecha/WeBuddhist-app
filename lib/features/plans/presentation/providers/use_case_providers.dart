@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter_pecha/core/di/core_providers.dart';
 import 'package:flutter_pecha/features/plans/data/datasource/plan_days_remote_datasource.dart';
+import 'package:flutter_pecha/features/plans/data/datasource/plans_local_datasource.dart';
 import 'package:flutter_pecha/features/plans/data/datasource/plans_remote_datasource.dart';
 import 'package:flutter_pecha/features/plans/data/datasource/tasks_remote_datasource.dart';
 import 'package:flutter_pecha/features/plans/data/datasource/user_plans_remote_datasource.dart';
@@ -17,30 +20,55 @@ import 'package:flutter_pecha/features/plans/domain/usecases/tasks_usecases.dart
 import 'package:flutter_pecha/features/plans/domain/usecases/user_plans_usecases.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+// ========== Datasource Providers ==========
+
+final plansLocalDatasourceProvider = Provider<PlansLocalDatasource>((ref) {
+  return PlansLocalDatasource();
+});
+
+final plansRemoteDatasourceProvider = Provider<PlansRemoteDatasource>((ref) {
+  return PlansRemoteDatasource(dio: ref.watch(dioProvider));
+});
+
+final userPlansRemoteDatasourceProvider =
+    Provider<UserPlansRemoteDatasource>((ref) {
+  return UserPlansRemoteDatasource(dio: ref.watch(dioProvider));
+});
+
+final planDaysRemoteDatasourceProvider =
+    Provider<PlanDaysRemoteDatasource>((ref) {
+  return PlanDaysRemoteDatasource(dio: ref.watch(dioProvider));
+});
+
+final tasksRemoteDatasourceProvider = Provider<TasksRemoteDatasource>((ref) {
+  return TasksRemoteDatasource(dio: ref.watch(dioProvider));
+});
+
 // ========== Repository Providers ==========
 
 /// Provider for PlansRepository implementation (domain interface).
 final plansDomainRepositoryProvider = Provider<PlansRepository>((ref) {
-  final dio = ref.watch(dioProvider);
-  final datasource = PlansRemoteDatasource(dio: dio);
-  return PlansRepositoryImpl(datasource: datasource);
+  return PlansRepositoryImpl(
+    datasource: ref.watch(plansRemoteDatasourceProvider),
+    local: ref.watch(plansLocalDatasourceProvider),
+  );
 });
 
 /// Provider for UserPlansRepository implementation (domain interface).
 final userPlansDomainRepositoryProvider =
     Provider<UserPlansRepositoryInterface>((ref) {
-  final dio = ref.watch(dioProvider);
   return UserPlansRepository(
-    userPlansRemoteDatasource: UserPlansRemoteDatasource(dio: dio),
+    userPlansRemoteDatasource: ref.watch(userPlansRemoteDatasourceProvider),
+    local: ref.watch(plansLocalDatasourceProvider),
   );
 });
 
 /// Provider for PlanDaysRepository implementation (domain interface).
 final planDaysDomainRepositoryProvider =
     Provider<PlanDaysRepositoryInterface>((ref) {
-  final dio = ref.watch(dioProvider);
   return PlanDaysRepository(
-    planDaysRemoteDatasource: PlanDaysRemoteDatasource(dio: dio),
+    planDaysRemoteDatasource: ref.watch(planDaysRemoteDatasourceProvider),
+    local: ref.watch(plansLocalDatasourceProvider),
   );
 });
 
@@ -51,6 +79,23 @@ final tasksDomainRepositoryProvider =
   return TasksRepository(
     tasksRemoteDatasource: TasksRemoteDatasource(dio: dio),
   );
+});
+
+/// Keeps pending local plan writes moving after connectivity returns.
+final plansSyncBootstrapProvider = Provider<void>((ref) {
+  final subscription = ref
+      .watch(connectivityServiceProvider)
+      .onConnectivityChanged
+      .listen((isOnline) {
+        if (isOnline) {
+          unawaited(
+            ref.read(userPlansDomainRepositoryProvider).flushPendingPlanActions(),
+          );
+        }
+      });
+  ref.onDispose(() {
+    subscription.cancel();
+  });
 });
 
 // ========== Plans Use Case Providers ==========

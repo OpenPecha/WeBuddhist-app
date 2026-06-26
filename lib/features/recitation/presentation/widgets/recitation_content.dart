@@ -47,7 +47,7 @@ class RecitationContent extends StatelessWidget {
 
   Widget _buildTitle(BuildContext context) {
     final fontFamily = getFontFamily(language);
-    final fontSize = language == 'bo' ? 26.0 : 22.0;
+    final fontSize = getLocalizedFontSize(AppTextSize.titleLarge);
 
     return Text(
       content.title,

@@ -92,7 +92,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String home_recitation_count(int count) {
-    return '$count recitations';
+    return '$count chants';
   }
 
   @override
@@ -937,7 +937,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get routine_edit_title => 'Edit your routine';
 
   @override
-  String get routine_delete_block => 'Remove block?';
+  String get routine_delete_block => 'Remove block';
 
   @override
   String get routine_delete_time_block => 'Remove time block';

@@ -33,7 +33,7 @@
       }
     }
   },
-  "home_recitation_count": "{count} recitations",
+  "home_recitation_count": "{count} chants",
   "@home_recitation_count": {
     "placeholders": {
       "count": {
@@ -448,7 +448,7 @@
   "routine_build": "Build your routine",
   "routine_add_session": "Add to session",
   "routine_edit_title": "Edit your routine",
-  "routine_delete_block": "Remove block?",
+  "routine_delete_block": "Remove block",
   "routine_delete_time_block": "Remove time block",
   "routine_add_plan": "Add plan",
   "routine_add_recitation": "Add recitation",

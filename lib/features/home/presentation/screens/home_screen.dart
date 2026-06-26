@@ -1,7 +1,6 @@
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/features/home/presentation/screens/main_navigation_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
 import 'package:flutter_pecha/core/services/service_providers.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/widgets/error_state_widget.dart';
@@ -26,6 +25,7 @@ import 'package:flutter_pecha/features/home/presentation/widgets/verse_of_day_sk
 import 'package:flutter_pecha/features/notifications/application/notification_sync_engine.dart';
 import 'package:flutter_pecha/features/plans/data/utils/plan_utils.dart';
 import 'package:flutter_pecha/features/plans/presentation/providers/user_plans_provider.dart';
+import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:logging/logging.dart';
@@ -255,14 +255,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      body: SafeArea(
-        child: Column(
-          children: [
-            const HomeHeader(),
-            SizedBox(height: HomeScreenConstants.bodyVerticalPadding),
-            _buildBody(context, l10n),
-          ],
-        ),
+      appBar: const HomeTabAppBar(),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const HomeEventBanner(),
+          SizedBox(height: HomeScreenConstants.bodyVerticalPadding),
+          _buildBody(context, l10n),
+        ],
       ),
     );
   }
@@ -304,8 +304,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   Widget _buildBody(BuildContext context, AppLocalizations localizations) {
     final seriesAsync = ref.watch(seriesListFutureProvider);
-    final language = ref.watch(localeProvider).languageCode;
-    final fontSize = language == 'bo' ? 22.0 : 18.0;
+    final fontSize = getLocalizedFontSize(AppTextSize.title);
 
     return Expanded(
       child: RefreshIndicator(

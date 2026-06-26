@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
+import 'package:flutter_pecha/core/theme/font_config.dart';
 import 'package:flutter_pecha/features/timer/domain/entities/preset_timer.dart';
 
 class PresetTimerCard extends StatelessWidget {
@@ -8,11 +9,13 @@ class PresetTimerCard extends StatelessWidget {
     required this.timer,
     required this.minLabel,
     this.onTap,
+    this.onMoreTap,
   });
 
   final PresetTimer timer;
   final String minLabel;
   final VoidCallback? onTap;
+  final VoidCallback? onMoreTap;
 
   static const _borderRadius = 16.0;
   static const _contentPadding = EdgeInsets.symmetric(
@@ -28,13 +31,18 @@ class PresetTimerCard extends StatelessWidget {
     final borderColor =
         isDark ? AppColors.cardBorderDark : const Color(0xFFE4E4E4);
     final textColor = Theme.of(context).colorScheme.onSurface;
-    final isTibetan = Localizations.localeOf(context).languageCode == 'bo';
+    final isTibetan = AppFontConfig.isTibetanLanguage(
+      Localizations.localeOf(context).languageCode,
+    );
 
     final minuteText = Text(
       '${timer.displayMinutes}',
       style: TextStyle(
         fontSize: 48,
         fontWeight: FontWeight.w600,
+        height: isTibetan ? AppFontConfig.tibetanCompactLineHeight : null,
+        leadingDistribution:
+            isTibetan ? AppFontConfig.tibetanLeadingDistribution : null,
         color: textColor,
       ),
     );
@@ -44,7 +52,9 @@ class PresetTimerCard extends StatelessWidget {
       style: TextStyle(
         fontSize: 16,
         fontWeight: FontWeight.w400,
-        height: 1.2,
+        height: isTibetan ? AppFontConfig.tibetanCompactLineHeight : 1.2,
+        leadingDistribution:
+            isTibetan ? AppFontConfig.tibetanLeadingDistribution : null,
         color: textColor,
       ),
     );
@@ -60,25 +70,42 @@ class PresetTimerCard extends StatelessWidget {
         onTap: onTap,
         child: AspectRatio(
           aspectRatio: 1,
-          child: Center(
-            child: Padding(
-              padding: _contentPadding,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children:
-                    isTibetan
-                        ? [
-                          minLabelText,
-                          const SizedBox(height: _labelSpacing),
-                          minuteText,
-                        ]
-                        : [
-                          minuteText,
-                          const SizedBox(height: _labelSpacing),
-                          minLabelText,
-                        ],
+          child: Stack(
+            children: [
+              Center(
+                child: Padding(
+                  padding: _contentPadding,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children:
+                        isTibetan
+                            ? [
+                              minLabelText,
+                              const SizedBox(height: _labelSpacing),
+                              minuteText,
+                            ]
+                            : [
+                              minuteText,
+                              const SizedBox(height: _labelSpacing),
+                              minLabelText,
+                            ],
+                  ),
+                ),
               ),
-            ),
+              if (onMoreTap != null)
+                Positioned(
+                  top: 0,
+                  right: 0,
+                  child: IconButton(
+                    icon: Icon(
+                      Icons.more_vert,
+                      color: textColor,
+                      size: 20,
+                    ),
+                    onPressed: onMoreTap,
+                  ),
+                ),
+            ],
           ),
         ),
       ),

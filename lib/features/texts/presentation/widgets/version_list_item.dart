@@ -24,7 +24,7 @@ class VersionListItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final fontFamily = getFontFamily(language);
     final lineHeight = getLineHeight(language);
-    final fontSize = language == 'bo' ? 20.0 : 18.0;
+    final fontSize = getLocalizedFontSize(AppTextSize.title);
 
     return GestureDetector(
       onTap: onTap,

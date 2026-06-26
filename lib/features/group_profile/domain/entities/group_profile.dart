@@ -90,7 +90,12 @@ class GroupProfile {
   int get memberOrFollowerCount =>
       groupType.isPage ? followerCount : joinerCount;
 
-  GroupProfile copyWith({bool? isFollowing}) {
+  GroupProfile copyWith({
+    bool? isFollowing,
+    int? joinerCount,
+    int? followerCount,
+    int? memberCount,
+  }) {
     return GroupProfile(
       id: id,
       slug: slug,
@@ -106,9 +111,24 @@ class GroupProfile {
       tags: tags,
       socialLinks: socialLinks,
       series: series,
-      joinerCount: joinerCount,
-      followerCount: followerCount,
-      memberCount: memberCount,
+      joinerCount: joinerCount ?? this.joinerCount,
+      followerCount: followerCount ?? this.followerCount,
+      memberCount: memberCount ?? this.memberCount,
+    );
+  }
+
+  GroupProfile withMemberCountDelta(int delta) {
+    if (delta == 0) return this;
+
+    if (groupType.isPage) {
+      return copyWith(
+        followerCount: (followerCount + delta).clamp(0, 1 << 31),
+      );
+    }
+
+    return copyWith(
+      joinerCount: (joinerCount + delta).clamp(0, 1 << 31),
+      memberCount: (memberCount + delta).clamp(0, 1 << 31),
     );
   }
 }

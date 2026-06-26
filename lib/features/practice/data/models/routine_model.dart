@@ -5,7 +5,7 @@ import 'package:uuid/uuid.dart';
 
 const _uuid = Uuid();
 
-enum RoutineItemType { series, recitation }
+enum RoutineItemType { series, recitation, timer, accumulator }
 
 class RoutineItem {
   final String id;
@@ -18,6 +18,9 @@ class RoutineItem {
   final String? currentPlanId;
   final String? currentPlanTitle;
 
+  /// Duration in milliseconds — only present for [RoutineItemType.timer] items.
+  final int? durationMs;
+
   const RoutineItem({
     required this.id,
     required this.title,
@@ -28,6 +31,7 @@ class RoutineItem {
     this.startDate,
     this.currentPlanId,
     this.currentPlanTitle,
+    this.durationMs,
   });
 
   /// Smallest cover URL — legacy persistence and notifications.
@@ -44,6 +48,7 @@ class RoutineItem {
     if (startDate != null) 'startDate': startDate!.toIso8601String(),
     if (currentPlanId != null) 'currentPlanId': currentPlanId,
     if (currentPlanTitle != null) 'currentPlanTitle': currentPlanTitle,
+    if (durationMs != null) 'durationMs': durationMs,
   };
 
   /// Safely parses a [RoutineItem] from JSON with null checks and fallbacks.
@@ -68,6 +73,7 @@ class RoutineItem {
       startDate: _parseDateTime(json['startDate']),
       currentPlanId: json['currentPlanId'] as String?,
       currentPlanTitle: json['currentPlanTitle'] as String?,
+      durationMs: (json['durationMs'] as num?)?.toInt(),
     );
   }
 
@@ -98,6 +104,8 @@ class RoutineItem {
       'plan' => RoutineItemType.series,
       'series' => RoutineItemType.series,
       'recitation' => RoutineItemType.recitation,
+      'timer' => RoutineItemType.timer,
+      'accumulator' => RoutineItemType.accumulator,
       _ => RoutineItemType.series,
     };
   }

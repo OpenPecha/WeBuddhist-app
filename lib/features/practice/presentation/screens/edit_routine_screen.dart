@@ -15,6 +15,7 @@ import 'package:flutter_pecha/features/auth/presentation/providers/state_provide
 import 'package:flutter_pecha/features/auth/presentation/widgets/login_drawer.dart';
 import 'package:flutter_pecha/features/home/domain/entities/series.dart';
 import 'package:flutter_pecha/features/home/domain/usecases/get_series_by_id_usecase.dart';
+import 'package:flutter_pecha/features/mala/domain/entities/mantra.dart';
 import 'package:flutter_pecha/features/home/presentation/providers/routine_info_provider.dart';
 import 'package:flutter_pecha/features/home/presentation/providers/series_enrollment_provider.dart';
 import 'package:flutter_pecha/features/home/presentation/providers/use_case_providers.dart'
@@ -23,6 +24,7 @@ import 'package:flutter_pecha/features/plans/plans.dart';
 import 'package:flutter_pecha/features/practice/data/models/routine_model.dart';
 import 'package:flutter_pecha/features/practice/data/models/session_selection.dart';
 import 'package:flutter_pecha/features/recitation/data/models/recitation_model.dart';
+import 'package:flutter_pecha/features/timer/domain/entities/preset_timer.dart';
 import 'package:flutter_pecha/features/practice/data/utils/routine_api_mapper.dart';
 import 'package:flutter_pecha/features/practice/data/utils/routine_time_utils.dart';
 import 'package:flutter_pecha/features/practice/presentation/providers/practice_providers.dart';
@@ -58,16 +60,30 @@ class _EditableBlock {
 class EditRoutineScreen extends ConsumerStatefulWidget {
   final Plan? initialPlan;
   final RecitationModel? initialRecitation;
+  final PresetTimer? initialTimer;
 
-  /// When provided, after hydration the screen adds the enrolled series to the
-  /// routine, reusing any existing empty block or creating a new one at the
-  /// user's current local time (with the standard 10-minute gap).
+  /// When provided, the preset mala/accumulator is injected into the routine
+  /// after hydration as an ACCUMULATOR session.
+  final Mantra? initialMantra;
+
+  /// When provided, the already-loaded series is injected into the routine
+  /// after hydration. Preferred over [enrollSeriesId] when the caller already
+  /// holds the [Series] (e.g. the series detail screen), as it avoids a
+  /// redundant `GET /series/{id}`. Adding the SERIES session enrolls the user
+  /// server-side, so no separate enroll call is needed.
+  final Series? initialSeries;
+
+  /// When provided, after hydration the screen fetches and adds the series to
+  /// the routine by id. Used by the Enroll button, which only has the id.
   final String? enrollSeriesId;
 
   const EditRoutineScreen({
     super.key,
     this.initialPlan,
     this.initialRecitation,
+    this.initialTimer,
+    this.initialMantra,
+    this.initialSeries,
     this.enrollSeriesId,
   });
 
@@ -187,15 +203,6 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
   }
 
   _EditableBlock? _injectInitialRecitation(RecitationModel recitation) {
-    final alreadyExists = _blocks.any(
-      (b) => b.items.any(
-        (item) =>
-            item.id == recitation.textId &&
-            item.type == RoutineItemType.recitation,
-      ),
-    );
-    if (alreadyExists) return null;
-
     final newItem = RoutineItem(
       id: recitation.textId,
       title: recitation.title,
@@ -204,6 +211,54 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
 
     final resolved = _resolveInjectionTarget();
     resolved.target.items.add(newItem);
+    if (resolved.isNewBlock) {
+      _blocks.add(resolved.target);
+    }
+    _sortBlocks();
+    return resolved.target;
+  }
+
+  RoutineItem _routineItemFromTimer(PresetTimer timer) => RoutineItem(
+    id: timer.id,
+    title: '${timer.displayMinutes} min session',
+    type: RoutineItemType.timer,
+    durationMs: timer.durationMs,
+  );
+
+  _EditableBlock? _injectInitialTimer(PresetTimer timer) {
+    final newItem = _routineItemFromTimer(timer);
+
+    final resolved = _resolveInjectionTarget();
+    resolved.target.items.add(newItem);
+    if (resolved.isNewBlock) {
+      _blocks.add(resolved.target);
+    }
+    _sortBlocks();
+    return resolved.target;
+  }
+
+  /// Adds the preset mala/accumulator into the routine as an ACCUMULATOR
+  /// session (source_id = preset id). Like series, a mala may live in multiple
+  /// time blocks, so the duplicate guard is scoped to the target block only.
+  _EditableBlock? _injectInitialAccumulator(Mantra mantra) {
+    final resolved = _resolveInjectionTarget();
+
+    final duplicateInTarget = resolved.target.items.any(
+      (item) =>
+          item.id == mantra.presetId &&
+          item.type == RoutineItemType.accumulator,
+    );
+    if (duplicateInTarget) return null;
+
+    final language = ref.read(contentLanguageProvider);
+    resolved.target.items.add(
+      RoutineItem(
+        id: mantra.presetId,
+        title: mantra.displayTitle(language),
+        type: RoutineItemType.accumulator,
+        enrolledAt: DateTime.now(),
+      ),
+    );
     if (resolved.isNewBlock) {
       _blocks.add(resolved.target);
     }
@@ -254,37 +309,47 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
     );
   }
 
-  /// Adds [series] into the routine, reusing the earliest empty block (re-timed
-  /// to the user's current local time) or creating a new block at that time
-  /// with the standard 10-minute gap. Returns the affected block (to drive a
-  /// follow-up server sync) or null if the series is already present.
-  _EditableBlock? _injectSeries(Series series) {
-    final alreadyExists = _blocks.any(
-      (b) => b.items.any(
-        (item) => item.id == series.id && item.type == RoutineItemType.series,
+  /// Adds [series] into the routine. Returns the affected block (to drive a
+  /// follow-up server sync) or null if it would duplicate the series within the
+  /// resolved block.
+  ///
+  /// A series may live in multiple time blocks (e.g. a morning and an evening
+  /// session), so the duplicate guard is scoped to the target block only — not
+  /// the whole routine.
+  ///
+  /// No-`setState` core, designed to be called inside the build-phase
+  /// hydration `setState` (like the other `_injectInitial*` methods).
+  _EditableBlock? _injectInitialSeries(Series series) {
+    final resolved = _resolveInjectionTarget();
+
+    final duplicateInTarget = resolved.target.items.any(
+      (item) => item.id == series.id && item.type == RoutineItemType.series,
+    );
+    if (duplicateInTarget) return null;
+
+    resolved.target.items.add(
+      RoutineItem(
+        id: series.id,
+        title: series.title,
+        coverImage: series.coverImage,
+        type: RoutineItemType.series,
+        enrolledAt: DateTime.now(),
       ),
     );
-    if (alreadyExists) return null;
+    if (resolved.isNewBlock) {
+      _blocks.add(resolved.target);
+    }
+    _sortBlocks();
+    return resolved.target;
+  }
 
-    final newItem = RoutineItem(
-      id: series.id,
-      title: series.title,
-      coverImage: series.coverImage,
-      type: RoutineItemType.series,
-      enrolledAt: DateTime.now(),
-    );
-
-    late _EditableBlock target;
+  /// `setState`-wrapped variant for async callers (the [enrollSeriesId] path,
+  /// which injects after an `await`).
+  _EditableBlock? _injectSeries(Series series) {
+    _EditableBlock? target;
     setState(() {
-      final resolved = _resolveInjectionTarget();
-      target = resolved.target;
-      if (resolved.isNewBlock) {
-        _blocks.add(target);
-      }
-      target.items.add(newItem);
-      _sortBlocks();
+      target = _injectInitialSeries(series);
     });
-
     return target;
   }
 
@@ -654,12 +719,12 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
   }
 
   Future<void> _pickTime(int index) async {
-    if (!mounted) return;
     final initialTime = _blocks[index].time;
     final TimeOfDay? picked;
     if (Platform.isIOS) {
       picked = await _showCupertinoTimePicker(initialTime: initialTime);
     } else {
+      if (!mounted) return;
       picked = await showTimePicker(context: context, initialTime: initialTime);
     }
     if (picked != null) {
@@ -1041,6 +1106,8 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
           await _addRecitationToBlock(blockIndex, recitation);
         case SeriesSessionSelection(:final series):
           await _handleSeriesEnrollmentFromSelection(blockIndex, series);
+        case TimerSessionSelection(:final timer):
+          await _addTimerToBlock(blockIndex, timer);
       }
     } finally {
       _isSelectingSession = false;
@@ -1088,29 +1155,26 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
     int blockIndex,
     RecitationModel recitation,
   ) async {
-    final isDuplicate = _blocks[blockIndex].items.any(
-      (item) =>
-          item.id == recitation.textId &&
-          item.type == RoutineItemType.recitation,
-    );
-    if (isDuplicate) {
-      _logger.warning('Duplicate item prevented: ${recitation.textId}');
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(context.l10n.duplicateItem),
-            duration: const Duration(seconds: 2),
-          ),
-        );
-      }
-      return;
-    }
-
     final newItem = RoutineItem(
       id: recitation.textId,
       title: recitation.title,
       type: RoutineItemType.recitation,
     );
+    final block = _blocks[blockIndex];
+    setState(() => block.items.add(newItem));
+
+    try {
+      await _syncBlock(block);
+    } catch (e) {
+      if (mounted) {
+        setState(() => block.items.remove(newItem));
+        _showErrorSnackBar(_mapError(e));
+      }
+    }
+  }
+
+  Future<void> _addTimerToBlock(int blockIndex, PresetTimer timer) async {
+    final newItem = _routineItemFromTimer(timer);
     final block = _blocks[blockIndex];
     setState(() => block.items.add(newItem));
 
@@ -1227,6 +1291,9 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (!mounted || _hydratedFromApi) return;
             _EditableBlock? injectedRecitationBlock;
+            _EditableBlock? injectedTimerBlock;
+            _EditableBlock? injectedSeriesBlock;
+            _EditableBlock? injectedAccumulatorBlock;
             setState(() {
               _hydratedFromApi = true;
               _applyInitialData(routineData);
@@ -1238,12 +1305,51 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
                   widget.initialRecitation!,
                 );
               }
+              if (widget.initialTimer != null) {
+                injectedTimerBlock = _injectInitialTimer(
+                  widget.initialTimer!,
+                );
+              }
+              if (widget.initialSeries != null) {
+                injectedSeriesBlock = _injectInitialSeries(
+                  widget.initialSeries!,
+                );
+              }
+              if (widget.initialMantra != null) {
+                injectedAccumulatorBlock = _injectInitialAccumulator(
+                  widget.initialMantra!,
+                );
+              }
             });
             if (widget.initialPlan != null) {
               _syncInjectedPlan(widget.initialPlan!);
             }
             if (injectedRecitationBlock != null) {
               _syncBlock(injectedRecitationBlock!).catchError((e) {
+                if (mounted) _showErrorSnackBar(_mapError(e));
+              });
+            }
+            if (injectedTimerBlock != null) {
+              _syncBlock(injectedTimerBlock!).catchError((e) {
+                if (mounted) _showErrorSnackBar(_mapError(e));
+              });
+            }
+            if (injectedSeriesBlock != null) {
+              _syncBlock(injectedSeriesBlock!)
+                  .then((_) {
+                    // Adding the SERIES session enrolls the user in its plans
+                    // server-side; refresh so "My Plans" reflects them even if
+                    // the user backs out without saving.
+                    if (mounted) {
+                      ref.read(myPlansPaginatedProvider.notifier).refresh();
+                    }
+                  })
+                  .catchError((e) {
+                    if (mounted) _showErrorSnackBar(_mapError(e));
+                  });
+            }
+            if (injectedAccumulatorBlock != null) {
+              _syncBlock(injectedAccumulatorBlock!).catchError((e) {
                 if (mounted) _showErrorSnackBar(_mapError(e));
               });
             }

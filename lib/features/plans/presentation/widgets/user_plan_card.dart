@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
+import 'package:flutter_pecha/core/theme/font_config.dart';
 import 'package:flutter_pecha/core/widgets/responsive_cover_image.dart';
 import 'package:flutter_pecha/features/plans/data/models/user/user_plans_model.dart';
 import 'package:flutter_pecha/features/plans/presentation/widgets/plan_track/enrolled_plan_status_indicator.dart';
 import 'package:flutter_pecha/features/plans/presentation/widgets/plan_track/plan_date_range_label.dart';
 import 'package:flutter_pecha/shared/extensions/typography_extensions.dart';
+import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 
 class UserPlanCard extends StatelessWidget {
   final UserPlansModel plan;
@@ -83,7 +85,7 @@ class UserPlanCard extends StatelessWidget {
         return AlertDialog(
           title: Text(localizations.plan_unenroll),
           content: Text(
-            languageCode == 'bo'
+            AppFontConfig.isTibetanLanguage(languageCode)
                 ? '${plan.title} ${localizations.unenroll_confirmation}\n\n ${localizations.unenroll_message}'
                 : '${localizations.unenroll_confirmation} "${plan.title}"?\n\n ${localizations.unenroll_message}',
           ),
@@ -134,7 +136,7 @@ Widget _buildPlanImage(UserPlansModel plan) {
 
 Widget _buildPlanInfo(BuildContext context, UserPlansModel plan) {
   final planLanguage = plan.language;
-  final fontSize = planLanguage == 'bo' ? 18.0 : 16.0;
+  final fontSize = getLocalizedFontSize(AppTextSize.body);
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [

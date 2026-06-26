@@ -13,7 +13,7 @@ class PlanListSkeleton extends StatelessWidget {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final listItemCount = _calculateListItemCount(constraints);
+        final listItemCount = _calculateListItemCount(context, constraints);
         return Skeletonizer(
           enabled: true,
           child: CustomScrollView(
@@ -47,14 +47,21 @@ class PlanListSkeleton extends StatelessWidget {
     );
   }
 
-  int _calculateListItemCount(BoxConstraints constraints) {
+  int _calculateListItemCount(
+    BuildContext context,
+    BoxConstraints constraints,
+  ) {
     if (!constraints.maxHeight.isFinite) {
       return 4;
     }
 
-    // Featured card is ~200 height + 16 spacing
+    final cardWidth = (constraints.maxWidth - 32).clamp(0.0, double.infinity);
+    final featuredImageHeight = cardWidth / (16 / 9);
+    const featuredTextHeight = 12 + 20 + 8 + 14 + 14 + 46 + 16;
+    final featuredHeight = featuredImageHeight + featuredTextHeight;
+
     // Each list item is ~86 height + 12 bottom margin
-    final availableForList = constraints.maxHeight - 200 - 16 - 24;
+    final availableForList = constraints.maxHeight - featuredHeight - 16 - 24;
     final itemHeight = 86 + 12.0;
     final visibleItems = (availableForList / itemHeight).ceil();
     // Show enough items to fill visible area, minimum 3, maximum 8
@@ -62,30 +69,25 @@ class PlanListSkeleton extends StatelessWidget {
   }
 
   Widget _buildFeaturedCardSkeleton(BuildContext context) {
-    return Container(
-      height: 200,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16),
-        color: Theme.of(context).colorScheme.surfaceContainer,
-      ),
+    return Material(
+      color: Theme.of(context).cardColor,
+      borderRadius: BorderRadius.circular(16),
       clipBehavior: Clip.antiAlias,
-      child: Stack(
-        fit: StackFit.expand,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Background placeholder
-          const Bone(
-            width: double.infinity,
-            height: double.infinity,
-            borderRadius: BorderRadius.zero,
+          const AspectRatio(
+            aspectRatio: 16 / 9,
+            child: Bone(
+              width: double.infinity,
+              height: double.infinity,
+              borderRadius: BorderRadius.zero,
+            ),
           ),
-          // Content at bottom
-          Positioned(
-            left: 16,
-            right: 16,
-            bottom: 16,
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
               children: [
                 Bone(
                   width: 180,
@@ -97,6 +99,12 @@ class PlanListSkeleton extends StatelessWidget {
                   width: 240,
                   height: 14,
                   borderRadius: BorderRadius.circular(4),
+                ),
+                const SizedBox(height: 14),
+                Bone(
+                  width: double.infinity,
+                  height: 46,
+                  borderRadius: BorderRadius.circular(12),
                 ),
               ],
             ),
@@ -110,7 +118,7 @@ class PlanListSkeleton extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12.0),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           // Thumbnail skeleton
           Container(

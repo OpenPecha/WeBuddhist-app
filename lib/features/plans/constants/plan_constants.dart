@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/theme/font_config.dart';
 
 /// Constants for the Plans feature
 /// Centralized location for magic numbers, colors, and configuration values
@@ -6,11 +7,11 @@ class PlanConstants {
   PlanConstants._(); // Private constructor to prevent instantiation
 
   // Font Sizes
-  static const double boFontSize = 22.0;
-  static const double defaultFontSize = 18.0;
-  static const double titleFontSize = 20.0;
-  static const double bodyFontSize = 16.0;
-  static const double dayNumberFontSize = 14.0;
+  static const double boFontSize = AppFontConfig.contentFontSize;
+  static const double defaultFontSize = AppFontConfig.contentFontSize;
+  static const double titleFontSize = AppFontConfig.titleFontSize;
+  static const double bodyFontSize = AppFontConfig.bodyFontSize;
+  static const double dayNumberFontSize = AppFontConfig.labelFontSize;
 
   // Pagination
   static const int paginationLimit = 20;

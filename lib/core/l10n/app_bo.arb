@@ -381,7 +381,7 @@
   "routine_build": "འཆར་ཅན་ཉམས་ལེན་གསར་སྣོན།",
   "routine_add_session": "ཉམས་ལེན་ཚན་པའི་ནང་སྣོན།",
   "routine_edit_title": "འཆར་ཅན་ཉམས་ལེན་བཟོ་བཅོས།",
-  "routine_delete_block": "ཚན་པ་བསུབ་རྒྱུ་ཡིན་ནམ།",
+  "routine_delete_block": "ཚན་པ་བསུབ།",
   "routine_delete_time_block": "དུས་ཚོད་སྡུབ།",
   "routine_add_plan": "ཉམས་ལེན་ཁ་སྣོན།",
   "routine_add_recitation": "ཞལ་འདོན་ཁ་སྣོན།",

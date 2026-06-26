@@ -46,6 +46,7 @@ export 'data/models/response/user_plan_day_detail_response.dart';
 export 'data/models/response/user_plan_day_completion_status_response.dart';
 
 // Data - Datasources
+export 'data/datasource/plans_local_datasource.dart';
 export 'data/datasource/plans_remote_datasource.dart';
 export 'data/datasource/user_plans_remote_datasource.dart';
 export 'data/datasource/plan_days_remote_datasource.dart';

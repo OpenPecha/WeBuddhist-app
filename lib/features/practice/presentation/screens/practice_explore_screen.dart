@@ -6,6 +6,7 @@ import 'package:flutter_pecha/features/practice/presentation/widgets/practice_ch
 import 'package:flutter_pecha/features/practice/presentation/widgets/practice_plans_section.dart';
 import 'package:flutter_pecha/features/practice/presentation/widgets/practice_tab_button.dart';
 import 'package:flutter_pecha/features/practice/presentation/widgets/practice_timers_section.dart';
+import 'package:flutter_pecha/shared/widgets/main_tab_app_bar.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -36,25 +37,8 @@ class _PracticeExploreScreenState extends ConsumerState<PracticeExploreScreen> {
     final l10n = context.l10n;
 
     return Scaffold(
-      body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-              child: Text(
-                l10n.nav_practice,
-                style: const TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-            const SizedBox(height: 12),
-            Expanded(child: _buildExploreContent(context)),
-          ],
-        ),
-      ),
+      appBar: MainTabAppBar(title: l10n.nav_practice),
+      body: _buildExploreContent(context),
     );
   }
 
@@ -79,12 +63,13 @@ class _PracticeExploreScreenState extends ConsumerState<PracticeExploreScreen> {
               icon: Icons.bookmark_border,
               variant: PracticeActionButtonVariant.outlined,
               onTap: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(context.l10n.mala_action_coming_soon),
-                    duration: const Duration(seconds: 2),
-                  ),
-                );
+                context.pushNamed('bookmarks');
+                // ScaffoldMessenger.of(context).showSnackBar(
+                //   SnackBar(
+                //     content: Text(context.l10n.mala_action_coming_soon),
+                //     duration: const Duration(seconds: 2),
+                //   ),
+                // );
               },
             ),
           ),

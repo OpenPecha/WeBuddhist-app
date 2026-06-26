@@ -24,7 +24,9 @@ class ContentsTabView extends ConsumerWidget {
     final localizations = context.l10n;
 
     if (searchState.isLoading) {
-      return const SearchResultSkeleton();
+      return const SearchResultSkeleton(
+        mode: SearchResultSkeletonMode.contents,
+      );
     }
 
     if (searchState.error != null) {
@@ -54,7 +56,11 @@ class ContentsTabView extends ConsumerWidget {
                 icon: Icon(
                   searchState.isLoading ? Icons.hourglass_empty : Icons.refresh,
                 ),
-                label: Text(searchState.isLoading ? localizations.search_retrying : localizations.ai_retry),
+                label: Text(
+                  searchState.isLoading
+                      ? localizations.search_retrying
+                      : localizations.ai_retry,
+                ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,
                   foregroundColor: Colors.white,

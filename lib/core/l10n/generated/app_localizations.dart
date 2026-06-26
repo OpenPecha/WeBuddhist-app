@@ -265,7 +265,7 @@ abstract class AppLocalizations {
   /// No description provided for @home_recitation_count.
   ///
   /// In en, this message translates to:
-  /// **'{count} recitations'**
+  /// **'{count} chants'**
   String home_recitation_count(int count);
 
   /// No description provided for @home_shortcut_plans.
@@ -1771,7 +1771,7 @@ abstract class AppLocalizations {
   /// No description provided for @routine_delete_block.
   ///
   /// In en, this message translates to:
-  /// **'Remove block?'**
+  /// **'Remove block'**
   String get routine_delete_block;
 
   /// No description provided for @routine_delete_time_block.

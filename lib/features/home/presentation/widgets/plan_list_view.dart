@@ -106,7 +106,7 @@ class FeaturedPlanCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final locale = ref.watch(localeProvider);
     final lineHeight = getLineHeight(locale.languageCode);
-    final subtitleFontSize = locale.languageCode == 'bo' ? 18.0 : 14.0;
+    final subtitleFontSize = getLocalizedFontSize(AppTextSize.label);
 
     final displayDescription = series?.subTitle ?? plan.description;
     final displayImage = series?.coverImage ?? plan.coverImage;
@@ -310,7 +310,7 @@ class PlanListItem extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final locale = ref.watch(localeProvider);
     final lineHeight = getLineHeight(locale.languageCode);
-    final titleFontSize = locale.languageCode == 'bo' ? 18.0 : 16.0;
+    final titleFontSize = getLocalizedFontSize(AppTextSize.body);
 
     final myPlansState = ref.watch(myPlansPaginatedProvider);
     final isGuest = ref.watch(authProvider).isGuest;
