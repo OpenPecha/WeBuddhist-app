@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
+import 'package:flutter_pecha/core/widgets/responsive_cover_image.dart';
 import 'package:flutter_pecha/features/practice/data/models/bookmark_models.dart';
+import 'package:intl/intl.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 /// A single bookmark row.
@@ -55,22 +57,53 @@ class BookmarkCard extends StatelessWidget {
   }
 
   Widget _buildIconRow(BuildContext context, bool isDark) {
+    final dateLabel = _dateRangeLabel;
     return Row(
       children: [
-        _LeadingTile(type: bookmark.type, isDark: isDark),
+        _Leading(bookmark: bookmark, isDark: isDark),
         const SizedBox(width: 16),
         Expanded(
-          child: Text(
-            bookmark.displayTitle,
-            style: _titleStyle(isDark),
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                bookmark.displayTitle,
+                style: _titleStyle(isDark),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+              if (dateLabel != null) ...[
+                const SizedBox(height: 4),
+                Text(
+                  dateLabel,
+                  style: TextStyle(
+                    fontSize: 14,
+                    color:
+                        isDark
+                            ? AppColors.textTertiaryDark
+                            : AppColors.textSecondary,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ],
           ),
         ),
         const SizedBox(width: 8),
         _RemoveButton(onRemove: onRemove, isDark: isDark),
       ],
     );
+  }
+
+  /// "MMM d - MMM d" for plan/series bookmarks that carry a schedule window.
+  String? get _dateRangeLabel {
+    final start = bookmark.startDate;
+    if (start == null) return null;
+    final fmt = DateFormat('MMM d');
+    final end = bookmark.endDate;
+    return end == null ? fmt.format(start) : '${fmt.format(start)} - ${fmt.format(end)}';
   }
 
   Widget _buildTextRow(BuildContext context, bool isDark) {
@@ -130,8 +163,35 @@ class BookmarkCard extends StatelessWidget {
   );
 }
 
-class _LeadingTile extends StatelessWidget {
-  const _LeadingTile({required this.type, required this.isDark});
+/// Leading visual: real artwork when the bookmark carries it (plan/series
+/// cover, accumulator bead), otherwise a type-based icon tile.
+class _Leading extends StatelessWidget {
+  const _Leading({required this.bookmark, required this.isDark});
+
+  final BookmarkDTO bookmark;
+  final bool isDark;
+
+  static const double _size = 56;
+
+  @override
+  Widget build(BuildContext context) {
+    final image = bookmark.leadingImage;
+    if (image != null && !image.isEmpty) {
+      final radius = BorderRadius.circular(bookmark.isRoundLeading ? _size / 2 : 10);
+      return ResponsiveCoverImage(
+        image: image,
+        width: _size,
+        height: _size,
+        fit: BoxFit.cover,
+        borderRadius: radius,
+      );
+    }
+    return _IconTile(type: bookmark.type, isDark: isDark);
+  }
+}
+
+class _IconTile extends StatelessWidget {
+  const _IconTile({required this.type, required this.isDark});
 
   final BookmarkItemType type;
   final bool isDark;

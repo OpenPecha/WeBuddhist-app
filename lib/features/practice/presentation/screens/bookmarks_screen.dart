@@ -5,6 +5,7 @@ import 'package:flutter_pecha/features/practice/data/models/bookmark_models.dart
 import 'package:flutter_pecha/features/practice/presentation/providers/bookmark_providers.dart';
 import 'package:flutter_pecha/features/practice/presentation/widgets/bookmark_card.dart';
 import 'package:flutter_pecha/features/reader/data/models/navigation_context.dart';
+import 'package:flutter_pecha/features/timer/domain/entities/preset_timer.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
@@ -76,18 +77,29 @@ class _BookmarksScreenState extends ConsumerState<BookmarksScreen>
           pathParameters: {'id': bookmark.sourceId},
         );
       case BookmarkItemType.timer:
-        // The bookmark carries no duration, so we can't autostart the timer —
-        // route to the timers list where the user can pick it.
-        context.pushNamed('home-timers');
-      case BookmarkItemType.plan:
+        // Open the active timer directly. This route is root-navigator-keyed,
+        // so it won't duplicate the /home shell page (which crashes when a
+        // shell route like the timers list is pushed from this root screen).
+        final durationMs = bookmark.timerDurationMs;
+        if (durationMs == null || durationMs <= 0) return;
+        context.push(
+          '/home/timers/active',
+          extra: PresetTimer(
+            id: bookmark.sourceId,
+            name: bookmark.displayTitle,
+            durationMs: durationMs,
+            audioUrl: bookmark.timerAudioUrl,
+          ),
+        );
       case BookmarkItemType.accumulator:
-        // No reliable id-based deep link from bookmark data alone.
+        context.push('/mala', extra: {'presetId': bookmark.sourceId});
+      case BookmarkItemType.plan:
+        // No reliable id-based deep link for a plan from bookmark data alone.
         break;
     }
   }
 
-  bool _isTappable(BookmarkItemType type) =>
-      type != BookmarkItemType.plan && type != BookmarkItemType.accumulator;
+  bool _isTappable(BookmarkItemType type) => type != BookmarkItemType.plan;
 
   @override
   Widget build(BuildContext context) {
