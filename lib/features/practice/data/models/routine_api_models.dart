@@ -4,12 +4,14 @@ import 'package:flutter_pecha/shared/domain/value_objects/responsive_image.dart'
 enum SessionType {
   series,
   recitation,
-  timer;
+  timer,
+  accumulator;
 
   String toJson() => switch (this) {
     SessionType.series => 'SERIES',
     SessionType.recitation => 'RECITATION',
     SessionType.timer => 'TIMER',
+    SessionType.accumulator => 'ACCUMULATOR',
   };
 
   static SessionType fromJson(String value) => switch (value) {
@@ -18,6 +20,7 @@ enum SessionType {
     'PLAN' => SessionType.series,
     'RECITATION' => SessionType.recitation,
     'TIMER' => SessionType.timer,
+    'ACCUMULATOR' => SessionType.accumulator,
     _ => throw FormatException('Unknown SessionType: $value'),
   };
 }

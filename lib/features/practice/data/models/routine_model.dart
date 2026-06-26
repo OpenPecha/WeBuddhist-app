@@ -5,7 +5,7 @@ import 'package:uuid/uuid.dart';
 
 const _uuid = Uuid();
 
-enum RoutineItemType { series, recitation, timer }
+enum RoutineItemType { series, recitation, timer, accumulator }
 
 class RoutineItem {
   final String id;
@@ -105,6 +105,7 @@ class RoutineItem {
       'series' => RoutineItemType.series,
       'recitation' => RoutineItemType.recitation,
       'timer' => RoutineItemType.timer,
+      'accumulator' => RoutineItemType.accumulator,
       _ => RoutineItemType.series,
     };
   }

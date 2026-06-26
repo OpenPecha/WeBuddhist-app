@@ -12,6 +12,7 @@ import 'package:flutter_pecha/features/mala/presentation/providers/mala_settings
 import 'package:flutter_pecha/features/practice/presentation/controllers/bookmark_controller.dart';
 import 'package:flutter_pecha/shared/widgets/app_toggle_switch.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 class MalaSettingsSheet extends ConsumerWidget {
   const MalaSettingsSheet({super.key, required this.mantra});
@@ -101,10 +102,13 @@ class MalaSettingsSheet extends ConsumerWidget {
   }
 
   void _onAddToPractice(BuildContext context) {
+    // Mala is login-gated, so the user is always authenticated here; the
+    // edit-routine route's auth guard is a backstop. Capture the router before
+    // dismissing the sheet, then open the routine editor with the mala
+    // injected as an ACCUMULATOR session.
+    final router = GoRouter.of(context);
     Navigator.of(context).pop();
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(context.l10n.mala_action_coming_soon)),
-    );
+    router.pushNamed('edit-routine', extra: {'initialMantra': mantra});
   }
 
   Future<void> _onAddToBookmark(BuildContext context, WidgetRef ref) async {

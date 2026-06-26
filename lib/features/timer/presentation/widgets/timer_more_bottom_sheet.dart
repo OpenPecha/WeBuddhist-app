@@ -67,7 +67,10 @@ class _TimerMoreBottomSheetState extends ConsumerState<TimerMoreBottomSheet> {
           _SectionDivider(theme: theme),
           ListTile(
             leading: Icon(AppAssets.plus, color: theme.colorScheme.onSurface),
-            title: Text('Add to my practices', style: theme.textTheme.bodyLarge),
+            title: Text(
+              'Add to my practices',
+              style: theme.textTheme.bodyLarge,
+            ),
             onTap: () {
               HapticFeedback.lightImpact();
               Navigator.of(context).pop();
@@ -78,19 +81,20 @@ class _TimerMoreBottomSheetState extends ConsumerState<TimerMoreBottomSheet> {
           // ── Bookmark ───────────────────────────────────────────────────
           _SectionDivider(theme: theme),
           ListTile(
-            leading: _isBookmarking
-                ? SizedBox(
-                    width: 22,
-                    height: 22,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
+            leading:
+                _isBookmarking
+                    ? SizedBox(
+                      width: 22,
+                      height: 22,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: theme.colorScheme.onSurface,
+                      ),
+                    )
+                    : Icon(
+                      AppAssets.bookmarkSimple,
                       color: theme.colorScheme.onSurface,
                     ),
-                  )
-                : Icon(
-                    AppAssets.bookmarkSimple,
-                    color: theme.colorScheme.onSurface,
-                  ),
             title: Text('Bookmark', style: theme.textTheme.bodyLarge),
             onTap: () async {
               HapticFeedback.lightImpact();
@@ -128,9 +132,11 @@ void showTimerMoreBottomSheet(
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
     ),
-    builder: (_) => TimerMoreBottomSheet(
-      timer: timer,
-      onAddToPractices: onAddToPractices,
-    ),
+    useRootNavigator: true,
+    builder:
+        (_) => TimerMoreBottomSheet(
+          timer: timer,
+          onAddToPractices: onAddToPractices,
+        ),
   );
 }

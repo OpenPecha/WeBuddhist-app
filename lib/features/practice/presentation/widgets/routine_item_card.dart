@@ -108,6 +108,24 @@ class RoutineItemCard extends StatelessWidget {
                       : AppColors.textSecondary,
                 ),
               )
+            else if (type == RoutineItemType.accumulator)
+              Container(
+                width: 74,
+                height: 74,
+                decoration: BoxDecoration(
+                  color: isDark
+                      ? AppColors.surfaceVariantDark
+                      : AppColors.grey100,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  PhosphorIconsRegular.circlesThree,
+                  size: 32,
+                  color: isDark
+                      ? AppColors.textTertiaryDark
+                      : AppColors.textSecondary,
+                ),
+              )
             else
               ResponsiveCoverImage(
                 image:

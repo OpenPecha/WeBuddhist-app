@@ -15,6 +15,7 @@ import 'package:flutter_pecha/features/auth/presentation/providers/state_provide
 import 'package:flutter_pecha/features/auth/presentation/widgets/login_drawer.dart';
 import 'package:flutter_pecha/features/home/domain/entities/series.dart';
 import 'package:flutter_pecha/features/home/domain/usecases/get_series_by_id_usecase.dart';
+import 'package:flutter_pecha/features/mala/domain/entities/mantra.dart';
 import 'package:flutter_pecha/features/home/presentation/providers/routine_info_provider.dart';
 import 'package:flutter_pecha/features/home/presentation/providers/series_enrollment_provider.dart';
 import 'package:flutter_pecha/features/home/presentation/providers/use_case_providers.dart'
@@ -61,6 +62,10 @@ class EditRoutineScreen extends ConsumerStatefulWidget {
   final RecitationModel? initialRecitation;
   final PresetTimer? initialTimer;
 
+  /// When provided, the preset mala/accumulator is injected into the routine
+  /// after hydration as an ACCUMULATOR session.
+  final Mantra? initialMantra;
+
   /// When provided, the already-loaded series is injected into the routine
   /// after hydration. Preferred over [enrollSeriesId] when the caller already
   /// holds the [Series] (e.g. the series detail screen), as it avoids a
@@ -77,6 +82,7 @@ class EditRoutineScreen extends ConsumerStatefulWidget {
     this.initialPlan,
     this.initialRecitation,
     this.initialTimer,
+    this.initialMantra,
     this.initialSeries,
     this.enrollSeriesId,
   });
@@ -224,6 +230,35 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
 
     final resolved = _resolveInjectionTarget();
     resolved.target.items.add(newItem);
+    if (resolved.isNewBlock) {
+      _blocks.add(resolved.target);
+    }
+    _sortBlocks();
+    return resolved.target;
+  }
+
+  /// Adds the preset mala/accumulator into the routine as an ACCUMULATOR
+  /// session (source_id = preset id). Like series, a mala may live in multiple
+  /// time blocks, so the duplicate guard is scoped to the target block only.
+  _EditableBlock? _injectInitialAccumulator(Mantra mantra) {
+    final resolved = _resolveInjectionTarget();
+
+    final duplicateInTarget = resolved.target.items.any(
+      (item) =>
+          item.id == mantra.presetId &&
+          item.type == RoutineItemType.accumulator,
+    );
+    if (duplicateInTarget) return null;
+
+    final language = ref.read(contentLanguageProvider);
+    resolved.target.items.add(
+      RoutineItem(
+        id: mantra.presetId,
+        title: mantra.displayTitle(language),
+        type: RoutineItemType.accumulator,
+        enrolledAt: DateTime.now(),
+      ),
+    );
     if (resolved.isNewBlock) {
       _blocks.add(resolved.target);
     }
@@ -1258,6 +1293,7 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
             _EditableBlock? injectedRecitationBlock;
             _EditableBlock? injectedTimerBlock;
             _EditableBlock? injectedSeriesBlock;
+            _EditableBlock? injectedAccumulatorBlock;
             setState(() {
               _hydratedFromApi = true;
               _applyInitialData(routineData);
@@ -1277,6 +1313,11 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
               if (widget.initialSeries != null) {
                 injectedSeriesBlock = _injectInitialSeries(
                   widget.initialSeries!,
+                );
+              }
+              if (widget.initialMantra != null) {
+                injectedAccumulatorBlock = _injectInitialAccumulator(
+                  widget.initialMantra!,
                 );
               }
             });
@@ -1306,6 +1347,11 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
                   .catchError((e) {
                     if (mounted) _showErrorSnackBar(_mapError(e));
                   });
+            }
+            if (injectedAccumulatorBlock != null) {
+              _syncBlock(injectedAccumulatorBlock!).catchError((e) {
+                if (mounted) _showErrorSnackBar(_mapError(e));
+              });
             }
             if (widget.enrollSeriesId != null && !_seriesEnrollmentHydrated) {
               _seriesEnrollmentHydrated = true;

@@ -48,7 +48,10 @@ class SeriesMoreBottomSheet extends StatelessWidget {
           _SectionDivider(theme: theme),
           ListTile(
             leading: Icon(AppAssets.plus, color: theme.colorScheme.onSurface),
-            title: Text('Add to my practices', style: theme.textTheme.bodyLarge),
+            title: Text(
+              'Add to my practices',
+              style: theme.textTheme.bodyLarge,
+            ),
             onTap: () {
               HapticFeedback.lightImpact();
               Navigator.of(context).pop();
@@ -99,6 +102,7 @@ void showSeriesMoreBottomSheet(
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
     ),
+    useRootNavigator: true,
     builder:
         (_) => SeriesMoreBottomSheet(
           onAddToPractices: onAddToPractices,

@@ -38,6 +38,7 @@ import 'package:flutter_pecha/features/practice/presentation/screens/practice_ex
 import 'package:flutter_pecha/features/practice/presentation/screens/practice_screen.dart';
 import 'package:flutter_pecha/features/practice/presentation/screens/select_plan_screen.dart';
 import 'package:flutter_pecha/features/practice/presentation/screens/select_recitation_screen.dart';
+import 'package:flutter_pecha/features/mala/domain/entities/mantra.dart';
 import 'package:flutter_pecha/features/mala/presentation/screens/mala_screen.dart';
 import 'package:flutter_pecha/features/notifications/presentation/notification_settings_screen.dart';
 import 'package:flutter_pecha/features/reader/data/models/navigation_context.dart';
@@ -324,6 +325,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           final plan = extra?['initialPlan'] as Plan?;
           final recitation = extra?['initialRecitation'] as RecitationModel?;
           final series = extra?['initialSeries'] as Series?;
+          final mantra = extra?['initialMantra'] as Mantra?;
           final enrollSeriesId = extra?['enrollSeriesId'] as String?;
           final timer = extra?['initialTimer'] as PresetTimer?;
           return EditRoutineScreen(
@@ -331,6 +333,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             initialRecitation: recitation,
             initialTimer: timer,
             initialSeries: series,
+            initialMantra: mantra,
             enrollSeriesId: enrollSeriesId,
           );
         },

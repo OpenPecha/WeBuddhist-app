@@ -264,6 +264,8 @@ class _RoutineBlockSection extends ConsumerWidget {
         );
       case RoutineItemType.timer:
         _navigateToTimer(context, item);
+      case RoutineItemType.accumulator:
+        context.push('/mala', extra: {'presetId': item.id});
     }
   }
 
