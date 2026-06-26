@@ -88,7 +88,6 @@ class _BookmarksScreenState extends ConsumerState<BookmarksScreen>
             id: bookmark.sourceId,
             name: bookmark.displayTitle,
             durationMs: durationMs,
-            audioUrl: bookmark.timerAudioUrl,
           ),
         );
       case BookmarkItemType.accumulator:

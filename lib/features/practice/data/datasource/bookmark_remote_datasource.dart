@@ -63,18 +63,45 @@ class BookmarkRemoteDatasource {
 
   /// GET /users/me/bookmarks
   ///
-  /// Returns the full (un-paginated) list of the user's bookmarks across all
-  /// types. Filtering per tab is done client-side so a single fetch backs every
-  /// tab and a removal reflects everywhere at once.
-  Future<List<BookmarkDTO>> fetchBookmarks() async {
-    final response = await dio.get('/users/me/bookmarks');
-    final data = response.data;
-    if (data is! Map<String, dynamic>) {
-      throw const FormatException(
-        'Unexpected /users/me/bookmarks payload type',
+  /// Returns every bookmark across all types, localized to [language] (the
+  /// selected content language). The endpoint paginates (default limit 20), so
+  /// we page through to the reported `total` — the bookmarks screen filters per
+  /// tab client-side, so a single combined list backs every tab and a removal
+  /// reflects everywhere at once.
+  Future<List<BookmarkDTO>> fetchBookmarks({String? language}) async {
+    const pageSize = 50;
+    final all = <BookmarkDTO>[];
+    var skip = 0;
+
+    while (true) {
+      final response = await dio.get(
+        '/users/me/bookmarks',
+        queryParameters: {
+          'skip': skip,
+          'limit': pageSize,
+          if (language != null && language.isNotEmpty) 'language': language,
+        },
       );
+      final data = response.data;
+      if (data is! Map<String, dynamic>) {
+        throw const FormatException(
+          'Unexpected /users/me/bookmarks payload type',
+        );
+      }
+
+      final page = BookmarksResponse.fromJson(data);
+      all.addAll(page.bookmarks);
+      skip += pageSize;
+
+      // Stop on an empty/short page or once we've collected the reported total.
+      if (page.bookmarks.isEmpty ||
+          page.bookmarks.length < pageSize ||
+          all.length >= page.total) {
+        break;
+      }
     }
-    return BookmarksResponse.fromJson(data).bookmarks;
+
+    return all;
   }
 
   /// DELETE /users/me/bookmarks/{bookmarkId}

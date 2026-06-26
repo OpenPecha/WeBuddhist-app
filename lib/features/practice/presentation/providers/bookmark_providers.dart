@@ -1,3 +1,4 @@
+import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
 import 'package:flutter_pecha/core/di/core_providers.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/features/practice/data/datasource/bookmark_remote_datasource.dart';
@@ -66,17 +67,18 @@ class BookmarksState {
 }
 
 class BookmarksNotifier extends StateNotifier<BookmarksState> {
-  BookmarksNotifier(this._repository)
+  BookmarksNotifier(this._repository, this._language)
     : super(const BookmarksState(isLoading: true)) {
     load();
   }
 
   final BookmarkRepository _repository;
+  final String _language;
   final _logger = AppLogger('BookmarksNotifier');
 
   Future<void> load() async {
     state = state.copyWith(isLoading: true, clearError: true);
-    final result = await _repository.fetchBookmarks();
+    final result = await _repository.fetchBookmarks(language: _language);
     if (!mounted) return;
     result.fold(
       (failure) {
@@ -117,5 +119,10 @@ class BookmarksNotifier extends StateNotifier<BookmarksState> {
 
 final bookmarksProvider =
     StateNotifierProvider.autoDispose<BookmarksNotifier, BookmarksState>((ref) {
-      return BookmarksNotifier(ref.watch(bookmarkRepositoryProvider));
+      // Watch the content language so changing locale refetches localized
+      // bookmark titles/metadata.
+      return BookmarksNotifier(
+        ref.watch(bookmarkRepositoryProvider),
+        ref.watch(contentLanguageProvider),
+      );
     });

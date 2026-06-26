@@ -161,6 +161,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 path: "series/:id",
                 name: "home-series-detail",
+                // Root navigator so this full-screen detail can be pushed from
+                // root-level routes (e.g. /practice/bookmarks) without
+                // go_router inserting a second /home shell page and hitting a
+                // duplicate page key. Mirrors home-timer-active.
+                parentNavigatorKey: rootNavigatorKey,
                 builder: (context, state) {
                   final id = state.pathParameters['id'] ?? '';
                   final extra = state.extra as Map<String, dynamic>?;
@@ -171,6 +176,9 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                   GoRoute(
                     path: "info",
                     name: "home-series-info",
+                    // Must share the parent's (root) navigator so detail → info
+                    // stays on one navigator.
+                    parentNavigatorKey: rootNavigatorKey,
                     builder: (context, state) {
                       final extra = state.extra as Map<String, dynamic>?;
                       final series = extra?['series'] as Series;

@@ -26,9 +26,11 @@ class BookmarkRepository {
     }
   }
 
-  Future<Either<Failure, List<BookmarkDTO>>> fetchBookmarks() async {
+  Future<Either<Failure, List<BookmarkDTO>>> fetchBookmarks({
+    String? language,
+  }) async {
     try {
-      final result = await remoteDatasource.fetchBookmarks();
+      final result = await remoteDatasource.fetchBookmarks(language: language);
       return Right(result);
     } catch (e) {
       return Left(ExceptionMapper.map(e, context: 'Failed to load bookmarks'));
