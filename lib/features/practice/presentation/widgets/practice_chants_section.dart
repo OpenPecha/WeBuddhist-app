@@ -49,10 +49,11 @@ class PracticeChantsSection extends ConsumerWidget {
               }),
       loading:
           () => const PracticeSectionSkeleton(
-            height: 120,
+            height: 176,
             itemCount: 2,
             itemSpacing: 8,
             cardBorderRadius: 12,
+            style: PracticeSectionSkeletonStyle.chantTile,
           ),
       error: (_, __) => const SizedBox.shrink(),
     );

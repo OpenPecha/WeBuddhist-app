@@ -4,12 +4,16 @@ import '../../domain/content_type.dart';
 class RecitationModel {
   final String textId;
   final String title;
+  final String? imageUrl;
+  final RecitationFirstSegmentModel? firstSegment;
   final String? language;
   final int? displayOrder;
 
   RecitationModel({
     required this.textId,
     required this.title,
+    this.imageUrl,
+    this.firstSegment,
     this.language,
     this.displayOrder,
   });
@@ -18,6 +22,13 @@ class RecitationModel {
     return RecitationModel(
       textId: json['text_id'] as String,
       title: json['title'] as String,
+      imageUrl: json['image_url'] as String?,
+      firstSegment:
+          json['first_segment'] is Map<String, dynamic>
+              ? RecitationFirstSegmentModel.fromJson(
+                json['first_segment'] as Map<String, dynamic>,
+              )
+              : null,
       language: json['language'] as String?,
       displayOrder: json['display_order'] as int?,
     );
@@ -27,6 +38,8 @@ class RecitationModel {
     return {
       'text_id': textId,
       'title': title,
+      if (imageUrl != null) 'image_url': imageUrl,
+      if (firstSegment != null) 'first_segment': firstSegment!.toJson(),
       'language': language,
       if (displayOrder != null) 'display_order': displayOrder,
     };
@@ -35,12 +48,16 @@ class RecitationModel {
   RecitationModel copyWith({
     String? textId,
     String? title,
+    String? imageUrl,
+    RecitationFirstSegmentModel? firstSegment,
     String? language,
     int? displayOrder,
   }) {
     return RecitationModel(
       textId: textId ?? this.textId,
       title: title ?? this.title,
+      imageUrl: imageUrl ?? this.imageUrl,
+      firstSegment: firstSegment ?? this.firstSegment,
       language: language ?? this.language,
       displayOrder: displayOrder ?? this.displayOrder,
     );
@@ -70,6 +87,8 @@ class RecitationModel {
     return RecitationModel(
       textId: entity.id, // Use entity id as textId
       title: entity.title,
+      imageUrl: null,
+      firstSegment: null,
       language: 'en', // Default to English, will be set by the caller
       displayOrder: null, // Not available in the entity
     );
@@ -86,7 +105,30 @@ class RecitationModel {
 
   @override
   String toString() {
-    return 'RecitationModel(textId: $textId, title: $title, language: $language, displayOrder: $displayOrder)';
+    return 'RecitationModel(textId: $textId, title: $title, imageUrl: $imageUrl, firstSegment: $firstSegment, language: $language, displayOrder: $displayOrder)';
+  }
+}
+
+class RecitationFirstSegmentModel {
+  final String id;
+  final String content;
+
+  const RecitationFirstSegmentModel({required this.id, required this.content});
+
+  factory RecitationFirstSegmentModel.fromJson(Map<String, dynamic> json) {
+    return RecitationFirstSegmentModel(
+      id: json['id'] as String,
+      content: json['content'] as String,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {'id': id, 'content': content};
+  }
+
+  @override
+  String toString() {
+    return 'RecitationFirstSegmentModel(id: $id, content: $content)';
   }
 }
 
