@@ -323,12 +323,14 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           final extra = state.extra as Map<String, dynamic>?;
           final plan = extra?['initialPlan'] as Plan?;
           final recitation = extra?['initialRecitation'] as RecitationModel?;
+          final series = extra?['initialSeries'] as Series?;
           final enrollSeriesId = extra?['enrollSeriesId'] as String?;
           final timer = extra?['initialTimer'] as PresetTimer?;
           return EditRoutineScreen(
             initialPlan: plan,
             initialRecitation: recitation,
             initialTimer: timer,
+            initialSeries: series,
             enrollSeriesId: enrollSeriesId,
           );
         },

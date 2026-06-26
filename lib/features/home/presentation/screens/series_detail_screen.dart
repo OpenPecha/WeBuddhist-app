@@ -4,6 +4,8 @@ import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/widgets/error_state_widget.dart';
 import 'package:flutter_pecha/core/widgets/skeletons/skeletons.dart';
+import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
+import 'package:flutter_pecha/features/auth/presentation/widgets/login_drawer.dart';
 import 'package:flutter_pecha/features/home/domain/entities/series.dart';
 import 'package:flutter_pecha/features/home/presentation/providers/series_provider.dart';
 import 'package:flutter_pecha/features/home/presentation/widgets/plan_list_view.dart';
@@ -150,17 +152,27 @@ class SeriesDetailScreen extends ConsumerWidget {
   void _openMoreSheet(BuildContext context, WidgetRef ref, Series series) {
     showSeriesMoreBottomSheet(
       context,
-      onAddToPractices:
-          () => context.pushNamed(
-            'edit-routine',
-            extra: {'enrollSeriesId': series.id},
-          ),
+      onAddToPractices: () => _onAddToPractices(context, ref, series),
       onBookmark:
           () => BookmarkController(
             ref: ref,
             context: context,
           ).bookmarkSeries(series.id, name: series.title),
     );
+  }
+
+  /// Adds the series to the user's practice routine.
+  ///
+  /// Opens the routine editor with the already-loaded [series] injected. Adding
+  /// the SERIES session enrolls the user server-side, so no separate enroll
+  /// call (or enrollment check, or series re-fetch) is needed — passing the
+  /// object avoids a redundant `GET /series/{id}`.
+  void _onAddToPractices(BuildContext context, WidgetRef ref, Series series) {
+    if (ref.read(authProvider).isGuest) {
+      LoginDrawer.show(context, ref);
+      return;
+    }
+    context.pushNamed('edit-routine', extra: {'initialSeries': series});
   }
 
   Widget _buildEmptyState(

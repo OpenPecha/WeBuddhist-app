@@ -61,9 +61,15 @@ class EditRoutineScreen extends ConsumerStatefulWidget {
   final RecitationModel? initialRecitation;
   final PresetTimer? initialTimer;
 
-  /// When provided, after hydration the screen adds the enrolled series to the
-  /// routine, reusing any existing empty block or creating a new one at the
-  /// user's current local time (with the standard 10-minute gap).
+  /// When provided, the already-loaded series is injected into the routine
+  /// after hydration. Preferred over [enrollSeriesId] when the caller already
+  /// holds the [Series] (e.g. the series detail screen), as it avoids a
+  /// redundant `GET /series/{id}`. Adding the SERIES session enrolls the user
+  /// server-side, so no separate enroll call is needed.
+  final Series? initialSeries;
+
+  /// When provided, after hydration the screen fetches and adds the series to
+  /// the routine by id. Used by the Enroll button, which only has the id.
   final String? enrollSeriesId;
 
   const EditRoutineScreen({
@@ -71,6 +77,7 @@ class EditRoutineScreen extends ConsumerStatefulWidget {
     this.initialPlan,
     this.initialRecitation,
     this.initialTimer,
+    this.initialSeries,
     this.enrollSeriesId,
   });
 
@@ -267,37 +274,47 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
     );
   }
 
-  /// Adds [series] into the routine, reusing the earliest empty block (re-timed
-  /// to the user's current local time) or creating a new block at that time
-  /// with the standard 10-minute gap. Returns the affected block (to drive a
-  /// follow-up server sync) or null if the series is already present.
-  _EditableBlock? _injectSeries(Series series) {
-    final alreadyExists = _blocks.any(
-      (b) => b.items.any(
-        (item) => item.id == series.id && item.type == RoutineItemType.series,
+  /// Adds [series] into the routine. Returns the affected block (to drive a
+  /// follow-up server sync) or null if it would duplicate the series within the
+  /// resolved block.
+  ///
+  /// A series may live in multiple time blocks (e.g. a morning and an evening
+  /// session), so the duplicate guard is scoped to the target block only — not
+  /// the whole routine.
+  ///
+  /// No-`setState` core, designed to be called inside the build-phase
+  /// hydration `setState` (like the other `_injectInitial*` methods).
+  _EditableBlock? _injectInitialSeries(Series series) {
+    final resolved = _resolveInjectionTarget();
+
+    final duplicateInTarget = resolved.target.items.any(
+      (item) => item.id == series.id && item.type == RoutineItemType.series,
+    );
+    if (duplicateInTarget) return null;
+
+    resolved.target.items.add(
+      RoutineItem(
+        id: series.id,
+        title: series.title,
+        coverImage: series.coverImage,
+        type: RoutineItemType.series,
+        enrolledAt: DateTime.now(),
       ),
     );
-    if (alreadyExists) return null;
+    if (resolved.isNewBlock) {
+      _blocks.add(resolved.target);
+    }
+    _sortBlocks();
+    return resolved.target;
+  }
 
-    final newItem = RoutineItem(
-      id: series.id,
-      title: series.title,
-      coverImage: series.coverImage,
-      type: RoutineItemType.series,
-      enrolledAt: DateTime.now(),
-    );
-
-    late _EditableBlock target;
+  /// `setState`-wrapped variant for async callers (the [enrollSeriesId] path,
+  /// which injects after an `await`).
+  _EditableBlock? _injectSeries(Series series) {
+    _EditableBlock? target;
     setState(() {
-      final resolved = _resolveInjectionTarget();
-      target = resolved.target;
-      if (resolved.isNewBlock) {
-        _blocks.add(target);
-      }
-      target.items.add(newItem);
-      _sortBlocks();
+      target = _injectInitialSeries(series);
     });
-
     return target;
   }
 
@@ -1240,6 +1257,7 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
             if (!mounted || _hydratedFromApi) return;
             _EditableBlock? injectedRecitationBlock;
             _EditableBlock? injectedTimerBlock;
+            _EditableBlock? injectedSeriesBlock;
             setState(() {
               _hydratedFromApi = true;
               _applyInitialData(routineData);
@@ -1256,6 +1274,11 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
                   widget.initialTimer!,
                 );
               }
+              if (widget.initialSeries != null) {
+                injectedSeriesBlock = _injectInitialSeries(
+                  widget.initialSeries!,
+                );
+              }
             });
             if (widget.initialPlan != null) {
               _syncInjectedPlan(widget.initialPlan!);
@@ -1269,6 +1292,20 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
               _syncBlock(injectedTimerBlock!).catchError((e) {
                 if (mounted) _showErrorSnackBar(_mapError(e));
               });
+            }
+            if (injectedSeriesBlock != null) {
+              _syncBlock(injectedSeriesBlock!)
+                  .then((_) {
+                    // Adding the SERIES session enrolls the user in its plans
+                    // server-side; refresh so "My Plans" reflects them even if
+                    // the user backs out without saving.
+                    if (mounted) {
+                      ref.read(myPlansPaginatedProvider.notifier).refresh();
+                    }
+                  })
+                  .catchError((e) {
+                    if (mounted) _showErrorSnackBar(_mapError(e));
+                  });
             }
             if (widget.enrollSeriesId != null && !_seriesEnrollmentHydrated) {
               _seriesEnrollmentHydrated = true;
