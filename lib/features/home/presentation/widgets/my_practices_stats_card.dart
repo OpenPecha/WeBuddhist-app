@@ -3,6 +3,7 @@ import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/features/home/domain/entities/routine_info.dart';
+import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 
 class MyPracticesStatsCard extends StatelessWidget {
   const MyPracticesStatsCard({
@@ -53,6 +54,7 @@ class MyPracticesStatsCard extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   l10n.home_overall_stats,
+                  strutStyle: context.tibetanStrutStyle(14, compact: true),
                   style: TextStyle(
                     color: Colors.white.withValues(alpha: 0.85),
                     fontSize: 14,
@@ -144,15 +146,17 @@ class _StatItem extends StatelessWidget {
       children: [
         Icon(icon, color: Colors.white, size: 22),
         const SizedBox(width: 10),
-        RichText(
-          strutStyle: context.tibetanStrutStyle(countFontSize),
-          text: TextSpan(
-            style: baseStyle,
-            children: _styledStatSpans(
-              fullText: fullText,
-              countText: countText,
-              countStyle: countStyle,
-              labelStyle: labelStyle,
+        Expanded(
+          child: RichText(
+            strutStyle: context.tibetanStrutStyle(countFontSize),
+            text: TextSpan(
+              style: baseStyle,
+              children: _styledStatSpans(
+                fullText: withTibetanLineBreakOpportunities(fullText),
+                countText: countText,
+                countStyle: countStyle,
+                labelStyle: labelStyle,
+              ),
             ),
           ),
         ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_pecha/core/constants/app_config.dart';
+import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/theme/font_config.dart';
 import 'package:flutter_pecha/core/widgets/cached_network_image_widget.dart';
@@ -80,6 +81,8 @@ class VerseOfDayTypography {
               ? getLineHeight(AppConfig.tibetanLanguageCode)
               : null,
       color: color,
+      leadingDistribution:
+          useGoogleJomolhari ? AppFontConfig.tibetanLeadingDistribution : null,
     );
 
     if (useGoogleJomolhari) {
@@ -101,6 +104,10 @@ class VerseOfDayTypography {
               ? getLineHeight(AppConfig.tibetanLanguageCode)
               : null,
       color: color,
+      leadingDistribution:
+          useGoogleJomolhari && useContentFontForAttribution
+              ? AppFontConfig.tibetanLeadingDistribution
+              : null,
     );
 
     if (useGoogleJomolhari && useContentFontForAttribution) {
@@ -142,6 +149,12 @@ class VerseOfDayContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final verseText = withTibetanLineBreakOpportunities(verseOfDay.verse);
+    final verseStrutStyle = context.tibetanStrutStyle(typography.verseFontSize);
+    final attributionStrutStyle = context.tibetanStrutStyle(
+      typography.attributionFontSize,
+    );
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -159,8 +172,9 @@ class VerseOfDayContent extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Text(
-                verseOfDay.verse,
+                verseText,
                 textAlign: TextAlign.center,
+                strutStyle: verseStrutStyle,
                 style: typography.verseTextStyle(color: verseColor),
               ),
               if (verseOfDay.groupTitle != null || footerAction != null) ...[
@@ -168,11 +182,14 @@ class VerseOfDayContent extends StatelessWidget {
                 _AttributionFooterRow(
                   attribution:
                       verseOfDay.groupTitle != null
-                          ? '~ ${verseOfDay.groupTitle}'
+                          ? withTibetanLineBreakOpportunities(
+                              '~ ${verseOfDay.groupTitle}',
+                            )
                           : null,
                   typography: typography,
                   attributionColor: attributionColor,
                   useContentFontForAttribution: useContentFontForAttribution,
+                  attributionStrutStyle: attributionStrutStyle,
                   footerAction: footerAction,
                 ),
               ],
@@ -197,6 +214,7 @@ class _AttributionFooterRow extends StatelessWidget {
     required this.attributionColor,
     required this.useContentFontForAttribution,
     this.attribution,
+    this.attributionStrutStyle,
     this.footerAction,
   });
 
@@ -204,6 +222,7 @@ class _AttributionFooterRow extends StatelessWidget {
   final VerseOfDayTypography typography;
   final Color attributionColor;
   final bool useContentFontForAttribution;
+  final StrutStyle? attributionStrutStyle;
   final Widget? footerAction;
 
   TextStyle _attributionStyle(bool useContentFontForAttribution) =>
@@ -218,6 +237,7 @@ class _AttributionFooterRow extends StatelessWidget {
       return Text(
         attribution!,
         textAlign: TextAlign.center,
+        strutStyle: attributionStrutStyle,
         style: _attributionStyle(useContentFontForAttribution),
       );
     }
@@ -231,6 +251,7 @@ class _AttributionFooterRow extends StatelessWidget {
             Text(
               attribution!,
               textAlign: TextAlign.center,
+              strutStyle: attributionStrutStyle,
               style: _attributionStyle(useContentFontForAttribution),
             ),
           Positioned(right: 0, child: footerAction!),

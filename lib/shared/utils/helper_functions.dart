@@ -66,6 +66,20 @@ String normalizeSegmentHtml(String? raw) =>
 String normalizeSegmentText(String? raw) =>
     raw?.replaceAll(kSegmentSoftBreak, '\n') ?? '';
 
+final _tibetanScriptPattern = RegExp(r'[\u0F00-\u0FFF]');
+final _tibetanSyllableSeparatorPattern = RegExp(r'([་།])');
+
+/// Inserts zero-width break opportunities after Tibetan syllable separators so
+/// Flutter can wrap long Tibetan runs without leaving a nearly empty last line.
+String withTibetanLineBreakOpportunities(String text) {
+  if (text.isEmpty || !_tibetanScriptPattern.hasMatch(text)) return text;
+
+  return text.replaceAllMapped(
+    _tibetanSyllableSeparatorPattern,
+    (match) => '${match[0]}\u200B',
+  );
+}
+
 /// Calculates the share position origin for share_plus ShareParams.
 ///
 /// Tries to get the position from the provided [context] or [globalKey].

@@ -8,6 +8,7 @@ import 'package:flutter_pecha/features/practice/presentation/screens/all_plans_s
 import 'package:flutter_pecha/features/practice/presentation/screens/all_recitations_screen.dart';
 import 'package:flutter_pecha/features/reader/data/models/navigation_context.dart';
 import 'package:flutter_pecha/features/recitation/data/models/recitation_model.dart';
+import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -167,10 +168,14 @@ class _HomeShortcutItem {
                           height: HomeShortcutsRow._iconLabelSpacing,
                         ),
                         Text(
-                          label,
+                          withTibetanLineBreakOpportunities(label),
                           textAlign: TextAlign.center,
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
+                          strutStyle: context.tibetanStrutStyle(
+                            HomeShortcutsRow._labelFontSize,
+                            compact: true,
+                          ),
                           style: TextStyle(
                             fontSize: HomeShortcutsRow._labelFontSize,
                             fontWeight: FontWeight.bold,

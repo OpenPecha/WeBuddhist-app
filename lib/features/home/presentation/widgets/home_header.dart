@@ -119,47 +119,18 @@ class _Greeting extends StatelessWidget {
       height: getLineHeight(Localizations.localeOf(context).languageCode),
     );
     final prefix = localizations.home_hello_prefix.trim();
-
-    if (!context.isTibetanLocale) {
-      final greeting =
-          firstName != null && firstName!.isNotEmpty
-              ? '${localizations.home_hello_prefix}$firstName'
-              : prefix;
-
-      return SizedBox(
-        width: maxWidth,
-        child: _buildLine(
-          context: context,
-          text: greeting,
-          style: greetingStyle,
-          fontSize: greetingFontSize,
-        ),
-      );
-    }
+    final greeting =
+        firstName != null && firstName!.isNotEmpty
+            ? '${localizations.home_hello_prefix}$firstName'
+            : prefix;
 
     return SizedBox(
       width: maxWidth,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.center,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          _buildLine(
-            context: context,
-            text: prefix,
-            style: greetingStyle,
-            fontSize: greetingFontSize,
-          ),
-          if (firstName != null && firstName!.isNotEmpty) ...[
-            const SizedBox(height: 2),
-            _buildLine(
-              context: context,
-              text: firstName!,
-              style: greetingStyle,
-              fontSize: greetingFontSize,
-            ),
-          ],
-        ],
+      child: _buildLine(
+        context: context,
+        text: withTibetanLineBreakOpportunities(greeting),
+        style: greetingStyle,
+        fontSize: greetingFontSize,
       ),
     );
   }
