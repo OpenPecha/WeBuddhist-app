@@ -43,21 +43,24 @@ final groupProfileProvider = FutureProvider.autoDispose
 class GroupFollowKey {
   final String groupId;
   final GroupType groupType;
+  final bool loadInitialStatus;
 
   const GroupFollowKey({
     required this.groupId,
     required this.groupType,
+    this.loadInitialStatus = true,
   });
 
   @override
   bool operator ==(Object other) {
     return other is GroupFollowKey &&
         other.groupId == groupId &&
-        other.groupType == groupType;
+        other.groupType == groupType &&
+        other.loadInitialStatus == loadInitialStatus;
   }
 
   @override
-  int get hashCode => Object.hash(groupId, groupType);
+  int get hashCode => Object.hash(groupId, groupType, loadInitialStatus);
 }
 
 sealed class GroupFollowState {
@@ -94,8 +97,14 @@ class GroupFollowNotifier extends StateNotifier<GroupFollowState> {
        _ref = ref,
        _key = key,
        _isAuthenticated = isAuthenticated,
-       super(const GroupFollowLoading()) {
-    _loadInitialStatus();
+       super(
+         key.loadInitialStatus
+             ? const GroupFollowLoading()
+             : const GroupFollowSuccess(isFollowing: false),
+       ) {
+    if (key.loadInitialStatus) {
+      _loadInitialStatus();
+    }
   }
 
   void _invalidateGroupProfile() {

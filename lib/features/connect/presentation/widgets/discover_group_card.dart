@@ -163,22 +163,16 @@ class _JoinButton extends ConsumerWidget {
     final followKey = GroupFollowKey(
       groupId: group.id,
       groupType: group.groupType,
+      loadInitialStatus: false,
     );
     final followState = ref.watch(groupFollowProvider(followKey));
-
-    final isJoined = switch (followState) {
-      GroupFollowSuccess(isFollowing: final joined) => joined,
-      _ => false,
-    };
     final isLoading = followState is GroupFollowLoading;
 
     return SizedBox(
       height: 32,
       child: TextButton(
         onPressed:
-            isLoading
-                ? null
-                : () => _onJoinPressed(context, ref, followKey, isJoined),
+            isLoading ? null : () => _onJoinPressed(context, ref, followKey),
         style: TextButton.styleFrom(
           backgroundColor:
               isDark ? AppColors.cardBorderDark : AppColors.grey100,
@@ -201,7 +195,7 @@ class _JoinButton extends ConsumerWidget {
                   ),
                 )
                 : Text(
-                  isJoined ? context.l10n.joined : context.l10n.join,
+                  context.l10n.join,
                   style: const TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
@@ -215,7 +209,6 @@ class _JoinButton extends ConsumerWidget {
     BuildContext context,
     WidgetRef ref,
     GroupFollowKey followKey,
-    bool isJoined,
   ) async {
     final authState = ref.read(authProvider);
     if (authState.isGuest || !authState.isLoggedIn) {
@@ -224,8 +217,6 @@ class _JoinButton extends ConsumerWidget {
     }
 
     final notifier = ref.read(groupFollowProvider(followKey).notifier);
-    isJoined
-        ? await notifier.unfollow(connectGroup: group)
-        : await notifier.follow(connectGroup: group);
+    await notifier.follow(connectGroup: group);
   }
 }
