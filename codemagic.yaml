@@ -77,8 +77,10 @@ workflows:
   prod-release:
     name: Prod • iOS + Android release
     <<: *instance
+    cache: *cache
+    integrations:
+      app_store_connect: AppStoreConnect   # must match the integration name in Codemagic (Team > Integrations)
     environment:
-      <<: *cache
       flutter: stable
       xcode: latest
       cocoapods: default
@@ -138,8 +140,10 @@ workflows:
   dev-release:
     name: Dev • iOS TestFlight + Android internal
     <<: *instance
+    cache: *cache
+    integrations:
+      app_store_connect: AppStoreConnect   # must match the integration name in Codemagic (Team > Integrations)
     environment:
-      <<: *cache
       flutter: stable
       xcode: latest
       cocoapods: default
