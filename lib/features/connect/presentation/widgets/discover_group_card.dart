@@ -26,6 +26,16 @@ class DiscoverGroupCard extends ConsumerWidget {
         isDark ? AppColors.textSecondaryDark : AppColors.textSecondary;
     final cardColor =
         isDark ? AppColors.cardBackgroundDark : AppColors.cardBackgroundLight;
+    final followKey = GroupFollowKey(
+      groupId: group.id,
+      groupType: group.groupType,
+      loadInitialStatus: false,
+    );
+    final followState = ref.watch(groupFollowProvider(followKey));
+    final countDelta = switch (followState) {
+      GroupFollowSuccess(countDelta: final delta) => delta,
+      _ => 0,
+    };
 
     return Material(
       color: Colors.transparent,
@@ -58,7 +68,7 @@ class DiscoverGroupCard extends ConsumerWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      _subtitle(context),
+                      _subtitle(context, countDelta),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: theme.textTheme.bodySmall?.copyWith(
@@ -70,7 +80,7 @@ class DiscoverGroupCard extends ConsumerWidget {
                 ),
               ),
               const SizedBox(width: 8),
-              _JoinButton(group: group, isDark: isDark),
+              _JoinButton(group: group, isDark: isDark, followKey: followKey),
             ],
           ),
         ),
@@ -78,12 +88,15 @@ class DiscoverGroupCard extends ConsumerWidget {
     );
   }
 
-  String _subtitle(BuildContext context) {
+  String _subtitle(BuildContext context, int countDelta) {
     final typeLabel =
         group.tags.isNotEmpty
             ? group.tags.first
             : (group.subTitle ?? group.groupType.name);
-    final memberCount = group.joinerCount;
+    final memberCount = (group.memberOrFollowerCount + countDelta).clamp(
+      0,
+      1 << 31,
+    );
     final formattedCount = _formatCompactCount(
       memberCount,
       intlFormatLocaleOf(context),
@@ -153,18 +166,18 @@ class _GroupAvatar extends StatelessWidget {
 }
 
 class _JoinButton extends ConsumerWidget {
-  const _JoinButton({required this.group, required this.isDark});
+  const _JoinButton({
+    required this.group,
+    required this.isDark,
+    required this.followKey,
+  });
 
   final GroupProfile group;
   final bool isDark;
+  final GroupFollowKey followKey;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final followKey = GroupFollowKey(
-      groupId: group.id,
-      groupType: group.groupType,
-      loadInitialStatus: false,
-    );
     final followState = ref.watch(groupFollowProvider(followKey));
     final isLoading = followState is GroupFollowLoading;
 

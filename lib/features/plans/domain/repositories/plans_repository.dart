@@ -20,6 +20,12 @@ abstract class PlansRepository extends Repository {
   /// Get a specific plan by ID.
   Future<Either<Failure, Plan?>> getPlan(String id);
 
+  /// Watch a specific plan by ID from local storage with background refresh.
+  Stream<Either<Failure, Plan?>> watchPlan(String id);
+
+  /// Force refresh a specific plan from the server.
+  Future<Either<Failure, Plan?>> refreshPlan(String id);
+
   /// Get plans filtered by tags.
   Future<Either<Failure, List<Plan>>> getPlansByTags(List<String> tags);
 

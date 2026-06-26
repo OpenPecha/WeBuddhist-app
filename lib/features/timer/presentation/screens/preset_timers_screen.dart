@@ -32,24 +32,39 @@ class PresetTimersScreen extends ConsumerWidget {
                   return timersEither.fold(
                     (failure) => ErrorStateWidget(
                       error: failure,
-                      onRetry: () => ref.invalidate(presetTimersFutureProvider),
+                      onRetry: () => _refreshPresetTimers(ref),
                     ),
                     (timers) {
                       if (timers.isEmpty) {
-                        return Center(
-                          child: Padding(
-                            padding: const EdgeInsets.all(32),
-                            child: Text(
-                              l10n.no_feature_content,
-                              textAlign: TextAlign.center,
-                            ),
+                        return RefreshIndicator(
+                          onRefresh: () => _refreshPresetTimers(ref),
+                          child: ListView(
+                            physics: const AlwaysScrollableScrollPhysics(),
+                            children: [
+                              SizedBox(
+                                height:
+                                    MediaQuery.sizeOf(context).height * 0.55,
+                                child: Center(
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(32),
+                                    child: Text(
+                                      l10n.no_feature_content,
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         );
                       }
 
-                      return _PresetTimersGrid(
-                        timers: _sortedPresetTimers(timers),
-                        minLabel: l10n.timer_min,
+                      return RefreshIndicator(
+                        onRefresh: () => _refreshPresetTimers(ref),
+                        child: _PresetTimersGrid(
+                          timers: _sortedPresetTimers(timers),
+                          minLabel: l10n.timer_min,
+                        ),
                       );
                     },
                   );
@@ -58,7 +73,7 @@ class PresetTimersScreen extends ConsumerWidget {
                 error:
                     (error, _) => ErrorStateWidget(
                       error: error,
-                      onRetry: () => ref.invalidate(presetTimersFutureProvider),
+                      onRetry: () => _refreshPresetTimers(ref),
                     ),
               ),
             ),
@@ -66,6 +81,10 @@ class PresetTimersScreen extends ConsumerWidget {
         ),
       ),
     );
+  }
+
+  Future<void> _refreshPresetTimers(WidgetRef ref) async {
+    await ref.read(timersDomainRepositoryProvider).refreshPresetTimers();
   }
 
   Widget _buildAppBar(BuildContext context, String title) {
@@ -114,6 +133,7 @@ class _PresetTimersGrid extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.all(PresetTimersScreen._horizontalPadding),
       child: GridView.builder(
+        physics: const AlwaysScrollableScrollPhysics(),
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2,
           crossAxisSpacing: PresetTimersScreen._gridSpacing,

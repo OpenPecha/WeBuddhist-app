@@ -92,7 +92,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String home_recitation_count(int count) {
-    return '$count recitations';
+    return '$count chants';
   }
 
   @override

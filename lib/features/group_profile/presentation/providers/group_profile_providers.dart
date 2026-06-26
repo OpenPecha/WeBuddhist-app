@@ -73,8 +73,12 @@ class GroupFollowLoading extends GroupFollowState {
 
 class GroupFollowSuccess extends GroupFollowState {
   final bool isFollowing;
+  final int countDelta;
 
-  const GroupFollowSuccess({required this.isFollowing});
+  const GroupFollowSuccess({
+    required this.isFollowing,
+    this.countDelta = 0,
+  });
 }
 
 class GroupFollowFailure extends GroupFollowState {
@@ -107,6 +111,11 @@ class GroupFollowNotifier extends StateNotifier<GroupFollowState> {
     }
   }
 
+  int _currentCountDelta() {
+    final current = state;
+    return current is GroupFollowSuccess ? current.countDelta : 0;
+  }
+
   void _invalidateGroupProfile() {
     _ref.invalidate(groupProfileProvider(_key.groupId));
   }
@@ -117,9 +126,10 @@ class GroupFollowNotifier extends StateNotifier<GroupFollowState> {
   }
 
   void _addPendingJoinedGroup(GroupProfile group) {
+    final updatedGroup = group.withMemberCountDelta(1);
     _ref.read(pendingJoinedGroupsProvider.notifier).update((groups) {
       if (groups.any((g) => g.id == group.id)) return groups;
-      return [group, ...groups];
+      return [updatedGroup, ...groups];
     });
     _clearPendingUnjoined(group.id);
   }
@@ -162,6 +172,7 @@ class GroupFollowNotifier extends StateNotifier<GroupFollowState> {
 
   Future<bool> follow({GroupProfile? connectGroup}) async {
     if (state is GroupFollowLoading) return false;
+    final previousDelta = _currentCountDelta();
     state = const GroupFollowLoading();
 
     final result = await _repository.followGroup(
@@ -176,7 +187,10 @@ class GroupFollowNotifier extends StateNotifier<GroupFollowState> {
         return false;
       },
       (_) async {
-        state = const GroupFollowSuccess(isFollowing: true);
+        state = GroupFollowSuccess(
+          isFollowing: true,
+          countDelta: previousDelta + 1,
+        );
         _invalidateGroupProfile();
         _invalidateConnectProviders();
         if (connectGroup != null) {
@@ -192,6 +206,7 @@ class GroupFollowNotifier extends StateNotifier<GroupFollowState> {
 
   Future<bool> unfollow({GroupProfile? connectGroup}) async {
     if (state is GroupFollowLoading) return false;
+    final previousDelta = _currentCountDelta();
     state = const GroupFollowLoading();
 
     final result = await _repository.unfollowGroup(
@@ -206,7 +221,10 @@ class GroupFollowNotifier extends StateNotifier<GroupFollowState> {
         return false;
       },
       (_) async {
-        state = const GroupFollowSuccess(isFollowing: false);
+        state = GroupFollowSuccess(
+          isFollowing: false,
+          countDelta: previousDelta - 1,
+        );
         _invalidateGroupProfile();
         _invalidateConnectProviders();
         if (connectGroup != null) {

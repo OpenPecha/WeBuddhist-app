@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
@@ -21,8 +23,12 @@ import 'package:flutter_pecha/features/home/presentation/providers/use_case_prov
 import 'package:flutter_pecha/features/mala/data/datasources/mala_local_datasource.dart';
 import 'package:flutter_pecha/features/mala/presentation/providers/mala_providers.dart';
 import 'package:flutter_pecha/features/more/data/datasource/user_stats_local_datasource.dart';
+import 'package:flutter_pecha/features/plans/data/datasource/plans_local_datasource.dart';
+import 'package:flutter_pecha/features/plans/presentation/providers/use_case_providers.dart';
 import 'package:flutter_pecha/features/practice/data/datasource/routine_local_storage.dart';
 import 'package:flutter_pecha/features/practice/presentation/providers/practice_providers.dart';
+import 'package:flutter_pecha/features/timer/data/datasource/timers_local_datasource.dart';
+import 'package:flutter_pecha/features/timer/presentation/providers/timers_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
@@ -142,6 +148,22 @@ void main() async {
     _logger.warning('Error initializing me stats local storage: $e');
   }
 
+  // Initialize Timer local storage (source of truth for local-first timers).
+  try {
+    await TimersLocalDatasource.init();
+    _logger.info('Timer local storage initialized');
+  } catch (e) {
+    _logger.warning('Error initializing timer local storage: $e');
+  }
+
+  // Initialize Plans local storage (source of truth for local-first plans).
+  try {
+    await PlansLocalDatasource.init();
+    _logger.info('Plans local storage initialized');
+  } catch (e) {
+    _logger.warning('Error initializing plans local storage: $e');
+  }
+
   // Create provider container for routine storage
   final container = ProviderContainer(
     overrides: [routineLocalStorageProvider.overrideWithValue(routineStorage)],
@@ -196,6 +218,12 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
       ref
           .read(notificationSyncEngineProvider)
           .sync(trigger: SyncTrigger.appResume);
+      unawaited(
+        ref.read(timersDomainRepositoryProvider).flushPendingTimerStops(),
+      );
+      unawaited(
+        ref.read(userPlansDomainRepositoryProvider).flushPendingPlanActions(),
+      );
     }
   }
 
@@ -233,6 +261,12 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
     // Home background sync — flushes pending local-first writes when
     // connectivity returns.
     ref.watch(homeSyncBootstrapProvider);
+    // Timer background sync — flushes pending local-first writes when
+    // connectivity returns.
+    ref.watch(timerSyncBootstrapProvider);
+    // Plans background sync — flushes pending local-first writes when
+    // connectivity returns.
+    ref.watch(plansSyncBootstrapProvider);
     NotificationService.setRouter(router);
     NotificationService().consumeLaunchNotification();
 
