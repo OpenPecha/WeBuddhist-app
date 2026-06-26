@@ -1,28 +1,57 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
+import 'package:flutter_pecha/core/widgets/error_state_widget.dart';
+import 'package:flutter_pecha/features/practice/presentation/providers/practice_recitations_paginated_provider.dart';
 import 'package:flutter_pecha/features/practice/presentation/screens/recitations_search_screen.dart';
 import 'package:flutter_pecha/features/practice/presentation/widgets/practice_chant_list_tile.dart';
 import 'package:flutter_pecha/features/recitation/data/models/recitation_model.dart';
+import 'package:flutter_pecha/features/recitation/presentation/widgets/recitation_list_skeleton.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class AllRecitationsScreen extends StatelessWidget {
-  const AllRecitationsScreen({
-    super.key,
-    required this.recitations,
-    required this.onTap,
-  });
+class AllRecitationsScreen extends ConsumerStatefulWidget {
+  const AllRecitationsScreen({super.key, required this.onTap});
 
-  final List<RecitationModel> recitations;
   final ValueChanged<RecitationModel> onTap;
+
+  @override
+  ConsumerState<AllRecitationsScreen> createState() =>
+      _AllRecitationsScreenState();
+}
+
+class _AllRecitationsScreenState extends ConsumerState<AllRecitationsScreen> {
+  final ScrollController _scrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_onScroll);
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent - 200) {
+      ref.read(practiceRecitationsPaginatedProvider.notifier).loadMore();
+    }
+  }
 
   void _openSearch(BuildContext context) {
     Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => RecitationsSearchScreen(onTap: onTap)),
+      MaterialPageRoute(builder: (_) => RecitationsSearchScreen(onTap: widget.onTap)),
     );
   }
 
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
+    final recitationsState = ref.watch(practiceRecitationsPaginatedProvider);
+
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -39,17 +68,52 @@ class AllRecitationsScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: ListView.builder(
-        padding: const EdgeInsets.only(top: 8, bottom: 16),
-        itemCount: recitations.length,
-        itemBuilder: (context, index) {
-          final recitation = recitations[index];
-          return PracticeChantListTile(
-            recitation: recitation,
-            onTap: () => onTap(recitation),
+      body: _buildBody(context, recitationsState),
+    );
+  }
+
+  Widget _buildBody(BuildContext context, PracticeRecitationsState state) {
+    if (state.isLoading && state.recitations.isEmpty) {
+      return const RecitationListSkeleton(
+        variant: RecitationListSkeletonVariant.chantTile,
+      );
+    }
+
+    if (state.error != null && state.recitations.isEmpty) {
+      return ErrorStateWidget(
+        error: state.error!,
+        onRetry:
+            () => ref.read(practiceRecitationsPaginatedProvider.notifier).retry(),
+      );
+    }
+
+    if (state.recitations.isEmpty) {
+      return Center(child: Text(context.l10n.recitations_no_content));
+    }
+
+    return ListView.builder(
+      controller: _scrollController,
+      padding: const EdgeInsets.only(top: 8, bottom: 16),
+      itemCount: state.recitations.length + (state.hasMore ? 1 : 0),
+      itemBuilder: (context, index) {
+        if (index == state.recitations.length) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            child: Center(
+              child:
+                  state.isLoadingMore
+                      ? const CircularProgressIndicator()
+                      : const SizedBox.shrink(),
+            ),
           );
-        },
-      ),
+        }
+
+        final recitation = state.recitations[index];
+        return PracticeChantListTile(
+          recitation: recitation,
+          onTap: () => widget.onTap(recitation),
+        );
+      },
     );
   }
 }

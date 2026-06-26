@@ -61,21 +61,14 @@ class HomeShortcutsRow extends ConsumerWidget {
   }
 
   void _onChantsTap(BuildContext context, WidgetRef ref) {
-    final recitationsAsync = ref.read(practiceExploreRecitationsProvider);
-    recitationsAsync.whenData((either) {
-      either.fold((_) {}, (recitations) {
-        if (recitations.isEmpty) return;
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder:
-                (_) => AllRecitationsScreen(
-                  recitations: recitations,
-                  onTap: (r) => _navigateToRecitation(context, r),
-                ),
-          ),
-        );
-      });
-    });
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder:
+            (_) => AllRecitationsScreen(
+              onTap: (r) => _navigateToRecitation(context, r),
+            ),
+      ),
+    );
   }
 
   @override

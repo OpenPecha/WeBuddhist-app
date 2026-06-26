@@ -13,7 +13,7 @@ import 'package:go_router/go_router.dart';
 class PracticeChantsSection extends ConsumerWidget {
   const PracticeChantsSection({super.key});
 
-  static const _previewCount = 2;
+  static const _previewCount = practiceExploreRecitationsPreviewLimit;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -23,17 +23,15 @@ class PracticeChantsSection extends ConsumerWidget {
     return recitationsAsync.when(
       data:
           (either) =>
-              either.fold((_) => const SizedBox.shrink(), (recitations) {
-                if (recitations.isEmpty) return const SizedBox.shrink();
-                final preview = recitations.take(_previewCount).toList();
+              either.fold((_) => const SizedBox.shrink(), (page) {
+                if (page.recitations.isEmpty) return const SizedBox.shrink();
+                final preview = page.recitations;
+                final showSeeAll = page.total > _previewCount;
                 return PracticeSectionContainer(
                   title: l10n.home_chants,
-                  seeAllLabel:
-                      recitations.length > _previewCount ? l10n.see_all : null,
+                  seeAllLabel: showSeeAll ? l10n.see_all : null,
                   onSeeAll:
-                      recitations.length > _previewCount
-                          ? () => _showAllRecitations(context, recitations)
-                          : null,
+                      showSeeAll ? () => _showAllRecitations(context) : null,
                   child: Column(
                     children:
                         preview
@@ -66,15 +64,11 @@ class PracticeChantsSection extends ConsumerWidget {
     context.push('/reader/${recitation.textId}', extra: navigationContext);
   }
 
-  void _showAllRecitations(
-    BuildContext context,
-    List<RecitationModel> recitations,
-  ) {
+  void _showAllRecitations(BuildContext context) {
     Navigator.of(context).push(
       MaterialPageRoute(
         builder:
             (_) => AllRecitationsScreen(
-              recitations: recitations,
               onTap: (r) => _navigateToRecitation(context, r),
             ),
       ),
