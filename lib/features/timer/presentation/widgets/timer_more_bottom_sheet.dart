@@ -92,9 +92,11 @@ class _TimerMoreBottomSheetState extends ConsumerState<TimerMoreBottomSheet> {
                     color: theme.colorScheme.onSurface,
                   ),
             title: Text('Bookmark', style: theme.textTheme.bodyLarge),
-            onTap: () {
+            onTap: () async {
               HapticFeedback.lightImpact();
-              _bookmark();
+              final nav = Navigator.of(context);
+              await _bookmark();
+              if (mounted) nav.pop();
             },
           ),
 

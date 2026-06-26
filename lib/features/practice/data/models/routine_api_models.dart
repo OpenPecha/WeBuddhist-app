@@ -118,8 +118,9 @@ class SessionDTO {
       sessionType: sessionType,
       sourceId: (json['source_id'] as String?) ?? json['id'] as String,
       title:
-          (json['title'] as String?) ??
-          (sessionType == SessionType.timer ? fallbackTimerTitle : ''),
+          sessionType == SessionType.timer
+              ? ((json['title'] as String?) ?? fallbackTimerTitle)
+              : (json['title'] as String),
       language: (json['language'] as String?) ?? '',
       image: ImageModel.fromJsonMap(json),
       displayOrder: json['display_order'] as int,

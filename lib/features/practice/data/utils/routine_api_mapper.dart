@@ -43,6 +43,9 @@ List<SessionRequest> _sessionsForBlock(RoutineBlock block) {
   final sessions = <SessionRequest>[];
   for (var i = 0; i < block.items.length; i++) {
     final item = block.items[i];
+    // Timer items without a duration can't be synced — skip them rather than
+    // send an incomplete payload that the backend will reject.
+    if (item.type == RoutineItemType.timer && item.durationMs == null) continue;
     sessions.add(
       SessionRequest(
         sessionType: switch (item.type) {

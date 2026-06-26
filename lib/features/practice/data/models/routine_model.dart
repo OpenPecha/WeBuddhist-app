@@ -73,7 +73,7 @@ class RoutineItem {
       startDate: _parseDateTime(json['startDate']),
       currentPlanId: json['currentPlanId'] as String?,
       currentPlanTitle: json['currentPlanTitle'] as String?,
-      durationMs: json['durationMs'] as int?,
+      durationMs: (json['durationMs'] as num?)?.toInt(),
     );
   }
 
