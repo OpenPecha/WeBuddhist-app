@@ -112,14 +112,39 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const SplashScreen(),
       ),
 
-      // Universal / App Link entry point shared from the home screen.
-      // Handled by DeepLinkService for cold-start; this route is the
-      // warm-start fallback in case go_router intercepts the URI directly.
+      // Defensive fallback for the Airbridge tracking URL if it is ever handed
+      // to go_router after native Airbridge handling.
       GoRoute(
-        path: '/open',
-        name: 'open',
+        path: AppRoutes.getApp,
+        name: 'get-app',
         redirect: (_, __) => AppRoutes.home,
       ),
+
+      // Compatibility fallback in case a platform sends the first-party app
+      // link directly to go_router instead of through AppLinksDeepLinkService.
+      GoRoute(
+        path: '/open/reader/:textId',
+        name: 'open-reader',
+        redirect: (_, state) {
+          final textId = state.pathParameters['textId'] ?? '';
+          final segmentId =
+              state.uri.queryParameters['segment'] ??
+              state.uri.queryParameters['segmentId'];
+          final language = state.uri.queryParameters['lang'];
+          return Uri(
+            pathSegments: ['reader', textId],
+            queryParameters: {
+              if (segmentId != null && segmentId.isNotEmpty)
+                'segment': segmentId,
+              if (language != null && language.isNotEmpty) 'lang': language,
+            },
+          ).toString();
+        },
+      ),
+      // First-party app entry point shared from the home screen.
+      // AppLinksDeepLinkService handles normal delivery; this is the home
+      // fallback in case go_router receives only /open directly.
+      GoRoute(path: '/open', name: 'open', redirect: (_, __) => AppRoutes.home),
       GoRoute(
         path: "/login",
         name: "login",
@@ -414,7 +439,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
               );
             },
           ),
-
         ],
       ),
 
@@ -484,7 +508,9 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         pageBuilder: (context, state) {
           final textId = state.pathParameters['textId'] ?? '';
           final extra = state.extra;
-          String? segmentId;
+          String? segmentId =
+              state.uri.queryParameters['segment'] ??
+              state.uri.queryParameters['segmentId'];
 
           // Extract navigation context if provided
           NavigationContext? navigationContext;
@@ -516,6 +542,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
               targetSegmentId: segmentId,
               planTextItems: planTextItems,
               currentTextIndex: currentTextIndex ?? 0,
+            );
+          } else if (segmentId != null && segmentId.isNotEmpty) {
+            navigationContext = NavigationContext(
+              source: NavigationSource.deepLink,
+              targetSegmentId: segmentId,
             );
           }
 

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_pecha/core/deep_linking/deep_link_url_builder.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
-import 'package:flutter_pecha/features/texts/presentation/providers/share_provider.dart';
 import 'package:flutter_pecha/features/texts/presentation/providers/selected_segment_provider.dart';
 import 'package:flutter_pecha/features/texts/presentation/widgets/action_button.dart';
 import 'package:flutter_pecha/shared/utils/helper_functions.dart';
@@ -110,7 +110,9 @@ class SegmentActionBar extends ConsumerWidget {
                     icon: Icons.copy,
                     label: localizations.copy,
                     onTap: () {
-                      final textWithLineBreaks = text.replaceAll('⤵', '<br>').replaceAll("<br>", "\n");
+                      final textWithLineBreaks = text
+                          .replaceAll('⤵', '<br>')
+                          .replaceAll("<br>", "\n");
                       final plainText = htmlToPlainText(textWithLineBreaks);
                       Clipboard.setData(ClipboardData(text: plainText));
                       ScaffoldMessenger.of(context).showSnackBar(
@@ -129,7 +131,9 @@ class SegmentActionBar extends ConsumerWidget {
                     icon: Icons.image_outlined,
                     label: localizations.image,
                     onTap: () {
-                      final textWithLineBreaks = text.replaceAll('⤵', '<br>').replaceAll("<br>", "\n");
+                      final textWithLineBreaks = text
+                          .replaceAll('⤵', '<br>')
+                          .replaceAll("<br>", "\n");
                       final plainText = htmlToPlainText(textWithLineBreaks);
                       context.push(
                         '/texts/segment_image/choose_image',
@@ -177,32 +181,30 @@ class _ShareButtonState extends ConsumerState<_ShareButton> {
     });
 
     try {
-      // Generate the short URL
-      final params = ShareUrlParams(
-        textId: widget.textId,
-        segmentId: widget.segmentId,
-        language: widget.language,
-      );
-      final result = await ref.read(shareUrlProvider(params).future);
-
-      final shortUrl = result.fold(
-        (failure) => throw Exception('Failed to generate share URL: ${failure.message}'),
-        (url) => url,
-      );
+      final shareUrl =
+          DeepLinkUrlBuilder.readerSegmentLink(
+            textId: widget.textId,
+            segmentId: widget.segmentId,
+            language: widget.language,
+          ).toString();
 
       if (!mounted) return;
 
       // Share the URL using native share
       final sharePositionOrigin = getSharePositionOrigin(context: context);
       await SharePlus.instance.share(
-        ShareParams(text: shortUrl, sharePositionOrigin: sharePositionOrigin),
+        ShareParams(text: shareUrl, sharePositionOrigin: sharePositionOrigin),
       );
       widget.onClose();
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.image_share_error(e.toString()))));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            AppLocalizations.of(context)!.image_share_error(e.toString()),
+          ),
+        ),
+      );
     } finally {
       if (mounted) {
         setState(() {

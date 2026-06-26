@@ -43,13 +43,22 @@
               />
             <meta-data
                 android:name="flutter_deeplinking_enabled"
-                android:value="true" />
+                android:value="false" />
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
-            <!-- App Link: https://webuddhist.com/open (home share deep link) -->
-            <!-- Airbridge: custom URI scheme deep links -->
+            <!-- First-party App Link handled by app_links. -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data
+                    android:scheme="https"
+                    android:host="webuddhist.com"
+                    android:pathPrefix="/open" />
+            </intent-filter>
+            <!-- Airbridge: custom URI scheme deep links. -->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -80,11 +89,6 @@
                 <data android:scheme="http" android:host="${airbridgeAppName}.abr.ge" />
                 <data android:scheme="https" android:host="${airbridgeAppName}.abr.ge" />
             </intent-filter>
-                <data
-                    android:scheme="https"
-                    android:host="webuddhist.com"
-                    android:path="/open" />
-            </intent-filter>    
         </activity>
         <activity 
             android:name="com.auth0.android.provider.RedirectActivity"
