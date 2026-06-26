@@ -19,7 +19,7 @@ import 'package:go_router/go_router.dart';
 class HomeTabAppBar extends ConsumerWidget implements PreferredSizeWidget {
   const HomeTabAppBar({super.key});
 
-  static const double toolbarHeight = 88;
+  static const double toolbarHeight = 58;
   static const double _actionsReserveWidth = 148;
 
   @override
@@ -84,7 +84,7 @@ class HomeEventBanner extends ConsumerWidget {
     }
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 8, 20, 0),
+      padding: const EdgeInsets.fromLTRB(10, 8, 10, 0),
       child: TodayEventBadge(label: todayEventName),
     );
   }
@@ -119,6 +119,23 @@ class _Greeting extends StatelessWidget {
       height: getLineHeight(Localizations.localeOf(context).languageCode),
     );
     final prefix = localizations.home_hello_prefix.trim();
+
+    if (!context.isTibetanLocale) {
+      final greeting =
+          firstName != null && firstName!.isNotEmpty
+              ? '${localizations.home_hello_prefix}$firstName'
+              : prefix;
+
+      return SizedBox(
+        width: maxWidth,
+        child: _buildLine(
+          context: context,
+          text: greeting,
+          style: greetingStyle,
+          fontSize: greetingFontSize,
+        ),
+      );
+    }
 
     return SizedBox(
       width: maxWidth,
