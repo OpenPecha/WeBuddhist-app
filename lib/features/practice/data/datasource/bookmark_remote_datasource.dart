@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter_pecha/features/practice/data/models/bookmark_models.dart';
 
 /// Bookmark types supported by the API.
 enum BookmarkType { text, verse, timer }
@@ -49,5 +50,26 @@ class BookmarkRemoteDatasource {
       if (e.response?.statusCode == 409) return true;
       rethrow;
     }
+  }
+
+  /// GET /users/me/bookmarks
+  ///
+  /// Returns the full (un-paginated) list of the user's bookmarks across all
+  /// types. Filtering per tab is done client-side so a single fetch backs every
+  /// tab and a removal reflects everywhere at once.
+  Future<List<BookmarkDTO>> fetchBookmarks() async {
+    final response = await dio.get('/users/me/bookmarks');
+    final data = response.data;
+    if (data is! Map<String, dynamic>) {
+      throw const FormatException(
+        'Unexpected /users/me/bookmarks payload type',
+      );
+    }
+    return BookmarksResponse.fromJson(data).bookmarks;
+  }
+
+  /// DELETE /users/me/bookmarks/{bookmarkId}
+  Future<void> deleteBookmark(String bookmarkId) async {
+    await dio.delete('/users/me/bookmarks/$bookmarkId');
   }
 }
