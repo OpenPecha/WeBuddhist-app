@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_pecha/core/constants/app_config.dart';
+import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
+import 'package:flutter_pecha/core/theme/font_config.dart';
 import 'package:flutter_pecha/core/widgets/cached_network_image_widget.dart';
 import 'package:flutter_pecha/features/home/domain/entities/verse_of_day.dart';
 import 'package:flutter_pecha/shared/utils/helper_functions.dart';
@@ -26,13 +28,11 @@ class VerseOfDayTypography {
   final bool useGoogleJomolhari;
 
   factory VerseOfDayTypography.fromLanguageCode(String languageCode) {
-    final isTibetan = languageCode == AppConfig.tibetanLanguageCode;
-
     return VerseOfDayTypography(
       contentFont: getFontFamily(languageCode),
       systemFont: getSystemFontFamily(languageCode),
-      verseFontSize: isTibetan ? 18.0 : 16.0,
-      attributionFontSize: isTibetan ? 14.0 : 16.0,
+      verseFontSize: getLocalizedFontSize(AppTextSize.bodyLarge),
+      attributionFontSize: getLocalizedFontSize(AppTextSize.label),
     );
   }
 
@@ -43,7 +43,7 @@ class VerseOfDayTypography {
     double? attributionFontSize,
   }) {
     final base = VerseOfDayTypography.fromLanguageCode(languageCode);
-    final isTibetan = languageCode == AppConfig.tibetanLanguageCode;
+    final isTibetan = AppFontConfig.isTibetanLanguage(languageCode);
 
     if (!isTibetan) return base;
 
@@ -60,13 +60,13 @@ class VerseOfDayTypography {
   /// Share preview typography. Larger sizes; Tibetan uses Google Jomolhari.
   factory VerseOfDayTypography.forShare(String languageCode) {
     final base = VerseOfDayTypography.fromLanguageCode(languageCode);
-    final isTibetan = languageCode == AppConfig.tibetanLanguageCode;
+    final isTibetan = AppFontConfig.isTibetanLanguage(languageCode);
 
     return VerseOfDayTypography(
       contentFont: base.contentFont,
       systemFont: base.systemFont,
-      verseFontSize: isTibetan ? 20.0 : 18.0,
-      attributionFontSize: isTibetan ? 16.0 : 15.0,
+      verseFontSize: getLocalizedFontSize(AppTextSize.title),
+      attributionFontSize: getLocalizedFontSize(AppTextSize.body),
       useContentFontForAttribution: true,
       useGoogleJomolhari: isTibetan,
     );
@@ -76,8 +76,13 @@ class VerseOfDayTypography {
     final baseStyle = TextStyle(
       fontSize: verseFontSize,
       fontWeight: FontWeight.w400,
-      height: useGoogleJomolhari ? getLineHeight(AppConfig.tibetanLanguageCode) : null,
+      height:
+          useGoogleJomolhari
+              ? getLineHeight(AppConfig.tibetanLanguageCode)
+              : null,
       color: color,
+      leadingDistribution:
+          useGoogleJomolhari ? AppFontConfig.tibetanLeadingDistribution : null,
     );
 
     if (useGoogleJomolhari) {
@@ -99,6 +104,10 @@ class VerseOfDayTypography {
               ? getLineHeight(AppConfig.tibetanLanguageCode)
               : null,
       color: color,
+      leadingDistribution:
+          useGoogleJomolhari && useContentFontForAttribution
+              ? AppFontConfig.tibetanLeadingDistribution
+              : null,
     );
 
     if (useGoogleJomolhari && useContentFontForAttribution) {
@@ -106,8 +115,7 @@ class VerseOfDayTypography {
     }
 
     return baseStyle.copyWith(
-      fontFamily:
-          useContentFontForAttribution ? contentFont : systemFont,
+      fontFamily: useContentFontForAttribution ? contentFont : systemFont,
     );
   }
 }
@@ -141,6 +149,12 @@ class VerseOfDayContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final verseText = withTibetanLineBreakOpportunities(verseOfDay.verse);
+    final verseStrutStyle = context.tibetanStrutStyle(typography.verseFontSize);
+    final attributionStrutStyle = context.tibetanStrutStyle(
+      typography.attributionFontSize,
+    );
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -158,8 +172,9 @@ class VerseOfDayContent extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Text(
-                verseOfDay.verse,
+                verseText,
                 textAlign: TextAlign.center,
+                strutStyle: verseStrutStyle,
                 style: typography.verseTextStyle(color: verseColor),
               ),
               if (verseOfDay.groupTitle != null || footerAction != null) ...[
@@ -167,11 +182,14 @@ class VerseOfDayContent extends StatelessWidget {
                 _AttributionFooterRow(
                   attribution:
                       verseOfDay.groupTitle != null
-                          ? '~ ${verseOfDay.groupTitle}'
+                          ? withTibetanLineBreakOpportunities(
+                            '~ ${verseOfDay.groupTitle}',
+                          )
                           : null,
                   typography: typography,
                   attributionColor: attributionColor,
                   useContentFontForAttribution: useContentFontForAttribution,
+                  attributionStrutStyle: attributionStrutStyle,
                   footerAction: footerAction,
                 ),
               ],
@@ -196,6 +214,7 @@ class _AttributionFooterRow extends StatelessWidget {
     required this.attributionColor,
     required this.useContentFontForAttribution,
     this.attribution,
+    this.attributionStrutStyle,
     this.footerAction,
   });
 
@@ -203,6 +222,7 @@ class _AttributionFooterRow extends StatelessWidget {
   final VerseOfDayTypography typography;
   final Color attributionColor;
   final bool useContentFontForAttribution;
+  final StrutStyle? attributionStrutStyle;
   final Widget? footerAction;
 
   TextStyle _attributionStyle(bool useContentFontForAttribution) =>
@@ -217,6 +237,7 @@ class _AttributionFooterRow extends StatelessWidget {
       return Text(
         attribution!,
         textAlign: TextAlign.center,
+        strutStyle: attributionStrutStyle,
         style: _attributionStyle(useContentFontForAttribution),
       );
     }
@@ -230,6 +251,7 @@ class _AttributionFooterRow extends StatelessWidget {
             Text(
               attribution!,
               textAlign: TextAlign.center,
+              strutStyle: attributionStrutStyle,
               style: _attributionStyle(useContentFontForAttribution),
             ),
           Positioned(right: 0, child: footerAction!),

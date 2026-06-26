@@ -213,7 +213,7 @@ class _SearchResultsCard extends ConsumerWidget {
     final language = ref.watch(localeProvider).languageCode;
     final fontFamily = getFontFamily(language);
     final lineHeight = getLineHeight(language);
-    final fontSize = language == 'bo' ? 20.0 : 16.0;
+    final fontSize = getLocalizedFontSize(AppTextSize.content);
 
     return Card(
       color: Colors.transparent,

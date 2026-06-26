@@ -82,7 +82,7 @@ class _RecitationsScreenState extends ConsumerState<RecitationsScreen>
     final locale = Localizations.localeOf(context);
     final languageCode = locale.languageCode;
     final fontFamily = getFontFamily(languageCode);
-    final fontSize = languageCode == 'bo' ? 22.0 : 18.0;
+    final fontSize = getLocalizedFontSize(AppTextSize.title);
 
     return TabBar(
       controller: _tabController,

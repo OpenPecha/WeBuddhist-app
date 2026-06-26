@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_pecha/core/constants/app_assets.dart';
+import 'package:flutter_pecha/core/deep_linking/deep_link_url_builder.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/features/practice/presentation/controllers/bookmark_controller.dart';
 import 'package:flutter_pecha/features/reader/presentation/providers/reader_notifier.dart';
 import 'package:flutter_pecha/features/texts/data/models/segment.dart';
-import 'package:flutter_pecha/features/texts/presentation/providers/share_provider.dart';
 import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:share_plus/share_plus.dart';
@@ -59,8 +59,10 @@ class _SegmentActionBarState extends ConsumerState<SegmentActionBar> {
     HapticFeedback.lightImpact();
     setState(() => _isBookmarking = true);
     try {
-      await BookmarkController(ref: ref, context: context)
-          .bookmarkVerse(widget.segment.segmentId);
+      await BookmarkController(
+        ref: ref,
+        context: context,
+      ).bookmarkVerse(widget.segment.segmentId);
     } finally {
       if (mounted) setState(() => _isBookmarking = false);
     }
@@ -388,24 +390,18 @@ class _ShareButtonState extends ConsumerState<_ShareButton> {
     });
 
     try {
-      final params = ShareUrlParams(
-        textId: widget.textId,
-        segmentId: widget.segmentId,
-        language: widget.language,
-      );
-      final result = await ref.read(shareUrlProvider(params).future);
-
-      final shortUrl = result.fold(
-        (failure) =>
-            throw Exception('Failed to generate share URL: ${failure.message}'),
-        (url) => url,
-      );
+      final shareUrl =
+          DeepLinkUrlBuilder.readerSegmentLink(
+            textId: widget.textId,
+            segmentId: widget.segmentId,
+            language: widget.language,
+          ).toString();
 
       if (!mounted) return;
 
       final sharePositionOrigin = getSharePositionOrigin(context: context);
       await SharePlus.instance.share(
-        ShareParams(text: shortUrl, sharePositionOrigin: sharePositionOrigin),
+        ShareParams(text: shareUrl, sharePositionOrigin: sharePositionOrigin),
       );
       widget.onClose();
     } catch (e) {

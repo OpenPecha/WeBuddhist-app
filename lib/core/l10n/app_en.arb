@@ -33,7 +33,7 @@
       }
     }
   },
-  "home_recitation_count": "{count} recitations",
+  "home_recitation_count": "{count} chants",
   "@home_recitation_count": {
     "placeholders": {
       "count": {

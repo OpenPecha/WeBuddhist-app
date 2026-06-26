@@ -42,9 +42,10 @@ class _TagSearchOverlayState extends ConsumerState<TagSearchOverlay> {
       if (query.isEmpty) {
         _filteredTags = widget.allTags;
       } else {
-        _filteredTags = widget.allTags
-            .where((tag) => tag.toLowerCase().contains(query))
-            .toList();
+        _filteredTags =
+            widget.allTags
+                .where((tag) => tag.toLowerCase().contains(query))
+                .toList();
       }
     });
   }
@@ -55,7 +56,7 @@ class _TagSearchOverlayState extends ConsumerState<TagSearchOverlay> {
     final locale = ref.watch(localeProvider);
     final fontFamily = getFontFamily(locale.languageCode);
     final lineHeight = getLineHeight(locale.languageCode);
-    final fontSize = locale.languageCode == 'bo' ? 18.0 : 16.0;
+    final fontSize = getLocalizedFontSize(AppTextSize.body);
 
     return Material(
       color: Colors.transparent,
@@ -80,14 +81,15 @@ class _TagSearchOverlayState extends ConsumerState<TagSearchOverlay> {
                         decoration: InputDecoration(
                           hintText: localizations.text_search,
                           prefixIcon: const Icon(Icons.search),
-                          suffixIcon: _searchController.text.isNotEmpty
-                              ? IconButton(
-                                  icon: const Icon(Icons.clear),
-                                  onPressed: () {
-                                    _searchController.clear();
-                                  },
-                                )
-                              : null,
+                          suffixIcon:
+                              _searchController.text.isNotEmpty
+                                  ? IconButton(
+                                    icon: const Icon(Icons.clear),
+                                    onPressed: () {
+                                      _searchController.clear();
+                                    },
+                                  )
+                                  : null,
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
@@ -110,40 +112,44 @@ class _TagSearchOverlayState extends ConsumerState<TagSearchOverlay> {
               Expanded(
                 child: Container(
                   color: Theme.of(context).scaffoldBackgroundColor,
-                  child: _filteredTags.isEmpty
-                      ? Center(
-                          child: Padding(
-                            padding: const EdgeInsets.all(32.0),
-                            child: Text(
-                              AppLocalizations.of(context)!.home_no_tags_found,
-                              style: TextStyle(
-                                fontSize: fontSize,
-                                fontFamily: fontFamily,
-                                height: lineHeight,
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .onSurfaceVariant,
+                  child:
+                      _filteredTags.isEmpty
+                          ? Center(
+                            child: Padding(
+                              padding: const EdgeInsets.all(32.0),
+                              child: Text(
+                                AppLocalizations.of(
+                                  context,
+                                )!.home_no_tags_found,
+                                style: TextStyle(
+                                  fontSize: fontSize,
+                                  fontFamily: fontFamily,
+                                  height: lineHeight,
+                                  color:
+                                      Theme.of(
+                                        context,
+                                      ).colorScheme.onSurfaceVariant,
+                                ),
                               ),
                             ),
+                          )
+                          : ListView.builder(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16.0,
+                              vertical: 8.0,
+                            ),
+                            itemCount: _filteredTags.length,
+                            itemBuilder: (context, index) {
+                              final tag = _filteredTags[index];
+                              return _buildSearchResultItem(
+                                context,
+                                tag,
+                                fontFamily,
+                                lineHeight,
+                                fontSize,
+                              );
+                            },
                           ),
-                        )
-                      : ListView.builder(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16.0,
-                            vertical: 8.0,
-                          ),
-                          itemCount: _filteredTags.length,
-                          itemBuilder: (context, index) {
-                            final tag = _filteredTags[index];
-                            return _buildSearchResultItem(
-                              context,
-                              tag,
-                              fontFamily,
-                              lineHeight,
-                              fontSize,
-                            );
-                          },
-                        ),
                 ),
               ),
             ],
@@ -166,10 +172,7 @@ class _TagSearchOverlayState extends ConsumerState<TagSearchOverlay> {
         widget.onTagSelected(tag);
       },
       child: Container(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 16.0,
-          vertical: 16.0,
-        ),
+        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
         decoration: BoxDecoration(
           border: Border(
             bottom: BorderSide(

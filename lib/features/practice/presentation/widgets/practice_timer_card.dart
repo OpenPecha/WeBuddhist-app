@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/theme/font_config.dart';
 import 'package:flutter_pecha/features/timer/domain/entities/preset_timer.dart';
 
 class PracticeTimerCard extends StatelessWidget {
@@ -18,7 +19,9 @@ class PracticeTimerCard extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final borderColor =
         isDark ? const Color(0xFF353535) : const Color(0xFFE4E4E4);
-    final isTibetan = Localizations.localeOf(context).languageCode == 'bo';
+    final isTibetan = AppFontConfig.isTibetanLanguage(
+      Localizations.localeOf(context).languageCode,
+    );
     final textColor = Theme.of(context).colorScheme.onSurface;
 
     final minuteText = Text(
@@ -26,7 +29,9 @@ class PracticeTimerCard extends StatelessWidget {
       style: TextStyle(
         fontSize: 28,
         fontWeight: FontWeight.w600,
-        height: isTibetan ? 2 : 1,
+        height: isTibetan ? AppFontConfig.tibetanCompactLineHeight : 1,
+        leadingDistribution:
+            isTibetan ? AppFontConfig.tibetanLeadingDistribution : null,
         color: textColor,
       ),
     );

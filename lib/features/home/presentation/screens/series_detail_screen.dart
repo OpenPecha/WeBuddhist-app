@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/constants/app_assets.dart';
-import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/widgets/error_state_widget.dart';
 import 'package:flutter_pecha/core/widgets/skeletons/skeletons.dart';
@@ -180,8 +179,7 @@ class SeriesDetailScreen extends ConsumerWidget {
     AppLocalizations localizations,
     WidgetRef ref,
   ) {
-    final locale = ref.watch(localeProvider);
-    final fontSize = locale.languageCode == 'bo' ? 22.0 : 18.0;
+    final fontSize = getLocalizedFontSize(AppTextSize.title);
 
     return Padding(
       padding: const EdgeInsets.all(32.0),

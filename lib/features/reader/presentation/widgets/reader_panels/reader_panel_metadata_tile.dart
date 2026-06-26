@@ -30,7 +30,7 @@ class ReaderPanelMetadataTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final fontFamily = getFontFamily(language);
-    final titleFontSize = language == 'bo' ? 16.0 : 14.0;
+    final titleFontSize = getLocalizedFontSize(AppTextSize.label);
     final titleStyle = TextStyle(
       fontFamily: fontFamily,
       fontSize: titleFontSize,
@@ -77,14 +77,15 @@ class ReaderPanelMetadataTile extends StatelessWidget {
           duration: const Duration(milliseconds: 180),
           curve: Curves.easeOut,
           alignment: Alignment.topCenter,
-          child: isExpanded
-              ? _MetadataCard(
-                  title: title,
-                  language: language,
-                  source: source,
-                  license: license,
-                )
-              : const SizedBox.shrink(),
+          child:
+              isExpanded
+                  ? _MetadataCard(
+                    title: title,
+                    language: language,
+                    source: source,
+                    license: license,
+                  )
+                  : const SizedBox.shrink(),
         ),
       ],
     );
@@ -109,11 +110,12 @@ class _MetadataCard extends StatelessWidget {
     final theme = Theme.of(context);
     final localizations = context.l10n;
     final isDark = theme.brightness == Brightness.dark;
-    final cardColor = isDark
-        ? Colors.white.withValues(alpha: 0.06)
-        : Colors.black.withValues(alpha: 0.04);
+    final cardColor =
+        isDark
+            ? Colors.white.withValues(alpha: 0.06)
+            : Colors.black.withValues(alpha: 0.04);
     final fontFamily = getFontFamily(language);
-    final titleFontSize = language == 'bo' ? 16.0 : 14.0;
+    final titleFontSize = getLocalizedFontSize(AppTextSize.label);
 
     final hasSource = source != null && source!.trim().isNotEmpty;
     final hasLicense = license != null && license!.trim().isNotEmpty;
@@ -140,17 +142,11 @@ class _MetadataCard extends StatelessWidget {
           ),
           if (hasSource) ...[
             const SizedBox(height: 6),
-            _MetadataRow(
-              label: localizations.source,
-              value: source!,
-            ),
+            _MetadataRow(label: localizations.source, value: source!),
           ],
           if (hasLicense) ...[
             const SizedBox(height: 4),
-            _MetadataRow(
-              label: localizations.reader_license,
-              value: license!,
-            ),
+            _MetadataRow(label: localizations.reader_license, value: license!),
           ],
         ],
       ),

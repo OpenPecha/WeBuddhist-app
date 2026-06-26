@@ -1,3 +1,5 @@
+import 'package:flutter_pecha/core/theme/font_config.dart';
+
 /// Constants for reader feature
 class ReaderConstants {
   ReaderConstants._(); // Private constructor to prevent instantiation
@@ -55,8 +57,10 @@ class ReaderConstants {
   static const double segmentNumberFontScale = 0.6;
 
   // Font sizes
-  static const double tibetanBaseFontSize = 22.0;
-  static const double defaultBaseFontSize = 22.0;
-  static const double sectionTitleFontSizeTibetan = 26.0;
-  static const double sectionTitleFontSizeDefault = 22.0;
+  static const double tibetanBaseFontSize = AppFontConfig.contentFontSize;
+  static const double defaultBaseFontSize = AppFontConfig.contentFontSize;
+  static const double sectionTitleFontSizeTibetan =
+      AppFontConfig.tibetanDisplayFontSize;
+  static const double sectionTitleFontSizeDefault =
+      AppFontConfig.displayFontSize;
 }

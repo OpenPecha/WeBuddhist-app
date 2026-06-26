@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/core/l10n/intl_format_locale.dart';
+import 'package:flutter_pecha/core/theme/font_config.dart';
 import 'package:flutter_pecha/core/utils/tibetan_numerals.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/features/more/domain/entities/user_stats.dart';
@@ -174,9 +175,6 @@ class _StatCard extends StatelessWidget {
     final valueStyle = Theme.of(
       context,
     ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700);
-    final tibetanValueStyle = Theme.of(
-      context,
-    ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700);
 
     return Material(
       color: cardColor,
@@ -259,7 +257,9 @@ class _PracticeDaysCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final isTibetan = Localizations.localeOf(context).languageCode == 'bo';
+    final isTibetan = AppFontConfig.isTibetanLanguage(
+      Localizations.localeOf(context).languageCode,
+    );
     final daysStyle = Theme.of(
       context,
     ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700);

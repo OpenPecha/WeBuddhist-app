@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/config/router/app_routes.dart';
 import 'package:flutter_pecha/features/reader/constants/reader_constants.dart';
 import 'package:flutter_pecha/features/reader/presentation/providers/reader_notifier.dart';
 import 'package:flutter_pecha/features/reader/presentation/widgets/reader_app_bar/reader_search_button.dart';
@@ -52,7 +53,7 @@ class ReaderAppBarOverlay extends ConsumerWidget {
               notifier.selectSegment(null);
               notifier.closeCommentary();
               notifier.closeTranslation();
-              context.pop();
+              _navigateBack(context);
             },
           ),
           toolbarHeight: ReaderConstants.appBarToolbarHeight,
@@ -120,7 +121,7 @@ class ReaderAppBar extends ConsumerWidget {
           notifier.selectSegment(null);
           notifier.closeCommentary();
           notifier.closeTranslation();
-          context.pop();
+          _navigateBack(context);
         },
       ),
       toolbarHeight: ReaderConstants.appBarToolbarHeight,
@@ -130,9 +131,7 @@ class ReaderAppBar extends ConsumerWidget {
         ),
         const SizedBox(width: 4),
         // Globe icon — opens parallel-version / language settings
-        ReaderSettingsButton(
-          onPressed: onSettingsPressed ?? () {},
-        ),
+        ReaderSettingsButton(onPressed: onSettingsPressed ?? () {}),
         const SizedBox(width: 4),
         // Three-dot menu — opens more bottom sheet
         IconButton(
@@ -161,4 +160,10 @@ class ReaderAppBar extends ConsumerWidget {
   }
 }
 
-
+void _navigateBack(BuildContext context) {
+  if (context.canPop()) {
+    context.pop();
+  } else {
+    context.go(AppRoutes.home);
+  }
+}

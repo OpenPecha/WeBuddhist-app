@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
 import 'package:flutter_pecha/core/widgets/cached_network_image_widget.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 
-class TagCard extends ConsumerWidget {
+class TagCard extends StatelessWidget {
   const TagCard({
     super.key,
     required this.tag,
@@ -16,9 +15,8 @@ class TagCard extends ConsumerWidget {
   final String? imageUrl;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final locale = ref.watch(localeProvider);
-    final fontSize = locale.languageCode == 'bo' ? 16.0 : 14.0;
+  Widget build(BuildContext context) {
+    final fontSize = getLocalizedFontSize(AppTextSize.label);
 
     return InkWell(
       onTap: onTap,

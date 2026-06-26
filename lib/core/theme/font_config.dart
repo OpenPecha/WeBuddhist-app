@@ -18,6 +18,18 @@ enum FontType {
   content,
 }
 
+enum AppTextSize {
+  caption,
+  label,
+  body,
+  bodyLarge,
+  title,
+  titleLarge,
+  content,
+  contentLarge,
+  display,
+}
+
 /// Configuration for a language's font families
 class LanguageFontConfig {
   final String systemFont;
@@ -38,6 +50,108 @@ class LanguageFontConfig {
 /// Central font configuration for all supported languages
 class AppFontConfig {
   AppFontConfig._();
+
+  static const TextLeadingDistribution tibetanLeadingDistribution =
+      TextLeadingDistribution.even;
+
+  static const double tibetanUiLineHeight = 1.55;
+  static const double tibetanCompactLineHeight = 1.25;
+  static const double tibetanContentLineHeight = 1.55;
+
+  static const double captionFontSize = 12;
+  static const double labelFontSize = 14;
+  static const double bodyFontSize = 16;
+  static const double bodyLargeFontSize = 18;
+  static const double titleFontSize = 20;
+  static const double titleLargeFontSize = 22;
+  static const double contentFontSize = 20;
+  static const double contentLargeFontSize = 22;
+  static const double displayFontSize = 24;
+
+  static const double tibetanLabelFontSize = labelFontSize;
+  static const double tibetanBodyFontSize = bodyFontSize;
+  static const double tibetanBodyLargeFontSize = bodyLargeFontSize;
+  static const double tibetanTitleFontSize = titleFontSize;
+  static const double tibetanContentFontSize = contentFontSize;
+  static const double tibetanContentLargeFontSize = contentLargeFontSize;
+  static const double tibetanDisplayFontSize = displayFontSize;
+
+  static bool isTibetanLanguage(String? languageCode) {
+    final code = languageCode?.toLowerCase();
+    return code == AppConfig.tibetanLanguageCode ||
+        code == AppConfig.tibetanAdaptationLanguageCode;
+  }
+
+  static double getTextSize(AppTextSize size) {
+    return switch (size) {
+      AppTextSize.caption => captionFontSize,
+      AppTextSize.label => labelFontSize,
+      AppTextSize.body => bodyFontSize,
+      AppTextSize.bodyLarge => bodyLargeFontSize,
+      AppTextSize.title => titleFontSize,
+      AppTextSize.titleLarge => titleLargeFontSize,
+      AppTextSize.content => contentFontSize,
+      AppTextSize.contentLarge => contentLargeFontSize,
+      AppTextSize.display => displayFontSize,
+    };
+  }
+
+  static double getLineHeight(String? languageCode, {bool compact = false}) {
+    if (!isTibetanLanguage(languageCode)) return 1.5;
+    return compact ? tibetanCompactLineHeight : tibetanContentLineHeight;
+  }
+
+  static TextStyle? applyTibetanMetrics(
+    String? languageCode,
+    TextStyle? style, {
+    bool compact = false,
+  }) {
+    if (!isTibetanLanguage(languageCode)) return style;
+
+    final effectiveStyle = style ?? const TextStyle();
+    return effectiveStyle.copyWith(
+      height: compact ? tibetanCompactLineHeight : tibetanUiLineHeight,
+      leadingDistribution: tibetanLeadingDistribution,
+    );
+  }
+
+  static StrutStyle? tibetanStrutStyle(
+    String? languageCode,
+    double fontSize, {
+    bool compact = false,
+  }) {
+    if (!isTibetanLanguage(languageCode)) return null;
+
+    return StrutStyle(
+      fontSize: fontSize,
+      height: compact ? tibetanCompactLineHeight : tibetanUiLineHeight,
+      leadingDistribution: tibetanLeadingDistribution,
+      forceStrutHeight: true,
+    );
+  }
+
+  static TextTheme applyTibetanTextTheme(TextTheme textTheme) {
+    TextStyle? style(TextStyle? value) =>
+        applyTibetanMetrics(AppConfig.tibetanLanguageCode, value);
+
+    return textTheme.copyWith(
+      displayLarge: style(textTheme.displayLarge),
+      displayMedium: style(textTheme.displayMedium),
+      displaySmall: style(textTheme.displaySmall),
+      headlineLarge: style(textTheme.headlineLarge),
+      headlineMedium: style(textTheme.headlineMedium),
+      headlineSmall: style(textTheme.headlineSmall),
+      titleLarge: style(textTheme.titleLarge),
+      titleMedium: style(textTheme.titleMedium),
+      titleSmall: style(textTheme.titleSmall),
+      bodyLarge: style(textTheme.bodyLarge),
+      bodyMedium: style(textTheme.bodyMedium),
+      bodySmall: style(textTheme.bodySmall),
+      labelLarge: style(textTheme.labelLarge),
+      labelMedium: style(textTheme.labelMedium),
+      labelSmall: style(textTheme.labelSmall),
+    );
+  }
 
   static const Map<String, LanguageFontConfig> _languageFonts = {
     // Tibetan - Noto Serif Tibetan for UI, SambhotaUnicode for content/source

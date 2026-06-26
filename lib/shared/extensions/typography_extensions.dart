@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/theme/font_config.dart';
 import 'package:flutter_pecha/features/plans/constants/plan_constants.dart';
 import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 
@@ -29,7 +30,8 @@ extension TypographyExtensions on BuildContext {
   }) {
     final fontFamily = getFontFamily(language);
     final lineHeight = height ?? getLineHeight(language);
-    final effectiveFontSize = fontSize ?? PlanConstants.getFontSizeForLanguage(language);
+    final effectiveFontSize =
+        fontSize ?? PlanConstants.getFontSizeForLanguage(language);
 
     return TextStyle(
       fontFamily: fontFamily,
@@ -38,6 +40,10 @@ extension TypographyExtensions on BuildContext {
       fontWeight: fontWeight,
       color: color,
       decoration: decoration,
+      leadingDistribution:
+          AppFontConfig.isTibetanLanguage(language)
+              ? AppFontConfig.tibetanLeadingDistribution
+              : null,
     );
   }
 
@@ -105,7 +111,8 @@ class LanguageTypography {
   }) {
     final fontFamily = getFontFamily(language);
     final lineHeight = height ?? getLineHeight(language);
-    final effectiveFontSize = fontSize ?? PlanConstants.getFontSizeForLanguage(language);
+    final effectiveFontSize =
+        fontSize ?? PlanConstants.getFontSizeForLanguage(language);
 
     return TextStyle(
       fontFamily: fontFamily,
@@ -113,6 +120,10 @@ class LanguageTypography {
       fontSize: effectiveFontSize,
       fontWeight: fontWeight,
       color: color,
+      leadingDistribution:
+          AppFontConfig.isTibetanLanguage(language)
+              ? AppFontConfig.tibetanLeadingDistribution
+              : null,
     );
   }
 

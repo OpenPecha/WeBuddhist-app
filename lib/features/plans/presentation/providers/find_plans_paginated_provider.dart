@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:flutter_pecha/core/utils/app_logger.dart';
+import 'package:flutter_pecha/features/plans/data/datasource/plans_local_datasource.dart';
 import 'package:flutter_pecha/features/plans/domain/entities/plan.dart';
 import 'package:flutter_pecha/features/plans/domain/usecases/plans_usecases.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -44,14 +47,38 @@ class FindPlansState {
 
 /// StateNotifier for paginated find plans
 class FindPlansNotifier extends StateNotifier<FindPlansState> {
+  FindPlansNotifier({
+    required this.getPlansUseCase,
+    required this.languageCode,
+    required this.local,
+  }) : super(const FindPlansState()) {
+    _logger.debug('🏗️ FindPlansNotifier CREATED with language: $languageCode');
+    unawaited(_initialize());
+  }
+
   final GetPlansUseCase getPlansUseCase;
   final String languageCode;
+  final PlansLocalDatasource local;
   static const int _limit = 20;
 
-  FindPlansNotifier({required this.getPlansUseCase, required this.languageCode})
-    : super(const FindPlansState()) {
-    _logger.debug('🏗️ FindPlansNotifier CREATED with language: $languageCode');
-    loadInitial();
+  Future<void> _initialize() async {
+    _seedFromCache();
+    await loadInitial();
+  }
+
+  void _seedFromCache() {
+    final cached = local.readPlans(
+      language: languageCode,
+      skip: 0,
+      limit: _limit,
+    );
+    if (cached != null && mounted) {
+      state = state.copyWith(
+        plans: cached.map((plan) => plan.toEntity()).toList(),
+        hasMore: cached.length >= _limit,
+        skip: cached.length,
+      );
+    }
   }
 
   @override
@@ -60,7 +87,7 @@ class FindPlansNotifier extends StateNotifier<FindPlansState> {
     super.dispose();
   }
 
-  /// Load initial plans
+  /// Load initial plans — shows cached data immediately when available.
   Future<void> loadInitial() async {
     _logger.debug('🔄 loadInitial() called - current state: ${state.plans.length} plans, isLoading: ${state.isLoading}');
 
@@ -69,9 +96,11 @@ class FindPlansNotifier extends StateNotifier<FindPlansState> {
       return;
     }
 
-    _logger.debug('📊 Setting isLoading: true');
-    state = state.copyWith(isLoading: true, error: null);
-    _logger.debug('📊 State after setting loading: ${state.plans.length} plans, isLoading: ${state.isLoading}');
+    final hasCachedData = state.plans.isNotEmpty;
+    if (!hasCachedData) {
+      _logger.debug('📊 Setting isLoading: true');
+      state = state.copyWith(isLoading: true, error: null);
+    }
 
     final result = await getPlansUseCase(GetPlansParams(
       language: languageCode,
@@ -83,25 +112,23 @@ class FindPlansNotifier extends StateNotifier<FindPlansState> {
       (failure) {
         _logger.error('❌ Error loading plans: ${failure.message}');
         if (mounted) {
-          _logger.debug('📊 Setting error state');
-          state = state.copyWith(isLoading: false, error: failure.message);
+          if (state.plans.isEmpty) {
+            state = state.copyWith(isLoading: false, error: failure.message);
+          } else {
+            state = state.copyWith(isLoading: false);
+          }
         }
       },
       (plans) {
         _logger.debug('✅ Got ${plans.length} plans from use case');
         if (mounted) {
-          _logger.debug('📦 Updating state with ${plans.length} plans');
-          final newState = state.copyWith(
+          state = state.copyWith(
             plans: plans,
             isLoading: false,
             hasMore: plans.length >= _limit,
             skip: plans.length,
             error: null,
           );
-          state = newState;
-          _logger.debug('✅ State updated: ${state.plans.length} plans, hasMore: ${state.hasMore}');
-        } else {
-          _logger.debug('⚠️ Not mounted, skipping state update');
         }
       },
     );
@@ -152,9 +179,15 @@ class FindPlansNotifier extends StateNotifier<FindPlansState> {
     }
   }
 
-  /// Refresh from start
+  /// Refresh from start — keeps existing plans visible while re-fetching.
   Future<void> refresh() async {
-    state = const FindPlansState();
+    final hasCachedData = state.plans.isNotEmpty;
+    state = state.copyWith(
+      isLoading: !hasCachedData,
+      error: null,
+      skip: 0,
+      hasMore: true,
+    );
     await loadInitial();
   }
 }

@@ -4,6 +4,7 @@ import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/services/app_share/app_share_service.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 /// Home screen prompt that invites the user to share WeBuddhist with others.
 class HomeSharePrompt extends ConsumerWidget {
