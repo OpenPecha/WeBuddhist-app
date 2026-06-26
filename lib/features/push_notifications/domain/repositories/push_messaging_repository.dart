@@ -28,11 +28,12 @@ abstract class PushMessagingRepository {
   /// The notification that launched the app from a terminated state, if any.
   Future<PushMessage?> getInitialMessage();
 
-  /// Registers [token] for the signed-in user with the backend so it can
-  /// target this device. [email] is an optional placeholder the current
-  /// backend keys on until it accepts FCM tokens directly.
+  /// Registers (upserts) [token] for the signed-in user with the backend so it
+  /// can target this device. The platform (`ANDROID`/`IOS`) is derived in the
+  /// data layer. [deviceId] is an optional stable device identifier that lets
+  /// token refreshes update the same record instead of creating duplicates.
   Future<Either<Failure, Unit>> registerDeviceToken(
     String token, {
-    String? email,
+    String? deviceId,
   });
 }

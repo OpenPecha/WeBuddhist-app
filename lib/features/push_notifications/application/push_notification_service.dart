@@ -10,6 +10,7 @@ import 'package:flutter_pecha/core/utils/local_storage_service.dart';
 import 'package:flutter_pecha/features/notifications/data/channels/notification_channels.dart';
 import 'package:flutter_pecha/features/push_notifications/domain/entities/push_message.dart';
 import 'package:flutter_pecha/features/push_notifications/domain/repositories/push_messaging_repository.dart';
+import 'package:uuid/uuid.dart';
 
 /// Background / terminated-state FCM handler. Must be a top-level function with
 /// `@pragma` so it survives AOT and runs in its own isolate. Notification
@@ -44,7 +45,6 @@ class PushNotificationService {
 
   String? _token;
   bool _loggedIn = false;
-  String? _email;
   bool _initialized = false;
 
   /// One-time setup. Subsequent calls are ignored.
@@ -74,12 +74,11 @@ class PushNotificationService {
   }
 
   /// Feeds in the latest auth snapshot. Registers the token with the backend on
-  /// sign-in, or once the email becomes available just afterwards (the profile
-  /// loads asynchronously). Guests are treated as signed out for push targeting.
-  void onAuthChanged({required bool loggedIn, String? email}) {
-    final shouldRegister = loggedIn && (!_loggedIn || email != _email);
+  /// sign-in (the backend keys the device on the JWT, so no profile data is
+  /// needed). Guests are treated as signed out for push targeting.
+  void onAuthChanged({required bool loggedIn}) {
+    final shouldRegister = loggedIn && !_loggedIn;
     _loggedIn = loggedIn;
-    _email = email;
     if (shouldRegister) unawaited(_registerToken());
   }
 
@@ -97,11 +96,23 @@ class PushNotificationService {
   Future<void> _registerToken() async {
     final token = _token;
     if (token == null || !_loggedIn) return;
-    final result = await _repository.registerDeviceToken(token, email: _email);
+    final deviceId = await _deviceId();
+    final result =
+        await _repository.registerDeviceToken(token, deviceId: deviceId);
     result.fold(
       (failure) => _logger.warning('Token registration failed: ${failure.message}'),
       (_) => _logger.info('Token registered'),
     );
+  }
+
+  /// Returns the stable per-install device id, generating and persisting one on
+  /// first use. Lets backend token refreshes update the same record.
+  Future<String> _deviceId() async {
+    final existing = await _storage.get<String>(StorageKeys.pushDeviceId);
+    if (existing != null && existing.isNotEmpty) return existing;
+    final id = const Uuid().v4();
+    await _storage.set(StorageKeys.pushDeviceId, id);
+    return id;
   }
 
   Future<void> _showNotification(PushMessage message) async {

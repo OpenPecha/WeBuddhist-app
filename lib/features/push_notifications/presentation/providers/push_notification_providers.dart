@@ -2,7 +2,6 @@ import 'package:flutter_pecha/core/di/core_providers.dart';
 import 'package:flutter_pecha/core/utils/local_storage_service.dart';
 import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
 import 'package:flutter_pecha/features/auth/presentation/state/auth_state.dart';
-import 'package:flutter_pecha/features/auth/presentation/state/user_state.dart';
 import 'package:flutter_pecha/features/push_notifications/application/push_notification_service.dart';
 import 'package:flutter_pecha/features/push_notifications/data/repositories/push_messaging_repository_impl.dart';
 import 'package:flutter_pecha/features/push_notifications/domain/repositories/push_messaging_repository.dart';
@@ -33,14 +32,10 @@ final pushNotificationBootstrapProvider = Provider<void>((ref) {
   void syncAuth() {
     final auth = ref.read(authProvider);
     if (auth.isLoading) return;
-    service.onAuthChanged(
-      loggedIn: auth.isLoggedIn && !auth.isGuest,
-      email: ref.read(userProvider).user?.email,
-    );
+    service.onAuthChanged(loggedIn: auth.isLoggedIn && !auth.isGuest);
   }
 
-  // Email loads just after login — listen to both so registration fires once
-  // the profile (and its email) resolves.
+  // Registration only needs the login state — the backend keys the device on
+  // the JWT, so a single listener on auth is enough.
   ref.listen<AuthState>(authProvider, (_, __) => syncAuth(), fireImmediately: true);
-  ref.listen<UserState>(userProvider, (_, __) => syncAuth());
 });

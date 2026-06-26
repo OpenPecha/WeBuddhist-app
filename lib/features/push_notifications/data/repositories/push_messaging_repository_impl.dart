@@ -4,8 +4,6 @@ import 'package:dio/dio.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_pecha/core/error/exception_mapper.dart';
 import 'package:flutter_pecha/core/error/failures.dart';
-import 'package:flutter_pecha/core/utils/app_logger.dart';
-import 'package:flutter_pecha/features/push_notifications/data/push_config.dart';
 import 'package:flutter_pecha/features/push_notifications/domain/entities/push_message.dart';
 import 'package:flutter_pecha/features/push_notifications/domain/repositories/push_messaging_repository.dart';
 import 'package:fpdart/fpdart.dart';
@@ -14,9 +12,13 @@ import 'package:fpdart/fpdart.dart';
 /// `RemoteMessage` into the domain [PushMessage]. This is the only file in the
 /// feature that imports firebase_messaging.
 class PushMessagingRepositoryImpl implements PushMessagingRepository {
+  /// Upsert endpoint for the device's push token. The base URL already carries
+  /// the `/api/v1` prefix; auth is injected via the `/users/me/` rule in
+  /// [ProtectedRoutes].
+  static const String _deviceTokenPath = '/users/me/push-devices';
+
   final FirebaseMessaging _messaging;
   final Dio _dio;
-  final _logger = AppLogger('PushMessagingRepository');
 
   PushMessagingRepositoryImpl({required Dio dio, FirebaseMessaging? messaging})
       : _dio = dio,
@@ -52,22 +54,16 @@ class PushMessagingRepositoryImpl implements PushMessagingRepository {
   @override
   Future<Either<Failure, Unit>> registerDeviceToken(
     String token, {
-    String? email,
+    String? deviceId,
   }) async {
-    // Backend endpoint isn't live yet — capture without hitting the network so
-    // the wiring works the moment PushConfig.backendSyncEnabled flips to true.
-    if (!PushConfig.backendSyncEnabled) {
-      _logger.info('Device token captured (backend sync disabled)');
-      return const Right(unit);
-    }
     try {
+      // Platform must be exactly "ANDROID" or "IOS" (case-sensitive).
       await _dio.post(
-        PushConfig.deviceTokenPath,
+        _deviceTokenPath,
         data: {
-          'fcm_token': token,
-          'platform': Platform.operatingSystem,
-          // Placeholder: current backend keys on email.
-          if (email != null) 'email': email,
+          'token': token,
+          'platform': Platform.isIOS ? 'IOS' : 'ANDROID',
+          if (deviceId != null) 'device_id': deviceId,
         },
       );
       return const Right(unit);
