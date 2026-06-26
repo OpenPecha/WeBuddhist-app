@@ -950,7 +950,7 @@ class AppLocalizationsBo extends AppLocalizations {
   String get routine_edit_title => 'འཆར་ཅན་ཉམས་ལེན་བཟོ་བཅོས།';
 
   @override
-  String get routine_delete_block => 'ཚན་པ་བསུབ་རྒྱུ་ཡིན་ནམ།';
+  String get routine_delete_block => 'ཚན་པ་བསུབ།';
 
   @override
   String get routine_delete_time_block => 'དུས་ཚོད་སྡུབ།';
