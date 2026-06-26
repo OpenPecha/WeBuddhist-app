@@ -31,7 +31,7 @@ class VerseOfDayTypography {
     return VerseOfDayTypography(
       contentFont: getFontFamily(languageCode),
       systemFont: getSystemFontFamily(languageCode),
-      verseFontSize: getLocalizedFontSize(AppTextSize.body),
+      verseFontSize: getLocalizedFontSize(AppTextSize.bodyLarge),
       attributionFontSize: getLocalizedFontSize(AppTextSize.label),
     );
   }
@@ -183,8 +183,8 @@ class VerseOfDayContent extends StatelessWidget {
                   attribution:
                       verseOfDay.groupTitle != null
                           ? withTibetanLineBreakOpportunities(
-                              '~ ${verseOfDay.groupTitle}',
-                            )
+                            '~ ${verseOfDay.groupTitle}',
+                          )
                           : null,
                   typography: typography,
                   attributionColor: attributionColor,
