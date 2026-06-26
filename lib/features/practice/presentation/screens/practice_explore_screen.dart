@@ -63,12 +63,13 @@ class _PracticeExploreScreenState extends ConsumerState<PracticeExploreScreen> {
               icon: Icons.bookmark_border,
               variant: PracticeActionButtonVariant.outlined,
               onTap: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(context.l10n.mala_action_coming_soon),
-                    duration: const Duration(seconds: 2),
-                  ),
-                );
+                context.pushNamed('bookmarks');
+                // ScaffoldMessenger.of(context).showSnackBar(
+                //   SnackBar(
+                //     content: Text(context.l10n.mala_action_coming_soon),
+                //     duration: const Duration(seconds: 2),
+                //   ),
+                // );
               },
             ),
           ),

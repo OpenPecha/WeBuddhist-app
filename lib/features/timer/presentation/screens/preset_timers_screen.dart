@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/config/router/app_routes.dart';
 import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/core/widgets/error_state_widget.dart';
 import 'package:flutter_pecha/features/timer/domain/entities/preset_timer.dart';
 import 'package:flutter_pecha/features/timer/presentation/providers/timers_providers.dart';
 import 'package:flutter_pecha/features/timer/presentation/widgets/preset_timer_card.dart';
+import 'package:flutter_pecha/features/timer/presentation/widgets/timer_more_bottom_sheet.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:skeletonizer/skeletonizer.dart';
@@ -128,6 +130,17 @@ class _PresetTimersGrid extends StatelessWidget {
   final List<PresetTimer> timers;
   final String minLabel;
 
+  void _openMoreSheet(BuildContext context, PresetTimer timer) {
+    showTimerMoreBottomSheet(
+      context,
+      timer: timer,
+      onAddToPractices: () => context.push(
+        AppRoutes.practiceEditRoutine,
+        extra: {'initialTimer': timer},
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -147,6 +160,7 @@ class _PresetTimersGrid extends StatelessWidget {
             timer: timer,
             minLabel: minLabel,
             onTap: () => context.push('/home/timers/active', extra: timer),
+            onMoreTap: () => _openMoreSheet(context, timer),
           );
         },
       ),

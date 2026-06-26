@@ -5,10 +5,7 @@ import 'package:flutter_pecha/features/practice/data/utils/routine_time_utils.da
 RoutineData routineDataFromApiResponse(RoutineResponse? response) {
   if (response == null) return const RoutineData();
   final blocks = response.timeBlocks.map(routineBlockFromDto).toList();
-  return RoutineData(
-    blocks: blocks,
-    apiRoutineId: response.id,
-  ).sortedByTime;
+  return RoutineData(blocks: blocks, apiRoutineId: response.id).sortedByTime;
 }
 
 RoutineBlock routineBlockFromDto(TimeBlockDTO tb) {
@@ -31,12 +28,15 @@ RoutineItem routineItemFromSessionDto(SessionDTO s) {
     type: switch (s.sessionType) {
       SessionType.series => RoutineItemType.series,
       SessionType.recitation => RoutineItemType.recitation,
+      SessionType.timer => RoutineItemType.timer,
+      SessionType.accumulator => RoutineItemType.accumulator,
     },
     enrolledAt: s.startedAt,
     language: s.language,
     startDate: s.startDate,
     currentPlanId: s.currentPlanId,
     currentPlanTitle: s.currentPlanTitle,
+    durationMs: s.durationMs,
   );
 }
 
@@ -44,13 +44,20 @@ List<SessionRequest> _sessionsForBlock(RoutineBlock block) {
   final sessions = <SessionRequest>[];
   for (var i = 0; i < block.items.length; i++) {
     final item = block.items[i];
+    // Timer items without a duration can't be synced — skip them rather than
+    // send an incomplete payload that the backend will reject.
+    if (item.type == RoutineItemType.timer && item.durationMs == null) continue;
     sessions.add(
       SessionRequest(
-        sessionType: item.type == RoutineItemType.series
-            ? SessionType.series
-            : SessionType.recitation,
+        sessionType: switch (item.type) {
+          RoutineItemType.series => SessionType.series,
+          RoutineItemType.recitation => SessionType.recitation,
+          RoutineItemType.timer => SessionType.timer,
+          RoutineItemType.accumulator => SessionType.accumulator,
+        },
         sourceId: item.id,
         displayOrder: i,
+        durationMs: item.durationMs,
       ),
     );
   }

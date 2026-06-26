@@ -5,6 +5,7 @@ import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/core/widgets/responsive_cover_image.dart';
 import 'package:flutter_pecha/features/practice/data/models/routine_model.dart';
 import 'package:flutter_pecha/shared/domain/value_objects/responsive_image.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 class RoutineItemCard extends StatelessWidget {
   final String title;
@@ -79,27 +80,64 @@ class RoutineItemCard extends StatelessWidget {
               ),
               const SizedBox(width: 20),
             ],
-            type == RoutineItemType.recitation
-                ? ClipRRect(
-                  borderRadius: BorderRadius.circular(10),
-                  child: Image.asset(
-                    AppAssets.recitationCoverDefault,
-                    width: 74,
-                    height: 74,
-                    fit: BoxFit.cover,
-                  ),
-                )
-                : ResponsiveCoverImage(
-                  image:
-                      coverImage ??
-                      (imageUrl != null && imageUrl!.isNotEmpty
-                          ? ResponsiveImage.uniform(imageUrl!)
-                          : null),
+            if (type == RoutineItemType.recitation)
+              ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: Image.asset(
+                  AppAssets.recitationCoverDefault,
                   width: 74,
                   height: 74,
                   fit: BoxFit.cover,
+                ),
+              )
+            else if (type == RoutineItemType.timer)
+              Container(
+                width: 74,
+                height: 74,
+                decoration: BoxDecoration(
+                  color: isDark
+                      ? AppColors.surfaceVariantDark
+                      : AppColors.grey100,
                   borderRadius: BorderRadius.circular(10),
                 ),
+                child: Icon(
+                  PhosphorIconsRegular.timer,
+                  size: 32,
+                  color: isDark
+                      ? AppColors.textTertiaryDark
+                      : AppColors.textSecondary,
+                ),
+              )
+            else if (type == RoutineItemType.accumulator)
+              Container(
+                width: 74,
+                height: 74,
+                decoration: BoxDecoration(
+                  color: isDark
+                      ? AppColors.surfaceVariantDark
+                      : AppColors.grey100,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  PhosphorIconsRegular.circlesThree,
+                  size: 32,
+                  color: isDark
+                      ? AppColors.textTertiaryDark
+                      : AppColors.textSecondary,
+                ),
+              )
+            else
+              ResponsiveCoverImage(
+                image:
+                    coverImage ??
+                    (imageUrl != null && imageUrl!.isNotEmpty
+                        ? ResponsiveImage.uniform(imageUrl!)
+                        : null),
+                width: 74,
+                height: 74,
+                fit: BoxFit.cover,
+                borderRadius: BorderRadius.circular(10),
+              ),
             const SizedBox(width: 16),
             Expanded(
               child: Column(

@@ -38,6 +38,7 @@ import 'package:flutter_pecha/features/practice/presentation/screens/practice_ex
 import 'package:flutter_pecha/features/practice/presentation/screens/practice_screen.dart';
 import 'package:flutter_pecha/features/practice/presentation/screens/select_plan_screen.dart';
 import 'package:flutter_pecha/features/practice/presentation/screens/select_recitation_screen.dart';
+import 'package:flutter_pecha/features/mala/domain/entities/mantra.dart';
 import 'package:flutter_pecha/features/mala/presentation/screens/mala_screen.dart';
 import 'package:flutter_pecha/features/notifications/presentation/notification_settings_screen.dart';
 import 'package:flutter_pecha/features/reader/data/models/navigation_context.dart';
@@ -194,6 +195,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 path: "series/:id",
                 name: "home-series-detail",
+                // Root navigator so this full-screen detail can be pushed from
+                // root-level routes (e.g. /practice/bookmarks) without
+                // go_router inserting a second /home shell page and hitting a
+                // duplicate page key. Mirrors home-timer-active.
+                parentNavigatorKey: rootNavigatorKey,
                 builder: (context, state) {
                   final id = state.pathParameters['id'] ?? '';
                   final extra = state.extra as Map<String, dynamic>?;
@@ -204,6 +210,9 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                   GoRoute(
                     path: "info",
                     name: "home-series-info",
+                    // Must share the parent's (root) navigator so detail → info
+                    // stays on one navigator.
+                    parentNavigatorKey: rootNavigatorKey,
                     builder: (context, state) {
                       final extra = state.extra as Map<String, dynamic>?;
                       final series = extra?['series'] as Series;
@@ -228,6 +237,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                   GoRoute(
                     path: "active",
                     name: "home-timer-active",
+                    // Root navigator so this works when my-practices (or any
+                    // root-pushed route) is already on the stack above /home.
+                    // Without this, go_router inserts a second /home shell page
+                    // and hits duplicate page keys.
+                    parentNavigatorKey: rootNavigatorKey,
                     builder: (context, state) {
                       final timer = state.extra as PresetTimer?;
                       if (timer == null) {
@@ -352,10 +366,16 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           final extra = state.extra as Map<String, dynamic>?;
           final plan = extra?['initialPlan'] as Plan?;
           final recitation = extra?['initialRecitation'] as RecitationModel?;
+          final series = extra?['initialSeries'] as Series?;
+          final mantra = extra?['initialMantra'] as Mantra?;
           final enrollSeriesId = extra?['enrollSeriesId'] as String?;
+          final timer = extra?['initialTimer'] as PresetTimer?;
           return EditRoutineScreen(
             initialPlan: plan,
             initialRecitation: recitation,
+            initialTimer: timer,
+            initialSeries: series,
+            initialMantra: mantra,
             enrollSeriesId: enrollSeriesId,
           );
         },

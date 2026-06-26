@@ -9,11 +9,13 @@ class PresetTimerCard extends StatelessWidget {
     required this.timer,
     required this.minLabel,
     this.onTap,
+    this.onMoreTap,
   });
 
   final PresetTimer timer;
   final String minLabel;
   final VoidCallback? onTap;
+  final VoidCallback? onMoreTap;
 
   static const _borderRadius = 16.0;
   static const _contentPadding = EdgeInsets.symmetric(
@@ -68,25 +70,42 @@ class PresetTimerCard extends StatelessWidget {
         onTap: onTap,
         child: AspectRatio(
           aspectRatio: 1,
-          child: Center(
-            child: Padding(
-              padding: _contentPadding,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children:
-                    isTibetan
-                        ? [
-                          minLabelText,
-                          const SizedBox(height: _labelSpacing),
-                          minuteText,
-                        ]
-                        : [
-                          minuteText,
-                          const SizedBox(height: _labelSpacing),
-                          minLabelText,
-                        ],
+          child: Stack(
+            children: [
+              Center(
+                child: Padding(
+                  padding: _contentPadding,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children:
+                        isTibetan
+                            ? [
+                              minLabelText,
+                              const SizedBox(height: _labelSpacing),
+                              minuteText,
+                            ]
+                            : [
+                              minuteText,
+                              const SizedBox(height: _labelSpacing),
+                              minLabelText,
+                            ],
+                  ),
+                ),
               ),
-            ),
+              if (onMoreTap != null)
+                Positioned(
+                  top: 0,
+                  right: 0,
+                  child: IconButton(
+                    icon: Icon(
+                      Icons.more_vert,
+                      color: textColor,
+                      size: 20,
+                    ),
+                    onPressed: onMoreTap,
+                  ),
+                ),
+            ],
           ),
         ),
       ),
