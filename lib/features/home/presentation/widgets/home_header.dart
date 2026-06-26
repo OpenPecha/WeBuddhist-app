@@ -19,9 +19,11 @@ import 'package:go_router/go_router.dart';
 class HomeTabAppBar extends ConsumerWidget implements PreferredSizeWidget {
   const HomeTabAppBar({super.key});
 
+  static const double toolbarHeight = 88;
+  static const double _actionsReserveWidth = 148;
+
   @override
-  Size get preferredSize =>
-      const Size.fromHeight(MainTabAppBar.toolbarHeight);
+  Size get preferredSize => const Size.fromHeight(toolbarHeight);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -36,7 +38,14 @@ class HomeTabAppBar extends ConsumerWidget implements PreferredSizeWidget {
         );
 
     return MainTabAppBar(
-      titleWidget: _Greeting(firstName: firstName),
+      toolbarHeight: HomeTabAppBar.toolbarHeight,
+      titleWidget: _Greeting(
+        firstName: firstName,
+        maxWidth:
+            MediaQuery.sizeOf(context).width -
+            MainTabAppBar.titleSpacing -
+            HomeTabAppBar._actionsReserveWidth,
+      ),
       actions: [
         IconButton(
           onPressed: () => context.push(AppRoutes.calendar),
@@ -82,9 +91,23 @@ class HomeEventBanner extends ConsumerWidget {
 }
 
 class _Greeting extends StatelessWidget {
-  const _Greeting({required this.firstName});
+  const _Greeting({required this.firstName, required this.maxWidth});
 
   final String? firstName;
+  final double maxWidth;
+
+  Widget _buildLine({
+    required BuildContext context,
+    required String text,
+    required TextStyle style,
+    required double fontSize,
+  }) {
+    return Text.rich(
+      TextSpan(text: text, style: style),
+      strutStyle: context.tibetanStrutStyle(fontSize),
+      softWrap: true,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -93,21 +116,32 @@ class _Greeting extends StatelessWidget {
     final greetingFontSize = getLocalizedFontSize(AppTextSize.titleLarge);
     final greetingStyle = MainTabAppBar.titleStyle(context).copyWith(
       color: colorScheme.onSurface,
+      height: getLineHeight(Localizations.localeOf(context).languageCode),
     );
+    final prefix = localizations.home_hello_prefix.trim();
 
-    return RichText(
-      strutStyle: context.tibetanStrutStyle(greetingFontSize, compact: true),
-      text: TextSpan(
+    return SizedBox(
+      width: maxWidth,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
         children: [
-          TextSpan(
-            text: localizations.home_hello_prefix,
+          _buildLine(
+            context: context,
+            text: prefix,
             style: greetingStyle,
+            fontSize: greetingFontSize,
           ),
-          if (firstName != null && firstName!.isNotEmpty)
-            TextSpan(
-              text: firstName,
+          if (firstName != null && firstName!.isNotEmpty) ...[
+            const SizedBox(height: 2),
+            _buildLine(
+              context: context,
+              text: firstName!,
               style: greetingStyle,
+              fontSize: greetingFontSize,
             ),
+          ],
         ],
       ),
     );

@@ -14,14 +14,16 @@ class MainTabAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.titleWidget,
     this.actions,
     this.bottom,
+    this.toolbarHeight = defaultToolbarHeight,
   }) : assert(title != null || titleWidget != null);
 
   final String? title;
   final Widget? titleWidget;
   final List<Widget>? actions;
   final PreferredSizeWidget? bottom;
+  final double toolbarHeight;
 
-  static const double toolbarHeight = kToolbarHeight;
+  static const double defaultToolbarHeight = kToolbarHeight;
   static const double titleSpacing = 20;
 
   static TextStyle titleStyle(BuildContext context) {

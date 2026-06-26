@@ -113,7 +113,6 @@ class AppAssets {
   static const IconData globe = PhosphorIconsRegular.globe;
 
   // ========== HOME SHORTCUT ICONS ==========
-  static const IconData homePlans = PhosphorIconsRegular.calendarDots;
   static const IconData homeChants = PhosphorIconsBold.bookOpenText;
   static const IconData homeTimer = PhosphorIconsBold.timer;
   static const IconData homeList = PhosphorIconsBold.listChecks;
