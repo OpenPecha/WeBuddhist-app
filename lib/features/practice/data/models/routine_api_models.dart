@@ -2,16 +2,18 @@ import 'package:flutter_pecha/features/plans/data/models/plans_model.dart';
 import 'package:flutter_pecha/shared/domain/value_objects/responsive_image.dart';
 
 enum SessionType {
-  plan,
+  series,
   recitation;
 
   String toJson() => switch (this) {
-    SessionType.plan => 'PLAN',
+    SessionType.series => 'SERIES',
     SessionType.recitation => 'RECITATION',
   };
 
   static SessionType fromJson(String value) => switch (value) {
-    'PLAN' => SessionType.plan,
+    'SERIES' => SessionType.series,
+    // Legacy API / cached payloads before the PLAN → SERIES rename.
+    'PLAN' => SessionType.series,
     'RECITATION' => SessionType.recitation,
     _ => throw FormatException('Unknown SessionType: $value'),
   };
@@ -72,6 +74,8 @@ class SessionDTO {
   final int displayOrder;
   final DateTime? startDate;
   final DateTime? startedAt;
+  final String? currentPlanId;
+  final String? currentPlanTitle;
 
   const SessionDTO({
     required this.id,
@@ -83,6 +87,8 @@ class SessionDTO {
     required this.displayOrder,
     this.startDate,
     this.startedAt,
+    this.currentPlanId,
+    this.currentPlanTitle,
   });
 
   String? get imageUrl => image?.displayUrl;
@@ -104,6 +110,8 @@ class SessionDTO {
       startedAt: json['started_at'] != null
           ? DateTime.tryParse(json['started_at'] as String)
           : null,
+      currentPlanId: json['current_plan_id'] as String?,
+      currentPlanTitle: json['current_plan_title'] as String?,
     );
   }
 }

@@ -14,12 +14,12 @@ import 'package:flutter_pecha/features/notifications/data/services/notification_
 import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
 import 'package:flutter_pecha/features/auth/presentation/widgets/login_drawer.dart';
 import 'package:flutter_pecha/features/home/domain/entities/series.dart';
+import 'package:flutter_pecha/features/home/domain/usecases/get_series_by_id_usecase.dart';
 import 'package:flutter_pecha/features/home/presentation/providers/routine_info_provider.dart';
 import 'package:flutter_pecha/features/home/presentation/providers/series_enrollment_provider.dart';
-import 'package:flutter_pecha/features/plans/domain/usecases/user_plans_usecases.dart';
+import 'package:flutter_pecha/features/home/presentation/providers/use_case_providers.dart'
+    show getSeriesByIdUseCaseProvider;
 import 'package:flutter_pecha/features/plans/plans.dart';
-import 'package:flutter_pecha/features/plans/presentation/providers/use_case_providers.dart'
-    show getUserPlansUseCaseProvider;
 import 'package:flutter_pecha/features/practice/data/models/routine_model.dart';
 import 'package:flutter_pecha/features/practice/data/models/session_selection.dart';
 import 'package:flutter_pecha/features/recitation/data/models/recitation_model.dart';
@@ -57,15 +57,19 @@ class _EditableBlock {
 
 class EditRoutineScreen extends ConsumerStatefulWidget {
   final Plan? initialPlan;
+  final RecitationModel? initialRecitation;
 
-  /// When provided, after hydration the screen fetches all currently-active
-  /// plans from the given series and injects them into the routine, reusing
-  /// any existing empty block or creating a new one at the user's current
-  /// local time (with the standard 10-minute gap). Backend filters out future
-  /// plans by start date.
+  /// When provided, after hydration the screen adds the enrolled series to the
+  /// routine, reusing any existing empty block or creating a new one at the
+  /// user's current local time (with the standard 10-minute gap).
   final String? enrollSeriesId;
 
-  const EditRoutineScreen({super.key, this.initialPlan, this.enrollSeriesId});
+  const EditRoutineScreen({
+    super.key,
+    this.initialPlan,
+    this.initialRecitation,
+    this.enrollSeriesId,
+  });
 
   @override
   ConsumerState<EditRoutineScreen> createState() => _EditRoutineScreenState();
@@ -161,7 +165,7 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
   void _injectInitialPlan(Plan plan) {
     final alreadyExists = _blocks.any(
       (b) => b.items.any(
-        (item) => item.id == plan.id && item.type == RoutineItemType.plan,
+        (item) => item.id == plan.id && item.type == RoutineItemType.series,
       ),
     );
     if (alreadyExists) return;
@@ -170,7 +174,7 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
       id: plan.id,
       title: plan.title,
       coverImage: plan.coverImage,
-      type: RoutineItemType.plan,
+      type: RoutineItemType.series,
       enrolledAt: DateTime.now(),
     );
 
@@ -182,11 +186,36 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
     _sortBlocks();
   }
 
+  _EditableBlock? _injectInitialRecitation(RecitationModel recitation) {
+    final alreadyExists = _blocks.any(
+      (b) => b.items.any(
+        (item) =>
+            item.id == recitation.textId &&
+            item.type == RoutineItemType.recitation,
+      ),
+    );
+    if (alreadyExists) return null;
+
+    final newItem = RoutineItem(
+      id: recitation.textId,
+      title: recitation.title,
+      type: RoutineItemType.recitation,
+    );
+
+    final resolved = _resolveInjectionTarget();
+    resolved.target.items.add(newItem);
+    if (resolved.isNewBlock) {
+      _blocks.add(resolved.target);
+    }
+    _sortBlocks();
+    return resolved.target;
+  }
+
   /// Syncs the block that contains [plan] after deep-link injection.
   void _syncInjectedPlan(Plan plan) {
     for (final block in _blocks) {
       if (block.items.any(
-        (i) => i.id == plan.id && i.type == RoutineItemType.plan,
+        (i) => i.id == plan.id && i.type == RoutineItemType.series,
       )) {
         _syncBlock(block).catchError((e) {
           if (mounted) _showErrorSnackBar(_mapError(e));
@@ -196,15 +225,12 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
     }
   }
 
-  /// Fetches all currently active plans for the just-enrolled series and
-  /// injects them into the routine. Plans whose start date is in the future
-  /// are excluded by the backend (`GET /users/me/plans?series_id=`), so the
-  /// client just trusts the result. Plans already in the routine are skipped.
+  /// Loads [seriesId] and injects the series into the routine if it is not
+  /// already present in any block.
   Future<void> _hydrateSeriesEnrollment(String seriesId) async {
     final language = ref.read(contentLanguageProvider);
-    final useCase = ref.read(getUserPlansUseCaseProvider);
-    final result = await useCase(
-      GetUserPlansParams(language: language, seriesId: seriesId),
+    final result = await ref.read(getSeriesByIdUseCaseProvider)(
+      GetSeriesByIdParams(id: seriesId, language: language),
     );
 
     if (!mounted) return;
@@ -212,20 +238,13 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
     result.fold(
       (failure) {
         _logger.warning(
-          '[SERIES-ENROLL-PREFILL] failed to fetch series plans: '
+          '[SERIES-ENROLL-PREFILL] failed to fetch series $seriesId: '
           '${failure.message}',
         );
         _showErrorSnackBar(failure.message);
       },
-      (response) {
-        if (response.userPlans.isEmpty) {
-          _logger.info(
-            '[SERIES-ENROLL-PREFILL] no active plans returned for series '
-            '$seriesId',
-          );
-          return;
-        }
-        final injectedBlock = _injectSeriesUserPlans(response.userPlans);
+      (series) {
+        final injectedBlock = _injectSeries(series);
         if (injectedBlock != null) {
           _syncBlock(injectedBlock).catchError((e) {
             if (mounted) _showErrorSnackBar(_mapError(e));
@@ -235,39 +254,25 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
     );
   }
 
-  /// Adds [plans] into the routine, reusing the earliest empty block (re-timed
+  /// Adds [series] into the routine, reusing the earliest empty block (re-timed
   /// to the user's current local time) or creating a new block at that time
-  /// with the standard 10-minute gap. Plans that already exist in any block
-  /// (by id + plan type) are skipped.
-  ///
-  /// Returns the affected block (to drive a follow-up server sync) or null
-  /// if every plan was already present.
-  _EditableBlock? _injectSeriesUserPlans(List<UserPlansModel> plans) {
-    final existingPlanIds = <String>{};
-    for (final b in _blocks) {
-      for (final item in b.items) {
-        if (item.type == RoutineItemType.plan) {
-          existingPlanIds.add(item.id);
-        }
-      }
-    }
+  /// with the standard 10-minute gap. Returns the affected block (to drive a
+  /// follow-up server sync) or null if the series is already present.
+  _EditableBlock? _injectSeries(Series series) {
+    final alreadyExists = _blocks.any(
+      (b) => b.items.any(
+        (item) => item.id == series.id && item.type == RoutineItemType.series,
+      ),
+    );
+    if (alreadyExists) return null;
 
-    final newItems = <RoutineItem>[];
-    for (final p in plans) {
-      if (existingPlanIds.contains(p.id)) continue;
-      newItems.add(
-        RoutineItem(
-          id: p.id,
-          title: p.title,
-          coverImage: p.coverImage,
-          type: RoutineItemType.plan,
-          enrolledAt: DateTime.now(),
-        ),
-      );
-      existingPlanIds.add(p.id);
-    }
-
-    if (newItems.isEmpty) return null;
+    final newItem = RoutineItem(
+      id: series.id,
+      title: series.title,
+      coverImage: series.coverImage,
+      type: RoutineItemType.series,
+      enrolledAt: DateTime.now(),
+    );
 
     late _EditableBlock target;
     setState(() {
@@ -276,7 +281,7 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
       if (resolved.isNewBlock) {
         _blocks.add(target);
       }
-      target.items.addAll(newItems);
+      target.items.add(newItem);
       _sortBlocks();
     });
 
@@ -649,13 +654,14 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
   }
 
   Future<void> _pickTime(int index) async {
-    final picked =
-        Platform.isIOS
-            ? await _showCupertinoTimePicker(initialTime: _blocks[index].time)
-            : await showTimePicker(
-              context: context,
-              initialTime: _blocks[index].time,
-            );
+    if (!mounted) return;
+    final initialTime = _blocks[index].time;
+    final TimeOfDay? picked;
+    if (Platform.isIOS) {
+      picked = await _showCupertinoTimePicker(initialTime: initialTime);
+    } else {
+      picked = await showTimePicker(context: context, initialTime: initialTime);
+    }
     if (picked != null) {
       final otherTimes =
           _blocks
@@ -1043,7 +1049,7 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
 
   Future<void> _addPlanToBlock(int blockIndex, Plan plan) async {
     final isDuplicate = _blocks[blockIndex].items.any(
-      (item) => item.id == plan.id && item.type == RoutineItemType.plan,
+      (item) => item.id == plan.id && item.type == RoutineItemType.series,
     );
     if (isDuplicate) {
       _logger.warning('Duplicate item prevented: ${plan.id}');
@@ -1062,7 +1068,7 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
       id: plan.id,
       title: plan.title,
       coverImage: plan.coverImage,
-      type: RoutineItemType.plan,
+      type: RoutineItemType.series,
       enrolledAt: DateTime.now(),
     );
     final block = _blocks[blockIndex];
@@ -1118,18 +1124,12 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
     }
   }
 
-  /// Enrolls the user in [series] (if not already enrolled) and injects the
-  /// series' currently-active plans (started, not future — the backend excludes
-  /// future plans by start date) into the tapped [blockIndex].
+  /// Enrolls the user in [series] (if not already enrolled) and adds the
+  /// series to the tapped [blockIndex].
   ///
-  /// Per-timeblock rule: if that block already contains every active plan of
-  /// the series, nothing is added and the user sees a duplicate notice. The
-  /// same series can still be added to other blocks that are missing plans.
-  ///
-  /// Auth guard: guests get the login drawer instead of an enroll attempt.
-  /// Re-enrollment guard: if the user is already enrolled, skip the POST and
-  /// go straight to injecting plans. `_isSelectingSession` already serializes
-  /// taps at the caller, so no extra in-flight flag is needed here.
+  /// Per-timeblock rule: if that block already contains the series, nothing is
+  /// added and the user sees a duplicate notice. The same series can still be
+  /// added to other blocks.
   Future<void> _handleSeriesEnrollmentFromSelection(
     int blockIndex,
     Series series,
@@ -1141,8 +1141,7 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
     }
 
     final seriesId = series.id;
-    final enrollments =
-        await ref.read(userSeriesEnrollmentsProvider.future);
+    final enrollments = await ref.read(userSeriesEnrollmentsProvider.future);
     if (!mounted) return;
     final alreadyEnrolled = enrollments.contains(seriesId);
 
@@ -1162,53 +1161,16 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
       }
     }
 
-    // Fetch the series' active plans (backend excludes future plans by start
-    // date) and inject the ones missing from the tapped block.
-    final result = await ref.read(getUserPlansUseCaseProvider)(
-      GetUserPlansParams(language: ref.read(contentLanguageProvider), seriesId: seriesId),
-    );
-    if (!mounted) return;
-
-    result.fold(
-      (failure) => _showErrorSnackBar(failure.message),
-      (response) => _injectSeriesPlansIntoBlock(blockIndex, response.userPlans),
-    );
+    await _addSeriesToBlock(blockIndex, series);
   }
 
-  /// Adds the series' active [plans] that are missing from the block at
-  /// [blockIndex]. If the block already holds all of them, shows a duplicate
-  /// notice and adds nothing (the series can still be added to other blocks).
-  Future<void> _injectSeriesPlansIntoBlock(
-    int blockIndex,
-    List<UserPlansModel> plans,
-  ) async {
-    if (plans.isEmpty) return;
+  Future<void> _addSeriesToBlock(int blockIndex, Series series) async {
     if (blockIndex < 0 || blockIndex >= _blocks.length) return;
-    final block = _blocks[blockIndex];
-
-    final existingPlanIds =
-        block.items
-            .where((i) => i.type == RoutineItemType.plan)
-            .map((i) => i.id)
-            .toSet();
-
-    final newItems = <RoutineItem>[];
-    for (final p in plans) {
-      if (existingPlanIds.contains(p.id)) continue;
-      newItems.add(
-        RoutineItem(
-          id: p.id,
-          title: p.title,
-          coverImage: p.coverImage,
-          type: RoutineItemType.plan,
-          enrolledAt: DateTime.now(),
-        ),
-      );
-    }
-
-    if (newItems.isEmpty) {
-      // Block already holds every active plan of the series → block re-add to
-      // THIS block. Mirrors the per-block duplicate guard used for plans.
+    final isDuplicate = _blocks[blockIndex].items.any(
+      (item) => item.id == series.id && item.type == RoutineItemType.series,
+    );
+    if (isDuplicate) {
+      _logger.warning('Duplicate item prevented: ${series.id}');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -1220,13 +1182,21 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
       return;
     }
 
-    setState(() => block.items.addAll(newItems));
+    final newItem = RoutineItem(
+      id: series.id,
+      title: series.title,
+      coverImage: series.coverImage,
+      type: RoutineItemType.series,
+      enrolledAt: DateTime.now(),
+    );
+    final block = _blocks[blockIndex];
+    setState(() => block.items.add(newItem));
 
     try {
       await _syncBlock(block);
     } catch (e) {
       if (mounted) {
-        setState(() => block.items.removeWhere(newItems.contains));
+        setState(() => block.items.remove(newItem));
         _showErrorSnackBar(_mapError(e));
       }
     }
@@ -1256,15 +1226,26 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
           // fires (e.g., a quick re-watch before hydration completes).
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (!mounted || _hydratedFromApi) return;
+            _EditableBlock? injectedRecitationBlock;
             setState(() {
               _hydratedFromApi = true;
               _applyInitialData(routineData);
               if (widget.initialPlan != null) {
                 _injectInitialPlan(widget.initialPlan!);
               }
+              if (widget.initialRecitation != null) {
+                injectedRecitationBlock = _injectInitialRecitation(
+                  widget.initialRecitation!,
+                );
+              }
             });
             if (widget.initialPlan != null) {
               _syncInjectedPlan(widget.initialPlan!);
+            }
+            if (injectedRecitationBlock != null) {
+              _syncBlock(injectedRecitationBlock!).catchError((e) {
+                if (mounted) _showErrorSnackBar(_mapError(e));
+              });
             }
             if (widget.enrollSeriesId != null && !_seriesEnrollmentHydrated) {
               _seriesEnrollmentHydrated = true;

@@ -14,6 +14,151 @@ import 'package:path_provider/path_provider.dart';
 import 'package:screenshot/screenshot.dart';
 import 'package:share_plus/share_plus.dart';
 
+/// Shareable streak preview rendered for screenshot capture.
+class StreakSharePreview extends StatelessWidget {
+  const StreakSharePreview({
+    super.key,
+    required this.streak,
+    required this.locale,
+  });
+
+  final StreakStats streak;
+  final Locale locale;
+
+  @override
+  Widget build(BuildContext context) {
+    final lightTheme = AppTheme.lightTheme(locale);
+
+    return Theme(
+      data: lightTheme,
+      child: Container(
+        color: AppColors.goldLight,
+        padding: const EdgeInsets.fromLTRB(14, 20, 14, 24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: double.infinity,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.grey[400]!),
+              ),
+              padding: const EdgeInsets.fromLTRB(24, 32, 24, 28),
+              child: StreakShareContent(streak: streak),
+            ),
+            const SizedBox(height: 24),
+            const VerseShareBranding(
+              logoSize: 32,
+              sharedFromFontSize: 12,
+              appTitleFontSize: 14,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Captures and shares a streak image.
+Future<void> shareStreakQuote(
+  BuildContext context, {
+  required StreakStats streak,
+  GlobalKey? shareOriginKey,
+  ScreenshotController? screenshotController,
+}) async {
+  File? tempFile;
+  try {
+    final Uint8List? imageBytes =
+        screenshotController != null
+            ? await screenshotController.capture(
+              delay: const Duration(milliseconds: 100),
+              pixelRatio: 3.0,
+            )
+            : await _captureStreakShareImage(context, streak);
+
+    if (imageBytes == null || !context.mounted) return;
+
+    final directory = await getTemporaryDirectory();
+    final imagePath =
+        '${directory.path}/streak_share_${DateTime.now().millisecondsSinceEpoch}.png';
+    tempFile = File(imagePath);
+    await tempFile.writeAsBytes(imageBytes);
+
+    if (!context.mounted) return;
+
+    final sharePositionOrigin = getSharePositionOrigin(
+      context: context,
+      globalKey: shareOriginKey,
+    );
+
+    await SharePlus.instance.share(
+      ShareParams(
+        files: [XFile(tempFile.path)],
+        sharePositionOrigin: sharePositionOrigin,
+      ),
+    );
+  } catch (e) {
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.me_streak_share_error),
+          behavior: SnackBarBehavior.floating,
+          backgroundColor: Colors.red[700],
+        ),
+      );
+    }
+  } finally {
+    if (tempFile != null && await tempFile.exists()) {
+      try {
+        await tempFile.delete();
+      } catch (_) {}
+    }
+  }
+}
+
+Future<Uint8List?> _captureStreakShareImage(
+  BuildContext context,
+  StreakStats streak,
+) async {
+  final screenshotController = ScreenshotController();
+  final locale = Localizations.localeOf(context);
+  final previewWidth = MediaQuery.sizeOf(context).width - 24;
+
+  final overlayState = Overlay.of(context, rootOverlay: true);
+  late OverlayEntry overlayEntry;
+
+  overlayEntry = OverlayEntry(
+    builder: (_) {
+      return Positioned(
+        left: -previewWidth * 2,
+        top: 0,
+        width: previewWidth,
+        child: IgnorePointer(
+          child: Screenshot(
+            controller: screenshotController,
+            child: StreakSharePreview(streak: streak, locale: locale),
+          ),
+        ),
+      );
+    },
+  );
+
+  overlayState.insert(overlayEntry);
+
+  try {
+    await WidgetsBinding.instance.endOfFrame;
+    await Future.delayed(const Duration(milliseconds: 300));
+
+    return await screenshotController.capture(
+      delay: const Duration(milliseconds: 100),
+      pixelRatio: 3.0,
+    );
+  } finally {
+    overlayEntry.remove();
+  }
+}
+
 class StreakShareSheet extends StatefulWidget {
   const StreakShareSheet({super.key, required this.streak});
 
@@ -32,53 +177,13 @@ class _StreakShareSheetState extends State<StreakShareSheet> {
     if (_isSharing) return;
 
     setState(() => _isSharing = true);
-
-    File? tempFile;
-    try {
-      final Uint8List? imageBytes = await _screenshotController.capture(
-        delay: const Duration(milliseconds: 100),
-        pixelRatio: 3.0,
-      );
-
-      if (imageBytes == null || !mounted) return;
-
-      final directory = await getTemporaryDirectory();
-      final imagePath =
-          '${directory.path}/streak_share_${DateTime.now().millisecondsSinceEpoch}.png';
-      tempFile = File(imagePath);
-      await tempFile.writeAsBytes(imageBytes);
-
-      if (!mounted) return;
-
-      final sharePositionOrigin = getSharePositionOrigin(
-        context: context,
-        globalKey: _shareButtonKey,
-      );
-
-      await SharePlus.instance.share(
-        ShareParams(
-          files: [XFile(tempFile.path)],
-          sharePositionOrigin: sharePositionOrigin,
-        ),
-      );
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(AppLocalizations.of(context)!.me_streak_share_error),
-            behavior: SnackBarBehavior.floating,
-            backgroundColor: Colors.red[700],
-          ),
-        );
-      }
-    } finally {
-      if (tempFile != null && await tempFile.exists()) {
-        try {
-          await tempFile.delete();
-        } catch (_) {}
-      }
-      if (mounted) setState(() => _isSharing = false);
-    }
+    await shareStreakQuote(
+      context,
+      streak: widget.streak,
+      shareOriginKey: _shareButtonKey,
+      screenshotController: _screenshotController,
+    );
+    if (mounted) setState(() => _isSharing = false);
   }
 
   @override
@@ -87,7 +192,6 @@ class _StreakShareSheetState extends State<StreakShareSheet> {
     final colorScheme = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final locale = Localizations.localeOf(context);
-    final lightTheme = AppTheme.lightTheme(locale);
 
     return Container(
       decoration: BoxDecoration(
@@ -111,34 +215,11 @@ class _StreakShareSheetState extends State<StreakShareSheet> {
             const SizedBox(height: 24),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 12),
-              child: Theme(
-                data: lightTheme,
-                child: Screenshot(
-                  controller: _screenshotController,
-                  child: Container(
-                    color: AppColors.goldLight,
-                    padding: const EdgeInsets.fromLTRB(14, 20, 14, 24),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Container(
-                          width: double.infinity,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          padding: const EdgeInsets.fromLTRB(24, 32, 24, 28),
-                          child: StreakShareContent(streak: widget.streak),
-                        ),
-                        const SizedBox(height: 24),
-                        const VerseShareBranding(
-                          logoSize: 32,
-                          sharedFromFontSize: 12,
-                          appTitleFontSize: 14,
-                        ),
-                      ],
-                    ),
-                  ),
+              child: Screenshot(
+                controller: _screenshotController,
+                child: StreakSharePreview(
+                  streak: widget.streak,
+                  locale: locale,
                 ),
               ),
             ),
@@ -195,12 +276,17 @@ class _StreakShareSheetState extends State<StreakShareSheet> {
   }
 }
 
+bool _isStreakShareSheetVisible = false;
+
 void showStreakShareSheet(BuildContext context, StreakStats streak) {
+  if (_isStreakShareSheetVisible) return;
+
+  _isStreakShareSheetVisible = true;
   showModalBottomSheet(
     context: context,
     backgroundColor: Colors.transparent,
     isScrollControlled: true,
     useRootNavigator: true,
     builder: (_) => StreakShareSheet(streak: streak),
-  );
+  ).whenComplete(() => _isStreakShareSheetVisible = false);
 }

@@ -13,6 +13,7 @@ import 'package:flutter_pecha/features/mala/data/repositories/mala_repository_im
 import 'package:flutter_pecha/features/mala/domain/entities/mantra.dart';
 import 'package:flutter_pecha/features/mala/domain/repositories/mala_repository.dart';
 import 'package:flutter_pecha/features/mala/domain/usecases/mala_usecases.dart';
+import 'package:flutter_pecha/features/mala/presentation/providers/accumulation_search_provider.dart';
 import 'package:flutter_pecha/features/mala/presentation/providers/mala_counter_notifier.dart';
 import 'package:flutter_pecha/features/mala/presentation/providers/mala_sync_manager.dart';
 import 'package:flutter_pecha/features/mala/presentation/services/mala_sound_player.dart';
@@ -33,7 +34,10 @@ final malaLocalDataSourceProvider = Provider<MalaLocalDataSource>((ref) {
 // ============ Repository ============
 
 final malaRepositoryProvider = Provider<MalaRepository>((ref) {
-  return MalaRepositoryImpl(remote: ref.watch(malaRemoteDataSourceProvider));
+  return MalaRepositoryImpl(
+    remote: ref.watch(malaRemoteDataSourceProvider),
+    local: ref.watch(malaLocalDataSourceProvider),
+  );
 });
 
 // ============ Use cases ============
@@ -44,18 +48,23 @@ final getCatalogueUseCaseProvider = Provider<GetCatalogueUseCase>((ref) {
 
 final getAccumulatorDetailUseCaseProvider =
     Provider<GetAccumulatorDetailUseCase>((ref) {
-  return GetAccumulatorDetailUseCase(ref.watch(malaRepositoryProvider));
-});
+      return GetAccumulatorDetailUseCase(ref.watch(malaRepositoryProvider));
+    });
 
 final createUserAccumulatorUseCaseProvider =
     Provider<CreateUserAccumulatorUseCase>((ref) {
-  return CreateUserAccumulatorUseCase(ref.watch(malaRepositoryProvider));
-});
+      return CreateUserAccumulatorUseCase(ref.watch(malaRepositoryProvider));
+    });
 
 final updateUserAccumulatorUseCaseProvider =
     Provider<UpdateUserAccumulatorUseCase>((ref) {
-  return UpdateUserAccumulatorUseCase(ref.watch(malaRepositoryProvider));
-});
+      return UpdateUserAccumulatorUseCase(ref.watch(malaRepositoryProvider));
+    });
+
+final deleteUserAccumulatorUseCaseProvider =
+    Provider<DeleteUserAccumulatorUseCase>((ref) {
+      return DeleteUserAccumulatorUseCase(ref.watch(malaRepositoryProvider));
+    });
 
 // ============ Auth helpers ============
 
@@ -99,8 +108,9 @@ final malaSyncManagerProvider = Provider<MalaSyncManager>((ref) {
 
 // ============ Catalogue ============
 
-final malaCatalogueProvider =
-    FutureProvider<Either<Failure, List<Mantra>>>((ref) async {
+final malaCatalogueProvider = FutureProvider<Either<Failure, List<Mantra>>>((
+  ref,
+) async {
   if (!_isAuthenticated(ref)) {
     return const Left(AuthenticationFailure('Not authenticated'));
   }
@@ -108,6 +118,18 @@ final malaCatalogueProvider =
   final language = ref.watch(localeProvider).languageCode;
   return ref.watch(getCatalogueUseCaseProvider)(language);
 });
+
+// ============ Catalogue search (debounced, server-side) ============
+
+final accumulationSearchProvider =
+    StateNotifierProvider<AccumulationSearchNotifier, AccumulationSearchState>((
+      ref,
+    ) {
+      return AccumulationSearchNotifier(
+        repository: ref.watch(malaRepositoryProvider),
+        languageCode: ref.watch(localeProvider).languageCode,
+      );
+    });
 
 // ============ Bead-tap sound ============
 
@@ -124,13 +146,16 @@ final malaSoundPlayerProvider = Provider.autoDispose<MalaSoundPlayer>((ref) {
 
 final malaCounterProvider = StateNotifierProvider.autoDispose
     .family<MalaCounterNotifier, MalaCounterState, Mantra>((ref, mantra) {
-  return MalaCounterNotifier(
-    mantra: mantra,
-    local: ref.watch(malaLocalDataSourceProvider),
-    getAccumulatorDetail: ref.watch(getAccumulatorDetailUseCaseProvider),
-    sync: ref.watch(malaSyncManagerProvider),
-    currentUserId: () => _resolveUserId(ref),
-    analytics: ref.watch(analyticsServiceProvider),
-    sound: ref.watch(malaSoundPlayerProvider),
-  );
-});
+      return MalaCounterNotifier(
+        mantra: mantra,
+        local: ref.watch(malaLocalDataSourceProvider),
+        getAccumulatorDetail: ref.watch(getAccumulatorDetailUseCaseProvider),
+        deleteUserAccumulator: ref.watch(deleteUserAccumulatorUseCaseProvider),
+        downloadImageBytes:
+            ref.watch(malaRemoteDataSourceProvider).fetchImageBytes,
+        sync: ref.watch(malaSyncManagerProvider),
+        currentUserId: () => _resolveUserId(ref),
+        analytics: ref.watch(analyticsServiceProvider),
+        sound: ref.watch(malaSoundPlayerProvider),
+      );
+    });

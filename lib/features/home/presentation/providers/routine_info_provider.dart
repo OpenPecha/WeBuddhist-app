@@ -4,15 +4,15 @@ import 'package:flutter_pecha/features/home/domain/entities/routine_info.dart';
 import 'package:flutter_pecha/features/home/presentation/providers/use_case_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fpdart/fpdart.dart';
-import 'package:flutter_pecha/shared/domain/base_classes/usecase.dart';
 
-final routineInfoFutureProvider =
-    FutureProvider<Either<Failure, RoutineInfo>>((ref) async {
+final routineInfoFutureProvider = StreamProvider<Either<Failure, RoutineInfo>>((
+  ref,
+) {
   final auth = ref.watch(authProvider);
   if (auth.isLoading || !auth.isLoggedIn || auth.isGuest) {
-    return const Left(AuthenticationFailure('Not authenticated'));
+    return Stream.value(const Left(AuthenticationFailure('Not authenticated')));
   }
 
-  final useCase = ref.watch(getRoutineInfoUseCaseProvider);
-  return useCase(const NoParams());
+  final repository = ref.watch(routineInfoDomainRepositoryProvider);
+  return repository.watchRoutineInfo();
 });

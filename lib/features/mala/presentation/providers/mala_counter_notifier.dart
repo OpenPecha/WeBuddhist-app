@@ -1,3 +1,5 @@
+import 'dart:async';
+import 'dart:convert';
 import 'dart:math';
 
 import 'package:flutter/services.dart';
@@ -17,7 +19,9 @@ class MalaCounterState {
     this.beadsPerRound = kBeadsPerRound,
     this.isSeeding = true,
     this.seedFailed = false,
+    this.isResetting = false,
     this.beadImageUrl,
+    this.beadImageBytes,
   });
 
   final int total;
@@ -26,12 +30,17 @@ class MalaCounterState {
   /// Per-user bead artwork from the accumulator detail. Null falls back to the
   /// preset/mantra image (see the screen's `?? mantra.beadImageUrl`).
   final String? beadImageUrl;
+  final Uint8List? beadImageBytes;
 
-  /// True until the server seed completes — taps are blocked while seeding.
+  /// True until local seed finishes. Network seed continues in the background.
   final bool isSeeding;
 
-  /// Seed could not reach the server; show a retry affordance, keep blocking.
+  /// User id could not be resolved; counting cannot be persisted safely.
   final bool seedFailed;
+
+  /// True while a reset is in progress. Blocks [incrementBead] so taps cannot
+  /// arrive between the server DELETE and the local clearSession wipe.
+  final bool isResetting;
 
   int get beadInRound => total % beadsPerRound;
 
@@ -43,15 +52,18 @@ class MalaCounterState {
     int? beadsPerRound,
     bool? isSeeding,
     bool? seedFailed,
+    bool? isResetting,
     String? beadImageUrl,
-  }) =>
-      MalaCounterState(
-        total: total ?? this.total,
-        beadsPerRound: beadsPerRound ?? this.beadsPerRound,
-        isSeeding: isSeeding ?? this.isSeeding,
-        seedFailed: seedFailed ?? this.seedFailed,
-        beadImageUrl: beadImageUrl ?? this.beadImageUrl,
-      );
+    Uint8List? beadImageBytes,
+  }) => MalaCounterState(
+    total: total ?? this.total,
+    beadsPerRound: beadsPerRound ?? this.beadsPerRound,
+    isSeeding: isSeeding ?? this.isSeeding,
+    seedFailed: seedFailed ?? this.seedFailed,
+    isResetting: isResetting ?? this.isResetting,
+    beadImageUrl: beadImageUrl ?? this.beadImageUrl,
+    beadImageBytes: beadImageBytes ?? this.beadImageBytes,
+  );
 }
 
 /// Per-mantra monotonic counter. Seeds from the server before enabling taps,
@@ -62,24 +74,30 @@ class MalaCounterNotifier extends StateNotifier<MalaCounterState> {
     required Mantra mantra,
     required MalaLocalDataSource local,
     required GetAccumulatorDetailUseCase getAccumulatorDetail,
+    required DeleteUserAccumulatorUseCase deleteUserAccumulator,
+    Future<List<int>> Function(String url)? downloadImageBytes,
     required MalaSyncManager sync,
     required Future<String?> Function() currentUserId,
     AnalyticsService? analytics,
     MalaSoundPlayer? sound,
-  })  : _mantra = mantra,
-        _local = local,
-        _getAccumulatorDetail = getAccumulatorDetail,
-        _sync = sync,
-        _currentUserId = currentUserId,
-        _analytics = analytics,
-        _sound = sound,
-        super(MalaCounterState(beadsPerRound: mantra.beadsPerRound)) {
+  }) : _mantra = mantra,
+       _local = local,
+       _getAccumulatorDetail = getAccumulatorDetail,
+       _deleteUserAccumulator = deleteUserAccumulator,
+       _downloadImageBytes = downloadImageBytes ?? _emptyImageDownload,
+       _sync = sync,
+       _currentUserId = currentUserId,
+       _analytics = analytics,
+       _sound = sound,
+       super(MalaCounterState(beadsPerRound: mantra.beadsPerRound)) {
     seed();
   }
 
   final Mantra _mantra;
   final MalaLocalDataSource _local;
   final GetAccumulatorDetailUseCase _getAccumulatorDetail;
+  final DeleteUserAccumulatorUseCase _deleteUserAccumulator;
+  final Future<List<int>> Function(String url) _downloadImageBytes;
   final MalaSyncManager _sync;
   final Future<String?> Function() _currentUserId;
   final AnalyticsService? _analytics;
@@ -87,14 +105,15 @@ class MalaCounterNotifier extends StateNotifier<MalaCounterState> {
 
   final _logger = AppLogger('MalaCounterNotifier');
 
-  /// The user id resolved during a successful seed. Cached so the synchronous
-  /// [incrementBead] can persist taps without re-resolving — taps are blocked
-  /// until seeding completes, so this is always set by the time it's read.
+  /// The user id resolved during seed. Cached so the synchronous [incrementBead]
+  /// can persist taps without re-resolving.
   String? _userId;
 
   String get _presetId => _mantra.presetId;
 
-  /// Fetch the server total and seed local before allowing any taps.
+  static Future<List<int>> _emptyImageDownload(String _) async => const [];
+
+  /// Seed local state first, then reconcile remote state when available.
   Future<void> seed() async {
     state = state.copyWith(isSeeding: true, seedFailed: false);
 
@@ -107,11 +126,17 @@ class MalaCounterNotifier extends StateNotifier<MalaCounterState> {
     }
     _userId = userId;
 
-    // Surface the cached bead image right away so the strand renders correctly
-    // offline / before the network seed returns.
-    final cachedImage = _local.read(userId, _presetId).beadImageUrl;
-    if (cachedImage != null && cachedImage.isNotEmpty) {
-      state = state.copyWith(beadImageUrl: cachedImage);
+    final localState = _local.read(userId, _presetId);
+    final fallbackImageUrl = localState.beadImageUrl ?? _mantra.beadImageUrl;
+    state = state.copyWith(
+      total: localState.total,
+      isSeeding: false,
+      seedFailed: false,
+      beadImageUrl: fallbackImageUrl,
+      beadImageBytes: localState.beadImageBytes,
+    );
+    if (localState.beadImageBytes == null && fallbackImageUrl != null) {
+      unawaited(_storeBeadImage(userId, fallbackImageUrl));
     }
 
     final result = await _getAccumulatorDetail(_presetId);
@@ -119,25 +144,36 @@ class MalaCounterNotifier extends StateNotifier<MalaCounterState> {
     result.fold(
       (failure) {
         _logger.warning('Seed failed: ${failure.message}');
-        // Prefer blocking with a retry over risking a low send.
-        state = state.copyWith(isSeeding: true, seedFailed: true);
+        // Local counting stays enabled; dirty counts retry via sync manager.
+        unawaited(_sync.flush(SyncReason.launch));
       },
       (detail) {
-        // detail.accumulatorId is null when the user has no accumulator yet.
+        // detail.accumulatorId is null when the user has no active accumulator
+        // (fresh install, or after reset soft-deletes the session record).
+        // detail.total maps to API `current_count` (active session), not
+        // `total_counted` (lifetime across soft-deleted sessions).
         final serverTotal = detail.total;
         final serverAccId = detail.accumulatorId;
 
         final localState = _local.read(userId, _presetId);
-        final total = max(localState.total, serverTotal);
+        // Reconcile with the server only when an active accumulator exists.
+        // Without one, ignore a stale current_count so a post-reset re-entry
+        // cannot resurrect the old on-screen tally.
+        final total =
+            serverAccId != null
+                ? max(localState.total, serverTotal)
+                : localState.total;
+        final syncedTotal = serverAccId != null ? serverTotal : 0;
 
+        final beadImageUrl = detail.beadImageUrl ?? localState.beadImageUrl;
         _local.write(
           userId,
           _presetId,
           localState.copyWith(
             total: total,
-            syncedTotal: serverTotal,
+            syncedTotal: syncedTotal,
             accumulatorId: serverAccId ?? localState.accumulatorId,
-            beadImageUrl: detail.beadImageUrl,
+            beadImageUrl: beadImageUrl,
           ),
         );
 
@@ -145,18 +181,48 @@ class MalaCounterNotifier extends StateNotifier<MalaCounterState> {
           total: total,
           isSeeding: false,
           seedFailed: false,
-          beadImageUrl: detail.beadImageUrl,
+          beadImageUrl: beadImageUrl,
+          beadImageBytes: localState.beadImageBytes,
         );
+        if (beadImageUrl != null) {
+          unawaited(_storeBeadImage(userId, beadImageUrl));
+        }
 
         // Push any offline tail captured before this seed.
-        if (total > serverTotal) _sync.flush(SyncReason.launch);
+        if (total > syncedTotal) unawaited(_sync.flush(SyncReason.launch));
       },
     );
   }
 
-  /// +1 recitation. No-op while seeding. Monotonic — never decrements.
-  void incrementBead() {
-    if (state.isSeeding) return;
+  Future<void> _storeBeadImage(String userId, String imageUrl) async {
+    try {
+      final bytes = await _downloadImageBytes(imageUrl);
+      if (bytes.isEmpty) return;
+      final current = _local.read(userId, _presetId);
+      await _local.write(
+        userId,
+        _presetId,
+        current.copyWith(
+          beadImageUrl: imageUrl,
+          beadImageBase64: base64Encode(bytes),
+        ),
+      );
+      if (!mounted) return;
+      state = state.copyWith(
+        beadImageUrl: imageUrl,
+        beadImageBytes: Uint8List.fromList(bytes),
+      );
+    } catch (e) {
+      _logger.warning('Failed to store mala bead image locally: $e');
+    }
+  }
+
+  /// +1 recitation. No-op while seeding or resetting. Monotonic — never decrements.
+  void incrementBead({
+    required bool soundEnabled,
+    required bool vibrationEnabled,
+  }) {
+    if (state.isSeeding || state.isResetting) return;
 
     final userId = _userId;
     if (userId == null || userId.isEmpty) return;
@@ -167,10 +233,12 @@ class MalaCounterNotifier extends StateNotifier<MalaCounterState> {
     state = state.copyWith(total: newTotal);
     _local.recordTap(userId, _presetId);
 
-    _sound?.play();
-    HapticFeedback.lightImpact();
+    if (soundEnabled) _sound?.play();
+    if (vibrationEnabled) {
+      HapticFeedback.lightImpact();
+      if (roundComplete) HapticFeedback.mediumImpact();
+    }
     if (roundComplete) {
-      HapticFeedback.mediumImpact();
       _analytics?.track(
         AnalyticsEvents.malaRoundCompleted,
         properties: {'accumulatorId': _presetId, 'rounds': state.rounds},
@@ -180,10 +248,40 @@ class MalaCounterNotifier extends StateNotifier<MalaCounterState> {
     _sync.onTap(roundComplete: roundComplete);
   }
 
+  /// Resets the on-screen session to zero by soft-deleting the active server
+  /// accumulator (`DELETE /accumulators/user/{id}`). Unsynced taps are flushed
+  /// first. Returns false on failure.
+  Future<bool> resetCount() async {
+    if (state.isSeeding || state.isResetting) return false;
+
+    final userId = _userId;
+    if (userId == null || userId.isEmpty) return false;
+
+    state = state.copyWith(isResetting: true);
+    try {
+      await _sync.resetAccumulator(
+        _presetId,
+        deleteAccumulator: _deleteUserAccumulator,
+      );
+      if (!mounted) return false;
+      final localState = _local.read(userId, _presetId);
+      state = state.copyWith(
+        total: 0,
+        isResetting: false,
+        beadImageUrl: localState.beadImageUrl ?? state.beadImageUrl,
+      );
+      return true;
+    } catch (e, st) {
+      _logger.warning('Reset failed: $e', e, st);
+      if (mounted) state = state.copyWith(isResetting: false);
+      return false;
+    }
+  }
+
   @override
   void dispose() {
     // Best-effort flush of this mantra's tail as the screen leaves.
-    _sync.flush(SyncReason.screenLeave);
+    unawaited(_sync.flush(SyncReason.screenLeave));
     super.dispose();
   }
 }

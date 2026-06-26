@@ -15,7 +15,7 @@ class StreakShareContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -40,7 +40,7 @@ class StreakShareContent extends StatelessWidget {
               style: const TextStyle(
                 fontSize: 28,
                 fontWeight: FontWeight.w700,
-                color: Colors.black87,
+                color: AppColors.brandblue,
               ),
             ),
           ],
@@ -48,9 +48,9 @@ class StreakShareContent extends StatelessWidget {
         const SizedBox(height: 8),
         Text(
           l10n.me_best_streak(streak.highest),
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 14,
-            color: AppColors.grey600,
+            color: isDark ? AppColors.grey600 : Colors.black,
           ),
         ),
         const SizedBox(height: 28),

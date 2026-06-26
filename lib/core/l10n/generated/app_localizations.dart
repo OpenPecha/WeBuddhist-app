@@ -256,6 +256,18 @@ abstract class AppLocalizations {
   /// **'plans'**
   String get home_plans;
 
+  /// No description provided for @home_plans_count.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} plans'**
+  String home_plans_count(int count);
+
+  /// No description provided for @home_recitation_count.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} recitations'**
+  String home_recitation_count(int count);
+
   /// No description provided for @home_shortcut_plans.
   ///
   /// In en, this message translates to:
@@ -273,6 +285,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Mala'**
   String get home_mala;
+
+  /// No description provided for @mala_add_to_practice.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to my practices'**
+  String get mala_add_to_practice;
+
+  /// No description provided for @mala_add_to_bookmark.
+  ///
+  /// In en, this message translates to:
+  /// **'Bookmark'**
+  String get mala_add_to_bookmark;
+
+  /// No description provided for @mala_sound.
+  ///
+  /// In en, this message translates to:
+  /// **'Sound'**
+  String get mala_sound;
+
+  /// No description provided for @mala_vibration.
+  ///
+  /// In en, this message translates to:
+  /// **'Vibration'**
+  String get mala_vibration;
+
+  /// No description provided for @mala_reset_count.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset count'**
+  String get mala_reset_count;
+
+  /// No description provided for @mala_reset_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset this mala?'**
+  String get mala_reset_title;
+
+  /// No description provided for @mala_reset_count_confirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Your current count will go back to zero, but your accumulations will stay in your lifetime total.'**
+  String get mala_reset_count_confirm;
+
+  /// No description provided for @mala_reset_confirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset'**
+  String get mala_reset_confirm;
+
+  /// No description provided for @mala_action_coming_soon.
+  ///
+  /// In en, this message translates to:
+  /// **'Coming soon'**
+  String get mala_action_coming_soon;
+
+  /// No description provided for @mala_rounds_count.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{0 rounds} =1{1 round} other{{count} rounds}}'**
+  String mala_rounds_count(int count);
+
+  /// No description provided for @mala_counter_semantics.
+  ///
+  /// In en, this message translates to:
+  /// **'Count {bead} of {total}, {rounds}'**
+  String mala_counter_semantics(int bead, int total, String rounds);
 
   /// No description provided for @home_timer.
   ///
@@ -399,6 +477,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Commentaries'**
   String get text_commentary;
+
+  /// No description provided for @resources.
+  ///
+  /// In en, this message translates to:
+  /// **'Resources'**
+  String get resources;
+
+  /// No description provided for @tools.
+  ///
+  /// In en, this message translates to:
+  /// **'Tools'**
+  String get tools;
 
   /// No description provided for @no_translation.
   ///
@@ -1027,7 +1117,7 @@ abstract class AppLocalizations {
   /// No description provided for @connect_subtitle.
   ///
   /// In en, this message translates to:
-  /// **'Find groups and practice together'**
+  /// **'Find your groups and practice together'**
   String get connect_subtitle;
 
   /// No description provided for @discover_groups.
@@ -1063,7 +1153,7 @@ abstract class AppLocalizations {
   /// No description provided for @connect_groups_empty_subtitle.
   ///
   /// In en, this message translates to:
-  /// **'no more groups to join'**
+  /// **'Congratulations, you\'ve joined all our groups! Check back soon. New ones are on the way'**
   String get connect_groups_empty_subtitle;
 
   /// No description provided for @search_groups.
@@ -1081,7 +1171,7 @@ abstract class AppLocalizations {
   /// No description provided for @no_groups_found.
   ///
   /// In en, this message translates to:
-  /// **'No groups found'**
+  /// **'No matching groups found'**
   String get no_groups_found;
 
   /// No description provided for @explore_coming_soon_subtitle.
@@ -1372,6 +1462,12 @@ abstract class AppLocalizations {
   /// **'Share'**
   String get share;
 
+  /// No description provided for @bookmark.
+  ///
+  /// In en, this message translates to:
+  /// **'Bookmark'**
+  String get bookmark;
+
   /// No description provided for @image.
   ///
   /// In en, this message translates to:
@@ -1629,6 +1725,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'My practices'**
   String get routine_title;
+
+  /// No description provided for @bookmarks.
+  ///
+  /// In en, this message translates to:
+  /// **'Bookmarks'**
+  String get bookmarks;
 
   /// No description provided for @routine_empty_title.
   ///
@@ -2389,13 +2491,37 @@ abstract class AppLocalizations {
   /// No description provided for @me_best_streak.
   ///
   /// In en, this message translates to:
-  /// **'Best streak: {count} days'**
+  /// **'Longest streak: {count} days'**
   String me_best_streak(int count);
+
+  /// No description provided for @accumulations.
+  ///
+  /// In en, this message translates to:
+  /// **'Accumulations'**
+  String get accumulations;
+
+  /// No description provided for @accumulations_search.
+  ///
+  /// In en, this message translates to:
+  /// **'Search for accumulations...'**
+  String get accumulations_search;
+
+  /// No description provided for @accumulations_search_for.
+  ///
+  /// In en, this message translates to:
+  /// **'Search for accumulations'**
+  String get accumulations_search_for;
+
+  /// No description provided for @accumulations_no_found.
+  ///
+  /// In en, this message translates to:
+  /// **'No accumulations found'**
+  String get accumulations_no_found;
 
   /// No description provided for @me_accumulation.
   ///
   /// In en, this message translates to:
-  /// **'Accumulation'**
+  /// **'Total accumulations'**
   String get me_accumulation;
 
   /// No description provided for @me_counts.
@@ -2410,10 +2536,22 @@ abstract class AppLocalizations {
   /// **'minutes'**
   String get me_minutes;
 
+  /// No description provided for @me_hours.
+  ///
+  /// In en, this message translates to:
+  /// **'hours'**
+  String get me_hours;
+
+  /// No description provided for @me_total_meditation_time.
+  ///
+  /// In en, this message translates to:
+  /// **'Total meditation time'**
+  String get me_total_meditation_time;
+
   /// No description provided for @me_days_plan_practiced_suffix.
   ///
   /// In en, this message translates to:
-  /// **'days plan practiced'**
+  /// **'Total plan days completed'**
   String get me_days_plan_practiced_suffix;
 
   /// No description provided for @me_streak_share_message.
@@ -2425,7 +2563,7 @@ abstract class AppLocalizations {
   /// No description provided for @me_streak_share_quote.
   ///
   /// In en, this message translates to:
-  /// **'My daily practice is growing'**
+  /// **'My current streak on WeBuddhist!'**
   String get me_streak_share_quote;
 
   /// No description provided for @me_streak_days_count.
@@ -2437,7 +2575,7 @@ abstract class AppLocalizations {
   /// No description provided for @share_this_streak.
   ///
   /// In en, this message translates to:
-  /// **'Share this streak'**
+  /// **'Share my streak'**
   String get share_this_streak;
 
   /// No description provided for @me_streak_share_error.
@@ -2649,6 +2787,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Unable to share quote. Please try again'**
   String get verse_share_error;
+
+  /// No description provided for @weekday_monday.
+  ///
+  /// In en, this message translates to:
+  /// **'MON'**
+  String get weekday_monday;
+
+  /// No description provided for @weekday_tuesday.
+  ///
+  /// In en, this message translates to:
+  /// **'TUE'**
+  String get weekday_tuesday;
+
+  /// No description provided for @weekday_wednesday.
+  ///
+  /// In en, this message translates to:
+  /// **'WED'**
+  String get weekday_wednesday;
+
+  /// No description provided for @weekday_thursday.
+  ///
+  /// In en, this message translates to:
+  /// **'THU'**
+  String get weekday_thursday;
+
+  /// No description provided for @weekday_friday.
+  ///
+  /// In en, this message translates to:
+  /// **'FRI'**
+  String get weekday_friday;
+
+  /// No description provided for @weekday_saturday.
+  ///
+  /// In en, this message translates to:
+  /// **'SAT'**
+  String get weekday_saturday;
+
+  /// No description provided for @weekday_sunday.
+  ///
+  /// In en, this message translates to:
+  /// **'SUN'**
+  String get weekday_sunday;
 }
 
 class _AppLocalizationsDelegate

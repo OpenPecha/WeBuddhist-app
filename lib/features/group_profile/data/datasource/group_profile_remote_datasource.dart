@@ -69,17 +69,14 @@ class GroupProfileRemoteDatasource {
       final response = await dio.get(
         path,
         queryParameters: {'group_id': groupId, 'skip': 0, 'limit': 20},
-        options: Options(extra: {'no_cache': true}),
+        options: Options(
+          extra: {'no_cache': true},
+          validateStatus: (status) => status == 200 || status == 404,
+        ),
       );
 
-      if (response.statusCode == 200) {
-        return true;
-      }
-      return false;
+      return response.statusCode == 200;
     } on DioException catch (e) {
-      if (e.response?.statusCode == 404) {
-        return false;
-      }
       _logger.error('Dio error in checkFollowStatus', e);
       throw _dioToException(
         e,

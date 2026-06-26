@@ -5,7 +5,9 @@ import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/core/widgets/skeletons/skeletons.dart';
 import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
 import 'package:flutter_pecha/features/auth/presentation/widgets/login_drawer.dart';
+import 'package:flutter_pecha/features/home/presentation/providers/series_provider.dart';
 import 'package:flutter_pecha/features/plans/data/utils/plan_utils.dart';
+import 'package:flutter_pecha/features/plans/data/utils/series_plan_utils.dart';
 import 'package:flutter_pecha/features/plans/domain/entities/plan.dart';
 import 'package:flutter_pecha/features/plans/presentation/providers/plan_days_providers.dart';
 import 'package:flutter_pecha/features/plans/data/models/plan_days_model.dart';
@@ -25,9 +27,14 @@ import 'preview_activity_list.dart';
 /// - Has no task toggle functionality (read-only preview)
 /// - Has "Start Reading" button to begin reading without enrolling
 class PlanPreviewDetails extends ConsumerStatefulWidget {
-  const PlanPreviewDetails({super.key, required this.plan});
+  const PlanPreviewDetails({
+    super.key,
+    required this.plan,
+    this.seriesId,
+  });
 
   final Plan plan;
+  final String? seriesId;
 
   @override
   ConsumerState<PlanPreviewDetails> createState() => _PlanPreviewDetailsState();
@@ -70,7 +77,7 @@ class _PlanPreviewDetailsState extends ConsumerState<PlanPreviewDetails> {
     return routineData.blocks.any(
       (block) => block.items.any(
         (item) =>
-            item.id == widget.plan.id && item.type == RoutineItemType.plan,
+            item.id == widget.plan.id && item.type == RoutineItemType.series,
       ),
     );
   }
@@ -172,6 +179,8 @@ class _PlanPreviewDetailsState extends ConsumerState<PlanPreviewDetails> {
       language: language,
       days: days,
       selectedDay: selectedDay,
+      lockFutureDays: true,
+      previewUnlockDayCount: _firstPlanPreviewUnlockDayCount(ref),
       startDate: widget.plan.startDate ?? DateTime.now(),
       dayCompletionStatus: null, // No completion status in preview mode
       onDaySelected: (day) {
@@ -179,6 +188,42 @@ class _PlanPreviewDetailsState extends ConsumerState<PlanPreviewDetails> {
           selectedDay = day;
         });
       },
+    );
+  }
+
+  int _firstPlanPreviewUnlockDayCount(WidgetRef ref) {
+    final seriesId = widget.seriesId;
+    if (seriesId != null) {
+      final seriesAsync = ref.watch(seriesByIdProvider(seriesId));
+      return seriesAsync.when(
+        data:
+            (either) => either.fold(
+              (_) => _previewUnlockDayCountFromSeriesList(ref),
+              (series) => SeriesPlanUtils.previewUnlockDayCountForPlan(
+                widget.plan.id,
+                series: series,
+              ),
+            ),
+        loading: () => 0,
+        error: (_, __) => _previewUnlockDayCountFromSeriesList(ref),
+      );
+    }
+    return _previewUnlockDayCountFromSeriesList(ref);
+  }
+
+  int _previewUnlockDayCountFromSeriesList(WidgetRef ref) {
+    final seriesAsync = ref.watch(seriesListFutureProvider);
+    return seriesAsync.when(
+      data:
+          (either) => either.fold(
+            (_) => 0,
+            (seriesList) => SeriesPlanUtils.previewUnlockDayCountForPlan(
+              widget.plan.id,
+              seriesList: seriesList,
+            ),
+          ),
+      loading: () => 0,
+      error: (_, __) => 0,
     );
   }
 
@@ -202,6 +247,7 @@ class _PlanPreviewDetailsState extends ConsumerState<PlanPreviewDetails> {
                 (content) => PreviewActivityList(
                   language: language,
                   tasks: content.tasks ?? [],
+                  videos: content.videos,
                   today: selectedDay,
                   totalDays: widget.plan.totalDays,
                   planId: widget.plan.id,
@@ -276,9 +322,7 @@ class _AddToRoutineButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final backgroundColor =
-        isDark
-            ? AppColors.surfaceWhite
-            : AppColors.scaffoldBackgroundDark;
+        isDark ? AppColors.surfaceWhite : AppColors.scaffoldBackgroundDark;
     final foregroundColor =
         isDark ? AppColors.textPrimary : AppColors.textPrimaryDark;
 

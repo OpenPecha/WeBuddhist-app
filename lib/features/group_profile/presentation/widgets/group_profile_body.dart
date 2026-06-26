@@ -40,10 +40,18 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
   bool _isDescriptionExpanded = false;
   late TabController _tabController;
 
+  bool _hasAboutContent(GroupProfile profile) {
+    final descriptionLong = profile.descriptionLong?.trim();
+    return descriptionLong != null && descriptionLong.isNotEmpty;
+  }
+
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(
+      length: _hasAboutContent(widget.profile) ? 2 : 1,
+      vsync: this,
+    );
   }
 
   @override
@@ -106,7 +114,7 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
           const SizedBox(height: 20),
           _GroupFollowButton(profile: profile, isDark: isDark),
           const SizedBox(height: 24),
-          _buildTabBar(isDark),
+          _buildTabBar(isDark, _hasAboutContent(profile)),
           const SizedBox(height: 16),
           AnimatedBuilder(
             animation: _tabController,
@@ -133,33 +141,33 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          ClipOval(
-            child: SizedBox(
-              width: 44,
-              height: 44,
-              child:
-                  profile.avatarUrl != null && profile.avatarUrl!.isNotEmpty
-                      ? CachedNetworkImageWidget(
-                        key: ValueKey(profile.avatarUrl),
-                        imageUrl: profile.avatarUrl,
-                        width: 44,
-                        height: 44,
-                        fit: BoxFit.cover,
-                        errorWidget: _buildAvatarFallback(isDark),
-                      )
-                      : _buildAvatarFallback(isDark),
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if (profile.title.isNotEmpty)
-                  Text(
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              ClipOval(
+                child: SizedBox(
+                  width: 44,
+                  height: 44,
+                  child:
+                      profile.avatarUrl != null && profile.avatarUrl!.isNotEmpty
+                          ? CachedNetworkImageWidget(
+                            key: ValueKey(profile.avatarUrl),
+                            imageUrl: profile.avatarUrl,
+                            width: 44,
+                            height: 44,
+                            fit: BoxFit.cover,
+                            errorWidget: _buildAvatarFallback(isDark),
+                          )
+                          : _buildAvatarFallback(isDark),
+                ),
+              ),
+              const SizedBox(width: 12),
+              if (profile.title.isNotEmpty)
+                Expanded(
+                  child: Text(
                     profile.title,
                     style: TextStyle(
                       fontSize: 18,
@@ -167,27 +175,28 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
                       height: lineHeight,
                     ),
                   ),
-                if (profile.subTitle != null &&
-                    profile.subTitle!.trim().isNotEmpty) ...[
-                  const SizedBox(height: 2),
-                  Text(
-                    profile.subTitle!,
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: secondaryColor,
-                      height: lineHeight,
-                    ),
-                  ),
-                ],
-                const SizedBox(height: 4),
-                _GroupMemberCountText(
-                  groupType: profile.groupType,
-                  baseCount: profile.memberOrFollowerCount,
-                  isDark: isDark,
-                  lineHeight: lineHeight,
                 ),
-              ],
+            ],
+          ),
+          if (profile.subTitle != null &&
+              profile.subTitle!.trim().isNotEmpty) ...[
+            const SizedBox(height: 8),
+            Text(
+              profile.subTitle!,
+              style: TextStyle(
+                fontSize: 14,
+                color: secondaryColor,
+                height: lineHeight,
+              ),
             ),
+            const SizedBox(height: 4),
+          ] else
+            const SizedBox(height: 8),
+          _GroupMemberCountText(
+            groupType: profile.groupType,
+            baseCount: profile.memberOrFollowerCount,
+            isDark: isDark,
+            lineHeight: lineHeight,
           ),
         ],
       ),
@@ -283,7 +292,7 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
     );
   }
 
-  Widget _buildTabBar(bool isDark) {
+  Widget _buildTabBar(bool isDark, bool hasAbout) {
     final labelColor =
         isDark ? AppColors.textPrimaryDark : AppColors.textPrimary;
     final dividerColor = isDark ? AppColors.grey800 : AppColors.grey300;
@@ -306,7 +315,7 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
           ),
           tabs: [
             Tab(text: context.l10n.nav_practice),
-            Tab(text: context.l10n.about_title),
+            if (hasAbout) Tab(text: context.l10n.about_title),
           ],
         ),
         Divider(height: 1, thickness: 1, color: dividerColor),
@@ -511,12 +520,14 @@ class _GroupFollowButton extends ConsumerWidget {
     };
     final isLoading = followState is GroupFollowLoading;
     final isPage = profile.groupType.isPage;
+    const fontSize = 16.0;
+    final locale = Localizations.localeOf(context);
+    final isTibetan = context.isTibetanLocale;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
       child: SizedBox(
         width: double.infinity,
-        height: 48,
         child: ElevatedButton(
           onPressed:
               isLoading
@@ -524,6 +535,11 @@ class _GroupFollowButton extends ConsumerWidget {
                   : () =>
                       _onFollowPressed(context, ref, followKey, isFollowing),
           style: ElevatedButton.styleFrom(
+            minimumSize: Size(double.infinity, isTibetan ? 52 : 48),
+            padding: EdgeInsets.symmetric(
+              horizontal: 24,
+              vertical: isTibetan ? 10 : 12,
+            ),
             backgroundColor:
                 isFollowing
                     ? (isDark
@@ -552,9 +568,12 @@ class _GroupFollowButton extends ConsumerWidget {
                             ? context.l10n.following
                             : context.l10n.joined)
                         : (isPage ? context.l10n.follow : context.l10n.join),
-                    style: const TextStyle(
-                      fontSize: 16,
+                    textAlign: TextAlign.center,
+                    strutStyle: context.tibetanStrutStyle(fontSize),
+                    style: TextStyle(
+                      fontSize: fontSize,
                       fontWeight: FontWeight.w600,
+                      fontFamily: getSystemFontFamily(locale.languageCode),
                     ),
                   ),
         ),

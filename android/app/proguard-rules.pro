@@ -78,5 +78,7 @@
 -dontwarn com.google.android.play.core.tasks.OnSuccessListener
 -dontwarn com.google.android.play.core.tasks.Task
 
-
+## Airbridge (references Firebase Messaging for uninstall tracking)
+-keep class co.ab180.airbridge.** { *; }
+-keep class com.google.firebase.messaging.** { *; }
 

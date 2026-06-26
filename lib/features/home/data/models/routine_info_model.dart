@@ -16,6 +16,10 @@ class RoutineInfoModel {
     );
   }
 
+  Map<String, dynamic> toJson() {
+    return {'series_count': seriesCount, 'recitation_count': recitationCount};
+  }
+
   RoutineInfo toEntity() {
     return RoutineInfo(
       seriesCount: seriesCount,

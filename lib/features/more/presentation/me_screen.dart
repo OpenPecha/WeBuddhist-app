@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -6,9 +7,11 @@ import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
 import 'package:flutter_pecha/features/more/domain/entities/user_stats.dart';
+import 'package:flutter_pecha/features/more/presentation/providers/use_case_providers.dart';
 import 'package:flutter_pecha/features/more/presentation/providers/user_stats_provider.dart';
 import 'package:flutter_pecha/features/more/presentation/widgets/me_profile_header.dart';
 import 'package:flutter_pecha/features/more/presentation/widgets/me_stats_section.dart';
+import 'package:flutter_pecha/features/more/presentation/widgets/me_stats_section_skeleton.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -24,12 +27,18 @@ class MeScreen extends ConsumerWidget {
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         elevation: 0,
-        title: Text(
-          localizations.nav_me,
-          style: Theme.of(
-            context,
-          ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
+        automaticallyImplyLeading: false,
+        centerTitle: false,
+        title: Align(
+          alignment: Alignment.centerLeft,
+          child: Text(
+            localizations.nav_me,
+            style: Theme.of(
+              context,
+            ).textTheme.headlineLarge?.copyWith(fontWeight: FontWeight.bold),
+          ),
         ),
+
         actions: [
           IconButton(
             icon: Icon(
@@ -51,11 +60,48 @@ class MeScreen extends ConsumerWidget {
   }
 }
 
-class _LoggedInProfile extends ConsumerWidget {
+class _LoggedInProfile extends ConsumerStatefulWidget {
   const _LoggedInProfile();
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<_LoggedInProfile> createState() => _LoggedInProfileState();
+}
+
+class _LoggedInProfileState extends ConsumerState<_LoggedInProfile>
+    with WidgetsBindingObserver {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      _refreshStatsInBackground();
+    });
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _refreshStatsInBackground();
+    }
+  }
+
+  void _refreshStatsInBackground() {
+    unawaited(ref.read(userStatsRepositoryProvider).refreshUserStats());
+  }
+
+  Future<void> _refreshStats() async {
+    await ref.read(userStatsRepositoryProvider).refreshUserStats();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final user = ref.watch(userProvider).user;
     final statsAsync = ref.watch(userStatsFutureProvider);
 
@@ -69,25 +115,27 @@ class _LoggedInProfile extends ConsumerWidget {
     );
 
     return RefreshIndicator(
-      onRefresh: () async {
-        ref.invalidate(userStatsFutureProvider);
-        await ref.read(userStatsFutureProvider.future);
-      },
-      child: SingleChildScrollView(
-        physics: const AlwaysScrollableScrollPhysics(),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            MeProfileHeader(user: user),
-            if (statsAsync.isLoading)
-              const Padding(
-                padding: EdgeInsets.all(32),
-                child: Center(child: CircularProgressIndicator()),
-              )
-            else
-              MeStatsSection(stats: stats),
-          ],
-        ),
+      onRefresh: _refreshStats,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          return SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            child: ConstrainedBox(
+              constraints: BoxConstraints(minHeight: constraints.maxHeight),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  MeProfileHeader(user: user),
+                  if (statsAsync.isLoading && !statsAsync.hasValue)
+                    const MeStatsSectionSkeleton()
+                  else
+                    MeStatsSection(stats: stats),
+                  const SizedBox(height: 32),
+                ],
+              ),
+            ),
+          );
+        },
       ),
     );
   }

@@ -17,8 +17,11 @@ import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/features/notifications/application/notification_sync_bootstrap.dart';
 import 'package:flutter_pecha/features/notifications/application/notification_sync_engine.dart';
 import 'package:flutter_pecha/features/notifications/data/services/notification_service.dart';
+import 'package:flutter_pecha/features/home/data/datasource/home_local_datasource.dart';
+import 'package:flutter_pecha/features/home/presentation/providers/use_case_providers.dart';
 import 'package:flutter_pecha/features/mala/data/datasources/mala_local_datasource.dart';
 import 'package:flutter_pecha/features/mala/presentation/providers/mala_providers.dart';
+import 'package:flutter_pecha/features/more/data/datasource/user_stats_local_datasource.dart';
 import 'package:flutter_pecha/features/practice/data/datasource/routine_local_storage.dart';
 import 'package:flutter_pecha/features/practice/presentation/providers/practice_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -31,6 +34,8 @@ import 'core/localization/material_localizations_bo.dart';
 import 'core/localization/cupertino_localizations_bo.dart';
 import 'package:flutter_pecha/core/services/upgrade/force_update_gate.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:airbridge_flutter_sdk/airbridge_flutter_sdk.dart';
+import 'package:flutter_pecha/core/services/deep_link_service.dart';
 
 final _logger = AppLogger('Main');
 
@@ -122,6 +127,22 @@ void main() async {
     _logger.warning('Error initializing mala local storage: $e');
   }
 
+  // Initialize Home local storage (source of truth for local-first Home).
+  try {
+    await HomeLocalDatasource.init();
+    _logger.info('Home local storage initialized');
+  } catch (e) {
+    _logger.warning('Error initializing home local storage: $e');
+  }
+
+  // Initialize Me stats local storage (source of truth for local-first stats).
+  try {
+    await UserStatsLocalDatasource.init();
+    _logger.info('Me stats local storage initialized');
+  } catch (e) {
+    _logger.warning('Error initializing me stats local storage: $e');
+  }
+
   // Create provider container for routine storage
   final container = ProviderContainer(
     overrides: [routineLocalStorageProvider.overrideWithValue(routineStorage)],
@@ -130,9 +151,16 @@ void main() async {
   // Set container reference for notification navigation
   NotificationService.setContainer(container);
 
-  // Initialise deep link listener early so cold-start links are captured
-  // before runApp. The pending URI is held until the router is ready.
-  await DeepLinkService.instance.initialize();
+  // Initialize Airbridge deep link handler
+  try {
+    Airbridge.setOnDeeplinkReceived((url) {
+      _logger.info('Airbridge deep link received: $url');
+      DeepLinkService.storePendingDeepLink(url);
+    });
+    _logger.info('Airbridge deep link handler initialized');
+  } catch (e) {
+    _logger.warning('Error initializing Airbridge deep link handler: $e');
+  }
 
   runApp(UncontrolledProviderScope(container: container, child: const MyApp()));
 }
@@ -145,6 +173,8 @@ class MyApp extends ConsumerStatefulWidget {
 }
 
 class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
+  bool _hasProcessedDeepLink = false;
+
   @override
   void initState() {
     super.initState();
@@ -179,6 +209,17 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
     // final router = AppRouter().router;
     final router = ref.watch(appRouterProvider);
 
+    // Register the router with DeepLinkService on the first build so that:
+    //   a) any cold-start link buffered before the first frame is drained, and
+    //   b) links arriving while the app is already running are dispatched
+    //      immediately (handled inside storePendingDeepLink).
+    if (!_hasProcessedDeepLink) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        DeepLinkService.setRouter(router);
+      });
+      _hasProcessedDeepLink = true;
+    }
+
     // Initialize services in background via providers
     ref.watch(audioHandlerProvider);
     ref.watch(notificationServiceProvider);
@@ -190,6 +231,9 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
     // Mala background sync — kept alive for the app lifetime so offline counts
     // flush on lifecycle/connectivity triggers even off the mala screen.
     ref.watch(malaSyncManagerProvider);
+    // Home background sync — flushes pending local-first writes when
+    // connectivity returns.
+    ref.watch(homeSyncBootstrapProvider);
     NotificationService.setRouter(router);
     NotificationService().consumeLaunchNotification();
     DeepLinkService.instance.setRouter(router);
@@ -225,8 +269,9 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
         debugShowCheckedModeBanner: false,
         // routerConfig: router,
         routerConfig: router,
-        builder: (context, child) =>
-            ForceUpdateGate(child: child ?? const SizedBox.shrink()),
+        builder:
+            (context, child) =>
+                ForceUpdateGate(child: child ?? const SizedBox.shrink()),
       ),
     );
   }

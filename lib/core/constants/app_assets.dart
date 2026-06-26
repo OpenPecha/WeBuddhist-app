@@ -17,7 +17,7 @@ class AppAssets {
 
   // ========== AUDIO ==========
   static const String meditationSound = 'assets/audios/meditation.mp3';
-  static const String malaSound = 'assets/audios/mala-sound.wav';
+  static const String malaSound = 'assets/audios/mala.wav';
 
   // ========== LOGOS ==========
   static const String weBuddhistLogo = 'assets/images/webuddhist_gold.png';
@@ -85,6 +85,12 @@ class AppAssets {
   static const IconData list = PhosphorIconsRegular.list;
   static const IconData trash = PhosphorIconsRegular.trash;
   static const IconData fileText = PhosphorIconsRegular.fileText;
+  static const IconData bookmarkSimple = PhosphorIconsRegular.bookmarkSimple;
+  static const IconData speakerSimpleHigh =
+      PhosphorIconsRegular.speakerSimpleHigh;
+  static const IconData vibrate = PhosphorIconsRegular.vibrate;
+  static const IconData arrowCounterClockwise =
+      PhosphorIconsRegular.arrowCounterClockwise;
 
   // ========== NOTIFICATION ICONS ==========
   static const IconData bell = PhosphorIconsRegular.bell;
@@ -108,9 +114,9 @@ class AppAssets {
 
   // ========== HOME SHORTCUT ICONS ==========
   static const IconData homePlans = PhosphorIconsRegular.calendarDots;
-  static const IconData homeChants = PhosphorIconsRegular.bookOpenText;
-  static const IconData homeTimer = PhosphorIconsRegular.timer;
-  static const IconData homeList = PhosphorIconsRegular.listChecks;
+  static const IconData homeChants = PhosphorIconsBold.bookOpenText;
+  static const IconData homeTimer = PhosphorIconsBold.timer;
+  static const IconData homeList = PhosphorIconsBold.listChecks;
 
   // ========== GROUP & SERIES ICONS ==========
   static const IconData usersThree = PhosphorIconsRegular.usersThree;

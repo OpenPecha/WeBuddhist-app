@@ -34,6 +34,7 @@ class AppRoutes {
 
   // ========== PRACTICE SUB ROUTES ==========
   static const String practiceEditRoutine = '/practice/edit-routine';
+  static const String practiceMyPractices = '/practice/my-practices';
   static const String practicePlanPreview = '/practice/plans/preview';
 
   // ========== PLANS SUB ROUTES ==========
@@ -80,6 +81,7 @@ class AppRoutes {
     settings, // Guests can access settings (theme, language, notifications)
     texts,
     practice, // Guests can see empty practice screen
+    practiceMyPractices, // Guests can browse my practices empty state
     practicePlanPreview, // Allow guests to browse/preview plans
     reader,
     notifications, // Local-only — guests can configure routine notifications

@@ -25,9 +25,56 @@
   "home_recitation": "Уншлага",
   "home_overall_stats": "Нийт статистик",
   "home_plans": "Төлөвлөгөө",
+  "home_plans_count": "{count} Төлөвлөгөө",
+  "@home_plans_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "home_recitation_count": "{count} Уншлага",
+  "@home_recitation_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "home_shortcut_plans": "Төлөвлөгөө",
   "home_chants": "Магтаал",
   "home_mala": "Эрх",
+  "mala_add_to_practice": "Миний дадлагад нэмэх",
+  "mala_add_to_bookmark": "Хавчуурга",
+  "mala_sound": "Дуу",
+  "mala_vibration": "Чичиргээ",
+  "mala_reset_count": "Тооллогыг дахин тохируулах",
+  "mala_reset_title": "Энэ эрхийг дахин тохируулах уу?",
+  "mala_reset_count_confirm": "Одоогийн тооллого тэг болно, гэхдээ таны хуримтлал амьдралын нийт тоонд хадгалагдана.",
+  "mala_reset_confirm": "Дахин тохируулах",
+  "mala_action_coming_soon": "Удахгүй",
+  "mala_rounds_count": "{count, plural, =0{0 ээлж} =1{1 ээлж} other{{count} ээлж}}",
+  "@mala_rounds_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "mala_counter_semantics": "Тоол {bead}/{total}, {rounds}",
+  "@mala_counter_semantics": {
+    "placeholders": {
+      "bead": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      },
+      "rounds": {
+        "type": "String"
+      }
+    }
+  },
   "home_timer": "Цаг хэмжигч",
   "preset_timers": "Бэлэн тохируулсан цаг",
   "meditation_timer": "Бясалгалын цаг хэмжигч",
@@ -56,6 +103,8 @@
   "text_search": "Хайх",
   "text_toc_versions": "Хувилбарууд",
   "text_commentary": "Тайлбар",
+  "resources": "Нөөц",
+  "tools": "Хэрэгслүүд",
   "no_translation": "Орчуулга олдсонгүй",
   "text_close_commentary": "Тайлбар хаах",
   "show_more": "Илүү ихийг харах",
@@ -281,6 +330,7 @@
   "copy": "Хуулах",
   "copied": "Хууллаа",
   "share": "Хуваалцах",
+  "bookmark": "Хавчууруулга",
   "image": "Зураг",
   "feedback": "Санал хүсэлт",
   "author": "Зохиогч",
@@ -380,6 +430,7 @@
   "common_ok": "За",
   "comingSoonHeadline": "Удахгүй",
   "routine_title": "Миний дадлагууд",
+  "bookmarks": "Хавчуурга",
   "routine_empty_title": "Дадлагууд",
   "routine_edit": "Засах",
   "routine_empty_description": "Хэвшилдээ нэмэхийн тулд илүү олон сургаал, дадлагыг судал",
@@ -580,8 +631,8 @@
   "about_social_website": "Вэбсайт",
   "me_guest_headline": "Бүрэн боломжийг нээ",
   "me_guest_subtitle": "Ахицаа хадгалахын тулд үнэгүй бүртгэл үүсгэнэ үү",
-  "me_my_stats": "My stats",
-  "me_day_streak": "{count}-day streak",
+  "me_my_stats": "Миний статистик",
+  "me_day_streak": "{count} өдрийн дараалал",
   "@me_day_streak": {
     "placeholders": {
       "count": {
@@ -589,7 +640,7 @@
       }
     }
   },
-  "me_best_streak": "Best streak: {count} days",
+  "me_best_streak": "Хамгийн урт дараалал: {count} өдөр",
   "@me_best_streak": {
     "placeholders": {
       "count": {
@@ -597,11 +648,17 @@
       }
     }
   },
-  "me_accumulation": "Accumulation",
-  "me_counts": "counts",
-  "me_minutes": "minutes",
-  "me_days_plan_practiced_suffix": "days plan practiced",
-  "me_streak_share_message": "I'm on a {count}-day streak on {appName}!",
+  "accumulations": "Хуримтлал",
+  "accumulations_search": "Хуримтлал хайх...",
+  "accumulations_search_for": "Хуримтлал хайх",
+  "accumulations_no_found": "Хуримтлал олдсонгүй",
+  "me_accumulation": "Нийт хуримтлал",
+  "me_counts": "удаа",
+  "me_minutes": "минут",
+  "me_hours": "цаг",
+  "me_total_meditation_time": "Нийт бясалгалын хугацаа",
+  "me_days_plan_practiced_suffix": "нийт төлөвлөгөөт өдөр дуусгасан",
+  "me_streak_share_message": "Би {appName} дээр {count} өдрийн дараалалтай байна!",
   "@me_streak_share_message": {
     "placeholders": {
       "count": {
@@ -612,8 +669,8 @@
       }
     }
   },
-  "me_streak_share_quote": "My daily practice is growing",
-  "me_streak_days_count": "{count} days",
+  "me_streak_share_quote": "WeBuddhist дээрх миний одоогийн дараалал!",
+  "me_streak_days_count": "{count} өдөр",
   "@me_streak_days_count": {
     "placeholders": {
       "count": {
@@ -621,8 +678,8 @@
       }
     }
   },
-  "share_this_streak": "Share this streak",
-  "me_streak_share_error": "Unable to share streak. Please try again",
+  "share_this_streak": "Дарааллаа хуваалцах",
+  "me_streak_share_error": "Дарааллыг хуваалцах боломжгүй. Дахин оролдоно уу",
   "delete_account_title": "Бүртгэл устгах",
   "delete_account_description": "Хэрэв та бүртгэлээ устгавал WeBuddhist доторх таны бүх мэдээлэл, түүх, хувийн тохиргоо бүрмөсөн устгагдана. Энэ үйлдлийг буцаах боломжгүйг анхаарна уу. Үргэлжлүүлэхийн тулд доорх товчийг дарна уу.",
   "delete_account_button": "Бүртгэл устгах",
@@ -675,5 +732,22 @@
 
   "share_this_quote": "Энэ ишлэлийг хуваалцах",
   "shared_from": "Хуваалцсан:",
-  "verse_share_error": "Ишлэлийг хуваалцах боломжгүй. Дахин оролдоно уу"
+  "verse_share_error": "Ишлэлийг хуваалцах боломжгүй. Дахин оролдоно уу",
+  "connect_subtitle": "Бүлгээ олж, хамтдаа дадлага хийгээрэй",
+  "discover_groups": "Бүлэг хайх",
+  "my_groups": "Миний бүлгүүд",
+  "see_all": "Бүгдийг харах",
+  "search_groups": "Бүлэг хайх",
+  "search_for_groups": "Бүлэг хайх",
+  "no_groups_found": "Тохирох бүлэг олдсонгүй",
+  "connect_groups_empty_title": "Одоогоор бүлэг алга",
+  "connect_groups_empty_subtitle": "Баяр хүргэе, та манай бүх бүлэгт нэгдсэн байна! Удахгүй дахин шалгаарай. Шинэ бүлгүүд удахгүй нэмэгдэнэ",
+  "connect_groups_load_error": "Бүлгүүдийг ачаалах боломжгүй.\nХолболтоо шалгаад дахин оролдоно уу",
+  "weekday_monday": "Дав",
+  "weekday_tuesday": "Мяг",
+  "weekday_wednesday": "Лха",
+  "weekday_thursday": "Пүр",
+  "weekday_friday": "Баа",
+  "weekday_saturday": "Бям",
+  "weekday_sunday": "Ням"
 }

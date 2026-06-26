@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/constants/app_assets.dart';
-import 'package:flutter_pecha/core/l10n/intl_format_locale.dart';
+import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
-import 'package:intl/intl.dart';
 
 enum StreakWeekDayCellState { today, practiced, missed, future }
 
@@ -20,7 +19,7 @@ class StreakWeekTracker extends StatelessWidget {
   Widget build(BuildContext context) {
     final todayWeekday = DateTime.now().weekday;
     final practicedSet = practicedDays.toSet();
-    final locale = intlFormatLocaleOf(context);
+    final l10n = AppLocalizations.of(context)!;
 
     return Row(
       children: [
@@ -34,7 +33,7 @@ class StreakWeekTracker extends StatelessWidget {
                 todayWeekday: todayWeekday,
                 practicedDays: practicedSet,
               ),
-              locale: locale,
+              l10n: l10n,
               forShare: forShare,
             ),
           ),
@@ -61,29 +60,40 @@ class _WeekDayColumn extends StatelessWidget {
   const _WeekDayColumn({
     required this.dayIndex,
     required this.state,
-    required this.locale,
+    required this.l10n,
     required this.forShare,
   });
 
   final int dayIndex;
   final StreakWeekDayCellState state;
-  final String locale;
+  final AppLocalizations l10n;
   final bool forShare;
+
+  String _weekdayLabel(int day) {
+    return switch (day) {
+      1 => l10n.weekday_monday,
+      2 => l10n.weekday_tuesday,
+      3 => l10n.weekday_wednesday,
+      4 => l10n.weekday_thursday,
+      5 => l10n.weekday_friday,
+      6 => l10n.weekday_saturday,
+      7 => l10n.weekday_sunday,
+      _ => '',
+    };
+  }
 
   @override
   Widget build(BuildContext context) {
-    final weekdayLabel =
-        DateFormat.E(locale).format(DateTime(2024, 1, dayIndex)).toUpperCase();
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Column(
       children: [
         Text(
-          weekdayLabel,
+          _weekdayLabel(dayIndex),
           style: TextStyle(
-            color: AppColors.grey600,
-            letterSpacing: 0.5,
-            fontSize: 10,
-            fontWeight: FontWeight.w500,
+            color: isDark ? Colors.white : Colors.black,
+            fontSize: 12,
+            fontWeight: FontWeight.bold,
           ),
         ),
         const SizedBox(height: 8),
@@ -106,9 +116,8 @@ class _WeekDayCell extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = !forShare && Theme.of(context).brightness == Brightness.dark;
     final surfaceColor = isDark ? AppColors.cardDark : AppColors.surfaceWhite;
-    final missedColor =
-        isDark ? AppColors.surfaceVariantDark : AppColors.grey300;
-    final todayBorderColor = isDark ? AppColors.grey300 : AppColors.grey900;
+    final missedColor = AppColors.grey300;
+    final todayBorderColor = AppColors.brandblue;
 
     return SizedBox(
       width: _cellSize,
@@ -126,15 +135,11 @@ class _WeekDayCell extends StatelessWidget {
         ),
         StreakWeekDayCellState.practiced => DecoratedBox(
           decoration: BoxDecoration(
-            color: isDark ? AppColors.grey300 : AppColors.grey900,
+            color: AppColors.brandblue,
             borderRadius: BorderRadius.circular(8),
           ),
           child: Center(
-            child: Icon(
-              AppAssets.check,
-              size: 16,
-              color: isDark ? AppColors.grey900 : Colors.white,
-            ),
+            child: Icon(AppAssets.check, size: 16, color: Colors.white),
           ),
         ),
         StreakWeekDayCellState.missed => DecoratedBox(

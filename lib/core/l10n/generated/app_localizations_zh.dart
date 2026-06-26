@@ -85,6 +85,16 @@ class AppLocalizationsZh extends AppLocalizations {
   String get home_plans => '計劃';
 
   @override
+  String home_plans_count(int count) {
+    return '$count 計劃';
+  }
+
+  @override
+  String home_recitation_count(int count) {
+    return '$count 持誦';
+  }
+
+  @override
   String get home_shortcut_plans => '計劃';
 
   @override
@@ -92,6 +102,50 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get home_mala => '念珠';
+
+  @override
+  String get mala_add_to_practice => '加入我的修持';
+
+  @override
+  String get mala_add_to_bookmark => '書籤';
+
+  @override
+  String get mala_sound => '聲音';
+
+  @override
+  String get mala_vibration => '震動';
+
+  @override
+  String get mala_reset_count => '重設計數';
+
+  @override
+  String get mala_reset_title => '重設此念珠？';
+
+  @override
+  String get mala_reset_count_confirm => '目前的計數將歸零，但您的累積仍會保留在終身總數中。';
+
+  @override
+  String get mala_reset_confirm => '重設';
+
+  @override
+  String get mala_action_coming_soon => '即將推出';
+
+  @override
+  String mala_rounds_count(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count 遍',
+      one: '1 遍',
+      zero: '0 遍',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String mala_counter_semantics(int bead, int total, String rounds) {
+    return '計數 $bead/$total，$rounds';
+  }
 
   @override
   String get home_timer => '計時';
@@ -159,6 +213,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get text_commentary => '注釋';
 
   @override
+  String get resources => '資源';
+
+  @override
+  String get tools => '工具';
+
+  @override
   String get no_translation => '尚無相關翻譯';
 
   @override
@@ -184,7 +244,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String commentary_not_available_for_language(String language) {
-    return '$language commentary not available';
+    return '暫無 $language 註釋';
   }
 
   @override
@@ -477,35 +537,34 @@ class AppLocalizationsZh extends AppLocalizations {
   String get connect_coming_soon_subtitle => '在修行路上支持您前行的良師、社群、修持挑戰與相關活動';
 
   @override
-  String get connect_subtitle => 'Find groups and practice together';
+  String get connect_subtitle => '尋找你的社群，一起修持';
 
   @override
-  String get discover_groups => 'Discover groups';
+  String get discover_groups => '探索社群';
 
   @override
-  String get my_groups => 'My groups';
+  String get my_groups => '我的社群';
 
   @override
-  String get see_all => 'See all';
+  String get see_all => '查看全部';
 
   @override
-  String get connect_groups_load_error =>
-      'Unable to load groups.\nCheck your connection and try again';
+  String get connect_groups_load_error => '無法載入社群，\n請檢查網路連線後重試';
 
   @override
-  String get connect_groups_empty_title => 'No groups yet';
+  String get connect_groups_empty_title => '尚無社群';
 
   @override
-  String get connect_groups_empty_subtitle => 'no more groups to join';
+  String get connect_groups_empty_subtitle => '恭喜，你已加入我們所有的社群！請稍後再來，更多社群即將推出';
 
   @override
-  String get search_groups => 'Search groups';
+  String get search_groups => '搜尋社群';
 
   @override
-  String get search_for_groups => 'Search for groups';
+  String get search_for_groups => '搜尋社群';
 
   @override
-  String get no_groups_found => 'No groups found';
+  String get no_groups_found => '找不到符合的社群';
 
   @override
   String get explore_coming_soon_subtitle => '探索修持、教法與社群活動的精選空間。';
@@ -668,6 +727,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get share => '分享';
 
   @override
+  String get bookmark => '书签';
+
+  @override
   String get image => '圖片';
 
   @override
@@ -811,6 +873,9 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get routine_title => '日常修持';
+
+  @override
+  String get bookmarks => '书签';
 
   @override
   String get routine_empty_title => '日常修持';
@@ -1129,68 +1194,61 @@ class AppLocalizationsZh extends AppLocalizations {
   String get edit_profile_bio_hint => '向大家介紹一下自己';
 
   @override
-  String get edit_profile_delete_account => 'Delete account';
+  String get edit_profile_delete_account => '刪除帳號';
 
   @override
-  String get edit_profile_photo_not_uploaded => 'Photo not uploaded';
+  String get edit_profile_photo_not_uploaded => '相片尚未上傳';
 
   @override
-  String get edit_profile_photo_too_large =>
-      'Image is too large. Please choose a photo under 1 MB and try again.';
+  String get edit_profile_photo_too_large => '圖片過大，請選擇 1 MB 以下的相片後再試一次';
 
   @override
-  String get edit_profile_photo_upload_failed =>
-      'Could not upload your photo. Please try again.';
+  String get edit_profile_photo_upload_failed => '無法上傳您的相片，請再試一次';
 
   @override
-  String get edit_profile_choose_from_library => 'Choose from library';
+  String get edit_profile_choose_from_library => '從相簿選擇';
 
   @override
-  String get edit_profile_take_photo => 'Take a photo';
+  String get edit_profile_take_photo => '拍照';
 
   @override
-  String get edit_profile_offline =>
-      'You\'re offline. Connect to the internet and try again.';
+  String get edit_profile_offline => '您目前離線，請連接網路後再試一次';
 
   @override
-  String get edit_profile_save_failed =>
-      'Couldn\'t save your changes. Please try again.';
+  String get edit_profile_save_failed => '無法儲存您的變更，請再試一次';
 
   @override
   String get username_label => '使用者名稱';
 
   @override
-  String get username_taken => 'Someone already used this name';
+  String get username_taken => '這個名稱已被使用';
 
   @override
-  String get username_available_label => 'Available : ';
+  String get username_available_label => '可使用：';
 
   @override
-  String get username_check_error => 'Could not check username. Try again.';
+  String get username_check_error => '無法檢查使用者名稱，請再試一次';
 
   @override
-  String get username_invalid_format => 'Invalid username format.';
+  String get username_invalid_format => '使用者名稱格式無效';
 
   @override
-  String get username_min_length => 'Username must be at least 3 characters';
+  String get username_min_length => '使用者名稱至少需 3 個字元';
 
   @override
-  String get username_max_length => 'Username must be at most 30 characters';
+  String get username_max_length => '使用者名稱不可超過 30 個字元';
 
   @override
-  String get username_no_spaces => 'Username cannot contain spaces';
+  String get username_no_spaces => '使用者名稱不可包含空格';
 
   @override
-  String get username_invalid_chars =>
-      'Only letters, numbers, _ . - are allowed';
+  String get username_invalid_chars => '僅允許字母、數字、_ . -';
 
   @override
-  String get username_must_start_alphanumeric =>
-      'Username must start with a letter or number';
+  String get username_must_start_alphanumeric => '使用者名稱須以字母或數字開頭';
 
   @override
-  String get username_must_end_alphanumeric =>
-      'Username must end with a letter or number';
+  String get username_must_end_alphanumeric => '使用者名稱須以字母或數字結尾';
 
   @override
   String get person_name_min_length => '至少需要 1 個字元';
@@ -1215,69 +1273,85 @@ class AppLocalizationsZh extends AppLocalizations {
   String get about_social_website => '網頁';
 
   @override
-  String get me_guest_headline => 'Access the full experience';
+  String get me_guest_headline => '體驗完整功能';
 
   @override
-  String get me_guest_subtitle => 'Create a free account to access plans';
+  String get me_guest_subtitle => '建立免費帳號以儲存您的進度';
 
   @override
-  String get me_my_stats => 'My stats';
+  String get me_my_stats => '我的統計';
 
   @override
   String me_day_streak(int count) {
-    return '$count-day streak';
+    return '連續 $count 天';
   }
 
   @override
   String me_best_streak(int count) {
-    return 'Best streak: $count days';
+    return '最長連續：$count 天';
   }
 
   @override
-  String get me_accumulation => 'Accumulation';
+  String get accumulations => '累積';
 
   @override
-  String get me_counts => 'counts';
+  String get accumulations_search => '搜索累積';
 
   @override
-  String get me_minutes => 'minutes';
+  String get accumulations_search_for => '尋找累積內容';
 
   @override
-  String get me_days_plan_practiced_suffix => 'days plan practiced';
+  String get accumulations_no_found => '尚無相關累積內容';
+
+  @override
+  String get me_accumulation => '累積總數';
+
+  @override
+  String get me_counts => '次';
+
+  @override
+  String get me_minutes => '分鐘';
+
+  @override
+  String get me_hours => '小時';
+
+  @override
+  String get me_total_meditation_time => '禪修總時間';
+
+  @override
+  String get me_days_plan_practiced_suffix => '天計畫已完成';
 
   @override
   String me_streak_share_message(int count, String appName) {
-    return 'I\'m on a $count-day streak on $appName!';
+    return '我在 $appName 已連續 $count 天！';
   }
 
   @override
-  String get me_streak_share_quote => 'My daily practice is growing';
+  String get me_streak_share_quote => '我在 WeBuddhist 的連續紀錄！';
 
   @override
   String me_streak_days_count(int count) {
-    return '$count days';
+    return '$count 天';
   }
 
   @override
-  String get share_this_streak => 'Share this streak';
+  String get share_this_streak => '分享我的連續紀錄';
 
   @override
-  String get me_streak_share_error =>
-      'Unable to share streak. Please try again';
+  String get me_streak_share_error => '無法分享連續紀錄，請重試';
 
   @override
-  String get delete_account_title => 'Delete account';
+  String get delete_account_title => '刪除帳號';
 
   @override
   String get delete_account_description =>
-      'If you delete your account, all your information, history, and personalized settings within WeBuddhist will be permanently eliminated. This action will also end any recurring contributions, if applicable. Please note that this action is irreversible. To proceed, tap the button below.';
+      '若您刪除帳號，您在 WeBuddhist 中的所有資料、紀錄與個人化設定將被永久刪除。請注意，此操作無法復原。如欲繼續，請點按下方按鈕。';
 
   @override
-  String get delete_account_button => 'Delete account';
+  String get delete_account_button => '刪除帳號';
 
   @override
-  String get delete_account_confirm_message =>
-      'Are you sure you want to delete your WeBuddhist account?';
+  String get delete_account_confirm_message => '您確定要刪除您的 WeBuddhist 帳號嗎？';
 
   @override
   String get legal_title => '法律資訊';
@@ -1289,10 +1363,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get legal_privacy_policy => '隱私政策';
 
   @override
-  String get follow => 'Follow';
+  String get follow => '追蹤';
 
   @override
-  String get following => 'Following';
+  String get following => '追蹤中';
 
   @override
   String get calendar_title => '日历';
@@ -1374,4 +1448,25 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get verse_share_error => '无法分享引文，请重试';
+
+  @override
+  String get weekday_monday => '週一';
+
+  @override
+  String get weekday_tuesday => '週二';
+
+  @override
+  String get weekday_wednesday => '週三';
+
+  @override
+  String get weekday_thursday => '週四';
+
+  @override
+  String get weekday_friday => '週五';
+
+  @override
+  String get weekday_saturday => '週六';
+
+  @override
+  String get weekday_sunday => '週日';
 }

@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/analytics/analytics_events.dart';
 import 'package:flutter_pecha/core/analytics/analytics_providers.dart';
-import 'package:flutter_pecha/core/constants/app_config.dart';
+import 'package:flutter_pecha/core/core.dart';
+import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/features/mala/domain/entities/mantra.dart';
 import 'package:flutter_pecha/features/mala/presentation/providers/mala_providers.dart';
+import 'package:flutter_pecha/features/mala/presentation/providers/mala_settings_provider.dart';
 import 'package:flutter_pecha/features/mala/presentation/widgets/mala_beads.dart';
 import 'package:flutter_pecha/features/mala/presentation/widgets/mala_skeleton.dart';
 import 'package:flutter_pecha/features/mala/presentation/widgets/mantra_switcher.dart';
+import 'package:flutter_pecha/features/mala/presentation/widgets/mala_settings_sheet.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -56,25 +59,33 @@ class _MalaScreenState extends ConsumerState<MalaScreen> {
     final catalogue = ref.watch(malaCatalogueProvider);
 
     return Scaffold(
-      body: SafeArea(
-        child: catalogue.when(
-          loading: () => const _MalaAppBarScaffold(child: MalaSkeleton()),
-          error:
-              (e, _) => _MalaAppBarScaffold(
-                child: _ErrorView(
-                  onRetry: () => ref.invalidate(malaCatalogueProvider),
-                ),
-              ),
-          data:
-              (either) => either.fold(
-                (failure) => _MalaAppBarScaffold(
+      // Clip the page content to its bounds. The bead strand is drawn with an
+      // intentional overflow past the arc edges (relied on being clipped); the
+      // device-edge clip normally hides it, but during the iOS pop transition
+      // the page is composited into a sliding layer where that overflow would
+      // otherwise flash onto the incoming screen. This contains it without
+      // changing the bead appearance.
+      body: ClipRect(
+        child: SafeArea(
+          child: catalogue.when(
+            loading: () => const _MalaAppBarScaffold(child: MalaSkeleton()),
+            error:
+                (e, _) => _MalaAppBarScaffold(
                   child: _ErrorView(
-                    message: failure.message,
                     onRetry: () => ref.invalidate(malaCatalogueProvider),
                   ),
                 ),
-                (mantras) => _buildLoaded(context, mantras),
-              ),
+            data:
+                (either) => either.fold(
+                  (failure) => _MalaAppBarScaffold(
+                    child: _ErrorView(
+                      message: failure.message,
+                      onRetry: () => ref.invalidate(malaCatalogueProvider),
+                    ),
+                  ),
+                  (mantras) => _buildLoaded(context, mantras),
+                ),
+          ),
         ),
       ),
     );
@@ -103,10 +114,14 @@ class _MalaScreenState extends ConsumerState<MalaScreen> {
     final language = Localizations.localeOf(context).languageCode;
     final counter = ref.watch(malaCounterProvider(mantra));
     final notifier = ref.read(malaCounterProvider(mantra).notifier);
+    final settings = ref.watch(malaSettingsProvider);
 
     return Column(
       children: [
-        _MalaAppBar(title: mantra.localizedName(language)),
+        _MalaAppBar(
+          title: mantra.displayTitle(language),
+          onMorePressed: () => MalaSettingsSheet.show(context, mantra: mantra),
+        ),
         Expanded(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -114,19 +129,16 @@ class _MalaScreenState extends ConsumerState<MalaScreen> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 // Mantra + transliteration switcher: 40% of the space below
-                // the header, with the text centered between the chevrons.
+                // the header. An infinite looping carousel — swipe or tap the
+                // chevrons; the text is centered between them.
                 Expanded(
                   flex: 40,
                   child: MantraSwitcher(
-                    tibetan: mantra.tibetan,
+                    mantras: mantras,
+                    language: language,
                     tibetanFontFamily: AppConfig.tibetanContentFont,
-                    transliteration:
-                        mantra.transliteration(language) ??
-                        mantra.localizedName(language),
-                    canGoPrevious: _index > 0,
-                    canGoNext: _index < mantras.length - 1,
-                    onPrevious: () => _switch(mantras, _index - 1),
-                    onNext: () => _switch(mantras, _index + 1),
+                    index: _index,
+                    onIndexChanged: (next) => _switch(mantras, next),
                   ),
                 ),
                 // Counter + bead arc: the remaining 60%.
@@ -152,6 +164,11 @@ class _MalaScreenState extends ConsumerState<MalaScreen> {
                                   onRetry: notifier.seed,
                                 )
                                 : MalaBeads(
+                                  // Per-mantra identity: switching mantras gives
+                                  // a fresh state (no carried-over slide), so the
+                                  // strand snaps to the new count instead of
+                                  // animating between mantras.
+                                  key: ValueKey(mantra.presetId),
                                   total: counter.total,
                                   beadInRound: counter.beadInRound,
                                   beadsPerRound: counter.beadsPerRound,
@@ -161,9 +178,15 @@ class _MalaScreenState extends ConsumerState<MalaScreen> {
                                   beadImageUrl:
                                       counter.beadImageUrl ??
                                       mantra.beadImageUrl,
+                                  beadImageBytes: counter.beadImageBytes,
                                   beadColor: const Color(0xFF8D6E63),
                                   threadColor: const Color(0xFFC62828),
-                                  onTap: notifier.incrementBead,
+                                  onTap:
+                                      () => notifier.incrementBead(
+                                        soundEnabled: settings.soundEnabled,
+                                        vibrationEnabled:
+                                            settings.vibrationEnabled,
+                                      ),
                                 ),
                       ),
                       const SizedBox(height: 24),
@@ -195,11 +218,17 @@ class _CounterBlock extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = context.l10n;
+    final roundsLabel = l10n.mala_rounds_count(rounds);
     final color = theme.colorScheme.onSurface.withValues(
       alpha: dimmed ? 0.35 : 1.0,
     );
     return Semantics(
-      label: 'Count $beadInRound of $beadsPerRound, $rounds rounds',
+      label: l10n.mala_counter_semantics(
+        beadInRound,
+        beadsPerRound,
+        roundsLabel,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
@@ -213,7 +242,7 @@ class _CounterBlock extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           Text(
-            rounds == 1 ? '1 round' : '$rounds rounds',
+            roundsLabel,
             style: theme.textTheme.titleLarge?.copyWith(
               color: color.withValues(alpha: dimmed ? 0.35 : 0.7),
             ),
@@ -226,8 +255,9 @@ class _CounterBlock extends StatelessWidget {
 
 /// App bar with a back button and the mantra name.
 class _MalaAppBar extends StatelessWidget {
-  const _MalaAppBar({required this.title});
+  const _MalaAppBar({required this.title, this.onMorePressed});
   final String title;
+  final VoidCallback? onMorePressed;
 
   @override
   Widget build(BuildContext context) {
@@ -236,7 +266,7 @@ class _MalaAppBar extends StatelessWidget {
       child: Row(
         children: [
           IconButton(
-            icon: const Icon(Icons.arrow_back),
+            icon: const Icon(AppAssets.arrowLeft),
             onPressed: () => context.pop(),
           ),
           Expanded(
@@ -247,7 +277,10 @@ class _MalaAppBar extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(width: 48),
+          IconButton(
+            icon: Icon(Icons.more_vert, size: 24),
+            onPressed: onMorePressed,
+          ),
         ],
       ),
     );

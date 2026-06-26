@@ -25,9 +25,56 @@
   "home_recitation": "पाठ",
   "home_overall_stats": "समग्र तथ्याङ्क",
   "home_plans": "योजनाहरू",
+  "home_plans_count": "{count} योजनाहरू",
+  "@home_plans_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "home_recitation_count": "{count} पाठ",
+  "@home_recitation_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "home_shortcut_plans": "योजनाहरू",
   "home_chants": "जप",
   "home_mala": "माला",
+  "mala_add_to_practice": "मेरा अभ्यासहरूमा थप्नुहोस्",
+  "mala_add_to_bookmark": "बुकमार्क",
+  "mala_sound": "ध्वनि",
+  "mala_vibration": "कम्पन",
+  "mala_reset_count": "गणना रिसेट गर्नुहोस्",
+  "mala_reset_title": "यो माला रिसेट गर्ने?",
+  "mala_reset_count_confirm": "तपाईंको हालको गणना शून्यमा फर्कने छ, तर तपाईंका संचयहरू जीवनभरको कुलमा रहने छन्।",
+  "mala_reset_confirm": "रिसेट",
+  "mala_action_coming_soon": "चाँडै आउँदैछ",
+  "mala_rounds_count": "{count, plural, =0{0 चक्र} =1{1 चक्र} other{{count} चक्र}}",
+  "@mala_rounds_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "mala_counter_semantics": "गणना {bead}/{total}, {rounds}",
+  "@mala_counter_semantics": {
+    "placeholders": {
+      "bead": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      },
+      "rounds": {
+        "type": "String"
+      }
+    }
+  },
   "home_timer": "टाइमर",
   "preset_timers": "पूर्वनिर्धारित टाइमरहरू",
   "meditation_timer": "ध्यान टाइमर",
@@ -56,6 +103,8 @@
   "text_search": "खोज्नुहोस्",
   "text_toc_versions": "संस्करणहरू",
   "text_commentary": "टीकाहरू",
+  "resources": "स्रोतहरू",
+  "tools": "उपकरणहरू",
   "no_translation": "कुनै अनुवाद फेला परेन",
   "text_close_commentary": "टीका बन्द गर्नुहोस्",
   "show_more": "थप देखाउनुहोस्",
@@ -281,6 +330,7 @@
   "copy": "कपी गर्नुहोस्",
   "copied": "कपी भयो",
   "share": "साझा गर्नुहोस्",
+  "bookmark": "बुकमार्क",
   "image": "तस्बिर",
   "feedback": "प्रतिक्रिया",
   "author": "लेखक",
@@ -380,6 +430,7 @@
   "common_ok": "ठीक छ",
   "comingSoonHeadline": "चाँडै आउँदैछ",
   "routine_title": "मेरा अभ्यासहरू",
+  "bookmarks": "बुकमार्कहरू",
   "routine_empty_title": "अभ्यासहरू",
   "routine_edit": "सम्पादन गर्नुहोस्",
   "routine_empty_description": "आफ्नो दिनचर्यामा थप्न थप शिक्षा र अभ्यासहरू अन्वेषण गर्नुहोस्",
@@ -580,8 +631,8 @@
   "about_social_website": "वेबसाइट",
   "me_guest_headline": "पूर्ण अनुभव प्राप्त गर्नुहोस्",
   "me_guest_subtitle": "आफ्नो प्रगति सेभ गर्न निःशुल्क खाता सिर्जना गर्नुहोस्",
-  "me_my_stats": "My stats",
-  "me_day_streak": "{count}-day streak",
+  "me_my_stats": "मेरा तथ्याङ्क",
+  "me_day_streak": "{count} दिनको शृंखला",
   "@me_day_streak": {
     "placeholders": {
       "count": {
@@ -589,7 +640,7 @@
       }
     }
   },
-  "me_best_streak": "Best streak: {count} days",
+  "me_best_streak": "सबैभन्दा लामो शृंखला: {count} दिन",
   "@me_best_streak": {
     "placeholders": {
       "count": {
@@ -597,11 +648,17 @@
       }
     }
   },
-  "me_accumulation": "Accumulation",
-  "me_counts": "counts",
-  "me_minutes": "minutes",
-  "me_days_plan_practiced_suffix": "days plan practiced",
-  "me_streak_share_message": "I'm on a {count}-day streak on {appName}!",
+  "accumulations": "संचय",
+  "accumulations_search": "संचयहरू खोज्नुहोस्...",
+  "accumulations_search_for": "संचयहरू खोज्नुहोस्",
+  "accumulations_no_found": "कुनै संचय फेला परेन",
+  "me_accumulation": "कुल संचय",
+  "me_counts": "पटक",
+  "me_minutes": "मिनेट",
+  "me_hours": "घण्टा",
+  "me_total_meditation_time": "कुल ध्यान समय",
+  "me_days_plan_practiced_suffix": "कुल योजना दिनहरू पूरा भयो",
+  "me_streak_share_message": "म {appName} मा {count} दिनको शृंखलामा छु!",
   "@me_streak_share_message": {
     "placeholders": {
       "count": {
@@ -612,8 +669,8 @@
       }
     }
   },
-  "me_streak_share_quote": "My daily practice is growing",
-  "me_streak_days_count": "{count} days",
+  "me_streak_share_quote": "WeBuddhist मा मेरो हालको शृंखला!",
+  "me_streak_days_count": "{count} दिन",
   "@me_streak_days_count": {
     "placeholders": {
       "count": {
@@ -621,8 +678,8 @@
       }
     }
   },
-  "share_this_streak": "Share this streak",
-  "me_streak_share_error": "Unable to share streak. Please try again",
+  "share_this_streak": "मेरो शृंखला साझा गर्नुहोस्",
+  "me_streak_share_error": "शृंखला साझा गर्न सकिएन। कृपया फेरि प्रयास गर्नुहोस्",
   "delete_account_title": "खाता मेट्नुहोस्",
   "delete_account_description": "यदि तपाईंले आफ्नो खाता मेट्नुभयो भने, WeBuddhist भित्रका तपाईंका सबै जानकारी, इतिहास र वैयक्तिकृत सेटिङहरू स्थायी रूपमा हटाइनेछन्। कृपया ध्यान दिनुहोस् कि यो कार्य अपरिवर्तनीय छ। अगाडि बढ्न, तलको बटन ट्याप गर्नुहोस्।",
   "delete_account_button": "खाता मेट्नुहोस्",
@@ -675,5 +732,22 @@
 
   "share_this_quote": "यो उद्धरण साझा गर्नुहोस्",
   "shared_from": "बाट साझा गरिएको",
-  "verse_share_error": "उद्धरण साझा गर्न सकिएन। कृपया फेरि प्रयास गर्नुहोस्"
+  "verse_share_error": "उद्धरण साझा गर्न सकिएन। कृपया फेरि प्रयास गर्नुहोस्",
+  "connect_subtitle": "आफ्ना समूहहरू खोज्नुहोस् र सँगै अभ्यास गर्नुहोस्",
+  "discover_groups": "समूहहरू खोज्नुहोस्",
+  "my_groups": "मेरा समूहहरू",
+  "see_all": "सबै हेर्नुहोस्",
+  "search_groups": "समूह खोज्नुहोस्",
+  "search_for_groups": "समूहहरू खोज्नुहोस्",
+  "no_groups_found": "कुनै मिल्दो समूह फेला परेन",
+  "connect_groups_empty_title": "अहिलेसम्म कुनै समूह छैन",
+  "connect_groups_empty_subtitle": "बधाई छ, तपाईं हाम्रा सबै समूहहरूमा सामेल हुनुभयो! चाँडै फेरि हेर्नुहोस्। नयाँ समूहहरू चाँडै आउँदैछन्",
+  "connect_groups_load_error": "समूहहरू लोड गर्न सकिएन।\nआफ्नो जडान जाँच गरी फेरि प्रयास गर्नुहोस्",
+  "weekday_monday": "सोम",
+  "weekday_tuesday": "मंगल",
+  "weekday_wednesday": "बुध",
+  "weekday_thursday": "बिहि",
+  "weekday_friday": "शुक्र",
+  "weekday_saturday": "शनि",
+  "weekday_sunday": "आइत"
 }

@@ -22,38 +22,43 @@ class _DeleteAccountScreenState extends ConsumerState<DeleteAccountScreen> {
 
   Future<void> _confirmDelete() async {
     final l10n = AppLocalizations.of(context)!;
+    String? deleteError;
 
-    await showDestructiveConfirmationDialog(
+    final result = await showDestructiveConfirmationDialog(
       context,
       title: l10n.delete_account_title,
       message: l10n.delete_account_confirm_message,
       confirmLabel: l10n.delete_account_button,
       barrierDismissible: false,
-      onConfirmed: _deleteAccount,
+      onConfirmed: () async {
+        if (_isDeleting) return false;
+        setState(() => _isDeleting = true);
+
+        final errorMessage =
+            await ref.read(authProvider.notifier).deleteAccount();
+
+        if (!mounted) return false;
+
+        setState(() => _isDeleting = false);
+
+        if (errorMessage != null) {
+          deleteError = errorMessage;
+          return false;
+        }
+        // On success the auth state listener in GoRouter navigates to login
+        // automatically because isLoggedIn becomes false.
+        return true;
+      },
     );
-  }
 
-  Future<void> _deleteAccount() async {
-    if (_isDeleting) return;
-    setState(() => _isDeleting = true);
-
-    final errorMessage =
-        await ref.read(authProvider.notifier).deleteAccount();
-
-    if (!mounted) return;
-
-    setState(() => _isDeleting = false);
-
-    if (errorMessage != null) {
+    if (result == false && deleteError != null && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(errorMessage),
+          content: Text(deleteError!),
           backgroundColor: Colors.red.shade600,
         ),
       );
     }
-    // On success the auth state listener in GoRouter navigates to login
-    // automatically because isLoggedIn becomes false.
   }
 
   @override

@@ -18,9 +18,15 @@ class RoutineItemCard extends StatelessWidget {
   /// Optional widget rendered below the title (e.g. a date-range label).
   final Widget? subtitle;
 
+  /// Optional plan title shown below [title] when no custom [subtitle] is set.
+  final String? planTitle;
+
   /// Optional widget rendered on the right of the subtitle row (e.g. a
   /// status indicator). Only visible when [subtitle] is also provided.
   final Widget? trailing;
+
+  /// Optional callback for the circular plan navigation button on the right.
+  final VoidCallback? onPlanTap;
 
   const RoutineItemCard({
     super.key,
@@ -32,12 +38,16 @@ class RoutineItemCard extends StatelessWidget {
     this.reorderIndex,
     this.type,
     this.subtitle,
+    this.planTitle,
     this.trailing,
+    this.onPlanTap,
   });
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final resolvedPlanTitle =
+        planTitle != null && planTitle!.isNotEmpty ? planTitle : null;
 
     return GestureDetector(
       onTap: onTap,
@@ -80,9 +90,11 @@ class RoutineItemCard extends StatelessWidget {
                   ),
                 )
                 : ResponsiveCoverImage(
-                  image: coverImage ?? (imageUrl != null && imageUrl!.isNotEmpty
-                      ? ResponsiveImage.uniform(imageUrl!)
-                      : null),
+                  image:
+                      coverImage ??
+                      (imageUrl != null && imageUrl!.isNotEmpty
+                          ? ResponsiveImage.uniform(imageUrl!)
+                          : null),
                   width: 74,
                   height: 74,
                   fit: BoxFit.cover,
@@ -107,6 +119,22 @@ class RoutineItemCard extends StatelessWidget {
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
+                  if (resolvedPlanTitle != null) ...[
+                    const SizedBox(height: 4),
+                    Text(
+                      resolvedPlanTitle,
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w400,
+                        color:
+                            isDark
+                                ? AppColors.textTertiaryDark
+                                : AppColors.textSecondary,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
                   if (subtitle != null) ...[
                     const SizedBox(height: 8),
                     Row(
@@ -124,6 +152,10 @@ class RoutineItemCard extends StatelessWidget {
                 ],
               ),
             ),
+            if (onPlanTap != null) ...[
+              const SizedBox(width: 12),
+              _PlanNavigationButton(onTap: onPlanTap!, isDark: isDark),
+            ],
             if (reorderIndex != null) ...[
               const SizedBox(width: 8),
               ReorderableDragStartListener(
@@ -142,6 +174,39 @@ class RoutineItemCard extends StatelessWidget {
               ),
             ],
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class _PlanNavigationButton extends StatelessWidget {
+  final VoidCallback onTap;
+  final bool isDark;
+
+  const _PlanNavigationButton({required this.onTap, required this.isDark});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        HapticFeedback.lightImpact();
+        onTap();
+      },
+      child: Container(
+        width: 36,
+        height: 36,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          border: Border.all(
+            color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimary,
+            width: 1,
+          ),
+        ),
+        child: Icon(
+          AppAssets.caretRight,
+          size: 16,
+          color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimary,
         ),
       ),
     );

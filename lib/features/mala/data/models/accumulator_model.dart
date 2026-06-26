@@ -21,11 +21,17 @@ class AccumulatorMetadataModel {
     );
   }
 
+  Map<String, dynamic> toJson() => {
+    'language': language,
+    'name': name,
+    'description': description,
+  };
+
   AccumulatorMetadata toEntity() => AccumulatorMetadata(
-        language: language,
-        name: name,
-        description: description,
-      );
+    language: language,
+    name: name,
+    description: description,
+  );
 }
 
 List<AccumulatorMetadataModel> _parseMetadata(Object? raw) {
@@ -64,14 +70,23 @@ class PresetMantraModel {
     );
   }
 
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'mantra': mantra,
+    'title': title,
+    'pronunciation': pronunciation,
+    'audio_url': audioUrl,
+    'mala_image_url': beadImageUrl,
+  };
+
   MantraText toEntity() => MantraText(
-        id: id,
-        text: mantra,
-        title: title,
-        pronunciation: pronunciation,
-        audioUrl: audioUrl,
-        beadImageUrl: beadImageUrl,
-      );
+    id: id,
+    text: mantra,
+    title: title,
+    pronunciation: pronunciation,
+    audioUrl: audioUrl,
+    beadImageUrl: beadImageUrl,
+  );
 }
 
 /// `PublicAccumulatorDTO` (`GET /accumulators/presets`).
@@ -97,20 +112,32 @@ class PresetAccumulatorModel {
       targetCount: (json['target_count'] as num?)?.toInt(),
       beadImageUrl: json['mala_image_url'] as String?,
       metadata: _parseMetadata(json['metadata']),
-      mantra: mantraJson is Map<String, dynamic>
-          ? PresetMantraModel.fromJson(mantraJson)
-          : null,
+      mantra:
+          mantraJson is Map<String, dynamic>
+              ? PresetMantraModel.fromJson(mantraJson)
+              : null,
     );
   }
 
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'target_count': targetCount,
+    'mala_image_url': beadImageUrl,
+    'metadata': metadata.map((m) => m.toJson()).toList(),
+    'mantra': mantra?.toJson(),
+  };
+
   Mantra toEntity() => Mantra(
-        presetId: id,
-        targetCount: targetCount,
-        // Prefer the accumulator-level bead image; fall back to the mantra's.
-        beadImageUrl: beadImageUrl ?? mantra?.beadImageUrl,
-        metadata: metadata.map((m) => m.toEntity()).toList(),
-        mantra: mantra?.toEntity(),
-      );
+    presetId: id,
+    targetCount: targetCount,
+    // Prefer the mantra-level bead image — it mirrors the per-user detail's
+    // `mala_image_url`, so the preview shown before the seed matches what
+    // the accumulator detail returns (no second fetch / no bead flicker).
+    // Fall back to the accumulator-level image if the mantra has none.
+    beadImageUrl: mantra?.beadImageUrl ?? beadImageUrl,
+    metadata: metadata.map((m) => m.toEntity()).toList(),
+    mantra: mantra?.toEntity(),
+  );
 }
 
 /// Wrapper for `PublicAccumulatorsResponse`.
@@ -126,9 +153,13 @@ class PresetAccumulatorsResponseModel {
   factory PresetAccumulatorsResponseModel.fromJson(Map<String, dynamic> json) {
     final list = (json['accumulators'] as List<dynamic>?) ?? const [];
     return PresetAccumulatorsResponseModel(
-      accumulators: list
-          .map((e) => PresetAccumulatorModel.fromJson(e as Map<String, dynamic>))
-          .toList(),
+      accumulators:
+          list
+              .map(
+                (e) =>
+                    PresetAccumulatorModel.fromJson(e as Map<String, dynamic>),
+              )
+              .toList(),
       total: (json['total'] as num?)?.toInt() ?? list.length,
     );
   }
@@ -164,11 +195,11 @@ class AccumulatorModel {
   }
 
   MalaCount toMalaCount() => MalaCount(
-        accumulatorId: id,
-        mantraId: mantraId,
-        total: currentCount,
-        updatedAt: updatedAt,
-      );
+    accumulatorId: id,
+    mantraId: mantraId,
+    total: currentCount,
+    updatedAt: updatedAt,
+  );
 }
 
 /// `AccumulatorHistoryDTO` — the user's detail for one preset
@@ -200,10 +231,10 @@ class AccumulatorDetailModel {
   }
 
   MalaCount toMalaCount() => MalaCount(
-        accumulatorId: accumulatorId,
-        total: currentCount,
-        beadImageUrl: beadImageUrl,
-      );
+    accumulatorId: accumulatorId,
+    total: currentCount,
+    beadImageUrl: beadImageUrl,
+  );
 }
 
 DateTime? _parseDate(Object? v) {

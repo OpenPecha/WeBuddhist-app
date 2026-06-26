@@ -2,10 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/core/l10n/intl_format_locale.dart';
+import 'package:flutter_pecha/core/utils/tibetan_numerals.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/features/more/domain/entities/user_stats.dart';
 import 'package:flutter_pecha/features/more/presentation/widgets/me_streak_card.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter_pecha/features/more/presentation/widgets/accumulation_sheet.dart';
+import 'package:flutter_pecha/features/more/presentation/widgets/practice_days_sheet.dart';
 import 'package:flutter_pecha/features/more/presentation/widgets/streak_share_sheet.dart';
 
 class MeStatsSection extends StatelessWidget {
@@ -48,6 +51,16 @@ class MeStatsSection extends StatelessWidget {
             onTap: () => showStreakShareSheet(context, stats.streak),
           ),
           const SizedBox(height: _cardSpacing),
+          _PracticeDaysCard(
+            days: stats.totalPracticeDays,
+            cardColor: cardColor,
+            onTap:
+                () => showPracticeDaysSheet(
+                  context,
+                  totalDays: stats.totalPracticeDays,
+                ),
+          ),
+          const SizedBox(height: _cardSpacing),
           Row(
             children: [
               Expanded(
@@ -58,37 +71,38 @@ class MeStatsSection extends StatelessWidget {
                     width: 22,
                     height: 22,
                     color: Theme.of(context).colorScheme.onSurface,
-                    colorBlendMode: BlendMode.srcIn,
                   ),
                   value: _formatCompactCount(stats.totalAccumulated, locale),
-                  unit: l10n.me_counts,
                   cardColor: cardColor,
+                  onTap:
+                      () => showAccumulationSheet(
+                        context,
+                        formattedTotal: _formatCompactCount(
+                          stats.totalAccumulated,
+                          locale,
+                        ),
+                      ),
                 ),
               ),
               const SizedBox(width: _cardSpacing),
               Expanded(
                 child: _StatCard(
-                  label: l10n.home_timer,
+                  label: l10n.me_total_meditation_time,
                   icon: Icon(
                     AppAssets.homeTimer,
                     size: 22,
                     color: Theme.of(context).colorScheme.onSurface,
                   ),
-                  value: _formatCompactCount(
-                    // total_timer is milliseconds.
-                    (stats.totalTimer / 60000).round(),
-                    locale,
+                  value: _formatDuration(
+                    stats.totalTimer,
+                    isTibetan: context.isTibetanLocale,
+                    minuteLabel: l10n.me_minutes,
+                    hourLabel: l10n.me_hours,
                   ),
-                  unit: l10n.me_minutes,
                   cardColor: cardColor,
                 ),
               ),
             ],
-          ),
-          const SizedBox(height: _cardSpacing),
-          _PracticeDaysCard(
-            days: stats.totalPracticeDays,
-            cardColor: cardColor,
           ),
         ],
       ),
@@ -107,6 +121,32 @@ class MeStatsSection extends StatelessWidget {
     return NumberFormat.decimalPattern(locale).format(count);
   }
 
+  String _formatDuration(
+    int milliseconds, {
+    required bool isTibetan,
+    required String minuteLabel,
+    required String hourLabel,
+  }) {
+    final totalMinutes = (milliseconds / 60000).round();
+    if (totalMinutes < 60) {
+      if (isTibetan) {
+        return '$minuteLabel ${toTibetanDigits(totalMinutes)}';
+      }
+      return '${totalMinutes}m';
+    }
+    final hours = totalMinutes ~/ 60;
+    final minutes = totalMinutes % 60;
+    if (isTibetan) {
+      if (minutes == 0) {
+        return '$hourLabel ${toTibetanDigits(hours)}';
+      }
+      return '$hourLabel ${toTibetanDigits(hours)} '
+          '$minuteLabel ${toTibetanDigits(minutes)}';
+    }
+    if (minutes == 0) return '${hours}hr';
+    return '${hours}hr ${minutes}m';
+  }
+
   String _trimTrailingZero(String value) {
     return value.endsWith('.0') ? value.substring(0, value.length - 2) : value;
   }
@@ -117,19 +157,26 @@ class _StatCard extends StatelessWidget {
     required this.label,
     required this.icon,
     required this.value,
-    required this.unit,
     required this.cardColor,
+    this.onTap,
   });
 
   final String label;
   final Widget icon;
   final String value;
-  final String unit;
   final Color cardColor;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isTibetan = context.isTibetanLocale;
+    final valueStyle = Theme.of(
+      context,
+    ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700);
+    final tibetanValueStyle = Theme.of(
+      context,
+    ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700);
 
     return Material(
       color: cardColor,
@@ -139,44 +186,58 @@ class _StatCard extends StatelessWidget {
           color: isDark ? AppColors.cardBorderDark : AppColors.grey300,
         ),
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  label,
-                  style: Theme.of(
-                    context,
-                  ).textTheme.bodySmall?.copyWith(color: AppColors.grey600),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(MeStatsSection._borderRadius),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                strutStyle: context.tibetanStrutStyle(12),
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: isDark ? AppColors.grey300 : AppColors.grey900,
+                  fontSize: 12,
+                  height: isTibetan ? 1.4 : null,
                 ),
-                icon,
-              ],
-            ),
-            const SizedBox(height: 12),
-            RichText(
-              text: TextSpan(
-                style: DefaultTextStyle.of(context).style,
+              ),
+              const SizedBox(height: 12),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  TextSpan(
-                    text: value,
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  TextSpan(
-                    text: ' $unit',
-                    style: Theme.of(
-                      context,
-                    ).textTheme.bodySmall?.copyWith(color: AppColors.grey600),
+                  icon,
+                  const SizedBox(width: 4),
+                  Expanded(
+                    child:
+                        isTibetan
+                            ? FittedBox(
+                              alignment: Alignment.centerLeft,
+                              fit: BoxFit.scaleDown,
+                              child: Text(
+                                value,
+                                maxLines: 1,
+                                softWrap: false,
+                                strutStyle: context.tibetanStrutStyle(
+                                  valueStyle?.fontSize ?? 22,
+                                ),
+                                style: valueStyle,
+                              ),
+                            )
+                            : Text(
+                              value,
+                              overflow: TextOverflow.ellipsis,
+                              style: valueStyle,
+                            ),
                   ),
                 ],
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -184,15 +245,25 @@ class _StatCard extends StatelessWidget {
 }
 
 class _PracticeDaysCard extends StatelessWidget {
-  const _PracticeDaysCard({required this.days, required this.cardColor});
+  const _PracticeDaysCard({
+    required this.days,
+    required this.cardColor,
+    this.onTap,
+  });
 
   final int days;
   final Color cardColor;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isTibetan = Localizations.localeOf(context).languageCode == 'bo';
+    final daysStyle = Theme.of(
+      context,
+    ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700);
+    final suffixStyle = Theme.of(context).textTheme.titleMedium;
 
     return Material(
       color: cardColor,
@@ -202,35 +273,77 @@ class _PracticeDaysCard extends StatelessWidget {
           color: isDark ? AppColors.cardBorderDark : AppColors.grey300,
         ),
       ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-        child: Row(
-          children: [
-            Expanded(
-              child: Text.rich(
-                TextSpan(
-                  style: DefaultTextStyle.of(context).style,
-                  children: [
-                    TextSpan(
-                      text: '$days',
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    TextSpan(
-                      text: ' ${l10n.me_days_plan_practiced_suffix}',
-                      style: Theme.of(context).textTheme.bodyMedium,
-                    ),
-                  ],
-                ),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(MeStatsSection._borderRadius),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+          child: Row(
+            children: [
+              Icon(
+                AppAssets.homeList,
+                size: 24,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
-            ),
-            Icon(
-              AppAssets.homeList,
-              size: 24,
-              color: Theme.of(context).colorScheme.onSurface,
-            ),
-          ],
+              const SizedBox(width: 12),
+              Expanded(
+                child:
+                    isTibetan
+                        ? Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            LayoutBuilder(
+                              builder: (context, constraints) {
+                                return SizedBox(
+                                  width: constraints.maxWidth,
+                                  child: FittedBox(
+                                    alignment: Alignment.centerLeft,
+                                    fit: BoxFit.scaleDown,
+                                    child: Text.rich(
+                                      TextSpan(
+                                        style: suffixStyle,
+                                        children: [
+                                          TextSpan(
+                                            text:
+                                                ' ${l10n.me_days_plan_practiced_suffix} ',
+                                          ),
+                                          TextSpan(
+                                            text: '$days',
+                                            style: suffixStyle?.copyWith(
+                                              fontWeight: FontWeight.w700,
+                                              fontSize:
+                                                  (suffixStyle.fontSize ?? 16) *
+                                                  1.2,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      maxLines: 1,
+                                      softWrap: false,
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          ],
+                        )
+                        : Text.rich(
+                          TextSpan(
+                            style: DefaultTextStyle.of(context).style,
+                            children: [
+                              TextSpan(text: '$days', style: daysStyle),
+                              TextSpan(
+                                text: ' ${l10n.me_days_plan_practiced_suffix}',
+                                style: suffixStyle,
+                              ),
+                            ],
+                          ),
+                        ),
+              ),
+            ],
+          ),
         ),
       ),
     );
