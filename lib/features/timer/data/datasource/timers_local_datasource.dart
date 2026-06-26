@@ -5,6 +5,7 @@ import 'package:flutter_pecha/core/storage/storage_keys.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/features/timer/data/models/preset_timer_model.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:uuid/uuid.dart';
 
 final _logger = AppLogger('TimersLocalDatasource');
 
@@ -107,7 +108,7 @@ class TimersLocalDatasource {
   }) async {
     final createdAtMs = DateTime.now().millisecondsSinceEpoch;
     final pending = PendingTimerStop(
-      id: '$createdAtMs:$timerId:$durationMs',
+      id: '$createdAtMs:$timerId:$durationMs:${const Uuid().v4()}',
       timerId: timerId,
       durationMs: durationMs,
       createdAtMs: createdAtMs,

@@ -144,19 +144,17 @@ class UserPlansRepository implements UserPlansRepositoryInterface {
       return const Left(AuthenticationFailure('Not authenticated'));
     }
 
-    await local.enqueueAction(
+    final action = await local.enqueueAction(
       userId,
       type: PendingPlanActionType.subscribe,
       payload: {'planId': planId},
     );
     try {
       final result = await userPlansRemoteDatasource.subscribeToPlan(planId);
-      await _removePendingAction(userId, PendingPlanActionType.subscribe, {
-        'planId': planId,
-      });
+      await local.removePendingAction(userId, action.id);
       return Right(result);
     } catch (e) {
-      return const Right(true);
+      return Left(ExceptionMapper.map(e, context: 'Failed to subscribe to plan'));
     }
   }
 
@@ -331,21 +329,19 @@ class UserPlansRepository implements UserPlansRepositoryInterface {
       return const Left(AuthenticationFailure('Not authenticated'));
     }
 
-    await local.enqueueAction(
+    final action = await local.enqueueAction(
       userId,
       type: PendingPlanActionType.completeSubTask,
       payload: {'subTaskId': subTaskId},
     );
     try {
       final result = await userPlansRemoteDatasource.completeSubTask(subTaskId);
-      await _removePendingAction(
-        userId,
-        PendingPlanActionType.completeSubTask,
-        {'subTaskId': subTaskId},
-      );
+      await local.removePendingAction(userId, action.id);
       return Right(result);
     } catch (e) {
-      return const Right(true);
+      return Left(
+        ExceptionMapper.map(e, context: 'Failed to complete sub task'),
+      );
     }
   }
 
@@ -356,21 +352,17 @@ class UserPlansRepository implements UserPlansRepositoryInterface {
       return const Left(AuthenticationFailure('Not authenticated'));
     }
 
-    await local.enqueueAction(
+    final action = await local.enqueueAction(
       userId,
       type: PendingPlanActionType.completeTask,
       payload: {'taskId': taskId},
     );
     try {
       final result = await userPlansRemoteDatasource.completeTask(taskId);
-      await _removePendingAction(
-        userId,
-        PendingPlanActionType.completeTask,
-        {'taskId': taskId},
-      );
+      await local.removePendingAction(userId, action.id);
       return Right(result);
     } catch (e) {
-      return const Right(true);
+      return Left(ExceptionMapper.map(e, context: 'Failed to complete task'));
     }
   }
 
@@ -381,21 +373,17 @@ class UserPlansRepository implements UserPlansRepositoryInterface {
       return const Left(AuthenticationFailure('Not authenticated'));
     }
 
-    await local.enqueueAction(
+    final action = await local.enqueueAction(
       userId,
       type: PendingPlanActionType.deleteTask,
       payload: {'taskId': taskId},
     );
     try {
       final result = await userPlansRemoteDatasource.deleteTask(taskId);
-      await _removePendingAction(
-        userId,
-        PendingPlanActionType.deleteTask,
-        {'taskId': taskId},
-      );
+      await local.removePendingAction(userId, action.id);
       return Right(result);
     } catch (e) {
-      return const Right(true);
+      return Left(ExceptionMapper.map(e, context: 'Failed to delete task'));
     }
   }
 
@@ -406,21 +394,17 @@ class UserPlansRepository implements UserPlansRepositoryInterface {
       return const Left(AuthenticationFailure('Not authenticated'));
     }
 
-    await local.enqueueAction(
+    final action = await local.enqueueAction(
       userId,
       type: PendingPlanActionType.unsubscribe,
       payload: {'planId': planId},
     );
     try {
       final result = await userPlansRemoteDatasource.unenrollFromPlan(planId);
-      await _removePendingAction(
-        userId,
-        PendingPlanActionType.unsubscribe,
-        {'planId': planId},
-      );
+      await local.removePendingAction(userId, action.id);
       return Right(result);
     } catch (e) {
-      return const Right(true);
+      return Left(ExceptionMapper.map(e, context: 'Failed to unenroll from plan'));
     }
   }
 
@@ -509,27 +493,6 @@ class UserPlansRepository implements UserPlansRepositoryInterface {
       planId,
     );
     await local.saveCompletionStatus(userId, planId, result);
-  }
-
-  Future<void> _removePendingAction(
-    String userId,
-    PendingPlanActionType type,
-    Map<String, dynamic> payload,
-  ) async {
-    final pending = local.readPendingActions(userId);
-    for (final action in pending) {
-      if (action.type == type && _mapsEqual(action.payload, payload)) {
-        await local.removePendingAction(userId, action.id);
-      }
-    }
-  }
-
-  bool _mapsEqual(Map<String, dynamic> a, Map<String, dynamic> b) {
-    if (a.length != b.length) return false;
-    for (final entry in a.entries) {
-      if (b[entry.key] != entry.value) return false;
-    }
-    return true;
   }
 
   Stream<Either<Failure, T>> _watchSingle<T>({
