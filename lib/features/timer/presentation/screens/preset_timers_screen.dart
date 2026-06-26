@@ -7,6 +7,7 @@ import 'package:flutter_pecha/features/timer/presentation/providers/timers_provi
 import 'package:flutter_pecha/features/timer/presentation/widgets/preset_timer_card.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 
 class PresetTimersScreen extends ConsumerWidget {
   const PresetTimersScreen({super.key});
@@ -140,23 +141,44 @@ class _PresetTimersGridSkeleton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(PresetTimersScreen._horizontalPadding),
-      child: GridView.builder(
-        physics: const NeverScrollableScrollPhysics(),
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-          crossAxisSpacing: PresetTimersScreen._gridSpacing,
-          mainAxisSpacing: PresetTimersScreen._gridSpacing,
-          childAspectRatio: 1,
+      child: Skeletonizer(
+        enabled: true,
+        child: GridView.builder(
+          physics: const NeverScrollableScrollPhysics(),
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            crossAxisSpacing: PresetTimersScreen._gridSpacing,
+            mainAxisSpacing: PresetTimersScreen._gridSpacing,
+            childAspectRatio: 1,
+          ),
+          itemCount: 4,
+          itemBuilder: (context, index) {
+            return Material(
+              color: Theme.of(context).cardColor,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+                side: const BorderSide(color: Color(0xFFE4E4E4)),
+              ),
+              clipBehavior: Clip.antiAlias,
+              child: const AspectRatio(
+                aspectRatio: 1,
+                child: Center(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Bone(width: 56, height: 58),
+                        SizedBox(height: 8),
+                        Bone(width: 36, height: 20),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            );
+          },
         ),
-        itemCount: 4,
-        itemBuilder: (context, index) {
-          return Container(
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surfaceContainerHighest,
-              borderRadius: BorderRadius.circular(16),
-            ),
-          );
-        },
       ),
     );
   }

@@ -93,7 +93,7 @@ class _AuthorTabViewState extends ConsumerState<AuthorTabView> {
     final localizations = context.l10n;
 
     if (widget.searchState.isLoading && _currentOffset == 0) {
-      return const SearchResultSkeleton();
+      return const SearchResultSkeleton(mode: SearchResultSkeletonMode.titles);
     }
 
     if (widget.searchState.error != null && _currentOffset == 0) {
@@ -126,7 +126,9 @@ class _AuthorTabViewState extends ConsumerState<AuthorTabView> {
                       : Icons.refresh,
                 ),
                 label: Text(
-                  widget.searchState.isLoading ? localizations.search_retrying : localizations.ai_retry,
+                  widget.searchState.isLoading
+                      ? localizations.search_retrying
+                      : localizations.ai_retry,
                 ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,
@@ -149,7 +151,9 @@ class _AuthorTabViewState extends ConsumerState<AuthorTabView> {
         child: Padding(
           padding: const EdgeInsets.all(24.0),
           child: Text(
-            localizations.search_no_authors_found(widget.searchState.currentQuery),
+            localizations.search_no_authors_found(
+              widget.searchState.currentQuery,
+            ),
             style: TextStyle(
               color: isDarkMode ? AppColors.grey400 : AppColors.grey600,
               fontSize: 16,
@@ -169,9 +173,7 @@ class _AuthorTabViewState extends ConsumerState<AuthorTabView> {
           return Padding(
             padding: const EdgeInsets.all(16.0),
             child: Center(
-              child: CircularProgressIndicator(
-                color: AppColors.primary,
-              ),
+              child: CircularProgressIndicator(color: AppColors.primary),
             ),
           );
         }
@@ -203,10 +205,7 @@ class _AuthorTabViewState extends ConsumerState<AuthorTabView> {
           final navigationContext = NavigationContext(
             source: NavigationSource.normal,
           );
-          context.push(
-            '/reader/${item.id}',
-            extra: navigationContext,
-          );
+          context.push('/reader/${item.id}', extra: navigationContext);
         },
         borderRadius: BorderRadius.circular(12),
         child: Padding(

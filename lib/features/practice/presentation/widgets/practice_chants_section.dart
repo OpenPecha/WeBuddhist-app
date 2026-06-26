@@ -47,7 +47,13 @@ class PracticeChantsSection extends ConsumerWidget {
                   ),
                 );
               }),
-      loading: () => const PracticeSectionSkeleton(height: 120),
+      loading:
+          () => const PracticeSectionSkeleton(
+            height: 120,
+            itemCount: 2,
+            itemSpacing: 8,
+            cardBorderRadius: 12,
+          ),
       error: (_, __) => const SizedBox.shrink(),
     );
   }

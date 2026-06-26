@@ -51,10 +51,21 @@ class RecitationListSkeleton extends StatelessWidget {
                 height: 26,
                 borderRadius: BorderRadius.zero,
               ),
-              const SizedBox(width: 8),
             ],
             const SizedBox(width: 12),
-            const Bone.circle(size: 60),
+            const SizedBox(
+              width: 70,
+              height: 70,
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  Positioned(left: 0, top: 10, child: Bone.circle(size: 60)),
+                  Positioned(left: 7, top: 18, child: Bone.circle(size: 46)),
+                  Positioned(left: 12, top: 26, child: Bone.circle(size: 36)),
+                  Positioned(left: 17, top: 30, child: Bone.circle(size: 26)),
+                ],
+              ),
+            ),
             const SizedBox(width: 6),
             Expanded(
               child: Column(

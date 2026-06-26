@@ -27,26 +27,18 @@ class DayCarouselSkeleton extends StatelessWidget {
 
   Widget _buildDayItemSkeleton(BuildContext context) {
     return Container(
-      width: 70,
+      width: 80,
       margin: const EdgeInsets.symmetric(horizontal: 4),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainer,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(8),
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Bone(
-            width: 28,
-            height: 28,
-            borderRadius: BorderRadius.circular(6),
-          ),
-          const SizedBox(height: 8),
-          Bone(
-            width: 40,
-            height: 12,
-            borderRadius: BorderRadius.circular(4),
-          ),
+          Bone(width: 24, height: 18, borderRadius: BorderRadius.circular(6)),
+          const SizedBox(height: 4),
+          Bone(width: 40, height: 15, borderRadius: BorderRadius.circular(4)),
         ],
       ),
     );
@@ -61,10 +53,7 @@ class DayContentSkeleton extends StatelessWidget {
   /// Number of activity items to display.
   final int itemCount;
 
-  const DayContentSkeleton({
-    super.key,
-    this.itemCount = 4,
-  });
+  const DayContentSkeleton({super.key, this.itemCount = 4});
 
   @override
   Widget build(BuildContext context) {
@@ -81,39 +70,21 @@ class DayContentSkeleton extends StatelessWidget {
   }
 
   Widget _buildActivityItemSkeleton(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainer,
-        borderRadius: BorderRadius.circular(12),
-      ),
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 10),
       child: Row(
         children: [
-          // Checkbox placeholder
-          Bone.circle(size: 24),
-          const SizedBox(width: 12),
-          // Content
+          const Bone.circle(size: 24),
+          const SizedBox(width: 10),
           Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Bone(
-                  width: 180,
-                  height: 16,
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                const SizedBox(height: 6),
-                Bone(
-                  width: 120,
-                  height: 12,
-                  borderRadius: BorderRadius.circular(4),
-                ),
-              ],
+            child: Bone(
+              width: double.infinity,
+              height: 20,
+              borderRadius: BorderRadius.circular(4),
             ),
           ),
-          // Action icon placeholder
-          Bone.circle(size: 20),
+          const SizedBox(width: 8),
+          Bone.circle(size: 40),
         ],
       ),
     );
