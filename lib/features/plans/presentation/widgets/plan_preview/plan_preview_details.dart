@@ -252,6 +252,7 @@ class _PlanPreviewDetailsState extends ConsumerState<PlanPreviewDetails> {
                   totalDays: widget.plan.totalDays,
                   planId: widget.plan.id,
                   dayNumber: selectedDay,
+                  dayAudioUrl: content.audioUrl,
                 ),
               );
             },
