@@ -9,7 +9,9 @@ import 'package:flutter_pecha/features/connect/presentation/widgets/connect_head
 import 'package:flutter_pecha/features/connect/presentation/widgets/discover_group_card.dart';
 import 'package:flutter_pecha/features/connect/presentation/widgets/my_groups_section.dart';
 import 'package:flutter_pecha/features/connect/presentation/widgets/my_groups_section_skeleton.dart';
+import 'package:flutter_pecha/features/connect/presentation/screens/group_search_screen.dart';
 import 'package:flutter_pecha/features/group_profile/domain/entities/group_profile.dart';
+import 'package:flutter_pecha/shared/widgets/main_tab_app_bar.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class ConnectScreen extends ConsumerStatefulWidget {
@@ -67,14 +69,32 @@ class _ConnectScreenState extends ConsumerState<ConnectScreen> {
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
-      body: SafeArea(
-        child: RefreshIndicator(
-          onRefresh: _onRefresh,
-          child: CustomScrollView(
-            controller: _scrollController,
-            physics: const AlwaysScrollableScrollPhysics(),
-            slivers: [
-              const SliverToBoxAdapter(child: ConnectHeader()),
+      appBar: MainTabAppBar(
+        title: context.l10n.nav_connect,
+        actions: [
+          IconButton(
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute<void>(
+                  builder: (_) => const GroupSearchScreen(),
+                ),
+              );
+            },
+            icon: Icon(
+              AppAssets.exploreUnselected,
+              color: theme.colorScheme.onSurface,
+            ),
+            tooltip: context.l10n.text_search,
+          ),
+        ],
+      ),
+      body: RefreshIndicator(
+        onRefresh: _onRefresh,
+        child: CustomScrollView(
+          controller: _scrollController,
+          physics: const AlwaysScrollableScrollPhysics(),
+          slivers: [
+            const SliverToBoxAdapter(child: ConnectHeader()),
               ..._buildTopSectionSlivers(
                 myGroupsAsync,
                 displayedMyGroups,
@@ -101,7 +121,6 @@ class _ConnectScreenState extends ConsumerState<ConnectScreen> {
             ],
           ),
         ),
-      ),
     );
   }
 

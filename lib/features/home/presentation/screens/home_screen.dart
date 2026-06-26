@@ -255,14 +255,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      body: SafeArea(
-        child: Column(
-          children: [
-            const HomeHeader(),
-            SizedBox(height: HomeScreenConstants.bodyVerticalPadding),
-            _buildBody(context, l10n),
-          ],
-        ),
+      appBar: const HomeTabAppBar(),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const HomeEventBanner(),
+          SizedBox(height: HomeScreenConstants.bodyVerticalPadding),
+          _buildBody(context, l10n),
+        ],
       ),
     );
   }

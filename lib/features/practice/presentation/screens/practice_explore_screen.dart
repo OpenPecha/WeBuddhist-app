@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
-import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 import 'package:flutter_pecha/features/practice/presentation/providers/practice_explore_providers.dart';
 import 'package:flutter_pecha/features/practice/presentation/widgets/practice_accumulations_section.dart';
 import 'package:flutter_pecha/features/practice/presentation/widgets/practice_chants_section.dart';
 import 'package:flutter_pecha/features/practice/presentation/widgets/practice_plans_section.dart';
 import 'package:flutter_pecha/features/practice/presentation/widgets/practice_tab_button.dart';
 import 'package:flutter_pecha/features/practice/presentation/widgets/practice_timers_section.dart';
+import 'package:flutter_pecha/shared/widgets/main_tab_app_bar.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -37,25 +37,8 @@ class _PracticeExploreScreenState extends ConsumerState<PracticeExploreScreen> {
     final l10n = context.l10n;
 
     return Scaffold(
-      body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-              child: Text(
-                l10n.nav_practice,
-                style: TextStyle(
-                  fontSize: getLocalizedFontSize(AppTextSize.titleLarge),
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-            ),
-            const SizedBox(height: 12),
-            Expanded(child: _buildExploreContent(context)),
-          ],
-        ),
-      ),
+      appBar: MainTabAppBar(title: l10n.nav_practice),
+      body: _buildExploreContent(context),
     );
   }
 
