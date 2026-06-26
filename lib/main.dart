@@ -8,8 +8,10 @@ import 'package:flutter_pecha/core/analytics/posthog_analytics_service.dart';
 import 'package:flutter_pecha/core/cache/cache_service.dart';
 import 'package:flutter_pecha/core/config/app_feature_flags.dart';
 import 'package:flutter_pecha/core/config/router/app_router.dart';
+import 'package:flutter_pecha/core/deep_linking/app_links_deep_link_service.dart';
 import 'package:flutter_pecha/core/network/connectivity_service.dart';
 import 'package:flutter_pecha/core/l10n/l10n.dart';
+import 'package:flutter_pecha/core/services/airbridge_deep_link_service.dart';
 import 'package:flutter_pecha/core/services/service_providers.dart';
 import 'package:flutter_pecha/core/storage/plan_metadata_store.dart';
 import 'package:flutter_pecha/core/storage/special_plan_started_at_store.dart';
@@ -40,7 +42,6 @@ import 'core/localization/cupertino_localizations_bo.dart';
 import 'package:flutter_pecha/core/services/upgrade/force_update_gate.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:airbridge_flutter_sdk/airbridge_flutter_sdk.dart';
-import 'package:flutter_pecha/core/services/deep_link_service.dart';
 
 final _logger = AppLogger('Main');
 
@@ -176,11 +177,17 @@ void main() async {
   try {
     Airbridge.setOnDeeplinkReceived((url) {
       _logger.info('Airbridge deep link received: $url');
-      DeepLinkService.storePendingDeepLink(url);
+      AirbridgeDeepLinkService.storePendingDeepLink(url);
     });
     _logger.info('Airbridge deep link handler initialized');
   } catch (e) {
     _logger.warning('Error initializing Airbridge deep link handler: $e');
+  }
+
+  try {
+    await AppLinksDeepLinkService.instance.initialize();
+  } catch (e) {
+    _logger.warning('Error initializing app links handler: $e');
   }
 
   runApp(UncontrolledProviderScope(container: container, child: const MyApp()));
@@ -194,7 +201,7 @@ class MyApp extends ConsumerStatefulWidget {
 }
 
 class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
-  bool _hasProcessedDeepLink = false;
+  bool _hasRegisteredDeepLinkRouters = false;
 
   @override
   void initState() {
@@ -236,15 +243,14 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
     // final router = AppRouter().router;
     final router = ref.watch(appRouterProvider);
 
-    // Register the router with DeepLinkService on the first build so that:
-    //   a) any cold-start link buffered before the first frame is drained, and
-    //   b) links arriving while the app is already running are dispatched
-    //      immediately (handled inside storePendingDeepLink).
-    if (!_hasProcessedDeepLink) {
+    // Register the router once so both deep-link sources can drain links that
+    // arrived during cold start and dispatch warm links immediately afterward.
+    if (!_hasRegisteredDeepLinkRouters) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        DeepLinkService.setRouter(router);
+        AirbridgeDeepLinkService.setRouter(router);
+        AppLinksDeepLinkService.instance.setRouter(router);
       });
-      _hasProcessedDeepLink = true;
+      _hasRegisteredDeepLinkRouters = true;
     }
 
     // Initialize services in background via providers

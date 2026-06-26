@@ -12,8 +12,10 @@ class AppRoutes {
   static const String splash = '/splash';
   static const String onboarding = '/onboarding';
   static const String login = '/login';
+  static const String getApp = '/get-app';
+  static const String open = '/open';
 
-// ========== MAIN ROUTES ==========
+  // ========== MAIN ROUTES ==========
   static const String home = '/home';
   static const String texts = "/ai-mode";
   static const String practice = "/practice";
@@ -61,7 +63,7 @@ class AppRoutes {
   // ========== ROUTE CATEGORIES ==========
 
   /// Routes that don't require any authentication
-  static const Set<String> publicRoutes = {splash, login};
+  static const Set<String> publicRoutes = {splash, login, getApp, open};
 
   /// Routes accessible to guest users.
   ///
@@ -75,6 +77,8 @@ class AppRoutes {
   /// - Sub-routes that guests must NOT access under a guest-accessible parent:
   ///   add the base path to [_protectedBasePaths] — it takes priority.
   static const Set<String> guestAccessibleRoutes = {
+    open,
+    getApp,
     home,
     more,
     settings, // Guests can access settings (theme, language, notifications)
