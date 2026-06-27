@@ -23,6 +23,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
+import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 
 final _logger = AppLogger('SelectSessionScreen');
 
@@ -96,6 +97,7 @@ class _SelectSessionScreenState extends ConsumerState<SelectSessionScreen>
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final localizations = AppLocalizations.of(context)!;
 
     return Scaffold(
       appBar: AppBar(
@@ -103,8 +105,8 @@ class _SelectSessionScreenState extends ConsumerState<SelectSessionScreen>
           icon: const Icon(AppAssets.arrowLeft),
           onPressed: () => context.pop(),
         ),
-        title: const Text(
-          'Add to session',
+        title: Text(
+          localizations.routine_add_session,
           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
         ),
         scrolledUnderElevation: 0,
@@ -117,11 +119,11 @@ class _SelectSessionScreenState extends ConsumerState<SelectSessionScreen>
         ],
         bottom: TabBar(
           controller: _tabController,
-          tabs: const [
-            Tab(text: 'Plans'),
-            Tab(text: 'Chants'),
-            Tab(text: 'Malas'),
-            Tab(text: 'Timers'),
+          tabs: [
+            Tab(text: localizations.home_plans),
+            Tab(text: localizations.home_chants),
+            Tab(text: localizations.home_mala),
+            Tab(text: localizations.home_timer),
           ],
           labelStyle: const TextStyle(
             fontWeight: FontWeight.bold,
@@ -544,6 +546,7 @@ class _TimersTab extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final localizations = AppLocalizations.of(context)!;
     final timersAsync = ref.watch(presetTimersFutureProvider);
 
     return timersAsync.when(
@@ -609,7 +612,7 @@ class _TimersTab extends ConsumerWidget {
                       const SizedBox(width: 12),
                       Expanded(
                         child: Text(
-                          timer.name,
+                          '${timer.displayMinutes} ${localizations.timer_min}',
                           style: const TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w600,
