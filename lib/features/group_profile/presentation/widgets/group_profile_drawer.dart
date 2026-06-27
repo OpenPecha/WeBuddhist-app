@@ -55,7 +55,6 @@ class GroupProfileDrawer extends ConsumerWidget {
                       profile: profile,
                       isDark: isDark,
                       scrollController: scrollController,
-                      onSeriesTap: () => Navigator.of(context).pop(),
                     ),
                   ),
                   loading: () =>
