@@ -143,7 +143,7 @@ class _SegmentActionBarState extends ConsumerState<SegmentActionBar> {
 }
 
 /// Bottom-sheet-style panel. Dismissible by swiping downward.
-/// Layout: drag handle → Tools → [Copy | Share | Bookmark] → Resources → tiles.
+/// Layout: drag handle → [Copy | Share | Bookmark] → Resources → tiles.
 class _ResourcesPanel extends StatelessWidget {
   final VoidCallback onDismiss;
   final Widget copyButton;
@@ -201,7 +201,7 @@ class _ResourcesPanel extends StatelessWidget {
                       // Drag handle pill
                       Center(
                         child: Container(
-                          margin: const EdgeInsets.only(top: 10, bottom: 4),
+                          margin: const EdgeInsets.only(top: 10, bottom: 8),
                           width: 36,
                           height: 4,
                           decoration: BoxDecoration(
@@ -211,21 +211,6 @@ class _ResourcesPanel extends StatelessWidget {
                             borderRadius: BorderRadius.circular(2),
                           ),
                         ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(20, 10, 20, 8),
-                        child: Text(
-                          context.l10n.tools,
-                          style: theme.textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 18,
-                          ),
-                        ),
-                      ),
-                      Divider(
-                        height: 1,
-                        thickness: 1,
-                        color: theme.dividerColor,
                       ),
                     ],
                   ),

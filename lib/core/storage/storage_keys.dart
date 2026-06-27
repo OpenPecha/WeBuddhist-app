@@ -27,14 +27,8 @@ class StorageKeys {
   // ========== ONBOARDING ==========
   /// Onboarding preferences JSON
   static const String onboardingPreferences = 'onboarding_preferences';
-  /// Device-level onboarding completion flag (legacy / guest fallback)
-  static const String onboardingCompleted = 'onboarding_completed';
-  /// Per-user onboarding completion key — one entry per user ID.
-  /// Use this to check/set completion for a specific account.
-  static String onboardingCompletedForUser(String userId) =>
-      'onboarding_completed_$userId';
   /// ID of the currently logged-in user, written before the router fires
-  /// so the route guard can read the correct per-user onboarding key.
+  /// so feature code can resolve the active account.
   static const String currentUserId = 'current_user_id';
   /// Current onboarding step
   static const String onboardingStep = 'onboarding_step';

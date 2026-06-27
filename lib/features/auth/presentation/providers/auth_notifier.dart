@@ -207,14 +207,14 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
     // Happy path: we have a fresh token.
     if (credentials != null && credentials!.idToken.isNotEmpty) {
-      // Store currentUserId BEFORE updating auth state so the route guard
-      // can check the per-user onboarding key when the router refreshes.
+      // Store currentUserId before updating auth state so feature code can
+      // resolve the active account when the router refreshes.
       final userId = _extractUserIdFromToken(credentials!.idToken);
       if (userId != null) {
         await ref
             .read(localStorageServiceProvider)
             .set(StorageKeys.currentUserId, userId);
-        _logger.debug('Restored currentUserId for onboarding tracking');
+        _logger.debug('Restored currentUserId');
         await _identifyAuthenticatedUser(userId: userId, isGuest: false);
       }
 
@@ -369,14 +369,13 @@ class AuthNotifier extends StateNotifier<AuthState> {
     await _clearGuestMode();
 
     // 2. Persist the user's ID before updating auth state.
-    //    The router refreshes the moment auth state changes, so currentUserId
-    //    must already be in storage when the route guard checks onboarding.
+    //    The router refreshes the moment auth state changes.
     final userId = _extractUserIdFromToken(credentials.idToken);
     if (userId != null) {
       await ref
           .read(localStorageServiceProvider)
           .set(StorageKeys.currentUserId, userId);
-      _logger.debug('Stored currentUserId for onboarding tracking');
+      _logger.debug('Stored currentUserId');
       await _identifyAuthenticatedUser(userId: userId, isGuest: false);
     }
 
@@ -533,7 +532,6 @@ class AuthNotifier extends StateNotifier<AuthState> {
   }
 
   /// Completely clear all user data (account deletion or privacy reset).
-  /// This is the only place where onboarding completion is reset.
   Future<void> clearAllUserData() async {
     try {
       await ref.read(userProvider.notifier).clearUser();
@@ -548,12 +546,19 @@ class AuthNotifier extends StateNotifier<AuthState> {
     }
   }
 
-  /// Reset onboarding status (for testing or manual reset).
+  /// Reset onboarding status (for testing).
   Future<void> resetOnboarding() async {
     try {
       final onboardingRepo = ref.read(onboardingRepositoryProvider);
-      await onboardingRepo.clearPreferences();
-      _logger.info('Onboarding reset — user will see onboarding on next login');
+      final result = await onboardingRepo.resetOnboardingStatus();
+      result.fold(
+        (failure) => _logger.warning(
+          'Failed to reset onboarding status: ${failure.message}',
+        ),
+        (_) => _logger.info(
+          'Onboarding reset — user will see onboarding on next login',
+        ),
+      );
     } catch (e) {
       _logger.warning('Failed to reset onboarding: $e');
     }
