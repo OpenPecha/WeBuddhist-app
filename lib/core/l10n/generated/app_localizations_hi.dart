@@ -260,9 +260,6 @@ class AppLocalizationsHi extends AppLocalizations {
   String get resources => 'संसाधन';
 
   @override
-  String get tools => 'उपकरण';
-
-  @override
   String get no_translation => 'कोई अनुवाद नहीं मिला';
 
   @override

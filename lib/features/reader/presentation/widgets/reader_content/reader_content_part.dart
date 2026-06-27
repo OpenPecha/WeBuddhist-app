@@ -30,6 +30,7 @@ class ReaderContentPart extends ConsumerStatefulWidget {
   final String language;
   final String? initialSegmentId;
   final List<String>? visibleSegmentIds;
+  final double bottomPadding;
   final void Function(bool isScrollingDown)? onScrollDirectionChanged;
   final void Function(void Function(String segmentId, {double? alignment}))?
   onScrollControllerReady;
@@ -39,6 +40,7 @@ class ReaderContentPart extends ConsumerStatefulWidget {
     required this.language,
     this.initialSegmentId,
     this.visibleSegmentIds,
+    this.bottomPadding = 60,
     this.onScrollDirectionChanged,
     this.onScrollControllerReady,
   });
@@ -534,7 +536,7 @@ class _ReaderContentPartState extends ConsumerState<ReaderContentPart> {
               itemScrollController: _itemScrollController,
               itemPositionsListener: _itemPositionsListener,
               itemCount: listItemCount,
-              padding: const EdgeInsets.only(bottom: 60),
+              padding: EdgeInsets.only(bottom: widget.bottomPadding),
               itemBuilder: (context, index) {
                 if (isCollapsed) {
                   // Trailing item is the "Read Full Text" footer.

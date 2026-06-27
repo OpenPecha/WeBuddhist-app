@@ -261,9 +261,6 @@ class AppLocalizationsMn extends AppLocalizations {
   String get resources => 'Нөөц';
 
   @override
-  String get tools => 'Хэрэгслүүд';
-
-  @override
   String get no_translation => 'Орчуулга олдсонгүй';
 
   @override

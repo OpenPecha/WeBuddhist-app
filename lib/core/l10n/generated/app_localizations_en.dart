@@ -260,9 +260,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get resources => 'Resources';
 
   @override
-  String get tools => 'Tools';
-
-  @override
   String get no_translation => 'No translations found';
 
   @override

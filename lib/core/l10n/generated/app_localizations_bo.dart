@@ -262,9 +262,6 @@ class AppLocalizationsBo extends AppLocalizations {
   String get resources => 'ཐོབ་ཆ།';
 
   @override
-  String get tools => 'ལག་ཆ།';
-
-  @override
   String get no_translation => 'འགྱུར་མ་རྙེད་མ་བྱུང་།';
 
   @override
