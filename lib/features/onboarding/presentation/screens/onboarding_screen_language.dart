@@ -1,0 +1,139 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
+import 'package:flutter_pecha/core/constants/app_config.dart';
+import 'package:flutter_pecha/core/theme/app_colors.dart';
+import 'package:flutter_pecha/features/onboarding/presentation/widgets/onboarding_question_title.dart';
+import 'package:flutter_pecha/features/onboarding/presentation/widgets/onboarding_radio_option.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+
+/// First onboarding screen: choose the app UI language.
+/// Shown in English before a locale is committed so the title stays readable.
+class OnboardingScreenLanguage extends ConsumerStatefulWidget {
+  const OnboardingScreenLanguage({super.key, required this.onNext});
+
+  final VoidCallback onNext;
+
+  static const _languages = [
+    _LanguageOption(
+      locale: Locale(AppConfig.englishLanguageCode),
+      label: 'English',
+    ),
+    _LanguageOption(locale: Locale(AppConfig.chineseLanguageCode), label: '中文'),
+    _LanguageOption(
+      locale: Locale(AppConfig.tibetanLanguageCode),
+      label: 'བོད་ཡིག',
+    ),
+    _LanguageOption(
+      locale: Locale(AppConfig.hindiLanguageCode),
+      label: 'हिन्दी',
+    ),
+    _LanguageOption(
+      locale: Locale(AppConfig.mongolianLanguageCode),
+      label: 'Монгол',
+    ),
+    _LanguageOption(
+      locale: Locale(AppConfig.nepaliLanguageCode),
+      label: 'नेपाली',
+    ),
+  ];
+
+  @override
+  ConsumerState<OnboardingScreenLanguage> createState() =>
+      _OnboardingScreenLanguageState();
+}
+
+class _OnboardingScreenLanguageState
+    extends ConsumerState<OnboardingScreenLanguage> {
+  late String _selectedLanguageCode;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedLanguageCode = ref.read(localeProvider).languageCode;
+  }
+
+  Future<void> _handleContinue() async {
+    final selectedLocale = Locale(_selectedLanguageCode);
+    await ref.read(localeProvider.notifier).setLocale(selectedLocale);
+    if (!mounted) return;
+    widget.onNext();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 32.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 120),
+              const OnboardingQuestionTitle(title: 'Choose your language:'),
+              const SizedBox(height: 30),
+              _buildLanguageOptions(),
+              const Spacer(),
+              _buildContinueButton(),
+              const SizedBox(height: 24),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLanguageOptions() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children:
+            OnboardingScreenLanguage._languages.map((language) {
+              return OnboardingRadioOption(
+                id: language.locale.languageCode,
+                label: language.label,
+                selectedId: _selectedLanguageCode,
+                onSelect: (id) {
+                  setState(() => _selectedLanguageCode = id);
+                },
+              );
+            }).toList(),
+      ),
+    );
+  }
+
+  Widget _buildContinueButton() {
+    return SizedBox(
+      width: double.infinity,
+      height: 56,
+      child: ElevatedButton(
+        onPressed: _handleContinue,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: AppColors.brandblue,
+          foregroundColor: Colors.white,
+          elevation: 0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          padding: const EdgeInsets.symmetric(vertical: 16),
+        ),
+        child: const Text(
+          'Continue',
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+            letterSpacing: -0.306,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _LanguageOption {
+  const _LanguageOption({required this.locale, required this.label});
+
+  final Locale locale;
+  final String label;
+}

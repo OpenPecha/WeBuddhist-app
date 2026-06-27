@@ -35,6 +35,7 @@ export 'presentation/providers/onboarding_datasource_providers.dart';
 
 // Presentation - Screens
 export 'presentation/screens/onboarding_wrapper.dart';
+export 'presentation/screens/onboarding_screen_language.dart';
 export 'presentation/screens/onboarding_screen_1.dart';
 export 'presentation/screens/onboarding_screen_3.dart';
 export 'presentation/screens/onboarding_screen_4.dart';

@@ -52,10 +52,10 @@ class OnboardingRadioOption extends StatelessWidget {
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         border: Border.all(
-          color: isSelected ? AppColors.primary : AppColors.greyMedium,
+          color: isSelected ? AppColors.brandblue : AppColors.greyMedium,
           width: 2,
         ),
-        color: isSelected ? AppColors.primary : Colors.transparent,
+        color: isSelected ? AppColors.brandblue : Colors.transparent,
       ),
       child:
           isSelected

@@ -4,6 +4,7 @@ import 'package:flutter_pecha/features/home/presentation/screens/main_navigation
 import 'package:flutter_pecha/features/onboarding/application/onboarding_provider.dart';
 import 'package:flutter_pecha/features/onboarding/presentation/screens/onboarding_screen_1.dart';
 import 'package:flutter_pecha/features/onboarding/presentation/screens/onboarding_screen_5.dart';
+import 'package:flutter_pecha/features/onboarding/presentation/screens/onboarding_screen_language.dart';
 import 'package:flutter_pecha/features/onboarding/presentation/screens/onboarding_screen_event.dart';
 import 'package:flutter_pecha/features/plans/data/models/user/user_plans_model.dart';
 import 'package:go_router/go_router.dart';
@@ -11,9 +12,10 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 /// Wrapper for onboarding screens with Riverpod state management.
 /// Page order:
-///   0 – Welcome
-///   1 – Events
-///   2 – Finish / "Begin Your Practice"
+///   0 – Language selection
+///   1 – Welcome
+///   2 – Events
+///   3 – Finish / "Begin Your Practice"
 class OnboardingWrapper extends ConsumerStatefulWidget {
   const OnboardingWrapper({super.key});
 
@@ -95,6 +97,7 @@ class _OnboardingWrapperState extends ConsumerState<OnboardingWrapper> {
               }
             },
             children: [
+              OnboardingScreenLanguage(onNext: _nextPage),
               OnboardingScreen1(onNext: _nextPage),
               OnboardingScreenEvent(onNext: _nextPage, onBack: _previousPage),
               OnboardingScreen5(onComplete: _completeOnboarding),
