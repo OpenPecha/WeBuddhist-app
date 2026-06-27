@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
+import 'package:flutter_pecha/core/theme/font_config.dart';
 import 'package:flutter_pecha/features/onboarding/application/tradition_chat_provider.dart';
 import 'package:flutter_pecha/features/onboarding/application/tradition_chat_state.dart';
 import 'package:flutter_pecha/features/onboarding/data/models/tradition_chat_models.dart';
@@ -417,6 +418,20 @@ class _ChatInputField extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final outlineColor = isDark ? AppColors.cardBorderDark : AppColors.grey300;
+    const fontSize = 16.0;
+    final language = Localizations.localeOf(context).languageCode;
+    final onSurfaceColor = Theme.of(context).colorScheme.onSurface;
+    final isTibetan = context.isTibetanLocale;
+
+    TextStyle fieldStyle(Color color) {
+      final style = TextStyle(
+        fontSize: fontSize,
+        color: color,
+        fontFamily: getSystemFontFamily(language),
+        height: getLineHeight(language),
+      );
+      return AppFontConfig.applyTibetanMetrics(language, style) ?? style;
+    }
 
     return Container(
       decoration: BoxDecoration(
@@ -425,39 +440,35 @@ class _ChatInputField extends StatelessWidget {
         border: Border.all(color: outlineColor),
       ),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Expanded(
             child: TextField(
               controller: controller,
               focusNode: focusNode,
               enabled: !isLoading,
+              minLines: 1,
+              maxLines: 2,
               textInputAction: TextInputAction.send,
               onSubmitted: canSend ? (_) => onSend() : null,
+              strutStyle: context.tibetanStrutStyle(fontSize),
               decoration: InputDecoration(
                 filled: true,
                 fillColor: Colors.transparent,
                 hintText: hintText,
-                hintStyle: TextStyle(
-                  fontSize: 16,
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.onSurface.withValues(alpha: 0.45),
-                ),
+                hintStyle: fieldStyle(onSurfaceColor.withValues(alpha: 0.45)),
                 border: InputBorder.none,
                 enabledBorder: InputBorder.none,
                 focusedBorder: InputBorder.none,
                 disabledBorder: InputBorder.none,
                 errorBorder: InputBorder.none,
                 focusedErrorBorder: InputBorder.none,
-                contentPadding: const EdgeInsets.symmetric(
+                contentPadding: EdgeInsets.symmetric(
                   horizontal: 20,
-                  vertical: 14,
+                  vertical: isTibetan ? 16 : 14,
                 ),
               ),
-              style: TextStyle(
-                fontSize: 16,
-                color: Theme.of(context).colorScheme.onSurface,
-              ),
+              style: fieldStyle(onSurfaceColor),
             ),
           ),
           Padding(
