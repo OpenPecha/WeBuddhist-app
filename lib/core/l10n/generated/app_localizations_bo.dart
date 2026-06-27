@@ -44,14 +44,22 @@ class AppLocalizationsBo extends AppLocalizations {
   String get onboarding_choose_option => 'ཉུང་མཐར་གཅིག་འདེམས་དགོས།';
 
   @override
-  String get onboarding_all_set => 'ཁྱོད་ཀྱི་སྒྲིག་འཇུག་གྲུབ་ཟིན།';
+  String get onboarding_all_set => 'ཁྱེད་ཀྱི་སྒྲིག་འཇུག་གྲུབ་ཟིན།';
 
   @override
   String get onboarding_all_set_description =>
-      'ང་ཚོས་ཁྱོད་ཀྱི་བྱེད་སྲོལ་ལ་གཞི་བཅོལ་ནས་ཉམས་མྱོང་ཕྱོགས་སྒྲིག་བྱས་ཡོད། ཉིན་རེར་ཁྱུག་ཙམ་ཡིན་རུང་ཕེབས་ཏེ་རང་ཉིད་ཀྱི་ཉམས་ལེན་འཕེལ་རྒྱས་སུ་ཐོངས།';
+      'ཁྱེད་ཀྱི་ཉམས་ལེན་ལ་གྲ་སྒྲིག་བྱས་ཟིན་པའི་དངོས་པོ་འདི་དག་ཡིན།';
 
   @override
-  String get onboarding_begin_practice => 'ཉམས་ལེན་འགོ་འཛུགས།';
+  String get onboarding_all_set_feature_practices =>
+      'སྔགས་བཟླས། བསགས་པ། སྒོམ་སྒྲུབ། དང་སློབ་སྦྱོང་ཐབས་ཀྱི་རྗེས་འདེམས་ཆོག';
+
+  @override
+  String get onboarding_all_set_feature_reminders =>
+      'ཉིན་རེའི་དྲན་སྐུལ་འཇམ་པོ། ཁྱེད་གྲ་སྒྲིག་བྱས་ཚེ་ནམ་ཡང';
+
+  @override
+  String get onboarding_begin_practice => 'ཉམས་ལེན་ཐོག་མ་འཚོལ།';
 
   @override
   String get onboarding_2_title =>

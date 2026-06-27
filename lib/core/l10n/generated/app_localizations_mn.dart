@@ -49,10 +49,18 @@ class AppLocalizationsMn extends AppLocalizations {
 
   @override
   String get onboarding_all_set_description =>
-      'Бид таны уламжлалд тохируулан туршлагыг тань бэлдлээ. Өдөр бүр — багахан хором ч гэсэн — хичээллэж, дадлага тань хэрхэн өсөхийг ажиглаарай';
+      'Таны дадлагад бэлэн зүйлс энд байна.';
 
   @override
-  String get onboarding_begin_practice => 'Дадлагаа эхлүүлэх';
+  String get onboarding_all_set_feature_practices =>
+      'Шүтэл залгах, хуримтлал, бясалгал, сургалтын төлөвлөгөөнөөс сонгох боломжтой';
+
+  @override
+  String get onboarding_all_set_feature_reminders =>
+      'Зөөлөн өдөр тутмын сануулагч, та бэлэн болох үедээ';
+
+  @override
+  String get onboarding_begin_practice => 'Эхний дадлагаа олох';
 
   @override
   String get onboarding_2_title => 'Дараагийн алхам — энэ хэрхэн ажилладаг вэ.';

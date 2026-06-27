@@ -44,14 +44,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get onboarding_choose_option => 'Choose at least one:';
 
   @override
-  String get onboarding_all_set => 'You\'re all set up';
+  String get onboarding_all_set => 'You\'re all set';
 
   @override
   String get onboarding_all_set_description =>
-      'We\'ve tailored your experience to your tradition. Show up each day — even for a moment — and watch your practice grow';
+      'Here\'s what\'s ready for your practice.';
 
   @override
-  String get onboarding_begin_practice => 'Begin your practice';
+  String get onboarding_all_set_feature_practices =>
+      'Chants, accumulations, meditation, and study plans to choose from';
+
+  @override
+  String get onboarding_all_set_feature_reminders =>
+      'Gentle daily reminders, whenever you\'re ready';
+
+  @override
+  String get onboarding_begin_practice => 'Find your first practices';
 
   @override
   String get onboarding_2_title => 'Next, here\'s how it works.';

@@ -49,10 +49,18 @@ class AppLocalizationsNe extends AppLocalizations {
 
   @override
   String get onboarding_all_set_description =>
-      'हामीले तपाईंको परम्पराअनुसार तपाईंको अनुभवलाई मिलाएका छौँ। हरेक दिन — एक छिनका लागि भए पनि — उपस्थित हुनुहोस् र आफ्नो अभ्यास बढ्दै गएको हेर्नुहोस्';
+      'तपाईंको अभ्यासका लागि यो तयार छ।';
 
   @override
-  String get onboarding_begin_practice => 'आफ्नो अभ्यास सुरु गर्नुहोस्';
+  String get onboarding_all_set_feature_practices =>
+      'जप, संचय, ध्यान र अध्ययन योजनाहरू छान्न';
+
+  @override
+  String get onboarding_all_set_feature_reminders =>
+      'कोमल दैनिक रिमाइन्डर, जब तपाईं तयार हुनुहुन्छ';
+
+  @override
+  String get onboarding_begin_practice => 'आफ्नो पहिलो अभ्यास खोज्नुहोस्';
 
   @override
   String get onboarding_2_title => 'अब, यसरी यो काम गर्छ।';

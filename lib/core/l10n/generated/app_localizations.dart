@@ -175,19 +175,31 @@ abstract class AppLocalizations {
   /// No description provided for @onboarding_all_set.
   ///
   /// In en, this message translates to:
-  /// **'You\'re all set up'**
+  /// **'You\'re all set'**
   String get onboarding_all_set;
 
   /// No description provided for @onboarding_all_set_description.
   ///
   /// In en, this message translates to:
-  /// **'We\'ve tailored your experience to your tradition. Show up each day — even for a moment — and watch your practice grow'**
+  /// **'Here\'s what\'s ready for your practice.'**
   String get onboarding_all_set_description;
+
+  /// No description provided for @onboarding_all_set_feature_practices.
+  ///
+  /// In en, this message translates to:
+  /// **'Chants, accumulations, meditation, and study plans to choose from'**
+  String get onboarding_all_set_feature_practices;
+
+  /// No description provided for @onboarding_all_set_feature_reminders.
+  ///
+  /// In en, this message translates to:
+  /// **'Gentle daily reminders, whenever you\'re ready'**
+  String get onboarding_all_set_feature_reminders;
 
   /// No description provided for @onboarding_begin_practice.
   ///
   /// In en, this message translates to:
-  /// **'Begin your practice'**
+  /// **'Find your first practices'**
   String get onboarding_begin_practice;
 
   /// No description provided for @onboarding_2_title.
