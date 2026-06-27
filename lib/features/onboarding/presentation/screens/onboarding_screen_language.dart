@@ -69,7 +69,7 @@ class _OnboardingScreenLanguageState
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(height: 120),
+              const SizedBox(height: 50),
               const OnboardingQuestionTitle(title: 'Choose your language:'),
               const SizedBox(height: 30),
               _buildLanguageOptions(),
@@ -114,7 +114,7 @@ class _OnboardingScreenLanguageState
           foregroundColor: Colors.white,
           elevation: 0,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(28),
           ),
           padding: const EdgeInsets.symmetric(vertical: 16),
         ),

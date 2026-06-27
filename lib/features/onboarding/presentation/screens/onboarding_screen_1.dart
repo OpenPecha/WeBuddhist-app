@@ -26,11 +26,12 @@ class OnboardingScreen1 extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 50),
                     _buildTitle(context),
-                    const Spacer(),
+                    const SizedBox(height: 100),
                     _buildLogoSection(size),
                     const SizedBox(height: 24),
+                    const Spacer(),
                     _buildTagline(context),
                     const Spacer(),
                     _buildCTAButton(context),
@@ -70,15 +71,6 @@ class OnboardingScreen1 extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 12),
-        Text(
-          context.l10n.onboarding_setup_subtitle,
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w400,
-            color: onSurface.withValues(alpha: 0.65),
-          ),
-        ),
       ],
     );
   }
