@@ -26,13 +26,14 @@ class OnboardingScreen1 extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    const SizedBox(height: 60),
+                    const SizedBox(height: 50),
                     _buildTitle(context),
-                    const Spacer(),
+                    const SizedBox(height: 100),
                     _buildLogoSection(size),
+                    const SizedBox(height: 24),
                     const Spacer(),
-                    _buildQuote(context),
-                    const SizedBox(height: 32),
+                    _buildTagline(context),
+                    const Spacer(),
                     _buildCTAButton(context),
                     const SizedBox(height: 24),
                   ],
@@ -46,21 +47,43 @@ class OnboardingScreen1 extends StatelessWidget {
   }
 
   Widget _buildTitle(BuildContext context) {
+    final onSurface = Theme.of(context).colorScheme.onSurface;
+
     return Column(
       children: [
         Text(
           context.l10n.onboarding_welcome,
-          style: TextStyle(fontSize: 28, fontWeight: FontWeight.w500),
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: 22,
+            fontWeight: FontWeight.w700,
+            color: onSurface,
+          ),
         ),
         Text(
           context.l10n.appTitle,
+          textAlign: TextAlign.center,
           style: TextStyle(
-            fontSize: 36,
+            fontSize: 28,
             fontWeight: FontWeight.w600,
             fontFamily: getFontFamily('en'),
+            color: onSurface,
           ),
         ),
+        const SizedBox(height: 12),
       ],
+    );
+  }
+
+  Widget _buildTagline(BuildContext context) {
+    return Text(
+      context.l10n.onboarding_tagline,
+      textAlign: TextAlign.center,
+      style: TextStyle(
+        fontSize: 18,
+        fontWeight: FontWeight.w400,
+        color: Theme.of(context).colorScheme.onSurface,
+      ),
     );
   }
 
@@ -79,38 +102,12 @@ class OnboardingScreen1 extends StatelessWidget {
               return const Icon(
                 Icons.self_improvement_rounded,
                 size: 48,
-                color: AppColors.primary,
+                color: AppColors.brandblue,
               );
             },
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildQuote(BuildContext context) {
-    return Column(
-      children: [
-        Text(
-          "\"${context.l10n.onboarding_quote}\"",
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w500,
-            fontFamily: getFontFamily('en'),
-          ),
-        ),
-        const SizedBox(height: 16),
-        Text(
-          context.l10n.onboarding_quote_citation,
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w500,
-            fontFamily: getFontFamily('en'),
-          ),
-        ),
-      ],
     );
   }
 
@@ -121,21 +118,17 @@ class OnboardingScreen1 extends StatelessWidget {
       child: ElevatedButton(
         onPressed: onNext,
         style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.primary,
+          backgroundColor: AppColors.brandblue,
           foregroundColor: Colors.white,
           elevation: 0,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(28),
           ),
           padding: const EdgeInsets.symmetric(vertical: 16),
         ),
         child: Text(
           context.l10n.onboarding_find_peace,
-          style: const TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.w600,
-            letterSpacing: -0.306,
-          ),
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
         ),
       ),
     );

@@ -21,33 +21,25 @@ class LoginPage extends ConsumerWidget {
         !authState.isLoading && !authState.isLoggedIn && !authState.isGuest;
 
     return Scaffold(
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
-        child: Stack(
-          children: [
-            Positioned(
-              top: MediaQuery.of(context).size.height * 0.20,
-              left: 0,
-              right: 0,
-              child: const Center(child: LogoLabel()),
-            ),
-            Center(
-              child: SingleChildScrollView(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const SizedBox(height: 180),
-                      if (isUnauthenticated)
-                        AuthButtons()
-                      else
-                        const CircularProgressIndicator(),
-                    ],
-                  ),
-                ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          child: Center(
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const LogoLabel(),
+                  const SizedBox(height: 48),
+                  if (isUnauthenticated)
+                    const AuthButtons()
+                  else
+                    const CircularProgressIndicator(),
+                ],
               ),
             ),
-          ],
+          ),
         ),
       ),
     );

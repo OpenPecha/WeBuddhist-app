@@ -21,6 +21,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get onboarding_welcome => '歡迎來到';
 
   @override
+  String get onboarding_setup_subtitle => '讓我們為您設定，只需一分鐘';
+
+  @override
+  String get onboarding_tagline => '學習、修持、連結。每日。';
+
+  @override
   String get onboarding_quote => '滴水穿石 ‧ 聚沙成塔';
 
   @override
@@ -36,14 +42,43 @@ class AppLocalizationsZh extends AppLocalizations {
   String get onboarding_choose_option => '至少選擇一項';
 
   @override
-  String get onboarding_all_set => '您已準備就緒';
+  String get onboarding_all_set => '一切就緒';
 
   @override
-  String get onboarding_all_set_description =>
-      '我們已根據您的傳承為您量身打造。每天造訪一次——哪怕只是短暫的片刻——都能看到您修行成長的足跡';
+  String get onboarding_all_set_description => '以下是為您的修行準備的內容。';
 
   @override
-  String get onboarding_begin_practice => '開始您的修持';
+  String get onboarding_all_set_feature_practices => '持咒、累積、禪修和學習計畫供您選擇';
+
+  @override
+  String get onboarding_all_set_feature_reminders => '溫和的日常提醒，隨時為您準備好';
+
+  @override
+  String get onboarding_begin_practice => '尋找您的第一項修持';
+
+  @override
+  String get onboarding_2_title => '接下來，看看它是如何運作的。';
+
+  @override
+  String get onboarding_2_subtitle => '養成習慣的三個小步驟';
+
+  @override
+  String get onboarding_2_step1_title => '選擇您的修持方式';
+
+  @override
+  String get onboarding_2_step1_desc => '持咒、數念珠、設定禪坐計時器，或跟隨您傳承中的學習計畫。';
+
+  @override
+  String get onboarding_2_step2_title => '融入您的日常生活';
+
+  @override
+  String get onboarding_2_step2_desc => '建立日常日程，我們會發送溫和的提醒，幫助您堅持。';
+
+  @override
+  String get onboarding_2_step3_title => '每天修持幾分鐘';
+
+  @override
+  String get onboarding_2_step3_desc => '哪怕只是一刻也有意義。日復一日，您的修持會不斷成長。';
 
   @override
   String get home_recitation => '持誦';
@@ -470,6 +505,21 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get onboarding_traditions_question => '您跟隨哪些傳承？';
+
+  @override
+  String get onboarding_tradition_chat_title => '您的傳承：';
+
+  @override
+  String get onboarding_tradition_chat_subtitle => '選擇一個或多個 — 我們將用來個性化您的體驗。';
+
+  @override
+  String get onboarding_tradition_type_hint => '或輸入您的傳承...';
+
+  @override
+  String get onboarding_skip_for_now => '暫時跳過';
+
+  @override
+  String get onboarding_add_another_tradition => '添加另一個傳承';
 
   @override
   String get onboarding_select_all => '全選';
@@ -967,6 +1017,9 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get continueAsGuest => '以訪客身份繼續';
+
+  @override
+  String get exploreAsGuest => '以訪客身份探索';
 
   @override
   String get signIn => '登入';

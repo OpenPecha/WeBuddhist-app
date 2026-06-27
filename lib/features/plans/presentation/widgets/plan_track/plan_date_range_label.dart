@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/features/plans/data/utils/plan_utils.dart';
 import 'package:intl/intl.dart';
 
 /// Immutable value type encapsulating a plan's `[start, end]` calendar
@@ -37,8 +38,8 @@ class PlanDateRange {
   }) {
     if (startDate == null || totalDays <= 0) return null;
 
-    final start = DateUtils.dateOnly(startDate.toLocal());
-    final end = DateUtils.dateOnly(start.add(Duration(days: totalDays - 1)));
+    final start = PlanUtils.calendarDateOnly(startDate);
+    final end = start.add(Duration(days: totalDays - 1));
     final today = DateUtils.dateOnly(DateTime.now());
     final isCurrent = !today.isBefore(start) && !today.isAfter(end);
 

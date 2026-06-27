@@ -9,10 +9,6 @@ abstract class LocalStorageService {
   Future<Map<String, dynamic>?> getUserData();
   Future<void> clearUserData();
 
-  // ========== ONBOARDING ==========
-  Future<void> setOnboardingCompleted(bool completed);
-  Future<bool> getOnboardingCompleted();
-
   Future<T?> get<T>(String key);
 
   Future<bool> set<T>(String key, T value);
@@ -56,18 +52,6 @@ class LocalStorageServiceImpl implements LocalStorageService {
   Future<void> clearUserData() async {
     final prefs = await _prefs;
     await prefs.remove(StorageKeys.userData);
-  }
-
-  @override
-  Future<void> setOnboardingCompleted(bool completed) async {
-    final prefs = await _prefs;
-    await prefs.setBool(StorageKeys.onboardingCompleted, completed);
-  }
-
-  @override
-  Future<bool> getOnboardingCompleted() async {
-    final prefs = await _prefs;
-    return prefs.getBool(StorageKeys.onboardingCompleted) ?? false;
   }
 
   @override

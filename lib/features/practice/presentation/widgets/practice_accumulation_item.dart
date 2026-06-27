@@ -19,6 +19,12 @@ class PracticeAccumulationItem extends StatelessWidget {
     final beadUrl = mantra.mantra?.beadImageUrl ?? mantra.beadImageUrl;
     final title = mantra.displayTitle(language);
 
+    const titleStyle = TextStyle(
+      fontSize: 14,
+      fontWeight: FontWeight.bold,
+      height: 1.25,
+    );
+
     return Card(
       clipBehavior: Clip.antiAlias,
       elevation: 0,
@@ -51,16 +57,16 @@ class PracticeAccumulationItem extends StatelessWidget {
                           child: const Icon(Icons.spa, size: 28),
                         ),
               ),
-              const SizedBox(height: 12),
-              Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
+              const SizedBox(height: 8),
+              SizedBox(
+                height: titleStyle.fontSize! * titleStyle.height! * 2,
+                child: Text(
+                  title,
+                  style: titleStyle,
+                  textAlign: TextAlign.center,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
-                textAlign: TextAlign.center,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
               ),
             ],
           ),
