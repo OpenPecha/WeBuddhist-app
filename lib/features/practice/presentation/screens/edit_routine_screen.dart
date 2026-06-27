@@ -1503,12 +1503,20 @@ class _DoneButton extends StatelessWidget {
           HapticFeedback.lightImpact();
           onTap();
         },
-        child: Text(
-          label,
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w500,
-            color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimary,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+          decoration: BoxDecoration(
+            color: isDark ? AppColors.surfaceVariantDark : AppColors.grey100,
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Text(
+            label,
+            style: TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w500,
+              color:
+                  isDark ? AppColors.textPrimaryDark : AppColors.textPrimary,
+            ),
           ),
         ),
       ),
