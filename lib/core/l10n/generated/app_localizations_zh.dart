@@ -507,6 +507,21 @@ class AppLocalizationsZh extends AppLocalizations {
   String get onboarding_traditions_question => '您跟隨哪些傳承？';
 
   @override
+  String get onboarding_tradition_chat_title => '您的傳承：';
+
+  @override
+  String get onboarding_tradition_chat_subtitle => '選擇一個或多個 — 我們將用來個性化您的體驗。';
+
+  @override
+  String get onboarding_tradition_type_hint => '或輸入您的傳承...';
+
+  @override
+  String get onboarding_skip_for_now => '暫時跳過';
+
+  @override
+  String get onboarding_add_another_tradition => '添加另一個傳承';
+
+  @override
   String get onboarding_select_all => '全選';
 
   @override

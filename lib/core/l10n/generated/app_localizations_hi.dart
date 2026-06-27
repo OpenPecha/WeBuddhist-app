@@ -536,6 +536,22 @@ class AppLocalizationsHi extends AppLocalizations {
       'आप किन परंपराओं\nका पालन करते हैं?';
 
   @override
+  String get onboarding_tradition_chat_title => 'आपकी परंपरा:';
+
+  @override
+  String get onboarding_tradition_chat_subtitle =>
+      'एक या अधिक चुनें — हम इन्हें आपके अनुभव को वैयक्तिकृत करने के लिए उपयोग करेंगे।';
+
+  @override
+  String get onboarding_tradition_type_hint => 'या अपनी परंपरा लिखें...';
+
+  @override
+  String get onboarding_skip_for_now => 'अभी के लिए छोड़ें';
+
+  @override
+  String get onboarding_add_another_tradition => 'एक और परंपरा जोड़ें';
+
+  @override
   String get onboarding_select_all => 'सभी चुनें';
 
   @override

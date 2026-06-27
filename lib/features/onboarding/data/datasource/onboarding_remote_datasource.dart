@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/features/onboarding/data/models/onboarding_preferences.dart';
+import 'package:flutter_pecha/features/onboarding/data/models/tradition_chat_models.dart';
 
 final _logger = AppLogger('OnboardingRemoteDatasource');
 
@@ -47,5 +48,38 @@ class OnboardingRemoteDatasource {
     }
 
     return null;
+  }
+
+  /// Send a message in the tradition identification chat.
+  ///
+  /// Endpoint: POST /api/v1/users/me/traditions/chat
+  Future<TraditionChatResponse> sendTraditionChatMessage(
+    TraditionChatRequest request,
+  ) async {
+    final response = await _dio.post(
+      '/users/me/traditions/chat',
+      data: request.toJson(),
+    );
+
+    final data = response.data;
+    if (data is Map<String, dynamic>) {
+      return TraditionChatResponse.fromJson(data);
+    }
+
+    throw DioException(
+      requestOptions: response.requestOptions,
+      message: 'Invalid tradition chat response',
+    );
+  }
+
+  /// Save the user's selected tradition.
+  ///
+  /// Endpoint: POST /api/v1/users/me/traditions
+  Future<void> saveUserTradition(SaveTraditionRequest request) async {
+    await _dio.post(
+      '/users/me/traditions',
+      data: request.toJson(),
+    );
+    _logger.info('User tradition saved: ${request.traditionCode}');
   }
 }

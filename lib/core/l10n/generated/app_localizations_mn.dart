@@ -535,6 +535,22 @@ class AppLocalizationsMn extends AppLocalizations {
   String get onboarding_traditions_question => 'Та ямар уламжлал\nдагадаг вэ?';
 
   @override
+  String get onboarding_tradition_chat_title => 'Таны уламжлал:';
+
+  @override
+  String get onboarding_tradition_chat_subtitle =>
+      'Нэг эсвэл хэд хэдийг сонгоно уу — бид тэдгээрийг таны туршлагыг хувийн болгоход ашиглана.';
+
+  @override
+  String get onboarding_tradition_type_hint => 'Эсвэл уламжлалаа бичнэ үү...';
+
+  @override
+  String get onboarding_skip_for_now => 'Одоохондоо алгасах';
+
+  @override
+  String get onboarding_add_another_tradition => 'Өөр уламжлал нэмэх';
+
+  @override
   String get onboarding_select_all => 'Бүгдийг сонгох';
 
   @override

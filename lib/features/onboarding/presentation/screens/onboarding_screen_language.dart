@@ -120,11 +120,7 @@ class _OnboardingScreenLanguageState
         ),
         child: const Text(
           'Continue',
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.w600,
-            letterSpacing: -0.306,
-          ),
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
         ),
       ),
     );

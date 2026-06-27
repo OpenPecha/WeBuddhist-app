@@ -1060,6 +1060,36 @@ abstract class AppLocalizations {
   /// **'Which traditions\ndo you follow?'**
   String get onboarding_traditions_question;
 
+  /// No description provided for @onboarding_tradition_chat_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Your tradition:'**
+  String get onboarding_tradition_chat_title;
+
+  /// No description provided for @onboarding_tradition_chat_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose one: we\'ll use it to personalize your experience.'**
+  String get onboarding_tradition_chat_subtitle;
+
+  /// No description provided for @onboarding_tradition_type_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Or type your tradition...'**
+  String get onboarding_tradition_type_hint;
+
+  /// No description provided for @onboarding_skip_for_now.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip for now'**
+  String get onboarding_skip_for_now;
+
+  /// No description provided for @onboarding_add_another_tradition.
+  ///
+  /// In en, this message translates to:
+  /// **'Add another tradition'**
+  String get onboarding_add_another_tradition;
+
   /// No description provided for @onboarding_select_all.
   ///
   /// In en, this message translates to:

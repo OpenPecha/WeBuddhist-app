@@ -540,6 +540,22 @@ class AppLocalizationsBo extends AppLocalizations {
       'ཁྱེད་རང་ཆོས་བརྒྱུད་གང་གི་རྗེས་འཇུག་ཡིན་ནམ།';
 
   @override
+  String get onboarding_tradition_chat_title => 'Your tradition:';
+
+  @override
+  String get onboarding_tradition_chat_subtitle =>
+      'Choose one: we\'ll use it to personalize your experience.';
+
+  @override
+  String get onboarding_tradition_type_hint => 'Or type your tradition...';
+
+  @override
+  String get onboarding_skip_for_now => 'Skip for now';
+
+  @override
+  String get onboarding_add_another_tradition => 'Add another tradition';
+
+  @override
   String get onboarding_select_all => 'ཚང་མ་འདེམས།';
 
   @override
