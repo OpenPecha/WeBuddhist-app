@@ -1,0 +1,73 @@
+name: 🚀 Release • Prod
+
+# main branch -> prod flavor -> TestFlight + Play internal track, then a
+# GitHub Release tagged v<version>-build-<n> with the AAB + IPA attached.
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+concurrency:
+  group: release-prod-${{ github.ref }}
+  cancel-in-progress: false   # never cancel a production release mid-flight
+
+permissions:
+  contents: write             # needed to create the GitHub Release + tag
+
+jobs:
+  android:
+    uses: ./.github/workflows/build-android.yml
+    with:
+      flavor:             prod
+      entrypoint:         lib/main_prod.dart
+      airbridge_app_name: webuddhist
+      play_package_name:  org.pecha.app
+      play_track:         internal        # bump to "production" when ready to ship live
+      environment:        production
+      upload_to_store:    true
+    secrets: inherit
+
+  ios:
+    uses: ./.github/workflows/build-ios.yml
+    with:
+      flavor:             prod
+      entrypoint:         lib/main_prod.dart
+      airbridge_app_name: webuddhist
+      auth0_domain:       we-buddhist-prod.us.auth0.com
+      ios_bundle_id:      org.pecha.app
+      environment:        production
+      upload_to_store:    true
+    secrets: inherit
+
+  github_release:
+    name: 📦 GitHub Release
+    needs: [ android, ios ]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: 📂 Checkout
+        uses: actions/checkout@v4
+
+      - name: 🏷️ Compute tag
+        id: ver
+        run: |
+          V=$(grep '^version:' pubspec.yaml | sed 's/version: //' | cut -d'+' -f1)
+          echo "tag=v$V-build-${{ github.run_number }}" >> "$GITHUB_OUTPUT"
+
+      - name: ⬇️ Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
+
+      - name: 📝 Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.ver.outputs.tag }}
+          name: WeBuddhist ${{ steps.ver.outputs.tag }}
+          generate_release_notes: true
+          files: |
+            artifacts/**/*.aab
+            artifacts/**/*.ipa
