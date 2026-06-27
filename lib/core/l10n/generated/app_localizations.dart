@@ -484,12 +484,6 @@ abstract class AppLocalizations {
   /// **'Resources'**
   String get resources;
 
-  /// No description provided for @tools.
-  ///
-  /// In en, this message translates to:
-  /// **'Tools'**
-  String get tools;
-
   /// No description provided for @no_translation.
   ///
   /// In en, this message translates to:

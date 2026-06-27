@@ -64,9 +64,12 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
   /// Lets the audio button keep its state when it is reparented between the
   /// behind-panel slot and the bottom overlay.
   final GlobalKey _audioButtonKey = GlobalKey();
+  static const double _defaultContentBottomPadding = 60;
+  static const double _selectedSegmentOverlayFallbackHeight = 360;
 
   // App bar visibility state
   bool _isAppBarVisible = true;
+  double _bottomOverlayHeight = 0;
   // Scroll controller callback
   void Function(String segmentId, {double? alignment})? _scrollToSegment;
 
@@ -265,6 +268,14 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
 
     final isPanelOpen = state.isCommentaryOpen || state.isTranslationOpen;
     final isActionBarVisible = state.hasSelection && !isPanelOpen;
+    final isBottomOverlayVisible =
+        !isPanelOpen && (_hasAudio || isActionBarVisible);
+    final contentBottomPadding =
+        isBottomOverlayVisible
+            ? (_bottomOverlayHeight > 0
+                ? _bottomOverlayHeight + 16
+                : _selectedSegmentOverlayFallbackHeight)
+            : _defaultContentBottomPadding;
     final bottomInset = MediaQuery.of(context).padding.bottom;
 
     return Stack(
@@ -335,6 +346,7 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
                         initialSegmentId: widget.segmentId,
                         visibleSegmentIds:
                             widget.navigationContext?.currentSegmentIds,
+                        bottomPadding: contentBottomPadding,
                         onScrollDirectionChanged: _onScrollDirectionChanged,
                         onScrollControllerReady: (scrollFn) {
                           _scrollToSegment = scrollFn;
@@ -351,31 +363,38 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
         // button sits above the segment action bar, sharing a fixed gap so
         // the two never overlap. When neither is present this branch is
         // skipped entirely.
-        if (!isPanelOpen && (_hasAudio || isActionBarVisible))
+        if (isBottomOverlayVisible)
           Positioned(
             left: 0,
             right: 0,
             bottom: 0,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              // Stretch so the action bar spans full width; the audio button
-              // is centered explicitly.
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                if (_hasAudio)
-                  Padding(
-                    // Hug the action bar with a tight gap when it is open;
-                    // otherwise keep the original floating offset above bottom.
-                    padding: EdgeInsets.only(
-                      bottom:
-                          isActionBarVisible
-                              ? _audioActionBarGap
-                              : bottomInset + _audioBottomGap,
+            child: _MeasuredSize(
+              onChange: (size) {
+                if ((_bottomOverlayHeight - size.height).abs() < 1) return;
+                setState(() => _bottomOverlayHeight = size.height);
+              },
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                // Stretch so the action bar spans full width; the audio button
+                // is centered explicitly.
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  if (_hasAudio)
+                    Padding(
+                      // Hug the action bar with a tight gap when it is open;
+                      // otherwise keep the original floating offset above bottom.
+                      padding: EdgeInsets.only(
+                        bottom:
+                            isActionBarVisible
+                                ? _audioActionBarGap
+                                : bottomInset + _audioBottomGap,
+                      ),
+                      child: Center(child: _buildAudioButton()),
                     ),
-                    child: Center(child: _buildAudioButton()),
-                  ),
-                if (isActionBarVisible) _buildSegmentActionBar(state, notifier),
-              ],
+                  if (isActionBarVisible)
+                    _buildSegmentActionBar(state, notifier),
+                ],
+              ),
             ),
           ),
       ],
@@ -614,4 +633,41 @@ class _ReaderErrorView extends StatelessWidget {
       ),
     );
   }
+}
+
+class _MeasuredSize extends StatefulWidget {
+  final Widget child;
+  final ValueChanged<Size> onChange;
+
+  const _MeasuredSize({required this.child, required this.onChange});
+
+  @override
+  State<_MeasuredSize> createState() => _MeasuredSizeState();
+}
+
+class _MeasuredSizeState extends State<_MeasuredSize> {
+  Size? _oldSize;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _notifySize());
+  }
+
+  @override
+  void didUpdateWidget(covariant _MeasuredSize oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    WidgetsBinding.instance.addPostFrameCallback((_) => _notifySize());
+  }
+
+  void _notifySize() {
+    if (!mounted) return;
+    final size = context.size;
+    if (size == null || size == _oldSize) return;
+    _oldSize = size;
+    widget.onChange(size);
+  }
+
+  @override
+  Widget build(BuildContext context) => widget.child;
 }
