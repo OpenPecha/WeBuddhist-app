@@ -4,8 +4,10 @@ import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/features/onboarding/data/datasource/onboarding_local_datasource.dart';
 import 'package:flutter_pecha/features/onboarding/data/datasource/onboarding_remote_datasource.dart';
 import 'package:flutter_pecha/features/onboarding/data/models/onboarding_preferences.dart';
-import 'package:flutter_pecha/features/onboarding/domain/entities/onboarding_preferences.dart' as domain;
-import 'package:flutter_pecha/features/onboarding/domain/repositories/onboarding_repository.dart' as domain_repo;
+import 'package:flutter_pecha/features/onboarding/domain/entities/onboarding_preferences.dart'
+    as domain;
+import 'package:flutter_pecha/features/onboarding/domain/repositories/onboarding_repository.dart'
+    as domain_repo;
 
 final _logger = AppLogger('OnboardingRepository');
 
@@ -33,16 +35,14 @@ class OnboardingRepositoryImpl implements domain_repo.OnboardingRepository {
   }
 
   @override
-  Future<Either<Failure, domain.OnboardingPreferences?>> getPreferences() async {
+  Future<Either<Failure, domain.OnboardingPreferences?>>
+  getPreferences() async {
     try {
       final model = await localDatasource.loadPreferences();
       if (model == null) {
         return const Right(null);
       }
-      final entity = model.toEntity(
-        userId: '',
-        completedAt: DateTime.now(),
-      );
+      final entity = model.toEntity(userId: '', completedAt: DateTime.now());
       return Right(entity);
     } catch (e) {
       return Left(CacheFailure('Failed to load preferences: $e'));
@@ -78,7 +78,8 @@ class OnboardingRepositoryImpl implements domain_repo.OnboardingRepository {
   }
 
   @override
-  Future<Either<Failure, List<domain.OnboardingStep>>> getOnboardingSteps() async {
+  Future<Either<Failure, List<domain.OnboardingStep>>>
+  getOnboardingSteps() async {
     try {
       final steps = <domain.OnboardingStep>[
         const domain.OnboardingStep(

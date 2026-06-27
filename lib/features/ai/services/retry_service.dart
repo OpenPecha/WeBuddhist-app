@@ -128,11 +128,13 @@ class RetryService {
     final exponentialDelay = baseDelay * pow(2, attempt);
 
     // Cap at maximum delay
-    final cappedDelay = exponentialDelay > maxDelay ? maxDelay : exponentialDelay;
+    final cappedDelay =
+        exponentialDelay > maxDelay ? maxDelay : exponentialDelay;
 
     // Add jitter (random variation up to jitterFactor of the delay)
     final random = Random();
-    final jitter = cappedDelay.inMilliseconds * jitterFactor * random.nextDouble();
+    final jitter =
+        cappedDelay.inMilliseconds * jitterFactor * random.nextDouble();
     final delayWithJitter = cappedDelay.inMilliseconds + jitter.toInt();
 
     return Duration(milliseconds: delayWithJitter);

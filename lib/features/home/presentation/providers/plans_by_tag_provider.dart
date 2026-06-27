@@ -6,12 +6,13 @@ import 'package:flutter_pecha/features/plans/domain/usecases/plans_usecases.dart
 import 'package:flutter_pecha/features/plans/presentation/providers/use_case_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-final plansByTagProvider = FutureProvider.family<Either<Failure, List<Plan>>, String>((ref, tag) async {
-  final languageCode = ref.watch(contentLanguageProvider);
-  final getPlansUseCase = ref.watch(getPlansUseCaseProvider);
+final plansByTagProvider =
+    FutureProvider.family<Either<Failure, List<Plan>>, String>((
+      ref,
+      tag,
+    ) async {
+      final languageCode = ref.watch(contentLanguageProvider);
+      final getPlansUseCase = ref.watch(getPlansUseCaseProvider);
 
-  return getPlansUseCase(GetPlansParams(
-    language: languageCode,
-    tag: tag,
-  ));
-});
+      return getPlansUseCase(GetPlansParams(language: languageCode, tag: tag));
+    });

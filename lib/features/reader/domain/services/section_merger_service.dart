@@ -12,18 +12,17 @@ class SectionMergerService {
   final SectionFlattenerService _flattener;
   final _logger = AppLogger('SectionMergerService');
 
-  SectionMergerService({
-    SectionFlattenerService? flattener,
-  }) : _flattener = flattener ?? const SectionFlattenerService();
+  SectionMergerService({SectionFlattenerService? flattener})
+    : _flattener = flattener ?? const SectionFlattenerService();
 
   /// Merges new sections into existing flattened content
-  /// 
+  ///
   /// Uses Set-based deduplication for O(1) duplicate detection.
-  /// 
+  ///
   /// [existing] - The current flattened content
   /// [newSections] - New sections to merge in
   /// [direction] - Whether to prepend (previous) or append (next)
-  /// 
+  ///
   /// Returns a new FlattenedContent with merged items and updated index map
   FlattenedContent merge(
     FlattenedContent existing,
@@ -43,7 +42,7 @@ class SectionMergerService {
     try {
       // Create a Set of existing segment IDs for O(1) lookup
       final existingSegmentIds = existing.segmentIndexMap.keys.toSet();
-      
+
       // Create a Set of existing section IDs to track headers
       final existingSectionIds = <String>{};
       for (final item in existing.items) {

@@ -40,7 +40,8 @@ class AppLogger {
 
     final emoji = _getLogEmoji(record.level);
     final time = _formatTime(record.time);
-    final message = '$emoji [${record.level.name}] $time ${record.loggerName}: ${record.message}';
+    final message =
+        '$emoji [${record.level.name}] $time ${record.loggerName}: ${record.message}';
 
     // Use debugPrint in debug mode - it's throttled and won't overflow
     debugPrint(message);

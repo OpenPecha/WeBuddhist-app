@@ -27,7 +27,14 @@ class Author extends Equatable {
   }
 
   @override
-  List<Object?> get props => [id, name, tibetanName, biography, imageUrl, socialProfiles];
+  List<Object?> get props => [
+    id,
+    name,
+    tibetanName,
+    biography,
+    imageUrl,
+    socialProfiles,
+  ];
 }
 
 /// Social profile for an author.
@@ -36,11 +43,7 @@ class SocialProfile extends Equatable {
   final String url;
   final String? handle;
 
-  const SocialProfile({
-    required this.platform,
-    required this.url,
-    this.handle,
-  });
+  const SocialProfile({required this.platform, required this.url, this.handle});
 
   @override
   List<Object?> get props => [platform, url, handle];

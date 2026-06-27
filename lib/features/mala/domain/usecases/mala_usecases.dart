@@ -53,9 +53,7 @@ class UpdateUserAccumulatorUseCase
   final MalaRepository _repository;
 
   @override
-  Future<Either<Failure, MalaCount>> call(
-    UpdateUserAccumulatorParams params,
-  ) =>
+  Future<Either<Failure, MalaCount>> call(UpdateUserAccumulatorParams params) =>
       _repository.updateUserAccumulator(
         accumulatorId: params.accumulatorId,
         currentCount: params.currentCount,

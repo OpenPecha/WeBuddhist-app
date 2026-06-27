@@ -35,10 +35,8 @@ class SeriesSearchState {
 }
 
 class SeriesSearchNotifier extends StateNotifier<SeriesSearchState> {
-  SeriesSearchNotifier({
-    required this.datasource,
-    required this.languageCode,
-  }) : super(const SeriesSearchState());
+  SeriesSearchNotifier({required this.datasource, required this.languageCode})
+    : super(const SeriesSearchState());
 
   final SeriesRemoteDatasource datasource;
   final String languageCode;
@@ -69,10 +67,7 @@ class SeriesSearchNotifier extends StateNotifier<SeriesSearchState> {
 
     try {
       final models = await datasource.fetchSeries(
-        params: SeriesQueryParams(
-          language: languageCode,
-          search: query.trim(),
-        ),
+        params: SeriesQueryParams(language: languageCode, search: query.trim()),
       );
       if (!mounted) return;
       state = state.copyWith(
@@ -109,10 +104,10 @@ class SeriesSearchNotifier extends StateNotifier<SeriesSearchState> {
 
 final seriesSearchProvider =
     StateNotifierProvider<SeriesSearchNotifier, SeriesSearchState>((ref) {
-  final dio = ref.watch(dioProvider);
-  final languageCode = ref.watch(contentLanguageProvider);
-  return SeriesSearchNotifier(
-    datasource: SeriesRemoteDatasource(dio: dio),
-    languageCode: languageCode,
-  );
-});
+      final dio = ref.watch(dioProvider);
+      final languageCode = ref.watch(contentLanguageProvider);
+      return SeriesSearchNotifier(
+        datasource: SeriesRemoteDatasource(dio: dio),
+        languageCode: languageCode,
+      );
+    });

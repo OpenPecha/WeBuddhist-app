@@ -18,10 +18,7 @@ class NoOpAnalyticsService implements AnalyticsService {
   Future<void> reset() async {}
 
   @override
-  Future<void> track(
-    String event, {
-    Map<String, Object?>? properties,
-  }) async {}
+  Future<void> track(String event, {Map<String, Object?>? properties}) async {}
 
   @override
   Future<void> setSuperProperties(Map<String, Object?> properties) async {}

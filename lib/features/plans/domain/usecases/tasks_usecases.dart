@@ -6,13 +6,16 @@ import 'package:flutter_pecha/features/plans/domain/repositories/tasks_repositor
 import 'package:flutter_pecha/shared/domain/base_classes/usecase.dart';
 
 /// Use case for getting tasks by plan item ID.
-class GetTasksByPlanItemIdUseCase extends UseCase<List<PlanTasksModel>, GetTasksByPlanItemIdParams> {
+class GetTasksByPlanItemIdUseCase
+    extends UseCase<List<PlanTasksModel>, GetTasksByPlanItemIdParams> {
   final TasksRepositoryInterface _repository;
 
   GetTasksByPlanItemIdUseCase(this._repository);
 
   @override
-  Future<Either<Failure, List<PlanTasksModel>>> call(GetTasksByPlanItemIdParams params) async {
+  Future<Either<Failure, List<PlanTasksModel>>> call(
+    GetTasksByPlanItemIdParams params,
+  ) async {
     if (params.planItemId.isEmpty) {
       return const Left(ValidationFailure('Plan item ID cannot be empty'));
     }

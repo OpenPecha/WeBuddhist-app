@@ -19,10 +19,12 @@ class GetMantraCountsParams extends Equatable {
   List<Object?> get props => [language, skip, limit];
 }
 
-class GetMantraCountsUseCase extends UseCase<MantraCountPage, GetMantraCountsParams> {
+class GetMantraCountsUseCase
+    extends UseCase<MantraCountPage, GetMantraCountsParams> {
   final Future<Either<Failure, MantraCountPage>> Function(
     GetMantraCountsParams params,
-  ) _getMantraCounts;
+  )
+  _getMantraCounts;
 
   GetMantraCountsUseCase(this._getMantraCounts);
 

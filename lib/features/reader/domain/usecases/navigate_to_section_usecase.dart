@@ -5,7 +5,8 @@ import 'package:flutter_pecha/features/reader/domain/repositories/reader_reposit
 import 'package:flutter_pecha/shared/domain/base_classes/usecase.dart';
 
 /// Navigate to a specific section use case.
-class NavigateToSectionUseCase extends UseCase<Section, NavigateToSectionParams> {
+class NavigateToSectionUseCase
+    extends UseCase<Section, NavigateToSectionParams> {
   final ReaderRepository _repository;
 
   NavigateToSectionUseCase(this._repository);

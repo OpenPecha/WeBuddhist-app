@@ -2,9 +2,12 @@ import 'package:fpdart/fpdart.dart';
 import 'package:flutter_pecha/core/error/exception_mapper.dart';
 import 'package:flutter_pecha/core/error/failures.dart';
 import 'package:flutter_pecha/features/ai/data/datasource/thread_remote_datasource.dart';
-import 'package:flutter_pecha/features/ai/data/models/chat_thread.dart' as data_models;
-import 'package:flutter_pecha/features/ai/domain/entities/chat_message.dart' as domain;
-import 'package:flutter_pecha/features/ai/domain/entities/chat_thread.dart' as domain;
+import 'package:flutter_pecha/features/ai/data/models/chat_thread.dart'
+    as data_models;
+import 'package:flutter_pecha/features/ai/domain/entities/chat_message.dart'
+    as domain;
+import 'package:flutter_pecha/features/ai/domain/entities/chat_thread.dart'
+    as domain;
 import 'package:flutter_pecha/features/ai/domain/repositories/ai_repository.dart';
 
 /// Implementation of the AI repository domain interface.
@@ -21,7 +24,8 @@ class AiRepositoryImpl implements AIRepository {
   Future<Either<Failure, List<domain.ChatThread>>> getThreads() async {
     try {
       final response = await _threadDatasource.getThreads(skip: 0, limit: 100);
-      final threads = response.data.map((model) => _toDomainThread(model)).toList();
+      final threads =
+          response.data.map((model) => _toDomainThread(model)).toList();
       return Right(threads);
     } catch (e) {
       return Left(ExceptionMapper.map(e, context: 'getThreads'));
@@ -52,7 +56,9 @@ class AiRepositoryImpl implements AIRepository {
       // Threads are typically created implicitly when sending the first message
       // This is a placeholder implementation
       return Left(
-        ServerFailure('Create thread not implemented - threads are created implicitly'),
+        ServerFailure(
+          'Create thread not implemented - threads are created implicitly',
+        ),
       );
     } catch (e) {
       return Left(ExceptionMapper.map(e, context: 'createThread'));
@@ -89,7 +95,9 @@ class AiRepositoryImpl implements AIRepository {
   }
 
   @override
-  Future<Either<Failure, List<SearchResult>>> searchContent(String query) async {
+  Future<Either<Failure, List<SearchResult>>> searchContent(
+    String query,
+  ) async {
     try {
       if (query.trim().isEmpty) {
         return const Left(ValidationFailure('Search query cannot be empty'));
@@ -130,18 +138,28 @@ class AiRepositoryImpl implements AIRepository {
   }
 
   /// Convert thread detail to domain entity
-  domain.ChatThread _toDomainThreadFromDetail(data_models.ChatThreadDetail detail) {
+  domain.ChatThread _toDomainThreadFromDetail(
+    data_models.ChatThreadDetail detail,
+  ) {
     final now = DateTime.now();
     return domain.ChatThread(
       id: detail.id,
       title: detail.title,
-      messages: detail.messages.map((m) => domain.ChatMessage(
-        id: m.id,
-        content: m.content,
-        type: m.role == 'user' ? domain.MessageType.user : domain.MessageType.assistant,
-        createdAt: now,
-        sources: m.searchResults?.map((r) => r.id).toList(),
-      )).toList(),
+      messages:
+          detail.messages
+              .map(
+                (m) => domain.ChatMessage(
+                  id: m.id,
+                  content: m.content,
+                  type:
+                      m.role == 'user'
+                          ? domain.MessageType.user
+                          : domain.MessageType.assistant,
+                  createdAt: now,
+                  sources: m.searchResults?.map((r) => r.id).toList(),
+                ),
+              )
+              .toList(),
       createdAt: now,
       updatedAt: now,
     );

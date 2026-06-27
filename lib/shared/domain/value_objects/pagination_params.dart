@@ -7,12 +7,10 @@ class PaginationParams extends ValueObject {
   final int page;
   final int limit;
 
-  const PaginationParams({
-    this.page = 1,
-    this.limit = 20,
-  }) : assert(page > 0, 'Page must be greater than 0'),
-       assert(limit > 0, 'Limit must be greater than 0'),
-       assert(limit <= 100, 'Limit must not exceed 100');
+  const PaginationParams({this.page = 1, this.limit = 20})
+    : assert(page > 0, 'Page must be greater than 0'),
+      assert(limit > 0, 'Limit must be greater than 0'),
+      assert(limit <= 100, 'Limit must not exceed 100');
 
   /// Calculate offset for database queries.
   int get offset => (page - 1) * limit;
@@ -41,9 +39,6 @@ class PaginationParams extends ValueObject {
 
   /// Convert to JSON.
   Map<String, dynamic> toJson() {
-    return {
-      'page': page,
-      'limit': limit,
-    };
+    return {'page': page, 'limit': limit};
   }
 }

@@ -4,11 +4,7 @@ abstract class PlanException implements Exception {
   final dynamic originalError;
   final StackTrace? stackTrace;
 
-  const PlanException(
-    this.message, {
-    this.originalError,
-    this.stackTrace,
-  });
+  const PlanException(this.message, {this.originalError, this.stackTrace});
 
   @override
   String toString() {
@@ -39,7 +35,8 @@ class PlanApiException extends PlanException {
           originalError.toString().contains('Failed host lookup'));
 
   /// Check if the error is a client error (4xx)
-  bool get isClientError => statusCode != null && statusCode! >= 400 && statusCode! < 500;
+  bool get isClientError =>
+      statusCode != null && statusCode! >= 400 && statusCode! < 500;
 
   /// Check if the error is a server error (5xx)
   bool get isServerError => statusCode != null && statusCode! >= 500;

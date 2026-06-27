@@ -22,9 +22,10 @@ class CalendarMonthModel {
       year: (json['year'] as num?)?.toInt() ?? 0,
       month: (json['month'] as num?)?.toInt() ?? 0,
       designation: json['designation'] as String?,
-      days: rawDays
-          .map((d) => CalendarDayModel.fromJson(d as Map<String, dynamic>))
-          .toList(),
+      days:
+          rawDays
+              .map((d) => CalendarDayModel.fromJson(d as Map<String, dynamic>))
+              .toList(),
     );
   }
 

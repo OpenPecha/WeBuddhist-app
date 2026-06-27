@@ -47,9 +47,7 @@ class OnboardingScreen4 extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final selectedPaths = ref.watch(
-      onboardingProvider.select(
-        (state) => state.preferences.selectedPaths,
-      ),
+      onboardingProvider.select((state) => state.preferences.selectedPaths),
     );
 
     return Scaffold(
@@ -68,7 +66,10 @@ class OnboardingScreen4 extends ConsumerWidget {
                     OnboardingBackButton(onBack: onBack),
                     const SizedBox(height: 40),
                     OnboardingQuestionTitle(
-                      title: AppLocalizations.of(context)!.onboarding_traditions_question,
+                      title:
+                          AppLocalizations.of(
+                            context,
+                          )!.onboarding_traditions_question,
                     ),
                     const SizedBox(height: 44),
                     _buildPathOptions(context, ref, selectedPaths),
@@ -161,4 +162,3 @@ class OnboardingScreen4 extends ConsumerWidget {
     }
   }
 }
-

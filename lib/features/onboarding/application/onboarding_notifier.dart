@@ -19,14 +19,15 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
     required LoadSavedPreferencesUseCase loadSavedPreferencesUseCase,
     required SaveOnboardingPreferencesUseCase saveOnboardingPreferencesUseCase,
     required CompleteOnboardingUseCase completeOnboardingUseCase,
-    required ClearOnboardingPreferencesUseCase clearOnboardingPreferencesUseCase,
+    required ClearOnboardingPreferencesUseCase
+    clearOnboardingPreferencesUseCase,
     required AnalyticsService analyticsService,
-  })  : _loadSavedPreferencesUseCase = loadSavedPreferencesUseCase,
-        _saveOnboardingPreferencesUseCase = saveOnboardingPreferencesUseCase,
-        _completeOnboardingUseCase = completeOnboardingUseCase,
-        _clearOnboardingPreferencesUseCase = clearOnboardingPreferencesUseCase,
-        _analytics = analyticsService,
-        super(OnboardingState.initial()) {
+  }) : _loadSavedPreferencesUseCase = loadSavedPreferencesUseCase,
+       _saveOnboardingPreferencesUseCase = saveOnboardingPreferencesUseCase,
+       _completeOnboardingUseCase = completeOnboardingUseCase,
+       _clearOnboardingPreferencesUseCase = clearOnboardingPreferencesUseCase,
+       _analytics = analyticsService,
+       super(OnboardingState.initial()) {
     loadSavedPreferences();
   }
 
@@ -123,7 +124,9 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
       completeResult.fold(
         (failure) {
           _logger.error('Error completing onboarding', failure);
-          state = state.copyWithError('Failed to save progress. Please try again.');
+          state = state.copyWithError(
+            'Failed to save progress. Please try again.',
+          );
         },
         (_) {
           _logger.debug('Onboarding completed');
@@ -148,7 +151,9 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
   /// Persists plan IDs to preferences and stores the full models for post-onboarding navigation.
   Future<void> setEnrolledPlans(List<UserPlansModel> plans) async {
     final planIds = plans.map((p) => p.id).toList();
-    final updatedPrefs = state.preferences.copyWith(enrolledEventPlanIds: planIds);
+    final updatedPrefs = state.preferences.copyWith(
+      enrolledEventPlanIds: planIds,
+    );
     state = state.copyWith(preferences: updatedPrefs, enrolledPlans: plans);
     await _savePreferences();
   }

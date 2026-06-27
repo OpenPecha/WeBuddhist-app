@@ -8,13 +8,16 @@ import 'package:flutter_pecha/features/plans/domain/repositories/user_plans_repo
 import 'package:flutter_pecha/shared/domain/base_classes/usecase.dart';
 
 /// Use case for getting user's enrolled plans with pagination.
-class GetUserPlansUseCase extends UseCase<UserPlanListResponseModel, GetUserPlansParams> {
+class GetUserPlansUseCase
+    extends UseCase<UserPlanListResponseModel, GetUserPlansParams> {
   final UserPlansRepositoryInterface _repository;
 
   GetUserPlansUseCase(this._repository);
 
   @override
-  Future<Either<Failure, UserPlanListResponseModel>> call(GetUserPlansParams params) async {
+  Future<Either<Failure, UserPlanListResponseModel>> call(
+    GetUserPlansParams params,
+  ) async {
     if (params.language.isEmpty) {
       return const Left(ValidationFailure('Language cannot be empty'));
     }
@@ -69,7 +72,8 @@ class SubscribeToPlanParams extends Equatable {
 }
 
 /// Use case for unsubscribing from a plan.
-class UnsubscribeFromPlanUseCase extends UseCase<bool, UnsubscribeFromPlanParams> {
+class UnsubscribeFromPlanUseCase
+    extends UseCase<bool, UnsubscribeFromPlanParams> {
   final UserPlansRepositoryInterface _repository;
 
   UnsubscribeFromPlanUseCase(this._repository);
@@ -93,13 +97,16 @@ class UnsubscribeFromPlanParams extends Equatable {
 }
 
 /// Use case for getting user plan progress details.
-class GetUserPlanProgressUseCase extends UseCase<List<PlanProgressModel>, GetUserPlanProgressParams> {
+class GetUserPlanProgressUseCase
+    extends UseCase<List<PlanProgressModel>, GetUserPlanProgressParams> {
   final UserPlansRepositoryInterface _repository;
 
   GetUserPlanProgressUseCase(this._repository);
 
   @override
-  Future<Either<Failure, List<PlanProgressModel>>> call(GetUserPlanProgressParams params) async {
+  Future<Either<Failure, List<PlanProgressModel>>> call(
+    GetUserPlanProgressParams params,
+  ) async {
     if (params.planId.isEmpty) {
       return const Left(ValidationFailure('Plan ID cannot be empty'));
     }
@@ -117,13 +124,16 @@ class GetUserPlanProgressParams extends Equatable {
 }
 
 /// Use case for getting user plan day content.
-class GetUserPlanDayContentUseCase extends UseCase<UserPlanDayDetailResponse, PlanDayContentParams> {
+class GetUserPlanDayContentUseCase
+    extends UseCase<UserPlanDayDetailResponse, PlanDayContentParams> {
   final UserPlansRepositoryInterface _repository;
 
   GetUserPlanDayContentUseCase(this._repository);
 
   @override
-  Future<Either<Failure, UserPlanDayDetailResponse>> call(PlanDayContentParams params) async {
+  Future<Either<Failure, UserPlanDayDetailResponse>> call(
+    PlanDayContentParams params,
+  ) async {
     if (params.planId.isEmpty) {
       return const Left(ValidationFailure('Plan ID cannot be empty'));
     }
@@ -141,23 +151,23 @@ class PlanDayContentParams extends Equatable {
   final String planId;
   final int dayNumber;
 
-  const PlanDayContentParams({
-    required this.planId,
-    required this.dayNumber,
-  });
+  const PlanDayContentParams({required this.planId, required this.dayNumber});
 
   @override
   List<Object?> get props => [planId, dayNumber];
 }
 
 /// Use case for getting plan days completion status.
-class GetPlanDaysCompletionStatusUseCase extends UseCase<Map<int, bool>, GetPlanDaysCompletionStatusParams> {
+class GetPlanDaysCompletionStatusUseCase
+    extends UseCase<Map<int, bool>, GetPlanDaysCompletionStatusParams> {
   final UserPlansRepositoryInterface _repository;
 
   GetPlanDaysCompletionStatusUseCase(this._repository);
 
   @override
-  Future<Either<Failure, Map<int, bool>>> call(GetPlanDaysCompletionStatusParams params) async {
+  Future<Either<Failure, Map<int, bool>>> call(
+    GetPlanDaysCompletionStatusParams params,
+  ) async {
     if (params.planId.isEmpty) {
       return const Left(ValidationFailure('Plan ID cannot be empty'));
     }

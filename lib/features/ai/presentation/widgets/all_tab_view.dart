@@ -57,7 +57,11 @@ class AllTabView extends StatelessWidget {
                 icon: Icon(
                   searchState.isLoading ? Icons.hourglass_empty : Icons.refresh,
                 ),
-                label: Text(searchState.isLoading ? localizations.search_retrying : localizations.ai_retry),
+                label: Text(
+                  searchState.isLoading
+                      ? localizations.search_retrying
+                      : localizations.ai_retry,
+                ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,
                   foregroundColor: Colors.white,
@@ -111,9 +115,11 @@ class AllTabView extends StatelessWidget {
     final topAuthorResults =
         hasAuthorResults ? authorResults.results.take(3).toList() : [];
 
-    final hasMoreContent = hasContentResults && contentResults.sources.length >= 2;
+    final hasMoreContent =
+        hasContentResults && contentResults.sources.length >= 2;
     final hasMoreTitles = hasTitleResults && titleResults.results.length >= 2;
-    final hasMoreAuthors = hasAuthorResults && authorResults.results.length >= 2;
+    final hasMoreAuthors =
+        hasAuthorResults && authorResults.results.length >= 2;
 
     return ListView(
       padding: const EdgeInsets.symmetric(vertical: 8),
@@ -126,14 +132,23 @@ class AllTabView extends StatelessWidget {
           ),
           if (hasMoreTitles) ...[
             const SizedBox(height: 25),
-            _buildShowMoreButton(context, isDarkMode, SearchTab.titles, localizations),
+            _buildShowMoreButton(
+              context,
+              isDarkMode,
+              SearchTab.titles,
+              localizations,
+            ),
           ],
           const SizedBox(height: 24),
         ],
 
         // Contents Section - Only show if there are results
         if (hasContentResults) ...[
-          _buildSectionHeader(context, isDarkMode, localizations.search_contents),
+          _buildSectionHeader(
+            context,
+            isDarkMode,
+            localizations.search_contents,
+          ),
           ...topContentResults.map(
             (source) => _buildContentResultCard(
               context,
@@ -143,7 +158,12 @@ class AllTabView extends StatelessWidget {
           ),
           if (hasMoreContent) ...[
             const SizedBox(height: 25),
-            _buildShowMoreButton(context, isDarkMode, SearchTab.contents, localizations),
+            _buildShowMoreButton(
+              context,
+              isDarkMode,
+              SearchTab.contents,
+              localizations,
+            ),
           ],
           const SizedBox(height: 24),
         ],
@@ -156,7 +176,12 @@ class AllTabView extends StatelessWidget {
           ),
           if (hasMoreAuthors) ...[
             const SizedBox(height: 25),
-            _buildShowMoreButton(context, isDarkMode, SearchTab.author, localizations),
+            _buildShowMoreButton(
+              context,
+              isDarkMode,
+              SearchTab.author,
+              localizations,
+            ),
           ],
           const SizedBox(height: 24),
         ],
@@ -230,10 +255,7 @@ class AllTabView extends StatelessWidget {
           final navigationContext = NavigationContext(
             source: NavigationSource.normal,
           );
-          context.push(
-            '/reader/${item.id}',
-            extra: navigationContext,
-          );
+          context.push('/reader/${item.id}', extra: navigationContext);
         },
         borderRadius: BorderRadius.circular(12),
         child: Padding(
@@ -287,10 +309,7 @@ class AllTabView extends StatelessWidget {
           final navigationContext = NavigationContext(
             source: NavigationSource.normal,
           );
-          context.push(
-            '/reader/${item.id}',
-            extra: navigationContext,
-          );
+          context.push('/reader/${item.id}', extra: navigationContext);
         },
         borderRadius: BorderRadius.circular(12),
         child: Padding(

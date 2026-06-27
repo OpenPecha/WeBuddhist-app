@@ -151,7 +151,8 @@ class _AiModeScreenState extends ConsumerState<AiModeScreen> {
 
     // For guests in search mode, don't load chat state
     final chatState = isGuest ? null : ref.watch(chatControllerProvider);
-    final hasMessages = chatState != null && 
+    final hasMessages =
+        chatState != null &&
         (chatState.messages.isNotEmpty || chatState.isStreaming);
 
     final chatError = chatState?.error;
@@ -274,7 +275,8 @@ class _AiModeScreenState extends ConsumerState<AiModeScreen> {
       return _buildLoadingState(isDarkMode);
     }
 
-    final hasMessages = chatState != null &&
+    final hasMessages =
+        chatState != null &&
         (chatState.messages.isNotEmpty || chatState.isStreaming);
 
     if (hasMessages) {
@@ -358,9 +360,10 @@ class _AiModeScreenState extends ConsumerState<AiModeScreen> {
                       style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
-                        color: isDarkMode
-                            ? AppColors.surfaceWhite
-                            : AppColors.textPrimary,
+                        color:
+                            isDarkMode
+                                ? AppColors.surfaceWhite
+                                : AppColors.textPrimary,
                       ),
                       textAlign: TextAlign.center,
                     ),
@@ -369,7 +372,8 @@ class _AiModeScreenState extends ConsumerState<AiModeScreen> {
                       localizations.ai_sign_in_prompt,
                       style: TextStyle(
                         fontSize: 14,
-                        color: isDarkMode ? AppColors.grey400 : AppColors.grey600,
+                        color:
+                            isDarkMode ? AppColors.grey400 : AppColors.grey600,
                       ),
                       textAlign: TextAlign.center,
                     ),
@@ -391,9 +395,7 @@ class _AiModeScreenState extends ConsumerState<AiModeScreen> {
                       onPressed: () => setState(() => _isSearchMode = true),
                       child: Text(
                         'Use Search Instead',
-                        style: TextStyle(
-                          color: theme.colorScheme.primary,
-                        ),
+                        style: TextStyle(color: theme.colorScheme.primary),
                       ),
                     ),
                   ],
@@ -448,7 +450,8 @@ class _AiModeScreenState extends ConsumerState<AiModeScreen> {
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w600,
-              color: isDarkMode ? AppColors.surfaceWhite : AppColors.textPrimary,
+              color:
+                  isDarkMode ? AppColors.surfaceWhite : AppColors.textPrimary,
             ),
           ),
           const SizedBox(width: 48), // Balance
@@ -469,17 +472,19 @@ class _AiModeScreenState extends ConsumerState<AiModeScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
-          color: isSelected
-              ? (isDarkMode
-                  ? AppColors.primary.withValues(alpha: 0.2)
-                  : AppColors.primaryContainer)
-              : Colors.transparent,
+          color:
+              isSelected
+                  ? (isDarkMode
+                      ? AppColors.primary.withValues(alpha: 0.2)
+                      : AppColors.primaryContainer)
+                  : Colors.transparent,
           borderRadius: BorderRadius.circular(16),
-          border: isSelected
-              ? Border.all(color: AppColors.primary, width: 1.5)
-              : Border.all(
-                  color: isDarkMode ? AppColors.grey800 : AppColors.grey300,
-                ),
+          border:
+              isSelected
+                  ? Border.all(color: AppColors.primary, width: 1.5)
+                  : Border.all(
+                    color: isDarkMode ? AppColors.grey800 : AppColors.grey300,
+                  ),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -487,9 +492,10 @@ class _AiModeScreenState extends ConsumerState<AiModeScreen> {
             Icon(
               icon,
               size: 16,
-              color: isSelected
-                  ? AppColors.primary
-                  : (isDarkMode ? AppColors.grey400 : AppColors.grey600),
+              color:
+                  isSelected
+                      ? AppColors.primary
+                      : (isDarkMode ? AppColors.grey400 : AppColors.grey600),
             ),
             const SizedBox(width: 4),
             Text(
@@ -497,9 +503,10 @@ class _AiModeScreenState extends ConsumerState<AiModeScreen> {
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-                color: isSelected
-                    ? AppColors.primary
-                    : (isDarkMode ? AppColors.grey400 : AppColors.grey600),
+                color:
+                    isSelected
+                        ? AppColors.primary
+                        : (isDarkMode ? AppColors.grey400 : AppColors.grey600),
               ),
             ),
           ],

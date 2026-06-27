@@ -97,16 +97,26 @@ void main() {
       );
     });
 
-    test('a RENEW_FAILED is NOT permanent on its own (restore path tolerates it)',
-        () {
-      final error = CredentialsManagerException('RENEW_FAILED', 'msg', const {});
-      expect(AuthService.isSessionPermanentlyLost(error), isFalse);
-    });
+    test(
+      'a RENEW_FAILED is NOT permanent on its own (restore path tolerates it)',
+      () {
+        final error = CredentialsManagerException(
+          'RENEW_FAILED',
+          'msg',
+          const {},
+        );
+        expect(AuthService.isSessionPermanentlyLost(error), isFalse);
+      },
+    );
   });
 
   group('isTokenRenewalFailed', () {
     test('detects a RENEW_FAILED credentials-manager error', () {
-      final error = CredentialsManagerException('RENEW_FAILED', 'msg', const {});
+      final error = CredentialsManagerException(
+        'RENEW_FAILED',
+        'msg',
+        const {},
+      );
       expect(AuthService.isTokenRenewalFailed(error), isTrue);
     });
 

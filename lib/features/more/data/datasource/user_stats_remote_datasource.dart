@@ -19,11 +19,7 @@ class UserStatsRemoteDatasource {
     try {
       final response = await dio.get(
         '/users/me/mantra-counts',
-        queryParameters: {
-          'language': language,
-          'skip': skip,
-          'limit': limit,
-        },
+        queryParameters: {'language': language, 'skip': skip, 'limit': limit},
         options: Options(extra: {'no_cache': true}),
       );
 
@@ -52,11 +48,7 @@ class UserStatsRemoteDatasource {
     try {
       final response = await dio.get(
         '/users/me/series/day-completed',
-        queryParameters: {
-          'language': language,
-          'skip': skip,
-          'limit': limit,
-        },
+        queryParameters: {'language': language, 'skip': skip, 'limit': limit},
         options: Options(extra: {'no_cache': true}),
       );
 
@@ -91,7 +83,10 @@ class UserStatsRemoteDatasource {
       }
 
       _logger.error('Failed to load user stats: ${response.statusCode}');
-      throw _statusToException(response.statusCode, 'Failed to load user stats');
+      throw _statusToException(
+        response.statusCode,
+        'Failed to load user stats',
+      );
     } on DioException catch (e) {
       _logger.error('Dio error in fetchUserStats', e);
       throw _dioToException(e, 'Failed to load user stats');

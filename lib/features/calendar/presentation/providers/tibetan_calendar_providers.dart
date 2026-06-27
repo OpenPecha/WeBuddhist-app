@@ -178,7 +178,9 @@ final resolvedDayProvider = Provider.family<TibetanCalendarDay, DateTime>((
 /// engine fallback on failure. Used by the home-screen summary card. While the
 /// request is in flight the card can show the engine value (see the card's
 /// `asData ?? engine` pattern) so there's no spinner.
-final todayCalendarDayProvider = FutureProvider<TibetanCalendarDay>((ref) async {
+final todayCalendarDayProvider = FutureProvider<TibetanCalendarDay>((
+  ref,
+) async {
   final useCase = ref.watch(getTodayCalendarUseCaseProvider);
   final result = await useCase(const NoParams());
   return result.fold(

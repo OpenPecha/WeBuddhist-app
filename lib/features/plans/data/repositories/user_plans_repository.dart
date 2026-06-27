@@ -133,7 +133,9 @@ class UserPlansRepository implements UserPlansRepositoryInterface {
       );
       return Right(result);
     } catch (e) {
-      return Left(ExceptionMapper.map(e, context: 'Failed to fetch user plans'));
+      return Left(
+        ExceptionMapper.map(e, context: 'Failed to fetch user plans'),
+      );
     }
   }
 
@@ -154,7 +156,9 @@ class UserPlansRepository implements UserPlansRepositoryInterface {
       await local.removePendingAction(userId, action.id);
       return Right(result);
     } catch (e) {
-      return Left(ExceptionMapper.map(e, context: 'Failed to subscribe to plan'));
+      return Left(
+        ExceptionMapper.map(e, context: 'Failed to subscribe to plan'),
+      );
     }
   }
 
@@ -260,7 +264,9 @@ class UserPlansRepository implements UserPlansRepositoryInterface {
       await local.saveUserPlanDay(userId, planId, dayNumber, result);
       return Right(result);
     } catch (e) {
-      return Left(ExceptionMapper.map(e, context: 'Failed to get plan day content'));
+      return Left(
+        ExceptionMapper.map(e, context: 'Failed to get plan day content'),
+      );
     }
   }
 
@@ -310,14 +316,16 @@ class UserPlansRepository implements UserPlansRepositoryInterface {
     }
 
     try {
-      final result = await userPlansRemoteDatasource.fetchPlanDaysCompletionStatus(
-        planId,
-      );
+      final result = await userPlansRemoteDatasource
+          .fetchPlanDaysCompletionStatus(planId);
       await local.saveCompletionStatus(userId, planId, result);
       return Right(result);
     } catch (e) {
       return Left(
-        ExceptionMapper.map(e, context: 'Failed to get plan days completion status'),
+        ExceptionMapper.map(
+          e,
+          context: 'Failed to get plan days completion status',
+        ),
       );
     }
   }
@@ -404,7 +412,9 @@ class UserPlansRepository implements UserPlansRepositoryInterface {
       await local.removePendingAction(userId, action.id);
       return Right(result);
     } catch (e) {
-      return Left(ExceptionMapper.map(e, context: 'Failed to unenroll from plan'));
+      return Left(
+        ExceptionMapper.map(e, context: 'Failed to unenroll from plan'),
+      );
     }
   }
 
@@ -489,9 +499,8 @@ class UserPlansRepository implements UserPlansRepositoryInterface {
   }
 
   Future<void> _refreshCompletionStatus(String userId, String planId) async {
-    final result = await userPlansRemoteDatasource.fetchPlanDaysCompletionStatus(
-      planId,
-    );
+    final result = await userPlansRemoteDatasource
+        .fetchPlanDaysCompletionStatus(planId);
     await local.saveCompletionStatus(userId, planId, result);
   }
 

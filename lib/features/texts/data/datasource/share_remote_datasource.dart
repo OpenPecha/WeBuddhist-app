@@ -24,9 +24,7 @@ class ShareRemoteDatasource {
           'content_index': 0,
           'language': language,
         },
-        options: Options(
-          sendTimeout: const Duration(seconds: 10),
-        ),
+        options: Options(sendTimeout: const Duration(seconds: 10)),
       );
 
       if (response.statusCode == 200 || response.statusCode == 201) {

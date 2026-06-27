@@ -97,11 +97,7 @@ class PresetTimerCard extends StatelessWidget {
                   top: 0,
                   right: 0,
                   child: IconButton(
-                    icon: Icon(
-                      Icons.more_vert,
-                      color: textColor,
-                      size: 20,
-                    ),
+                    icon: Icon(Icons.more_vert, color: textColor, size: 20),
                     onPressed: onMoreTap,
                   ),
                 ),

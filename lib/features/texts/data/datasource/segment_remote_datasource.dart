@@ -83,7 +83,9 @@ class SegmentRemoteDatasource {
         } else if (response.statusCode == 429) {
           throw const RateLimitException('Too many requests');
         } else {
-          throw ServerException('Failed to load segment commentaries: ${response.statusCode}');
+          throw ServerException(
+            'Failed to load segment commentaries: ${response.statusCode}',
+          );
         }
       }
     } on DioException catch (e) {
@@ -110,7 +112,9 @@ class SegmentRemoteDatasource {
         } else if (response.statusCode == 429) {
           throw const RateLimitException('Too many requests');
         } else {
-          throw ServerException('Failed to load segment translations: ${response.statusCode}');
+          throw ServerException(
+            'Failed to load segment translations: ${response.statusCode}',
+          );
         }
       }
     } on DioException catch (e) {

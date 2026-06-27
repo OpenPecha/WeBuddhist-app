@@ -52,8 +52,10 @@ class PlanSearchNotifier extends StateNotifier<PlanSearchState> {
   static const int _limit = 20;
   static const Duration _debounceDuration = Duration(milliseconds: 500);
 
-  PlanSearchNotifier({required this.getPlansUseCase, required this.languageCode})
-    : super(const PlanSearchState());
+  PlanSearchNotifier({
+    required this.getPlansUseCase,
+    required this.languageCode,
+  }) : super(const PlanSearchState());
 
   /// Search with debounce
   void search(String query) {
@@ -94,12 +96,14 @@ class PlanSearchNotifier extends StateNotifier<PlanSearchState> {
       state = state.copyWith(isLoadingMore: true, error: null);
     }
 
-    final result = await getPlansUseCase(GetPlansParams(
-      language: languageCode,
-      search: query.trim(),
-      skip: skip,
-      limit: _limit,
-    ));
+    final result = await getPlansUseCase(
+      GetPlansParams(
+        language: languageCode,
+        search: query.trim(),
+        skip: skip,
+        limit: _limit,
+      ),
+    );
 
     result.fold(
       (failure) {

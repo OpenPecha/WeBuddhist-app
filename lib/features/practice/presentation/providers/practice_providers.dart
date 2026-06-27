@@ -28,10 +28,11 @@ final routineLocalStorageProvider = Provider<RoutineLocalStorage>((ref) {
 });
 
 /// Provider for [RoutineNotificationService] (app-wide singleton).
-final routineNotificationServiceProvider =
-    Provider<RoutineNotificationService>((ref) {
-  return RoutineNotificationService();
-});
+final routineNotificationServiceProvider = Provider<RoutineNotificationService>(
+  (ref) {
+    return RoutineNotificationService();
+  },
+);
 
 /// Provider for [PracticeRepository] — the domain interface for local
 /// routine storage and session operations. Notification scheduling lives

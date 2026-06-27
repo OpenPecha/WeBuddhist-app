@@ -11,13 +11,19 @@ abstract class ReaderRepository extends Repository {
   Future<Either<Failure, TextContent>> loadInitialText(String textId);
 
   /// Load next page of verses for a text.
-  Future<Either<Failure, List<Verse>>> loadNextPage(String textId, int pageIndex);
+  Future<Either<Failure, List<Verse>>> loadNextPage(
+    String textId,
+    int pageIndex,
+  );
 
   /// Navigate to a specific section.
   Future<Either<Failure, Section>> navigateToSection(String sectionId);
 
   /// Search for text within content.
-  Future<Either<Failure, List<Verse>>> searchContent(String textId, String query);
+  Future<Either<Failure, List<Verse>>> searchContent(
+    String textId,
+    String query,
+  );
 
   /// Get text metadata without full content.
   Future<Either<Failure, TextContent>> getTextMetadata(String textId);

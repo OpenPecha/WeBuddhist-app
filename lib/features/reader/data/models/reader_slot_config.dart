@@ -28,13 +28,13 @@ class ReaderSlotConfig {
   /// An unselected slot — no language and no version. Used as the secondary
   /// slot's initial state so it shows placeholders instead of a default.
   const ReaderSlotConfig.empty()
-      : languageCode = '',
-        languageLabel = '',
-        versionId = null,
-        versionLabel = null,
-        scriptId = null,
-        scriptLabel = null,
-        versionUnavailable = false;
+    : languageCode = '',
+      languageLabel = '',
+      versionId = null,
+      versionLabel = null,
+      scriptId = null,
+      scriptLabel = null,
+      versionUnavailable = false;
 
   /// Whether no language has been picked yet.
   bool get isUnset => languageCode.isEmpty;
@@ -60,14 +60,14 @@ class ReaderSlotConfig {
   }
 
   Map<String, dynamic> toJson() => {
-        'languageCode': languageCode,
-        'languageLabel': languageLabel,
-        'versionId': versionId,
-        'versionLabel': versionLabel,
-        'scriptId': scriptId,
-        'scriptLabel': scriptLabel,
-        'versionUnavailable': versionUnavailable,
-      };
+    'languageCode': languageCode,
+    'languageLabel': languageLabel,
+    'versionId': versionId,
+    'versionLabel': versionLabel,
+    'scriptId': scriptId,
+    'scriptLabel': scriptLabel,
+    'versionUnavailable': versionUnavailable,
+  };
 
   factory ReaderSlotConfig.fromJson(Map<String, dynamic> json) {
     return ReaderSlotConfig(
@@ -110,10 +110,7 @@ class ReaderDualLayoutSettings {
   factory ReaderDualLayoutSettings.initial() {
     return const ReaderDualLayoutSettings(
       secondaryEnabled: false,
-      primary: ReaderSlotConfig(
-        languageCode: 'en',
-        languageLabel: 'English',
-      ),
+      primary: ReaderSlotConfig(languageCode: 'en', languageLabel: 'English'),
       secondary: ReaderSlotConfig.empty(),
     );
   }
@@ -131,10 +128,10 @@ class ReaderDualLayoutSettings {
   }
 
   Map<String, dynamic> toJson() => {
-        'secondaryEnabled': secondaryEnabled,
-        'primary': primary.toJson(),
-        'secondary': secondary.toJson(),
-      };
+    'secondaryEnabled': secondaryEnabled,
+    'primary': primary.toJson(),
+    'secondary': secondary.toJson(),
+  };
 
   factory ReaderDualLayoutSettings.fromJson(Map<String, dynamic> json) {
     return ReaderDualLayoutSettings(

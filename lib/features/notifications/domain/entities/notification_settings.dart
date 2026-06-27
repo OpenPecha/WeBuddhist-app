@@ -17,5 +17,11 @@ class NotificationSettings extends Equatable {
   });
 
   @override
-  List<Object?> get props => [enabled, practiceReminders, planReminders, newContentAlerts, practiceTime];
+  List<Object?> get props => [
+    enabled,
+    practiceReminders,
+    planReminders,
+    newContentAlerts,
+    practiceTime,
+  ];
 }

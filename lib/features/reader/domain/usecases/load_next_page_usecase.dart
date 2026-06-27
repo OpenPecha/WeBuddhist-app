@@ -27,8 +27,5 @@ class LoadNextPageParams {
   final String textId;
   final int pageIndex;
 
-  const LoadNextPageParams({
-    required this.textId,
-    required this.pageIndex,
-  });
+  const LoadNextPageParams({required this.textId, required this.pageIndex});
 }

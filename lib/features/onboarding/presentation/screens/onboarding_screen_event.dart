@@ -245,7 +245,10 @@ class _EventCard extends StatelessWidget {
                     const SizedBox(height: 3),
                     // Description + duration
                     Text(
-                      AppLocalizations.of(context)!.onboarding_event_duration(event.description, event.totalDays),
+                      AppLocalizations.of(context)!.onboarding_event_duration(
+                        event.description,
+                        event.totalDays,
+                      ),
                       style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w400,

@@ -5,7 +5,7 @@ import 'package:flutter_pecha/shared/domain/base_classes/usecase.dart';
 
 class GetVerseOfDayUseCase extends UseCase<VerseOfDay, GetVerseOfDayParams> {
   final Future<Either<Failure, VerseOfDay>> Function({required String language})
-      _getVerseOfDay;
+  _getVerseOfDay;
 
   GetVerseOfDayUseCase(this._getVerseOfDay);
 

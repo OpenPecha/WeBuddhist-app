@@ -65,7 +65,9 @@ class NotificationLocalDataSource {
     try {
       final List<dynamic> list = jsonDecode(json);
       return list
-          .map((item) => NotificationModel.fromJson(item as Map<String, dynamic>))
+          .map(
+            (item) => NotificationModel.fromJson(item as Map<String, dynamic>),
+          )
           .toList();
     } catch (e) {
       _logger.error('Failed to parse scheduled notifications', e);
@@ -74,7 +76,9 @@ class NotificationLocalDataSource {
   }
 
   /// Save scheduled notifications to local storage.
-  Future<void> saveScheduledNotifications(List<NotificationModel> notifications) async {
+  Future<void> saveScheduledNotifications(
+    List<NotificationModel> notifications,
+  ) async {
     await _ensureInitialized();
     await _box.put(
       _scheduledNotificationsKey,
@@ -93,7 +97,8 @@ class NotificationLocalDataSource {
   /// Remove a scheduled notification.
   Future<void> removeScheduledNotification(String notificationId) async {
     final notifications = await getScheduledNotifications();
-    final updatedNotifications = notifications.where((n) => n.id != notificationId).toList();
+    final updatedNotifications =
+        notifications.where((n) => n.id != notificationId).toList();
     await saveScheduledNotifications(updatedNotifications);
   }
 

@@ -23,7 +23,9 @@ final getRecitationsUseCaseProvider = Provider<GetRecitationsUseCase>((ref) {
 });
 
 /// Provider for SearchRecitationsUseCase.
-final searchRecitationsUseCaseProvider = Provider<SearchRecitationsUseCase>((ref) {
+final searchRecitationsUseCaseProvider = Provider<SearchRecitationsUseCase>((
+  ref,
+) {
   final repository = ref.watch(recitationRepositoryProvider);
   return SearchRecitationsUseCase(repository);
 });

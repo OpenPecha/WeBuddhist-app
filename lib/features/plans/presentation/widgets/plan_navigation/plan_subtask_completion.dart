@@ -60,9 +60,7 @@ class PlanSubtaskCompletionService {
 
     try {
       final useCase = _ref.read(completeSubTaskUseCaseProvider);
-      final result = await useCase(
-        CompleteSubTaskParams(subTaskId: subtaskId),
-      );
+      final result = await useCase(CompleteSubTaskParams(subTaskId: subtaskId));
       result.fold(
         (failure) {
           _logger.error('Failed to complete subtask: ${failure.message}');

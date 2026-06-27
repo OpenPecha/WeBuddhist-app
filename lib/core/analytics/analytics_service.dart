@@ -11,10 +11,7 @@ abstract class AnalyticsService {
 
   Future<void> reset();
 
-  Future<void> track(
-    String event, {
-    Map<String, Object?>? properties,
-  });
+  Future<void> track(String event, {Map<String, Object?>? properties});
 
   Future<void> setSuperProperties(Map<String, Object?> properties);
 

@@ -6,10 +6,7 @@ class ChatThreadSummary {
   final String id;
   final String title;
 
-  ChatThreadSummary({
-    required this.id,
-    required this.title,
-  });
+  ChatThreadSummary({required this.id, required this.title});
 
   factory ChatThreadSummary.fromJson(Map<String, dynamic> json) {
     return ChatThreadSummary(
@@ -19,10 +16,7 @@ class ChatThreadSummary {
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'title': title,
-    };
+    return {'id': id, 'title': title};
   }
 }
 
@@ -40,9 +34,10 @@ class ChatThreadDetail {
 
   factory ChatThreadDetail.fromJson(Map<String, dynamic> json) {
     final messagesData = json['messages'] as List<dynamic>? ?? [];
-    final messages = messagesData
-        .map((m) => ThreadMessage.fromJson(m as Map<String, dynamic>))
-        .toList();
+    final messages =
+        messagesData
+            .map((m) => ThreadMessage.fromJson(m as Map<String, dynamic>))
+            .toList();
 
     return ChatThreadDetail(
       id: json['id'] as String,
@@ -81,9 +76,10 @@ class ThreadMessage {
 
   factory ThreadMessage.fromJson(Map<String, dynamic> json) {
     final searchResultsData = json['searchResults'] as List<dynamic>?;
-    final searchResults = searchResultsData
-        ?.map((r) => SearchResult.fromJson(r as Map<String, dynamic>))
-        .toList();
+    final searchResults =
+        searchResultsData
+            ?.map((r) => SearchResult.fromJson(r as Map<String, dynamic>))
+            .toList();
 
     return ThreadMessage(
       role: json['role'] as String,
@@ -99,22 +95,28 @@ class ThreadMessage {
       'content': content,
       'id': id,
       if (searchResults != null)
-        'searchResults': searchResults!.map((r) => {
-          'id': r.id,
-          'title': r.title,
-          'text': r.text,
-          'score': r.score,
-          'distance': r.distance,
-        }).toList(),
+        'searchResults':
+            searchResults!
+                .map(
+                  (r) => {
+                    'id': r.id,
+                    'title': r.title,
+                    'text': r.text,
+                    'score': r.score,
+                    'distance': r.distance,
+                  },
+                )
+                .toList(),
     };
   }
 
   /// Convert to ChatMessage for display
   ChatMessage toChatMessage() {
     // For assistant messages, use fallback if content is empty
-    final displayContent = (role == 'assistant' && content.trim().isEmpty)
-        ? AiConfig.noAnswerFoundMessage
-        : content;
+    final displayContent =
+        (role == 'assistant' && content.trim().isEmpty)
+            ? AiConfig.noAnswerFoundMessage
+            : content;
 
     return ChatMessage(
       content: displayContent,
@@ -129,21 +131,15 @@ class ThreadListResponse {
   final List<ChatThreadSummary> data;
   final int total;
 
-  ThreadListResponse({
-    required this.data,
-    required this.total,
-  });
+  ThreadListResponse({required this.data, required this.total});
 
   factory ThreadListResponse.fromJson(Map<String, dynamic> json) {
     final dataList = json['data'] as List<dynamic>? ?? [];
-    final threads = dataList
-        .map((t) => ChatThreadSummary.fromJson(t as Map<String, dynamic>))
-        .toList();
+    final threads =
+        dataList
+            .map((t) => ChatThreadSummary.fromJson(t as Map<String, dynamic>))
+            .toList();
 
-    return ThreadListResponse(
-      data: threads,
-      total: json['total'] as int? ?? 0,
-    );
+    return ThreadListResponse(data: threads, total: json['total'] as int? ?? 0);
   }
 }
-

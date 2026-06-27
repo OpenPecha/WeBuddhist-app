@@ -137,8 +137,8 @@ class RoutineBlock {
     this.items = const [],
     int? notificationId,
     this.apiTimeBlockId,
-  })  : id = id ?? _uuid.v4(),
-        _persistedNotificationId = notificationId;
+  }) : id = id ?? _uuid.v4(),
+       _persistedNotificationId = notificationId;
 
   RoutineBlock copyWith({
     String? id,

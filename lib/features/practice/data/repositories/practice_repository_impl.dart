@@ -22,9 +22,8 @@ const _uuid = Uuid();
 class PracticeRepositoryImpl implements PracticeRepository {
   final RoutineLocalStorage _localStorage;
 
-  PracticeRepositoryImpl({
-    required RoutineLocalStorage localStorage,
-  }) : _localStorage = localStorage;
+  PracticeRepositoryImpl({required RoutineLocalStorage localStorage})
+    : _localStorage = localStorage;
 
   // ========== Routine Operations ==========
 
@@ -32,7 +31,8 @@ class PracticeRepositoryImpl implements PracticeRepository {
   Future<Either<Failure, List<Routine>>> getRoutines() async {
     try {
       final data = await _localStorage.loadRoutine();
-      final routines = data.blocks.map((block) => _blockToRoutine(block)).toList();
+      final routines =
+          data.blocks.map((block) => _blockToRoutine(block)).toList();
       return Right(routines);
     } catch (e) {
       return Left(CacheFailure('Failed to load routines: $e'));
@@ -61,7 +61,9 @@ class PracticeRepositoryImpl implements PracticeRepository {
 
       if (data.blocks.length >= RoutineData.maxBlocks) {
         return Left(
-          ValidationFailure('Maximum number of routines (${RoutineData.maxBlocks}) reached'),
+          ValidationFailure(
+            'Maximum number of routines (${RoutineData.maxBlocks}) reached',
+          ),
         );
       }
 
@@ -125,7 +127,8 @@ class PracticeRepositoryImpl implements PracticeRepository {
   Future<Either<Failure, PracticeProgress>> getPracticeProgress() async {
     try {
       final data = await _localStorage.loadRoutine();
-      final routines = data.blocks.map((block) => _blockToRoutine(block)).toList();
+      final routines =
+          data.blocks.map((block) => _blockToRoutine(block)).toList();
 
       // Calculate progress based on active routines
       final activeRoutines = routines.where((r) => r.isActive).toList();
@@ -148,7 +151,9 @@ class PracticeRepositoryImpl implements PracticeRepository {
   }
 
   @override
-  Future<Either<Failure, PracticeSession>> startSession(String routineId) async {
+  Future<Either<Failure, PracticeSession>> startSession(
+    String routineId,
+  ) async {
     try {
       final session = PracticeSession(
         id: _uuid.v4(),
@@ -206,9 +211,10 @@ class PracticeRepositoryImpl implements PracticeRepository {
   Routine _blockToRoutine(RoutineBlock block) {
     // Determine routine type based on time
     final hour = block.time.hour;
-    final type = hour < 12
-        ? RoutineType.morning
-        : hour < 17
+    final type =
+        hour < 12
+            ? RoutineType.morning
+            : hour < 17
             ? RoutineType.afternoon
             : RoutineType.evening;
 
@@ -225,7 +231,8 @@ class PracticeRepositoryImpl implements PracticeRepository {
     return Routine(
       id: block.id,
       name: _getRoutineName(block),
-      description: '${block.items.length} ${block.items.length == 1 ? 'practice' : 'practices'}',
+      description:
+          '${block.items.length} ${block.items.length == 1 ? 'practice' : 'practices'}',
       durationMinutes: durationMinutes,
       type: type,
       timeSlots: [timeSlot],
@@ -244,7 +251,8 @@ class PracticeRepositoryImpl implements PracticeRepository {
       id: routine.id,
       time: TimeOfDay(
         hour: routine.timeSlots.isNotEmpty ? routine.timeSlots.first.hour : 8,
-        minute: routine.timeSlots.isNotEmpty ? routine.timeSlots.first.minute : 0,
+        minute:
+            routine.timeSlots.isNotEmpty ? routine.timeSlots.first.minute : 0,
       ),
       notificationEnabled: routine.isActive,
       items: [], // Items would need to be preserved separately

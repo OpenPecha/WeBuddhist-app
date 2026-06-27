@@ -36,7 +36,9 @@ class CollectionsRemoteDatasource {
         } else if (response.statusCode == 429) {
           throw const RateLimitException('Too many requests');
         } else {
-          throw ServerException('Failed to load collections: ${response.statusCode}');
+          throw ServerException(
+            'Failed to load collections: ${response.statusCode}',
+          );
         }
       }
     } on DioException catch (e) {

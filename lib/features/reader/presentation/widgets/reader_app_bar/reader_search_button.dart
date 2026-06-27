@@ -5,10 +5,7 @@ import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 class ReaderSearchButton extends StatelessWidget {
   final VoidCallback onPressed;
 
-  const ReaderSearchButton({
-    super.key,
-    required this.onPressed,
-  });
+  const ReaderSearchButton({super.key, required this.onPressed});
 
   @override
   Widget build(BuildContext context) {

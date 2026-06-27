@@ -77,9 +77,7 @@ class ChatMessageSkeleton extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 for (int j = 0; j < lineCount; j++) ...[
-                  Bone.text(
-                    words: j == lineCount - 1 ? 4 : 8,
-                  ),
+                  Bone.text(words: j == lineCount - 1 ? 4 : 8),
                   if (j < lineCount - 1) const SizedBox(height: 6),
                 ],
                 const SizedBox(height: 12),

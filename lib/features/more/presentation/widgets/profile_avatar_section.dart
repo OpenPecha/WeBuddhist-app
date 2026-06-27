@@ -35,22 +35,21 @@ class ProfileAvatarSection extends StatelessWidget {
               radius: 52,
               backgroundColor: AppColors.grey300,
               backgroundImage: _resolveImage(),
-              child: avatarUrl.isEmpty && pickedAvatarFile == null
-                  ? Icon(
-                      AppAssets.profile,
-                      size: 44,
-                      color: AppColors.grey600,
-                    )
-                  : null,
+              child:
+                  avatarUrl.isEmpty && pickedAvatarFile == null
+                      ? Icon(
+                        AppAssets.profile,
+                        size: 44,
+                        color: AppColors.grey600,
+                      )
+                      : null,
             ),
           ),
           if (isUploadingAvatar) _UploadingOverlay(),
           Positioned(
             bottom: 0,
             right: 0,
-            child: _EditButton(
-              onTap: isUploadingAvatar ? null : onEditTap,
-            ),
+            child: _EditButton(onTap: isUploadingAvatar ? null : onEditTap),
           ),
         ],
       ),

@@ -142,10 +142,7 @@ final _dioBaseOptionsProvider = Provider<BaseOptions>((ref) {
     connectTimeout: config.connectTimeout,
     receiveTimeout: config.receiveTimeout,
     sendTimeout: config.sendTimeout,
-    headers: {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json',
-    },
+    headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
   );
 });
 
@@ -182,10 +179,7 @@ final _aiDioBaseOptionsProvider = Provider<BaseOptions>((ref) {
     connectTimeout: AiConfig.connectionTimeout,
     receiveTimeout: AiConfig.connectionTimeout,
     sendTimeout: AiConfig.connectionTimeout,
-    headers: {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json',
-    },
+    headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
   );
 });
 
@@ -240,9 +234,11 @@ final packageInfoProvider = FutureProvider<PackageInfo>((ref) async {
 /// Human-readable label, e.g. "Version 2.5.5".
 /// Returns an empty string until the info is available or on failure.
 final appVersionLabelProvider = Provider<String>((ref) {
-  return ref.watch(packageInfoProvider).maybeWhen(
-    data: (info) => info.version.isNotEmpty ? 'Version ${info.version}' : '',
-    orElse: () => '',
-  );
+  return ref
+      .watch(packageInfoProvider)
+      .maybeWhen(
+        data:
+            (info) => info.version.isNotEmpty ? 'Version ${info.version}' : '',
+        orElse: () => '',
+      );
 });
-

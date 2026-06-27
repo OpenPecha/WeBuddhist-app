@@ -91,9 +91,7 @@ class MainNavigationBottomBar extends ConsumerWidget {
     final authState = ref.watch(authProvider);
     final user = ref.watch(userProvider).user;
     final meAvatarUrl =
-        authState.isLoggedIn && !authState.isGuest
-            ? user?.avatarUrl
-            : null;
+        authState.isLoggedIn && !authState.isGuest ? user?.avatarUrl : null;
     final items = mainNavigationItems(context, meAvatarUrl: meAvatarUrl);
     final selectedIndex = ref.watch(mainNavigationIndexProvider);
 

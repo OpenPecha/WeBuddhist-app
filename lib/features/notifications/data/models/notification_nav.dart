@@ -16,4 +16,6 @@ class NotificationNav {
 
 /// Stores a pending deep-link from a notification tap.
 /// Set by NotificationService; consumed and cleared by RoutineFilledState.
-final pendingNotificationNavProvider = StateProvider<NotificationNav?>((ref) => null);
+final pendingNotificationNavProvider = StateProvider<NotificationNav?>(
+  (ref) => null,
+);

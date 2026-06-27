@@ -10,7 +10,9 @@ abstract class RecitationRepository extends Repository {
   Future<Either<Failure, List<Recitation>>> getRecitations();
 
   /// Get recitations by content type.
-  Future<Either<Failure, List<Recitation>>> getRecitationsByType(ContentType type);
+  Future<Either<Failure, List<Recitation>>> getRecitationsByType(
+    ContentType type,
+  );
 
   /// Get recitations for a specific text.
   Future<Either<Failure, List<Recitation>>> getRecitationsByText(String textId);

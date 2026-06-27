@@ -108,9 +108,9 @@ class _TermsOfServiceScreenState extends State<TermsOfServiceScreen> {
         elevation: 0,
         title: Text(
           l10n.legal_terms_of_service,
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.w600,
-          ),
+          style: Theme.of(
+            context,
+          ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
         ),
         centerTitle: true,
         actions: [

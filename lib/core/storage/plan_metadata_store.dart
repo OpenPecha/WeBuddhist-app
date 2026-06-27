@@ -90,7 +90,8 @@ class PlanMetadataStore {
     await prefs.remove(_anchorKey(planId));
     await prefs.remove(_totalDaysKey(planId));
     await prefs.remove(_seriesScheduledKey(planId));
-    for (final key in prefs.getKeys().where(_isShownFlagForPlan(planId)).toList()) {
+    for (final key
+        in prefs.getKeys().where(_isShownFlagForPlan(planId)).toList()) {
       await prefs.remove(key);
     }
   }
@@ -136,7 +137,8 @@ class PlanMetadataStore {
   /// re-fires today's immediate.
   static Future<void> clearShownFlags(String planId) async {
     final prefs = await _ensurePrefs();
-    for (final key in prefs.getKeys().where(_isShownFlagForPlan(planId)).toList()) {
+    for (final key
+        in prefs.getKeys().where(_isShownFlagForPlan(planId)).toList()) {
       await prefs.remove(key);
     }
   }

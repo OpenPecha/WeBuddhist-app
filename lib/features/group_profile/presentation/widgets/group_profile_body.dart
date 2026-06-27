@@ -471,10 +471,7 @@ class _GroupMemberCountText extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final followKey = GroupFollowKey(
-      groupId: groupId,
-      groupType: groupType,
-    );
+    final followKey = GroupFollowKey(groupId: groupId, groupType: groupType);
     final followState = ref.watch(groupFollowProvider(followKey));
     final delta = switch (followState) {
       GroupFollowSuccess(countDelta: final d) => d,

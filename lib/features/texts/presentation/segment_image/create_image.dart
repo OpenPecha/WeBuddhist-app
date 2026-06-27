@@ -111,7 +111,9 @@ class _CreateImageState extends State<CreateImage> {
     try {
       final imageBytes = await _screenshotController.capture();
       if (imageBytes == null) {
-        _showErrorSnackBar(AppLocalizations.of(context)!.create_image_capture_error);
+        _showErrorSnackBar(
+          AppLocalizations.of(context)!.create_image_capture_error,
+        );
         return;
       }
 
@@ -123,7 +125,9 @@ class _CreateImageState extends State<CreateImage> {
       }
     } catch (e) {
       if (mounted) {
-        _showErrorSnackBar(AppLocalizations.of(context)!.create_image_capture_error);
+        _showErrorSnackBar(
+          AppLocalizations.of(context)!.create_image_capture_error,
+        );
       }
     } finally {
       if (mounted) {
@@ -163,7 +167,9 @@ class _CreateImageState extends State<CreateImage> {
       );
     } catch (e) {
       if (mounted) {
-        _showErrorSnackBar(AppLocalizations.of(context)!.create_image_share_error);
+        _showErrorSnackBar(
+          AppLocalizations.of(context)!.create_image_share_error,
+        );
       }
     } finally {
       // Clean up temp file
@@ -199,15 +205,21 @@ class _CreateImageState extends State<CreateImage> {
 
       if (mounted) {
         if (result['isSuccess'] == true) {
-          _showSuccessSnackBar(AppLocalizations.of(context)!.create_image_save_success);
+          _showSuccessSnackBar(
+            AppLocalizations.of(context)!.create_image_save_success,
+          );
         } else {
-          _showErrorSnackBar(AppLocalizations.of(context)!.create_image_save_error);
+          _showErrorSnackBar(
+            AppLocalizations.of(context)!.create_image_save_error,
+          );
         }
       }
     } catch (e) {
       _logger.error('Error downloading image', e);
       if (mounted) {
-        _showErrorSnackBar(AppLocalizations.of(context)!.create_image_download_error);
+        _showErrorSnackBar(
+          AppLocalizations.of(context)!.create_image_download_error,
+        );
       }
     } finally {
       if (mounted) {
@@ -362,7 +374,8 @@ class _CreateImageState extends State<CreateImage> {
             IconButton(
               icon: const Icon(Icons.palette_outlined),
               onPressed: _showCustomizationSheet,
-              tooltip: AppLocalizations.of(context)!.create_image_customize_tooltip,
+              tooltip:
+                  AppLocalizations.of(context)!.create_image_customize_tooltip,
             ),
             // Save button
             ElevatedButton(

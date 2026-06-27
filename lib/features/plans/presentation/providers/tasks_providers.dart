@@ -6,15 +6,16 @@ import 'package:flutter_pecha/features/plans/presentation/providers/use_case_pro
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final tasksByPlanItemIdFutureProvider =
-    FutureProvider.family<Either<Failure, List<PlanTasksModel>>, String>((ref, planItemId) {
+    FutureProvider.family<Either<Failure, List<PlanTasksModel>>, String>((
+      ref,
+      planItemId,
+    ) {
       final useCase = ref.watch(getTasksByPlanItemIdUseCaseProvider);
       return useCase(GetTasksByPlanItemIdParams(planItemId: planItemId));
     });
 
-final taskByIdFutureProvider = FutureProvider.family<Either<Failure, PlanTasksModel>, String>((
-  ref,
-  id,
-) {
-  final useCase = ref.watch(getTaskByIdUseCaseProvider);
-  return useCase(GetTaskByIdParams(id: id));
-});
+final taskByIdFutureProvider =
+    FutureProvider.family<Either<Failure, PlanTasksModel>, String>((ref, id) {
+      final useCase = ref.watch(getTaskByIdUseCaseProvider);
+      return useCase(GetTaskByIdParams(id: id));
+    });

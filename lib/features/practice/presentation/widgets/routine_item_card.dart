@@ -95,17 +95,17 @@ class RoutineItemCard extends StatelessWidget {
                 width: 74,
                 height: 74,
                 decoration: BoxDecoration(
-                  color: isDark
-                      ? AppColors.surfaceVariantDark
-                      : AppColors.grey100,
+                  color:
+                      isDark ? AppColors.surfaceVariantDark : AppColors.grey100,
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Icon(
                   PhosphorIconsRegular.timer,
                   size: 32,
-                  color: isDark
-                      ? AppColors.textTertiaryDark
-                      : AppColors.textSecondary,
+                  color:
+                      isDark
+                          ? AppColors.textTertiaryDark
+                          : AppColors.textSecondary,
                 ),
               )
             else if (type == RoutineItemType.accumulator)
@@ -113,17 +113,17 @@ class RoutineItemCard extends StatelessWidget {
                 width: 74,
                 height: 74,
                 decoration: BoxDecoration(
-                  color: isDark
-                      ? AppColors.surfaceVariantDark
-                      : AppColors.grey100,
+                  color:
+                      isDark ? AppColors.surfaceVariantDark : AppColors.grey100,
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
                   PhosphorIconsRegular.circlesThree,
                   size: 32,
-                  color: isDark
-                      ? AppColors.textTertiaryDark
-                      : AppColors.textSecondary,
+                  color:
+                      isDark
+                          ? AppColors.textTertiaryDark
+                          : AppColors.textSecondary,
                 ),
               )
             else

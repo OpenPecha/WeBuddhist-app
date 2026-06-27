@@ -11,28 +11,28 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 //
 // This provider uses the GetFeaturedDayUseCase to fetch featured day content,
 // maintaining clean architecture by routing through the use case layer.
-final featuredDayFutureProvider = FutureProvider<Either<Failure, List<FeaturedDayTask>>>((
-  ref,
-) async {
-  final language = ref.watch(contentLanguageProvider);
-  final repository = ref.watch(featuredDayDomainRepositoryProvider);
-  final useCase = ref.watch(getFeaturedDayUseCaseProvider);
+final featuredDayFutureProvider =
+    FutureProvider<Either<Failure, List<FeaturedDayTask>>>((ref) async {
+      final language = ref.watch(contentLanguageProvider);
+      final repository = ref.watch(featuredDayDomainRepositoryProvider);
+      final useCase = ref.watch(getFeaturedDayUseCaseProvider);
 
-  final result = await useCase(GetFeaturedDayParams(language: language));
+      final result = await useCase(GetFeaturedDayParams(language: language));
 
-  // Map the successful response to FeaturedDayTask list
-  return result.fold(
-    (failure) => Left(failure),
-    (response) {
-      if (response.tasks.isEmpty) {
-        return const Right([]);
-      } else {
-        try {
-          return Right(repository.mapToFeaturedDayTasks(response));
-        } catch (e) {
-          return Left(UnknownFailure('Failed to map featured day tasks: ${e.toString()}'));
+      // Map the successful response to FeaturedDayTask list
+      return result.fold((failure) => Left(failure), (response) {
+        if (response.tasks.isEmpty) {
+          return const Right([]);
+        } else {
+          try {
+            return Right(repository.mapToFeaturedDayTasks(response));
+          } catch (e) {
+            return Left(
+              UnknownFailure(
+                'Failed to map featured day tasks: ${e.toString()}',
+              ),
+            );
+          }
         }
-      }
-    },
-  );
-});
+      });
+    });

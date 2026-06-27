@@ -146,9 +146,9 @@ class NotificationSyncEngine {
     required RoutineNotificationService service,
     required NotificationService notificationService,
     required Ref ref,
-  })  : _service = service,
-        _notificationService = notificationService,
-        _ref = ref;
+  }) : _service = service,
+       _notificationService = notificationService,
+       _ref = ref;
 
   FlutterLocalNotificationsPlugin get _plugin =>
       _notificationService.notificationsPlugin;
@@ -254,9 +254,12 @@ class NotificationSyncEngine {
     }
 
     final togglePrefs = await SharedPreferences.getInstance();
-    final masterOn = togglePrefs.getBool(StorageKeys.notificationMasterEnabled) ?? true;
-    final routineOn = togglePrefs.getBool(StorageKeys.notificationRoutineEnabled) ?? true;
-    final recitationOn = togglePrefs.getBool(StorageKeys.notificationRecitationEnabled) ?? true;
+    final masterOn =
+        togglePrefs.getBool(StorageKeys.notificationMasterEnabled) ?? true;
+    final routineOn =
+        togglePrefs.getBool(StorageKeys.notificationRoutineEnabled) ?? true;
+    final recitationOn =
+        togglePrefs.getBool(StorageKeys.notificationRecitationEnabled) ?? true;
     final osGranted = await _notificationService.areNotificationsEnabled();
 
     final routineBlocks = _ref.read(routineProvider).blocks;
@@ -312,8 +315,9 @@ class NotificationSyncEngine {
         if (block.items.isEmpty || !block.notificationEnabled) continue;
         // A block may in principle hold both kinds of items — handle each by
         // its own type instead of branching on the first item only.
-        final hasRecitation =
-            block.items.any((i) => i.type == RoutineItemType.recitation);
+        final hasRecitation = block.items.any(
+          (i) => i.type == RoutineItemType.recitation,
+        );
         if (hasRecitation) {
           final entries = computeForRecitationBlock(
             block,
@@ -328,11 +332,14 @@ class NotificationSyncEngine {
         }
         {
           // Plan items — every plan item produces its own desired notifications.
-          for (final item in block.items.where((i) => i.type == RoutineItemType.series)) {
-            final isSeriesItem = plansById != null
-                ? isSeriesRoutineItem(item.id, plansById)
-                : item.currentPlanId != null ||
-                    PlanMetadataStore.getMetadata(item.id) == null;
+          for (final item in block.items.where(
+            (i) => i.type == RoutineItemType.series,
+          )) {
+            final isSeriesItem =
+                plansById != null
+                    ? isSeriesRoutineItem(item.id, plansById)
+                    : item.currentPlanId != null ||
+                        PlanMetadataStore.getMetadata(item.id) == null;
             if (isSeriesItem) {
               var seriesPlans = await seriesPlansFor(item.id);
               if (seriesPlans.isEmpty &&
@@ -374,8 +381,9 @@ class NotificationSyncEngine {
                 now,
                 masterOn: masterOn,
                 routineOn: routineOn,
-                seriesScheduledTodayByOS:
-                    todayMarkerByPlan.containsKey(item.id),
+                seriesScheduledTodayByOS: todayMarkerByPlan.containsKey(
+                  item.id,
+                ),
               );
               for (final e in entries) {
                 desired[e.id] = e;
@@ -397,9 +405,10 @@ class NotificationSyncEngine {
               }
             }
             if (plan == null) {
-              final reason = plansResolved
-                  ? 'no enrolment / not in userPlans'
-                  : 'userPlans not loaded; no cached metadata';
+              final reason =
+                  plansResolved
+                      ? 'no enrolment / not in userPlans'
+                      : 'userPlans not loaded; no cached metadata';
               _logger.info(
                 '[NOTIFICATION_NEW_FLOW] trigger=${trigger.name} block=${block.id} '
                 'plan=${item.id} case=1 action=skip reason="$reason"',
@@ -414,8 +423,7 @@ class NotificationSyncEngine {
               now,
               masterOn: masterOn,
               routineOn: routineOn,
-              seriesScheduledTodayByOS:
-                  todayMarkerByPlan.containsKey(item.id),
+              seriesScheduledTodayByOS: todayMarkerByPlan.containsKey(item.id),
             );
             for (final e in entries) {
               desired[e.id] = e;
@@ -550,13 +558,15 @@ class NotificationSyncEngine {
     Map<int, DesiredNotification> desired,
     void Function(String) bumpCase,
   ) {
-    final reserved = desired.values
-        .where((d) => d.isDailyRepeat || d.isImmediate)
-        .length;
-    final dated = desired.values
-        .where((d) => !d.isDailyRepeat && !d.isImmediate && d.fireAt != null)
-        .toList()
-      ..sort((a, b) => a.fireAt!.compareTo(b.fireAt!));
+    final reserved =
+        desired.values.where((d) => d.isDailyRepeat || d.isImmediate).length;
+    final dated =
+        desired.values
+            .where(
+              (d) => !d.isDailyRepeat && !d.isImmediate && d.fireAt != null,
+            )
+            .toList()
+          ..sort((a, b) => a.fireAt!.compareTo(b.fireAt!));
     final budget = kMaxTotalScheduled - reserved;
     if (dated.length <= budget) return;
     final overflow = dated.sublist(budget < 0 ? 0 : budget);
@@ -598,16 +608,13 @@ class NotificationSyncEngine {
       final asyncValue = _ref.read(userPlansFutureProvider);
       final value = asyncValue.valueOrNull;
       if (value == null) return null;
-      return value.fold(
-        (failure) {
-          _logger.warning(
-            '[NOTIFICATION_NEW_FLOW] userPlansFutureProvider resolved to '
-            'Left($failure) — treating plans state as unknown',
-          );
-          return null;
-        },
-        (response) => {for (final p in response.userPlans) p.id: p},
-      );
+      return value.fold((failure) {
+        _logger.warning(
+          '[NOTIFICATION_NEW_FLOW] userPlansFutureProvider resolved to '
+          'Left($failure) — treating plans state as unknown',
+        );
+        return null;
+      }, (response) => {for (final p in response.userPlans) p.id: p});
     } catch (e) {
       _logger.warning('readPlansById failed: $e');
       return null;
@@ -621,16 +628,13 @@ class NotificationSyncEngine {
       final result = await _ref.read(getUserPlansUseCaseProvider)(
         GetUserPlansParams(language: language, seriesId: seriesId),
       );
-      return result.fold(
-        (failure) {
-          _logger.warning(
-            '[NOTIFICATION_NEW_FLOW] fetchPlansForSeries($seriesId) failed: '
-            '$failure',
-          );
-          return <UserPlansModel>[];
-        },
-        (response) => response.userPlans,
-      );
+      return result.fold((failure) {
+        _logger.warning(
+          '[NOTIFICATION_NEW_FLOW] fetchPlansForSeries($seriesId) failed: '
+          '$failure',
+        );
+        return <UserPlansModel>[];
+      }, (response) => response.userPlans);
     } catch (e) {
       _logger.warning('fetchPlansForSeries($seriesId) threw: $e');
       return <UserPlansModel>[];
@@ -700,7 +704,11 @@ class NotificationSyncEngine {
     final isSpecial = isSpecialPlan(plan.id);
     final specialEntries = kSpecialPlanNotifications[plan.id];
     final anchorLocal = plan.effectiveStartDate.toLocal();
-    final anchorDay = DateTime(anchorLocal.year, anchorLocal.month, anchorLocal.day);
+    final anchorDay = DateTime(
+      anchorLocal.year,
+      anchorLocal.month,
+      anchorLocal.day,
+    );
     final today = DateTime(now.year, now.month, now.day);
     final daysSinceAnchor = today.difference(anchorDay).inDays;
     final totalDays = plan.totalDays;
@@ -751,16 +759,18 @@ class NotificationSyncEngine {
     // Case 3a — future anchor: schedules-only, no today fire.
     // Case 3b — today + future schedules (no backfill).
     for (var day = 1; day <= totalDays; day++) {
-      if (scheduledCount >= RoutineNotificationService.kPlanSeriesMaxScheduledDays) {
+      if (scheduledCount >=
+          RoutineNotificationService.kPlanSeriesMaxScheduledDays) {
         break;
       }
       final fireDate = seriesStart.add(Duration(days: day - 1));
       final fireWall = seriesStartWall.add(Duration(days: day - 1));
       if (!fireWall.isAfter(now)) continue;
 
-      final dayLabel = isSpecial && specialEntries != null && day <= specialEntries.length
-          ? '2a'
-          : (isSpecial ? '2b' : (today.isBefore(anchorDay) ? '3a' : '3b'));
+      final dayLabel =
+          isSpecial && specialEntries != null && day <= specialEntries.length
+              ? '2a'
+              : (isSpecial ? '2b' : (today.isBefore(anchorDay) ? '3a' : '3b'));
 
       String title;
       String body;
@@ -786,21 +796,24 @@ class NotificationSyncEngine {
         body = _planDayBody(item.title, day, totalDays);
       }
 
-      final id = isSpecial && specialEntries != null && day <= specialEntries.length
-          ? NotificationIdScheme.specialPlanSeriesId(plan.id, day)
-          : NotificationIdScheme.planSeriesId(plan.id, day);
+      final id =
+          isSpecial && specialEntries != null && day <= specialEntries.length
+              ? NotificationIdScheme.specialPlanSeriesId(plan.id, day)
+              : NotificationIdScheme.planSeriesId(plan.id, day);
 
-      entries.add(DesiredNotification(
-        id: id,
-        fireAt: fireDate,
-        title: title,
-        body: body,
-        payload: payload,
-        sourceItem: item,
-        enrollmentPlanId: plan.id,
-        androidActionButtonText: buttonText,
-        debugCase: dayLabel,
-      ));
+      entries.add(
+        DesiredNotification(
+          id: id,
+          fireAt: fireDate,
+          title: title,
+          body: body,
+          payload: payload,
+          sourceItem: item,
+          enrollmentPlanId: plan.id,
+          androidActionButtonText: buttonText,
+          debugCase: dayLabel,
+        ),
+      );
       scheduledCount++;
     }
 
@@ -822,7 +835,9 @@ class NotificationSyncEngine {
     // never cancelled), stay silent — the user already got it in the
     // background; one notification per plan per day, from either path.
     if (!today.isBefore(anchorDay) && daysSinceAnchor < totalDays) {
-      final todayFireWall = seriesStartWall.add(Duration(days: daysSinceAnchor));
+      final todayFireWall = seriesStartWall.add(
+        Duration(days: daysSinceAnchor),
+      );
       final isPast = !todayFireWall.isAfter(now);
       final dayNumber = daysSinceAnchor + 1;
       if (isPast && seriesScheduledTodayByOS) {
@@ -838,7 +853,9 @@ class NotificationSyncEngine {
         String body;
         String? buttonText;
         int id;
-        if (isSpecial && specialEntries != null && dayNumber <= specialEntries.length) {
+        if (isSpecial &&
+            specialEntries != null &&
+            dayNumber <= specialEntries.length) {
           final content = specialEntries[dayNumber - 1];
           title = content.title;
           body = content.body;
@@ -853,18 +870,20 @@ class NotificationSyncEngine {
           return entries;
         }
 
-        entries.add(DesiredNotification(
-          id: id,
-          fireAt: null,
-          title: title,
-          body: body,
-          payload: payload,
-          sourceItem: item,
-          enrollmentPlanId: plan.id,
-          androidActionButtonText: buttonText,
-          isImmediate: true,
-          debugCase: '3b immediate-catchup',
-        ));
+        entries.add(
+          DesiredNotification(
+            id: id,
+            fireAt: null,
+            title: title,
+            body: body,
+            payload: payload,
+            sourceItem: item,
+            enrollmentPlanId: plan.id,
+            androidActionButtonText: buttonText,
+            isImmediate: true,
+            debugCase: '3b immediate-catchup',
+          ),
+        );
       }
     }
 
@@ -907,14 +926,21 @@ class NotificationSyncEngine {
       final plan = slot.plan;
       final day = slot.dayNumber;
       final cal = slot.calendarDate;
-      final fireWall = DateTime(cal.year, cal.month, cal.day, blockHour, blockMinute);
+      final fireWall = DateTime(
+        cal.year,
+        cal.month,
+        cal.day,
+        blockHour,
+        blockMinute,
+      );
       if (!fireWall.isAfter(now)) continue;
 
       final isSpecial = isSpecialPlan(plan.id);
       final specialEntries = kSpecialPlanNotifications[plan.id];
-      final dayLabel = isSpecial && specialEntries != null && day <= specialEntries.length
-          ? '2a'
-          : (isSpecial ? '2b' : (cal.isAfter(today) ? '3a' : '3b'));
+      final dayLabel =
+          isSpecial && specialEntries != null && day <= specialEntries.length
+              ? '2a'
+              : (isSpecial ? '2b' : (cal.isAfter(today) ? '3a' : '3b'));
 
       String title;
       String body;
@@ -930,9 +956,10 @@ class NotificationSyncEngine {
         body = _planDayBody(plan.title, day, plan.totalDays);
       }
 
-      final id = isSpecial && specialEntries != null && day <= specialEntries.length
-          ? NotificationIdScheme.specialPlanSeriesId(plan.id, day)
-          : NotificationIdScheme.planSeriesId(plan.id, day);
+      final id =
+          isSpecial && specialEntries != null && day <= specialEntries.length
+              ? NotificationIdScheme.specialPlanSeriesId(plan.id, day)
+              : NotificationIdScheme.planSeriesId(plan.id, day);
 
       final fireDate = tz.TZDateTime(
         tz.local,
@@ -943,20 +970,22 @@ class NotificationSyncEngine {
         blockMinute,
       );
 
-      entries.add(DesiredNotification(
-        id: id,
-        fireAt: fireDate,
-        title: title,
-        body: body,
-        payload: _encodeRoutinePayload(
-          routineItemId: seriesItem.id,
-          planId: plan.id,
+      entries.add(
+        DesiredNotification(
+          id: id,
+          fireAt: fireDate,
+          title: title,
+          body: body,
+          payload: _encodeRoutinePayload(
+            routineItemId: seriesItem.id,
+            planId: plan.id,
+          ),
+          sourceItem: seriesItem,
+          enrollmentPlanId: plan.id,
+          androidActionButtonText: buttonText,
+          debugCase: dayLabel,
         ),
-        sourceItem: seriesItem,
-        enrollmentPlanId: plan.id,
-        androidActionButtonText: buttonText,
-        debugCase: dayLabel,
-      ));
+      );
     }
 
     // Immediate catch-up for today's active plan.
@@ -1005,27 +1034,33 @@ class NotificationSyncEngine {
             id = NotificationIdScheme.specialPlanOneShotId(dayNumber);
           } else if (AppFeatureFlags.kSchedulePlanNotifications || isSpecial) {
             title = todayPlan.title;
-            body = _planDayBody(todayPlan.title, dayNumber, todayPlan.totalDays);
+            body = _planDayBody(
+              todayPlan.title,
+              dayNumber,
+              todayPlan.totalDays,
+            );
             id = NotificationIdScheme.planOneShotId(todayPlan.id);
           } else {
             return entries;
           }
 
-          entries.add(DesiredNotification(
-            id: id,
-            fireAt: null,
-            title: title,
-            body: body,
-            payload: _encodeRoutinePayload(
-              routineItemId: seriesItem.id,
-              planId: todayPlan.id,
+          entries.add(
+            DesiredNotification(
+              id: id,
+              fireAt: null,
+              title: title,
+              body: body,
+              payload: _encodeRoutinePayload(
+                routineItemId: seriesItem.id,
+                planId: todayPlan.id,
+              ),
+              sourceItem: seriesItem,
+              enrollmentPlanId: todayPlan.id,
+              androidActionButtonText: buttonText,
+              isImmediate: true,
+              debugCase: '3b immediate-catchup',
             ),
-            sourceItem: seriesItem,
-            enrollmentPlanId: todayPlan.id,
-            androidActionButtonText: buttonText,
-            isImmediate: true,
-            debugCase: '3b immediate-catchup',
-          ));
+          );
         }
       }
     }
@@ -1092,18 +1127,20 @@ class NotificationSyncEngine {
       // Build only the platform-relevant pieces — each unused style is a
       // wasted image download/disk hit per notification.
       final isApple = Platform.isIOS || Platform.isMacOS;
-      final androidStyle = isApple
-          ? null
-          : await _service.buildBigPictureStyle(
-              d.sourceItem,
-              overrideTitle: d.title,
-              overrideBody: d.body,
-            );
+      final androidStyle =
+          isApple
+              ? null
+              : await _service.buildBigPictureStyle(
+                d.sourceItem,
+                overrideTitle: d.title,
+                overrideBody: d.body,
+              );
       final largeIcon =
           isApple ? null : await _service.getLargeIcon(d.sourceItem);
-      final iosDetails = isApple
-          ? await _service.buildIOSNotificationDetails(d.sourceItem)
-          : null;
+      final iosDetails =
+          isApple
+              ? await _service.buildIOSNotificationDetails(d.sourceItem)
+              : null;
 
       final details = NotificationChannels.routineBlockDetails(
         styleInformation: androidStyle,
@@ -1113,16 +1150,16 @@ class NotificationSyncEngine {
       );
 
       Future<void> schedule(AndroidScheduleMode mode) => _plugin.zonedSchedule(
-            d.id,
-            d.title,
-            d.body,
-            fireAt,
-            details,
-            androidScheduleMode: mode,
-            matchDateTimeComponents:
-                d.isDailyRepeat ? DateTimeComponents.time : null,
-            payload: d.payload,
-          );
+        d.id,
+        d.title,
+        d.body,
+        fireAt,
+        details,
+        androidScheduleMode: mode,
+        matchDateTimeComponents:
+            d.isDailyRepeat ? DateTimeComponents.time : null,
+        payload: d.payload,
+      );
 
       try {
         await schedule(scheduleMode);
@@ -1153,7 +1190,10 @@ class NotificationSyncEngine {
 
   /// Fires an immediate (catch-up) notification, gated by the shown-flag
   /// stores so a relaunch on the same day does not double-fire.
-  Future<bool> _fireImmediate(DesiredNotification d, SyncTrigger trigger) async {
+  Future<bool> _fireImmediate(
+    DesiredNotification d,
+    SyncTrigger trigger,
+  ) async {
     final item = d.sourceItem;
     if (item == null) return false;
 
@@ -1182,13 +1222,14 @@ class NotificationSyncEngine {
 
     try {
       final isApple = Platform.isIOS || Platform.isMacOS;
-      final androidStyle = isApple
-          ? null
-          : await _service.buildBigPictureStyle(
-              item,
-              overrideTitle: d.title,
-              overrideBody: d.body,
-            );
+      final androidStyle =
+          isApple
+              ? null
+              : await _service.buildBigPictureStyle(
+                item,
+                overrideTitle: d.title,
+                overrideBody: d.body,
+              );
       final largeIcon = isApple ? null : await _service.getLargeIcon(item);
       final iosDetails =
           isApple ? await _service.buildIOSNotificationDetails(item) : null;
@@ -1229,12 +1270,11 @@ class NotificationSyncEngine {
   String _encodeRoutinePayload({
     required String routineItemId,
     required String planId,
-  }) =>
-      jsonEncode({
-        'itemId': routineItemId,
-        'itemType': RoutineItemType.series.name,
-        'planId': planId,
-      });
+  }) => jsonEncode({
+    'itemId': routineItemId,
+    'itemType': RoutineItemType.series.name,
+    'planId': planId,
+  });
 
   String _recitationBody(RoutineBlock block) {
     if (block.items.isEmpty) return 'Check your daily routine';

@@ -19,7 +19,7 @@ class RoutineApiRepositoryImpl implements RoutineApiRepository {
   final _logger = AppLogger('RoutineApiRepositoryImpl');
 
   RoutineApiRepositoryImpl({required RoutineRemoteDatasource datasource})
-      : _datasource = datasource;
+    : _datasource = datasource;
 
   @override
   Future<Either<Failure, RoutineData?>> getUserRoutine({
@@ -43,7 +43,7 @@ class RoutineApiRepositoryImpl implements RoutineApiRepository {
 
   @override
   Future<Either<Failure, ({String routineId, String timeBlockId})>>
-      createRoutineWithTimeBlock(TimeBlockRequest request) async {
+  createRoutineWithTimeBlock(TimeBlockRequest request) async {
     try {
       final response = await _datasource.createRoutineWithTimeBlock(request);
       return Right((
@@ -117,6 +117,8 @@ class RoutineApiRepositoryImpl implements RoutineApiRepository {
     if (e is RoutineApiException) {
       return ServerFailure(e.message);
     }
-    return const ServerFailure('An unexpected error occurred. Please try again.');
+    return const ServerFailure(
+      'An unexpected error occurred. Please try again.',
+    );
   }
 }

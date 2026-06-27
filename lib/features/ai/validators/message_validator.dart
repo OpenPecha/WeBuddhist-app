@@ -18,10 +18,7 @@ class ValidationResult {
   }
 
   factory ValidationResult.invalid(String errorMessage) {
-    return ValidationResult._(
-      isValid: false,
-      errorMessage: errorMessage,
-    );
+    return ValidationResult._(isValid: false, errorMessage: errorMessage);
   }
 }
 

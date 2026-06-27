@@ -23,7 +23,8 @@ class GetSeriesDayCompletedUseCase
     extends UseCase<SeriesDayCompletedPage, GetSeriesDayCompletedParams> {
   final Future<Either<Failure, SeriesDayCompletedPage>> Function(
     GetSeriesDayCompletedParams params,
-  ) _getSeriesDayCompleted;
+  )
+  _getSeriesDayCompleted;
 
   GetSeriesDayCompletedUseCase(this._getSeriesDayCompleted);
 

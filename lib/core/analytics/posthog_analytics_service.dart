@@ -80,10 +80,7 @@ class PostHogAnalyticsService implements AnalyticsService {
   }
 
   @override
-  Future<void> track(
-    String event, {
-    Map<String, Object?>? properties,
-  }) async {
+  Future<void> track(String event, {Map<String, Object?>? properties}) async {
     if (!_isInitialized) return;
 
     await Posthog().capture(

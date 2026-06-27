@@ -15,8 +15,9 @@ class PracticeItemsRepositoryImpl implements PracticeItemsRepository {
   final PracticeItemsRemoteDatasource _datasource;
   final _logger = AppLogger('PracticeItemsRepositoryImpl');
 
-  PracticeItemsRepositoryImpl({required PracticeItemsRemoteDatasource datasource})
-    : _datasource = datasource;
+  PracticeItemsRepositoryImpl({
+    required PracticeItemsRemoteDatasource datasource,
+  }) : _datasource = datasource;
 
   @override
   Future<Either<Failure, PracticeItemsPage>> getPracticeItems({

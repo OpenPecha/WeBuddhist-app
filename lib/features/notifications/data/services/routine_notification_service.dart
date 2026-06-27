@@ -73,16 +73,18 @@ class RoutineNotificationService {
       // would let a mid-edit sync or a same-day re-add fire a duplicate.
       final now = DateTime.now();
       final todayDate = DateTime(now.year, now.month, now.day);
-      final pendingIds = (await _plugin.pendingNotificationRequests())
-          .map((p) => p.id)
-          .toSet();
+      final pendingIds =
+          (await _plugin.pendingNotificationRequests())
+              .map((p) => p.id)
+              .toSet();
       final todayMarkers = PlanMetadataStore.seriesScheduledIdsOn(todayDate);
 
       await _plugin.cancel(block.notificationId);
       // Every plan item in the block owns its own series — cancel them all,
       // not just the first (blocks may hold several plans, case 3d).
-      for (final item
-          in block.items.where((i) => i.type == RoutineItemType.series)) {
+      for (final item in block.items.where(
+        (i) => i.type == RoutineItemType.series,
+      )) {
         if (isSpecialPlan(item.id)) {
           await _cancelSpecialPlanSeries(item.id);
         } else {
@@ -95,9 +97,8 @@ class RoutineNotificationService {
             await _cancelPlanDurationSeries(item.currentPlanId!);
           }
         }
-        final markerEntry = todayMarkers.entries
-            .where((e) => e.value == item.id)
-            .firstOrNull;
+        final markerEntry =
+            todayMarkers.entries.where((e) => e.value == item.id).firstOrNull;
         if (markerEntry != null && pendingIds.contains(markerEntry.key)) {
           // Cancelled before today's fire time — re-arm the catch-up so a
           // re-add can still deliver today's (never-received) notification.
@@ -122,7 +123,9 @@ class RoutineNotificationService {
     final entries = kSpecialPlanNotifications[planId];
     if (entries == null) return;
     for (var day = 1; day <= entries.length; day++) {
-      await _plugin.cancel(NotificationIdScheme.specialPlanSeriesId(planId, day));
+      await _plugin.cancel(
+        NotificationIdScheme.specialPlanSeriesId(planId, day),
+      );
       await _plugin.cancel(NotificationIdScheme.specialPlanOneShotId(day));
     }
     await _cancelPlanDurationSeries(planId);
@@ -142,7 +145,9 @@ class RoutineNotificationService {
     if (!_isReady) return;
     try {
       await _plugin.cancelAll();
-      _logger.info('[NOTIFICATION_NEW_FLOW] cancelled all pending notifications');
+      _logger.info(
+        '[NOTIFICATION_NEW_FLOW] cancelled all pending notifications',
+      );
     } catch (e) {
       _logger.warning('cancelAll failed: $e');
     }
@@ -155,12 +160,16 @@ class RoutineNotificationService {
     RoutineItem? item, {
     String? overrideTitle,
     String? overrideBody,
-  }) =>
-      _buildBigPictureStyle(item, overrideTitle: overrideTitle, overrideBody: overrideBody);
+  }) => _buildBigPictureStyle(
+    item,
+    overrideTitle: overrideTitle,
+    overrideBody: overrideBody,
+  );
 
   /// Builds iOS notification details with optional image attachment.
-  Future<DarwinNotificationDetails> buildIOSNotificationDetails(RoutineItem? item) =>
-      _buildIOSNotificationDetails(item);
+  Future<DarwinNotificationDetails> buildIOSNotificationDetails(
+    RoutineItem? item,
+  ) => _buildIOSNotificationDetails(item);
 
   /// Resolves the large-icon path for [item]'s image, if any.
   Future<FilePathAndroidBitmap?> getLargeIcon(RoutineItem? item) =>
@@ -226,7 +235,9 @@ class RoutineNotificationService {
           );
         }
       } catch (e) {
-        _logger.warning('_buildIOSNotificationDetails: image attach failed: $e');
+        _logger.warning(
+          '_buildIOSNotificationDetails: image attach failed: $e',
+        );
       }
     }
     return const DarwinNotificationDetails(

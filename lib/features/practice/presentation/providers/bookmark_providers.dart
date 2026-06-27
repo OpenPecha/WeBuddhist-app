@@ -8,9 +8,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final bookmarkRepositoryProvider = Provider<BookmarkRepository>((ref) {
   return BookmarkRepository(
-    remoteDatasource: BookmarkRemoteDatasource(
-      dio: ref.watch(dioProvider),
-    ),
+    remoteDatasource: BookmarkRemoteDatasource(dio: ref.watch(dioProvider)),
   );
 });
 
@@ -106,14 +104,11 @@ class BookmarksNotifier extends StateNotifier<BookmarksState> {
 
     final result = await _repository.deleteBookmark(bookmark.id);
     if (!mounted) return false;
-    return result.fold(
-      (failure) {
-        _logger.error('Failed to remove bookmark: ${failure.message}');
-        state = state.copyWith(bookmarks: previous);
-        return false;
-      },
-      (_) => true,
-    );
+    return result.fold((failure) {
+      _logger.error('Failed to remove bookmark: ${failure.message}');
+      state = state.copyWith(bookmarks: previous);
+      return false;
+    }, (_) => true);
   }
 }
 

@@ -7,6 +7,7 @@ class ReusableYoutubePlayer extends StatefulWidget {
   final bool autoPlay;
   final bool mute;
   final bool loop;
+
   /// When true, the player expands to fill its parent instead of being
   /// constrained by [aspectRatio]. Use this for true full-screen layouts.
   final bool fillParent;

@@ -29,20 +29,20 @@ class GetTextContentParams {
   final String textId;
   final String? language;
 
-  const GetTextContentParams({
-    required this.textId,
-    this.language,
-  });
+  const GetTextContentParams({required this.textId, this.language});
 }
 
 /// Get text version use case.
-class GetTextVersionUseCase extends UseCase<VersionResponse, GetTextVersionParams> {
+class GetTextVersionUseCase
+    extends UseCase<VersionResponse, GetTextVersionParams> {
   final TextsRepository _repository;
 
   GetTextVersionUseCase(this._repository);
 
   @override
-  Future<Either<Failure, VersionResponse>> call(GetTextVersionParams params) async {
+  Future<Either<Failure, VersionResponse>> call(
+    GetTextVersionParams params,
+  ) async {
     if (params.textId.isEmpty) {
       return const Left(ValidationFailure('Text ID cannot be empty'));
     }
@@ -67,13 +67,16 @@ class GetTextVersionParams {
 }
 
 /// Get commentary text use case.
-class GetCommentaryTextUseCase extends UseCase<CommentaryTextResponse, GetCommentaryTextParams> {
+class GetCommentaryTextUseCase
+    extends UseCase<CommentaryTextResponse, GetCommentaryTextParams> {
   final TextsRepository _repository;
 
   GetCommentaryTextUseCase(this._repository);
 
   @override
-  Future<Either<Failure, CommentaryTextResponse>> call(GetCommentaryTextParams params) async {
+  Future<Either<Failure, CommentaryTextResponse>> call(
+    GetCommentaryTextParams params,
+  ) async {
     if (params.textId.isEmpty) {
       return const Left(ValidationFailure('Text ID cannot be empty'));
     }
@@ -98,13 +101,16 @@ class GetCommentaryTextParams {
 }
 
 /// Get text details (reader content) use case.
-class GetTextDetailsUseCase extends UseCase<ReaderResponse, GetTextDetailsParams> {
+class GetTextDetailsUseCase
+    extends UseCase<ReaderResponse, GetTextDetailsParams> {
   final TextsRepository _repository;
 
   GetTextDetailsUseCase(this._repository);
 
   @override
-  Future<Either<Failure, ReaderResponse>> call(GetTextDetailsParams params) async {
+  Future<Either<Failure, ReaderResponse>> call(
+    GetTextDetailsParams params,
+  ) async {
     if (params.textId.isEmpty) {
       return const Left(ValidationFailure('Text ID cannot be empty'));
     }

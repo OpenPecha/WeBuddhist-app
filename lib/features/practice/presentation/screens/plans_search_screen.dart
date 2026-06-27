@@ -138,9 +138,7 @@ class _PlansSearchScreenState extends ConsumerState<PlansSearchScreen> {
                 ],
               ),
             ),
-            Expanded(
-              child: _buildBody(context, searchState, subtitleColor),
-            ),
+            Expanded(child: _buildBody(context, searchState, subtitleColor)),
           ],
         ),
       ),
@@ -178,7 +176,8 @@ class _PlansSearchScreenState extends ConsumerState<PlansSearchScreen> {
               ),
               const SizedBox(height: 16),
               ElevatedButton(
-                onPressed: () => ref.read(seriesSearchProvider.notifier).retry(),
+                onPressed:
+                    () => ref.read(seriesSearchProvider.notifier).retry(),
                 child: Text(l10n.retry),
               ),
             ],

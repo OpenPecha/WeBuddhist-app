@@ -15,12 +15,7 @@ class RecitationsQueryParams {
   final int? skip;
   final int? limit;
 
-  RecitationsQueryParams({
-    this.language,
-    this.search,
-    this.skip,
-    this.limit,
-  });
+  RecitationsQueryParams({this.language, this.search, this.skip, this.limit});
 
   Map<String, dynamic> toQueryParams() {
     final Map<String, dynamic> params = {};
@@ -67,9 +62,7 @@ class RecitationsRemoteDatasource {
     final List<dynamic> recitationsData =
         responseData['recitations'] as List<dynamic>? ?? [];
     return recitationsData
-        .map(
-          (json) => RecitationModel.fromJson(json as Map<String, dynamic>),
-        )
+        .map((json) => RecitationModel.fromJson(json as Map<String, dynamic>))
         .toList();
   }
 
@@ -93,10 +86,7 @@ class RecitationsRemoteDatasource {
     _logger.debug('Fetching recitation content for ID: $id');
     _logger.debug('Request body: $requestBody');
 
-    final response = await dio.post(
-      '/recitations/$id',
-      data: requestBody,
-    );
+    final response = await dio.post('/recitations/$id', data: requestBody);
 
     return RecitationContentModel.fromJson(response.data);
   }

@@ -14,7 +14,7 @@ class PlanShareService {
     // This will work as App Link on Android and Universal Link on iOS
 
     // return 'https://webuddhist.app/plans/invite?planId=$planId';
-    
+
     // Using custom scheme for immediate testing
     return 'weBuddhist://plans/invite?planId=$planId';
   }
@@ -39,14 +39,12 @@ class PlanShareService {
       _logger.debug('Generated deep link: $deepLink');
 
       // Generate message
-      final message = customMessage ?? generateShareMessage(planTitle, deepLink);
+      final message =
+          customMessage ?? generateShareMessage(planTitle, deepLink);
 
       // Share using native share sheet
       // ignore: deprecated_member_use
-      await Share.share(
-        message,
-        subject: 'Join me on WeBuddhist',
-      );
+      await Share.share(message, subject: 'Join me on WeBuddhist');
 
       _logger.info('Share completed successfully');
     } catch (e) {

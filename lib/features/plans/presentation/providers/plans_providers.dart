@@ -11,7 +11,9 @@ import 'find_plans_paginated_provider.dart';
 final _logger = AppLogger('PlansProviders');
 
 // Get all plans provider — local-first via repository cache + Hive watch.
-final plansFutureProvider = StreamProvider<Either<Failure, List<Plan>>>((ref) async* {
+final plansFutureProvider = StreamProvider<Either<Failure, List<Plan>>>((
+  ref,
+) async* {
   final languageCode = ref.watch(contentLanguageProvider);
   final repository = ref.watch(plansDomainRepositoryProvider);
   final local = ref.watch(plansLocalDatasourceProvider);
@@ -27,13 +29,11 @@ final plansFutureProvider = StreamProvider<Either<Failure, List<Plan>>>((ref) as
   }
 });
 
-final planByIdFutureProvider = StreamProvider.family<Either<Failure, Plan?>, String>((
-  ref,
-  id,
-) {
-  final repository = ref.watch(plansDomainRepositoryProvider);
-  return repository.watchPlan(id);
-});
+final planByIdFutureProvider =
+    StreamProvider.family<Either<Failure, Plan?>, String>((ref, id) {
+      final repository = ref.watch(plansDomainRepositoryProvider);
+      return repository.watchPlan(id);
+    });
 
 // Find plans with pagination provider
 final findPlansPaginatedProvider =

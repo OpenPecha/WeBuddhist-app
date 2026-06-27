@@ -107,7 +107,10 @@ class _ReaderBottomPanelShellState
                   child: Row(
                     children: [
                       IconButton(
-                        icon: const Icon(PhosphorIconsRegular.arrowLeft, size: 20),
+                        icon: const Icon(
+                          PhosphorIconsRegular.arrowLeft,
+                          size: 20,
+                        ),
                         onPressed: () {
                           HapticFeedback.lightImpact();
                           widget.onDismiss();

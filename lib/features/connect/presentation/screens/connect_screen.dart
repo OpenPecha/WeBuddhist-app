@@ -100,32 +100,29 @@ class _ConnectScreenState extends ConsumerState<ConnectScreen> {
           physics: const AlwaysScrollableScrollPhysics(),
           slivers: [
             const SliverToBoxAdapter(child: ConnectHeader()),
-              ..._buildTopSectionSlivers(
-                myGroupsAsync,
-                displayedMyGroups,
-              ),
-              SliverPadding(
-                padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
-                sliver: SliverToBoxAdapter(
-                  child: Text(
-                    context.l10n.discover_groups,
-                    style: theme.textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.w700,
-                      fontSize: 18,
-                    ),
+            ..._buildTopSectionSlivers(myGroupsAsync, displayedMyGroups),
+            SliverPadding(
+              padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
+              sliver: SliverToBoxAdapter(
+                child: Text(
+                  context.l10n.discover_groups,
+                  style: theme.textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.w700,
+                    fontSize: 18,
                   ),
                 ),
               ),
-              ..._buildDiscoverGroupsSlivers(
-                context,
-                discoverState,
-                displayedDiscoverGroups,
-                isDark,
-              ),
-              const SliverToBoxAdapter(child: SizedBox(height: 24)),
-            ],
-          ),
+            ),
+            ..._buildDiscoverGroupsSlivers(
+              context,
+              discoverState,
+              displayedDiscoverGroups,
+              isDark,
+            ),
+            const SliverToBoxAdapter(child: SizedBox(height: 24)),
+          ],
         ),
+      ),
     );
   }
 
@@ -134,9 +131,7 @@ class _ConnectScreenState extends ConsumerState<ConnectScreen> {
     List<GroupProfile> displayedMyGroups,
   ) {
     if (myGroupsAsync.isLoading && displayedMyGroups.isEmpty) {
-      return const [
-        SliverToBoxAdapter(child: MyGroupsSectionSkeleton()),
-      ];
+      return const [SliverToBoxAdapter(child: MyGroupsSectionSkeleton())];
     }
 
     if (displayedMyGroups.isEmpty) {
@@ -149,9 +144,10 @@ class _ConnectScreenState extends ConsumerState<ConnectScreen> {
       SliverToBoxAdapter(
         child: MyGroupsSection(
           groups: displayedMyGroups,
-          total: total < displayedMyGroups.length
-              ? displayedMyGroups.length
-              : total,
+          total:
+              total < displayedMyGroups.length
+                  ? displayedMyGroups.length
+                  : total,
         ),
       ),
     ];

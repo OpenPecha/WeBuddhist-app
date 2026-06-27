@@ -35,11 +35,7 @@ class PickerEmpty extends StatelessWidget {
 }
 
 class PickerError extends StatelessWidget {
-  const PickerError({
-    super.key,
-    required this.message,
-    required this.onRetry,
-  });
+  const PickerError({super.key, required this.message, required this.onRetry});
 
   final String message;
   final VoidCallback onRetry;
@@ -60,7 +56,10 @@ class PickerError extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 12),
-          TextButton(onPressed: onRetry, child: Text(AppLocalizations.of(context)!.retry)),
+          TextButton(
+            onPressed: onRetry,
+            child: Text(AppLocalizations.of(context)!.retry),
+          ),
         ],
       ),
     );

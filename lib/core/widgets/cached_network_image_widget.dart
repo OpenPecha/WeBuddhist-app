@@ -129,14 +129,17 @@ class _CachedNetworkImageWidgetState extends State<CachedNetworkImageWidget> {
             widget.fadeInDuration ?? const Duration(milliseconds: 200),
         placeholderFadeInDuration:
             widget.placeholderFadeInDuration ?? Duration.zero,
-        placeholder: widget.placeholder != null
-            ? (context, url) => widget.placeholder!
-            : (context, url) => _buildLoadingPlaceholder(),
-        errorWidget: widget.errorWidget != null
-            ? (context, url, error) => widget.errorWidget!
-            : (context, url, error) => widget.fallbackAsset != null
-                ? _buildAssetImage(widget.fallbackAsset!, context)
-                : _buildErrorWidget(context),
+        placeholder:
+            widget.placeholder != null
+                ? (context, url) => widget.placeholder!
+                : (context, url) => _buildLoadingPlaceholder(),
+        errorWidget:
+            widget.errorWidget != null
+                ? (context, url, error) => widget.errorWidget!
+                : (context, url, error) =>
+                    widget.fallbackAsset != null
+                        ? _buildAssetImage(widget.fallbackAsset!, context)
+                        : _buildErrorWidget(context),
       );
 
       if (widget.onImageLoaded != null) {
@@ -148,9 +151,10 @@ class _CachedNetworkImageWidgetState extends State<CachedNetworkImageWidget> {
         );
       }
     } else if (url != null) {
-      imageWidget = widget.fallbackAsset != null
-          ? _buildAssetImage(widget.fallbackAsset!, context)
-          : _buildErrorWidget(context);
+      imageWidget =
+          widget.fallbackAsset != null
+              ? _buildAssetImage(widget.fallbackAsset!, context)
+              : _buildErrorWidget(context);
     } else if (widget.fallbackAsset != null) {
       imageWidget = _buildAssetImage(widget.fallbackAsset!, context);
       if (widget.onImageLoaded != null) {
@@ -200,8 +204,9 @@ class _CachedNetworkImageWidgetState extends State<CachedNetworkImageWidget> {
       width: widget.width,
       height: widget.height,
       fit: widget.fit,
-      errorBuilder: (context, error, stackTrace) =>
-          widget.errorWidget ?? _buildErrorWidget(context),
+      errorBuilder:
+          (context, error, stackTrace) =>
+              widget.errorWidget ?? _buildErrorWidget(context),
     );
   }
 
@@ -246,22 +251,23 @@ class _ImageLoadedNotifierState extends State<_ImageLoadedNotifier> {
   }
 
   void _setupImageListener() {
-    final ImageProvider imageProvider = widget.useAssetImage
-        ? AssetImage(widget.imageUrl)
-        : CachedNetworkImageProvider(
-            widget.imageUrl,
-            cacheKey: _stableCacheKey(widget.imageUrl),
-          );
+    final ImageProvider imageProvider =
+        widget.useAssetImage
+            ? AssetImage(widget.imageUrl)
+            : CachedNetworkImageProvider(
+              widget.imageUrl,
+              cacheKey: _stableCacheKey(widget.imageUrl),
+            );
     _imageStream = imageProvider.resolve(const ImageConfiguration());
-    _imageStreamListener = ImageStreamListener(
-      (ImageInfo image, bool synchronousCall) {
-        if (!_hasCalledCallback && mounted) {
-          _hasCalledCallback = true;
-          widget.onImageLoaded();
-        }
-      },
-      onError: (exception, stackTrace) {},
-    );
+    _imageStreamListener = ImageStreamListener((
+      ImageInfo image,
+      bool synchronousCall,
+    ) {
+      if (!_hasCalledCallback && mounted) {
+        _hasCalledCallback = true;
+        widget.onImageLoaded();
+      }
+    }, onError: (exception, stackTrace) {});
     _imageStream?.addListener(_imageStreamListener!);
   }
 

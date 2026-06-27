@@ -39,8 +39,9 @@ class _HarnessState extends State<_Harness> {
 }
 
 void main() {
-  testWidgets('tapping the bead area increments the displayed count',
-      (tester) async {
+  testWidgets('tapping the bead area increments the displayed count', (
+    tester,
+  ) async {
     await tester.pumpWidget(const _Harness());
     expect(find.text('count:0'), findsOneWidget);
 
@@ -68,8 +69,9 @@ void main() {
     expect(find.text('count:2'), findsOneWidget);
   });
 
-  testWidgets('a left-to-right swipe does not change the count',
-      (tester) async {
+  testWidgets('a left-to-right swipe does not change the count', (
+    tester,
+  ) async {
     await tester.pumpWidget(const _Harness());
 
     await tester.drag(find.byType(MalaBeads), const Offset(60, 0));
@@ -77,8 +79,9 @@ void main() {
     expect(find.text('count:0'), findsOneWidget);
   });
 
-  testWidgets('disabled beads do not increment on tap or swipe',
-      (tester) async {
+  testWidgets('disabled beads do not increment on tap or swipe', (
+    tester,
+  ) async {
     var taps = 0;
     await tester.pumpWidget(
       MaterialApp(

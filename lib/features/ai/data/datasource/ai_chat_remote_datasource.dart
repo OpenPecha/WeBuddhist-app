@@ -43,9 +43,7 @@ class AiChatRemoteDatasource {
       final response = await _aiDio.post(
         '/chats',
         data: requestBody,
-        options: Options(
-          responseType: ResponseType.stream,
-        ),
+        options: Options(responseType: ResponseType.stream),
       );
 
       _logger.debug('Response status code: ${response.statusCode}');
@@ -142,7 +140,7 @@ class AiChatRemoteDatasource {
       _logger.error('Dio error message: ${e.message}');
       _logger.error('Dio error request options: ${e.requestOptions}');
       if (e.type == DioExceptionType.connectionTimeout ||
-                 e.type == DioExceptionType.receiveTimeout) {
+          e.type == DioExceptionType.receiveTimeout) {
         throw const NetworkException('Connection timed out');
       } else if (e.type == DioExceptionType.connectionError) {
         throw const NetworkException('Network error');

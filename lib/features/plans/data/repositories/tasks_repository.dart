@@ -11,9 +11,13 @@ class TasksRepository implements TasksRepositoryInterface {
   TasksRepository({required this.tasksRemoteDatasource});
 
   @override
-  Future<Either<Failure, List<PlanTasksModel>>> getTasksByPlanItemId(String planItemId) async {
+  Future<Either<Failure, List<PlanTasksModel>>> getTasksByPlanItemId(
+    String planItemId,
+  ) async {
     try {
-      final result = await tasksRemoteDatasource.getTasksByPlanItemId(planItemId);
+      final result = await tasksRemoteDatasource.getTasksByPlanItemId(
+        planItemId,
+      );
       return Right(result);
     } catch (e) {
       return Left(ExceptionMapper.map(e, context: 'Failed to load tasks'));

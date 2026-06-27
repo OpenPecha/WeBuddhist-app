@@ -43,7 +43,8 @@ class GetDailyQuoteUseCase extends UseCase<DailyQuote, NoParams> {
 /// NOTE: This is a placeholder use case. The HomeRepository interface
 /// for featured content does not yet exist. When a FeaturedContentRepositoryInterface
 /// is created, update this use case to depend on it.
-class GetFeaturedContentUseCase extends UseCase<List<FeaturedContent>, NoParams> {
+class GetFeaturedContentUseCase
+    extends UseCase<List<FeaturedContent>, NoParams> {
   // Placeholder - not yet wired to a repository
   GetFeaturedContentUseCase();
 

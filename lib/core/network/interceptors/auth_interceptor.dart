@@ -8,10 +8,7 @@ import 'package:flutter_pecha/core/utils/app_logger.dart';
 /// Uses a [TokenProvider] to retrieve tokens from the appropriate source,
 /// eliminating the need for runtime type checks.
 class AuthInterceptor extends Interceptor {
-  AuthInterceptor(
-    this._tokenProvider,
-    this._logger,
-  );
+  AuthInterceptor(this._tokenProvider, this._logger);
 
   final TokenProvider _tokenProvider;
   final AppLogger _logger;
@@ -22,7 +19,8 @@ class AuthInterceptor extends Interceptor {
     RequestInterceptorHandler handler,
   ) async {
     // Add request ID and start time for log correlation
-    options.extra['requestId'] = DateTime.now().microsecondsSinceEpoch.toRadixString(36);
+    options.extra['requestId'] = DateTime.now().microsecondsSinceEpoch
+        .toRadixString(36);
     options.extra['requestStartTime'] = DateTime.now();
 
     if (ProtectedRoutes.isProtected(options.path)) {
@@ -30,16 +28,22 @@ class AuthInterceptor extends Interceptor {
 
       if (token != null) {
         options.headers['Authorization'] = 'Bearer $token';
-        _logger.debug('[AuthInterceptor] Added auth header for ${options.method} ${options.path}');
+        _logger.debug(
+          '[AuthInterceptor] Added auth header for ${options.method} ${options.path}',
+        );
       } else {
-        _logger.warning('[AuthInterceptor] No auth token found for ${options.path}');
+        _logger.warning(
+          '[AuthInterceptor] No auth token found for ${options.path}',
+        );
       }
     } else if (ProtectedRoutes.isOptional(options.path)) {
       final token = await _tokenProvider.getToken();
 
       if (token != null) {
         options.headers['Authorization'] = 'Bearer $token';
-        _logger.debug('[AuthInterceptor] Added optional auth header for ${options.method} ${options.path}');
+        _logger.debug(
+          '[AuthInterceptor] Added optional auth header for ${options.method} ${options.path}',
+        );
       }
     }
 

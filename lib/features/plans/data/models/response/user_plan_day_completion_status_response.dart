@@ -15,10 +15,7 @@ class UserPlanDayCompletionStatus {
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'day_number': dayNumber,
-      'is_completed': isCompleted,
-    };
+    return {'day_number': dayNumber, 'is_completed': isCompleted};
   }
 }
 
@@ -31,19 +28,19 @@ class UserPlanDayCompletionStatusResponse {
     Map<String, dynamic> json,
   ) {
     return UserPlanDayCompletionStatusResponse(
-      days: (json['days'] as List<dynamic>)
-          .map(
-            (day) =>
-                UserPlanDayCompletionStatus.fromJson(day as Map<String, dynamic>),
-          )
-          .toList(),
+      days:
+          (json['days'] as List<dynamic>)
+              .map(
+                (day) => UserPlanDayCompletionStatus.fromJson(
+                  day as Map<String, dynamic>,
+                ),
+              )
+              .toList(),
     );
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'days': days.map((e) => e.toJson()).toList(),
-    };
+    return {'days': days.map((e) => e.toJson()).toList()};
   }
 
   /// Converts the response to a Map for easy lookup

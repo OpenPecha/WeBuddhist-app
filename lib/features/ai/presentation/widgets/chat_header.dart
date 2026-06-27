@@ -6,11 +6,7 @@ class ChatHeader extends StatelessWidget {
   final VoidCallback? onNewChat;
   final VoidCallback? onMenuPressed;
 
-  const ChatHeader({
-    super.key,
-    this.onNewChat,
-    this.onMenuPressed,
-  });
+  const ChatHeader({super.key, this.onNewChat, this.onMenuPressed});
 
   @override
   Widget build(BuildContext context) {
@@ -35,7 +31,10 @@ class ChatHeader extends StatelessWidget {
             onPressed: onMenuPressed,
             icon: Icon(
               Icons.menu_sharp,
-              color: isDarkMode ? AppColors.surfaceWhite : AppColors.cardBorderDark,
+              color:
+                  isDarkMode
+                      ? AppColors.surfaceWhite
+                      : AppColors.cardBorderDark,
             ),
             tooltip: localizations.ai_chat_history,
           ),
@@ -44,7 +43,8 @@ class ChatHeader extends StatelessWidget {
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w600,
-              color: isDarkMode ? AppColors.surfaceWhite : AppColors.textPrimary,
+              color:
+                  isDarkMode ? AppColors.surfaceWhite : AppColors.textPrimary,
             ),
           ),
           if (onNewChat != null)
@@ -52,7 +52,10 @@ class ChatHeader extends StatelessWidget {
               onPressed: onNewChat,
               icon: Icon(
                 Icons.add,
-                color: isDarkMode ? AppColors.surfaceWhite : AppColors.cardBorderDark,
+                color:
+                    isDarkMode
+                        ? AppColors.surfaceWhite
+                        : AppColors.cardBorderDark,
               ),
               tooltip: localizations.ai_new_chat,
             ),

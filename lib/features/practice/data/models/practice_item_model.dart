@@ -82,10 +82,11 @@ class PracticeItemsResponseModel {
   factory PracticeItemsResponseModel.fromJson(Map<String, dynamic> json) {
     final rawItems = (json['items'] as List<dynamic>?) ?? const [];
     return PracticeItemsResponseModel(
-      items: rawItems
-          .whereType<Map<String, dynamic>>()
-          .map(PracticeItemModel.fromJson)
-          .toList(),
+      items:
+          rawItems
+              .whereType<Map<String, dynamic>>()
+              .map(PracticeItemModel.fromJson)
+              .toList(),
       pagination: PracticePaginationModel.fromJson(
         json['pagination'] as Map<String, dynamic>?,
       ),

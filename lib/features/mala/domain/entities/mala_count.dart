@@ -31,6 +31,11 @@ class MalaCount extends Equatable {
   });
 
   @override
-  List<Object?> get props =>
-      [accumulatorId, mantraId, total, beadImageUrl, updatedAt];
+  List<Object?> get props => [
+    accumulatorId,
+    mantraId,
+    total,
+    beadImageUrl,
+    updatedAt,
+  ];
 }

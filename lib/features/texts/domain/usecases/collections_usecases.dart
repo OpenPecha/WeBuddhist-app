@@ -6,13 +6,16 @@ import 'package:flutter_pecha/features/texts/domain/repositories/collections_rep
 import 'package:flutter_pecha/shared/domain/base_classes/usecase.dart';
 
 /// Use case for getting collections.
-class GetCollectionsUseCase extends UseCase<CollectionsResponse, CollectionsParams> {
+class GetCollectionsUseCase
+    extends UseCase<CollectionsResponse, CollectionsParams> {
   final CollectionsRepositoryInterface _repository;
 
   GetCollectionsUseCase(this._repository);
 
   @override
-  Future<Either<Failure, CollectionsResponse>> call(CollectionsParams params) async {
+  Future<Either<Failure, CollectionsResponse>> call(
+    CollectionsParams params,
+  ) async {
     return await _repository.getCollections(
       parentId: params.parentId,
       language: params.language,

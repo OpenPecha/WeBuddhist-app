@@ -7,14 +7,11 @@ import 'package:flutter_pecha/core/storage/storage_service.dart';
 /// On iOS, uses Keychain with proper accessibility settings.
 /// On Android, uses encrypted SharedPreferences.
 class SecureStorageImpl implements SecureStorage {
-  SecureStorageImpl() : _storage = const FlutterSecureStorage(
-    aOptions: AndroidOptions(
-      encryptedSharedPreferences: true,
-    ),
-    iOptions: IOSOptions(
-      accessibility: KeychainAccessibility.first_unlock,
-    ),
-  );
+  SecureStorageImpl()
+    : _storage = const FlutterSecureStorage(
+        aOptions: AndroidOptions(encryptedSharedPreferences: true),
+        iOptions: IOSOptions(accessibility: KeychainAccessibility.first_unlock),
+      );
 
   final FlutterSecureStorage _storage;
 

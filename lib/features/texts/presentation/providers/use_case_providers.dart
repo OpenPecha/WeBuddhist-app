@@ -23,15 +23,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// Provider for the TextsRepository (data layer implementation).
 final textsRepositoryProvider = Provider<TextsRepository>((ref) {
   return TextsRepository(
-    remoteDatasource: TextRemoteDatasource(
-      dio: ref.watch(dioProvider),
-    ),
+    remoteDatasource: TextRemoteDatasource(dio: ref.watch(dioProvider)),
   );
 });
 
 /// Provider for the SegmentRepository implementation (domain interface).
-final segmentDomainRepositoryProvider =
-    Provider<SegmentRepositoryInterface>((ref) {
+final segmentDomainRepositoryProvider = Provider<SegmentRepositoryInterface>((
+  ref,
+) {
   return SegmentRepository(
     remoteDatasource: SegmentRemoteDatasource(dio: ref.watch(dioProvider)),
   );
@@ -40,14 +39,15 @@ final segmentDomainRepositoryProvider =
 /// Provider for the CollectionsRepository implementation (domain interface).
 final collectionsDomainRepositoryProvider =
     Provider<CollectionsRepositoryInterface>((ref) {
-  return CollectionsRepository(
-    remoteDatasource: CollectionsRemoteDatasource(dio: ref.watch(dioProvider)),
-  );
-});
+      return CollectionsRepository(
+        remoteDatasource: CollectionsRemoteDatasource(
+          dio: ref.watch(dioProvider),
+        ),
+      );
+    });
 
 /// Provider for the ShareRepository implementation (domain interface).
-final shareDomainRepositoryProvider =
-    Provider<ShareRepositoryInterface>((ref) {
+final shareDomainRepositoryProvider = Provider<ShareRepositoryInterface>((ref) {
   return ShareRepository(
     remoteDatasource: ShareRemoteDatasource(dio: ref.watch(dioProvider)),
   );
@@ -68,7 +68,9 @@ final getTextVersionUseCaseProvider = Provider<GetTextVersionUseCase>((ref) {
 });
 
 /// Provider for GetCommentaryTextUseCase.
-final getCommentaryTextUseCaseProvider = Provider<GetCommentaryTextUseCase>((ref) {
+final getCommentaryTextUseCaseProvider = Provider<GetCommentaryTextUseCase>((
+  ref,
+) {
   final repository = ref.watch(textsRepositoryProvider);
   return GetCommentaryTextUseCase(repository);
 });
@@ -82,13 +84,17 @@ final getTextDetailsUseCaseProvider = Provider<GetTextDetailsUseCase>((ref) {
 // ========== Search Use Case Providers ==========
 
 /// Provider for SearchTextInTextUseCase.
-final searchTextInTextUseCaseProvider = Provider<SearchTextInTextUseCase>((ref) {
+final searchTextInTextUseCaseProvider = Provider<SearchTextInTextUseCase>((
+  ref,
+) {
   final repository = ref.watch(textsRepositoryProvider);
   return SearchTextInTextUseCase(repository);
 });
 
 /// Provider for MultilingualSearchUseCase.
-final multilingualSearchUseCaseProvider = Provider<MultilingualSearchUseCase>((ref) {
+final multilingualSearchUseCaseProvider = Provider<MultilingualSearchUseCase>((
+  ref,
+) {
   final repository = ref.watch(textsRepositoryProvider);
   return MultilingualSearchUseCase(repository);
 });
@@ -110,18 +116,18 @@ final authorSearchUseCaseProvider = Provider<AuthorSearchUseCase>((ref) {
 /// Provider for GetSegmentCommentariesUseCase.
 final getSegmentCommentariesUseCaseProvider =
     Provider<GetSegmentCommentariesUseCase>((ref) {
-  return GetSegmentCommentariesUseCase(
-    ref.watch(segmentDomainRepositoryProvider),
-  );
-});
+      return GetSegmentCommentariesUseCase(
+        ref.watch(segmentDomainRepositoryProvider),
+      );
+    });
 
 /// Provider for GetSegmentTranslationsUseCase.
 final getSegmentTranslationsUseCaseProvider =
     Provider<GetSegmentTranslationsUseCase>((ref) {
-  return GetSegmentTranslationsUseCase(
-    ref.watch(segmentDomainRepositoryProvider),
-  );
-});
+      return GetSegmentTranslationsUseCase(
+        ref.watch(segmentDomainRepositoryProvider),
+      );
+    });
 
 // ========== Collections Use Case Providers ==========
 
@@ -141,6 +147,6 @@ final getShareUrlUseCaseProvider = Provider<GetShareUrlUseCase>((ref) {
 
 final segmentDetailProvider = FutureProvider.autoDispose
     .family<SegmentDetailWithText, String>((ref, segmentId) async {
-  final repo = ref.watch(segmentDomainRepositoryProvider);
-  return repo.getSegmentWithTextDetails(segmentId);
-});
+      final repo = ref.watch(segmentDomainRepositoryProvider);
+      return repo.getSegmentWithTextDetails(segmentId);
+    });

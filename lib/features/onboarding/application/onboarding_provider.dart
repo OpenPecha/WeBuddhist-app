@@ -8,14 +8,16 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 final onboardingProvider =
     StateNotifierProvider<OnboardingNotifier, OnboardingState>((ref) {
       return OnboardingNotifier(
-        loadSavedPreferencesUseCase:
-            ref.read(loadSavedPreferencesUseCaseProvider),
-        saveOnboardingPreferencesUseCase:
-            ref.read(saveOnboardingPreferencesUseCaseProvider),
-        completeOnboardingUseCase:
-            ref.read(completeOnboardingUseCaseProvider),
-        clearOnboardingPreferencesUseCase:
-            ref.read(clearOnboardingPreferencesUseCaseProvider),
+        loadSavedPreferencesUseCase: ref.read(
+          loadSavedPreferencesUseCaseProvider,
+        ),
+        saveOnboardingPreferencesUseCase: ref.read(
+          saveOnboardingPreferencesUseCaseProvider,
+        ),
+        completeOnboardingUseCase: ref.read(completeOnboardingUseCaseProvider),
+        clearOnboardingPreferencesUseCase: ref.read(
+          clearOnboardingPreferencesUseCaseProvider,
+        ),
         analyticsService: ref.read(analyticsServiceProvider),
       );
     });

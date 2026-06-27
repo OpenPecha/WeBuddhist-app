@@ -7,13 +7,16 @@ import 'package:flutter_pecha/shared/domain/base_classes/usecase.dart';
 import 'package:flutter_pecha/features/texts/data/repositories/texts_repository.dart';
 
 /// Search text in text use case.
-class SearchTextInTextUseCase extends UseCase<SearchResponse, SearchTextInTextParams> {
+class SearchTextInTextUseCase
+    extends UseCase<SearchResponse, SearchTextInTextParams> {
   final TextsRepository _repository;
 
   SearchTextInTextUseCase(this._repository);
 
   @override
-  Future<Either<Failure, SearchResponse>> call(SearchTextInTextParams params) async {
+  Future<Either<Failure, SearchResponse>> call(
+    SearchTextInTextParams params,
+  ) async {
     if (params.query.trim().isEmpty) {
       return const Left(ValidationFailure('Search query cannot be empty'));
     }
@@ -28,20 +31,20 @@ class SearchTextInTextParams {
   final String query;
   final String? textId;
 
-  const SearchTextInTextParams({
-    required this.query,
-    this.textId,
-  });
+  const SearchTextInTextParams({required this.query, this.textId});
 }
 
 /// Multilingual search use case.
-class MultilingualSearchUseCase extends UseCase<MultilingualSearchResponse, MultilingualSearchParams> {
+class MultilingualSearchUseCase
+    extends UseCase<MultilingualSearchResponse, MultilingualSearchParams> {
   final TextsRepository _repository;
 
   MultilingualSearchUseCase(this._repository);
 
   @override
-  Future<Either<Failure, MultilingualSearchResponse>> call(MultilingualSearchParams params) async {
+  Future<Either<Failure, MultilingualSearchResponse>> call(
+    MultilingualSearchParams params,
+  ) async {
     if (params.query.trim().isEmpty) {
       return const Left(ValidationFailure('Search query cannot be empty'));
     }
@@ -66,13 +69,16 @@ class MultilingualSearchParams {
 }
 
 /// Title search use case.
-class TitleSearchUseCase extends UseCase<TitleSearchResponse, TitleSearchParams> {
+class TitleSearchUseCase
+    extends UseCase<TitleSearchResponse, TitleSearchParams> {
   final TextsRepository _repository;
 
   TitleSearchUseCase(this._repository);
 
   @override
-  Future<Either<Failure, TitleSearchResponse>> call(TitleSearchParams params) async {
+  Future<Either<Failure, TitleSearchResponse>> call(
+    TitleSearchParams params,
+  ) async {
     return await _repository.titleSearchRepository(
       title: params.title,
       author: params.author,
@@ -97,13 +103,16 @@ class TitleSearchParams {
 }
 
 /// Author search use case.
-class AuthorSearchUseCase extends UseCase<TitleSearchResponse, AuthorSearchParams> {
+class AuthorSearchUseCase
+    extends UseCase<TitleSearchResponse, AuthorSearchParams> {
   final TextsRepository _repository;
 
   AuthorSearchUseCase(this._repository);
 
   @override
-  Future<Either<Failure, TitleSearchResponse>> call(AuthorSearchParams params) async {
+  Future<Either<Failure, TitleSearchResponse>> call(
+    AuthorSearchParams params,
+  ) async {
     return await _repository.authorSearchRepository(
       author: params.author,
       limit: params.limit,
@@ -117,9 +126,5 @@ class AuthorSearchParams {
   final int limit;
   final int offset;
 
-  const AuthorSearchParams({
-    this.author,
-    this.limit = 20,
-    this.offset = 0,
-  });
+  const AuthorSearchParams({this.author, this.limit = 20, this.offset = 0});
 }

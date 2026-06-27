@@ -35,13 +35,13 @@ class MalaSyncManager with WidgetsBindingObserver {
     required Future<String?> Function() currentUserId,
     Stream<bool>? connectivityStream,
     AnalyticsService? analytics,
-  })  : _local = local,
-        _createAccumulator = createAccumulator,
-        _updateAccumulator = updateAccumulator,
-        _isLoggedIn = isLoggedIn,
-        _currentUserId = currentUserId,
-        _connectivityStream = connectivityStream,
-        _analytics = analytics;
+  }) : _local = local,
+       _createAccumulator = createAccumulator,
+       _updateAccumulator = updateAccumulator,
+       _isLoggedIn = isLoggedIn,
+       _currentUserId = currentUserId,
+       _connectivityStream = connectivityStream,
+       _analytics = analytics;
 
   final MalaLocalDataSource _local;
   final CreateUserAccumulatorUseCase _createAccumulator;
@@ -177,12 +177,11 @@ class MalaSyncManager with WidgetsBindingObserver {
       if (accumulatorId != null && accumulatorId.isNotEmpty) {
         _logger.info('Reset DELETE /accumulators/user/$accumulatorId');
         final deleted = await deleteAccumulator(accumulatorId);
-        deleted.fold(
-          (failure) => throw Exception(failure.message),
-          (_) {},
-        );
+        deleted.fold((failure) => throw Exception(failure.message), (_) {});
       } else {
-        _logger.info('Reset no active accumulator to delete presetId=$presetId');
+        _logger.info(
+          'Reset no active accumulator to delete presetId=$presetId',
+        );
       }
 
       await _local.clearSession(userId, presetId);
@@ -236,9 +235,9 @@ class MalaSyncManager with WidgetsBindingObserver {
           _local.write(
             userId,
             presetId,
-            _local.read(userId, presetId).copyWith(
-                  accumulatorId: count.accumulatorId,
-                ),
+            _local
+                .read(userId, presetId)
+                .copyWith(accumulatorId: count.accumulatorId),
           );
           return count.accumulatorId;
         },
@@ -282,7 +281,10 @@ class MalaSyncManager with WidgetsBindingObserver {
 
   void _scheduleRetry() {
     _retry?.cancel();
-    final seconds = min(_maxBackoff.inSeconds, pow(2, _retryAttempt + 1).toInt());
+    final seconds = min(
+      _maxBackoff.inSeconds,
+      pow(2, _retryAttempt + 1).toInt(),
+    );
     _retryAttempt++;
     _retry = Timer(Duration(seconds: seconds), () => flush(SyncReason.launch));
   }

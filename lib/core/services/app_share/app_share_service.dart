@@ -24,9 +24,7 @@ class AppShareService {
       _logger.info('Sharing WeBuddhist app with Airbridge tracking link');
 
       await SharePlus.instance.share(
-        ShareParams(
-          text: AppConfig.airbridgeTrackingLink,
-        ),
+        ShareParams(text: AppConfig.airbridgeTrackingLink),
       );
 
       _logger.info('App share completed successfully');

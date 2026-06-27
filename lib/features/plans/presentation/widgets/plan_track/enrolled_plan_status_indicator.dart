@@ -35,15 +35,14 @@ class EnrolledPlanStatusIndicator extends ConsumerWidget {
     final today = DateUtils.dateOnly(DateTime.now());
     if (today.isBefore(dateRange.start)) return const SizedBox.shrink();
 
-    final asyncStatus = ref.watch(
-      userPlanDaysCompletionStatusProvider(planId),
-    );
+    final asyncStatus = ref.watch(userPlanDaysCompletionStatusProvider(planId));
 
     return asyncStatus.when(
-      data: (either) => either.fold(
-        (_) => const SizedBox.shrink(),
-        (completion) => _resolveBadge(completion),
-      ),
+      data:
+          (either) => either.fold(
+            (_) => const SizedBox.shrink(),
+            (completion) => _resolveBadge(completion),
+          ),
       loading: () => const SizedBox.shrink(),
       error: (_, __) => const SizedBox.shrink(),
     );

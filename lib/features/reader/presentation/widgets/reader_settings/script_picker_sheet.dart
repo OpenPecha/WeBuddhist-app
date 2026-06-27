@@ -33,10 +33,11 @@ class ScriptPickerSheet extends ConsumerWidget {
       title: l10n.reader_script_title(languageLabel),
       child: asyncScripts.when(
         loading: () => const PickerLoading(),
-        error: (_, __) => PickerError(
-          message: l10n.reader_scripts_load_error,
-          onRetry: () => ref.invalidate(readerScriptsProvider(query)),
-        ),
+        error:
+            (_, __) => PickerError(
+              message: l10n.reader_scripts_load_error,
+              onRetry: () => ref.invalidate(readerScriptsProvider(query)),
+            ),
         data: (scripts) {
           if (scripts.isEmpty) {
             return PickerEmpty(
@@ -47,10 +48,11 @@ class ScriptPickerSheet extends ConsumerWidget {
             shrinkWrap: true,
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             itemCount: scripts.length,
-            separatorBuilder: (_, __) => Divider(
-              height: 1,
-              color: theme.dividerColor.withValues(alpha: 0.4),
-            ),
+            separatorBuilder:
+                (_, __) => Divider(
+                  height: 1,
+                  color: theme.dividerColor.withValues(alpha: 0.4),
+                ),
             itemBuilder: (context, index) {
               final option = scripts[index];
               final isSelected = option.id == selectedScriptId;
@@ -101,9 +103,10 @@ class _ScriptTile extends StatelessWidget {
                     Text(
                       option.label,
                       style: theme.textTheme.titleMedium?.copyWith(
-                        color: isSelected
-                            ? activeColor
-                            : theme.textTheme.titleMedium?.color,
+                        color:
+                            isSelected
+                                ? activeColor
+                                : theme.textTheme.titleMedium?.color,
                         fontWeight:
                             isSelected ? FontWeight.w700 : FontWeight.w500,
                       ),
@@ -124,9 +127,10 @@ class _ScriptTile extends StatelessWidget {
               ),
               SizedBox(
                 width: 18,
-                child: isSelected
-                    ? Icon(Icons.check, size: 18, color: activeColor)
-                    : const SizedBox.shrink(),
+                child:
+                    isSelected
+                        ? Icon(Icons.check, size: 18, color: activeColor)
+                        : const SizedBox.shrink(),
               ),
             ],
           ),
@@ -151,12 +155,13 @@ Future<void> showScriptPickerSheet(
       borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
     ),
     isScrollControlled: true,
-    builder: (_) => ScriptPickerSheet(
-      textId: textId,
-      languageCode: languageCode,
-      languageLabel: languageLabel,
-      selectedScriptId: selectedScriptId,
-      onSelected: onSelected,
-    ),
+    builder:
+        (_) => ScriptPickerSheet(
+          textId: textId,
+          languageCode: languageCode,
+          languageLabel: languageLabel,
+          selectedScriptId: selectedScriptId,
+          onSelected: onSelected,
+        ),
   );
 }

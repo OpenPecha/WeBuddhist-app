@@ -18,7 +18,10 @@ class RoutineInfoRemoteDatasource {
       }
 
       _logger.error('Failed to load routine info: ${response.statusCode}');
-      throw _statusToException(response.statusCode, 'Failed to load routine info');
+      throw _statusToException(
+        response.statusCode,
+        'Failed to load routine info',
+      );
     } on DioException catch (e) {
       _logger.error('Dio error in fetchRoutineInfo', e);
       throw _dioToException(e, 'Failed to load routine info');

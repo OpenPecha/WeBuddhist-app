@@ -211,7 +211,8 @@ class UserNotifier extends StateNotifier<UserState> {
         return null;
       },
       (usernameResult) {
-        if (usernameResult.isAvailable && usernameResult.updatedUsername != null) {
+        if (usernameResult.isAvailable &&
+            usernameResult.updatedUsername != null) {
           // Optimistically update local user state with the confirmed username.
           if (state.user != null) {
             final updated = state.user!.copyWith(

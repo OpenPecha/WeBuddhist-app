@@ -22,9 +22,4 @@ class WeekPlan extends Equatable {
 }
 
 /// Type of week plan.
-enum WeekPlanType {
-  introduction,
-  practice,
-  review,
-  assessment,
-}
+enum WeekPlanType { introduction, practice, review, assessment }

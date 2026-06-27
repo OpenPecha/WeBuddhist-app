@@ -49,7 +49,8 @@ class PracticeRecitationsState {
   }
 }
 
-class PracticeRecitationsNotifier extends StateNotifier<PracticeRecitationsState> {
+class PracticeRecitationsNotifier
+    extends StateNotifier<PracticeRecitationsState> {
   final RecitationsRemoteDatasource _datasource;
   final String _languageCode;
 

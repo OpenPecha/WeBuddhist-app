@@ -6,13 +6,16 @@ import 'package:flutter_pecha/features/plans/domain/repositories/plan_days_repos
 import 'package:flutter_pecha/shared/domain/base_classes/usecase.dart';
 
 /// Use case for getting plan days by plan ID.
-class GetPlanDaysUseCase extends UseCase<List<PlanDaysModel>, GetPlanDaysParams> {
+class GetPlanDaysUseCase
+    extends UseCase<List<PlanDaysModel>, GetPlanDaysParams> {
   final PlanDaysRepositoryInterface _repository;
 
   GetPlanDaysUseCase(this._repository);
 
   @override
-  Future<Either<Failure, List<PlanDaysModel>>> call(GetPlanDaysParams params) async {
+  Future<Either<Failure, List<PlanDaysModel>>> call(
+    GetPlanDaysParams params,
+  ) async {
     if (params.planId.isEmpty) {
       return const Left(ValidationFailure('Plan ID cannot be empty'));
     }

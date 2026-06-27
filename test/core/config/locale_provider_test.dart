@@ -364,7 +364,9 @@ void main() {
 
       // Assert - Last change should win
       expect(localeNotifier.state.languageCode, 'en');
-      verify(mockLocalStorageService.set(StorageKeys.preferredLanguage, any)).called(3);
+      verify(
+        mockLocalStorageService.set(StorageKeys.preferredLanguage, any),
+      ).called(3);
     });
 
     test('should verify locale is persisted after setting', () async {
@@ -440,7 +442,9 @@ void main() {
       expect(localeNotifier.state.languageCode, 'en');
 
       // Assert
-      verify(mockLocalStorageService.set(StorageKeys.preferredLanguage, any)).called(3);
+      verify(
+        mockLocalStorageService.set(StorageKeys.preferredLanguage, any),
+      ).called(3);
     });
   });
 

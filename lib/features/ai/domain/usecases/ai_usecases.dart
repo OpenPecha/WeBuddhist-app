@@ -39,10 +39,7 @@ class SendMessageParams {
   final String threadId;
   final String content;
 
-  const SendMessageParams({
-    required this.threadId,
-    required this.content,
-  });
+  const SendMessageParams({required this.threadId, required this.content});
 }
 
 /// Create thread use case.
@@ -67,13 +64,16 @@ class CreateThreadParams {
 }
 
 /// Search content use case.
-class SearchContentUseCase extends UseCase<List<SearchResult>, SearchContentParams> {
+class SearchContentUseCase
+    extends UseCase<List<SearchResult>, SearchContentParams> {
   final AIRepository _repository;
 
   SearchContentUseCase(this._repository);
 
   @override
-  Future<Either<Failure, List<SearchResult>>> call(SearchContentParams params) async {
+  Future<Either<Failure, List<SearchResult>>> call(
+    SearchContentParams params,
+  ) async {
     if (params.query.trim().isEmpty) {
       return const Left(ValidationFailure('Search query cannot be empty'));
     }

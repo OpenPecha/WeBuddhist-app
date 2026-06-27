@@ -151,17 +151,11 @@ class PlanNavigationBottomBar extends StatelessWidget {
       'At least one side slot is required for balance',
     );
 
-    final leadingWidget =
-        leading?.call() ?? _invisibleSlot(trailing!.call());
-    final trailingWidget =
-        trailing?.call() ?? _invisibleSlot(leading!.call());
+    final leadingWidget = leading?.call() ?? _invisibleSlot(trailing!.call());
+    final trailingWidget = trailing?.call() ?? _invisibleSlot(leading!.call());
 
     return Row(
-      children: [
-        leadingWidget,
-        Expanded(child: center),
-        trailingWidget,
-      ],
+      children: [leadingWidget, Expanded(child: center), trailingWidget],
     );
   }
 

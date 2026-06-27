@@ -12,7 +12,9 @@ abstract class OnboardingRepository extends Repository {
   Future<Either<Failure, OnboardingPreferences?>> getPreferences();
 
   /// Save onboarding preferences.
-  Future<Either<Failure, OnboardingPreferences>> savePreferences(OnboardingPreferences preferences);
+  Future<Either<Failure, OnboardingPreferences>> savePreferences(
+    OnboardingPreferences preferences,
+  );
 
   /// Clear onboarding preferences.
   Future<Either<Failure, void>> clearPreferences();

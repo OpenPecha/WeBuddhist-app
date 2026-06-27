@@ -5,10 +5,7 @@ class SocialProfile extends Equatable {
   final String account;
   final String url;
 
-  const SocialProfile({
-    required this.account,
-    required this.url,
-  });
+  const SocialProfile({required this.account, required this.url});
 
   @override
   List<Object?> get props => [account, url];

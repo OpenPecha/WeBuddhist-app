@@ -27,20 +27,24 @@ class PlanDaysModel {
       id: json['id'] as String,
       dayNumber: json['day_number'] as int,
       title: json['title'] as String?,
-      tasks: json['tasks'] != null
-          ? (json['tasks'] as List<dynamic>)
-              .map((e) => PlanTasksModel.fromJson(e as Map<String, dynamic>))
-              .toList()
-          : null,
+      tasks:
+          json['tasks'] != null
+              ? (json['tasks'] as List<dynamic>)
+                  .map(
+                    (e) => PlanTasksModel.fromJson(e as Map<String, dynamic>),
+                  )
+                  .toList()
+              : null,
       audioUrl: json['audio_url'] as String?,
       audioDurationMs: json['audio_duration_ms'] as int?,
-      videos: json['videos'] != null
-          ? (json['videos'] as List<dynamic>)
-              .map(
-                (e) => PlanVideoModel.fromJson(e as Map<String, dynamic>),
-              )
-              .toList()
-          : const [],
+      videos:
+          json['videos'] != null
+              ? (json['videos'] as List<dynamic>)
+                  .map(
+                    (e) => PlanVideoModel.fromJson(e as Map<String, dynamic>),
+                  )
+                  .toList()
+              : const [],
     );
   }
 

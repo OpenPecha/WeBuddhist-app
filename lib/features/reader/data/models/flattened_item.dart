@@ -2,10 +2,7 @@ import 'package:flutter_pecha/features/texts/data/models/section.dart';
 import 'package:flutter_pecha/features/texts/data/models/segment.dart';
 
 /// Type of flattened item
-enum FlattenedItemType {
-  header,
-  segment,
-}
+enum FlattenedItemType { header, segment }
 
 /// Represents a flattened item in the reader list
 /// Can be either a section header or a segment
@@ -25,10 +22,7 @@ class FlattenedItem {
   });
 
   /// Creates a header item for a section
-  factory FlattenedItem.header({
-    required Section section,
-    required int depth,
-  }) {
+  factory FlattenedItem.header({required Section section, required int depth}) {
     return FlattenedItem._(
       type: FlattenedItemType.header,
       section: section,
@@ -102,12 +96,7 @@ class FlattenedItem {
   }
 
   @override
-  int get hashCode => Object.hash(
-    type,
-    section?.id,
-    segment?.segmentId,
-    depth,
-  );
+  int get hashCode => Object.hash(type, section?.id, segment?.segmentId, depth);
 
   @override
   String toString() {

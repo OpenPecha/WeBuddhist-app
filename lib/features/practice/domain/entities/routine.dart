@@ -24,16 +24,20 @@ class Routine extends BaseEntity {
   });
 
   @override
-  List<Object?> get props => [id, name, description, durationMinutes, type, timeSlots, isActive, streakCount];
+  List<Object?> get props => [
+    id,
+    name,
+    description,
+    durationMinutes,
+    type,
+    timeSlots,
+    isActive,
+    streakCount,
+  ];
 }
 
 /// Type of practice routine.
-enum RoutineType {
-  morning,
-  afternoon,
-  evening,
-  custom,
-}
+enum RoutineType { morning, afternoon, evening, custom }
 
 /// Time slot for a routine.
 class TimeSlot extends Equatable {

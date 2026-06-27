@@ -18,10 +18,10 @@ class ReaderLanguageOption {
   }
 
   Map<String, dynamic> toJson() => {
-        'language_code': code,
-        'language': label,
-        'version_count': versionCount,
-      };
+    'language_code': code,
+    'language': label,
+    'version_count': versionCount,
+  };
 }
 
 class ReaderLanguagesResponse {
@@ -39,10 +39,12 @@ class ReaderLanguagesResponse {
     return ReaderLanguagesResponse(
       textId: json['text_id'] as String? ?? '',
       title: json['title'] as String?,
-      availableLanguages: (json['available_languages'] as List<dynamic>? ?? [])
-          .map((e) =>
-              ReaderLanguageOption.fromJson(e as Map<String, dynamic>))
-          .toList(),
+      availableLanguages:
+          (json['available_languages'] as List<dynamic>? ?? [])
+              .map(
+                (e) => ReaderLanguageOption.fromJson(e as Map<String, dynamic>),
+              )
+              .toList(),
     );
   }
 }

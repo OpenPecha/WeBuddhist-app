@@ -45,59 +45,71 @@ class TextDetailsParams {
   int get hashCode => key.hashCode;
 }
 
-final textsFutureProvider = FutureProvider.family<Either<Failure, TextDetailResponse>, String>((ref, String termId) {
-  final languageCode = ref.watch(contentLanguageProvider);
-  final repository = ref.watch(textsRepositoryProvider);
-  return repository.getTexts(termId: termId, language: languageCode);
-});
+final textsFutureProvider =
+    FutureProvider.family<Either<Failure, TextDetailResponse>, String>((
+      ref,
+      String termId,
+    ) {
+      final languageCode = ref.watch(contentLanguageProvider);
+      final repository = ref.watch(textsRepositoryProvider);
+      return repository.getTexts(termId: termId, language: languageCode);
+    });
 
-final textContentFutureProvider = FutureProvider.family<Either<Failure, TocResponse>, String>((ref, String textId) async {
-  final languageCode = ref.watch(contentLanguageProvider);
-  final getTextContentUseCase = ref.watch(getTextContentUseCaseProvider);
+final textContentFutureProvider =
+    FutureProvider.family<Either<Failure, TocResponse>, String>((
+      ref,
+      String textId,
+    ) async {
+      final languageCode = ref.watch(contentLanguageProvider);
+      final getTextContentUseCase = ref.watch(getTextContentUseCaseProvider);
 
-  return getTextContentUseCase(GetTextContentParams(
-    textId: textId,
-    language: languageCode,
-  ));
-});
+      return getTextContentUseCase(
+        GetTextContentParams(textId: textId, language: languageCode),
+      );
+    });
 
-final textVersionFutureProvider = FutureProvider.family<Either<Failure, VersionResponse>, String>((ref, String textId) async {
-  final languageCode = ref.watch(contentLanguageProvider);
-  final getTextVersionUseCase = ref.watch(getTextVersionUseCaseProvider);
+final textVersionFutureProvider =
+    FutureProvider.family<Either<Failure, VersionResponse>, String>((
+      ref,
+      String textId,
+    ) async {
+      final languageCode = ref.watch(contentLanguageProvider);
+      final getTextVersionUseCase = ref.watch(getTextVersionUseCaseProvider);
 
-  return getTextVersionUseCase(GetTextVersionParams(
-    textId: textId,
-    language: languageCode,
-  ));
-});
+      return getTextVersionUseCase(
+        GetTextVersionParams(textId: textId, language: languageCode),
+      );
+    });
 
-final commentaryTextFutureProvider = FutureProvider.family<Either<Failure, CommentaryTextResponse>, String>((
-  ref,
-  String textId,
-) async {
+final commentaryTextFutureProvider = FutureProvider.family<
+  Either<Failure, CommentaryTextResponse>,
+  String
+>((ref, String textId) async {
   final languageCode = ref.watch(contentLanguageProvider);
   final getCommentaryTextUseCase = ref.watch(getCommentaryTextUseCaseProvider);
 
-  return getCommentaryTextUseCase(GetCommentaryTextParams(
-    textId: textId,
-    language: languageCode,
-  ));
+  return getCommentaryTextUseCase(
+    GetCommentaryTextParams(textId: textId, language: languageCode),
+  );
 });
 
-final textDetailsFutureProvider = FutureProvider.family<Either<Failure, ReaderResponse>, TextDetailsParams>((
-  ref,
-  TextDetailsParams params,
-) async {
-  final getTextDetailsUseCase = ref.watch(getTextDetailsUseCaseProvider);
+final textDetailsFutureProvider =
+    FutureProvider.family<Either<Failure, ReaderResponse>, TextDetailsParams>((
+      ref,
+      TextDetailsParams params,
+    ) async {
+      final getTextDetailsUseCase = ref.watch(getTextDetailsUseCaseProvider);
 
-  return getTextDetailsUseCase(GetTextDetailsParams(
-    textId: params.textId,
-    contentId: params.contentId,
-    versionId: params.versionId,
-    segmentId: params.segmentId,
-    direction: params.direction,
-  ));
-});
+      return getTextDetailsUseCase(
+        GetTextDetailsParams(
+          textId: params.textId,
+          contentId: params.contentId,
+          versionId: params.versionId,
+          segmentId: params.segmentId,
+          direction: params.direction,
+        ),
+      );
+    });
 
 class SearchTextParams {
   final String query;
@@ -116,16 +128,15 @@ class SearchTextParams {
   int get hashCode => query.hashCode ^ textId.hashCode;
 }
 
-final searchTextFutureProvider = FutureProvider.family<Either<Failure, SearchResponse>, SearchTextParams>((
-  ref,
-  SearchTextParams params,
-) async {
+final searchTextFutureProvider = FutureProvider.family<
+  Either<Failure, SearchResponse>,
+  SearchTextParams
+>((ref, SearchTextParams params) async {
   final searchTextInTextUseCase = ref.watch(searchTextInTextUseCaseProvider);
 
-  return searchTextInTextUseCase(SearchTextInTextParams(
-    query: params.query,
-    textId: params.textId,
-  ));
+  return searchTextInTextUseCase(
+    SearchTextInTextParams(query: params.query, textId: params.textId),
+  );
 });
 
 class LibrarySearchParams {
@@ -147,47 +158,50 @@ class LibrarySearchParams {
   int get hashCode => query.hashCode ^ textId.hashCode ^ language.hashCode;
 }
 
-final librarySearchProvider = FutureProvider.family<Either<Failure, SearchResponse>, LibrarySearchParams>((
-  ref,
-  LibrarySearchParams params,
-) async {
+final librarySearchProvider = FutureProvider.family<
+  Either<Failure, SearchResponse>,
+  LibrarySearchParams
+>((ref, LibrarySearchParams params) async {
   final searchTextInTextUseCase = ref.watch(searchTextInTextUseCaseProvider);
 
-  return searchTextInTextUseCase(SearchTextInTextParams(
-    query: params.query,
-    textId: params.textId,
-  ));
+  return searchTextInTextUseCase(
+    SearchTextInTextParams(query: params.query, textId: params.textId),
+  );
 });
 
-final multilingualSearchProvider = FutureProvider.family<Either<Failure, MultilingualSearchResponse>, LibrarySearchParams>((
-  ref,
-  LibrarySearchParams params,
-) async {
-  final multilingualSearchUseCase = ref.watch(multilingualSearchUseCaseProvider);
+final multilingualSearchProvider = FutureProvider.family<
+  Either<Failure, MultilingualSearchResponse>,
+  LibrarySearchParams
+>((ref, LibrarySearchParams params) async {
+  final multilingualSearchUseCase = ref.watch(
+    multilingualSearchUseCaseProvider,
+  );
   // Use provided language parameter, otherwise fall back to locale
   final language = params.language ?? ref.watch(contentLanguageProvider);
 
-  return multilingualSearchUseCase(MultilingualSearchParams(
-    query: params.query,
-    language: language,
-    textId: params.textId,
-  ));
+  return multilingualSearchUseCase(
+    MultilingualSearchParams(
+      query: params.query,
+      language: language,
+      textId: params.textId,
+    ),
+  );
 });
 
 // Export the param classes from use cases for backward compatibility
-final titleSearchProvider = FutureProvider.family<Either<Failure, TitleSearchResponse>, TitleSearchParams>((
-  ref,
-  TitleSearchParams params,
-) async {
+final titleSearchProvider = FutureProvider.family<
+  Either<Failure, TitleSearchResponse>,
+  TitleSearchParams
+>((ref, TitleSearchParams params) async {
   final titleSearchUseCase = ref.watch(titleSearchUseCaseProvider);
 
   return titleSearchUseCase(params);
 });
 
-final authorSearchProvider = FutureProvider.family<Either<Failure, TitleSearchResponse>, AuthorSearchParams>((
-  ref,
-  AuthorSearchParams params,
-) async {
+final authorSearchProvider = FutureProvider.family<
+  Either<Failure, TitleSearchResponse>,
+  AuthorSearchParams
+>((ref, AuthorSearchParams params) async {
   final authorSearchUseCase = ref.watch(authorSearchUseCaseProvider);
 
   return authorSearchUseCase(params);

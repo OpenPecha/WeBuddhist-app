@@ -32,7 +32,9 @@ class ShareRepository implements ShareRepositoryInterface {
 
       return Right(shortUrl);
     } catch (e) {
-      return Left(ExceptionMapper.map(e, context: 'Failed to generate share URL'));
+      return Left(
+        ExceptionMapper.map(e, context: 'Failed to generate share URL'),
+      );
     }
   }
 }

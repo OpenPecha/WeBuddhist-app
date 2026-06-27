@@ -50,7 +50,9 @@ class PlanDaysRemoteDatasource {
         } else if (response.statusCode == 429) {
           throw const RateLimitException('Too many requests');
         } else {
-          throw ServerException('Failed to load plan days: ${response.statusCode}');
+          throw ServerException(
+            'Failed to load plan days: ${response.statusCode}',
+          );
         }
       }
     } on DioException catch (e) {
@@ -74,7 +76,9 @@ class PlanDaysRemoteDatasource {
         } else if (response.statusCode == 429) {
           throw const RateLimitException('Too many requests');
         } else {
-          throw ServerException('Failed to load plan day content: ${response.statusCode}');
+          throw ServerException(
+            'Failed to load plan day content: ${response.statusCode}',
+          );
         }
       }
     } on DioException catch (e) {

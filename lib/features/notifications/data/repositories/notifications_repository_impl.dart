@@ -16,8 +16,8 @@ class NotificationsRepositoryImpl implements NotificationsRepository {
   NotificationsRepositoryImpl({
     required NotificationLocalDataSource localDataSource,
     required NotificationService notificationService,
-  })  : _localDataSource = localDataSource,
-        _notificationService = notificationService;
+  }) : _localDataSource = localDataSource,
+       _notificationService = notificationService;
 
   @override
   Future<Either<Failure, NotificationSettings>> getSettings() async {
@@ -43,7 +43,9 @@ class NotificationsRepositoryImpl implements NotificationsRepository {
   }
 
   @override
-  Future<Either<Failure, void>> scheduleNotification(AppNotification notification) async {
+  Future<Either<Failure, void>> scheduleNotification(
+    AppNotification notification,
+  ) async {
     try {
       final model = NotificationModel.fromEntity(notification);
 
@@ -61,7 +63,9 @@ class NotificationsRepositoryImpl implements NotificationsRepository {
   }
 
   @override
-  Future<Either<Failure, void>> cancelNotification(String notificationId) async {
+  Future<Either<Failure, void>> cancelNotification(
+    String notificationId,
+  ) async {
     try {
       // Remove from local storage
       await _localDataSource.removeScheduledNotification(notificationId);
@@ -77,7 +81,8 @@ class NotificationsRepositoryImpl implements NotificationsRepository {
   }
 
   @override
-  Future<Either<Failure, List<AppNotification>>> getScheduledNotifications() async {
+  Future<Either<Failure, List<AppNotification>>>
+  getScheduledNotifications() async {
     try {
       final models = await _localDataSource.getScheduledNotifications();
       final notifications = models.map((model) => model.toEntity()).toList();

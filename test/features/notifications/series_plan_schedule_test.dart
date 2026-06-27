@@ -6,42 +6,27 @@ UserPlansModel plan({
   required String id,
   required DateTime startDate,
   int totalDays = 7,
-}) =>
-    UserPlansModel(
-      id: id,
-      title: 'Plan $id',
-      description: '',
-      language: 'en',
-      difficultyLevel: null,
-      startedAt: startDate,
-      startDate: startDate,
-      totalDays: totalDays,
-      tags: null,
-    );
+}) => UserPlansModel(
+  id: id,
+  title: 'Plan $id',
+  description: '',
+  language: 'en',
+  difficultyLevel: null,
+  startedAt: startDate,
+  startDate: startDate,
+  totalDays: totalDays,
+  tags: null,
+);
 
 void main() {
   group('resolveActivePlanForDate', () {
-    final planA = plan(
-      id: 'a',
-      startDate: DateTime(2026, 6, 1),
-      totalDays: 5,
-    );
-    final planB = plan(
-      id: 'b',
-      startDate: DateTime(2026, 6, 6),
-      totalDays: 5,
-    );
+    final planA = plan(id: 'a', startDate: DateTime(2026, 6, 1), totalDays: 5);
+    final planB = plan(id: 'b', startDate: DateTime(2026, 6, 6), totalDays: 5);
     final enrolled = [planA, planB];
 
     test('returns plan active on calendar date', () {
-      expect(
-        resolveActivePlanForDate(enrolled, DateTime(2026, 6, 3))?.id,
-        'a',
-      );
-      expect(
-        resolveActivePlanForDate(enrolled, DateTime(2026, 6, 8))?.id,
-        'b',
-      );
+      expect(resolveActivePlanForDate(enrolled, DateTime(2026, 6, 3))?.id, 'a');
+      expect(resolveActivePlanForDate(enrolled, DateTime(2026, 6, 8))?.id, 'b');
     });
 
     test('prefers preferredPlanId when it covers the date', () {
@@ -88,7 +73,9 @@ void main() {
 
   group('isSeriesRoutineItem', () {
     test('true when item id is not an enrolled plan id', () {
-      final map = {'plan-1': plan(id: 'plan-1', startDate: DateTime(2026, 1, 1))};
+      final map = {
+        'plan-1': plan(id: 'plan-1', startDate: DateTime(2026, 1, 1)),
+      };
       expect(isSeriesRoutineItem('series-9', map), isTrue);
       expect(isSeriesRoutineItem('plan-1', map), isFalse);
     });

@@ -5,9 +5,12 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   group('NotificationChannels', () {
     group('routineBlock constants', () {
-      test('channel ID is stable — changing it silently breaks existing scheduled notifications on devices', () {
-        expect(NotificationChannels.routineBlockId, 'routine_block_reminder');
-      });
+      test(
+        'channel ID is stable — changing it silently breaks existing scheduled notifications on devices',
+        () {
+          expect(NotificationChannels.routineBlockId, 'routine_block_reminder');
+        },
+      );
 
       test('channel name is correct', () {
         expect(NotificationChannels.routineBlockName, 'Routine Block Reminder');
@@ -45,15 +48,19 @@ void main() {
         );
       });
 
-      test('sound is set on channel (Android 8+ requires this for custom sound)', () {
-        expect(
-          NotificationChannels.routineBlockChannel.sound,
-          isA<RawResourceAndroidNotificationSound>(),
-        );
-        final sound = NotificationChannels.routineBlockChannel.sound
-            as RawResourceAndroidNotificationSound;
-        expect(sound.sound, 'routine');
-      });
+      test(
+        'sound is set on channel (Android 8+ requires this for custom sound)',
+        () {
+          expect(
+            NotificationChannels.routineBlockChannel.sound,
+            isA<RawResourceAndroidNotificationSound>(),
+          );
+          final sound =
+              NotificationChannels.routineBlockChannel.sound
+                  as RawResourceAndroidNotificationSound;
+          expect(sound.sound, 'routine');
+        },
+      );
 
       test('channel ID matches routineBlockId constant', () {
         expect(

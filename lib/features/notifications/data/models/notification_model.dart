@@ -50,14 +50,14 @@ class NotificationModel {
 
   /// Serialize to JSON.
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'title': title,
-        'body': body,
-        'scheduledTime': scheduledTime.toIso8601String(),
-        'type': type.name,
-        'isRecurring': isRecurring,
-        'recurrencePattern': recurrencePattern,
-      };
+    'id': id,
+    'title': title,
+    'body': body,
+    'scheduledTime': scheduledTime.toIso8601String(),
+    'type': type.name,
+    'isRecurring': isRecurring,
+    'recurrencePattern': recurrencePattern,
+  };
 
   /// Deserialize from JSON.
   factory NotificationModel.fromJson(Map<String, dynamic> json) {
@@ -80,6 +80,8 @@ class NotificationModel {
 
   /// Deserialize from JSON string.
   factory NotificationModel.fromJsonString(String jsonString) {
-    return NotificationModel.fromJson(jsonDecode(jsonString) as Map<String, dynamic>);
+    return NotificationModel.fromJson(
+      jsonDecode(jsonString) as Map<String, dynamic>,
+    );
   }
 }

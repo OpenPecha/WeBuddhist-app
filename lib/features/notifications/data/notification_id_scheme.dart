@@ -61,7 +61,8 @@ class NotificationIdScheme {
   /// ID that doesn't belong to this app (e.g. another plugin's IDs).
   static bool isOurs(int id) {
     if (id == kDiagnosticTestId) return true;
-    if (id >= specialPlanOneShotBase && id <= specialPlanOneShotMax) return true;
+    if (id >= specialPlanOneShotBase && id <= specialPlanOneShotMax)
+      return true;
     if (id >= routineBlockMin && id <= routineBlockMax) return true;
     if (id >= planOneShotBase && id <= planOneShotMax) return true;
     if (id >= planSeriesBase && id <= planSeriesMax) return true;

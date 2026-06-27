@@ -9,7 +9,7 @@ class CalendarRepositoryImpl implements CalendarRepository {
   final CalendarRemoteDatasource _datasource;
 
   CalendarRepositoryImpl({required CalendarRemoteDatasource datasource})
-      : _datasource = datasource;
+    : _datasource = datasource;
 
   @override
   Future<Either<Failure, List<TibetanCalendarDay>>> getMonth(

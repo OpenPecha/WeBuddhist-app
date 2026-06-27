@@ -57,7 +57,9 @@ class ConnectivityService implements NetworkInfo {
     }
   }
 
-  Future<void> _handleConnectivityChange(List<ConnectivityResult> results) async {
+  Future<void> _handleConnectivityChange(
+    List<ConnectivityResult> results,
+  ) async {
     final wasOnline = _isOnline;
     _isOnline = await _checkActualConnectivity(results);
 
@@ -68,7 +70,9 @@ class ConnectivityService implements NetworkInfo {
   }
 
   /// Check if we actually have internet access, not just a connection type
-  Future<bool> _checkActualConnectivity(List<ConnectivityResult> results) async {
+  Future<bool> _checkActualConnectivity(
+    List<ConnectivityResult> results,
+  ) async {
     // If no connection at all, we're offline
     if (results.isEmpty || results.contains(ConnectivityResult.none)) {
       return false;
@@ -76,8 +80,9 @@ class ConnectivityService implements NetworkInfo {
 
     // We have a connection type, but verify we can actually reach the internet
     try {
-      final result = await InternetAddress.lookup('google.com')
-          .timeout(const Duration(seconds: 3));
+      final result = await InternetAddress.lookup(
+        'google.com',
+      ).timeout(const Duration(seconds: 3));
       return result.isNotEmpty && result[0].rawAddress.isNotEmpty;
     } on SocketException catch (_) {
       return false;
@@ -120,8 +125,9 @@ final isOnlineProvider = Provider<bool>((ref) {
 final connectivityStreamProvider = StreamProvider<bool>((ref) {
   final service = ref.watch(connectivityServiceProvider);
   // Emit current status first, then listen for changes
-  return Stream.value(service.isOnline)
-      .asyncExpand((_) => service.onConnectivityChanged);
+  return Stream.value(
+    service.isOnline,
+  ).asyncExpand((_) => service.onConnectivityChanged);
 });
 
 /// Notifier for managing connectivity state with UI integration

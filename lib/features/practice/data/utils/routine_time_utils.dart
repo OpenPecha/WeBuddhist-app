@@ -110,7 +110,8 @@ int remainingBlockSlots(int currentBlockCount) {
 bool _isValid(int candidate, List<int> existingMinutes) {
   for (final m in existingMinutes) {
     int diff = (candidate - m).abs();
-    if (diff > _maxSearchRadius) diff = _minutesInDay - diff; // wrap around midnight
+    if (diff > _maxSearchRadius)
+      diff = _minutesInDay - diff; // wrap around midnight
     if (diff < kMinBlockGapMinutes) return false;
   }
   return true;

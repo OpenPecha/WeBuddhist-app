@@ -56,16 +56,20 @@ class ReaderTranslationPanel extends ConsumerWidget {
         _resetExpansion(ref);
       },
       child: segmentTranslations.when(
-        data: (data) => _TranslationList(
-          translations: data.translations,
-          segmentId: segmentId,
-          textLanguage: textLanguage,
-        ),
-        error: (error, _) => _ErrorState(
-          error: error,
-          onRetry: () =>
-              ref.invalidate(segmentTranslationsFutureProvider(segmentId)),
-        ),
+        data:
+            (data) => _TranslationList(
+              translations: data.translations,
+              segmentId: segmentId,
+              textLanguage: textLanguage,
+            ),
+        error:
+            (error, _) => _ErrorState(
+              error: error,
+              onRetry:
+                  () => ref.invalidate(
+                    segmentTranslationsFutureProvider(segmentId),
+                  ),
+            ),
         loading: () => const CommentarySkeleton(),
       ),
     );

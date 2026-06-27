@@ -146,10 +146,7 @@ class PracticeItemsNotifier extends StateNotifier<PracticeItemsState> {
     result.fold(
       (failure) {
         _logger.error('Load more failed: ${failure.message}');
-        state = state.copyWith(
-          isLoadingMore: false,
-          error: failure.message,
-        );
+        state = state.copyWith(isLoadingMore: false, error: failure.message);
       },
       (page) {
         state = state.copyWith(

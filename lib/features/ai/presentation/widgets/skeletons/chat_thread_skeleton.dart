@@ -30,11 +30,7 @@ class ChatThreadSkeleton extends StatelessWidget {
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-      child: Row(
-        children: [
-          Expanded(child: Bone.text(words: wordCount)),
-        ],
-      ),
+      child: Row(children: [Expanded(child: Bone.text(words: wordCount))]),
     );
   }
 }

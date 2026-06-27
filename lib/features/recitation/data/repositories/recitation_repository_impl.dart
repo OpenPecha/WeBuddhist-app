@@ -17,7 +17,7 @@ class RecitationRepositoryImpl implements RecitationRepository {
   final RecitationsRemoteDatasource _datasource;
 
   RecitationRepositoryImpl({required RecitationsRemoteDatasource datasource})
-      : _datasource = datasource;
+    : _datasource = datasource;
 
   @override
   Future<Either<Failure, List<Recitation>>> getRecitations() async {
@@ -34,7 +34,9 @@ class RecitationRepositoryImpl implements RecitationRepository {
   }
 
   @override
-  Future<Either<Failure, List<Recitation>>> getRecitationsByType(ContentType type) async {
+  Future<Either<Failure, List<Recitation>>> getRecitationsByType(
+    ContentType type,
+  ) async {
     try {
       // The current API doesn't support filtering by content type
       // We'll fetch all and filter locally
@@ -50,15 +52,18 @@ class RecitationRepositoryImpl implements RecitationRepository {
   }
 
   @override
-  Future<Either<Failure, List<Recitation>>> getRecitationsByText(String textId) async {
+  Future<Either<Failure, List<Recitation>>> getRecitationsByText(
+    String textId,
+  ) async {
     try {
       final models = await _datasource.fetchRecitations(
         queryParams: RecitationsQueryParams(language: 'en'),
       );
-      final entities = models
-          .where((m) => m.textId == textId)
-          .map((m) => m.toEntity())
-          .toList();
+      final entities =
+          models
+              .where((m) => m.textId == textId)
+              .map((m) => m.toEntity())
+              .toList();
       return Right(entities);
     } catch (e) {
       _logger.error('Failed to get recitations by text', e);
@@ -67,16 +72,15 @@ class RecitationRepositoryImpl implements RecitationRepository {
   }
 
   @override
-  Future<Either<Failure, List<Recitation>>> searchRecitations(String query) async {
+  Future<Either<Failure, List<Recitation>>> searchRecitations(
+    String query,
+  ) async {
     try {
       if (query.isEmpty) {
         return const Left(ValidationFailure('Search query cannot be empty'));
       }
       final models = await _datasource.fetchRecitations(
-        queryParams: RecitationsQueryParams(
-          language: 'en',
-          search: query,
-        ),
+        queryParams: RecitationsQueryParams(language: 'en', search: query),
       );
       final entities = models.map((m) => m.toEntity()).toList();
       return Right(entities);

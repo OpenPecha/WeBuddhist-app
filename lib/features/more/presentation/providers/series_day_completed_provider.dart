@@ -7,14 +7,16 @@ import 'package:flutter_pecha/features/more/presentation/providers/use_case_prov
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fpdart/fpdart.dart';
 
-final seriesDayCompletedProvider = FutureProvider.autoDispose<
-    Either<Failure, SeriesDayCompletedPage>>((ref) async {
-  final auth = ref.watch(authProvider);
-  if (auth.isLoading || !auth.isLoggedIn || auth.isGuest) {
-    return const Left(AuthenticationFailure('Not authenticated'));
-  }
+final seriesDayCompletedProvider =
+    FutureProvider.autoDispose<Either<Failure, SeriesDayCompletedPage>>((
+      ref,
+    ) async {
+      final auth = ref.watch(authProvider);
+      if (auth.isLoading || !auth.isLoggedIn || auth.isGuest) {
+        return const Left(AuthenticationFailure('Not authenticated'));
+      }
 
-  final language = ref.watch(contentLanguageProvider);
-  final useCase = ref.watch(getSeriesDayCompletedUseCaseProvider);
-  return useCase(GetSeriesDayCompletedParams(language: language));
-});
+      final language = ref.watch(contentLanguageProvider);
+      final useCase = ref.watch(getSeriesDayCompletedUseCaseProvider);
+      return useCase(GetSeriesDayCompletedParams(language: language));
+    });

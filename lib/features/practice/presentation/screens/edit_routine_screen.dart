@@ -1306,9 +1306,7 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
                 );
               }
               if (widget.initialTimer != null) {
-                injectedTimerBlock = _injectInitialTimer(
-                  widget.initialTimer!,
-                );
+                injectedTimerBlock = _injectInitialTimer(widget.initialTimer!);
               }
               if (widget.initialSeries != null) {
                 injectedSeriesBlock = _injectInitialSeries(

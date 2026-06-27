@@ -31,7 +31,9 @@ class PracticeItemsRemoteDatasource {
 
       final data = response.data;
       if (data is! Map<String, dynamic>) {
-        _logger.error('Unexpected /practice/items payload type: ${data.runtimeType}');
+        _logger.error(
+          'Unexpected /practice/items payload type: ${data.runtimeType}',
+        );
         throw const ServerException('Invalid response from /practice/items');
       }
       return PracticeItemsResponseModel.fromJson(data);
@@ -52,7 +54,8 @@ class PracticeItemsRemoteDatasource {
     }
     final status = e.response?.statusCode;
     if (status == 401) return const AuthenticationException('Unauthorized');
-    if (status == 404) return const NotFoundException('Practice items not found');
+    if (status == 404)
+      return const NotFoundException('Practice items not found');
     if (status == 429) return const RateLimitException('Too many requests');
     return ServerException('$label: ${status ?? 'unknown error'}');
   }

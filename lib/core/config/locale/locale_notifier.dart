@@ -50,7 +50,10 @@ class LocaleNotifier extends StateNotifier<Locale> {
     }
 
     state = locale;
-    await _localStorageService.set(StorageKeys.preferredLanguage, locale.languageCode);
+    await _localStorageService.set(
+      StorageKeys.preferredLanguage,
+      locale.languageCode,
+    );
   }
 
   /// Maps onboarding language preference to app locale

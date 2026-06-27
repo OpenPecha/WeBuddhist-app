@@ -1,6 +1,7 @@
 import 'package:fpdart/fpdart.dart';
 import 'package:flutter_pecha/core/error/failures.dart';
-import 'package:flutter_pecha/features/texts/domain/usecases/share_usecases.dart' as domain;
+import 'package:flutter_pecha/features/texts/domain/usecases/share_usecases.dart'
+    as domain;
 import 'package:flutter_pecha/features/texts/presentation/providers/use_case_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -33,9 +34,11 @@ class ShareUrlParams {
 final shareUrlProvider = FutureProvider.autoDispose
     .family<Either<Failure, String>, ShareUrlParams>((ref, params) async {
       final useCase = ref.watch(getShareUrlUseCaseProvider);
-      return useCase(domain.ShareUrlParams(
-        textId: params.textId,
-        segmentId: params.segmentId,
-        language: params.language,
-      ));
+      return useCase(
+        domain.ShareUrlParams(
+          textId: params.textId,
+          segmentId: params.segmentId,
+          language: params.language,
+        ),
+      );
     });

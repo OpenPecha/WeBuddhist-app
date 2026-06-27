@@ -58,10 +58,8 @@ class DiscoverGroupsState {
 }
 
 class DiscoverGroupsNotifier extends StateNotifier<DiscoverGroupsState> {
-  DiscoverGroupsNotifier({
-    required this.repository,
-    required this.language,
-  }) : super(const DiscoverGroupsState()) {
+  DiscoverGroupsNotifier({required this.repository, required this.language})
+    : super(const DiscoverGroupsState()) {
     loadInitial();
   }
 
@@ -152,49 +150,41 @@ class DiscoverGroupsNotifier extends StateNotifier<DiscoverGroupsState> {
 }
 
 final discoverGroupsProvider =
-    StateNotifierProvider<DiscoverGroupsNotifier, DiscoverGroupsState>(
-      (ref) {
-        final language = ref.watch(contentLanguageProvider);
-        return DiscoverGroupsNotifier(
-          repository: ref.watch(connectRepositoryProvider),
-          language: language,
-        );
-      },
-    );
+    StateNotifierProvider<DiscoverGroupsNotifier, DiscoverGroupsState>((ref) {
+      final language = ref.watch(contentLanguageProvider);
+      return DiscoverGroupsNotifier(
+        repository: ref.watch(connectRepositoryProvider),
+        language: language,
+      );
+    });
 
 /// Groups joined this session before the my-groups API reflects them.
-final pendingJoinedGroupsProvider =
-    StateProvider<List<GroupProfile>>((ref) => const []);
+final pendingJoinedGroupsProvider = StateProvider<List<GroupProfile>>(
+  (ref) => const [],
+);
 
 /// Groups unfollowed this session while the my-groups API still returns them.
-final pendingUnjoinedGroupIdsProvider =
-    StateProvider<Set<String>>((ref) => const {});
+final pendingUnjoinedGroupIdsProvider = StateProvider<Set<String>>(
+  (ref) => const {},
+);
 
 final myGroupsProvider = FutureProvider<DiscoverGroupsPage>((ref) async {
   final authState = ref.watch(authProvider);
   if (authState.isGuest || !authState.isLoggedIn) {
-    return const DiscoverGroupsPage(
-      groups: [],
-      skip: 0,
-      limit: 20,
-      total: 0,
-    );
+    return const DiscoverGroupsPage(groups: [], skip: 0, limit: 20, total: 0);
   }
 
   final language = ref.watch(contentLanguageProvider);
   final repo = ref.watch(connectRepositoryProvider);
   final result = await repo.getMyGroups(language: language, skip: 0, limit: 20);
 
-  return result.fold(
-    (failure) => throw Exception(failure.message),
-    (page) {
-      syncPendingGroupsWithApi(
-        ref: ref,
-        apiGroupIds: page.groups.map((g) => g.id).toSet(),
-      );
-      return page;
-    },
-  );
+  return result.fold((failure) => throw Exception(failure.message), (page) {
+    syncPendingGroupsWithApi(
+      ref: ref,
+      apiGroupIds: page.groups.map((g) => g.id).toSet(),
+    );
+    return page;
+  });
 });
 
 List<GroupProfile> filterDiscoverGroups({
@@ -233,12 +223,14 @@ void syncPendingGroupsWithApi({
   required Ref ref,
   required Set<String> apiGroupIds,
 }) {
-  ref.read(pendingJoinedGroupsProvider.notifier).update(
-    (pending) =>
-        pending.where((group) => !apiGroupIds.contains(group.id)).toList(),
-  );
+  ref
+      .read(pendingJoinedGroupsProvider.notifier)
+      .update(
+        (pending) =>
+            pending.where((group) => !apiGroupIds.contains(group.id)).toList(),
+      );
 
-  ref.read(pendingUnjoinedGroupIdsProvider.notifier).update(
-    (unjoined) => unjoined.intersection(apiGroupIds),
-  );
+  ref
+      .read(pendingUnjoinedGroupIdsProvider.notifier)
+      .update((unjoined) => unjoined.intersection(apiGroupIds));
 }

@@ -55,7 +55,8 @@ class SpecialPlanStartedAtStore {
   static Future<void> clear(String planId) async {
     final prefs = await _ensurePrefs();
     await prefs.remove(_startedAtKey(planId));
-    for (final key in prefs.getKeys().where(_isShownFlagForPlan(planId)).toList()) {
+    for (final key
+        in prefs.getKeys().where(_isShownFlagForPlan(planId)).toList()) {
       await prefs.remove(key);
     }
   }
@@ -94,7 +95,8 @@ class SpecialPlanStartedAtStore {
   /// block so re-adding treats it as fresh and re-fires today's immediate.
   static Future<void> clearShownFlags(String planId) async {
     final prefs = await _ensurePrefs();
-    for (final key in prefs.getKeys().where(_isShownFlagForPlan(planId)).toList()) {
+    for (final key
+        in prefs.getKeys().where(_isShownFlagForPlan(planId)).toList()) {
       await prefs.remove(key);
     }
   }
@@ -113,7 +115,8 @@ class SpecialPlanStartedAtStore {
 
   /// Predicate: returns true if [key] is a shown-flag belonging to [planId].
   static bool Function(String) _isShownFlagForPlan(String planId) =>
-      (key) => key.startsWith('${StorageKeys.specialPlanDay1ShownPrefix}$planId');
+      (key) =>
+          key.startsWith('${StorageKeys.specialPlanDay1ShownPrefix}$planId');
 
   static Future<SharedPreferences> _ensurePrefs() async {
     return _prefs ??= await SharedPreferences.getInstance();

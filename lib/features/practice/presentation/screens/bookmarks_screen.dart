@@ -257,7 +257,11 @@ class _BookmarkTabView extends StatelessWidget {
       final header = _sectionLabel(bookmark.createdAt);
       if (header != lastHeader) {
         children.add(
-          _SectionHeader(label: header, isDark: isDark, isFirst: lastHeader == null),
+          _SectionHeader(
+            label: header,
+            isDark: isDark,
+            isFirst: lastHeader == null,
+          ),
         );
         lastHeader = header;
       }

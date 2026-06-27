@@ -26,9 +26,10 @@ class _PlanAudioButtonState extends State<PlanAudioButton>
     _iconController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 300),
-      value: widget.controller.buttonState == PlanAudioButtonState.pause
-          ? 1.0
-          : 0.0,
+      value:
+          widget.controller.buttonState == PlanAudioButtonState.pause
+              ? 1.0
+              : 0.0,
     );
     widget.controller.addListener(_onControllerChanged);
   }
@@ -74,21 +75,22 @@ class _PlanAudioButtonState extends State<PlanAudioButton>
             border: Border.all(color: color.withAlpha(100), width: 1.5),
           ),
           alignment: Alignment.center,
-          child: isLoading
-              ? SizedBox(
-                  width: 24,
-                  height: 24,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2.5,
+          child:
+              isLoading
+                  ? SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2.5,
+                      color: color,
+                    ),
+                  )
+                  : AnimatedIcon(
+                    icon: AnimatedIcons.play_pause,
+                    progress: _iconController,
+                    size: 28,
                     color: color,
                   ),
-                )
-              : AnimatedIcon(
-                  icon: AnimatedIcons.play_pause,
-                  progress: _iconController,
-                  size: 28,
-                  color: color,
-                ),
         ),
       ),
     );

@@ -1,7 +1,8 @@
 import '../../domain/entities/onboarding_preferences.dart' as domain;
 
 // Re-export constants for backward compatibility with existing imports
-export '../../domain/entities/onboarding_preferences.dart' show PreferredLanguage, BuddhistPath;
+export '../../domain/entities/onboarding_preferences.dart'
+    show PreferredLanguage, BuddhistPath;
 
 /// Model for storing user preferences collected during onboarding
 ///
@@ -13,7 +14,10 @@ class OnboardingPreferences {
   final List<String>? selectedPaths;
 
   /// Creates a copy with the specified fields replaced with new values
-  OnboardingPreferences copyWith({String? preferredLanguage, List<String>? selectedPaths}) {
+  OnboardingPreferences copyWith({
+    String? preferredLanguage,
+    List<String>? selectedPaths,
+  }) {
     return OnboardingPreferences(
       preferredLanguage: preferredLanguage ?? this.preferredLanguage,
       selectedPaths: selectedPaths ?? this.selectedPaths,
@@ -64,7 +68,9 @@ class OnboardingPreferences {
   }
 
   /// Create OnboardingPreferences from a domain entity.
-  factory OnboardingPreferences.fromEntity(domain.OnboardingPreferences entity) {
+  factory OnboardingPreferences.fromEntity(
+    domain.OnboardingPreferences entity,
+  ) {
     return OnboardingPreferences(
       preferredLanguage: entity.primaryLanguage,
       selectedPaths: entity.selectedPaths,

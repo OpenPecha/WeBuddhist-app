@@ -7,8 +7,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final readerSettingsRemoteDatasourceProvider =
     Provider<ReaderSettingsRemoteDatasource>((ref) {
-  return ReaderSettingsRemoteDatasource(dio: ref.watch(dioProvider));
-});
+      return ReaderSettingsRemoteDatasource(dio: ref.watch(dioProvider));
+    });
 
 class ReaderLanguageQuery {
   final String textId;
@@ -27,35 +27,39 @@ class ReaderLanguageQuery {
 
 final readerLanguagesProvider = FutureProvider.family
     .autoDispose<List<ReaderLanguageOption>, String>((ref, textId) async {
-  final ds = ref.watch(readerSettingsRemoteDatasourceProvider);
-  final res = await ds.fetchLanguages(textId: textId);
-  return res.availableLanguages;
-});
+      final ds = ref.watch(readerSettingsRemoteDatasourceProvider);
+      final res = await ds.fetchLanguages(textId: textId);
+      return res.availableLanguages;
+    });
 
 final readerScriptsProvider = FutureProvider.family
-    .autoDispose<List<ReaderScriptOption>, ReaderLanguageQuery>(
-        (ref, query) async {
-  final ds = ref.watch(readerSettingsRemoteDatasourceProvider);
-  final res = await ds.fetchScripts(
-    textId: query.textId,
-    language: query.language,
-  );
-  return res.availableScripts;
-});
+    .autoDispose<List<ReaderScriptOption>, ReaderLanguageQuery>((
+      ref,
+      query,
+    ) async {
+      final ds = ref.watch(readerSettingsRemoteDatasourceProvider);
+      final res = await ds.fetchScripts(
+        textId: query.textId,
+        language: query.language,
+      );
+      return res.availableScripts;
+    });
 
 final readerVersionsProvider = FutureProvider.family
-    .autoDispose<List<ReaderVersionDetail>, ReaderLanguageQuery>(
-        (ref, query) async {
-  final ds = ref.watch(readerSettingsRemoteDatasourceProvider);
-  final res = await ds.fetchVersions(
-    textId: query.textId,
-    language: query.language,
-  );
-  return res.availableVersions;
-});
+    .autoDispose<List<ReaderVersionDetail>, ReaderLanguageQuery>((
+      ref,
+      query,
+    ) async {
+      final ds = ref.watch(readerSettingsRemoteDatasourceProvider);
+      final res = await ds.fetchVersions(
+        textId: query.textId,
+        language: query.language,
+      );
+      return res.availableVersions;
+    });
 
 final readerVersionInfoProvider = FutureProvider.family
     .autoDispose<ReaderVersionDetail, String>((ref, versionId) async {
-  final ds = ref.watch(readerSettingsRemoteDatasourceProvider);
-  return ds.fetchVersionInfo(versionId: versionId);
-});
+      final ds = ref.watch(readerSettingsRemoteDatasourceProvider);
+      return ds.fetchVersionInfo(versionId: versionId);
+    });

@@ -81,10 +81,7 @@ class _TableOfContentsState extends ConsumerState<TableOfContents> {
                     source: NavigationSource.normal,
                     targetSegmentId: segmentId,
                   );
-                  context.push(
-                    '/reader/$textId',
-                    extra: navigationContext,
-                  );
+                  context.push('/reader/$textId', extra: navigationContext);
                 }
                 : null,
         child: titleWidget,

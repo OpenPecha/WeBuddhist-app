@@ -8,7 +8,8 @@ import 'package:fpdart/fpdart.dart';
 ///
 /// Combines clearing guest mode with onboarding reset.
 /// This is a complex operation that was previously in AuthNotifier.
-class ClearGuestModeAndOnboardingUseCase extends UseCase<void, ClearGuestModeAndOnboardingParams> {
+class ClearGuestModeAndOnboardingUseCase
+    extends UseCase<void, ClearGuestModeAndOnboardingParams> {
   final ClearGuestModeUseCase _clearGuestModeUseCase;
   final IsGuestModeUseCase _isGuestModeUseCase;
 
@@ -18,12 +19,16 @@ class ClearGuestModeAndOnboardingUseCase extends UseCase<void, ClearGuestModeAnd
   );
 
   @override
-  Future<Either<Failure, void>> call(ClearGuestModeAndOnboardingParams params) async {
+  Future<Either<Failure, void>> call(
+    ClearGuestModeAndOnboardingParams params,
+  ) async {
     // Clear guest mode
     final clearGuestResult = await _clearGuestModeUseCase(const NoParams());
     return clearGuestResult.fold(
       (failure) {
-        return Left(UnknownFailure('Failed to clear guest mode: ${failure.message}'));
+        return Left(
+          UnknownFailure('Failed to clear guest mode: ${failure.message}'),
+        );
       },
       (_) {
         return const Right(null);

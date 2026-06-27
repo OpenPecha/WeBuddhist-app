@@ -8,11 +8,11 @@ class SectionFlattenerService {
   const SectionFlattenerService();
 
   /// Flattens a list of sections into a FlattenedContent
-  /// 
+  ///
   /// This converts the hierarchical section/segment structure into a flat list
   /// suitable for use with ListView.builder, while maintaining a map for O(1)
   /// segment index lookups.
-  /// 
+  ///
   /// The flattening preserves the order: section header, then segments,
   /// then nested sections recursively.
   FlattenedContent flatten(List<Section> sections) {
@@ -22,20 +22,19 @@ class SectionFlattenerService {
 
     void processSection(Section section, int depth) {
       // Add section header
-      items.add(FlattenedItem.header(
-        section: section,
-        depth: depth,
-      ));
+      items.add(FlattenedItem.header(section: section, depth: depth));
 
       // Add direct segments
       for (final segment in section.segments) {
         // Store the index before adding the item
         indexMap[segment.segmentId] = items.length;
-        items.add(FlattenedItem.segment(
-          segment: segment,
-          depth: depth,
-          sectionId: section.id,
-        ));
+        items.add(
+          FlattenedItem.segment(
+            segment: segment,
+            depth: depth,
+            sectionId: section.id,
+          ),
+        );
         segmentCount++;
       }
 

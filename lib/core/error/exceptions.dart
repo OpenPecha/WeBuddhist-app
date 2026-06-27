@@ -48,7 +48,11 @@ class ValidationException extends AppException {
 }
 
 class AuthenticationException extends AppException {
-  const AuthenticationException(super.message, {super.requestId, super.timestamp});
+  const AuthenticationException(
+    super.message, {
+    super.requestId,
+    super.timestamp,
+  });
 
   @override
   String toString() {
@@ -57,7 +61,11 @@ class AuthenticationException extends AppException {
 }
 
 class AuthorizationException extends AppException {
-  const AuthorizationException(super.message, {super.requestId, super.timestamp});
+  const AuthorizationException(
+    super.message, {
+    super.requestId,
+    super.timestamp,
+  });
 
   @override
   String toString() {

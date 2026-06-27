@@ -34,39 +34,42 @@ class GroupProfileDrawer extends ConsumerWidget {
         return Container(
           decoration: BoxDecoration(
             color: Theme.of(context).scaffoldBackgroundColor,
-            borderRadius: const BorderRadius.vertical(
-              top: Radius.circular(20),
-            ),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
           ),
           child: Column(
             children: [
               _buildDragHandle(context),
               Expanded(
                 child: profileAsync.when(
-                  data: (either) => either.fold(
-                    (failure) => Center(
-                      child: ErrorStateWidget(
-                        error: failure,
-                        onRetry: () =>
-                            ref.invalidate(groupProfileProvider(groupId)),
+                  data:
+                      (either) => either.fold(
+                        (failure) => Center(
+                          child: ErrorStateWidget(
+                            error: failure,
+                            onRetry:
+                                () => ref.invalidate(
+                                  groupProfileProvider(groupId),
+                                ),
+                          ),
+                        ),
+                        (profile) => GroupProfileBody(
+                          profile: profile,
+                          isDark: isDark,
+                          scrollController: scrollController,
+                          onSeriesTap: () => Navigator.of(context).pop(),
+                        ),
                       ),
-                    ),
-                    (profile) => GroupProfileBody(
-                      profile: profile,
-                      isDark: isDark,
-                      scrollController: scrollController,
-                      onSeriesTap: () => Navigator.of(context).pop(),
-                    ),
-                  ),
-                  loading: () =>
-                      const Center(child: CircularProgressIndicator()),
-                  error: (error, _) => Center(
-                    child: ErrorStateWidget(
-                      error: error,
-                      onRetry: () =>
-                          ref.invalidate(groupProfileProvider(groupId)),
-                    ),
-                  ),
+                  loading:
+                      () => const Center(child: CircularProgressIndicator()),
+                  error:
+                      (error, _) => Center(
+                        child: ErrorStateWidget(
+                          error: error,
+                          onRetry:
+                              () =>
+                                  ref.invalidate(groupProfileProvider(groupId)),
+                        ),
+                      ),
                 ),
               ),
             ],
@@ -83,8 +86,7 @@ class GroupProfileDrawer extends ConsumerWidget {
         width: 40,
         height: 4,
         decoration: BoxDecoration(
-          color:
-              Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3),
+          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3),
           borderRadius: BorderRadius.circular(2),
         ),
       ),

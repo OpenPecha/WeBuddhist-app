@@ -16,13 +16,15 @@ import 'package:mockito/mockito.dart';
 
 import 'mala_counter_notifier_test.mocks.dart';
 
-@GenerateMocks([GetAccumulatorDetailUseCase, MalaSyncManager, DeleteUserAccumulatorUseCase])
+@GenerateMocks([
+  GetAccumulatorDetailUseCase,
+  MalaSyncManager,
+  DeleteUserAccumulatorUseCase,
+])
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  provideDummy<Either<Failure, MalaCount>>(
-    const Left(UnknownFailure('dummy')),
-  );
+  provideDummy<Either<Failure, MalaCount>>(const Left(UnknownFailure('dummy')));
 
   late Directory tempDir;
   late MalaLocalDataSource local;
@@ -34,17 +36,21 @@ void main() {
   const mantra = Mantra(
     presetId: 'chenrezig',
     metadata: [AccumulatorMetadata(language: 'en', name: 'Chenrezig')],
-    mantra: MantraText(id: 'm1', text: 'ༀ་མ་ཎི་པདྨེ་ཧཱུྃ', pronunciation: 'Om Mani Padme Hum'),
+    mantra: MantraText(
+      id: 'm1',
+      text: 'ༀ་མ་ཎི་པདྨེ་ཧཱུྃ',
+      pronunciation: 'Om Mani Padme Hum',
+    ),
   );
 
   MalaCounterNotifier buildNotifier() => MalaCounterNotifier(
-        mantra: mantra,
-        local: local,
-        getAccumulatorDetail: getDetail,
-        deleteUserAccumulator: delete,
-        sync: sync,
-        currentUserId: () async => userId,
-      );
+    mantra: mantra,
+    local: local,
+    getAccumulatorDetail: getDetail,
+    deleteUserAccumulator: delete,
+    sync: sync,
+    currentUserId: () async => userId,
+  );
 
   setUp(() async {
     tempDir = Directory.systemTemp.createTempSync('mala_counter_test');
@@ -133,15 +139,19 @@ void main() {
 
   test('round completes at a multiple of beadsPerRound', () async {
     when(getDetail(any)).thenAnswer(
-      (_) async =>
-          const Right(MalaCount(accumulatorId: 'acc-1', total: kBeadsPerRound - 1)),
+      (_) async => const Right(
+        MalaCount(accumulatorId: 'acc-1', total: kBeadsPerRound - 1),
+      ),
     );
 
     final notifier = buildNotifier();
     await Future.delayed(Duration.zero);
 
     expect(notifier.state.total, kBeadsPerRound - 1);
-    notifier.incrementBead(soundEnabled: true, vibrationEnabled: true); // lands on 108
+    notifier.incrementBead(
+      soundEnabled: true,
+      vibrationEnabled: true,
+    ); // lands on 108
 
     expect(notifier.state.total, kBeadsPerRound);
     expect(notifier.state.beadInRound, 0);
@@ -150,22 +160,24 @@ void main() {
     notifier.dispose();
   });
 
-  test('seed ignores stale current_count when there is no active accumulator',
-      () async {
-    // Cleared session after reset — local is zero with no accumulator id.
-    await local.write(userId, 'chenrezig', const LocalMalaState());
-    when(getDetail(any)).thenAnswer(
-      (_) async => const Right(MalaCount(total: 10)),
-    );
+  test(
+    'seed ignores stale current_count when there is no active accumulator',
+    () async {
+      // Cleared session after reset — local is zero with no accumulator id.
+      await local.write(userId, 'chenrezig', const LocalMalaState());
+      when(
+        getDetail(any),
+      ).thenAnswer((_) async => const Right(MalaCount(total: 10)));
 
-    final notifier = buildNotifier();
-    await Future.delayed(Duration.zero);
+      final notifier = buildNotifier();
+      await Future.delayed(Duration.zero);
 
-    expect(notifier.state.total, 0);
-    expect(local.read(userId, 'chenrezig').syncedTotal, 0);
-    verifyNever(sync.flush(any));
-    notifier.dispose();
-  });
+      expect(notifier.state.total, 0);
+      expect(local.read(userId, 'chenrezig').syncedTotal, 0);
+      verifyNever(sync.flush(any));
+      notifier.dispose();
+    },
+  );
 
   test('resetCount clears display total on success', () async {
     when(getDetail(any)).thenAnswer(
@@ -187,10 +199,7 @@ void main() {
     expect(ok, isTrue);
     expect(notifier.state.total, 0);
     verify(
-      sync.resetAccumulator(
-        'chenrezig',
-        deleteAccumulator: delete,
-      ),
+      sync.resetAccumulator('chenrezig', deleteAccumulator: delete),
     ).called(1);
     notifier.dispose();
   });
@@ -261,7 +270,9 @@ void main() {
 
   test('fresh install with no accumulator seeds at 0', () async {
     // No user accumulator yet → detail returns count 0 with a null id.
-    when(getDetail(any)).thenAnswer((_) async => const Right(MalaCount(total: 0)));
+    when(
+      getDetail(any),
+    ).thenAnswer((_) async => const Right(MalaCount(total: 0)));
 
     final notifier = buildNotifier();
     await Future.delayed(Duration.zero);

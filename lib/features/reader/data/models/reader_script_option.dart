@@ -3,11 +3,7 @@ class ReaderScriptOption {
   final String label;
   final String? name;
 
-  const ReaderScriptOption({
-    required this.id,
-    required this.label,
-    this.name,
-  });
+  const ReaderScriptOption({required this.id, required this.label, this.name});
 
   factory ReaderScriptOption.fromJson(Map<String, dynamic> json) {
     return ReaderScriptOption(
@@ -18,10 +14,10 @@ class ReaderScriptOption {
   }
 
   Map<String, dynamic> toJson() => {
-        'script_code': id,
-        'script': label,
-        'name': name,
-      };
+    'script_code': id,
+    'script': label,
+    'name': name,
+  };
 }
 
 class ReaderScriptsResponse {
@@ -39,9 +35,12 @@ class ReaderScriptsResponse {
     return ReaderScriptsResponse(
       textId: json['text_id'] as String? ?? '',
       language: json['language'] as String? ?? '',
-      availableScripts: (json['available_scripts'] as List<dynamic>? ?? [])
-          .map((e) => ReaderScriptOption.fromJson(e as Map<String, dynamic>))
-          .toList(),
+      availableScripts:
+          (json['available_scripts'] as List<dynamic>? ?? [])
+              .map(
+                (e) => ReaderScriptOption.fromJson(e as Map<String, dynamic>),
+              )
+              .toList(),
     );
   }
 }

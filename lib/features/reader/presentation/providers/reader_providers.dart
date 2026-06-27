@@ -6,14 +6,14 @@ export 'reader_notifier.dart';
 
 /// Provider for ItemScrollController - used for programmatic scrolling
 /// This is scoped to the reader widget tree
-final readerScrollControllerProvider = Provider.autoDispose<ItemScrollController>(
-  (ref) => ItemScrollController(),
-);
+final readerScrollControllerProvider =
+    Provider.autoDispose<ItemScrollController>((ref) => ItemScrollController());
 
 /// Provider for ItemPositionsListener - used for tracking visible items
-final readerPositionsListenerProvider = Provider.autoDispose<ItemPositionsListener>(
-  (ref) => ItemPositionsListener.create(),
-);
+final readerPositionsListenerProvider =
+    Provider.autoDispose<ItemPositionsListener>(
+      (ref) => ItemPositionsListener.create(),
+    );
 
 /// Provider for tracking if scroll-to-segment is in progress
 final isScrollingToSegmentProvider = StateProvider.autoDispose<bool>(

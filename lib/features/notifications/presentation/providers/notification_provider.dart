@@ -40,18 +40,17 @@ class NotificationState {
     bool? hasSystemPermission,
     bool? canScheduleExactAlarms,
     bool? isBatteryOptimizationExempt,
-  }) =>
-      NotificationState(
-        isLoading: isLoading ?? this.isLoading,
-        appMasterEnabled: appMasterEnabled ?? this.appMasterEnabled,
-        appRoutineEnabled: appRoutineEnabled ?? this.appRoutineEnabled,
-        appRecitationEnabled: appRecitationEnabled ?? this.appRecitationEnabled,
-        hasSystemPermission: hasSystemPermission ?? this.hasSystemPermission,
-        canScheduleExactAlarms:
-            canScheduleExactAlarms ?? this.canScheduleExactAlarms,
-        isBatteryOptimizationExempt:
-            isBatteryOptimizationExempt ?? this.isBatteryOptimizationExempt,
-      );
+  }) => NotificationState(
+    isLoading: isLoading ?? this.isLoading,
+    appMasterEnabled: appMasterEnabled ?? this.appMasterEnabled,
+    appRoutineEnabled: appRoutineEnabled ?? this.appRoutineEnabled,
+    appRecitationEnabled: appRecitationEnabled ?? this.appRecitationEnabled,
+    hasSystemPermission: hasSystemPermission ?? this.hasSystemPermission,
+    canScheduleExactAlarms:
+        canScheduleExactAlarms ?? this.canScheduleExactAlarms,
+    isBatteryOptimizationExempt:
+        isBatteryOptimizationExempt ?? this.isBatteryOptimizationExempt,
+  );
 }
 
 class NotificationNotifier extends StateNotifier<NotificationState> {
@@ -59,7 +58,7 @@ class NotificationNotifier extends StateNotifier<NotificationState> {
   final Ref _ref;
 
   NotificationNotifier(this._service, this._ref)
-      : super(const NotificationState()) {
+    : super(const NotificationState()) {
     refreshStatus(initial: true);
   }
 
@@ -74,7 +73,10 @@ class NotificationNotifier extends StateNotifier<NotificationState> {
         _service.isBatteryOptimizationExempt(),
         _loadBool(StorageKeys.notificationMasterEnabled, defaultValue: true),
         _loadBool(StorageKeys.notificationRoutineEnabled, defaultValue: true),
-        _loadBool(StorageKeys.notificationRecitationEnabled, defaultValue: true),
+        _loadBool(
+          StorageKeys.notificationRecitationEnabled,
+          defaultValue: true,
+        ),
       ]);
       state = state.copyWith(
         hasSystemPermission: results[0],
@@ -104,9 +106,11 @@ class NotificationNotifier extends StateNotifier<NotificationState> {
   ///        special-plan series + duration series). Sub-toggle states are
   ///        preserved in SharedPreferences so re-enabling restores them.
   Future<NotificationToggleResult> toggleMaster(bool enable) async {
-    _logger.info('[TOGGLE] master → $enable '
-        '(routine=${state.appRoutineEnabled} recitation=${state.appRecitationEnabled} '
-        'osPermission=${state.hasSystemPermission})');
+    _logger.info(
+      '[TOGGLE] master → $enable '
+      '(routine=${state.appRoutineEnabled} recitation=${state.appRecitationEnabled} '
+      'osPermission=${state.hasSystemPermission})',
+    );
     final previous = state;
     state = state.copyWith(appMasterEnabled: enable);
 
@@ -115,10 +119,14 @@ class NotificationNotifier extends StateNotifier<NotificationState> {
 
       if (enable) {
         if (!state.hasSystemPermission) {
-          _logger.info('[TOGGLE] master ON — OS permission missing, requesting…');
+          _logger.info(
+            '[TOGGLE] master ON — OS permission missing, requesting…',
+          );
           final granted = await _service.requestPermission();
           if (!granted) {
-            _logger.warning('[TOGGLE] master ON — OS permission denied, reverting');
+            _logger.warning(
+              '[TOGGLE] master ON — OS permission denied, reverting',
+            );
             state = previous.copyWith(appMasterEnabled: false);
             await prefs.setBool(StorageKeys.notificationMasterEnabled, false);
             return NotificationToggleResult.permissionDenied;
@@ -143,7 +151,9 @@ class NotificationNotifier extends StateNotifier<NotificationState> {
       try {
         final prefs = await SharedPreferences.getInstance();
         await prefs.setBool(
-            StorageKeys.notificationMasterEnabled, previous.appMasterEnabled);
+          StorageKeys.notificationMasterEnabled,
+          previous.appMasterEnabled,
+        );
       } catch (_) {}
       return NotificationToggleResult.error;
     }
@@ -177,7 +187,9 @@ class NotificationNotifier extends StateNotifier<NotificationState> {
       try {
         final prefs = await SharedPreferences.getInstance();
         await prefs.setBool(
-            StorageKeys.notificationRoutineEnabled, previous.appRoutineEnabled);
+          StorageKeys.notificationRoutineEnabled,
+          previous.appRoutineEnabled,
+        );
       } catch (_) {}
       return NotificationToggleResult.error;
     }
@@ -207,8 +219,10 @@ class NotificationNotifier extends StateNotifier<NotificationState> {
       state = previous;
       try {
         final prefs = await SharedPreferences.getInstance();
-        await prefs.setBool(StorageKeys.notificationRecitationEnabled,
-            previous.appRecitationEnabled);
+        await prefs.setBool(
+          StorageKeys.notificationRecitationEnabled,
+          previous.appRecitationEnabled,
+        );
       } catch (_) {}
       return NotificationToggleResult.error;
     }
@@ -233,8 +247,8 @@ class NotificationNotifier extends StateNotifier<NotificationState> {
 
 final notificationProvider =
     StateNotifierProvider<NotificationNotifier, NotificationState>((ref) {
-  return NotificationNotifier(NotificationService(), ref);
-});
+      return NotificationNotifier(NotificationService(), ref);
+    });
 
 final notificationServiceProvider = Provider<NotificationService>((ref) {
   return NotificationService();

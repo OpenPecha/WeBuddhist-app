@@ -85,10 +85,7 @@ class TasksRemoteDatasource {
   // Update task
   Future<PlanTasksModel> updateTask(String id, PlanTasksModel task) async {
     try {
-      final response = await dio.put(
-        '/tasks/$id',
-        data: task.toJson(),
-      );
+      final response = await dio.put('/tasks/$id', data: task.toJson());
       if (response.statusCode == 200) {
         return PlanTasksModel.fromJson(response.data);
       } else {
@@ -101,7 +98,9 @@ class TasksRemoteDatasource {
         } else if (response.statusCode == 429) {
           throw const RateLimitException('Too many requests');
         } else {
-          throw ServerException('Failed to update task: ${response.statusCode}');
+          throw ServerException(
+            'Failed to update task: ${response.statusCode}',
+          );
         }
       }
     } on DioException catch (e) {

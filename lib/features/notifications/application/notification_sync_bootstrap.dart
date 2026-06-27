@@ -41,71 +41,67 @@ final notificationSyncBootstrapProvider = Provider<void>((ref) {
   var plansListenerAttached = false;
   bool? lastSeenLoggedIn;
 
-  ref.listen<AuthState>(
-    authProvider,
-    (_, next) {
-      if (next.isLoading) return;
-      // Guests count as isLoggedIn but cannot have routines (the Practice
-      // tab blocks them), so for notification purposes a guest session is a
-      // signed-out session. This also stops a "logout → continue as guest"
-      // session from re-scheduling the previous account's leftover blocks.
-      final loggedIn = next.isLoggedIn && !next.isGuest;
-      if (loggedIn == lastSeenLoggedIn) return;
-      lastSeenLoggedIn = loggedIn;
+  ref.listen<AuthState>(authProvider, (_, next) {
+    if (next.isLoading) return;
+    // Guests count as isLoggedIn but cannot have routines (the Practice
+    // tab blocks them), so for notification purposes a guest session is a
+    // signed-out session. This also stops a "logout → continue as guest"
+    // session from re-scheduling the previous account's leftover blocks.
+    final loggedIn = next.isLoggedIn && !next.isGuest;
+    if (loggedIn == lastSeenLoggedIn) return;
+    lastSeenLoggedIn = loggedIn;
 
-      if (loggedIn) {
-        if (!plansListenerAttached) {
-          plansListenerAttached = true;
-          _logger.info(
-            '[NOTIFICATION_NEW_FLOW] auth ready (logged in) — attaching user-plans listener',
-          );
-          _attachUserPlansListener(ref);
-        }
-        unawaited(() async {
-          await ref.read(routineProvider.notifier).whenLoaded;
-          // 1. Mirror the server routine into local Hive. The engine reads
-          //    the LOCAL routine, so without this a fresh install / new
-          //    device shows the routine in the UI but schedules nothing.
-          await _hydrateRoutineFromServer(ref);
-          // 2. Force a fresh plans fetch for THIS login. Without this the
-          //    provider can hold the previous session's plans (it only
-          //    watches locale), which would rebuild the old schedule — or a
-          //    different user's. The refetch resolves → metadata mirror runs
-          //    against the hydrated routine → engine syncs: future slots get
-          //    scheduled, today's already-passed slot fires one immediate,
-          //    missed days are never backfilled.
-          ref.invalidate(userPlansFutureProvider);
-          // 3. Sync right away as well: if the refetch fails (offline cold
-          //    start) the plans listener never fires, but the engine can
-          //    still rebuild recitations + cached-metadata plans in
-          //    additive-only mode.
-          await ref
-              .read(notificationSyncEngineProvider)
-              .sync(trigger: SyncTrigger.loggedIn);
-        }());
-      } else {
-        // Logged out — manual, token-refresh failure, or account deletion.
-        // The desired set is empty while logged out, so one sync cancels
-        // every owned pending notification.
-        //
-        // Deliberately NO userPlansFutureProvider invalidation here: a
-        // rebuild while logged out fires an unauthenticated
-        // GET /users/me/plans → 403 on every logged-out cold start. Stale
-        // data can't leak — the engine never reads the provider while
-        // logged out, and the login branch above invalidates before the
-        // next session schedules anything.
+    if (loggedIn) {
+      if (!plansListenerAttached) {
+        plansListenerAttached = true;
         _logger.info(
-          '[NOTIFICATION_NEW_FLOW] auth signed out — cancelling all notifications',
+          '[NOTIFICATION_NEW_FLOW] auth ready (logged in) — attaching user-plans listener',
         );
-        unawaited(
-          ref
-              .read(notificationSyncEngineProvider)
-              .sync(trigger: SyncTrigger.loggedOut),
-        );
+        _attachUserPlansListener(ref);
       }
-    },
-    fireImmediately: true,
-  );
+      unawaited(() async {
+        await ref.read(routineProvider.notifier).whenLoaded;
+        // 1. Mirror the server routine into local Hive. The engine reads
+        //    the LOCAL routine, so without this a fresh install / new
+        //    device shows the routine in the UI but schedules nothing.
+        await _hydrateRoutineFromServer(ref);
+        // 2. Force a fresh plans fetch for THIS login. Without this the
+        //    provider can hold the previous session's plans (it only
+        //    watches locale), which would rebuild the old schedule — or a
+        //    different user's. The refetch resolves → metadata mirror runs
+        //    against the hydrated routine → engine syncs: future slots get
+        //    scheduled, today's already-passed slot fires one immediate,
+        //    missed days are never backfilled.
+        ref.invalidate(userPlansFutureProvider);
+        // 3. Sync right away as well: if the refetch fails (offline cold
+        //    start) the plans listener never fires, but the engine can
+        //    still rebuild recitations + cached-metadata plans in
+        //    additive-only mode.
+        await ref
+            .read(notificationSyncEngineProvider)
+            .sync(trigger: SyncTrigger.loggedIn);
+      }());
+    } else {
+      // Logged out — manual, token-refresh failure, or account deletion.
+      // The desired set is empty while logged out, so one sync cancels
+      // every owned pending notification.
+      //
+      // Deliberately NO userPlansFutureProvider invalidation here: a
+      // rebuild while logged out fires an unauthenticated
+      // GET /users/me/plans → 403 on every logged-out cold start. Stale
+      // data can't leak — the engine never reads the provider while
+      // logged out, and the login branch above invalidates before the
+      // next session schedules anything.
+      _logger.info(
+        '[NOTIFICATION_NEW_FLOW] auth signed out — cancelling all notifications',
+      );
+      unawaited(
+        ref
+            .read(notificationSyncEngineProvider)
+            .sync(trigger: SyncTrigger.loggedOut),
+      );
+    }
+  }, fireImmediately: true);
 });
 
 /// Mirrors the server-truth routine into local Hive on login.
@@ -153,9 +149,9 @@ void _attachUserPlansListener(Ref ref) {
           await ref.read(routineProvider.notifier).whenLoaded;
           final routineBlocks = ref.read(routineProvider).blocks;
           await _syncMetadata(ref, response.userPlans, routineBlocks);
-          await ref.read(notificationSyncEngineProvider).sync(
-                trigger: SyncTrigger.userPlansRefreshed,
-              );
+          await ref
+              .read(notificationSyncEngineProvider)
+              .sync(trigger: SyncTrigger.userPlansRefreshed);
         },
       );
     });
@@ -174,7 +170,11 @@ Future<void> _syncMetadata(
   List<RoutineBlock> routineBlocks,
 ) async {
   final plansById = {for (final p in plans) p.id: p};
-  final linkedPlanIds = await _collectLinkedPlanIds(ref, plansById, routineBlocks);
+  final linkedPlanIds = await _collectLinkedPlanIds(
+    ref,
+    plansById,
+    routineBlocks,
+  );
 
   // Drop cached metadata for plans the user is no longer enrolled in
   // (unenrolled on this or another device). The response is the full,
@@ -229,7 +229,9 @@ Future<Set<String>> _collectLinkedPlanIds(
   final linked = <String>{};
   final seriesIds = <String>{};
   for (final block in routineBlocks) {
-    for (final item in block.items.where((i) => i.type == RoutineItemType.series)) {
+    for (final item in block.items.where(
+      (i) => i.type == RoutineItemType.series,
+    )) {
       if (isSeriesRoutineItem(item.id, plansById)) {
         seriesIds.add(item.id);
       } else {

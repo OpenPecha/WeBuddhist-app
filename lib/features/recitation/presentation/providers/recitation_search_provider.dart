@@ -80,10 +80,7 @@ class RecitationSearchNotifier extends StateNotifier<RecitationSearchState> {
     result.fold(
       (failure) {
         if (mounted) {
-          state = state.copyWith(
-            isLoading: false,
-            error: failure.message,
-          );
+          state = state.copyWith(isLoading: false, error: failure.message);
         }
       },
       (results) {

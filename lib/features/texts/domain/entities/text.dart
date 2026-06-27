@@ -30,7 +30,15 @@ class TextEntity extends BaseEntity {
   }
 
   @override
-  List<Object?> get props => [id, title, titleTibetan, author, type, sections, versions];
+  List<Object?> get props => [
+    id,
+    title,
+    titleTibetan,
+    author,
+    type,
+    sections,
+    versions,
+  ];
 }
 
 enum TextType { sutra, commentary, shastra, liturgy, other }

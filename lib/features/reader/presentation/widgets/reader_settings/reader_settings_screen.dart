@@ -32,8 +32,9 @@ class ReaderSettingsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final settings = ref.watch(readerDualSettingsProvider(textId));
     final notifier = ref.read(readerDualSettingsProvider(textId).notifier);
-    final isResolvingVersion =
-        ref.watch(readerSecondaryResolvingProvider(textId));
+    final isResolvingVersion = ref.watch(
+      readerSecondaryResolvingProvider(textId),
+    );
     final theme = Theme.of(context);
 
     final primaryDisplay = _primaryDisplay(ref, settings);
@@ -150,7 +151,9 @@ class ReaderSettingsScreen extends ConsumerWidget {
     final picked = _secondarySlot(ref);
     if (picked.isUnset || picked.versionId != null) return;
 
-    final resolving = ref.read(readerSecondaryResolvingProvider(textId).notifier);
+    final resolving = ref.read(
+      readerSecondaryResolvingProvider(textId).notifier,
+    );
     resolving.state = true;
     try {
       await _autoSelectSecondaryVersion(ref, picked, mainConfig);

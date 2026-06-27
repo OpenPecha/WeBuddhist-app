@@ -135,7 +135,9 @@ class TextSearchDelegate extends SearchDelegate<String?> {
                     searchResponse.sources!.isEmpty) {
                   return Center(
                     child: Text(
-                      AppLocalizations.of(context)!.search_no_results(_submittedQuery),
+                      AppLocalizations.of(
+                        context,
+                      )!.search_no_results(_submittedQuery),
                       style: const TextStyle(fontSize: 16),
                     ),
                   );
@@ -150,7 +152,9 @@ class TextSearchDelegate extends SearchDelegate<String?> {
                 if (allSegmentMatches.isEmpty) {
                   return Center(
                     child: Text(
-                      AppLocalizations.of(context)!.search_no_results(_submittedQuery),
+                      AppLocalizations.of(
+                        context,
+                      )!.search_no_results(_submittedQuery),
                       style: const TextStyle(fontSize: 16),
                     ),
                   );
@@ -171,7 +175,9 @@ class TextSearchDelegate extends SearchDelegate<String?> {
                       final segmentMatch = allSegmentMatches[index];
                       return ListTile(
                         title: Text(
-                          segmentMatch.content.replaceAll('⤵', '\n').replaceAll(RegExp(r'<[^>]*>'), ''),
+                          segmentMatch.content
+                              .replaceAll('⤵', '\n')
+                              .replaceAll(RegExp(r'<[^>]*>'), ''),
                         ),
                         contentPadding: const EdgeInsets.symmetric(
                           horizontal: 20,

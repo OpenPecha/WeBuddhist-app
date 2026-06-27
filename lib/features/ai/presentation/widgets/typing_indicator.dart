@@ -4,10 +4,7 @@ import 'package:flutter_pecha/core/theme/app_colors.dart';
 class TypingIndicator extends StatefulWidget {
   final String currentContent;
 
-  const TypingIndicator({
-    super.key,
-    this.currentContent = '',
-  });
+  const TypingIndicator({super.key, this.currentContent = ''});
 
   @override
   State<TypingIndicator> createState() => _TypingIndicatorState();
@@ -44,18 +41,20 @@ class _TypingIndicatorState extends State<TypingIndicator>
         children: [
           // Content: Either streaming text or animated dots
           Flexible(
-            child: widget.currentContent.isEmpty
-                ? _buildAnimatedDots(isDarkMode)
-                : Text(
-                    widget.currentContent,
-                    style: TextStyle(
-                      fontSize: 14,
-                      height: 1.4,
-                      color: isDarkMode
-                          ? AppColors.textPrimaryDark
-                          : AppColors.textPrimary,
+            child:
+                widget.currentContent.isEmpty
+                    ? _buildAnimatedDots(isDarkMode)
+                    : Text(
+                      widget.currentContent,
+                      style: TextStyle(
+                        fontSize: 14,
+                        height: 1.4,
+                        color:
+                            isDarkMode
+                                ? AppColors.textPrimaryDark
+                                : AppColors.textPrimary,
+                      ),
                     ),
-                  ),
           ),
         ],
       ),
@@ -93,4 +92,3 @@ class _TypingIndicatorState extends State<TypingIndicator>
     );
   }
 }
-

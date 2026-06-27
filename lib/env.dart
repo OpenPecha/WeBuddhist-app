@@ -9,7 +9,8 @@ class Env {
   Env._();
 
   /// API base URL for the backend
-  static String get apiBaseUrl => dotenv.env['BASE_API_URL'] ??
+  static String get apiBaseUrl =>
+      dotenv.env['BASE_API_URL'] ??
       (throw Exception('BASE_API_URL not found in environment'));
 
   /// AI service URL
@@ -26,12 +27,10 @@ class Env {
   static String? get auth0Audience => dotenv.env['AUTH0_AUDIENCE'];
 
   /// Whether the app is running in debug mode
-  static bool get isDebug =>
-      dotenv.env['ENVIRONMENT'] != 'production';
+  static bool get isDebug => dotenv.env['ENVIRONMENT'] != 'production';
 
   /// Current environment (dev, staging, prod)
-  static String get environment =>
-      dotenv.env['ENVIRONMENT'] ?? 'development';
+  static String get environment => dotenv.env['ENVIRONMENT'] ?? 'development';
 
   /// API timeout duration
   static Duration get apiTimeout => const Duration(seconds: 30);
@@ -76,5 +75,4 @@ class Env {
     }
     return 'dev';
   }
-
 }

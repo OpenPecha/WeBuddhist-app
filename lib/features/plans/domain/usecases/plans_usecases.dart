@@ -110,13 +110,16 @@ class EnrollInPlanParams extends Equatable {
 }
 
 /// Update plan progress use case.
-class UpdateProgressUseCase extends UseCase<PlanProgress, UpdateProgressParams> {
+class UpdateProgressUseCase
+    extends UseCase<PlanProgress, UpdateProgressParams> {
   final PlansRepository _repository;
 
   UpdateProgressUseCase(this._repository);
 
   @override
-  Future<Either<Failure, PlanProgress>> call(UpdateProgressParams params) async {
+  Future<Either<Failure, PlanProgress>> call(
+    UpdateProgressParams params,
+  ) async {
     if (params.planId.isEmpty) {
       return const Left(ValidationFailure('Plan ID cannot be empty'));
     }

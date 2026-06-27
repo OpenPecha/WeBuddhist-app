@@ -21,10 +21,7 @@ class SeriesDayCompletedPage extends Equatable {
   final List<SeriesDayCompleted> series;
   final int total;
 
-  const SeriesDayCompletedPage({
-    required this.series,
-    required this.total,
-  });
+  const SeriesDayCompletedPage({required this.series, required this.total});
 
   static const empty = SeriesDayCompletedPage(series: [], total: 0);
 

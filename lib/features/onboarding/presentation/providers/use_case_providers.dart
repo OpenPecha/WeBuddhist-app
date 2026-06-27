@@ -15,28 +15,28 @@ final getOnboardingStatusUseCaseProvider = Provider<GetOnboardingStatusUseCase>(
 /// Provider for LoadSavedPreferencesUseCase.
 final loadSavedPreferencesUseCaseProvider =
     Provider<LoadSavedPreferencesUseCase>((ref) {
-  final repository = ref.watch(onboardingRepositoryProvider);
-  return LoadSavedPreferencesUseCase(repository);
-});
+      final repository = ref.watch(onboardingRepositoryProvider);
+      return LoadSavedPreferencesUseCase(repository);
+    });
 
 /// Provider for SaveOnboardingPreferencesUseCase.
 final saveOnboardingPreferencesUseCaseProvider =
     Provider<SaveOnboardingPreferencesUseCase>((ref) {
-  final repository = ref.watch(onboardingRepositoryProvider);
-  return SaveOnboardingPreferencesUseCase(repository);
-});
+      final repository = ref.watch(onboardingRepositoryProvider);
+      return SaveOnboardingPreferencesUseCase(repository);
+    });
 
 /// Provider for CompleteOnboardingUseCase.
-final completeOnboardingUseCaseProvider = Provider<CompleteOnboardingUseCase>(
-  (ref) {
-    final repository = ref.watch(onboardingRepositoryProvider);
-    return CompleteOnboardingUseCase(repository);
-  },
-);
+final completeOnboardingUseCaseProvider = Provider<CompleteOnboardingUseCase>((
+  ref,
+) {
+  final repository = ref.watch(onboardingRepositoryProvider);
+  return CompleteOnboardingUseCase(repository);
+});
 
 /// Provider for ClearOnboardingPreferencesUseCase.
 final clearOnboardingPreferencesUseCaseProvider =
     Provider<ClearOnboardingPreferencesUseCase>((ref) {
-  final repository = ref.watch(onboardingRepositoryProvider);
-  return ClearOnboardingPreferencesUseCase(repository);
-});
+      final repository = ref.watch(onboardingRepositoryProvider);
+      return ClearOnboardingPreferencesUseCase(repository);
+    });

@@ -71,5 +71,4 @@ class DefaultFirebaseOptions {
     storageBucket: 'webuddhist-app.firebasestorage.app',
     iosBundleId: 'org.pecha.app',
   );
-
 }

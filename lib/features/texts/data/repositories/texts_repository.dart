@@ -64,7 +64,11 @@ class TextsRepository {
       }
 
       if (!isOnline) {
-        return const Left(NetworkFailure('No internet connection and no cached works available'));
+        return const Left(
+          NetworkFailure(
+            'No internet connection and no cached works available',
+          ),
+        );
       }
 
       _logger.debug(
@@ -72,7 +76,13 @@ class TextsRepository {
             ? 'Force refreshing works from network'
             : 'Works cache miss for: $termId',
       );
-      final result = await _fetchAndCacheWorks(termId, language, skip, limit, cacheKey);
+      final result = await _fetchAndCacheWorks(
+        termId,
+        language,
+        skip,
+        limit,
+        cacheKey,
+      );
       return Right(result);
     } catch (e) {
       // Try fallback cache on network error
@@ -160,7 +170,9 @@ class TextsRepository {
       );
       return Right(result);
     } catch (e) {
-      return Left(ExceptionMapper.map(e, context: 'Failed to fetch text content'));
+      return Left(
+        ExceptionMapper.map(e, context: 'Failed to fetch text content'),
+      );
     }
   }
 
@@ -201,7 +213,11 @@ class TextsRepository {
       }
 
       if (!isOnline) {
-        return const Left(NetworkFailure('No internet connection and no cached text versions available'));
+        return const Left(
+          NetworkFailure(
+            'No internet connection and no cached text versions available',
+          ),
+        );
       }
 
       _logger.debug(
@@ -228,7 +244,9 @@ class TextsRepository {
       }
 
       _logger.error('Error fetching text versions', e);
-      return Left(ExceptionMapper.map(e, context: 'Failed to load text versions'));
+      return Left(
+        ExceptionMapper.map(e, context: 'Failed to load text versions'),
+      );
     }
   }
 
@@ -317,7 +335,11 @@ class TextsRepository {
       }
 
       if (!isOnline) {
-        return const Left(NetworkFailure('No internet connection and no cached commentary available'));
+        return const Left(
+          NetworkFailure(
+            'No internet connection and no cached commentary available',
+          ),
+        );
       }
 
       _logger.debug(
@@ -497,7 +519,9 @@ class TextsRepository {
       }
 
       _logger.error('Error fetching text details', e);
-      return Left(ExceptionMapper.map(e, context: 'Failed to load text content'));
+      return Left(
+        ExceptionMapper.map(e, context: 'Failed to load text content'),
+      );
     }
   }
 
@@ -580,7 +604,8 @@ class TextsRepository {
     }
   }
 
-  Future<Either<Failure, MultilingualSearchResponse>> multilingualSearchRepository({
+  Future<Either<Failure, MultilingualSearchResponse>>
+  multilingualSearchRepository({
     required String query,
     String? language,
     String? textId,
@@ -593,7 +618,12 @@ class TextsRepository {
       );
       return Right(result);
     } catch (e) {
-      return Left(ExceptionMapper.map(e, context: 'Failed to perform multilingual search'));
+      return Left(
+        ExceptionMapper.map(
+          e,
+          context: 'Failed to perform multilingual search',
+        ),
+      );
     }
   }
 
@@ -629,7 +659,9 @@ class TextsRepository {
       );
       return Right(result);
     } catch (e) {
-      return Left(ExceptionMapper.map(e, context: 'Failed to search by author'));
+      return Left(
+        ExceptionMapper.map(e, context: 'Failed to search by author'),
+      );
     }
   }
 }

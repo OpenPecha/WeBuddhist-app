@@ -62,7 +62,8 @@ const Map<String, List<DayNotification>> kSpecialPlanNotifications = {
     ),
     DayNotification(
       title: "Today's Pali word: kilesa",
-      body: '"Kilesa" means defilements, or mental forces that corrupt and stain the mind. The Abhidhamma identifies ten root defilements. Learn more in the app.',
+      body:
+          '"Kilesa" means defilements, or mental forces that corrupt and stain the mind. The Abhidhamma identifies ten root defilements. Learn more in the app.',
       buttonText: 'START NOW',
     ),
     DayNotification(

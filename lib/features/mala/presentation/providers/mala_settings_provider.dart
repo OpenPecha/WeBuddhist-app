@@ -11,10 +11,7 @@ class MalaSettingsState {
   final bool soundEnabled;
   final bool vibrationEnabled;
 
-  MalaSettingsState copyWith({
-    bool? soundEnabled,
-    bool? vibrationEnabled,
-  }) =>
+  MalaSettingsState copyWith({bool? soundEnabled, bool? vibrationEnabled}) =>
       MalaSettingsState(
         soundEnabled: soundEnabled ?? this.soundEnabled,
         vibrationEnabled: vibrationEnabled ?? this.vibrationEnabled,
@@ -29,10 +26,8 @@ class MalaSettingsNotifier extends StateNotifier<MalaSettingsState> {
   Future<void> _load() async {
     final prefs = await SharedPreferences.getInstance();
     state = MalaSettingsState(
-      soundEnabled:
-          prefs.getBool(StorageKeys.malaSoundEnabled) ?? true,
-      vibrationEnabled:
-          prefs.getBool(StorageKeys.malaVibrationEnabled) ?? true,
+      soundEnabled: prefs.getBool(StorageKeys.malaSoundEnabled) ?? true,
+      vibrationEnabled: prefs.getBool(StorageKeys.malaVibrationEnabled) ?? true,
     );
   }
 
@@ -51,5 +46,5 @@ class MalaSettingsNotifier extends StateNotifier<MalaSettingsState> {
 
 final malaSettingsProvider =
     StateNotifierProvider<MalaSettingsNotifier, MalaSettingsState>((ref) {
-  return MalaSettingsNotifier();
-});
+      return MalaSettingsNotifier();
+    });

@@ -21,14 +21,16 @@ class PlanTask extends Equatable {
   });
 
   @override
-  List<Object?> get props => [id, title, description, type, durationMinutes, contentId, order];
+  List<Object?> get props => [
+    id,
+    title,
+    description,
+    type,
+    durationMinutes,
+    contentId,
+    order,
+  ];
 }
 
 /// Type of task.
-enum TaskType {
-  reading,
-  recitation,
-  meditation,
-  reflection,
-  chanting,
-}
+enum TaskType { reading, recitation, meditation, reflection, chanting }

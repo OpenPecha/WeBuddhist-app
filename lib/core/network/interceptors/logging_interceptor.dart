@@ -11,10 +11,7 @@ class LoggingInterceptor extends Interceptor {
   final AppLogger _logger;
 
   @override
-  void onRequest(
-    RequestOptions options,
-    RequestInterceptorHandler handler,
-  ) {
+  void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
     final requestId = options.extra['requestId'] ?? 'unknown';
     _logger.info('[$requestId] API Request: ${options.method} ${options.path}');
     _logger.debug('[$requestId] Headers: ${_filterHeaders(options.headers)}');
@@ -27,15 +24,14 @@ class LoggingInterceptor extends Interceptor {
   }
 
   @override
-  void onResponse(
-    Response response,
-    ResponseInterceptorHandler handler,
-  ) {
+  void onResponse(Response response, ResponseInterceptorHandler handler) {
     final requestId = response.requestOptions.extra['requestId'] ?? 'unknown';
-    final startTime = response.requestOptions.extra['requestStartTime'] as DateTime?;
-    final durationStr = startTime != null
-        ? ' (${DateTime.now().difference(startTime).inMilliseconds}ms)'
-        : '';
+    final startTime =
+        response.requestOptions.extra['requestStartTime'] as DateTime?;
+    final durationStr =
+        startTime != null
+            ? ' (${DateTime.now().difference(startTime).inMilliseconds}ms)'
+            : '';
     _logger.info(
       '[$requestId] API Response: ${response.statusCode} '
       '${response.requestOptions.path}$durationStr',
@@ -44,10 +40,7 @@ class LoggingInterceptor extends Interceptor {
   }
 
   @override
-  void onError(
-    DioException err,
-    ErrorInterceptorHandler handler,
-  ) {
+  void onError(DioException err, ErrorInterceptorHandler handler) {
     final requestId = err.requestOptions.extra['requestId'] ?? 'unknown';
     _logger.error(
       '[$requestId] API Error: ${err.requestOptions.method} ${err.requestOptions.path} '

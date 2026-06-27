@@ -51,7 +51,8 @@ class _VerseOfDayCardState extends ConsumerState<VerseOfDayCard> {
           child: VerseOfDayContent(
             verseOfDay: widget.verseOfDay,
             typography: typography,
-            useContentFontForAttribution: typography.useContentFontForAttribution,
+            useContentFontForAttribution:
+                typography.useContentFontForAttribution,
             verseColor: colorScheme.onSurface,
             attributionColor: colorScheme.onSurfaceVariant,
             footerAction: GestureDetector(

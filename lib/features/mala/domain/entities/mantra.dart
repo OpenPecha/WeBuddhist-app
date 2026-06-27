@@ -47,8 +47,14 @@ class MantraText extends Equatable {
   });
 
   @override
-  List<Object?> get props =>
-      [id, text, title, pronunciation, audioUrl, beadImageUrl];
+  List<Object?> get props => [
+    id,
+    text,
+    title,
+    pronunciation,
+    audioUrl,
+    beadImageUrl,
+  ];
 }
 
 /// A mantra the user can accumulate — a **preset accumulator**
@@ -88,7 +94,8 @@ class Mantra extends Equatable {
 
   /// Localized display name (falls back to English, then anything, then id).
   String localizedName(String language) =>
-      (_byLanguage(language) ?? _byLanguage('en') ??
+      (_byLanguage(language) ??
+              _byLanguage('en') ??
               (metadata.isNotEmpty ? metadata.first : null))
           ?.name ??
       mantra?.title ??
@@ -122,6 +129,11 @@ class Mantra extends Equatable {
   }
 
   @override
-  List<Object?> get props =>
-      [presetId, targetCount, beadImageUrl, metadata, mantra];
+  List<Object?> get props => [
+    presetId,
+    targetCount,
+    beadImageUrl,
+    metadata,
+    mantra,
+  ];
 }

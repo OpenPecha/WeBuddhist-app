@@ -13,10 +13,11 @@ class SeriesDayCompletedPageModel {
   factory SeriesDayCompletedPageModel.fromJson(Map<String, dynamic> json) {
     final seriesJson = json['series'] as List<dynamic>? ?? const [];
     return SeriesDayCompletedPageModel(
-      series: seriesJson
-          .whereType<Map<String, dynamic>>()
-          .map(SeriesDayCompletedModel.fromJson)
-          .toList(),
+      series:
+          seriesJson
+              .whereType<Map<String, dynamic>>()
+              .map(SeriesDayCompletedModel.fromJson)
+              .toList(),
       total: (json['total'] as num?)?.toInt() ?? 0,
     );
   }

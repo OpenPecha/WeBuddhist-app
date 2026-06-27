@@ -26,8 +26,7 @@ class CreateRoutineWithTimeBlockUseCase {
 
   Future<Either<Failure, ({String routineId, String timeBlockId})>> call(
     TimeBlockRequest request,
-  ) =>
-      _repository.createRoutineWithTimeBlock(request);
+  ) => _repository.createRoutineWithTimeBlock(request);
 }
 
 /// Adds a new time block to an existing routine.
@@ -39,8 +38,7 @@ class CreateTimeBlockUseCase {
   Future<Either<Failure, String>> call(
     String routineId,
     TimeBlockRequest request,
-  ) =>
-      _repository.createTimeBlock(routineId, request);
+  ) => _repository.createTimeBlock(routineId, request);
 }
 
 /// Fully replaces a time block (time + all sessions).
@@ -52,8 +50,7 @@ class UpdateTimeBlockUseCase {
     String routineId,
     String timeBlockId,
     TimeBlockRequest request,
-  ) =>
-      _repository.updateTimeBlock(routineId, timeBlockId, request);
+  ) => _repository.updateTimeBlock(routineId, timeBlockId, request);
 }
 
 /// Soft-deletes a time block from the routine.
@@ -61,9 +58,6 @@ class DeleteTimeBlockUseCase {
   final RoutineApiRepository _repository;
   const DeleteTimeBlockUseCase(this._repository);
 
-  Future<Either<Failure, void>> call(
-    String routineId,
-    String timeBlockId,
-  ) =>
+  Future<Either<Failure, void>> call(String routineId, String timeBlockId) =>
       _repository.deleteTimeBlock(routineId, timeBlockId);
 }

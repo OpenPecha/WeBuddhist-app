@@ -25,7 +25,10 @@ class SeriesPlanUtils {
     return sortPlansByDisplayOrder(series.plans).first;
   }
 
-  static bool isFirstPlanInAnySeries(String planId, Iterable<Series> seriesList) {
+  static bool isFirstPlanInAnySeries(
+    String planId,
+    Iterable<Series> seriesList,
+  ) {
     for (final series in seriesList) {
       if (firstPlanInSeries(series)?.id == planId) return true;
     }
@@ -37,12 +40,10 @@ class SeriesPlanUtils {
     Series? series,
     Iterable<Series>? seriesList,
   }) {
-    if (series != null &&
-        isFirstPlanInAnySeries(planId, [series])) {
+    if (series != null && isFirstPlanInAnySeries(planId, [series])) {
       return firstPlanPreviewDayCount;
     }
-    if (seriesList != null &&
-        isFirstPlanInAnySeries(planId, seriesList)) {
+    if (seriesList != null && isFirstPlanInAnySeries(planId, seriesList)) {
       return firstPlanPreviewDayCount;
     }
     return 0;

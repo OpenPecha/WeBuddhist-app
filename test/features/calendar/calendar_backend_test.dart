@@ -57,12 +57,13 @@ void main() {
     });
 
     test('CalendarDayModel handles missing optional fields', () {
-      final entity = CalendarDayModel.fromJson({
-        'gregorian_date': '2026-06-15',
-        'lunar_day': 30,
-        'lunar_month': {'month': 4},
-        'new_year': {'year': '2026'},
-      }).toEntity();
+      final entity =
+          CalendarDayModel.fromJson({
+            'gregorian_date': '2026-06-15',
+            'lunar_day': 30,
+            'lunar_month': {'month': 4},
+            'new_year': {'year': '2026'},
+          }).toEntity();
       expect(entity.lunarDay, 30);
       expect(entity.lunarMonth, 4);
       expect(entity.yearDesignation, '');
@@ -76,9 +77,7 @@ void main() {
     test('backend value overlays the engine for covered dates', () async {
       final container = ProviderContainer(
         overrides: [
-          calendarRepositoryProvider.overrideWithValue(
-            _RealisticFakeRepo(),
-          ),
+          calendarRepositoryProvider.overrideWithValue(_RealisticFakeRepo()),
         ],
       );
       addTearDown(container.dispose);

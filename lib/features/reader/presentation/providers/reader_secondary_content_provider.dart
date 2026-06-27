@@ -14,11 +14,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// Aligns with the primary by segment_number. Pagination uses the secondary
 /// version's own segment_id boundaries so the API returns the correct page.
 class SecondaryReaderNotifier extends StateNotifier<SecondaryReaderState> {
-  SecondaryReaderNotifier({
-    required Ref ref,
-    required this.key,
-  })  : _ref = ref,
-        super(SecondaryReaderState.initial()) {
+  SecondaryReaderNotifier({required Ref ref, required this.key})
+    : _ref = ref,
+      super(SecondaryReaderState.initial()) {
     _loadInitial();
   }
 
@@ -56,7 +54,11 @@ class SecondaryReaderNotifier extends StateNotifier<SecondaryReaderState> {
         'startSegmentId=${key.initialSegmentId}',
       );
     } catch (e, st) {
-      _logger.error('Secondary initial load failed for ${key.versionId}', e, st);
+      _logger.error(
+        'Secondary initial load failed for ${key.versionId}',
+        e,
+        st,
+      );
       if (_disposed) return;
       state = state.copyWith(isLoading: false, errorMessage: e.toString());
     }
@@ -74,11 +76,9 @@ class SecondaryReaderNotifier extends StateNotifier<SecondaryReaderState> {
       if (_disposed) return;
 
       final newSegments = _extractSegments(response.content.sections);
-      final existingIds =
-          state.loadedSegments.map((s) => s.segmentId).toSet();
-      final dedupedNew = newSegments
-          .where((s) => !existingIds.contains(s.segmentId))
-          .toList();
+      final existingIds = state.loadedSegments.map((s) => s.segmentId).toSet();
+      final dedupedNew =
+          newSegments.where((s) => !existingIds.contains(s.segmentId)).toList();
 
       if (dedupedNew.isEmpty) {
         state = state.copyWith(
@@ -121,11 +121,9 @@ class SecondaryReaderNotifier extends StateNotifier<SecondaryReaderState> {
       if (_disposed) return;
 
       final newSegments = _extractSegments(response.content.sections);
-      final existingIds =
-          state.loadedSegments.map((s) => s.segmentId).toSet();
-      final dedupedNew = newSegments
-          .where((s) => !existingIds.contains(s.segmentId))
-          .toList();
+      final existingIds = state.loadedSegments.map((s) => s.segmentId).toSet();
+      final dedupedNew =
+          newSegments.where((s) => !existingIds.contains(s.segmentId)).toList();
 
       if (dedupedNew.isEmpty) {
         state = state.copyWith(
@@ -148,7 +146,11 @@ class SecondaryReaderNotifier extends StateNotifier<SecondaryReaderState> {
         hasPreviousPage: response.currentSegmentPosition > 1,
       );
     } catch (e, st) {
-      _logger.error('Secondary loadPrevious failed for ${key.versionId}', e, st);
+      _logger.error(
+        'Secondary loadPrevious failed for ${key.versionId}',
+        e,
+        st,
+      );
       if (_disposed) return;
       state = state.copyWith(isLoadingPrevious: false);
     }
@@ -171,9 +173,8 @@ class SecondaryReaderNotifier extends StateNotifier<SecondaryReaderState> {
     );
     final result = await _ref.read(textDetailsFutureProvider(params).future);
     return result.fold(
-      (failure) => throw Exception(
-        'Failed to fetch secondary text: ${failure.message}',
-      ),
+      (failure) =>
+          throw Exception('Failed to fetch secondary text: ${failure.message}'),
       (response) => response,
     );
   }
@@ -233,5 +234,5 @@ class SecondaryReaderNotifier extends StateNotifier<SecondaryReaderState> {
 /// torn down and a fresh one is created on demand.
 final secondaryReaderProvider = StateNotifierProvider.autoDispose
     .family<SecondaryReaderNotifier, SecondaryReaderState, SecondaryReaderKey>(
-  (ref, key) => SecondaryReaderNotifier(ref: ref, key: key),
-);
+      (ref, key) => SecondaryReaderNotifier(ref: ref, key: key),
+    );

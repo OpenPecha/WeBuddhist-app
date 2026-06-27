@@ -8,10 +8,11 @@ class MantraCountPageModel {
   factory MantraCountPageModel.fromJson(Map<String, dynamic> json) {
     final countsJson = json['counts'] as List<dynamic>? ?? const [];
     return MantraCountPageModel(
-      counts: countsJson
-          .whereType<Map<String, dynamic>>()
-          .map(MantraCountModel.fromJson)
-          .toList(),
+      counts:
+          countsJson
+              .whereType<Map<String, dynamic>>()
+              .map(MantraCountModel.fromJson)
+              .toList(),
     );
   }
 

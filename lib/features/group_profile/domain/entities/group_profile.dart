@@ -121,9 +121,7 @@ class GroupProfile {
     if (delta == 0) return this;
 
     if (groupType.isPage) {
-      return copyWith(
-        followerCount: (followerCount + delta).clamp(0, 1 << 31),
-      );
+      return copyWith(followerCount: (followerCount + delta).clamp(0, 1 << 31));
     }
 
     return copyWith(

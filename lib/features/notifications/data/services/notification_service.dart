@@ -64,7 +64,9 @@ class NotificationService {
 
   /// Initialize without requesting permissions (for early app initialization)
   Future<void> initializeWithoutPermissions() async {
-    _logger.info('[NOTIF-INIT] initializeWithoutPermissions called, already initialized=$_isInitialized');
+    _logger.info(
+      '[NOTIF-INIT] initializeWithoutPermissions called, already initialized=$_isInitialized',
+    );
     if (_isInitialized) return; // prevent re-initialization
 
     // Initialize timezone: use device local time so scheduled notifications
@@ -138,7 +140,9 @@ class NotificationService {
     }
 
     _isInitialized = true;
-    _logger.info('[NOTIF-INIT] initialization complete, isInitialized=$_isInitialized');
+    _logger.info(
+      '[NOTIF-INIT] initialization complete, isInitialized=$_isInitialized',
+    );
 
     // Log diagnostics that affect terminated-state reliability.
     if (Platform.isAndroid) {
@@ -147,10 +151,13 @@ class NotificationService {
 
     // Check if the app was launched by tapping a notification (terminated state).
     // Store the details so they can be consumed after the router is ready.
-    final launchDetails = await notificationsPlugin.getNotificationAppLaunchDetails();
+    final launchDetails =
+        await notificationsPlugin.getNotificationAppLaunchDetails();
     if (launchDetails?.didNotificationLaunchApp == true) {
       _launchNotificationResponse = launchDetails!.notificationResponse;
-      _logger.info('App launched from notification ID=${_launchNotificationResponse?.id}');
+      _logger.info(
+        'App launched from notification ID=${_launchNotificationResponse?.id}',
+      );
     }
   }
 
@@ -168,11 +175,14 @@ class NotificationService {
   /// when the app is in the background or terminated state.
   Future<void> _logAndroidDiagnostics() async {
     try {
-      final androidImpl = notificationsPlugin
-          .resolvePlatformSpecificImplementation<
-              AndroidFlutterLocalNotificationsPlugin>();
+      final androidImpl =
+          notificationsPlugin
+              .resolvePlatformSpecificImplementation<
+                AndroidFlutterLocalNotificationsPlugin
+              >();
 
-      final canExact = await androidImpl?.canScheduleExactNotifications() ?? false;
+      final canExact =
+          await androidImpl?.canScheduleExactNotifications() ?? false;
       final batteryExempt =
           await Permission.ignoreBatteryOptimizations.isGranted;
 
@@ -210,7 +220,9 @@ class NotificationService {
   Future<bool> requestBatteryOptimizationExemption() async {
     if (!Platform.isAndroid) return true;
     final status = await Permission.ignoreBatteryOptimizations.request();
-    _logger.info('[NOTIF] Battery optimization exemption request result: $status');
+    _logger.info(
+      '[NOTIF] Battery optimization exemption request result: $status',
+    );
     return status.isGranted;
   }
 
@@ -218,18 +230,22 @@ class NotificationService {
   /// Always true on iOS/macOS and Android < 12.
   Future<bool> canScheduleExactNotifications() async {
     if (!Platform.isAndroid) return true;
-    final androidImpl = notificationsPlugin
-        .resolvePlatformSpecificImplementation<
-            AndroidFlutterLocalNotificationsPlugin>();
+    final androidImpl =
+        notificationsPlugin
+            .resolvePlatformSpecificImplementation<
+              AndroidFlutterLocalNotificationsPlugin
+            >();
     return await androidImpl?.canScheduleExactNotifications() ?? false;
   }
 
   /// Opens the Alarms & Reminders settings page for this app (Android 12+).
   Future<void> openExactAlarmSettings() async {
     if (!Platform.isAndroid) return;
-    final androidImpl = notificationsPlugin
-        .resolvePlatformSpecificImplementation<
-            AndroidFlutterLocalNotificationsPlugin>();
+    final androidImpl =
+        notificationsPlugin
+            .resolvePlatformSpecificImplementation<
+              AndroidFlutterLocalNotificationsPlugin
+            >();
     await androidImpl?.requestExactAlarmsPermission();
   }
 
@@ -239,9 +255,11 @@ class NotificationService {
   /// app-level permission instead.
   Future<bool> isChannelEnabled(String channelId) async {
     if (!Platform.isAndroid) return areNotificationsEnabled();
-    final androidImpl = notificationsPlugin
-        .resolvePlatformSpecificImplementation<
-            AndroidFlutterLocalNotificationsPlugin>();
+    final androidImpl =
+        notificationsPlugin
+            .resolvePlatformSpecificImplementation<
+              AndroidFlutterLocalNotificationsPlugin
+            >();
     final channels = await androidImpl?.getNotificationChannels() ?? [];
     final channel = channels.where((c) => c.id == channelId).firstOrNull;
     if (channel == null) return false;
@@ -375,12 +393,13 @@ class NotificationService {
             'Storing pending notification nav: $itemTypeStr $itemId '
             'planId=$planId',
           );
-          _container!.read(pendingNotificationNavProvider.notifier).state =
-              NotificationNav(
-                itemId: itemId,
-                itemType: itemTypeStr,
-                planId: planId,
-              );
+          _container!
+              .read(pendingNotificationNavProvider.notifier)
+              .state = NotificationNav(
+            itemId: itemId,
+            itemType: itemTypeStr,
+            planId: planId,
+          );
         }
       } catch (e) {
         _logger.warning('Failed to parse notification payload: $e');
@@ -393,4 +412,3 @@ class NotificationService {
     _router!.go('/home');
   }
 }
-

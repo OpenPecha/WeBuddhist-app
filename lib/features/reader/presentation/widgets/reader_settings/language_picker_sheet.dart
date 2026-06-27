@@ -31,24 +31,24 @@ class LanguagePickerSheet extends ConsumerWidget {
       title: title ?? l10n.language,
       child: asyncLangs.when(
         loading: () => const PickerLoading(),
-        error: (err, _) => PickerError(
-          message: l10n.reader_languages_load_error,
-          onRetry: () => ref.invalidate(readerLanguagesProvider(textId)),
-        ),
+        error:
+            (err, _) => PickerError(
+              message: l10n.reader_languages_load_error,
+              onRetry: () => ref.invalidate(readerLanguagesProvider(textId)),
+            ),
         data: (langs) {
           if (langs.isEmpty) {
-            return PickerEmpty(
-              message: l10n.reader_no_languages,
-            );
+            return PickerEmpty(message: l10n.reader_no_languages);
           }
           return ListView.separated(
             shrinkWrap: true,
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             itemCount: langs.length,
-            separatorBuilder: (_, __) => Divider(
-              height: 1,
-              color: theme.dividerColor.withValues(alpha: 0.4),
-            ),
+            separatorBuilder:
+                (_, __) => Divider(
+                  height: 1,
+                  color: theme.dividerColor.withValues(alpha: 0.4),
+                ),
             itemBuilder: (context, index) {
               final option = langs[index];
               final isSelected = option.code == selectedCode;
@@ -96,11 +96,11 @@ class _LanguageTile extends StatelessWidget {
                 child: Text(
                   getLanguageName(option.code, context),
                   style: theme.textTheme.titleMedium?.copyWith(
-                    color: isSelected
-                        ? activeColor
-                        : theme.textTheme.titleMedium?.color,
-                    fontWeight:
-                        isSelected ? FontWeight.w700 : FontWeight.w500,
+                    color:
+                        isSelected
+                            ? activeColor
+                            : theme.textTheme.titleMedium?.color,
+                    fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
                   ),
                 ),
               ),
@@ -113,9 +113,10 @@ class _LanguageTile extends StatelessWidget {
               const SizedBox(width: 12),
               SizedBox(
                 width: 18,
-                child: isSelected
-                    ? Icon(Icons.check, size: 18, color: activeColor)
-                    : const SizedBox.shrink(),
+                child:
+                    isSelected
+                        ? Icon(Icons.check, size: 18, color: activeColor)
+                        : const SizedBox.shrink(),
               ),
             ],
           ),
@@ -139,11 +140,12 @@ Future<void> showLanguagePickerSheet(
       borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
     ),
     isScrollControlled: true,
-    builder: (_) => LanguagePickerSheet(
-      textId: textId,
-      selectedCode: selectedCode,
-      onSelected: onSelected,
-      title: title,
-    ),
+    builder:
+        (_) => LanguagePickerSheet(
+          textId: textId,
+          selectedCode: selectedCode,
+          onSelected: onSelected,
+          title: title,
+        ),
   );
 }

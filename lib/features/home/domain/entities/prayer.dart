@@ -26,7 +26,14 @@ class Prayer extends BaseEntity {
   }
 
   @override
-  List<Object?> get props => [id, title, titleTibetan, content, audioUrl, timeOfDay];
+  List<Object?> get props => [
+    id,
+    title,
+    titleTibetan,
+    content,
+    audioUrl,
+    timeOfDay,
+  ];
 }
 
 enum PrayerTime { morning, afternoon, evening, any }

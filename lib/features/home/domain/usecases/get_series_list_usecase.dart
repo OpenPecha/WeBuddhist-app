@@ -4,7 +4,10 @@ import 'package:flutter_pecha/features/home/domain/entities/series.dart';
 import 'package:flutter_pecha/shared/domain/base_classes/usecase.dart';
 
 class GetSeriesListUseCase extends UseCase<List<Series>, GetSeriesListParams> {
-  final Future<Either<Failure, List<Series>>> Function({required String language}) _getSeriesList;
+  final Future<Either<Failure, List<Series>>> Function({
+    required String language,
+  })
+  _getSeriesList;
 
   GetSeriesListUseCase(this._getSeriesList);
 

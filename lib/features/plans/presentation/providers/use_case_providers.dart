@@ -30,13 +30,15 @@ final plansRemoteDatasourceProvider = Provider<PlansRemoteDatasource>((ref) {
   return PlansRemoteDatasource(dio: ref.watch(dioProvider));
 });
 
-final userPlansRemoteDatasourceProvider =
-    Provider<UserPlansRemoteDatasource>((ref) {
+final userPlansRemoteDatasourceProvider = Provider<UserPlansRemoteDatasource>((
+  ref,
+) {
   return UserPlansRemoteDatasource(dio: ref.watch(dioProvider));
 });
 
-final planDaysRemoteDatasourceProvider =
-    Provider<PlanDaysRemoteDatasource>((ref) {
+final planDaysRemoteDatasourceProvider = Provider<PlanDaysRemoteDatasource>((
+  ref,
+) {
   return PlanDaysRemoteDatasource(dio: ref.watch(dioProvider));
 });
 
@@ -57,15 +59,16 @@ final plansDomainRepositoryProvider = Provider<PlansRepository>((ref) {
 /// Provider for UserPlansRepository implementation (domain interface).
 final userPlansDomainRepositoryProvider =
     Provider<UserPlansRepositoryInterface>((ref) {
-  return UserPlansRepository(
-    userPlansRemoteDatasource: ref.watch(userPlansRemoteDatasourceProvider),
-    local: ref.watch(plansLocalDatasourceProvider),
-  );
-});
+      return UserPlansRepository(
+        userPlansRemoteDatasource: ref.watch(userPlansRemoteDatasourceProvider),
+        local: ref.watch(plansLocalDatasourceProvider),
+      );
+    });
 
 /// Provider for PlanDaysRepository implementation (domain interface).
-final planDaysDomainRepositoryProvider =
-    Provider<PlanDaysRepositoryInterface>((ref) {
+final planDaysDomainRepositoryProvider = Provider<PlanDaysRepositoryInterface>((
+  ref,
+) {
   return PlanDaysRepository(
     planDaysRemoteDatasource: ref.watch(planDaysRemoteDatasourceProvider),
     local: ref.watch(plansLocalDatasourceProvider),
@@ -73,8 +76,7 @@ final planDaysDomainRepositoryProvider =
 });
 
 /// Provider for TasksRepository implementation (domain interface).
-final tasksDomainRepositoryProvider =
-    Provider<TasksRepositoryInterface>((ref) {
+final tasksDomainRepositoryProvider = Provider<TasksRepositoryInterface>((ref) {
   final dio = ref.watch(dioProvider);
   return TasksRepository(
     tasksRemoteDatasource: TasksRemoteDatasource(dio: dio),
@@ -89,7 +91,9 @@ final plansSyncBootstrapProvider = Provider<void>((ref) {
       .listen((isOnline) {
         if (isOnline) {
           unawaited(
-            ref.read(userPlansDomainRepositoryProvider).flushPendingPlanActions(),
+            ref
+                .read(userPlansDomainRepositoryProvider)
+                .flushPendingPlanActions(),
           );
         }
       });
@@ -143,36 +147,38 @@ final subscribeToPlanUseCaseProvider = Provider<SubscribeToPlanUseCase>((ref) {
 });
 
 /// Provider for UnsubscribeFromPlanUseCase.
-final unsubscribeFromPlanUseCaseProvider =
-    Provider<UnsubscribeFromPlanUseCase>((ref) {
-  return UnsubscribeFromPlanUseCase(
-    ref.watch(userPlansDomainRepositoryProvider),
-  );
-});
+final unsubscribeFromPlanUseCaseProvider = Provider<UnsubscribeFromPlanUseCase>(
+  (ref) {
+    return UnsubscribeFromPlanUseCase(
+      ref.watch(userPlansDomainRepositoryProvider),
+    );
+  },
+);
 
 /// Provider for GetUserPlanProgressUseCase.
-final getUserPlanProgressUseCaseProvider =
-    Provider<GetUserPlanProgressUseCase>((ref) {
-  return GetUserPlanProgressUseCase(
-    ref.watch(userPlansDomainRepositoryProvider),
-  );
-});
+final getUserPlanProgressUseCaseProvider = Provider<GetUserPlanProgressUseCase>(
+  (ref) {
+    return GetUserPlanProgressUseCase(
+      ref.watch(userPlansDomainRepositoryProvider),
+    );
+  },
+);
 
 /// Provider for GetUserPlanDayContentUseCase.
 final getUserPlanDayContentUseCaseProvider =
     Provider<GetUserPlanDayContentUseCase>((ref) {
-  return GetUserPlanDayContentUseCase(
-    ref.watch(userPlansDomainRepositoryProvider),
-  );
-});
+      return GetUserPlanDayContentUseCase(
+        ref.watch(userPlansDomainRepositoryProvider),
+      );
+    });
 
 /// Provider for GetPlanDaysCompletionStatusUseCase.
 final getPlanDaysCompletionStatusUseCaseProvider =
     Provider<GetPlanDaysCompletionStatusUseCase>((ref) {
-  return GetPlanDaysCompletionStatusUseCase(
-    ref.watch(userPlansDomainRepositoryProvider),
-  );
-});
+      return GetPlanDaysCompletionStatusUseCase(
+        ref.watch(userPlansDomainRepositoryProvider),
+      );
+    });
 
 /// Provider for CompleteTaskUseCase.
 final completeTaskUseCaseProvider = Provider<CompleteTaskUseCase>((ref) {
@@ -206,8 +212,10 @@ final getDayContentUseCaseProvider = Provider<GetDayContentUseCase>((ref) {
 /// Provider for GetTasksByPlanItemIdUseCase.
 final getTasksByPlanItemIdUseCaseProvider =
     Provider<GetTasksByPlanItemIdUseCase>((ref) {
-  return GetTasksByPlanItemIdUseCase(ref.watch(tasksDomainRepositoryProvider));
-});
+      return GetTasksByPlanItemIdUseCase(
+        ref.watch(tasksDomainRepositoryProvider),
+      );
+    });
 
 /// Provider for GetTaskByIdUseCase.
 final getTaskByIdUseCaseProvider = Provider<GetTaskByIdUseCase>((ref) {

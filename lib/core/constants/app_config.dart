@@ -3,11 +3,12 @@ class AppConfig {
 
   static const String appName = 'WeBuddhist';
   static const String appPackageName = 'org.pecha.app';
-  
+
   /// Airbridge tracking link that handles attribution and deep linking
   /// Automatically redirects to the appropriate app store (iOS/Android)
-  static const String airbridgeTrackingLink = 'https://join.webuddhist.com/get-app';
-  
+  static const String airbridgeTrackingLink =
+      'https://join.webuddhist.com/get-app';
+
   // Direct store URLs (kept for reference, use airbridgeTrackingLink for sharing)
   static const String appStoreUrl =
       'https://apps.apple.com/app/webuddhist/id6745810914';

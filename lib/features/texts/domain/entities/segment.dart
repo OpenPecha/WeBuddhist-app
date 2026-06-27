@@ -38,5 +38,12 @@ class SegmentEntity extends Equatable {
   }
 
   @override
-  List<Object?> get props => [id, segmentNumber, contentTibetan, contentSanskrit, contentEnglish, contentChinese];
+  List<Object?> get props => [
+    id,
+    segmentNumber,
+    contentTibetan,
+    contentSanskrit,
+    contentEnglish,
+    contentChinese,
+  ];
 }

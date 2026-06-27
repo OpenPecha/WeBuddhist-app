@@ -43,7 +43,9 @@ class SearchTextsUseCase extends UseCase<List<TextEntity>, SearchTextsParams> {
   SearchTextsUseCase(this._repository);
 
   @override
-  Future<Either<Failure, List<TextEntity>>> call(SearchTextsParams params) async {
+  Future<Either<Failure, List<TextEntity>>> call(
+    SearchTextsParams params,
+  ) async {
     if (params.query.trim().isEmpty) {
       return const Left(ValidationFailure('Search query cannot be empty'));
     }

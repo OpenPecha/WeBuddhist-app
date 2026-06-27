@@ -27,11 +27,7 @@ import 'preview_activity_list.dart';
 /// - Has no task toggle functionality (read-only preview)
 /// - Has "Start Reading" button to begin reading without enrolling
 class PlanPreviewDetails extends ConsumerStatefulWidget {
-  const PlanPreviewDetails({
-    super.key,
-    required this.plan,
-    this.seriesId,
-  });
+  const PlanPreviewDetails({super.key, required this.plan, this.seriesId});
 
   final Plan plan;
   final String? seriesId;

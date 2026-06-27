@@ -7,14 +7,14 @@ import 'package:flutter_pecha/features/more/presentation/providers/use_case_prov
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fpdart/fpdart.dart';
 
-final mantraCountsProvider = FutureProvider.autoDispose<
-    Either<Failure, MantraCountPage>>((ref) async {
-  final auth = ref.watch(authProvider);
-  if (auth.isLoading || !auth.isLoggedIn || auth.isGuest) {
-    return const Left(AuthenticationFailure('Not authenticated'));
-  }
+final mantraCountsProvider =
+    FutureProvider.autoDispose<Either<Failure, MantraCountPage>>((ref) async {
+      final auth = ref.watch(authProvider);
+      if (auth.isLoading || !auth.isLoggedIn || auth.isGuest) {
+        return const Left(AuthenticationFailure('Not authenticated'));
+      }
 
-  final language = ref.watch(contentLanguageProvider);
-  final useCase = ref.watch(getMantraCountsUseCaseProvider);
-  return useCase(GetMantraCountsParams(language: language));
-});
+      final language = ref.watch(contentLanguageProvider);
+      final useCase = ref.watch(getMantraCountsUseCaseProvider);
+      return useCase(GetMantraCountsParams(language: language));
+    });

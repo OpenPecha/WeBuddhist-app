@@ -33,10 +33,7 @@ class SegmentUrlResolverDatasource {
           throw const ServerException('Invalid response: missing text_id');
         }
 
-        return {
-          'textId': textId,
-          'segmentId': segmentId ?? '',
-        };
+        return {'textId': textId, 'segmentId': segmentId ?? ''};
       } else if (response.statusCode == 404) {
         throw const ServerException('Segment not found');
       } else {

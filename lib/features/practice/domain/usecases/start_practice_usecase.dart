@@ -5,13 +5,16 @@ import 'package:flutter_pecha/features/practice/domain/repositories/practice_rep
 import 'package:flutter_pecha/shared/domain/base_classes/usecase.dart';
 
 /// Start practice session use case.
-class StartPracticeUseCase extends UseCase<PracticeSession, StartPracticeParams> {
+class StartPracticeUseCase
+    extends UseCase<PracticeSession, StartPracticeParams> {
   final PracticeRepository _repository;
 
   StartPracticeUseCase(this._repository);
 
   @override
-  Future<Either<Failure, PracticeSession>> call(StartPracticeParams params) async {
+  Future<Either<Failure, PracticeSession>> call(
+    StartPracticeParams params,
+  ) async {
     if (params.routineId.isEmpty) {
       return const Left(ValidationFailure('Routine ID cannot be empty'));
     }

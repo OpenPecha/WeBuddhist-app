@@ -52,20 +52,22 @@ class PracticeDaysSheet extends ConsumerWidget {
                   ),
                 );
               },
-              loading: () => Flexible(
-                child: _PracticeDaysSheetContent(
-                  totalDays: fallbackTotalDays,
-                  series: const [],
-                  isLoading: true,
-                ),
-              ),
-              error: (_, __) => Flexible(
-                child: _PracticeDaysSheetContent(
-                  totalDays: fallbackTotalDays,
-                  series: const [],
-                  hasError: true,
-                ),
-              ),
+              loading:
+                  () => Flexible(
+                    child: _PracticeDaysSheetContent(
+                      totalDays: fallbackTotalDays,
+                      series: const [],
+                      isLoading: true,
+                    ),
+                  ),
+              error:
+                  (_, __) => Flexible(
+                    child: _PracticeDaysSheetContent(
+                      totalDays: fallbackTotalDays,
+                      series: const [],
+                      hasError: true,
+                    ),
+                  ),
             ),
           ],
         ),
@@ -91,8 +93,7 @@ class _PracticeDaysSheetContent extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final dividerColor =
-        isDark ? AppColors.cardBorderDark : AppColors.grey300;
+    final dividerColor = isDark ? AppColors.cardBorderDark : AppColors.grey300;
 
     return ConstrainedBox(
       constraints: BoxConstraints(
@@ -152,13 +153,14 @@ class _PracticeDaysSheetContent extends StatelessWidget {
                 shrinkWrap: true,
                 padding: const EdgeInsets.symmetric(vertical: 4),
                 itemCount: series.length,
-                separatorBuilder: (_, __) => Divider(
-                  height: 1,
-                  thickness: 1,
-                  indent: 20,
-                  endIndent: 20,
-                  color: dividerColor,
-                ),
+                separatorBuilder:
+                    (_, __) => Divider(
+                      height: 1,
+                      thickness: 1,
+                      indent: 20,
+                      endIndent: 20,
+                      color: dividerColor,
+                    ),
                 itemBuilder: (context, index) {
                   final item = series[index];
                   return _SeriesDayCompletedRow(item: item);
@@ -198,9 +200,9 @@ class _SeriesDayCompletedRow extends StatelessWidget {
           Expanded(
             child: Text(
               item.seriesTitle,
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                fontWeight: FontWeight.w500,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w500),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
@@ -208,9 +210,9 @@ class _SeriesDayCompletedRow extends StatelessWidget {
           const SizedBox(width: 12),
           Text(
             l10n.me_streak_days_count(item.daysCompleted),
-            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-              fontWeight: FontWeight.w600,
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600),
           ),
         ],
       ),

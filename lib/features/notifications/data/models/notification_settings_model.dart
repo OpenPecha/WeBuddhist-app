@@ -42,12 +42,12 @@ class NotificationSettingsModel {
 
   /// Serialize to JSON.
   Map<String, dynamic> toJson() => {
-        'enabled': enabled,
-        'practiceReminders': practiceReminders,
-        'planReminders': planReminders,
-        'newContentAlerts': newContentAlerts,
-        'practiceTime': practiceTime,
-      };
+    'enabled': enabled,
+    'practiceReminders': practiceReminders,
+    'planReminders': planReminders,
+    'newContentAlerts': newContentAlerts,
+    'practiceTime': practiceTime,
+  };
 
   /// Deserialize from JSON.
   factory NotificationSettingsModel.fromJson(Map<String, dynamic> json) {
@@ -76,6 +76,8 @@ class NotificationSettingsModel {
 
   /// Deserialize from JSON string.
   factory NotificationSettingsModel.fromJsonString(String jsonString) {
-    return NotificationSettingsModel.fromJson(jsonDecode(jsonString) as Map<String, dynamic>);
+    return NotificationSettingsModel.fromJson(
+      jsonDecode(jsonString) as Map<String, dynamic>,
+    );
   }
 }

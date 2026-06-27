@@ -32,10 +32,12 @@ final initializeAuthUseCaseProvider = Provider<InitializeAuthUseCase>((ref) {
 });
 
 /// Provider for HasValidCredentialsUseCase.
-final hasValidCredentialsUseCaseProvider = Provider<HasValidCredentialsUseCase>((ref) {
-  final repository = ref.watch(authRepositoryProvider);
-  return HasValidCredentialsUseCase(repository);
-});
+final hasValidCredentialsUseCaseProvider = Provider<HasValidCredentialsUseCase>(
+  (ref) {
+    final repository = ref.watch(authRepositoryProvider);
+    return HasValidCredentialsUseCase(repository);
+  },
+);
 
 /// Provider for GetCredentialsUseCase.
 final getCredentialsUseCaseProvider = Provider<GetCredentialsUseCase>((ref) {
@@ -44,18 +46,19 @@ final getCredentialsUseCaseProvider = Provider<GetCredentialsUseCase>((ref) {
 });
 
 /// Provider for GetValidAccessTokenUseCase.
-final getValidAccessTokenUseCaseProvider =
-    Provider<GetValidAccessTokenUseCase>((ref) {
-  final repository = ref.watch(authRepositoryProvider);
-  return GetValidAccessTokenUseCase(repository);
-});
+final getValidAccessTokenUseCaseProvider = Provider<GetValidAccessTokenUseCase>(
+  (ref) {
+    final repository = ref.watch(authRepositoryProvider);
+    return GetValidAccessTokenUseCase(repository);
+  },
+);
 
 /// Provider for ForceRefreshAccessTokenUseCase.
 final forceRefreshAccessTokenUseCaseProvider =
     Provider<ForceRefreshAccessTokenUseCase>((ref) {
-  final repository = ref.watch(authRepositoryProvider);
-  return ForceRefreshAccessTokenUseCase(repository);
-});
+      final repository = ref.watch(authRepositoryProvider);
+      return ForceRefreshAccessTokenUseCase(repository);
+    });
 
 /// Provider for ContinueAsGuestUseCase.
 final continueAsGuestUseCaseProvider = Provider<ContinueAsGuestUseCase>((ref) {
@@ -88,14 +91,15 @@ final getCurrentUserUseCaseProvider = Provider<GetCurrentUserUseCase>((ref) {
 });
 
 /// Provider for ClearGuestModeAndOnboardingUseCase.
-final clearGuestModeAndOnboardingUseCaseProvider = Provider<ClearGuestModeAndOnboardingUseCase>((ref) {
-  final clearGuestModeUseCase = ref.watch(clearGuestModeUseCaseProvider);
-  final isGuestModeUseCase = ref.watch(isGuestModeUseCaseProvider);
-  return ClearGuestModeAndOnboardingUseCase(
-    clearGuestModeUseCase,
-    isGuestModeUseCase,
-  );
-});
+final clearGuestModeAndOnboardingUseCaseProvider =
+    Provider<ClearGuestModeAndOnboardingUseCase>((ref) {
+      final clearGuestModeUseCase = ref.watch(clearGuestModeUseCaseProvider);
+      final isGuestModeUseCase = ref.watch(isGuestModeUseCaseProvider);
+      return ClearGuestModeAndOnboardingUseCase(
+        clearGuestModeUseCase,
+        isGuestModeUseCase,
+      );
+    });
 
 /// Provider for UpdateUserInfoUseCase.
 final updateUserInfoUseCaseProvider = Provider<UpdateUserInfoUseCase>((ref) {

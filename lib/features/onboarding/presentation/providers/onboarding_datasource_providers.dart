@@ -6,16 +6,20 @@ import 'package:flutter_pecha/features/onboarding/data/repositories/onboarding_r
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 /// Provider for local datasource
-final onboardingLocalDatasourceProvider = Provider<OnboardingLocalDatasource>((ref) {
+final onboardingLocalDatasourceProvider = Provider<OnboardingLocalDatasource>((
+  ref,
+) {
   final localStorageService = ref.watch(localStorageServiceProvider);
   return OnboardingLocalDatasource(localStorageService: localStorageService);
 });
 
 /// Provider for remote datasource
-final onboardingRemoteDatasourceProvider = Provider<OnboardingRemoteDatasource>((ref) {
-  final dio = ref.watch(dioProvider);
-  return OnboardingRemoteDatasource(dio: dio);
-});
+final onboardingRemoteDatasourceProvider = Provider<OnboardingRemoteDatasource>(
+  (ref) {
+    final dio = ref.watch(dioProvider);
+    return OnboardingRemoteDatasource(dio: dio);
+  },
+);
 
 /// Provider for repository implementation
 final onboardingRepositoryProvider = Provider<OnboardingRepositoryImpl>((ref) {

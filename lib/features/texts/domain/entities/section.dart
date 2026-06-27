@@ -29,5 +29,13 @@ class SectionEntity extends Equatable {
   }
 
   @override
-  List<Object?> get props => [id, sectionNumber, title, titleTibetan, segments, startPage, endPage];
+  List<Object?> get props => [
+    id,
+    sectionNumber,
+    title,
+    titleTibetan,
+    segments,
+    startPage,
+    endPage,
+  ];
 }

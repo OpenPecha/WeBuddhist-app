@@ -49,8 +49,9 @@ final _audioHandlerStateProvider = FutureProvider<AudioHandler?>((ref) async {
 });
 
 /// Internal state provider for NotificationService initialization
-final _notificationServiceStateProvider =
-    FutureProvider<NotificationService?>((ref) async {
+final _notificationServiceStateProvider = FutureProvider<NotificationService?>((
+  ref,
+) async {
   try {
     _log.info('Initializing NotificationService...');
     final service = NotificationService();

@@ -8,7 +8,8 @@ class GetGroupProfileUseCase
   final Future<Either<Failure, GroupProfile>> Function(
     String groupId, {
     required String language,
-  }) _getGroupProfile;
+  })
+  _getGroupProfile;
 
   GetGroupProfileUseCase(this._getGroupProfile);
 
@@ -24,8 +25,5 @@ class GetGroupProfileParams {
   final String groupId;
   final String language;
 
-  const GetGroupProfileParams({
-    required this.groupId,
-    required this.language,
-  });
+  const GetGroupProfileParams({required this.groupId, required this.language});
 }

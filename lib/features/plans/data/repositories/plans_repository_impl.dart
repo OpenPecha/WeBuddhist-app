@@ -191,7 +191,9 @@ class PlansRepositoryImpl implements PlansRepository {
   }
 
   @override
-  Future<Either<Failure, PlanProgress?>> getUserPlanProgress(String planId) async {
+  Future<Either<Failure, PlanProgress?>> getUserPlanProgress(
+    String planId,
+  ) async {
     try {
       return const Right(null);
     } catch (e) {
@@ -235,7 +237,10 @@ class PlansRepositoryImpl implements PlansRepository {
   }
 
   @override
-  Future<Either<Failure, PlanDay?>> getPlanDay(String planId, int dayNumber) async {
+  Future<Either<Failure, PlanDay?>> getPlanDay(
+    String planId,
+    int dayNumber,
+  ) async {
     try {
       return const Right(null);
     } catch (e) {

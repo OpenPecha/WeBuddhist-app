@@ -61,7 +61,11 @@ class RecitationsRepository {
 
       // If offline and no cache, return network failure
       if (!isOnline) {
-        return const Left(NetworkFailure('No internet connection and no cached recitations available'));
+        return const Left(
+          NetworkFailure(
+            'No internet connection and no cached recitations available',
+          ),
+        );
       }
 
       // Cache miss or force refresh - fetch from network
@@ -70,7 +74,11 @@ class RecitationsRepository {
             ? 'Force refreshing recitations from network'
             : 'Recitation list cache miss, fetching from network',
       );
-      final result = await _fetchAndCacheRecitations(language, searchQuery, cacheKey);
+      final result = await _fetchAndCacheRecitations(
+        language,
+        searchQuery,
+        cacheKey,
+      );
       return Right(result);
     } catch (e) {
       // If network fails, try to return cached data (even expired)
@@ -89,7 +97,9 @@ class RecitationsRepository {
       }
 
       _logger.error('Error getting recitations', e);
-      return Left(ExceptionMapper.map(e, context: 'Unable to load recitations'));
+      return Left(
+        ExceptionMapper.map(e, context: 'Unable to load recitations'),
+      );
     }
   }
 
@@ -179,7 +189,11 @@ class RecitationsRepository {
 
       // If offline and no cache, return network failure
       if (!isOnline) {
-        return const Left(NetworkFailure('No internet connection and no cached saved recitations'));
+        return const Left(
+          NetworkFailure(
+            'No internet connection and no cached saved recitations',
+          ),
+        );
       }
 
       // Cache miss or force refresh - fetch from network
@@ -207,7 +221,9 @@ class RecitationsRepository {
       }
 
       _logger.error('Error getting saved recitations', e);
-      return Left(ExceptionMapper.map(e, context: 'Failed to load saved recitations'));
+      return Left(
+        ExceptionMapper.map(e, context: 'Failed to load saved recitations'),
+      );
     }
   }
 
@@ -240,7 +256,9 @@ class RecitationsRepository {
 
     // Prevent duplicate background refreshes
     if (_pendingRefreshes.contains(cacheKey)) {
-      _logger.debug('Background refresh already in progress for saved recitations');
+      _logger.debug(
+        'Background refresh already in progress for saved recitations',
+      );
       return;
     }
 
@@ -324,7 +342,11 @@ class RecitationsRepository {
 
       // If offline and no cache, return network failure
       if (!isOnline) {
-        return const Left(NetworkFailure('No internet connection and no cached content available'));
+        return const Left(
+          NetworkFailure(
+            'No internet connection and no cached content available',
+          ),
+        );
       }
 
       // Cache miss or force refresh - fetch from network
@@ -360,7 +382,9 @@ class RecitationsRepository {
       }
 
       _logger.error('Error getting recitation content', e);
-      return Left(ExceptionMapper.map(e, context: 'Failed to load recitation content'));
+      return Left(
+        ExceptionMapper.map(e, context: 'Failed to load recitation content'),
+      );
     }
   }
 
@@ -454,7 +478,9 @@ class RecitationsRepository {
       }
       return Right(result);
     } catch (e) {
-      return Left(ExceptionMapper.map(e, context: 'Failed to unsave recitation'));
+      return Left(
+        ExceptionMapper.map(e, context: 'Failed to unsave recitation'),
+      );
     }
   }
 
@@ -471,7 +497,9 @@ class RecitationsRepository {
       }
       return Right(result);
     } catch (e) {
-      return Left(ExceptionMapper.map(e, context: 'Failed to update recitations order'));
+      return Left(
+        ExceptionMapper.map(e, context: 'Failed to update recitations order'),
+      );
     }
   }
 }

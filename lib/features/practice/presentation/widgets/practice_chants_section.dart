@@ -22,29 +22,27 @@ class PracticeChantsSection extends ConsumerWidget {
 
     return recitationsAsync.when(
       data:
-          (either) =>
-              either.fold((_) => const SizedBox.shrink(), (page) {
-                if (page.recitations.isEmpty) return const SizedBox.shrink();
-                final preview = page.recitations;
-                final showSeeAll = page.total > _previewCount;
-                return PracticeSectionContainer(
-                  title: l10n.home_chants,
-                  seeAllLabel: showSeeAll ? l10n.see_all : null,
-                  onSeeAll:
-                      showSeeAll ? () => _showAllRecitations(context) : null,
-                  child: Column(
-                    children:
-                        preview
-                            .map(
-                              (r) => PracticeChantListTile(
-                                recitation: r,
-                                onTap: () => _navigateToRecitation(context, r),
-                              ),
-                            )
-                            .toList(),
-                  ),
-                );
-              }),
+          (either) => either.fold((_) => const SizedBox.shrink(), (page) {
+            if (page.recitations.isEmpty) return const SizedBox.shrink();
+            final preview = page.recitations;
+            final showSeeAll = page.total > _previewCount;
+            return PracticeSectionContainer(
+              title: l10n.home_chants,
+              seeAllLabel: showSeeAll ? l10n.see_all : null,
+              onSeeAll: showSeeAll ? () => _showAllRecitations(context) : null,
+              child: Column(
+                children:
+                    preview
+                        .map(
+                          (r) => PracticeChantListTile(
+                            recitation: r,
+                            onTap: () => _navigateToRecitation(context, r),
+                          ),
+                        )
+                        .toList(),
+              ),
+            );
+          }),
       loading:
           () => const PracticeSectionSkeleton(
             height: 176,

@@ -29,10 +29,7 @@ void main() {
 
   group('ResponsiveImage.urlForLayout', () {
     test('scales logical size by device pixel ratio', () {
-      expect(
-        image.urlForLayout(width: 100, devicePixelRatio: 2),
-        'thumb.webp',
-      );
+      expect(image.urlForLayout(width: 100, devicePixelRatio: 2), 'thumb.webp');
       expect(
         image.urlForLayout(width: 300, devicePixelRatio: 3),
         'medium.webp',

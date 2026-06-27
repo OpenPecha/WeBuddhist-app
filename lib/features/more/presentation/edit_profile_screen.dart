@@ -111,26 +111,29 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     return switch (PersonNameValidator.validate(name)) {
       PersonNameValidationError.tooShort => l10n.person_name_min_length,
       PersonNameValidationError.tooLong => l10n.person_name_max_length,
-      PersonNameValidationError.invalidCharacters => l10n.person_name_invalid_chars,
+      PersonNameValidationError.invalidCharacters =>
+        l10n.person_name_invalid_chars,
       null => null,
     };
   }
 
   void _onFirstNameChanged(String value) {
     setState(
-      () => _firstNameValidationMessage = _validatePersonName(
-        value,
-        AppLocalizations.of(context)!,
-      ),
+      () =>
+          _firstNameValidationMessage = _validatePersonName(
+            value,
+            AppLocalizations.of(context)!,
+          ),
     );
   }
 
   void _onLastNameChanged(String value) {
     setState(
-      () => _lastNameValidationMessage = _validatePersonName(
-        value,
-        AppLocalizations.of(context)!,
-      ),
+      () =>
+          _lastNameValidationMessage = _validatePersonName(
+            value,
+            AppLocalizations.of(context)!,
+          ),
     );
   }
 
@@ -700,9 +703,8 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                   Expanded(
                     child: _buildNameField(
                       controller: _firstNameCtrl,
-                      label: AppLocalizations.of(
-                        context,
-                      )!.edit_profile_first_name,
+                      label:
+                          AppLocalizations.of(context)!.edit_profile_first_name,
                       validationMessage: _firstNameValidationMessage,
                       onChanged: _onFirstNameChanged,
                       isDark: isDark,
@@ -714,9 +716,8 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                   Expanded(
                     child: _buildNameField(
                       controller: _lastNameCtrl,
-                      label: AppLocalizations.of(
-                        context,
-                      )!.edit_profile_last_name,
+                      label:
+                          AppLocalizations.of(context)!.edit_profile_last_name,
                       validationMessage: _lastNameValidationMessage,
                       onChanged: _onLastNameChanged,
                       isDark: isDark,
@@ -831,13 +832,13 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
           controller: controller,
           onChanged: onChanged,
           maxLength: PersonNameValidator.maxLength,
-          buildCounter: (
-            context, {
-            required currentLength,
-            required isFocused,
-            required maxLength,
-          }) =>
-              const SizedBox.shrink(),
+          buildCounter:
+              (
+                context, {
+                required currentLength,
+                required isFocused,
+                required maxLength,
+              }) => const SizedBox.shrink(),
           decoration: InputDecoration(
             labelText: label,
             labelStyle: TextStyle(color: AppColors.grey500),

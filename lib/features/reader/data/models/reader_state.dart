@@ -4,18 +4,10 @@ import 'package:flutter_pecha/features/texts/data/models/segment.dart';
 import 'package:flutter_pecha/features/texts/data/models/text_detail.dart';
 
 /// Status of the reader
-enum ReaderStatus {
-  initial,
-  loading,
-  loaded,
-  error,
-}
+enum ReaderStatus { initial, loading, loaded, error }
 
 /// Direction for pagination
-enum PaginationDirection {
-  next,
-  previous,
-}
+enum PaginationDirection { next, previous }
 
 /// Main state model for the reader feature
 class ReaderState {
@@ -140,7 +132,9 @@ class ReaderState {
       content: content ?? this.content,
       navigationContext: navigationContext ?? this.navigationContext,
       selectedSegment:
-          clearSelectedSegment ? null : (selectedSegment ?? this.selectedSegment),
+          clearSelectedSegment
+              ? null
+              : (selectedSegment ?? this.selectedSegment),
       commentarySegmentId:
           clearCommentarySegmentId
               ? null

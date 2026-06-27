@@ -60,10 +60,7 @@ class RoutineRemoteDatasource {
 
   /// DELETE /routines/{routineId}/time-blocks/{timeBlockId}
   /// Soft-deletes a time block.
-  Future<void> deleteTimeBlock(
-    String routineId,
-    String timeBlockId,
-  ) async {
+  Future<void> deleteTimeBlock(String routineId, String timeBlockId) async {
     try {
       await _dio.delete('/routines/$routineId/time-blocks/$timeBlockId');
     } on DioException catch (e) {
@@ -118,7 +115,8 @@ class RoutineRemoteDatasource {
     final message = _extractMessage(e);
     return switch (status) {
       409 => RoutineAlreadyExistsException(
-          message ?? 'Routine already exists for this user'),
+        message ?? 'Routine already exists for this user',
+      ),
       422 => RoutineValidationException(message ?? 'Validation error'),
       _ => e.error is Exception ? e.error! as Exception : e,
     };
@@ -130,9 +128,11 @@ class RoutineRemoteDatasource {
     final message = _extractMessage(e);
     return switch (status) {
       404 => RoutineNotFoundException(
-          message ?? 'Routine or time block not found'),
+        message ?? 'Routine or time block not found',
+      ),
       409 => RoutineTimeConflictException(
-          message ?? 'Time block with this time already exists'),
+        message ?? 'Time block with this time already exists',
+      ),
       422 => RoutineValidationException(message ?? 'Validation error'),
       _ => e.error is Exception ? e.error! as Exception : e,
     };

@@ -43,7 +43,9 @@ class _AllRecitationsScreenState extends ConsumerState<AllRecitationsScreen> {
 
   void _openSearch(BuildContext context) {
     Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => RecitationsSearchScreen(onTap: widget.onTap)),
+      MaterialPageRoute(
+        builder: (_) => RecitationsSearchScreen(onTap: widget.onTap),
+      ),
     );
   }
 
@@ -83,7 +85,8 @@ class _AllRecitationsScreenState extends ConsumerState<AllRecitationsScreen> {
       return ErrorStateWidget(
         error: state.error!,
         onRetry:
-            () => ref.read(practiceRecitationsPaginatedProvider.notifier).retry(),
+            () =>
+                ref.read(practiceRecitationsPaginatedProvider.notifier).retry(),
       );
     }
 

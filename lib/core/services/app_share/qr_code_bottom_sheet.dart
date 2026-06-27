@@ -53,9 +53,10 @@ class _QrCodeBottomSheetState extends State<QrCodeBottomSheet>
   }
 
   String _getShareText(String platform) {
-    final url = platform == 'Android'
-        ? QrCodeBottomSheet._androidPlayStoreUrl
-        : QrCodeBottomSheet._iosAppStoreUrl;
+    final url =
+        platform == 'Android'
+            ? QrCodeBottomSheet._androidPlayStoreUrl
+            : QrCodeBottomSheet._iosAppStoreUrl;
     return '''I'm using WeBuddhist to learn and practice Buddhism. Join me!
 
 📲 Scan the QR code to download on $platform
@@ -72,9 +73,8 @@ Or visit: $url''';
     File? tempFile;
     try {
       // Get the appropriate screenshot controller based on current tab
-      final controller = _tabController.index == 0
-          ? _androidQrController
-          : _iosQrController;
+      final controller =
+          _tabController.index == 0 ? _androidQrController : _iosQrController;
       final platform = _tabController.index == 0 ? 'Android' : 'iOS';
 
       // Capture the QR code image
@@ -140,7 +140,8 @@ Or visit: $url''';
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final textColor = isDark ? AppColors.textPrimaryDark : AppColors.textPrimary;
+    final textColor =
+        isDark ? AppColors.textPrimaryDark : AppColors.textPrimary;
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
@@ -156,13 +157,13 @@ Or visit: $url''';
             // Tab Bar
             TabBar(
               controller: _tabController,
-              tabs: const [
-                Tab(text: 'Android'),
-                Tab(text: 'IOS'),
-              ],
-              labelColor: isDark ? AppColors.textPrimaryDark : AppColors.textPrimary,
-              unselectedLabelColor: isDark ? AppColors.textTertiaryDark : Colors.grey,
-              indicatorColor: isDark ? AppColors.textPrimaryDark : AppColors.textPrimary,
+              tabs: const [Tab(text: 'Android'), Tab(text: 'IOS')],
+              labelColor:
+                  isDark ? AppColors.textPrimaryDark : AppColors.textPrimary,
+              unselectedLabelColor:
+                  isDark ? AppColors.textTertiaryDark : Colors.grey,
+              indicatorColor:
+                  isDark ? AppColors.textPrimaryDark : AppColors.textPrimary,
             ),
             const SizedBox(height: 24),
 
@@ -193,13 +194,14 @@ Or visit: $url''';
             // Share button
             OutlinedButton.icon(
               onPressed: _isSharing ? null : _shareQrCode,
-              icon: _isSharing
-                  ? const SizedBox(
-                      width: 16,
-                      height: 16,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : Icon(Icons.share, color: textColor),
+              icon:
+                  _isSharing
+                      ? const SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                      : Icon(Icons.share, color: textColor),
               label: Text(
                 _isSharing ? 'Sharing...' : 'Share QR Code',
                 style: TextStyle(color: textColor),
@@ -207,7 +209,10 @@ Or visit: $url''';
               style: OutlinedButton.styleFrom(
                 foregroundColor: textColor,
                 side: BorderSide(
-                  color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimary,
+                  color:
+                      isDark
+                          ? AppColors.textPrimaryDark
+                          : AppColors.textPrimary,
                 ),
               ),
             ),
@@ -221,10 +226,7 @@ Or visit: $url''';
               },
               child: Text(
                 context.l10n.done,
-                style: TextStyle(
-                  fontSize: 16,
-                  color: textColor,
-                ),
+                style: TextStyle(fontSize: 16, color: textColor),
               ),
             ),
           ],
@@ -240,7 +242,8 @@ Or visit: $url''';
     required ScreenshotController controller,
   }) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final textColor = isDark ? AppColors.textPrimaryDark : AppColors.textPrimary;
+    final textColor =
+        isDark ? AppColors.textPrimaryDark : AppColors.textPrimary;
 
     return Screenshot(
       controller: controller,
@@ -266,7 +269,9 @@ Or visit: $url''';
               version: QrVersions.auto,
               size: 200.0,
               backgroundColor: Colors.white,
-              embeddedImage: const AssetImage('assets/images/pecha_logo_circle.png'),
+              embeddedImage: const AssetImage(
+                'assets/images/pecha_logo_circle.png',
+              ),
               embeddedImageStyle: const QrEmbeddedImageStyle(
                 size: Size(40, 40),
               ),

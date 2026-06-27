@@ -9,11 +9,7 @@ import 'package:flutter_pecha/features/auth/auth_service.dart';
 /// - 401 errors with token refresh (if user has valid credentials)
 /// - Network errors with exponential backoff
 class RetryInterceptor extends Interceptor {
-  RetryInterceptor(
-    this._logger,
-    this._authService, [
-    this.onAuthExpired,
-  ]);
+  RetryInterceptor(this._logger, this._authService, [this.onAuthExpired]);
 
   final AppLogger _logger;
   final AuthService _authService;
@@ -45,10 +41,7 @@ class RetryInterceptor extends Interceptor {
   }
 
   @override
-  void onError(
-    DioException err,
-    ErrorInterceptorHandler handler,
-  ) async {
+  void onError(DioException err, ErrorInterceptorHandler handler) async {
     // Handle 401 - try to refresh token
     if (err.response?.statusCode == 401) {
       // Check if user has valid credentials (refresh token available via CredentialsManager)
@@ -83,12 +76,17 @@ class RetryInterceptor extends Interceptor {
           // here is a rejected refresh token, not an offline blip, and must end
           // the session instead of looping 401s forever. (The app-open restore
           // path stays tolerant of transient renewal failures.)
-          permanentlyLost = AuthService.isSessionPermanentlyLost(e) ||
+          permanentlyLost =
+              AuthService.isSessionPermanentlyLost(e) ||
               AuthService.isTokenRenewalFailed(e);
           if (permanentlyLost) {
-            _logger.warning('Token refresh failed permanently - re-authentication required');
+            _logger.warning(
+              'Token refresh failed permanently - re-authentication required',
+            );
           } else {
-            _logger.warning('Token refresh failed transiently - keeping session: $e');
+            _logger.warning(
+              'Token refresh failed transiently - keeping session: $e',
+            );
           }
         }
 

@@ -28,7 +28,12 @@ export 'error/failures.dart';
 export 'error/error_message_mapper.dart';
 
 // Network - hide providers to use the ones from DI instead
-export 'network/connectivity_service.dart' hide connectivityServiceProvider, isOnlineProvider, connectivityStreamProvider, connectivityNotifierProvider;
+export 'network/connectivity_service.dart'
+    hide
+        connectivityServiceProvider,
+        isOnlineProvider,
+        connectivityStreamProvider,
+        connectivityNotifierProvider;
 export 'network/dio_client.dart';
 export 'network/network_info.dart';
 export 'network/interceptors/interceptors.dart';

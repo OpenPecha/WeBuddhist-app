@@ -16,7 +16,9 @@ class VersionSelectionScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final localizations = AppLocalizations.of(context)!;
-    final textVersionResponseAsync = ref.watch(textVersionFutureProvider(textId));
+    final textVersionResponseAsync = ref.watch(
+      textVersionFutureProvider(textId),
+    );
     final currentLanguageCode = ref.watch(textVersionLanguageProvider);
 
     return Scaffold(
@@ -32,14 +34,19 @@ class VersionSelectionScreen extends ConsumerWidget {
           IconButton(
             icon: const Icon(Icons.search),
             onPressed: () {
-              final versions = textVersionResponseAsync.valueOrNull?.fold(
-                (failure) => <Version>[],
-                (response) => response.versions,
-              ) ?? <Version>[];
+              final versions =
+                  textVersionResponseAsync.valueOrNull?.fold(
+                    (failure) => <Version>[],
+                    (response) => response.versions,
+                  ) ??
+                  <Version>[];
 
-              final filteredVersions = versions
-                  .where((version) => version.language == currentLanguageCode)
-                  .toList();
+              final filteredVersions =
+                  versions
+                      .where(
+                        (version) => version.language == currentLanguageCode,
+                      )
+                      .toList();
 
               showSearch(
                 context: context,
@@ -75,23 +82,28 @@ class VersionSelectionScreen extends ConsumerWidget {
               ),
             ),
             (versionResponse) {
-              final numberOfVersions = versionResponse.versions
-                  ?.map((version) {
-                    if (version.language == currentLanguageCode) {
-                      return 1;
-                    }
-                    return 0;
-                  })
-                  .fold(0, (a, b) => a + b) ??
+              final numberOfVersions =
+                  versionResponse.versions
+                      ?.map((version) {
+                        if (version.language == currentLanguageCode) {
+                          return 1;
+                        }
+                        return 0;
+                      })
+                      .fold(0, (a, b) => a + b) ??
                   0;
 
-              final filteredVersions = versionResponse.versions
-                  ?.where((version) => version.language == currentLanguageCode)
-                  .toList();
-              final uniqueLanguages = versionResponse.versions
-                  ?.map((version) => version.language)
-                  .toSet()
-                  .toList();
+              final filteredVersions =
+                  versionResponse.versions
+                      ?.where(
+                        (version) => version.language == currentLanguageCode,
+                      )
+                      .toList();
+              final uniqueLanguages =
+                  versionResponse.versions
+                      ?.map((version) => version.language)
+                      .toSet()
+                      .toList();
 
               return Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20.0),
@@ -103,10 +115,15 @@ class VersionSelectionScreen extends ConsumerWidget {
                     // Versions Title
                     Text(
                       '${localizations.text_toc_versions} ($numberOfVersions)',
-                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                     const SizedBox(height: 12),
-                    Expanded(child: _buildVersionCard(filteredVersions ?? [], ref)),
+                    Expanded(
+                      child: _buildVersionCard(filteredVersions ?? [], ref),
+                    ),
                   ],
                 ),
               );
@@ -114,21 +131,22 @@ class VersionSelectionScreen extends ConsumerWidget {
           );
         },
         loading: () => Center(child: CircularProgressIndicator()),
-        error: (error, stack) => Center(
-          child: Padding(
-            padding: const EdgeInsets.all(32.0),
-            child: Column(
-              children: [
-                Icon(Icons.error_outline, size: 48, color: Colors.grey),
-                SizedBox(height: 16),
-                Text(
-                  localizations.reader_versions_load_error,
-                  style: const TextStyle(fontSize: 16),
+        error:
+            (error, stack) => Center(
+              child: Padding(
+                padding: const EdgeInsets.all(32.0),
+                child: Column(
+                  children: [
+                    Icon(Icons.error_outline, size: 48, color: Colors.grey),
+                    SizedBox(height: 16),
+                    Text(
+                      localizations.reader_versions_load_error,
+                      style: const TextStyle(fontSize: 16),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
-          ),
-        ),
       ),
     );
   }

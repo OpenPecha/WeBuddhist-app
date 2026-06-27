@@ -18,13 +18,16 @@ class GetRecitationsUseCase extends UseCase<List<Recitation>, NoParams> {
 }
 
 /// Search recitations use case.
-class SearchRecitationsUseCase extends UseCase<List<Recitation>, SearchRecitationsParams> {
+class SearchRecitationsUseCase
+    extends UseCase<List<Recitation>, SearchRecitationsParams> {
   final RecitationRepository _repository;
 
   SearchRecitationsUseCase(this._repository);
 
   @override
-  Future<Either<Failure, List<Recitation>>> call(SearchRecitationsParams params) async {
+  Future<Either<Failure, List<Recitation>>> call(
+    SearchRecitationsParams params,
+  ) async {
     return await _repository.searchRecitations(params.query);
   }
 }

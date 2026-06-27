@@ -17,7 +17,9 @@ final authProvider = StateNotifierProvider<AuthNotifier, AuthState>((ref) {
     isGuestModeUseCase: ref.watch(isGuestModeUseCaseProvider),
     clearGuestModeUseCase: ref.watch(clearGuestModeUseCaseProvider),
     localLogoutUseCase: ref.watch(localLogoutUseCaseProvider),
-    clearGuestModeAndOnboardingUseCase: ref.watch(clearGuestModeAndOnboardingUseCaseProvider),
+    clearGuestModeAndOnboardingUseCase: ref.watch(
+      clearGuestModeAndOnboardingUseCaseProvider,
+    ),
     ref: ref,
   );
 });

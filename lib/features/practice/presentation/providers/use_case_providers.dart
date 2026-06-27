@@ -19,12 +19,15 @@ final startPracticeUseCaseProvider = Provider<StartPracticeUseCase>((ref) {
 });
 
 /// Provider for [CompletePracticeUseCase].
-final completePracticeUseCaseProvider = Provider<CompletePracticeUseCase>((ref) {
+final completePracticeUseCaseProvider = Provider<CompletePracticeUseCase>((
+  ref,
+) {
   return CompletePracticeUseCase(ref.watch(practiceRepositoryProvider));
 });
 
 /// Provider for [GetPracticeProgressUseCase].
-final getPracticeProgressUseCaseProvider =
-    Provider<GetPracticeProgressUseCase>((ref) {
-  return GetPracticeProgressUseCase(ref.watch(practiceRepositoryProvider));
-});
+final getPracticeProgressUseCaseProvider = Provider<GetPracticeProgressUseCase>(
+  (ref) {
+    return GetPracticeProgressUseCase(ref.watch(practiceRepositoryProvider));
+  },
+);

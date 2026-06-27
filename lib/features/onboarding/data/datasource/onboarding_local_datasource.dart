@@ -10,7 +10,7 @@ final _logger = AppLogger('OnboardingLocalDatasource');
 /// Local datasource for onboarding preferences using SharedPreferences.
 class OnboardingLocalDatasource {
   OnboardingLocalDatasource({required LocalStorageService localStorageService})
-      : _localStorageService = localStorageService;
+    : _localStorageService = localStorageService;
 
   final LocalStorageService _localStorageService;
 
@@ -117,7 +117,9 @@ class OnboardingLocalDatasource {
       // With per-user tracking active the legacy key is not needed and would
       // cause false positives for other users via the migration path.
       await _localStorageService.set<bool>(
-          StorageKeys.onboardingCompleted, true);
+        StorageKeys.onboardingCompleted,
+        true,
+      );
     }
     _logger.info(
       'Onboarding marked complete${userId != null ? " for $userId" : ""}',

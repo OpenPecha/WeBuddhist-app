@@ -19,10 +19,7 @@ class CacheInterceptor extends Interceptor {
   static const _noCachePaths = {'/users/me/stats'};
 
   @override
-  void onRequest(
-    RequestOptions options,
-    RequestInterceptorHandler handler,
-  ) {
+  void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
     // Only cache GET requests (unless explicitly opted out)
     if (options.method.toUpperCase() == 'GET' &&
         options.extra['no_cache'] != true &&
@@ -52,10 +49,7 @@ class CacheInterceptor extends Interceptor {
   }
 
   @override
-  void onResponse(
-    Response response,
-    ResponseInterceptorHandler handler,
-  ) {
+  void onResponse(Response response, ResponseInterceptorHandler handler) {
     final request = response.requestOptions;
     final method = request.method.toUpperCase();
     final statusCode = response.statusCode ?? 0;
@@ -106,19 +100,19 @@ class CacheInterceptor extends Interceptor {
   List<String> _extractRelatedPaths(String path) {
     final paths = <String>[];
     final segments = path.split('/').where((s) => s.isNotEmpty).toList();
-    
+
     // Remove trailing action segments like "complete"
     if (segments.isNotEmpty && _isActionSegment(segments.last)) {
       segments.removeLast();
     }
-    
+
     // If last segment looks like an ID, remove it for the base path
     if (segments.isNotEmpty && _looksLikeId(segments.last)) {
       segments.removeLast();
     }
-    
+
     paths.add('/${segments.join('/')}');
-    
+
     // For task/subtask mutations, also invalidate plan-related caches
     // This handles: /users/me/tasks/..., /users/me/task/..., /users/me/sub-tasks/...
     if (path.contains('/task') || path.contains('/sub-task')) {
@@ -148,7 +142,7 @@ class CacheInterceptor extends Interceptor {
     if (path.contains('/accumulators') || path.contains('/timers')) {
       paths.add('/users/me/stats');
     }
-    
+
     return paths;
   }
 
@@ -176,10 +170,7 @@ class CacheInterceptor extends Interceptor {
   }
 
   @override
-  void onError(
-    DioException err,
-    ErrorInterceptorHandler handler,
-  ) {
+  void onError(DioException err, ErrorInterceptorHandler handler) {
     // Don't cache errors
     handler.next(err);
   }
@@ -192,8 +183,8 @@ class CacheInterceptor extends Interceptor {
       return path;
     }
     // Sort query params for consistent keys
-    final sortedParams = queryParams.entries.toList()
-      ..sort((a, b) => a.key.compareTo(b.key));
+    final sortedParams =
+        queryParams.entries.toList()..sort((a, b) => a.key.compareTo(b.key));
     final queryString = sortedParams
         .map((e) => '${e.key}=${e.value}')
         .join('&');
@@ -214,10 +205,7 @@ class CacheInterceptor extends Interceptor {
 }
 
 class _CacheEntry {
-  _CacheEntry({
-    required this.data,
-    required this.expiry,
-  });
+  _CacheEntry({required this.data, required this.expiry});
 
   final dynamic data;
   final DateTime expiry;

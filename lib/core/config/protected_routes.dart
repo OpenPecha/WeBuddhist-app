@@ -39,11 +39,9 @@ class ProtectedRoutes {
     '/threads',
     '/threads/{threadId}',
     '/threads/{threadId}/', // Catch-all for thread sub-paths
-
     // Timers
     '/timers',
     '/timers/', // Catch-all for timer sub-paths like /timers/user/timer_stop
-
     // Routines
     '/routines',
     '/routines/{routineId}/time-blocks',
@@ -58,7 +56,6 @@ class ProtectedRoutes {
     // a catch-all is safe and also covers detail, create, and update — all of
     // which are user-scoped and 403 without a token.
     '/accumulators/', // Catch-all: detail, create (/user), update (/user/{id})
-
     // Group join / follow
     '/author/groups/{groupId}/join',
     '/author/groups/{groupId}/follow',
@@ -99,11 +96,13 @@ class ProtectedRoutes {
   static bool _matchesPathPattern(String path, String pattern) {
     // Pattern ending with '/' indicates prefix match for all sub-paths
     final isPrefixMatch = pattern.endsWith('/');
-    final cleanPattern = isPrefixMatch ? pattern.substring(0, pattern.length - 1) : pattern;
+    final cleanPattern =
+        isPrefixMatch ? pattern.substring(0, pattern.length - 1) : pattern;
 
     // Split both path and pattern into segments
     final pathSegments = path.split('/').where((s) => s.isNotEmpty).toList();
-    final patternSegments = cleanPattern.split('/').where((s) => s.isNotEmpty).toList();
+    final patternSegments =
+        cleanPattern.split('/').where((s) => s.isNotEmpty).toList();
 
     // For prefix match, path must have at least as many segments as pattern
     if (isPrefixMatch) {

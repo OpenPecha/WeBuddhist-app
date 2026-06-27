@@ -62,9 +62,10 @@ class SlotConfigCard extends StatelessWidget {
               children: [
                 _SlotRow(
                   label: l10n.language,
-                  value: config.isUnset
-                      ? l10n.select_language
-                      : config.languageLabel,
+                  value:
+                      config.isUnset
+                          ? l10n.select_language
+                          : config.languageLabel,
                   // Lock the language while a version is being resolved.
                   enabled: enabled && !isVersionLoading,
                   onTap: onLanguage,
@@ -72,9 +73,10 @@ class SlotConfigCard extends StatelessWidget {
                 _rowDivider(theme),
                 _SlotRow(
                   label: l10n.version,
-                  value: config.versionUnavailable
-                      ? l10n.version_not_available
-                      : (config.versionLabel ?? '—'),
+                  value:
+                      config.versionUnavailable
+                          ? l10n.version_not_available
+                          : (config.versionLabel ?? '—'),
                   // Require a language before a version can be picked.
                   enabled: enabled && !config.isUnset && !isVersionLoading,
                   isLoading: isVersionLoading,
@@ -146,34 +148,31 @@ class _SlotRow extends StatelessWidget {
                 ),
               ),
               Expanded(
-                child: isLoading
-                    ? Align(
-                        alignment: Alignment.centerLeft,
-                        child: SizedBox(
-                          width: 18,
-                          height: 18,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: chevronColor,
+                child:
+                    isLoading
+                        ? Align(
+                          alignment: Alignment.centerLeft,
+                          child: SizedBox(
+                            width: 18,
+                            height: 18,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: chevronColor,
+                            ),
+                          ),
+                        )
+                        : Text(
+                          value,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          textAlign: TextAlign.start,
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: mutedColor,
                           ),
                         ),
-                      )
-                    : Text(
-                        value,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        textAlign: TextAlign.start,
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          color: mutedColor,
-                        ),
-                      ),
               ),
               const SizedBox(width: 4),
-              Icon(
-                AppAssets.readerChevronRight,
-                size: 24,
-                color: chevronColor,
-              ),
+              Icon(AppAssets.readerChevronRight, size: 24, color: chevronColor),
             ],
           ),
         ),

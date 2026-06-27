@@ -10,10 +10,14 @@ abstract class NotificationsRepository extends Repository {
   Future<Either<Failure, NotificationSettings>> getSettings();
 
   /// Update notification settings.
-  Future<Either<Failure, NotificationSettings>> updateSettings(NotificationSettings settings);
+  Future<Either<Failure, NotificationSettings>> updateSettings(
+    NotificationSettings settings,
+  );
 
   /// Schedule a notification.
-  Future<Either<Failure, void>> scheduleNotification(AppNotification notification);
+  Future<Either<Failure, void>> scheduleNotification(
+    AppNotification notification,
+  );
 
   /// Cancel a notification.
   Future<Either<Failure, void>> cancelNotification(String notificationId);

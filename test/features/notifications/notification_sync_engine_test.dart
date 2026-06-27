@@ -33,17 +33,14 @@ void main() {
 
   // ─── Helpers ───────────────────────────────────────────────────────────────
 
-  RoutineItem planItem(String id, {String title = 'Plan A'}) => RoutineItem(
-        id: id,
-        title: title,
-        type: RoutineItemType.series,
-      );
+  RoutineItem planItem(String id, {String title = 'Plan A'}) =>
+      RoutineItem(id: id, title: title, type: RoutineItemType.series);
 
   RoutineItem recitationItem({String id = 'r-1'}) => RoutineItem(
-        id: id,
-        title: 'Recitation',
-        type: RoutineItemType.recitation,
-      );
+    id: id,
+    title: 'Recitation',
+    type: RoutineItemType.recitation,
+  );
 
   RoutineBlock planBlock({
     String id = 'b-1',
@@ -51,32 +48,30 @@ void main() {
     int minute = 0,
     List<RoutineItem>? items,
     bool notificationEnabled = true,
-  }) =>
-      RoutineBlock(
-        id: id,
-        time: TimeOfDay(hour: hour, minute: minute),
-        notificationEnabled: notificationEnabled,
-        items: items ?? [planItem('plan-1')],
-        notificationId: 1001,
-      );
+  }) => RoutineBlock(
+    id: id,
+    time: TimeOfDay(hour: hour, minute: minute),
+    notificationEnabled: notificationEnabled,
+    items: items ?? [planItem('plan-1')],
+    notificationId: 1001,
+  );
 
   UserPlansModel makePlan({
     String id = 'plan-1',
     DateTime? startedAt,
     DateTime? startDate,
     int totalDays = 30,
-  }) =>
-      UserPlansModel(
-        id: id,
-        title: 'A Plan',
-        description: '',
-        language: 'en',
-        difficultyLevel: null,
-        startedAt: startedAt ?? DateTime(2026, 6, 1),
-        totalDays: totalDays,
-        tags: null,
-        startDate: startDate,
-      );
+  }) => UserPlansModel(
+    id: id,
+    title: 'A Plan',
+    description: '',
+    language: 'en',
+    difficultyLevel: null,
+    startedAt: startedAt ?? DateTime(2026, 6, 1),
+    totalDays: totalDays,
+    tags: null,
+    startDate: startDate,
+  );
 
   // ─── Plan-block compute ────────────────────────────────────────────────────
 
@@ -128,10 +123,7 @@ void main() {
       final entries = engine.computeForPlanBlock(
         planBlock(hour: 9),
         planItem('plan-1'),
-        makePlan(
-          startedAt: DateTime(2026, 7, 1),
-          totalDays: 5,
-        ),
+        makePlan(startedAt: DateTime(2026, 7, 1), totalDays: 5),
         DateTime(2026, 6, 25, 10),
         masterOn: true,
         routineOn: true,
@@ -147,10 +139,7 @@ void main() {
       final entries = engine.computeForPlanBlock(
         planBlock(hour: 7, minute: 0),
         planItem('plan-1'),
-        makePlan(
-          startedAt: DateTime(2026, 6, 1),
-          totalDays: 30,
-        ),
+        makePlan(startedAt: DateTime(2026, 6, 1), totalDays: 30),
         // 09:00 — past the 07:00 block time
         DateTime(2026, 6, 5, 9),
         masterOn: true,
@@ -165,10 +154,7 @@ void main() {
       final entries = engine.computeForPlanBlock(
         planBlock(hour: 9, minute: 0),
         planItem('plan-1'),
-        makePlan(
-          startedAt: DateTime(2026, 6, 1),
-          totalDays: 30,
-        ),
+        makePlan(startedAt: DateTime(2026, 6, 1), totalDays: 30),
         DateTime(2026, 6, 5, 8),
         masterOn: true,
         routineOn: true,
@@ -176,8 +162,7 @@ void main() {
       expect(entries.any((e) => e.isImmediate), isFalse);
     });
 
-    test(
-        'explicit re-add with a later time today re-arms today\'s entry '
+    test('explicit re-add with a later time today re-arms today\'s entry '
         '(deliberately scheduled fires are always honored) but never emits '
         'a catch-up', () {
       final entries = engine.computeForPlanBlock(
@@ -185,10 +170,7 @@ void main() {
         // fired at an earlier time (marker present).
         planBlock(hour: 16, minute: 0),
         planItem('plan-1'),
-        makePlan(
-          startedAt: DateTime(2026, 6, 1),
-          totalDays: 30,
-        ),
+        makePlan(startedAt: DateTime(2026, 6, 1), totalDays: 30),
         DateTime(2026, 6, 5, 15, 36),
         masterOn: true,
         routineOn: true,
@@ -198,33 +180,30 @@ void main() {
       expect(entries.any((e) => e.isImmediate), isFalse);
       // …but the user's explicit 16:00 choice fires today at 16:00.
       expect(
-        entries.any((e) =>
-            e.fireAt != null &&
-            e.fireAt!.month == 6 &&
-            e.fireAt!.day == 5 &&
-            e.fireAt!.hour == 16),
+        entries.any(
+          (e) =>
+              e.fireAt != null &&
+              e.fireAt!.month == 6 &&
+              e.fireAt!.day == 5 &&
+              e.fireAt!.hour == 16,
+        ),
         isTrue,
       );
       // Tomorrow onwards scheduled as usual.
       expect(
-        entries.any((e) =>
-            e.fireAt != null &&
-            e.fireAt!.month == 6 &&
-            e.fireAt!.day == 6),
+        entries.any(
+          (e) => e.fireAt != null && e.fireAt!.month == 6 && e.fireAt!.day == 6,
+        ),
         isTrue,
       );
     });
 
-    test(
-        'no immediate when the OS already owned today\'s delivery '
+    test('no immediate when the OS already owned today\'s delivery '
         '(background-fired notification must not duplicate on app open)', () {
       final entries = engine.computeForPlanBlock(
         planBlock(hour: 7, minute: 0),
         planItem('plan-1'),
-        makePlan(
-          startedAt: DateTime(2026, 6, 1),
-          totalDays: 30,
-        ),
+        makePlan(startedAt: DateTime(2026, 6, 1), totalDays: 30),
         // 09:00 — past the 07:00 block time, normally triggers a catch-up.
         DateTime(2026, 6, 5, 9),
         masterOn: true,
@@ -242,14 +221,14 @@ void main() {
 
   group('global cap', () {
     DesiredNotification dated(int id, DateTime fireAt) => DesiredNotification(
-          id: id,
-          fireAt: tz.TZDateTime.from(fireAt, tz.local),
-          title: 't',
-          body: 'b',
-          payload: null,
-          sourceItem: null,
-          debugCase: '3b',
-        );
+      id: id,
+      fireAt: tz.TZDateTime.from(fireAt, tz.local),
+      title: 't',
+      body: 'b',
+      payload: null,
+      sourceItem: null,
+      debugCase: '3b',
+    );
 
     test('keeps daily repeats and the soonest dated entries', () {
       final desired = <int, DesiredNotification>{};
@@ -275,8 +254,7 @@ void main() {
       engine.applyGlobalCap(desired, (_) {});
 
       expect(desired[5555], isNotNull, reason: 'daily repeat never dropped');
-      final datedLeft =
-          desired.values.where((d) => !d.isDailyRepeat).toList();
+      final datedLeft = desired.values.where((d) => !d.isDailyRepeat).toList();
       expect(
         datedLeft.length,
         NotificationSyncEngine.kMaxTotalScheduled - 1,
@@ -311,29 +289,32 @@ void main() {
           currentPlanId: currentPlanId,
         );
 
-    test('schedules notifications for the active plan on each upcoming day', () {
-      final entries = engine.computeForSeriesBlock(
-        planBlock(hour: 9),
-        seriesItem(currentPlanId: 'plan-1'),
-        [
-          makePlan(
-            id: 'plan-1',
-            startedAt: DateTime(2026, 6, 1),
-            totalDays: 30,
-          ),
-        ],
-        DateTime(2026, 6, 5, 8),
-        masterOn: true,
-        routineOn: true,
-      );
-      expect(entries, isNotEmpty);
-      expect(entries.every((e) => e.enrollmentPlanId == 'plan-1'), isTrue);
-      expect(
-        entries.any((e) => e.body.contains('Day 5')),
-        isTrue,
-        reason: 'Jun 5 is day 5 of the plan',
-      );
-    });
+    test(
+      'schedules notifications for the active plan on each upcoming day',
+      () {
+        final entries = engine.computeForSeriesBlock(
+          planBlock(hour: 9),
+          seriesItem(currentPlanId: 'plan-1'),
+          [
+            makePlan(
+              id: 'plan-1',
+              startedAt: DateTime(2026, 6, 1),
+              totalDays: 30,
+            ),
+          ],
+          DateTime(2026, 6, 5, 8),
+          masterOn: true,
+          routineOn: true,
+        );
+        expect(entries, isNotEmpty);
+        expect(entries.every((e) => e.enrollmentPlanId == 'plan-1'), isTrue);
+        expect(
+          entries.any((e) => e.body.contains('Day 5')),
+          isTrue,
+          reason: 'Jun 5 is day 5 of the plan',
+        );
+      },
+    );
 
     test('immediate catch-up uses today active plan day', () {
       final entries = engine.computeForSeriesBlock(

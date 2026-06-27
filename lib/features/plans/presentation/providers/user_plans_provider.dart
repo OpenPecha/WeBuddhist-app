@@ -91,10 +91,7 @@ final userPlanDayContentFutureProvider = StreamProvider.autoDispose.family<
   }
 
   final repository = ref.watch(userPlansDomainRepositoryProvider);
-  return repository.watchUserPlanDayContent(
-    params.planId,
-    params.dayNumber,
-  );
+  return repository.watchUserPlanDayContent(params.planId, params.dayNumber);
 });
 
 /// Provider that watches completion status for all days in a plan.

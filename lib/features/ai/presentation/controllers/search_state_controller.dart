@@ -18,11 +18,7 @@ class SearchStateNotifier extends StateNotifier<SearchState> {
 
     _logger.info('Performing search for: $query');
 
-    state = state.copyWith(
-      currentQuery: query,
-      isLoading: true,
-      error: null,
-    );
+    state = state.copyWith(currentQuery: query, isLoading: true, error: null);
 
     try {
       // Fetch all three search types in parallel for better performance
@@ -30,16 +26,20 @@ class SearchStateNotifier extends StateNotifier<SearchState> {
       final titleParams = TitleSearchParams(title: query);
       final authorParams = AuthorSearchParams(author: query);
 
-      final contentResultsEither =
-          await ref.read(multilingualSearchProvider(contentParams).future);
-      final titleResultsEither =
-          await ref.read(titleSearchProvider(titleParams).future);
-      final authorResultsEither =
-          await ref.read(authorSearchProvider(authorParams).future);
+      final contentResultsEither = await ref.read(
+        multilingualSearchProvider(contentParams).future,
+      );
+      final titleResultsEither = await ref.read(
+        titleSearchProvider(titleParams).future,
+      );
+      final authorResultsEither = await ref.read(
+        authorSearchProvider(authorParams).future,
+      );
 
       // Extract results from Either types
       final contentResults = contentResultsEither.fold(
-        (failure) => throw Exception('Content search failed: ${failure.message}'),
+        (failure) =>
+            throw Exception('Content search failed: ${failure.message}'),
         (results) => results,
       );
       final titleResults = titleResultsEither.fold(
@@ -47,14 +47,14 @@ class SearchStateNotifier extends StateNotifier<SearchState> {
         (results) => results,
       );
       final authorResults = authorResultsEither.fold(
-        (failure) => throw Exception('Author search failed: ${failure.message}'),
+        (failure) =>
+            throw Exception('Author search failed: ${failure.message}'),
         (results) => results,
       );
 
       // Add to history (limit to 10, avoid duplicates)
-      final newHistory = {query, ...state.searchHistory}
-          .take(maxHistorySize)
-          .toList();
+      final newHistory =
+          {query, ...state.searchHistory}.take(maxHistorySize).toList();
 
       _logger.info(
         'Search completed with ${contentResults.sources.length} content results, '
@@ -71,10 +71,7 @@ class SearchStateNotifier extends StateNotifier<SearchState> {
       );
     } catch (e) {
       _logger.error('Search failed', e);
-      state = state.copyWith(
-        error: e.toString(),
-        isLoading: false,
-      );
+      state = state.copyWith(error: e.toString(), isLoading: false);
     }
   }
 
@@ -103,5 +100,5 @@ class SearchStateNotifier extends StateNotifier<SearchState> {
 /// Provider for search state management
 final searchStateProvider =
     StateNotifierProvider<SearchStateNotifier, SearchState>((ref) {
-  return SearchStateNotifier(ref);
-});
+      return SearchStateNotifier(ref);
+    });

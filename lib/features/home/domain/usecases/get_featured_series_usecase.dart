@@ -8,7 +8,8 @@ class GetFeaturedSeriesUseCase
   final Future<Either<Failure, List<Series>>> Function({
     required String language,
     int limit,
-  }) _getFeaturedSeries;
+  })
+  _getFeaturedSeries;
 
   GetFeaturedSeriesUseCase(this._getFeaturedSeries);
 
@@ -16,10 +17,7 @@ class GetFeaturedSeriesUseCase
   Future<Either<Failure, List<Series>>> call(
     GetFeaturedSeriesParams params,
   ) async {
-    return _getFeaturedSeries(
-      language: params.language,
-      limit: params.limit,
-    );
+    return _getFeaturedSeries(language: params.language, limit: params.limit);
   }
 }
 
@@ -27,8 +25,5 @@ class GetFeaturedSeriesParams {
   final String language;
   final int limit;
 
-  const GetFeaturedSeriesParams({
-    required this.language,
-    this.limit = 10,
-  });
+  const GetFeaturedSeriesParams({required this.language, this.limit = 10});
 }

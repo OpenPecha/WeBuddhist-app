@@ -31,7 +31,15 @@ class TextContent extends BaseEntity {
   }
 
   @override
-  List<Object?> get props => [id, title, titleTibetan, author, language, totalSections, sections];
+  List<Object?> get props => [
+    id,
+    title,
+    titleTibetan,
+    author,
+    language,
+    totalSections,
+    sections,
+  ];
 }
 
 /// Section entity representing a division of text content.
@@ -53,7 +61,14 @@ class Section extends BaseEntity {
   });
 
   @override
-  List<Object?> get props => [id, sectionNumber, title, startPage, endPage, verses];
+  List<Object?> get props => [
+    id,
+    sectionNumber,
+    title,
+    startPage,
+    endPage,
+    verses,
+  ];
 }
 
 /// Verse entity representing a single verse or segment.
@@ -75,5 +90,12 @@ class Verse extends BaseEntity {
   });
 
   @override
-  List<Object?> get props => [id, verseNumber, content, contentTibetan, sanskrit, audioUrl];
+  List<Object?> get props => [
+    id,
+    verseNumber,
+    content,
+    contentTibetan,
+    sanskrit,
+    audioUrl,
+  ];
 }

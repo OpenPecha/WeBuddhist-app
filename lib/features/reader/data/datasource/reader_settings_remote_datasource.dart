@@ -21,8 +21,9 @@ class ReaderSettingsRemoteDatasource {
     required String textId,
     required String language,
   }) async {
-    final response =
-        await dio.get('/texts/$textId/languages/$language/scripts');
+    final response = await dio.get(
+      '/texts/$textId/languages/$language/scripts',
+    );
     return ReaderScriptsResponse.fromJson(
       response.data as Map<String, dynamic>,
     );
@@ -32,8 +33,9 @@ class ReaderSettingsRemoteDatasource {
     required String textId,
     required String language,
   }) async {
-    final response =
-        await dio.get('/texts/$textId/languages/$language/versions');
+    final response = await dio.get(
+      '/texts/$textId/languages/$language/versions',
+    );
     return ReaderVersionsResponse.fromJson(
       response.data as Map<String, dynamic>,
     );
@@ -43,8 +45,6 @@ class ReaderSettingsRemoteDatasource {
     required String versionId,
   }) async {
     final response = await dio.get('/texts/versions/$versionId/info');
-    return ReaderVersionDetail.fromJson(
-      response.data as Map<String, dynamic>,
-    );
+    return ReaderVersionDetail.fromJson(response.data as Map<String, dynamic>);
   }
 }

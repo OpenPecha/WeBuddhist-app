@@ -89,7 +89,9 @@ class FindPlansNotifier extends StateNotifier<FindPlansState> {
 
   /// Load initial plans — shows cached data immediately when available.
   Future<void> loadInitial() async {
-    _logger.debug('🔄 loadInitial() called - current state: ${state.plans.length} plans, isLoading: ${state.isLoading}');
+    _logger.debug(
+      '🔄 loadInitial() called - current state: ${state.plans.length} plans, isLoading: ${state.isLoading}',
+    );
 
     if (state.isLoading) {
       _logger.debug('⏸️ Already loading, skipping');
@@ -102,11 +104,9 @@ class FindPlansNotifier extends StateNotifier<FindPlansState> {
       state = state.copyWith(isLoading: true, error: null);
     }
 
-    final result = await getPlansUseCase(GetPlansParams(
-      language: languageCode,
-      skip: 0,
-      limit: _limit,
-    ));
+    final result = await getPlansUseCase(
+      GetPlansParams(language: languageCode, skip: 0, limit: _limit),
+    );
 
     result.fold(
       (failure) {
@@ -133,7 +133,9 @@ class FindPlansNotifier extends StateNotifier<FindPlansState> {
       },
     );
 
-    _logger.debug('🏁 loadInitial() finished - final state: ${state.plans.length} plans, isLoading: ${state.isLoading}');
+    _logger.debug(
+      '🏁 loadInitial() finished - final state: ${state.plans.length} plans, isLoading: ${state.isLoading}',
+    );
   }
 
   /// Load more plans
@@ -144,11 +146,9 @@ class FindPlansNotifier extends StateNotifier<FindPlansState> {
 
     state = state.copyWith(isLoadingMore: true, error: null);
 
-    final result = await getPlansUseCase(GetPlansParams(
-      language: languageCode,
-      skip: state.skip,
-      limit: _limit,
-    ));
+    final result = await getPlansUseCase(
+      GetPlansParams(language: languageCode, skip: state.skip, limit: _limit),
+    );
 
     result.fold(
       (failure) {

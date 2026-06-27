@@ -53,7 +53,9 @@ class AuthorRemoteDatasource {
         } else if (response.statusCode == 429) {
           throw const RateLimitException('Too many requests');
         } else {
-          throw ServerException('Failed to load author: ${response.statusCode}');
+          throw ServerException(
+            'Failed to load author: ${response.statusCode}',
+          );
         }
       }
     } on DioException catch (e) {

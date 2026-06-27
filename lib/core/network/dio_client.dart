@@ -25,11 +25,11 @@ class DioClient {
     // Add interceptors in order
     // IMPORTANT: Order matters! Each interceptor processes the request/response in sequence
     _dio.interceptors.addAll([
-      authInterceptor,      // 1. Add auth headers first
-      cacheInterceptor,     // 2. Check cache for GET requests
-      retryInterceptor,     // 3. Handle 401 token refresh & network retries
-      errorInterceptor,     // 4. Convert DioExceptions to typed exceptions
-      loggingInterceptor,   // 5. Log the FINAL friendly exception (not raw DioException)
+      authInterceptor, // 1. Add auth headers first
+      cacheInterceptor, // 2. Check cache for GET requests
+      retryInterceptor, // 3. Handle 401 token refresh & network retries
+      errorInterceptor, // 4. Convert DioExceptions to typed exceptions
+      loggingInterceptor, // 5. Log the FINAL friendly exception (not raw DioException)
     ]);
 
     // Configure retry interceptor with parent Dio's options for safe retries

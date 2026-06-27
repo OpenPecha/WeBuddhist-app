@@ -16,10 +16,7 @@ class GroupProfileRepositoryImpl implements GroupProfileRepositoryInterface {
     required String language,
   }) async {
     try {
-      final model = await remote.fetchGroupProfile(
-        groupId,
-        language: language,
-      );
+      final model = await remote.fetchGroupProfile(groupId, language: language);
       return Right(model.toEntity());
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
@@ -76,7 +73,9 @@ class GroupProfileRepositoryImpl implements GroupProfileRepositoryInterface {
     } catch (e) {
       return Left(
         UnknownFailure(
-          groupType.isPage ? 'Failed to follow group: $e' : 'Failed to join group: $e',
+          groupType.isPage
+              ? 'Failed to follow group: $e'
+              : 'Failed to join group: $e',
         ),
       );
     }

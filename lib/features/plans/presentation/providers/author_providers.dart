@@ -12,35 +12,32 @@ import '../../data/models/author/author_model.dart';
 // Repository provider
 final authorRepositoryProvider = Provider<AuthorRepository>((ref) {
   return AuthorRepository(
-    authorRemoteDatasource: AuthorRemoteDatasource(
-      dio: ref.watch(dioProvider),
-    ),
+    authorRemoteDatasource: AuthorRemoteDatasource(dio: ref.watch(dioProvider)),
   );
 });
 
 // Get author by ID provider
-final authorByIdFutureProvider = FutureProvider.family<Either<Failure, AuthorModel>, String>((
-  ref,
-  id,
-) {
-  return ref.watch(authorRepositoryProvider).getAuthorById(id);
-});
+final authorByIdFutureProvider =
+    FutureProvider.family<Either<Failure, AuthorModel>, String>((ref, id) {
+      return ref.watch(authorRepositoryProvider).getAuthorById(id);
+    });
 
 // Get plans by author ID provider (using use case)
-final authorPlansFutureProvider =
-    FutureProvider.family<Either<Failure, List<Plan>>, String>((ref, authorId) async {
-      final getPlansUseCase = ref.watch(getPlansUseCaseProvider);
+final authorPlansFutureProvider = FutureProvider.family<
+  Either<Failure, List<Plan>>,
+  String
+>((ref, authorId) async {
+  final getPlansUseCase = ref.watch(getPlansUseCaseProvider);
 
-      final result = await getPlansUseCase(const GetPlansParams(
-        language: 'en',
-        limit: 100,
-      ));
+  final result = await getPlansUseCase(
+    const GetPlansParams(language: 'en', limit: 100),
+  );
 
-      return result.fold(
-        (failure) => Left(failure),
-        (plans) => Right(plans.where((plan) => plan.authorId == authorId).toList()),
-      );
-    });
+  return result.fold(
+    (failure) => Left(failure),
+    (plans) => Right(plans.where((plan) => plan.authorId == authorId).toList()),
+  );
+});
 
 // Author state notifier for managing local state
 class AuthorState {

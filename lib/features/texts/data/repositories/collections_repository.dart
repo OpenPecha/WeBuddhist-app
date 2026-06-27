@@ -47,9 +47,7 @@ class CollectionsRepository implements CollectionsRepositoryInterface {
         );
 
         if (cacheResult.isHit && cacheResult.data != null) {
-          _logger.debug(
-            'Collections cache hit (offline: ${!isOnline})',
-          );
+          _logger.debug('Collections cache hit (offline: ${!isOnline})');
 
           // If stale and online, refresh in background
           if (cacheResult.needsRefresh && isOnline) {
@@ -62,7 +60,11 @@ class CollectionsRepository implements CollectionsRepositoryInterface {
 
       // If offline and no cache, return network failure
       if (!isOnline) {
-        return const Left(NetworkFailure('No internet connection and no cached collections available'));
+        return const Left(
+          NetworkFailure(
+            'No internet connection and no cached collections available',
+          ),
+        );
       }
 
       // Cache miss or force refresh - fetch from network
@@ -90,7 +92,9 @@ class CollectionsRepository implements CollectionsRepositoryInterface {
       }
 
       _logger.error('Error fetching collections', e);
-      return Left(ExceptionMapper.map(e, context: 'Failed to load collections'));
+      return Left(
+        ExceptionMapper.map(e, context: 'Failed to load collections'),
+      );
     }
   }
 

@@ -63,11 +63,9 @@ class BookmarkController {
     }
 
     try {
-      final result = await ref.read(bookmarkRepositoryProvider).createBookmark(
-            type: type,
-            sourceId: sourceId,
-            name: name,
-          );
+      final result = await ref
+          .read(bookmarkRepositoryProvider)
+          .createBookmark(type: type, sourceId: sourceId, name: name);
       result.fold(
         (failure) => throw Exception(failure.message),
         (_) => _showSuccessSnackBar(),

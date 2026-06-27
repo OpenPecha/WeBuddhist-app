@@ -33,29 +33,31 @@ class SegmentDrawer extends ConsumerWidget {
         return Container(
           decoration: BoxDecoration(
             color: Theme.of(context).scaffoldBackgroundColor,
-            borderRadius: const BorderRadius.vertical(
-              top: Radius.circular(20),
-            ),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
           ),
           child: Column(
             children: [
               _buildDragHandle(context),
               Expanded(
                 child: segmentAsync.when(
-                  data: (segment) => _SegmentContent(
-                    title: segment.textTitle,
-                    content: segment.content,
-                    scrollController: scrollController,
-                  ),
-                  loading: () =>
-                      const Center(child: CircularProgressIndicator()),
-                  error: (error, _) => Center(
-                    child: ErrorStateWidget(
-                      error: error,
-                      onRetry: () =>
-                          ref.invalidate(segmentDetailProvider(segmentId)),
-                    ),
-                  ),
+                  data:
+                      (segment) => _SegmentContent(
+                        title: segment.textTitle,
+                        content: segment.content,
+                        scrollController: scrollController,
+                      ),
+                  loading:
+                      () => const Center(child: CircularProgressIndicator()),
+                  error:
+                      (error, _) => Center(
+                        child: ErrorStateWidget(
+                          error: error,
+                          onRetry:
+                              () => ref.invalidate(
+                                segmentDetailProvider(segmentId),
+                              ),
+                        ),
+                      ),
                 ),
               ),
             ],
@@ -72,8 +74,7 @@ class SegmentDrawer extends ConsumerWidget {
         width: 40,
         height: 4,
         decoration: BoxDecoration(
-          color:
-              Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3),
+          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3),
           borderRadius: BorderRadius.circular(2),
         ),
       ),

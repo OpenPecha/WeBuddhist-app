@@ -29,8 +29,7 @@ class BookmarkCard extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final cardColor =
         isDark ? AppColors.cardBackgroundDark : AppColors.cardBackgroundLight;
-    final borderColor =
-        isDark ? AppColors.cardBorderDark : AppColors.grey300;
+    final borderColor = isDark ? AppColors.cardBorderDark : AppColors.grey300;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -103,7 +102,9 @@ class BookmarkCard extends StatelessWidget {
     if (start == null) return null;
     final fmt = DateFormat('MMM d');
     final end = bookmark.endDate;
-    return end == null ? fmt.format(start) : '${fmt.format(start)} - ${fmt.format(end)}';
+    return end == null
+        ? fmt.format(start)
+        : '${fmt.format(start)} - ${fmt.format(end)}';
   }
 
   Widget _buildTextRow(BuildContext context, bool isDark) {
@@ -177,7 +178,9 @@ class _Leading extends StatelessWidget {
   Widget build(BuildContext context) {
     final image = bookmark.leadingImage;
     if (image != null && !image.isEmpty) {
-      final radius = BorderRadius.circular(bookmark.isRoundLeading ? _size / 2 : 10);
+      final radius = BorderRadius.circular(
+        bookmark.isRoundLeading ? _size / 2 : 10,
+      );
       return ResponsiveCoverImage(
         image: image,
         width: _size,
@@ -221,8 +224,8 @@ class _IconTile extends StatelessWidget {
     BookmarkItemType.plan => PhosphorIconsRegular.calendarCheck,
     BookmarkItemType.series => PhosphorIconsRegular.cards,
     BookmarkItemType.accumulator => PhosphorIconsRegular.circlesThree,
-    BookmarkItemType.text || BookmarkItemType.verse =>
-      PhosphorIconsRegular.bookOpenText,
+    BookmarkItemType.text ||
+    BookmarkItemType.verse => PhosphorIconsRegular.bookOpenText,
   };
 }
 

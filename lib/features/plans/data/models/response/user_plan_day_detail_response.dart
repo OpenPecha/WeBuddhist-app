@@ -33,13 +33,14 @@ class UserPlanDayDetailResponse {
       isCompleted: json['is_completed'] as bool,
       audioUrl: json['audio_url'] as String?,
       audioDurationMs: json['audio_duration_ms'] as int?,
-      videos: json['videos'] != null
-          ? (json['videos'] as List<dynamic>)
-              .map(
-                (e) => PlanVideoModel.fromJson(e as Map<String, dynamic>),
-              )
-              .toList()
-          : const [],
+      videos:
+          json['videos'] != null
+              ? (json['videos'] as List<dynamic>)
+                  .map(
+                    (e) => PlanVideoModel.fromJson(e as Map<String, dynamic>),
+                  )
+                  .toList()
+              : const [],
     );
   }
 

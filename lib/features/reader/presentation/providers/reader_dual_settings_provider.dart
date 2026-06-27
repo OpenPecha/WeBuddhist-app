@@ -7,8 +7,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// stable UX preference ("I usually want a translation underneath").
 class ReaderSecondaryEnabledNotifier extends StateNotifier<bool> {
   ReaderSecondaryEnabledNotifier({required LocalStorageService localStorage})
-      : _storage = localStorage,
-        super(false) {
+    : _storage = localStorage,
+      super(false) {
     _loadFuture = _load();
   }
 
@@ -19,9 +19,7 @@ class ReaderSecondaryEnabledNotifier extends StateNotifier<bool> {
   Future<void> get loaded => _loadFuture;
 
   Future<void> _load() async {
-    final stored = await _storage.get<bool>(
-      StorageKeys.readerSecondaryEnabled,
-    );
+    final stored = await _storage.get<bool>(StorageKeys.readerSecondaryEnabled);
     if (stored == null || !mounted) return;
     state = stored;
   }
@@ -35,10 +33,10 @@ class ReaderSecondaryEnabledNotifier extends StateNotifier<bool> {
 
 final readerSecondaryEnabledProvider =
     StateNotifierProvider<ReaderSecondaryEnabledNotifier, bool>((ref) {
-  return ReaderSecondaryEnabledNotifier(
-    localStorage: ref.read(localStorageServiceProvider),
-  );
-});
+      return ReaderSecondaryEnabledNotifier(
+        localStorage: ref.read(localStorageServiceProvider),
+      );
+    });
 
 /// Per-text dual-slot settings (the toggle + both slot configs).
 ///
@@ -50,19 +48,16 @@ final readerSecondaryEnabledProvider =
 /// `versionId` / `scriptId` are scoped to a specific text and cannot
 /// meaningfully transfer to another text. autoDispose ensures they reset
 /// the next time this text is opened.
-class ReaderDualSettingsNotifier extends StateNotifier<ReaderDualLayoutSettings> {
+class ReaderDualSettingsNotifier
+    extends StateNotifier<ReaderDualLayoutSettings> {
   ReaderDualSettingsNotifier({required Ref ref})
-      : _ref = ref,
-        super(ReaderDualLayoutSettings.initial()) {
-    _ref.listen<bool>(
-      readerSecondaryEnabledProvider,
-      (_, enabled) {
-        if (!mounted) return;
-        if (state.secondaryEnabled == enabled) return;
-        state = state.copyWith(secondaryEnabled: enabled);
-      },
-      fireImmediately: true,
-    );
+    : _ref = ref,
+      super(ReaderDualLayoutSettings.initial()) {
+    _ref.listen<bool>(readerSecondaryEnabledProvider, (_, enabled) {
+      if (!mounted) return;
+      if (state.secondaryEnabled == enabled) return;
+      state = state.copyWith(secondaryEnabled: enabled);
+    }, fireImmediately: true);
   }
 
   final Ref _ref;
@@ -109,11 +104,11 @@ class ReaderDualSettingsNotifier extends StateNotifier<ReaderDualLayoutSettings>
 
 final readerDualSettingsProvider = StateNotifierProvider.autoDispose
     .family<ReaderDualSettingsNotifier, ReaderDualLayoutSettings, String>(
-  (ref, _) => ReaderDualSettingsNotifier(ref: ref),
-);
+      (ref, _) => ReaderDualSettingsNotifier(ref: ref),
+    );
 
 /// Transient (not persisted): true while the secondary slot's version is being
 /// auto-resolved after a language change. Drives the version row's loading
 /// state and blocks language edits until resolution completes.
-final readerSecondaryResolvingProvider =
-    StateProvider.autoDispose.family<bool, String>((ref, _) => false);
+final readerSecondaryResolvingProvider = StateProvider.autoDispose
+    .family<bool, String>((ref, _) => false);

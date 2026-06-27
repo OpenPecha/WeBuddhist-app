@@ -98,11 +98,7 @@ class _LoginDrawerState extends ConsumerState<LoginDrawer>
                   ),
                 ),
                 // App logo
-                Image.asset(
-                  AppAssets.weBuddhistLogo,
-                  height: 80,
-                  width: 80,
-                ),
+                Image.asset(AppAssets.weBuddhistLogo, height: 80, width: 80),
                 const SizedBox(height: 24),
                 // Title
                 Text(

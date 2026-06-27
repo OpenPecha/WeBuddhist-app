@@ -31,17 +31,16 @@ class SelectRecitationScreen extends ConsumerWidget {
       ),
       body: recitationsAsync.when(
         loading: () => const RecitationListSkeleton(),
-        error: (error, _) => Center(
-          child: Text(
-            localizations.recitations_no_content,
-            style: TextStyle(color: AppColors.textSecondary),
-          ),
-        ),
+        error:
+            (error, _) => Center(
+              child: Text(
+                localizations.recitations_no_content,
+                style: TextStyle(color: AppColors.textSecondary),
+              ),
+            ),
         data: (recitationsEither) {
           return recitationsEither.fold(
-            (failure) => Center(
-              child: ErrorStateWidget(error: failure),
-            ),
+            (failure) => Center(child: ErrorStateWidget(error: failure)),
             (recitations) {
               if (recitations.isEmpty) {
                 return Center(
@@ -53,7 +52,10 @@ class SelectRecitationScreen extends ConsumerWidget {
               }
 
               return ListView.builder(
-                padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20.0,
+                  vertical: 16.0,
+                ),
                 itemCount: recitations.length,
                 itemBuilder: (context, index) {
                   final recitation = recitations[index];
@@ -75,10 +77,7 @@ class _SelectableRecitationCard extends StatelessWidget {
   final String title;
   final VoidCallback onTap;
 
-  const _SelectableRecitationCard({
-    required this.title,
-    required this.onTap,
-  });
+  const _SelectableRecitationCard({required this.title, required this.onTap});
 
   @override
   Widget build(BuildContext context) {

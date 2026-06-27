@@ -25,5 +25,12 @@ class PlanDay extends Equatable {
   }
 
   @override
-  List<Object?> get props => [dayNumber, title, description, tasks, durationMinutes, isRestDay];
+  List<Object?> get props => [
+    dayNumber,
+    title,
+    description,
+    tasks,
+    durationMinutes,
+    isRestDay,
+  ];
 }

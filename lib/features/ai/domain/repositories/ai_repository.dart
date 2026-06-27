@@ -19,13 +19,19 @@ abstract class AIRepository extends Repository {
   Future<Either<Failure, void>> deleteThread(String threadId);
 
   /// Send a message and get AI response.
-  Future<Either<Failure, ChatMessage>> sendMessage(String threadId, String content);
+  Future<Either<Failure, ChatMessage>> sendMessage(
+    String threadId,
+    String content,
+  );
 
   /// Search text content using AI.
   Future<Either<Failure, List<SearchResult>>> searchContent(String query);
 
   /// Get suggestions based on context.
-  Future<Either<Failure, List<String>>> getSuggestions(String context, int count);
+  Future<Either<Failure, List<String>>> getSuggestions(
+    String context,
+    int count,
+  );
 }
 
 /// Search result from AI content search.

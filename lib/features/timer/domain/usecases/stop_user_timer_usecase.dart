@@ -4,10 +4,7 @@ import 'package:flutter_pecha/core/error/failures.dart';
 import 'package:flutter_pecha/shared/domain/base_classes/usecase.dart';
 
 class StopUserTimerParams extends Equatable {
-  const StopUserTimerParams({
-    required this.timerId,
-    required this.durationMs,
-  });
+  const StopUserTimerParams({required this.timerId, required this.durationMs});
 
   final String timerId;
   final int durationMs;
@@ -22,7 +19,8 @@ class StopUserTimerUseCase extends UseCase<void, StopUserTimerParams> {
   final Future<Either<Failure, void>> Function({
     required String timerId,
     required int durationMs,
-  }) _stopUserTimer;
+  })
+  _stopUserTimer;
 
   @override
   Future<Either<Failure, void>> call(StopUserTimerParams params) async {

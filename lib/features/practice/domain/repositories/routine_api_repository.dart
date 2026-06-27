@@ -22,7 +22,7 @@ abstract class RoutineApiRepository {
   /// Creates a new routine with its first time block.
   /// Returns the server-assigned [routineId] and [timeBlockId] on success.
   Future<Either<Failure, ({String routineId, String timeBlockId})>>
-      createRoutineWithTimeBlock(TimeBlockRequest request);
+  createRoutineWithTimeBlock(TimeBlockRequest request);
 
   /// Adds a time block to an existing routine.
   /// Returns the server-assigned [timeBlockId] of the new block.

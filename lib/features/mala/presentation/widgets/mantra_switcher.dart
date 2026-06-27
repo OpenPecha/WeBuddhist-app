@@ -72,9 +72,10 @@ class _MantraSwitcherState extends State<MantraSwitcher> {
   /// Animate the carousel by [delta] pages (loops via the page → mantra map).
   void _animateBy(int delta) {
     if (!_canLoop) return;
-    final current = _controller.hasClients && _controller.page != null
-        ? _controller.page!.round()
-        : _controller.initialPage;
+    final current =
+        _controller.hasClients && _controller.page != null
+            ? _controller.page!.round()
+            : _controller.initialPage;
     _controller.animateToPage(
       current + delta,
       duration: const Duration(milliseconds: 300),
@@ -95,9 +96,10 @@ class _MantraSwitcherState extends State<MantraSwitcher> {
         Expanded(
           child: PageView.builder(
             controller: _controller,
-            physics: _canLoop
-                ? const PageScrollPhysics()
-                : const NeverScrollableScrollPhysics(),
+            physics:
+                _canLoop
+                    ? const PageScrollPhysics()
+                    : const NeverScrollableScrollPhysics(),
             onPageChanged: (page) => widget.onIndexChanged(_logical(page)),
             // Null itemCount = unbounded forward; bounded at 0 backward, but the
             // large initial page keeps that out of reach.
@@ -107,7 +109,8 @@ class _MantraSwitcherState extends State<MantraSwitcher> {
               return _MantraPage(
                 tibetan: mantra.tibetan,
                 tibetanFontFamily: widget.tibetanFontFamily,
-                transliteration: mantra.transliteration(widget.language) ??
+                transliteration:
+                    mantra.transliteration(widget.language) ??
                     mantra.localizedName(widget.language),
                 theme: theme,
               );

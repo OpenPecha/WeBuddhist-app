@@ -17,7 +17,9 @@ final _logger = AppLogger('RoutineNotifier');
 ///
 /// Uses RoutineLocalStorage (Hive) for persistence and
 /// [NotificationSyncEngine] for notification scheduling.
-final routineProvider = StateNotifierProvider<RoutineNotifier, RoutineData>((ref) {
+final routineProvider = StateNotifierProvider<RoutineNotifier, RoutineData>((
+  ref,
+) {
   final localStorage = ref.watch(routineLocalStorageProvider);
   final analyticsService = ref.watch(analyticsServiceProvider);
   return RoutineNotifier(
@@ -36,10 +38,10 @@ class RoutineNotifier extends StateNotifier<RoutineData> {
     required RoutineLocalStorage localStorage,
     required NotificationSyncEngine Function() syncEngine,
     required AnalyticsService analyticsService,
-  })  : _localStorage = localStorage,
-        _syncEngine = syncEngine,
-        _analyticsService = analyticsService,
-        super(const RoutineData()) {
+  }) : _localStorage = localStorage,
+       _syncEngine = syncEngine,
+       _analyticsService = analyticsService,
+       super(const RoutineData()) {
     _loadRoutines();
   }
 
@@ -68,11 +70,16 @@ class RoutineNotifier extends StateNotifier<RoutineData> {
       _loadFailed = false;
       if (mounted) {
         state = data;
-        _logger.info('[ROUTINE-LOAD] Loaded ${data.blocks.length} blocks from storage');
+        _logger.info(
+          '[ROUTINE-LOAD] Loaded ${data.blocks.length} blocks from storage',
+        );
         if (data.blocks.isNotEmpty) {
-          _logger.info('[ROUTINE-LOAD] Re-syncing ${data.blocks.length} notifications on startup...');
-          final report =
-              await _syncEngine().sync(trigger: SyncTrigger.coldStart);
+          _logger.info(
+            '[ROUTINE-LOAD] Re-syncing ${data.blocks.length} notifications on startup...',
+          );
+          final report = await _syncEngine().sync(
+            trigger: SyncTrigger.coldStart,
+          );
           _logger.info('[ROUTINE-LOAD] Startup sync done: $report');
         }
       }
@@ -108,7 +115,9 @@ class RoutineNotifier extends StateNotifier<RoutineData> {
   /// background.
   Future<void> saveRoutineLocalOnly(List<RoutineBlock> blocks) async {
     final data = RoutineData(blocks: blocks).sortedByTime;
-    _logger.info('[ROUTINE-SAVE] persisting ${data.blocks.length} blocks (local only)');
+    _logger.info(
+      '[ROUTINE-SAVE] persisting ${data.blocks.length} blocks (local only)',
+    );
     try {
       await _localStorage.saveRoutine(data);
       // A successful save makes in-memory state authoritative again even if
@@ -195,14 +204,15 @@ class RoutineNotifier extends StateNotifier<RoutineData> {
     int oldIndex,
     int newIndex,
   ) async {
-    final blocks = state.blocks.map((block) {
-      if (block.id != blockId) return block;
-      final items = List<RoutineItem>.from(block.items);
-      final item = items.removeAt(oldIndex);
-      final adjustedIndex = newIndex > oldIndex ? newIndex - 1 : newIndex;
-      items.insert(adjustedIndex, item);
-      return block.copyWith(items: items);
-    }).toList();
+    final blocks =
+        state.blocks.map((block) {
+          if (block.id != blockId) return block;
+          final items = List<RoutineItem>.from(block.items);
+          final item = items.removeAt(oldIndex);
+          final adjustedIndex = newIndex > oldIndex ? newIndex - 1 : newIndex;
+          items.insert(adjustedIndex, item);
+          return block.copyWith(items: items);
+        }).toList();
     await saveRoutine(blocks);
   }
 

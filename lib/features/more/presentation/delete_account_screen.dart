@@ -115,21 +115,20 @@ class _DeleteAccountScreenState extends ConsumerState<DeleteAccountScreen> {
                     borderRadius: BorderRadius.circular(30),
                   ),
                 ),
-                child: _isDeleting
-                    ? SizedBox(
-                        width: 22,
-                        height: 22,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2.5,
-                          color: isDark ? Colors.black : Colors.white,
+                child:
+                    _isDeleting
+                        ? SizedBox(
+                          width: 22,
+                          height: 22,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2.5,
+                            color: isDark ? Colors.black : Colors.white,
+                          ),
+                        )
+                        : Text(
+                          AppLocalizations.of(context)!.delete_account_button,
+                          style: const TextStyle(fontSize: 16),
                         ),
-                      )
-                    : Text(
-                        AppLocalizations.of(context)!.delete_account_button,
-                        style: const TextStyle(
-                          fontSize: 16,
-                        ),
-                      ),
               ),
             ),
           ],

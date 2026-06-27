@@ -14,13 +14,17 @@ abstract class TextsRepository extends Repository {
   Future<Either<Failure, TextEntity?>> getText(String id);
 
   /// Get texts by collection.
-  Future<Either<Failure, List<TextEntity>>> getTextsByCollection(String collectionId);
+  Future<Either<Failure, List<TextEntity>>> getTextsByCollection(
+    String collectionId,
+  );
 
   /// Search texts by query.
   Future<Either<Failure, List<TextEntity>>> searchTexts(String query);
 
   /// Get table of contents for a text.
-  Future<Either<Failure, List<SectionEntity>>> getTableOfContents(String textId);
+  Future<Either<Failure, List<SectionEntity>>> getTableOfContents(
+    String textId,
+  );
 
   /// Get specific section content.
   Future<Either<Failure, SectionEntity>> getSection(String sectionId);

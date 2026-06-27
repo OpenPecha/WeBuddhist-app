@@ -3,7 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
 import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
-import 'package:flutter_pecha/core/network/connectivity_service.dart' show connectivityNotifierProvider;
+import 'package:flutter_pecha/core/network/connectivity_service.dart'
+    show connectivityNotifierProvider;
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/core/widgets/destructive_confirmation_dialog.dart';
 import 'package:flutter_pecha/features/mala/domain/entities/mantra.dart';
@@ -37,8 +38,7 @@ class MalaSettingsSheet extends ConsumerWidget {
     final settings = ref.watch(malaSettingsProvider);
     final settingsNotifier = ref.read(malaSettingsProvider.notifier);
     final isOnline = ref.watch(connectivityNotifierProvider);
-    final dividerColor =
-        isDark ? AppColors.cardBorderDark : AppColors.grey300;
+    final dividerColor = isDark ? AppColors.cardBorderDark : AppColors.grey300;
     const destructiveColor = Color(0xFFB03027);
 
     return Container(
@@ -118,10 +118,10 @@ class MalaSettingsSheet extends ConsumerWidget {
     // The controller handles the guest → login-drawer flow and shows its own
     // success/error snackbar, so it must run before the sheet is dismissed
     // (its context drives both). The sheet is closed once the call resolves.
-    await BookmarkController(ref: ref, context: context).bookmarkMala(
-      mantra.presetId,
-      name: mantra.displayTitle(language),
-    );
+    await BookmarkController(
+      ref: ref,
+      context: context,
+    ).bookmarkMala(mantra.presetId, name: mantra.displayTitle(language));
 
     if (context.mounted) navigator.pop();
   }

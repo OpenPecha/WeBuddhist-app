@@ -6,7 +6,10 @@ import 'package:flutter_pecha/shared/domain/base_classes/usecase.dart';
 ///
 /// This use case retrieves a list of unique tags for filtering plans.
 class GetTagsUseCase extends UseCase<List<String>, GetTagsParams> {
-  final Future<Either<Failure, List<String>>> Function({required String language}) _getTags;
+  final Future<Either<Failure, List<String>>> Function({
+    required String language,
+  })
+  _getTags;
 
   GetTagsUseCase(this._getTags);
 

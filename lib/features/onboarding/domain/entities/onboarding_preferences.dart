@@ -25,7 +25,8 @@ const kOnboardingEvents = <OnboardingEventPlan>[
     planId: 'b42c9270-8bc9-4a98-b375-924a948ab18e',
     eventLabel: 'ITCC Bodhgaya · Dec 2026',
     planName: 'Daily Tipitaka',
-    description: '200-Day Road to the International Tipitaka Chanting Ceremony 2026',
+    description:
+        '200-Day Road to the International Tipitaka Chanting Ceremony 2026',
     totalDays: 6,
   ),
 ];
@@ -70,8 +71,10 @@ class OnboardingPreferences extends BaseEntity {
       userId: userId ?? this.userId,
       interests: interests ?? this.interests,
       primaryLanguage: primaryLanguage ?? this.primaryLanguage,
-      dailyPracticeGoalMinutes: dailyPracticeGoalMinutes ?? this.dailyPracticeGoalMinutes,
-      preferredPracticeTypes: preferredPracticeTypes ?? this.preferredPracticeTypes,
+      dailyPracticeGoalMinutes:
+          dailyPracticeGoalMinutes ?? this.dailyPracticeGoalMinutes,
+      preferredPracticeTypes:
+          preferredPracticeTypes ?? this.preferredPracticeTypes,
       completedAt: completedAt ?? this.completedAt,
       selectedPaths: selectedPaths ?? this.selectedPaths,
       enrolledEventPlanIds: enrolledEventPlanIds ?? this.enrolledEventPlanIds,
@@ -108,7 +111,13 @@ class OnboardingStep extends Equatable {
   });
 
   @override
-  List<Object?> get props => [stepNumber, title, description, options, isCompleted];
+  List<Object?> get props => [
+    stepNumber,
+    title,
+    description,
+    options,
+    isCompleted,
+  ];
 }
 
 /// Onboarding option entity.

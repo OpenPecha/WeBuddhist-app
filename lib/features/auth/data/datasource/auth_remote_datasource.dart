@@ -57,13 +57,11 @@ class AuthRemoteDatasourceImpl extends AuthRemoteDataSource {
         '/users/username',
         data: {'username': username},
       );
-      final confirmed =
-          response.data['username'] as String? ?? username;
+      final confirmed = response.data['username'] as String? ?? username;
       return UsernameUpdateResult.success(confirmed);
     } on DioException catch (e) {
       if (e.response?.statusCode == 409) {
-        final detail =
-            e.response?.data['detail'] as Map<String, dynamic>?;
+        final detail = e.response?.data['detail'] as Map<String, dynamic>?;
         final raw = detail?['suggestions'] as List?;
         final suggestions =
             raw?.map((s) => s.toString()).toList() ?? const <String>[];

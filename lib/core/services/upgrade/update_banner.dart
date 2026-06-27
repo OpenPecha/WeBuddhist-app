@@ -100,11 +100,7 @@ class _UpdateBannerState extends State<UpdateBanner>
                   color: Colors.white.withValues(alpha: 0.2),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(
-                  Icons.sync,
-                  color: Colors.white,
-                  size: 20,
-                ),
+                child: const Icon(Icons.sync, color: Colors.white, size: 20),
               ),
               const SizedBox(width: 12),
               Expanded(

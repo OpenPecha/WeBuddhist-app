@@ -9,10 +9,7 @@ class TextSearchSkeleton extends StatelessWidget {
   /// Number of skeleton items to display.
   final int itemCount;
 
-  const TextSearchSkeleton({
-    super.key,
-    this.itemCount = 8,
-  });
+  const TextSearchSkeleton({super.key, this.itemCount = 8});
 
   @override
   Widget build(BuildContext context) {
@@ -22,12 +19,13 @@ class TextSearchSkeleton extends StatelessWidget {
         color: Theme.of(context).scaffoldBackgroundColor,
         child: ListView.separated(
           itemCount: itemCount,
-          separatorBuilder: (context, index) => const Divider(
-            height: 1,
-            color: Colors.grey,
-            indent: 20,
-            endIndent: 20,
-          ),
+          separatorBuilder:
+              (context, index) => const Divider(
+                height: 1,
+                color: Colors.grey,
+                indent: 20,
+                endIndent: 20,
+              ),
           itemBuilder: (context, index) => _buildSkeletonItem(context),
         ),
       ),

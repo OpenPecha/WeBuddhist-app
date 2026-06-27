@@ -15,8 +15,5 @@ final collectionsCategoryFutureProvider = FutureProvider.autoDispose.family((
 ) {
   final languageCode = ref.watch(contentLanguageProvider);
   final useCase = ref.watch(getCollectionsUseCaseProvider);
-  return useCase(CollectionsParams(
-    language: languageCode,
-    parentId: parentId,
-  ));
+  return useCase(CollectionsParams(language: languageCode, parentId: parentId));
 });

@@ -143,9 +143,7 @@ class _AccumulationsSearchScreenState
                 ],
               ),
             ),
-            Expanded(
-              child: _buildBody(context, searchState, subtitleColor),
-            ),
+            Expanded(child: _buildBody(context, searchState, subtitleColor)),
           ],
         ),
       ),
@@ -183,8 +181,8 @@ class _AccumulationsSearchScreenState
               ),
               const SizedBox(height: 16),
               ElevatedButton(
-                onPressed: () =>
-                    ref.read(accumulationSearchProvider.notifier).retry(),
+                onPressed:
+                    () => ref.read(accumulationSearchProvider.notifier).retry(),
                 child: Text(l10n.retry),
               ),
             ],

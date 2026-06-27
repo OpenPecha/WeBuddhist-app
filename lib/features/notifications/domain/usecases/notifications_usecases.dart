@@ -6,7 +6,8 @@ import 'package:flutter_pecha/features/notifications/domain/repositories/notific
 import 'package:flutter_pecha/shared/domain/base_classes/usecase.dart';
 
 /// Get notification settings use case.
-class GetNotificationSettingsUseCase extends UseCase<NotificationSettings, NoParams> {
+class GetNotificationSettingsUseCase
+    extends UseCase<NotificationSettings, NoParams> {
   final NotificationsRepository _repository;
 
   GetNotificationSettingsUseCase(this._repository);
@@ -18,13 +19,16 @@ class GetNotificationSettingsUseCase extends UseCase<NotificationSettings, NoPar
 }
 
 /// Update notification settings use case.
-class UpdateNotificationSettingsUseCase extends UseCase<NotificationSettings, UpdateSettingsParams> {
+class UpdateNotificationSettingsUseCase
+    extends UseCase<NotificationSettings, UpdateSettingsParams> {
   final NotificationsRepository _repository;
 
   UpdateNotificationSettingsUseCase(this._repository);
 
   @override
-  Future<Either<Failure, NotificationSettings>> call(UpdateSettingsParams params) async {
+  Future<Either<Failure, NotificationSettings>> call(
+    UpdateSettingsParams params,
+  ) async {
     return await _repository.updateSettings(params.settings);
   }
 }
@@ -35,7 +39,8 @@ class UpdateSettingsParams {
 }
 
 /// Schedule notification use case.
-class ScheduleNotificationUseCase extends UseCase<void, ScheduleNotificationParams> {
+class ScheduleNotificationUseCase
+    extends UseCase<void, ScheduleNotificationParams> {
   final NotificationsRepository _repository;
 
   ScheduleNotificationUseCase(this._repository);
@@ -55,7 +60,8 @@ class ScheduleNotificationParams {
 }
 
 /// Cancel notification use case.
-class CancelNotificationUseCase extends UseCase<void, CancelNotificationParams> {
+class CancelNotificationUseCase
+    extends UseCase<void, CancelNotificationParams> {
   final NotificationsRepository _repository;
 
   CancelNotificationUseCase(this._repository);
@@ -75,7 +81,8 @@ class CancelNotificationParams {
 }
 
 /// Get scheduled notifications use case.
-class GetScheduledNotificationsUseCase extends UseCase<List<AppNotification>, NoParams> {
+class GetScheduledNotificationsUseCase
+    extends UseCase<List<AppNotification>, NoParams> {
   final NotificationsRepository _repository;
 
   GetScheduledNotificationsUseCase(this._repository);
@@ -85,4 +92,3 @@ class GetScheduledNotificationsUseCase extends UseCase<List<AppNotification>, No
     return await _repository.getScheduledNotifications();
   }
 }
-

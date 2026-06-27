@@ -35,5 +35,8 @@ abstract class PracticeRepository extends Repository {
   Future<Either<Failure, void>> skipSession(String routineId);
 
   /// Get practice history for a date range.
-  Future<Either<Failure, List<PracticeSession>>> getSessionsHistory(DateTime start, DateTime end);
+  Future<Either<Failure, List<PracticeSession>>> getSessionsHistory(
+    DateTime start,
+    DateTime end,
+  );
 }

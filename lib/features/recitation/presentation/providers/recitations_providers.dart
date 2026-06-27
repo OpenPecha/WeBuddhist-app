@@ -61,41 +61,43 @@ final recitationsRepositoryProvider = Provider<RecitationsRepository>((ref) {
 });
 
 // Get all recitations provider
-final recitationsFutureProvider = FutureProvider<Either<Failure, List<RecitationModel>>>((ref) {
-  final languageCode = ref.watch(contentLanguageProvider);
-  return ref
-      .watch(recitationsRepositoryProvider)
-      .getRecitations(language: languageCode);
-});
-
-// Get saved recitations provider
-final savedRecitationsFutureProvider = FutureProvider<Either<Failure, List<RecitationModel>>>((
-  ref,
-) {
-  return ref.watch(recitationsRepositoryProvider).getSavedRecitations();
-});
-
-// Get recitation content by ID
-final recitationContentProvider =
-    FutureProvider.family<Either<Failure, RecitationContentModel>, RecitationContentParams>((
-      ref,
-      params,
-    ) {
+final recitationsFutureProvider =
+    FutureProvider<Either<Failure, List<RecitationModel>>>((ref) {
+      final languageCode = ref.watch(contentLanguageProvider);
       return ref
           .watch(recitationsRepositoryProvider)
-          .getRecitationContent(
-            params.textId,
-            params.language,
-            params.recitations,
-            params.translations,
-            params.transliterations,
-            params.adaptations,
-          );
+          .getRecitations(language: languageCode);
     });
+
+// Get saved recitations provider
+final savedRecitationsFutureProvider =
+    FutureProvider<Either<Failure, List<RecitationModel>>>((ref) {
+      return ref.watch(recitationsRepositoryProvider).getSavedRecitations();
+    });
+
+// Get recitation content by ID
+final recitationContentProvider = FutureProvider.family<
+  Either<Failure, RecitationContentModel>,
+  RecitationContentParams
+>((ref, params) {
+  return ref
+      .watch(recitationsRepositoryProvider)
+      .getRecitationContent(
+        params.textId,
+        params.language,
+        params.recitations,
+        params.translations,
+        params.transliterations,
+        params.adaptations,
+      );
+});
 
 // Search recitations provider
 final searchRecitationsProvider =
-    FutureProvider.family<Either<Failure, List<RecitationModel>>, String>((ref, searchQuery) {
+    FutureProvider.family<Either<Failure, List<RecitationModel>>, String>((
+      ref,
+      searchQuery,
+    ) {
       final languageCode = ref.watch(contentLanguageProvider);
       return ref
           .watch(recitationsRepositoryProvider)
@@ -118,8 +120,10 @@ final recitationSearchProvider =
 // Mutation providers for recitations
 final saveRecitationProvider = FutureProvider.autoDispose
     .family<Either<Failure, bool>, String>((ref, recitationId) {
-  return ref.watch(recitationsRepositoryProvider).saveRecitation(recitationId);
-});
+      return ref
+          .watch(recitationsRepositoryProvider)
+          .saveRecitation(recitationId);
+    });
 
 final unsaveRecitationProvider = FutureProvider.autoDispose
     .family<Either<Failure, bool>, String>((ref, recitationId) {
@@ -129,7 +133,10 @@ final unsaveRecitationProvider = FutureProvider.autoDispose
     });
 
 final updateRecitationsOrderProvider = FutureProvider.autoDispose
-    .family<Either<Failure, bool>, List<Map<String, dynamic>>>((ref, recitations) {
+    .family<Either<Failure, bool>, List<Map<String, dynamic>>>((
+      ref,
+      recitations,
+    ) {
       return ref
           .watch(recitationsRepositoryProvider)
           .updateRecitationsOrder(recitations);

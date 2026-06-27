@@ -8,7 +8,9 @@ final eventEnrollmentServiceProvider = Provider<EventEnrollmentService>((ref) {
   return EventEnrollmentService(
     subscribeToPlanUseCase: ref.read(subscribeToPlanUseCaseProvider),
     getUserRoutineUseCase: ref.read(getUserRoutineUseCaseProvider),
-    createRoutineWithTimeBlockUseCase: ref.read(createRoutineWithTimeBlockUseCaseProvider),
+    createRoutineWithTimeBlockUseCase: ref.read(
+      createRoutineWithTimeBlockUseCaseProvider,
+    ),
     createTimeBlockUseCase: ref.read(createTimeBlockUseCaseProvider),
     getUserPlansUseCase: ref.read(getUserPlansUseCaseProvider),
     ref: ref,

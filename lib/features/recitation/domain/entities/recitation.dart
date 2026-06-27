@@ -54,5 +54,14 @@ class Recitation extends BaseEntity {
   }
 
   @override
-  List<Object?> get props => [id, title, titleTibetan, reciterName, duration, audioUrl, contentType, textId];
+  List<Object?> get props => [
+    id,
+    title,
+    titleTibetan,
+    reciterName,
+    duration,
+    audioUrl,
+    contentType,
+    textId,
+  ];
 }

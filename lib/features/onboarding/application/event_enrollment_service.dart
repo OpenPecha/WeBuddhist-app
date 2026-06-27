@@ -44,16 +44,17 @@ class EventEnrollmentService {
   EventEnrollmentService({
     required SubscribeToPlanUseCase subscribeToPlanUseCase,
     required GetUserRoutineUseCase getUserRoutineUseCase,
-    required CreateRoutineWithTimeBlockUseCase createRoutineWithTimeBlockUseCase,
+    required CreateRoutineWithTimeBlockUseCase
+    createRoutineWithTimeBlockUseCase,
     required CreateTimeBlockUseCase createTimeBlockUseCase,
     required GetUserPlansUseCase getUserPlansUseCase,
     required Ref ref,
-  })  : _subscribeToPlanUseCase = subscribeToPlanUseCase,
-        _getUserRoutineUseCase = getUserRoutineUseCase,
-        _createRoutineWithTimeBlockUseCase = createRoutineWithTimeBlockUseCase,
-        _createTimeBlockUseCase = createTimeBlockUseCase,
-        _getUserPlansUseCase = getUserPlansUseCase,
-        _ref = ref;
+  }) : _subscribeToPlanUseCase = subscribeToPlanUseCase,
+       _getUserRoutineUseCase = getUserRoutineUseCase,
+       _createRoutineWithTimeBlockUseCase = createRoutineWithTimeBlockUseCase,
+       _createTimeBlockUseCase = createTimeBlockUseCase,
+       _getUserPlansUseCase = getUserPlansUseCase,
+       _ref = ref;
 
   /// Enrolls the user in all [planIds] and returns the resulting [UserPlansModel]
   /// list (those that were found in the user's plan list after enrollment).
@@ -109,7 +110,9 @@ class EventEnrollmentService {
         .read(notificationSyncEngineProvider)
         .sync(trigger: SyncTrigger.planEnrolled);
 
-    _logger.info('[SP-ENROLL] enrollInEvents DONE returning ${enrolledPlans.length} plans');
+    _logger.info(
+      '[SP-ENROLL] enrollInEvents DONE returning ${enrolledPlans.length} plans',
+    );
     return enrolledPlans;
   }
 
@@ -123,16 +126,20 @@ class EventEnrollmentService {
       (failure) {
         // Treat all subscription failures as warnings — the user may already
         // be enrolled from a previous onboarding attempt.
-        _logger.warning('subscribe plan $planId: ${failure.message} (continuing)');
+        _logger.warning(
+          'subscribe plan $planId: ${failure.message} (continuing)',
+        );
       },
       (success) {
         _logger.info('Subscribed to plan $planId');
         if (success) {
           unawaited(
-            _ref.read(analyticsServiceProvider).track(
-              AnalyticsEvents.planEnrolled,
-              properties: {AnalyticsProperties.planId: planId},
-            ),
+            _ref
+                .read(analyticsServiceProvider)
+                .track(
+                  AnalyticsEvents.planEnrolled,
+                  properties: {AnalyticsProperties.planId: planId},
+                ),
           );
         }
       },
@@ -155,7 +162,9 @@ class EventEnrollmentService {
         ),
       );
       if (alreadyInRoutine) {
-        _logger.info('Plan $planId already in routine, skipping time block creation');
+        _logger.info(
+          'Plan $planId already in routine, skipping time block creation',
+        );
         return;
       }
     }
@@ -191,7 +200,8 @@ class EventEnrollmentService {
             'create routine+time-block for $planId: ${failure.message} (continuing)',
           );
         },
-        (_) => _logger.info('Routine created with 07:30 block for plan $planId'),
+        (_) =>
+            _logger.info('Routine created with 07:30 block for plan $planId'),
       );
     }
   }
@@ -240,14 +250,11 @@ class EventEnrollmentService {
       const GetUserPlansParams(language: 'en', skip: 0, limit: 50),
     );
 
-    return result.fold(
-      (failure) {
-        _logger.warning('fetch user plans after enrollment: ${failure.message}');
-        // Return empty — enrollment succeeded, navigation will fall back gracefully.
-        return [];
-      },
-      (response) => _filterEnrolledPlans(response, planIds),
-    );
+    return result.fold((failure) {
+      _logger.warning('fetch user plans after enrollment: ${failure.message}');
+      // Return empty — enrollment succeeded, navigation will fall back gracefully.
+      return [];
+    }, (response) => _filterEnrolledPlans(response, planIds));
   }
 
   List<UserPlansModel> _filterEnrolledPlans(

@@ -37,10 +37,7 @@ class DeleteThreadDialog extends StatelessWidget {
           const SizedBox(height: 16),
           Text(
             localizations.ai_delete_warning,
-            style: TextStyle(
-              fontSize: 12,
-              color: AppColors.error,
-            ),
+            style: TextStyle(fontSize: 12, color: AppColors.error),
           ),
         ],
       ),

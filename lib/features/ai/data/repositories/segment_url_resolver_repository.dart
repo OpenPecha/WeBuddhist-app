@@ -7,7 +7,7 @@ class SegmentUrlResolverRepository {
   SegmentUrlResolverRepository({required this.datasource});
 
   /// Resolves a pecha segment ID to text_id and segment_id
-  /// 
+  ///
   /// Returns a map with 'textId' and 'segmentId' keys
   /// Throws exceptions if the request fails
   Future<Map<String, String>> resolveSegmentUrl(String pechaSegmentId) async {

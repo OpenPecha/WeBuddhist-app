@@ -22,7 +22,11 @@ class MissedDaysBadge extends StatelessWidget {
   int? _findFirstMissedDay() {
     final now = DateTime.now();
     final normalizedToday = DateTime(now.year, now.month, now.day);
-    final todayDayNumber = PlanUtils.dayNumberFor(planStartDate, now, totalDays);
+    final todayDayNumber = PlanUtils.dayNumberFor(
+      planStartDate,
+      now,
+      totalDays,
+    );
 
     final start = planStartDate.toLocal();
     final normalizedStart = DateTime(start.year, start.month, start.day);

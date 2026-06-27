@@ -40,7 +40,9 @@ class ThreadRemoteDatasource {
             throw const AuthenticationException('Authentication required');
           } else {
             _logger.error('Failed to fetch threads: ${response.statusCode}');
-            throw ServerException('Failed to load chat history: ${response.statusCode}');
+            throw ServerException(
+              'Failed to load chat history: ${response.statusCode}',
+            );
           }
         },
         onRetry: (attempt, delay, error) {
@@ -76,7 +78,9 @@ class ThreadRemoteDatasource {
             throw const AuthenticationException('Authentication required');
           } else {
             _logger.error('Failed to fetch thread: ${response.statusCode}');
-            throw ServerException('Failed to load conversation: ${response.statusCode}');
+            throw ServerException(
+              'Failed to load conversation: ${response.statusCode}',
+            );
           }
         },
         onRetry: (attempt, delay, error) {
@@ -129,7 +133,9 @@ class ThreadRemoteDatasource {
             throw const AuthenticationException('Authentication required');
           } else {
             _logger.error('Failed to delete thread: ${response.statusCode}');
-            throw ServerException('Failed to delete conversation: ${response.statusCode}');
+            throw ServerException(
+              'Failed to delete conversation: ${response.statusCode}',
+            );
           }
         },
         onRetry: (attempt, delay, error) {

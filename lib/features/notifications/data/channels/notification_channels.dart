@@ -55,36 +55,38 @@ class NotificationChannels {
     FilePathAndroidBitmap? largeIcon,
     DarwinNotificationDetails? iOSDetails,
     String? androidActionButtonText,
-  }) =>
-      NotificationDetails(
-        android: AndroidNotificationDetails(
-          routineBlockId,
-          routineBlockName,
-          channelDescription: routineBlockDescription,
-          importance: Importance.high,
-          priority: Priority.high,
-          styleInformation: styleInformation,
-          icon: icon,
-          largeIcon: largeIcon,
-          enableVibration: true,
-          playSound: true,
-          sound: routineAndroidSound,
-          actions: androidActionButtonText == null
+  }) => NotificationDetails(
+    android: AndroidNotificationDetails(
+      routineBlockId,
+      routineBlockName,
+      channelDescription: routineBlockDescription,
+      importance: Importance.high,
+      priority: Priority.high,
+      styleInformation: styleInformation,
+      icon: icon,
+      largeIcon: largeIcon,
+      enableVibration: true,
+      playSound: true,
+      sound: routineAndroidSound,
+      actions:
+          androidActionButtonText == null
               ? null
               : <AndroidNotificationAction>[
-                  AndroidNotificationAction(
-                    specialPlanActionId,
-                    androidActionButtonText,
-                    showsUserInterface: true,
-                    cancelNotification: true,
-                  ),
-                ],
-        ),
-        iOS: iOSDetails ?? DarwinNotificationDetails(
+                AndroidNotificationAction(
+                  specialPlanActionId,
+                  androidActionButtonText,
+                  showsUserInterface: true,
+                  cancelNotification: true,
+                ),
+              ],
+    ),
+    iOS:
+        iOSDetails ??
+        DarwinNotificationDetails(
           sound: routineIosSoundFile,
           presentAlert: true,
           presentBadge: true,
           presentSound: true,
         ),
-      );
+  );
 }

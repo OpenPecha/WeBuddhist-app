@@ -42,9 +42,10 @@ class UserSubtasksDto {
       audioUrl: json['audio_url'] as String?,
       sourceTextId: json['source_text_id'] as String?,
       pechaSegmentId: json['pecha_segment_id'] as String?,
-      segmentIds: (json['segment_ids'] as List<dynamic>?)
-          ?.map((e) => e.toString())
-          .toList(),
+      segmentIds:
+          (json['segment_ids'] as List<dynamic>?)
+              ?.map((e) => e.toString())
+              .toList(),
       startMs: json['start_ms'] as int?,
       endMs: json['end_ms'] as int?,
     );

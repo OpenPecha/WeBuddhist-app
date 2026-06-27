@@ -19,12 +19,15 @@ class ChatMessage extends BaseEntity {
   });
 
   @override
-  List<Object?> get props => [id, content, type, createdAt, sourceText, sources];
+  List<Object?> get props => [
+    id,
+    content,
+    type,
+    createdAt,
+    sourceText,
+    sources,
+  ];
 }
 
 /// Type of message (user or AI).
-enum MessageType {
-  user,
-  assistant,
-  system,
-}
+enum MessageType { user, assistant, system }

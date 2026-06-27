@@ -16,10 +16,7 @@ class TimersRemoteDatasource {
     try {
       final response = await dio.post(
         '/timers/user/timer_stop',
-        data: {
-          'timer_id': timerId,
-          'duration': durationMs,
-        },
+        data: {'timer_id': timerId, 'duration': durationMs},
       );
 
       if (response.statusCode == 201) return;

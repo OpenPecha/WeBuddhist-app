@@ -17,10 +17,7 @@ class RecitationSaveController {
   final WidgetRef ref;
   final BuildContext context;
 
-  RecitationSaveController({
-    required this.ref,
-    required this.context,
-  });
+  RecitationSaveController({required this.ref, required this.context});
 
   /// Toggles the save state of a recitation.
   ///
@@ -42,9 +39,7 @@ class RecitationSaveController {
 
     try {
       // Perform save or unsave operation
-      isSaved
-          ? await _unsaveRecitation(textId)
-          : await _saveRecitation(textId);
+      isSaved ? await _unsaveRecitation(textId) : await _saveRecitation(textId);
 
       // Invalidate the saved recitations provider to refresh the UI
       ref.invalidate(savedRecitationsFutureProvider);
@@ -65,7 +60,8 @@ class RecitationSaveController {
   Future<void> _saveRecitation(String textId) async {
     final result = await ref.read(saveRecitationProvider(textId).future);
     result.fold(
-      (failure) => throw Exception('Failed to save recitation: ${failure.message}'),
+      (failure) =>
+          throw Exception('Failed to save recitation: ${failure.message}'),
       (_) => {},
     );
   }
@@ -74,7 +70,8 @@ class RecitationSaveController {
   Future<void> _unsaveRecitation(String textId) async {
     final result = await ref.read(unsaveRecitationProvider(textId).future);
     result.fold(
-      (failure) => throw Exception('Failed to unsave recitation: ${failure.message}'),
+      (failure) =>
+          throw Exception('Failed to unsave recitation: ${failure.message}'),
       (_) => {},
     );
   }
@@ -90,9 +87,7 @@ class RecitationSaveController {
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(
-          'Failed to ${wasSaved ? 'unsave' : 'save'} recitation',
-        ),
+        content: Text('Failed to ${wasSaved ? 'unsave' : 'save'} recitation'),
         duration: const Duration(seconds: 2),
       ),
     );

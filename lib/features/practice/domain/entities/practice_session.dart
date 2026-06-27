@@ -19,13 +19,15 @@ class PracticeSession extends BaseEntity {
   });
 
   @override
-  List<Object?> get props => [id, routineId, startTime, endTime, durationMinutes, status];
+  List<Object?> get props => [
+    id,
+    routineId,
+    startTime,
+    endTime,
+    durationMinutes,
+    status,
+  ];
 }
 
 /// Status of a practice session.
-enum SessionStatus {
-  completed,
-  skipped,
-  inProgress,
-  interrupted,
-}
+enum SessionStatus { completed, skipped, inProgress, interrupted }

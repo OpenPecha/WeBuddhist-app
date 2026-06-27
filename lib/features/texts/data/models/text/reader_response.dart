@@ -4,7 +4,7 @@ import 'package:flutter_pecha/features/texts/data/models/text/toc.dart';
 class ReaderResponse {
   final TextDetail textDetail;
   final Toc content;
-   final int size;
+  final int size;
   final String paginationDirection;
   final int currentSegmentPosition;
   final int totalSegments;

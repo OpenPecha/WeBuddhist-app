@@ -134,10 +134,11 @@ class _PresetTimersGrid extends StatelessWidget {
     showTimerMoreBottomSheet(
       context,
       timer: timer,
-      onAddToPractices: () => context.push(
-        AppRoutes.practiceEditRoutine,
-        extra: {'initialTimer': timer},
-      ),
+      onAddToPractices:
+          () => context.push(
+            AppRoutes.practiceEditRoutine,
+            extra: {'initialTimer': timer},
+          ),
     );
   }
 

@@ -19,7 +19,9 @@ class AuthorRepository {
     }
   }
 
-  Future<Either<Failure, List<PlansModel>>> getPlansByAuthorId(String authorId) async {
+  Future<Either<Failure, List<PlansModel>>> getPlansByAuthorId(
+    String authorId,
+  ) async {
     try {
       final result = await authorRemoteDatasource.getPlansByAuthorId(authorId);
       return Right(result);

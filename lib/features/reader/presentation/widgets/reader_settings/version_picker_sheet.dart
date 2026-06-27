@@ -34,10 +34,11 @@ class VersionPickerSheet extends ConsumerWidget {
       title: l10n.reader_version_title(languageLabel),
       child: asyncVersions.when(
         loading: () => const PickerLoading(),
-        error: (_, __) => PickerError(
-          message: l10n.reader_versions_load_error,
-          onRetry: () => ref.invalidate(readerVersionsProvider(query)),
-        ),
+        error:
+            (_, __) => PickerError(
+              message: l10n.reader_versions_load_error,
+              onRetry: () => ref.invalidate(readerVersionsProvider(query)),
+            ),
         data: (versions) {
           if (versions.isEmpty) {
             return PickerEmpty(
@@ -48,21 +49,23 @@ class VersionPickerSheet extends ConsumerWidget {
             shrinkWrap: true,
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             itemCount: versions.length,
-            separatorBuilder: (_, __) => Divider(
-              height: 1,
-              color: theme.dividerColor.withValues(alpha: 0.4),
-            ),
+            separatorBuilder:
+                (_, __) => Divider(
+                  height: 1,
+                  color: theme.dividerColor.withValues(alpha: 0.4),
+                ),
             itemBuilder: (context, index) {
               final option = versions[index];
               final isSelected = option.id == selectedVersionId;
               return _VersionTile(
                 option: option,
                 isSelected: isSelected,
-                onInfo: () => showVersionInfoDialog(
-                  context,
-                  versionId: option.id,
-                  fallbackTitle: option.title,
-                ),
+                onInfo:
+                    () => showVersionInfoDialog(
+                      context,
+                      versionId: option.id,
+                      fallbackTitle: option.title,
+                    ),
                 onTap: () {
                   onSelected(option);
                   Navigator.of(context).pop();
@@ -110,12 +113,12 @@ class _VersionTile extends StatelessWidget {
                     Text(
                       option.title,
                       style: theme.textTheme.titleMedium?.copyWith(
-                        color: isSelected
-                            ? activeColor
-                            : theme.textTheme.titleMedium?.color,
-                        fontWeight: isSelected
-                            ? FontWeight.w700
-                            : FontWeight.w600,
+                        color:
+                            isSelected
+                                ? activeColor
+                                : theme.textTheme.titleMedium?.color,
+                        fontWeight:
+                            isSelected ? FontWeight.w700 : FontWeight.w600,
                       ),
                     ),
                     if (subtitle != null) ...[
@@ -144,9 +147,10 @@ class _VersionTile extends StatelessWidget {
               ),
               SizedBox(
                 width: 18,
-                child: isSelected
-                    ? Icon(Icons.check, size: 18, color: activeColor)
-                    : const SizedBox.shrink(),
+                child:
+                    isSelected
+                        ? Icon(Icons.check, size: 18, color: activeColor)
+                        : const SizedBox.shrink(),
               ),
             ],
           ),
@@ -181,12 +185,13 @@ Future<void> showVersionPickerSheet(
       borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
     ),
     isScrollControlled: true,
-    builder: (_) => VersionPickerSheet(
-      textId: textId,
-      languageCode: languageCode,
-      languageLabel: languageLabel,
-      selectedVersionId: selectedVersionId,
-      onSelected: onSelected,
-    ),
+    builder:
+        (_) => VersionPickerSheet(
+          textId: textId,
+          languageCode: languageCode,
+          languageLabel: languageLabel,
+          selectedVersionId: selectedVersionId,
+          onSelected: onSelected,
+        ),
   );
 }

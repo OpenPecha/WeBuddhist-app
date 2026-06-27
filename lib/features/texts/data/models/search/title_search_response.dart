@@ -3,10 +3,7 @@ class TitleSearchItem {
   final String id;
   final String title;
 
-  TitleSearchItem({
-    required this.id,
-    required this.title,
-  });
+  TitleSearchItem({required this.id, required this.title});
 
   factory TitleSearchItem.fromJson(Map<String, dynamic> json) {
     return TitleSearchItem(
@@ -16,10 +13,7 @@ class TitleSearchItem {
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'title': title,
-    };
+    return {'id': id, 'title': title};
   }
 }
 
@@ -37,15 +31,17 @@ class TitleSearchResponse {
     required this.offset,
   });
 
-  factory TitleSearchResponse.fromJson(List<dynamic> json, {
+  factory TitleSearchResponse.fromJson(
+    List<dynamic> json, {
     int? total,
     int? limit,
     int? offset,
   }) {
     return TitleSearchResponse(
-      results: json
-          .map((e) => TitleSearchItem.fromJson(e as Map<String, dynamic>))
-          .toList(),
+      results:
+          json
+              .map((e) => TitleSearchItem.fromJson(e as Map<String, dynamic>))
+              .toList(),
       total: total ?? json.length,
       limit: limit ?? 20,
       offset: offset ?? 0,

@@ -47,9 +47,7 @@ class PendingPlanAction {
         (value) => value.name == json['type'],
         orElse: () => PendingPlanActionType.completeTask,
       ),
-      payload: Map<String, dynamic>.from(
-        (json['payload'] as Map?) ?? const {},
-      ),
+      payload: Map<String, dynamic>.from((json['payload'] as Map?) ?? const {}),
       createdAtMs: (json['createdAtMs'] as num?)?.toInt() ?? 0,
     );
   }
@@ -90,8 +88,7 @@ class PlansLocalDatasource {
     int limit = 20,
     String? tag,
     String? search,
-  }) =>
-      'plans:$language:$skip:$limit:${tag ?? ''}:${search ?? ''}';
+  }) => 'plans:$language:$skip:$limit:${tag ?? ''}:${search ?? ''}';
 
   String planByIdKey(String planId) => 'plan:$planId';
 
@@ -225,10 +222,7 @@ class PlansLocalDatasource {
 
     if (skip == 0 && seriesId == null) {
       await _writeObject(
-        userPlansKey(
-          userId: userId,
-          language: language,
-        ),
+        userPlansKey(userId: userId, language: language),
         response.toJson(),
       );
     }
@@ -281,10 +275,7 @@ class PlansLocalDatasource {
     Map<int, bool> status,
   ) {
     final encoded = status.map((key, value) => MapEntry('$key', value));
-    return _box.put(
-      completionStatusKey(userId, planId),
-      jsonEncode(encoded),
-    );
+    return _box.put(completionStatusKey(userId, planId), jsonEncode(encoded));
   }
 
   List<PlanProgressModel>? readPlanProgress(String userId, String planId) {
@@ -331,10 +322,7 @@ class PlansLocalDatasource {
     int dayNumber,
     PlanDaysModel day,
   ) {
-    return _writeObject(
-      planDayContentKey(planId, dayNumber),
-      day.toJson(),
-    );
+    return _writeObject(planDayContentKey(planId, dayNumber), day.toJson());
   }
 
   List<PendingPlanAction> readPendingActions(String userId) {

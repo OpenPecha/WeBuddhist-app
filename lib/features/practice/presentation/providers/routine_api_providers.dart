@@ -10,7 +10,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 // ─── Infrastructure providers ───
 
-final routineRemoteDatasourceProvider = Provider<RoutineRemoteDatasource>((ref) {
+final routineRemoteDatasourceProvider = Provider<RoutineRemoteDatasource>((
+  ref,
+) {
   return RoutineRemoteDatasource(dio: ref.watch(dioProvider));
 });
 
@@ -28,10 +30,10 @@ final getUserRoutineUseCaseProvider = Provider<GetUserRoutineUseCase>((ref) {
 
 final createRoutineWithTimeBlockUseCaseProvider =
     Provider<CreateRoutineWithTimeBlockUseCase>((ref) {
-  return CreateRoutineWithTimeBlockUseCase(
-    ref.watch(routineApiRepositoryProvider),
-  );
-});
+      return CreateRoutineWithTimeBlockUseCase(
+        ref.watch(routineApiRepositoryProvider),
+      );
+    });
 
 final createTimeBlockUseCaseProvider = Provider<CreateTimeBlockUseCase>((ref) {
   return CreateTimeBlockUseCase(ref.watch(routineApiRepositoryProvider));

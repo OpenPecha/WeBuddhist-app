@@ -156,7 +156,9 @@ class BookmarkDTO {
   /// series render as a rounded square.
   ResponsiveImage? get leadingImage {
     final url = imageUrl;
-    return (url != null && url.isNotEmpty) ? ResponsiveImage.uniform(url) : null;
+    return (url != null && url.isNotEmpty)
+        ? ResponsiveImage.uniform(url)
+        : null;
   }
 
   bool get isRoundLeading => type == BookmarkItemType.accumulator;

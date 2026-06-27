@@ -34,5 +34,12 @@ class ChatThread extends BaseEntity {
   }
 
   @override
-  List<Object?> get props => [id, title, messages, createdAt, updatedAt, isPinned];
+  List<Object?> get props => [
+    id,
+    title,
+    messages,
+    createdAt,
+    updatedAt,
+    isPinned,
+  ];
 }
