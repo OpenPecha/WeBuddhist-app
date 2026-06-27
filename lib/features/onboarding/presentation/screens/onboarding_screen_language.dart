@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
 import 'package:flutter_pecha/core/constants/app_config.dart';
+import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
+import 'package:flutter_pecha/features/onboarding/application/onboarding_provider.dart';
 import 'package:flutter_pecha/features/onboarding/presentation/widgets/onboarding_question_title.dart';
 import 'package:flutter_pecha/features/onboarding/presentation/widgets/onboarding_radio_option.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -54,6 +56,9 @@ class _OnboardingScreenLanguageState
 
   Future<void> _handleContinue() async {
     final selectedLocale = Locale(_selectedLanguageCode);
+    await ref
+        .read(onboardingProvider.notifier)
+        .setPreferredLanguage(_selectedLanguageCode);
     await ref.read(localeProvider.notifier).setLocale(selectedLocale);
     if (!mounted) return;
     widget.onNext();
@@ -61,6 +66,8 @@ class _OnboardingScreenLanguageState
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
@@ -70,11 +77,11 @@ class _OnboardingScreenLanguageState
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 50),
-              const OnboardingQuestionTitle(title: 'Choose your language:'),
+              OnboardingQuestionTitle(title: l10n.onboarding_first_question),
               const SizedBox(height: 30),
               _buildLanguageOptions(),
               const Spacer(),
-              _buildContinueButton(),
+              _buildContinueButton(l10n.onboarding_continue),
               const SizedBox(height: 24),
             ],
           ),
@@ -103,7 +110,7 @@ class _OnboardingScreenLanguageState
     );
   }
 
-  Widget _buildContinueButton() {
+  Widget _buildContinueButton(String label) {
     return SizedBox(
       width: double.infinity,
       height: 56,
@@ -118,9 +125,9 @@ class _OnboardingScreenLanguageState
           ),
           padding: const EdgeInsets.symmetric(vertical: 16),
         ),
-        child: const Text(
-          'Continue',
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+        child: Text(
+          label,
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
         ),
       ),
     );
