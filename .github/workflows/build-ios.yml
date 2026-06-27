@@ -1,0 +1,206 @@
+name: 🍎 Build & Distribute iOS
+
+# Reusable workflow. Called by release-dev.yml / release-prod.yml.
+# Builds a signed IPA for the requested flavor and (optionally) uploads it to
+# TestFlight via the App Store Connect API key.
+#
+# Signing model: distribution certificate imported from a base64 secret, the
+# flavor's provisioning profile installed from a base64 secret, and the Xcode
+# project switched to manual signing for the build. The "Generate Entitlements"
+# build phase in the Runner target reads AUTH0_DOMAIN + AIRBRIDGE_APP_NAME from
+# the environment, so both are exported before the build.
+
+on:
+  workflow_call:
+    inputs:
+      flavor:             { required: true,  type: string }   # dev | staging | prod
+      entrypoint:         { required: true,  type: string }   # lib/main_<flavor>.dart
+      airbridge_app_name: { required: true,  type: string }   # webuddhistdev | webuddhist
+      auth0_domain:       { required: true,  type: string }   # used by Generate Entitlements
+      ios_bundle_id:      { required: true,  type: string }   # org.pecha.app[.dev]
+      environment:        { required: false, type: string, default: '' }
+      upload_to_store:    { required: false, type: boolean, default: true }
+
+permissions:
+  contents: read
+
+jobs:
+  ios:
+    name: iOS • ${{ inputs.flavor }}
+    runs-on: macos-15
+    environment: ${{ inputs.environment }}
+    timeout-minutes: 75
+    steps:
+      - name: 📂 Checkout
+        uses: actions/checkout@v4
+
+      - name: 🛠️ Select Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+
+      - name: 🐦 Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: 📝 Create .env files
+        env:
+          DEV_BASE_API_URL:       ${{ secrets.DEV_BASE_API_URL }}
+          DEV_AI_URL:             ${{ secrets.DEV_AI_URL }}
+          DEV_AUTH0_AUDIENCE:     ${{ secrets.DEV_AUTH0_AUDIENCE }}
+          STAGING_BASE_API_URL:   ${{ secrets.STAGING_BASE_API_URL }}
+          STAGING_AI_URL:         ${{ secrets.STAGING_AI_URL }}
+          STAGING_AUTH0_AUDIENCE: ${{ secrets.STAGING_AUTH0_AUDIENCE }}
+          BASE_API_URL:           ${{ secrets.BASE_API_URL }}
+          AI_URL:                 ${{ secrets.AI_URL }}
+          AUTH0_AUDIENCE:         ${{ secrets.AUTH0_AUDIENCE }}
+        run: bash ci/scripts/create_env_files.sh
+
+      - name: 🔐 Create ios/Flutter/Secrets.xcconfig (Airbridge)
+        env:
+          AIRBRIDGE_SDK_TOKEN: ${{ secrets.AIRBRIDGE_SDK_TOKEN }}
+          AIRBRIDGE_APP_NAME:  ${{ inputs.airbridge_app_name }}
+        run: bash ios/scripts/prepare_ci_secrets.sh
+
+      - name: 🔥 Inject GoogleService-Info.plist (only if provided)
+        env:
+          GOOGLE_SERVICE_INFO_PLIST_BASE64: ${{ secrets.GOOGLE_SERVICE_INFO_PLIST_BASE64 }}
+        run: |
+          if [ -n "$GOOGLE_SERVICE_INFO_PLIST_BASE64" ]; then
+            echo "$GOOGLE_SERVICE_INFO_PLIST_BASE64" | base64 --decode > ios/Runner/GoogleService-Info.plist
+            echo "Injected ios/Runner/GoogleService-Info.plist from secret"
+          else
+            echo "No secret — assuming GoogleService-Info.plist is committed"
+          fi
+
+      - name: 🧩 Export entitlement env vars
+        run: |
+          # Consumed by the "Generate Entitlements" Xcode build phase.
+          echo "AUTH0_DOMAIN=${{ inputs.auth0_domain }}"          >> "$GITHUB_ENV"
+          echo "AIRBRIDGE_APP_NAME=${{ inputs.airbridge_app_name }}" >> "$GITHUB_ENV"
+
+      - name: 📦 flutter pub get
+        run: flutter pub get
+
+      - name: 🔥 Install FlutterFire CLI (Crashlytics dSYM upload phase)
+        run: |
+          dart pub global activate flutterfire_cli
+          echo "$HOME/.pub-cache/bin" >> "$GITHUB_PATH"
+          sudo ln -sf "$HOME/.pub-cache/bin/flutterfire" /usr/local/bin/flutterfire || true
+          flutterfire --version || true
+
+      - name: 🍫 CocoaPods install
+        run: |
+          cd ios
+          pod install --repo-update
+
+      - name: 🔑 Import distribution certificate
+        uses: apple-actions/import-codesign-certs@v3
+        with:
+          p12-file-base64: ${{ secrets.IOS_DIST_CERT_BASE64 }}
+          p12-password:    ${{ secrets.IOS_DIST_CERT_PASSWORD }}
+
+      - name: 📄 Install provisioning profile
+        id: profile
+        env:
+          PROFILE_DEV:     ${{ secrets.IOS_PROVISION_PROFILE_DEV_BASE64 }}
+          PROFILE_STAGING: ${{ secrets.IOS_PROVISION_PROFILE_STAGING_BASE64 }}
+          PROFILE_PROD:    ${{ secrets.IOS_PROVISION_PROFILE_PROD_BASE64 }}
+        run: |
+          case "${{ inputs.flavor }}" in
+            dev)     B64="$PROFILE_DEV" ;;
+            staging) B64="$PROFILE_STAGING" ;;
+            prod)    B64="$PROFILE_PROD" ;;
+            *) echo "::error::Unknown flavor"; exit 1 ;;
+          esac
+          if [ -z "$B64" ]; then
+            echo "::error::No provisioning profile secret for flavor ${{ inputs.flavor }}"; exit 1
+          fi
+          PROFILES_DIR="$HOME/Library/MobileDevice/Provisioning Profiles"
+          mkdir -p "$PROFILES_DIR"
+          echo "$B64" | base64 --decode > "$RUNNER_TEMP/profile.mobileprovision"
+          PLIST=$(security cms -D -i "$RUNNER_TEMP/profile.mobileprovision")
+          UUID=$(/usr/libexec/PlistBuddy -c 'Print :UUID' /dev/stdin <<< "$PLIST")
+          NAME=$(/usr/libexec/PlistBuddy -c 'Print :Name' /dev/stdin <<< "$PLIST")
+          cp "$RUNNER_TEMP/profile.mobileprovision" "$PROFILES_DIR/$UUID.mobileprovision"
+          echo "profile_name=$NAME" >> "$GITHUB_OUTPUT"
+          echo "Installed profile '$NAME' ($UUID)"
+
+      - name: ✍️ Switch project to manual signing
+        run: |
+          fastlane run update_code_signing_settings \
+            use_automatic_signing:false \
+            path:"ios/Runner.xcodeproj" \
+            team_id:"${{ secrets.IOS_TEAM_ID }}" \
+            code_sign_identity:"Apple Distribution" \
+            profile_name:"${{ steps.profile.outputs.profile_name }}" \
+            targets:"Runner"
+
+      - name: 🧾 Generate ExportOptions.plist
+        run: |
+          cat > ios/ExportOptions.plist <<EOF
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+            <key>method</key><string>app-store</string>
+            <key>teamID</key><string>${{ secrets.IOS_TEAM_ID }}</string>
+            <key>signingStyle</key><string>manual</string>
+            <key>signingCertificate</key><string>Apple Distribution</string>
+            <key>provisioningProfiles</key>
+            <dict>
+              <key>${{ inputs.ios_bundle_id }}</key>
+              <string>${{ steps.profile.outputs.profile_name }}</string>
+            </dict>
+            <key>uploadSymbols</key><true/>
+            <key>stripSwiftSymbols</key><true/>
+          </dict>
+          </plist>
+          EOF
+
+      - name: 🏗️ Build IPA (${{ inputs.flavor }})
+        env:
+          AIRBRIDGE_SDK_TOKEN: ${{ secrets.AIRBRIDGE_SDK_TOKEN }}
+        run: |
+          VERSION_NAME=$(grep '^version:' pubspec.yaml | sed 's/version: //' | cut -d'+' -f1)
+          OFFSET="${{ vars.BUILD_NUMBER_OFFSET || '100' }}"
+          BUILD_NUMBER=$(( ${{ github.run_number }} + OFFSET ))
+          echo "Building $VERSION_NAME (+$BUILD_NUMBER)"
+          flutter build ipa --release \
+            --flavor "${{ inputs.flavor }}" -t "${{ inputs.entrypoint }}" \
+            --build-name "$VERSION_NAME" --build-number "$BUILD_NUMBER" \
+            --export-options-plist=ios/ExportOptions.plist
+
+      - name: ⬆️ Upload IPA artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-${{ inputs.flavor }}
+          path: build/ios/ipa/*.ipa
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: 🛫 Upload to TestFlight
+        if: ${{ inputs.upload_to_store }}
+        env:
+          ASC_KEY_ID:    ${{ secrets.APP_STORE_CONNECT_KEY_IDENTIFIER }}
+          ASC_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          ASC_KEY:       ${{ secrets.APP_STORE_CONNECT_PRIVATE_KEY }}
+        run: |
+          KEY_B64=$(printf '%s' "$ASC_KEY" | base64 | tr -d '\n')
+          cat > "$RUNNER_TEMP/asc_api_key.json" <<EOF
+          {
+            "key_id": "$ASC_KEY_ID",
+            "issuer_id": "$ASC_ISSUER_ID",
+            "key": "$KEY_B64",
+            "is_key_content_base64": true,
+            "in_house": false
+          }
+          EOF
+          IPA=$(ls build/ios/ipa/*.ipa | head -n1)
+          echo "Uploading $IPA to TestFlight"
+          fastlane run upload_to_testflight \
+            api_key_path:"$RUNNER_TEMP/asc_api_key.json" \
+            ipa:"$IPA" \
+            skip_waiting_for_build_processing:true
