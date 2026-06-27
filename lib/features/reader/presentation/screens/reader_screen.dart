@@ -187,24 +187,38 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
   Widget build(BuildContext context) {
     final state = ref.watch(readerNotifierProvider(_params));
     final notifier = ref.read(readerNotifierProvider(_params).notifier);
+    final readerTheme = _readerTheme(context);
 
-    return PopScope(
-      canPop: true,
-      onPopInvokedWithResult: (didPop, _) {
-        if (!didPop) return;
-        // Stop audio immediately so nothing plays during the exit animation.
-        _audioController?.cancel();
-        // Clear transient reader state so panels don't linger if the user
-        // navigates back to this textId again later in the session.
-        notifier.selectSegment(null);
-        notifier.closeCommentary();
-        notifier.closeTranslation();
-        _invalidatePlanProviders();
-      },
-      child: Scaffold(
-        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-        body: _buildBody(context, state, notifier),
+    return Theme(
+      data: readerTheme,
+      child: PopScope(
+        canPop: true,
+        onPopInvokedWithResult: (didPop, _) {
+          if (!didPop) return;
+          // Stop audio immediately so nothing plays during the exit animation.
+          _audioController?.cancel();
+          // Clear transient reader state so panels don't linger if the user
+          // navigates back to this textId again later in the session.
+          notifier.selectSegment(null);
+          notifier.closeCommentary();
+          notifier.closeTranslation();
+          _invalidatePlanProviders();
+        },
+        child: Scaffold(
+          backgroundColor: readerTheme.scaffoldBackgroundColor,
+          body: _buildBody(context, state, notifier),
+        ),
       ),
+    );
+  }
+
+  ThemeData _readerTheme(BuildContext context) {
+    final theme = Theme.of(context);
+    if (theme.brightness != Brightness.light) return theme;
+
+    return theme.copyWith(
+      scaffoldBackgroundColor: Colors.white,
+      appBarTheme: theme.appBarTheme.copyWith(backgroundColor: Colors.white),
     );
   }
 
