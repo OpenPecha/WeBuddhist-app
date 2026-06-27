@@ -1079,6 +1079,9 @@ class AppLocalizationsHi extends AppLocalizations {
   String get continueAsGuest => 'अतिथि के रूप में जारी रखें';
 
   @override
+  String get exploreAsGuest => 'अतिथि के रूप में एक्सप्लोर करें';
+
+  @override
   String get signIn => 'साइन इन';
 
   @override

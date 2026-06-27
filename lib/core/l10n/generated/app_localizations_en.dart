@@ -1070,6 +1070,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get continueAsGuest => 'Continue as guest';
 
   @override
+  String get exploreAsGuest => 'Explore as a Guest';
+
+  @override
   String get signIn => 'Sign In';
 
   @override

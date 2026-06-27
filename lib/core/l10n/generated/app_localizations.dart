@@ -2002,6 +2002,12 @@ abstract class AppLocalizations {
   /// **'Continue as guest'**
   String get continueAsGuest;
 
+  /// No description provided for @exploreAsGuest.
+  ///
+  /// In en, this message translates to:
+  /// **'Explore as a Guest'**
+  String get exploreAsGuest;
+
   /// No description provided for @signIn.
   ///
   /// In en, this message translates to:

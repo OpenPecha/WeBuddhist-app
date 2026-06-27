@@ -1078,6 +1078,9 @@ class AppLocalizationsMn extends AppLocalizations {
   String get continueAsGuest => 'Зочноор үргэлжлүүлэх';
 
   @override
+  String get exploreAsGuest => 'Зочноор судлах';
+
+  @override
   String get signIn => 'Нэвтрэх';
 
   @override

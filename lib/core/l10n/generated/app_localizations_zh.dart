@@ -1019,6 +1019,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get continueAsGuest => '以訪客身份繼續';
 
   @override
+  String get exploreAsGuest => '以訪客身份探索';
+
+  @override
   String get signIn => '登入';
 
   @override

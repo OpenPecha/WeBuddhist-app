@@ -1086,6 +1086,9 @@ class AppLocalizationsNe extends AppLocalizations {
   String get continueAsGuest => 'अतिथिको रूपमा जारी राख्नुहोस्';
 
   @override
+  String get exploreAsGuest => 'अतिथिको रूपमा अन्वेषण गर्नुहोस्';
+
+  @override
   String get signIn => 'साइन इन गर्नुहोस्';
 
   @override

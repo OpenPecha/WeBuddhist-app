@@ -1086,6 +1086,9 @@ class AppLocalizationsBo extends AppLocalizations {
   String get continueAsGuest => 'མགྲོན་པོའི་ངོ་བོའི་ཐོག་ནས་མུ་མཐུད་རོགས།';
 
   @override
+  String get exploreAsGuest => 'མགྲོན་པོའི་ངོ་བོར་ཞིབ་འཇུག';
+
+  @override
   String get signIn => 'ནང་འཛུལ།';
 
   @override

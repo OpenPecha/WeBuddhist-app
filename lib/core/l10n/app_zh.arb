@@ -444,6 +444,7 @@
   "continueWithGoogle": "使用 Google 繼續",
   "continueWithApple": "使用 Apple 繼續",
   "continueAsGuest": "以訪客身份繼續",
+  "exploreAsGuest": "以訪客身份探索",
   "signIn": "登入",
   "profileError": "加載個人資料時出錯",
   "profileTitle": "個人資料",
