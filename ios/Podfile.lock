@@ -40,7 +40,7 @@ PODS:
     - Firebase/Crashlytics (= 12.15.0)
     - firebase_core
     - Flutter
-  - firebase_messaging (16.3.0):
+  - firebase_messaging (16.4.1):
     - Firebase/Messaging (= 12.15.0)
     - firebase_core
     - Flutter
