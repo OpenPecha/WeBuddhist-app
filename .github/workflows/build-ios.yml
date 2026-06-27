@@ -181,6 +181,22 @@ jobs:
           if-no-files-found: error
           retention-days: 14
 
+      - name: 🔥 Upload Crashlytics dSYMs
+        if: ${{ inputs.upload_to_store }}
+        run: |
+          # The in-Xcode "upload-crashlytics-symbols" build phase is guarded to
+          # never fail the archive; we upload dSYMs deliberately here, where the
+          # CocoaPods run/upload-symbols tooling reliably exists.
+          UPLOAD=ios/Pods/FirebaseCrashlytics/upload-symbols
+          GSP=ios/Runner/GoogleService-Info.plist
+          DSYM=$(find build/ios -name "*.dSYM" -path "*Runner*" | head -n1 || true)
+          if [ -x "$UPLOAD" ] && [ -f "$GSP" ] && [ -n "$DSYM" ]; then
+            echo "Uploading dSYM: $DSYM"
+            "$UPLOAD" -gsp "$GSP" -p ios "$DSYM"
+          else
+            echo "Skipping dSYM upload (upload-symbols=$UPLOAD gsp=$GSP dsym=$DSYM)"
+          fi
+
       - name: 🛫 Upload to TestFlight
         if: ${{ inputs.upload_to_store }}
         env:
