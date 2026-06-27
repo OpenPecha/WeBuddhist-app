@@ -105,9 +105,6 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
   /// Sequential queue so API calls never overlap or race.
   Future<void> _opQueue = Future.value();
 
-  bool get _isLastBlockEmpty =>
-      _blocks.isNotEmpty && _blocks.last.items.isEmpty;
-
   bool get _hasEmptyBlocks => _blocks.any((b) => b.items.isEmpty);
 
   @override
@@ -980,13 +977,15 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
   }
 
   bool get _isAtMaxBlocks => !canAddBlock(_blocks.length);
-  bool get _shouldShowAddButton => !_isLastBlockEmpty && !_isAtMaxBlocks;
+  bool get _shouldShowAddButton => !_hasEmptyBlocks && !_isAtMaxBlocks;
 
   int _calculateListItemCount() {
     return _shouldShowAddButton ? _blocks.length + 1 : _blocks.length;
   }
 
   void _addBlock() {
+    if (_hasEmptyBlocks) return;
+
     if (_isAtMaxBlocks) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -1348,9 +1347,7 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
                 );
               }
               if (widget.initialTimer != null) {
-                injectedTimerBlock = _injectInitialTimer(
-                  widget.initialTimer!,
-                );
+                injectedTimerBlock = _injectInitialTimer(widget.initialTimer!);
               }
               if (widget.initialSeries != null) {
                 injectedSeriesBlock = _injectInitialSeries(
@@ -1556,8 +1553,7 @@ class _DoneButton extends StatelessWidget {
             style: TextStyle(
               fontSize: 15,
               fontWeight: FontWeight.w500,
-              color:
-                  isDark ? AppColors.textPrimaryDark : AppColors.textPrimary,
+              color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimary,
             ),
           ),
         ),

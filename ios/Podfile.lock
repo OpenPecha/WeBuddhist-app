@@ -376,7 +376,7 @@ SPEC CHECKSUMS:
   firebase_analytics: 5e356f558625ce2d8b21deff00946b56d6e8d0d5
   firebase_core: fc23178af8ea070194d09031ae4198a9608a3d22
   firebase_crashlytics: 344bb168f55aee1086c6cdd0b105a9db018cd344
-  firebase_messaging: 1fb9402b2037a14b4725773fce04300cbaeb9e0c
+  firebase_messaging: 870b2939a7f7cc52bc38ca0250127c45b42f4bad
   FirebaseAnalytics: 9c9fa7915fc52ea03077000d5a7b6a8947b2d76e
   FirebaseCore: 2e86a4ea1684d4381707069e4a6d89ac808e901e
   FirebaseCoreExtension: 10d2a627977b39418759ad88ada80fbbd34f1c4f

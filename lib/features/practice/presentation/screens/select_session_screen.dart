@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
 import 'package:flutter_pecha/core/constants/app_assets.dart';
@@ -497,6 +498,9 @@ class _MalasTab extends ConsumerWidget {
               final imageUrl =
                   mantra.beadImageUrl ?? mantra.mantra?.beadImageUrl;
               final title = mantra.displayTitle(language);
+              _logger.debug(
+                '🪬 Mala[$index] title=$title imageUrl=$imageUrl',
+              );
 
               return Padding(
                 padding: const EdgeInsets.only(bottom: 8),
@@ -694,7 +698,8 @@ class _CoverImage extends StatelessWidget {
   }
 }
 
-/// Circular image for malas, falls back to a grey circle.
+/// Circular image for malas — uses CachedNetworkImage so bead art renders
+/// correctly (same approach as MalaBeads).
 class _CircularImage extends StatelessWidget {
   final String? imageUrl;
   final double size;
@@ -705,26 +710,25 @@ class _CircularImage extends StatelessWidget {
   Widget build(BuildContext context) {
     if (imageUrl != null && imageUrl!.isNotEmpty) {
       return ClipOval(
-        child: Image.network(
-          imageUrl!,
+        child: CachedNetworkImage(
+          imageUrl: imageUrl!,
           width: size,
           height: size,
           fit: BoxFit.cover,
-          errorBuilder: (_, __, ___) => _placeholder(),
+          placeholder: (_, __) => _placeholder(),
+          errorWidget: (_, __, ___) => _placeholder(),
         ),
       );
     }
     return _placeholder();
   }
 
-  Widget _placeholder() {
-    return Container(
-      width: size,
-      height: size,
-      decoration: const BoxDecoration(
-        color: AppColors.grey100,
-        shape: BoxShape.circle,
-      ),
-    );
-  }
+  Widget _placeholder() => Container(
+    width: size,
+    height: size,
+    decoration: const BoxDecoration(
+      color: AppColors.grey100,
+      shape: BoxShape.circle,
+    ),
+  );
 }
