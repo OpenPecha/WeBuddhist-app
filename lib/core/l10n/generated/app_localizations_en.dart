@@ -21,11 +21,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get onboarding_welcome => 'Welcome to';
 
   @override
+  String get onboarding_setup_subtitle =>
+      'Let\'s get you set up, It\'ll only take a minute';
+
+  @override
+  String get onboarding_tagline => 'Learn, practice, and connect. Daily.';
+
+  @override
   String get onboarding_quote =>
       'Drop by drop the water pot is filled. Likewise, the wise person, gathering it little by little, fills themselves with good.';
 
   @override
-  String get onboarding_find_peace => 'Get started';
+  String get onboarding_find_peace => 'Get Started';
 
   @override
   String get onboarding_continue => 'Continue';
@@ -45,6 +52,33 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get onboarding_begin_practice => 'Begin your practice';
+
+  @override
+  String get onboarding_2_title => 'Next, here\'s how it works.';
+
+  @override
+  String get onboarding_2_subtitle => 'Three small steps to build the habit';
+
+  @override
+  String get onboarding_2_step1_title => 'Choose your practices';
+
+  @override
+  String get onboarding_2_step1_desc =>
+      'Chant, count mantras, set a meditation timer, or follow a study plan from your tradition.';
+
+  @override
+  String get onboarding_2_step2_title => 'Add them to your day';
+
+  @override
+  String get onboarding_2_step2_desc =>
+      'Build a daily routine and we\'ll send gentle reminders to keep it going.';
+
+  @override
+  String get onboarding_2_step3_title => 'Practice a few minutes a day';
+
+  @override
+  String get onboarding_2_step3_desc =>
+      'Even a moment counts. Day by day, your practice grows.';
 
   @override
   String get home_recitation => 'recitations';

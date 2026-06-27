@@ -21,6 +21,13 @@ class AppLocalizationsHi extends AppLocalizations {
   String get onboarding_welcome => 'आपका स्वागत है';
 
   @override
+  String get onboarding_setup_subtitle =>
+      'आइए, आपका सेटअप करते हैं — इसमें बस एक मिनट लगेगा';
+
+  @override
+  String get onboarding_tagline => 'सीखें, अभ्यास करें और जुड़ें। हर दिन।';
+
+  @override
   String get onboarding_quote =>
       'बूँद-बूँद से घड़ा भर जाता है। उसी प्रकार बुद्धिमान व्यक्ति थोड़ा-थोड़ा करके स्वयं को पुण्य से भर लेता है।';
 
@@ -45,6 +52,33 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get onboarding_begin_practice => 'अपना अभ्यास शुरू करें';
+
+  @override
+  String get onboarding_2_title => 'अगला, यह इस तरह काम करता है।';
+
+  @override
+  String get onboarding_2_subtitle => 'आदत बनाने के तीन छोटे कदम';
+
+  @override
+  String get onboarding_2_step1_title => 'अपने अभ्यास चुनें';
+
+  @override
+  String get onboarding_2_step1_desc =>
+      'जाप करें, मंत्र गिनें, ध्यान टाइमर सेट करें, या अपनी परंपरा की अध्ययन योजना का पालन करें।';
+
+  @override
+  String get onboarding_2_step2_title => 'इन्हें अपने दिन में जोड़ें';
+
+  @override
+  String get onboarding_2_step2_desc =>
+      'एक दैनिक दिनचर्या बनाएँ और हम इसे जारी रखने के लिए कोमल अनुस्मारक भेजेंगे।';
+
+  @override
+  String get onboarding_2_step3_title => 'हर दिन कुछ मिनट अभ्यास करें';
+
+  @override
+  String get onboarding_2_step3_desc =>
+      'एक पल भी मायने रखता है। दिन-प्रतिदिन, आपका अभ्यास बढ़ता जाएगा।';
 
   @override
   String get home_recitation => 'पाठ';

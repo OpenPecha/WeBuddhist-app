@@ -21,6 +21,14 @@ class AppLocalizationsMn extends AppLocalizations {
   String get onboarding_welcome => 'Тавтай морил';
 
   @override
+  String get onboarding_setup_subtitle =>
+      'Танд тохируулъя, ердөө нэг минут л хангалттай';
+
+  @override
+  String get onboarding_tagline =>
+      'Сурч, дадлага хийж, холбогдоорой. Өдөр бүр.';
+
+  @override
   String get onboarding_quote =>
       'Дусал дуслаар ус сав дүүрдэгийн адил, ухаант хүн ч багаахан багаахнаар хуримтлуулж, өөрийгөө буянаар дүүргэдэг.';
 
@@ -45,6 +53,33 @@ class AppLocalizationsMn extends AppLocalizations {
 
   @override
   String get onboarding_begin_practice => 'Дадлагаа эхлүүлэх';
+
+  @override
+  String get onboarding_2_title => 'Дараагийн алхам — энэ хэрхэн ажилладаг вэ.';
+
+  @override
+  String get onboarding_2_subtitle => 'Дадал хэвшүүлэх гурван жижиг алхам';
+
+  @override
+  String get onboarding_2_step1_title => 'Дадлагаа сонгоно уу';
+
+  @override
+  String get onboarding_2_step1_desc =>
+      'Шүтэл залгах, мантра тоолох, бясалгалын цаг тохируулах эсвэл уламжлалаасаа сургалтын төлөвлөгөөг дагах.';
+
+  @override
+  String get onboarding_2_step2_title => 'Өдөртөө нэмнэ үү';
+
+  @override
+  String get onboarding_2_step2_desc =>
+      'Өдөр тутмын хэвшил бий болгоод, үргэлжлүүлэхэд тань зөөлөн сануулагч илгээнэ.';
+
+  @override
+  String get onboarding_2_step3_title => 'Өдөр бүр хэдхэн минут дадлага хий';
+
+  @override
+  String get onboarding_2_step3_desc =>
+      'Нэг мөч ч чухал. Өдөр өндөр дадлага тань өснө.';
 
   @override
   String get home_recitation => 'Уншлага';

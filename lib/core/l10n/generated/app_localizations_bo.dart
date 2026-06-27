@@ -21,6 +21,13 @@ class AppLocalizationsBo extends AppLocalizations {
   String get onboarding_welcome => 'བཀྲ་ཤིས་བདེ་ལེགས།';
 
   @override
+  String get onboarding_setup_subtitle =>
+      'སྒྲིག་འཇུག་བྱེད་དགོས་པ་ཡོད། སྐར་མ་ཉུང་ཙམ་ལས་མི་འགོར།';
+
+  @override
+  String get onboarding_tagline => 'སློབ་པ་དང་ཉམས་ལེན་དང་འབྲེལ་མཐུད། ཉིན་ལྟར།';
+
+  @override
   String get onboarding_quote =>
       'ཆུ་ཐིགས་བསགས་པས་རྫ་མ་གང་བ་ལྟར། །མཁས་པས་ཤེས་བྱའི་རྣམ་གྲངས་ཡོངས་བསླབས་ཏེ། །རང་རྒྱུད་ཡོན་ཏན་དུ་མས་མཛེས་པར་བྱས། །';
 
@@ -45,6 +52,35 @@ class AppLocalizationsBo extends AppLocalizations {
 
   @override
   String get onboarding_begin_practice => 'ཉམས་ལེན་འགོ་འཛུགས།';
+
+  @override
+  String get onboarding_2_title =>
+      'དེས་ན་ཁྱེད་ལ་སྟོན་རྒྱུའི་ཆེད་རྒྱུས་རིམ་འདི་ཡིན།';
+
+  @override
+  String get onboarding_2_subtitle =>
+      'ཚགས་པ་སྐྲུལ་བའི་ཨོ་རྒྱུག་གི་ཐབས་ཆུང་གསུམ།';
+
+  @override
+  String get onboarding_2_step1_title => 'ཁྱེད་ཀྱི་ཉམས་ལེན་འདེམས།';
+
+  @override
+  String get onboarding_2_step1_desc =>
+      'སྔགས་བཟླས། སྔགས་གྲངས། སྒོམ་སྐྱེད་དུས་ཚོད། ཡང་ན་ཁྱེད་ཀྱི་བྱེད་སྲོལ་གྱི་སློབ་སྦྱོང་ཐབས་ཀྱི་རྗེས་སུ་འབྲང་།';
+
+  @override
+  String get onboarding_2_step2_title => 'ཉིན་རེའི་ལས་རིམ་དུ་སྣོན།';
+
+  @override
+  String get onboarding_2_step2_desc =>
+      'ཉིན་རེའི་ལས་རིམ་གསར་སྐྲུན་བྱས་ཏེ། ང་ཚོས་ཁྱེད་ལ་དྲན་སྐུལ་འཇམ་པོ་བསྐུར་ནས་མུ་མཐུད་དུ་འགྲོ་བར་རོགས་བྱེད།';
+
+  @override
+  String get onboarding_2_step3_title => 'ཉིན་རེར་སྐར་མ་ཉུང་ཙམ་ཉམས་ལེན།';
+
+  @override
+  String get onboarding_2_step3_desc =>
+      'སྐར་ཆ་ཉུང་ཙམ་ཡང་གལ་ཆེ། ཉིན་རེ་བཞིན་ཉམས་ལེན་འཕེལ་རྒྱས་སུ་འགྲོ།';
 
   @override
   String get home_recitation => 'ཞལ་འདོན།';

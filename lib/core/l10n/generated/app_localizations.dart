@@ -130,6 +130,18 @@ abstract class AppLocalizations {
   /// **'Welcome to'**
   String get onboarding_welcome;
 
+  /// No description provided for @onboarding_setup_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Let\'s get you set up, It\'ll only take a minute'**
+  String get onboarding_setup_subtitle;
+
+  /// No description provided for @onboarding_tagline.
+  ///
+  /// In en, this message translates to:
+  /// **'Learn, practice, and connect. Daily.'**
+  String get onboarding_tagline;
+
   /// No description provided for @onboarding_quote.
   ///
   /// In en, this message translates to:
@@ -139,7 +151,7 @@ abstract class AppLocalizations {
   /// No description provided for @onboarding_find_peace.
   ///
   /// In en, this message translates to:
-  /// **'Get started'**
+  /// **'Get Started'**
   String get onboarding_find_peace;
 
   /// No description provided for @onboarding_continue.
@@ -177,6 +189,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Begin your practice'**
   String get onboarding_begin_practice;
+
+  /// No description provided for @onboarding_2_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Next, here\'s how it works.'**
+  String get onboarding_2_title;
+
+  /// No description provided for @onboarding_2_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Three small steps to build the habit'**
+  String get onboarding_2_subtitle;
+
+  /// No description provided for @onboarding_2_step1_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose your practices'**
+  String get onboarding_2_step1_title;
+
+  /// No description provided for @onboarding_2_step1_desc.
+  ///
+  /// In en, this message translates to:
+  /// **'Chant, count mantras, set a meditation timer, or follow a study plan from your tradition.'**
+  String get onboarding_2_step1_desc;
+
+  /// No description provided for @onboarding_2_step2_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Add them to your day'**
+  String get onboarding_2_step2_title;
+
+  /// No description provided for @onboarding_2_step2_desc.
+  ///
+  /// In en, this message translates to:
+  /// **'Build a daily routine and we\'ll send gentle reminders to keep it going.'**
+  String get onboarding_2_step2_desc;
+
+  /// No description provided for @onboarding_2_step3_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Practice a few minutes a day'**
+  String get onboarding_2_step3_title;
+
+  /// No description provided for @onboarding_2_step3_desc.
+  ///
+  /// In en, this message translates to:
+  /// **'Even a moment counts. Day by day, your practice grows.'**
+  String get onboarding_2_step3_desc;
 
   /// No description provided for @home_recitation.
   ///

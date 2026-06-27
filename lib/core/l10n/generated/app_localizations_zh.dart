@@ -21,6 +21,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get onboarding_welcome => '歡迎來到';
 
   @override
+  String get onboarding_setup_subtitle => '讓我們為您設定，只需一分鐘';
+
+  @override
+  String get onboarding_tagline => '學習、修持、連結。每日。';
+
+  @override
   String get onboarding_quote => '滴水穿石 ‧ 聚沙成塔';
 
   @override
@@ -44,6 +50,30 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get onboarding_begin_practice => '開始您的修持';
+
+  @override
+  String get onboarding_2_title => '接下來，看看它是如何運作的。';
+
+  @override
+  String get onboarding_2_subtitle => '養成習慣的三個小步驟';
+
+  @override
+  String get onboarding_2_step1_title => '選擇您的修持方式';
+
+  @override
+  String get onboarding_2_step1_desc => '持咒、數念珠、設定禪坐計時器，或跟隨您傳承中的學習計畫。';
+
+  @override
+  String get onboarding_2_step2_title => '融入您的日常生活';
+
+  @override
+  String get onboarding_2_step2_desc => '建立日常日程，我們會發送溫和的提醒，幫助您堅持。';
+
+  @override
+  String get onboarding_2_step3_title => '每天修持幾分鐘';
+
+  @override
+  String get onboarding_2_step3_desc => '哪怕只是一刻也有意義。日復一日，您的修持會不斷成長。';
 
   @override
   String get home_recitation => '持誦';
