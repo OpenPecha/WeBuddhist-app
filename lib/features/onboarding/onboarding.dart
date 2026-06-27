@@ -17,6 +17,7 @@ export 'domain/usecases/onboarding_usecases.dart';
 
 // Data - Models
 export 'data/models/onboarding_preferences.dart' hide OnboardingPreferences;
+export 'data/models/onboarding_status_model.dart';
 
 // Application
 export 'application/onboarding_notifier.dart';

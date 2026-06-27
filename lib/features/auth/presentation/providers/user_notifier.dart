@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:flutter_pecha/core/storage/storage_keys.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/core/utils/local_storage_service.dart';
 import 'package:flutter_pecha/features/auth/data/models/user_model.dart';
@@ -52,10 +51,6 @@ class UserNotifier extends StateNotifier<UserState> {
 
     final userResult = await _getCurrentUserUseCase(const NoParams());
 
-    // First, get the onboarding status separately
-    final localOnboardingCompleted =
-        await _localStorageService.getOnboardingCompleted();
-
     userResult.fold(
       (failure) {
         _logger.error('Error getting user from API: ${failure.message}');
@@ -64,16 +59,8 @@ class UserNotifier extends StateNotifier<UserState> {
       },
       (user) {
         _logger.info('User data loaded from API: ${user.displayName}');
-
-        // Update user with local onboarding status
-        final userWithLocalOnboarding = user.copyWith(
-          onboardingCompleted: localOnboardingCompleted,
-        );
-
-        state = UserState.loaded(userWithLocalOnboarding);
-
-        // Cache locally for offline access
-        _cacheUserLocally(userWithLocalOnboarding);
+        state = UserState.loaded(user);
+        _cacheUserLocally(user);
       },
     );
   }
@@ -81,10 +68,6 @@ class UserNotifier extends StateNotifier<UserState> {
   /// Refresh user data from API
   Future<void> refreshUser() async {
     final userResult = await _getCurrentUserUseCase(const NoParams());
-
-    // First, get the onboarding status separately
-    final localOnboardingCompleted =
-        await _localStorageService.getOnboardingCompleted();
 
     userResult.fold(
       (failure) {
@@ -94,14 +77,8 @@ class UserNotifier extends StateNotifier<UserState> {
       },
       (user) {
         _logger.debug('User data refreshed: ${user.displayName}');
-
-        // Update user with local onboarding status
-        final userWithLocalOnboarding = user.copyWith(
-          onboardingCompleted: localOnboardingCompleted,
-        );
-
-        state = UserState.loaded(userWithLocalOnboarding);
-        _cacheUserLocally(userWithLocalOnboarding);
+        state = UserState.loaded(user);
+        _cacheUserLocally(user);
       },
     );
   }
@@ -115,40 +92,10 @@ class UserNotifier extends StateNotifier<UserState> {
       // Cache locally
       await _cacheUserLocally(updatedUser);
 
-      // Sync onboarding status separately to local storage
-      await _localStorageService.set(
-        StorageKeys.onboardingCompleted,
-        updatedUser.onboardingCompleted,
-      );
-
       _logger.debug('User data updated: ${updatedUser.displayName}');
     } catch (e) {
       _logger.error('Error updating user', e);
       state = state.copyWith(errorMessage: 'Failed to update user data');
-    }
-  }
-
-  /// Update onboarding status
-  Future<void> updateOnboardingStatus(bool completed) async {
-    try {
-      // Update local storage first (primary source of truth)
-      await _localStorageService.set(
-        StorageKeys.onboardingCompleted,
-        completed,
-      );
-
-      // Update user object if it exists
-      if (state.user != null) {
-        final updatedUser = state.user!.copyWith(
-          onboardingCompleted: completed,
-        );
-        state = UserState.loaded(updatedUser);
-        await _cacheUserLocally(updatedUser);
-      }
-
-      _logger.debug('Onboarding status updated: $completed');
-    } catch (e) {
-      _logger.error('Error updating onboarding status', e);
     }
   }
 
@@ -187,12 +134,8 @@ class UserNotifier extends StateNotifier<UserState> {
       },
       (updatedUser) {
         _logger.info('Profile saved: ${updatedUser.displayName}');
-        // Preserve local onboarding flag — the API does not return it.
-        final merged = updatedUser.copyWith(
-          onboardingCompleted: state.user?.onboardingCompleted,
-        );
-        state = UserState.loaded(merged);
-        _cacheUserLocally(merged);
+        state = UserState.loaded(updatedUser);
+        _cacheUserLocally(updatedUser);
         return null;
       },
     );

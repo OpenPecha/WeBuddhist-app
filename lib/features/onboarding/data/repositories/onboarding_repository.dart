@@ -25,10 +25,10 @@ class OnboardingRepositoryImpl implements domain_repo.OnboardingRepository {
   @override
   Future<Either<Failure, bool>> isOnboardingCompleted() async {
     try {
-      final result = await localDatasource.hasCompletedOnboarding();
-      return Right(result);
+      final status = await remoteDatasource.fetchOnboardingStatus();
+      return Right(status.hasSeenOnboarding);
     } catch (e) {
-      return Left(CacheFailure('Failed to check onboarding status: $e'));
+      return Left(ServerFailure('Failed to check onboarding status: $e'));
     }
   }
 
@@ -103,28 +103,22 @@ class OnboardingRepositoryImpl implements domain_repo.OnboardingRepository {
   @override
   Future<Either<Failure, void>> completeOnboarding() async {
     try {
-      // Mark onboarding as complete in local storage
-      await localDatasource.markOnboardingComplete();
-      _logger.info('Onboarding completed');
-
-      // TODO: Enable when API is ready — final sync to backend
-      // final prefsModel = await localDatasource.loadPreferences();
-      // if (prefsModel != null) {
-      //   await _syncToRemote(prefsModel);
-      // }
-
+      await remoteDatasource.updateOnboardingStatus(hasSeenOnboarding: true);
+      _logger.info('Onboarding marked as seen via API');
       return const Right(null);
     } catch (e) {
-      return Left(CacheFailure('Failed to complete onboarding: $e'));
+      return Left(ServerFailure('Failed to complete onboarding: $e'));
     }
   }
 
-  /// Sync preferences to backend.
-  ///
-  /// TODO: Uncomment when API is ready. The remote datasource is already
-  /// wired up via Dio. Just call this method wherever sync is needed.
-  // Future<void> _syncToRemote(OnboardingPreferences model) async {
-  //   await remoteDatasource.saveOnboardingPreferences(model);
-  //   _logger.info('Onboarding preferences synced to backend');
-  // }
+  @override
+  Future<Either<Failure, void>> resetOnboardingStatus() async {
+    try {
+      await remoteDatasource.updateOnboardingStatus(hasSeenOnboarding: false);
+      _logger.info('Onboarding status reset via API');
+      return const Right(null);
+    } catch (e) {
+      return Left(ServerFailure('Failed to reset onboarding status: $e'));
+    }
+  }
 }
