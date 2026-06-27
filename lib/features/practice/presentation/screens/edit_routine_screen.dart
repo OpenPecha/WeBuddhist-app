@@ -1108,6 +1108,8 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
           await _handleSeriesEnrollmentFromSelection(blockIndex, series);
         case TimerSessionSelection(:final timer):
           await _addTimerToBlock(blockIndex, timer);
+        case MantraSessionSelection(:final mantra):
+          await _addAccumulatorToBlock(blockIndex, mantra);
       }
     } finally {
       _isSelectingSession = false;
@@ -1176,6 +1178,46 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
   Future<void> _addTimerToBlock(int blockIndex, PresetTimer timer) async {
     final newItem = _routineItemFromTimer(timer);
     final block = _blocks[blockIndex];
+    setState(() => block.items.add(newItem));
+
+    try {
+      await _syncBlock(block);
+    } catch (e) {
+      if (mounted) {
+        setState(() => block.items.remove(newItem));
+        _showErrorSnackBar(_mapError(e));
+      }
+    }
+  }
+
+  Future<void> _addAccumulatorToBlock(int blockIndex, Mantra mantra) async {
+    if (blockIndex < 0 || blockIndex >= _blocks.length) return;
+    final block = _blocks[blockIndex];
+
+    final duplicateInBlock = block.items.any(
+      (item) =>
+          item.id == mantra.presetId &&
+          item.type == RoutineItemType.accumulator,
+    );
+    if (duplicateInBlock) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(context.l10n.duplicateItem),
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
+      return;
+    }
+
+    final language = ref.read(contentLanguageProvider);
+    final newItem = RoutineItem(
+      id: mantra.presetId,
+      title: mantra.displayTitle(language),
+      type: RoutineItemType.accumulator,
+      enrolledAt: DateTime.now(),
+    );
     setState(() => block.items.add(newItem));
 
     try {
