@@ -17,12 +17,14 @@ class GroupProfileBody extends ConsumerStatefulWidget {
   final GroupProfile profile;
   final bool isDark;
   final ScrollController? scrollController;
+  final ScrollPhysics? physics;
 
   const GroupProfileBody({
     super.key,
     required this.profile,
     required this.isDark,
     this.scrollController,
+    this.physics,
   });
 
   @override
@@ -45,9 +47,9 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody> {
 
     return SingleChildScrollView(
       controller: widget.scrollController,
-      physics: const BouncingScrollPhysics(
-        parent: AlwaysScrollableScrollPhysics(),
-      ),
+      physics:
+          widget.physics ??
+          const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
