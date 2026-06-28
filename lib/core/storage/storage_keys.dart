@@ -27,14 +27,8 @@ class StorageKeys {
   // ========== ONBOARDING ==========
   /// Onboarding preferences JSON
   static const String onboardingPreferences = 'onboarding_preferences';
-  /// Device-level onboarding completion flag (legacy / guest fallback)
-  static const String onboardingCompleted = 'onboarding_completed';
-  /// Per-user onboarding completion key — one entry per user ID.
-  /// Use this to check/set completion for a specific account.
-  static String onboardingCompletedForUser(String userId) =>
-      'onboarding_completed_$userId';
   /// ID of the currently logged-in user, written before the router fires
-  /// so the route guard can read the correct per-user onboarding key.
+  /// so feature code can resolve the active account.
   static const String currentUserId = 'current_user_id';
   /// Current onboarding step
   static const String onboardingStep = 'onboarding_step';
@@ -101,6 +95,10 @@ class StorageKeys {
   /// and live in memory only — they don't survive navigating to a different
   /// text because `versionId` is text-scoped and won't resolve elsewhere.
   static const String readerSecondaryEnabled = 'reader_secondary_enabled';
+  /// Bead-tap sound on the mala counter. Default: true.
+  static const String malaSoundEnabled = 'mala_sound_enabled';
+  /// Haptic feedback on the mala counter. Default: true.
+  static const String malaVibrationEnabled = 'mala_vibration_enabled';
 
   // ========== BUSINESS LOGIC ==========
   /// Last profile update timestamp

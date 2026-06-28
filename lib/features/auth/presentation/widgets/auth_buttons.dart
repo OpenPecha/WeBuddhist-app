@@ -2,9 +2,10 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/extensions/context_ext.dart';
+import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
 import 'package:flutter_pecha/features/auth/presentation/widgets/social_login_button.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_pecha/core/extensions/context_ext.dart';
 
 class AuthButtons extends ConsumerWidget {
   const AuthButtons({super.key});
@@ -13,9 +14,22 @@ class AuthButtons extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final isIOS = Platform.isIOS;
     final l10n = context.l10n;
+    final authNotifier = ref.read(authProvider.notifier);
+
     return Column(
       children: [
-        SizedBox(height: 50),
+        if (isIOS) ...[
+          SocialLoginButton(
+            connection: 'apple',
+            icon: Icons.apple,
+            iconColor: Colors.white,
+            label: l10n.continueWithApple,
+            backgroundColor: Colors.black,
+            foregroundColor: Colors.white,
+            iconWidget: const Icon(Icons.apple, color: Colors.white, size: 24),
+          ),
+          const SizedBox(height: 12),
+        ],
         SocialLoginButton(
           connection: 'google',
           icon: Icons.g_mobiledata,
@@ -30,27 +44,17 @@ class AuthButtons extends ConsumerWidget {
           ),
           isBorder: true,
         ),
-        const SizedBox(height: 16),
-        if (isIOS)
-          SocialLoginButton(
-            connection: 'apple',
-            icon: Icons.apple,
-            iconColor: Colors.white,
-            label: l10n.continueWithApple,
-            backgroundColor: Colors.black,
-            foregroundColor: Colors.white,
-            iconWidget: Icon(Icons.apple, color: Colors.white, size: 24),
+        const SizedBox(height: 24),
+        TextButton(
+          onPressed: authNotifier.continueAsGuest,
+          child: Text(
+            l10n.exploreAsGuest,
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w400,
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
           ),
-        const SizedBox(height: 16),
-        SocialLoginButton(
-          connection: 'guest',
-          icon: Icons.person,
-          iconColor: Colors.black,
-          label: l10n.continueAsGuest,
-          backgroundColor: Colors.white,
-          foregroundColor: Colors.black,
-          iconWidget: Icon(Icons.person, color: Colors.black, size: 24),
-          isBorder: true,
         ),
       ],
     );

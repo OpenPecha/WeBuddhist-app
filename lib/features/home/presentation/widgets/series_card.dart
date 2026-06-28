@@ -1,19 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
 import 'package:flutter_pecha/core/widgets/responsive_cover_image.dart';
 import 'package:flutter_pecha/features/home/domain/entities/series.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 
-class SeriesCard extends ConsumerWidget {
+class SeriesCard extends StatelessWidget {
   const SeriesCard({super.key, required this.series, required this.onTap});
 
   final Series series;
   final VoidCallback onTap;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final locale = ref.watch(localeProvider);
-    final fontSize = locale.languageCode == 'bo' ? 16.0 : 14.0;
+  Widget build(BuildContext context) {
+    final fontSize = getLocalizedFontSize(AppTextSize.label);
 
     return InkWell(
       onTap: onTap,

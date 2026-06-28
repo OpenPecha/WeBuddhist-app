@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.provider.Settings
+import co.ab180.airbridge.flutter.AirbridgeFlutter
 import com.ryanheise.audioservice.AudioServicePlugin
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
@@ -17,6 +18,11 @@ class MainActivity : FlutterActivity() {
 
     override fun provideFlutterEngine(context: Context): FlutterEngine? {
         return AudioServicePlugin.getFlutterEngine(context)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        AirbridgeFlutter.trackDeeplink(intent)
     }
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {

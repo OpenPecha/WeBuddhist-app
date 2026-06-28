@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/constants/app_assets.dart';
-import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/widgets/error_state_widget.dart';
 import 'package:flutter_pecha/core/widgets/skeletons/skeletons.dart';
+import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
+import 'package:flutter_pecha/features/auth/presentation/widgets/login_drawer.dart';
 import 'package:flutter_pecha/features/home/domain/entities/series.dart';
 import 'package:flutter_pecha/features/home/presentation/providers/series_provider.dart';
 import 'package:flutter_pecha/features/home/presentation/widgets/plan_list_view.dart';
+import 'package:flutter_pecha/features/home/presentation/widgets/series_more_bottom_sheet.dart';
 import 'package:flutter_pecha/features/plans/presentation/providers/user_plans_provider.dart';
+import 'package:flutter_pecha/features/practice/presentation/controllers/bookmark_controller.dart';
+import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -30,6 +34,12 @@ class SeriesDetailScreen extends ConsumerWidget {
     final seriesAsync = ref.watch(seriesByIdProvider(seriesId));
     final localizations = AppLocalizations.of(context)!;
 
+    final resolvedSeries =
+        seriesAsync.whenOrNull(
+          data: (either) => either.fold((_) => null, (s) => s),
+        ) ??
+        series;
+
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
@@ -37,11 +47,9 @@ class SeriesDetailScreen extends ConsumerWidget {
           children: [
             _buildAppBar(
               context,
-              seriesAsync.whenOrNull(
-                    data: (either) => either.fold((_) => null, (s) => s.title),
-                  ) ??
-                  series?.title ??
-                  '',
+              ref,
+              resolvedSeries?.title ?? '',
+              resolvedSeries,
             ),
             Expanded(
               child: RefreshIndicator(
@@ -57,6 +65,9 @@ class SeriesDetailScreen extends ConsumerWidget {
                       ),
                       (series) {
                         if (series.plans.isEmpty) {
+                          if (_isLoadingSeriesPlans(series)) {
+                            return const PlanListSkeleton();
+                          }
                           return _buildScrollableMessage(
                             _buildEmptyState(context, localizations, ref),
                           );
@@ -86,7 +97,23 @@ class SeriesDetailScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildAppBar(BuildContext context, String title) {
+  /// List endpoints cache series metadata without plan payloads. While the
+  /// detail refresh is in flight, [planCount] indicates plans exist even when
+  /// [plans] is still empty.
+  bool _isLoadingSeriesPlans(Series loaded) {
+    if (loaded.plans.isNotEmpty) return false;
+
+    final expectedPlanCount =
+        loaded.planCount > 0 ? loaded.planCount : (series?.planCount ?? 0);
+    return expectedPlanCount > 0;
+  }
+
+  Widget _buildAppBar(
+    BuildContext context,
+    WidgetRef ref,
+    String title,
+    Series? series,
+  ) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
       child: Row(
@@ -108,10 +135,44 @@ class SeriesDetailScreen extends ConsumerWidget {
               ),
             ),
           ),
-          const SizedBox(width: 48, height: 48),
+          IconButton(
+            icon: const Icon(Icons.more_vert),
+            // Disabled until the series is resolved (its id/title drive both
+            // actions).
+            onPressed:
+                series == null
+                    ? null
+                    : () => _openMoreSheet(context, ref, series),
+          ),
         ],
       ),
     );
+  }
+
+  void _openMoreSheet(BuildContext context, WidgetRef ref, Series series) {
+    showSeriesMoreBottomSheet(
+      context,
+      onAddToPractices: () => _onAddToPractices(context, ref, series),
+      onBookmark:
+          () => BookmarkController(
+            ref: ref,
+            context: context,
+          ).bookmarkSeries(series.id, name: series.title),
+    );
+  }
+
+  /// Adds the series to the user's practice routine.
+  ///
+  /// Opens the routine editor with the already-loaded [series] injected. Adding
+  /// the SERIES session enrolls the user server-side, so no separate enroll
+  /// call (or enrollment check, or series re-fetch) is needed — passing the
+  /// object avoids a redundant `GET /series/{id}`.
+  void _onAddToPractices(BuildContext context, WidgetRef ref, Series series) {
+    if (ref.read(authProvider).isGuest) {
+      LoginDrawer.show(context, ref);
+      return;
+    }
+    context.pushNamed('edit-routine', extra: {'initialSeries': series});
   }
 
   Widget _buildEmptyState(
@@ -119,8 +180,7 @@ class SeriesDetailScreen extends ConsumerWidget {
     AppLocalizations localizations,
     WidgetRef ref,
   ) {
-    final locale = ref.watch(localeProvider);
-    final fontSize = locale.languageCode == 'bo' ? 22.0 : 18.0;
+    final fontSize = getLocalizedFontSize(AppTextSize.title);
 
     return Padding(
       padding: const EdgeInsets.all(32.0),

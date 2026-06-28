@@ -1,7 +1,10 @@
+import 'dart:async';
+
 import 'package:fpdart/fpdart.dart';
 import 'package:flutter_pecha/core/error/exception_mapper.dart';
 import 'package:flutter_pecha/core/error/failures.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
+import 'package:flutter_pecha/features/plans/data/datasource/plans_local_datasource.dart';
 import 'package:flutter_pecha/features/plans/data/datasource/plans_remote_datasource.dart';
 import 'package:flutter_pecha/features/plans/domain/entities/author.dart';
 import 'package:flutter_pecha/features/plans/domain/entities/plan.dart';
@@ -13,13 +16,17 @@ final _logger = AppLogger('PlansRepositoryImpl');
 
 /// Repository implementation for managing plans.
 ///
-/// This implements the domain repository interface and uses the remote datasource,
-/// returning Either<Failure, T> results.
+/// Reads local Hive data first, refreshes from remote in the background,
+/// and returns Either<Failure, T> results.
 class PlansRepositoryImpl implements PlansRepository {
-  final PlansRemoteDatasource _datasource;
+  PlansRepositoryImpl({
+    required PlansRemoteDatasource datasource,
+    required PlansLocalDatasource local,
+  }) : _datasource = datasource,
+       _local = local;
 
-  PlansRepositoryImpl({required PlansRemoteDatasource datasource})
-      : _datasource = datasource;
+  final PlansRemoteDatasource _datasource;
+  final PlansLocalDatasource _local;
 
   @override
   Future<Either<Failure, List<Plan>>> getPlans({
@@ -29,6 +36,26 @@ class PlansRepositoryImpl implements PlansRepository {
     int? skip,
     int? limit,
   }) async {
+    final cached = _local.readPlans(
+      language: language,
+      skip: skip ?? 0,
+      limit: limit ?? 20,
+      tag: tag,
+      search: search,
+    );
+    if (cached != null) {
+      unawaited(
+        _refreshPlans(
+          language: language,
+          search: search,
+          tag: tag,
+          skip: skip,
+          limit: limit,
+        ),
+      );
+      return Right(cached.map((m) => m.toEntity()).toList());
+    }
+
     try {
       final models = await _datasource.fetchPlans(
         queryParams: PlansQueryParams(
@@ -39,8 +66,15 @@ class PlansRepositoryImpl implements PlansRepository {
           limit: limit,
         ),
       );
-      final entities = models.map((m) => m.toEntity()).toList();
-      return Right(entities);
+      await _local.savePlans(
+        language: language,
+        skip: skip ?? 0,
+        limit: limit ?? 20,
+        tag: tag,
+        search: search,
+        plans: models,
+      );
+      return Right(models.map((m) => m.toEntity()).toList());
     } catch (e) {
       _logger.error('Failed to get plans', e);
       return Left(ExceptionMapper.map(e, context: 'getPlans'));
@@ -49,11 +83,57 @@ class PlansRepositoryImpl implements PlansRepository {
 
   @override
   Future<Either<Failure, Plan?>> getPlan(String id) async {
+    if (id.isEmpty) {
+      return const Left(ValidationFailure('Plan ID cannot be empty'));
+    }
+
+    final cached = _local.readPlanById(id);
+    if (cached != null) {
+      unawaited(_refreshPlan(id));
+      return Right(cached.toEntity());
+    }
+
+    return refreshPlan(id);
+  }
+
+  @override
+  Stream<Either<Failure, Plan?>> watchPlan(String id) async* {
+    if (id.isEmpty) {
+      yield const Left(ValidationFailure('Plan ID cannot be empty'));
+      return;
+    }
+
+    final key = _local.planByIdKey(id);
+    Plan? read() => _local.readPlanById(id)?.toEntity();
+
+    final cached = read();
+    if (cached != null) yield Right(cached);
+
     try {
-      if (id.isEmpty) {
-        return const Left(ValidationFailure('Plan ID cannot be empty'));
+      await _refreshPlan(id);
+      final refreshed = read();
+      if (refreshed != null) yield Right(refreshed);
+    } catch (e) {
+      if (cached == null) {
+        yield Left(ExceptionMapper.map(e, context: 'getPlan'));
       }
+    }
+
+    await for (final _ in _local.watchKey(key)) {
+      final latest = read();
+      if (latest != null) yield Right(latest);
+    }
+  }
+
+  @override
+  Future<Either<Failure, Plan?>> refreshPlan(String id) async {
+    if (id.isEmpty) {
+      return const Left(ValidationFailure('Plan ID cannot be empty'));
+    }
+
+    try {
       final model = await _datasource.getPlanById(id);
+      await _local.savePlanById(model);
       return Right(model.toEntity());
     } catch (e) {
       _logger.error('Failed to get plan $id', e);
@@ -67,14 +147,7 @@ class PlansRepositoryImpl implements PlansRepository {
       if (tags.isEmpty) {
         return const Right([]);
       }
-      final models = await _datasource.fetchPlans(
-        queryParams: PlansQueryParams(
-          language: 'en',
-          tag: tags.first, // API supports single tag
-        ),
-      );
-      final entities = models.map((m) => m.toEntity()).toList();
-      return Right(entities);
+      return getPlans(language: 'en', tag: tags.first);
     } catch (e) {
       _logger.error('Failed to get plans by tags', e);
       return Left(ExceptionMapper.map(e, context: 'getPlansByTags'));
@@ -87,14 +160,7 @@ class PlansRepositoryImpl implements PlansRepository {
       if (query.isEmpty) {
         return const Left(ValidationFailure('Search query cannot be empty'));
       }
-      final models = await _datasource.fetchPlans(
-        queryParams: PlansQueryParams(
-          language: 'en',
-          search: query,
-        ),
-      );
-      final entities = models.map((m) => m.toEntity()).toList();
-      return Right(entities);
+      return getPlans(language: 'en', search: query);
     } catch (e) {
       _logger.error('Failed to search plans', e);
       return Left(ExceptionMapper.map(e, context: 'searchPlans'));
@@ -104,16 +170,10 @@ class PlansRepositoryImpl implements PlansRepository {
   @override
   Future<Either<Failure, List<Plan>>> getPlansByAuthor(String authorId) async {
     try {
-      // The current API doesn't support filtering by author
-      // We'll fetch all plans and filter locally
-      final models = await _datasource.fetchPlans(
-        queryParams: const PlansQueryParams(language: 'en'),
+      final result = await getPlans(language: 'en');
+      return result.map(
+        (plans) => plans.where((plan) => plan.authorId == authorId).toList(),
       );
-      final entities = models
-          .where((m) => m.author?.id == authorId)
-          .map((m) => m.toEntity())
-          .toList();
-      return Right(entities);
     } catch (e) {
       _logger.error('Failed to get plans by author', e);
       return Left(ExceptionMapper.map(e, context: 'getPlansByAuthor'));
@@ -123,8 +183,6 @@ class PlansRepositoryImpl implements PlansRepository {
   @override
   Future<Either<Failure, Author?>> getAuthor(String authorId) async {
     try {
-      // This would require an author-specific API endpoint
-      // For now, return null
       return const Right(null);
     } catch (e) {
       _logger.error('Failed to get author', e);
@@ -135,8 +193,6 @@ class PlansRepositoryImpl implements PlansRepository {
   @override
   Future<Either<Failure, PlanProgress?>> getUserPlanProgress(String planId) async {
     try {
-      // This would require a user progress API endpoint
-      // For now, return null
       return const Right(null);
     } catch (e) {
       _logger.error('Failed to get user plan progress', e);
@@ -147,8 +203,6 @@ class PlansRepositoryImpl implements PlansRepository {
   @override
   Future<Either<Failure, PlanProgress>> enrollInPlan(String planId) async {
     try {
-      // This would require an enrollment API endpoint
-      // For now, return a mock progress object
       return Left(ServerFailure('Enrollment not yet implemented'));
     } catch (e) {
       _logger.error('Failed to enroll in plan', e);
@@ -163,8 +217,6 @@ class PlansRepositoryImpl implements PlansRepository {
     String? taskId,
   ) async {
     try {
-      // This would require a progress update API endpoint
-      // For now, return an error
       return Left(ServerFailure('Progress update not yet implemented'));
     } catch (e) {
       _logger.error('Failed to update progress', e);
@@ -175,8 +227,6 @@ class PlansRepositoryImpl implements PlansRepository {
   @override
   Future<Either<Failure, void>> unenrollFromPlan(String planId) async {
     try {
-      // This would require an unenrollment API endpoint
-      // For now, return success
       return const Right(null);
     } catch (e) {
       _logger.error('Failed to unenroll from plan', e);
@@ -187,12 +237,41 @@ class PlansRepositoryImpl implements PlansRepository {
   @override
   Future<Either<Failure, PlanDay?>> getPlanDay(String planId, int dayNumber) async {
     try {
-      // This would require a plan day API endpoint
-      // For now, return null
       return const Right(null);
     } catch (e) {
       _logger.error('Failed to get plan day', e);
       return Left(ExceptionMapper.map(e, context: 'getPlanDay'));
     }
+  }
+
+  Future<void> _refreshPlans({
+    required String language,
+    String? search,
+    String? tag,
+    int? skip,
+    int? limit,
+  }) async {
+    final models = await _datasource.fetchPlans(
+      queryParams: PlansQueryParams(
+        language: language,
+        search: search,
+        tag: tag,
+        skip: skip,
+        limit: limit,
+      ),
+    );
+    await _local.savePlans(
+      language: language,
+      skip: skip ?? 0,
+      limit: limit ?? 20,
+      tag: tag,
+      search: search,
+      plans: models,
+    );
+  }
+
+  Future<void> _refreshPlan(String id) async {
+    final model = await _datasource.getPlanById(id);
+    await _local.savePlanById(model);
   }
 }

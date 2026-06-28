@@ -22,6 +22,13 @@ class PresetTimerModel {
     );
   }
 
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'name': name,
+    'duration': durationMs,
+    if (audioUrl != null) 'audio_url': audioUrl,
+  };
+
   PresetTimer toEntity() {
     return PresetTimer(
       id: id,
@@ -33,10 +40,7 @@ class PresetTimerModel {
 }
 
 class TimersResponseModel {
-  const TimersResponseModel({
-    required this.timers,
-    required this.total,
-  });
+  const TimersResponseModel({required this.timers, required this.total});
 
   final List<PresetTimerModel> timers;
   final int total;
@@ -44,9 +48,10 @@ class TimersResponseModel {
   factory TimersResponseModel.fromJson(Map<String, dynamic> json) {
     final timersJson = (json['timers'] as List<dynamic>?) ?? [];
     return TimersResponseModel(
-      timers: timersJson
-          .map((t) => PresetTimerModel.fromJson(t as Map<String, dynamic>))
-          .toList(),
+      timers:
+          timersJson
+              .map((t) => PresetTimerModel.fromJson(t as Map<String, dynamic>))
+              .toList(),
       total: (json['total'] as num?)?.toInt() ?? 0,
     );
   }

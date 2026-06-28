@@ -13,6 +13,7 @@ class ProtectedRoutes {
     // User profile
     '/users/info',
     '/users/upload',
+    '/users/username',
 
     // User progress - all /users/me routes require auth
     '/users/me',
@@ -55,8 +56,15 @@ class ProtectedRoutes {
     // Series enrollment
     '/users/me/series',
 
-    // Group join
+    // Mala accumulators (user-specific counts). The public preset catalogue
+    // (`/accumulators/presets`) is only ever fetched by authenticated users, so
+    // a catch-all is safe and also covers detail, create, and update — all of
+    // which are user-scoped and 403 without a token.
+    '/accumulators/', // Catch-all: detail, create (/user), update (/user/{id})
+
+    // Group join / follow
     '/author/groups/{groupId}/join',
+    '/author/groups/{groupId}/follow',
 
     // Plans (public endpoints but may need auth for user-specific data)
     '/plans/{planId}',
@@ -68,6 +76,8 @@ class ProtectedRoutes {
   /// The token is sent when the user is authenticated; silently skipped for guests.
   static const List<String> optionalPaths = [
     '/plans/{planId}/days',
+    // Authenticated users get joined groups excluded server-side.
+    '/author/groups',
   ];
 
   /// Check if a given path is protected (requires authentication).

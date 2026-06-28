@@ -1,0 +1,200 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
+import 'package:flutter_pecha/core/utils/app_logger.dart';
+import 'package:flutter_pecha/features/mala/data/models/accumulator_model.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+
+final _logger = AppLogger('MalaLocalDataSource');
+
+/// Per-`(userId, presetId)` local counting state.
+///
+/// Numbers: the monotonic local [total] and the server-confirmed
+/// [syncedTotal]. [accumulatorId] is the user-owned accumulator id (null until
+/// it has been created on the backend). A background flush only needs the
+/// preset id (the Hive key) to create, so nothing else is cached here.
+class LocalMalaState {
+  const LocalMalaState({
+    this.total = 0,
+    this.syncedTotal = 0,
+    this.accumulatorId,
+    this.beadImageUrl,
+    this.beadImageBase64,
+  });
+
+  final int total;
+  final int syncedTotal;
+  final String? accumulatorId;
+
+  /// Cached bead-image URL so the strand can render offline on a cold start,
+  /// before the seed network call returns.
+  final String? beadImageUrl;
+
+  /// Actual bead artwork bytes, base64-encoded for Hive string storage.
+  /// The UI prefers this over the URL so the bead renders instantly offline.
+  final String? beadImageBase64;
+
+  Uint8List? get beadImageBytes {
+    final raw = beadImageBase64;
+    if (raw == null || raw.isEmpty) return null;
+    try {
+      return base64Decode(raw);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  bool get isDirty => total > syncedTotal;
+
+  LocalMalaState copyWith({
+    int? total,
+    int? syncedTotal,
+    String? accumulatorId,
+    String? beadImageUrl,
+    String? beadImageBase64,
+  }) => LocalMalaState(
+    total: total ?? this.total,
+    syncedTotal: syncedTotal ?? this.syncedTotal,
+    accumulatorId: accumulatorId ?? this.accumulatorId,
+    beadImageUrl: beadImageUrl ?? this.beadImageUrl,
+    beadImageBase64: beadImageBase64 ?? this.beadImageBase64,
+  );
+
+  Map<String, dynamic> toJson() => {
+    'total': total,
+    'syncedTotal': syncedTotal,
+    if (accumulatorId != null) 'accumulatorId': accumulatorId,
+    if (beadImageUrl != null) 'beadImageUrl': beadImageUrl,
+    if (beadImageBase64 != null) 'beadImageBase64': beadImageBase64,
+  };
+
+  factory LocalMalaState.fromJson(Map<String, dynamic> j) => LocalMalaState(
+    total: (j['total'] as num?)?.toInt() ?? 0,
+    syncedTotal: (j['syncedTotal'] as num?)?.toInt() ?? 0,
+    accumulatorId: j['accumulatorId'] as String?,
+    beadImageUrl: j['beadImageUrl'] as String?,
+    beadImageBase64: j['beadImageBase64'] as String?,
+  );
+}
+
+/// Hive-backed local store for mala counts, namespaced by user id so one
+/// account never reads or sends another's counts. Keys are `userId:presetId`.
+class MalaLocalDataSource {
+  static const String boxName = 'mala_counts';
+
+  Box<String> get _box => Hive.box<String>(boxName);
+
+  /// Open the box. Call once during app bootstrap (after `Hive.initFlutter()`).
+  static Future<void> init() async {
+    if (!Hive.isBoxOpen(boxName)) {
+      await Hive.openBox<String>(boxName);
+      _logger.info('MalaLocalDataSource initialized');
+    }
+  }
+
+  String _key(String userId, String presetId) => '$userId:$presetId';
+  String _catalogueKey(String language) => 'catalogue:$language';
+
+  List<PresetAccumulatorModel>? readCatalogue(String language) {
+    final raw = _box.get(_catalogueKey(language));
+    if (raw == null) return null;
+    try {
+      return (jsonDecode(raw) as List<dynamic>)
+          .map(
+            (item) =>
+                PresetAccumulatorModel.fromJson(item as Map<String, dynamic>),
+          )
+          .toList();
+    } catch (e) {
+      _logger.error('Failed to parse local mala catalogue', e);
+      return null;
+    }
+  }
+
+  Future<void> writeCatalogue(
+    String language,
+    List<PresetAccumulatorModel> presets,
+  ) {
+    return _box.put(
+      _catalogueKey(language),
+      jsonEncode(presets.map((preset) => preset.toJson()).toList()),
+    );
+  }
+
+  LocalMalaState read(String userId, String presetId) {
+    final raw = _box.get(_key(userId, presetId));
+    if (raw == null) return const LocalMalaState();
+    try {
+      return LocalMalaState.fromJson(jsonDecode(raw) as Map<String, dynamic>);
+    } catch (e) {
+      _logger.error('Failed to parse local mala state', e);
+      return const LocalMalaState();
+    }
+  }
+
+  Future<void> write(String userId, String presetId, LocalMalaState s) =>
+      _box.put(_key(userId, presetId), jsonEncode(s.toJson()));
+
+  /// Append one recitation to the monotonic local total.
+  Future<LocalMalaState> recordTap(String userId, String presetId) async {
+    final s = read(userId, presetId);
+    final next = s.copyWith(total: s.total + 1);
+    await write(userId, presetId, next);
+    return next;
+  }
+
+  /// Clears the on-screen session after a reset: count back to zero and no
+  /// active accumulator id. Preserves [beadImageUrl] for offline rendering.
+  Future<void> clearSession(String userId, String presetId) async {
+    final s = read(userId, presetId);
+    await write(
+      userId,
+      presetId,
+      LocalMalaState(
+        beadImageUrl: s.beadImageUrl,
+        beadImageBase64: s.beadImageBase64,
+      ),
+    );
+  }
+
+  /// Preset ids for [userId] whose local total is ahead of the server.
+  List<String> dirtyPresetIds(String userId) {
+    final prefix = '$userId:';
+    return _box.keys
+        .cast<String>()
+        .where((k) => k.startsWith(prefix))
+        .where((k) {
+          final raw = _box.get(k);
+          if (raw == null) return false;
+          try {
+            return LocalMalaState.fromJson(
+              jsonDecode(raw) as Map<String, dynamic>,
+            ).isDirty;
+          } catch (_) {
+            return false;
+          }
+        })
+        .map((k) => k.substring(prefix.length))
+        .toList();
+  }
+
+  /// Remove fully-synced entries for [userId] (storage hygiene on shared
+  /// devices). Dirty entries are retained so no unsynced tail is lost.
+  Future<void> pruneSynced(String userId) async {
+    final prefix = '$userId:';
+    final toDelete =
+        _box.keys.cast<String>().where((k) {
+          if (!k.startsWith(prefix)) return false;
+          final raw = _box.get(k);
+          if (raw == null) return true;
+          try {
+            return !LocalMalaState.fromJson(
+              jsonDecode(raw) as Map<String, dynamic>,
+            ).isDirty;
+          } catch (_) {
+            return true;
+          }
+        }).toList();
+    await _box.deleteAll(toDelete);
+  }
+}

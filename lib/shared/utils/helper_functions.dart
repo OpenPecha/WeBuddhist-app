@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/theme/font_config.dart';
 import 'package:flutter_pecha/core/constants/app_config.dart';
 
+export 'package:flutter_pecha/core/theme/font_config.dart' show AppTextSize;
+
 extension HelperFunctions on BuildContext {
   void showSnackBar(String message) {
     ScaffoldMessenger.of(this).showSnackBar(SnackBar(content: Text(message)));
@@ -27,26 +29,16 @@ TextStyle? getContentTextStyle(String? language, TextStyle? baseStyle) {
 
 // Helper function to get the line height for a given language
 double? getLineHeight(String language) {
-  switch (language) {
-    case AppConfig.tibetanLanguageCode ||
-        AppConfig.tibetanAdaptationLanguageCode:
-      return 2;
-    case AppConfig.englishLanguageCode ||
-        AppConfig.tibetanTransliterationLanguageCode:
-      return 1.5;
-    case AppConfig.chineseLanguageCode:
-      return 1.5;
-    default:
-      return 1.5;
-  }
+  return AppFontConfig.getLineHeight(language);
 }
 
 // Helper function to get the font size for a given language
 double? getFontSize(String language) {
+  if (AppFontConfig.isTibetanLanguage(language)) {
+    return AppFontConfig.tibetanContentFontSize;
+  }
+
   switch (language) {
-    case AppConfig.tibetanLanguageCode ||
-        AppConfig.tibetanAdaptationLanguageCode:
-      return 18;
     case AppConfig.englishLanguageCode ||
         AppConfig.tibetanTransliterationLanguageCode:
       return 20;
@@ -55,6 +47,10 @@ double? getFontSize(String language) {
     default:
       return null;
   }
+}
+
+double getLocalizedFontSize(AppTextSize size) {
+  return AppFontConfig.getTextSize(size);
 }
 
 /// Soft line-break marker embedded in segment content by the backend.
@@ -69,6 +65,20 @@ String normalizeSegmentHtml(String? raw) =>
 /// Converts [kSegmentSoftBreak] to \n for content displayed in a plain Text widget.
 String normalizeSegmentText(String? raw) =>
     raw?.replaceAll(kSegmentSoftBreak, '\n') ?? '';
+
+final _tibetanScriptPattern = RegExp(r'[\u0F00-\u0FFF]');
+final _tibetanSyllableSeparatorPattern = RegExp(r'([་།])');
+
+/// Inserts zero-width break opportunities after Tibetan syllable separators so
+/// Flutter can wrap long Tibetan runs without leaving a nearly empty last line.
+String withTibetanLineBreakOpportunities(String text) {
+  if (text.isEmpty || !_tibetanScriptPattern.hasMatch(text)) return text;
+
+  return text.replaceAllMapped(
+    _tibetanSyllableSeparatorPattern,
+    (match) => '${match[0]}\u200B',
+  );
+}
 
 /// Calculates the share position origin for share_plus ShareParams.
 ///

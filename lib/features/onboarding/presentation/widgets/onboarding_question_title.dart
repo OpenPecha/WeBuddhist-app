@@ -14,10 +14,8 @@ class OnboardingQuestionTitle extends StatelessWidget {
       style:
           style ??
           const TextStyle(
-            fontSize: 32,
+            fontSize: 28,
             fontWeight: FontWeight.w700,
-            height: 1.2,
-            letterSpacing: -0.544,
             fontFamily: 'Inter',
           ),
     );

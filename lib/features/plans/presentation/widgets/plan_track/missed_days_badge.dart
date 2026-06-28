@@ -20,12 +20,18 @@ class MissedDaysBadge extends StatelessWidget {
   });
 
   int? _findFirstMissedDay() {
-    final todayDayNumber = PlanUtils.dayNumberFor(
-      planStartDate,
-      DateTime.now(),
-      totalDays,
-    );
-    for (int day = 1; day < todayDayNumber; day++) {
+    final now = DateTime.now();
+    final normalizedToday = DateTime(now.year, now.month, now.day);
+    final todayDayNumber = PlanUtils.dayNumberFor(planStartDate, now, totalDays);
+
+    final start = planStartDate.toLocal();
+    final normalizedStart = DateTime(start.year, start.month, start.day);
+    final lastPlanDay = normalizedStart.add(Duration(days: totalDays - 1));
+
+    final isPlanOver = normalizedToday.isAfter(lastPlanDay);
+    final upperBound = isPlanOver ? totalDays : todayDayNumber - 1;
+
+    for (int day = 1; day <= upperBound; day++) {
       if (completionStatus[day] != true) return day;
     }
     return null;
@@ -51,10 +57,6 @@ class MissedDaysBadge extends StatelessWidget {
           horizontal: onTap != null ? 10 : 12,
           vertical: 4,
         ),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: color.withValues(alpha: 0.5)),
-        ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -64,7 +66,7 @@ class MissedDaysBadge extends StatelessWidget {
             ],
             Text(
               context.l10n.missedDaysCount(missedDays),
-              style: TextStyle(fontSize: 9, color: color),
+              style: TextStyle(fontSize: 10, color: color),
             ),
           ],
         ),

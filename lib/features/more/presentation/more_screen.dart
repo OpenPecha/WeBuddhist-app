@@ -22,6 +22,9 @@ class MoreScreen extends ConsumerWidget {
     Locale(AppConfig.englishLanguageCode),
     Locale(AppConfig.chineseLanguageCode),
     Locale(AppConfig.tibetanLanguageCode),
+    Locale(AppConfig.hindiLanguageCode),
+    Locale(AppConfig.mongolianLanguageCode),
+    Locale(AppConfig.nepaliLanguageCode),
   ];
 
   String _getLanguageName(Locale locale) {
@@ -32,6 +35,12 @@ class MoreScreen extends ConsumerWidget {
         return '中文';
       case AppConfig.tibetanLanguageCode:
         return 'བོད་ཡིག';
+      case AppConfig.hindiLanguageCode:
+        return 'हिन्दी';
+      case AppConfig.mongolianLanguageCode:
+        return 'Монгол';
+      case AppConfig.nepaliLanguageCode:
+        return 'नेपाली';
       default:
         return locale.languageCode;
     }
@@ -68,7 +77,10 @@ class MoreScreen extends ConsumerWidget {
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
           children: [
             // Personalisation Section
-            _buildSectionHeader(context, localizations.settings_section_personalisation),
+            _buildSectionHeader(
+              context,
+              localizations.settings_section_personalisation,
+            ),
             const SizedBox(height: 12),
             if (authState.isLoggedIn && !authState.isGuest)
               _buildSettingsRow(
@@ -111,7 +123,10 @@ class MoreScreen extends ConsumerWidget {
             const SizedBox(height: 24),
 
             // Account Section
-            _buildSectionHeader(context, localizations.settings_section_account),
+            _buildSectionHeader(
+              context,
+              localizations.settings_section_account,
+            ),
             const SizedBox(height: 12),
             if (!authState.isLoggedIn || authState.isGuest) ...[
               _buildSettingsRow(
@@ -164,7 +179,10 @@ class MoreScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildNotificationRow(BuildContext context, AppLocalizations localizations) {
+  Widget _buildNotificationRow(
+    BuildContext context,
+    AppLocalizations localizations,
+  ) {
     return _buildSettingsRow(
       context,
       icon: AppAssets.notification,
@@ -194,11 +212,7 @@ class MoreScreen extends ConsumerWidget {
                 style: Theme.of(context).textTheme.bodyLarge,
               ),
             ),
-            Icon(
-              AppAssets.caretRight,
-              size: 24,
-              color: AppColors.grey600,
-            ),
+            Icon(AppAssets.caretRight, size: 24, color: AppColors.grey600),
           ],
         ),
       ),
@@ -294,8 +308,7 @@ class MoreScreen extends ConsumerWidget {
       isScrollControlled: true,
       builder: (sheetContext) {
         final theme = Theme.of(sheetContext);
-        final selected =
-            currentLocale ?? Localizations.localeOf(sheetContext);
+        final selected = currentLocale ?? Localizations.localeOf(sheetContext);
         return SafeArea(
           top: false,
           child: ConstrainedBox(
@@ -312,8 +325,7 @@ class MoreScreen extends ConsumerWidget {
                     width: 40,
                     height: 4,
                     decoration: BoxDecoration(
-                      color: theme.colorScheme.onSurface
-                          .withValues(alpha: 0.2),
+                      color: theme.colorScheme.onSurface.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
@@ -335,10 +347,11 @@ class MoreScreen extends ConsumerWidget {
                     vertical: 8,
                   ),
                   itemCount: _supportedLocales.length,
-                  separatorBuilder: (_, __) => Divider(
-                    height: 1,
-                    color: theme.dividerColor.withValues(alpha: 0.4),
-                  ),
+                  separatorBuilder:
+                      (_, __) => Divider(
+                        height: 1,
+                        color: theme.dividerColor.withValues(alpha: 0.4),
+                      ),
                   itemBuilder: (_, index) {
                     final localeItem = _supportedLocales[index];
                     final isSelected = selected == localeItem;
@@ -384,19 +397,20 @@ class MoreScreen extends ConsumerWidget {
                 child: Text(
                   _getLanguageName(localeItem),
                   style: theme.textTheme.titleMedium?.copyWith(
-                    color: isSelected
-                        ? activeColor
-                        : theme.textTheme.titleMedium?.color,
-                    fontWeight:
-                        isSelected ? FontWeight.w700 : FontWeight.w500,
+                    color:
+                        isSelected
+                            ? activeColor
+                            : theme.textTheme.titleMedium?.color,
+                    fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
                   ),
                 ),
               ),
               SizedBox(
                 width: 18,
-                child: isSelected
-                    ? Icon(AppAssets.check, size: 18, color: activeColor)
-                    : const SizedBox.shrink(),
+                child:
+                    isSelected
+                        ? Icon(AppAssets.check, size: 18, color: activeColor)
+                        : const SizedBox.shrink(),
               ),
             ],
           ),
@@ -457,7 +471,7 @@ class _ThemeToggle extends StatelessWidget {
     return AppToggleSwitch(
       value: isDarkMode,
       onChanged: onChanged,
-      thumbOnColor: AppColors.grey600,
+      thumbOnColor: AppColors.surfaceWhite,
       thumbOffColor: AppColors.surfaceWhite,
     );
   }

@@ -1,7 +1,9 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
 import 'package:flutter_pecha/core/di/core_providers.dart';
 import 'package:flutter_pecha/core/error/failures.dart';
 import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
+import 'package:flutter_pecha/features/connect/presentation/providers/connect_providers.dart';
 import 'package:flutter_pecha/features/group_profile/data/datasource/group_profile_remote_datasource.dart';
 import 'package:flutter_pecha/features/group_profile/data/repositories/group_profile_repository_impl.dart';
 import 'package:flutter_pecha/features/group_profile/domain/entities/group_profile.dart';
@@ -30,12 +32,36 @@ final getGroupProfileUseCaseProvider =
 
 final groupProfileProvider = FutureProvider.autoDispose
     .family<Either<Failure, GroupProfile>, String>((ref, groupId) async {
-  final locale = ref.watch(localeProvider);
+  final language = ref.watch(contentLanguageProvider);
   final useCase = ref.watch(getGroupProfileUseCaseProvider);
   return useCase(
-    GetGroupProfileParams(groupId: groupId, language: locale.languageCode),
+    GetGroupProfileParams(groupId: groupId, language: language),
   );
 });
+
+@immutable
+class GroupFollowKey {
+  final String groupId;
+  final GroupType groupType;
+  final bool loadInitialStatus;
+
+  const GroupFollowKey({
+    required this.groupId,
+    required this.groupType,
+    this.loadInitialStatus = true,
+  });
+
+  @override
+  bool operator ==(Object other) {
+    return other is GroupFollowKey &&
+        other.groupId == groupId &&
+        other.groupType == groupType &&
+        other.loadInitialStatus == loadInitialStatus;
+  }
+
+  @override
+  int get hashCode => Object.hash(groupId, groupType, loadInitialStatus);
+}
 
 sealed class GroupFollowState {
   const GroupFollowState();
@@ -47,7 +73,12 @@ class GroupFollowLoading extends GroupFollowState {
 
 class GroupFollowSuccess extends GroupFollowState {
   final bool isFollowing;
-  const GroupFollowSuccess({required this.isFollowing});
+  final int countDelta;
+
+  const GroupFollowSuccess({
+    required this.isFollowing,
+    this.countDelta = 0,
+  });
 }
 
 class GroupFollowFailure extends GroupFollowState {
@@ -58,25 +89,67 @@ class GroupFollowFailure extends GroupFollowState {
 class GroupFollowNotifier extends StateNotifier<GroupFollowState> {
   final GroupProfileRepositoryInterface _repository;
   final Ref _ref;
-  final String _groupId;
+  final GroupFollowKey _key;
   final bool _isAuthenticated;
 
   GroupFollowNotifier({
     required GroupProfileRepositoryInterface repository,
     required Ref ref,
-    required String groupId,
+    required GroupFollowKey key,
     required bool isAuthenticated,
   }) : _repository = repository,
        _ref = ref,
-       _groupId = groupId,
+       _key = key,
        _isAuthenticated = isAuthenticated,
-       super(const GroupFollowLoading()) {
-    _loadInitialStatus();
+       super(
+         key.loadInitialStatus
+             ? const GroupFollowLoading()
+             : const GroupFollowSuccess(isFollowing: false),
+       ) {
+    if (key.loadInitialStatus) {
+      _loadInitialStatus();
+    }
   }
 
-  Future<void> _refreshGroupProfile() async {
-    _ref.invalidate(groupProfileProvider(_groupId));
-    await _ref.read(groupProfileProvider(_groupId).future);
+  int _currentCountDelta() {
+    final current = state;
+    return current is GroupFollowSuccess ? current.countDelta : 0;
+  }
+
+  void _invalidateGroupProfile() {
+    _ref.invalidate(groupProfileProvider(_key.groupId));
+  }
+
+  void _invalidateConnectProviders() {
+    _ref.invalidate(myGroupsProvider);
+    _ref.invalidate(discoverGroupsProvider);
+  }
+
+  void _addPendingJoinedGroup(GroupProfile group) {
+    final updatedGroup = group.withMemberCountDelta(1);
+    _ref.read(pendingJoinedGroupsProvider.notifier).update((groups) {
+      if (groups.any((g) => g.id == group.id)) return groups;
+      return [updatedGroup, ...groups];
+    });
+    _clearPendingUnjoined(group.id);
+  }
+
+  void _removePendingJoinedGroup(String groupId) {
+    _ref.read(pendingJoinedGroupsProvider.notifier).update(
+      (groups) => groups.where((g) => g.id != groupId).toList(),
+    );
+  }
+
+  void _markPendingUnjoined(String groupId) {
+    _ref.read(pendingUnjoinedGroupIdsProvider.notifier).update(
+      (ids) => {...ids, groupId},
+    );
+  }
+
+  void _clearPendingUnjoined(String groupId) {
+    _ref.read(pendingUnjoinedGroupIdsProvider.notifier).update(
+      (ids) => {...ids}..remove(groupId),
+    );
   }
 
   Future<void> _loadInitialStatus() async {
@@ -85,7 +158,10 @@ class GroupFollowNotifier extends StateNotifier<GroupFollowState> {
       return;
     }
 
-    final result = await _repository.checkFollowStatus(_groupId);
+    final result = await _repository.checkFollowStatus(
+      _key.groupId,
+      _key.groupType,
+    );
     if (!mounted) return;
 
     result.fold(
@@ -94,11 +170,15 @@ class GroupFollowNotifier extends StateNotifier<GroupFollowState> {
     );
   }
 
-  Future<bool> follow() async {
+  Future<bool> follow({GroupProfile? connectGroup}) async {
     if (state is GroupFollowLoading) return false;
+    final previousDelta = _currentCountDelta();
     state = const GroupFollowLoading();
 
-    final result = await _repository.followGroup(_groupId);
+    final result = await _repository.followGroup(
+      _key.groupId,
+      _key.groupType,
+    );
     if (!mounted) return false;
 
     return await result.fold(
@@ -107,18 +187,32 @@ class GroupFollowNotifier extends StateNotifier<GroupFollowState> {
         return false;
       },
       (_) async {
-        state = const GroupFollowSuccess(isFollowing: true);
-        await _refreshGroupProfile();
+        state = GroupFollowSuccess(
+          isFollowing: true,
+          countDelta: previousDelta + 1,
+        );
+        _invalidateGroupProfile();
+        _invalidateConnectProviders();
+        if (connectGroup != null) {
+          _addPendingJoinedGroup(connectGroup);
+          _ref
+              .read(discoverGroupsProvider.notifier)
+              .removeGroups({connectGroup.id});
+        }
         return true;
       },
     );
   }
 
-  Future<bool> unfollow() async {
+  Future<bool> unfollow({GroupProfile? connectGroup}) async {
     if (state is GroupFollowLoading) return false;
+    final previousDelta = _currentCountDelta();
     state = const GroupFollowLoading();
 
-    final result = await _repository.unfollowGroup(_groupId);
+    final result = await _repository.unfollowGroup(
+      _key.groupId,
+      _key.groupType,
+    );
     if (!mounted) return false;
 
     return await result.fold(
@@ -127,8 +221,16 @@ class GroupFollowNotifier extends StateNotifier<GroupFollowState> {
         return false;
       },
       (_) async {
-        state = const GroupFollowSuccess(isFollowing: false);
-        await _refreshGroupProfile();
+        state = GroupFollowSuccess(
+          isFollowing: false,
+          countDelta: previousDelta - 1,
+        );
+        _invalidateGroupProfile();
+        _invalidateConnectProviders();
+        if (connectGroup != null) {
+          _removePendingJoinedGroup(connectGroup.id);
+          _markPendingUnjoined(connectGroup.id);
+        }
         return true;
       },
     );
@@ -136,14 +238,14 @@ class GroupFollowNotifier extends StateNotifier<GroupFollowState> {
 }
 
 final groupFollowProvider = StateNotifierProvider.autoDispose
-    .family<GroupFollowNotifier, GroupFollowState, String>((ref, groupId) {
+    .family<GroupFollowNotifier, GroupFollowState, GroupFollowKey>((ref, key) {
   final authState = ref.watch(authProvider);
   final isAuthenticated = !authState.isGuest && authState.isLoggedIn;
 
   return GroupFollowNotifier(
     repository: ref.watch(groupProfileRepositoryProvider),
     ref: ref,
-    groupId: groupId,
+    key: key,
     isAuthenticated: isAuthenticated,
   );
 });

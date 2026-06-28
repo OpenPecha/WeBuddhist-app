@@ -1,5 +1,6 @@
 import 'package:flutter_pecha/features/home/domain/entities/series.dart';
 import 'package:flutter_pecha/features/plans/data/models/plans_model.dart';
+import 'package:flutter_pecha/features/plans/data/utils/plan_utils.dart';
 
 class SeriesMetadataModel {
   final String id;
@@ -24,6 +25,16 @@ class SeriesMetadataModel {
       description: (json['description'] as String?) ?? '',
       language: (json['language'] as String?) ?? '',
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'title': title,
+      'sub_title': subTitle,
+      'description': description,
+      'language': language,
+    };
   }
 }
 
@@ -64,13 +75,13 @@ class SeriesModel {
     if (metadataList.isEmpty) return null;
     final upper = language.toUpperCase();
     return metadataList.cast<SeriesMetadataModel?>().firstWhere(
-          (m) => m!.language.toUpperCase() == upper,
-          orElse: () =>
-              metadataList.cast<SeriesMetadataModel?>().firstWhere(
-                (m) => m!.language.toUpperCase() == 'EN',
-                orElse: () => metadataList.first,
-              ),
-        );
+      (m) => m!.language.toUpperCase() == upper,
+      orElse:
+          () => metadataList.cast<SeriesMetadataModel?>().firstWhere(
+            (m) => m!.language.toUpperCase() == 'EN',
+            orElse: () => metadataList.first,
+          ),
+    );
   }
 
   factory SeriesModel.fromJson(Map<String, dynamic> json) {
@@ -102,14 +113,33 @@ class SeriesModel {
       status: json['status'] as String?,
       planCount: (json['plan_count'] as num?)?.toInt(),
       enrolledCount: (json['enrolled_count'] as num?)?.toInt(),
-      startDate: _parseDate(json['start_date']),
-      endDate: _parseDate(json['end_date']),
+      startDate: PlanUtils.parseCalendarDate(json['start_date'] as String?),
+      endDate: PlanUtils.parseCalendarDate(json['end_date'] as String?),
       plans: plansList,
       totalDays: (json['total_days'] as num?)?.toInt() ?? 0,
-      groupJson: json['group'] is Map<String, dynamic>
-          ? json['group'] as Map<String, dynamic>
-          : null,
+      groupJson:
+          json['group'] is Map<String, dynamic>
+              ? json['group'] as Map<String, dynamic>
+              : null,
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'metadata': metadataList.map((m) => m.toJson()).toList(),
+      'image': image?.toJson(),
+      'author_id': authorId,
+      'featured': featured,
+      'status': status,
+      'plan_count': planCount,
+      'enrolled_count': enrolledCount,
+      'start_date': startDate?.toIso8601String(),
+      'end_date': endDate?.toIso8601String(),
+      'plans': plans.map((p) => p.toJson()).toList(),
+      'total_days': totalDays,
+      'group': groupJson,
+    };
   }
 
   Series toEntity({String language = 'en'}) {
@@ -131,11 +161,6 @@ class SeriesModel {
     );
   }
 
-  static DateTime? _parseDate(Object? value) {
-    if (value is! String || value.isEmpty) return null;
-    return DateTime.tryParse(value);
-  }
-
   SeriesGroup? _parseGroup(String language) {
     if (groupJson == null) return null;
     final g = groupJson!;
@@ -155,8 +180,7 @@ class SeriesModel {
           }
         }
       }
-      resolvedMeta ??=
-          rawMeta.whereType<Map<String, dynamic>>().firstOrNull;
+      resolvedMeta ??= rawMeta.whereType<Map<String, dynamic>>().firstOrNull;
     }
 
     return SeriesGroup(

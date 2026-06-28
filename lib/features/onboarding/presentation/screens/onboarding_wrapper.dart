@@ -1,19 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/config/router/app_routes.dart';
-import 'package:flutter_pecha/features/home/presentation/screens/main_navigation_screen.dart';
 import 'package:flutter_pecha/features/onboarding/application/onboarding_provider.dart';
 import 'package:flutter_pecha/features/onboarding/presentation/screens/onboarding_screen_1.dart';
+import 'package:flutter_pecha/features/onboarding/presentation/screens/onboarding_screen_2.dart';
+import 'package:flutter_pecha/features/onboarding/presentation/screens/onboarding_screen_tradition_chat.dart';
 import 'package:flutter_pecha/features/onboarding/presentation/screens/onboarding_screen_5.dart';
-import 'package:flutter_pecha/features/onboarding/presentation/screens/onboarding_screen_event.dart';
-import 'package:flutter_pecha/features/plans/data/models/user/user_plans_model.dart';
+import 'package:flutter_pecha/features/onboarding/presentation/screens/onboarding_screen_language.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 /// Wrapper for onboarding screens with Riverpod state management.
 /// Page order:
-///   0 – Welcome
-///   1 – Events
-///   2 – Finish / "Begin Your Practice"
+///   0 – Language selection
+///   1 – Welcome
+///   2 – Tradition chat
+///   3 – How it works
+///   4 – Finish / "Begin Your Practice"
 class OnboardingWrapper extends ConsumerStatefulWidget {
   const OnboardingWrapper({super.key});
 
@@ -42,20 +44,6 @@ class _OnboardingWrapperState extends ConsumerState<OnboardingWrapper> {
     final completed =
         await ref.read(onboardingProvider.notifier).submitPreferences();
     if (!mounted || !completed) return;
-
-    // Grab enrolled plans before navigating away (state will be invalidated).
-    final enrolledPlans = List<UserPlansModel>.from(
-      ref.read(onboardingProvider).enrolledPlans,
-    );
-
-    // If the user enrolled in events, store the first plan as a pending
-    // navigation target. HomeScreen will pick this up after the notification-
-    // permission flow completes, then switch to the Practice tab and open the
-    // plan detail. This ensures the system notification dialog is shown first.
-    if (enrolledPlans.isNotEmpty) {
-      ref.read(pendingOnboardingPlanProvider.notifier).state =
-          enrolledPlans.first;
-    }
 
     if (mounted) context.go(AppRoutes.home);
   }
@@ -95,8 +83,14 @@ class _OnboardingWrapperState extends ConsumerState<OnboardingWrapper> {
               }
             },
             children: [
+              OnboardingScreenLanguage(onNext: _nextPage),
               OnboardingScreen1(onNext: _nextPage),
-              OnboardingScreenEvent(onNext: _nextPage, onBack: _previousPage),
+              OnboardingScreenTraditionChat(
+                onNext: _nextPage,
+                onBack: _previousPage,
+                onSkip: _nextPage,
+              ),
+              OnboardingScreen2(onNext: _nextPage, onBack: _previousPage),
               OnboardingScreen5(onComplete: _completeOnboarding),
             ],
           ),

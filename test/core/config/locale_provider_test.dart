@@ -9,11 +9,22 @@ import 'package:mockito/mockito.dart';
 import 'locale_provider_test.mocks.dart';
 
 // Generate mock using build_runner:
-// flutter pub run build_runner build
+// dart run build_runner build
 @GenerateMocks([LocalStorageService])
 void main() {
   late MockLocalStorageService mockLocalStorageService;
   late LocaleNotifier localeNotifier;
+
+  /// Waits for the async [_initializeLocale] started in [LocaleNotifier]'s ctor.
+  Future<LocaleNotifier> createLocaleNotifier() async {
+    final notifier = LocaleNotifier(
+      localStorageService: mockLocalStorageService,
+    );
+    for (var i = 0; i < 5; i++) {
+      await Future<void>.delayed(Duration.zero);
+    }
+    return notifier;
+  }
 
   setUp(() {
     mockLocalStorageService = MockLocalStorageService();
@@ -243,20 +254,17 @@ void main() {
       ).called(1);
     });
 
-    test('should load empty string as locale when stored', () async {
+    test('should default to "en" when stored value is empty string', () async {
       // Arrange
       when(
         mockLocalStorageService.get<String>(StorageKeys.preferredLanguage),
       ).thenAnswer((_) async => '');
 
       // Act
-      localeNotifier = LocaleNotifier(
-        localStorageService: mockLocalStorageService,
-      );
-      await Future.delayed(Duration.zero);
+      localeNotifier = await createLocaleNotifier();
 
-      // Assert - Implementation doesn't validate on load, so it sets empty string
-      expect(localeNotifier.state.languageCode, '');
+      // Assert — Flutter normalizes Locale('') to languageCode 'en'
+      expect(localeNotifier.state.languageCode, 'en');
       verify(
         mockLocalStorageService.get<String>(StorageKeys.preferredLanguage),
       ).called(1);
@@ -275,9 +283,9 @@ void main() {
         );
         await Future.delayed(Duration.zero);
 
-        // Act & Assert
-        expect(
-          () => localeNotifier.setLocale(const Locale('fr')),
+        // Act & Assert — validation throws before state is updated
+        await expectLater(
+          localeNotifier.setLocale(const Locale('fr')),
           throwsA(
             isA<Exception>().having(
               (e) => e.toString(),
@@ -286,8 +294,7 @@ void main() {
             ),
           ),
         );
-        // State should still be updated even though exception is thrown
-        expect(localeNotifier.state.languageCode, 'fr');
+        expect(localeNotifier.state.languageCode, 'en');
       },
     );
 
@@ -398,8 +405,11 @@ void main() {
       );
       await Future.delayed(Duration.zero);
 
-      // Act & Assert - Should update state even if save fails
-      await localeNotifier.setLocale(const Locale('bo'));
+      // Act & Assert — state updates before persistence; save failure propagates
+      await expectLater(
+        localeNotifier.setLocale(const Locale('bo')),
+        throwsA(isA<Exception>()),
+      );
       expect(localeNotifier.state.languageCode, 'bo');
     });
 

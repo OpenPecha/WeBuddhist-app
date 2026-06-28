@@ -73,8 +73,12 @@ class ErrorInterceptor extends Interceptor {
   /// Handle HTTP error responses
   Exception _handleBadResponse(DioException error) {
     final statusCode = error.response?.statusCode;
-    final data = error.response?.data as Map<String, dynamic>?;
-    final message = data?['message'] as String? ?? 'Server error';
+    final responseData = error.response?.data;
+    final message =
+        (responseData is Map<String, dynamic>
+            ? responseData['message'] as String?
+            : null) ??
+        'Server error';
 
     switch (statusCode) {
       case 400:

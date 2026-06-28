@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:flutter_pecha/features/plans/data/datasource/plans_local_datasource.dart';
 import 'package:flutter_pecha/features/plans/data/models/user/user_plans_model.dart';
 import 'package:flutter_pecha/features/plans/domain/repositories/user_plans_repository.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -45,32 +48,65 @@ class MyPlansState {
 
 /// StateNotifier for paginated my plans
 class MyPlansNotifier extends StateNotifier<MyPlansState> {
-  final UserPlansRepositoryInterface repository;
-  final String languageCode;
-  static const int _limit = 20;
-
-  MyPlansNotifier({required this.repository, required this.languageCode})
-    : super(const MyPlansState()) {
-    loadInitial();
+  MyPlansNotifier({
+    required this.repository,
+    required this.languageCode,
+    required this.local,
+  }) : super(const MyPlansState()) {
+    unawaited(_initialize());
   }
 
-  /// Load initial plans
+  final UserPlansRepositoryInterface repository;
+  final String languageCode;
+  final PlansLocalDatasource local;
+  static const int _limit = 20;
+
+  Future<void> _initialize() async {
+    await _seedFromCache();
+    await loadInitial();
+  }
+
+  Future<void> _seedFromCache() async {
+    final userId = await local.currentUserId();
+    if (userId == null || userId.isEmpty) return;
+
+    final cached = local.readUserPlans(
+      userId: userId,
+      language: languageCode,
+      skip: 0,
+      limit: _limit,
+    );
+    if (cached != null && mounted) {
+      state = state.copyWith(
+        plans: cached.userPlans,
+        hasMore: cached.userPlans.length >= _limit,
+        skip: cached.userPlans.length,
+        total: cached.total,
+      );
+    }
+  }
+
+  /// Load initial plans — shows cached data immediately when available.
   Future<void> loadInitial() async {
     if (state.isLoading) return;
 
-    state = state.copyWith(isLoading: true, error: null);
+    final hasCachedData = state.plans.isNotEmpty;
+    if (!hasCachedData) {
+      state = state.copyWith(isLoading: true, error: null);
+    }
 
     final result = await repository.getUserPlans(
       language: languageCode,
       skip: 0,
       limit: _limit,
     );
-    print('loadInitial result:::::: $result');
 
     result.fold(
       (failure) {
-        if (mounted) {
+        if (mounted && state.plans.isEmpty) {
           state = state.copyWith(isLoading: false, error: failure.message);
+        } else if (mounted) {
+          state = state.copyWith(isLoading: false);
         }
       },
       (response) {
@@ -109,7 +145,6 @@ class MyPlansNotifier extends StateNotifier<MyPlansState> {
         }
       },
       (response) {
-        // Combine and sort all plans by startedAt in descending order (latest first)
         final allPlans = [...state.plans, ...response.userPlans]
           ..sort((a, b) => b.startedAt.compareTo(a.startedAt));
 
@@ -137,16 +172,17 @@ class MyPlansNotifier extends StateNotifier<MyPlansState> {
     }
   }
 
-  /// Refresh from start — keeps existing plans visible while re-fetching
+  /// Refresh from start — keeps existing plans visible while re-fetching.
   Future<void> refresh() async {
+    final hasCachedData = state.plans.isNotEmpty;
     state = state.copyWith(
-      isLoading: true,
+      isLoading: !hasCachedData,
       error: null,
       skip: 0,
       hasMore: true,
     );
 
-    final result = await repository.getUserPlans(
+    final result = await repository.refreshUserPlans(
       language: languageCode,
       skip: 0,
       limit: _limit,
@@ -155,7 +191,10 @@ class MyPlansNotifier extends StateNotifier<MyPlansState> {
     result.fold(
       (failure) {
         if (mounted) {
-          state = state.copyWith(isLoading: false, error: failure.message);
+          state = state.copyWith(
+            isLoading: false,
+            error: state.plans.isEmpty ? failure.message : null,
+          );
         }
       },
       (response) {

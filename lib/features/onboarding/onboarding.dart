@@ -17,6 +17,7 @@ export 'domain/usecases/onboarding_usecases.dart';
 
 // Data - Models
 export 'data/models/onboarding_preferences.dart' hide OnboardingPreferences;
+export 'data/models/onboarding_status_model.dart';
 
 // Application
 export 'application/onboarding_notifier.dart';
@@ -35,9 +36,9 @@ export 'presentation/providers/onboarding_datasource_providers.dart';
 
 // Presentation - Screens
 export 'presentation/screens/onboarding_wrapper.dart';
+export 'presentation/screens/onboarding_screen_language.dart';
 export 'presentation/screens/onboarding_screen_1.dart';
-export 'presentation/screens/onboarding_screen_3.dart';
-export 'presentation/screens/onboarding_screen_4.dart';
+export 'presentation/screens/onboarding_screen_2.dart';
 export 'presentation/screens/onboarding_screen_5.dart';
 
 // Presentation - Widgets

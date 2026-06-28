@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/constants/app_assets.dart';
+import 'package:flutter_pecha/core/constants/app_config.dart';
+import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
+import 'package:flutter_pecha/core/theme/font_config.dart';
 import 'package:flutter_pecha/core/widgets/cached_network_image_widget.dart';
 import 'package:flutter_pecha/features/home/domain/entities/verse_of_day.dart';
 import 'package:flutter_pecha/shared/utils/helper_functions.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 /// Typography for verse-of-day content, derived from the active locale.
 class VerseOfDayTypography {
@@ -12,19 +16,106 @@ class VerseOfDayTypography {
     required this.systemFont,
     required this.verseFontSize,
     required this.attributionFontSize,
+    this.useContentFontForAttribution = false,
+    this.useGoogleJomolhari = false,
   });
 
   final String? contentFont;
   final String? systemFont;
   final double verseFontSize;
   final double attributionFontSize;
+  final bool useContentFontForAttribution;
+  final bool useGoogleJomolhari;
 
   factory VerseOfDayTypography.fromLanguageCode(String languageCode) {
     return VerseOfDayTypography(
       contentFont: getFontFamily(languageCode),
       systemFont: getSystemFontFamily(languageCode),
-      verseFontSize: languageCode == 'bo' ? 18.0 : 16.0,
-      attributionFontSize: languageCode == 'bo' ? 14.0 : 13.0,
+      verseFontSize: getLocalizedFontSize(AppTextSize.bodyLarge),
+      attributionFontSize: getLocalizedFontSize(AppTextSize.label),
+    );
+  }
+
+  /// Home card typography. Tibetan uses Google Jomolhari for verse and attribution.
+  factory VerseOfDayTypography.forCard(
+    String languageCode, {
+    double? verseFontSize,
+    double? attributionFontSize,
+  }) {
+    final base = VerseOfDayTypography.fromLanguageCode(languageCode);
+    final isTibetan = AppFontConfig.isTibetanLanguage(languageCode);
+
+    if (!isTibetan) return base;
+
+    return VerseOfDayTypography(
+      contentFont: base.contentFont,
+      systemFont: base.systemFont,
+      verseFontSize: verseFontSize ?? base.verseFontSize,
+      attributionFontSize: attributionFontSize ?? base.attributionFontSize,
+      useContentFontForAttribution: true,
+      useGoogleJomolhari: true,
+    );
+  }
+
+  /// Share preview typography. Larger sizes; Tibetan uses Google Jomolhari.
+  factory VerseOfDayTypography.forShare(String languageCode) {
+    final base = VerseOfDayTypography.fromLanguageCode(languageCode);
+    final isTibetan = AppFontConfig.isTibetanLanguage(languageCode);
+
+    return VerseOfDayTypography(
+      contentFont: base.contentFont,
+      systemFont: base.systemFont,
+      verseFontSize: getLocalizedFontSize(AppTextSize.title),
+      attributionFontSize: getLocalizedFontSize(AppTextSize.body),
+      useContentFontForAttribution: true,
+      useGoogleJomolhari: isTibetan,
+    );
+  }
+
+  TextStyle verseTextStyle({required Color color}) {
+    final baseStyle = TextStyle(
+      fontSize: verseFontSize,
+      fontWeight: FontWeight.w400,
+      height:
+          useGoogleJomolhari
+              ? getLineHeight(AppConfig.tibetanLanguageCode)
+              : null,
+      color: color,
+      leadingDistribution:
+          useGoogleJomolhari ? AppFontConfig.tibetanLeadingDistribution : null,
+    );
+
+    if (useGoogleJomolhari) {
+      return GoogleFonts.jomolhari(textStyle: baseStyle);
+    }
+
+    return baseStyle.copyWith(fontFamily: contentFont);
+  }
+
+  TextStyle attributionTextStyle({
+    required Color color,
+    required bool useContentFontForAttribution,
+  }) {
+    final baseStyle = TextStyle(
+      fontSize: attributionFontSize,
+      fontWeight: FontWeight.w600,
+      height:
+          useGoogleJomolhari && useContentFontForAttribution
+              ? getLineHeight(AppConfig.tibetanLanguageCode)
+              : null,
+      color: color,
+      leadingDistribution:
+          useGoogleJomolhari && useContentFontForAttribution
+              ? AppFontConfig.tibetanLeadingDistribution
+              : null,
+    );
+
+    if (useGoogleJomolhari && useContentFontForAttribution) {
+      return GoogleFonts.jomolhari(textStyle: baseStyle);
+    }
+
+    return baseStyle.copyWith(
+      fontFamily: useContentFontForAttribution ? contentFont : systemFont,
     );
   }
 }
@@ -58,6 +149,12 @@ class VerseOfDayContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final verseText = withTibetanLineBreakOpportunities(verseOfDay.verse);
+    final verseStrutStyle = context.tibetanStrutStyle(typography.verseFontSize);
+    final attributionStrutStyle = context.tibetanStrutStyle(
+      typography.attributionFontSize,
+    );
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -71,56 +168,95 @@ class VerseOfDayContent extends StatelessWidget {
         ),
         Padding(
           padding: textPadding,
-          child: Stack(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Padding(
-                padding: EdgeInsets.only(bottom: footerAction != null ? 32 : 0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Text(
-                      '"${verseOfDay.verse}"',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: typography.verseFontSize,
-                        fontWeight: FontWeight.w400,
-                        fontFamily: typography.contentFont,
-                        color: verseColor,
-                        height: 1.55,
-                      ),
-                    ),
-                    if (verseOfDay.groupTitle != null) ...[
-                      const SizedBox(height: 16),
-                      Text(
-                        '~ ${verseOfDay.groupTitle}',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: typography.attributionFontSize,
-                          fontWeight: FontWeight.w400,
-                          fontFamily:
-                              useContentFontForAttribution
-                                  ? typography.contentFont
-                                  : typography.systemFont,
-                          color: attributionColor,
-                        ),
-                      ),
-                    ],
-                    if (showBranding) ...[
-                      const SizedBox(height: 16),
-                      Padding(
-                        padding: EdgeInsets.only(bottom: brandingBottomPadding),
-                        child: const VerseShareBranding(),
-                      ),
-                    ],
-                  ],
-                ),
+              Text(
+                verseText,
+                textAlign: TextAlign.center,
+                strutStyle: verseStrutStyle,
+                style: typography.verseTextStyle(color: verseColor),
               ),
-              if (footerAction != null)
-                Positioned(right: 0, bottom: 0, child: footerAction!),
+              if (verseOfDay.groupTitle != null || footerAction != null) ...[
+                const SizedBox(height: 16),
+                _AttributionFooterRow(
+                  attribution:
+                      verseOfDay.groupTitle != null
+                          ? withTibetanLineBreakOpportunities(
+                            '~ ${verseOfDay.groupTitle}',
+                          )
+                          : null,
+                  typography: typography,
+                  attributionColor: attributionColor,
+                  useContentFontForAttribution: useContentFontForAttribution,
+                  attributionStrutStyle: attributionStrutStyle,
+                  footerAction: footerAction,
+                ),
+              ],
+              if (showBranding) ...[
+                const SizedBox(height: 16),
+                Padding(
+                  padding: EdgeInsets.only(bottom: brandingBottomPadding),
+                  child: const VerseShareBranding(),
+                ),
+              ],
             ],
           ),
         ),
       ],
+    );
+  }
+}
+
+class _AttributionFooterRow extends StatelessWidget {
+  const _AttributionFooterRow({
+    required this.typography,
+    required this.attributionColor,
+    required this.useContentFontForAttribution,
+    this.attribution,
+    this.attributionStrutStyle,
+    this.footerAction,
+  });
+
+  final String? attribution;
+  final VerseOfDayTypography typography;
+  final Color attributionColor;
+  final bool useContentFontForAttribution;
+  final StrutStyle? attributionStrutStyle;
+  final Widget? footerAction;
+
+  TextStyle _attributionStyle(bool useContentFontForAttribution) =>
+      typography.attributionTextStyle(
+        color: attributionColor,
+        useContentFontForAttribution: useContentFontForAttribution,
+      );
+
+  @override
+  Widget build(BuildContext context) {
+    if (footerAction == null) {
+      return Text(
+        attribution!,
+        textAlign: TextAlign.center,
+        strutStyle: attributionStrutStyle,
+        style: _attributionStyle(useContentFontForAttribution),
+      );
+    }
+
+    return SizedBox(
+      height: 32,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          if (attribution != null)
+            Text(
+              attribution!,
+              textAlign: TextAlign.center,
+              strutStyle: attributionStrutStyle,
+              style: _attributionStyle(useContentFontForAttribution),
+            ),
+          Positioned(right: 0, child: footerAction!),
+        ],
+      ),
     );
   }
 }
@@ -149,14 +285,21 @@ class VerseShareBranding extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Image.asset(AppAssets.weBuddhistLogo, width: logoSize, height: logoSize),
+        Image.asset(
+          AppAssets.weBuddhistLogo,
+          width: logoSize,
+          height: logoSize,
+        ),
         const SizedBox(width: 8),
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               localizations.shared_from,
-              style: TextStyle(fontSize: sharedFromFontSize, color: sharedFromColor),
+              style: TextStyle(
+                fontSize: sharedFromFontSize,
+                color: sharedFromColor,
+              ),
             ),
             Text(
               localizations.appTitle,

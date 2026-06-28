@@ -1,17 +1,29 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/config/router/app_routes.dart';
 import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_pecha/core/constants/app_config.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
 import 'package:flutter_pecha/features/home/presentation/providers/streak_provider.dart';
+import 'package:flutter_pecha/features/home/presentation/providers/today_events_provider.dart';
+import 'package:flutter_pecha/features/home/presentation/widgets/today_event_badge.dart';
+import 'package:flutter_pecha/features/more/presentation/providers/user_stats_provider.dart';
+import 'package:flutter_pecha/features/more/presentation/widgets/streak_share_sheet.dart';
 import 'package:flutter_pecha/shared/utils/helper_functions.dart';
+import 'package:flutter_pecha/shared/widgets/main_tab_app_bar.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
-/// Home screen header that shows a personalised greeting and the user's
-/// current streak count.
-class HomeHeader extends ConsumerWidget {
-  const HomeHeader({super.key});
+/// Home tab app bar with greeting and quick actions.
+class HomeTabAppBar extends ConsumerWidget implements PreferredSizeWidget {
+  const HomeTabAppBar({super.key});
+
+  static const double toolbarHeight = 58;
+  static const double _actionsReserveWidth = 148;
+
+  @override
+  Size get preferredSize => const Size.fromHeight(toolbarHeight);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -25,86 +37,159 @@ class HomeHeader extends ConsumerWidget {
           orElse: () => 0,
         );
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 12.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Expanded(child: _Greeting(firstName: firstName)),
-          const SizedBox(width: 12),
-          _StreakBadge(count: streakCount),
-        ],
+    return MainTabAppBar(
+      toolbarHeight: HomeTabAppBar.toolbarHeight,
+      titleWidget: _Greeting(
+        firstName: firstName,
+        maxWidth:
+            MediaQuery.sizeOf(context).width -
+            MainTabAppBar.titleSpacing -
+            HomeTabAppBar._actionsReserveWidth,
       ),
+      actions: [
+        IconButton(
+          onPressed: () => context.push(AppRoutes.calendar),
+          icon: Icon(
+            AppAssets.calendarDots,
+            size: 24,
+            color: Theme.of(context).colorScheme.onSurface,
+          ),
+        ),
+        _StreakBadge(count: streakCount),
+        const SizedBox(width: 8),
+      ],
     );
   }
 }
 
-// ---------------------------------------------------------------------------
-// Private sub-widgets
-// ---------------------------------------------------------------------------
+/// Optional today-event banner shown below the home tab app bar.
+class HomeEventBanner extends ConsumerWidget {
+  const HomeEventBanner({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final todayEventName = ref
+        .watch(todayEventsFutureProvider)
+        .maybeWhen(
+          data:
+              (eventsEither) => eventsEither.fold(
+                (_) => null,
+                (events) => events.isNotEmpty ? events.first.name : null,
+              ),
+          orElse: () => null,
+        );
+
+    if (todayEventName == null) {
+      return const SizedBox.shrink();
+    }
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(10, 8, 10, 0),
+      child: TodayEventBadge(label: todayEventName),
+    );
+  }
+}
 
 class _Greeting extends StatelessWidget {
-  final String? firstName;
+  const _Greeting({required this.firstName, required this.maxWidth});
 
-  const _Greeting({required this.firstName});
+  final String? firstName;
+  final double maxWidth;
+
+  Widget _buildLine({
+    required BuildContext context,
+    required String text,
+    required TextStyle style,
+    required double fontSize,
+  }) {
+    return Text.rich(
+      TextSpan(text: text, style: style),
+      strutStyle: context.tibetanStrutStyle(fontSize),
+      softWrap: true,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     final localizations = AppLocalizations.of(context)!;
     final colorScheme = Theme.of(context).colorScheme;
-    final textTheme = Theme.of(context).textTheme;
-    final greetingFontSize = context.isTibetanLocale ? 18.0 : 24.0;
-    final greetingStyle = textTheme.headlineMedium?.copyWith(
+    final greetingFontSize = getLocalizedFontSize(AppTextSize.titleLarge);
+    final greetingStyle = MainTabAppBar.titleStyle(context).copyWith(
       color: colorScheme.onSurface,
-      fontSize: greetingFontSize,
-      height: context.isTibetanLocale ? 1.2 : null,
+      height: getLineHeight(Localizations.localeOf(context).languageCode),
     );
+    final prefix = localizations.home_hello_prefix.trim();
+    final greeting =
+        firstName != null && firstName!.isNotEmpty
+            ? '${localizations.home_hello_prefix}$firstName'
+            : prefix;
 
-    return RichText(
-      strutStyle: context.tibetanStrutStyle(greetingFontSize),
-      text: TextSpan(
-        children: [
-          TextSpan(
-            text: localizations.home_hello_prefix,
-            style: greetingStyle?.copyWith(fontWeight: FontWeight.w700),
-          ),
-          if (firstName != null && firstName!.isNotEmpty)
-            TextSpan(
-              text: firstName,
-              style: greetingStyle?.copyWith(fontWeight: FontWeight.w700),
-            ),
-        ],
+    return SizedBox(
+      width: maxWidth,
+      child: _buildLine(
+        context: context,
+        text: withTibetanLineBreakOpportunities(greeting),
+        style: greetingStyle,
+        fontSize: greetingFontSize,
       ),
     );
   }
 }
 
-class _StreakBadge extends StatelessWidget {
-  final int count;
-
+class _StreakBadge extends ConsumerStatefulWidget {
   const _StreakBadge({required this.count});
 
+  final int count;
+
+  @override
+  ConsumerState<_StreakBadge> createState() => _StreakBadgeState();
+}
+
+class _StreakBadgeState extends ConsumerState<_StreakBadge> {
   static const _flameColor = Color(0xFFE8630A);
+  bool _isOpening = false;
+
+  Future<void> _onStreakTap() async {
+    if (_isOpening) return;
+
+    setState(() => _isOpening = true);
+
+    try {
+      final either = await ref.read(userStatsFutureProvider.future);
+      if (!mounted) return;
+
+      either.fold(
+        (_) {},
+        (stats) => showStreakShareSheet(context, stats.streak),
+      );
+    } finally {
+      if (mounted) setState(() => _isOpening = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(AppAssets.flame, size: 24.0, color: _flameColor),
-        const SizedBox(width: 4.0),
-        Text(
-          '$count',
-          style: TextStyle(
-            fontFamily: getSystemFontFamily(AppConfig.englishLanguageCode),
-            fontWeight: FontWeight.w700,
-            color: Theme.of(context).colorScheme.onSurface,
-            fontSize: 20.0,
-            height: 1.0,
+    return IconButton(
+      onPressed: _onStreakTap,
+      padding: const EdgeInsets.symmetric(horizontal: 8),
+      constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
+      icon: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(AppAssets.flame, size: 24, color: _flameColor),
+          const SizedBox(width: 4),
+          Text(
+            '${widget.count}',
+            style: TextStyle(
+              fontFamily: getSystemFontFamily(AppConfig.englishLanguageCode),
+              fontWeight: FontWeight.w700,
+              color: Theme.of(context).colorScheme.onSurface,
+              fontSize: 20,
+              height: 1,
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

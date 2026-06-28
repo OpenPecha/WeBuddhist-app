@@ -2,6 +2,9 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
+import 'package:flutter_pecha/core/error/failures.dart';
+import 'package:flutter_pecha/core/network/connectivity_service.dart';
 import 'package:flutter_pecha/core/storage/plan_metadata_store.dart';
 import 'package:flutter_pecha/core/storage/special_plan_started_at_store.dart';
 import 'package:flutter_pecha/core/storage/storage_keys.dart';
@@ -23,6 +26,8 @@ import 'package:flutter_pecha/core/analytics/analytics_events.dart';
 import 'package:flutter_pecha/core/analytics/analytics_service.dart';
 import 'package:flutter_pecha/core/analytics/analytics_providers.dart';
 import 'package:flutter_pecha/core/config/router/pending_route_provider.dart';
+import 'package:flutter_pecha/features/mala/presentation/providers/mala_providers.dart';
+import 'package:flutter_pecha/features/mala/presentation/providers/mala_sync_manager.dart';
 import 'package:flutter_pecha/features/onboarding/presentation/providers/onboarding_datasource_providers.dart';
 import 'package:flutter_pecha/shared/domain/base_classes/usecase.dart';
 import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
@@ -41,6 +46,14 @@ class AuthNotifier extends StateNotifier<AuthState> {
   final ClearGuestModeAndOnboardingUseCase _clearGuestModeAndOnboardingUseCase;
   final Ref ref;
   final _logger = AppLogger('AuthNotifier');
+
+  /// Subscription to connectivity changes, used to reconcile a session that was
+  /// restored offline once the network returns. Cancelled in [dispose].
+  StreamSubscription<bool>? _connectivitySub;
+
+  /// Guards [_reconcileOnReconnect] so overlapping connectivity events don't
+  /// fire concurrent profile refetches.
+  bool _reconciling = false;
 
   AuthNotifier({
     required LoginUseCase loginUseCase,
@@ -65,25 +78,90 @@ class AuthNotifier extends StateNotifier<AuthState> {
        _clearGuestModeAndOnboardingUseCase = clearGuestModeAndOnboardingUseCase,
        super(const AuthState(isLoggedIn: false, isLoading: true)) {
     _restoreLoginState();
+    _listenForReconnect();
+  }
+
+  /// When the app launches offline, the session is kept ([_restoreCredentials]'s
+  /// transient branch) but the one-shot credential renewal and user-profile
+  /// fetch fail and are never retried — leaving a "logged in but empty profile"
+  /// state that, before this, only a relaunch could fix. Listen for the
+  /// offline→online transition and reconcile then.
+  void _listenForReconnect() {
+    _connectivitySub = ref
+        .read(connectivityServiceProvider)
+        .onConnectivityChanged
+        .listen((isOnline) {
+          if (isOnline) unawaited(_reconcileOnReconnect());
+        });
+  }
+
+  /// Reconcile auth/user state once connectivity returns after an offline
+  /// launch.
+  ///
+  /// Two cases:
+  /// - Real session already restored (`isLoggedIn && !isGuest`): just refresh
+  ///   the user profile. Uses [refreshUser] (not [initializeUser]) so an
+  ///   already-populated profile doesn't flash a loading state and a failed
+  ///   refetch keeps the current state. The refetch hits a protected endpoint
+  ///   so it also drives a silent token renewal via the interceptor; a dead
+  ///   session surfaces as a 401 handled by the reactive-401 path, not here.
+  /// - Not a confirmed real login (guest / logged out): the launch may have
+  ///   fallen through to guest because auth init (`ConfigService.loadConfig`)
+  ///   or `hasValidCredentials()` failed without a network. Re-run the restore
+  ///   now that we're online so a real stored session is recovered without a
+  ///   relaunch. A genuine guest with no credentials simply stays a guest.
+  Future<void> _reconcileOnReconnect() async {
+    if (_reconciling) return;
+    _reconciling = true;
+    try {
+      if (state.isLoggedIn && !state.isGuest) {
+        _logger.info('Connectivity restored — reconciling user profile');
+        await ref.read(userProvider.notifier).refreshUser();
+      } else {
+        _logger.info('Connectivity restored — re-running login restore');
+        await _restoreLoginState();
+      }
+    } catch (e) {
+      _logger.warning('Reconcile on reconnect failed (ignored): $e');
+    } finally {
+      _reconciling = false;
+    }
+  }
+
+  @override
+  void dispose() {
+    _connectivitySub?.cancel();
+    super.dispose();
   }
 
   Future<void> _restoreLoginState() async {
     _logger.debug('Restoring login state');
 
-    // Detect fresh install or reinstall.
-    // iOS Keychain survives uninstall; SharedPreferences does not.
-    // If SP has no install marker, stale keychain tokens may exist from a
-    // previous install. Clear them so the user always sees the login screen
-    // on a clean install rather than being silently auto-logged in.
+    // Fresh-install handling.
+    // iOS: Keychain survives uninstall — we WANT that, so we never clear here.
+    //      The silent renewal in _restoreCredentials() decides logged-in state,
+    //      giving the seamless reinstall contract.
+    // Android: Auto Backup is disabled (manifest), so a reinstall is a genuine
+    //      clean slate. This clear is belt-and-suspenders for the edge case where
+    //      a residual credential exists (e.g. backup re-enabled by misconfig).
     final isKnownInstall = await ref
         .read(localStorageServiceProvider)
         .get<bool>(StorageKeys.firstLaunch);
+
     if (isKnownInstall == null) {
-      await _localLogoutUseCase(const NoParams());
+      if (defaultTargetPlatform == TargetPlatform.android) {
+        await _localLogoutUseCase(const NoParams());
+        _logger.info(
+          'Android fresh install — cleared any residual credentials',
+        );
+      } else {
+        _logger.info(
+          'iOS fresh install — preserving Keychain for seamless reinstall',
+        );
+      }
       await ref
           .read(localStorageServiceProvider)
           .set(StorageKeys.firstLaunch, true);
-      _logger.info('Fresh install detected — cleared stale keychain tokens');
     }
 
     // Initialize auth
@@ -124,35 +202,69 @@ class AuthNotifier extends StateNotifier<AuthState> {
     // Extract result outside fold so we can await async operations below.
     // fpdart's fold() is synchronous and will not await returned Futures.
     AuthCredentials? credentials;
-    credentialsResult.fold((failure) {
-      _logger.error('Failed to get credentials: ${failure.message}');
-    }, (creds) => credentials = creds);
+    Failure? failure;
+    credentialsResult.fold((f) => failure = f, (creds) => credentials = creds);
 
-    if (credentials == null || credentials!.idToken.isEmpty) {
-      _logger.debug('Credentials check returned null or invalid credentials');
+    // Happy path: we have a fresh token.
+    if (credentials != null && credentials!.idToken.isNotEmpty) {
+      // Store currentUserId before updating auth state so feature code can
+      // resolve the active account when the router refreshes.
+      final userId = _extractUserIdFromToken(credentials!.idToken);
+      if (userId != null) {
+        await ref
+            .read(localStorageServiceProvider)
+            .set(StorageKeys.currentUserId, userId);
+        _logger.debug('Restored currentUserId');
+        await _identifyAuthenticatedUser(userId: userId, isGuest: false);
+      }
+
+      state = state.copyWith(
+        isLoggedIn: true,
+        isLoading: false,
+        isGuest: false,
+        errorMessage: null,
+      );
+      _logger.info('Login state restored');
+
+      try {
+        ref.read(userProvider.notifier).initializeUser();
+      } catch (e) {
+        _logger.warning('Could not initialize user data', e);
+      }
+      return;
+    }
+
+    // No fresh token. Only sign the user out when the session is *permanently*
+    // gone (no credentials / no refresh token → AuthenticationFailure).
+    // hasValidCredentials() already confirmed a session exists, so a
+    // transient/offline renewal failure (NetworkFailure) must NOT wipe it —
+    // keep the user logged in and renew on the first authenticated request.
+    if (failure is AuthenticationFailure) {
+      _logger.info(
+        'Stored credentials permanently invalid — checking guest mode',
+      );
       _checkGuestMode();
       return;
     }
 
-    // Store currentUserId BEFORE updating auth state so the route guard
-    // can check the per-user onboarding key when the router refreshes.
-    final userId = _extractUserIdFromToken(credentials!.idToken);
-    if (userId != null) {
-      await ref
-          .read(localStorageServiceProvider)
-          .set(StorageKeys.currentUserId, userId);
-      _logger.debug('Restored currentUserId for onboarding tracking');
-      await _identifyAuthenticatedUser(userId: userId, isGuest: false);
-    }
-
+    _logger.warning(
+      'Could not refresh credentials at launch (transient/offline). '
+      'Keeping the existing session; it will renew on the next request.',
+    );
+    final storedUserId = await ref
+        .read(localStorageServiceProvider)
+        .get<String>(StorageKeys.currentUserId);
     state = state.copyWith(
       isLoggedIn: true,
       isLoading: false,
       isGuest: false,
       errorMessage: null,
     );
-    _logger.info('Login state restored');
-
+    if (storedUserId != null && storedUserId.isNotEmpty) {
+      unawaited(
+        _identifyAuthenticatedUser(userId: storedUserId, isGuest: false),
+      );
+    }
     try {
       ref.read(userProvider.notifier).initializeUser();
     } catch (e) {
@@ -191,6 +303,20 @@ class AuthNotifier extends StateNotifier<AuthState> {
   void _setLoggedOutState() {
     state = state.copyWith(isLoggedIn: false, isLoading: false, isGuest: false);
     _logger.info('No valid credentials or guest mode found, showing login');
+  }
+
+  /// Called when a renewal fails *permanently* mid-session (refresh token gone
+  /// or revoked). Clears local credentials and flips to logged-out so the
+  /// router redirects to login. Does NOT fire for transient/offline failures —
+  /// those keep the session (see [AuthService.isSessionPermanentlyLost]).
+  ///
+  /// The router reacts to auth state via `refreshListenable`, and the route
+  /// guard preserves the intended route, so after re-login the user returns
+  /// where they were. No additional navigation here.
+  Future<void> handleSessionExpired() async {
+    _logger.info('Session permanently expired — routing to login');
+    await _localLogoutUseCase(const NoParams());
+    state = state.copyWith(isLoggedIn: false, isLoading: false, isGuest: false);
   }
 
   Future<void> _handleAuthFailure() async {
@@ -243,14 +369,13 @@ class AuthNotifier extends StateNotifier<AuthState> {
     await _clearGuestMode();
 
     // 2. Persist the user's ID before updating auth state.
-    //    The router refreshes the moment auth state changes, so currentUserId
-    //    must already be in storage when the route guard checks onboarding.
+    //    The router refreshes the moment auth state changes.
     final userId = _extractUserIdFromToken(credentials.idToken);
     if (userId != null) {
       await ref
           .read(localStorageServiceProvider)
           .set(StorageKeys.currentUserId, userId);
-      _logger.debug('Stored currentUserId for onboarding tracking');
+      _logger.debug('Stored currentUserId');
       await _identifyAuthenticatedUser(userId: userId, isGuest: false);
     }
 
@@ -328,6 +453,15 @@ class AuthNotifier extends StateNotifier<AuthState> {
   }
 
   Future<void> logout() async {
+    // Best-effort flush of any unsynced mala counts while the token is still
+    // valid. Local data is namespaced by user id and is NOT deleted here, so
+    // any remaining tail flushes on next login.
+    try {
+      await ref.read(malaSyncManagerProvider).flush(SyncReason.logout);
+    } catch (e) {
+      _logger.warning('Mala flush on logout failed (ignored): $e');
+    }
+
     final logoutResult = await _localLogoutUseCase(const NoParams());
     logoutResult.fold(
       (failure) {
@@ -398,7 +532,6 @@ class AuthNotifier extends StateNotifier<AuthState> {
   }
 
   /// Completely clear all user data (account deletion or privacy reset).
-  /// This is the only place where onboarding completion is reset.
   Future<void> clearAllUserData() async {
     try {
       await ref.read(userProvider.notifier).clearUser();
@@ -413,16 +546,24 @@ class AuthNotifier extends StateNotifier<AuthState> {
     }
   }
 
-  /// Reset onboarding status (for testing or manual reset).
+  /// Reset onboarding status (for testing).
   Future<void> resetOnboarding() async {
     try {
       final onboardingRepo = ref.read(onboardingRepositoryProvider);
-      await onboardingRepo.clearPreferences();
-      _logger.info('Onboarding reset — user will see onboarding on next login');
+      final result = await onboardingRepo.resetOnboardingStatus();
+      result.fold(
+        (failure) => _logger.warning(
+          'Failed to reset onboarding status: ${failure.message}',
+        ),
+        (_) => _logger.info(
+          'Onboarding reset — user will see onboarding on next login',
+        ),
+      );
     } catch (e) {
       _logger.warning('Failed to reset onboarding: $e');
     }
   }
+
   AnalyticsService get _analytics => ref.read(analyticsServiceProvider);
 
   Future<void> _identifyAuthenticatedUser({
@@ -431,24 +572,18 @@ class AuthNotifier extends StateNotifier<AuthState> {
   }) async {
     await _analytics.identify(
       userId: userId,
-      properties: {
-        AnalyticsProperties.isGuest: isGuest,
-      },
+      properties: {AnalyticsProperties.isGuest: isGuest},
     );
   }
 
   Future<void> _markGuestSession() async {
-    await _analytics.setSuperProperties({
-      AnalyticsProperties.isGuest: true,
-    });
+    await _analytics.setSuperProperties({AnalyticsProperties.isGuest: true});
   }
 
   Future<void> _trackAuthLoginSucceeded({String? connection}) async {
     await _analytics.track(
       AnalyticsEvents.authLoginSucceeded,
-      properties: {
-        AnalyticsProperties.method: connection ?? 'default',
-      },
+      properties: {AnalyticsProperties.method: connection ?? 'default'},
     );
   }
 
@@ -464,5 +599,4 @@ class AuthNotifier extends StateNotifier<AuthState> {
       },
     );
   }
-
 }

@@ -28,30 +28,36 @@ class SocialLoginButton extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final authNotifier = ref.read(authProvider.notifier);
     return SizedBox(
-      width: MediaQuery.of(context).size.width * 0.7,
-      child: ElevatedButton.icon(
-        icon: iconWidget,
+      width: double.infinity,
+      height: 56,
+      child: OutlinedButton(
         style: OutlinedButton.styleFrom(
           side:
               isBorder
-                  ? const BorderSide(color: Colors.grey, width: 0.5)
+                  ? const BorderSide(color: Colors.black, width: 1)
                   : BorderSide.none,
           backgroundColor: backgroundColor,
           foregroundColor: foregroundColor,
-          padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-          alignment: Alignment.centerLeft,
-          shadowColor: Colors.black,
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(28),
+          ),
+          elevation: 0,
         ),
-
         onPressed: () async {
-          if (connection == 'guest') {
-            await authNotifier.continueAsGuest();
-          } else {
-            await authNotifier.login(connection: connection);
-          }
+          await authNotifier.login(connection: connection);
         },
-        label: Text(label, style: TextStyle(fontSize: 16)),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            iconWidget,
+            const SizedBox(width: 12),
+            Text(
+              label,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+            ),
+          ],
+        ),
       ),
     );
   }

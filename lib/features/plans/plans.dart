@@ -32,6 +32,7 @@ export 'data/models/plan_tasks_model.dart';
 export 'data/models/plan_subtasks_model.dart';
 export 'data/models/plan_progress_model.dart';
 export 'data/models/plan_days_model.dart';
+export 'data/models/plan_video_model.dart';
 export 'data/models/author/author_model.dart';
 export 'data/models/user/user_plans_model.dart';
 export 'data/models/user/user_tasks_dto.dart';
@@ -45,6 +46,7 @@ export 'data/models/response/user_plan_day_detail_response.dart';
 export 'data/models/response/user_plan_day_completion_status_response.dart';
 
 // Data - Datasources
+export 'data/datasource/plans_local_datasource.dart';
 export 'data/datasource/plans_remote_datasource.dart';
 export 'data/datasource/user_plans_remote_datasource.dart';
 export 'data/datasource/plan_days_remote_datasource.dart';

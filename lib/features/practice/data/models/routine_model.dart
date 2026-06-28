@@ -5,7 +5,7 @@ import 'package:uuid/uuid.dart';
 
 const _uuid = Uuid();
 
-enum RoutineItemType { plan, recitation }
+enum RoutineItemType { series, recitation, timer, accumulator }
 
 class RoutineItem {
   final String id;
@@ -15,6 +15,11 @@ class RoutineItem {
   final DateTime? enrolledAt;
   final String? language;
   final DateTime? startDate;
+  final String? currentPlanId;
+  final String? currentPlanTitle;
+
+  /// Duration in milliseconds — only present for [RoutineItemType.timer] items.
+  final int? durationMs;
 
   const RoutineItem({
     required this.id,
@@ -24,6 +29,9 @@ class RoutineItem {
     this.enrolledAt,
     this.language,
     this.startDate,
+    this.currentPlanId,
+    this.currentPlanTitle,
+    this.durationMs,
   });
 
   /// Smallest cover URL — legacy persistence and notifications.
@@ -38,6 +46,9 @@ class RoutineItem {
     'enrolledAt': enrolledAt?.toIso8601String(),
     if (language != null) 'language': language,
     if (startDate != null) 'startDate': startDate!.toIso8601String(),
+    if (currentPlanId != null) 'currentPlanId': currentPlanId,
+    if (currentPlanTitle != null) 'currentPlanTitle': currentPlanTitle,
+    if (durationMs != null) 'durationMs': durationMs,
   };
 
   /// Safely parses a [RoutineItem] from JSON with null checks and fallbacks.
@@ -60,6 +71,9 @@ class RoutineItem {
       enrolledAt: _parseDateTime(json['enrolledAt']),
       language: json['language'] as String?,
       startDate: _parseDateTime(json['startDate']),
+      currentPlanId: json['currentPlanId'] as String?,
+      currentPlanTitle: json['currentPlanTitle'] as String?,
+      durationMs: (json['durationMs'] as num?)?.toInt(),
     );
   }
 
@@ -83,13 +97,17 @@ class RoutineItem {
     return item;
   }
 
-  /// Safely parses [RoutineItemType] with fallback to [RoutineItemType.plan].
+  /// Safely parses [RoutineItemType] with fallback to [RoutineItemType.series].
   static RoutineItemType _parseRoutineItemType(dynamic value) {
-    if (value is! String) return RoutineItemType.plan;
-    return RoutineItemType.values.firstWhere(
-      (e) => e.name == value,
-      orElse: () => RoutineItemType.plan,
-    );
+    if (value is! String) return RoutineItemType.series;
+    return switch (value) {
+      'plan' => RoutineItemType.series,
+      'series' => RoutineItemType.series,
+      'recitation' => RoutineItemType.recitation,
+      'timer' => RoutineItemType.timer,
+      'accumulator' => RoutineItemType.accumulator,
+      _ => RoutineItemType.series,
+    };
   }
 
   /// Safely parses a [DateTime] from an ISO 8601 string.

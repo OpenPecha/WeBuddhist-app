@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/constants/app_assets.dart';
-import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
 import 'package:flutter_pecha/core/widgets/cached_network_image_widget.dart';
 import 'package:flutter_pecha/core/widgets/error_state_widget.dart';
 import 'package:flutter_pecha/features/plans/domain/entities/plan.dart';
@@ -9,6 +8,7 @@ import 'package:flutter_pecha/features/plans/data/models/author/author_model.dar
 import 'package:flutter_pecha/features/plans/data/models/author/social_profile_dto.dart';
 import 'package:flutter_pecha/features/plans/presentation/widgets/plan_card.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
+import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -23,8 +23,7 @@ class AuthorDetailScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     // Fetch full author details using the author ID
     final authorDetails = ref.watch(authorByIdFutureProvider(authorId));
-    final language = ref.watch(localeProvider).languageCode;
-    final fontSize = language == 'bo' ? 22.0 : 18.0;
+    final fontSize = getLocalizedFontSize(AppTextSize.title);
     final localizations = context.l10n;
     return Scaffold(
       appBar: AppBar(
@@ -43,16 +42,18 @@ class AuthorDetailScreen extends ConsumerWidget {
       ),
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: authorDetails.when(
-        data: (authorEither) => authorEither.fold(
-          (failure) => ErrorStateWidget(
-            error: failure,
-            customMessage: 'Unable to load author details.\nPlease try again.',
-            onRetry: () {
-              ref.invalidate(authorByIdFutureProvider(authorId));
-            },
-          ),
-          (authorData) => _buildAuthorContent(context, authorData),
-        ),
+        data:
+            (authorEither) => authorEither.fold(
+              (failure) => ErrorStateWidget(
+                error: failure,
+                customMessage:
+                    'Unable to load author details.\nPlease try again.',
+                onRetry: () {
+                  ref.invalidate(authorByIdFutureProvider(authorId));
+                },
+              ),
+              (authorData) => _buildAuthorContent(context, authorData),
+            ),
         loading: () => const Center(child: CircularProgressIndicator()),
         error:
             (error, stackTrace) => ErrorStateWidget(

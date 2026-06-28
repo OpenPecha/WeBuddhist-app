@@ -1,15 +1,17 @@
 import 'package:fpdart/fpdart.dart';
 import 'package:flutter_pecha/core/error/failures.dart';
 import 'package:flutter_pecha/features/plans/data/models/plan_days_model.dart';
-import 'package:flutter_pecha/features/plans/domain/usecases/plan_days_usecases.dart';
 import 'package:flutter_pecha/features/plans/presentation/providers/use_case_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 // Get plan days by plan id provider
 final planDaysByPlanIdFutureProvider =
-    FutureProvider.family<Either<Failure, List<PlanDaysModel>>, String>((ref, planId) {
-      final useCase = ref.watch(getPlanDaysUseCaseProvider);
-      return useCase(GetPlanDaysParams(planId: planId));
+    StreamProvider.family<Either<Failure, List<PlanDaysModel>>, String>((
+      ref,
+      planId,
+    ) {
+      final repository = ref.watch(planDaysDomainRepositoryProvider);
+      return repository.watchPlanDaysByPlanId(planId);
     });
 
 // Plan days params
@@ -32,10 +34,10 @@ class PlanDaysParams {
 
 // Get day content with tasks by plan id and day number
 final planDayContentFutureProvider =
-    FutureProvider.family<Either<Failure, PlanDaysModel>, PlanDaysParams>((ref, params) {
-      final useCase = ref.watch(getDayContentUseCaseProvider);
-      return useCase(DayContentParams(
-        planId: params.planId,
-        dayNumber: params.dayNumber,
-      ));
+    StreamProvider.family<Either<Failure, PlanDaysModel>, PlanDaysParams>((
+      ref,
+      params,
+    ) {
+      final repository = ref.watch(planDaysDomainRepositoryProvider);
+      return repository.watchDayContent(params.planId, params.dayNumber);
     });

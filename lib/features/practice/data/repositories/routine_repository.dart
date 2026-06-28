@@ -23,11 +23,13 @@ class RoutineApiRepositoryImpl implements RoutineApiRepository {
 
   @override
   Future<Either<Failure, RoutineData?>> getUserRoutine({
+    required String language,
     int skip = 0,
     int limit = 20,
   }) async {
     try {
       final response = await _datasource.getUserRoutine(
+        language: language,
         skip: skip,
         limit: limit,
       );

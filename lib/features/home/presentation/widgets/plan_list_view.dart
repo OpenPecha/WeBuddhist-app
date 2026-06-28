@@ -71,7 +71,8 @@ class PlanListView extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
           sliver: SliverList(
             delegate: SliverChildBuilderDelegate(
-              (context, index) => PlanListItem(plan: sorted[index]),
+              (context, index) =>
+                  PlanListItem(plan: sorted[index], seriesId: seriesId),
               childCount: sorted.length,
             ),
           ),
@@ -105,7 +106,7 @@ class FeaturedPlanCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final locale = ref.watch(localeProvider);
     final lineHeight = getLineHeight(locale.languageCode);
-    final subtitleFontSize = locale.languageCode == 'bo' ? 18.0 : 14.0;
+    final subtitleFontSize = getLocalizedFontSize(AppTextSize.label);
 
     final displayDescription = series?.subTitle ?? plan.description;
     final displayImage = series?.coverImage ?? plan.coverImage;
@@ -140,9 +141,7 @@ class FeaturedPlanCard extends ConsumerWidget {
         isEnrolled || isSeriesEnrolled || isLoadingEnrollmentData;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final enrollBackgroundColor =
-        isDark
-            ? AppColors.scaffoldBackgroundLight
-            : AppColors.scaffoldBackgroundDark;
+        isDark ? AppColors.surfaceWhite : AppColors.scaffoldBackgroundDark;
     final enrollForegroundColor =
         isDark ? AppColors.textPrimary : AppColors.textPrimaryDark;
 
@@ -152,7 +151,7 @@ class FeaturedPlanCard extends ConsumerWidget {
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
-          color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
+          color: isDark ? AppColors.surfaceDark : AppColors.surfaceWhite,
         ),
         clipBehavior: Clip.antiAlias,
         child: Column(
@@ -273,8 +272,7 @@ class FeaturedPlanCard extends ConsumerWidget {
       return;
     }
 
-    final enrollments =
-        await ref.read(userSeriesEnrollmentsProvider.future);
+    final enrollments = await ref.read(userSeriesEnrollmentsProvider.future);
     if (!context.mounted) return;
     if (enrollments.contains(id)) return;
 
@@ -304,14 +302,15 @@ class FeaturedPlanCard extends ConsumerWidget {
 
 class PlanListItem extends ConsumerWidget {
   final Plan plan;
+  final String? seriesId;
 
-  const PlanListItem({super.key, required this.plan});
+  const PlanListItem({super.key, required this.plan, this.seriesId});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final locale = ref.watch(localeProvider);
     final lineHeight = getLineHeight(locale.languageCode);
-    final titleFontSize = locale.languageCode == 'bo' ? 18.0 : 16.0;
+    final titleFontSize = getLocalizedFontSize(AppTextSize.body);
 
     final myPlansState = ref.watch(myPlansPaginatedProvider);
     final isGuest = ref.watch(authProvider).isGuest;
@@ -328,8 +327,7 @@ class PlanListItem extends ConsumerWidget {
     final canShowStatus = isEnrolled && userPlan != null && dateRange != null;
 
     final isLocked =
-        plan.startDate != null &&
-        plan.startDate!.isAfter(DateTime.now());
+        plan.startDate != null && plan.startDate!.isAfter(DateTime.now());
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 12.0),
@@ -339,7 +337,12 @@ class PlanListItem extends ConsumerWidget {
           onTap:
               (isLocked || isEnrolledInfoPending)
                   ? null
-                  : () => _navigateToPlan(context, plan, enrolledInfo),
+                  : () => _navigateToPlan(
+                    context,
+                    plan,
+                    enrolledInfo,
+                    seriesId: seriesId,
+                  ),
           borderRadius: BorderRadius.circular(12),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -514,8 +517,9 @@ class _EnrolledPlanInfo {
 void _navigateToPlan(
   BuildContext context,
   Plan plan,
-  _EnrolledPlanInfo? enrolledInfo,
-) {
+  _EnrolledPlanInfo? enrolledInfo, {
+  String? seriesId,
+}) {
   if (enrolledInfo != null) {
     context.push(
       '/practice/details',
@@ -526,7 +530,10 @@ void _navigateToPlan(
       },
     );
   } else {
-    context.push('/practice/plans/preview', extra: {'plan': plan});
+    context.push(
+      '/practice/plans/preview',
+      extra: {'plan': plan, if (seriesId != null) 'seriesId': seriesId},
+    );
   }
 }
 
@@ -542,7 +549,7 @@ bool _isPlanEnrolled(WidgetRef ref, String planId) {
   if (routineData == null) return false;
   return routineData.blocks.any(
     (block) => block.items.any(
-      (item) => item.id == planId && item.type == RoutineItemType.plan,
+      (item) => item.id == planId && item.type == RoutineItemType.series,
     ),
   );
 }

@@ -13,6 +13,11 @@ class AppAssets {
   static const String homeMalaIcon = 'assets/images/mala-icon.png';
   static const String recitationCoverDefault =
       'assets/images/recitation_cover/recitation_05.jpg';
+  static const String connect = 'assets/images/connect.png';
+
+  // ========== AUDIO ==========
+  static const String meditationSound = 'assets/audios/meditation.mp3';
+  static const String malaSound = 'assets/audios/mala.wav';
 
   // ========== LOGOS ==========
   static const String weBuddhistLogo = 'assets/images/webuddhist_gold.png';
@@ -65,6 +70,7 @@ class AppAssets {
   // ========== COMMON UI ICONS ==========
   static const IconData caretRight = PhosphorIconsRegular.caretRight;
   static const IconData caretDown = PhosphorIconsRegular.caretDown;
+  static const IconData caretUp = PhosphorIconsRegular.caretUp;
   static const IconData arrowSquareOut = PhosphorIconsRegular.arrowSquareOut;
   static const IconData arrowLeft = PhosphorIconsRegular.arrowLeft;
   static const IconData lock = PhosphorIconsRegular.lock;
@@ -79,6 +85,12 @@ class AppAssets {
   static const IconData list = PhosphorIconsRegular.list;
   static const IconData trash = PhosphorIconsRegular.trash;
   static const IconData fileText = PhosphorIconsRegular.fileText;
+  static const IconData bookmarkSimple = PhosphorIconsRegular.bookmarkSimple;
+  static const IconData speakerSimpleHigh =
+      PhosphorIconsRegular.speakerSimpleHigh;
+  static const IconData vibrate = PhosphorIconsRegular.vibrate;
+  static const IconData arrowCounterClockwise =
+      PhosphorIconsRegular.arrowCounterClockwise;
 
   // ========== NOTIFICATION ICONS ==========
   static const IconData bell = PhosphorIconsRegular.bell;
@@ -101,9 +113,9 @@ class AppAssets {
   static const IconData globe = PhosphorIconsRegular.globe;
 
   // ========== HOME SHORTCUT ICONS ==========
-  static const IconData homePlans = PhosphorIconsRegular.calendarDots;
-  static const IconData homeChants = PhosphorIconsRegular.bookOpenText;
-  static const IconData homeTimer = PhosphorIconsRegular.timer;
+  static const IconData homeChants = PhosphorIconsBold.bookOpenText;
+  static const IconData homeTimer = PhosphorIconsBold.timer;
+  static const IconData homeList = PhosphorIconsBold.listChecks;
 
   // ========== GROUP & SERIES ICONS ==========
   static const IconData usersThree = PhosphorIconsRegular.usersThree;

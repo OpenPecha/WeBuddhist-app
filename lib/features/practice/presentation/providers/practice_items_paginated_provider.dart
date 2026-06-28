@@ -183,10 +183,10 @@ final practiceItemsPaginatedProvider = StateNotifierProvider.autoDispose
       ref,
       tab,
     ) {
-      final locale = ref.watch(localeProvider);
+      final languageCode = ref.watch(contentLanguageProvider);
       return PracticeItemsNotifier(
         useCase: ref.watch(getPracticeItemsUseCaseProvider),
         tab: tab,
-        languageCode: locale.languageCode,
+        languageCode: languageCode,
       );
     });

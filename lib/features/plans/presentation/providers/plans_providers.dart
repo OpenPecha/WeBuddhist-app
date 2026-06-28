@@ -4,31 +4,35 @@ import 'package:flutter_pecha/core/error/failures.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../domain/entities/plan.dart';
-import '../../domain/usecases/plans_usecases.dart';
 import 'use_case_providers.dart';
 import 'plan_search_provider.dart';
 import 'find_plans_paginated_provider.dart';
 
 final _logger = AppLogger('PlansProviders');
 
-// Get all plans provider
-final plansFutureProvider = FutureProvider<Either<Failure, List<Plan>>>((ref) async {
-  final locale = ref.watch(localeProvider);
-  final languageCode = locale.languageCode;
-  final getPlansUseCase = ref.watch(getPlansUseCaseProvider);
+// Get all plans provider — local-first via repository cache + Hive watch.
+final plansFutureProvider = StreamProvider<Either<Failure, List<Plan>>>((ref) async* {
+  final languageCode = ref.watch(contentLanguageProvider);
+  final repository = ref.watch(plansDomainRepositoryProvider);
+  final local = ref.watch(plansLocalDatasourceProvider);
+  final key = local.plansKey(language: languageCode);
 
-  return getPlansUseCase(GetPlansParams(
-    language: languageCode,
-  ));
+  yield await repository.getPlans(language: languageCode);
+
+  await for (final _ in local.watchKey(key)) {
+    final cached = local.readPlans(language: languageCode);
+    if (cached != null) {
+      yield Right(cached.map((plan) => plan.toEntity()).toList());
+    }
+  }
 });
 
-final planByIdFutureProvider = FutureProvider.family<Either<Failure, Plan?>, String>((
+final planByIdFutureProvider = StreamProvider.family<Either<Failure, Plan?>, String>((
   ref,
   id,
-) async {
-  final getPlanDetailUseCase = ref.watch(getPlanDetailUseCaseProvider);
-
-  return getPlanDetailUseCase(GetPlanDetailParams(planId: id));
+) {
+  final repository = ref.watch(plansDomainRepositoryProvider);
+  return repository.watchPlan(id);
 });
 
 // Find plans with pagination provider
@@ -36,11 +40,12 @@ final findPlansPaginatedProvider =
     StateNotifierProvider<FindPlansNotifier, FindPlansState>((ref) {
       _logger.debug('🏗️ Creating FindPlansNotifier instance...');
       final getPlansUseCase = ref.watch(getPlansUseCaseProvider);
-      final locale = ref.watch(localeProvider);
-      _logger.debug('📝 Locale: ${locale.languageCode}');
+      final languageCode = ref.watch(contentLanguageProvider);
+      _logger.debug('📝 Content language: $languageCode');
       final notifier = FindPlansNotifier(
         getPlansUseCase: getPlansUseCase,
-        languageCode: locale.languageCode,
+        languageCode: languageCode,
+        local: ref.watch(plansLocalDatasourceProvider),
       );
       _logger.debug('✅ FindPlansNotifier instance created');
       return notifier;
@@ -50,9 +55,9 @@ final findPlansPaginatedProvider =
 final planSearchProvider =
     StateNotifierProvider<PlanSearchNotifier, PlanSearchState>((ref) {
       final getPlansUseCase = ref.watch(getPlansUseCaseProvider);
-      final locale = ref.watch(localeProvider);
+      final languageCode = ref.watch(contentLanguageProvider);
       return PlanSearchNotifier(
         getPlansUseCase: getPlansUseCase,
-        languageCode: locale.languageCode,
+        languageCode: languageCode,
       );
     });

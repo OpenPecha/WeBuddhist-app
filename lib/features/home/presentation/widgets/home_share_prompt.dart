@@ -66,20 +66,20 @@ class _ShareButton extends StatelessWidget {
 
     return Material(
       color: buttonColor,
-      borderRadius: BorderRadius.circular(999.0),
+      borderRadius: BorderRadius.circular(12),
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(999.0),
+        borderRadius: BorderRadius.circular(12),
         child: SizedBox(
           width: double.infinity,
           height: 52.0,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              PhosphorIcon(
-                PhosphorIconsBold.export,
+              Icon(
+                AppAssets.readerShare,
                 size: 22.0,
-                color: Theme.of(context).colorScheme.onSurface,
+                color: colorScheme.onSurface,
               ),
               const SizedBox(width: 8.0),
               Text(

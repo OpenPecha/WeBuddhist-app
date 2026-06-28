@@ -25,12 +25,13 @@ class AppTheme {
     final contentFontFamily = getFontFamily(
       locale?.languageCode ?? AppConfig.englishLanguageCode,
     );
+    final buttonTextStyle = _buttonTextStyle(locale, 14, FontWeight.w500);
     final baseTheme = ThemeData(
       useMaterial3: true,
       brightness: Brightness.light,
       fontFamily: systemFontFamily,
       textTheme: fontConfig.textTheme,
-      scaffoldBackgroundColor: AppColors.surfaceWhite,
+      scaffoldBackgroundColor: AppColors.surfaceLight,
 
       // Color scheme based on Figma design
       colorScheme: const ColorScheme.light(
@@ -40,15 +41,15 @@ class AppTheme {
         secondary: AppColors.primary,
         onSecondary: AppColors.onPrimary,
         error: AppColors.error,
-        surface: AppColors.surfaceLight,
+        surface: AppColors.surfaceWhite,
         onSurface: AppColors.textPrimary,
-        surfaceContainer: AppColors.goldAccent, // used for container bgcolor
-        outline: AppColors.goldAccent, // used for container border color
+        surfaceContainer: AppColors.surfaceWhite, // used for container bgcolor
+        outline: AppColors.greyLight, // used for container border color
       ),
 
-      // AppBar with light background
+      // AppBar with cream background matching scaffold
       appBarTheme: AppBarTheme(
-        backgroundColor: AppColors.surfaceWhite,
+        backgroundColor: AppColors.surfaceLight,
         foregroundColor: AppColors.textPrimary,
         elevation: 0,
         iconTheme: const IconThemeData(color: AppColors.textPrimary),
@@ -60,13 +61,13 @@ class AppTheme {
             ),
       ),
 
-      // Card theme with gold accent colors
+      // Card theme with white cards on cream background
       cardTheme: CardThemeData(
-        color: AppColors.goldLight,
+        color: AppColors.surfaceWhite,
         elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
-          side: const BorderSide(color: AppColors.goldAccent, width: 1),
+          side: const BorderSide(color: AppColors.greyLight, width: 1),
         ),
         margin: const EdgeInsets.all(8),
       ),
@@ -146,7 +147,7 @@ class AppTheme {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
-          textStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+          textStyle: buttonTextStyle,
         ),
       ),
 
@@ -154,7 +155,7 @@ class AppTheme {
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
           foregroundColor: AppColors.primary,
-          textStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+          textStyle: buttonTextStyle,
         ),
       ),
 
@@ -167,7 +168,7 @@ class AppTheme {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
-          textStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+          textStyle: buttonTextStyle,
         ),
       ),
 
@@ -201,27 +202,10 @@ class AppTheme {
         behavior: SnackBarBehavior.floating,
       ),
     );
-    // If locale is Tibetan, set line height to 2.0 for all text styles
     if (locale?.languageCode == AppConfig.tibetanLanguageCode) {
-      final baseTextTheme = baseTheme.textTheme;
-      final boTextTheme = baseTextTheme.copyWith(
-        displayLarge: baseTextTheme.displayLarge?.copyWith(height: 2.0),
-        displayMedium: baseTextTheme.displayMedium?.copyWith(height: 2.0),
-        displaySmall: baseTextTheme.displaySmall?.copyWith(height: 2.0),
-        headlineLarge: baseTextTheme.headlineLarge?.copyWith(height: 2.0),
-        headlineMedium: baseTextTheme.headlineMedium?.copyWith(height: 2.0),
-        headlineSmall: baseTextTheme.headlineSmall?.copyWith(height: 2.0),
-        titleLarge: baseTextTheme.titleLarge?.copyWith(height: 2.0),
-        titleMedium: baseTextTheme.titleMedium?.copyWith(height: 2.0),
-        titleSmall: baseTextTheme.titleSmall?.copyWith(height: 2.0),
-        bodyLarge: baseTextTheme.bodyLarge?.copyWith(height: 2.0),
-        bodyMedium: baseTextTheme.bodyMedium?.copyWith(height: 2.0),
-        bodySmall: baseTextTheme.bodySmall?.copyWith(height: 2.0),
-        labelLarge: baseTextTheme.labelLarge?.copyWith(height: 2.0),
-        labelMedium: baseTextTheme.labelMedium?.copyWith(height: 2.0),
-        labelSmall: baseTextTheme.labelSmall?.copyWith(height: 2.0),
+      return baseTheme.copyWith(
+        textTheme: AppFontConfig.applyTibetanTextTheme(baseTheme.textTheme),
       );
-      return baseTheme.copyWith(textTheme: boTextTheme);
     }
     return baseTheme;
   }
@@ -232,6 +216,7 @@ class AppTheme {
     final contentFontFamily = getFontFamily(
       locale?.languageCode ?? AppConfig.englishLanguageCode,
     );
+    final buttonTextStyle = _buttonTextStyle(locale, 14, FontWeight.w500);
     final baseTheme = ThemeData(
       useMaterial3: true,
       brightness: Brightness.dark,
@@ -357,7 +342,7 @@ class AppTheme {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
-          textStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+          textStyle: buttonTextStyle,
         ),
       ),
 
@@ -365,7 +350,7 @@ class AppTheme {
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
           foregroundColor: AppColors.primaryLight,
-          textStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+          textStyle: buttonTextStyle,
         ),
       ),
 
@@ -378,7 +363,7 @@ class AppTheme {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
-          textStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+          textStyle: buttonTextStyle,
         ),
       ),
 
@@ -415,27 +400,10 @@ class AppTheme {
         behavior: SnackBarBehavior.floating,
       ),
     );
-    // If locale is Tibetan, set line height to 2.0 for all text styles
     if (locale?.languageCode == AppConfig.tibetanLanguageCode) {
-      final baseTextTheme = baseTheme.textTheme;
-      final boTextTheme = baseTextTheme.copyWith(
-        displayLarge: baseTextTheme.displayLarge?.copyWith(height: 2.0),
-        displayMedium: baseTextTheme.displayMedium?.copyWith(height: 2.0),
-        displaySmall: baseTextTheme.displaySmall?.copyWith(height: 2.0),
-        headlineLarge: baseTextTheme.headlineLarge?.copyWith(height: 2.0),
-        headlineMedium: baseTextTheme.headlineMedium?.copyWith(height: 2.0),
-        headlineSmall: baseTextTheme.headlineSmall?.copyWith(height: 2.0),
-        titleLarge: baseTextTheme.titleLarge?.copyWith(height: 2.0),
-        titleMedium: baseTextTheme.titleMedium?.copyWith(height: 2.0),
-        titleSmall: baseTextTheme.titleSmall?.copyWith(height: 2.0),
-        bodyLarge: baseTextTheme.bodyLarge?.copyWith(height: 2.0),
-        bodyMedium: baseTextTheme.bodyMedium?.copyWith(height: 2.0),
-        bodySmall: baseTextTheme.bodySmall?.copyWith(height: 2.0),
-        labelLarge: baseTextTheme.labelLarge?.copyWith(height: 2.0),
-        labelMedium: baseTextTheme.labelMedium?.copyWith(height: 2.0),
-        labelSmall: baseTextTheme.labelSmall?.copyWith(height: 2.0),
+      return baseTheme.copyWith(
+        textTheme: AppFontConfig.applyTibetanTextTheme(baseTheme.textTheme),
       );
-      return baseTheme.copyWith(textTheme: boTextTheme);
     }
     return baseTheme;
   }
@@ -452,6 +420,20 @@ class AppTheme {
     );
 
     return _FontConfiguration(fontFamily: null, textTheme: textTheme);
+  }
+
+  static TextStyle _buttonTextStyle(
+    Locale? locale,
+    double fontSize,
+    FontWeight fontWeight,
+  ) {
+    final style = TextStyle(fontSize: fontSize, fontWeight: fontWeight);
+    return AppFontConfig.applyTibetanMetrics(
+          locale?.languageCode,
+          style,
+          compact: true,
+        ) ??
+        style;
   }
 }
 

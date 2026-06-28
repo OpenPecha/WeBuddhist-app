@@ -3,6 +3,12 @@ class AppConfig {
 
   static const String appName = 'WeBuddhist';
   static const String appPackageName = 'org.pecha.app';
+  
+  /// Airbridge tracking link that handles attribution and deep linking
+  /// Automatically redirects to the appropriate app store (iOS/Android)
+  static const String airbridgeTrackingLink = 'https://join.webuddhist.com/get-app';
+  
+  // Direct store URLs (kept for reference, use airbridgeTrackingLink for sharing)
   static const String appStoreUrl =
       'https://apps.apple.com/app/webuddhist/id6745810914';
   static const String playStoreUrl =
@@ -20,9 +26,34 @@ class AppConfig {
   static const String tibetanLanguageCode = 'bo';
   static const String englishLanguageCode = 'en';
   static const String chineseLanguageCode = 'zh';
+  static const String hindiLanguageCode = 'hi';
+  static const String mongolianLanguageCode = 'mn';
+  static const String nepaliLanguageCode = 'ne';
   static const String tibetanAdaptationLanguageCode = 'tib';
   static const String tibetanTransliterationLanguageCode = 'tibphono';
-  static const List<String> supportedLanguages = ['en', 'zh', 'bo'];
+  static const List<String> supportedLanguages = [
+    'en',
+    'zh',
+    'bo',
+    'hi',
+    'mn',
+    'ne',
+  ];
+
+  /// Languages the backend can serve translatable content in.
+  static const List<String> backendContentLanguages = [
+    englishLanguageCode,
+    chineseLanguageCode,
+    tibetanLanguageCode,
+  ];
+
+  /// Maps a UI locale to the language code sent to content APIs.
+  /// Falls back to English when the backend does not support the locale.
+  static String resolveContentLanguage(String localeCode) {
+    final code = localeCode.toLowerCase();
+    if (backendContentLanguages.contains(code)) return code;
+    return englishLanguageCode;
+  }
 
   // Theme configuration
   static const String defaultLanguage = 'en';

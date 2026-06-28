@@ -20,13 +20,13 @@ export 'domain/usecases/clear_guest_mode_usecase.dart';
 export 'domain/usecases/continue_as_guest_usecase.dart';
 export 'domain/usecases/get_credentials_usecase.dart';
 export 'domain/usecases/get_current_user_usecase.dart';
-export 'domain/usecases/get_valid_id_token_usecase.dart';
+export 'domain/usecases/get_valid_access_token_usecase.dart';
 export 'domain/usecases/has_valid_credentials_usecase.dart';
 export 'domain/usecases/initialize_auth_usecase.dart';
 export 'domain/usecases/is_guest_mode_usecase.dart';
 export 'domain/usecases/login_usecase.dart';
 export 'domain/usecases/logout_usecase.dart';
-export 'domain/usecases/refresh_id_token_usecase.dart';
+export 'domain/usecases/force_refresh_access_token_usecase.dart';
 
 // Data - Models
 export 'data/models/user_model.dart';

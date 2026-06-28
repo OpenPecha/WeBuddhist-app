@@ -3,6 +3,8 @@ import 'package:flutter_pecha/core/utils/app_logger.dart';
 final _logger = AppLogger('PlanUtils');
 
 class PlanUtils {
+  static final _calendarDatePrefix = RegExp(r'^(\d{4})-(\d{2})-(\d{2})');
+
   /// Parses a backend calendar-date string (e.g. `2026-05-14T00:00:00.000Z`)
   /// into a local-midnight DateTime preserving the calendar day.
   ///
@@ -10,22 +12,33 @@ class PlanUtils {
   /// **calendar dates**, not instants. A naive `.toLocal()` shifts the day
   /// in negative-offset zones (e.g. May 14 UTC midnight → May 13 20:00 in
   /// Toronto), producing off-by-one day-N calculations. This helper extracts
-  /// the UTC year/month/day and rebuilds at local midnight so the calendar
-  /// day is preserved everywhere downstream.
+  /// the `YYYY-MM-DD` prefix and rebuilds at local midnight so the calendar
+  /// day is preserved everywhere downstream — including after Hive cache
+  /// round-trips that drop the timezone suffix via [DateTime.toIso8601String].
   static DateTime? parseCalendarDate(String? iso) {
-    if (iso == null) return null;
-    final parsed = DateTime.tryParse(iso);
-    if (parsed == null) {
+    if (iso == null || iso.isEmpty) return null;
+    final match = _calendarDatePrefix.firstMatch(iso);
+    if (match == null) {
       _logger.warning('[CAL-DATE] failed to parse: $iso');
       return null;
     }
-    final utc = parsed.toUtc();
-    final normalized = DateTime(utc.year, utc.month, utc.day);
+    final normalized = DateTime(
+      int.parse(match.group(1)!),
+      int.parse(match.group(2)!),
+      int.parse(match.group(3)!),
+    );
     _logger.info(
-      '[CAL-DATE] raw=$iso utc=${utc.toIso8601String()} '
-      'localMidnight=${normalized.toIso8601String()}',
+      '[CAL-DATE] raw=$iso localMidnight=${normalized.toIso8601String()}',
     );
     return normalized;
+  }
+
+  /// Normalizes a [DateTime] to local midnight for calendar-date display and
+  /// comparisons. For UTC instants (API `…Z` values), uses the UTC
+  /// year/month/day; for local values (from [parseCalendarDate]), uses local
+  /// components — both preserve the backend calendar day.
+  static DateTime calendarDateOnly(DateTime date) {
+    return DateTime(date.year, date.month, date.day);
   }
 
   static int calculateSelectedDay(DateTime startedAt, int totalDays) {
@@ -75,8 +88,9 @@ class PlanUtils {
   /// Counts past scheduled days (from Day 1) the user has not completed.
   ///
   /// Always counts from Day 1 regardless of when the user enrolled, so late
-  /// joiners see the full backlog they need to catch up on. Excludes today —
-  /// the user still has time to finish it.
+  /// joiners see the full backlog they need to catch up on. Excludes today
+  /// while the plan is still active (the user still has time to finish it),
+  /// but includes the last day once the plan has fully ended.
   ///
   /// [planStartDate]: Day 1 anchor (= `plan.startDate ?? plan.startedAt`).
   static int calculateMissedDays(
@@ -84,16 +98,27 @@ class PlanUtils {
     int totalDays,
     Map<int, bool> completionStatus,
   ) {
-    final todayDayNumber = dayNumberFor(planStartDate, DateTime.now(), totalDays);
+    final now = DateTime.now();
+    final normalizedToday = DateTime(now.year, now.month, now.day);
+    final todayDayNumber = dayNumberFor(planStartDate, now, totalDays);
+
+    final start = planStartDate.toLocal();
+    final normalizedStart = DateTime(start.year, start.month, start.day);
+    final lastPlanDay = normalizedStart.add(Duration(days: totalDays - 1));
+
+    // When today is past the plan's last day, every incomplete day is missed.
+    // While the plan is active, today is excluded (user still has time).
+    final isPlanOver = normalizedToday.isAfter(lastPlanDay);
+    final upperBound = isPlanOver ? totalDays : todayDayNumber - 1;
 
     int missedCount = 0;
-    for (int day = 1; day < todayDayNumber; day++) {
+    for (int day = 1; day <= upperBound; day++) {
       if (completionStatus[day] != true) missedCount++;
     }
 
     _logger.info(
       '[ENROLL-MISSED] planStart=${planStartDate.toIso8601String()} '
-      'todayDay=$todayDayNumber missed=$missedCount',
+      'todayDay=$todayDayNumber isPlanOver=$isPlanOver missed=$missedCount',
     );
     return missedCount;
   }

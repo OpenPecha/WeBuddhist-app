@@ -12,6 +12,10 @@ class DayCarousel extends StatefulWidget {
   final Map<int, bool>? dayCompletionStatus;
   final bool lockFutureDays;
 
+  /// When [lockFutureDays] is true, days `1..previewUnlockDayCount` stay
+  /// selectable even if their calendar date is in the future.
+  final int previewUnlockDayCount;
+
   const DayCarousel({
     super.key,
     required this.language,
@@ -21,6 +25,7 @@ class DayCarousel extends StatefulWidget {
     required this.onDaySelected,
     this.dayCompletionStatus,
     this.lockFutureDays = false,
+    this.previewUnlockDayCount = 0,
   });
 
   @override
@@ -57,13 +62,14 @@ class _DayCarouselState extends State<DayCarousel> {
     final selectedIndex = widget.days.indexWhere(
       (d) => d.dayNumber == widget.selectedDay,
     );
-    
+
     if (selectedIndex < 0 || !_scrollController.hasClients) return;
 
     final screenWidth = MediaQuery.of(context).size.width;
     final itemWidth = 88.0;
-    final targetOffset = (selectedIndex * itemWidth) - (screenWidth / 2) + (itemWidth / 2);
-    
+    final targetOffset =
+        (selectedIndex * itemWidth) - (screenWidth / 2) + (itemWidth / 2);
+
     final clampedOffset = targetOffset.clamp(
       0.0,
       _scrollController.position.maxScrollExtent,
@@ -95,13 +101,17 @@ class _DayCarouselState extends State<DayCarousel> {
         itemCount: widget.days.length,
         itemBuilder: (context, index) {
           final day = widget.days[index];
-          final dayDate = localStartDate.add(Duration(days: day.dayNumber - 1));
+          final dayDate = localStartDate.add(Duration(days: day.dayNumber));
           final dayDateString = DateFormat('dd MMM').format(dayDate);
           final isSelected = widget.selectedDay == day.dayNumber;
-          final isCompleted = widget.dayCompletionStatus?[day.dayNumber] ?? false;
+          final isCompleted =
+              widget.dayCompletionStatus?[day.dayNumber] ?? false;
           final isToday = dayDate.isAtSameMomentAs(today);
           final isFuture = dayDate.isAfter(today);
-          final isDisabled = widget.lockFutureDays && isFuture;
+          final isDisabled =
+              widget.lockFutureDays &&
+              isFuture &&
+              day.dayNumber > widget.previewUnlockDayCount;
           final isEffectivelySelected = isSelected && !isDisabled;
           final theme = Theme.of(context);
           final disabledColor = theme.disabledColor;
@@ -109,37 +119,43 @@ class _DayCarouselState extends State<DayCarousel> {
           return Opacity(
             opacity: isDisabled ? 0.45 : 1,
             child: GestureDetector(
-              onTap: isDisabled
-                  ? null
-                  : () {
-                      HapticFeedback.selectionClick();
-                      widget.onDaySelected(day.dayNumber);
-                    },
+              onTap:
+                  isDisabled
+                      ? null
+                      : () {
+                        HapticFeedback.selectionClick();
+                        widget.onDaySelected(day.dayNumber);
+                      },
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 200),
                 curve: Curves.easeInOut,
                 width: 80,
                 margin: const EdgeInsets.symmetric(horizontal: 4),
                 decoration: BoxDecoration(
-                  color: isDisabled
-                      ? theme.cardColor.withValues(alpha: 0.6)
-                      : theme.cardColor,
+                  color:
+                      isDisabled
+                          ? theme.cardColor.withValues(alpha: 0.6)
+                          : theme.cardColor,
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(
-                    color: isEffectivelySelected
-                        ? const Color(0xFF1E3A8A)
-                        : theme.cardColor,
+                    color:
+                        isEffectivelySelected
+                            ? const Color(0xFF1E3A8A)
+                            : theme.cardColor,
                     width: 2,
                   ),
-                  boxShadow: isEffectivelySelected
-                      ? [
-                          BoxShadow(
-                            color: const Color(0xFF1E3A8A).withValues(alpha: 0.2),
-                            blurRadius: 8,
-                            offset: const Offset(0, 2),
-                          ),
-                        ]
-                      : null,
+                  boxShadow:
+                      isEffectivelySelected
+                          ? [
+                            BoxShadow(
+                              color: const Color(
+                                0xFF1E3A8A,
+                              ).withValues(alpha: 0.2),
+                              blurRadius: 8,
+                              offset: const Offset(0, 2),
+                            ),
+                          ]
+                          : null,
                 ),
                 child: Stack(
                   alignment: Alignment.center,
@@ -151,9 +167,10 @@ class _DayCarouselState extends State<DayCarousel> {
                         child: Icon(
                           Icons.check,
                           size: 14,
-                          color: isDisabled
-                              ? disabledColor
-                              : theme.colorScheme.primary,
+                          color:
+                              isDisabled
+                                  ? disabledColor
+                                  : theme.colorScheme.primary,
                         ),
                       ),
                     Column(
@@ -173,21 +190,26 @@ class _DayCarouselState extends State<DayCarousel> {
                             horizontal: 8,
                             vertical: 2,
                           ),
-                          decoration: isToday && !isDisabled
-                              ? BoxDecoration(
-                                  color: theme.brightness == Brightness.dark
-                                      ? Colors.white.withValues(alpha: 0.2)
-                                      : const Color(0xFF1A1A1A),
-                                  borderRadius: BorderRadius.circular(12),
-                                )
-                              : null,
+                          decoration:
+                              isToday && !isDisabled
+                                  ? BoxDecoration(
+                                    color:
+                                        theme.brightness == Brightness.dark
+                                            ? Colors.white.withValues(
+                                              alpha: 0.2,
+                                            )
+                                            : const Color(0xFF1A1A1A),
+                                    borderRadius: BorderRadius.circular(12),
+                                  )
+                                  : null,
                           child: Text(
                             dayDateString,
                             style: TextStyle(
                               fontSize: 11,
-                              color: isDisabled
-                                  ? disabledColor
-                                  : isToday
+                              color:
+                                  isDisabled
+                                      ? disabledColor
+                                      : isToday
                                       ? Colors.white
                                       : null,
                             ),

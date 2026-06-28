@@ -112,8 +112,18 @@ class AuthRepositoryImpl implements AuthRepository {
       }
       return Right(_toAuthCredentials(credentials));
     } catch (e) {
-      return Left(AuthenticationFailure('Failed to get credentials: $e'));
+      return Left(_credentialFailure(e, 'Failed to get credentials'));
     }
+  }
+
+  /// Maps a credentials-operation error to a [Failure], distinguishing a
+  /// permanently-lost session ([AuthenticationFailure] → re-login) from a
+  /// transient/offline renewal failure ([NetworkFailure] → keep the session
+  /// and retry). See [AuthService.isSessionPermanentlyLost].
+  Failure _credentialFailure(Object error, String context) {
+    return AuthService.isSessionPermanentlyLost(error)
+        ? AuthenticationFailure('$context: $error')
+        : NetworkFailure('$context: $error');
   }
 
   @override
@@ -122,28 +132,30 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Either<Failure, String>> getValidIdToken() async {
+  Future<Either<Failure, String>> getValidAccessToken() async {
     try {
-      final idToken = await _authService.getValidIdToken();
-      if (idToken == null) {
-        return const Left(AuthenticationFailure('No valid ID token'));
+      final accessToken = await _authService.getValidAccessToken();
+      if (accessToken == null) {
+        return const Left(AuthenticationFailure('No valid access token'));
       }
-      return Right(idToken);
+      return Right(accessToken);
     } catch (e) {
-      return Left(AuthenticationFailure('Failed to get valid ID token: $e'));
+      return Left(_credentialFailure(e, 'Failed to get valid access token'));
     }
   }
 
   @override
-  Future<Either<Failure, String>> refreshIdToken() async {
+  Future<Either<Failure, String>> forceRefreshAccessToken() async {
     try {
-      final idToken = await _authService.refreshIdToken();
-      if (idToken == null) {
-        return const Left(AuthenticationFailure('Failed to refresh ID token'));
+      final accessToken = await _authService.forceRefreshAccessToken();
+      if (accessToken == null) {
+        return const Left(
+          AuthenticationFailure('Failed to refresh access token'),
+        );
       }
-      return Right(idToken);
+      return Right(accessToken);
     } catch (e) {
-      return Left(AuthenticationFailure('Failed to refresh ID token: $e'));
+      return Left(_credentialFailure(e, 'Failed to refresh access token'));
     }
   }
 
@@ -183,19 +195,10 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<Either<Failure, User>> getCurrentUser() async {
-    // Get valid ID token for the API request
-    final idTokenResult = await getValidIdToken();
-    if (idTokenResult.isLeft()) {
-      return idTokenResult.fold(
-        (failure) => Left(failure),
-        (_) => const Left(UnknownFailure('Unknown error')),
-      );
-    }
-
-    final idToken = idTokenResult.getOrElse((_) => '');
-
+    // The bearer (access) token is attached by AuthInterceptor for protected
+    // routes — no manual token prefetch needed here.
     try {
-      final userModel = await _remoteDataSource.getCurrentUser(idToken);
+      final userModel = await _remoteDataSource.getCurrentUser();
       return Right(userModel.toEntity());
     } catch (e) {
       return Left(ExceptionMapper.map(e, context: 'getCurrentUser'));
@@ -214,16 +217,6 @@ class AuthRepositoryImpl implements AuthRepository {
     List<String>? educations,
     List<Map<String, String>>? socialProfiles,
   }) async {
-    final idTokenResult = await getValidIdToken();
-    if (idTokenResult.isLeft()) {
-      return idTokenResult.fold(
-        (failure) => Left(failure),
-        (_) => const Left(UnknownFailure('Unknown error')),
-      );
-    }
-
-    final idToken = idTokenResult.getOrElse((_) => '');
-
     final body = <String, dynamic>{
       if (firstName != null) 'firstname': firstName,
       if (lastName != null) 'lastname': lastName,
@@ -237,7 +230,7 @@ class AuthRepositoryImpl implements AuthRepository {
     };
 
     try {
-      final userModel = await _remoteDataSource.updateUserInfo(idToken, body);
+      final userModel = await _remoteDataSource.updateUserInfo(body);
       return Right(userModel.toEntity());
     } catch (e) {
       return Left(ExceptionMapper.map(e, context: 'updateUserInfo'));
@@ -248,18 +241,8 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<Either<Failure, UsernameUpdateResult>> updateUsername(
     String username,
   ) async {
-    final idTokenResult = await getValidIdToken();
-    if (idTokenResult.isLeft()) {
-      return idTokenResult.fold(
-        (failure) => Left(failure),
-        (_) => const Left(UnknownFailure('Unknown error')),
-      );
-    }
-
-    final idToken = idTokenResult.getOrElse((_) => '');
-
     try {
-      final result = await _remoteDataSource.updateUsername(idToken, username);
+      final result = await _remoteDataSource.updateUsername(username);
       return Right(result);
     } catch (e) {
       return Left(ExceptionMapper.map(e, context: 'updateUsername'));
@@ -268,18 +251,8 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<Either<Failure, String>> uploadAvatar(File file) async {
-    final idTokenResult = await getValidIdToken();
-    if (idTokenResult.isLeft()) {
-      return idTokenResult.fold(
-        (failure) => Left(failure),
-        (_) => const Left(UnknownFailure('Unknown error')),
-      );
-    }
-
-    final idToken = idTokenResult.getOrElse((_) => '');
-
     try {
-      final url = await _remoteDataSource.uploadAvatar(idToken, file);
+      final url = await _remoteDataSource.uploadAvatar(file);
       return Right(url);
     } catch (e) {
       return Left(ExceptionMapper.map(e, context: 'uploadAvatar'));
@@ -288,18 +261,8 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<Either<Failure, void>> deleteAccount() async {
-    final idTokenResult = await getValidIdToken();
-    if (idTokenResult.isLeft()) {
-      return idTokenResult.fold(
-        (failure) => Left(failure),
-        (_) => const Left(UnknownFailure('Unknown error')),
-      );
-    }
-
-    final idToken = idTokenResult.getOrElse((_) => '');
-
     try {
-      await _remoteDataSource.deleteUser(idToken);
+      await _remoteDataSource.deleteUser();
       return const Right(null);
     } catch (e) {
       return Left(ExceptionMapper.map(e, context: 'deleteAccount'));

@@ -17,6 +17,7 @@ import 'package:flutter_pecha/core/storage/storage_service.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/features/ai/config/ai_config.dart';
 import 'package:flutter_pecha/features/auth/auth_service.dart';
+import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
 
 // ============ Logger ============
 
@@ -90,23 +91,44 @@ final cacheInterceptorProvider = Provider<CacheInterceptor>((ref) {
   return CacheInterceptor(ref.watch(loggerProvider));
 });
 
-/// Provider for RetryInterceptor
-final retryInterceptorProvider = Provider<RetryInterceptor>((ref) {
+/// Callback invoked by a [RetryInterceptor] when a token renewal fails
+/// *permanently* (refresh token gone/revoked). Flips auth state to logged-out
+/// so the router redirects to login while preserving the intended route.
+///
+/// The notifier is read lazily (not watched) to avoid Riverpod circular-init:
+/// the interceptor is part of the Dio client that the auth notifier ultimately
+/// depends on, so it must not construct the notifier at provider-build time.
+void Function() _authExpiredHandler(Ref ref) {
   final logger = ref.watch(loggerProvider);
-  final authService = ref.watch(authServiceProvider);
+  return () async {
+    try {
+      await ref.read(authProvider.notifier).handleSessionExpired();
+    } catch (e) {
+      logger.warning('Failed to handle session expiry', e);
+    }
+  };
+}
 
+/// Provider for RetryInterceptor (main API Dio client)
+final retryInterceptorProvider = Provider<RetryInterceptor>((ref) {
   return RetryInterceptor(
-    logger,
-    authService,
-    // When token refresh fails, clear credentials to trigger re-authentication
-    () async {
-      try {
-        await authService.localLogout();
-        logger.info('Logged out due to expired token refresh');
-      } catch (e) {
-        logger.warning('Failed to logout after token refresh failure', e);
-      }
-    },
+    ref.watch(loggerProvider),
+    ref.watch(authServiceProvider),
+    _authExpiredHandler(ref),
+  );
+});
+
+/// Provider for a dedicated RetryInterceptor for the AI Dio client.
+///
+/// A separate instance is required because [RetryInterceptor.configure] binds
+/// its internal retry-Dio to one parent's [BaseOptions]; the AI client has a
+/// different base URL. Both instances funnel renewal through the single
+/// in-flight future in [AuthService], so there is no double-refresh.
+final aiRetryInterceptorProvider = Provider<RetryInterceptor>((ref) {
+  return RetryInterceptor(
+    ref.watch(loggerProvider),
+    ref.watch(authServiceProvider),
+    _authExpiredHandler(ref),
   );
 });
 
@@ -172,13 +194,17 @@ final _aiDioBaseOptionsProvider = Provider<BaseOptions>((ref) {
 /// This is a dedicated HTTP client for AI endpoints. It uses the AI_URL
 /// base URL and automatically adds auth tokens via AuthService TokenProvider.
 final aiDioClientProvider = Provider<AiDioClient>((ref) {
+  final aiRetryInterceptor = ref.watch(aiRetryInterceptorProvider);
   return AiDioClient(
     options: ref.watch(_aiDioBaseOptionsProvider),
+    // Order mirrors DioClient: auth → retry (401 refresh) → error → logging.
     interceptors: [
       ref.watch(authInterceptorProvider),
-      ref.watch(loggingInterceptorProvider),
+      aiRetryInterceptor,
       ref.watch(errorInterceptorProvider),
+      ref.watch(loggingInterceptorProvider),
     ],
+    retryInterceptor: aiRetryInterceptor,
   );
 });
 

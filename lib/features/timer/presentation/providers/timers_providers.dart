@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter_pecha/core/di/core_providers.dart';
 import 'package:flutter_pecha/core/error/failures.dart';
+import 'package:flutter_pecha/features/timer/data/datasource/timers_local_datasource.dart';
 import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
 import 'package:flutter_pecha/features/timer/data/datasource/timers_remote_datasource.dart';
 import 'package:flutter_pecha/features/timer/data/repositories/timers_repository.dart';
@@ -14,9 +17,17 @@ final timersRemoteDatasourceProvider = Provider<TimersRemoteDatasource>((ref) {
   return TimersRemoteDatasource(dio: ref.watch(dioProvider));
 });
 
-final timersDomainRepositoryProvider =
-    Provider<TimersRepositoryInterface>((ref) {
-  return TimersRepository(remote: ref.watch(timersRemoteDatasourceProvider));
+final timersLocalDatasourceProvider = Provider<TimersLocalDatasource>((ref) {
+  return TimersLocalDatasource();
+});
+
+final timersDomainRepositoryProvider = Provider<TimersRepositoryInterface>((
+  ref,
+) {
+  return TimersRepository(
+    remote: ref.watch(timersRemoteDatasourceProvider),
+    local: ref.watch(timersLocalDatasourceProvider),
+  );
 });
 
 final getPresetTimersUseCaseProvider = Provider<GetPresetTimersUseCase>((ref) {
@@ -30,12 +41,31 @@ final stopUserTimerUseCaseProvider = Provider<StopUserTimerUseCase>((ref) {
 });
 
 final presetTimersFutureProvider =
-    FutureProvider<Either<Failure, List<PresetTimer>>>((ref) async {
-  final auth = ref.watch(authProvider);
-  if (auth.isLoading || !auth.isLoggedIn || auth.isGuest) {
-    return const Left(AuthenticationFailure('Not authenticated'));
-  }
+    StreamProvider<Either<Failure, List<PresetTimer>>>((ref) {
+      final auth = ref.watch(authProvider);
+      if (auth.isLoading || !auth.isLoggedIn || auth.isGuest) {
+        return Stream.value(
+          const Left(AuthenticationFailure('Not authenticated')),
+        );
+      }
 
-  final useCase = ref.watch(getPresetTimersUseCaseProvider);
-  return useCase(const GetPresetTimersParams());
+      final repository = ref.watch(timersDomainRepositoryProvider);
+      return repository.watchPresetTimers();
+    });
+
+/// Keeps pending local timer-stop writes moving after connectivity returns.
+final timerSyncBootstrapProvider = Provider<void>((ref) {
+  final subscription = ref
+      .watch(connectivityServiceProvider)
+      .onConnectivityChanged
+      .listen((isOnline) {
+        if (isOnline) {
+          unawaited(
+            ref.read(timersDomainRepositoryProvider).flushPendingTimerStops(),
+          );
+        }
+      });
+  ref.onDispose(() {
+    subscription.cancel();
+  });
 });

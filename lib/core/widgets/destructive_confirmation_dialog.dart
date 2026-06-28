@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 /// Shows a styled destructive confirmation dialog.
 ///
-/// Returns `true` if confirmed. When [onConfirmed] is provided, the dialog
-/// closes first and then runs the callback.
+/// Returns `true` when the action succeeds, `false` when [onConfirmed] returns
+/// `false` (show error feedback after the dialog closes), or `null` when
+/// cancelled or dismissed. With [onConfirmed], the dialog stays open with a
+/// loading spinner until the callback completes, then closes.
 Future<bool?> showDestructiveConfirmationDialog(
   BuildContext context, {
   required String title,
@@ -14,7 +15,7 @@ Future<bool?> showDestructiveConfirmationDialog(
   String? confirmLabel,
   String? cancelLabel,
   bool barrierDismissible = true,
-  Future<void> Function()? onConfirmed,
+  Future<bool> Function()? onConfirmed,
 }) {
   final isDark = Theme.of(context).brightness == Brightness.dark;
   final l10n = context.l10n;
@@ -22,14 +23,15 @@ Future<bool?> showDestructiveConfirmationDialog(
   return showDialog<bool>(
     context: context,
     barrierDismissible: barrierDismissible,
-    builder: (dialogContext) => DestructiveConfirmationDialog(
-      title: title,
-      message: message,
-      confirmLabel: confirmLabel ?? l10n.delete,
-      cancelLabel: cancelLabel ?? l10n.cancel,
-      isDark: isDark,
-      onConfirmed: onConfirmed,
-    ),
+    builder:
+        (dialogContext) => DestructiveConfirmationDialog(
+          title: title,
+          message: message,
+          confirmLabel: confirmLabel ?? l10n.delete,
+          cancelLabel: cancelLabel ?? l10n.cancel,
+          isDark: isDark,
+          onConfirmed: onConfirmed,
+        ),
   );
 }
 
@@ -49,7 +51,7 @@ class DestructiveConfirmationDialog extends StatefulWidget {
   final String confirmLabel;
   final String cancelLabel;
   final bool isDark;
-  final Future<void> Function()? onConfirmed;
+  final Future<bool> Function()? onConfirmed;
 
   @override
   State<DestructiveConfirmationDialog> createState() =>
@@ -63,8 +65,13 @@ class _DestructiveConfirmationDialogState
   Future<void> _handleConfirm() async {
     if (widget.onConfirmed != null) {
       setState(() => _isLoading = true);
-      Navigator.of(context).pop(true);
-      await widget.onConfirmed!();
+      try {
+        final succeeded = await widget.onConfirmed!();
+        if (!mounted) return;
+        Navigator.of(context).pop(succeeded);
+      } catch (_) {
+        if (mounted) setState(() => _isLoading = false);
+      }
       return;
     }
 
@@ -73,86 +80,120 @@ class _DestructiveConfirmationDialogState
 
   @override
   Widget build(BuildContext context) {
-    return Dialog(
-      backgroundColor:
-          widget.isDark ? AppColors.surfaceDark : AppColors.surfaceWhite,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(24, 28, 24, 20),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              widget.title,
-              style: GoogleFonts.inter(
-                textStyle: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w900,
-                  fontSize: 17,
+    final textTheme = Theme.of(context).textTheme;
+    const titleFontSize = 18.0;
+    const messageFontSize = 14.0;
+    const buttonFontSize = 15.0;
+
+    return PopScope(
+      canPop: !_isLoading,
+      child: Dialog(
+        backgroundColor:
+            widget.isDark ? AppColors.surfaceDark : AppColors.surfaceWhite,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(24, 28, 24, 20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                widget.title,
+                strutStyle: context.tibetanStrutStyle(titleFontSize),
+                style: textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w600,
+                  fontSize: titleFontSize,
                   letterSpacing: -0.3,
                 ),
               ),
-            ),
-            const SizedBox(height: 12),
-            Text(
-              widget.message,
-              style: const TextStyle(fontSize: 14, height: 1.5),
-            ),
-            const SizedBox(height: 24),
-            SizedBox(
-              width: double.infinity,
-              height: 48,
-              child: OutlinedButton(
-                onPressed: _isLoading ? null : _handleConfirm,
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: Colors.red.shade600,
-                  side: const BorderSide(color: AppColors.grey300),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30),
-                  ),
-                ),
-                child: _isLoading
-                    ? SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: Colors.red.shade600,
-                        ),
-                      )
-                    : Text(
-                        widget.confirmLabel,
-                        style: const TextStyle(fontSize: 15),
-                      ),
-              ),
-            ),
-            const SizedBox(height: 12),
-            SizedBox(
-              width: double.infinity,
-              height: 48,
-              child: OutlinedButton(
-                onPressed:
-                    _isLoading ? null : () => Navigator.of(context).pop(false),
-                style: OutlinedButton.styleFrom(
-                  foregroundColor:
-                      widget.isDark ? AppColors.textPrimaryDark : Colors.black,
-                  side: const BorderSide(color: AppColors.grey300),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30),
-                  ),
-                ),
-                child: Text(
-                  widget.cancelLabel,
-                  style: TextStyle(
-                    fontSize: 15,
-                    color: widget.isDark
-                        ? AppColors.textPrimaryDark
-                        : Colors.black,
-                  ),
+              const SizedBox(height: 12),
+              Text(
+                widget.message,
+                strutStyle: context.tibetanStrutStyle(messageFontSize),
+                style: textTheme.bodyMedium?.copyWith(
+                  fontSize: messageFontSize,
                 ),
               ),
-            ),
-          ],
+              const SizedBox(height: 24),
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton(
+                  onPressed: _isLoading ? null : _handleConfirm,
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: Colors.red.shade600,
+                    minimumSize: const Size(double.infinity, 48),
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 12,
+                      horizontal: 16,
+                    ),
+                    side: const BorderSide(color: AppColors.grey300),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                  ),
+                  child:
+                      _isLoading
+                          ? SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.red.shade600,
+                            ),
+                          )
+                          : Text(
+                            widget.confirmLabel,
+                            textAlign: TextAlign.center,
+                            strutStyle: context.tibetanStrutStyle(
+                              buttonFontSize,
+                              compact: true,
+                            ),
+                            style: textTheme.labelLarge?.copyWith(
+                              fontSize: buttonFontSize,
+                            ),
+                          ),
+                ),
+              ),
+              const SizedBox(height: 12),
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton(
+                  onPressed:
+                      _isLoading ? null : () => Navigator.of(context).pop(null),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor:
+                        widget.isDark
+                            ? AppColors.textPrimaryDark
+                            : Colors.black,
+                    minimumSize: const Size(double.infinity, 48),
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 12,
+                      horizontal: 16,
+                    ),
+                    side: const BorderSide(color: AppColors.grey300),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                  ),
+                  child: Text(
+                    widget.cancelLabel,
+                    textAlign: TextAlign.center,
+                    strutStyle: context.tibetanStrutStyle(
+                      buttonFontSize,
+                      compact: true,
+                    ),
+                    style: textTheme.labelLarge?.copyWith(
+                      fontSize: buttonFontSize,
+                      color:
+                          widget.isDark
+                              ? AppColors.textPrimaryDark
+                              : Colors.black,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

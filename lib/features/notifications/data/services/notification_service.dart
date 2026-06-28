@@ -393,9 +393,17 @@ class NotificationService {
         final itemId = data['itemId'] as String?;
         final itemTypeStr = data['itemType'] as String?;
         if (itemId != null && itemTypeStr != null) {
-          _logger.info('Storing pending notification nav: $itemTypeStr $itemId');
+          final planId = data['planId'] as String?;
+          _logger.info(
+            'Storing pending notification nav: $itemTypeStr $itemId '
+            'planId=$planId',
+          );
           _container!.read(pendingNotificationNavProvider.notifier).state =
-              NotificationNav(itemId: itemId, itemType: itemTypeStr);
+              NotificationNav(
+                itemId: itemId,
+                itemType: itemTypeStr,
+                planId: planId,
+              );
         }
       } catch (e) {
         _logger.warning('Failed to parse notification payload: $e');

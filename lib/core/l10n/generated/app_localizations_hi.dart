@@ -1,0 +1,1608 @@
+// ignore: unused_import
+import 'package:intl/intl.dart' as intl;
+import 'app_localizations.dart';
+
+// ignore_for_file: type=lint
+
+/// The translations for Hindi (`hi`).
+class AppLocalizationsHi extends AppLocalizations {
+  AppLocalizationsHi([String locale = 'hi']) : super(locale);
+
+  @override
+  String get appTitle => 'WeBuddhist';
+
+  @override
+  String get sign_in => 'साइन इन करें';
+
+  @override
+  String get logout => 'लॉग आउट';
+
+  @override
+  String get onboarding_welcome => 'आपका स्वागत है';
+
+  @override
+  String get onboarding_setup_subtitle =>
+      'आइए, आपका सेटअप करते हैं — इसमें बस एक मिनट लगेगा';
+
+  @override
+  String get onboarding_tagline => 'सीखें, अभ्यास करें और जुड़ें। हर दिन।';
+
+  @override
+  String get onboarding_quote =>
+      'बूँद-बूँद से घड़ा भर जाता है। उसी प्रकार बुद्धिमान व्यक्ति थोड़ा-थोड़ा करके स्वयं को पुण्य से भर लेता है।';
+
+  @override
+  String get onboarding_find_peace => 'शुरू करें';
+
+  @override
+  String get onboarding_continue => 'जारी रखें';
+
+  @override
+  String get onboarding_first_question => 'अपनी भाषा चुनें:';
+
+  @override
+  String get onboarding_choose_option => 'कम से कम एक चुनें:';
+
+  @override
+  String get onboarding_all_set => 'सब तैयार है';
+
+  @override
+  String get onboarding_all_set_description =>
+      'आपके अभ्यास के लिए यह तैयार है।';
+
+  @override
+  String get onboarding_all_set_feature_practices =>
+      'जाप, संचय, ध्यान और अध्ययन योजनाएँ चुनने के लिए';
+
+  @override
+  String get onboarding_all_set_feature_reminders =>
+      'कोमल दैनिक अनुस्मारक, जब भी आप तैयार हों';
+
+  @override
+  String get onboarding_begin_practice => 'अपने पहले अभ्यास खोजें';
+
+  @override
+  String get onboarding_2_title => 'अगला, यह इस तरह काम करता है।';
+
+  @override
+  String get onboarding_2_subtitle => 'आदत बनाने के तीन छोटे कदम';
+
+  @override
+  String get onboarding_2_step1_title => 'अपने अभ्यास चुनें';
+
+  @override
+  String get onboarding_2_step1_desc =>
+      'जाप करें, मंत्र गिनें, ध्यान टाइमर सेट करें, या अपनी परंपरा की अध्ययन योजना का पालन करें।';
+
+  @override
+  String get onboarding_2_step2_title => 'इन्हें अपने दिन में जोड़ें';
+
+  @override
+  String get onboarding_2_step2_desc =>
+      'एक दैनिक दिनचर्या बनाएँ और हम इसे जारी रखने के लिए कोमल अनुस्मारक भेजेंगे।';
+
+  @override
+  String get onboarding_2_step3_title => 'हर दिन कुछ मिनट अभ्यास करें';
+
+  @override
+  String get onboarding_2_step3_desc =>
+      'एक पल भी मायने रखता है। दिन-प्रतिदिन, आपका अभ्यास बढ़ता जाएगा।';
+
+  @override
+  String get home_recitation => 'पाठ';
+
+  @override
+  String get home_today => 'आज';
+
+  @override
+  String get home_good_morning => 'नमस्कार';
+
+  @override
+  String get home_good_afternoon => 'नमस्कार';
+
+  @override
+  String get home_good_evening => 'नमस्कार';
+
+  @override
+  String get home_meditationTitle => 'ध्यान';
+
+  @override
+  String get home_prayerTitle => 'आज की प्रार्थना';
+
+  @override
+  String get home_scripture => 'निर्देशित ग्रंथ';
+
+  @override
+  String get home_meditation => 'निर्देशित ध्यान';
+
+  @override
+  String get home_goDeeper => 'और गहराई में जाएँ';
+
+  @override
+  String get home_intention => 'आज के लिए मेरा संकल्प';
+
+  @override
+  String get home_overall_stats => 'संपूर्ण आँकड़े';
+
+  @override
+  String get home_plans => 'योजनाएँ';
+
+  @override
+  String home_plans_count(int count) {
+    return '$count योजनाएँ';
+  }
+
+  @override
+  String home_recitation_count(int count) {
+    return '$count पाठ';
+  }
+
+  @override
+  String get home_shortcut_plans => 'योजनाएँ';
+
+  @override
+  String get home_chants => 'जप';
+
+  @override
+  String get home_mala => 'माला';
+
+  @override
+  String get mala_add_to_practice => 'मेरे अभ्यास में जोड़ें';
+
+  @override
+  String get mala_add_to_bookmark => 'बुकमार्क';
+
+  @override
+  String get mala_sound => 'ध्वनि';
+
+  @override
+  String get mala_vibration => 'कंपन';
+
+  @override
+  String get mala_reset_count => 'गिनती रीसेट करें';
+
+  @override
+  String get mala_reset_title => 'क्या इस माला को रीसेट करें?';
+
+  @override
+  String get mala_reset_count_confirm =>
+      'आपकी वर्तमान गिनती शून्य हो जाएगी, लेकिन आपके संचय आपके जीवनभर के कुल में बने रहेंगे।';
+
+  @override
+  String get mala_reset_confirm => 'रीसेट करें';
+
+  @override
+  String get mala_action_coming_soon => 'जल्द आ रहा है';
+
+  @override
+  String mala_rounds_count(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count राउंड',
+      one: '1 राउंड',
+      zero: '0 राउंड',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String mala_counter_semantics(int bead, int total, String rounds) {
+    return 'गिनती $bead/$total, $rounds';
+  }
+
+  @override
+  String get home_timer => 'टाइमर';
+
+  @override
+  String get preset_timers => 'पूर्व-निर्धारित टाइमर';
+
+  @override
+  String get meditation_timer => 'ध्यान टाइमर';
+
+  @override
+  String get timer_min => 'मिनट';
+
+  @override
+  String get timer_start => 'शुरू करें';
+
+  @override
+  String get timer_finish => 'समाप्त करें';
+
+  @override
+  String get timer_discard_session => 'सत्र छोड़ें';
+
+  @override
+  String get home_hello_prefix => 'नमस्ते, ';
+
+  @override
+  String get home_greeting_fallback_name => 'मित्र';
+
+  @override
+  String home_share_prompt(String appName) {
+    return '$appName पसंद आ रहा है?';
+  }
+
+  @override
+  String get no_feature_content => 'कोई विशेष सामग्री उपलब्ध नहीं';
+
+  @override
+  String get nav_home => 'होम';
+
+  @override
+  String get nav_explore => 'एक्सप्लोर';
+
+  @override
+  String get nav_learn => 'सीखें';
+
+  @override
+  String get nav_practice => 'अभ्यास';
+
+  @override
+  String get nav_settings => 'सेटिंग्स';
+
+  @override
+  String get nav_connect => 'कनेक्ट';
+
+  @override
+  String get nav_me => 'मैं';
+
+  @override
+  String get text_search => 'खोजें';
+
+  @override
+  String get text_toc_versions => 'संस्करण';
+
+  @override
+  String get text_commentary => 'टीकाएँ';
+
+  @override
+  String get resources => 'संसाधन';
+
+  @override
+  String get no_translation => 'कोई अनुवाद नहीं मिला';
+
+  @override
+  String get text_close_commentary => 'टीका बंद करें';
+
+  @override
+  String get show_more => 'और दिखाएँ';
+
+  @override
+  String get show_less => 'कम दिखाएँ';
+
+  @override
+  String get more => 'और';
+
+  @override
+  String get less => 'कम';
+
+  @override
+  String get no_content => 'कोई सामग्री नहीं मिली';
+
+  @override
+  String get no_commentary => 'कोई टीका नहीं मिली';
+
+  @override
+  String commentary_not_available_for_language(String language) {
+    return '$language में टीका उपलब्ध नहीं';
+  }
+
+  @override
+  String get loading => 'लोड हो रहा है...';
+
+  @override
+  String get choose_image => 'इमेज चुनें';
+
+  @override
+  String get choose_bg_image => 'बैकग्राउंड इमेज चुनें';
+
+  @override
+  String get create_image => 'इमेज बनाएँ';
+
+  @override
+  String get save => 'सेव करें';
+
+  @override
+  String get done => 'हो गया';
+
+  @override
+  String get customise_message =>
+      'टेक्स्ट स्टाइल बदलने के लिए कस्टमाइज़ आइकन पर टैप करें';
+
+  @override
+  String get download_image => 'इमेज डाउनलोड करें';
+
+  @override
+  String get no_images_available => 'कोई इमेज उपलब्ध नहीं है';
+
+  @override
+  String get customise_text => 'टेक्स्ट कस्टमाइज़ करें';
+
+  @override
+  String get text_size => 'टेक्स्ट का आकार';
+
+  @override
+  String get text_color => 'टेक्स्ट का रंग';
+
+  @override
+  String get text_shadow => 'टेक्स्ट शैडो';
+
+  @override
+  String get apply => 'लागू करें';
+
+  @override
+  String get my_plans => 'मेरी योजनाएँ';
+
+  @override
+  String get browse_plans => 'योजनाएँ देखें';
+
+  @override
+  String get plan_info => 'योजना की जानकारी';
+
+  @override
+  String get start_reading => 'अभी अभ्यास करें';
+
+  @override
+  String get tibetan => 'तिब्बती';
+
+  @override
+  String get sanskrit => 'संस्कृत';
+
+  @override
+  String get english => 'अंग्रेज़ी';
+
+  @override
+  String get chinese => 'चीनी';
+
+  @override
+  String get classicalChinese => 'शास्त्रीय चीनी';
+
+  @override
+  String get pali => 'पालि';
+
+  @override
+  String get language => 'भाषा';
+
+  @override
+  String get plan_unenroll => 'नामांकन रद्द करें';
+
+  @override
+  String get unenroll_confirmation =>
+      'क्या आप वाकई इससे नामांकन रद्द करना चाहते हैं ';
+
+  @override
+  String get unenroll_message =>
+      'आपकी प्रगति स्थायी रूप से मिट जाएगी और पुनः प्राप्त नहीं की जा सकेगी';
+
+  @override
+  String get practice_plan =>
+      'एक दैनिक अभ्यास बनाएँ। जानें कि आपके लिए क्या सही है।';
+
+  @override
+  String get search_plans => 'योजनाएँ खोजें...';
+
+  @override
+  String get search_for_plans => 'योजनाएँ खोजें';
+
+  @override
+  String get no_plans_found => 'कोई योजना नहीं मिली';
+
+  @override
+  String get no_days_available => 'कोई दिन नहीं मिला';
+
+  @override
+  String get recitations_title => 'पाठ';
+
+  @override
+  String get recitations_my_recitations => 'मेरे पाठ';
+
+  @override
+  String get browse_recitations => 'पाठ देखें';
+
+  @override
+  String get recitations_search => 'पाठ खोजें...';
+
+  @override
+  String get recitations_search_for => 'पाठ खोजें';
+
+  @override
+  String get recitations_no_found => 'कोई पाठ नहीं मिला';
+
+  @override
+  String get recitations_no_content => 'कोई पाठ उपलब्ध नहीं';
+
+  @override
+  String get recitations_no_saved => 'कोई सेव किया हुआ पाठ नहीं है';
+
+  @override
+  String get recitations_login_prompt =>
+      'अपने सेव किए गए पाठ देखने के लिए साइन इन करें';
+
+  @override
+  String get notification_settings => 'नोटिफिकेशन सेटिंग्स';
+
+  @override
+  String get notification_allow_title => 'नोटिफिकेशन की अनुमति दें';
+
+  @override
+  String get notification_allow_subtitle_enabled =>
+      'इस app के लिए नोटिफिकेशन चालू हैं';
+
+  @override
+  String get notification_allow_subtitle_disabled =>
+      'अनुमति आवश्यक है। अनुमति देने के लिए सेटिंग्स में टैप करें।';
+
+  @override
+  String get notification_allow_subtitle_paused =>
+      'रिमाइंडर रुके हुए हैं। फिर से शुरू करने के लिए टैप करें।';
+
+  @override
+  String get notification_routine_title => 'रूटीन रिमाइंडर';
+
+  @override
+  String get notification_routine_subtitle_enabled =>
+      'आपके अभ्यास ब्लॉक के लिए दैनिक रिमाइंडर';
+
+  @override
+  String get notification_routine_subtitle_disabled =>
+      'रूटीन रिमाइंडर रुके हुए हैं। फिर से शुरू करने के लिए टैप करें।';
+
+  @override
+  String get notification_battery_title => 'बैकग्राउंड रिमाइंडर';
+
+  @override
+  String get notification_battery_subtitle_enabled =>
+      'आपके रिमाइंडर समय पर भेजे जाते हैं, भले ही app बंद हो।';
+
+  @override
+  String get notification_battery_subtitle_disabled =>
+      'कुछ Android फ़ोन बैटरी बचाने के लिए बैकग्राउंड apps रोक देते हैं, जिससे आपके रिमाइंडर देर से आ सकते हैं या छूट सकते हैं। इन्हें चालू रखने के लिए टैप करें।';
+
+  @override
+  String get notification_recitation_title => 'पाठ रिमाइंडर';
+
+  @override
+  String get notification_recitation_subtitle_enabled =>
+      'आपके पाठ के लिए दैनिक रिमाइंडर';
+
+  @override
+  String get notification_recitation_subtitle_disabled =>
+      'पाठ रिमाइंडर रुके हुए हैं। फिर से शुरू करने के लिए टैप करें।';
+
+  @override
+  String get notification_battery_info_title =>
+      'बैकग्राउंड रिमाइंडर के बारे में';
+
+  @override
+  String get notification_battery_info_body =>
+      'कुछ Android फ़ोन बैटरी बचाने के लिए बैकग्राउंड apps रोक देते हैं, जिससे आपके निर्धारित रिमाइंडर देर से आ सकते हैं या रद्द हो सकते हैं। app को छूट देने से आपके रिमाइंडर भरोसेमंद रूप से समय पर रहते हैं।';
+
+  @override
+  String get notification_snack_permission_denied =>
+      'नोटिफिकेशन ब्लॉक हैं। उन्हें सेटिंग्स में चालू करें';
+
+  @override
+  String get notification_snack_disable_alarms_in_settings =>
+      'सेटिंग्स में अलार्म और रिमाइंडर बंद करें।';
+
+  @override
+  String get notification_snack_battery_reenable =>
+      'सेटिंग्स → बैटरी में बैटरी ऑप्टिमाइज़ेशन पुनः चालू करें।';
+
+  @override
+  String get profile_default_bio => 'WeBuddhist में आपका स्वागत है';
+
+  @override
+  String get profile_guest_title => 'अतिथि उपयोगकर्ता';
+
+  @override
+  String get profile_guest_subtitle => 'आप अतिथि के रूप में ब्राउज़ कर रहे हैं';
+
+  @override
+  String get profile_guest_benefits_header => 'अनलॉक करने के लिए साइन इन करें:';
+
+  @override
+  String get profile_guest_benefit_save_progress => 'अपनी प्रगति सेव करें';
+
+  @override
+  String get profile_guest_benefit_personalized => 'वैयक्तिकृत सामग्री';
+
+  @override
+  String get profile_guest_benefit_notifications => 'कस्टम नोटिफिकेशन';
+
+  @override
+  String get auth_drawer_title => 'जारी रखने के लिए लॉग इन करें';
+
+  @override
+  String get auth_drawer_subtitle =>
+      'किसी भी डिवाइस पर, जहाँ भी आप जाएँ, अपना अभ्यास जारी रखें।';
+
+  @override
+  String get routine_delete_block_message =>
+      'टाइम ब्लॉक और उसकी सभी सामग्री हटा दी जाएगी';
+
+  @override
+  String get something_went_wrong => 'कुछ गलत हो गया। कृपया फिर से प्रयास करें';
+
+  @override
+  String get onboarding_quote_citation => '— Dhammapada 122';
+
+  @override
+  String get onboarding_traditions_question =>
+      'आप किन परंपराओं\nका पालन करते हैं?';
+
+  @override
+  String get onboarding_tradition_chat_title => 'आपकी परंपरा:';
+
+  @override
+  String get onboarding_tradition_chat_subtitle =>
+      'एक या अधिक चुनें — हम इन्हें आपके अनुभव को वैयक्तिकृत करने के लिए उपयोग करेंगे।';
+
+  @override
+  String get onboarding_tradition_type_hint => 'या अपनी परंपरा लिखें...';
+
+  @override
+  String get onboarding_skip_for_now => 'अभी के लिए छोड़ें';
+
+  @override
+  String get onboarding_add_another_tradition => 'एक और परंपरा जोड़ें';
+
+  @override
+  String get onboarding_select_all => 'सभी चुनें';
+
+  @override
+  String get onboarding_event_enrollment_error =>
+      'आपका नामांकन नहीं हो सका। अपना कनेक्शन जाँचें और फिर से प्रयास करें';
+
+  @override
+  String get onboarding_event_question => 'क्या आप किसी इवेंट से जुड़े हैं?';
+
+  @override
+  String get onboarding_event_optional => 'वैकल्पिक · नामांकन के लिए टैप करें';
+
+  @override
+  String onboarding_event_duration(String description, int days) {
+    return '$description · $days दिन';
+  }
+
+  @override
+  String get onboarding_event_reminder_note =>
+      'हम आपको रोज़ सुबह 7:30 बजे एक रिमाइंडर भेजेंगे। (कभी भी बदलें।)';
+
+  @override
+  String get tradition_theravada => 'थेरवाद';
+
+  @override
+  String get tradition_zen => 'ज़ेन';
+
+  @override
+  String get tradition_tibetan_buddhism => 'तिब्बती बौद्ध धर्म';
+
+  @override
+  String get tradition_pure_land => 'शुद्ध भूमि';
+
+  @override
+  String get tradition_ambedkar_buddhism => 'आंबेडकर बौद्ध धर्म';
+
+  @override
+  String get plan_go_to_practice => 'अभ्यास पर जाएँ';
+
+  @override
+  String get plan_starts_soon_title => 'जल्द शुरू होगा';
+
+  @override
+  String get plan_joining_late_title => 'प्रारंभ तिथि के बाद शामिल हो रहे हैं';
+
+  @override
+  String get got_it => 'समझ गया';
+
+  @override
+  String get plan_no_tasks_error => 'कार्य लोड नहीं हो सके';
+
+  @override
+  String get plan_day_tasks_load_error => 'कार्य लोड नहीं हो सके';
+
+  @override
+  String get plans_empty_title => 'और भी आ रहा है';
+
+  @override
+  String get plans_empty_subtitle =>
+      'हमारी लाइब्रेरी बढ़ रही है। जल्द फिर देखें।';
+
+  @override
+  String get find_plans_load_error =>
+      'लोड नहीं हो सका।\nअपना कनेक्शन जाँचें और फिर से प्रयास करें';
+
+  @override
+  String get connect_coming_soon_subtitle =>
+      'मार्ग पर आपका साथ देने के लिए शिक्षक, समुदाय, चुनौतियाँ और इवेंट';
+
+  @override
+  String get connect_subtitle => 'अपने समूह खोजें और साथ मिलकर अभ्यास करें';
+
+  @override
+  String get discover_groups => 'समूह खोजें';
+
+  @override
+  String get my_groups => 'मेरे समूह';
+
+  @override
+  String get see_all => 'सभी देखें';
+
+  @override
+  String get connect_groups_load_error =>
+      'समूह लोड नहीं हो सके।\nअपना कनेक्शन जाँचें और फिर से प्रयास करें';
+
+  @override
+  String get connect_groups_empty_title => 'अभी कोई समूह नहीं';
+
+  @override
+  String get connect_groups_empty_subtitle =>
+      'बधाई हो, आप हमारे सभी समूहों में शामिल हो चुके हैं! जल्द फिर देखें। नए समूह जल्द आ रहे हैं';
+
+  @override
+  String get search_groups => 'समूह खोजें';
+
+  @override
+  String get search_for_groups => 'समूहों की खोज करें';
+
+  @override
+  String get no_groups_found => 'कोई मिलता-जुलता समूह नहीं मिला';
+
+  @override
+  String get explore_coming_soon_subtitle =>
+      'अभ्यास, शिक्षाएँ और सामुदायिक इवेंट खोजने के लिए एक चुनिंदा स्थान';
+
+  @override
+  String get learn_coming_soon_subtitle =>
+      'आपकी निजी अध्ययन योजनाएँ, रोज़मर्रा की ज़िंदगी में ढलने के लिए बनाई गईं';
+
+  @override
+  String get creator_featured_plan => 'विशेष योजनाएँ';
+
+  @override
+  String get audio_init_error =>
+      'ऑडियो प्लेयर शुरू नहीं हो सका। अपना कनेक्शन जाँचें और फिर से प्रयास करें';
+
+  @override
+  String get meditation_audio_load_error =>
+      'लोड नहीं हो सका। अपना कनेक्शन जाँचें और फिर से प्रयास करें';
+
+  @override
+  String get prayer_audio_load_error =>
+      'ऑडियो लोड नहीं हो सका। अपना कनेक्शन जाँचें और फिर से प्रयास करें';
+
+  @override
+  String get home_no_series_found => 'कोई सीरीज़ नहीं मिली';
+
+  @override
+  String get home_no_tags_found => 'कोई टैग नहीं मिला';
+
+  @override
+  String get home_celebrated_by => 'इनके द्वारा मनाया जाता है: ';
+
+  @override
+  String get reader_settings_tooltip => 'रीडर सेटिंग्स';
+
+  @override
+  String get reader_font_size_tooltip => 'फ़ॉन्ट आकार';
+
+  @override
+  String reader_version_title(String language) {
+    return 'संस्करण · $language';
+  }
+
+  @override
+  String reader_script_title(String language) {
+    return 'लिपि · $language';
+  }
+
+  @override
+  String get reader_versions_load_error => 'संस्करण लोड नहीं हो सके';
+
+  @override
+  String get reader_scripts_load_error => 'लिपियाँ लोड नहीं हो सकीं';
+
+  @override
+  String get reader_languages_load_error => 'भाषाएँ लोड नहीं हो सकीं';
+
+  @override
+  String reader_no_versions_in_language(String language) {
+    return '$language में कोई संस्करण उपलब्ध नहीं';
+  }
+
+  @override
+  String reader_no_scripts_in_language(String language) {
+    return '$language में कोई लिपि उपलब्ध नहीं';
+  }
+
+  @override
+  String get reader_no_languages => 'इस पाठ के लिए कोई भाषा उपलब्ध नहीं';
+
+  @override
+  String get reader_license => 'लाइसेंस';
+
+  @override
+  String get reader_version_details_load_error =>
+      'संस्करण विवरण लोड नहीं हो सके';
+
+  @override
+  String get reader_no_version_info =>
+      'इस संस्करण के लिए कोई अतिरिक्त जानकारी उपलब्ध नहीं है';
+
+  @override
+  String get recitation_unavailable =>
+      'पाठ सामग्री इस समय उपलब्ध नहीं है।\nबाद में फिर प्रयास करें या सहायता से संपर्क करें';
+
+  @override
+  String get recitation_sign_in_required =>
+      'इस पाठ तक पहुँचने के लिए साइन इन करें';
+
+  @override
+  String get my_recitations_load_error =>
+      'लोड नहीं हो सका।\nअपना कनेक्शन जाँचें और फिर से प्रयास करें';
+
+  @override
+  String get recitations_load_error =>
+      'पाठ लोड नहीं हो सके।\nबाद में फिर प्रयास करें';
+
+  @override
+  String get text_search_hint => 'खोजने के लिए टाइप करें';
+
+  @override
+  String get text_search_press_button => 'खोजने के लिए सर्च बटन दबाएँ';
+
+  @override
+  String get text_search_error => 'खोज नहीं हो सकी।\nकृपया फिर से प्रयास करें';
+
+  @override
+  String get unknown_error => 'अज्ञात त्रुटि';
+
+  @override
+  String image_share_error(String error) {
+    return 'शेयर नहीं हो सका: $error';
+  }
+
+  @override
+  String get create_image_capture_error =>
+      'इमेज नहीं बन सकी। कृपया फिर से प्रयास करें';
+
+  @override
+  String get create_image_share_error =>
+      'शेयर नहीं हो सका। कृपया फिर से प्रयास करें';
+
+  @override
+  String get create_image_save_success => 'इमेज सेव हो गई';
+
+  @override
+  String get create_image_save_error =>
+      'इमेज सेव नहीं हो सकी।  कृपया जांचें कि ऐप को फोटो एक्सेस मिला है या फिर दोबारा कोशिश करें';
+
+  @override
+  String get create_image_download_error =>
+      'आपकी इमेज डाउनलोड नहीं हो सकी। कृपया फिर से प्रयास करें';
+
+  @override
+  String get create_image_customize_tooltip => 'कस्टमाइज़ करें';
+
+  @override
+  String get create_image_text_too_long =>
+      'फ़ॉन्ट आकार बढ़ाने के लिए टेक्स्ट बहुत लंबा है';
+
+  @override
+  String version_search_no_results(String query) {
+    return '\"$query\" के लिए कोई संस्करण नहीं मिला';
+  }
+
+  @override
+  String get my_plans_sign_in_prompt =>
+      'अपनी योजनाएँ देखने के लिए साइन इन करें';
+
+  @override
+  String plan_starts_soon_message(String date) {
+    return '$date को शुरू होगा। आप अभी सामग्री देख सकते हैं';
+  }
+
+  @override
+  String plan_joining_late_message(String date) {
+    return '$date को शुरू हुआ। आप पिछले दिनों के कार्य भी पूरे कर सकते हैं';
+  }
+
+  @override
+  String get select_language => 'भाषा चुनें';
+
+  @override
+  String get logout_confirmation => 'क्या आप वाकई लॉग आउट करना चाहते हैं?';
+
+  @override
+  String get cancel => 'रद्द करें';
+
+  @override
+  String get copy => 'कॉपी करें';
+
+  @override
+  String get copied => 'कॉपी हो गया';
+
+  @override
+  String get share => 'शेयर करें';
+
+  @override
+  String get bookmark => 'बुकमार्क';
+
+  @override
+  String get image => 'इमेज';
+
+  @override
+  String get feedback => 'फ़ीडबैक';
+
+  @override
+  String get author => 'लेखक';
+
+  @override
+  String get plans_created => 'योजना बनाई गई';
+
+  @override
+  String get ai_chat_history => 'चैट हिस्ट्री';
+
+  @override
+  String get ai_buddhist_assistant =>
+      'अपनी दैनिक लय बनाएँ। समय तय करें, और हम आपको अभ्यास के लिए याद दिलाएँगे। ';
+
+  @override
+  String get ai_new_chat => 'नई चैट';
+
+  @override
+  String get ai_retry => 'फिर से प्रयास करें';
+
+  @override
+  String get ai_dismiss => 'खारिज करें';
+
+  @override
+  String get ai_sign_in_prompt =>
+      'बौद्ध AI असिस्टेंट का उपयोग करने के लिए साइन इन करें';
+
+  @override
+  String get ai_explore_wisdom => 'बौद्ध ज्ञान को जानें';
+
+  @override
+  String get ai_ask_question => 'कोई प्रश्न पूछें...';
+
+  @override
+  String get ai_search_chats => 'चैट खोजें';
+
+  @override
+  String get ai_chats => 'चैट';
+
+  @override
+  String get ai_chat_deleted => 'चैट हटाई गई';
+
+  @override
+  String get ai_no_conversations => 'अभी तक कोई बातचीत नहीं';
+
+  @override
+  String get ai_start_new_chat => 'शुरू करने के लिए एक नई चैट शुरू करें।';
+
+  @override
+  String get ai_delete_chat => 'चैट हटाएँ';
+
+  @override
+  String get ai_delete_confirmation =>
+      'क्या आप वाकई इस चैट को हटाना चाहते हैं?';
+
+  @override
+  String get ai_delete_warning => 'यह क्रिया पूर्ववत नहीं की जा सकती।';
+
+  @override
+  String get ai_confirm => 'पुष्टि करें';
+
+  @override
+  String get ai_delete => 'हटाएँ';
+
+  @override
+  String ai_greeting(String name) {
+    return 'नमस्ते $name';
+  }
+
+  @override
+  String get ai_text_not_found => 'पाठ नहीं मिला।';
+
+  @override
+  String ai_text_not_found_message(String title) {
+    return 'हमारी लाइब्रेरी में अभी \"$title\" नहीं है।\n\nकोई दूसरा शीर्षक आज़माएँ, या किसी और तरह पूछें';
+  }
+
+  @override
+  String get ai_sources => 'स्रोत';
+
+  @override
+  String ai_sources_count(int count) {
+    return '$count स्रोत';
+  }
+
+  @override
+  String search_no_results(String query) {
+    return '\"$query\" के लिए कोई परिणाम नहीं मिला';
+  }
+
+  @override
+  String get search_show_more => 'और दिखाएँ';
+
+  @override
+  String get search_contents => 'सामग्री';
+
+  @override
+  String get search_titles => 'शीर्षक';
+
+  @override
+  String get search_all => 'सभी';
+
+  @override
+  String get search_author => 'लेखक';
+
+  @override
+  String get search_tab_ai_mode => 'AI मोड';
+
+  @override
+  String search_error(String message) {
+    return 'त्रुटि: $message';
+  }
+
+  @override
+  String get search_retrying => 'फिर से प्रयास हो रहा है...';
+
+  @override
+  String search_no_titles_found(String query) {
+    return '\"$query\" के लिए कोई शीर्षक नहीं मिला';
+  }
+
+  @override
+  String search_no_contents_found(String query) {
+    return '\"$query\" के लिए कोई सामग्री नहीं मिली';
+  }
+
+  @override
+  String search_no_authors_found(String query) {
+    return '\"$query\" के लिए कोई लेखक नहीं मिला';
+  }
+
+  @override
+  String get search_buddhist_texts => 'बौद्ध ग्रंथ खोजें...';
+
+  @override
+  String get common_ok => 'ठीक है';
+
+  @override
+  String get comingSoonHeadline => 'जल्द आ रहा है';
+
+  @override
+  String get routine_title => 'मेरे अभ्यास';
+
+  @override
+  String get bookmarks => 'बुकमार्क';
+
+  @override
+  String get routine_empty_title => 'अभ्यास';
+
+  @override
+  String get routine_edit => 'एडिट  करें';
+
+  @override
+  String get routine_empty_description =>
+      'अपनी दिनचर्या में जोड़ने के लिए और शिक्षाएँ व अभ्यास खोजें';
+
+  @override
+  String get routine_build => 'अपनी दिनचर्या बनाएँ';
+
+  @override
+  String get routine_add_session => 'सत्र में जोड़ें';
+
+  @override
+  String get routine_edit_title => 'अपनी दिनचर्या एडिट करें';
+
+  @override
+  String get routine_delete_block => 'ब्लॉक हटाएँ';
+
+  @override
+  String get routine_delete_time_block => 'टाइम ब्लॉक हटाएँ';
+
+  @override
+  String get routine_add_plan => 'योजना जोड़ें';
+
+  @override
+  String get routine_add_recitation => 'पाठ जोड़ें';
+
+  @override
+  String get routine_add_plan_to_routine => 'दिनचर्या में जोड़ें';
+
+  @override
+  String get routine_load_error =>
+      'लोड नहीं हो सका। अपना कनेक्शन जाँचें और फिर से प्रयास करें';
+
+  @override
+  String get routine_empty_block_title_singular => 'खाली टाइम ब्लॉक';
+
+  @override
+  String routine_empty_block_title_plural(int count) {
+    return 'खाली टाइम ब्लॉक ($count)';
+  }
+
+  @override
+  String get routine_empty_block_message_singular =>
+      'यह टाइम ब्लॉक खाली है। कोई आइटम जोड़ें, या इसे अपनी दिनचर्या से हटाएँ?';
+
+  @override
+  String routine_empty_block_message_plural(int count) {
+    return '$count टाइम ब्लॉक खाली हैं। आइटम जोड़ें, या उन्हें अपनी दिनचर्या से हटाएँ?';
+  }
+
+  @override
+  String get routine_empty_block_add_items => 'आइटम जोड़ें';
+
+  @override
+  String get routine_empty_block_delete_singular => 'ब्लॉक हटाएँ';
+
+  @override
+  String get routine_empty_block_delete_plural => 'ब्लॉक हटाएँ';
+
+  @override
+  String get routine_notification_title => 'अभ्यास को आदत बनाएँ';
+
+  @override
+  String get routine_notification_description =>
+      'नोटिफिकेशन की अनुमति दें ताकि हम आपको अभ्यास के लिए याद दिला सकें';
+
+  @override
+  String get routine_notification_enable => 'नोटिफिकेशन चालू करें';
+
+  @override
+  String get routine_notification_skip => 'छोड़ें';
+
+  @override
+  String routine_time_adjusted(String time, int gap) {
+    return '$time पर समायोजित ($gap-मिनट का न्यूनतम अंतर)';
+  }
+
+  @override
+  String get routine_add_block_label => 'टाइम ब्लॉक';
+
+  @override
+  String get continueWithGoogle => 'Google के साथ जारी रखें';
+
+  @override
+  String get continueWithApple => 'Apple के साथ जारी रखें';
+
+  @override
+  String get continueAsGuest => 'अतिथि के रूप में जारी रखें';
+
+  @override
+  String get exploreAsGuest => 'अतिथि के रूप में एक्सप्लोर करें';
+
+  @override
+  String get signIn => 'साइन इन';
+
+  @override
+  String get profileError => 'प्रोफ़ाइल लोड करने में त्रुटि';
+
+  @override
+  String get profileTitle => 'प्रोफ़ाइल';
+
+  @override
+  String get notLoggedIn => 'लॉग इन नहीं हैं';
+
+  @override
+  String get retry => 'फिर से प्रयास करें';
+
+  @override
+  String get back => 'वापस';
+
+  @override
+  String get delete => 'हटाएँ';
+
+  @override
+  String get close => 'बंद करें';
+
+  @override
+  String get tryAgain => 'फिर से प्रयास करें';
+
+  @override
+  String get pleaseTryAgain => 'कृपया फिर से प्रयास करें';
+
+  @override
+  String get error => 'त्रुटि';
+
+  @override
+  String get anonymous => 'अनाम';
+
+  @override
+  String get noContentAvailable => 'कोई सामग्री उपलब्ध नहीं';
+
+  @override
+  String get unableToLoad =>
+      'लोड नहीं हो सका। अपना कनेक्शन जाँचें और फिर से प्रयास करें';
+
+  @override
+  String get somethingWrong =>
+      'कुछ गलत हो गया। अपना कनेक्शन जाँचें और फिर से प्रयास करें';
+
+  @override
+  String get source => 'स्रोत';
+
+  @override
+  String get searchResults => 'खोज परिणाम';
+
+  @override
+  String get noTasks => 'कोई कार्य उपलब्ध नहीं';
+
+  @override
+  String get taskNotFound => 'कार्य नहीं मिला';
+
+  @override
+  String get updateTaskError => 'कार्य की स्थिति अपडेट नहीं हो सकी';
+
+  @override
+  String get enrollError =>
+      'आपका नामांकन नहीं हो सका। अपना कनेक्शन जाँचें और फिर से प्रयास करें';
+
+  @override
+  String unenrollSuccess(String planTitle) {
+    return 'आपने $planTitle से नामांकन रद्द कर दिया है';
+  }
+
+  @override
+  String get unenrollError =>
+      'आपका नामांकन रद्द नहीं हो सका। अपना कनेक्शन जाँचें और फिर से प्रयास करें';
+
+  @override
+  String get unenrollGenericError =>
+      'कुछ गलत हो गया। अपना कनेक्शन जाँचें और फिर से प्रयास करें';
+
+  @override
+  String get notFound =>
+      'यह अब उपलब्ध नहीं है। अपडेट करने के लिए अपनी दिनचर्या एडिट करें।';
+
+  @override
+  String get noTimeSlot =>
+      'कोई टाइम स्लॉट उपलब्ध नहीं। पहले कोई ब्लॉक हटाकर देखें';
+
+  @override
+  String maxBlocks(int max) {
+    return 'अधिकतम $max टाइम ब्लॉक की सीमा पूरी हुई';
+  }
+
+  @override
+  String get duplicateItem => 'यह आइटम पहले से ही ब्लॉक में है';
+
+  @override
+  String get removeItem => 'आइटम हटाएँ?';
+
+  @override
+  String removeConfirmation(String itemName) {
+    return '\"$itemName\" इस ब्लॉक से हटा दिया जाएगा';
+  }
+
+  @override
+  String shareError(String error) {
+    return 'शेयर नहीं हो सका। कृपया फिर से प्रयास करें';
+  }
+
+  @override
+  String get updateOrderError =>
+      'क्रम अपडेट नहीं हो सका। कृपया फिर से प्रयास करें';
+
+  @override
+  String get loadFailed =>
+      'लोड नहीं हो सका। अपना कनेक्शन जाँचें और फिर से प्रयास करें';
+
+  @override
+  String get captureError =>
+      'QR कोड कैप्चर नहीं हो सका। कृपया फिर से प्रयास करें';
+
+  @override
+  String get qrShareError => 'QR कोड शेयर नहीं हो सका। बाद में फिर प्रयास करें';
+
+  @override
+  String errorDetail(String error) {
+    return 'त्रुटि: $error';
+  }
+
+  @override
+  String missedDaysCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count छूटे हुए दिन',
+      one: '1 छूटा हुआ दिन',
+      zero: '0 छूटे हुए दिन',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get plan_status_on_track => 'सही राह पर';
+
+  @override
+  String get start_now => 'अभी शुरू करें';
+
+  @override
+  String get plan_enroll => 'नामांकन करें';
+
+  @override
+  String get show_second_version => 'दूसरा संस्करण दिखाएँ';
+
+  @override
+  String get enable_add_msg => 'मुख्य पाठ के साथ अनुवाद या उच्चारण जोड़ें';
+
+  @override
+  String get main_version => 'मुख्य संस्करण';
+
+  @override
+  String get second_version => 'दूसरा संस्करण';
+
+  @override
+  String get second_version_msg =>
+      'दूसरा संस्करण मुख्य पाठ के हर श्लोक के नीचे दिखाई देगा';
+
+  @override
+  String get version => 'संस्करण';
+
+  @override
+  String get parallel_version => 'समानांतर संस्करण';
+
+  @override
+  String get version_not_available => 'उपलब्ध नहीं है';
+
+  @override
+  String get read_full_text => 'पूरा पाठ पढ़ें';
+
+  @override
+  String get reader_source_label => 'स्रोत';
+
+  @override
+  String get reader_license_label => 'लाइसेंस';
+
+  @override
+  String series_stats(int planCount, int totalDays) {
+    return '$planCount योजनाएँ · $totalDays दिन';
+  }
+
+  @override
+  String get force_update_title => 'अपडेट आवश्यक';
+
+  @override
+  String get force_update_message =>
+      'app का एक नया संस्करण उपलब्ध है। जारी रखने के लिए कृपया अपडेट करें';
+
+  @override
+  String get force_update_button => 'अभी अपडेट करें';
+
+  @override
+  String get settings_section_personalisation => 'वैयक्तिकरण';
+
+  @override
+  String get settings_section_more => 'अधिक';
+
+  @override
+  String get settings_section_account => 'अकाउंट';
+
+  @override
+  String get settings_edit_profile => ' प्रोफ़ाइल एडिट करें';
+
+  @override
+  String get settings_theme => 'थीम';
+
+  @override
+  String get settings_notification_row => 'नोटिफिकेशन';
+
+  @override
+  String get settings_feedback_row => 'फ़ीडबैक';
+
+  @override
+  String get edit_profile_title => ' प्रोफ़ाइल एडिट करें';
+
+  @override
+  String get edit_profile_save => 'सेव करें';
+
+  @override
+  String get edit_profile_first_name => 'पहला नाम';
+
+  @override
+  String get edit_profile_last_name => 'अंतिम नाम';
+
+  @override
+  String get edit_profile_bio => 'बायो';
+
+  @override
+  String get edit_profile_bio_hint => 'अपने बारे में थोड़ा बताएँ';
+
+  @override
+  String get edit_profile_delete_account => 'अकाउंट हटाएँ';
+
+  @override
+  String get edit_profile_photo_not_uploaded => 'फ़ोटो अपलोड नहीं हुई';
+
+  @override
+  String get edit_profile_photo_too_large =>
+      'इमेज बहुत बड़ी है। कृपया 1 MB से कम की फ़ोटो चुनें और फिर से प्रयास करें';
+
+  @override
+  String get edit_profile_photo_upload_failed =>
+      'आपकी फ़ोटो अपलोड नहीं हो सकी। कृपया फिर से प्रयास करें';
+
+  @override
+  String get edit_profile_choose_from_library => 'लाइब्रेरी से चुनें';
+
+  @override
+  String get edit_profile_take_photo => 'फ़ोटो लें';
+
+  @override
+  String get edit_profile_offline =>
+      'आप ऑफ़लाइन हैं। इंटरनेट से कनेक्ट करें और फिर से प्रयास करें';
+
+  @override
+  String get edit_profile_save_failed =>
+      'आपके बदलाव सेव नहीं हो सके। कृपया फिर से प्रयास करें';
+
+  @override
+  String get username_label => 'यूज़रनेम';
+
+  @override
+  String get username_taken => 'यह नाम पहले से किसी ने ले लिया है';
+
+  @override
+  String get username_available_label => 'उपलब्ध: ';
+
+  @override
+  String get username_check_error =>
+      'यूज़रनेम जाँचा नहीं जा सका। फिर से प्रयास करें';
+
+  @override
+  String get username_invalid_format => 'अमान्य यूज़रनेम प्रारूप';
+
+  @override
+  String get username_min_length => 'यूज़रनेम कम से कम 3 अक्षरों का होना चाहिए';
+
+  @override
+  String get username_max_length =>
+      'यूज़रनेम 30 अक्षरों या उससे कम का होना चाहिए';
+
+  @override
+  String get username_no_spaces => 'यूज़रनेम में स्पेस नहीं हो सकता';
+
+  @override
+  String get username_invalid_chars =>
+      'केवल अक्षर, संख्याएँ, _ . - की अनुमति है';
+
+  @override
+  String get username_must_start_alphanumeric =>
+      'यूज़रनेम अक्षर या संख्या से शुरू होना चाहिए';
+
+  @override
+  String get username_must_end_alphanumeric =>
+      'यूज़रनेम अक्षर या संख्या पर समाप्त होना चाहिए';
+
+  @override
+  String get person_name_min_length => 'कम से कम 1 अक्षर होना चाहिए';
+
+  @override
+  String get person_name_max_length => '50 अक्षरों या उससे कम का होना चाहिए';
+
+  @override
+  String get person_name_invalid_chars =>
+      'केवल अक्षर, स्पेस, हाइफ़न और अपॉस्ट्रॉफ़ी की अनुमति है';
+
+  @override
+  String get about_title => 'परिचय';
+
+  @override
+  String get about_connect_with_us => 'हमसे जुड़ें';
+
+  @override
+  String get about_description =>
+      'हम बौद्धों को कम नुकसान करने, अधिक भला करने और अपने मन को बेहतर ढंग से जानने में मदद करते हैं — रोज़ सीखने, अभ्यास करने और जुड़ने के माध्यम से, ताकि सभी प्राणी दुख से मुक्त हों और स्थायी सुख पाएँ।';
+
+  @override
+  String get about_social_website => 'वेबसाइट';
+
+  @override
+  String get me_guest_headline => 'पूरा अनुभव पाएँ';
+
+  @override
+  String get me_guest_subtitle =>
+      'अपनी प्रगति सेव करने के लिए मुफ्त अकाउंट बनाएँ।';
+
+  @override
+  String get me_my_stats => 'मेरे आँकड़े';
+
+  @override
+  String me_day_streak(int count) {
+    return '$count दिन की स्ट्रीक';
+  }
+
+  @override
+  String me_best_streak(int count) {
+    return 'सबसे लंबी स्ट्रीक: $count दिन';
+  }
+
+  @override
+  String get accumulations => 'संचय';
+
+  @override
+  String get accumulations_search => 'संचय खोजें...';
+
+  @override
+  String get accumulations_search_for => 'संचय खोजें';
+
+  @override
+  String get accumulations_no_found => 'कोई संचय नहीं मिला';
+
+  @override
+  String get me_accumulation => 'कुल संचय';
+
+  @override
+  String get me_counts => 'बार';
+
+  @override
+  String get me_minutes => 'मिनट';
+
+  @override
+  String get me_hours => 'घंटे';
+
+  @override
+  String get me_total_meditation_time => 'कुल ध्यान समय';
+
+  @override
+  String get me_days_plan_practiced_suffix => 'कुल योजना दिवस पूरे किए';
+
+  @override
+  String me_streak_share_message(int count, String appName) {
+    return 'मैं $appName पर $count दिन की स्ट्रीक पर हूँ!';
+  }
+
+  @override
+  String get me_streak_share_quote => 'WeBuddhist पर मेरी मौजूदा स्ट्रीक!';
+
+  @override
+  String me_streak_days_count(int count) {
+    return '$count दिन';
+  }
+
+  @override
+  String get share_this_streak => 'मेरी स्ट्रीक शेयर करें';
+
+  @override
+  String get me_streak_share_error =>
+      'स्ट्रीक शेयर नहीं हो सकी। कृपया फिर से प्रयास करें';
+
+  @override
+  String get delete_account_title => 'अकाउंट हटाएँ';
+
+  @override
+  String get delete_account_description =>
+      'यदि आप अपना अकाउंट हटाते हैं, तो WeBuddhist में आपकी सारी जानकारी, हिस्ट्री और वैयक्तिकृत सेटिंग्स स्थायी रूप से मिटा दी जाएँगी। कृपया ध्यान दें कि यह क्रिया अपरिवर्तनीय है। आगे बढ़ने के लिए, नीचे दिए गए बटन पर टैप करें।';
+
+  @override
+  String get delete_account_button => 'अकाउंट हटाएँ';
+
+  @override
+  String get delete_account_confirm_message =>
+      'क्या आप वाकई अपना WeBuddhist अकाउंट हटाना चाहते हैं?';
+
+  @override
+  String get legal_title => 'कानूनी';
+
+  @override
+  String get legal_terms_of_service => 'सेवा की शर्तें';
+
+  @override
+  String get legal_privacy_policy => 'प्राइवेसी पॉलिसी';
+
+  @override
+  String get follow => 'फ़ॉलो करें';
+
+  @override
+  String get following => 'फ़ॉलो कर रहे हैं';
+
+  @override
+  String get calendar_title => 'कैलेंडर';
+
+  @override
+  String get calendar_upcoming_events => 'आगामी इवेंट';
+
+  @override
+  String get calendar_day_short => 'दिन';
+
+  @override
+  String get calendar_day_label => 'दिन';
+
+  @override
+  String calendar_day_month(int day, int month) {
+    return 'दिन $day · माह $month';
+  }
+
+  @override
+  String calendar_lunar_month(String ordinal) {
+    return '$ordinal चंद्र माह';
+  }
+
+  @override
+  String get moon_phase_new_moon => 'अमावस्या';
+
+  @override
+  String get moon_phase_waxing_crescent => 'बढ़ता अर्धचंद्र';
+
+  @override
+  String get moon_phase_first_quarter => 'प्रथम चतुर्थांश';
+
+  @override
+  String get moon_phase_waxing_gibbous => 'बढ़ता उपपूर्ण चंद्र';
+
+  @override
+  String get moon_phase_full_moon => 'पूर्णिमा';
+
+  @override
+  String get moon_phase_waning_gibbous => 'घटता उपपूर्ण चंद्र';
+
+  @override
+  String get moon_phase_last_quarter => 'अंतिम चतुर्थांश';
+
+  @override
+  String get moon_phase_waning_crescent => 'घटता अर्धचंद्र';
+
+  @override
+  String get join => 'शामिल हों';
+
+  @override
+  String get joined => 'शामिल हो गए';
+
+  @override
+  String get group_member => 'सदस्य';
+
+  @override
+  String get group_members => 'सदस्य';
+
+  @override
+  String get group_follower => 'अनुयायी';
+
+  @override
+  String get group_followers => 'अनुयायी';
+
+  @override
+  String get group_links_title => 'लिंक';
+
+  @override
+  String group_and_more_links(int count) {
+    return 'और $count और लिंक';
+  }
+
+  @override
+  String get share_this_quote => 'यह उद्धरण शेयर करें';
+
+  @override
+  String get shared_from => 'यहाँ से शेयर किया गया';
+
+  @override
+  String get verse_share_error =>
+      'उद्धरण शेयर नहीं हो सका। कृपया फिर से प्रयास करें';
+
+  @override
+  String get weekday_monday => 'सोम';
+
+  @override
+  String get weekday_tuesday => 'मंगल';
+
+  @override
+  String get weekday_wednesday => 'बुध';
+
+  @override
+  String get weekday_thursday => 'गुरु';
+
+  @override
+  String get weekday_friday => 'शुक्र';
+
+  @override
+  String get weekday_saturday => 'शनि';
+
+  @override
+  String get weekday_sunday => 'रवि';
+}

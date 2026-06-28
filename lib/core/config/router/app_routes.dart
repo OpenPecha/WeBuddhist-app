@@ -12,9 +12,10 @@ class AppRoutes {
   static const String splash = '/splash';
   static const String onboarding = '/onboarding';
   static const String login = '/login';
+  static const String getApp = '/get-app';
   static const String open = '/open';
 
-// ========== MAIN ROUTES ==========
+  // ========== MAIN ROUTES ==========
   static const String home = '/home';
   static const String texts = "/ai-mode";
   static const String practice = "/practice";
@@ -28,8 +29,13 @@ class AppRoutes {
   static const String notifications = '/notifications';
   static const String deleteAccount = '/delete-account';
 
+  // ========== MALA ROUTE ==========
+  /// Digital prayer-bead mala. Login-gated (see [_protectedBasePaths]).
+  static const String mala = '/mala';
+
   // ========== PRACTICE SUB ROUTES ==========
   static const String practiceEditRoutine = '/practice/edit-routine';
+  static const String practiceMyPractices = '/practice/my-practices';
   static const String practicePlanPreview = '/practice/plans/preview';
 
   // ========== PLANS SUB ROUTES ==========
@@ -50,10 +56,14 @@ class AppRoutes {
   // ========== SEARCH ROUTES ==========
   static const String searchResults = '/search-results';
 
+  // ========== CALENDAR ROUTES ==========
+  /// Tibetan calendar screen. Nested under /home so the bottom nav persists.
+  static const String calendar = '/home/calendar';
+
   // ========== ROUTE CATEGORIES ==========
 
   /// Routes that don't require any authentication
-  static const Set<String> publicRoutes = {splash, login, open};
+  static const Set<String> publicRoutes = {splash, login, getApp, open};
 
   /// Routes accessible to guest users.
   ///
@@ -67,11 +77,14 @@ class AppRoutes {
   /// - Sub-routes that guests must NOT access under a guest-accessible parent:
   ///   add the base path to [_protectedBasePaths] — it takes priority.
   static const Set<String> guestAccessibleRoutes = {
+    open,
+    getApp,
     home,
     more,
     settings, // Guests can access settings (theme, language, notifications)
     texts,
     practice, // Guests can see empty practice screen
+    practiceMyPractices, // Guests can browse my practices empty state
     practicePlanPreview, // Allow guests to browse/preview plans
     reader,
     notifications, // Local-only — guests can configure routine notifications
@@ -84,6 +97,7 @@ class AppRoutes {
     profile,
     plansInfo,
     recitationDetail,
+    mala, // Mala counting is login-gated (no guest mode)
   };
 
   // ========== HELPER METHODS ==========

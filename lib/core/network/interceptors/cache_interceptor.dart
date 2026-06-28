@@ -15,6 +15,9 @@ class CacheInterceptor extends Interceptor {
   /// Default TTL for cache entries (5 minutes)
   static const defaultTTL = Duration(minutes: 5);
 
+  /// Paths that must never be served from cache (user-specific, changes often).
+  static const _noCachePaths = {'/users/me/stats'};
+
   @override
   void onRequest(
     RequestOptions options,
@@ -22,7 +25,8 @@ class CacheInterceptor extends Interceptor {
   ) {
     // Only cache GET requests (unless explicitly opted out)
     if (options.method.toUpperCase() == 'GET' &&
-        options.extra['no_cache'] != true) {
+        options.extra['no_cache'] != true &&
+        !_noCachePaths.contains(options.path)) {
       final cacheKey = _generateCacheKey(options);
       final cached = _cache[cacheKey];
 
@@ -68,6 +72,7 @@ class CacheInterceptor extends Interceptor {
     // Cache successful GET responses
     if (method == 'GET' &&
         statusCode == 200 &&
+        !_noCachePaths.contains(request.path) &&
         !response.extra.containsKey('cached')) {
       final cacheKey = _generateCacheKey(request);
       final ttl = request.extra['cache_ttl'] as Duration? ?? defaultTTL;
@@ -128,12 +133,20 @@ class CacheInterceptor extends Interceptor {
       paths.add('/users/me/plans');
     }
 
-    // Join/leave group mutations should refresh the cached group profile
+    // Join/leave or follow/unfollow group mutations should refresh group lists.
     final groupJoinMatch = RegExp(
-      r'/author/groups/([^/]+)/join',
+      r'/author/groups/([^/]+)/(join|follow)',
     ).firstMatch(path);
     if (groupJoinMatch != null) {
       paths.add('/author/groups/${groupJoinMatch.group(1)}');
+      paths.add('/author/groups');
+      paths.add('/users/me/joined/author/groups');
+      paths.add('/users/me/following/author/groups');
+    }
+
+    // Accumulator and timer sessions update aggregated user stats.
+    if (path.contains('/accumulators') || path.contains('/timers')) {
+      paths.add('/users/me/stats');
     }
     
     return paths;
@@ -148,6 +161,7 @@ class CacheInterceptor extends Interceptor {
       'delete',
       'archive',
       'join',
+      'follow',
     ];
     return actions.contains(value.toLowerCase());
   }

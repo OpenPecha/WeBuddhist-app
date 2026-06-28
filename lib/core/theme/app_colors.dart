@@ -70,6 +70,7 @@ class AppColors {
   // ============ Blue Colors ============
   static const Color blue = Color(0xFF0C53C5); // Light mode
   static const Color blueDark = Color(0xFF8CB5F8); // Dark mode
+  static const Color brandblue = Color(0xFF3382FD);
 
   // ============ Semantic Colors (for compatibility) ============
   static const Color onPrimary = Color(0xFFFFFFFF);
@@ -80,9 +81,9 @@ class AppColors {
   static const Color danger = Color(0xFFD32F2F);
 
   // ============ Background Colors ============
-  static const Color scaffoldBackgroundLight = Color(0xFFFFFFFF);
+  static const Color scaffoldBackgroundLight = Color(0xFFFBF9F4);
   static const Color scaffoldBackgroundDark = Color(0xFF000000);
-  static const Color cardBackgroundLight = Color(0xFFF5F5F5);
+  static const Color cardBackgroundLight = Color(0xFFFFFFFF);
   static const Color cardBackgroundDark = Color(0xFF232121);
 
   // onboarding screen ring color

@@ -18,8 +18,12 @@
 
     <application
         android:label="@string/app_name"
-        android:name="${applicationName}"
+        android:name=".MainApplication"
         android:icon="@mipmap/launcher_icon"
+        android:allowBackup="false"
+        android:fullBackupContent="false"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        tools:replace="android:allowBackup,android:fullBackupContent,android:dataExtractionRules"
         android:enableOnBackInvokedCallback="true">
         <activity
             android:name=".MainActivity"
@@ -39,12 +43,12 @@
               />
             <meta-data
                 android:name="flutter_deeplinking_enabled"
-                android:value="true" />
+                android:value="false" />
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
-            <!-- App Link: https://webuddhist.com/open (home share deep link) -->
+            <!-- First-party App Link handled by app_links. -->
             <intent-filter android:autoVerify="true">
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -52,8 +56,39 @@
                 <data
                     android:scheme="https"
                     android:host="webuddhist.com"
-                    android:path="/open" />
-            </intent-filter>    
+                    android:pathPrefix="/open" />
+            </intent-filter>
+            <!-- Airbridge: custom URI scheme deep links. -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="webuddhist" />
+            </intent-filter>
+            <!-- Airbridge: tracking link domain (join.webuddhist.com) -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="http" android:host="join.webuddhist.com" />
+                <data android:scheme="https" android:host="join.webuddhist.com" />
+            </intent-filter>
+            <!-- Airbridge: primary redirect domain ({APP_NAME}.airbridge.io) -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="http" android:host="${airbridgeAppName}.airbridge.io" />
+                <data android:scheme="https" android:host="${airbridgeAppName}.airbridge.io" />
+            </intent-filter>
+            <!-- Airbridge: secondary redirect domain ({APP_NAME}.abr.ge) -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="http" android:host="${airbridgeAppName}.abr.ge" />
+                <data android:scheme="https" android:host="${airbridgeAppName}.abr.ge" />
+            </intent-filter>
         </activity>
         <activity 
             android:name="com.auth0.android.provider.RedirectActivity"
@@ -88,14 +123,14 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
+        <meta-data android:name="flutter_deeplinking_enabled" android:value="false" />
 
-   <meta-data
+        <meta-data
             android:name="com.google.firebase.messaging.default_notification_channel_id"
             android:value="push_default_v2" />
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_icon"
             android:resource="@drawable/ic_notification" />
-
         <receiver android:exported="false" android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationReceiver" />
         <receiver android:exported="false" android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationBootReceiver">
             <intent-filter>

@@ -34,6 +34,16 @@
 				<string>$(AUTH0_SCHEME)</string>
 			</array>
 		</dict>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>webuddhist</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>webuddhist</string>
+			</array>
+		</dict>
 	</array>
 	<key>CFBundleVersion</key>
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
@@ -42,7 +52,7 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>FlutterDeepLinkingEnabled</key>
-	<true/>
+	<false/>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>WeBuddhist does not use the microphone. This permission is required by audio playback libraries for App Store compliance.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
@@ -67,13 +77,17 @@
 		<string>UIInterfaceOrientationPortrait</string>
 	</array>
 	<key>UISupportedInterfaceOrientations~ipad</key>
-	<array>
-		<string>UIInterfaceOrientationPortrait</string>
-		<string>UIInterfaceOrientationPortraitUpsideDown</string>
-		<string>UIInterfaceOrientationLandscapeLeft</string>
-    	<string>UIInterfaceOrientationLandscapeRight</string>
-	</array>
-	<key>com.posthog.posthog.AUTO_INIT</key>
-	<false/>
+		<array>
+			<string>UIInterfaceOrientationPortrait</string>
+			<string>UIInterfaceOrientationPortraitUpsideDown</string>
+			<string>UIInterfaceOrientationLandscapeLeft</string>
+			<string>UIInterfaceOrientationLandscapeRight</string>
+		</array>
+		<key>com.posthog.posthog.AUTO_INIT</key>
+		<false/>
+		<key>AIRBRIDGE_APP_NAME</key>
+		<string>$(AIRBRIDGE_APP_NAME)</string>
+	<key>AIRBRIDGE_SDK_TOKEN</key>
+	<string>$(AIRBRIDGE_SDK_TOKEN)</string>
 </dict>
 </plist>

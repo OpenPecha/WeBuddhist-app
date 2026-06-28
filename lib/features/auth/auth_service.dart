@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:auth0_flutter/auth0_flutter.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_pecha/core/storage/storage_keys.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/features/auth/application/config_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -15,12 +16,29 @@ class AuthService {
   late final Auth0 _auth0;
   final _logger = AppLogger('AuthService');
 
-  // Serialize concurrent refresh attempts
-  Future<String?>? _ongoingIdTokenRefresh;
   bool _isInitialized = false;
+
+  /// Minimum lifetime (seconds) a token must have left before we proactively
+  /// renew it through the credentials manager. Matches the 2-minute buffer in
+  /// [isJwtExpired].
+  static const int _kMinTokenTtlSeconds = 120;
 
   // SharedPreferences key for guest mode
   static const String _guestModeKey = 'is_guest_mode';
+
+  /// [AuthException.code] used when the access token is opaque (not a JWT) and
+  /// therefore unusable as our API bearer. Recognised by
+  /// [isSessionPermanentlyLost] so the session is treated as terminal.
+  static const String opaqueAccessTokenCode = 'opaque_access_token';
+
+  /// Single-flight guard so concurrent proactive/reactive callers share one
+  /// in-flight renewal instead of each hitting the credentials manager.
+  Future<Credentials>? _inflightCredentials;
+
+  /// Whether [_inflightCredentials] is a *forced* renewal. A forced caller may
+  /// only share an in-flight call that is itself forced — otherwise it might
+  /// receive a plain cache read (the very token the server just rejected).
+  bool _inflightIsForced = false;
 
   Future<void> initialize() async {
     if (_isInitialized) return;
@@ -46,9 +64,15 @@ class AuthService {
       }
 
       final credentials = await _auth0
-          .webAuthentication(scheme: ConfigService.instance.auth0Scheme ?? 'org.pecha.app')
+          .webAuthentication(
+            scheme: ConfigService.instance.auth0Scheme ?? 'org.pecha.app',
+          )
           .login(
             useHTTPS: defaultTargetPlatform != TargetPlatform.macOS,
+            // Requesting the API audience yields a verifiable JWT access token
+            // (instead of an opaque /userinfo token). This access token — not
+            // the ID token — is the bearer we send to our backend.
+            audience: ConfigService.instance.auth0Audience,
             parameters: parameters,
             scopes: {"openid", "profile", "email", "offline_access"},
           );
@@ -75,8 +99,20 @@ class AuthService {
     }
   }
 
-  Future<Credentials?> getCredentials() async =>
-      await _auth0.credentialsManager.credentials(minTtl: 300);
+  Future<Credentials?> getCredentials() async {
+    try {
+      return await _auth0.credentialsManager.credentials(minTtl: 300);
+    } on CredentialsManagerException catch (e) {
+      // Surface the SDK code at the boundary for diagnostics, then rethrow so
+      // the repository maps it: no-credentials / no-refresh-token / opaque →
+      // AuthenticationFailure (re-login), everything else (incl. RENEW_FAILED,
+      // which at launch is almost always offline) → NetworkFailure (keep the
+      // session and renew on the next request). See
+      // [AuthRepositoryImpl._credentialFailure] and [isSessionPermanentlyLost].
+      _logger.warning('credentials() failed: ${e.code} ${e.message}');
+      rethrow;
+    }
+  }
 
   // Login with Google
   Future<Credentials?> loginWithGoogle() async {
@@ -92,7 +128,7 @@ class AuthService {
   Future<void> localLogout() async {
     try {
       await _auth0.credentialsManager.clearCredentials();
-      await clearGuestMode(); // Also clear guest mode on logout
+      await _clearLocalIdentity();
       _logger.info('Local logout successful');
     } catch (e) {
       _logger.error('Logout failed', e);
@@ -103,19 +139,41 @@ class AuthService {
   Future<void> globalLogout() async {
     try {
       await _auth0
-          .webAuthentication(scheme: ConfigService.instance.auth0Scheme ?? 'org.pecha.app')
+          .webAuthentication(
+            scheme: ConfigService.instance.auth0Scheme ?? 'org.pecha.app',
+          )
           .logout(useHTTPS: defaultTargetPlatform != TargetPlatform.macOS);
       await _auth0.credentialsManager.clearCredentials();
+      await _clearLocalIdentity();
       _logger.info('Global logout successful');
     } catch (e) {
       _logger.error('Logout failed', e);
     }
   }
 
-  /// Decode and check if ID token is expired
-  bool isIdTokenExpired(String idToken) {
+  /// Clears every local identity marker so a subsequent reinstall/login can't
+  /// read stale identity. Auth0 tokens (access/refresh/id) are NOT handled here
+  /// — the credentials manager owns that storage and is cleared via
+  /// `clearCredentials()`; we deliberately do not touch `flutter_secure_storage`
+  /// (it stores no tokens in this app).
+  Future<void> _clearLocalIdentity() async {
+    await clearGuestMode();
     try {
-      final parts = idToken.split('.');
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove(StorageKeys.currentUserId);
+      await prefs.remove(StorageKeys.userData);
+    } catch (e) {
+      _logger.warning('Failed to clear local identity markers: $e');
+    }
+  }
+
+  /// Decode a JWT and report whether it is expired (or within [bufferSeconds]
+  /// of expiry). Returns true on any parse failure (treat as expired).
+  ///
+  /// Token-agnostic: works for both access and ID tokens.
+  bool isJwtExpired(String jwt, {int bufferSeconds = _kMinTokenTtlSeconds}) {
+    try {
+      final parts = jwt.split('.');
       if (parts.length != 3) return true;
 
       final payload = utf8.decode(
@@ -126,104 +184,194 @@ class AuthService {
       if (exp == null) return true;
       final expiryDate = DateTime.fromMillisecondsSinceEpoch(exp * 1000);
 
-      // Consider token expired 2 minutes before actual expiry
       return DateTime.now().isAfter(
-        expiryDate.subtract(const Duration(minutes: 2)),
+        expiryDate.subtract(Duration(seconds: bufferSeconds)),
       );
     } catch (e) {
-      _logger.warning('Failed to parse idToken exp: $e');
+      _logger.warning('Failed to parse jwt exp: $e');
       return true;
     }
   }
 
-  /// Force refresh ID token using refresh token (internal, no concurrency control)
-  Future<String?> _refreshIdTokenInternal() async {
-    _logger.debug('Refreshing ID token using refresh token');
+  /// Decode and check if an ID token is expired. Retained for ID-token
+  /// (identity) call sites; delegates to the token-agnostic [isJwtExpired].
+  bool isIdTokenExpired(String idToken) => isJwtExpired(idToken);
+
+  /// Seconds of remaining lifetime for [jwt]; 0 if expired/unparseable.
+  int jwtRemainingTtlSeconds(String jwt) {
     try {
-      final storedCreds = await _auth0.credentialsManager.credentials();
+      final parts = jwt.split('.');
+      if (parts.length != 3) return 0;
 
-      if (storedCreds.refreshToken == null) {
-        _logger.warning('No refresh token available');
-        throw AuthException("No refresh token available");
-      }
-
-      final newCreds = await _auth0.api.renewCredentials(
-        refreshToken: storedCreds.refreshToken!,
+      final payload = utf8.decode(
+        base64Url.decode(base64Url.normalize(parts[1])),
       );
-
-      await _auth0.credentialsManager.storeCredentials(newCreds);
-      _logger.info('ID token refreshed successfully');
-
-      return newCreds.idToken;
-    } on ApiException catch (e) {
-      _logger.error('Auth0 API error during token refresh: ${e.message}');
-      throw AuthException('Token refresh failed: ${e.message}');
-    } catch (e) {
-      _logger.error('Unexpected error during token refresh', e);
-      throw AuthException('Token refresh failed: $e');
+      final claims = jsonDecode(payload) as Map<String, dynamic>;
+      final exp = (claims['exp'] as num?)?.toInt();
+      if (exp == null) return 0;
+      final secs = exp - (DateTime.now().millisecondsSinceEpoch ~/ 1000);
+      return secs > 0 ? secs : 0;
+    } catch (_) {
+      return 0;
     }
   }
 
-  /// Public method to force refresh ID token with concurrency control
-  Future<String?> refreshIdToken() async {
-    // If a refresh is already in progress, wait for it
-    if (_ongoingIdTokenRefresh != null) {
-      _logger.debug('Waiting for ongoing ID token refresh');
-      return await _ongoingIdTokenRefresh!;
-    }
+  /// Returns valid credentials, renewing via the credentials manager when the
+  /// access token is within [_kMinTokenTtlSeconds] of expiry. All concurrent
+  /// callers (proactive + reactive, across both Dio clients) share one
+  /// in-flight renewal.
+  ///
+  /// The credentials manager is the **single** refresh path: it serializes its
+  /// own renewals and stores the rotated refresh token atomically, so a
+  /// single-use refresh token can never be consumed by two racing callers.
+  /// Do not call `_auth0.api.renewCredentials` directly anywhere.
+  Future<Credentials> _validCredentials({bool force = false}) {
+    final inflight = _inflightCredentials;
+    // Share the in-flight renewal when it satisfies us: a non-forced caller
+    // accepts any in-flight call; a forced caller only accepts one that is
+    // itself forced. A forced caller must NOT join a non-forced cache read, or
+    // it could be handed back the token the server just rejected.
+    if (inflight != null && (!force || _inflightIsForced)) return inflight;
 
-    // Start new refresh
-    _logger.debug('Starting new ID token refresh');
-    _ongoingIdTokenRefresh = _refreshIdTokenInternal();
-
-    try {
-      final newToken = await _ongoingIdTokenRefresh!;
-      return newToken;
-    } finally {
-      _ongoingIdTokenRefresh = null;
-    }
+    // We need a (possibly forced) renewal that no in-flight call provides. If a
+    // non-forced call is currently running, sequence our forced fetch *after*
+    // it settles rather than racing it, so the credentials manager stays the
+    // single, rotation-safe refresh path (one renewal in flight at a time).
+    final previous = inflight;
+    // `tracked` IS the future we store and return, so its error is delivered to
+    // the awaiting caller (handled). Do NOT drop a separate `whenComplete`
+    // future here — its error would have no listener and surface as an
+    // unhandled async exception when a renewal fails.
+    late final Future<Credentials> tracked;
+    tracked = _runCredentialsFetch(force: force, after: previous).whenComplete(
+      () {
+        // Only clear if we're still the current in-flight; a later forced call
+        // may have already superseded us.
+        if (identical(_inflightCredentials, tracked)) {
+          _inflightCredentials = null;
+          _inflightIsForced = false;
+        }
+      },
+    );
+    _inflightCredentials = tracked;
+    _inflightIsForced = force;
+    return tracked;
   }
 
-  /// Public method to always return a valid ID token with concurrency control
-  Future<String?> getValidIdToken() async {
-    // If a refresh is already in progress, wait for it
-    final ongoing = _ongoingIdTokenRefresh;
-    if (ongoing != null) {
-      _logger.debug('Waiting for ongoing ID token refresh');
-      await ongoing;
-      // After waiting, get fresh credentials and return
-      final creds = await _auth0.credentialsManager.credentials();
-      return creds.idToken;
+  Future<Credentials> _runCredentialsFetch({
+    required bool force,
+    Future<Credentials>? after,
+  }) async {
+    if (after != null) {
+      // Let the prior renewal finish (ignore its result/error) so two renewals
+      // never hit the rotating refresh token concurrently.
+      try {
+        await after;
+      } catch (_) {
+        // Ignored — we proceed to our own fetch regardless.
+      }
     }
-
-    // Get current credentials
-    final creds = await _auth0.credentialsManager.credentials();
-
-    // Check if ID token is still valid after waiting
-    if (!isIdTokenExpired(creds.idToken)) {
-      return creds.idToken;
-    }
-
-    // Token is expired, need to refresh
-    // Double-check if another thread started refresh while we were checking
-    if (_ongoingIdTokenRefresh != null) {
-      _logger.debug('Another thread started refresh, waiting for completion');
-      await _ongoingIdTokenRefresh!;
-      final freshCreds = await _auth0.credentialsManager.credentials();
-      return freshCreds.idToken;
-    }
-
-    // Start the refresh (we're the first thread to need it)
-    _logger.debug('ID token expired, starting refresh');
-    _ongoingIdTokenRefresh = _refreshIdTokenInternal();
-
-    try {
-      final newToken = await _ongoingIdTokenRefresh!;
-      return newToken;
-    } finally {
-      _ongoingIdTokenRefresh = null;
-    }
+    return _fetchCredentials(force: force);
   }
+
+  Future<Credentials> _fetchCredentials({required bool force}) async {
+    final Credentials creds;
+    if (force) {
+      // Forced (reactive 401) renewal. `renewCredentials()` unconditionally
+      // fetches a fresh credential set and stores the rotated refresh token
+      // atomically, so it renews even when the current access token still has
+      // lifetime left — and it stays inside the credentials manager (the
+      // single, rotation-safe refresh path).
+      //
+      // We previously forced via `credentials(minTtl: remaining + buffer)`, but
+      // the SDK rejects a `minTtl` greater than the token's configured lifetime
+      // ("minTTL requested … is greater than the lifetime of the renewed access
+      // token"); and capping `minTtl` at that lifetime is satisfied by a fresh
+      // token, so it would not force a renewal at all.
+      creds = await _auth0.credentialsManager.renewCredentials();
+    } else {
+      // Proactive: return the cached token, renewing only when it is within the
+      // skew buffer of expiry.
+      creds = await _auth0.credentialsManager.credentials(
+        minTtl: _kMinTokenTtlSeconds,
+      );
+    }
+    return creds;
+  }
+
+  /// API bearer. Proactive renewal happens inside the credentials manager when
+  /// the access token is within [_kMinTokenTtlSeconds] of expiry.
+  Future<String?> getValidAccessToken() async {
+    final creds = await _validCredentials();
+    return creds.accessToken;
+  }
+
+  /// Whether [token] is usable as our API bearer. The backend verifies a JWT
+  /// access token (minted only when the API `audience` is requested at login),
+  /// so an opaque `/userinfo` token — issued for sessions created before the
+  /// audience was configured — is not a JWT and can never authenticate API
+  /// calls. Such sessions cannot be salvaged by refresh (the refresh token is
+  /// not bound to the audience), so the only resolution is to sign in again.
+  static bool isUsableApiAccessToken(String token) =>
+      token.split('.').length == 3;
+
+  /// Reactive 401 path: force a renewal and return a fresh access token.
+  ///
+  /// Throws an [AuthException] with [opaqueAccessTokenCode] when the renewed
+  /// token is still opaque (a pre-audience session). That surfaces as a
+  /// permanent session loss so the caller redirects to login, where a fresh
+  /// audience-scoped login mints a verifiable JWT.
+  Future<String?> forceRefreshAccessToken() async {
+    final creds = await _validCredentials(force: true);
+    final accessToken = creds.accessToken;
+    if (!isUsableApiAccessToken(accessToken)) {
+      _logger.warning(
+        'Access token is opaque (not a JWT) — pre-audience session cannot be '
+        'refreshed into an API bearer; re-authentication required.',
+      );
+      throw AuthException(
+        'Opaque access token; re-authentication required',
+        code: opaqueAccessTokenCode,
+      );
+    }
+    return accessToken;
+  }
+
+  /// Identity only (client-side). Profile claims (email/name/sub) live in the
+  /// ID token. Used at login/restore for identity — NEVER as an API bearer.
+  Future<String?> getIdTokenForIdentity() async {
+    final creds = await _validCredentials();
+    return creds.idToken;
+  }
+
+  /// Whether [error] from a credentials operation means the session is truly
+  /// gone and the user must sign in again — as opposed to a transient/offline
+  /// failure we should tolerate (keep the user signed in and renew later).
+  ///
+  /// Only a missing credential, a missing refresh token, or an opaque
+  /// (non-JWT) access token is treated as permanent. `RENEW_FAILED` is treated
+  /// as transient: at app open it is almost always a connectivity problem, and
+  /// wiping a valid session for that is the bug we are fixing.
+  static bool isSessionPermanentlyLost(Object error) {
+    if (error is AuthException && error.code == opaqueAccessTokenCode) {
+      return true;
+    }
+    return error is CredentialsManagerException &&
+        (error.isNoCredentialsFound || error.isNoRefreshTokenFound);
+  }
+
+  /// Whether [error] is a failed token *renewal* (`RENEW_FAILED` — the refresh
+  /// token could not be exchanged).
+  ///
+  /// Deliberately separate from [isSessionPermanentlyLost]: at **app open** a
+  /// renewal failure is usually transient/offline and must NOT wipe the
+  /// session. But in the **reactive 401 path** the server just answered us, so
+  /// we are provably online — a renewal failure there means the refresh token
+  /// is rejected (revoked/expired/rotated) and the session is terminal.
+  /// Without this, a dead refresh token traps the user in an endless 401 loop
+  /// with no prompt to re-authenticate.
+  static bool isTokenRenewalFailed(Object error) =>
+      error is CredentialsManagerException && error.isTokenRenewFailed;
 
   /// Check if credentials exist and are valid
   Future<bool> hasValidCredentials() async {

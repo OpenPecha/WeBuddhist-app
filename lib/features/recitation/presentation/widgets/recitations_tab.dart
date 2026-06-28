@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/widgets/error_state_widget.dart';
+import 'package:flutter_pecha/features/reader/data/models/navigation_context.dart';
 import 'package:flutter_pecha/features/recitation/data/models/recitation_model.dart';
 import 'package:flutter_pecha/features/recitation/presentation/providers/recitations_providers.dart';
 import 'package:flutter_pecha/features/recitation/presentation/widgets/recitation_card.dart';
@@ -38,8 +39,7 @@ class RecitationsTab extends ConsumerWidget {
       error:
           (error, stack) => ErrorStateWidget(
             error: error,
-            customMessage:
-                localizations.recitations_load_error,
+            customMessage: localizations.recitations_load_error,
           ),
     );
   }
@@ -60,7 +60,12 @@ class RecitationsTab extends ConsumerWidget {
           child: RecitationCard(
             recitation: recitation,
             onTap: () {
-              context.push('/recitations/detail', extra: recitation);
+              context.push(
+                '/reader/${recitation.textId}',
+                extra: const NavigationContext(
+                  source: NavigationSource.recitationList,
+                ),
+              );
             },
           ),
         );

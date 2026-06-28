@@ -1,15 +1,17 @@
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/features/home/presentation/screens/main_navigation_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
 import 'package:flutter_pecha/core/services/service_providers.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/widgets/error_state_widget.dart';
+import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
+import 'package:flutter_pecha/features/auth/presentation/widgets/login_drawer.dart';
 import 'package:flutter_pecha/features/home/domain/entities/series.dart';
 import 'package:flutter_pecha/features/home/presentation/providers/featured_series_provider.dart';
 import 'package:flutter_pecha/features/home/presentation/providers/routine_info_provider.dart';
 import 'package:flutter_pecha/features/home/presentation/providers/streak_provider.dart';
 import 'package:flutter_pecha/features/home/presentation/providers/series_provider.dart';
+import 'package:flutter_pecha/features/home/presentation/providers/today_events_provider.dart';
 import 'package:flutter_pecha/features/home/presentation/providers/verse_of_day_provider.dart';
 import 'package:flutter_pecha/features/home/presentation/home_screen_constants.dart';
 import 'package:flutter_pecha/features/home/presentation/widgets/featured_plan_section.dart';
@@ -23,6 +25,7 @@ import 'package:flutter_pecha/features/home/presentation/widgets/verse_of_day_sk
 import 'package:flutter_pecha/features/notifications/application/notification_sync_engine.dart';
 import 'package:flutter_pecha/features/plans/data/utils/plan_utils.dart';
 import 'package:flutter_pecha/features/plans/presentation/providers/user_plans_provider.dart';
+import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:logging/logging.dart';
@@ -209,12 +212,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     ref.invalidate(seriesListFutureProvider);
     ref.invalidate(featuredSeriesFutureProvider);
     ref.invalidate(verseOfDayFutureProvider);
+    ref.invalidate(todayEventsFutureProvider);
     ref.invalidate(routineInfoFutureProvider);
     ref.invalidate(streakFutureProvider);
     await Future.wait([
       ref.read(seriesListFutureProvider.future),
       ref.read(featuredSeriesFutureProvider.future),
       ref.read(verseOfDayFutureProvider.future),
+      ref.read(todayEventsFutureProvider.future),
       ref.read(routineInfoFutureProvider.future),
     ]);
   }
@@ -223,6 +228,17 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   /// Reuses the same logic as pull-to-refresh for consistent behavior.
   void _refetchSeries() {
     _onRefresh();
+  }
+
+  /// Opens a login-only feature shortcut (Mala, Timer). Guests are prompted to
+  /// sign in via the login drawer instead of navigating, since these features
+  /// need an authenticated account to persist progress.
+  void _openGatedFeature(String route) {
+    if (ref.read(authProvider).isGuest) {
+      LoginDrawer.show(context, ref);
+      return;
+    }
+    context.push(route);
   }
 
   void _navigateToSeries(Series series) {
@@ -239,21 +255,16 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      body: SafeArea(
-        child: Column(
-          children: [
-            const HomeHeader(),
-            SizedBox(height: HomeScreenConstants.bodyVerticalPadding),
-            _buildBody(context, l10n),
-          ],
-        ),
+      appBar: const HomeTabAppBar(),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const HomeEventBanner(),
+          SizedBox(height: HomeScreenConstants.bodyVerticalPadding),
+          _buildBody(context, l10n),
+        ],
       ),
     );
-  }
-
-  void _navigateToPracticeTab() {
-    ref.read(mainNavigationIndexProvider.notifier).state =
-        MainTab.practice.index;
   }
 
   Widget _buildMyPracticesSection() {
@@ -267,7 +278,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           }
           return MyPracticesStatsCard(
             routineInfo: info,
-            onTap: _navigateToPracticeTab,
+            onTap: () => context.pushNamed('my-practices'),
           );
         });
       },
@@ -293,8 +304,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   Widget _buildBody(BuildContext context, AppLocalizations localizations) {
     final seriesAsync = ref.watch(seriesListFutureProvider);
-    final language = ref.watch(localeProvider).languageCode;
-    final fontSize = language == 'bo' ? 22.0 : 18.0;
+    final fontSize = getLocalizedFontSize(AppTextSize.title);
 
     return Expanded(
       child: RefreshIndicator(
@@ -328,12 +338,16 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
+                          const SizedBox(
+                            height: HomeScreenConstants.cardSpacing,
+                          ),
                           _buildVerseOfDaySection(),
                           const SizedBox(
                             height: HomeScreenConstants.cardSpacing,
                           ),
                           HomeShortcutsRow(
-                            onTimerTap: () => context.push('/home/timers'),
+                            onTimerTap: () => _openGatedFeature('/home/timers'),
+                            onMalaTap: () => _openGatedFeature('/mala'),
                           ),
                           const SizedBox(
                             height: HomeScreenConstants.cardSpacing,

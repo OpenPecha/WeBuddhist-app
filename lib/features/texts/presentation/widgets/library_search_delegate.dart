@@ -17,8 +17,7 @@ class LibrarySearchDelegate extends SearchDelegate<Map<String, String>?> {
 
   @override
   ThemeData appBarTheme(BuildContext context) {
-    final language = ref.watch(localeProvider).languageCode;
-    final fontSize = language == 'bo' ? 22.0 : 18.0;
+    final fontSize = getLocalizedFontSize(AppTextSize.title);
 
     return Theme.of(context).copyWith(
       appBarTheme: AppBarTheme(
@@ -143,7 +142,9 @@ class LibrarySearchDelegate extends SearchDelegate<Map<String, String>?> {
                 if (searchResponse.sources.isEmpty) {
                   return Center(
                     child: Text(
-                      AppLocalizations.of(context)!.search_no_results(_submittedQuery),
+                      AppLocalizations.of(
+                        context,
+                      )!.search_no_results(_submittedQuery),
                       style: const TextStyle(fontSize: 16),
                     ),
                   );
@@ -160,17 +161,20 @@ class LibrarySearchDelegate extends SearchDelegate<Map<String, String>?> {
                     };
                   }
                   for (final segmentMatch in source.segmentMatches) {
-                    (groupedResults[source.text.textId]!['segments'] as List).add({
-                      'segmentId': segmentMatch.segmentId,
-                      'content': segmentMatch.content,
-                    });
+                    (groupedResults[source.text.textId]!['segments'] as List)
+                        .add({
+                          'segmentId': segmentMatch.segmentId,
+                          'content': segmentMatch.content,
+                        });
                   }
                 }
 
                 if (groupedResults.isEmpty) {
                   return Center(
                     child: Text(
-                      AppLocalizations.of(context)!.search_no_results(_submittedQuery),
+                      AppLocalizations.of(
+                        context,
+                      )!.search_no_results(_submittedQuery),
                       style: const TextStyle(fontSize: 16),
                     ),
                   );
@@ -180,7 +184,7 @@ class LibrarySearchDelegate extends SearchDelegate<Map<String, String>?> {
                 final language = ref.watch(localeProvider).languageCode;
                 final fontFamily = getFontFamily(language);
                 final lineHeight = getLineHeight(language);
-                final fontSize = language == 'bo' ? 22.0 : 18.0;
+                final fontSize = getLocalizedFontSize(AppTextSize.content);
 
                 return Container(
                   color: Colors.transparent,
@@ -244,9 +248,12 @@ class LibrarySearchDelegate extends SearchDelegate<Map<String, String>?> {
                                         padding: const EdgeInsets.all(12.0),
                                         decoration: BoxDecoration(
                                           color: Theme.of(context).cardColor,
-                                          borderRadius: BorderRadius.circular(8),
+                                          borderRadius: BorderRadius.circular(
+                                            8,
+                                          ),
                                           border: Border.all(
-                                            color: Theme.of(context).dividerColor,
+                                            color:
+                                                Theme.of(context).dividerColor,
                                             width: 1,
                                           ),
                                         ),

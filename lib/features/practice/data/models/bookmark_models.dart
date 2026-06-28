@@ -1,0 +1,209 @@
+import 'package:flutter_pecha/shared/domain/value_objects/responsive_image.dart';
+
+/// Models for `GET /users/me/bookmarks`.
+///
+/// Each row embeds a bookmark-specific object for its type (`text` / `plan` /
+/// `series` / `accumulator` / `timer`) carrying the title, single image URL,
+/// and dates needed to render a rich card. The response is paginated
+/// (`total` / `skip` / `limit`).
+
+/// Every bookmark kind the API can return.
+///
+/// Note the create endpoint ([BookmarkType]) only supports a subset; this
+/// fuller enum is used purely for decoding the list response.
+enum BookmarkItemType {
+  text,
+  plan,
+  series,
+  accumulator,
+  timer,
+  verse;
+
+  static BookmarkItemType? tryFromJson(String? value) => switch (value) {
+    'TEXT' => BookmarkItemType.text,
+    'PLAN' => BookmarkItemType.plan,
+    'SERIES' => BookmarkItemType.series,
+    'ACCUMULATOR' => BookmarkItemType.accumulator,
+    'TIMER' => BookmarkItemType.timer,
+    'VERSE' => BookmarkItemType.verse,
+    _ => null,
+  };
+}
+
+/// A single saved bookmark, flattened from the type-specific nested object.
+class BookmarkDTO {
+  /// Bookmark id — the key for `DELETE /users/me/bookmarks/{id}`.
+  final String id;
+  final BookmarkItemType type;
+
+  /// Id of the bookmarked entity (text, plan, series, timer, …).
+  final String sourceId;
+  final String? name;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+
+  /// Title from the nested object, preferred over [name].
+  final String? nestedTitle;
+
+  /// Verse excerpt (`text.segment.content`).
+  final String? excerpt;
+
+  /// Single cover/bead image URL (plan/series cover or accumulator bead).
+  final String? imageUrl;
+
+  /// Schedule window for PLAN / SERIES bookmarks (drives the date-range label).
+  final DateTime? startDate;
+  final DateTime? endDate;
+
+  /// Text id for reader navigation (`text.id`).
+  final String? textId;
+
+  /// Duration (ms) for TIMER bookmarks — enough to open the timer.
+  final int? timerDurationMs;
+
+  const BookmarkDTO({
+    required this.id,
+    required this.type,
+    required this.sourceId,
+    required this.createdAt,
+    required this.updatedAt,
+    this.name,
+    this.nestedTitle,
+    this.excerpt,
+    this.imageUrl,
+    this.startDate,
+    this.endDate,
+    this.textId,
+    this.timerDurationMs,
+  });
+
+  /// Lenient parser: returns `null` when the payload is missing required fields
+  /// or carries a type this build doesn't understand, so one bad row can't
+  /// break the whole list.
+  static BookmarkDTO? tryFromJson(Map<String, dynamic> json) {
+    final type = BookmarkItemType.tryFromJson(json['type'] as String?);
+    final id = json['id'] as String?;
+    final sourceId = json['source_id'] as String?;
+    final createdAt = _parseDate(json['created_at']);
+    if (type == null || id == null || sourceId == null || createdAt == null) {
+      return null;
+    }
+
+    final text = json['text'] as Map<String, dynamic>?;
+    final plan = json['plan'] as Map<String, dynamic>?;
+    final series = json['series'] as Map<String, dynamic>?;
+    final accumulator = json['accumulator'] as Map<String, dynamic>?;
+    final timer = json['timer'] as Map<String, dynamic>?;
+
+    final planMeta = plan?['metadata'] as Map<String, dynamic>?;
+    final segment = text?['segment'] as Map<String, dynamic>?;
+
+    DateTime? startDate;
+    DateTime? endDate;
+    if (plan != null) {
+      startDate = _parseDate(plan['start_date']);
+      endDate = _parseDate(plan['end_date']);
+    } else if (series != null) {
+      startDate = _parseDate(series['start_date']);
+      endDate = _parseDate(series['end_date']);
+    }
+
+    return BookmarkDTO(
+      id: id,
+      type: type,
+      sourceId: sourceId,
+      name: json['name'] as String?,
+      createdAt: createdAt,
+      updatedAt: _parseDate(json['updated_at']) ?? createdAt,
+      nestedTitle:
+          (text?['title'] as String?) ??
+          (planMeta?['title'] as String?) ??
+          _seriesTitle(series) ??
+          (accumulator?['title'] as String?) ??
+          (timer?['title'] as String?),
+      excerpt: segment?['content'] as String?,
+      imageUrl:
+          (plan?['image'] as String?) ??
+          (series?['image'] as String?) ??
+          (accumulator?['image'] as String?),
+      startDate: startDate,
+      endDate: endDate,
+      textId: text?['id'] as String?,
+      timerDurationMs: (timer?['duration'] as num?)?.toInt(),
+    );
+  }
+
+  bool get isText =>
+      type == BookmarkItemType.text || type == BookmarkItemType.verse;
+
+  /// Title shown on the card, preferring the nested object's title and falling
+  /// back to [name], then a type label.
+  String get displayTitle {
+    final preferred = nestedTitle ?? name;
+    if (preferred != null && preferred.trim().isNotEmpty) {
+      return preferred.trim();
+    }
+    return switch (type) {
+      BookmarkItemType.timer => 'Timer',
+      BookmarkItemType.text || BookmarkItemType.verse => 'Untitled text',
+      BookmarkItemType.plan => 'Plan',
+      BookmarkItemType.series => 'Series',
+      BookmarkItemType.accumulator => 'Mala',
+    };
+  }
+
+  /// Leading artwork, if any. Accumulators render as a round bead; plans and
+  /// series render as a rounded square.
+  ResponsiveImage? get leadingImage {
+    final url = imageUrl;
+    return (url != null && url.isNotEmpty) ? ResponsiveImage.uniform(url) : null;
+  }
+
+  bool get isRoundLeading => type == BookmarkItemType.accumulator;
+
+  // ─── Parse helpers ───
+
+  static DateTime? _parseDate(Object? value) =>
+      value is String ? DateTime.tryParse(value) : null;
+
+  /// Series metadata may be a single object or a (localized) array.
+  static String? _seriesTitle(Map<String, dynamic>? series) {
+    final meta = series?['metadata'];
+    if (meta is Map) return meta['title'] as String?;
+    if (meta is List && meta.isNotEmpty && meta.first is Map) {
+      return (meta.first as Map)['title'] as String?;
+    }
+    return null;
+  }
+}
+
+/// Wrapper for the paginated `{ "bookmarks": [...], "total", "skip", "limit" }`
+/// response body.
+class BookmarksResponse {
+  final List<BookmarkDTO> bookmarks;
+  final int total;
+  final int skip;
+  final int limit;
+
+  const BookmarksResponse({
+    required this.bookmarks,
+    this.total = 0,
+    this.skip = 0,
+    this.limit = 0,
+  });
+
+  factory BookmarksResponse.fromJson(Map<String, dynamic> json) {
+    final raw = (json['bookmarks'] as List<dynamic>?) ?? const [];
+    return BookmarksResponse(
+      bookmarks:
+          raw
+              .whereType<Map<String, dynamic>>()
+              .map(BookmarkDTO.tryFromJson)
+              .whereType<BookmarkDTO>()
+              .toList(),
+      total: (json['total'] as num?)?.toInt() ?? raw.length,
+      skip: (json['skip'] as num?)?.toInt() ?? 0,
+      limit: (json['limit'] as num?)?.toInt() ?? raw.length,
+    );
+  }
+}

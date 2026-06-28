@@ -1,0 +1,244 @@
+import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
+import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
+import 'package:flutter_pecha/core/di/core_providers.dart';
+import 'package:flutter_pecha/features/connect/data/datasource/connect_remote_datasource.dart';
+import 'package:flutter_pecha/features/connect/data/repositories/connect_repository_impl.dart';
+import 'package:flutter_pecha/features/connect/domain/entities/discover_groups_page.dart';
+import 'package:flutter_pecha/features/connect/domain/repositories/connect_repository.dart';
+import 'package:flutter_pecha/features/group_profile/domain/entities/group_profile.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+final connectRemoteDatasourceProvider = Provider<ConnectRemoteDatasource>((
+  ref,
+) {
+  return ConnectRemoteDatasource(dio: ref.watch(dioProvider));
+});
+
+final connectRepositoryProvider = Provider<ConnectRepository>((ref) {
+  return ConnectRepositoryImpl(
+    remote: ref.watch(connectRemoteDatasourceProvider),
+  );
+});
+
+class DiscoverGroupsState {
+  final List<GroupProfile> groups;
+  final bool isLoading;
+  final bool isLoadingMore;
+  final String? error;
+  final bool hasMore;
+  final int skip;
+
+  const DiscoverGroupsState({
+    this.groups = const [],
+    this.isLoading = false,
+    this.isLoadingMore = false,
+    this.error,
+    this.hasMore = true,
+    this.skip = 0,
+  });
+
+  DiscoverGroupsState copyWith({
+    List<GroupProfile>? groups,
+    bool? isLoading,
+    bool? isLoadingMore,
+    String? error,
+    bool? hasMore,
+    int? skip,
+    bool clearError = false,
+  }) {
+    return DiscoverGroupsState(
+      groups: groups ?? this.groups,
+      isLoading: isLoading ?? this.isLoading,
+      isLoadingMore: isLoadingMore ?? this.isLoadingMore,
+      error: clearError ? null : error ?? this.error,
+      hasMore: hasMore ?? this.hasMore,
+      skip: skip ?? this.skip,
+    );
+  }
+}
+
+class DiscoverGroupsNotifier extends StateNotifier<DiscoverGroupsState> {
+  DiscoverGroupsNotifier({
+    required this.repository,
+    required this.language,
+  }) : super(const DiscoverGroupsState()) {
+    loadInitial();
+  }
+
+  final ConnectRepository repository;
+  final String language;
+  static const int _limit = 20;
+
+  Future<void> loadInitial() async {
+    if (state.isLoading) return;
+
+    state = state.copyWith(isLoading: true, clearError: true);
+
+    final result = await repository.getDiscoverGroups(
+      language: language,
+      skip: 0,
+      limit: _limit,
+    );
+
+    if (!mounted) return;
+
+    result.fold(
+      (failure) {
+        state = state.copyWith(isLoading: false, error: failure.message);
+      },
+      (page) {
+        state = state.copyWith(
+          groups: page.groups,
+          isLoading: false,
+          hasMore: page.hasMore,
+          skip: page.groups.length,
+          clearError: true,
+        );
+      },
+    );
+  }
+
+  Future<void> loadMore() async {
+    if (state.isLoadingMore || !state.hasMore || state.isLoading) return;
+
+    state = state.copyWith(isLoadingMore: true, clearError: true);
+
+    final result = await repository.getDiscoverGroups(
+      language: language,
+      skip: state.skip,
+      limit: _limit,
+    );
+
+    if (!mounted) return;
+
+    result.fold(
+      (failure) {
+        state = state.copyWith(isLoadingMore: false, error: failure.message);
+      },
+      (page) {
+        state = state.copyWith(
+          groups: [...state.groups, ...page.groups],
+          isLoadingMore: false,
+          hasMore: page.hasMore,
+          skip: state.skip + page.groups.length,
+          clearError: true,
+        );
+      },
+    );
+  }
+
+  Future<void> refresh() async {
+    state = const DiscoverGroupsState();
+    await loadInitial();
+  }
+
+  void removeGroups(Set<String> groupIds) {
+    if (groupIds.isEmpty || state.groups.isEmpty) return;
+
+    final filtered =
+        state.groups.where((group) => !groupIds.contains(group.id)).toList();
+    if (filtered.length == state.groups.length) return;
+
+    state = state.copyWith(groups: filtered);
+  }
+
+  void retry() {
+    if (state.groups.isEmpty) {
+      loadInitial();
+    } else {
+      loadMore();
+    }
+  }
+}
+
+final discoverGroupsProvider =
+    StateNotifierProvider<DiscoverGroupsNotifier, DiscoverGroupsState>(
+      (ref) {
+        final language = ref.watch(contentLanguageProvider);
+        return DiscoverGroupsNotifier(
+          repository: ref.watch(connectRepositoryProvider),
+          language: language,
+        );
+      },
+    );
+
+/// Groups joined this session before the my-groups API reflects them.
+final pendingJoinedGroupsProvider =
+    StateProvider<List<GroupProfile>>((ref) => const []);
+
+/// Groups unfollowed this session while the my-groups API still returns them.
+final pendingUnjoinedGroupIdsProvider =
+    StateProvider<Set<String>>((ref) => const {});
+
+final myGroupsProvider = FutureProvider<DiscoverGroupsPage>((ref) async {
+  final authState = ref.watch(authProvider);
+  if (authState.isGuest || !authState.isLoggedIn) {
+    return const DiscoverGroupsPage(
+      groups: [],
+      skip: 0,
+      limit: 20,
+      total: 0,
+    );
+  }
+
+  final language = ref.watch(contentLanguageProvider);
+  final repo = ref.watch(connectRepositoryProvider);
+  final result = await repo.getMyGroups(language: language, skip: 0, limit: 20);
+
+  return result.fold(
+    (failure) => throw Exception(failure.message),
+    (page) {
+      syncPendingGroupsWithApi(
+        ref: ref,
+        apiGroupIds: page.groups.map((g) => g.id).toSet(),
+      );
+      return page;
+    },
+  );
+});
+
+List<GroupProfile> filterDiscoverGroups({
+  required List<GroupProfile> discoverGroups,
+  required Set<String> joinedGroupIds,
+}) {
+  if (joinedGroupIds.isEmpty) return discoverGroups;
+
+  return discoverGroups
+      .where((group) => !joinedGroupIds.contains(group.id))
+      .toList();
+}
+
+List<GroupProfile> mergeMyGroupsWithPending({
+  required List<GroupProfile> apiGroups,
+  required List<GroupProfile> pendingGroups,
+  Set<String> pendingUnjoinedIds = const {},
+}) {
+  final merged = () {
+    if (pendingGroups.isEmpty) return apiGroups;
+
+    final apiIds = apiGroups.map((g) => g.id).toSet();
+    final pendingOnly =
+        pendingGroups.where((g) => !apiIds.contains(g.id)).toList();
+    if (pendingOnly.isEmpty) return apiGroups;
+
+    return [...pendingOnly, ...apiGroups];
+  }();
+
+  if (pendingUnjoinedIds.isEmpty) return merged;
+
+  return merged.where((g) => !pendingUnjoinedIds.contains(g.id)).toList();
+}
+
+void syncPendingGroupsWithApi({
+  required Ref ref,
+  required Set<String> apiGroupIds,
+}) {
+  ref.read(pendingJoinedGroupsProvider.notifier).update(
+    (pending) =>
+        pending.where((group) => !apiGroupIds.contains(group.id)).toList(),
+  );
+
+  ref.read(pendingUnjoinedGroupIdsProvider.notifier).update(
+    (unjoined) => unjoined.intersection(apiGroupIds),
+  );
+}

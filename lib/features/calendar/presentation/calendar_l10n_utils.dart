@@ -1,0 +1,70 @@
+import 'package:flutter/widgets.dart';
+import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
+import 'package:flutter_pecha/core/l10n/intl_format_locale.dart';
+import 'package:flutter_pecha/features/calendar/domain/models/calendar_event.dart';
+import 'package:flutter_pecha/features/calendar/domain/models/moon_phase.dart';
+
+/// A locale name safe to pass to `intl`'s [DateFormat] (and `table_calendar`).
+String dateFormatLocale(BuildContext context) => intlFormatLocaleOf(context);
+
+/// Localized display name for a [MoonPhase].
+String moonPhaseLabel(AppLocalizations l10n, MoonPhase phase) {
+  switch (phase) {
+    case MoonPhase.newMoon:
+      return l10n.moon_phase_new_moon;
+    case MoonPhase.firstQuarter:
+      return l10n.moon_phase_first_quarter;
+    case MoonPhase.fullMoon:
+      return l10n.moon_phase_full_moon;
+    default:
+      return "";
+  }
+}
+
+/// Whether a moon phase should be surfaced in the UI (home card, events list).
+bool showsMoonPhaseLabel(MoonPhase phase) {
+  return switch (phase) {
+    MoonPhase.newMoon || MoonPhase.firstQuarter || MoonPhase.fullMoon => true,
+    _ => false,
+  };
+}
+
+/// Whether an event should appear in the upcoming-events list.
+bool showsInUpcomingEvents(CalendarEvent event) {
+  if (event.kind != CalendarEventKind.lunarPhase) return true;
+  final phase = event.phase;
+  return phase != null && showsMoonPhaseLabel(phase);
+}
+
+/// Display title for an event: a localized phase name for computed lunar-phase
+/// events, otherwise the (backend-supplied) custom title.
+String eventTitle(AppLocalizations l10n, CalendarEvent event) {
+  final phase = event.phase;
+  if (event.kind == CalendarEventKind.lunarPhase && phase != null) {
+    return moonPhaseLabel(l10n, phase);
+  }
+  return event.title;
+}
+
+/// "{ordinal} lunar month" — e.g. "4th lunar month" in English. For non-English
+/// locales the bare month number is interpolated (the arb template positions it
+/// appropriately, e.g. "藏历4月").
+String lunarMonthLabel(BuildContext context, AppLocalizations l10n, int month) {
+  final isEnglish = Localizations.localeOf(context).languageCode == 'en';
+  final ordinal = isEnglish ? _englishOrdinal(month) : '$month';
+  return l10n.calendar_lunar_month(ordinal);
+}
+
+String _englishOrdinal(int n) {
+  if (n >= 11 && n <= 13) return '${n}th';
+  switch (n % 10) {
+    case 1:
+      return '${n}st';
+    case 2:
+      return '${n}nd';
+    case 3:
+      return '${n}rd';
+    default:
+      return '${n}th';
+  }
+}

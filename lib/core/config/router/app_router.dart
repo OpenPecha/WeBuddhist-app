@@ -10,6 +10,7 @@ import 'package:flutter_pecha/core/config/router/pending_route_provider.dart';
 import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
 import 'package:flutter_pecha/features/auth/presentation/screens/login_page.dart';
 import 'package:flutter_pecha/features/auth/presentation/screens/splash_screen.dart';
+import 'package:flutter_pecha/features/calendar/presentation/screens/tibetan_calendar_screen.dart';
 import 'package:flutter_pecha/features/group_profile/presentation/screens/group_profile_screen.dart';
 import 'package:flutter_pecha/features/home/domain/entities/series.dart';
 import 'package:flutter_pecha/features/home/presentation/screens/main_navigation_screen.dart';
@@ -32,12 +33,17 @@ import 'package:flutter_pecha/features/plans/presentation/widgets/plan_track/pla
 import 'package:flutter_pecha/features/plans/presentation/plan_info.dart';
 import 'package:flutter_pecha/features/plans/presentation/widgets/plan_preview/plan_preview_details.dart';
 import 'package:flutter_pecha/features/practice/presentation/screens/edit_routine_screen.dart';
+import 'package:flutter_pecha/features/practice/presentation/screens/bookmarks_screen.dart';
+import 'package:flutter_pecha/features/practice/presentation/screens/practice_explore_screen.dart';
 import 'package:flutter_pecha/features/practice/presentation/screens/practice_screen.dart';
 import 'package:flutter_pecha/features/practice/presentation/screens/select_plan_screen.dart';
 import 'package:flutter_pecha/features/practice/presentation/screens/select_recitation_screen.dart';
+import 'package:flutter_pecha/features/mala/domain/entities/mantra.dart';
+import 'package:flutter_pecha/features/mala/presentation/screens/mala_screen.dart';
 import 'package:flutter_pecha/features/notifications/presentation/notification_settings_screen.dart';
 import 'package:flutter_pecha/features/reader/data/models/navigation_context.dart';
 import 'package:flutter_pecha/features/reader/presentation/screens/reader_screen.dart';
+import 'package:flutter_pecha/features/recitation/data/models/recitation_model.dart';
 import 'package:flutter_pecha/features/texts/presentation/screens/chapters/chapters_screen.dart';
 import 'package:flutter_pecha/features/texts/presentation/segment_image/choose_image.dart';
 import 'package:flutter_pecha/features/texts/presentation/segment_image/create_image.dart';
@@ -59,7 +65,8 @@ final _logger = AppLogger('AppRouter');
 final rootNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'root');
 
 /// Shell navigator key for routes that share the persistent bottom nav bar.
-final _shellNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'shell');
+/// Public so [HomeShellScaffold] can pop imperatively-pushed screens on tab switch.
+final shellNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'shell');
 
 /// Provider for the application router with authentication and route protection
 ///
@@ -106,14 +113,39 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const SplashScreen(),
       ),
 
-      // Universal / App Link entry point shared from the home screen.
-      // Handled by DeepLinkService for cold-start; this route is the
-      // warm-start fallback in case go_router intercepts the URI directly.
+      // Defensive fallback for the Airbridge tracking URL if it is ever handed
+      // to go_router after native Airbridge handling.
       GoRoute(
-        path: '/open',
-        name: 'open',
+        path: AppRoutes.getApp,
+        name: 'get-app',
         redirect: (_, __) => AppRoutes.home,
       ),
+
+      // Compatibility fallback in case a platform sends the first-party app
+      // link directly to go_router instead of through AppLinksDeepLinkService.
+      GoRoute(
+        path: '/open/reader/:textId',
+        name: 'open-reader',
+        redirect: (_, state) {
+          final textId = state.pathParameters['textId'] ?? '';
+          final segmentId =
+              state.uri.queryParameters['segment'] ??
+              state.uri.queryParameters['segmentId'];
+          final language = state.uri.queryParameters['lang'];
+          return Uri(
+            pathSegments: ['reader', textId],
+            queryParameters: {
+              if (segmentId != null && segmentId.isNotEmpty)
+                'segment': segmentId,
+              if (language != null && language.isNotEmpty) 'lang': language,
+            },
+          ).toString();
+        },
+      ),
+      // First-party app entry point shared from the home screen.
+      // AppLinksDeepLinkService handles normal delivery; this is the home
+      // fallback in case go_router receives only /open directly.
+      GoRoute(path: '/open', name: 'open', redirect: (_, __) => AppRoutes.home),
       GoRoute(
         path: "/login",
         name: "login",
@@ -127,7 +159,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       ),
 
       ShellRoute(
-        navigatorKey: _shellNavigatorKey,
+        navigatorKey: shellNavigatorKey,
         builder: (context, state, child) {
           return HomeShellScaffold(child: child);
         },
@@ -146,16 +178,16 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                 },
                 routes: [
                   GoRoute(
-                    parentNavigatorKey: rootNavigatorKey,
                     path: "preview",
                     name: "home-plan-preview",
                     builder: (context, state) {
                       final extra = state.extra as Map<String, dynamic>?;
                       final plan = extra?['plan'] as Plan?;
+                      final seriesId = extra?['seriesId'] as String?;
                       if (plan == null) {
                         throw Exception('Missing required parameters');
                       }
-                      return PlanPreviewDetails(plan: plan);
+                      return PlanPreviewDetails(plan: plan, seriesId: seriesId);
                     },
                   ),
                 ],
@@ -163,6 +195,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 path: "series/:id",
                 name: "home-series-detail",
+                // Root navigator so this full-screen detail can be pushed from
+                // root-level routes (e.g. /practice/bookmarks) without
+                // go_router inserting a second /home shell page and hitting a
+                // duplicate page key. Mirrors home-timer-active.
+                parentNavigatorKey: rootNavigatorKey,
                 builder: (context, state) {
                   final id = state.pathParameters['id'] ?? '';
                   final extra = state.extra as Map<String, dynamic>?;
@@ -173,6 +210,9 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                   GoRoute(
                     path: "info",
                     name: "home-series-info",
+                    // Must share the parent's (root) navigator so detail → info
+                    // stays on one navigator.
+                    parentNavigatorKey: rootNavigatorKey,
                     builder: (context, state) {
                       final extra = state.extra as Map<String, dynamic>?;
                       final series = extra?['series'] as Series;
@@ -197,6 +237,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                   GoRoute(
                     path: "active",
                     name: "home-timer-active",
+                    // Root navigator so this works when my-practices (or any
+                    // root-pushed route) is already on the stack above /home.
+                    // Without this, go_router inserts a second /home shell page
+                    // and hits duplicate page keys.
+                    parentNavigatorKey: rootNavigatorKey,
                     builder: (context, state) {
                       final timer = state.extra as PresetTimer?;
                       if (timer == null) {
@@ -212,6 +257,12 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                 path: "settings",
                 name: "home-settings",
                 builder: (context, state) => const MoreScreen(),
+              ),
+              // calendar route
+              GoRoute(
+                path: "calendar",
+                name: "home-calendar",
+                builder: (context, state) => const TibetanCalendarScreen(),
               ),
             ],
           ),
@@ -284,43 +335,115 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         ],
       ),
 
-      // practice route
+      // mala route (login-gated digital prayer beads)
+      GoRoute(
+        path: AppRoutes.mala,
+        name: "mala",
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>?;
+          return MalaScreen(initialPresetId: extra?['presetId'] as String?);
+        },
+      ),
+
+      // Practice routes are flat top-level siblings (not nested under /practice)
+      // so child navigations do not also push a parent /practice page onto the
+      // root navigator — that duplicate page key caused crashes when returning
+      // from edit-routine to my-practices (RoutineFilledState transition).
       GoRoute(
         path: "/practice",
         name: "practice",
-        builder: (context, state) => const PracticeScreen(),
+        builder: (context, state) => const PracticeExploreScreen(),
+      ),
+      GoRoute(
+        path: "/practice/my-practices",
+        name: "my-practices",
+        builder: (context, state) => const PracticeScreen(showAppBar: true),
+      ),
+      GoRoute(
+        path: "/practice/edit-routine",
+        name: "edit-routine",
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>?;
+          final plan = extra?['initialPlan'] as Plan?;
+          final recitation = extra?['initialRecitation'] as RecitationModel?;
+          final series = extra?['initialSeries'] as Series?;
+          final mantra = extra?['initialMantra'] as Mantra?;
+          final enrollSeriesId = extra?['enrollSeriesId'] as String?;
+          final timer = extra?['initialTimer'] as PresetTimer?;
+          return EditRoutineScreen(
+            initialPlan: plan,
+            initialRecitation: recitation,
+            initialTimer: timer,
+            initialSeries: series,
+            initialMantra: mantra,
+            enrollSeriesId: enrollSeriesId,
+          );
+        },
         routes: [
           GoRoute(
-            path: "edit-routine", // route - /practice/edit-routine
-            name: "edit-routine",
-            builder: (context, state) {
-              final extra = state.extra as Map<String, dynamic>?;
-              final plan = extra?['initialPlan'] as Plan?;
-              final enrollSeriesId = extra?['enrollSeriesId'] as String?;
-              return EditRoutineScreen(
-                initialPlan: plan,
-                enrollSeriesId: enrollSeriesId,
-              );
-            },
-            routes: [
-              GoRoute(
-                path:
-                    "select-plan", // route - /practice/edit-routine/select-plan
-                name: "select-plan",
-                builder: (context, state) => const SelectPlanScreen(),
-              ),
-              GoRoute(
-                path:
-                    "select-recitation", // route - /practice/edit-routine/select-recitation
-                name: "select-recitation",
-                builder: (context, state) => const SelectRecitationScreen(),
-              ),
-            ],
+            path: "select-plan",
+            name: "select-plan",
+            builder: (context, state) => const SelectPlanScreen(),
           ),
-          // route - /practice/details
+          GoRoute(
+            path: "select-recitation",
+            name: "select-recitation",
+            builder: (context, state) => const SelectRecitationScreen(),
+          ),
+        ],
+      ),
+      GoRoute(
+        path: "/practice/bookmarks",
+        name: "bookmarks",
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (context, state) => const BookmarksScreen(),
+      ),
+      GoRoute(
+        path: "/practice/details",
+        name: "practice-plan-details",
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>?;
+          final plan = extra?['plan'] as UserPlansModel?;
+          final selectedDay = extra?['selectedDay'] as int?;
+          final startDate = extra?['startDate'] as DateTime?;
+          if (plan == null) {
+            throw Exception('Missing required parameters');
+          }
+          return PlanDetails(
+            plan: plan,
+            selectedDay: selectedDay ?? 1,
+            startDate: startDate ?? DateTime.now(),
+          );
+        },
+      ),
+      GoRoute(
+        path: "/practice/plans/preview",
+        name: "practice-plan-preview",
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>?;
+          final plan = extra?['plan'] as Plan?;
+          final seriesId = extra?['seriesId'] as String?;
+          if (plan == null) {
+            throw Exception('Missing required parameters');
+          }
+          return PlanPreviewDetails(plan: plan, seriesId: seriesId);
+        },
+      ),
+      GoRoute(
+        path: "/practice/plans/info",
+        name: "practice-plan-info",
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>?;
+          final plan = extra?['plan'] as Plan?;
+          if (plan == null) {
+            throw Exception('Missing required parameters');
+          }
+          return PlanInfo(plan: plan);
+        },
+        routes: [
           GoRoute(
             path: "details",
-            name: "practice-plan-details",
+            name: "practice-plan-info-details",
             builder: (context, state) {
               final extra = state.extra as Map<String, dynamic>?;
               final plan = extra?['plan'] as UserPlansModel?;
@@ -335,59 +458,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                 startDate: startDate ?? DateTime.now(),
               );
             },
-          ),
-          // route - /practice/plans/preview
-          GoRoute(
-            path: "plans/preview",
-            name: "practice-plan-preview",
-            builder: (context, state) {
-              final extra = state.extra as Map<String, dynamic>?;
-              final plan = extra?['plan'] as Plan?;
-              if (plan == null) {
-                throw Exception('Missing required parameters');
-              }
-              return PlanPreviewDetails(plan: plan);
-            },
-          ),
-          // route - /practice/plans/info
-          GoRoute(
-            path: "plans/info",
-            name: "practice-plan-info",
-            builder: (context, state) {
-              final extra = state.extra as Map<String, dynamic>?;
-              final plan = extra?['plan'] as Plan?;
-              if (plan == null) {
-                throw Exception('Missing required parameters');
-              }
-              return PlanInfo(plan: plan);
-            },
-            routes: [
-              // route - /practice/plans/info/details
-              GoRoute(
-                path: "details",
-                name: "practice-plan-info-details",
-                builder: (context, state) {
-                  final extra = state.extra as Map<String, dynamic>?;
-                  final plan = extra?['plan'] as UserPlansModel?;
-                  final selectedDay = extra?['selectedDay'] as int?;
-                  final startDate = extra?['startDate'] as DateTime?;
-                  if (plan == null) {
-                    throw Exception('Missing required parameters');
-                  }
-                  return PlanDetails(
-                    plan: plan,
-                    selectedDay: selectedDay ?? 1,
-                    startDate: startDate ?? DateTime.now(),
-                  );
-                },
-              ),
-              // route - /practice/plans/info/author
-              // GoRoute(
-              //   path: "author",
-              //   name: "practice-plan-author",
-              //   builder: (context, state) => const AuthorDetailScreen(),
-              // ),
-            ],
           ),
         ],
       ),
@@ -458,7 +528,9 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         pageBuilder: (context, state) {
           final textId = state.pathParameters['textId'] ?? '';
           final extra = state.extra;
-          String? segmentId;
+          String? segmentId =
+              state.uri.queryParameters['segment'] ??
+              state.uri.queryParameters['segmentId'];
 
           // Extract navigation context if provided
           NavigationContext? navigationContext;
@@ -479,6 +551,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
               source = NavigationSource.search;
             } else if (sourceStr == 'deepLink') {
               source = NavigationSource.deepLink;
+            } else if (sourceStr == 'recitationList') {
+              source = NavigationSource.recitationList;
+            } else if (sourceStr == 'routine') {
+              source = NavigationSource.routine;
             }
 
             navigationContext = NavigationContext(
@@ -486,6 +562,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
               targetSegmentId: segmentId,
               planTextItems: planTextItems,
               currentTextIndex: currentTextIndex ?? 0,
+            );
+          } else if (segmentId != null && segmentId.isNotEmpty) {
+            navigationContext = NavigationContext(
+              source: NavigationSource.deepLink,
+              targetSegmentId: segmentId,
             );
           }
 

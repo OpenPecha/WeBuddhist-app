@@ -13,16 +13,56 @@ abstract class UserPlansRepositoryInterface {
     String? seriesId,
   });
 
+  Stream<Either<Failure, UserPlanListResponseModel>> watchUserPlans({
+    required String language,
+    int? skip,
+    int? limit,
+    String? seriesId,
+  });
+
+  Future<Either<Failure, UserPlanListResponseModel>> refreshUserPlans({
+    required String language,
+    int? skip,
+    int? limit,
+    String? seriesId,
+  });
+
   Future<Either<Failure, bool>> subscribeToPlan(String planId);
 
-  Future<Either<Failure, List<PlanProgressModel>>> getUserPlanProgressDetails(String planId);
+  Future<Either<Failure, List<PlanProgressModel>>> getUserPlanProgressDetails(
+    String planId,
+  );
+
+  Stream<Either<Failure, List<PlanProgressModel>>> watchUserPlanProgressDetails(
+    String planId,
+  );
 
   Future<Either<Failure, UserPlanDayDetailResponse>> getUserPlanDayContent(
     String planId,
     int dayNumber,
   );
 
-  Future<Either<Failure, Map<int, bool>>> getPlanDaysCompletionStatus(String planId);
+  Stream<Either<Failure, UserPlanDayDetailResponse>> watchUserPlanDayContent(
+    String planId,
+    int dayNumber,
+  );
+
+  Future<Either<Failure, UserPlanDayDetailResponse>> refreshUserPlanDayContent(
+    String planId,
+    int dayNumber,
+  );
+
+  Future<Either<Failure, Map<int, bool>>> getPlanDaysCompletionStatus(
+    String planId,
+  );
+
+  Stream<Either<Failure, Map<int, bool>>> watchPlanDaysCompletionStatus(
+    String planId,
+  );
+
+  Future<Either<Failure, Map<int, bool>>> refreshPlanDaysCompletionStatus(
+    String planId,
+  );
 
   Future<Either<Failure, bool>> completeSubTask(String subTaskId);
 
@@ -31,4 +71,6 @@ abstract class UserPlansRepositoryInterface {
   Future<Either<Failure, bool>> deleteTask(String taskId);
 
   Future<Either<Failure, bool>> unenrollFromPlan(String planId);
+
+  Future<void> flushPendingPlanActions();
 }

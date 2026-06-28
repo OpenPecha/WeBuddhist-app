@@ -105,8 +105,8 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
     }
   }
 
-  /// Submit preferences and mark onboarding as complete.
-  /// Returns true only when completion was successfully persisted to storage.
+  /// Submit preferences and mark onboarding as complete via the API.
+  /// Returns true only when completion was successfully persisted.
   Future<bool> submitPreferences() async {
     state = state.copyWithLoading(true);
     try {

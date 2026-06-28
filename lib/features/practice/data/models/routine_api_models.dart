@@ -2,17 +2,25 @@ import 'package:flutter_pecha/features/plans/data/models/plans_model.dart';
 import 'package:flutter_pecha/shared/domain/value_objects/responsive_image.dart';
 
 enum SessionType {
-  plan,
-  recitation;
+  series,
+  recitation,
+  timer,
+  accumulator;
 
   String toJson() => switch (this) {
-    SessionType.plan => 'PLAN',
+    SessionType.series => 'SERIES',
     SessionType.recitation => 'RECITATION',
+    SessionType.timer => 'TIMER',
+    SessionType.accumulator => 'ACCUMULATOR',
   };
 
   static SessionType fromJson(String value) => switch (value) {
-    'PLAN' => SessionType.plan,
+    'SERIES' => SessionType.series,
+    // Legacy API / cached payloads before the PLAN → SERIES rename.
+    'PLAN' => SessionType.series,
     'RECITATION' => SessionType.recitation,
+    'TIMER' => SessionType.timer,
+    'ACCUMULATOR' => SessionType.accumulator,
     _ => throw FormatException('Unknown SessionType: $value'),
   };
 }
@@ -24,16 +32,21 @@ class SessionRequest {
   final String sourceId;
   final int displayOrder;
 
+  /// Required by the API when [sessionType] is [SessionType.timer].
+  final int? durationMs;
+
   const SessionRequest({
     required this.sessionType,
     required this.sourceId,
     required this.displayOrder,
+    this.durationMs,
   });
 
   Map<String, dynamic> toJson() => {
     'session_type': sessionType.toJson(),
-    'source_id': sourceId,
+    if (sessionType != SessionType.timer) 'source_id': sourceId,
     'display_order': displayOrder,
+    if (durationMs != null) 'duration_ms': durationMs,
   };
 }
 
@@ -70,8 +83,11 @@ class SessionDTO {
   final String language;
   final ImageModel? image;
   final int displayOrder;
+  final int? durationMs;
   final DateTime? startDate;
   final DateTime? startedAt;
+  final String? currentPlanId;
+  final String? currentPlanTitle;
 
   const SessionDTO({
     required this.id,
@@ -81,8 +97,11 @@ class SessionDTO {
     required this.language,
     this.image,
     required this.displayOrder,
+    this.durationMs,
     this.startDate,
     this.startedAt,
+    this.currentPlanId,
+    this.currentPlanTitle,
   });
 
   String? get imageUrl => image?.displayUrl;
@@ -90,20 +109,35 @@ class SessionDTO {
   ResponsiveImage? get coverImage => image?.toResponsiveImage();
 
   factory SessionDTO.fromJson(Map<String, dynamic> json) {
+    final sessionType = SessionType.fromJson(json['session_type'] as String);
+    final durationMs =
+        (json['duration_ms'] as num?)?.toInt() ??
+        (json['duration'] as num?)?.toInt();
+    final fallbackTimerTitle =
+        durationMs != null ? '${durationMs ~/ 60000} min session' : 'Timer';
+
     return SessionDTO(
       id: json['id'] as String,
-      sessionType: SessionType.fromJson(json['session_type'] as String),
-      sourceId: json['source_id'] as String,
-      title: json['title'] as String,
-      language: json['language'] as String,
+      sessionType: sessionType,
+      sourceId: (json['source_id'] as String?) ?? json['id'] as String,
+      title:
+          sessionType == SessionType.timer
+              ? ((json['title'] as String?) ?? fallbackTimerTitle)
+              : (json['title'] as String),
+      language: (json['language'] as String?) ?? '',
       image: ImageModel.fromJsonMap(json),
       displayOrder: json['display_order'] as int,
-      startDate: json['start_date'] != null
-          ? DateTime.tryParse(json['start_date'] as String)
-          : null,
-      startedAt: json['started_at'] != null
-          ? DateTime.tryParse(json['started_at'] as String)
-          : null,
+      durationMs: durationMs,
+      startDate:
+          json['start_date'] != null
+              ? DateTime.tryParse(json['start_date'] as String)
+              : null,
+      startedAt:
+          json['started_at'] != null
+              ? DateTime.tryParse(json['started_at'] as String)
+              : null,
+      currentPlanId: json['current_plan_id'] as String?,
+      currentPlanTitle: json['current_plan_title'] as String?,
     );
   }
 }
@@ -129,9 +163,10 @@ class TimeBlockDTO {
       time: json['time'] as String,
       timeInt: json['time_int'] as int,
       notificationEnabled: json['notification_enabled'] as bool,
-      sessions: (json['sessions'] as List<dynamic>)
-          .map((s) => SessionDTO.fromJson(s as Map<String, dynamic>))
-          .toList(),
+      sessions:
+          (json['sessions'] as List<dynamic>)
+              .map((s) => SessionDTO.fromJson(s as Map<String, dynamic>))
+              .toList(),
     );
   }
 }
@@ -148,9 +183,10 @@ class RoutineWithTimeBlocksResponse {
   factory RoutineWithTimeBlocksResponse.fromJson(Map<String, dynamic> json) {
     return RoutineWithTimeBlocksResponse(
       id: json['id'] as String,
-      timeBlocks: (json['time_blocks'] as List<dynamic>)
-          .map((tb) => TimeBlockDTO.fromJson(tb as Map<String, dynamic>))
-          .toList(),
+      timeBlocks:
+          (json['time_blocks'] as List<dynamic>)
+              .map((tb) => TimeBlockDTO.fromJson(tb as Map<String, dynamic>))
+              .toList(),
     );
   }
 }
@@ -173,9 +209,10 @@ class RoutineResponse {
   factory RoutineResponse.fromJson(Map<String, dynamic> json) {
     return RoutineResponse(
       id: json['id'] as String,
-      timeBlocks: (json['time_blocks'] as List<dynamic>)
-          .map((tb) => TimeBlockDTO.fromJson(tb as Map<String, dynamic>))
-          .toList(),
+      timeBlocks:
+          (json['time_blocks'] as List<dynamic>)
+              .map((tb) => TimeBlockDTO.fromJson(tb as Map<String, dynamic>))
+              .toList(),
       skip: json['skip'] as int,
       limit: json['limit'] as int,
       total: json['total'] as int,
