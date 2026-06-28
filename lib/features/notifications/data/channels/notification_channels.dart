@@ -40,7 +40,13 @@ class NotificationChannels {
       );
 
   // ── Push (Firebase Cloud Messaging) ─────────────────────────────────────────
-  static const String pushDefaultId = 'push_default';
+  //
+  // Channel id is versioned (`_v2`) because an Android channel's sound is baked
+  // in at creation time and cannot be changed afterwards — bumping the id lets
+  // the custom sound take effect on installs that already created the original
+  // (soundless) `push_default` channel. Keep this value in sync with
+  // `default_notification_channel_id` in AndroidManifest.xml.
+  static const String pushDefaultId = 'push_default_v2';
   static const String pushDefaultName = 'General Notifications';
   static const String pushDefaultDescription =
       'Announcements and updates from WeBuddhist';
@@ -48,17 +54,26 @@ class NotificationChannels {
   /// Android channel for remote (FCM) notifications. Referenced from
   /// AndroidManifest as `default_notification_channel_id` so background /
   /// terminated FCM messages land here, and reused for foreground display.
+  ///
+  /// Shares the routine reminder sound so push and local notifications feel
+  /// like one product. The sound is bound to the channel (Android 8+ ignores
+  /// per-notification sound), so it must live here to apply in every state.
   static const AndroidNotificationChannel pushDefaultChannel =
       AndroidNotificationChannel(
         pushDefaultId,
         pushDefaultName,
         description: pushDefaultDescription,
         importance: Importance.high,
+        playSound: true,
+        sound: routineAndroidSound,
+        enableVibration: true,
       );
 
   /// Platform details used when displaying a foreground FCM message via
   /// flutter_local_notifications (Android suppresses FCM auto-display while the
-  /// app is foregrounded).
+  /// app is foregrounded). Mirrors the routine reminder styling — app
+  /// notification icon + custom sound — so foreground pushes match the rest of
+  /// the app.
   static const NotificationDetails pushDefaultDetails = NotificationDetails(
     android: AndroidNotificationDetails(
       pushDefaultId,
@@ -67,8 +82,12 @@ class NotificationChannels {
       importance: Importance.high,
       priority: Priority.high,
       icon: 'ic_notification',
+      playSound: true,
+      sound: routineAndroidSound,
+      enableVibration: true,
     ),
     iOS: DarwinNotificationDetails(
+      sound: routineIosSoundFile,
       presentAlert: true,
       presentBadge: true,
       presentSound: true,

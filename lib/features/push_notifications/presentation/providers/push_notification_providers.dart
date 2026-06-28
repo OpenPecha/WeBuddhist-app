@@ -2,9 +2,11 @@ import 'package:flutter_pecha/core/di/core_providers.dart';
 import 'package:flutter_pecha/core/utils/local_storage_service.dart';
 import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
 import 'package:flutter_pecha/features/auth/presentation/state/auth_state.dart';
+import 'package:flutter_pecha/features/notifications/data/services/notification_service.dart';
 import 'package:flutter_pecha/features/push_notifications/application/push_notification_service.dart';
 import 'package:flutter_pecha/features/push_notifications/data/repositories/push_messaging_repository_impl.dart';
 import 'package:flutter_pecha/features/push_notifications/domain/repositories/push_messaging_repository.dart';
+import 'package:flutter_pecha/features/push_notifications/presentation/push_message_navigator.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final pushMessagingRepositoryProvider =
@@ -27,6 +29,18 @@ final pushNotificationServiceProvider =
 /// lifetime (e.g. in `MyApp.build`).
 final pushNotificationBootstrapProvider = Provider<void>((ref) {
   final service = ref.watch(pushNotificationServiceProvider);
+  final navigator = ref.read(pushMessageNavigatorProvider);
+
+  // Route notification taps from every app state through one navigator so
+  // navigation stays consistent. Wire the callbacks BEFORE initialize() so a
+  // terminated-state launch (handled inside initialize via getInitialMessage)
+  // is routed too.
+  //   • background / terminated taps  -> service.onOpenMessage
+  //   • foreground taps               -> shared local-notifications callback,
+  //     which NotificationService forwards here for push-shaped payloads.
+  service.onOpenMessage = navigator.handle;
+  NotificationService.setPushTapHandler(navigator.handleData);
+
   service.initialize();
 
   void syncAuth() {

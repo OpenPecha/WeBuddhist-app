@@ -43,6 +43,12 @@ class PushNotificationService {
   final _logger = AppLogger('PushNotificationService');
   final _subscriptions = <StreamSubscription<dynamic>>[];
 
+  /// Invoked when a notification is opened from the background or terminated
+  /// state. Set by the bootstrap layer to route via [PushMessageNavigator].
+  /// Foreground taps reach the navigator separately (through the shared
+  /// flutter_local_notifications callback), so they don't pass through here.
+  void Function(PushMessage message)? onOpenMessage;
+
   String? _token;
   bool _loggedIn = false;
   bool _initialized = false;
@@ -130,7 +136,7 @@ class PushNotificationService {
 
   void _onNotificationTapped(PushMessage message) {
     _logger.info('Notification opened: ${message.title} data=${message.data}');
-    // TODO: deep-link based on message.data once the product defines routes.
+    onOpenMessage?.call(message);
   }
 
   Future<void> _createAndroidChannel() async {
