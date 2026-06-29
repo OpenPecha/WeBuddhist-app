@@ -91,9 +91,9 @@ class _SelectSessionScreenState extends ConsumerState<SelectSessionScreen>
 
   void _onRecitationSelected(RecitationModel recitation) {
     if (_enrollingItemId != null) return;
-    Navigator.of(context).pop<SessionSelection>(
-      RecitationSessionSelection(recitation),
-    );
+    Navigator.of(
+      context,
+    ).pop<SessionSelection>(RecitationSessionSelection(recitation));
   }
 
   void _onMantraSelected(Mantra mantra) {
@@ -124,7 +124,14 @@ class _SelectSessionScreenState extends ConsumerState<SelectSessionScreen>
         actions: [
           IconButton(
             icon: const Icon(Icons.search, size: 22),
-            onPressed: () {},
+            onPressed: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(localizations.mala_action_coming_soon),
+                  behavior: SnackBarBehavior.floating,
+                ),
+              );
+            },
           ),
         ],
         bottom: TabBar(
@@ -143,10 +150,10 @@ class _SelectSessionScreenState extends ConsumerState<SelectSessionScreen>
             fontWeight: FontWeight.normal,
             fontSize: 14,
           ),
-          labelColor: isDark ? AppColors.textPrimaryDark : AppColors.textPrimary,
-          unselectedLabelColor: isDark
-              ? AppColors.textTertiaryDark
-              : AppColors.textSecondary,
+          labelColor:
+              isDark ? AppColors.textPrimaryDark : AppColors.textPrimary,
+          unselectedLabelColor:
+              isDark ? AppColors.textTertiaryDark : AppColors.textSecondary,
           indicatorColor: Colors.blue,
           indicatorSize: TabBarIndicatorSize.tab,
           dividerColor: Colors.transparent,
@@ -235,9 +242,10 @@ class _PlansTab extends ConsumerWidget {
             return Padding(
               padding: const EdgeInsets.symmetric(vertical: 16),
               child: Center(
-                child: itemsState.isLoadingMore
-                    ? const CircularProgressIndicator()
-                    : const SizedBox.shrink(),
+                child:
+                    itemsState.isLoadingMore
+                        ? const CircularProgressIndicator()
+                        : const SizedBox.shrink(),
               ),
             );
           }
@@ -287,9 +295,10 @@ class _PlansTab extends ConsumerWidget {
                         dateRange,
                         style: TextStyle(
                           fontSize: 13,
-                          color: isDark
-                              ? AppColors.textTertiaryDark
-                              : AppColors.textSecondary,
+                          color:
+                              isDark
+                                  ? AppColors.textTertiaryDark
+                                  : AppColors.textSecondary,
                         ),
                       ),
                     ],
@@ -302,9 +311,8 @@ class _PlansTab extends ConsumerWidget {
 
       case PracticeSeriesItem(:final series):
         final dateRange = _formatDateRange(series.startDate, series.endDate);
-        final subtitle = series.subTitle?.isNotEmpty == true
-            ? series.subTitle
-            : dateRange;
+        final subtitle =
+            series.subTitle?.isNotEmpty == true ? series.subTitle : dateRange;
         return _SessionCard(
           isDark: isDark,
           onTap: enrollingItemId == null ? () => onItemSelected(item) : null,
@@ -331,9 +339,10 @@ class _PlansTab extends ConsumerWidget {
                         subtitle,
                         style: TextStyle(
                           fontSize: 13,
-                          color: isDark
-                              ? AppColors.textTertiaryDark
-                              : AppColors.textSecondary,
+                          color:
+                              isDark
+                                  ? AppColors.textTertiaryDark
+                                  : AppColors.textSecondary,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -411,9 +420,10 @@ class _ChantsTab extends ConsumerWidget {
             return Padding(
               padding: const EdgeInsets.symmetric(vertical: 16),
               child: Center(
-                child: recitationsState.isLoadingMore
-                    ? const CircularProgressIndicator()
-                    : const SizedBox.shrink(),
+                child:
+                    recitationsState.isLoadingMore
+                        ? const CircularProgressIndicator()
+                        : const SizedBox.shrink(),
               ),
             );
           }
@@ -425,9 +435,10 @@ class _ChantsTab extends ConsumerWidget {
             padding: const EdgeInsets.only(bottom: 8),
             child: _SessionCard(
               isDark: isDark,
-              onTap: enrollingItemId == null
-                  ? () => onRecitationSelected(recitation)
-                  : null,
+              onTap:
+                  enrollingItemId == null
+                      ? () => onRecitationSelected(recitation)
+                      : null,
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -436,9 +447,10 @@ class _ChantsTab extends ConsumerWidget {
                     height: description != null ? null : 44,
                     constraints: const BoxConstraints(minHeight: 44),
                     decoration: BoxDecoration(
-                      color: isDark
-                          ? AppColors.textTertiaryDark
-                          : AppColors.grey400,
+                      color:
+                          isDark
+                              ? AppColors.textTertiaryDark
+                              : AppColors.grey400,
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
@@ -462,9 +474,10 @@ class _ChantsTab extends ConsumerWidget {
                             description,
                             style: TextStyle(
                               fontSize: 13,
-                              color: isDark
-                                  ? AppColors.textTertiaryDark
-                                  : AppColors.textSecondary,
+                              color:
+                                  isDark
+                                      ? AppColors.textTertiaryDark
+                                      : AppColors.textSecondary,
                             ),
                             maxLines: 3,
                             overflow: TextOverflow.ellipsis,
@@ -502,67 +515,72 @@ class _MalasTab extends ConsumerWidget {
 
     return catalogueAsync.when(
       loading: () => const Center(child: CircularProgressIndicator()),
-      error: (_, __) => _RefreshableScrollBody(
-        onRefresh: onRefresh,
-        child: const _SessionTabMessage(message: 'Unable to load malas'),
-      ),
-      data: (either) => either.fold(
-        (_) => _RefreshableScrollBody(
-          onRefresh: onRefresh,
-          child: const _SessionTabMessage(message: 'Unable to load malas'),
-        ),
-        (mantras) {
-          if (mantras.isEmpty) {
-            return _RefreshableScrollBody(
-              onRefresh: onRefresh,
-              child: const _SessionTabMessage(message: 'No malas found'),
-            );
-          }
-
-          return RefreshIndicator(
+      error:
+          (_, __) => _RefreshableScrollBody(
             onRefresh: onRefresh,
-            child: ListView.builder(
-              physics: const AlwaysScrollableScrollPhysics(),
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              itemCount: mantras.length,
-              itemBuilder: (context, index) {
-                final mantra = mantras[index];
-                final imageUrl =
-                    mantra.beadImageUrl ?? mantra.mantra?.beadImageUrl;
-                final title = mantra.displayTitle(language);
-                _logger.debug(
-                  '🪬 Mala[$index] title=$title imageUrl=$imageUrl',
-                );
-
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 8),
-                  child: _SessionCard(
-                    isDark: isDark,
-                    onTap: () => onMantraSelected(mantra),
-                    child: Row(
-                      children: [
-                        _CircularImage(imageUrl: imageUrl, size: 52),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Text(
-                            title,
-                            style: const TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.w600,
-                            ),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              },
+            child: const _SessionTabMessage(message: 'Unable to load malas'),
+          ),
+      data:
+          (either) => either.fold(
+            (_) => _RefreshableScrollBody(
+              onRefresh: onRefresh,
+              child: const _SessionTabMessage(message: 'Unable to load malas'),
             ),
-          );
-        },
-      ),
+            (mantras) {
+              if (mantras.isEmpty) {
+                return _RefreshableScrollBody(
+                  onRefresh: onRefresh,
+                  child: const _SessionTabMessage(message: 'No malas found'),
+                );
+              }
+
+              return RefreshIndicator(
+                onRefresh: onRefresh,
+                child: ListView.builder(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
+                  ),
+                  itemCount: mantras.length,
+                  itemBuilder: (context, index) {
+                    final mantra = mantras[index];
+                    final imageUrl =
+                        mantra.beadImageUrl ?? mantra.mantra?.beadImageUrl;
+                    final title = mantra.displayTitle(language);
+                    _logger.debug(
+                      '🪬 Mala[$index] title=$title imageUrl=$imageUrl',
+                    );
+
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: _SessionCard(
+                        isDark: isDark,
+                        onTap: () => onMantraSelected(mantra),
+                        child: Row(
+                          children: [
+                            _CircularImage(imageUrl: imageUrl, size: 52),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Text(
+                                title,
+                                style: const TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              );
+            },
+          ),
     );
   }
 }
@@ -586,82 +604,90 @@ class _TimersTab extends ConsumerWidget {
 
     return timersAsync.when(
       loading: () => const Center(child: CircularProgressIndicator()),
-      error: (_, __) => _RefreshableScrollBody(
-        onRefresh: onRefresh,
-        child: const _SessionTabMessage(message: 'Unable to load timers'),
-      ),
-      data: (either) => either.fold(
-        (_) => _RefreshableScrollBody(
-          onRefresh: onRefresh,
-          child: const _SessionTabMessage(message: 'Unable to load timers'),
-        ),
-        (timers) {
-          if (timers.isEmpty) {
-            return _RefreshableScrollBody(
-              onRefresh: onRefresh,
-              child: const _SessionTabMessage(message: 'No timers found'),
-            );
-          }
-
-          return RefreshIndicator(
+      error:
+          (_, __) => _RefreshableScrollBody(
             onRefresh: onRefresh,
-            child: ListView.builder(
-              physics: const AlwaysScrollableScrollPhysics(),
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              itemCount: timers.length,
-              itemBuilder: (context, index) {
-                final timer = timers[index];
-
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 8),
-                  child: _SessionCard(
-                    isDark: isDark,
-                    onTap: () => onTimerSelected(timer),
-                    child: Row(
-                      children: [
-                        Container(
-                          width: 44,
-                          height: 44,
-                          decoration: BoxDecoration(
-                            color: isDark
-                                ? AppColors.surfaceVariantDark
-                                : AppColors.grey100,
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(
-                              color: isDark
-                                  ? AppColors.cardBorderDark
-                                  : AppColors.grey300,
-                            ),
-                          ),
-                          child: Icon(
-                            PhosphorIconsRegular.timer,
-                            size: 22,
-                            color: isDark
-                                ? AppColors.textTertiaryDark
-                                : AppColors.textSecondary,
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Text(
-                            '${timer.displayMinutes} ${localizations.timer_min}',
-                            style: const TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.w600,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              },
+            child: const _SessionTabMessage(message: 'Unable to load timers'),
+          ),
+      data:
+          (either) => either.fold(
+            (_) => _RefreshableScrollBody(
+              onRefresh: onRefresh,
+              child: const _SessionTabMessage(message: 'Unable to load timers'),
             ),
-          );
-        },
-      ),
+            (timers) {
+              if (timers.isEmpty) {
+                return _RefreshableScrollBody(
+                  onRefresh: onRefresh,
+                  child: const _SessionTabMessage(message: 'No timers found'),
+                );
+              }
+
+              return RefreshIndicator(
+                onRefresh: onRefresh,
+                child: ListView.builder(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
+                  ),
+                  itemCount: timers.length,
+                  itemBuilder: (context, index) {
+                    final timer = timers[index];
+
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: _SessionCard(
+                        isDark: isDark,
+                        onTap: () => onTimerSelected(timer),
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 44,
+                              height: 44,
+                              decoration: BoxDecoration(
+                                color:
+                                    isDark
+                                        ? AppColors.surfaceVariantDark
+                                        : AppColors.grey100,
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(
+                                  color:
+                                      isDark
+                                          ? AppColors.cardBorderDark
+                                          : AppColors.grey300,
+                                ),
+                              ),
+                              child: Icon(
+                                PhosphorIconsRegular.timer,
+                                size: 22,
+                                color:
+                                    isDark
+                                        ? AppColors.textTertiaryDark
+                                        : AppColors.textSecondary,
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Text(
+                                '${timer.displayMinutes} ${localizations.timer_min}',
+                                style: const TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              );
+            },
+          ),
     );
   }
 }
@@ -670,10 +696,7 @@ class _TimersTab extends ConsumerWidget {
 
 /// Makes pull-to-refresh work when tab content does not fill the viewport.
 class _RefreshableScrollBody extends StatelessWidget {
-  const _RefreshableScrollBody({
-    required this.onRefresh,
-    required this.child,
-  });
+  const _RefreshableScrollBody({required this.onRefresh, required this.child});
 
   final Future<void> Function() onRefresh;
   final Widget child;
@@ -683,13 +706,11 @@ class _RefreshableScrollBody extends StatelessWidget {
     return RefreshIndicator(
       onRefresh: onRefresh,
       child: LayoutBuilder(
-        builder: (context, constraints) => SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          child: SizedBox(
-            height: constraints.maxHeight,
-            child: child,
-          ),
-        ),
+        builder:
+            (context, constraints) => SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              child: SizedBox(height: constraints.maxHeight, child: child),
+            ),
       ),
     );
   }
@@ -724,16 +745,13 @@ class _SessionCard extends StatelessWidget {
   final bool isDark;
   final VoidCallback? onTap;
 
-  const _SessionCard({
-    required this.child,
-    required this.isDark,
-    this.onTap,
-  });
+  const _SessionCard({required this.child, required this.isDark, this.onTap});
 
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: isDark ? AppColors.cardBackgroundDark : AppColors.cardBackgroundLight,
+      color:
+          isDark ? AppColors.cardBackgroundDark : AppColors.cardBackgroundLight,
       borderRadius: BorderRadius.circular(12),
       child: InkWell(
         onTap: onTap,
