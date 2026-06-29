@@ -2860,6 +2860,24 @@ abstract class AppLocalizations {
   /// **'Followers'**
   String get group_tab_followers;
 
+  /// No description provided for @group_members_heading.
+  ///
+  /// In en, this message translates to:
+  /// **'Members({count})'**
+  String group_members_heading(int count);
+
+  /// No description provided for @group_followers_heading.
+  ///
+  /// In en, this message translates to:
+  /// **'Followers({count})'**
+  String group_followers_heading(int count);
+
+  /// No description provided for @group_invite.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite'**
+  String get group_invite;
+
   /// No description provided for @group_members_load_error.
   ///
   /// In en, this message translates to:

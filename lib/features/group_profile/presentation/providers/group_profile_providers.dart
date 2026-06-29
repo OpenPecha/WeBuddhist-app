@@ -253,6 +253,7 @@ final groupFollowProvider = StateNotifierProvider.autoDispose
 
 class GroupMembersState {
   final List<GroupMember> members;
+  final int totalMembers;
   final bool isLoading;
   final bool isLoadingMore;
   final String? error;
@@ -261,6 +262,7 @@ class GroupMembersState {
 
   const GroupMembersState({
     this.members = const [],
+    this.totalMembers = 0,
     this.isLoading = false,
     this.isLoadingMore = false,
     this.error,
@@ -270,6 +272,7 @@ class GroupMembersState {
 
   GroupMembersState copyWith({
     List<GroupMember>? members,
+    int? totalMembers,
     bool? isLoading,
     bool? isLoadingMore,
     String? error,
@@ -279,6 +282,7 @@ class GroupMembersState {
   }) {
     return GroupMembersState(
       members: members ?? this.members,
+      totalMembers: totalMembers ?? this.totalMembers,
       isLoading: isLoading ?? this.isLoading,
       isLoadingMore: isLoadingMore ?? this.isLoadingMore,
       error: clearError ? null : error ?? this.error,
@@ -320,6 +324,7 @@ class GroupMembersNotifier extends StateNotifier<GroupMembersState> {
       (page) {
         state = state.copyWith(
           members: page.members,
+          totalMembers: page.totalMembers,
           isLoading: false,
           hasMore: page.hasMore,
           skip: page.members.length,
@@ -349,6 +354,7 @@ class GroupMembersNotifier extends StateNotifier<GroupMembersState> {
       (page) {
         state = state.copyWith(
           members: [...state.members, ...page.members],
+          totalMembers: page.totalMembers,
           isLoadingMore: false,
           hasMore: page.hasMore,
           skip: state.skip + page.members.length,

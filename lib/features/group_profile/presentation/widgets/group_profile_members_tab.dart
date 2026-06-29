@@ -14,8 +14,6 @@ class GroupProfileMembersTab extends ConsumerStatefulWidget {
   final GroupType groupType;
   final bool isDark;
   final double? lineHeight;
-  final ScrollController? scrollController;
-  final bool isActive;
 
   const GroupProfileMembersTab({
     super.key,
@@ -23,8 +21,6 @@ class GroupProfileMembersTab extends ConsumerStatefulWidget {
     required this.groupType,
     required this.isDark,
     this.lineHeight,
-    this.scrollController,
-    this.isActive = false,
   });
 
   @override
@@ -33,34 +29,20 @@ class GroupProfileMembersTab extends ConsumerStatefulWidget {
 }
 
 class _GroupProfileMembersTabState extends ConsumerState<GroupProfileMembersTab> {
+  final ScrollController _scrollController = ScrollController();
   bool _hasRequestedInitialLoad = false;
 
   @override
   void initState() {
     super.initState();
-    widget.scrollController?.addListener(_onScroll);
-    if (widget.isActive) {
-      _loadInitialIfNeeded();
-    }
-  }
-
-  @override
-  void didUpdateWidget(covariant GroupProfileMembersTab oldWidget) {
-    super.didUpdateWidget(oldWidget);
-
-    if (oldWidget.scrollController != widget.scrollController) {
-      oldWidget.scrollController?.removeListener(_onScroll);
-      widget.scrollController?.addListener(_onScroll);
-    }
-
-    if (widget.isActive && !oldWidget.isActive) {
-      _loadInitialIfNeeded();
-    }
+    _scrollController.addListener(_onScroll);
+    _loadInitialIfNeeded();
   }
 
   @override
   void dispose() {
-    widget.scrollController?.removeListener(_onScroll);
+    _scrollController.removeListener(_onScroll);
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -74,15 +56,18 @@ class _GroupProfileMembersTabState extends ConsumerState<GroupProfileMembersTab>
   }
 
   void _onScroll() {
-    if (!widget.isActive) return;
+    if (!_scrollController.hasClients) return;
 
-    final controller = widget.scrollController;
-    if (controller == null || !controller.hasClients) return;
-
-    if (controller.position.pixels >=
-        controller.position.maxScrollExtent - 200) {
+    if (_scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent - 200) {
       ref.read(groupMembersProvider(widget.groupId).notifier).loadMore();
     }
+  }
+
+  String _membersHeading(BuildContext context, int count) {
+    return widget.groupType.isPage
+        ? context.l10n.group_followers_heading(count)
+        : context.l10n.group_members_heading(count);
   }
 
   @override
@@ -90,62 +75,117 @@ class _GroupProfileMembersTabState extends ConsumerState<GroupProfileMembersTab>
     final membersState = ref.watch(groupMembersProvider(widget.groupId));
 
     if (membersState.isLoading && membersState.members.isEmpty) {
-      return const Padding(
-        padding: EdgeInsets.symmetric(vertical: 32),
-        child: Center(child: CircularProgressIndicator()),
-      );
+      return const Center(child: CircularProgressIndicator());
     }
 
     if (membersState.error != null && membersState.members.isEmpty) {
-      return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
-        child: ErrorStateWidget(
-          error: membersState.error!,
-          onRetry:
-              () =>
-                  ref.read(groupMembersProvider(widget.groupId).notifier).retry(),
-          customMessage:
-              widget.groupType.isPage
-                  ? context.l10n.group_followers_load_error
-                  : context.l10n.group_members_load_error,
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+          child: ErrorStateWidget(
+            error: membersState.error!,
+            onRetry:
+                () => ref
+                    .read(groupMembersProvider(widget.groupId).notifier)
+                    .retry(),
+            customMessage:
+                widget.groupType.isPage
+                    ? context.l10n.group_followers_load_error
+                    : context.l10n.group_members_load_error,
+          ),
         ),
       );
     }
 
     if (membersState.members.isEmpty) {
-      return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
-        child: Text(
-          widget.groupType.isPage
-              ? context.l10n.group_followers_empty
-              : context.l10n.group_members_empty,
-          style: TextStyle(
-            fontSize: 15,
-            color:
-                widget.isDark
-                    ? AppColors.textTertiaryDark
-                    : AppColors.textSecondary,
-            height: widget.lineHeight,
+      return ListView(
+        controller: _scrollController,
+        padding: const EdgeInsets.only(top: 16, bottom: 32),
+        children: [
+          if (!membersState.isLoading)
+            _MembersHeading(
+              title: _membersHeading(context, membersState.totalMembers),
+              isDark: widget.isDark,
+              lineHeight: widget.lineHeight,
+            ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+            child: Text(
+              widget.groupType.isPage
+                  ? context.l10n.group_followers_empty
+                  : context.l10n.group_members_empty,
+              style: TextStyle(
+                fontSize: 15,
+                color:
+                    widget.isDark
+                        ? AppColors.textTertiaryDark
+                        : AppColors.textSecondary,
+                height: widget.lineHeight,
+              ),
+            ),
           ),
-        ),
+        ],
       );
     }
 
-    return Column(
-      children: [
-        ...membersState.members.map(
-          (GroupMember member) => _GroupMemberRow(
-            member: member,
+    final itemCount =
+        1 + membersState.members.length + (membersState.isLoadingMore ? 1 : 0);
+
+    return ListView.builder(
+      controller: _scrollController,
+      padding: const EdgeInsets.only(top: 16, bottom: 32),
+      itemCount: itemCount,
+      itemBuilder: (context, index) {
+        if (index == 0) {
+          return _MembersHeading(
+            title: _membersHeading(context, membersState.totalMembers),
             isDark: widget.isDark,
             lineHeight: widget.lineHeight,
-          ),
+          );
+        }
+
+        final memberIndex = index - 1;
+        if (memberIndex < membersState.members.length) {
+          return _GroupMemberRow(
+            member: membersState.members[memberIndex],
+            isDark: widget.isDark,
+            lineHeight: widget.lineHeight,
+          );
+        }
+
+        return const Padding(
+          padding: EdgeInsets.symmetric(vertical: 16),
+          child: Center(child: CircularProgressIndicator()),
+        );
+      },
+    );
+  }
+}
+
+class _MembersHeading extends StatelessWidget {
+  final String title;
+  final bool isDark;
+  final double? lineHeight;
+
+  const _MembersHeading({
+    required this.title,
+    required this.isDark,
+    this.lineHeight,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+      child: Text(
+        title,
+        style: TextStyle(
+          fontSize: 15,
+          fontWeight: FontWeight.bold,
+          height: lineHeight,
+          color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimary,
         ),
-        if (membersState.isLoadingMore)
-          const Padding(
-            padding: EdgeInsets.symmetric(vertical: 16),
-            child: Center(child: CircularProgressIndicator()),
-          ),
-      ],
+      ),
     );
   }
 }
@@ -166,7 +206,9 @@ class _GroupMemberRow extends StatelessWidget {
     final secondaryColor =
         isDark ? AppColors.textTertiaryDark : AppColors.textSecondary;
     final displayName =
-        member.fullname.trim().isNotEmpty ? member.fullname.trim() : member.username;
+        member.fullname.trim().isNotEmpty
+            ? member.fullname.trim()
+            : member.username;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -204,8 +246,7 @@ class _GroupMemberRow extends StatelessWidget {
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
-                if (member.username.isNotEmpty &&
-                    member.username != displayName)
+                if (member.username.isNotEmpty)
                   Padding(
                     padding: const EdgeInsets.only(top: 2),
                     child: Text(

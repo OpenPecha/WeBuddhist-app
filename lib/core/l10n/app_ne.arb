@@ -744,6 +744,23 @@
   "group_members": "सदस्यहरू",
   "group_tab_members": "सदस्यहरू",
   "group_tab_followers": "अनुयायीहरू",
+  "group_members_heading": "सदस्यहरू({count})",
+  "group_followers_heading": "अनुयायीहरू({count})",
+  "@group_members_heading": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@group_followers_heading": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "group_invite": "निमन्त्रणा",
   "group_members_load_error": "सदस्यहरू लोड गर्न सकिएन। कृपया पुनः प्रयास गर्नुहोस्।",
   "group_followers_load_error": "अनुयायीहरू लोड गर्न सकिएन। कृपया पुनः प्रयास गर्नुहोस्।",
   "group_members_empty": "अहिलेसम्म कुनै सदस्य छैन",

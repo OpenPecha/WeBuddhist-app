@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/constants/app_assets.dart';
-import 'package:flutter_pecha/core/l10n/intl_format_locale.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/core/widgets/cached_network_image_widget.dart';
@@ -15,20 +14,17 @@ import 'package:flutter_pecha/features/plans/presentation/widgets/plan_inline_ma
 import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class GroupProfileBody extends ConsumerStatefulWidget {
   final GroupProfile profile;
   final bool isDark;
-  final ScrollController? scrollController;
   final VoidCallback? onSeriesTap;
 
   const GroupProfileBody({
     super.key,
     required this.profile,
     required this.isDark,
-    this.scrollController,
     this.onSeriesTap,
   });
 
@@ -38,9 +34,7 @@ class GroupProfileBody extends ConsumerStatefulWidget {
 
 class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
     with SingleTickerProviderStateMixin {
-  bool _isDescriptionExpanded = false;
   late TabController _tabController;
-  late ScrollController _scrollController;
 
   int get _tabCount {
     var count = 2;
@@ -51,14 +45,15 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
   int get _membersTabIndex => 1;
 
   bool _hasAboutContent(GroupProfile profile) {
+    final hasBanner = profile.bannerUrl != null && profile.bannerUrl!.isNotEmpty;
     final descriptionLong = profile.descriptionLong?.trim();
-    return descriptionLong != null && descriptionLong.isNotEmpty;
+    return hasBanner ||
+        (descriptionLong != null && descriptionLong.isNotEmpty);
   }
 
   @override
   void initState() {
     super.initState();
-    _scrollController = widget.scrollController ?? ScrollController();
     _tabController = TabController(
       length: _tabCount,
       vsync: this,
@@ -67,9 +62,6 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
 
   @override
   void dispose() {
-    if (widget.scrollController == null) {
-      _scrollController.dispose();
-    }
     _tabController.dispose();
     super.dispose();
   }
@@ -85,52 +77,20 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
       profile.socialLinks,
     );
 
-    return SingleChildScrollView(
-      controller: _scrollController,
-      physics: const BouncingScrollPhysics(
-        parent: AlwaysScrollableScrollPhysics(),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (profile.bannerUrl != null && profile.bannerUrl!.isNotEmpty)
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(16),
-                child: AspectRatio(
-                  aspectRatio: 16 / 9,
-                  child: CachedNetworkImageWidget(
-                    key: ValueKey(profile.bannerUrl),
-                    imageUrl: profile.bannerUrl,
-                    fit: BoxFit.cover,
-                    errorWidget: Container(
-                      color:
-                          isDark
-                              ? AppColors.surfaceVariantDark
-                              : AppColors.grey100,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          const SizedBox(height: 16),
-          _buildProfileHeader(profile, isDark, lineHeight),
-          if (profile.description != null &&
-              profile.description!.trim().isNotEmpty) ...[
-            const SizedBox(height: 12),
-            _buildDescription(profile.description!, isDark),
-          ],
-          if (orderedLinks.isNotEmpty) ...[
-            const SizedBox(height: 12),
-            _buildLinksSummary(orderedLinks, isDark, lineHeight),
-          ],
-          const SizedBox(height: 20),
-          _GroupFollowButton(profile: profile, isDark: isDark),
-          const SizedBox(height: 24),
-          _buildTabBar(isDark, profile),
-          const SizedBox(height: 16),
-          AnimatedBuilder(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildProfileHeader(profile, isDark, lineHeight),
+        if (orderedLinks.isNotEmpty) ...[
+          const SizedBox(height: 12),
+          _buildLinksSummary(orderedLinks, isDark, lineHeight),
+        ],
+        const SizedBox(height: 20),
+        _GroupFollowButton(profile: profile, isDark: isDark),
+        const SizedBox(height: 24),
+        _buildTabBar(isDark, profile),
+        Expanded(
+          child: AnimatedBuilder(
             animation: _tabController,
             builder: (context, _) {
               final tabIndex = _tabController.index;
@@ -143,16 +103,13 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
                   groupType: profile.groupType,
                   isDark: isDark,
                   lineHeight: lineHeight,
-                  scrollController: _scrollController,
-                  isActive: true,
                 );
               }
               return _buildAboutTab(profile, isDark, locale.languageCode);
             },
           ),
-          const SizedBox(height: 32),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -214,16 +171,7 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
                 height: lineHeight,
               ),
             ),
-            const SizedBox(height: 4),
-          ] else
-            const SizedBox(height: 8),
-          _GroupMemberCountText(
-            groupId: profile.id,
-            groupType: profile.groupType,
-            baseCount: profile.memberOrFollowerCount,
-            isDark: isDark,
-            lineHeight: lineHeight,
-          ),
+          ],
         ],
       ),
     );
@@ -236,28 +184,6 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
         AppAssets.usersThree,
         size: 22,
         color: isDark ? AppColors.grey500 : AppColors.grey600,
-      ),
-    );
-  }
-
-  Widget _buildDescription(String description, bool isDark) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-      child: GestureDetector(
-        onTap:
-            () => setState(
-              () => _isDescriptionExpanded = !_isDescriptionExpanded,
-            ),
-        behavior: HitTestBehavior.opaque,
-        child: Text(
-          description,
-          style: TextStyle(
-            fontSize: 15,
-            color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimary,
-          ),
-          maxLines: _isDescriptionExpanded ? null : 6,
-          overflow: _isDescriptionExpanded ? null : TextOverflow.ellipsis,
-        ),
       ),
     );
   }
@@ -364,11 +290,12 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
       return const SizedBox.shrink();
     }
 
-    return Column(
-      children:
-          profile.series
-              .map((series) => _buildSeriesRow(series, isDark, lineHeight))
-              .toList(),
+    return ListView.builder(
+      padding: const EdgeInsets.only(top: 16, bottom: 32),
+      itemCount: profile.series.length,
+      itemBuilder: (context, index) {
+        return _buildSeriesRow(profile.series[index], isDark, lineHeight);
+      },
     );
   }
 
@@ -378,17 +305,47 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
     String languageCode,
   ) {
     final descriptionLong = profile.descriptionLong?.trim();
-    if (descriptionLong == null || descriptionLong.isEmpty) {
+    final hasBanner = profile.bannerUrl != null && profile.bannerUrl!.isNotEmpty;
+    final hasDescription =
+        descriptionLong != null && descriptionLong.isNotEmpty;
+
+    if (!hasBanner && !hasDescription) {
       return const SizedBox.shrink();
     }
 
     final bodyFontSize = getLocalizedFontSize(AppTextSize.body);
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-      child: PlanInlineMarkdownView(
-        content: descriptionLong,
-        fontSize: bodyFontSize,
+    return SingleChildScrollView(
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (hasBanner) ...[
+            ClipRRect(
+              borderRadius: BorderRadius.circular(16),
+              child: AspectRatio(
+                aspectRatio: 16 / 9,
+                child: CachedNetworkImageWidget(
+                  key: ValueKey(profile.bannerUrl),
+                  imageUrl: profile.bannerUrl,
+                  fit: BoxFit.cover,
+                  errorWidget: Container(
+                    color:
+                        isDark
+                            ? AppColors.surfaceVariantDark
+                            : AppColors.grey100,
+                  ),
+                ),
+              ),
+            ),
+            if (hasDescription) const SizedBox(height: 20),
+          ],
+          if (hasDescription)
+            PlanInlineMarkdownView(
+              content: descriptionLong,
+              fontSize: bodyFontSize,
+            ),
+        ],
       ),
     );
   }
@@ -485,64 +442,6 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
   }
 }
 
-class _GroupMemberCountText extends ConsumerWidget {
-  final String groupId;
-  final GroupType groupType;
-  final int baseCount;
-  final bool isDark;
-  final double? lineHeight;
-
-  const _GroupMemberCountText({
-    required this.groupId,
-    required this.groupType,
-    required this.baseCount,
-    required this.isDark,
-    this.lineHeight,
-  });
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final followKey = GroupFollowKey(
-      groupId: groupId,
-      groupType: groupType,
-    );
-    final followState = ref.watch(groupFollowProvider(followKey));
-    final delta = switch (followState) {
-      GroupFollowSuccess(countDelta: final d) => d,
-      _ => 0,
-    };
-    final count = (baseCount + delta).clamp(0, 1 << 31);
-    final formattedCount = NumberFormat.decimalPattern(
-      intlFormatLocaleOf(context),
-    ).format(count);
-    final countLabel =
-        groupType.isPage
-            ? (count == 1
-                ? context.l10n.group_follower
-                : context.l10n.group_followers)
-            : (count == 1
-                ? context.l10n.group_member
-                : context.l10n.group_members);
-
-    return RichText(
-      text: TextSpan(
-        style: TextStyle(
-          fontSize: 14,
-          color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimary,
-          height: lineHeight,
-        ),
-        children: [
-          TextSpan(
-            text: formattedCount,
-            style: const TextStyle(fontWeight: FontWeight.bold),
-          ),
-          TextSpan(text: ' $countLabel'),
-        ],
-      ),
-    );
-  }
-}
-
 class _GroupFollowButton extends ConsumerWidget {
   final GroupProfile profile;
   final bool isDark;
@@ -566,61 +465,147 @@ class _GroupFollowButton extends ConsumerWidget {
     const fontSize = 16.0;
     final locale = Localizations.localeOf(context);
     final isTibetan = context.isTibetanLocale;
+    final buttonHeight = isTibetan ? 52.0 : 48.0;
+    final buttonStyle = ElevatedButton.styleFrom(
+      minimumSize: Size(0, buttonHeight),
+      padding: EdgeInsets.symmetric(
+        horizontal: 24,
+        vertical: isTibetan ? 10 : 12,
+      ),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(24),
+      ),
+      elevation: 0,
+    );
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
-      child: SizedBox(
-        width: double.infinity,
-        child: ElevatedButton(
-          onPressed:
-              isLoading
-                  ? null
-                  : () =>
-                      _onFollowPressed(context, ref, followKey, isFollowing),
-          style: ElevatedButton.styleFrom(
-            minimumSize: Size(double.infinity, isTibetan ? 52 : 48),
-            padding: EdgeInsets.symmetric(
-              horizontal: 24,
-              vertical: isTibetan ? 10 : 12,
-            ),
-            backgroundColor:
-                isFollowing
-                    ? (isDark
-                        ? AppColors.surfaceVariantDark
-                        : AppColors.grey100)
-                    : (isDark ? AppColors.surfaceWhite : AppColors.textPrimary),
-            foregroundColor:
-                isFollowing
-                    ? (isDark ? AppColors.surfaceWhite : AppColors.textPrimary)
-                    : (isDark ? AppColors.textPrimary : AppColors.surfaceWhite),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(24),
-            ),
-            elevation: 0,
-          ),
-          child:
-              isLoading
-                  ? const SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
-                  : Text(
-                    isFollowing
-                        ? (isPage
-                            ? context.l10n.following
-                            : context.l10n.joined)
-                        : (isPage ? context.l10n.follow : context.l10n.join),
-                    textAlign: TextAlign.center,
-                    strutStyle: context.tibetanStrutStyle(fontSize),
-                    style: TextStyle(
-                      fontSize: fontSize,
-                      fontWeight: FontWeight.w600,
-                      fontFamily: getSystemFontFamily(locale.languageCode),
+      child:
+          isFollowing
+              ? Row(
+                children: [
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed:
+                          isLoading
+                              ? null
+                              : () => _onFollowPressed(
+                                context,
+                                ref,
+                                followKey,
+                                isFollowing,
+                              ),
+                      style: buttonStyle.copyWith(
+                        backgroundColor: WidgetStatePropertyAll(
+                          isDark
+                              ? AppColors.surfaceVariantDark
+                              : AppColors.grey100,
+                        ),
+                        foregroundColor: WidgetStatePropertyAll(
+                          isDark
+                              ? AppColors.surfaceWhite
+                              : AppColors.textPrimary,
+                        ),
+                      ),
+                      child:
+                          isLoading
+                              ? const SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                ),
+                              )
+                              : Text(
+                                isPage
+                                    ? context.l10n.following
+                                    : context.l10n.joined,
+                                textAlign: TextAlign.center,
+                                strutStyle: context.tibetanStrutStyle(fontSize),
+                                style: TextStyle(
+                                  fontSize: fontSize,
+                                  fontWeight: FontWeight.w600,
+                                  fontFamily: getSystemFontFamily(
+                                    locale.languageCode,
+                                  ),
+                                ),
+                              ),
                     ),
                   ),
-        ),
-      ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () {},
+                      style: buttonStyle.copyWith(
+                        backgroundColor: WidgetStatePropertyAll(
+                          isDark
+                              ? AppColors.surfaceWhite
+                              : AppColors.textPrimary,
+                        ),
+                        foregroundColor: WidgetStatePropertyAll(
+                          isDark
+                              ? AppColors.textPrimary
+                              : AppColors.surfaceWhite,
+                        ),
+                      ),
+                      child: Text(
+                        context.l10n.group_invite,
+                        textAlign: TextAlign.center,
+                        strutStyle: context.tibetanStrutStyle(fontSize),
+                        style: TextStyle(
+                          fontSize: fontSize,
+                          fontWeight: FontWeight.w600,
+                          fontFamily: getSystemFontFamily(locale.languageCode),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              )
+              : SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed:
+                      isLoading
+                          ? null
+                          : () => _onFollowPressed(
+                            context,
+                            ref,
+                            followKey,
+                            isFollowing,
+                          ),
+                  style: buttonStyle.copyWith(
+                    backgroundColor: WidgetStatePropertyAll(
+                      isDark ? AppColors.surfaceWhite : AppColors.textPrimary,
+                    ),
+                    foregroundColor: WidgetStatePropertyAll(
+                      isDark ? AppColors.textPrimary : AppColors.surfaceWhite,
+                    ),
+                    minimumSize: WidgetStatePropertyAll(
+                      Size(double.infinity, buttonHeight),
+                    ),
+                  ),
+                  child:
+                      isLoading
+                          ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                          : Text(
+                            isPage ? context.l10n.follow : context.l10n.join,
+                            textAlign: TextAlign.center,
+                            strutStyle: context.tibetanStrutStyle(fontSize),
+                            style: TextStyle(
+                              fontSize: fontSize,
+                              fontWeight: FontWeight.w600,
+                              fontFamily: getSystemFontFamily(
+                                locale.languageCode,
+                              ),
+                            ),
+                          ),
+                ),
+              ),
     );
   }
 

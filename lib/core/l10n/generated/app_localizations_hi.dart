@@ -1568,6 +1568,19 @@ class AppLocalizationsHi extends AppLocalizations {
   String get group_tab_followers => 'अनुयायी';
 
   @override
+  String group_members_heading(int count) {
+    return 'सदस्य($count)';
+  }
+
+  @override
+  String group_followers_heading(int count) {
+    return 'अनुयायी($count)';
+  }
+
+  @override
+  String get group_invite => 'आमंत्रित करें';
+
+  @override
   String get group_members_load_error =>
       'सदस्य लोड नहीं हो सके। कृपया पुनः प्रयास करें।';
 

@@ -1571,6 +1571,19 @@ class AppLocalizationsMn extends AppLocalizations {
   String get group_tab_followers => 'Дагагчид';
 
   @override
+  String group_members_heading(int count) {
+    return 'Гишүүд($count)';
+  }
+
+  @override
+  String group_followers_heading(int count) {
+    return 'Дагагчид($count)';
+  }
+
+  @override
+  String get group_invite => 'Урих';
+
+  @override
   String get group_members_load_error =>
       'Гишүүдийг ачаалж чадсангүй. Дахин оролдоно уу.';
 

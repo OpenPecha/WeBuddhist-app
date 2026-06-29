@@ -1555,6 +1555,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get group_tab_followers => 'Followers';
 
   @override
+  String group_members_heading(int count) {
+    return 'Members($count)';
+  }
+
+  @override
+  String group_followers_heading(int count) {
+    return 'Followers($count)';
+  }
+
+  @override
+  String get group_invite => 'Invite';
+
+  @override
   String get group_members_load_error =>
       'Unable to load members. Please try again.';
 
