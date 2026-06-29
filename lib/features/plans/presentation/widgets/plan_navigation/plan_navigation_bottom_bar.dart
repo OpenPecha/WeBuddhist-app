@@ -4,7 +4,7 @@ import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/features/reader/data/models/navigation_context.dart';
 
 /// Shared bottom navigation strip used by both `ReaderScreen` (for
-/// SOURCE_REFERENCE items) and `PlanTextScreen` (for inline TEXT items).
+/// SOURCE_REFERENCE items) and `PlanTextScreen` (for inline TEXT/IMAGE items).
 ///
 /// Renders one of three layouts based on the navigation context:
 /// - **Full controls** (canSwipe): prev arrow, "X of N" + title, next arrow,
