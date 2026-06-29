@@ -742,6 +742,29 @@
   "joined": "शामिल हो गए",
   "group_member": "सदस्य",
   "group_members": "सदस्य",
+  "group_tab_members": "सदस्य",
+  "group_tab_followers": "अनुयायी",
+  "group_members_heading": "सदस्य({count})",
+  "group_followers_heading": "अनुयायी({count})",
+  "@group_members_heading": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@group_followers_heading": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "group_invite": "आमंत्रित करें",
+  "group_members_load_error": "सदस्य लोड नहीं हो सके। कृपया पुनः प्रयास करें।",
+  "group_followers_load_error": "अनुयायी लोड नहीं हो सके। कृपया पुनः प्रयास करें।",
+  "group_members_empty": "अभी कोई सदस्य नहीं",
+  "group_followers_empty": "अभी कोई अनुयायी नहीं",
   "group_follower": "अनुयायी",
   "group_followers": "अनुयायी",
   "group_links_title": "लिंक",

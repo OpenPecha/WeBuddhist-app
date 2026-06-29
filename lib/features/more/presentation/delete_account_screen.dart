@@ -107,29 +107,30 @@ class _DeleteAccountScreenState extends ConsumerState<DeleteAccountScreen> {
               child: ElevatedButton(
                 onPressed: _isDeleting ? null : _confirmDelete,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: isDark ? Colors.white : Colors.black,
-                  foregroundColor: isDark ? Colors.black : Colors.white,
-                  disabledBackgroundColor:
-                      isDark ? Colors.white54 : Colors.black54,
+                  backgroundColor: Colors.transparent,
+                  disabledBackgroundColor: Colors.transparent,
+                  side: BorderSide(color: isDark ? Colors.white : Colors.black),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(30),
                   ),
                 ),
-                child: _isDeleting
-                    ? SizedBox(
-                        width: 22,
-                        height: 22,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2.5,
-                          color: isDark ? Colors.black : Colors.white,
+                child:
+                    _isDeleting
+                        ? SizedBox(
+                          width: 22,
+                          height: 22,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2.5,
+                            color: isDark ? Colors.black : Colors.white,
+                          ),
+                        )
+                        : Text(
+                          AppLocalizations.of(context)!.delete_account_button,
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.red.shade600,
+                          ),
                         ),
-                      )
-                    : Text(
-                        AppLocalizations.of(context)!.delete_account_button,
-                        style: const TextStyle(
-                          fontSize: 16,
-                        ),
-                      ),
               ),
             ),
           ],

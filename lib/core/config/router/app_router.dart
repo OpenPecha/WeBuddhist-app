@@ -224,6 +224,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 path: "group/:groupId",
                 name: "home-group-profile",
+                parentNavigatorKey: rootNavigatorKey,
                 builder: (context, state) {
                   final groupId = state.pathParameters['groupId'] ?? '';
                   return GroupProfileScreen(groupId: groupId);
