@@ -20,6 +20,7 @@ on:
       ios_bundle_id:      { required: true,  type: string }   # org.pecha.app[.dev]
       environment:        { required: false, type: string, default: '' }
       upload_to_store:    { required: false, type: boolean, default: true }
+      version_name:       { required: false, type: string,  default: '' }   # CI-computed semver; falls back to pubspec when empty
 
 permissions:
   contents: read
@@ -176,7 +177,9 @@ jobs:
         env:
           AIRBRIDGE_SDK_TOKEN: ${{ secrets.AIRBRIDGE_SDK_TOKEN }}
         run: |
-          VERSION_NAME=$(grep '^version:' pubspec.yaml | sed 's/version: //' | cut -d'+' -f1)
+          # Prefer the CI-computed version (release-prod), else fall back to pubspec.
+          VERSION_NAME="${{ inputs.version_name }}"
+          [ -z "$VERSION_NAME" ] && VERSION_NAME=$(grep '^version:' pubspec.yaml | sed 's/version: //' | cut -d'+' -f1)
           OFFSET="${{ vars.BUILD_NUMBER_OFFSET || '100' }}"
           BUILD_NUMBER=$(( ${{ github.run_number }} + OFFSET ))
           echo "Building $VERSION_NAME (+$BUILD_NUMBER)"

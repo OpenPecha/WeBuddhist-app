@@ -47,11 +47,17 @@ class AppLinksDeepLinkService {
 
   void setRouter(GoRouter router) {
     _router = router;
+  }
+
+  bool drainPendingLink() {
+    if (_router == null) return false;
+
     final pending = _pendingUri;
-    if (pending == null) return;
+    if (pending == null) return false;
 
     _pendingUri = null;
     _dispatch(pending);
+    return true;
   }
 
   Future<void> dispose() async {

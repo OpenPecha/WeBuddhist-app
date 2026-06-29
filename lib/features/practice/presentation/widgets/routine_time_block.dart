@@ -99,25 +99,70 @@ class RoutineTimeBlock extends StatelessWidget {
             proxyDecorator: (child, index, animation) {
               return Material(
                 elevation: 2,
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: BorderRadius.circular(12),
                 child: child,
               );
             },
             itemBuilder: (context, i) {
               final item = items[i];
-              return Column(
+              return Padding(
                 key: ValueKey(item.id),
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  RoutineItemCard(
-                    title: item.title,
-                    coverImage: item.coverImage,
-                    type: item.type,
-                    onDelete: () => _confirmDeleteItem(context, i),
-                    reorderIndex: i,
-                  ),
-                  const Divider(height: 1, indent: 140),
-                ],
+                padding: const EdgeInsets.only(bottom: 8),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    // Minus button — outside the card
+                    GestureDetector(
+                      onTap: () => _confirmDeleteItem(context, i),
+                      child: Container(
+                        width: 28,
+                        height: 28,
+                        margin: const EdgeInsets.only(right: 12),
+                        decoration: BoxDecoration(
+                          color: isDark
+                              ? AppColors.surfaceVariantDark
+                              : AppColors.grey100,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Center(
+                          child: Icon(
+                            AppAssets.minus,
+                            size: 14,
+                            color: isDark
+                                ? AppColors.textPrimaryDark
+                                : AppColors.textPrimary,
+                          ),
+                        ),
+                      ),
+                    ),
+                    // White card containing item content + drag handle
+                    Expanded(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: isDark
+                              ? AppColors.cardBackgroundDark
+                              : AppColors.cardBackgroundLight,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: isDark
+                                ? AppColors.cardBorderDark
+                                : AppColors.grey100,
+                          ),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          child: RoutineItemCard(
+                            title: item.title,
+                            coverImage: item.coverImage,
+                            type: item.type,
+                            reorderIndex: i,
+                            imageSize: 56,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               );
             },
           ),
@@ -268,7 +313,7 @@ class _AddSessionButton extends StatelessWidget {
         onTap: onTap,
         borderRadius: BorderRadius.circular(12),
         child: Padding(
-          padding: const EdgeInsets.only(left: 54),
+          padding: const EdgeInsets.only(left: 40),
           child: Row(
             children: [
               Container(

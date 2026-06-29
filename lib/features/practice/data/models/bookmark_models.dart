@@ -1,5 +1,20 @@
 import 'package:flutter_pecha/shared/domain/value_objects/responsive_image.dart';
 
+/// Response from `GET /users/me/bookmarks/exists`.
+class BookmarkExistsResult {
+  final bool exists;
+  final String? id;
+
+  const BookmarkExistsResult({required this.exists, this.id});
+
+  factory BookmarkExistsResult.fromJson(Map<String, dynamic> json) {
+    return BookmarkExistsResult(
+      exists: json['exists'] as bool? ?? false,
+      id: json['id'] as String?,
+    );
+  }
+}
+
 /// Models for `GET /users/me/bookmarks`.
 ///
 /// Each row embeds a bookmark-specific object for its type (`text` / `plan` /

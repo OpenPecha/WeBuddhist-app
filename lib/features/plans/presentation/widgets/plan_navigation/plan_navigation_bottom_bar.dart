@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/features/reader/data/models/navigation_context.dart';
 
@@ -84,8 +85,7 @@ class PlanNavigationBottomBar extends StatelessWidget {
       center: _TitleText(text: title, fontFamily: fallbackTitleFontFamily),
       trailing:
           () => _NavigationButton(
-            icon: Icons.check,
-            isEnabled: true,
+            icon: AppAssets.check,
             onTap: onFinish,
           ),
     );
@@ -118,8 +118,7 @@ class PlanNavigationBottomBar extends StatelessWidget {
       leading:
           hasPrevious
               ? () => _NavigationButton(
-                icon: Icons.chevron_left,
-                isEnabled: true,
+                icon: AppAssets.caretLeft,
                 onTap: onPreviousTap ?? onPop,
               )
               : null,
@@ -127,13 +126,11 @@ class PlanNavigationBottomBar extends StatelessWidget {
           () =>
               hasNext
                   ? _NavigationButton(
-                    icon: Icons.chevron_right,
-                    isEnabled: true,
+                    icon: AppAssets.caretRight,
                     onTap: onNextTap ?? onPop,
                   )
                   : _NavigationButton(
-                    icon: Icons.check,
-                    isEnabled: true,
+                    icon: AppAssets.check,
                     onTap: onFinishedTap ?? onPop,
                   ),
     );
@@ -196,39 +193,18 @@ class _TitleText extends StatelessWidget {
 
 class _NavigationButton extends StatelessWidget {
   final IconData icon;
-  final bool isEnabled;
   final VoidCallback onTap;
 
   const _NavigationButton({
     required this.icon,
-    required this.isEnabled,
     required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    final color =
-        isEnabled
-            ? Theme.of(context).colorScheme.onSurface
-            : Theme.of(context).colorScheme.onSurface.withAlpha(80);
-
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(24),
-        child: Container(
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            border: Border.all(
-              color: color.withAlpha(isEnabled ? 100 : 50),
-              width: 1,
-            ),
-          ),
-          child: Icon(icon, size: 24, color: color),
-        ),
-      ),
+    return IconButton(
+      onPressed: onTap,
+      icon: Icon(icon, size: 24),
     );
   }
 }

@@ -150,6 +150,7 @@ class _DestructiveConfirmationDialogState
                             ),
                             style: textTheme.labelLarge?.copyWith(
                               fontSize: buttonFontSize,
+                              color: Colors.red.shade600,
                             ),
                           ),
                 ),

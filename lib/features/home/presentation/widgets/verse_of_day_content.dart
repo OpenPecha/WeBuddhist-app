@@ -162,6 +162,7 @@ class VerseOfDayContent extends StatelessWidget {
           aspectRatio: imageAspectRatio,
           child: CachedNetworkImageWidget(
             imageUrl: verseOfDay.imageUrl,
+            fallbackAsset: AppAssets.verseOfDayFallback,
             fit: BoxFit.cover,
             width: double.infinity,
           ),

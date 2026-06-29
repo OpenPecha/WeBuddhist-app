@@ -753,6 +753,29 @@
   "joined": "Joined",
   "group_member": "member",
   "group_members": "members",
+  "group_tab_members": "Members",
+  "group_tab_followers": "Followers",
+  "group_members_heading": "Members({count})",
+  "group_followers_heading": "Followers({count})",
+  "@group_members_heading": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@group_followers_heading": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "group_invite": "Invite",
+  "group_members_load_error": "Unable to load members. Please try again.",
+  "group_followers_load_error": "Unable to load followers. Please try again.",
+  "group_members_empty": "No members yet",
+  "group_followers_empty": "No followers yet",
   "group_follower": "follower",
   "group_followers": "followers",
   "group_links_title": "Links",
