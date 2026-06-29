@@ -12,8 +12,8 @@ import 'package:flutter_pecha/features/practice/data/models/session_selection.da
 import 'package:flutter_pecha/features/practice/domain/entities/practice_item.dart';
 import 'package:flutter_pecha/features/practice/domain/entities/practice_items_tab.dart';
 import 'package:flutter_pecha/features/practice/presentation/providers/practice_items_paginated_provider.dart';
+import 'package:flutter_pecha/features/practice/presentation/providers/practice_recitations_paginated_provider.dart';
 import 'package:flutter_pecha/features/recitation/data/models/recitation_model.dart';
-import 'package:flutter_pecha/features/recitation/presentation/providers/recitations_providers.dart';
 import 'package:flutter_pecha/features/recitation/presentation/widgets/recitation_list_skeleton.dart';
 import 'package:flutter_pecha/features/timer/domain/entities/preset_timer.dart';
 import 'package:flutter_pecha/features/timer/presentation/providers/timers_providers.dart';
@@ -42,6 +42,7 @@ class _SelectSessionScreenState extends ConsumerState<SelectSessionScreen>
 
   late TabController _tabController;
   final ScrollController _plansScrollController = ScrollController();
+  final ScrollController _chantsScrollController = ScrollController();
 
   final String? _enrollingItemId = null;
 
@@ -50,6 +51,7 @@ class _SelectSessionScreenState extends ConsumerState<SelectSessionScreen>
     super.initState();
     _tabController = TabController(length: 4, vsync: this);
     _plansScrollController.addListener(_onPlansScroll);
+    _chantsScrollController.addListener(_onChantsScroll);
   }
 
   @override
@@ -57,6 +59,8 @@ class _SelectSessionScreenState extends ConsumerState<SelectSessionScreen>
     _tabController.dispose();
     _plansScrollController.removeListener(_onPlansScroll);
     _plansScrollController.dispose();
+    _chantsScrollController.removeListener(_onChantsScroll);
+    _chantsScrollController.dispose();
     super.dispose();
   }
 
@@ -66,6 +70,13 @@ class _SelectSessionScreenState extends ConsumerState<SelectSessionScreen>
       ref
           .read(practiceItemsPaginatedProvider(_practiceTab).notifier)
           .loadMore();
+    }
+  }
+
+  void _onChantsScroll() {
+    if (_chantsScrollController.position.pixels >=
+        _chantsScrollController.position.maxScrollExtent - 200) {
+      ref.read(practiceRecitationsPaginatedProvider.notifier).loadMore();
     }
   }
 
@@ -151,6 +162,7 @@ class _SelectSessionScreenState extends ConsumerState<SelectSessionScreen>
             onItemSelected: _onPracticeItemSelected,
           ),
           _ChantsTab(
+            scrollController: _chantsScrollController,
             enrollingItemId: _enrollingItemId,
             onRecitationSelected: _onRecitationSelected,
           ),
@@ -348,10 +360,12 @@ class _PlansTab extends ConsumerWidget {
 // ─── Chants tab ──────────────────────────────────────────────────────────────
 
 class _ChantsTab extends ConsumerWidget {
+  final ScrollController scrollController;
   final String? enrollingItemId;
   final void Function(RecitationModel recitation) onRecitationSelected;
 
   const _ChantsTab({
+    required this.scrollController,
     required this.enrollingItemId,
     required this.onRecitationSelected,
   });
@@ -359,99 +373,108 @@ class _ChantsTab extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final recitationsAsync = ref.watch(recitationsFutureProvider);
-    Future<void> onRefresh() async {
-      ref.invalidate(recitationsFutureProvider);
-      await ref.read(recitationsFutureProvider.future);
+    final recitationsState = ref.watch(practiceRecitationsPaginatedProvider);
+
+    Future<void> onRefresh() =>
+        ref.read(practiceRecitationsPaginatedProvider.notifier).refresh();
+
+    if (recitationsState.isLoading && recitationsState.recitations.isEmpty) {
+      return const RecitationListSkeleton();
     }
 
-    return recitationsAsync.when(
-      loading: () => const RecitationListSkeleton(),
-      error: (_, __) => _RefreshableScrollBody(
+    if (recitationsState.error != null &&
+        recitationsState.recitations.isEmpty) {
+      return _RefreshableScrollBody(
         onRefresh: onRefresh,
         child: const _SessionTabMessage(message: 'Unable to load chants'),
-      ),
-      data: (recitationsEither) => recitationsEither.fold(
-        (_) => _RefreshableScrollBody(
-          onRefresh: onRefresh,
-          child: const _SessionTabMessage(message: 'Unable to load chants'),
-        ),
-        (recitations) {
-          if (recitations.isEmpty) {
-            return _RefreshableScrollBody(
-              onRefresh: onRefresh,
-              child: const _SessionTabMessage(message: 'No chants found'),
+      );
+    }
+
+    final recitations = recitationsState.recitations;
+
+    if (recitations.isEmpty && !recitationsState.isLoading) {
+      return _RefreshableScrollBody(
+        onRefresh: onRefresh,
+        child: const _SessionTabMessage(message: 'No chants found'),
+      );
+    }
+
+    return RefreshIndicator(
+      onRefresh: onRefresh,
+      child: ListView.builder(
+        controller: scrollController,
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        itemCount: recitations.length + (recitationsState.hasMore ? 1 : 0),
+        itemBuilder: (context, index) {
+          if (index == recitations.length) {
+            return Padding(
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              child: Center(
+                child: recitationsState.isLoadingMore
+                    ? const CircularProgressIndicator()
+                    : const SizedBox.shrink(),
+              ),
             );
           }
 
-          return RefreshIndicator(
-            onRefresh: onRefresh,
-            child: ListView.builder(
-              physics: const AlwaysScrollableScrollPhysics(),
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              itemCount: recitations.length,
-              itemBuilder: (context, index) {
-                final recitation = recitations[index];
-                final description = recitation.firstSegment?.content;
+          final recitation = recitations[index];
+          final description = recitation.firstSegment?.content;
 
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 8),
-                  child: _SessionCard(
-                    isDark: isDark,
-                    onTap: enrollingItemId == null
-                        ? () => onRecitationSelected(recitation)
-                        : null,
-                    child: Row(
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: _SessionCard(
+              isDark: isDark,
+              onTap: enrollingItemId == null
+                  ? () => onRecitationSelected(recitation)
+                  : null,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    width: 4,
+                    height: description != null ? null : 44,
+                    constraints: const BoxConstraints(minHeight: 44),
+                    decoration: BoxDecoration(
+                      color: isDark
+                          ? AppColors.textTertiaryDark
+                          : AppColors.grey400,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Container(
-                          width: 4,
-                          height: description != null ? null : 44,
-                          constraints: const BoxConstraints(minHeight: 44),
-                          decoration: BoxDecoration(
-                            color: isDark
-                                ? AppColors.textTertiaryDark
-                                : AppColors.grey400,
-                            borderRadius: BorderRadius.circular(2),
+                        Text(
+                          recitation.title,
+                          style: const TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
                           ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
                         ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                recitation.title,
-                                style: const TextStyle(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                              if (description != null &&
-                                  description.isNotEmpty) ...[
-                                const SizedBox(height: 4),
-                                Text(
-                                  description,
-                                  style: TextStyle(
-                                    fontSize: 13,
-                                    color: isDark
-                                        ? AppColors.textTertiaryDark
-                                        : AppColors.textSecondary,
-                                  ),
-                                  maxLines: 3,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ],
-                            ],
+                        if (description != null && description.isNotEmpty) ...[
+                          const SizedBox(height: 4),
+                          Text(
+                            description,
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: isDark
+                                  ? AppColors.textTertiaryDark
+                                  : AppColors.textSecondary,
+                            ),
+                            maxLines: 3,
+                            overflow: TextOverflow.ellipsis,
                           ),
-                        ),
+                        ],
                       ],
                     ),
                   ),
-                );
-              },
+                ],
+              ),
             ),
           );
         },
