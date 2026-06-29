@@ -32,6 +32,7 @@ import 'package:flutter_pecha/features/practice/presentation/providers/routine_a
 import 'package:flutter_pecha/features/practice/presentation/providers/routine_provider.dart';
 import 'package:flutter_pecha/features/practice/presentation/screens/select_session_screen.dart';
 import 'package:flutter_pecha/features/practice/presentation/widgets/routine_time_block.dart';
+import 'package:flutter_pecha/shared/domain/value_objects/responsive_image.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -39,6 +40,12 @@ import 'package:uuid/uuid.dart';
 
 const _uuid = Uuid();
 final _logger = AppLogger('EditRoutineScreen');
+
+ResponsiveImage? _accumulatorCoverImage(Mantra mantra) {
+  final url = mantra.beadImageUrl ?? mantra.mantra?.beadImageUrl;
+  if (url == null || url.trim().isEmpty) return null;
+  return ResponsiveImage.uniform(url);
+}
 
 class _EditableBlock {
   String id;
@@ -235,8 +242,8 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
   }
 
   /// Adds the preset mala/accumulator into the routine as an ACCUMULATOR
-  /// session (source_id = preset id). Like series, a mala may live in multiple
-  /// time blocks, so the duplicate guard is scoped to the target block only.
+  /// session (accumulator_id = preset id). Like series, a mala may live in
+  /// multiple time blocks, so the duplicate guard is scoped to the target block only.
   _EditableBlock? _injectInitialAccumulator(Mantra mantra) {
     final resolved = _resolveInjectionTarget();
 
@@ -252,6 +259,7 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
       RoutineItem(
         id: mantra.presetId,
         title: mantra.displayTitle(language),
+        coverImage: _accumulatorCoverImage(mantra),
         type: RoutineItemType.accumulator,
         enrolledAt: DateTime.now(),
       ),
@@ -1233,6 +1241,7 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
     final newItem = RoutineItem(
       id: mantra.presetId,
       title: mantra.displayTitle(language),
+      coverImage: _accumulatorCoverImage(mantra),
       type: RoutineItemType.accumulator,
       enrolledAt: DateTime.now(),
     );
