@@ -104,6 +104,30 @@ class BookmarkRemoteDatasource {
     return all;
   }
 
+  /// GET /users/me/bookmarks/exists
+  ///
+  /// [sourceId] – entity id (text, segment, timer, accumulator, series, …)
+  /// [type]     – bookmark kind; pass when known so the check is unambiguous
+  Future<BookmarkExistsResult> checkBookmarkExists({
+    required String sourceId,
+    BookmarkType? type,
+  }) async {
+    final response = await dio.get(
+      '/users/me/bookmarks/exists',
+      queryParameters: {
+        'source_id': sourceId,
+        if (type != null) 'type': type.value,
+      },
+    );
+    final data = response.data;
+    if (data is! Map<String, dynamic>) {
+      throw const FormatException(
+        'Unexpected /users/me/bookmarks/exists payload type',
+      );
+    }
+    return BookmarkExistsResult.fromJson(data);
+  }
+
   /// DELETE /users/me/bookmarks/{bookmarkId}
   Future<void> deleteBookmark(String bookmarkId) async {
     await dio.delete('/users/me/bookmarks/$bookmarkId');
