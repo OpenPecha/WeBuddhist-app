@@ -43,11 +43,11 @@ class _SeriesMoreBottomSheetState extends ConsumerState<SeriesMoreBottomSheet> {
     setState(() => _isBookmarking = true);
     try {
       final nav = Navigator.of(context);
-      await BookmarkController(ref: ref, context: context).toggleSeries(
-        widget.seriesId,
-        name: widget.seriesName,
-      );
-      if (mounted) nav.pop();
+      final didToggle = await BookmarkController(
+        ref: ref,
+        context: context,
+      ).toggleSeries(widget.seriesId, name: widget.seriesName);
+      if (mounted && didToggle) nav.pop();
     } finally {
       if (mounted) setState(() => _isBookmarking = false);
     }

@@ -125,12 +125,15 @@ class MalaSettingsSheet extends ConsumerWidget {
     final language = ref.read(contentLanguageProvider);
     final navigator = Navigator.of(context);
 
-    await BookmarkController(ref: ref, context: context).toggleMala(
+    final didToggle = await BookmarkController(
+      ref: ref,
+      context: context,
+    ).toggleMala(
       mantra.presetId,
       name: mantra.displayTitle(language),
     );
 
-    if (context.mounted) navigator.pop();
+    if (context.mounted && didToggle) navigator.pop();
   }
 
   Future<void> _onResetCount(BuildContext context, WidgetRef ref) async {

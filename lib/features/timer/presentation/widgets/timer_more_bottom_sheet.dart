@@ -41,10 +41,11 @@ class _TimerMoreBottomSheetState extends ConsumerState<TimerMoreBottomSheet> {
     setState(() => _isBookmarking = true);
     try {
       final nav = Navigator.of(context);
-      await BookmarkController(ref: ref, context: context).toggleTimer(
-        widget.timer.id,
-      );
-      if (mounted) nav.pop();
+      final didToggle = await BookmarkController(
+        ref: ref,
+        context: context,
+      ).toggleTimer(widget.timer.id);
+      if (mounted && didToggle) nav.pop();
     } finally {
       if (mounted) setState(() => _isBookmarking = false);
     }

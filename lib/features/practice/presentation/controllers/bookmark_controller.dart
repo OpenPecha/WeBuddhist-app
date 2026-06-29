@@ -19,29 +19,33 @@ class BookmarkController {
 
   BookmarkController({required this.ref, required this.context});
 
-  Future<void> toggleText(String textId) =>
+  Future<bool> toggleText(String textId) =>
       toggle(type: BookmarkType.text, sourceId: textId);
 
-  Future<void> toggleVerse(String segmentId) =>
+  Future<bool> toggleVerse(String segmentId) =>
       toggle(type: BookmarkType.verse, sourceId: segmentId);
 
-  Future<void> toggleTimer(String timerId) =>
+  Future<bool> toggleTimer(String timerId) =>
       toggle(type: BookmarkType.timer, sourceId: timerId);
 
-  Future<void> toggleMala(String accumulatorId, {String? name}) => toggle(
+  Future<bool> toggleMala(String accumulatorId, {String? name}) => toggle(
         type: BookmarkType.accumulator,
         sourceId: accumulatorId,
         name: name,
       );
 
-  Future<void> toggleSeries(String seriesId, {String? name}) => toggle(
+  Future<bool> toggleSeries(String seriesId, {String? name}) => toggle(
         type: BookmarkType.series,
         sourceId: seriesId,
         name: name,
       );
 
   /// Optimistically toggles bookmark state, then POST or DELETE (one call).
-  Future<void> toggle({
+  ///
+  /// Returns `false` when the guest login gate blocked the action (the login
+  /// drawer is already visible). Callers that dismiss a modal after bookmarking
+  /// must skip [Navigator.pop] in that case so they do not pop the drawer.
+  Future<bool> toggle({
     required BookmarkType type,
     required String sourceId,
     String? name,
@@ -49,7 +53,7 @@ class BookmarkController {
     final authState = ref.read(authProvider);
     if (authState.isGuest) {
       LoginDrawer.show(context, ref);
-      return;
+      return false;
     }
 
     final target = BookmarkTarget(type: type, sourceId: sourceId);
@@ -100,6 +104,8 @@ class BookmarkController {
       cache.set(target, previous);
       _showErrorSnackBar(wasBookmarked);
     }
+
+    return true;
   }
 
   /// Uses cached id when available; falls back to exists check only if needed.

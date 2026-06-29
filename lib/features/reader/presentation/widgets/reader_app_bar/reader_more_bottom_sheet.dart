@@ -45,10 +45,11 @@ class _ReaderMoreBottomSheetState extends ConsumerState<ReaderMoreBottomSheet> {
     setState(() => _isBookmarking = true);
     try {
       final nav = Navigator.of(context);
-      await BookmarkController(ref: ref, context: context).toggleText(
-        widget.textId,
-      );
-      if (mounted) nav.pop();
+      final didToggle = await BookmarkController(
+        ref: ref,
+        context: context,
+      ).toggleText(widget.textId);
+      if (mounted && didToggle) nav.pop();
     } finally {
       if (mounted) setState(() => _isBookmarking = false);
     }
