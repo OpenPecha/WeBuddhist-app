@@ -155,8 +155,7 @@ class AuthService {
   /// read stale identity. Auth0 tokens (access/refresh/id) are NOT handled here
   /// — the credentials manager owns that storage and is cleared via
   /// `clearCredentials()`; we deliberately do not touch `flutter_secure_storage`
-  /// (it stores no tokens in this app). Per-user onboarding keys
-  /// (`onboarding_completed_<userId>`) are intentionally left durable.
+  /// (it stores no tokens in this app).
   Future<void> _clearLocalIdentity() async {
     await clearGuestMode();
     try {

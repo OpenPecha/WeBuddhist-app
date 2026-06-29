@@ -22,4 +22,7 @@ abstract class OnboardingRepository extends Repository {
 
   /// Complete onboarding.
   Future<Either<Failure, void>> completeOnboarding();
+
+  /// Reset onboarding status (testing / manual reset).
+  Future<Either<Failure, void>> resetOnboardingStatus();
 }

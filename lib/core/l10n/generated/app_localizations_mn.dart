@@ -21,6 +21,14 @@ class AppLocalizationsMn extends AppLocalizations {
   String get onboarding_welcome => 'Тавтай морил';
 
   @override
+  String get onboarding_setup_subtitle =>
+      'Танд тохируулъя, ердөө нэг минут л хангалттай';
+
+  @override
+  String get onboarding_tagline =>
+      'Сурч, дадлага хийж, холбогдоорой. Өдөр бүр.';
+
+  @override
   String get onboarding_quote =>
       'Дусал дуслаар ус сав дүүрдэгийн адил, ухаант хүн ч багаахан багаахнаар хуримтлуулж, өөрийгөө буянаар дүүргэдэг.';
 
@@ -41,10 +49,45 @@ class AppLocalizationsMn extends AppLocalizations {
 
   @override
   String get onboarding_all_set_description =>
-      'Бид таны уламжлалд тохируулан туршлагыг тань бэлдлээ. Өдөр бүр — багахан хором ч гэсэн — хичээллэж, дадлага тань хэрхэн өсөхийг ажиглаарай';
+      'Таны дадлагад бэлэн зүйлс энд байна.';
 
   @override
-  String get onboarding_begin_practice => 'Дадлагаа эхлүүлэх';
+  String get onboarding_all_set_feature_practices =>
+      'Шүтэл залгах, хуримтлал, бясалгал, сургалтын төлөвлөгөөнөөс сонгох боломжтой';
+
+  @override
+  String get onboarding_all_set_feature_reminders =>
+      'Зөөлөн өдөр тутмын сануулагч, та бэлэн болох үедээ';
+
+  @override
+  String get onboarding_begin_practice => 'Эхний дадлагаа олох';
+
+  @override
+  String get onboarding_2_title => 'Дараагийн алхам — энэ хэрхэн ажилладаг вэ.';
+
+  @override
+  String get onboarding_2_subtitle => 'Дадал хэвшүүлэх гурван жижиг алхам';
+
+  @override
+  String get onboarding_2_step1_title => 'Дадлагаа сонгоно уу';
+
+  @override
+  String get onboarding_2_step1_desc =>
+      'Шүтэл залгах, мантра тоолох, бясалгалын цаг тохируулах эсвэл уламжлалаасаа сургалтын төлөвлөгөөг дагах.';
+
+  @override
+  String get onboarding_2_step2_title => 'Өдөртөө нэмнэ үү';
+
+  @override
+  String get onboarding_2_step2_desc =>
+      'Өдөр тутмын хэвшил бий болгоод, үргэлжлүүлэхэд тань зөөлөн сануулагч илгээнэ.';
+
+  @override
+  String get onboarding_2_step3_title => 'Өдөр бүр хэдхэн минут дадлага хий';
+
+  @override
+  String get onboarding_2_step3_desc =>
+      'Нэг мөч ч чухал. Өдөр өндөр дадлага тань өснө.';
 
   @override
   String get home_recitation => 'Уншлага';
@@ -216,9 +259,6 @@ class AppLocalizationsMn extends AppLocalizations {
 
   @override
   String get resources => 'Нөөц';
-
-  @override
-  String get tools => 'Хэрэгслүүд';
 
   @override
   String get no_translation => 'Орчуулга олдсонгүй';
@@ -490,6 +530,22 @@ class AppLocalizationsMn extends AppLocalizations {
 
   @override
   String get onboarding_traditions_question => 'Та ямар уламжлал\nдагадаг вэ?';
+
+  @override
+  String get onboarding_tradition_chat_title => 'Таны уламжлал:';
+
+  @override
+  String get onboarding_tradition_chat_subtitle =>
+      'Нэг эсвэл хэд хэдийг сонгоно уу — бид тэдгээрийг таны туршлагыг хувийн болгоход ашиглана.';
+
+  @override
+  String get onboarding_tradition_type_hint => 'Эсвэл уламжлалаа бичнэ үү...';
+
+  @override
+  String get onboarding_skip_for_now => 'Одоохондоо алгасах';
+
+  @override
+  String get onboarding_add_another_tradition => 'Өөр уламжлал нэмэх';
 
   @override
   String get onboarding_select_all => 'Бүгдийг сонгох';
@@ -1017,6 +1073,9 @@ class AppLocalizationsMn extends AppLocalizations {
 
   @override
   String get continueAsGuest => 'Зочноор үргэлжлүүлэх';
+
+  @override
+  String get exploreAsGuest => 'Зочноор судлах';
 
   @override
   String get signIn => 'Нэвтрэх';

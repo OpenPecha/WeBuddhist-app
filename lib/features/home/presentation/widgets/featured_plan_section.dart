@@ -6,6 +6,7 @@ import 'package:flutter_pecha/features/home/domain/entities/series.dart';
 import 'package:flutter_pecha/features/home/presentation/providers/featured_series_provider.dart';
 import 'package:flutter_pecha/features/home/presentation/providers/routine_info_provider.dart';
 import 'package:flutter_pecha/features/home/presentation/widgets/featured_plan_section_skeleton.dart';
+import 'package:flutter_pecha/features/plans/data/utils/plan_utils.dart';
 import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -147,8 +148,8 @@ String? _formatSeriesDateRange(Series series) {
   if (startDate == null || endDate == null) return null;
 
   final formatter = DateFormat('MMM dd');
-  final start = DateUtils.dateOnly(startDate.toLocal());
-  final end = DateUtils.dateOnly(endDate.toLocal());
+  final start = PlanUtils.calendarDateOnly(startDate);
+  final end = PlanUtils.calendarDateOnly(endDate);
   return '${formatter.format(start)} - ${formatter.format(end)}';
 }
 
