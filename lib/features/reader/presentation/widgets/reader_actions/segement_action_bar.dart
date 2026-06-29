@@ -94,15 +94,14 @@ class _SegmentActionBarState extends ConsumerState<SegmentActionBar> {
       return const SizedBox.shrink();
     }
 
-    final bookmarkAsync = ref.watch(
-      bookmarkExistsProvider(
+    final isBookmarked = ref.watch(
+      isBookmarkedProvider(
         BookmarkTarget(
           type: BookmarkType.verse,
           sourceId: widget.segment.segmentId,
         ),
       ),
     );
-    final isBookmarked = bookmarkAsync.valueOrNull?.exists ?? false;
 
     return _ResourcesPanel(
       onDismiss: widget.onClose,

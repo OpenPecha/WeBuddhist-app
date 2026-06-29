@@ -3,6 +3,8 @@ import 'package:flutter_pecha/core/config/router/app_routes.dart';
 import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/core/widgets/error_state_widget.dart';
+import 'package:flutter_pecha/features/practice/data/datasource/bookmark_remote_datasource.dart';
+import 'package:flutter_pecha/features/practice/presentation/providers/bookmark_providers.dart';
 import 'package:flutter_pecha/features/timer/domain/entities/preset_timer.dart';
 import 'package:flutter_pecha/features/timer/presentation/providers/timers_providers.dart';
 import 'package:flutter_pecha/features/timer/presentation/widgets/preset_timer_card.dart';
@@ -124,13 +126,13 @@ class PresetTimersScreen extends ConsumerWidget {
   }
 }
 
-class _PresetTimersGrid extends StatelessWidget {
+class _PresetTimersGrid extends ConsumerWidget {
   const _PresetTimersGrid({required this.timers, required this.minLabel});
 
   final List<PresetTimer> timers;
   final String minLabel;
 
-  void _openMoreSheet(BuildContext context, PresetTimer timer) {
+  void _openMoreSheet(BuildContext context, WidgetRef ref, PresetTimer timer) {
     showTimerMoreBottomSheet(
       context,
       timer: timer,
@@ -142,7 +144,15 @@ class _PresetTimersGrid extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    for (final timer in timers) {
+      ref.watch(
+        prefetchBookmarkExistsProvider(
+          BookmarkTarget(type: BookmarkType.timer, sourceId: timer.id),
+        ),
+      );
+    }
+
     return Padding(
       padding: const EdgeInsets.all(PresetTimersScreen._horizontalPadding),
       child: GridView.builder(
@@ -160,7 +170,7 @@ class _PresetTimersGrid extends StatelessWidget {
             timer: timer,
             minLabel: minLabel,
             onTap: () => context.push('/home/timers/active', extra: timer),
-            onMoreTap: () => _openMoreSheet(context, timer),
+            onMoreTap: () => _openMoreSheet(context, ref, timer),
           );
         },
       ),

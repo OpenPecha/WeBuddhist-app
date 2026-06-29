@@ -39,12 +39,11 @@ class MalaSettingsSheet extends ConsumerWidget {
     final settings = ref.watch(malaSettingsProvider);
     final settingsNotifier = ref.read(malaSettingsProvider.notifier);
     final isOnline = ref.watch(connectivityNotifierProvider);
-    final bookmarkAsync = ref.watch(
-      bookmarkExistsProvider(
+    final isBookmarked = ref.watch(
+      isBookmarkedProvider(
         BookmarkTarget(type: BookmarkType.accumulator, sourceId: mantra.presetId),
       ),
     );
-    final isBookmarked = bookmarkAsync.valueOrNull?.exists ?? false;
     final dividerColor =
         isDark ? AppColors.cardBorderDark : AppColors.grey300;
     const destructiveColor = Color(0xFFB03027);

@@ -10,6 +10,8 @@ import 'package:flutter_pecha/features/home/presentation/providers/series_provid
 import 'package:flutter_pecha/features/home/presentation/widgets/plan_list_view.dart';
 import 'package:flutter_pecha/features/home/presentation/widgets/series_more_bottom_sheet.dart';
 import 'package:flutter_pecha/features/plans/presentation/providers/user_plans_provider.dart';
+import 'package:flutter_pecha/features/practice/data/datasource/bookmark_remote_datasource.dart';
+import 'package:flutter_pecha/features/practice/presentation/providers/bookmark_providers.dart';
 import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -38,6 +40,17 @@ class SeriesDetailScreen extends ConsumerWidget {
           data: (either) => either.fold((_) => null, (s) => s),
         ) ??
         series;
+
+    if (resolvedSeries != null) {
+      ref.watch(
+        prefetchBookmarkExistsProvider(
+          BookmarkTarget(
+            type: BookmarkType.series,
+            sourceId: resolvedSeries.id,
+          ),
+        ),
+      );
+    }
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,

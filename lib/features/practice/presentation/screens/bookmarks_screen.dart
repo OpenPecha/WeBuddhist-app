@@ -57,10 +57,9 @@ class _BookmarksScreenState extends ConsumerState<BookmarksScreen>
     if (ok) {
       final type = bookmarkTypeFromItem(bookmark.type);
       if (type != null) {
-        ref.invalidate(
-          bookmarkExistsProvider(
-            BookmarkTarget(type: type, sourceId: bookmark.sourceId),
-          ),
+        ref.read(bookmarkExistsCacheProvider.notifier).set(
+          BookmarkTarget(type: type, sourceId: bookmark.sourceId),
+          const BookmarkExistsResult(exists: false),
         );
       }
     }

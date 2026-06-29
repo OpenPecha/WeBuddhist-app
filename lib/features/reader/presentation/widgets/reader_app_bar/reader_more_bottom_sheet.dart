@@ -78,8 +78,7 @@ class _ReaderMoreBottomSheetState extends ConsumerState<ReaderMoreBottomSheet> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final l10n = context.l10n;
-    final bookmarkAsync = ref.watch(bookmarkExistsProvider(_bookmarkTarget));
-    final isBookmarked = bookmarkAsync.valueOrNull?.exists ?? false;
+    final isBookmarked = ref.watch(isBookmarkedProvider(_bookmarkTarget));
 
     final fontSize = ref.watch(fontSizeProvider);
     final stepIndex = _stepIndex(fontSize);
