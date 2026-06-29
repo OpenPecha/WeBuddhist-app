@@ -15,6 +15,13 @@
 # number at build time (github.run_number + offset), so pubspec's build value
 # is only a placeholder.
 #
+# The script only computes + writes pubspec.yaml; the CALLER decides whether to
+# persist it:
+#   * release-prod (main)   commits the bump back  -> the version advances.
+#   * release-dev  (develop) does NOT commit       -> a throwaway preview build,
+#                                                     so promoting dev->prod does
+#                                                     not double-bump.
+#
 # Outputs (when $GITHUB_OUTPUT is set, i.e. on CI):
 #   version_name=<new X.Y.Z>   level=<major|minor|patch>   version=<X.Y.Z+build>
 # ---------------------------------------------------------------------------
@@ -30,10 +37,21 @@ name="${current%%+*}"                           # "X.Y.Z"
 build=""
 [ "$current" != "$name" ] && build="${current#*+}"   # "build" (empty if no +)
 
-IFS='.' read -r major minor patch <<<"$name"
+# --- version to bump FROM --------------------------------------------------
+# The higher of pubspec's version and the highest released "v*" tag. On main
+# they are equal. For DEV builds the bump is NOT committed back, so develop's
+# pubspec can lag the last prod release — using the tag keeps dev one step ahead
+# of what already shipped instead of re-previewing an already-released version.
+tag_ver="$(git tag -l 'v*' 2>/dev/null | sed -E 's/^v//; s/-.*$//' \
+  | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' | sort -t. -k1,1n -k2,2n -k3,3n | tail -n1 || true)"
+base="$name"
+[ -n "$tag_ver" ] && base="$(printf '%s\n%s\n' "$name" "$tag_ver" \
+  | sort -t. -k1,1n -k2,2n -k3,3n | tail -n1)"
+
+IFS='.' read -r major minor patch <<<"$base"
 : "${major:=0}" "${minor:=0}" "${patch:=0}"
 
-# --- commit range to inspect (since the last release tag) ------------------
+# --- commit range whose messages decide the bump LEVEL (since last release) -
 last_tag="$(git describe --tags --abbrev=0 --match 'v*' 2>/dev/null || true)"
 if [ -n "$last_tag" ]; then
   range="${last_tag}..HEAD"
@@ -54,8 +72,8 @@ if printf '%s\n' "$subjects" | grep -qiE '^[[:space:]]*(feat|feature)(\([^)]+\))
   level="minor"
 fi
 
-if printf '%s\n' "$subjects" | grep -qiE '^[[:space:]]*[a-z]+(\([^)]+\))?!:' \
-   || printf '%s\n' "$bodies"   | grep -qiE 'BREAKING[ -]CHANGE' \
+if printf '%s\n' "$subjects" | grep -qE '^[[:space:]]*[a-z]+(\([^)]+\))?!:' \
+   || printf '%s\n' "$bodies"   | grep -qE '^[[:space:]]*BREAKING[ -]CHANGE:' \
    || printf '%s\n' "$branches" | grep -qiE '^(breaking|major)/'; then
   level="major"
 fi
@@ -74,8 +92,8 @@ new_version="$new_name"
 NEW_VERSION="$new_version" perl -i -pe 'if (!$done && /^version:/) { $_ = "version: $ENV{NEW_VERSION}\n"; $done = 1 }' "$PUBSPEC"
 
 echo "Last release tag : ${last_tag:-<none>}"
+echo "Base version     : $base   (pubspec=$name, highest tag=${tag_ver:-<none>})"
 echo "Bump level       : $level"
-echo "Old version      : $current"
 echo "New version      : $new_version"
 
 if [ -n "${GITHUB_OUTPUT:-}" ]; then
