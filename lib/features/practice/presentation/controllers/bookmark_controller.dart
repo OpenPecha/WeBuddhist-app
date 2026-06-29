@@ -6,10 +6,11 @@ import 'package:flutter_pecha/features/practice/data/datasource/bookmark_remote_
 import 'package:flutter_pecha/features/practice/presentation/providers/bookmark_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-/// Controller for creating bookmarks.
+/// Controller for bookmark create/remove (toggle) operations.
 ///
 /// Mirrors the [RecitationSaveController] pattern:
-/// guest → show login drawer, authenticated → POST and show feedback.
+/// guest → show login drawer, authenticated → check exists → POST or DELETE,
+/// then invalidate bookmark caches.
 class BookmarkController {
   final _logger = AppLogger('BookmarkController');
   final WidgetRef ref;
@@ -17,41 +18,34 @@ class BookmarkController {
 
   BookmarkController({required this.ref, required this.context});
 
-  /// Create a TEXT bookmark for a full text (used from the reader "more" sheet).
-  Future<void> bookmarkText(String textId) =>
-      _createBookmark(type: BookmarkType.text, sourceId: textId);
+  /// Toggle a TEXT bookmark for a full text (reader "more" sheet).
+  Future<void> toggleText(String textId) =>
+      toggle(type: BookmarkType.text, sourceId: textId);
 
-  /// Create a VERSE bookmark for a selected segment.
-  Future<void> bookmarkVerse(String segmentId) =>
-      _createBookmark(type: BookmarkType.verse, sourceId: segmentId);
+  /// Toggle a VERSE bookmark for a selected segment.
+  Future<void> toggleVerse(String segmentId) =>
+      toggle(type: BookmarkType.verse, sourceId: segmentId);
 
-  /// Create a TIMER bookmark for a preset timer.
-  Future<void> bookmarkTimer(String timerId) =>
-      _createBookmark(type: BookmarkType.timer, sourceId: timerId);
+  /// Toggle a TIMER bookmark for a preset timer.
+  Future<void> toggleTimer(String timerId) =>
+      toggle(type: BookmarkType.timer, sourceId: timerId);
 
-  /// Create an ACCUMULATOR bookmark for a preset mala/mantra.
-  ///
-  /// [name] is the localized mantra title, stored so the bookmarks list can
-  /// label the entry without a follow-up lookup.
-  Future<void> bookmarkMala(String accumulatorId, {String? name}) =>
-      _createBookmark(
+  /// Toggle an ACCUMULATOR bookmark for a preset mala/mantra.
+  Future<void> toggleMala(String accumulatorId, {String? name}) => toggle(
         type: BookmarkType.accumulator,
         sourceId: accumulatorId,
         name: name,
       );
 
-  /// Create a SERIES bookmark.
-  ///
-  /// [name] is the series title, stored so the bookmarks list can label the
-  /// entry without a follow-up lookup.
-  Future<void> bookmarkSeries(String seriesId, {String? name}) =>
-      _createBookmark(
+  /// Toggle a SERIES bookmark.
+  Future<void> toggleSeries(String seriesId, {String? name}) => toggle(
         type: BookmarkType.series,
         sourceId: seriesId,
         name: name,
       );
 
-  Future<void> _createBookmark({
+  /// Creates or removes a bookmark depending on current saved state.
+  Future<void> toggle({
     required BookmarkType type,
     required String sourceId,
     String? name,
@@ -62,23 +56,50 @@ class BookmarkController {
       return;
     }
 
+    final target = BookmarkTarget(type: type, sourceId: sourceId);
+    final repository = ref.read(bookmarkRepositoryProvider);
+
     try {
-      final result = await ref.read(bookmarkRepositoryProvider).createBookmark(
-            type: type,
-            sourceId: sourceId,
-            name: name,
-          );
-      result.fold(
-        (failure) => throw Exception(failure.message),
-        (_) => _showSuccessSnackBar(),
+      final existsResult = await repository.checkBookmarkExists(
+        sourceId: sourceId,
+        type: type,
       );
+
+      await existsResult.fold(
+        (failure) => throw Exception(failure.message),
+        (exists) async {
+          if (exists.exists) {
+            final bookmarkId = exists.id;
+            if (bookmarkId == null || bookmarkId.isEmpty) {
+              throw Exception('Bookmark exists but id is missing');
+            }
+            final deleteResult = await repository.deleteBookmark(bookmarkId);
+            deleteResult.fold(
+              (failure) => throw Exception(failure.message),
+              (_) => _showRemovedSnackBar(),
+            );
+          } else {
+            final createResult = await repository.createBookmark(
+              type: type,
+              sourceId: sourceId,
+              name: name,
+            );
+            createResult.fold(
+              (failure) => throw Exception(failure.message),
+              (_) => _showSavedSnackBar(),
+            );
+          }
+        },
+      );
+
+      invalidateBookmarkCaches(ref, target: target);
     } catch (e, st) {
-      _logger.error('Error creating bookmark', e, st);
+      _logger.error('Error toggling bookmark', e, st);
       _showErrorSnackBar();
     }
   }
 
-  void _showSuccessSnackBar() {
+  void _showSavedSnackBar() {
     if (!context.mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
@@ -88,11 +109,21 @@ class BookmarkController {
     );
   }
 
+  void _showRemovedSnackBar() {
+    if (!context.mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Bookmark removed'),
+        duration: Duration(seconds: 2),
+      ),
+    );
+  }
+
   void _showErrorSnackBar() {
     if (!context.mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
-        content: Text('Failed to save bookmark'),
+        content: Text('Failed to update bookmark'),
         duration: Duration(seconds: 2),
       ),
     );

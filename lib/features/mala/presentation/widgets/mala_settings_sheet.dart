@@ -9,7 +9,9 @@ import 'package:flutter_pecha/core/widgets/destructive_confirmation_dialog.dart'
 import 'package:flutter_pecha/features/mala/domain/entities/mantra.dart';
 import 'package:flutter_pecha/features/mala/presentation/providers/mala_providers.dart';
 import 'package:flutter_pecha/features/mala/presentation/providers/mala_settings_provider.dart';
+import 'package:flutter_pecha/features/practice/data/datasource/bookmark_remote_datasource.dart';
 import 'package:flutter_pecha/features/practice/presentation/controllers/bookmark_controller.dart';
+import 'package:flutter_pecha/features/practice/presentation/providers/bookmark_providers.dart';
 import 'package:flutter_pecha/shared/widgets/app_toggle_switch.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -37,6 +39,12 @@ class MalaSettingsSheet extends ConsumerWidget {
     final settings = ref.watch(malaSettingsProvider);
     final settingsNotifier = ref.read(malaSettingsProvider.notifier);
     final isOnline = ref.watch(connectivityNotifierProvider);
+    final bookmarkAsync = ref.watch(
+      bookmarkExistsProvider(
+        BookmarkTarget(type: BookmarkType.accumulator, sourceId: mantra.presetId),
+      ),
+    );
+    final isBookmarked = bookmarkAsync.valueOrNull?.exists ?? false;
     final dividerColor =
         isDark ? AppColors.cardBorderDark : AppColors.grey300;
     const destructiveColor = Color(0xFFB03027);
@@ -67,9 +75,12 @@ class MalaSettingsSheet extends ConsumerWidget {
             ),
             Divider(height: 1, color: dividerColor),
             _MalaSettingsTile(
-              icon: AppAssets.bookmarkSimple,
+              icon:
+                  isBookmarked
+                      ? AppAssets.bookmarkSimpleFill
+                      : AppAssets.bookmarkSimple,
               label: l10n.mala_add_to_bookmark,
-              onTap: () => _onAddToBookmark(context, ref),
+              onTap: () => _onToggleBookmark(context, ref),
             ),
             Divider(height: 1, color: dividerColor),
             _MalaSettingsToggleTile(
@@ -111,14 +122,11 @@ class MalaSettingsSheet extends ConsumerWidget {
     router.pushNamed('edit-routine', extra: {'initialMantra': mantra});
   }
 
-  Future<void> _onAddToBookmark(BuildContext context, WidgetRef ref) async {
+  Future<void> _onToggleBookmark(BuildContext context, WidgetRef ref) async {
     final language = ref.read(contentLanguageProvider);
     final navigator = Navigator.of(context);
 
-    // The controller handles the guest → login-drawer flow and shows its own
-    // success/error snackbar, so it must run before the sheet is dismissed
-    // (its context drives both). The sheet is closed once the call resolves.
-    await BookmarkController(ref: ref, context: context).bookmarkMala(
+    await BookmarkController(ref: ref, context: context).toggleMala(
       mantra.presetId,
       name: mantra.displayTitle(language),
     );

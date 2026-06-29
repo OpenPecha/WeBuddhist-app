@@ -1,6 +1,8 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
 import 'package:flutter_pecha/core/di/core_providers.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
+import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
 import 'package:flutter_pecha/features/practice/data/datasource/bookmark_remote_datasource.dart';
 import 'package:flutter_pecha/features/practice/data/models/bookmark_models.dart';
 import 'package:flutter_pecha/features/practice/data/repositories/bookmark_repository.dart';
@@ -13,6 +15,64 @@ final bookmarkRepositoryProvider = Provider<BookmarkRepository>((ref) {
     ),
   );
 });
+
+/// Identifies a bookmarkable entity for exists checks and cache invalidation.
+@immutable
+class BookmarkTarget {
+  final BookmarkType type;
+  final String sourceId;
+
+  const BookmarkTarget({required this.type, required this.sourceId});
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is BookmarkTarget && type == other.type && sourceId == other.sourceId;
+
+  @override
+  int get hashCode => Object.hash(type, sourceId);
+}
+
+/// Maps list-item types to create/check types. [BookmarkItemType.plan] has no
+/// in-app toggle entry point.
+BookmarkType? bookmarkTypeFromItem(BookmarkItemType type) => switch (type) {
+  BookmarkItemType.text => BookmarkType.text,
+  BookmarkItemType.verse => BookmarkType.verse,
+  BookmarkItemType.series => BookmarkType.series,
+  BookmarkItemType.accumulator => BookmarkType.accumulator,
+  BookmarkItemType.timer => BookmarkType.timer,
+  BookmarkItemType.plan => null,
+};
+
+/// Whether [target] is bookmarked for the signed-in user.
+///
+/// Guests always resolve to `exists: false` without hitting the network.
+final bookmarkExistsProvider = FutureProvider.autoDispose
+    .family<BookmarkExistsResult, BookmarkTarget>((ref, target) async {
+      final auth = ref.watch(authProvider);
+      if (auth.isGuest || !auth.isLoggedIn) {
+        return const BookmarkExistsResult(exists: false);
+      }
+
+      final result = await ref
+          .watch(bookmarkRepositoryProvider)
+          .checkBookmarkExists(
+            sourceId: target.sourceId,
+            type: target.type,
+          );
+      return result.fold(
+        (failure) => throw Exception(failure.message),
+        (exists) => exists,
+      );
+    });
+
+/// Refreshes bookmark list and optional per-item exists state after mutations.
+void invalidateBookmarkCaches(WidgetRef ref, {BookmarkTarget? target}) {
+  if (target != null) {
+    ref.invalidate(bookmarkExistsProvider(target));
+  }
+  ref.invalidate(bookmarksProvider);
+}
 
 /// The tabs shown on the bookmarks screen, in display order.
 enum BookmarkTab { all, plans, mala, timers, texts }

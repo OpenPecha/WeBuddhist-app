@@ -10,7 +10,6 @@ import 'package:flutter_pecha/features/home/presentation/providers/series_provid
 import 'package:flutter_pecha/features/home/presentation/widgets/plan_list_view.dart';
 import 'package:flutter_pecha/features/home/presentation/widgets/series_more_bottom_sheet.dart';
 import 'package:flutter_pecha/features/plans/presentation/providers/user_plans_provider.dart';
-import 'package:flutter_pecha/features/practice/presentation/controllers/bookmark_controller.dart';
 import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -152,12 +151,9 @@ class SeriesDetailScreen extends ConsumerWidget {
   void _openMoreSheet(BuildContext context, WidgetRef ref, Series series) {
     showSeriesMoreBottomSheet(
       context,
+      seriesId: series.id,
+      seriesName: series.title,
       onAddToPractices: () => _onAddToPractices(context, ref, series),
-      onBookmark:
-          () => BookmarkController(
-            ref: ref,
-            context: context,
-          ).bookmarkSeries(series.id, name: series.title),
     );
   }
 

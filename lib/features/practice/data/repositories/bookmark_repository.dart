@@ -37,6 +37,23 @@ class BookmarkRepository {
     }
   }
 
+  Future<Either<Failure, BookmarkExistsResult>> checkBookmarkExists({
+    required String sourceId,
+    BookmarkType? type,
+  }) async {
+    try {
+      final result = await remoteDatasource.checkBookmarkExists(
+        sourceId: sourceId,
+        type: type,
+      );
+      return Right(result);
+    } catch (e) {
+      return Left(
+        ExceptionMapper.map(e, context: 'Failed to check bookmark status'),
+      );
+    }
+  }
+
   Future<Either<Failure, Unit>> deleteBookmark(String bookmarkId) async {
     try {
       await remoteDatasource.deleteBookmark(bookmarkId);
