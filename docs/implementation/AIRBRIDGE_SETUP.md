@@ -13,12 +13,12 @@ The app uses [Airbridge](https://www.airbridge.io/) for attribution, install tra
 | `AIRBRIDGE_APP_NAME` | Airbridge dashboard → Settings → App Name |
 | `AIRBRIDGE_SDK_TOKEN` | Airbridge dashboard → Settings → SDK Token |
 
-Use separate Airbridge apps (and therefore separate credentials) for each environment:
+Use the same Airbridge app for all environments:
 
 | Flavor | Airbridge app name |
 |---|---|
-| `dev` | `webuddhistdev` |
-| `staging` | `webuddhist` (same prod app, scoped by event metadata if needed) |
+| `dev` | `webuddhist` |
+| `staging` | `webuddhist` |
 | `prod` | `webuddhist` |
 
 ---
@@ -77,7 +77,7 @@ Before the first production build, verify these settings in the [Airbridge dashb
 2. **iOS URI scheme:** `webuddhist`
 3. **Android package name:** `org.pecha.app`
 4. **iOS bundle ID:** `org.pecha.app`
-5. **Tracking link domain:** `join.webuddhist.com` (custom domain)
+5. **Tracking link domain:** `connect.webuddhist.com` (custom domain)
 6. **App Store Connect ID:** confirm the numeric App Store ID for `org.pecha.app`
 
 ---
@@ -88,15 +88,15 @@ These must be hosted externally (not in this repo) before App Links / Universal 
 
 | File | Hosted at |
 |---|---|
-| `apple-app-site-association` | `https://join.webuddhist.com/.well-known/apple-app-site-association` |
+| `apple-app-site-association` | `https://connect.webuddhist.com/.well-known/apple-app-site-association` |
 | `apple-app-site-association` | `https://webuddhist.airbridge.io/.well-known/apple-app-site-association` (Airbridge hosts this) |
 | `apple-app-site-association` | `https://webuddhist.abr.ge/.well-known/apple-app-site-association` (Airbridge hosts this) |
-| `assetlinks.json` | `https://join.webuddhist.com/.well-known/assetlinks.json` |
+| `assetlinks.json` | `https://connect.webuddhist.com/.well-known/assetlinks.json` |
 
 For `assetlinks.json`, include the **release signing certificate SHA-256** for `org.pecha.app`. Retrieve it with:
 
 ```bash
-keytool -list -v -keystore <your-release.keystore> -alias <key-alias>
+keytool -J-Duser.language=en -list -v -keystore <your-release.keystore> -alias <key-alias>
 ```
 
 ---
@@ -105,7 +105,7 @@ keytool -list -v -keystore <your-release.keystore> -alias <key-alias>
 
 - [ ] Prod iOS build succeeds with `AIRBRIDGE_APP_NAME=webuddhist` in CI; generated `Runner.entitlements` contains `applinks:webuddhist.airbridge.io`, `applinks:webuddhist.abr.ge`, `applinks:join.webuddhist.com`
 - [ ] Prod Android release build contains correct `AIRBRIDGE_APP_NAME` and `AIRBRIDGE_SDK_TOKEN` in `BuildConfig`; App Link intent filters compile without errors
-- [ ] Share sheet shows `https://join.webuddhist.com/get-app`
+- [ ] Share sheet shows `https://connect.webuddhist.com/get-app`
 - [ ] Tap tracking link on device with prod build → app opens; Airbridge dashboard shows open/re-engagement event
 - [ ] Deferred install: uninstall → tap link → install from store → first open attributed in Airbridge dashboard
-- [ ] Dev flavor uses `webuddhistdev` credentials and does not pollute prod attribution data
+- [ ] Dev flavor uses `webuddhist` credentials and expected development metadata is present if events need to be separated from production

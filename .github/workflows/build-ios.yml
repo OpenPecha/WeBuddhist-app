@@ -15,7 +15,7 @@ on:
     inputs:
       flavor:             { required: true,  type: string }   # dev | staging | prod
       entrypoint:         { required: true,  type: string }   # lib/main_<flavor>.dart
-      airbridge_app_name: { required: true,  type: string }   # webuddhistdev | webuddhist
+      airbridge_app_name: { required: true,  type: string }   # webuddhist
       auth0_domain:       { required: true,  type: string }   # used by Generate Entitlements
       ios_bundle_id:      { required: true,  type: string }   # org.pecha.app[.dev]
       environment:        { required: false, type: string, default: '' }

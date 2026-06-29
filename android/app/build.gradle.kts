@@ -102,6 +102,7 @@ android {
             resValue("string", "app_name", "[Dev] WeBuddhist")
             versionNameSuffix = "-dev"
             signingConfigs.findByName("devRelease")?.let { signingConfig = it }
+            manifestPlaceholders["airbridgeAppName"] = "webuddhist"
             manifestPlaceholders["auth0Domain"] = "dev-vz6o17motc18g45h.us.auth0.com"
             manifestPlaceholders["auth0Scheme"] = "org.pecha.app.dev"
         }
@@ -112,6 +113,7 @@ android {
             resValue("string", "app_name", "[Stage] WeBuddhist")
             versionNameSuffix = "-staging"
             signingConfigs.findByName("stagingRelease")?.let { signingConfig = it }
+            manifestPlaceholders["airbridgeAppName"] = "webuddhist"
             manifestPlaceholders["auth0Domain"] = "we-buddhist-prod.us.auth0.com"
             manifestPlaceholders["auth0Scheme"] = "org.pecha.app.staging"
         }
@@ -121,6 +123,7 @@ android {
             applicationId = "org.pecha.app"
             resValue("string", "app_name", "WeBuddhist")
             signingConfigs.findByName("prodRelease")?.let { signingConfig = it }
+            manifestPlaceholders["airbridgeAppName"] = "webuddhist"
             manifestPlaceholders["auth0Domain"] = "we-buddhist-prod.us.auth0.com"
             manifestPlaceholders["auth0Scheme"] = "org.pecha.app"
         }
