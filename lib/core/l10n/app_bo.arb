@@ -676,6 +676,29 @@
   "joined": "ཞུགས་ཟིན།",
   "group_member": "ཚོགས་མི།",
   "group_members": "ཚོགས་མི།",
+  "group_tab_members": "ཚོགས་མི།",
+  "group_tab_followers": "རྗེས་འབྲང་པ།",
+  "group_members_heading": "ཚོགས་མི({count})",
+  "group_followers_heading": "རྗེས་འབྲང་པ({count})",
+  "@group_members_heading": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@group_followers_heading": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "group_invite": "སྐུ་འཕྲིན།",
+  "group_members_load_error": "ཚོགས་མི་མངག་ཐུབ་མ་སོང་། ཡང་བསྐྱར་ཚོད་ལྟ་གནང་རོགས།",
+  "group_followers_load_error": "རྗེས་འབྲང་པ་མངག་ཐུབ་མ་སོང་། ཡང་བསྐྱར་ཚོད་ལྟ་གནང་རོགས།",
+  "group_members_empty": "ཚོགས་མི་མེད།",
+  "group_followers_empty": "རྗེས་འབྲང་པ་མེད།",
   "group_follower": "རྗེས་འབྲང་པ།",
   "group_followers": "རྗེས་འབྲང་པ།",
   "group_links_title": "འབྲེལ་ཐག",
