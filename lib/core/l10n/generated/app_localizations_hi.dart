@@ -1562,6 +1562,26 @@ class AppLocalizationsHi extends AppLocalizations {
   String get group_members => 'सदस्य';
 
   @override
+  String get group_tab_members => 'सदस्य';
+
+  @override
+  String get group_tab_followers => 'अनुयायी';
+
+  @override
+  String get group_members_load_error =>
+      'सदस्य लोड नहीं हो सके। कृपया पुनः प्रयास करें।';
+
+  @override
+  String get group_followers_load_error =>
+      'अनुयायी लोड नहीं हो सके। कृपया पुनः प्रयास करें।';
+
+  @override
+  String get group_members_empty => 'अभी कोई सदस्य नहीं';
+
+  @override
+  String get group_followers_empty => 'अभी कोई अनुयायी नहीं';
+
+  @override
   String get group_follower => 'अनुयायी';
 
   @override

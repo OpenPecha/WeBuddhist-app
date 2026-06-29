@@ -2848,6 +2848,42 @@ abstract class AppLocalizations {
   /// **'members'**
   String get group_members;
 
+  /// No description provided for @group_tab_members.
+  ///
+  /// In en, this message translates to:
+  /// **'Members'**
+  String get group_tab_members;
+
+  /// No description provided for @group_tab_followers.
+  ///
+  /// In en, this message translates to:
+  /// **'Followers'**
+  String get group_tab_followers;
+
+  /// No description provided for @group_members_load_error.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to load members. Please try again.'**
+  String get group_members_load_error;
+
+  /// No description provided for @group_followers_load_error.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to load followers. Please try again.'**
+  String get group_followers_load_error;
+
+  /// No description provided for @group_members_empty.
+  ///
+  /// In en, this message translates to:
+  /// **'No members yet'**
+  String get group_members_empty;
+
+  /// No description provided for @group_followers_empty.
+  ///
+  /// In en, this message translates to:
+  /// **'No followers yet'**
+  String get group_followers_empty;
+
   /// No description provided for @group_follower.
   ///
   /// In en, this message translates to:

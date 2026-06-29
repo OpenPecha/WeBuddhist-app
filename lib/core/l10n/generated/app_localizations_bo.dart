@@ -1570,6 +1570,26 @@ class AppLocalizationsBo extends AppLocalizations {
   String get group_members => 'ཚོགས་མི།';
 
   @override
+  String get group_tab_members => 'ཚོགས་མི།';
+
+  @override
+  String get group_tab_followers => 'རྗེས་འབྲང་པ།';
+
+  @override
+  String get group_members_load_error =>
+      'ཚོགས་མི་མངག་ཐུབ་མ་སོང་། ཡང་བསྐྱར་ཚོད་ལྟ་གནང་རོགས།';
+
+  @override
+  String get group_followers_load_error =>
+      'རྗེས་འབྲང་པ་མངག་ཐུབ་མ་སོང་། ཡང་བསྐྱར་ཚོད་ལྟ་གནང་རོགས།';
+
+  @override
+  String get group_members_empty => 'ཚོགས་མི་མེད།';
+
+  @override
+  String get group_followers_empty => 'རྗེས་འབྲང་པ་མེད།';
+
+  @override
   String get group_follower => 'རྗེས་འབྲང་པ།';
 
   @override

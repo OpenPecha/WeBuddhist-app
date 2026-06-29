@@ -1570,6 +1570,26 @@ class AppLocalizationsNe extends AppLocalizations {
   String get group_members => 'सदस्यहरू';
 
   @override
+  String get group_tab_members => 'सदस्यहरू';
+
+  @override
+  String get group_tab_followers => 'अनुयायीहरू';
+
+  @override
+  String get group_members_load_error =>
+      'सदस्यहरू लोड गर्न सकिएन। कृपया पुनः प्रयास गर्नुहोस्।';
+
+  @override
+  String get group_followers_load_error =>
+      'अनुयायीहरू लोड गर्न सकिएन। कृपया पुनः प्रयास गर्नुहोस्।';
+
+  @override
+  String get group_members_empty => 'अहिलेसम्म कुनै सदस्य छैन';
+
+  @override
+  String get group_followers_empty => 'अहिलेसम्म कुनै अनुयायी छैन';
+
+  @override
   String get group_follower => 'अनुयायी';
 
   @override

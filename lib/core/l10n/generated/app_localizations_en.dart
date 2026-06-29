@@ -1549,6 +1549,26 @@ class AppLocalizationsEn extends AppLocalizations {
   String get group_members => 'members';
 
   @override
+  String get group_tab_members => 'Members';
+
+  @override
+  String get group_tab_followers => 'Followers';
+
+  @override
+  String get group_members_load_error =>
+      'Unable to load members. Please try again.';
+
+  @override
+  String get group_followers_load_error =>
+      'Unable to load followers. Please try again.';
+
+  @override
+  String get group_members_empty => 'No members yet';
+
+  @override
+  String get group_followers_empty => 'No followers yet';
+
+  @override
   String get group_follower => 'follower';
 
   @override

@@ -1477,6 +1477,24 @@ class AppLocalizationsZh extends AppLocalizations {
   String get group_members => '位成員';
 
   @override
+  String get group_tab_members => '成員';
+
+  @override
+  String get group_tab_followers => '追蹤者';
+
+  @override
+  String get group_members_load_error => '無法載入成員，請再試一次。';
+
+  @override
+  String get group_followers_load_error => '無法載入追蹤者，請再試一次。';
+
+  @override
+  String get group_members_empty => '尚無成員';
+
+  @override
+  String get group_followers_empty => '尚無追蹤者';
+
+  @override
   String get group_follower => '位追蹤者';
 
   @override

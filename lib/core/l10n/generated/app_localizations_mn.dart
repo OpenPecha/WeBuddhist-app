@@ -1565,6 +1565,26 @@ class AppLocalizationsMn extends AppLocalizations {
   String get group_members => 'гишүүд';
 
   @override
+  String get group_tab_members => 'Гишүүд';
+
+  @override
+  String get group_tab_followers => 'Дагагчид';
+
+  @override
+  String get group_members_load_error =>
+      'Гишүүдийг ачаалж чадсангүй. Дахин оролдоно уу.';
+
+  @override
+  String get group_followers_load_error =>
+      'Дагагчдыг ачаалж чадсангүй. Дахин оролдоно уу.';
+
+  @override
+  String get group_members_empty => 'Одоогоор гишүүн байхгүй';
+
+  @override
+  String get group_followers_empty => 'Одоогоор дагагч байхгүй';
+
+  @override
   String get group_follower => 'дагагч';
 
   @override

@@ -10,6 +10,7 @@ import 'package:flutter_pecha/features/auth/presentation/widgets/login_drawer.da
 import 'package:flutter_pecha/features/group_profile/domain/entities/group_profile.dart';
 import 'package:flutter_pecha/features/group_profile/presentation/providers/group_profile_providers.dart';
 import 'package:flutter_pecha/features/group_profile/presentation/widgets/group_profile_links_drawer.dart';
+import 'package:flutter_pecha/features/group_profile/presentation/widgets/group_profile_members_tab.dart';
 import 'package:flutter_pecha/features/plans/presentation/widgets/plan_inline_markdown_view.dart';
 import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -39,6 +40,15 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
     with SingleTickerProviderStateMixin {
   bool _isDescriptionExpanded = false;
   late TabController _tabController;
+  late ScrollController _scrollController;
+
+  int get _tabCount {
+    var count = 2;
+    if (_hasAboutContent(widget.profile)) count++;
+    return count;
+  }
+
+  int get _membersTabIndex => 1;
 
   bool _hasAboutContent(GroupProfile profile) {
     final descriptionLong = profile.descriptionLong?.trim();
@@ -48,14 +58,18 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
   @override
   void initState() {
     super.initState();
+    _scrollController = widget.scrollController ?? ScrollController();
     _tabController = TabController(
-      length: _hasAboutContent(widget.profile) ? 2 : 1,
+      length: _tabCount,
       vsync: this,
     );
   }
 
   @override
   void dispose() {
+    if (widget.scrollController == null) {
+      _scrollController.dispose();
+    }
     _tabController.dispose();
     super.dispose();
   }
@@ -72,7 +86,7 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
     );
 
     return SingleChildScrollView(
-      controller: widget.scrollController,
+      controller: _scrollController,
       physics: const BouncingScrollPhysics(
         parent: AlwaysScrollableScrollPhysics(),
       ),
@@ -114,13 +128,24 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
           const SizedBox(height: 20),
           _GroupFollowButton(profile: profile, isDark: isDark),
           const SizedBox(height: 24),
-          _buildTabBar(isDark, _hasAboutContent(profile)),
+          _buildTabBar(isDark, profile),
           const SizedBox(height: 16),
           AnimatedBuilder(
             animation: _tabController,
             builder: (context, _) {
-              if (_tabController.index == 0) {
+              final tabIndex = _tabController.index;
+              if (tabIndex == 0) {
                 return _buildPracticesTab(profile, isDark, lineHeight);
+              }
+              if (tabIndex == _membersTabIndex) {
+                return GroupProfileMembersTab(
+                  groupId: profile.id,
+                  groupType: profile.groupType,
+                  isDark: isDark,
+                  lineHeight: lineHeight,
+                  scrollController: _scrollController,
+                  isActive: true,
+                );
               }
               return _buildAboutTab(profile, isDark, locale.languageCode);
             },
@@ -293,10 +318,15 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
     );
   }
 
-  Widget _buildTabBar(bool isDark, bool hasAbout) {
+  Widget _buildTabBar(bool isDark, GroupProfile profile) {
     final labelColor =
         isDark ? AppColors.textPrimaryDark : AppColors.textPrimary;
     final dividerColor = isDark ? AppColors.grey800 : AppColors.grey300;
+    final hasAbout = _hasAboutContent(profile);
+    final membersTabLabel =
+        profile.groupType.isPage
+            ? context.l10n.group_tab_followers
+            : context.l10n.group_tab_members;
 
     return Column(
       children: [
@@ -316,6 +346,7 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
           ),
           tabs: [
             Tab(text: context.l10n.nav_practice),
+            Tab(text: membersTabLabel),
             if (hasAbout) Tab(text: context.l10n.about_title),
           ],
         ),
