@@ -31,29 +31,32 @@ class StreakSharePreview extends StatelessWidget {
 
     return Theme(
       data: lightTheme,
-      child: Container(
-        color: AppColors.goldLight,
-        padding: const EdgeInsets.fromLTRB(14, 20, 14, 24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.grey[400]!),
+      child: Material(
+        type: MaterialType.transparency,
+        child: Container(
+          color: AppColors.goldLight,
+          padding: const EdgeInsets.fromLTRB(14, 20, 14, 24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.grey[400]!),
+                ),
+                padding: const EdgeInsets.fromLTRB(24, 32, 24, 28),
+                child: StreakShareContent(streak: streak),
               ),
-              padding: const EdgeInsets.fromLTRB(24, 32, 24, 28),
-              child: StreakShareContent(streak: streak),
-            ),
-            const SizedBox(height: 24),
-            const VerseShareBranding(
-              logoSize: 32,
-              sharedFromFontSize: 12,
-              appTitleFontSize: 14,
-            ),
-          ],
+              const SizedBox(height: 24),
+              const VerseShareBranding(
+                logoSize: 32,
+                sharedFromFontSize: 12,
+                appTitleFontSize: 14,
+              ),
+            ],
+          ),
         ),
       ),
     );
