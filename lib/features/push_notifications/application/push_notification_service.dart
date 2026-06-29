@@ -52,11 +52,18 @@ class PushNotificationService {
   String? _token;
   bool _loggedIn = false;
   bool _initialized = false;
+  Future<void>? _initializing;
 
-  /// One-time setup. Subsequent calls are ignored.
-  Future<void> initialize() async {
-    if (_initialized) return;
-    _initialized = true;
+  /// One-time setup. Concurrent calls share the in-flight attempt, and calls
+  /// after a successful run are ignored. A failed attempt does NOT latch — it
+  /// tears down any partial wiring and leaves the service ready to retry, so a
+  /// transient failure can't permanently disable token refresh / registration.
+  Future<void> initialize() {
+    if (_initialized) return Future.value();
+    return _initializing ??= _runInitialize();
+  }
+
+  Future<void> _runInitialize() async {
     try {
       await _createAndroidChannel();
       final granted = await _repository.requestPermission();
@@ -74,8 +81,19 @@ class PushNotificationService {
       // Token for this install.
       final token = await _repository.getToken();
       if (token != null) await _onToken(token);
+
+      // Only latch once the full setup has succeeded.
+      _initialized = true;
     } catch (e, st) {
       _logger.warning('Push initialization failed: $e', e, st);
+      // Drop any listeners added before the failure so a retry starts clean
+      // and we don't double-subscribe.
+      for (final sub in _subscriptions) {
+        unawaited(sub.cancel());
+      }
+      _subscriptions.clear();
+    } finally {
+      _initializing = null;
     }
   }
 
