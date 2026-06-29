@@ -71,6 +71,7 @@ class AppAssets {
   static const IconData caretRight = PhosphorIconsRegular.caretRight;
   static const IconData caretDown = PhosphorIconsRegular.caretDown;
   static const IconData caretUp = PhosphorIconsRegular.caretUp;
+  static const IconData caretLeft = PhosphorIconsRegular.caretLeft;
   static const IconData arrowSquareOut = PhosphorIconsRegular.arrowSquareOut;
   static const IconData arrowLeft = PhosphorIconsRegular.arrowLeft;
   static const IconData lock = PhosphorIconsRegular.lock;
