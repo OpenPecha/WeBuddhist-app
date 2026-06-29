@@ -678,6 +678,7 @@
   "group_members": "ཚོགས་མི།",
   "group_tab_members": "ཚོགས་མི།",
   "group_tab_followers": "རྗེས་འབྲང་པ།",
+  "group_practice_with_us": "ང་ཚོ་དང་མཉམ་དུ་ཉམས་ལེན་གནང་རོགས།",
   "group_members_heading": "ཚོགས་མི({count})",
   "group_followers_heading": "རྗེས་འབྲང་པ({count})",
   "@group_members_heading": {

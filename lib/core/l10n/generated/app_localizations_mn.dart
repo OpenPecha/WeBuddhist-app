@@ -1571,6 +1571,9 @@ class AppLocalizationsMn extends AppLocalizations {
   String get group_tab_followers => 'Дагагчид';
 
   @override
+  String get group_practice_with_us => 'Бидэнтэй хамт дадлага хий';
+
+  @override
   String group_members_heading(int count) {
     return 'Гишүүд($count)';
   }

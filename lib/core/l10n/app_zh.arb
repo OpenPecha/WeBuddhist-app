@@ -678,6 +678,7 @@
   "group_members": "位成員",
   "group_tab_members": "成員",
   "group_tab_followers": "追蹤者",
+  "group_practice_with_us": "與我們一起修行",
   "group_members_heading": "成員({count})",
   "group_followers_heading": "追蹤者({count})",
   "@group_members_heading": {

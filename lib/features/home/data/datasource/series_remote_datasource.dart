@@ -140,11 +140,26 @@ class SeriesRemoteDatasource {
   /// Endpoint: POST /users/me/series
   /// Enrolls the authenticated user in a series. Backend auto-enrolls the
   /// user in every plan that belongs to the series.
-  Future<void> enrollInSeries(String seriesId) async {
+  ///
+  /// [groupId] binds the enrollment to a hosting group (used by the group
+  /// profile "Practice with us" entry point). [autoEnrollNext] opts the user
+  /// into future plans of the series; [startImmediately] starts the first plan
+  /// right away instead of at its scheduled date.
+  Future<void> enrollInSeries(
+    String seriesId, {
+    String? groupId,
+    bool autoEnrollNext = false,
+    bool startImmediately = false,
+  }) async {
     try {
       final response = await dio.post(
         '/users/me/series',
-        data: {'series_id': seriesId},
+        data: {
+          'series_id': seriesId,
+          if (groupId != null) 'group_id': groupId,
+          'auto_enroll_next': autoEnrollNext,
+          'start_immediately': startImmediately,
+        },
       );
       final status = response.statusCode ?? 0;
       if (status < 200 || status >= 300) {

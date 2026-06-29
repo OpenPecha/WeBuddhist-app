@@ -744,6 +744,7 @@
   "group_members": "सदस्य",
   "group_tab_members": "सदस्य",
   "group_tab_followers": "अनुयायी",
+  "group_practice_with_us": "हमारे साथ अभ्यास करें",
   "group_members_heading": "सदस्य({count})",
   "group_followers_heading": "अनुयायी({count})",
   "@group_members_heading": {

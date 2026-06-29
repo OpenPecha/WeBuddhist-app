@@ -42,11 +42,22 @@ class SeriesEnrollmentNotifier extends StateNotifier<SeriesEnrollmentState> {
        _seriesId = seriesId,
        super(const SeriesEnrollmentIdle());
 
-  Future<bool> enroll() async {
+  Future<bool> enroll({
+    String? groupId,
+    bool autoEnrollNext = false,
+    bool startImmediately = false,
+  }) async {
     if (state is SeriesEnrollmentLoading) return false;
     state = const SeriesEnrollmentLoading();
 
-    final result = await _useCase(EnrollInSeriesParams(seriesId: _seriesId));
+    final result = await _useCase(
+      EnrollInSeriesParams(
+        seriesId: _seriesId,
+        groupId: groupId,
+        autoEnrollNext: autoEnrollNext,
+        startImmediately: startImmediately,
+      ),
+    );
     if (!mounted) return false;
 
     return result.fold(

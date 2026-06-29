@@ -1576,6 +1576,9 @@ class AppLocalizationsBo extends AppLocalizations {
   String get group_tab_followers => 'རྗེས་འབྲང་པ།';
 
   @override
+  String get group_practice_with_us => 'ང་ཚོ་དང་མཉམ་དུ་ཉམས་ལེན་གནང་རོགས།';
+
+  @override
   String group_members_heading(int count) {
     return 'ཚོགས་མི($count)';
   }

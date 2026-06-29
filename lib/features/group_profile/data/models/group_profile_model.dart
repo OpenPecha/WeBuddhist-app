@@ -106,6 +106,7 @@ class GroupProfileModel {
       featured: json['featured'] as bool? ?? false,
       planCount: (json['plan_count'] as num?)?.toInt() ?? 0,
       totalDays: (json['total_days'] as num?)?.toInt() ?? 0,
+      seriesPartnerId: json['series_partner_id'] as String?,
     );
   }
 }

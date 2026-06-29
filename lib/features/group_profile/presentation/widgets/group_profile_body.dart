@@ -10,6 +10,7 @@ import 'package:flutter_pecha/features/group_profile/domain/entities/group_profi
 import 'package:flutter_pecha/features/group_profile/presentation/providers/group_profile_providers.dart';
 import 'package:flutter_pecha/features/group_profile/presentation/widgets/group_profile_links_drawer.dart';
 import 'package:flutter_pecha/features/group_profile/presentation/widgets/group_profile_members_tab.dart';
+import 'package:flutter_pecha/features/home/presentation/providers/series_enrollment_provider.dart';
 import 'package:flutter_pecha/features/plans/presentation/widgets/plan_inline_markdown_view.dart';
 import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -291,10 +292,15 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
     }
 
     return ListView.builder(
-      padding: const EdgeInsets.only(top: 16, bottom: 32),
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
       itemCount: profile.series.length,
       itemBuilder: (context, index) {
-        return _buildSeriesRow(profile.series[index], isDark, lineHeight);
+        return _buildSeriesCard(
+          profile.series[index],
+          profile,
+          isDark,
+          lineHeight,
+        );
       },
     );
   }
@@ -350,86 +356,166 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
     );
   }
 
-  Widget _buildSeriesRow(
+  Widget _buildSeriesCard(
     GroupProfileSeries series,
+    GroupProfile profile,
     bool isDark,
     double? lineHeight,
   ) {
-    return InkWell(
-      onTap: () {
-        widget.onSeriesTap?.call();
-        context.push('/home/series/${series.id}');
-      },
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 6),
-        child: Row(
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(10),
-              child: SizedBox(
-                width: 56,
-                height: 56,
-                child:
-                    series.image != null && !series.image!.isEmpty
-                        ? ResponsiveCoverImage(
-                          image: series.image,
-                          fit: BoxFit.cover,
-                          width: 56,
-                          height: 56,
-                        )
-                        : Container(
-                          color:
-                              isDark
-                                  ? AppColors.surfaceVariantDark
-                                  : AppColors.grey100,
-                          child: Icon(
-                            AppAssets.bookOpenText,
-                            color:
-                                isDark ? AppColors.grey500 : AppColors.grey600,
+    final hasImage = series.image != null && !series.image!.isEmpty;
+    final hasSubTitle =
+        series.subTitle != null && series.subTitle!.trim().isNotEmpty;
+    // Show the entry point unless the series is already bound to this group.
+    final showPracticeWithUs = series.seriesPartnerId != profile.id;
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(16),
+        onTap: () {
+          widget.onSeriesTap?.call();
+          context.push('/home/series/${series.id}');
+        },
+        child: Container(
+          clipBehavior: Clip.antiAlias,
+          decoration: BoxDecoration(
+            color: isDark ? AppColors.cardDark : AppColors.surfaceWhite,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: isDark ? AppColors.cardBorderDark : AppColors.grey300,
+            ),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              AspectRatio(
+                aspectRatio: 16 / 9,
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    if (hasImage)
+                      ResponsiveCoverImage(
+                        image: series.image,
+                        fit: BoxFit.cover,
+                      )
+                    else
+                      Container(
+                        color:
+                            isDark
+                                ? AppColors.surfaceVariantDark
+                                : AppColors.grey100,
+                        child: Icon(
+                          AppAssets.bookOpenText,
+                          size: 40,
+                          color: isDark ? AppColors.grey500 : AppColors.grey600,
+                        ),
+                      ),
+                    if (showPracticeWithUs)
+                      Center(
+                        child: Material(
+                          color: Colors.transparent,
+                          child: InkWell(
+                            borderRadius: BorderRadius.circular(24),
+                            onTap: () => _onPracticeWithUs(series, profile),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 20,
+                                vertical: 10,
+                              ),
+                              decoration: BoxDecoration(
+                                color: AppColors.surfaceWhite,
+                                borderRadius: BorderRadius.circular(24),
+                              ),
+                              child: Text(
+                                context.l10n.group_practice_with_us,
+                                style: const TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.textPrimary,
+                                ),
+                              ),
+                            ),
                           ),
                         ),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    series.title,
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                      height: lineHeight,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  if (series.subTitle != null &&
-                      series.subTitle!.trim().isNotEmpty)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 2),
-                      child: Text(
-                        series.subTitle!,
-                        style: TextStyle(
-                          fontSize: 13,
-                          color:
-                              isDark
-                                  ? AppColors.textTertiaryDark
-                                  : AppColors.textSecondary,
-                          height: lineHeight,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
                       ),
-                    ),
-                ],
+                  ],
+                ),
               ),
-            ),
-          ],
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 14, 16, 16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      series.title,
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                        height: lineHeight,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    if (hasSubTitle)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 4),
+                        child: Text(
+                          series.subTitle!,
+                          style: TextStyle(
+                            fontSize: 14,
+                            color:
+                                isDark
+                                    ? AppColors.textTertiaryDark
+                                    : AppColors.textSecondary,
+                            height: lineHeight,
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
+  }
+
+  /// Enrolls the user in [series] bound to this [profile]'s group, then routes
+  /// to the edit-routine screen so the newly enrolled plans are prefilled.
+  Future<void> _onPracticeWithUs(
+    GroupProfileSeries series,
+    GroupProfile profile,
+  ) async {
+    final auth = ref.read(authProvider);
+    if (auth.isGuest) {
+      LoginDrawer.show(context, ref);
+      return;
+    }
+
+    widget.onSeriesTap?.call();
+
+    final notifier = ref.read(seriesEnrollmentProvider(series.id).notifier);
+    final ok = await notifier.enroll(
+      groupId: profile.id,
+      autoEnrollNext: true,
+    );
+    if (!mounted) return;
+
+    if (ok) {
+      context.pushNamed('edit-routine', extra: {'enrollSeriesId': series.id});
+    } else {
+      final state = ref.read(seriesEnrollmentProvider(series.id));
+      final message =
+          state is SeriesEnrollmentFailure
+              ? state.failure.message
+              : context.l10n.something_went_wrong;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(message), backgroundColor: Colors.red),
+      );
+    }
   }
 
   Future<void> _launchUrl(String url) async {

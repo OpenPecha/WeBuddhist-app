@@ -83,7 +83,14 @@ abstract class SeriesRepositoryInterface extends Repository {
 
   /// Enrolls the authenticated user in the given series.
   /// Backend auto-enrolls the user in all plans that belong to the series.
-  Future<Either<Failure, Unit>> enrollInSeries(String seriesId);
+  ///
+  /// [groupId] optionally binds the enrollment to a hosting group.
+  Future<Either<Failure, Unit>> enrollInSeries(
+    String seriesId, {
+    String? groupId,
+    bool autoEnrollNext = false,
+    bool startImmediately = false,
+  });
 
   /// Returns the set of series IDs the authenticated user is enrolled in.
   /// Used to suppress the Enroll button for already-enrolled series.

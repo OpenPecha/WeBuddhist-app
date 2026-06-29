@@ -127,7 +127,12 @@ class SeriesRepository implements SeriesRepositoryInterface {
   }
 
   @override
-  Future<Either<Failure, Unit>> enrollInSeries(String seriesId) async {
+  Future<Either<Failure, Unit>> enrollInSeries(
+    String seriesId, {
+    String? groupId,
+    bool autoEnrollNext = false,
+    bool startImmediately = false,
+  }) async {
     final userId = await local.currentUserId();
     if (userId == null || userId.isEmpty) {
       return const Left(AuthenticationFailure('Not authenticated'));
@@ -135,7 +140,12 @@ class SeriesRepository implements SeriesRepositoryInterface {
 
     await local.enqueueEnrollment(userId, seriesId);
     try {
-      await remote.enrollInSeries(seriesId);
+      await remote.enrollInSeries(
+        seriesId,
+        groupId: groupId,
+        autoEnrollNext: autoEnrollNext,
+        startImmediately: startImmediately,
+      );
       await local.removePendingEnrollment(userId, seriesId);
       return const Right(unit);
     } catch (e) {

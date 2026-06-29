@@ -1555,6 +1555,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get group_tab_followers => 'Followers';
 
   @override
+  String get group_practice_with_us => 'Practice with us';
+
+  @override
   String group_members_heading(int count) {
     return 'Members($count)';
   }

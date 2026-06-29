@@ -755,6 +755,7 @@
   "group_members": "members",
   "group_tab_members": "Members",
   "group_tab_followers": "Followers",
+  "group_practice_with_us": "Practice with us",
   "group_members_heading": "Members({count})",
   "group_followers_heading": "Followers({count})",
   "@group_members_heading": {

@@ -36,6 +36,10 @@ class GroupProfileSeries {
   final int planCount;
   final int totalDays;
 
+  /// The group/partner this series is bound to, if any. When it equals the
+  /// hosting group's id the "Practice with us" entry point is hidden.
+  final String? seriesPartnerId;
+
   const GroupProfileSeries({
     required this.id,
     required this.title,
@@ -45,6 +49,7 @@ class GroupProfileSeries {
     this.featured = false,
     this.planCount = 0,
     this.totalDays = 0,
+    this.seriesPartnerId,
   });
 }
 

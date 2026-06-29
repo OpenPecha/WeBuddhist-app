@@ -2860,6 +2860,12 @@ abstract class AppLocalizations {
   /// **'Followers'**
   String get group_tab_followers;
 
+  /// No description provided for @group_practice_with_us.
+  ///
+  /// In en, this message translates to:
+  /// **'Practice with us'**
+  String get group_practice_with_us;
+
   /// No description provided for @group_members_heading.
   ///
   /// In en, this message translates to:

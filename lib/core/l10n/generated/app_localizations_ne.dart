@@ -1576,6 +1576,9 @@ class AppLocalizationsNe extends AppLocalizations {
   String get group_tab_followers => 'अनुयायीहरू';
 
   @override
+  String get group_practice_with_us => 'हामीसँग अभ्यास गर्नुहोस्';
+
+  @override
   String group_members_heading(int count) {
     return 'सदस्यहरू($count)';
   }

@@ -1483,6 +1483,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get group_tab_followers => '追蹤者';
 
   @override
+  String get group_practice_with_us => '與我們一起修行';
+
+  @override
   String group_members_heading(int count) {
     return '成員($count)';
   }
