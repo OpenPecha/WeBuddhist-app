@@ -216,7 +216,7 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
   }
 
   RoutineItem _routineItemFromTimer(PresetTimer timer) => RoutineItem(
-    id: timer.id,
+    id: _uuid.v4(),
     title: '${timer.displayMinutes} min session',
     type: RoutineItemType.timer,
     durationMs: timer.durationMs,
@@ -1156,12 +1156,31 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
     int blockIndex,
     RecitationModel recitation,
   ) async {
+    if (blockIndex < 0 || blockIndex >= _blocks.length) return;
+    final block = _blocks[blockIndex];
+
+    final duplicateInBlock = block.items.any(
+      (item) =>
+          item.id == recitation.textId &&
+          item.type == RoutineItemType.recitation,
+    );
+    if (duplicateInBlock) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(context.l10n.duplicateItem),
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
+      return;
+    }
+
     final newItem = RoutineItem(
       id: recitation.textId,
       title: recitation.title,
       type: RoutineItemType.recitation,
     );
-    final block = _blocks[blockIndex];
     setState(() => block.items.add(newItem));
 
     try {

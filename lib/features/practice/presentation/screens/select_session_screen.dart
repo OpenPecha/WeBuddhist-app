@@ -5,7 +5,6 @@ import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/core/widgets/responsive_cover_image.dart';
-import 'package:flutter_pecha/core/widgets/error_state_widget.dart';
 import 'package:flutter_pecha/core/widgets/skeletons/skeletons.dart';
 import 'package:flutter_pecha/features/mala/domain/entities/mantra.dart';
 import 'package:flutter_pecha/features/mala/presentation/providers/mala_providers.dart';
@@ -182,6 +181,9 @@ class _PlansTab extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final itemsState = ref.watch(practiceItemsPaginatedProvider(tab));
 
+    Future<void> onRefresh() =>
+        ref.read(practiceItemsPaginatedProvider(tab).notifier).refresh();
+
     _logger.debug(
       '📋 _PlansTab BUILD: ${itemsState.items.length} items, '
       'isLoading: ${itemsState.isLoading}, error: ${itemsState.error}',
@@ -192,47 +194,49 @@ class _PlansTab extends ConsumerWidget {
     }
 
     if (itemsState.error != null && itemsState.items.isEmpty) {
-      return ErrorStateWidget(
-        error: itemsState.error!,
-        onRetry: () =>
-            ref.read(practiceItemsPaginatedProvider(tab).notifier).retry(),
-        customMessage: 'Unable to load plans.\nPlease try again later.',
+      return _RefreshableScrollBody(
+        onRefresh: onRefresh,
+        child: _SessionTabMessage(
+          message: 'Unable to load plans.\nPlease try again later.',
+        ),
       );
     }
 
     final items = itemsState.items;
 
     if (items.isEmpty && !itemsState.isLoading) {
-      return Center(
-        child: Text(
-          'No plans found',
-          style: TextStyle(color: AppColors.textSecondary),
-        ),
+      return _RefreshableScrollBody(
+        onRefresh: onRefresh,
+        child: const _SessionTabMessage(message: 'No plans found'),
       );
     }
 
-    return ListView.builder(
-      controller: scrollController,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      itemCount: items.length + (itemsState.hasMore ? 1 : 0),
-      itemBuilder: (context, index) {
-        if (index == items.length) {
-          return Padding(
-            padding: const EdgeInsets.symmetric(vertical: 16),
-            child: Center(
-              child: itemsState.isLoadingMore
-                  ? const CircularProgressIndicator()
-                  : const SizedBox.shrink(),
-            ),
-          );
-        }
+    return RefreshIndicator(
+      onRefresh: onRefresh,
+      child: ListView.builder(
+        controller: scrollController,
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        itemCount: items.length + (itemsState.hasMore ? 1 : 0),
+        itemBuilder: (context, index) {
+          if (index == items.length) {
+            return Padding(
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              child: Center(
+                child: itemsState.isLoadingMore
+                    ? const CircularProgressIndicator()
+                    : const SizedBox.shrink(),
+              ),
+            );
+          }
 
-        final item = items[index];
-        return Padding(
-          padding: const EdgeInsets.only(bottom: 8),
-          child: _buildPlanCard(context, item),
-        );
-      },
+          final item = items[index];
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: _buildPlanCard(context, item),
+          );
+        },
+      ),
     );
   }
 
@@ -356,97 +360,99 @@ class _ChantsTab extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final recitationsAsync = ref.watch(recitationsFutureProvider);
+    Future<void> onRefresh() async {
+      ref.invalidate(recitationsFutureProvider);
+      await ref.read(recitationsFutureProvider.future);
+    }
 
     return recitationsAsync.when(
       loading: () => const RecitationListSkeleton(),
-      error: (_, __) => Center(
-        child: Text(
-          'Unable to load chants',
-          style: TextStyle(color: AppColors.textSecondary),
-        ),
+      error: (_, __) => _RefreshableScrollBody(
+        onRefresh: onRefresh,
+        child: const _SessionTabMessage(message: 'Unable to load chants'),
       ),
       data: (recitationsEither) => recitationsEither.fold(
-        (_) => Center(
-          child: Text(
-            'Unable to load chants',
-            style: TextStyle(color: AppColors.textSecondary),
-          ),
+        (_) => _RefreshableScrollBody(
+          onRefresh: onRefresh,
+          child: const _SessionTabMessage(message: 'Unable to load chants'),
         ),
         (recitations) {
           if (recitations.isEmpty) {
-            return Center(
-              child: Text(
-                'No chants found',
-                style: TextStyle(color: AppColors.textSecondary),
-              ),
+            return _RefreshableScrollBody(
+              onRefresh: onRefresh,
+              child: const _SessionTabMessage(message: 'No chants found'),
             );
           }
 
-          return ListView.builder(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            itemCount: recitations.length,
-            itemBuilder: (context, index) {
-              final recitation = recitations[index];
-              final description = recitation.firstSegment?.content;
+          return RefreshIndicator(
+            onRefresh: onRefresh,
+            child: ListView.builder(
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              itemCount: recitations.length,
+              itemBuilder: (context, index) {
+                final recitation = recitations[index];
+                final description = recitation.firstSegment?.content;
 
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 8),
-                child: _SessionCard(
-                  isDark: isDark,
-                  onTap: enrollingItemId == null
-                      ? () => onRecitationSelected(recitation)
-                      : null,
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        width: 4,
-                        height: description != null ? null : 44,
-                        constraints: const BoxConstraints(minHeight: 44),
-                        decoration: BoxDecoration(
-                          color: isDark
-                              ? AppColors.textTertiaryDark
-                              : AppColors.grey400,
-                          borderRadius: BorderRadius.circular(2),
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: _SessionCard(
+                    isDark: isDark,
+                    onTap: enrollingItemId == null
+                        ? () => onRecitationSelected(recitation)
+                        : null,
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          width: 4,
+                          height: description != null ? null : 44,
+                          constraints: const BoxConstraints(minHeight: 44),
+                          decoration: BoxDecoration(
+                            color: isDark
+                                ? AppColors.textTertiaryDark
+                                : AppColors.grey400,
+                            borderRadius: BorderRadius.circular(2),
+                          ),
                         ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              recitation.title,
-                              style: const TextStyle(
-                                fontSize: 15,
-                                fontWeight: FontWeight.w600,
-                              ),
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            if (description != null &&
-                                description.isNotEmpty) ...[
-                              const SizedBox(height: 4),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
                               Text(
-                                description,
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  color: isDark
-                                      ? AppColors.textTertiaryDark
-                                      : AppColors.textSecondary,
+                                recitation.title,
+                                style: const TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w600,
                                 ),
-                                maxLines: 3,
+                                maxLines: 2,
                                 overflow: TextOverflow.ellipsis,
                               ),
+                              if (description != null &&
+                                  description.isNotEmpty) ...[
+                                const SizedBox(height: 4),
+                                Text(
+                                  description,
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    color: isDark
+                                        ? AppColors.textTertiaryDark
+                                        : AppColors.textSecondary,
+                                  ),
+                                  maxLines: 3,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ],
                             ],
-                          ],
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-              );
-            },
+                );
+              },
+            ),
           );
         },
       ),
@@ -466,69 +472,71 @@ class _MalasTab extends ConsumerWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final language = ref.watch(localeProvider).languageCode;
     final catalogueAsync = ref.watch(malaCatalogueProvider);
+    Future<void> onRefresh() async {
+      ref.invalidate(malaCatalogueProvider);
+      await ref.read(malaCatalogueProvider.future);
+    }
 
     return catalogueAsync.when(
       loading: () => const Center(child: CircularProgressIndicator()),
-      error: (_, __) => Center(
-        child: Text(
-          'Unable to load malas',
-          style: TextStyle(color: AppColors.textSecondary),
-        ),
+      error: (_, __) => _RefreshableScrollBody(
+        onRefresh: onRefresh,
+        child: const _SessionTabMessage(message: 'Unable to load malas'),
       ),
       data: (either) => either.fold(
-        (_) => Center(
-          child: Text(
-            'Unable to load malas',
-            style: TextStyle(color: AppColors.textSecondary),
-          ),
+        (_) => _RefreshableScrollBody(
+          onRefresh: onRefresh,
+          child: const _SessionTabMessage(message: 'Unable to load malas'),
         ),
         (mantras) {
           if (mantras.isEmpty) {
-            return Center(
-              child: Text(
-                'No malas found',
-                style: TextStyle(color: AppColors.textSecondary),
-              ),
+            return _RefreshableScrollBody(
+              onRefresh: onRefresh,
+              child: const _SessionTabMessage(message: 'No malas found'),
             );
           }
 
-          return ListView.builder(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            itemCount: mantras.length,
-            itemBuilder: (context, index) {
-              final mantra = mantras[index];
-              final imageUrl =
-                  mantra.beadImageUrl ?? mantra.mantra?.beadImageUrl;
-              final title = mantra.displayTitle(language);
-              _logger.debug(
-                '🪬 Mala[$index] title=$title imageUrl=$imageUrl',
-              );
+          return RefreshIndicator(
+            onRefresh: onRefresh,
+            child: ListView.builder(
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              itemCount: mantras.length,
+              itemBuilder: (context, index) {
+                final mantra = mantras[index];
+                final imageUrl =
+                    mantra.beadImageUrl ?? mantra.mantra?.beadImageUrl;
+                final title = mantra.displayTitle(language);
+                _logger.debug(
+                  '🪬 Mala[$index] title=$title imageUrl=$imageUrl',
+                );
 
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 8),
-                child: _SessionCard(
-                  isDark: isDark,
-                  onTap: () => onMantraSelected(mantra),
-                  child: Row(
-                    children: [
-                      _CircularImage(imageUrl: imageUrl, size: 52),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          title,
-                          style: const TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w600,
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: _SessionCard(
+                    isDark: isDark,
+                    onTap: () => onMantraSelected(mantra),
+                    child: Row(
+                      children: [
+                        _CircularImage(imageUrl: imageUrl, size: 52),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            title,
+                            style: const TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600,
+                            ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
                           ),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-              );
-            },
+                );
+              },
+            ),
           );
         },
       ),
@@ -548,84 +556,86 @@ class _TimersTab extends ConsumerWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final localizations = AppLocalizations.of(context)!;
     final timersAsync = ref.watch(presetTimersFutureProvider);
+    Future<void> onRefresh() async {
+      ref.invalidate(presetTimersFutureProvider);
+      await ref.read(presetTimersFutureProvider.future);
+    }
 
     return timersAsync.when(
       loading: () => const Center(child: CircularProgressIndicator()),
-      error: (_, __) => Center(
-        child: Text(
-          'Unable to load timers',
-          style: TextStyle(color: AppColors.textSecondary),
-        ),
+      error: (_, __) => _RefreshableScrollBody(
+        onRefresh: onRefresh,
+        child: const _SessionTabMessage(message: 'Unable to load timers'),
       ),
       data: (either) => either.fold(
-        (_) => Center(
-          child: Text(
-            'Unable to load timers',
-            style: TextStyle(color: AppColors.textSecondary),
-          ),
+        (_) => _RefreshableScrollBody(
+          onRefresh: onRefresh,
+          child: const _SessionTabMessage(message: 'Unable to load timers'),
         ),
         (timers) {
           if (timers.isEmpty) {
-            return Center(
-              child: Text(
-                'No timers found',
-                style: TextStyle(color: AppColors.textSecondary),
-              ),
+            return _RefreshableScrollBody(
+              onRefresh: onRefresh,
+              child: const _SessionTabMessage(message: 'No timers found'),
             );
           }
 
-          return ListView.builder(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            itemCount: timers.length,
-            itemBuilder: (context, index) {
-              final timer = timers[index];
+          return RefreshIndicator(
+            onRefresh: onRefresh,
+            child: ListView.builder(
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              itemCount: timers.length,
+              itemBuilder: (context, index) {
+                final timer = timers[index];
 
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 8),
-                child: _SessionCard(
-                  isDark: isDark,
-                  onTap: () => onTimerSelected(timer),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 44,
-                        height: 44,
-                        decoration: BoxDecoration(
-                          color: isDark
-                              ? AppColors.surfaceVariantDark
-                              : AppColors.grey100,
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: _SessionCard(
+                    isDark: isDark,
+                    onTap: () => onTimerSelected(timer),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 44,
+                          height: 44,
+                          decoration: BoxDecoration(
                             color: isDark
-                                ? AppColors.cardBorderDark
-                                : AppColors.grey300,
+                                ? AppColors.surfaceVariantDark
+                                : AppColors.grey100,
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(
+                              color: isDark
+                                  ? AppColors.cardBorderDark
+                                  : AppColors.grey300,
+                            ),
+                          ),
+                          child: Icon(
+                            PhosphorIconsRegular.timer,
+                            size: 22,
+                            color: isDark
+                                ? AppColors.textTertiaryDark
+                                : AppColors.textSecondary,
                           ),
                         ),
-                        child: Icon(
-                          PhosphorIconsRegular.timer,
-                          size: 22,
-                          color: isDark
-                              ? AppColors.textTertiaryDark
-                              : AppColors.textSecondary,
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          '${timer.displayMinutes} ${localizations.timer_min}',
-                          style: const TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w600,
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            '${timer.displayMinutes} ${localizations.timer_min}',
+                            style: const TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-              );
-            },
+                );
+              },
+            ),
           );
         },
       ),
@@ -634,6 +644,57 @@ class _TimersTab extends ConsumerWidget {
 }
 
 // ─── Shared card wrapper ──────────────────────────────────────────────────────
+
+/// Makes pull-to-refresh work when tab content does not fill the viewport.
+class _RefreshableScrollBody extends StatelessWidget {
+  const _RefreshableScrollBody({
+    required this.onRefresh,
+    required this.child,
+  });
+
+  final Future<void> Function() onRefresh;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return RefreshIndicator(
+      onRefresh: onRefresh,
+      child: LayoutBuilder(
+        builder: (context, constraints) => SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: SizedBox(
+            height: constraints.maxHeight,
+            child: child,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _SessionTabMessage extends StatelessWidget {
+  const _SessionTabMessage({required this.message});
+
+  final String message;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 48),
+        child: Text(
+          message,
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: 15,
+            color: AppColors.textSecondary,
+            height: 1.5,
+          ),
+        ),
+      ),
+    );
+  }
+}
 
 class _SessionCard extends StatelessWidget {
   final Widget child;
