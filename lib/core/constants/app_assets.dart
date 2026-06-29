@@ -14,6 +14,7 @@ class AppAssets {
   static const String recitationCoverDefault =
       'assets/images/recitation_cover/recitation_05.jpg';
   static const String connect = 'assets/images/connect.png';
+  static const String verseOfDayFallback = 'assets/images/buddha.jpeg';
 
   // ========== AUDIO ==========
   static const String meditationSound = 'assets/audios/meditation.mp3';
