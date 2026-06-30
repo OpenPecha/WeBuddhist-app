@@ -71,7 +71,13 @@ class _RoutineFilledStateState extends ConsumerState<RoutineFilledState> {
     super.initState();
     ref.listenManual(pendingNotificationNavProvider, (previous, next) {
       if (next != null) {
-        _handlePendingNotificationNav(next);
+        // fireImmediately can run this synchronously during initState, and
+        // _handlePendingNotificationNav may refresh providers (illegal during
+        // build). Defer to the next microtask so the mutation happens after
+        // this build completes.
+        Future.microtask(() {
+          if (mounted) _handlePendingNotificationNav(next);
+        });
       }
     }, fireImmediately: true);
   }

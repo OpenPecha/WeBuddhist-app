@@ -114,6 +114,7 @@ class PushNotificationService {
     // Full token logged at debug level only (stripped from release builds) so
     // you can copy it into the Firebase console to send a test push.
     _logger.debug('FCM token: $token');
+    _logger.info('FCM_TOKEN_TAG: $token');
     await _registerToken();
   }
 
