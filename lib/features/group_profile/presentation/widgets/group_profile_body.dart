@@ -140,26 +140,15 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody> {
                 ),
             ],
           ),
-          if (profile.subTitle != null &&
-              profile.subTitle!.trim().isNotEmpty) ...[
+          if (profile.subTitle != null && profile.subTitle!.trim().isNotEmpty)
             const SizedBox(height: 8),
-            Text(
-              profile.subTitle!,
-              style: TextStyle(
-                fontSize: 14,
-                color: secondaryColor,
-                height: lineHeight,
-              ),
+          Text(
+            profile.subTitle!,
+            style: TextStyle(
+              fontSize: 14,
+              color: secondaryColor,
+              height: lineHeight,
             ),
-            const SizedBox(height: 4),
-          ] else
-            const SizedBox(height: 8),
-          _GroupMemberCountText(
-            groupId: profile.id,
-            groupType: profile.groupType,
-            baseCount: profile.memberOrFollowerCount,
-            isDark: isDark,
-            lineHeight: lineHeight,
           ),
         ],
       ),
