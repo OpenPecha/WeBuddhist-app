@@ -1522,6 +1522,9 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
+  String get group_practice_with_us => '與我們一起修行';
+
+  @override
   String get share_this_quote => '分享这句话';
 
   @override

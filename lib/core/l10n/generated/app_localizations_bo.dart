@@ -1617,6 +1617,9 @@ class AppLocalizationsBo extends AppLocalizations {
   }
 
   @override
+  String get group_practice_with_us => 'ང་ཚོ་དང་མཉམ་དུ་སྒོམ་གྱི།';
+
+  @override
   String get share_this_quote => 'གསུང་ཚིག་འདི་སྤེལ།';
 
   @override

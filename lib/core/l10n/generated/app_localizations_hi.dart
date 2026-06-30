@@ -1609,6 +1609,9 @@ class AppLocalizationsHi extends AppLocalizations {
   }
 
   @override
+  String get group_practice_with_us => 'हमारे साथ अभ्यास करें';
+
+  @override
   String get share_this_quote => 'यह उद्धरण शेयर करें';
 
   @override

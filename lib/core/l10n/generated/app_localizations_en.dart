@@ -1596,6 +1596,9 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get group_practice_with_us => 'Practice with us';
+
+  @override
   String get share_this_quote => 'Share this quote';
 
   @override

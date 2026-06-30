@@ -780,6 +780,7 @@
   "group_followers": "followers",
   "group_links_title": "Links",
   "group_and_more_links": "and {count} more links",
+  "group_practice_with_us": "Practice with us",
   "@group_and_more_links": {
     "placeholders": {
       "count": {

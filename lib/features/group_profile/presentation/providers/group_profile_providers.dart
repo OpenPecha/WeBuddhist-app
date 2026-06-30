@@ -33,6 +33,9 @@ final getGroupProfileUseCaseProvider =
 
 final groupProfileProvider = FutureProvider.autoDispose
     .family<Either<Failure, GroupProfile>, String>((ref, groupId) async {
+  // Refetch when auth changes so user-specific fields (e.g. is_group_enrolled)
+  // are loaded with the Bearer token attached.
+  ref.watch(authProvider);
   final language = ref.watch(contentLanguageProvider);
   final useCase = ref.watch(getGroupProfileUseCaseProvider);
   return useCase(

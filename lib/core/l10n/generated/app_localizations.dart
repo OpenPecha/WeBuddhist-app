@@ -2926,6 +2926,12 @@ abstract class AppLocalizations {
   /// **'and {count} more links'**
   String group_and_more_links(int count);
 
+  /// No description provided for @group_practice_with_us.
+  ///
+  /// In en, this message translates to:
+  /// **'Practice with us'**
+  String get group_practice_with_us;
+
   /// No description provided for @share_this_quote.
   ///
   /// In en, this message translates to:

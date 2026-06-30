@@ -1617,6 +1617,9 @@ class AppLocalizationsNe extends AppLocalizations {
   }
 
   @override
+  String get group_practice_with_us => 'हामीसँग अभ्यास गर्नुहोस्';
+
+  @override
   String get share_this_quote => 'यो उद्धरण साझा गर्नुहोस्';
 
   @override

@@ -35,6 +35,9 @@ class GroupProfileSeries {
   final bool featured;
   final int planCount;
   final int totalDays;
+  final DateTime? startDate;
+  final DateTime? endDate;
+  final bool isGroupEnrolled;
 
   const GroupProfileSeries({
     required this.id,
@@ -45,6 +48,9 @@ class GroupProfileSeries {
     this.featured = false,
     this.planCount = 0,
     this.totalDays = 0,
+    this.startDate,
+    this.endDate,
+    this.isGroupEnrolled = false,
   });
 }
 

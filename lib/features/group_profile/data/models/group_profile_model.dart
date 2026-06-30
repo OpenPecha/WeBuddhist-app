@@ -106,6 +106,28 @@ class GroupProfileModel {
       featured: json['featured'] as bool? ?? false,
       planCount: (json['plan_count'] as num?)?.toInt() ?? 0,
       totalDays: (json['total_days'] as num?)?.toInt() ?? 0,
+      startDate: _parseDate(json['start_date']),
+      endDate: _parseDate(json['end_date']),
+      isGroupEnrolled: _parseBool(json['is_group_enrolled']),
     );
+  }
+
+  DateTime? _parseDate(Object? value) {
+    if (value == null) return null;
+    if (value is String && value.isNotEmpty) {
+      return DateTime.tryParse(value);
+    }
+    return null;
+  }
+
+  bool _parseBool(Object? value) {
+    if (value is bool) return value;
+    if (value is num) return value != 0;
+    if (value is String) {
+      final normalized = value.toLowerCase();
+      if (normalized == 'true') return true;
+      if (normalized == 'false') return false;
+    }
+    return false;
   }
 }

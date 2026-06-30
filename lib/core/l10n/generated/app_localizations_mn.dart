@@ -1612,6 +1612,9 @@ class AppLocalizationsMn extends AppLocalizations {
   }
 
   @override
+  String get group_practice_with_us => 'Бидэнтэй хамт дадлага хий';
+
+  @override
   String get share_this_quote => 'Энэ ишлэлийг хуваалцах';
 
   @override
