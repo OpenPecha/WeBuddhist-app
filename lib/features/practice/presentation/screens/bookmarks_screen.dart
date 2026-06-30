@@ -54,6 +54,15 @@ class _BookmarksScreenState extends ConsumerState<BookmarksScreen>
     final messenger = ScaffoldMessenger.of(context);
     final ok = await ref.read(bookmarksProvider.notifier).remove(bookmark);
     if (!mounted) return;
+    if (ok) {
+      final type = bookmarkTypeFromItem(bookmark.type);
+      if (type != null) {
+        ref.read(bookmarkExistsCacheProvider.notifier).set(
+          BookmarkTarget(type: type, sourceId: bookmark.sourceId),
+          const BookmarkExistsResult(exists: false),
+        );
+      }
+    }
     messenger.showSnackBar(
       SnackBar(
         content: Text(ok ? 'Bookmark removed' : 'Failed to remove bookmark'),

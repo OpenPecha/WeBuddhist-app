@@ -3,7 +3,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_pecha/core/deep_linking/deep_link_url_builder.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
+import 'package:flutter_pecha/features/practice/data/datasource/bookmark_remote_datasource.dart';
 import 'package:flutter_pecha/features/practice/presentation/controllers/bookmark_controller.dart';
+import 'package:flutter_pecha/features/practice/presentation/providers/bookmark_providers.dart';
 import 'package:flutter_pecha/features/reader/presentation/providers/reader_notifier.dart';
 import 'package:flutter_pecha/features/texts/data/models/segment.dart';
 import 'package:flutter_pecha/shared/utils/helper_functions.dart';
@@ -62,7 +64,7 @@ class _SegmentActionBarState extends ConsumerState<SegmentActionBar> {
       await BookmarkController(
         ref: ref,
         context: context,
-      ).bookmarkVerse(widget.segment.segmentId);
+      ).toggleVerse(widget.segment.segmentId);
     } finally {
       if (mounted) setState(() => _isBookmarking = false);
     }
@@ -92,6 +94,15 @@ class _SegmentActionBarState extends ConsumerState<SegmentActionBar> {
       return const SizedBox.shrink();
     }
 
+    final isBookmarked = ref.watch(
+      isBookmarkedProvider(
+        BookmarkTarget(
+          type: BookmarkType.verse,
+          sourceId: widget.segment.segmentId,
+        ),
+      ),
+    );
+
     return _ResourcesPanel(
       onDismiss: widget.onClose,
       copyButton: _IconActionButton(
@@ -109,7 +120,10 @@ class _SegmentActionBarState extends ConsumerState<SegmentActionBar> {
         onClose: widget.onClose,
       ),
       bookmarkButton: _IconActionButton(
-        icon: AppAssets.bookmarkSimple,
+        icon:
+            isBookmarked
+                ? AppAssets.bookmarkSimpleFill
+                : AppAssets.bookmarkSimple,
         label: localizations.bookmark,
         isLoading: _isBookmarking,
         onTap: _handleBookmark,

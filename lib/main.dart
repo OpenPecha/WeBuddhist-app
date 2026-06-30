@@ -22,6 +22,7 @@ import 'package:flutter_pecha/features/notifications/application/notification_sy
 import 'package:flutter_pecha/features/notifications/data/services/notification_service.dart';
 import 'package:flutter_pecha/features/home/data/datasource/home_local_datasource.dart';
 import 'package:flutter_pecha/features/home/presentation/providers/use_case_providers.dart';
+import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
 import 'package:flutter_pecha/features/mala/data/datasources/mala_local_datasource.dart';
 import 'package:flutter_pecha/features/mala/presentation/providers/mala_providers.dart';
 import 'package:flutter_pecha/features/more/data/datasource/user_stats_local_datasource.dart';
@@ -202,6 +203,7 @@ class MyApp extends ConsumerStatefulWidget {
 
 class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
   bool _hasRegisteredDeepLinkRouters = false;
+  bool _hasDrainedInitialAppLink = false;
 
   @override
   void initState() {
@@ -238,6 +240,7 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     final locale = ref.watch(localeProvider);
     final themeMode = ref.watch(themeModeProvider);
+    final authState = ref.watch(authProvider);
 
     // Get the singleton router instance - same instance is reused across rebuilds
     // final router = AppRouter().router;
@@ -251,6 +254,14 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
         AppLinksDeepLinkService.instance.setRouter(router);
       });
       _hasRegisteredDeepLinkRouters = true;
+    }
+
+    if (!authState.isLoading && !_hasDrainedInitialAppLink) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        AppLinksDeepLinkService.instance.drainPendingLink();
+        _hasDrainedInitialAppLink = true;
+      });
     }
 
     // Initialize services in background via providers

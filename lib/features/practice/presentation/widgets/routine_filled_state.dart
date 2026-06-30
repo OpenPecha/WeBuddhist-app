@@ -373,14 +373,26 @@ class _RoutineBlockSection extends ConsumerWidget {
         ),
         const SizedBox(height: 8),
         for (int i = 0; i < block.items.length; i++) ...[
-          _buildItemCard(context, ref, block.items[i]),
-          if (i < block.items.length - 1) const Divider(height: 1, indent: 80),
-        ],
-        if (block.items.isNotEmpty)
-          const Padding(
-            padding: EdgeInsets.only(top: 8.0),
-            child: Divider(height: 1),
+          Container(
+            margin: EdgeInsets.only(
+              bottom: i < block.items.length - 1 ? 8.0 : 0,
+            ),
+            decoration: BoxDecoration(
+              color: isDark
+                  ? AppColors.cardBackgroundDark
+                  : AppColors.cardBackgroundLight,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: isDark ? AppColors.cardBorderDark : AppColors.grey100,
+              ),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              child: _buildItemCard(context, ref, block.items[i]),
+            ),
           ),
+        ],
+        const SizedBox(height: 8),
       ],
     );
   }
@@ -391,6 +403,7 @@ class _RoutineBlockSection extends ConsumerWidget {
       coverImage: item.coverImage,
       type: item.type,
       planTitle: item.currentPlanTitle,
+      imageSize: 56,
       onTap: () => _onItemTap(context, ref, item),
       onPlanTap:
           item.currentPlanId != null

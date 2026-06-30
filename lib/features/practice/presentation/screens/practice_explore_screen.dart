@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
+import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
+import 'package:flutter_pecha/features/auth/presentation/widgets/login_drawer.dart';
 import 'package:flutter_pecha/features/practice/presentation/providers/practice_explore_providers.dart';
 import 'package:flutter_pecha/features/practice/presentation/widgets/practice_accumulations_section.dart';
 import 'package:flutter_pecha/features/practice/presentation/widgets/practice_chants_section.dart';
@@ -63,13 +65,11 @@ class _PracticeExploreScreenState extends ConsumerState<PracticeExploreScreen> {
               icon: Icons.bookmark_border,
               variant: PracticeActionButtonVariant.outlined,
               onTap: () {
+                if (ref.read(authProvider).isGuest) {
+                  LoginDrawer.show(context, ref);
+                  return;
+                }
                 context.pushNamed('bookmarks');
-                // ScaffoldMessenger.of(context).showSnackBar(
-                //   SnackBar(
-                //     content: Text(context.l10n.mala_action_coming_soon),
-                //     duration: const Duration(seconds: 2),
-                //   ),
-                // );
               },
             ),
           ),

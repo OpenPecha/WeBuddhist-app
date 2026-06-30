@@ -15,17 +15,19 @@ class CalendarMonthNav extends ConsumerWidget {
     final theme = Theme.of(context);
     final l10n = context.l10n;
     final focusedMonth = ref.watch(focusedCalendarMonthProvider);
-    final service = ref.watch(tibetanCalendarServiceProvider);
 
     final monthTitle = DateFormat.yMMMM(
       dateFormatLocale(context),
     ).format(focusedMonth);
-    // Lunar month label for the focused month, sampled at its mid-point so a
-    // lunar-month boundary near the start/end doesn't mislabel the page.
-    final midLunar = service.fromWestern(
-      DateTime(focusedMonth.year, focusedMonth.month, 15),
-    );
-    final lunarSubtitle = lunarMonthLabel(context, l10n, midLunar.month);
+    final today = dateOnly(DateTime.now());
+    final isCurrentMonth =
+        today.year == focusedMonth.year && today.month == focusedMonth.month;
+    final sampleDate =
+        isCurrentMonth
+            ? today
+            : DateTime(focusedMonth.year, focusedMonth.month + 1, 0);
+    final lunarMonth = ref.watch(resolvedDayProvider(sampleDate)).lunarMonth;
+    final lunarSubtitle = lunarMonthLabel(context, l10n, lunarMonth);
 
     void shift(int months) {
       ref.read(focusedCalendarMonthProvider.notifier).state = DateTime(

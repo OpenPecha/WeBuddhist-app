@@ -30,7 +30,7 @@ class GroupProfileDrawer extends ConsumerWidget {
       initialChildSize: 0.75,
       minChildSize: 0.4,
       maxChildSize: 0.95,
-      builder: (context, scrollController) {
+      builder: (context, _) {
         return Container(
           decoration: BoxDecoration(
             color: Theme.of(context).scaffoldBackgroundColor,
@@ -54,7 +54,6 @@ class GroupProfileDrawer extends ConsumerWidget {
                     (profile) => GroupProfileBody(
                       profile: profile,
                       isDark: isDark,
-                      scrollController: scrollController,
                       onSeriesTap: () => Navigator.of(context).pop(),
                     ),
                   ),

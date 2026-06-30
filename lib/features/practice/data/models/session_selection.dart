@@ -1,4 +1,5 @@
 import 'package:flutter_pecha/features/home/domain/entities/series.dart';
+import 'package:flutter_pecha/features/mala/domain/entities/mantra.dart';
 import 'package:flutter_pecha/features/plans/domain/entities/plan.dart';
 import 'package:flutter_pecha/features/recitation/data/models/recitation_model.dart';
 import 'package:flutter_pecha/features/timer/domain/entities/preset_timer.dart';
@@ -45,4 +46,11 @@ class TimerSessionSelection extends SessionSelection {
   final PresetTimer timer;
 
   const TimerSessionSelection(this.timer);
+}
+
+/// Represents a mantra/accumulator selection from the Malas tab.
+class MantraSessionSelection extends SessionSelection {
+  final Mantra mantra;
+
+  const MantraSessionSelection(this.mantra);
 }

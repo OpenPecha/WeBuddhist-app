@@ -109,21 +109,37 @@ class _PlanTextScreenState extends ConsumerState<PlanTextScreen> {
 
   // ─── Build ─────────────────────────────────────────────────────────────
 
+  ThemeData _readerTheme(BuildContext context) {
+    final theme = Theme.of(context);
+    if (theme.brightness != Brightness.light) return theme;
+
+    return theme.copyWith(
+      scaffoldBackgroundColor: Colors.white,
+      appBarTheme: theme.appBarTheme.copyWith(backgroundColor: Colors.white),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final currentItem = widget.navigationContext.currentItem;
     final fontSize = ref.watch(fontSizeProvider);
+    final readerTheme = _readerTheme(context);
 
     if (currentItem == null || currentItem.inlineContent == null) {
-      return _buildMissingContentScaffold(context);
+      return Theme(
+        data: readerTheme,
+        child: _buildMissingContentScaffold(context),
+      );
     }
 
     final canSwipe = widget.navigationContext.canSwipe;
 
-    return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      appBar: _buildAppBar(context, currentItem.title),
-      body: GestureDetector(
+    return Theme(
+      data: readerTheme,
+      child: Scaffold(
+        backgroundColor: readerTheme.scaffoldBackgroundColor,
+        appBar: _buildAppBar(context, currentItem.title),
+        body: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onHorizontalDragStart: canSwipe ? _onDragStart : null,
         onHorizontalDragUpdate: canSwipe ? _onDragUpdate : null,
@@ -180,6 +196,7 @@ class _PlanTextScreenState extends ConsumerState<PlanTextScreen> {
           ),
         ),
       ),
+      ),
     );
   }
 
@@ -204,7 +221,9 @@ class _PlanTextScreenState extends ConsumerState<PlanTextScreen> {
 
   Widget _buildMissingContentScaffold(BuildContext context) {
     return Scaffold(
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         leading: IconButton(
           icon: const Icon(AppAssets.arrowLeft),
           onPressed: () => context.pop(),

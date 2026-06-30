@@ -20,6 +20,7 @@ on:
       ios_bundle_id:      { required: true,  type: string }   # org.pecha.app[.dev]
       environment:        { required: false, type: string, default: '' }
       upload_to_store:    { required: false, type: boolean, default: true }
+      version_name:       { required: false, type: string,  default: '' }   # CI-computed semver; falls back to pubspec when empty
 
 permissions:
   contents: read
@@ -83,13 +84,6 @@ jobs:
 
       - name: 📦 flutter pub get
         run: flutter pub get
-
-      - name: 🔥 Install FlutterFire CLI (Crashlytics dSYM upload phase)
-        run: |
-          dart pub global activate flutterfire_cli
-          echo "$HOME/.pub-cache/bin" >> "$GITHUB_PATH"
-          sudo ln -sf "$HOME/.pub-cache/bin/flutterfire" /usr/local/bin/flutterfire || true
-          flutterfire --version || true
 
       - name: 🍫 CocoaPods install
         run: |
@@ -160,11 +154,32 @@ jobs:
           </plist>
           EOF
 
+      - name: 🚫 Neutralize Crashlytics symbol-upload build phase (CI archive)
+        run: |
+          # Firebase is integrated via Swift Package Manager (not the Podfile),
+          # so the "FlutterFire: flutterfire upload-crashlytics-symbols" Xcode
+          # run-script phase resolves the Crashlytics `run` helper to an SPM
+          # checkout path that doesn't exist at archive time. flutterfire then
+          # aborts with "ProcessException: No such file or directory" and fails
+          # the whole archive even though the app compiled. Symbol upload is
+          # post-build telemetry and must not block a release, so swap that
+          # phase's script for a no-op during the CI archive (dSYMs are still
+          # produced and shipped in the IPA / build artifact).
+          PBXPROJ=ios/Runner.xcodeproj/project.pbxproj
+          perl -i -pe 's/shellScript = ".*";/shellScript = "echo CI Crashlytics upload-symbols phase disabled; exit 0";/ if /upload-crashlytics-symbols/' "$PBXPROJ"
+          if grep -q -- '--upload-symbols-script-path' "$PBXPROJ"; then
+            echo "::warning::Could not patch the Crashlytics build phase; relying on the absent flutterfire CLI to make it skip."
+          else
+            echo "Crashlytics symbol-upload build phase neutralized for the CI archive."
+          fi
+
       - name: 🏗️ Build IPA (${{ inputs.flavor }})
         env:
           AIRBRIDGE_SDK_TOKEN: ${{ secrets.AIRBRIDGE_SDK_TOKEN }}
         run: |
-          VERSION_NAME=$(grep '^version:' pubspec.yaml | sed 's/version: //' | cut -d'+' -f1)
+          # Prefer the CI-computed version (release-prod), else fall back to pubspec.
+          VERSION_NAME="${{ inputs.version_name }}"
+          [ -z "$VERSION_NAME" ] && VERSION_NAME=$(grep '^version:' pubspec.yaml | sed 's/version: //' | cut -d'+' -f1)
           OFFSET="${{ vars.BUILD_NUMBER_OFFSET || '100' }}"
           BUILD_NUMBER=$(( ${{ github.run_number }} + OFFSET ))
           echo "Building $VERSION_NAME (+$BUILD_NUMBER)"

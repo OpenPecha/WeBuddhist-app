@@ -29,6 +29,9 @@ class RoutineItemCard extends StatelessWidget {
   /// Optional callback for the circular plan navigation button on the right.
   final VoidCallback? onPlanTap;
 
+  /// Size of the cover image/icon placeholder. Defaults to 74.
+  final double imageSize;
+
   const RoutineItemCard({
     super.key,
     required this.title,
@@ -42,6 +45,7 @@ class RoutineItemCard extends StatelessWidget {
     this.planTitle,
     this.trailing,
     this.onPlanTap,
+    this.imageSize = 74,
   });
 
   @override
@@ -85,15 +89,15 @@ class RoutineItemCard extends StatelessWidget {
                 borderRadius: BorderRadius.circular(10),
                 child: Image.asset(
                   AppAssets.recitationCoverDefault,
-                  width: 74,
-                  height: 74,
+                  width: imageSize,
+                  height: imageSize,
                   fit: BoxFit.cover,
                 ),
               )
             else if (type == RoutineItemType.timer)
               Container(
-                width: 74,
-                height: 74,
+                width: imageSize,
+                height: imageSize,
                 decoration: BoxDecoration(
                   color: isDark
                       ? AppColors.surfaceVariantDark
@@ -102,29 +106,18 @@ class RoutineItemCard extends StatelessWidget {
                 ),
                 child: Icon(
                   PhosphorIconsRegular.timer,
-                  size: 32,
+                  size: imageSize * 0.45,
                   color: isDark
                       ? AppColors.textTertiaryDark
                       : AppColors.textSecondary,
                 ),
               )
             else if (type == RoutineItemType.accumulator)
-              Container(
-                width: 74,
-                height: 74,
-                decoration: BoxDecoration(
-                  color: isDark
-                      ? AppColors.surfaceVariantDark
-                      : AppColors.grey100,
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  PhosphorIconsRegular.circlesThree,
-                  size: 32,
-                  color: isDark
-                      ? AppColors.textTertiaryDark
-                      : AppColors.textSecondary,
-                ),
+              _AccumulatorCoverImage(
+                coverImage: coverImage,
+                imageUrl: imageUrl,
+                size: imageSize,
+                isDark: isDark,
               )
             else
               ResponsiveCoverImage(
@@ -133,8 +126,8 @@ class RoutineItemCard extends StatelessWidget {
                     (imageUrl != null && imageUrl!.isNotEmpty
                         ? ResponsiveImage.uniform(imageUrl!)
                         : null),
-                width: 74,
-                height: 74,
+                width: imageSize,
+                height: imageSize,
                 fit: BoxFit.cover,
                 borderRadius: BorderRadius.circular(10),
               ),
@@ -213,6 +206,54 @@ class RoutineItemCard extends StatelessWidget {
             ],
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _AccumulatorCoverImage extends StatelessWidget {
+  const _AccumulatorCoverImage({
+    required this.coverImage,
+    required this.imageUrl,
+    required this.size,
+    required this.isDark,
+  });
+
+  final ResponsiveImage? coverImage;
+  final String? imageUrl;
+  final double size;
+  final bool isDark;
+
+  @override
+  Widget build(BuildContext context) {
+    final image =
+        coverImage ??
+        (imageUrl != null && imageUrl!.isNotEmpty
+            ? ResponsiveImage.uniform(imageUrl!)
+            : null);
+
+    if (image != null && !image.isEmpty) {
+      return ClipOval(
+        child: ResponsiveCoverImage(
+          image: image,
+          width: size,
+          height: size,
+          fit: BoxFit.cover,
+        ),
+      );
+    }
+
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.surfaceVariantDark : AppColors.grey100,
+        shape: BoxShape.circle,
+      ),
+      child: Icon(
+        PhosphorIconsRegular.circlesThree,
+        size: size * 0.45,
+        color: isDark ? AppColors.textTertiaryDark : AppColors.textSecondary,
       ),
     );
   }

@@ -15,7 +15,27 @@ permissions:
   contents: read
 
 jobs:
+  # Compute a PREVIEW of the next version (same rules as prod) so the dev /
+  # TestFlight build carries the version you're about to ship — but do NOT commit
+  # it. The version is only persisted on the prod release (main), so promoting
+  # develop -> main bumps exactly once (no double bump). See CONTRIBUTING.md.
+  version:
+    name: 🔖 Preview version
+    runs-on: ubuntu-latest
+    outputs:
+      version_name: ${{ steps.bump.outputs.version_name }}
+    steps:
+      - name: 📂 Checkout (full history + tags)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 🔢 Compute next version (preview only — not committed)
+        id: bump
+        run: bash ci/scripts/bump_version.sh
+
   android:
+    needs: version
     uses: ./.github/workflows/build-android.yml
     with:
       flavor:             dev
@@ -25,9 +45,11 @@ jobs:
       play_track:         internal
       environment:        development
       upload_to_store:    true
+      version_name:       ${{ needs.version.outputs.version_name }}
     secrets: inherit
 
   ios:
+    needs: version
     uses: ./.github/workflows/build-ios.yml
     with:
       flavor:             dev
@@ -37,4 +59,5 @@ jobs:
       ios_bundle_id:      org.pecha.app.dev
       environment:        development
       upload_to_store:    true
+      version_name:       ${{ needs.version.outputs.version_name }}
     secrets: inherit
