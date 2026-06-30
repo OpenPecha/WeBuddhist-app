@@ -5,6 +5,8 @@ import 'package:flutter_pecha/core/widgets/error_state_widget.dart';
 import 'package:flutter_pecha/core/widgets/skeletons/skeletons.dart';
 import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
 import 'package:flutter_pecha/features/auth/presentation/widgets/login_drawer.dart';
+import 'package:flutter_pecha/features/group_profile/domain/entities/group_profile.dart';
+import 'package:flutter_pecha/features/group_profile/presentation/providers/group_profile_providers.dart';
 import 'package:flutter_pecha/features/home/domain/entities/series.dart';
 import 'package:flutter_pecha/features/home/presentation/providers/series_provider.dart';
 import 'package:flutter_pecha/features/home/presentation/widgets/plan_list_view.dart';
@@ -19,8 +21,18 @@ import 'package:go_router/go_router.dart';
 class SeriesDetailScreen extends ConsumerWidget {
   final String seriesId;
   final Series? series;
+  final String? groupId;
+  final GroupType? groupType;
+  final bool isGroupEnrolled;
 
-  const SeriesDetailScreen({super.key, required this.seriesId, this.series});
+  const SeriesDetailScreen({
+    super.key,
+    required this.seriesId,
+    this.series,
+    this.groupId,
+    this.groupType,
+    this.isGroupEnrolled = false,
+  });
 
   Future<void> _onRefresh(WidgetRef ref) async {
     ref.invalidate(seriesByIdProvider(seriesId));
@@ -40,6 +52,8 @@ class SeriesDetailScreen extends ConsumerWidget {
           data: (either) => either.fold((_) => null, (s) => s),
         ) ??
         series;
+
+    final isGroupEnrolledForSeries = _resolveIsGroupEnrolled(ref);
 
     if (resolvedSeries != null) {
       ref.watch(
@@ -88,6 +102,9 @@ class SeriesDetailScreen extends ConsumerWidget {
                           plans: series.plans,
                           seriesId: seriesId,
                           series: series,
+                          groupId: groupId,
+                          groupType: groupType,
+                          isGroupEnrolled: isGroupEnrolledForSeries,
                         );
                       },
                     );
@@ -106,6 +123,21 @@ class SeriesDetailScreen extends ConsumerWidget {
           ],
         ),
       ),
+    );
+  }
+
+  bool _resolveIsGroupEnrolled(WidgetRef ref) {
+    final groupId = this.groupId;
+    if (groupId == null) return false;
+
+    final profileAsync = ref.watch(groupProfileProvider(groupId));
+    return profileAsync.maybeWhen(
+      data:
+          (either) => either.fold(
+            (_) => isGroupEnrolled,
+            (profile) => isSeriesGroupEnrolledInProfile(profile, seriesId),
+          ),
+      orElse: () => isGroupEnrolled,
     );
   }
 

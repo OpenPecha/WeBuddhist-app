@@ -10,6 +10,7 @@ import 'package:flutter_pecha/features/group_profile/domain/entities/group_membe
 import 'package:flutter_pecha/features/group_profile/domain/entities/group_profile.dart';
 import 'package:flutter_pecha/features/group_profile/domain/repositories/group_profile_repository.dart';
 import 'package:flutter_pecha/features/group_profile/domain/usecases/get_group_profile_usecase.dart';
+import 'package:flutter_pecha/features/home/presentation/providers/series_enrollment_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fpdart/fpdart.dart';
 
@@ -298,6 +299,52 @@ final groupFollowProvider = StateNotifierProvider.autoDispose
     isAuthenticated: isAuthenticated,
   );
 });
+
+bool isSeriesGroupEnrolledInProfile(GroupProfile profile, String seriesId) {
+  return profile.series.any(
+    (series) => series.id == seriesId && series.isGroupEnrolled,
+  );
+}
+
+/// Enrolls in a series via [groupId] and updates group join UI optimistically.
+Future<bool> enrollSeriesThroughGroup({
+  required WidgetRef ref,
+  required String seriesId,
+  required String groupId,
+  required GroupType groupType,
+}) async {
+  final notifier = ref.read(seriesEnrollmentProvider(seriesId).notifier);
+  final ok = await notifier.enroll(groupId: groupId);
+  if (!ok) return false;
+
+  final followKey = GroupFollowKey(groupId: groupId, groupType: groupType);
+  final profileResult = await ref.read(groupProfileProvider(groupId).future);
+  profileResult.fold(
+    (_) {},
+    (profile) => ref
+        .read(groupFollowProvider(followKey).notifier)
+        .markAutoJoinedFromPracticeEnrollment(group: profile),
+  );
+  ref.invalidate(groupProfileProvider(groupId));
+  return true;
+}
+
+/// Syncs join state after returning from the post-enrollment routine editor.
+Future<void> completeGroupPracticeEnrollmentFlow({
+  required WidgetRef ref,
+  required String groupId,
+  required GroupType groupType,
+}) async {
+  final followKey = GroupFollowKey(groupId: groupId, groupType: groupType);
+  final profileResult = await ref.read(groupProfileProvider(groupId).future);
+  await profileResult.fold(
+    (_) async {},
+    (profile) => ref
+        .read(groupFollowProvider(followKey).notifier)
+        .syncJoinStatusFromServer(connectGroup: profile),
+  );
+  ref.invalidate(groupProfileProvider(groupId));
+}
 
 class GroupMembersState {
   final List<GroupMember> members;

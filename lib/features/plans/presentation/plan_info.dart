@@ -177,13 +177,10 @@ class _PlanInfoState extends ConsumerState<PlanInfo> {
     final isSubscribed = enrolledPlanIds.contains(widget.plan.id);
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final enrollBackgroundColor =
-        isDark
-            ? AppColors.surfaceWhite
-            : AppColors.scaffoldBackgroundDark;
+        isDark ? AppColors.surfaceWhite : AppColors.scaffoldBackgroundDark;
     final enrollForegroundColor =
         isDark ? AppColors.textPrimary : AppColors.textPrimaryDark;
-    final subscribedBackgroundColor =
-        isDark ? AppColors.grey800 : Colors.grey;
+    final subscribedBackgroundColor = isDark ? AppColors.grey800 : Colors.grey;
     final subscribedForegroundColor = AppColors.onPrimary;
 
     return Column(

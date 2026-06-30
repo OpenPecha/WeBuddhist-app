@@ -435,10 +435,7 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
       child: InkWell(
         onTap: isEnrolling
             ? null
-            : () {
-                widget.onSeriesTap?.call();
-                context.push('/home/series/${series.id}');
-              },
+            : () => _navigateToSeriesDetail(profile, series),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -479,6 +476,7 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
                                 ),
                               )
                               : GestureDetector(
+                                behavior: HitTestBehavior.opaque,
                                 onTap: () =>
                                     _onPracticeWithUsTap(profile, series),
                                 child: Container(
@@ -549,6 +547,26 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
     return '${formatter.format(startDate.toLocal())} - ${formatter.format(endDate.toLocal())}';
   }
 
+  void _navigateToSeriesDetail(
+    GroupProfile profile,
+    GroupProfileSeries series,
+  ) {
+    widget.onSeriesTap?.call();
+    if (_isSeriesGroupEnrolled(series)) {
+      context.push('/home/series/${series.id}');
+      return;
+    }
+
+    context.push(
+      '/home/series/${series.id}',
+      extra: {
+        'groupId': profile.id,
+        'groupType': profile.groupType,
+        'isGroupEnrolled': false,
+      },
+    );
+  }
+
   Future<void> _onPracticeWithUsTap(
     GroupProfile profile,
     GroupProfileSeries series,
@@ -561,8 +579,12 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
 
     setState(() => _enrollingSeriesId = series.id);
 
-    final notifier = ref.read(seriesEnrollmentProvider(series.id).notifier);
-    final ok = await notifier.enroll(groupId: profile.id);
+    final ok = await enrollSeriesThroughGroup(
+      ref: ref,
+      seriesId: series.id,
+      groupId: profile.id,
+      groupType: profile.groupType,
+    );
 
     if (!mounted) return;
     setState(() {
@@ -571,14 +593,6 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
     });
 
     if (ok) {
-      final followKey = GroupFollowKey(
-        groupId: profile.id,
-        groupType: profile.groupType,
-      );
-      ref
-          .read(groupFollowProvider(followKey).notifier)
-          .markAutoJoinedFromPracticeEnrollment(group: profile);
-      ref.invalidate(groupProfileProvider(profile.id));
       await ref.read(groupProfileProvider(profile.id).future);
       if (!mounted) return;
       await context.pushNamed(
@@ -586,10 +600,11 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
         extra: {'enrollSeriesId': series.id},
       );
       if (!mounted) return;
-      await ref
-          .read(groupFollowProvider(followKey).notifier)
-          .syncJoinStatusFromServer(connectGroup: profile);
-      ref.invalidate(groupProfileProvider(profile.id));
+      await completeGroupPracticeEnrollmentFlow(
+        ref: ref,
+        groupId: profile.id,
+        groupType: profile.groupType,
+      );
       return;
     }
 

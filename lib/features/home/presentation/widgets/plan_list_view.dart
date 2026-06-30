@@ -8,6 +8,8 @@ import 'package:flutter_pecha/core/widgets/responsive_cover_image.dart';
 import 'package:flutter_pecha/shared/domain/value_objects/responsive_image.dart';
 import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
 import 'package:flutter_pecha/features/auth/presentation/widgets/login_drawer.dart';
+import 'package:flutter_pecha/features/group_profile/domain/entities/group_profile.dart';
+import 'package:flutter_pecha/features/group_profile/presentation/providers/group_profile_providers.dart';
 import 'package:flutter_pecha/features/home/domain/entities/series.dart';
 import 'package:flutter_pecha/features/home/presentation/providers/series_enrollment_provider.dart';
 import 'package:flutter_pecha/features/plans/data/models/user/user_plans_model.dart';
@@ -26,18 +28,24 @@ import 'package:go_router/go_router.dart';
 /// list below — used by both `PlanListScreen` (tag-filtered) and
 /// `SeriesDetailScreen` (series-filtered). Caller must guard against empty input.
 ///
-/// When [seriesId] is provided, the featured card shows a series-level Enroll
-/// button that enrolls the user in the whole series in one call.
+/// When [groupId] is provided (navigated from a group profile), the featured
+/// card shows "Practice with us" until the user enrolls through that group.
 class PlanListView extends StatelessWidget {
   final List<Plan> plans;
   final String? seriesId;
   final Series? series;
+  final String? groupId;
+  final GroupType? groupType;
+  final bool isGroupEnrolled;
 
   const PlanListView({
     super.key,
     required this.plans,
     this.seriesId,
     this.series,
+    this.groupId,
+    this.groupType,
+    this.isGroupEnrolled = false,
   });
 
   @override
@@ -63,6 +71,9 @@ class PlanListView extends StatelessWidget {
               plan: sorted.first,
               seriesId: seriesId,
               series: series,
+              groupId: groupId,
+              groupType: groupType,
+              isGroupEnrolled: isGroupEnrolled,
             ),
           ),
         ),
@@ -95,11 +106,19 @@ class FeaturedPlanCard extends ConsumerWidget {
   /// and cover image instead of the first plan's data.
   final Series? series;
 
+  /// When set, enrollment uses group-scoped "Practice with us" flow.
+  final String? groupId;
+  final GroupType? groupType;
+  final bool isGroupEnrolled;
+
   const FeaturedPlanCard({
     super.key,
     required this.plan,
     this.seriesId,
     this.series,
+    this.groupId,
+    this.groupType,
+    this.isGroupEnrolled = false,
   });
 
   @override
@@ -132,13 +151,19 @@ class FeaturedPlanCard extends ConsumerWidget {
         seriesId != null &&
         (seriesEnrollmentAsync?.valueOrNull?.contains(seriesId!) ?? false);
 
+    final isGroupPracticeFlow = groupId != null && !isGroupEnrolled;
+
     // Hide button during initial load to prevent flickering
     final isLoadingEnrollmentData =
         myPlansState.isLoading ||
-        (seriesId != null && seriesEnrollmentAsync?.isLoading == true);
+        (seriesId != null &&
+            !isGroupPracticeFlow &&
+            seriesEnrollmentAsync?.isLoading == true);
 
     final hideEnrollButton =
-        isEnrolled || isSeriesEnrolled || isLoadingEnrollmentData;
+        isGroupEnrolled ||
+        isLoadingEnrollmentData ||
+        (isGroupPracticeFlow ? false : (isEnrolled || isSeriesEnrolled));
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final enrollBackgroundColor =
         isDark ? AppColors.surfaceWhite : AppColors.scaffoldBackgroundDark;
@@ -236,7 +261,9 @@ class FeaturedPlanCard extends ConsumerWidget {
                                   ),
                                 )
                                 : Text(
-                                  context.l10n.plan_enroll,
+                                  isGroupPracticeFlow
+                                      ? context.l10n.group_practice_with_us
+                                      : context.l10n.plan_enroll,
                                   style: const TextStyle(
                                     fontWeight: FontWeight.w600,
                                   ),
@@ -253,8 +280,9 @@ class FeaturedPlanCard extends ConsumerWidget {
     );
   }
 
-  /// Handles a tap on the Enroll button.
+  /// Handles a tap on the Enroll / Practice with us button.
   /// - Guests: opens login drawer (same guard as Add to Routine).
+  /// - When [groupId] is set: enrolls through the group, then edit-routine.
   /// - When [seriesId] is null: navigates to the per-plan preview screen.
   /// - When [seriesId] is set: enrolls in the series via API, then navigates
   ///   to edit-routine with the series id so all newly enrolled plans are
@@ -269,6 +297,43 @@ class FeaturedPlanCard extends ConsumerWidget {
     final id = seriesId;
     if (id == null) {
       _navigateToPlan(context, plan, null);
+      return;
+    }
+
+    final groupId = this.groupId;
+    if (groupId != null && !isGroupEnrolled) {
+      final groupType = this.groupType ?? GroupType.community;
+      final ok = await enrollSeriesThroughGroup(
+        ref: ref,
+        seriesId: id,
+        groupId: groupId,
+        groupType: groupType,
+      );
+      if (!context.mounted) return;
+
+      if (ok) {
+        await ref.read(groupProfileProvider(groupId).future);
+        if (!context.mounted) return;
+        await context.pushNamed(
+          'edit-routine',
+          extra: {'enrollSeriesId': id},
+        );
+        if (!context.mounted) return;
+        await completeGroupPracticeEnrollmentFlow(
+          ref: ref,
+          groupId: groupId,
+          groupType: groupType,
+        );
+      } else {
+        final state = ref.read(seriesEnrollmentProvider(id));
+        final message =
+            state is SeriesEnrollmentFailure
+                ? state.failure.message
+                : 'Failed to enroll in series';
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(message), backgroundColor: Colors.red),
+        );
+      }
       return;
     }
 
