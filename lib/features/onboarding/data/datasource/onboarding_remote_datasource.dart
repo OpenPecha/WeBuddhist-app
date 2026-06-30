@@ -2,7 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/features/onboarding/data/models/onboarding_preferences.dart';
 import 'package:flutter_pecha/features/onboarding/data/models/onboarding_status_model.dart';
-import 'package:flutter_pecha/features/onboarding/data/models/tradition_models.dart';
+import 'package:flutter_pecha/features/onboarding/data/models/tradition_chat_models.dart';
 
 final _logger = AppLogger('OnboardingRemoteDatasource');
 
@@ -81,42 +81,26 @@ class OnboardingRemoteDatasource {
     return null;
   }
 
-  /// Fetch tradition path options for onboarding.
+  /// Send a message in the tradition identification chat.
   ///
-  /// Endpoint: GET /users/me/traditions/onboarding
-  Future<List<TraditionPath>> fetchTraditionOnboardingPaths({
-    required String language,
-  }) async {
-    final response = await _dio.get(
-      '/users/me/traditions/onboarding',
-      queryParameters: {'language': language},
+  /// Endpoint: POST /api/v1/users/me/traditions/chat
+  Future<TraditionChatResponse> sendTraditionChatMessage(
+    TraditionChatRequest request,
+  ) async {
+    final response = await _dio.post(
+      '/users/me/traditions/chat',
+      data: request.toJson(),
     );
 
     final data = response.data;
-    if (data is! Map<String, dynamic>) {
-      throw DioException(
-        requestOptions: response.requestOptions,
-        message: 'Invalid tradition onboarding response',
-      );
+    if (data is Map<String, dynamic>) {
+      return TraditionChatResponse.fromJson(data);
     }
 
-    final pathsJson = data['paths'];
-    if (pathsJson is! Map<String, dynamic>) {
-      throw DioException(
-        requestOptions: response.requestOptions,
-        message: 'Invalid tradition paths response',
-      );
-    }
-
-    return traditionPathOrder
-        .where((code) => pathsJson.containsKey(code))
-        .map(
-          (code) => TraditionPath.fromJson(
-            code,
-            pathsJson[code] as Map<String, dynamic>,
-          ),
-        )
-        .toList();
+    throw DioException(
+      requestOptions: response.requestOptions,
+      message: 'Invalid tradition chat response',
+    );
   }
 
   /// Save the user's selected tradition.

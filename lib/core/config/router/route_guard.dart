@@ -59,26 +59,32 @@ class RouteGuard {
     String? Function() getPendingRoute,
     void Function(String?) setPendingRoute,
   ) async {
-    final onboardingResult = await onboardingRepo.isOnboardingCompleted();
-    final bool? hasOnboarded = onboardingResult.fold((failure) {
-      _logger.warning(
-        'Onboarding status unavailable (${failure.message}); '
-        'skipping onboarding enforcement',
-      );
-      return null;
-    }, (hasCompleted) => hasCompleted);
-
-    // Force onboarding only when status was fetched and is not completed.
-    if (hasOnboarded == false &&
-        path != AppRoutes.onboarding &&
-        path != AppRoutes.login) {
-      return AppRoutes.onboarding;
-    }
-
-    // Completed users, and offline/unreachable checks, go to home — not onboarding.
-    if (hasOnboarded != false && path == AppRoutes.onboarding) {
+    // Onboarding is temporarily disabled for everyone. Never force it, and
+    // send any direct navigation to /onboarding back to home. This also fixes
+    // the offline case, where the original check below defaulted to "not
+    // onboarded" and wrongly forced onboarding.
+    if (path == AppRoutes.onboarding) {
       return AppRoutes.home;
     }
+
+    // Original force-onboarding logic, preserved (commented out) so it can be
+    // re-enabled later by deleting the redirect above and uncommenting this.
+    // final hasOnboarded = await onboardingRepo.isOnboardingCompleted().then(
+    //   (result) =>
+    //       result.fold((failure) => false, (hasCompleted) => hasCompleted),
+    // );
+    //
+    // // Force onboarding if not completed
+    // if (!hasOnboarded &&
+    //     path != AppRoutes.onboarding &&
+    //     path != AppRoutes.login) {
+    //   return AppRoutes.onboarding;
+    // }
+    //
+    // // Skip onboarding if already done
+    // if (hasOnboarded && path == AppRoutes.onboarding) {
+    //   return AppRoutes.home;
+    // }
 
     // Redirect from login or splash to pending route or home
     if (path == AppRoutes.login || path == AppRoutes.splash) {

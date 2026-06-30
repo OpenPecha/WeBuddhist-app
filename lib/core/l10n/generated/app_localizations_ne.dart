@@ -537,22 +537,15 @@ class AppLocalizationsNe extends AppLocalizations {
       'तपाईं कुन परम्पराहरू\nपालना गर्नुहुन्छ?';
 
   @override
-  String get onboarding_tradition_title =>
-      'तपाईं बुद्धको अनुसरण कसरी गर्नुहुन्छ?';
+  String get onboarding_tradition_chat_title => 'तपाईंको परम्परा:';
 
   @override
-  String get onboarding_tradition_subtitle =>
-      'हामी तपाईंलाई तपाईंको मार्गका अभ्यासहरू र ग्रन्थहरू देखाउनेछौं। तपाईं यसलाई एप सेटिङमा जुनसुकै बेला परिवर्तन गर्न सक्नुहुन्छ।';
+  String get onboarding_tradition_chat_subtitle =>
+      'एक वा बढी छान्नुहोस् — हामी तिनीहरूलाई तपाईंको अनुभव व्यक्तिगत बनाउन प्रयोग गर्नेछौं।';
 
   @override
-  String get onboarding_tradition_option_intro => 'मार्फत:';
-
-  @override
-  String get onboarding_tradition_show_all_title => 'मलाई सबै देखाउनुहोस्';
-
-  @override
-  String get onboarding_tradition_show_all_description =>
-      'हरेक मार्गका अभ्यास र ग्रन्थहरू';
+  String get onboarding_tradition_type_hint =>
+      'वा आफ्नो परम्परा टाइप गर्नुहोस्...';
 
   @override
   String get onboarding_skip_for_now => 'अहिलेलाई छोड्नुहोस्';

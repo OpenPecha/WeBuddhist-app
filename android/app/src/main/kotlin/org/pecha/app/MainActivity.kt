@@ -25,11 +25,6 @@ class MainActivity : FlutterActivity() {
         AirbridgeFlutter.trackDeeplink(intent)
     }
 
-    override fun onNewIntent(intent: Intent) {
-        super.onNewIntent(intent)
-        setIntent(intent)
-    }
-
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
 

@@ -4,8 +4,5 @@
     "autoStartTrackingEnabled": true,
     "sessionTimeoutInSecond": 300,
     "hashUserInformationEnabled": true,
-    "trackAirbridgeDeeplinkOnlyEnabled": true,
-    "trackingLinkCustomDomains": [
-        "join.webuddhist.com"
-    ]
+    "trackAirbridgeDeeplinkOnlyEnabled": true
 }

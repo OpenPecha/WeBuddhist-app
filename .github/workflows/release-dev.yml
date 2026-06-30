@@ -40,7 +40,7 @@ jobs:
     with:
       flavor:             dev
       entrypoint:         lib/main_dev.dart
-      airbridge_app_name: webuddhist
+      airbridge_app_name: webuddhistdev
       play_package_name:  org.pecha.app.dev
       play_track:         internal
       environment:        development
@@ -54,7 +54,7 @@ jobs:
     with:
       flavor:             dev
       entrypoint:         lib/main_dev.dart
-      airbridge_app_name: webuddhist
+      airbridge_app_name: webuddhistdev
       auth0_domain:       dev-vz6o17motc18g45h.us.auth0.com
       ios_bundle_id:      org.pecha.app.dev
       environment:        development

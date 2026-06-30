@@ -65,6 +65,14 @@
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="webuddhist" />
             </intent-filter>
+            <!-- Airbridge: tracking link domain (join.webuddhist.com) -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="http" android:host="join.webuddhist.com" />
+                <data android:scheme="https" android:host="join.webuddhist.com" />
+            </intent-filter>
             <!-- Airbridge: primary redirect domain ({APP_NAME}.airbridge.io) -->
             <intent-filter android:autoVerify="true">
                 <action android:name="android.intent.action.VIEW" />
