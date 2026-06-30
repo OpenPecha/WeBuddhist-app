@@ -59,32 +59,22 @@ class RouteGuard {
     String? Function() getPendingRoute,
     void Function(String?) setPendingRoute,
   ) async {
-    // Onboarding is temporarily disabled for everyone. Never force it, and
-    // send any direct navigation to /onboarding back to home. This also fixes
-    // the offline case, where the original check below defaulted to "not
-    // onboarded" and wrongly forced onboarding.
-    if (path == AppRoutes.onboarding) {
-      return AppRoutes.home;
+    final hasOnboarded = await onboardingRepo.isOnboardingCompleted().then(
+      (result) =>
+          result.fold((failure) => false, (hasCompleted) => hasCompleted),
+    );
+
+    // Force onboarding if not completed
+    if (!hasOnboarded &&
+        path != AppRoutes.onboarding &&
+        path != AppRoutes.login) {
+      return AppRoutes.onboarding;
     }
 
-    // Original force-onboarding logic, preserved (commented out) so it can be
-    // re-enabled later by deleting the redirect above and uncommenting this.
-    // final hasOnboarded = await onboardingRepo.isOnboardingCompleted().then(
-    //   (result) =>
-    //       result.fold((failure) => false, (hasCompleted) => hasCompleted),
-    // );
-    //
-    // // Force onboarding if not completed
-    // if (!hasOnboarded &&
-    //     path != AppRoutes.onboarding &&
-    //     path != AppRoutes.login) {
-    //   return AppRoutes.onboarding;
-    // }
-    //
-    // // Skip onboarding if already done
-    // if (hasOnboarded && path == AppRoutes.onboarding) {
-    //   return AppRoutes.home;
-    // }
+    // Skip onboarding if already done
+    if (hasOnboarded && path == AppRoutes.onboarding) {
+      return AppRoutes.home;
+    }
 
     // Redirect from login or splash to pending route or home
     if (path == AppRoutes.login || path == AppRoutes.splash) {

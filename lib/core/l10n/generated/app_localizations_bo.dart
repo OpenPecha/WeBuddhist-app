@@ -537,15 +537,22 @@ class AppLocalizationsBo extends AppLocalizations {
       'ཁྱེད་རང་ཆོས་བརྒྱུད་གང་གི་རྗེས་འཇུག་ཡིན་ནམ།';
 
   @override
-  String get onboarding_tradition_chat_title => 'ཁྱེད་ཀྱི་ཆོས་བརྒྱུད།';
+  String get onboarding_tradition_title =>
+      'ཁྱེད་རང་སངས་རྒྱས་ལ་ཇི་ལྟར་རྗེས་འཇུག་བྱེད་དམ།';
 
   @override
-  String get onboarding_tradition_chat_subtitle =>
-      'གཅིག་འདེམ་རོགས — ང་ཚོས་ཁྱེད་ཀྱི་ཉམས་ལེན་སྒེར་སྐྱོང་བྱ་རྒྱུ་ཡིན།';
+  String get onboarding_tradition_subtitle =>
+      'ང་ཚོས་ཁྱེད་ཀྱི་ལམ་གྱི་སྒྲུབ་པ་དང་གཞུང་ལུགས་སྟོན་རྒྱུ་ཡིན། འཕྲལ་དུ་སྒྲིག་འགོད་ནས་བསྒྱུར་ཆོག';
 
   @override
-  String get onboarding_tradition_type_hint =>
-      'ཡང་ན་ཁྱེད་ཀྱི་ཆོས་བརྒྱུད་ཡིག་འབྲི་རོགས།';
+  String get onboarding_tradition_option_intro => 'བརྒྱུད་ནས།';
+
+  @override
+  String get onboarding_tradition_show_all_title => 'ཡོངས་རྫོགས་སྟོན་རོགས།';
+
+  @override
+  String get onboarding_tradition_show_all_description =>
+      'ལམ་ཐམས་ཅད་ཀྱི་སྒྲུབ་པ་དང་གཞུང་ལུགས།';
 
   @override
   String get onboarding_skip_for_now => 'ད་ལྟ་བསྲུབ་རོགས།';

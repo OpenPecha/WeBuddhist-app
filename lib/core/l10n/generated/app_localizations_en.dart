@@ -529,14 +529,21 @@ class AppLocalizationsEn extends AppLocalizations {
       'Which traditions\ndo you follow?';
 
   @override
-  String get onboarding_tradition_chat_title => 'Your tradition:';
+  String get onboarding_tradition_title => 'How do you follow the Buddha?';
 
   @override
-  String get onboarding_tradition_chat_subtitle =>
-      'Choose one: we\'ll use it to personalize your experience.';
+  String get onboarding_tradition_subtitle =>
+      'We\'ll show you the practices and texts of your path. You can change this anytime in the app settings.';
 
   @override
-  String get onboarding_tradition_type_hint => 'Or type your tradition...';
+  String get onboarding_tradition_option_intro => 'Through:';
+
+  @override
+  String get onboarding_tradition_show_all_title => 'Show me everything';
+
+  @override
+  String get onboarding_tradition_show_all_description =>
+      'Practices and texts from every path';
 
   @override
   String get onboarding_skip_for_now => 'Skip for now';
