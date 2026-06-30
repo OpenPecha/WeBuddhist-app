@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_pecha/core/di/core_providers.dart';
 import 'package:flutter_pecha/core/utils/local_storage_service.dart';
 import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
@@ -41,7 +43,7 @@ final pushNotificationBootstrapProvider = Provider<void>((ref) {
   service.onOpenMessage = navigator.handle;
   NotificationService.setPushTapHandler(navigator.handleData);
 
-  service.initialize();
+  unawaited(service.initialize());
 
   void syncAuth() {
     final auth = ref.read(authProvider);
