@@ -103,7 +103,7 @@ keytool -J-Duser.language=en -list -v -keystore <your-release.keystore> -alias <
 
 ## Pre-merge / pre-release checklist
 
-- [ ] Prod iOS build succeeds with `AIRBRIDGE_APP_NAME=webuddhist` in CI; generated `Runner.entitlements` contains `applinks:webuddhist.airbridge.io`, `applinks:webuddhist.abr.ge`, `applinks:join.webuddhist.com`
+- [ ] Prod iOS build succeeds with `AIRBRIDGE_APP_NAME=webuddhist` in CI; generated `Runner.entitlements` contains `applinks:webuddhist.airbridge.io` and `applinks:webuddhist.abr.ge`
 - [ ] Prod Android release build contains correct `AIRBRIDGE_APP_NAME` and `AIRBRIDGE_SDK_TOKEN` in `BuildConfig`; App Link intent filters compile without errors
 - [ ] Share sheet shows `https://connect.webuddhist.com/get-app`
 - [ ] Tap tracking link on device with prod build → app opens; Airbridge dashboard shows open/re-engagement event
