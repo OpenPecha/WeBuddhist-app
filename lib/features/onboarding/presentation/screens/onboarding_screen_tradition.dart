@@ -18,10 +18,7 @@ class OnboardingScreenTradition extends ConsumerWidget {
   final VoidCallback onNext;
   final VoidCallback onBack;
 
-  Future<void> _handleContinue(
-    BuildContext context,
-    WidgetRef ref,
-  ) async {
+  Future<void> _handleContinue(BuildContext context, WidgetRef ref) async {
     final saved =
         await ref.read(traditionSelectionProvider.notifier).submitSelection();
     if (!context.mounted || !saved) {
@@ -47,9 +44,9 @@ class OnboardingScreenTradition extends ConsumerWidget {
       next,
     ) {
       if (next.error != null && next.error != previous?.error) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.something_went_wrong)),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(l10n.something_went_wrong)));
       }
     });
 
@@ -83,16 +80,7 @@ class OnboardingScreenTradition extends ConsumerWidget {
                   height: 1.4,
                 ),
               ),
-              const SizedBox(height: 32),
-              Text(
-                l10n.onboarding_tradition_option_intro,
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w700,
-                  color: onSurface,
-                ),
-              ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 20),
               Expanded(
                 child: _buildOptions(context, ref, selectionState, onSurface),
               ),
@@ -123,8 +111,7 @@ class OnboardingScreenTradition extends ConsumerWidget {
       return Center(
         child: TextButton(
           onPressed:
-              () =>
-                  ref.read(traditionSelectionProvider.notifier).loadPaths(),
+              () => ref.read(traditionSelectionProvider.notifier).loadPaths(),
           child: Text(context.l10n.something_went_wrong),
         ),
       );
@@ -180,7 +167,7 @@ class _TraditionRadioOption extends StatelessWidget {
     final descriptionColor = onSurface.withValues(alpha: 0.65);
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: 20),
+      padding: const EdgeInsets.only(bottom: 15),
       child: InkWell(
         onTap: () => onSelect(id),
         borderRadius: BorderRadius.circular(8),
@@ -193,25 +180,29 @@ class _TraditionRadioOption extends StatelessWidget {
             ),
             const SizedBox(width: 12),
             Expanded(
-              child: Text.rich(
-                TextSpan(
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w400,
-                    color: descriptionColor,
-                    height: 1.4,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      color: onSurface,
+                      height: 1.4,
+                    ),
                   ),
-                  children: [
-                    TextSpan(
-                      text: title,
+                  if (description.isNotEmpty)
+                    Text(
+                      description,
                       style: TextStyle(
-                        fontWeight: FontWeight.w700,
-                        color: onSurface,
+                        fontSize: 15,
+                        fontWeight: FontWeight.w400,
+                        color: descriptionColor,
+                        height: 1.4,
                       ),
                     ),
-                    if (description.isNotEmpty) TextSpan(text: ' $description'),
-                  ],
-                ),
+                ],
               ),
             ),
           ],
