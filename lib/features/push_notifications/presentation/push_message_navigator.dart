@@ -65,7 +65,7 @@ class PushMessageNavigator {
         _ref.read(pendingNotificationNavProvider.notifier).state =
             NotificationNav(
               itemId: sourceId,
-              itemType: RoutineItemType.plan.name,
+              itemType: RoutineItemType.series.name,
             );
         _openPracticeTab(router);
 
