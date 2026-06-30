@@ -28,7 +28,8 @@ class GroupProfileMembersTab extends ConsumerStatefulWidget {
       _GroupProfileMembersTabState();
 }
 
-class _GroupProfileMembersTabState extends ConsumerState<GroupProfileMembersTab> {
+class _GroupProfileMembersTabState
+    extends ConsumerState<GroupProfileMembersTab> {
   final ScrollController _scrollController = ScrollController();
   bool _hasRequestedInitialLoad = false;
 
@@ -85,9 +86,10 @@ class _GroupProfileMembersTabState extends ConsumerState<GroupProfileMembersTab>
           child: ErrorStateWidget(
             error: membersState.error!,
             onRetry:
-                () => ref
-                    .read(groupMembersProvider(widget.groupId).notifier)
-                    .retry(),
+                () =>
+                    ref
+                        .read(groupMembersProvider(widget.groupId).notifier)
+                        .retry(),
             customMessage:
                 widget.groupType.isPage
                     ? context.l10n.group_followers_load_error
@@ -210,61 +212,66 @@ class _GroupMemberRow extends StatelessWidget {
             ? member.fullname.trim()
             : member.username;
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: Row(
-        children: [
-          ClipOval(
-            child: SizedBox(
-              width: 44,
-              height: 44,
-              child:
-                  member.avatarUrl != null && member.avatarUrl!.isNotEmpty
-                      ? CachedNetworkImageWidget(
-                        key: ValueKey(member.avatarUrl),
-                        imageUrl: member.avatarUrl,
-                        width: 44,
-                        height: 44,
-                        fit: BoxFit.cover,
-                        errorWidget: _buildAvatarFallback(isDark),
-                      )
-                      : _buildAvatarFallback(isDark),
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  displayName,
-                  style: TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w600,
-                    height: lineHeight,
-                  ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
+          child: Row(
+            children: [
+              ClipOval(
+                child: SizedBox(
+                  width: 44,
+                  height: 44,
+                  child:
+                      member.avatarUrl != null && member.avatarUrl!.isNotEmpty
+                          ? CachedNetworkImageWidget(
+                            key: ValueKey(member.avatarUrl),
+                            imageUrl: member.avatarUrl,
+                            width: 44,
+                            height: 44,
+                            fit: BoxFit.cover,
+                            errorWidget: _buildAvatarFallback(isDark),
+                          )
+                          : _buildAvatarFallback(isDark),
                 ),
-                if (member.username.isNotEmpty)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 2),
-                    child: Text(
-                      '@${member.username}',
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      displayName,
                       style: TextStyle(
-                        fontSize: 13,
-                        color: secondaryColor,
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
                         height: lineHeight,
                       ),
-                      maxLines: 1,
+                      maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
-                  ),
-              ],
-            ),
+                    if (member.username.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 2),
+                        child: Text(
+                          '@${member.username}',
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: secondaryColor,
+                            height: lineHeight,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
+        ),
+        SizedBox(height: 20),
+      ],
     );
   }
 

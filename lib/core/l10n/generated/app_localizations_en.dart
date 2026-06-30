@@ -1603,6 +1603,16 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get group_practice_with_us => 'Practice with us';
+
+  @override
+  String get group_change_practice_title => 'Change group practice';
+
+  @override
+  String get group_change_practice_message =>
+      'You are already practicing this plan with another group. Would you like to change your practice group?';
+
+  @override
   String get share_this_quote => 'Share this quote';
 
   @override

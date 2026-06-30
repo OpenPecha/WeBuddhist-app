@@ -2938,6 +2938,24 @@ abstract class AppLocalizations {
   /// **'and {count} more links'**
   String group_and_more_links(int count);
 
+  /// No description provided for @group_practice_with_us.
+  ///
+  /// In en, this message translates to:
+  /// **'Practice with us'**
+  String get group_practice_with_us;
+
+  /// No description provided for @group_change_practice_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Change group practice'**
+  String get group_change_practice_title;
+
+  /// No description provided for @group_change_practice_message.
+  ///
+  /// In en, this message translates to:
+  /// **'You are already practicing this plan with another group. Would you like to change your practice group?'**
+  String get group_change_practice_message;
+
   /// No description provided for @share_this_quote.
   ///
   /// In en, this message translates to:

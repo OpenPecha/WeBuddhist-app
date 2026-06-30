@@ -11,6 +11,7 @@ import 'package:flutter_pecha/features/auth/presentation/providers/state_provide
 import 'package:flutter_pecha/features/auth/presentation/screens/login_page.dart';
 import 'package:flutter_pecha/features/auth/presentation/screens/splash_screen.dart';
 import 'package:flutter_pecha/features/calendar/presentation/screens/tibetan_calendar_screen.dart';
+import 'package:flutter_pecha/features/group_profile/domain/entities/group_profile.dart';
 import 'package:flutter_pecha/features/group_profile/presentation/screens/group_profile_screen.dart';
 import 'package:flutter_pecha/features/home/domain/entities/series.dart';
 import 'package:flutter_pecha/features/home/presentation/screens/main_navigation_screen.dart';
@@ -204,7 +205,17 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                   final id = state.pathParameters['id'] ?? '';
                   final extra = state.extra as Map<String, dynamic>?;
                   final series = extra?['series'] as Series?;
-                  return SeriesDetailScreen(seriesId: id, series: series);
+                  final groupId = extra?['groupId'] as String?;
+                  final groupType = extra?['groupType'] as GroupType?;
+                  final isGroupEnrolled =
+                      extra?['isGroupEnrolled'] as bool? ?? false;
+                  return SeriesDetailScreen(
+                    seriesId: id,
+                    series: series,
+                    groupId: groupId,
+                    groupType: groupType,
+                    isGroupEnrolled: isGroupEnrolled,
+                  );
                 },
                 routes: [
                   GoRoute(
