@@ -58,6 +58,12 @@ class StorageKeys {
   static const String notificationRoutineEnabled = 'notification_routine_enabled';
   /// App-level toggle for recitation block notifications. Default: true.
   static const String notificationRecitationEnabled = 'notification_recitation_enabled';
+  /// Latest Firebase Cloud Messaging registration token for this install.
+  static const String fcmToken = 'fcm_token';
+  /// Stable per-install identifier sent as `device_id` when registering the
+  /// push token, so token refreshes update the same backend record. Generated
+  /// once (UUID) and persisted for the lifetime of the install.
+  static const String pushDeviceId = 'push_device_id';
 
   // Special-plan (ITCC and similar) keys — hardcoded per-day content series.
   /// Per-plan startedAt prefix. Full key: `special_plan_started_at_<planId>` → ISO8601 string.

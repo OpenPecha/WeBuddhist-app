@@ -18,6 +18,9 @@ class ProtectedRoutes {
     // User progress - all /users/me routes require auth
     '/users/me',
     '/users/me/', // Catch-all: matches all /users/me/* paths
+    '/users/me/push-devices', // Push device token registration
+
+
     '/users/me/plans',
     '/users/me/plans/{planId}',
     '/users/me/plans/{planId}/', // Matches sub-paths like /plans/123/tasks
