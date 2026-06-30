@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_pecha/core/constants/app_assets.dart';
+import 'package:flutter_pecha/core/extensions/context_ext.dart';
+import 'package:flutter_pecha/features/practice/data/datasource/bookmark_remote_datasource.dart';
 import 'package:flutter_pecha/features/practice/presentation/controllers/bookmark_controller.dart';
+import 'package:flutter_pecha/features/practice/presentation/providers/bookmark_providers.dart';
 import 'package:flutter_pecha/features/timer/domain/entities/preset_timer.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -9,7 +12,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 ///
 /// Contains:
 ///   • "+ Add to my practices" action
-///   • Bookmark action
+///   • Bookmark toggle action
 class TimerMoreBottomSheet extends ConsumerStatefulWidget {
   const TimerMoreBottomSheet({
     super.key,
@@ -28,14 +31,21 @@ class TimerMoreBottomSheet extends ConsumerStatefulWidget {
 class _TimerMoreBottomSheetState extends ConsumerState<TimerMoreBottomSheet> {
   bool _isBookmarking = false;
 
-  Future<void> _bookmark() async {
+  BookmarkTarget get _bookmarkTarget => BookmarkTarget(
+        type: BookmarkType.timer,
+        sourceId: widget.timer.id,
+      );
+
+  Future<void> _toggleBookmark() async {
     if (_isBookmarking) return;
     setState(() => _isBookmarking = true);
     try {
-      await BookmarkController(
+      final nav = Navigator.of(context);
+      final didToggle = await BookmarkController(
         ref: ref,
         context: context,
-      ).bookmarkTimer(widget.timer.id);
+      ).toggleTimer(widget.timer.id);
+      if (mounted && didToggle) nav.pop();
     } finally {
       if (mounted) setState(() => _isBookmarking = false);
     }
@@ -44,6 +54,8 @@ class _TimerMoreBottomSheetState extends ConsumerState<TimerMoreBottomSheet> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = context.l10n;
+    final isBookmarked = ref.watch(isBookmarkedProvider(_bookmarkTarget));
 
     return SafeArea(
       top: false,
@@ -92,15 +104,15 @@ class _TimerMoreBottomSheetState extends ConsumerState<TimerMoreBottomSheet> {
                       ),
                     )
                     : Icon(
-                      AppAssets.bookmarkSimple,
+                      isBookmarked
+                          ? AppAssets.bookmarkSimpleFill
+                          : AppAssets.bookmarkSimple,
                       color: theme.colorScheme.onSurface,
                     ),
-            title: Text('Bookmark', style: theme.textTheme.bodyLarge),
-            onTap: () async {
+            title: Text(l10n.bookmark, style: theme.textTheme.bodyLarge),
+            onTap: () {
               HapticFeedback.lightImpact();
-              final nav = Navigator.of(context);
-              await _bookmark();
-              if (mounted) nav.pop();
+              _toggleBookmark();
             },
           ),
 

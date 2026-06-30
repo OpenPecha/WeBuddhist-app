@@ -1,19 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/constants/app_assets.dart';
-import 'package:flutter_pecha/core/l10n/intl_format_locale.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
+import 'package:flutter_pecha/core/l10n/intl_format_locale.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/core/widgets/cached_network_image_widget.dart';
-import 'package:flutter_pecha/core/widgets/responsive_cover_image.dart';
-import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
-import 'package:flutter_pecha/features/auth/presentation/widgets/login_drawer.dart';
 import 'package:flutter_pecha/features/group_profile/domain/entities/group_profile.dart';
 import 'package:flutter_pecha/features/group_profile/presentation/providers/group_profile_providers.dart';
 import 'package:flutter_pecha/features/group_profile/presentation/widgets/group_profile_links_drawer.dart';
+import 'package:flutter_pecha/features/group_profile/presentation/widgets/group_profile_members_tab.dart';
 import 'package:flutter_pecha/features/plans/presentation/widgets/plan_inline_markdown_view.dart';
 import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -21,44 +18,22 @@ class GroupProfileBody extends ConsumerStatefulWidget {
   final GroupProfile profile;
   final bool isDark;
   final ScrollController? scrollController;
-  final VoidCallback? onSeriesTap;
+  final ScrollPhysics? physics;
 
   const GroupProfileBody({
     super.key,
     required this.profile,
     required this.isDark,
     this.scrollController,
-    this.onSeriesTap,
+    this.physics,
   });
 
   @override
   ConsumerState<GroupProfileBody> createState() => _GroupProfileBodyState();
 }
 
-class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
-    with SingleTickerProviderStateMixin {
+class _GroupProfileBodyState extends ConsumerState<GroupProfileBody> {
   bool _isDescriptionExpanded = false;
-  late TabController _tabController;
-
-  bool _hasAboutContent(GroupProfile profile) {
-    final descriptionLong = profile.descriptionLong?.trim();
-    return descriptionLong != null && descriptionLong.isNotEmpty;
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _tabController = TabController(
-      length: _hasAboutContent(widget.profile) ? 2 : 1,
-      vsync: this,
-    );
-  }
-
-  @override
-  void dispose() {
-    _tabController.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -73,9 +48,9 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
 
     return SingleChildScrollView(
       controller: widget.scrollController,
-      physics: const BouncingScrollPhysics(
-        parent: AlwaysScrollableScrollPhysics(),
-      ),
+      physics:
+          widget.physics ??
+          const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -102,29 +77,17 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
             ),
           const SizedBox(height: 16),
           _buildProfileHeader(profile, isDark, lineHeight),
+          if (orderedLinks.isNotEmpty) ...[
+            const SizedBox(height: 12),
+            _buildLinksSummary(orderedLinks, isDark, lineHeight),
+          ],
           if (profile.description != null &&
               profile.description!.trim().isNotEmpty) ...[
             const SizedBox(height: 12),
             _buildDescription(profile.description!, isDark),
           ],
-          if (orderedLinks.isNotEmpty) ...[
-            const SizedBox(height: 12),
-            _buildLinksSummary(orderedLinks, isDark, lineHeight),
-          ],
-          const SizedBox(height: 20),
-          _GroupFollowButton(profile: profile, isDark: isDark),
           const SizedBox(height: 24),
-          _buildTabBar(isDark, _hasAboutContent(profile)),
-          const SizedBox(height: 16),
-          AnimatedBuilder(
-            animation: _tabController,
-            builder: (context, _) {
-              if (_tabController.index == 0) {
-                return _buildPracticesTab(profile, isDark, lineHeight);
-              }
-              return _buildAboutTab(profile, isDark, locale.languageCode);
-            },
-          ),
+          _buildAboutContent(profile),
           const SizedBox(height: 32),
         ],
       ),
@@ -178,26 +141,15 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
                 ),
             ],
           ),
-          if (profile.subTitle != null &&
-              profile.subTitle!.trim().isNotEmpty) ...[
+          if (profile.subTitle != null && profile.subTitle!.trim().isNotEmpty)
             const SizedBox(height: 8),
-            Text(
-              profile.subTitle!,
-              style: TextStyle(
-                fontSize: 14,
-                color: secondaryColor,
-                height: lineHeight,
-              ),
+          Text(
+            profile.subTitle!,
+            style: TextStyle(
+              fontSize: 14,
+              color: secondaryColor,
+              height: lineHeight,
             ),
-            const SizedBox(height: 4),
-          ] else
-            const SizedBox(height: 8),
-          _GroupMemberCountText(
-            groupId: profile.id,
-            groupType: profile.groupType,
-            baseCount: profile.memberOrFollowerCount,
-            isDark: isDark,
-            lineHeight: lineHeight,
           ),
         ],
       ),
@@ -211,28 +163,6 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
         AppAssets.usersThree,
         size: 22,
         color: isDark ? AppColors.grey500 : AppColors.grey600,
-      ),
-    );
-  }
-
-  Widget _buildDescription(String description, bool isDark) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-      child: GestureDetector(
-        onTap:
-            () => setState(
-              () => _isDescriptionExpanded = !_isDescriptionExpanded,
-            ),
-        behavior: HitTestBehavior.opaque,
-        child: Text(
-          description,
-          style: TextStyle(
-            fontSize: 15,
-            color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimary,
-          ),
-          maxLines: _isDescriptionExpanded ? null : 6,
-          overflow: _isDescriptionExpanded ? null : TextOverflow.ellipsis,
-        ),
       ),
     );
   }
@@ -293,153 +223,49 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
     );
   }
 
-  Widget _buildTabBar(bool isDark, bool hasAbout) {
-    final labelColor =
-        isDark ? AppColors.textPrimaryDark : AppColors.textPrimary;
-    final dividerColor = isDark ? AppColors.grey800 : AppColors.grey300;
-
-    return Column(
-      children: [
-        TabBar(
-          controller: _tabController,
-          isScrollable: true,
-          tabAlignment: TabAlignment.start,
-          labelColor: labelColor,
-          dividerColor: Colors.transparent,
-          labelStyle: const TextStyle(
-            fontSize: 15,
-            fontWeight: FontWeight.bold,
-          ),
-          unselectedLabelStyle: const TextStyle(
-            fontSize: 15,
-            fontWeight: FontWeight.w500,
-          ),
-          tabs: [
-            Tab(text: context.l10n.nav_practice),
-            if (hasAbout) Tab(text: context.l10n.about_title),
-          ],
-        ),
-        Divider(height: 1, thickness: 1, color: dividerColor),
-      ],
-    );
-  }
-
-  Widget _buildPracticesTab(
-    GroupProfile profile,
-    bool isDark,
-    double? lineHeight,
-  ) {
-    if (profile.series.isEmpty) {
-      return const SizedBox.shrink();
-    }
-
-    return Column(
-      children:
-          profile.series
-              .map((series) => _buildSeriesRow(series, isDark, lineHeight))
-              .toList(),
-    );
-  }
-
-  Widget _buildAboutTab(
-    GroupProfile profile,
-    bool isDark,
-    String languageCode,
-  ) {
+  Widget _buildAboutContent(GroupProfile profile) {
     final descriptionLong = profile.descriptionLong?.trim();
-    if (descriptionLong == null || descriptionLong.isEmpty) {
+    final hasBanner = profile.bannerUrl != null && profile.bannerUrl!.isNotEmpty;
+    final hasDescription =
+        descriptionLong != null && descriptionLong.isNotEmpty;
+
+    if (!hasBanner && !hasDescription) {
       return const SizedBox.shrink();
     }
 
     final bodyFontSize = getLocalizedFontSize(AppTextSize.body);
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-      child: PlanInlineMarkdownView(
-        content: descriptionLong,
-        fontSize: bodyFontSize,
-      ),
-    );
-  }
-
-  Widget _buildSeriesRow(
-    GroupProfileSeries series,
-    bool isDark,
-    double? lineHeight,
-  ) {
-    return InkWell(
-      onTap: () {
-        widget.onSeriesTap?.call();
-        context.push('/home/series/${series.id}');
-      },
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 6),
-        child: Row(
-          children: [
+    return SingleChildScrollView(
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (hasBanner) ...[
             ClipRRect(
-              borderRadius: BorderRadius.circular(10),
-              child: SizedBox(
-                width: 56,
-                height: 56,
-                child:
-                    series.image != null && !series.image!.isEmpty
-                        ? ResponsiveCoverImage(
-                          image: series.image,
-                          fit: BoxFit.cover,
-                          width: 56,
-                          height: 56,
-                        )
-                        : Container(
-                          color:
-                              isDark
-                                  ? AppColors.surfaceVariantDark
-                                  : AppColors.grey100,
-                          child: Icon(
-                            AppAssets.bookOpenText,
-                            color:
-                                isDark ? AppColors.grey500 : AppColors.grey600,
-                          ),
-                        ),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    series.title,
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                      height: lineHeight,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+              borderRadius: BorderRadius.circular(16),
+              child: AspectRatio(
+                aspectRatio: 16 / 9,
+                child: CachedNetworkImageWidget(
+                  key: ValueKey(profile.bannerUrl),
+                  imageUrl: profile.bannerUrl,
+                  fit: BoxFit.cover,
+                  errorWidget: Container(
+                    color:
+                        isDark
+                            ? AppColors.surfaceVariantDark
+                            : AppColors.grey100,
                   ),
-                  if (series.subTitle != null &&
-                      series.subTitle!.trim().isNotEmpty)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 2),
-                      child: Text(
-                        series.subTitle!,
-                        style: TextStyle(
-                          fontSize: 13,
-                          color:
-                              isDark
-                                  ? AppColors.textTertiaryDark
-                                  : AppColors.textSecondary,
-                          height: lineHeight,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                ],
+                ),
               ),
             ),
+            if (hasDescription) const SizedBox(height: 20),
           ],
-        ),
+          if (hasDescription)
+            PlanInlineMarkdownView(
+              content: descriptionLong,
+              fontSize: bodyFontSize,
+            ),
+        ],
       ),
     );
   }
@@ -471,10 +297,7 @@ class _GroupMemberCountText extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final followKey = GroupFollowKey(
-      groupId: groupId,
-      groupType: groupType,
-    );
+    final followKey = GroupFollowKey(groupId: groupId, groupType: groupType);
     final followState = ref.watch(groupFollowProvider(followKey));
     final delta = switch (followState) {
       GroupFollowSuccess(countDelta: final d) => d,
@@ -509,105 +332,5 @@ class _GroupMemberCountText extends ConsumerWidget {
         ],
       ),
     );
-  }
-}
-
-class _GroupFollowButton extends ConsumerWidget {
-  final GroupProfile profile;
-  final bool isDark;
-
-  const _GroupFollowButton({required this.profile, required this.isDark});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final followKey = GroupFollowKey(
-      groupId: profile.id,
-      groupType: profile.groupType,
-    );
-    final followState = ref.watch(groupFollowProvider(followKey));
-
-    final isFollowing = switch (followState) {
-      GroupFollowSuccess(isFollowing: final f) => f,
-      _ => false,
-    };
-    final isLoading = followState is GroupFollowLoading;
-    final isPage = profile.groupType.isPage;
-    const fontSize = 16.0;
-    final locale = Localizations.localeOf(context);
-    final isTibetan = context.isTibetanLocale;
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-      child: SizedBox(
-        width: double.infinity,
-        child: ElevatedButton(
-          onPressed:
-              isLoading
-                  ? null
-                  : () =>
-                      _onFollowPressed(context, ref, followKey, isFollowing),
-          style: ElevatedButton.styleFrom(
-            minimumSize: Size(double.infinity, isTibetan ? 52 : 48),
-            padding: EdgeInsets.symmetric(
-              horizontal: 24,
-              vertical: isTibetan ? 10 : 12,
-            ),
-            backgroundColor:
-                isFollowing
-                    ? (isDark
-                        ? AppColors.surfaceVariantDark
-                        : AppColors.grey100)
-                    : (isDark ? AppColors.surfaceWhite : AppColors.textPrimary),
-            foregroundColor:
-                isFollowing
-                    ? (isDark ? AppColors.surfaceWhite : AppColors.textPrimary)
-                    : (isDark ? AppColors.textPrimary : AppColors.surfaceWhite),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(24),
-            ),
-            elevation: 0,
-          ),
-          child:
-              isLoading
-                  ? const SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
-                  : Text(
-                    isFollowing
-                        ? (isPage
-                            ? context.l10n.following
-                            : context.l10n.joined)
-                        : (isPage ? context.l10n.follow : context.l10n.join),
-                    textAlign: TextAlign.center,
-                    strutStyle: context.tibetanStrutStyle(fontSize),
-                    style: TextStyle(
-                      fontSize: fontSize,
-                      fontWeight: FontWeight.w600,
-                      fontFamily: getSystemFontFamily(locale.languageCode),
-                    ),
-                  ),
-        ),
-      ),
-    );
-  }
-
-  Future<void> _onFollowPressed(
-    BuildContext context,
-    WidgetRef ref,
-    GroupFollowKey followKey,
-    bool isCurrentlyFollowing,
-  ) async {
-    final authState = ref.read(authProvider);
-    if (authState.isGuest || !authState.isLoggedIn) {
-      LoginDrawer.show(context, ref);
-      return;
-    }
-
-    final notifier = ref.read(groupFollowProvider(followKey).notifier);
-    isCurrentlyFollowing
-        ? await notifier.unfollow(connectGroup: profile)
-        : await notifier.follow(connectGroup: profile);
   }
 }

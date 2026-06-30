@@ -742,6 +742,29 @@
   "joined": "Нэгдсэн",
   "group_member": "гишүүн",
   "group_members": "гишүүд",
+  "group_tab_members": "Гишүүд",
+  "group_tab_followers": "Дагагчид",
+  "group_members_heading": "Гишүүд({count})",
+  "group_followers_heading": "Дагагчид({count})",
+  "@group_members_heading": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@group_followers_heading": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "group_invite": "Урих",
+  "group_members_load_error": "Гишүүдийг ачаалж чадсангүй. Дахин оролдоно уу.",
+  "group_followers_load_error": "Дагагчдыг ачаалж чадсангүй. Дахин оролдоно уу.",
+  "group_members_empty": "Одоогоор гишүүн байхгүй",
+  "group_followers_empty": "Одоогоор дагагч байхгүй",
   "group_follower": "дагагч",
   "group_followers": "дагагчид",
   "group_links_title": "Холбоосууд",

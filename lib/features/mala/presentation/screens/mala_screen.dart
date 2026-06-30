@@ -10,6 +10,8 @@ import 'package:flutter_pecha/features/mala/presentation/widgets/mala_beads.dart
 import 'package:flutter_pecha/features/mala/presentation/widgets/mala_skeleton.dart';
 import 'package:flutter_pecha/features/mala/presentation/widgets/mantra_switcher.dart';
 import 'package:flutter_pecha/features/mala/presentation/widgets/mala_settings_sheet.dart';
+import 'package:flutter_pecha/features/practice/data/datasource/bookmark_remote_datasource.dart';
+import 'package:flutter_pecha/features/practice/presentation/providers/bookmark_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -91,6 +93,10 @@ class _MalaScreenState extends ConsumerState<MalaScreen> {
     );
   }
 
+  void _openMalaSettings(BuildContext context, Mantra mantra) {
+    MalaSettingsSheet.show(context, mantra: mantra);
+  }
+
   Widget _buildLoaded(BuildContext context, List<Mantra> mantras) {
     if (mantras.isEmpty) {
       return const _MalaAppBarScaffold(
@@ -111,6 +117,12 @@ class _MalaScreenState extends ConsumerState<MalaScreen> {
     final mantra = mantras[_index];
     _trackOpened(mantra);
 
+    ref.watch(
+      prefetchBookmarkExistsProvider(
+        BookmarkTarget(type: BookmarkType.accumulator, sourceId: mantra.presetId),
+      ),
+    );
+
     final language = Localizations.localeOf(context).languageCode;
     final counter = ref.watch(malaCounterProvider(mantra));
     final notifier = ref.read(malaCounterProvider(mantra).notifier);
@@ -120,7 +132,7 @@ class _MalaScreenState extends ConsumerState<MalaScreen> {
       children: [
         _MalaAppBar(
           title: mantra.displayTitle(language),
-          onMorePressed: () => MalaSettingsSheet.show(context, mantra: mantra),
+          onMorePressed: () => _openMalaSettings(context, mantra),
         ),
         Expanded(
           child: Padding(

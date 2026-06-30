@@ -6,6 +6,7 @@ import 'package:flutter_pecha/features/auth/presentation/providers/state_provide
 import 'package:flutter_pecha/features/connect/presentation/providers/connect_providers.dart';
 import 'package:flutter_pecha/features/group_profile/data/datasource/group_profile_remote_datasource.dart';
 import 'package:flutter_pecha/features/group_profile/data/repositories/group_profile_repository_impl.dart';
+import 'package:flutter_pecha/features/group_profile/domain/entities/group_member.dart';
 import 'package:flutter_pecha/features/group_profile/domain/entities/group_profile.dart';
 import 'package:flutter_pecha/features/group_profile/domain/repositories/group_profile_repository.dart';
 import 'package:flutter_pecha/features/group_profile/domain/usecases/get_group_profile_usecase.dart';
@@ -247,5 +248,135 @@ final groupFollowProvider = StateNotifierProvider.autoDispose
     ref: ref,
     key: key,
     isAuthenticated: isAuthenticated,
+  );
+});
+
+class GroupMembersState {
+  final List<GroupMember> members;
+  final int totalMembers;
+  final bool isLoading;
+  final bool isLoadingMore;
+  final String? error;
+  final bool hasMore;
+  final int skip;
+
+  const GroupMembersState({
+    this.members = const [],
+    this.totalMembers = 0,
+    this.isLoading = false,
+    this.isLoadingMore = false,
+    this.error,
+    this.hasMore = true,
+    this.skip = 0,
+  });
+
+  GroupMembersState copyWith({
+    List<GroupMember>? members,
+    int? totalMembers,
+    bool? isLoading,
+    bool? isLoadingMore,
+    String? error,
+    bool? hasMore,
+    int? skip,
+    bool clearError = false,
+  }) {
+    return GroupMembersState(
+      members: members ?? this.members,
+      totalMembers: totalMembers ?? this.totalMembers,
+      isLoading: isLoading ?? this.isLoading,
+      isLoadingMore: isLoadingMore ?? this.isLoadingMore,
+      error: clearError ? null : error ?? this.error,
+      hasMore: hasMore ?? this.hasMore,
+      skip: skip ?? this.skip,
+    );
+  }
+}
+
+class GroupMembersNotifier extends StateNotifier<GroupMembersState> {
+  GroupMembersNotifier({
+    required GroupProfileRepositoryInterface repository,
+    required String groupId,
+  }) : _repository = repository,
+       _groupId = groupId,
+       super(const GroupMembersState());
+
+  final GroupProfileRepositoryInterface _repository;
+  final String _groupId;
+  static const int _limit = 20;
+
+  Future<void> loadInitial() async {
+    if (state.isLoading) return;
+
+    state = state.copyWith(isLoading: true, clearError: true);
+
+    final result = await _repository.getGroupMembers(
+      _groupId,
+      skip: 0,
+      limit: _limit,
+    );
+
+    if (!mounted) return;
+
+    result.fold(
+      (failure) {
+        state = state.copyWith(isLoading: false, error: failure.message);
+      },
+      (page) {
+        state = state.copyWith(
+          members: page.members,
+          totalMembers: page.totalMembers,
+          isLoading: false,
+          hasMore: page.hasMore,
+          skip: page.members.length,
+          clearError: true,
+        );
+      },
+    );
+  }
+
+  Future<void> loadMore() async {
+    if (state.isLoadingMore || !state.hasMore || state.isLoading) return;
+
+    state = state.copyWith(isLoadingMore: true, clearError: true);
+
+    final result = await _repository.getGroupMembers(
+      _groupId,
+      skip: state.skip,
+      limit: _limit,
+    );
+
+    if (!mounted) return;
+
+    result.fold(
+      (failure) {
+        state = state.copyWith(isLoadingMore: false, error: failure.message);
+      },
+      (page) {
+        state = state.copyWith(
+          members: [...state.members, ...page.members],
+          totalMembers: page.totalMembers,
+          isLoadingMore: false,
+          hasMore: page.hasMore,
+          skip: state.skip + page.members.length,
+          clearError: true,
+        );
+      },
+    );
+  }
+
+  void retry() {
+    if (state.members.isEmpty) {
+      loadInitial();
+    } else {
+      loadMore();
+    }
+  }
+}
+
+final groupMembersProvider = StateNotifierProvider.autoDispose
+    .family<GroupMembersNotifier, GroupMembersState, String>((ref, groupId) {
+  return GroupMembersNotifier(
+    repository: ref.watch(groupProfileRepositoryProvider),
+    groupId: groupId,
   );
 });
