@@ -433,7 +433,12 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
       borderRadius: BorderRadius.circular(16),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
-        onTap: isEnrolling ? null : () => _onSeriesCardTap(profile, series),
+        onTap: isEnrolling
+            ? null
+            : () {
+                widget.onSeriesTap?.call();
+                context.push('/home/series/${series.id}');
+              },
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -473,21 +478,25 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
                                   color: Colors.white,
                                 ),
                               )
-                              : Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 24,
-                                  vertical: 12,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(999),
-                                ),
-                                child: Text(
-                                  context.l10n.group_practice_with_us,
-                                  style: const TextStyle(
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.w700,
-                                    color: AppColors.textPrimary,
+                              : GestureDetector(
+                                onTap: () =>
+                                    _onPracticeWithUsTap(profile, series),
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 24,
+                                    vertical: 12,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(999),
+                                  ),
+                                  child: Text(
+                                    context.l10n.group_practice_with_us,
+                                    style: const TextStyle(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w700,
+                                      color: AppColors.textPrimary,
+                                    ),
                                   ),
                                 ),
                               ),
@@ -540,16 +549,10 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
     return '${formatter.format(startDate.toLocal())} - ${formatter.format(endDate.toLocal())}';
   }
 
-  Future<void> _onSeriesCardTap(
+  Future<void> _onPracticeWithUsTap(
     GroupProfile profile,
     GroupProfileSeries series,
   ) async {
-    if (_isSeriesGroupEnrolled(series)) {
-      widget.onSeriesTap?.call();
-      context.push('/home/series/${series.id}');
-      return;
-    }
-
     final authState = ref.read(authProvider);
     if (authState.isGuest || !authState.isLoggedIn) {
       LoginDrawer.show(context, ref);
