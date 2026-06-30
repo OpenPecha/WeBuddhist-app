@@ -207,12 +207,15 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
           if (!didPop) return;
           // Stop audio immediately so nothing plays during the exit animation.
           _audioController?.cancel();
-          // Clear transient reader state so panels don't linger if the user
-          // navigates back to this textId again later in the session.
-          notifier.selectSegment(null);
-          notifier.closeCommentary();
-          notifier.closeTranslation();
-          _invalidatePlanProviders();
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (!mounted) return;
+            // Clear transient reader state after navigation finishes so this
+            // cannot mutate Riverpod state while GoRouter rebuilds the tree.
+            notifier.selectSegment(null);
+            notifier.closeCommentary();
+            notifier.closeTranslation();
+            _invalidatePlanProviders();
+          });
         },
         child: Scaffold(
           backgroundColor: readerTheme.scaffoldBackgroundColor,

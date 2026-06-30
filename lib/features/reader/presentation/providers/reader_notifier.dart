@@ -71,7 +71,7 @@ class ReaderNotifier extends StateNotifier<ReaderState> {
       _onDualSettingsChanged,
       fireImmediately: false,
     );
-    _initialize();
+    Future<void>(_initialize);
   }
 
   /// Reload primary content when the user picks a different version of the
@@ -542,7 +542,7 @@ class ReaderNotifier extends StateNotifier<ReaderState> {
 }
 
 /// Provider for reader notifier
-final readerNotifierProvider =
-    StateNotifierProvider.family<ReaderNotifier, ReaderState, ReaderParams>(
+final readerNotifierProvider = StateNotifierProvider.autoDispose
+    .family<ReaderNotifier, ReaderState, ReaderParams>(
       (ref, params) => ReaderNotifier(ref: ref, params: params),
     );

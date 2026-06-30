@@ -1054,23 +1054,35 @@ abstract class AppLocalizations {
   /// **'Which traditions\ndo you follow?'**
   String get onboarding_traditions_question;
 
-  /// No description provided for @onboarding_tradition_chat_title.
+  /// No description provided for @onboarding_tradition_title.
   ///
   /// In en, this message translates to:
-  /// **'Your tradition:'**
-  String get onboarding_tradition_chat_title;
+  /// **'How do you follow the Buddha?'**
+  String get onboarding_tradition_title;
 
-  /// No description provided for @onboarding_tradition_chat_subtitle.
+  /// No description provided for @onboarding_tradition_subtitle.
   ///
   /// In en, this message translates to:
-  /// **'Choose one: we\'ll use it to personalize your experience.'**
-  String get onboarding_tradition_chat_subtitle;
+  /// **'We\'ll show you the practices and texts of your path. You can change this anytime in the app settings.'**
+  String get onboarding_tradition_subtitle;
 
-  /// No description provided for @onboarding_tradition_type_hint.
+  /// No description provided for @onboarding_tradition_option_intro.
   ///
   /// In en, this message translates to:
-  /// **'Or type your tradition...'**
-  String get onboarding_tradition_type_hint;
+  /// **'Through:'**
+  String get onboarding_tradition_option_intro;
+
+  /// No description provided for @onboarding_tradition_show_all_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Show me everything'**
+  String get onboarding_tradition_show_all_title;
+
+  /// No description provided for @onboarding_tradition_show_all_description.
+  ///
+  /// In en, this message translates to:
+  /// **'Practices and texts from every path'**
+  String get onboarding_tradition_show_all_description;
 
   /// No description provided for @onboarding_skip_for_now.
   ///
