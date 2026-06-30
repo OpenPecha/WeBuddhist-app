@@ -108,7 +108,7 @@ class GroupProfileModel {
       totalDays: (json['total_days'] as num?)?.toInt() ?? 0,
       startDate: _parseDate(json['start_date']),
       endDate: _parseDate(json['end_date']),
-      isGroupEnrolled: _parseBool(json['is_group_enrolled']),
+      isGroupEnrolled: _parseNullableBool(json['is_group_enrolled']),
     );
   }
 
@@ -120,7 +120,8 @@ class GroupProfileModel {
     return null;
   }
 
-  bool _parseBool(Object? value) {
+  bool? _parseNullableBool(Object? value) {
+    if (value == null) return null;
     if (value is bool) return value;
     if (value is num) return value != 0;
     if (value is String) {
@@ -128,6 +129,6 @@ class GroupProfileModel {
       if (normalized == 'true') return true;
       if (normalized == 'false') return false;
     }
-    return false;
+    return null;
   }
 }

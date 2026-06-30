@@ -303,6 +303,19 @@ class FeaturedPlanCard extends ConsumerWidget {
     final groupId = this.groupId;
     if (groupId != null && !isGroupEnrolled) {
       final groupType = this.groupType ?? GroupType.community;
+      final profileResult = await ref.read(groupProfileProvider(groupId).future);
+      if (!context.mounted) return;
+
+      final enrollmentStatus = profileResult.fold(
+        (_) => null,
+        (profile) => seriesGroupEnrollmentStatusFromProfile(profile, id),
+      );
+      final confirmed = await confirmGroupPracticeChangeIfNeeded(
+        context,
+        enrollmentStatus,
+      );
+      if (!confirmed || !context.mounted) return;
+
       final ok = await enrollSeriesThroughGroup(
         ref: ref,
         seriesId: id,

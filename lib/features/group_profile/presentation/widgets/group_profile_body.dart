@@ -83,11 +83,11 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
         either.fold((_) {}, (profile) {
           final apiEnrolledIds =
               profile.series
-                  .where((series) => series.isGroupEnrolled)
+                  .where((series) => series.isGroupEnrolled == true)
                   .map((series) => series.id)
                   .toSet();
           final apiNotEnrolledIds = profile.series
-              .where((series) => !series.isGroupEnrolled)
+              .where((series) => series.isGroupEnrolled == null)
               .map((series) => series.id);
           setState(() {
             _localGroupEnrolledSeriesIds.addAll(apiEnrolledIds);
@@ -158,9 +158,11 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
     );
   }
 
-  bool _isSeriesGroupEnrolled(GroupProfileSeries series) {
-    return series.isGroupEnrolled ||
-        _localGroupEnrolledSeriesIds.contains(series.id);
+  bool? _seriesGroupEnrollmentStatus(GroupProfileSeries series) {
+    return seriesGroupEnrollmentStatus(
+      series,
+      localEnrolledSeriesIds: _localGroupEnrolledSeriesIds,
+    );
   }
 
   Widget _buildProfileHeader(
@@ -419,7 +421,8 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
   ) {
     final dateRange = _formatSeriesDateRange(series);
     final subtitle = dateRange ?? series.subTitle?.trim();
-    final showPracticeOverlay = !_isSeriesGroupEnrolled(series);
+    final enrollmentStatus = _seriesGroupEnrollmentStatus(series);
+    final showPracticeOverlay = enrollmentStatus != true;
     final isEnrolling = _enrollingSeriesId == series.id;
     final secondaryColor =
         isDark ? AppColors.textTertiaryDark : AppColors.textSecondary;
@@ -552,7 +555,7 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
     GroupProfileSeries series,
   ) {
     widget.onSeriesTap?.call();
-    if (_isSeriesGroupEnrolled(series)) {
+    if (_seriesGroupEnrollmentStatus(series) == true) {
       context.push('/home/series/${series.id}');
       return;
     }
@@ -576,6 +579,13 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
       LoginDrawer.show(context, ref);
       return;
     }
+
+    final enrollmentStatus = _seriesGroupEnrollmentStatus(series);
+    final confirmed = await confirmGroupPracticeChangeIfNeeded(
+      context,
+      enrollmentStatus,
+    );
+    if (!confirmed || !mounted) return;
 
     setState(() => _enrollingSeriesId = series.id);
 

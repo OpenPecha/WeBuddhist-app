@@ -1,7 +1,9 @@
-import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
 import 'package:flutter_pecha/core/di/core_providers.dart';
 import 'package:flutter_pecha/core/error/failures.dart';
+import 'package:flutter_pecha/core/extensions/context_ext.dart';
+import 'package:flutter_pecha/core/widgets/destructive_confirmation_dialog.dart';
 import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
 import 'package:flutter_pecha/features/connect/presentation/providers/connect_providers.dart';
 import 'package:flutter_pecha/features/group_profile/data/datasource/group_profile_remote_datasource.dart';
@@ -302,8 +304,53 @@ final groupFollowProvider = StateNotifierProvider.autoDispose
 
 bool isSeriesGroupEnrolledInProfile(GroupProfile profile, String seriesId) {
   return profile.series.any(
-    (series) => series.id == seriesId && series.isGroupEnrolled,
+    (series) => series.id == seriesId && series.isGroupEnrolled == true,
   );
+}
+
+/// Returns the tri-state group enrollment status for a series.
+/// - `true`: enrolled with this group
+/// - `false`: enrolled with a different group
+/// - `null`: not group-enrolled
+bool? seriesGroupEnrollmentStatus(
+  GroupProfileSeries series, {
+  Set<String> localEnrolledSeriesIds = const {},
+}) {
+  if (localEnrolledSeriesIds.contains(series.id)) return true;
+  return series.isGroupEnrolled;
+}
+
+bool? seriesGroupEnrollmentStatusFromProfile(
+  GroupProfile profile,
+  String seriesId, {
+  Set<String> localEnrolledSeriesIds = const {},
+}) {
+  for (final series in profile.series) {
+    if (series.id == seriesId) {
+      return seriesGroupEnrollmentStatus(
+        series,
+        localEnrolledSeriesIds: localEnrolledSeriesIds,
+      );
+    }
+  }
+  return null;
+}
+
+/// Shows the change-group confirmation dialog when [enrollmentStatus] is false.
+Future<bool> confirmGroupPracticeChangeIfNeeded(
+  BuildContext context,
+  bool? enrollmentStatus,
+) async {
+  if (enrollmentStatus != false) return true;
+
+  final l10n = context.l10n;
+  final confirmed = await showConfirmationDialog(
+    context,
+    title: l10n.group_change_practice_title,
+    message: l10n.group_change_practice_message,
+    confirmLabel: l10n.ai_confirm,
+  );
+  return confirmed == true;
 }
 
 /// Enrolls in a series via [groupId] and updates group join UI optimistically.

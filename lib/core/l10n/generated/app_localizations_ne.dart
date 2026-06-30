@@ -1620,6 +1620,13 @@ class AppLocalizationsNe extends AppLocalizations {
   String get group_practice_with_us => 'हामीसँग अभ्यास गर्नुहोस्';
 
   @override
+  String get group_change_practice_title => 'Change group practice';
+
+  @override
+  String get group_change_practice_message =>
+      'You are already practicing this plan with another group. Would you like to change your practice group?';
+
+  @override
   String get share_this_quote => 'यो उद्धरण साझा गर्नुहोस्';
 
   @override
