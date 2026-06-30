@@ -64,9 +64,9 @@ class SegmentActionBar extends ConsumerWidget {
     return Positioned(
       left: 0,
       right: 0,
-      bottom: 24,
+      bottom: 20,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24.0),
+        padding: const EdgeInsets.symmetric(horizontal: 20.0),
         child: Material(
           elevation: 8,
           borderRadius: BorderRadius.circular(18),
@@ -219,18 +219,18 @@ class _ShareButtonState extends ConsumerState<_ShareButton> {
     final localizations = AppLocalizations.of(context)!;
     if (_isLoading) {
       return Padding(
-        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 13),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             const SizedBox(
-              width: 24,
-              height: 24,
+              width: 22,
+              height: 22,
               child: CircularProgressIndicator(strokeWidth: 2),
             ),
-            const SizedBox(height: 4),
+            const SizedBox(height: 3),
             Text(localizations.share, style: const TextStyle(fontSize: 12)),
           ],
         ),

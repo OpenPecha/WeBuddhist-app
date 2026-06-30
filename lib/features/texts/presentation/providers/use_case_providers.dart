@@ -107,6 +107,11 @@ final authorSearchUseCaseProvider = Provider<AuthorSearchUseCase>((ref) {
 
 // ========== Segment Use Case Providers ==========
 
+/// Provider for GetSegmentInfoUseCase.
+final getSegmentInfoUseCaseProvider = Provider<GetSegmentInfoUseCase>((ref) {
+  return GetSegmentInfoUseCase(ref.watch(segmentDomainRepositoryProvider));
+});
+
 /// Provider for GetSegmentCommentariesUseCase.
 final getSegmentCommentariesUseCaseProvider =
     Provider<GetSegmentCommentariesUseCase>((ref) {
