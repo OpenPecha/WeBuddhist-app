@@ -73,11 +73,11 @@ class OnboardingScreenTradition extends ConsumerWidget {
               const SizedBox(height: 12),
               Text(
                 l10n.onboarding_tradition_subtitle,
+                strutStyle: context.tibetanStrutStyle(16),
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w400,
                   color: subtitleColor,
-                  height: 1.4,
                 ),
               ),
               const SizedBox(height: 20),
@@ -194,6 +194,7 @@ class _TraditionRadioOption extends StatelessWidget {
                   ),
                   if (description.isNotEmpty)
                     Text(
+                      strutStyle: context.tibetanStrutStyle(15),
                       description,
                       style: TextStyle(
                         fontSize: 15,

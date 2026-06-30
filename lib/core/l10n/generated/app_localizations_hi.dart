@@ -537,7 +537,7 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get onboarding_tradition_subtitle =>
-      'हम आपको अपने मार्ग की साधनाएँ और ग्रंथ दिखाएँगे। आप इसे कभी भी ऐप सेटिंग्स में बदल सकते हैं।';
+      'हम आपको आपके मार्ग की प्रथाएं और ग्रंथ दिखाएंगे। आप इसे ऐप सेटिंग्स में कभी भी बदल सकते हैं।';
 
   @override
   String get onboarding_tradition_option_intro => 'के माध्यम से:';

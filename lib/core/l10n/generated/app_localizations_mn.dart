@@ -532,11 +532,12 @@ class AppLocalizationsMn extends AppLocalizations {
   String get onboarding_traditions_question => 'Та ямар уламжлал\nдагадаг вэ?';
 
   @override
-  String get onboarding_tradition_title => 'Та Бурханыг хэрхэн дагадаг вэ?';
+  String get onboarding_tradition_title =>
+      'Та Бурхан багшийг хэрхэн дагадаг вэ?';
 
   @override
   String get onboarding_tradition_subtitle =>
-      'Бид таны замын дадлага, бичгийг харуулна. Үүнийг аппын тохиргооноос хүссэн үедээ өөрчилж болно.';
+      'Бид танд өөрийн сонгосон замын дагуух бясалгал, практик болон судар бичгүүдийг харуулах болно. Та үүнийг аппликейшний тохиргоо хэсгээс хэдийд ч өөрчлөх боломжтой.';
 
   @override
   String get onboarding_tradition_option_intro => 'Дараах:';

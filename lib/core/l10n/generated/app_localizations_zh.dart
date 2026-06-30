@@ -504,11 +504,11 @@ class AppLocalizationsZh extends AppLocalizations {
   String get onboarding_traditions_question => '您跟隨哪些傳承？';
 
   @override
-  String get onboarding_tradition_title => '您如何跟隨佛陀？';
+  String get onboarding_tradition_title => '您如何追随佛陀的教导？';
 
   @override
   String get onboarding_tradition_subtitle =>
-      '我們將向您展示您修行道路上的實踐和經典。您可以隨時在應用程式設定中更改此選項。';
+      '我们将为您展示您所选修行路径的实践与经典。您可以随时在应用设置中更改此设置。';
 
   @override
   String get onboarding_tradition_option_intro => '通過：';

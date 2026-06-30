@@ -538,11 +538,11 @@ class AppLocalizationsBo extends AppLocalizations {
 
   @override
   String get onboarding_tradition_title =>
-      'ཁྱེད་རང་སངས་རྒྱས་ལ་ཇི་ལྟར་རྗེས་འཇུག་བྱེད་དམ།';
+      'ཁྱེད་ཀྱིས་སངས་རྒྱས་ཀྱི་རྗེས་སུ་ཇི་ལྟར་འབྲང་ངམ།';
 
   @override
   String get onboarding_tradition_subtitle =>
-      'ང་ཚོས་ཁྱེད་ཀྱི་ལམ་གྱི་སྒྲུབ་པ་དང་གཞུང་ལུགས་སྟོན་རྒྱུ་ཡིན། འཕྲལ་དུ་སྒྲིག་འགོད་ནས་བསྒྱུར་ཆོག';
+      'ང་ཚོས་ཁྱེད་ལ་འཚམ་པའི་ལམ་གྱི་ཉམས་ལེན་དང་གསུང་རབ་རྣམས་བསྟན་པར་བྱ། འདེམས་ཁ་འདི་ཉིད་མཉེན་ཆས་ཀྱི་སྒྲིག་བཀོད་ནང་ནས་ག་དུས་ཡིན་ཡང་སྒྱུར་བཅོས་གཏང་ཆོག';
 
   @override
   String get onboarding_tradition_option_intro => 'བརྒྱུད་ནས།';
