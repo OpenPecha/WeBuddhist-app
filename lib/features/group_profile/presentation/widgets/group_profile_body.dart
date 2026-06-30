@@ -408,6 +408,7 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
               content: descriptionLong,
               fontSize: bodyFontSize,
             ),
+          SizedBox(height: 20),
         ],
       ),
     );
@@ -436,9 +437,8 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
       borderRadius: BorderRadius.circular(16),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
-        onTap: isEnrolling
-            ? null
-            : () => _navigateToSeriesDetail(profile, series),
+        onTap:
+            isEnrolling ? null : () => _navigateToSeriesDetail(profile, series),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -480,8 +480,8 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
                               )
                               : GestureDetector(
                                 behavior: HitTestBehavior.opaque,
-                                onTap: () =>
-                                    _onPracticeWithUsTap(profile, series),
+                                onTap:
+                                    () => _onPracticeWithUsTap(profile, series),
                                 child: Container(
                                   padding: const EdgeInsets.symmetric(
                                     horizontal: 24,
