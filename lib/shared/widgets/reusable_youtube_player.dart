@@ -7,9 +7,11 @@ class ReusableYoutubePlayer extends StatefulWidget {
   final bool autoPlay;
   final bool mute;
   final bool loop;
+
   /// When true, the player expands to fill its parent instead of being
   /// constrained by [aspectRatio]. Use this for true full-screen layouts.
   final bool fillParent;
+  final bool showControls;
   final VoidCallback? onReady;
   final ValueChanged<bool>? onStateChanged;
   final ValueChanged<YoutubePlayerController>? onControllerCreated;
@@ -22,6 +24,7 @@ class ReusableYoutubePlayer extends StatefulWidget {
     this.mute = false,
     this.loop = false,
     this.fillParent = false,
+    this.showControls = false,
     this.onReady,
     this.onStateChanged,
     this.onControllerCreated,
@@ -50,8 +53,8 @@ class _ReusableYoutubePlayerState extends State<ReusableYoutubePlayer> {
         autoPlay: widget.autoPlay,
         mute: widget.mute,
         loop: widget.loop,
-        hideControls: true,
-        controlsVisibleAtStart: false,
+        hideControls: !widget.showControls,
+        controlsVisibleAtStart: widget.showControls,
         useHybridComposition: true,
         enableCaption: false,
       ),
