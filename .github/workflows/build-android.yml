@@ -10,7 +10,7 @@ on:
     inputs:
       flavor:             { required: true,  type: string }   # dev | staging | prod
       entrypoint:         { required: true,  type: string }   # lib/main_<flavor>.dart
-      airbridge_app_name: { required: true,  type: string }   # webuddhistdev | webuddhist
+      airbridge_app_name: { required: true,  type: string }   # webuddhist
       play_package_name:  { required: true,  type: string }   # org.pecha.app[.dev]
       play_track:         { required: false, type: string, default: internal }
       environment:        { required: false, type: string, default: '' }
