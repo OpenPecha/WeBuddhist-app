@@ -176,7 +176,6 @@ class GroupFollowNotifier extends StateNotifier<GroupFollowState> {
 
   Future<bool> follow({GroupProfile? connectGroup}) async {
     if (state is GroupFollowLoading) return false;
-    final previousDelta = _currentCountDelta();
     state = const GroupFollowLoading();
 
     final result = await _repository.followGroup(
@@ -191,21 +190,67 @@ class GroupFollowNotifier extends StateNotifier<GroupFollowState> {
         return false;
       },
       (_) async {
-        state = GroupFollowSuccess(
-          isFollowing: true,
-          countDelta: previousDelta + 1,
-        );
-        _invalidateGroupProfile();
-        _invalidateConnectProviders();
-        if (connectGroup != null) {
-          _addPendingJoinedGroup(connectGroup);
-          _ref
-              .read(discoverGroupsProvider.notifier)
-              .removeGroups({connectGroup.id});
-        }
+        _applyJoinedState(connectGroup: connectGroup, incrementCount: true);
         return true;
       },
     );
+  }
+
+  /// Backend auto-joins the group when enrolling in a series via group_id.
+  /// Updates join UI immediately without a manual refresh.
+  void markAutoJoinedFromPracticeEnrollment({required GroupProfile group}) {
+    if (!_isAuthenticated) return;
+
+    final alreadyFollowing = switch (state) {
+      GroupFollowSuccess(isFollowing: final isFollowing) => isFollowing,
+      _ => false,
+    };
+    if (alreadyFollowing) return;
+
+    _applyJoinedState(connectGroup: group, incrementCount: true);
+  }
+
+  /// Re-sync join status after returning from a flow that may have auto-joined.
+  Future<void> syncJoinStatusFromServer({GroupProfile? connectGroup}) async {
+    if (!_isAuthenticated) return;
+
+    final result = await _repository.checkFollowStatus(
+      _key.groupId,
+      _key.groupType,
+    );
+    if (!mounted) return;
+
+    result.fold((_) {}, (isFollowing) {
+      if (!isFollowing) return;
+
+      final alreadyFollowing = switch (state) {
+        GroupFollowSuccess(isFollowing: final following) => following,
+        _ => false,
+      };
+      _applyJoinedState(
+        connectGroup: connectGroup,
+        incrementCount: !alreadyFollowing,
+      );
+    });
+  }
+
+  void _applyJoinedState({
+    required GroupProfile? connectGroup,
+    required bool incrementCount,
+  }) {
+    final previousDelta = _currentCountDelta();
+    state = GroupFollowSuccess(
+      isFollowing: true,
+      countDelta: incrementCount ? previousDelta + 1 : previousDelta,
+    );
+    _invalidateGroupProfile();
+    _invalidateConnectProviders();
+    if (connectGroup != null) {
+      _addPendingJoinedGroup(connectGroup);
+      _ref
+          .read(discoverGroupsProvider.notifier)
+          .removeGroups({connectGroup.id});
+    }
   }
 
   Future<bool> unfollow({GroupProfile? connectGroup}) async {

@@ -568,10 +568,25 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
     });
 
     if (ok) {
+      final followKey = GroupFollowKey(
+        groupId: profile.id,
+        groupType: profile.groupType,
+      );
+      ref
+          .read(groupFollowProvider(followKey).notifier)
+          .markAutoJoinedFromPracticeEnrollment(group: profile);
       ref.invalidate(groupProfileProvider(profile.id));
       await ref.read(groupProfileProvider(profile.id).future);
       if (!mounted) return;
-      context.pushNamed('edit-routine', extra: {'enrollSeriesId': series.id});
+      await context.pushNamed(
+        'edit-routine',
+        extra: {'enrollSeriesId': series.id},
+      );
+      if (!mounted) return;
+      await ref
+          .read(groupFollowProvider(followKey).notifier)
+          .syncJoinStatusFromServer(connectGroup: profile);
+      ref.invalidate(groupProfileProvider(profile.id));
       return;
     }
 

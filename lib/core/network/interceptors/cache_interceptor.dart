@@ -144,9 +144,11 @@ class CacheInterceptor extends Interceptor {
       paths.add('/users/me/following/author/groups');
     }
 
-    // Series enrollment affects per-group enrollment flags on group profiles.
+    // Series enrollment may auto-join the group and updates group-scoped flags.
     if (path.startsWith('/users/me/series')) {
       paths.add('/author/groups');
+      paths.add('/users/me/joined/author/groups');
+      paths.add('/users/me/following/author/groups');
     }
 
     // Accumulator and timer sessions update aggregated user stats.
