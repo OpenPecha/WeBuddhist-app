@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_pecha/core/constants/app_assets.dart';
-import 'package:go_router/go_router.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 import '../../../../shared/widgets/reusable_youtube_player.dart';
 
@@ -23,6 +22,7 @@ class YoutubeVideoPlayer extends StatefulWidget {
 
 class _YoutubeVideoPlayerState extends State<YoutubeVideoPlayer> {
   YoutubePlayerController? _controller;
+  VoidCallback? _stopPlayback;
   Timer? _controlsTimer;
   bool _isPlaying = false;
   bool _isReady = false;
@@ -39,12 +39,27 @@ class _YoutubeVideoPlayerState extends State<YoutubeVideoPlayer> {
   @override
   void dispose() {
     _controlsTimer?.cancel();
-    // Restore system UI when leaving the player
+    _stopPlayback?.call();
+    _controller = null;
+    _stopPlayback = null;
+    _restoreSystemUi();
+    super.dispose();
+  }
+
+  void _restoreSystemUi() {
     SystemChrome.setEnabledSystemUIMode(
       SystemUiMode.manual,
       overlays: SystemUiOverlay.values,
     );
-    super.dispose();
+  }
+
+  void _closePlayer() {
+    _controlsTimer?.cancel();
+    _stopPlayback?.call();
+    _controller = null;
+    _stopPlayback = null;
+    _restoreSystemUi();
+    Navigator.of(context).pop();
   }
 
   void _seekBy(Duration offset) {
@@ -88,7 +103,17 @@ class _YoutubeVideoPlayerState extends State<YoutubeVideoPlayer> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return PopScope(
+      onPopInvokedWithResult: (didPop, _) {
+        if (didPop) {
+          _controlsTimer?.cancel();
+          _stopPlayback?.call();
+          _controller = null;
+          _stopPlayback = null;
+          _restoreSystemUi();
+        }
+      },
+      child: Scaffold(
       backgroundColor: Colors.black,
       // Let the player go behind where the status bar was
       extendBodyBehindAppBar: true,
@@ -105,6 +130,7 @@ class _YoutubeVideoPlayerState extends State<YoutubeVideoPlayer> {
               loop: true,
               fillParent: true,
               onControllerCreated: (controller) => _controller = controller,
+              onStopPlaybackRegistered: (stop) => _stopPlayback = stop,
               onReady: () {
                 if (mounted) setState(() => _isReady = true);
               },
@@ -180,7 +206,7 @@ class _YoutubeVideoPlayerState extends State<YoutubeVideoPlayer> {
                 backgroundColor: Colors.black45,
                 shape: const CircleBorder(),
               ),
-              onPressed: () => context.pop(),
+              onPressed: _closePlayer,
             ),
           ),
 
@@ -204,6 +230,7 @@ class _YoutubeVideoPlayerState extends State<YoutubeVideoPlayer> {
             ),
         ],
       ),
+    ),
     );
   }
 }

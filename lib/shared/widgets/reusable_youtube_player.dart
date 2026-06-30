@@ -15,6 +15,7 @@ class ReusableYoutubePlayer extends StatefulWidget {
   final VoidCallback? onReady;
   final ValueChanged<bool>? onStateChanged;
   final ValueChanged<YoutubePlayerController>? onControllerCreated;
+  final ValueChanged<VoidCallback>? onStopPlaybackRegistered;
 
   const ReusableYoutubePlayer({
     super.key,
@@ -28,6 +29,7 @@ class ReusableYoutubePlayer extends StatefulWidget {
     this.onReady,
     this.onStateChanged,
     this.onControllerCreated,
+    this.onStopPlaybackRegistered,
   });
 
   @override
@@ -42,6 +44,7 @@ class _ReusableYoutubePlayerState extends State<ReusableYoutubePlayer> {
   // Prevents more than one seekTo callback from being queued at a time
   // when the video reaches the end in loop mode.
   bool _seekPending = false;
+  bool _playbackStopped = false;
 
   @override
   void initState() {
@@ -67,10 +70,43 @@ class _ReusableYoutubePlayerState extends State<ReusableYoutubePlayer> {
 
     // Listen to player state changes
     _controller.addListener(_onControllerUpdate);
+    widget.onStopPlaybackRegistered?.call(_stopPlayback);
+  }
+
+  /// Stops decoding/audio and clears the WebView polling interval before exit.
+  void _stopPlayback() {
+    if (_playbackStopped) return;
+    _playbackStopped = true;
+    _seekPending = false;
+    _controller.removeListener(_onControllerUpdate);
+
+    final webView = _controller.value.webViewController;
+    if (_controller.value.isReady && webView != null) {
+      try {
+        webView.evaluateJavascript(
+          source: '''
+            if (typeof timerId !== 'undefined') {
+              clearInterval(timerId);
+            }
+            if (typeof player !== 'undefined' && player) {
+              player.stopVideo();
+            }
+          ''',
+        );
+      } catch (_) {
+        // Ignore JS errors if the WebView is already torn down.
+      }
+      try {
+        _controller.pause();
+        _controller.mute();
+      } catch (_) {
+        // Ignore errors if the controller is already in a bad state.
+      }
+    }
   }
 
   void _onControllerUpdate() {
-    if (_isDisposed || !mounted) return;
+    if (_isDisposed || _playbackStopped || !mounted) return;
 
     // Handle onReady callback
     if (_controller.value.isReady &&
@@ -78,7 +114,7 @@ class _ReusableYoutubePlayerState extends State<ReusableYoutubePlayer> {
         widget.onReady != null) {
       _hasCalledOnReady = true;
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted && !_isDisposed) {
+        if (mounted && !_isDisposed && !_playbackStopped) {
           widget.onReady!();
         }
       });
@@ -94,7 +130,7 @@ class _ReusableYoutubePlayerState extends State<ReusableYoutubePlayer> {
       _seekPending = true;
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _seekPending = false;
-        if (mounted && !_isDisposed) {
+        if (mounted && !_isDisposed && !_playbackStopped) {
           _controller.seekTo(Duration.zero);
           _controller.play();
         }
@@ -108,7 +144,7 @@ class _ReusableYoutubePlayerState extends State<ReusableYoutubePlayer> {
       if (isPlaying != _previousIsPlaying) {
         _previousIsPlaying = isPlaying;
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (mounted && !_isDisposed) {
+          if (mounted && !_isDisposed && !_playbackStopped) {
             widget.onStateChanged!(isPlaying);
           }
         });
@@ -119,13 +155,7 @@ class _ReusableYoutubePlayerState extends State<ReusableYoutubePlayer> {
   @override
   void dispose() {
     _isDisposed = true;
-    _controller.removeListener(_onControllerUpdate);
-    // Pause video before disposing to stop WebView activity
-    try {
-      _controller.pause();
-    } catch (_) {
-      // Ignore errors if controller is already in bad state
-    }
+    _stopPlayback();
     // Wrap dispose in try-catch to handle InAppWebView disposal race condition
     try {
       _controller.dispose();

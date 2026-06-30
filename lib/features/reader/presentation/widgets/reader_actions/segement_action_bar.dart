@@ -214,6 +214,42 @@ class _ResourcesPanelState extends State<_ResourcesPanel> {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_sheetController.isAttached) return;
+
+    final min = _collapsedSize(context);
+    final max = _expandedSize(context);
+    final size = _sheetController.size;
+    if (size > max + 0.01) {
+      _sheetController.jumpTo(max);
+    } else if (size < min - 0.01) {
+      _sheetController.jumpTo(min);
+    }
+  }
+
+  Future<void> _openSegmentVideo(SegmentVideo video) async {
+    if (video.url.isEmpty || !_sheetController.isAttached) return;
+
+    if (_isExpanded(context)) {
+      await _sheetController.animateTo(
+        _collapsedSize(context),
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.easeOut,
+      );
+    }
+    if (!mounted) return;
+
+    HapticFeedback.lightImpact();
+    await Navigator.of(context, rootNavigator: true).push<void>(
+      MaterialPageRoute<void>(
+        builder:
+            (_) => YoutubeVideoPlayer(videoUrl: video.url, title: video.title),
+      ),
+    );
+  }
+
+  @override
   void didUpdateWidget(covariant _ResourcesPanel oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (!_sheetController.isAttached) return;
@@ -440,7 +476,7 @@ class _ResourcesPanelState extends State<_ResourcesPanel> {
         for (final tile in widget.tiles) tile,
         if (showMorePrompt) _SwipeForMorePrompt(onTap: _expand),
         if (showVideos && widget.videos.isNotEmpty)
-          _VideosSection(videos: widget.videos),
+          _VideosSection(videos: widget.videos, onVideoTap: _openSegmentVideo),
         const SizedBox(height: 12),
       ],
     );
@@ -484,9 +520,10 @@ class _SwipeForMorePrompt extends StatelessWidget {
 }
 
 class _VideosSection extends StatelessWidget {
-  const _VideosSection({required this.videos});
+  const _VideosSection({required this.videos, required this.onVideoTap});
 
   final List<SegmentVideo> videos;
+  final Future<void> Function(SegmentVideo video) onVideoTap;
 
   @override
   Widget build(BuildContext context) {
@@ -522,7 +559,10 @@ class _VideosSection extends StatelessWidget {
                 itemBuilder: (context, index) {
                   return SizedBox(
                     width: cardWidth,
-                    child: _SegmentVideoCard(video: videos[index]),
+                    child: _SegmentVideoCard(
+                      video: videos[index],
+                      onTap: () => onVideoTap(videos[index]),
+                    ),
                   );
                 },
               );
@@ -535,27 +575,17 @@ class _VideosSection extends StatelessWidget {
 }
 
 class _SegmentVideoCard extends StatelessWidget {
-  const _SegmentVideoCard({required this.video});
+  const _SegmentVideoCard({required this.video, required this.onTap});
 
   final SegmentVideo video;
-
-  void _openVideo(BuildContext context) {
-    if (video.url.isEmpty) return;
-    HapticFeedback.lightImpact();
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder:
-            (_) => YoutubeVideoPlayer(videoUrl: video.url, title: video.title),
-      ),
-    );
-  }
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return InkWell(
       borderRadius: BorderRadius.circular(10),
-      onTap: () => _openVideo(context),
+      onTap: onTap,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
