@@ -206,9 +206,11 @@
   "something_went_wrong": "Something went wrong. Please try again",
   "onboarding_quote_citation": "— Dhammapada 122",
   "onboarding_traditions_question": "Which traditions\ndo you follow?",
-  "onboarding_tradition_chat_title": "Your tradition:",
-  "onboarding_tradition_chat_subtitle": "Choose one: we'll use it to personalize your experience.",
-  "onboarding_tradition_type_hint": "Or type your tradition...",
+  "onboarding_tradition_title": "How do you follow the Buddha?",
+  "onboarding_tradition_subtitle": "We'll show you the practices and texts of your path. You can change this anytime in the app settings.",
+  "onboarding_tradition_option_intro": "Through:",
+  "onboarding_tradition_show_all_title": "Show me everything",
+  "onboarding_tradition_show_all_description": "Practices and texts from every path",
   "onboarding_skip_for_now": "Skip for now",
   "onboarding_add_another_tradition": "Add another tradition",
   "onboarding_select_all": "Select all",
@@ -780,6 +782,9 @@
   "group_followers": "followers",
   "group_links_title": "Links",
   "group_and_more_links": "and {count} more links",
+  "group_practice_with_us": "Practice with us",
+  "group_change_practice_title": "Change group practice",
+  "group_change_practice_message": "You are already practicing this plan with another group. Would you like to change your practice group?",
   "@group_and_more_links": {
     "placeholders": {
       "count": {

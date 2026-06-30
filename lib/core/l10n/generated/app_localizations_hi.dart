@@ -533,14 +533,21 @@ class AppLocalizationsHi extends AppLocalizations {
       'आप किन परंपराओं\nका पालन करते हैं?';
 
   @override
-  String get onboarding_tradition_chat_title => 'आपकी परंपरा:';
+  String get onboarding_tradition_title => 'आप बुद्ध का अनुसरण कैसे करते हैं?';
 
   @override
-  String get onboarding_tradition_chat_subtitle =>
-      'एक या अधिक चुनें — हम इन्हें आपके अनुभव को वैयक्तिकृत करने के लिए उपयोग करेंगे।';
+  String get onboarding_tradition_subtitle =>
+      'हम आपको आपके मार्ग की प्रथाएं और ग्रंथ दिखाएंगे। आप इसे ऐप सेटिंग्स में कभी भी बदल सकते हैं।';
 
   @override
-  String get onboarding_tradition_type_hint => 'या अपनी परंपरा लिखें...';
+  String get onboarding_tradition_option_intro => 'के माध्यम से:';
+
+  @override
+  String get onboarding_tradition_show_all_title => 'मुझे सब कुछ दिखाएँ';
+
+  @override
+  String get onboarding_tradition_show_all_description =>
+      'हर मार्ग की साधनाएँ और ग्रंथ';
 
   @override
   String get onboarding_skip_for_now => 'अभी के लिए छोड़ें';
@@ -1607,6 +1614,16 @@ class AppLocalizationsHi extends AppLocalizations {
   String group_and_more_links(int count) {
     return 'और $count और लिंक';
   }
+
+  @override
+  String get group_practice_with_us => 'हमारे साथ अभ्यास करें';
+
+  @override
+  String get group_change_practice_title => 'Change group practice';
+
+  @override
+  String get group_change_practice_message =>
+      'You are already practicing this plan with another group. Would you like to change your practice group?';
 
   @override
   String get share_this_quote => 'यह उद्धरण शेयर करें';

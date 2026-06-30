@@ -10,10 +10,12 @@ import 'package:flutter_pecha/features/group_profile/domain/entities/group_profi
 import 'package:flutter_pecha/features/group_profile/presentation/providers/group_profile_providers.dart';
 import 'package:flutter_pecha/features/group_profile/presentation/widgets/group_profile_links_drawer.dart';
 import 'package:flutter_pecha/features/group_profile/presentation/widgets/group_profile_members_tab.dart';
+import 'package:flutter_pecha/features/home/presentation/providers/series_enrollment_provider.dart';
 import 'package:flutter_pecha/features/plans/presentation/widgets/plan_inline_markdown_view.dart';
 import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class GroupProfileBody extends ConsumerStatefulWidget {
@@ -34,43 +36,86 @@ class GroupProfileBody extends ConsumerStatefulWidget {
 
 class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
     with SingleTickerProviderStateMixin {
-  late TabController _tabController;
+  TabController? _tabController;
+  String? _enrollingSeriesId;
+  final Set<String> _localGroupEnrolledSeriesIds = {};
 
-  int get _tabCount {
+  bool _isCommunityGroup(GroupProfile profile) => !profile.groupType.isPage;
+
+  int _tabCount(GroupProfile profile) {
     var count = 2;
-    if (_hasAboutContent(widget.profile)) count++;
+    if (_hasAboutContent(profile)) count++;
     return count;
   }
 
   int get _membersTabIndex => 1;
 
+  bool _hasBanner(GroupProfile profile) =>
+      profile.bannerUrl != null && profile.bannerUrl!.isNotEmpty;
+
   bool _hasAboutContent(GroupProfile profile) {
-    final hasBanner = profile.bannerUrl != null && profile.bannerUrl!.isNotEmpty;
     final descriptionLong = profile.descriptionLong?.trim();
-    return hasBanner ||
+    return _hasBanner(profile) ||
         (descriptionLong != null && descriptionLong.isNotEmpty);
   }
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(
-      length: _tabCount,
-      vsync: this,
-    );
+    if (_isCommunityGroup(widget.profile)) {
+      _tabController = TabController(
+        length: _tabCount(widget.profile),
+        vsync: this,
+      );
+    }
   }
 
   @override
   void dispose() {
-    _tabController.dispose();
+    _tabController?.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    final followKey = GroupFollowKey(
+      groupId: widget.profile.id,
+      groupType: widget.profile.groupType,
+    );
+    ref.listen(groupFollowProvider(followKey), (previous, next) {
+      if (next case GroupFollowSuccess(isFollowing: false)) {
+        setState(_localGroupEnrolledSeriesIds.clear);
+      }
+    });
+    ref.listen(groupProfileProvider(widget.profile.id), (previous, next) {
+      next.whenData((either) {
+        either.fold((_) {}, (profile) {
+          final apiEnrolledIds =
+              profile.series
+                  .where((series) => series.isGroupEnrolled == true)
+                  .map((series) => series.id)
+                  .toSet();
+          final apiNotEnrolledIds = profile.series
+              .where((series) => series.isGroupEnrolled == null)
+              .map((series) => series.id);
+          setState(() {
+            _localGroupEnrolledSeriesIds.addAll(apiEnrolledIds);
+            _localGroupEnrolledSeriesIds.removeAll(apiNotEnrolledIds);
+          });
+        });
+      });
+    });
+
+    final enrollingId = _enrollingSeriesId;
+    if (enrollingId != null) {
+      // Keep the autoDispose enrollment provider alive while the request is
+      // in flight — otherwise it can be disposed before the API returns.
+      ref.watch(seriesEnrollmentProvider(enrollingId));
+    }
+
     final locale = Localizations.localeOf(context);
     final lineHeight = getLineHeight(locale.languageCode);
-    final profile = widget.profile;
+    final profile = _resolveProfile();
     final isDark = widget.isDark;
 
     final orderedLinks = GroupProfileLinksDrawer.orderedLinks(
@@ -80,36 +125,67 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        if (!_isCommunityGroup(profile) && _hasBanner(profile)) ...[
+          _buildProfileBanner(profile, isDark),
+          const SizedBox(height: 16),
+        ],
         _buildProfileHeader(profile, isDark, lineHeight),
         if (orderedLinks.isNotEmpty) ...[
           const SizedBox(height: 12),
           _buildLinksSummary(orderedLinks, isDark, lineHeight),
         ],
         const SizedBox(height: 20),
-        _GroupFollowButton(profile: profile, isDark: isDark),
-        const SizedBox(height: 24),
-        _buildTabBar(isDark, profile),
-        Expanded(
-          child: AnimatedBuilder(
-            animation: _tabController,
-            builder: (context, _) {
-              final tabIndex = _tabController.index;
-              if (tabIndex == 0) {
-                return _buildPracticesTab(profile, isDark, lineHeight);
-              }
-              if (tabIndex == _membersTabIndex) {
-                return GroupProfileMembersTab(
-                  groupId: profile.id,
-                  groupType: profile.groupType,
-                  isDark: isDark,
-                  lineHeight: lineHeight,
-                );
-              }
-              return _buildAboutTab(profile, isDark, locale.languageCode);
-            },
+        if (_isCommunityGroup(profile)) ...[
+          _GroupFollowButton(profile: profile, isDark: isDark),
+          const SizedBox(height: 24),
+        ],
+        if (_isCommunityGroup(profile)) ...[
+          _buildTabBar(isDark, profile),
+          Expanded(
+            child: AnimatedBuilder(
+              animation: _tabController!,
+              builder: (context, _) {
+                final tabIndex = _tabController!.index;
+                if (tabIndex == 0) {
+                  return _buildPracticesTab(profile, isDark, lineHeight);
+                }
+                if (tabIndex == _membersTabIndex) {
+                  return GroupProfileMembersTab(
+                    groupId: profile.id,
+                    groupType: profile.groupType,
+                    isDark: isDark,
+                    lineHeight: lineHeight,
+                  );
+                }
+                return _buildAboutTab(profile, isDark, locale.languageCode);
+              },
+            ),
           ),
-        ),
+        ] else
+          Expanded(
+            child: _buildDescriptionLongContent(
+              profile,
+              isDark,
+              locale.languageCode,
+            ),
+          ),
       ],
+    );
+  }
+
+  GroupProfile _resolveProfile() {
+    final freshProfile = ref.watch(groupProfileProvider(widget.profile.id));
+    return freshProfile.maybeWhen(
+      data:
+          (either) => either.fold((_) => widget.profile, (profile) => profile),
+      orElse: () => widget.profile,
+    );
+  }
+
+  bool? _seriesGroupEnrollmentStatus(GroupProfileSeries series) {
+    return seriesGroupEnrollmentStatus(
+      series,
+      localEnrolledSeriesIds: _localGroupEnrolledSeriesIds,
     );
   }
 
@@ -257,7 +333,7 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
     return Column(
       children: [
         TabBar(
-          controller: _tabController,
+          controller: _tabController!,
           isScrollable: true,
           tabAlignment: TabAlignment.start,
           labelColor: labelColor,
@@ -291,11 +367,66 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
     }
 
     return ListView.builder(
-      padding: const EdgeInsets.only(top: 16, bottom: 32),
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
       itemCount: profile.series.length,
       itemBuilder: (context, index) {
-        return _buildSeriesRow(profile.series[index], isDark, lineHeight);
+        return Padding(
+          padding: EdgeInsets.only(
+            bottom: index == profile.series.length - 1 ? 0 : 16,
+          ),
+          child: _buildSeriesCard(
+            profile,
+            profile.series[index],
+            isDark,
+            lineHeight,
+          ),
+        );
       },
+    );
+  }
+
+  Widget _buildProfileBanner(GroupProfile profile, bool isDark) {
+    if (!_hasBanner(profile)) {
+      return const SizedBox.shrink();
+    }
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16),
+        child: AspectRatio(
+          aspectRatio: 16 / 9,
+          child: CachedNetworkImageWidget(
+            key: ValueKey(profile.bannerUrl),
+            imageUrl: profile.bannerUrl,
+            fit: BoxFit.cover,
+            errorWidget: Container(
+              color: isDark ? AppColors.surfaceVariantDark : AppColors.grey100,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDescriptionLongContent(
+    GroupProfile profile,
+    bool isDark,
+    String languageCode,
+  ) {
+    final descriptionLong = profile.description?.trim();
+    if (descriptionLong == null || descriptionLong.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    final bodyFontSize = getLocalizedFontSize(AppTextSize.body);
+
+    return SingleChildScrollView(
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 32),
+      child: PlanInlineMarkdownView(
+        content: descriptionLong,
+        fontSize: bodyFontSize,
+      ),
     );
   }
 
@@ -305,11 +436,10 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
     String languageCode,
   ) {
     final descriptionLong = profile.descriptionLong?.trim();
-    final hasBanner = profile.bannerUrl != null && profile.bannerUrl!.isNotEmpty;
     final hasDescription =
         descriptionLong != null && descriptionLong.isNotEmpty;
 
-    if (!hasBanner && !hasDescription) {
+    if (!_hasBanner(profile) && !hasDescription) {
       return const SizedBox.shrink();
     }
 
@@ -320,24 +450,8 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (hasBanner) ...[
-            ClipRRect(
-              borderRadius: BorderRadius.circular(16),
-              child: AspectRatio(
-                aspectRatio: 16 / 9,
-                child: CachedNetworkImageWidget(
-                  key: ValueKey(profile.bannerUrl),
-                  imageUrl: profile.bannerUrl,
-                  fit: BoxFit.cover,
-                  errorWidget: Container(
-                    color:
-                        isDark
-                            ? AppColors.surfaceVariantDark
-                            : AppColors.grey100,
-                  ),
-                ),
-              ),
-            ),
+          if (_hasBanner(profile)) ...[
+            _buildProfileBanner(profile, isDark),
             if (hasDescription) const SizedBox(height: 20),
           ],
           if (hasDescription)
@@ -345,90 +459,223 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
               content: descriptionLong,
               fontSize: bodyFontSize,
             ),
+          SizedBox(height: 20),
         ],
       ),
     );
   }
 
-  Widget _buildSeriesRow(
+  Widget _buildSeriesCard(
+    GroupProfile profile,
     GroupProfileSeries series,
     bool isDark,
     double? lineHeight,
   ) {
-    return InkWell(
-      onTap: () {
-        widget.onSeriesTap?.call();
-        context.push('/home/series/${series.id}');
-      },
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 6),
-        child: Row(
+    final dateRange = _formatSeriesDateRange(series);
+    final subtitle = dateRange ?? series.subTitle?.trim();
+    final enrollmentStatus = _seriesGroupEnrollmentStatus(series);
+    final showPracticeOverlay = enrollmentStatus != true;
+    final isEnrolling = _enrollingSeriesId == series.id;
+    final secondaryColor =
+        isDark ? AppColors.textTertiaryDark : AppColors.textSecondary;
+    final cardColor =
+        isDark ? AppColors.cardBackgroundDark : AppColors.surfaceWhite;
+
+    return Material(
+      color: cardColor,
+      elevation: isDark ? 0 : 1,
+      shadowColor: Colors.black.withValues(alpha: 0.08),
+      borderRadius: BorderRadius.circular(16),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap:
+            isEnrolling ? null : () => _navigateToSeriesDetail(profile, series),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(10),
-              child: SizedBox(
-                width: 56,
-                height: 56,
-                child:
-                    series.image != null && !series.image!.isEmpty
-                        ? ResponsiveCoverImage(
-                          image: series.image,
-                          fit: BoxFit.cover,
-                          width: 56,
-                          height: 56,
-                        )
-                        : Container(
-                          color:
-                              isDark
-                                  ? AppColors.surfaceVariantDark
-                                  : AppColors.grey100,
-                          child: Icon(
-                            AppAssets.bookOpenText,
-                            color:
-                                isDark ? AppColors.grey500 : AppColors.grey600,
-                          ),
+            SizedBox(
+              height: 140,
+              width: double.infinity,
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  series.image != null && !series.image!.isEmpty
+                      ? ResponsiveCoverImage(
+                        image: series.image,
+                        fit: BoxFit.cover,
+                      )
+                      : ColoredBox(
+                        color:
+                            isDark
+                                ? AppColors.surfaceVariantDark
+                                : AppColors.grey100,
+                        child: Icon(
+                          AppAssets.bookOpenText,
+                          size: 40,
+                          color: isDark ? AppColors.grey500 : AppColors.grey600,
                         ),
+                      ),
+                  if (showPracticeOverlay)
+                    Container(
+                      color: Colors.black.withValues(alpha: 0.55),
+                      alignment: Alignment.center,
+                      child:
+                          isEnrolling
+                              ? const SizedBox(
+                                width: 24,
+                                height: 24,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Colors.white,
+                                ),
+                              )
+                              : GestureDetector(
+                                behavior: HitTestBehavior.opaque,
+                                onTap:
+                                    () => _onPracticeWithUsTap(profile, series),
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 24,
+                                    vertical: 12,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(999),
+                                  ),
+                                  child: Text(
+                                    context.l10n.group_practice_with_us,
+                                    style: const TextStyle(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w700,
+                                      color: AppColors.textPrimary,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                    ),
+                ],
               ),
             ),
-            const SizedBox(width: 12),
-            Expanded(
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 14, 16, 16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     series.title,
                     style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
                       height: lineHeight,
                     ),
-                    maxLines: 1,
+                    maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  if (series.subTitle != null &&
-                      series.subTitle!.trim().isNotEmpty)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 2),
-                      child: Text(
-                        series.subTitle!,
-                        style: TextStyle(
-                          fontSize: 13,
-                          color:
-                              isDark
-                                  ? AppColors.textTertiaryDark
-                                  : AppColors.textSecondary,
-                          height: lineHeight,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+                  if (subtitle != null && subtitle.isNotEmpty) ...[
+                    const SizedBox(height: 4),
+                    Text(
+                      subtitle,
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: secondaryColor,
+                        height: lineHeight,
                       ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
+                  ],
                 ],
               ),
             ),
           ],
         ),
       ),
+    );
+  }
+
+  String? _formatSeriesDateRange(GroupProfileSeries series) {
+    final startDate = series.startDate;
+    final endDate = series.endDate;
+    if (startDate == null || endDate == null) return null;
+    final formatter = DateFormat('MMM d');
+    return '${formatter.format(startDate.toLocal())} - ${formatter.format(endDate.toLocal())}';
+  }
+
+  void _navigateToSeriesDetail(
+    GroupProfile profile,
+    GroupProfileSeries series,
+  ) {
+    widget.onSeriesTap?.call();
+    if (_seriesGroupEnrollmentStatus(series) == true) {
+      context.push('/home/series/${series.id}');
+      return;
+    }
+
+    context.push(
+      '/home/series/${series.id}',
+      extra: {
+        'groupId': profile.id,
+        'groupType': profile.groupType,
+        'isGroupEnrolled': false,
+      },
+    );
+  }
+
+  Future<void> _onPracticeWithUsTap(
+    GroupProfile profile,
+    GroupProfileSeries series,
+  ) async {
+    final authState = ref.read(authProvider);
+    if (authState.isGuest || !authState.isLoggedIn) {
+      LoginDrawer.show(context, ref);
+      return;
+    }
+
+    final enrollmentStatus = _seriesGroupEnrollmentStatus(series);
+    final confirmed = await confirmGroupPracticeChangeIfNeeded(
+      context,
+      enrollmentStatus,
+    );
+    if (!confirmed || !mounted) return;
+
+    setState(() => _enrollingSeriesId = series.id);
+
+    final ok = await enrollSeriesThroughGroup(
+      ref: ref,
+      seriesId: series.id,
+      groupId: profile.id,
+      groupType: profile.groupType,
+    );
+
+    if (!mounted) return;
+    setState(() {
+      _enrollingSeriesId = null;
+      if (ok) _localGroupEnrolledSeriesIds.add(series.id);
+    });
+
+    if (ok) {
+      await ref.read(groupProfileProvider(profile.id).future);
+      if (!mounted) return;
+      await context.pushNamed(
+        'edit-routine',
+        extra: {'enrollSeriesId': series.id},
+      );
+      if (!mounted) return;
+      await completeGroupPracticeEnrollmentFlow(
+        ref: ref,
+        groupId: profile.id,
+        groupType: profile.groupType,
+      );
+      return;
+    }
+
+    final state = ref.read(seriesEnrollmentProvider(series.id));
+    final message =
+        state is SeriesEnrollmentFailure
+            ? state.failure.message
+            : 'Failed to enroll in series';
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message), backgroundColor: Colors.red),
     );
   }
 
@@ -472,9 +719,7 @@ class _GroupFollowButton extends ConsumerWidget {
         horizontal: 24,
         vertical: isTibetan ? 10 : 12,
       ),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(24),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
       elevation: 0,
     );
 

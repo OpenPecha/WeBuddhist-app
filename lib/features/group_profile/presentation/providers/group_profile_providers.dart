@@ -1,7 +1,9 @@
-import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
 import 'package:flutter_pecha/core/di/core_providers.dart';
 import 'package:flutter_pecha/core/error/failures.dart';
+import 'package:flutter_pecha/core/extensions/context_ext.dart';
+import 'package:flutter_pecha/core/widgets/destructive_confirmation_dialog.dart';
 import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
 import 'package:flutter_pecha/features/connect/presentation/providers/connect_providers.dart';
 import 'package:flutter_pecha/features/group_profile/data/datasource/group_profile_remote_datasource.dart';
@@ -10,6 +12,7 @@ import 'package:flutter_pecha/features/group_profile/domain/entities/group_membe
 import 'package:flutter_pecha/features/group_profile/domain/entities/group_profile.dart';
 import 'package:flutter_pecha/features/group_profile/domain/repositories/group_profile_repository.dart';
 import 'package:flutter_pecha/features/group_profile/domain/usecases/get_group_profile_usecase.dart';
+import 'package:flutter_pecha/features/home/presentation/providers/series_enrollment_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fpdart/fpdart.dart';
 
@@ -33,6 +36,9 @@ final getGroupProfileUseCaseProvider =
 
 final groupProfileProvider = FutureProvider.autoDispose
     .family<Either<Failure, GroupProfile>, String>((ref, groupId) async {
+  // Refetch when auth changes so user-specific fields (e.g. is_group_enrolled)
+  // are loaded with the Bearer token attached.
+  ref.watch(authProvider);
   final language = ref.watch(contentLanguageProvider);
   final useCase = ref.watch(getGroupProfileUseCaseProvider);
   return useCase(
@@ -173,7 +179,6 @@ class GroupFollowNotifier extends StateNotifier<GroupFollowState> {
 
   Future<bool> follow({GroupProfile? connectGroup}) async {
     if (state is GroupFollowLoading) return false;
-    final previousDelta = _currentCountDelta();
     state = const GroupFollowLoading();
 
     final result = await _repository.followGroup(
@@ -188,21 +193,67 @@ class GroupFollowNotifier extends StateNotifier<GroupFollowState> {
         return false;
       },
       (_) async {
-        state = GroupFollowSuccess(
-          isFollowing: true,
-          countDelta: previousDelta + 1,
-        );
-        _invalidateGroupProfile();
-        _invalidateConnectProviders();
-        if (connectGroup != null) {
-          _addPendingJoinedGroup(connectGroup);
-          _ref
-              .read(discoverGroupsProvider.notifier)
-              .removeGroups({connectGroup.id});
-        }
+        _applyJoinedState(connectGroup: connectGroup, incrementCount: true);
         return true;
       },
     );
+  }
+
+  /// Backend auto-joins the group when enrolling in a series via group_id.
+  /// Updates join UI immediately without a manual refresh.
+  void markAutoJoinedFromPracticeEnrollment({required GroupProfile group}) {
+    if (!_isAuthenticated) return;
+
+    final alreadyFollowing = switch (state) {
+      GroupFollowSuccess(isFollowing: final isFollowing) => isFollowing,
+      _ => false,
+    };
+    if (alreadyFollowing) return;
+
+    _applyJoinedState(connectGroup: group, incrementCount: true);
+  }
+
+  /// Re-sync join status after returning from a flow that may have auto-joined.
+  Future<void> syncJoinStatusFromServer({GroupProfile? connectGroup}) async {
+    if (!_isAuthenticated) return;
+
+    final result = await _repository.checkFollowStatus(
+      _key.groupId,
+      _key.groupType,
+    );
+    if (!mounted) return;
+
+    result.fold((_) {}, (isFollowing) {
+      if (!isFollowing) return;
+
+      final alreadyFollowing = switch (state) {
+        GroupFollowSuccess(isFollowing: final following) => following,
+        _ => false,
+      };
+      _applyJoinedState(
+        connectGroup: connectGroup,
+        incrementCount: !alreadyFollowing,
+      );
+    });
+  }
+
+  void _applyJoinedState({
+    required GroupProfile? connectGroup,
+    required bool incrementCount,
+  }) {
+    final previousDelta = _currentCountDelta();
+    state = GroupFollowSuccess(
+      isFollowing: true,
+      countDelta: incrementCount ? previousDelta + 1 : previousDelta,
+    );
+    _invalidateGroupProfile();
+    _invalidateConnectProviders();
+    if (connectGroup != null) {
+      _addPendingJoinedGroup(connectGroup);
+      _ref
+          .read(discoverGroupsProvider.notifier)
+          .removeGroups({connectGroup.id});
+    }
   }
 
   Future<bool> unfollow({GroupProfile? connectGroup}) async {
@@ -250,6 +301,97 @@ final groupFollowProvider = StateNotifierProvider.autoDispose
     isAuthenticated: isAuthenticated,
   );
 });
+
+bool isSeriesGroupEnrolledInProfile(GroupProfile profile, String seriesId) {
+  return profile.series.any(
+    (series) => series.id == seriesId && series.isGroupEnrolled == true,
+  );
+}
+
+/// Returns the tri-state group enrollment status for a series.
+/// - `true`: enrolled with this group
+/// - `false`: enrolled with a different group
+/// - `null`: not group-enrolled
+bool? seriesGroupEnrollmentStatus(
+  GroupProfileSeries series, {
+  Set<String> localEnrolledSeriesIds = const {},
+}) {
+  if (localEnrolledSeriesIds.contains(series.id)) return true;
+  return series.isGroupEnrolled;
+}
+
+bool? seriesGroupEnrollmentStatusFromProfile(
+  GroupProfile profile,
+  String seriesId, {
+  Set<String> localEnrolledSeriesIds = const {},
+}) {
+  for (final series in profile.series) {
+    if (series.id == seriesId) {
+      return seriesGroupEnrollmentStatus(
+        series,
+        localEnrolledSeriesIds: localEnrolledSeriesIds,
+      );
+    }
+  }
+  return null;
+}
+
+/// Shows the change-group confirmation dialog when [enrollmentStatus] is false.
+Future<bool> confirmGroupPracticeChangeIfNeeded(
+  BuildContext context,
+  bool? enrollmentStatus,
+) async {
+  if (enrollmentStatus != false) return true;
+
+  final l10n = context.l10n;
+  final confirmed = await showConfirmationDialog(
+    context,
+    title: l10n.group_change_practice_title,
+    message: l10n.group_change_practice_message,
+    confirmLabel: l10n.ai_confirm,
+  );
+  return confirmed == true;
+}
+
+/// Enrolls in a series via [groupId] and updates group join UI optimistically.
+Future<bool> enrollSeriesThroughGroup({
+  required WidgetRef ref,
+  required String seriesId,
+  required String groupId,
+  required GroupType groupType,
+}) async {
+  final notifier = ref.read(seriesEnrollmentProvider(seriesId).notifier);
+  final ok = await notifier.enroll(groupId: groupId);
+  if (!ok) return false;
+
+  final followKey = GroupFollowKey(groupId: groupId, groupType: groupType);
+  final profileResult = await ref.read(groupProfileProvider(groupId).future);
+  profileResult.fold(
+    (_) {},
+    (profile) => ref
+        .read(groupFollowProvider(followKey).notifier)
+        .markAutoJoinedFromPracticeEnrollment(group: profile),
+  );
+  ref.invalidate(groupProfileProvider(groupId));
+  return true;
+}
+
+/// Syncs join state after returning from the post-enrollment routine editor.
+Future<void> completeGroupPracticeEnrollmentFlow({
+  required WidgetRef ref,
+  required String groupId,
+  required GroupType groupType,
+}) async {
+  final followKey = GroupFollowKey(groupId: groupId, groupType: groupType);
+  final profileResult = await ref.read(groupProfileProvider(groupId).future);
+  await profileResult.fold(
+    (_) async {},
+    (profile) => ref
+        .read(groupFollowProvider(followKey).notifier)
+        .syncJoinStatusFromServer(connectGroup: profile),
+  );
+  ref.invalidate(groupProfileProvider(groupId));
+}
 
 class GroupMembersState {
   final List<GroupMember> members;

@@ -143,7 +143,7 @@ final getTodayEventsUseCaseProvider = Provider<GetTodayEventsUseCase>((ref) {
 
 final verseOfDayRemoteDatasourceProvider = Provider<VerseOfDayRemoteDatasource>(
   (ref) {
-    return VerseOfDayRemoteDatasource();
+    return VerseOfDayRemoteDatasource(dio: ref.watch(dioProvider));
   },
 );
 

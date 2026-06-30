@@ -8,8 +8,7 @@ flutter.sdk=/path/to/flutter/sdk
 #   In CI (Codemagic etc.) set AIRBRIDGE_APP_NAME and AIRBRIDGE_SDK_TOKEN as environment variables;
 #   the Gradle script reads env vars first and falls back to these properties.
 #
-#   AIRBRIDGE_APP_NAME: your Airbridge app name — use "webuddhistdev" for dev flavor,
-#                       "webuddhist" for staging and prod flavors.
+#   AIRBRIDGE_APP_NAME: your Airbridge app name, currently "webuddhist" for all flavors.
 #   AIRBRIDGE_SDK_TOKEN: SDK token from the Airbridge dashboard (Settings > SDK Token).
 airbridge.app.name=your-airbridge-app-name
 airbridge.app.token=your-airbridge-sdk-token
