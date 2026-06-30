@@ -3,7 +3,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_pecha/core/deep_linking/deep_link_url_builder.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
+import 'package:flutter_pecha/features/practice/data/datasource/bookmark_remote_datasource.dart';
 import 'package:flutter_pecha/features/practice/presentation/controllers/bookmark_controller.dart';
+import 'package:flutter_pecha/features/practice/presentation/providers/bookmark_providers.dart';
 import 'package:flutter_pecha/features/reader/presentation/providers/reader_notifier.dart';
 import 'package:flutter_pecha/features/texts/data/models/segment.dart';
 import 'package:flutter_pecha/shared/utils/helper_functions.dart';
@@ -62,7 +64,7 @@ class _SegmentActionBarState extends ConsumerState<SegmentActionBar> {
       await BookmarkController(
         ref: ref,
         context: context,
-      ).bookmarkVerse(widget.segment.segmentId);
+      ).toggleVerse(widget.segment.segmentId);
     } finally {
       if (mounted) setState(() => _isBookmarking = false);
     }
@@ -92,6 +94,15 @@ class _SegmentActionBarState extends ConsumerState<SegmentActionBar> {
       return const SizedBox.shrink();
     }
 
+    final isBookmarked = ref.watch(
+      isBookmarkedProvider(
+        BookmarkTarget(
+          type: BookmarkType.verse,
+          sourceId: widget.segment.segmentId,
+        ),
+      ),
+    );
+
     return _ResourcesPanel(
       onDismiss: widget.onClose,
       copyButton: _IconActionButton(
@@ -109,7 +120,10 @@ class _SegmentActionBarState extends ConsumerState<SegmentActionBar> {
         onClose: widget.onClose,
       ),
       bookmarkButton: _IconActionButton(
-        icon: AppAssets.bookmarkSimple,
+        icon:
+            isBookmarked
+                ? AppAssets.bookmarkSimpleFill
+                : AppAssets.bookmarkSimple,
         label: localizations.bookmark,
         isLoading: _isBookmarking,
         onTap: _handleBookmark,
@@ -143,7 +157,7 @@ class _SegmentActionBarState extends ConsumerState<SegmentActionBar> {
 }
 
 /// Bottom-sheet-style panel. Dismissible by swiping downward.
-/// Layout: drag handle → Tools → [Copy | Share | Bookmark] → Resources → tiles.
+/// Layout: drag handle → [Copy | Share | Bookmark] → Resources → tiles.
 class _ResourcesPanel extends StatelessWidget {
   final VoidCallback onDismiss;
   final Widget copyButton;
@@ -201,7 +215,7 @@ class _ResourcesPanel extends StatelessWidget {
                       // Drag handle pill
                       Center(
                         child: Container(
-                          margin: const EdgeInsets.only(top: 10, bottom: 4),
+                          margin: const EdgeInsets.only(top: 10, bottom: 8),
                           width: 36,
                           height: 4,
                           decoration: BoxDecoration(
@@ -211,21 +225,6 @@ class _ResourcesPanel extends StatelessWidget {
                             borderRadius: BorderRadius.circular(2),
                           ),
                         ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(20, 10, 20, 8),
-                        child: Text(
-                          context.l10n.tools,
-                          style: theme.textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 18,
-                          ),
-                        ),
-                      ),
-                      Divider(
-                        height: 1,
-                        thickness: 1,
-                        color: theme.dividerColor,
                       ),
                     ],
                   ),

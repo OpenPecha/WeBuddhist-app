@@ -7,7 +7,8 @@ import 'package:flutter_pecha/features/plans/presentation/widgets/plan_navigatio
 import 'package:flutter_pecha/features/plans/presentation/widgets/plan_navigation/plan_navigator.dart';
 import 'package:flutter_pecha/features/plans/presentation/widgets/plan_navigation/plan_segment_audio_controller.dart';
 import 'package:flutter_pecha/features/plans/presentation/widgets/plan_navigation/plan_subtask_completion.dart';
-import 'package:flutter_pecha/features/practice/presentation/controllers/bookmark_controller.dart';
+import 'package:flutter_pecha/features/practice/data/datasource/bookmark_remote_datasource.dart';
+import 'package:flutter_pecha/features/practice/presentation/providers/bookmark_providers.dart';
 import 'package:flutter_pecha/features/reader/constants/reader_constants.dart';
 import 'package:flutter_pecha/features/reader/data/models/navigation_context.dart';
 import 'package:flutter_pecha/features/reader/data/models/reader_slot_config.dart';
@@ -64,9 +65,12 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
   /// Lets the audio button keep its state when it is reparented between the
   /// behind-panel slot and the bottom overlay.
   final GlobalKey _audioButtonKey = GlobalKey();
+  static const double _defaultContentBottomPadding = 60;
+  static const double _selectedSegmentOverlayFallbackHeight = 360;
 
   // App bar visibility state
   bool _isAppBarVisible = true;
+  double _bottomOverlayHeight = 0;
   // Scroll controller callback
   void Function(String segmentId, {double? alignment})? _scrollToSegment;
 
@@ -185,26 +189,46 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
 
   @override
   Widget build(BuildContext context) {
+    ref.watch(
+      prefetchBookmarkExistsProvider(
+        BookmarkTarget(type: BookmarkType.text, sourceId: widget.textId),
+      ),
+    );
+
     final state = ref.watch(readerNotifierProvider(_params));
     final notifier = ref.read(readerNotifierProvider(_params).notifier);
+    final readerTheme = _readerTheme(context);
 
-    return PopScope(
-      canPop: true,
-      onPopInvokedWithResult: (didPop, _) {
-        if (!didPop) return;
-        // Stop audio immediately so nothing plays during the exit animation.
-        _audioController?.cancel();
-        // Clear transient reader state so panels don't linger if the user
-        // navigates back to this textId again later in the session.
-        notifier.selectSegment(null);
-        notifier.closeCommentary();
-        notifier.closeTranslation();
-        _invalidatePlanProviders();
-      },
-      child: Scaffold(
-        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-        body: _buildBody(context, state, notifier),
+    return Theme(
+      data: readerTheme,
+      child: PopScope(
+        canPop: true,
+        onPopInvokedWithResult: (didPop, _) {
+          if (!didPop) return;
+          // Stop audio immediately so nothing plays during the exit animation.
+          _audioController?.cancel();
+          // Clear transient reader state so panels don't linger if the user
+          // navigates back to this textId again later in the session.
+          notifier.selectSegment(null);
+          notifier.closeCommentary();
+          notifier.closeTranslation();
+          _invalidatePlanProviders();
+        },
+        child: Scaffold(
+          backgroundColor: readerTheme.scaffoldBackgroundColor,
+          body: _buildBody(context, state, notifier),
+        ),
       ),
+    );
+  }
+
+  ThemeData _readerTheme(BuildContext context) {
+    final theme = Theme.of(context);
+    if (theme.brightness != Brightness.light) return theme;
+
+    return theme.copyWith(
+      scaffoldBackgroundColor: Colors.white,
+      appBarTheme: theme.appBarTheme.copyWith(backgroundColor: Colors.white),
     );
   }
 
@@ -251,6 +275,14 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
 
     final isPanelOpen = state.isCommentaryOpen || state.isTranslationOpen;
     final isActionBarVisible = state.hasSelection && !isPanelOpen;
+    final isBottomOverlayVisible =
+        !isPanelOpen && (_hasAudio || isActionBarVisible);
+    final contentBottomPadding =
+        isBottomOverlayVisible
+            ? (_bottomOverlayHeight > 0
+                ? _bottomOverlayHeight + 16
+                : _selectedSegmentOverlayFallbackHeight)
+            : _defaultContentBottomPadding;
     final bottomInset = MediaQuery.of(context).padding.bottom;
 
     return Stack(
@@ -321,6 +353,7 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
                         initialSegmentId: widget.segmentId,
                         visibleSegmentIds:
                             widget.navigationContext?.currentSegmentIds,
+                        bottomPadding: contentBottomPadding,
                         onScrollDirectionChanged: _onScrollDirectionChanged,
                         onScrollControllerReady: (scrollFn) {
                           _scrollToSegment = scrollFn;
@@ -337,31 +370,38 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
         // button sits above the segment action bar, sharing a fixed gap so
         // the two never overlap. When neither is present this branch is
         // skipped entirely.
-        if (!isPanelOpen && (_hasAudio || isActionBarVisible))
+        if (isBottomOverlayVisible)
           Positioned(
             left: 0,
             right: 0,
             bottom: 0,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              // Stretch so the action bar spans full width; the audio button
-              // is centered explicitly.
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                if (_hasAudio)
-                  Padding(
-                    // Hug the action bar with a tight gap when it is open;
-                    // otherwise keep the original floating offset above bottom.
-                    padding: EdgeInsets.only(
-                      bottom:
-                          isActionBarVisible
-                              ? _audioActionBarGap
-                              : bottomInset + _audioBottomGap,
+            child: _MeasuredSize(
+              onChange: (size) {
+                if ((_bottomOverlayHeight - size.height).abs() < 1) return;
+                setState(() => _bottomOverlayHeight = size.height);
+              },
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                // Stretch so the action bar spans full width; the audio button
+                // is centered explicitly.
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  if (_hasAudio)
+                    Padding(
+                      // Hug the action bar with a tight gap when it is open;
+                      // otherwise keep the original floating offset above bottom.
+                      padding: EdgeInsets.only(
+                        bottom:
+                            isActionBarVisible
+                                ? _audioActionBarGap
+                                : bottomInset + _audioBottomGap,
+                      ),
+                      child: Center(child: _buildAudioButton()),
                     ),
-                    child: Center(child: _buildAudioButton()),
-                  ),
-                if (isActionBarVisible) _buildSegmentActionBar(state, notifier),
-              ],
+                  if (isActionBarVisible)
+                    _buildSegmentActionBar(state, notifier),
+                ],
+              ),
             ),
           ),
       ],
@@ -506,20 +546,13 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
 
     showReaderMoreBottomSheet(
       context,
+      textId: widget.textId,
       showAddToPractices: showAddToPractices,
       onAddToPractices:
           showAddToPractices
               ? () => _openRoutineWithRecitation(context, textDetail)
               : null,
-      onBookmark: () => _bookmarkText(context),
     );
-  }
-
-  /// Bookmarks the current text. Invoked after the "more" sheet has been
-  /// dismissed, using the reader's own context so the success/login feedback
-  /// isn't drawn behind the closing modal.
-  void _bookmarkText(BuildContext context) {
-    BookmarkController(ref: ref, context: context).bookmarkText(widget.textId);
   }
 
   void _openRoutineWithRecitation(BuildContext context, TextDetail textDetail) {
@@ -600,4 +633,41 @@ class _ReaderErrorView extends StatelessWidget {
       ),
     );
   }
+}
+
+class _MeasuredSize extends StatefulWidget {
+  final Widget child;
+  final ValueChanged<Size> onChange;
+
+  const _MeasuredSize({required this.child, required this.onChange});
+
+  @override
+  State<_MeasuredSize> createState() => _MeasuredSizeState();
+}
+
+class _MeasuredSizeState extends State<_MeasuredSize> {
+  Size? _oldSize;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _notifySize());
+  }
+
+  @override
+  void didUpdateWidget(covariant _MeasuredSize oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    WidgetsBinding.instance.addPostFrameCallback((_) => _notifySize());
+  }
+
+  void _notifySize() {
+    if (!mounted) return;
+    final size = context.size;
+    if (size == null || size == _oldSize) return;
+    _oldSize = size;
+    widget.onChange(size);
+  }
+
+  @override
+  Widget build(BuildContext context) => widget.child;
 }

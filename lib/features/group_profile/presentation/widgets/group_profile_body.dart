@@ -7,6 +7,7 @@ import 'package:flutter_pecha/core/widgets/cached_network_image_widget.dart';
 import 'package:flutter_pecha/features/group_profile/domain/entities/group_profile.dart';
 import 'package:flutter_pecha/features/group_profile/presentation/providers/group_profile_providers.dart';
 import 'package:flutter_pecha/features/group_profile/presentation/widgets/group_profile_links_drawer.dart';
+import 'package:flutter_pecha/features/group_profile/presentation/widgets/group_profile_members_tab.dart';
 import 'package:flutter_pecha/features/plans/presentation/widgets/plan_inline_markdown_view.dart';
 import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -166,28 +167,6 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody> {
     );
   }
 
-  Widget _buildDescription(String description, bool isDark) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-      child: GestureDetector(
-        onTap:
-            () => setState(
-              () => _isDescriptionExpanded = !_isDescriptionExpanded,
-            ),
-        behavior: HitTestBehavior.opaque,
-        child: Text(
-          description,
-          style: TextStyle(
-            fontSize: 15,
-            color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimary,
-          ),
-          maxLines: _isDescriptionExpanded ? null : 6,
-          overflow: _isDescriptionExpanded ? null : TextOverflow.ellipsis,
-        ),
-      ),
-    );
-  }
-
   Widget _buildLinksSummary(
     List<GroupProfileSocialLink> links,
     bool isDark,
@@ -246,17 +225,47 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody> {
 
   Widget _buildAboutContent(GroupProfile profile) {
     final descriptionLong = profile.descriptionLong?.trim();
-    if (descriptionLong == null || descriptionLong.isEmpty) {
+    final hasBanner = profile.bannerUrl != null && profile.bannerUrl!.isNotEmpty;
+    final hasDescription =
+        descriptionLong != null && descriptionLong.isNotEmpty;
+
+    if (!hasBanner && !hasDescription) {
       return const SizedBox.shrink();
     }
 
     final bodyFontSize = getLocalizedFontSize(AppTextSize.body);
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-      child: PlanInlineMarkdownView(
-        content: descriptionLong,
-        fontSize: bodyFontSize,
+    return SingleChildScrollView(
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (hasBanner) ...[
+            ClipRRect(
+              borderRadius: BorderRadius.circular(16),
+              child: AspectRatio(
+                aspectRatio: 16 / 9,
+                child: CachedNetworkImageWidget(
+                  key: ValueKey(profile.bannerUrl),
+                  imageUrl: profile.bannerUrl,
+                  fit: BoxFit.cover,
+                  errorWidget: Container(
+                    color:
+                        isDark
+                            ? AppColors.surfaceVariantDark
+                            : AppColors.grey100,
+                  ),
+                ),
+              ),
+            ),
+            if (hasDescription) const SizedBox(height: 20),
+          ],
+          if (hasDescription)
+            PlanInlineMarkdownView(
+              content: descriptionLong,
+              fontSize: bodyFontSize,
+            ),
+        ],
       ),
     );
   }

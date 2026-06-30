@@ -14,6 +14,7 @@ class AppAssets {
   static const String recitationCoverDefault =
       'assets/images/recitation_cover/recitation_05.jpg';
   static const String connect = 'assets/images/connect.png';
+  static const String verseOfDayFallback = 'assets/images/buddha.jpeg';
 
   // ========== AUDIO ==========
   static const String meditationSound = 'assets/audios/meditation.mp3';
@@ -71,6 +72,7 @@ class AppAssets {
   static const IconData caretRight = PhosphorIconsRegular.caretRight;
   static const IconData caretDown = PhosphorIconsRegular.caretDown;
   static const IconData caretUp = PhosphorIconsRegular.caretUp;
+  static const IconData caretLeft = PhosphorIconsRegular.caretLeft;
   static const IconData arrowSquareOut = PhosphorIconsRegular.arrowSquareOut;
   static const IconData arrowLeft = PhosphorIconsRegular.arrowLeft;
   static const IconData lock = PhosphorIconsRegular.lock;
@@ -86,6 +88,7 @@ class AppAssets {
   static const IconData trash = PhosphorIconsRegular.trash;
   static const IconData fileText = PhosphorIconsRegular.fileText;
   static const IconData bookmarkSimple = PhosphorIconsRegular.bookmarkSimple;
+  static const IconData bookmarkSimpleFill = PhosphorIconsFill.bookmarkSimple;
   static const IconData speakerSimpleHigh =
       PhosphorIconsRegular.speakerSimpleHigh;
   static const IconData vibrate = PhosphorIconsRegular.vibrate;

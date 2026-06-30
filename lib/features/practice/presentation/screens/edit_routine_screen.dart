@@ -32,6 +32,7 @@ import 'package:flutter_pecha/features/practice/presentation/providers/routine_a
 import 'package:flutter_pecha/features/practice/presentation/providers/routine_provider.dart';
 import 'package:flutter_pecha/features/practice/presentation/screens/select_session_screen.dart';
 import 'package:flutter_pecha/features/practice/presentation/widgets/routine_time_block.dart';
+import 'package:flutter_pecha/shared/domain/value_objects/responsive_image.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -39,6 +40,12 @@ import 'package:uuid/uuid.dart';
 
 const _uuid = Uuid();
 final _logger = AppLogger('EditRoutineScreen');
+
+ResponsiveImage? _accumulatorCoverImage(Mantra mantra) {
+  final url = mantra.beadImageUrl ?? mantra.mantra?.beadImageUrl;
+  if (url == null || url.trim().isEmpty) return null;
+  return ResponsiveImage.uniform(url);
+}
 
 class _EditableBlock {
   String id;
@@ -104,9 +111,6 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
 
   /// Sequential queue so API calls never overlap or race.
   Future<void> _opQueue = Future.value();
-
-  bool get _isLastBlockEmpty =>
-      _blocks.isNotEmpty && _blocks.last.items.isEmpty;
 
   bool get _hasEmptyBlocks => _blocks.any((b) => b.items.isEmpty);
 
@@ -219,7 +223,7 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
   }
 
   RoutineItem _routineItemFromTimer(PresetTimer timer) => RoutineItem(
-    id: timer.id,
+    id: _uuid.v4(),
     title: '${timer.displayMinutes} min session',
     type: RoutineItemType.timer,
     durationMs: timer.durationMs,
@@ -238,8 +242,8 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
   }
 
   /// Adds the preset mala/accumulator into the routine as an ACCUMULATOR
-  /// session (source_id = preset id). Like series, a mala may live in multiple
-  /// time blocks, so the duplicate guard is scoped to the target block only.
+  /// session (accumulator_id = preset id). Like series, a mala may live in
+  /// multiple time blocks, so the duplicate guard is scoped to the target block only.
   _EditableBlock? _injectInitialAccumulator(Mantra mantra) {
     final resolved = _resolveInjectionTarget();
 
@@ -255,6 +259,7 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
       RoutineItem(
         id: mantra.presetId,
         title: mantra.displayTitle(language),
+        coverImage: _accumulatorCoverImage(mantra),
         type: RoutineItemType.accumulator,
         enrolledAt: DateTime.now(),
       ),
@@ -980,13 +985,15 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
   }
 
   bool get _isAtMaxBlocks => !canAddBlock(_blocks.length);
-  bool get _shouldShowAddButton => !_isLastBlockEmpty && !_isAtMaxBlocks;
+  bool get _shouldShowAddButton => !_hasEmptyBlocks && !_isAtMaxBlocks;
 
   int _calculateListItemCount() {
     return _shouldShowAddButton ? _blocks.length + 1 : _blocks.length;
   }
 
   void _addBlock() {
+    if (_hasEmptyBlocks) return;
+
     if (_isAtMaxBlocks) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -1108,6 +1115,8 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
           await _handleSeriesEnrollmentFromSelection(blockIndex, series);
         case TimerSessionSelection(:final timer):
           await _addTimerToBlock(blockIndex, timer);
+        case MantraSessionSelection(:final mantra):
+          await _addAccumulatorToBlock(blockIndex, mantra);
       }
     } finally {
       _isSelectingSession = false;
@@ -1155,12 +1164,31 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
     int blockIndex,
     RecitationModel recitation,
   ) async {
+    if (blockIndex < 0 || blockIndex >= _blocks.length) return;
+    final block = _blocks[blockIndex];
+
+    final duplicateInBlock = block.items.any(
+      (item) =>
+          item.id == recitation.textId &&
+          item.type == RoutineItemType.recitation,
+    );
+    if (duplicateInBlock) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(context.l10n.duplicateItem),
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
+      return;
+    }
+
     final newItem = RoutineItem(
       id: recitation.textId,
       title: recitation.title,
       type: RoutineItemType.recitation,
     );
-    final block = _blocks[blockIndex];
     setState(() => block.items.add(newItem));
 
     try {
@@ -1176,6 +1204,47 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
   Future<void> _addTimerToBlock(int blockIndex, PresetTimer timer) async {
     final newItem = _routineItemFromTimer(timer);
     final block = _blocks[blockIndex];
+    setState(() => block.items.add(newItem));
+
+    try {
+      await _syncBlock(block);
+    } catch (e) {
+      if (mounted) {
+        setState(() => block.items.remove(newItem));
+        _showErrorSnackBar(_mapError(e));
+      }
+    }
+  }
+
+  Future<void> _addAccumulatorToBlock(int blockIndex, Mantra mantra) async {
+    if (blockIndex < 0 || blockIndex >= _blocks.length) return;
+    final block = _blocks[blockIndex];
+
+    final duplicateInBlock = block.items.any(
+      (item) =>
+          item.id == mantra.presetId &&
+          item.type == RoutineItemType.accumulator,
+    );
+    if (duplicateInBlock) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(context.l10n.duplicateItem),
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
+      return;
+    }
+
+    final language = ref.read(contentLanguageProvider);
+    final newItem = RoutineItem(
+      id: mantra.presetId,
+      title: mantra.displayTitle(language),
+      coverImage: _accumulatorCoverImage(mantra),
+      type: RoutineItemType.accumulator,
+      enrolledAt: DateTime.now(),
+    );
     setState(() => block.items.add(newItem));
 
     try {
@@ -1306,9 +1375,7 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
                 );
               }
               if (widget.initialTimer != null) {
-                injectedTimerBlock = _injectInitialTimer(
-                  widget.initialTimer!,
-                );
+                injectedTimerBlock = _injectInitialTimer(widget.initialTimer!);
               }
               if (widget.initialSeries != null) {
                 injectedSeriesBlock = _injectInitialSeries(
@@ -1503,12 +1570,19 @@ class _DoneButton extends StatelessWidget {
           HapticFeedback.lightImpact();
           onTap();
         },
-        child: Text(
-          label,
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w500,
-            color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimary,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+          decoration: BoxDecoration(
+            color: isDark ? AppColors.surfaceVariantDark : AppColors.grey100,
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Text(
+            label,
+            style: TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w500,
+              color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimary,
+            ),
           ),
         ),
       ),

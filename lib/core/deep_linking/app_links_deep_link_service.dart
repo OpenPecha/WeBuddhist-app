@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:app_links/app_links.dart';
+import 'package:flutter_pecha/core/config/router/app_routes.dart';
 import 'package:flutter_pecha/core/deep_linking/deep_link_router.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:go_router/go_router.dart';
@@ -47,11 +48,17 @@ class AppLinksDeepLinkService {
 
   void setRouter(GoRouter router) {
     _router = router;
+  }
+
+  bool drainPendingLink() {
+    if (_router == null) return false;
+
     final pending = _pendingUri;
-    if (pending == null) return;
+    if (pending == null) return false;
 
     _pendingUri = null;
-    _dispatch(pending);
+    _dispatch(pending, baseLocation: AppRoutes.home);
+    return true;
   }
 
   Future<void> dispose() async {
@@ -75,10 +82,15 @@ class AppLinksDeepLinkService {
     _dispatch(uri);
   }
 
-  void _dispatch(Uri uri) {
+  void _dispatch(Uri uri, {String? baseLocation}) {
     final router = _router;
     if (router == null) return;
 
-    DeepLinkRouter.route(uri, router, source: 'app_links');
+    DeepLinkRouter.route(
+      uri,
+      router,
+      source: 'app_links',
+      baseLocation: baseLocation,
+    );
   }
 }

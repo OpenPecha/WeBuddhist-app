@@ -4,14 +4,26 @@
   "sign_in": "Sign in",
   "logout": "Log out",
   "onboarding_welcome": "Welcome to",
+  "onboarding_setup_subtitle": "Let's get you set up, It'll only take a minute",
+  "onboarding_tagline": "Learn, practice, and connect. Daily.",
   "onboarding_quote": "Drop by drop the water pot is filled. Likewise, the wise person, gathering it little by little, fills themselves with good.",
-  "onboarding_find_peace": "Get started",
+  "onboarding_find_peace": "Get Started",
   "onboarding_continue": "Continue",
   "onboarding_first_question": "Choose your language:",
   "onboarding_choose_option": "Choose at least one:",
-  "onboarding_all_set": "You're all set up",
-  "onboarding_all_set_description": "We've tailored your experience to your tradition. Show up each day — even for a moment — and watch your practice grow",
-  "onboarding_begin_practice": "Begin your practice",
+  "onboarding_all_set": "You're all set",
+  "onboarding_all_set_description": "Here's what's ready for your practice.",
+  "onboarding_all_set_feature_practices": "Chants, accumulations, meditation, and study plans to choose from",
+  "onboarding_all_set_feature_reminders": "Gentle daily reminders, whenever you're ready",
+  "onboarding_begin_practice": "Find your first practices",
+  "onboarding_2_title": "Next, here's how it works.",
+  "onboarding_2_subtitle": "Three small steps to build the habit",
+  "onboarding_2_step1_title": "Choose your practices",
+  "onboarding_2_step1_desc": "Chant, count mantras, set a meditation timer, or follow a study plan from your tradition.",
+  "onboarding_2_step2_title": "Add them to your day",
+  "onboarding_2_step2_desc": "Build a daily routine and we'll send gentle reminders to keep it going.",
+  "onboarding_2_step3_title": "Practice a few minutes a day",
+  "onboarding_2_step3_desc": "Even a moment counts. Day by day, your practice grows.",
   "home_recitation": "recitations",
   "home_today": "Today",
   "home_good_morning": "Good morning",
@@ -104,7 +116,6 @@
   "text_toc_versions": "Versions",
   "text_commentary": "Commentaries",
   "resources": "Resources",
-  "tools": "Tools",
   "no_translation": "No translations found",
   "text_close_commentary": "Close commentary",
   "show_more": "Show more",
@@ -195,6 +206,11 @@
   "something_went_wrong": "Something went wrong. Please try again",
   "onboarding_quote_citation": "— Dhammapada 122",
   "onboarding_traditions_question": "Which traditions\ndo you follow?",
+  "onboarding_tradition_chat_title": "Your tradition:",
+  "onboarding_tradition_chat_subtitle": "Choose one: we'll use it to personalize your experience.",
+  "onboarding_tradition_type_hint": "Or type your tradition...",
+  "onboarding_skip_for_now": "Skip for now",
+  "onboarding_add_another_tradition": "Add another tradition",
   "onboarding_select_all": "Select all",
   "onboarding_event_enrollment_error": "Unable to enroll you. Check your connection and try again",
   "onboarding_event_question": "Join an\nevent?",
@@ -494,6 +510,7 @@
   "continueWithGoogle": "Continue with Google",
   "continueWithApple": "Continue with Apple",
   "continueAsGuest": "Continue as guest",
+  "exploreAsGuest": "Explore as a Guest",
   "signIn": "Sign In",
   "profileError": "Error loading profile",
   "profileTitle": "Profile",
@@ -736,6 +753,29 @@
   "joined": "Joined",
   "group_member": "member",
   "group_members": "members",
+  "group_tab_members": "Members",
+  "group_tab_followers": "Followers",
+  "group_members_heading": "Members({count})",
+  "group_followers_heading": "Followers({count})",
+  "@group_members_heading": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@group_followers_heading": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "group_invite": "Invite",
+  "group_members_load_error": "Unable to load members. Please try again.",
+  "group_followers_load_error": "Unable to load followers. Please try again.",
+  "group_members_empty": "No members yet",
+  "group_followers_empty": "No followers yet",
   "group_follower": "follower",
   "group_followers": "followers",
   "group_links_title": "Links",
