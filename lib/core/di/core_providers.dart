@@ -91,6 +91,11 @@ final cacheInterceptorProvider = Provider<CacheInterceptor>((ref) {
   return CacheInterceptor(ref.watch(loggerProvider));
 });
 
+/// Provider for TimezoneInterceptor (adds X-Timezone to all requests)
+final timezoneInterceptorProvider = Provider<TimezoneInterceptor>((ref) {
+  return TimezoneInterceptor(ref.watch(loggerProvider));
+});
+
 /// Callback invoked by a [RetryInterceptor] when a token renewal fails
 /// *permanently* (refresh token gone/revoked). Flips auth state to logged-out
 /// so the router redirects to login while preserving the intended route.
@@ -157,6 +162,7 @@ final dioClientProvider = Provider<DioClient>((ref) {
   return DioClient(
     options: ref.watch(_dioBaseOptionsProvider),
     authInterceptor: ref.watch(authInterceptorProvider),
+    timezoneInterceptor: ref.watch(timezoneInterceptorProvider),
     loggingInterceptor: ref.watch(loggingInterceptorProvider),
     errorInterceptor: ref.watch(errorInterceptorProvider),
     cacheInterceptor: ref.watch(cacheInterceptorProvider),
@@ -197,9 +203,10 @@ final aiDioClientProvider = Provider<AiDioClient>((ref) {
   final aiRetryInterceptor = ref.watch(aiRetryInterceptorProvider);
   return AiDioClient(
     options: ref.watch(_aiDioBaseOptionsProvider),
-    // Order mirrors DioClient: auth → retry (401 refresh) → error → logging.
+    // Order mirrors DioClient: auth → timezone → retry (401 refresh) → error → logging.
     interceptors: [
       ref.watch(authInterceptorProvider),
+      ref.watch(timezoneInterceptorProvider),
       aiRetryInterceptor,
       ref.watch(errorInterceptorProvider),
       ref.watch(loggingInterceptorProvider),

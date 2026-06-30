@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
+import 'package:flutter_pecha/core/utils/iana_timezone.dart';
 
 /// Simple in-memory cache for GET requests.
 ///
@@ -187,16 +188,17 @@ class CacheInterceptor extends Interceptor {
   /// Generate a unique cache key for the request
   String _generateCacheKey(RequestOptions options) {
     final path = options.path;
-    final queryParams = options.queryParameters;
-    if (queryParams.isEmpty) {
-      return path;
+    final params = Map<String, dynamic>.from(options.queryParameters);
+    final timezone = options.headers[IanaTimezone.headerName]?.toString();
+    if (timezone != null && timezone.isNotEmpty) {
+      params[IanaTimezone.headerName] = timezone;
     }
-    // Sort query params for consistent keys
-    final sortedParams = queryParams.entries.toList()
+    if (params.isEmpty) return path;
+
+    final sortedParams = params.entries.toList()
       ..sort((a, b) => a.key.compareTo(b.key));
-    final queryString = sortedParams
-        .map((e) => '${e.key}=${e.value}')
-        .join('&');
+    final queryString =
+        sortedParams.map((e) => '${e.key}=${e.value}').join('&');
     return '$path?$queryString';
   }
 
