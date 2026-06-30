@@ -36,34 +36,43 @@ class GroupProfileBody extends ConsumerStatefulWidget {
 
 class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
     with SingleTickerProviderStateMixin {
-  late TabController _tabController;
+  TabController? _tabController;
   String? _enrollingSeriesId;
   final Set<String> _localGroupEnrolledSeriesIds = {};
 
-  int get _tabCount {
+  bool _isCommunityGroup(GroupProfile profile) => !profile.groupType.isPage;
+
+  int _tabCount(GroupProfile profile) {
     var count = 2;
-    if (_hasAboutContent(widget.profile)) count++;
+    if (_hasAboutContent(profile)) count++;
     return count;
   }
 
   int get _membersTabIndex => 1;
 
+  bool _hasBanner(GroupProfile profile) =>
+      profile.bannerUrl != null && profile.bannerUrl!.isNotEmpty;
+
   bool _hasAboutContent(GroupProfile profile) {
-    final hasBanner =
-        profile.bannerUrl != null && profile.bannerUrl!.isNotEmpty;
     final descriptionLong = profile.descriptionLong?.trim();
-    return hasBanner || (descriptionLong != null && descriptionLong.isNotEmpty);
+    return _hasBanner(profile) ||
+        (descriptionLong != null && descriptionLong.isNotEmpty);
   }
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: _tabCount, vsync: this);
+    if (_isCommunityGroup(widget.profile)) {
+      _tabController = TabController(
+        length: _tabCount(widget.profile),
+        vsync: this,
+      );
+    }
   }
 
   @override
   void dispose() {
-    _tabController.dispose();
+    _tabController?.dispose();
     super.dispose();
   }
 
@@ -116,35 +125,50 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        if (!_isCommunityGroup(profile) && _hasBanner(profile)) ...[
+          _buildProfileBanner(profile, isDark),
+          const SizedBox(height: 16),
+        ],
         _buildProfileHeader(profile, isDark, lineHeight),
         if (orderedLinks.isNotEmpty) ...[
           const SizedBox(height: 12),
           _buildLinksSummary(orderedLinks, isDark, lineHeight),
         ],
         const SizedBox(height: 20),
-        _GroupFollowButton(profile: profile, isDark: isDark),
-        const SizedBox(height: 24),
-        _buildTabBar(isDark, profile),
-        Expanded(
-          child: AnimatedBuilder(
-            animation: _tabController,
-            builder: (context, _) {
-              final tabIndex = _tabController.index;
-              if (tabIndex == 0) {
-                return _buildPracticesTab(profile, isDark, lineHeight);
-              }
-              if (tabIndex == _membersTabIndex) {
-                return GroupProfileMembersTab(
-                  groupId: profile.id,
-                  groupType: profile.groupType,
-                  isDark: isDark,
-                  lineHeight: lineHeight,
-                );
-              }
-              return _buildAboutTab(profile, isDark, locale.languageCode);
-            },
+        if (_isCommunityGroup(profile)) ...[
+          _GroupFollowButton(profile: profile, isDark: isDark),
+          const SizedBox(height: 24),
+        ],
+        if (_isCommunityGroup(profile)) ...[
+          _buildTabBar(isDark, profile),
+          Expanded(
+            child: AnimatedBuilder(
+              animation: _tabController!,
+              builder: (context, _) {
+                final tabIndex = _tabController!.index;
+                if (tabIndex == 0) {
+                  return _buildPracticesTab(profile, isDark, lineHeight);
+                }
+                if (tabIndex == _membersTabIndex) {
+                  return GroupProfileMembersTab(
+                    groupId: profile.id,
+                    groupType: profile.groupType,
+                    isDark: isDark,
+                    lineHeight: lineHeight,
+                  );
+                }
+                return _buildAboutTab(profile, isDark, locale.languageCode);
+              },
+            ),
           ),
-        ),
+        ] else
+          Expanded(
+            child: _buildDescriptionLongContent(
+              profile,
+              isDark,
+              locale.languageCode,
+            ),
+          ),
       ],
     );
   }
@@ -309,7 +333,7 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
     return Column(
       children: [
         TabBar(
-          controller: _tabController,
+          controller: _tabController!,
           isScrollable: true,
           tabAlignment: TabAlignment.start,
           labelColor: labelColor,
@@ -361,18 +385,61 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
     );
   }
 
+  Widget _buildProfileBanner(GroupProfile profile, bool isDark) {
+    if (!_hasBanner(profile)) {
+      return const SizedBox.shrink();
+    }
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16),
+        child: AspectRatio(
+          aspectRatio: 16 / 9,
+          child: CachedNetworkImageWidget(
+            key: ValueKey(profile.bannerUrl),
+            imageUrl: profile.bannerUrl,
+            fit: BoxFit.cover,
+            errorWidget: Container(
+              color: isDark ? AppColors.surfaceVariantDark : AppColors.grey100,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDescriptionLongContent(
+    GroupProfile profile,
+    bool isDark,
+    String languageCode,
+  ) {
+    final descriptionLong = profile.description?.trim();
+    if (descriptionLong == null || descriptionLong.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    final bodyFontSize = getLocalizedFontSize(AppTextSize.body);
+
+    return SingleChildScrollView(
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 32),
+      child: PlanInlineMarkdownView(
+        content: descriptionLong,
+        fontSize: bodyFontSize,
+      ),
+    );
+  }
+
   Widget _buildAboutTab(
     GroupProfile profile,
     bool isDark,
     String languageCode,
   ) {
     final descriptionLong = profile.descriptionLong?.trim();
-    final hasBanner =
-        profile.bannerUrl != null && profile.bannerUrl!.isNotEmpty;
     final hasDescription =
         descriptionLong != null && descriptionLong.isNotEmpty;
 
-    if (!hasBanner && !hasDescription) {
+    if (!_hasBanner(profile) && !hasDescription) {
       return const SizedBox.shrink();
     }
 
@@ -383,24 +450,8 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (hasBanner) ...[
-            ClipRRect(
-              borderRadius: BorderRadius.circular(16),
-              child: AspectRatio(
-                aspectRatio: 16 / 9,
-                child: CachedNetworkImageWidget(
-                  key: ValueKey(profile.bannerUrl),
-                  imageUrl: profile.bannerUrl,
-                  fit: BoxFit.cover,
-                  errorWidget: Container(
-                    color:
-                        isDark
-                            ? AppColors.surfaceVariantDark
-                            : AppColors.grey100,
-                  ),
-                ),
-              ),
-            ),
+          if (_hasBanner(profile)) ...[
+            _buildProfileBanner(profile, isDark),
             if (hasDescription) const SizedBox(height: 20),
           ],
           if (hasDescription)
