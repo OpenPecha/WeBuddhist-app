@@ -133,7 +133,9 @@ class MoreScreen extends ConsumerWidget {
                 context,
                 icon: AppAssets.signIn,
                 title: localizations.sign_in,
-                onTap: () => LoginDrawer.show(context, ref),
+                onTap:
+                    () =>
+                        LoginDrawer.show(context, ref, useRootNavigator: true),
               ),
             ] else ...[
               _buildSettingsRow(
@@ -306,6 +308,7 @@ class MoreScreen extends ConsumerWidget {
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       isScrollControlled: true,
+      useRootNavigator: true,
       builder: (sheetContext) {
         final theme = Theme.of(sheetContext);
         final selected = currentLocale ?? Localizations.localeOf(sheetContext);

@@ -59,20 +59,24 @@ class RouteGuard {
     String? Function() getPendingRoute,
     void Function(String?) setPendingRoute,
   ) async {
-    final hasOnboarded = await onboardingRepo.isOnboardingCompleted().then(
-      (result) =>
-          result.fold((failure) => false, (hasCompleted) => hasCompleted),
-    );
+    final onboardingResult = await onboardingRepo.isOnboardingCompleted();
+    final bool? hasOnboarded = onboardingResult.fold((failure) {
+      _logger.warning(
+        'Onboarding status unavailable (${failure.message}); '
+        'skipping onboarding enforcement',
+      );
+      return null;
+    }, (hasCompleted) => hasCompleted);
 
-    // Force onboarding if not completed
-    if (!hasOnboarded &&
+    // Force onboarding only when status was fetched and is not completed.
+    if (hasOnboarded == false &&
         path != AppRoutes.onboarding &&
         path != AppRoutes.login) {
       return AppRoutes.onboarding;
     }
 
-    // Skip onboarding if already done
-    if (hasOnboarded && path == AppRoutes.onboarding) {
+    // Completed users, and offline/unreachable checks, go to home — not onboarding.
+    if (hasOnboarded != false && path == AppRoutes.onboarding) {
       return AppRoutes.home;
     }
 

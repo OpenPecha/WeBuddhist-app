@@ -17,6 +17,50 @@ Future<bool?> showDestructiveConfirmationDialog(
   bool barrierDismissible = true,
   Future<bool> Function()? onConfirmed,
 }) {
+  return _showConfirmationDialog(
+    context,
+    title: title,
+    message: message,
+    confirmLabel: confirmLabel,
+    cancelLabel: cancelLabel,
+    barrierDismissible: barrierDismissible,
+    onConfirmed: onConfirmed,
+    isDestructive: true,
+  );
+}
+
+/// Shows a styled confirmation dialog with neutral confirm styling.
+Future<bool?> showConfirmationDialog(
+  BuildContext context, {
+  required String title,
+  required String message,
+  String? confirmLabel,
+  String? cancelLabel,
+  bool barrierDismissible = true,
+  Future<bool> Function()? onConfirmed,
+}) {
+  return _showConfirmationDialog(
+    context,
+    title: title,
+    message: message,
+    confirmLabel: confirmLabel,
+    cancelLabel: cancelLabel,
+    barrierDismissible: barrierDismissible,
+    onConfirmed: onConfirmed,
+    isDestructive: false,
+  );
+}
+
+Future<bool?> _showConfirmationDialog(
+  BuildContext context, {
+  required String title,
+  required String message,
+  String? confirmLabel,
+  String? cancelLabel,
+  required bool barrierDismissible,
+  Future<bool> Function()? onConfirmed,
+  required bool isDestructive,
+}) {
   final isDark = Theme.of(context).brightness == Brightness.dark;
   final l10n = context.l10n;
 
@@ -27,10 +71,12 @@ Future<bool?> showDestructiveConfirmationDialog(
         (dialogContext) => DestructiveConfirmationDialog(
           title: title,
           message: message,
-          confirmLabel: confirmLabel ?? l10n.delete,
+          confirmLabel:
+              confirmLabel ?? (isDestructive ? l10n.delete : l10n.ai_confirm),
           cancelLabel: cancelLabel ?? l10n.cancel,
           isDark: isDark,
           onConfirmed: onConfirmed,
+          isDestructive: isDestructive,
         ),
   );
 }
@@ -44,6 +90,7 @@ class DestructiveConfirmationDialog extends StatefulWidget {
     required this.cancelLabel,
     required this.isDark,
     this.onConfirmed,
+    this.isDestructive = true,
   });
 
   final String title;
@@ -52,6 +99,7 @@ class DestructiveConfirmationDialog extends StatefulWidget {
   final String cancelLabel;
   final bool isDark;
   final Future<bool> Function()? onConfirmed;
+  final bool isDestructive;
 
   @override
   State<DestructiveConfirmationDialog> createState() =>
@@ -76,6 +124,76 @@ class _DestructiveConfirmationDialogState
     }
 
     Navigator.of(context).pop(true);
+  }
+
+  Widget _buildConfirmButton(
+    BuildContext context, {
+    required TextTheme textTheme,
+    required double buttonFontSize,
+  }) {
+    final confirmChild =
+        _isLoading
+            ? SizedBox(
+              width: 20,
+              height: 20,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                color:
+                    widget.isDestructive
+                        ? Colors.red.shade600
+                        : (widget.isDark
+                            ? AppColors.textPrimary
+                            : AppColors.textPrimaryDark),
+              ),
+            )
+            : Text(
+              widget.confirmLabel,
+              textAlign: TextAlign.center,
+              strutStyle: context.tibetanStrutStyle(
+                buttonFontSize,
+                compact: true,
+              ),
+              style: textTheme.labelLarge?.copyWith(
+                fontSize: buttonFontSize,
+                fontWeight:
+                    widget.isDestructive ? FontWeight.normal : FontWeight.w600,
+                color:
+                    widget.isDestructive
+                        ? AppColors.danger
+                        : (widget.isDark ? AppColors.danger : AppColors.danger),
+              ),
+            );
+
+    if (widget.isDestructive) {
+      return OutlinedButton(
+        onPressed: _isLoading ? null : _handleConfirm,
+        style: OutlinedButton.styleFrom(
+          foregroundColor: Colors.red.shade600,
+          minimumSize: const Size(double.infinity, 48),
+          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+          side: const BorderSide(color: AppColors.grey300),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(30),
+          ),
+        ),
+        child: confirmChild,
+      );
+    }
+
+    return FilledButton(
+      onPressed: _isLoading ? null : _handleConfirm,
+      style: FilledButton.styleFrom(
+        backgroundColor: Colors.transparent,
+        foregroundColor: AppColors.danger,
+        minimumSize: const Size(double.infinity, 48),
+        side: BorderSide(
+          color: widget.isDark ? AppColors.cardBorderDark : AppColors.grey300,
+        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+        elevation: 0,
+      ),
+      child: confirmChild,
+    );
   }
 
   @override
@@ -117,41 +235,10 @@ class _DestructiveConfirmationDialogState
               const SizedBox(height: 24),
               SizedBox(
                 width: double.infinity,
-                child: OutlinedButton(
-                  onPressed: _isLoading ? null : _handleConfirm,
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: Colors.red.shade600,
-                    minimumSize: const Size(double.infinity, 48),
-                    padding: const EdgeInsets.symmetric(
-                      vertical: 12,
-                      horizontal: 16,
-                    ),
-                    side: const BorderSide(color: AppColors.grey300),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30),
-                    ),
-                  ),
-                  child:
-                      _isLoading
-                          ? SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: Colors.red.shade600,
-                            ),
-                          )
-                          : Text(
-                            widget.confirmLabel,
-                            textAlign: TextAlign.center,
-                            strutStyle: context.tibetanStrutStyle(
-                              buttonFontSize,
-                              compact: true,
-                            ),
-                            style: textTheme.labelLarge?.copyWith(
-                              fontSize: buttonFontSize,
-                            ),
-                          ),
+                child: _buildConfirmButton(
+                  context,
+                  textTheme: textTheme,
+                  buttonFontSize: buttonFontSize,
                 ),
               ),
               const SizedBox(height: 12),

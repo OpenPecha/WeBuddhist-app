@@ -1,33 +1,33 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
+import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
 import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/core/widgets/responsive_cover_image.dart';
-import 'package:flutter_pecha/shared/domain/value_objects/responsive_image.dart';
-import 'package:flutter_pecha/core/widgets/error_state_widget.dart';
 import 'package:flutter_pecha/core/widgets/skeletons/skeletons.dart';
+import 'package:flutter_pecha/features/mala/domain/entities/mantra.dart';
+import 'package:flutter_pecha/features/mala/presentation/providers/mala_providers.dart';
 import 'package:flutter_pecha/features/practice/data/models/session_selection.dart';
 import 'package:flutter_pecha/features/practice/domain/entities/practice_item.dart';
 import 'package:flutter_pecha/features/practice/domain/entities/practice_items_tab.dart';
 import 'package:flutter_pecha/features/practice/presentation/providers/practice_items_paginated_provider.dart';
-import 'package:flutter_pecha/features/recitation/presentation/providers/recitations_providers.dart';
+import 'package:flutter_pecha/features/practice/presentation/providers/practice_recitations_paginated_provider.dart';
+import 'package:flutter_pecha/features/recitation/data/models/recitation_model.dart';
 import 'package:flutter_pecha/features/recitation/presentation/widgets/recitation_list_skeleton.dart';
+import 'package:flutter_pecha/features/timer/domain/entities/preset_timer.dart';
+import 'package:flutter_pecha/features/timer/presentation/providers/timers_providers.dart';
+import 'package:flutter_pecha/shared/domain/value_objects/responsive_image.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
+import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 
 final _logger = AppLogger('SelectSessionScreen');
 
-/// Combined screen for selecting either a Plan, Series, or Recitation to add
-/// to the routine. Returns a [SessionSelection] subtype that the caller
-/// (`EditRoutineScreen`) dispatches on.
-///
-/// Plans/series come from `GET /practice/items` (page-based). Recitations
-/// remain on their own list endpoint. Every item is always shown — there is no
-/// list-level filtering. Per-timeblock duplicate rules (a plan can't be added
-/// twice to the same block; a series can't be added to a block that already
-/// holds all of its active plans) are enforced by the caller
-/// (`EditRoutineScreen`) when an item is selected.
+/// Session picker with four tabs: Plans · Chants · Malas · Timers.
+/// Returns a [SessionSelection] subtype that [EditRoutineScreen] dispatches on.
 class SelectSessionScreen extends ConsumerStatefulWidget {
   const SelectSessionScreen({super.key});
 
@@ -38,24 +38,20 @@ class SelectSessionScreen extends ConsumerStatefulWidget {
 
 class _SelectSessionScreenState extends ConsumerState<SelectSessionScreen>
     with SingleTickerProviderStateMixin {
-  /// Tab used by the practice picker. Both plans and series live on the same
-  /// "Add Plan" tab; recitations get their own tab.
   static const PracticeItemsTab _practiceTab = PracticeItemsTab.all;
 
   late TabController _tabController;
   final ScrollController _plansScrollController = ScrollController();
+  final ScrollController _chantsScrollController = ScrollController();
 
-  /// ID of the item currently being enrolled/saved (null if idle).
-  /// Reserved for future inline-loading affordances; today's flow pops
-  /// immediately, so this stays null in normal use.
   final String? _enrollingItemId = null;
 
   @override
   void initState() {
     super.initState();
-    _logger.debug('🚀 initState() called');
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(length: 4, vsync: this);
     _plansScrollController.addListener(_onPlansScroll);
+    _chantsScrollController.addListener(_onChantsScroll);
   }
 
   @override
@@ -63,6 +59,8 @@ class _SelectSessionScreenState extends ConsumerState<SelectSessionScreen>
     _tabController.dispose();
     _plansScrollController.removeListener(_onPlansScroll);
     _plansScrollController.dispose();
+    _chantsScrollController.removeListener(_onChantsScroll);
+    _chantsScrollController.dispose();
     super.dispose();
   }
 
@@ -75,6 +73,13 @@ class _SelectSessionScreenState extends ConsumerState<SelectSessionScreen>
     }
   }
 
+  void _onChantsScroll() {
+    if (_chantsScrollController.position.pixels >=
+        _chantsScrollController.position.maxScrollExtent - 200) {
+      ref.read(practiceRecitationsPaginatedProvider.notifier).loadMore();
+    }
+  }
+
   void _onPracticeItemSelected(PracticeItem item) {
     if (_enrollingItemId != null) return;
     final selection = switch (item) {
@@ -84,14 +89,24 @@ class _SelectSessionScreenState extends ConsumerState<SelectSessionScreen>
     Navigator.of(context).pop<SessionSelection>(selection);
   }
 
-  Future<void> _onRecitationSelected(dynamic recitation) async {
+  void _onRecitationSelected(RecitationModel recitation) {
     if (_enrollingItemId != null) return;
-    Navigator.of(context).pop(RecitationSessionSelection(recitation));
+    Navigator.of(
+      context,
+    ).pop<SessionSelection>(RecitationSessionSelection(recitation));
+  }
+
+  void _onMantraSelected(Mantra mantra) {
+    Navigator.of(context).pop<SessionSelection>(MantraSessionSelection(mantra));
+  }
+
+  void _onTimerSelected(PresetTimer timer) {
+    Navigator.of(context).pop<SessionSelection>(TimerSessionSelection(timer));
   }
 
   @override
   Widget build(BuildContext context) {
-    _logger.debug('🎨 ===== BUILD STARTED =====');
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final localizations = AppLocalizations.of(context)!;
 
     return Scaffold(
@@ -102,65 +117,79 @@ class _SelectSessionScreenState extends ConsumerState<SelectSessionScreen>
         ),
         title: Text(
           localizations.routine_add_session,
-          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
         ),
         scrolledUnderElevation: 0,
         centerTitle: true,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.search, size: 22),
+            onPressed: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(localizations.mala_action_coming_soon),
+                  behavior: SnackBarBehavior.floating,
+                ),
+              );
+            },
+          ),
+        ],
         bottom: TabBar(
           controller: _tabController,
           tabs: [
-            Tab(text: localizations.routine_add_plan),
-            Tab(text: localizations.routine_add_recitation),
+            Tab(text: localizations.home_shortcut_plans),
+            Tab(text: localizations.home_chants),
+            Tab(text: localizations.home_mala),
+            Tab(text: localizations.home_timer),
           ],
           labelStyle: const TextStyle(
             fontWeight: FontWeight.bold,
-            fontSize: 16,
+            fontSize: 14,
           ),
           unselectedLabelStyle: const TextStyle(
             fontWeight: FontWeight.normal,
-            fontSize: 16,
+            fontSize: 14,
           ),
           labelColor:
-              Theme.of(context).brightness == Brightness.dark
-                  ? Colors.white
-                  : Colors.black,
+              isDark ? AppColors.textPrimaryDark : AppColors.textPrimary,
           unselectedLabelColor:
-              Theme.of(context).brightness == Brightness.dark
-                  ? Colors.white.withValues(alpha: 0.5)
-                  : Colors.black.withValues(alpha: 0.5),
+              isDark ? AppColors.textTertiaryDark : AppColors.textSecondary,
+          indicatorColor: Colors.blue,
+          indicatorSize: TabBarIndicatorSize.tab,
+          dividerColor: Colors.transparent,
         ),
       ),
       body: TabBarView(
         controller: _tabController,
         children: [
-          _PracticeItemsTab(
+          _PlansTab(
             tab: _practiceTab,
             scrollController: _plansScrollController,
             enrollingItemId: _enrollingItemId,
             onItemSelected: _onPracticeItemSelected,
           ),
-          _RecitationsTab(
+          _ChantsTab(
+            scrollController: _chantsScrollController,
             enrollingItemId: _enrollingItemId,
             onRecitationSelected: _onRecitationSelected,
           ),
+          _MalasTab(onMantraSelected: _onMantraSelected),
+          _TimersTab(onTimerSelected: _onTimerSelected),
         ],
       ),
     );
   }
 }
 
-/// Tab content for the practice picker (plans + series).
-///
-/// No list-level filtering: every plan and series the API returns is shown.
-/// Whether an item can actually be added to the chosen timeblock is decided by
-/// the caller (`EditRoutineScreen`) on selection.
-class _PracticeItemsTab extends ConsumerWidget {
+// ─── Plans tab ───────────────────────────────────────────────────────────────
+
+class _PlansTab extends ConsumerWidget {
   final PracticeItemsTab tab;
   final ScrollController scrollController;
   final String? enrollingItemId;
   final void Function(PracticeItem item) onItemSelected;
 
-  const _PracticeItemsTab({
+  const _PlansTab({
     required this.tab,
     required this.scrollController,
     required this.enrollingItemId,
@@ -169,11 +198,13 @@ class _PracticeItemsTab extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final localizations = AppLocalizations.of(context)!;
     final itemsState = ref.watch(practiceItemsPaginatedProvider(tab));
 
+    Future<void> onRefresh() =>
+        ref.read(practiceItemsPaginatedProvider(tab).notifier).refresh();
+
     _logger.debug(
-      '📋 _PracticeItemsTab BUILD: ${itemsState.items.length} items, '
+      '📋 _PlansTab BUILD: ${itemsState.items.length} items, '
       'isLoading: ${itemsState.isLoading}, error: ${itemsState.error}',
     );
 
@@ -182,234 +213,136 @@ class _PracticeItemsTab extends ConsumerWidget {
     }
 
     if (itemsState.error != null && itemsState.items.isEmpty) {
-      return ErrorStateWidget(
-        error: itemsState.error!,
-        onRetry:
-            () =>
-                ref.read(practiceItemsPaginatedProvider(tab).notifier).retry(),
-        customMessage: 'Unable to load plans.\nPlease try again later.',
+      return _RefreshableScrollBody(
+        onRefresh: onRefresh,
+        child: _SessionTabMessage(
+          message: 'Unable to load plans.\nPlease try again later.',
+        ),
       );
     }
 
     final items = itemsState.items;
 
     if (items.isEmpty && !itemsState.isLoading) {
-      return Center(
-        child: Text(
-          localizations.no_plans_found,
-          style: TextStyle(color: AppColors.textSecondary),
-        ),
+      return _RefreshableScrollBody(
+        onRefresh: onRefresh,
+        child: const _SessionTabMessage(message: 'No plans found'),
       );
     }
 
-    return ListView.separated(
-      controller: scrollController,
-      padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
-      itemCount: items.length + (itemsState.hasMore ? 1 : 0),
-      separatorBuilder: (_, __) => const Divider(height: 1),
-      itemBuilder: (context, index) {
-        if (index == items.length) {
-          return Padding(
-            padding: const EdgeInsets.symmetric(vertical: 16.0),
-            child: Center(
-              child:
-                  itemsState.isLoadingMore
-                      ? const CircularProgressIndicator()
-                      : const SizedBox.shrink(),
-            ),
-          );
-        }
+    return RefreshIndicator(
+      onRefresh: onRefresh,
+      child: ListView.builder(
+        controller: scrollController,
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        itemCount: items.length + (itemsState.hasMore ? 1 : 0),
+        itemBuilder: (context, index) {
+          if (index == items.length) {
+            return Padding(
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              child: Center(
+                child:
+                    itemsState.isLoadingMore
+                        ? const CircularProgressIndicator()
+                        : const SizedBox.shrink(),
+              ),
+            );
+          }
 
-        final item = items[index];
-        return _buildItemTile(item);
-      },
+          final item = items[index];
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: _buildPlanCard(context, item),
+          );
+        },
+      ),
     );
   }
 
-  Widget _buildItemTile(PracticeItem item) {
+  Widget _buildPlanCard(BuildContext context, PracticeItem item) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     switch (item) {
       case PracticePlanItem(:final plan):
-        final isEnrolling = enrollingItemId == plan.id;
-        return _SessionListTile(
-          title: plan.title,
-          subtitle: null,
-          coverImage: plan.coverImage,
-          isLoading: isEnrolling,
-          isDisabled: enrollingItemId != null,
-          onTap: () => onItemSelected(item),
+        final dateRange = _formatDateRange(
+          plan.startDate,
+          plan.startDate?.add(Duration(days: plan.totalDays)),
         );
-      case PracticeSeriesItem(:final series):
-        final isEnrolling = enrollingItemId == series.id;
-        return _SessionListTile(
-          title: series.title,
-          subtitle:
-              series.subTitle?.isNotEmpty == true ? series.subTitle : null,
-          coverImage: series.coverImage,
-          isLoading: isEnrolling,
-          isDisabled: enrollingItemId != null,
-          onTap: () => onItemSelected(item),
-        );
-    }
-  }
-}
-
-/// Tab content for displaying and selecting recitations.
-/// Filters out recitations that are already saved or in the routine.
-class _RecitationsTab extends ConsumerWidget {
-  final String? enrollingItemId;
-  final void Function(dynamic recitation) onRecitationSelected;
-
-  const _RecitationsTab({
-    required this.enrollingItemId,
-    required this.onRecitationSelected,
-  });
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final localizations = AppLocalizations.of(context)!;
-    final recitationsAsync = ref.watch(recitationsFutureProvider);
-
-    return recitationsAsync.when(
-      loading: () => const RecitationListSkeleton(),
-      error:
-          (error, _) => Center(
-            child: Text(
-              localizations.recitations_no_content,
-              style: TextStyle(color: AppColors.textSecondary),
-            ),
-          ),
-      data: (recitationsEither) {
-        return recitationsEither.fold(
-          (failure) => Center(
-            child: Text(
-              localizations.recitations_no_content,
-              style: TextStyle(color: AppColors.textSecondary),
-            ),
-          ),
-          (recitations) {
-            if (recitations.isEmpty) {
-              return Center(
-                child: Text(
-                  localizations.recitations_no_content,
-                  style: TextStyle(color: AppColors.textSecondary),
-                ),
-              );
-            }
-
-            return ListView.separated(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 20.0,
-                vertical: 16.0,
-              ),
-              itemCount: recitations.length,
-              separatorBuilder: (_, __) => const Divider(height: 1),
-              itemBuilder: (context, index) {
-                final recitation = recitations[index];
-                final isEnrolling = enrollingItemId == recitation.textId;
-
-                return _SessionListTile(
-                  title: recitation.title,
-                  subtitle: null,
-                  imageUrl: AppAssets.recitationCoverDefault,
-                  isLoading: isEnrolling,
-                  isDisabled: enrollingItemId != null,
-                  onTap: () => onRecitationSelected(recitation),
-                );
-              },
-            );
-          },
-        );
-      },
-    );
-  }
-}
-
-/// Reusable list tile for session selection (plans, series, recitations).
-/// Supports loading and disabled states for enrollment/save feedback.
-class _SessionListTile extends StatelessWidget {
-  final String title;
-  final String? subtitle;
-  final ResponsiveImage? coverImage;
-  final String? imageUrl;
-  final VoidCallback onTap;
-  final bool isLoading;
-  final bool isDisabled;
-
-  const _SessionListTile({
-    required this.title,
-    required this.subtitle,
-    this.coverImage,
-    this.imageUrl,
-    required this.onTap,
-    this.isLoading = false,
-    this.isDisabled = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: isDisabled ? null : onTap,
-      child: AnimatedOpacity(
-        opacity: isDisabled && !isLoading ? 0.5 : 1.0,
-        duration: const Duration(milliseconds: 200),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 12.0),
+        return _SessionCard(
+          isDark: isDark,
+          onTap: enrollingItemId == null ? () => onItemSelected(item) : null,
           child: Row(
             children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child:
-                    coverImage != null && !coverImage!.isEmpty
-                        ? ResponsiveCoverImage(
-                          image: coverImage,
-                          width: 56,
-                          height: 56,
-                          fit: BoxFit.cover,
-                          borderRadius: BorderRadius.circular(8),
-                        )
-                        : imageUrl?.trim().isNotEmpty == true
-                        ? ResponsiveCoverImage(
-                          image: ResponsiveImage.uniform(imageUrl!),
-                          width: 56,
-                          height: 56,
-                          fit: BoxFit.cover,
-                          borderRadius: BorderRadius.circular(8),
-                        )
-                        : Container(
-                          width: 56,
-                          height: 56,
-                          decoration: BoxDecoration(
-                            color: AppColors.grey100,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Icon(
-                            Icons.music_note,
-                            color: AppColors.textSecondary,
-                            size: 24,
-                          ),
-                        ),
-              ),
-              const SizedBox(width: 16),
+              _CoverImage(image: plan.coverImage, size: 56),
+              const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      title,
+                      plan.title,
                       style: const TextStyle(
-                        fontSize: 16,
+                        fontSize: 15,
                         fontWeight: FontWeight.w600,
                       ),
-                      maxLines: 1,
+                      maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    if (subtitle != null && subtitle!.isNotEmpty) ...[
-                      const SizedBox(height: 2),
+                    if (dateRange != null) ...[
+                      const SizedBox(height: 3),
                       Text(
-                        subtitle!,
+                        dateRange,
                         style: TextStyle(
-                          fontSize: 14,
-                          color: AppColors.textSecondary,
+                          fontSize: 13,
+                          color:
+                              isDark
+                                  ? AppColors.textTertiaryDark
+                                  : AppColors.textSecondary,
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+
+      case PracticeSeriesItem(:final series):
+        final dateRange = _formatDateRange(series.startDate, series.endDate);
+        final subtitle =
+            series.subTitle?.isNotEmpty == true ? series.subTitle : dateRange;
+        return _SessionCard(
+          isDark: isDark,
+          onTap: enrollingItemId == null ? () => onItemSelected(item) : null,
+          child: Row(
+            children: [
+              _CoverImage(image: series.coverImage, size: 56),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      series.title,
+                      style: const TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    if (subtitle != null) ...[
+                      const SizedBox(height: 3),
+                      Text(
+                        subtitle,
+                        style: TextStyle(
+                          fontSize: 13,
+                          color:
+                              isDark
+                                  ? AppColors.textTertiaryDark
+                                  : AppColors.textSecondary,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -418,19 +351,489 @@ class _SessionListTile extends StatelessWidget {
                   ],
                 ),
               ),
-              if (isLoading)
-                const Padding(
-                  padding: EdgeInsets.only(left: 12.0),
-                  child: SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  ),
-                ),
             ],
+          ),
+        );
+    }
+  }
+
+  static String? _formatDateRange(DateTime? start, DateTime? end) {
+    if (start == null) return null;
+    final fmt = DateFormat('MMM d');
+    final startStr = fmt.format(start.toLocal());
+    if (end == null) return startStr;
+    return '$startStr - ${fmt.format(end.toLocal())}';
+  }
+}
+
+// ─── Chants tab ──────────────────────────────────────────────────────────────
+
+class _ChantsTab extends ConsumerWidget {
+  final ScrollController scrollController;
+  final String? enrollingItemId;
+  final void Function(RecitationModel recitation) onRecitationSelected;
+
+  const _ChantsTab({
+    required this.scrollController,
+    required this.enrollingItemId,
+    required this.onRecitationSelected,
+  });
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final recitationsState = ref.watch(practiceRecitationsPaginatedProvider);
+
+    Future<void> onRefresh() =>
+        ref.read(practiceRecitationsPaginatedProvider.notifier).refresh();
+
+    if (recitationsState.isLoading && recitationsState.recitations.isEmpty) {
+      return const RecitationListSkeleton();
+    }
+
+    if (recitationsState.error != null &&
+        recitationsState.recitations.isEmpty) {
+      return _RefreshableScrollBody(
+        onRefresh: onRefresh,
+        child: const _SessionTabMessage(message: 'Unable to load chants'),
+      );
+    }
+
+    final recitations = recitationsState.recitations;
+
+    if (recitations.isEmpty && !recitationsState.isLoading) {
+      return _RefreshableScrollBody(
+        onRefresh: onRefresh,
+        child: const _SessionTabMessage(message: 'No chants found'),
+      );
+    }
+
+    return RefreshIndicator(
+      onRefresh: onRefresh,
+      child: ListView.builder(
+        controller: scrollController,
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        itemCount: recitations.length + (recitationsState.hasMore ? 1 : 0),
+        itemBuilder: (context, index) {
+          if (index == recitations.length) {
+            return Padding(
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              child: Center(
+                child:
+                    recitationsState.isLoadingMore
+                        ? const CircularProgressIndicator()
+                        : const SizedBox.shrink(),
+              ),
+            );
+          }
+
+          final recitation = recitations[index];
+          final description = recitation.firstSegment?.content;
+
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: _SessionCard(
+              isDark: isDark,
+              onTap:
+                  enrollingItemId == null
+                      ? () => onRecitationSelected(recitation)
+                      : null,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    width: 4,
+                    height: description != null ? null : 44,
+                    constraints: const BoxConstraints(minHeight: 44),
+                    decoration: BoxDecoration(
+                      color:
+                          isDark
+                              ? AppColors.textTertiaryDark
+                              : AppColors.grey400,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          recitation.title,
+                          style: const TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        if (description != null && description.isNotEmpty) ...[
+                          const SizedBox(height: 4),
+                          Text(
+                            description,
+                            style: TextStyle(
+                              fontSize: 13,
+                              color:
+                                  isDark
+                                      ? AppColors.textTertiaryDark
+                                      : AppColors.textSecondary,
+                            ),
+                            maxLines: 3,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+// ─── Malas tab ───────────────────────────────────────────────────────────────
+
+class _MalasTab extends ConsumerWidget {
+  final void Function(Mantra mantra) onMantraSelected;
+
+  const _MalasTab({required this.onMantraSelected});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final language = ref.watch(localeProvider).languageCode;
+    final catalogueAsync = ref.watch(malaCatalogueProvider);
+    Future<void> onRefresh() async {
+      ref.invalidate(malaCatalogueProvider);
+      await ref.read(malaCatalogueProvider.future);
+    }
+
+    return catalogueAsync.when(
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error:
+          (_, __) => _RefreshableScrollBody(
+            onRefresh: onRefresh,
+            child: const _SessionTabMessage(message: 'Unable to load malas'),
+          ),
+      data:
+          (either) => either.fold(
+            (_) => _RefreshableScrollBody(
+              onRefresh: onRefresh,
+              child: const _SessionTabMessage(message: 'Unable to load malas'),
+            ),
+            (mantras) {
+              if (mantras.isEmpty) {
+                return _RefreshableScrollBody(
+                  onRefresh: onRefresh,
+                  child: const _SessionTabMessage(message: 'No malas found'),
+                );
+              }
+
+              return RefreshIndicator(
+                onRefresh: onRefresh,
+                child: ListView.builder(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
+                  ),
+                  itemCount: mantras.length,
+                  itemBuilder: (context, index) {
+                    final mantra = mantras[index];
+                    final imageUrl =
+                        mantra.beadImageUrl ?? mantra.mantra?.beadImageUrl;
+                    final title = mantra.displayTitle(language);
+                    _logger.debug(
+                      '🪬 Mala[$index] title=$title imageUrl=$imageUrl',
+                    );
+
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: _SessionCard(
+                        isDark: isDark,
+                        onTap: () => onMantraSelected(mantra),
+                        child: Row(
+                          children: [
+                            _CircularImage(imageUrl: imageUrl, size: 52),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Text(
+                                title,
+                                style: const TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              );
+            },
+          ),
+    );
+  }
+}
+
+// ─── Timers tab ──────────────────────────────────────────────────────────────
+
+class _TimersTab extends ConsumerWidget {
+  final void Function(PresetTimer timer) onTimerSelected;
+
+  const _TimersTab({required this.onTimerSelected});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final localizations = AppLocalizations.of(context)!;
+    final timersAsync = ref.watch(presetTimersFutureProvider);
+    Future<void> onRefresh() async {
+      ref.invalidate(presetTimersFutureProvider);
+      await ref.read(presetTimersFutureProvider.future);
+    }
+
+    return timersAsync.when(
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error:
+          (_, __) => _RefreshableScrollBody(
+            onRefresh: onRefresh,
+            child: const _SessionTabMessage(message: 'Unable to load timers'),
+          ),
+      data:
+          (either) => either.fold(
+            (_) => _RefreshableScrollBody(
+              onRefresh: onRefresh,
+              child: const _SessionTabMessage(message: 'Unable to load timers'),
+            ),
+            (timers) {
+              if (timers.isEmpty) {
+                return _RefreshableScrollBody(
+                  onRefresh: onRefresh,
+                  child: const _SessionTabMessage(message: 'No timers found'),
+                );
+              }
+
+              return RefreshIndicator(
+                onRefresh: onRefresh,
+                child: ListView.builder(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
+                  ),
+                  itemCount: timers.length,
+                  itemBuilder: (context, index) {
+                    final timer = timers[index];
+
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: _SessionCard(
+                        isDark: isDark,
+                        onTap: () => onTimerSelected(timer),
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 44,
+                              height: 44,
+                              decoration: BoxDecoration(
+                                color:
+                                    isDark
+                                        ? AppColors.surfaceVariantDark
+                                        : AppColors.grey100,
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(
+                                  color:
+                                      isDark
+                                          ? AppColors.cardBorderDark
+                                          : AppColors.grey300,
+                                ),
+                              ),
+                              child: Icon(
+                                PhosphorIconsRegular.timer,
+                                size: 22,
+                                color:
+                                    isDark
+                                        ? AppColors.textTertiaryDark
+                                        : AppColors.textSecondary,
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Text(
+                                '${timer.displayMinutes} ${localizations.timer_min}',
+                                style: const TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              );
+            },
+          ),
+    );
+  }
+}
+
+// ─── Shared card wrapper ──────────────────────────────────────────────────────
+
+/// Makes pull-to-refresh work when tab content does not fill the viewport.
+class _RefreshableScrollBody extends StatelessWidget {
+  const _RefreshableScrollBody({required this.onRefresh, required this.child});
+
+  final Future<void> Function() onRefresh;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return RefreshIndicator(
+      onRefresh: onRefresh,
+      child: LayoutBuilder(
+        builder:
+            (context, constraints) => SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              child: SizedBox(height: constraints.maxHeight, child: child),
+            ),
+      ),
+    );
+  }
+}
+
+class _SessionTabMessage extends StatelessWidget {
+  const _SessionTabMessage({required this.message});
+
+  final String message;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 48),
+        child: Text(
+          message,
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: 15,
+            color: AppColors.textSecondary,
+            height: 1.5,
           ),
         ),
       ),
     );
   }
+}
+
+class _SessionCard extends StatelessWidget {
+  final Widget child;
+  final bool isDark;
+  final VoidCallback? onTap;
+
+  const _SessionCard({required this.child, required this.isDark, this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color:
+          isDark ? AppColors.cardBackgroundDark : AppColors.cardBackgroundLight,
+      borderRadius: BorderRadius.circular(12),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: isDark ? AppColors.cardBorderDark : AppColors.grey100,
+            ),
+          ),
+          child: child,
+        ),
+      ),
+    );
+  }
+}
+
+// ─── Shared image widgets ─────────────────────────────────────────────────────
+
+/// Rounded-rectangle cover image or grey placeholder.
+class _CoverImage extends StatelessWidget {
+  final ResponsiveImage? image;
+  final double size;
+
+  const _CoverImage({this.image, required this.size});
+
+  @override
+  Widget build(BuildContext context) {
+    if (image != null && !image!.isEmpty) {
+      return ResponsiveCoverImage(
+        image: image,
+        width: size,
+        height: size,
+        fit: BoxFit.cover,
+        borderRadius: BorderRadius.circular(8),
+      );
+    }
+
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        color: AppColors.grey100,
+        borderRadius: BorderRadius.circular(8),
+      ),
+    );
+  }
+}
+
+/// Circular image for malas — uses CachedNetworkImage so bead art renders
+/// correctly (same approach as MalaBeads).
+class _CircularImage extends StatelessWidget {
+  final String? imageUrl;
+  final double size;
+
+  const _CircularImage({this.imageUrl, required this.size});
+
+  @override
+  Widget build(BuildContext context) {
+    if (imageUrl != null && imageUrl!.isNotEmpty) {
+      return ClipOval(
+        child: CachedNetworkImage(
+          imageUrl: imageUrl!,
+          width: size,
+          height: size,
+          fit: BoxFit.cover,
+          placeholder: (_, __) => _placeholder(),
+          errorWidget: (_, __, ___) => _placeholder(),
+        ),
+      );
+    }
+    return _placeholder();
+  }
+
+  Widget _placeholder() => Container(
+    width: size,
+    height: size,
+    decoration: const BoxDecoration(
+      color: AppColors.grey100,
+      shape: BoxShape.circle,
+    ),
+  );
 }

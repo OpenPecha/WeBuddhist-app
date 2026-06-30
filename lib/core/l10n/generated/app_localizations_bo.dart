@@ -537,15 +537,22 @@ class AppLocalizationsBo extends AppLocalizations {
       'ཁྱེད་རང་ཆོས་བརྒྱུད་གང་གི་རྗེས་འཇུག་ཡིན་ནམ།';
 
   @override
-  String get onboarding_tradition_chat_title => 'ཁྱེད་ཀྱི་ཆོས་བརྒྱུད།';
+  String get onboarding_tradition_title =>
+      'ཁྱེད་ཀྱིས་སངས་རྒྱས་ཀྱི་རྗེས་སུ་ཇི་ལྟར་འབྲང་ངམ།';
 
   @override
-  String get onboarding_tradition_chat_subtitle =>
-      'གཅིག་འདེམ་རོགས — ང་ཚོས་ཁྱེད་ཀྱི་ཉམས་ལེན་སྒེར་སྐྱོང་བྱ་རྒྱུ་ཡིན།';
+  String get onboarding_tradition_subtitle =>
+      'ང་ཚོས་ཁྱེད་ལ་འཚམ་པའི་ལམ་གྱི་ཉམས་ལེན་དང་གསུང་རབ་རྣམས་བསྟན་པར་བྱ། འདེམས་ཁ་འདི་ཉིད་མཉེན་ཆས་ཀྱི་སྒྲིག་བཀོད་ནང་ནས་ག་དུས་ཡིན་ཡང་སྒྱུར་བཅོས་གཏང་ཆོག';
 
   @override
-  String get onboarding_tradition_type_hint =>
-      'ཡང་ན་ཁྱེད་ཀྱི་ཆོས་བརྒྱུད་ཡིག་འབྲི་རོགས།';
+  String get onboarding_tradition_option_intro => 'བརྒྱུད་ནས།';
+
+  @override
+  String get onboarding_tradition_show_all_title => 'ཡོངས་རྫོགས་སྟོན་རོགས།';
+
+  @override
+  String get onboarding_tradition_show_all_description =>
+      'ལམ་ཐམས་ཅད་ཀྱི་སྒྲུབ་པ་དང་གཞུང་ལུགས།';
 
   @override
   String get onboarding_skip_for_now => 'ད་ལྟ་བསྲུབ་རོགས།';
@@ -1570,6 +1577,39 @@ class AppLocalizationsBo extends AppLocalizations {
   String get group_members => 'ཚོགས་མི།';
 
   @override
+  String get group_tab_members => 'ཚོགས་མི།';
+
+  @override
+  String get group_tab_followers => 'རྗེས་འབྲང་པ།';
+
+  @override
+  String group_members_heading(int count) {
+    return 'ཚོགས་མི($count)';
+  }
+
+  @override
+  String group_followers_heading(int count) {
+    return 'རྗེས་འབྲང་པ($count)';
+  }
+
+  @override
+  String get group_invite => 'སྐུ་འཕྲིན།';
+
+  @override
+  String get group_members_load_error =>
+      'ཚོགས་མི་མངག་ཐུབ་མ་སོང་། ཡང་བསྐྱར་ཚོད་ལྟ་གནང་རོགས།';
+
+  @override
+  String get group_followers_load_error =>
+      'རྗེས་འབྲང་པ་མངག་ཐུབ་མ་སོང་། ཡང་བསྐྱར་ཚོད་ལྟ་གནང་རོགས།';
+
+  @override
+  String get group_members_empty => 'ཚོགས་མི་མེད།';
+
+  @override
+  String get group_followers_empty => 'རྗེས་འབྲང་པ་མེད།';
+
+  @override
   String get group_follower => 'རྗེས་འབྲང་པ།';
 
   @override
@@ -1582,6 +1622,16 @@ class AppLocalizationsBo extends AppLocalizations {
   String group_and_more_links(int count) {
     return 'དང་འབྲེལ་ཐག་གཞན་ $count';
   }
+
+  @override
+  String get group_practice_with_us => 'ང་ཚོ་དང་མཉམ་དུ་སྒོམ་གྱི།';
+
+  @override
+  String get group_change_practice_title => 'Change group practice';
+
+  @override
+  String get group_change_practice_message =>
+      'You are already practicing this plan with another group. Would you like to change your practice group?';
 
   @override
   String get share_this_quote => 'གསུང་ཚིག་འདི་སྤེལ།';

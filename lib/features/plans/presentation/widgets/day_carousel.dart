@@ -101,7 +101,7 @@ class _DayCarouselState extends State<DayCarousel> {
         itemCount: widget.days.length,
         itemBuilder: (context, index) {
           final day = widget.days[index];
-          final dayDate = localStartDate.add(Duration(days: day.dayNumber));
+          final dayDate = localStartDate.add(Duration(days: day.dayNumber - 1));
           final dayDateString = DateFormat('dd MMM').format(dayDate);
           final isSelected = widget.selectedDay == day.dayNumber;
           final isCompleted =

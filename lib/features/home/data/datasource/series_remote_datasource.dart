@@ -140,19 +140,27 @@ class SeriesRemoteDatasource {
   /// Endpoint: POST /users/me/series
   /// Enrolls the authenticated user in a series. Backend auto-enrolls the
   /// user in every plan that belongs to the series.
-  Future<void> enrollInSeries(String seriesId) async {
+  Future<void> enrollInSeries(
+    String seriesId, {
+    String? groupId,
+  }) async {
     try {
+      final data = <String, dynamic>{'series_id': seriesId};
+      if (groupId != null && groupId.isNotEmpty) {
+        data['group_id'] = groupId;
+      }
+
       final response = await dio.post(
         '/users/me/series',
-        data: {'series_id': seriesId},
+        data: data,
       );
       final status = response.statusCode ?? 0;
-      if (status < 200 || status >= 300) {
-        _logger.error('Failed to enroll in series $seriesId: $status');
-        throw _statusToException(status, 'Failed to enroll in series');
-      }
+      if (status == 204 || (status >= 200 && status < 300)) return;
+      _logger.error('Failed to enroll in series $seriesId: $status');
+      throw _statusToException(status, 'Failed to enroll in series');
     } on DioException catch (e) {
-      if (e.response?.statusCode == 409) return;
+      final status = e.response?.statusCode;
+      if (status == 409 || status == 204) return;
       _logger.error('Dio error in enrollInSeries', e);
       throw _dioToException(e, 'Failed to enroll in series');
     }

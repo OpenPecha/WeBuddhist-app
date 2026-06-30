@@ -1,3 +1,4 @@
+import 'package:flutter/widgets.dart';
 import 'package:flutter_pecha/core/config/router/app_routes.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/features/reader/data/models/navigation_context.dart';
@@ -8,7 +9,12 @@ class DeepLinkRouter {
 
   static final _logger = AppLogger('DeepLinkRouter');
 
-  static bool route(Uri uri, GoRouter router, {required String source}) {
+  static bool route(
+    Uri uri,
+    GoRouter router, {
+    required String source,
+    String? baseLocation,
+  }) {
     try {
       final destination = _resolveRoute(uri);
       if (destination == null) {
@@ -17,7 +23,12 @@ class DeepLinkRouter {
       }
 
       _logger.info('Deep link from $source -> ${destination.location} ($uri)');
-      if (destination.opensOnTop) {
+      if (destination.opensOnTop && baseLocation != null) {
+        router.go(baseLocation);
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          router.push(destination.location, extra: destination.extra);
+        });
+      } else if (destination.opensOnTop) {
         router.push(destination.location, extra: destination.extra);
       } else {
         router.go(destination.location, extra: destination.extra);

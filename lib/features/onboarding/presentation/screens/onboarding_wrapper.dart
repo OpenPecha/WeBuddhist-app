@@ -3,7 +3,7 @@ import 'package:flutter_pecha/core/config/router/app_routes.dart';
 import 'package:flutter_pecha/features/onboarding/application/onboarding_provider.dart';
 import 'package:flutter_pecha/features/onboarding/presentation/screens/onboarding_screen_1.dart';
 import 'package:flutter_pecha/features/onboarding/presentation/screens/onboarding_screen_2.dart';
-import 'package:flutter_pecha/features/onboarding/presentation/screens/onboarding_screen_tradition_chat.dart';
+import 'package:flutter_pecha/features/onboarding/presentation/screens/onboarding_screen_tradition.dart';
 import 'package:flutter_pecha/features/onboarding/presentation/screens/onboarding_screen_5.dart';
 import 'package:flutter_pecha/features/onboarding/presentation/screens/onboarding_screen_language.dart';
 import 'package:go_router/go_router.dart';
@@ -13,7 +13,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 /// Page order:
 ///   0 – Language selection
 ///   1 – Welcome
-///   2 – Tradition chat
+///   2 – Tradition selection
 ///   3 – How it works
 ///   4 – Finish / "Begin Your Practice"
 class OnboardingWrapper extends ConsumerStatefulWidget {
@@ -85,10 +85,9 @@ class _OnboardingWrapperState extends ConsumerState<OnboardingWrapper> {
             children: [
               OnboardingScreenLanguage(onNext: _nextPage),
               OnboardingScreen1(onNext: _nextPage),
-              OnboardingScreenTraditionChat(
+              OnboardingScreenTradition(
                 onNext: _nextPage,
                 onBack: _previousPage,
-                onSkip: _nextPage,
               ),
               OnboardingScreen2(onNext: _nextPage, onBack: _previousPage),
               OnboardingScreen5(onComplete: _completeOnboarding),

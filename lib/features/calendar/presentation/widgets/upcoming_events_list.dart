@@ -30,10 +30,20 @@ class _UpcomingEventsListState extends ConsumerState<UpcomingEventsList> {
     final theme = Theme.of(context);
     final l10n = context.l10n;
     final focusedMonth = ref.watch(focusedCalendarMonthProvider);
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
     final events =
         ref
             .watch(monthEventsProvider(focusedMonth))
             .where(showsInUpcomingEvents)
+            .where((event) {
+              final eventDay = DateTime(
+                event.date.year,
+                event.date.month,
+                event.date.day,
+              );
+              return !eventDay.isBefore(today);
+            })
             .toList();
     if (events.isEmpty) return const SizedBox.shrink();
 

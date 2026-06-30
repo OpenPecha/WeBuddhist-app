@@ -3,7 +3,11 @@ import 'package:flutter_pecha/core/error/failures.dart';
 import 'package:flutter_pecha/shared/domain/base_classes/usecase.dart';
 
 class EnrollInSeriesUseCase extends UseCase<Unit, EnrollInSeriesParams> {
-  final Future<Either<Failure, Unit>> Function(String seriesId) _enrollInSeries;
+  final Future<Either<Failure, Unit>> Function(
+    String seriesId, {
+    String? groupId,
+  })
+  _enrollInSeries;
 
   EnrollInSeriesUseCase(this._enrollInSeries);
 
@@ -12,12 +16,13 @@ class EnrollInSeriesUseCase extends UseCase<Unit, EnrollInSeriesParams> {
     if (params.seriesId.isEmpty) {
       return const Left(ValidationFailure('Series ID cannot be empty'));
     }
-    return _enrollInSeries(params.seriesId);
+    return _enrollInSeries(params.seriesId, groupId: params.groupId);
   }
 }
 
 class EnrollInSeriesParams {
   final String seriesId;
+  final String? groupId;
 
-  const EnrollInSeriesParams({required this.seriesId});
+  const EnrollInSeriesParams({required this.seriesId, this.groupId});
 }

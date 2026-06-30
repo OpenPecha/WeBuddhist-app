@@ -532,14 +532,22 @@ class AppLocalizationsMn extends AppLocalizations {
   String get onboarding_traditions_question => 'Та ямар уламжлал\nдагадаг вэ?';
 
   @override
-  String get onboarding_tradition_chat_title => 'Таны уламжлал:';
+  String get onboarding_tradition_title =>
+      'Та Бурхан багшийг хэрхэн дагадаг вэ?';
 
   @override
-  String get onboarding_tradition_chat_subtitle =>
-      'Нэг эсвэл хэд хэдийг сонгоно уу — бид тэдгээрийг таны туршлагыг хувийн болгоход ашиглана.';
+  String get onboarding_tradition_subtitle =>
+      'Бид танд өөрийн сонгосон замын дагуух бясалгал, практик болон судар бичгүүдийг харуулах болно. Та үүнийг аппликейшний тохиргоо хэсгээс хэдийд ч өөрчлөх боломжтой.';
 
   @override
-  String get onboarding_tradition_type_hint => 'Эсвэл уламжлалаа бичнэ үү...';
+  String get onboarding_tradition_option_intro => 'Дараах:';
+
+  @override
+  String get onboarding_tradition_show_all_title => 'Бүгдийг харуулах';
+
+  @override
+  String get onboarding_tradition_show_all_description =>
+      'Бүх замын дадлага, бичиг';
 
   @override
   String get onboarding_skip_for_now => 'Одоохондоо алгасах';
@@ -1565,6 +1573,39 @@ class AppLocalizationsMn extends AppLocalizations {
   String get group_members => 'гишүүд';
 
   @override
+  String get group_tab_members => 'Гишүүд';
+
+  @override
+  String get group_tab_followers => 'Дагагчид';
+
+  @override
+  String group_members_heading(int count) {
+    return 'Гишүүд($count)';
+  }
+
+  @override
+  String group_followers_heading(int count) {
+    return 'Дагагчид($count)';
+  }
+
+  @override
+  String get group_invite => 'Урих';
+
+  @override
+  String get group_members_load_error =>
+      'Гишүүдийг ачаалж чадсангүй. Дахин оролдоно уу.';
+
+  @override
+  String get group_followers_load_error =>
+      'Дагагчдыг ачаалж чадсангүй. Дахин оролдоно уу.';
+
+  @override
+  String get group_members_empty => 'Одоогоор гишүүн байхгүй';
+
+  @override
+  String get group_followers_empty => 'Одоогоор дагагч байхгүй';
+
+  @override
   String get group_follower => 'дагагч';
 
   @override
@@ -1577,6 +1618,16 @@ class AppLocalizationsMn extends AppLocalizations {
   String group_and_more_links(int count) {
     return 'болон дахиад $count холбоос';
   }
+
+  @override
+  String get group_practice_with_us => 'Бидэнтэй хамт дадлага хий';
+
+  @override
+  String get group_change_practice_title => 'Change group practice';
+
+  @override
+  String get group_change_practice_message =>
+      'You are already practicing this plan with another group. Would you like to change your practice group?';
 
   @override
   String get share_this_quote => 'Энэ ишлэлийг хуваалцах';

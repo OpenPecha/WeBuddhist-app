@@ -11,10 +11,15 @@ class LoginDrawer extends ConsumerStatefulWidget {
   const LoginDrawer({super.key});
 
   /// Show the login drawer as a bottom sheet
-  static Future<void> show(BuildContext context, WidgetRef ref) {
+  static Future<void> show(
+    BuildContext context,
+    WidgetRef ref, {
+    bool useRootNavigator = false,
+  }) {
     return showModalBottomSheet(
       context: context,
       isScrollControlled: true,
+      useRootNavigator: useRootNavigator,
       backgroundColor: Colors.transparent,
       isDismissible: true,
       enableDrag: true,
@@ -98,11 +103,7 @@ class _LoginDrawerState extends ConsumerState<LoginDrawer>
                   ),
                 ),
                 // App logo
-                Image.asset(
-                  AppAssets.weBuddhistLogo,
-                  height: 80,
-                  width: 80,
-                ),
+                Image.asset(AppAssets.weBuddhistLogo, height: 80, width: 80),
                 const SizedBox(height: 24),
                 // Title
                 Text(

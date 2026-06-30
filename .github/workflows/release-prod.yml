@@ -16,7 +16,43 @@ permissions:
   contents: write             # needed to create the GitHub Release + tag
 
 jobs:
+  # Decide the next semantic version from the commits / branch names landed
+  # since the last release tag (Conventional Commits, PATCH fallback), write it
+  # to pubspec.yaml and commit it back. Both store builds and the in-app
+  # settings page read the version from pubspec via --build-name, so this single
+  # bump keeps all three in sync. See CONTRIBUTING.md for the conventions.
+  version:
+    name: 🔖 Bump version
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    outputs:
+      version_name: ${{ steps.bump.outputs.version_name }}
+    steps:
+      - name: 📂 Checkout (full history + tags)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 🔢 Compute & apply version bump
+        id: bump
+        run: bash ci/scripts/bump_version.sh
+
+      - name: ⬆️ Commit bumped pubspec.yaml
+        run: |
+          if git diff --quiet -- pubspec.yaml; then
+            echo "pubspec.yaml unchanged — nothing to commit."; exit 0
+          fi
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add pubspec.yaml
+          # [skip ci] so this bump commit does not re-trigger the release.
+          git commit -m "chore(release): bump version to ${{ steps.bump.outputs.version_name }} [skip ci]"
+          git push origin HEAD:${{ github.ref_name }}
+
   android:
+    needs: version
     uses: ./.github/workflows/build-android.yml
     with:
       flavor:             prod
@@ -26,9 +62,11 @@ jobs:
       play_track:         internal        # bump to "production" when ready to ship live
       environment:        production
       upload_to_store:    true
+      version_name:       ${{ needs.version.outputs.version_name }}
     secrets: inherit
 
   ios:
+    needs: version
     uses: ./.github/workflows/build-ios.yml
     with:
       flavor:             prod
@@ -38,23 +76,24 @@ jobs:
       ios_bundle_id:      org.pecha.app
       environment:        production
       upload_to_store:    true
+      version_name:       ${{ needs.version.outputs.version_name }}
     secrets: inherit
 
   github_release:
     name: 📦 GitHub Release
-    needs: [ android, ios ]
+    needs: [ version, android, ios ]
     runs-on: ubuntu-latest
     permissions:
       contents: write
     steps:
-      - name: 📂 Checkout
+      - name: 📂 Checkout (post-bump main)
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}   # tag the commit that carries the bumped version
 
       - name: 🏷️ Compute tag
         id: ver
-        run: |
-          V=$(grep '^version:' pubspec.yaml | sed 's/version: //' | cut -d'+' -f1)
-          echo "tag=v$V-build-${{ github.run_number }}" >> "$GITHUB_OUTPUT"
+        run: echo "tag=v${{ needs.version.outputs.version_name }}-build-${{ github.run_number }}" >> "$GITHUB_OUTPUT"
 
       - name: ⬇️ Download build artifacts
         uses: actions/download-artifact@v4

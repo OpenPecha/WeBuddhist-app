@@ -206,9 +206,11 @@
   "something_went_wrong": "केही गडबड भयो। कृपया फेरि प्रयास गर्नुहोस्",
   "onboarding_quote_citation": "— धम्मपद 122",
   "onboarding_traditions_question": "तपाईं कुन परम्पराहरू\nपालना गर्नुहुन्छ?",
-  "onboarding_tradition_chat_title": "तपाईंको परम्परा:",
-  "onboarding_tradition_chat_subtitle": "एक वा बढी छान्नुहोस् — हामी तिनीहरूलाई तपाईंको अनुभव व्यक्तिगत बनाउन प्रयोग गर्नेछौं।",
-  "onboarding_tradition_type_hint": "वा आफ्नो परम्परा टाइप गर्नुहोस्...",
+  "onboarding_tradition_title": "तपाईं बुद्धको अनुसरण कसरी गर्नुहुन्छ?",
+  "onboarding_tradition_subtitle": "हामी तपाईंलाई तपाईंको मार्गका अभ्यासहरू र ग्रन्थहरू देखाउनेछौं। तपाईं यसलाई एप सेटिङमा जुनसुकै बेला परिवर्तन गर्न सक्नुहुन्छ।",
+  "onboarding_tradition_option_intro": "मार्फत:",
+  "onboarding_tradition_show_all_title": "मलाई सबै देखाउनुहोस्",
+  "onboarding_tradition_show_all_description": "हरेक मार्गका अभ्यास र ग्रन्थहरू",
   "onboarding_skip_for_now": "अहिलेलाई छोड्नुहोस्",
   "onboarding_add_another_tradition": "अर्को परम्परा थप्नुहोस्",
   "onboarding_select_all": "सबै चयन गर्नुहोस्",
@@ -742,10 +744,34 @@
   "joined": "सामेल भयो",
   "group_member": "सदस्य",
   "group_members": "सदस्यहरू",
+  "group_tab_members": "सदस्यहरू",
+  "group_tab_followers": "अनुयायीहरू",
+  "group_members_heading": "सदस्यहरू({count})",
+  "group_followers_heading": "अनुयायीहरू({count})",
+  "@group_members_heading": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@group_followers_heading": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "group_invite": "निमन्त्रणा",
+  "group_members_load_error": "सदस्यहरू लोड गर्न सकिएन। कृपया पुनः प्रयास गर्नुहोस्।",
+  "group_followers_load_error": "अनुयायीहरू लोड गर्न सकिएन। कृपया पुनः प्रयास गर्नुहोस्।",
+  "group_members_empty": "अहिलेसम्म कुनै सदस्य छैन",
+  "group_followers_empty": "अहिलेसम्म कुनै अनुयायी छैन",
   "group_follower": "अनुयायी",
   "group_followers": "अनुयायीहरू",
   "group_links_title": "लिङ्कहरू",
   "group_and_more_links": "र अरू {count} लिङ्कहरू",
+  "group_practice_with_us": "हामीसँग अभ्यास गर्नुहोस्",
 
   "share_this_quote": "यो उद्धरण साझा गर्नुहोस्",
   "shared_from": "बाट साझा गरिएको",

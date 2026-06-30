@@ -529,14 +529,21 @@ class AppLocalizationsEn extends AppLocalizations {
       'Which traditions\ndo you follow?';
 
   @override
-  String get onboarding_tradition_chat_title => 'Your tradition:';
+  String get onboarding_tradition_title => 'How do you follow the Buddha?';
 
   @override
-  String get onboarding_tradition_chat_subtitle =>
-      'Choose one: we\'ll use it to personalize your experience.';
+  String get onboarding_tradition_subtitle =>
+      'We\'ll show you the practices and texts of your path. You can change this anytime in the app settings.';
 
   @override
-  String get onboarding_tradition_type_hint => 'Or type your tradition...';
+  String get onboarding_tradition_option_intro => 'Through:';
+
+  @override
+  String get onboarding_tradition_show_all_title => 'Show me everything';
+
+  @override
+  String get onboarding_tradition_show_all_description =>
+      'Practices and texts from every path';
 
   @override
   String get onboarding_skip_for_now => 'Skip for now';
@@ -1549,6 +1556,39 @@ class AppLocalizationsEn extends AppLocalizations {
   String get group_members => 'members';
 
   @override
+  String get group_tab_members => 'Members';
+
+  @override
+  String get group_tab_followers => 'Followers';
+
+  @override
+  String group_members_heading(int count) {
+    return 'Members($count)';
+  }
+
+  @override
+  String group_followers_heading(int count) {
+    return 'Followers($count)';
+  }
+
+  @override
+  String get group_invite => 'Invite';
+
+  @override
+  String get group_members_load_error =>
+      'Unable to load members. Please try again.';
+
+  @override
+  String get group_followers_load_error =>
+      'Unable to load followers. Please try again.';
+
+  @override
+  String get group_members_empty => 'No members yet';
+
+  @override
+  String get group_followers_empty => 'No followers yet';
+
+  @override
   String get group_follower => 'follower';
 
   @override
@@ -1561,6 +1601,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String group_and_more_links(int count) {
     return 'and $count more links';
   }
+
+  @override
+  String get group_practice_with_us => 'Practice with us';
+
+  @override
+  String get group_change_practice_title => 'Change group practice';
+
+  @override
+  String get group_change_practice_message =>
+      'You are already practicing this plan with another group. Would you like to change your practice group?';
 
   @override
   String get share_this_quote => 'Share this quote';

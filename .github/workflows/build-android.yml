@@ -10,11 +10,12 @@ on:
     inputs:
       flavor:             { required: true,  type: string }   # dev | staging | prod
       entrypoint:         { required: true,  type: string }   # lib/main_<flavor>.dart
-      airbridge_app_name: { required: true,  type: string }   # webuddhistdev | webuddhist
+      airbridge_app_name: { required: true,  type: string }   # webuddhist
       play_package_name:  { required: true,  type: string }   # org.pecha.app[.dev]
       play_track:         { required: false, type: string, default: internal }
       environment:        { required: false, type: string, default: '' }
       upload_to_store:    { required: false, type: boolean, default: true }
+      version_name:       { required: false, type: string,  default: '' }   # CI-computed semver; falls back to pubspec when empty
 
 permissions:
   contents: read
@@ -88,7 +89,9 @@ jobs:
           CM_KEY_ALIAS:         ${{ secrets.ANDROID_KEY_ALIAS }}
           CM_KEY_PASSWORD:      ${{ secrets.ANDROID_KEY_PASSWORD }}
         run: |
-          VERSION_NAME=$(grep '^version:' pubspec.yaml | sed 's/version: //' | cut -d'+' -f1)
+          # Prefer the CI-computed version (release-prod), else fall back to pubspec.
+          VERSION_NAME="${{ inputs.version_name }}"
+          [ -z "$VERSION_NAME" ] && VERSION_NAME=$(grep '^version:' pubspec.yaml | sed 's/version: //' | cut -d'+' -f1)
           OFFSET="${{ vars.BUILD_NUMBER_OFFSET || '100' }}"
           BUILD_NUMBER=$(( ${{ github.run_number }} + OFFSET ))
           echo "Building $VERSION_NAME (+$BUILD_NUMBER)"

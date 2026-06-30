@@ -44,7 +44,10 @@ class SessionRequest {
 
   Map<String, dynamic> toJson() => {
     'session_type': sessionType.toJson(),
-    if (sessionType != SessionType.timer) 'source_id': sourceId,
+    if (sessionType == SessionType.accumulator)
+      'accumulator_id': sourceId
+    else if (sessionType != SessionType.timer)
+      'source_id': sourceId,
     'display_order': displayOrder,
     if (durationMs != null) 'duration_ms': durationMs,
   };
@@ -119,7 +122,7 @@ class SessionDTO {
     return SessionDTO(
       id: json['id'] as String,
       sessionType: sessionType,
-      sourceId: (json['source_id'] as String?) ?? json['id'] as String,
+      sourceId: _sourceIdFromJson(json, sessionType),
       title:
           sessionType == SessionType.timer
               ? ((json['title'] as String?) ?? fallbackTimerTitle)
@@ -139,6 +142,27 @@ class SessionDTO {
       currentPlanId: json['current_plan_id'] as String?,
       currentPlanTitle: json['current_plan_title'] as String?,
     );
+  }
+
+  /// Preset/content id used when re-syncing this session to the API.
+  ///
+  /// Accumulator sessions expose [accumulator_id] (preset id) rather than
+  /// [source_id]. Falling back to the session [id] would break PUT updates.
+  static String _sourceIdFromJson(
+    Map<String, dynamic> json,
+    SessionType sessionType,
+  ) {
+    if (sessionType == SessionType.accumulator) {
+      final accumulatorId = json['accumulator_id'] as String?;
+      if (accumulatorId != null && accumulatorId.isNotEmpty) {
+        return accumulatorId;
+      }
+    }
+
+    final sourceId = json['source_id'] as String?;
+    if (sourceId != null && sourceId.isNotEmpty) return sourceId;
+
+    return json['id'] as String;
   }
 }
 

@@ -206,9 +206,11 @@
   "something_went_wrong": "Алдаа гарлаа. Дахин оролдоно уу",
   "onboarding_quote_citation": "— Дхаммапада 122",
   "onboarding_traditions_question": "Та ямар уламжлал\nдагадаг вэ?",
-  "onboarding_tradition_chat_title": "Таны уламжлал:",
-  "onboarding_tradition_chat_subtitle": "Нэг эсвэл хэд хэдийг сонгоно уу — бид тэдгээрийг таны туршлагыг хувийн болгоход ашиглана.",
-  "onboarding_tradition_type_hint": "Эсвэл уламжлалаа бичнэ үү...",
+  "onboarding_tradition_title": "Та Бурхан багшийг хэрхэн дагадаг вэ?",
+  "onboarding_tradition_subtitle": "Бид танд өөрийн сонгосон замын дагуух бясалгал, практик болон судар бичгүүдийг харуулах болно. Та үүнийг аппликейшний тохиргоо хэсгээс хэдийд ч өөрчлөх боломжтой.",
+  "onboarding_tradition_option_intro": "Дараах:",
+  "onboarding_tradition_show_all_title": "Бүгдийг харуулах",
+  "onboarding_tradition_show_all_description": "Бүх замын дадлага, бичиг",
   "onboarding_skip_for_now": "Одоохондоо алгасах",
   "onboarding_add_another_tradition": "Өөр уламжлал нэмэх",
   "onboarding_select_all": "Бүгдийг сонгох",
@@ -742,10 +744,34 @@
   "joined": "Нэгдсэн",
   "group_member": "гишүүн",
   "group_members": "гишүүд",
+  "group_tab_members": "Гишүүд",
+  "group_tab_followers": "Дагагчид",
+  "group_members_heading": "Гишүүд({count})",
+  "group_followers_heading": "Дагагчид({count})",
+  "@group_members_heading": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@group_followers_heading": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "group_invite": "Урих",
+  "group_members_load_error": "Гишүүдийг ачаалж чадсангүй. Дахин оролдоно уу.",
+  "group_followers_load_error": "Дагагчдыг ачаалж чадсангүй. Дахин оролдоно уу.",
+  "group_members_empty": "Одоогоор гишүүн байхгүй",
+  "group_followers_empty": "Одоогоор дагагч байхгүй",
   "group_follower": "дагагч",
   "group_followers": "дагагчид",
   "group_links_title": "Холбоосууд",
   "group_and_more_links": "болон дахиад {count} холбоос",
+  "group_practice_with_us": "Бидэнтэй хамт дадлага хий",
 
   "share_this_quote": "Энэ ишлэлийг хуваалцах",
   "shared_from": "Хуваалцсан:",
