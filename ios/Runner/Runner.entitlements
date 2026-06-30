@@ -5,9 +5,8 @@
 	<key>com.apple.developer.associated-domains</key>
 	<array>
 		<string>webcredentials:we-buddhist-prod.us.auth0.com</string>
-		<string>applinks:webuddhistdev.airbridge.io</string>
-		<string>applinks:webuddhistdev.abr.ge</string>
-		<string>applinks:join.webuddhist.com</string>
+		<string>applinks:webuddhist.airbridge.io</string>
+		<string>applinks:webuddhist.abr.ge</string>
 		<string>applinks:webuddhist.com</string>
 	</array>
 </dict>
