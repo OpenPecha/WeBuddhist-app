@@ -18,6 +18,7 @@ class AppLinksDeepLinkService {
   GoRouter? _router;
   Uri? _pendingUri;
   bool _initialized = false;
+  void Function(int tabIndex)? _tabSetter;
 
   Future<void> initialize() async {
     if (_initialized) return;
@@ -48,6 +49,10 @@ class AppLinksDeepLinkService {
 
   void setRouter(GoRouter router) {
     _router = router;
+  }
+
+  void setTabSetter(void Function(int tabIndex) setter) {
+    _tabSetter = setter;
   }
 
   bool drainPendingLink() {
@@ -91,6 +96,7 @@ class AppLinksDeepLinkService {
       router,
       source: 'app_links',
       baseLocation: baseLocation,
+      tabSetter: _tabSetter,
     );
   }
 }

@@ -34,4 +34,24 @@ class DeepLinkUrlBuilder {
       queryParameters: queryParameters,
     );
   }
+
+  static Uri moreLink() {
+    return Uri(scheme: 'https', host: _host, pathSegments: ['open', 'more']);
+  }
+
+  static Uri malaLink({required String presetId}) {
+    return Uri(
+      scheme: 'https',
+      host: _host,
+      pathSegments: ['open', 'mala', presetId],
+    );
+  }
+
+  static Uri timerLink({required String timerId}) {
+    return Uri(
+      scheme: 'https',
+      host: _host,
+      pathSegments: ['open', 'timer', timerId],
+    );
+  }
 }
