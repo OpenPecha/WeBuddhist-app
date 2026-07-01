@@ -21,7 +21,7 @@ class PlanShareService {
 
   /// Generate share message with plan details
   String generateShareMessage(String planTitle, String deepLink) {
-    return 'Join me in practicing $planTitle on WeBuddhist.\n\n$deepLink';
+    return "I'm following this Buddhist practice plan and wanted to share it with you. You can join me for free on WeBuddhist.\n\n$deepLink";
   }
 
   /// Share a plan with friends

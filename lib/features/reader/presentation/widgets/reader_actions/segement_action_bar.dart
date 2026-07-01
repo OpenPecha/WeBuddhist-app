@@ -764,8 +764,13 @@ class _ShareButtonState extends ConsumerState<_ShareButton> {
       if (!mounted) return;
 
       final sharePositionOrigin = getSharePositionOrigin(context: context);
+      const shareMessage =
+          'I liked this passage and wanted to share it with you. You can read the whole quote in context on WeBuddhist.';
       await SharePlus.instance.share(
-        ShareParams(text: shareUrl, sharePositionOrigin: sharePositionOrigin),
+        ShareParams(
+          text: '$shareMessage\n\n$shareUrl',
+          sharePositionOrigin: sharePositionOrigin,
+        ),
       );
       widget.onClose();
     } catch (e) {
