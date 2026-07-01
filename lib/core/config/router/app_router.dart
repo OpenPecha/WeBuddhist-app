@@ -12,6 +12,7 @@ import 'package:flutter_pecha/features/auth/presentation/screens/login_page.dart
 import 'package:flutter_pecha/features/auth/presentation/screens/splash_screen.dart';
 import 'package:flutter_pecha/features/calendar/presentation/screens/tibetan_calendar_screen.dart';
 import 'package:flutter_pecha/features/group_profile/domain/entities/group_profile.dart';
+import 'package:flutter_pecha/features/group_profile/presentation/screens/group_accumulator_screen.dart';
 import 'package:flutter_pecha/features/group_profile/presentation/screens/group_profile_screen.dart';
 import 'package:flutter_pecha/features/home/domain/entities/series.dart';
 import 'package:flutter_pecha/features/home/presentation/screens/main_navigation_screen.dart';
@@ -239,6 +240,21 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                 builder: (context, state) {
                   final groupId = state.pathParameters['groupId'] ?? '';
                   return GroupProfileScreen(groupId: groupId);
+                },
+              ),
+              GoRoute(
+                path: "group-accumulator/:accumulatorId",
+                name: "home-group-accumulator",
+                parentNavigatorKey: rootNavigatorKey,
+                builder: (context, state) {
+                  final accumulatorId =
+                      state.pathParameters['accumulatorId'] ?? '';
+                  final extra = state.extra as Map<String, dynamic>?;
+                  final groupTitle = extra?['groupTitle'] as String?;
+                  return GroupAccumulatorScreen(
+                    accumulatorId: accumulatorId,
+                    groupTitle: groupTitle,
+                  );
                 },
               ),
               GoRoute(
