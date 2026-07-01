@@ -1,4 +1,5 @@
 import 'package:flutter_pecha/features/mala/domain/entities/accumulator_group.dart';
+import 'package:flutter_pecha/features/plans/data/models/plans_model.dart';
 
 class AccumulatorGroupModel {
   const AccumulatorGroupModel({
@@ -7,13 +8,13 @@ class AccumulatorGroupModel {
     required this.userTotalCount,
     required this.isJoined,
     this.title,
-    this.imageKey,
+    this.image,
   });
 
   final String groupAccumulatorId;
   final String groupId;
   final String? title;
-  final String? imageKey;
+  final ImageModel? image;
   final int userTotalCount;
   final bool isJoined;
 
@@ -22,7 +23,7 @@ class AccumulatorGroupModel {
       groupAccumulatorId: json['group_accumulator_id'] as String,
       groupId: json['group_id'] as String,
       title: json['title'] as String?,
-      imageKey: json['image_key'] as String?,
+      image: ImageModel.fromJsonMap(json),
       userTotalCount: (json['user_total_count'] as num?)?.toInt() ?? 0,
       isJoined: json['is_joined'] as bool? ?? false,
     );
@@ -33,7 +34,7 @@ class AccumulatorGroupModel {
       groupAccumulatorId: groupAccumulatorId,
       groupId: groupId,
       title: title,
-      imageKey: imageKey,
+      image: image?.toResponsiveImage(),
       userTotalCount: userTotalCount,
       isJoined: isJoined,
     );

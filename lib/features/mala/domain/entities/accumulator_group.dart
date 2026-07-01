@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:flutter_pecha/shared/domain/value_objects/responsive_image.dart';
 
 /// A group accumulator linked to a preset, from
 /// `GET /accumulators/{accumulator_id}/groups`.
@@ -9,13 +10,13 @@ class AccumulatorGroup extends Equatable {
     required this.userTotalCount,
     required this.isJoined,
     this.title,
-    this.imageKey,
+    this.image,
   });
 
   final String groupAccumulatorId;
   final String groupId;
   final String? title;
-  final String? imageKey;
+  final ResponsiveImage? image;
   final int userTotalCount;
   final bool isJoined;
 
@@ -24,7 +25,7 @@ class AccumulatorGroup extends Equatable {
     groupAccumulatorId,
     groupId,
     title,
-    imageKey,
+    image,
     userTotalCount,
     isJoined,
   ];

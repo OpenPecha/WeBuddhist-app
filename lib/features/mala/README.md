@@ -15,12 +15,14 @@ data/
     mala_local_datasource.dart    Hive store (LocalMalaState), namespaced by user
   models/
     accumulator_model.dart        JSON DTOs + toEntity()/toMalaCount()
+    accumulator_group_model.dart  Group accumulator DTOs (ImageUrlModel → ResponsiveImage)
   repositories/
     mala_repository_impl.dart     maps exceptions → Failure (fpdart Either)
 domain/
   entities/
     mantra.dart                   Mantra, MantraText, AccumulatorMetadata; kBeadsPerRound = 108
     mala_count.dart               MalaCount (total, accumulatorId, beadImageUrl)
+    accumulator_group.dart        Joined group accumulator summary for a preset
   repositories/mala_repository.dart
   usecases/mala_usecases.dart     GetCatalogue / GetAccumulatorDetail / Create / Update
 presentation/
@@ -28,12 +30,17 @@ presentation/
     mala_providers.dart           all DI providers + user-id resolution
     mala_counter_notifier.dart    per-mantra counter (seed + increment)
     mala_sync_manager.dart        app-scoped background sync
+    mala_settings_provider.dart   sound / vibration toggles (persisted)
+    accumulator_groups_provider.dart  joined groups for current preset (autoDispose family)
+    accumulation_search_provider.dart preset search state (settings / add flows)
   services/
     mala_sound_player.dart        bead-tap click (just_audio)
-  screens/mala_screen.dart        screen layout (40% switcher / 60% counter+beads)
+  screens/mala_screen.dart        screen layout (mantra card → counter → beads → group bar)
   widgets/
     mala_beads.dart               the tappable bead-arc CustomPainter
     mantra_switcher.dart          infinite looping carousel (swipe + ‹ › chevrons)
+    group_accumulations_bar.dart  joined-group pill with overlapping avatars
+    mala_settings_sheet.dart      sound/vibration, reset, bookmark, add accumulation
     mala_skeleton.dart            loading placeholder
 ```
 
@@ -49,6 +56,7 @@ fetched by authenticated users, so the catch-all is safe.
 | --- | --- | --- |
 | `GET` | `/accumulators/presets` | Catalogue of preset mantras (paged, `language`). Sent with `no_cache` so it skips the 5-min HTTP cache and always returns the latest titles/images. |
 | `GET` | `/accumulators/{parent_id}` | The user's detail for one preset. **404 ⇒ no accumulator yet ⇒ seed at 0.** |
+| `GET` | `/accumulators/{accumulator_id}/groups` | Groups using this preset. Query `joined_only=true` returns only groups the user has joined. `{accumulator_id}` is the preset id (`Mantra.presetId`). |
 | `POST` | `/accumulators/user` | Lazily create the user's accumulator (`{parent_id}`, starts at 0). |
 | `PUT` | `/accumulators/user/{id}` | Push the absolute `current_count`. |
 | `DELETE` | `/accumulators/user/{id}` | Soft-delete the active session accumulator (reset). |
@@ -198,13 +206,48 @@ A `CustomPaint` strand that advances **forward only** (counting is monotonic).
 
 ## Screen layout (`MalaScreen`)
 
-Below the app bar: **40%** `MantraSwitcher` — an **infinite looping carousel**
-(an unbounded `PageView` seeded at `_loopBase * length + index`, mapped back
-with `page % length`); swipe or tap the chevrons and it wraps endlessly
-(last → first, first → last). The screen owns `_index`; the carousel reports
-settles via `onIndexChanged`. With one mantra it locks (no swipe, chevrons
-disabled). **60%** `_CounterBlock` (`n/108`, rounds) above the `MalaBeads` arc. States: skeleton (loading), error+retry (catalogue or seed
-failure), data.
+Below the app bar, the body is a vertical column (24px horizontal padding, 16px
+bottom):
+
+1. **`MantraSwitcher`** — `Expanded(flex: 36)`, inside a white card
+   (`AppColors.surfaceWhite`, 16px corner radius). Infinite looping carousel
+   (unbounded `PageView` seeded at `_loopBase * length + index`, mapped back
+   with `page % length`); swipe or tap chevrons to wrap. The screen owns
+   `_index`; the carousel reports settles via `onIndexChanged`. With one mantra
+   it locks (no swipe, chevrons disabled).
+2. **`_CounterBlock`** — `n/108` bead-in-round and rounds count, left-aligned.
+3. **`MalaBeads`** — `Expanded(flex: 42)`, top-aligned in a canvas sized to
+   ~85% of the available height so the arc sits higher on screen.
+4. **`GroupAccumulationsBar`** — fixed 40px slot at the bottom (see below).
+
+States: skeleton (loading), error+retry (catalogue or seed failure), data.
+
+## Group accumulations bar (`GroupAccumulationsBar`)
+
+Entry point for group counting tied to the current preset. Fetched per mantra via
+`joinedAccumulatorGroupsProvider(presetId)` →
+`MalaRepository.getJoinedAccumulatorGroups()` →
+`GET /accumulators/{presetId}/groups?joined_only=true`.
+
+- **Visibility:** the grey pill appears only when the response contains at
+  least one group. Loading, error, and empty responses show nothing inside the
+  slot.
+- **Layout stability:** the widget always reserves **40px height**
+  (`GroupAccumulationsBar.barHeight`) so the bead arc does not jump when the
+  request resolves.
+- **Preview:** up to two overlapping circular avatars (28px, 10px overlap) plus
+  a chevron. Tap handler is stubbed for future detail navigation.
+- **Images:** group `image` is parsed as `ImageUrlModel` (`thumbnail` /
+  `medium` / `original`) via `ImageModel.fromJsonMap()` and mapped to
+  `ResponsiveImage` on the entity. Avatars render through `ResponsiveCoverImage`
+  so the thumbnail tier is picked for the small circle.
+
+`AccumulatorGroup` entity fields used today: `groupAccumulatorId`, `groupId`,
+`title`, `image`, `userTotalCount`, `isJoined`. The DTO also carries
+`target_count`, dates, etc. — not yet mapped on the client.
+
+On API failure the provider returns an empty list (bar stays hidden, slot
+reserved).
 
 ## Analytics
 

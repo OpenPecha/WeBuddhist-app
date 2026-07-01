@@ -1,19 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
-import 'package:flutter_pecha/core/widgets/cached_network_image_widget.dart';
+import 'package:flutter_pecha/core/widgets/responsive_cover_image.dart';
 import 'package:flutter_pecha/features/mala/domain/entities/accumulator_group.dart';
 import 'package:flutter_pecha/features/mala/presentation/providers/accumulator_groups_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Pill entry point for group accumulations on the mala screen.
 ///
-/// Visible only when `GET /accumulators/{presetId}/groups?joined_only=true`
-/// returns at least one group; otherwise collapses to zero height.
+/// Always reserves [barHeight] so bead layout does not shift when the groups
+/// request resolves. The pill is shown only when
+/// `GET /accumulators/{presetId}/groups?joined_only=true` returns groups.
 class GroupAccumulationsBar extends ConsumerWidget {
   const GroupAccumulationsBar({super.key, required this.presetId});
 
   final String presetId;
 
+  static const barHeight = 40.0;
   static const _avatarSize = 28.0;
   static const _avatarOverlap = 10.0;
 
@@ -21,17 +23,20 @@ class GroupAccumulationsBar extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final groupsAsync = ref.watch(joinedAccumulatorGroupsProvider(presetId));
 
-    return groupsAsync.when(
-      data: (groups) {
-        if (groups.isEmpty) return const SizedBox.shrink();
-        return _GroupAccumulationsBarContent(
-          groups: groups,
-          avatarSize: _avatarSize,
-          avatarOverlap: _avatarOverlap,
-        );
-      },
-      loading: () => const SizedBox.shrink(),
-      error: (_, __) => const SizedBox.shrink(),
+    return SizedBox(
+      height: barHeight,
+      child: groupsAsync.when(
+        data: (groups) {
+          if (groups.isEmpty) return const SizedBox.shrink();
+          return _GroupAccumulationsBarContent(
+            groups: groups,
+            avatarSize: _avatarSize,
+            avatarOverlap: _avatarOverlap,
+          );
+        },
+        loading: () => const SizedBox.shrink(),
+        error: (_, __) => const SizedBox.shrink(),
+      ),
     );
   }
 }
@@ -52,9 +57,7 @@ class _GroupAccumulationsBarContent extends StatelessWidget {
     final iconColor = Theme.of(context).colorScheme.onSurfaceVariant;
     final preview = groups.take(2).toList();
     final stackWidth =
-        preview.length == 1
-            ? avatarSize
-            : avatarSize + avatarOverlap;
+        preview.length == 1 ? avatarSize : avatarSize + avatarOverlap;
 
     return Align(
       alignment: Alignment.centerLeft,
@@ -67,7 +70,7 @@ class _GroupAccumulationsBarContent extends StatelessWidget {
             // Group accumulations detail navigation will be wired separately.
           },
           child: Container(
-            height: 40,
+            height: GroupAccumulationsBar.barHeight,
             padding: const EdgeInsets.fromLTRB(6, 6, 8, 6),
             child: Row(
               mainAxisSize: MainAxisSize.min,
@@ -107,7 +110,6 @@ class _GroupAvatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final imageUrl = _resolveImageUrl(group.imageKey);
     final fallbackColor =
         Theme.of(context).colorScheme.surfaceContainerHighest;
 
@@ -120,23 +122,12 @@ class _GroupAvatar extends StatelessWidget {
         border: Border.all(color: AppColors.surfaceWhite, width: 1.5),
       ),
       clipBehavior: Clip.antiAlias,
-      child:
-          imageUrl != null
-              ? CachedNetworkImageWidget(
-                imageUrl: imageUrl,
-                width: size,
-                height: size,
-                fit: BoxFit.cover,
-              )
-              : null,
+      child: ResponsiveCoverImage(
+        image: group.image,
+        width: size,
+        height: size,
+        fit: BoxFit.cover,
+      ),
     );
-  }
-
-  String? _resolveImageUrl(String? imageKey) {
-    if (imageKey == null || imageKey.isEmpty) return null;
-    if (imageKey.startsWith('http://') || imageKey.startsWith('https://')) {
-      return imageKey;
-    }
-    return null;
   }
 }
