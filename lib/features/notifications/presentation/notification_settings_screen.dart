@@ -93,6 +93,16 @@ class _NotificationSettingsScreenState
     }
   }
 
+  Future<void> _togglePractice(bool enable) async {
+    final result = await ref
+        .read(notificationProvider.notifier)
+        .togglePractice(enable);
+    if (!mounted) return;
+    if (result == NotificationToggleResult.error) {
+      _snack(AppLocalizations.of(context)!.something_went_wrong);
+    }
+  }
+
   Future<void> _toggleExactAlarms(bool enable) async {
     if (enable) {
       await ref.read(notificationServiceProvider).openExactAlarmSettings();
@@ -253,6 +263,21 @@ class _NotificationSettingsScreenState
                                     .notification_recitation_subtitle_disabled,
                         value: state.appRecitationEnabled,
                         onChanged: _toggleRecitation,
+                        titleSize: ts,
+                        subtitleSize: ss,
+                      ),
+
+                      // Practice (mala) reminders
+                      _SwitchTile(
+                        title: localizations.notification_practice_title,
+                        subtitle:
+                            state.appPracticeEnabled
+                                ? localizations
+                                    .notification_practice_subtitle_enabled
+                                : localizations
+                                    .notification_practice_subtitle_disabled,
+                        value: state.appPracticeEnabled,
+                        onChanged: _togglePractice,
                         titleSize: ts,
                         subtitleSize: ss,
                       ),

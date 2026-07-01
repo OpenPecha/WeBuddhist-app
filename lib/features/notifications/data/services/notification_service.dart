@@ -410,10 +410,16 @@ class NotificationService {
       }
     }
 
-    // Navigate to the practice tab — RoutineFilledState will push the detail screen.
+    // Navigate to the practice tab, then push the My Practices screen.
+    // Since the main-navigation refactor, RoutineFilledState — which consumes
+    // the pending nav and pushes the chant (reader) / mala / plan detail —
+    // only mounts on /practice/my-practices; the Practice tab itself shows the
+    // explore screen and consumes nothing. Without this push the tap lands on
+    // /home and the detail never opens. Mirrors PushMessageNavigator's plan path.
     _container!.read(mainNavigationIndexProvider.notifier).state =
         MainTab.practice.index;
     _router!.go('/home');
+    _router!.push('/practice/my-practices');
   }
 }
 

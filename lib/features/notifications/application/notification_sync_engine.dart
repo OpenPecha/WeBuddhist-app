@@ -47,6 +47,7 @@ enum SyncTrigger {
   masterToggle,
   routineToggle,
   recitationToggle,
+  practiceToggle,
   permissionChanged,
   loggedIn,
   loggedOut,
@@ -257,6 +258,7 @@ class NotificationSyncEngine {
     final masterOn = togglePrefs.getBool(StorageKeys.notificationMasterEnabled) ?? true;
     final routineOn = togglePrefs.getBool(StorageKeys.notificationRoutineEnabled) ?? true;
     final recitationOn = togglePrefs.getBool(StorageKeys.notificationRecitationEnabled) ?? true;
+    final practiceOn = togglePrefs.getBool(StorageKeys.notificationPracticeEnabled) ?? true;
     final osGranted = await _notificationService.areNotificationsEnabled();
 
     final routineBlocks = _ref.read(routineProvider).blocks;
@@ -320,6 +322,20 @@ class NotificationSyncEngine {
             now,
             masterOn: masterOn,
             recitationOn: recitationOn,
+          );
+          for (final e in entries) {
+            desired[e.id] = e;
+            bumpCase(e.debugCase);
+          }
+        }
+        final hasAccumulator =
+            block.items.any((i) => i.type == RoutineItemType.accumulator);
+        if (hasAccumulator) {
+          final entries = computeForAccumulatorBlock(
+            block,
+            now,
+            masterOn: masterOn,
+            practiceOn: practiceOn,
           );
           for (final e in entries) {
             desired[e.id] = e;
@@ -458,7 +474,13 @@ class NotificationSyncEngine {
     for (final p in ownedPending) {
       if (p.id == NotificationIdScheme.kDiagnosticTestId) continue;
       if (desired.containsKey(p.id)) continue;
-      if (!canCancel) {
+      // Recitation/chants and mala daily-repeats are routine-derived (never
+      // plan-derived), so an orphan is unambiguous even when plans are
+      // unresolved — reconcile it regardless of additive-only mode. Only
+      // plan-range IDs stay protected until enrollment is known.
+      final canCancelThis =
+          canCancel || NotificationIdScheme.isRoutineDailyRepeat(p.id);
+      if (!canCancelThis) {
         skipped++;
         _logger.info(
           '[NOTIFICATION_NEW_FLOW] trigger=${trigger.name} action=skip-cancel '
@@ -1079,6 +1101,62 @@ class NotificationSyncEngine {
     ];
   }
 
+  /// Computes the single daily-repeat [DesiredNotification] for a mala
+  /// (accumulator) block. Mirrors [computeForRecitationBlock] but is gated by
+  /// the Practice sub-toggle and uses [NotificationIdScheme.accumulatorBlockId]
+  /// so it never collides with a recitation daily-repeat in the same block.
+  ///
+  /// The title is the mala's own name (the user's stored preset title) and the
+  /// body is a consistent default. Returns `[]` when toggles are off or the
+  /// block holds no accumulator items.
+  @visibleForTesting
+  List<DesiredNotification> computeForAccumulatorBlock(
+    RoutineBlock block,
+    DateTime now, {
+    required bool masterOn,
+    required bool practiceOn,
+  }) {
+    if (!masterOn) return const [];
+    if (!practiceOn) return const [];
+    if (block.items.isEmpty || !block.notificationEnabled) return const [];
+
+    final accumulators =
+        block.items.where((i) => i.type == RoutineItemType.accumulator).toList();
+    if (accumulators.isEmpty) return const [];
+
+    final firstItem = accumulators.first;
+    final nowTz = tz.TZDateTime.from(now, tz.local);
+    var scheduledDate = tz.TZDateTime(
+      tz.local,
+      nowTz.year,
+      nowTz.month,
+      nowTz.day,
+      block.time.hour,
+      block.time.minute,
+    );
+    if (scheduledDate.isBefore(nowTz)) {
+      scheduledDate = scheduledDate.add(const Duration(days: 1));
+    }
+
+    final payload = jsonEncode({
+      'itemId': firstItem.id,
+      'itemType': firstItem.type.name,
+    });
+
+    return [
+      DesiredNotification(
+        id: NotificationIdScheme.accumulatorBlockId(block.notificationId),
+        fireAt: scheduledDate,
+        title: firstItem.title,
+        body: _accumulatorBody(accumulators),
+        payload: payload,
+        sourceItem: firstItem,
+        isDailyRepeat: true,
+        debugCase: '4 daily-repeat-mala',
+      ),
+    ];
+  }
+
   // ─── Scheduling primitives ──────────────────────────────────────────────────
 
   Future<bool> _scheduleOne(
@@ -1243,6 +1321,15 @@ class NotificationSyncEngine {
     if (remaining == 1) return '$firstItem and 1 other';
     if (remaining > 1) return '$firstItem and $remaining others';
     return firstItem;
+  }
+
+  /// Consistent default body for a mala (accumulator) reminder. The title
+  /// already carries the mala's name, so the body stays generic.
+  String _accumulatorBody(List<RoutineItem> items) {
+    final remaining = items.length - 1;
+    if (remaining == 1) return 'Time for your mala practice and 1 more';
+    if (remaining > 1) return 'Time for your mala practice and $remaining more';
+    return 'Time for your mala practice';
   }
 }
 

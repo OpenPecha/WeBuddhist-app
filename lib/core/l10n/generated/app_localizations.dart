@@ -931,20 +931,38 @@ abstract class AppLocalizations {
   /// No description provided for @notification_recitation_title.
   ///
   /// In en, this message translates to:
-  /// **'Recitations reminder'**
+  /// **'Chant reminders'**
   String get notification_recitation_title;
 
   /// No description provided for @notification_recitation_subtitle_enabled.
   ///
   /// In en, this message translates to:
-  /// **'Daily reminders for your recitations'**
+  /// **'Daily reminders for your chants'**
   String get notification_recitation_subtitle_enabled;
 
   /// No description provided for @notification_recitation_subtitle_disabled.
   ///
   /// In en, this message translates to:
-  /// **'Recitation reminders are paused. Tap to resume.'**
+  /// **'Chant reminders are paused. Tap to resume.'**
   String get notification_recitation_subtitle_disabled;
+
+  /// No description provided for @notification_practice_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Mala reminders'**
+  String get notification_practice_title;
+
+  /// No description provided for @notification_practice_subtitle_enabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily reminders for your mala practice'**
+  String get notification_practice_subtitle_enabled;
+
+  /// No description provided for @notification_practice_subtitle_disabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Mala reminders are paused. Tap to resume.'**
+  String get notification_practice_subtitle_disabled;
 
   /// No description provided for @notification_battery_info_title.
   ///

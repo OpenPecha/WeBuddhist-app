@@ -472,6 +472,17 @@ class AppLocalizationsBo extends AppLocalizations {
       'ཁ་འདོན་དྲན་སྐུལ་མཚམས་བཞག་ཡོད། བསྐྱར་སློང་བྱེད་ན་འདིར་སྣུན།';
 
   @override
+  String get notification_practice_title => 'ཕྲེང་བའི་ཉམས་ལེན་དྲན་སྐུལ།';
+
+  @override
+  String get notification_practice_subtitle_enabled =>
+      'ཕྲེང་བའི་ཉམས་ལེན་གྱི་ཉིན་རེའི་དྲན་སྐུལ།';
+
+  @override
+  String get notification_practice_subtitle_disabled =>
+      'ཕྲེང་བའི་དྲན་སྐུལ་མཚམས་བཞག་ཡོད། བསྐྱར་སློང་བྱེད་ན་འདིར་སྣུན།';
+
+  @override
   String get notification_battery_info_title => 'རྒྱབ་ལྗོངས་དྲན་སྐུལ་གྱི་སྐོར།';
 
   @override

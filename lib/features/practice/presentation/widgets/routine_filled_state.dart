@@ -98,6 +98,12 @@ class _RoutineFilledStateState extends ConsumerState<RoutineFilledState> {
       return;
     }
 
+    if (itemType == RoutineItemType.accumulator) {
+      ref.read(pendingNotificationNavProvider.notifier).state = null;
+      context.push('/mala', extra: {'presetId': pendingNav.itemId});
+      return;
+    }
+
     final planId = pendingNav.planId ?? pendingNav.itemId;
     final routineItem = _findRoutineItem(widget.routineData, pendingNav.itemId);
     var userPlan =

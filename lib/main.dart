@@ -212,6 +212,7 @@ class MyApp extends ConsumerStatefulWidget {
 class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
   bool _hasRegisteredDeepLinkRouters = false;
   bool _hasDrainedInitialAppLink = false;
+  bool _hasConsumedLaunchNotification = false;
 
   @override
   void initState() {
@@ -296,7 +297,18 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
     // connectivity returns.
     ref.watch(plansSyncBootstrapProvider);
     NotificationService.setRouter(router);
-    NotificationService().consumeLaunchNotification();
+    // Consume a terminated-state launch tap only after auth has settled and a
+    // frame has rendered. Firing it during build (or before the async auth
+    // redirect resolves) races the router's initial redirect and strands the
+    // app on a shell-less /home (no bottom nav). One-shot; mirrors the
+    // deep-link drain above. consumeLaunchNotification is itself idempotent.
+    if (!authState.isLoading && !_hasConsumedLaunchNotification) {
+      _hasConsumedLaunchNotification = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        NotificationService().consumeLaunchNotification();
+      });
+    }
 
     // Add QueryClient provider wrapper
     return QueryClientProvider(

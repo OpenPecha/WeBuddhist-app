@@ -58,6 +58,9 @@ class StorageKeys {
   static const String notificationRoutineEnabled = 'notification_routine_enabled';
   /// App-level toggle for recitation block notifications. Default: true.
   static const String notificationRecitationEnabled = 'notification_recitation_enabled';
+  /// App-level toggle for practice (mala / accumulator) block notifications.
+  /// Default: true.
+  static const String notificationPracticeEnabled = 'notification_practice_enabled';
   /// Latest Firebase Cloud Messaging registration token for this install.
   static const String fcmToken = 'fcm_token';
   /// Stable per-install identifier sent as `device_id` when registering the

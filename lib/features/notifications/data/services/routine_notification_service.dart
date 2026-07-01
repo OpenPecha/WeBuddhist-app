@@ -79,6 +79,11 @@ class RoutineNotificationService {
       final todayMarkers = PlanMetadataStore.seriesScheduledIdsOn(todayDate);
 
       await _plugin.cancel(block.notificationId);
+      // The mala (accumulator) daily-repeat lives in a parallel ID range, so
+      // cancel it too — otherwise a deleted mala block keeps firing until the
+      // next full reconciliation sync.
+      await _plugin
+          .cancel(NotificationIdScheme.accumulatorBlockId(block.notificationId));
       // Every plan item in the block owns its own series — cancel them all,
       // not just the first (blocks may hold several plans, case 3d).
       for (final item

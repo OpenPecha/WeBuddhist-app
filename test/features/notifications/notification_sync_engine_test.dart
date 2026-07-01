@@ -394,6 +394,63 @@ void main() {
     });
   });
 
+  group('case 4: mala (accumulator) daily-repeat', () {
+    RoutineItem malaItem({String id = 'm-1', String title = 'Om Mani Padme Hum'}) =>
+        RoutineItem(id: id, title: title, type: RoutineItemType.accumulator);
+
+    test('emits a single repeating notification using the mala title', () {
+      final entries = engine.computeForAccumulatorBlock(
+        RoutineBlock(
+          id: 'mala-1',
+          time: const TimeOfDay(hour: 8, minute: 30),
+          notificationEnabled: true,
+          items: [malaItem()],
+          notificationId: 5555,
+        ),
+        DateTime(2026, 6, 5, 6),
+        masterOn: true,
+        practiceOn: true,
+      );
+      expect(entries, hasLength(1));
+      expect(entries.first.isDailyRepeat, isTrue);
+      expect(entries.first.title, 'Om Mani Padme Hum');
+      expect(entries.first.id, NotificationIdScheme.accumulatorBlockId(5555));
+      expect(entries.first.debugCase, contains('4'));
+    });
+
+    test('emits nothing when practice sub-toggle OFF', () {
+      final entries = engine.computeForAccumulatorBlock(
+        RoutineBlock(
+          id: 'mala-1',
+          time: const TimeOfDay(hour: 8, minute: 30),
+          notificationEnabled: true,
+          items: [malaItem()],
+          notificationId: 5555,
+        ),
+        DateTime(2026, 6, 5, 6),
+        masterOn: true,
+        practiceOn: false,
+      );
+      expect(entries, isEmpty);
+    });
+
+    test('ignores non-accumulator items in the block', () {
+      final entries = engine.computeForAccumulatorBlock(
+        RoutineBlock(
+          id: 'mala-1',
+          time: const TimeOfDay(hour: 8, minute: 30),
+          notificationEnabled: true,
+          items: [recitationItem()],
+          notificationId: 5555,
+        ),
+        DateTime(2026, 6, 5, 6),
+        masterOn: true,
+        practiceOn: true,
+      );
+      expect(entries, isEmpty);
+    });
+  });
+
   // ─── ID scheme ─────────────────────────────────────────────────────────────
 
   group('NotificationIdScheme', () {
@@ -404,8 +461,31 @@ void main() {
       expect(NotificationIdScheme.isOurs(9999), isTrue); // diagnostic
       expect(NotificationIdScheme.isOurs(9000000), isTrue); // plan one-shot
       expect(NotificationIdScheme.isOurs(10000000), isTrue); // plan series
+      expect(NotificationIdScheme.isOurs(20000000), isTrue); // accumulator block
       expect(NotificationIdScheme.isOurs(50), isFalse); // system range
-      expect(NotificationIdScheme.isOurs(20000000), isFalse); // outside
+      expect(NotificationIdScheme.isOurs(30000000), isFalse); // outside
+    });
+
+    test('isRoutineDailyRepeat covers recitation + mala ranges only', () {
+      expect(NotificationIdScheme.isRoutineDailyRepeat(5555), isTrue); // recitation block
+      expect(
+        NotificationIdScheme.isRoutineDailyRepeat(
+          NotificationIdScheme.accumulatorBlockId(5555),
+        ),
+        isTrue, // mala block
+      );
+      expect(NotificationIdScheme.isRoutineDailyRepeat(9000000), isFalse); // plan one-shot
+      expect(NotificationIdScheme.isRoutineDailyRepeat(10000000), isFalse); // plan series
+      expect(NotificationIdScheme.isRoutineDailyRepeat(810), isFalse); // special series
+    });
+
+    test('accumulator block id is distinct from the block own id', () {
+      // A block holding both a recitation (uses notificationId) and a mala
+      // (uses accumulatorBlockId) must produce two non-colliding IDs.
+      const blockId = 5555;
+      final malaId = NotificationIdScheme.accumulatorBlockId(blockId);
+      expect(malaId, isNot(blockId));
+      expect(NotificationIdScheme.isOurs(malaId), isTrue);
     });
 
     test('special-plan series uses fixed slot per planId', () {

@@ -449,6 +449,15 @@ class AppLocalizationsZh extends AppLocalizations {
   String get notification_recitation_subtitle_disabled => '持誦提醒已暫停。點此恢復。';
 
   @override
+  String get notification_practice_title => '念珠提醒';
+
+  @override
+  String get notification_practice_subtitle_enabled => '每日念珠修持提醒';
+
+  @override
+  String get notification_practice_subtitle_disabled => '念珠提醒已暫停。點此恢復。';
+
+  @override
   String get notification_battery_info_title => '關於背景提醒';
 
   @override

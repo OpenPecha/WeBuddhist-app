@@ -461,15 +461,26 @@ class AppLocalizationsNe extends AppLocalizations {
       'केही एन्ड्रोइड फोनहरूले ब्याट्री बचाउन पृष्ठभूमि एपहरू रोक्छन्, जसले तपाईंका रिमाइन्डरहरू ढिलो गराउन वा छुटाउन सक्छ। चालु राख्न ट्याप गर्नुहोस्।';
 
   @override
-  String get notification_recitation_title => 'पाठ रिमाइन्डर';
+  String get notification_recitation_title => 'जप रिमाइन्डर';
 
   @override
   String get notification_recitation_subtitle_enabled =>
-      'तपाईंका पाठहरूका लागि दैनिक रिमाइन्डरहरू';
+      'तपाईंका जपका लागि दैनिक रिमाइन्डरहरू';
 
   @override
   String get notification_recitation_subtitle_disabled =>
-      'पाठ रिमाइन्डरहरू रोकिएका छन्। पुनः सुरु गर्न ट्याप गर्नुहोस्।';
+      'जप रिमाइन्डरहरू रोकिएका छन्। पुनः सुरु गर्न ट्याप गर्नुहोस्।';
+
+  @override
+  String get notification_practice_title => 'माला रिमाइन्डर';
+
+  @override
+  String get notification_practice_subtitle_enabled =>
+      'तपाईंको माला अभ्यासका लागि दैनिक रिमाइन्डर';
+
+  @override
+  String get notification_practice_subtitle_disabled =>
+      'माला रिमाइन्डरहरू रोकिएका छन्। पुनः सुरु गर्न ट्याप गर्नुहोस्।';
 
   @override
   String get notification_battery_info_title =>

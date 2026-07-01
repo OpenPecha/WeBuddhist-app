@@ -34,6 +34,13 @@ class NotificationIdScheme {
   static const int planSeriesSlot = 500;
   static const int planSeriesMax = 15004999;
 
+  // Routine block accumulator (mala) daily-repeat. A block may hold both a
+  // recitation and a mala; the recitation keeps [RoutineBlock.notificationId]
+  // (routineBlock* range) while the mala maps into this parallel range so the
+  // two daily-repeats never collide on one ID.
+  static const int accumulatorBlockBase = 20000000;
+  static const int accumulatorBlockMax = 20999999;
+
   /// ID for the [day]th notification of [planId]'s special-plan series.
   /// Throws if [planId] is not a registered special plan.
   static int specialPlanSeriesId(String planId, int day) {
@@ -56,6 +63,24 @@ class NotificationIdScheme {
   static int planOneShotId(String planId) =>
       planOneShotBase + planId.hashCode.abs() % 10000;
 
+  /// Stable daily-repeat ID for a mala/accumulator block. Derived from the
+  /// block's own notification ID so it survives restarts, but lives in a
+  /// range separate from the recitation daily-repeat
+  /// ([RoutineBlock.notificationId]) so a block holding both never collides.
+  static int accumulatorBlockId(int blockNotificationId) =>
+      accumulatorBlockBase + (blockNotificationId - routineBlockMin);
+
+  /// True when [id] is a routine daily-repeat (recitation/chants via
+  /// [routineBlockMin]–[routineBlockMax], or mala via the accumulator range).
+  ///
+  /// These are computed purely from the routine blocks + toggles and never
+  /// depend on plan-enrollment state, so the engine may reconcile (cancel)
+  /// them even while the plans list is unresolved — unlike plan-derived IDs,
+  /// which stay in additive-only mode until enrollment is known.
+  static bool isRoutineDailyRepeat(int id) =>
+      (id >= routineBlockMin && id <= routineBlockMax) ||
+      (id >= accumulatorBlockBase && id <= accumulatorBlockMax);
+
   /// True when [id] was issued by any of the schemes registered here.
   /// Used by the engine to scope reconciliation: it must NEVER cancel an
   /// ID that doesn't belong to this app (e.g. another plugin's IDs).
@@ -65,6 +90,7 @@ class NotificationIdScheme {
     if (id >= routineBlockMin && id <= routineBlockMax) return true;
     if (id >= planOneShotBase && id <= planOneShotMax) return true;
     if (id >= planSeriesBase && id <= planSeriesMax) return true;
+    if (id >= accumulatorBlockBase && id <= accumulatorBlockMax) return true;
     return false;
   }
 }
