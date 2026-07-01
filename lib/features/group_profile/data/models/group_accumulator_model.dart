@@ -63,6 +63,7 @@ class GroupAccumulatorModel {
       endDate: endDate,
       isJoined: isJoined,
       memberCount: memberCount,
+      totalCount: totalCount,
     );
   }
 

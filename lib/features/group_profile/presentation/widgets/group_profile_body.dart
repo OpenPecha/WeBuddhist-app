@@ -89,7 +89,18 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
     ref.listen(groupFollowProvider(followKey), (previous, next) {
       if (next case GroupFollowSuccess(isFollowing: false)) {
         setState(_localGroupEnrolledSeriesIds.clear);
+        ref.read(groupAccumulatorJoinCacheProvider(widget.profile.id).notifier).clear();
+        ref.invalidate(groupAccumulatorsProvider(widget.profile.id));
       }
+    });
+    ref.listen(groupAccumulatorsProvider(widget.profile.id), (previous, next) {
+      next.whenData((either) {
+        either.fold((_) {}, (page) {
+          ref
+              .read(groupAccumulatorJoinCacheProvider(widget.profile.id).notifier)
+              .syncFromApi(page.accumulators);
+        });
+      });
     });
     ref.listen(groupProfileProvider(widget.profile.id), (previous, next) {
       next.whenData((either) {
@@ -399,10 +410,18 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
             }
 
             final accumulator = accumulators[index - series.length];
+            final localJoinedIds = ref.watch(
+              groupAccumulatorJoinCacheProvider(profile.id),
+            );
+            final hasJoined = accumulatorHasJoined(
+              accumulator,
+              localJoinedIds: localJoinedIds,
+            );
             return Padding(
               padding: EdgeInsets.only(bottom: isLast ? 0 : 16),
               child: GroupAccumulatorCard(
                 accumulator: accumulator,
+                hasJoined: hasJoined,
                 isDark: isDark,
                 lineHeight: lineHeight,
                 isJoining: _joiningAccumulatorId == accumulator.id,
@@ -484,10 +503,18 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
       ref: ref,
       accumulatorId: accumulator.id,
       groupId: profile.id,
+      group: profile,
     );
 
     if (!mounted) return;
-    setState(() => _joiningAccumulatorId = null);
+    setState(() {
+      _joiningAccumulatorId = null;
+      if (ok) {
+        ref
+            .read(groupAccumulatorJoinCacheProvider(profile.id).notifier)
+            .markJoined(accumulator.id);
+      }
+    });
 
     if (ok) {
       _navigateToAccumulatorDetail(accumulator.id);

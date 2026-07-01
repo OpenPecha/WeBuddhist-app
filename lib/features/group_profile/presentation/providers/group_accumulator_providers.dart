@@ -5,7 +5,9 @@ import 'package:flutter_pecha/features/auth/presentation/providers/state_provide
 import 'package:flutter_pecha/features/group_profile/data/datasource/group_accumulator_remote_datasource.dart';
 import 'package:flutter_pecha/features/group_profile/data/repositories/group_accumulator_repository_impl.dart';
 import 'package:flutter_pecha/features/group_profile/domain/entities/group_accumulator.dart';
+import 'package:flutter_pecha/features/group_profile/domain/entities/group_profile.dart';
 import 'package:flutter_pecha/features/group_profile/domain/repositories/group_accumulator_repository.dart';
+import 'package:flutter_pecha/features/group_profile/presentation/providers/group_profile_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fpdart/fpdart.dart';
 
@@ -44,22 +46,32 @@ final groupAccumulatorDetailProvider = FutureProvider.autoDispose
 @immutable
 class GroupAccumulatorMembersKey {
   final String accumulatorId;
-  final GroupAccumulatorMemberSort sortBy;
 
-  const GroupAccumulatorMembersKey({
-    required this.accumulatorId,
-    required this.sortBy,
-  });
+  const GroupAccumulatorMembersKey({required this.accumulatorId});
 
   @override
   bool operator ==(Object other) {
     return other is GroupAccumulatorMembersKey &&
-        other.accumulatorId == accumulatorId &&
-        other.sortBy == sortBy;
+        other.accumulatorId == accumulatorId;
   }
 
   @override
-  int get hashCode => Object.hash(accumulatorId, sortBy);
+  int get hashCode => accumulatorId.hashCode;
+}
+
+List<GroupAccumulatorMember> sortAccumulatorMembers(
+  List<GroupAccumulatorMember> members,
+  GroupAccumulatorMemberSort sort,
+) {
+  final sorted = List<GroupAccumulatorMember>.from(members);
+  sorted.sort((a, b) {
+    final aCount =
+        sort == GroupAccumulatorMemberSort.today ? a.todayCount : a.totalCount;
+    final bCount =
+        sort == GroupAccumulatorMemberSort.today ? b.todayCount : b.totalCount;
+    return bCount.compareTo(aCount);
+  });
+  return sorted;
 }
 
 class GroupAccumulatorMembersState {
@@ -102,26 +114,27 @@ class GroupAccumulatorMembersNotifier
   GroupAccumulatorMembersNotifier({
     required GroupAccumulatorRepositoryInterface repository,
     required this.accumulatorId,
-    required this.sortBy,
   }) : _repository = repository,
        super(const GroupAccumulatorMembersState());
 
   final GroupAccumulatorRepositoryInterface _repository;
   final String accumulatorId;
-  final GroupAccumulatorMemberSort sortBy;
   static const _pageSize = 20;
   bool _hasLoaded = false;
 
   Future<void> loadInitial({bool force = false}) async {
     if (_hasLoaded && !force) return;
     _hasLoaded = true;
-    state = state.copyWith(isLoading: true, clearError: true);
+    state = state.copyWith(
+      isLoading: state.members.isEmpty,
+      clearError: true,
+    );
 
     final result = await _repository.getGroupAccumulatorMembers(
       accumulatorId,
       skip: 0,
       limit: _pageSize,
-      sortBy: sortBy,
+      sortBy: GroupAccumulatorMemberSort.total,
     );
 
     result.fold(
@@ -142,7 +155,7 @@ class GroupAccumulatorMembersNotifier
       accumulatorId,
       skip: state.members.length,
       limit: _pageSize,
-      sortBy: sortBy,
+      sortBy: GroupAccumulatorMemberSort.total,
     );
 
     result.fold(
@@ -170,20 +183,100 @@ final groupAccumulatorMembersProvider = StateNotifierProvider.autoDispose
       return GroupAccumulatorMembersNotifier(
         repository: ref.watch(groupAccumulatorRepositoryProvider),
         accumulatorId: key.accumulatorId,
-        sortBy: key.sortBy,
       );
     });
+
+class GroupAccumulatorJoinCacheNotifier extends StateNotifier<Set<String>> {
+  GroupAccumulatorJoinCacheNotifier() : super(const {});
+
+  void markJoined(String accumulatorId) {
+    state = {...state, accumulatorId};
+  }
+
+  void markUnjoined(String accumulatorId) {
+    if (!state.contains(accumulatorId)) return;
+    state = {...state}..remove(accumulatorId);
+  }
+
+  void clear() => state = const {};
+
+  void syncFromApi(List<GroupAccumulator> accumulators) {
+    final joinedIds =
+        accumulators
+            .where((accumulator) => accumulator.isJoined == true)
+            .map((accumulator) => accumulator.id)
+            .toSet();
+    final notJoinedIds =
+        accumulators
+            .where((accumulator) => accumulator.isJoined == false)
+            .map((accumulator) => accumulator.id)
+            .toSet();
+
+    state = {...state, ...joinedIds}..removeAll(notJoinedIds);
+  }
+}
+
+final groupAccumulatorJoinCacheProvider = StateNotifierProvider.autoDispose
+    .family<GroupAccumulatorJoinCacheNotifier, Set<String>, String>((
+      ref,
+      groupId,
+    ) {
+      return GroupAccumulatorJoinCacheNotifier();
+    });
+
+bool accumulatorHasJoined(
+  GroupAccumulator accumulator, {
+  Set<String> localJoinedIds = const {},
+}) {
+  if (localJoinedIds.contains(accumulator.id)) return true;
+  return accumulator.isJoined == true;
+}
 
 Future<bool> joinGroupAccumulator({
   required WidgetRef ref,
   required String accumulatorId,
   required String groupId,
+  GroupProfile? group,
 }) async {
   final repository = ref.read(groupAccumulatorRepositoryProvider);
   final result = await repository.joinGroupAccumulator(accumulatorId);
-  return result.fold((_) => false, (_) {
-    ref.invalidate(groupAccumulatorsProvider(groupId));
-    ref.invalidate(groupAccumulatorDetailProvider(accumulatorId));
-    return true;
-  });
+
+  if (result.isLeft()) return false;
+
+  ref
+      .read(groupAccumulatorJoinCacheProvider(groupId).notifier)
+      .markJoined(accumulatorId);
+
+  GroupProfile? resolvedGroup = group;
+  if (resolvedGroup == null) {
+    final profileResult = await ref.read(groupProfileProvider(groupId).future);
+    resolvedGroup = profileResult.fold((_) => null, (profile) => profile);
+  }
+
+  if (resolvedGroup != null) {
+    final followKey = GroupFollowKey(
+      groupId: groupId,
+      groupType: resolvedGroup.groupType,
+    );
+    ref
+        .read(groupFollowProvider(followKey).notifier)
+        .markAutoJoinedFromPracticeEnrollment(group: resolvedGroup);
+  }
+
+  ref.invalidate(groupAccumulatorsProvider(groupId));
+  ref.invalidate(groupAccumulatorDetailProvider(accumulatorId));
+
+  await Future.wait([
+    ref.read(groupAccumulatorDetailProvider(accumulatorId).future),
+    ref.read(groupAccumulatorsProvider(groupId).future),
+    ref
+        .read(
+          groupAccumulatorMembersProvider(
+            GroupAccumulatorMembersKey(accumulatorId: accumulatorId),
+          ).notifier,
+        )
+        .loadInitial(force: true),
+  ]);
+
+  return true;
 }

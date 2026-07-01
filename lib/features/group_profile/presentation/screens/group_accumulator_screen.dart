@@ -4,9 +4,13 @@ import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/core/widgets/cached_network_image_widget.dart';
 import 'package:flutter_pecha/core/widgets/error_state_widget.dart';
-import 'package:flutter_pecha/core/widgets/responsive_cover_image.dart';
+import 'package:flutter_pecha/features/group_profile/presentation/widgets/group_accumulator_hero_card.dart';
+import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
+import 'package:flutter_pecha/features/auth/presentation/widgets/login_drawer.dart';
 import 'package:flutter_pecha/features/group_profile/domain/entities/group_accumulator.dart';
+import 'package:flutter_pecha/features/group_profile/domain/entities/group_profile.dart';
 import 'package:flutter_pecha/features/group_profile/presentation/providers/group_accumulator_providers.dart';
+import 'package:flutter_pecha/features/group_profile/presentation/providers/group_profile_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
@@ -29,7 +33,7 @@ class GroupAccumulatorScreen extends ConsumerStatefulWidget {
 class _GroupAccumulatorScreenState extends ConsumerState<GroupAccumulatorScreen>
     with SingleTickerProviderStateMixin {
   late final TabController _tabController;
-  GroupAccumulatorMemberSort _memberSort = GroupAccumulatorMemberSort.total;
+  bool _isJoining = false;
 
   @override
   void initState() {
@@ -49,6 +53,50 @@ class _GroupAccumulatorScreenState extends ConsumerState<GroupAccumulatorScreen>
       groupAccumulatorDetailProvider(widget.accumulatorId),
     );
     final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    ref.listen(groupAccumulatorDetailProvider(widget.accumulatorId), (
+      previous,
+      next,
+    ) {
+      next.whenData((either) {
+        either.fold((_) {}, (detail) {
+          final cacheNotifier = ref.read(
+            groupAccumulatorJoinCacheProvider(detail.groupId).notifier,
+          );
+          if (detail.isJoined == true) {
+            cacheNotifier.markJoined(detail.id);
+          } else if (detail.isJoined == false) {
+            cacheNotifier.markUnjoined(detail.id);
+          }
+        });
+      });
+    });
+
+    final resolvedDetail = detailAsync.whenOrNull(
+      data: (either) => either.fold((_) => null, (detail) => detail),
+    );
+    if (resolvedDetail != null) {
+      ref.listen(
+        groupFollowProvider(
+          GroupFollowKey(
+            groupId: resolvedDetail.groupId,
+            groupType: _resolveGroupType(ref, resolvedDetail.groupId),
+          ),
+        ),
+        (previous, next) {
+          if (next case GroupFollowSuccess(isFollowing: false)) {
+            ref
+                .read(
+                  groupAccumulatorJoinCacheProvider(resolvedDetail.groupId)
+                      .notifier,
+                )
+                .clear();
+            ref.invalidate(groupAccumulatorDetailProvider(widget.accumulatorId));
+            ref.invalidate(groupAccumulatorsProvider(resolvedDetail.groupId));
+          }
+        },
+      );
+    }
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
@@ -125,12 +173,26 @@ class _GroupAccumulatorScreenState extends ConsumerState<GroupAccumulatorScreen>
     GroupAccumulatorDetail detail,
     bool isDark,
   ) {
+    final localJoinedIds = ref.watch(
+      groupAccumulatorJoinCacheProvider(detail.groupId),
+    );
+    final hasJoined = accumulatorHasJoined(
+      detail,
+      localJoinedIds: localJoinedIds,
+    );
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-          child: _AccumulatorHeroCard(detail: detail, isDark: isDark),
+          child: _AccumulatorHeroCard(
+            detail: detail,
+            hasJoined: hasJoined,
+            isDark: isDark,
+            isJoining: _isJoining,
+            onJoinTap: () => _onJoinTap(detail),
+          ),
         ),
         TabBar(
           controller: _tabController,
@@ -153,11 +215,7 @@ class _GroupAccumulatorScreenState extends ConsumerState<GroupAccumulatorScreen>
             children: [
               _LeaderboardTab(
                 accumulatorId: widget.accumulatorId,
-                sort: _memberSort,
                 isDark: isDark,
-                onSortChanged: (sort) {
-                  setState(() => _memberSort = sort);
-                },
               ),
               _MyContributionsTab(detail: detail, isDark: isDark),
             ],
@@ -166,6 +224,50 @@ class _GroupAccumulatorScreenState extends ConsumerState<GroupAccumulatorScreen>
       ],
     );
   }
+
+  Future<void> _onJoinTap(GroupAccumulatorDetail detail) async {
+    final authState = ref.read(authProvider);
+    if (authState.isGuest || !authState.isLoggedIn) {
+      LoginDrawer.show(context, ref);
+      return;
+    }
+
+    setState(() => _isJoining = true);
+    final ok = await joinGroupAccumulator(
+      ref: ref,
+      accumulatorId: detail.id,
+      groupId: detail.groupId,
+    );
+
+    if (!mounted) return;
+    setState(() {
+      _isJoining = false;
+      if (ok) {
+        ref
+            .read(groupAccumulatorJoinCacheProvider(detail.groupId).notifier)
+            .markJoined(detail.id);
+      }
+    });
+
+    if (ok) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(context.l10n.group_accumulator_join_error),
+        backgroundColor: Colors.red,
+      ),
+    );
+  }
+}
+
+GroupType _resolveGroupType(WidgetRef ref, String groupId) {
+  final profileAsync = ref.read(groupProfileProvider(groupId));
+  return profileAsync.maybeWhen(
+    data:
+        (either) =>
+            either.fold((_) => GroupType.community, (profile) => profile.groupType),
+    orElse: () => GroupType.community,
+  );
 }
 
 class _MyContributionsTab extends StatefulWidget {
@@ -271,152 +373,45 @@ class _MyContributionsTabState extends State<_MyContributionsTab> {
 
 class _AccumulatorHeroCard extends StatelessWidget {
   final GroupAccumulatorDetail detail;
+  final bool hasJoined;
   final bool isDark;
+  final bool isJoining;
+  final VoidCallback? onJoinTap;
 
-  const _AccumulatorHeroCard({required this.detail, required this.isDark});
+  const _AccumulatorHeroCard({
+    required this.detail,
+    required this.hasJoined,
+    required this.isDark,
+    this.isJoining = false,
+    this.onJoinTap,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final locale = Localizations.localeOf(context).toString();
-    final numberFormat = NumberFormat.decimalPattern(locale);
-    final progressText =
-        '${numberFormat.format(detail.totalCount)} / ${numberFormat.format(detail.targetCount)}';
+    void navigateToMala() {
+      final presetId = detail.presetAccumulatorId;
+      if (presetId.isEmpty) return;
+      context.push('/mala', extra: {'presetId': presetId});
+    }
 
-    return GestureDetector(
-      onTap: () {
-        final presetId = detail.presetAccumulatorId;
-        if (presetId.isEmpty) return;
-        context.push('/mala', extra: {'presetId': presetId});
-      },
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(16),
-        child: SizedBox(
-          height: 220,
-          width: double.infinity,
-          child: Stack(
-            fit: StackFit.expand,
-            children: [
-              if (detail.image != null && !detail.image!.isEmpty)
-                ResponsiveCoverImage(image: detail.image, fit: BoxFit.cover)
-              else
-                ColoredBox(
-                  color:
-                      isDark ? AppColors.surfaceVariantDark : AppColors.grey100,
-                ),
-              Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      Colors.black.withValues(alpha: 0.05),
-                      Colors.black.withValues(alpha: 0.75),
-                    ],
-                  ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      context.l10n.group_accumulator_participants(
-                        detail.memberCount,
-                      ),
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.white,
-                      ),
-                    ),
-                    const Spacer(),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Expanded(
-                          child: Text(
-                            detail.title,
-                            style: const TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.w700,
-                              color: Colors.white,
-                              height: 1.2,
-                            ),
-                            maxLines: 3,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Container(
-                          width: 40,
-                          height: 40,
-                          decoration: const BoxDecoration(
-                            color: Colors.white,
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Icon(
-                            AppAssets.caretRight,
-                            color: AppColors.textPrimary,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            progressText,
-                            style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
-                        Text(
-                          '${detail.progressPercent}%',
-                          style: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(999),
-                      child: LinearProgressIndicator(
-                        value: detail.progressFraction,
-                        minHeight: 6,
-                        backgroundColor: Colors.white.withValues(alpha: 0.35),
-                        color: AppColors.primary,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
+    return GroupAccumulatorHeroCard(
+      detail: detail,
+      hasJoined: hasJoined,
+      isDark: isDark,
+      isJoining: isJoining,
+      onJoinTap: onJoinTap,
+      onActionTap: hasJoined ? navigateToMala : null,
     );
   }
 }
 
 class _LeaderboardTab extends ConsumerStatefulWidget {
   final String accumulatorId;
-  final GroupAccumulatorMemberSort sort;
   final bool isDark;
-  final ValueChanged<GroupAccumulatorMemberSort> onSortChanged;
 
   const _LeaderboardTab({
     required this.accumulatorId,
-    required this.sort,
     required this.isDark,
-    required this.onSortChanged,
   });
 
   @override
@@ -426,10 +421,10 @@ class _LeaderboardTab extends ConsumerStatefulWidget {
 class _LeaderboardTabState extends ConsumerState<_LeaderboardTab> {
   final ScrollController _scrollController = ScrollController();
   bool _hasRequestedInitialLoad = false;
+  GroupAccumulatorMemberSort _sort = GroupAccumulatorMemberSort.total;
 
   GroupAccumulatorMembersKey get _membersKey => GroupAccumulatorMembersKey(
     accumulatorId: widget.accumulatorId,
-    sortBy: widget.sort,
   );
 
   @override
@@ -437,15 +432,6 @@ class _LeaderboardTabState extends ConsumerState<_LeaderboardTab> {
     super.initState();
     _scrollController.addListener(_onScroll);
     _loadInitialIfNeeded();
-  }
-
-  @override
-  void didUpdateWidget(covariant _LeaderboardTab oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.sort != widget.sort) {
-      _hasRequestedInitialLoad = false;
-      _loadInitialIfNeeded(force: true);
-    }
   }
 
   @override
@@ -505,12 +491,17 @@ class _LeaderboardTabState extends ConsumerState<_LeaderboardTab> {
       );
     }
 
+    final sortedMembers = sortAccumulatorMembers(
+      membersState.members,
+      _sort,
+    );
+
     return ListView.builder(
       controller: _scrollController,
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
       itemCount:
           1 +
-          membersState.members.length +
+          sortedMembers.length +
           (membersState.isLoadingMore ? 1 : 0),
       itemBuilder: (context, index) {
         if (index == 0) {
@@ -531,9 +522,9 @@ class _LeaderboardTabState extends ConsumerState<_LeaderboardTab> {
                 ),
                 const Spacer(),
                 _SortToggle(
-                  sort: widget.sort,
+                  sort: _sort,
                   isDark: widget.isDark,
-                  onChanged: widget.onSortChanged,
+                  onChanged: (sort) => setState(() => _sort = sort),
                 ),
               ],
             ),
@@ -541,10 +532,10 @@ class _LeaderboardTabState extends ConsumerState<_LeaderboardTab> {
         }
 
         final memberIndex = index - 1;
-        if (memberIndex < membersState.members.length) {
-          final member = membersState.members[memberIndex];
+        if (memberIndex < sortedMembers.length) {
+          final member = sortedMembers[memberIndex];
           final count =
-              widget.sort == GroupAccumulatorMemberSort.today
+              _sort == GroupAccumulatorMemberSort.today
                   ? member.todayCount
                   : member.totalCount;
 

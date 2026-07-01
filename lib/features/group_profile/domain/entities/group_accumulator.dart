@@ -12,6 +12,7 @@ class GroupAccumulator extends Equatable {
   final DateTime? endDate;
   final bool? isJoined;
   final int memberCount;
+  final int totalCount;
 
   const GroupAccumulator({
     required this.id,
@@ -24,9 +25,17 @@ class GroupAccumulator extends Equatable {
     this.endDate,
     this.isJoined,
     this.memberCount = 0,
+    this.totalCount = 0,
   });
 
   bool get hasJoined => isJoined == true;
+
+  double get progressFraction {
+    if (targetCount <= 0) return 0;
+    return (totalCount / targetCount).clamp(0.0, 1.0);
+  }
+
+  int get progressPercent => (progressFraction * 100).round();
 
   @override
   List<Object?> get props => [
@@ -40,11 +49,11 @@ class GroupAccumulator extends Equatable {
     endDate,
     isJoined,
     memberCount,
+    totalCount,
   ];
 }
 
 class GroupAccumulatorDetail extends GroupAccumulator {
-  final int totalCount;
   final int totalTodayCount;
   final GroupAccumulatorUserContribution? user;
 
@@ -59,17 +68,10 @@ class GroupAccumulatorDetail extends GroupAccumulator {
     super.endDate,
     super.isJoined,
     super.memberCount = 0,
-    this.totalCount = 0,
+    super.totalCount = 0,
     this.totalTodayCount = 0,
     this.user,
   });
-
-  double get progressFraction {
-    if (targetCount <= 0) return 0;
-    return (totalCount / targetCount).clamp(0.0, 1.0);
-  }
-
-  int get progressPercent => (progressFraction * 100).round();
 }
 
 class GroupAccumulatorUserContribution extends Equatable {

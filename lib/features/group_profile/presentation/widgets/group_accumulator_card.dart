@@ -8,6 +8,7 @@ import 'package:intl/intl.dart';
 
 class GroupAccumulatorCard extends StatelessWidget {
   final GroupAccumulator accumulator;
+  final bool hasJoined;
   final bool isDark;
   final double? lineHeight;
   final bool isJoining;
@@ -17,6 +18,7 @@ class GroupAccumulatorCard extends StatelessWidget {
   const GroupAccumulatorCard({
     super.key,
     required this.accumulator,
+    required this.hasJoined,
     required this.isDark,
     this.lineHeight,
     this.isJoining = false,
@@ -31,7 +33,7 @@ class GroupAccumulatorCard extends StatelessWidget {
         isDark ? AppColors.textTertiaryDark : AppColors.textSecondary;
     final cardColor =
         isDark ? AppColors.cardBackgroundDark : AppColors.surfaceWhite;
-    final showJoinOverlay = !accumulator.hasJoined;
+    final showJoinOverlay = !hasJoined;
 
     return Material(
       color: cardColor,
@@ -40,7 +42,7 @@ class GroupAccumulatorCard extends StatelessWidget {
       borderRadius: BorderRadius.circular(16),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
-        onTap: showJoinOverlay || isJoining ? null : onTap,
+        onTap: isJoining ? null : onTap,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -140,13 +142,13 @@ class GroupAccumulatorCard extends StatelessWidget {
                           ),
                         if (accumulator.memberCount > 0) ...[
                           Icon(
-                            AppAssets.usersThree,
+                            AppAssets.usercard,
                             size: 16,
                             color: secondaryColor,
                           ),
                           const SizedBox(width: 4),
                           Text(
-                            '+${accumulator.memberCount}',
+                            '${accumulator.memberCount}',
                             style: TextStyle(
                               fontSize: 14,
                               color: secondaryColor,
