@@ -213,6 +213,14 @@ class AppLocalizationsHi extends AppLocalizations {
   String get timer_discard_session => 'सत्र छोड़ें';
 
   @override
+  String get timer_dismiss => 'आज के लिए खारिज करें';
+
+  @override
+  String timer_starts_at(String time) {
+    return 'टाइमर $time पर शुरू होगा';
+  }
+
+  @override
   String get home_hello_prefix => 'नमस्ते, ';
 
   @override
@@ -480,6 +488,17 @@ class AppLocalizationsHi extends AppLocalizations {
   @override
   String get notification_practice_subtitle_disabled =>
       'माला रिमाइंडर रुके हुए हैं। फिर से शुरू करने के लिए टैप करें।';
+
+  @override
+  String get notification_timer_title => 'टाइमर रिमाइंडर';
+
+  @override
+  String get notification_timer_subtitle_enabled =>
+      'आपके टाइमर सत्रों के लिए दैनिक रिमाइंडर';
+
+  @override
+  String get notification_timer_subtitle_disabled =>
+      'टाइमर रिमाइंडर रुके हुए हैं। फिर से शुरू करने के लिए टैप करें।';
 
   @override
   String get notification_battery_info_title =>

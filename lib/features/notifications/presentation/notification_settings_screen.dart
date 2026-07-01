@@ -103,6 +103,15 @@ class _NotificationSettingsScreenState
     }
   }
 
+  Future<void> _toggleTimer(bool enable) async {
+    final result =
+        await ref.read(notificationProvider.notifier).toggleTimer(enable);
+    if (!mounted) return;
+    if (result == NotificationToggleResult.error) {
+      _snack(AppLocalizations.of(context)!.something_went_wrong);
+    }
+  }
+
   Future<void> _toggleExactAlarms(bool enable) async {
     if (enable) {
       await ref.read(notificationServiceProvider).openExactAlarmSettings();
@@ -278,6 +287,21 @@ class _NotificationSettingsScreenState
                                     .notification_practice_subtitle_disabled,
                         value: state.appPracticeEnabled,
                         onChanged: _togglePractice,
+                        titleSize: ts,
+                        subtitleSize: ss,
+                      ),
+
+                      // Timer reminders (start + "timer up")
+                      _SwitchTile(
+                        title: localizations.notification_timer_title,
+                        subtitle:
+                            state.appTimerEnabled
+                                ? localizations
+                                    .notification_timer_subtitle_enabled
+                                : localizations
+                                    .notification_timer_subtitle_disabled,
+                        value: state.appTimerEnabled,
+                        onChanged: _toggleTimer,
                         titleSize: ts,
                         subtitleSize: ss,
                       ),

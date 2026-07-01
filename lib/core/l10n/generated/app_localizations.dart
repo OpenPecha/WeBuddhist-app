@@ -466,6 +466,18 @@ abstract class AppLocalizations {
   /// **'Discard session'**
   String get timer_discard_session;
 
+  /// No description provided for @timer_dismiss.
+  ///
+  /// In en, this message translates to:
+  /// **'Dismiss for today'**
+  String get timer_dismiss;
+
+  /// No description provided for @timer_starts_at.
+  ///
+  /// In en, this message translates to:
+  /// **'Timer starts at {time}'**
+  String timer_starts_at(String time);
+
   /// No description provided for @home_hello_prefix.
   ///
   /// In en, this message translates to:
@@ -963,6 +975,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Mala reminders are paused. Tap to resume.'**
   String get notification_practice_subtitle_disabled;
+
+  /// No description provided for @notification_timer_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Timer reminders'**
+  String get notification_timer_title;
+
+  /// No description provided for @notification_timer_subtitle_enabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily reminders for your timer sessions'**
+  String get notification_timer_subtitle_enabled;
+
+  /// No description provided for @notification_timer_subtitle_disabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Timer reminders are paused. Tap to resume.'**
+  String get notification_timer_subtitle_disabled;
 
   /// No description provided for @notification_battery_info_title.
   ///

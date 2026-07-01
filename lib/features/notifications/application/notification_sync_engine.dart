@@ -10,6 +10,7 @@ import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
 import 'package:flutter_pecha/core/storage/plan_metadata_store.dart';
 import 'package:flutter_pecha/core/storage/special_plan_started_at_store.dart';
 import 'package:flutter_pecha/core/storage/storage_keys.dart';
+import 'package:flutter_pecha/core/storage/timer_dismiss_store.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
 import 'package:flutter_pecha/features/notifications/data/channels/notification_channels.dart';
@@ -48,6 +49,8 @@ enum SyncTrigger {
   routineToggle,
   recitationToggle,
   practiceToggle,
+  timerToggle,
+  timerDismissed,
   permissionChanged,
   loggedIn,
   loggedOut,
@@ -259,6 +262,7 @@ class NotificationSyncEngine {
     final routineOn = togglePrefs.getBool(StorageKeys.notificationRoutineEnabled) ?? true;
     final recitationOn = togglePrefs.getBool(StorageKeys.notificationRecitationEnabled) ?? true;
     final practiceOn = togglePrefs.getBool(StorageKeys.notificationPracticeEnabled) ?? true;
+    final timerOn = togglePrefs.getBool(StorageKeys.notificationTimerEnabled) ?? true;
     final osGranted = await _notificationService.areNotificationsEnabled();
 
     final routineBlocks = _ref.read(routineProvider).blocks;
@@ -336,6 +340,22 @@ class NotificationSyncEngine {
             now,
             masterOn: masterOn,
             practiceOn: practiceOn,
+          );
+          for (final e in entries) {
+            desired[e.id] = e;
+            bumpCase(e.debugCase);
+          }
+        }
+        final hasTimer =
+            block.items.any((i) => i.type == RoutineItemType.timer);
+        if (hasTimer) {
+          final entries = computeForTimerBlock(
+            block,
+            now,
+            masterOn: masterOn,
+            timerOn: timerOn,
+            isDismissedToday: (id) =>
+                TimerDismissStore.isDismissedTodayFrom(togglePrefs, id),
           );
           for (final e in entries) {
             desired[e.id] = e;
@@ -1157,6 +1177,112 @@ class NotificationSyncEngine {
     ];
   }
 
+  /// Computes the two daily-repeat [DesiredNotification]s for a timer block:
+  /// a "started" reminder at block time and a "timer up" reminder at block
+  /// time + the timer's duration. Both mirror the recitation/mala daily-repeat
+  /// mechanism (plain [DesiredNotification]s scheduled with
+  /// `matchDateTimeComponents.time`) — there is deliberately no live foreground
+  /// countdown. Gated by the Timer sub-toggle. Distinct
+  /// [NotificationIdScheme.timerStartId] / [NotificationIdScheme.timerEndId]
+  /// ranges keep them from colliding with any recitation/mala daily-repeat in
+  /// the same block.
+  ///
+  /// Returns `[]` when toggles are off, the block is empty, or it holds no
+  /// timer item with a positive [RoutineItem.durationMs].
+  @visibleForTesting
+  List<DesiredNotification> computeForTimerBlock(
+    RoutineBlock block,
+    DateTime now, {
+    required bool masterOn,
+    required bool timerOn,
+    bool Function(String itemId)? isDismissedToday,
+  }) {
+    if (!masterOn) return const [];
+    if (!timerOn) return const [];
+    if (block.items.isEmpty || !block.notificationEnabled) return const [];
+
+    final timers = block.items
+        .where((i) =>
+            i.type == RoutineItemType.timer && (i.durationMs ?? 0) > 0)
+        .toList();
+    if (timers.isEmpty) return const [];
+    final timer = timers.first;
+    final durationMs = timer.durationMs!;
+
+    // When the user dismissed today's occurrence, skip it: both reminders roll
+    // to tomorrow's occurrence (the daily-repeat resumes then). The marker is
+    // date-scoped, so tomorrow's sync computes normally.
+    final skipToday = isDismissedToday?.call(timer.id) ?? false;
+
+    final nowTz = tz.TZDateTime.from(now, tz.local);
+    final title = timer.title.isNotEmpty ? timer.title : 'Timer';
+    // Both reminders deep-link to the timer screen, which syncs its remaining
+    // time from the block's scheduled time-of-day + duration against the wall
+    // clock (no backend, no foreground service): open mid-way → correct time
+    // left; open after it ended → finished. `durationMs` and `startMinuteOfDay`
+    // are embedded so the tap works without re-resolving the routine item
+    // (which may have lost its durationMs on a server round-trip, or not be
+    // loaded yet on a cold start).
+    final payload = jsonEncode({
+      'itemId': timer.id,
+      'itemType': timer.type.name,
+      'durationMs': durationMs,
+      'startMinuteOfDay': block.time.hour * 60 + block.time.minute,
+    });
+
+    // Next occurrence of block time (roll to tomorrow if already past, or if
+    // today is dismissed).
+    var startAt = tz.TZDateTime(
+      tz.local,
+      nowTz.year,
+      nowTz.month,
+      nowTz.day,
+      block.time.hour,
+      block.time.minute,
+    );
+    if (startAt.isBefore(nowTz) || skipToday) {
+      startAt = startAt.add(const Duration(days: 1));
+    }
+
+    // The "timer up" fire is start + duration. Computed independently (rolled
+    // to its own next occurrence) so each daily-repeat matches its own
+    // time-of-day component correctly.
+    var endAt = tz.TZDateTime(
+      tz.local,
+      nowTz.year,
+      nowTz.month,
+      nowTz.day,
+      block.time.hour,
+      block.time.minute,
+    ).add(Duration(milliseconds: durationMs));
+    if (endAt.isBefore(nowTz) || skipToday) {
+      endAt = endAt.add(const Duration(days: 1));
+    }
+
+    return [
+      DesiredNotification(
+        id: NotificationIdScheme.timerStartId(block.notificationId),
+        fireAt: startAt,
+        title: title,
+        body: _timerStartBody(durationMs),
+        payload: payload,
+        sourceItem: timer,
+        isDailyRepeat: true,
+        debugCase: '4 daily-repeat-timer-start',
+      ),
+      DesiredNotification(
+        id: NotificationIdScheme.timerEndId(block.notificationId),
+        fireAt: endAt,
+        title: title,
+        body: 'Your timer is up.',
+        payload: payload,
+        sourceItem: timer,
+        isDailyRepeat: true,
+        debugCase: '4 daily-repeat-timer-end',
+      ),
+    ];
+  }
+
   // ─── Scheduling primitives ──────────────────────────────────────────────────
 
   Future<bool> _scheduleOne(
@@ -1330,6 +1456,25 @@ class NotificationSyncEngine {
     if (remaining == 1) return 'Time for your mala practice and 1 more';
     if (remaining > 1) return 'Time for your mala practice and $remaining more';
     return 'Time for your mala practice';
+  }
+
+  /// "Started now" body for a timer reminder. Formats [durationMs] as minutes,
+  /// promoting to hours when ≥ 60 minutes (e.g. "30 minutes", "1 hour",
+  /// "1 hour 30 minutes"). Hardcoded English, matching the other body helpers.
+  String _timerStartBody(int durationMs) =>
+      "You've set a timer for ${_formatTimerDuration(durationMs)}, starting now.";
+
+  String _formatTimerDuration(int durationMs) {
+    final totalMinutes = (durationMs / 60000).round();
+    final hours = totalMinutes ~/ 60;
+    final minutes = totalMinutes % 60;
+    final parts = <String>[];
+    if (hours > 0) parts.add('$hours ${hours == 1 ? 'hour' : 'hours'}');
+    if (minutes > 0) {
+      parts.add('$minutes ${minutes == 1 ? 'minute' : 'minutes'}');
+    }
+    if (parts.isEmpty) return '0 minutes';
+    return parts.join(' ');
   }
 }
 

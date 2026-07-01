@@ -94,6 +94,15 @@
   "timer_start": "Start",
   "timer_finish": "Finish",
   "timer_discard_session": "Discard session",
+  "timer_dismiss": "Dismiss for today",
+  "timer_starts_at": "Timer starts at {time}",
+  "@timer_starts_at": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
   "home_hello_prefix": "Hello, ",
   "home_greeting_fallback_name": "there",
   "home_share_prompt": "Enjoying {appName}?",
@@ -191,6 +200,9 @@
   "notification_practice_title": "Mala reminders",
   "notification_practice_subtitle_enabled": "Daily reminders for your mala practice",
   "notification_practice_subtitle_disabled": "Mala reminders are paused. Tap to resume.",
+  "notification_timer_title": "Timer reminders",
+  "notification_timer_subtitle_enabled": "Daily reminders for your timer sessions",
+  "notification_timer_subtitle_disabled": "Timer reminders are paused. Tap to resume.",
   "notification_battery_info_title": "About background reminders",
   "notification_battery_info_body": "Some Android phones pause background apps to save battery, which can delay or cancel your scheduled reminders. Exempting the app keeps your reminders reliably on time.",
   "notification_snack_permission_denied": "Notifications are blocked. Turn them on in Settings",

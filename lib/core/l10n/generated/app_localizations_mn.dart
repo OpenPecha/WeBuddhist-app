@@ -214,6 +214,14 @@ class AppLocalizationsMn extends AppLocalizations {
   String get timer_discard_session => 'Хичээл цуцлах';
 
   @override
+  String get timer_dismiss => 'Өнөөдрийн хувьд алгасах';
+
+  @override
+  String timer_starts_at(String time) {
+    return 'Цаг хэмжигч $time-д эхэлнэ';
+  }
+
+  @override
   String get home_hello_prefix => 'Сайн байна уу, ';
 
   @override
@@ -481,6 +489,17 @@ class AppLocalizationsMn extends AppLocalizations {
   @override
   String get notification_practice_subtitle_disabled =>
       'Эрхийн сануулга түр зогссон. Үргэлжлүүлэхийн тулд дарна уу.';
+
+  @override
+  String get notification_timer_title => 'Цаг хэмжигчийн сануулга';
+
+  @override
+  String get notification_timer_subtitle_enabled =>
+      'Таны цаг хэмжигчийн дасгалын өдөр тутмын сануулга';
+
+  @override
+  String get notification_timer_subtitle_disabled =>
+      'Цаг хэмжигчийн сануулга түр зогссон. Үргэлжлүүлэхийн тулд дарна уу.';
 
   @override
   String get notification_battery_info_title => 'Дэвсгэр сануулгын тухай';
