@@ -7,6 +7,7 @@ import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/features/mala/domain/entities/mantra.dart';
 import 'package:flutter_pecha/features/mala/presentation/providers/mala_providers.dart';
 import 'package:flutter_pecha/features/mala/presentation/providers/mala_settings_provider.dart';
+import 'package:flutter_pecha/features/mala/presentation/widgets/group_accumulations_bar.dart';
 import 'package:flutter_pecha/features/mala/presentation/widgets/mala_beads.dart';
 import 'package:flutter_pecha/features/mala/presentation/widgets/mala_skeleton.dart';
 import 'package:flutter_pecha/features/mala/presentation/widgets/mantra_switcher.dart';
@@ -208,78 +209,12 @@ class _MalaScreenState extends ConsumerState<MalaScreen> {
                   ),
                 ),
                 const SizedBox(height: 12),
-                const _GroupAccumulationsBar(),
+                GroupAccumulationsBar(presetId: mantra.presetId),
               ],
             ),
           ),
         ),
       ],
-    );
-  }
-}
-
-class _GroupAccumulationsBar extends StatelessWidget {
-  const _GroupAccumulationsBar();
-
-  static const _avatarSize = 28.0;
-  static const _avatarOverlap = 10.0;
-
-  @override
-  Widget build(BuildContext context) {
-    final iconColor = Theme.of(context).colorScheme.onSurfaceVariant;
-
-    return Align(
-      alignment: Alignment.centerLeft,
-      child: Container(
-        height: 40,
-        padding: const EdgeInsets.fromLTRB(6, 6, 8, 6),
-        decoration: BoxDecoration(
-          color: AppColors.grey100,
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            SizedBox(
-              width: _avatarSize + _avatarOverlap,
-              height: _avatarSize,
-              child: Stack(
-                clipBehavior: Clip.none,
-                children: [
-                  Positioned(
-                    left: 0,
-                    child: _GroupAvatarPlaceholder(size: _avatarSize),
-                  ),
-                  Positioned(
-                    left: _avatarOverlap,
-                    child: _GroupAvatarPlaceholder(size: _avatarSize),
-                  ),
-                ],
-              ),
-            ),
-            Icon(Icons.chevron_right, size: 20, color: iconColor),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _GroupAvatarPlaceholder extends StatelessWidget {
-  const _GroupAvatarPlaceholder({required this.size});
-
-  final double size;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: size,
-      height: size,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: Theme.of(context).colorScheme.surfaceContainerHighest,
-        border: Border.all(color: AppColors.surfaceWhite, width: 1.5),
-      ),
     );
   }
 }

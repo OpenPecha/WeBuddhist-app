@@ -5,6 +5,7 @@ import 'package:flutter_pecha/core/error/exceptions.dart';
 import 'package:flutter_pecha/core/error/failures.dart';
 import 'package:flutter_pecha/features/mala/data/datasources/mala_local_datasource.dart';
 import 'package:flutter_pecha/features/mala/data/datasources/mala_remote_datasource.dart';
+import 'package:flutter_pecha/features/mala/domain/entities/accumulator_group.dart';
 import 'package:flutter_pecha/features/mala/domain/entities/mala_count.dart';
 import 'package:flutter_pecha/features/mala/domain/entities/mantra.dart';
 import 'package:flutter_pecha/features/mala/domain/repositories/mala_repository.dart';
@@ -107,6 +108,23 @@ class MalaRepositoryImpl implements MalaRepository {
       return Left(_toFailure(e));
     } catch (e) {
       return Left(UnknownFailure('Failed to delete accumulator: $e'));
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<AccumulatorGroup>>> getJoinedAccumulatorGroups(
+    String accumulatorId,
+  ) async {
+    try {
+      final groups = await remote.fetchAccumulatorGroups(
+        accumulatorId,
+        joinedOnly: true,
+      );
+      return Right(groups.map((group) => group.toEntity()).toList());
+    } on AppException catch (e) {
+      return Left(_toFailure(e));
+    } catch (e) {
+      return Left(UnknownFailure('Failed to load accumulator groups: $e'));
     }
   }
 
