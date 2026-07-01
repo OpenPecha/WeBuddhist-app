@@ -194,6 +194,15 @@ class AppLocalizationsBo extends AppLocalizations {
   }
 
   @override
+  String get mala_group_accumulations => 'Group accumulations';
+
+  @override
+  String get mala_groups_section => 'Groups';
+
+  @override
+  String get mala_group_untitled => 'Untitled group';
+
+  @override
   String get home_timer => 'སྒོམ་ཐུན།';
 
   @override
@@ -256,6 +265,9 @@ class AppLocalizationsBo extends AppLocalizations {
 
   @override
   String get nav_me => 'ང་།';
+
+  @override
+  String get tab_practices => 'ཉམས་ལེན།';
 
   @override
   String get text_search => 'འཚོལ།';
@@ -567,15 +579,22 @@ class AppLocalizationsBo extends AppLocalizations {
       'ཁྱེད་རང་ཆོས་བརྒྱུད་གང་གི་རྗེས་འཇུག་ཡིན་ནམ།';
 
   @override
-  String get onboarding_tradition_chat_title => 'ཁྱེད་ཀྱི་ཆོས་བརྒྱུད།';
+  String get onboarding_tradition_title =>
+      'ཁྱེད་ཀྱིས་སངས་རྒྱས་ཀྱི་རྗེས་སུ་ཇི་ལྟར་འབྲང་ངམ།';
 
   @override
-  String get onboarding_tradition_chat_subtitle =>
-      'གཅིག་འདེམ་རོགས — ང་ཚོས་ཁྱེད་ཀྱི་ཉམས་ལེན་སྒེར་སྐྱོང་བྱ་རྒྱུ་ཡིན།';
+  String get onboarding_tradition_subtitle =>
+      'ང་ཚོས་ཁྱེད་ལ་འཚམ་པའི་ལམ་གྱི་ཉམས་ལེན་དང་གསུང་རབ་རྣམས་བསྟན་པར་བྱ། འདེམས་ཁ་འདི་ཉིད་མཉེན་ཆས་ཀྱི་སྒྲིག་བཀོད་ནང་ནས་ག་དུས་ཡིན་ཡང་སྒྱུར་བཅོས་གཏང་ཆོག';
 
   @override
-  String get onboarding_tradition_type_hint =>
-      'ཡང་ན་ཁྱེད་ཀྱི་ཆོས་བརྒྱུད་ཡིག་འབྲི་རོགས།';
+  String get onboarding_tradition_option_intro => 'བརྒྱུད་ནས།';
+
+  @override
+  String get onboarding_tradition_show_all_title => 'ཡོངས་རྫོགས་སྟོན་རོགས།';
+
+  @override
+  String get onboarding_tradition_show_all_description =>
+      'ལམ་ཐམས་ཅད་ཀྱི་སྒྲུབ་པ་དང་གཞུང་ལུགས།';
 
   @override
   String get onboarding_skip_for_now => 'ད་ལྟ་བསྲུབ་རོགས།';
@@ -1645,6 +1664,44 @@ class AppLocalizationsBo extends AppLocalizations {
   String group_and_more_links(int count) {
     return 'དང་འབྲེལ་ཐག་གཞན་ $count';
   }
+
+  @override
+  String get group_practice_with_us => 'ང་ཚོ་དང་མཉམ་དུ་སྒོམ་གྱི།';
+
+  @override
+  String get group_change_practice_title => 'Change group practice';
+
+  @override
+  String get group_change_practice_message =>
+      'You are already practicing this plan with another group. Would you like to change your practice group?';
+
+  @override
+  String get group_join_to_contribute => 'Join to contribute';
+
+  @override
+  String get group_accumulator_join_error =>
+      'Unable to join accumulation. Please try again.';
+
+  @override
+  String group_accumulator_participants(int count) {
+    return '$count participants';
+  }
+
+  @override
+  String get group_accumulator_leaderboard => 'Leaderboard';
+
+  @override
+  String get group_accumulator_my_contributions => 'My Contributions';
+
+  @override
+  String get group_accumulator_recited => 'Recited';
+
+  @override
+  String get group_accumulator_total => 'Total';
+
+  @override
+  String get group_accumulator_contributions_empty =>
+      'Join this accumulation to track your contributions.';
 
   @override
   String get share_this_quote => 'གསུང་ཚིག་འདི་སྤེལ།';

@@ -183,6 +183,15 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
+  String get mala_group_accumulations => 'Group accumulations';
+
+  @override
+  String get mala_groups_section => 'Groups';
+
+  @override
+  String get mala_group_untitled => 'Untitled group';
+
+  @override
   String get home_timer => '計時';
 
   @override
@@ -245,6 +254,9 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get nav_me => '個人';
+
+  @override
+  String get tab_practices => '修持計畫';
 
   @override
   String get text_search => '搜尋';
@@ -530,13 +542,20 @@ class AppLocalizationsZh extends AppLocalizations {
   String get onboarding_traditions_question => '您跟隨哪些傳承？';
 
   @override
-  String get onboarding_tradition_chat_title => '您的傳承：';
+  String get onboarding_tradition_title => '您如何追随佛陀的教导？';
 
   @override
-  String get onboarding_tradition_chat_subtitle => '選擇一個或多個 — 我們將用來個性化您的體驗。';
+  String get onboarding_tradition_subtitle =>
+      '我们将为您展示您所选修行路径的实践与经典。您可以随时在应用设置中更改此设置。';
 
   @override
-  String get onboarding_tradition_type_hint => '或輸入您的傳承...';
+  String get onboarding_tradition_option_intro => '通過：';
+
+  @override
+  String get onboarding_tradition_show_all_title => '顯示所有內容';
+
+  @override
+  String get onboarding_tradition_show_all_description => '每條道路的實踐和經典';
 
   @override
   String get onboarding_skip_for_now => '暫時跳過';
@@ -1546,6 +1565,44 @@ class AppLocalizationsZh extends AppLocalizations {
   String group_and_more_links(int count) {
     return '及另外 $count 個連結';
   }
+
+  @override
+  String get group_practice_with_us => '與我們一起修行';
+
+  @override
+  String get group_change_practice_title => 'Change group practice';
+
+  @override
+  String get group_change_practice_message =>
+      'You are already practicing this plan with another group. Would you like to change your practice group?';
+
+  @override
+  String get group_join_to_contribute => 'Join to contribute';
+
+  @override
+  String get group_accumulator_join_error =>
+      'Unable to join accumulation. Please try again.';
+
+  @override
+  String group_accumulator_participants(int count) {
+    return '$count participants';
+  }
+
+  @override
+  String get group_accumulator_leaderboard => 'Leaderboard';
+
+  @override
+  String get group_accumulator_my_contributions => 'My Contributions';
+
+  @override
+  String get group_accumulator_recited => 'Recited';
+
+  @override
+  String get group_accumulator_total => 'Total';
+
+  @override
+  String get group_accumulator_contributions_empty =>
+      'Join this accumulation to track your contributions.';
 
   @override
   String get share_this_quote => '分享这句话';

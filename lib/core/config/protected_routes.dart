@@ -62,9 +62,15 @@ class ProtectedRoutes {
     // which are user-scoped and 403 without a token.
     '/accumulators/', // Catch-all: detail, create (/user), update (/user/{id})
 
+    // Group accumulator counts (submit requires auth).
+    '/group-accumulators/', // Catch-all: POST count, GET detail, etc.
+
     // Group join / follow
     '/author/groups/{groupId}/join',
     '/author/groups/{groupId}/follow',
+
+    // Group accumulators (group prayer accumulations)
+    '/group-accumulators/',
 
     // Plans (public endpoints but may need auth for user-specific data)
     '/plans/{planId}',
@@ -76,8 +82,10 @@ class ProtectedRoutes {
   /// The token is sent when the user is authenticated; silently skipped for guests.
   static const List<String> optionalPaths = [
     '/plans/{planId}/days',
-    // Authenticated users get joined groups excluded server-side.
     '/author/groups',
+    // Group detail + members: sends auth when logged in so fields like
+    // `is_group_enrolled` reflect the current user (anonymous GET → false).
+    '/author/groups/',
   ];
 
   /// Check if a given path is protected (requires authentication).

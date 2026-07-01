@@ -3,30 +3,20 @@ import 'package:flutter_pecha/core/error/exceptions.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/features/home/data/models/verse_of_day_model.dart';
 
+/// Remote source for [GET /verse-of-day/today](https://api.webuddhist.com/api/v1/doc#/Verse%20of%20Day/get_verse_of_day_today_endpoint_verse_of_day_today_get).
+///
+/// Uses the shared [Dio] client so auth, logging, retry, and [X-Timezone]
+/// (for the user's local calendar date) are applied automatically.
 class VerseOfDayRemoteDatasource {
+  VerseOfDayRemoteDatasource({required this.dio});
+
   final Dio dio;
   final _logger = AppLogger('VerseOfDayRemoteDatasource');
-
-  static const _baseUrl = 'https://api.webuddhist.com/api/v1';
-
-  VerseOfDayRemoteDatasource({Dio? dio})
-    : dio =
-          dio ??
-          Dio(
-            BaseOptions(
-              connectTimeout: const Duration(seconds: 15),
-              receiveTimeout: const Duration(seconds: 15),
-              headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-              },
-            ),
-          );
 
   Future<VerseOfDayModel> fetchVerseOfDay({required String language}) async {
     try {
       final response = await dio.get(
-        '$_baseUrl/verse-of-day/today',
+        '/verse-of-day/today',
         queryParameters: {'lang': language},
       );
 
@@ -58,6 +48,8 @@ class VerseOfDayRemoteDatasource {
   }
 
   Exception _dioToException(DioException e, String label) {
+    if (e.error is Exception) return e.error as Exception;
+
     if (e.type == DioExceptionType.connectionTimeout ||
         e.type == DioExceptionType.sendTimeout ||
         e.type == DioExceptionType.receiveTimeout) {

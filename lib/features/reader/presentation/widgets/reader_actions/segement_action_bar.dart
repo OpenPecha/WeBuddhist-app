@@ -1,13 +1,17 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_pecha/core/deep_linking/deep_link_url_builder.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
+import 'package:flutter_pecha/features/home/presentation/widgets/youtube_video_player.dart';
 import 'package:flutter_pecha/features/practice/data/datasource/bookmark_remote_datasource.dart';
 import 'package:flutter_pecha/features/practice/presentation/controllers/bookmark_controller.dart';
 import 'package:flutter_pecha/features/practice/presentation/providers/bookmark_providers.dart';
 import 'package:flutter_pecha/features/reader/presentation/providers/reader_notifier.dart';
 import 'package:flutter_pecha/features/texts/data/models/segment.dart';
+import 'package:flutter_pecha/features/texts/data/models/segment_info.dart';
+import 'package:flutter_pecha/features/texts/presentation/providers/segment_provider.dart';
 import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:share_plus/share_plus.dart';
@@ -102,6 +106,10 @@ class _SegmentActionBarState extends ConsumerState<SegmentActionBar> {
         ),
       ),
     );
+    final segmentInfo = ref.watch(
+      segmentInfoFutureProvider(widget.segment.segmentId),
+    );
+    final videos = segmentInfo.valueOrNull?.videos ?? const <SegmentVideo>[];
 
     return _ResourcesPanel(
       onDismiss: widget.onClose,
@@ -152,18 +160,20 @@ class _SegmentActionBarState extends ConsumerState<SegmentActionBar> {
           },
         ),
       ],
+      videos: videos,
     );
   }
 }
 
 /// Bottom-sheet-style panel. Dismissible by swiping downward.
 /// Layout: drag handle → [Copy | Share | Bookmark] → Resources → tiles.
-class _ResourcesPanel extends StatelessWidget {
+class _ResourcesPanel extends StatefulWidget {
   final VoidCallback onDismiss;
   final Widget copyButton;
   final Widget shareButton;
   final Widget bookmarkButton;
   final List<Widget> tiles;
+  final List<SegmentVideo> videos;
 
   const _ResourcesPanel({
     required this.onDismiss,
@@ -171,7 +181,163 @@ class _ResourcesPanel extends StatelessWidget {
     required this.shareButton,
     required this.bookmarkButton,
     required this.tiles,
+    required this.videos,
   });
+
+  @override
+  State<_ResourcesPanel> createState() => _ResourcesPanelState();
+}
+
+class _ResourcesPanelState extends State<_ResourcesPanel> {
+  static const double _headerHeight = 70;
+  static const double _collapsedContentHeight = 348;
+  static const double _videosSectionHeight = 280;
+
+  late final DraggableScrollableController _sheetController;
+
+  @override
+  void initState() {
+    super.initState();
+    _sheetController = DraggableScrollableController();
+    _sheetController.addListener(_onSheetSizeChanged);
+  }
+
+  @override
+  void dispose() {
+    _sheetController.removeListener(_onSheetSizeChanged);
+    _sheetController.dispose();
+    super.dispose();
+  }
+
+  void _onSheetSizeChanged() {
+    if (mounted) setState(() {});
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_sheetController.isAttached) return;
+
+    final min = _collapsedSize(context);
+    final max = _expandedSize(context);
+    final size = _sheetController.size;
+    if (size > max + 0.01) {
+      _sheetController.jumpTo(max);
+    } else if (size < min - 0.01) {
+      _sheetController.jumpTo(min);
+    }
+  }
+
+  Future<void> _openSegmentVideo(SegmentVideo video) async {
+    if (video.url.isEmpty || !_sheetController.isAttached) return;
+
+    if (_isExpanded(context)) {
+      await _sheetController.animateTo(
+        _collapsedSize(context),
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.easeOut,
+      );
+    }
+    if (!mounted) return;
+
+    HapticFeedback.lightImpact();
+    await Navigator.of(context, rootNavigator: true).push<void>(
+      MaterialPageRoute<void>(
+        builder:
+            (_) => YoutubeVideoPlayer(videoUrl: video.url, title: video.title),
+      ),
+    );
+  }
+
+  @override
+  void didUpdateWidget(covariant _ResourcesPanel oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (!_sheetController.isAttached) return;
+    if (widget.videos.isEmpty &&
+        _sheetController.size > _collapsedSize(context) + 0.02) {
+      _sheetController.animateTo(
+        _collapsedSize(context),
+        duration: const Duration(milliseconds: 250),
+        curve: Curves.easeOut,
+      );
+    }
+  }
+
+  double _collapsedSize(BuildContext context) {
+    final screenHeight = MediaQuery.sizeOf(context).height;
+    final safeBottom = MediaQuery.paddingOf(context).bottom;
+    return ((_collapsedContentHeight + safeBottom) / screenHeight).clamp(
+      0.28,
+      0.45,
+    );
+  }
+
+  double _expandedSize(BuildContext context) {
+    if (widget.videos.isEmpty) return _collapsedSize(context);
+    final screenHeight = MediaQuery.sizeOf(context).height;
+    final safeBottom = MediaQuery.paddingOf(context).bottom;
+    final expandedHeight =
+        _collapsedContentHeight + _videosSectionHeight + safeBottom;
+    return (expandedHeight / screenHeight).clamp(
+      _collapsedSize(context) + 0.08,
+      0.85,
+    );
+  }
+
+  bool _isExpanded(BuildContext context) {
+    if (!_sheetController.isAttached) return false;
+    return _sheetController.size > _collapsedSize(context) + 0.02;
+  }
+
+  void _expand() {
+    if (widget.videos.isEmpty || !_sheetController.isAttached) return;
+    HapticFeedback.lightImpact();
+    _sheetController.animateTo(
+      _expandedSize(context),
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeOut,
+    );
+  }
+
+  void _collapse(BuildContext context) {
+    if (!_sheetController.isAttached) return;
+    HapticFeedback.lightImpact();
+    _sheetController.animateTo(
+      _collapsedSize(context),
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeOut,
+    );
+  }
+
+  void _handleDragHandleDragEnd(BuildContext context, DragEndDetails details) {
+    final velocity = details.primaryVelocity ?? 0;
+    if (!_sheetController.isAttached) return;
+
+    final collapsed = _collapsedSize(context);
+    final expanded = _expandedSize(context);
+    final hasVideos = widget.videos.isNotEmpty;
+
+    if (velocity < -200 && hasVideos) {
+      _expand();
+      return;
+    }
+    if (velocity > 200) {
+      if (_isExpanded(context)) {
+        _collapse(context);
+      } else if (_sheetController.size <= collapsed + 0.02) {
+        HapticFeedback.lightImpact();
+        widget.onDismiss();
+      }
+      return;
+    }
+
+    final midPoint = (collapsed + expanded) / 2;
+    if (hasVideos && _sheetController.size > midPoint) {
+      _expand();
+    } else if (_isExpanded(context)) {
+      _collapse(context);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -180,89 +346,288 @@ class _ResourcesPanel extends StatelessWidget {
       alpha: 0.05,
     );
     const radius = Radius.circular(20);
+    final screenHeight = MediaQuery.sizeOf(context).height;
+    final collapsedSize = _collapsedSize(context);
+    final expandedSize = _expandedSize(context);
+    final hasVideos = widget.videos.isNotEmpty;
+    final showMorePrompt = hasVideos && !_isExpanded(context);
+    final currentSize =
+        _sheetController.isAttached ? _sheetController.size : collapsedSize;
+    final visibleHeight = currentSize * screenHeight;
 
-    return Dismissible(
-      key: const ValueKey('segment_action_panel'),
-      direction: DismissDirection.down,
-      onDismissed: (_) {
-        HapticFeedback.lightImpact();
-        onDismiss();
-      },
-      child: Material(
-        color: theme.colorScheme.surface,
-        elevation: 4,
-        shadowColor: Colors.black.withValues(alpha: 0.15),
-        borderRadius: const BorderRadius.only(
-          topLeft: radius,
-          topRight: radius,
-        ),
-        child: SafeArea(
-          top: false,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              ClipRRect(
+    return SizedBox(
+      height: visibleHeight,
+      width: double.infinity,
+      child: OverflowBox(
+        maxHeight: screenHeight,
+        alignment: Alignment.bottomCenter,
+        child: SizedBox(
+          height: screenHeight,
+          width: double.infinity,
+          child: DraggableScrollableSheet(
+            controller: _sheetController,
+            initialChildSize: collapsedSize,
+            minChildSize: collapsedSize,
+            maxChildSize: hasVideos ? expandedSize : collapsedSize,
+            snap: hasVideos,
+            snapSizes: hasVideos ? [collapsedSize, expandedSize] : null,
+            builder: (context, scrollController) {
+              return Material(
+                color: theme.colorScheme.surface,
+                elevation: 4,
+                shadowColor: Colors.black.withValues(alpha: 0.15),
                 borderRadius: const BorderRadius.only(
                   topLeft: radius,
                   topRight: radius,
                 ),
-                child: ColoredBox(
-                  color: cardBackgroundColor,
+                clipBehavior: Clip.antiAlias,
+                child: SafeArea(
+                  top: false,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Drag handle pill
-                      Center(
-                        child: Container(
-                          margin: const EdgeInsets.only(top: 10, bottom: 8),
-                          width: 36,
-                          height: 4,
-                          decoration: BoxDecoration(
-                            color: theme.colorScheme.onSurface.withValues(
-                              alpha: 0.2,
+                      GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onVerticalDragEnd:
+                            (details) => _handleDragHandleDragEnd(
+                              context,
+                              details,
                             ),
-                            borderRadius: BorderRadius.circular(2),
+                        child: ColoredBox(
+                          color: cardBackgroundColor,
+                          child: SizedBox(
+                            height: _headerHeight,
+                            width: double.infinity,
+                            child: Align(
+                              alignment: Alignment.topCenter,
+                              child: Container(
+                                margin: const EdgeInsets.only(top: 10),
+                                width: 36,
+                                height: 4,
+                                decoration: BoxDecoration(
+                                  color: theme.colorScheme.onSurface.withValues(
+                                    alpha: 0.35,
+                                  ),
+                                  borderRadius: BorderRadius.circular(2),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        child: SingleChildScrollView(
+                          controller: scrollController,
+                          physics: const ClampingScrollPhysics(),
+                          child: _buildPanelBody(
+                            context,
+                            showMorePrompt: showMorePrompt,
+                            showVideos: _isExpanded(context),
                           ),
                         ),
                       ),
                     ],
                   ),
                 ),
-              ),
-              // Copy / Share / Bookmark icon buttons aligned to start
-              Padding(
-                padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
-                child: Row(
-                  children: [
-                    copyButton,
-                    const SizedBox(width: 16),
-                    shareButton,
-                    const SizedBox(width: 16),
-                    bookmarkButton,
-                  ],
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(20, 10, 20, 8),
-                child: Text(
-                  context.l10n.resources,
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 18,
-                  ),
-                ),
-              ),
-              Divider(height: 1, thickness: 1, color: theme.dividerColor),
-              // Commentaries / Versions tiles with dividers
-              for (final tile in tiles) ...[
-                tile,
-                // Divider(height: 1, thickness: 1, color: theme.dividerColor),
-              ],
-              const SizedBox(height: 8),
+              );
+            },
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPanelBody(
+    BuildContext context, {
+    required bool showMorePrompt,
+    required bool showVideos,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(18, 12, 18, 12),
+          child: Row(
+            children: [
+              widget.copyButton,
+              const SizedBox(width: 12),
+              widget.shareButton,
+              const SizedBox(width: 12),
+              widget.bookmarkButton,
             ],
           ),
         ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(20, 2, 20, 8),
+          child: Text(
+            context.l10n.resources,
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.w600,
+              fontSize: 18,
+            ),
+          ),
+        ),
+        Divider(
+          height: 1,
+          thickness: 1,
+          color: Theme.of(context).dividerColor,
+        ),
+        for (final tile in widget.tiles) tile,
+        if (showMorePrompt) _SwipeForMorePrompt(onTap: _expand),
+        if (showVideos && widget.videos.isNotEmpty)
+          _VideosSection(videos: widget.videos, onVideoTap: _openSegmentVideo),
+        const SizedBox(height: 12),
+      ],
+    );
+  }
+}
+
+class _SwipeForMorePrompt extends StatelessWidget {
+  const _SwipeForMorePrompt({required this.onTap});
+
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final color = theme.colorScheme.onSurface.withValues(alpha: 0.55);
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: onTap,
+      onVerticalDragEnd: (details) {
+        final velocity = details.primaryVelocity ?? 0;
+        if (velocity < -100) onTap();
+      },
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(20, 8, 20, 4),
+        child: Center(
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.keyboard_arrow_up_rounded, color: color, size: 24),
+              const SizedBox(width: 6),
+              Text(
+                'Swipe up for more',
+                style: theme.textTheme.bodyMedium?.copyWith(color: color),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _VideosSection extends StatelessWidget {
+  const _VideosSection({required this.videos, required this.onVideoTap});
+
+  final List<SegmentVideo> videos;
+  final Future<void> Function(SegmentVideo video) onVideoTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(20, 12, 20, 8),
+          child: Text(
+            'Videos',
+            style: theme.textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.w600,
+              fontSize: 18,
+            ),
+          ),
+        ),
+        Divider(height: 1, thickness: 1, color: theme.dividerColor),
+        const SizedBox(height: 12),
+        SizedBox(
+          height: 176,
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final cardWidth =
+                  (MediaQuery.sizeOf(context).width * 0.46)
+                      .clamp(160.0, 232.0)
+                      .toDouble();
+              return ListView.separated(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                itemCount: videos.length,
+                separatorBuilder: (_, __) => const SizedBox(width: 16),
+                itemBuilder: (context, index) {
+                  return SizedBox(
+                    width: cardWidth,
+                    child: _SegmentVideoCard(
+                      video: videos[index],
+                      onTap: () => onVideoTap(videos[index]),
+                    ),
+                  );
+                },
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _SegmentVideoCard extends StatelessWidget {
+  const _SegmentVideoCard({required this.video, required this.onTap});
+
+  final SegmentVideo video;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return InkWell(
+      borderRadius: BorderRadius.circular(10),
+      onTap: onTap,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(10),
+            child: AspectRatio(
+              aspectRatio: 16 / 9,
+              child: CachedNetworkImage(
+                imageUrl: video.thumbnailUrl,
+                fit: BoxFit.cover,
+                placeholder:
+                    (context, url) => ColoredBox(
+                      color: theme.colorScheme.onSurface.withValues(
+                        alpha: 0.08,
+                      ),
+                    ),
+                errorWidget:
+                    (context, url, error) => ColoredBox(
+                      color: theme.colorScheme.onSurface.withValues(
+                        alpha: 0.08,
+                      ),
+                      child: Icon(
+                        Icons.videocam_off_outlined,
+                        color: theme.colorScheme.onSurface.withValues(
+                          alpha: 0.35,
+                        ),
+                      ),
+                    ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            video.title,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: theme.textTheme.titleMedium?.copyWith(
+              height: 1.15,
+              fontWeight: FontWeight.w400,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -290,30 +655,30 @@ class _IconActionButton extends StatelessWidget {
 
     return Material(
       color: backgroundColor,
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: BorderRadius.circular(14),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: isLoading ? null : onTap,
         child: SizedBox(
-          width: 88,
+          width: 78,
           child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
+            padding: const EdgeInsets.symmetric(vertical: 13, horizontal: 7),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 if (isLoading)
                   SizedBox(
-                    width: 26,
-                    height: 26,
+                    width: 23,
+                    height: 23,
                     child: CircularProgressIndicator(
                       strokeWidth: 2,
                       color: foreground,
                     ),
                   )
                 else
-                  Icon(icon, size: 26, color: foreground),
-                const SizedBox(height: 8),
+                  Icon(icon, size: 23, color: foreground),
+                const SizedBox(height: 6),
                 Text(
                   label,
                   style: theme.textTheme.labelMedium?.copyWith(

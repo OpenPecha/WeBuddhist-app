@@ -242,6 +242,9 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
       unawaited(
         ref.read(userPlansDomainRepositoryProvider).flushPendingPlanActions(),
       );
+      // Retry FCM initialization if a previous attempt failed (e.g. transient
+      // Firebase error on cold start). No-op once _initialized is true.
+      unawaited(ref.read(pushNotificationServiceProvider).initialize());
     }
   }
 

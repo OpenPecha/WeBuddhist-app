@@ -37,7 +37,7 @@ class GroupProfileDrawer extends ConsumerWidget {
       snap: true,
       snapSizes: const [_minSize, _initialSize, _maxSize],
       snapAnimationDuration: const Duration(milliseconds: 180),
-      builder: (context, scrollController) {
+      builder: (context, _) {
         return ClipRRect(
           borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
           child: Material(
@@ -63,10 +63,6 @@ class GroupProfileDrawer extends ConsumerWidget {
                           (profile) => GroupProfileBody(
                             profile: profile,
                             isDark: isDark,
-                            scrollController: scrollController,
-                            physics: const ClampingScrollPhysics(
-                              parent: AlwaysScrollableScrollPhysics(),
-                            ),
                           ),
                         ),
                     loading:

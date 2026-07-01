@@ -53,11 +53,18 @@ class PushNotificationService {
   bool _loggedIn = false;
   bool _initialized = false;
   Future<void>? _initializing;
+  int _initRetryCount = 0;
+  Timer? _initRetryTimer;
+
+  /// Max automatic retries after a failed init (bootstrap + scheduled backoff).
+  static const maxInitRetries = 3;
+
+  static const _initRetryBaseDelay = Duration(seconds: 5);
 
   /// One-time setup. Concurrent calls share the in-flight attempt, and calls
   /// after a successful run are ignored. A failed attempt does NOT latch — it
-  /// tears down any partial wiring and leaves the service ready to retry, so a
-  /// transient failure can't permanently disable token refresh / registration.
+  /// tears down any partial wiring, schedules a backoff retry, and leaves the
+  /// service ready for resume-triggered retries too.
   Future<void> initialize() {
     if (_initialized) return Future.value();
     return _initializing ??= _runInitialize();
@@ -84,6 +91,9 @@ class PushNotificationService {
 
       // Only latch once the full setup has succeeded.
       _initialized = true;
+      _initRetryCount = 0;
+      _initRetryTimer?.cancel();
+      _initRetryTimer = null;
     } catch (e, st) {
       _logger.warning('Push initialization failed: $e', e, st);
       // Drop any listeners added before the failure so a retry starts clean
@@ -92,9 +102,26 @@ class PushNotificationService {
         unawaited(sub.cancel());
       }
       _subscriptions.clear();
+      _scheduleInitRetry();
     } finally {
       _initializing = null;
     }
+  }
+
+  /// Backoff retry so a transient cold-start failure doesn't require backgrounding.
+  void _scheduleInitRetry() {
+    if (_initialized || _initRetryCount >= maxInitRetries) return;
+
+    _initRetryCount++;
+    final delay = _initRetryBaseDelay * _initRetryCount;
+    _initRetryTimer?.cancel();
+    _initRetryTimer = Timer(delay, () {
+      if (_initialized) return;
+      _logger.info(
+        'Retrying push initialization (attempt $_initRetryCount/$maxInitRetries)',
+      );
+      unawaited(initialize());
+    });
   }
 
   /// Feeds in the latest auth snapshot. Registers the token with the backend on
@@ -168,6 +195,8 @@ class PushNotificationService {
   }
 
   void dispose() {
+    _initRetryTimer?.cancel();
+    _initRetryTimer = null;
     for (final sub in _subscriptions) {
       unawaited(sub.cancel());
     }

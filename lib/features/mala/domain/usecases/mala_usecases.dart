@@ -71,3 +71,29 @@ class DeleteUserAccumulatorUseCase extends UseCase<Unit, String> {
   Future<Either<Failure, Unit>> call(String accumulatorId) =>
       _repository.deleteUserAccumulator(accumulatorId);
 }
+
+class SubmitGroupAccumulatorCountParams {
+  const SubmitGroupAccumulatorCountParams({
+    required this.groupAccumulatorId,
+    required this.currentCount,
+  });
+
+  final String groupAccumulatorId;
+  final int currentCount;
+}
+
+/// Pushes the absolute group total (`POST /group-accumulators/{id}`).
+class SubmitGroupAccumulatorCountUseCase
+    extends UseCase<Unit, SubmitGroupAccumulatorCountParams> {
+  SubmitGroupAccumulatorCountUseCase(this._repository);
+  final MalaRepository _repository;
+
+  @override
+  Future<Either<Failure, Unit>> call(
+    SubmitGroupAccumulatorCountParams params,
+  ) =>
+      _repository.submitGroupAccumulatorCount(
+        groupAccumulatorId: params.groupAccumulatorId,
+        currentCount: params.currentCount,
+      );
+}

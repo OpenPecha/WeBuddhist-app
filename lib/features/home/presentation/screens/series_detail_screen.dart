@@ -1,26 +1,39 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/constants/app_assets.dart';
+import 'package:flutter_pecha/core/deep_linking/deep_link_url_builder.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/widgets/error_state_widget.dart';
 import 'package:flutter_pecha/core/widgets/skeletons/skeletons.dart';
 import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
 import 'package:flutter_pecha/features/auth/presentation/widgets/login_drawer.dart';
+import 'package:flutter_pecha/features/group_profile/domain/entities/group_profile.dart';
+import 'package:flutter_pecha/features/group_profile/presentation/providers/group_profile_providers.dart';
 import 'package:flutter_pecha/features/home/domain/entities/series.dart';
 import 'package:flutter_pecha/features/home/presentation/providers/series_provider.dart';
 import 'package:flutter_pecha/features/home/presentation/widgets/plan_list_view.dart';
 import 'package:flutter_pecha/features/home/presentation/widgets/series_more_bottom_sheet.dart';
-import 'package:flutter_pecha/features/plans/presentation/providers/user_plans_provider.dart';
 import 'package:flutter_pecha/features/practice/data/datasource/bookmark_remote_datasource.dart';
 import 'package:flutter_pecha/features/practice/presentation/providers/bookmark_providers.dart';
 import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:share_plus/share_plus.dart';
 
 class SeriesDetailScreen extends ConsumerWidget {
   final String seriesId;
   final Series? series;
+  final String? groupId;
+  final GroupType? groupType;
+  final bool isGroupEnrolled;
 
-  const SeriesDetailScreen({super.key, required this.seriesId, this.series});
+  const SeriesDetailScreen({
+    super.key,
+    required this.seriesId,
+    this.series,
+    this.groupId,
+    this.groupType,
+    this.isGroupEnrolled = false,
+  });
 
   Future<void> _onRefresh(WidgetRef ref) async {
     ref.invalidate(seriesByIdProvider(seriesId));
@@ -29,9 +42,6 @@ class SeriesDetailScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    ref.watch(
-      myPlansPaginatedProvider,
-    ); // pre-warm so enrolled state is ready when list items render
     final seriesAsync = ref.watch(seriesByIdProvider(seriesId));
     final localizations = AppLocalizations.of(context)!;
 
@@ -40,6 +50,8 @@ class SeriesDetailScreen extends ConsumerWidget {
           data: (either) => either.fold((_) => null, (s) => s),
         ) ??
         series;
+
+    final isGroupEnrolledForSeries = _resolveIsGroupEnrolled(ref);
 
     if (resolvedSeries != null) {
       ref.watch(
@@ -88,6 +100,9 @@ class SeriesDetailScreen extends ConsumerWidget {
                           plans: series.plans,
                           seriesId: seriesId,
                           series: series,
+                          groupId: groupId,
+                          groupType: groupType,
+                          isGroupEnrolled: isGroupEnrolledForSeries,
                         );
                       },
                     );
@@ -106,6 +121,21 @@ class SeriesDetailScreen extends ConsumerWidget {
           ],
         ),
       ),
+    );
+  }
+
+  bool _resolveIsGroupEnrolled(WidgetRef ref) {
+    final groupId = this.groupId;
+    if (groupId == null) return false;
+
+    final profileAsync = ref.watch(groupProfileProvider(groupId));
+    return profileAsync.maybeWhen(
+      data:
+          (either) => either.fold(
+            (_) => isGroupEnrolled,
+            (profile) => isSeriesGroupEnrolledInProfile(profile, seriesId),
+          ),
+      orElse: () => isGroupEnrolled,
     );
   }
 
@@ -167,7 +197,15 @@ class SeriesDetailScreen extends ConsumerWidget {
       seriesId: series.id,
       seriesName: series.title,
       onAddToPractices: () => _onAddToPractices(context, ref, series),
+      onShare: () => _onShare(series),
     );
+  }
+
+  Future<void> _onShare(Series series) async {
+    final url = DeepLinkUrlBuilder.seriesLink(seriesId: series.id).toString();
+    final message =
+        'Join me in practicing ${series.title} on WeBuddhist.\n\n$url';
+    await SharePlus.instance.share(ShareParams(text: message));
   }
 
   /// Adds the series to the user's practice routine.

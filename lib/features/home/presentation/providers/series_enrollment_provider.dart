@@ -42,20 +42,23 @@ class SeriesEnrollmentNotifier extends StateNotifier<SeriesEnrollmentState> {
        _seriesId = seriesId,
        super(const SeriesEnrollmentIdle());
 
-  Future<bool> enroll() async {
+  Future<bool> enroll({String? groupId}) async {
     if (state is SeriesEnrollmentLoading) return false;
     state = const SeriesEnrollmentLoading();
 
-    final result = await _useCase(EnrollInSeriesParams(seriesId: _seriesId));
-    if (!mounted) return false;
+    final result = await _useCase(
+      EnrollInSeriesParams(seriesId: _seriesId, groupId: groupId),
+    );
 
     return result.fold(
       (failure) {
-        state = SeriesEnrollmentFailure(failure);
+        if (mounted) state = SeriesEnrollmentFailure(failure);
         return false;
       },
       (_) {
-        state = const SeriesEnrollmentSuccess();
+        if (mounted) {
+          state = const SeriesEnrollmentSuccess();
+        }
         // Refresh user-scoped data so downstream UIs (enrolled plans/routine)
         // reflect the newly created enrollments. Backend auto-enrolls the
         // user in all plans within the series.

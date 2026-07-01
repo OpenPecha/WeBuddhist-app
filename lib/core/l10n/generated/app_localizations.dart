@@ -424,6 +424,24 @@ abstract class AppLocalizations {
   /// **'Count {bead} of {total}, {rounds}'**
   String mala_counter_semantics(int bead, int total, String rounds);
 
+  /// No description provided for @mala_group_accumulations.
+  ///
+  /// In en, this message translates to:
+  /// **'Group accumulations'**
+  String get mala_group_accumulations;
+
+  /// No description provided for @mala_groups_section.
+  ///
+  /// In en, this message translates to:
+  /// **'Groups'**
+  String get mala_groups_section;
+
+  /// No description provided for @mala_group_untitled.
+  ///
+  /// In en, this message translates to:
+  /// **'Untitled group'**
+  String get mala_group_untitled;
+
   /// No description provided for @home_timer.
   ///
   /// In en, this message translates to:
@@ -543,6 +561,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Me'**
   String get nav_me;
+
+  /// No description provided for @tab_practices.
+  ///
+  /// In en, this message translates to:
+  /// **'Practices'**
+  String get tab_practices;
 
   /// No description provided for @text_search.
   ///
@@ -1102,23 +1126,35 @@ abstract class AppLocalizations {
   /// **'Which traditions\ndo you follow?'**
   String get onboarding_traditions_question;
 
-  /// No description provided for @onboarding_tradition_chat_title.
+  /// No description provided for @onboarding_tradition_title.
   ///
   /// In en, this message translates to:
-  /// **'Your tradition:'**
-  String get onboarding_tradition_chat_title;
+  /// **'How do you follow the Buddha?'**
+  String get onboarding_tradition_title;
 
-  /// No description provided for @onboarding_tradition_chat_subtitle.
+  /// No description provided for @onboarding_tradition_subtitle.
   ///
   /// In en, this message translates to:
-  /// **'Choose one: we\'ll use it to personalize your experience.'**
-  String get onboarding_tradition_chat_subtitle;
+  /// **'We\'ll show you the practices and texts of your path. You can change this anytime in the app settings.'**
+  String get onboarding_tradition_subtitle;
 
-  /// No description provided for @onboarding_tradition_type_hint.
+  /// No description provided for @onboarding_tradition_option_intro.
   ///
   /// In en, this message translates to:
-  /// **'Or type your tradition...'**
-  String get onboarding_tradition_type_hint;
+  /// **'Through:'**
+  String get onboarding_tradition_option_intro;
+
+  /// No description provided for @onboarding_tradition_show_all_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Show me everything'**
+  String get onboarding_tradition_show_all_title;
+
+  /// No description provided for @onboarding_tradition_show_all_description.
+  ///
+  /// In en, this message translates to:
+  /// **'Practices and texts from every path'**
+  String get onboarding_tradition_show_all_description;
 
   /// No description provided for @onboarding_skip_for_now.
   ///
@@ -2973,6 +3009,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'and {count} more links'**
   String group_and_more_links(int count);
+
+  /// No description provided for @group_practice_with_us.
+  ///
+  /// In en, this message translates to:
+  /// **'Practice with us'**
+  String get group_practice_with_us;
+
+  /// No description provided for @group_change_practice_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Change group practice'**
+  String get group_change_practice_title;
+
+  /// No description provided for @group_change_practice_message.
+  ///
+  /// In en, this message translates to:
+  /// **'You are already practicing this plan with another group. Would you like to change your practice group?'**
+  String get group_change_practice_message;
+
+  /// No description provided for @group_join_to_contribute.
+  ///
+  /// In en, this message translates to:
+  /// **'Join to contribute'**
+  String get group_join_to_contribute;
+
+  /// No description provided for @group_accumulator_join_error.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to join accumulation. Please try again.'**
+  String get group_accumulator_join_error;
+
+  /// No description provided for @group_accumulator_participants.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} participants'**
+  String group_accumulator_participants(int count);
+
+  /// No description provided for @group_accumulator_leaderboard.
+  ///
+  /// In en, this message translates to:
+  /// **'Leaderboard'**
+  String get group_accumulator_leaderboard;
+
+  /// No description provided for @group_accumulator_my_contributions.
+  ///
+  /// In en, this message translates to:
+  /// **'My Contributions'**
+  String get group_accumulator_my_contributions;
+
+  /// No description provided for @group_accumulator_recited.
+  ///
+  /// In en, this message translates to:
+  /// **'Recited'**
+  String get group_accumulator_recited;
+
+  /// No description provided for @group_accumulator_total.
+  ///
+  /// In en, this message translates to:
+  /// **'Total'**
+  String get group_accumulator_total;
+
+  /// No description provided for @group_accumulator_contributions_empty.
+  ///
+  /// In en, this message translates to:
+  /// **'Join this accumulation to track your contributions.'**
+  String get group_accumulator_contributions_empty;
 
   /// No description provided for @share_this_quote.
   ///

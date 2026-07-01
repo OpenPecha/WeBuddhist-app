@@ -1,17 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
+import 'package:flutter_pecha/features/practice/presentation/utils/recitation_reader_navigation.dart';
 import 'package:flutter_pecha/features/practice/presentation/widgets/practice_chant_list_tile.dart';
-import 'package:flutter_pecha/features/recitation/data/models/recitation_model.dart';
 import 'package:flutter_pecha/features/recitation/presentation/providers/recitation_search_provider.dart';
 import 'package:flutter_pecha/features/recitation/presentation/providers/recitations_providers.dart';
 import 'package:flutter_pecha/features/recitation/presentation/widgets/recitation_list_skeleton.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class RecitationsSearchScreen extends ConsumerStatefulWidget {
-  const RecitationsSearchScreen({super.key, required this.onTap});
-
-  final ValueChanged<RecitationModel> onTap;
+  const RecitationsSearchScreen({super.key});
 
   @override
   ConsumerState<RecitationsSearchScreen> createState() =>
@@ -205,7 +203,7 @@ class _RecitationsSearchScreenState
         final recitation = searchState.results[index];
         return PracticeChantListTile(
           recitation: recitation,
-          onTap: () => widget.onTap(recitation),
+          onTap: () => openRecitationReader(context, recitation),
         );
       },
     );

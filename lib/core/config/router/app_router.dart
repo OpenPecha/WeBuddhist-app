@@ -11,6 +11,8 @@ import 'package:flutter_pecha/features/auth/presentation/providers/state_provide
 import 'package:flutter_pecha/features/auth/presentation/screens/login_page.dart';
 import 'package:flutter_pecha/features/auth/presentation/screens/splash_screen.dart';
 import 'package:flutter_pecha/features/calendar/presentation/screens/tibetan_calendar_screen.dart';
+import 'package:flutter_pecha/features/group_profile/domain/entities/group_profile.dart';
+import 'package:flutter_pecha/features/group_profile/presentation/screens/group_accumulator_screen.dart';
 import 'package:flutter_pecha/features/group_profile/presentation/screens/group_profile_screen.dart';
 import 'package:flutter_pecha/features/home/domain/entities/series.dart';
 import 'package:flutter_pecha/features/home/presentation/screens/main_navigation_screen.dart';
@@ -121,6 +123,16 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         redirect: (_, __) => AppRoutes.home,
       ),
 
+      // Compatibility fallback for series deep links delivered directly to
+      // go_router instead of through AppLinksDeepLinkService.
+      GoRoute(
+        path: '/open/series/:seriesId',
+        name: 'open-series',
+        redirect: (_, state) {
+          final seriesId = state.pathParameters['seriesId'] ?? '';
+          return '/home/series/$seriesId';
+        },
+      ),
       // Compatibility fallback in case a platform sends the first-party app
       // link directly to go_router instead of through AppLinksDeepLinkService.
       GoRoute(
@@ -204,7 +216,17 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                   final id = state.pathParameters['id'] ?? '';
                   final extra = state.extra as Map<String, dynamic>?;
                   final series = extra?['series'] as Series?;
-                  return SeriesDetailScreen(seriesId: id, series: series);
+                  final groupId = extra?['groupId'] as String?;
+                  final groupType = extra?['groupType'] as GroupType?;
+                  final isGroupEnrolled =
+                      extra?['isGroupEnrolled'] as bool? ?? false;
+                  return SeriesDetailScreen(
+                    seriesId: id,
+                    series: series,
+                    groupId: groupId,
+                    groupType: groupType,
+                    isGroupEnrolled: isGroupEnrolled,
+                  );
                 },
                 routes: [
                   GoRoute(
@@ -228,6 +250,21 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                 builder: (context, state) {
                   final groupId = state.pathParameters['groupId'] ?? '';
                   return GroupProfileScreen(groupId: groupId);
+                },
+              ),
+              GoRoute(
+                path: "group-accumulator/:accumulatorId",
+                name: "home-group-accumulator",
+                parentNavigatorKey: rootNavigatorKey,
+                builder: (context, state) {
+                  final accumulatorId =
+                      state.pathParameters['accumulatorId'] ?? '';
+                  final extra = state.extra as Map<String, dynamic>?;
+                  final groupTitle = extra?['groupTitle'] as String?;
+                  return GroupAccumulatorScreen(
+                    accumulatorId: accumulatorId,
+                    groupTitle: groupTitle,
+                  );
                 },
               ),
               GoRoute(
@@ -498,7 +535,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         },
       ),
 
-      // plan text route - inline TEXT subtasks (sibling to /reader)
+      // plan content route - inline TEXT/IMAGE subtasks (sibling to /reader)
       GoRoute(
         path: "/plan-text/:subtaskId",
         name: "plan-text",

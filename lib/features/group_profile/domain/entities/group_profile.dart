@@ -35,6 +35,14 @@ class GroupProfileSeries {
   final bool featured;
   final int planCount;
   final int totalDays;
+  final DateTime? startDate;
+  final DateTime? endDate;
+  final int enrolledCount;
+  /// Whether the current user is group-enrolled for this series.
+  /// - `true`: enrolled with this group
+  /// - `false`: enrolled with a different group
+  /// - `null`: not group-enrolled
+  final bool? isGroupEnrolled;
 
   const GroupProfileSeries({
     required this.id,
@@ -45,6 +53,10 @@ class GroupProfileSeries {
     this.featured = false,
     this.planCount = 0,
     this.totalDays = 0,
+    this.startDate,
+    this.endDate,
+    this.enrolledCount = 0,
+    this.isGroupEnrolled,
   });
 }
 
