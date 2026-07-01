@@ -350,7 +350,7 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
             fontWeight: FontWeight.w500,
           ),
           tabs: [
-            Tab(text: context.l10n.nav_practice),
+            Tab(text: context.l10n.tab_practices),
             Tab(text: membersTabLabel),
             if (hasAbout) Tab(text: context.l10n.about_title),
           ],

@@ -248,6 +248,9 @@ class AppLocalizationsHi extends AppLocalizations {
   String get nav_me => 'मैं';
 
   @override
+  String get tab_practices => 'अभ्यास';
+
+  @override
   String get text_search => 'खोजें';
 
   @override

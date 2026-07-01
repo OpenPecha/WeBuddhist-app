@@ -250,6 +250,9 @@ class AppLocalizationsBo extends AppLocalizations {
   String get nav_me => 'ང་།';
 
   @override
+  String get tab_practices => 'ཉམས་ལེན།';
+
+  @override
   String get text_search => 'འཚོལ།';
 
   @override

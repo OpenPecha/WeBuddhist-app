@@ -236,7 +236,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get nav_learn => 'Learn';
 
   @override
-  String get nav_practice => 'Practices';
+  String get nav_practice => 'Practice';
 
   @override
   String get nav_settings => 'Settings';
@@ -246,6 +246,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get nav_me => 'Me';
+
+  @override
+  String get tab_practices => 'Practices';
 
   @override
   String get text_search => 'Search';

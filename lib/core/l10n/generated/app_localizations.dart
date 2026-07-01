@@ -511,7 +511,7 @@ abstract class AppLocalizations {
   /// No description provided for @nav_practice.
   ///
   /// In en, this message translates to:
-  /// **'Practices'**
+  /// **'Practice'**
   String get nav_practice;
 
   /// No description provided for @nav_settings.
@@ -531,6 +531,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Me'**
   String get nav_me;
+
+  /// No description provided for @tab_practices.
+  ///
+  /// In en, this message translates to:
+  /// **'Practices'**
+  String get tab_practices;
 
   /// No description provided for @text_search.
   ///
