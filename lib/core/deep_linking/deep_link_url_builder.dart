@@ -3,6 +3,10 @@ class DeepLinkUrlBuilder {
 
   static const String _host = 'webuddhist.com';
 
+  static Uri homeLink() {
+    return Uri(scheme: 'https', host: _host, pathSegments: ['open']);
+  }
+
   /// Returns a link that opens the reader at the very first segment —
   /// i.e. no segment/lang params so the app starts from the top.
   static Uri readerLink({required String textId}) {
