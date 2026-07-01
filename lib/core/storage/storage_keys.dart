@@ -99,6 +99,9 @@ class StorageKeys {
   static const String malaSoundEnabled = 'mala_sound_enabled';
   /// Haptic feedback on the mala counter. Default: true.
   static const String malaVibrationEnabled = 'mala_vibration_enabled';
+  /// Per-preset accumulation source: `personal` or `group:{uuid}`.
+  static const String malaAccumulationSelectionPrefix =
+      'mala_accumulation_selection_';
 
   // ========== BUSINESS LOGIC ==========
   /// Last profile update timestamp

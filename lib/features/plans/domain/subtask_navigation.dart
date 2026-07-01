@@ -10,6 +10,7 @@ import 'package:flutter_pecha/features/reader/data/models/navigation_context.dar
 /// Validation rules (kept in one place):
 /// - SOURCE_REFERENCE → valid iff `sourceTextId` is non-null and non-empty.
 /// - TEXT             → valid iff `content.trim()` is non-empty.
+/// - IMAGE            → valid iff `content.trim()` is non-empty.
 /// - Anything else (unknown content type, missing fields) is silently dropped.
 ///
 /// Both task models (`UserTasksDto` for enrolled users, `PlanTasksModel` for
@@ -52,7 +53,7 @@ class PlanSubtaskNavigation {
   }
 
   /// True if the given task has at least one navigable subtask
-  /// (SOURCE_REFERENCE or TEXT).
+  /// (SOURCE_REFERENCE, TEXT, or IMAGE).
   static bool isUserTaskNavigable(UserTasksDto task) {
     return task.subTasks.any(_isUserSubtaskNavigable);
   }
@@ -115,6 +116,17 @@ class PlanSubtaskNavigation {
           startMs: subtask.startMs,
           endMs: subtask.endMs,
         );
+      case PlanItemContentType.inlineImage:
+        if (!_hasInlineContent(subtask.content)) return null;
+        return PlanTextItem.inlineImage(
+          imageUrl: subtask.content,
+          title: title,
+          subtaskId: subtask.id,
+          isCompleted: subtask.isCompleted,
+          audioUrl: subtask.audioUrl,
+          startMs: subtask.startMs,
+          endMs: subtask.endMs,
+        );
       case null:
         return null;
     }
@@ -140,6 +152,15 @@ class PlanSubtaskNavigation {
         if (!_hasInlineContent(subtask.content)) return null;
         return PlanTextItem.inlineText(
           content: subtask.content!,
+          title: title,
+          audioUrl: subtask.audioUrl,
+          startMs: subtask.startMs,
+          endMs: subtask.endMs,
+        );
+      case PlanItemContentType.inlineImage:
+        if (!_hasInlineContent(subtask.content)) return null;
+        return PlanTextItem.inlineImage(
+          imageUrl: subtask.content!,
           title: title,
           audioUrl: subtask.audioUrl,
           startMs: subtask.startMs,

@@ -62,9 +62,15 @@ class ProtectedRoutes {
     // which are user-scoped and 403 without a token.
     '/accumulators/', // Catch-all: detail, create (/user), update (/user/{id})
 
+    // Group accumulator counts (submit requires auth).
+    '/group-accumulators/', // Catch-all: POST count, GET detail, etc.
+
     // Group join / follow
     '/author/groups/{groupId}/join',
     '/author/groups/{groupId}/follow',
+
+    // Group accumulators (group prayer accumulations)
+    '/group-accumulators/',
 
     // Plans (public endpoints but may need auth for user-specific data)
     '/plans/{planId}',

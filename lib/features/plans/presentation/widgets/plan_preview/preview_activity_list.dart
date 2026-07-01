@@ -11,7 +11,7 @@ import 'package:flutter_pecha/features/reader/data/models/navigation_context.dar
 /// data) and never tracks subtask completion.
 ///
 /// Tapping a row opens the appropriate screen (ReaderScreen for
-/// SOURCE_REFERENCE, PlanTextScreen for TEXT) with the unified
+/// SOURCE_REFERENCE, PlanTextScreen for TEXT/IMAGE) with the unified
 /// [PlanTextItem] list, so the bottom-bar progress works the same as in
 /// the enrolled flow.
 class PreviewActivityList extends StatelessWidget {

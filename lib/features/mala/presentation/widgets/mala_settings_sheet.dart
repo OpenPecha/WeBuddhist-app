@@ -7,6 +7,7 @@ import 'package:flutter_pecha/core/network/connectivity_service.dart' show conne
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/core/widgets/destructive_confirmation_dialog.dart';
 import 'package:flutter_pecha/features/mala/domain/entities/mantra.dart';
+import 'package:flutter_pecha/features/mala/presentation/providers/mala_accumulation_selection_provider.dart';
 import 'package:flutter_pecha/features/mala/presentation/providers/mala_providers.dart';
 import 'package:flutter_pecha/features/mala/presentation/providers/mala_settings_provider.dart';
 import 'package:flutter_pecha/features/practice/data/datasource/bookmark_remote_datasource.dart';
@@ -39,6 +40,9 @@ class MalaSettingsSheet extends ConsumerWidget {
     final settings = ref.watch(malaSettingsProvider);
     final settingsNotifier = ref.read(malaSettingsProvider.notifier);
     final isOnline = ref.watch(connectivityNotifierProvider);
+    final isPersonal = ref
+        .watch(malaAccumulationSelectionProvider(mantra.presetId))
+        .isPersonal;
     final isBookmarked = ref.watch(
       isBookmarkedProvider(
         BookmarkTarget(type: BookmarkType.accumulator, sourceId: mantra.presetId),
@@ -70,6 +74,7 @@ class MalaSettingsSheet extends ConsumerWidget {
             _MalaSettingsTile(
               icon: AppAssets.plus,
               label: l10n.mala_add_to_practice,
+              enabled: isPersonal,
               onTap: () => _onAddToPractice(context),
             ),
             Divider(height: 1, color: dividerColor),
@@ -79,6 +84,7 @@ class MalaSettingsSheet extends ConsumerWidget {
                       ? AppAssets.bookmarkSimpleFill
                       : AppAssets.bookmarkSimple,
               label: l10n.mala_add_to_bookmark,
+              enabled: isPersonal,
               onTap: () => _onToggleBookmark(context, ref),
             ),
             Divider(height: 1, color: dividerColor),
@@ -101,7 +107,7 @@ class MalaSettingsSheet extends ConsumerWidget {
               label: l10n.mala_reset_count,
               labelColor: destructiveColor,
               iconColor: destructiveColor,
-              enabled: isOnline,
+              enabled: isOnline && isPersonal,
               onTap: () => _onResetCount(context, ref),
             ),
             const SizedBox(height: 8),

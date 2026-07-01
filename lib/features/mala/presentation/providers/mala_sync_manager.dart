@@ -31,6 +31,7 @@ class MalaSyncManager with WidgetsBindingObserver {
     required MalaLocalDataSource local,
     required CreateUserAccumulatorUseCase createAccumulator,
     required UpdateUserAccumulatorUseCase updateAccumulator,
+    required SubmitGroupAccumulatorCountUseCase submitGroupCount,
     required bool Function() isLoggedIn,
     required Future<String?> Function() currentUserId,
     Stream<bool>? connectivityStream,
@@ -38,6 +39,7 @@ class MalaSyncManager with WidgetsBindingObserver {
   })  : _local = local,
         _createAccumulator = createAccumulator,
         _updateAccumulator = updateAccumulator,
+        _submitGroupCount = submitGroupCount,
         _isLoggedIn = isLoggedIn,
         _currentUserId = currentUserId,
         _connectivityStream = connectivityStream,
@@ -46,6 +48,7 @@ class MalaSyncManager with WidgetsBindingObserver {
   final MalaLocalDataSource _local;
   final CreateUserAccumulatorUseCase _createAccumulator;
   final UpdateUserAccumulatorUseCase _updateAccumulator;
+  final SubmitGroupAccumulatorCountUseCase _submitGroupCount;
   final bool Function() _isLoggedIn;
   final Future<String?> Function() _currentUserId;
   final Stream<bool>? _connectivityStream;
@@ -123,6 +126,11 @@ class MalaSyncManager with WidgetsBindingObserver {
         final s = _local.read(userId, presetId);
         if (!s.isDirty) continue;
         await _pushTotal(userId, presetId, s.total);
+      }
+      for (final groupAccumulatorId in _local.dirtyGroupAccumulatorIds(userId)) {
+        final s = _local.readGroup(userId, groupAccumulatorId);
+        if (!s.isDirty) continue;
+        await _pushGroupTotal(userId, groupAccumulatorId, s.total);
       }
       _retryAttempt = 0;
       _retry?.cancel();
@@ -230,22 +238,19 @@ class MalaSyncManager with WidgetsBindingObserver {
     var accumulatorId = s.accumulatorId;
     if (accumulatorId == null) {
       final created = await _createAccumulator(presetId);
-      accumulatorId = created.fold(
-        (failure) => throw Exception(failure.message), // keep dirty; retry
-        (count) {
-          _local.write(
-            userId,
-            presetId,
-            _local.read(userId, presetId).copyWith(
-                  accumulatorId: count.accumulatorId,
-                ),
-          );
-          return count.accumulatorId;
-        },
+      final newId = created.fold(
+        (failure) => throw Exception(failure.message),
+        (count) => count.accumulatorId,
       );
-      if (accumulatorId == null) {
+      if (newId == null || newId.isEmpty) {
         throw Exception('Create returned no accumulator id');
       }
+      await _local.write(
+        userId,
+        presetId,
+        _local.read(userId, presetId).copyWith(accumulatorId: newId),
+      );
+      accumulatorId = newId;
     }
 
     final result = await _updateAccumulator(
@@ -255,17 +260,18 @@ class MalaSyncManager with WidgetsBindingObserver {
       ),
     );
 
-    result.fold(
-      (failure) => throw Exception(failure.message), // keep dirty; retry
-      (count) {
+    await result.fold(
+      (failure) async => throw Exception(failure.message),
+      (count) async {
         // Re-read: taps may have landed during the round-trip.
         final after = _local.read(userId, presetId);
-        _local.write(
+        final confirmedTotal = max(count.total, sending);
+        await _local.write(
           userId,
           presetId,
           after.copyWith(
             total: max(after.total, count.total),
-            syncedTotal: max(count.total, sending),
+            syncedTotal: confirmedTotal,
             accumulatorId: count.accumulatorId ?? accumulatorId,
           ),
         );
@@ -273,7 +279,45 @@ class MalaSyncManager with WidgetsBindingObserver {
           AnalyticsEvents.malaSynced,
           properties: {
             'accumulatorId': count.accumulatorId ?? accumulatorId,
-            'total': max(count.total, sending),
+            'total': max(after.total, count.total),
+          },
+        );
+      },
+    );
+  }
+
+  Future<void> _pushGroupTotal(
+    String userId,
+    String groupAccumulatorId,
+    int sending,
+  ) async {
+    final result = await _submitGroupCount(
+      SubmitGroupAccumulatorCountParams(
+        groupAccumulatorId: groupAccumulatorId,
+        currentCount: sending,
+      ),
+    );
+
+    await result.fold(
+      (failure) async => throw Exception(failure.message),
+      (_) async {
+        // Re-read: taps may have landed during the round-trip.
+        final after = _local.readGroup(userId, groupAccumulatorId);
+        final confirmedTotal = max(after.syncedTotal, sending);
+        await _local.writeGroup(
+          userId,
+          groupAccumulatorId,
+          after.copyWith(
+            total: max(after.total, sending),
+            syncedTotal: confirmedTotal,
+          ),
+        );
+        _analytics?.track(
+          AnalyticsEvents.malaSynced,
+          properties: {
+            'groupAccumulatorId': groupAccumulatorId,
+            'total': max(after.total, sending),
+            'group': true,
           },
         );
       },

@@ -1,0 +1,287 @@
+import 'package:flutter/foundation.dart';
+import 'package:flutter_pecha/core/di/core_providers.dart';
+import 'package:flutter_pecha/core/error/failures.dart';
+import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
+import 'package:flutter_pecha/features/group_profile/data/datasource/group_accumulator_remote_datasource.dart';
+import 'package:flutter_pecha/features/group_profile/data/repositories/group_accumulator_repository_impl.dart';
+import 'package:flutter_pecha/features/group_profile/domain/entities/group_accumulator.dart';
+import 'package:flutter_pecha/features/group_profile/domain/entities/group_profile.dart';
+import 'package:flutter_pecha/features/group_profile/domain/repositories/group_accumulator_repository.dart';
+import 'package:flutter_pecha/features/group_profile/presentation/providers/group_profile_providers.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:fpdart/fpdart.dart';
+
+final groupAccumulatorRemoteDatasourceProvider =
+    Provider<GroupAccumulatorRemoteDatasource>((ref) {
+      return GroupAccumulatorRemoteDatasource(dio: ref.watch(dioProvider));
+    });
+
+final groupAccumulatorRepositoryProvider =
+    Provider<GroupAccumulatorRepositoryInterface>((ref) {
+      return GroupAccumulatorRepositoryImpl(
+        remote: ref.watch(groupAccumulatorRemoteDatasourceProvider),
+      );
+    });
+
+final groupAccumulatorsProvider = FutureProvider.autoDispose
+    .family<Either<Failure, GroupAccumulatorsPage>, String>((
+      ref,
+      groupId,
+    ) async {
+      ref.watch(authProvider);
+      final repository = ref.watch(groupAccumulatorRepositoryProvider);
+      return repository.getGroupAccumulators(groupId, skip: 0, limit: 20);
+    });
+
+final groupAccumulatorDetailProvider = FutureProvider.autoDispose
+    .family<Either<Failure, GroupAccumulatorDetail>, String>((
+      ref,
+      accumulatorId,
+    ) async {
+      ref.watch(authProvider);
+      final repository = ref.watch(groupAccumulatorRepositoryProvider);
+      return repository.getGroupAccumulator(accumulatorId);
+    });
+
+@immutable
+class GroupAccumulatorMembersKey {
+  final String accumulatorId;
+
+  const GroupAccumulatorMembersKey({required this.accumulatorId});
+
+  @override
+  bool operator ==(Object other) {
+    return other is GroupAccumulatorMembersKey &&
+        other.accumulatorId == accumulatorId;
+  }
+
+  @override
+  int get hashCode => accumulatorId.hashCode;
+}
+
+List<GroupAccumulatorMember> sortAccumulatorMembers(
+  List<GroupAccumulatorMember> members,
+  GroupAccumulatorMemberSort sort,
+) {
+  final sorted = List<GroupAccumulatorMember>.from(members);
+  sorted.sort((a, b) {
+    final aCount =
+        sort == GroupAccumulatorMemberSort.today ? a.todayCount : a.totalCount;
+    final bCount =
+        sort == GroupAccumulatorMemberSort.today ? b.todayCount : b.totalCount;
+    return bCount.compareTo(aCount);
+  });
+  return sorted;
+}
+
+class GroupAccumulatorMembersState {
+  final List<GroupAccumulatorMember> members;
+  final int total;
+  final bool isLoading;
+  final bool isLoadingMore;
+  final Failure? error;
+
+  const GroupAccumulatorMembersState({
+    this.members = const [],
+    this.total = 0,
+    this.isLoading = false,
+    this.isLoadingMore = false,
+    this.error,
+  });
+
+  bool get hasMore => members.length < total;
+
+  GroupAccumulatorMembersState copyWith({
+    List<GroupAccumulatorMember>? members,
+    int? total,
+    bool? isLoading,
+    bool? isLoadingMore,
+    Failure? error,
+    bool clearError = false,
+  }) {
+    return GroupAccumulatorMembersState(
+      members: members ?? this.members,
+      total: total ?? this.total,
+      isLoading: isLoading ?? this.isLoading,
+      isLoadingMore: isLoadingMore ?? this.isLoadingMore,
+      error: clearError ? null : (error ?? this.error),
+    );
+  }
+}
+
+class GroupAccumulatorMembersNotifier
+    extends StateNotifier<GroupAccumulatorMembersState> {
+  GroupAccumulatorMembersNotifier({
+    required GroupAccumulatorRepositoryInterface repository,
+    required this.accumulatorId,
+  }) : _repository = repository,
+       super(const GroupAccumulatorMembersState());
+
+  final GroupAccumulatorRepositoryInterface _repository;
+  final String accumulatorId;
+  static const _pageSize = 20;
+  bool _hasLoaded = false;
+
+  Future<void> loadInitial({bool force = false}) async {
+    if (_hasLoaded && !force) return;
+    _hasLoaded = true;
+    state = state.copyWith(
+      isLoading: state.members.isEmpty,
+      clearError: true,
+    );
+
+    final result = await _repository.getGroupAccumulatorMembers(
+      accumulatorId,
+      skip: 0,
+      limit: _pageSize,
+      sortBy: GroupAccumulatorMemberSort.total,
+    );
+
+    result.fold(
+      (failure) => state = state.copyWith(isLoading: false, error: failure),
+      (page) => state = state.copyWith(
+        isLoading: false,
+        members: page.members,
+        total: page.total,
+      ),
+    );
+  }
+
+  Future<void> loadMore() async {
+    if (state.isLoading || state.isLoadingMore || !state.hasMore) return;
+
+    state = state.copyWith(isLoadingMore: true, clearError: true);
+    final result = await _repository.getGroupAccumulatorMembers(
+      accumulatorId,
+      skip: state.members.length,
+      limit: _pageSize,
+      sortBy: GroupAccumulatorMemberSort.total,
+    );
+
+    result.fold(
+      (failure) => state = state.copyWith(isLoadingMore: false, error: failure),
+      (page) => state = state.copyWith(
+        isLoadingMore: false,
+        members: [...state.members, ...page.members],
+        total: page.total,
+      ),
+    );
+  }
+
+  Future<void> retry() async {
+    _hasLoaded = false;
+    await loadInitial(force: true);
+  }
+}
+
+final groupAccumulatorMembersProvider = StateNotifierProvider.autoDispose
+    .family<
+      GroupAccumulatorMembersNotifier,
+      GroupAccumulatorMembersState,
+      GroupAccumulatorMembersKey
+    >((ref, key) {
+      return GroupAccumulatorMembersNotifier(
+        repository: ref.watch(groupAccumulatorRepositoryProvider),
+        accumulatorId: key.accumulatorId,
+      );
+    });
+
+class GroupAccumulatorJoinCacheNotifier extends StateNotifier<Set<String>> {
+  GroupAccumulatorJoinCacheNotifier() : super(const {});
+
+  void markJoined(String accumulatorId) {
+    state = {...state, accumulatorId};
+  }
+
+  void markUnjoined(String accumulatorId) {
+    if (!state.contains(accumulatorId)) return;
+    state = {...state}..remove(accumulatorId);
+  }
+
+  void clear() => state = const {};
+
+  void syncFromApi(List<GroupAccumulator> accumulators) {
+    final joinedIds =
+        accumulators
+            .where((accumulator) => accumulator.isJoined == true)
+            .map((accumulator) => accumulator.id)
+            .toSet();
+    final notJoinedIds =
+        accumulators
+            .where((accumulator) => accumulator.isJoined == false)
+            .map((accumulator) => accumulator.id)
+            .toSet();
+
+    state = {...state, ...joinedIds}..removeAll(notJoinedIds);
+  }
+}
+
+final groupAccumulatorJoinCacheProvider = StateNotifierProvider.autoDispose
+    .family<GroupAccumulatorJoinCacheNotifier, Set<String>, String>((
+      ref,
+      groupId,
+    ) {
+      return GroupAccumulatorJoinCacheNotifier();
+    });
+
+bool accumulatorHasJoined(
+  GroupAccumulator accumulator, {
+  Set<String> localJoinedIds = const {},
+}) {
+  if (localJoinedIds.contains(accumulator.id)) return true;
+  return accumulator.isJoined == true;
+}
+
+Future<bool> joinGroupAccumulator({
+  required WidgetRef ref,
+  required String accumulatorId,
+  required String groupId,
+  GroupProfile? group,
+  bool awaitRefresh = true,
+}) async {
+  final repository = ref.read(groupAccumulatorRepositoryProvider);
+  final result = await repository.joinGroupAccumulator(accumulatorId);
+
+  if (result.isLeft()) return false;
+
+  ref
+      .read(groupAccumulatorJoinCacheProvider(groupId).notifier)
+      .markJoined(accumulatorId);
+
+  GroupProfile? resolvedGroup = group;
+  if (resolvedGroup == null) {
+    final profileResult = await ref.read(groupProfileProvider(groupId).future);
+    resolvedGroup = profileResult.fold((_) => null, (profile) => profile);
+  }
+
+  if (resolvedGroup != null) {
+    final followKey = GroupFollowKey(
+      groupId: groupId,
+      groupType: resolvedGroup.groupType,
+    );
+    ref
+        .read(groupFollowProvider(followKey).notifier)
+        .markAutoJoinedFromPracticeEnrollment(group: resolvedGroup);
+  }
+
+  ref.invalidate(groupAccumulatorsProvider(groupId));
+  ref.invalidate(groupAccumulatorDetailProvider(accumulatorId));
+
+  final refreshFuture = Future.wait([
+    ref.read(groupAccumulatorDetailProvider(accumulatorId).future),
+    ref.read(groupAccumulatorsProvider(groupId).future),
+    ref
+        .read(
+          groupAccumulatorMembersProvider(
+            GroupAccumulatorMembersKey(accumulatorId: accumulatorId),
+          ).notifier,
+        )
+        .loadInitial(force: true),
+  ]);
+
+  if (awaitRefresh) {
+    await refreshFuture;
+  }
+
+  return true;
+}

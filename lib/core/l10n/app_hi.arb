@@ -87,6 +87,9 @@
       }
     }
   },
+  "mala_group_accumulations": "Group accumulations",
+  "mala_groups_section": "Groups",
+  "mala_group_untitled": "Untitled group",
   "home_timer": "टाइमर",
   "preset_timers": "पूर्व-निर्धारित टाइमर",
   "meditation_timer": "ध्यान टाइमर",
@@ -112,6 +115,7 @@
   "nav_settings": "सेटिंग्स",
   "nav_connect": "कनेक्ट",
   "nav_me": "मैं",
+  "tab_practices": "अभ्यास",
   "text_search": "खोजें",
   "text_toc_versions": "संस्करण",
   "text_commentary": "टीकाएँ",

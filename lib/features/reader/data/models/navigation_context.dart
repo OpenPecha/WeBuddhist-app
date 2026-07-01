@@ -14,7 +14,9 @@ enum NavigationSource {
 ///   and is rendered by `ReaderScreen`.
 /// - [inlineText] carries inline content via [PlanTextItem.inlineContent]
 ///   and is rendered by `PlanTextScreen`.
-enum PlanItemContentType { sourceReference, inlineText }
+/// - [inlineImage] carries an image URL via [PlanTextItem.imageUrl]
+///   and is rendered by `PlanTextScreen`.
+enum PlanItemContentType { sourceReference, inlineText, inlineImage }
 
 /// API-level content type strings used by the plan endpoints.
 class PlanContentTypes {
@@ -22,14 +24,17 @@ class PlanContentTypes {
 
   static const String sourceReference = 'SOURCE_REFERENCE';
   static const String text = 'TEXT';
+  static const String image = 'IMAGE';
 
   /// Map a raw API value to a [PlanItemContentType], or null if unknown.
   static PlanItemContentType? parse(String? raw) {
-    switch (raw) {
+    switch (raw?.trim().toUpperCase()) {
       case sourceReference:
         return PlanItemContentType.sourceReference;
       case text:
         return PlanItemContentType.inlineText;
+      case image:
+        return PlanItemContentType.inlineImage;
       default:
         return null;
     }
@@ -38,7 +43,7 @@ class PlanContentTypes {
 
 /// Represents a navigable subtask within a plan.
 ///
-/// Plan subtasks come in two flavours, both of which appear in the same
+/// Plan subtasks come in three flavours, all of which appear in the same
 /// linear navigation strip ("1 of N", "2 of N", ...):
 ///
 /// - **SOURCE_REFERENCE** — opens `ReaderScreen` for [textId] and scrolls
@@ -47,23 +52,30 @@ class PlanContentTypes {
 /// - **TEXT** — opens `PlanTextScreen` and renders [inlineContent] directly.
 ///   Stripped-down view: title in app bar, font size control, no other
 ///   reader features.
+/// - **IMAGE** — opens `PlanTextScreen` and renders [imageUrl] directly from
+///   the subtask `content` field.
 ///
-/// Construct via [PlanTextItem.sourceReference] or [PlanTextItem.inlineText]
-/// to get compile-time validation of which fields are required.
+/// Construct via [PlanTextItem.sourceReference], [PlanTextItem.inlineText], or
+/// [PlanTextItem.inlineImage] to get compile-time validation of which fields
+/// are required.
 class PlanTextItem {
   final PlanItemContentType contentType;
 
   /// SOURCE_REFERENCE only: the remote text id used by the route
-  /// `/reader/:textId`. Empty string for inline TEXT items.
+  /// `/reader/:textId`. Empty string for inline content items.
   final String textId;
 
   /// SOURCE_REFERENCE only: ordered list of segments to scroll through.
-  /// Null/empty for inline TEXT items.
+  /// Null/empty for inline content items.
   final List<String>? segmentIds;
 
   /// TEXT only: the inline content rendered by `PlanTextScreen`.
   /// Null for SOURCE_REFERENCE items.
   final String? inlineContent;
+
+  /// IMAGE only: the image URL rendered by `PlanTextScreen`.
+  /// Null for SOURCE_REFERENCE and TEXT items.
+  final String? imageUrl;
 
   /// Display title used in app bars and bottom-bar progress text.
   final String title;
@@ -103,6 +115,7 @@ class PlanTextItem {
     required this.title,
     this.segmentIds,
     this.inlineContent,
+    this.imageUrl,
     this.subtaskId,
     this.taskId,
     this.isCompleted = false,
@@ -164,12 +177,41 @@ class PlanTextItem {
     );
   }
 
+  /// Build an IMAGE item. Throws if [imageUrl] is blank.
+  factory PlanTextItem.inlineImage({
+    required String imageUrl,
+    required String title,
+    String? subtaskId,
+    String? taskId,
+    bool isCompleted = false,
+    String? audioUrl,
+    int? startMs,
+    int? endMs,
+  }) {
+    assert(imageUrl.trim().isNotEmpty, 'inlineImage requires non-blank URL');
+    return PlanTextItem._(
+      contentType: PlanItemContentType.inlineImage,
+      textId: '',
+      imageUrl: imageUrl,
+      title: title,
+      subtaskId: subtaskId,
+      taskId: taskId,
+      isCompleted: isCompleted,
+      audioUrl: audioUrl,
+      startMs: startMs,
+      endMs: endMs,
+    );
+  }
+
   /// True if this item is a SOURCE_REFERENCE.
   bool get isSourceReference =>
       contentType == PlanItemContentType.sourceReference;
 
   /// True if this item is an inline TEXT item.
   bool get isInlineText => contentType == PlanItemContentType.inlineText;
+
+  /// True if this item is an inline IMAGE item.
+  bool get isInlineImage => contentType == PlanItemContentType.inlineImage;
 
   /// Get the first segment ID for initial scroll position
   /// (SOURCE_REFERENCE only).
@@ -181,6 +223,7 @@ class PlanTextItem {
     String? textId,
     List<String>? segmentIds,
     String? inlineContent,
+    String? imageUrl,
     String? title,
     String? subtaskId,
     String? taskId,
@@ -194,6 +237,7 @@ class PlanTextItem {
       textId: textId ?? this.textId,
       segmentIds: segmentIds ?? this.segmentIds,
       inlineContent: inlineContent ?? this.inlineContent,
+      imageUrl: imageUrl ?? this.imageUrl,
       title: title ?? this.title,
       subtaskId: subtaskId ?? this.subtaskId,
       taskId: taskId ?? this.taskId,
@@ -212,6 +256,7 @@ class PlanTextItem {
         other.textId != textId ||
         other.title != title ||
         other.inlineContent != inlineContent ||
+        other.imageUrl != imageUrl ||
         other.subtaskId != subtaskId ||
         other.taskId != taskId ||
         other.isCompleted != isCompleted ||
@@ -235,6 +280,7 @@ class PlanTextItem {
     textId,
     Object.hashAll(segmentIds ?? const []),
     inlineContent,
+    imageUrl,
     title,
     subtaskId,
     taskId,

@@ -77,19 +77,54 @@ class LocalMalaState {
   );
 }
 
+/// Per-`(userId, groupAccumulatorId)` local group counting state.
+class LocalGroupMalaState {
+  const LocalGroupMalaState({
+    this.total = 0,
+    this.syncedTotal = 0,
+  });
+
+  final int total;
+  final int syncedTotal;
+
+  bool get isDirty => total > syncedTotal;
+
+  LocalGroupMalaState copyWith({int? total, int? syncedTotal}) =>
+      LocalGroupMalaState(
+        total: total ?? this.total,
+        syncedTotal: syncedTotal ?? this.syncedTotal,
+      );
+
+  Map<String, dynamic> toJson() => {
+    'total': total,
+    'syncedTotal': syncedTotal,
+  };
+
+  factory LocalGroupMalaState.fromJson(Map<String, dynamic> j) =>
+      LocalGroupMalaState(
+        total: (j['total'] as num?)?.toInt() ?? 0,
+        syncedTotal: (j['syncedTotal'] as num?)?.toInt() ?? 0,
+      );
+}
+
 /// Hive-backed local store for mala counts, namespaced by user id so one
 /// account never reads or sends another's counts. Keys are `userId:presetId`.
 class MalaLocalDataSource {
   static const String boxName = 'mala_counts';
+  static const String groupBoxName = 'mala_group_counts';
 
   Box<String> get _box => Hive.box<String>(boxName);
+  Box<String> get _groupBox => Hive.box<String>(groupBoxName);
 
   /// Open the box. Call once during app bootstrap (after `Hive.initFlutter()`).
   static Future<void> init() async {
     if (!Hive.isBoxOpen(boxName)) {
       await Hive.openBox<String>(boxName);
-      _logger.info('MalaLocalDataSource initialized');
     }
+    if (!Hive.isBoxOpen(groupBoxName)) {
+      await Hive.openBox<String>(groupBoxName);
+    }
+    _logger.info('MalaLocalDataSource initialized');
   }
 
   String _key(String userId, String presetId) => '$userId:$presetId';
@@ -196,5 +231,72 @@ class MalaLocalDataSource {
           }
         }).toList();
     await _box.deleteAll(toDelete);
+  }
+
+  // ========== Group accumulations (separate box) ==========
+
+  String _groupKey(String userId, String groupAccumulatorId) =>
+      '$userId:$groupAccumulatorId';
+
+  LocalGroupMalaState readGroup(String userId, String groupAccumulatorId) {
+    final raw = _groupBox.get(_groupKey(userId, groupAccumulatorId));
+    if (raw == null) return const LocalGroupMalaState();
+    try {
+      return LocalGroupMalaState.fromJson(
+        jsonDecode(raw) as Map<String, dynamic>,
+      );
+    } catch (e) {
+      _logger.error('Failed to parse local group mala state', e);
+      return const LocalGroupMalaState();
+    }
+  }
+
+  Future<void> writeGroup(
+    String userId,
+    String groupAccumulatorId,
+    LocalGroupMalaState s,
+  ) =>
+      _groupBox.put(
+        _groupKey(userId, groupAccumulatorId),
+        jsonEncode(s.toJson()),
+      );
+
+  Future<LocalGroupMalaState> recordGroupTap(
+    String userId,
+    String groupAccumulatorId,
+  ) async {
+    final s = readGroup(userId, groupAccumulatorId);
+    final next = s.copyWith(total: s.total + 1);
+    await writeGroup(userId, groupAccumulatorId, next);
+    return next;
+  }
+
+  List<String> groupAccumulatorIdsForUser(String userId) {
+    final prefix = '$userId:';
+    return _groupBox.keys
+        .cast<String>()
+        .where((k) => k.startsWith(prefix))
+        .map((k) => k.substring(prefix.length))
+        .toList();
+  }
+
+  List<String> dirtyGroupAccumulatorIds(String userId) {
+    final prefix = '$userId:';
+    return _groupBox.keys
+        .cast<String>()
+        .where((k) => k.startsWith(prefix))
+        .where((k) {
+          final raw = _groupBox.get(k);
+          if (raw == null) return false;
+          try {
+            return LocalGroupMalaState.fromJson(
+              jsonDecode(raw) as Map<String, dynamic>,
+            ).isDirty;
+          } catch (_) {
+            return false;
+          }
+        })
+        .map((k) => k.substring(prefix.length))
+        .toList();
   }
 }

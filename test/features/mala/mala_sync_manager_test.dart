@@ -17,6 +17,7 @@ import 'mala_sync_manager_test.mocks.dart';
   CreateUserAccumulatorUseCase,
   UpdateUserAccumulatorUseCase,
   DeleteUserAccumulatorUseCase,
+  SubmitGroupAccumulatorCountUseCase,
 ])
 void main() {
   provideDummy<Either<Failure, MalaCount>>(
@@ -29,10 +30,12 @@ void main() {
   late MockCreateUserAccumulatorUseCase create;
   late MockUpdateUserAccumulatorUseCase update;
   late MockDeleteUserAccumulatorUseCase delete;
+  late MockSubmitGroupAccumulatorCountUseCase submitGroup;
 
   const userA = 'user-a';
   const userB = 'user-b';
   const presetId = 'chenrezig';
+  const groupAccId = 'group-acc-1';
 
   MalaSyncManager buildManager({
     bool loggedIn = true,
@@ -42,6 +45,7 @@ void main() {
       local: local,
       createAccumulator: create,
       updateAccumulator: update,
+      submitGroupCount: submitGroup,
       isLoggedIn: () => loggedIn,
       currentUserId: () async => userId,
     );
@@ -55,10 +59,13 @@ void main() {
     create = MockCreateUserAccumulatorUseCase();
     update = MockUpdateUserAccumulatorUseCase();
     delete = MockDeleteUserAccumulatorUseCase();
+    submitGroup = MockSubmitGroupAccumulatorCountUseCase();
+    when(submitGroup(any)).thenAnswer((_) async => const Right(unit));
   });
 
   tearDown(() async {
     await Hive.deleteBoxFromDisk(MalaLocalDataSource.boxName);
+    await Hive.deleteBoxFromDisk(MalaLocalDataSource.groupBoxName);
     await Hive.close();
     tempDir.deleteSync(recursive: true);
   });
@@ -277,5 +284,61 @@ void main() {
     final after = local.read(userA, presetId);
     expect(after.accumulatorId, isNull);
     expect(after.total, 0);
+  });
+
+  test('flushes dirty group counts via POST absolute total', () async {
+    await local.writeGroup(
+      userA,
+      groupAccId,
+      const LocalGroupMalaState(total: 42, syncedTotal: 30),
+    );
+
+    await buildManager().flush(SyncReason.debounce);
+
+    final captured = verify(submitGroup(captureAny)).captured.single
+        as SubmitGroupAccumulatorCountParams;
+    expect(captured.groupAccumulatorId, groupAccId);
+    expect(captured.currentCount, 42);
+
+    final after = local.readGroup(userA, groupAccId);
+    expect(after.syncedTotal, 42);
+    expect(after.isDirty, isFalse);
+  });
+
+  test('failed group flush keeps entry dirty for retry', () async {
+    await local.writeGroup(
+      userA,
+      groupAccId,
+      const LocalGroupMalaState(total: 10, syncedTotal: 0),
+    );
+    when(submitGroup(any)).thenAnswer(
+      (_) async => const Left(NetworkFailure('offline')),
+    );
+
+    await buildManager().flush(SyncReason.launch);
+
+    final after = local.readGroup(userA, groupAccId);
+    expect(after.syncedTotal, 0);
+    expect(after.isDirty, isTrue);
+  });
+
+  test('group flush only touches current user entries', () async {
+    await local.writeGroup(
+      userA,
+      groupAccId,
+      const LocalGroupMalaState(total: 5, syncedTotal: 0),
+    );
+    await local.writeGroup(
+      userB,
+      'group-acc-b',
+      const LocalGroupMalaState(total: 9, syncedTotal: 0),
+    );
+
+    await buildManager(userId: userA).flush(SyncReason.launch);
+
+    final captured = verify(submitGroup(captureAny)).captured.single
+        as SubmitGroupAccumulatorCountParams;
+    expect(captured.groupAccumulatorId, groupAccId);
+    expect(local.readGroup(userB, 'group-acc-b').isDirty, isTrue);
   });
 }

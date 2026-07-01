@@ -40,18 +40,11 @@ class AppConfig {
     'ne',
   ];
 
-  /// Languages the backend can serve translatable content in.
-  static const List<String> backendContentLanguages = [
-    englishLanguageCode,
-    chineseLanguageCode,
-    tibetanLanguageCode,
-  ];
-
   /// Maps a UI locale to the language code sent to content APIs.
-  /// Falls back to English when the backend does not support the locale.
+  /// Returns the locale when it is a supported app language; otherwise English.
   static String resolveContentLanguage(String localeCode) {
     final code = localeCode.toLowerCase();
-    if (backendContentLanguages.contains(code)) return code;
+    if (supportedLanguages.contains(code)) return code;
     return englishLanguageCode;
   }
 

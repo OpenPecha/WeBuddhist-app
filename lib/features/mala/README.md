@@ -15,12 +15,14 @@ data/
     mala_local_datasource.dart    Hive store (LocalMalaState), namespaced by user
   models/
     accumulator_model.dart        JSON DTOs + toEntity()/toMalaCount()
+    accumulator_group_model.dart  Group accumulator DTOs (ImageUrlModel → ResponsiveImage)
   repositories/
     mala_repository_impl.dart     maps exceptions → Failure (fpdart Either)
 domain/
   entities/
     mantra.dart                   Mantra, MantraText, AccumulatorMetadata; kBeadsPerRound = 108
     mala_count.dart               MalaCount (total, accumulatorId, beadImageUrl)
+    accumulator_group.dart        Joined group accumulator summary for a preset
   repositories/mala_repository.dart
   usecases/mala_usecases.dart     GetCatalogue / GetAccumulatorDetail / Create / Update
 presentation/
@@ -28,12 +30,18 @@ presentation/
     mala_providers.dart           all DI providers + user-id resolution
     mala_counter_notifier.dart    per-mantra counter (seed + increment)
     mala_sync_manager.dart        app-scoped background sync
+    mala_settings_provider.dart   sound / vibration toggles (persisted)
+    accumulator_groups_provider.dart  joined groups for current preset (autoDispose family)
+    accumulation_search_provider.dart preset search state (settings / add flows)
   services/
     mala_sound_player.dart        bead-tap click (just_audio)
-  screens/mala_screen.dart        screen layout (40% switcher / 60% counter+beads)
+  screens/mala_screen.dart        screen layout (mantra card → counter → beads → group bar)
   widgets/
     mala_beads.dart               the tappable bead-arc CustomPainter
     mantra_switcher.dart          infinite looping carousel (swipe + ‹ › chevrons)
+    group_accumulations_bar.dart  joined-group pill with overlapping avatars
+    group_accumulations_sheet.dart  group accumulations bottom sheet
+    mala_settings_sheet.dart      sound/vibration, reset, bookmark, add accumulation
     mala_skeleton.dart            loading placeholder
 ```
 
@@ -49,9 +57,11 @@ fetched by authenticated users, so the catch-all is safe.
 | --- | --- | --- |
 | `GET` | `/accumulators/presets` | Catalogue of preset mantras (paged, `language`). Sent with `no_cache` so it skips the 5-min HTTP cache and always returns the latest titles/images. |
 | `GET` | `/accumulators/{parent_id}` | The user's detail for one preset. **404 ⇒ no accumulator yet ⇒ seed at 0.** |
+| `GET` | `/accumulators/{accumulator_id}/groups` | Groups using this preset. Query `joined_only=true` returns only groups the user has joined. `{accumulator_id}` is the preset id (`Mantra.presetId`). |
 | `POST` | `/accumulators/user` | Lazily create the user's accumulator (`{parent_id}`, starts at 0). |
 | `PUT` | `/accumulators/user/{id}` | Push the absolute `current_count`. |
 | `DELETE` | `/accumulators/user/{id}` | Soft-delete the active session accumulator (reset). |
+| `POST` | `/group-accumulators/{group_accumulator_id}` | Submit the user's absolute group count (`{current_count}`). Path param is `group_accumulator_id` from the groups list, not `group_id`. |
 
 `mala_image_url` appears at both the accumulator and mantra level; it drives the
 bead artwork (see below).
@@ -116,7 +126,14 @@ count stays at 0 even if the parent detail echoes a non-zero `current_count`.
 Hive box `mala_counts`, keys `userId:presetId`, value = JSON `LocalMalaState`
 (`total`, `syncedTotal`, `accumulatorId`, `beadImageUrl`). `isDirty =
 total > syncedTotal`. `pruneSynced` removes fully-synced entries (keeps dirty
-tails). Opened once in app bootstrap via `MalaLocalDataSource.init()`.
+tails).
+
+Group counts use a separate Hive box `mala_group_counts`, keys
+`userId:groupAccumulatorId`, value = JSON `LocalGroupMalaState` (`total`,
+`syncedTotal`). Same dirty model; flushed by [MalaSyncManager] via
+`POST /group-accumulators/{id}`.
+
+Opened once in app bootstrap via `MalaLocalDataSource.init()`.
 
 ## Bead artwork & caching
 
@@ -198,13 +215,71 @@ A `CustomPaint` strand that advances **forward only** (counting is monotonic).
 
 ## Screen layout (`MalaScreen`)
 
-Below the app bar: **40%** `MantraSwitcher` — an **infinite looping carousel**
-(an unbounded `PageView` seeded at `_loopBase * length + index`, mapped back
-with `page % length`); swipe or tap the chevrons and it wraps endlessly
-(last → first, first → last). The screen owns `_index`; the carousel reports
-settles via `onIndexChanged`. With one mantra it locks (no swipe, chevrons
-disabled). **60%** `_CounterBlock` (`n/108`, rounds) above the `MalaBeads` arc. States: skeleton (loading), error+retry (catalogue or seed
-failure), data.
+Below the app bar, the body is a vertical column (24px horizontal padding, 16px
+bottom):
+
+1. **`MantraSwitcher`** — `Expanded(flex: 36)`, inside a white card
+   (`AppColors.surfaceWhite`, 16px corner radius). Infinite looping carousel
+   (unbounded `PageView` seeded at `_loopBase * length + index`, mapped back
+   with `page % length`); swipe or tap chevrons to wrap. The screen owns
+   `_index`; the carousel reports settles via `onIndexChanged`. With one mantra
+   it locks (no swipe, chevrons disabled).
+2. **`_CounterBlock`** — `n/108` bead-in-round and rounds count, left-aligned.
+3. **`MalaBeads`** — `Expanded(flex: 42)`, top-aligned in a canvas sized to
+   ~85% of the available height so the arc sits higher on screen.
+4. **`GroupAccumulationsBar`** — fixed 40px slot at the bottom (see below).
+
+States: skeleton (loading), error+retry (catalogue or seed failure), data.
+
+## Group accumulations bar (`GroupAccumulationsBar`)
+
+Entry point for group counting tied to the current preset. Fetched per mantra via
+`joinedAccumulatorGroupsProvider(presetId)` →
+`MalaRepository.getJoinedAccumulatorGroups()` →
+`GET /accumulators/{presetId}/groups?joined_only=true`.
+
+- **Visibility:** the grey pill appears only when the response contains at
+  least one group. Loading, error, and empty responses show nothing inside the
+  slot.
+- **Layout stability:** the widget always reserves **40px height**
+  (`GroupAccumulationsBar.barHeight`) so the bead arc does not jump when the
+  request resolves.
+- **Preview:** up to two overlapping circular avatars (28px, 10px overlap) plus
+  a chevron. Tapping opens [GroupAccumulationsSheet] with the cached groups list.
+- **Selection:** [malaAccumulationSelectionProvider] persists the active source
+  per preset (`personal` or `group:{uuid}` in SharedPreferences). The mala
+  counter and bead arc display the selected total; taps increment personal or
+  group counts accordingly. Group counts are persisted locally per
+  `(userId, groupAccumulatorId)` and synced in the background by
+  [MalaSyncManager] (debounced tap flush, round-complete immediate flush,
+  lifecycle + reconnect), mirroring personal accumulation.
+- **Images:** group `image` is parsed as `ImageUrlModel` (`thumbnail` /
+  `medium` / `original`) via `ImageModel.fromJsonMap()` and mapped to
+  `ResponsiveImage` on the entity. Avatars render through `ResponsiveCoverImage`
+  so the thumbnail tier is picked for the small circle.
+
+`AccumulatorGroup` entity fields used today: `groupAccumulatorId`, `groupId`,
+`title`, `image`, `userTotalCount`, `isJoined`. The DTO also carries
+`target_count`, dates, etc. — not yet mapped on the client.
+
+On API failure the provider returns an empty list (bar stays hidden, slot
+reserved).
+
+## Group accumulations sheet (`GroupAccumulationsSheet`)
+
+Opened from the bar pill. Receives the already-fetched [AccumulatorGroup] list
+and the user's personal count for the current preset (`MalaCounterState.total`).
+
+- **User row:** name and avatar from [userProvider] (local cache written at
+  login; refreshes via `GET /users/info` when the sheet opens and no user is
+  cached yet). Count shows the personal mala total. Tappable; selected row uses
+  `AppColors.blue` / `AppColors.blueDark`.
+- **Groups list:** each row shows group image, title, and count from
+  [groupAccumulationCountsProvider] (Hive + API reconcile via `max()`, local
+  increments on tap). Tappable; accent colour on the active row.
+- **Persistence:** selection survives app restarts via
+  `StorageKeys.malaAccumulationSelectionPrefix` + preset id. Invalid group ids
+  fall back to personal when the groups list reloads.
 
 ## Analytics
 
@@ -217,7 +292,8 @@ failure), data.
   offline-tail preservation, no-op while seeding, monotonic increment, round
   completion, fresh-install seed-at-0, `resetCount()` success/failure/mounted.
 - `mala_sync_manager_test.dart` — create-once-then-update, absolute-total PUT,
-  `max()` adoption, dirty-on-failure, logged-out no-op, per-user namespacing.
+  `max()` adoption, dirty-on-failure, logged-out no-op, per-user namespacing,
+  group count POST flush + dirty-on-failure.
 - `mala_beads_test.dart` — tap increments, right-to-left swipe increments,
   left-to-right doesn't, and disabled beads ignore both.
 

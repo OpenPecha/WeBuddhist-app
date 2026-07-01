@@ -87,6 +87,9 @@
       }
     }
   },
+  "mala_group_accumulations": "Group accumulations",
+  "mala_groups_section": "Groups",
+  "mala_group_untitled": "Untitled group",
   "home_timer": "སྒོམ་ཐུན།",
   "preset_timers": "སྔོན་སྒྲིག་དུས་ཚོད།",
   "meditation_timer": "སྒོམ་ཐུན།",
@@ -112,6 +115,7 @@
   "nav_settings": "སྒྲིག་འགོད།",
   "nav_connect": "མཐུད།",
   "nav_me": "ང་།",
+  "tab_practices": "ཉམས་ལེན།",
   "text_search": "འཚོལ།",
   "text_toc_versions": "པར་གཞི།",
   "text_commentary": "འགྲེལ་བ་ཁག",
