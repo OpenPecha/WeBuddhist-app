@@ -48,9 +48,10 @@ class AppRoutes {
   static const String reader = '/reader';
 
   // ========== PLAN TEXT ROUTES ==========
-  /// Inline plan text screen — renders subtasks where `content_type == "TEXT"`.
+  /// Inline plan content screen — renders subtasks where `content_type` is
+  /// `TEXT` or `IMAGE`.
   /// Path param is the subtask id; the actual content travels in `extra`
-  /// as a [NavigationContext] whose `currentItem` carries `inlineContent`.
+  /// as a [NavigationContext] whose `currentItem` carries inline content.
   static const String planText = '/plan-text';
 
   // ========== SEARCH ROUTES ==========
@@ -88,7 +89,7 @@ class AppRoutes {
     practicePlanPreview, // Allow guests to browse/preview plans
     reader,
     notifications, // Local-only — guests can configure routine notifications
-    planText, // Guests can see inline TEXT subtasks
+    planText, // Guests can see inline TEXT/IMAGE subtasks
   };
 
   /// Base paths that require full authentication (prefix matching)

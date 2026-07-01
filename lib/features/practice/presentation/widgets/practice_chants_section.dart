@@ -2,13 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/features/practice/presentation/providers/practice_explore_providers.dart';
 import 'package:flutter_pecha/features/practice/presentation/screens/all_recitations_screen.dart';
+import 'package:flutter_pecha/features/practice/presentation/utils/recitation_reader_navigation.dart';
 import 'package:flutter_pecha/features/practice/presentation/widgets/practice_chant_list_tile.dart';
 import 'package:flutter_pecha/features/practice/presentation/widgets/practice_section_container.dart';
 import 'package:flutter_pecha/features/practice/presentation/widgets/practice_section_skeleton.dart';
-import 'package:flutter_pecha/features/reader/data/models/navigation_context.dart';
-import 'package:flutter_pecha/features/recitation/data/models/recitation_model.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
 class PracticeChantsSection extends ConsumerWidget {
   const PracticeChantsSection({super.key});
@@ -38,7 +36,8 @@ class PracticeChantsSection extends ConsumerWidget {
                             .map(
                               (r) => PracticeChantListTile(
                                 recitation: r,
-                                onTap: () => _navigateToRecitation(context, r),
+                                onTap:
+                                    () => openRecitationReader(context, r),
                               ),
                             )
                             .toList(),
@@ -57,21 +56,9 @@ class PracticeChantsSection extends ConsumerWidget {
     );
   }
 
-  void _navigateToRecitation(BuildContext context, RecitationModel recitation) {
-    final navigationContext = NavigationContext(
-      source: NavigationSource.recitationList,
-    );
-    context.push('/reader/${recitation.textId}', extra: navigationContext);
-  }
-
   void _showAllRecitations(BuildContext context) {
     Navigator.of(context).push(
-      MaterialPageRoute(
-        builder:
-            (_) => AllRecitationsScreen(
-              onTap: (r) => _navigateToRecitation(context, r),
-            ),
-      ),
+      MaterialPageRoute(builder: (_) => const AllRecitationsScreen()),
     );
   }
 }

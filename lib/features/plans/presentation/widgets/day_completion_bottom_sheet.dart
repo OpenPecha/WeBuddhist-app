@@ -1,11 +1,21 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_pecha/core/widgets/cached_network_image_widget.dart';
+import 'dart:io';
 
-class DayCompletionBottomSheet extends StatelessWidget {
+import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/constants/app_assets.dart';
+import 'package:flutter_pecha/core/extensions/context_ext.dart';
+import 'package:flutter_pecha/core/widgets/cached_network_image_widget.dart';
+import 'package:flutter_pecha/shared/utils/helper_functions.dart';
+import 'package:http/http.dart' as http;
+import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
+
+class DayCompletionBottomSheet extends StatefulWidget {
   final int dayNumber;
   final int totalDays;
   final int completedDays;
-  final String? imageUrl;
+  final String? fallbackImageUrl;
+  final String? thumbnailUrl;
+  final String? shareableImageUrl;
   final String planTitle;
 
   const DayCompletionBottomSheet({
@@ -13,13 +23,28 @@ class DayCompletionBottomSheet extends StatelessWidget {
     required this.dayNumber,
     required this.totalDays,
     required this.completedDays,
-    required this.imageUrl,
+    required this.fallbackImageUrl,
+    this.thumbnailUrl,
+    this.shareableImageUrl,
     required this.planTitle,
   });
 
   @override
+  State<DayCompletionBottomSheet> createState() =>
+      _DayCompletionBottomSheetState();
+}
+
+class _DayCompletionBottomSheetState extends State<DayCompletionBottomSheet> {
+  final GlobalKey _shareButtonKey = GlobalKey();
+  bool _isSharing = false;
+
+  bool get _hasShareableImage =>
+      widget.shareableImageUrl?.trim().isNotEmpty == true;
+
+  @override
   Widget build(BuildContext context) {
-    final progress = totalDays > 0 ? completedDays / totalDays : 0.0;
+    final progress =
+        widget.totalDays > 0 ? widget.completedDays / widget.totalDays : 0.0;
 
     return Container(
       width: double.infinity,
@@ -39,7 +64,9 @@ class DayCompletionBottomSheet extends StatelessWidget {
           const SizedBox(height: 20),
           _buildPlanImageCard(context),
           const SizedBox(height: 30),
-          _buildProgressBar(context, progress),
+          _hasShareableImage
+              ? _buildShareButton(context)
+              : _buildProgressBar(context, progress),
           const SizedBox(height: 25),
         ],
       ),
@@ -80,7 +107,7 @@ class DayCompletionBottomSheet extends StatelessWidget {
 
   Widget _buildDayText(BuildContext context) {
     return Text(
-      'Day $dayNumber of $totalDays',
+      'Day ${widget.dayNumber} of ${widget.totalDays}',
       style: TextStyle(
         fontSize: 24,
         fontWeight: FontWeight.bold,
@@ -92,13 +119,17 @@ class DayCompletionBottomSheet extends StatelessWidget {
 
   Widget _buildPlanImageCard(BuildContext context) {
     final imageWidth = MediaQuery.of(context).size.width - 80;
+    final displayImageUrl =
+        widget.thumbnailUrl?.trim().isNotEmpty == true
+            ? widget.thumbnailUrl!.trim()
+            : widget.fallbackImageUrl?.trim();
 
-    if (imageUrl == null || imageUrl!.isEmpty) {
+    if (displayImageUrl == null || displayImageUrl.isEmpty) {
       return _buildPlaceholderImage(context, imageWidth);
     }
 
     return CachedNetworkImageWidget(
-      imageUrl: imageUrl!,
+      imageUrl: displayImageUrl,
       width: imageWidth,
       height: 180,
       fit: BoxFit.cover,
@@ -129,6 +160,119 @@ class DayCompletionBottomSheet extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Widget _buildShareButton(BuildContext context) {
+    final buttonWidth = MediaQuery.of(context).size.width - 48;
+
+    return SizedBox(
+      width: buttonWidth,
+      height: 56,
+      child: FilledButton.icon(
+        key: _shareButtonKey,
+        onPressed: _isSharing ? null : _shareImage,
+        icon:
+            _isSharing
+                ? const SizedBox(
+                  width: 18,
+                  height: 18,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+                : const Icon(AppAssets.readerShare, size: 22),
+        label: Text(
+          context.l10n.share,
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+        ),
+        style: FilledButton.styleFrom(
+          backgroundColor: Colors.black,
+          foregroundColor: Colors.white,
+          disabledBackgroundColor: Colors.black.withValues(alpha: 0.65),
+          disabledForegroundColor: Colors.white.withValues(alpha: 0.85),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _shareImage() async {
+    final url = widget.shareableImageUrl?.trim();
+    if (url == null || url.isEmpty || _isSharing) return;
+
+    setState(() => _isSharing = true);
+
+    File? tempFile;
+    try {
+      final uri = Uri.parse(url);
+      final response = await http.get(uri);
+      if (response.statusCode < 200 || response.statusCode >= 300) {
+        throw HttpException(
+          'Failed to download share image (${response.statusCode})',
+          uri: uri,
+        );
+      }
+
+      final directory = await getTemporaryDirectory();
+      final extension = _imageExtensionFromUrl(uri);
+      tempFile = File(
+        '${directory.path}/plan_day_${widget.dayNumber}_${DateTime.now().millisecondsSinceEpoch}.$extension',
+      );
+      await tempFile.writeAsBytes(response.bodyBytes);
+
+      if (!mounted) return;
+
+      final sharePositionOrigin = getSharePositionOrigin(
+        context: context,
+        globalKey: _shareButtonKey,
+      );
+
+      await SharePlus.instance.share(
+        ShareParams(
+          files: [XFile(tempFile.path)],
+          sharePositionOrigin: sharePositionOrigin,
+        ),
+      );
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(context.l10n.create_image_share_error),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    } finally {
+      if (tempFile != null && await tempFile.exists()) {
+        try {
+          await tempFile.delete();
+        } catch (_) {
+          // Best-effort temp cleanup.
+        }
+      }
+
+      if (mounted) {
+        setState(() => _isSharing = false);
+      }
+    }
+  }
+
+  String _imageExtensionFromUrl(Uri uri) {
+    final lastSegment =
+        uri.pathSegments.isNotEmpty ? uri.pathSegments.last : '';
+    final extension =
+        lastSegment.contains('.')
+            ? lastSegment.split('.').last.toLowerCase()
+            : '';
+    switch (extension) {
+      case 'jpg':
+      case 'jpeg':
+      case 'png':
+      case 'webp':
+        return extension;
+      default:
+        return 'png';
+    }
   }
 
   Widget _buildProgressBar(BuildContext context, double progress) {

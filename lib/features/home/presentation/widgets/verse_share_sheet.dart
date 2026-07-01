@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/constants/app_assets.dart';
+import 'package:flutter_pecha/core/deep_linking/deep_link_url_builder.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/core/theme/app_theme.dart';
@@ -82,13 +83,16 @@ Future<void> shareVerseOfDayQuote(
 }) async {
   File? tempFile;
   try {
-    final Uint8List? imageBytes =
-        screenshotController != null
-            ? await screenshotController.capture(
-              delay: const Duration(milliseconds: 100),
-              pixelRatio: 3.0,
-            )
-            : await _captureVerseShareImage(context, verseOfDay);
+    final Uint8List? imageBytes;
+    if (screenshotController != null) {
+      imageBytes = await screenshotController.capture(
+        delay: const Duration(milliseconds: 100),
+        pixelRatio: 3.0,
+      );
+    } else {
+      if (!context.mounted) return;
+      imageBytes = await _captureVerseShareImage(context, verseOfDay);
+    }
 
     if (imageBytes == null || !context.mounted) return;
 
@@ -104,10 +108,12 @@ Future<void> shareVerseOfDayQuote(
       context: context,
       globalKey: shareOriginKey,
     );
+    final shareText = _verseOfDayShareText();
 
     await SharePlus.instance.share(
       ShareParams(
         files: [XFile(tempFile.path)],
+        text: shareText,
         sharePositionOrigin: sharePositionOrigin,
       ),
     );
@@ -128,6 +134,14 @@ Future<void> shareVerseOfDayQuote(
       } catch (_) {}
     }
   }
+}
+
+String _verseOfDayShareText() {
+  final homeLink = DeepLinkUrlBuilder.homeLink().toString();
+
+  return 'I liked this quote from WeBuddhist and wanted to share it with you. '
+      'Read more such insightful quotes on the WeBuddhist App\n\n'
+      '$homeLink';
 }
 
 Future<Uint8List?> _captureVerseShareImage(
@@ -212,7 +226,6 @@ class _VerseShareSheetState extends State<VerseShareSheet> {
     final languageCode = Localizations.localeOf(context).languageCode;
     final locale = Localizations.localeOf(context);
     final shareLabelFontSize = getLocalizedFontSize(AppTextSize.body);
-    final isTibetan = AppFontConfig.isTibetanLanguage(languageCode);
 
     return Container(
       decoration: BoxDecoration(

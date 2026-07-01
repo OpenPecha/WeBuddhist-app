@@ -6,8 +6,11 @@ import 'package:flutter_pecha/core/widgets/cached_network_image_widget.dart';
 import 'package:flutter_pecha/core/widgets/responsive_cover_image.dart';
 import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
 import 'package:flutter_pecha/features/auth/presentation/widgets/login_drawer.dart';
+import 'package:flutter_pecha/features/group_profile/domain/entities/group_accumulator.dart';
 import 'package:flutter_pecha/features/group_profile/domain/entities/group_profile.dart';
+import 'package:flutter_pecha/features/group_profile/presentation/providers/group_accumulator_providers.dart';
 import 'package:flutter_pecha/features/group_profile/presentation/providers/group_profile_providers.dart';
+import 'package:flutter_pecha/features/group_profile/presentation/widgets/group_accumulator_card.dart';
 import 'package:flutter_pecha/features/group_profile/presentation/widgets/group_profile_links_drawer.dart';
 import 'package:flutter_pecha/features/group_profile/presentation/widgets/group_profile_members_tab.dart';
 import 'package:flutter_pecha/features/home/presentation/providers/series_enrollment_provider.dart';
@@ -38,6 +41,7 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
     with SingleTickerProviderStateMixin {
   TabController? _tabController;
   String? _enrollingSeriesId;
+  String? _joiningAccumulatorId;
   final Set<String> _localGroupEnrolledSeriesIds = {};
 
   bool _isCommunityGroup(GroupProfile profile) => !profile.groupType.isPage;
@@ -85,7 +89,22 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
     ref.listen(groupFollowProvider(followKey), (previous, next) {
       if (next case GroupFollowSuccess(isFollowing: false)) {
         setState(_localGroupEnrolledSeriesIds.clear);
+        ref
+            .read(groupAccumulatorJoinCacheProvider(widget.profile.id).notifier)
+            .clear();
+        ref.invalidate(groupAccumulatorsProvider(widget.profile.id));
       }
+    });
+    ref.listen(groupAccumulatorsProvider(widget.profile.id), (previous, next) {
+      next.whenData((either) {
+        either.fold((_) {}, (page) {
+          ref
+              .read(
+                groupAccumulatorJoinCacheProvider(widget.profile.id).notifier,
+              )
+              .syncFromApi(page.accumulators);
+        });
+      });
     });
     ref.listen(groupProfileProvider(widget.profile.id), (previous, next) {
       next.whenData((either) {
@@ -126,7 +145,10 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (!_isCommunityGroup(profile) && _hasBanner(profile)) ...[
-          _buildProfileBanner(profile, isDark),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 14),
+            child: _buildProfileBanner(profile, isDark),
+          ),
           const SizedBox(height: 16),
         ],
         _buildProfileHeader(profile, isDark, lineHeight),
@@ -347,7 +369,7 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
             fontWeight: FontWeight.w500,
           ),
           tabs: [
-            Tab(text: context.l10n.nav_practice),
+            Tab(text: context.l10n.tab_practices),
             Tab(text: membersTabLabel),
             if (hasAbout) Tab(text: context.l10n.about_title),
           ],
@@ -362,26 +384,149 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
     bool isDark,
     double? lineHeight,
   ) {
-    if (profile.series.isEmpty) {
-      return const SizedBox.shrink();
-    }
+    final accumulatorsAsync = ref.watch(groupAccumulatorsProvider(profile.id));
+    final series = profile.series;
 
-    return ListView.builder(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
-      itemCount: profile.series.length,
-      itemBuilder: (context, index) {
-        return Padding(
-          padding: EdgeInsets.only(
-            bottom: index == profile.series.length - 1 ? 0 : 16,
-          ),
-          child: _buildSeriesCard(
-            profile,
-            profile.series[index],
-            isDark,
-            lineHeight,
-          ),
+    return accumulatorsAsync.when(
+      data: (either) {
+        final accumulators = either.fold(
+          (_) => <GroupAccumulator>[],
+          (page) => page.accumulators,
+        );
+
+        if (series.isEmpty && accumulators.isEmpty) {
+          return const SizedBox.shrink();
+        }
+
+        final itemCount = series.length + accumulators.length;
+        return ListView.builder(
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
+          itemCount: itemCount,
+          itemBuilder: (context, index) {
+            final isLast = index == itemCount - 1;
+            if (index < series.length) {
+              return Padding(
+                padding: EdgeInsets.only(bottom: isLast ? 0 : 16),
+                child: _buildSeriesCard(
+                  profile,
+                  series[index],
+                  isDark,
+                  lineHeight,
+                ),
+              );
+            }
+
+            final accumulator = accumulators[index - series.length];
+            final localJoinedIds = ref.watch(
+              groupAccumulatorJoinCacheProvider(profile.id),
+            );
+            final hasJoined = accumulatorHasJoined(
+              accumulator,
+              localJoinedIds: localJoinedIds,
+            );
+            return Padding(
+              padding: EdgeInsets.only(bottom: isLast ? 0 : 16),
+              child: GroupAccumulatorCard(
+                accumulator: accumulator,
+                hasJoined: hasJoined,
+                isDark: isDark,
+                lineHeight: lineHeight,
+                isJoining: _joiningAccumulatorId == accumulator.id,
+                onTap: () => _navigateToAccumulatorDetail(accumulator.id),
+                onJoinTap: () => _onJoinAccumulatorTap(profile, accumulator),
+              ),
+            );
+          },
         );
       },
+      loading: () {
+        if (series.isEmpty) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        return ListView.builder(
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
+          itemCount: series.length,
+          itemBuilder: (context, index) {
+            return Padding(
+              padding: EdgeInsets.only(
+                bottom: index == series.length - 1 ? 0 : 16,
+              ),
+              child: _buildSeriesCard(
+                profile,
+                series[index],
+                isDark,
+                lineHeight,
+              ),
+            );
+          },
+        );
+      },
+      error: (_, __) {
+        if (series.isEmpty) {
+          return const SizedBox.shrink();
+        }
+
+        return ListView.builder(
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
+          itemCount: series.length,
+          itemBuilder: (context, index) {
+            return Padding(
+              padding: EdgeInsets.only(
+                bottom: index == series.length - 1 ? 0 : 16,
+              ),
+              child: _buildSeriesCard(
+                profile,
+                series[index],
+                isDark,
+                lineHeight,
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  void _navigateToAccumulatorDetail(String accumulatorId) {
+    context.push(
+      '/home/group-accumulator/$accumulatorId',
+      extra: {'groupTitle': _resolveProfile().title},
+    );
+  }
+
+  Future<void> _onJoinAccumulatorTap(
+    GroupProfile profile,
+    GroupAccumulator accumulator,
+  ) async {
+    final authState = ref.read(authProvider);
+    if (authState.isGuest || !authState.isLoggedIn) {
+      LoginDrawer.show(context, ref);
+      return;
+    }
+
+    setState(() => _joiningAccumulatorId = accumulator.id);
+    final ok = await joinGroupAccumulator(
+      ref: ref,
+      accumulatorId: accumulator.id,
+      groupId: profile.id,
+      group: profile,
+      awaitRefresh: false,
+    );
+
+    if (!mounted) return;
+    setState(() => _joiningAccumulatorId = null);
+
+    if (ok) {
+      _navigateToAccumulatorDetail(accumulator.id);
+      return;
+    }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(context.l10n.group_accumulator_join_error),
+        backgroundColor: Colors.red,
+      ),
     );
   }
 
@@ -391,7 +536,7 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
     }
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 2),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(16),
         child: AspectRatio(
@@ -472,7 +617,6 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
     double? lineHeight,
   ) {
     final dateRange = _formatSeriesDateRange(series);
-    final subtitle = dateRange ?? series.subTitle?.trim();
     final enrollmentStatus = _seriesGroupEnrollmentStatus(series);
     final showPracticeOverlay = enrollmentStatus != true;
     final isEnrolling = _enrollingSeriesId == series.id;
@@ -571,17 +715,40 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  if (subtitle != null && subtitle.isNotEmpty) ...[
+                  if (dateRange != null || series.enrolledCount > 0) ...[
                     const SizedBox(height: 4),
-                    Text(
-                      subtitle,
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: secondaryColor,
-                        height: lineHeight,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+                    Row(
+                      children: [
+                        if (dateRange != null)
+                          Expanded(
+                            child: Text(
+                              dateRange,
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: secondaryColor,
+                                height: lineHeight,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        if (series.enrolledCount > 0) ...[
+                          Icon(
+                            AppAssets.usercard,
+                            size: 16,
+                            color: secondaryColor,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            '${series.enrolledCount}',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: secondaryColor,
+                              height: lineHeight,
+                            ),
+                          ),
+                        ],
+                      ],
                     ),
                   ],
                 ],

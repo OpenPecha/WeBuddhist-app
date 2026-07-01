@@ -24,6 +24,7 @@ import 'package:flutter_pecha/features/plans/data/models/user/user_tasks_dto.dar
 import 'package:flutter_pecha/features/plans/domain/subtask_navigation.dart';
 import 'package:flutter_pecha/features/plans/presentation/widgets/plan_navigation/plan_navigator.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
+import 'package:flutter_pecha/features/plans/data/models/response/user_plan_day_detail_response.dart';
 import 'package:flutter_pecha/features/reader/data/models/navigation_context.dart';
 import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -126,7 +127,7 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
             if (_dayCompletionTracker.containsKey(day)) {
               final wasCompleted = _dayCompletionTracker[day]!;
               if (!wasCompleted && dayContent.isCompleted) {
-                _onDayCompleted(day);
+                _onDayCompleted(dayContent);
               }
             }
             _dayCompletionTracker[day] = dayContent.isCompleted;
@@ -149,7 +150,7 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
     });
   }
 
-  Future<void> _onDayCompleted(int dayNumber) async {
+  Future<void> _onDayCompleted(UserPlanDayDetailResponse dayContent) async {
     try {
       final completionStatusEither = await ref.read(
         userPlanDaysCompletionStatusProvider(widget.plan.id).future,
@@ -170,7 +171,7 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
                   properties: {
                     AnalyticsProperties.planId: widget.plan.id,
                     AnalyticsProperties.planName: widget.plan.title,
-                    AnalyticsProperties.dayNumber: dayNumber,
+                    AnalyticsProperties.dayNumber: dayContent.dayNumber,
                     AnalyticsProperties.totalDays: widget.plan.totalDays,
                     AnalyticsProperties.completedDays: completedDays,
                   },
@@ -185,10 +186,12 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
             backgroundColor: Colors.transparent,
             builder:
                 (_) => DayCompletionBottomSheet(
-                  dayNumber: dayNumber,
+                  dayNumber: dayContent.dayNumber,
                   totalDays: widget.plan.totalDays,
                   completedDays: completedDays,
-                  imageUrl: widget.plan.imageUrl,
+                  fallbackImageUrl: widget.plan.imageUrl,
+                  thumbnailUrl: dayContent.thumbnailUrl,
+                  shareableImageUrl: dayContent.shareableImageUrl,
                   planTitle: widget.plan.title,
                 ),
           );

@@ -3,15 +3,13 @@ import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/core/widgets/error_state_widget.dart';
 import 'package:flutter_pecha/features/practice/presentation/providers/practice_recitations_paginated_provider.dart';
 import 'package:flutter_pecha/features/practice/presentation/screens/recitations_search_screen.dart';
+import 'package:flutter_pecha/features/practice/presentation/utils/recitation_reader_navigation.dart';
 import 'package:flutter_pecha/features/practice/presentation/widgets/practice_chant_list_tile.dart';
-import 'package:flutter_pecha/features/recitation/data/models/recitation_model.dart';
 import 'package:flutter_pecha/features/recitation/presentation/widgets/recitation_list_skeleton.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class AllRecitationsScreen extends ConsumerStatefulWidget {
-  const AllRecitationsScreen({super.key, required this.onTap});
-
-  final ValueChanged<RecitationModel> onTap;
+  const AllRecitationsScreen({super.key});
 
   @override
   ConsumerState<AllRecitationsScreen> createState() =>
@@ -43,7 +41,7 @@ class _AllRecitationsScreenState extends ConsumerState<AllRecitationsScreen> {
 
   void _openSearch(BuildContext context) {
     Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => RecitationsSearchScreen(onTap: widget.onTap)),
+      MaterialPageRoute(builder: (_) => const RecitationsSearchScreen()),
     );
   }
 
@@ -111,7 +109,7 @@ class _AllRecitationsScreenState extends ConsumerState<AllRecitationsScreen> {
         final recitation = state.recitations[index];
         return PracticeChantListTile(
           recitation: recitation,
-          onTap: () => widget.onTap(recitation),
+          onTap: () => openRecitationReader(context, recitation),
         );
       },
     );

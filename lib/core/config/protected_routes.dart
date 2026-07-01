@@ -69,6 +69,9 @@ class ProtectedRoutes {
     '/author/groups/{groupId}/join',
     '/author/groups/{groupId}/follow',
 
+    // Group accumulators (group prayer accumulations)
+    '/group-accumulators/',
+
     // Plans (public endpoints but may need auth for user-specific data)
     '/plans/{planId}',
     '/plans/{planId}/days/{dayNumber}',

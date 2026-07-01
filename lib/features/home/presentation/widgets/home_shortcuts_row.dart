@@ -6,8 +6,6 @@ import 'package:flutter_pecha/features/home/domain/entities/series.dart';
 import 'package:flutter_pecha/features/practice/presentation/providers/practice_explore_providers.dart';
 import 'package:flutter_pecha/features/practice/presentation/screens/all_plans_screen.dart';
 import 'package:flutter_pecha/features/practice/presentation/screens/all_recitations_screen.dart';
-import 'package:flutter_pecha/features/reader/data/models/navigation_context.dart';
-import 'package:flutter_pecha/features/recitation/data/models/recitation_model.dart';
 import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -54,21 +52,9 @@ class HomeShortcutsRow extends ConsumerWidget {
     });
   }
 
-  void _navigateToRecitation(BuildContext context, RecitationModel recitation) {
-    final navigationContext = NavigationContext(
-      source: NavigationSource.normal,
-    );
-    context.push('/reader/${recitation.textId}', extra: navigationContext);
-  }
-
   void _onChantsTap(BuildContext context, WidgetRef ref) {
     Navigator.of(context).push(
-      MaterialPageRoute(
-        builder:
-            (_) => AllRecitationsScreen(
-              onTap: (r) => _navigateToRecitation(context, r),
-            ),
-      ),
+      MaterialPageRoute(builder: (_) => const AllRecitationsScreen()),
     );
   }
 
