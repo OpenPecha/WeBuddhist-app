@@ -128,6 +128,21 @@ class MalaRepositoryImpl implements MalaRepository {
     }
   }
 
+  @override
+  Future<Either<Failure, Unit>> submitGroupAccumulatorCount({
+    required String groupAccumulatorId,
+    required int currentCount,
+  }) async {
+    try {
+      await remote.submitGroupCount(groupAccumulatorId, currentCount);
+      return const Right(unit);
+    } on AppException catch (e) {
+      return Left(_toFailure(e));
+    } catch (e) {
+      return Left(UnknownFailure('Failed to submit group count: $e'));
+    }
+  }
+
   Failure _toFailure(AppException e) {
     if (e is AuthenticationException) return AuthenticationFailure(e.message);
     if (e is NotFoundException) return NotFoundFailure(e.message);

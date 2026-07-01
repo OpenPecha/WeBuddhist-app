@@ -40,4 +40,13 @@ abstract class MalaRepository {
   Future<Either<Failure, List<AccumulatorGroup>>> getJoinedAccumulatorGroups(
     String accumulatorId,
   );
+
+  /// Submit the user's absolute count for a group accumulator
+  /// (`POST /group-accumulators/{group_accumulator_id}`, body
+  /// `{current_count}`). [groupAccumulatorId] is the UUID from
+  /// `AccumulatorGroup.groupAccumulatorId`, not `groupId`.
+  Future<Either<Failure, Unit>> submitGroupAccumulatorCount({
+    required String groupAccumulatorId,
+    required int currentCount,
+  });
 }

@@ -436,6 +436,12 @@ abstract class AppLocalizations {
   /// **'Groups'**
   String get mala_groups_section;
 
+  /// No description provided for @mala_group_untitled.
+  ///
+  /// In en, this message translates to:
+  /// **'Untitled group'**
+  String get mala_group_untitled;
+
   /// No description provided for @home_timer.
   ///
   /// In en, this message translates to:

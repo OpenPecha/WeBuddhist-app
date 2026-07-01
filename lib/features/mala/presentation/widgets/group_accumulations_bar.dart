@@ -35,6 +35,7 @@ class GroupAccumulationsBar extends ConsumerWidget {
         data: (groups) {
           if (groups.isEmpty) return const SizedBox.shrink();
           return _GroupAccumulationsBarContent(
+            presetId: presetId,
             groups: groups,
             userTotalCount: userTotalCount,
             avatarSize: _avatarSize,
@@ -50,12 +51,14 @@ class GroupAccumulationsBar extends ConsumerWidget {
 
 class _GroupAccumulationsBarContent extends StatelessWidget {
   const _GroupAccumulationsBarContent({
+    required this.presetId,
     required this.groups,
     required this.userTotalCount,
     required this.avatarSize,
     required this.avatarOverlap,
   });
 
+  final String presetId;
   final List<AccumulatorGroup> groups;
   final int userTotalCount;
   final double avatarSize;
@@ -78,8 +81,9 @@ class _GroupAccumulationsBarContent extends StatelessWidget {
           onTap:
               () => GroupAccumulationsSheet.show(
                 context,
+                presetId: presetId,
                 groups: groups,
-                userTotalCount: userTotalCount,
+                personalTotalCount: userTotalCount,
               ),
           child: Container(
             height: GroupAccumulationsBar.barHeight,

@@ -4,7 +4,12 @@ import 'package:flutter_pecha/core/analytics/analytics_providers.dart';
 import 'package:flutter_pecha/core/core.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
+import 'package:flutter_pecha/features/mala/domain/entities/accumulator_group.dart';
 import 'package:flutter_pecha/features/mala/domain/entities/mantra.dart';
+import 'package:flutter_pecha/features/mala/domain/entities/mala_accumulation_selection.dart';
+import 'package:flutter_pecha/features/mala/presentation/providers/accumulator_groups_provider.dart';
+import 'package:flutter_pecha/features/mala/presentation/providers/group_accumulation_counts_provider.dart';
+import 'package:flutter_pecha/features/mala/presentation/providers/mala_accumulation_selection_provider.dart';
 import 'package:flutter_pecha/features/mala/presentation/providers/mala_providers.dart';
 import 'package:flutter_pecha/features/mala/presentation/providers/mala_settings_provider.dart';
 import 'package:flutter_pecha/features/mala/presentation/widgets/group_accumulations_bar.dart';
@@ -129,6 +134,59 @@ class _MalaScreenState extends ConsumerState<MalaScreen> {
     final counter = ref.watch(malaCounterProvider(mantra));
     final notifier = ref.read(malaCounterProvider(mantra).notifier);
     final settings = ref.watch(malaSettingsProvider);
+    final selection = ref.watch(
+      malaAccumulationSelectionProvider(mantra.presetId),
+    );
+    final groupsAsync = ref.watch(
+      joinedAccumulatorGroupsProvider(mantra.presetId),
+    );
+    final groups = groupsAsync.valueOrNull ?? const <AccumulatorGroup>[];
+    ref.watch(groupAccumulationCountsProvider(mantra.presetId));
+    final groupCountsNotifier = ref.read(
+      groupAccumulationCountsProvider(mantra.presetId).notifier,
+    );
+
+    ref.listen(joinedAccumulatorGroupsProvider(mantra.presetId), (_, next) {
+      next.whenData((loadedGroups) {
+        groupCountsNotifier.mergeFromApi(loadedGroups);
+        ref
+            .read(malaAccumulationSelectionProvider(mantra.presetId).notifier)
+            .validateAgainst(loadedGroups);
+      });
+    });
+
+    final displayTotal = _displayTotal(
+      selection: selection,
+      personalTotal: counter.total,
+      groups: groups,
+      groupCountsNotifier: groupCountsNotifier,
+    );
+    final beadsPerRound = counter.beadsPerRound;
+    final displayBeadInRound = displayTotal % beadsPerRound;
+    final displayRounds = displayTotal ~/ beadsPerRound;
+    final countingEnabled =
+        !counter.isSeeding &&
+        (selection.isPersonal || selection.groupAccumulatorId != null);
+
+    void onBeadTap() {
+      if (counter.isSeeding) return;
+      if (selection.isPersonal) {
+        notifier.incrementBead(
+          soundEnabled: settings.soundEnabled,
+          vibrationEnabled: settings.vibrationEnabled,
+        );
+        return;
+      }
+      final groupId = selection.groupAccumulatorId;
+      if (groupId == null || groups.isEmpty) return;
+      groupCountsNotifier.increment(
+        groupAccumulatorId: groupId,
+        groups: groups,
+        soundEnabled: settings.soundEnabled,
+        vibrationEnabled: settings.vibrationEnabled,
+        beadsPerRound: beadsPerRound,
+      );
+    }
 
     return Column(
       children: [
@@ -163,9 +221,9 @@ class _MalaScreenState extends ConsumerState<MalaScreen> {
                 ),
                 const SizedBox(height: 16),
                 _CounterBlock(
-                  beadInRound: counter.beadInRound,
-                  beadsPerRound: counter.beadsPerRound,
-                  rounds: counter.rounds,
+                  beadInRound: displayBeadInRound,
+                  beadsPerRound: beadsPerRound,
+                  rounds: displayRounds,
                   dimmed: counter.isSeeding,
                 ),
                 const SizedBox(height: 8),
@@ -185,23 +243,20 @@ class _MalaScreenState extends ConsumerState<MalaScreen> {
                                     onRetry: notifier.seed,
                                   )
                                   : MalaBeads(
-                                    key: ValueKey(mantra.presetId),
-                                    total: counter.total,
-                                    beadInRound: counter.beadInRound,
-                                    beadsPerRound: counter.beadsPerRound,
-                                    enabled: !counter.isSeeding,
+                                    key: ValueKey(
+                                      '${mantra.presetId}_${selection.groupAccumulatorId ?? 'personal'}',
+                                    ),
+                                    total: displayTotal,
+                                    beadInRound: displayBeadInRound,
+                                    beadsPerRound: beadsPerRound,
+                                    enabled: countingEnabled,
                                     beadImageUrl:
                                         counter.beadImageUrl ??
                                         mantra.beadImageUrl,
                                     beadImageBytes: counter.beadImageBytes,
                                     beadColor: const Color(0xFF8D6E63),
                                     threadColor: const Color(0xFFC62828),
-                                    onTap:
-                                        () => notifier.incrementBead(
-                                          soundEnabled: settings.soundEnabled,
-                                          vibrationEnabled:
-                                              settings.vibrationEnabled,
-                                        ),
+                                    onTap: onBeadTap,
                                   ),
                         ),
                       );
@@ -219,6 +274,17 @@ class _MalaScreenState extends ConsumerState<MalaScreen> {
         ),
       ],
     );
+  }
+
+  int _displayTotal({
+    required MalaAccumulationSelection selection,
+    required int personalTotal,
+    required List<AccumulatorGroup> groups,
+    required GroupAccumulationCountsNotifier groupCountsNotifier,
+  }) {
+    final groupId = selection.groupAccumulatorId;
+    if (groupId == null || groups.isEmpty) return personalTotal;
+    return groupCountsNotifier.countFor(groupId, groups);
   }
 }
 

@@ -17,6 +17,7 @@ class AccumulatorGroup extends Equatable {
   final String groupId;
   final String? title;
   final ResponsiveImage? image;
+  /// User's total for this group accumulator (`user_total_count` from API).
   final int userTotalCount;
   final bool isJoined;
 

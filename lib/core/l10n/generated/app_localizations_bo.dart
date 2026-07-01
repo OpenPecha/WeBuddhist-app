@@ -200,6 +200,9 @@ class AppLocalizationsBo extends AppLocalizations {
   String get mala_groups_section => 'Groups';
 
   @override
+  String get mala_group_untitled => 'Untitled group';
+
+  @override
   String get home_timer => 'སྒོམ་ཐུན།';
 
   @override

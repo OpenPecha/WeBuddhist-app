@@ -61,6 +61,7 @@ fetched by authenticated users, so the catch-all is safe.
 | `POST` | `/accumulators/user` | Lazily create the user's accumulator (`{parent_id}`, starts at 0). |
 | `PUT` | `/accumulators/user/{id}` | Push the absolute `current_count`. |
 | `DELETE` | `/accumulators/user/{id}` | Soft-delete the active session accumulator (reset). |
+| `POST` | `/group-accumulators/{group_accumulator_id}` | Submit the user's absolute group count (`{current_count}`). Path param is `group_accumulator_id` from the groups list, not `group_id`. |
 
 `mala_image_url` appears at both the accumulator and mantra level; it drives the
 bead artwork (see below).
@@ -125,7 +126,14 @@ count stays at 0 even if the parent detail echoes a non-zero `current_count`.
 Hive box `mala_counts`, keys `userId:presetId`, value = JSON `LocalMalaState`
 (`total`, `syncedTotal`, `accumulatorId`, `beadImageUrl`). `isDirty =
 total > syncedTotal`. `pruneSynced` removes fully-synced entries (keeps dirty
-tails). Opened once in app bootstrap via `MalaLocalDataSource.init()`.
+tails).
+
+Group counts use a separate Hive box `mala_group_counts`, keys
+`userId:groupAccumulatorId`, value = JSON `LocalGroupMalaState` (`total`,
+`syncedTotal`). Same dirty model; flushed by [MalaSyncManager] via
+`POST /group-accumulators/{id}`.
+
+Opened once in app bootstrap via `MalaLocalDataSource.init()`.
 
 ## Bead artwork & caching
 
@@ -238,6 +246,13 @@ Entry point for group counting tied to the current preset. Fetched per mantra vi
   request resolves.
 - **Preview:** up to two overlapping circular avatars (28px, 10px overlap) plus
   a chevron. Tapping opens [GroupAccumulationsSheet] with the cached groups list.
+- **Selection:** [malaAccumulationSelectionProvider] persists the active source
+  per preset (`personal` or `group:{uuid}` in SharedPreferences). The mala
+  counter and bead arc display the selected total; taps increment personal or
+  group counts accordingly. Group counts are persisted locally per
+  `(userId, groupAccumulatorId)` and synced in the background by
+  [MalaSyncManager] (debounced tap flush, round-complete immediate flush,
+  lifecycle + reconnect), mirroring personal accumulation.
 - **Images:** group `image` is parsed as `ImageUrlModel` (`thumbnail` /
   `medium` / `original`) via `ImageModel.fromJsonMap()` and mapped to
   `ResponsiveImage` on the entity. Avatars render through `ResponsiveCoverImage`
@@ -257,11 +272,14 @@ and the user's personal count for the current preset (`MalaCounterState.total`).
 
 - **User row:** name and avatar from [userProvider] (local cache written at
   login; refreshes via `GET /users/info` when the sheet opens and no user is
-  cached yet). Count uses the on-screen mala total.
-- **Groups list:** each row shows group image, title, and `userTotalCount`
-  from the groups API response.
-- **Styling:** user name/count in `AppColors.blue` (light) /
-  `AppColors.blueDark` (dark); group rows use default on-surface text.
+  cached yet). Count shows the personal mala total. Tappable; selected row uses
+  `AppColors.blue` / `AppColors.blueDark`.
+- **Groups list:** each row shows group image, title, and count from
+  [groupAccumulationCountsProvider] (Hive + API reconcile via `max()`, local
+  increments on tap). Tappable; accent colour on the active row.
+- **Persistence:** selection survives app restarts via
+  `StorageKeys.malaAccumulationSelectionPrefix` + preset id. Invalid group ids
+  fall back to personal when the groups list reloads.
 
 ## Analytics
 
@@ -274,7 +292,8 @@ and the user's personal count for the current preset (`MalaCounterState.total`).
   offline-tail preservation, no-op while seeding, monotonic increment, round
   completion, fresh-install seed-at-0, `resetCount()` success/failure/mounted.
 - `mala_sync_manager_test.dart` — create-once-then-update, absolute-total PUT,
-  `max()` adoption, dirty-on-failure, logged-out no-op, per-user namespacing.
+  `max()` adoption, dirty-on-failure, logged-out no-op, per-user namespacing,
+  group count POST flush + dirty-on-failure.
 - `mala_beads_test.dart` — tap increments, right-to-left swipe increments,
   left-to-right doesn't, and disabled beads ignore both.
 

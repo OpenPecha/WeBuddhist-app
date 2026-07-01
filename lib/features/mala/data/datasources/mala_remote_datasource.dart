@@ -171,6 +171,29 @@ class MalaRemoteDataSource {
     }
   }
 
+  /// `POST /group-accumulators/{group_accumulator_id}` — submit absolute count.
+  ///
+  /// Body: `{ "current_count": <int> }` ([SubmitGroupCountRequest]).
+  /// Path param is [groupAccumulatorId] (`group_accumulator_id` from the groups
+  /// list API), not the parent `group_id`.
+  Future<void> submitGroupCount(
+    String groupAccumulatorId,
+    int currentCount,
+  ) async {
+    try {
+      final response = await dio.post(
+        '/group-accumulators/$groupAccumulatorId',
+        data: {'current_count': currentCount},
+      );
+      final status = response.statusCode;
+      if (status != null && status >= 200 && status < 300) return;
+      throw _statusToException(status, 'Failed to submit group count');
+    } on DioException catch (e) {
+      _logger.error('Dio error in submitGroupCount', e);
+      throw _dioToException(e, 'Failed to submit group count');
+    }
+  }
+
   Future<List<int>> fetchImageBytes(String url) async {
     try {
       final response = await dio.get<List<int>>(

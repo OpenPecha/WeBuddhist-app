@@ -8,23 +8,28 @@ import 'package:flutter_pecha/core/widgets/responsive_cover_image.dart';
 import 'package:flutter_pecha/features/auth/domain/entities/user.dart';
 import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
 import 'package:flutter_pecha/features/mala/domain/entities/accumulator_group.dart';
+import 'package:flutter_pecha/features/mala/presentation/providers/group_accumulation_counts_provider.dart';
+import 'package:flutter_pecha/features/mala/presentation/providers/mala_accumulation_selection_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
 class GroupAccumulationsSheet extends ConsumerStatefulWidget {
   const GroupAccumulationsSheet({
     super.key,
+    required this.presetId,
     required this.groups,
-    required this.userTotalCount,
+    required this.personalTotalCount,
   });
 
+  final String presetId;
   final List<AccumulatorGroup> groups;
-  final int userTotalCount;
+  final int personalTotalCount;
 
   static Future<void> show(
     BuildContext context, {
+    required String presetId,
     required List<AccumulatorGroup> groups,
-    required int userTotalCount,
+    required int personalTotalCount,
   }) {
     return showModalBottomSheet<void>(
       context: context,
@@ -33,8 +38,9 @@ class GroupAccumulationsSheet extends ConsumerStatefulWidget {
       useRootNavigator: true,
       builder:
           (_) => GroupAccumulationsSheet(
+            presetId: presetId,
             groups: groups,
-            userTotalCount: userTotalCount,
+            personalTotalCount: personalTotalCount,
           ),
     );
   }
@@ -52,8 +58,6 @@ class _GroupAccumulationsSheetState
     WidgetsBinding.instance.addPostFrameCallback((_) => _ensureUserLoaded());
   }
 
-  /// Profile is cached locally after login; refresh from GET /users/info when
-  /// the sheet opens and no cached user is available yet.
   void _ensureUserLoaded() {
     final userState = ref.read(userProvider);
     if (userState.user == null && !userState.isLoading) {
@@ -65,12 +69,15 @@ class _GroupAccumulationsSheetState
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final user = ref.watch(userProvider).user;
+    final selection = ref.watch(
+      malaAccumulationSelectionProvider(widget.presetId),
+    );
     final accentColor = isDark ? AppColors.blueDark : AppColors.blue;
     final dividerColor = isDark ? AppColors.cardBorderDark : AppColors.grey300;
     final locale = intlFormatLocaleOf(context);
-    final formattedUserCount = NumberFormat.decimalPattern(
-      locale,
-    ).format(widget.userTotalCount);
+    final countsNotifier = ref.read(
+      groupAccumulationCountsProvider(widget.presetId).notifier,
+    );
 
     return Container(
       decoration: BoxDecoration(
@@ -111,10 +118,23 @@ class _GroupAccumulationsSheetState
                 ),
               ),
               const SizedBox(height: 16),
-              _UserAccumulationRow(
-                user: user,
-                formattedCount: formattedUserCount,
+              _SelectableAccumulationRow(
+                isSelected: selection.isPersonal,
                 accentColor: accentColor,
+                onTap:
+                    () => ref
+                        .read(
+                          malaAccumulationSelectionProvider(
+                            widget.presetId,
+                          ).notifier,
+                        )
+                        .selectPersonal(),
+                leading: _UserAvatar(avatarUrl: user?.avatarUrl),
+                title:
+                    user != null ? _userDisplayName(user) : '—',
+                formattedCount: NumberFormat.decimalPattern(
+                  locale,
+                ).format(widget.personalTotalCount),
               ),
               const SizedBox(height: 12),
               Divider(height: 1, thickness: 1, color: dividerColor),
@@ -141,9 +161,34 @@ class _GroupAccumulationsSheetState
                         color: dividerColor,
                       ),
                   itemBuilder: (context, index) {
-                    return _GroupAccumulationRow(
-                      group: widget.groups[index],
-                      locale: locale,
+                    final group = widget.groups[index];
+                    final isSelected =
+                        selection.groupAccumulatorId ==
+                        group.groupAccumulatorId;
+                    final count = countsNotifier.countFor(
+                      group.groupAccumulatorId,
+                      widget.groups,
+                    );
+
+                    return _SelectableAccumulationRow(
+                      isSelected: isSelected,
+                      accentColor: accentColor,
+                      onTap:
+                          () => ref
+                              .read(
+                                malaAccumulationSelectionProvider(
+                                  widget.presetId,
+                                ).notifier,
+                              )
+                              .selectGroup(group.groupAccumulatorId),
+                      leading: _GroupAvatar(group: group),
+                      title:
+                          group.title?.trim().isNotEmpty == true
+                              ? group.title!.trim()
+                              : context.l10n.mala_group_untitled,
+                      formattedCount: NumberFormat.decimalPattern(
+                        locale,
+                      ).format(count),
                     );
                   },
                 ),
@@ -151,49 +196,6 @@ class _GroupAccumulationsSheetState
             ],
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _UserAccumulationRow extends StatelessWidget {
-  const _UserAccumulationRow({
-    required this.user,
-    required this.formattedCount,
-    required this.accentColor,
-  });
-
-  final User? user;
-  final String formattedCount;
-  final Color accentColor;
-
-  @override
-  Widget build(BuildContext context) {
-    final nameStyle = Theme.of(context).textTheme.bodyLarge?.copyWith(
-      color: accentColor,
-      fontWeight: FontWeight.w500,
-    );
-    final countStyle = Theme.of(context).textTheme.titleMedium?.copyWith(
-      color: accentColor,
-      fontWeight: FontWeight.w700,
-    );
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Row(
-        children: [
-          _UserAvatar(avatarUrl: user?.avatarUrl),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              user != null ? _userDisplayName(user!) : '—',
-              style: nameStyle,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-          Text(formattedCount, style: countStyle),
-        ],
       ),
     );
   }
@@ -209,6 +211,69 @@ class _UserAccumulationRow extends StatelessWidget {
   }
 }
 
+class _SelectableAccumulationRow extends StatelessWidget {
+  const _SelectableAccumulationRow({
+    required this.isSelected,
+    required this.accentColor,
+    required this.onTap,
+    required this.leading,
+    required this.title,
+    required this.formattedCount,
+  });
+
+  final bool isSelected;
+  final Color accentColor;
+  final VoidCallback onTap;
+  final Widget leading;
+  final String title;
+  final String formattedCount;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final nameColor =
+        isSelected ? accentColor : theme.colorScheme.onSurface;
+    final countColor =
+        isSelected ? accentColor : theme.colorScheme.onSurface;
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              leading,
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  title,
+                  style: theme.textTheme.bodyLarge?.copyWith(
+                    color: nameColor,
+                    fontWeight: FontWeight.w500,
+                  ),
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Text(
+                formattedCount,
+                style: theme.textTheme.titleMedium?.copyWith(
+                  color: countColor,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class _UserAvatar extends StatelessWidget {
   const _UserAvatar({this.avatarUrl});
 
@@ -218,7 +283,8 @@ class _UserAvatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final fallbackColor = Theme.of(context).colorScheme.surfaceContainerHighest;
+    final fallbackColor =
+        Theme.of(context).colorScheme.surfaceContainerHighest;
 
     return ClipOval(
       child: SizedBox(
@@ -245,69 +311,39 @@ class _UserAvatar extends StatelessWidget {
   }
 }
 
-class _GroupAccumulationRow extends StatelessWidget {
-  const _GroupAccumulationRow({required this.group, required this.locale});
+class _GroupAvatar extends StatelessWidget {
+  const _GroupAvatar({required this.group});
 
   final AccumulatorGroup group;
-  final String locale;
 
-  static const _avatarSize = 40.0;
+  static const _size = 40.0;
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final placeholderColor =
         isDark ? AppColors.surfaceVariantDark : AppColors.grey100;
-    final formattedCount = NumberFormat.decimalPattern(
-      locale,
-    ).format(group.userTotalCount);
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          ClipOval(
-            child: SizedBox(
-              width: _avatarSize,
-              height: _avatarSize,
-              child:
-                  group.image != null && !group.image!.isEmpty
-                      ? ResponsiveCoverImage(
-                        image: group.image,
-                        width: _avatarSize,
-                        height: _avatarSize,
-                        fit: BoxFit.cover,
-                      )
-                      : ColoredBox(
-                        color: placeholderColor,
-                        child: Icon(
-                          AppAssets.usersThree,
-                          size: 22,
-                          color: isDark ? AppColors.grey500 : AppColors.grey600,
-                        ),
-                      ),
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              group.title!.trim(),
-              style: Theme.of(
-                context,
-              ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w500),
-              maxLines: 3,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-          const SizedBox(width: 12),
-          Text(
-            formattedCount,
-            style: Theme.of(
-              context,
-            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
-          ),
-        ],
+    return ClipOval(
+      child: SizedBox(
+        width: _size,
+        height: _size,
+        child:
+            group.image != null && !group.image!.isEmpty
+                ? ResponsiveCoverImage(
+                  image: group.image,
+                  width: _size,
+                  height: _size,
+                  fit: BoxFit.cover,
+                )
+                : ColoredBox(
+                  color: placeholderColor,
+                  child: Icon(
+                    AppAssets.usersThree,
+                    size: 22,
+                    color: isDark ? AppColors.grey500 : AppColors.grey600,
+                  ),
+                ),
       ),
     );
   }
