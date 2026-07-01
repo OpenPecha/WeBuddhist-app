@@ -508,17 +508,11 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
       accumulatorId: accumulator.id,
       groupId: profile.id,
       group: profile,
+      awaitRefresh: false,
     );
 
     if (!mounted) return;
-    setState(() {
-      _joiningAccumulatorId = null;
-      if (ok) {
-        ref
-            .read(groupAccumulatorJoinCacheProvider(profile.id).notifier)
-            .markJoined(accumulator.id);
-      }
-    });
+    setState(() => _joiningAccumulatorId = null);
 
     if (ok) {
       _navigateToAccumulatorDetail(accumulator.id);

@@ -69,41 +69,45 @@ class GroupAccumulatorCard extends StatelessWidget {
                         ),
                       ),
                   if (showJoinOverlay)
-                    Container(
-                      color: Colors.black.withValues(alpha: 0.55),
-                      alignment: Alignment.center,
-                      child:
-                          isJoining
-                              ? const SizedBox(
-                                width: 24,
-                                height: 24,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  color: Colors.white,
-                                ),
-                              )
-                              : GestureDetector(
-                                behavior: HitTestBehavior.opaque,
-                                onTap: onJoinTap,
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 24,
-                                    vertical: 12,
-                                  ),
-                                  decoration: BoxDecoration(
+                    GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: isJoining ? null : onTap,
+                      child: Container(
+                        color: Colors.black.withValues(alpha: 0.55),
+                        alignment: Alignment.center,
+                        child:
+                            isJoining
+                                ? const SizedBox(
+                                  width: 24,
+                                  height: 24,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
                                     color: Colors.white,
-                                    borderRadius: BorderRadius.circular(999),
                                   ),
-                                  child: Text(
-                                    context.l10n.group_join_to_contribute,
-                                    style: const TextStyle(
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.w700,
-                                      color: AppColors.textPrimary,
+                                )
+                                : GestureDetector(
+                                  behavior: HitTestBehavior.opaque,
+                                  onTap: onJoinTap,
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 24,
+                                      vertical: 12,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(999),
+                                    ),
+                                    child: Text(
+                                      context.l10n.group_join_to_contribute,
+                                      style: const TextStyle(
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.w700,
+                                        color: AppColors.textPrimary,
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
+                      ),
                     ),
                 ],
               ),

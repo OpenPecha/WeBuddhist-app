@@ -237,6 +237,7 @@ Future<bool> joinGroupAccumulator({
   required String accumulatorId,
   required String groupId,
   GroupProfile? group,
+  bool awaitRefresh = true,
 }) async {
   final repository = ref.read(groupAccumulatorRepositoryProvider);
   final result = await repository.joinGroupAccumulator(accumulatorId);
@@ -266,7 +267,7 @@ Future<bool> joinGroupAccumulator({
   ref.invalidate(groupAccumulatorsProvider(groupId));
   ref.invalidate(groupAccumulatorDetailProvider(accumulatorId));
 
-  await Future.wait([
+  final refreshFuture = Future.wait([
     ref.read(groupAccumulatorDetailProvider(accumulatorId).future),
     ref.read(groupAccumulatorsProvider(groupId).future),
     ref
@@ -277,6 +278,10 @@ Future<bool> joinGroupAccumulator({
         )
         .loadInitial(force: true),
   ]);
+
+  if (awaitRefresh) {
+    await refreshFuture;
+  }
 
   return true;
 }
