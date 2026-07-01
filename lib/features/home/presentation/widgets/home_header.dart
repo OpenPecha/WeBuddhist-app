@@ -128,7 +128,7 @@ class _Greeting extends StatelessWidget {
       width: maxWidth,
       child: _buildLine(
         context: context,
-        text: withTibetanLineBreakOpportunities(greeting),
+        text: greeting,
         style: greetingStyle,
         fontSize: greetingFontSize,
       ),

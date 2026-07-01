@@ -126,7 +126,10 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (!_isCommunityGroup(profile) && _hasBanner(profile)) ...[
-          _buildProfileBanner(profile, isDark),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 14),
+            child: _buildProfileBanner(profile, isDark),
+          ),
           const SizedBox(height: 16),
         ],
         _buildProfileHeader(profile, isDark, lineHeight),
