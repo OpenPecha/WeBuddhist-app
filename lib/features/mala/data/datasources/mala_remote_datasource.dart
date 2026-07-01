@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_pecha/core/error/exceptions.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
+import 'package:flutter_pecha/features/mala/data/models/accumulator_group_model.dart';
 import 'package:flutter_pecha/features/mala/data/models/accumulator_model.dart';
 
 class MalaRemoteDataSource {
@@ -51,6 +52,31 @@ class MalaRemoteDataSource {
     } on DioException catch (e) {
       _logger.error('Dio error in fetchPresets', e);
       throw _dioToException(e, 'Failed to load presets');
+    }
+  }
+
+  /// `GET /accumulators/{accumulator_id}/groups` — groups using this preset.
+  Future<List<AccumulatorGroupModel>> fetchAccumulatorGroups(
+    String accumulatorId, {
+    bool joinedOnly = false,
+  }) async {
+    try {
+      final response = await dio.get(
+        '/accumulators/$accumulatorId/groups',
+        queryParameters: {'joined_only': joinedOnly},
+      );
+      if (response.statusCode == 200) {
+        return AccumulatorGroupsResponseModel.fromJson(
+          response.data as Map<String, dynamic>,
+        ).groups;
+      }
+      throw _statusToException(
+        response.statusCode,
+        'Failed to load accumulator groups',
+      );
+    } on DioException catch (e) {
+      _logger.error('Dio error in fetchAccumulatorGroups', e);
+      throw _dioToException(e, 'Failed to load accumulator groups');
     }
   }
 
@@ -142,6 +168,29 @@ class MalaRemoteDataSource {
     } on DioException catch (e) {
       _logger.error('Dio error in deleteUserAccumulator', e);
       throw _dioToException(e, 'Failed to delete accumulator');
+    }
+  }
+
+  /// `POST /group-accumulators/{group_accumulator_id}` — submit absolute count.
+  ///
+  /// Body: `{ "current_count": <int> }` ([SubmitGroupCountRequest]).
+  /// Path param is [groupAccumulatorId] (`group_accumulator_id` from the groups
+  /// list API), not the parent `group_id`.
+  Future<void> submitGroupCount(
+    String groupAccumulatorId,
+    int currentCount,
+  ) async {
+    try {
+      final response = await dio.post(
+        '/group-accumulators/$groupAccumulatorId',
+        data: {'current_count': currentCount},
+      );
+      final status = response.statusCode;
+      if (status != null && status >= 200 && status < 300) return;
+      throw _statusToException(status, 'Failed to submit group count');
+    } on DioException catch (e) {
+      _logger.error('Dio error in submitGroupCount', e);
+      throw _dioToException(e, 'Failed to submit group count');
     }
   }
 

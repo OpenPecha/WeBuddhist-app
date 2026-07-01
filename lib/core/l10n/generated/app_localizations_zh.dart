@@ -183,6 +183,15 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
+  String get mala_group_accumulations => 'Group accumulations';
+
+  @override
+  String get mala_groups_section => 'Groups';
+
+  @override
+  String get mala_group_untitled => 'Untitled group';
+
+  @override
   String get home_timer => '計時';
 
   @override

@@ -1,5 +1,6 @@
 import 'package:fpdart/fpdart.dart';
 import 'package:flutter_pecha/core/error/failures.dart';
+import 'package:flutter_pecha/features/mala/domain/entities/accumulator_group.dart';
 import 'package:flutter_pecha/features/mala/domain/entities/mala_count.dart';
 import 'package:flutter_pecha/features/mala/domain/entities/mantra.dart';
 
@@ -33,4 +34,19 @@ abstract class MalaRepository {
   /// Used when resetting the on-screen session while preserving lifetime totals
   /// on the deleted record server-side.
   Future<Either<Failure, Unit>> deleteUserAccumulator(String accumulatorId);
+
+  /// Joined group accumulators for a preset
+  /// (`GET /accumulators/{accumulator_id}/groups?joined_only=true`).
+  Future<Either<Failure, List<AccumulatorGroup>>> getJoinedAccumulatorGroups(
+    String accumulatorId,
+  );
+
+  /// Submit the user's absolute count for a group accumulator
+  /// (`POST /group-accumulators/{group_accumulator_id}`, body
+  /// `{current_count}`). [groupAccumulatorId] is the UUID from
+  /// `AccumulatorGroup.groupAccumulatorId`, not `groupId`.
+  Future<Either<Failure, Unit>> submitGroupAccumulatorCount({
+    required String groupAccumulatorId,
+    required int currentCount,
+  });
 }

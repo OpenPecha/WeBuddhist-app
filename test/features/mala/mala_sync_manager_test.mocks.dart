@@ -101,3 +101,28 @@ class MockDeleteUserAccumulatorUseCase extends _i1.Mock
           )
           as _i3.Future<_i4.Either<_i5.Failure, _i4.Unit>>);
 }
+
+/// A class which mocks [SubmitGroupAccumulatorCountUseCase].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockSubmitGroupAccumulatorCountUseCase extends _i1.Mock
+    implements _i2.SubmitGroupAccumulatorCountUseCase {
+  MockSubmitGroupAccumulatorCountUseCase() {
+    _i1.throwOnMissingStub(this);
+  }
+
+  @override
+  _i3.Future<_i4.Either<_i5.Failure, _i4.Unit>> call(
+    _i2.SubmitGroupAccumulatorCountParams? params,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#call, [params]),
+            returnValue: _i3.Future<_i4.Either<_i5.Failure, _i4.Unit>>.value(
+              _i7.dummyValue<_i4.Either<_i5.Failure, _i4.Unit>>(
+                this,
+                Invocation.method(#call, [params]),
+              ),
+            ),
+          )
+          as _i3.Future<_i4.Either<_i5.Failure, _i4.Unit>>);
+}
