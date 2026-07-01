@@ -40,6 +40,7 @@ presentation/
     mala_beads.dart               the tappable bead-arc CustomPainter
     mantra_switcher.dart          infinite looping carousel (swipe + ‹ › chevrons)
     group_accumulations_bar.dart  joined-group pill with overlapping avatars
+    group_accumulations_sheet.dart  group accumulations bottom sheet
     mala_settings_sheet.dart      sound/vibration, reset, bookmark, add accumulation
     mala_skeleton.dart            loading placeholder
 ```
@@ -236,7 +237,7 @@ Entry point for group counting tied to the current preset. Fetched per mantra vi
   (`GroupAccumulationsBar.barHeight`) so the bead arc does not jump when the
   request resolves.
 - **Preview:** up to two overlapping circular avatars (28px, 10px overlap) plus
-  a chevron. Tap handler is stubbed for future detail navigation.
+  a chevron. Tapping opens [GroupAccumulationsSheet] with the cached groups list.
 - **Images:** group `image` is parsed as `ImageUrlModel` (`thumbnail` /
   `medium` / `original`) via `ImageModel.fromJsonMap()` and mapped to
   `ResponsiveImage` on the entity. Avatars render through `ResponsiveCoverImage`
@@ -248,6 +249,19 @@ Entry point for group counting tied to the current preset. Fetched per mantra vi
 
 On API failure the provider returns an empty list (bar stays hidden, slot
 reserved).
+
+## Group accumulations sheet (`GroupAccumulationsSheet`)
+
+Opened from the bar pill. Receives the already-fetched [AccumulatorGroup] list
+and the user's personal count for the current preset (`MalaCounterState.total`).
+
+- **User row:** name and avatar from [userProvider] (local cache written at
+  login; refreshes via `GET /users/info` when the sheet opens and no user is
+  cached yet). Count uses the on-screen mala total.
+- **Groups list:** each row shows group image, title, and `userTotalCount`
+  from the groups API response.
+- **Styling:** user name/count in `AppColors.blue` (light) /
+  `AppColors.blueDark` (dark); group rows use default on-surface text.
 
 ## Analytics
 

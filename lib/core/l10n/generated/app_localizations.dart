@@ -424,6 +424,18 @@ abstract class AppLocalizations {
   /// **'Count {bead} of {total}, {rounds}'**
   String mala_counter_semantics(int bead, int total, String rounds);
 
+  /// No description provided for @mala_group_accumulations.
+  ///
+  /// In en, this message translates to:
+  /// **'Group accumulations'**
+  String get mala_group_accumulations;
+
+  /// No description provided for @mala_groups_section.
+  ///
+  /// In en, this message translates to:
+  /// **'Groups'**
+  String get mala_groups_section;
+
   /// No description provided for @home_timer.
   ///
   /// In en, this message translates to:

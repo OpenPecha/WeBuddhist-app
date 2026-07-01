@@ -209,7 +209,10 @@ class _MalaScreenState extends ConsumerState<MalaScreen> {
                   ),
                 ),
                 const SizedBox(height: 12),
-                GroupAccumulationsBar(presetId: mantra.presetId),
+                GroupAccumulationsBar(
+                  presetId: mantra.presetId,
+                  userTotalCount: counter.total,
+                ),
               ],
             ),
           ),

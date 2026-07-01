@@ -193,6 +193,12 @@ class AppLocalizationsNe extends AppLocalizations {
   }
 
   @override
+  String get mala_group_accumulations => 'Group accumulations';
+
+  @override
+  String get mala_groups_section => 'Groups';
+
+  @override
   String get home_timer => 'टाइमर';
 
   @override

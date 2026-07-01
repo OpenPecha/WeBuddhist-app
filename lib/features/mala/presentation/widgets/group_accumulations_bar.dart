@@ -3,6 +3,7 @@ import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/core/widgets/responsive_cover_image.dart';
 import 'package:flutter_pecha/features/mala/domain/entities/accumulator_group.dart';
 import 'package:flutter_pecha/features/mala/presentation/providers/accumulator_groups_provider.dart';
+import 'package:flutter_pecha/features/mala/presentation/widgets/group_accumulations_sheet.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Pill entry point for group accumulations on the mala screen.
@@ -11,9 +12,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// request resolves. The pill is shown only when
 /// `GET /accumulators/{presetId}/groups?joined_only=true` returns groups.
 class GroupAccumulationsBar extends ConsumerWidget {
-  const GroupAccumulationsBar({super.key, required this.presetId});
+  const GroupAccumulationsBar({
+    super.key,
+    required this.presetId,
+    required this.userTotalCount,
+  });
 
   final String presetId;
+  final int userTotalCount;
 
   static const barHeight = 40.0;
   static const _avatarSize = 28.0;
@@ -30,6 +36,7 @@ class GroupAccumulationsBar extends ConsumerWidget {
           if (groups.isEmpty) return const SizedBox.shrink();
           return _GroupAccumulationsBarContent(
             groups: groups,
+            userTotalCount: userTotalCount,
             avatarSize: _avatarSize,
             avatarOverlap: _avatarOverlap,
           );
@@ -44,11 +51,13 @@ class GroupAccumulationsBar extends ConsumerWidget {
 class _GroupAccumulationsBarContent extends StatelessWidget {
   const _GroupAccumulationsBarContent({
     required this.groups,
+    required this.userTotalCount,
     required this.avatarSize,
     required this.avatarOverlap,
   });
 
   final List<AccumulatorGroup> groups;
+  final int userTotalCount;
   final double avatarSize;
   final double avatarOverlap;
 
@@ -66,9 +75,12 @@ class _GroupAccumulationsBarContent extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         child: InkWell(
           borderRadius: BorderRadius.circular(20),
-          onTap: () {
-            // Group accumulations detail navigation will be wired separately.
-          },
+          onTap:
+              () => GroupAccumulationsSheet.show(
+                context,
+                groups: groups,
+                userTotalCount: userTotalCount,
+              ),
           child: Container(
             height: GroupAccumulationsBar.barHeight,
             padding: const EdgeInsets.fromLTRB(6, 6, 8, 6),
