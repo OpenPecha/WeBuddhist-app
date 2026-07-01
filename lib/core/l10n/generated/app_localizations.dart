@@ -511,7 +511,7 @@ abstract class AppLocalizations {
   /// No description provided for @nav_practice.
   ///
   /// In en, this message translates to:
-  /// **'Practice'**
+  /// **'Practices'**
   String get nav_practice;
 
   /// No description provided for @nav_settings.
