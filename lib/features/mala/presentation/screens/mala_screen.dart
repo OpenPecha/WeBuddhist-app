@@ -131,6 +131,7 @@ class _MalaScreenState extends ConsumerState<MalaScreen> {
     );
 
     final language = Localizations.localeOf(context).languageCode;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final counter = ref.watch(malaCounterProvider(mantra));
     final notifier = ref.read(malaCounterProvider(mantra).notifier);
     final settings = ref.watch(malaSettingsProvider);
@@ -204,7 +205,10 @@ class _MalaScreenState extends ConsumerState<MalaScreen> {
                   flex: 36,
                   child: DecoratedBox(
                     decoration: BoxDecoration(
-                      color: AppColors.surfaceWhite,
+                      color:
+                          isDark
+                              ? const Color(0xCC454545)
+                              : AppColors.surfaceWhite,
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: ClipRRect(
