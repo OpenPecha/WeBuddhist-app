@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/analytics/analytics_events.dart';
 import 'package:flutter_pecha/core/analytics/analytics_providers.dart';
 import 'package:flutter_pecha/core/core.dart';
+import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/features/mala/domain/entities/mantra.dart';
 import 'package:flutter_pecha/features/mala/presentation/providers/mala_providers.dart';
@@ -136,80 +137,149 @@ class _MalaScreenState extends ConsumerState<MalaScreen> {
         ),
         Expanded(
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24),
+            padding: const EdgeInsets.fromLTRB(24, 0, 24, 16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // Mantra + transliteration switcher: 40% of the space below
-                // the header. An infinite looping carousel — swipe or tap the
-                // chevrons; the text is centered between them.
                 Expanded(
-                  flex: 40,
-                  child: MantraSwitcher(
-                    mantras: mantras,
-                    language: language,
-                    tibetanFontFamily: AppConfig.tibetanContentFont,
-                    index: _index,
-                    onIndexChanged: (next) => _switch(mantras, next),
+                  flex: 36,
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: AppColors.surfaceWhite,
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(16),
+                      child: MantraSwitcher(
+                        mantras: mantras,
+                        language: language,
+                        tibetanFontFamily: AppConfig.tibetanContentFont,
+                        index: _index,
+                        onIndexChanged: (next) => _switch(mantras, next),
+                      ),
+                    ),
                   ),
                 ),
-                // Counter + bead arc: the remaining 60%.
+                const SizedBox(height: 16),
+                _CounterBlock(
+                  beadInRound: counter.beadInRound,
+                  beadsPerRound: counter.beadsPerRound,
+                  rounds: counter.rounds,
+                  dimmed: counter.isSeeding,
+                ),
+                const SizedBox(height: 8),
                 Expanded(
-                  flex: 60,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      // Counter block (left-aligned).
-                      _CounterBlock(
-                        beadInRound: counter.beadInRound,
-                        beadsPerRound: counter.beadsPerRound,
-                        rounds: counter.rounds,
-                        dimmed: counter.isSeeding,
-                      ),
-                      const SizedBox(height: 16),
-                      // Bead arc.
-                      Expanded(
-                        child:
-                            counter.seedFailed
-                                ? _ErrorView(
-                                  message: 'Could not load your count',
-                                  onRetry: notifier.seed,
-                                )
-                                : MalaBeads(
-                                  // Per-mantra identity: switching mantras gives
-                                  // a fresh state (no carried-over slide), so the
-                                  // strand snaps to the new count instead of
-                                  // animating between mantras.
-                                  key: ValueKey(mantra.presetId),
-                                  total: counter.total,
-                                  beadInRound: counter.beadInRound,
-                                  beadsPerRound: counter.beadsPerRound,
-                                  enabled: !counter.isSeeding,
-                                  // Per-user image from the accumulator detail
-                                  // wins; fall back to the preset's image.
-                                  beadImageUrl:
-                                      counter.beadImageUrl ??
-                                      mantra.beadImageUrl,
-                                  beadImageBytes: counter.beadImageBytes,
-                                  beadColor: const Color(0xFF8D6E63),
-                                  threadColor: const Color(0xFFC62828),
-                                  onTap:
-                                      () => notifier.incrementBead(
-                                        soundEnabled: settings.soundEnabled,
-                                        vibrationEnabled:
-                                            settings.vibrationEnabled,
-                                      ),
-                                ),
-                      ),
-                      const SizedBox(height: 24),
-                    ],
+                  flex: 42,
+                  child: LayoutBuilder(
+                    builder: (context, constraints) {
+                      return Align(
+                        alignment: Alignment.topCenter,
+                        child: SizedBox(
+                          height: constraints.maxHeight * 0.85,
+                          width: double.infinity,
+                          child:
+                              counter.seedFailed
+                                  ? _ErrorView(
+                                    message: 'Could not load your count',
+                                    onRetry: notifier.seed,
+                                  )
+                                  : MalaBeads(
+                                    key: ValueKey(mantra.presetId),
+                                    total: counter.total,
+                                    beadInRound: counter.beadInRound,
+                                    beadsPerRound: counter.beadsPerRound,
+                                    enabled: !counter.isSeeding,
+                                    beadImageUrl:
+                                        counter.beadImageUrl ??
+                                        mantra.beadImageUrl,
+                                    beadImageBytes: counter.beadImageBytes,
+                                    beadColor: const Color(0xFF8D6E63),
+                                    threadColor: const Color(0xFFC62828),
+                                    onTap:
+                                        () => notifier.incrementBead(
+                                          soundEnabled: settings.soundEnabled,
+                                          vibrationEnabled:
+                                              settings.vibrationEnabled,
+                                        ),
+                                  ),
+                        ),
+                      );
+                    },
                   ),
                 ),
+                const SizedBox(height: 12),
+                const _GroupAccumulationsBar(),
               ],
             ),
           ),
         ),
       ],
+    );
+  }
+}
+
+class _GroupAccumulationsBar extends StatelessWidget {
+  const _GroupAccumulationsBar();
+
+  static const _avatarSize = 28.0;
+  static const _avatarOverlap = 10.0;
+
+  @override
+  Widget build(BuildContext context) {
+    final iconColor = Theme.of(context).colorScheme.onSurfaceVariant;
+
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: Container(
+        height: 40,
+        padding: const EdgeInsets.fromLTRB(6, 6, 8, 6),
+        decoration: BoxDecoration(
+          color: AppColors.grey100,
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SizedBox(
+              width: _avatarSize + _avatarOverlap,
+              height: _avatarSize,
+              child: Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  Positioned(
+                    left: 0,
+                    child: _GroupAvatarPlaceholder(size: _avatarSize),
+                  ),
+                  Positioned(
+                    left: _avatarOverlap,
+                    child: _GroupAvatarPlaceholder(size: _avatarSize),
+                  ),
+                ],
+              ),
+            ),
+            Icon(Icons.chevron_right, size: 20, color: iconColor),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _GroupAvatarPlaceholder extends StatelessWidget {
+  const _GroupAvatarPlaceholder({required this.size});
+
+  final double size;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: Theme.of(context).colorScheme.surfaceContainerHighest,
+        border: Border.all(color: AppColors.surfaceWhite, width: 1.5),
+      ),
     );
   }
 }
