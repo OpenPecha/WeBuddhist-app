@@ -231,7 +231,7 @@ class _ReaderMoreBottomSheetState extends ConsumerState<ReaderMoreBottomSheet> {
                       ),
                     )
                     : Icon(Icons.share, color: theme.colorScheme.onSurface),
-            title: Text('Share', style: theme.textTheme.bodyLarge),
+            title: Text(l10n.share, style: theme.textTheme.bodyLarge),
             onTap: () {
               HapticFeedback.lightImpact();
               _share();
