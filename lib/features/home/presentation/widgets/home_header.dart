@@ -19,7 +19,9 @@ import 'package:go_router/go_router.dart';
 class HomeTabAppBar extends ConsumerWidget implements PreferredSizeWidget {
   const HomeTabAppBar({super.key});
 
-  static const double toolbarHeight = 58;
+  /// Tall enough for two-line Tibetan greetings without clipping ascenders.
+  static const double toolbarHeight = 70;
+  static const double tibetanGreetingTopPadding = 6;
   static const double _actionsReserveWidth = 148;
 
   @override
@@ -29,6 +31,8 @@ class HomeTabAppBar extends ConsumerWidget implements PreferredSizeWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(userProvider).user;
     final firstName = user?.firstName ?? user?.username;
+    final hasName = firstName?.isNotEmpty ?? false;
+    final isTibetanGreeting = context.isTibetanLocale && hasName;
 
     final streakCount = ref
         .watch(streakFutureProvider)
@@ -38,9 +42,11 @@ class HomeTabAppBar extends ConsumerWidget implements PreferredSizeWidget {
         );
 
     return MainTabAppBar(
-      toolbarHeight: HomeTabAppBar.toolbarHeight,
+      toolbarHeight: toolbarHeight,
       titleWidget: _Greeting(
         firstName: firstName,
+        toolbarHeight: toolbarHeight,
+        alignToBottom: isTibetanGreeting,
         maxWidth:
             MediaQuery.sizeOf(context).width -
             MainTabAppBar.titleSpacing -
@@ -91,21 +97,81 @@ class HomeEventBanner extends ConsumerWidget {
 }
 
 class _Greeting extends StatelessWidget {
-  const _Greeting({required this.firstName, required this.maxWidth});
+  const _Greeting({
+    required this.firstName,
+    required this.maxWidth,
+    required this.toolbarHeight,
+    this.alignToBottom = false,
+  });
 
   final String? firstName;
   final double maxWidth;
+  final double toolbarHeight;
+  final bool alignToBottom;
 
   Widget _buildLine({
     required BuildContext context,
     required String text,
     required TextStyle style,
     required double fontSize,
+    int maxLines = 1,
   }) {
     return Text.rich(
       TextSpan(text: text, style: style),
-      strutStyle: context.tibetanStrutStyle(fontSize),
+      strutStyle: context.tibetanStrutStyle(fontSize, compact: true),
       softWrap: true,
+      maxLines: maxLines,
+      overflow: TextOverflow.clip,
+    );
+  }
+
+  Widget _buildGreetingContent({
+    required BuildContext context,
+    required TextStyle greetingStyle,
+    required double greetingFontSize,
+    required String prefix,
+    required String helloPrefix,
+    required String? displayName,
+  }) {
+    final formattedName =
+        displayName != null
+            ? withDisplayLineBreakOpportunities(displayName)
+            : null;
+
+    if (context.isTibetanLocale) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _buildLine(
+            context: context,
+            text: withTibetanLineBreakOpportunities(prefix),
+            style: greetingStyle,
+            fontSize: greetingFontSize,
+          ),
+          if (formattedName != null) ...[
+            const SizedBox(height: 2),
+            _buildLine(
+              context: context,
+              text: formattedName,
+              style: greetingStyle,
+              fontSize: greetingFontSize,
+            ),
+          ],
+        ],
+      );
+    }
+
+    final greeting =
+        formattedName != null ? '$helloPrefix$formattedName' : prefix;
+
+    return _buildLine(
+      context: context,
+      text: greeting,
+      style: greetingStyle,
+      fontSize: greetingFontSize,
+      maxLines: 2,
     );
   }
 
@@ -114,23 +180,36 @@ class _Greeting extends StatelessWidget {
     final localizations = AppLocalizations.of(context)!;
     final colorScheme = Theme.of(context).colorScheme;
     final greetingFontSize = getLocalizedFontSize(AppTextSize.titleLarge);
-    final greetingStyle = MainTabAppBar.titleStyle(context).copyWith(
-      color: colorScheme.onSurface,
-      height: getLineHeight(Localizations.localeOf(context).languageCode),
+    final greetingStyle = MainTabAppBar.titleStyle(
+      context,
+    ).copyWith(color: colorScheme.onSurface);
+    final helloPrefix = localizations.home_hello_prefix;
+    final prefix = helloPrefix.trim();
+    final displayName = firstName?.isNotEmpty == true ? firstName : null;
+
+    final greetingContent = _buildGreetingContent(
+      context: context,
+      greetingStyle: greetingStyle,
+      greetingFontSize: greetingFontSize,
+      prefix: prefix,
+      helloPrefix: helloPrefix,
+      displayName: displayName,
     );
-    final prefix = localizations.home_hello_prefix.trim();
-    final greeting =
-        firstName != null && firstName!.isNotEmpty
-            ? '${localizations.home_hello_prefix}$firstName'
-            : prefix;
 
     return SizedBox(
       width: maxWidth,
-      child: _buildLine(
-        context: context,
-        text: greeting,
-        style: greetingStyle,
-        fontSize: greetingFontSize,
+      height: toolbarHeight,
+      child: Align(
+        alignment: alignToBottom ? Alignment.bottomLeft : Alignment.centerLeft,
+        child: Padding(
+          padding: EdgeInsets.only(
+            top:
+                context.isTibetanLocale
+                    ? HomeTabAppBar.tibetanGreetingTopPadding
+                    : 0,
+          ),
+          child: greetingContent,
+        ),
       ),
     );
   }
