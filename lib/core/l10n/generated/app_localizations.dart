@@ -532,6 +532,12 @@ abstract class AppLocalizations {
   /// **'Me'**
   String get nav_me;
 
+  /// No description provided for @tab_practices.
+  ///
+  /// In en, this message translates to:
+  /// **'Practices'**
+  String get tab_practices;
+
   /// No description provided for @text_search.
   ///
   /// In en, this message translates to:

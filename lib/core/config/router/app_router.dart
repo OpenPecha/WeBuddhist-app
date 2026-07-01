@@ -122,6 +122,16 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         redirect: (_, __) => AppRoutes.home,
       ),
 
+      // Compatibility fallback for series deep links delivered directly to
+      // go_router instead of through AppLinksDeepLinkService.
+      GoRoute(
+        path: '/open/series/:seriesId',
+        name: 'open-series',
+        redirect: (_, state) {
+          final seriesId = state.pathParameters['seriesId'] ?? '';
+          return '/home/series/$seriesId';
+        },
+      ),
       // Compatibility fallback in case a platform sends the first-party app
       // link directly to go_router instead of through AppLinksDeepLinkService.
       GoRoute(
@@ -499,7 +509,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         },
       ),
 
-      // plan text route - inline TEXT subtasks (sibling to /reader)
+      // plan content route - inline TEXT/IMAGE subtasks (sibling to /reader)
       GoRoute(
         path: "/plan-text/:subtaskId",
         name: "plan-text",

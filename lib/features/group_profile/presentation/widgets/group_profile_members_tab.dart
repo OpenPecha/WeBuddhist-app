@@ -227,8 +227,6 @@ class _GroupMemberRow extends StatelessWidget {
                           ? CachedNetworkImageWidget(
                             key: ValueKey(member.avatarUrl),
                             imageUrl: member.avatarUrl,
-                            width: 44,
-                            height: 44,
                             fit: BoxFit.cover,
                             errorWidget: _buildAvatarFallback(isDark),
                           )

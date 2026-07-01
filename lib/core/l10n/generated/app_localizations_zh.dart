@@ -239,6 +239,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get nav_me => '個人';
 
   @override
+  String get tab_practices => '修持計畫';
+
+  @override
   String get text_search => '搜尋';
 
   @override

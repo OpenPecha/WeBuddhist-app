@@ -249,6 +249,9 @@ class AppLocalizationsNe extends AppLocalizations {
   String get nav_me => 'म';
 
   @override
+  String get tab_practices => 'अभ्यास';
+
+  @override
   String get text_search => 'खोज्नुहोस्';
 
   @override

@@ -249,6 +249,9 @@ class AppLocalizationsMn extends AppLocalizations {
   String get nav_me => 'Би';
 
   @override
+  String get tab_practices => 'Дадлага';
+
+  @override
   String get text_search => 'Хайх';
 
   @override
