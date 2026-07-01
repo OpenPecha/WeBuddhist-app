@@ -83,6 +83,16 @@ class DeepLinkRouter {
     final segments = uri.pathSegments;
     if (segments.length >= 3 &&
         segments[0] == 'open' &&
+        segments[1] == 'series') {
+      final seriesId = segments[2];
+      return _DeepLinkDestination(
+        '/home/series/${Uri.encodeComponent(seriesId)}',
+        opensOnTop: true,
+      );
+    }
+
+    if (segments.length >= 3 &&
+        segments[0] == 'open' &&
         segments[1] == 'reader') {
       final textId = segments[2];
       final segmentId =

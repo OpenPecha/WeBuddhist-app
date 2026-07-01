@@ -3,6 +3,14 @@ class DeepLinkUrlBuilder {
 
   static const String _host = 'webuddhist.com';
 
+  static Uri seriesLink({required String seriesId}) {
+    return Uri(
+      scheme: 'https',
+      host: _host,
+      pathSegments: ['open', 'series', seriesId],
+    );
+  }
+
   static Uri readerSegmentLink({
     required String textId,
     required String segmentId,

@@ -13,17 +13,20 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// Contains:
 ///   • "+ Add to my practices" action
 ///   • Bookmark toggle action
+///   • Share action
 class SeriesMoreBottomSheet extends ConsumerStatefulWidget {
   const SeriesMoreBottomSheet({
     super.key,
     required this.seriesId,
     required this.seriesName,
     this.onAddToPractices,
+    this.onShare,
   });
 
   final String seriesId;
   final String seriesName;
   final VoidCallback? onAddToPractices;
+  final VoidCallback? onShare;
 
   @override
   ConsumerState<SeriesMoreBottomSheet> createState() =>
@@ -118,6 +121,18 @@ class _SeriesMoreBottomSheetState extends ConsumerState<SeriesMoreBottomSheet> {
             },
           ),
 
+          // ── Share ──────────────────────────────────────────────────────
+          _SectionDivider(theme: theme),
+          ListTile(
+            leading: Icon(AppAssets.share, color: theme.colorScheme.onSurface),
+            title: Text('Share', style: theme.textTheme.bodyLarge),
+            onTap: () {
+              HapticFeedback.lightImpact();
+              Navigator.of(context).pop();
+              widget.onShare?.call();
+            },
+          ),
+
           const SizedBox(height: 8),
         ],
       ),
@@ -140,6 +155,7 @@ void showSeriesMoreBottomSheet(
   required String seriesId,
   required String seriesName,
   VoidCallback? onAddToPractices,
+  VoidCallback? onShare,
 }) {
   showModalBottomSheet(
     context: context,
@@ -153,6 +169,7 @@ void showSeriesMoreBottomSheet(
           seriesId: seriesId,
           seriesName: seriesName,
           onAddToPractices: onAddToPractices,
+          onShare: onShare,
         ),
   );
 }
