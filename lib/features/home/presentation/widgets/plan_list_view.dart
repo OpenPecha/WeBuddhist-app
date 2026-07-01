@@ -12,6 +12,7 @@ import 'package:flutter_pecha/features/group_profile/domain/entities/group_profi
 import 'package:flutter_pecha/features/group_profile/presentation/providers/group_profile_providers.dart';
 import 'package:flutter_pecha/features/home/domain/entities/series.dart';
 import 'package:flutter_pecha/features/home/presentation/providers/series_enrollment_provider.dart';
+import 'package:flutter_pecha/features/plans/data/models/plans_model.dart';
 import 'package:flutter_pecha/features/plans/data/models/user/user_plans_model.dart';
 import 'package:flutter_pecha/features/plans/domain/entities/plan.dart';
 import 'package:flutter_pecha/features/plans/presentation/providers/user_plans_provider.dart';
@@ -24,13 +25,47 @@ import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+/// Series-scoped enrollment derived from `GET /users/me/series` only.
+/// When enrolled, every plan in the series is treated as enrolled.
+@immutable
+class SeriesListEnrollmentState {
+  const SeriesListEnrollmentState({
+    required this.isSeriesEnrolled,
+    this.isLoading = false,
+  });
+
+  final bool isSeriesEnrolled;
+  final bool isLoading;
+
+  static const none = SeriesListEnrollmentState(isSeriesEnrolled: false);
+}
+
+SeriesListEnrollmentState _watchSeriesListEnrollment(
+  WidgetRef ref,
+  String? seriesId,
+) {
+  if (seriesId == null) return SeriesListEnrollmentState.none;
+
+  final auth = ref.watch(authProvider);
+  if (auth.isGuest || !auth.isLoggedIn) {
+    return SeriesListEnrollmentState.none;
+  }
+
+  final enrollmentsAsync = ref.watch(userSeriesEnrollmentsProvider);
+  return SeriesListEnrollmentState(
+    isSeriesEnrolled:
+        enrollmentsAsync.valueOrNull?.contains(seriesId) ?? false,
+    isLoading: enrollmentsAsync.isLoading,
+  );
+}
+
 /// Renders a non-empty list of [Plan]s as a featured card on top and a scrolling
 /// list below — used by both `PlanListScreen` (tag-filtered) and
 /// `SeriesDetailScreen` (series-filtered). Caller must guard against empty input.
 ///
 /// When [groupId] is provided (navigated from a group profile), the featured
 /// card shows "Practice with us" until the user enrolls through that group.
-class PlanListView extends StatelessWidget {
+class PlanListView extends ConsumerWidget {
   final List<Plan> plans;
   final String? seriesId;
   final Series? series;
@@ -49,7 +84,8 @@ class PlanListView extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final seriesEnrollment = _watchSeriesListEnrollment(ref, seriesId);
     final sorted = [...plans]..sort((a, b) {
       if (a.displayOrder != null && b.displayOrder != null) {
         return a.displayOrder!.compareTo(b.displayOrder!);
@@ -74,6 +110,7 @@ class PlanListView extends StatelessWidget {
               groupId: groupId,
               groupType: groupType,
               isGroupEnrolled: isGroupEnrolled,
+              seriesEnrollment: seriesEnrollment,
             ),
           ),
         ),
@@ -82,8 +119,11 @@ class PlanListView extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
           sliver: SliverList(
             delegate: SliverChildBuilderDelegate(
-              (context, index) =>
-                  PlanListItem(plan: sorted[index], seriesId: seriesId),
+              (context, index) => PlanListItem(
+                plan: sorted[index],
+                seriesId: seriesId,
+                seriesEnrollment: seriesEnrollment,
+              ),
               childCount: sorted.length,
             ),
           ),
@@ -110,6 +150,7 @@ class FeaturedPlanCard extends ConsumerWidget {
   final String? groupId;
   final GroupType? groupType;
   final bool isGroupEnrolled;
+  final SeriesListEnrollmentState seriesEnrollment;
 
   const FeaturedPlanCard({
     super.key,
@@ -119,6 +160,7 @@ class FeaturedPlanCard extends ConsumerWidget {
     this.groupId,
     this.groupType,
     this.isGroupEnrolled = false,
+    this.seriesEnrollment = SeriesListEnrollmentState.none,
   });
 
   @override
@@ -131,12 +173,25 @@ class FeaturedPlanCard extends ConsumerWidget {
     final displayImage = series?.coverImage ?? plan.coverImage;
     final localizations = AppLocalizations.of(context)!;
 
-    final myPlansState = ref.watch(myPlansPaginatedProvider);
     final isGuest = ref.watch(authProvider).isGuest;
-    final isEnrolled = !isGuest && _isPlanEnrolled(ref, plan.id);
-    final enrolledInfo = isEnrolled ? _getEnrolledInfo(ref, plan.id) : null;
+    final isSeriesContext = seriesId != null;
+    final isSeriesEnrolled =
+        isSeriesContext && !isGuest && seriesEnrollment.isSeriesEnrolled;
+
+    final myPlansState =
+        isSeriesContext ? null : ref.watch(myPlansPaginatedProvider);
+    final isPlanEnrolled = isSeriesContext
+        ? isSeriesEnrolled
+        : (!isGuest && _isPlanEnrolledFromMyData(ref, plan.id));
+
+    final enrolledInfo = !isSeriesContext && isPlanEnrolled
+        ? _getEnrolledInfoFromMyPlans(ref, plan.id)
+        : null;
     final isEnrolledInfoPending =
-        isEnrolled && enrolledInfo == null && myPlansState.isLoading;
+        !isSeriesContext &&
+        isPlanEnrolled &&
+        enrolledInfo == null &&
+        myPlansState!.isLoading;
     final hasDescription = displayDescription.trim().isNotEmpty;
 
     final enrollmentState =
@@ -145,25 +200,16 @@ class FeaturedPlanCard extends ConsumerWidget {
             : null;
     final isEnrolling = enrollmentState is SeriesEnrollmentLoading;
 
-    final seriesEnrollmentAsync =
-        seriesId != null ? ref.watch(userSeriesEnrollmentsProvider) : null;
-    final isSeriesEnrolled =
-        seriesId != null &&
-        (seriesEnrollmentAsync?.valueOrNull?.contains(seriesId!) ?? false);
-
     final isGroupPracticeFlow = groupId != null && !isGroupEnrolled;
 
-    // Hide button during initial load to prevent flickering
-    final isLoadingEnrollmentData =
-        myPlansState.isLoading ||
-        (seriesId != null &&
-            !isGroupPracticeFlow &&
-            seriesEnrollmentAsync?.isLoading == true);
+    final isLoadingEnrollmentData = isSeriesContext
+        ? (!isGroupPracticeFlow && seriesEnrollment.isLoading)
+        : myPlansState!.isLoading;
 
     final hideEnrollButton =
         isGroupEnrolled ||
         isLoadingEnrollmentData ||
-        (isGroupPracticeFlow ? false : (isEnrolled || isSeriesEnrolled));
+        (isGroupPracticeFlow ? false : isPlanEnrolled);
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final enrollBackgroundColor =
         isDark ? AppColors.surfaceWhite : AppColors.scaffoldBackgroundDark;
@@ -296,7 +342,12 @@ class FeaturedPlanCard extends ConsumerWidget {
 
     final id = seriesId;
     if (id == null) {
-      _navigateToPlan(context, plan, null);
+      _navigateToPlan(
+        context,
+        plan: plan,
+        isEnrolled: _isPlanEnrolledFromMyData(ref, plan.id),
+        enrolledInfo: _getEnrolledInfoFromMyPlans(ref, plan.id),
+      );
       return;
     }
 
@@ -381,8 +432,14 @@ class FeaturedPlanCard extends ConsumerWidget {
 class PlanListItem extends ConsumerWidget {
   final Plan plan;
   final String? seriesId;
+  final SeriesListEnrollmentState seriesEnrollment;
 
-  const PlanListItem({super.key, required this.plan, this.seriesId});
+  const PlanListItem({
+    super.key,
+    required this.plan,
+    this.seriesId,
+    this.seriesEnrollment = SeriesListEnrollmentState.none,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -390,19 +447,30 @@ class PlanListItem extends ConsumerWidget {
     final lineHeight = getLineHeight(locale.languageCode);
     final titleFontSize = getLocalizedFontSize(AppTextSize.body);
 
-    final myPlansState = ref.watch(myPlansPaginatedProvider);
     final isGuest = ref.watch(authProvider).isGuest;
-    final isEnrolled = !isGuest && _isPlanEnrolled(ref, plan.id);
-    final enrolledInfo = isEnrolled ? _getEnrolledInfo(ref, plan.id) : null;
+    final isSeriesContext = seriesId != null;
+    final isSeriesEnrolled =
+        isSeriesContext && !isGuest && seriesEnrollment.isSeriesEnrolled;
+
+    final myPlansState =
+        isSeriesContext ? null : ref.watch(myPlansPaginatedProvider);
+    final isPlanEnrolled = isSeriesContext
+        ? isSeriesEnrolled
+        : (!isGuest && _isPlanEnrolledFromMyData(ref, plan.id));
+
+    final enrolledInfo = !isSeriesContext && isPlanEnrolled
+        ? _getEnrolledInfoFromMyPlans(ref, plan.id)
+        : null;
     final isEnrolledInfoPending =
-        isEnrolled && enrolledInfo == null && myPlansState.isLoading;
+        !isSeriesContext &&
+        isPlanEnrolled &&
+        enrolledInfo == null &&
+        myPlansState!.isLoading;
     final dateRange = PlanDateRange.tryCreate(
       startDate: plan.startDate,
       totalDays: plan.totalDays,
     );
-    final userPlan =
-        isEnrolled ? _findUserPlan(myPlansState.plans, plan.id) : null;
-    final canShowStatus = isEnrolled && userPlan != null && dateRange != null;
+    final canShowStatus = isPlanEnrolled && dateRange != null;
 
     final isLocked =
         plan.startDate != null && plan.startDate!.isAfter(DateTime.now());
@@ -417,9 +485,10 @@ class PlanListItem extends ConsumerWidget {
                   ? null
                   : () => _navigateToPlan(
                     context,
-                    plan,
-                    enrolledInfo,
+                    plan: plan,
+                    isEnrolled: isPlanEnrolled,
                     seriesId: seriesId,
+                    enrolledInfo: enrolledInfo,
                   ),
           borderRadius: BorderRadius.circular(12),
           child: Row(
@@ -463,7 +532,7 @@ class PlanListItem extends ConsumerWidget {
                             context,
                             plan: plan,
                             dateRange: dateRange,
-                            isEnrolled: isEnrolled,
+                            isEnrolled: isPlanEnrolled,
                             lineHeight: lineHeight,
                           ),
                         ),
@@ -519,15 +588,109 @@ class PlanListItem extends ConsumerWidget {
   }
 }
 
-/// Returns the [UserPlansModel] for [planId] from the user's plans list,
-/// or null if the plan isn't enrolled / not yet hydrated. Pulled out so the
-/// list item can share the lookup with the status indicator without doing
-/// it twice.
-UserPlansModel? _findUserPlan(List<UserPlansModel> plans, String planId) {
-  for (final p in plans) {
-    if (p.id == planId) return p;
+class _EnrolledPlanInfo {
+  final UserPlansModel userPlan;
+  final int selectedDay;
+  final DateTime startDate;
+
+  const _EnrolledPlanInfo({
+    required this.userPlan,
+    required this.selectedDay,
+    required this.startDate,
+  });
+}
+
+/// Navigates to practice details when enrolled, otherwise plan preview.
+///
+/// On series screens enrollment comes from `GET /users/me/series`; catalog
+/// [Plan] data from `GET /series/{id}` is enough to open practice details.
+/// Tag-filtered lists still hydrate navigation from [myPlansPaginatedProvider].
+void _navigateToPlan(
+  BuildContext context, {
+  required Plan plan,
+  required bool isEnrolled,
+  String? seriesId,
+  _EnrolledPlanInfo? enrolledInfo,
+}) {
+  if (isEnrolled) {
+    final userPlan = enrolledInfo?.userPlan ?? _userPlanFromCatalogPlan(plan);
+    final startDate = enrolledInfo?.startDate ?? userPlan.effectiveStartDate;
+    final selectedDay =
+        enrolledInfo?.selectedDay ??
+        _selectedDayForStart(startDate, userPlan.totalDays);
+
+    context.push(
+      '/practice/details',
+      extra: {
+        'plan': userPlan,
+        'selectedDay': selectedDay,
+        'startDate': startDate,
+      },
+    );
+    return;
   }
-  return null;
+
+  context.push(
+    '/practice/plans/preview',
+    extra: {'plan': plan, if (seriesId != null) 'seriesId': seriesId},
+  );
+}
+
+UserPlansModel _userPlanFromCatalogPlan(Plan plan) {
+  return UserPlansModel(
+    id: plan.id,
+    title: plan.title,
+    description: plan.description,
+    language: plan.language,
+    difficultyLevel: plan.difficulty.name,
+    image:
+        plan.coverImage != null
+            ? ImageModel.fromResponsiveImage(plan.coverImage!)
+            : null,
+    startedAt: plan.startDate ?? DateTime.now(),
+    totalDays: plan.totalDays,
+    tags: null,
+    startDate: plan.startDate,
+  );
+}
+
+int _selectedDayForStart(DateTime startDate, int totalDays) {
+  final daysSinceStart =
+      DateTime.now().difference(DateUtils.dateOnly(startDate)).inDays;
+  return (daysSinceStart + 1).clamp(1, totalDays);
+}
+
+/// Tag-filtered plan lists only — checks my plans and routine membership.
+bool _isPlanEnrolledFromMyData(WidgetRef ref, String planId) {
+  final myPlansState = ref.watch(myPlansPaginatedProvider);
+  if (myPlansState.plans.any((p) => p.id == planId)) return true;
+
+  final routineData = ref.watch(userRoutineProvider).valueOrNull;
+  if (routineData == null) return false;
+  return routineData.blocks.any(
+    (block) => block.items.any(
+      (item) => item.id == planId && item.type == RoutineItemType.series,
+    ),
+  );
+}
+
+_EnrolledPlanInfo? _getEnrolledInfoFromMyPlans(WidgetRef ref, String planId) {
+  final myPlansState = ref.watch(myPlansPaginatedProvider);
+  UserPlansModel? userPlan;
+  for (final p in myPlansState.plans) {
+    if (p.id == planId) {
+      userPlan = p;
+      break;
+    }
+  }
+  if (userPlan == null) return null;
+
+  final startDate = userPlan.startDate ?? userPlan.startedAt;
+  return _EnrolledPlanInfo(
+    userPlan: userPlan,
+    selectedDay: _selectedDayForStart(startDate, userPlan.totalDays),
+    startDate: startDate,
+  );
 }
 
 class _PlanCoverImage extends StatelessWidget {
@@ -578,82 +741,4 @@ class _PlanCoverImage extends StatelessWidget {
       ),
     );
   }
-}
-
-class _EnrolledPlanInfo {
-  final UserPlansModel userPlan;
-  final int selectedDay;
-  final DateTime startDate;
-
-  const _EnrolledPlanInfo({
-    required this.userPlan,
-    required this.selectedDay,
-    required this.startDate,
-  });
-}
-
-void _navigateToPlan(
-  BuildContext context,
-  Plan plan,
-  _EnrolledPlanInfo? enrolledInfo, {
-  String? seriesId,
-}) {
-  if (enrolledInfo != null) {
-    context.push(
-      '/practice/details',
-      extra: {
-        'plan': enrolledInfo.userPlan,
-        'selectedDay': enrolledInfo.selectedDay,
-        'startDate': enrolledInfo.startDate,
-      },
-    );
-  } else {
-    context.push(
-      '/practice/plans/preview',
-      extra: {'plan': plan, if (seriesId != null) 'seriesId': seriesId},
-    );
-  }
-}
-
-/// A plan is enrolled if it appears in either the user's plans list or in
-/// their routine. Either source independently is enough to mark the plan as
-/// enrolled — the providers load lazily, and the user may have removed an
-/// enrolled plan from their routine without unenrolling.
-bool _isPlanEnrolled(WidgetRef ref, String planId) {
-  final myPlansState = ref.watch(myPlansPaginatedProvider);
-  if (myPlansState.plans.any((p) => p.id == planId)) return true;
-
-  final routineData = ref.watch(userRoutineProvider).valueOrNull;
-  if (routineData == null) return false;
-  return routineData.blocks.any(
-    (block) => block.items.any(
-      (item) => item.id == planId && item.type == RoutineItemType.series,
-    ),
-  );
-}
-
-/// Returns the data needed to navigate to `/practice/details`.
-/// The plan must be present in [myPlansPaginatedProvider]; routine membership
-/// is not required (a user may be enrolled without adding the plan to a routine).
-_EnrolledPlanInfo? _getEnrolledInfo(WidgetRef ref, String planId) {
-  final myPlansState = ref.watch(myPlansPaginatedProvider);
-  UserPlansModel? userPlan;
-  for (final p in myPlansState.plans) {
-    if (p.id == planId) {
-      userPlan = p;
-      break;
-    }
-  }
-  if (userPlan == null) return null;
-
-  final startDate = userPlan.startDate ?? userPlan.startedAt;
-  final daysSinceEnrollment =
-      DateTime.now().difference(DateUtils.dateOnly(startDate)).inDays;
-  final selectedDay = (daysSinceEnrollment + 1).clamp(1, userPlan.totalDays);
-
-  return _EnrolledPlanInfo(
-    userPlan: userPlan,
-    selectedDay: selectedDay,
-    startDate: startDate,
-  );
 }

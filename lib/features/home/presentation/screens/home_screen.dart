@@ -303,79 +303,37 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   Widget _buildBody(BuildContext context, AppLocalizations localizations) {
-    final seriesAsync = ref.watch(seriesListFutureProvider);
-    final fontSize = getLocalizedFontSize(AppTextSize.title);
-
     return Expanded(
       child: RefreshIndicator(
         onRefresh: _onRefresh,
-        child: seriesAsync.when(
-          data: (seriesEither) {
-            return seriesEither.fold(
-              (failure) => _buildScrollableMessage(
-                ErrorStateWidget(error: failure, onRetry: _refetchSeries),
+        child: CustomScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          slivers: [
+            SliverToBoxAdapter(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const SizedBox(height: HomeScreenConstants.cardSpacing),
+                  _buildVerseOfDaySection(),
+                  const SizedBox(height: HomeScreenConstants.cardSpacing),
+                  HomeShortcutsRow(
+                    onTimerTap: () => _openGatedFeature('/home/timers'),
+                    onMalaTap: () => _openGatedFeature('/mala'),
+                  ),
+                  const SizedBox(height: HomeScreenConstants.cardSpacing),
+                  _buildMyPracticesSection(),
+                  const SizedBox(height: HomeScreenConstants.cardSpacing),
+                  FeaturedPlanSection(
+                    onSeriesTap: (series) {
+                      _log.info('Featured series tapped: ${series.id}');
+                      _navigateToSeries(series);
+                    },
+                  ),
+                ],
               ),
-              (seriesList) {
-                if (seriesList.isEmpty) {
-                  return _buildScrollableMessage(
-                    Padding(
-                      padding: const EdgeInsets.all(
-                        HomeScreenConstants.emptyStatePadding,
-                      ),
-                      child: Text(
-                        localizations.no_feature_content,
-                        style: TextStyle(fontSize: fontSize),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                  );
-                }
-
-                return CustomScrollView(
-                  physics: const AlwaysScrollableScrollPhysics(),
-                  slivers: [
-                    SliverToBoxAdapter(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const SizedBox(
-                            height: HomeScreenConstants.cardSpacing,
-                          ),
-                          _buildVerseOfDaySection(),
-                          const SizedBox(
-                            height: HomeScreenConstants.cardSpacing,
-                          ),
-                          HomeShortcutsRow(
-                            onTimerTap: () => _openGatedFeature('/home/timers'),
-                            onMalaTap: () => _openGatedFeature('/mala'),
-                          ),
-                          const SizedBox(
-                            height: HomeScreenConstants.cardSpacing,
-                          ),
-                          _buildMyPracticesSection(),
-                          const SizedBox(
-                            height: HomeScreenConstants.cardSpacing,
-                          ),
-                          FeaturedPlanSection(
-                            onSeriesTap: (series) {
-                              _log.info('Featured series tapped: ${series.id}');
-                              _navigateToSeries(series);
-                            },
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SliverToBoxAdapter(child: HomeSharePrompt()),
-                  ],
-                );
-              },
-            );
-          },
-          loading: () => const SizedBox.shrink(),
-          error:
-              (error, stackTrace) => _buildScrollableMessage(
-                ErrorStateWidget(error: error, onRetry: _refetchSeries),
-              ),
+            ),
+            const SliverToBoxAdapter(child: HomeSharePrompt()),
+          ],
         ),
       ),
     );

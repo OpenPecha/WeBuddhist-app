@@ -99,8 +99,8 @@ final localeProvider = StateNotifierProvider<LocaleNotifier, Locale>((ref) {
 
 /// Language code sent to backend APIs for translatable content.
 ///
-/// UI may be hi/mn/ne, but the API only serves en/zh/bo — unsupported locales
-/// fall back to English via [AppConfig.resolveContentLanguage].
+/// Mirrors the user's selected app locale when supported; unknown codes fall
+/// back to English via [AppConfig.resolveContentLanguage].
 final contentLanguageProvider = Provider<String>((ref) {
   return AppConfig.resolveContentLanguage(
     ref.watch(localeProvider).languageCode,
