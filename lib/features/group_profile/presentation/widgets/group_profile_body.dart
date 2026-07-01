@@ -126,7 +126,10 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (!_isCommunityGroup(profile) && _hasBanner(profile)) ...[
-          _buildProfileBanner(profile, isDark),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 14),
+            child: _buildProfileBanner(profile, isDark),
+          ),
           const SizedBox(height: 16),
         ],
         _buildProfileHeader(profile, isDark, lineHeight),
@@ -347,7 +350,7 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
             fontWeight: FontWeight.w500,
           ),
           tabs: [
-            Tab(text: context.l10n.nav_practice),
+            Tab(text: context.l10n.tab_practices),
             Tab(text: membersTabLabel),
             if (hasAbout) Tab(text: context.l10n.about_title),
           ],
@@ -391,7 +394,7 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
     }
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 2),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(16),
         child: AspectRatio(

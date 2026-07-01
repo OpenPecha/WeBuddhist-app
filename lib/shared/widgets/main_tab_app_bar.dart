@@ -54,6 +54,7 @@ class MainTabAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
+      clipBehavior: Clip.none,
       elevation: 0,
       scrolledUnderElevation: 0,
       automaticallyImplyLeading: false,

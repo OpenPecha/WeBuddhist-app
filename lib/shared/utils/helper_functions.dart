@@ -80,6 +80,25 @@ String withTibetanLineBreakOpportunities(String text) {
   );
 }
 
+final _whitespacePattern = RegExp(r'\s');
+
+/// Inserts zero-width break opportunities so Flutter can wrap [text] that has
+/// no whitespace (e.g. a long username).
+String withWordBreakOpportunities(String text, {int minLength = 12}) {
+  if (text.isEmpty ||
+      text.length < minLength ||
+      _whitespacePattern.hasMatch(text)) {
+    return text;
+  }
+
+  return text.split('').join('\u200B');
+}
+
+/// Applies Tibetan syllable and word-level break opportunities for constrained UI.
+String withDisplayLineBreakOpportunities(String text) {
+  return withWordBreakOpportunities(withTibetanLineBreakOpportunities(text));
+}
+
 /// Calculates the share position origin for share_plus ShareParams.
 ///
 /// Tries to get the position from the provided [context] or [globalKey].
