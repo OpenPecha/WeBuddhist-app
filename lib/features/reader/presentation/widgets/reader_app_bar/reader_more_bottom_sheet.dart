@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_pecha/core/constants/app_assets.dart';
+import 'package:flutter_pecha/core/deep_linking/deep_link_url_builder.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/features/practice/data/datasource/bookmark_remote_datasource.dart';
 import 'package:flutter_pecha/features/practice/presentation/controllers/bookmark_controller.dart';
 import 'package:flutter_pecha/features/practice/presentation/providers/bookmark_providers.dart';
 import 'package:flutter_pecha/features/reader/presentation/widgets/reader_app_bar/reader_font_size_bottom_sheet.dart';
 import 'package:flutter_pecha/features/texts/presentation/providers/font_size_notifier.dart';
+import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:share_plus/share_plus.dart';
 
 /// Bottom sheet opened from the reader's three-dot (⋮) button.
 ///
@@ -34,6 +37,7 @@ class ReaderMoreBottomSheet extends ConsumerStatefulWidget {
 
 class _ReaderMoreBottomSheetState extends ConsumerState<ReaderMoreBottomSheet> {
   bool _isBookmarking = false;
+  bool _isSharing = false;
 
   BookmarkTarget get _bookmarkTarget => BookmarkTarget(
         type: BookmarkType.text,
@@ -52,6 +56,23 @@ class _ReaderMoreBottomSheetState extends ConsumerState<ReaderMoreBottomSheet> {
       if (mounted && didToggle) nav.pop();
     } finally {
       if (mounted) setState(() => _isBookmarking = false);
+    }
+  }
+
+  Future<void> _share() async {
+    if (_isSharing) return;
+    setState(() => _isSharing = true);
+    try {
+      final shareUrl =
+          DeepLinkUrlBuilder.readerLink(textId: widget.textId).toString();
+      if (!mounted) return;
+      final sharePositionOrigin = getSharePositionOrigin(context: context);
+      await SharePlus.instance.share(
+        ShareParams(text: shareUrl, sharePositionOrigin: sharePositionOrigin),
+      );
+      if (mounted) Navigator.of(context).pop();
+    } finally {
+      if (mounted) setState(() => _isSharing = false);
     }
   }
 
@@ -193,6 +214,27 @@ class _ReaderMoreBottomSheetState extends ConsumerState<ReaderMoreBottomSheet> {
             onTap: () {
               HapticFeedback.lightImpact();
               _toggleBookmark();
+            },
+          ),
+
+          // ── Share ──────────────────────────────────────────────────────
+          _SectionDivider(theme: theme),
+          ListTile(
+            leading:
+                _isSharing
+                    ? SizedBox(
+                      width: 22,
+                      height: 22,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: theme.colorScheme.onSurface,
+                      ),
+                    )
+                    : Icon(Icons.share, color: theme.colorScheme.onSurface),
+            title: Text('Share', style: theme.textTheme.bodyLarge),
+            onTap: () {
+              HapticFeedback.lightImpact();
+              _share();
             },
           ),
 
