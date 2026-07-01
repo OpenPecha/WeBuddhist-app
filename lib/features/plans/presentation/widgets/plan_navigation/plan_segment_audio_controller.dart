@@ -7,7 +7,7 @@ import 'package:just_audio/just_audio.dart';
 enum PlanAudioButtonState { play, loading, pause }
 
 /// Reusable audio engine for plan subtask playback, shared by `PlanTextScreen`
-/// (inline TEXT) and `ReaderScreen` (SOURCE_REFERENCE).
+/// (inline TEXT/IMAGE) and `ReaderScreen` (SOURCE_REFERENCE).
 ///
 /// Plays a single segment of a resolved audio file:
 /// - [url] is already resolved with precedence (subtask audio over day audio).

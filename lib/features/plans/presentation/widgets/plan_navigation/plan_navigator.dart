@@ -7,10 +7,10 @@ import 'package:go_router/go_router.dart';
 /// Centralised navigation between plan subtask screens.
 ///
 /// A plan day's subtask list is a flat sequence of mixed content types
-/// (SOURCE_REFERENCE → ReaderScreen, TEXT → PlanTextScreen). When the user
-/// taps prev/next or swipes, the next item may live on a *different* screen
-/// than the current one. This helper picks the right route and replaces the
-/// current screen, so the user perceives a seamless "1/N → 2/N" sequence.
+/// (SOURCE_REFERENCE → ReaderScreen, TEXT/IMAGE → PlanTextScreen). When the
+/// user taps prev/next or swipes, the next item may live on a *different*
+/// screen than the current one. This helper picks the right route and replaces
+/// the current screen, so the user perceives a seamless "1/N → 2/N" sequence.
 class PlanNavigator {
   PlanNavigator._();
 
@@ -65,12 +65,17 @@ class PlanNavigator {
       case PlanItemContentType.sourceReference:
         return '${AppRoutes.reader}/${item.textId}';
       case PlanItemContentType.inlineText:
-        // Subtask id is required for plan-text routes; fall back to a stable
-        // synthetic id only if the item came from preview (no subtaskId).
-        // Item identity is irrelevant to PlanTextScreen — it reads content
-        // from navigationContext.currentItem.
-        final id = item.subtaskId ?? 'preview';
-        return '${AppRoutes.planText}/$id';
+      case PlanItemContentType.inlineImage:
+        return _planTextRouteFor(item);
     }
+  }
+
+  static String _planTextRouteFor(PlanTextItem item) {
+    // Subtask id is required for plan-text routes; fall back to a stable
+    // synthetic id only if the item came from preview (no subtaskId).
+    // Item identity is irrelevant to PlanTextScreen — it reads content
+    // from navigationContext.currentItem.
+    final id = item.subtaskId ?? 'preview';
+    return '${AppRoutes.planText}/$id';
   }
 }

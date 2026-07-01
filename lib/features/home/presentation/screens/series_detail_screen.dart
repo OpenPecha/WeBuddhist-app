@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/constants/app_assets.dart';
+import 'package:flutter_pecha/core/deep_linking/deep_link_url_builder.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/widgets/error_state_widget.dart';
 import 'package:flutter_pecha/core/widgets/skeletons/skeletons.dart';
@@ -16,6 +17,7 @@ import 'package:flutter_pecha/features/practice/presentation/providers/bookmark_
 import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:share_plus/share_plus.dart';
 
 class SeriesDetailScreen extends ConsumerWidget {
   final String seriesId;
@@ -195,7 +197,15 @@ class SeriesDetailScreen extends ConsumerWidget {
       seriesId: series.id,
       seriesName: series.title,
       onAddToPractices: () => _onAddToPractices(context, ref, series),
+      onShare: () => _onShare(series),
     );
+  }
+
+  Future<void> _onShare(Series series) async {
+    final url = DeepLinkUrlBuilder.seriesLink(seriesId: series.id).toString();
+    final message =
+        'Join me in practicing ${series.title} on WeBuddhist.\n\n$url';
+    await SharePlus.instance.share(ShareParams(text: message));
   }
 
   /// Adds the series to the user's practice routine.

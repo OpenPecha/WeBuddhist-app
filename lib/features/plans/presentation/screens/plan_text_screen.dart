@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
+import 'package:flutter_pecha/core/widgets/cached_network_image_widget.dart';
 import 'package:flutter_pecha/features/plans/presentation/widgets/plan_inline_markdown_view.dart';
 import 'package:flutter_pecha/features/plans/presentation/widgets/plan_navigation/plan_audio_button.dart';
 import 'package:flutter_pecha/features/plans/presentation/widgets/plan_navigation/plan_navigation_bottom_bar.dart';
@@ -15,11 +16,11 @@ import 'package:flutter_pecha/features/texts/presentation/providers/font_size_no
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-/// Lightweight reading screen for plan subtasks where `content_type == "TEXT"`.
+/// Lightweight reading screen for inline plan subtasks (`TEXT` or `IMAGE`).
 ///
-/// The subtask `content` is treated as markdown and rendered via
-/// [PlanInlineMarkdownView]. Plain text remains valid markdown so callers
-/// without formatting need no changes.
+/// For `TEXT`, subtask `content` is treated as markdown and rendered via
+/// [PlanInlineMarkdownView]. For `IMAGE`, subtask `content` is treated as the
+/// image URL and rendered directly.
 ///
 /// Audio behaviour (shared with `ReaderScreen` via
 /// [PlanSegmentAudioController]):
@@ -125,7 +126,7 @@ class _PlanTextScreenState extends ConsumerState<PlanTextScreen> {
     final fontSize = ref.watch(fontSizeProvider);
     final readerTheme = _readerTheme(context);
 
-    if (currentItem == null || currentItem.inlineContent == null) {
+    if (currentItem == null || !_hasRenderableContent(currentItem)) {
       return Theme(
         data: readerTheme,
         child: _buildMissingContentScaffold(context),
@@ -138,69 +139,124 @@ class _PlanTextScreenState extends ConsumerState<PlanTextScreen> {
       data: readerTheme,
       child: Scaffold(
         backgroundColor: readerTheme.scaffoldBackgroundColor,
-        appBar: _buildAppBar(context, currentItem.title),
+        appBar: _buildAppBar(
+          context,
+          currentItem.title,
+          showFontControls: currentItem.isInlineText,
+        ),
         body: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onHorizontalDragStart: canSwipe ? _onDragStart : null,
-        onHorizontalDragUpdate: canSwipe ? _onDragUpdate : null,
-        onHorizontalDragEnd: canSwipe ? _onDragEnd : null,
-        onHorizontalDragCancel: canSwipe ? _onDragCancel : null,
-        child: SafeArea(
-          child: AnimatedContainer(
-            duration: Duration(milliseconds: _isDragging ? 0 : 250),
-            curve: Curves.easeOutCubic,
-            transform: Matrix4.translationValues(_dragOffset * 0.25, 0, 0),
-            child: Column(
-              children: [
-                Expanded(
-                  child: Stack(
-                    children: [
-                      // Text content — extra bottom padding reserves visual
-                      // space so the last line stays above the floating button.
-                      SingleChildScrollView(
-                        padding: EdgeInsets.fromLTRB(
-                          20,
-                          16,
-                          20,
-                          _hasAudio ? 88 : 16,
-                        ),
-                        child: PlanInlineMarkdownView(
-                          content: currentItem.inlineContent!,
-                          fontSize: fontSize,
-                        ),
-                      ),
-                      // Floating play/pause — overlaid, zero layout footprint.
-                      if (_hasAudio)
-                        Positioned(
-                          left: 0,
-                          right: 0,
-                          bottom: 8,
-                          child: Center(
-                            child: PlanAudioButton(
-                              controller: _audioController!,
+          behavior: HitTestBehavior.opaque,
+          onHorizontalDragStart: canSwipe ? _onDragStart : null,
+          onHorizontalDragUpdate: canSwipe ? _onDragUpdate : null,
+          onHorizontalDragEnd: canSwipe ? _onDragEnd : null,
+          onHorizontalDragCancel: canSwipe ? _onDragCancel : null,
+          child: SafeArea(
+            child: AnimatedContainer(
+              duration: Duration(milliseconds: _isDragging ? 0 : 250),
+              curve: Curves.easeOutCubic,
+              transform: Matrix4.translationValues(_dragOffset * 0.25, 0, 0),
+              child: Column(
+                children: [
+                  Expanded(
+                    child: Stack(
+                      children: [
+                        if (currentItem.isInlineImage)
+                          Positioned.fill(
+                            child: Padding(
+                              padding: EdgeInsets.only(
+                                bottom: _hasAudio ? 72 : 0,
+                              ),
+                              child: _buildInlineImage(item: currentItem),
+                            ),
+                          )
+                        else
+                          SingleChildScrollView(
+                            padding: EdgeInsets.fromLTRB(
+                              20,
+                              16,
+                              20,
+                              _hasAudio ? 88 : 16,
+                            ),
+                            child: _buildInlineText(
+                              content: currentItem.inlineContent!,
+                              fontSize: fontSize,
                             ),
                           ),
-                        ),
-                    ],
+                        // Floating play/pause — overlaid, zero layout footprint.
+                        if (_hasAudio)
+                          Positioned(
+                            left: 0,
+                            right: 0,
+                            bottom: 8,
+                            child: Center(
+                              child: PlanAudioButton(
+                                controller: _audioController!,
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
                   ),
-                ),
-                PlanNavigationBottomBar(
-                  navigationContext: widget.navigationContext,
-                  fallbackTitle: currentItem.title,
-                  onPreviousTap: () => _navigate(SwipeDirection.previous),
-                  onNextTap: () => _navigate(SwipeDirection.next),
-                  onFinishedTap: _finish,
-                ),
-              ],
+                  PlanNavigationBottomBar(
+                    navigationContext: widget.navigationContext,
+                    fallbackTitle: currentItem.title,
+                    onPreviousTap: () => _navigate(SwipeDirection.previous),
+                    onNextTap: () => _navigate(SwipeDirection.next),
+                    onFinishedTap: _finish,
+                  ),
+                ],
+              ),
             ),
           ),
         ),
       ),
-      ),
     );
   }
 
-  AppBar _buildAppBar(BuildContext context, String title) {
+  bool _hasRenderableContent(PlanTextItem item) {
+    switch (item.contentType) {
+      case PlanItemContentType.inlineText:
+        return item.inlineContent?.trim().isNotEmpty == true;
+      case PlanItemContentType.inlineImage:
+        return item.imageUrl?.trim().isNotEmpty == true;
+      case PlanItemContentType.sourceReference:
+        return false;
+    }
+  }
+
+  Widget _buildInlineText({
+    required String content,
+    required double fontSize,
+  }) {
+    return PlanInlineMarkdownView(content: content, fontSize: fontSize);
+  }
+
+  /// Scales the image to fill the available viewport while preserving aspect
+  /// ratio (no cropping). Uses both width and height so tall/portrait images
+  /// also expand to use the full screen area.
+  Widget _buildInlineImage({required PlanTextItem item}) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final width =
+            constraints.maxWidth.isFinite ? constraints.maxWidth : null;
+        final height =
+            constraints.maxHeight.isFinite ? constraints.maxHeight : null;
+
+        return CachedNetworkImageWidget(
+          imageUrl: item.imageUrl,
+          width: width,
+          height: height,
+          fit: BoxFit.contain,
+        );
+      },
+    );
+  }
+
+  AppBar _buildAppBar(
+    BuildContext context,
+    String title, {
+    required bool showFontControls,
+  }) {
     return AppBar(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       elevation: 0,
@@ -212,10 +268,15 @@ class _PlanTextScreenState extends ConsumerState<PlanTextScreen> {
         },
       ),
       centerTitle: true,
-      actions: [
-        ReaderFontSizeButton(onPressed: () => showFontSizeBottomSheet(context)),
-        const SizedBox(width: 12),
-      ],
+      actions:
+          showFontControls
+              ? [
+                ReaderFontSizeButton(
+                  onPressed: () => showFontSizeBottomSheet(context),
+                ),
+                const SizedBox(width: 12),
+              ]
+              : null,
     );
   }
 

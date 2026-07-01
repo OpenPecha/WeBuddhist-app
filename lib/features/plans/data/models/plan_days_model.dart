@@ -8,6 +8,8 @@ class PlanDaysModel {
   final List<PlanTasksModel>? tasks;
   final String? audioUrl;
   final int? audioDurationMs;
+  final String? thumbnailUrl;
+  final String? shareableImageUrl;
   final List<PlanVideoModel> videos;
 
   PlanDaysModel({
@@ -17,6 +19,8 @@ class PlanDaysModel {
     this.tasks,
     this.audioUrl,
     this.audioDurationMs,
+    this.thumbnailUrl,
+    this.shareableImageUrl,
     this.videos = const [],
   });
 
@@ -27,20 +31,26 @@ class PlanDaysModel {
       id: json['id'] as String,
       dayNumber: json['day_number'] as int,
       title: json['title'] as String?,
-      tasks: json['tasks'] != null
-          ? (json['tasks'] as List<dynamic>)
-              .map((e) => PlanTasksModel.fromJson(e as Map<String, dynamic>))
-              .toList()
-          : null,
+      tasks:
+          json['tasks'] != null
+              ? (json['tasks'] as List<dynamic>)
+                  .map(
+                    (e) => PlanTasksModel.fromJson(e as Map<String, dynamic>),
+                  )
+                  .toList()
+              : null,
       audioUrl: json['audio_url'] as String?,
       audioDurationMs: json['audio_duration_ms'] as int?,
-      videos: json['videos'] != null
-          ? (json['videos'] as List<dynamic>)
-              .map(
-                (e) => PlanVideoModel.fromJson(e as Map<String, dynamic>),
-              )
-              .toList()
-          : const [],
+      thumbnailUrl: json['thumbnail_url'] as String?,
+      shareableImageUrl: json['shareable_image_url'] as String?,
+      videos:
+          json['videos'] != null
+              ? (json['videos'] as List<dynamic>)
+                  .map(
+                    (e) => PlanVideoModel.fromJson(e as Map<String, dynamic>),
+                  )
+                  .toList()
+              : const [],
     );
   }
 
@@ -52,6 +62,8 @@ class PlanDaysModel {
       'tasks': tasks?.map((e) => e.toJson()).toList(),
       'audio_url': audioUrl,
       'audio_duration_ms': audioDurationMs,
+      'thumbnail_url': thumbnailUrl,
+      'shareable_image_url': shareableImageUrl,
       'videos': videos.map((e) => e.toJson()).toList(),
     };
   }
@@ -63,6 +75,8 @@ class PlanDaysModel {
     List<PlanTasksModel>? tasks,
     String? audioUrl,
     int? audioDurationMs,
+    String? thumbnailUrl,
+    String? shareableImageUrl,
     List<PlanVideoModel>? videos,
   }) {
     return PlanDaysModel(
@@ -72,6 +86,8 @@ class PlanDaysModel {
       tasks: tasks ?? this.tasks,
       audioUrl: audioUrl ?? this.audioUrl,
       audioDurationMs: audioDurationMs ?? this.audioDurationMs,
+      thumbnailUrl: thumbnailUrl ?? this.thumbnailUrl,
+      shareableImageUrl: shareableImageUrl ?? this.shareableImageUrl,
       videos: videos ?? this.videos,
     );
   }

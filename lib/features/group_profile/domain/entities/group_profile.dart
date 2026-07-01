@@ -37,6 +37,7 @@ class GroupProfileSeries {
   final int totalDays;
   final DateTime? startDate;
   final DateTime? endDate;
+  final int enrolledCount;
   /// Whether the current user is group-enrolled for this series.
   /// - `true`: enrolled with this group
   /// - `false`: enrolled with a different group
@@ -54,6 +55,7 @@ class GroupProfileSeries {
     this.totalDays = 0,
     this.startDate,
     this.endDate,
+    this.enrolledCount = 0,
     this.isGroupEnrolled,
   });
 }
