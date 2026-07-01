@@ -8,6 +8,8 @@ class UserPlanDayDetailResponse {
   final bool isCompleted;
   final String? audioUrl;
   final int? audioDurationMs;
+  final String? thumbnailUrl;
+  final String? shareableImageUrl;
   final List<PlanVideoModel> videos;
 
   UserPlanDayDetailResponse({
@@ -17,6 +19,8 @@ class UserPlanDayDetailResponse {
     required this.isCompleted,
     this.audioUrl,
     this.audioDurationMs,
+    this.thumbnailUrl,
+    this.shareableImageUrl,
     this.videos = const [],
   });
 
@@ -33,13 +37,16 @@ class UserPlanDayDetailResponse {
       isCompleted: json['is_completed'] as bool,
       audioUrl: json['audio_url'] as String?,
       audioDurationMs: json['audio_duration_ms'] as int?,
-      videos: json['videos'] != null
-          ? (json['videos'] as List<dynamic>)
-              .map(
-                (e) => PlanVideoModel.fromJson(e as Map<String, dynamic>),
-              )
-              .toList()
-          : const [],
+      thumbnailUrl: json['thumbnail_url'] as String?,
+      shareableImageUrl: json['shareable_image_url'] as String?,
+      videos:
+          json['videos'] != null
+              ? (json['videos'] as List<dynamic>)
+                  .map(
+                    (e) => PlanVideoModel.fromJson(e as Map<String, dynamic>),
+                  )
+                  .toList()
+              : const [],
     );
   }
 
@@ -51,6 +58,8 @@ class UserPlanDayDetailResponse {
       'is_completed': isCompleted,
       'audio_url': audioUrl,
       'audio_duration_ms': audioDurationMs,
+      'thumbnail_url': thumbnailUrl,
+      'shareable_image_url': shareableImageUrl,
       'videos': videos.map((e) => e.toJson()).toList(),
     };
   }

@@ -499,7 +499,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         },
       ),
 
-      // plan text route - inline TEXT subtasks (sibling to /reader)
+      // plan content route - inline TEXT/IMAGE subtasks (sibling to /reader)
       GoRoute(
         path: "/plan-text/:subtaskId",
         name: "plan-text",
