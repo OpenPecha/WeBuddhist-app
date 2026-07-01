@@ -391,7 +391,7 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
     }
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 2),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(16),
         child: AspectRatio(
