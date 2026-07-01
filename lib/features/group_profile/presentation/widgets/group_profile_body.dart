@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/constants/app_assets.dart';
+import 'package:flutter_pecha/core/deep_linking/deep_link_url_builder.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/core/widgets/cached_network_image_widget.dart';
@@ -16,6 +17,7 @@ import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class GroupProfileBody extends ConsumerStatefulWidget {
@@ -695,6 +697,19 @@ class _GroupFollowButton extends ConsumerWidget {
 
   const _GroupFollowButton({required this.profile, required this.isDark});
 
+  Future<void> _onInvitePressed(BuildContext context) async {
+    final shareUrl = DeepLinkUrlBuilder.groupLink(groupId: profile.id).toString();
+    const shareMessage =
+        "I'd love for you to join our group. Let's practice together on WeBuddhist.";
+    final sharePositionOrigin = getSharePositionOrigin(context: context);
+    await SharePlus.instance.share(
+      ShareParams(
+        text: '$shareMessage\n\n$shareUrl',
+        sharePositionOrigin: sharePositionOrigin,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final followKey = GroupFollowKey(
@@ -780,14 +795,7 @@ class _GroupFollowButton extends ConsumerWidget {
                   const SizedBox(width: 12),
                   Expanded(
                     child: ElevatedButton(
-                      onPressed: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(context.l10n.mala_action_coming_soon),
-                            behavior: SnackBarBehavior.floating,
-                          ),
-                        );
-                      },
+                      onPressed: () => _onInvitePressed(context),
                       style: buttonStyle.copyWith(
                         backgroundColor: WidgetStatePropertyAll(
                           isDark

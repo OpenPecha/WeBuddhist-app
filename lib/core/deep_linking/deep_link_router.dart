@@ -132,6 +132,16 @@ class DeepLinkRouter {
 
     if (segments.length >= 3 &&
         segments[0] == 'open' &&
+        segments[1] == 'group') {
+      final groupId = segments[2];
+      return _DeepLinkDestination(
+        '/home/group/$groupId',
+        opensOnTop: true,
+      );
+    }
+
+    if (segments.length >= 3 &&
+        segments[0] == 'open' &&
         segments[1] == 'mala') {
       final presetId = segments[2];
       return _DeepLinkDestination(

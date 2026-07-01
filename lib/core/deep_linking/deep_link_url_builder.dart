@@ -39,6 +39,14 @@ class DeepLinkUrlBuilder {
     return Uri(scheme: 'https', host: _host, pathSegments: ['open', 'more']);
   }
 
+  static Uri groupLink({required String groupId}) {
+    return Uri(
+      scheme: 'https',
+      host: _host,
+      pathSegments: ['open', 'group', groupId],
+    );
+  }
+
   static Uri malaLink({required String presetId}) {
     return Uri(
       scheme: 'https',
