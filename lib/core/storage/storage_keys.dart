@@ -79,24 +79,12 @@ class StorageKeys {
   // Special-plan (ITCC and similar) keys — hardcoded per-day content series.
   /// Per-plan startedAt prefix. Full key: `special_plan_started_at_<planId>` → ISO8601 string.
   static const String specialPlanStartedAtPrefix = 'special_plan_started_at_';
-  /// Idempotency flag preventing duplicate immediate fires on any series day.
-  /// Full key: `special_plan_day1_shown_<planId>_<yyyy-MM-dd>` → bool.
-  /// Note: key prefix is kept for backwards compatibility with stored data.
-  static const String specialPlanDay1ShownPrefix = 'special_plan_day1_shown_';
 
   // General plan duration-based notification keys — all other enrolled plans.
   /// Per-plan startedAt prefix. Full key: `plan_started_at_<planId>` → ISO8601 string.
   static const String planStartedAtPrefix = 'plan_started_at_';
   /// Per-plan totalDays prefix. Full key: `plan_total_days_<planId>` → int.
   static const String planTotalDaysPrefix = 'plan_total_days_';
-  /// Idempotency flag preventing duplicate immediate fires.
-  /// Full key: `plan_immediate_shown_<planId>_<yyyy-MM-dd>` → bool.
-  static const String planImmediateShownPrefix = 'plan_immediate_shown_';
-  /// Marker recording that today's plan-series notification was handed to the
-  /// OS ahead of its fire time, so the catch-up immediate must not re-fire
-  /// after the OS delivers it in the background.
-  /// Full key: `plan_series_scheduled_<planId>` → `<yyyy-MM-dd>|<notificationId>`.
-  static const String planSeriesScheduledPrefix = 'plan_series_scheduled_';
 
   // ========== FEATURES ==========
   /// Profile data JSON

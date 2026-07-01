@@ -138,12 +138,13 @@ void main() {
       );
       expect(entries, isNotEmpty);
       expect(entries.every((e) => e.fireAt != null), isTrue);
-      expect(entries.every((e) => !e.isImmediate), isTrue);
     });
   });
 
   group('case 3b: plan in progress', () {
-    test('emits an immediate when today block-time has already passed', () {
+    test(
+        'emits nothing for today once its block-time has passed '
+        '(no catch-up, no backfill)', () {
       final entries = engine.computeForPlanBlock(
         planBlock(hour: 7, minute: 0),
         planItem('plan-1'),
@@ -151,17 +152,22 @@ void main() {
           startedAt: DateTime(2026, 6, 1),
           totalDays: 30,
         ),
-        // 09:00 — past the 07:00 block time
+        // 09:00 — past the 07:00 block time. Today gets nothing at all.
         DateTime(2026, 6, 5, 9),
         masterOn: true,
         routineOn: true,
       );
-      final immediates = entries.where((e) => e.isImmediate).toList();
-      expect(immediates, hasLength(1));
-      expect(immediates.first.debugCase, contains('3b'));
+      expect(
+        entries.any((e) =>
+            e.fireAt != null && e.fireAt!.month == 6 && e.fireAt!.day == 5),
+        isFalse,
+      );
+      // Future days must still be scheduled — only today is skipped.
+      expect(entries, isNotEmpty);
+      expect(entries.every((e) => e.fireAt != null), isTrue);
     });
 
-    test('no immediate when today block-time has not yet passed', () {
+    test('schedules today normally when block-time has not yet passed', () {
       final entries = engine.computeForPlanBlock(
         planBlock(hour: 9, minute: 0),
         planItem('plan-1'),
@@ -173,16 +179,18 @@ void main() {
         masterOn: true,
         routineOn: true,
       );
-      expect(entries.any((e) => e.isImmediate), isFalse);
+      expect(
+        entries.any((e) =>
+            e.fireAt != null && e.fireAt!.month == 6 && e.fireAt!.day == 5),
+        isTrue,
+      );
     });
 
     test(
-        'explicit re-add with a later time today re-arms today\'s entry '
-        '(deliberately scheduled fires are always honored) but never emits '
-        'a catch-up', () {
+        'explicit re-add with a later time today fires today at that time '
+        '(deliberately scheduled fires are always honored)', () {
       final entries = engine.computeForPlanBlock(
-        // Block re-created at 16:00 after today's notification already
-        // fired at an earlier time (marker present).
+        // Block re-created at 16:00, later than the (already-passed) old time.
         planBlock(hour: 16, minute: 0),
         planItem('plan-1'),
         makePlan(
@@ -192,11 +200,8 @@ void main() {
         DateTime(2026, 6, 5, 15, 36),
         masterOn: true,
         routineOn: true,
-        seriesScheduledTodayByOS: true,
       );
-      // No instant duplicate of already-received content…
-      expect(entries.any((e) => e.isImmediate), isFalse);
-      // …but the user's explicit 16:00 choice fires today at 16:00.
+      // The user's explicit 16:00 choice fires today at 16:00.
       expect(
         entries.any((e) =>
             e.fireAt != null &&
@@ -213,28 +218,6 @@ void main() {
             e.fireAt!.day == 6),
         isTrue,
       );
-    });
-
-    test(
-        'no immediate when the OS already owned today\'s delivery '
-        '(background-fired notification must not duplicate on app open)', () {
-      final entries = engine.computeForPlanBlock(
-        planBlock(hour: 7, minute: 0),
-        planItem('plan-1'),
-        makePlan(
-          startedAt: DateTime(2026, 6, 1),
-          totalDays: 30,
-        ),
-        // 09:00 — past the 07:00 block time, normally triggers a catch-up.
-        DateTime(2026, 6, 5, 9),
-        masterOn: true,
-        routineOn: true,
-        seriesScheduledTodayByOS: true,
-      );
-      expect(entries.any((e) => e.isImmediate), isFalse);
-      // Future days must still be scheduled — only the catch-up is suppressed.
-      expect(entries, isNotEmpty);
-      expect(entries.every((e) => e.fireAt != null), isTrue);
     });
   });
 
@@ -335,7 +318,9 @@ void main() {
       );
     });
 
-    test('immediate catch-up uses today active plan day', () {
+    test(
+        'emits nothing for today once its block-time has passed '
+        '(no catch-up, no backfill)', () {
       final entries = engine.computeForSeriesBlock(
         planBlock(hour: 7),
         seriesItem(currentPlanId: 'plan-1'),
@@ -350,9 +335,12 @@ void main() {
         masterOn: true,
         routineOn: true,
       );
-      final immediates = entries.where((e) => e.isImmediate).toList();
-      expect(immediates, hasLength(1));
-      expect(immediates.first.body, contains('Day 5'));
+      expect(
+        entries.any((e) =>
+            e.fireAt != null && e.fireAt!.month == 6 && e.fireAt!.day == 5),
+        isFalse,
+      );
+      expect(entries.every((e) => e.fireAt != null), isTrue);
     });
   });
 
