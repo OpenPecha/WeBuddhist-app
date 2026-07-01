@@ -58,6 +58,7 @@ void main() {
 
   tearDown(() async {
     await Hive.deleteBoxFromDisk(MalaLocalDataSource.boxName);
+    await Hive.deleteBoxFromDisk(MalaLocalDataSource.groupBoxName);
     await Hive.close();
     tempDir.deleteSync(recursive: true);
   });

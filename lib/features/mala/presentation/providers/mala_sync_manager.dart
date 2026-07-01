@@ -31,6 +31,7 @@ class MalaSyncManager with WidgetsBindingObserver {
     required MalaLocalDataSource local,
     required CreateUserAccumulatorUseCase createAccumulator,
     required UpdateUserAccumulatorUseCase updateAccumulator,
+    required SubmitGroupAccumulatorCountUseCase submitGroupCount,
     required bool Function() isLoggedIn,
     required Future<String?> Function() currentUserId,
     Stream<bool>? connectivityStream,
@@ -38,6 +39,7 @@ class MalaSyncManager with WidgetsBindingObserver {
   })  : _local = local,
         _createAccumulator = createAccumulator,
         _updateAccumulator = updateAccumulator,
+        _submitGroupCount = submitGroupCount,
         _isLoggedIn = isLoggedIn,
         _currentUserId = currentUserId,
         _connectivityStream = connectivityStream,
@@ -46,6 +48,7 @@ class MalaSyncManager with WidgetsBindingObserver {
   final MalaLocalDataSource _local;
   final CreateUserAccumulatorUseCase _createAccumulator;
   final UpdateUserAccumulatorUseCase _updateAccumulator;
+  final SubmitGroupAccumulatorCountUseCase _submitGroupCount;
   final bool Function() _isLoggedIn;
   final Future<String?> Function() _currentUserId;
   final Stream<bool>? _connectivityStream;
@@ -123,6 +126,11 @@ class MalaSyncManager with WidgetsBindingObserver {
         final s = _local.read(userId, presetId);
         if (!s.isDirty) continue;
         await _pushTotal(userId, presetId, s.total);
+      }
+      for (final groupAccumulatorId in _local.dirtyGroupAccumulatorIds(userId)) {
+        final s = _local.readGroup(userId, groupAccumulatorId);
+        if (!s.isDirty) continue;
+        await _pushGroupTotal(userId, groupAccumulatorId, s.total);
       }
       _retryAttempt = 0;
       _retry?.cancel();
@@ -274,6 +282,42 @@ class MalaSyncManager with WidgetsBindingObserver {
           properties: {
             'accumulatorId': count.accumulatorId ?? accumulatorId,
             'total': max(count.total, sending),
+          },
+        );
+      },
+    );
+  }
+
+  Future<void> _pushGroupTotal(
+    String userId,
+    String groupAccumulatorId,
+    int sending,
+  ) async {
+    final result = await _submitGroupCount(
+      SubmitGroupAccumulatorCountParams(
+        groupAccumulatorId: groupAccumulatorId,
+        currentCount: sending,
+      ),
+    );
+
+    result.fold(
+      (failure) => throw Exception(failure.message),
+      (_) {
+        final after = _local.readGroup(userId, groupAccumulatorId);
+        _local.writeGroup(
+          userId,
+          groupAccumulatorId,
+          after.copyWith(
+            total: max(after.total, sending),
+            syncedTotal: max(after.syncedTotal, sending),
+          ),
+        );
+        _analytics?.track(
+          AnalyticsEvents.malaSynced,
+          properties: {
+            'groupAccumulatorId': groupAccumulatorId,
+            'total': max(after.total, sending),
+            'group': true,
           },
         );
       },

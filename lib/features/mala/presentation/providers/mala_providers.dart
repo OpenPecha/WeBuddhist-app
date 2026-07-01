@@ -66,6 +66,13 @@ final deleteUserAccumulatorUseCaseProvider =
       return DeleteUserAccumulatorUseCase(ref.watch(malaRepositoryProvider));
     });
 
+final submitGroupAccumulatorCountUseCaseProvider =
+    Provider<SubmitGroupAccumulatorCountUseCase>((ref) {
+      return SubmitGroupAccumulatorCountUseCase(
+        ref.watch(malaRepositoryProvider),
+      );
+    });
+
 // ============ Auth helpers ============
 
 bool _isAuthenticated(Ref ref) {
@@ -79,7 +86,7 @@ bool _isAuthenticated(Ref ref) {
 /// written before auth state flips to logged-in and does not depend on the
 /// async (and possibly failing) user-profile fetch, so it's available the
 /// moment the login-gated mala route is reachable. Falls back to the profile.
-Future<String?> _resolveUserId(Ref ref) async {
+Future<String?> resolveMalaUserId(Ref ref) async {
   final stored = await ref
       .read(localStorageServiceProvider)
       .get<String>(StorageKeys.currentUserId);
@@ -96,8 +103,9 @@ final malaSyncManagerProvider = Provider<MalaSyncManager>((ref) {
     local: ref.watch(malaLocalDataSourceProvider),
     createAccumulator: ref.watch(createUserAccumulatorUseCaseProvider),
     updateAccumulator: ref.watch(updateUserAccumulatorUseCaseProvider),
+    submitGroupCount: ref.watch(submitGroupAccumulatorCountUseCaseProvider),
     isLoggedIn: () => _isAuthenticated(ref),
-    currentUserId: () => _resolveUserId(ref),
+    currentUserId: () => resolveMalaUserId(ref),
     connectivityStream:
         ref.watch(connectivityServiceProvider).onConnectivityChanged,
     analytics: ref.watch(analyticsServiceProvider),
@@ -154,7 +162,7 @@ final malaCounterProvider = StateNotifierProvider.autoDispose
         downloadImageBytes:
             ref.watch(malaRemoteDataSourceProvider).fetchImageBytes,
         sync: ref.watch(malaSyncManagerProvider),
-        currentUserId: () => _resolveUserId(ref),
+        currentUserId: () => resolveMalaUserId(ref),
         analytics: ref.watch(analyticsServiceProvider),
         sound: ref.watch(malaSoundPlayerProvider),
       );
