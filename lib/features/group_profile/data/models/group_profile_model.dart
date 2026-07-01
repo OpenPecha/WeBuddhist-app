@@ -108,6 +108,7 @@ class GroupProfileModel {
       totalDays: (json['total_days'] as num?)?.toInt() ?? 0,
       startDate: _parseDate(json['start_date']),
       endDate: _parseDate(json['end_date']),
+      enrolledCount: (json['enrolled_count'] as num?)?.toInt() ?? 0,
       isGroupEnrolled: _parseNullableBool(json['is_group_enrolled']),
     );
   }

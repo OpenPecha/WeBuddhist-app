@@ -89,7 +89,9 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
     ref.listen(groupFollowProvider(followKey), (previous, next) {
       if (next case GroupFollowSuccess(isFollowing: false)) {
         setState(_localGroupEnrolledSeriesIds.clear);
-        ref.read(groupAccumulatorJoinCacheProvider(widget.profile.id).notifier).clear();
+        ref
+            .read(groupAccumulatorJoinCacheProvider(widget.profile.id).notifier)
+            .clear();
         ref.invalidate(groupAccumulatorsProvider(widget.profile.id));
       }
     });
@@ -97,7 +99,9 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
       next.whenData((either) {
         either.fold((_) {}, (page) {
           ref
-              .read(groupAccumulatorJoinCacheProvider(widget.profile.id).notifier)
+              .read(
+                groupAccumulatorJoinCacheProvider(widget.profile.id).notifier,
+              )
               .syncFromApi(page.accumulators);
         });
       });
@@ -616,7 +620,6 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
     double? lineHeight,
   ) {
     final dateRange = _formatSeriesDateRange(series);
-    final subtitle = dateRange ?? series.subTitle?.trim();
     final enrollmentStatus = _seriesGroupEnrollmentStatus(series);
     final showPracticeOverlay = enrollmentStatus != true;
     final isEnrolling = _enrollingSeriesId == series.id;
@@ -715,17 +718,40 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  if (subtitle != null && subtitle.isNotEmpty) ...[
+                  if (dateRange != null || series.enrolledCount > 0) ...[
                     const SizedBox(height: 4),
-                    Text(
-                      subtitle,
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: secondaryColor,
-                        height: lineHeight,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+                    Row(
+                      children: [
+                        if (dateRange != null)
+                          Expanded(
+                            child: Text(
+                              dateRange,
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: secondaryColor,
+                                height: lineHeight,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        if (series.enrolledCount > 0) ...[
+                          Icon(
+                            AppAssets.usercard,
+                            size: 16,
+                            color: secondaryColor,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            '${series.enrolledCount}',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: secondaryColor,
+                              height: lineHeight,
+                            ),
+                          ),
+                        ],
+                      ],
                     ),
                   ],
                 ],
