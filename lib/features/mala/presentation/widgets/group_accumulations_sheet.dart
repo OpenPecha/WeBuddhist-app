@@ -85,7 +85,9 @@ class _GroupAccumulationsSheetState
     final locale = intlFormatLocaleOf(context);
     ref.watch(groupAccumulationCountsProvider(widget.presetId));
     final groups =
-        ref.watch(joinedAccumulatorGroupsProvider(widget.presetId)).valueOrNull ??
+        ref
+            .watch(joinedAccumulatorGroupsProvider(widget.presetId))
+            .valueOrNull ??
         widget.groups;
     final countsNotifier = ref.read(
       groupAccumulationCountsProvider(widget.presetId).notifier,
@@ -120,30 +122,20 @@ class _GroupAccumulationsSheetState
                 ),
               ),
               const SizedBox(height: 12),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Text(
-                  context.l10n.mala_group_accumulations,
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
               _SelectableAccumulationRow(
                 isSelected: selection.isPersonal,
                 accentColor: accentColor,
                 onTap:
-                    () => ref
-                        .read(
-                          malaAccumulationSelectionProvider(
-                            widget.presetId,
-                          ).notifier,
-                        )
-                        .selectPersonal(),
+                    () =>
+                        ref
+                            .read(
+                              malaAccumulationSelectionProvider(
+                                widget.presetId,
+                              ).notifier,
+                            )
+                            .selectPersonal(),
                 leading: _UserAvatar(avatarUrl: user?.avatarUrl),
-                title:
-                    user != null ? _userDisplayName(user) : '—',
+                title: user != null ? _userDisplayName(user) : '—',
                 formattedCount: NumberFormat.decimalPattern(
                   locale,
                 ).format(widget.personalTotalCount),
@@ -153,7 +145,7 @@ class _GroupAccumulationsSheetState
               Padding(
                 padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
                 child: Text(
-                  context.l10n.mala_groups_section,
+                  context.l10n.mala_group_accumulations,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.w700,
                   ),
@@ -244,10 +236,8 @@ class _SelectableAccumulationRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final nameColor =
-        isSelected ? accentColor : theme.colorScheme.onSurface;
-    final countColor =
-        isSelected ? accentColor : theme.colorScheme.onSurface;
+    final nameColor = isSelected ? accentColor : theme.colorScheme.onSurface;
+    final countColor = isSelected ? accentColor : theme.colorScheme.onSurface;
 
     return Material(
       color: Colors.transparent,
@@ -296,8 +286,7 @@ class _UserAvatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final fallbackColor =
-        Theme.of(context).colorScheme.surfaceContainerHighest;
+    final fallbackColor = Theme.of(context).colorScheme.surfaceContainerHighest;
 
     return ClipOval(
       child: SizedBox(
