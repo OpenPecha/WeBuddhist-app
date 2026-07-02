@@ -74,6 +74,9 @@ class _GroupAccumulationsBarContent extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final pillColor =
+        isDark ? const Color(0xCC454545) : AppColors.grey100;
     final iconColor = Theme.of(context).colorScheme.onSurfaceVariant;
     final userAvatarUrl = ref.watch(userProvider).user?.avatarUrl;
     final groupPreview = groups.take(2).toList();
@@ -83,7 +86,7 @@ class _GroupAccumulationsBarContent extends ConsumerWidget {
     return Align(
       alignment: Alignment.centerLeft,
       child: Material(
-        color: AppColors.grey100,
+        color: pillColor,
         borderRadius: BorderRadius.circular(12),
         child: InkWell(
           borderRadius: BorderRadius.circular(20),
