@@ -14,6 +14,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// Always reserves [barHeight] so bead layout does not shift when the groups
 /// request resolves. The pill is shown only when
 /// `GET /accumulators/{presetId}/groups?joined_only=true` returns groups.
+///
+/// Tapping opens [GroupAccumulationsSheet], which shows lifetime
+/// [AccumulatorGroup.userTotalCount] per group. The mala counter above uses
+/// session counts from [groupAccumulationCountsProvider] when a group is selected.
 class GroupAccumulationsBar extends ConsumerWidget {
   const GroupAccumulationsBar({
     super.key,
@@ -22,6 +26,7 @@ class GroupAccumulationsBar extends ConsumerWidget {
   });
 
   final String presetId;
+  /// Personal active session total (`MalaCounterState.total`), shown on the user row.
   final int userTotalCount;
 
   static const barHeight = 40.0;

@@ -231,8 +231,10 @@ class MalaSettingsSheet extends ConsumerWidget {
         if (groupId != null) {
           ref.invalidate(groupAccumulatorDetailProvider(groupId));
         }
-        // Reconcile from detail API; post-reset guard prevents stale totals.
+        // Refresh session counts from detail API; post-reset guard prevents stale totals.
         ref.invalidate(joinedGroupUserCountsProvider(mantra.presetId));
+        // Refresh lifetime totals for the accumulations sheet.
+        ref.invalidate(joinedAccumulatorGroupsProvider(mantra.presetId));
       }
       Navigator.of(context).pop();
     } else if (result == false) {

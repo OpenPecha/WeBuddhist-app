@@ -6,9 +6,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// Joined group accumulators for the current preset
 /// (`GET /accumulators/{accumulator_id}/groups?joined_only=true`).
 ///
-/// Metadata only (title, image, membership). User counts come from
-/// [joinedGroupUserCountsProvider] via group_profile's
-/// `GET /group-accumulators/{id}` (`user.total_count`).
+/// Metadata only (title, image, membership, lifetime [AccumulatorGroup.userTotalCount]).
+/// Active session counts for bead tapping use [joinedGroupUserCountsProvider].
 final joinedAccumulatorGroupsProvider = FutureProvider.autoDispose
     .family<List<AccumulatorGroup>, String>((ref, presetId) async {
       final result = await ref

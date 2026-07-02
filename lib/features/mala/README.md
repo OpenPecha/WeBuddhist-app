@@ -31,7 +31,9 @@ presentation/
     mala_counter_notifier.dart    per-mantra counter (seed + increment)
     mala_sync_manager.dart        app-scoped background sync
     mala_settings_provider.dart   sound / vibration toggles (persisted)
-    accumulator_groups_provider.dart  joined groups for current preset (autoDispose family)
+    accumulator_groups_provider.dart  joined groups + session seed fetch (autoDispose family)
+    group_accumulation_counts_provider.dart  per-group session counts (Hive + sync)
+    mala_accumulation_selection_provider.dart  personal vs group selection (SharedPreferences)
     accumulation_search_provider.dart preset search state (settings / add flows)
   services/
     mala_sound_player.dart        bead-tap click (just_audio)
@@ -57,20 +59,28 @@ fetched by authenticated users, so the catch-all is safe.
 | --- | --- | --- |
 | `GET` | `/accumulators/presets` | Catalogue of preset mantras (paged, `language`). Sent with `no_cache` so it skips the 5-min HTTP cache and always returns the latest titles/images. |
 | `GET` | `/accumulators/{parent_id}` | The user's detail for one preset. **404 ⇒ no accumulator yet ⇒ seed at 0.** |
-| `GET` | `/accumulators/{accumulator_id}/groups` | Groups using this preset. Query `joined_only=true` returns only groups the user has joined. `{accumulator_id}` is the preset id (`Mantra.presetId`). |
+| `GET` | `/accumulators/{accumulator_id}/groups` | Groups using this preset. Query `joined_only=true` returns only groups the user has joined. `{accumulator_id}` is the preset id (`Mantra.presetId`). Each row includes `user_total_count` — the user's **lifetime** total for that group (shown in the accumulations sheet). Sent with `no_cache`. |
 | `POST` | `/accumulators/user` | Lazily create the user's accumulator (`{parent_id}`, starts at 0). |
 | `PUT` | `/accumulators/user/{id}` | Push the absolute `current_count`. |
-| `DELETE` | `/accumulators/user/{id}` | Soft-delete the active session accumulator (reset). |
-| `POST` | `/group-accumulators/{group_accumulator_id}` | Submit the user's absolute group count (`{current_count}`). Path param is `group_accumulator_id` from the groups list, not `group_id`. |
+| `DELETE` | `/accumulators/user/{id}` | Soft-delete the active session accumulator (personal reset). |
+| `GET` | `/group-accumulators/{group_accumulator_id}` | Group accumulator detail (group_profile). `user.total_count` is the user's **active session** count for bead tapping and sync. |
+| `POST` | `/group-accumulators/{group_accumulator_id}` | Submit the user's absolute group session count (`{current_count}`). Path param is `group_accumulator_id` from the groups list, not `group_id`. |
+| `DELETE` | `/group-accumulators/{group_accumulator_id}` | Soft-delete the user's active group session (group reset). Lifetime history on prior records is preserved server-side. |
 
 `mala_image_url` appears at both the accumulator and mantra level; it drives the
 bead artwork (see below).
 
 ## Counting model
 
-- **Monotonic absolute totals.** The client always sends the absolute lifetime
-  total, and both sides take `max()`. Re-sending the same total is a no-op, so
-  retries are always safe and counts reconcile across devices.
+Personal and group bead counting both sync **active session** absolutes
+(`current_count` / `user.total_count`). Lifetime totals for group rows in the
+accumulations sheet come from a separate field — see
+[Group counting: session vs lifetime](#group-counting-session-vs-lifetime).
+
+- **Monotonic absolute session totals.** The client always sends the absolute
+  session total for the active accumulator, and both sides take `max()`.
+  Re-sending the same total is a no-op, so retries are always safe and counts
+  reconcile across devices.
 - **Seed-before-send.** `MalaCounterNotifier.seed()` fetches the server total
   and `max()`-merges with the local total *before* taps are enabled
   (`isSeeding`), so a stale low value is never sent. Seed uses API
@@ -120,6 +130,52 @@ flushes even after the user leaves the screen.
 
 Re-entry runs `seed()` again; with no active `accumulator_id`, the on-screen
 count stays at 0 even if the parent detail echoes a non-zero `current_count`.
+
+### Group reset
+
+Same pattern as personal reset, scoped to one joined group:
+
+1. Optional **POST** if the local group entry is dirty (flush unsynced taps so
+   lifetime totals on the deleted record are preserved).
+2. **DELETE** `/group-accumulators/{group_accumulator_id}` — soft-delete the
+   active group session.
+3. **`clearGroupSession()`** locally — group `total=0`, `syncedTotal=0` in
+   `mala_group_counts`; the user remains joined.
+4. Next tap/sync: **POST** the new absolute session count as counting resumes.
+
+After a successful group reset, providers are invalidated so session counts
+re-seed from detail (`joinedGroupUserCountsProvider`) and lifetime totals
+refresh from the groups list (`joinedAccumulatorGroupsProvider`).
+
+## Group counting: session vs lifetime
+
+Group accumulators expose **two different user counts** from two endpoints:
+
+| Source | Field | Meaning | Used for |
+| --- | --- | --- | --- |
+| `GET /accumulators/{presetId}/groups` | `user_total_count` | Lifetime total across all sessions for that group | [GroupAccumulationsSheet] row labels only |
+| `GET /group-accumulators/{id}` (group_profile) | `user.total_count` | Active session count (resets on DELETE) | Mala counter, bead taps, Hive, background sync |
+
+**On-screen counter (`_CounterBlock` / bead arc):** when a group is selected,
+shows the **session** count from [groupAccumulationCountsProvider] (Hive +
+`joinedGroupUserCountsProvider` seed). Resets to 0 after a group reset.
+
+**Accumulations sheet:** group rows show **`AccumulatorGroup.userTotalCount`**
+(lifetime from the groups list). This does not drop to 0 when the active session
+is reset — it reflects cumulative contribution to the group.
+
+**Personal row in the sheet:** shows `MalaCounterState.total` (personal active
+session), same semantics as the counter when personal is selected.
+
+Providers:
+
+- [joinedAccumulatorGroupsProvider] — groups list metadata + `userTotalCount`
+  (lifetime).
+- [joinedGroupUserCountsProvider] — fetches detail per joined group to seed
+  session counts (`user.total_count`).
+- [groupAccumulationCountsProvider] — local session state, increments on tap,
+  `mergeFromServerCounts()` reconciles with detail API, `resetCount()` for
+  group reset.
 
 ## Local store (`MalaLocalDataSource`)
 
@@ -248,19 +304,19 @@ Entry point for group counting tied to the current preset. Fetched per mantra vi
   a chevron. Tapping opens [GroupAccumulationsSheet] with the cached groups list.
 - **Selection:** [malaAccumulationSelectionProvider] persists the active source
   per preset (`personal` or `group:{uuid}` in SharedPreferences). The mala
-  counter and bead arc display the selected total; taps increment personal or
-  group counts accordingly. Group counts are persisted locally per
-  `(userId, groupAccumulatorId)` and synced in the background by
-  [MalaSyncManager] (debounced tap flush, round-complete immediate flush,
-  lifecycle + reconnect), mirroring personal accumulation.
+  counter and bead arc display the selected **session** total; taps increment
+  personal or group session counts accordingly. Group session counts are
+  persisted locally per `(userId, groupAccumulatorId)` and synced in the
+  background by [MalaSyncManager] (debounced tap flush, round-complete immediate
+  flush, lifecycle + reconnect), mirroring personal accumulation.
 - **Images:** group `image` is parsed as `ImageUrlModel` (`thumbnail` /
   `medium` / `original`) via `ImageModel.fromJsonMap()` and mapped to
   `ResponsiveImage` on the entity. Avatars render through `ResponsiveCoverImage`
   so the thumbnail tier is picked for the small circle.
 
 `AccumulatorGroup` entity fields used today: `groupAccumulatorId`, `groupId`,
-`title`, `image`, `userTotalCount`, `isJoined`. The DTO also carries
-`target_count`, dates, etc. — not yet mapped on the client.
+`title`, `image`, `userTotalCount` (lifetime — sheet display only), `isJoined`.
+The DTO also carries `target_count`, dates, etc. — not yet mapped on the client.
 
 On API failure the provider returns an empty list (bar stays hidden, slot
 reserved).
@@ -268,18 +324,23 @@ reserved).
 ## Group accumulations sheet (`GroupAccumulationsSheet`)
 
 Opened from the bar pill. Receives the already-fetched [AccumulatorGroup] list
-and the user's personal count for the current preset (`MalaCounterState.total`).
+and the user's personal **session** count for the current preset
+(`MalaCounterState.total`).
 
 - **User row:** name and avatar from [userProvider] (local cache written at
   login; refreshes via `GET /users/info` when the sheet opens and no user is
-  cached yet). Count shows the personal mala total. Tappable; selected row uses
-  `AppColors.blue` / `AppColors.blueDark`.
-- **Groups list:** each row shows group image, title, and count from
-  [groupAccumulationCountsProvider] (Hive + API reconcile via `max()`, local
-  increments on tap). Tappable; accent colour on the active row.
+  cached yet). Count shows the personal mala session total. Tappable; selected
+  row uses `AppColors.blue` / `AppColors.blueDark`.
+- **Groups list:** each row shows group image, title, and **`userTotalCount`**
+  from the groups list API (lifetime total). Not the session count used by the
+  counter — so a group reset clears the counter but lifetime totals in the
+  sheet stay visible. Tappable; accent colour on the active row.
 - **Persistence:** selection survives app restarts via
   `StorageKeys.malaAccumulationSelectionPrefix` + preset id. Invalid group ids
   fall back to personal when the groups list reloads.
+
+Settings (from the mala app bar) can reset the active session (personal or
+group), add offline mala rounds to the active session, and bookmark the preset.
 
 ## Analytics
 
@@ -293,7 +354,7 @@ and the user's personal count for the current preset (`MalaCounterState.total`).
   completion, fresh-install seed-at-0, `resetCount()` success/failure/mounted.
 - `mala_sync_manager_test.dart` — create-once-then-update, absolute-total PUT,
   `max()` adoption, dirty-on-failure, logged-out no-op, per-user namespacing,
-  group count POST flush + dirty-on-failure.
+  group count POST flush + dirty-on-failure, group reset (flush-then-DELETE).
 - `mala_beads_test.dart` — tap increments, right-to-left swipe increments,
   left-to-right doesn't, and disabled beads ignore both.
 
