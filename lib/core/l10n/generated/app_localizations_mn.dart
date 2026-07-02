@@ -148,6 +148,18 @@ class AppLocalizationsMn extends AppLocalizations {
   String get home_mala => 'Эрх';
 
   @override
+  String get session_mala => 'Эрхүүд';
+
+  @override
+  String get bookmark_mala => 'Эрхүүд';
+
+  @override
+  String get bookmark_timers => 'Цаг хэмжигчид';
+
+  @override
+  String get bookmark_texts => 'Бичвэрүүд';
+
+  @override
   String get mala_add_to_practice => 'Миний дадлагад нэмэх';
 
   @override

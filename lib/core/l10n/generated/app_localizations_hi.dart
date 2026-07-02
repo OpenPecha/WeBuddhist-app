@@ -147,6 +147,18 @@ class AppLocalizationsHi extends AppLocalizations {
   String get home_mala => 'माला';
 
   @override
+  String get session_mala => 'मालाएँ';
+
+  @override
+  String get bookmark_mala => 'मालाएँ';
+
+  @override
+  String get bookmark_timers => 'टाइमर';
+
+  @override
+  String get bookmark_texts => 'ग्रंथ';
+
+  @override
   String get mala_add_to_practice => 'मेरे अभ्यास में जोड़ें';
 
   @override

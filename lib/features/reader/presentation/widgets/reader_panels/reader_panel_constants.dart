@@ -28,4 +28,10 @@ class ReaderPanelConstants {
         ? Colors.white.withValues(alpha: 0.18)
         : Colors.black.withValues(alpha: 0.14);
   }
+
+  /// Drag pill color: solid black in light mode, solid white in dark mode.
+  static Color dragHandleColor(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return isDark ? Colors.white : Colors.black;
+  }
 }

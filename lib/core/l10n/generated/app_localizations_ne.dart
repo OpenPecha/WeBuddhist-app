@@ -148,6 +148,18 @@ class AppLocalizationsNe extends AppLocalizations {
   String get home_mala => 'माला';
 
   @override
+  String get session_mala => 'मालाहरू';
+
+  @override
+  String get bookmark_mala => 'मालाहरू';
+
+  @override
+  String get bookmark_timers => 'टाइमरहरू';
+
+  @override
+  String get bookmark_texts => 'ग्रन्थहरू';
+
+  @override
   String get mala_add_to_practice => 'मेरा अभ्यासहरूमा थप्नुहोस्';
 
   @override

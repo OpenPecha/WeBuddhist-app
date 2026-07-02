@@ -358,6 +358,30 @@ abstract class AppLocalizations {
   /// **'Mala'**
   String get home_mala;
 
+  /// No description provided for @session_mala.
+  ///
+  /// In en, this message translates to:
+  /// **'Malas'**
+  String get session_mala;
+
+  /// No description provided for @bookmark_mala.
+  ///
+  /// In en, this message translates to:
+  /// **'Malas'**
+  String get bookmark_mala;
+
+  /// No description provided for @bookmark_timers.
+  ///
+  /// In en, this message translates to:
+  /// **'Timers'**
+  String get bookmark_timers;
+
+  /// No description provided for @bookmark_texts.
+  ///
+  /// In en, this message translates to:
+  /// **'Texts'**
+  String get bookmark_texts;
+
   /// No description provided for @mala_add_to_practice.
   ///
   /// In en, this message translates to:
