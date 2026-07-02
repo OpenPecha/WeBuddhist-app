@@ -8,15 +8,8 @@ import 'package:share_plus/share_plus.dart';
 class AppShareService {
   final _logger = AppLogger('AppShareService');
 
-  /// Universal link — opens the app when installed, redirects to the
-  /// correct store (via your hosted /open page) when not installed.
-  static const String _deepLinkUrl = 'https://webuddhist.com/open';
-
   String generateShareMessage() {
-    return '''I'm using WeBuddhist to learn and practice Buddhism. Join me!
-
-👉 $_deepLinkUrl
-''';
+    return "I've been using this app to build a daily Buddhist practice, and thought you'd love it.\n\n${AppConfig.airbridgeTrackingLink}";
   }
 
   Future<void> shareApp() async {
@@ -25,7 +18,7 @@ class AppShareService {
 
       await SharePlus.instance.share(
         ShareParams(
-          text: AppConfig.airbridgeTrackingLink,
+          text: generateShareMessage(),
         ),
       );
 

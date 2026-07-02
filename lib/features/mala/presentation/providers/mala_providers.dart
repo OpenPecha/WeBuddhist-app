@@ -73,6 +73,11 @@ final submitGroupAccumulatorCountUseCaseProvider =
       );
     });
 
+final deleteGroupAccumulatorUseCaseProvider =
+    Provider<DeleteGroupAccumulatorUseCase>((ref) {
+      return DeleteGroupAccumulatorUseCase(ref.watch(malaRepositoryProvider));
+    });
+
 // ============ Auth helpers ============
 
 bool _isAuthenticated(Ref ref) {

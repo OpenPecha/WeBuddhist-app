@@ -49,4 +49,12 @@ abstract class MalaRepository {
     required String groupAccumulatorId,
     required int currentCount,
   });
+
+  /// Soft-delete the user's group count
+  /// (`DELETE /group-accumulators/{group_accumulator_id}`). Resets the user's
+  /// count to zero server-side while preserving lifetime totals on the deleted
+  /// record.
+  Future<Either<Failure, Unit>> deleteGroupAccumulator(
+    String groupAccumulatorId,
+  );
 }

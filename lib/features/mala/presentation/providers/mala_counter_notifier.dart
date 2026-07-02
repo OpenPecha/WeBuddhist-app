@@ -248,6 +248,20 @@ class MalaCounterNotifier extends StateNotifier<MalaCounterState> {
     _sync.onTap(roundComplete: roundComplete);
   }
 
+  /// Adds completed mala rounds counted outside the app (monotonic).
+  void addRounds(int rounds) {
+    if (rounds <= 0 || state.isSeeding || state.isResetting) return;
+
+    final userId = _userId;
+    if (userId == null || userId.isEmpty) return;
+
+    final delta = rounds * state.beadsPerRound;
+    final newTotal = state.total + delta;
+    state = state.copyWith(total: newTotal);
+    unawaited(_local.addToTotal(userId, _presetId, delta));
+    _sync.onTap(roundComplete: true);
+  }
+
   /// Resets the on-screen session to zero by soft-deleting the active server
   /// accumulator (`DELETE /accumulators/user/{id}`). Unsynced taps are flushed
   /// first. Returns false on failure.

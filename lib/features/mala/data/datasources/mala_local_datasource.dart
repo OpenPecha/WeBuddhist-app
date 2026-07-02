@@ -178,6 +178,19 @@ class MalaLocalDataSource {
     return next;
   }
 
+  /// Adds [delta] beads to the monotonic local total (e.g. offline mala rounds).
+  Future<LocalMalaState> addToTotal(
+    String userId,
+    String presetId,
+    int delta,
+  ) async {
+    if (delta <= 0) return read(userId, presetId);
+    final s = read(userId, presetId);
+    final next = s.copyWith(total: s.total + delta);
+    await write(userId, presetId, next);
+    return next;
+  }
+
   /// Clears the on-screen session after a reset: count back to zero and no
   /// active accumulator id. Preserves [beadImageUrl] for offline rendering.
   Future<void> clearSession(String userId, String presetId) async {
@@ -269,6 +282,31 @@ class MalaLocalDataSource {
     final next = s.copyWith(total: s.total + 1);
     await writeGroup(userId, groupAccumulatorId, next);
     return next;
+  }
+
+  Future<LocalGroupMalaState> addGroupToTotal(
+    String userId,
+    String groupAccumulatorId,
+    int delta,
+  ) async {
+    if (delta <= 0) return readGroup(userId, groupAccumulatorId);
+    final s = readGroup(userId, groupAccumulatorId);
+    final next = s.copyWith(total: s.total + delta);
+    await writeGroup(userId, groupAccumulatorId, next);
+    return next;
+  }
+
+  /// Clears the local group count after a reset (`total` and `syncedTotal` back
+  /// to zero). The user remains joined; counting resumes via POST on next tap.
+  Future<void> clearGroupSession(
+    String userId,
+    String groupAccumulatorId,
+  ) async {
+    await writeGroup(
+      userId,
+      groupAccumulatorId,
+      const LocalGroupMalaState(),
+    );
   }
 
   List<String> groupAccumulatorIdsForUser(String userId) {
