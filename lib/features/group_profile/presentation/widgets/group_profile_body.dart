@@ -52,8 +52,6 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
     return count;
   }
 
-  int get _membersTabIndex => 1;
-
   bool _hasBanner(GroupProfile profile) =>
       profile.bannerUrl != null && profile.bannerUrl!.isNotEmpty;
 
@@ -164,23 +162,19 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
         if (_isCommunityGroup(profile)) ...[
           _buildTabBar(isDark, profile),
           Expanded(
-            child: AnimatedBuilder(
-              animation: _tabController!,
-              builder: (context, _) {
-                final tabIndex = _tabController!.index;
-                if (tabIndex == 0) {
-                  return _buildPracticesTab(profile, isDark, lineHeight);
-                }
-                if (tabIndex == _membersTabIndex) {
-                  return GroupProfileMembersTab(
-                    groupId: profile.id,
-                    groupType: profile.groupType,
-                    isDark: isDark,
-                    lineHeight: lineHeight,
-                  );
-                }
-                return _buildAboutTab(profile, isDark, locale.languageCode);
-              },
+            child: TabBarView(
+              controller: _tabController!,
+              children: [
+                _buildPracticesTab(profile, isDark, lineHeight),
+                GroupProfileMembersTab(
+                  groupId: profile.id,
+                  groupType: profile.groupType,
+                  isDark: isDark,
+                  lineHeight: lineHeight,
+                ),
+                if (_hasAboutContent(profile))
+                  _buildAboutTab(profile, isDark, locale.languageCode),
+              ],
             ),
           ),
         ] else
