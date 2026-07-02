@@ -9,6 +9,7 @@ import 'package:flutter_pecha/features/practice/data/datasource/bookmark_remote_
 import 'package:flutter_pecha/features/practice/presentation/controllers/bookmark_controller.dart';
 import 'package:flutter_pecha/features/practice/presentation/providers/bookmark_providers.dart';
 import 'package:flutter_pecha/features/reader/presentation/providers/reader_notifier.dart';
+import 'package:flutter_pecha/features/reader/presentation/widgets/reader_panels/reader_panel_constants.dart';
 import 'package:flutter_pecha/features/texts/data/models/segment.dart';
 import 'package:flutter_pecha/features/texts/data/models/segment_info.dart';
 import 'package:flutter_pecha/features/texts/presentation/providers/segment_provider.dart';
@@ -389,10 +390,8 @@ class _ResourcesPanelState extends State<_ResourcesPanel> {
                       GestureDetector(
                         behavior: HitTestBehavior.opaque,
                         onVerticalDragEnd:
-                            (details) => _handleDragHandleDragEnd(
-                              context,
-                              details,
-                            ),
+                            (details) =>
+                                _handleDragHandleDragEnd(context, details),
                         child: ColoredBox(
                           color: cardBackgroundColor,
                           child: SizedBox(
@@ -405,8 +404,8 @@ class _ResourcesPanelState extends State<_ResourcesPanel> {
                                 width: 36,
                                 height: 4,
                                 decoration: BoxDecoration(
-                                  color: theme.colorScheme.onSurface.withValues(
-                                    alpha: 0.35,
+                                  color: ReaderPanelConstants.dragHandleColor(
+                                    context,
                                   ),
                                   borderRadius: BorderRadius.circular(2),
                                 ),
@@ -468,11 +467,7 @@ class _ResourcesPanelState extends State<_ResourcesPanel> {
             ),
           ),
         ),
-        Divider(
-          height: 1,
-          thickness: 1,
-          color: Theme.of(context).dividerColor,
-        ),
+        Divider(height: 1, thickness: 1, color: Theme.of(context).dividerColor),
         for (final tile in widget.tiles) tile,
         if (showMorePrompt) _SwipeForMorePrompt(onTap: _expand),
         if (showVideos && widget.videos.isNotEmpty)

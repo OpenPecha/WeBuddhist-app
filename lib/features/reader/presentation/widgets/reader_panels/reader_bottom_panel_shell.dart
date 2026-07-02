@@ -81,18 +81,18 @@ class _ReaderBottomPanelShellState
             behavior: HitTestBehavior.opaque,
             onVerticalDragUpdate: _handleDragUpdate,
             onVerticalDragEnd: _handleDragEnd,
-            child: Column(
+            child: ColoredBox(
+              color: theme.colorScheme.onSurface.withValues(alpha: 0.05),
+              child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Padding(
-                  padding: const EdgeInsets.only(top: 10, bottom: 6),
+                  padding: const EdgeInsets.only(top: 8, bottom: 2),
                   child: Container(
                     width: ReaderPanelConstants.dragHandleWidth,
                     height: ReaderPanelConstants.dragHandleHeight,
                     decoration: BoxDecoration(
-                      color: theme.colorScheme.onSurface.withValues(
-                        alpha: 0.25,
-                      ),
+                      color: ReaderPanelConstants.dragHandleColor(context),
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
@@ -100,9 +100,9 @@ class _ReaderBottomPanelShellState
                 Padding(
                   padding: const EdgeInsets.fromLTRB(
                     8,
-                    4,
+                    2,
                     ReaderPanelConstants.horizontalPadding,
-                    12,
+                    8,
                   ),
                   child: Row(
                     children: [
@@ -131,6 +131,7 @@ class _ReaderBottomPanelShellState
                 Container(height: 1, color: dividerColor),
               ],
             ),
+          ),
           ),
           Expanded(child: widget.child),
         ],
