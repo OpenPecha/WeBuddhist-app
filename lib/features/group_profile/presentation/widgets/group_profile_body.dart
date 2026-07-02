@@ -857,8 +857,7 @@ class _GroupFollowButton extends ConsumerWidget {
 
   Future<void> _onInvitePressed(BuildContext context) async {
     final shareUrl = DeepLinkUrlBuilder.groupLink(groupId: profile.id).toString();
-    const shareMessage =
-        "I'd love for you to join our group. Let's practice together on WeBuddhist.";
+    final shareMessage = context.l10n.share_group_invite_message;
     final sharePositionOrigin = getSharePositionOrigin(context: context);
     await SharePlus.instance.share(
       ShareParams(

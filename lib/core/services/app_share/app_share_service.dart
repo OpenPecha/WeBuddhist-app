@@ -8,17 +8,17 @@ import 'package:share_plus/share_plus.dart';
 class AppShareService {
   final _logger = AppLogger('AppShareService');
 
-  String generateShareMessage() {
-    return "I've been using this app to build a daily Buddhist practice, and thought you'd love it.\n\n${AppConfig.airbridgeTrackingLink}";
+  String buildShareMessage(String localizedMessage) {
+    return '$localizedMessage\n\n${AppConfig.airbridgeTrackingLink}';
   }
 
-  Future<void> shareApp() async {
+  Future<void> shareApp(String localizedMessage) async {
     try {
       _logger.info('Sharing WeBuddhist app with Airbridge tracking link');
 
       await SharePlus.instance.share(
         ShareParams(
-          text: generateShareMessage(),
+          text: buildShareMessage(localizedMessage),
         ),
       );
 

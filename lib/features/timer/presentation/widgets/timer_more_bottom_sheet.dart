@@ -45,8 +45,7 @@ class _TimerMoreBottomSheetState extends ConsumerState<TimerMoreBottomSheet> {
     try {
       final nav = Navigator.of(context);
       final shareUrl = DeepLinkUrlBuilder.timerLink(timerId: widget.timer.id).toString();
-      const shareMessage =
-          'I wanted to share this meditation timer from WeBuddhist with you. It makes it easy to build a meditation practice.';
+      final shareMessage = context.l10n.share_timer_message;
       nav.pop();
       await SharePlus.instance.share(
         ShareParams(text: '$shareMessage\n\n$shareUrl'),
@@ -100,7 +99,7 @@ class _TimerMoreBottomSheetState extends ConsumerState<TimerMoreBottomSheet> {
           ListTile(
             leading: Icon(AppAssets.plus, color: theme.colorScheme.onSurface),
             title: Text(
-              'Add to my practices',
+              l10n.mala_add_to_practice,
               style: theme.textTheme.bodyLarge,
             ),
             onTap: () {

@@ -85,7 +85,7 @@ class _SeriesMoreBottomSheetState extends ConsumerState<SeriesMoreBottomSheet> {
           ListTile(
             leading: Icon(AppAssets.plus, color: theme.colorScheme.onSurface),
             title: Text(
-              'Add to my practices',
+              l10n.mala_add_to_practice,
               style: theme.textTheme.bodyLarge,
             ),
             onTap: () {
@@ -125,7 +125,7 @@ class _SeriesMoreBottomSheetState extends ConsumerState<SeriesMoreBottomSheet> {
           _SectionDivider(theme: theme),
           ListTile(
             leading: Icon(AppAssets.share, color: theme.colorScheme.onSurface),
-            title: Text('Share', style: theme.textTheme.bodyLarge),
+            title: Text(l10n.share, style: theme.textTheme.bodyLarge),
             onTap: () {
               HapticFeedback.lightImpact();
               Navigator.of(context).pop();

@@ -1687,6 +1687,45 @@ class AppLocalizationsEn extends AppLocalizations {
   String get verse_share_error => 'Unable to share quote. Please try again';
 
   @override
+  String get share_app_message =>
+      'I\'ve been using this app to build a daily Buddhist practice, and thought you\'d love it.';
+
+  @override
+  String get share_streak_message =>
+      'I\'ve been building a daily practice habit and wanted to share it with you. It\'s easier to keep it up with a friend. Join me on WeBuddhist.';
+
+  @override
+  String get share_chant_message =>
+      'I wanted to share this chant with you. You can practice it and find a whole library of other chants and texts on WeBuddhist.';
+
+  @override
+  String get share_quote_message =>
+      'I liked this quote from WeBuddhist and wanted to share it with you. Read more such insightful quotes on the WeBuddhist App';
+
+  @override
+  String get share_mala_message =>
+      'I\'ve been using this digital mala on WeBuddhist and wanted to share it with you. It\'s an easy way to practice wherever you go.';
+
+  @override
+  String get share_passage_message =>
+      'I liked this passage and wanted to share it with you. You can read the whole quote in context on WeBuddhist.';
+
+  @override
+  String get share_timer_message =>
+      'I wanted to share this meditation timer from WeBuddhist with you. It makes it easy to build a meditation practice.';
+
+  @override
+  String get share_plan_message =>
+      'I\'m following this Buddhist practice plan and wanted to share it with you. You can join me for free on WeBuddhist.';
+
+  @override
+  String get share_plan_subject => 'Join me on WeBuddhist';
+
+  @override
+  String get share_group_invite_message =>
+      'I\'d love for you to join our group. Let\'s practice together on WeBuddhist.';
+
+  @override
   String get weekday_monday => 'MON';
 
   @override

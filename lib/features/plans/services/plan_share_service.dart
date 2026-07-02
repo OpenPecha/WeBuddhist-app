@@ -19,33 +19,28 @@ class PlanShareService {
     return 'weBuddhist://plans/invite?planId=$planId';
   }
 
-  /// Generate share message with plan details
-  String generateShareMessage(String planTitle, String deepLink) {
-    return "I'm following this Buddhist practice plan and wanted to share it with you. You can join me for free on WeBuddhist.\n\n$deepLink";
-  }
-
   /// Share a plan with friends
-  /// Opens the native share sheet with the plan invitation
+  /// Opens the native share sheet with the plan invitation.
+  /// [localizedMessage] and [localizedSubject] should come from the caller's
+  /// localization context (e.g. l10n.share_plan_message / l10n.share_plan_subject).
   Future<void> sharePlan(
     String planId,
     String planTitle, {
-    String? customMessage,
+    required String localizedMessage,
+    required String localizedSubject,
   }) async {
     try {
       _logger.info('Sharing plan: $planId - $planTitle');
 
-      // Generate deep link
       final deepLink = generatePlanInviteLink(planId);
       _logger.debug('Generated deep link: $deepLink');
 
-      // Generate message
-      final message = customMessage ?? generateShareMessage(planTitle, deepLink);
+      final message = '$localizedMessage\n\n$deepLink';
 
-      // Share using native share sheet
       // ignore: deprecated_member_use
       await Share.share(
         message,
-        subject: 'Join me on WeBuddhist',
+        subject: localizedSubject,
       );
 
       _logger.info('Share completed successfully');

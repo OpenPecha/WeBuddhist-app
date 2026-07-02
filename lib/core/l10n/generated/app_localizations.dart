@@ -3094,6 +3094,66 @@ abstract class AppLocalizations {
   /// **'Unable to share quote. Please try again'**
   String get verse_share_error;
 
+  /// No description provided for @share_app_message.
+  ///
+  /// In en, this message translates to:
+  /// **'I\'ve been using this app to build a daily Buddhist practice, and thought you\'d love it.'**
+  String get share_app_message;
+
+  /// No description provided for @share_streak_message.
+  ///
+  /// In en, this message translates to:
+  /// **'I\'ve been building a daily practice habit and wanted to share it with you. It\'s easier to keep it up with a friend. Join me on WeBuddhist.'**
+  String get share_streak_message;
+
+  /// No description provided for @share_chant_message.
+  ///
+  /// In en, this message translates to:
+  /// **'I wanted to share this chant with you. You can practice it and find a whole library of other chants and texts on WeBuddhist.'**
+  String get share_chant_message;
+
+  /// No description provided for @share_quote_message.
+  ///
+  /// In en, this message translates to:
+  /// **'I liked this quote from WeBuddhist and wanted to share it with you. Read more such insightful quotes on the WeBuddhist App'**
+  String get share_quote_message;
+
+  /// No description provided for @share_mala_message.
+  ///
+  /// In en, this message translates to:
+  /// **'I\'ve been using this digital mala on WeBuddhist and wanted to share it with you. It\'s an easy way to practice wherever you go.'**
+  String get share_mala_message;
+
+  /// No description provided for @share_passage_message.
+  ///
+  /// In en, this message translates to:
+  /// **'I liked this passage and wanted to share it with you. You can read the whole quote in context on WeBuddhist.'**
+  String get share_passage_message;
+
+  /// No description provided for @share_timer_message.
+  ///
+  /// In en, this message translates to:
+  /// **'I wanted to share this meditation timer from WeBuddhist with you. It makes it easy to build a meditation practice.'**
+  String get share_timer_message;
+
+  /// No description provided for @share_plan_message.
+  ///
+  /// In en, this message translates to:
+  /// **'I\'m following this Buddhist practice plan and wanted to share it with you. You can join me for free on WeBuddhist.'**
+  String get share_plan_message;
+
+  /// No description provided for @share_plan_subject.
+  ///
+  /// In en, this message translates to:
+  /// **'Join me on WeBuddhist'**
+  String get share_plan_subject;
+
+  /// No description provided for @share_group_invite_message.
+  ///
+  /// In en, this message translates to:
+  /// **'I\'d love for you to join our group. Let\'s practice together on WeBuddhist.'**
+  String get share_group_invite_message;
+
   /// No description provided for @weekday_monday.
   ///
   /// In en, this message translates to:

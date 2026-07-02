@@ -68,8 +68,7 @@ class _ReaderMoreBottomSheetState extends ConsumerState<ReaderMoreBottomSheet> {
           DeepLinkUrlBuilder.readerLink(textId: widget.textId).toString();
       if (!mounted) return;
       final sharePositionOrigin = getSharePositionOrigin(context: context);
-      const shareMessage =
-          'I wanted to share this chant with you. You can practice it and find a whole library of other chants and texts on WeBuddhist.';
+      final shareMessage = context.l10n.share_chant_message;
       await SharePlus.instance.share(
         ShareParams(
           text: '$shareMessage\n\n$shareUrl',
@@ -186,7 +185,7 @@ class _ReaderMoreBottomSheetState extends ConsumerState<ReaderMoreBottomSheet> {
             ListTile(
               leading: Icon(AppAssets.plus, color: theme.colorScheme.onSurface),
               title: Text(
-                'Add to my practices',
+                l10n.mala_add_to_practice,
                 style: theme.textTheme.bodyLarge,
               ),
               onTap: () {
