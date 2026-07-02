@@ -28,8 +28,6 @@ class PresetTimerCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final cardColor = isDark ? AppColors.surfaceDark : AppColors.surfaceWhite;
-    final borderColor =
-        isDark ? AppColors.cardBorderDark : const Color(0xFFE4E4E4);
     final textColor = Theme.of(context).colorScheme.onSurface;
     final isTibetan = AppFontConfig.isTibetanLanguage(
       Localizations.localeOf(context).languageCode,
@@ -63,7 +61,6 @@ class PresetTimerCard extends StatelessWidget {
       color: cardColor,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(_borderRadius),
-        side: BorderSide(color: borderColor),
       ),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
