@@ -130,6 +130,25 @@ class GroupAccumulationCountsNotifier extends StateNotifier<Map<String, int>> {
 
     _sync.onTap(roundComplete: roundComplete);
   }
+
+  void addRounds({
+    required String groupAccumulatorId,
+    required List<AccumulatorGroup> groups,
+    required int rounds,
+    required int beadsPerRound,
+  }) {
+    if (rounds <= 0) return;
+
+    final userId = _userId;
+    if (userId == null || userId.isEmpty) return;
+
+    final current = countFor(groupAccumulatorId, groups);
+    final delta = rounds * beadsPerRound;
+    final newTotal = current + delta;
+    state = {...state, groupAccumulatorId: newTotal};
+    unawaited(_local.addGroupToTotal(userId, groupAccumulatorId, delta));
+    _sync.onTap(roundComplete: true);
+  }
 }
 
 final groupAccumulationCountsProvider = StateNotifierProvider.autoDispose

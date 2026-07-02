@@ -79,7 +79,7 @@ class _GroupAccumulationsBarContent extends ConsumerWidget {
       alignment: Alignment.centerLeft,
       child: Material(
         color: AppColors.grey100,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(12),
         child: InkWell(
           borderRadius: BorderRadius.circular(20),
           onTap:
@@ -119,7 +119,11 @@ class _GroupAccumulationsBarContent extends ConsumerWidget {
                     ],
                   ),
                 ),
-                Icon(Icons.chevron_right, size: 20, color: iconColor),
+                Icon(
+                  AppAssets.caretRight2,
+                  size: 24,
+                  color: iconColor,
+                ),
               ],
             ),
           ),
@@ -137,8 +141,7 @@ class _BarUserAvatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final fallbackColor =
-        Theme.of(context).colorScheme.surfaceContainerHighest;
+    final fallbackColor = Theme.of(context).colorScheme.surfaceContainerHighest;
 
     return Container(
       width: size,
@@ -174,8 +177,7 @@ class _GroupAvatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final fallbackColor =
-        Theme.of(context).colorScheme.surfaceContainerHighest;
+    final fallbackColor = Theme.of(context).colorScheme.surfaceContainerHighest;
 
     return Container(
       width: size,

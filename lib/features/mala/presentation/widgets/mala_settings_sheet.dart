@@ -7,9 +7,12 @@ import 'package:flutter_pecha/core/network/connectivity_service.dart' show conne
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/core/widgets/destructive_confirmation_dialog.dart';
 import 'package:flutter_pecha/features/mala/domain/entities/mantra.dart';
+import 'package:flutter_pecha/features/mala/presentation/providers/accumulator_groups_provider.dart';
+import 'package:flutter_pecha/features/mala/presentation/providers/group_accumulation_counts_provider.dart';
 import 'package:flutter_pecha/features/mala/presentation/providers/mala_accumulation_selection_provider.dart';
 import 'package:flutter_pecha/features/mala/presentation/providers/mala_providers.dart';
 import 'package:flutter_pecha/features/mala/presentation/providers/mala_settings_provider.dart';
+import 'package:flutter_pecha/features/mala/presentation/widgets/add_mala_rounds_dialog.dart';
 import 'package:flutter_pecha/features/practice/data/datasource/bookmark_remote_datasource.dart';
 import 'package:flutter_pecha/features/practice/presentation/controllers/bookmark_controller.dart';
 import 'package:flutter_pecha/features/practice/presentation/providers/bookmark_providers.dart';
@@ -40,9 +43,15 @@ class MalaSettingsSheet extends ConsumerWidget {
     final settings = ref.watch(malaSettingsProvider);
     final settingsNotifier = ref.read(malaSettingsProvider.notifier);
     final isOnline = ref.watch(connectivityNotifierProvider);
-    final isPersonal = ref
-        .watch(malaAccumulationSelectionProvider(mantra.presetId))
-        .isPersonal;
+    final selection = ref.watch(
+      malaAccumulationSelectionProvider(mantra.presetId),
+    );
+    final isPersonal = selection.isPersonal;
+    final counter = ref.watch(malaCounterProvider(mantra));
+    final canAddRounds =
+        !counter.isSeeding &&
+        !counter.seedFailed &&
+        (selection.isPersonal || selection.groupAccumulatorId != null);
     final isBookmarked = ref.watch(
       isBookmarkedProvider(
         BookmarkTarget(type: BookmarkType.accumulator, sourceId: mantra.presetId),
@@ -76,6 +85,13 @@ class MalaSettingsSheet extends ConsumerWidget {
               label: l10n.mala_add_to_practice,
               enabled: isPersonal,
               onTap: () => _onAddToPractice(context),
+            ),
+            Divider(height: 1, color: dividerColor),
+            _MalaSettingsTile(
+              icon: AppAssets.plusCircle,
+              label: l10n.mala_add_mala_round,
+              enabled: canAddRounds,
+              onTap: () => _onAddMalaRound(context, ref),
             ),
             Divider(height: 1, color: dividerColor),
             _MalaSettingsTile(
@@ -125,6 +141,36 @@ class MalaSettingsSheet extends ConsumerWidget {
     final router = GoRouter.of(context);
     Navigator.of(context).pop();
     router.pushNamed('edit-routine', extra: {'initialMantra': mantra});
+  }
+
+  Future<void> _onAddMalaRound(BuildContext context, WidgetRef ref) async {
+    final rounds = await showAddMalaRoundsDialog(context);
+    if (rounds == null || rounds <= 0 || !context.mounted) return;
+
+    final selection = ref.read(
+      malaAccumulationSelectionProvider(mantra.presetId),
+    );
+    final counter = ref.read(malaCounterProvider(mantra));
+
+    if (selection.isPersonal) {
+      ref.read(malaCounterProvider(mantra).notifier).addRounds(rounds);
+    } else {
+      final groupId = selection.groupAccumulatorId;
+      if (groupId == null) return;
+      final groups =
+          ref.read(joinedAccumulatorGroupsProvider(mantra.presetId)).valueOrNull ??
+          const [];
+      ref
+          .read(groupAccumulationCountsProvider(mantra.presetId).notifier)
+          .addRounds(
+            groupAccumulatorId: groupId,
+            groups: groups,
+            rounds: rounds,
+            beadsPerRound: counter.beadsPerRound,
+          );
+    }
+
+    if (context.mounted) Navigator.of(context).pop();
   }
 
   Future<void> _onToggleBookmark(BuildContext context, WidgetRef ref) async {

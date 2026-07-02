@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/constants/app_assets.dart';
+import 'package:flutter_pecha/core/theme/font_config.dart';
 import 'package:flutter_pecha/features/mala/domain/entities/mantra.dart';
 
 /// Mantra display + chevron switcher as an **infinite, looping carousel**.
@@ -90,7 +92,7 @@ class _MantraSwitcherState extends State<MantraSwitcher> {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         _Chevron(
-          icon: Icons.chevron_left,
+          icon: AppAssets.caretLeft2,
           onTap: _canLoop ? () => _animateBy(-1) : null,
         ),
         Expanded(
@@ -118,7 +120,7 @@ class _MantraSwitcherState extends State<MantraSwitcher> {
           ),
         ),
         _Chevron(
-          icon: Icons.chevron_right,
+          icon: AppAssets.caretRight2,
           onTap: _canLoop ? () => _animateBy(1) : null,
         ),
       ],
@@ -190,7 +192,7 @@ class _Chevron extends StatelessWidget {
     final color = Theme.of(context).colorScheme.onSurface;
     return IconButton(
       onPressed: onTap,
-      icon: Icon(icon, size: 32),
+      icon: Icon(icon, size: 24),
       color: color,
       disabledColor: color.withValues(alpha: 0.25),
       splashRadius: 24,
