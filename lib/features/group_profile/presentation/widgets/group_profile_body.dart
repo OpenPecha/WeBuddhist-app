@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/constants/app_assets.dart';
+import 'package:flutter_pecha/core/deep_linking/deep_link_url_builder.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/core/widgets/cached_network_image_widget.dart';
@@ -17,8 +18,10 @@ import 'package:flutter_pecha/features/home/presentation/providers/series_enroll
 import 'package:flutter_pecha/features/plans/presentation/widgets/plan_inline_markdown_view.dart';
 import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_pecha/features/plans/data/utils/plan_date_format.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class GroupProfileBody extends ConsumerStatefulWidget {
@@ -51,8 +54,6 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
     if (_hasAboutContent(profile)) count++;
     return count;
   }
-
-  int get _membersTabIndex => 1;
 
   bool _hasBanner(GroupProfile profile) =>
       profile.bannerUrl != null && profile.bannerUrl!.isNotEmpty;
@@ -164,23 +165,19 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
         if (_isCommunityGroup(profile)) ...[
           _buildTabBar(isDark, profile),
           Expanded(
-            child: AnimatedBuilder(
-              animation: _tabController!,
-              builder: (context, _) {
-                final tabIndex = _tabController!.index;
-                if (tabIndex == 0) {
-                  return _buildPracticesTab(profile, isDark, lineHeight);
-                }
-                if (tabIndex == _membersTabIndex) {
-                  return GroupProfileMembersTab(
-                    groupId: profile.id,
-                    groupType: profile.groupType,
-                    isDark: isDark,
-                    lineHeight: lineHeight,
-                  );
-                }
-                return _buildAboutTab(profile, isDark, locale.languageCode);
-              },
+            child: TabBarView(
+              controller: _tabController!,
+              children: [
+                _buildPracticesTab(profile, isDark, lineHeight),
+                GroupProfileMembersTab(
+                  groupId: profile.id,
+                  groupType: profile.groupType,
+                  isDark: isDark,
+                  lineHeight: lineHeight,
+                ),
+                if (_hasAboutContent(profile))
+                  _buildAboutTab(profile, isDark, locale.languageCode),
+              ],
             ),
           ),
         ] else
@@ -761,11 +758,7 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
   }
 
   String? _formatSeriesDateRange(GroupProfileSeries series) {
-    final startDate = series.startDate;
-    final endDate = series.endDate;
-    if (startDate == null || endDate == null) return null;
-    final formatter = DateFormat('MMM d');
-    return '${formatter.format(startDate.toLocal())} - ${formatter.format(endDate.toLocal())}';
+    return PlanDateFormat.formatRangeOrNull(series.startDate, series.endDate);
   }
 
   void _navigateToSeriesDetail(
@@ -862,6 +855,19 @@ class _GroupFollowButton extends ConsumerWidget {
 
   const _GroupFollowButton({required this.profile, required this.isDark});
 
+  Future<void> _onInvitePressed(BuildContext context) async {
+    final shareUrl = DeepLinkUrlBuilder.groupLink(groupId: profile.id).toString();
+    const shareMessage =
+        "I'd love for you to join our group. Let's practice together on WeBuddhist.";
+    final sharePositionOrigin = getSharePositionOrigin(context: context);
+    await SharePlus.instance.share(
+      ShareParams(
+        text: '$shareMessage\n\n$shareUrl',
+        sharePositionOrigin: sharePositionOrigin,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final followKey = GroupFollowKey(
@@ -947,14 +953,7 @@ class _GroupFollowButton extends ConsumerWidget {
                   const SizedBox(width: 12),
                   Expanded(
                     child: ElevatedButton(
-                      onPressed: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(context.l10n.mala_action_coming_soon),
-                            behavior: SnackBarBehavior.floating,
-                          ),
-                        );
-                      },
+                      onPressed: () => _onInvitePressed(context),
                       style: buttonStyle.copyWith(
                         backgroundColor: WidgetStatePropertyAll(
                           isDark

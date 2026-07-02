@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/constants/app_assets.dart';
+import 'package:flutter_pecha/core/deep_linking/deep_link_url_builder.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/core/theme/app_theme.dart';
@@ -95,9 +96,14 @@ Future<void> shareStreakQuote(
       globalKey: shareOriginKey,
     );
 
+    final moreLink = DeepLinkUrlBuilder.moreLink().toString();
+    const shareMessage =
+        "I've been building a daily practice habit and wanted to share it with you. It's easier to keep it up with a friend. Join me on WeBuddhist.";
+
     await SharePlus.instance.share(
       ShareParams(
         files: [XFile(tempFile.path)],
+        text: '$shareMessage\n\n$moreLink',
         sharePositionOrigin: sharePositionOrigin,
       ),
     );

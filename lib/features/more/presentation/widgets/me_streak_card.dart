@@ -45,9 +45,6 @@ class _MeStreakCardState extends State<MeStreakCard> {
       color: cardColor,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(_borderRadius),
-        side: BorderSide(
-          color: isDark ? AppColors.cardBorderDark : AppColors.grey300,
-        ),
       ),
       clipBehavior: Clip.antiAlias,
       child: InkWell(

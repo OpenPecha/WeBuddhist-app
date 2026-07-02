@@ -64,6 +64,7 @@ export 'data/repositories/author_repository.dart';
 
 // Data - Utils
 export 'data/utils/plan_utils.dart';
+export 'data/utils/plan_date_format.dart';
 
 // Presentation - Providers
 export 'presentation/providers/plan_search_provider.dart';

@@ -180,9 +180,6 @@ class _StatCard extends StatelessWidget {
       color: cardColor,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(MeStatsSection._borderRadius),
-        side: BorderSide(
-          color: isDark ? AppColors.cardBorderDark : AppColors.grey300,
-        ),
       ),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
@@ -269,9 +266,6 @@ class _PracticeDaysCard extends StatelessWidget {
       color: cardColor,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(MeStatsSection._borderRadius),
-        side: BorderSide(
-          color: isDark ? AppColors.cardBorderDark : AppColors.grey300,
-        ),
       ),
       clipBehavior: Clip.antiAlias,
       child: InkWell(

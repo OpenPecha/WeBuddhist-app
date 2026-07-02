@@ -68,8 +68,13 @@ class _ReaderMoreBottomSheetState extends ConsumerState<ReaderMoreBottomSheet> {
           DeepLinkUrlBuilder.readerLink(textId: widget.textId).toString();
       if (!mounted) return;
       final sharePositionOrigin = getSharePositionOrigin(context: context);
+      const shareMessage =
+          'I wanted to share this chant with you. You can practice it and find a whole library of other chants and texts on WeBuddhist.';
       await SharePlus.instance.share(
-        ShareParams(text: shareUrl, sharePositionOrigin: sharePositionOrigin),
+        ShareParams(
+          text: '$shareMessage\n\n$shareUrl',
+          sharePositionOrigin: sharePositionOrigin,
+        ),
       );
       if (mounted) Navigator.of(context).pop();
     } finally {

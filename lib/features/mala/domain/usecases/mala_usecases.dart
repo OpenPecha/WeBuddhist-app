@@ -97,3 +97,14 @@ class SubmitGroupAccumulatorCountUseCase
         currentCount: params.currentCount,
       );
 }
+
+/// Soft-deletes the user's group count
+/// (`DELETE /group-accumulators/{group_accumulator_id}`).
+class DeleteGroupAccumulatorUseCase extends UseCase<Unit, String> {
+  DeleteGroupAccumulatorUseCase(this._repository);
+  final MalaRepository _repository;
+
+  @override
+  Future<Either<Failure, Unit>> call(String groupAccumulatorId) =>
+      _repository.deleteGroupAccumulator(groupAccumulatorId);
+}

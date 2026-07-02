@@ -68,6 +68,10 @@ class MalaSyncManager with WidgetsBindingObserver {
   int _retryAttempt = 0;
   StreamSubscription<bool>? _connectivitySub;
 
+  /// Called after a group session count POST succeeds. Used to refresh lifetime
+  /// totals from `GET /accumulators/{id}/groups`.
+  void Function(String groupAccumulatorId)? onGroupCountSynced;
+
   /// Attach lifecycle + connectivity observers and flush any offline tail.
   void start() {
     if (_started) return;
@@ -217,6 +221,77 @@ class MalaSyncManager with WidgetsBindingObserver {
     }
   }
 
+  /// Resets the user's group count by soft-deleting via
+  /// `DELETE /group-accumulators/{id}`. Unsynced taps are flushed first so
+  /// lifetime totals on the deleted record are preserved server-side.
+  ///
+  /// [deleteGroupAccumulator] is passed per call (not stored on the manager) so
+  /// reset stays correct after hot reload of the app-scoped sync manager.
+  Future<void> resetGroupAccumulator(
+    String groupAccumulatorId, {
+    required DeleteGroupAccumulatorUseCase deleteGroupAccumulator,
+  }) async {
+    if (!_isLoggedIn()) {
+      throw StateError('Cannot reset group mala while logged out');
+    }
+    final userId = await _currentUserId();
+    if (userId == null || userId.isEmpty) {
+      throw StateError('Cannot reset group mala without a user id');
+    }
+
+    await _awaitSyncIdle();
+    _isSyncing = true;
+    _debounce?.cancel();
+
+    try {
+      final before = _local.readGroup(userId, groupAccumulatorId);
+      _logger.info(
+        'Group reset start groupAccumulatorId=$groupAccumulatorId '
+        'total=${before.total} synced=${before.syncedTotal}',
+      );
+
+      if (before.isDirty) {
+        _logger.info('Group reset flushing dirty tail before DELETE');
+        await _pushGroupTotal(userId, groupAccumulatorId, before.total);
+      }
+
+      _logger.info(
+        'Group reset DELETE /group-accumulators/$groupAccumulatorId',
+      );
+      final deleted = await deleteGroupAccumulator(groupAccumulatorId);
+      deleted.fold(
+        (failure) => throw Exception(failure.message),
+        (_) {},
+      );
+
+      await _local.clearGroupSession(userId, groupAccumulatorId);
+
+      _logger.info(
+        'Group reset complete groupAccumulatorId=$groupAccumulatorId',
+      );
+
+      _analytics?.track(
+        AnalyticsEvents.malaSynced,
+        properties: {
+          'groupAccumulatorId': groupAccumulatorId,
+          'total': 0,
+          'reset': true,
+          'group': true,
+        },
+      );
+    } catch (e, st) {
+      _logger.warning(
+        'Group reset failed groupAccumulatorId=$groupAccumulatorId: $e',
+        e,
+        st,
+      );
+      rethrow;
+    } finally {
+      _isSyncing = false;
+      if (_dirty) _dirty = false;
+    }
+  }
+
   Future<void> _awaitSyncIdle() async {
     final deadline = DateTime.now().add(_syncIdleTimeout);
     while (_isSyncing) {
@@ -320,6 +395,7 @@ class MalaSyncManager with WidgetsBindingObserver {
             'group': true,
           },
         );
+        onGroupCountSynced?.call(groupAccumulatorId);
       },
     );
   }

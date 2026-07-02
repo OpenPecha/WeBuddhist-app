@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/core/widgets/responsive_cover_image.dart';
+import 'package:flutter_pecha/features/plans/data/utils/plan_date_format.dart';
 import 'package:flutter_pecha/features/practice/data/models/bookmark_models.dart';
-import 'package:intl/intl.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 /// A single bookmark row.
@@ -94,13 +94,12 @@ class BookmarkCard extends StatelessWidget {
     );
   }
 
-  /// "MMM d - MMM d" for plan/series bookmarks that carry a schedule window.
+  /// Fixed-format date label for plan/series bookmarks with a schedule window.
   String? get _dateRangeLabel {
-    final start = bookmark.startDate;
-    if (start == null) return null;
-    final fmt = DateFormat('MMM d');
-    final end = bookmark.endDate;
-    return end == null ? fmt.format(start) : '${fmt.format(start)} - ${fmt.format(end)}';
+    return PlanDateFormat.formatRangeOrSingle(
+      bookmark.startDate,
+      bookmark.endDate,
+    );
   }
 
   Widget _buildTextRow(BuildContext context, bool isDark) {

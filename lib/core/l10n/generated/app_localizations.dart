@@ -388,6 +388,24 @@ abstract class AppLocalizations {
   /// **'Add to my practices'**
   String get mala_add_to_practice;
 
+  /// No description provided for @mala_add_mala_round.
+  ///
+  /// In en, this message translates to:
+  /// **'Add mala round'**
+  String get mala_add_mala_round;
+
+  /// No description provided for @mala_add_rounds_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Add mala rounds:'**
+  String get mala_add_rounds_title;
+
+  /// No description provided for @mala_add_rounds_message.
+  ///
+  /// In en, this message translates to:
+  /// **'Add the number of mala rounds you did outside this app.'**
+  String get mala_add_rounds_message;
+
   /// No description provided for @mala_add_to_bookmark.
   ///
   /// In en, this message translates to:
@@ -3051,6 +3069,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Join this accumulation to track your contributions.'**
   String get group_accumulator_contributions_empty;
+
+  /// No description provided for @group_accumulator_recite_now.
+  ///
+  /// In en, this message translates to:
+  /// **'Recite now'**
+  String get group_accumulator_recite_now;
 
   /// No description provided for @share_this_quote.
   ///
