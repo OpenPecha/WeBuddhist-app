@@ -49,26 +49,39 @@ class MissedDaysBadge extends StatelessWidget {
 
     final color = Theme.of(context).colorScheme.onSurfaceVariant;
     final firstMissedDay = _findFirstMissedDay();
-
-    return GestureDetector(
-      onTap: firstMissedDay != null ? () => onTap?.call(firstMissedDay) : null,
-      child: Container(
-        padding: EdgeInsets.symmetric(
-          horizontal: onTap != null ? 10 : 12,
-          vertical: 4,
+    final isTappable = onTap != null && firstMissedDay != null;
+    if (!isTappable) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+        child: Text(
+          context.l10n.missedDaysCount(missedDays),
+          style: TextStyle(fontSize: 10, color: color),
         ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (onTap != null) ...[
+      );
+    }
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () => onTap?.call(firstMissedDay),
+        borderRadius: BorderRadius.circular(20),
+        child: Ink(
+          decoration: BoxDecoration(
+            border: Border.all(color: color.withValues(alpha: 0.35)),
+            borderRadius: BorderRadius.circular(20),
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
               Icon(Icons.arrow_back, size: 10, color: color),
               const SizedBox(width: 4),
+              Text(
+                context.l10n.missedDaysCount(missedDays),
+                style: TextStyle(fontSize: 10, color: color),
+              ),
             ],
-            Text(
-              context.l10n.missedDaysCount(missedDays),
-              style: TextStyle(fontSize: 10, color: color),
-            ),
-          ],
+          ),
         ),
       ),
     );
