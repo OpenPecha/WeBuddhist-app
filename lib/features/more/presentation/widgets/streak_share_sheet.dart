@@ -97,8 +97,7 @@ Future<void> shareStreakQuote(
     );
 
     final moreLink = DeepLinkUrlBuilder.moreLink().toString();
-    const shareMessage =
-        "I've been building a daily practice habit and wanted to share it with you. It's easier to keep it up with a friend. Join me on WeBuddhist.";
+    final shareMessage = AppLocalizations.of(context)!.share_streak_message;
 
     await SharePlus.instance.share(
       ShareParams(

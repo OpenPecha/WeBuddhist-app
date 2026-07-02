@@ -29,15 +29,12 @@ class BookmarkCard extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final cardColor =
         isDark ? AppColors.cardBackgroundDark : AppColors.cardBackgroundLight;
-    final borderColor =
-        isDark ? AppColors.cardBorderDark : AppColors.grey300;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
         color: cardColor,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: borderColor),
       ),
       clipBehavior: Clip.antiAlias,
       child: Material(

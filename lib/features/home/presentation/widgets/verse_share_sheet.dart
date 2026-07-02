@@ -108,7 +108,7 @@ Future<void> shareVerseOfDayQuote(
       context: context,
       globalKey: shareOriginKey,
     );
-    final shareText = _verseOfDayShareText();
+    final shareText = _verseOfDayShareText(context);
 
     await SharePlus.instance.share(
       ShareParams(
@@ -136,12 +136,9 @@ Future<void> shareVerseOfDayQuote(
   }
 }
 
-String _verseOfDayShareText() {
+String _verseOfDayShareText(BuildContext context) {
   final homeLink = DeepLinkUrlBuilder.homeLink().toString();
-
-  return 'I liked this quote from WeBuddhist and wanted to share it with you. '
-      'Read more such insightful quotes on the WeBuddhist App\n\n'
-      '$homeLink';
+  return '${AppLocalizations.of(context)!.share_quote_message}\n\n$homeLink';
 }
 
 Future<Uint8List?> _captureVerseShareImage(

@@ -157,8 +157,7 @@ class MalaSettingsSheet extends ConsumerWidget {
     final navigator = Navigator.of(context);
     final sharePositionOrigin = getSharePositionOrigin(context: context);
     final shareUrl = DeepLinkUrlBuilder.malaLink(presetId: mantra.presetId).toString();
-    const shareMessage =
-        "I've been using this digital mala on WeBuddhist and wanted to share it with you. It's an easy way to practice wherever you go.";
+    final shareMessage = context.l10n.share_mala_message;
     navigator.pop();
     await SharePlus.instance.share(
       ShareParams(

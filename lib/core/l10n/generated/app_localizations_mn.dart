@@ -148,6 +148,18 @@ class AppLocalizationsMn extends AppLocalizations {
   String get home_mala => 'Эрх';
 
   @override
+  String get session_mala => 'Эрхүүд';
+
+  @override
+  String get bookmark_mala => 'Эрхүүд';
+
+  @override
+  String get bookmark_timers => 'Цаг хэмжигчид';
+
+  @override
+  String get bookmark_texts => 'Бичвэрүүд';
+
+  @override
   String get mala_add_to_practice => 'Миний дадлагад нэмэх';
 
   @override
@@ -1691,6 +1703,45 @@ class AppLocalizationsMn extends AppLocalizations {
   @override
   String get verse_share_error =>
       'Ишлэлийг хуваалцах боломжгүй. Дахин оролдоно уу';
+
+  @override
+  String get share_app_message =>
+      'Би өдөр тутмын Буддын дадлага хийхийн тулд энэ аппыг ашиглаж байна, та ч дуртай болно гэж бодлоо.';
+
+  @override
+  String get share_streak_message =>
+      'Би өдөр тутмын дадлагын зуршил хэлбэрийг бүрдүүлж байгаа бөгөөд үүнийгээ танд хуваалцахыг хүссэн. Найзтайгаа хамт хэвшлээ хадгалахад илүү хялбар байдаг. WeBuddhist дээр надтай нэгдээрэй.';
+
+  @override
+  String get share_chant_message =>
+      'Би энэ дуулалыг тантай хуваалцахыг хүссэн. Та үүнийг дадлагажуулж, WeBuddhist дээр бусад дуулал болон судруудын бүтэн номын санг олж болно.';
+
+  @override
+  String get share_quote_message =>
+      'Надад WeBuddhist дээрх энэ ишлэл таалагдсан тул тантай хуваалцахыг хүссэн. WeBuddhist аппликейшн дээр ийм мэдлэгтэй ишлэлүүдийг уншаарай.';
+
+  @override
+  String get share_mala_message =>
+      'Би WeBuddhist дээрх энэ тоолуурыг ашиглаж байгаа бөгөөд тантай хуваалцахыг хүссэн. Хаана ч байсан дадлагажуулахад хялбар арга юм.';
+
+  @override
+  String get share_passage_message =>
+      'Надад энэ хэсэг таалагдсан тул тантай хуваалцахыг хүссэн. WeBuddhist дээр бүтэн ишлэлийг уншиж болно.';
+
+  @override
+  String get share_timer_message =>
+      'Би WeBuddhist дээрх энэ бясалгалын таймерыг тантай хуваалцахыг хүссэн. Бясалгалын дадлага хийхэд хялбар болгодог.';
+
+  @override
+  String get share_plan_message =>
+      'Би энэ Буддын дадлагын төлөвлөгөөг дагаж байгаа бөгөөд тантай хуваалцахыг хүссэн. WeBuddhist дээр надтай үнэгүй нэгдэж болно.';
+
+  @override
+  String get share_plan_subject => 'WeBuddhist дээр надтай нэгдээрэй';
+
+  @override
+  String get share_group_invite_message =>
+      'Таны манай бүлэгт нэгдсэнийг хүсч байна. WeBuddhist дээр хамтдаа дадлагажъя.';
 
   @override
   String get weekday_monday => 'Дав';

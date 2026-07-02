@@ -143,11 +143,6 @@ class RoutineTimeBlock extends StatelessWidget {
                               ? AppColors.cardBackgroundDark
                               : AppColors.cardBackgroundLight,
                           borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                            color: isDark
-                                ? AppColors.cardBorderDark
-                                : AppColors.grey100,
-                          ),
                         ),
                         child: Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 12),
