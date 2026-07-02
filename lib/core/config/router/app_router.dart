@@ -85,6 +85,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(
     navigatorKey: rootNavigatorKey,
     initialLocation: AppRoutes.home,
+    // App links are consumed explicitly by AppLinksDeepLinkService. If
+    // go_router also uses the platform launch URL during cold start, the same
+    // deep link can be inserted twice and leave a stale page under Back.
+    overridePlatformDefaultLocation: true,
     debugLogDiagnostics: true,
     observers: [ref.read(analyticsServiceProvider).routeObserver],
 
