@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_pecha/features/mala/data/datasources/mala_local_datasource.dart';
 import 'package:flutter_pecha/features/mala/domain/entities/accumulator_group.dart';
 import 'package:flutter_pecha/features/mala/domain/usecases/mala_usecases.dart';
+import 'package:flutter_pecha/features/mala/presentation/providers/accumulator_groups_provider.dart';
 import 'package:flutter_pecha/features/mala/presentation/providers/mala_providers.dart';
 import 'package:flutter_pecha/features/mala/presentation/providers/mala_sync_manager.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -18,20 +19,24 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 class GroupAccumulationCountsNotifier extends StateNotifier<Map<String, int>> {
   GroupAccumulationCountsNotifier({
     required Ref ref,
+    required String presetId,
     required MalaLocalDataSource local,
     required MalaSyncManager sync,
     required DeleteGroupAccumulatorUseCase deleteGroupAccumulator,
     required Future<String?> Function() currentUserId,
   })  : _ref = ref,
+        _presetId = presetId,
         _local = local,
         _sync = sync,
         _deleteGroupAccumulator = deleteGroupAccumulator,
         _currentUserId = currentUserId,
         super(const {}) {
+    _sync.onGroupCountSynced = handleGroupCountSynced;
     unawaited(_init());
   }
 
   final Ref _ref;
+  final String _presetId;
   final MalaLocalDataSource _local;
   final MalaSyncManager _sync;
   final DeleteGroupAccumulatorUseCase _deleteGroupAccumulator;
@@ -128,6 +133,22 @@ class GroupAccumulationCountsNotifier extends StateNotifier<Map<String, int>> {
     return 0;
   }
 
+  /// Lifetime total for [GroupAccumulationsSheet]: API baseline plus any taps
+  /// not yet reflected in `user_total_count`.
+  int displayLifetimeCount(String groupAccumulatorId, int lifetimeFromApi) {
+    final userId = _userId;
+    if (userId == null) return lifetimeFromApi;
+
+    final local = _local.readGroup(userId, groupAccumulatorId);
+    final dirty = local.total - local.syncedTotal;
+    if (dirty <= 0) return lifetimeFromApi;
+    return lifetimeFromApi + dirty;
+  }
+
+  void handleGroupCountSynced(String groupAccumulatorId) {
+    _ref.invalidate(joinedAccumulatorGroupsProvider(_presetId));
+  }
+
   void increment({
     required String groupAccumulatorId,
     required List<AccumulatorGroup> groups,
@@ -206,11 +227,21 @@ class GroupAccumulationCountsNotifier extends StateNotifier<Map<String, int>> {
 
 final groupAccumulationCountsProvider = StateNotifierProvider.autoDispose
     .family<GroupAccumulationCountsNotifier, Map<String, int>, String>(
-  (ref, presetId) => GroupAccumulationCountsNotifier(
-    ref: ref,
-    local: ref.watch(malaLocalDataSourceProvider),
-    sync: ref.watch(malaSyncManagerProvider),
-    deleteGroupAccumulator: ref.watch(deleteGroupAccumulatorUseCaseProvider),
-    currentUserId: () => resolveMalaUserId(ref),
-  ),
+  (ref, presetId) {
+    final sync = ref.watch(malaSyncManagerProvider);
+    final notifier = GroupAccumulationCountsNotifier(
+      ref: ref,
+      presetId: presetId,
+      local: ref.watch(malaLocalDataSourceProvider),
+      sync: sync,
+      deleteGroupAccumulator: ref.watch(deleteGroupAccumulatorUseCaseProvider),
+      currentUserId: () => resolveMalaUserId(ref),
+    );
+    ref.onDispose(() {
+      if (sync.onGroupCountSynced == notifier.handleGroupCountSynced) {
+        sync.onGroupCountSynced = null;
+      }
+    });
+    return notifier;
+  },
 );

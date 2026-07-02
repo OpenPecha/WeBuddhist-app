@@ -68,6 +68,10 @@ class MalaSyncManager with WidgetsBindingObserver {
   int _retryAttempt = 0;
   StreamSubscription<bool>? _connectivitySub;
 
+  /// Called after a group session count POST succeeds. Used to refresh lifetime
+  /// totals from `GET /accumulators/{id}/groups`.
+  void Function(String groupAccumulatorId)? onGroupCountSynced;
+
   /// Attach lifecycle + connectivity observers and flush any offline tail.
   void start() {
     if (_started) return;
@@ -391,6 +395,7 @@ class MalaSyncManager with WidgetsBindingObserver {
             'group': true,
           },
         );
+        onGroupCountSynced?.call(groupAccumulatorId);
       },
     );
   }

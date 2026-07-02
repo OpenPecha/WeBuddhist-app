@@ -161,8 +161,11 @@ shows the **session** count from [groupAccumulationCountsProvider] (Hive +
 `joinedGroupUserCountsProvider` seed). Resets to 0 after a group reset.
 
 **Accumulations sheet:** group rows show **`AccumulatorGroup.userTotalCount`**
-(lifetime from the groups list). This does not drop to 0 when the active session
-is reset — it reflects cumulative contribution to the group.
+(lifetime from the groups list), plus any **unsynced local taps**
+(`displayLifetimeCount` = API baseline + dirty tail). The sheet watches
+[joinedAccumulatorGroupsProvider] and [groupAccumulationCountsProvider] so counts
+update live; after a successful group POST the groups list is refetched. Lifetime
+does not drop to 0 when the active session is reset.
 
 **Personal row in the sheet:** shows `MalaCounterState.total` (personal active
 session), same semantics as the counter when personal is selected.
@@ -331,10 +334,11 @@ and the user's personal **session** count for the current preset
   login; refreshes via `GET /users/info` when the sheet opens and no user is
   cached yet). Count shows the personal mala session total. Tappable; selected
   row uses `AppColors.blue` / `AppColors.blueDark`.
-- **Groups list:** each row shows group image, title, and **`userTotalCount`**
-  from the groups list API (lifetime total). Not the session count used by the
-  counter — so a group reset clears the counter but lifetime totals in the
-  sheet stay visible. Tappable; accent colour on the active row.
+- **Groups list:** each row shows group image, title, and a **lifetime** count
+  (`userTotalCount` from the groups list + unsynced local taps). Not the session
+  count used by the counter — so a group reset clears the counter but lifetime
+  totals in the sheet stay visible. Watches providers for live updates. Tappable;
+  accent colour on the active row.
 - **Persistence:** selection survives app restarts via
   `StorageKeys.malaAccumulationSelectionPrefix` + preset id. Invalid group ids
   fall back to personal when the groups list reloads.
