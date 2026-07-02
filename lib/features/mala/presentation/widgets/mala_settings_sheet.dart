@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
 import 'package:flutter_pecha/core/constants/app_assets.dart';
+import 'package:flutter_pecha/core/deep_linking/deep_link_url_builder.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/core/network/connectivity_service.dart' show connectivityNotifierProvider;
 import 'package:flutter_pecha/core/theme/app_colors.dart';
@@ -13,9 +14,11 @@ import 'package:flutter_pecha/features/mala/presentation/providers/mala_settings
 import 'package:flutter_pecha/features/practice/data/datasource/bookmark_remote_datasource.dart';
 import 'package:flutter_pecha/features/practice/presentation/controllers/bookmark_controller.dart';
 import 'package:flutter_pecha/features/practice/presentation/providers/bookmark_providers.dart';
+import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 import 'package:flutter_pecha/shared/widgets/app_toggle_switch.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:share_plus/share_plus.dart';
 
 class MalaSettingsSheet extends ConsumerWidget {
   const MalaSettingsSheet({super.key, required this.mantra});
@@ -103,6 +106,12 @@ class MalaSettingsSheet extends ConsumerWidget {
             ),
             Divider(height: 1, color: dividerColor),
             _MalaSettingsTile(
+              icon: AppAssets.readerShare,
+              label: l10n.share,
+              onTap: () => _onShare(context),
+            ),
+            Divider(height: 1, color: dividerColor),
+            _MalaSettingsTile(
               icon: AppAssets.arrowCounterClockwise,
               label: l10n.mala_reset_count,
               labelColor: destructiveColor,
@@ -113,6 +122,21 @@ class MalaSettingsSheet extends ConsumerWidget {
             const SizedBox(height: 8),
           ],
         ),
+      ),
+    );
+  }
+
+  Future<void> _onShare(BuildContext context) async {
+    final navigator = Navigator.of(context);
+    final sharePositionOrigin = getSharePositionOrigin(context: context);
+    final shareUrl = DeepLinkUrlBuilder.malaLink(presetId: mantra.presetId).toString();
+    const shareMessage =
+        "I've been using this digital mala on WeBuddhist and wanted to share it with you. It's an easy way to practice wherever you go.";
+    navigator.pop();
+    await SharePlus.instance.share(
+      ShareParams(
+        text: '$shareMessage\n\n$shareUrl',
+        sharePositionOrigin: sharePositionOrigin,
       ),
     );
   }
