@@ -196,26 +196,20 @@ Opened once in app bootstrap via `MalaLocalDataSource.init()`.
 
 ## Bead artwork & caching
 
-Resolution order in `MalaScreen`:
-**accumulator detail `beadImageUrl` → preset/mantra `beadImageUrl` → drawn
-gradient bead**. There is no bundled asset fallback: while the network image
-loads, or whenever there's no URL or it fails to load, the painter draws a
-gradient bead (`_drawDrawnBead`).
+`MalaCounterNotifier` downloads bead artwork via dio during seed (not in the
+widget). URLs from the API are **presigned S3 links** that expire (~1 hour), so
+stale Hive URLs are retried against fresh catalogue / detail URLs before giving
+up. Successful downloads are stored as **`beadImageBase64`** in Hive.
 
-- **Preset preview source.** `Mantra.beadImageUrl` resolves to the
-  **mantra-level** `mala_image_url` (`PresetMantraModel`) first, falling back to
-  the accumulator-level one (`PresetAccumulatorModel`). The mantra-level image
-  mirrors what the detail endpoint (`AccumulatorDetailModel.mala_image_url`)
-  returns, so the pre-seed preview and the post-seed image share one URL — the
-  URL doesn't change after seeding, so `MalaBeads` skips a second fetch and the
-  bead doesn't flicker. (See `PresetAccumulatorModel.toEntity()`.)
-- The detail image is threaded through `MalaCount → MalaCounterState →
-  MalaBeads` so per-user bead customization works.
-- It is **persisted** in `LocalMalaState.beadImageUrl` and surfaced into state at
-  seed start (before/without network) so the correct bead shows offline on a
-  cold start.
-- `MalaBeads` loads via **`CachedNetworkImageProvider`** (on-disk cache), so the
-  image bytes survive across launches and load offline.
+`MalaBeads` renders **`beadImageBytes` only** (MemoryImage). While bytes are
+still downloading — or when download fails — the painter draws a gradient bead
+(`_drawDrawnBead`). This avoids loading expired presigned URLs directly in the
+widget layer (which would log ImageResourceService 403 errors).
+
+- **Preset source.** `Mantra.beadImageUrl` resolves to the mantra-level
+  `mala_image_url` first, falling back to the accumulator-level one.
+- **Offline.** Persisted bytes in `LocalMalaState` let the strand render on a
+  cold start without network.
 
 ## Bead input & feedback
 

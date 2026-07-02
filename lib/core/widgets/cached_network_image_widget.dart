@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/utils/network_image_utils.dart';
 
 bool _isAssetPath(String url) => url.trim().startsWith('assets/');
 
@@ -20,11 +21,7 @@ int? _toCachePx(double? logical, double dpr) {
 
 /// Strips the query string and fragment so presigned URLs (e.g. S3 with
 /// rotating signatures) resolve to the same cache entry across sessions.
-String _stableCacheKey(String url) {
-  final uri = Uri.tryParse(url);
-  if (uri == null) return url;
-  return uri.replace(query: '', fragment: '').toString();
-}
+String _stableCacheKey(String url) => stableNetworkImageCacheKey(url);
 
 class CachedNetworkImageWidget extends StatefulWidget {
   /// Remote http(s) URL, or a bundled asset path starting with `assets/`.

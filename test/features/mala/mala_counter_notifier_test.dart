@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter_pecha/core/error/failures.dart';
 import 'package:flutter_pecha/features/mala/data/datasources/mala_local_datasource.dart';
@@ -272,6 +273,109 @@ void main() {
     expect(local.read(userId, 'chenrezig').accumulatorId, isNull);
     // Nothing to push when local and server agree at 0.
     verifyNever(sync.flush(any));
+    notifier.dispose();
+  });
+
+  test('stores bead bytes after retrying expired presigned URL', () async {
+    const staleUrl =
+        'https://cdn.example/mala/bead.webp?X-Amz-Expires=1&sig=old';
+    const freshUrl =
+        'https://cdn.example/mala/bead.webp?X-Amz-Expires=3600&sig=new';
+    const imageBytes = [0x89, 0x50, 0x4E, 0x47];
+
+    when(getDetail(any)).thenAnswer(
+      (_) async => const Right(
+        MalaCount(accumulatorId: 'acc-1', total: 0, beadImageUrl: freshUrl),
+      ),
+    );
+
+    await local.write(
+      userId,
+      'chenrezig',
+      const LocalMalaState(beadImageUrl: staleUrl),
+    );
+
+    final mantraWithImage = Mantra(
+      presetId: mantra.presetId,
+      beadImageUrl: staleUrl,
+      metadata: mantra.metadata,
+      mantra: mantra.mantra,
+    );
+
+    var downloadUrls = <String>[];
+    final notifier = MalaCounterNotifier(
+      mantra: mantraWithImage,
+      local: local,
+      getAccumulatorDetail: getDetail,
+      deleteUserAccumulator: delete,
+      sync: sync,
+      currentUserId: () async => userId,
+      downloadImageBytes: (url) async {
+        downloadUrls.add(url);
+        if (url.contains('sig=old')) {
+          throw Exception('403');
+        }
+        return imageBytes;
+      },
+    );
+
+    await Future.delayed(const Duration(milliseconds: 50));
+
+    expect(downloadUrls, contains(freshUrl));
+    expect(notifier.state.beadImageBytes, Uint8List.fromList(imageBytes));
+    expect(local.read(userId, 'chenrezig').beadImageUrl, freshUrl);
+    notifier.dispose();
+  });
+
+  test('retries stale presigned URL when detail has no bead image', () async {
+    const staleUrl =
+        'https://cdn.example/mala/bead.webp?X-Amz-Expires=1&sig=old';
+    const freshUrl =
+        'https://cdn.example/mala/bead.webp?X-Amz-Expires=3600&sig=new';
+    const imageBytes = [0x89, 0x50, 0x4E, 0x47];
+
+    var detailCalls = 0;
+    when(getDetail(any)).thenAnswer((_) async {
+      detailCalls++;
+      if (detailCalls == 1) {
+        return const Right(MalaCount(accumulatorId: 'acc-1', total: 0));
+      }
+      return const Right(
+        MalaCount(accumulatorId: 'acc-1', total: 0, beadImageUrl: freshUrl),
+      );
+    });
+
+    await local.write(
+      userId,
+      'chenrezig',
+      const LocalMalaState(beadImageUrl: staleUrl),
+    );
+
+    var staleAttempts = 0;
+    final notifier = MalaCounterNotifier(
+      mantra: mantra,
+      local: local,
+      getAccumulatorDetail: getDetail,
+      deleteUserAccumulator: delete,
+      sync: sync,
+      currentUserId: () async => userId,
+      downloadImageBytes: (url) async {
+        if (url.contains('sig=old')) {
+          staleAttempts++;
+          throw Exception('403');
+        }
+        return imageBytes;
+      },
+    );
+
+    await Future.doWhile(() async {
+      await Future.delayed(const Duration(milliseconds: 10));
+      return notifier.state.beadImageBytes == null;
+    }).timeout(const Duration(seconds: 1));
+
+    expect(staleAttempts, greaterThan(0));
+    expect(notifier.state.beadImageBytes, Uint8List.fromList(imageBytes));
+    expect(local.read(userId, 'chenrezig').beadImageUrl, freshUrl);
     notifier.dispose();
   });
 }

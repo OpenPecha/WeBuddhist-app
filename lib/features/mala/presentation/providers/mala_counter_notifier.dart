@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_pecha/core/analytics/analytics_events.dart';
 import 'package:flutter_pecha/core/analytics/analytics_service.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
+import 'package:flutter_pecha/core/utils/network_image_utils.dart';
 import 'package:flutter_pecha/features/mala/data/datasources/mala_local_datasource.dart';
 import 'package:flutter_pecha/features/mala/domain/entities/mantra.dart';
 import 'package:flutter_pecha/features/mala/domain/usecases/mala_usecases.dart';
@@ -135,12 +136,11 @@ class MalaCounterNotifier extends StateNotifier<MalaCounterState> {
       beadImageUrl: fallbackImageUrl,
       beadImageBytes: localState.beadImageBytes,
     );
-    if (localState.beadImageBytes == null && fallbackImageUrl != null) {
-      unawaited(_storeBeadImage(userId, fallbackImageUrl));
-    }
 
     final result = await _getAccumulatorDetail(_presetId);
     if (!mounted) return; // screen left mid-seed
+
+    String? detailBeadImageUrl;
     result.fold(
       (failure) {
         _logger.warning('Seed failed: ${failure.message}');
@@ -148,6 +148,7 @@ class MalaCounterNotifier extends StateNotifier<MalaCounterState> {
         unawaited(_sync.flush(SyncReason.launch));
       },
       (detail) {
+        detailBeadImageUrl = detail.beadImageUrl;
         // detail.accumulatorId is null when the user has no active accumulator
         // (fresh install, or after reset soft-deletes the session record).
         // detail.total maps to API `current_count` (active session), not
@@ -184,37 +185,112 @@ class MalaCounterNotifier extends StateNotifier<MalaCounterState> {
           beadImageUrl: beadImageUrl,
           beadImageBytes: localState.beadImageBytes,
         );
-        if (beadImageUrl != null) {
-          unawaited(_storeBeadImage(userId, beadImageUrl));
-        }
 
         // Push any offline tail captured before this seed.
         if (total > syncedTotal) unawaited(_sync.flush(SyncReason.launch));
       },
     );
+
+    unawaited(
+      _refreshBeadImage(
+        userId,
+        urlCandidates: [
+          if (detailBeadImageUrl != null) detailBeadImageUrl!,
+          if (fallbackImageUrl != null) fallbackImageUrl,
+        ],
+        refetchDetailOnFailure: detailBeadImageUrl == null,
+      ),
+    );
   }
 
-  Future<void> _storeBeadImage(String userId, String imageUrl) async {
-    try {
-      final bytes = await _downloadImageBytes(imageUrl);
-      if (bytes.isEmpty) return;
-      final current = _local.read(userId, _presetId);
-      await _local.write(
-        userId,
-        _presetId,
-        current.copyWith(
-          beadImageUrl: imageUrl,
-          beadImageBase64: base64Encode(bytes),
-        ),
-      );
+  /// Downloads bead artwork via [MalaRemoteDataSource.fetchImageBytes]
+  /// (injected as [_downloadImageBytes]) and persists bytes in Hive. Presigned
+  /// S3 URLs expire, so stale cached URLs are retried against fresh catalogue /
+  /// detail URLs when needed.
+  Future<void> _refreshBeadImage(
+    String userId, {
+    List<String> urlCandidates = const [],
+    bool refetchDetailOnFailure = true,
+  }) async {
+    final localState = _local.read(userId, _presetId);
+    final cachedBytes = localState.beadImageBytes;
+    if (cachedBytes != null) {
       if (!mounted) return;
       state = state.copyWith(
-        beadImageUrl: imageUrl,
-        beadImageBytes: Uint8List.fromList(bytes),
+        beadImageUrl: localState.beadImageUrl ?? state.beadImageUrl,
+        beadImageBytes: cachedBytes,
       );
-    } catch (e) {
-      _logger.warning('Failed to store mala bead image locally: $e');
+      return;
     }
+
+    final candidates = <String>[];
+    void addCandidate(String? url) {
+      if (url == null || url.isEmpty) return;
+      final key = stableNetworkImageCacheKey(url);
+      if (candidates.any((c) => stableNetworkImageCacheKey(c) == key)) return;
+      candidates.add(url);
+    }
+
+    for (final url in urlCandidates) {
+      addCandidate(url);
+    }
+    addCandidate(_mantra.beadImageUrl);
+    addCandidate(localState.beadImageUrl);
+
+    for (final url in candidates) {
+      final bytes = await _tryDownloadBeadImage(url);
+      if (bytes == null) continue;
+      await _persistBeadImage(userId, url, bytes);
+      return;
+    }
+
+    if (!refetchDetailOnFailure) return;
+
+    final detailResult = await _getAccumulatorDetail(_presetId);
+    await detailResult.fold(
+      (_) async {},
+      (detail) async {
+        final freshUrl = detail.beadImageUrl;
+        if (freshUrl == null || freshUrl.isEmpty) return;
+
+        final bytes = await _tryDownloadBeadImage(freshUrl);
+        if (bytes == null) return;
+        await _persistBeadImage(userId, freshUrl, bytes);
+      },
+    );
+  }
+
+  /// Network fetch delegated to [MalaRemoteDataSource.fetchImageBytes].
+  Future<List<int>?> _tryDownloadBeadImage(String url) async {
+    try {
+      final bytes = await _downloadImageBytes(url);
+      if (bytes.isEmpty) return null;
+      return bytes;
+    } catch (e) {
+      _logger.warning('Bead image download failed for $url: $e');
+      return null;
+    }
+  }
+
+  Future<void> _persistBeadImage(
+    String userId,
+    String imageUrl,
+    List<int> bytes,
+  ) async {
+    final current = _local.read(userId, _presetId);
+    await _local.write(
+      userId,
+      _presetId,
+      current.copyWith(
+        beadImageUrl: imageUrl,
+        beadImageBase64: base64Encode(bytes),
+      ),
+    );
+    if (!mounted) return;
+    state = state.copyWith(
+      beadImageUrl: imageUrl,
+      beadImageBytes: Uint8List.fromList(bytes),
+    );
   }
 
   /// +1 recitation. No-op while seeding or resetting. Monotonic — never decrements.
