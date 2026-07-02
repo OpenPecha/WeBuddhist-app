@@ -64,6 +64,7 @@ class MalaRemoteDataSource {
       final response = await dio.get(
         '/accumulators/$accumulatorId/groups',
         queryParameters: {'joined_only': joinedOnly},
+        options: Options(extra: {'no_cache': true}),
       );
       if (response.statusCode == 200) {
         return AccumulatorGroupsResponseModel.fromJson(
@@ -168,6 +169,29 @@ class MalaRemoteDataSource {
     } on DioException catch (e) {
       _logger.error('Dio error in deleteUserAccumulator', e);
       throw _dioToException(e, 'Failed to delete accumulator');
+    }
+  }
+
+  /// `DELETE /group-accumulators/{group_accumulator_id}` — soft-delete the
+  /// user's count for this group accumulator. Resets [current_count] to zero
+  /// server-side while preserving lifetime history on the deleted record.
+  Future<void> deleteGroupAccumulator(String groupAccumulatorId) async {
+    try {
+      final response = await dio.delete(
+        '/group-accumulators/$groupAccumulatorId',
+      );
+      if (response.statusCode == 200 ||
+          response.statusCode == 204 ||
+          response.statusCode == 202) {
+        return;
+      }
+      throw _statusToException(
+        response.statusCode,
+        'Failed to delete group accumulator',
+      );
+    } on DioException catch (e) {
+      _logger.error('Dio error in deleteGroupAccumulator', e);
+      throw _dioToException(e, 'Failed to delete group accumulator');
     }
   }
 

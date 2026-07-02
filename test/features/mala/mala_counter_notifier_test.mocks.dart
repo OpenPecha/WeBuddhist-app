@@ -117,6 +117,22 @@ class MockMalaSyncManager extends _i1.Mock implements _i8.MalaSyncManager {
           as _i3.Future<void>);
 
   @override
+  _i3.Future<void> resetGroupAccumulator(
+    String? groupAccumulatorId, {
+    required _i2.DeleteGroupAccumulatorUseCase? deleteGroupAccumulator,
+  }) =>
+      (super.noSuchMethod(
+            Invocation.method(
+              #resetGroupAccumulator,
+              [groupAccumulatorId],
+              {#deleteGroupAccumulator: deleteGroupAccumulator},
+            ),
+            returnValue: _i3.Future<void>.value(),
+            returnValueForMissingStub: _i3.Future<void>.value(),
+          )
+          as _i3.Future<void>);
+
+  @override
   _i3.Future<bool> didPopRoute() =>
       (super.noSuchMethod(
             Invocation.method(#didPopRoute, []),

@@ -8,11 +8,19 @@ import 'package:flutter_pecha/core/widgets/responsive_cover_image.dart';
 import 'package:flutter_pecha/features/auth/domain/entities/user.dart';
 import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
 import 'package:flutter_pecha/features/mala/domain/entities/accumulator_group.dart';
+import 'package:flutter_pecha/features/mala/presentation/providers/accumulator_groups_provider.dart';
 import 'package:flutter_pecha/features/mala/presentation/providers/group_accumulation_counts_provider.dart';
 import 'package:flutter_pecha/features/mala/presentation/providers/mala_accumulation_selection_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
+/// Bottom sheet for choosing personal vs group accumulation on the mala screen.
+///
+/// Group row counts show lifetime totals from
+/// `GET /accumulators/{presetId}/groups` (`user_total_count`), plus any unsynced
+/// local taps via [GroupAccumulationCountsNotifier.displayLifetimeCount]. The
+/// on-screen mala counter uses session counts from [groupAccumulationCountsProvider]
+/// instead; those reset to 0 on group DELETE while lifetime totals here do not.
 class GroupAccumulationsSheet extends ConsumerStatefulWidget {
   const GroupAccumulationsSheet({
     super.key,
@@ -75,6 +83,10 @@ class _GroupAccumulationsSheetState
     final accentColor = isDark ? AppColors.blueDark : AppColors.blue;
     final dividerColor = isDark ? AppColors.cardBorderDark : AppColors.grey300;
     final locale = intlFormatLocaleOf(context);
+    ref.watch(groupAccumulationCountsProvider(widget.presetId));
+    final groups =
+        ref.watch(joinedAccumulatorGroupsProvider(widget.presetId)).valueOrNull ??
+        widget.groups;
     final countsNotifier = ref.read(
       groupAccumulationCountsProvider(widget.presetId).notifier,
     );
@@ -151,7 +163,7 @@ class _GroupAccumulationsSheetState
                 child: ListView.separated(
                   shrinkWrap: true,
                   padding: const EdgeInsets.only(bottom: 8),
-                  itemCount: widget.groups.length,
+                  itemCount: groups.length,
                   separatorBuilder:
                       (_, __) => Divider(
                         height: 1,
@@ -161,14 +173,10 @@ class _GroupAccumulationsSheetState
                         color: dividerColor,
                       ),
                   itemBuilder: (context, index) {
-                    final group = widget.groups[index];
+                    final group = groups[index];
                     final isSelected =
                         selection.groupAccumulatorId ==
                         group.groupAccumulatorId;
-                    final count = countsNotifier.countFor(
-                      group.groupAccumulatorId,
-                      widget.groups,
-                    );
 
                     return _SelectableAccumulationRow(
                       isSelected: isSelected,
@@ -188,7 +196,12 @@ class _GroupAccumulationsSheetState
                               : context.l10n.mala_group_untitled,
                       formattedCount: NumberFormat.decimalPattern(
                         locale,
-                      ).format(count),
+                      ).format(
+                        countsNotifier.displayLifetimeCount(
+                          group.groupAccumulatorId,
+                          group.userTotalCount,
+                        ),
+                      ),
                     );
                   },
                 ),
