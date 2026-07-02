@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
+import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/core/theme/font_config.dart';
 import 'package:flutter_pecha/core/widgets/responsive_cover_image.dart';
 import 'package:flutter_pecha/features/home/domain/entities/series.dart';
@@ -153,11 +155,13 @@ String? _formatSeriesDateRange(Series series) {
   return '${formatter.format(start)} - ${formatter.format(end)}';
 }
 
-class _FeaturedPlanDateRangeLabel extends StatelessWidget {
-  const _FeaturedPlanDateRangeLabel({
-    required this.series,
-    required this.fontSize,
-  });
+Color _featuredPlanBackgroundColor(BuildContext context) {
+  final isDark = Theme.of(context).brightness == Brightness.dark;
+  return isDark ? AppColors.cardBackgroundDark : AppColors.surfaceWhite;
+}
+
+class _FeaturedPlanMetaRow extends StatelessWidget {
+  const _FeaturedPlanMetaRow({required this.series, required this.fontSize});
 
   final Series series;
   final double fontSize;
@@ -165,21 +169,38 @@ class _FeaturedPlanDateRangeLabel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final dateRange = _formatSeriesDateRange(series);
-    if (dateRange == null) return const SizedBox.shrink();
+    if (dateRange == null && series.enrolledCount <= 0) {
+      return const SizedBox.shrink();
+    }
 
     final isTibetan = context.isTibetanLocale;
-    return Text(
-      dateRange,
-      style: TextStyle(
-        fontSize: fontSize,
-        fontWeight: FontWeight.w500,
-        color: Theme.of(context).colorScheme.onSurfaceVariant,
-        height: isTibetan ? AppFontConfig.tibetanCompactLineHeight : 1.2,
-        leadingDistribution:
-            isTibetan ? AppFontConfig.tibetanLeadingDistribution : null,
-      ),
-      maxLines: 1,
-      overflow: TextOverflow.ellipsis,
+    final secondaryColor = Theme.of(context).colorScheme.onSurfaceVariant;
+    final textStyle = TextStyle(
+      fontSize: fontSize,
+      fontWeight: FontWeight.w500,
+      color: secondaryColor,
+      height: isTibetan ? AppFontConfig.tibetanCompactLineHeight : 1.2,
+      leadingDistribution:
+          isTibetan ? AppFontConfig.tibetanLeadingDistribution : null,
+    );
+
+    return Row(
+      children: [
+        if (dateRange != null)
+          Expanded(
+            child: Text(
+              dateRange,
+              style: textStyle,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        if (series.enrolledCount > 0) ...[
+          Icon(AppAssets.usercard, size: fontSize + 2, color: secondaryColor),
+          const SizedBox(width: 4),
+          Text('${series.enrolledCount}', style: textStyle),
+        ],
+      ],
     );
   }
 }
@@ -207,6 +228,7 @@ class _FeaturedPlanHeroCard extends StatelessWidget {
     final dateRange = _formatSeriesDateRange(series);
 
     return Material(
+      color: _featuredPlanBackgroundColor(context),
       borderRadius: BorderRadius.circular(
         FeaturedPlanSection._imageBorderRadius,
       ),
@@ -257,9 +279,9 @@ class _FeaturedPlanHeroCard extends StatelessWidget {
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  if (dateRange != null) ...[
+                  if (dateRange != null || series.enrolledCount > 0) ...[
                     SizedBox(height: titleDateGap),
-                    _FeaturedPlanDateRangeLabel(
+                    _FeaturedPlanMetaRow(
                       series: series,
                       fontSize: dateFontSize,
                     ),
@@ -299,7 +321,7 @@ class _FeaturedPlanListItem extends StatelessWidget {
     final dateRange = _formatSeriesDateRange(series);
 
     return Material(
-      color: Colors.transparent,
+      color: _featuredPlanBackgroundColor(context),
       borderRadius: BorderRadius.circular(
         FeaturedPlanSection._imageBorderRadius,
       ),
@@ -352,9 +374,9 @@ class _FeaturedPlanListItem extends StatelessWidget {
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    if (dateRange != null) ...[
+                    if (dateRange != null || series.enrolledCount > 0) ...[
                       SizedBox(height: titleDateGap),
-                      _FeaturedPlanDateRangeLabel(
+                      _FeaturedPlanMetaRow(
                         series: series,
                         fontSize: dateFontSize,
                       ),
