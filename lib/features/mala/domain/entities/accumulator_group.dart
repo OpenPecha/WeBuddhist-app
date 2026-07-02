@@ -17,7 +17,9 @@ class AccumulatorGroup extends Equatable {
   final String groupId;
   final String? title;
   final ResponsiveImage? image;
-  /// User's total for this group accumulator (`user_total_count` from API).
+  /// User's lifetime total for this group accumulator (`user_total_count` from
+  /// `GET /accumulators/{id}/groups`). Shown in [GroupAccumulationsSheet].
+  /// Active session counting uses [joinedGroupUserCountsProvider] instead.
   final int userTotalCount;
   final bool isJoined;
 

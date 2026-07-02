@@ -469,6 +469,7 @@ class PlanListItem extends ConsumerWidget {
     final dateRange = PlanDateRange.tryCreate(
       startDate: plan.startDate,
       totalDays: plan.totalDays,
+      includeYear: seriesId == null,
     );
     final canShowStatus = isPlanEnrolled && dateRange != null;
 

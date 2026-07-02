@@ -151,6 +151,16 @@ class AppLocalizationsNe extends AppLocalizations {
   String get mala_add_to_practice => 'मेरा अभ्यासहरूमा थप्नुहोस्';
 
   @override
+  String get mala_add_mala_round => 'Add mala round';
+
+  @override
+  String get mala_add_rounds_title => 'Add mala rounds:';
+
+  @override
+  String get mala_add_rounds_message =>
+      'Add the number of mala rounds you did outside this app.';
+
+  @override
   String get mala_add_to_bookmark => 'बुकमार्क';
 
   @override
@@ -1676,32 +1686,35 @@ class AppLocalizationsNe extends AppLocalizations {
       'You are already practicing this plan with another group. Would you like to change your practice group?';
 
   @override
-  String get group_join_to_contribute => 'Join to contribute';
+  String get group_join_to_contribute => 'योगदानका लागि सामेल हुनुहोस्';
 
   @override
   String get group_accumulator_join_error =>
-      'Unable to join accumulation. Please try again.';
+      'संचयमा सामेल हुन असमर्थ। कृपया फेरि प्रयास गर्नुहोस्।';
 
   @override
   String group_accumulator_participants(int count) {
-    return '$count participants';
+    return '$count सहभागी';
   }
 
   @override
-  String get group_accumulator_leaderboard => 'Leaderboard';
+  String get group_accumulator_leaderboard => 'लिडरबोर्ड';
 
   @override
-  String get group_accumulator_my_contributions => 'My Contributions';
+  String get group_accumulator_my_contributions => 'मेरो योगदान';
 
   @override
-  String get group_accumulator_recited => 'Recited';
+  String get group_accumulator_recited => 'जप';
 
   @override
-  String get group_accumulator_total => 'Total';
+  String get group_accumulator_total => 'कुल';
 
   @override
   String get group_accumulator_contributions_empty =>
-      'Join this accumulation to track your contributions.';
+      'आफ्नो योगदान ट्र्याक गर्न यो संचयमा सामेल हुनुहोस्।';
+
+  @override
+  String get group_accumulator_recite_now => 'अहिले जप गर्नुहोस्';
 
   @override
   String get share_this_quote => 'यो उद्धरण साझा गर्नुहोस्';

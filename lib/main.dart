@@ -26,6 +26,7 @@ import 'package:flutter_pecha/features/push_notifications/presentation/providers
 import 'package:flutter_pecha/features/home/data/datasource/home_local_datasource.dart';
 import 'package:flutter_pecha/features/home/presentation/providers/use_case_providers.dart';
 import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
+import 'package:flutter_pecha/features/home/presentation/screens/main_navigation_screen.dart';
 import 'package:flutter_pecha/features/mala/data/datasources/mala_local_datasource.dart';
 import 'package:flutter_pecha/features/mala/presentation/providers/mala_providers.dart';
 import 'package:flutter_pecha/features/more/data/datasource/user_stats_local_datasource.dart';
@@ -264,6 +265,9 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         AirbridgeDeepLinkService.setRouter(router);
         AppLinksDeepLinkService.instance.setRouter(router);
+        AppLinksDeepLinkService.instance.setTabSetter((int tabIndex) {
+          ref.read(mainNavigationIndexProvider.notifier).state = tabIndex;
+        });
       });
       _hasRegisteredDeepLinkRouters = true;
     }

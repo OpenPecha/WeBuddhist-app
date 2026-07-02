@@ -70,9 +70,11 @@ class AppAssets {
 
   // ========== COMMON UI ICONS ==========
   static const IconData caretRight = PhosphorIconsRegular.caretRight;
+  static const IconData caretRight2 = PhosphorIconsBold.caretRight;
   static const IconData caretDown = PhosphorIconsRegular.caretDown;
   static const IconData caretUp = PhosphorIconsRegular.caretUp;
   static const IconData caretLeft = PhosphorIconsRegular.caretLeft;
+  static const IconData caretLeft2 = PhosphorIconsBold.caretLeft;
   static const IconData arrowSquareOut = PhosphorIconsRegular.arrowSquareOut;
   static const IconData arrowLeft = PhosphorIconsRegular.arrowLeft;
   static const IconData lock = PhosphorIconsRegular.lock;
@@ -81,7 +83,9 @@ class AppAssets {
 
   // ========== ACTION ICONS ==========
   static const IconData plus = PhosphorIconsRegular.plus;
+  static const IconData plusCircle = PhosphorIconsRegular.plusCircle;
   static const IconData minus = PhosphorIconsRegular.minus;
+  static const IconData minusCircle = PhosphorIconsRegular.minusCircle;
   static const IconData play = PhosphorIconsFill.play;
   static const IconData pause = PhosphorIconsFill.pause;
   static const IconData list = PhosphorIconsRegular.list;

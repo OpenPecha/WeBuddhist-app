@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/constants/app_assets.dart';
+import 'package:flutter_pecha/core/l10n/intl_format_locale.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/core/widgets/responsive_cover_image.dart';
@@ -26,8 +27,9 @@ class GroupAccumulatorHeroCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final locale = Localizations.localeOf(context).toString();
-    final numberFormat = NumberFormat.decimalPattern(locale);
+    final numberFormat = NumberFormat.decimalPattern(
+      intlFormatLocaleOf(context),
+    );
     final progressText =
         '${numberFormat.format(detail.totalCount)} / ${numberFormat.format(detail.targetCount)}';
     final showJoinButton = !hasJoined;
@@ -50,7 +52,7 @@ class GroupAccumulatorHeroCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
-            height: 180,
+            height: 130,
             width: double.infinity,
             child:
                 detail.image != null && !detail.image!.isEmpty
@@ -80,33 +82,22 @@ class GroupAccumulatorHeroCard extends StatelessWidget {
                     detail.memberCount,
                   ),
                   style: TextStyle(
-                    fontSize: 20,
+                    fontSize: 16,
                     fontWeight: FontWeight.w700,
                     color: primaryTextColor,
                   ),
                 ),
                 const SizedBox(height: 8),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: Text(
-                        detail.title,
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w700,
-                          color: primaryTextColor,
-                          height: 1.3,
-                        ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                    if (hasJoined) ...[
-                      const SizedBox(width: 12),
-                      _ActionButton(isDark: isDark, onTap: onActionTap),
-                    ],
-                  ],
+                Text(
+                  detail.title,
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                    color: primaryTextColor,
+                    height: 1.3,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 12),
                 Row(
@@ -142,14 +133,15 @@ class GroupAccumulatorHeroCard extends StatelessWidget {
                     color: AppColors.primary,
                   ),
                 ),
-                if (showJoinButton) ...[
-                  const SizedBox(height: 16),
+                const SizedBox(height: 16),
+                if (showJoinButton)
                   _JoinButton(
                     isDark: isDark,
                     isJoining: isJoining,
                     onTap: onJoinTap,
-                  ),
-                ],
+                  )
+                else
+                  _ActionButton(isDark: isDark, onTap: onActionTap),
               ],
             ),
           ),
@@ -167,26 +159,26 @@ class _ActionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final button = Container(
-      width: 40,
-      height: 40,
-      decoration: BoxDecoration(
-        color: isDark ? AppColors.surfaceDark : AppColors.surfaceWhite,
-        shape: BoxShape.circle,
-        border: Border.all(
-          color: isDark ? AppColors.cardBorderDark : AppColors.grey300,
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        height: 44,
+        width: double.infinity,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: isDark ? AppColors.cardBorderDark : AppColors.backgroundDark,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Text(
+          context.l10n.group_accumulator_recite_now,
+          style: TextStyle(
+            fontSize: 15,
+            fontWeight: FontWeight.w600,
+            color: AppColors.textPrimaryDark,
+          ),
         ),
       ),
-      child: Icon(
-        AppAssets.caretRight,
-        size: 18,
-        color: isDark ? AppColors.textTertiaryDark : AppColors.grey800,
-      ),
     );
-
-    if (onTap == null) return button;
-
-    return GestureDetector(onTap: onTap, child: button);
   }
 }
 
