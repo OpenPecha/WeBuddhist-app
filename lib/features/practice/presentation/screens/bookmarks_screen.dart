@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/features/practice/data/models/bookmark_models.dart';
@@ -122,37 +123,18 @@ class _BookmarksScreenState extends ConsumerState<BookmarksScreen>
     final state = ref.watch(bookmarksProvider);
 
     return Scaffold(
-      backgroundColor:
-          isDark
-              ? AppColors.scaffoldBackgroundDark
-              : AppColors.scaffoldBackgroundLight,
       appBar: AppBar(
-        backgroundColor:
-            isDark
-                ? AppColors.scaffoldBackgroundDark
-                : AppColors.scaffoldBackgroundLight,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        centerTitle: true,
         leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back,
-            color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimary,
-          ),
+          icon: const Icon(AppAssets.arrowLeft),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
           context.l10n.bookmarks,
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.w600,
-            color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimary,
-          ),
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
         ),
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(48),
-          child: _buildTabBar(context, isDark),
-        ),
+        scrolledUnderElevation: 0,
+        centerTitle: true,
+        bottom: _buildTabBar(context, isDark),
       ),
       body: TabBarView(
         controller: _tabController,
@@ -174,32 +156,51 @@ class _BookmarksScreenState extends ConsumerState<BookmarksScreen>
     );
   }
 
-  Widget _buildTabBar(BuildContext context, bool isDark) {
-    final indicatorColor =
-        isDark ? AppColors.textPrimaryDark : AppColors.textPrimary;
+  /// Scrollable tabs that still fill the screen width evenly when labels are
+  /// short; tabs grow past their share when a locale needs more room.
+  PreferredSizeWidget _buildTabBar(BuildContext context, bool isDark) {
+    final labels = _tabLabels(context);
+    final minTabWidth = MediaQuery.sizeOf(context).width / labels.length;
 
     return TabBar(
       controller: _tabController,
       isScrollable: true,
       tabAlignment: TabAlignment.start,
-      indicator: UnderlineTabIndicator(
-        borderSide: BorderSide(width: 2, color: indicatorColor),
-        insets: const EdgeInsets.symmetric(horizontal: 4),
+      labelPadding: EdgeInsets.zero,
+      padding: EdgeInsets.zero,
+      tabs:
+          labels
+              .map(
+                (label) => Tab(
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(minWidth: minTabWidth),
+                    child: Text(
+                      label,
+                      textAlign: TextAlign.center,
+                      maxLines: 1,
+                    ),
+                  ),
+                ),
+              )
+              .toList(),
+      labelStyle: const TextStyle(
+        fontWeight: FontWeight.bold,
+        fontSize: 14,
       ),
-      overlayColor: WidgetStateProperty.all(Colors.transparent),
-      splashFactory: NoSplash.splashFactory,
-      labelColor: isDark ? AppColors.textPrimaryDark : AppColors.textPrimary,
-      unselectedLabelColor:
-          isDark ? AppColors.textSubtleDark : AppColors.grey500,
-      labelStyle: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
       unselectedLabelStyle: const TextStyle(
-        fontSize: 16,
-        fontWeight: FontWeight.w500,
+        fontWeight: FontWeight.normal,
+        fontSize: 14,
       ),
-      dividerColor: isDark ? AppColors.cardBorderDark : AppColors.grey300,
-      tabs: _tabLabels(context).map((label) => Tab(text: label)).toList(),
+      labelColor:
+          isDark ? AppColors.textPrimaryDark : AppColors.textPrimary,
+      unselectedLabelColor:
+          isDark ? AppColors.textTertiaryDark : AppColors.textSecondary,
+      indicatorColor: Colors.blue,
+      indicatorSize: TabBarIndicatorSize.tab,
+      dividerColor: Colors.transparent,
     );
   }
+
 }
 
 /// Renders one tab: loading / error / empty / grouped list states.
