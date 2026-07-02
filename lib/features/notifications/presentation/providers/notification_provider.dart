@@ -10,14 +10,16 @@ final _logger = AppLogger('NotificationProvider');
 
 enum NotificationToggleResult { success, permissionDenied, error }
 
-/// Three app-level flags (master / routine / recitation) are stored in
-/// SharedPreferences and never touch OS permission. OS-level checks
+/// Five app-level flags (master / routine / recitation / practice / timer) are
+/// stored in SharedPreferences and never touch OS permission. OS-level checks
 /// (system permission, exact alarms, battery) are read-only live reads.
 class NotificationState {
   final bool isLoading;
   final bool appMasterEnabled;
   final bool appRoutineEnabled;
   final bool appRecitationEnabled;
+  final bool appPracticeEnabled;
+  final bool appTimerEnabled;
   final bool hasSystemPermission;
   final bool canScheduleExactAlarms;
   final bool isBatteryOptimizationExempt;
@@ -27,6 +29,8 @@ class NotificationState {
     this.appMasterEnabled = true,
     this.appRoutineEnabled = true,
     this.appRecitationEnabled = true,
+    this.appPracticeEnabled = true,
+    this.appTimerEnabled = true,
     this.hasSystemPermission = false,
     this.canScheduleExactAlarms = true,
     this.isBatteryOptimizationExempt = true,
@@ -37,6 +41,8 @@ class NotificationState {
     bool? appMasterEnabled,
     bool? appRoutineEnabled,
     bool? appRecitationEnabled,
+    bool? appPracticeEnabled,
+    bool? appTimerEnabled,
     bool? hasSystemPermission,
     bool? canScheduleExactAlarms,
     bool? isBatteryOptimizationExempt,
@@ -46,6 +52,8 @@ class NotificationState {
         appMasterEnabled: appMasterEnabled ?? this.appMasterEnabled,
         appRoutineEnabled: appRoutineEnabled ?? this.appRoutineEnabled,
         appRecitationEnabled: appRecitationEnabled ?? this.appRecitationEnabled,
+        appPracticeEnabled: appPracticeEnabled ?? this.appPracticeEnabled,
+        appTimerEnabled: appTimerEnabled ?? this.appTimerEnabled,
         hasSystemPermission: hasSystemPermission ?? this.hasSystemPermission,
         canScheduleExactAlarms:
             canScheduleExactAlarms ?? this.canScheduleExactAlarms,
@@ -75,6 +83,8 @@ class NotificationNotifier extends StateNotifier<NotificationState> {
         _loadBool(StorageKeys.notificationMasterEnabled, defaultValue: true),
         _loadBool(StorageKeys.notificationRoutineEnabled, defaultValue: true),
         _loadBool(StorageKeys.notificationRecitationEnabled, defaultValue: true),
+        _loadBool(StorageKeys.notificationPracticeEnabled, defaultValue: true),
+        _loadBool(StorageKeys.notificationTimerEnabled, defaultValue: true),
       ]);
       state = state.copyWith(
         hasSystemPermission: results[0],
@@ -83,6 +93,8 @@ class NotificationNotifier extends StateNotifier<NotificationState> {
         appMasterEnabled: results[3],
         appRoutineEnabled: results[4],
         appRecitationEnabled: results[5],
+        appPracticeEnabled: results[6],
+        appTimerEnabled: results[7],
         isLoading: false,
       );
     } catch (_) {
@@ -209,6 +221,69 @@ class NotificationNotifier extends StateNotifier<NotificationState> {
         final prefs = await SharedPreferences.getInstance();
         await prefs.setBool(StorageKeys.notificationRecitationEnabled,
             previous.appRecitationEnabled);
+      } catch (_) {}
+      return NotificationToggleResult.error;
+    }
+  }
+
+  /// Toggles practice (mala / accumulator) block notifications independently.
+  ///
+  /// ON  → re-schedules only mala blocks.
+  /// OFF → cancels only mala blocks. Plan and recitation blocks are NOT affected.
+  Future<NotificationToggleResult> togglePractice(bool enable) async {
+    _logger.info('[TOGGLE] practice → $enable');
+    final previous = state;
+    state = state.copyWith(appPracticeEnabled: enable);
+
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool(StorageKeys.notificationPracticeEnabled, enable);
+
+      await _ref
+          .read(notificationSyncEngineProvider)
+          .sync(trigger: SyncTrigger.practiceToggle);
+
+      _logger.info('[TOGGLE] practice → $enable COMPLETE');
+      return NotificationToggleResult.success;
+    } catch (e, st) {
+      _logger.error('[TOGGLE] practice → $enable FAILED — reverting', e, st);
+      state = previous;
+      try {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setBool(StorageKeys.notificationPracticeEnabled,
+            previous.appPracticeEnabled);
+      } catch (_) {}
+      return NotificationToggleResult.error;
+    }
+  }
+
+  /// Toggles timer block notifications independently.
+  ///
+  /// ON  → re-schedules only timer blocks (start + "timer up" reminders).
+  /// OFF → cancels only timer blocks. Plan, recitation and mala blocks are
+  ///        NOT affected.
+  Future<NotificationToggleResult> toggleTimer(bool enable) async {
+    _logger.info('[TOGGLE] timer → $enable');
+    final previous = state;
+    state = state.copyWith(appTimerEnabled: enable);
+
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool(StorageKeys.notificationTimerEnabled, enable);
+
+      await _ref
+          .read(notificationSyncEngineProvider)
+          .sync(trigger: SyncTrigger.timerToggle);
+
+      _logger.info('[TOGGLE] timer → $enable COMPLETE');
+      return NotificationToggleResult.success;
+    } catch (e, st) {
+      _logger.error('[TOGGLE] timer → $enable FAILED — reverting', e, st);
+      state = previous;
+      try {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setBool(
+            StorageKeys.notificationTimerEnabled, previous.appTimerEnabled);
       } catch (_) {}
       return NotificationToggleResult.error;
     }

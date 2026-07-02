@@ -70,3 +70,4 @@ lib/features/practice/specs/routines-openapi.yaml
 
 # claude
 CLAUDE.md
+/docs/notification/notification.md

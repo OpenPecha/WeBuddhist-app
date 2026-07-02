@@ -394,15 +394,20 @@ class NotificationService {
         final itemTypeStr = data['itemType'] as String?;
         if (itemId != null && itemTypeStr != null) {
           final planId = data['planId'] as String?;
+          final durationMs = (data['durationMs'] as num?)?.toInt();
+          final startMinuteOfDay = (data['startMinuteOfDay'] as num?)?.toInt();
           _logger.info(
             'Storing pending notification nav: $itemTypeStr $itemId '
-            'planId=$planId',
+            'planId=$planId durationMs=$durationMs '
+            'startMinuteOfDay=$startMinuteOfDay',
           );
           _container!.read(pendingNotificationNavProvider.notifier).state =
               NotificationNav(
                 itemId: itemId,
                 itemType: itemTypeStr,
                 planId: planId,
+                durationMs: durationMs,
+                startMinuteOfDay: startMinuteOfDay,
               );
         }
       } catch (e) {
@@ -410,10 +415,16 @@ class NotificationService {
       }
     }
 
-    // Navigate to the practice tab — RoutineFilledState will push the detail screen.
+    // Navigate to the practice tab, then push the My Practices screen.
+    // Since the main-navigation refactor, RoutineFilledState — which consumes
+    // the pending nav and pushes the chant (reader) / mala / plan detail —
+    // only mounts on /practice/my-practices; the Practice tab itself shows the
+    // explore screen and consumes nothing. Without this push the tap lands on
+    // /home and the detail never opens. Mirrors PushMessageNavigator's plan path.
     _container!.read(mainNavigationIndexProvider.notifier).state =
         MainTab.practice.index;
     _router!.go('/home');
+    _router!.push('/practice/my-practices');
   }
 }
 

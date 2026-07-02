@@ -223,6 +223,14 @@ class AppLocalizationsZh extends AppLocalizations {
   String get timer_discard_session => '放弃练习';
 
   @override
+  String get timer_dismiss => '今日略過';
+
+  @override
+  String timer_starts_at(String time) {
+    return '計時器將於 $time 開始';
+  }
+
+  @override
   String get home_hello_prefix => '你好，';
 
   @override
@@ -469,6 +477,24 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get notification_recitation_subtitle_disabled => '持誦提醒已暫停。點此恢復。';
+
+  @override
+  String get notification_practice_title => '念珠提醒';
+
+  @override
+  String get notification_practice_subtitle_enabled => '每日念珠修持提醒';
+
+  @override
+  String get notification_practice_subtitle_disabled => '念珠提醒已暫停。點此恢復。';
+
+  @override
+  String get notification_timer_title => '計時器提醒';
+
+  @override
+  String get notification_timer_subtitle_enabled => '每日計時器練習提醒';
+
+  @override
+  String get notification_timer_subtitle_disabled => '計時器提醒已暫停。點此恢復。';
 
   @override
   String get notification_battery_info_title => '關於背景提醒';

@@ -71,7 +71,13 @@ class _RoutineFilledStateState extends ConsumerState<RoutineFilledState> {
     super.initState();
     ref.listenManual(pendingNotificationNavProvider, (previous, next) {
       if (next != null) {
-        _handlePendingNotificationNav(next);
+        // fireImmediately can run this synchronously during initState, and
+        // _handlePendingNotificationNav may refresh providers (illegal during
+        // build). Defer to the next microtask so the mutation happens after
+        // this build completes.
+        Future.microtask(() {
+          if (mounted) _handlePendingNotificationNav(next);
+        });
       }
     }, fireImmediately: true);
   }
@@ -89,6 +95,45 @@ class _RoutineFilledStateState extends ConsumerState<RoutineFilledState> {
         '/reader/${pendingNav.itemId}',
         extra: NavigationContext(source: NavigationSource.normal),
       );
+      return;
+    }
+
+    if (itemType == RoutineItemType.accumulator) {
+      ref.read(pendingNotificationNavProvider.notifier).state = null;
+      context.push('/mala', extra: {'presetId': pendingNav.itemId});
+      return;
+    }
+
+    if (itemType == RoutineItemType.timer) {
+      // Open the timer screen — same destination as tapping the timer item in
+      // the routine. `/home/timers/active` is a root-navigator route, so it is
+      // safe to push from this out-of-shell (My Practices) location.
+      ref.read(pendingNotificationNavProvider.notifier).state = null;
+      final item = _findRoutineItem(widget.routineData, pendingNav.itemId);
+      // Prefer the routine item's duration; fall back to the value embedded in
+      // the notification payload so the tap still works when the item is not
+      // found or lost its durationMs on a server round-trip.
+      final durationMs = item?.durationMs ?? pendingNav.durationMs;
+      if (durationMs != null && durationMs > 0) {
+        final name = (item != null && item.title.isNotEmpty)
+            ? item.title
+            : '${durationMs ~/ 60000} min session';
+        // Pass the block's scheduled minute-of-day so the timer screen syncs
+        // its remaining time to the wall clock (running with the correct time
+        // left, or finished) instead of starting a fresh countdown.
+        final startMin = pendingNav.startMinuteOfDay;
+        final path = startMin != null
+            ? '/home/timers/active?startMin=$startMin'
+            : '/home/timers/active';
+        context.push(
+          path,
+          extra: PresetTimer(
+            id: pendingNav.itemId,
+            name: name,
+            durationMs: durationMs,
+          ),
+        );
+      }
       return;
     }
 
@@ -299,8 +344,12 @@ class _RoutineBlockSection extends ConsumerWidget {
         item.title.isNotEmpty
             ? item.title
             : '${durationMs ~/ 60000} min session';
+    // Open the timer time-aware (same as a notification tap): it shows "starts
+    // at HH:MM" before its scheduled block time, the synced countdown during,
+    // and finished after — rather than auto-starting a fresh countdown.
+    final startMin = block.time.hour * 60 + block.time.minute;
     context.push(
-      '/home/timers/active',
+      '/home/timers/active?startMin=$startMin',
       extra: PresetTimer(id: item.id, name: name, durationMs: durationMs),
     );
   }

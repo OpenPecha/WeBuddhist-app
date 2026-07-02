@@ -233,6 +233,14 @@ class AppLocalizationsMn extends AppLocalizations {
   String get timer_discard_session => 'Хичээл цуцлах';
 
   @override
+  String get timer_dismiss => 'Өнөөдрийн хувьд алгасах';
+
+  @override
+  String timer_starts_at(String time) {
+    return 'Цаг хэмжигч $time-д эхэлнэ';
+  }
+
+  @override
   String get home_hello_prefix => 'Сайн байна уу, ';
 
   @override
@@ -483,15 +491,37 @@ class AppLocalizationsMn extends AppLocalizations {
       'Зарим Android утас батерей хэмнэхийн тулд дэвсгэр аппуудыг түр зогсоодог нь таны сануулгыг хойшлуулах буюу алгасах магадлалтай. Үргэлжлүүлэн ажиллуулахын тулд дарна уу.';
 
   @override
-  String get notification_recitation_title => 'Уншлагын сануулга';
+  String get notification_recitation_title => 'Магтаалын сануулга';
 
   @override
   String get notification_recitation_subtitle_enabled =>
-      'Таны уншлагын өдөр тутмын сануулга';
+      'Таны магтаалын өдөр тутмын сануулга';
 
   @override
   String get notification_recitation_subtitle_disabled =>
-      'Уншлагын сануулга түр зогссон. Үргэлжлүүлэхийн тулд дарна уу.';
+      'Магтаалын сануулга түр зогссон. Үргэлжлүүлэхийн тулд дарна уу.';
+
+  @override
+  String get notification_practice_title => 'Эрхийн сануулга';
+
+  @override
+  String get notification_practice_subtitle_enabled =>
+      'Таны эрхийн дадлагын өдөр тутмын сануулга';
+
+  @override
+  String get notification_practice_subtitle_disabled =>
+      'Эрхийн сануулга түр зогссон. Үргэлжлүүлэхийн тулд дарна уу.';
+
+  @override
+  String get notification_timer_title => 'Цаг хэмжигчийн сануулга';
+
+  @override
+  String get notification_timer_subtitle_enabled =>
+      'Таны цаг хэмжигчийн дасгалын өдөр тутмын сануулга';
+
+  @override
+  String get notification_timer_subtitle_disabled =>
+      'Цаг хэмжигчийн сануулга түр зогссон. Үргэлжлүүлэхийн тулд дарна уу.';
 
   @override
   String get notification_battery_info_title => 'Дэвсгэр сануулгын тухай';

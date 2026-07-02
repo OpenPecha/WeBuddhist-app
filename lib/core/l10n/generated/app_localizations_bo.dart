@@ -234,6 +234,14 @@ class AppLocalizationsBo extends AppLocalizations {
   String get timer_discard_session => 'སྒྲུབ་སྡེ་མེད་པར་བཏང་།';
 
   @override
+  String get timer_dismiss => 'དེ་རིང་གི་ཆེད་མཚམས་འཇོག';
+
+  @override
+  String timer_starts_at(String time) {
+    return 'དུས་ཚོད་$time ལ་འགོ་ཚུགས།';
+  }
+
+  @override
   String get home_hello_prefix => 'བཀྲ་ཤིས་བདེ་ལེགས། ';
 
   @override
@@ -492,6 +500,28 @@ class AppLocalizationsBo extends AppLocalizations {
   @override
   String get notification_recitation_subtitle_disabled =>
       'ཁ་འདོན་དྲན་སྐུལ་མཚམས་བཞག་ཡོད། བསྐྱར་སློང་བྱེད་ན་འདིར་སྣུན།';
+
+  @override
+  String get notification_practice_title => 'ཕྲེང་བའི་ཉམས་ལེན་དྲན་སྐུལ།';
+
+  @override
+  String get notification_practice_subtitle_enabled =>
+      'ཕྲེང་བའི་ཉམས་ལེན་གྱི་ཉིན་རེའི་དྲན་སྐུལ།';
+
+  @override
+  String get notification_practice_subtitle_disabled =>
+      'ཕྲེང་བའི་དྲན་སྐུལ་མཚམས་བཞག་ཡོད། བསྐྱར་སློང་བྱེད་ན་འདིར་སྣུན།';
+
+  @override
+  String get notification_timer_title => 'དུས་ཚོད་དྲན་སྐུལ།';
+
+  @override
+  String get notification_timer_subtitle_enabled =>
+      'ཉིན་རེའི་དུས་ཚོད་སྒོམ་སྒྲུབ་ཀྱི་དྲན་སྐུལ།';
+
+  @override
+  String get notification_timer_subtitle_disabled =>
+      'དུས་ཚོད་ཀྱི་དྲན་སྐུལ་མཚམས་བཞག་ཡོད། བསྐྱར་སློང་བྱེད་ན་འདིར་སྣུན།';
 
   @override
   String get notification_battery_info_title => 'རྒྱབ་ལྗོངས་དྲན་སྐུལ་གྱི་སྐོར།';

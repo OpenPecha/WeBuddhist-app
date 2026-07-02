@@ -232,6 +232,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get timer_discard_session => 'Discard session';
 
   @override
+  String get timer_dismiss => 'Dismiss for today';
+
+  @override
+  String timer_starts_at(String time) {
+    return 'Timer starts at $time';
+  }
+
+  @override
   String get home_hello_prefix => 'Hello, ';
 
   @override
@@ -479,15 +487,37 @@ class AppLocalizationsEn extends AppLocalizations {
       'Some Android phones pause background apps to save battery, which can delay or skip your reminders. Tap to keep yours running.';
 
   @override
-  String get notification_recitation_title => 'Recitations reminder';
+  String get notification_recitation_title => 'Chant reminders';
 
   @override
   String get notification_recitation_subtitle_enabled =>
-      'Daily reminders for your recitations';
+      'Daily reminders for your chants';
 
   @override
   String get notification_recitation_subtitle_disabled =>
-      'Recitation reminders are paused. Tap to resume.';
+      'Chant reminders are paused. Tap to resume.';
+
+  @override
+  String get notification_practice_title => 'Mala reminders';
+
+  @override
+  String get notification_practice_subtitle_enabled =>
+      'Daily reminders for your mala practice';
+
+  @override
+  String get notification_practice_subtitle_disabled =>
+      'Mala reminders are paused. Tap to resume.';
+
+  @override
+  String get notification_timer_title => 'Timer reminders';
+
+  @override
+  String get notification_timer_subtitle_enabled =>
+      'Daily reminders for your timer sessions';
+
+  @override
+  String get notification_timer_subtitle_disabled =>
+      'Timer reminders are paused. Tap to resume.';
 
   @override
   String get notification_battery_info_title => 'About background reminders';

@@ -289,7 +289,17 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                       if (timer == null) {
                         throw Exception('Missing preset timer');
                       }
-                      return ActiveTimerScreen(presetTimer: timer);
+                      // `?startMin=<minuteOfDay>` (from a timer notification
+                      // tap) makes the screen sync its remaining time to the
+                      // block's scheduled time instead of running a fresh
+                      // countdown. Absent for a manual open.
+                      final startMin = int.tryParse(
+                        state.uri.queryParameters['startMin'] ?? '',
+                      );
+                      return ActiveTimerScreen(
+                        presetTimer: timer,
+                        scheduledStartMinuteOfDay: startMin,
+                      );
                     },
                   ),
                 ],
