@@ -13,6 +13,7 @@ import 'package:flutter_pecha/features/practice/domain/entities/practice_item.da
 import 'package:flutter_pecha/features/practice/domain/entities/practice_items_tab.dart';
 import 'package:flutter_pecha/features/practice/presentation/providers/practice_items_paginated_provider.dart';
 import 'package:flutter_pecha/features/practice/presentation/providers/practice_recitations_paginated_provider.dart';
+import 'package:flutter_pecha/features/practice/presentation/widgets/practice_chant_list_tile.dart';
 import 'package:flutter_pecha/features/recitation/data/models/recitation_model.dart';
 import 'package:flutter_pecha/features/recitation/presentation/widgets/recitation_list_skeleton.dart';
 import 'package:flutter_pecha/features/timer/domain/entities/preset_timer.dart';
@@ -377,14 +378,15 @@ class _ChantsTab extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     final recitationsState = ref.watch(practiceRecitationsPaginatedProvider);
 
     Future<void> onRefresh() =>
         ref.read(practiceRecitationsPaginatedProvider.notifier).refresh();
 
     if (recitationsState.isLoading && recitationsState.recitations.isEmpty) {
-      return const RecitationListSkeleton();
+      return const RecitationListSkeleton(
+        variant: RecitationListSkeletonVariant.chantTile,
+      );
     }
 
     if (recitationsState.error != null &&
@@ -425,65 +427,17 @@ class _ChantsTab extends ConsumerWidget {
           }
 
           final recitation = recitations[index];
-          final description = recitation.firstSegment?.content;
 
           return Padding(
             padding: const EdgeInsets.only(bottom: 8),
-            child: _SessionCard(
-              isDark: isDark,
+            child: PracticeChantListTile(
+              recitation: recitation,
+              showTrailingCaret: false,
+              includeOuterPadding: false,
               onTap:
                   enrollingItemId == null
                       ? () => onRecitationSelected(recitation)
                       : null,
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    width: 4,
-                    height: description != null ? null : 44,
-                    constraints: const BoxConstraints(minHeight: 44),
-                    decoration: BoxDecoration(
-                      color:
-                          isDark
-                              ? AppColors.textTertiaryDark
-                              : AppColors.grey400,
-                      borderRadius: BorderRadius.circular(2),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          recitation.title,
-                          style: const TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w600,
-                          ),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        if (description != null && description.isNotEmpty) ...[
-                          const SizedBox(height: 4),
-                          Text(
-                            description,
-                            style: TextStyle(
-                              fontSize: 13,
-                              color:
-                                  isDark
-                                      ? AppColors.textTertiaryDark
-                                      : AppColors.textSecondary,
-                            ),
-                            maxLines: 3,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ],
-                      ],
-                    ),
-                  ),
-                ],
-              ),
             ),
           );
         },
