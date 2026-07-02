@@ -1561,32 +1561,33 @@ class AppLocalizationsZh extends AppLocalizations {
       'You are already practicing this plan with another group. Would you like to change your practice group?';
 
   @override
-  String get group_join_to_contribute => 'Join to contribute';
+  String get group_join_to_contribute => '加入以貢獻';
 
   @override
-  String get group_accumulator_join_error =>
-      'Unable to join accumulation. Please try again.';
+  String get group_accumulator_join_error => '無法加入累積，請再試一次。';
 
   @override
   String group_accumulator_participants(int count) {
-    return '$count participants';
+    return '$count 位參與者';
   }
 
   @override
-  String get group_accumulator_leaderboard => 'Leaderboard';
+  String get group_accumulator_leaderboard => '排行榜';
 
   @override
-  String get group_accumulator_my_contributions => 'My Contributions';
+  String get group_accumulator_my_contributions => '我的貢獻';
 
   @override
-  String get group_accumulator_recited => 'Recited';
+  String get group_accumulator_recited => '已誦讀';
 
   @override
-  String get group_accumulator_total => 'Total';
+  String get group_accumulator_total => '總數';
 
   @override
-  String get group_accumulator_contributions_empty =>
-      'Join this accumulation to track your contributions.';
+  String get group_accumulator_contributions_empty => '加入此累積以追蹤您的貢獻。';
+
+  @override
+  String get group_accumulator_recite_now => '立即誦念';
 
   @override
   String get share_this_quote => '分享这句话';

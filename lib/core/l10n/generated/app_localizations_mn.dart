@@ -1652,32 +1652,35 @@ class AppLocalizationsMn extends AppLocalizations {
       'You are already practicing this plan with another group. Would you like to change your practice group?';
 
   @override
-  String get group_join_to_contribute => 'Join to contribute';
+  String get group_join_to_contribute => 'Хувь нэмэр оруулахын тулд нэгдэх';
 
   @override
   String get group_accumulator_join_error =>
-      'Unable to join accumulation. Please try again.';
+      'Хуримтлалд нэгдэх боломжгүй байна. Дахин оролдоно уу.';
 
   @override
   String group_accumulator_participants(int count) {
-    return '$count participants';
+    return '$count оролцогч';
   }
 
   @override
-  String get group_accumulator_leaderboard => 'Leaderboard';
+  String get group_accumulator_leaderboard => 'Тэргүүлэгчдийн самбар';
 
   @override
-  String get group_accumulator_my_contributions => 'My Contributions';
+  String get group_accumulator_my_contributions => 'Миний хувь нэмэр';
 
   @override
-  String get group_accumulator_recited => 'Recited';
+  String get group_accumulator_recited => 'Уншсан';
 
   @override
-  String get group_accumulator_total => 'Total';
+  String get group_accumulator_total => 'Нийт';
 
   @override
   String get group_accumulator_contributions_empty =>
-      'Join this accumulation to track your contributions.';
+      'Хувь нэмрээ хянахын тулд энэ хуримтлалд нэгдэнэ үү.';
+
+  @override
+  String get group_accumulator_recite_now => 'Одоо уншина уу';
 
   @override
   String get share_this_quote => 'Энэ ишлэлийг хуваалцах';

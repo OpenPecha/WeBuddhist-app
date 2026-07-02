@@ -18,6 +18,7 @@ import 'package:flutter_pecha/features/home/presentation/providers/series_enroll
 import 'package:flutter_pecha/features/plans/presentation/widgets/plan_inline_markdown_view.dart';
 import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_pecha/features/plans/data/utils/plan_date_format.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:share_plus/share_plus.dart';
@@ -53,8 +54,6 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
     if (_hasAboutContent(profile)) count++;
     return count;
   }
-
-  int get _membersTabIndex => 1;
 
   bool _hasBanner(GroupProfile profile) =>
       profile.bannerUrl != null && profile.bannerUrl!.isNotEmpty;
@@ -166,23 +165,19 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
         if (_isCommunityGroup(profile)) ...[
           _buildTabBar(isDark, profile),
           Expanded(
-            child: AnimatedBuilder(
-              animation: _tabController!,
-              builder: (context, _) {
-                final tabIndex = _tabController!.index;
-                if (tabIndex == 0) {
-                  return _buildPracticesTab(profile, isDark, lineHeight);
-                }
-                if (tabIndex == _membersTabIndex) {
-                  return GroupProfileMembersTab(
-                    groupId: profile.id,
-                    groupType: profile.groupType,
-                    isDark: isDark,
-                    lineHeight: lineHeight,
-                  );
-                }
-                return _buildAboutTab(profile, isDark, locale.languageCode);
-              },
+            child: TabBarView(
+              controller: _tabController!,
+              children: [
+                _buildPracticesTab(profile, isDark, lineHeight),
+                GroupProfileMembersTab(
+                  groupId: profile.id,
+                  groupType: profile.groupType,
+                  isDark: isDark,
+                  lineHeight: lineHeight,
+                ),
+                if (_hasAboutContent(profile))
+                  _buildAboutTab(profile, isDark, locale.languageCode),
+              ],
             ),
           ),
         ] else
@@ -763,11 +758,7 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
   }
 
   String? _formatSeriesDateRange(GroupProfileSeries series) {
-    final startDate = series.startDate;
-    final endDate = series.endDate;
-    if (startDate == null || endDate == null) return null;
-    final formatter = DateFormat('MMM d');
-    return '${formatter.format(startDate.toLocal())} - ${formatter.format(endDate.toLocal())}';
+    return PlanDateFormat.formatRangeOrNull(series.startDate, series.endDate);
   }
 
   void _navigateToSeriesDetail(
