@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
+import 'package:flutter_pecha/core/widgets/cached_network_image_widget.dart';
 import 'package:flutter_pecha/core/widgets/responsive_cover_image.dart';
+import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
 import 'package:flutter_pecha/features/mala/domain/entities/accumulator_group.dart';
 import 'package:flutter_pecha/features/mala/presentation/providers/accumulator_groups_provider.dart';
 import 'package:flutter_pecha/features/mala/presentation/widgets/group_accumulations_sheet.dart';
@@ -49,7 +52,7 @@ class GroupAccumulationsBar extends ConsumerWidget {
   }
 }
 
-class _GroupAccumulationsBarContent extends StatelessWidget {
+class _GroupAccumulationsBarContent extends ConsumerWidget {
   const _GroupAccumulationsBarContent({
     required this.presetId,
     required this.groups,
@@ -65,11 +68,12 @@ class _GroupAccumulationsBarContent extends StatelessWidget {
   final double avatarOverlap;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final iconColor = Theme.of(context).colorScheme.onSurfaceVariant;
-    final preview = groups.take(2).toList();
-    final stackWidth =
-        preview.length == 1 ? avatarSize : avatarSize + avatarOverlap;
+    final userAvatarUrl = ref.watch(userProvider).user?.avatarUrl;
+    final groupPreview = groups.take(2).toList();
+    final avatarCount = 1 + groupPreview.length;
+    final stackWidth = avatarSize + (avatarCount - 1) * avatarOverlap;
 
     return Align(
       alignment: Alignment.centerLeft,
@@ -97,11 +101,18 @@ class _GroupAccumulationsBarContent extends StatelessWidget {
                   child: Stack(
                     clipBehavior: Clip.none,
                     children: [
-                      for (var i = 0; i < preview.length; i++)
+                      Positioned(
+                        left: 0,
+                        child: _BarUserAvatar(
+                          avatarUrl: userAvatarUrl,
+                          size: avatarSize,
+                        ),
+                      ),
+                      for (var i = 0; i < groupPreview.length; i++)
                         Positioned(
-                          left: i * avatarOverlap,
+                          left: (i + 1) * avatarOverlap,
                           child: _GroupAvatar(
-                            group: preview[i],
+                            group: groupPreview[i],
                             size: avatarSize,
                           ),
                         ),
@@ -114,6 +125,43 @@ class _GroupAccumulationsBarContent extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+class _BarUserAvatar extends StatelessWidget {
+  const _BarUserAvatar({required this.size, this.avatarUrl});
+
+  final double size;
+  final String? avatarUrl;
+
+  @override
+  Widget build(BuildContext context) {
+    final fallbackColor =
+        Theme.of(context).colorScheme.surfaceContainerHighest;
+
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: fallbackColor,
+        border: Border.all(color: AppColors.surfaceWhite, width: 1.5),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child:
+          avatarUrl != null && avatarUrl!.isNotEmpty
+              ? CachedNetworkImageWidget(
+                imageUrl: avatarUrl,
+                width: size,
+                height: size,
+                fit: BoxFit.cover,
+              )
+              : Icon(
+                AppAssets.profile,
+                size: size * 0.55,
+                color: AppColors.grey600,
+              ),
     );
   }
 }
