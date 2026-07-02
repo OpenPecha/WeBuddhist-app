@@ -259,9 +259,6 @@ class _MalaScreenState extends ConsumerState<MalaScreen> {
                                     beadInRound: displayBeadInRound,
                                     beadsPerRound: beadsPerRound,
                                     enabled: countingEnabled,
-                                    beadImageUrl:
-                                        counter.beadImageUrl ??
-                                        mantra.beadImageUrl,
                                     beadImageBytes: counter.beadImageBytes,
                                     beadColor: const Color(0xFF8D6E63),
                                     threadColor: const Color(0xFFC62828),

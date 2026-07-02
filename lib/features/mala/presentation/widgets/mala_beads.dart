@@ -1,7 +1,6 @@
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 /// A tappable strand of prayer beads that advances **forward only**.
@@ -14,8 +13,8 @@ import 'package:flutter/material.dart';
 /// left pile and a new bead enters from the top-right. Counting is monotonic,
 /// so the motion never reverses.
 ///
-/// Beads render the [beadImageUrl] image when present; a drawn gradient bead
-/// shows while that image loads, and whenever there's no URL or it fails.
+/// Beads render [beadImageBytes] when present; a drawn gradient bead shows
+/// while bytes are downloading or when unavailable.
 class MalaBeads extends StatefulWidget {
   const MalaBeads({
     super.key,
@@ -26,7 +25,6 @@ class MalaBeads extends StatefulWidget {
     required this.beadColor,
     required this.threadColor,
     this.enabled = true,
-    this.beadImageUrl,
     this.beadImageBytes,
   });
 
@@ -38,7 +36,6 @@ class MalaBeads extends StatefulWidget {
   final Color beadColor;
   final Color threadColor;
   final bool enabled;
-  final String? beadImageUrl;
   final Uint8List? beadImageBytes;
 
   @override
@@ -70,8 +67,7 @@ class _MalaBeadsState extends State<MalaBeads>
   @override
   void didUpdateWidget(covariant MalaBeads oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.beadImageUrl != oldWidget.beadImageUrl ||
-        widget.beadImageBytes != oldWidget.beadImageBytes) {
+    if (widget.beadImageBytes != oldWidget.beadImageBytes) {
       _resolveBeadImage();
     }
     if (widget.total != oldWidget.total) {
@@ -89,8 +85,8 @@ class _MalaBeadsState extends State<MalaBeads>
     }
   }
 
-  /// Load local Hive-backed image bytes first. With no local bytes, fall back
-  /// to the network URL. With neither — or if both fail — draw the gradient bead.
+  /// Renders Hive-backed bytes only. Network fetch (with presigned URL refresh)
+  /// is handled by [MalaCounterNotifier]; until bytes arrive, draw the gradient bead.
   void _resolveBeadImage() {
     final bytes = widget.beadImageBytes;
     if (bytes != null && bytes.isNotEmpty) {
@@ -98,15 +94,9 @@ class _MalaBeadsState extends State<MalaBeads>
       return;
     }
 
-    final url = widget.beadImageUrl;
-    if (url == null || url.isEmpty) {
-      _detachImageListener();
-      _imageStream = null;
-      if (_beadImage != null && mounted) setState(() => _beadImage = null);
-      return;
-    }
-
-    _resolveImageProvider(CachedNetworkImageProvider(url));
+    _detachImageListener();
+    _imageStream = null;
+    if (_beadImage != null && mounted) setState(() => _beadImage = null);
   }
 
   void _resolveImageProvider(ImageProvider provider) {
