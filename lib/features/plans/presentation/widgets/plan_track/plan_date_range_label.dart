@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/features/plans/data/utils/plan_date_format.dart';
 import 'package:flutter_pecha/features/plans/data/utils/plan_utils.dart';
-import 'package:intl/intl.dart';
 
 /// Immutable value type encapsulating a plan's `[start, end]` calendar
 /// window along with its pre-formatted label and a `today within range`
@@ -19,7 +19,7 @@ class PlanDateRange {
   /// True when `DateUtils.dateOnly(DateTime.now())` is within `[start, end]`.
   final bool isCurrent;
 
-  /// Pre-formatted "MMM dd - MMM dd" label.
+  /// Pre-formatted "1 may 2025 - 2 dec 2025" label (not localized).
   final String formatted;
 
   const PlanDateRange({
@@ -43,8 +43,7 @@ class PlanDateRange {
     final today = DateUtils.dateOnly(DateTime.now());
     final isCurrent = !today.isBefore(start) && !today.isAfter(end);
 
-    final formatter = DateFormat('MMM dd');
-    final formatted = '${formatter.format(start)} - ${formatter.format(end)}';
+    final formatted = PlanDateFormat.formatRange(start, end);
 
     return PlanDateRange(
       start: start,

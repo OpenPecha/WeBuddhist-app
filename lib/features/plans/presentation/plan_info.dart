@@ -6,13 +6,13 @@ import 'package:flutter_pecha/core/widgets/responsive_cover_image.dart';
 import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
 import 'package:flutter_pecha/features/onboarding/presentation/providers/event_enrollment_providers.dart';
 import 'package:flutter_pecha/features/plans/domain/entities/plan.dart';
+import 'package:flutter_pecha/features/plans/data/utils/plan_date_format.dart';
 import 'package:flutter_pecha/features/plans/presentation/providers/user_plans_provider.dart';
 import 'package:flutter_pecha/features/plans/presentation/author_detail_screen.dart';
 import 'package:flutter_pecha/shared/extensions/typography_extensions.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
 
 class PlanInfo extends ConsumerStatefulWidget {
   const PlanInfo({super.key, required this.plan, this.author});
@@ -274,7 +274,7 @@ class _PlanInfoState extends ConsumerState<PlanInfo> {
       if (startDate != null) {
         final today = DateUtils.dateOnly(DateTime.now());
         final normalizedStart = DateUtils.dateOnly(startDate.toLocal());
-        final formattedDate = DateFormat('MMMM d, y').format(normalizedStart);
+        final formattedDate = PlanDateFormat.formatDate(normalizedStart);
 
         if (today.isBefore(normalizedStart)) {
           await showDialog<void>(

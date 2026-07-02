@@ -3,7 +3,7 @@ import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/core/widgets/responsive_cover_image.dart';
 import 'package:flutter_pecha/features/home/domain/entities/series.dart';
-import 'package:intl/intl.dart';
+import 'package:flutter_pecha/features/plans/data/utils/plan_date_format.dart';
 
 class PracticePlanCard extends StatelessWidget {
   const PracticePlanCard({
@@ -87,11 +87,7 @@ class PracticePlanCard extends StatelessWidget {
   }
 
   static String? _formatSeriesDateRange(Series series) {
-    final startDate = series.startDate;
-    final endDate = series.endDate;
-    if (startDate == null || endDate == null) return null;
-    final formatter = DateFormat('d MMM');
-    return '${formatter.format(startDate.toLocal())} – ${formatter.format(endDate.toLocal())}';
+    return PlanDateFormat.formatRangeOrNull(series.startDate, series.endDate);
   }
 }
 

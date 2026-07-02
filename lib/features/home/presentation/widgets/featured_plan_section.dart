@@ -8,10 +8,9 @@ import 'package:flutter_pecha/features/home/domain/entities/series.dart';
 import 'package:flutter_pecha/features/home/presentation/providers/featured_series_provider.dart';
 import 'package:flutter_pecha/features/home/presentation/providers/routine_info_provider.dart';
 import 'package:flutter_pecha/features/home/presentation/widgets/featured_plan_section_skeleton.dart';
-import 'package:flutter_pecha/features/plans/data/utils/plan_utils.dart';
+import 'package:flutter_pecha/features/plans/data/utils/plan_date_format.dart';
 import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 
 class FeaturedPlanSection extends ConsumerWidget {
   const FeaturedPlanSection({super.key, required this.onSeriesTap});
@@ -145,14 +144,7 @@ class _FeaturedPlanContent extends ConsumerWidget {
 }
 
 String? _formatSeriesDateRange(Series series) {
-  final startDate = series.startDate;
-  final endDate = series.endDate;
-  if (startDate == null || endDate == null) return null;
-
-  final formatter = DateFormat('MMM dd');
-  final start = PlanUtils.calendarDateOnly(startDate);
-  final end = PlanUtils.calendarDateOnly(endDate);
-  return '${formatter.format(start)} - ${formatter.format(end)}';
+  return PlanDateFormat.formatRangeOrNull(series.startDate, series.endDate);
 }
 
 Color _featuredPlanBackgroundColor(BuildContext context) {

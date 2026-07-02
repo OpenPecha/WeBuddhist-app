@@ -17,8 +17,8 @@ import 'package:flutter_pecha/features/home/presentation/providers/series_enroll
 import 'package:flutter_pecha/features/plans/presentation/widgets/plan_inline_markdown_view.dart';
 import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_pecha/features/plans/data/utils/plan_date_format.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class GroupProfileBody extends ConsumerStatefulWidget {
@@ -761,11 +761,7 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
   }
 
   String? _formatSeriesDateRange(GroupProfileSeries series) {
-    final startDate = series.startDate;
-    final endDate = series.endDate;
-    if (startDate == null || endDate == null) return null;
-    final formatter = DateFormat('MMM d');
-    return '${formatter.format(startDate.toLocal())} - ${formatter.format(endDate.toLocal())}';
+    return PlanDateFormat.formatRangeOrNull(series.startDate, series.endDate);
   }
 
   void _navigateToSeriesDetail(

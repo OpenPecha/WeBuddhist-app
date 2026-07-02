@@ -19,8 +19,8 @@ import 'package:flutter_pecha/features/timer/domain/entities/preset_timer.dart';
 import 'package:flutter_pecha/features/timer/presentation/providers/timers_providers.dart';
 import 'package:flutter_pecha/shared/domain/value_objects/responsive_image.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_pecha/features/plans/data/utils/plan_date_format.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 
@@ -358,11 +358,7 @@ class _PlansTab extends ConsumerWidget {
   }
 
   static String? _formatDateRange(DateTime? start, DateTime? end) {
-    if (start == null) return null;
-    final fmt = DateFormat('MMM d');
-    final startStr = fmt.format(start.toLocal());
-    if (end == null) return startStr;
-    return '$startStr - ${fmt.format(end.toLocal())}';
+    return PlanDateFormat.formatRangeOrSingle(start, end);
   }
 }
 
