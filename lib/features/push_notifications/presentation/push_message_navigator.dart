@@ -58,7 +58,7 @@ class PushMessageNavigator {
 
     switch (sessionType) {
       case PushSessionType.plan when sourceId.isNotEmpty:
-        debugPrint('PLAN_ID_TAG: $sourceId');
+        // For PLAN pushes the backend sends `source_id` = the enrolled plan id,
         // For PLAN pushes the backend sends `source_id` = the enrolled plan id,
         // so it maps straight onto NotificationNav.planId (same field local
         // routine notifications use). RoutineFilledState then resolves the plan
