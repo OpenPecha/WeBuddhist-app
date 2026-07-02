@@ -21,26 +21,40 @@ abstract final class PlanDateFormat {
   ];
 
   /// Formats a single calendar date, e.g. `1 May 2025`.
-  static String formatDate(DateTime date) {
+  static String formatDate(DateTime date, {bool includeYear = true}) {
     final normalized = PlanUtils.calendarDateOnly(date);
-    return '${normalized.day} ${_months[normalized.month - 1]} ${normalized.year}';
+    final month = _months[normalized.month - 1];
+    if (!includeYear) return '${normalized.day} $month';
+    return '${normalized.day} $month ${normalized.year}';
   }
 
   /// Formats an inclusive calendar range, e.g. `1 May 2025 - 2 Dec 2025`.
-  static String formatRange(DateTime start, DateTime end) {
-    return '${formatDate(start)} - ${formatDate(end)}';
+  static String formatRange(
+    DateTime start,
+    DateTime end, {
+    bool includeYear = true,
+  }) {
+    return '${formatDate(start, includeYear: includeYear)} - ${formatDate(end, includeYear: includeYear)}';
   }
 
   /// Returns null when either bound is missing.
-  static String? formatRangeOrNull(DateTime? start, DateTime? end) {
+  static String? formatRangeOrNull(
+    DateTime? start,
+    DateTime? end, {
+    bool includeYear = true,
+  }) {
     if (start == null || end == null) return null;
-    return formatRange(start, end);
+    return formatRange(start, end, includeYear: includeYear);
   }
 
   /// Formats a single date when [end] is null, otherwise a range.
-  static String? formatRangeOrSingle(DateTime? start, DateTime? end) {
+  static String? formatRangeOrSingle(
+    DateTime? start,
+    DateTime? end, {
+    bool includeYear = true,
+  }) {
     if (start == null) return null;
-    if (end == null) return formatDate(start);
-    return formatRange(start, end);
+    if (end == null) return formatDate(start, includeYear: includeYear);
+    return formatRange(start, end, includeYear: includeYear);
   }
 }

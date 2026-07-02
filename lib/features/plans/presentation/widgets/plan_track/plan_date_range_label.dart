@@ -35,6 +35,7 @@ class PlanDateRange {
   static PlanDateRange? tryCreate({
     required DateTime? startDate,
     required int totalDays,
+    bool includeYear = true,
   }) {
     if (startDate == null || totalDays <= 0) return null;
 
@@ -43,7 +44,11 @@ class PlanDateRange {
     final today = DateUtils.dateOnly(DateTime.now());
     final isCurrent = !today.isBefore(start) && !today.isAfter(end);
 
-    final formatted = PlanDateFormat.formatRange(start, end);
+    final formatted = PlanDateFormat.formatRange(
+      start,
+      end,
+      includeYear: includeYear,
+    );
 
     return PlanDateRange(
       start: start,
