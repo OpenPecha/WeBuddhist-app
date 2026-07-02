@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/core/widgets/responsive_cover_image.dart';
 import 'package:flutter_pecha/features/home/domain/entities/series.dart';
@@ -68,16 +69,15 @@ class PracticePlanCard extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
               ),
             ),
-            if (dateRange != null)
+            if (dateRange != null || series.enrolledCount > 0)
               Padding(
                 padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
-                child: Text(
-                  dateRange,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
-                  maxLines: 1,
+                child: _PracticePlanMetaRow(
+                  dateRange: dateRange,
+                  enrolledCount: series.enrolledCount,
+                  fontSize: 12,
+                  secondaryColor:
+                      Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
               ),
           ],
@@ -92,5 +92,43 @@ class PracticePlanCard extends StatelessWidget {
     if (startDate == null || endDate == null) return null;
     final formatter = DateFormat('d MMM');
     return '${formatter.format(startDate.toLocal())} – ${formatter.format(endDate.toLocal())}';
+  }
+}
+
+class _PracticePlanMetaRow extends StatelessWidget {
+  const _PracticePlanMetaRow({
+    required this.dateRange,
+    required this.enrolledCount,
+    required this.fontSize,
+    required this.secondaryColor,
+  });
+
+  final String? dateRange;
+  final int enrolledCount;
+  final double fontSize;
+  final Color secondaryColor;
+
+  @override
+  Widget build(BuildContext context) {
+    final textStyle = TextStyle(fontSize: fontSize, color: secondaryColor);
+
+    return Row(
+      children: [
+        if (dateRange != null)
+          Expanded(
+            child: Text(
+              dateRange!,
+              style: textStyle,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        if (enrolledCount > 0) ...[
+          Icon(AppAssets.usercard, size: fontSize + 2, color: secondaryColor),
+          const SizedBox(width: 4),
+          Text('$enrolledCount', style: textStyle),
+        ],
+      ],
+    );
   }
 }

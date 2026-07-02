@@ -313,6 +313,8 @@ class _PlansTab extends ConsumerWidget {
         final dateRange = _formatDateRange(series.startDate, series.endDate);
         final subtitle =
             series.subTitle?.isNotEmpty == true ? series.subTitle : dateRange;
+        final secondaryColor =
+            isDark ? AppColors.textTertiaryDark : AppColors.textSecondary;
         return _SessionCard(
           isDark: isDark,
           onTap: enrollingItemId == null ? () => onItemSelected(item) : null,
@@ -339,13 +341,47 @@ class _PlansTab extends ConsumerWidget {
                         subtitle,
                         style: TextStyle(
                           fontSize: 13,
-                          color:
-                              isDark
-                                  ? AppColors.textTertiaryDark
-                                  : AppColors.textSecondary,
+                          color: secondaryColor,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                    if ((dateRange != null &&
+                            series.subTitle?.isNotEmpty == true) ||
+                        series.enrolledCount > 0) ...[
+                      const SizedBox(height: 3),
+                      Row(
+                        children: [
+                          if (dateRange != null &&
+                              series.subTitle?.isNotEmpty == true)
+                            Expanded(
+                              child: Text(
+                                dateRange,
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  color: secondaryColor,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          if (series.enrolledCount > 0) ...[
+                            Icon(
+                              AppAssets.usercard,
+                              size: 15,
+                              color: secondaryColor,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              '${series.enrolledCount}',
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: secondaryColor,
+                              ),
+                            ),
+                          ],
+                        ],
                       ),
                     ],
                   ],

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/core/widgets/responsive_cover_image.dart';
 import 'package:flutter_pecha/features/home/domain/entities/series.dart';
@@ -61,16 +62,47 @@ class PracticePlanListTile extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    if (dateRange != null) ...[
+                    if (dateRange != null || series.enrolledCount > 0) ...[
                       const SizedBox(height: 4),
-                      Text(
-                        dateRange,
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+                      Row(
+                        children: [
+                          if (dateRange != null)
+                            Expanded(
+                              child: Text(
+                                dateRange,
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  color:
+                                      Theme.of(
+                                        context,
+                                      ).colorScheme.onSurfaceVariant,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          if (series.enrolledCount > 0) ...[
+                            Icon(
+                              AppAssets.usercard,
+                              size: 15,
+                              color:
+                                  Theme.of(
+                                    context,
+                                  ).colorScheme.onSurfaceVariant,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              '${series.enrolledCount}',
+                              style: TextStyle(
+                                fontSize: 13,
+                                color:
+                                    Theme.of(
+                                      context,
+                                    ).colorScheme.onSurfaceVariant,
+                              ),
+                            ),
+                          ],
+                        ],
                       ),
                     ],
                   ],
