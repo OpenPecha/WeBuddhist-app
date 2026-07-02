@@ -1,13 +1,45 @@
+import 'package:flutter_pecha/features/group_profile/presentation/providers/group_accumulator_providers.dart';
 import 'package:flutter_pecha/features/mala/domain/entities/accumulator_group.dart';
 import 'package:flutter_pecha/features/mala/presentation/providers/mala_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Joined group accumulators for the current preset
 /// (`GET /accumulators/{accumulator_id}/groups?joined_only=true`).
+///
+/// Metadata only (title, image, membership). User counts come from
+/// [joinedGroupUserCountsProvider] via group_profile's
+/// `GET /group-accumulators/{id}` (`user.total_count`).
 final joinedAccumulatorGroupsProvider = FutureProvider.autoDispose
     .family<List<AccumulatorGroup>, String>((ref, presetId) async {
       final result = await ref
           .watch(malaRepositoryProvider)
           .getJoinedAccumulatorGroups(presetId);
       return result.fold((_) => const [], (groups) => groups);
+    });
+
+/// Per-group user session counts keyed by [AccumulatorGroup.groupAccumulatorId].
+///
+/// Uses [GroupAccumulatorRepositoryInterface.getGroupAccumulator] →
+/// `GroupAccumulatorDetail.user.totalCount`.
+final joinedGroupUserCountsProvider = FutureProvider.autoDispose
+    .family<Map<String, int>, String>((ref, presetId) async {
+      final groups = await ref.watch(
+        joinedAccumulatorGroupsProvider(presetId).future,
+      );
+      if (groups.isEmpty) return const {};
+
+      final repository = ref.watch(groupAccumulatorRepositoryProvider);
+      final entries = await Future.wait(
+        groups.map((group) async {
+          final result = await repository.getGroupAccumulator(
+            group.groupAccumulatorId,
+          );
+          final count = result.fold(
+            (_) => 0,
+            (detail) => detail.user?.totalCount ?? 0,
+          );
+          return MapEntry(group.groupAccumulatorId, count);
+        }),
+      );
+      return Map.fromEntries(entries);
     });

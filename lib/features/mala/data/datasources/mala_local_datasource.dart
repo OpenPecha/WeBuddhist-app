@@ -296,6 +296,19 @@ class MalaLocalDataSource {
     return next;
   }
 
+  /// Clears the local group count after a reset (`total` and `syncedTotal` back
+  /// to zero). The user remains joined; counting resumes via POST on next tap.
+  Future<void> clearGroupSession(
+    String userId,
+    String groupAccumulatorId,
+  ) async {
+    await writeGroup(
+      userId,
+      groupAccumulatorId,
+      const LocalGroupMalaState(),
+    );
+  }
+
   List<String> groupAccumulatorIdsForUser(String userId) {
     final prefix = '$userId:';
     return _groupBox.keys

@@ -143,6 +143,20 @@ class MalaRepositoryImpl implements MalaRepository {
     }
   }
 
+  @override
+  Future<Either<Failure, Unit>> deleteGroupAccumulator(
+    String groupAccumulatorId,
+  ) async {
+    try {
+      await remote.deleteGroupAccumulator(groupAccumulatorId);
+      return const Right(unit);
+    } on AppException catch (e) {
+      return Left(_toFailure(e));
+    } catch (e) {
+      return Left(UnknownFailure('Failed to delete group accumulator: $e'));
+    }
+  }
+
   Failure _toFailure(AppException e) {
     if (e is AuthenticationException) return AuthenticationFailure(e.message);
     if (e is NotFoundException) return NotFoundFailure(e.message);

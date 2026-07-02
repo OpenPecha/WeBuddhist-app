@@ -75,6 +75,7 @@ class _GroupAccumulationsSheetState
     final accentColor = isDark ? AppColors.blueDark : AppColors.blue;
     final dividerColor = isDark ? AppColors.cardBorderDark : AppColors.grey300;
     final locale = intlFormatLocaleOf(context);
+    ref.watch(groupAccumulationCountsProvider(widget.presetId));
     final countsNotifier = ref.read(
       groupAccumulationCountsProvider(widget.presetId).notifier,
     );

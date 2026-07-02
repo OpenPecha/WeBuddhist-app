@@ -143,17 +143,22 @@ class _MalaScreenState extends ConsumerState<MalaScreen> {
     );
     final groups = groupsAsync.valueOrNull ?? const <AccumulatorGroup>[];
     ref.watch(groupAccumulationCountsProvider(mantra.presetId));
+    ref.watch(joinedGroupUserCountsProvider(mantra.presetId));
     final groupCountsNotifier = ref.read(
       groupAccumulationCountsProvider(mantra.presetId).notifier,
     );
 
     ref.listen(joinedAccumulatorGroupsProvider(mantra.presetId), (_, next) {
       next.whenData((loadedGroups) {
-        groupCountsNotifier.mergeFromApi(loadedGroups);
         ref
             .read(malaAccumulationSelectionProvider(mantra.presetId).notifier)
             .validateAgainst(loadedGroups);
+        ref.invalidate(joinedGroupUserCountsProvider(mantra.presetId));
       });
+    });
+
+    ref.listen(joinedGroupUserCountsProvider(mantra.presetId), (_, next) {
+      next.whenData(groupCountsNotifier.mergeFromServerCounts);
     });
 
     final displayTotal = _displayTotal(

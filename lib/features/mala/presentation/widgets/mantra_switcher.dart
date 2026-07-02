@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/constants/app_assets.dart';
-import 'package:flutter_pecha/core/theme/font_config.dart';
 import 'package:flutter_pecha/features/mala/domain/entities/mantra.dart';
 
 /// Mantra display + chevron switcher as an **infinite, looping carousel**.

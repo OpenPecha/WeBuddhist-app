@@ -23,7 +23,7 @@ class _AddMalaRoundsDialog extends StatefulWidget {
 }
 
 class _AddMalaRoundsDialogState extends State<_AddMalaRoundsDialog> {
-  static const _maxRounds = 999;
+  static const _maxRounds = 9;
 
   int _rounds = 0;
 
