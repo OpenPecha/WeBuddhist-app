@@ -232,14 +232,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get timer_discard_session => 'Discard session';
 
   @override
-  String get timer_dismiss => 'Dismiss for today';
-
-  @override
-  String timer_starts_at(String time) {
-    return 'Timer starts at $time';
-  }
-
-  @override
   String get home_hello_prefix => 'Hello, ';
 
   @override

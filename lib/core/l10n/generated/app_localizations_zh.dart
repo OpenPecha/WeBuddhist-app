@@ -223,14 +223,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get timer_discard_session => '放弃练习';
 
   @override
-  String get timer_dismiss => '今日略過';
-
-  @override
-  String timer_starts_at(String time) {
-    return '計時器將於 $time 開始';
-  }
-
-  @override
   String get home_hello_prefix => '你好，';
 
   @override

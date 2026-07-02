@@ -61,14 +61,9 @@ class StorageKeys {
   /// App-level toggle for practice (mala / accumulator) block notifications.
   /// Default: true.
   static const String notificationPracticeEnabled = 'notification_practice_enabled';
-  /// App-level toggle for timer block notifications (start + "timer up"
-  /// reminders). Default: true.
+  /// App-level toggle for timer block notifications (the "starting now"
+  /// reminder). Default: true.
   static const String notificationTimerEnabled = 'notification_timer_enabled';
-  /// Per-timer "dismissed today" marker. Full key:
-  /// `timer_dismissed_<routineItemId>` → `<yyyy-MM-dd>`. When the value equals
-  /// today's date, today's timer occurrence is skipped (its start / "timer up"
-  /// reminders roll to tomorrow). Resets automatically at midnight.
-  static const String timerDismissedPrefix = 'timer_dismissed_';
   /// Latest Firebase Cloud Messaging registration token for this install.
   static const String fcmToken = 'fcm_token';
   /// Stable per-install identifier sent as `device_id` when registering the

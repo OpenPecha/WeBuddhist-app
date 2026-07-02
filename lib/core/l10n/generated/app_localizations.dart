@@ -502,18 +502,6 @@ abstract class AppLocalizations {
   /// **'Discard session'**
   String get timer_discard_session;
 
-  /// No description provided for @timer_dismiss.
-  ///
-  /// In en, this message translates to:
-  /// **'Dismiss for today'**
-  String get timer_dismiss;
-
-  /// No description provided for @timer_starts_at.
-  ///
-  /// In en, this message translates to:
-  /// **'Timer starts at {time}'**
-  String timer_starts_at(String time);
-
   /// No description provided for @home_hello_prefix.
   ///
   /// In en, this message translates to:

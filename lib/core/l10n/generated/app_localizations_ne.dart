@@ -233,14 +233,6 @@ class AppLocalizationsNe extends AppLocalizations {
   String get timer_discard_session => 'सत्र खारेज गर्नुहोस्';
 
   @override
-  String get timer_dismiss => 'आजको लागि खारेज गर्नुहोस्';
-
-  @override
-  String timer_starts_at(String time) {
-    return 'टाइमर $time मा सुरु हुन्छ';
-  }
-
-  @override
   String get home_hello_prefix => 'नमस्ते, ';
 
   @override

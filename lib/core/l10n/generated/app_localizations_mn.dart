@@ -233,14 +233,6 @@ class AppLocalizationsMn extends AppLocalizations {
   String get timer_discard_session => 'Хичээл цуцлах';
 
   @override
-  String get timer_dismiss => 'Өнөөдрийн хувьд алгасах';
-
-  @override
-  String timer_starts_at(String time) {
-    return 'Цаг хэмжигч $time-д эхэлнэ';
-  }
-
-  @override
   String get home_hello_prefix => 'Сайн байна уу, ';
 
   @override

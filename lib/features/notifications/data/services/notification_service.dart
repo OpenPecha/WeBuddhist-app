@@ -395,11 +395,9 @@ class NotificationService {
         if (itemId != null && itemTypeStr != null) {
           final planId = data['planId'] as String?;
           final durationMs = (data['durationMs'] as num?)?.toInt();
-          final startMinuteOfDay = (data['startMinuteOfDay'] as num?)?.toInt();
           _logger.info(
             'Storing pending notification nav: $itemTypeStr $itemId '
-            'planId=$planId durationMs=$durationMs '
-            'startMinuteOfDay=$startMinuteOfDay',
+            'planId=$planId durationMs=$durationMs',
           );
           _container!.read(pendingNotificationNavProvider.notifier).state =
               NotificationNav(
@@ -407,7 +405,6 @@ class NotificationService {
                 itemType: itemTypeStr,
                 planId: planId,
                 durationMs: durationMs,
-                startMinuteOfDay: startMinuteOfDay,
               );
         }
       } catch (e) {

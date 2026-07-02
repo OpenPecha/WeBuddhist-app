@@ -41,14 +41,11 @@ class NotificationIdScheme {
   static const int accumulatorBlockBase = 20000000;
   static const int accumulatorBlockMax = 20999999;
 
-  // Routine block timer daily-repeats. A timer block fires TWO daily reminders
-  // — one at block time ("timer started") and one at block time + duration
-  // ("timer up") — each in its own parallel range so they never collide with
-  // the recitation/mala daily-repeats a block may also hold.
+  // Routine block timer daily-repeat. A timer block fires ONE daily reminder at
+  // block time ("timer started"), in its own parallel range so it never
+  // collides with the recitation/mala daily-repeats a block may also hold.
   static const int timerStartBase = 21000000;
   static const int timerStartMax = 21999999;
-  static const int timerEndBase = 22000000;
-  static const int timerEndMax = 22999999;
 
   /// ID for the [day]th notification of [planId]'s special-plan series.
   /// Throws if [planId] is not a registered special plan.
@@ -86,14 +83,9 @@ class NotificationIdScheme {
   static int timerStartId(int blockNotificationId) =>
       timerStartBase + (blockNotificationId - routineBlockMin);
 
-  /// Stable daily-repeat ID for a timer block's "timer up" reminder, fired at
-  /// block time + duration. Parallel range to [timerStartId].
-  static int timerEndId(int blockNotificationId) =>
-      timerEndBase + (blockNotificationId - routineBlockMin);
-
   /// True when [id] is a routine daily-repeat: recitation/chants via
   /// [routineBlockMin]–[routineBlockMax], mala via the accumulator range, or a
-  /// timer start/end reminder via the timer ranges.
+  /// timer start reminder via the timer range.
   ///
   /// These are computed purely from the routine blocks + toggles and never
   /// depend on plan-enrollment state, so the engine may reconcile (cancel)
@@ -102,7 +94,7 @@ class NotificationIdScheme {
   static bool isRoutineDailyRepeat(int id) =>
       (id >= routineBlockMin && id <= routineBlockMax) ||
       (id >= accumulatorBlockBase && id <= accumulatorBlockMax) ||
-      (id >= timerStartBase && id <= timerEndMax);
+      (id >= timerStartBase && id <= timerStartMax);
 
   /// True when [id] was issued by any of the schemes registered here.
   /// Used by the engine to scope reconciliation: it must NEVER cancel an
@@ -114,7 +106,7 @@ class NotificationIdScheme {
     if (id >= planOneShotBase && id <= planOneShotMax) return true;
     if (id >= planSeriesBase && id <= planSeriesMax) return true;
     if (id >= accumulatorBlockBase && id <= accumulatorBlockMax) return true;
-    if (id >= timerStartBase && id <= timerEndMax) return true;
+    if (id >= timerStartBase && id <= timerStartMax) return true;
     return false;
   }
 }

@@ -234,14 +234,6 @@ class AppLocalizationsBo extends AppLocalizations {
   String get timer_discard_session => 'སྒྲུབ་སྡེ་མེད་པར་བཏང་།';
 
   @override
-  String get timer_dismiss => 'དེ་རིང་གི་ཆེད་མཚམས་འཇོག';
-
-  @override
-  String timer_starts_at(String time) {
-    return 'དུས་ཚོད་$time ལ་འགོ་ཚུགས།';
-  }
-
-  @override
   String get home_hello_prefix => 'བཀྲ་ཤིས་བདེ་ལེགས། ';
 
   @override

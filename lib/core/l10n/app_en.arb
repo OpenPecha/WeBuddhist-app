@@ -100,15 +100,6 @@
   "timer_start": "Start",
   "timer_finish": "Finish",
   "timer_discard_session": "Discard session",
-  "timer_dismiss": "Dismiss for today",
-  "timer_starts_at": "Timer starts at {time}",
-  "@timer_starts_at": {
-    "placeholders": {
-      "time": {
-        "type": "String"
-      }
-    }
-  },
   "home_hello_prefix": "Hello, ",
   "home_greeting_fallback_name": "there",
   "home_share_prompt": "Enjoying {appName}?",

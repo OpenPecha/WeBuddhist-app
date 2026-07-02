@@ -118,15 +118,8 @@ class _RoutineFilledStateState extends ConsumerState<RoutineFilledState> {
         final name = (item != null && item.title.isNotEmpty)
             ? item.title
             : '${durationMs ~/ 60000} min session';
-        // Pass the block's scheduled minute-of-day so the timer screen syncs
-        // its remaining time to the wall clock (running with the correct time
-        // left, or finished) instead of starting a fresh countdown.
-        final startMin = pendingNav.startMinuteOfDay;
-        final path = startMin != null
-            ? '/home/timers/active?startMin=$startMin'
-            : '/home/timers/active';
         context.push(
-          path,
+          '/home/timers/active',
           extra: PresetTimer(
             id: pendingNav.itemId,
             name: name,
@@ -344,12 +337,8 @@ class _RoutineBlockSection extends ConsumerWidget {
         item.title.isNotEmpty
             ? item.title
             : '${durationMs ~/ 60000} min session';
-    // Open the timer time-aware (same as a notification tap): it shows "starts
-    // at HH:MM" before its scheduled block time, the synced countdown during,
-    // and finished after — rather than auto-starting a fresh countdown.
-    final startMin = block.time.hour * 60 + block.time.minute;
     context.push(
-      '/home/timers/active?startMin=$startMin',
+      '/home/timers/active',
       extra: PresetTimer(id: item.id, name: name, durationMs: durationMs),
     );
   }

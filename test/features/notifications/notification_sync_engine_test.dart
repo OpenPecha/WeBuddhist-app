@@ -439,7 +439,7 @@ void main() {
     });
   });
 
-  group('case 4: timer daily-repeats (start + end)', () {
+  group('case 4: timer daily-repeat (start reminder only)', () {
     RoutineItem timerItem({
       String id = 't-1',
       String title = 'Meditation',
@@ -465,72 +465,38 @@ void main() {
           notificationId: 5555,
         );
 
-    test('emits a start reminder and a "timer up" reminder', () {
+    test('emits a single "starting now" start reminder', () {
       final entries = engine.computeForTimerBlock(
         timerBlock(),
         DateTime(2026, 6, 5, 6),
         masterOn: true,
         timerOn: true,
       );
-      expect(entries, hasLength(2));
+      expect(entries, hasLength(1));
 
-      final start = entries[0];
-      final end = entries[1];
+      final start = entries.single;
       expect(start.id, NotificationIdScheme.timerStartId(5555));
-      expect(end.id, NotificationIdScheme.timerEndId(5555));
       expect(start.isDailyRepeat, isTrue);
-      expect(end.isDailyRepeat, isTrue);
       expect(start.title, 'Meditation');
-      expect(end.title, 'Meditation');
       expect(start.body, contains('30 minutes'));
-      expect(end.body, 'Your timer is up.');
-      // Both reminders deep-link identically; the timer screen syncs its
-      // remaining time from the wall clock. Payload embeds the duration and the
-      // scheduled minute-of-day (8:30 → 510) so the tap works without
+      // Payload embeds the duration so a tap can open the timer without
       // re-resolving the routine item.
-      for (final payload in [start.payload, end.payload]) {
-        expect(payload, contains('durationMs'));
-        expect(payload, contains('startMinuteOfDay'));
-        expect(payload, contains('510'));
-      }
-      // Start at block time, end at block time + duration (same day).
+      expect(start.payload, contains('durationMs'));
+      // Fires at block time.
       expect(start.fireAt!.hour, 8);
       expect(start.fireAt!.minute, 30);
-      expect(end.fireAt!.hour, 9);
-      expect(end.fireAt!.minute, 0);
-      expect(end.fireAt!.difference(start.fireAt!),
-          const Duration(minutes: 30));
     });
 
-    test('rolls both reminders to next day when block time already passed', () {
+    test('rolls the reminder to next day when block time already passed', () {
       final entries = engine.computeForTimerBlock(
         timerBlock(),
-        DateTime(2026, 6, 5, 10), // 10:00, block+end (8:30/9:00) already passed
+        DateTime(2026, 6, 5, 10), // 10:00, block 8:30 already passed
         masterOn: true,
         timerOn: true,
       );
-      expect(entries, hasLength(2));
+      expect(entries, hasLength(1));
       expect(entries[0].fireAt!.day, 6); // start → tomorrow
-      expect(entries[1].fireAt!.day, 6); // end → tomorrow
       expect(entries[0].fireAt!.hour, 8);
-      expect(entries[1].fireAt!.hour, 9);
-    });
-
-    test('skips today (rolls both to tomorrow) when dismissed today', () {
-      // 06:00, block 8:30 is still ahead today — but dismissed, so both roll to
-      // tomorrow instead of firing today.
-      final entries = engine.computeForTimerBlock(
-        timerBlock(),
-        DateTime(2026, 6, 5, 6),
-        masterOn: true,
-        timerOn: true,
-        isDismissedToday: (_) => true,
-      );
-      expect(entries, hasLength(2));
-      expect(entries[0].fireAt!.day, 6); // start → tomorrow
-      expect(entries[1].fireAt!.day, 6); // end → tomorrow
-      expect(entries[0].fireAt!.hour, 8);
-      expect(entries[1].fireAt!.hour, 9);
     });
 
     test('emits nothing when master OFF', () {
@@ -588,7 +554,6 @@ void main() {
       expect(NotificationIdScheme.isOurs(10000000), isTrue); // plan series
       expect(NotificationIdScheme.isOurs(20000000), isTrue); // accumulator block
       expect(NotificationIdScheme.isOurs(21000000), isTrue); // timer start
-      expect(NotificationIdScheme.isOurs(22000000), isTrue); // timer end
       expect(NotificationIdScheme.isOurs(50), isFalse); // system range
       expect(NotificationIdScheme.isOurs(30000000), isFalse); // outside
     });
@@ -607,12 +572,6 @@ void main() {
         ),
         isTrue, // timer start
       );
-      expect(
-        NotificationIdScheme.isRoutineDailyRepeat(
-          NotificationIdScheme.timerEndId(5555),
-        ),
-        isTrue, // timer end
-      );
       expect(NotificationIdScheme.isRoutineDailyRepeat(9000000), isFalse); // plan one-shot
       expect(NotificationIdScheme.isRoutineDailyRepeat(10000000), isFalse); // plan series
       expect(NotificationIdScheme.isRoutineDailyRepeat(810), isFalse); // special series
@@ -620,17 +579,15 @@ void main() {
 
     test('accumulator + timer block ids are distinct from each other', () {
       // A block holding a recitation (notificationId), a mala
-      // (accumulatorBlockId), and a timer (timerStartId + timerEndId) must
-      // produce four non-colliding IDs.
+      // (accumulatorBlockId), and a timer (timerStartId) must produce three
+      // non-colliding IDs.
       const blockId = 5555;
       final malaId = NotificationIdScheme.accumulatorBlockId(blockId);
       final timerStart = NotificationIdScheme.timerStartId(blockId);
-      final timerEnd = NotificationIdScheme.timerEndId(blockId);
-      final ids = {blockId, malaId, timerStart, timerEnd};
-      expect(ids, hasLength(4)); // all distinct
+      final ids = {blockId, malaId, timerStart};
+      expect(ids, hasLength(3)); // all distinct
       expect(NotificationIdScheme.isOurs(malaId), isTrue);
       expect(NotificationIdScheme.isOurs(timerStart), isTrue);
-      expect(NotificationIdScheme.isOurs(timerEnd), isTrue);
     });
 
     test('special-plan series uses fixed slot per planId', () {

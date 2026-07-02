@@ -100,8 +100,6 @@
   "timer_start": "शुरू करें",
   "timer_finish": "समाप्त करें",
   "timer_discard_session": "सत्र छोड़ें",
-  "timer_dismiss": "आज के लिए खारिज करें",
-  "timer_starts_at": "टाइमर {time} पर शुरू होगा",
   "home_hello_prefix": "नमस्ते, ",
   "home_greeting_fallback_name": "मित्र",
   "home_share_prompt": "{appName} पसंद आ रहा है?",

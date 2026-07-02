@@ -3,10 +3,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
-import 'package:flutter_pecha/core/storage/timer_dismiss_store.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
-import 'package:flutter_pecha/features/notifications/application/notification_sync_engine.dart';
 import 'package:flutter_pecha/features/timer/domain/entities/preset_timer.dart';
 import 'package:flutter_pecha/features/timer/domain/usecases/stop_user_timer_usecase.dart';
 import 'package:flutter_pecha/features/timer/presentation/providers/timers_providers.dart';
@@ -15,26 +13,12 @@ import 'package:flutter_pecha/features/timer/presentation/widgets/timer_progress
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-enum _TimerPhase { countdown, pending, running, finished }
+enum _TimerPhase { countdown, running, finished }
 
 class ActiveTimerScreen extends ConsumerStatefulWidget {
-  const ActiveTimerScreen({
-    super.key,
-    required this.presetTimer,
-    this.scheduledStartMinuteOfDay,
-  });
+  const ActiveTimerScreen({super.key, required this.presetTimer});
 
   final PresetTimer presetTimer;
-
-  /// When set (from a routine timer — card tap or notification), the screen is
-  /// "scheduled": time-aware against the block's daily time-of-day (minutes
-  /// past midnight). Before that time it shows "starts at HH:MM" (pending);
-  /// within the window it shows the synced countdown (derived from the wall
-  /// clock); after it, finished. Fully client-side — no pre-countdown and no
-  /// backend reporting — and it can be dismissed for the day. Null for a
-  /// manual/ad-hoc open (preset list), which keeps the original fresh-countdown
-  /// behaviour.
-  final int? scheduledStartMinuteOfDay;
 
   @override
   ConsumerState<ActiveTimerScreen> createState() => _ActiveTimerScreenState();
@@ -55,15 +39,8 @@ class _ActiveTimerScreenState extends ConsumerState<ActiveTimerScreen> {
   int _remainingMs = 0;
   bool _isPaused = false;
 
-  // Scheduled-mode state.
-  bool _dismissedToday = false;
-  TimeOfDay _scheduledStart = const TimeOfDay(hour: 0, minute: 0);
-
   Timer? _timer;
   late final TimerSoundPlayer _soundPlayer;
-
-  /// True when opened from a routine timer (card or notification) — time-aware.
-  bool get _isScheduled => widget.scheduledStartMinuteOfDay != null;
 
   int get _totalMs => widget.presetTimer.durationMs;
 
@@ -71,25 +48,25 @@ class _ActiveTimerScreenState extends ConsumerState<ActiveTimerScreen> {
 
   double get _elapsedProgress {
     if (_totalMs <= 0) return 1;
-    if (_phase == _TimerPhase.countdown || _phase == _TimerPhase.pending) {
-      return 0;
-    }
+    if (_phase == _TimerPhase.countdown) return 0;
     return ((_totalMs - _remainingMs) / _totalMs).clamp(0.0, 1.0);
   }
+
+  bool get _showFinish =>
+      _phase == _TimerPhase.finished ||
+      (_phase == _TimerPhase.running && _isPaused);
+
+  bool get _showDiscard =>
+      _phase == _TimerPhase.finished ||
+      (_phase == _TimerPhase.running && _isPaused);
 
   @override
   void initState() {
     super.initState();
+    _remainingMs = _totalMs;
     _soundPlayer = TimerSoundPlayer();
     _soundPlayer.init();
-    _remainingMs = _totalMs;
-    final startMin = widget.scheduledStartMinuteOfDay;
-    if (startMin != null) {
-      _scheduledStart = TimeOfDay(hour: startMin ~/ 60, minute: startMin % 60);
-      _loadDismissedThenStart();
-    } else {
-      _startCountdown();
-    }
+    _startCountdown();
   }
 
   @override
@@ -98,78 +75,6 @@ class _ActiveTimerScreenState extends ConsumerState<ActiveTimerScreen> {
     _soundPlayer.dispose();
     super.dispose();
   }
-
-  // ── Scheduled mode (time-aware, client-side) ──────────────────────────────
-
-  Future<void> _loadDismissedThenStart() async {
-    final dismissed =
-        await TimerDismissStore.isDismissedToday(widget.presetTimer.id);
-    if (!mounted) return;
-    _dismissedToday = dismissed;
-    // First compute is silent (don't sound if opened already finished); the
-    // periodic ticker then drives pending → running → finished transitions and
-    // keeps the countdown accurate against the wall clock.
-    _recomputeScheduled(initial: true);
-    _timer = Timer.periodic(
-      const Duration(seconds: 1),
-      (_) => _recomputeScheduled(),
-    );
-  }
-
-  /// Derives the scheduled phase and remaining time from the current wall clock.
-  void _recomputeScheduled({bool initial = false}) {
-    if (!mounted) return;
-    final now = DateTime.now();
-    final todayStart = DateTime(
-      now.year,
-      now.month,
-      now.day,
-      _scheduledStart.hour,
-      _scheduledStart.minute,
-    );
-    final todayEnd = todayStart.add(Duration(milliseconds: _totalMs));
-
-    final _TimerPhase phase;
-    final int remaining;
-    if (_dismissedToday || now.isBefore(todayStart)) {
-      // Dismissed today → next run is tomorrow; otherwise it starts later today.
-      phase = _TimerPhase.pending;
-      remaining = _totalMs;
-    } else if (now.isBefore(todayEnd)) {
-      phase = _TimerPhase.running;
-      remaining = todayEnd.difference(now).inMilliseconds;
-    } else {
-      phase = _TimerPhase.finished;
-      remaining = 0;
-    }
-
-    final justFinished = !initial &&
-        phase == _TimerPhase.finished &&
-        _phase != _TimerPhase.finished;
-    setState(() {
-      _phase = phase;
-      _remainingMs = remaining;
-    });
-    if (justFinished) {
-      _timer?.cancel();
-      _soundPlayer.play();
-    }
-  }
-
-  Future<void> _dismissToday() async {
-    await TimerDismissStore.markDismissedToday(widget.presetTimer.id);
-    // Reschedule so today's start / "timer up" reminders roll to tomorrow.
-    unawaited(
-      ref
-          .read(notificationSyncEngineProvider)
-          .sync(trigger: SyncTrigger.timerDismissed),
-    );
-    if (!mounted) return;
-    _dismissedToday = true;
-    _recomputeScheduled(initial: true);
-  }
-
-  // ── Ad-hoc mode (fresh 5-second countdown, then run) ──────────────────────
 
   void _startCountdown() {
     _timer?.cancel();
@@ -247,9 +152,6 @@ class _ActiveTimerScreenState extends ConsumerState<ActiveTimerScreen> {
   }
 
   void _reportTimerStop() {
-    // Scheduled (routine) timers are fully client-side and never report to the
-    // backend.
-    if (_isScheduled) return;
     final useCase = ref.read(stopUserTimerUseCaseProvider);
     useCase(
       StopUserTimerParams(
@@ -264,32 +166,18 @@ class _ActiveTimerScreenState extends ConsumerState<ActiveTimerScreen> {
     });
   }
 
-  // ── UI ────────────────────────────────────────────────────────────────────
-
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final textTheme = Theme.of(context).textTheme;
     final textColor = Theme.of(context).colorScheme.onSurface;
+    final finishFontSize = textTheme.labelLarge?.fontSize ?? 16.0;
 
     return PopScope(
-      // Scheduled timers can be left freely (they keep running against the wall
-      // clock); ad-hoc sessions still use the Finish / Discard controls.
-      canPop: _isScheduled,
+      canPop: false,
       child: Scaffold(
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-        appBar: _isScheduled
-            ? AppBar(
-                backgroundColor: Colors.transparent,
-                elevation: 0,
-                scrolledUnderElevation: 0,
-                leading: BackButton(
-                  color: textColor,
-                  onPressed: () => context.pop(),
-                ),
-              )
-            : null,
         body: SafeArea(
-          top: !_isScheduled,
           child: Column(
             children: [
               Expanded(
@@ -305,13 +193,105 @@ class _ActiveTimerScreenState extends ConsumerState<ActiveTimerScreen> {
                       const SizedBox(height: _controlsSpacing),
                       SizedBox(
                         height: _controlsHeight,
-                        child: _buildMiddleControl(textColor),
+                        child:
+                            _phase == _TimerPhase.running
+                                ? IconButton(
+                                  onPressed: _togglePause,
+                                  iconSize: 40,
+                                  padding: EdgeInsets.zero,
+                                  constraints: const BoxConstraints(
+                                    minWidth: _controlsHeight,
+                                    minHeight: _controlsHeight,
+                                  ),
+                                  icon: Icon(
+                                    _isPaused
+                                        ? AppAssets.play
+                                        : AppAssets.pause,
+                                    color: textColor,
+                                  ),
+                                )
+                                : null,
                       ),
                     ],
                   ),
                 ),
               ),
-              _buildBottomControls(context, textColor, textTheme),
+              Visibility(
+                visible: _phase != _TimerPhase.countdown,
+                maintainSize: true,
+                maintainAnimation: true,
+                maintainState: true,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(24, 0, 24, 32),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IgnorePointer(
+                        ignoring: !_showFinish,
+                        child: Opacity(
+                          opacity: _showFinish ? 1 : 0,
+                          child: Center(
+                            child: OutlinedButton(
+                              onPressed: _finish,
+                              style: OutlinedButton.styleFrom(
+                                foregroundColor: textColor,
+                                side: BorderSide(color: textColor),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 46,
+                                  vertical: 16,
+                                ),
+                                shape: const StadiumBorder(),
+                                backgroundColor:
+                                    Theme.of(context).brightness ==
+                                            Brightness.dark
+                                        ? AppColors.surfaceDark
+                                        : AppColors.surfaceWhite,
+                              ),
+                              child: Text(
+                                l10n.timer_finish,
+                                strutStyle: context.tibetanStrutStyle(
+                                  finishFontSize,
+                                ),
+                                style: textTheme.labelLarge?.copyWith(
+                                  color: textColor,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      IgnorePointer(
+                        ignoring: !_showDiscard,
+                        child: Opacity(
+                          opacity: _showDiscard ? 1 : 0,
+                          child: TextButton(
+                            onPressed: _discardSession,
+                            style: TextButton.styleFrom(
+                              foregroundColor: textColor,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 8,
+                              ),
+                            ),
+                            child: Text(
+                              l10n.timer_discard_session,
+                              strutStyle: context.tibetanStrutStyle(
+                                finishFontSize,
+                              ),
+                              style: textTheme.labelLarge?.copyWith(
+                                color: textColor,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             ],
           ),
         ),
@@ -319,168 +299,12 @@ class _ActiveTimerScreenState extends ConsumerState<ActiveTimerScreen> {
     );
   }
 
-  /// Pause button (ad-hoc running only). Scheduled timers track the wall clock,
-  /// so pausing would immediately desync — no pause is shown.
-  Widget? _buildMiddleControl(Color textColor) {
-    if (_isScheduled || _phase != _TimerPhase.running) return null;
-    return IconButton(
-      onPressed: _togglePause,
-      iconSize: 40,
-      padding: EdgeInsets.zero,
-      constraints: const BoxConstraints(
-        minWidth: _controlsHeight,
-        minHeight: _controlsHeight,
-      ),
-      icon: Icon(
-        _isPaused ? AppAssets.play : AppAssets.pause,
-        color: textColor,
-      ),
-    );
-  }
-
-  Widget _buildBottomControls(
-    BuildContext context,
-    Color textColor,
-    TextTheme textTheme,
-  ) {
-    if (_isScheduled) {
-      // Dismiss today's occurrence while it is pending or running. When
-      // finished there is nothing to dismiss — the back button is enough.
-      final canDismiss =
-          _phase == _TimerPhase.pending || _phase == _TimerPhase.running;
-      return Padding(
-        padding: const EdgeInsets.fromLTRB(24, 0, 24, 32),
-        child: SizedBox(
-          height: 52,
-          child: canDismiss
-              ? Center(
-                  child: OutlinedButton(
-                    onPressed: _dismissToday,
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: textColor,
-                      side: BorderSide(color: textColor),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 46,
-                        vertical: 16,
-                      ),
-                      shape: const StadiumBorder(),
-                    ),
-                    child: Text(
-                      context.l10n.timer_dismiss,
-                      style: textTheme.labelLarge?.copyWith(
-                        color: textColor,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
-                )
-              : null,
-        ),
-      );
-    }
-
-    final l10n = context.l10n;
-    final finishFontSize = textTheme.labelLarge?.fontSize ?? 16.0;
-    final showFinish = _phase == _TimerPhase.finished ||
-        (_phase == _TimerPhase.running && _isPaused);
-    final showDiscard = showFinish;
-
-    return Visibility(
-      visible: _phase != _TimerPhase.countdown,
-      maintainSize: true,
-      maintainAnimation: true,
-      maintainState: true,
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(24, 0, 24, 32),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            IgnorePointer(
-              ignoring: !showFinish,
-              child: Opacity(
-                opacity: showFinish ? 1 : 0,
-                child: Center(
-                  child: OutlinedButton(
-                    onPressed: _finish,
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: textColor,
-                      side: BorderSide(color: textColor),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 46,
-                        vertical: 16,
-                      ),
-                      shape: const StadiumBorder(),
-                      backgroundColor:
-                          Theme.of(context).brightness == Brightness.dark
-                              ? AppColors.surfaceDark
-                              : AppColors.surfaceWhite,
-                    ),
-                    child: Text(
-                      l10n.timer_finish,
-                      strutStyle: context.tibetanStrutStyle(finishFontSize),
-                      style: textTheme.labelLarge?.copyWith(
-                        color: textColor,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-            IgnorePointer(
-              ignoring: !showDiscard,
-              child: Opacity(
-                opacity: showDiscard ? 1 : 0,
-                child: TextButton(
-                  onPressed: _discardSession,
-                  style: TextButton.styleFrom(
-                    foregroundColor: textColor,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 8,
-                    ),
-                  ),
-                  child: Text(
-                    l10n.timer_discard_session,
-                    strutStyle: context.tibetanStrutStyle(finishFontSize),
-                    style: textTheme.labelLarge?.copyWith(
-                      color: textColor,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   Widget _buildCenterContent(Color textColor) {
     final textTheme = Theme.of(context).textTheme;
-
-    if (_phase == _TimerPhase.pending) {
-      final timeText =
-          MaterialLocalizations.of(context).formatTimeOfDay(_scheduledStart);
-      return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 28),
-        child: Text(
-          context.l10n.timer_starts_at(timeText),
-          textAlign: TextAlign.center,
-          style: textTheme.titleMedium?.copyWith(
-            color: textColor,
-            fontWeight: FontWeight.w600,
-            height: 1.25,
-          ),
-        ),
-      );
-    }
-
-    final text = _phase == _TimerPhase.countdown
-        ? '$_countdownValue'
-        : _formatDuration(_remainingMs);
+    final text =
+        _phase == _TimerPhase.countdown
+            ? '$_countdownValue'
+            : _formatDuration(_remainingMs);
 
     return SizedBox(
       height: _centerTextHeight,

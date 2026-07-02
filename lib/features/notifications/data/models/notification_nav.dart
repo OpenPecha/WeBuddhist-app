@@ -12,18 +12,11 @@ class NotificationNav {
   /// loaded) routine item. Null for non-timer notifications.
   final int? durationMs;
 
-  /// The timer block's scheduled time-of-day as minutes past midnight
-  /// (`hour * 60 + minute`). The timer screen anchors to the most recent
-  /// occurrence of this time and syncs its remaining time from the wall clock.
-  /// Null for non-timer notifications.
-  final int? startMinuteOfDay;
-
   const NotificationNav({
     required this.itemId,
     required this.itemType,
     this.planId,
     this.durationMs,
-    this.startMinuteOfDay,
   });
 }
 

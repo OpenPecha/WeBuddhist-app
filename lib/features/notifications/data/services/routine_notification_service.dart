@@ -65,12 +65,10 @@ class RoutineNotificationService {
       // next full reconciliation sync.
       await _plugin
           .cancel(NotificationIdScheme.accumulatorBlockId(block.notificationId));
-      // Timer blocks fire two daily-repeats (start + "timer up") in their own
-      // parallel ranges — cancel both for the same reason.
+      // Timer blocks fire one daily-repeat (start reminder) in its own parallel
+      // range — cancel it too for the same reason.
       await _plugin
           .cancel(NotificationIdScheme.timerStartId(block.notificationId));
-      await _plugin
-          .cancel(NotificationIdScheme.timerEndId(block.notificationId));
       // Every plan item in the block owns its own series — cancel them all,
       // not just the first (blocks may hold several plans, case 3d).
       for (final item

@@ -100,8 +100,6 @@
   "timer_start": "Эхлэх",
   "timer_finish": "Дуусгах",
   "timer_discard_session": "Хичээл цуцлах",
-  "timer_dismiss": "Өнөөдрийн хувьд алгасах",
-  "timer_starts_at": "Цаг хэмжигч {time}-д эхэлнэ",
   "home_hello_prefix": "Сайн байна уу, ",
   "home_greeting_fallback_name": "найз минь",
   "home_share_prompt": "{appName} танд таалагдаж байна уу?",
