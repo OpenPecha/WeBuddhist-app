@@ -651,12 +651,6 @@ class _TimersTab extends ConsumerWidget {
                                         ? AppColors.surfaceVariantDark
                                         : AppColors.grey100,
                                 borderRadius: BorderRadius.circular(8),
-                                border: Border.all(
-                                  color:
-                                      isDark
-                                          ? AppColors.cardBorderDark
-                                          : AppColors.grey300,
-                                ),
                               ),
                               child: Icon(
                                 PhosphorIconsRegular.timer,
@@ -756,14 +750,8 @@ class _SessionCard extends StatelessWidget {
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(12),
-        child: Container(
+        child: Padding(
           padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              color: isDark ? AppColors.cardBorderDark : AppColors.grey100,
-            ),
-          ),
           child: child,
         ),
       ),
