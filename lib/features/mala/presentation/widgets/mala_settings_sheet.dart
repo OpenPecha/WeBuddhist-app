@@ -2,20 +2,28 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
 import 'package:flutter_pecha/core/constants/app_assets.dart';
+import 'package:flutter_pecha/core/deep_linking/deep_link_url_builder.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
-import 'package:flutter_pecha/core/network/connectivity_service.dart' show connectivityNotifierProvider;
+import 'package:flutter_pecha/core/network/connectivity_service.dart'
+    show connectivityNotifierProvider;
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/core/widgets/destructive_confirmation_dialog.dart';
 import 'package:flutter_pecha/features/mala/domain/entities/mantra.dart';
+import 'package:flutter_pecha/features/group_profile/presentation/providers/group_accumulator_providers.dart';
+import 'package:flutter_pecha/features/mala/presentation/providers/accumulator_groups_provider.dart';
+import 'package:flutter_pecha/features/mala/presentation/providers/group_accumulation_counts_provider.dart';
 import 'package:flutter_pecha/features/mala/presentation/providers/mala_accumulation_selection_provider.dart';
 import 'package:flutter_pecha/features/mala/presentation/providers/mala_providers.dart';
 import 'package:flutter_pecha/features/mala/presentation/providers/mala_settings_provider.dart';
+import 'package:flutter_pecha/features/mala/presentation/widgets/add_mala_rounds_dialog.dart';
 import 'package:flutter_pecha/features/practice/data/datasource/bookmark_remote_datasource.dart';
 import 'package:flutter_pecha/features/practice/presentation/controllers/bookmark_controller.dart';
 import 'package:flutter_pecha/features/practice/presentation/providers/bookmark_providers.dart';
+import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 import 'package:flutter_pecha/shared/widgets/app_toggle_switch.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:share_plus/share_plus.dart';
 
 class MalaSettingsSheet extends ConsumerWidget {
   const MalaSettingsSheet({super.key, required this.mantra});
@@ -40,16 +48,29 @@ class MalaSettingsSheet extends ConsumerWidget {
     final settings = ref.watch(malaSettingsProvider);
     final settingsNotifier = ref.read(malaSettingsProvider.notifier);
     final isOnline = ref.watch(connectivityNotifierProvider);
-    final isPersonal = ref
-        .watch(malaAccumulationSelectionProvider(mantra.presetId))
-        .isPersonal;
+    final selection = ref.watch(
+      malaAccumulationSelectionProvider(mantra.presetId),
+    );
+    final isPersonal = selection.isPersonal;
+    final counter = ref.watch(malaCounterProvider(mantra));
+    final canAddRounds =
+        !counter.isSeeding &&
+        !counter.seedFailed &&
+        (selection.isPersonal || selection.groupAccumulatorId != null);
+    final canReset =
+        isOnline &&
+        !counter.isSeeding &&
+        !counter.isResetting &&
+        (isPersonal || selection.groupAccumulatorId != null);
     final isBookmarked = ref.watch(
       isBookmarkedProvider(
-        BookmarkTarget(type: BookmarkType.accumulator, sourceId: mantra.presetId),
+        BookmarkTarget(
+          type: BookmarkType.accumulator,
+          sourceId: mantra.presetId,
+        ),
       ),
     );
-    final dividerColor =
-        isDark ? AppColors.cardBorderDark : AppColors.grey300;
+    final dividerColor = isDark ? AppColors.cardBorderDark : AppColors.grey300;
     const destructiveColor = Color(0xFFB03027);
 
     return Container(
@@ -71,23 +92,32 @@ class MalaSettingsSheet extends ConsumerWidget {
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
+            if (isPersonal)
+              _MalaSettingsTile(
+                icon: AppAssets.plus,
+                label: l10n.mala_add_to_practice,
+                enabled: isPersonal,
+                onTap: () => _onAddToPractice(context),
+              ),
+            if (isPersonal) Divider(height: 1, color: dividerColor),
             _MalaSettingsTile(
-              icon: AppAssets.plus,
-              label: l10n.mala_add_to_practice,
-              enabled: isPersonal,
-              onTap: () => _onAddToPractice(context),
+              icon: AppAssets.plusCircle,
+              label: l10n.mala_add_mala_round,
+              enabled: canAddRounds,
+              onTap: () => _onAddMalaRound(context, ref),
             ),
             Divider(height: 1, color: dividerColor),
-            _MalaSettingsTile(
-              icon:
-                  isBookmarked
-                      ? AppAssets.bookmarkSimpleFill
-                      : AppAssets.bookmarkSimple,
-              label: l10n.mala_add_to_bookmark,
-              enabled: isPersonal,
-              onTap: () => _onToggleBookmark(context, ref),
-            ),
-            Divider(height: 1, color: dividerColor),
+            if (isPersonal)
+              _MalaSettingsTile(
+                icon:
+                    isBookmarked
+                        ? AppAssets.bookmarkSimpleFill
+                        : AppAssets.bookmarkSimple,
+                label: l10n.mala_add_to_bookmark,
+                enabled: isPersonal,
+                onTap: () => _onToggleBookmark(context, ref),
+              ),
+            if (isPersonal) Divider(height: 1, color: dividerColor),
             _MalaSettingsToggleTile(
               icon: AppAssets.speakerSimpleHigh,
               label: l10n.mala_sound,
@@ -103,16 +133,36 @@ class MalaSettingsSheet extends ConsumerWidget {
             ),
             Divider(height: 1, color: dividerColor),
             _MalaSettingsTile(
+              icon: AppAssets.readerShare,
+              label: l10n.share,
+              onTap: () => _onShare(context),
+            ),
+            Divider(height: 1, color: dividerColor),
+            _MalaSettingsTile(
               icon: AppAssets.arrowCounterClockwise,
               label: l10n.mala_reset_count,
               labelColor: destructiveColor,
               iconColor: destructiveColor,
-              enabled: isOnline && isPersonal,
+              enabled: canReset,
               onTap: () => _onResetCount(context, ref),
             ),
             const SizedBox(height: 8),
           ],
         ),
+      ),
+    );
+  }
+
+  Future<void> _onShare(BuildContext context) async {
+    final navigator = Navigator.of(context);
+    final sharePositionOrigin = getSharePositionOrigin(context: context);
+    final shareUrl = DeepLinkUrlBuilder.malaLink(presetId: mantra.presetId).toString();
+    final shareMessage = context.l10n.share_mala_message;
+    navigator.pop();
+    await SharePlus.instance.share(
+      ShareParams(
+        text: '$shareMessage\n\n$shareUrl',
+        sharePositionOrigin: sharePositionOrigin,
       ),
     );
   }
@@ -127,6 +177,38 @@ class MalaSettingsSheet extends ConsumerWidget {
     router.pushNamed('edit-routine', extra: {'initialMantra': mantra});
   }
 
+  Future<void> _onAddMalaRound(BuildContext context, WidgetRef ref) async {
+    final rounds = await showAddMalaRoundsDialog(context);
+    if (rounds == null || rounds <= 0 || !context.mounted) return;
+
+    final selection = ref.read(
+      malaAccumulationSelectionProvider(mantra.presetId),
+    );
+    final counter = ref.read(malaCounterProvider(mantra));
+
+    if (selection.isPersonal) {
+      ref.read(malaCounterProvider(mantra).notifier).addRounds(rounds);
+    } else {
+      final groupId = selection.groupAccumulatorId;
+      if (groupId == null) return;
+      final groups =
+          ref
+              .read(joinedAccumulatorGroupsProvider(mantra.presetId))
+              .valueOrNull ??
+          const [];
+      ref
+          .read(groupAccumulationCountsProvider(mantra.presetId).notifier)
+          .addRounds(
+            groupAccumulatorId: groupId,
+            groups: groups,
+            rounds: rounds,
+            beadsPerRound: counter.beadsPerRound,
+          );
+    }
+
+    if (context.mounted) Navigator.of(context).pop();
+  }
+
   Future<void> _onToggleBookmark(BuildContext context, WidgetRef ref) async {
     final language = ref.read(contentLanguageProvider);
     final navigator = Navigator.of(context);
@@ -134,10 +216,7 @@ class MalaSettingsSheet extends ConsumerWidget {
     final didToggle = await BookmarkController(
       ref: ref,
       context: context,
-    ).toggleMala(
-      mantra.presetId,
-      name: mantra.displayTitle(language),
-    );
+    ).toggleMala(mantra.presetId, name: mantra.displayTitle(language));
 
     if (context.mounted && didToggle) navigator.pop();
   }
@@ -145,6 +224,9 @@ class MalaSettingsSheet extends ConsumerWidget {
   Future<void> _onResetCount(BuildContext context, WidgetRef ref) async {
     final l10n = context.l10n;
     final messenger = ScaffoldMessenger.of(context);
+    final selection = ref.read(
+      malaAccumulationSelectionProvider(mantra.presetId),
+    );
 
     final result = await showDestructiveConfirmationDialog(
       context,
@@ -155,11 +237,28 @@ class MalaSettingsSheet extends ConsumerWidget {
       barrierDismissible: false,
       onConfirmed: () async {
         HapticFeedback.mediumImpact();
-        return ref.read(malaCounterProvider(mantra).notifier).resetCount();
+        if (selection.isPersonal) {
+          return ref.read(malaCounterProvider(mantra).notifier).resetCount();
+        }
+        final groupAccumulatorId = selection.groupAccumulatorId;
+        if (groupAccumulatorId == null) return false;
+        return ref
+            .read(groupAccumulationCountsProvider(mantra.presetId).notifier)
+            .resetCount(groupAccumulatorId: groupAccumulatorId);
       },
     );
     if (!context.mounted) return;
     if (result == true) {
+      if (!selection.isPersonal) {
+        final groupId = selection.groupAccumulatorId;
+        if (groupId != null) {
+          ref.invalidate(groupAccumulatorDetailProvider(groupId));
+        }
+        // Refresh session counts from detail API; post-reset guard prevents stale totals.
+        ref.invalidate(joinedGroupUserCountsProvider(mantra.presetId));
+        // Refresh lifetime totals for the accumulations sheet.
+        ref.invalidate(joinedAccumulatorGroupsProvider(mantra.presetId));
+      }
       Navigator.of(context).pop();
     } else if (result == false) {
       messenger.showSnackBar(

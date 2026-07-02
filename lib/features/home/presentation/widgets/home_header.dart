@@ -109,72 +109,6 @@ class _Greeting extends StatelessWidget {
   final double toolbarHeight;
   final bool alignToBottom;
 
-  Widget _buildLine({
-    required BuildContext context,
-    required String text,
-    required TextStyle style,
-    required double fontSize,
-    int maxLines = 1,
-  }) {
-    return Text.rich(
-      TextSpan(text: text, style: style),
-      strutStyle: context.tibetanStrutStyle(fontSize, compact: true),
-      softWrap: true,
-      maxLines: maxLines,
-      overflow: TextOverflow.clip,
-    );
-  }
-
-  Widget _buildGreetingContent({
-    required BuildContext context,
-    required TextStyle greetingStyle,
-    required double greetingFontSize,
-    required String prefix,
-    required String helloPrefix,
-    required String? displayName,
-  }) {
-    final formattedName =
-        displayName != null
-            ? withDisplayLineBreakOpportunities(displayName)
-            : null;
-
-    if (context.isTibetanLocale) {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.center,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          _buildLine(
-            context: context,
-            text: withTibetanLineBreakOpportunities(prefix),
-            style: greetingStyle,
-            fontSize: greetingFontSize,
-          ),
-          if (formattedName != null) ...[
-            const SizedBox(height: 2),
-            _buildLine(
-              context: context,
-              text: formattedName,
-              style: greetingStyle,
-              fontSize: greetingFontSize,
-            ),
-          ],
-        ],
-      );
-    }
-
-    final greeting =
-        formattedName != null ? '$helloPrefix$formattedName' : prefix;
-
-    return _buildLine(
-      context: context,
-      text: greeting,
-      style: greetingStyle,
-      fontSize: greetingFontSize,
-      maxLines: 2,
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final localizations = AppLocalizations.of(context)!;
@@ -183,18 +117,51 @@ class _Greeting extends StatelessWidget {
     final greetingStyle = MainTabAppBar.titleStyle(
       context,
     ).copyWith(color: colorScheme.onSurface);
-    final helloPrefix = localizations.home_hello_prefix;
-    final prefix = helloPrefix.trim();
+    final strutStyle = context.tibetanStrutStyle(
+      greetingFontSize,
+      compact: true,
+    );
     final displayName = firstName?.isNotEmpty == true ? firstName : null;
 
-    final greetingContent = _buildGreetingContent(
-      context: context,
-      greetingStyle: greetingStyle,
-      greetingFontSize: greetingFontSize,
-      prefix: prefix,
-      helloPrefix: helloPrefix,
-      displayName: displayName,
-    );
+    final Widget greetingContent;
+    if (context.isTibetanLocale) {
+      greetingContent = Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            localizations.home_hello_prefix.trim(),
+            style: greetingStyle,
+            strutStyle: strutStyle,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+          if (displayName != null) ...[
+            const SizedBox(height: 2),
+            Text(
+              displayName,
+              style: greetingStyle,
+              strutStyle: strutStyle,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
+        ],
+      );
+    } else {
+      final greeting =
+          displayName != null
+              ? '${localizations.home_hello_prefix}$displayName'
+              : localizations.home_hello_prefix.trim();
+      greetingContent = Text(
+        greeting,
+        style: greetingStyle,
+        strutStyle: strutStyle,
+        maxLines: 2,
+        overflow: TextOverflow.ellipsis,
+      );
+    }
 
     return SizedBox(
       width: maxWidth,

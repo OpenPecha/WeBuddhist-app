@@ -16,9 +16,6 @@ class PracticeTimerCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final borderColor =
-        isDark ? const Color(0xFF353535) : const Color(0xFFE4E4E4);
     final isTibetan = AppFontConfig.isTibetanLanguage(
       Localizations.localeOf(context).languageCode,
     );
@@ -45,7 +42,6 @@ class PracticeTimerCard extends StatelessWidget {
       color: Theme.of(context).cardColor,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
-        side: BorderSide(color: borderColor),
       ),
       clipBehavior: Clip.antiAlias,
       child: InkWell(

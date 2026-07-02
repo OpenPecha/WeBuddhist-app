@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/core/widgets/responsive_cover_image.dart';
 import 'package:flutter_pecha/features/home/domain/entities/series.dart';
-import 'package:intl/intl.dart';
+import 'package:flutter_pecha/features/plans/data/utils/plan_date_format.dart';
 
 /// Horizontal list-row card for a practice plan: a small rounded thumbnail on
 /// the left with the title and date range on the right.
@@ -61,16 +62,47 @@ class PracticePlanListTile extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    if (dateRange != null) ...[
+                    if (dateRange != null || series.enrolledCount > 0) ...[
                       const SizedBox(height: 4),
-                      Text(
-                        dateRange,
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+                      Row(
+                        children: [
+                          if (dateRange != null)
+                            Expanded(
+                              child: Text(
+                                dateRange,
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  color:
+                                      Theme.of(
+                                        context,
+                                      ).colorScheme.onSurfaceVariant,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          if (series.enrolledCount > 0) ...[
+                            Icon(
+                              AppAssets.usercard,
+                              size: 15,
+                              color:
+                                  Theme.of(
+                                    context,
+                                  ).colorScheme.onSurfaceVariant,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              '${series.enrolledCount}',
+                              style: TextStyle(
+                                fontSize: 13,
+                                color:
+                                    Theme.of(
+                                      context,
+                                    ).colorScheme.onSurfaceVariant,
+                              ),
+                            ),
+                          ],
+                        ],
                       ),
                     ],
                   ],
@@ -84,10 +116,6 @@ class PracticePlanListTile extends StatelessWidget {
   }
 
   static String? _formatSeriesDateRange(Series series) {
-    final startDate = series.startDate;
-    final endDate = series.endDate;
-    if (startDate == null || endDate == null) return null;
-    final formatter = DateFormat('MMM d');
-    return '${formatter.format(startDate.toLocal())} - ${formatter.format(endDate.toLocal())}';
+    return PlanDateFormat.formatRangeOrNull(series.startDate, series.endDate);
   }
 }

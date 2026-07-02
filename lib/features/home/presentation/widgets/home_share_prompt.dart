@@ -20,7 +20,9 @@ class HomeSharePrompt extends ConsumerWidget {
           const _PromptLabel(),
           const SizedBox(height: 12.0),
           _ShareButton(
-            onTap: () => ref.read(appShareServiceProvider).shareApp(),
+            onTap: () => ref
+                .read(appShareServiceProvider)
+                .shareApp(AppLocalizations.of(context)!.share_app_message),
           ),
         ],
       ),

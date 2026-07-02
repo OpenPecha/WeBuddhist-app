@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/features/reader/presentation/widgets/reader_panels/reader_panel_constants.dart';
 
 class PickerSheetScaffold extends StatelessWidget {
   const PickerSheetScaffold({
@@ -30,7 +31,7 @@ class PickerSheetScaffold extends StatelessWidget {
               width: 40,
               height: 4,
               decoration: BoxDecoration(
-                color: theme.colorScheme.onSurface.withValues(alpha: 0.2),
+                color: ReaderPanelConstants.dragHandleColor(context),
                 borderRadius: BorderRadius.circular(2),
               ),
             ),

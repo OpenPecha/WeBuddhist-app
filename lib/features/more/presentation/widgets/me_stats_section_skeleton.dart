@@ -14,7 +14,6 @@ class MeStatsSectionSkeleton extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final cardColor = isDark ? AppColors.cardDark : AppColors.surfaceWhite;
-    final borderColor = isDark ? AppColors.cardBorderDark : AppColors.grey300;
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(
@@ -32,7 +31,6 @@ class MeStatsSectionSkeleton extends StatelessWidget {
             const SizedBox(height: 12),
             _SkeletonCard(
               cardColor: cardColor,
-              borderColor: borderColor,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -85,7 +83,6 @@ class MeStatsSectionSkeleton extends StatelessWidget {
             const SizedBox(height: _cardSpacing),
             _SkeletonCard(
               cardColor: cardColor,
-              borderColor: borderColor,
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
               child: Row(
                 children: [
@@ -98,19 +95,9 @@ class MeStatsSectionSkeleton extends StatelessWidget {
             const SizedBox(height: _cardSpacing),
             Row(
               children: [
-                Expanded(
-                  child: _StatCardSkeleton(
-                    cardColor: cardColor,
-                    borderColor: borderColor,
-                  ),
-                ),
+                Expanded(child: _StatCardSkeleton(cardColor: cardColor)),
                 const SizedBox(width: _cardSpacing),
-                Expanded(
-                  child: _StatCardSkeleton(
-                    cardColor: cardColor,
-                    borderColor: borderColor,
-                  ),
-                ),
+                Expanded(child: _StatCardSkeleton(cardColor: cardColor)),
               ],
             ),
           ],
@@ -123,13 +110,11 @@ class MeStatsSectionSkeleton extends StatelessWidget {
 class _SkeletonCard extends StatelessWidget {
   const _SkeletonCard({
     required this.cardColor,
-    required this.borderColor,
     required this.child,
     this.padding = const EdgeInsets.all(16),
   });
 
   final Color cardColor;
-  final Color borderColor;
   final Widget child;
   final EdgeInsetsGeometry padding;
 
@@ -141,7 +126,6 @@ class _SkeletonCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(
           MeStatsSectionSkeleton._borderRadius,
         ),
-        side: BorderSide(color: borderColor),
       ),
       child: Padding(padding: padding, child: child),
     );
@@ -149,16 +133,14 @@ class _SkeletonCard extends StatelessWidget {
 }
 
 class _StatCardSkeleton extends StatelessWidget {
-  const _StatCardSkeleton({required this.cardColor, required this.borderColor});
+  const _StatCardSkeleton({required this.cardColor});
 
   final Color cardColor;
-  final Color borderColor;
 
   @override
   Widget build(BuildContext context) {
     return _SkeletonCard(
       cardColor: cardColor,
-      borderColor: borderColor,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

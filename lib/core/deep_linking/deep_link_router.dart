@@ -14,6 +14,7 @@ class DeepLinkRouter {
     GoRouter router, {
     required String source,
     String? baseLocation,
+    void Function(int tabIndex)? tabSetter,
   }) {
     try {
       final destination = _resolveRoute(uri);
@@ -33,6 +34,14 @@ class DeepLinkRouter {
       } else {
         router.go(destination.location, extra: destination.extra);
       }
+
+      final tabIndex = destination.tabIndex;
+      if (tabIndex != null && tabSetter != null) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          tabSetter(tabIndex);
+        });
+      }
+
       return true;
     } catch (e, stackTrace) {
       _logger.error(
@@ -67,9 +76,7 @@ class DeepLinkRouter {
     }
 
     if (uri.scheme.toLowerCase() == 'webuddhist') {
-      return _DeepLinkDestination(
-        _routeForWebuddhistHost(uri.host.toLowerCase()),
-      );
+      return _resolveWebuddhistSchemeLink(uri.host.toLowerCase());
     }
 
     if (isAirbridgeLink(uri)) {
@@ -127,39 +134,84 @@ class DeepLinkRouter {
       }
     }
 
+    if (segments.length >= 2 &&
+        segments[0] == 'open' &&
+        segments[1] == 'more') {
+      return const _DeepLinkDestination(AppRoutes.home, tabIndex: _meTabIndex);
+    }
+
+    if (segments.length >= 3 &&
+        segments[0] == 'open' &&
+        segments[1] == 'group') {
+      final groupId = segments[2];
+      return _DeepLinkDestination(
+        '/home/group/$groupId',
+        opensOnTop: true,
+      );
+    }
+
+    if (segments.length >= 3 &&
+        segments[0] == 'open' &&
+        segments[1] == 'mala') {
+      final presetId = segments[2];
+      return _DeepLinkDestination(
+        AppRoutes.mala,
+        extra: {'presetId': presetId},
+        opensOnTop: true,
+      );
+    }
+
+    if (segments.length >= 3 &&
+        segments[0] == 'open' &&
+        segments[1] == 'timer') {
+      return const _DeepLinkDestination(
+        '/home/timers',
+        opensOnTop: true,
+      );
+    }
+
     return const _DeepLinkDestination(AppRoutes.home);
   }
 
-  static String _routeForWebuddhistHost(String host) {
+  static _DeepLinkDestination _resolveWebuddhistSchemeLink(String host) {
     switch (host) {
       case 'open':
       case 'home':
-        return AppRoutes.home;
+        return const _DeepLinkDestination(AppRoutes.home);
       case 'practice':
-        return AppRoutes.practice;
+        return const _DeepLinkDestination(AppRoutes.practice);
       case 'texts':
-        return AppRoutes.texts;
+        return const _DeepLinkDestination(AppRoutes.texts);
       case 'more':
-        return AppRoutes.more;
+        return const _DeepLinkDestination(AppRoutes.home, tabIndex: _meTabIndex);
       case 'profile':
-        return AppRoutes.profile;
+        return const _DeepLinkDestination(AppRoutes.profile);
       case 'notifications':
-        return AppRoutes.notifications;
+        return const _DeepLinkDestination(AppRoutes.notifications);
       default:
         _logger.warning('Unknown webuddhist deep link host: $host');
-        return AppRoutes.home;
+        return const _DeepLinkDestination(AppRoutes.home);
     }
   }
 }
+
+/// Bottom nav tab index for the Me screen (matches MainTab.me.index == 3).
+const int _meTabIndex = 3;
 
 class _DeepLinkDestination {
   final String location;
   final Object? extra;
   final bool opensOnTop;
 
+  /// When non-null, the deep-link handler should switch the bottom nav bar to
+  /// this tab index after navigating. Used for tab-based screens that share
+  /// the `/home` route (e.g. the Me tab).
+  final int? tabIndex;
+
   const _DeepLinkDestination(
     this.location, {
     this.extra,
     this.opensOnTop = false,
+    this.tabIndex,
   });
 }

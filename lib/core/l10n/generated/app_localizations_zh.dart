@@ -139,7 +139,29 @@ class AppLocalizationsZh extends AppLocalizations {
   String get home_mala => '念珠';
 
   @override
+  String get session_mala => '念珠';
+
+  @override
+  String get bookmark_mala => '念珠';
+
+  @override
+  String get bookmark_timers => '計時';
+
+  @override
+  String get bookmark_texts => '經文';
+
+  @override
   String get mala_add_to_practice => '加入我的修持';
+
+  @override
+  String get mala_add_mala_round => 'Add mala round';
+
+  @override
+  String get mala_add_rounds_title => 'Add mala rounds:';
+
+  @override
+  String get mala_add_rounds_message =>
+      'Add the number of mala rounds you did outside this app.';
 
   @override
   String get mala_add_to_bookmark => '書籤';
@@ -1551,32 +1573,33 @@ class AppLocalizationsZh extends AppLocalizations {
       'You are already practicing this plan with another group. Would you like to change your practice group?';
 
   @override
-  String get group_join_to_contribute => 'Join to contribute';
+  String get group_join_to_contribute => '加入以貢獻';
 
   @override
-  String get group_accumulator_join_error =>
-      'Unable to join accumulation. Please try again.';
+  String get group_accumulator_join_error => '無法加入累積，請再試一次。';
 
   @override
   String group_accumulator_participants(int count) {
-    return '$count participants';
+    return '$count 位參與者';
   }
 
   @override
-  String get group_accumulator_leaderboard => 'Leaderboard';
+  String get group_accumulator_leaderboard => '排行榜';
 
   @override
-  String get group_accumulator_my_contributions => 'My Contributions';
+  String get group_accumulator_my_contributions => '我的貢獻';
 
   @override
-  String get group_accumulator_recited => 'Recited';
+  String get group_accumulator_recited => '已誦讀';
 
   @override
-  String get group_accumulator_total => 'Total';
+  String get group_accumulator_total => '總數';
 
   @override
-  String get group_accumulator_contributions_empty =>
-      'Join this accumulation to track your contributions.';
+  String get group_accumulator_contributions_empty => '加入此累積以追蹤您的貢獻。';
+
+  @override
+  String get group_accumulator_recite_now => '立即誦念';
 
   @override
   String get share_this_quote => '分享这句话';
@@ -1586,6 +1609,41 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get verse_share_error => '无法分享引文，请重试';
+
+  @override
+  String get share_app_message => '我一直在用这款应用培养每日佛法修行的习惯，觉得你也会喜欢。';
+
+  @override
+  String get share_streak_message =>
+      '我一直在养成每日修行的好习惯，想和你分享。有朋友一起坚持会更容易。来WeBuddhist和我一起吧。';
+
+  @override
+  String get share_chant_message =>
+      '我想和你分享这段诵文。你可以在WeBuddhist上练习它，还能找到整个诵文和经典库。';
+
+  @override
+  String get share_quote_message =>
+      '我喜欢WeBuddhist上的这段引语，想和你分享。在WeBuddhist应用上阅读更多深刻的引语。';
+
+  @override
+  String get share_mala_message =>
+      '我一直在WeBuddhist上使用这串电子念珠，想和你分享。这是一个随时随地修行的便捷方式。';
+
+  @override
+  String get share_passage_message => '我喜欢这段经文，想和你分享。你可以在WeBuddhist上阅读完整的上下文。';
+
+  @override
+  String get share_timer_message => '我想和你分享WeBuddhist上的这个禅修计时器。它让建立禅修习惯变得更轻松。';
+
+  @override
+  String get share_plan_message =>
+      '我正在跟随这个佛法修行计划，想和你分享。你可以在WeBuddhist上免费和我一起修行。';
+
+  @override
+  String get share_plan_subject => '在WeBuddhist上和我一起吧';
+
+  @override
+  String get share_group_invite_message => '我希望你能加入我们的群组。让我们在WeBuddhist上一起修行吧。';
 
   @override
   String get weekday_monday => '週一';

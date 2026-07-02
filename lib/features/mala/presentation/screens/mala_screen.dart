@@ -131,6 +131,7 @@ class _MalaScreenState extends ConsumerState<MalaScreen> {
     );
 
     final language = Localizations.localeOf(context).languageCode;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final counter = ref.watch(malaCounterProvider(mantra));
     final notifier = ref.read(malaCounterProvider(mantra).notifier);
     final settings = ref.watch(malaSettingsProvider);
@@ -142,17 +143,22 @@ class _MalaScreenState extends ConsumerState<MalaScreen> {
     );
     final groups = groupsAsync.valueOrNull ?? const <AccumulatorGroup>[];
     ref.watch(groupAccumulationCountsProvider(mantra.presetId));
+    ref.watch(joinedGroupUserCountsProvider(mantra.presetId));
     final groupCountsNotifier = ref.read(
       groupAccumulationCountsProvider(mantra.presetId).notifier,
     );
 
     ref.listen(joinedAccumulatorGroupsProvider(mantra.presetId), (_, next) {
       next.whenData((loadedGroups) {
-        groupCountsNotifier.mergeFromApi(loadedGroups);
         ref
             .read(malaAccumulationSelectionProvider(mantra.presetId).notifier)
             .validateAgainst(loadedGroups);
+        ref.invalidate(joinedGroupUserCountsProvider(mantra.presetId));
       });
+    });
+
+    ref.listen(joinedGroupUserCountsProvider(mantra.presetId), (_, next) {
+      next.whenData(groupCountsNotifier.mergeFromServerCounts);
     });
 
     final displayTotal = _displayTotal(
@@ -204,7 +210,10 @@ class _MalaScreenState extends ConsumerState<MalaScreen> {
                   flex: 36,
                   child: DecoratedBox(
                     decoration: BoxDecoration(
-                      color: AppColors.surfaceWhite,
+                      color:
+                          isDark
+                              ? const Color(0xCC454545)
+                              : AppColors.surfaceWhite,
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: ClipRRect(
@@ -250,9 +259,6 @@ class _MalaScreenState extends ConsumerState<MalaScreen> {
                                     beadInRound: displayBeadInRound,
                                     beadsPerRound: beadsPerRound,
                                     enabled: countingEnabled,
-                                    beadImageUrl:
-                                        counter.beadImageUrl ??
-                                        mantra.beadImageUrl,
                                     beadImageBytes: counter.beadImageBytes,
                                     beadColor: const Color(0xFF8D6E63),
                                     threadColor: const Color(0xFFC62828),

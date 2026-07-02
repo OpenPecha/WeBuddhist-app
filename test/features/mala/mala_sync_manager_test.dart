@@ -18,6 +18,7 @@ import 'mala_sync_manager_test.mocks.dart';
   UpdateUserAccumulatorUseCase,
   DeleteUserAccumulatorUseCase,
   SubmitGroupAccumulatorCountUseCase,
+  DeleteGroupAccumulatorUseCase,
 ])
 void main() {
   provideDummy<Either<Failure, MalaCount>>(
@@ -31,6 +32,7 @@ void main() {
   late MockUpdateUserAccumulatorUseCase update;
   late MockDeleteUserAccumulatorUseCase delete;
   late MockSubmitGroupAccumulatorCountUseCase submitGroup;
+  late MockDeleteGroupAccumulatorUseCase deleteGroup;
 
   const userA = 'user-a';
   const userB = 'user-b';
@@ -60,7 +62,9 @@ void main() {
     update = MockUpdateUserAccumulatorUseCase();
     delete = MockDeleteUserAccumulatorUseCase();
     submitGroup = MockSubmitGroupAccumulatorCountUseCase();
+    deleteGroup = MockDeleteGroupAccumulatorUseCase();
     when(submitGroup(any)).thenAnswer((_) async => const Right(unit));
+    when(deleteGroup(any)).thenAnswer((_) async => const Right(unit));
   });
 
   tearDown(() async {
@@ -340,5 +344,52 @@ void main() {
         as SubmitGroupAccumulatorCountParams;
     expect(captured.groupAccumulatorId, groupAccId);
     expect(local.readGroup(userB, 'group-acc-b').isDirty, isTrue);
+  });
+
+  test('group reset flushes dirty tail then soft-deletes group count', () async {
+    await local.writeGroup(
+      userA,
+      groupAccId,
+      const LocalGroupMalaState(total: 50, syncedTotal: 40),
+    );
+    when(submitGroup(any)).thenAnswer((_) async => const Right(unit));
+    when(deleteGroup(any)).thenAnswer((_) async => const Right(unit));
+
+    await buildManager().resetGroupAccumulator(
+      groupAccId,
+      deleteGroupAccumulator: deleteGroup,
+    );
+
+    final captured = verify(submitGroup(captureAny)).captured.single
+        as SubmitGroupAccumulatorCountParams;
+    expect(captured.groupAccumulatorId, groupAccId);
+    expect(captured.currentCount, 50);
+    verify(deleteGroup(groupAccId)).called(1);
+
+    final after = local.readGroup(userA, groupAccId);
+    expect(after.total, 0);
+    expect(after.syncedTotal, 0);
+    expect(after.isDirty, isFalse);
+  });
+
+  test('group reset skips POST when fully synced then soft-deletes', () async {
+    await local.writeGroup(
+      userA,
+      groupAccId,
+      const LocalGroupMalaState(total: 50, syncedTotal: 50),
+    );
+    when(deleteGroup(any)).thenAnswer((_) async => const Right(unit));
+
+    await buildManager().resetGroupAccumulator(
+      groupAccId,
+      deleteGroupAccumulator: deleteGroup,
+    );
+
+    verifyNever(submitGroup(any));
+    verify(deleteGroup(groupAccId)).called(1);
+
+    final after = local.readGroup(userA, groupAccId);
+    expect(after.total, 0);
+    expect(after.syncedTotal, 0);
   });
 }

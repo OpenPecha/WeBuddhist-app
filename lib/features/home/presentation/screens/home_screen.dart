@@ -25,7 +25,6 @@ import 'package:flutter_pecha/features/home/presentation/widgets/verse_of_day_sk
 import 'package:flutter_pecha/features/notifications/application/notification_sync_engine.dart';
 import 'package:flutter_pecha/features/plans/data/utils/plan_utils.dart';
 import 'package:flutter_pecha/features/plans/presentation/providers/user_plans_provider.dart';
-import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:logging/logging.dart';
@@ -224,12 +223,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     ]);
   }
 
-  /// Manual refetch/retry method that can be called from UI.
-  /// Reuses the same logic as pull-to-refresh for consistent behavior.
-  void _refetchSeries() {
-    _onRefresh();
-  }
-
   /// Opens a login-only feature shortcut (Mala, Timer). Guests are prompted to
   /// sign in via the login drawer instead of navigating, since these features
   /// need an authenticated account to persist progress.
@@ -336,20 +329,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           ],
         ),
       ),
-    );
-  }
-
-  Widget _buildScrollableMessage(Widget child) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        return SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          child: ConstrainedBox(
-            constraints: BoxConstraints(minHeight: constraints.maxHeight),
-            child: Center(child: child),
-          ),
-        );
-      },
     );
   }
 }

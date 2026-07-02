@@ -17,7 +17,12 @@ class AppLinksDeepLinkService {
   StreamSubscription<Uri>? _subscription;
   GoRouter? _router;
   Uri? _pendingUri;
+  Uri? _lastDispatchedUri;
+  DateTime? _lastDispatchedAt;
   bool _initialized = false;
+  void Function(int tabIndex)? _tabSetter;
+
+  static const Duration _duplicateDispatchWindow = Duration(seconds: 5);
 
   Future<void> initialize() async {
     if (_initialized) return;
@@ -50,6 +55,10 @@ class AppLinksDeepLinkService {
     _router = router;
   }
 
+  void setTabSetter(void Function(int tabIndex) setter) {
+    _tabSetter = setter;
+  }
+
   bool drainPendingLink() {
     if (_router == null) return false;
 
@@ -73,6 +82,16 @@ class AppLinksDeepLinkService {
       return;
     }
 
+    if (_pendingUri == uri) {
+      _logger.debug('Ignoring duplicate pending app link: $uri');
+      return;
+    }
+
+    if (_wasRecentlyDispatched(uri)) {
+      _logger.debug('Ignoring recently dispatched app link: $uri');
+      return;
+    }
+
     if (_router == null) {
       _pendingUri = uri;
       _logger.info('Router not ready, stored app link: $uri');
@@ -82,15 +101,34 @@ class AppLinksDeepLinkService {
     _dispatch(uri);
   }
 
-  void _dispatch(Uri uri, {String? baseLocation}) {
+  bool _dispatch(Uri uri, {String? baseLocation}) {
     final router = _router;
-    if (router == null) return;
+    if (router == null) return false;
 
-    DeepLinkRouter.route(
+    if (_wasRecentlyDispatched(uri)) {
+      _logger.debug('Skipping duplicate app link dispatch: $uri');
+      return false;
+    }
+
+    final routed = DeepLinkRouter.route(
       uri,
       router,
       source: 'app_links',
       baseLocation: baseLocation,
+      tabSetter: _tabSetter,
     );
+    if (routed) {
+      _lastDispatchedUri = uri;
+      _lastDispatchedAt = DateTime.now();
+    }
+    return routed;
+  }
+
+  bool _wasRecentlyDispatched(Uri uri) {
+    final lastUri = _lastDispatchedUri;
+    final lastAt = _lastDispatchedAt;
+    if (lastUri != uri || lastAt == null) return false;
+
+    return DateTime.now().difference(lastAt) < _duplicateDispatchWindow;
   }
 }

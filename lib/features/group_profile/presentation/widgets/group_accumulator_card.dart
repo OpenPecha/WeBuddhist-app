@@ -4,7 +4,7 @@ import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/core/widgets/responsive_cover_image.dart';
 import 'package:flutter_pecha/features/group_profile/domain/entities/group_accumulator.dart';
-import 'package:intl/intl.dart';
+import 'package:flutter_pecha/features/plans/data/utils/plan_date_format.dart';
 
 class GroupAccumulatorCard extends StatelessWidget {
   final GroupAccumulator accumulator;
@@ -173,10 +173,9 @@ class GroupAccumulatorCard extends StatelessWidget {
   }
 
   String? _formatDateRange(GroupAccumulator accumulator) {
-    final startDate = accumulator.startDate;
-    final endDate = accumulator.endDate;
-    if (startDate == null || endDate == null) return null;
-    final formatter = DateFormat('MMM d');
-    return '${formatter.format(startDate.toLocal())} - ${formatter.format(endDate.toLocal())}';
+    return PlanDateFormat.formatRangeOrNull(
+      accumulator.startDate,
+      accumulator.endDate,
+    );
   }
 }

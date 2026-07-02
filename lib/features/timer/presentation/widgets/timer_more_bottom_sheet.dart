@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_pecha/core/constants/app_assets.dart';
+import 'package:flutter_pecha/core/deep_linking/deep_link_url_builder.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/features/practice/data/datasource/bookmark_remote_datasource.dart';
 import 'package:flutter_pecha/features/practice/presentation/controllers/bookmark_controller.dart';
 import 'package:flutter_pecha/features/practice/presentation/providers/bookmark_providers.dart';
 import 'package:flutter_pecha/features/timer/domain/entities/preset_timer.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:share_plus/share_plus.dart';
 
 /// Bottom sheet opened from the three-dot (⋮) button on a [PresetTimerCard].
 ///
@@ -30,11 +32,28 @@ class TimerMoreBottomSheet extends ConsumerStatefulWidget {
 
 class _TimerMoreBottomSheetState extends ConsumerState<TimerMoreBottomSheet> {
   bool _isBookmarking = false;
+  bool _isSharing = false;
 
   BookmarkTarget get _bookmarkTarget => BookmarkTarget(
         type: BookmarkType.timer,
         sourceId: widget.timer.id,
       );
+
+  Future<void> _share() async {
+    if (_isSharing) return;
+    setState(() => _isSharing = true);
+    try {
+      final nav = Navigator.of(context);
+      final shareUrl = DeepLinkUrlBuilder.timerLink(timerId: widget.timer.id).toString();
+      final shareMessage = context.l10n.share_timer_message;
+      nav.pop();
+      await SharePlus.instance.share(
+        ShareParams(text: '$shareMessage\n\n$shareUrl'),
+      );
+    } finally {
+      if (mounted) setState(() => _isSharing = false);
+    }
+  }
 
   Future<void> _toggleBookmark() async {
     if (_isBookmarking) return;
@@ -80,7 +99,7 @@ class _TimerMoreBottomSheetState extends ConsumerState<TimerMoreBottomSheet> {
           ListTile(
             leading: Icon(AppAssets.plus, color: theme.colorScheme.onSurface),
             title: Text(
-              'Add to my practices',
+              l10n.mala_add_to_practice,
               style: theme.textTheme.bodyLarge,
             ),
             onTap: () {
@@ -113,6 +132,27 @@ class _TimerMoreBottomSheetState extends ConsumerState<TimerMoreBottomSheet> {
             onTap: () {
               HapticFeedback.lightImpact();
               _toggleBookmark();
+            },
+          ),
+
+          // ── Share ──────────────────────────────────────────────────────
+          _SectionDivider(theme: theme),
+          ListTile(
+            leading:
+                _isSharing
+                    ? SizedBox(
+                      width: 22,
+                      height: 22,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: theme.colorScheme.onSurface,
+                      ),
+                    )
+                    : Icon(AppAssets.readerShare, color: theme.colorScheme.onSurface),
+            title: Text(l10n.share, style: theme.textTheme.bodyLarge),
+            onTap: () {
+              HapticFeedback.lightImpact();
+              _share();
             },
           ),
 
