@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/constants/app_assets.dart';
+import 'package:flutter_pecha/core/l10n/intl_format_locale.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/core/widgets/cached_network_image_widget.dart';
@@ -288,8 +289,7 @@ class _MyContributionsTabState extends State<_MyContributionsTab> {
     final user = widget.detail.user;
     final secondaryColor =
         widget.isDark ? AppColors.textTertiaryDark : AppColors.textSecondary;
-    final locale = Localizations.localeOf(context).toString();
-    final numberFormat = NumberFormat.decimalPattern(locale);
+    final numberFormat = NumberFormat.decimalPattern(intlFormatLocaleOf(context));
 
     if (user == null) {
       return Center(
@@ -469,8 +469,7 @@ class _LeaderboardTabState extends ConsumerState<_LeaderboardTab> {
     );
     final secondaryColor =
         widget.isDark ? AppColors.textTertiaryDark : AppColors.textSecondary;
-    final locale = Localizations.localeOf(context).toString();
-    final numberFormat = NumberFormat.decimalPattern(locale);
+    final numberFormat = NumberFormat.decimalPattern(intlFormatLocaleOf(context));
 
     if (membersState.isLoading && membersState.members.isEmpty) {
       return const Center(child: CircularProgressIndicator());
