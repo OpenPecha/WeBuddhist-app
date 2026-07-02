@@ -19,7 +19,7 @@ class PlanDateRange {
   /// True when `DateUtils.dateOnly(DateTime.now())` is within `[start, end]`.
   final bool isCurrent;
 
-  /// Pre-formatted "1 may 2025 - 2 dec 2025" label (not localized).
+  /// Pre-formatted "1 May 2025 - 2 Dec 2025" label (not localized).
   final String formatted;
 
   const PlanDateRange({
