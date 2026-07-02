@@ -1638,32 +1638,35 @@ class AppLocalizationsHi extends AppLocalizations {
       'You are already practicing this plan with another group. Would you like to change your practice group?';
 
   @override
-  String get group_join_to_contribute => 'Join to contribute';
+  String get group_join_to_contribute => 'योगदान के लिए शामिल हों';
 
   @override
   String get group_accumulator_join_error =>
-      'Unable to join accumulation. Please try again.';
+      'संचय में शामिल होने में असमर्थ। कृपया पुनः प्रयास करें।';
 
   @override
   String group_accumulator_participants(int count) {
-    return '$count participants';
+    return '$count प्रतिभागी';
   }
 
   @override
-  String get group_accumulator_leaderboard => 'Leaderboard';
+  String get group_accumulator_leaderboard => 'लीडरबोर्ड';
 
   @override
-  String get group_accumulator_my_contributions => 'My Contributions';
+  String get group_accumulator_my_contributions => 'मेरा योगदान';
 
   @override
-  String get group_accumulator_recited => 'Recited';
+  String get group_accumulator_recited => 'जाप';
 
   @override
-  String get group_accumulator_total => 'Total';
+  String get group_accumulator_total => 'कुल';
 
   @override
   String get group_accumulator_contributions_empty =>
-      'Join this accumulation to track your contributions.';
+      'अपने योगदान को ट्रैक करने के लिए इस संचय में शामिल हों।';
+
+  @override
+  String get group_accumulator_recite_now => 'अभी जाप करें';
 
   @override
   String get share_this_quote => 'यह उद्धरण शेयर करें';

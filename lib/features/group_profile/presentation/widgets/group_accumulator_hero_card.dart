@@ -170,7 +170,7 @@ class _ActionButton extends StatelessWidget {
           borderRadius: BorderRadius.circular(8),
         ),
         child: Text(
-          context.l10n.start_reading,
+          context.l10n.group_accumulator_recite_now,
           style: TextStyle(
             fontSize: 15,
             fontWeight: FontWeight.w600,

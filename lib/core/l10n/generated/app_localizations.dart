@@ -3028,6 +3028,12 @@ abstract class AppLocalizations {
   /// **'Join this accumulation to track your contributions.'**
   String get group_accumulator_contributions_empty;
 
+  /// No description provided for @group_accumulator_recite_now.
+  ///
+  /// In en, this message translates to:
+  /// **'Recite now'**
+  String get group_accumulator_recite_now;
+
   /// No description provided for @share_this_quote.
   ///
   /// In en, this message translates to:

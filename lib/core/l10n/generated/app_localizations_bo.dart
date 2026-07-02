@@ -1646,32 +1646,35 @@ class AppLocalizationsBo extends AppLocalizations {
       'You are already practicing this plan with another group. Would you like to change your practice group?';
 
   @override
-  String get group_join_to_contribute => 'Join to contribute';
+  String get group_join_to_contribute => 'བསགས་གྲངས་སྐྱེལ་ཆེད་ཞུགས།';
 
   @override
   String get group_accumulator_join_error =>
-      'Unable to join accumulation. Please try again.';
+      'བསགས་གྲངས་ལ་ཞུགས་མ་ཐུབ། ཡང་བསྐྱར་ཚོད་ལྟ་གནང་རོགས།';
 
   @override
   String group_accumulator_participants(int count) {
-    return '$count participants';
+    return 'མཉམ་ཞུགས་པ་ $count';
   }
 
   @override
-  String get group_accumulator_leaderboard => 'Leaderboard';
+  String get group_accumulator_leaderboard => 'རིམ་པའི་ཐོ།';
 
   @override
-  String get group_accumulator_my_contributions => 'My Contributions';
+  String get group_accumulator_my_contributions => 'ངའི་སྐྱེལ་མ།';
 
   @override
-  String get group_accumulator_recited => 'Recited';
+  String get group_accumulator_recited => 'བཟླས་བརྗོད།';
 
   @override
-  String get group_accumulator_total => 'Total';
+  String get group_accumulator_total => 'ཁྱོན་བསྡོམས།';
 
   @override
   String get group_accumulator_contributions_empty =>
-      'Join this accumulation to track your contributions.';
+      'ཁྱེད་ཀྱི་སྐྱེལ་མ་ལ་རྗེས་འདེད་བྱེད་ཆེད་བསགས་གྲངས་འདིར་ཞུགས་རོགས།';
+
+  @override
+  String get group_accumulator_recite_now => 'ད་ལྟ་བཟླས་བརྗོད་གནང་།';
 
   @override
   String get share_this_quote => 'གསུང་ཚིག་འདི་སྤེལ།';
