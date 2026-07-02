@@ -147,6 +147,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get home_mala => 'Mala';
 
   @override
+  String get session_mala => 'Malas';
+
+  @override
+  String get bookmark_mala => 'Malas';
+
+  @override
+  String get bookmark_timers => 'Timers';
+
+  @override
+  String get bookmark_texts => 'Texts';
+
+  @override
   String get mala_add_to_practice => 'Add to my practices';
 
   @override

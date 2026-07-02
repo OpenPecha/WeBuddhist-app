@@ -21,7 +21,13 @@ class _BookmarksScreenState extends ConsumerState<BookmarksScreen>
     with SingleTickerProviderStateMixin {
   late final TabController _tabController;
 
-  static const _tabLabels = ['All', 'Plans', 'Mala', 'Timers', 'Texts'];
+  List<String> _tabLabels(BuildContext context) => [
+    context.l10n.search_all,
+    context.l10n.home_shortcut_plans,
+    context.l10n.bookmark_mala,
+    context.l10n.bookmark_timers,
+    context.l10n.bookmark_texts,
+  ];
   static const _tabs = [
     BookmarkTab.all,
     BookmarkTab.plans,
@@ -41,7 +47,7 @@ class _BookmarksScreenState extends ConsumerState<BookmarksScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: _tabLabels.length, vsync: this);
+    _tabController = TabController(length: _tabs.length, vsync: this);
   }
 
   @override
@@ -145,7 +151,7 @@ class _BookmarksScreenState extends ConsumerState<BookmarksScreen>
         ),
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(48),
-          child: _buildTabBar(isDark),
+          child: _buildTabBar(context, isDark),
         ),
       ),
       body: TabBarView(
@@ -168,7 +174,7 @@ class _BookmarksScreenState extends ConsumerState<BookmarksScreen>
     );
   }
 
-  Widget _buildTabBar(bool isDark) {
+  Widget _buildTabBar(BuildContext context, bool isDark) {
     final indicatorColor =
         isDark ? AppColors.textPrimaryDark : AppColors.textPrimary;
 
@@ -191,7 +197,7 @@ class _BookmarksScreenState extends ConsumerState<BookmarksScreen>
         fontWeight: FontWeight.w500,
       ),
       dividerColor: isDark ? AppColors.cardBorderDark : AppColors.grey300,
-      tabs: _tabLabels.map((label) => Tab(text: label)).toList(),
+      tabs: _tabLabels(context).map((label) => Tab(text: label)).toList(),
     );
   }
 }

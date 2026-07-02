@@ -149,6 +149,18 @@ class AppLocalizationsBo extends AppLocalizations {
   String get home_mala => 'ཕྲེང་བ།';
 
   @override
+  String get session_mala => 'ཕྲེང་བ་རྣམས།';
+
+  @override
+  String get bookmark_mala => 'ཕྲེང་བ་རྣམས།';
+
+  @override
+  String get bookmark_timers => 'སྒོམ་ཐུན་རྣམས།';
+
+  @override
+  String get bookmark_texts => 'གསུང་རབ།';
+
+  @override
   String get mala_add_to_practice => 'ངའི་ཉམས་ལེན་ནང་སྣོན།';
 
   @override

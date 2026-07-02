@@ -139,6 +139,18 @@ class AppLocalizationsZh extends AppLocalizations {
   String get home_mala => '念珠';
 
   @override
+  String get session_mala => '念珠';
+
+  @override
+  String get bookmark_mala => '念珠';
+
+  @override
+  String get bookmark_timers => '計時';
+
+  @override
+  String get bookmark_texts => '經文';
+
+  @override
   String get mala_add_to_practice => '加入我的修持';
 
   @override

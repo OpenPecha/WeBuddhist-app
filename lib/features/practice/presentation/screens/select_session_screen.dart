@@ -139,7 +139,7 @@ class _SelectSessionScreenState extends ConsumerState<SelectSessionScreen>
           tabs: [
             Tab(text: localizations.home_shortcut_plans),
             Tab(text: localizations.home_chants),
-            Tab(text: localizations.home_mala),
+            Tab(text: localizations.session_mala),
             Tab(text: localizations.home_timer),
           ],
           labelStyle: const TextStyle(
