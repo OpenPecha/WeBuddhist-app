@@ -37,6 +37,7 @@ RoutineItem routineItemFromSessionDto(SessionDTO s) {
     currentPlanId: s.currentPlanId,
     currentPlanTitle: s.currentPlanTitle,
     durationMs: s.durationMs,
+    firstSegment: s.firstSegment,
   );
 }
 

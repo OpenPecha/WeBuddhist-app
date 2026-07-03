@@ -11,6 +11,7 @@ import 'package:flutter_pecha/features/plans/presentation/providers/user_plans_p
 import 'package:flutter_pecha/features/practice/data/models/routine_model.dart';
 import 'package:flutter_pecha/features/practice/data/utils/routine_item_display.dart';
 import 'package:flutter_pecha/features/practice/presentation/providers/routine_api_providers.dart';
+import 'package:flutter_pecha/features/practice/presentation/widgets/practice_chant_list_tile.dart';
 import 'package:flutter_pecha/features/practice/presentation/widgets/routine_item_card.dart';
 import 'package:flutter_pecha/features/reader/data/models/navigation_context.dart';
 import 'package:flutter_pecha/features/timer/domain/entities/preset_timer.dart';
@@ -409,20 +410,11 @@ class _RoutineBlockSection extends ConsumerWidget {
         ),
         const SizedBox(height: 8),
         for (int i = 0; i < block.items.length; i++) ...[
-          Container(
-            margin: EdgeInsets.only(
+          Padding(
+            padding: EdgeInsets.only(
               bottom: i < block.items.length - 1 ? 8.0 : 0,
             ),
-            decoration: BoxDecoration(
-              color: isDark
-                  ? AppColors.cardBackgroundDark
-                  : AppColors.cardBackgroundLight,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              child: _buildItemCard(context, ref, block.items[i]),
-            ),
+            child: _buildItemCard(context, ref, block.items[i]),
           ),
         ],
         const SizedBox(height: 8),
@@ -431,17 +423,38 @@ class _RoutineBlockSection extends ConsumerWidget {
   }
 
   Widget _buildItemCard(BuildContext context, WidgetRef ref, RoutineItem item) {
-    return RoutineItemCard(
-      title: routineItemDisplayTitle(item, context.l10n),
-      coverImage: item.coverImage,
-      type: item.type,
-      planTitle: item.currentPlanTitle,
-      imageSize: 56,
-      onTap: () => _onItemTap(context, ref, item),
-      onPlanTap:
-          item.currentPlanId != null
-              ? () => _onPlanArrowTap(context, ref, item)
-              : null,
+    if (item.type == RoutineItemType.recitation) {
+      return PracticeChantListTile(
+        recitation: recitationModelFromRoutineItem(item),
+        includeOuterPadding: false,
+        onTap: () => _onItemTap(context, ref, item),
+      );
+    }
+
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return Container(
+      decoration: BoxDecoration(
+        color: isDark
+            ? AppColors.cardBackgroundDark
+            : AppColors.cardBackgroundLight,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12),
+        child: RoutineItemCard(
+          title: routineItemDisplayTitle(item, context.l10n),
+          coverImage: item.coverImage,
+          type: item.type,
+          planTitle: item.currentPlanTitle,
+          imageSize: 56,
+          onTap: () => _onItemTap(context, ref, item),
+          onPlanTap:
+              item.currentPlanId != null
+                  ? () => _onPlanArrowTap(context, ref, item)
+                  : null,
+        ),
+      ),
     );
   }
 }

@@ -7,6 +7,7 @@ import 'package:flutter_pecha/features/practice/data/models/routine_model.dart';
 import 'package:flutter_pecha/features/practice/data/utils/routine_item_display.dart';
 import 'package:flutter_pecha/features/practice/data/utils/routine_time_utils.dart';
 import 'package:flutter_pecha/core/widgets/destructive_confirmation_dialog.dart';
+import 'package:flutter_pecha/features/practice/presentation/widgets/practice_chant_list_tile.dart';
 import 'package:flutter_pecha/features/practice/presentation/widgets/routine_item_card.dart';
 
 class RoutineTimeBlock extends StatelessWidget {
@@ -138,29 +139,8 @@ class RoutineTimeBlock extends StatelessWidget {
                         ),
                       ),
                     ),
-                    // White card containing item content + drag handle
                     Expanded(
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: isDark
-                              ? AppColors.cardBackgroundDark
-                              : AppColors.cardBackgroundLight,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 12),
-                          child: RoutineItemCard(
-                            title: routineItemDisplayTitle(
-                              item,
-                              context.l10n,
-                            ),
-                            coverImage: item.coverImage,
-                            type: item.type,
-                            reorderIndex: i,
-                            imageSize: 56,
-                          ),
-                        ),
-                      ),
+                      child: _buildItemTile(context, item, i, isDark),
                     ),
                   ],
                 ),
@@ -176,6 +156,54 @@ class RoutineTimeBlock extends StatelessWidget {
           isDark: isDark,
         ),
       ],
+    );
+  }
+
+  Widget _buildItemTile(
+    BuildContext context,
+    RoutineItem item,
+    int index,
+    bool isDark,
+  ) {
+    final dragHandle = ReorderableDragStartListener(
+      index: index,
+      child: GestureDetector(
+        onTapDown: (_) => HapticFeedback.heavyImpact(),
+        child: Icon(
+          AppAssets.list,
+          size: 22,
+          color:
+              isDark ? AppColors.textTertiaryDark : AppColors.textSecondary,
+        ),
+      ),
+    );
+
+    if (item.type == RoutineItemType.recitation) {
+      return PracticeChantListTile(
+        recitation: recitationModelFromRoutineItem(item),
+        includeOuterPadding: false,
+        showTrailingCaret: false,
+        trailing: dragHandle,
+      );
+    }
+
+    return Container(
+      decoration: BoxDecoration(
+        color: isDark
+            ? AppColors.cardBackgroundDark
+            : AppColors.cardBackgroundLight,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12),
+        child: RoutineItemCard(
+          title: routineItemDisplayTitle(item, context.l10n),
+          coverImage: item.coverImage,
+          type: item.type,
+          reorderIndex: index,
+          imageSize: 56,
+        ),
+      ),
     );
   }
 }

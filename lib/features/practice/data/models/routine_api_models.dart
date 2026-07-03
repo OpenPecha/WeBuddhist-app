@@ -1,4 +1,5 @@
 import 'package:flutter_pecha/features/plans/data/models/plans_model.dart';
+import 'package:flutter_pecha/features/recitation/data/models/recitation_model.dart';
 import 'package:flutter_pecha/shared/domain/value_objects/responsive_image.dart';
 
 enum SessionType {
@@ -91,6 +92,7 @@ class SessionDTO {
   final DateTime? startedAt;
   final String? currentPlanId;
   final String? currentPlanTitle;
+  final RecitationFirstSegmentModel? firstSegment;
 
   const SessionDTO({
     required this.id,
@@ -105,6 +107,7 @@ class SessionDTO {
     this.startedAt,
     this.currentPlanId,
     this.currentPlanTitle,
+    this.firstSegment,
   });
 
   String? get imageUrl => image?.displayUrl;
@@ -139,6 +142,12 @@ class SessionDTO {
               : null,
       currentPlanId: json['current_plan_id'] as String?,
       currentPlanTitle: json['current_plan_title'] as String?,
+      firstSegment:
+          json['first_segment'] is Map<String, dynamic>
+              ? RecitationFirstSegmentModel.fromJson(
+                json['first_segment'] as Map<String, dynamic>,
+              )
+              : null,
     );
   }
 
