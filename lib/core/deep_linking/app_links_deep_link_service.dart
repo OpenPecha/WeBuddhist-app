@@ -60,14 +60,50 @@ class AppLinksDeepLinkService {
   }
 
   bool drainPendingLink() {
-    if (_router == null) return false;
+    final router = _router;
+    if (router == null) return false;
 
     final pending = _pendingUri;
     if (pending == null) return false;
 
     _pendingUri = null;
-    _dispatch(pending, baseLocation: AppRoutes.home);
+    // Cold start: draining is scheduled the moment auth finishes loading, but
+    // the auth-driven route guard redirect (/splash -> /home) resolves
+    // asynchronously and may not have completed yet. Pushing the deep-link
+    // target now would leave /splash as the base of the back stack, so pressing
+    // Back would show the splash loading spinner. Wait until the router has
+    // actually settled off /splash before dispatching so the target is pushed
+    // on top of /home and Back returns Home.
+    _dispatchWhenRouterSettled(router, pending);
     return true;
+  }
+
+  /// Dispatches [uri] once the router's base location has left `/splash`.
+  ///
+  /// Uses `currentConfiguration.uri`, which reflects only non-imperative
+  /// matches (i.e. the true base location, ignoring any pushed pages). The
+  /// router delegate is a [Listenable], so we attach a one-shot listener when
+  /// the base has not settled yet.
+  void _dispatchWhenRouterSettled(GoRouter router, Uri uri) {
+    final delegate = router.routerDelegate;
+
+    bool isSettled() =>
+        delegate.currentConfiguration.uri.path != AppRoutes.splash;
+
+    if (isSettled()) {
+      _dispatch(uri);
+      return;
+    }
+
+    _logger.info('Router still on splash, deferring deep link dispatch: $uri');
+    void onRouterChanged() {
+      if (!isSettled()) return;
+      delegate.removeListener(onRouterChanged);
+      _logger.info('Router settled, dispatching deferred deep link: $uri');
+      _dispatch(uri);
+    }
+
+    delegate.addListener(onRouterChanged);
   }
 
   Future<void> dispose() async {
