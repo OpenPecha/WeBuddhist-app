@@ -211,6 +211,8 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
       id: recitation.textId,
       title: recitation.title,
       type: RoutineItemType.recitation,
+      language: recitation.language,
+      firstSegment: recitation.firstSegment,
     );
 
     final resolved = _resolveInjectionTarget();
@@ -1188,6 +1190,8 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
       id: recitation.textId,
       title: recitation.title,
       type: RoutineItemType.recitation,
+      language: recitation.language,
+      firstSegment: recitation.firstSegment,
     );
     setState(() => block.items.add(newItem));
 

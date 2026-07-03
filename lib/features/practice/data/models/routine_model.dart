@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/features/practice/data/utils/routine_time_utils.dart';
+import 'package:flutter_pecha/features/recitation/data/models/recitation_model.dart';
 import 'package:flutter_pecha/shared/domain/value_objects/responsive_image.dart';
 import 'package:uuid/uuid.dart';
 
@@ -21,6 +22,9 @@ class RoutineItem {
   /// Duration in milliseconds — only present for [RoutineItemType.timer] items.
   final int? durationMs;
 
+  /// Preview text for [RoutineItemType.recitation] items (from API or selection).
+  final RecitationFirstSegmentModel? firstSegment;
+
   const RoutineItem({
     required this.id,
     required this.title,
@@ -32,6 +36,7 @@ class RoutineItem {
     this.currentPlanId,
     this.currentPlanTitle,
     this.durationMs,
+    this.firstSegment,
   });
 
   /// Smallest cover URL — legacy persistence and notifications.
@@ -49,6 +54,7 @@ class RoutineItem {
     if (currentPlanId != null) 'currentPlanId': currentPlanId,
     if (currentPlanTitle != null) 'currentPlanTitle': currentPlanTitle,
     if (durationMs != null) 'durationMs': durationMs,
+    if (firstSegment != null) 'firstSegment': firstSegment!.toJson(),
   };
 
   /// Safely parses a [RoutineItem] from JSON with null checks and fallbacks.
@@ -74,7 +80,16 @@ class RoutineItem {
       currentPlanId: json['currentPlanId'] as String?,
       currentPlanTitle: json['currentPlanTitle'] as String?,
       durationMs: (json['durationMs'] as num?)?.toInt(),
+      firstSegment: _parseFirstSegment(json),
     );
+  }
+
+  static RecitationFirstSegmentModel? _parseFirstSegment(
+    Map<String, dynamic> json,
+  ) {
+    final raw = json['firstSegment'] ?? json['first_segment'];
+    if (raw is! Map<String, dynamic>) return null;
+    return RecitationFirstSegmentModel.fromJson(raw);
   }
 
   static ResponsiveImage? _parseCoverImage(Map<String, dynamic> json) {

@@ -2,8 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_pecha/core/constants/app_config.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
+import 'package:flutter_pecha/features/practice/data/models/routine_model.dart';
 import 'package:flutter_pecha/features/recitation/data/models/recitation_model.dart';
 import 'package:flutter_pecha/shared/utils/helper_functions.dart';
+
+RecitationModel recitationModelFromRoutineItem(RoutineItem item) {
+  return RecitationModel(
+    textId: item.id,
+    title: item.title,
+    language: item.language,
+    firstSegment: item.firstSegment,
+  );
+}
 
 class PracticeChantListTile extends StatelessWidget {
   const PracticeChantListTile({
@@ -12,12 +22,14 @@ class PracticeChantListTile extends StatelessWidget {
     this.onTap,
     this.showTrailingCaret = true,
     this.includeOuterPadding = true,
+    this.trailing,
   });
 
   final RecitationModel recitation;
   final VoidCallback? onTap;
   final bool showTrailingCaret;
   final bool includeOuterPadding;
+  final Widget? trailing;
 
   @override
   Widget build(BuildContext context) {
@@ -85,7 +97,10 @@ class PracticeChantListTile extends StatelessWidget {
                     ],
                   ),
                 ),
-                if (showTrailingCaret) ...[
+                if (trailing != null) ...[
+                  const SizedBox(width: 8),
+                  trailing!,
+                ] else if (showTrailingCaret) ...[
                   const SizedBox(width: 8),
                   Center(
                     child: Container(
