@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/core/theme/font_config.dart';
-import 'package:flutter_pecha/core/widgets/cached_network_image_widget.dart';
 import 'package:flutter_pecha/core/widgets/responsive_cover_image.dart';
 import 'package:flutter_pecha/features/home/domain/entities/series.dart';
 import 'package:flutter_pecha/features/home/presentation/providers/featured_series_provider.dart';
 import 'package:flutter_pecha/features/home/presentation/providers/routine_info_provider.dart';
 import 'package:flutter_pecha/features/home/presentation/widgets/featured_plan_section_skeleton.dart';
+import 'package:flutter_pecha/features/home/presentation/widgets/series_plan_card_widgets.dart';
 import 'package:flutter_pecha/features/plans/data/utils/plan_date_format.dart';
 import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -153,171 +152,6 @@ Color _featuredPlanBackgroundColor(BuildContext context) {
   return isDark ? AppColors.cardBackgroundDark : AppColors.surfaceWhite;
 }
 
-class _FeaturedPlanProgressBar extends StatelessWidget {
-  const _FeaturedPlanProgressBar({required this.progress});
-
-  final SeriesProgress progress;
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final trackColor =
-        isDark ? AppColors.grey800.withValues(alpha: 0.6) : AppColors.greyLight;
-
-    return Align(
-      alignment: Alignment.centerLeft,
-      child: FractionallySizedBox(
-        widthFactor: 0.5,
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(4),
-          child: LinearProgressIndicator(
-            value: progress.fraction,
-            minHeight: 6,
-            backgroundColor: trackColor,
-            valueColor: AlwaysStoppedAnimation<Color>(colorScheme.primary),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _FeaturedPlanPartnerRow extends StatelessWidget {
-  const _FeaturedPlanPartnerRow({
-    required this.partner,
-    required this.fontSize,
-    this.avatarSize,
-  });
-
-  final SeriesPartner partner;
-  final double fontSize;
-  final double? avatarSize;
-
-  @override
-  Widget build(BuildContext context) {
-    final isTibetan = context.isTibetanLocale;
-    final secondaryColor = Theme.of(context).colorScheme.onSurfaceVariant;
-    final resolvedAvatarSize = avatarSize ?? fontSize + 8;
-
-    return Row(
-      children: [
-        ClipOval(
-          child: CachedNetworkImageWidget(
-            imageUrl: partner.groupImage,
-            width: resolvedAvatarSize,
-            height: resolvedAvatarSize,
-            fit: BoxFit.cover,
-            placeholder: SizedBox(
-              width: resolvedAvatarSize,
-              height: resolvedAvatarSize,
-            ),
-            errorWidget: SizedBox(
-              width: resolvedAvatarSize,
-              height: resolvedAvatarSize,
-            ),
-          ),
-        ),
-        const SizedBox(width: 8),
-        Expanded(
-          child: Text(
-            partner.groupName,
-            strutStyle: context.tibetanStrutStyle(fontSize, compact: true),
-            style: TextStyle(
-              fontSize: fontSize,
-              fontWeight: FontWeight.w600,
-              color: secondaryColor,
-              height: isTibetan ? AppFontConfig.tibetanCompactLineHeight : 1.2,
-              leadingDistribution:
-                  isTibetan ? AppFontConfig.tibetanLeadingDistribution : null,
-            ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _FeaturedPlanEnrolledCount extends StatelessWidget {
-  const _FeaturedPlanEnrolledCount({
-    required this.count,
-    required this.fontSize,
-  });
-
-  final int count;
-  final double fontSize;
-
-  @override
-  Widget build(BuildContext context) {
-    final isTibetan = context.isTibetanLocale;
-    final secondaryColor = Theme.of(context).colorScheme.onSurfaceVariant;
-    final textStyle = TextStyle(
-      fontSize: fontSize,
-      fontWeight: FontWeight.w500,
-      color: secondaryColor,
-      height: isTibetan ? AppFontConfig.tibetanCompactLineHeight : 1.2,
-      leadingDistribution:
-          isTibetan ? AppFontConfig.tibetanLeadingDistribution : null,
-    );
-
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(AppAssets.usercard, size: fontSize + 2, color: secondaryColor),
-        const SizedBox(width: 4),
-        Text('$count', style: textStyle),
-      ],
-    );
-  }
-}
-
-class _FeaturedPlanMetaRow extends StatelessWidget {
-  const _FeaturedPlanMetaRow({required this.series, required this.fontSize});
-
-  final Series series;
-  final double fontSize;
-
-  @override
-  Widget build(BuildContext context) {
-    final dateRange = _formatSeriesDateRange(series);
-    if (dateRange == null && series.enrolledCount <= 0) {
-      return const SizedBox.shrink();
-    }
-
-    final isTibetan = context.isTibetanLocale;
-    final secondaryColor = Theme.of(context).colorScheme.onSurfaceVariant;
-    final textStyle = TextStyle(
-      fontSize: fontSize,
-      fontWeight: FontWeight.w500,
-      color: secondaryColor,
-      height: isTibetan ? AppFontConfig.tibetanCompactLineHeight : 1.2,
-      leadingDistribution:
-          isTibetan ? AppFontConfig.tibetanLeadingDistribution : null,
-    );
-
-    return Row(
-      children: [
-        if (dateRange != null)
-          Expanded(
-            child: Text(
-              dateRange,
-              style: textStyle,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-        if (series.enrolledCount > 0)
-          _FeaturedPlanEnrolledCount(
-            count: series.enrolledCount,
-            fontSize: fontSize,
-          ),
-      ],
-    );
-  }
-}
-
 class _FeaturedPlanHeroCard extends StatelessWidget {
   const _FeaturedPlanHeroCard({
     required this.series,
@@ -399,7 +233,7 @@ class _FeaturedPlanHeroCard extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Expanded(
-                          child: _FeaturedPlanPartnerRow(
+                          child: SeriesPlanPartnerRow(
                             partner: series.partner!,
                             fontSize: dateFontSize,
                             avatarSize: 32,
@@ -407,7 +241,7 @@ class _FeaturedPlanHeroCard extends StatelessWidget {
                         ),
                         if (series.enrolledCount > 0) ...[
                           const SizedBox(width: 12),
-                          _FeaturedPlanEnrolledCount(
+                          SeriesPlanEnrolledCount(
                             count: series.enrolledCount,
                             fontSize: dateFontSize,
                           ),
@@ -416,10 +250,7 @@ class _FeaturedPlanHeroCard extends StatelessWidget {
                     ),
                   ] else if (dateRange != null || series.enrolledCount > 0) ...[
                     SizedBox(height: titleDateGap),
-                    _FeaturedPlanMetaRow(
-                      series: series,
-                      fontSize: dateFontSize,
-                    ),
+                    SeriesPlanMetaRow(series: series, fontSize: dateFontSize),
                   ],
                 ],
               ),
@@ -518,12 +349,12 @@ class _FeaturedPlanListItem extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             Expanded(
-                              child: _FeaturedPlanProgressBar(
+                              child: SeriesPlanProgressBar(
                                 progress: series.progress!,
                               ),
                             ),
                             if (series.enrolledCount > 0)
-                              _FeaturedPlanEnrolledCount(
+                              SeriesPlanEnrolledCount(
                                 count: series.enrolledCount,
                                 fontSize: dateFontSize,
                               ),
@@ -533,7 +364,7 @@ class _FeaturedPlanListItem extends StatelessWidget {
                         SizedBox(height: titleDateGap),
                         Align(
                           alignment: Alignment.centerRight,
-                          child: _FeaturedPlanEnrolledCount(
+                          child: SeriesPlanEnrolledCount(
                             count: series.enrolledCount,
                             fontSize: dateFontSize,
                           ),
@@ -542,7 +373,7 @@ class _FeaturedPlanListItem extends StatelessWidget {
                     ] else ...[
                       if (dateRange != null || series.enrolledCount > 0) ...[
                         SizedBox(height: titleDateGap),
-                        _FeaturedPlanMetaRow(
+                        SeriesPlanMetaRow(
                           series: series,
                           fontSize: dateFontSize,
                         ),
@@ -550,7 +381,7 @@ class _FeaturedPlanListItem extends StatelessWidget {
                       if (series.progress != null &&
                           series.progress!.totalDayCount > 0) ...[
                         SizedBox(height: titleDateGap + 4),
-                        _FeaturedPlanProgressBar(progress: series.progress!),
+                        SeriesPlanProgressBar(progress: series.progress!),
                       ],
                     ],
                   ],

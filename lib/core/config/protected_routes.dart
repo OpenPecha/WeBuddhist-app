@@ -82,8 +82,10 @@ class ProtectedRoutes {
   /// The token is sent when the user is authenticated; silently skipped for guests.
   static const List<String> optionalPaths = [
     '/plans/{planId}/days',
-    // Featured series: sends auth when logged in so the response includes
+    // Series list/detail: sends auth when logged in so the response includes
     // user-enriched fields like `progress` and `partner`.
+    '/series',
+    '/series/{id}',
     '/series/featured',
     '/author/groups',
     // Group detail + members: sends auth when logged in so fields like

@@ -12,6 +12,7 @@ import 'package:flutter_pecha/features/group_profile/domain/entities/group_profi
 import 'package:flutter_pecha/features/group_profile/presentation/providers/group_profile_providers.dart';
 import 'package:flutter_pecha/features/home/domain/entities/series.dart';
 import 'package:flutter_pecha/features/home/presentation/providers/series_enrollment_provider.dart';
+import 'package:flutter_pecha/features/home/presentation/widgets/series_plan_card_widgets.dart';
 import 'package:flutter_pecha/features/plans/data/models/plans_model.dart';
 import 'package:flutter_pecha/features/plans/data/models/user/user_plans_model.dart';
 import 'package:flutter_pecha/features/plans/domain/entities/plan.dart';
@@ -53,8 +54,7 @@ SeriesListEnrollmentState _watchSeriesListEnrollment(
 
   final enrollmentsAsync = ref.watch(userSeriesEnrollmentsProvider);
   return SeriesListEnrollmentState(
-    isSeriesEnrolled:
-        enrollmentsAsync.valueOrNull?.contains(seriesId) ?? false,
+    isSeriesEnrolled: enrollmentsAsync.valueOrNull?.contains(seriesId) ?? false,
     isLoading: enrollmentsAsync.isLoading,
   );
 }
@@ -180,13 +180,15 @@ class FeaturedPlanCard extends ConsumerWidget {
 
     final myPlansState =
         isSeriesContext ? null : ref.watch(myPlansPaginatedProvider);
-    final isPlanEnrolled = isSeriesContext
-        ? isSeriesEnrolled
-        : (!isGuest && _isPlanEnrolledFromMyData(ref, plan.id));
+    final isPlanEnrolled =
+        isSeriesContext
+            ? isSeriesEnrolled
+            : (!isGuest && _isPlanEnrolledFromMyData(ref, plan.id));
 
-    final enrolledInfo = !isSeriesContext && isPlanEnrolled
-        ? _getEnrolledInfoFromMyPlans(ref, plan.id)
-        : null;
+    final enrolledInfo =
+        !isSeriesContext && isPlanEnrolled
+            ? _getEnrolledInfoFromMyPlans(ref, plan.id)
+            : null;
     final isEnrolledInfoPending =
         !isSeriesContext &&
         isPlanEnrolled &&
@@ -202,9 +204,10 @@ class FeaturedPlanCard extends ConsumerWidget {
 
     final isGroupPracticeFlow = groupId != null && !isGroupEnrolled;
 
-    final isLoadingEnrollmentData = isSeriesContext
-        ? (!isGroupPracticeFlow && seriesEnrollment.isLoading)
-        : myPlansState!.isLoading;
+    final isLoadingEnrollmentData =
+        isSeriesContext
+            ? (!isGroupPracticeFlow && seriesEnrollment.isLoading)
+            : myPlansState!.isLoading;
 
     final hideEnrollButton =
         isGroupEnrolled ||
@@ -259,8 +262,17 @@ class FeaturedPlanCard extends ConsumerWidget {
                         height: lineHeight,
                       ),
                     ),
+                  if (series?.partner != null) ...[
+                    if (series != null) const SizedBox(height: 8),
+                    SeriesPlanPartnerRow(
+                      partner: series!.partner!,
+                      fontSize: subtitleFontSize,
+                      avatarSize: 28,
+                    ),
+                  ],
                   if (hasDescription) ...[
-                    if (series != null) const SizedBox(height: 6),
+                    if (series != null || series?.partner != null)
+                      const SizedBox(height: 6),
                     Text(
                       displayDescription,
                       style: TextStyle(
@@ -354,7 +366,9 @@ class FeaturedPlanCard extends ConsumerWidget {
     final groupId = this.groupId;
     if (groupId != null && !isGroupEnrolled) {
       final groupType = this.groupType ?? GroupType.community;
-      final profileResult = await ref.read(groupProfileProvider(groupId).future);
+      final profileResult = await ref.read(
+        groupProfileProvider(groupId).future,
+      );
       if (!context.mounted) return;
 
       final enrollmentStatus = profileResult.fold(
@@ -378,10 +392,7 @@ class FeaturedPlanCard extends ConsumerWidget {
       if (ok) {
         await ref.read(groupProfileProvider(groupId).future);
         if (!context.mounted) return;
-        await context.pushNamed(
-          'edit-routine',
-          extra: {'enrollSeriesId': id},
-        );
+        await context.pushNamed('edit-routine', extra: {'enrollSeriesId': id});
         if (!context.mounted) return;
         await completeGroupPracticeEnrollmentFlow(
           ref: ref,
@@ -454,13 +465,15 @@ class PlanListItem extends ConsumerWidget {
 
     final myPlansState =
         isSeriesContext ? null : ref.watch(myPlansPaginatedProvider);
-    final isPlanEnrolled = isSeriesContext
-        ? isSeriesEnrolled
-        : (!isGuest && _isPlanEnrolledFromMyData(ref, plan.id));
+    final isPlanEnrolled =
+        isSeriesContext
+            ? isSeriesEnrolled
+            : (!isGuest && _isPlanEnrolledFromMyData(ref, plan.id));
 
-    final enrolledInfo = !isSeriesContext && isPlanEnrolled
-        ? _getEnrolledInfoFromMyPlans(ref, plan.id)
-        : null;
+    final enrolledInfo =
+        !isSeriesContext && isPlanEnrolled
+            ? _getEnrolledInfoFromMyPlans(ref, plan.id)
+            : null;
     final isEnrolledInfoPending =
         !isSeriesContext &&
         isPlanEnrolled &&

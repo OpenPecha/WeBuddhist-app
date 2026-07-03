@@ -1640,6 +1640,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get group_practice_with_us => 'Practice with us';
 
   @override
+  String series_practicing_with_group(String groupName) {
+    return 'Practicing with $groupName';
+  }
+
+  @override
   String get group_change_practice_title => 'Change group practice';
 
   @override

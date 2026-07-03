@@ -3010,6 +3010,12 @@ abstract class AppLocalizations {
   /// **'Practice with us'**
   String get group_practice_with_us;
 
+  /// No description provided for @series_practicing_with_group.
+  ///
+  /// In en, this message translates to:
+  /// **'Practicing with {groupName}'**
+  String series_practicing_with_group(String groupName);
+
   /// No description provided for @group_change_practice_title.
   ///
   /// In en, this message translates to:
