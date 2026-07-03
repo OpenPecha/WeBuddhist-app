@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
 import 'package:flutter_pecha/core/constants/app_assets.dart';
+import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/core/widgets/responsive_cover_image.dart';
@@ -217,7 +218,7 @@ class _PlansTab extends ConsumerWidget {
       return _RefreshableScrollBody(
         onRefresh: onRefresh,
         child: _SessionTabMessage(
-          message: 'Unable to load plans.\nPlease try again later.',
+          message: context.l10n.session_plans_load_error,
         ),
       );
     }
@@ -227,7 +228,7 @@ class _PlansTab extends ConsumerWidget {
     if (items.isEmpty && !itemsState.isLoading) {
       return _RefreshableScrollBody(
         onRefresh: onRefresh,
-        child: const _SessionTabMessage(message: 'No plans found'),
+        child: _SessionTabMessage(message: context.l10n.no_plans_found),
       );
     }
 
@@ -393,7 +394,9 @@ class _ChantsTab extends ConsumerWidget {
         recitationsState.recitations.isEmpty) {
       return _RefreshableScrollBody(
         onRefresh: onRefresh,
-        child: const _SessionTabMessage(message: 'Unable to load chants'),
+        child: _SessionTabMessage(
+          message: context.l10n.session_chants_load_error,
+        ),
       );
     }
 
@@ -402,7 +405,7 @@ class _ChantsTab extends ConsumerWidget {
     if (recitations.isEmpty && !recitationsState.isLoading) {
       return _RefreshableScrollBody(
         onRefresh: onRefresh,
-        child: const _SessionTabMessage(message: 'No chants found'),
+        child: _SessionTabMessage(message: context.l10n.session_no_chants),
       );
     }
 
@@ -468,19 +471,25 @@ class _MalasTab extends ConsumerWidget {
       error:
           (_, __) => _RefreshableScrollBody(
             onRefresh: onRefresh,
-            child: const _SessionTabMessage(message: 'Unable to load malas'),
+            child: _SessionTabMessage(
+              message: context.l10n.session_malas_load_error,
+            ),
           ),
       data:
           (either) => either.fold(
             (_) => _RefreshableScrollBody(
               onRefresh: onRefresh,
-              child: const _SessionTabMessage(message: 'Unable to load malas'),
+              child: _SessionTabMessage(
+                message: context.l10n.session_malas_load_error,
+              ),
             ),
             (mantras) {
               if (mantras.isEmpty) {
                 return _RefreshableScrollBody(
                   onRefresh: onRefresh,
-                  child: const _SessionTabMessage(message: 'No malas found'),
+                  child: _SessionTabMessage(
+                    message: context.l10n.session_no_malas,
+                  ),
                 );
               }
 
@@ -557,19 +566,25 @@ class _TimersTab extends ConsumerWidget {
       error:
           (_, __) => _RefreshableScrollBody(
             onRefresh: onRefresh,
-            child: const _SessionTabMessage(message: 'Unable to load timers'),
+            child: _SessionTabMessage(
+              message: context.l10n.session_timers_load_error,
+            ),
           ),
       data:
           (either) => either.fold(
             (_) => _RefreshableScrollBody(
               onRefresh: onRefresh,
-              child: const _SessionTabMessage(message: 'Unable to load timers'),
+              child: _SessionTabMessage(
+                message: context.l10n.session_timers_load_error,
+              ),
             ),
             (timers) {
               if (timers.isEmpty) {
                 return _RefreshableScrollBody(
                   onRefresh: onRefresh,
-                  child: const _SessionTabMessage(message: 'No timers found'),
+                  child: _SessionTabMessage(
+                    message: context.l10n.session_no_timers,
+                  ),
                 );
               }
 

@@ -3231,6 +3231,348 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'SUN'**
   String get weekday_sunday;
+
+  /// No description provided for @reader_search_failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Search failed.\nPlease try again'**
+  String get reader_search_failed;
+
+  /// No description provided for @reader_swipe_up_for_more.
+  ///
+  /// In en, this message translates to:
+  /// **'Swipe up for more'**
+  String get reader_swipe_up_for_more;
+
+  /// No description provided for @reader_videos.
+  ///
+  /// In en, this message translates to:
+  /// **'Videos'**
+  String get reader_videos;
+
+  /// No description provided for @reader_about_this_version.
+  ///
+  /// In en, this message translates to:
+  /// **'About this version'**
+  String get reader_about_this_version;
+
+  /// No description provided for @reader_version_count.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 version} other{{count} versions}}'**
+  String reader_version_count(int count);
+
+  /// No description provided for @mala_no_mantras.
+  ///
+  /// In en, this message translates to:
+  /// **'No mantras available'**
+  String get mala_no_mantras;
+
+  /// No description provided for @mala_count_load_error.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load your count'**
+  String get mala_count_load_error;
+
+  /// No description provided for @mala_mantra_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Mantra'**
+  String get mala_mantra_label;
+
+  /// No description provided for @bookmarks_empty_all_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing bookmarked yet.'**
+  String get bookmarks_empty_all_title;
+
+  /// No description provided for @bookmarks_empty_all_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Bookmark anything to save it here.'**
+  String get bookmarks_empty_all_subtitle;
+
+  /// No description provided for @bookmarks_empty_plans_title.
+  ///
+  /// In en, this message translates to:
+  /// **'No plans bookmarked yet.'**
+  String get bookmarks_empty_plans_title;
+
+  /// No description provided for @bookmarks_empty_plans_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Bookmark a plan to save it here.'**
+  String get bookmarks_empty_plans_subtitle;
+
+  /// No description provided for @bookmarks_empty_malas_title.
+  ///
+  /// In en, this message translates to:
+  /// **'No malas bookmarked yet.'**
+  String get bookmarks_empty_malas_title;
+
+  /// No description provided for @bookmarks_empty_malas_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Bookmark a mala to save it here.'**
+  String get bookmarks_empty_malas_subtitle;
+
+  /// No description provided for @bookmarks_empty_timers_title.
+  ///
+  /// In en, this message translates to:
+  /// **'No timers bookmarked yet.'**
+  String get bookmarks_empty_timers_title;
+
+  /// No description provided for @bookmarks_empty_timers_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Bookmark a timer to save it here.'**
+  String get bookmarks_empty_timers_subtitle;
+
+  /// No description provided for @bookmarks_empty_texts_title.
+  ///
+  /// In en, this message translates to:
+  /// **'No texts bookmarked yet.'**
+  String get bookmarks_empty_texts_title;
+
+  /// No description provided for @bookmarks_empty_texts_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Bookmark a text to save it here.'**
+  String get bookmarks_empty_texts_subtitle;
+
+  /// No description provided for @bookmark_removed.
+  ///
+  /// In en, this message translates to:
+  /// **'Bookmark removed'**
+  String get bookmark_removed;
+
+  /// No description provided for @bookmark_remove_failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to remove bookmark'**
+  String get bookmark_remove_failed;
+
+  /// No description provided for @bookmark_saved.
+  ///
+  /// In en, this message translates to:
+  /// **'Bookmark saved'**
+  String get bookmark_saved;
+
+  /// No description provided for @bookmark_save_failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to save bookmark'**
+  String get bookmark_save_failed;
+
+  /// No description provided for @bookmarks_yesterday.
+  ///
+  /// In en, this message translates to:
+  /// **'Yesterday'**
+  String get bookmarks_yesterday;
+
+  /// No description provided for @webview_timeout_error.
+  ///
+  /// In en, this message translates to:
+  /// **'Page took too long to load. Please check your internet connection.'**
+  String get webview_timeout_error;
+
+  /// No description provided for @webview_load_failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load page'**
+  String get webview_load_failed;
+
+  /// No description provided for @privacy_policy_load_error.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to load the privacy policy page.'**
+  String get privacy_policy_load_error;
+
+  /// No description provided for @terms_of_service_load_error.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to load the terms of service page.'**
+  String get terms_of_service_load_error;
+
+  /// No description provided for @series_enroll_error.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to enroll in series'**
+  String get series_enroll_error;
+
+  /// No description provided for @series_share_message.
+  ///
+  /// In en, this message translates to:
+  /// **'Join me in practicing {title} on WeBuddhist.\n\n{url}'**
+  String series_share_message(String title, String url);
+
+  /// No description provided for @player_back_10.
+  ///
+  /// In en, this message translates to:
+  /// **'Back 10 seconds'**
+  String get player_back_10;
+
+  /// No description provided for @player_pause.
+  ///
+  /// In en, this message translates to:
+  /// **'Pause'**
+  String get player_pause;
+
+  /// No description provided for @player_play.
+  ///
+  /// In en, this message translates to:
+  /// **'Play'**
+  String get player_play;
+
+  /// No description provided for @player_forward_10.
+  ///
+  /// In en, this message translates to:
+  /// **'Forward 10 seconds'**
+  String get player_forward_10;
+
+  /// No description provided for @session_plans_load_error.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to load plans.\nPlease try again later.'**
+  String get session_plans_load_error;
+
+  /// No description provided for @session_chants_load_error.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to load chants'**
+  String get session_chants_load_error;
+
+  /// No description provided for @session_no_chants.
+  ///
+  /// In en, this message translates to:
+  /// **'No chants found'**
+  String get session_no_chants;
+
+  /// No description provided for @session_malas_load_error.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to load malas'**
+  String get session_malas_load_error;
+
+  /// No description provided for @session_no_malas.
+  ///
+  /// In en, this message translates to:
+  /// **'No malas found'**
+  String get session_no_malas;
+
+  /// No description provided for @session_timers_load_error.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to load timers'**
+  String get session_timers_load_error;
+
+  /// No description provided for @session_no_timers.
+  ///
+  /// In en, this message translates to:
+  /// **'No timers found'**
+  String get session_no_timers;
+
+  /// No description provided for @days_count.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 Day} other{{count} Days}}'**
+  String days_count(int count);
+
+  /// No description provided for @timer_minute_session.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes} min session'**
+  String timer_minute_session(int minutes);
+
+  /// No description provided for @ai_use_search_instead.
+  ///
+  /// In en, this message translates to:
+  /// **'Use Search Instead'**
+  String get ai_use_search_instead;
+
+  /// No description provided for @ai_mode_label.
+  ///
+  /// In en, this message translates to:
+  /// **'AI'**
+  String get ai_mode_label;
+
+  /// No description provided for @plan_day_of.
+  ///
+  /// In en, this message translates to:
+  /// **'Day {day} of {total}'**
+  String plan_day_of(int day, int total);
+
+  /// No description provided for @pagination_position.
+  ///
+  /// In en, this message translates to:
+  /// **'{current} of {total}'**
+  String pagination_position(int current, int total);
+
+  /// No description provided for @plan_shorts_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Shorts from the community'**
+  String get plan_shorts_title;
+
+  /// No description provided for @author_details_load_error.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to load author details.\nPlease try again.'**
+  String get author_details_load_error;
+
+  /// No description provided for @link_cannot_open.
+  ///
+  /// In en, this message translates to:
+  /// **'Cannot open this link'**
+  String get link_cannot_open;
+
+  /// No description provided for @link_invalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid URL'**
+  String get link_invalid;
+
+  /// No description provided for @author_no_plans.
+  ///
+  /// In en, this message translates to:
+  /// **'No plans created yet'**
+  String get author_no_plans;
+
+  /// No description provided for @author_plans_load_error.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to load plans'**
+  String get author_plans_load_error;
+
+  /// No description provided for @source_with_value.
+  ///
+  /// In en, this message translates to:
+  /// **'Source: {value}'**
+  String source_with_value(String value);
+
+  /// No description provided for @license_with_value.
+  ///
+  /// In en, this message translates to:
+  /// **'License: {value}'**
+  String license_with_value(String value);
+
+  /// No description provided for @loading_previous_pages.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading previous... ({count} pages)'**
+  String loading_previous_pages(int count);
+
+  /// No description provided for @loading_more_pages.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading more... ({count} pages)'**
+  String loading_more_pages(int count);
+
+  /// No description provided for @drag_to_resize.
+  ///
+  /// In en, this message translates to:
+  /// **'Drag to resize'**
+  String get drag_to_resize;
 }
 
 class _AppLocalizationsDelegate

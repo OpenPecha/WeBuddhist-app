@@ -1789,4 +1789,223 @@ class AppLocalizationsNe extends AppLocalizations {
 
   @override
   String get weekday_sunday => 'आइत';
+
+  @override
+  String get reader_search_failed =>
+      'खोज असफल भयो।\nकृपया पुनः प्रयास गर्नुहोस्';
+
+  @override
+  String get reader_swipe_up_for_more => 'थप हेर्न माथि स्वाइप गर्नुहोस्';
+
+  @override
+  String get reader_videos => 'भिडियोहरू';
+
+  @override
+  String get reader_about_this_version => 'यस संस्करणको बारेमा';
+
+  @override
+  String reader_version_count(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count संस्करण',
+      one: '1 संस्करण',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get mala_no_mantras => 'कुनै मन्त्र उपलब्ध छैन';
+
+  @override
+  String get mala_count_load_error => 'तपाईंको गणना लोड गर्न सकिएन';
+
+  @override
+  String get mala_mantra_label => 'मन्त्र';
+
+  @override
+  String get bookmarks_empty_all_title =>
+      'अहिलेसम्म केही पनि बुकमार्क गरिएको छैन।';
+
+  @override
+  String get bookmarks_empty_all_subtitle =>
+      'यहाँ सुरक्षित गर्न कुनै पनि कुरा बुकमार्क गर्नुहोस्।';
+
+  @override
+  String get bookmarks_empty_plans_title =>
+      'अहिलेसम्म कुनै योजना बुकमार्क गरिएको छैन।';
+
+  @override
+  String get bookmarks_empty_plans_subtitle =>
+      'यहाँ सुरक्षित गर्न कुनै योजना बुकमार्क गर्नुहोस्।';
+
+  @override
+  String get bookmarks_empty_malas_title =>
+      'अहिलेसम्म कुनै माला बुकमार्क गरिएको छैन।';
+
+  @override
+  String get bookmarks_empty_malas_subtitle =>
+      'यहाँ सुरक्षित गर्न कुनै माला बुकमार्क गर्नुहोस्।';
+
+  @override
+  String get bookmarks_empty_timers_title =>
+      'अहिलेसम्म कुनै टाइमर बुकमार्क गरिएको छैन।';
+
+  @override
+  String get bookmarks_empty_timers_subtitle =>
+      'यहाँ सुरक्षित गर्न कुनै टाइमर बुकमार्क गर्नुहोस्।';
+
+  @override
+  String get bookmarks_empty_texts_title =>
+      'अहिलेसम्म कुनै पाठ बुकमार्क गरिएको छैन।';
+
+  @override
+  String get bookmarks_empty_texts_subtitle =>
+      'यहाँ सुरक्षित गर्न कुनै पाठ बुकमार्क गर्नुहोस्।';
+
+  @override
+  String get bookmark_removed => 'बुकमार्क हटाइयो';
+
+  @override
+  String get bookmark_remove_failed => 'बुकमार्क हटाउन असफल';
+
+  @override
+  String get bookmark_saved => 'बुकमार्क सुरक्षित गरियो';
+
+  @override
+  String get bookmark_save_failed => 'बुकमार्क सुरक्षित गर्न असफल';
+
+  @override
+  String get bookmarks_yesterday => 'हिजो';
+
+  @override
+  String get webview_timeout_error =>
+      'पृष्ठ लोड हुन धेरै समय लाग्यो। कृपया आफ्नो इन्टरनेट जडान जाँच गर्नुहोस्।';
+
+  @override
+  String get webview_load_failed => 'पृष्ठ लोड गर्न असफल';
+
+  @override
+  String get privacy_policy_load_error =>
+      'गोपनीयता नीति पृष्ठ लोड गर्न असमर्थ।';
+
+  @override
+  String get terms_of_service_load_error =>
+      'सेवाका सर्तहरूको पृष्ठ लोड गर्न असमर्थ।';
+
+  @override
+  String get series_enroll_error => 'शृङ्खलामा भर्ना गर्न असफल';
+
+  @override
+  String series_share_message(String title, String url) {
+    return 'WeBuddhist मा $title अभ्यास गर्न मसँग सामेल हुनुहोस्।\n\n$url';
+  }
+
+  @override
+  String get player_back_10 => '१० सेकेन्ड पछाडि';
+
+  @override
+  String get player_pause => 'पज गर्नुहोस्';
+
+  @override
+  String get player_play => 'प्ले गर्नुहोस्';
+
+  @override
+  String get player_forward_10 => '१० सेकेन्ड अगाडि';
+
+  @override
+  String get session_plans_load_error =>
+      'योजनाहरू लोड गर्न असमर्थ।\nकृपया पछि पुनः प्रयास गर्नुहोस्।';
+
+  @override
+  String get session_chants_load_error => 'जप लोड गर्न असमर्थ';
+
+  @override
+  String get session_no_chants => 'कुनै जप फेला परेन';
+
+  @override
+  String get session_malas_load_error => 'माला लोड गर्न असमर्थ';
+
+  @override
+  String get session_no_malas => 'कुनै माला फेला परेन';
+
+  @override
+  String get session_timers_load_error => 'टाइमर लोड गर्न असमर्थ';
+
+  @override
+  String get session_no_timers => 'कुनै टाइमर फेला परेन';
+
+  @override
+  String days_count(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count दिन',
+      one: '1 दिन',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String timer_minute_session(int minutes) {
+    return '$minutes मिनेटको सत्र';
+  }
+
+  @override
+  String get ai_use_search_instead => 'बरु खोज प्रयोग गर्नुहोस्';
+
+  @override
+  String get ai_mode_label => 'AI';
+
+  @override
+  String plan_day_of(int day, int total) {
+    return 'दिन $day / $total';
+  }
+
+  @override
+  String pagination_position(int current, int total) {
+    return '$current / $total';
+  }
+
+  @override
+  String get plan_shorts_title => 'समुदायका शर्ट्स';
+
+  @override
+  String get author_details_load_error =>
+      'लेखक विवरण लोड गर्न असमर्थ।\nकृपया पुनः प्रयास गर्नुहोस्।';
+
+  @override
+  String get link_cannot_open => 'यो लिङ्क खोल्न सकिँदैन';
+
+  @override
+  String get link_invalid => 'अमान्य URL';
+
+  @override
+  String get author_no_plans => 'अहिलेसम्म कुनै योजना सिर्जना गरिएको छैन';
+
+  @override
+  String get author_plans_load_error => 'योजनाहरू लोड गर्न असमर्थ';
+
+  @override
+  String source_with_value(String value) {
+    return 'स्रोत: $value';
+  }
+
+  @override
+  String license_with_value(String value) {
+    return 'इजाजतपत्र: $value';
+  }
+
+  @override
+  String loading_previous_pages(int count) {
+    return 'अघिल्लो लोड हुँदैछ... ($count पृष्ठ)';
+  }
+
+  @override
+  String loading_more_pages(int count) {
+    return 'थप लोड हुँदैछ... ($count पृष्ठ)';
+  }
+
+  @override
+  String get drag_to_resize => 'आकार परिवर्तन गर्न तान्नुहोस्';
 }

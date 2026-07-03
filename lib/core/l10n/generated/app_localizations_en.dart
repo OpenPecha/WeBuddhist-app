@@ -1767,4 +1767,217 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get weekday_sunday => 'SUN';
+
+  @override
+  String get reader_search_failed => 'Search failed.\nPlease try again';
+
+  @override
+  String get reader_swipe_up_for_more => 'Swipe up for more';
+
+  @override
+  String get reader_videos => 'Videos';
+
+  @override
+  String get reader_about_this_version => 'About this version';
+
+  @override
+  String reader_version_count(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count versions',
+      one: '1 version',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get mala_no_mantras => 'No mantras available';
+
+  @override
+  String get mala_count_load_error => 'Could not load your count';
+
+  @override
+  String get mala_mantra_label => 'Mantra';
+
+  @override
+  String get bookmarks_empty_all_title => 'Nothing bookmarked yet.';
+
+  @override
+  String get bookmarks_empty_all_subtitle =>
+      'Bookmark anything to save it here.';
+
+  @override
+  String get bookmarks_empty_plans_title => 'No plans bookmarked yet.';
+
+  @override
+  String get bookmarks_empty_plans_subtitle =>
+      'Bookmark a plan to save it here.';
+
+  @override
+  String get bookmarks_empty_malas_title => 'No malas bookmarked yet.';
+
+  @override
+  String get bookmarks_empty_malas_subtitle =>
+      'Bookmark a mala to save it here.';
+
+  @override
+  String get bookmarks_empty_timers_title => 'No timers bookmarked yet.';
+
+  @override
+  String get bookmarks_empty_timers_subtitle =>
+      'Bookmark a timer to save it here.';
+
+  @override
+  String get bookmarks_empty_texts_title => 'No texts bookmarked yet.';
+
+  @override
+  String get bookmarks_empty_texts_subtitle =>
+      'Bookmark a text to save it here.';
+
+  @override
+  String get bookmark_removed => 'Bookmark removed';
+
+  @override
+  String get bookmark_remove_failed => 'Failed to remove bookmark';
+
+  @override
+  String get bookmark_saved => 'Bookmark saved';
+
+  @override
+  String get bookmark_save_failed => 'Failed to save bookmark';
+
+  @override
+  String get bookmarks_yesterday => 'Yesterday';
+
+  @override
+  String get webview_timeout_error =>
+      'Page took too long to load. Please check your internet connection.';
+
+  @override
+  String get webview_load_failed => 'Failed to load page';
+
+  @override
+  String get privacy_policy_load_error =>
+      'Unable to load the privacy policy page.';
+
+  @override
+  String get terms_of_service_load_error =>
+      'Unable to load the terms of service page.';
+
+  @override
+  String get series_enroll_error => 'Failed to enroll in series';
+
+  @override
+  String series_share_message(String title, String url) {
+    return 'Join me in practicing $title on WeBuddhist.\n\n$url';
+  }
+
+  @override
+  String get player_back_10 => 'Back 10 seconds';
+
+  @override
+  String get player_pause => 'Pause';
+
+  @override
+  String get player_play => 'Play';
+
+  @override
+  String get player_forward_10 => 'Forward 10 seconds';
+
+  @override
+  String get session_plans_load_error =>
+      'Unable to load plans.\nPlease try again later.';
+
+  @override
+  String get session_chants_load_error => 'Unable to load chants';
+
+  @override
+  String get session_no_chants => 'No chants found';
+
+  @override
+  String get session_malas_load_error => 'Unable to load malas';
+
+  @override
+  String get session_no_malas => 'No malas found';
+
+  @override
+  String get session_timers_load_error => 'Unable to load timers';
+
+  @override
+  String get session_no_timers => 'No timers found';
+
+  @override
+  String days_count(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Days',
+      one: '1 Day',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String timer_minute_session(int minutes) {
+    return '$minutes min session';
+  }
+
+  @override
+  String get ai_use_search_instead => 'Use Search Instead';
+
+  @override
+  String get ai_mode_label => 'AI';
+
+  @override
+  String plan_day_of(int day, int total) {
+    return 'Day $day of $total';
+  }
+
+  @override
+  String pagination_position(int current, int total) {
+    return '$current of $total';
+  }
+
+  @override
+  String get plan_shorts_title => 'Shorts from the community';
+
+  @override
+  String get author_details_load_error =>
+      'Unable to load author details.\nPlease try again.';
+
+  @override
+  String get link_cannot_open => 'Cannot open this link';
+
+  @override
+  String get link_invalid => 'Invalid URL';
+
+  @override
+  String get author_no_plans => 'No plans created yet';
+
+  @override
+  String get author_plans_load_error => 'Unable to load plans';
+
+  @override
+  String source_with_value(String value) {
+    return 'Source: $value';
+  }
+
+  @override
+  String license_with_value(String value) {
+    return 'License: $value';
+  }
+
+  @override
+  String loading_previous_pages(int count) {
+    return 'Loading previous... ($count pages)';
+  }
+
+  @override
+  String loading_more_pages(int count) {
+    return 'Loading more... ($count pages)';
+  }
+
+  @override
+  String get drag_to_resize => 'Drag to resize';
 }

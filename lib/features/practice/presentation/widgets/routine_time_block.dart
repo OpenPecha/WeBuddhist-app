@@ -4,6 +4,7 @@ import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/features/practice/data/models/routine_model.dart';
+import 'package:flutter_pecha/features/practice/data/utils/routine_item_display.dart';
 import 'package:flutter_pecha/features/practice/data/utils/routine_time_utils.dart';
 import 'package:flutter_pecha/core/widgets/destructive_confirmation_dialog.dart';
 import 'package:flutter_pecha/features/practice/presentation/widgets/routine_item_card.dart';
@@ -37,7 +38,9 @@ class RoutineTimeBlock extends StatelessWidget {
     final confirmed = await showDestructiveConfirmationDialog(
       context,
       title: l10n.removeItem,
-      message: l10n.removeConfirmation(items[index].title),
+      message: l10n.removeConfirmation(
+        routineItemDisplayTitle(items[index], l10n),
+      ),
     );
     if (confirmed == true) {
       onDeleteItem(index);
@@ -147,7 +150,10 @@ class RoutineTimeBlock extends StatelessWidget {
                         child: Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 12),
                           child: RoutineItemCard(
-                            title: item.title,
+                            title: routineItemDisplayTitle(
+                              item,
+                              context.l10n,
+                            ),
                             coverImage: item.coverImage,
                             type: item.type,
                             reorderIndex: i,

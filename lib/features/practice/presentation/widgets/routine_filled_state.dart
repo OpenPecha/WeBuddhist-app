@@ -9,6 +9,7 @@ import 'package:flutter_pecha/features/plans/data/utils/plan_utils.dart';
 import 'package:flutter_pecha/features/plans/presentation/providers/use_case_providers.dart';
 import 'package:flutter_pecha/features/plans/presentation/providers/user_plans_provider.dart';
 import 'package:flutter_pecha/features/practice/data/models/routine_model.dart';
+import 'package:flutter_pecha/features/practice/data/utils/routine_item_display.dart';
 import 'package:flutter_pecha/features/practice/presentation/providers/routine_api_providers.dart';
 import 'package:flutter_pecha/features/practice/presentation/widgets/routine_item_card.dart';
 import 'package:flutter_pecha/features/reader/data/models/navigation_context.dart';
@@ -333,10 +334,7 @@ class _RoutineBlockSection extends ConsumerWidget {
       return;
     }
 
-    final name =
-        item.title.isNotEmpty
-            ? item.title
-            : '${durationMs ~/ 60000} min session';
+    final name = routineItemDisplayTitle(item, context.l10n);
     context.push(
       '/home/timers/active',
       extra: PresetTimer(id: item.id, name: name, durationMs: durationMs),
@@ -434,7 +432,7 @@ class _RoutineBlockSection extends ConsumerWidget {
 
   Widget _buildItemCard(BuildContext context, WidgetRef ref, RoutineItem item) {
     return RoutineItemCard(
-      title: item.title,
+      title: routineItemDisplayTitle(item, context.l10n),
       coverImage: item.coverImage,
       type: item.type,
       planTitle: item.currentPlanTitle,

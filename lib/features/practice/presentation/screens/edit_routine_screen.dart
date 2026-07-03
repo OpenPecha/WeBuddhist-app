@@ -224,7 +224,7 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
 
   RoutineItem _routineItemFromTimer(PresetTimer timer) => RoutineItem(
     id: _uuid.v4(),
-    title: '${timer.displayMinutes} min session',
+    title: '',
     type: RoutineItemType.timer,
     durationMs: timer.durationMs,
   );
@@ -1288,7 +1288,7 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
         final message =
             state is SeriesEnrollmentFailure
                 ? state.failure.message
-                : 'Failed to enroll in series';
+                : AppLocalizations.of(context)!.series_enroll_error;
         _showErrorSnackBar(message);
         return;
       }

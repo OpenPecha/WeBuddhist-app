@@ -20,7 +20,6 @@ import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_pecha/features/plans/data/utils/plan_date_format.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -833,7 +832,7 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
     final message =
         state is SeriesEnrollmentFailure
             ? state.failure.message
-            : 'Failed to enroll in series';
+            : context.l10n.series_enroll_error;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(message), backgroundColor: Colors.red),
     );

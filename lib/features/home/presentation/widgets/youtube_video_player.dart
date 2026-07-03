@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_pecha/core/constants/app_assets.dart';
+import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 import '../../../../shared/widgets/reusable_youtube_player.dart';
 
@@ -159,7 +160,7 @@ class _YoutubeVideoPlayerState extends State<YoutubeVideoPlayer> {
                   children: [
                     _PlaybackControlButton(
                       icon: Icons.replay_10_rounded,
-                      label: 'Back 10 seconds',
+                      label: context.l10n.player_back_10,
                       onPressed:
                           _isReady
                               ? () {
@@ -174,14 +175,14 @@ class _YoutubeVideoPlayerState extends State<YoutubeVideoPlayer> {
                           _isPlaying
                               ? Icons.pause_rounded
                               : Icons.play_arrow_rounded,
-                      label: _isPlaying ? 'Pause' : 'Play',
+                      label: _isPlaying ? context.l10n.player_pause : context.l10n.player_play,
                       size: 45,
                       onPressed: _isReady ? _togglePlayPause : null,
                     ),
                     const SizedBox(width: 20),
                     _PlaybackControlButton(
                       icon: Icons.forward_10_rounded,
-                      label: 'Forward 10 seconds',
+                      label: context.l10n.player_forward_10,
                       onPressed:
                           _isReady
                               ? () {

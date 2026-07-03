@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/features/notifications/application/notification_sync_engine.dart';
 import 'package:flutter_pecha/features/notifications/data/notification_id_scheme.dart';
 import 'package:flutter_pecha/features/notifications/data/services/notification_service.dart';
@@ -24,6 +25,7 @@ void main() {
   // The engine instance is only used to invoke the pure compute helpers;
   // its plugin/service dependencies are never touched on this path.
   late NotificationSyncEngine engine;
+  final l10n = lookupAppLocalizations(const Locale('en'));
 
   setUp(() {
     final container = ProviderContainer();
@@ -359,6 +361,7 @@ void main() {
         DateTime(2026, 6, 5, 6),
         masterOn: true,
         recitationOn: true,
+        l10n: l10n,
       );
       expect(entries, hasLength(1));
       expect(entries.first.isDailyRepeat, isTrue);
@@ -377,6 +380,7 @@ void main() {
         DateTime(2026, 6, 5, 6),
         masterOn: true,
         recitationOn: false,
+        l10n: l10n,
       );
       expect(entries, isEmpty);
     });

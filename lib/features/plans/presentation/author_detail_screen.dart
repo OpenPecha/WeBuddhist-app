@@ -46,8 +46,7 @@ class AuthorDetailScreen extends ConsumerWidget {
             (authorEither) => authorEither.fold(
               (failure) => ErrorStateWidget(
                 error: failure,
-                customMessage:
-                    'Unable to load author details.\nPlease try again.',
+                customMessage: context.l10n.author_details_load_error,
                 onRetry: () {
                   ref.invalidate(authorByIdFutureProvider(authorId));
                 },
@@ -58,8 +57,7 @@ class AuthorDetailScreen extends ConsumerWidget {
         error:
             (error, stackTrace) => ErrorStateWidget(
               error: error,
-              customMessage:
-                  'Unable to load author details.\nPlease try again.',
+              customMessage: context.l10n.author_details_load_error,
               onRetry: () {
                 ref.invalidate(authorByIdFutureProvider(authorId));
               },
@@ -202,12 +200,12 @@ class AuthorDetailScreen extends ConsumerWidget {
         await launchUrl(uri, mode: LaunchMode.externalApplication);
       } else {
         if (context.mounted) {
-          _showErrorSnackBar(context, 'Cannot open this link');
+          _showErrorSnackBar(context, context.l10n.link_cannot_open);
         }
       }
     } catch (e) {
       if (context.mounted) {
-        _showErrorSnackBar(context, 'Invalid URL format');
+        _showErrorSnackBar(context, context.l10n.link_invalid);
       }
     }
   }
@@ -310,7 +308,7 @@ class AuthorDetailScreen extends ConsumerWidget {
             ),
             const SizedBox(height: 16),
             Text(
-              'No plans created yet',
+              context.l10n.author_no_plans,
               style: TextStyle(fontSize: 16, color: Colors.grey[600]),
             ),
           ],
@@ -333,7 +331,7 @@ class AuthorDetailScreen extends ConsumerWidget {
             Icon(Icons.error_outline, size: 48, color: Colors.grey[400]),
             const SizedBox(height: 16),
             Text(
-              'Unable to load plans',
+              context.l10n.author_plans_load_error,
               style: TextStyle(fontSize: 16, color: Colors.grey[600]),
             ),
             const SizedBox(height: 16),
