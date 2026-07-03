@@ -106,8 +106,8 @@ class _MalaScreenState extends ConsumerState<MalaScreen> {
 
   Widget _buildLoaded(BuildContext context, List<Mantra> mantras) {
     if (mantras.isEmpty) {
-      return const _MalaAppBarScaffold(
-        child: Center(child: Text('No mantras available')),
+      return _MalaAppBarScaffold(
+        child: Center(child: Text(context.l10n.mala_no_mantras)),
       );
     }
 
@@ -248,7 +248,7 @@ class _MalaScreenState extends ConsumerState<MalaScreen> {
                           child:
                               counter.seedFailed
                                   ? _ErrorView(
-                                    message: 'Could not load your count',
+                                    message: context.l10n.mala_count_load_error,
                                     onRetry: notifier.seed,
                                   )
                                   : MalaBeads(
@@ -415,9 +415,9 @@ class _ErrorView extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(message ?? 'Something went wrong'),
+          Text(message ?? context.l10n.something_went_wrong),
           const SizedBox(height: 12),
-          FilledButton(onPressed: onRetry, child: const Text('Retry')),
+          FilledButton(onPressed: onRetry, child: Text(context.l10n.retry)),
         ],
       ),
     );

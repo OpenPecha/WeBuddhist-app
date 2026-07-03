@@ -7,10 +7,16 @@ class NotificationNav {
   /// Active plan id for series notifications (opens today's plan day).
   final String? planId;
 
+  /// Timer duration (ms) embedded in the notification payload, so a timer tap
+  /// can open the timer without re-resolving the (possibly stale or not-yet-
+  /// loaded) routine item. Null for non-timer notifications.
+  final int? durationMs;
+
   const NotificationNav({
     required this.itemId,
     required this.itemType,
     this.planId,
+    this.durationMs,
   });
 }
 

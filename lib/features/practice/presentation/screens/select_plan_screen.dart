@@ -102,7 +102,7 @@ class _SelectPlanScreenState extends ConsumerState<SelectPlanScreen> {
       return ErrorStateWidget(
         error: plansState.error!,
         onRetry: () => ref.read(findPlansPaginatedProvider.notifier).retry(),
-        customMessage: 'Unable to load plans.\nPlease try again later.',
+        customMessage: AppLocalizations.of(context)!.session_plans_load_error,
       );
     }
 
@@ -137,7 +137,7 @@ class _SelectPlanScreenState extends ConsumerState<SelectPlanScreen> {
         final plan = plansState.plans[index];
         return _SelectablePlanCard(
           title: plan.title,
-          subtitle: '${plan.totalDays} Days',
+          subtitle: AppLocalizations.of(context)!.days_count(plan.totalDays),
           coverImage: plan.coverImage,
           onTap: () => Navigator.of(context).pop(plan),
         );

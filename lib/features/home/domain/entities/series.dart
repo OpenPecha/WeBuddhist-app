@@ -23,6 +23,29 @@ class SeriesGroup {
   });
 }
 
+class SeriesProgress {
+  final int totalDayCount;
+  final int currentDayNumber;
+
+  const SeriesProgress({
+    required this.totalDayCount,
+    required this.currentDayNumber,
+  });
+
+  /// 0..1 completion ratio, safe against zero/overflowing day counts.
+  double get fraction {
+    if (totalDayCount <= 0) return 0;
+    return (currentDayNumber / totalDayCount).clamp(0.0, 1.0);
+  }
+}
+
+class SeriesPartner {
+  final String groupName;
+  final String? groupImage;
+
+  const SeriesPartner({required this.groupName, this.groupImage});
+}
+
 class Series {
   final String id;
   final String title;
@@ -37,6 +60,8 @@ class Series {
   final DateTime? endDate;
   final List<Plan> plans;
   final SeriesGroup? group;
+  final SeriesProgress? progress;
+  final SeriesPartner? partner;
 
   const Series({
     required this.id,
@@ -52,6 +77,8 @@ class Series {
     this.endDate,
     this.plans = const [],
     this.group,
+    this.progress,
+    this.partner,
   });
 
   /// Smallest cover URL — legacy string-only callers.

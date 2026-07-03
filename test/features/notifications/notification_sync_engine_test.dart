@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/features/notifications/application/notification_sync_engine.dart';
 import 'package:flutter_pecha/features/notifications/data/notification_id_scheme.dart';
 import 'package:flutter_pecha/features/notifications/data/services/notification_service.dart';
@@ -24,6 +25,7 @@ void main() {
   // The engine instance is only used to invoke the pure compute helpers;
   // its plugin/service dependencies are never touched on this path.
   late NotificationSyncEngine engine;
+  final l10n = lookupAppLocalizations(const Locale('en'));
 
   setUp(() {
     final container = ProviderContainer();
@@ -138,12 +140,13 @@ void main() {
       );
       expect(entries, isNotEmpty);
       expect(entries.every((e) => e.fireAt != null), isTrue);
-      expect(entries.every((e) => !e.isImmediate), isTrue);
     });
   });
 
   group('case 3b: plan in progress', () {
-    test('emits an immediate when today block-time has already passed', () {
+    test(
+        'emits nothing for today once its block-time has passed '
+        '(no catch-up, no backfill)', () {
       final entries = engine.computeForPlanBlock(
         planBlock(hour: 7, minute: 0),
         planItem('plan-1'),
@@ -151,17 +154,22 @@ void main() {
           startedAt: DateTime(2026, 6, 1),
           totalDays: 30,
         ),
-        // 09:00 — past the 07:00 block time
+        // 09:00 — past the 07:00 block time. Today gets nothing at all.
         DateTime(2026, 6, 5, 9),
         masterOn: true,
         routineOn: true,
       );
-      final immediates = entries.where((e) => e.isImmediate).toList();
-      expect(immediates, hasLength(1));
-      expect(immediates.first.debugCase, contains('3b'));
+      expect(
+        entries.any((e) =>
+            e.fireAt != null && e.fireAt!.month == 6 && e.fireAt!.day == 5),
+        isFalse,
+      );
+      // Future days must still be scheduled — only today is skipped.
+      expect(entries, isNotEmpty);
+      expect(entries.every((e) => e.fireAt != null), isTrue);
     });
 
-    test('no immediate when today block-time has not yet passed', () {
+    test('schedules today normally when block-time has not yet passed', () {
       final entries = engine.computeForPlanBlock(
         planBlock(hour: 9, minute: 0),
         planItem('plan-1'),
@@ -173,16 +181,18 @@ void main() {
         masterOn: true,
         routineOn: true,
       );
-      expect(entries.any((e) => e.isImmediate), isFalse);
+      expect(
+        entries.any((e) =>
+            e.fireAt != null && e.fireAt!.month == 6 && e.fireAt!.day == 5),
+        isTrue,
+      );
     });
 
     test(
-        'explicit re-add with a later time today re-arms today\'s entry '
-        '(deliberately scheduled fires are always honored) but never emits '
-        'a catch-up', () {
+        'explicit re-add with a later time today fires today at that time '
+        '(deliberately scheduled fires are always honored)', () {
       final entries = engine.computeForPlanBlock(
-        // Block re-created at 16:00 after today's notification already
-        // fired at an earlier time (marker present).
+        // Block re-created at 16:00, later than the (already-passed) old time.
         planBlock(hour: 16, minute: 0),
         planItem('plan-1'),
         makePlan(
@@ -192,11 +202,8 @@ void main() {
         DateTime(2026, 6, 5, 15, 36),
         masterOn: true,
         routineOn: true,
-        seriesScheduledTodayByOS: true,
       );
-      // No instant duplicate of already-received content…
-      expect(entries.any((e) => e.isImmediate), isFalse);
-      // …but the user's explicit 16:00 choice fires today at 16:00.
+      // The user's explicit 16:00 choice fires today at 16:00.
       expect(
         entries.any((e) =>
             e.fireAt != null &&
@@ -213,28 +220,6 @@ void main() {
             e.fireAt!.day == 6),
         isTrue,
       );
-    });
-
-    test(
-        'no immediate when the OS already owned today\'s delivery '
-        '(background-fired notification must not duplicate on app open)', () {
-      final entries = engine.computeForPlanBlock(
-        planBlock(hour: 7, minute: 0),
-        planItem('plan-1'),
-        makePlan(
-          startedAt: DateTime(2026, 6, 1),
-          totalDays: 30,
-        ),
-        // 09:00 — past the 07:00 block time, normally triggers a catch-up.
-        DateTime(2026, 6, 5, 9),
-        masterOn: true,
-        routineOn: true,
-        seriesScheduledTodayByOS: true,
-      );
-      expect(entries.any((e) => e.isImmediate), isFalse);
-      // Future days must still be scheduled — only the catch-up is suppressed.
-      expect(entries, isNotEmpty);
-      expect(entries.every((e) => e.fireAt != null), isTrue);
     });
   });
 
@@ -335,7 +320,9 @@ void main() {
       );
     });
 
-    test('immediate catch-up uses today active plan day', () {
+    test(
+        'emits nothing for today once its block-time has passed '
+        '(no catch-up, no backfill)', () {
       final entries = engine.computeForSeriesBlock(
         planBlock(hour: 7),
         seriesItem(currentPlanId: 'plan-1'),
@@ -350,9 +337,12 @@ void main() {
         masterOn: true,
         routineOn: true,
       );
-      final immediates = entries.where((e) => e.isImmediate).toList();
-      expect(immediates, hasLength(1));
-      expect(immediates.first.body, contains('Day 5'));
+      expect(
+        entries.any((e) =>
+            e.fireAt != null && e.fireAt!.month == 6 && e.fireAt!.day == 5),
+        isFalse,
+      );
+      expect(entries.every((e) => e.fireAt != null), isTrue);
     });
   });
 
@@ -371,6 +361,7 @@ void main() {
         DateTime(2026, 6, 5, 6),
         masterOn: true,
         recitationOn: true,
+        l10n: l10n,
       );
       expect(entries, hasLength(1));
       expect(entries.first.isDailyRepeat, isTrue);
@@ -389,6 +380,167 @@ void main() {
         DateTime(2026, 6, 5, 6),
         masterOn: true,
         recitationOn: false,
+        l10n: l10n,
+      );
+      expect(entries, isEmpty);
+    });
+  });
+
+  group('case 4: mala (accumulator) daily-repeat', () {
+    RoutineItem malaItem({String id = 'm-1', String title = 'Om Mani Padme Hum'}) =>
+        RoutineItem(id: id, title: title, type: RoutineItemType.accumulator);
+
+    test('emits a single repeating notification using the mala title', () {
+      final entries = engine.computeForAccumulatorBlock(
+        RoutineBlock(
+          id: 'mala-1',
+          time: const TimeOfDay(hour: 8, minute: 30),
+          notificationEnabled: true,
+          items: [malaItem()],
+          notificationId: 5555,
+        ),
+        DateTime(2026, 6, 5, 6),
+        masterOn: true,
+        practiceOn: true,
+      );
+      expect(entries, hasLength(1));
+      expect(entries.first.isDailyRepeat, isTrue);
+      expect(entries.first.title, 'Om Mani Padme Hum');
+      expect(entries.first.id, NotificationIdScheme.accumulatorBlockId(5555));
+      expect(entries.first.debugCase, contains('4'));
+    });
+
+    test('emits nothing when practice sub-toggle OFF', () {
+      final entries = engine.computeForAccumulatorBlock(
+        RoutineBlock(
+          id: 'mala-1',
+          time: const TimeOfDay(hour: 8, minute: 30),
+          notificationEnabled: true,
+          items: [malaItem()],
+          notificationId: 5555,
+        ),
+        DateTime(2026, 6, 5, 6),
+        masterOn: true,
+        practiceOn: false,
+      );
+      expect(entries, isEmpty);
+    });
+
+    test('ignores non-accumulator items in the block', () {
+      final entries = engine.computeForAccumulatorBlock(
+        RoutineBlock(
+          id: 'mala-1',
+          time: const TimeOfDay(hour: 8, minute: 30),
+          notificationEnabled: true,
+          items: [recitationItem()],
+          notificationId: 5555,
+        ),
+        DateTime(2026, 6, 5, 6),
+        masterOn: true,
+        practiceOn: true,
+      );
+      expect(entries, isEmpty);
+    });
+  });
+
+  group('case 4: timer daily-repeat (start reminder only)', () {
+    RoutineItem timerItem({
+      String id = 't-1',
+      String title = 'Meditation',
+      int? durationMs = 1800000, // 30 min
+    }) =>
+        RoutineItem(
+          id: id,
+          title: title,
+          type: RoutineItemType.timer,
+          durationMs: durationMs,
+        );
+
+    RoutineBlock timerBlock({
+      List<RoutineItem>? items,
+      int hour = 8,
+      int minute = 30,
+    }) =>
+        RoutineBlock(
+          id: 'timer-1',
+          time: TimeOfDay(hour: hour, minute: minute),
+          notificationEnabled: true,
+          items: items ?? [timerItem()],
+          notificationId: 5555,
+        );
+
+    test('emits a single "starting now" start reminder', () {
+      final entries = engine.computeForTimerBlock(
+        timerBlock(),
+        DateTime(2026, 6, 5, 6),
+        masterOn: true,
+        timerOn: true,
+      );
+      expect(entries, hasLength(1));
+
+      final start = entries.single;
+      expect(start.id, NotificationIdScheme.timerStartId(5555));
+      expect(start.isDailyRepeat, isTrue);
+      expect(start.title, 'Meditation');
+      expect(start.body, contains('30 minutes'));
+      // Payload embeds the duration so a tap can open the timer without
+      // re-resolving the routine item.
+      expect(start.payload, contains('durationMs'));
+      // Fires at block time.
+      expect(start.fireAt!.hour, 8);
+      expect(start.fireAt!.minute, 30);
+    });
+
+    test('rolls the reminder to next day when block time already passed', () {
+      final entries = engine.computeForTimerBlock(
+        timerBlock(),
+        DateTime(2026, 6, 5, 10), // 10:00, block 8:30 already passed
+        masterOn: true,
+        timerOn: true,
+      );
+      expect(entries, hasLength(1));
+      expect(entries[0].fireAt!.day, 6); // start → tomorrow
+      expect(entries[0].fireAt!.hour, 8);
+    });
+
+    test('emits nothing when master OFF', () {
+      final entries = engine.computeForTimerBlock(
+        timerBlock(),
+        DateTime(2026, 6, 5, 6),
+        masterOn: false,
+        timerOn: true,
+      );
+      expect(entries, isEmpty);
+    });
+
+    test('emits nothing when timer sub-toggle OFF', () {
+      final entries = engine.computeForTimerBlock(
+        timerBlock(),
+        DateTime(2026, 6, 5, 6),
+        masterOn: true,
+        timerOn: false,
+      );
+      expect(entries, isEmpty);
+    });
+
+    test('emits nothing when duration is null or non-positive', () {
+      for (final bad in <int?>[null, 0, -1]) {
+        final entries = engine.computeForTimerBlock(
+          timerBlock(items: [timerItem(durationMs: bad)]),
+          DateTime(2026, 6, 5, 6),
+          masterOn: true,
+          timerOn: true,
+        );
+        expect(entries, isEmpty, reason: 'durationMs=$bad');
+      }
+    });
+
+    test('ignores non-timer items in the block', () {
+      final entries = engine.computeForTimerBlock(
+        timerBlock(items: [recitationItem()]),
+        DateTime(2026, 6, 5, 6),
+        masterOn: true,
+        timerOn: true,
       );
       expect(entries, isEmpty);
     });
@@ -404,8 +556,42 @@ void main() {
       expect(NotificationIdScheme.isOurs(9999), isTrue); // diagnostic
       expect(NotificationIdScheme.isOurs(9000000), isTrue); // plan one-shot
       expect(NotificationIdScheme.isOurs(10000000), isTrue); // plan series
+      expect(NotificationIdScheme.isOurs(20000000), isTrue); // accumulator block
+      expect(NotificationIdScheme.isOurs(21000000), isTrue); // timer start
       expect(NotificationIdScheme.isOurs(50), isFalse); // system range
-      expect(NotificationIdScheme.isOurs(20000000), isFalse); // outside
+      expect(NotificationIdScheme.isOurs(30000000), isFalse); // outside
+    });
+
+    test('isRoutineDailyRepeat covers recitation + mala + timer ranges only', () {
+      expect(NotificationIdScheme.isRoutineDailyRepeat(5555), isTrue); // recitation block
+      expect(
+        NotificationIdScheme.isRoutineDailyRepeat(
+          NotificationIdScheme.accumulatorBlockId(5555),
+        ),
+        isTrue, // mala block
+      );
+      expect(
+        NotificationIdScheme.isRoutineDailyRepeat(
+          NotificationIdScheme.timerStartId(5555),
+        ),
+        isTrue, // timer start
+      );
+      expect(NotificationIdScheme.isRoutineDailyRepeat(9000000), isFalse); // plan one-shot
+      expect(NotificationIdScheme.isRoutineDailyRepeat(10000000), isFalse); // plan series
+      expect(NotificationIdScheme.isRoutineDailyRepeat(810), isFalse); // special series
+    });
+
+    test('accumulator + timer block ids are distinct from each other', () {
+      // A block holding a recitation (notificationId), a mala
+      // (accumulatorBlockId), and a timer (timerStartId) must produce three
+      // non-colliding IDs.
+      const blockId = 5555;
+      final malaId = NotificationIdScheme.accumulatorBlockId(blockId);
+      final timerStart = NotificationIdScheme.timerStartId(blockId);
+      final ids = {blockId, malaId, timerStart};
+      expect(ids, hasLength(3)); // all distinct
+      expect(NotificationIdScheme.isOurs(malaId), isTrue);
+      expect(NotificationIdScheme.isOurs(timerStart), isTrue);
     });
 
     test('special-plan series uses fixed slot per planId', () {

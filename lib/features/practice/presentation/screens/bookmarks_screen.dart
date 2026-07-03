@@ -37,12 +37,27 @@ class _BookmarksScreenState extends ConsumerState<BookmarksScreen>
     BookmarkTab.texts,
   ];
 
-  static const _emptyMessages = [
-    ('Nothing bookmarked yet.', 'Bookmark anything to save it here.'),
-    ('No plans bookmarked yet.', 'Bookmark a plan to save it here.'),
-    ('No malas bookmarked yet.', 'Bookmark a mala to save it here.'),
-    ('No timers bookmarked yet.', 'Bookmark a timer to save it here.'),
-    ('No texts bookmarked yet.', 'Bookmark a text to save it here.'),
+  List<(String, String)> _emptyMessages(BuildContext context) => [
+    (
+      context.l10n.bookmarks_empty_all_title,
+      context.l10n.bookmarks_empty_all_subtitle,
+    ),
+    (
+      context.l10n.bookmarks_empty_plans_title,
+      context.l10n.bookmarks_empty_plans_subtitle,
+    ),
+    (
+      context.l10n.bookmarks_empty_malas_title,
+      context.l10n.bookmarks_empty_malas_subtitle,
+    ),
+    (
+      context.l10n.bookmarks_empty_timers_title,
+      context.l10n.bookmarks_empty_timers_subtitle,
+    ),
+    (
+      context.l10n.bookmarks_empty_texts_title,
+      context.l10n.bookmarks_empty_texts_subtitle,
+    ),
   ];
 
   @override
@@ -72,7 +87,9 @@ class _BookmarksScreenState extends ConsumerState<BookmarksScreen>
     }
     messenger.showSnackBar(
       SnackBar(
-        content: Text(ok ? 'Bookmark removed' : 'Failed to remove bookmark'),
+        content: Text(
+          ok ? context.l10n.bookmark_removed : context.l10n.bookmark_remove_failed,
+        ),
         duration: const Duration(seconds: 2),
       ),
     );
@@ -121,6 +138,7 @@ class _BookmarksScreenState extends ConsumerState<BookmarksScreen>
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     final state = ref.watch(bookmarksProvider);
+    final emptyMessages = _emptyMessages(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -143,7 +161,7 @@ class _BookmarksScreenState extends ConsumerState<BookmarksScreen>
           (i) => _BookmarkTabView(
             state: state,
             tab: _tabs[i],
-            emptyMessage: _emptyMessages[i],
+            emptyMessage: emptyMessages[i],
             isDark: isDark,
             onRefresh: () => ref.read(bookmarksProvider.notifier).refresh(),
             onRetry: () => ref.read(bookmarksProvider.notifier).load(),
@@ -261,16 +279,19 @@ class _BookmarkTabView extends StatelessWidget {
       child: ListView(
         physics: const AlwaysScrollableScrollPhysics(),
         padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
-        children: _buildGroupedChildren(items),
+        children: _buildGroupedChildren(context, items),
       ),
     );
   }
 
-  List<Widget> _buildGroupedChildren(List<BookmarkDTO> items) {
+  List<Widget> _buildGroupedChildren(
+    BuildContext context,
+    List<BookmarkDTO> items,
+  ) {
     final children = <Widget>[];
     String? lastHeader;
     for (final bookmark in items) {
-      final header = _sectionLabel(bookmark.createdAt);
+      final header = _sectionLabel(context, bookmark.createdAt);
       if (header != lastHeader) {
         children.add(
           _SectionHeader(label: header, isDark: isDark, isFirst: lastHeader == null),
@@ -288,12 +309,12 @@ class _BookmarkTabView extends StatelessWidget {
     return children;
   }
 
-  static String _sectionLabel(DateTime created) {
+  static String _sectionLabel(BuildContext context, DateTime created) {
     final today = DateUtils.dateOnly(DateTime.now());
     final day = DateUtils.dateOnly(created);
     final diff = today.difference(day).inDays;
-    if (diff <= 0) return 'Today';
-    if (diff == 1) return 'Yesterday';
+    if (diff <= 0) return context.l10n.home_today;
+    if (diff == 1) return context.l10n.bookmarks_yesterday;
     if (today.year == created.year) return DateFormat('MMM d').format(created);
     return DateFormat('MMM d, y').format(created);
   }
@@ -349,7 +370,7 @@ class _BookmarkErrorState extends StatelessWidget {
               style: TextStyle(fontSize: 15, color: textColor, height: 1.5),
             ),
             const SizedBox(height: 16),
-            TextButton(onPressed: onRetry, child: const Text('Retry')),
+            TextButton(onPressed: onRetry, child: Text(context.l10n.retry)),
           ],
         ),
       ),

@@ -295,7 +295,7 @@ class _PlanPreviewDetailsState extends ConsumerState<PlanPreviewDetails> {
     return Align(
       alignment: Alignment.topLeft,
       child: Text(
-        "Days $day of ${widget.plan.totalDays}",
+        context.l10n.plan_day_of(day, widget.plan.totalDays),
         style: const TextStyle(
           fontSize: 18,
           fontWeight: FontWeight.bold,

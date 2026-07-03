@@ -211,6 +211,8 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
       id: recitation.textId,
       title: recitation.title,
       type: RoutineItemType.recitation,
+      language: recitation.language,
+      firstSegment: recitation.firstSegment,
     );
 
     final resolved = _resolveInjectionTarget();
@@ -224,7 +226,7 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
 
   RoutineItem _routineItemFromTimer(PresetTimer timer) => RoutineItem(
     id: _uuid.v4(),
-    title: '${timer.displayMinutes} min session',
+    title: '',
     type: RoutineItemType.timer,
     durationMs: timer.durationMs,
   );
@@ -1188,6 +1190,8 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
       id: recitation.textId,
       title: recitation.title,
       type: RoutineItemType.recitation,
+      language: recitation.language,
+      firstSegment: recitation.firstSegment,
     );
     setState(() => block.items.add(newItem));
 
@@ -1288,7 +1292,7 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
         final message =
             state is SeriesEnrollmentFailure
                 ? state.failure.message
-                : 'Failed to enroll in series';
+                : AppLocalizations.of(context)!.series_enroll_error;
         _showErrorSnackBar(message);
         return;
       }

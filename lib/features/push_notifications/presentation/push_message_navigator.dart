@@ -58,16 +58,24 @@ class PushMessageNavigator {
 
     switch (sessionType) {
       case PushSessionType.plan when sourceId.isNotEmpty:
-        // Reuse the routine deep-link flow: land on the Practice tab and let
-        // RoutineFilledState resolve the enrolled plan + current day and push
-        // /practice/details once plan data has loaded. This handles cold start
-        // gracefully (no plan data yet) exactly like a routine notification.
+        // For PLAN pushes the backend sends `source_id` = the enrolled plan id,
+        // For PLAN pushes the backend sends `source_id` = the enrolled plan id,
+        // so it maps straight onto NotificationNav.planId (same field local
+        // routine notifications use). RoutineFilledState then resolves the plan
+        // + current day and pushes /practice/details. That widget only mounts
+        // on the My Practices screen (the Practice *tab* shows the explore
+        // screen, which doesn't consume the pending nav), so go there after
+        // seeding it.
         _ref.read(pendingNotificationNavProvider.notifier).state =
             NotificationNav(
               itemId: sourceId,
               itemType: RoutineItemType.series.name,
+              planId: sourceId,
             );
-        _openPracticeTab(router);
+        _ref.read(mainNavigationIndexProvider.notifier).state =
+            MainTab.practice.index;
+        router.go(AppRoutes.home);
+        router.push(AppRoutes.practiceMyPractices);
 
       case PushSessionType.series when sourceId.isNotEmpty:
         // Series detail accepts a null series object and fetches by id.

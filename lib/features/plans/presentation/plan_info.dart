@@ -115,7 +115,7 @@ class _PlanInfoState extends ConsumerState<PlanInfo> {
                 ),
                 SizedBox(height: 4),
                 Text(
-                  '${widget.plan.totalDays} Days',
+                  context.l10n.days_count(widget.plan.totalDays),
                   style: context.languageTextStyle(
                     language,
                     fontWeight: FontWeight.w500,

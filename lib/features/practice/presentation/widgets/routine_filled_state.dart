@@ -9,7 +9,9 @@ import 'package:flutter_pecha/features/plans/data/utils/plan_utils.dart';
 import 'package:flutter_pecha/features/plans/presentation/providers/use_case_providers.dart';
 import 'package:flutter_pecha/features/plans/presentation/providers/user_plans_provider.dart';
 import 'package:flutter_pecha/features/practice/data/models/routine_model.dart';
+import 'package:flutter_pecha/features/practice/data/utils/routine_item_display.dart';
 import 'package:flutter_pecha/features/practice/presentation/providers/routine_api_providers.dart';
+import 'package:flutter_pecha/features/practice/presentation/widgets/practice_chant_list_tile.dart';
 import 'package:flutter_pecha/features/practice/presentation/widgets/routine_item_card.dart';
 import 'package:flutter_pecha/features/reader/data/models/navigation_context.dart';
 import 'package:flutter_pecha/features/timer/domain/entities/preset_timer.dart';
@@ -71,7 +73,13 @@ class _RoutineFilledStateState extends ConsumerState<RoutineFilledState> {
     super.initState();
     ref.listenManual(pendingNotificationNavProvider, (previous, next) {
       if (next != null) {
-        _handlePendingNotificationNav(next);
+        // fireImmediately can run this synchronously during initState, and
+        // _handlePendingNotificationNav may refresh providers (illegal during
+        // build). Defer to the next microtask so the mutation happens after
+        // this build completes.
+        Future.microtask(() {
+          if (mounted) _handlePendingNotificationNav(next);
+        });
       }
     }, fireImmediately: true);
   }
@@ -89,6 +97,38 @@ class _RoutineFilledStateState extends ConsumerState<RoutineFilledState> {
         '/reader/${pendingNav.itemId}',
         extra: NavigationContext(source: NavigationSource.normal),
       );
+      return;
+    }
+
+    if (itemType == RoutineItemType.accumulator) {
+      ref.read(pendingNotificationNavProvider.notifier).state = null;
+      context.push('/mala', extra: {'presetId': pendingNav.itemId});
+      return;
+    }
+
+    if (itemType == RoutineItemType.timer) {
+      // Open the timer screen — same destination as tapping the timer item in
+      // the routine. `/home/timers/active` is a root-navigator route, so it is
+      // safe to push from this out-of-shell (My Practices) location.
+      ref.read(pendingNotificationNavProvider.notifier).state = null;
+      final item = _findRoutineItem(widget.routineData, pendingNav.itemId);
+      // Prefer the routine item's duration; fall back to the value embedded in
+      // the notification payload so the tap still works when the item is not
+      // found or lost its durationMs on a server round-trip.
+      final durationMs = item?.durationMs ?? pendingNav.durationMs;
+      if (durationMs != null && durationMs > 0) {
+        final name = (item != null && item.title.isNotEmpty)
+            ? item.title
+            : '${durationMs ~/ 60000} min session';
+        context.push(
+          '/home/timers/active',
+          extra: PresetTimer(
+            id: pendingNav.itemId,
+            name: name,
+            durationMs: durationMs,
+          ),
+        );
+      }
       return;
     }
 
@@ -295,10 +335,7 @@ class _RoutineBlockSection extends ConsumerWidget {
       return;
     }
 
-    final name =
-        item.title.isNotEmpty
-            ? item.title
-            : '${durationMs ~/ 60000} min session';
+    final name = routineItemDisplayTitle(item, context.l10n);
     context.push(
       '/home/timers/active',
       extra: PresetTimer(id: item.id, name: name, durationMs: durationMs),
@@ -373,20 +410,11 @@ class _RoutineBlockSection extends ConsumerWidget {
         ),
         const SizedBox(height: 8),
         for (int i = 0; i < block.items.length; i++) ...[
-          Container(
-            margin: EdgeInsets.only(
+          Padding(
+            padding: EdgeInsets.only(
               bottom: i < block.items.length - 1 ? 8.0 : 0,
             ),
-            decoration: BoxDecoration(
-              color: isDark
-                  ? AppColors.cardBackgroundDark
-                  : AppColors.cardBackgroundLight,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              child: _buildItemCard(context, ref, block.items[i]),
-            ),
+            child: _buildItemCard(context, ref, block.items[i]),
           ),
         ],
         const SizedBox(height: 8),
@@ -395,17 +423,38 @@ class _RoutineBlockSection extends ConsumerWidget {
   }
 
   Widget _buildItemCard(BuildContext context, WidgetRef ref, RoutineItem item) {
-    return RoutineItemCard(
-      title: item.title,
-      coverImage: item.coverImage,
-      type: item.type,
-      planTitle: item.currentPlanTitle,
-      imageSize: 56,
-      onTap: () => _onItemTap(context, ref, item),
-      onPlanTap:
-          item.currentPlanId != null
-              ? () => _onPlanArrowTap(context, ref, item)
-              : null,
+    if (item.type == RoutineItemType.recitation) {
+      return PracticeChantListTile(
+        recitation: recitationModelFromRoutineItem(item),
+        includeOuterPadding: false,
+        onTap: () => _onItemTap(context, ref, item),
+      );
+    }
+
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return Container(
+      decoration: BoxDecoration(
+        color: isDark
+            ? AppColors.cardBackgroundDark
+            : AppColors.cardBackgroundLight,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12),
+        child: RoutineItemCard(
+          title: routineItemDisplayTitle(item, context.l10n),
+          coverImage: item.coverImage,
+          type: item.type,
+          planTitle: item.currentPlanTitle,
+          imageSize: 56,
+          onTap: () => _onItemTap(context, ref, item),
+          onPlanTap:
+              item.currentPlanId != null
+                  ? () => _onPlanArrowTap(context, ref, item)
+                  : null,
+        ),
+      ),
     );
   }
 }

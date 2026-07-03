@@ -41,23 +41,18 @@ class SpecialPlanStartedAtStore {
     await prefs.setString(_startedAtKey(planId), startedAt.toIso8601String());
   }
 
-  /// Removes only the cached startedAt, preserving per-date shown flags so a
-  /// same-day re-add cannot duplicate today's already-received notification.
-  /// startedAt is re-mirrored from server truth on the next plans refresh.
+  /// Removes only the cached startedAt. startedAt is re-mirrored from server
+  /// truth on the next plans refresh.
   static Future<void> clearStartedAtOnly(String planId) async {
     final prefs = await _ensurePrefs();
     await prefs.remove(_startedAtKey(planId));
   }
 
-  /// Removes the startedAt entry and all per-date shown flags for [planId].
-  /// Call when the user removes the plan from their routine so a subsequent
-  /// re-enrol is treated as fresh.
+  /// Removes the startedAt entry for [planId]. Call when the user removes
+  /// the plan from their routine so a subsequent re-enrol is treated as fresh.
   static Future<void> clear(String planId) async {
     final prefs = await _ensurePrefs();
     await prefs.remove(_startedAtKey(planId));
-    for (final key in prefs.getKeys().where(_isShownFlagForPlan(planId)).toList()) {
-      await prefs.remove(key);
-    }
   }
 
   /// Removes all special-plan entries. Call on logout so a different user
@@ -65,36 +60,9 @@ class SpecialPlanStartedAtStore {
   static Future<void> clearAll() async {
     final prefs = await _ensurePrefs();
     final toRemove = prefs.getKeys().where(
-      (k) =>
-          k.startsWith(StorageKeys.specialPlanStartedAtPrefix) ||
-          k.startsWith(StorageKeys.specialPlanDay1ShownPrefix),
+      (k) => k.startsWith(StorageKeys.specialPlanStartedAtPrefix),
     );
     for (final key in toRemove.toList()) {
-      await prefs.remove(key);
-    }
-  }
-
-  // ─── Per-date shown flags ─────────────────────────────────────────────────
-
-  /// Returns `true` if a notification has already been shown for [planId]
-  /// on the calendar date of [date]. Works for any day in the series — not
-  /// just Day 1 — so delete + re-enrol on Day 4 is also idempotent.
-  static bool wasShownOn(String planId, DateTime date) {
-    return _prefs?.getBool(_shownOnKey(planId, date)) ?? false;
-  }
-
-  /// Records that a notification was shown for [planId] on [date].
-  static Future<void> markShownOn(String planId, DateTime date) async {
-    final prefs = await _ensurePrefs();
-    await prefs.setBool(_shownOnKey(planId, date), true);
-  }
-
-  /// Removes all per-date shown flags for [planId] without touching the
-  /// cached anchor. Call when the user removes the plan from a routine
-  /// block so re-adding treats it as fresh and re-fires today's immediate.
-  static Future<void> clearShownFlags(String planId) async {
-    final prefs = await _ensurePrefs();
-    for (final key in prefs.getKeys().where(_isShownFlagForPlan(planId)).toList()) {
       await prefs.remove(key);
     }
   }
@@ -103,17 +71,6 @@ class SpecialPlanStartedAtStore {
 
   static String _startedAtKey(String planId) =>
       '${StorageKeys.specialPlanStartedAtPrefix}$planId';
-
-  static String _shownOnKey(String planId, DateTime date) {
-    final y = date.year.toString().padLeft(4, '0');
-    final m = date.month.toString().padLeft(2, '0');
-    final d = date.day.toString().padLeft(2, '0');
-    return '${StorageKeys.specialPlanDay1ShownPrefix}${planId}_$y-$m-$d';
-  }
-
-  /// Predicate: returns true if [key] is a shown-flag belonging to [planId].
-  static bool Function(String) _isShownFlagForPlan(String planId) =>
-      (key) => key.startsWith('${StorageKeys.specialPlanDay1ShownPrefix}$planId');
 
   static Future<SharedPreferences> _ensurePrefs() async {
     return _prefs ??= await SharedPreferences.getInstance();

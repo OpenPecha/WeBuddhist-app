@@ -33,7 +33,7 @@ class PracticePlansSection extends ConsumerWidget {
                       ? () => _showAllPlans(context, seriesList)
                       : null,
               child: SizedBox(
-                height: 220,
+                height: 240,
                 child: ListView.separated(
                   scrollDirection: Axis.horizontal,
                   padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -52,7 +52,7 @@ class PracticePlansSection extends ConsumerWidget {
           }),
       loading:
           () => const PracticeSectionSkeleton(
-            height: 220,
+            height: 240,
             axis: Axis.horizontal,
             itemCount: 2,
             itemWidth: 300,
