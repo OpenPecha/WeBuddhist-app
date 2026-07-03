@@ -271,7 +271,7 @@ class FeaturedPlanCard extends ConsumerWidget {
                     ),
                   ],
                   if (hasDescription) ...[
-                    if (series != null || series?.partner != null)
+                    if (series != null)
                       const SizedBox(height: 6),
                     Text(
                       displayDescription,
