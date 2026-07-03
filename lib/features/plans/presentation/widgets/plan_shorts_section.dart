@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/features/home/home.dart';
 import 'package:flutter_pecha/features/plans/data/models/plan_video_model.dart';
 import 'package:flutter_pecha/shared/widgets/reusable_youtube_player.dart';
@@ -40,7 +41,7 @@ class _PlanShortsSectionState extends State<PlanShortsSection> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Shorts from the community',
+          context.l10n.plan_shorts_title,
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
             fontWeight: FontWeight.bold,
             fontSize: 20,

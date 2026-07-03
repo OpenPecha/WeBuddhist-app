@@ -1763,4 +1763,223 @@ class AppLocalizationsMn extends AppLocalizations {
 
   @override
   String get weekday_sunday => 'Ням';
+
+  @override
+  String get reader_search_failed =>
+      'Хайлт амжилтгүй боллоо.\nДахин оролдоно уу';
+
+  @override
+  String get reader_swipe_up_for_more =>
+      'Илүү ихийг үзэхийн тулд дээш шудрана уу';
+
+  @override
+  String get reader_videos => 'Бичлэгүүд';
+
+  @override
+  String get reader_about_this_version => 'Энэ хувилбарын тухай';
+
+  @override
+  String reader_version_count(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count хувилбар',
+      one: '1 хувилбар',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get mala_no_mantras => 'Тарни алга байна';
+
+  @override
+  String get mala_count_load_error => 'Таны тоог ачаалж чадсангүй';
+
+  @override
+  String get mala_mantra_label => 'Тарни';
+
+  @override
+  String get bookmarks_empty_all_title => 'Хараахан хавчуургалаагүй байна.';
+
+  @override
+  String get bookmarks_empty_all_subtitle =>
+      'Энд хадгалахын тулд юуг ч хавчуургалаарай.';
+
+  @override
+  String get bookmarks_empty_plans_title =>
+      'Хараахан төлөвлөгөө хавчуургалаагүй байна.';
+
+  @override
+  String get bookmarks_empty_plans_subtitle =>
+      'Энд хадгалахын тулд төлөвлөгөө хавчуургалаарай.';
+
+  @override
+  String get bookmarks_empty_malas_title =>
+      'Хараахан мала хавчуургалаагүй байна.';
+
+  @override
+  String get bookmarks_empty_malas_subtitle =>
+      'Энд хадгалахын тулд мала хавчуургалаарай.';
+
+  @override
+  String get bookmarks_empty_timers_title =>
+      'Хараахан цаг хэмжигч хавчуургалаагүй байна.';
+
+  @override
+  String get bookmarks_empty_timers_subtitle =>
+      'Энд хадгалахын тулд цаг хэмжигч хавчуургалаарай.';
+
+  @override
+  String get bookmarks_empty_texts_title =>
+      'Хараахан бичвэр хавчуургалаагүй байна.';
+
+  @override
+  String get bookmarks_empty_texts_subtitle =>
+      'Энд хадгалахын тулд бичвэр хавчуургалаарай.';
+
+  @override
+  String get bookmark_removed => 'Хавчуургыг устгалаа';
+
+  @override
+  String get bookmark_remove_failed => 'Хавчуургыг устгаж чадсангүй';
+
+  @override
+  String get bookmark_saved => 'Хавчуургыг хадгаллаа';
+
+  @override
+  String get bookmark_save_failed => 'Хавчуургыг хадгалж чадсангүй';
+
+  @override
+  String get bookmarks_yesterday => 'Өчигдөр';
+
+  @override
+  String get webview_timeout_error =>
+      'Хуудас ачаалахад хэт удлаа. Интернэт холболтоо шалгана уу.';
+
+  @override
+  String get webview_load_failed => 'Хуудсыг ачаалж чадсангүй';
+
+  @override
+  String get privacy_policy_load_error =>
+      'Нууцлалын бодлогын хуудсыг ачаалж чадсангүй.';
+
+  @override
+  String get terms_of_service_load_error =>
+      'Үйлчилгээний нөхцлийн хуудсыг ачаалж чадсангүй.';
+
+  @override
+  String get series_enroll_error => 'Цувралд бүртгүүлж чадсангүй';
+
+  @override
+  String series_share_message(String title, String url) {
+    return 'WeBuddhist дээр $title-г надтай хамт дадлагажаарай.\n\n$url';
+  }
+
+  @override
+  String get player_back_10 => '10 секунд ухраах';
+
+  @override
+  String get player_pause => 'Түр зогсоох';
+
+  @override
+  String get player_play => 'Тоглуулах';
+
+  @override
+  String get player_forward_10 => '10 секунд урагшлуулах';
+
+  @override
+  String get session_plans_load_error =>
+      'Төлөвлөгөөг ачаалж чадсангүй.\nДараа дахин оролдоно уу.';
+
+  @override
+  String get session_chants_load_error => 'Уншлагыг ачаалж чадсангүй';
+
+  @override
+  String get session_no_chants => 'Уншлага олдсонгүй';
+
+  @override
+  String get session_malas_load_error => 'Малаг ачаалж чадсангүй';
+
+  @override
+  String get session_no_malas => 'Мала олдсонгүй';
+
+  @override
+  String get session_timers_load_error => 'Цаг хэмжигчийг ачаалж чадсангүй';
+
+  @override
+  String get session_no_timers => 'Цаг хэмжигч олдсонгүй';
+
+  @override
+  String days_count(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count өдөр',
+      one: '1 өдөр',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String timer_minute_session(int minutes) {
+    return '$minutes минутын дасгал';
+  }
+
+  @override
+  String get ai_use_search_instead => 'Оронд нь хайлт ашиглах';
+
+  @override
+  String get ai_mode_label => 'AI';
+
+  @override
+  String plan_day_of(int day, int total) {
+    return '$total өдрийн $day-р өдөр';
+  }
+
+  @override
+  String pagination_position(int current, int total) {
+    return '$total-аас $current';
+  }
+
+  @override
+  String get plan_shorts_title => 'Хамт олны богино бичлэгүүд';
+
+  @override
+  String get author_details_load_error =>
+      'Зохиогчийн мэдээллийг ачаалж чадсангүй.\nДахин оролдоно уу.';
+
+  @override
+  String get link_cannot_open => 'Энэ холбоосыг нээж чадсангүй';
+
+  @override
+  String get link_invalid => 'Буруу URL';
+
+  @override
+  String get author_no_plans => 'Одоогоор төлөвлөгөө үүсгээгүй байна';
+
+  @override
+  String get author_plans_load_error => 'Төлөвлөгөөг ачаалж чадсангүй';
+
+  @override
+  String source_with_value(String value) {
+    return 'Эх сурвалж: $value';
+  }
+
+  @override
+  String license_with_value(String value) {
+    return 'Лиценз: $value';
+  }
+
+  @override
+  String loading_previous_pages(int count) {
+    return 'Өмнөхийг ачаалж байна... ($count хуудас)';
+  }
+
+  @override
+  String loading_more_pages(int count) {
+    return 'Илүү ихийг ачаалж байна... ($count хуудас)';
+  }
+
+  @override
+  String get drag_to_resize => 'Хэмжээг өөрчлөхийн тулд чирнэ үү';
 }

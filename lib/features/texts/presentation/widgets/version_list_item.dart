@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/features/texts/constants/text_screen_constants.dart';
 import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 
@@ -67,14 +68,14 @@ class VersionListItem extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           Text(
-            "Source: $sourceLink",
+            context.l10n.source_with_value(sourceLink),
             style: TextStyle(
               fontSize: TextScreenConstants.subtitleFontSize,
               color: Colors.grey.shade800,
             ),
           ),
           Text(
-            "License: $license",
+            context.l10n.license_with_value(license),
             style: TextStyle(
               fontSize: TextScreenConstants.subtitleFontSize,
               color: Colors.grey.shade800,

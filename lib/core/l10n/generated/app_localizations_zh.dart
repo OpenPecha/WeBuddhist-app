@@ -1665,4 +1665,205 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get weekday_sunday => '週日';
+
+  @override
+  String get reader_search_failed => '搜尋失敗。\n請重試';
+
+  @override
+  String get reader_swipe_up_for_more => '向上滑動查看更多';
+
+  @override
+  String get reader_videos => '影片';
+
+  @override
+  String get reader_about_this_version => '關於此版本';
+
+  @override
+  String reader_version_count(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count 個版本',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get mala_no_mantras => '暫無咒語';
+
+  @override
+  String get mala_count_load_error => '無法載入您的計數';
+
+  @override
+  String get mala_mantra_label => '咒語';
+
+  @override
+  String get bookmarks_empty_all_title => '尚無書籤。';
+
+  @override
+  String get bookmarks_empty_all_subtitle => '將任何內容加入書籤即可儲存於此。';
+
+  @override
+  String get bookmarks_empty_plans_title => '尚無已加書籤的計畫。';
+
+  @override
+  String get bookmarks_empty_plans_subtitle => '將計畫加入書籤即可儲存於此。';
+
+  @override
+  String get bookmarks_empty_malas_title => '尚無已加書籤的念珠。';
+
+  @override
+  String get bookmarks_empty_malas_subtitle => '將念珠加入書籤即可儲存於此。';
+
+  @override
+  String get bookmarks_empty_timers_title => '尚無已加書籤的計時器。';
+
+  @override
+  String get bookmarks_empty_timers_subtitle => '將計時器加入書籤即可儲存於此。';
+
+  @override
+  String get bookmarks_empty_texts_title => '尚無已加書籤的文本。';
+
+  @override
+  String get bookmarks_empty_texts_subtitle => '將文本加入書籤即可儲存於此。';
+
+  @override
+  String get bookmark_removed => '已移除書籤';
+
+  @override
+  String get bookmark_remove_failed => '移除書籤失敗';
+
+  @override
+  String get bookmark_saved => '書籤已儲存';
+
+  @override
+  String get bookmark_save_failed => '儲存書籤失敗';
+
+  @override
+  String get bookmarks_yesterday => '昨天';
+
+  @override
+  String get webview_timeout_error => '頁面載入時間過長。請檢查您的網路連線。';
+
+  @override
+  String get webview_load_failed => '頁面載入失敗';
+
+  @override
+  String get privacy_policy_load_error => '無法載入隱私政策頁面。';
+
+  @override
+  String get terms_of_service_load_error => '無法載入服務條款頁面。';
+
+  @override
+  String get series_enroll_error => '加入系列失敗';
+
+  @override
+  String series_share_message(String title, String url) {
+    return '和我一起在 WeBuddhist 上修習 $title。\n\n$url';
+  }
+
+  @override
+  String get player_back_10 => '後退 10 秒';
+
+  @override
+  String get player_pause => '暫停';
+
+  @override
+  String get player_play => '播放';
+
+  @override
+  String get player_forward_10 => '快進 10 秒';
+
+  @override
+  String get session_plans_load_error => '無法載入計畫。\n請稍後重試。';
+
+  @override
+  String get session_chants_load_error => '無法載入課誦';
+
+  @override
+  String get session_no_chants => '未找到課誦';
+
+  @override
+  String get session_malas_load_error => '無法載入念珠';
+
+  @override
+  String get session_no_malas => '未找到念珠';
+
+  @override
+  String get session_timers_load_error => '無法載入計時器';
+
+  @override
+  String get session_no_timers => '未找到計時器';
+
+  @override
+  String days_count(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count 天',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String timer_minute_session(int minutes) {
+    return '$minutes 分鐘練習';
+  }
+
+  @override
+  String get ai_use_search_instead => '改用搜尋';
+
+  @override
+  String get ai_mode_label => 'AI';
+
+  @override
+  String plan_day_of(int day, int total) {
+    return '第 $day 天，共 $total 天';
+  }
+
+  @override
+  String pagination_position(int current, int total) {
+    return '$current / $total';
+  }
+
+  @override
+  String get plan_shorts_title => '社群短片';
+
+  @override
+  String get author_details_load_error => '無法載入作者資訊。\n請重試。';
+
+  @override
+  String get link_cannot_open => '無法開啟此連結';
+
+  @override
+  String get link_invalid => '無效的網址';
+
+  @override
+  String get author_no_plans => '尚未建立計畫';
+
+  @override
+  String get author_plans_load_error => '無法載入計畫';
+
+  @override
+  String source_with_value(String value) {
+    return '來源：$value';
+  }
+
+  @override
+  String license_with_value(String value) {
+    return '授權：$value';
+  }
+
+  @override
+  String loading_previous_pages(int count) {
+    return '正在載入上文……（$count 頁）';
+  }
+
+  @override
+  String loading_more_pages(int count) {
+    return '正在載入更多……（$count 頁）';
+  }
+
+  @override
+  String get drag_to_resize => '拖動以調整大小';
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/features/reader/constants/reader_constants.dart';
 import 'package:flutter_pecha/features/reader/data/models/navigation_context.dart';
 import 'package:flutter_pecha/features/reader/data/models/reader_slot_config.dart';
@@ -45,7 +46,7 @@ class InterlinearSegmentItem extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final fontSize = ref.watch(fontSizeProvider);
     final primaryHtml = normalizeSegmentHtml(segment.content);
-    final secondary = _resolveSecondaryContent();
+    final secondary = _resolveSecondaryContent(context);
 
     // Per Figma: the secondary (parallel) version uses a fixed muted tone that
     // differs per theme so it reads as supporting text beneath the primary.
@@ -119,7 +120,7 @@ class InterlinearSegmentItem extends ConsumerWidget {
     );
   }
 
-  _SecondaryResolved _resolveSecondaryContent() {
+  _SecondaryResolved _resolveSecondaryContent(BuildContext context) {
     final fromMap = secondaryContentBySegmentNumber?[segment.segmentNumber];
     if (fromMap != null && fromMap.trim().isNotEmpty) {
       return _SecondaryResolved(
@@ -128,7 +129,10 @@ class InterlinearSegmentItem extends ConsumerWidget {
       );
     }
     if (secondaryIsLoading) {
-      return const _SecondaryResolved(text: 'Loading…', isPlaceholder: true);
+      return _SecondaryResolved(
+        text: context.l10n.loading,
+        isPlaceholder: true,
+      );
     }
     // A version is selected but this particular segment has no translation.
     // Show a quiet centered em-dash rather than a verbose error line.

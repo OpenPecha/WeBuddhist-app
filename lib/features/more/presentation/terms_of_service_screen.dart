@@ -37,12 +37,11 @@ class _TermsOfServiceScreenState extends State<TermsOfServiceScreen> {
     // Set a timeout for loading
     loadingTimeout?.cancel();
     loadingTimeout = Timer(const Duration(seconds: 30), () {
-      if (isLoading) {
+      if (isLoading && mounted) {
         setState(() {
           isLoading = false;
           hasError = true;
-          errorMessage =
-              'Page took too long to load. Please check your internet connection.';
+          errorMessage = AppLocalizations.of(context)!.webview_timeout_error;
         });
       }
     });
@@ -118,7 +117,7 @@ class _TermsOfServiceScreenState extends State<TermsOfServiceScreen> {
             IconButton(
               icon: const Icon(Icons.refresh),
               onPressed: _retry,
-              tooltip: 'Retry',
+              tooltip: l10n.retry,
             ),
         ],
       ),
@@ -140,13 +139,12 @@ class _TermsOfServiceScreenState extends State<TermsOfServiceScreen> {
                       ),
                       const SizedBox(height: 16),
                       Text(
-                        'Failed to load page',
+                        l10n.webview_load_failed,
                         style: Theme.of(context).textTheme.titleLarge,
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        errorMessage ??
-                            'Unable to load the terms of service page.',
+                        errorMessage ?? l10n.terms_of_service_load_error,
                         textAlign: TextAlign.center,
                         style: Theme.of(context).textTheme.bodyMedium,
                       ),
@@ -154,7 +152,7 @@ class _TermsOfServiceScreenState extends State<TermsOfServiceScreen> {
                       ElevatedButton.icon(
                         onPressed: _retry,
                         icon: const Icon(Icons.refresh),
-                        label: const Text('Retry'),
+                        label: Text(l10n.retry),
                       ),
                     ],
                   ),
@@ -174,7 +172,7 @@ class _TermsOfServiceScreenState extends State<TermsOfServiceScreen> {
                       ),
                       const SizedBox(height: 16),
                       Text(
-                        'Loading...',
+                        l10n.loading,
                         style: Theme.of(context).textTheme.bodyMedium,
                       ),
                     ],

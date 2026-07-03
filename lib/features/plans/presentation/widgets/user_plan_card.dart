@@ -142,7 +142,7 @@ Widget _buildPlanInfo(BuildContext context, UserPlansModel plan) {
     children: [
       const SizedBox(height: 4),
       Text(
-        '${plan.totalDays} Days',
+        AppLocalizations.of(context)!.days_count(plan.totalDays),
         style: context.languageTextStyle(
           planLanguage,
           fontSize: fontSize,

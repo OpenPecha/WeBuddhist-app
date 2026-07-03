@@ -298,7 +298,7 @@ class _RoutineBlockSection extends ConsumerWidget {
     final name =
         item.title.isNotEmpty
             ? item.title
-            : '${durationMs ~/ 60000} min session';
+            : context.l10n.timer_minute_session(durationMs ~/ 60000);
     context.push(
       '/home/timers/active',
       extra: PresetTimer(id: item.id, name: name, durationMs: durationMs),

@@ -839,5 +839,142 @@
   "weekday_thursday": "THU",
   "weekday_friday": "FRI",
   "weekday_saturday": "SAT",
-  "weekday_sunday": "SUN"
+  "weekday_sunday": "SUN",
+
+  "reader_search_failed": "Search failed.\nPlease try again",
+  "reader_swipe_up_for_more": "Swipe up for more",
+  "reader_videos": "Videos",
+  "reader_about_this_version": "About this version",
+  "reader_version_count": "{count, plural, =1{1 version} other{{count} versions}}",
+  "@reader_version_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "mala_no_mantras": "No mantras available",
+  "mala_count_load_error": "Could not load your count",
+  "mala_mantra_label": "Mantra",
+  "bookmarks_empty_all_title": "Nothing bookmarked yet.",
+  "bookmarks_empty_all_subtitle": "Bookmark anything to save it here.",
+  "bookmarks_empty_plans_title": "No plans bookmarked yet.",
+  "bookmarks_empty_plans_subtitle": "Bookmark a plan to save it here.",
+  "bookmarks_empty_malas_title": "No malas bookmarked yet.",
+  "bookmarks_empty_malas_subtitle": "Bookmark a mala to save it here.",
+  "bookmarks_empty_timers_title": "No timers bookmarked yet.",
+  "bookmarks_empty_timers_subtitle": "Bookmark a timer to save it here.",
+  "bookmarks_empty_texts_title": "No texts bookmarked yet.",
+  "bookmarks_empty_texts_subtitle": "Bookmark a text to save it here.",
+  "bookmark_removed": "Bookmark removed",
+  "bookmark_remove_failed": "Failed to remove bookmark",
+  "bookmark_saved": "Bookmark saved",
+  "bookmark_save_failed": "Failed to save bookmark",
+  "bookmarks_yesterday": "Yesterday",
+  "webview_timeout_error": "Page took too long to load. Please check your internet connection.",
+  "webview_load_failed": "Failed to load page",
+  "privacy_policy_load_error": "Unable to load the privacy policy page.",
+  "terms_of_service_load_error": "Unable to load the terms of service page.",
+  "series_enroll_error": "Failed to enroll in series",
+  "series_share_message": "Join me in practicing {title} on WeBuddhist.\n\n{url}",
+  "@series_share_message": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "url": {
+        "type": "String"
+      }
+    }
+  },
+  "player_back_10": "Back 10 seconds",
+  "player_pause": "Pause",
+  "player_play": "Play",
+  "player_forward_10": "Forward 10 seconds",
+  "session_plans_load_error": "Unable to load plans.\nPlease try again later.",
+  "session_chants_load_error": "Unable to load chants",
+  "session_no_chants": "No chants found",
+  "session_malas_load_error": "Unable to load malas",
+  "session_no_malas": "No malas found",
+  "session_timers_load_error": "Unable to load timers",
+  "session_no_timers": "No timers found",
+  "days_count": "{count, plural, =1{1 Day} other{{count} Days}}",
+  "@days_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "timer_minute_session": "{minutes} min session",
+  "@timer_minute_session": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "ai_use_search_instead": "Use Search Instead",
+  "ai_mode_label": "AI",
+  "plan_day_of": "Day {day} of {total}",
+  "@plan_day_of": {
+    "placeholders": {
+      "day": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "pagination_position": "{current} of {total}",
+  "@pagination_position": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "plan_shorts_title": "Shorts from the community",
+  "author_details_load_error": "Unable to load author details.\nPlease try again.",
+  "link_cannot_open": "Cannot open this link",
+  "link_invalid": "Invalid URL",
+  "author_no_plans": "No plans created yet",
+  "author_plans_load_error": "Unable to load plans",
+  "source_with_value": "Source: {value}",
+  "@source_with_value": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "license_with_value": "License: {value}",
+  "@license_with_value": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "loading_previous_pages": "Loading previous... ({count} pages)",
+  "@loading_previous_pages": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "loading_more_pages": "Loading more... ({count} pages)",
+  "@loading_more_pages": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "drag_to_resize": "Drag to resize"
 }

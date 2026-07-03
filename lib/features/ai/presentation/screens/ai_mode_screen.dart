@@ -390,7 +390,7 @@ class _AiModeScreenState extends ConsumerState<AiModeScreen> {
                     TextButton(
                       onPressed: () => setState(() => _isSearchMode = true),
                       child: Text(
-                        'Use Search Instead',
+                        AppLocalizations.of(context)!.ai_use_search_instead,
                         style: TextStyle(
                           color: theme.colorScheme.primary,
                         ),
@@ -429,7 +429,7 @@ class _AiModeScreenState extends ConsumerState<AiModeScreen> {
               _buildHeaderModeButton(
                 isDarkMode: isDarkMode,
                 icon: Icons.auto_awesome,
-                label: 'AI',
+                label: localizations.ai_mode_label,
                 isSelected: !_isSearchMode,
                 onTap: () {}, // Already in AI mode
               ),

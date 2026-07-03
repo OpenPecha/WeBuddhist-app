@@ -1766,4 +1766,220 @@ class AppLocalizationsBo extends AppLocalizations {
 
   @override
   String get weekday_sunday => 'ཉི།';
+
+  @override
+  String get reader_search_failed =>
+      'འཚོལ་བཤེར་མ་གྲུབ།\nཡང་བསྐྱར་འབད་རྩོལ་གནང་རོགས།';
+
+  @override
+  String get reader_swipe_up_for_more => 'མང་བ་ལ་གྱེན་དུ་འགྲིལ་རོགས།';
+
+  @override
+  String get reader_videos => 'བརྙན་ཐུང་།';
+
+  @override
+  String get reader_about_this_version => 'པར་གཞི་འདིའི་སྐོར།';
+
+  @override
+  String reader_version_count(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'པར་གཞི་ $count',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get mala_no_mantras => 'སྔགས་མེད།';
+
+  @override
+  String get mala_count_load_error => 'ཁྱེད་ཀྱི་གྲངས་ཀ་འཇུག་མ་ཐུབ།';
+
+  @override
+  String get mala_mantra_label => 'སྔགས།';
+
+  @override
+  String get bookmarks_empty_all_title => 'ད་དུང་དེབ་རྟགས་གང་ཡང་མེད།';
+
+  @override
+  String get bookmarks_empty_all_subtitle =>
+      'འདིར་ཉར་ཚགས་བྱེད་པར་གང་རུང་ཞིག་ལ་དེབ་རྟགས་བཀོད་རོགས།';
+
+  @override
+  String get bookmarks_empty_plans_title =>
+      'ད་དུང་འཆར་གཞི་གང་ཡང་དེབ་རྟགས་མ་བཀོད།';
+
+  @override
+  String get bookmarks_empty_plans_subtitle =>
+      'འདིར་ཉར་ཚགས་བྱེད་པར་འཆར་གཞི་ཞིག་ལ་དེབ་རྟགས་བཀོད་རོགས།';
+
+  @override
+  String get bookmarks_empty_malas_title =>
+      'ད་དུང་ཕྲེང་བ་གང་ཡང་དེབ་རྟགས་མ་བཀོད།';
+
+  @override
+  String get bookmarks_empty_malas_subtitle =>
+      'འདིར་ཉར་ཚགས་བྱེད་པར་ཕྲེང་བ་ཞིག་ལ་དེབ་རྟགས་བཀོད་རོགས།';
+
+  @override
+  String get bookmarks_empty_timers_title =>
+      'ད་དུང་དུས་ཚོད་འཛིན་ཆས་གང་ཡང་དེབ་རྟགས་མ་བཀོད།';
+
+  @override
+  String get bookmarks_empty_timers_subtitle =>
+      'འདིར་ཉར་ཚགས་བྱེད་པར་དུས་ཚོད་འཛིན་ཆས་ཤིག་ལ་དེབ་རྟགས་བཀོད་རོགས།';
+
+  @override
+  String get bookmarks_empty_texts_title =>
+      'ད་དུང་གཞུང་ཡིག་གང་ཡང་དེབ་རྟགས་མ་བཀོད།';
+
+  @override
+  String get bookmarks_empty_texts_subtitle =>
+      'འདིར་ཉར་ཚགས་བྱེད་པར་གཞུང་ཡིག་ཅིག་ལ་དེབ་རྟགས་བཀོད་རོགས།';
+
+  @override
+  String get bookmark_removed => 'དེབ་རྟགས་ཕྱིར་བསུབས་སོང་།';
+
+  @override
+  String get bookmark_remove_failed => 'དེབ་རྟགས་ཕྱིར་བསུབ་མ་ཐུབ།';
+
+  @override
+  String get bookmark_saved => 'དེབ་རྟགས་ཉར་ཚགས་བྱས་སོང་།';
+
+  @override
+  String get bookmark_save_failed => 'དེབ་རྟགས་ཉར་ཚགས་མ་ཐུབ།';
+
+  @override
+  String get bookmarks_yesterday => 'ཁ་སང་།';
+
+  @override
+  String get webview_timeout_error =>
+      'ཤོག་ངོས་འཇུག་པར་དུས་ཚོད་ཧ་ཅང་འགོར་སོང་། ཁྱེད་ཀྱི་དྲ་རྒྱའི་སྦྲེལ་མཐུད་ལ་ཞིབ་བཤེར་གནང་རོགས།';
+
+  @override
+  String get webview_load_failed => 'ཤོག་ངོས་འཇུག་མ་ཐུབ།';
+
+  @override
+  String get privacy_policy_load_error =>
+      'གསང་དོན་སྲིད་བྱུས་ཤོག་ངོས་འཇུག་མ་ཐུབ།';
+
+  @override
+  String get terms_of_service_load_error =>
+      'ཞབས་ཞུའི་ཆ་རྐྱེན་ཤོག་ངོས་འཇུག་མ་ཐུབ།';
+
+  @override
+  String get series_enroll_error => 'རིམ་པའི་ནང་ཐོ་འགོད་མ་ཐུབ།';
+
+  @override
+  String series_share_message(String title, String url) {
+    return 'WeBuddhist ཐོག་ $title ཉམས་ལེན་བྱེད་པར་ང་དང་མཉམ་དུ་ཞུགས་རོགས།\n\n$url';
+  }
+
+  @override
+  String get player_back_10 => 'སྐར་ཆ་ ༡༠ ཕྱིར་ལོག';
+
+  @override
+  String get player_pause => 'རྒྱུན་འགག';
+
+  @override
+  String get player_play => 'སྒྲོག';
+
+  @override
+  String get player_forward_10 => 'སྐར་ཆ་ ༡༠ མདུན་སྐྱོད';
+
+  @override
+  String get session_plans_load_error =>
+      'འཆར་གཞི་འཇུག་མ་ཐུབ།\nརྗེས་སུ་ཡང་བསྐྱར་འབད་རྩོལ་གནང་རོགས།';
+
+  @override
+  String get session_chants_load_error => 'འདོན་ཆ་འཇུག་མ་ཐུབ།';
+
+  @override
+  String get session_no_chants => 'འདོན་ཆ་མ་རྙེད།';
+
+  @override
+  String get session_malas_load_error => 'ཕྲེང་བ་འཇུག་མ་ཐུབ།';
+
+  @override
+  String get session_no_malas => 'ཕྲེང་བ་མ་རྙེད།';
+
+  @override
+  String get session_timers_load_error => 'དུས་ཚོད་འཛིན་ཆས་འཇུག་མ་ཐུབ།';
+
+  @override
+  String get session_no_timers => 'དུས་ཚོད་འཛིན་ཆས་མ་རྙེད།';
+
+  @override
+  String days_count(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'ཉིན་ $count',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String timer_minute_session(int minutes) {
+    return 'སྐར་མ་ $minutes ཡི་ཉམས་ལེན།';
+  }
+
+  @override
+  String get ai_use_search_instead => 'དེའི་ཚབ་ཏུ་འཚོལ་བཤེར་སྤྱོད།';
+
+  @override
+  String get ai_mode_label => 'AI';
+
+  @override
+  String plan_day_of(int day, int total) {
+    return 'ཉིན་ $day / $total';
+  }
+
+  @override
+  String pagination_position(int current, int total) {
+    return '$current / $total';
+  }
+
+  @override
+  String get plan_shorts_title => 'སྤྱི་ཚོགས་ཀྱི་བརྙན་ཐུང་།';
+
+  @override
+  String get author_details_load_error =>
+      'རྩོམ་པ་པོའི་ཞིབ་ཕྲ་འཇུག་མ་ཐུབ།\nཡང་བསྐྱར་འབད་རྩོལ་གནང་རོགས།';
+
+  @override
+  String get link_cannot_open => 'འབྲེལ་མཐུད་འདི་ཁ་ཕྱེ་མ་ཐུབ།';
+
+  @override
+  String get link_invalid => 'URL ནུས་མེད།';
+
+  @override
+  String get author_no_plans => 'ད་དུང་འཆར་གཞི་གསར་བཟོ་མ་བྱས།';
+
+  @override
+  String get author_plans_load_error => 'འཆར་གཞི་འཇུག་མ་ཐུབ།';
+
+  @override
+  String source_with_value(String value) {
+    return 'འབྱུང་ཁུངས། $value';
+  }
+
+  @override
+  String license_with_value(String value) {
+    return 'ཆོག་མཆན། $value';
+  }
+
+  @override
+  String loading_previous_pages(int count) {
+    return 'སྔོན་མ་འཇུག་བཞིན་པ།.. (ཤོག་གྲངས་ $count)';
+  }
+
+  @override
+  String loading_more_pages(int count) {
+    return 'མང་བ་འཇུག་བཞིན་པ།.. (ཤོག་གྲངས་ $count)';
+  }
+
+  @override
+  String get drag_to_resize => 'ཆེ་ཆུང་བསྒྱུར་བར་འདྲུད་རོགས།';
 }

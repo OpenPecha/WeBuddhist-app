@@ -105,7 +105,9 @@ class _LanguageTile extends StatelessWidget {
                 ),
               ),
               Text(
-                '${option.versionCount} versions',
+                AppLocalizations.of(context)!.reader_version_count(
+                  option.versionCount,
+                ),
                 style: theme.textTheme.bodySmall?.copyWith(
                   color: theme.colorScheme.onSurface.withValues(alpha: 0.55),
                 ),

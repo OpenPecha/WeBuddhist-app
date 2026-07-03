@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/features/texts/constants/chapter_constants.dart';
 import 'package:flutter_pecha/features/texts/presentation/providers/font_size_notifier.dart';
@@ -199,7 +200,9 @@ class _ContentsChapterState extends ConsumerState<ContentsChapter> {
       children: [
         // Loading previous content indicator
         if (widget.infiniteQuery.isFetchingPreviousPage)
-          _buildLoadingIndicator("Loading previous... ($pagesLoaded pages)"),
+          _buildLoadingIndicator(
+            context.l10n.loading_previous_pages(pagesLoaded),
+          ),
 
         // Main content with ScrollablePositionedList
         Expanded(
@@ -217,7 +220,7 @@ class _ContentsChapterState extends ConsumerState<ContentsChapter> {
 
         // Loading next content indicator
         if (widget.infiniteQuery.isFetchingNextPage)
-          _buildLoadingIndicator("Loading more... ($pagesLoaded pages)"),
+          _buildLoadingIndicator(context.l10n.loading_more_pages(pagesLoaded)),
       ],
     );
   }

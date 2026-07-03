@@ -393,7 +393,7 @@ class FeaturedPlanCard extends ConsumerWidget {
         final message =
             state is SeriesEnrollmentFailure
                 ? state.failure.message
-                : 'Failed to enroll in series';
+                : context.l10n.series_enroll_error;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(message), backgroundColor: Colors.red),
         );
@@ -416,7 +416,7 @@ class FeaturedPlanCard extends ConsumerWidget {
       final message =
           state is SeriesEnrollmentFailure
               ? state.failure.message
-              : 'Failed to enroll in series';
+              : context.l10n.series_enroll_error;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(message), backgroundColor: Colors.red),
       );

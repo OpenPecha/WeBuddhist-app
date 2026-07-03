@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/core/widgets/error_state_widget.dart';
 import 'package:flutter_pecha/features/group_profile/presentation/providers/group_profile_providers.dart';
 import 'package:flutter_pecha/features/group_profile/presentation/widgets/group_profile_body.dart';
@@ -91,7 +92,7 @@ class GroupProfileDrawer extends ConsumerWidget {
     final theme = Theme.of(context);
 
     return Semantics(
-      label: 'Drag to resize',
+      label: context.l10n.drag_to_resize,
       child: SizedBox(
         height: 44,
         width: double.infinity,

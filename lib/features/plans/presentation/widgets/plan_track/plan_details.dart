@@ -402,7 +402,7 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
-          "Day $day of ${widget.plan.totalDays}",
+          context.l10n.plan_day_of(day, widget.plan.totalDays),
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
