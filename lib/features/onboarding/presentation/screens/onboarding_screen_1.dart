@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/shared/utils/helper_functions.dart';
@@ -94,7 +95,7 @@ class OnboardingScreen1 extends StatelessWidget {
         height: 200,
         child: Center(
           child: Image.asset(
-            'assets/images/webuddhist_gold.png',
+            AppAssets.weBuddhistLogo,
             width: 200,
             height: 200,
             errorBuilder: (context, error, stackTrace) {
