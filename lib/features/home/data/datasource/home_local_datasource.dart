@@ -43,8 +43,9 @@ class HomeLocalDatasource {
 
   String featuredDayKey(String language) => 'featured_day:$language';
   String tagsKey(String language) => 'tags:$language';
+  // v3: entries cached before the request sent auth lack progress/partner.
   String featuredSeriesKey(String language, int limit) =>
-      'featured_series:$language:$limit';
+      'featured_series:v3:$language:$limit';
   String seriesListKey(String language) => 'series_list:$language';
   String seriesByIdKey(String language, String id) => 'series:$language:$id';
   String todayEventsKey(String language) => 'today_events:$language';
