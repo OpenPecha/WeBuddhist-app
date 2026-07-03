@@ -455,13 +455,13 @@ class AppLocalizationsZh extends AppLocalizations {
   String get notification_allow_subtitle_paused => '提醒已暫停。點此恢復。';
 
   @override
-  String get notification_routine_title => '日常提醒';
+  String get notification_routine_title => '計畫提醒';
 
   @override
-  String get notification_routine_subtitle_enabled => '您的每日修持時段提醒';
+  String get notification_routine_subtitle_enabled => '您的修持計畫每日提醒';
 
   @override
-  String get notification_routine_subtitle_disabled => '日常提醒已暫停。點此恢復。';
+  String get notification_routine_subtitle_disabled => '計畫提醒已暫停。點此恢復。';
 
   @override
   String get notification_battery_title => '背景提醒通知';
@@ -481,6 +481,24 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get notification_recitation_subtitle_disabled => '持誦提醒已暫停。點此恢復。';
+
+  @override
+  String get notification_practice_title => '念珠提醒';
+
+  @override
+  String get notification_practice_subtitle_enabled => '每日念珠修持提醒';
+
+  @override
+  String get notification_practice_subtitle_disabled => '念珠提醒已暫停。點此恢復。';
+
+  @override
+  String get notification_timer_title => '計時器提醒';
+
+  @override
+  String get notification_timer_subtitle_enabled => '每日計時器練習提醒';
+
+  @override
+  String get notification_timer_subtitle_disabled => '計時器提醒已暫停。點此恢復。';
 
   @override
   String get notification_battery_info_title => '關於背景提醒';

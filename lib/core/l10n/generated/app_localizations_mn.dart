@@ -473,15 +473,15 @@ class AppLocalizationsMn extends AppLocalizations {
       'Сануулга түр зогссон. Үргэлжлүүлэхийн тулд дарна уу.';
 
   @override
-  String get notification_routine_title => 'Дадлагын сануулга';
+  String get notification_routine_title => 'Төлөвлөгөөний сануулга';
 
   @override
   String get notification_routine_subtitle_enabled =>
-      'Таны дадлагын цаг хугацааны өдөр тутмын сануулга';
+      'Таны төлөвлөгөөний өдөр тутмын сануулга';
 
   @override
   String get notification_routine_subtitle_disabled =>
-      'Дадлагын сануулга түр зогссон. Үргэлжлүүлэхийн тулд дарна уу.';
+      'Төлөвлөгөөний сануулга түр зогссон. Үргэлжлүүлэхийн тулд дарна уу.';
 
   @override
   String get notification_battery_title => 'Дэвсгэр сануулга';
@@ -495,15 +495,37 @@ class AppLocalizationsMn extends AppLocalizations {
       'Зарим Android утас батерей хэмнэхийн тулд дэвсгэр аппуудыг түр зогсоодог нь таны сануулгыг хойшлуулах буюу алгасах магадлалтай. Үргэлжлүүлэн ажиллуулахын тулд дарна уу.';
 
   @override
-  String get notification_recitation_title => 'Уншлагын сануулга';
+  String get notification_recitation_title => 'Магтаалын сануулга';
 
   @override
   String get notification_recitation_subtitle_enabled =>
-      'Таны уншлагын өдөр тутмын сануулга';
+      'Таны магтаалын өдөр тутмын сануулга';
 
   @override
   String get notification_recitation_subtitle_disabled =>
-      'Уншлагын сануулга түр зогссон. Үргэлжлүүлэхийн тулд дарна уу.';
+      'Магтаалын сануулга түр зогссон. Үргэлжлүүлэхийн тулд дарна уу.';
+
+  @override
+  String get notification_practice_title => 'Эрхийн сануулга';
+
+  @override
+  String get notification_practice_subtitle_enabled =>
+      'Таны эрхийн дадлагын өдөр тутмын сануулга';
+
+  @override
+  String get notification_practice_subtitle_disabled =>
+      'Эрхийн сануулга түр зогссон. Үргэлжлүүлэхийн тулд дарна уу.';
+
+  @override
+  String get notification_timer_title => 'Цаг хэмжигчийн сануулга';
+
+  @override
+  String get notification_timer_subtitle_enabled =>
+      'Таны цаг хэмжигчийн дасгалын өдөр тутмын сануулга';
+
+  @override
+  String get notification_timer_subtitle_disabled =>
+      'Цаг хэмжигчийн сануулга түр зогссон. Үргэлжлүүлэхийн тулд дарна уу.';
 
   @override
   String get notification_battery_info_title => 'Дэвсгэр сануулгын тухай';

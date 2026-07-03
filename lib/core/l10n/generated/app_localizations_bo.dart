@@ -473,15 +473,15 @@ class AppLocalizationsBo extends AppLocalizations {
       'དྲན་སྐུལ་མཚམས་བཞག་ཡོད། བསྐྱར་སློང་བྱེད་ན་འདིར་སྣུན།';
 
   @override
-  String get notification_routine_title => 'འཆར་ཅན་ཉམས་ལེན་དྲན་སྐུལ།';
+  String get notification_routine_title => 'ཉམས་ལེན་ཐུན་འཆར་དྲན་སྐུལ།';
 
   @override
   String get notification_routine_subtitle_enabled =>
-      'ཉམས་ལེན་དུས་མཚམས་ཀྱི་ཉིན་རེའི་དྲན་སྐུལ།';
+      'ཁྱེད་ཀྱི་ཉམས་ལེན་ཐུན་འཆར་གྱི་ཉིན་རེའི་དྲན་སྐུལ།';
 
   @override
   String get notification_routine_subtitle_disabled =>
-      'སྒྲིག་འགོད་ནང་སྒོ་ཕྱིར་འབྱེད་དགོས་ན་འདིར་སྣུན།';
+      'ཉམས་ལེན་ཐུན་འཆར་དྲན་སྐུལ་མཚམས་བཞག་ཡོད། སླར་གསོ་བྱེད་ན་འདིར་སྣུན།';
 
   @override
   String get notification_battery_title => 'རྒྱབ་ལྗོངས་ཀྱི་དྲན་སྐུལ།';
@@ -504,6 +504,28 @@ class AppLocalizationsBo extends AppLocalizations {
   @override
   String get notification_recitation_subtitle_disabled =>
       'ཁ་འདོན་དྲན་སྐུལ་མཚམས་བཞག་ཡོད། བསྐྱར་སློང་བྱེད་ན་འདིར་སྣུན།';
+
+  @override
+  String get notification_practice_title => 'ཕྲེང་བའི་ཉམས་ལེན་དྲན་སྐུལ།';
+
+  @override
+  String get notification_practice_subtitle_enabled =>
+      'ཕྲེང་བའི་ཉམས་ལེན་གྱི་ཉིན་རེའི་དྲན་སྐུལ།';
+
+  @override
+  String get notification_practice_subtitle_disabled =>
+      'ཕྲེང་བའི་དྲན་སྐུལ་མཚམས་བཞག་ཡོད། བསྐྱར་སློང་བྱེད་ན་འདིར་སྣུན།';
+
+  @override
+  String get notification_timer_title => 'དུས་ཚོད་དྲན་སྐུལ།';
+
+  @override
+  String get notification_timer_subtitle_enabled =>
+      'ཉིན་རེའི་དུས་ཚོད་སྒོམ་སྒྲུབ་ཀྱི་དྲན་སྐུལ།';
+
+  @override
+  String get notification_timer_subtitle_disabled =>
+      'དུས་ཚོད་ཀྱི་དྲན་སྐུལ་མཚམས་བཞག་ཡོད། བསྐྱར་སློང་བྱེད་ན་འདིར་སྣུན།';
 
   @override
   String get notification_battery_info_title => 'རྒྱབ་ལྗོངས་དྲན་སྐུལ་གྱི་སྐོར།';
