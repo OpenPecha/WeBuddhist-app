@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
@@ -266,7 +267,7 @@ Or visit: $url''';
               version: QrVersions.auto,
               size: 200.0,
               backgroundColor: Colors.white,
-              embeddedImage: const AssetImage('assets/images/pecha_logo_circle.png'),
+              embeddedImage: const AssetImage(AppAssets.weBuddhistLogo),
               embeddedImageStyle: const QrEmbeddedImageStyle(
                 size: Size(40, 40),
               ),
