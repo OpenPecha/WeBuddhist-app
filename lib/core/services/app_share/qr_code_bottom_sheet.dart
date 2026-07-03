@@ -267,7 +267,7 @@ Or visit: $url''';
               version: QrVersions.auto,
               size: 200.0,
               backgroundColor: Colors.white,
-              embeddedImage: AssetImage(AppAssets.weBuddhistLogo),
+              embeddedImage: const AssetImage(AppAssets.weBuddhistLogo),
               embeddedImageStyle: const QrEmbeddedImageStyle(
                 size: Size(40, 40),
               ),
