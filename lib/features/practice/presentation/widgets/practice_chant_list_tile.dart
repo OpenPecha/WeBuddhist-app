@@ -9,11 +9,15 @@ class PracticeChantListTile extends StatelessWidget {
   const PracticeChantListTile({
     super.key,
     required this.recitation,
-    required this.onTap,
+    this.onTap,
+    this.showTrailingCaret = true,
+    this.includeOuterPadding = true,
   });
 
   final RecitationModel recitation;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
+  final bool showTrailingCaret;
+  final bool includeOuterPadding;
 
   @override
   Widget build(BuildContext context) {
@@ -35,54 +39,53 @@ class PracticeChantListTile extends StatelessWidget {
       ),
     );
 
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-      child: Material(
-        color: isDark ? AppColors.cardBackgroundDark : Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        clipBehavior: Clip.antiAlias,
-        child: InkWell(
-          onTap: onTap,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-            child: IntrinsicHeight(
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Container(
-                    width: 4,
-                    decoration: BoxDecoration(
-                      color: isDark ? Colors.white : AppColors.grey800,
-                      borderRadius: BorderRadius.circular(2),
-                    ),
+    final tile = Material(
+      color: isDark ? AppColors.cardBackgroundDark : Colors.white,
+      borderRadius: BorderRadius.circular(12),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          child: IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Container(
+                  width: 4,
+                  decoration: BoxDecoration(
+                    color: isDark ? Colors.white : AppColors.grey800,
+                    borderRadius: BorderRadius.circular(2),
                   ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        recitation.title,
+                        style: const TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      if (hasFirstSegment) ...[
+                        const SizedBox(height: 4),
                         Text(
-                          recitation.title,
-                          style: const TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.bold,
-                          ),
+                          firstSegmentContent,
+                          style: firstSegmentStyle,
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                         ),
-                        if (hasFirstSegment) ...[
-                          const SizedBox(height: 4),
-                          Text(
-                            firstSegmentContent,
-                            style: firstSegmentStyle,
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ],
                       ],
-                    ),
+                    ],
                   ),
+                ),
+                if (showTrailingCaret) ...[
                   const SizedBox(width: 8),
                   Center(
                     child: Container(
@@ -99,11 +102,20 @@ class PracticeChantListTile extends StatelessWidget {
                     ),
                   ),
                 ],
-              ),
+              ],
             ),
           ),
         ),
       ),
+    );
+
+    if (!includeOuterPadding) {
+      return tile;
+    }
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+      child: tile,
     );
   }
 
