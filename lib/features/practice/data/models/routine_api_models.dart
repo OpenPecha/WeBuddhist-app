@@ -116,8 +116,6 @@ class SessionDTO {
     final durationMs =
         (json['duration_ms'] as num?)?.toInt() ??
         (json['duration'] as num?)?.toInt();
-    final fallbackTimerTitle =
-        durationMs != null ? '${durationMs ~/ 60000} min session' : 'Timer';
 
     return SessionDTO(
       id: json['id'] as String,
@@ -125,7 +123,7 @@ class SessionDTO {
       sourceId: _sourceIdFromJson(json, sessionType),
       title:
           sessionType == SessionType.timer
-              ? ((json['title'] as String?) ?? fallbackTimerTitle)
+              ? ((json['title'] as String?) ?? '')
               : (json['title'] as String),
       language: (json['language'] as String?) ?? '',
       image: ImageModel.fromJsonMap(json),

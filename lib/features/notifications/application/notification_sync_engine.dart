@@ -2,11 +2,12 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
+import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter/services.dart' show PlatformException;
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_pecha/core/config/app_feature_flags.dart';
-import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
 import 'package:flutter_pecha/core/storage/plan_metadata_store.dart';
 import 'package:flutter_pecha/core/storage/special_plan_started_at_store.dart';
 import 'package:flutter_pecha/core/storage/storage_keys.dart';
@@ -24,6 +25,7 @@ import 'package:flutter_pecha/features/plans/domain/usecases/user_plans_usecases
 import 'package:flutter_pecha/features/plans/presentation/providers/use_case_providers.dart';
 import 'package:flutter_pecha/features/plans/presentation/providers/user_plans_provider.dart';
 import 'package:flutter_pecha/features/practice/data/models/routine_model.dart';
+import 'package:flutter_pecha/features/practice/data/utils/routine_item_display.dart';
 import 'package:flutter_pecha/features/practice/presentation/providers/practice_providers.dart'
     show routineNotificationServiceProvider;
 import 'package:flutter_pecha/features/practice/presentation/providers/routine_provider.dart';
@@ -315,11 +317,13 @@ class NotificationSyncEngine {
         final hasRecitation =
             block.items.any((i) => i.type == RoutineItemType.recitation);
         if (hasRecitation) {
+          final l10n = lookupAppLocalizations(_ref.read(localeProvider));
           final entries = computeForRecitationBlock(
             block,
             now,
             masterOn: masterOn,
             recitationOn: recitationOn,
+            l10n: l10n,
           );
           for (final e in entries) {
             desired[e.id] = e;
@@ -1041,6 +1045,7 @@ class NotificationSyncEngine {
     DateTime now, {
     required bool masterOn,
     required bool recitationOn,
+    required AppLocalizations l10n,
   }) {
     if (!masterOn) return const [];
     if (!recitationOn) return const [];
@@ -1069,8 +1074,8 @@ class NotificationSyncEngine {
       DesiredNotification(
         id: block.notificationId,
         fireAt: scheduledDate,
-        title: firstItem.title,
-        body: _recitationBody(block),
+        title: routineItemDisplayTitle(firstItem, l10n),
+        body: _recitationBody(block, l10n),
         payload: payload,
         sourceItem: firstItem,
         isDailyRepeat: true,
@@ -1236,9 +1241,9 @@ class NotificationSyncEngine {
         'planId': planId,
       });
 
-  String _recitationBody(RoutineBlock block) {
+  String _recitationBody(RoutineBlock block, AppLocalizations l10n) {
     if (block.items.isEmpty) return 'Check your daily routine';
-    final firstItem = block.items.first.title;
+    final firstItem = routineItemDisplayTitle(block.items.first, l10n);
     final remaining = block.items.length - 1;
     if (remaining == 1) return '$firstItem and 1 other';
     if (remaining > 1) return '$firstItem and $remaining others';

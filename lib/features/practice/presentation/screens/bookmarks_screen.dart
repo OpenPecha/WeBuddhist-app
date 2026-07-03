@@ -138,6 +138,7 @@ class _BookmarksScreenState extends ConsumerState<BookmarksScreen>
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     final state = ref.watch(bookmarksProvider);
+    final emptyMessages = _emptyMessages(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -160,7 +161,7 @@ class _BookmarksScreenState extends ConsumerState<BookmarksScreen>
           (i) => _BookmarkTabView(
             state: state,
             tab: _tabs[i],
-            emptyMessage: _emptyMessages(context)[i],
+            emptyMessage: emptyMessages[i],
             isDark: isDark,
             onRefresh: () => ref.read(bookmarksProvider.notifier).refresh(),
             onRetry: () => ref.read(bookmarksProvider.notifier).load(),

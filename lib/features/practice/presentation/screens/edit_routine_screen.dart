@@ -224,9 +224,7 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
 
   RoutineItem _routineItemFromTimer(PresetTimer timer) => RoutineItem(
     id: _uuid.v4(),
-    title: AppLocalizations.of(context)!.timer_minute_session(
-      timer.displayMinutes,
-    ),
+    title: '',
     type: RoutineItemType.timer,
     durationMs: timer.durationMs,
   );
