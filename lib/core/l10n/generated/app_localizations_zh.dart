@@ -1584,6 +1584,11 @@ class AppLocalizationsZh extends AppLocalizations {
   String get group_practice_with_us => '與我們一起修行';
 
   @override
+  String series_practicing_with_group(String groupName) {
+    return '與 $groupName 一起修行';
+  }
+
+  @override
   String get group_change_practice_title => 'Change group practice';
 
   @override

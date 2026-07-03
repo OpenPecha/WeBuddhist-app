@@ -1675,6 +1675,11 @@ class AppLocalizationsHi extends AppLocalizations {
   String get group_practice_with_us => 'हमारे साथ अभ्यास करें';
 
   @override
+  String series_practicing_with_group(String groupName) {
+    return '$groupName के साथ अभ्यास';
+  }
+
+  @override
   String get group_change_practice_title => 'Change group practice';
 
   @override

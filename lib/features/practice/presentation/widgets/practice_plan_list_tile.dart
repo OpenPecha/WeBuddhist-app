@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/core/widgets/responsive_cover_image.dart';
 import 'package:flutter_pecha/features/home/domain/entities/series.dart';
+import 'package:flutter_pecha/features/home/presentation/widgets/series_plan_card_widgets.dart';
 import 'package:flutter_pecha/features/plans/data/utils/plan_date_format.dart';
 
 /// Horizontal list-row card for a practice plan: a small rounded thumbnail on
@@ -16,6 +16,9 @@ class PracticePlanListTile extends StatelessWidget {
 
   final Series series;
   final VoidCallback onTap;
+
+  static const _titleFontSize = 15.0;
+  static const _metaFontSize = 13.0;
 
   @override
   Widget build(BuildContext context) {
@@ -55,55 +58,56 @@ class PracticePlanListTile extends StatelessWidget {
                     Text(
                       series.title,
                       style: const TextStyle(
-                        fontSize: 15,
+                        fontSize: _titleFontSize,
                         fontWeight: FontWeight.w700,
                         height: 1.3,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    if (dateRange != null || series.enrolledCount > 0) ...[
-                      const SizedBox(height: 4),
-                      Row(
-                        children: [
-                          if (dateRange != null)
+                    if (series.partner != null) ...[
+                      if (series.progress != null &&
+                          series.progress!.totalDayCount > 0) ...[
+                        const SizedBox(height: 8),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
                             Expanded(
-                              child: Text(
-                                dateRange,
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  color:
-                                      Theme.of(
-                                        context,
-                                      ).colorScheme.onSurfaceVariant,
-                                ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
+                              child: SeriesPlanProgressBar(
+                                progress: series.progress!,
                               ),
                             ),
-                          if (series.enrolledCount > 0) ...[
-                            Icon(
-                              AppAssets.usercard,
-                              size: 15,
-                              color:
-                                  Theme.of(
-                                    context,
-                                  ).colorScheme.onSurfaceVariant,
-                            ),
-                            const SizedBox(width: 4),
-                            Text(
-                              '${series.enrolledCount}',
-                              style: TextStyle(
-                                fontSize: 13,
-                                color:
-                                    Theme.of(
-                                      context,
-                                    ).colorScheme.onSurfaceVariant,
+                            if (series.enrolledCount > 0)
+                              SeriesPlanEnrolledCount(
+                                count: series.enrolledCount,
+                                fontSize: _metaFontSize,
                               ),
-                            ),
                           ],
-                        ],
-                      ),
+                        ),
+                      ] else if (series.enrolledCount > 0) ...[
+                        const SizedBox(height: 4),
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: SeriesPlanEnrolledCount(
+                            count: series.enrolledCount,
+                            fontSize: _metaFontSize,
+                          ),
+                        ),
+                      ],
+                    ] else ...[
+                      if (dateRange != null || series.enrolledCount > 0) ...[
+                        const SizedBox(height: 4),
+                        SeriesPlanMetaRow(
+                          series: series,
+                          fontSize: _metaFontSize,
+                        ),
+                      ],
+                      if (series.progress != null &&
+                          series.progress!.totalDayCount > 0) ...[
+                        const SizedBox(height: 8),
+                        SeriesPlanProgressBar(progress: series.progress!),
+                      ],
                     ],
                   ],
                 ),

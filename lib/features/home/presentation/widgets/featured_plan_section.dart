@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/core/theme/font_config.dart';
@@ -8,6 +7,7 @@ import 'package:flutter_pecha/features/home/domain/entities/series.dart';
 import 'package:flutter_pecha/features/home/presentation/providers/featured_series_provider.dart';
 import 'package:flutter_pecha/features/home/presentation/providers/routine_info_provider.dart';
 import 'package:flutter_pecha/features/home/presentation/widgets/featured_plan_section_skeleton.dart';
+import 'package:flutter_pecha/features/home/presentation/widgets/series_plan_card_widgets.dart';
 import 'package:flutter_pecha/features/plans/data/utils/plan_date_format.dart';
 import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -152,51 +152,6 @@ Color _featuredPlanBackgroundColor(BuildContext context) {
   return isDark ? AppColors.cardBackgroundDark : AppColors.surfaceWhite;
 }
 
-class _FeaturedPlanMetaRow extends StatelessWidget {
-  const _FeaturedPlanMetaRow({required this.series, required this.fontSize});
-
-  final Series series;
-  final double fontSize;
-
-  @override
-  Widget build(BuildContext context) {
-    final dateRange = _formatSeriesDateRange(series);
-    if (dateRange == null && series.enrolledCount <= 0) {
-      return const SizedBox.shrink();
-    }
-
-    final isTibetan = context.isTibetanLocale;
-    final secondaryColor = Theme.of(context).colorScheme.onSurfaceVariant;
-    final textStyle = TextStyle(
-      fontSize: fontSize,
-      fontWeight: FontWeight.w500,
-      color: secondaryColor,
-      height: isTibetan ? AppFontConfig.tibetanCompactLineHeight : 1.2,
-      leadingDistribution:
-          isTibetan ? AppFontConfig.tibetanLeadingDistribution : null,
-    );
-
-    return Row(
-      children: [
-        if (dateRange != null)
-          Expanded(
-            child: Text(
-              dateRange,
-              style: textStyle,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-        if (series.enrolledCount > 0) ...[
-          Icon(AppAssets.usercard, size: fontSize + 2, color: secondaryColor),
-          const SizedBox(width: 4),
-          Text('${series.enrolledCount}', style: textStyle),
-        ],
-      ],
-    );
-  }
-}
-
 class _FeaturedPlanHeroCard extends StatelessWidget {
   const _FeaturedPlanHeroCard({
     required this.series,
@@ -271,12 +226,31 @@ class _FeaturedPlanHeroCard extends StatelessWidget {
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  if (dateRange != null || series.enrolledCount > 0) ...[
+                  if (series.partner != null) ...[
                     SizedBox(height: titleDateGap),
-                    _FeaturedPlanMetaRow(
-                      series: series,
-                      fontSize: dateFontSize,
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Expanded(
+                          child: SeriesPlanPartnerRow(
+                            partner: series.partner!,
+                            fontSize: dateFontSize,
+                            avatarSize: 32,
+                          ),
+                        ),
+                        if (series.enrolledCount > 0) ...[
+                          const SizedBox(width: 12),
+                          SeriesPlanEnrolledCount(
+                            count: series.enrolledCount,
+                            fontSize: dateFontSize,
+                          ),
+                        ],
+                      ],
                     ),
+                  ] else if (dateRange != null || series.enrolledCount > 0) ...[
+                    SizedBox(height: titleDateGap),
+                    SeriesPlanMetaRow(series: series, fontSize: dateFontSize),
                   ],
                 ],
               ),
@@ -366,12 +340,49 @@ class _FeaturedPlanListItem extends StatelessWidget {
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    if (dateRange != null || series.enrolledCount > 0) ...[
-                      SizedBox(height: titleDateGap),
-                      _FeaturedPlanMetaRow(
-                        series: series,
-                        fontSize: dateFontSize,
-                      ),
+                    if (series.partner != null) ...[
+                      if (series.progress != null &&
+                          series.progress!.totalDayCount > 0) ...[
+                        SizedBox(height: titleDateGap + 4),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Expanded(
+                              child: SeriesPlanProgressBar(
+                                progress: series.progress!,
+                              ),
+                            ),
+                            if (series.enrolledCount > 0)
+                              SeriesPlanEnrolledCount(
+                                count: series.enrolledCount,
+                                fontSize: dateFontSize,
+                              ),
+                          ],
+                        ),
+                      ] else if (series.enrolledCount > 0) ...[
+                        SizedBox(height: titleDateGap),
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: SeriesPlanEnrolledCount(
+                            count: series.enrolledCount,
+                            fontSize: dateFontSize,
+                          ),
+                        ),
+                      ],
+                    ] else ...[
+                      if (dateRange != null || series.enrolledCount > 0) ...[
+                        SizedBox(height: titleDateGap),
+                        SeriesPlanMetaRow(
+                          series: series,
+                          fontSize: dateFontSize,
+                        ),
+                      ],
+                      if (series.progress != null &&
+                          series.progress!.totalDayCount > 0) ...[
+                        SizedBox(height: titleDateGap + 4),
+                        SeriesPlanProgressBar(progress: series.progress!),
+                      ],
                     ],
                   ],
                 ),

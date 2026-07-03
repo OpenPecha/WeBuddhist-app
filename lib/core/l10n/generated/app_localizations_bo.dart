@@ -1683,6 +1683,11 @@ class AppLocalizationsBo extends AppLocalizations {
   String get group_practice_with_us => 'ང་ཚོ་དང་མཉམ་དུ་སྒོམ་གྱི།';
 
   @override
+  String series_practicing_with_group(String groupName) {
+    return '$groupName དང་མཉམ་དུ་ཉམས་ལེན་བྱེད';
+  }
+
+  @override
   String get group_change_practice_title => 'Change group practice';
 
   @override

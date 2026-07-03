@@ -72,6 +72,7 @@ class SeriesRemoteDatasource {
       final response = await dio.get(
         '/series',
         queryParameters: params.toQueryParams(),
+        options: Options(extra: {'no_cache': true}),
       );
 
       if (response.statusCode == 200) {
@@ -96,6 +97,7 @@ class SeriesRemoteDatasource {
       final response = await dio.get(
         '/series',
         queryParameters: {'language': language},
+        options: Options(extra: {'no_cache': true}),
       );
 
       if (response.statusCode == 200) {
@@ -123,6 +125,7 @@ class SeriesRemoteDatasource {
       final response = await dio.get(
         '/series/$id',
         queryParameters: {'language': language},
+        options: Options(extra: {'no_cache': true}),
       );
 
       if (response.statusCode == 200) {

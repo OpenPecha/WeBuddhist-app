@@ -1679,6 +1679,11 @@ class AppLocalizationsMn extends AppLocalizations {
   String get group_practice_with_us => 'Бидэнтэй хамт дадлага хий';
 
   @override
+  String series_practicing_with_group(String groupName) {
+    return '$groupName-тай хамт дадлага хийж байна';
+  }
+
+  @override
   String get group_change_practice_title => 'Change group practice';
 
   @override

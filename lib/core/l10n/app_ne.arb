@@ -789,6 +789,7 @@
   "group_links_title": "लिङ्कहरू",
   "group_and_more_links": "र अरू {count} लिङ्कहरू",
   "group_practice_with_us": "हामीसँग अभ्यास गर्नुहोस्",
+  "series_practicing_with_group": "{groupName} सँग अभ्यास",
   "group_join_to_contribute": "योगदानका लागि सामेल हुनुहोस्",
   "group_accumulator_join_error": "संचयमा सामेल हुन असमर्थ। कृपया फेरि प्रयास गर्नुहोस्।",
   "group_accumulator_participants": "{count} सहभागी",

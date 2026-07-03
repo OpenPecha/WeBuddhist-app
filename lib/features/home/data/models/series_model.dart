@@ -52,6 +52,8 @@ class SeriesModel {
   final List<PlansModel> plans;
   final int totalDays;
   final Map<String, dynamic>? groupJson;
+  final Map<String, dynamic>? progressJson;
+  final Map<String, dynamic>? partnerJson;
 
   SeriesModel({
     required this.id,
@@ -67,6 +69,8 @@ class SeriesModel {
     this.plans = const [],
     this.totalDays = 0,
     this.groupJson,
+    this.progressJson,
+    this.partnerJson,
   });
 
   String? get imageUrl => image?.displayUrl;
@@ -121,6 +125,14 @@ class SeriesModel {
           json['group'] is Map<String, dynamic>
               ? json['group'] as Map<String, dynamic>
               : null,
+      progressJson:
+          json['progress'] is Map<String, dynamic>
+              ? json['progress'] as Map<String, dynamic>
+              : null,
+      partnerJson:
+          json['partner'] is Map<String, dynamic>
+              ? json['partner'] as Map<String, dynamic>
+              : null,
     );
   }
 
@@ -139,6 +151,8 @@ class SeriesModel {
       'plans': plans.map((p) => p.toJson()).toList(),
       'total_days': totalDays,
       'group': groupJson,
+      'progress': progressJson,
+      'partner': partnerJson,
     };
   }
 
@@ -158,6 +172,28 @@ class SeriesModel {
       endDate: endDate,
       plans: plans.map((p) => p.toEntity()).toList(),
       group: _parseGroup(language),
+      progress: _parseProgress(),
+      partner: _parsePartner(),
+    );
+  }
+
+  SeriesProgress? _parseProgress() {
+    final p = progressJson;
+    if (p == null) return null;
+    return SeriesProgress(
+      totalDayCount: (p['total_day_count'] as num?)?.toInt() ?? 0,
+      currentDayNumber: (p['current_day_number'] as num?)?.toInt() ?? 0,
+    );
+  }
+
+  SeriesPartner? _parsePartner() {
+    final p = partnerJson;
+    if (p == null) return null;
+    final name = p['group_name'] as String? ?? '';
+    if (name.isEmpty) return null;
+    return SeriesPartner(
+      groupName: name,
+      groupImage: p['group_image'] as String?,
     );
   }
 
