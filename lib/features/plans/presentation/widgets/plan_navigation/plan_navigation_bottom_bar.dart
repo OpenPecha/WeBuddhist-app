@@ -94,8 +94,10 @@ class PlanNavigationBottomBar extends StatelessWidget {
   Widget _buildFullControls(BuildContext context, NavigationContext ctx) {
     final hasPrevious = ctx.hasPreviousText;
     final hasNext = ctx.hasNextText;
-    final progress =
-        '${(ctx.currentTextIndex ?? 0) + 1} of ${ctx.planTextItems!.length}';
+    final progress = context.l10n.pagination_position(
+      (ctx.currentTextIndex ?? 0) + 1,
+      ctx.planTextItems!.length,
+    );
     final title = ctx.currentItem?.title ?? fallbackTitle;
     void onPop() => Navigator.of(context).maybePop();
 

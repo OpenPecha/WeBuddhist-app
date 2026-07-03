@@ -503,7 +503,7 @@ class _SwipeForMorePrompt extends StatelessWidget {
               Icon(Icons.keyboard_arrow_up_rounded, color: color, size: 24),
               const SizedBox(width: 6),
               Text(
-                'Swipe up for more',
+                context.l10n.reader_swipe_up_for_more,
                 style: theme.textTheme.bodyMedium?.copyWith(color: color),
               ),
             ],
@@ -529,7 +529,7 @@ class _VideosSection extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.fromLTRB(20, 12, 20, 8),
           child: Text(
-            'Videos',
+            context.l10n.reader_videos,
             style: theme.textTheme.titleMedium?.copyWith(
               fontWeight: FontWeight.w600,
               fontSize: 18,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
 import 'package:flutter_pecha/features/auth/presentation/widgets/login_drawer.dart';
@@ -135,9 +136,9 @@ class BookmarkController {
   void _showSavedSnackBar() {
     if (!context.mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Bookmark saved'),
-        duration: Duration(seconds: 2),
+      SnackBar(
+        content: Text(context.l10n.bookmark_saved),
+        duration: const Duration(seconds: 2),
       ),
     );
   }
@@ -145,9 +146,9 @@ class BookmarkController {
   void _showRemovedSnackBar() {
     if (!context.mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Bookmark removed'),
-        duration: Duration(seconds: 2),
+      SnackBar(
+        content: Text(context.l10n.bookmark_removed),
+        duration: const Duration(seconds: 2),
       ),
     );
   }
@@ -157,7 +158,9 @@ class BookmarkController {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          'Failed to ${wasBookmarked ? 'remove' : 'save'} bookmark',
+          wasBookmarked
+              ? context.l10n.bookmark_remove_failed
+              : context.l10n.bookmark_save_failed,
         ),
         duration: const Duration(seconds: 2),
       ),

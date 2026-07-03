@@ -1,4 +1,5 @@
 import 'package:flutter_pecha/features/plans/data/models/plans_model.dart';
+import 'package:flutter_pecha/features/recitation/data/models/recitation_model.dart';
 import 'package:flutter_pecha/shared/domain/value_objects/responsive_image.dart';
 
 enum SessionType {
@@ -91,6 +92,7 @@ class SessionDTO {
   final DateTime? startedAt;
   final String? currentPlanId;
   final String? currentPlanTitle;
+  final RecitationFirstSegmentModel? firstSegment;
 
   const SessionDTO({
     required this.id,
@@ -105,6 +107,7 @@ class SessionDTO {
     this.startedAt,
     this.currentPlanId,
     this.currentPlanTitle,
+    this.firstSegment,
   });
 
   String? get imageUrl => image?.displayUrl;
@@ -116,8 +119,6 @@ class SessionDTO {
     final durationMs =
         (json['duration_ms'] as num?)?.toInt() ??
         (json['duration'] as num?)?.toInt();
-    final fallbackTimerTitle =
-        durationMs != null ? '${durationMs ~/ 60000} min session' : 'Timer';
 
     return SessionDTO(
       id: json['id'] as String,
@@ -125,7 +126,7 @@ class SessionDTO {
       sourceId: _sourceIdFromJson(json, sessionType),
       title:
           sessionType == SessionType.timer
-              ? ((json['title'] as String?) ?? fallbackTimerTitle)
+              ? ((json['title'] as String?) ?? '')
               : (json['title'] as String),
       language: (json['language'] as String?) ?? '',
       image: ImageModel.fromJsonMap(json),
@@ -141,6 +142,12 @@ class SessionDTO {
               : null,
       currentPlanId: json['current_plan_id'] as String?,
       currentPlanTitle: json['current_plan_title'] as String?,
+      firstSegment:
+          json['first_segment'] is Map<String, dynamic>
+              ? RecitationFirstSegmentModel.fromJson(
+                json['first_segment'] as Map<String, dynamic>,
+              )
+              : null,
     );
   }
 

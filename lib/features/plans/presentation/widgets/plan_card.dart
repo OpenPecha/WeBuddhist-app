@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
+import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/core/widgets/responsive_cover_image.dart';
 import 'package:flutter_pecha/features/plans/domain/entities/plan.dart';
 import 'package:flutter_pecha/shared/extensions/typography_extensions.dart';
@@ -57,7 +58,7 @@ Widget _buildPlanInfo(BuildContext context, Plan plan, WidgetRef ref) {
     children: [
       const SizedBox(height: 4),
       Text(
-        '${plan.totalDays} Days',
+        context.l10n.days_count(plan.totalDays),
         style: context.languageTextStyle(
           languageCode,
           fontSize: fontSize,

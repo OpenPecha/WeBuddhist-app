@@ -4,8 +4,10 @@ import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/features/practice/data/models/routine_model.dart';
+import 'package:flutter_pecha/features/practice/data/utils/routine_item_display.dart';
 import 'package:flutter_pecha/features/practice/data/utils/routine_time_utils.dart';
 import 'package:flutter_pecha/core/widgets/destructive_confirmation_dialog.dart';
+import 'package:flutter_pecha/features/practice/presentation/widgets/practice_chant_list_tile.dart';
 import 'package:flutter_pecha/features/practice/presentation/widgets/routine_item_card.dart';
 
 class RoutineTimeBlock extends StatelessWidget {
@@ -37,7 +39,9 @@ class RoutineTimeBlock extends StatelessWidget {
     final confirmed = await showDestructiveConfirmationDialog(
       context,
       title: l10n.removeItem,
-      message: l10n.removeConfirmation(items[index].title),
+      message: l10n.removeConfirmation(
+        routineItemDisplayTitle(items[index], l10n),
+      ),
     );
     if (confirmed == true) {
       onDeleteItem(index);
@@ -135,26 +139,8 @@ class RoutineTimeBlock extends StatelessWidget {
                         ),
                       ),
                     ),
-                    // White card containing item content + drag handle
                     Expanded(
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: isDark
-                              ? AppColors.cardBackgroundDark
-                              : AppColors.cardBackgroundLight,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 12),
-                          child: RoutineItemCard(
-                            title: item.title,
-                            coverImage: item.coverImage,
-                            type: item.type,
-                            reorderIndex: i,
-                            imageSize: 56,
-                          ),
-                        ),
-                      ),
+                      child: _buildItemTile(context, item, i, isDark),
                     ),
                   ],
                 ),
@@ -170,6 +156,54 @@ class RoutineTimeBlock extends StatelessWidget {
           isDark: isDark,
         ),
       ],
+    );
+  }
+
+  Widget _buildItemTile(
+    BuildContext context,
+    RoutineItem item,
+    int index,
+    bool isDark,
+  ) {
+    final dragHandle = ReorderableDragStartListener(
+      index: index,
+      child: GestureDetector(
+        onTapDown: (_) => HapticFeedback.heavyImpact(),
+        child: Icon(
+          AppAssets.list,
+          size: 22,
+          color:
+              isDark ? AppColors.textTertiaryDark : AppColors.textSecondary,
+        ),
+      ),
+    );
+
+    if (item.type == RoutineItemType.recitation) {
+      return PracticeChantListTile(
+        recitation: recitationModelFromRoutineItem(item),
+        includeOuterPadding: false,
+        showTrailingCaret: false,
+        trailing: dragHandle,
+      );
+    }
+
+    return Container(
+      decoration: BoxDecoration(
+        color: isDark
+            ? AppColors.cardBackgroundDark
+            : AppColors.cardBackgroundLight,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12),
+        child: RoutineItemCard(
+          title: routineItemDisplayTitle(item, context.l10n),
+          coverImage: item.coverImage,
+          type: item.type,
+          reorderIndex: index,
+          imageSize: 56,
+        ),
+      ),
     );
   }
 }

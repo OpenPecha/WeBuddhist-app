@@ -147,7 +147,12 @@ class TimersRepository implements TimersRepositoryInterface {
           durationMs: stop.durationMs,
         );
         await local.removePendingStop(userId, stop.id);
+      } on NotFoundException {
+        // Permanent rejection (endpoint/timer gone) — retrying never succeeds,
+        // so drop the queued stop instead of re-attempting it on every resume.
+        await local.removePendingStop(userId, stop.id);
       } catch (_) {
+        // Transient failure (network/server) — stop here and retry next flush.
         return;
       }
     }

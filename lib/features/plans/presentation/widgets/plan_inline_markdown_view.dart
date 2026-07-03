@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
+import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/features/group_profile/presentation/widgets/group_profile_drawer.dart';
 import 'package:flutter_pecha/features/texts/presentation/widgets/segment_drawer.dart';
 import 'package:flutter_pecha/shared/utils/helper_functions.dart';
@@ -114,9 +115,9 @@ class PlanInlineMarkdownView extends StatelessWidget {
         await launchUrl(uri, mode: LaunchMode.externalApplication);
         return;
       }
-      if (context.mounted) context.showSnackBar('Cannot open this link');
+      if (context.mounted) context.showSnackBar(context.l10n.link_cannot_open);
     } catch (_) {
-      if (context.mounted) context.showSnackBar('Invalid URL');
+      if (context.mounted) context.showSnackBar(context.l10n.link_invalid);
     }
   }
 }

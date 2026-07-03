@@ -140,7 +140,7 @@ class _VersionTile extends StatelessWidget {
                   color: theme.colorScheme.onSurface.withValues(alpha: 0.55),
                 ),
                 splashRadius: 18,
-                tooltip: 'About this version',
+                tooltip: AppLocalizations.of(context)!.reader_about_this_version,
               ),
               SizedBox(
                 width: 18,

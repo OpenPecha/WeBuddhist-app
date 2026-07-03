@@ -107,7 +107,7 @@ class _DayCompletionBottomSheetState extends State<DayCompletionBottomSheet> {
 
   Widget _buildDayText(BuildContext context) {
     return Text(
-      'Day ${widget.dayNumber} of ${widget.totalDays}',
+      context.l10n.plan_day_of(widget.dayNumber, widget.totalDays),
       style: TextStyle(
         fontSize: 24,
         fontWeight: FontWeight.bold,
