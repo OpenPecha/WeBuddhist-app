@@ -461,15 +461,15 @@ class AppLocalizationsNe extends AppLocalizations {
       'रिमाइन्डरहरू रोकिएका छन्। पुनः सुरु गर्न ट्याप गर्नुहोस्।';
 
   @override
-  String get notification_routine_title => 'दिनचर्या रिमाइन्डरहरू';
+  String get notification_routine_title => 'योजना रिमाइन्डरहरू';
 
   @override
   String get notification_routine_subtitle_enabled =>
-      'तपाईंका अभ्यास ब्लकहरूका लागि दैनिक रिमाइन्डरहरू';
+      'तपाईंका योजनाहरूका लागि दैनिक रिमाइन्डरहरू';
 
   @override
   String get notification_routine_subtitle_disabled =>
-      'दिनचर्या रिमाइन्डरहरू रोकिएका छन्। पुनः सुरु गर्न ट्याप गर्नुहोस्।';
+      'योजना रिमाइन्डरहरू रोकिएका छन्। पुनः सुरु गर्न ट्याप गर्नुहोस्।';
 
   @override
   String get notification_battery_title => 'पृष्ठभूमि रिमाइन्डरहरू';

@@ -17,7 +17,10 @@ class AppAssets {
   static const String verseOfDayFallback = 'assets/images/buddha.jpeg';
 
   // ========== AUDIO ==========
-  static const String meditationSound = 'assets/audios/meditation.mp3';
+  // PCM WAV (not MP3): ExoPlayer's offload path mis-parses the encoded MP3 on
+  // the first cold-start play (getFramesPerEncodedSample → IllegalArgumentException),
+  // dropping the bell. PCM never takes that path, matching the working mala.wav.
+  static const String meditationSound = 'assets/audios/meditation.wav';
   static const String malaSound = 'assets/audios/mala.wav';
 
   // ========== LOGOS ==========

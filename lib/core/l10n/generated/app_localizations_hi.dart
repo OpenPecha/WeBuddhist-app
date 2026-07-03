@@ -460,15 +460,15 @@ class AppLocalizationsHi extends AppLocalizations {
       'रिमाइंडर रुके हुए हैं। फिर से शुरू करने के लिए टैप करें।';
 
   @override
-  String get notification_routine_title => 'रूटीन रिमाइंडर';
+  String get notification_routine_title => 'योजना रिमाइंडर';
 
   @override
   String get notification_routine_subtitle_enabled =>
-      'आपके अभ्यास ब्लॉक के लिए दैनिक रिमाइंडर';
+      'आपकी योजनाओं के लिए दैनिक रिमाइंडर';
 
   @override
   String get notification_routine_subtitle_disabled =>
-      'रूटीन रिमाइंडर रुके हुए हैं। फिर से शुरू करने के लिए टैप करें।';
+      'योजना रिमाइंडर रुके हुए हैं। फिर से शुरू करने के लिए टैप करें।';
 
   @override
   String get notification_battery_title => 'बैकग्राउंड रिमाइंडर';

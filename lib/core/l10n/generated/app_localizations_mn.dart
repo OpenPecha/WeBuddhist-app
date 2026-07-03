@@ -461,15 +461,15 @@ class AppLocalizationsMn extends AppLocalizations {
       'Сануулга түр зогссон. Үргэлжлүүлэхийн тулд дарна уу.';
 
   @override
-  String get notification_routine_title => 'Дадлагын сануулга';
+  String get notification_routine_title => 'Төлөвлөгөөний сануулга';
 
   @override
   String get notification_routine_subtitle_enabled =>
-      'Таны дадлагын цаг хугацааны өдөр тутмын сануулга';
+      'Таны төлөвлөгөөний өдөр тутмын сануулга';
 
   @override
   String get notification_routine_subtitle_disabled =>
-      'Дадлагын сануулга түр зогссон. Үргэлжлүүлэхийн тулд дарна уу.';
+      'Төлөвлөгөөний сануулга түр зогссон. Үргэлжлүүлэхийн тулд дарна уу.';
 
   @override
   String get notification_battery_title => 'Дэвсгэр сануулга';

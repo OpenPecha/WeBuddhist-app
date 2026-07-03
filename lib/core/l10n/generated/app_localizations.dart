@@ -937,19 +937,19 @@ abstract class AppLocalizations {
   /// No description provided for @notification_routine_title.
   ///
   /// In en, this message translates to:
-  /// **'Routine reminders'**
+  /// **'Plan reminders'**
   String get notification_routine_title;
 
   /// No description provided for @notification_routine_subtitle_enabled.
   ///
   /// In en, this message translates to:
-  /// **'Daily reminders for your practice blocks'**
+  /// **'Daily reminders for your plans'**
   String get notification_routine_subtitle_enabled;
 
   /// No description provided for @notification_routine_subtitle_disabled.
   ///
   /// In en, this message translates to:
-  /// **'Routine reminders are paused. Tap to resume.'**
+  /// **'Plan reminders are paused. Tap to resume.'**
   String get notification_routine_subtitle_disabled;
 
   /// No description provided for @notification_battery_title.

@@ -457,15 +457,15 @@ class AppLocalizationsEn extends AppLocalizations {
       'Reminders are paused. Tap to resume.';
 
   @override
-  String get notification_routine_title => 'Routine reminders';
+  String get notification_routine_title => 'Plan reminders';
 
   @override
   String get notification_routine_subtitle_enabled =>
-      'Daily reminders for your practice blocks';
+      'Daily reminders for your plans';
 
   @override
   String get notification_routine_subtitle_disabled =>
-      'Routine reminders are paused. Tap to resume.';
+      'Plan reminders are paused. Tap to resume.';
 
   @override
   String get notification_battery_title => 'Background reminders';
