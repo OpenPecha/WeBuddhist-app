@@ -69,6 +69,7 @@ class LocalMalaState {
   Map<String, dynamic> toJson() => {
     'total': total,
     'syncedTotal': syncedTotal,
+    'totalCounted': totalCounted,
     if (accumulatorId != null) 'accumulatorId': accumulatorId,
     if (beadImageUrl != null) 'beadImageUrl': beadImageUrl,
     if (beadImageBase64 != null) 'beadImageBase64': beadImageBase64,
