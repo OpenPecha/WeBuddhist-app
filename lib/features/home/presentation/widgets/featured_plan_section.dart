@@ -370,19 +370,10 @@ class _FeaturedPlanListItem extends StatelessWidget {
                           ),
                         ),
                       ],
-                    ] else ...[
-                      if (dateRange != null || series.enrolledCount > 0) ...[
-                        SizedBox(height: titleDateGap),
-                        SeriesPlanMetaRow(
-                          series: series,
-                          fontSize: dateFontSize,
-                        ),
-                      ],
-                      if (series.progress != null &&
-                          series.progress!.totalDayCount > 0) ...[
-                        SizedBox(height: titleDateGap + 4),
-                        SeriesPlanProgressBar(progress: series.progress!),
-                      ],
+                    ] else if (dateRange != null ||
+                        series.enrolledCount > 0) ...[
+                      SizedBox(height: titleDateGap),
+                      SeriesPlanMetaRow(series: series, fontSize: dateFontSize),
                     ],
                   ],
                 ),
