@@ -34,8 +34,8 @@ class PushNotificationService {
   PushNotificationService({
     required PushMessagingRepository repository,
     required LocalStorageService storage,
-  })  : _repository = repository,
-        _storage = storage;
+  }) : _repository = repository,
+       _storage = storage;
 
   final PushMessagingRepository _repository;
   final LocalStorageService _storage;
@@ -133,14 +133,18 @@ class PushNotificationService {
     if (shouldRegister) unawaited(_registerToken());
   }
 
+  /// Re-sends the device registration so the backend picks up the latest
+  /// notification-category preferences. Called when the user flips a
+  /// notification toggle. No-op until a token is captured and the user is
+  /// signed in (the guards live in [_registerToken]).
+  void refreshRegistration() => unawaited(_registerToken());
+
   Future<void> _onToken(String token) async {
     if (token == _token) return;
     _token = token;
     await _storage.set(StorageKeys.fcmToken, token);
-    _logger.info('FCM token captured/refreshed');
     // Full token logged at debug level only (stripped from release builds) so
     // you can copy it into the Firebase console to send a test push.
-    _logger.debug('FCM token: $token');
     _logger.debug('FCM token: $token');
     await _registerToken();
   }
@@ -149,12 +153,36 @@ class PushNotificationService {
     final token = _token;
     if (token == null || !_loggedIn) return;
     final deviceId = await _deviceId();
-    final result =
-        await _repository.registerDeviceToken(token, deviceId: deviceId);
+    final result = await _repository.registerDeviceToken(
+      token,
+      deviceId: deviceId,
+      preferences: await _readPreferences(),
+    );
     result.fold(
-      (failure) => _logger.warning('Token registration failed: ${failure.message}'),
+      (failure) =>
+          _logger.warning('Token registration failed: ${failure.message}'),
       (_) => _logger.info('Token registered'),
     );
+  }
+
+  /// Reads the only notification preference that FCM cares about: whether
+  /// plan/series pushes are enabled — the sole category delivered via push.
+  ///
+  /// It is the AND of the master switch and the "routine" toggle: master is the
+  /// global kill-switch, so master OFF disables plan/series push regardless of
+  /// the routine toggle. Recitation, mala and timer are local-only (handled
+  /// on-device) and never go to the backend. Both flags default to `true` (the
+  /// settings-screen default) when never set.
+  ///
+  /// This must be gated server-side: for background / terminated notification
+  /// messages the OS displays the push before the app runs, so a local check
+  /// can't suppress them — only the backend can.
+  Future<Map<String, bool>> _readPreferences() async {
+    Future<bool> read(String key) async =>
+        (await _storage.get<bool>(key)) ?? true;
+    final masterOn = await read(StorageKeys.notificationMasterEnabled);
+    final routineOn = await read(StorageKeys.notificationRoutineEnabled);
+    return {'routine': masterOn && routineOn};
   }
 
   /// Returns the stable per-install device id, generating and persisting one on
@@ -187,8 +215,11 @@ class PushNotificationService {
 
   Future<void> _createAndroidChannel() async {
     // Resolver returns null off-Android, so this is a no-op on iOS/macOS.
-    final android = _localNotifications.resolvePlatformSpecificImplementation<
-        AndroidFlutterLocalNotificationsPlugin>();
+    final android =
+        _localNotifications
+            .resolvePlatformSpecificImplementation<
+              AndroidFlutterLocalNotificationsPlugin
+            >();
     await android?.createNotificationChannel(
       NotificationChannels.pushDefaultChannel,
     );

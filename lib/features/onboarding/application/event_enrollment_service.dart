@@ -3,11 +3,8 @@ import 'dart:async';
 import 'package:flutter_pecha/core/analytics/analytics_events.dart';
 import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
 import 'package:flutter_pecha/core/analytics/analytics_providers.dart';
-import 'package:flutter_pecha/core/storage/plan_metadata_store.dart';
-import 'package:flutter_pecha/core/storage/special_plan_started_at_store.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/features/notifications/application/notification_sync_engine.dart';
-import 'package:flutter_pecha/features/notifications/data/special_plan_notifications.dart';
 import 'package:flutter_pecha/features/plans/data/models/response/user_plan_list_response_model.dart';
 import 'package:flutter_pecha/features/plans/data/models/user/user_plans_model.dart';
 import 'package:flutter_pecha/features/plans/domain/usecases/user_plans_usecases.dart';
@@ -69,45 +66,24 @@ class EventEnrollmentService {
       await _addToRoutine(planId);
     }
 
-    // Fetch the user's enrolled plans BEFORE persisting the routine so the
-    // special-plan startedAt cache is primed by the time the sync engine
-    // runs from `_persistRoutineLocallyAndScheduleNotifications`. Otherwise
-    // the first schedule on enrollment day would fall back to default
-    // routine content.
+    // Fetch the user's enrolled plans to return to the caller. Plan/series
+    // reminders are delivered via server push (FCM) now, so there is no local
+    // plan-metadata cache to prime here.
     _logger.info('[SP-ENROLL] fetching enrolled plans');
     final enrolledPlans = await _fetchEnrolledPlans(planIds);
     _logger.info(
       '[SP-ENROLL] fetched ${enrolledPlans.length} enrolled plans: '
       '${enrolledPlans.map((p) => "${p.id}@${p.startedAt.toIso8601String()}").join(", ")}',
     );
-    // Mirror plan metadata into the synchronous stores so the engine can
-    // compute fire dates without awaiting. Replaces the previous
-    // `onSpecialPlanEnrolled` + `onPlanEnrolled` hooks.
-    for (final plan in enrolledPlans) {
-      final anchor = plan.effectiveStartDate;
-      await PlanMetadataStore.setMetadata(
-        plan.id,
-        effectiveStartDate: anchor,
-        totalDays: plan.totalDays,
-      );
-      if (isSpecialPlan(plan.id)) {
-        await SpecialPlanStartedAtStore.setStartedAt(plan.id, anchor);
-      }
-      _logger.info(
-        '[NOTIFICATION_NEW_FLOW] enrol-cache ${plan.id} '
-        'anchor=${anchor.toIso8601String()} totalDays=${plan.totalDays}',
-      );
-    }
 
-    // Mirror the practice-tab edit-routine save flow: persist the final
-    // server routine to Hive (sync engine fires on cold-start sequence).
+    // Persist the final server routine to Hive, then reconcile local
+    // recitation/mala/timer notifications for the newly-saved routine.
     _logger.info('[SP-ENROLL] persisting routine + scheduling notifications');
     await _persistRoutineLocallyAndScheduleNotifications();
 
-    // Single sync at the end now that routine + metadata are both written.
     await _ref
         .read(notificationSyncEngineProvider)
-        .sync(trigger: SyncTrigger.planEnrolled);
+        .sync(trigger: SyncTrigger.routineSaved);
 
     _logger.info('[SP-ENROLL] enrollInEvents DONE returning ${enrolledPlans.length} plans');
     return enrolledPlans;

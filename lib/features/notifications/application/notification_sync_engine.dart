@@ -7,8 +7,6 @@ import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter/services.dart' show PlatformException;
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:flutter_pecha/core/config/app_feature_flags.dart';
-import 'package:flutter_pecha/core/storage/plan_metadata_store.dart';
 import 'package:flutter_pecha/core/storage/storage_keys.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
@@ -16,12 +14,6 @@ import 'package:flutter_pecha/features/notifications/data/channels/notification_
 import 'package:flutter_pecha/features/notifications/data/notification_id_scheme.dart';
 import 'package:flutter_pecha/features/notifications/data/services/notification_service.dart';
 import 'package:flutter_pecha/features/notifications/data/services/routine_notification_service.dart';
-import 'package:flutter_pecha/features/notifications/data/special_plan_notifications.dart';
-import 'package:flutter_pecha/features/notifications/domain/series_plan_schedule.dart';
-import 'package:flutter_pecha/features/plans/data/models/user/user_plans_model.dart';
-import 'package:flutter_pecha/features/plans/domain/usecases/user_plans_usecases.dart';
-import 'package:flutter_pecha/features/plans/presentation/providers/use_case_providers.dart';
-import 'package:flutter_pecha/features/plans/presentation/providers/user_plans_provider.dart';
 import 'package:flutter_pecha/features/practice/data/models/routine_model.dart';
 import 'package:flutter_pecha/features/practice/data/utils/routine_item_display.dart';
 import 'package:flutter_pecha/features/practice/presentation/providers/practice_providers.dart'
@@ -35,15 +27,17 @@ final _logger = AppLogger('NotificationSyncEngine');
 
 /// Every notification scheduling decision flows through one of these triggers.
 /// Used only for logging — the engine does the same work regardless.
+///
+/// Plan/series reminders are delivered via server push (FCM) now, so the
+/// engine only schedules local recitation, mala (accumulator) and timer
+/// daily-repeats. `routineToggle` is retained because the settings screen
+/// still owns the "Routine" switch (it gates plan/series *push* server-side).
 enum SyncTrigger {
   coldStart,
   appResume,
   appLaunch,
-  userPlansRefreshed,
   routineSaved,
   blockDeleted,
-  planEnrolled,
-  planUnenrolled,
   masterToggle,
   routineToggle,
   recitationToggle,
@@ -60,30 +54,23 @@ class DesiredNotification {
   /// Stable notification ID. See [NotificationIdScheme].
   final int id;
 
-  /// When this should fire. `null` for daily-repeat (case 4) notifications,
-  /// where only `time` matters.
+  /// When this should fire. Every current notification is a daily-repeat, so
+  /// this is the next occurrence of the block time.
   final tz.TZDateTime? fireAt;
 
   final String title;
   final String body;
   final String? payload;
 
-  /// Optional Android action button label (special-plan custom days).
-  final String? androidActionButtonText;
-
-  /// Source plan item (or null for recitation) — used to load images for the
-  /// big-picture style and iOS attachment.
+  /// Source routine item — used to load images for the big-picture style and
+  /// iOS attachment.
   final RoutineItem? sourceItem;
 
-  /// Enrolled plan id when [sourceItem] is a series routine row. Used for
-  /// idempotency stores and special-plan detection on the active plan.
-  final String? enrollmentPlanId;
-
-  /// True for recitation: schedule with `matchDateTimeComponents.time`
+  /// True for recitation/mala/timer: schedule with `matchDateTimeComponents.time`
   /// so it repeats daily forever until cancelled.
   final bool isDailyRepeat;
 
-  /// Case marker for the verification matrix (e.g. "3b", "4", "2a").
+  /// Case marker for the verification matrix (e.g. "4 daily-repeat").
   final String debugCase;
 
   const DesiredNotification({
@@ -94,8 +81,6 @@ class DesiredNotification {
     required this.payload,
     required this.sourceItem,
     required this.debugCase,
-    this.enrollmentPlanId,
-    this.androidActionButtonText,
     this.isDailyRepeat = false,
   });
 }
@@ -123,12 +108,18 @@ class NotificationSyncReport {
 }
 
 /// Single source of truth for keeping the OS notification schedule in sync
-/// with the routine + user-plans + toggle state.
+/// with the routine + toggle state.
 ///
-/// Every lifecycle event funnels through [sync]. The engine reads the four
-/// sources of truth, computes the desired schedule via the pure
-/// `_computeForX` helpers, then diffs against `pendingNotificationRequests()`
-/// and reconciles via the `flutter_local_notifications` plugin.
+/// Every lifecycle event funnels through [sync]. The engine reads the routine
+/// blocks + toggles, computes the desired schedule via the pure `_computeForX`
+/// helpers, then diffs against `pendingNotificationRequests()` and reconciles
+/// via the `flutter_local_notifications` plugin.
+///
+/// Only recitation, mala (accumulator) and timer daily-repeats are scheduled
+/// locally; plan/series reminders are delivered via server push (FCM). The
+/// cancel pass still recognises legacy plan/series IDs (via
+/// [NotificationIdScheme.isOurs]) so leftover notifications scheduled by older
+/// app versions are cleaned up on the first sync after upgrade.
 class NotificationSyncEngine {
   final RoutineNotificationService _service;
   final NotificationService _notificationService;
@@ -198,17 +189,19 @@ class NotificationSyncEngine {
     void bumpCase(String c) =>
         perCase.update(c, (v) => v + 1, ifAbsent: () => 1);
 
+    NotificationSyncReport empty() => NotificationSyncReport(
+          scheduled: 0,
+          cancelled: 0,
+          skipped: 0,
+          durationMs: stopwatch.elapsedMilliseconds,
+          perCase: perCase,
+        );
+
     if (!_notificationService.isInitialized) {
       _logger.warning(
         '[NOTIFICATION_NEW_FLOW] trigger=${trigger.name} skip=service-not-ready',
       );
-      return NotificationSyncReport(
-        scheduled: 0,
-        cancelled: 0,
-        skipped: 0,
-        durationMs: stopwatch.elapsedMilliseconds,
-        perCase: perCase,
-      );
+      return empty();
     }
 
     // Auth gate: while auth is still restoring we know nothing — touching the
@@ -219,13 +212,7 @@ class NotificationSyncEngine {
       _logger.info(
         '[NOTIFICATION_NEW_FLOW] trigger=${trigger.name} skip=auth-loading',
       );
-      return NotificationSyncReport(
-        scheduled: 0,
-        cancelled: 0,
-        skipped: 0,
-        durationMs: stopwatch.elapsedMilliseconds,
-        perCase: perCase,
-      );
+      return empty();
     }
     // Guests cannot have routines, so for scheduling purposes a guest
     // session is signed-out: desired set stays empty and any leftover
@@ -240,33 +227,17 @@ class NotificationSyncEngine {
       _logger.warning(
         '[NOTIFICATION_NEW_FLOW] trigger=${trigger.name} skip=routine-load-failed',
       );
-      return NotificationSyncReport(
-        scheduled: 0,
-        cancelled: 0,
-        skipped: 0,
-        durationMs: stopwatch.elapsedMilliseconds,
-        perCase: perCase,
-      );
+      return empty();
     }
 
     final togglePrefs = await SharedPreferences.getInstance();
     final masterOn = togglePrefs.getBool(StorageKeys.notificationMasterEnabled) ?? true;
-    final routineOn = togglePrefs.getBool(StorageKeys.notificationRoutineEnabled) ?? true;
     final recitationOn = togglePrefs.getBool(StorageKeys.notificationRecitationEnabled) ?? true;
     final practiceOn = togglePrefs.getBool(StorageKeys.notificationPracticeEnabled) ?? true;
     final timerOn = togglePrefs.getBool(StorageKeys.notificationTimerEnabled) ?? true;
     final osGranted = await _notificationService.areNotificationsEnabled();
 
     final routineBlocks = _ref.read(routineProvider).blocks;
-    // Only consult the plans provider when this sync might schedule
-    // something. Reading it mounts/rebuilds the FutureProvider, and doing
-    // that while logged out fires an unauthenticated GET /users/me/plans
-    // (403 noise on every logged-out cold start). In the cancel-all branch
-    // the desired set is empty and cancellation is already permitted, so
-    // plans are irrelevant.
-    final mightSchedule = loggedIn && masterOn && osGranted;
-    final plansById = mightSchedule ? await _readPlansById() : null;
-    final plansResolved = plansById != null;
     final now = DateTime.now();
 
     final pending = await _plugin.pendingNotificationRequests();
@@ -274,15 +245,6 @@ class NotificationSyncEngine {
         pending.where((p) => NotificationIdScheme.isOurs(p.id)).toList();
 
     final desired = <int, DesiredNotification>{};
-    final seriesPlansCache = <String, List<UserPlansModel>>{};
-
-    Future<List<UserPlansModel>> seriesPlansFor(String seriesId) async {
-      final cached = seriesPlansCache[seriesId];
-      if (cached != null) return cached;
-      final fetched = await _fetchPlansForSeries(seriesId);
-      seriesPlansCache[seriesId] = fetched;
-      return fetched;
-    }
 
     if (!loggedIn || !masterOn || !osGranted) {
       _logger.info(
@@ -292,18 +254,10 @@ class NotificationSyncEngine {
       if (!loggedIn) bumpCase('logged-out');
       if (!masterOn) bumpCase('5a');
     } else {
-      if (!plansResolved) {
-        _logger.warning(
-          '[NOTIFICATION_NEW_FLOW] trigger=${trigger.name} userPlans state '
-          'unknown (offline / loading / failure) — falling back to '
-          'PlanMetadataStore and skipping cancel pass to avoid wiping a '
-          'valid schedule',
-        );
-      }
       for (final block in routineBlocks) {
         if (block.items.isEmpty || !block.notificationEnabled) continue;
-        // A block may in principle hold both kinds of items — handle each by
-        // its own type instead of branching on the first item only.
+        // A block may in principle hold more than one kind of item — handle
+        // each by its own type instead of branching on the first item only.
         final hasRecitation =
             block.items.any((i) => i.type == RoutineItemType.recitation);
         if (hasRecitation) {
@@ -348,140 +302,22 @@ class NotificationSyncEngine {
             bumpCase(e.debugCase);
           }
         }
-        {
-          // Plan items — every plan item produces its own desired notifications.
-          for (final item in block.items.where((i) => i.type == RoutineItemType.series)) {
-            final isSeriesItem = plansById != null
-                ? isSeriesRoutineItem(item.id, plansById)
-                : item.currentPlanId != null ||
-                    PlanMetadataStore.getMetadata(item.id) == null;
-            if (isSeriesItem) {
-              var seriesPlans = await seriesPlansFor(item.id);
-              if (seriesPlans.isEmpty &&
-                  item.currentPlanId != null &&
-                  plansById != null) {
-                final current = plansById[item.currentPlanId!];
-                if (current != null) seriesPlans = [current];
-              }
-              if (seriesPlans.isEmpty && !plansResolved) {
-                final cachedPlanId = item.currentPlanId;
-                if (cachedPlanId != null) {
-                  final cached = PlanMetadataStore.getMetadata(cachedPlanId);
-                  if (cached != null) {
-                    seriesPlans = [
-                      _synthesizePlanFromMetadata(
-                        RoutineItem(
-                          id: cachedPlanId,
-                          title: item.title,
-                          type: RoutineItemType.series,
-                        ),
-                        cached,
-                      ),
-                    ];
-                  }
-                }
-              }
-              if (seriesPlans.isEmpty) {
-                _logger.info(
-                  '[NOTIFICATION_NEW_FLOW] trigger=${trigger.name} block=${block.id} '
-                  'series=${item.id} case=1 action=skip reason="no enrolled plans for series"',
-                );
-                bumpCase('1');
-                continue;
-              }
-              final entries = computeForSeriesBlock(
-                block,
-                item,
-                seriesPlans,
-                now,
-                masterOn: masterOn,
-                routineOn: routineOn,
-              );
-              for (final e in entries) {
-                desired[e.id] = e;
-                bumpCase(e.debugCase);
-              }
-              continue;
-            }
-
-            var plan = plansById?[item.id];
-            // Cached-metadata fallback is for the UNKNOWN state only
-            // (offline / loading). When the server list resolved and the
-            // plan is absent, the user unenrolled — falling back to stale
-            // cache here would keep scheduling ghost notifications for a
-            // plan they left, even though it still sits in a routine block.
-            if (plan == null && !plansResolved) {
-              final cached = PlanMetadataStore.getMetadata(item.id);
-              if (cached != null) {
-                plan = _synthesizePlanFromMetadata(item, cached);
-              }
-            }
-            if (plan == null) {
-              final reason = plansResolved
-                  ? 'no enrolment / not in userPlans'
-                  : 'userPlans not loaded; no cached metadata';
-              _logger.info(
-                '[NOTIFICATION_NEW_FLOW] trigger=${trigger.name} block=${block.id} '
-                'plan=${item.id} case=1 action=skip reason="$reason"',
-              );
-              bumpCase('1');
-              continue;
-            }
-            final entries = computeForPlanBlock(
-              block,
-              item,
-              plan,
-              now,
-              masterOn: masterOn,
-              routineOn: routineOn,
-            );
-            for (final e in entries) {
-              desired[e.id] = e;
-              bumpCase(e.debugCase);
-            }
-          }
-        }
       }
     }
-
-    // ── Global cap (iOS allows at most 64 pending requests) ──
-    // Daily repeats (one per recitation block) always survive; dated
-    // plan-series entries are capped to the soonest remaining slots so iOS
-    // never silently drops the notifications that matter most.
-    applyGlobalCap(desired, bumpCase);
 
     // ── Diff against the pending snapshot taken above ──
     var scheduled = 0;
     var cancelled = 0;
     var skipped = 0;
 
-    // Cancel: anything owned that is no longer desired.
-    // We preserve the diagnostic test ID untouched (user explicitly schedules it).
-    //
-    // When `plansResolved` is false we cannot prove whether a pending plan ID is
-    // stale or just unverified, so we skip cancellation entirely. The next
-    // successful userPlans refresh re-runs sync with a known enrollment set
-    // and reconciles any true orphans then. Master-off, logged-out, and
-    // permission-revoked still cancel because their desired sets are
-    // intentionally empty.
-    final canCancel = plansResolved || !loggedIn || !masterOn || !osGranted;
+    // Cancel: anything owned that is no longer desired. This also reconciles
+    // legacy plan/series IDs left over from app versions that scheduled them
+    // locally — they are never in `desired` now, and `isOurs` still recognises
+    // their ranges, so they are cleaned up on the first post-upgrade sync.
+    // The diagnostic test ID is preserved (the user explicitly schedules it).
     for (final p in ownedPending) {
       if (p.id == NotificationIdScheme.kDiagnosticTestId) continue;
       if (desired.containsKey(p.id)) continue;
-      // Recitation/chants and mala daily-repeats are routine-derived (never
-      // plan-derived), so an orphan is unambiguous even when plans are
-      // unresolved — reconcile it regardless of additive-only mode. Only
-      // plan-range IDs stay protected until enrollment is known.
-      final canCancelThis =
-          canCancel || NotificationIdScheme.isRoutineDailyRepeat(p.id);
-      if (!canCancelThis) {
-        skipped++;
-        _logger.info(
-          '[NOTIFICATION_NEW_FLOW] trigger=${trigger.name} action=skip-cancel '
-          'id=${p.id} reason="plans state unknown — additive-only mode"',
-        );
-        continue;
-      }
       try {
         await _plugin.cancel(p.id);
         cancelled++;
@@ -526,38 +362,6 @@ class NotificationSyncEngine {
     );
   }
 
-  /// Global ceiling on scheduled (non-immediate) requests. iOS keeps only
-  /// the soonest-firing 64 pending requests and silently discards the rest;
-  /// staying under that with headroom makes the behaviour deterministic on
-  /// both platforms. The window slides forward on every sync.
-  static const int kMaxTotalScheduled = 60;
-
-  /// Drops the farthest-out dated entries when the desired set exceeds
-  /// [kMaxTotalScheduled]. Daily repeats (recitations) are never dropped —
-  /// they are few and time-critical.
-  @visibleForTesting
-  void applyGlobalCap(
-    Map<int, DesiredNotification> desired,
-    void Function(String) bumpCase,
-  ) {
-    final reserved = desired.values.where((d) => d.isDailyRepeat).length;
-    final dated = desired.values
-        .where((d) => !d.isDailyRepeat && d.fireAt != null)
-        .toList()
-      ..sort((a, b) => a.fireAt!.compareTo(b.fireAt!));
-    final budget = kMaxTotalScheduled - reserved;
-    if (dated.length <= budget) return;
-    final overflow = dated.sublist(budget < 0 ? 0 : budget);
-    for (final d in overflow) {
-      desired.remove(d.id);
-      bumpCase('cap-dropped');
-    }
-    _logger.info(
-      '[NOTIFICATION_NEW_FLOW] global cap: dropped ${overflow.length} '
-      'far-future entries (reserved=$reserved budget=$budget)',
-    );
-  }
-
   /// Exact when the OS permits it; otherwise degrade to inexact so the user
   /// still gets the notification (slightly late) instead of nothing at all.
   /// Always exact-capable on iOS/macOS and Android < 12.
@@ -571,317 +375,7 @@ class NotificationSyncEngine {
     return AndroidScheduleMode.inexactAllowWhileIdle;
   }
 
-  /// Returns the server-known plans keyed by id, or `null` if
-  /// `userPlansFutureProvider` is not in a resolved success state
-  /// (AsyncLoading, AsyncError, or `AsyncData(Left(failure))` — the common
-  /// offline outcome since the use case wraps network failures in `Left`).
-  ///
-  /// Callers MUST treat `null` as "unknown" — not as "empty" — and fall back
-  /// to [PlanMetadataStore] or skip cancellation. Conflating the two states
-  /// silently wipes every scheduled plan/special-plan notification on the
-  /// first sync that runs in the unknown window (e.g. a toggle change while
-  /// offline).
-  Future<Map<String, UserPlansModel>?> _readPlansById() async {
-    try {
-      final asyncValue = _ref.read(userPlansFutureProvider);
-      final value = asyncValue.valueOrNull;
-      if (value == null) return null;
-      return value.fold(
-        (failure) {
-          _logger.warning(
-            '[NOTIFICATION_NEW_FLOW] userPlansFutureProvider resolved to '
-            'Left($failure) — treating plans state as unknown',
-          );
-          return null;
-        },
-        (response) => {for (final p in response.userPlans) p.id: p},
-      );
-    } catch (e) {
-      _logger.warning('readPlansById failed: $e');
-      return null;
-    }
-  }
-
-  /// Fetches enrolled plans for [seriesId] via `GET /users/me/plans?series_id=`.
-  Future<List<UserPlansModel>> _fetchPlansForSeries(String seriesId) async {
-    try {
-      final language = _ref.read(contentLanguageProvider);
-      final result = await _ref.read(getUserPlansUseCaseProvider)(
-        GetUserPlansParams(language: language, seriesId: seriesId),
-      );
-      return result.fold(
-        (failure) {
-          _logger.warning(
-            '[NOTIFICATION_NEW_FLOW] fetchPlansForSeries($seriesId) failed: '
-            '$failure',
-          );
-          return <UserPlansModel>[];
-        },
-        (response) => response.userPlans,
-      );
-    } catch (e) {
-      _logger.warning('fetchPlansForSeries($seriesId) threw: $e');
-      return <UserPlansModel>[];
-    }
-  }
-
-  /// Builds a minimal [UserPlansModel] from locally-cached enrollment
-  /// metadata. Only [UserPlansModel.effectiveStartDate] and
-  /// [UserPlansModel.totalDays] are consumed by [computeForPlanBlock]; the
-  /// other fields are placeholders.
-  ///
-  /// Used when `userPlansFutureProvider` cannot deliver a Right(response)
-  /// (offline / loading) so the schedule survives transient unknown windows.
-  UserPlansModel _synthesizePlanFromMetadata(
-    RoutineItem item,
-    PlanMetadata metadata,
-  ) {
-    return UserPlansModel(
-      id: item.id,
-      title: item.title,
-      description: '',
-      language: '',
-      difficultyLevel: null,
-      startedAt: metadata.effectiveStartDate,
-      totalDays: metadata.totalDays,
-      tags: null,
-    );
-  }
-
   // ─── Pure compute (testable) ────────────────────────────────────────────────
-
-  /// Computes desired notifications for a single plan item inside [block].
-  ///
-  /// Returns `[]` when:
-  ///   - master or routine toggle is OFF (case 5a / 5b)
-  ///   - `now` is past plan end (case 3c)
-  ///   - block has no items (defensive)
-  ///
-  /// Otherwise emits one [DesiredNotification] per future day within the
-  /// 60-day lookahead window. A day whose fire time has already passed is
-  /// never emitted, even for today — no backfill, no immediate catch-up.
-  @visibleForTesting
-  List<DesiredNotification> computeForPlanBlock(
-    RoutineBlock block,
-    RoutineItem item,
-    UserPlansModel plan,
-    DateTime now, {
-    required bool masterOn,
-    required bool routineOn,
-  }) {
-    if (!masterOn) return const [];
-    if (!routineOn) return const [];
-    if (block.items.isEmpty || !block.notificationEnabled) return const [];
-
-    final entries = <DesiredNotification>[];
-    final isSpecial = isSpecialPlan(plan.id);
-    final specialEntries = kSpecialPlanNotifications[plan.id];
-    final anchorLocal = plan.effectiveStartDate.toLocal();
-    final anchorDay = DateTime(anchorLocal.year, anchorLocal.month, anchorLocal.day);
-    final today = DateTime(now.year, now.month, now.day);
-    final totalDays = plan.totalDays;
-    final planEndDay = anchorDay.add(Duration(days: totalDays - 1));
-
-    // Case 3c — plan already ended.
-    if (today.isAfter(planEndDay)) {
-      _logger.info(
-        '[NOTIFICATION_NEW_FLOW] block=${block.id} plan=${item.id} case=3c past-end '
-        'action=skip reason="today=${today.toIso8601String()} > planEnd=${planEndDay.toIso8601String()}"',
-      );
-      return const [];
-    }
-
-    final blockHour = block.time.hour;
-    final blockMinute = block.time.minute;
-
-    // Anchor day-1 to block time; use Duration to avoid month/year roll-over bugs.
-    final seriesStart = tz.TZDateTime(
-      tz.local,
-      anchorDay.year,
-      anchorDay.month,
-      anchorDay.day,
-      blockHour,
-      blockMinute,
-    );
-    // Wall-clock twin of seriesStart used for "has today's slot passed?"
-    // comparisons against the caller's local `now`. Avoids mixing the
-    // wall-clock TZDateTime with `tz.TZDateTime.from(now, ...)` which uses
-    // `now`'s instant and goes wrong when `tz.local` ≠ system local
-    // (notably in tests where `tz.local = UTC`).
-    final seriesStartWall = DateTime(
-      anchorDay.year,
-      anchorDay.month,
-      anchorDay.day,
-      blockHour,
-      blockMinute,
-    );
-
-    final payload = _encodeRoutinePayload(
-      routineItemId: item.id,
-      planId: plan.id,
-    );
-
-    var scheduledCount = 0;
-
-    // Cases 2a/2b/2c — special-plan custom + general fallback.
-    // Case 3a — future anchor: schedules-only, no today fire.
-    // Case 3b — today + future schedules (no backfill).
-    for (var day = 1; day <= totalDays; day++) {
-      if (scheduledCount >= RoutineNotificationService.kPlanSeriesMaxScheduledDays) {
-        break;
-      }
-      final fireDate = seriesStart.add(Duration(days: day - 1));
-      final fireWall = seriesStartWall.add(Duration(days: day - 1));
-      if (!fireWall.isAfter(now)) continue;
-
-      final dayLabel = isSpecial && specialEntries != null && day <= specialEntries.length
-          ? '2a'
-          : (isSpecial ? '2b' : (today.isBefore(anchorDay) ? '3a' : '3b'));
-
-      String title;
-      String body;
-      String? buttonText;
-      if (isSpecial && specialEntries != null) {
-        if (day <= specialEntries.length) {
-          final content = specialEntries[day - 1];
-          title = content.title;
-          body = content.body;
-          buttonText = content.buttonText;
-        } else if (day <= totalDays) {
-          title = item.title;
-          body = _planDayBody(item.title, day, totalDays);
-        } else {
-          // Case 2c — past the total-days cap; never emit.
-          continue;
-        }
-      } else {
-        // General plan — gated by feature flag (matches legacy
-        // `reschedulePlanDurationSeries` behaviour).
-        if (!AppFeatureFlags.kSchedulePlanNotifications) continue;
-        title = item.title;
-        body = _planDayBody(item.title, day, totalDays);
-      }
-
-      final id = isSpecial && specialEntries != null && day <= specialEntries.length
-          ? NotificationIdScheme.specialPlanSeriesId(plan.id, day)
-          : NotificationIdScheme.planSeriesId(plan.id, day);
-
-      entries.add(DesiredNotification(
-        id: id,
-        fireAt: fireDate,
-        title: title,
-        body: body,
-        payload: payload,
-        sourceItem: item,
-        enrollmentPlanId: plan.id,
-        androidActionButtonText: buttonText,
-        debugCase: dayLabel,
-      ));
-      scheduledCount++;
-    }
-
-    // Case 2c — special plan with totalDays < specialEntries.length: log.
-    if (isSpecial &&
-        specialEntries != null &&
-        totalDays < specialEntries.length) {
-      _logger.info(
-        '[NOTIFICATION_NEW_FLOW] plan=${item.id} case=2c skip-extra '
-        'totalDays=$totalDays customEntries=${specialEntries.length}',
-      );
-    }
-
-    return entries;
-  }
-
-  /// Computes desired notifications for a **series** routine item.
-  ///
-  /// For each upcoming calendar day, resolves which enrolled plan in the
-  /// series is active on that date, then schedules a notification for that
-  /// plan's day number at [block]'s time.
-  @visibleForTesting
-  List<DesiredNotification> computeForSeriesBlock(
-    RoutineBlock block,
-    RoutineItem seriesItem,
-    List<UserPlansModel> seriesPlans,
-    DateTime now, {
-    required bool masterOn,
-    required bool routineOn,
-  }) {
-    if (!masterOn) return const [];
-    if (!routineOn) return const [];
-    if (block.items.isEmpty || !block.notificationEnabled) return const [];
-    if (seriesPlans.isEmpty) return const [];
-
-    final entries = <DesiredNotification>[];
-    final today = DateTime(now.year, now.month, now.day);
-    final blockHour = block.time.hour;
-    final blockMinute = block.time.minute;
-
-    final slots = buildUpcomingSeriesSlots(
-      enrolledPlans: seriesPlans,
-      now: now,
-      maxSlots: RoutineNotificationService.kPlanSeriesMaxScheduledDays,
-      preferredPlanIdForToday: seriesItem.currentPlanId,
-    );
-
-    for (final slot in slots) {
-      final plan = slot.plan;
-      final day = slot.dayNumber;
-      final cal = slot.calendarDate;
-      final fireWall = DateTime(cal.year, cal.month, cal.day, blockHour, blockMinute);
-      if (!fireWall.isAfter(now)) continue;
-
-      final isSpecial = isSpecialPlan(plan.id);
-      final specialEntries = kSpecialPlanNotifications[plan.id];
-      final dayLabel = isSpecial && specialEntries != null && day <= specialEntries.length
-          ? '2a'
-          : (isSpecial ? '2b' : (cal.isAfter(today) ? '3a' : '3b'));
-
-      String title;
-      String body;
-      String? buttonText;
-      if (isSpecial && specialEntries != null && day <= specialEntries.length) {
-        final content = specialEntries[day - 1];
-        title = content.title;
-        body = content.body;
-        buttonText = content.buttonText;
-      } else {
-        if (!AppFeatureFlags.kSchedulePlanNotifications && !isSpecial) continue;
-        title = plan.title;
-        body = _planDayBody(plan.title, day, plan.totalDays);
-      }
-
-      final id = isSpecial && specialEntries != null && day <= specialEntries.length
-          ? NotificationIdScheme.specialPlanSeriesId(plan.id, day)
-          : NotificationIdScheme.planSeriesId(plan.id, day);
-
-      final fireDate = tz.TZDateTime(
-        tz.local,
-        cal.year,
-        cal.month,
-        cal.day,
-        blockHour,
-        blockMinute,
-      );
-
-      entries.add(DesiredNotification(
-        id: id,
-        fireAt: fireDate,
-        title: title,
-        body: body,
-        payload: _encodeRoutinePayload(
-          routineItemId: seriesItem.id,
-          planId: plan.id,
-        ),
-        sourceItem: seriesItem,
-        enrollmentPlanId: plan.id,
-        androidActionButtonText: buttonText,
-        debugCase: dayLabel,
-      ));
-    }
-
-    return entries;
-  }
 
   /// Computes the single daily-repeat [DesiredNotification] for a recitation
   /// block (case 4). Returns `[]` when toggles are off or block is empty.
@@ -986,7 +480,7 @@ class NotificationSyncEngine {
     ];
   }
 
-  /// Computes the two daily-repeat [DesiredNotification]s for a timer block:
+  /// Computes the daily-repeat [DesiredNotification] for a timer block:
   /// a single "started" reminder at block time ("You've set a timer for X,
   /// starting now."). Mirrors the recitation/mala daily-repeat mechanism (a
   /// plain [DesiredNotification] scheduled with `matchDateTimeComponents.time`)
@@ -1085,7 +579,6 @@ class NotificationSyncEngine {
         styleInformation: androidStyle,
         largeIcon: largeIcon,
         iOSDetails: iosDetails,
-        androidActionButtonText: d.androidActionButtonText,
       );
 
       Future<void> schedule(AndroidScheduleMode mode) => _plugin.zonedSchedule(
@@ -1128,19 +621,6 @@ class NotificationSyncEngine {
   }
 
   // ─── Body templates ─────────────────────────────────────────────────────────
-
-  String _planDayBody(String planTitle, int day, int totalDays) =>
-      'Day $day of $totalDays — check out $planTitle.';
-
-  String _encodeRoutinePayload({
-    required String routineItemId,
-    required String planId,
-  }) =>
-      jsonEncode({
-        'itemId': routineItemId,
-        'itemType': RoutineItemType.series.name,
-        'planId': planId,
-      });
 
   String _recitationBody(RoutineBlock block, AppLocalizations l10n) {
     if (block.items.isEmpty) return 'Check your daily routine';

@@ -1336,7 +1336,7 @@ class AppLocalizationsBo extends AppLocalizations {
 
   @override
   String series_stats(int planCount, int totalDays) {
-    return 'ཐུན་འཆར་ $planCount · ཉིན་ $totalDays';
+    return '$planCount ལེའུ · ཉིན་ $totalDays';
   }
 
   @override
@@ -1415,6 +1415,21 @@ class AppLocalizationsBo extends AppLocalizations {
   @override
   String get edit_profile_save_failed =>
       'ཁྱེད་ཀྱི་བཟོ་བཅོས་ཉར་ཚགས་བྱེད་མ་ཐུབ། བསྐྱར་དུ་ཚོད་ལྟ་བྱོས།';
+
+  @override
+  String get edit_profile_traditions => 'ཆོས་བརྒྱུད།';
+
+  @override
+  String get edit_profile_choose_traditions =>
+      'ཁྱེད་ཀྱི་ཆོས་བརྒྱུད་འདེམས་རོགས།';
+
+  @override
+  String get edit_profile_tradition_remove_failed =>
+      'ཆོས་བརྒྱུད་བསུབ་མ་ཐུབ། བསྐྱར་དུ་ཚོད་ལྟ་བྱོས།';
+
+  @override
+  String get edit_profile_tradition_save_failed =>
+      'ཆོས་བརྒྱུད་ཉར་ཚགས་བྱེད་མ་ཐུབ། བསྐྱར་དུ་ཚོད་ལྟ་བྱོས།';
 
   @override
   String get username_label => 'སྤྱོད་མིང་།';
@@ -2009,4 +2024,8 @@ class AppLocalizationsBo extends AppLocalizations {
 
   @override
   String get drag_to_resize => 'ཆེ་ཆུང་བསྒྱུར་བར་འདྲུད་རོགས།';
+
+  @override
+  String get day_completion_share_message =>
+      'ངས་ WeBuddhist ཐོག་ཉམས་ལེན་གྱི་ཉིན་གཅིག་མཐར་ཕྱིན་སོང་། ང་དང་ལྷན་དུ་ཉིན་རེའི་ཉམས་ལེན་གོམ་པ་འཇོག་རོགས།';
 }

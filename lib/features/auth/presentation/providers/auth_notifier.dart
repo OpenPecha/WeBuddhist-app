@@ -5,8 +5,6 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_pecha/core/error/failures.dart';
 import 'package:flutter_pecha/core/network/connectivity_service.dart';
-import 'package:flutter_pecha/core/storage/plan_metadata_store.dart';
-import 'package:flutter_pecha/core/storage/special_plan_started_at_store.dart';
 import 'package:flutter_pecha/core/storage/storage_keys.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/features/notifications/data/services/routine_notification_service.dart';
@@ -26,6 +24,7 @@ import 'package:flutter_pecha/core/analytics/analytics_events.dart';
 import 'package:flutter_pecha/core/analytics/analytics_service.dart';
 import 'package:flutter_pecha/core/analytics/analytics_providers.dart';
 import 'package:flutter_pecha/core/config/router/pending_route_provider.dart';
+import 'package:flutter_pecha/core/network/interceptors/cache_interceptor.dart';
 import 'package:flutter_pecha/features/mala/presentation/providers/mala_providers.dart';
 import 'package:flutter_pecha/features/mala/presentation/providers/mala_sync_manager.dart';
 import 'package:flutter_pecha/features/onboarding/presentation/providers/onboarding_datasource_providers.dart';
@@ -391,6 +390,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
     _logger.info('User authenticated');
 
     // 4. Fetch full user profile. Non-critical — routing is already correct.
+    ref.read(cacheInterceptorProvider).clearUserScoped();
     try {
       await ref.read(userProvider.notifier).initializeUser();
       _logger.info('User data fetched and saved locally');
@@ -453,6 +453,8 @@ class AuthNotifier extends StateNotifier<AuthState> {
   }
 
   Future<void> logout() async {
+    ref.read(cacheInterceptorProvider).clearUserScoped();
+
     // Best-effort flush of any unsynced mala counts while the token is still
     // valid. Local data is namespaced by user id and is NOT deleted here, so
     // any remaining tail flushes on next login.
@@ -485,11 +487,6 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
     // Clear any pending deep-link route so a stale destination doesn't survive logout.
     ref.read(pendingRouteProvider.notifier).state = null;
-
-    // Clear notification caches so a different user signing in does not
-    // inherit the prior user's day index or "already shown" flags.
-    await SpecialPlanStartedAtStore.clearAll();
-    await PlanMetadataStore.clearAll();
 
     // Cancel every pending notification so a different signing-in user
     // does not inherit this user's schedule.

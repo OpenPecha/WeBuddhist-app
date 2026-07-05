@@ -1357,7 +1357,7 @@ abstract class AppLocalizations {
   /// No description provided for @connect_groups_empty_title.
   ///
   /// In en, this message translates to:
-  /// **'No groups yet'**
+  /// **'No more groups'**
   String get connect_groups_empty_title;
 
   /// No description provided for @connect_groups_empty_subtitle.
@@ -2425,7 +2425,7 @@ abstract class AppLocalizations {
   /// No description provided for @series_stats.
   ///
   /// In en, this message translates to:
-  /// **'{planCount} PLANS · {totalDays} DAYS'**
+  /// **'{planCount} CHAPTERS · {totalDays} DAYS'**
   String series_stats(int planCount, int totalDays);
 
   /// No description provided for @force_update_title.
@@ -2571,6 +2571,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Couldn\'t save your changes. Please try again'**
   String get edit_profile_save_failed;
+
+  /// No description provided for @edit_profile_traditions.
+  ///
+  /// In en, this message translates to:
+  /// **'Traditions'**
+  String get edit_profile_traditions;
+
+  /// No description provided for @edit_profile_choose_traditions.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose your traditions'**
+  String get edit_profile_choose_traditions;
+
+  /// No description provided for @edit_profile_tradition_remove_failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t remove tradition. Please try again'**
+  String get edit_profile_tradition_remove_failed;
+
+  /// No description provided for @edit_profile_tradition_save_failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t save traditions. Please try again'**
+  String get edit_profile_tradition_save_failed;
 
   /// No description provided for @username_label.
   ///
@@ -3579,6 +3603,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Drag to resize'**
   String get drag_to_resize;
+
+  /// No description provided for @day_completion_share_message.
+  ///
+  /// In en, this message translates to:
+  /// **'I just completed a day of my practice on WeBuddhist. Join me and build a daily practice habit together.'**
+  String get day_completion_share_message;
 }
 
 class _AppLocalizationsDelegate

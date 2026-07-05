@@ -612,7 +612,7 @@
   "read_full_text": "पूरा पाठ पढ्नुहोस्",
   "reader_source_label": "स्रोत",
   "reader_license_label": "लाइसेन्स",
-  "series_stats": "{planCount} योजना · {totalDays} दिन",
+  "series_stats": "{planCount} अध्याय · {totalDays} दिन",
   "@series_stats": {
     "placeholders": {
       "planCount": {
@@ -647,6 +647,10 @@
   "edit_profile_take_photo": "फोटो खिच्नुहोस्",
   "edit_profile_offline": "तपाईं अफलाइन हुनुहुन्छ। इन्टरनेटमा जडान गरी फेरि प्रयास गर्नुहोस्",
   "edit_profile_save_failed": "तपाईंका परिवर्तनहरू सेभ गर्न सकिएन। कृपया फेरि प्रयास गर्नुहोस्",
+  "edit_profile_traditions": "परम्पराहरू",
+  "edit_profile_choose_traditions": "आफ्ना परम्पराहरू छान्नुहोस्",
+  "edit_profile_tradition_remove_failed": "परम्परा हटाउन सकिएन। कृपया फेरि प्रयास गर्नुहोस्",
+  "edit_profile_tradition_save_failed": "परम्पराहरू सेभ गर्न सकिएन। कृपया फेरि प्रयास गर्नुहोस्",
   "username_label": "प्रयोगकर्ता नाम",
   "username_taken": "यो नाम कसैले पहिले नै प्रयोग गरिसकेको छ",
   "username_available_label": "उपलब्ध: ",
@@ -887,5 +891,6 @@
   "license_with_value": "इजाजतपत्र: {value}",
   "loading_previous_pages": "अघिल्लो लोड हुँदैछ... ({count} पृष्ठ)",
   "loading_more_pages": "थप लोड हुँदैछ... ({count} पृष्ठ)",
-  "drag_to_resize": "आकार परिवर्तन गर्न तान्नुहोस्"
+  "drag_to_resize": "आकार परिवर्तन गर्न तान्नुहोस्",
+  "day_completion_share_message": "मैले WeBuddhist मा आफ्नो अभ्यासको एक दिन पूरा गरें। मसँगै सामेल हुनुस् र एकसाथ दैनिक अभ्यास बानी निर्माण गरौं।"
 }

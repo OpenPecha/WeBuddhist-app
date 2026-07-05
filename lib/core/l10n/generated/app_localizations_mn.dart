@@ -1326,7 +1326,7 @@ class AppLocalizationsMn extends AppLocalizations {
 
   @override
   String series_stats(int planCount, int totalDays) {
-    return '$planCount ТӨЛӨВЛӨГӨӨ · $totalDays ӨДӨР';
+    return '$planCount БҮЛЭГ · $totalDays ӨДӨР';
   }
 
   @override
@@ -1406,6 +1406,20 @@ class AppLocalizationsMn extends AppLocalizations {
   @override
   String get edit_profile_save_failed =>
       'Таны өөрчлөлтийг хадгалж чадсангүй. Дахин оролдоно уу';
+
+  @override
+  String get edit_profile_traditions => 'Уламжлал';
+
+  @override
+  String get edit_profile_choose_traditions => 'Уламжлалаа сонгоно уу';
+
+  @override
+  String get edit_profile_tradition_remove_failed =>
+      'Уламжлалыг устгаж чадсангүй. Дахин оролдоно уу';
+
+  @override
+  String get edit_profile_tradition_save_failed =>
+      'Уламжлалыг хадгалж чадсангүй. Дахин оролдоно уу';
 
   @override
   String get username_label => 'Хэрэглэгчийн нэр';
@@ -2009,4 +2023,8 @@ class AppLocalizationsMn extends AppLocalizations {
 
   @override
   String get drag_to_resize => 'Хэмжээг өөрчлөхийн тулд чирнэ үү';
+
+  @override
+  String get day_completion_share_message =>
+      'Би WeBuddhist дээр өөрийн дадлагын нэг өдрийг дуусгалаа. Надтай нэгдэж, хамтдаа өдөр тутмын дадлагын зуршил бий болгоцгооё.';
 }

@@ -32,8 +32,15 @@ abstract class PushMessagingRepository {
   /// can target this device. The platform (`ANDROID`/`IOS`) is derived in the
   /// data layer. [deviceId] is an optional stable device identifier that lets
   /// token refreshes update the same record instead of creating duplicates.
+  ///
+  /// [preferences] carries the notification toggles relevant to push. Only
+  /// plan/series is delivered via FCM, gated by the `routine` flag; the other
+  /// categories (recitation/mala/timer) are local-only and never sent. The
+  /// backend must honour this — background/terminated notification messages are
+  /// rendered by the OS before the app can filter locally.
   Future<Either<Failure, Unit>> registerDeviceToken(
     String token, {
     String? deviceId,
+    Map<String, bool>? preferences,
   });
 }

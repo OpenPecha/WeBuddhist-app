@@ -556,7 +556,7 @@
   "read_full_text": "閱讀完整文本",
   "reader_source_label": "來源",
   "reader_license_label": "授權",
-  "series_stats": "{planCount} 個修持計畫 · {totalDays} 天",
+  "series_stats": "{planCount} 個章節 · {totalDays} 天",
   "force_update_title": "需要更新",
   "force_update_message": "有新版本可用，請更新後繼續使用。",
   "force_update_button": "立即更新",
@@ -581,6 +581,10 @@
   "edit_profile_take_photo": "拍照",
   "edit_profile_offline": "您目前離線，請連接網路後再試一次",
   "edit_profile_save_failed": "無法儲存您的變更，請再試一次",
+  "edit_profile_traditions": "傳承",
+  "edit_profile_choose_traditions": "選擇您的傳承",
+  "edit_profile_tradition_remove_failed": "無法移除傳承，請再試一次",
+  "edit_profile_tradition_save_failed": "無法儲存傳承，請再試一次",
   "username_label": "使用者名稱",
   "username_taken": "這個名稱已被使用",
   "username_available_label": "可使用：",
@@ -821,5 +825,6 @@
   "license_with_value": "授權：{value}",
   "loading_previous_pages": "正在載入上文……（{count} 頁）",
   "loading_more_pages": "正在載入更多……（{count} 頁）",
-  "drag_to_resize": "拖動以調整大小"
+  "drag_to_resize": "拖動以調整大小",
+  "day_completion_share_message": "我刚在 WeBuddhist 上完成了一天的修行练习。加入我，一起培养每日修行的好习惯。"
 }

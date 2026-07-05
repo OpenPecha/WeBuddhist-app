@@ -219,14 +219,12 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                 builder: (context, state) {
                   final id = state.pathParameters['id'] ?? '';
                   final extra = state.extra as Map<String, dynamic>?;
-                  final series = extra?['series'] as Series?;
                   final groupId = extra?['groupId'] as String?;
                   final groupType = extra?['groupType'] as GroupType?;
                   final isGroupEnrolled =
                       extra?['isGroupEnrolled'] as bool? ?? false;
                   return SeriesDetailScreen(
                     seriesId: id,
-                    series: series,
                     groupId: groupId,
                     groupType: groupType,
                     isGroupEnrolled: isGroupEnrolled,
@@ -240,9 +238,8 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                     // stays on one navigator.
                     parentNavigatorKey: rootNavigatorKey,
                     builder: (context, state) {
-                      final extra = state.extra as Map<String, dynamic>?;
-                      final series = extra?['series'] as Series;
-                      return SeriesInfoScreen(series: series);
+                      final id = state.pathParameters['id'] ?? '';
+                      return SeriesInfoScreen(seriesId: id);
                     },
                   ),
                 ],
@@ -448,6 +445,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           final plan = extra?['plan'] as UserPlansModel?;
           final selectedDay = extra?['selectedDay'] as int?;
           final startDate = extra?['startDate'] as DateTime?;
+          final seriesId = extra?['seriesId'] as String?;
           if (plan == null) {
             throw Exception('Missing required parameters');
           }
@@ -455,6 +453,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             plan: plan,
             selectedDay: selectedDay ?? 1,
             startDate: startDate ?? DateTime.now(),
+            seriesId: seriesId,
           );
         },
       ),
@@ -465,10 +464,15 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           final extra = state.extra as Map<String, dynamic>?;
           final plan = extra?['plan'] as Plan?;
           final seriesId = extra?['seriesId'] as String?;
+          final selectedDay = extra?['selectedDay'] as int?;
           if (plan == null) {
             throw Exception('Missing required parameters');
           }
-          return PlanPreviewDetails(plan: plan, seriesId: seriesId);
+          return PlanPreviewDetails(
+            plan: plan,
+            seriesId: seriesId,
+            initialDay: selectedDay,
+          );
         },
       ),
       GoRoute(
@@ -491,6 +495,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
               final plan = extra?['plan'] as UserPlansModel?;
               final selectedDay = extra?['selectedDay'] as int?;
               final startDate = extra?['startDate'] as DateTime?;
+              final seriesId = extra?['seriesId'] as String?;
               if (plan == null) {
                 throw Exception('Missing required parameters');
               }
@@ -498,6 +503,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                 plan: plan,
                 selectedDay: selectedDay ?? 1,
                 startDate: startDate ?? DateTime.now(),
+                seriesId: seriesId,
               );
             },
           ),

@@ -86,11 +86,6 @@ final errorInterceptorProvider = Provider<ErrorInterceptor>((ref) {
   return ErrorInterceptor(ref.watch(loggerProvider));
 });
 
-/// Provider for CacheInterceptor
-final cacheInterceptorProvider = Provider<CacheInterceptor>((ref) {
-  return CacheInterceptor(ref.watch(loggerProvider));
-});
-
 /// Provider for TimezoneInterceptor (adds X-Timezone to all requests)
 final timezoneInterceptorProvider = Provider<TimezoneInterceptor>((ref) {
   return TimezoneInterceptor(ref.watch(loggerProvider));

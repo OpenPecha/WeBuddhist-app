@@ -22,7 +22,6 @@ import 'package:share_plus/share_plus.dart';
 
 class SeriesDetailScreen extends ConsumerWidget {
   final String seriesId;
-  final Series? series;
   final String? groupId;
   final GroupType? groupType;
   final bool isGroupEnrolled;
@@ -30,7 +29,6 @@ class SeriesDetailScreen extends ConsumerWidget {
   const SeriesDetailScreen({
     super.key,
     required this.seriesId,
-    this.series,
     this.groupId,
     this.groupType,
     this.isGroupEnrolled = false,
@@ -46,11 +44,9 @@ class SeriesDetailScreen extends ConsumerWidget {
     final seriesAsync = ref.watch(seriesByIdProvider(seriesId));
     final localizations = AppLocalizations.of(context)!;
 
-    final resolvedSeries =
-        seriesAsync.whenOrNull(
-          data: (either) => either.fold((_) => null, (s) => s),
-        ) ??
-        series;
+    final resolvedSeries = seriesAsync.whenOrNull(
+      data: (either) => either.fold((_) => null, (s) => s),
+    );
 
     final isGroupEnrolledForSeries = _resolveIsGroupEnrolled(ref);
 
@@ -90,9 +86,6 @@ class SeriesDetailScreen extends ConsumerWidget {
                       ),
                       (series) {
                         if (series.plans.isEmpty) {
-                          if (_isLoadingSeriesPlans(series)) {
-                            return const PlanListSkeleton();
-                          }
                           return _buildScrollableMessage(
                             _buildEmptyState(context, localizations, ref),
                           );
@@ -138,17 +131,6 @@ class SeriesDetailScreen extends ConsumerWidget {
           ),
       orElse: () => isGroupEnrolled,
     );
-  }
-
-  /// List endpoints cache series metadata without plan payloads. While the
-  /// detail refresh is in flight, [planCount] indicates plans exist even when
-  /// [plans] is still empty.
-  bool _isLoadingSeriesPlans(Series loaded) {
-    if (loaded.plans.isNotEmpty) return false;
-
-    final expectedPlanCount =
-        loaded.planCount > 0 ? loaded.planCount : (series?.planCount ?? 0);
-    return expectedPlanCount > 0;
   }
 
   Widget _buildAppBar(

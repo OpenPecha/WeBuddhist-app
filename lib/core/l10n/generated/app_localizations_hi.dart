@@ -1326,7 +1326,7 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String series_stats(int planCount, int totalDays) {
-    return '$planCount योजनाएँ · $totalDays दिन';
+    return '$planCount अध्याय · $totalDays दिन';
   }
 
   @override
@@ -1405,6 +1405,20 @@ class AppLocalizationsHi extends AppLocalizations {
   @override
   String get edit_profile_save_failed =>
       'आपके बदलाव सेव नहीं हो सके। कृपया फिर से प्रयास करें';
+
+  @override
+  String get edit_profile_traditions => 'परंपराएँ';
+
+  @override
+  String get edit_profile_choose_traditions => 'अपनी परंपराएँ चुनें';
+
+  @override
+  String get edit_profile_tradition_remove_failed =>
+      'परंपरा हटाई नहीं जा सकी। कृपया फिर से प्रयास करें';
+
+  @override
+  String get edit_profile_tradition_save_failed =>
+      'परंपराएँ सेव नहीं हो सकीं। कृपया फिर से प्रयास करें';
 
   @override
   String get username_label => 'यूज़रनेम';
@@ -2004,4 +2018,8 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get drag_to_resize => 'आकार बदलने के लिए खींचें';
+
+  @override
+  String get day_completion_share_message =>
+      'मैंने WeBuddhist पर अपने अभ्यास का एक दिन पूरा किया। मेरे साथ जुड़ें और साथ मिलकर रोज़ाना अभ्यास की आदत बनाएं।';
 }

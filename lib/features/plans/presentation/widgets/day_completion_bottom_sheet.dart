@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/constants/app_assets.dart';
+import 'package:flutter_pecha/core/deep_linking/deep_link_url_builder.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/core/widgets/cached_network_image_widget.dart';
 import 'package:flutter_pecha/shared/utils/helper_functions.dart';
@@ -17,6 +18,8 @@ class DayCompletionBottomSheet extends StatefulWidget {
   final String? thumbnailUrl;
   final String? shareableImageUrl;
   final String planTitle;
+  final String planId;
+  final String planLanguage;
 
   const DayCompletionBottomSheet({
     super.key,
@@ -27,6 +30,8 @@ class DayCompletionBottomSheet extends StatefulWidget {
     this.thumbnailUrl,
     this.shareableImageUrl,
     required this.planTitle,
+    required this.planId,
+    required this.planLanguage,
   });
 
   @override
@@ -164,6 +169,7 @@ class _DayCompletionBottomSheetState extends State<DayCompletionBottomSheet> {
 
   Widget _buildShareButton(BuildContext context) {
     final buttonWidth = MediaQuery.of(context).size.width - 48;
+    final colorScheme = Theme.of(context).colorScheme;
 
     return SizedBox(
       width: buttonWidth,
@@ -173,10 +179,13 @@ class _DayCompletionBottomSheetState extends State<DayCompletionBottomSheet> {
         onPressed: _isSharing ? null : _shareImage,
         icon:
             _isSharing
-                ? const SizedBox(
+                ? SizedBox(
                   width: 18,
                   height: 18,
-                  child: CircularProgressIndicator(strokeWidth: 2),
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: colorScheme.surface.withValues(alpha: 0.85),
+                  ),
                 )
                 : const Icon(AppAssets.readerShare, size: 22),
         label: Text(
@@ -184,10 +193,10 @@ class _DayCompletionBottomSheetState extends State<DayCompletionBottomSheet> {
           style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
         ),
         style: FilledButton.styleFrom(
-          backgroundColor: Colors.black,
-          foregroundColor: Colors.white,
-          disabledBackgroundColor: Colors.black.withValues(alpha: 0.65),
-          disabledForegroundColor: Colors.white.withValues(alpha: 0.85),
+          backgroundColor: colorScheme.onSurface,
+          foregroundColor: colorScheme.surface,
+          disabledBackgroundColor: colorScheme.onSurface.withValues(alpha: 0.5),
+          disabledForegroundColor: colorScheme.surface.withValues(alpha: 0.85),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
@@ -227,9 +236,17 @@ class _DayCompletionBottomSheetState extends State<DayCompletionBottomSheet> {
         globalKey: _shareButtonKey,
       );
 
+      final shareMessage = context.l10n.day_completion_share_message;
+      final planLink = DeepLinkUrlBuilder.planDayLink(
+        planId: widget.planId,
+        dayNumber: widget.dayNumber,
+        language: widget.planLanguage,
+      ).toString();
+
       await SharePlus.instance.share(
         ShareParams(
           files: [XFile(tempFile.path)],
+          text: '$shareMessage\n\n$planLink',
           sharePositionOrigin: sharePositionOrigin,
         ),
       );

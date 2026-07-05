@@ -5,6 +5,7 @@ import 'package:flutter_pecha/core/utils/local_storage_service.dart';
 import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
 import 'package:flutter_pecha/features/auth/presentation/state/auth_state.dart';
 import 'package:flutter_pecha/features/notifications/data/services/notification_service.dart';
+import 'package:flutter_pecha/features/notifications/presentation/providers/notification_provider.dart';
 import 'package:flutter_pecha/features/push_notifications/application/push_notification_service.dart';
 import 'package:flutter_pecha/features/push_notifications/data/repositories/push_messaging_repository_impl.dart';
 import 'package:flutter_pecha/features/push_notifications/domain/repositories/push_messaging_repository.dart';
@@ -54,4 +55,18 @@ final pushNotificationBootstrapProvider = Provider<void>((ref) {
   // Registration only needs the login state — the backend keys the device on
   // the JWT, so a single listener on auth is enough.
   ref.listen<AuthState>(authProvider, (_, __) => syncAuth(), fireImmediately: true);
+
+  // Re-register whenever the plan/series push gate changes so the backend can
+  // gate it — the only category delivered via FCM. That gate is master AND
+  // routine (master is the global kill-switch), so watch both. The remaining
+  // toggles (recitation/mala/timer) are local-only and ignored here.
+  ref.listen<NotificationState>(
+    notificationProvider,
+    (prev, next) {
+      final changed = prev == null ||
+          prev.appMasterEnabled != next.appMasterEnabled ||
+          prev.appRoutineEnabled != next.appRoutineEnabled;
+      if (changed) service.refreshRegistration();
+    },
+  );
 });

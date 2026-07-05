@@ -1251,7 +1251,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String series_stats(int planCount, int totalDays) {
-    return '$planCount 個修持計畫 · $totalDays 天';
+    return '$planCount 個章節 · $totalDays 天';
   }
 
   @override
@@ -1325,6 +1325,18 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get edit_profile_save_failed => '無法儲存您的變更，請再試一次';
+
+  @override
+  String get edit_profile_traditions => '傳承';
+
+  @override
+  String get edit_profile_choose_traditions => '選擇您的傳承';
+
+  @override
+  String get edit_profile_tradition_remove_failed => '無法移除傳承，請再試一次';
+
+  @override
+  String get edit_profile_tradition_save_failed => '無法儲存傳承，請再試一次';
 
   @override
   String get username_label => '使用者名稱';
@@ -1889,4 +1901,8 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get drag_to_resize => '拖動以調整大小';
+
+  @override
+  String get day_completion_share_message =>
+      '我刚在 WeBuddhist 上完成了一天的修行练习。加入我，一起培养每日修行的好习惯。';
 }
