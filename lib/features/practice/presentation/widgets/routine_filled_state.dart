@@ -166,6 +166,7 @@ class _RoutineFilledStateState extends ConsumerState<RoutineFilledState> {
         'plan': userPlan,
         'selectedDay': selectedDay,
         'startDate': startDate,
+        if (itemType == RoutineItemType.series) 'seriesId': pendingNav.itemId,
       },
     );
   }
@@ -388,6 +389,7 @@ class _RoutineBlockSection extends ConsumerWidget {
         'plan': userPlan,
         'selectedDay': selectedDay,
         'startDate': startDate,
+        if (item.type == RoutineItemType.series) 'seriesId': item.id,
       },
     );
   }

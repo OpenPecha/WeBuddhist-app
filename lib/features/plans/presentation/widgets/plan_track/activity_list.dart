@@ -70,15 +70,20 @@ class ActivityList extends StatelessWidget {
                       title: task.title,
                       hasNavigableContent: isNavigable,
                       hasAudio: hasAudio,
-                      onTap: () =>
-                          _handleActivityTap(context, task, autoPlay: false),
+                      onTap:
+                          () => _handleActivityTap(
+                            context,
+                            task,
+                            autoPlay: false,
+                          ),
                     ),
                   ),
                   if (isNavigable && hasAudio) ...[
                     const SizedBox(width: 8),
                     _PlayButton(
-                      onTap: () =>
-                          _handleActivityTap(context, task, autoPlay: true),
+                      onTap:
+                          () =>
+                              _handleActivityTap(context, task, autoPlay: true),
                     ),
                   ],
                 ],
