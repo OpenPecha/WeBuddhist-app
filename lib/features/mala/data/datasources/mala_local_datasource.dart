@@ -17,6 +17,7 @@ class LocalMalaState {
   const LocalMalaState({
     this.total = 0,
     this.syncedTotal = 0,
+    this.totalCounted = 0,
     this.accumulatorId,
     this.beadImageUrl,
     this.beadImageBase64,
@@ -24,6 +25,9 @@ class LocalMalaState {
 
   final int total;
   final int syncedTotal;
+
+  /// Lifetime `total_counted` baseline from the server, updated on sync.
+  final int totalCounted;
   final String? accumulatorId;
 
   /// Cached bead-image URL so the strand can render offline on a cold start,
@@ -49,12 +53,14 @@ class LocalMalaState {
   LocalMalaState copyWith({
     int? total,
     int? syncedTotal,
+    int? totalCounted,
     String? accumulatorId,
     String? beadImageUrl,
     String? beadImageBase64,
   }) => LocalMalaState(
     total: total ?? this.total,
     syncedTotal: syncedTotal ?? this.syncedTotal,
+    totalCounted: totalCounted ?? this.totalCounted,
     accumulatorId: accumulatorId ?? this.accumulatorId,
     beadImageUrl: beadImageUrl ?? this.beadImageUrl,
     beadImageBase64: beadImageBase64 ?? this.beadImageBase64,
@@ -71,6 +77,7 @@ class LocalMalaState {
   factory LocalMalaState.fromJson(Map<String, dynamic> j) => LocalMalaState(
     total: (j['total'] as num?)?.toInt() ?? 0,
     syncedTotal: (j['syncedTotal'] as num?)?.toInt() ?? 0,
+    totalCounted: (j['totalCounted'] as num?)?.toInt() ?? 0,
     accumulatorId: j['accumulatorId'] as String?,
     beadImageUrl: j['beadImageUrl'] as String?,
     beadImageBase64: j['beadImageBase64'] as String?,
@@ -199,6 +206,7 @@ class MalaLocalDataSource {
       userId,
       presetId,
       LocalMalaState(
+        totalCounted: s.totalCounted,
         beadImageUrl: s.beadImageUrl,
         beadImageBase64: s.beadImageBase64,
       ),

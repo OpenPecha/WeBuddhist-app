@@ -19,25 +19,27 @@ import 'package:intl/intl.dart';
 /// Group row counts show lifetime totals from
 /// `GET /accumulators/{presetId}/groups` (`user_total_count`), plus any unsynced
 /// local taps via [GroupAccumulationCountsNotifier.displayLifetimeCount]. The
-/// on-screen mala counter uses session counts from [groupAccumulationCountsProvider]
-/// instead; those reset to 0 on group DELETE while lifetime totals here do not.
+/// personal row shows lifetime `total_counted` from
+/// `GET /accumulators/{parent_id}` via [MalaCounterNotifier.displayLifetimeCount].
+/// The on-screen mala counter uses session counts instead; those reset to 0 on
+/// DELETE while lifetime totals here do not.
 class GroupAccumulationsSheet extends ConsumerStatefulWidget {
   const GroupAccumulationsSheet({
     super.key,
     required this.presetId,
     required this.groups,
-    required this.personalTotalCount,
+    required this.personalLifetimeCount,
   });
 
   final String presetId;
   final List<AccumulatorGroup> groups;
-  final int personalTotalCount;
+  final int personalLifetimeCount;
 
   static Future<void> show(
     BuildContext context, {
     required String presetId,
     required List<AccumulatorGroup> groups,
-    required int personalTotalCount,
+    required int personalLifetimeCount,
   }) {
     return showModalBottomSheet<void>(
       context: context,
@@ -48,7 +50,7 @@ class GroupAccumulationsSheet extends ConsumerStatefulWidget {
           (_) => GroupAccumulationsSheet(
             presetId: presetId,
             groups: groups,
-            personalTotalCount: personalTotalCount,
+            personalLifetimeCount: personalLifetimeCount,
           ),
     );
   }
@@ -138,7 +140,7 @@ class _GroupAccumulationsSheetState
                 title: user != null ? _userDisplayName(user) : '—',
                 formattedCount: NumberFormat.decimalPattern(
                   locale,
-                ).format(widget.personalTotalCount),
+                ).format(widget.personalLifetimeCount),
               ),
               const SizedBox(height: 12),
               Divider(height: 1, thickness: 1, color: dividerColor),
