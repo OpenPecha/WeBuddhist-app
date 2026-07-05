@@ -32,19 +32,6 @@ class SeriesPlanUtils {
     return false;
   }
 
-  /// Returns the id of the first series in [seriesList] that includes [planId].
-  static String? seriesIdContainingPlan(
-    String planId,
-    Iterable<Series> seriesList,
-  ) {
-    for (final series in seriesList) {
-      if (series.plans.any((plan) => plan.id == planId)) {
-        return series.id;
-      }
-    }
-    return null;
-  }
-
   static int previewUnlockDayCountForPlan(
     String planId, {
     Series? series,

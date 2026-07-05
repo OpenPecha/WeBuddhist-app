@@ -292,23 +292,41 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
   }
 
   int _firstPlanPreviewUnlockDayCount(WidgetRef ref) {
-    final seriesId = _resolvedSeriesId(ref);
-    if (seriesId != null) {
-      final seriesAsync = ref.watch(seriesByIdProvider(seriesId));
-      return seriesAsync.when(
-        data:
-            (either) => either.fold(
-              (_) => _previewUnlockDayCountFromSeriesList(ref),
-              (series) => SeriesPlanUtils.previewUnlockDayCountForPlan(
-                widget.plan.id,
-                series: series,
-              ),
-            ),
-        loading: () => _previewUnlockDayCountFromSeriesList(ref),
-        error: (_, __) => _previewUnlockDayCountFromSeriesList(ref),
-      );
+    final fromList = _previewUnlockDayCountFromSeriesList(ref);
+    if (fromList > 0) return fromList;
+
+    if (widget.seriesId != null) {
+      final fromExplicit = _previewUnlockFromSeriesById(ref, widget.seriesId!);
+      if (fromExplicit > 0) return fromExplicit;
     }
-    return _previewUnlockDayCountFromSeriesList(ref);
+
+    return _previewUnlockFromEnrolledSeries(ref);
+  }
+
+  int _previewUnlockFromSeriesById(WidgetRef ref, String seriesId) {
+    final seriesAsync = ref.watch(seriesByIdProvider(seriesId));
+    return seriesAsync.when(
+      data:
+          (either) => either.fold(
+            (_) => 0,
+            (series) => SeriesPlanUtils.previewUnlockDayCountForPlan(
+              widget.plan.id,
+              series: series,
+            ),
+          ),
+      loading: () => 0,
+      error: (_, __) => 0,
+    );
+  }
+
+  int _previewUnlockFromEnrolledSeries(WidgetRef ref) {
+    final enrollments =
+        ref.watch(userSeriesEnrollmentsProvider).valueOrNull ?? {};
+    for (final seriesId in enrollments) {
+      final count = _previewUnlockFromSeriesById(ref, seriesId);
+      if (count > 0) return count;
+    }
+    return 0;
   }
 
   int _previewUnlockDayCountFromSeriesList(WidgetRef ref) {
@@ -324,39 +342,6 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
           ),
       loading: () => 0,
       error: (_, __) => 0,
-    );
-  }
-
-  String? _resolvedSeriesId(WidgetRef ref) {
-    if (widget.seriesId != null) return widget.seriesId;
-
-    final fromList = _seriesIdFromList(ref);
-    if (fromList != null) return fromList;
-
-    final enrollments =
-        ref.watch(userSeriesEnrollmentsProvider).valueOrNull ?? {};
-    for (final seriesId in enrollments) {
-      final seriesEither = ref.watch(seriesByIdProvider(seriesId)).valueOrNull;
-      final containsPlan = seriesEither?.fold(
-        (_) => false,
-        (series) => series.plans.any((plan) => plan.id == widget.plan.id),
-      );
-      if (containsPlan == true) return seriesId;
-    }
-    return null;
-  }
-
-  String? _seriesIdFromList(WidgetRef ref) {
-    final seriesAsync = ref.watch(seriesListFutureProvider);
-    return seriesAsync.whenOrNull(
-      data:
-          (either) => either.fold(
-            (_) => null,
-            (seriesList) => SeriesPlanUtils.seriesIdContainingPlan(
-              widget.plan.id,
-              seriesList,
-            ),
-          ),
     );
   }
 
