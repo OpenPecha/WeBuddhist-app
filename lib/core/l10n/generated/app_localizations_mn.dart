@@ -2027,4 +2027,14 @@ class AppLocalizationsMn extends AppLocalizations {
   @override
   String get day_completion_share_message =>
       'Би WeBuddhist дээр өөрийн дадлагын нэг өдрийг дуусгалаа. Надтай нэгдэж, хамтдаа өдөр тутмын дадлагын зуршил бий болгоцгооё.';
+
+  @override
+  String group_accumulator_share_message(String accumulation, String group) {
+    return 'Би WeBuddhist дээр $group бүлгийн \"$accumulation\" хуримтлалд оролцож байна. Та ч бас надтай нэгдээрэй!';
+  }
+
+  @override
+  String group_accumulator_share_message_no_group(String accumulation) {
+    return 'Би WeBuddhist дээр \"$accumulation\" бүлгийн хуримтлалд оролцож байна. Та ч бас надтай нэгдээрэй!';
+  }
 }

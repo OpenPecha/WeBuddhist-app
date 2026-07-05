@@ -1905,4 +1905,14 @@ class AppLocalizationsZh extends AppLocalizations {
   @override
   String get day_completion_share_message =>
       '我刚在 WeBuddhist 上完成了一天的修行练习。加入我，一起培养每日修行的好习惯。';
+
+  @override
+  String group_accumulator_share_message(String accumulation, String group) {
+    return '我正在 WeBuddhist 上参加 $group 的累积活动「$accumulation」，快来加入我吧！';
+  }
+
+  @override
+  String group_accumulator_share_message_no_group(String accumulation) {
+    return '我正在 WeBuddhist 上参加累积活动「$accumulation」，快来加入我吧！';
+  }
 }

@@ -2028,4 +2028,14 @@ class AppLocalizationsBo extends AppLocalizations {
   @override
   String get day_completion_share_message =>
       'ངས་ WeBuddhist ཐོག་ཉམས་ལེན་གྱི་ཉིན་གཅིག་མཐར་ཕྱིན་སོང་། ང་དང་ལྷན་དུ་ཉིན་རེའི་ཉམས་ལེན་གོམ་པ་འཇོག་རོགས།';
+
+  @override
+  String group_accumulator_share_message(String accumulation, String group) {
+    return 'ང་ WeBuddhist ཐོག་ $group གི་བསགས་གྲངས་ $accumulation ནང་མཉམ་ཞུགས་བྱེད་བཞིན་ཡོད། ཁྱེད་ཀྱང་ང་དང་མཉམ་དུ་ཞུགས་རོགས།';
+  }
+
+  @override
+  String group_accumulator_share_message_no_group(String accumulation) {
+    return 'ང་ WeBuddhist ཐོག་བསགས་གྲངས་ $accumulation ནང་མཉམ་ཞུགས་བྱེད་བཞིན་ཡོད། ཁྱེད་ཀྱང་ང་དང་མཉམ་དུ་ཞུགས་རོགས།';
+  }
 }

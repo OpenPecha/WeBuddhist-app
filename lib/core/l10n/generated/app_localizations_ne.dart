@@ -2031,4 +2031,14 @@ class AppLocalizationsNe extends AppLocalizations {
   @override
   String get day_completion_share_message =>
       'मैले WeBuddhist मा आफ्नो अभ्यासको एक दिन पूरा गरें। मसँगै सामेल हुनुस् र एकसाथ दैनिक अभ्यास बानी निर्माण गरौं।';
+
+  @override
+  String group_accumulator_share_message(String accumulation, String group) {
+    return 'म WeBuddhist मा $group को सामूहिक संचय \"$accumulation\" मा भाग लिइरहेको छु। तपाईं पनि मसँग सामेल हुनुहोस्!';
+  }
+
+  @override
+  String group_accumulator_share_message_no_group(String accumulation) {
+    return 'म WeBuddhist मा सामूहिक संचय \"$accumulation\" मा भाग लिइरहेको छु। तपाईं पनि मसँग सामेल हुनुहोस्!';
+  }
 }
