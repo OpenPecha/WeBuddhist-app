@@ -3609,6 +3609,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'I just completed a day of my practice on WeBuddhist. Join me and build a daily practice habit together.'**
   String get day_completion_share_message;
+
+  /// No description provided for @group_accumulator_share_message.
+  ///
+  /// In en, this message translates to:
+  /// **'I am taking part in \"{accumulation}\", a group accumulation by {group} on WeBuddhist. Come join me!'**
+  String group_accumulator_share_message(String accumulation, String group);
+
+  /// No description provided for @group_accumulator_share_message_no_group.
+  ///
+  /// In en, this message translates to:
+  /// **'I am taking part in the group accumulation \"{accumulation}\" on WeBuddhist. Come join me!'**
+  String group_accumulator_share_message_no_group(String accumulation);
 }
 
 class _AppLocalizationsDelegate

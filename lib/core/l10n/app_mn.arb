@@ -892,5 +892,7 @@
   "loading_previous_pages": "Өмнөхийг ачаалж байна... ({count} хуудас)",
   "loading_more_pages": "Илүү ихийг ачаалж байна... ({count} хуудас)",
   "drag_to_resize": "Хэмжээг өөрчлөхийн тулд чирнэ үү",
-  "day_completion_share_message": "Би WeBuddhist дээр өөрийн дадлагын нэг өдрийг дуусгалаа. Надтай нэгдэж, хамтдаа өдөр тутмын дадлагын зуршил бий болгоцгооё."
+  "day_completion_share_message": "Би WeBuddhist дээр өөрийн дадлагын нэг өдрийг дуусгалаа. Надтай нэгдэж, хамтдаа өдөр тутмын дадлагын зуршил бий болгоцгооё.",
+  "group_accumulator_share_message": "Би WeBuddhist дээр {group} бүлгийн \"{accumulation}\" хуримтлалд оролцож байна. Та ч бас надтай нэгдээрэй!",
+  "group_accumulator_share_message_no_group": "Би WeBuddhist дээр \"{accumulation}\" бүлгийн хуримтлалд оролцож байна. Та ч бас надтай нэгдээрэй!"
 }

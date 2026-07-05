@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/constants/app_assets.dart';
+import 'package:flutter_pecha/core/deep_linking/deep_link_url_builder.dart';
 import 'package:flutter_pecha/core/l10n/intl_format_locale.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
@@ -12,9 +13,11 @@ import 'package:flutter_pecha/features/group_profile/domain/entities/group_accum
 import 'package:flutter_pecha/features/group_profile/domain/entities/group_profile.dart';
 import 'package:flutter_pecha/features/group_profile/presentation/providers/group_accumulator_providers.dart';
 import 'package:flutter_pecha/features/group_profile/presentation/providers/group_profile_providers.dart';
+import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:share_plus/share_plus.dart';
 
 class GroupAccumulatorScreen extends ConsumerStatefulWidget {
   final String accumulatorId;
@@ -105,7 +108,7 @@ class _GroupAccumulatorScreenState extends ConsumerState<GroupAccumulatorScreen>
         bottom: false,
         child: Column(
           children: [
-            _buildAppBar(context),
+            _buildAppBar(context, resolvedDetail),
             Expanded(
               child: detailAsync.when(
                 data:
@@ -144,7 +147,7 @@ class _GroupAccumulatorScreenState extends ConsumerState<GroupAccumulatorScreen>
     );
   }
 
-  Widget _buildAppBar(BuildContext context) {
+  Widget _buildAppBar(BuildContext context, GroupAccumulatorDetail? detail) {
     final title = widget.groupTitle?.trim();
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -163,7 +166,13 @@ class _GroupAccumulatorScreenState extends ConsumerState<GroupAccumulatorScreen>
               overflow: TextOverflow.ellipsis,
             ),
           ),
-          const SizedBox(width: 48, height: 48),
+          if (detail == null)
+            const SizedBox(width: 48, height: 48)
+          else
+            IconButton(
+              icon: const Icon(AppAssets.readerShare),
+              onPressed: () => _onShareTap(detail),
+            ),
         ],
       ),
     );
@@ -258,6 +267,41 @@ class _GroupAccumulatorScreenState extends ConsumerState<GroupAccumulatorScreen>
         backgroundColor: Colors.red,
       ),
     );
+  }
+
+  Future<void> _onShareTap(GroupAccumulatorDetail detail) async {
+    final groupName = _resolveGroupName(detail.groupId);
+    final shareMessage = groupName == null
+        ? context.l10n.group_accumulator_share_message_no_group(detail.title)
+        : context.l10n.group_accumulator_share_message(
+            detail.title,
+            groupName,
+          );
+    final shareUrl = DeepLinkUrlBuilder.groupAccumulatorLink(
+      accumulatorId: detail.id,
+      groupId: detail.groupId,
+    ).toString();
+    final sharePositionOrigin = getSharePositionOrigin(context: context);
+
+    await SharePlus.instance.share(
+      ShareParams(
+        text: '$shareMessage\n\n$shareUrl',
+        sharePositionOrigin: sharePositionOrigin,
+      ),
+    );
+  }
+
+  /// The group title normally arrives via the route extra; when the screen is
+  /// opened from a deep link it is absent, so fall back to the cached group
+  /// profile if it has already loaded.
+  String? _resolveGroupName(String groupId) {
+    final title = widget.groupTitle?.trim();
+    if (title != null && title.isNotEmpty) return title;
+    return ref
+        .read(groupProfileProvider(groupId))
+        .whenOrNull(
+          data: (either) => either.fold((_) => null, (profile) => profile.title),
+        );
   }
 }
 

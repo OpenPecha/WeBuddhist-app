@@ -826,5 +826,7 @@
   "loading_previous_pages": "正在載入上文……（{count} 頁）",
   "loading_more_pages": "正在載入更多……（{count} 頁）",
   "drag_to_resize": "拖動以調整大小",
-  "day_completion_share_message": "我刚在 WeBuddhist 上完成了一天的修行练习。加入我，一起培养每日修行的好习惯。"
+  "day_completion_share_message": "我刚在 WeBuddhist 上完成了一天的修行练习。加入我，一起培养每日修行的好习惯。",
+  "group_accumulator_share_message": "我正在 WeBuddhist 上参加 {group} 的累积活动「{accumulation}」，快来加入我吧！",
+  "group_accumulator_share_message_no_group": "我正在 WeBuddhist 上参加累积活动「{accumulation}」，快来加入我吧！"
 }

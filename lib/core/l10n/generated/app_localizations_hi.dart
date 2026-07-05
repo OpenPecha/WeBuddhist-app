@@ -2022,4 +2022,14 @@ class AppLocalizationsHi extends AppLocalizations {
   @override
   String get day_completion_share_message =>
       'मैंने WeBuddhist पर अपने अभ्यास का एक दिन पूरा किया। मेरे साथ जुड़ें और साथ मिलकर रोज़ाना अभ्यास की आदत बनाएं।';
+
+  @override
+  String group_accumulator_share_message(String accumulation, String group) {
+    return 'मैं WeBuddhist पर $group के सामूहिक संचय \"$accumulation\" में भाग ले रहा हूँ। आप भी मेरे साथ जुड़ें!';
+  }
+
+  @override
+  String group_accumulator_share_message_no_group(String accumulation) {
+    return 'मैं WeBuddhist पर सामूहिक संचय \"$accumulation\" में भाग ले रहा हूँ। आप भी मेरे साथ जुड़ें!';
+  }
 }
