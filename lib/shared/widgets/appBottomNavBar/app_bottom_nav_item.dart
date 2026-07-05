@@ -99,20 +99,14 @@ class _NavProfileAvatar extends StatelessWidget {
   final IconData fallbackIcon;
   final Color iconColor;
 
-  static const _size = 24.0;
+  static const _size = 26.0;
 
   @override
   Widget build(BuildContext context) {
     return Container(
       width: _size,
       height: _size,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        border: Border.all(
-          color: isSelected ? activeColor : inactiveColor,
-          width: isSelected ? 2 : 1,
-        ),
-      ),
+      decoration: BoxDecoration(shape: BoxShape.circle),
       child: ClipOval(
         child: CachedNetworkImage(
           imageUrl: avatarUrl,
