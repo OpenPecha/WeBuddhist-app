@@ -4,18 +4,17 @@ import 'package:flutter_pecha/features/notifications/application/notification_sy
 import 'package:flutter_pecha/features/notifications/data/notification_id_scheme.dart';
 import 'package:flutter_pecha/features/notifications/data/services/notification_service.dart';
 import 'package:flutter_pecha/features/notifications/data/services/routine_notification_service.dart';
-import 'package:flutter_pecha/features/notifications/data/special_plan_notifications.dart';
-import 'package:flutter_pecha/features/plans/data/models/user/user_plans_model.dart';
 import 'package:flutter_pecha/features/practice/data/models/routine_model.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:timezone/data/latest_all.dart' as tz_data;
 import 'package:timezone/timezone.dart' as tz;
 
-/// Pure-compute tests for `NotificationSyncEngine.computeForPlanBlock` and
-/// `computeForRecitationBlock` (the `@visibleForTesting` helpers). These
-/// avoid the platform plugin and SharedPreferences — only the timezone
-/// package needs initialising.
+/// Pure-compute tests for the engine's `@visibleForTesting` daily-repeat
+/// helpers (recitation / mala / timer). Plan and series reminders are delivered
+/// via server push (FCM) and are no longer computed locally. These tests avoid
+/// the platform plugin and SharedPreferences — only the timezone package needs
+/// initialising.
 void main() {
   setUpAll(() {
     tz_data.initializeTimeZones();
@@ -35,316 +34,11 @@ void main() {
 
   // ─── Helpers ───────────────────────────────────────────────────────────────
 
-  RoutineItem planItem(String id, {String title = 'Plan A'}) => RoutineItem(
-        id: id,
-        title: title,
-        type: RoutineItemType.series,
-      );
-
   RoutineItem recitationItem({String id = 'r-1'}) => RoutineItem(
         id: id,
         title: 'Recitation',
         type: RoutineItemType.recitation,
       );
-
-  RoutineBlock planBlock({
-    String id = 'b-1',
-    int hour = 7,
-    int minute = 0,
-    List<RoutineItem>? items,
-    bool notificationEnabled = true,
-  }) =>
-      RoutineBlock(
-        id: id,
-        time: TimeOfDay(hour: hour, minute: minute),
-        notificationEnabled: notificationEnabled,
-        items: items ?? [planItem('plan-1')],
-        notificationId: 1001,
-      );
-
-  UserPlansModel makePlan({
-    String id = 'plan-1',
-    DateTime? startedAt,
-    DateTime? startDate,
-    int totalDays = 30,
-  }) =>
-      UserPlansModel(
-        id: id,
-        title: 'A Plan',
-        description: '',
-        language: 'en',
-        difficultyLevel: null,
-        startedAt: startedAt ?? DateTime(2026, 6, 1),
-        totalDays: totalDays,
-        tags: null,
-        startDate: startDate,
-      );
-
-  // ─── Plan-block compute ────────────────────────────────────────────────────
-
-  group('case 5a/5b: toggle gates', () {
-    test('returns empty when master OFF', () {
-      final entries = engine.computeForPlanBlock(
-        planBlock(),
-        planItem('plan-1'),
-        makePlan(),
-        DateTime(2026, 6, 5, 8),
-        masterOn: false,
-        routineOn: true,
-      );
-      expect(entries, isEmpty);
-    });
-
-    test('returns empty when routine sub-toggle OFF', () {
-      final entries = engine.computeForPlanBlock(
-        planBlock(),
-        planItem('plan-1'),
-        makePlan(),
-        DateTime(2026, 6, 5, 8),
-        masterOn: true,
-        routineOn: false,
-      );
-      expect(entries, isEmpty);
-    });
-  });
-
-  group('case 3c: plan already ended', () {
-    test('emits nothing when today > planEnd', () {
-      final entries = engine.computeForPlanBlock(
-        planBlock(),
-        planItem('plan-1'),
-        makePlan(
-          startedAt: DateTime(2026, 1, 1),
-          totalDays: 10, // ends 2026-01-10
-        ),
-        DateTime(2026, 6, 5, 8),
-        masterOn: true,
-        routineOn: true,
-      );
-      expect(entries, isEmpty);
-    });
-  });
-
-  group('case 3a: plan starts in the future', () {
-    test('schedules only future days, no immediate catch-up', () {
-      final entries = engine.computeForPlanBlock(
-        planBlock(hour: 9),
-        planItem('plan-1'),
-        makePlan(
-          startedAt: DateTime(2026, 7, 1),
-          totalDays: 5,
-        ),
-        DateTime(2026, 6, 25, 10),
-        masterOn: true,
-        routineOn: true,
-      );
-      expect(entries, isNotEmpty);
-      expect(entries.every((e) => e.fireAt != null), isTrue);
-    });
-  });
-
-  group('case 3b: plan in progress', () {
-    test(
-        'emits nothing for today once its block-time has passed '
-        '(no catch-up, no backfill)', () {
-      final entries = engine.computeForPlanBlock(
-        planBlock(hour: 7, minute: 0),
-        planItem('plan-1'),
-        makePlan(
-          startedAt: DateTime(2026, 6, 1),
-          totalDays: 30,
-        ),
-        // 09:00 — past the 07:00 block time. Today gets nothing at all.
-        DateTime(2026, 6, 5, 9),
-        masterOn: true,
-        routineOn: true,
-      );
-      expect(
-        entries.any((e) =>
-            e.fireAt != null && e.fireAt!.month == 6 && e.fireAt!.day == 5),
-        isFalse,
-      );
-      // Future days must still be scheduled — only today is skipped.
-      expect(entries, isNotEmpty);
-      expect(entries.every((e) => e.fireAt != null), isTrue);
-    });
-
-    test('schedules today normally when block-time has not yet passed', () {
-      final entries = engine.computeForPlanBlock(
-        planBlock(hour: 9, minute: 0),
-        planItem('plan-1'),
-        makePlan(
-          startedAt: DateTime(2026, 6, 1),
-          totalDays: 30,
-        ),
-        DateTime(2026, 6, 5, 8),
-        masterOn: true,
-        routineOn: true,
-      );
-      expect(
-        entries.any((e) =>
-            e.fireAt != null && e.fireAt!.month == 6 && e.fireAt!.day == 5),
-        isTrue,
-      );
-    });
-
-    test(
-        'explicit re-add with a later time today fires today at that time '
-        '(deliberately scheduled fires are always honored)', () {
-      final entries = engine.computeForPlanBlock(
-        // Block re-created at 16:00, later than the (already-passed) old time.
-        planBlock(hour: 16, minute: 0),
-        planItem('plan-1'),
-        makePlan(
-          startedAt: DateTime(2026, 6, 1),
-          totalDays: 30,
-        ),
-        DateTime(2026, 6, 5, 15, 36),
-        masterOn: true,
-        routineOn: true,
-      );
-      // The user's explicit 16:00 choice fires today at 16:00.
-      expect(
-        entries.any((e) =>
-            e.fireAt != null &&
-            e.fireAt!.month == 6 &&
-            e.fireAt!.day == 5 &&
-            e.fireAt!.hour == 16),
-        isTrue,
-      );
-      // Tomorrow onwards scheduled as usual.
-      expect(
-        entries.any((e) =>
-            e.fireAt != null &&
-            e.fireAt!.month == 6 &&
-            e.fireAt!.day == 6),
-        isTrue,
-      );
-    });
-  });
-
-  // ─── Global cap (iOS 64-pending limit) ─────────────────────────────────────
-
-  group('global cap', () {
-    DesiredNotification dated(int id, DateTime fireAt) => DesiredNotification(
-          id: id,
-          fireAt: tz.TZDateTime.from(fireAt, tz.local),
-          title: 't',
-          body: 'b',
-          payload: null,
-          sourceItem: null,
-          debugCase: '3b',
-        );
-
-    test('keeps daily repeats and the soonest dated entries', () {
-      final desired = <int, DesiredNotification>{};
-      // One recitation daily-repeat — must always survive.
-      desired[5555] = DesiredNotification(
-        id: 5555,
-        fireAt: tz.TZDateTime.from(DateTime(2026, 6, 6, 7), tz.local),
-        title: 'r',
-        body: 'b',
-        payload: null,
-        sourceItem: null,
-        isDailyRepeat: true,
-        debugCase: '4 daily-repeat',
-      );
-      // 70 dated entries — more than the budget allows.
-      for (var day = 1; day <= 70; day++) {
-        desired[10000000 + day] = dated(
-          10000000 + day,
-          DateTime(2026, 6, 5).add(Duration(days: day)),
-        );
-      }
-
-      engine.applyGlobalCap(desired, (_) {});
-
-      expect(desired[5555], isNotNull, reason: 'daily repeat never dropped');
-      final datedLeft =
-          desired.values.where((d) => !d.isDailyRepeat).toList();
-      expect(
-        datedLeft.length,
-        NotificationSyncEngine.kMaxTotalScheduled - 1,
-        reason: 'budget = cap minus the reserved daily repeat',
-      );
-      // The survivors are the soonest ones.
-      expect(desired.containsKey(10000001), isTrue);
-      expect(desired.containsKey(10000070), isFalse);
-    });
-
-    test('no-op when under the cap', () {
-      final desired = <int, DesiredNotification>{
-        for (var day = 1; day <= 10; day++)
-          10000000 + day: dated(
-            10000000 + day,
-            DateTime(2026, 6, 5).add(Duration(days: day)),
-          ),
-      };
-      engine.applyGlobalCap(desired, (_) {});
-      expect(desired, hasLength(10));
-    });
-  });
-
-  // ─── Series routine items ──────────────────────────────────────────────────
-
-  group('computeForSeriesBlock', () {
-    RoutineItem seriesItem({String id = 'series-1', String? currentPlanId}) =>
-        RoutineItem(
-          id: id,
-          title: 'My Series',
-          type: RoutineItemType.series,
-          currentPlanId: currentPlanId,
-        );
-
-    test('schedules notifications for the active plan on each upcoming day', () {
-      final entries = engine.computeForSeriesBlock(
-        planBlock(hour: 9),
-        seriesItem(currentPlanId: 'plan-1'),
-        [
-          makePlan(
-            id: 'plan-1',
-            startedAt: DateTime(2026, 6, 1),
-            totalDays: 30,
-          ),
-        ],
-        DateTime(2026, 6, 5, 8),
-        masterOn: true,
-        routineOn: true,
-      );
-      expect(entries, isNotEmpty);
-      expect(entries.every((e) => e.enrollmentPlanId == 'plan-1'), isTrue);
-      expect(
-        entries.any((e) => e.body.contains('Day 5')),
-        isTrue,
-        reason: 'Jun 5 is day 5 of the plan',
-      );
-    });
-
-    test(
-        'emits nothing for today once its block-time has passed '
-        '(no catch-up, no backfill)', () {
-      final entries = engine.computeForSeriesBlock(
-        planBlock(hour: 7),
-        seriesItem(currentPlanId: 'plan-1'),
-        [
-          makePlan(
-            id: 'plan-1',
-            startedAt: DateTime(2026, 6, 1),
-            totalDays: 30,
-          ),
-        ],
-        DateTime(2026, 6, 5, 9),
-        masterOn: true,
-        routineOn: true,
-      );
-      expect(
-        entries.any((e) =>
-            e.fireAt != null && e.fireAt!.month == 6 && e.fireAt!.day == 5),
-        isFalse,
-      );
-      expect(entries.every((e) => e.fireAt != null), isTrue);
-    });
-  });
 
   // ─── Recitation ────────────────────────────────────────────────────────────
 
@@ -492,9 +186,12 @@ void main() {
     });
 
     test('rolls the reminder to next day when block time already passed', () {
+      // `now` is UTC so the comparison is deterministic regardless of the host
+      // machine's timezone (the engine converts `now` via tz.local, which is
+      // UTC in these tests). 10:00 UTC is past the 08:30 block time.
       final entries = engine.computeForTimerBlock(
         timerBlock(),
-        DateTime(2026, 6, 5, 10), // 10:00, block 8:30 already passed
+        DateTime.utc(2026, 6, 5, 10),
         masterOn: true,
         timerOn: true,
       );
@@ -549,13 +246,12 @@ void main() {
   // ─── ID scheme ─────────────────────────────────────────────────────────────
 
   group('NotificationIdScheme', () {
-    test('isOurs covers all owned ranges', () {
-      expect(NotificationIdScheme.isOurs(800), isTrue); // special one-shot
-      expect(NotificationIdScheme.isOurs(810), isTrue); // special series
+    test('isOurs covers all owned ranges (incl. legacy plan/series)', () {
+      expect(NotificationIdScheme.isOurs(800), isTrue); // legacy special one-shot
       expect(NotificationIdScheme.isOurs(1500), isTrue); // routine block
       expect(NotificationIdScheme.isOurs(9999), isTrue); // diagnostic
-      expect(NotificationIdScheme.isOurs(9000000), isTrue); // plan one-shot
-      expect(NotificationIdScheme.isOurs(10000000), isTrue); // plan series
+      expect(NotificationIdScheme.isOurs(9000000), isTrue); // legacy plan one-shot
+      expect(NotificationIdScheme.isOurs(10000000), isTrue); // legacy plan series
       expect(NotificationIdScheme.isOurs(20000000), isTrue); // accumulator block
       expect(NotificationIdScheme.isOurs(21000000), isTrue); // timer start
       expect(NotificationIdScheme.isOurs(50), isFalse); // system range
@@ -576,9 +272,9 @@ void main() {
         ),
         isTrue, // timer start
       );
-      expect(NotificationIdScheme.isRoutineDailyRepeat(9000000), isFalse); // plan one-shot
-      expect(NotificationIdScheme.isRoutineDailyRepeat(10000000), isFalse); // plan series
-      expect(NotificationIdScheme.isRoutineDailyRepeat(810), isFalse); // special series
+      expect(NotificationIdScheme.isRoutineDailyRepeat(9000000), isFalse); // legacy plan one-shot
+      expect(NotificationIdScheme.isRoutineDailyRepeat(10000000), isFalse); // legacy plan series
+      expect(NotificationIdScheme.isRoutineDailyRepeat(810), isFalse); // legacy special
     });
 
     test('accumulator + timer block ids are distinct from each other', () {
@@ -592,12 +288,6 @@ void main() {
       expect(ids, hasLength(3)); // all distinct
       expect(NotificationIdScheme.isOurs(malaId), isTrue);
       expect(NotificationIdScheme.isOurs(timerStart), isTrue);
-    });
-
-    test('special-plan series uses fixed slot per planId', () {
-      // ITCC is the first key in kSpecialPlanNotifications — slot 0.
-      expect(NotificationIdScheme.specialPlanSeriesId(kItccPlanId, 1), 810);
-      expect(NotificationIdScheme.specialPlanSeriesId(kItccPlanId, 6), 815);
     });
   });
 

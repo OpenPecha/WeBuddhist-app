@@ -6,7 +6,6 @@ import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/features/notifications/data/channels/notification_channels.dart';
 import 'package:flutter_pecha/features/notifications/data/notification_id_scheme.dart';
 import 'package:flutter_pecha/features/notifications/data/services/notification_service.dart';
-import 'package:flutter_pecha/features/notifications/data/special_plan_notifications.dart';
 import 'package:flutter_pecha/features/practice/data/models/routine_model.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -44,21 +43,17 @@ class RoutineNotificationService {
 
   bool get _isReady => NotificationService().isInitialized;
 
-  /// Maximum lookahead window for plan-day series scheduling. iOS allows at
-  /// most 64 pending scheduled notifications; the engine re-runs on every
-  /// app launch so the window slides forward automatically.
-  static const int kPlanSeriesMaxScheduledDays = 60;
-
   // ─── Cancellation ────────────────────────────────────────────────────────
 
-  /// Cancels everything the app scheduled for [block]: the block's own ID
-  /// and every plan item's series IDs.
+  /// Cancels every daily-repeat the app scheduled for [block] (recitation,
+  /// mala and timer), each in its own ID range.
   ///
   /// Used by the edit-routine screen on local delete (before Done is
   /// pressed). The full sync engine handles reconciliation otherwise.
   Future<void> cancelBlockNotification(RoutineBlock block) async {
     if (!_isReady) return;
     try {
+      // Recitation daily-repeat keeps the block's own notification ID.
       await _plugin.cancel(block.notificationId);
       // The mala (accumulator) daily-repeat lives in a parallel ID range, so
       // cancel it too — otherwise a deleted mala block keeps firing until the
@@ -69,45 +64,11 @@ class RoutineNotificationService {
       // range — cancel it too for the same reason.
       await _plugin
           .cancel(NotificationIdScheme.timerStartId(block.notificationId));
-      // Every plan item in the block owns its own series — cancel them all,
-      // not just the first (blocks may hold several plans, case 3d).
-      for (final item
-          in block.items.where((i) => i.type == RoutineItemType.series)) {
-        if (isSpecialPlan(item.id)) {
-          await _cancelSpecialPlanSeries(item.id);
-        } else {
-          await _cancelPlanDurationSeries(item.id);
-        }
-        if (item.currentPlanId != null && item.currentPlanId != item.id) {
-          if (isSpecialPlan(item.currentPlanId!)) {
-            await _cancelSpecialPlanSeries(item.currentPlanId!);
-          } else {
-            await _cancelPlanDurationSeries(item.currentPlanId!);
-          }
-        }
-      }
     } catch (e) {
       _logger.warning(
         'cancelBlockNotification failed for ${block.notificationId}: $e',
       );
     }
-  }
-
-  Future<void> _cancelSpecialPlanSeries(String planId) async {
-    final entries = kSpecialPlanNotifications[planId];
-    if (entries == null) return;
-    for (var day = 1; day <= entries.length; day++) {
-      await _plugin.cancel(NotificationIdScheme.specialPlanSeriesId(planId, day));
-      await _plugin.cancel(NotificationIdScheme.specialPlanOneShotId(day));
-    }
-    await _cancelPlanDurationSeries(planId);
-  }
-
-  Future<void> _cancelPlanDurationSeries(String planId) async {
-    for (var day = 1; day <= kPlanSeriesMaxScheduledDays; day++) {
-      await _plugin.cancel(NotificationIdScheme.planSeriesId(planId, day));
-    }
-    await _plugin.cancel(NotificationIdScheme.planOneShotId(planId));
   }
 
   /// Cancels every pending notification owned by the plugin. Used on
