@@ -237,7 +237,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     context.pushNamed(
       'home-series-detail',
       pathParameters: {'id': series.id},
-      extra: {'series': series},
     );
   }
 

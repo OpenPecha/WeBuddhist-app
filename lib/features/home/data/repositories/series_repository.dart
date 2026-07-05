@@ -98,8 +98,11 @@ class SeriesRepository implements SeriesRepositoryInterface {
   }) async {
     final cached = local.readSeriesById(language, id);
     if (cached != null) {
-      unawaited(_refreshSeriesById(id, language: language));
-      return Right(cached.toEntity(language: language));
+      final entity = cached.toEntity(language: language);
+      if (!entity.isPlansPayloadPending) {
+        unawaited(_refreshSeriesById(id, language: language));
+        return Right(entity);
+      }
     }
 
     try {
@@ -116,14 +119,45 @@ class SeriesRepository implements SeriesRepositoryInterface {
     String id, {
     required String language,
   }) {
-    return _watchSingle(
-      key: local.seriesByIdKey(language, id),
-      read:
-          () =>
-              local.readSeriesById(language, id)?.toEntity(language: language),
+    final key = local.seriesByIdKey(language, id);
+    Series? readEntity() =>
+        local.readSeriesById(language, id)?.toEntity(language: language);
+
+    return _watchSeriesById(
+      key: key,
+      read: readEntity,
       refresh: () => _refreshSeriesById(id, language: language),
       failureMessage: 'Failed to load series',
     );
+  }
+
+  /// Like [_watchSingle], but metadata-only series cache (plan count without
+  /// plan payloads) is not emitted until the detail refresh completes.
+  Stream<Either<Failure, Series>> _watchSeriesById({
+    required String key,
+    required Series? Function() read,
+    required Future<void> Function() refresh,
+    required String failureMessage,
+  }) async* {
+    final cached = read();
+    final hasDisplayableCache =
+        cached != null && !cached.isPlansPayloadPending;
+    if (hasDisplayableCache) yield Right(cached);
+
+    try {
+      await refresh();
+      final refreshed = read();
+      if (refreshed != null) yield Right(refreshed);
+    } catch (e) {
+      if (!hasDisplayableCache) {
+        yield Left(_toFailure(e, failureMessage));
+      }
+    }
+
+    await for (final _ in local.watchKey(key)) {
+      final latest = read();
+      if (latest != null) yield Right(latest);
+    }
   }
 
   @override

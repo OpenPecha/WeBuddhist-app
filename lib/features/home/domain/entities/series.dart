@@ -83,4 +83,8 @@ class Series {
 
   /// Smallest cover URL — legacy string-only callers.
   String? get imageUrl => coverImage?.displayUrl;
+
+  /// True when list/metadata cache has [planCount] but the detail [plans]
+  /// payload has not been loaded yet.
+  bool get isPlansPayloadPending => plans.isEmpty && planCount > 0;
 }
