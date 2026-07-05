@@ -447,9 +447,9 @@ class MoreScreen extends ConsumerWidget {
                 child: Text(localizations.cancel),
               ),
               TextButton(
-                onPressed: () {
-                  ref.read(authProvider.notifier).logout();
+                onPressed: () async {
                   Navigator.pop(context);
+                  await ref.read(authProvider.notifier).logout();
                 },
                 style: TextButton.styleFrom(
                   foregroundColor: Colors.red.shade600,

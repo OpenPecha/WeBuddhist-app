@@ -26,6 +26,7 @@ import 'package:flutter_pecha/features/push_notifications/presentation/providers
 import 'package:flutter_pecha/features/home/data/datasource/home_local_datasource.dart';
 import 'package:flutter_pecha/features/home/presentation/providers/use_case_providers.dart';
 import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
+import 'package:flutter_pecha/features/auth/presentation/providers/user_session_bootstrap.dart';
 import 'package:flutter_pecha/features/home/presentation/screens/main_navigation_screen.dart';
 import 'package:flutter_pecha/features/mala/data/datasources/mala_local_datasource.dart';
 import 'package:flutter_pecha/features/mala/presentation/providers/mala_providers.dart';
@@ -294,6 +295,9 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
     // Mala background sync — kept alive for the app lifetime so offline counts
     // flush on lifecycle/connectivity triggers even off the mala screen.
     ref.watch(malaSyncManagerProvider);
+    // Clears user-scoped HTTP cache and invalidates profile/plan providers
+    // when auth transitions between accounts.
+    ref.watch(userSessionBootstrapProvider);
     // Home background sync — flushes pending local-first writes when
     // connectivity returns.
     ref.watch(homeSyncBootstrapProvider);

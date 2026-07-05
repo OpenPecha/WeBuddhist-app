@@ -26,6 +26,7 @@ import 'package:flutter_pecha/core/analytics/analytics_events.dart';
 import 'package:flutter_pecha/core/analytics/analytics_service.dart';
 import 'package:flutter_pecha/core/analytics/analytics_providers.dart';
 import 'package:flutter_pecha/core/config/router/pending_route_provider.dart';
+import 'package:flutter_pecha/core/network/interceptors/cache_interceptor.dart';
 import 'package:flutter_pecha/features/mala/presentation/providers/mala_providers.dart';
 import 'package:flutter_pecha/features/mala/presentation/providers/mala_sync_manager.dart';
 import 'package:flutter_pecha/features/onboarding/presentation/providers/onboarding_datasource_providers.dart';
@@ -391,6 +392,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
     _logger.info('User authenticated');
 
     // 4. Fetch full user profile. Non-critical — routing is already correct.
+    ref.read(cacheInterceptorProvider).clearUserScoped();
     try {
       await ref.read(userProvider.notifier).initializeUser();
       _logger.info('User data fetched and saved locally');
@@ -453,6 +455,8 @@ class AuthNotifier extends StateNotifier<AuthState> {
   }
 
   Future<void> logout() async {
+    ref.read(cacheInterceptorProvider).clearUserScoped();
+
     // Best-effort flush of any unsynced mala counts while the token is still
     // valid. Local data is namespaced by user id and is NOT deleted here, so
     // any remaining tail flushes on next login.
