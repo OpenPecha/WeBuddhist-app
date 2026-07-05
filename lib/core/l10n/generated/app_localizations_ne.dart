@@ -1416,6 +1416,20 @@ class AppLocalizationsNe extends AppLocalizations {
       'तपाईंका परिवर्तनहरू सेभ गर्न सकिएन। कृपया फेरि प्रयास गर्नुहोस्';
 
   @override
+  String get edit_profile_traditions => 'परम्पराहरू';
+
+  @override
+  String get edit_profile_choose_traditions => 'आफ्ना परम्पराहरू छान्नुहोस्';
+
+  @override
+  String get edit_profile_tradition_remove_failed =>
+      'परम्परा हटाउन सकिएन। कृपया फेरि प्रयास गर्नुहोस्';
+
+  @override
+  String get edit_profile_tradition_save_failed =>
+      'परम्पराहरू सेभ गर्न सकिएन। कृपया फेरि प्रयास गर्नुहोस्';
+
+  @override
   String get username_label => 'प्रयोगकर्ता नाम';
 
   @override

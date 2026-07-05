@@ -1397,6 +1397,20 @@ class AppLocalizationsEn extends AppLocalizations {
       'Couldn\'t save your changes. Please try again';
 
   @override
+  String get edit_profile_traditions => 'Traditions';
+
+  @override
+  String get edit_profile_choose_traditions => 'Choose your traditions';
+
+  @override
+  String get edit_profile_tradition_remove_failed =>
+      'Couldn\'t remove tradition. Please try again';
+
+  @override
+  String get edit_profile_tradition_save_failed =>
+      'Couldn\'t save traditions. Please try again';
+
+  @override
   String get username_label => 'Username';
 
   @override

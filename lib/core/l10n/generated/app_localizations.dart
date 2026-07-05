@@ -2572,6 +2572,30 @@ abstract class AppLocalizations {
   /// **'Couldn\'t save your changes. Please try again'**
   String get edit_profile_save_failed;
 
+  /// No description provided for @edit_profile_traditions.
+  ///
+  /// In en, this message translates to:
+  /// **'Traditions'**
+  String get edit_profile_traditions;
+
+  /// No description provided for @edit_profile_choose_traditions.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose your traditions'**
+  String get edit_profile_choose_traditions;
+
+  /// No description provided for @edit_profile_tradition_remove_failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t remove tradition. Please try again'**
+  String get edit_profile_tradition_remove_failed;
+
+  /// No description provided for @edit_profile_tradition_save_failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t save traditions. Please try again'**
+  String get edit_profile_tradition_save_failed;
+
   /// No description provided for @username_label.
   ///
   /// In en, this message translates to:

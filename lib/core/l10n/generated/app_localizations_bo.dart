@@ -1417,6 +1417,21 @@ class AppLocalizationsBo extends AppLocalizations {
       'ཁྱེད་ཀྱི་བཟོ་བཅོས་ཉར་ཚགས་བྱེད་མ་ཐུབ། བསྐྱར་དུ་ཚོད་ལྟ་བྱོས།';
 
   @override
+  String get edit_profile_traditions => 'ཆོས་བརྒྱུད།';
+
+  @override
+  String get edit_profile_choose_traditions =>
+      'ཁྱེད་ཀྱི་ཆོས་བརྒྱུད་འདེམས་རོགས།';
+
+  @override
+  String get edit_profile_tradition_remove_failed =>
+      'ཆོས་བརྒྱུད་བསུབ་མ་ཐུབ། བསྐྱར་དུ་ཚོད་ལྟ་བྱོས།';
+
+  @override
+  String get edit_profile_tradition_save_failed =>
+      'ཆོས་བརྒྱུད་ཉར་ཚགས་བྱེད་མ་ཐུབ། བསྐྱར་དུ་ཚོད་ལྟ་བྱོས།';
+
+  @override
   String get username_label => 'སྤྱོད་མིང་།';
 
   @override
