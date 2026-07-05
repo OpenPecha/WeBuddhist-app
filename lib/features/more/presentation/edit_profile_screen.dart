@@ -505,7 +505,17 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   }
 
   Future<void> _showTraditionPicker() async {
-    await ref.read(traditionOnboardingPathsProvider.future);
+    try {
+      await ref.read(traditionOnboardingPathsProvider.future);
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.something_went_wrong),
+        ),
+      );
+      return;
+    }
     if (!mounted) return;
 
     final currentTraditions =
