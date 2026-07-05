@@ -30,7 +30,7 @@ class CacheInterceptor extends Interceptor {
     // Only cache GET requests (unless explicitly opted out)
     if (options.method.toUpperCase() == 'GET' &&
         options.extra['no_cache'] != true &&
-        !_shouldCache(options.path)) {
+        _shouldCache(options.path)) {
       final cacheKey = _generateCacheKey(options);
       final cached = _cache[cacheKey];
 
