@@ -1327,6 +1327,18 @@ class AppLocalizationsZh extends AppLocalizations {
   String get edit_profile_save_failed => '無法儲存您的變更，請再試一次';
 
   @override
+  String get edit_profile_traditions => '傳承';
+
+  @override
+  String get edit_profile_choose_traditions => '選擇您的傳承';
+
+  @override
+  String get edit_profile_tradition_remove_failed => '無法移除傳承，請再試一次';
+
+  @override
+  String get edit_profile_tradition_save_failed => '無法儲存傳承，請再試一次';
+
+  @override
   String get username_label => '使用者名稱';
 
   @override
