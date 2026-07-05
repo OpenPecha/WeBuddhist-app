@@ -119,6 +119,34 @@ class OnboardingRemoteDatasource {
         .toList();
   }
 
+  /// Fetch the user's selected traditions.
+  ///
+  /// Endpoint: GET /users/me/traditions
+  Future<List<UserTradition>> fetchUserTraditions() async {
+    final response = await _dio.get('/users/me/traditions');
+
+    final data = response.data;
+    if (data is! Map<String, dynamic>) {
+      throw DioException(
+        requestOptions: response.requestOptions,
+        message: 'Invalid user traditions response',
+      );
+    }
+
+    final traditionsJson = data['traditions'];
+    if (traditionsJson is! List<dynamic>) {
+      throw DioException(
+        requestOptions: response.requestOptions,
+        message: 'Invalid user traditions list response',
+      );
+    }
+
+    return traditionsJson
+        .whereType<Map<String, dynamic>>()
+        .map(UserTradition.fromJson)
+        .toList();
+  }
+
   /// Save the user's selected tradition.
   ///
   /// Endpoint: POST /api/v1/users/me/traditions
@@ -128,5 +156,13 @@ class OnboardingRemoteDatasource {
       data: request.toJson(),
     );
     _logger.info('User tradition saved: ${request.traditionCode}');
+  }
+
+  /// Remove a user tradition.
+  ///
+  /// Endpoint: DELETE /users/me/traditions/{user_tradition_id}
+  Future<void> deleteUserTradition(String userTraditionId) async {
+    await _dio.delete('/users/me/traditions/$userTraditionId');
+    _logger.info('User tradition deleted: $userTraditionId');
   }
 }

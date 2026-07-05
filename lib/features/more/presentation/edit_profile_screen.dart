@@ -13,7 +13,10 @@ import 'package:flutter_pecha/core/network/connectivity_service.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
 import 'package:flutter_pecha/features/auth/presentation/state/user_state.dart';
+import 'package:flutter_pecha/features/more/presentation/providers/user_traditions_provider.dart';
 import 'package:flutter_pecha/features/more/presentation/widgets/profile_avatar_section.dart';
+import 'package:flutter_pecha/features/more/presentation/widgets/tradition_picker_sheet.dart';
+import 'package:flutter_pecha/features/more/presentation/widgets/traditions_form_field.dart';
 import 'package:flutter_pecha/features/more/presentation/widgets/username_form_field.dart';
 import 'package:flutter_pecha/shared/domain/validators/person_name_validator.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -498,6 +501,21 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     context.push(AppRoutes.deleteAccount);
   }
 
+  void _showTraditionPicker() {
+    showTraditionPickerSheet(context);
+  }
+
+  Future<void> _onRemoveTradition(String userTraditionId) async {
+    final l10n = AppLocalizations.of(context)!;
+    final removed = await ref
+        .read(userTraditionsProvider.notifier)
+        .removeTradition(userTraditionId);
+    if (!mounted || removed) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(l10n.edit_profile_tradition_remove_failed)),
+    );
+  }
+
   bool get _canSave =>
       !_isRefreshing &&
       !_isSaving &&
@@ -539,6 +557,9 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     final user = ref.watch(userProvider).user;
     final avatarUrl = user?.avatarUrl ?? '';
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final userTraditionsAsync = ref.watch(userTraditionsProvider);
+    final userTraditions = userTraditionsAsync.valueOrNull ?? const [];
+    final isLoadingTraditions = userTraditionsAsync.isLoading;
 
     final inputBorder = OutlineInputBorder(
       borderRadius: BorderRadius.circular(12),
@@ -763,6 +784,17 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                     vertical: 14,
                   ),
                 ),
+              ),
+
+              const SizedBox(height: 20),
+
+              // ── Traditions ────────────────────────────────────────────
+              TraditionsFormField(
+                traditions: userTraditions,
+                isLoading: isLoadingTraditions,
+                isDark: isDark,
+                onTap: _showTraditionPicker,
+                onRemove: (tradition) => _onRemoveTradition(tradition.id),
               ),
 
               const SizedBox(height: 32),
