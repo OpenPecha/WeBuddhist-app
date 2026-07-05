@@ -71,16 +71,6 @@ class StorageKeys {
   /// once (UUID) and persisted for the lifetime of the install.
   static const String pushDeviceId = 'push_device_id';
 
-  // Special-plan (ITCC and similar) keys — hardcoded per-day content series.
-  /// Per-plan startedAt prefix. Full key: `special_plan_started_at_<planId>` → ISO8601 string.
-  static const String specialPlanStartedAtPrefix = 'special_plan_started_at_';
-
-  // General plan duration-based notification keys — all other enrolled plans.
-  /// Per-plan startedAt prefix. Full key: `plan_started_at_<planId>` → ISO8601 string.
-  static const String planStartedAtPrefix = 'plan_started_at_';
-  /// Per-plan totalDays prefix. Full key: `plan_total_days_<planId>` → int.
-  static const String planTotalDaysPrefix = 'plan_total_days_';
-
   // ========== FEATURES ==========
   /// Profile data JSON
   static const String profileData = 'profile_data';

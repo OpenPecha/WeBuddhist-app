@@ -55,6 +55,7 @@ class PushMessagingRepositoryImpl implements PushMessagingRepository {
   Future<Either<Failure, Unit>> registerDeviceToken(
     String token, {
     String? deviceId,
+    Map<String, bool>? preferences,
   }) async {
     try {
       // Platform must be exactly "ANDROID" or "IOS" (case-sensitive).
@@ -64,6 +65,7 @@ class PushMessagingRepositoryImpl implements PushMessagingRepository {
           'token': token,
           'platform': Platform.isIOS ? 'IOS' : 'ANDROID',
           if (deviceId != null) 'device_id': deviceId,
+          if (preferences != null) 'notification_preferences': preferences,
         },
       );
       return const Right(unit);

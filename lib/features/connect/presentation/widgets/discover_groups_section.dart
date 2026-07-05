@@ -15,7 +15,6 @@ class DiscoverGroupsSection extends StatelessWidget {
   });
 
   final List<GroupProfile> groups;
-  final int total;
 
   static const double _tileSize = 72;
 
