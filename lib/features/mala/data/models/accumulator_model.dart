@@ -233,6 +233,7 @@ class AccumulatorDetailModel {
   MalaCount toMalaCount() => MalaCount(
     accumulatorId: accumulatorId,
     total: currentCount,
+    totalCounted: totalCounted,
     beadImageUrl: beadImageUrl,
   );
 }

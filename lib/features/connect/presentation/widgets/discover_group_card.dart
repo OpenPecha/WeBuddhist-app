@@ -14,9 +14,14 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 class DiscoverGroupCard extends ConsumerWidget {
-  const DiscoverGroupCard({super.key, required this.group});
+  const DiscoverGroupCard({
+    super.key,
+    required this.group,
+    this.showJoinButton = true,
+  });
 
   final GroupProfile group;
+  final bool showJoinButton;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -80,7 +85,14 @@ class DiscoverGroupCard extends ConsumerWidget {
                 ),
               ),
               const SizedBox(width: 8),
-              _JoinButton(group: group, isDark: isDark, followKey: followKey),
+              if (showJoinButton)
+                _JoinButton(group: group, isDark: isDark, followKey: followKey)
+              else
+                Icon(
+                  AppAssets.caretRight,
+                  size: 16,
+                  color: subtitleColor,
+                ),
             ],
           ),
         ),

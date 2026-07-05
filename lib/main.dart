@@ -15,8 +15,6 @@ import 'package:flutter_pecha/core/network/connectivity_service.dart';
 import 'package:flutter_pecha/core/l10n/l10n.dart';
 import 'package:flutter_pecha/core/services/airbridge_deep_link_service.dart';
 import 'package:flutter_pecha/core/services/service_providers.dart';
-import 'package:flutter_pecha/core/storage/plan_metadata_store.dart';
-import 'package:flutter_pecha/core/storage/special_plan_started_at_store.dart';
 import 'package:flutter_pecha/core/theme/theme_notifier.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/features/notifications/data/models/notification_nav.dart';
@@ -29,6 +27,7 @@ import 'package:flutter_pecha/features/push_notifications/presentation/providers
 import 'package:flutter_pecha/features/home/data/datasource/home_local_datasource.dart';
 import 'package:flutter_pecha/features/home/presentation/providers/use_case_providers.dart';
 import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
+import 'package:flutter_pecha/features/auth/presentation/providers/user_session_bootstrap.dart';
 import 'package:flutter_pecha/features/home/presentation/screens/main_navigation_screen.dart';
 import 'package:flutter_pecha/features/mala/data/datasources/mala_local_datasource.dart';
 import 'package:flutter_pecha/features/mala/presentation/providers/mala_providers.dart';
@@ -118,15 +117,6 @@ void main() async {
     _logger.info('Notification service initialized');
   } catch (e) {
     _logger.warning('Error initializing notification service: $e');
-  }
-
-  // Prime notification caches so schedulers can read startedAt / totalDays
-  // synchronously without awaiting SharedPreferences at schedule time.
-  try {
-    await SpecialPlanStartedAtStore.init();
-    await PlanMetadataStore.init();
-  } catch (e) {
-    _logger.warning('Error initializing plan metadata stores: $e');
   }
 
   // Initialize routine local storage (persistent user data, not cache)
@@ -306,10 +296,10 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
     // Initialize services in background via providers
     ref.watch(audioHandlerProvider);
     ref.watch(notificationServiceProvider);
-    // Bootstrap listener — kept alive for the app lifetime.
-    // Mirrors server-truth plan metadata into PlanMetadataStore +
-    // SpecialPlanStartedAtStore, then delegates to NotificationSyncEngine
-    // for full reconciliation on every userPlansFutureProvider resolution.
+    // Bootstrap listener — kept alive for the app lifetime. Hydrates the
+    // server routine into local Hive on login, then delegates to
+    // NotificationSyncEngine to reconcile local recitation/mala/timer
+    // reminders. Plan/series reminders are delivered via FCM push.
     ref.watch(notificationSyncBootstrapProvider);
     // Bootstrap FCM: capture/refresh token, register handlers, and register the
     // device token with the backend once the user signs in.
@@ -317,6 +307,9 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
     // Mala background sync — kept alive for the app lifetime so offline counts
     // flush on lifecycle/connectivity triggers even off the mala screen.
     ref.watch(malaSyncManagerProvider);
+    // Clears user-scoped HTTP cache and invalidates profile/plan providers
+    // when auth transitions between accounts.
+    ref.watch(userSessionBootstrapProvider);
     // Home background sync — flushes pending local-first writes when
     // connectivity returns.
     ref.watch(homeSyncBootstrapProvider);

@@ -436,7 +436,7 @@ class FeaturedPlanCard extends ConsumerWidget {
 
   void _navigateToSeriesInfo(BuildContext context) {
     if (series == null) return;
-    context.push('/home/series/${series!.id}/info', extra: {'series': series!});
+    context.push('/home/series/${series!.id}/info');
   }
 }
 
@@ -639,6 +639,7 @@ void _navigateToPlan(
         'plan': userPlan,
         'selectedDay': selectedDay,
         'startDate': startDate,
+        if (seriesId != null) 'seriesId': seriesId,
       },
     );
     return;

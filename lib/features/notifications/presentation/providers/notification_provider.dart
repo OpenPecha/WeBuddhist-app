@@ -112,9 +112,12 @@ class NotificationNotifier extends StateNotifier<NotificationState> {
   ///
   /// ON  → requests OS permission if missing, then syncs notifications
   ///        respecting each sub-toggle's current saved state.
-  /// OFF → cancels every scheduled notification (routine + recitation +
-  ///        special-plan series + duration series). Sub-toggle states are
-  ///        preserved in SharedPreferences so re-enabling restores them.
+  /// OFF → cancels every scheduled local notification (recitation + mala +
+  ///        timer daily-repeats). Sub-toggle states are preserved in
+  ///        SharedPreferences so re-enabling restores them. As the global
+  ///        kill-switch it also disables plan/series *push*: the FCM device is
+  ///        re-registered with the plan/series gate (`master && routine`) OFF
+  ///        (see `pushNotificationBootstrapProvider`).
   Future<NotificationToggleResult> toggleMaster(bool enable) async {
     _logger.info('[TOGGLE] master → $enable '
         '(routine=${state.appRoutineEnabled} recitation=${state.appRecitationEnabled} '
@@ -163,11 +166,13 @@ class NotificationNotifier extends StateNotifier<NotificationState> {
 
   // ── Sub-toggles ─────────────────────────────────────────────────────────────
 
-  /// Toggles routine (plan) block notifications independently.
+  /// Toggles routine (plan/series) notifications independently.
   ///
-  /// ON  → engine reschedules plan blocks (incl. special-plan and duration series).
-  /// OFF → engine cancels plan block notifications and series. Recitation
-  ///        blocks are not affected.
+  /// Plan/series reminders are delivered via server push (FCM) now, so this no
+  /// longer schedules anything locally — the sync pass reconciles only
+  /// recitation/mala/timer. The saved flag is sent with the FCM device
+  /// registration (see `pushNotificationBootstrapProvider`) so the backend
+  /// suppresses plan/series push when this is OFF.
   Future<NotificationToggleResult> toggleRoutine(bool enable) async {
     _logger.info('[TOGGLE] routine → $enable');
     final previous = state;

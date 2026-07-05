@@ -16,18 +16,18 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// `GET /accumulators/{presetId}/groups?joined_only=true` returns groups.
 ///
 /// Tapping opens [GroupAccumulationsSheet], which shows lifetime
-/// [AccumulatorGroup.userTotalCount] per group. The mala counter above uses
-/// session counts from [groupAccumulationCountsProvider] when a group is selected.
+/// [AccumulatorGroup.userTotalCount] per group and personal `total_counted`.
+/// The mala counter above uses session counts when a group is selected.
 class GroupAccumulationsBar extends ConsumerWidget {
   const GroupAccumulationsBar({
     super.key,
     required this.presetId,
-    required this.userTotalCount,
+    required this.personalLifetimeCount,
   });
 
   final String presetId;
-  /// Personal active session total (`MalaCounterState.total`), shown on the user row.
-  final int userTotalCount;
+  /// Personal lifetime total (`MalaCounterNotifier.displayLifetimeCount`).
+  final int personalLifetimeCount;
 
   static const barHeight = 40.0;
   static const _avatarSize = 28.0;
@@ -45,7 +45,7 @@ class GroupAccumulationsBar extends ConsumerWidget {
           return _GroupAccumulationsBarContent(
             presetId: presetId,
             groups: groups,
-            userTotalCount: userTotalCount,
+            personalLifetimeCount: personalLifetimeCount,
             avatarSize: _avatarSize,
             avatarOverlap: _avatarOverlap,
           );
@@ -61,14 +61,14 @@ class _GroupAccumulationsBarContent extends ConsumerWidget {
   const _GroupAccumulationsBarContent({
     required this.presetId,
     required this.groups,
-    required this.userTotalCount,
+    required this.personalLifetimeCount,
     required this.avatarSize,
     required this.avatarOverlap,
   });
 
   final String presetId;
   final List<AccumulatorGroup> groups;
-  final int userTotalCount;
+  final int personalLifetimeCount;
   final double avatarSize;
   final double avatarOverlap;
 
@@ -95,7 +95,7 @@ class _GroupAccumulationsBarContent extends ConsumerWidget {
                 context,
                 presetId: presetId,
                 groups: groups,
-                personalTotalCount: userTotalCount,
+                personalLifetimeCount: personalLifetimeCount,
               ),
           child: Container(
             height: GroupAccumulationsBar.barHeight,

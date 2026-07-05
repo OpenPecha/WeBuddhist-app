@@ -72,6 +72,10 @@ class MalaSyncManager with WidgetsBindingObserver {
   /// totals from `GET /accumulators/{id}/groups`.
   void Function(String groupAccumulatorId)? onGroupCountSynced;
 
+  /// Called after a personal session PUT succeeds so UI can refresh lifetime
+  /// `total_counted` for [GroupAccumulationsSheet].
+  void Function(String presetId)? onPersonalCountSynced;
+
   /// Attach lifecycle + connectivity observers and flush any offline tail.
   void start() {
     if (_started) return;
@@ -305,7 +309,8 @@ class MalaSyncManager with WidgetsBindingObserver {
   }
 
   Future<void> _pushTotal(String userId, String presetId, int sending) async {
-    final s = _local.read(userId, presetId);
+    final beforePush = _local.read(userId, presetId);
+    final s = beforePush;
 
     // First time only: mint the accumulator once via POST {parent_id}.
     // The new accumulator starts at 0; the absolute total is pushed by the
@@ -341,12 +346,18 @@ class MalaSyncManager with WidgetsBindingObserver {
         // Re-read: taps may have landed during the round-trip.
         final after = _local.read(userId, presetId);
         final confirmedTotal = max(count.total, sending);
+        final syncedDelta = confirmedTotal - beforePush.syncedTotal;
+        final nextTotalCounted =
+            syncedDelta > 0
+                ? beforePush.totalCounted + syncedDelta
+                : beforePush.totalCounted;
         await _local.write(
           userId,
           presetId,
           after.copyWith(
             total: max(after.total, count.total),
             syncedTotal: confirmedTotal,
+            totalCounted: nextTotalCounted,
             accumulatorId: count.accumulatorId ?? accumulatorId,
           ),
         );
@@ -357,6 +368,7 @@ class MalaSyncManager with WidgetsBindingObserver {
             'total': max(after.total, count.total),
           },
         );
+        onPersonalCountSynced?.call(presetId);
       },
     );
   }

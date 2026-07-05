@@ -266,7 +266,7 @@
   "my_groups": "My groups",
   "see_all": "See all",
   "connect_groups_load_error": "Unable to load groups.\nCheck your connection and try again",
-  "connect_groups_empty_title": "No groups yet",
+  "connect_groups_empty_title": "No more groups",
   "connect_groups_empty_subtitle": "Congratulations, you've joined all our groups! Check back soon. New ones are on the way",
   "search_groups": "Search groups",
   "search_for_groups": "Search for groups",
@@ -623,7 +623,7 @@
   "read_full_text": "Read full text",
   "reader_source_label": "Source",
   "reader_license_label": "License",
-  "series_stats": "{planCount} PLANS · {totalDays} DAYS",
+  "series_stats": "{planCount} CHAPTERS · {totalDays} DAYS",
   "@series_stats": {
     "placeholders": {
       "planCount": {
@@ -658,6 +658,10 @@
   "edit_profile_take_photo": "Take a photo",
   "edit_profile_offline": "You're offline. Connect to the internet and try again",
   "edit_profile_save_failed": "Couldn't save your changes. Please try again",
+  "edit_profile_traditions": "Traditions",
+  "edit_profile_choose_traditions": "Choose your traditions",
+  "edit_profile_tradition_remove_failed": "Couldn't remove tradition. Please try again",
+  "edit_profile_tradition_save_failed": "Couldn't save traditions. Please try again",
   "username_label": "Username",
   "username_taken": "Someone already used this name",
   "username_available_label": "Available: ",

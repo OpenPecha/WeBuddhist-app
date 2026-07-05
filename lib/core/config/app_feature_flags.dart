@@ -5,5 +5,4 @@ class AppFeatureFlags {
   /// When true, the app shows only the Coming Soon page.
   /// Set to false to restore normal app behavior.
   static const bool kComingSoonMode = false;
-  static const bool kSchedulePlanNotifications = true;
 }

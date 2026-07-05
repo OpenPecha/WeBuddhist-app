@@ -693,7 +693,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Unable to load groups.\nCheck your connection and try again';
 
   @override
-  String get connect_groups_empty_title => 'No groups yet';
+  String get connect_groups_empty_title => 'No more groups';
 
   @override
   String get connect_groups_empty_subtitle =>
@@ -1316,7 +1316,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String series_stats(int planCount, int totalDays) {
-    return '$planCount PLANS · $totalDays DAYS';
+    return '$planCount CHAPTERS · $totalDays DAYS';
   }
 
   @override
@@ -1395,6 +1395,20 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get edit_profile_save_failed =>
       'Couldn\'t save your changes. Please try again';
+
+  @override
+  String get edit_profile_traditions => 'Traditions';
+
+  @override
+  String get edit_profile_choose_traditions => 'Choose your traditions';
+
+  @override
+  String get edit_profile_tradition_remove_failed =>
+      'Couldn\'t remove tradition. Please try again';
+
+  @override
+  String get edit_profile_tradition_save_failed =>
+      'Couldn\'t save traditions. Please try again';
 
   @override
   String get username_label => 'Username';

@@ -612,7 +612,7 @@
   "read_full_text": "पूरा पाठ पढ़ें",
   "reader_source_label": "स्रोत",
   "reader_license_label": "लाइसेंस",
-  "series_stats": "{planCount} योजनाएँ · {totalDays} दिन",
+  "series_stats": "{planCount} अध्याय · {totalDays} दिन",
   "@series_stats": {
     "placeholders": {
       "planCount": {
@@ -647,6 +647,10 @@
   "edit_profile_take_photo": "फ़ोटो लें",
   "edit_profile_offline": "आप ऑफ़लाइन हैं। इंटरनेट से कनेक्ट करें और फिर से प्रयास करें",
   "edit_profile_save_failed": "आपके बदलाव सेव नहीं हो सके। कृपया फिर से प्रयास करें",
+  "edit_profile_traditions": "परंपराएँ",
+  "edit_profile_choose_traditions": "अपनी परंपराएँ चुनें",
+  "edit_profile_tradition_remove_failed": "परंपरा हटाई नहीं जा सकी। कृपया फिर से प्रयास करें",
+  "edit_profile_tradition_save_failed": "परंपराएँ सेव नहीं हो सकीं। कृपया फिर से प्रयास करें",
   "username_label": "यूज़रनेम",
   "username_taken": "यह नाम पहले से किसी ने ले लिया है",
   "username_available_label": "उपलब्ध: ",

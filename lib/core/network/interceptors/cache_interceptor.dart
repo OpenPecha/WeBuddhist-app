@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/core/utils/iana_timezone.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Simple in-memory cache for GET requests.
 ///
@@ -16,8 +17,10 @@ class CacheInterceptor extends Interceptor {
   /// Default TTL for cache entries (5 minutes)
   static const defaultTTL = Duration(minutes: 5);
 
-  /// Paths that must never be served from cache (user-specific, changes often).
-  static const _noCachePaths = {'/users/me/stats'};
+  /// User-specific responses must not be cached — keys are not scoped by token.
+  static bool isUserSpecificPath(String path) {
+    return path == '/users/info' || path.startsWith('/users/me');
+  }
 
   @override
   void onRequest(
@@ -27,7 +30,7 @@ class CacheInterceptor extends Interceptor {
     // Only cache GET requests (unless explicitly opted out)
     if (options.method.toUpperCase() == 'GET' &&
         options.extra['no_cache'] != true &&
-        !_noCachePaths.contains(options.path)) {
+        _shouldCache(options.path)) {
       final cacheKey = _generateCacheKey(options);
       final cached = _cache[cacheKey];
 
@@ -73,7 +76,7 @@ class CacheInterceptor extends Interceptor {
     // Cache successful GET responses
     if (method == 'GET' &&
         statusCode == 200 &&
-        !_noCachePaths.contains(request.path) &&
+        _shouldCache(request.path) &&
         !response.extra.containsKey('cached')) {
       final cacheKey = _generateCacheKey(request);
       final ttl = request.extra['cache_ttl'] as Duration? ?? defaultTTL;
@@ -215,12 +218,27 @@ class CacheInterceptor extends Interceptor {
     _logger.info('Cache cleared');
   }
 
+  /// Drop cached GET responses for authenticated user endpoints.
+  void clearUserScoped() {
+    _cache.removeWhere((key, _) => isUserSpecificPath(_pathFromCacheKey(key)));
+    _logger.info('User-scoped HTTP cache cleared');
+  }
+
   /// Remove a specific cache entry
   void invalidate(String path) {
     _cache.removeWhere((key, _) => key.startsWith(path));
     _logger.info('Cache invalidated for: $path');
   }
+
+  bool _shouldCache(String path) => !isUserSpecificPath(path);
+
+  String _pathFromCacheKey(String cacheKey) => cacheKey.split('?').first;
 }
+
+/// Shared [CacheInterceptor] instance wired into the main Dio client.
+final cacheInterceptorProvider = Provider<CacheInterceptor>((ref) {
+  return CacheInterceptor(AppLogger('CacheInterceptor'));
+});
 
 class _CacheEntry {
   _CacheEntry({

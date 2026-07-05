@@ -612,7 +612,7 @@
   "read_full_text": "Бүтэн бичвэрийг унших",
   "reader_source_label": "Эх сурвалж",
   "reader_license_label": "Лиценз",
-  "series_stats": "{planCount} ТӨЛӨВЛӨГӨӨ · {totalDays} ӨДӨР",
+  "series_stats": "{planCount} БҮЛЭГ · {totalDays} ӨДӨР",
   "@series_stats": {
     "placeholders": {
       "planCount": {
@@ -647,6 +647,10 @@
   "edit_profile_take_photo": "Зураг авах",
   "edit_profile_offline": "Та офлайн байна. Интернэтэд холбогдоод дахин оролдоно уу",
   "edit_profile_save_failed": "Таны өөрчлөлтийг хадгалж чадсангүй. Дахин оролдоно уу",
+  "edit_profile_traditions": "Уламжлал",
+  "edit_profile_choose_traditions": "Уламжлалаа сонгоно уу",
+  "edit_profile_tradition_remove_failed": "Уламжлалыг устгаж чадсангүй. Дахин оролдоно уу",
+  "edit_profile_tradition_save_failed": "Уламжлалыг хадгалж чадсангүй. Дахин оролдоно уу",
   "username_label": "Хэрэглэгчийн нэр",
   "username_taken": "Энэ нэрийг хэн нэгэн аль хэдийн ашигласан байна",
   "username_available_label": "Боломжтой: ",
