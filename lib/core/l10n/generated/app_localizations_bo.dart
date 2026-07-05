@@ -1336,7 +1336,7 @@ class AppLocalizationsBo extends AppLocalizations {
 
   @override
   String series_stats(int planCount, int totalDays) {
-    return 'ཐུན་འཆར་ $planCount · ཉིན་ $totalDays';
+    return '$planCount ལེའུ · ཉིན་ $totalDays';
   }
 
   @override

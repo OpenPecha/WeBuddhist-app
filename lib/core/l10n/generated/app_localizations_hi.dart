@@ -1326,7 +1326,7 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String series_stats(int planCount, int totalDays) {
-    return '$planCount योजनाएँ · $totalDays दिन';
+    return '$planCount अध्याय · $totalDays दिन';
   }
 
   @override

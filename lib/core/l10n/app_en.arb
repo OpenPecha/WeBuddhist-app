@@ -623,7 +623,7 @@
   "read_full_text": "Read full text",
   "reader_source_label": "Source",
   "reader_license_label": "License",
-  "series_stats": "{planCount} PLANS · {totalDays} DAYS",
+  "series_stats": "{planCount} CHAPTERS · {totalDays} DAYS",
   "@series_stats": {
     "placeholders": {
       "planCount": {

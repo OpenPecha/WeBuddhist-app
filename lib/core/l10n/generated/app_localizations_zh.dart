@@ -1251,7 +1251,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String series_stats(int planCount, int totalDays) {
-    return '$planCount 個修持計畫 · $totalDays 天';
+    return '$planCount 個章節 · $totalDays 天';
   }
 
   @override

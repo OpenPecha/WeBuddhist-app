@@ -612,7 +612,7 @@
   "read_full_text": "पूरा पाठ पढ़ें",
   "reader_source_label": "स्रोत",
   "reader_license_label": "लाइसेंस",
-  "series_stats": "{planCount} योजनाएँ · {totalDays} दिन",
+  "series_stats": "{planCount} अध्याय · {totalDays} दिन",
   "@series_stats": {
     "placeholders": {
       "planCount": {

@@ -2425,7 +2425,7 @@ abstract class AppLocalizations {
   /// No description provided for @series_stats.
   ///
   /// In en, this message translates to:
-  /// **'{planCount} PLANS · {totalDays} DAYS'**
+  /// **'{planCount} CHAPTERS · {totalDays} DAYS'**
   String series_stats(int planCount, int totalDays);
 
   /// No description provided for @force_update_title.

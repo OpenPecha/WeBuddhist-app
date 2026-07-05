@@ -556,7 +556,7 @@
   "read_full_text": "ཆ་ཚང་ཀློག",
   "reader_source_label": "ཡོང་ཁུངས།",
   "reader_license_label": "ཆོག་མཆན།",
-  "series_stats": "ཐུན་འཆར་ {planCount} · ཉིན་ {totalDays}",
+  "series_stats": "{planCount} ལེའུ · ཉིན་ {totalDays}",
   "force_update_title": "གསར་བསྒྱུར་དགོས་མཁོ།",
   "force_update_message": "མཉེན་ཆས་ཀྱི་པར་གཞི་གསར་པ་ཞིག་ཡོད་པས། མུ་མཐུད་སྤྱོད་རོགས་གནང་བར་གསར་བསྒྱུར་མཛད་རོགས།",
   "force_update_button": "གསར་བསྒྱུར།",
