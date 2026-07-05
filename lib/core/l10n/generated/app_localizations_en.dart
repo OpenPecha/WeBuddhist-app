@@ -1464,7 +1464,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get about_description =>
-      'We help Buddhists do less harm, more good, and know their own mind better by learning, practicing and connecting daily so that all beings become free from suffering and find lasting happiness.';
+      'We help Buddhists do less harm, more good, and know their own mind better by learning, practicing and connecting daily.';
 
   @override
   String get about_social_website => 'Website';

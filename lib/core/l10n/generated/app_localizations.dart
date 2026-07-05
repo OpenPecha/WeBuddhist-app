@@ -2695,7 +2695,7 @@ abstract class AppLocalizations {
   /// No description provided for @about_description.
   ///
   /// In en, this message translates to:
-  /// **'We help Buddhists do less harm, more good, and know their own mind better by learning, practicing and connecting daily so that all beings become free from suffering and find lasting happiness.'**
+  /// **'We help Buddhists do less harm, more good, and know their own mind better by learning, practicing and connecting daily.'**
   String get about_description;
 
   /// No description provided for @about_social_website.
