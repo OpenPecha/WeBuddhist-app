@@ -17,7 +17,8 @@ class DeepLinkRouter {
     void Function(int tabIndex)? tabSetter,
     void Function(String planId, int? dayNumber, String? planLanguage)?
         planNavigator,
-  }) {    try {
+  }) {
+    try {
       final destination = _resolveRoute(uri);
       if (destination == null) {
         _logger.warning('Unhandled deep link from $source: $uri');
