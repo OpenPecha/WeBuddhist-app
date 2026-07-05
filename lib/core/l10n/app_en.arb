@@ -995,5 +995,24 @@
     }
   },
   "drag_to_resize": "Drag to resize",
-  "day_completion_share_message": "I just completed a day of my practice on WeBuddhist. Join me and build a daily practice habit together."
+  "day_completion_share_message": "I just completed a day of my practice on WeBuddhist. Join me and build a daily practice habit together.",
+  "group_accumulator_share_message": "I am taking part in \"{accumulation}\", a group accumulation by {group} on WeBuddhist. Come join me!",
+  "@group_accumulator_share_message": {
+    "placeholders": {
+      "accumulation": {
+        "type": "String"
+      },
+      "group": {
+        "type": "String"
+      }
+    }
+  },
+  "group_accumulator_share_message_no_group": "I am taking part in the group accumulation \"{accumulation}\" on WeBuddhist. Come join me!",
+  "@group_accumulator_share_message_no_group": {
+    "placeholders": {
+      "accumulation": {
+        "type": "String"
+      }
+    }
+  }
 }

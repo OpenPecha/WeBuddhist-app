@@ -892,5 +892,7 @@
   "loading_previous_pages": "अघिल्लो लोड हुँदैछ... ({count} पृष्ठ)",
   "loading_more_pages": "थप लोड हुँदैछ... ({count} पृष्ठ)",
   "drag_to_resize": "आकार परिवर्तन गर्न तान्नुहोस्",
-  "day_completion_share_message": "मैले WeBuddhist मा आफ्नो अभ्यासको एक दिन पूरा गरें। मसँगै सामेल हुनुस् र एकसाथ दैनिक अभ्यास बानी निर्माण गरौं।"
+  "day_completion_share_message": "मैले WeBuddhist मा आफ्नो अभ्यासको एक दिन पूरा गरें। मसँगै सामेल हुनुस् र एकसाथ दैनिक अभ्यास बानी निर्माण गरौं।",
+  "group_accumulator_share_message": "म WeBuddhist मा {group} को सामूहिक संचय \"{accumulation}\" मा भाग लिइरहेको छु। तपाईं पनि मसँग सामेल हुनुहोस्!",
+  "group_accumulator_share_message_no_group": "म WeBuddhist मा सामूहिक संचय \"{accumulation}\" मा भाग लिइरहेको छु। तपाईं पनि मसँग सामेल हुनुहोस्!"
 }

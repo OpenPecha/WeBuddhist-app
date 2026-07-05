@@ -86,6 +86,24 @@ class DeepLinkUrlBuilder {
     );
   }
 
+  /// Returns a link that opens a group accumulation detail page.
+  ///
+  /// Format: https://webuddhist.com/open/group-accumulator/{accumulatorId}?group={groupId}
+  ///
+  /// [groupId] lets the recipient's app push the group page beneath the
+  /// accumulation so the back button unwinds accumulation -> group -> Connect.
+  static Uri groupAccumulatorLink({
+    required String accumulatorId,
+    required String groupId,
+  }) {
+    return Uri(
+      scheme: 'https',
+      host: _host,
+      pathSegments: ['open', 'group-accumulator', accumulatorId],
+      queryParameters: {'group': groupId},
+    );
+  }
+
   static Uri malaLink({required String presetId}) {
     return Uri(
       scheme: 'https',

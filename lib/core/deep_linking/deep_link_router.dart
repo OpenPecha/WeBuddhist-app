@@ -43,10 +43,10 @@ class DeepLinkRouter {
       if (destination.opensOnTop && baseLocation != null) {
         router.go(baseLocation);
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          router.push(destination.location, extra: destination.extra);
+          _pushWithParent(router, destination);
         });
       } else if (destination.opensOnTop) {
-        router.push(destination.location, extra: destination.extra);
+        _pushWithParent(router, destination);
       } else {
         router.go(destination.location, extra: destination.extra);
       }
@@ -67,6 +67,19 @@ class DeepLinkRouter {
       );
       return false;
     }
+  }
+
+  /// Pushes [destination.location], first pushing [destination.parentLocation]
+  /// (when set) so the back button unwinds through the parent screen.
+  static void _pushWithParent(
+    GoRouter router,
+    _DeepLinkDestination destination,
+  ) {
+    final parentLocation = destination.parentLocation;
+    if (parentLocation != null) {
+      router.push(parentLocation);
+    }
+    router.push(destination.location, extra: destination.extra);
   }
 
   static bool isFirstPartyAppLink(Uri uri) {
@@ -191,6 +204,21 @@ class DeepLinkRouter {
 
     if (segments.length >= 3 &&
         segments[0] == 'open' &&
+        segments[1] == 'group-accumulator') {
+      final accumulatorId = segments[2];
+      final groupId = uri.queryParameters['group'];
+      return _DeepLinkDestination(
+        '/home/group-accumulator/${Uri.encodeComponent(accumulatorId)}',
+        parentLocation: groupId != null && groupId.isNotEmpty
+            ? '/home/group/${Uri.encodeComponent(groupId)}'
+            : null,
+        opensOnTop: true,
+        tabIndex: _connectTabIndex,
+      );
+    }
+
+    if (segments.length >= 3 &&
+        segments[0] == 'open' &&
         segments[1] == 'mala') {
       final presetId = segments[2];
       return _DeepLinkDestination(
@@ -237,10 +265,18 @@ class DeepLinkRouter {
 /// Bottom nav tab index for the Me screen (matches MainTab.me.index == 3).
 const int _meTabIndex = 3;
 
+/// Bottom nav tab index for the Connect screen (matches MainTab.connect.index == 2).
+const int _connectTabIndex = 2;
+
 class _DeepLinkDestination {
   final String location;
   final Object? extra;
   final bool opensOnTop;
+
+  /// When non-null, this location is pushed beneath [location] so the back
+  /// button returns to the parent screen (e.g. group page beneath a group
+  /// accumulation) instead of straight to the base location.
+  final String? parentLocation;
 
   /// When non-null, the deep-link handler should switch the bottom nav bar to
   /// this tab index after navigating. Used for tab-based screens that share
@@ -264,6 +300,7 @@ class _DeepLinkDestination {
     this.location, {
     this.extra,
     this.opensOnTop = false,
+    this.parentLocation,
     this.tabIndex,
     this.planId,
     this.dayNumber,
