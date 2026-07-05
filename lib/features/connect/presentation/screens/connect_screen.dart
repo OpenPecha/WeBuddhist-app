@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
-import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/features/connect/domain/entities/discover_groups_page.dart';
 import 'package:flutter_pecha/features/connect/presentation/providers/connect_providers.dart';
 import 'package:flutter_pecha/features/connect/presentation/widgets/connect_header.dart';
@@ -75,11 +74,9 @@ class _ConnectScreenState extends ConsumerState<ConnectScreen> {
         child: CustomScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
           slivers: [
-            const SliverToBoxAdapter(child: ConnectHeader()),
             ..._buildDiscoverGroupsSlivers(
               discoverState,
               displayedDiscoverGroups,
-              isDark,
             ),
             ..._buildMyGroupsSlivers(
               context,
@@ -97,51 +94,27 @@ class _ConnectScreenState extends ConsumerState<ConnectScreen> {
   List<Widget> _buildDiscoverGroupsSlivers(
     DiscoverGroupsState discoverState,
     List<GroupProfile> groups,
-    bool isDark,
   ) {
-    if (discoverState.isLoading && groups.isEmpty) {
-      return const [SliverToBoxAdapter(child: MyGroupsSectionSkeleton())];
-    }
-
-    if (discoverState.error != null && groups.isEmpty) {
+    if (groups.isNotEmpty) {
       return [
+        const SliverToBoxAdapter(child: ConnectHeader()),
         SliverToBoxAdapter(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 20),
-            child: Text(
-              discoverState.error!,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color:
-                    isDark
-                        ? AppColors.textSecondaryDark
-                        : AppColors.textSecondary,
-              ),
-            ),
+          child: DiscoverGroupsSection(
+            groups: groups,
+            total: groups.length,
           ),
         ),
       ];
     }
 
-    if (groups.isEmpty && !discoverState.isLoading) {
-      return [
-        SliverToBoxAdapter(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 32),
-            child: _EmptyState(isDark: isDark),
-          ),
-        ),
+    if (discoverState.isLoading && discoverState.groups.isEmpty) {
+      return const [
+        SliverToBoxAdapter(child: ConnectHeader()),
+        SliverToBoxAdapter(child: MyGroupsSectionSkeleton()),
       ];
     }
 
-    return [
-      SliverToBoxAdapter(
-        child: DiscoverGroupsSection(
-          groups: groups,
-          total: groups.length,
-        ),
-      ),
-    ];
+    return const [];
   }
 
   List<Widget> _buildMyGroupsSlivers(
@@ -205,43 +178,6 @@ class _ConnectScreenState extends ConsumerState<ConnectScreen> {
             child: Image.asset(AppAssets.connect, fit: BoxFit.cover),
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _EmptyState extends StatelessWidget {
-  const _EmptyState({required this.isDark});
-
-  final bool isDark;
-
-  @override
-  Widget build(BuildContext context) {
-    final subtitleColor =
-        isDark ? AppColors.textSecondaryDark : AppColors.textSecondary;
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 32),
-      child: Column(
-        children: [
-          Icon(AppAssets.connectUnselected, size: 48, color: subtitleColor),
-          const SizedBox(height: 16),
-          Text(
-            context.l10n.connect_groups_empty_title,
-            textAlign: TextAlign.center,
-            style: Theme.of(
-              context,
-            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            context.l10n.connect_groups_empty_subtitle,
-            textAlign: TextAlign.center,
-            style: Theme.of(
-              context,
-            ).textTheme.bodyMedium?.copyWith(color: subtitleColor),
-          ),
-        ],
       ),
     );
   }
