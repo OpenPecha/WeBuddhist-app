@@ -612,7 +612,7 @@
   "read_full_text": "Бүтэн бичвэрийг унших",
   "reader_source_label": "Эх сурвалж",
   "reader_license_label": "Лиценз",
-  "series_stats": "{planCount} ТӨЛӨВЛӨГӨӨ · {totalDays} ӨДӨР",
+  "series_stats": "{planCount} БҮЛЭГ · {totalDays} ӨДӨР",
   "@series_stats": {
     "placeholders": {
       "planCount": {

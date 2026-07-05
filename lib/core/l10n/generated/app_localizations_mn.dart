@@ -1326,7 +1326,7 @@ class AppLocalizationsMn extends AppLocalizations {
 
   @override
   String series_stats(int planCount, int totalDays) {
-    return '$planCount ТӨЛӨВЛӨГӨӨ · $totalDays ӨДӨР';
+    return '$planCount БҮЛЭГ · $totalDays ӨДӨР';
   }
 
   @override
