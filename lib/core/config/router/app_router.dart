@@ -219,14 +219,12 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                 builder: (context, state) {
                   final id = state.pathParameters['id'] ?? '';
                   final extra = state.extra as Map<String, dynamic>?;
-                  final series = extra?['series'] as Series?;
                   final groupId = extra?['groupId'] as String?;
                   final groupType = extra?['groupType'] as GroupType?;
                   final isGroupEnrolled =
                       extra?['isGroupEnrolled'] as bool? ?? false;
                   return SeriesDetailScreen(
                     seriesId: id,
-                    series: series,
                     groupId: groupId,
                     groupType: groupType,
                     isGroupEnrolled: isGroupEnrolled,
@@ -240,9 +238,8 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                     // stays on one navigator.
                     parentNavigatorKey: rootNavigatorKey,
                     builder: (context, state) {
-                      final extra = state.extra as Map<String, dynamic>?;
-                      final series = extra?['series'] as Series;
-                      return SeriesInfoScreen(series: series);
+                      final id = state.pathParameters['id'] ?? '';
+                      return SeriesInfoScreen(seriesId: id);
                     },
                   ),
                 ],

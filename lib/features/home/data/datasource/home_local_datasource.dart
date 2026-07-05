@@ -89,9 +89,6 @@ class HomeLocalDatasource {
       featuredSeriesKey(language, limit),
       series.map((s) => s.toJson()).toList(),
     );
-    for (final item in series) {
-      await saveSeriesById(language, item);
-    }
   }
 
   List<SeriesModel>? readSeriesList(String language) {
@@ -103,9 +100,6 @@ class HomeLocalDatasource {
       seriesListKey(language),
       series.map((s) => s.toJson()).toList(),
     );
-    for (final item in series) {
-      await saveSeriesById(language, item);
-    }
   }
 
   SeriesModel? readSeriesById(String language, String id) {

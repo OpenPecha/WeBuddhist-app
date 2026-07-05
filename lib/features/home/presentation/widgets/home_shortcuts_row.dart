@@ -30,7 +30,6 @@ class HomeShortcutsRow extends ConsumerWidget {
     context.pushNamed(
       'home-series-detail',
       pathParameters: {'id': series.id},
-      extra: {'series': series},
     );
   }
 
