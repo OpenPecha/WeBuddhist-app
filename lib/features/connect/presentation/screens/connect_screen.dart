@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
+import 'package:flutter_pecha/core/widgets/error_state_widget.dart';
 import 'package:flutter_pecha/features/connect/domain/entities/discover_groups_page.dart';
 import 'package:flutter_pecha/features/connect/presentation/providers/connect_providers.dart';
 import 'package:flutter_pecha/features/connect/presentation/widgets/connect_header.dart';
@@ -75,6 +76,7 @@ class _ConnectScreenState extends ConsumerState<ConnectScreen> {
           physics: const AlwaysScrollableScrollPhysics(),
           slivers: [
             ..._buildDiscoverGroupsSlivers(
+              context,
               discoverState,
               displayedDiscoverGroups,
             ),
@@ -92,6 +94,7 @@ class _ConnectScreenState extends ConsumerState<ConnectScreen> {
   }
 
   List<Widget> _buildDiscoverGroupsSlivers(
+    BuildContext context,
     DiscoverGroupsState discoverState,
     List<GroupProfile> groups,
   ) {
@@ -111,6 +114,22 @@ class _ConnectScreenState extends ConsumerState<ConnectScreen> {
       return const [
         SliverToBoxAdapter(child: ConnectHeader()),
         SliverToBoxAdapter(child: MyGroupsSectionSkeleton()),
+      ];
+    }
+
+    if (discoverState.error != null && groups.isEmpty) {
+      return [
+        const SliverToBoxAdapter(child: ConnectHeader()),
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 32),
+            child: ErrorStateWidget(
+              error: discoverState.error!,
+              onRetry: () => ref.read(discoverGroupsProvider.notifier).retry(),
+              customMessage: context.l10n.connect_groups_load_error,
+            ),
+          ),
+        ),
       ];
     }
 
